@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     hide CustomMessageBuilder;
@@ -56,7 +57,7 @@ class ChatMessageList extends StatelessWidget {
     return ListView.builder(
       controller: scrollController,
       reverse: true,
-      cacheExtent: 500.0,
+      scrollCacheExtent: const ScrollCacheExtent.pixels(500.0),
       // 添加 itemExtent 帮助 ListView 预计算滚动位置
       itemExtent: _estimatedItemExtent,
       physics: const BouncingScrollPhysics(),

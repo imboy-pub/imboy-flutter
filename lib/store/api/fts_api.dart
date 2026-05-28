@@ -23,6 +23,7 @@ class MessageSearchResult {
   final String? msgType;
   final Map<String, dynamic>? payload;
   final int? status;
+  final String? highlight; // 后端 ts_headline 高亮片段
 
   MessageSearchResult({
     required this.id,
@@ -34,20 +35,33 @@ class MessageSearchResult {
     this.msgType,
     this.payload,
     this.status,
+    this.highlight,
   });
 
   factory MessageSearchResult.fromJson(Map<String, dynamic> json) {
     final statusValue = json['status'];
+    // 后端返回 message_id / from / to / conversation_type(小写)
+    // 保留旧字段名作为兼容回退
+    final rawType = parseModelString(
+      json['conversation_type'] ?? json['type'],
+      defaultValue: 'C2C',
+    );
+    final payloadRaw = json['payload'];
+    final payloadMap = parseModelJsonMap(payloadRaw);
+    final content = payloadMap != null
+        ? parseModelString(payloadMap['text'] ?? payloadRaw)
+        : parseModelString(payloadRaw);
     return MessageSearchResult(
-      id: parseModelString(json['id']),
-      content: parseModelString(json['content']),
-      fromId: parseModelString(json['from_id']),
-      toId: parseModelString(json['to_id']),
-      type: parseModelString(json['type'], defaultValue: 'C2C'),
+      id: parseModelString(json['message_id'] ?? json['id']),
+      content: content,
+      fromId: parseModelString(json['from'] ?? json['from_id']),
+      toId: parseModelString(json['to'] ?? json['to_id']),
+      type: rawType.toUpperCase(),
       createdAt: parseModelInt(json['created_at']),
       msgType: parseModelNullableString(json['msg_type']),
-      payload: parseModelJsonMap(json['payload']),
+      payload: payloadMap,
       status: statusValue == null ? null : parseModelInt(statusValue),
+      highlight: parseModelNullableString(json['highlight']),
     );
   }
 
@@ -91,7 +105,8 @@ class MessageSearchResponse {
   MessageSearchResponse({required this.items, required this.total});
 
   factory MessageSearchResponse.fromJson(Map<String, dynamic> json) {
-    final itemsList = json['items'] as List<dynamic>? ?? [];
+    // 后端返回 'list'，兼容旧字段名 'items'
+    final itemsList = (json['list'] ?? json['items']) as List<dynamic>? ?? [];
     return MessageSearchResponse(
       items: itemsList
           .whereType<Map<String, dynamic>>()
@@ -147,11 +162,12 @@ class FtsApi extends HttpClient {
     if (type != 'all') {
       queryParams['type'] = type;
     }
+    // NOTE: type='all' 不传 type 参数，后端默认 C2C；全类型搜索需两次请求合并。
     if (startTime != null) {
-      queryParams['start_time'] = startTime;
+      queryParams['start_date'] = _msToDateString(startTime);
     }
     if (endTime != null) {
-      queryParams['end_time'] = endTime;
+      queryParams['end_date'] = _msToDateString(endTime);
     }
 
     try {
@@ -192,15 +208,29 @@ class FtsApi extends HttpClient {
       return MessageSearchResponse(items: [], total: 0);
     }
 
+    final queryParams = <String, dynamic>{
+      'keyword': keyword.trim(),
+      'page': page,
+      'size': size,
+    };
+
+    // 后端不支持 conversation_uk3；解析出 type 和 conversation_id 做最大化过滤
+    final parts = conversationUk3.split('_');
+    if (parts.isNotEmpty) {
+      final convType = parts[0].toUpperCase();
+      queryParams['type'] = convType;
+      if (convType == 'C2G' && parts.length >= 2) {
+        final groupId = int.tryParse(parts[1]);
+        if (groupId != null && groupId > 0) {
+          queryParams['conversation_id'] = groupId;
+        }
+      }
+    }
+
     try {
       final IMBoyHttpResponse resp = await get(
         API.ftsMessage,
-        queryParameters: {
-          'keyword': keyword.trim(),
-          'conversation_uk3': conversationUk3,
-          'page': page,
-          'size': size,
-        },
+        queryParameters: queryParams,
       );
 
       if (!resp.ok) {
@@ -217,5 +247,13 @@ class FtsApi extends HttpClient {
       debugPrint('[FtsApi] searchConversationMessages error: $e');
       return null;
     }
+  }
+
+  /// 毫秒时间戳 → YYYY-MM-DD（后端 start_date/end_date 格式）
+  static String _msToDateString(int ms) {
+    final dt = DateTime.fromMillisecondsSinceEpoch(ms);
+    final m = dt.month.toString().padLeft(2, '0');
+    final d = dt.day.toString().padLeft(2, '0');
+    return '${dt.year}-$m-$d';
   }
 }

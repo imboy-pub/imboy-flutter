@@ -85,4 +85,33 @@ class E2EEApi extends HttpClient {
     if (!resp.ok) return null;
     return resp.payload as Map<String, dynamic>?;
   }
+
+  /// GET /v1/e2ee/key/status — 查询当前设备密钥的服务端注册状态
+  ///
+  /// 返回 {registered, key_id, expired, expires_at} 或 null
+  Future<Map<String, dynamic>?> keyStatus() async {
+    final IMBoyHttpResponse resp = await get(API.e2eeKeyStatus);
+    if (!resp.ok) return null;
+    final p = resp.payload;
+    return p is Map<String, dynamic> ? p : null;
+  }
+
+  /// GET /v1/e2ee/notifications/pull — 拉取待处理的 E2EE 通知
+  ///
+  /// 通知格式 [{type, payload, created_at}]；失败返回空列表
+  Future<List<Map<String, dynamic>>> pullNotifications() async {
+    final IMBoyHttpResponse resp = await get(API.e2eeNotificationsPull);
+    if (!resp.ok) return [];
+    final p = resp.payload;
+    if (p is List) {
+      return p.whereType<Map<String, dynamic>>().toList();
+    }
+    if (p is Map<String, dynamic>) {
+      final list = p['list'] ?? p['notifications'];
+      if (list is List) {
+        return list.whereType<Map<String, dynamic>>().toList();
+      }
+    }
+    return [];
+  }
 }

@@ -1,0 +1,71 @@
+# Dependabot 自动合并策略
+#
+# patch  → 自动 approve + auto-merge（squash），CI 全绿后触发
+# minor  → 自动 approve + 打 label auto-approved，需人工合并
+# major  → 打 label needs-review，不做其他操作
+#
+# 前置：在仓库 Settings → Actions → General 勾选
+#   "Allow GitHub Actions to create and approve pull requests"
+# 需要 secret：无额外 secret（使用内置 GITHUB_TOKEN）
+
+name: Dependabot auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write       # 允许合并（auto-merge）
+  pull-requests: write  # 允许 approve / label
+
+jobs:
+  auto-merge:
+    name: Triage & auto-merge dependabot PR
+    runs-on: ubuntu-latest
+    # 仅处理 dependabot[bot] 发起的 PR
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Fetch Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── patch：approve + 开启 auto-merge（squash）──────────────────
+      - name: Approve patch PR
+        if: steps.meta.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr review "$PR_URL" --approve --body "Auto-approved: patch version update"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for patch PR
+        if: steps.meta.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── minor：approve + label，等人工合并 ────────────────────────
+      - name: Approve minor PR
+        if: steps.meta.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr review "$PR_URL" --approve --body "Auto-approved: minor version update. 需人工确认后合并。"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Label minor PR
+        if: steps.meta.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr edit "$PR_URL" --add-label "auto-approved"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── major：打 needs-review label，不自动操作 ──────────────────
+      - name: Label major PR for review
+        if: steps.meta.outputs.update-type == 'version-update:semver-major'
+        run: gh pr edit "$PR_URL" --add-label "needs-review"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

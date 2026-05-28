@@ -104,11 +104,8 @@ class QuickReplyService {
     final current = await load(uid);
     if (current.isEmpty) return;
     if (oldIndex < 0 || oldIndex >= current.length) return;
-    // Flutter convention: if newIndex > oldIndex, the consumer must subtract 1
-    // because the item is first removed then inserted.
+    // onReorderItem already provides the final insertion index; clamp only.
     int adjusted = newIndex;
-    if (adjusted > oldIndex) adjusted -= 1;
-    // Clamp to valid bounds after adjustment.
     if (adjusted < 0) adjusted = 0;
     if (adjusted > current.length - 1) adjusted = current.length - 1;
     if (adjusted == oldIndex) return; // no-op

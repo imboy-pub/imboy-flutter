@@ -84,11 +84,15 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
         else
           SliverPadding(
             padding: const EdgeInsets.only(bottom: 40),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
+            sliver: SliverReorderableList(
+              itemCount: listState.items.length,
+              onReorderItem: (oldIndex, newIndex) => ref
+                  .read(contactTagListProvider.notifier)
+                  .reorderItems(oldIndex, newIndex),
+              itemBuilder: (context, index) {
                 final obj = listState.items[index];
                 return _buildTagItem(context, index, obj, brightness);
-              }, childCount: listState.items.length),
+              },
             ),
           ),
       ],
@@ -136,10 +140,24 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
             subtitle: Text(
               obj.subtitle.isEmpty ? t.common.noData : obj.subtitle,
             ),
-            trailing: const Icon(
-              CupertinoIcons.chevron_right,
-              size: 14,
-              color: AppColors.iosGray3,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 14,
+                  color: AppColors.iosGray3,
+                ),
+                const SizedBox(width: 8),
+                ReorderableDragStartListener(
+                  index: index,
+                  child: const Icon(
+                    CupertinoIcons.bars,
+                    size: 18,
+                    color: AppColors.iosGray3,
+                  ),
+                ),
+              ],
             ),
           ),
           if (index < ref.read(contactTagListProvider).items.length - 1)

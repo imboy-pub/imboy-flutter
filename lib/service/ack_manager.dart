@@ -11,7 +11,7 @@ import 'package:imboy/service/websocket.dart';
 ///
 /// 功能：
 /// 1. 发送ACK并记录待确认ACK
-/// 2. 自动重试失败的ACK（最多3次）
+/// 2. 自动重试失败的ACK（最多4次，与服务端 QoS 重试次数对齐）
 /// 3. 提供ACK状态查询
 class AckManager {
   static AckManager? _instance;
@@ -64,11 +64,16 @@ class AckManager {
   }
 
   /// 最大重试次数
-  static const int _maxRetries = 3;
+  ///
+  /// 与服务端 QoS 投递重试次数对齐（协议一致性修复 D1）：
+  /// 服务端在线投递重试节奏为 2s/5s/7s/11s 共 4 次后转离线存储，
+  /// 客户端 ACK 重试次数需对应设置为 4，避免服务端已完成全部重试
+  /// 而客户端尚未重试到位导致消息被误判为未达成 ACK。
+  static const int _maxRetries = 4;
 
   /// 重试间隔策略（毫秒）
-  /// 采用指数退避：3s -> 5s -> 10s
-  static const List<int> _retryIntervals = [3000, 5000, 10000];
+  /// 采用指数退避：3s -> 5s -> 10s -> 15s（对应服务端4次重试窗口）
+  static const List<int> _retryIntervals = [3000, 5000, 10000, 15000];
 
   /// 获取当前重试次数对应的间隔
   int _getRetryInterval(int retryCount) {

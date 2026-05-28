@@ -260,6 +260,15 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
     }
   }
 
+  /// 拖拽重排序（仅更新本地状态，无需网络请求）
+  /// newIndex 由 SliverReorderableList.onReorderItem 已调整，直接使用
+  void reorderItems(int oldIndex, int newIndex) {
+    final items = List<UserTagModel>.from(state.items);
+    final item = items.removeAt(oldIndex);
+    items.insert(newIndex, item);
+    state = state.copyWith(items: items);
+  }
+
   /// 刷新数据
   Future<void> refresh() async {
     state = state.copyWith(page: 1);

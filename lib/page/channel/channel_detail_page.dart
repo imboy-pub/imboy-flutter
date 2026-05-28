@@ -57,6 +57,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   bool _isPaying = false;
   bool _isLoadingStats = false;
   String? _statsRequestedChannelId;
+  // P1 修复：监听消息首次加载，自动清零未读徽标
+  ProviderSubscription<ChannelDetailState>? _markReadSub;
 
   @override
   void initState() {
@@ -68,6 +70,21 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     });
 
     _scrollController.addListener(_onScroll);
+
+    // P1 修复：消息首次加载完毕后自动 markAsRead，清零未读徽标
+    _markReadSub = ref.listenManual<ChannelDetailState>(channelDetailProvider, (
+      prev,
+      next,
+    ) {
+      final wasEmpty = prev?.messages.isEmpty ?? true;
+      if (wasEmpty && next.messages.isNotEmpty) {
+        final latestId = next.messages.first.id.toString();
+        ref.read(channelDetailProvider.notifier).markAsRead(latestId);
+        // 一次性：完成后取消订阅
+        _markReadSub?.close();
+        _markReadSub = null;
+      }
+    });
   }
 
   String _resolveChannelId([ChannelModel? channel]) {
@@ -96,6 +113,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   @override
   void dispose() {
+    _markReadSub?.close();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _messageController.dispose();

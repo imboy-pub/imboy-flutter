@@ -34,6 +34,16 @@ class MessageOfflineService {
   static const Duration _idlePullCooldown = Duration(seconds: 5);
   static const Duration _maxFailureBackoff = Duration(seconds: 30);
 
+  /// 游标：各类消息最后一条消息的时间戳（毫秒）
+  ///
+  /// 协议一致性修复 D4：服务端 /v1/msg/offline 支持通过 c2c_last_msg_at、
+  /// c2g_last_msg_at、s2c_last_msg_at 参数做增量拉取，返回值中 next_last_msg_at
+  /// 字段即为下次请求时应传入的游标值。客户端保存游标并在每次请求时携带，
+  /// 避免每次全量拉取带来的性能压力。
+  int _c2cLastMsgAt = 0;
+  int _c2gLastMsgAt = 0;
+  int _s2cLastMsgAt = 0;
+
   /// 离线消息拉取请求事件的订阅
   StreamSubscription<OfflineMessagesPullRequestedEvent>?
   _pullRequestedSubscription;
@@ -86,6 +96,10 @@ class MessageOfflineService {
     _pullRequestedSubscription = null;
     _inFlightPull = null;
     _hasPendingPullRequest = false;
+    // 重置游标，避免单例重建后使用旧游标（D4 修复）
+    _c2cLastMsgAt = 0;
+    _c2gLastMsgAt = 0;
+    _s2cLastMsgAt = 0;
     _instance = null;
   }
 
@@ -220,14 +234,36 @@ class MessageOfflineService {
       int totalFetched = 0;
       int currentPullHttpRequests = 0;
 
+      // 本次拉取周期内使用的游标（拉取过程中持续更新）
+      int localC2cLastMsgAt = _c2cLastMsgAt;
+      int localC2gLastMsgAt = _c2gLastMsgAt;
+      int localS2cLastMsgAt = _s2cLastMsgAt;
+
       while (hasMore && pullCount < _maxPullCount) {
         pullCount++;
-        iPrint('第 $pullCount 次拉取离线消息');
+        iPrint(
+          '第 $pullCount 次拉取离线消息 c2c_cursor=$localC2cLastMsgAt '
+          'c2g_cursor=$localC2gLastMsgAt s2c_cursor=$localS2cLastMsgAt',
+        );
 
-        // 调用 /msg/offline 接口
+        // 调用 /msg/offline 接口，携带游标参数实现增量拉取（D4 修复）
+        final queryParams = <String, dynamic>{};
+        if (localC2cLastMsgAt > 0) {
+          queryParams['c2c_last_msg_at'] = localC2cLastMsgAt;
+        }
+        if (localC2gLastMsgAt > 0) {
+          queryParams['c2g_last_msg_at'] = localC2gLastMsgAt;
+        }
+        if (localS2cLastMsgAt > 0) {
+          queryParams['s2c_last_msg_at'] = localS2cLastMsgAt;
+        }
+
         currentPullHttpRequests++;
         _httpRequestsTotal++;
-        final resp = await HttpClient.client.get(API.msgOffline);
+        final resp = await HttpClient.client.get(
+          API.msgOffline,
+          queryParameters: queryParams.isEmpty ? null : queryParams,
+        );
 
         if (resp.code != 0) {
           _failedTotal++;
@@ -260,6 +296,11 @@ class MessageOfflineService {
         if (_hasMore(payload['c2c'])) {
           overallHasMore = true;
         }
+        // 更新 C2C 游标（D4 修复）
+        final nextC2c = _extractNextCursor(payload['c2c']);
+        if (nextC2c != null && nextC2c > localC2cLastMsgAt) {
+          localC2cLastMsgAt = nextC2c;
+        }
 
         // 处理 C2G 离线消息
         currentBatchFetched += await _processTypeBatch(
@@ -270,6 +311,11 @@ class MessageOfflineService {
         if (_hasMore(payload['c2g'])) {
           overallHasMore = true;
         }
+        // 更新 C2G 游标（D4 修复）
+        final nextC2g = _extractNextCursor(payload['c2g']);
+        if (nextC2g != null && nextC2g > localC2gLastMsgAt) {
+          localC2gLastMsgAt = nextC2g;
+        }
 
         // 处理 S2C 离线消息
         currentBatchFetched += await _processTypeBatch(
@@ -279,6 +325,11 @@ class MessageOfflineService {
         );
         if (_hasMore(payload['s2c'])) {
           overallHasMore = true;
+        }
+        // 更新 S2C 游标（D4 修复）
+        final nextS2c = _extractNextCursor(payload['s2c']);
+        if (nextS2c != null && nextS2c > localS2cLastMsgAt) {
+          localS2cLastMsgAt = nextS2c;
         }
 
         totalFetched += currentBatchFetched;
@@ -292,6 +343,17 @@ class MessageOfflineService {
           // 短暂延迟，避免分页场景下连续高频请求
           await Future<dynamic>.delayed(_pagePullDelay);
         }
+      }
+
+      // 拉取成功后持久化游标（D4 修复）：只向前推进，不回退
+      if (localC2cLastMsgAt > _c2cLastMsgAt) {
+        _c2cLastMsgAt = localC2cLastMsgAt;
+      }
+      if (localC2gLastMsgAt > _c2gLastMsgAt) {
+        _c2gLastMsgAt = localC2gLastMsgAt;
+      }
+      if (localS2cLastMsgAt > _s2cLastMsgAt) {
+        _s2cLastMsgAt = localS2cLastMsgAt;
       }
 
       _succeededTotal++;
@@ -346,6 +408,21 @@ class MessageOfflineService {
       return false;
     }
     return section['has_more'] == true;
+  }
+
+  /// 从服务端响应 section 中提取下一次请求的游标值（D4 修复）
+  ///
+  /// 服务端在每个 section（c2c/c2g/s2c）中返回 next_last_msg_at 字段，
+  /// 客户端应在下次拉取时将其作为对应的 *_last_msg_at 参数传入，
+  /// 实现增量拉取，避免重复获取已处理的消息。
+  ///
+  /// 返回 null 表示 section 无效或未携带游标。
+  int? _extractNextCursor(dynamic section) {
+    if (section is! Map) return null;
+    final raw = section['next_last_msg_at'];
+    if (raw is int) return raw;
+    if (raw is String) return int.tryParse(raw);
+    return null;
   }
 
   void _markPullSuccess({required int totalFetched}) {

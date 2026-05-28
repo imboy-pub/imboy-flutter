@@ -1,3 +1,5 @@
+> [imboy.pub 根目录](../CLAUDE.md) > **imboyapp（Flutter 移动端）**
+
 # ImBoy App - 架构文档 / Architecture Document
 
 > 最后更新 / Last updated：2026-05-08 CST | Flutter 客户端

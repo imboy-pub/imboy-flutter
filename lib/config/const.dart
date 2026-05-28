@@ -235,6 +235,8 @@ class API {
   static const e2eeUserKeys = '/v1/e2ee/user_keys';
   static const e2eeGroupMemberKeys = '/v1/e2ee/group_member_keys';
   static const e2eeReportDeviceKey = '/v1/e2ee/report_device_key';
+  static const e2eeKeyStatus = '/v1/e2ee/key/status';
+  static const e2eeNotificationsPull = '/v1/e2ee/notifications/pull';
 
   // 合规密钥（三层加密架构）
   static const e2eeComplianceKey = '/v1/e2ee/compliance_key';

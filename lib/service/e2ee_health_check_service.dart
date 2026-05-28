@@ -7,6 +7,7 @@ import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
@@ -233,16 +234,45 @@ class E2EEHealthCheckService {
 
   /// 获取 E2EE 系统的整体健康状态
   ///
+  /// 同时查询本地密钥状态、服务端注册状态（/v1/e2ee/key/status）
+  /// 和待处理通知（/v1/e2ee/notifications/pull）。
   /// Returns: 健康状态 Map
   Future<Map<String, dynamic>> getHealthStatus() async {
     try {
       final hasKey = await hasValidKey();
       final keyInfo = await getKeyInfo();
 
+      // 并发拉取服务端密钥状态和待处理通知
+      final api = E2EEApi();
+      final results = await Future.wait([
+        api.keyStatus(),
+        api.pullNotifications(),
+      ]);
+
+      final serverKeyStatus = results[0] as Map<String, dynamic>?;
+      final notifications = results[1] as List<Map<String, dynamic>>;
+
+      // 综合判断：本地有密钥 + 服务端已注册 + 未过期 = healthy
+      final serverRegistered = serverKeyStatus?['registered'] == true;
+      final serverExpired = serverKeyStatus?['expired'] == true;
+      final String status;
+      if (!hasKey) {
+        status = 'no_key';
+      } else if (!serverRegistered) {
+        status = 'not_registered';
+      } else if (serverExpired) {
+        status = 'key_expired';
+      } else {
+        status = 'healthy';
+      }
+
       return {
         'has_key': hasKey,
         'key_info': keyInfo,
-        'status': hasKey ? 'healthy' : 'no_key',
+        'server_key_status': serverKeyStatus,
+        'pending_notifications': notifications,
+        'pending_notifications_count': notifications.length,
+        'status': status,
         'checked_at': DateTime.now().toUtc().toIso8601String(),
       };
     } catch (e) {

@@ -241,3 +241,22 @@ jobs:
         run: |
           flutter test test/integration/conversation_state_mock_test.dart --reporter=github
           flutter test test/integration/message_action_conversation_update_mock_test.dart --name="性能" --reporter=github
+
+  # ----------------------------------------------------------------
+  # DCO — 仅 PR 检查，验证所有 commits 带有 Signed-off-by
+  # ----------------------------------------------------------------
+  dco-check:
+    name: DCO check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: DCO check
+        uses: dco-org/dco-action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

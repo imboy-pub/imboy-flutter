@@ -187,7 +187,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
           : ReorderableListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: _replies.length,
-              onReorder: _handleReorder,
+              onReorderItem: _handleReorder,
               // 关键：关闭默认长按拖拽，避免和 Dismissible 的滑动手势冲突；
               // 拖拽通过显式的 ReorderableDragStartListener handle 触发。
               buildDefaultDragHandles: false,

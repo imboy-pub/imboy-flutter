@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/store/api/denylist_api.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
@@ -160,27 +161,42 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
 
   Future<void> _handleDenylistToggle(bool val) async {
     EasyLoading.show(status: t.common.loading);
+    final api = DenylistApi();
     final denylistRepo = UserDenylistRepo();
     bool res;
+
     if (val) {
-      final model = DenylistModel(
-        deniedUid: parseModelInt(widget.peerId),
-        nickname: widget.peerNickname,
-        account: widget.peerAccount,
-        remark: widget.peerRemark,
-        sign: widget.peerSign,
-        source: widget.peerSource,
-        avatar: widget.peerAvatar,
-        region: widget.peerRegion,
-        gender: widget.peerGender,
-        createdAt: DateTimeHelper.millisecond(),
-      );
-      await denylistRepo.insert(model);
-      res = true;
+      // P0 修复：先调服务端 API，成功后再写本地 SQLite
+      final apiResult = await api.add(deniedUserUid: widget.peerId);
+      if (apiResult != null) {
+        final model = DenylistModel(
+          deniedUid: parseModelInt(widget.peerId),
+          nickname: widget.peerNickname,
+          account: widget.peerAccount,
+          remark: widget.peerRemark,
+          sign: widget.peerSign,
+          source: widget.peerSource,
+          avatar: widget.peerAvatar,
+          region: widget.peerRegion,
+          gender: widget.peerGender,
+          createdAt: DateTimeHelper.millisecond(),
+        );
+        await denylistRepo.insert(model);
+        res = true;
+      } else {
+        res = false;
+      }
     } else {
-      final count = await denylistRepo.delete(widget.peerId);
-      res = count > 0;
+      // P0 修复：先调服务端 API，成功后再删本地 SQLite
+      final apiOk = await api.remove(deniedUserUid: widget.peerId);
+      if (apiOk) {
+        await denylistRepo.delete(widget.peerId);
+        res = true;
+      } else {
+        res = false;
+      }
     }
+
     EasyLoading.dismiss();
     if (res) {
       await ref

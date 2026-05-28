@@ -945,7 +945,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               opacity: anim,
               child: SizeTransition(
                 sizeFactor: anim,
-                axisAlignment: -1.0,
+                alignment: Alignment.topCenter,
                 child: child,
               ),
             );
