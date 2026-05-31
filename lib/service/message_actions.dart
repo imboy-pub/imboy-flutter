@@ -19,6 +19,11 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+// 充血域类型统一前缀 ddd，避免与 flutter_chat_core 的 Message/MessageStatus 冲突。
+import 'package:imboy/modules/identity/domain/value/user_id.dart' as ddd;
+import 'package:imboy/modules/messaging/domain/message.dart' as ddd;
+import 'package:imboy/modules/messaging/domain/message_status.dart' as ddd;
+import 'package:imboy/modules/messaging/domain/value/message_id.dart' as ddd;
 
 // Legacy compatibility surface. External callers should now import
 // `package:imboy/modules/messaging/public.dart`; this file remains the action
@@ -918,50 +923,19 @@ class MessageActions {
   /// Check if message can be revoked.
   bool canRevokeMessage(MessageModel msg) {
     try {
-      // 只能撤回自己的消息
-      final currentUid = UserRepoLocal.to.currentUid;
-      if (msg.fromId.toString() != currentUid) {
-        iPrint('❌ 不能撤回他人的消息: messageId=${msg.id}');
-        return false;
+      // T1.5：撤回规则已内聚到充血实体 Message.canRevoke()（本人 + 类型∈
+      // revocableTypes + ≤2min + status==sent）。此处仅做 store→domain 边界
+      // 映射并注入 currentUid/now，规则与原实现逐字等价（行为不变）。
+      final now = DateTime.fromMillisecondsSinceEpoch(
+        DateTimeHelper.millisecond(),
+      );
+      final ok = _toDomainMessage(
+        msg,
+      ).canRevoke(currentUid: _currentUserId(), now: now);
+      if (!ok) {
+        iPrint('❌ 消息不满足撤回条件: messageId=${msg.id}, status=${msg.status}');
       }
-
-      // WebSocket API v2.0: 从顶层 msgType 字段读取消息类型
-      final msgType = msg.msgType ?? '';
-
-      // 文本、图片、语音、视频、文件、位置消息可以撤回
-      final supportedTypes = [
-        'text',
-        'image',
-        'voice',
-        'video',
-        'file',
-        'location',
-      ];
-      if (!supportedTypes.contains(msgType)) {
-        iPrint('❌ 该类型消息不支持撤回: msgType=$msgType');
-        return false;
-      }
-
-      // 检查时间限制（2分钟内可以撤回）
-      final now = DateTimeHelper.millisecond();
-      final messageTime = msg.createdAt;
-      final timeDiff = now - messageTime;
-      const revokeTimeLimit = 2 * 60 * 1000; // 2分钟
-
-      if (timeDiff > revokeTimeLimit) {
-        iPrint(
-          '❌ 消息超过撤回时间限制: timeDiff=${timeDiff}ms, limit=${revokeTimeLimit}ms',
-        );
-        return false;
-      }
-
-      // 检查消息状态
-      if (msg.status != IMBoyMessageStatus.sent) {
-        iPrint('❌ 消息状态不支持撤回: status=${msg.status}');
-        return false;
-      }
-
-      return true;
+      return ok;
     } on Object catch (e, s) {
       iPrint("❌ 检查撤回条件异常: $e; $s");
       return false;
@@ -972,53 +946,52 @@ class MessageActions {
   /// Check if message can be edited.
   bool canEditMessage(MessageModel msg) {
     try {
-      // 只能编辑自己的消息
-      final currentUid = UserRepoLocal.to.currentUid;
-      if (msg.fromId.toString() != currentUid) {
-        iPrint('❌ 不能编辑他人的消息: messageId=${msg.id}');
-        return false;
+      // T1.5：编辑规则已内聚到充血实体 Message.canEdit()（本人 + 类型==text
+      // + ≤15min + status==sent）。status==sent 已蕴含「未撤回」，故原冗余的
+      // isRevokedStatus 校验无需保留。此处仅做边界映射 + 注入 currentUid/now。
+      final now = DateTime.fromMillisecondsSinceEpoch(
+        DateTimeHelper.millisecond(),
+      );
+      final ok = _toDomainMessage(
+        msg,
+      ).canEdit(currentUid: _currentUserId(), now: now);
+      if (!ok) {
+        iPrint('❌ 消息不满足编辑条件: messageId=${msg.id}, status=${msg.status}');
       }
-
-      // WebSocket API v2.0: 从顶层 msgType 字段读取消息类型
-      final msgType = msg.msgType ?? '';
-
-      // 目前只支持编辑文本消息
-      if (msgType != 'text') {
-        iPrint('❌ 该类型消息不支持编辑: msgType=$msgType');
-        return false;
-      }
-
-      // 检查时间限制（15分钟内可以编辑）
-      final now = DateTimeHelper.millisecond();
-      final messageTime = msg.createdAt;
-      final timeDiff = now - messageTime;
-      const editTimeLimit = 15 * 60 * 1000; // 15分钟
-
-      if (timeDiff > editTimeLimit) {
-        iPrint(
-          '❌ 消息超过编辑时间限制: timeDiff=${timeDiff}ms, limit=${editTimeLimit}ms',
-        );
-        return false;
-      }
-
-      // 检查消息状态
-      if (msg.status != IMBoyMessageStatus.sent) {
-        iPrint('❌ 消息状态不支持编辑: status=${msg.status}');
-        return false;
-      }
-
-      // 检查是否已经被撤回
-      if (IMBoyMessageStatus.isRevokedStatus(msg.status)) {
-        iPrint('❌ 已撤回的消息不能编辑: status=${msg.status}');
-        return false;
-      }
-
-      return true;
+      return ok;
     } on Object catch (e, s) {
       iPrint("❌ 检查编辑条件异常: $e; $s");
       return false;
     }
   }
+
+  /// 当前登录用户 ID 值对象（未登录/空串时 UserId.parse 抛错，由调用方 try 捕获
+  /// → 返回 false，与原 `fromId != currentUid` 不匹配的行为等价）。
+  ddd.UserId _currentUserId() => ddd.UserId.parse(UserRepoLocal.to.currentUid);
+
+  /// store 层 MessageModel → 充血域实体 Message 的边界映射（T1.5）。
+  /// canRevoke/canEdit 不使用 id，但实体构造需 MessageId；空 id/fromId 将由
+  /// 值对象构造期拒绝（抛错 → 调用方返回 false，安全且不可撤回/编辑）。
+  ddd.Message _toDomainMessage(MessageModel msg) => ddd.Message(
+    id: ddd.MessageId.parse(msg.id.toString()),
+    fromId: ddd.UserId.parse(msg.fromId.toString()),
+    msgType: msg.msgType ?? '',
+    createdAt: DateTime.fromMillisecondsSinceEpoch(msg.createdAt),
+    status: _domainStatus(msg.status),
+  );
+
+  /// store 层 IMBoyMessageStatus（int）→ 域 MessageStatus 枚举映射。
+  /// 未知/null 落 error（非 sent → canRevoke/canEdit 返回 false，与原
+  /// `status != IMBoyMessageStatus.sent` 行为一致）。
+  ddd.MessageStatus _domainStatus(int? code) => switch (code) {
+    IMBoyMessageStatus.sending => ddd.MessageStatus.sending,
+    IMBoyMessageStatus.sent => ddd.MessageStatus.sent,
+    IMBoyMessageStatus.delivered => ddd.MessageStatus.delivered,
+    IMBoyMessageStatus.seen => ddd.MessageStatus.seen,
+    IMBoyMessageStatus.peerRevoked ||
+    IMBoyMessageStatus.myRevoked => ddd.MessageStatus.revoked,
+    _ => ddd.MessageStatus.error,
+  };
 
   /// 处理输入状态消息
   Future<void> _handleInputAction(Map<String, dynamic> data) async {
