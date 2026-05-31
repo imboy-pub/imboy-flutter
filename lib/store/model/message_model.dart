@@ -9,8 +9,8 @@ import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/message_columns.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 // enum MsgType { custom, file, image, text, unsupported }
@@ -223,9 +223,12 @@ class MessageModel {
 
   factory MessageModel.fromJson(Map<String, dynamic> data) {
     // 解析 type
-    final type = parseModelString(data[MessageRepo.type], defaultValue: 'C2C');
-    final fromRaw = data[MessageRepo.from] ?? data['from'];
-    final toRaw = data[MessageRepo.to] ?? data['to'];
+    final type = parseModelString(
+      data[MessageColumns.type],
+      defaultValue: 'C2C',
+    );
+    final fromRaw = data[MessageColumns.from] ?? data['from'];
+    final toRaw = data[MessageColumns.to] ?? data['to'];
 
     // WebSocket API v2.0: 从顶层读取 msg_type、action、e2ee
     // 所有消息类型都可能包含这三个字段
@@ -252,37 +255,38 @@ class MessageModel {
 
     // 解析 payload - 支持 Map 或 String
     dynamic p;
-    if (data[MessageRepo.payload] == null || data[MessageRepo.payload] == "") {
+    if (data[MessageColumns.payload] == null ||
+        data[MessageColumns.payload] == "") {
       p = <String, dynamic>{};
-    } else if (data[MessageRepo.payload] is String) {
+    } else if (data[MessageColumns.payload] is String) {
       // 尝试解析为 JSON
       try {
-        p = jsonDecode("${data[MessageRepo.payload]}");
+        p = jsonDecode("${data[MessageColumns.payload]}");
       } catch (e) {
         // 如果解析失败，保持为 String（可能是加密数据）
-        p = data[MessageRepo.payload];
+        p = data[MessageColumns.payload];
       }
-    } else if (data[MessageRepo.payload] is Map<String, dynamic>) {
-      p = data[MessageRepo.payload];
+    } else if (data[MessageColumns.payload] is Map<String, dynamic>) {
+      p = data[MessageColumns.payload];
     } else {
-      p = data[MessageRepo.payload];
+      p = data[MessageColumns.payload];
     }
 
     return MessageModel(
-      parseModelString(data[MessageRepo.id]),
-      autoId: parseModelInt(data[MessageRepo.autoId]),
+      parseModelString(data[MessageColumns.id]),
+      autoId: parseModelInt(data[MessageColumns.autoId]),
       type: type,
-      status: parseModelInt(data[MessageRepo.status]),
+      status: parseModelInt(data[MessageColumns.status]),
       fromId: parseModelInt(fromRaw),
       toId: parseModelInt(toRaw),
       payload: p,
       createdAt: DateTimeHelper.parseTimestamp(
-        data[MessageRepo.createdAt],
+        data[MessageColumns.createdAt],
         defaultValue: 0,
       ),
-      isAuthor: parseModelInt(data[MessageRepo.isAuthor]),
-      topicId: parseModelInt(data[MessageRepo.topicId]),
-      conversationUk3: parseModelString(data[MessageRepo.conversationUk3]),
+      isAuthor: parseModelInt(data[MessageColumns.isAuthor]),
+      topicId: parseModelInt(data[MessageColumns.topicId]),
+      conversationUk3: parseModelString(data[MessageColumns.conversationUk3]),
       msgType: msgType,
       action: action,
       e2ee: e2eeData,
@@ -291,16 +295,16 @@ class MessageModel {
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> data = <String, dynamic>{};
-    data[MessageRepo.id] = id;
-    data[MessageRepo.autoId] = autoId;
-    data[MessageRepo.type] = type;
-    data[MessageRepo.status] = status;
-    data[MessageRepo.from] = fromId;
-    data[MessageRepo.to] = toId;
-    data[MessageRepo.createdAt] = createdAt;
-    data[MessageRepo.isAuthor] = isAuthor;
-    data[MessageRepo.topicId] = topicId;
-    data[MessageRepo.conversationUk3] = conversationUk3;
+    data[MessageColumns.id] = id;
+    data[MessageColumns.autoId] = autoId;
+    data[MessageColumns.type] = type;
+    data[MessageColumns.status] = status;
+    data[MessageColumns.from] = fromId;
+    data[MessageColumns.to] = toId;
+    data[MessageColumns.createdAt] = createdAt;
+    data[MessageColumns.isAuthor] = isAuthor;
+    data[MessageColumns.topicId] = topicId;
+    data[MessageColumns.conversationUk3] = conversationUk3;
 
     // WebSocket API v2.0: 根据 type 写入对应字段到顶层
     final currentType = type ?? 'C2C';
@@ -332,11 +336,11 @@ class MessageModel {
 
     // payload 序列化
     if (payload is Map) {
-      data[MessageRepo.payload] = json.encode(payload);
+      data[MessageColumns.payload] = json.encode(payload);
     } else if (payload is String) {
-      data[MessageRepo.payload] = payload;
+      data[MessageColumns.payload] = payload;
     } else {
-      data[MessageRepo.payload] = json.encode(payload);
+      data[MessageColumns.payload] = json.encode(payload);
     }
 
     // debugPrint("> on MessageModel toMap $data");
@@ -789,7 +793,9 @@ class MessageModel {
       imageSource: avatar,
       // payload['peer_name'] 目前只在收到撤回消息的时候才存在 peer_name
       name: nickname.isEmpty
-          ? ((payloadData['peer_name'] ?? (payloadData['quote_msg_author_name'] ?? '')) as String?)
+          ? ((payloadData['peer_name'] ??
+                    (payloadData['quote_msg_author_name'] ?? ''))
+                as String?)
           : nickname,
     );
     DateTime createdDt = DateTimeHelper.millisecondToDateTime(createdAt);
@@ -823,7 +829,9 @@ class MessageModel {
         // peerId: toId,
         text: (payloadData['name'] ?? '') as String,
         size: (payloadData['size'] ?? 0) as int?,
-        source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String).toString(),
+        source: AssetsService.viewUrl(
+          (payloadData['uri'] ?? '') as String,
+        ).toString(),
         width: ((payloadData['width'] ?? 0) as num) / 1.0,
         height: ((payloadData['height'] ?? 0) as num) / 1.0,
         status: typesStatus,
@@ -837,7 +845,9 @@ class MessageModel {
         // peerId: toId,
         name: (payloadData['name'] ?? '') as String,
         size: (payloadData['size'] ?? 0) as int?,
-        source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String).toString(),
+        source: AssetsService.viewUrl(
+          (payloadData['uri'] ?? '') as String,
+        ).toString(),
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
@@ -851,7 +861,9 @@ class MessageModel {
           createdAt: createdDt,
           id: safeId,
           // peerId: toId,
-          source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String).toString(),
+          source: AssetsService.viewUrl(
+            (payloadData['uri'] ?? '') as String,
+          ).toString(),
           text: (payloadData['name'] ?? '') as String?,
           name: (payloadData['name'] ?? '') as String?,
           size: (payloadData['size'] ?? 0) as int?,
@@ -867,10 +879,14 @@ class MessageModel {
           createdAt: createdDt,
           id: safeId,
           // peerId: toId,
-          source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String).toString(),
+          source: AssetsService.viewUrl(
+            (payloadData['uri'] ?? '') as String,
+          ).toString(),
           text: (payloadData['name'] ?? '') as String?,
           size: (payloadData['size'] ?? 0) as int?,
-          duration: Duration(milliseconds: (payloadData['duration_ms'] ?? 0) as int),
+          duration: Duration(
+            milliseconds: (payloadData['duration_ms'] ?? 0) as int,
+          ),
           waveform: payloadData['waveform'] != null
               ? List<double>.from(payloadData['waveform'] as Iterable<dynamic>)
               : null,
