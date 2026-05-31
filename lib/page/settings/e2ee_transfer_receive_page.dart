@@ -5,6 +5,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_transfer_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// E2EE 密钥传输 - 接收页面
 /// 扫描旧设备的二维码接收密钥
@@ -164,9 +165,13 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (_isSuccess)
-              const Icon(Icons.check_circle, size: 64, color: Colors.green)
+              const Icon(
+                Icons.check_circle,
+                size: 64,
+                color: AppColors.iosGreen,
+              )
             else if (_isFailed)
-              const Icon(Icons.error, size: 64, color: Colors.red)
+              const Icon(Icons.error, size: 64, color: AppColors.iosRed)
             else
               const SizedBox(
                 width: 64,

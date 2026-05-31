@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -130,24 +131,19 @@ void main() {
   });
 
   group('ChatInput isMuted=true (muted state)', () {
-    testWidgets('isMuted=true → 渲染禁言提示条 + volume_off icon',
-        (tester) async {
+    testWidgets('isMuted=true → 渲染禁言提示条 + volume_off icon', (tester) async {
       await _pump(tester, isMuted: true);
 
       // i18n: mutedCannotSend = "禁言期间无法发送消息"
       expect(find.text('禁言期间无法发送消息'), findsOneWidget);
-      expect(find.byIcon(Icons.volume_off_rounded), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.volume_off), findsOneWidget);
 
       await _unmount(tester);
     });
 
     testWidgets('isMuted=true + custom muteMessage → 显示自定义文案 '
         '（覆盖默认 i18n）', (tester) async {
-      await _pump(
-        tester,
-        isMuted: true,
-        muteMessage: '你已被禁言 5 分钟',
-      );
+      await _pump(tester, isMuted: true, muteMessage: '你已被禁言 5 分钟');
 
       expect(find.text('你已被禁言 5 分钟'), findsOneWidget);
       // 默认文案不应再出现
@@ -156,8 +152,7 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('isMuted=true → 不渲染输入框 / emoji 按钮 / 发送按钮',
-        (tester) async {
+    testWidgets('isMuted=true → 不渲染输入框 / emoji 按钮 / 发送按钮', (tester) async {
       await _pump(tester, isMuted: true);
 
       // 禁言态应仅渲染禁言提示，无 TextField / 发送按钮

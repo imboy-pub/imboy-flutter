@@ -12,6 +12,7 @@ import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 part 'profile_provider.g.dart';
 
@@ -63,7 +64,7 @@ class ProfileState {
     this.interests = '',
     this.completeness = 0,
     this.completenessLevel = '',
-    this.completenessColor = Colors.red,
+    this.completenessColor = AppColors.iosRed,
     this.allowSearch = true,
     this.showOnlineStatus = true,
     this.allowNearbyVisible = false,
@@ -203,13 +204,13 @@ class ProfileNotifier extends _$ProfileNotifier {
     Color completenessColor;
     if (completeness >= 80) {
       completenessLevel = t.main.good; // 使用 "很棒" / "Great"
-      completenessColor = Colors.green;
+      completenessColor = AppColors.iosGreen;
     } else if (completeness >= 60) {
       completenessLevel = t.main.good; // 使用 "很棒" / "Great"
-      completenessColor = Colors.orange;
+      completenessColor = AppColors.iosOrange;
     } else {
       completenessLevel = t.main.toBeCompleted;
-      completenessColor = Colors.red;
+      completenessColor = AppColors.iosRed;
     }
 
     return currentState.copyWith(

@@ -758,11 +758,15 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: AppColors.iosRed,
+                ),
                 const SizedBox(height: 8),
                 Text(
                   qrState.errorMessage ?? t.common.webQRLoginFailed,
-                  style: TextStyle(fontSize: 14, color: Colors.red),
+                  style: const TextStyle(fontSize: 14, color: AppColors.iosRed),
                   textAlign: TextAlign.center,
                 ),
               ],

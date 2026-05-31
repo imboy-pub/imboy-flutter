@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 part 'select_region_provider.g.dart';
 
@@ -56,7 +57,7 @@ class SelectRegionNotifier extends _$SelectRegionNotifier {
       'selected': true,
       'trailing': const Text(
         '√',
-        style: TextStyle(fontSize: 20, color: Colors.green),
+        style: TextStyle(fontSize: 20, color: AppColors.iosGreen),
       ),
     };
     state = state.copyWith(regionSelected: newRegionSelected);

@@ -15,48 +15,48 @@ void main() {
     });
 
     test('momentsCommentFailed is populated in zh/en', () {
-      expect(zh.momentsCommentFailed, isNotEmpty);
-      expect(en.momentsCommentFailed, isNotEmpty);
+      expect(zh.common.momentsCommentFailed, isNotEmpty);
+      expect(en.common.momentsCommentFailed, isNotEmpty);
     });
 
     test('momentsDeleteFailed is populated in zh/en', () {
-      expect(zh.momentsDeleteFailed, isNotEmpty);
-      expect(en.momentsDeleteFailed, isNotEmpty);
+      expect(zh.common.momentsDeleteFailed, isNotEmpty);
+      expect(en.common.momentsDeleteFailed, isNotEmpty);
     });
 
     test('momentsReportSubmitted is populated in zh/en', () {
-      expect(zh.momentsReportSubmitted, isNotEmpty);
-      expect(en.momentsReportSubmitted, isNotEmpty);
+      expect(zh.common.momentsReportSubmitted, isNotEmpty);
+      expect(en.common.momentsReportSubmitted, isNotEmpty);
     });
 
     test('momentsReportFailed is populated in zh/en', () {
-      expect(zh.momentsReportFailed, isNotEmpty);
-      expect(en.momentsReportFailed, isNotEmpty);
+      expect(zh.common.momentsReportFailed, isNotEmpty);
+      expect(en.common.momentsReportFailed, isNotEmpty);
     });
 
     test('momentsLoadMoreComments is populated in zh/en', () {
-      expect(zh.momentsLoadMoreComments, isNotEmpty);
-      expect(en.momentsLoadMoreComments, isNotEmpty);
+      expect(zh.common.momentsLoadMoreComments, isNotEmpty);
+      expect(en.common.momentsLoadMoreComments, isNotEmpty);
     });
 
     test('momentsUploadFailed is populated in zh/en', () {
-      expect(zh.momentsUploadFailed, isNotEmpty);
-      expect(en.momentsUploadFailed, isNotEmpty);
+      expect(zh.common.momentsUploadFailed, isNotEmpty);
+      expect(en.common.momentsUploadFailed, isNotEmpty);
     });
 
     test('momentsReplyPrefix is populated in zh/en', () {
-      expect(zh.momentsReplyPrefix, isNotEmpty);
-      expect(en.momentsReplyPrefix, isNotEmpty);
+      expect(zh.chat.momentsReplyPrefix, isNotEmpty);
+      expect(en.chat.momentsReplyPrefix, isNotEmpty);
     });
 
     test('momentsReplySeparator is populated in zh/en', () {
-      expect(zh.momentsReplySeparator, isNotEmpty);
-      expect(en.momentsReplySeparator, isNotEmpty);
+      expect(zh.chat.momentsReplySeparator, isNotEmpty);
+      expect(en.chat.momentsReplySeparator, isNotEmpty);
     });
 
     test('momentsReplyingTo is populated in zh/en', () {
-      expect(zh.momentsReplyingTo, isNotEmpty);
-      expect(en.momentsReplyingTo, isNotEmpty);
+      expect(zh.chat.momentsReplyingTo, isNotEmpty);
+      expect(en.chat.momentsReplyingTo, isNotEmpty);
     });
   });
 }

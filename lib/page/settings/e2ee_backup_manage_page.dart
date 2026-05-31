@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/e2ee_plus_api.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// E2EE 备份管理页面
 ///
@@ -192,7 +193,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             },
             child: Text(
               t.common.buttonDelete,
-              style: const TextStyle(color: Colors.red),
+              style: const TextStyle(color: AppColors.iosRed),
             ),
           ),
         ],
@@ -231,14 +232,14 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(t.common.e2eeBackupDeleteSuccess),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.iosGreen,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(t.common.e2eeDeleteFailed),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.iosRed,
         ),
       );
     }

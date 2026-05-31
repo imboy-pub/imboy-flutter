@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
 import 'package:imboy/page/settings/e2ee_proxy_selector_page.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// E2EE 社交恢复 - 创建分片页面
 /// 选择代理并创建恢复分片
@@ -189,7 +190,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
         subtitle: Text('UID: $uid'),
         trailing: IconButton(
           icon: const Icon(Icons.remove_circle),
-          color: Colors.red,
+          color: AppColors.iosRed,
           onPressed: () {
             setState(() {
               _selectedProxies.removeAt(index);

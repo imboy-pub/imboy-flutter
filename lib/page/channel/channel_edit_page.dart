@@ -12,7 +12,7 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
-import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_edit_rules.dart';
 
 /// 编辑频道页面
@@ -78,7 +78,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     }
 
     try {
-      final api = ChannelApi();
+      final api = ref.read(channelApiProvider);
       ChannelModel? channel = await api.getChannel(widget.channelId);
       channel ??= await api.getChannelByCustomId(widget.channelId);
       if (mounted && channel != null) {
@@ -109,7 +109,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     setState(() => _isSaving = true);
 
     try {
-      final api = ChannelApi();
+      final api = ref.read(channelApiProvider);
       final channelId = (_channel?.id != null && _channel!.id != 0)
           ? _channel!.id.toString()
           : widget.channelId;

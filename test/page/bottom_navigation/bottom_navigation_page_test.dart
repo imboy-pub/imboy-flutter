@@ -70,8 +70,49 @@ void main() {
       addTearDown(container.dispose);
 
       final remindCount = container.read(newFriendRemindProvider).length;
-      expect(remindCount, 0,
-          reason: '默认无新朋友请求，contact tab badge 应隐藏');
+      expect(remindCount, 0, reason: '默认无新朋友请求，contact tab badge 应隐藏');
+    });
+
+    test('notifier 类型为 NewFriendRemindNotifier', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(newFriendRemindProvider.notifier);
+      expect(notifier, isA<NewFriendRemindNotifier>());
+    });
+  });
+
+  group('provider 跨容器状态隔离', () {
+    test('两个独立 container 的 bottomNavigationProvider 互不影响', () {
+      final c1 = ProviderContainer();
+      final c2 = ProviderContainer();
+      addTearDown(c1.dispose);
+      addTearDown(c2.dispose);
+
+      expect(c1.read(bottomNavigationProvider), 0);
+      expect(c2.read(bottomNavigationProvider), 0);
+      // 不同 container 读取的是各自独立的 Notifier 实例
+      expect(
+        c1.read(bottomNavigationProvider.notifier),
+        isNot(same(c2.read(bottomNavigationProvider.notifier))),
+      );
+    });
+
+    test('两个独立 container 的 newFriendRemindProvider 各持有独立 Set', () {
+      final c1 = ProviderContainer();
+      final c2 = ProviderContainer();
+      addTearDown(c1.dispose);
+      addTearDown(c2.dispose);
+
+      final s1 = c1.read(newFriendRemindProvider);
+      final s2 = c2.read(newFriendRemindProvider);
+      expect(s1, isEmpty);
+      expect(s2, isEmpty);
+      expect(
+        identical(s1, s2),
+        isFalse,
+        reason: '不同 container 应持有各自独立的默认 Set 实例',
+      );
     });
   });
 }

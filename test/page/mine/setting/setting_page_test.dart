@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
-import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -37,21 +37,18 @@ GoRouter _stubRouter() {
         builder: (_, _) => stub('account_security stub'),
       ),
       GoRoute(path: '/language', builder: (_, _) => stub('language stub')),
-      GoRoute(
-        path: '/dark_model',
-        builder: (_, _) => stub('dark_model stub'),
-      ),
-      GoRoute(
-        path: '/font_size',
-        builder: (_, _) => stub('font_size stub'),
-      ),
+      GoRoute(path: '/dark_model', builder: (_, _) => stub('dark_model stub')),
+      GoRoute(path: '/font_size', builder: (_, _) => stub('font_size stub')),
     ],
   );
 }
 
 Future<void> _pumpSetting(WidgetTester tester) async {
   tester.view.devicePixelRatio = 1.0;
-  tester.view.physicalSize = const Size(390, 1200); // 大画布让 SingleChildScrollView 内容尽量可见
+  tester.view.physicalSize = const Size(
+    390,
+    1200,
+  ); // 大画布让 SingleChildScrollView 内容尽量可见
   addTearDown(() {
     tester.view.resetDevicePixelRatio();
     tester.view.resetPhysicalSize();
@@ -99,9 +96,7 @@ void main() {
   });
 
   group('SettingPage layout', () {
-    testWidgets('Scaffold uses iOS surfaceGrouped background', (
-      tester,
-    ) async {
+    testWidgets('Scaffold uses iOS surfaceGrouped background', (tester) async {
       await _pumpSetting(tester);
 
       final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
@@ -125,8 +120,7 @@ void main() {
   });
 
   group('SettingPage menu items', () {
-    testWidgets('renders 通用 section 4 个菜单项 (账号安全/语言/深色模式/字体)',
-        (tester) async {
+    testWidgets('renders 通用 section 4 个菜单项 (账号安全/语言/深色模式/字体)', (tester) async {
       await _pumpSetting(tester);
 
       // 4 个 setting items 主标题
@@ -139,24 +133,27 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('CellPressable 至少 4 个 (覆盖 4 个菜单项)', (tester) async {
+    testWidgets('ImBoySettingsTile 至少 4 个 (覆盖 4 个菜单项)', (tester) async {
       await _pumpSetting(tester);
 
       expect(
-        find.byType(CellPressable).evaluate().length,
+        find.byType(ImBoySettingsTile).evaluate().length,
         greaterThanOrEqualTo(4),
-        reason: '通用 section 4 项 + 其他 section 应有 ≥4 个 CellPressable',
+        reason: '通用 section 4 项 + 其他 section 应有 ≥4 个 ImBoySettingsTile',
       );
       await _unmount(tester);
     });
 
-    testWidgets('每个菜单项 trailing 含 chevron_right', (tester) async {
+    testWidgets('每个菜单项 trailing 含 chevron', (tester) async {
       await _pumpSetting(tester);
 
+      // ImBoySettingsTile 在 trailing 为空且有 onTap 时自动追加
+      // CupertinoListTileChevron；_buildValueTrailing/_buildAboutTrailing
+      // 也显式包含它。内部图标为 CupertinoIcons.right_chevron。
       expect(
-        find.byIcon(CupertinoIcons.chevron_right).evaluate().length,
+        find.byType(CupertinoListTileChevron).evaluate().length,
         greaterThanOrEqualTo(4),
-        reason: '4+ 菜单项每项右侧应有 chevron_right',
+        reason: '4+ 菜单项每项右侧应有 chevron',
       );
       await _unmount(tester);
     });

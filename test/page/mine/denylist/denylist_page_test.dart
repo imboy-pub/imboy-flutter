@@ -1,12 +1,12 @@
 import 'package:azlistview/azlistview.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
-import 'package:imboy/component/ui/cell_pressable.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -124,35 +124,31 @@ void main() {
   });
 
   group('DenylistPage states', () {
-    testWidgets('empty state → renders NoDataView "黑名单为空"', (tester) async {
+    testWidgets('empty state → renders 自定义空态 "黑名单为空"', (tester) async {
       await _pumpDeny(tester, state: const DenylistState());
 
-      // i18n: denylistEmpty = "黑名单为空"
-      expect(find.byType(NoDataView), findsOneWidget);
+      // 源码空态：Center + Column(CupertinoIcons.slash_circle + 文案)
+      // i18n: contact.denylistEmpty = "黑名单为空"
       expect(find.text('黑名单为空'), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.slash_circle), findsOneWidget);
       // AzListView 不应渲染
       expect(find.byType(AzListView), findsNothing);
 
       await _unmount(tester);
     });
 
-    testWidgets('non-empty state → renders AzListView + 列表项', (
-      tester,
-    ) async {
+    testWidgets('non-empty state → renders AzListView + 列表项', (tester) async {
       // 模拟单条黑名单（trigger handleList 之前手动设置 nameIndex）
       final m = _model(1, 'Alice');
       m.nameIndex = 'A';
 
       await _pumpDeny(
         tester,
-        state: DenylistState(
-          items: [m],
-          currIndexBarData: const {'A', '#'},
-        ),
+        state: DenylistState(items: [m], currIndexBarData: const {'A', '#'}),
       );
 
-      // empty NoDataView 不应渲染
-      expect(find.byType(NoDataView), findsNothing);
+      // 空态文案不应渲染
+      expect(find.text('黑名单为空'), findsNothing);
       // AzListView 渲染
       expect(find.byType(AzListView), findsOneWidget);
       // 列表项含 nickname
@@ -163,21 +159,18 @@ void main() {
   });
 
   group('DenylistPage cell interaction', () {
-    testWidgets('non-empty → 列表项用 CellPressable', (tester) async {
+    testWidgets('non-empty → 列表项用 ImBoySettingsTile', (tester) async {
       final m = _model(1, 'Bob');
       m.nameIndex = 'B';
 
       await _pumpDeny(
         tester,
-        state: DenylistState(
-          items: [m],
-          currIndexBarData: const {'B', '#'},
-        ),
+        state: DenylistState(items: [m], currIndexBarData: const {'B', '#'}),
       );
 
-      // CellPressable 至少 1 个（来自 _buildDenylistCard）
+      // ImBoySettingsTile 至少 1 个（来自 _buildDenylistItem）
       expect(
-        find.byType(CellPressable).evaluate().length,
+        find.byType(ImBoySettingsTile).evaluate().length,
         greaterThanOrEqualTo(1),
       );
 

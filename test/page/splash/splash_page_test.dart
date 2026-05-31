@@ -33,6 +33,13 @@ class _DisableAnimFeatures implements ui.AccessibilityFeatures {
   bool get reduceMotion => true;
   @override
   bool get supportsAnnounce => false;
+  // Flutter SDK 升级新增成员（取 SDK 默认值，不影响本测试只读 disableAnimations）
+  @override
+  bool get autoPlayAnimatedImages => true;
+  @override
+  bool get autoPlayVideos => true;
+  @override
+  bool get deterministicCursor => false;
 }
 
 /// SplashPage 响应式 logo + Hero 锚点 + 品牌元素契约测试
@@ -59,10 +66,7 @@ GoRouter _stubRouter() {
   );
 }
 
-Future<void> _pumpSplash(
-  WidgetTester tester, {
-  required Size size,
-}) async {
+Future<void> _pumpSplash(WidgetTester tester, {required Size size}) async {
   tester.view.devicePixelRatio = 1.0;
   tester.view.physicalSize = size;
   addTearDown(() {
@@ -170,8 +174,9 @@ void main() {
         await _pumpSplash(tester, size: const Size(390, 844));
 
         final heroes = tester.widgetList<Hero>(find.byType(Hero));
-        final hasWordmarkHero =
-            heroes.any((h) => h.tag == 'imboy_brand_wordmark');
+        final hasWordmarkHero = heroes.any(
+          (h) => h.tag == 'imboy_brand_wordmark',
+        );
         expect(
           hasWordmarkHero,
           isTrue,
@@ -186,7 +191,10 @@ void main() {
             .whereType<String>()
             .where((t) => t.startsWith('imboy_brand_'))
             .toSet();
-        expect(brandHeroTags, containsAll(['imboy_brand_logo', 'imboy_brand_wordmark']));
+        expect(
+          brandHeroTags,
+          containsAll(['imboy_brand_logo', 'imboy_brand_wordmark']),
+        );
 
         await _drainSplashTimer(tester);
       },
@@ -259,11 +267,14 @@ void main() {
       },
     );
 
-    test('First-time hold ≤ 2000ms — guard against accidental long-hold regressions', () {
-      // Anything beyond 2s feels like a frozen launch — protect against
-      // a future "let's bump it for breathing room" misstep.
-      expect(kSplashMinHoldNew.inMilliseconds, lessThanOrEqualTo(2000));
-    });
+    test(
+      'First-time hold ≤ 2000ms — guard against accidental long-hold regressions',
+      () {
+        // Anything beyond 2s feels like a frozen launch — protect against
+        // a future "let's bump it for breathing room" misstep.
+        expect(kSplashMinHoldNew.inMilliseconds, lessThanOrEqualTo(2000));
+      },
+    );
   });
 
   // ── P0-2 accessibility: Semantics scoping + Reduce Motion ────────────

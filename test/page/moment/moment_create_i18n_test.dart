@@ -16,23 +16,23 @@ void main() {
     });
 
     test('momentsContentHint is populated in zh/en', () {
-      expect(zh.momentsContentHint, isNotEmpty);
-      expect(en.momentsContentHint, isNotEmpty);
+      expect(zh.common.momentsContentHint, isNotEmpty);
+      expect(en.common.momentsContentHint, isNotEmpty);
     });
 
     test('momentsAddMedia is populated in zh/en', () {
-      expect(zh.momentsAddMedia, isNotEmpty);
-      expect(en.momentsAddMedia, isNotEmpty);
+      expect(zh.common.momentsAddMedia, isNotEmpty);
+      expect(en.common.momentsAddMedia, isNotEmpty);
     });
 
     test('momentsAllowUidsLabel is populated in zh/en', () {
-      expect(zh.momentsAllowUidsLabel, isNotEmpty);
-      expect(en.momentsAllowUidsLabel, isNotEmpty);
+      expect(zh.common.momentsAllowUidsLabel, isNotEmpty);
+      expect(en.common.momentsAllowUidsLabel, isNotEmpty);
     });
 
     test('momentsDenyUidsLabel is populated in zh/en', () {
-      expect(zh.momentsDenyUidsLabel, isNotEmpty);
-      expect(en.momentsDenyUidsLabel, isNotEmpty);
+      expect(zh.discovery.momentsDenyUidsLabel, isNotEmpty);
+      expect(en.discovery.momentsDenyUidsLabel, isNotEmpty);
     });
   });
 }

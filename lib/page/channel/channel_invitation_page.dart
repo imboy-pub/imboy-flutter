@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+
+import 'channel_di_provider.dart';
 
 /// 频道邀请中心页（私有频道）
 ///
 /// 提供两类列表：
 /// 1. 我收到的邀请：支持接受/拒绝
 /// 2. 我发出的邀请：仅查看状态
-class ChannelInvitationPage extends StatefulWidget {
+class ChannelInvitationPage extends ConsumerStatefulWidget {
   const ChannelInvitationPage({super.key});
 
   @override
-  State<ChannelInvitationPage> createState() => _ChannelInvitationPageState();
+  ConsumerState<ChannelInvitationPage> createState() =>
+      _ChannelInvitationPageState();
 }
 
-class _ChannelInvitationPageState extends State<ChannelInvitationPage>
+class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   final Set<String> _processingIds = <String>{};
@@ -51,9 +54,10 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
     }
 
     try {
+      final channelService = ref.read(channelServiceProvider);
       final results = await Future.wait([
-        ChannelService.to.getMyInvitations(),
-        ChannelService.to.getSentInvitations(),
+        channelService.getMyInvitations(),
+        channelService.getSentInvitations(),
       ]);
       if (!mounted) return;
       setState(() {
@@ -87,9 +91,10 @@ class _ChannelInvitationPageState extends State<ChannelInvitationPage>
 
     bool success = false;
     try {
+      final channelService = ref.read(channelServiceProvider);
       success = accept
-          ? await ChannelService.to.acceptInvitation(invitationId)
-          : await ChannelService.to.rejectInvitation(invitationId);
+          ? await channelService.acceptInvitation(invitationId)
+          : await channelService.rejectInvitation(invitationId);
     } finally {
       // 无论成功、失败还是抛异常，都必须解锁按钮。旧实现无 try-finally，
       // ChannelService 方法若外层抛异常，invitationId 会永久滞留在

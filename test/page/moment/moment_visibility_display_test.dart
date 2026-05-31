@@ -48,20 +48,30 @@ void main() {
     });
 
     test('maps each known code to its existing i18n label', () {
-      expect(momentVisibilityLabel(momentVisibilityPublic, t),
-          t.momentsVisibilityPublic);
-      expect(momentVisibilityLabel(momentVisibilityFriends, t),
-          t.momentsVisibilityFriends);
-      expect(momentVisibilityLabel(momentVisibilityPrivate, t),
-          t.momentsVisibilityPrivate);
-      expect(momentVisibilityLabel(momentVisibilityAllowList, t),
-          t.momentsVisibilityPartial);
-      expect(momentVisibilityLabel(momentVisibilityDenyList, t),
-          t.momentsVisibilityExclude);
+      expect(
+        momentVisibilityLabel(momentVisibilityPublic, t),
+        t.discovery.momentsVisibilityPublic,
+      );
+      expect(
+        momentVisibilityLabel(momentVisibilityFriends, t),
+        t.contact.momentsVisibilityFriends,
+      );
+      expect(
+        momentVisibilityLabel(momentVisibilityPrivate, t),
+        t.chat.momentsVisibilityPrivate,
+      );
+      expect(
+        momentVisibilityLabel(momentVisibilityAllowList, t),
+        t.discovery.momentsVisibilityPartial,
+      );
+      expect(
+        momentVisibilityLabel(momentVisibilityDenyList, t),
+        t.discovery.momentsVisibilityExclude,
+      );
     });
 
     test('unknown code falls back to friends label', () {
-      expect(momentVisibilityLabel(99, t), t.momentsVisibilityFriends);
+      expect(momentVisibilityLabel(99, t), t.contact.momentsVisibilityFriends);
     });
   });
 }

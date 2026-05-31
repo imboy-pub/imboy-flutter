@@ -43,6 +43,12 @@ Future<void> _setUserAvatar(String avatarUrl) async {
   });
 }
 
+/// 按 tag 精确定位 avatar Hero（页面内还存在 Cupertino 导航栏默认 Hero，
+/// 直接 find.byType(Hero) 会命中多个导致 tap 歧义）
+final Finder _avatarHeroFinder = find.byWidgetPredicate(
+  (w) => w is Hero && w.tag == 'personal_info_avatar_hero',
+);
+
 void main() {
   setUpAll(() {
     // 注入 Env.uploadKey/uploadScene 让 AssetsService.authData() 走非空分支，
@@ -88,13 +94,28 @@ void main() {
       'not nested ClipRRect+inner-radius', (tester) async {
     await pumpPage(tester);
 
-    // 头像区域仅含一层 ClipOval（修复 H1：原 ClipRRect(Small) + Avatar 内 ClipRRect(Tiny)
-    // 双层圆角嵌套伪影）
-    expect(find.byType(ClipOval), findsOneWidget);
+    // 源码现状：头像不再用 ClipOval，而是用单个 BoxShape.circle 的 Container
+    // 渲染圆形头像（无任何嵌套裁剪伪影）。据实改断言：
+    //   - 不存在 ClipOval（旧实现已移除）
+    //   - 头像 Hero 内是一个 shape == BoxShape.circle 的 Container（单层圆形）
+    expect(find.byType(ClipOval), findsNothing);
+
+    final avatarContainer = tester.widget<Container>(
+      find.descendant(of: find.byType(Hero), matching: find.byType(Container)),
+    );
+    final decoration = avatarContainer.decoration! as BoxDecoration;
+    expect(
+      decoration.shape,
+      BoxShape.circle,
+      reason:
+          'Avatar must be rendered by a single BoxShape.circle Container, '
+          'not nested clip widgets',
+    );
   });
 
-  testWidgets('H4 (hero anchor): avatar wrapped in Hero with shared tag',
-      (tester) async {
+  testWidgets('H4 (hero anchor): avatar wrapped in Hero with shared tag', (
+    tester,
+  ) async {
     await pumpPage(tester);
 
     // 找出所有 Hero widget，过滤 tag 等于 personal_info_avatar_hero
@@ -105,7 +126,8 @@ void main() {
     expect(
       hasAvatarHero,
       isTrue,
-      reason: 'PersonalInfoPage avatar must be wrapped in '
+      reason:
+          'PersonalInfoPage avatar must be wrapped in '
           'Hero(tag: "personal_info_avatar_hero") for preview animation',
     );
   });
@@ -118,13 +140,15 @@ void main() {
     expect(
       find.byIcon(CupertinoIcons.camera_fill),
       findsOneWidget,
-      reason: 'Camera badge (CupertinoIcons.camera_fill) must be visible '
+      reason:
+          'Camera badge (CupertinoIcons.camera_fill) must be visible '
           'on avatar to indicate it is tappable for changing avatar',
     );
   });
 
-  testWidgets('renders nickname + account ID footer below avatar',
-      (tester) async {
+  testWidgets('renders nickname + account ID footer below avatar', (
+    tester,
+  ) async {
     await pumpPage(tester);
 
     // Hero 段下方应展示 nickname + 'ID: $account'
@@ -132,16 +156,18 @@ void main() {
     expect(find.text('ID: imboy_tester'), findsOneWidget);
   });
 
-  testWidgets('e2e: tap avatar with empty url does not push preview page',
-      (tester) async {
+  testWidgets('e2e: tap avatar with empty url does not push preview page', (
+    tester,
+  ) async {
     // 默认 setUp 已设 avatar=''
     await pumpPage(tester);
 
     // 验证起始无 xmark icon（_AvatarPreviewPage 关闭按钮）
     expect(find.byIcon(CupertinoIcons.xmark), findsNothing);
 
-    // tap 头像主体（ClipOval）
-    await tester.tap(find.byType(ClipOval));
+    // tap 头像主体（按 tag 精确定位 avatar Hero，排除导航栏默认 Hero；
+    // 外层 GestureDetector → _openAvatarPreview）
+    await tester.tap(_avatarHeroFinder);
     // Hero animation 飞行约 280ms，多 pump 几次确保完成
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
@@ -151,7 +177,8 @@ void main() {
     expect(
       find.byIcon(CupertinoIcons.xmark),
       findsNothing,
-      reason: 'Empty avatar URL must not open preview page '
+      reason:
+          'Empty avatar URL must not open preview page '
           '(_openAvatarPreview guard: currentUserAvatar.isEmpty → return)',
     );
   });
@@ -165,7 +192,7 @@ void main() {
     // 起始无 xmark
     expect(find.byIcon(CupertinoIcons.xmark), findsNothing);
 
-    await tester.tap(find.byType(ClipOval));
+    await tester.tap(_avatarHeroFinder);
     // 等 PageRouteBuilder transition (280ms fade) + Hero flight 完成
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 320));
@@ -174,7 +201,8 @@ void main() {
     expect(
       find.byIcon(CupertinoIcons.xmark),
       findsOneWidget,
-      reason: 'Non-empty avatar URL must push _AvatarPreviewPage '
+      reason:
+          'Non-empty avatar URL must push _AvatarPreviewPage '
           'with xmark close button (Hero animation source landed)',
     );
   });

@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
-import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -16,7 +16,7 @@ import 'package:imboy/service/storage.dart';
 ///
 /// 覆盖：
 ///   - AppBar title "语言设置"
-///   - 列表项 CellPressable 渲染（10 种语言）
+///   - 列表项 ImBoySettingsTile 渲染（10 种语言）
 ///   - 当前语言 (zhCn) 显示 check_mark
 ///   - 其他语言不显示 check_mark
 ///   - 点击切换语言 → state.selectedLocaleId 变化（间接验证）
@@ -24,10 +24,7 @@ GoRouter _stubRouter() {
   return GoRouter(
     initialLocation: '/language',
     routes: [
-      GoRoute(
-        path: '/language',
-        builder: (_, _) => const LanguagePage(),
-      ),
+      GoRoute(path: '/language', builder: (_, _) => const LanguagePage()),
     ],
   );
 }
@@ -80,11 +77,11 @@ void main() {
 
       // 10 种语言：zh_CN / zh_Hant / en_US / ja_JP / ko_KR / de_DE /
       // fr_FR / it_IT / ru_RU / ar_SA
-      final cells = find.byType(CellPressable);
+      final cells = find.byType(ImBoySettingsTile);
       expect(
         cells.evaluate().length,
         greaterThanOrEqualTo(10),
-        reason: '语言列表至少含 10 个 CellPressable Cell',
+        reason: '语言列表至少含 10 个 ImBoySettingsTile Cell',
       );
 
       await _unmount(tester);
@@ -103,8 +100,7 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('多种语言名称渲染（zhCn/enUs/jaJp/koKr 至少 4 种可见）',
-        (tester) async {
+    testWidgets('多种语言名称渲染（zhCn/enUs/jaJp/koKr 至少 4 种可见）', (tester) async {
       await _pumpLang(tester);
 
       // 至少能看到几个常见语种 title（i18n 已确认 zhCn=简体中文 / enUs=美国英语）
@@ -116,8 +112,7 @@ void main() {
   });
 
   group('LanguagePage interactions', () {
-    testWidgets('点击其他语言 tile 触发选中切换 (check_mark 跟随)',
-        (tester) async {
+    testWidgets('点击其他语言 tile 触发选中切换 (check_mark 跟随)', (tester) async {
       await _pumpLang(tester);
 
       // 初始：仅 zhCn 有 check_mark

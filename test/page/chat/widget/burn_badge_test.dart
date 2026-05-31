@@ -8,13 +8,14 @@ import 'package:imboy/theme/default/app_colors.dart';
 
 /// BurnBadge 阅后即焚徽章 widget 契约测试
 ///
-/// BurnBadge 是纯 StatelessWidget，仅依赖 props，是 chat 模块测试覆盖率
-/// 提升的最优入口（不依赖 EventBus / SqliteService / UserRepo）。
+/// BurnBadge 是 StatefulWidget，依赖 props + 外部 burnTicker stream 驱动倒计时，
+/// 内部用 AnimationController 驱动进度弧（AnimatedBuilder + CircularProgressIndicator）。
+/// 仍是 chat 模块测试覆盖率提升的最优入口（不依赖 EventBus / SqliteService / UserRepo）。
 ///
 /// 覆盖：
 ///   - burnReadAtMs <= 0 → 显示 "阅后" 静态文案
 ///   - burnAfterMs <= 0 → 显示 "阅后" 静态文案
-///   - burnReadAtMs > 0 + burnAfterMs > 0 → StreamBuilder 显示倒计时秒数
+///   - burnReadAtMs > 0 + burnAfterMs > 0 → AnimatedBuilder 显示倒计时秒数
 ///   - 已超时 (remainSec <= 0) → 显示 "0s"
 ///   - 火苗图标 (Icons.local_fire_department) 必现
 ///   - iOS Red 配色（亮/暗模式自适应）
@@ -56,8 +57,13 @@ void main() {
       );
 
       expect(find.text('阅后'), findsOneWidget);
-      // 静态模式下不应渲染 StreamBuilder
-      expect(find.byType(StreamBuilder<int>), findsNothing);
+      // 静态模式下不应渲染倒计时秒数文本（\d+s）
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Text && RegExp(r'^\d+s$').hasMatch(w.data ?? ''),
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets('burnAfterMs <= 0 → 显示 "阅后"（无效配置）', (tester) async {
@@ -86,7 +92,7 @@ void main() {
   });
 
   group('BurnBadge countdown mode', () {
-    testWidgets('已读且未超时 → StreamBuilder 渲染秒数文本', (tester) async {
+    testWidgets('已读且未超时 → AnimatedBuilder 渲染秒数文本', (tester) async {
       // 模拟 5 秒后到期：burnReadAt 设为现在，burnAfter=5000ms
       final readAt = DateTime.now().millisecondsSinceEpoch;
       // 用 single-emit stream 避免 pending timer
@@ -101,16 +107,22 @@ void main() {
         burnTicker: controller.stream,
       );
 
-      // 至少存在 StreamBuilder（倒计时模式）
-      expect(find.byType(StreamBuilder<int>), findsOneWidget);
+      // 倒计时模式：进度弧 CircularProgressIndicator 渲染
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
       // 倒计时模式下 fire icon 仍渲染
       expect(find.byIcon(Icons.local_fire_department), findsOneWidget);
+      // 倒计时模式渲染秒数文本（\d+s）
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Text && RegExp(r'^\d+s$').hasMatch(w.data ?? ''),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('已超时 (readAt 远早于现在) → 显示 "0s"', (tester) async {
       // readAt 在 1 小时前，burnAfter=5000ms → 早超时
-      final readAt =
-          DateTime.now().millisecondsSinceEpoch - 60 * 60 * 1000;
+      final readAt = DateTime.now().millisecondsSinceEpoch - 60 * 60 * 1000;
       final controller = StreamController<int>();
       addTearDown(controller.close);
 
@@ -141,7 +153,7 @@ void main() {
         find.byIcon(Icons.local_fire_department),
       );
       expect(icon.color, AppColors.iosRed);
-      expect(icon.size, 12);
+      expect(icon.size, 8);
     });
 
     testWidgets('使用 iosRedDark (暗色模式)', (tester) async {

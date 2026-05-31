@@ -53,10 +53,20 @@ bool _isPublicPath(String currentPath) {
 /// - 使用 RESTful 风格的路径命名
 /// - 参数通过 GoRoute 的 path 参数或 state.extra 传递
 /// - 所有路由必须有清晰的 name 用于程序化导航
-final goRouterProvider = Provider<GoRouter>((ref) {
+final goRouterProvider = Provider<GoRouter>((ref) => createAppRouter());
+
+/// 创建应用 GoRouter / Create the app GoRouter.
+///
+/// 生产环境用默认参数（initialLocation=/，全局 navigatorKey）。
+/// 测试可注入 [initialLocation] 与独立 [navigatorKeyOverride]，
+/// 以便对单条路由做「无 splash、无跨用例 GlobalKey 污染」的烟雾测试。
+GoRouter createAppRouter({
+  String initialLocation = AppRoutes.initial,
+  GlobalKey<NavigatorState>? navigatorKeyOverride,
+}) {
   return GoRouter(
-    navigatorKey: navigatorKey,
-    initialLocation: AppRoutes.initial,
+    navigatorKey: navigatorKeyOverride ?? navigatorKey,
+    initialLocation: initialLocation,
     debugLogDiagnostics: kDebugMode, // 仅开发环境开启路由日志
     // 路由重定向（认证守卫）
     redirect: (context, state) {
@@ -1416,4 +1426,4 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
     ),
   );
-});
+}

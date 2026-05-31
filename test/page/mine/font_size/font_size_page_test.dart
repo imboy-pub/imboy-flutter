@@ -86,9 +86,7 @@ void main() {
   });
 
   group('FontSizePage layout', () {
-    testWidgets('Scaffold uses iOS surfaceGrouped background', (
-      tester,
-    ) async {
+    testWidgets('Scaffold uses iOS surfaceGrouped background', (tester) async {
       await _pumpFont(tester);
       final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
       expect(scaffold.backgroundColor, AppColors.lightSurfaceGrouped);
@@ -168,15 +166,16 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('Slider label shows displayName + scale percentage', (
+    testWidgets('preview footer shows displayName + scale percentage', (
       tester,
     ) async {
       await _pumpFont(tester, option: FontSizeOption.large);
 
-      final slider = tester.widget<Slider>(find.byType(Slider));
-      // label = "{displayName} {scale*100}%"
-      // large displayName='大', scale=1.2 → "大 120%"
-      expect(slider.label, '大 120%');
+      // 源码 Slider 未设置 label；displayName + 百分比由预览区
+      // _buildPreviewFooter 的 t.common.currentFontScale 渲染：
+      // zh_CN 格式 "当前：${param1} ${param2}%"
+      // large displayName='大', scale=1.2 → "当前：大 120%"
+      expect(find.text('当前：大 120%'), findsOneWidget);
 
       await _unmount(tester);
     });

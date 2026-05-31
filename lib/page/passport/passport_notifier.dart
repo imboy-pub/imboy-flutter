@@ -29,6 +29,7 @@ import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'passport_state.dart';
@@ -732,7 +733,7 @@ class PassportNotifier extends _$PassportNotifier {
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                 )
               : message as Widget,
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.iosRed,
           duration: const Duration(seconds: 5),
           behavior: SnackBarBehavior.fixed,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

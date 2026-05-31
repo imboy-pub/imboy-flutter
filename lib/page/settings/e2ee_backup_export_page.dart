@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 
@@ -341,7 +342,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: AppColors.iosRed,
         duration: const Duration(seconds: 3),
       ),
     );

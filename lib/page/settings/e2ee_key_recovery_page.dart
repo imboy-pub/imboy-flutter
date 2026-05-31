@@ -176,7 +176,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     title: t.common.e2eeDeleteKey,
                     description: t.common.e2eeDeleteKeyDesc,
                     icon: Icons.delete_forever,
-                    iconColor: Colors.red,
+                    iconColor: AppColors.iosRed,
                     onTap: () => _showDeleteKeyDialog(context),
                   ),
 
@@ -656,7 +656,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               t.common.warning,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.red,
+                color: AppColors.iosRed,
               ),
             ),
             Text(t.common.e2eeWarnOldMessagesLost),
@@ -700,7 +700,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               t.common.warning,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.red,
+                color: AppColors.iosRed,
               ),
             ),
             Text(t.common.e2eeWarnCannotRestore),
@@ -720,7 +720,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             },
             child: Text(
               t.common.e2eeConfirmDelete,
-              style: const TextStyle(color: Colors.red),
+              style: const TextStyle(color: AppColors.iosRed),
             ),
           ),
         ],
@@ -887,7 +887,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(t.common.e2eeKeyGenerateFailed),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.iosRed,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -921,7 +921,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(t.common.e2eeDeleteFailed),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.iosRed,
         ),
       );
     }

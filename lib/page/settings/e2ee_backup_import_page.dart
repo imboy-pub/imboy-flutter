@@ -6,6 +6,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// E2EE 备份导入页面
 ///
@@ -394,7 +395,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: AppColors.iosRed,
         duration: const Duration(seconds: 3),
       ),
     );

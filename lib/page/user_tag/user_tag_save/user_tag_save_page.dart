@@ -9,6 +9,7 @@ import 'package:imboy/store/model/user_tag_model.dart';
 
 import 'user_tag_save_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 用户标签保存/编辑页面
@@ -97,12 +98,18 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                   ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: AppRadius.borderRadiusTiny,
-                    borderSide: const BorderSide(width: 1.0, color: Colors.red),
+                    borderSide: const BorderSide(
+                      width: 1.0,
+                      color: AppColors.iosRed,
+                    ),
                   ),
                   errorStyle: const TextStyle(),
                   focusedErrorBorder: OutlineInputBorder(
                     borderRadius: AppRadius.borderRadiusTiny,
-                    borderSide: const BorderSide(width: 1.0, color: Colors.red),
+                    borderSide: const BorderSide(
+                      width: 1.0,
+                      color: AppColors.iosRed,
+                    ),
                   ),
                   border: InputBorder.none,
                 ),

@@ -17,6 +17,7 @@ import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/service/channel_service.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -52,7 +53,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _messageFocusNode = FocusNode();
   ChannelStatsModel? _stats;
-  final ChannelService _channelService = ChannelService.to;
+  late final ChannelService _channelService = ref.read(channelServiceProvider);
   bool _isUploadingMedia = false;
   bool _isPaying = false;
   bool _isLoadingStats = false;
@@ -682,10 +683,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               ),
               if (channel.userRole.isCreator)
                 ListTile(
-                  leading: Icon(Icons.delete_outline, color: Colors.red[400]),
+                  leading: Icon(Icons.delete_outline, color: AppColors.iosRed),
                   title: Text(
                     context.t.channel.deleteChannel,
-                    style: TextStyle(color: Colors.red[400]),
+                    style: TextStyle(color: AppColors.iosRed),
                   ),
                   subtitle: Text(context.t.channel.deleteChannelDesc),
                   onTap: () {
@@ -731,7 +732,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 );
               }
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
             child: Text(t.common.confirm),
           ),
         ],
@@ -918,7 +919,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     });
 
     try {
-      final order = await ChannelService.to.createAndPayOrder(channelId);
+      final order = await _channelService.createAndPayOrder(channelId);
       if (!mounted) return;
 
       if (order == null) {
@@ -946,7 +947,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   }
 
   Future<void> _showMyOrdersSheet(String channelId) async {
-    final allOrders = await ChannelService.to.getMyOrders();
+    final allOrders = await _channelService.getMyOrders();
     if (!mounted) return;
 
     final orders = allOrders
@@ -1004,7 +1005,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   }
 
   Future<void> _showOrderDetail(String orderNo) async {
-    final order = await ChannelService.to.getOrder(orderNo);
+    final order = await _channelService.getOrder(orderNo);
     if (!mounted) return;
 
     if (order == null) {
@@ -1380,7 +1381,10 @@ class _ChannelMessageItem extends StatelessWidget {
   });
 
   Future<void> _addReaction(BuildContext context, String reactionType) async {
-    final success = await ChannelService.to.addReaction(
+    final channelService = ProviderScope.containerOf(
+      context,
+    ).read(channelServiceProvider);
+    final success = await channelService.addReaction(
       channelId: channelId,
       messageId: message.id.toString(),
       reactionType: reactionType,
@@ -1395,7 +1399,10 @@ class _ChannelMessageItem extends StatelessWidget {
     BuildContext context,
     String reactionType,
   ) async {
-    final success = await ChannelService.to.removeReaction(
+    final channelService = ProviderScope.containerOf(
+      context,
+    ).read(channelServiceProvider);
+    final success = await channelService.removeReaction(
       channelId: channelId,
       messageId: message.id.toString(),
       reactionType: reactionType,
@@ -1671,12 +1678,12 @@ class _ChannelMessageItem extends StatelessWidget {
                                       leading: Icon(
                                         Icons.delete_outline,
                                         size: 20,
-                                        color: Colors.red[400],
+                                        color: AppColors.iosRed,
                                       ),
                                       title: Text(
                                         t.channel.deleteMessage,
                                         style: TextStyle(
-                                          color: Colors.red[400],
+                                          color: AppColors.iosRed,
                                         ),
                                       ),
                                       contentPadding: EdgeInsets.zero,
@@ -1739,7 +1746,10 @@ class _ChannelMessageItem extends StatelessWidget {
 
   /// 设置消息置顶状态
   Future<void> _setPinned(BuildContext context, bool pinned) async {
-    final success = await ChannelService.to.setMessagePinned(
+    final channelService = ProviderScope.containerOf(
+      context,
+    ).read(channelServiceProvider);
+    final success = await channelService.setMessagePinned(
       channelId,
       message.id.toString(),
       pinned,
@@ -1774,8 +1784,11 @@ class _ChannelMessageItem extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
+              final channelService = ProviderScope.containerOf(
+                context,
+              ).read(channelServiceProvider);
               Navigator.pop(ctx);
-              final success = await ChannelService.to.deleteMessage(
+              final success = await channelService.deleteMessage(
                 channelId,
                 message.id.toString(),
               );
@@ -1787,7 +1800,7 @@ class _ChannelMessageItem extends StatelessWidget {
                 onDeleted?.call();
               }
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
             child: Text(t.common.confirm),
           ),
         ],
@@ -1839,7 +1852,7 @@ class _ChannelMessageItem extends StatelessWidget {
               Navigator.pop(ctx);
               await _removeReaction(context, reactionType);
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
             child: Text(context.t.common.confirm),
           ),
         ],

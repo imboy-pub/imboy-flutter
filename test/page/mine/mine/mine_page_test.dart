@@ -33,15 +33,9 @@ GoRouter _stubRouter() {
       GoRoute(path: '/mine', builder: (_, _) => const MinePage()),
       GoRoute(path: '/wallet', builder: (_, _) => stub('wallet stub')),
       GoRoute(path: '/favorites', builder: (_, _) => stub('favorites stub')),
-      GoRoute(
-        path: '/storage_space',
-        builder: (_, _) => stub('storage stub'),
-      ),
+      GoRoute(path: '/storage_space', builder: (_, _) => stub('storage stub')),
       GoRoute(path: '/devices', builder: (_, _) => stub('devices stub')),
-      GoRoute(
-        path: '/mine/setting',
-        builder: (_, _) => stub('setting stub'),
-      ),
+      GoRoute(path: '/mine/setting', builder: (_, _) => stub('setting stub')),
       GoRoute(path: '/feedback', builder: (_, _) => stub('feedback stub')),
       GoRoute(path: '/qrcode/user', builder: (_, _) => stub('qrcode stub')),
       GoRoute(
@@ -110,9 +104,7 @@ void main() {
   });
 
   group('MinePage layout & header', () {
-    testWidgets('Scaffold uses iOS surfaceGrouped background', (
-      tester,
-    ) async {
+    testWidgets('Scaffold uses iOS surfaceGrouped background', (tester) async {
       await _pumpMine(tester);
 
       final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
@@ -120,13 +112,14 @@ void main() {
       expect(scaffold.backgroundColor, AppColors.lightSurfaceGrouped);
     });
 
-    testWidgets('renders large title "我的" (28pt w700)', (tester) async {
+    testWidgets('renders nav title "我的" (17pt w600)', (tester) async {
       await _pumpMine(tester);
       // titleMine zhCn = "我的"
+      // IosPageTemplate 紧凑模式：标题位于 CupertinoNavigationBar.middle
       final title = tester.widget<Text>(find.text('我的'));
-      expect(title.style?.fontSize, 28);
-      expect(title.style?.fontWeight, FontWeight.w700);
-      expect(title.style?.letterSpacing, 0.36);
+      expect(title.style?.fontSize, 17);
+      expect(title.style?.fontWeight, FontWeight.w600);
+      expect(title.style?.letterSpacing, -0.4);
     });
   });
 
@@ -138,53 +131,68 @@ void main() {
 
       // nickname
       expect(find.text('Tester'), findsOneWidget);
-      // ImBoy ID（account 带 'ImBoy ID: ' 前缀）
-      expect(find.text('ImBoy ID: imboy_user'), findsOneWidget);
-      // QR code icon（上方 mine_page 用 Icons.qr_code_2，本测试通过 IconButton 间接验证）
-      expect(find.byIcon(Icons.qr_code_2), findsOneWidget);
+      // ID（account 带 'ID: ' 前缀）
+      expect(find.text('ID: imboy_user'), findsOneWidget);
+      // QR code icon（mine_page header 用 CupertinoIcons.qrcode）
+      expect(find.byIcon(CupertinoIcons.qrcode), findsOneWidget);
+      // profile card chevron 使用 CupertinoIcons.chevron_right
+      expect(find.byIcon(CupertinoIcons.chevron_right), findsOneWidget);
     });
 
-    testWidgets('renders sign when present', (tester) async {
+    testWidgets('compact card omits sign (not rendered in redesigned header)', (
+      tester,
+    ) async {
+      // iOS 17 高保真重构后的 header 仅渲染 nickname + 'ID: ...'，
+      // 不再展示个性签名（sign），即便用户设置了 sign 也不显示。
       await _setUser(sign: '不忘初心');
       await _pumpMine(tester);
-      expect(find.text('不忘初心'), findsOneWidget);
+      expect(find.text('不忘初心'), findsNothing);
+      // header 仍正常渲染 nickname + ID
+      expect(find.text('Tester'), findsOneWidget);
+      expect(find.text('ID: imboy_user'), findsOneWidget);
     });
 
-    testWidgets('hides sign when empty', (tester) async {
-      // 默认 setUp 已设 sign=''，sign 区域不应渲染
+    testWidgets('renders no empty Text rows', (tester) async {
+      // 默认 setUp 已设 sign=''，header 不应渲染空白 Text 行
       await _pumpMine(tester);
-      // 只显示 ID + nickname 两段文字时不会有空白 Text 行（strNoEmpty 守卫）
       expect(find.text(''), findsNothing);
     });
   });
 
   group('MinePage menu sections', () {
-    testWidgets('renders wallet / favorites / storage / devices menu items',
-        (tester) async {
-      await _pumpMine(tester);
-
-      // 钱包 / 收藏 / 存储空间 / 登录设备管理 / 设置 / 反馈
-      expect(find.text('钱包'), findsOneWidget);
-      expect(find.text('收藏'), findsOneWidget);
-      expect(find.text('存储空间'), findsOneWidget);
-      expect(find.text('登录设备管理'), findsOneWidget);
-      expect(find.text('设置'), findsOneWidget);
-      expect(find.text('反馈建议'), findsOneWidget);
-    });
-
-    testWidgets('renders chevron_right next to each menu item + profile', (
+    testWidgets('renders wallet / favorites / storage / devices menu items', (
       tester,
     ) async {
       await _pumpMine(tester);
 
-      // mine_page 全部用 CupertinoIcons.chevron_right
-      // profile card(1) + wallet(1) + favorites(1) + storage(1) + devices(1) +
-      // setting(1) + feedback(1) = 7
-      // 不写死精确数字，至少 6（profile + 主体 6 个 menu item）
+      // 钱包(QuickAction) / 存储空间 / 登录设备管理 / 设置 / 反馈建议
+      expect(find.text('钱包'), findsOneWidget);
+      expect(find.text('存储空间'), findsOneWidget);
+      expect(find.text('登录设备管理'), findsOneWidget);
+      expect(find.text('设置'), findsOneWidget);
+      expect(find.text('反馈建议'), findsOneWidget);
+      // 收藏 同时出现在 QuickActionGrid 与设置分组 Tile 中
+      expect(find.text('收藏'), findsNWidgets(2));
+    });
+
+    testWidgets('renders chevron next to each menu item + profile', (
+      tester,
+    ) async {
+      await _pumpMine(tester);
+
+      // profile card 用 CupertinoIcons.chevron_right
       expect(
-        find.byIcon(CupertinoIcons.chevron_right).evaluate().length,
-        greaterThanOrEqualTo(6),
-        reason: 'profile card + 6+ menu items 每项右侧应有 chevron_right',
+        find.byIcon(CupertinoIcons.chevron_right),
+        findsOneWidget,
+        reason: 'profile card 右侧应有 chevron_right',
+      );
+      // 5 个 ImBoySettingsTile（favorites/storageSpace/loginDeviceManagement/
+      // setting/feedback）默认 trailing 为 CupertinoListTileChevron，
+      // 内部渲染 CupertinoIcons.right_chevron。
+      expect(
+        find.byIcon(CupertinoIcons.right_chevron),
+        findsNWidgets(5),
+        reason: '5 个设置项每项右侧应有 CupertinoListTileChevron',
       );
     });
   });

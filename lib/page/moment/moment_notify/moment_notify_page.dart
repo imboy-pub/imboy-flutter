@@ -22,6 +22,7 @@ import 'package:imboy/page/moment/moment_notify/moment_notify_state.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/moment_notify_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class MomentNotifyPage extends ConsumerStatefulWidget {
   const MomentNotifyPage({super.key});
@@ -219,7 +220,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                    color: Colors.red,
+                    color: AppColors.iosRed,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -256,7 +257,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        color: Colors.red,
+        color: AppColors.iosRed,
         child: Text(
           t.momentNotify.delete,
           style: const TextStyle(color: Colors.white),

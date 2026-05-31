@@ -6,11 +6,11 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/channel_model.dart';
-import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
+import 'channel_di_provider.dart';
 import 'channel_provider.dart';
 
 /// 发现/搜索频道页面
@@ -52,9 +52,9 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 
   Future<void> _loadSubscribedChannelIds() async {
     try {
-      final channels = await ChannelService.to.getSubscribedChannels(
-        limit: 200,
-      );
+      final channels = await ref
+          .read(channelServiceProvider)
+          .getSubscribedChannels(limit: 200);
       if (!mounted) return;
       setState(() {
         _subscribedChannelIds
@@ -78,7 +78,9 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     });
 
     try {
-      final channels = await ChannelService.to.discoverChannels(limit: 50);
+      final channels = await ref
+          .read(channelServiceProvider)
+          .discoverChannels(limit: 50);
       if (mounted) {
         setState(() {
           _recommendedChannels = channels;

@@ -28,9 +28,9 @@ import 'package:imboy/store/model/conversation_model.dart';
 /// 覆盖：
 ///   - default state（isLoading=true）→ ShimmerList 可见
 ///   - empty state（conversations=[]，isLoading=false）→ NoDataView "无会话消息"
-///   - non-empty state → ListView 渲染（最低 1 项）
-///   - connectDesc 非空 → AppBar title 显示连接描述 + NetworkFailureTips 可见
-///   - RefreshIndicator 存在（pull-to-refresh 入口）
+///   - non-empty state → SliverList 渲染（最低 1 项）
+///   - connectDesc 非空 → NetworkFailureTips 可见（title 固定为 "消息"，不拼接描述）
+///   - 会话列表承载于 CustomScrollView（IosPageTemplate slivers）
 class _StateOverrideNotifier extends ConversationNotifier {
   _StateOverrideNotifier(this._initial);
   final ConversationState _initial;
@@ -128,10 +128,7 @@ void main() {
     testWidgets('isLoading=true → renders ShimmerList placeholder', (
       tester,
     ) async {
-      await _pumpConv(
-        tester,
-        state: const ConversationState(),
-      );
+      await _pumpConv(tester, state: const ConversationState());
 
       expect(find.byType(ShimmerList), findsOneWidget);
       expect(find.byType(NoDataView), findsNothing);
@@ -140,10 +137,7 @@ void main() {
 
     testWidgets('isLoading=false + empty → renders NoDataView '
         '"无会话消息"', (tester) async {
-      await _pumpConv(
-        tester,
-        state: const ConversationState(isLoading: false),
-      );
+      await _pumpConv(tester, state: const ConversationState(isLoading: false));
 
       expect(find.byType(NoDataView), findsOneWidget);
       expect(find.text('无会话消息'), findsOneWidget);
@@ -151,7 +145,7 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('isLoading=false + non-empty → renders ListView '
+    testWidgets('isLoading=false + non-empty → renders SliverList '
         'with conversation items', (tester) async {
       final c1 = _conv(id: 1, title: '张三');
       await _pumpConv(
@@ -163,7 +157,8 @@ void main() {
       );
 
       expect(find.byType(NoDataView), findsNothing);
-      expect(find.byType(ListView), findsOneWidget);
+      // 源码会话列表由 IosPageTemplate(slivers) → SliverList 承载（非 Material ListView）
+      expect(find.byType(SliverList), findsOneWidget);
       expect(find.text('张三'), findsOneWidget);
       await _unmount(tester);
     });
@@ -171,43 +166,36 @@ void main() {
 
   group('ConversationPage AppBar', () {
     testWidgets('AppBar title 默认 "消息"（无连接描述）', (tester) async {
-      await _pumpConv(
-        tester,
-        state: const ConversationState(isLoading: false),
-      );
+      await _pumpConv(tester, state: const ConversationState(isLoading: false));
 
       expect(find.text('消息'), findsOneWidget);
       await _unmount(tester);
     });
 
-    testWidgets('connectDesc 非空 → AppBar title 含描述 + '
-        'NetworkFailureTips 可见', (tester) async {
+    testWidgets('connectDesc 非空 → NetworkFailureTips 可见'
+        '（title 不再拼接描述）', (tester) async {
       await _pumpConv(
         tester,
-        state: const ConversationState(
-          isLoading: false,
-          connectDesc: '(无网络)',
-        ),
+        state: const ConversationState(isLoading: false, connectDesc: '(无网络)'),
       );
 
-      expect(find.text('消息(无网络)'), findsOneWidget);
+      // 源码 title 固定为 t.chat.titleMessage（"消息"），不再拼接 connectDesc；
+      // connectDesc 非空时改由 NetworkFailureTips 提示条呈现网络异常
+      expect(find.text('消息'), findsOneWidget);
       expect(find.byType(NetworkFailureTips), findsOneWidget);
       await _unmount(tester);
     });
 
     testWidgets('connectDesc 空 → NetworkFailureTips 不渲染', (tester) async {
-      await _pumpConv(
-        tester,
-        state: const ConversationState(isLoading: false),
-      );
+      await _pumpConv(tester, state: const ConversationState(isLoading: false));
       expect(find.byType(NetworkFailureTips), findsNothing);
       await _unmount(tester);
     });
   });
 
   group('ConversationPage interactions', () {
-    testWidgets('non-empty state contains RefreshIndicator '
-        '(pull-to-refresh entry)', (tester) async {
+    testWidgets('non-empty state 列表承载于可滚动 CustomScrollView '
+        '(IosPageTemplate slivers)', (tester) async {
       final c1 = _conv(id: 1, title: 'Alice');
       await _pumpConv(
         tester,
@@ -217,7 +205,9 @@ void main() {
         ),
       );
 
-      expect(find.byType(RefreshIndicator), findsOneWidget);
+      // 源码已从 RefreshIndicator 重构为 IosPageTemplate(slivers) → CustomScrollView，
+      // 不再有下拉刷新入口；验证会话列表承载于可滚动容器
+      expect(find.byType(CustomScrollView), findsOneWidget);
       await _unmount(tester);
     });
   });

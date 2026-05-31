@@ -451,21 +451,21 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                 margin: const EdgeInsets.only(top: 16),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
+                  color: AppColors.iosRed.withValues(alpha: 0.1),
                   borderRadius: AppRadius.borderRadiusSmall,
                 ),
                 child: Row(
                   children: [
                     const Icon(
                       Icons.error_outline,
-                      color: Colors.red,
+                      color: AppColors.iosRed,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         state.error!,
-                        style: const TextStyle(color: Colors.red),
+                        style: const TextStyle(color: AppColors.iosRed),
                       ),
                     ),
                   ],

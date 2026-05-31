@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, dev ]
   workflow_dispatch:
+  schedule:
+    # 每日 UTC 18:00 跑全量路由烟雾测试（进程隔离，较慢，不放 PR 快速门）
+    - cron: '0 18 * * *'
 
 env:
   FLUTTER_VERSION: '3.41.0'
@@ -47,9 +50,11 @@ jobs:
 
       - name: Run unit/widget tests
         run: |
-          TEST_FILES="$(find test -type f -name '*_test.dart' ! -path 'test/integration/*' | tr '\n' ' ')"
+          # 排除 test/integration/（独立 job）与 test/smoke/（共享 isolate 会级联，
+          # 由专用隔离 runner job route-smoke-test 运行）。
+          TEST_FILES="$(find test -type f -name '*_test.dart' ! -path 'test/integration/*' ! -path 'test/smoke/*' | tr '\n' ' ')"
           if [ -z "$TEST_FILES" ]; then
-            echo "No unit/widget test files found outside test/integration/"
+            echo "No unit/widget test files found outside test/integration/ and test/smoke/"
             exit 0
           fi
           flutter test $TEST_FILES --reporter=github
@@ -260,3 +265,30 @@ jobs:
         uses: dco-org/dco-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # ----------------------------------------------------------------
+  # 全页面路由烟雾测试（进程隔离）——仅 nightly schedule + 手动触发。
+  # 每条路由独立进程运行，规避共享 isolate 级联；较慢，不放 PR 快速门。
+  # ----------------------------------------------------------------
+  route-smoke-test:
+    name: Route Smoke Test (isolated)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run isolated route smoke test
+        run: bash test/smoke/run_smoke_isolated.sh --quiet

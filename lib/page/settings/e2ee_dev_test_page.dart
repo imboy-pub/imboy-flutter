@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
@@ -126,7 +127,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
         statusIcon = Icons.check_circle;
         break;
       case TestStatus.fail:
-        statusColor = Colors.red;
+        statusColor = AppColors.iosRed;
         statusIcon = Icons.error;
         break;
       case TestStatus.running:
@@ -514,7 +515,10 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
                 style: const TextStyle(color: Colors.green),
               ),
             if (failed > 0)
-              Text('❌ 失败: $failed', style: const TextStyle(color: Colors.red)),
+              Text(
+                '❌ 失败: $failed',
+                style: const TextStyle(color: AppColors.iosRed),
+              ),
             const SizedBox(height: 16),
             Text(
               failed == 0 ? '所有测试通过！' : '有失败的测试，请检查',

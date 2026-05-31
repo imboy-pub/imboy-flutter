@@ -7,6 +7,7 @@ import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// E2EE 密钥传输 - 发送页面
 /// 显示二维码，供新设备扫描
@@ -145,7 +146,11 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: AppColors.iosRed,
+              ),
               const SizedBox(height: 16),
               Text(_errorMessage!, textAlign: TextAlign.center),
               const SizedBox(height: 24),

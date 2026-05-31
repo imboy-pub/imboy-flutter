@@ -79,7 +79,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
   void _showSnackBar(
     BuildContext context,
     Widget message, {
-    Color backgroundColor = Colors.red,
+    Color backgroundColor = AppColors.iosRed,
     Duration duration = const Duration(seconds: 5),
   }) {
     if (!context.mounted) return;
@@ -124,7 +124,11 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: AppColors.iosRed,
+              ),
               const SizedBox(height: 16),
               Text(
                 t.common.unknown,
@@ -342,7 +346,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                     fontSize: 16,
                                   ),
                                 ),
-                                backgroundColor: Colors.green,
+                                backgroundColor: AppColors.iosGreen,
                                 duration: const Duration(seconds: 2),
                               );
                               // 注册成功后引导用户去管理账户（绑定手机号/关联邮箱）

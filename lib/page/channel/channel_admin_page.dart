@@ -12,6 +12,7 @@ import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/page/channel/channel_admin_add_rules.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
 
 /// 管理员信息
 class _AdminInfo {
@@ -53,7 +54,7 @@ class ChannelAdminPage extends ConsumerStatefulWidget {
 }
 
 class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
-  final ChannelApi _api = ChannelApi();
+  late final ChannelApi _api = ref.read(channelApiProvider);
   List<_AdminInfo> _admins = [];
   bool _isLoading = true;
   String? _error;
@@ -220,7 +221,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
             child: Text(t.common.confirm),
           ),
         ],
@@ -386,11 +387,11 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
                       child: ListTile(
                         leading: const Icon(
                           Icons.person_remove_outlined,
-                          color: Colors.red,
+                          color: AppColors.iosRed,
                         ),
                         title: Text(
                           t.channel.removeAdmin,
-                          style: const TextStyle(color: Colors.red),
+                          style: const TextStyle(color: AppColors.iosRed),
                         ),
                         contentPadding: EdgeInsets.zero,
                       ),

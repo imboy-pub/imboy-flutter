@@ -251,7 +251,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                             t.common.buttonDelete,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              color: Colors.red,
+                              color: AppColors.iosRed,
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -500,7 +500,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                   t.common.removeContactFromTag,
                                                   textAlign: TextAlign.center,
                                                   style: const TextStyle(
-                                                    color: Colors.red,
+                                                    color: AppColors.iosRed,
                                                     fontSize: 16.0,
                                                     fontWeight:
                                                         FontWeight.normal,

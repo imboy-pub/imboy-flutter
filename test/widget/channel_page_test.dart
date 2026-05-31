@@ -1,8 +1,10 @@
 // 频道列表页面 Widget 集成测试 / ChannelListPage Widget Integration Tests
 //
 // 测试策略 / Test strategy:
-//   - 通过 ProviderScope.overrideWithValue 注入 ChannelListState，不触发网络
-//   - 覆盖：空状态（订阅/管理）、列表渲染、加载态、错误态、未读计数入口
+//   - 通过 channelListProvider.overrideWith 注入 Fake Notifier，
+//     使 initState 的 loadSubscribedChannels 成为 no-op，不触发真实
+//     ChannelApi/ChannelService 网络与 pending timer。
+//   - 覆盖：空状态、列表渲染、加载态、错误态、AppBar 入口。
 //   - No real network required; stable in CI
 //
 // 运行方式 / How to run:
@@ -19,6 +21,30 @@ import 'package:imboy/store/model/channel_model.dart';
 // ---------------------------------------------------------------------------
 // 测试辅助 / Test helpers
 // ---------------------------------------------------------------------------
+
+/// Fake ChannelListNotifier
+///
+/// R3 NotifierProvider 不支持 overrideWithValue + .notifier 组合，必须以
+/// overrideWith 提供 Notifier 实例。此处重写 build() 返回固定状态，并将所有
+/// 网络加载方法置为 no-op，确保页面 initState 不触发真实 ChannelApi /
+/// ChannelService（消除 pending timer 与 teardown 断言失败）。
+class _FakeChannelListNotifier extends ChannelListNotifier {
+  _FakeChannelListNotifier(this._initial);
+
+  final ChannelListState _initial;
+
+  @override
+  ChannelListState build() => _initial;
+
+  @override
+  Future<void> loadSubscribedChannels() async {}
+
+  @override
+  Future<void> loadManagedChannels() async {}
+
+  @override
+  Future<void> loadMoreSubscribedChannels() async {}
+}
 
 /// 构建测试用 ChannelModel
 ChannelModel _makeChannel({
@@ -52,10 +78,15 @@ final _kSubscribedChannels = [
 /// 构建被测 Widget / Build widget under test
 ///
 /// TranslationProvider 防止 slang "Please wrap" 异常
-Widget _buildTestApp(Widget home, {List<dynamic> overrides = const []}) {
+Widget _buildTestApp(Widget home, {required ChannelListState listState}) {
   return TranslationProvider(
     child: ProviderScope(
-      overrides: overrides.cast(),
+      overrides: [
+        channelListProvider.overrideWith(
+          () => _FakeChannelListNotifier(listState),
+        ),
+        channelUnreadCountProvider.overrideWithValue(0),
+      ],
       child: MaterialApp(home: home),
     ),
   );
@@ -73,12 +104,7 @@ void main() {
       await tester.pumpWidget(
         _buildTestApp(
           const ChannelListPage(),
-          overrides: [
-            channelListProvider.overrideWithValue(
-              const ChannelListState(channels: [], isLoading: false),
-            ),
-            channelUnreadCountProvider.overrideWithValue(0),
-          ],
+          listState: const ChannelListState(channels: [], isLoading: false),
         ),
       );
       await tester.pumpAndSettle();
@@ -95,12 +121,7 @@ void main() {
       await tester.pumpWidget(
         _buildTestApp(
           const ChannelListPage(),
-          overrides: [
-            channelListProvider.overrideWithValue(
-              const ChannelListState(channels: [], isLoading: false),
-            ),
-            channelUnreadCountProvider.overrideWithValue(0),
-          ],
+          listState: const ChannelListState(channels: [], isLoading: false),
         ),
       );
       await tester.pumpAndSettle();
@@ -122,12 +143,7 @@ void main() {
       await tester.pumpWidget(
         _buildTestApp(
           const ChannelListPage(),
-          overrides: [
-            channelListProvider.overrideWithValue(
-              const ChannelListState(channels: [], isLoading: true),
-            ),
-            channelUnreadCountProvider.overrideWithValue(0),
-          ],
+          listState: const ChannelListState(channels: [], isLoading: true),
         ),
       );
       await tester.pump();
@@ -144,15 +160,10 @@ void main() {
       await tester.pumpWidget(
         _buildTestApp(
           const ChannelListPage(),
-          overrides: [
-            channelListProvider.overrideWithValue(
-              ChannelListState(
-                channels: _kSubscribedChannels,
-                isLoading: false,
-              ),
-            ),
-            channelUnreadCountProvider.overrideWithValue(0),
-          ],
+          listState: ChannelListState(
+            channels: _kSubscribedChannels,
+            isLoading: false,
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -168,15 +179,10 @@ void main() {
       await tester.pumpWidget(
         _buildTestApp(
           const ChannelListPage(),
-          overrides: [
-            channelListProvider.overrideWithValue(
-              ChannelListState(
-                channels: _kSubscribedChannels,
-                isLoading: false,
-              ),
-            ),
-            channelUnreadCountProvider.overrideWithValue(0),
-          ],
+          listState: ChannelListState(
+            channels: _kSubscribedChannels,
+            isLoading: false,
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -196,12 +202,10 @@ void main() {
       await tester.pumpWidget(
         _buildTestApp(
           const ChannelListPage(),
-          overrides: [
-            channelListProvider.overrideWithValue(
-              ChannelListState(channels: [verifiedChannel], isLoading: false),
-            ),
-            channelUnreadCountProvider.overrideWithValue(0),
-          ],
+          listState: ChannelListState(
+            channels: [verifiedChannel],
+            isLoading: false,
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -216,16 +220,11 @@ void main() {
       await tester.pumpWidget(
         _buildTestApp(
           const ChannelListPage(),
-          overrides: [
-            channelListProvider.overrideWithValue(
-              const ChannelListState(
-                channels: [],
-                isLoading: false,
-                error: 'NetworkException',
-              ),
-            ),
-            channelUnreadCountProvider.overrideWithValue(0),
-          ],
+          listState: const ChannelListState(
+            channels: [],
+            isLoading: false,
+            error: 'NetworkException',
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -242,12 +241,7 @@ void main() {
       await tester.pumpWidget(
         _buildTestApp(
           const ChannelListPage(),
-          overrides: [
-            channelListProvider.overrideWithValue(
-              const ChannelListState(channels: [], isLoading: false),
-            ),
-            channelUnreadCountProvider.overrideWithValue(0),
-          ],
+          listState: const ChannelListState(channels: [], isLoading: false),
         ),
       );
       await tester.pumpAndSettle();

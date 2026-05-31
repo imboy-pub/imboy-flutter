@@ -103,7 +103,7 @@ class PrivacySettingsPage extends ConsumerWidget {
                   title: t.common.clearChatRecords,
                   subtitle: t.common.clearChatRecordsDesc,
                   icon: Icons.delete_sweep,
-                  iconColor: Colors.orange,
+                  iconColor: AppColors.iosOrange,
                   onTap: () => _showClearChatDialog(context),
                 ),
 
@@ -112,7 +112,7 @@ class PrivacySettingsPage extends ConsumerWidget {
                   title: t.common.deleteAccountAction,
                   subtitle: t.common.deleteAccountActionDesc,
                   icon: Icons.warning,
-                  iconColor: Colors.red,
+                  iconColor: AppColors.iosRed,
                   onTap: () => _showDeleteAccountDialog(context),
                 ),
               ],
@@ -325,7 +325,7 @@ class PrivacySettingsPage extends ConsumerWidget {
             },
             child: Text(
               t.common.buttonConfirm,
-              style: const TextStyle(color: Colors.red),
+              style: const TextStyle(color: AppColors.iosRed),
             ),
           ),
         ],
@@ -352,7 +352,7 @@ class PrivacySettingsPage extends ConsumerWidget {
             },
             child: Text(
               t.common.buttonConfirm,
-              style: const TextStyle(color: Colors.red),
+              style: const TextStyle(color: AppColors.iosRed),
             ),
           ),
         ],

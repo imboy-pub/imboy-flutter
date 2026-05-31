@@ -9,10 +9,11 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_admin_add_rules.dart'
     show searchContactCandidates;
+import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_invitation_rules.dart';
-import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 订阅者信息模型
 class SubscriberInfo {
@@ -63,7 +64,7 @@ class ChannelSubscriberPage extends ConsumerStatefulWidget {
 }
 
 class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
-  final ChannelApi _api = ChannelApi();
+  late final ChannelApi _api = ref.read(channelApiProvider);
   List<SubscriberInfo> _subscribers = [];
   bool _isLoading = true;
   String? _error;
@@ -123,7 +124,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
             child: Text(t.common.confirm),
           ),
         ],
@@ -218,7 +219,9 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     // 先获取已有待处理邀请列表，用于过滤联系人
     List<Map<String, dynamic>> sentInvitations = [];
     try {
-      sentInvitations = await ChannelService.to.getSentInvitations();
+      sentInvitations = await ref
+          .read(channelServiceProvider)
+          .getSentInvitations();
     } catch (_) {
       // 获取失败时不阻塞邀请流程，直接显示全量联系人
     }
@@ -239,10 +242,9 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     if (inviteeUid == null || !mounted) return;
 
     final t = context.t;
-    final ok = await ChannelService.to.sendInvitation(
-      channelId: widget.channelId,
-      inviteeUid: inviteeUid,
-    );
+    final ok = await ref
+        .read(channelServiceProvider)
+        .sendInvitation(channelId: widget.channelId, inviteeUid: inviteeUid);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -371,11 +373,11 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
                   child: ListTile(
                     leading: const Icon(
                       Icons.person_remove_outlined,
-                      color: Colors.red,
+                      color: AppColors.iosRed,
                     ),
                     title: Text(
                       t.channel.removeSubscriber,
-                      style: const TextStyle(color: Colors.red),
+                      style: const TextStyle(color: AppColors.iosRed),
                     ),
                     contentPadding: EdgeInsets.zero,
                   ),

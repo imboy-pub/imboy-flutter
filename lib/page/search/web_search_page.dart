@@ -623,13 +623,13 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             Icon(
               Icons.error_outline,
               size: 64,
-              color: isDark ? const Color(0xFFE53935) : Colors.red,
+              color: isDark ? AppColors.iosRedDark : AppColors.iosRed,
             ),
             const SizedBox(height: 16),
             Text(
               _state.error!,
               style: TextStyle(
-                color: isDark ? const Color(0xFFE53935) : Colors.red,
+                color: isDark ? AppColors.iosRedDark : AppColors.iosRed,
                 fontSize: 14,
               ),
             ),
