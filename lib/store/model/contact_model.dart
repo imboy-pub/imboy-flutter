@@ -1,6 +1,5 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 /// 联系人数据模型
 /// 纯数据模型，不包含响应式状态
@@ -61,8 +60,6 @@ class ContactModel extends ISuspensionBean {
     //
     this.nameIndex = "",
     this.namePinyin,
-    this.bgColor,
-    this.iconData,
     this.firstLetter,
     this.onPressed,
     this.onLongPressed,
@@ -95,14 +92,18 @@ class ContactModel extends ISuspensionBean {
 
   String nameIndex;
   String? namePinyin;
-  Color? bgColor;
-  Widget? iconData;
   String? firstLetter;
 
   bool selected = false;
 
   final VoidCallback? onPressed;
   final VoidCallback? onLongPressed;
+
+  /// 是否为联系人菜单入口（朋友圈/附近的人/新的朋友/群聊/标签）。
+  ///
+  /// 菜单入口使用负值 `peerId` sentinel（见 contact_provider.dart 的
+  /// `kPeerId*` 常量），真实联系人 `peerId > 0`。纯数据谓词，不含 UI 关注点。
+  bool get isMenuEntry => peerId < 0;
 
   /// 联系人来源描述
   String get sourceTr {

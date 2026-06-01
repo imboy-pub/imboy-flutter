@@ -17,6 +17,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
+import 'contact_menu_decoration.dart';
 import 'contact_provider.dart';
 
 /// 联系人列表页面 - iOS 17 Premium 风格
@@ -80,7 +81,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   }
 
   void _handleContactLongPress(ContactModel model) {
-    if (model.iconData == null) {
+    if (!model.isMenuEntry) {
       final useSplitView = MediaQuery.sizeOf(context).width > 800;
       final action = resolveConversationTap(
         useSplitView: useSplitView,
@@ -109,7 +110,10 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     ContactModel model, {
     Color? defHeaderBgColor,
   }) {
-    final isSpecial = model.iconData != null;
+    final isSpecial = model.isMenuEntry;
+    final menuDecoration = isSpecial
+        ? contactMenuDecorationOf(model.peerId)
+        : null;
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
 
@@ -134,7 +138,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color:
-                    model.bgColor ??
+                    menuDecoration?.bgColor ??
                     defHeaderBgColor ??
                     AppColors.primary.withValues(alpha: 0.1),
               ),
@@ -142,12 +146,12 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                 data: IconThemeData(
                   color: isDark
                       ? Colors.white
-                      : (model.bgColor != null
+                      : (menuDecoration?.bgColor != null
                             ? Colors.white
                             : AppColors.primary),
                   size: 24,
                 ),
-                child: model.iconData!,
+                child: menuDecoration?.iconData ?? const SizedBox.shrink(),
               ),
             ),
           if (!isSpecial)

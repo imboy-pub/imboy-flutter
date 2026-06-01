@@ -11,6 +11,7 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/page/contact/contact/contact_menu_decoration.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_provider.dart';
 import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_page.dart';
 import 'package:imboy/service/assets.dart';
@@ -64,17 +65,20 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
     ContactModel model, {
     Color? defHeaderBgColor,
   }) {
+    final menuDecoration = model.isMenuEntry
+        ? contactMenuDecorationOf(model.peerId)
+        : null;
     return InkWell(
       onTap: model.onPressed,
       onLongPress: model.onLongPressed,
       child: Container(
-        color: model.bgColor,
+        color: menuDecoration?.bgColor,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
             // 头像或图标
-            if (model.iconData != null)
-              SizedBox(width: 49, height: 49, child: model.iconData)
+            if (model.isMenuEntry)
+              SizedBox(width: 49, height: 49, child: menuDecoration?.iconData)
             else
               Avatar(imgUri: model.avatar, width: 49, height: 49),
             const Space(),

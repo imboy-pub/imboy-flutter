@@ -199,13 +199,11 @@ void main() {
         peerId: kPeerIdNewFriend,
         nickname: '新的朋友',
         nameIndex: '↑',
-        iconData: const Center(child: Icon(Icons.person_add, size: 24)),
       );
       final groupEntry = ContactModel(
         peerId: kPeerIdGroup,
         nickname: '群聊',
         nameIndex: '↑',
-        iconData: const Icon(Icons.people, size: 24, color: Colors.white),
       );
 
       await tester.pumpWidget(

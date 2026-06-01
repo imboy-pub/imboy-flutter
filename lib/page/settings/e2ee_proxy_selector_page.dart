@@ -60,7 +60,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
 
       // 过滤出真实的好友（排除特殊联系人）
       final friendContacts = contacts
-          .where((c) => c.iconData == null && c.peerId != 0)
+          .where((c) => !c.isMenuEntry && c.peerId != 0)
           .toList();
 
       // 获取每个好友的公钥

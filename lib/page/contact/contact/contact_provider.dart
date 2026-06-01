@@ -8,7 +8,6 @@ import 'package:lpinyin/lpinyin.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:azlistview/azlistview.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 
 part 'contact_provider.g.dart';
 
@@ -101,15 +100,13 @@ class ContactNotifier extends _$ContactNotifier {
     final topItems = <ContactModel>[];
 
     // 朋友圈（首位，社交动态入口）
+    // 视觉装饰（bgColor/iconData）由 presentation 层 contactMenuDecorationOf
+    // 按 peerId 派生，模型仅保留纯数据。
     topItems.add(
       ContactModel(
         peerId: kPeerIdMomentFeed,
         nickname: t.discovery.moments,
         nameIndex: '↑',
-        bgColor: Colors.deepOrange,
-        iconData: const Center(
-          child: Icon(Icons.dynamic_feed, size: 24, color: Colors.white),
-        ),
       ),
     );
 
@@ -119,10 +116,6 @@ class ContactNotifier extends _$ContactNotifier {
           peerId: kPeerIdPeopleNearby,
           nickname: t.discovery.findNearbyPeople,
           nameIndex: '↑',
-          bgColor: AppColors.iosOrange,
-          iconData: const Center(
-            child: Icon(Icons.person_pin_circle, size: 24, color: Colors.white),
-          ),
         ),
       );
     }
@@ -132,22 +125,16 @@ class ContactNotifier extends _$ContactNotifier {
         peerId: kPeerIdNewFriend,
         nickname: t.contact.newFriend,
         nameIndex: '↑',
-        bgColor: AppColors.iosOrange,
-        iconData: const Center(child: Icon(Icons.person_add, size: 24)),
       ),
       ContactModel(
         peerId: kPeerIdGroup,
         nickname: t.chat.groupChat,
         nameIndex: '↑',
-        bgColor: AppColors.iosGreen,
-        iconData: const Icon(Icons.people, size: 24, color: Colors.white),
       ),
       ContactModel(
         peerId: kPeerIdTag,
         nickname: t.contact.tags,
         nameIndex: '↑',
-        bgColor: AppColors.iosBlue,
-        iconData: const Icon(Icons.local_offer, size: 24, color: Colors.white),
       ),
     ]);
 
