@@ -8,6 +8,7 @@ import 'package:imboy/component/chat/message_spacing.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 class VisitCardMessageBuilder extends StatefulWidget {
   const VisitCardMessageBuilder({

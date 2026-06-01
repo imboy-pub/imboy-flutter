@@ -28,6 +28,7 @@ import 'user_collect_state.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 part 'user_collect_provider.g.dart';
 

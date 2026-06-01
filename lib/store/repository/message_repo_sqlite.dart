@@ -21,6 +21,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_repository.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class MessageRepo implements MessageRepository {

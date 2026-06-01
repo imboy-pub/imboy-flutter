@@ -14,6 +14,7 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 class AudioMessageBuilder extends StatefulWidget {
   final String type;
@@ -391,7 +392,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(MessageSpacing.bubbleBorderRadius),
+          borderRadius: BorderRadius.circular(
+            MessageSpacing.bubbleBorderRadius,
+          ),
           onTap: () => _handlePlayPause(audioPath, msg, duration),
           child: Padding(
             padding: MessageSpacing.bubblePaddingSymmetric,
@@ -478,7 +481,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
             ),
             child: Icon(
               isPlayingUI
-                  ? (isPausedUI ? CupertinoIcons.play_fill : CupertinoIcons.pause_fill)
+                  ? (isPausedUI
+                        ? CupertinoIcons.play_fill
+                        : CupertinoIcons.pause_fill)
                   : CupertinoIcons.play_fill,
               color: iconColor,
               size: 20,

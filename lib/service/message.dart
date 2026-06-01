@@ -30,6 +30,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 import 'message_actions.dart';
 import 'message_s2c.dart';

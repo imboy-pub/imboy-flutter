@@ -8,6 +8,7 @@ import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 /// MessageRetry
 /// 消息重试机制，处理失败消息的重试逻辑

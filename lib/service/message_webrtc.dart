@@ -14,6 +14,7 @@ import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 /// MessageWebrtc
 /// WebRTC 消息处理，包含音视频通话相关功能
@@ -214,7 +215,8 @@ class MessageWebrtc {
     if (msg == null) return;
     webrtcMsgIds.clear();
 
-    final metadata = (msg.payload as Map<String, dynamic>?)?.cast<String, dynamic>() ?? {};
+    final metadata =
+        (msg.payload as Map<String, dynamic>?)?.cast<String, dynamic>() ?? {};
     final msgType = metadata['msg_type'] ?? '';
     if (![MessageType.webrtcVideo, MessageType.webrtcAudio].contains(msgType)) {
       return;

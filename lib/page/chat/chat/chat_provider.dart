@@ -46,6 +46,7 @@ import 'package:imboy/page/chat/chat/services/message_handling_service.dart';
 import 'package:imboy/page/chat/chat/providers/chat_audio_handler.dart';
 // 技术债清理 (#14): 统一 ChatState 来源，避免与 chat_state.dart 双份定义
 import 'package:imboy/page/chat/chat/chat_state.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 export 'package:imboy/page/chat/chat/chat_state.dart' show ChatState;
 
 part 'chat_provider.g.dart';

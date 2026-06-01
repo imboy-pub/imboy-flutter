@@ -14,6 +14,7 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 /// 音频播放处理器
 ///

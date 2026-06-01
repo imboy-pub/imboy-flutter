@@ -24,6 +24,7 @@ import 'package:imboy/modules/identity/domain/value/user_id.dart' as ddd;
 import 'package:imboy/modules/messaging/domain/message.dart' as ddd;
 import 'package:imboy/modules/messaging/domain/message_status.dart' as ddd;
 import 'package:imboy/modules/messaging/domain/value/message_id.dart' as ddd;
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 // Legacy compatibility surface. External callers should now import
 // `package:imboy/modules/messaging/public.dart`; this file remains the action

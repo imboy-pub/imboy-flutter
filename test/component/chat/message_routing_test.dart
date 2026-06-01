@@ -4,6 +4,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helper/sqflite_test_helper.dart';

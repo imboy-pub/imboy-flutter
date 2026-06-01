@@ -25,6 +25,7 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart' show AudioFile;
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 /// 附件上传回调
 typedef AttachmentUploadedCallback = Future<bool> Function(Message message);

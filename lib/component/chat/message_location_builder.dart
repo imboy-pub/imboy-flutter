@@ -13,6 +13,7 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 class LocationMessageBuilder extends StatefulWidget {
   final User user;

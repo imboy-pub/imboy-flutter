@@ -13,6 +13,7 @@ import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 // 日志记录器
 final _msgLogger = Logger(printer: PrettyPrinter(methodCount: 0));
