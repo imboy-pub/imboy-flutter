@@ -14,7 +14,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/page/chat/chat/utils/quote_author_rules.dart';
+import 'package:imboy/modules/messaging/domain/policy/quote_author_rules.dart';
 
 void main() {
   const me = 'uid_me_001';

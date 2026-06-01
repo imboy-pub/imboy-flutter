@@ -17,7 +17,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/page/chat/chat/utils/event_filter_rules.dart';
+import 'package:imboy/modules/messaging/domain/policy/event_filter_rules.dart';
 
 void main() {
   // ─────────────────────────────────────────────────────────
@@ -40,10 +40,7 @@ void main() {
 
     test('errorType 匹配时 message 无关紧要', () {
       expect(
-        isRelevantChatError(
-          errorType: 'not_a_friend',
-          message: '完全不相关的消息',
-        ),
+        isRelevantChatError(errorType: 'not_a_friend', message: '完全不相关的消息'),
         isTrue,
       );
     });
@@ -53,20 +50,14 @@ void main() {
     test('message 含 "非好友" → true', () {
       // 后端实际错误消息示例:非好友关系不能发送
       expect(
-        isRelevantChatError(
-          errorType: 'other_error',
-          message: '发送失败，非好友关系',
-        ),
+        isRelevantChatError(errorType: 'other_error', message: '发送失败，非好友关系'),
         isTrue,
       );
     });
 
     test('message 含 "黑名单" → true', () {
       expect(
-        isRelevantChatError(
-          errorType: 'other_error',
-          message: '你在对方的黑名单中',
-        ),
+        isRelevantChatError(errorType: 'other_error', message: '你在对方的黑名单中'),
         isTrue,
       );
     });
@@ -84,10 +75,7 @@ void main() {
     });
 
     test('空 errorType + 空 message → false', () {
-      expect(
-        isRelevantChatError(errorType: '', message: ''),
-        isFalse,
-      );
+      expect(isRelevantChatError(errorType: '', message: ''), isFalse);
     });
   });
 

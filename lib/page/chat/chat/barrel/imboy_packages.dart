@@ -18,17 +18,17 @@ export 'package:imboy/page/chat/widget/message_action_menu.dart';
 export 'package:imboy/page/chat/widget/chat_background_manager.dart';
 export 'package:imboy/page/chat/widget/chat_message_list.dart';
 export 'package:imboy/page/chat/mention_all_rules.dart';
-export 'package:imboy/page/chat/chat/utils/typing_indicator_rules.dart';
-export 'package:imboy/page/chat/chat/utils/send_mode_rules.dart';
-export 'package:imboy/page/chat/chat/utils/event_filter_rules.dart';
+export 'package:imboy/modules/messaging/domain/policy/typing_indicator_rules.dart';
+export 'package:imboy/modules/messaging/domain/policy/send_mode_rules.dart';
+export 'package:imboy/modules/messaging/domain/policy/event_filter_rules.dart';
 export 'package:imboy/page/chat/chat/utils/message_action_rules.dart';
-export 'package:imboy/page/chat/chat/utils/quote_author_rules.dart';
-export 'package:imboy/page/chat/chat/utils/visibility_read_rules.dart';
+export 'package:imboy/modules/messaging/domain/policy/quote_author_rules.dart';
+export 'package:imboy/modules/messaging/domain/policy/visibility_read_rules.dart';
 export 'package:imboy/page/chat/chat/utils/image_url_extract_rules.dart';
-export 'package:imboy/page/chat/chat/utils/message_bubble_rules.dart';
-export 'package:imboy/page/chat/chat/utils/burn_read_at_rules.dart';
-export 'package:imboy/page/chat/chat/utils/burn_after_ms_rules.dart';
-export 'package:imboy/page/chat/chat/utils/image_gallery_page_rules.dart';
+export 'package:imboy/modules/messaging/domain/policy/message_bubble_rules.dart';
+export 'package:imboy/modules/messaging/domain/policy/burn_read_at_rules.dart';
+export 'package:imboy/modules/messaging/domain/policy/burn_after_ms_rules.dart';
+export 'package:imboy/modules/messaging/domain/policy/image_gallery_page_rules.dart';
 export 'package:imboy/page/chat/chat/utils/message_status_icon_rules.dart';
 
 // 服务

@@ -25,18 +25,18 @@ import 'package:imboy/page/chat/chat/utils/image_url_extract_rules.dart';
 // 测试辅助工厂
 // ─────────────────────────────────────────────────────────
 ImageMessage _img(String source) => ImageMessage(
-      id: 'img_${source.hashCode}',
-      authorId: 'user1',
-      createdAt: DateTime(2024),
-      source: source,
-    );
+  id: 'img_${source.hashCode}',
+  authorId: 'user1',
+  createdAt: DateTime(2024),
+  source: source,
+);
 
 CustomMessage _custom(Map<String, dynamic> metadata) => CustomMessage(
-      id: 'custom_${metadata.hashCode}',
-      authorId: 'user1',
-      createdAt: DateTime(2024),
-      metadata: metadata,
-    );
+  id: 'custom_${metadata.hashCode}',
+  authorId: 'user1',
+  createdAt: DateTime(2024),
+  metadata: metadata,
+);
 
 void main() {
   // ─────────────────────────────────────────────────────────

@@ -11,18 +11,14 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/page/chat/chat/utils/typing_indicator_rules.dart';
+import 'package:imboy/modules/messaging/domain/policy/typing_indicator_rules.dart';
 
 void main() {
   final base = DateTime(2026, 1, 1, 12, 0, 0);
 
   group('text 为空 → TypingStopImmediately', () {
     test('空字符串 + lastSentAt=null → stop', () {
-      final d = decideTypingIndicator(
-        text: '',
-        lastSentAt: null,
-        now: base,
-      );
+      final d = decideTypingIndicator(text: '', lastSentAt: null, now: base);
       expect(d, isA<TypingStopImmediately>());
     });
 
@@ -38,11 +34,7 @@ void main() {
 
   group('lastSentAt=null → TypingStartAndResetIdle', () {
     test('首次输入（任意非空文本）→ start，newLastSentAt == now', () {
-      final d = decideTypingIndicator(
-        text: 'hi',
-        lastSentAt: null,
-        now: base,
-      );
+      final d = decideTypingIndicator(text: 'hi', lastSentAt: null, now: base);
       expect(d, isA<TypingStartAndResetIdle>());
       expect((d as TypingStartAndResetIdle).newLastSentAt, base);
     });
@@ -59,11 +51,7 @@ void main() {
     });
 
     test('刚刚（0ms 前）已发 → 窗口内', () {
-      final d = decideTypingIndicator(
-        text: 'hi',
-        lastSentAt: base,
-        now: base,
-      );
+      final d = decideTypingIndicator(text: 'hi', lastSentAt: base, now: base);
       expect(d, isA<TypingResetIdleOnly>());
     });
   });
@@ -125,11 +113,7 @@ void main() {
   group('newLastSentAt 语义（start 分支始终回传传入的 now）', () {
     test('越界场景回传 now（即便 lastSentAt 非 null）', () {
       final long = base.subtract(const Duration(hours: 1));
-      final d = decideTypingIndicator(
-        text: 'hi',
-        lastSentAt: long,
-        now: base,
-      );
+      final d = decideTypingIndicator(text: 'hi', lastSentAt: long, now: base);
       expect((d as TypingStartAndResetIdle).newLastSentAt, base);
     });
   });
@@ -138,11 +122,7 @@ void main() {
     test("只含空格的文本被视为'非空'（与当前 text.isEmpty 语义一致）", () {
       // 钉死当前实现:用 `text.isEmpty` 判空,不 trim
       // 若未来想把"仅空格"视作"未输入",需显式改代码
-      final d = decideTypingIndicator(
-        text: '   ',
-        lastSentAt: null,
-        now: base,
-      );
+      final d = decideTypingIndicator(text: '   ', lastSentAt: null, now: base);
       expect(d, isA<TypingStartAndResetIdle>());
     });
   });

@@ -19,7 +19,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/page/chat/chat/utils/message_bubble_rules.dart';
+import 'package:imboy/modules/messaging/domain/policy/message_bubble_rules.dart';
 
 void main() {
   // ─────────────────────────────────────────────────────────

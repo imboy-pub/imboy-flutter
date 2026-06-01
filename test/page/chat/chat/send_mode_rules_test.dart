@@ -12,7 +12,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/page/chat/chat/utils/send_mode_rules.dart';
+import 'package:imboy/modules/messaging/domain/policy/send_mode_rules.dart';
 
 void main() {
   final base = DateTime(2026, 1, 1, 12, 0, 0);

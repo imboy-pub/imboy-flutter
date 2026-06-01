@@ -21,7 +21,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/page/chat/chat/utils/burn_read_at_rules.dart';
+import 'package:imboy/modules/messaging/domain/policy/burn_read_at_rules.dart';
 
 void main() {
   group('parseBurnReadAtMs', () {
@@ -46,7 +46,10 @@ void main() {
     });
 
     test('burn_read_at 为 String 数字 → 解析为 int', () {
-      expect(parseBurnReadAtMs({'burn_read_at': '1713000000000'}), 1713000000000);
+      expect(
+        parseBurnReadAtMs({'burn_read_at': '1713000000000'}),
+        1713000000000,
+      );
     });
 
     test('burn_read_at 为 String "0" → 0', () {

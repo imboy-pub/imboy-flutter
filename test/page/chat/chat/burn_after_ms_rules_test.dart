@@ -25,7 +25,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/page/chat/chat/utils/burn_after_ms_rules.dart';
+import 'package:imboy/modules/messaging/domain/policy/burn_after_ms_rules.dart';
 
 void main() {
   group('parseBurnAfterMs', () {

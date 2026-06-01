@@ -19,7 +19,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/page/chat/chat/utils/image_gallery_page_rules.dart';
+import 'package:imboy/modules/messaging/domain/policy/image_gallery_page_rules.dart';
 
 void main() {
   group('resolveInitialImagePage', () {
