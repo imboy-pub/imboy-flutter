@@ -15,9 +15,9 @@
 library;
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/group_collab/domain/value/group_role.dart';
 
 const int _roleMember = 1;
-const int _roleAdmin = 3;
 
 /// 将原始 role 映射为严格单调的**权威等级**（越大权威越高）。
 ///
@@ -66,7 +66,8 @@ bool canMuteGroupMember({
   if (currentRank == 0 || targetRank == 0) return false;
 
   // 仅管理员及以上（admin / vice_owner / owner）可操作
-  if (currentRank < _authorityRank(_roleAdmin)) return false;
+  // —— T2.5 委托领域层 GroupRole.canMute（管理员级权限矩阵）。
+  if (!GroupRole(currentRole).canMute) return false;
 
   // 权威严格高于目标
   return currentRank > targetRank;
