@@ -1,11 +1,12 @@
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/modules/group_collab/infrastructure/group_repository.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
-class GroupRepo {
+class GroupRepo implements GroupRepository {
   static String tableName = 'group';
 
   static String groupId = 'id'; //
@@ -378,6 +379,7 @@ class GroupRepo {
   }
 
   // 插入一条数据
+  @override
   Future<GroupModel> insert(GroupModel obj, {Transaction? txn}) async {
     Map<String, dynamic> insert = {
       GroupRepo.groupId: obj.groupId,
@@ -405,6 +407,7 @@ class GroupRepo {
   }
 
   // 根据ID删除信息
+  @override
   Future<int> delete(String gid) async {
     return await _db.delete(
       GroupRepo.tableName,
@@ -414,6 +417,7 @@ class GroupRepo {
   }
 
   // 更新信息
+  @override
   Future<int> update(
     String gid,
     Map<String, dynamic> json, {
@@ -495,6 +499,7 @@ class GroupRepo {
     }
   }
 
+  @override
   Future<GroupModel> save(String gid, Map<String, dynamic> json) async {
     if (gid.isEmpty) {
       gid =
@@ -515,6 +520,7 @@ class GroupRepo {
     });
   }
 
+  @override
   Future<GroupModel?> findById(String gid, {Transaction? txn}) async {
     List<Map<String, dynamic>> maps;
     if (txn != null) {

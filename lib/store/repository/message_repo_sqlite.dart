@@ -19,10 +19,11 @@ import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_fts_repo.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_repository.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
-class MessageRepo {
+class MessageRepo implements MessageRepository {
   // v2.0 表名常量（与服务端保持一致）
   static const String c2cTable = 'msg_c2c';
   static const String c2gTable = 'msg_c2g';
@@ -93,6 +94,7 @@ class MessageRepo {
 
   final SqliteService _db = SqliteService.to;
 
+  @override
   final String tableName;
 
   MessageRepo({required this.tableName}) {
@@ -104,6 +106,7 @@ class MessageRepo {
 
   /// 获取实际使用的表名。
   /// 项目未发布，统一使用当前版本标准表名。
+  @override
   Future<String> getActualTableName() async {
     return tableName;
   }
@@ -237,6 +240,7 @@ class MessageRepo {
   }
 
   // 插入一条数据
+  @override
   Future<MessageModel> insert(MessageModel msg, {Transaction? txn}) async {
     // 数据验证
     if (!_validateMessageData(msg)) {
@@ -310,6 +314,7 @@ class MessageRepo {
   }
 
   // 更新信息
+  @override
   Future<int> update(Map<String, dynamic> data, {Transaction? txn}) async {
     // payload: Map -> JSON 字符串
     if (data.containsKey(MessageRepo.payload) &&
@@ -354,6 +359,7 @@ class MessageRepo {
   /// [txn] 可选的事务对象
   ///
   /// 返回更新的行数（如果为 0，说明没有符合条件的记录）
+  @override
   Future<int> updateWithConditions(
     Map<String, dynamic> data, {
     String? where,
@@ -396,6 +402,7 @@ class MessageRepo {
   }
 
   // 存在就更新，不存在就插入
+  @override
   Future<int?> save(MessageModel obj, {Transaction? txn}) async {
     int? count;
     if (txn != null) {
@@ -422,6 +429,7 @@ class MessageRepo {
     return count;
   }
 
+  @override
   Future<List<MessageModel>> pageForConversation(
     String uk3,
     int nextAutoId,
@@ -478,6 +486,7 @@ class MessageRepo {
   }
 
   /// 加载较新的消息（用于双向分页）
+  @override
   Future<List<MessageModel>> pageNewerForConversation(
     String uk3,
     int prevAutoId,
@@ -523,6 +532,7 @@ class MessageRepo {
     }
   }
 
+  @override
   Future<List<MessageModel>> page({
     required int page,
     required int size,
@@ -613,6 +623,7 @@ class MessageRepo {
   }
 
   /// 创建搜索索引
+  @override
   Future<void> createSearchIndexes() async {
     try {
       // 为搜索相关的字段创建索引
@@ -649,6 +660,7 @@ class MessageRepo {
   }
 
   //
+  @override
   Future<MessageModel?> find(String id, {Transaction? txn}) async {
     List<Map<String, dynamic>> maps;
     if (txn != null) {
@@ -674,6 +686,7 @@ class MessageRepo {
   }
 
   // 根据ID删除信息
+  @override
   Future<int> delete(String id) async {
     return await _db.delete(
       tableName,
@@ -683,6 +696,7 @@ class MessageRepo {
   }
 
   // 根据UID删除信息
+  @override
   Future<int> deleteByUid(String uid) async {
     return await _db.delete(
       tableName,
@@ -693,6 +707,7 @@ class MessageRepo {
 
   /// 根据状态查找消息
   /// Find messages by status.
+  @override
   Future<List<MessageModel>> findByStatus(
     String conversationUk3,
     int status,
@@ -714,6 +729,7 @@ class MessageRepo {
 
   /// 批量更新消息状态
   /// Batch update message status.
+  @override
   Future<int> batchUpdateStatus(List<String> messageIds, int status) async {
     if (messageIds.isEmpty) return 0;
 
@@ -728,6 +744,7 @@ class MessageRepo {
     );
   }
 
+  @override
   Future<int> deleteByConversationId(String uk3) async {
     return await _db.delete(
       tableName,
@@ -736,6 +753,7 @@ class MessageRepo {
     );
   }
 
+  @override
   Future<MessageModel?> lastMsg() async {
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
@@ -752,6 +770,7 @@ class MessageRepo {
   }
 
   /// 批量插入离线消息
+  @override
   Future<List<String>?> batchInsertOfflineMessages(
     List<Map<String, dynamic>> messages, {
     Future<void> Function(Map<String, dynamic>)? onS2CMessage,
@@ -1383,6 +1402,7 @@ class MessageRepo {
   /// [peerId] 对方用户 ID
   /// [since] 起始时间戳（毫秒），可选
   /// Returns: 消息数量
+  @override
   Future<int> countMessagesWithUser(String peerId, {int? since}) async {
     try {
       int total = 0;

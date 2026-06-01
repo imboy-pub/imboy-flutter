@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/modules/social_graph/infrastructure/contact_repository.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/api/contact_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
-class ContactRepo {
+class ContactRepo implements ContactRepository {
   static String tableName = 'contact';
 
   static String userId = 'user_id'; // 联系人所属用户ID
@@ -90,6 +91,7 @@ class ContactRepo {
   }
 
   // 插入一条数据
+  @override
   Future<ContactModel> insert(ContactModel obj, {Transaction? txn}) async {
     String tag = _formatTag(obj.tag);
 
@@ -176,6 +178,7 @@ class ContactRepo {
   }
 
   //
+  @override
   Future<ContactModel?> findByUid(
     String uid, {
     bool autoFetch = true,
@@ -220,6 +223,7 @@ class ContactRepo {
   }
 
   // 根据ID删除信息
+  @override
   Future<int> delete(String uid) async {
     return await _db.delete(
       ContactRepo.tableName,
@@ -229,6 +233,7 @@ class ContactRepo {
   }
 
   // 更新信息
+  @override
   Future<int> update(Map<String, dynamic> json, {Transaction? txn}) async {
     String peerId = (json["id"] ?? (json[ContactRepo.peerId] ?? "")).toString();
 
@@ -299,6 +304,7 @@ class ContactRepo {
   }
 
   /// checkIsFriend = true 的时候，保留旧的 isFriend 值
+  @override
   Future<ContactModel?> save(Map<String, dynamic> json) async {
     // [DIAG #19] 诊断日志：查 Flutter 当前 uid + 入参 JSON
     debugPrint(
@@ -343,6 +349,7 @@ class ContactRepo {
     });
   }
 
+  @override
   Future<int> deleteByUid(String uid) async {
     return await _db.delete(
       ContactRepo.tableName,
