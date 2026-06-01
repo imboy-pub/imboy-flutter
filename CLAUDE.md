@@ -142,6 +142,7 @@ lib/i18n/
 | `lib/service/` | WebSocket、消息、数据库服务 | [service/CLAUDE.md](./lib/service/CLAUDE.md) |
 | `lib/store/` | Repository、Api、Model | [store/CLAUDE.md](./lib/store/CLAUDE.md) |
 | `lib/theme/` | 主题管理和样式系统 | [theme/CLAUDE.md](./lib/theme/CLAUDE.md) |
+| `lib/modules/messaging/` | 消息 DDD 模块（充血领域 + 四层架构） | [messaging/CLAUDE.md](./lib/modules/messaging/CLAUDE.md) |
 
 ---
 
