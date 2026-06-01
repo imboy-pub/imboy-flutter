@@ -35,6 +35,9 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
+// T4.2b: 域 MessageStatus（与 flutter_chat_core.MessageStatus 同名,用前缀避免冲突）
+import 'package:imboy/modules/messaging/domain/message_status.dart'
+    as domain_msg;
 
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
 import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
@@ -1433,7 +1436,14 @@ class ChatPageState extends ConsumerState<ChatPage>
     final caps = resolveLongPressCapabilities(
       messageAuthorId: message.authorId,
       currentUid: UserRepoLocal.to.currentUid,
-      messageStatus: message.status ?? MessageStatus.sent,
+      // 边界映射: flutter_chat_core.MessageStatus → 域 MessageStatus(T4.2b)
+      messageStatus: switch (message.status) {
+        MessageStatus.error => domain_msg.MessageStatus.error,
+        MessageStatus.sending => domain_msg.MessageStatus.sending,
+        MessageStatus.delivered => domain_msg.MessageStatus.delivered,
+        MessageStatus.seen => domain_msg.MessageStatus.seen,
+        MessageStatus.sent || null => domain_msg.MessageStatus.sent,
+      },
     );
     final canEdit = canEditMessage(message);
 

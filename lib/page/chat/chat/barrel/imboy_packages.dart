@@ -21,7 +21,7 @@ export 'package:imboy/page/chat/mention_all_rules.dart';
 export 'package:imboy/modules/messaging/domain/policy/typing_indicator_rules.dart';
 export 'package:imboy/modules/messaging/domain/policy/send_mode_rules.dart';
 export 'package:imboy/modules/messaging/domain/policy/event_filter_rules.dart';
-export 'package:imboy/page/chat/chat/utils/message_action_rules.dart';
+export 'package:imboy/modules/messaging/domain/policy/message_action_rules.dart';
 export 'package:imboy/modules/messaging/domain/policy/quote_author_rules.dart';
 export 'package:imboy/modules/messaging/domain/policy/visibility_read_rules.dart';
 export 'package:imboy/page/chat/chat/utils/image_url_extract_rules.dart';

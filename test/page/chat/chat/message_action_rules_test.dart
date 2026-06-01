@@ -11,9 +11,9 @@
 ///   - canDeleteForEveryone = isSentByMe  (derived getter)
 library;
 
-import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/page/chat/chat/utils/message_action_rules.dart';
+import 'package:imboy/modules/messaging/domain/message_status.dart';
+import 'package:imboy/modules/messaging/domain/policy/message_action_rules.dart';
 
 void main() {
   const me = 'user_me_001';
