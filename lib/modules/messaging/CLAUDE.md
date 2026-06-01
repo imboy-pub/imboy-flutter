@@ -102,11 +102,23 @@ export 'infrastructure/message_service_adapter.dart';
 export 'presentation/chat_entry.dart';        // ChatEntry
 ```
 
+### message_models.dart — barrel 模式（架构决策，T4.2c）
+
+`domain/message_models.dart` **有意保持为纯 re-export barrel**，仅收敛对外消息类型，
+**不新建域自有 Message 实体替代 `flutter_chat_core.Message`**。
+
+- 理由（KISS/YAGNI）：消费方（chat_page + flutter_chat_ui 渲染层）直接依赖 fcc.Message UI 模型，替代将引入大量边界映射且无领域不变量收益。
+- 领域不变量已由 `domain/message.dart`（撤回/编辑充血实体）+ `domain/policy/*`（纯函数策略）承载。
+- ⚠️ **此 barrel 非技术债**，勿误判为「待升级真实定义」而强行替换。
+
+`domain/message_models.dart` is **intentionally a pure re-export barrel** — no domain-owned
+Message entity replacing `flutter_chat_core.Message`. **Not tech debt.**
+
 ---
 
 ## 待办与技术债 / TODO & Tech Debt
 
-- **T4.2c（需架构决策）**：`domain/message_models.dart` 当前为纯 re-export barrel（含 `flutter_chat_core.Message`、`MessageModel`、`MessageRepo` 等）。"升级真实定义"目标待产品/架构确认（域自有 Message 实体替代 fcc re-export，还是保持 barrel）。
+- ~~T4.2c~~ **已定（barrel 模式，见上「对外接口」专节）**：`message_models.dart` 保持纯 re-export barrel，非技术债。
 - **T4.4（高成本，独立会话）**：为 Message/Group/User Repository 抽 `abstract interface`，SQLite 实现移入 `infrastructure/`；清理 T1.6 残留——`store/model/message_model.dart`（1073 行）的 `to`/`from` getter + `toTypeMessage()` 仍直调 `ContactRepo`/`UserRepoLocal` 运行时富化，迁入 ViewModel/mapper 后移除 2 处反向 import。
 - **其他模块文档**：`lib/modules/` 另 7 个 bounded context（identity/group_collab/social_graph/…）暂无 CLAUDE.md，本轮（T4.3）仅覆盖 messaging，余项待后续。
 
@@ -117,3 +129,4 @@ export 'presentation/chat_entry.dart';        // ChatEntry
 | 日期 | 内容 |
 |------|------|
 | 2026-06-01 | T4.3：首次创建 messaging 模块 DDD 架构文档，记录四层结构、领域纯度约定、10 个 policy 规则、canRevoke 语义边界、对外接口与技术债 |
+| 2026-06-01 | T4.2c：固化 message_models barrel 架构决策（保持 re-export，非技术债），补「对外接口」专节说明 |
