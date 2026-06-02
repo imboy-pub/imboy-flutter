@@ -88,7 +88,7 @@ class E2EEApi extends HttpClient {
 
   /// GET /v1/e2ee/key/status — 查询当前设备密钥的服务端注册状态
   ///
-  /// 返回 {registered, key_id, expired, expires_at} 或 null
+  /// 返回 {has_valid_key, recovery_options, recommended_method} 或 null
   Future<Map<String, dynamic>?> keyStatus() async {
     final IMBoyHttpResponse resp = await get(API.e2eeKeyStatus);
     if (!resp.ok) return null;

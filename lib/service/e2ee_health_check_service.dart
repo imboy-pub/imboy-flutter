@@ -253,7 +253,9 @@ class E2EEHealthCheckService {
       final notifications = results[1] as List<Map<String, dynamic>>;
 
       // 综合判断：本地有密钥 + 服务端已注册 + 未过期 = healthy
-      final serverRegistered = serverKeyStatus?['registered'] == true;
+      // BE check_key_status/2 返回 {has_valid_key, recovery_options, recommended_method}
+      // has_valid_key=true 即表示服务端已注册且未过期（过期密钥 has_valid_key 为 false）
+      final serverRegistered = serverKeyStatus?['has_valid_key'] == true;
       final serverExpired = serverKeyStatus?['expired'] == true;
       final String status;
       if (!hasKey) {

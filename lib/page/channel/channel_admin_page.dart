@@ -10,6 +10,7 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/page/channel/channel_admin_add_rules.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
@@ -36,9 +37,7 @@ class _AdminInfo {
       nickname: json['nickname'] as String?,
       avatar: json['avatar'] as String?,
       role: json['role'] as int? ?? 0,
-      addedAt: json['added_at'] is int
-          ? DateTime.fromMillisecondsSinceEpoch(json['added_at'] as int)
-          : DateTime.now(),
+      addedAt: parseModelDateTime(json['created_at']),
     );
   }
 }

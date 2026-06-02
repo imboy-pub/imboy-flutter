@@ -12,6 +12,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
@@ -128,8 +129,10 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         Navigator.pushReplacement(
           context,
           CupertinoPageRoute<dynamic>(
-            builder: (context) =>
-                PeopleInfoPage(id: payload['id'] as String, scene: 'qrcode'),
+            builder: (context) => PeopleInfoPage(
+              id: parseModelString(payload['id']),
+              scene: 'qrcode',
+            ),
           ),
         );
       } else if (result == '' && type == 'group') {
@@ -141,7 +144,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
           context,
           CupertinoPageRoute<dynamic>(
             builder: (context) => ChatPage(
-              peerId: payload['id'] as String,
+              peerId: parseModelString(payload['id']),
               peerTitle: payload['title'] as String,
               peerAvatar: payload['avatar'] as String,
               peerSign: '',

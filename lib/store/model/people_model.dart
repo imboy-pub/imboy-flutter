@@ -32,7 +32,7 @@ class PeopleModel {
 
   factory PeopleModel.fromJson(Map<String, dynamic> json) {
     return PeopleModel(
-      id: parseModelInt(json["id"]),
+      id: parseModelInt(json["uid"] ?? json["id"]),
       account: parseModelString(json["account"]),
       nickname: parseModelString(json["nickname"]),
       avatar: parseModelString(json["avatar"]),
