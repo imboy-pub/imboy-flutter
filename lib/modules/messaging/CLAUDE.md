@@ -119,8 +119,10 @@ Message entity replacing `flutter_chat_core.Message`. **Not tech debt.**
 ## 待办与技术债 / TODO & Tech Debt
 
 - ~~T4.2c~~ **已定（barrel 模式，见上「对外接口」专节）**：`message_models.dart` 保持纯 re-export barrel，非技术债。
-- **T4.4（高成本，独立会话）**：为 Message/Group/User Repository 抽 `abstract interface`，SQLite 实现移入 `infrastructure/`；清理 T1.6 残留——`store/model/message_model.dart`（1073 行）的 `to`/`from` getter + `toTypeMessage()` 仍直调 `ContactRepo`/`UserRepoLocal` 运行时富化，迁入 ViewModel/mapper 后移除 2 处反向 import。
+- ~~T4.4~~ **已完成（a4b2972b + ead1720d）**：① Message/Group/User Repository 抽 `abstract interface` 端口（务实 port，方向 A）——`infrastructure/message_repository.dart`、`group_collab/infrastructure/group_repository.dart`、`social_graph/infrastructure/contact_repository.dart`，`*_repo_sqlite` 原地 `implements`；② T1.6 残留清理——`toTypeMessage()` 运行时富化迁入 `infrastructure/message_model_mapper.dart`（extension），删死代码 `to`/`from` getter，`store/model/message_model.dart` 移除 2 处反向 import，消除 model→repository 分层违规。⚠️ 真机 chat 富化渲染回归为剩余手动门。
+  - ~~T4.4~~ **Completed (a4b2972b + ead1720d)**: ① abstract-interface ports for Message/Group/User repositories (pragmatic port, Direction A); ② T1.6 cleanup — `toTypeMessage()` enrichment moved into `infrastructure/message_model_mapper.dart` (extension), dead `to`/`from` getters removed, 2 reverse imports dropped from the data model, eliminating the model→repository layering violation. ⚠️ On-device chat-enrichment regression remains a manual gate.
 - **其他模块文档**：`lib/modules/` 另 7 个 bounded context（identity/group_collab/social_graph/…）暂无 CLAUDE.md，本轮（T4.3）仅覆盖 messaging，余项待后续。
+  - **Other module docs**: the other 7 bounded contexts (identity/group_collab/social_graph/…) still lack CLAUDE.md; T4.3 covered messaging only.
 
 ---
 
@@ -130,3 +132,4 @@ Message entity replacing `flutter_chat_core.Message`. **Not tech debt.**
 |------|------|
 | 2026-06-01 | T4.3：首次创建 messaging 模块 DDD 架构文档，记录四层结构、领域纯度约定、10 个 policy 规则、canRevoke 语义边界、对外接口与技术债 |
 | 2026-06-01 | T4.2c：固化 message_models barrel 架构决策（保持 re-export，非技术债），补「对外接口」专节说明 |
+| 2026-06-02 | T4.4：抽 Repository abstract 端口（务实 port）+ 迁 toTypeMessage 富化入 infrastructure mapper，消除 model→repository 反向耦合 / Repository ports + enrichment mapper, reverse coupling removed |
