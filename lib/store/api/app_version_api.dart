@@ -25,7 +25,9 @@ class AppVersionApi extends HttpClient {
       debugPrint("AppVersionApi_sqliteUpgradeDdl resp: ok=${resp.ok}");
     }
     if (!resp.ok || resp.payload is! Map) return <String>[];
-    return List<String>.from((resp.payload['ddl'] ?? <dynamic>[]) as List<dynamic>);
+    return List<String>.from(
+      (resp.payload['ddl'] ?? <dynamic>[]) as List<dynamic>,
+    );
   }
 
   Future<List<String>> sqliteDowngradeDdl(int oldVsn, int newVsn) async {
@@ -37,6 +39,8 @@ class AppVersionApi extends HttpClient {
       debugPrint("AppVersionApi_sqliteDowngradeDdl resp: ok=${resp.ok}");
     }
     if (!resp.ok || resp.payload is! Map) return <String>[];
-    return List<String>.from((resp.payload['ddl'] ?? <dynamic>[]) as List<dynamic>);
+    return List<String>.from(
+      (resp.payload['ddl'] ?? <dynamic>[]) as List<dynamic>,
+    );
   }
 }

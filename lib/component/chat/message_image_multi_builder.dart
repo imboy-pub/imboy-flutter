@@ -35,7 +35,8 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
     super.initState();
     // 从 metadata 中获取图片数组
     images = List<Map<String, dynamic>>.from(
-      (widget.message.metadata?['images'] ?? <Map<String, dynamic>>[]) as Iterable,
+      (widget.message.metadata?['images'] ?? <Map<String, dynamic>>[])
+          as Iterable,
     );
   }
 

@@ -201,7 +201,11 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
     return ListTile(
       leading: Stack(
         children: [
-          Avatar(imgUri: mention['avatar'] as String? ?? '', width: 48, height: 48),
+          Avatar(
+            imgUri: mention['avatar'] as String? ?? '',
+            width: 48,
+            height: 48,
+          ),
           if (!isRead)
             Positioned(
               right: 0,

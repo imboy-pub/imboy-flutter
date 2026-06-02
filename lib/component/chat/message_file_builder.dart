@@ -23,7 +23,10 @@ class MessageFileBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metadata = message.metadata ?? {};
-    final String filename = metadata['name'] as String? ?? metadata['filename'] as String? ?? '未知文件';
+    final String filename =
+        metadata['name'] as String? ??
+        metadata['filename'] as String? ??
+        '未知文件';
     final int size = metadata['size'] as int? ?? 0;
     final String uri = metadata['uri'] as String? ?? '';
     final bool isSentByMe = message.authorId == user.id;
@@ -65,10 +68,7 @@ class MessageFileBuilder extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     formatBytes(size),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: subTextColor,
-                    ),
+                    style: TextStyle(fontSize: 12, color: subTextColor),
                   ),
                 ],
               ),
@@ -80,8 +80,9 @@ class MessageFileBuilder extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSentByMe
                     ? Colors.white.withValues(alpha: 0.2)
-                    : AppColors.getIosBlue(Theme.of(context).brightness)
-                        .withValues(alpha: 0.1),
+                    : AppColors.getIosBlue(
+                        Theme.of(context).brightness,
+                      ).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(

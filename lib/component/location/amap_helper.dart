@@ -194,7 +194,9 @@ class AMapHelper {
 
     // 5. 添加超时保护（15秒）
     final Future<AMapPosition?> timeoutFuture =
-        Future<dynamic>.delayed(const Duration(seconds: 15), () => null).then((_) {
+        Future<dynamic>.delayed(const Duration(seconds: 15), () => null).then((
+          _,
+        ) {
           debugPrint('⏰ AMapHelper 定位超时（15秒）');
           if (!completer.isCompleted) {
             completer.complete(null);

@@ -247,12 +247,17 @@ Future<void> zoomInPhotoView(BuildContext context, String thumb) async {
 }
 
 /// 显示多个图像并让用户在它们之间进行更改的效果
-Future<void> zoomInPhotoViewGallery(BuildContext context, List<dynamic> items) async {
+Future<void> zoomInPhotoViewGallery(
+  BuildContext context,
+  List<dynamic> items,
+) async {
   iPrint("zoomInPhotoViewGallery");
   final size = MediaQuery.of(context).size;
   List<dynamic> galleryItems = [];
   for (var e in items) {
-    galleryItems.add(cachedImageProvider(e as String, w: size.width.toDouble()));
+    galleryItems.add(
+      cachedImageProvider(e as String, w: size.width.toDouble()),
+    );
   }
   showModalBottomSheet<void>(
     context: context,

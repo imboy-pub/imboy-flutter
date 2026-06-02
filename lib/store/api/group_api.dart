@@ -107,7 +107,9 @@ class GroupApi extends HttpClient {
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
     }
-    return resp.ok ? (resp.payload as Map<String, dynamic>) : <String, dynamic>{};
+    return resp.ok
+        ? (resp.payload as Map<String, dynamic>)
+        : <String, dynamic>{};
   }
 
   Future<Map<String, dynamic>?> groupAdd({

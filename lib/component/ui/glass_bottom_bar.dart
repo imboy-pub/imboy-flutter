@@ -78,10 +78,12 @@ class GlassBottomNavigationBar extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 10,
                           height: 1.2,
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.w500,
-                          color:
-                              isSelected ? AppColors.primary : AppColors.iosGray,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.iosGray,
                           letterSpacing: -0.2,
                         ),
                         maxLines: 1,

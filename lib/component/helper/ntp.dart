@@ -147,7 +147,9 @@ class NtpHelper {
   static ({int offset, int deviceTimestamp})? _parseCache(String? val) {
     try {
       if (val == null) return null;
-      final map = Map<String, dynamic>.from(json.decode(val) as Map<dynamic, dynamic>);
+      final map = Map<String, dynamic>.from(
+        json.decode(val) as Map<dynamic, dynamic>,
+      );
       return (
         offset: map['offset'] as int,
         deviceTimestamp: map['device_ts'] as int,

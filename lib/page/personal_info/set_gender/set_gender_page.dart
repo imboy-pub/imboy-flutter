@@ -21,7 +21,11 @@ class SetGenderPage extends ConsumerWidget {
     final genderOptions = [
       {'id': '1', 'title': t.main.male, 'icon': CupertinoIcons.person},
       {'id': '2', 'title': t.main.female, 'icon': CupertinoIcons.person_fill},
-      {'id': '3', 'title': t.main.keepSecret, 'icon': CupertinoIcons.question_circle},
+      {
+        'id': '3',
+        'title': t.main.keepSecret,
+        'icon': CupertinoIcons.question_circle,
+      },
     ];
 
     return IosPageTemplate(
@@ -31,25 +35,44 @@ class SetGenderPage extends ConsumerWidget {
         header: Text(t.account.gender.toUpperCase()),
         children: genderOptions.map((option) {
           final isSelected = state.selectedGender == option['id'];
-          final isPending = state.pendingGender == option['id'] && state.isSaving;
+          final isPending =
+              state.pendingGender == option['id'] && state.isSaving;
 
           return ImBoySettingsTile(
             title: Text(option['title'] as String),
             leading: Container(
-              width: 32, height: 32,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.getIosBlue(brightness) : AppColors.iosGray,
+                color: isSelected
+                    ? AppColors.getIosBlue(brightness)
+                    : AppColors.iosGray,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(option['icon'] as IconData, color: Colors.white, size: 18),
+              child: Icon(
+                option['icon'] as IconData,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
             trailing: isPending
                 ? const CupertinoActivityIndicator(radius: 8)
-                : (isSelected ? Icon(CupertinoIcons.check_mark, color: AppColors.getIosBlue(brightness), size: 18) : const SizedBox.shrink()),
-            onTap: state.isSaving ? null : () async {
-              final success = await ref.read(setGenderProvider.notifier).selectGender(option['id'] as String, ref);
-              if (success && context.mounted) Navigator.of(context).pop(true);
-            },
+                : (isSelected
+                      ? Icon(
+                          CupertinoIcons.check_mark,
+                          color: AppColors.getIosBlue(brightness),
+                          size: 18,
+                        )
+                      : const SizedBox.shrink()),
+            onTap: state.isSaving
+                ? null
+                : () async {
+                    final success = await ref
+                        .read(setGenderProvider.notifier)
+                        .selectGender(option['id'] as String, ref);
+                    if (success && context.mounted)
+                      Navigator.of(context).pop(true);
+                  },
           );
         }).toList(),
       ),

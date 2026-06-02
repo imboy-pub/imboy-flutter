@@ -265,7 +265,9 @@ class E2EELocalBackupService {
     final expectedChecksum = storedChecksum.substring(7); // 去掉 'sha256:' 前缀
 
     // 移除 checksum 字段后重新计算
-    final dataWithoutChecksum = Map<String, dynamic>.from(backupData as Map<dynamic, dynamic>);
+    final dataWithoutChecksum = Map<String, dynamic>.from(
+      backupData as Map<dynamic, dynamic>,
+    );
     dataWithoutChecksum.remove('checksum');
 
     final jsonWithoutChecksum = json.encode(dataWithoutChecksum);

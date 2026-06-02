@@ -122,10 +122,10 @@ class AppUpgradeService {
 
     // 延迟 3 秒，不阻塞启动 / Delay 3 s to avoid blocking startup
     unawaited(
-      Future<dynamic>.delayed(const Duration(seconds: 3), checkAndPrompt).catchError((
-        Object e,
-        StackTrace st,
-      ) {
+      Future<dynamic>.delayed(
+        const Duration(seconds: 3),
+        checkAndPrompt,
+      ).catchError((Object e, StackTrace st) {
         iPrint('AppUpgradeService: checkAndPrompt error $e\n$st');
         return null; // AppVersionInfo?
       }),

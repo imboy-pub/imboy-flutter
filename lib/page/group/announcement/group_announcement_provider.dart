@@ -112,12 +112,14 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
       if (response.code == 0) {
         final payload = response.payload ?? <String, dynamic>{};
         final rawList = payload['items'] ?? payload['list'] ?? <dynamic>[];
-        final list = (rawList is List ? rawList : const <Map<String, dynamic>>[])
-            .whereType<Map<String, dynamic>>()
-            .map(
-              (e) => AnnouncementModel.fromJson(Map<String, dynamic>.from(e)),
-            )
-            .toList();
+        final list =
+            (rawList is List ? rawList : const <Map<String, dynamic>>[])
+                .whereType<Map<String, dynamic>>()
+                .map(
+                  (e) =>
+                      AnnouncementModel.fromJson(Map<String, dynamic>.from(e)),
+                )
+                .toList();
 
         // #28 Gap #1 修复：后端 SELECT 未带 publisher_name，fromJson 已将
         // publisherName 回退到 publisherId（TSID 数字串）。此处再通过本地

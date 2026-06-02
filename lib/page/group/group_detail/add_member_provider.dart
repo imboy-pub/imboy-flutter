@@ -189,7 +189,8 @@ class AddMemberService {
       final memberList = payload['member_list'] ?? <dynamic>[];
 
       final gData = {
-        GroupRepo.memberCount: (g?.memberCount ?? 0) + (memberList.length as num),
+        GroupRepo.memberCount:
+            (g?.memberCount ?? 0) + (memberList.length as num),
       };
       if (sum > 0) {
         gData[GroupRepo.userIdSum] = sum;

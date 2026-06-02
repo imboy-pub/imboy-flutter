@@ -27,12 +27,23 @@ class ContactSettingTagPage extends ConsumerStatefulWidget {
 
   const ContactSettingTagPage({
     super.key,
-    required this.peerId, required this.peerAccount, required this.peerAvatar, required this.peerNickname, required this.peerGender, required this.peerTitle, required this.peerSign, required this.peerRegion, required this.peerSource, required this.peerRemark, required this.peerTag,
+    required this.peerId,
+    required this.peerAccount,
+    required this.peerAvatar,
+    required this.peerNickname,
+    required this.peerGender,
+    required this.peerTitle,
+    required this.peerSign,
+    required this.peerRegion,
+    required this.peerSource,
+    required this.peerRemark,
+    required this.peerTag,
     this.onRemarkChanged,
   });
 
   @override
-  ConsumerState<ContactSettingTagPage> createState() => _ContactSettingTagPageState();
+  ConsumerState<ContactSettingTagPage> createState() =>
+      _ContactSettingTagPageState();
 }
 
 class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
@@ -45,7 +56,8 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(contactSettingTagProvider.notifier).valueOnChange(false);
     });
-    ref.read(contactSettingTagProvider.notifier).remarkTextController.text = parseModelString(widget.peerRemark);
+    ref.read(contactSettingTagProvider.notifier).remarkTextController.text =
+        parseModelString(widget.peerRemark);
   }
 
   @override
@@ -60,15 +72,32 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: notifier.valueChanged ? () async {
-            final trimmedText = controller.remarkTextController.text.trim();
-            if (trimmedText.isNotEmpty && await controller.changeRemark(widget.peerId, trimmedText)) {
-              EasyLoading.showSuccess(t.common.tipSuccess);
-              widget.onRemarkChanged?.call(trimmedText);
-              if (mounted) Navigator.of(context).pop(trimmedText);
-            }
-          } : null,
-          child: Text(t.common.buttonAccomplish, style: TextStyle(fontWeight: notifier.valueChanged ? FontWeight.w600 : FontWeight.w400, color: notifier.valueChanged ? AppColors.getIosBlue(brightness) : AppColors.iosGray)),
+          onPressed: notifier.valueChanged
+              ? () async {
+                  final trimmedText = controller.remarkTextController.text
+                      .trim();
+                  if (trimmedText.isNotEmpty &&
+                      await controller.changeRemark(
+                        widget.peerId,
+                        trimmedText,
+                      )) {
+                    EasyLoading.showSuccess(t.common.tipSuccess);
+                    widget.onRemarkChanged?.call(trimmedText);
+                    if (mounted) Navigator.of(context).pop(trimmedText);
+                  }
+                }
+              : null,
+          child: Text(
+            t.common.buttonAccomplish,
+            style: TextStyle(
+              fontWeight: notifier.valueChanged
+                  ? FontWeight.w600
+                  : FontWeight.w400,
+              color: notifier.valueChanged
+                  ? AppColors.getIosBlue(brightness)
+                  : AppColors.iosGray,
+            ),
+          ),
         ),
       ],
       child: Column(
@@ -88,7 +117,9 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: null,
                     style: const TextStyle(fontSize: 16),
-                    onChanged: (v) => controller.valueOnChange(v.trim().isNotEmpty && widget.peerRemark != v),
+                    onChanged: (v) => controller.valueOnChange(
+                      v.trim().isNotEmpty && widget.peerRemark != v,
+                    ),
                   ),
                 ),
               ),
@@ -101,28 +132,71 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.contact.tags),
-                subtitle: _currentTag.isEmpty ? null : Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Wrap(
-                    spacing: 8, runSpacing: 8,
-                    children: _currentTag.split(',').map((tag) => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
-                      child: Text(tag, style: const TextStyle(fontSize: 12, color: AppColors.primary)),
-                    )).toList(),
-                  ),
-                ),
+                subtitle: _currentTag.isEmpty
+                    ? null
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _currentTag
+                              .split(',')
+                              .map(
+                                (tag) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    tag,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (_currentTag.isEmpty) Text(t.common.addTag, style: const TextStyle(fontSize: 14, color: AppColors.iosGray)),
+                    if (_currentTag.isEmpty)
+                      Text(
+                        t.common.addTag,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.iosGray,
+                        ),
+                      ),
                     const SizedBox(width: 4),
-                    const Icon(CupertinoIcons.chevron_right, size: 14, color: AppColors.iosGray3),
+                    const Icon(
+                      CupertinoIcons.chevron_right,
+                      size: 14,
+                      color: AppColors.iosGray3,
+                    ),
                   ],
                 ),
                 onTap: () {
-                  Navigator.push(context, CupertinoPageRoute<dynamic>(builder: (_) => UserTagRelationPage(peerId: widget.peerId, peerTag: _currentTag, scene: 'friend'))).then((value) {
-                    if (value != null && value is String) setState(() => _currentTag = value);
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute<dynamic>(
+                      builder: (_) => UserTagRelationPage(
+                        peerId: widget.peerId,
+                        peerTag: _currentTag,
+                        scene: 'friend',
+                      ),
+                    ),
+                  ).then((value) {
+                    if (value != null && value is String)
+                      setState(() => _currentTag = value);
                   });
                 },
               ),

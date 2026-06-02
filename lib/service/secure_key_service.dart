@@ -81,7 +81,9 @@ class SecureKeyService {
       key: _oldKeysStorageKey,
     );
     if (oldKeysStr != null && oldKeysStr.isNotEmpty) {
-      _oldAesKeys = List<String>.from(jsonDecode(oldKeysStr) as Iterable<dynamic>);
+      _oldAesKeys = List<String>.from(
+        jsonDecode(oldKeysStr) as Iterable<dynamic>,
+      );
     } else {
       _oldAesKeys = [];
     }

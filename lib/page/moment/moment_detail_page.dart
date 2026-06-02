@@ -51,7 +51,11 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   void initState() {
     super.initState();
     _momentSub = AppEventBus.on<MomentTimelineChangedEvent>().listen((event) {
-      if (shouldRefreshDetailOnEvent(action: event.action, eventMomentId: event.momentId, viewingMomentId: widget.momentId)) {
+      if (shouldRefreshDetailOnEvent(
+        action: event.action,
+        eventMomentId: event.momentId,
+        viewingMomentId: widget.momentId,
+      )) {
         _loadAll();
       }
     });
@@ -79,7 +83,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final page = results[1] as dynamic;
     final rawComments = page.list as List<Map<String, dynamic>>;
 
-    final enrichedPost = rawPost != null ? await enrichPostWithAuthor(rawPost) : null;
+    final enrichedPost = rawPost != null
+        ? await enrichPostWithAuthor(rawPost)
+        : null;
     final enrichedComments = await enrichCommentsWithUser(rawComments);
     if (!mounted) return;
 
@@ -93,10 +99,19 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   }
 
   Future<void> _loadMoreComments() async {
-    if (!canLoadMoreComments(isLoading: _loadingMoreComments, hasMore: _commentsHasMore, cursor: _commentsCursor)) return;
+    if (!canLoadMoreComments(
+      isLoading: _loadingMoreComments,
+      hasMore: _commentsHasMore,
+      cursor: _commentsCursor,
+    ))
+      return;
     final cursor = _commentsCursor!;
     setState(() => _loadingMoreComments = true);
-    final page = await _api.listComments(widget.momentId, cursor: cursor, limit: _commentsPageSize);
+    final page = await _api.listComments(
+      widget.momentId,
+      cursor: cursor,
+      limit: _commentsPageSize,
+    );
     if (!mounted) return;
     final enriched = await enrichCommentsWithUser(page.list);
     setState(() {
@@ -116,9 +131,13 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final oldMoment = post;
     setState(() => _moment = applyOptimisticLikeToggle(post));
     try {
-      final ok = liked ? await _api.unlikePost(momentId) : await _api.likePost(momentId);
+      final ok = liked
+          ? await _api.unlikePost(momentId)
+          : await _api.likePost(momentId);
       if (!ok && mounted) setState(() => _moment = oldMoment);
-    } catch (_) { if (mounted) setState(() => _moment = oldMoment); }
+    } catch (_) {
+      if (mounted) setState(() => _moment = oldMoment);
+    }
   }
 
   Future<void> _deleteMoment() async {
@@ -126,50 +145,100 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     if (post == null) return;
     final momentId = parseModelString(post['id']);
     if (momentId.isEmpty) return;
-    final confirmed = await showMomentConfirmDialog(context, title: t.common.delete, message: t.common.momentsDeleteConfirm, isDestructive: true);
+    final confirmed = await showMomentConfirmDialog(
+      context,
+      title: t.common.delete,
+      message: t.common.momentsDeleteConfirm,
+      isDestructive: true,
+    );
     if (!confirmed || !mounted) return;
     final ok = await _api.deletePost(momentId);
     if (!mounted) return;
-    if (!ok) { EasyLoading.showError(t.common.momentsDeleteFailed); return; }
-    AppEventBus.fire(MomentTimelineChangedEvent(action: 'moment_deleted', momentId: momentId, payload: const <String, dynamic>{}));
+    if (!ok) {
+      EasyLoading.showError(t.common.momentsDeleteFailed);
+      return;
+    }
+    AppEventBus.fire(
+      MomentTimelineChangedEvent(
+        action: 'moment_deleted',
+        momentId: momentId,
+        payload: const <String, dynamic>{},
+      ),
+    );
     Navigator.of(context).pop(true);
   }
 
   void _startReplyTo(Map<String, dynamic> comment) {
     final target = buildReplyTarget(comment);
     if (target.isNone) return;
-    setState(() { _replyToUid = target.uid; _replyToName = target.name; });
+    setState(() {
+      _replyToUid = target.uid;
+      _replyToName = target.name;
+    });
   }
 
-  void _cancelReply() => setState(() { _replyToUid = ''; _replyToName = ''; });
+  void _cancelReply() => setState(() {
+    _replyToUid = '';
+    _replyToName = '';
+  });
 
   Future<void> _addComment() async {
     if (_sendingComment) return;
     final content = _commentController.text.trim();
     if (content.isEmpty) return;
     setState(() => _sendingComment = true);
-    final added = await _api.addComment(widget.momentId, content: content, replyToUid: _replyToUid.isEmpty ? null : _replyToUid, mentions: extractMentions(content).map((m) => m.name).toList());
-    if (added == null) { if (mounted) setState(() => _sendingComment = false); EasyLoading.showError(t.common.momentsCommentFailed); return; }
+    final added = await _api.addComment(
+      widget.momentId,
+      content: content,
+      replyToUid: _replyToUid.isEmpty ? null : _replyToUid,
+      mentions: extractMentions(content).map((m) => m.name).toList(),
+    );
+    if (added == null) {
+      if (mounted) setState(() => _sendingComment = false);
+      EasyLoading.showError(t.common.momentsCommentFailed);
+      return;
+    }
     _commentController.clear();
     final list = await enrichCommentsWithUser([added]);
     if (!mounted) return;
-    setState(() { _sendingComment = false; _comments = [list.first, ..._comments]; _replyToUid = ''; _replyToName = ''; final post = _moment; if (post != null) _moment = applyCommentCountDelta(post, 1); });
+    setState(() {
+      _sendingComment = false;
+      _comments = [list.first, ..._comments];
+      _replyToUid = '';
+      _replyToName = '';
+      final post = _moment;
+      if (post != null) _moment = applyCommentCountDelta(post, 1);
+    });
   }
 
   Future<void> _deleteComment(String commentId) async {
-    final confirmed = await showMomentConfirmDialog(context, title: t.common.delete, message: t.common.momentsDeleteCommentConfirm, isDestructive: true);
+    final confirmed = await showMomentConfirmDialog(
+      context,
+      title: t.common.delete,
+      message: t.common.momentsDeleteCommentConfirm,
+      isDestructive: true,
+    );
     if (!confirmed || !mounted) return;
     final ok = await _api.deleteComment(widget.momentId, commentId);
     if (!mounted) return;
-    if (!ok) { EasyLoading.showError(t.common.momentsDeleteFailed); return; }
-    setState(() { _comments = removeCommentById(_comments, commentId); final post = _moment; if (post != null) _moment = applyCommentCountDelta(post, -1); });
+    if (!ok) {
+      EasyLoading.showError(t.common.momentsDeleteFailed);
+      return;
+    }
+    setState(() {
+      _comments = removeCommentById(_comments, commentId);
+      final post = _moment;
+      if (post != null) _moment = applyCommentCountDelta(post, -1);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final post = _moment;
-    if (_loading) return const Scaffold(body: Center(child: CupertinoActivityIndicator()));
-    if (post == null) return Scaffold(body: Center(child: Text(t.common.momentsNotFound)));
+    if (_loading)
+      return const Scaffold(body: Center(child: CupertinoActivityIndicator()));
+    if (post == null)
+      return Scaffold(body: Center(child: Text(t.common.momentsNotFound)));
 
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
@@ -180,8 +249,18 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       title: t.discovery.moments,
       useLargeTitle: false,
       actions: [
-        if (canDeletePost) CupertinoButton(padding: EdgeInsets.zero, onPressed: _deleteMoment, child: const Icon(CupertinoIcons.delete, size: 20))
-        else CupertinoButton(padding: EdgeInsets.zero, onPressed: () {}, child: const Icon(CupertinoIcons.flag, size: 20)),
+        if (canDeletePost)
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: _deleteMoment,
+            child: const Icon(CupertinoIcons.delete, size: 20),
+          )
+        else
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {},
+            child: const Icon(CupertinoIcons.flag, size: 20),
+          ),
       ],
       bottomWidget: _buildCommentInput(context, isDark, brightness),
       child: Column(
@@ -190,32 +269,89 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
           _buildPostContent(context, post, isDark, brightness),
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('评论', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.iosGray)),
+            child: Text(
+              '评论',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.iosGray,
+              ),
+            ),
           ),
-          if (_comments.isEmpty) Padding(padding: const EdgeInsets.symmetric(vertical: 40), child: Center(child: Text(t.common.momentsNoComments, style: const TextStyle(color: AppColors.iosGray))))
-          else ImBoySettingsSection(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            children: _comments.map((c) => _buildCommentItem(context, c, isDark, currentUid, brightness)).toList(),
-          ),
-          if (_commentsHasMore) Center(child: CupertinoButton(onPressed: _loadMoreComments, child: _loadingMoreComments ? const CupertinoActivityIndicator(radius: 8) : Text(t.common.momentsLoadMoreComments, style: const TextStyle(fontSize: 14)))),
+          if (_comments.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Center(
+                child: Text(
+                  t.common.momentsNoComments,
+                  style: const TextStyle(color: AppColors.iosGray),
+                ),
+              ),
+            )
+          else
+            ImBoySettingsSection(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              children: _comments
+                  .map(
+                    (c) => _buildCommentItem(
+                      context,
+                      c,
+                      isDark,
+                      currentUid,
+                      brightness,
+                    ),
+                  )
+                  .toList(),
+            ),
+          if (_commentsHasMore)
+            Center(
+              child: CupertinoButton(
+                onPressed: _loadMoreComments,
+                child: _loadingMoreComments
+                    ? const CupertinoActivityIndicator(radius: 8)
+                    : Text(
+                        t.common.momentsLoadMoreComments,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+              ),
+            ),
           const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Widget _buildPostContent(BuildContext context, Map<String, dynamic> post, bool isDark, Brightness brightness) {
+  Widget _buildPostContent(
+    BuildContext context,
+    Map<String, dynamic> post,
+    bool isDark,
+    Brightness brightness,
+  ) {
     final authorAvatar = parseModelString(post['author_avatar']);
-    final displayName = resolveMomentDisplayName(remark: parseModelString(post['author_remark']), nickname: parseModelString(post['author_nickname']), uid: parseModelString(post['author_uid']));
+    final displayName = resolveMomentDisplayName(
+      remark: parseModelString(post['author_remark']),
+      nickname: parseModelString(post['author_nickname']),
+      uid: parseModelString(post['author_uid']),
+    );
     final content = parseModelString(post['content']);
     final media = normalizeMedia(post['media']);
     final liked = parseModelBool(post['liked']);
-    final stats = post['stats'] is Map ? Map<String, dynamic>.from(post['stats'] as Map) : const <String, dynamic>{};
+    final stats = post['stats'] is Map
+        ? Map<String, dynamic>.from(post['stats'] as Map)
+        : const <String, dynamic>{};
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white, border: Border(bottom: BorderSide(color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.2), width: 0.5))),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.2),
+            width: 0.5,
+          ),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -223,17 +359,60 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
             children: [
               Avatar(imgUri: authorAvatar, width: 48, height: 48),
               const SizedBox(width: 12),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(displayName, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)), Text(parseModelString(post['created_at']), style: const TextStyle(fontSize: 13, color: AppColors.iosGray))])),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayName,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      parseModelString(post['created_at']),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.iosGray,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-          if (content.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 16), child: Text(content, style: const TextStyle(fontSize: 16, height: 1.4))),
-          if (media.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 16), child: _buildMediaGrid(context, media)),
+          if (content.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Text(
+                content,
+                style: const TextStyle(fontSize: 16, height: 1.4),
+              ),
+            ),
+          if (media.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: _buildMediaGrid(context, media),
+            ),
           const SizedBox(height: 20),
           Row(
             children: [
-              _buildInteraction(CupertinoIcons.heart, liked ? CupertinoIcons.heart_fill : CupertinoIcons.heart, formatMomentCountLabel(parseModelInt(stats['like_count'])), liked ? AppColors.iosRed : AppColors.iosGray, _toggleLike),
+              _buildInteraction(
+                CupertinoIcons.heart,
+                liked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                formatMomentCountLabel(parseModelInt(stats['like_count'])),
+                liked ? AppColors.iosRed : AppColors.iosGray,
+                _toggleLike,
+              ),
               const SizedBox(width: 24),
-              _buildInteraction(CupertinoIcons.chat_bubble, CupertinoIcons.chat_bubble, formatMomentCountLabel(parseModelInt(stats['comment_count'])), AppColors.iosGray, () => FocusScope.of(context).requestFocus()),
+              _buildInteraction(
+                CupertinoIcons.chat_bubble,
+                CupertinoIcons.chat_bubble,
+                formatMomentCountLabel(parseModelInt(stats['comment_count'])),
+                AppColors.iosGray,
+                () => FocusScope.of(context).requestFocus(),
+              ),
             ],
           ),
         ],
@@ -241,52 +420,222 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     );
   }
 
-  Widget _buildMediaGrid(BuildContext context, List<Map<String, dynamic>> media) {
+  Widget _buildMediaGrid(
+    BuildContext context,
+    List<Map<String, dynamic>> media,
+  ) {
     if (media.length == 1) return _buildMediaItem(media.first, 240);
-    return Wrap(spacing: 8, runSpacing: 8, children: media.map((m) => _buildMediaItem(m, (MediaQuery.of(context).size.width - 64) / 3)).toList());
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: media
+          .map(
+            (m) => _buildMediaItem(
+              m,
+              (MediaQuery.of(context).size.width - 64) / 3,
+            ),
+          )
+          .toList(),
+    );
   }
 
   Widget _buildMediaItem(Map<String, dynamic> item, double size) {
     final previewUrl = pickMediaPreviewUrl(item);
-    return Container(width: size, height: size, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.black12), clipBehavior: Clip.antiAlias, child: Image(image: cachedImageProvider(previewUrl), fit: BoxFit.cover));
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.black12,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Image(image: cachedImageProvider(previewUrl), fit: BoxFit.cover),
+    );
   }
 
-  Widget _buildInteraction(IconData icon, IconData activeIcon, String label, Color color, VoidCallback onTap) {
-    return GestureDetector(onTap: onTap, child: Row(children: [Icon(label == '0' ? icon : activeIcon, size: 20, color: color), const SizedBox(width: 6), Text(label, style: TextStyle(fontSize: 14, color: color, fontWeight: FontWeight.w600))]));
+  Widget _buildInteraction(
+    IconData icon,
+    IconData activeIcon,
+    String label,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(label == '0' ? icon : activeIcon, size: 20, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _buildCommentItem(BuildContext context, Map<String, dynamic> comment, bool isDark, String currentUid, Brightness brightness) {
+  Widget _buildCommentItem(
+    BuildContext context,
+    Map<String, dynamic> comment,
+    bool isDark,
+    String currentUid,
+    Brightness brightness,
+  ) {
     final userId = parseModelString(comment['user_id']);
-    final displayName = resolveMomentDisplayName(remark: parseModelString(comment['user_remark']), nickname: parseModelString(comment['user_nickname']), uid: userId);
+    final displayName = resolveMomentDisplayName(
+      remark: parseModelString(comment['user_remark']),
+      nickname: parseModelString(comment['user_nickname']),
+      uid: userId,
+    );
     final content = parseModelString(comment['content']);
     final replyToUid = extractCommentReplyTarget(comment);
-    final replyToName = replyToUid.isEmpty ? '' : resolveMomentDisplayName(remark: parseModelString(comment['reply_to_remark']), nickname: parseModelString(comment['reply_to_nickname']), uid: replyToUid);
-    final subtitleText = composeReplyDisplay(content: content, replyToName: replyToName == '?' ? '' : replyToName, prefix: t.chat.momentsReplyPrefix, separator: t.chat.momentsReplySeparator);
-    
+    final replyToName = replyToUid.isEmpty
+        ? ''
+        : resolveMomentDisplayName(
+            remark: parseModelString(comment['reply_to_remark']),
+            nickname: parseModelString(comment['reply_to_nickname']),
+            uid: replyToUid,
+          );
+    final subtitleText = composeReplyDisplay(
+      content: content,
+      replyToName: replyToName == '?' ? '' : replyToName,
+      prefix: t.chat.momentsReplyPrefix,
+      separator: t.chat.momentsReplySeparator,
+    );
+
     return ImBoyListTile(
       onTap: userId != currentUid ? () => _startReplyTo(comment) : null,
-      leading: Avatar(imgUri: parseModelString(comment['user_avatar']), width: 36, height: 36),
-      title: Text(displayName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-      subtitle: Text(subtitleText, style: const TextStyle(fontSize: 14, height: 1.3)),
-      trailing: canDeleteComment(comment, _moment!, currentUid: currentUid) ? CupertinoButton(padding: EdgeInsets.zero, child: const Icon(CupertinoIcons.delete, size: 16, color: AppColors.iosGray), onPressed: () => _deleteComment(parseModelString(comment['id']))) : null,
+      leading: Avatar(
+        imgUri: parseModelString(comment['user_avatar']),
+        width: 36,
+        height: 36,
+      ),
+      title: Text(
+        displayName,
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      ),
+      subtitle: Text(
+        subtitleText,
+        style: const TextStyle(fontSize: 14, height: 1.3),
+      ),
+      trailing: canDeleteComment(comment, _moment!, currentUid: currentUid)
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: const Icon(
+                CupertinoIcons.delete,
+                size: 16,
+                color: AppColors.iosGray,
+              ),
+              onPressed: () => _deleteComment(parseModelString(comment['id'])),
+            )
+          : null,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       backgroundColor: Colors.transparent,
     );
   }
 
-  Widget _buildCommentInput(BuildContext context, bool isDark, Brightness brightness) {
+  Widget _buildCommentInput(
+    BuildContext context,
+    bool isDark,
+    Brightness brightness,
+  ) {
     return Container(
-      padding: EdgeInsets.fromLTRB(12, 8, 12, MediaQuery.of(context).padding.bottom + 8),
-      decoration: BoxDecoration(color: isDark ? AppColors.darkSurface : Colors.white, border: Border(top: BorderSide(color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.3), width: 0.33))),
+      padding: EdgeInsets.fromLTRB(
+        12,
+        8,
+        12,
+        MediaQuery.of(context).padding.bottom + 8,
+      ),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.3),
+            width: 0.33,
+          ),
+        ),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (_replyToUid.isNotEmpty) Padding(padding: const EdgeInsets.only(bottom: 8), child: Row(children: [Expanded(child: Text(t.chat.momentsReplyingTo.replaceAll('{name}', _replyToName), style: const TextStyle(fontSize: 12, color: AppColors.iosGray))), GestureDetector(onTap: _cancelReply, child: const Icon(CupertinoIcons.xmark_circle_fill, size: 16, color: AppColors.iosGray))])),
+          if (_replyToUid.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      t.chat.momentsReplyingTo.replaceAll(
+                        '{name}',
+                        _replyToName,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.iosGray,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _cancelReply,
+                    child: const Icon(
+                      CupertinoIcons.xmark_circle_fill,
+                      size: 16,
+                      color: AppColors.iosGray,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Row(
             children: [
-              Expanded(child: Container(padding: const EdgeInsets.symmetric(horizontal: 12), decoration: BoxDecoration(color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.lightSurfaceGrouped, borderRadius: BorderRadius.circular(20)), child: TextField(controller: _commentController, decoration: InputDecoration(hintText: t.discovery.momentsWriteComment, border: InputBorder.none, isDense: true, hintStyle: const TextStyle(fontSize: 15, color: AppColors.iosGray)), style: const TextStyle(fontSize: 15)))),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : AppColors.lightSurfaceGrouped,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: TextField(
+                    controller: _commentController,
+                    decoration: InputDecoration(
+                      hintText: t.discovery.momentsWriteComment,
+                      border: InputBorder.none,
+                      isDense: true,
+                      hintStyle: const TextStyle(
+                        fontSize: 15,
+                        color: AppColors.iosGray,
+                      ),
+                    ),
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ),
+              ),
               const SizedBox(width: 8),
-              CupertinoButton(padding: const EdgeInsets.symmetric(horizontal: 16), color: AppColors.getIosBlue(brightness), borderRadius: BorderRadius.circular(20), onPressed: _sendingComment ? null : _addComment, child: _sendingComment ? const CupertinoActivityIndicator(radius: 8, color: Colors.white) : Text(t.chat.momentsSend, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600))),
+              CupertinoButton(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                color: AppColors.getIosBlue(brightness),
+                borderRadius: BorderRadius.circular(20),
+                onPressed: _sendingComment ? null : _addComment,
+                child: _sendingComment
+                    ? const CupertinoActivityIndicator(
+                        radius: 8,
+                        color: Colors.white,
+                      )
+                    : Text(
+                        t.chat.momentsSend,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
             ],
           ),
         ],

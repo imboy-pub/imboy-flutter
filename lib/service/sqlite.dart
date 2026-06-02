@@ -485,7 +485,9 @@ class SqliteService {
               );
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
-            await Future<dynamic>.delayed(Duration(milliseconds: 100 * (attempt + 1)));
+            await Future<dynamic>.delayed(
+              Duration(milliseconds: 100 * (attempt + 1)),
+            );
             continue;
           }
           AppLogger.error('Insert error: table=$table, error=$e');
@@ -547,7 +549,9 @@ class SqliteService {
               );
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
-            await Future<dynamic>.delayed(Duration(milliseconds: 100 * (attempt + 1)));
+            await Future<dynamic>.delayed(
+              Duration(milliseconds: 100 * (attempt + 1)),
+            );
             continue;
           }
           AppLogger.error('Update error: table=$table, error=$e');
@@ -613,7 +617,9 @@ class SqliteService {
           return await db.rawUpdate(sql, arguments);
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
-            await Future<dynamic>.delayed(Duration(milliseconds: 100 * (attempt + 1)));
+            await Future<dynamic>.delayed(
+              Duration(milliseconds: 100 * (attempt + 1)),
+            );
             continue;
           }
           AppLogger.error('Execute error: $e');
@@ -754,7 +760,9 @@ class SqliteService {
           return await db.delete(table, where: where, whereArgs: whereArgs);
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {
-            await Future<dynamic>.delayed(Duration(milliseconds: 100 * (attempt + 1)));
+            await Future<dynamic>.delayed(
+              Duration(milliseconds: 100 * (attempt + 1)),
+            );
             continue;
           }
           AppLogger.error('Delete error: $e');

@@ -112,7 +112,10 @@ class ChannelApi extends HttpClient {
 
   /// 删除频道
   Future<bool> deleteChannel(String channelId) async {
-    final resp = await post('/v1/channel/$channelId/delete', data: <String, dynamic>{});
+    final resp = await post(
+      '/v1/channel/$channelId/delete',
+      data: <String, dynamic>{},
+    );
     debugPrint("ChannelApi_deleteChannel resp: ok=${resp.ok}");
     return resp.ok;
   }
@@ -121,14 +124,20 @@ class ChannelApi extends HttpClient {
 
   /// 订阅频道
   Future<bool> subscribe(String channelId) async {
-    final resp = await post('/v1/channel/$channelId/subscribe', data: <String, dynamic>{});
+    final resp = await post(
+      '/v1/channel/$channelId/subscribe',
+      data: <String, dynamic>{},
+    );
     debugPrint("ChannelApi_subscribe resp: ok=${resp.ok}");
     return resp.ok;
   }
 
   /// 取消订阅
   Future<bool> unsubscribe(String channelId) async {
-    final resp = await post('/v1/channel/$channelId/unsubscribe', data: <String, dynamic>{});
+    final resp = await post(
+      '/v1/channel/$channelId/unsubscribe',
+      data: <String, dynamic>{},
+    );
     debugPrint("ChannelApi_unsubscribe resp: ok=${resp.ok}");
     return resp.ok;
   }
@@ -173,7 +182,9 @@ class ChannelApi extends HttpClient {
       );
     }
 
-    final channels = list.map((json) => ChannelModel.fromJson(json as Map<String, dynamic>)).toList();
+    final channels = list
+        .map((json) => ChannelModel.fromJson(json as Map<String, dynamic>))
+        .toList();
     final dynamic next =
         resp.payload['next_cursor'] ??
         resp.payload['cursor'] ??
@@ -196,7 +207,9 @@ class ChannelApi extends HttpClient {
     final resp = await get('/v1/channels/unread/summary');
     debugPrint("ChannelApi_getUnreadSummary resp: ok=${resp.ok}");
 
-    if (!resp.ok || resp.payload == null || resp.payload is! Map<String, dynamic>) {
+    if (!resp.ok ||
+        resp.payload == null ||
+        resp.payload is! Map<String, dynamic>) {
       return const {
         'total_unread': 0,
         'unread_channels': 0,
@@ -204,7 +217,9 @@ class ChannelApi extends HttpClient {
       };
     }
 
-    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    final payload = Map<String, dynamic>.from(
+      resp.payload as Map<dynamic, dynamic>,
+    );
     final rawChannels = payload['channels'];
     final channels = rawChannels is List
         ? rawChannels
@@ -238,7 +253,9 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
 
-    return list.map((json) => ChannelModel.fromJson(json as Map<String, dynamic>)).toList();
+    return list
+        .map((json) => ChannelModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   /// 获取频道订阅者列表
@@ -316,7 +333,11 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
 
-    return list.map((json) => ChannelMessageModel.fromJson(json as Map<String, dynamic>)).toList();
+    return list
+        .map(
+          (json) => ChannelMessageModel.fromJson(json as Map<String, dynamic>),
+        )
+        .toList();
   }
 
   /// 标记已读
@@ -349,7 +370,9 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
 
-    return list.map((json) => ChannelModel.fromJson(json as Map<String, dynamic>)).toList();
+    return list
+        .map((json) => ChannelModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   /// 发现频道（推荐）
@@ -370,7 +393,9 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
 
-    return list.map((json) => ChannelModel.fromJson(json as Map<String, dynamic>)).toList();
+    return list
+        .map((json) => ChannelModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   // ==================== 管理员操作 ====================
@@ -501,7 +526,12 @@ class ChannelApi extends HttpClient {
     final list = resp.payload['list'] as List?;
     if (list == null) return [];
 
-    return list.map((json) => ChannelDailyStatsModel.fromJson(json as Map<String, dynamic>)).toList();
+    return list
+        .map(
+          (json) =>
+              ChannelDailyStatsModel.fromJson(json as Map<String, dynamic>),
+        )
+        .toList();
   }
 
   /// 记录消息阅读
@@ -602,7 +632,10 @@ class ChannelApi extends HttpClient {
 
   /// 创建频道订单
   Future<ChannelOrderModel?> createOrder({required String channelId}) async {
-    final resp = await post('/v1/channel/$channelId/order', data: <String, dynamic>{});
+    final resp = await post(
+      '/v1/channel/$channelId/order',
+      data: <String, dynamic>{},
+    );
     debugPrint(
       "ChannelApi_createOrder resp: ok=${resp.ok}, code=${resp.code}, msg=${resp.msg}",
     );
@@ -611,7 +644,9 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelOrderModel.fromJson(Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>));
+    return ChannelOrderModel.fromJson(
+      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+    );
   }
 
   /// 支付订单（模拟支付）
@@ -652,6 +687,8 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelOrderModel.fromJson(Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>));
+    return ChannelOrderModel.fromJson(
+      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+    );
   }
 }

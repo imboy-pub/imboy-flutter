@@ -156,21 +156,29 @@ class AppColors {
   static Color get primaryAlpha50 => primary.withValues(alpha: 0.5);
 
   // ============ 兼容性语义方法 ============
-  static Color getIosBlue(Brightness b) => b == Brightness.dark ? iosBlueDark : iosBlue;
-  static Color getIosRed(Brightness b) => b == Brightness.dark ? iosRedDark : iosRed;
-  static Color getIosGreen(Brightness b) => b == Brightness.dark ? iosGreenDark : iosGreen;
-  static Color getIosSeparator(Brightness b) => b == Brightness.dark ? iosSeparatorDark : iosSeparator;
+  static Color getIosBlue(Brightness b) =>
+      b == Brightness.dark ? iosBlueDark : iosBlue;
+  static Color getIosRed(Brightness b) =>
+      b == Brightness.dark ? iosRedDark : iosRed;
+  static Color getIosGreen(Brightness b) =>
+      b == Brightness.dark ? iosGreenDark : iosGreen;
+  static Color getIosSeparator(Brightness b) =>
+      b == Brightness.dark ? iosSeparatorDark : iosSeparator;
 
   static Color get textSecondary => lightTextSecondary;
 
   static Color getTextColor(Brightness b, {bool isSecondary = false}) {
-    if (b == Brightness.dark) return isSecondary ? darkTextSecondary : darkTextPrimary;
+    if (b == Brightness.dark)
+      return isSecondary ? darkTextSecondary : darkTextPrimary;
     return isSecondary ? lightTextSecondary : lightTextPrimary;
   }
 
-  static Color getBackgroundColor(Brightness b) => b == Brightness.dark ? darkBackground : lightBackground;
-  static Color getSurfaceColor(Brightness b) => b == Brightness.dark ? darkSurface : lightSurface;
-  static Color getDividerColor(Brightness b) => b == Brightness.dark ? darkDivider : lightDivider;
+  static Color getBackgroundColor(Brightness b) =>
+      b == Brightness.dark ? darkBackground : lightBackground;
+  static Color getSurfaceColor(Brightness b) =>
+      b == Brightness.dark ? darkSurface : lightSurface;
+  static Color getDividerColor(Brightness b) =>
+      b == Brightness.dark ? darkDivider : lightDivider;
 
   static Color getSurfaceGrouped(Brightness b, {bool isOLEDMode = false}) {
     if (b == Brightness.light) return lightSurfaceGrouped;
@@ -197,16 +205,27 @@ class AppColors {
     return isEyeCare ? eyeCareBackground : darkBackground;
   }
 
-  static Color getEyeCareTextColor(bool isEyeCare, Brightness b, {bool isSecondary = false}) {
-    if (b == Brightness.light) return isSecondary ? lightTextSecondary : lightTextPrimary;
-    if (isEyeCare) return isSecondary ? eyeCareTextSecondary : eyeCareTextPrimary;
+  static Color getEyeCareTextColor(
+    bool isEyeCare,
+    Brightness b, {
+    bool isSecondary = false,
+  }) {
+    if (b == Brightness.light)
+      return isSecondary ? lightTextSecondary : lightTextPrimary;
+    if (isEyeCare)
+      return isSecondary ? eyeCareTextSecondary : eyeCareTextPrimary;
     return isSecondary ? darkTextSecondary : darkTextPrimary;
   }
 
   static Color getChatBubbleBackground(bool isSent, bool isOLED, Brightness b) {
-    if (b == Brightness.light) return isSent ? lightSentMessageBackground : lightReceivedMessageBackground;
+    if (b == Brightness.light)
+      return isSent
+          ? lightSentMessageBackground
+          : lightReceivedMessageBackground;
     if (isSent) return darkSentMessageBackground;
-    return isOLED ? oledReceivedMessageBackground : darkReceivedMessageBackground;
+    return isOLED
+        ? oledReceivedMessageBackground
+        : darkReceivedMessageBackground;
   }
 
   static double getContrastRatio(Color c1, Color c2) {
@@ -219,5 +238,6 @@ class AppColors {
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
 
-  static double _linear(double v) => v <= 0.03928 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4).toDouble();
+  static double _linear(double v) =>
+      v <= 0.03928 ? v / 12.92 : pow((v + 0.055) / 1.055, 2.4).toDouble();
 }

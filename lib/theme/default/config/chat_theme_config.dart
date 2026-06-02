@@ -191,7 +191,7 @@ class ChatThemeConfig {
       // iOS Body (17pt) - 消息内容
       bodyLarge: TextStyle(
         fontSize: FontScaleCalculator.calculateScaledSize(
-          17, 
+          17,
           safeScale,
           context: context,
         ),

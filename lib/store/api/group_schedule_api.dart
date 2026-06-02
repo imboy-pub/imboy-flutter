@@ -80,7 +80,9 @@ class GroupScheduleApi extends HttpClient {
       return null;
     }
 
-    return _normalizeSchedule(Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>));
+    return _normalizeSchedule(
+      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+    );
   }
 
   /// 更新日程
@@ -144,7 +146,9 @@ class GroupScheduleApi extends HttpClient {
       return null;
     }
 
-    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    final payload = Map<String, dynamic>.from(
+      resp.payload as Map<dynamic, dynamic>,
+    );
     final schedule = payload['schedule'];
     if (schedule is Map<String, dynamic>) {
       payload['schedule'] = _normalizeSchedule(

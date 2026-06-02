@@ -53,7 +53,9 @@ class GroupFileApi extends HttpClient {
       };
     }
 
-    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    final payload = Map<String, dynamic>.from(
+      resp.payload as Map<dynamic, dynamic>,
+    );
     final list = _normalizeList(payload['list'] ?? payload['items']);
     final total = _toInt(payload['total'], fallback: list.length);
     return {
@@ -82,7 +84,9 @@ class GroupFileApi extends HttpClient {
       return [];
     }
 
-    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    final payload = Map<String, dynamic>.from(
+      resp.payload as Map<dynamic, dynamic>,
+    );
     return _normalizeCategoryStats(payload['items'] ?? payload['list']);
   }
 
@@ -118,7 +122,9 @@ class GroupFileApi extends HttpClient {
       };
     }
 
-    final payload = Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    final payload = Map<String, dynamic>.from(
+      resp.payload as Map<dynamic, dynamic>,
+    );
     final list = _normalizeList(payload['items'] ?? payload['list']);
     final total = _toInt(payload['total'], fallback: list.length);
     return {

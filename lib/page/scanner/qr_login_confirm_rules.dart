@@ -179,7 +179,9 @@ QrLoginConfirmState parseConfirmResponse({
 }) {
   if (ok && code == 0) {
     if (payload is! Map<String, dynamic>) {
-      return const QrLoginConfirmFailed('协议错误：confirm 响应非 Map<String, dynamic>');
+      return const QrLoginConfirmFailed(
+        '协议错误：confirm 响应非 Map<String, dynamic>',
+      );
     }
     if (payload['status'] != 'confirmed') {
       return const QrLoginConfirmFailed('协议错误：confirm 响应缺 status');
