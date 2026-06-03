@@ -26,6 +26,8 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -48,9 +50,14 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
   StreamSubscription<dynamic>? _connectivitySubscription;
   StreamSubscription<dynamic>? _websocketStatusSubscription;
 
+  /// 是否需在列表顶部常驻显示 E2EE 密钥恢复横幅（换设备/重装后未完成恢复）。
+  bool _e2eeRecoveryNeeded = false;
+
   @override
   void initState() {
     super.initState();
+    _e2eeRecoveryNeeded =
+        StorageService.to.getBool(kE2eeRecoveryNeededKey) ?? false;
     unawaited(initData());
 
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) async {
@@ -174,6 +181,18 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
             child: CupertinoSearchTextField(placeholder: t.common.search),
           ),
         ),
+
+        if (_e2eeRecoveryNeeded)
+          SliverToBoxAdapter(
+            child: E2EERecoveryBanner(
+              onDismiss: () {
+                unawaited(
+                  StorageService.to.setBool(kE2eeRecoveryNeededKey, false),
+                );
+                setState(() => _e2eeRecoveryNeeded = false);
+              },
+            ),
+          ),
 
         if (state.connectDesc.isNotEmpty)
           SliverToBoxAdapter(child: NetworkFailureTips()),

@@ -257,6 +257,13 @@ e2eeSocialCreateShardsDesc: Split key into shards stored on proxy devices (serve
 e2eeProxyNeedAtLeast(count): Please select at least $count proxies
 e2eeRecreatingKey: Recreating key...
 e2eeKeyRecreated: Key recreated successfully
+e2eeRecoveryNewDeviceTitle: New device detected
+e2eeRecoveryNewDeviceBody: "A new end-to-end encryption key has been generated on this device to protect your messages.\n\nHistory messages were encrypted with your old device's key and need recovery before they can be read. Recover via Device Transfer, Social Recovery, or Local Backup import."
+e2eeRecoveryDecryptFailedTitle: Cannot decrypt this message
+e2eeRecoveryDecryptFailedBody: "This message was encrypted with another device's key.\n\nIf you switched devices or reinstalled the app, recover your encryption key to view history messages."
+e2eeRecoveryLater: Later
+e2eeRecoveryGoRecover: Recover
+e2eeRecoveryBannerText: Encrypted history messages detected — recover your key to view them. Tap to recover.
 liveRoomCreateTitle: Create Live Room
 liveRoomCreating: Creating...
 liveRoomWatch: Watch Live

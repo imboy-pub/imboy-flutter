@@ -287,6 +287,11 @@ class API {
   static const walletTransactions = '/v1/wallet/transactions';
   static const walletTopup = '/v1/wallet/topup';
 
+  // 附件 presign 直传（Garage S3），均 JWT 保护
+  static const attachmentPresign = '/v1/attachment/presign';
+  static const attachmentConfirm = '/v1/attachment/confirm';
+  static const attachmentViewUrl = '/v1/attachment/view_url';
+
   // 朋友圈（动态路径）
   static String momentDetail(String id) => '/v1/moment/$id';
   static String momentDelete(String id) => '/v1/moment/$id/delete';

@@ -106,7 +106,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
 
   Future<String?> _uploadFile(String prefix, File file) async {
     final completer = Completer<String?>();
-    await AttachmentApi.uploadFile(
+    await AttachmentApi.uploadFileViaPresignCompat(
       prefix,
       file,
       (Map<String, dynamic> resp, String url) {

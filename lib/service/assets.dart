@@ -85,9 +85,27 @@ class AssetsService {
     return true;
   }
 
+  /// Garage presign object_key 形态：`u<uid>/file_<ts>_<hex>/<name>`。
+  /// 用于区分新链路 object_key 与旧 go-fastdfs 完整 URL（带 http scheme）。
+  static final RegExp _objectKeyReg = RegExp(r'^u\d+/');
+
+  /// 判断 [input] 是否为 Garage presign object_key（而非 go-fastdfs 完整 URL）。
+  ///
+  /// 规则：非空、不含 `://`（无 scheme）、且以 `u<digits>/` 开头。
+  static bool isObjectKey(String input) {
+    if (input.isEmpty) return false;
+    if (input.contains('://')) return false;
+    return _objectKeyReg.hasMatch(input);
+  }
+
   /// 获取URL地址的 v 参数，和当前时间做比较，再决定是否重新生成授权令牌
   /// Assets.viewUrl
   static Uri viewUrl(String url) {
+    // Garage object_key：同步层不解析，原样透传给 async 下载边界
+    // （IMBoyCacheManager / AssetUrlResolver）换取短时 presigned URL。
+    if (isObjectKey(url)) {
+      return Uri(path: url);
+    }
     int now = DateTimeHelper.second();
     int diff = 3600; // 1hour
 

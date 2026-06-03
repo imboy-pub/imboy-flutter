@@ -587,6 +587,13 @@ class _TranslationsChatEnUs extends TranslationsChatZhCn {
 	@override String e2eeProxyNeedAtLeast({required Object count}) => 'Please select at least ${count} proxies';
 	@override String get e2eeRecreatingKey => 'Recreating key...';
 	@override String get e2eeKeyRecreated => 'Key recreated successfully';
+	@override String get e2eeRecoveryNewDeviceTitle => 'New device detected';
+	@override String get e2eeRecoveryNewDeviceBody => 'A new end-to-end encryption key has been generated on this device to protect your messages.\n\nHistory messages were encrypted with your old device\'s key and need recovery before they can be read. Recover via Device Transfer, Social Recovery, or Local Backup import.';
+	@override String get e2eeRecoveryDecryptFailedTitle => 'Cannot decrypt this message';
+	@override String get e2eeRecoveryDecryptFailedBody => 'This message was encrypted with another device\'s key.\n\nIf you switched devices or reinstalled the app, recover your encryption key to view history messages.';
+	@override String get e2eeRecoveryLater => 'Later';
+	@override String get e2eeRecoveryGoRecover => 'Recover';
+	@override String get e2eeRecoveryBannerText => 'Encrypted history messages detected — recover your key to view them. Tap to recover.';
 	@override String get liveRoomCreateTitle => 'Create Live Room';
 	@override String get liveRoomCreating => 'Creating...';
 	@override String get liveRoomWatch => 'Watch Live';
@@ -2893,6 +2900,13 @@ extension on TranslationsEnUs {
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Please select at least ${count} proxies',
 			'chat.e2eeRecreatingKey' => 'Recreating key...',
 			'chat.e2eeKeyRecreated' => 'Key recreated successfully',
+			'chat.e2eeRecoveryNewDeviceTitle' => 'New device detected',
+			'chat.e2eeRecoveryNewDeviceBody' => 'A new end-to-end encryption key has been generated on this device to protect your messages.\n\nHistory messages were encrypted with your old device\'s key and need recovery before they can be read. Recover via Device Transfer, Social Recovery, or Local Backup import.',
+			'chat.e2eeRecoveryDecryptFailedTitle' => 'Cannot decrypt this message',
+			'chat.e2eeRecoveryDecryptFailedBody' => 'This message was encrypted with another device\'s key.\n\nIf you switched devices or reinstalled the app, recover your encryption key to view history messages.',
+			'chat.e2eeRecoveryLater' => 'Later',
+			'chat.e2eeRecoveryGoRecover' => 'Recover',
+			'chat.e2eeRecoveryBannerText' => 'Encrypted history messages detected — recover your key to view them. Tap to recover.',
 			'chat.liveRoomCreateTitle' => 'Create Live Room',
 			'chat.liveRoomCreating' => 'Creating...',
 			'chat.liveRoomWatch' => 'Watch Live',
@@ -2900,6 +2914,8 @@ extension on TranslationsEnUs {
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
 			'common.acceptFriendRequest' => 'Accept friend request',
+			_ => null,
+		} ?? switch (path) {
 			'common.addFriend' => 'Add friend',
 			'common.addPhoneContact' => 'Add phone contact',
 			'common.creditCardRepayment' => 'Credit Card Repayment',
@@ -2907,8 +2923,6 @@ extension on TranslationsEnUs {
 			'common.addTag' => 'Add tag',
 			'common.addToContacts' => 'Add to contacts',
 			'common.addToDenylist' => 'Add to blocklist',
-			_ => null,
-		} ?? switch (path) {
 			'common.added' => 'Added',
 			'common.addedToDenylistTips' => 'Added to blocklist. You will no longer receive messages from this user.',
 			'common.agreeContinue' => 'Agree and continue',
@@ -3414,6 +3428,8 @@ extension on TranslationsEnUs {
 			'common.chatDeleteMessage' => 'Delete message',
 			'common.chatCopy' => 'Copy',
 			'common.chatSaveImage' => 'Save image',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatDeleteLocalOnly' => 'Delete local only',
 			'common.chatDownloadFile' => 'Download file',
 			'common.chatShareFile' => 'Share file',
@@ -3421,8 +3437,6 @@ extension on TranslationsEnUs {
 			'common.chatShareLink' => 'Share link',
 			'common.chatDeleteFailed' => 'Delete failed',
 			'common.chatNetworkErrorDeleteLocal' => 'Network connection failed. Delete local message only?',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteConfirm' => 'Are you sure you want to delete this message? This action cannot be undone.',
 			'common.chatDeleteOnlyLocal' => 'Delete only for you, still visible to others',
 			'common.chatDeleteAll' => 'Delete for everyone, cannot be undone',
@@ -3928,6 +3942,8 @@ extension on TranslationsEnUs {
 			'common.e2eeProxyLoadFriendsFailed' => 'Failed to load friend list, please retry',
 			'common.e2eeProxyNoPublicKey' => 'This contact has no available public key',
 			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'Failed to get public key for ${name}',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeProxySelectFailed' => 'Failed to select proxies, please retry',
 			'common.e2eeProxyNoFriends' => 'No friends yet',
 			'common.e2eeProxyNoFriendsHint' => 'Add friends first before setting up recovery proxies',
@@ -3935,8 +3951,6 @@ extension on TranslationsEnUs {
 			'common.e2eeProxyConfirmCount' => ({required Object count}) => 'Confirm Selection (${count} proxies)',
 			'common.buttonBackHome' => 'Back to Home',
 			'common.featureNotEnabled' => 'This feature is not enabled',
-			_ => null,
-		} ?? switch (path) {
 			'common.featureDisabledName' => ({required Object name}) => '${name} is not enabled and temporarily unavailable',
 			'common.imageLoadFailed' => 'Load failed',
 			'common.loadFailedWithError' => ({required Object error}) => 'Load failed: ${error}',
@@ -4442,6 +4456,8 @@ extension on TranslationsEnUs {
 			'main.e2eeTransferReceiving' => 'Receiving transfer...',
 			'main.e2eeTransferPageTitle' => 'Transfer Between Devices',
 			'main.e2eeTransferPendingItem' => 'Pending Key Transfer',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeTransferPendingItemDesc' => 'Tap to view details',
 			'main.e2eeTransferView' => 'View',
 			'main.e2eeSocialTitle' => 'Social Recovery',
@@ -4449,8 +4465,6 @@ extension on TranslationsEnUs {
 			'main.e2eeSocialSetupProxy' => 'Set Up Recovery Proxies',
 			'main.e2eeSocialChooseProxy' => 'Choose trusted contacts as recovery proxies',
 			'main.e2eeSocialExistingShards' => 'Existing Recovery Shards',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeSocialRecoverKeyTitle' => 'Recover Key',
 			'main.e2eeSocialRecoverKeyDesc' => 'Use proxy shards to recover your key',
 			'main.e2eeSocialManageShardsTitle' => 'Manage Shards',

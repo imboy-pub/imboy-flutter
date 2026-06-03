@@ -4,6 +4,7 @@ import 'package:cross_cache/cross_cache.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
+import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
@@ -110,10 +111,27 @@ class IMBoyCacheManager {
     if (url.isEmpty) {
       throw Exception('IMBoyCacheManager getSingleFile url is empty');
     }
-    final rawUri = Uri.parse(url);
-    final cacheKey =
-        '${rawUri.scheme}://${rawUri.host}:${rawUri.port}${rawUri.path}';
-    final viewUri = AssetsService.viewUrl(url);
+
+    // 下载边界分流：
+    // - object_key（新 Garage 链路）→ async 换取短时 presigned URL；cacheKey 用
+    //   稳定 object_key，与 rotating 签发参数解耦，命中率更高。
+    // - 完整 URL（旧 go-fastdfs / 历史消息）→ 同步 viewUrl 拼 HMAC 授权，行为不变。
+    final bool isObjKey = AssetsService.isObjectKey(url);
+    final String cacheKey;
+    final String downloadUrl;
+    final String extSource; // 推导文件扩展名的来源串
+    if (isObjKey) {
+      cacheKey = 'objkey://$url';
+      downloadUrl = await AssetUrlResolver.instance.resolve(url);
+      extSource = url;
+    } else {
+      final rawUri = Uri.parse(url);
+      cacheKey =
+          '${rawUri.scheme}://${rawUri.host}:${rawUri.port}${rawUri.path}';
+      final viewUri = AssetsService.viewUrl(url);
+      downloadUrl = viewUri.toString();
+      extSource = viewUri.path;
+    }
     List<int> bytes = [];
 
     // 尝试从缓存获取
@@ -137,7 +155,7 @@ class IMBoyCacheManager {
         // 缓存失败，尝试下载
         try {
           final downloaded = await _crossCache.downloadAndSave(
-            viewUri.toString(),
+            downloadUrl,
             headers: headers,
           );
 
@@ -179,7 +197,7 @@ class IMBoyCacheManager {
           }
 
           await _crossCache.set(cacheKey, downloaded);
-          await _crossCache.delete(viewUri.toString());
+          await _crossCache.delete(downloadUrl);
           bytes = downloaded;
           _log('✅ 下载成功');
           // 下载成功，跳出循环
@@ -217,7 +235,7 @@ class IMBoyCacheManager {
         await directory.create(recursive: true);
       }
 
-      final ext = _getFileExtension(viewUri.path) ?? 'cache';
+      final ext = _getFileExtension(extSource) ?? 'cache';
       final fileName = 'imboy_cache_${_hashCode(cacheKey)}.$ext';
       final file = File('${directory.path}/$fileName');
 

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 
 // Barrel exports - 减少导入语句
 import 'barrel/ui_packages.dart';
@@ -1183,6 +1184,13 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 取消引用状态
     if (quoteMessage?.id == message.id) {
       updateQuoteMessage(null);
+    }
+
+    // E2EE 解密失败的「[加密消息]」气泡：点击引导用户前往密钥恢复中心，
+    // 接通设备转移 / 社交恢复 / 本地备份导入，避免撞墙后无引导的死胡同。
+    if (message.metadata?['_e2ee_failed'] == true) {
+      showE2EERecoveryGuide(context, scene: E2EERecoveryScene.decryptFailed);
+      return;
     }
 
     // 可以在这里添加其他点击逻辑

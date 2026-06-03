@@ -373,9 +373,14 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
   }
 
   try {
+    final headers = <String, String>{'User-Agent': 'imboy/1.0.0'};
+    // Garage object_key：原样透传，下载边界异步换取短时 URL。
+    // Garage 不支持 nginx 式 width 缩放，忽略 w（原图下载，由 Flutter 自行缩放）。
+    if (AssetsService.isObjectKey(url)) {
+      return IMBoyCachedImageProvider(url, headers);
+    }
     Uri u = AssetsService.viewUrl(url);
     String finalUrl = w > 0 ? "${u.toString()}&width=$w" : u.toString();
-    final headers = <String, String>{'User-Agent': 'imboy/1.0.0'};
     return IMBoyCachedImageProvider(finalUrl, headers);
   } on FormatException {
     return IconImageProvider(Icons.broken_image);

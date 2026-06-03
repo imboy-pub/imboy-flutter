@@ -11,7 +11,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/service/assets.dart';
+import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -508,15 +508,19 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
     super.dispose();
   }
 
-  void _initVideoController(String url) {
+  Future<void> _initVideoController(String url) async {
     if (_videoController != null) return;
-    _videoController =
-        VideoPlayerController.networkUrl(AssetsService.viewUrl(url))
-          ..initialize().then((_) {
-            if (mounted) setState(() {});
-          })
-          ..setLooping(true)
-          ..setVolume(0);
+    // object_key 经后端换取短时 presigned URL；legacy 完整 URL 走旧授权。
+    final String resolved = await AssetUrlResolver.instance.resolveForDisplay(
+      url,
+    );
+    if (!mounted || _videoController != null) return;
+    _videoController = VideoPlayerController.networkUrl(Uri.parse(resolved))
+      ..initialize().then((_) {
+        if (mounted) setState(() {});
+      })
+      ..setLooping(true)
+      ..setVolume(0);
   }
 
   @override

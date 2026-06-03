@@ -3,6 +3,7 @@
 /// 负责处理所有附件相关的上传、选择和消息创建逻辑
 library;
 
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -83,32 +84,44 @@ class ChatAttachmentHandler {
   }
 
   /// 上传文件
+  ///
+  /// S6：聊天文件走 Garage presign 直传（source 存 object_key，
+  /// 下载经 IMBoyCacheManager.getSingleFile 异步解析）。
   Future<void> uploadFile(BuildContext context, PlatformFile file) async {
-    await AttachmentApi.uploadFile(
-      "files",
-      file,
-      (Map<String, dynamic> resp, String uri) async {
-        final message = FileMessage(
-          id: Xid().toString(),
-          authorId: _currentUser.id,
-          createdAt: DateTime.fromMillisecondsSinceEpoch(
-            DateTimeHelper.millisecond(),
-            isUtc: true,
-          ),
-          mimeType: lookupMimeType(file.path!),
-          name: file.name,
-          size: file.size,
-          source: uri,
-          status: MessageStatus.sending,
-          metadata: _withBurnMetadata({
-            'peer_id': peerId,
-            'md5': resp['data']['md5'].toString(),
-          }),
-        );
-        await onMessageCreated(message);
-      },
-      (Error error) => debugPrint("File upload error: ${error.toString()}"),
-    );
+    final String? path = file.path;
+    if (path == null) {
+      debugPrint("uploadFile: file.path 为空，取消上传");
+      return;
+    }
+    try {
+      final Uint8List bytes = await File(path).readAsBytes();
+      final String mime = lookupMimeType(path) ?? 'application/octet-stream';
+      final meta = await AttachmentApi.uploadBytesViaPresignMeta(
+        bytes,
+        file.name,
+        mime,
+      );
+      final message = FileMessage(
+        id: Xid().toString(),
+        authorId: _currentUser.id,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(
+          DateTimeHelper.millisecond(),
+          isUtc: true,
+        ),
+        mimeType: mime,
+        name: file.name,
+        size: file.size,
+        source: meta['object_key'] as String,
+        status: MessageStatus.sending,
+        metadata: _withBurnMetadata({
+          'peer_id': peerId,
+          'md5': meta['md5'].toString(),
+        }),
+      );
+      await onMessageCreated(message);
+    } on Object catch (e) {
+      debugPrint("File presign upload error: $e");
+    }
   }
 
   /// 处理相机选择
@@ -159,33 +172,31 @@ class ChatAttachmentHandler {
     BuildContext context,
     AssetEntity entity,
   ) async {
-    // 在异步操作前获取屏幕宽度，避免在回调中使用过期的 context
-    final screenWidth = context.mounted
-        ? MediaQuery.of(context).size.width.toInt()
-        : 800;
-
-    await AttachmentApi.uploadVideo(
-      "camera",
-      entity,
-      (Map<String, dynamic> resp, String imgUrl) async {
-        imgUrl += "&width=$screenWidth";
-        if (entity.type == AssetType.image) {
-          await handleImageUpload(resp, imgUrl, entity);
-        } else if (entity.type == AssetType.video) {
-          await handleVideoUpload(resp);
-        }
-      },
-      (Error error) => debugPrint("Camera upload error: ${error.toString()}"),
-      uploadOriginalImage: true,
-    );
+    // S3：图片走 Garage presign 直传（消息 source 存 object_key）；
+    // 视频仍走旧 go-fastdfs 链路（待 S5 切换）。
+    if (entity.type == AssetType.image) {
+      try {
+        final meta = await AttachmentApi.uploadImageEntityViaPresign(entity);
+        await handleImageUploadPresign(meta, entity);
+      } on Object catch (e) {
+        debugPrint("Camera image presign upload error: $e");
+      }
+    } else if (entity.type == AssetType.video) {
+      // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
+      try {
+        final resp = await AttachmentApi.uploadVideoViaPresign(entity);
+        await handleVideoUpload(resp);
+      } on Object catch (e) {
+        debugPrint("Camera video presign upload error: $e");
+      }
+    }
     // 上传后删除临时文件
     (await entity.file)?.deleteSync();
   }
 
-  /// 处理图片上传
-  Future<void> handleImageUpload(
-    Map<String, dynamic> resp,
-    String imgUrl,
+  /// 处理图片上传（S3 presign：source 存 object_key，渲染经 cachedImageProvider 异步解析）
+  Future<void> handleImageUploadPresign(
+    Map<String, dynamic> meta,
     AssetEntity entity,
   ) async {
     final message = ImageMessage(
@@ -198,11 +209,12 @@ class ChatAttachmentHandler {
       text: await entity.titleAsync,
       height: entity.height * 1.0,
       width: entity.width * 1.0,
-      size: resp["data"]["size"] as int?,
-      source: imgUrl,
+      size: meta['size'] as int?,
+      // Garage 不支持 nginx 式 width 缩放，source 直接存 object_key（不拼 &width）
+      source: meta['object_key'] as String,
       metadata: _withBurnMetadata({
         'peer_id': peerId,
-        'md5': resp['data']['md5'].toString(),
+        'md5': meta['md5'].toString(),
       }),
     );
     await onMessageCreated(message);
@@ -258,53 +270,23 @@ class ChatAttachmentHandler {
     BuildContext context,
     AssetEntity entity,
   ) async {
-    await AttachmentApi.uploadVideo(
-      "img",
-      entity,
-      (Map<String, dynamic> resp, String imgUrl) async {
-        if (entity.type == AssetType.image) {
-          await handleSelectedImageUpload(context, resp, imgUrl, entity);
-        } else if (entity.type == AssetType.video) {
-          await handleSelectedVideoUpload(resp);
-        }
-      },
-      (Error error) => debugPrint("Asset upload error: ${error.toString()}"),
-      uploadOriginalImage: true,
-    );
-  }
-
-  /// 处理选择的图片上传
-  Future<void> handleSelectedImageUpload(
-    BuildContext context,
-    Map<String, dynamic> resp,
-    String imgUrl,
-    AssetEntity entity,
-  ) async {
-    // 检查 context 是否仍然有效
-    if (!context.mounted) {
-      debugPrint("handleSelectedImageUpload: context 已失效，取消操作");
-      return;
+    // S3：图片走 Garage presign 直传；视频仍走旧链路（待 S5）。
+    if (entity.type == AssetType.image) {
+      try {
+        final meta = await AttachmentApi.uploadImageEntityViaPresign(entity);
+        await handleImageUploadPresign(meta, entity);
+      } on Object catch (e) {
+        debugPrint("Selected image presign upload error: $e");
+      }
+    } else if (entity.type == AssetType.video) {
+      // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
+      try {
+        final resp = await AttachmentApi.uploadVideoViaPresign(entity);
+        await handleSelectedVideoUpload(resp);
+      } on Object catch (e) {
+        debugPrint("Selected video presign upload error: $e");
+      }
     }
-    final screenWidth = MediaQuery.of(context).size.width.toInt();
-    imgUrl += "&width=$screenWidth";
-    final message = ImageMessage(
-      authorId: _currentUser.id,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(
-        DateTimeHelper.millisecond(),
-        isUtc: true,
-      ),
-      id: Xid().toString(),
-      text: await entity.titleAsync,
-      height: entity.height * 1.0,
-      width: entity.width * 1.0,
-      size: resp["data"]["size"] as int?,
-      source: imgUrl,
-      metadata: _withBurnMetadata({
-        'peer_id': peerId,
-        'md5': resp['data']['md5'].toString(),
-      }),
-    );
-    await onMessageCreated(message);
   }
 
   /// 处理选择的视频上传
@@ -338,36 +320,44 @@ class ChatAttachmentHandler {
 
   /// 处理语音选择
   Future<void> handleVoiceSelection(AudioFile? obj) async {
-    if (obj == null || (await obj.file.readAsBytes()).isEmpty) return;
-    await AttachmentApi.uploadFile(
-      'audio',
-      obj.file,
-      (Map<String, dynamic> resp, String uri) async {
-        final fileSize = (await obj.file.readAsBytes()).length;
-        final message = AudioMessage(
-          authorId: _currentUser.id,
-          createdAt: DateTime.fromMillisecondsSinceEpoch(
-            DateTimeHelper.millisecond(),
-            isUtc: true,
-          ),
-          id: Xid().toString(),
-          source: uri,
-          text: '',
-          size: fileSize,
-          duration: obj.duration,
-          waveform: obj.waveform,
-          metadata: _withBurnMetadata({
-            'peer_id': peerId,
-            'md5': resp['data']['md5'].toString(),
-            'mime_type': obj.mimeType,
-          }),
-        );
-        obj.file.delete(recursive: true);
-        await onMessageCreated(message);
-      },
-      (Error error) => debugPrint("Voice upload error: ${error.toString()}"),
-      process: false,
-    );
+    if (obj == null) return;
+    final Uint8List bytes = await obj.file.readAsBytes();
+    if (bytes.isEmpty) return;
+
+    // S4：语音走 Garage presign 直传（source 存 object_key，播放经 getSingleFile 解析）。
+    try {
+      final String mime = obj.mimeType;
+      final String ext = mime.contains('/') ? mime.split('/').last : 'mp3';
+      final String name = '${Xid().toString()}.$ext';
+      final meta = await AttachmentApi.uploadBytesViaPresignMeta(
+        bytes,
+        name,
+        mime,
+        process: false,
+      );
+      final message = AudioMessage(
+        authorId: _currentUser.id,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(
+          DateTimeHelper.millisecond(),
+          isUtc: true,
+        ),
+        id: Xid().toString(),
+        source: meta['object_key'] as String,
+        text: '',
+        size: bytes.length,
+        duration: obj.duration,
+        waveform: obj.waveform,
+        metadata: _withBurnMetadata({
+          'peer_id': peerId,
+          'md5': meta['md5'].toString(),
+          'mime_type': obj.mimeType,
+        }),
+      );
+      await obj.file.delete(recursive: true);
+      await onMessageCreated(message);
+    } on Object catch (e) {
+      debugPrint("Voice presign upload error: $e");
+    }
   }
 
   /// 处理位置选择
@@ -381,17 +371,13 @@ class ChatAttachmentHandler {
     String longitude,
   ) async {
     if (imageBytes == null) return;
-    // 在异步操作前获取屏幕宽度，避免在回调中使用过期的 context
-    final screenWidth = context.mounted
-        ? MediaQuery.of(context).size.width.toInt()
-        : 800;
     final image = img.decodeImage(imageBytes)!;
     final result = img.encodeJpg(image, quality: 65);
-    await AttachmentApi.uploadBytes(
+    await AttachmentApi.uploadBytesViaPresignCompat(
       "location",
       result,
       (Map<String, dynamic> resp, String imgUrl) async {
-        imgUrl += "&width=$screenWidth";
+        // imgUrl 现为 object_key（presign），Garage 不支持 &width 缩放，直接存
         final message = CustomMessage(
           authorId: _currentUser.id,
           createdAt: DateTime.fromMillisecondsSinceEpoch(

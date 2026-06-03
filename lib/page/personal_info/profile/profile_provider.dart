@@ -377,7 +377,7 @@ class ProfileNotifier extends _$ProfileNotifier {
       final Completer<bool> completer = Completer<bool>();
       String? avatarUrl;
 
-      await AttachmentApi.uploadFile(
+      await AttachmentApi.uploadFileViaPresignCompat(
         'avatar',
         imageFile,
         (Map<String, dynamic> resp, String url) async {
@@ -424,7 +424,7 @@ class ProfileNotifier extends _$ProfileNotifier {
       Completer<bool> completer = Completer<bool>();
       String? backgroundUrl;
 
-      await AttachmentApi.uploadFile(
+      await AttachmentApi.uploadFileViaPresignCompat(
         'background',
         imageFile,
         (Map<String, dynamic> resp, String url) {

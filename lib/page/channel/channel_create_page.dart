@@ -101,7 +101,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
     String? uploadedUrl;
     final completer = Completer<bool>();
 
-    await AttachmentApi.uploadFile(
+    await AttachmentApi.uploadFileViaPresignCompat(
       'avatar',
       file,
       (Map<String, dynamic> resp, String url) {

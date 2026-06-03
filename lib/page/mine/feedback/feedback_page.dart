@@ -58,7 +58,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
       try {
         img.Image image = img.decodeImage(feedback.screenshot)!;
         final result = img.encodeJpg(image, quality: 70);
-        await AttachmentApi.uploadBytes(
+        await AttachmentApi.uploadBytesViaPresignCompat(
           "feedback",
           result,
           (Map<String, dynamic> resp, String uri) async {

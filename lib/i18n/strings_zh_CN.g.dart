@@ -1588,6 +1588,27 @@ class TranslationsChatZhCn {
 	/// zh-CN: '密钥已重新创建'
 	String get e2eeKeyRecreated => '密钥已重新创建';
 
+	/// zh-CN: '检测到新设备登录'
+	String get e2eeRecoveryNewDeviceTitle => '检测到新设备登录';
+
+	/// zh-CN: '为保护消息安全，本设备已生成新的端对端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「设备转移」「社交恢复」或「本地备份导入」恢复。'
+	String get e2eeRecoveryNewDeviceBody => '为保护消息安全，本设备已生成新的端对端加密密钥。\n\n历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「设备转移」「社交恢复」或「本地备份导入」恢复。';
+
+	/// zh-CN: '无法解密此消息'
+	String get e2eeRecoveryDecryptFailedTitle => '无法解密此消息';
+
+	/// zh-CN: '此消息由其他设备的密钥加密。 若你更换了设备或重新安装了应用，请恢复加密密钥后再查看历史消息。'
+	String get e2eeRecoveryDecryptFailedBody => '此消息由其他设备的密钥加密。\n\n若你更换了设备或重新安装了应用，请恢复加密密钥后再查看历史消息。';
+
+	/// zh-CN: '稍后'
+	String get e2eeRecoveryLater => '稍后';
+
+	/// zh-CN: '去恢复'
+	String get e2eeRecoveryGoRecover => '去恢复';
+
+	/// zh-CN: '检测到加密历史消息，需恢复密钥后才能查看，点击前往恢复'
+	String get e2eeRecoveryBannerText => '检测到加密历史消息，需恢复密钥后才能查看，点击前往恢复';
+
 	/// zh-CN: '创建直播间'
 	String get liveRoomCreateTitle => '创建直播间';
 
@@ -7139,12 +7160,21 @@ extension on Translations {
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '请选择至少 ${count} 个代理',
 			'chat.e2eeRecreatingKey' => '正在重新创建密钥...',
 			'chat.e2eeKeyRecreated' => '密钥已重新创建',
+			'chat.e2eeRecoveryNewDeviceTitle' => '检测到新设备登录',
+			'chat.e2eeRecoveryNewDeviceBody' => '为保护消息安全，本设备已生成新的端对端加密密钥。\n\n历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「设备转移」「社交恢复」或「本地备份导入」恢复。',
+			'chat.e2eeRecoveryDecryptFailedTitle' => '无法解密此消息',
+			'chat.e2eeRecoveryDecryptFailedBody' => '此消息由其他设备的密钥加密。\n\n若你更换了设备或重新安装了应用，请恢复加密密钥后再查看历史消息。',
+			'chat.e2eeRecoveryLater' => '稍后',
+			'chat.e2eeRecoveryGoRecover' => '去恢复',
+			'chat.e2eeRecoveryBannerText' => '检测到加密历史消息，需恢复密钥后才能查看，点击前往恢复',
 			'chat.liveRoomCreateTitle' => '创建直播间',
 			'chat.liveRoomCreating' => '创建中...',
 			'chat.liveRoomWatch' => '观看直播',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
+			_ => null,
+		} ?? switch (path) {
 			'common.acceptFriendRequest' => '通过好友验证',
 			'common.addFriend' => '添加朋友',
 			'common.addPhoneContact' => '添加手机联系人',
@@ -7152,8 +7182,6 @@ extension on Translations {
 			'common.smallChange' => '零钱',
 			'common.addTag' => '添加标签',
 			'common.addToContacts' => '添加到通讯录',
-			_ => null,
-		} ?? switch (path) {
 			'common.addToDenylist' => '加入黑名单',
 			'common.added' => '已添加',
 			'common.addedToDenylistTips' => '已添加至黑名单，你将不再收到对方的消息',
@@ -7659,6 +7687,8 @@ extension on Translations {
 			'common.showOnlineStatus' => '显示在线状态',
 			'common.showOnlineStatusDesc' => '好友可以看到你的在线状态',
 			'common.allowNearbyVisible' => '附近的人可见',
+			_ => null,
+		} ?? switch (path) {
 			'common.dataSettings' => '数据设置',
 			'common.clearChatRecords' => '清除聊天记录',
 			'common.clearChatRecordsDesc' => '清除所有聊天记录，此操作不可恢复',
@@ -7666,8 +7696,6 @@ extension on Translations {
 			'common.deleteAccountActionDesc' => '永久删除账号和所有数据，此操作不可恢复',
 			'common.chatHistoryCleared' => '聊天记录已清除',
 			'common.accountDeletionNotAvailable' => '账号注销功能暂未开放',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteMessage' => '删除消息',
 			'common.chatCopy' => '复制',
 			'common.chatSaveImage' => '保存图片',
@@ -8173,6 +8201,8 @@ extension on Translations {
 			'common.e2eeTransferNoPending' => '暂无待处理的传输',
 			'common.e2eeTransferNoPendingDesc' => '当有设备向您发送密钥时，会显示在这里',
 			'common.e2eeSocialEnoughShards' => '您已有足够的分片可以恢复密钥',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialMoreShards' => ({required Object count}) => '还有 ${count} 个分片...',
 			'common.e2eeProxyLoadFriendsFailed' => '加载好友列表失败，请重试',
 			'common.e2eeProxyNoPublicKey' => '该好友没有可用的公钥',
@@ -8180,8 +8210,6 @@ extension on Translations {
 			'common.e2eeProxySelectFailed' => '选择代理失败，请重试',
 			'common.e2eeProxyNoFriends' => '暂无好友',
 			'common.e2eeProxyNoFriendsHint' => '请先添加好友后再设置恢复代理',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '至少需要 ${count} 个信任的联系人，已选择 ${selected} 个',
 			'common.e2eeProxyConfirmCount' => ({required Object count}) => '确认选择 (${count} 个代理)',
 			'common.buttonBackHome' => '返回首页',
@@ -8687,6 +8715,8 @@ extension on Translations {
 			'main.e2eeTransferQRExpiry' => ({required Object time}) => '二维码将在 ${time} 过期',
 			'main.e2eeTransferRefreshQR' => '刷新二维码',
 			'main.e2eeTransferEnterUidTitle' => '输入接收方用户 ID',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeTransferUidPlaceholder' => '接收方用户 ID',
 			'main.e2eeTransferReceiving' => '正在接受传输...',
 			'main.e2eeTransferPageTitle' => '设备间传输',
@@ -8694,8 +8724,6 @@ extension on Translations {
 			'main.e2eeTransferPendingItemDesc' => '点击查看详情',
 			'main.e2eeTransferView' => '查看',
 			'main.e2eeSocialTitle' => '社交恢复',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeSocialCanRecover' => '可以恢复密钥',
 			'main.e2eeSocialSetupProxy' => '设置恢复代理',
 			'main.e2eeSocialChooseProxy' => '选择信任的联系人作为恢复代理',

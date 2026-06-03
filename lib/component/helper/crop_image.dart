@@ -137,7 +137,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
 
   ///上传头像
   Future<void> upload(File file) async {
-    await AttachmentApi.uploadFile(
+    await AttachmentApi.uploadFileViaPresignCompat(
       widget.prefix,
       file,
       (Map<String, dynamic> resp, String uri) async {

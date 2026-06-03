@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart'
+    show kE2eeRecoveryNeededKey;
+import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// E2EE 社交恢复 - 恢复密钥页面
@@ -409,6 +415,10 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         setState(() => _isRecovering = false);
 
         if (success) {
+          // P2-5: 恢复成功后清空 E2EE 解密缓存并清除「恢复待办」横幅标记，
+          // 使本地已下载的密文消息在下次渲染时用恢复后的私钥重新解密显示。
+          E2EEService.clearCache();
+          unawaited(StorageService.to.setBool(kE2eeRecoveryNeededKey, false));
           showCupertinoDialog<void>(
             context: context,
             builder: (context) {

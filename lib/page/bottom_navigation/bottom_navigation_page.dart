@@ -18,6 +18,8 @@ import 'package:imboy/page/conversation/subscribed_channel_strip_provider.dart'
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
+import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'bottom_navigation_provider.dart';
@@ -108,7 +110,22 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         pageController.jumpToPage(initialIndex);
       }
       ref.read(bottomNavigationProvider.notifier).changeIndex(initialIndex);
+      _maybeShowE2EERecoveryGuide();
     });
+  }
+
+  /// 登录后首屏检查：若上次登录在本地新生成了 E2EE 密钥（换设备/重装），
+  /// 弹出一次密钥恢复引导，随后清除标记避免重复打扰。
+  void _maybeShowE2EERecoveryGuide() {
+    final pending =
+        StorageService.to.getBool(kE2eeNewDeviceGuidePendingKey) ?? false;
+    if (!pending) return;
+    // 一次性消费：先清标记，弹窗仅作引导，不阻塞主流程。
+    unawaited(StorageService.to.setBool(kE2eeNewDeviceGuidePendingKey, false));
+    if (!mounted) return;
+    unawaited(
+      showE2EERecoveryGuide(context, scene: E2EERecoveryScene.newDevice),
+    );
   }
 
   @override

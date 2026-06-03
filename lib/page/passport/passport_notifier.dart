@@ -25,6 +25,8 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart'
+    show kE2eeNewDeviceGuidePendingKey, kE2eeRecoveryNeededKey;
 import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
@@ -486,7 +488,8 @@ class PassportNotifier extends _$PassportNotifier {
             resp2.payload as Map<String, dynamic>,
           );
 
-          // 上报 E2EE 公钥到服务器
+          // 上报 E2EE 公钥到服务器；仅当确属换设备/重装（本地新生成密钥
+          // 且账号已存在其他活跃设备）时，方法内部会置位恢复引导标记。
           await _reportE2EEPublicKey();
 
           // 登录成功后主动连接 WebSocket
@@ -553,7 +556,8 @@ class PassportNotifier extends _$PassportNotifier {
             resp2.payload as Map<String, dynamic>,
           );
 
-          // 步骤 5.5: 上报 E2EE 公钥到服务器
+          // 步骤 5.5: 上报 E2EE 公钥到服务器；仅当确属换设备/重装（本地新
+          // 生成密钥且账号已存在其他活跃设备）时，方法内部会置位恢复引导标记。
           await _reportE2EEPublicKey();
 
           // 登录成功后主动连接 WebSocket
@@ -1013,16 +1017,30 @@ class PassportNotifier extends _$PassportNotifier {
   ///
   /// 登录成功后调用，确保服务器有当前设备的 E2EE 公钥
   /// 这样其他用户才能发送加密消息给当前用户
+  ///
+  /// 返回值 / Returns：`true` 表示本次登录在本地**新生成**了密钥对
+  /// （换设备 / 重装场景），调用方据此提示用户恢复历史消息密钥。
+  /// 上报当前设备 E2EE 公钥，并在确属"换设备/重装"时置位恢复引导标记。
+  ///
+  /// 仅当满足以下两个条件时，才置位横幅与一次性弹窗标记：
+  /// 1. 本次本地新生成了密钥对（本地无密钥）；
+  /// 2. 后端返回 other_device_count > 0（账号已存在其他活跃设备）。
+  ///
+  /// 全新注册用户首次登录虽然也走"新生成密钥"路径，但 other_device_count
+  /// 为 0，没有历史消息需要恢复，因此不会显示恢复横幅（误报收敛）。
   Future<void> _reportE2EEPublicKey() async {
+    // 是否本次新生成密钥对（换设备/重装信号），供后续判断是否引导恢复。
+    bool newlyGenerated = false;
     try {
       final storage = StorageSecureService.to;
 
       // 检查是否已有 E2EE 密钥
       bool hasKey = await storage.hasE2EEKeys();
 
-      // 如果没有密钥，生成新的密钥对
+      // 如果没有密钥，生成新的密钥对（换设备/重装或首次注册场景）
       if (!hasKey) {
         await E2EEKeyService.generateKeyPair();
+        newlyGenerated = true;
       }
 
       // 获取密钥信息
@@ -1042,6 +1060,8 @@ class PassportNotifier extends _$PassportNotifier {
       }
 
       if (deviceId.isEmpty || keyId == null || publicKey == null) {
+        // 信息不完整无法上报，也就拿不到 other_device_count，
+        // 无法确认是否换设备；保守不置位横幅，避免误报。
         debugPrint('⚠️ E2EE 密钥信息不完整，跳过上报');
         return;
       }
@@ -1052,7 +1072,7 @@ class PassportNotifier extends _$PassportNotifier {
       final deviceName = dinfo?['deviceName'];
 
       // 上报公钥到服务器
-      final success = await E2EEApi().reportDeviceKey(
+      final result = await E2EEApi().reportDeviceKey(
         deviceId: deviceId,
         deviceType: deviceType as String,
         deviceName: deviceName as String?,
@@ -1060,8 +1080,20 @@ class PassportNotifier extends _$PassportNotifier {
         keyId: keyId,
       );
 
-      if (!success && kDebugMode) {
-        debugPrint('E2EE 公钥上报失败，但不影响登录');
+      if (!result.ok) {
+        if (kDebugMode) {
+          debugPrint('E2EE 公钥上报失败，但不影响登录');
+        }
+        return;
+      }
+
+      // 仅当"本次新生成密钥"且"账号已存在其他活跃设备"时，
+      // 才判定为换设备/重装场景，置位恢复引导标记。
+      if (newlyGenerated && result.hasOtherDevice) {
+        // 一次性弹窗标记：登录后首屏弹出密钥恢复引导。
+        await StorageService.to.setBool(kE2eeNewDeviceGuidePendingKey, true);
+        // 常驻横幅标记：直到完成恢复或用户关闭横幅才清除。
+        await StorageService.to.setBool(kE2eeRecoveryNeededKey, true);
       }
     } catch (e) {
       // E2EE 公钥上报失败不应该阻止登录

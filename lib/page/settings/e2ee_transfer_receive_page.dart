@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart'
+    show kE2eeRecoveryNeededKey;
+import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/e2ee_transfer_service.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -94,6 +100,11 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
           _isSuccess = true;
           _isFailed = false;
         });
+
+        // 与社交恢复一致：设备转移恢复私钥后，清 E2EE 解密缓存并清除
+        // 「恢复待办」横幅标记，使本地密文消息用新私钥重新解密显示。
+        E2EEService.clearCache();
+        unawaited(StorageService.to.setBool(kE2eeRecoveryNeededKey, false));
 
         showCupertinoDialog<void>(
           context: context,

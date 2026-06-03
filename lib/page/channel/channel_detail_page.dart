@@ -558,7 +558,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     String? uploadedUrl;
     final completer = Completer<bool>();
 
-    await AttachmentApi.uploadBytes(
+    await AttachmentApi.uploadBytesViaPresignCompat(
       prefix,
       file,
       (Map<String, dynamic> resp, String url) {
@@ -592,7 +592,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     String? uploadedUrl;
     final completer = Completer<bool>();
 
-    await AttachmentApi.uploadFile(
+    await AttachmentApi.uploadFileViaPresignCompat(
       prefix,
       file,
       (Map<String, dynamic> resp, String url) {

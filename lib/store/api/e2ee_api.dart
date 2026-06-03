@@ -3,6 +3,27 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 
+/// 上报设备公钥的结构化结果。
+///
+/// 后端在上报成功时返回当前用户除本设备外、已上报有效公钥的活跃设备
+/// 数量（[otherDeviceCount]）。客户端据此区分两种"无本地密钥→新生成"
+/// 场景：
+/// - 全新注册首次登录：[otherDeviceCount] == 0，无历史消息可恢复；
+/// - 换设备/重装：[otherDeviceCount] > 0，需提示 E2EE 恢复。
+@immutable
+class E2EEReportResult {
+  const E2EEReportResult({required this.ok, this.otherDeviceCount = 0});
+
+  /// 上报是否成功（HTTP 业务成功）。
+  final bool ok;
+
+  /// 该用户除本设备外、已上报有效公钥的活跃设备数量。
+  final int otherDeviceCount;
+
+  /// 是否存在其他活跃设备（即"换设备/重装"场景）。
+  bool get hasOtherDevice => otherDeviceCount > 0;
+}
+
 class E2EEApi extends HttpClient {
   /// 上报当前设备的 E2EE 公钥
   ///
@@ -18,15 +39,16 @@ class E2EEApi extends HttpClient {
   /// - key_id: 密钥 ID
   ///
   /// 返回:
-  /// - success: 是否成功
-  Future<bool> reportDeviceKey({
+  /// - [E2EEReportResult]：包含是否成功与 other_device_count，
+  ///   供调用方区分"换设备"与"首次注册"。
+  Future<E2EEReportResult> reportDeviceKey({
     required String deviceId,
     required String deviceType,
     String? deviceName,
     required String publicKey,
     required String keyId,
   }) async {
-    IMBoyHttpResponse resp = await post(
+    final IMBoyHttpResponse resp = await post(
       API.e2eeReportDeviceKey,
       data: {
         'device_id': deviceId,
@@ -37,7 +59,20 @@ class E2EEApi extends HttpClient {
         'key_id': keyId,
       },
     );
-    return resp.ok;
+    if (!resp.ok) {
+      return const E2EEReportResult(ok: false);
+    }
+    final payload = resp.payload;
+    int otherDeviceCount = 0;
+    if (payload is Map) {
+      final raw = payload['other_device_count'];
+      if (raw is int) {
+        otherDeviceCount = raw;
+      } else if (raw is num) {
+        otherDeviceCount = raw.toInt();
+      }
+    }
+    return E2EEReportResult(ok: true, otherDeviceCount: otherDeviceCount);
   }
 
   Future<List<Map<String, dynamic>>> userKeys({required String uid}) async {
