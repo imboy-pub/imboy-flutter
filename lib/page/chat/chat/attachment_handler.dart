@@ -42,6 +42,7 @@ class ChatAttachmentHandler {
     required this.onMessageCreated,
     this.burnEnabled = false,
     this.burnAfterMs = 0,
+    this.currentUserOverride,
   });
 
   /// 对方 ID
@@ -59,12 +60,19 @@ class ChatAttachmentHandler {
   /// 阅后即焚时长（毫秒）
   final int burnAfterMs;
 
+  /// 当前用户注入 seam（仅测试用）：默认 null 走真实 [UserRepoLocal]，
+  /// 测试注入 fake 以脱离 StorageService 单例（`current` 在无数据时抛 StateError）。
+  @visibleForTesting
+  final User? currentUserOverride;
+
   /// 获取当前用户
-  User get _currentUser => User(
-    id: UserRepoLocal.to.currentUid,
-    name: UserRepoLocal.to.current.nickname,
-    imageSource: UserRepoLocal.to.current.avatar,
-  );
+  User get _currentUser =>
+      currentUserOverride ??
+      User(
+        id: UserRepoLocal.to.currentUid,
+        name: UserRepoLocal.to.current.nickname,
+        imageSource: UserRepoLocal.to.current.avatar,
+      );
 
   /// 添加阅后即焚元数据
   Map<String, dynamic> _withBurnMetadata(Map<String, dynamic> base) {

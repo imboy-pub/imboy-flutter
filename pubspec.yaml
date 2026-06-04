@@ -247,11 +247,13 @@ dependency_overrides:
   path_provider_foundation: ">=2.4.0 <2.6.0"
 
   # ┌─ win32 / package_info_plus Override ──────────────────────────────────┐
-  # win32 6.x causes compile errors in file_picker and flutter_secure_storage_windows
-  # (both packages haven't migrated to win32 6.x API yet).
-  # Pin to 5.x until file_picker publishes win32 6.x support.
-  # Revisit once file_picker & flutter_secure_storage_windows release win32 6.x compat.
+  # file_picker 11.x 仍依赖 win32 ^5.9.0，故整个 win32 栈锁定在 5.x。
+  # 待 file_picker 发布 win32 6.x 兼容版后统一升级整个 win32 栈。
   win32: ^5.15.0
+  # flutter_secure_storage_windows 4.2.x 已迁移到 win32 6.x API（Win32Result / toHRESULT）。
+  # 4.1.x 是与 win32 5.x 兼容的最后一代；flutter_secure_storage 10.x 约束为 ^4.1.0，4.1.x 满足。
+  # 与 file_picker / win32 5.x pin 同命运，待 file_picker 升 win32 6.x 后统一解锁。
+  flutter_secure_storage_windows: ">=4.1.0 <4.2.0"
   # package_info_plus 10.x 已迁移到 win32 6.x API（toPcwstr / toHRESULT / Pointer.value）。
   # 8.x 是 win32 5.x 代的最后一条线，与本块 win32 pin 匹配。
   package_info_plus: ^8.3.0

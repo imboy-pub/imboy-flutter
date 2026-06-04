@@ -17,7 +17,9 @@ void main() {
       });
 
       expect(result.id, '123');
-      expect(result.content, '456');
+      // content 实际从 payload.text 提取（后端不返回顶层 content 字段），
+      // 故顶层 content:456 被忽略，取 payload 的 text='hello'。
+      expect(result.content, 'hello');
       expect(result.fromId, '1');
       expect(result.toId, '2');
       expect(result.type, 'C2C');

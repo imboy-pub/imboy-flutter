@@ -20,10 +20,40 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:mime/mime.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
+/// presign 请求注入 seam（默认走 [HttpClient]，测试可注入 fake）。
+typedef PresignFn =
+    Future<IMBoyHttpResponse> Function(String filename, String mime);
+
+/// PUT 直传注入 seam（默认走 [AttachmentApi._putToGarage]，测试可注入 fake）。
+typedef PutFn =
+    Future<void> Function(
+      String putUrl,
+      Uint8List bytes,
+      String mime,
+      bool process,
+    );
+
+/// confirm 落库注入 seam（默认走 [HttpClient]，测试可注入 fake）。
+typedef ConfirmFn =
+    Future<IMBoyHttpResponse> Function(Map<String, dynamic> body);
+
+/// 单次 PUT 注入 seam（默认 [AttachmentApi._rawDioPut]，测试可注入 fake 验证重试编排）。
+typedef SinglePutFn =
+    Future<void> Function(
+      String putUrl,
+      Uint8List bytes,
+      String mime,
+      bool process,
+    );
+
+/// 退避延时注入 seam（默认真实 [Future.delayed]，测试可注入零延时避免真实等待）。
+typedef DelayFn = Future<void> Function(Duration d);
 
 class AttachmentApi {
   /// 单文件直传上限：100MB。
@@ -86,6 +116,11 @@ class AttachmentApi {
     String fileName,
     String mime, {
     bool process = true,
+    // 以下三个为 @visibleForTesting 注入 seam：默认 null 走真实实现，
+    // 调用方零改动；测试注入 fake 以脱离 HttpClient/Dio/网络验证编排逻辑。
+    PresignFn? presignFn,
+    PutFn? putFn,
+    ConfirmFn? confirmFn,
   }) async {
     // 1. 前置校验（系统边界，快速失败）
     final String? validationError = validateUpload(bytes.length, mime);
@@ -93,14 +128,16 @@ class AttachmentApi {
       throw Exception(validationError);
     }
 
-    // 2. presign（JWT，走 HttpClient）
-    final presignResp = await HttpClient.client.get(
-      API.attachmentPresign,
-      queryParameters: <String, dynamic>{
-        'filename': fileName,
-        'mime_type': mime,
-      },
-    );
+    // 2. presign（JWT，走 HttpClient；可注入）
+    final IMBoyHttpResponse presignResp = presignFn != null
+        ? await presignFn(fileName, mime)
+        : await HttpClient.client.get(
+            API.attachmentPresign,
+            queryParameters: <String, dynamic>{
+              'filename': fileName,
+              'mime_type': mime,
+            },
+          );
     if (!presignResp.ok) {
       throw Exception(
         'presign 失败: code=${presignResp.code} msg=${presignResp.msg}',
@@ -116,20 +153,27 @@ class AttachmentApi {
       throw Exception('presign 响应缺少 put_url/object_key');
     }
 
-    // 3. PUT 直传 Garage（裸 Dio，不注 JWT；指数退避重试）
-    await _putToGarage(putUrl, bytes, mime, process: process);
+    // 3. PUT 直传 Garage（裸 Dio，不注 JWT；指数退避重试；可注入）
+    if (putFn != null) {
+      await putFn(putUrl, bytes, mime, process);
+    } else {
+      await _putToGarage(putUrl, bytes, mime, process: process);
+    }
 
-    // 4. confirm 落库（JWT，走 HttpClient）
+    // 4. confirm 落库（JWT，走 HttpClient；可注入）
     final String md5sum = md5.convert(bytes).toString();
-    final confirmResp = await HttpClient.client.post(
-      API.attachmentConfirm,
-      data: <String, dynamic>{
-        'object_key': objectKey,
-        'md5': md5sum,
-        'mime_type': mime,
-        'size': bytes.length,
-      },
-    );
+    final Map<String, dynamic> confirmBody = <String, dynamic>{
+      'object_key': objectKey,
+      'md5': md5sum,
+      'mime_type': mime,
+      'size': bytes.length,
+    };
+    final IMBoyHttpResponse confirmResp = confirmFn != null
+        ? await confirmFn(confirmBody)
+        : await HttpClient.client.post(
+            API.attachmentConfirm,
+            data: confirmBody,
+          );
     if (!confirmResp.ok) {
       throw Exception(
         'confirm 失败: code=${confirmResp.code} msg=${confirmResp.msg}',
@@ -357,16 +401,33 @@ class AttachmentApi {
     return <String, dynamic>{'thumb': thumb, 'video': video};
   }
 
-  /// 裸 Dio PUT 直传到 Garage presigned URL（不经 HttpClient，不注 JWT）。
+  /// 裸 Dio PUT 直传到 Garage presigned URL（不经 HttpClient，不注 JWT；指数退避重试）。
   ///
   /// 签名仅含 host（Content-Type 为查询参数、payload 为 UNSIGNED-PAYLOAD），
   /// 故 PUT 原始字节即可；带 Content-Type 头让 Garage 存储正确类型。
+  /// 重试编排委托 [putWithRetry]（默认单次 PUT 走 [_rawDioPut]）。
   static Future<void> _putToGarage(
     String putUrl,
     Uint8List bytes,
     String mime, {
     bool process = true,
   }) async {
+    await putWithRetry(
+      putUrl,
+      bytes,
+      mime,
+      process: process,
+      singlePut: _rawDioPut,
+    );
+  }
+
+  /// 单次裸 Dio PUT（无重试）：生产默认的 [SinglePutFn]，含上传进度提示。
+  static Future<void> _rawDioPut(
+    String putUrl,
+    Uint8List bytes,
+    String mime,
+    bool process,
+  ) async {
     final Dio dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(milliseconds: 30000),
@@ -374,41 +435,51 @@ class AttachmentApi {
         receiveTimeout: const Duration(milliseconds: 30000),
       ),
     );
+    await dio.put<dynamic>(
+      putUrl,
+      data: Stream<List<int>>.fromIterable(<List<int>>[bytes]),
+      options: Options(
+        contentType: mime,
+        headers: <String, dynamic>{Headers.contentLengthHeader: bytes.length},
+      ),
+      onSendProgress: (int sent, int total) {
+        if (process && total > 0) {
+          EasyLoading.showProgress(sent / total, status: t.common.uploading);
+          if (sent == total) {
+            Future<dynamic>.delayed(const Duration(milliseconds: 1500), () {
+              EasyLoading.dismiss();
+            });
+          }
+        }
+      },
+    );
+  }
+
+  /// PUT 指数退避重试编排（[_putMaxAttempts] 次，退避 500/1000ms ...）。
+  ///
+  /// 单次 PUT 与退避延时均经注入 seam，便于在不触网、不真实等待的前提下
+  /// 验证重试次数与退避序列。生产默认 singlePut=[_rawDioPut]、delay=真实 [Future.delayed]。
+  @visibleForTesting
+  static Future<void> putWithRetry(
+    String putUrl,
+    Uint8List bytes,
+    String mime, {
+    bool process = true,
+    required SinglePutFn singlePut,
+    DelayFn? delay,
+  }) async {
+    final DelayFn doDelay = delay ?? (Duration d) => Future<void>.delayed(d);
     Object? lastError;
     for (int attempt = 0; attempt < _putMaxAttempts; attempt++) {
       try {
-        await dio.put<dynamic>(
-          putUrl,
-          data: Stream<List<int>>.fromIterable(<List<int>>[bytes]),
-          options: Options(
-            contentType: mime,
-            headers: <String, dynamic>{
-              Headers.contentLengthHeader: bytes.length,
-            },
-          ),
-          onSendProgress: (int sent, int total) {
-            if (process && total > 0) {
-              EasyLoading.showProgress(
-                sent / total,
-                status: t.common.uploading,
-              );
-              if (sent == total) {
-                Future<dynamic>.delayed(const Duration(milliseconds: 1500), () {
-                  EasyLoading.dismiss();
-                });
-              }
-            }
-          },
-        );
+        await singlePut(putUrl, bytes, mime, process);
         return;
       } on Object catch (e) {
         lastError = e;
         debugPrint('> PUT 直传失败 (尝试 ${attempt + 1}/$_putMaxAttempts): $e');
         if (attempt < _putMaxAttempts - 1) {
           // 指数退避：500ms, 1000ms, 2000ms ...
-          await Future<dynamic>.delayed(
-            Duration(milliseconds: 500 * (1 << attempt)),
-          );
+          await doDelay(Duration(milliseconds: 500 * (1 << attempt)));
         }
       }
     }
