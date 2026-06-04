@@ -49,11 +49,21 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 /// - 提取各个 action 处理逻辑为独立方法
 class MessageS2CService {
   // 必须通过 setProviderContainer 注入应用级容器，否则状态更新不会反映到 UI
-  static ProviderContainer _providerContainer = ProviderContainer();
+  // 初始值为 null，防止创建与根容器状态不同步的孤立容器
+  static ProviderContainer? _providerContainer;
 
   /// 注入应用级 ProviderContainer（由 MessageService.setProviderContainer 级联调用）
   static void setProviderContainer(ProviderContainer container) {
     _providerContainer = container;
+  }
+
+  /// 获取已注入的容器，未注入时抛出断言错误
+  static ProviderContainer get _container {
+    assert(
+      _providerContainer != null,
+      'MessageS2CService: ProviderContainer 未注入，请先调用 setProviderContainer',
+    );
+    return _providerContainer!;
   }
 
   /// 处理 S2C 消息（WebSocket API v2.0 格式）
@@ -139,7 +149,7 @@ class MessageS2CService {
           break;
         case 'apply_friend':
           // 添加朋友申请
-          await _providerContainer
+          await _container
               .read(newFriendProvider.notifier)
               .receivedAddFriend(data);
           break;
@@ -521,12 +531,10 @@ class MessageS2CService {
       'source': payload['from']['source'],
     };
 
-    _providerContainer
-        .read(contactProvider.notifier)
-        .receivedConfirmFriend(json);
+    _container.read(contactProvider.notifier).receivedConfirmFriend(json);
 
     // 修正好友申请状态
-    await _providerContainer
+    await _container
         .read(newFriendProvider.notifier)
         .receivedConfirmFriend(true, data);
   }

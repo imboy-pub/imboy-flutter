@@ -20,6 +20,7 @@ import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
+import 'package:imboy/theme/theme_manager.dart';
 
 import 'config/init.dart';
 import 'config/router/app_router.dart';
@@ -73,6 +74,8 @@ Future<void> run() async {
 
   // 注入共享 ProviderContainer 到 MessageService，确保与 UI 状态同步
   MessageService.setProviderContainer(appProviderContainer);
+  // 注入共享 ProviderContainer 到 ThemeManager，确保主题状态与 UI 同步
+  ThemeManager.instance.setProviderContainer(appProviderContainer);
 
   // Flutter 3.22+ 多视图模式兼容
   // 使用 UncontrolledProviderScope 共享同一个 ProviderContainer

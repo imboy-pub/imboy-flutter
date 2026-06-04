@@ -73,11 +73,21 @@ class MessageRepo implements MessageRepository {
   ]);
 
   // 共享 ProviderContainer — 必须通过 setProviderContainer 注入，否则 UI 状态不同步
-  static ProviderContainer _providerContainer = ProviderContainer();
+  // 初始值为 null，防止创建与根容器状态不同步的孤立容器
+  static ProviderContainer? _providerContainer;
 
   /// 注入应用级 ProviderContainer（由 MessageService.setProviderContainer 级联调用）
   static void setProviderContainer(ProviderContainer container) {
     _providerContainer = container;
+  }
+
+  /// 获取已注入的容器，未注入时抛出断言错误
+  static ProviderContainer get _container {
+    assert(
+      _providerContainer != null,
+      'MessageRepo: ProviderContainer 未注入，请先调用 setProviderContainer',
+    );
+    return _providerContainer!;
   }
 
   // 当前活动的会话 UK3（用于离线消息同步时判断是否需要触发消息事件）
@@ -1027,9 +1037,7 @@ class MessageRepo implements MessageRepository {
     final contactRepo = ContactRepo();
     final groupRepo = GroupRepo();
 
-    final conversationNotifier = _providerContainer.read(
-      conversationProvider.notifier,
-    );
+    final conversationNotifier = _container.read(conversationProvider.notifier);
 
     // 获取当前会话 ID - 使用静态字段跟踪当前活动会话
     // 注意：如果没有打开的聊天页面，currentConversationUk3 将为空

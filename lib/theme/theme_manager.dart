@@ -26,11 +26,21 @@ class ThemeManager {
     return _instance!;
   }
 
+  // 必须通过 setProviderContainer 注入应用级容器，否则主题状态与 UI 不同步
+  // 初始值为 null，防止创建与根容器状态不同步的孤立容器
   ProviderContainer? _container;
 
-  /// 获取内部 ProviderContainer
+  /// 注入应用级 ProviderContainer（在 run.dart 中调用）
+  void setProviderContainer(ProviderContainer container) {
+    _container = container;
+  }
+
+  /// 获取已注入的容器，未注入时抛出断言错误
   ProviderContainer get _containerInternal {
-    _container ??= ProviderContainer();
+    assert(
+      _container != null,
+      'ThemeManager: ProviderContainer 未注入，请先调用 setProviderContainer',
+    );
     return _container!;
   }
 
@@ -186,8 +196,8 @@ class ThemeManager {
     _instance = null;
   }
 
-  /// 清理资源
+  /// 清理资源（注入的容器由外部管理，此处仅重置引用）
   void dispose() {
-    _container?.dispose();
+    _container = null;
   }
 }

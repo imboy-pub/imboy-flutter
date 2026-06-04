@@ -76,10 +76,9 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    # Legacy debt note:
-    # These two high-noise rules are enforced incrementally by CI new-code guard
-    # (.github/scripts/lint_changed_dart.sh) on changed files.
-    avoid_print: false
+    # avoid_print: 升级为全局强制；新代码必须用 if (kDebugMode) debugPrint(...)
+    # 历史债务 724 处通过 CI new-code guard 逐步清理
+    avoid_print: true
     use_build_context_synchronously: false
     # Module boundary checks are handled by the custom gate script above because
     # analyzer lints cannot express the current domain-aware import policy.

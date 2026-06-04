@@ -183,9 +183,6 @@ class MessageService with EventSubscriptionManager {
   MessageRepo getMessageRepo(String type) =>
       MessageRepo(tableName: MessageRepo.getTableName(type));
 
-  // 本地添加消息锁，防止并发重复添加
-  bool addMessageLock = false;
-
   // 网络状态监听（使用 Stream 替代 RxBool）
   bool _isOnline = true;
   final StreamController<bool> _onlineStatusController =
@@ -599,9 +596,6 @@ class MessageService with EventSubscriptionManager {
         return;
       }
 
-      // v2.0: 根据消息类型进行特定的处理（日志记录、特殊逻辑等）
-      _dispatchMessageByType(messageType, data, nonNullPayload);
-
       // v2.0: 使用 switch 处理不同的 msg_type，构造会话副标题
       String subtitle = _getMessageSubtitle(messageType, nonNullPayload);
 
@@ -946,24 +940,21 @@ class MessageService with EventSubscriptionManager {
     iPrint('📥 [READ_RECEIPT] 收到已读回执: msgId=$msgId');
 
     // 更新消息状态为已读
-    // 这里需要知道消息所属的表名，由于 C2C/C2G 消息 ID 是全局唯一的，可以尝试遍历或从 metadata 中获取
-    // 简化处理：尝试更新 C2C 和 C2G 表
-    await updateStatus(
-      MessageRepo(tableName: MessageRepo.c2cTable),
+    // 使用 updateStatusInAnyTable：按序查找 C2C→C2G→C2S，找到即更新并停止，避免双写
+    final found = await MessageRepo.updateStatusInAnyTable(
       msgId,
       IMBoyMessageStatus.seen,
     );
-    await updateStatus(
-      MessageRepo(tableName: MessageRepo.c2gTable),
-      msgId,
-      IMBoyMessageStatus.seen,
-    );
+
+    if (!found) {
+      iPrint('⚠️ [READ_RECEIPT] 未找到消息: msgId=$msgId');
+    }
 
     // 通知 UI 更新
     AppEventBus.fire(
       MessageStatusUpdateRequestedEvent(
         messageId: msgId,
-        messageType: 'C2C', // 暂定，UI 会根据 ID 匹配
+        messageType: 'C2C', // UI 会根据 ID 匹配
         newStatus: IMBoyMessageStatus.seen,
         notifyUI: true,
       ),
@@ -1432,13 +1423,10 @@ class MessageService with EventSubscriptionManager {
       iPrint('❌ [E2EE] e2ee 元数据为空: msgId=$msgId');
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'text': '[加密消息]',
+        'text': '[消息解密失败]',
         '_e2ee_failed': true,
         '_e2ee_reason': 'missing_e2ee_metadata',
-        // 保存原始密文以便后续重试解密
-        '_e2ee_raw_ciphertext': ciphertext,
-        '_e2ee_raw_e2ee': e2ee,
-        '_e2ee_original_msg_type': originalMsgType,
+        // 不保存原始密文，避免将密文写入 SQLite
       };
     }
 
@@ -1514,168 +1502,24 @@ class MessageService with EventSubscriptionManager {
           ),
         );
 
-        // 密钥不匹配：保存原始密文以便后续重试解密
+        // 密钥不匹配：不保存原始密文，避免将密文写入 SQLite
         return {
           'msg_type': originalMsgType,
           'text':
               '🔒 此消息无法解密\n\n可能原因：\n• 您在其他设备上登录\n• 设备密钥已过期\n\n建议：\n点击下方按钮重新登录以获取最新密钥',
           '_e2ee_failed': true,
           '_e2ee_reason': 'key_mismatch',
-          '_e2ee_error': e.toString(),
           '_show_relogin_button': true, // 标记需要显示重新登录按钮
-          // 保存原始密文以便后续重试解密
-          '_e2ee_raw_ciphertext': ciphertext,
-          '_e2ee_raw_e2ee': e2ee,
-          '_e2ee_original_msg_type': originalMsgType,
         };
       }
 
-      // 其他解密错误
+      // 其他解密错误：不保存原始密文，避免将密文写入 SQLite
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'text': '🔒 [加密消息无法解密]\n\n错误：${e.toString()}',
+        'text': '[消息解密失败]',
         '_e2ee_failed': true,
         '_e2ee_reason': 'decrypt_error',
-        '_e2ee_error': e.toString(),
-        // 保存原始密文以便后续重试解密
-        '_e2ee_raw_ciphertext': ciphertext,
-        '_e2ee_raw_e2ee': e2ee,
-        '_e2ee_original_msg_type': originalMsgType,
       };
-    }
-  }
-
-  /// 处理文本消息
-  void _handleTextMessage(
-    Map<String, dynamic> data,
-    Map<String, dynamic> payload,
-  ) {
-    final text = payload['text']?.toString() ?? '';
-    iPrint(
-      '📝 [文本消息] ${text.substring(0, text.length > 50 ? 50 : text.length)}...',
-    );
-  }
-
-  /// 处理图片消息
-  void _handleImageMessage(
-    Map<String, dynamic> data,
-    Map<String, dynamic> payload,
-  ) {
-    final url = payload['url']?.toString() ?? '';
-    iPrint('🖼️ [图片消息] $url');
-  }
-
-  /// 处理语音消息
-  void _handleVoiceMessage(
-    Map<String, dynamic> data,
-    Map<String, dynamic> payload,
-  ) {
-    final duration = payload['duration']?.toInt() ?? 0;
-    final url = payload['url']?.toString() ?? '';
-    iPrint('🎤 [语音消息] 时长: $duration秒, URL: $url');
-  }
-
-  /// 处理视频消息
-  void _handleVideoMessage(
-    Map<String, dynamic> data,
-    Map<String, dynamic> payload,
-  ) {
-    final url = payload['url']?.toString() ?? '';
-    final duration = payload['duration']?.toInt() ?? 0;
-    iPrint('🎬 [视频消息] 时长: $duration秒, URL: $url');
-  }
-
-  /// 处理文件消息
-  void _handleFileMessage(
-    Map<String, dynamic> data,
-    Map<String, dynamic> payload,
-  ) {
-    final filename = payload['filename']?.toString() ?? '';
-    final size = payload['size']?.toInt() ?? 0;
-    iPrint('📎 [文件消息] 文件名: $filename, 大小: $size 字节');
-  }
-
-  /// 处理引用消息
-  void _handleQuoteMessage(
-    Map<String, dynamic> data,
-    Map<String, dynamic> payload,
-  ) {
-    final quoteText = payload['quote_text']?.toString() ?? '';
-    final text = payload['text']?.toString() ?? '';
-    iPrint('💬 [引用消息] 引用: $quoteText, 内容: $text');
-  }
-
-  /// 处理位置消息
-  void _handleLocationMessage(
-    Map<String, dynamic> data,
-    Map<String, dynamic> payload,
-  ) {
-    final title = payload['title']?.toString() ?? '';
-    final address = payload['address']?.toString() ?? '';
-    iPrint('📍 [位置消息] 标题: $title, 地址: $address');
-  }
-
-  /// 处理自定义消息
-  void _handleCustomMessage(
-    Map<String, dynamic> data,
-    Map<String, dynamic> payload,
-  ) {
-    final contentType =
-        data['msg_type']?.toString() ??
-        payload['msg_type']?.toString() ??
-        'custom';
-    iPrint('🔧 [自定义消息] 类型: $contentType');
-  }
-
-  /// 根据 msg_type 分发消息处理（v2.0）
-  ///
-  /// ## 参数
-  /// - [messageType]: 消息类型（从顶层 msg_type 字段读取）
-  /// - [data]: 原始消息数据
-  /// - [payload]: 消息负载内容
-  ///
-  /// ## 支持的消息类型
-  /// - `text`：文本消息
-  /// - `image`：图片消息
-  /// - `voice`：语音消息
-  /// - `video`：视频消息
-  /// - `file`：文件消息
-  /// - `quote`：引用消息
-  /// - `location`：位置消息
-  /// - `custom`：自定义消息
-  /// - `e2ee`：端到端加密消息（已解密）
-  void _dispatchMessageByType(
-    String messageType,
-    Map<String, dynamic> data,
-    Map<String, dynamic> payload,
-  ) {
-    switch (messageType) {
-      case 'text':
-        _handleTextMessage(data, payload);
-        break;
-      case 'image':
-        _handleImageMessage(data, payload);
-        break;
-      case 'voice':
-        _handleVoiceMessage(data, payload);
-        break;
-      case 'video':
-        _handleVideoMessage(data, payload);
-        break;
-      case 'file':
-        _handleFileMessage(data, payload);
-        break;
-      case 'quote':
-        _handleQuoteMessage(data, payload);
-        break;
-      case 'location':
-        _handleLocationMessage(data, payload);
-        break;
-      case 'custom':
-        _handleCustomMessage(data, payload);
-        break;
-      default:
-        iPrint('⚠️ [未知消息类型] messageType=$messageType');
     }
   }
 }

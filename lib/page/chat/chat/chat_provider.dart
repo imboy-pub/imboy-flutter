@@ -784,8 +784,9 @@ class ChatNotifier extends _$ChatNotifier {
     Map<String, dynamic> msg,
   ) async {
     try {
-      iPrint('📤 [_sendWithRetry] 开始发送: msgId=$messageId');
-      iPrint('📤 [_sendWithRetry] 消息内容: ${json.encode(msg)}');
+      iPrint(
+        '📤 [_sendWithRetry] 开始发送: msgId=$messageId, type=${msg['type']}, msgType=${msg['msg_type']}',
+      );
 
       AppEventBus.fire(
         WebSocketMessageSendRequestEvent(
