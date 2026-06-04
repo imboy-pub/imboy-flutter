@@ -50,6 +50,7 @@ class GlassBottomNavigationBar extends StatelessWidget {
               final isSelected = currentIndex == index;
 
               return Expanded(
+                key: item.tabKey,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => onTap(index),
@@ -107,10 +108,14 @@ class GlassBottomBarItem {
   final String label;
   final Widget Function(bool)? iconBuilder;
 
+  /// 测试用语义 Key，传给对应的 Expanded tap 节点
+  final Key? tabKey;
+
   GlassBottomBarItem({
     required this.icon,
     required this.label,
     this.activeIcon,
     this.iconBuilder,
+    this.tabKey,
   });
 }

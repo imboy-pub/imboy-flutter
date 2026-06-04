@@ -178,7 +178,10 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            child: CupertinoSearchTextField(placeholder: t.common.search),
+            child: CupertinoSearchTextField(
+              key: const Key('conversation_search_input'),
+              placeholder: t.common.search,
+            ),
           ),
         ),
 

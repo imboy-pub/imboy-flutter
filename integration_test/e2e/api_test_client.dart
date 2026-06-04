@@ -58,6 +58,10 @@ class ApiTestClient {
   final Dio _dio;
   final String baseUrl;
 
+  // did 在构造时固定，整个 client 生命周期内不变，
+  // 避免每次请求被后端视为不同设备。
+  final String _deviceId;
+
   String? _accessToken;
   String? _refreshToken;
   String? _currentUid;
@@ -65,8 +69,9 @@ class ApiTestClient {
   String? get accessToken => _accessToken;
   String? get currentUid => _currentUid;
 
-  ApiTestClient({required this.baseUrl})
-    : _dio = Dio(
+  ApiTestClient({required this.baseUrl, String? deviceId})
+    : _deviceId = deviceId ?? 'e2e-test-device-001',
+      _dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
           contentType: 'application/json',
@@ -85,15 +90,12 @@ class ApiTestClient {
         : Platform.isMacOS
         ? 'macos'
         : 'unknown';
-    final did = 'e2e-test-device-${DateTime.now().millisecondsSinceEpoch}';
-    final vsn = '0.8.0';
-    final pkg = 'pub.imboy.app';
 
     return {
       'cos': cos,
-      'vsn': vsn,
-      'pkg': pkg,
-      'did': did,
+      'vsn': '0.8.0',
+      'pkg': 'pub.imboy.app',
+      'did': _deviceId,
       'tz_offset': '${DateTime.now().timeZoneOffset.inMilliseconds}',
       'method': 'sha512',
       'sk': '1',

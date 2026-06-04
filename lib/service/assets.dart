@@ -22,13 +22,13 @@ class AssetsService {
     return 'assets/images/$name.$format';
   }
 
-  /// Assets.authData()
+  /// Assets.authData() — uses in-memory cache populated by Env.getUploadKey()
   static Map<String, dynamic> authData() {
     int v = DateTimeHelper.second();
     // md5(a + v)
 
-    // 检查 uploadKey 是否为空
-    final uploadKey = Env.uploadKey;
+    // H8: read from in-memory cache only (populated from secure storage)
+    final uploadKey = Env.uploadKeySync;
     if (uploadKey == null || uploadKey.isEmpty) {
       iPrint(
         'AssetsService.authData: uploadKey is null or empty, triggering refresh',
@@ -39,7 +39,6 @@ class AssetsService {
     }
 
     String tk = EncrypterService.md5("$uploadKey$v").substring(8, 24);
-    // iPrint("AssetsService_authData ${Env.uploadKey} $v");
     return {'v': v, 'a': tk, 's': Env.uploadScene ?? ''};
   }
 
@@ -76,7 +75,7 @@ class AssetsService {
   /// 检查并确保 uploadKey 可用
   /// 返回 true 表示 uploadKey 可用，false 表示需要处理（如重新登录）
   static bool ensureUploadKeyAvailable() {
-    final uploadKey = Env.uploadKey;
+    final uploadKey = Env.uploadKeySync;
     if (uploadKey == null || uploadKey.isEmpty) {
       iPrint('AssetsService.ensureUploadKeyAvailable: uploadKey not available');
       _refreshUploadKey();

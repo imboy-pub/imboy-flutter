@@ -25,9 +25,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('群组管理功能测试', () {
-    testWidgets(
-      '群组管理完整流程',
-      (WidgetTester tester) async {
+    testWidgets('群组管理完整流程', (WidgetTester tester) async {
       TestHelper.log('🚀 开始群组管理 E2E 测试');
       TestConfig.printHelp();
 
@@ -89,13 +87,7 @@ void main() {
       await _safeScreenshot(tester, 'group_manage_05_group_detail');
 
       // 步骤 4: 检查群设置选项
-      final options = <String>[
-        '群名称',
-        '群公告',
-        '群成员',
-        '群设置',
-        '群管理',
-      ];
+      final options = <String>['群名称', '群公告', '群成员', '群设置', '群管理'];
       for (final option in options) {
         if (tester.any(find.text(option))) {
           TestHelper.log('✅ 找到选项: $option');
@@ -119,9 +111,7 @@ void main() {
       }
 
       await _drainUnexpectedFrameworkExceptions(tester);
-    },
-      timeout: Timeout(Duration(minutes: 5)),
-    );
+    }, timeout: Timeout(Duration(minutes: 5)));
   });
 }
 
@@ -356,17 +346,18 @@ Future<bool> _ensureBackendAvailable() async {
   final uri = Uri.parse('$baseUrl${API.initConfig}');
   final client = HttpClient()
     ..connectionTimeout = const Duration(seconds: 5)
-    ..badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
+    ..badCertificateCallback = (X509Certificate cert, String host, int port) =>
+        true;
 
   try {
     final request = await client
         .getUrl(uri)
         .timeout(const Duration(seconds: 5));
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-    final response =
-        await request.close().timeout(const Duration(seconds: 5));
-    await response.drain<List<int>>(<int>[]).timeout(const Duration(seconds: 2));
+    final response = await request.close().timeout(const Duration(seconds: 5));
+    await response
+        .drain<List<int>>(<int>[])
+        .timeout(const Duration(seconds: 2));
     final code = response.statusCode;
     if (code < 200 || code >= 400) return false;
     _backendProbePassed = true;

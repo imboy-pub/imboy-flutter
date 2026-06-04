@@ -35,19 +35,22 @@ void main() {
 
     apiClient = ApiTestClient(baseUrl: apiBaseUrl);
 
-    // 先登录获取 token
+    // 先登录获取 token；未配置则跳过认证（1.2/观察型测试仍可运行）
     if (E2ETestConfig.isConfigured) {
-      await apiClient.login(
+      final loginResp = await apiClient.login(
         account: E2ETestConfig.testPhone,
         password: E2ETestConfig.testPassword,
       );
+      if (loginResp['code'] != 0) {
+        throw StateError('WS E2E 登录失败: ${loginResp['msg']}，后续测试无法运行');
+      }
     }
 
     // 如果未配置 WS_URL，尝试从 init 接口获取
     if (wsBaseUrl.isEmpty) {
       final initResp = await apiClient.get('/v1/init');
       if (initResp['code'] == 0 && initResp['data'] is Map<String, dynamic>) {
-        wsBaseUrl = initResp['data']['ws_url'] ?? '';
+        wsBaseUrl = (initResp['data']['ws_url'] as String?) ?? '';
       }
     }
 
@@ -61,8 +64,8 @@ void main() {
       }
     }
 
-    debugPrint('[E2E-WS] API: $apiBaseUrl');
-    debugPrint('[E2E-WS] WS:  $wsBaseUrl');
+    _wsLog('[E2E-WS] API: $apiBaseUrl');
+    _wsLog('[E2E-WS] WS:  $wsBaseUrl');
   });
 
   tearDownAll(() {
@@ -94,22 +97,23 @@ void main() {
       await Future<dynamic>.delayed(const Duration(milliseconds: 500));
 
       await ws.close();
-      debugPrint('[E2E-WS] 连接建立并关闭成功');
+      _wsLog('[E2E-WS] 连接建立并关闭成功');
     });
 
-    test('1.2 无 token 连接 - 应被拒绝或限制', () async {
+    // 观察型测试：后端对无 token 连接的处理策略尚未固化
+    // （可能延迟踢出也可能直接拒绝），因此不做强断言，仅记录行为。
+    // 当后端明确规范后，此测试应升级为带 expect 的强验证。
+    test('1.2 无 token 连接 - 记录服务端安全边界行为（观察型）', () async {
       try {
         final ws = await _connectWebSocket(wsBaseUrl);
-        // 如果连接成功，等待看是否会被踢出
+        // 服务端可能先接受后延迟踢出，等待 2s 观察
         await Future<dynamic>.delayed(const Duration(seconds: 2));
         await ws.close();
-        // 即使连接成功，也属于正常行为（服务端可能先接受后校验）
-        debugPrint('[E2E-WS] 无 token 连接: 已建立（服务端延迟校验）');
+        _wsLog('[E2E-WS] 无 token 连接: 已建立（服务端延迟校验）');
       } on WebSocketException catch (e) {
-        debugPrint('[E2E-WS] 无 token 连接被拒绝: $e');
-        // 连接被拒绝是期望行为
+        _wsLog('[E2E-WS] 无 token 连接被拒绝: $e');
       } on SocketException catch (e) {
-        debugPrint('[E2E-WS] 无 token 连接失败: $e');
+        _wsLog('[E2E-WS] 无 token 连接失败: $e');
       }
     });
   });
@@ -134,38 +138,36 @@ void main() {
 
       ws.listen(
         (data) {
-          debugPrint('[E2E-WS] 收到: $data');
+          _wsLog('[E2E-WS] 收到: $data');
           messages.add(data.toString());
           if (messages.isNotEmpty) {
             if (!completer.isCompleted) completer.complete();
           }
         },
         onError: (Object error) {
-          debugPrint('[E2E-WS] 错误: $error');
+          _wsLog('[E2E-WS] 错误: $error');
           if (!completer.isCompleted) completer.completeError(error);
         },
         onDone: () {
-          debugPrint('[E2E-WS] 连接关闭');
+          _wsLog('[E2E-WS] 连接关闭');
           if (!completer.isCompleted) completer.complete();
         },
       );
 
       // 发送 ping
       ws.add('ping');
-      debugPrint('[E2E-WS] 发送: ping');
+      _wsLog('[E2E-WS] 发送: ping');
 
       // 等待响应或超时
       await completer.future.timeout(
         const Duration(seconds: 5),
-        onTimeout: () {
-          debugPrint('[E2E-WS] 心跳等待超时（可能是二进制 pong 帧）');
-        },
+        onTimeout: () => fail('[E2E-WS] 心跳超时 5s，服务端未响应 ping'),
       );
 
       await ws.close();
 
       // ping 可能收到 text "pong" 或二进制 pong 帧
-      debugPrint('[E2E-WS] 心跳测试完成, 收到 ${messages.length} 条消息');
+      _wsLog('[E2E-WS] 心跳测试完成, 收到 ${messages.length} 条消息');
     });
   });
 
@@ -173,7 +175,9 @@ void main() {
   // 3. WebSocket 消息接收
   // ================================================================
   group('WebSocket 消息接收联调', () {
-    test('3.1 连接后接收 S2C 消息', () async {
+    test('3.1 连接 5 秒内不被服务端断开，收到的消息格式合法', () async {
+      // 原测试无任何断言（永远通过）。
+      // 修复：断言连接未被强制断开 + 收到的 String 消息必须是合法 JSON 或已知控制帧。
       if (apiClient.accessToken == null) {
         markTestSkipped('需要先登录');
         return;
@@ -185,32 +189,45 @@ void main() {
       );
 
       final messages = <dynamic>[];
+      var disconnectedByServer = false;
+      Object? wsError;
 
-      // 监听 5 秒看是否有 S2C 消息
-      ws.listen((data) {
-        debugPrint('[E2E-WS] S2C 消息: $data');
-        messages.add(data);
-      });
+      ws.listen(
+        (data) {
+          _wsLog('[E2E-WS] S2C: $data');
+          messages.add(data);
+        },
+        onError: (Object e) {
+          wsError = e;
+          disconnectedByServer = true;
+        },
+        onDone: () => disconnectedByServer = true,
+      );
 
-      // 等待一段时间收集消息
       await Future<dynamic>.delayed(const Duration(seconds: 5));
 
+      // 断言 1：5 秒内不应被服务端强制断开
+      expect(
+        disconnectedByServer,
+        isFalse,
+        reason: '认证连接 5 秒内不应被断开，error=$wsError',
+      );
+
       await ws.close();
+      _wsLog('[E2E-WS] 收到 ${messages.length} 条 S2C 消息');
 
-      debugPrint('[E2E-WS] 连接期间收到 ${messages.length} 条 S2C 消息');
-
-      // 如果收到消息，验证格式
+      // 断言 2：String 消息必须是合法 JSON 或已知控制帧
       for (final msg in messages) {
-        if (msg is String) {
-          try {
-            final parsed = jsonDecode(msg);
-            expect(parsed, isA<Map<String, dynamic>>(),
-                reason: 'S2C 消息应为 JSON 对象');
-            debugPrint('[E2E-WS] S2C 消息解析: ${parsed.keys}');
-          } on FormatException {
-            // 非 JSON 格式也可以接受（如 pong）
-            debugPrint('[E2E-WS] 非 JSON 消息: $msg');
-          }
+        if (msg is! String || msg.isEmpty || msg == 'pong') continue;
+        try {
+          final parsed = jsonDecode(msg);
+          expect(
+            parsed,
+            isA<Map<String, dynamic>>(),
+            reason: 'S2C 消息应为 JSON 对象，实际: $msg',
+          );
+        } on FormatException {
+          fail('S2C 收到无法解析的非 JSON 消息: $msg');
         }
       }
     });
@@ -233,11 +250,11 @@ void main() {
 
       var disconnected = false;
       ws.listen(
-        (data) => debugPrint('[E2E-WS] 稳定性: 收到 $data'),
+        (data) => _wsLog('[E2E-WS] 稳定性: 收到 $data'),
         onDone: () => disconnected = true,
         onError: (Object e) {
           disconnected = true;
-          debugPrint('[E2E-WS] 稳定性: 错误 $e');
+          _wsLog('[E2E-WS] 稳定性: 错误 $e');
         },
       );
 
@@ -246,23 +263,19 @@ void main() {
         await Future<dynamic>.delayed(const Duration(seconds: 3));
         if (disconnected) break;
         ws.add('ping');
-        debugPrint('[E2E-WS] 稳定性: ping #${i + 1}');
+        _wsLog('[E2E-WS] 稳定性: ping #${i + 1}');
       }
 
-      expect(disconnected, isFalse,
-          reason: 'WebSocket 应保持连接 10 秒不断线');
+      expect(disconnected, isFalse, reason: 'WebSocket 应保持连接 10 秒不断线');
 
       await ws.close();
-      debugPrint('[E2E-WS] 稳定性测试通过');
+      _wsLog('[E2E-WS] 稳定性测试通过');
     });
   });
 }
 
 /// 建立 WebSocket 连接
-Future<WebSocket> _connectWebSocket(
-  String url, {
-  String? token,
-}) async {
+Future<WebSocket> _connectWebSocket(String url, {String? token}) async {
   final headers = <String, String>{
     'cos': Platform.isIOS ? 'ios' : (Platform.isAndroid ? 'android' : 'macos'),
     'vsn': '0.8.0',
@@ -274,11 +287,11 @@ Future<WebSocket> _connectWebSocket(
     headers['authorization'] = 'Bearer $token';
   }
 
-  debugPrint('[E2E-WS] 连接: $url');
+  _wsLog('[E2E-WS] 连接: $url');
   return WebSocket.connect(url, headers: headers);
 }
 
-void debugPrint(String msg) {
+void _wsLog(String msg) {
   // ignore: avoid_print
   print(msg);
 }

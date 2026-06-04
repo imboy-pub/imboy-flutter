@@ -244,6 +244,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
           onPressed: () => context.pushNamed('user_tag_list'),
         ),
         CupertinoButton(
+          key: const Key('add_friend_button'),
           padding: EdgeInsets.zero,
           child: const Icon(CupertinoIcons.person_add, size: 22),
           onPressed: () => context.push('/contact/add_friend'),

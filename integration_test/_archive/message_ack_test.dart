@@ -104,19 +104,16 @@ void main() {
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'ack_05_after_send');
 
-      expect(
-        find.text(message),
-        findsWidgets,
-        reason: '发送的消息应出现在聊天列表中',
-      );
+      expect(find.text(message), findsWidgets, reason: '发送的消息应出现在聊天列表中');
       expect(
         _findAnyText(<String>['发送失败', '消息发送失败', 'Send failed']),
         findsNothing,
         reason: '消息应发送成功，不应出现失败提示',
       );
 
-      final textFieldWidget =
-          tester.widget<TextField>(find.byType(TextField).first);
+      final textFieldWidget = tester.widget<TextField>(
+        find.byType(TextField).first,
+      );
       final inputText = textFieldWidget.controller?.text ?? '';
       expect(inputText, isEmpty, reason: '发送成功后输入框应清空');
 
@@ -135,11 +132,7 @@ void main() {
       await _shortSettle(tester);
       await _safeScreenshot(tester, 'ack_06_second_message');
 
-      expect(
-        find.text(message2),
-        findsWidgets,
-        reason: '第二条消息也应成功发送',
-      );
+      expect(find.text(message2), findsWidgets, reason: '第二条消息也应成功发送');
 
       TestHelper.log('消息 ACK 链路测试通过');
     }, timeout: const Timeout(Duration(minutes: 5)));
@@ -152,8 +145,8 @@ Future<void> _installPlatformChannelStubs() async {
   const secureChannel = MethodChannel('imboy/secure');
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(secureChannel, (MethodCall call) async {
-    return null;
-  });
+        return null;
+      });
 }
 
 Future<void> _ensureBackendAvailable() async {
@@ -163,18 +156,18 @@ Future<void> _ensureBackendAvailable() async {
   final uri = Uri.parse('$baseUrl${API.initConfig}');
   final client = HttpClient()
     ..connectionTimeout = const Duration(seconds: 5)
-    ..badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
+    ..badCertificateCallback = (X509Certificate cert, String host, int port) =>
+        true;
 
   try {
-    final request =
-        await client.getUrl(uri).timeout(const Duration(seconds: 5));
+    final request = await client
+        .getUrl(uri)
+        .timeout(const Duration(seconds: 5));
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-    final response =
-        await request.close().timeout(const Duration(seconds: 5));
-    await response.drain<List<int>>(<int>[]).timeout(
-      const Duration(seconds: 2),
-    );
+    final response = await request.close().timeout(const Duration(seconds: 5));
+    await response
+        .drain<List<int>>(<int>[])
+        .timeout(const Duration(seconds: 2));
     if (response.statusCode >= 200 && response.statusCode < 400) {
       _backendProbePassed = true;
       TestHelper.log('后端探活通过: $uri');
@@ -304,8 +297,9 @@ Future<bool> _ensureLoggedIn(WidgetTester tester) async {
   }
   bool ok = false;
   try {
-    ok = await TestHelper.autoLogin(tester)
-        .timeout(const Duration(seconds: 60));
+    ok = await TestHelper.autoLogin(
+      tester,
+    ).timeout(const Duration(seconds: 60));
   } catch (e) {
     TestHelper.log('[AUTO-SKIP] 自动登录超时或异常: $e');
   }

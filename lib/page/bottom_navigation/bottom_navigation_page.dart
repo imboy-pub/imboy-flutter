@@ -175,12 +175,14 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         activeIcon: CupertinoIcons.chat_bubble_fill,
         label: t.chat.titleMessage,
         remindCount: ref.watch(conversationProvider).chatMsgRemindCounter,
+        tabKey: const Key('tab_conversations'),
       ),
       _NavigationItemData(
         icon: CupertinoIcons.person_2,
         activeIcon: CupertinoIcons.person_2_fill,
         label: t.common.titleContact,
         remindCount: ref.watch(newFriendRemindProvider).length,
+        tabKey: const Key('tab_contacts'),
       ),
       if (_isTabEnabled('channel_tab'))
         _NavigationItemData(
@@ -194,12 +196,14 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                         ?.fold<int>(0, (sum, s) => sum + s.unreadCount) ??
                     0)
               : 0,
+          tabKey: const Key('tab_channel'),
         ),
       _NavigationItemData(
         icon: CupertinoIcons.person_circle,
         activeIcon: CupertinoIcons.person_circle_fill,
         label: t.main.titleMine,
         isStatusItem: true,
+        tabKey: const Key('tab_mine'),
       ),
     ];
 
@@ -278,6 +282,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                   icon: item.icon,
                   activeIcon: item.activeIcon,
                   label: item.label,
+                  tabKey: item.tabKey,
                   iconBuilder: (isSelected) => _buildNavigationIcon(
                     item,
                     isSelected,
@@ -363,6 +368,7 @@ class _NavigationItemData {
   final String label;
   final int remindCount;
   final bool isStatusItem;
+  final Key? tabKey;
 
   _NavigationItemData({
     required this.icon,
@@ -370,5 +376,6 @@ class _NavigationItemData {
     required this.label,
     this.remindCount = 0,
     this.isStatusItem = false,
+    this.tabKey,
   });
 }

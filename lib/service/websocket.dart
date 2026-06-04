@@ -66,7 +66,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   StreamSubscription<dynamic>? _wsSub;
   Timer? _reconnectTimer;
   Timer? _v2HeartbeatTimer;
-  final Set<Timer> _confirmationTimers = {};
+  final Map<String, Timer> _confirmationTimers = {}; // H9: Map允许按messageId取消
   bool _initialized = false;
 
   // 配置参数
@@ -1016,7 +1016,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
     late final Timer timer;
     timer = Timer(Duration(seconds: timeoutSeconds), () {
-      _confirmationTimers.remove(timer);
+      _confirmationTimers.remove(messageId);
       if (_pendingMessages.remove(messageId)) {
         final isConnected = _status == SocketStatus.connected;
         iPrint('> ws: 消息确认超时: $messageId (连接正常: $isConnected)');
@@ -1026,13 +1026,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         }
       }
     });
-    _confirmationTimers.add(timer);
+    _confirmationTimers[messageId] = timer;
 
     _pendingMessages.add(messageId);
   }
 
   /// 处理消息确认（当收到服务器ACK时调用）
   void _handleMessageConfirmation(String messageId) {
+    // H9: ACK收到后取消对应的超时Timer，防止泄漏
+    _confirmationTimers.remove(messageId)?.cancel();
     if (_pendingMessages.remove(messageId)) {
       iPrint('> ws: 消息已确认: $messageId');
       _notifyMessageSendResult(messageId, true);
@@ -1140,7 +1142,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     _v2HeartbeatTimer = null;
     _framing = FramingMode.none;
     // 清理所有消息确认 Timer 及待确认消息 ID（两者生命周期绑定同一连接）
-    for (final t in _confirmationTimers) {
+    for (final t in _confirmationTimers.values) {
       t.cancel();
     }
     _confirmationTimers.clear();

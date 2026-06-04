@@ -249,8 +249,17 @@ class PassportNotifier extends _$PassportNotifier {
     return InkWell(
       onTap: () {
         final context = navigatorKey.currentContext;
-        if (context != null) {
-          Navigator.pop(context);
+        if (context != null && context.mounted) {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            // 栈中无更多页面时，回到首页避免 crash
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const BottomNavigationPage()),
+              (route) => false,
+            );
+          }
         } else {
           debugPrint(
             'Warning: navigatorKey.currentContext is null, cannot navigate back',

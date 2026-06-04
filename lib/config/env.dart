@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:envied/envied.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/storage_secure.dart';
 
 import 'package:imboy/config/init.dart';
 
@@ -121,6 +122,15 @@ abstract interface class Env implements EnvField {
   @EnviedField(defaultValue: '')
   static String? uploadScene = StorageService.to.getString(Keys.uploadScene);
 
-  @EnviedField(defaultValue: '')
-  static String? uploadKey = StorageService.to.getString(Keys.uploadKey);
+  // H8: uploadKey stored in secure storage only; never in plaintext SharedPreferences.
+  // Use getUploadKey() to load from secure storage and update in-memory cache.
+  // Use uploadKeySync for synchronous access after initialization.
+  static String? _uploadKeyCache;
+  static String? get uploadKeySync => _uploadKeyCache;
+
+  static Future<String?> getUploadKey() async {
+    final key = await StorageSecureService.to.read(key: Keys.uploadKey);
+    _uploadKeyCache = key;
+    return key;
+  }
 }

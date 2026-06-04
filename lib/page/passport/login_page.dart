@@ -178,6 +178,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
     return Column(
       children: [
         LoginHistoryInput(
+          key: const Key('login_phone_input'),
           controller: _accountController,
           hintText: t.account.hintLoginAccount,
           prefixIcon: CupertinoIcons.person,
@@ -187,6 +188,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
         ),
         const SizedBox(height: 16),
         TextField(
+          key: const Key('login_password_input'),
           controller: _passwordController,
           obscureText: state.loginPwdObscure,
           decoration: InputDecoration(
@@ -385,7 +387,11 @@ class _LoginPageState extends ConsumerState<LoginPage>
     return SizedBox(
       width: double.infinity,
       height: 50,
-      child: ElevatedButton(onPressed: onPressed, child: Text(t.account.login)),
+      child: ElevatedButton(
+        key: const Key('login_submit_button'),
+        onPressed: onPressed,
+        child: Text(t.account.login),
+      ),
     );
   }
 }

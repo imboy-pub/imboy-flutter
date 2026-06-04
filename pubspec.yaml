@@ -323,6 +323,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0                # Official Flutter linting rules
 
   # ┌─ Testing ─────────────────────────────────────────────────────┐
+  test: any                            # Pure dart test runner (used by test/api/ without Flutter binding)
   mocktail: ^1.0.4                     # Mocking library for testing
   mockito: ^5.4.6                      # Mockito mocking library
   fake_async: ^1.3.2                   # Fake async for testing (direct dep for analyzer)

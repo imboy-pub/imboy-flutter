@@ -152,7 +152,9 @@ class MessageService with EventSubscriptionManager {
 
   // 共享 ProviderContainer — 必须在 run() 中通过 setProviderContainer 注入
   // 与 Widget 树的 UncontrolledProviderScope 共享同一个容器，确保状态同步
-  static ProviderContainer _providerContainer = ProviderContainer();
+  // FIXME(C7): late 强制调用方在使用前注入，避免孤立容器竞态
+  // ignore: prefer_late_for_private_fields_and_variables
+  static late ProviderContainer _providerContainer;
 
   /// 注入应用级 ProviderContainer（在 run.dart 中调用）
   /// 确保 MessageService 与 UI 共享同一个 Riverpod 状态

@@ -31,7 +31,9 @@ void main() {
       (WidgetTester tester) async {
         final role = _dualRole.toLowerCase().trim();
         if (role != 'sender' && role != 'receiver') {
-          DualTestHelper.log('⚠️ Invalid DUAL_ROLE: $_dualRole (expected sender|receiver)');
+          DualTestHelper.log(
+            '⚠️ Invalid DUAL_ROLE: $_dualRole (expected sender|receiver)',
+          );
           DualTestHelper.log('[AUTO-SKIP] reason=invalid_dual_role');
           return;
         }
@@ -76,7 +78,9 @@ void main() {
             _dualPeerKeyword,
           );
           if (!opened || !_isOnChatPage(tester)) {
-            DualTestHelper.log('[AUTO-SKIP] reason=unable_to_open_peer_conversation');
+            DualTestHelper.log(
+              '[AUTO-SKIP] reason=unable_to_open_peer_conversation',
+            );
             return;
           }
         }, timeout: const Duration(seconds: 120));
@@ -198,7 +202,9 @@ Future<void> _sendChatMessage(WidgetTester tester, String text) async {
 
 Future<void> _ensureExpectedAccount(WidgetTester tester) async {
   if (!DualTestConfig.isConfigured) {
-    throw StateError('Missing TEST_PHONE + TEST_PASSWORD/TEST_CODE for dual role test');
+    throw StateError(
+      'Missing TEST_PHONE + TEST_PASSWORD/TEST_CODE for dual role test',
+    );
   }
 
   await _ensureLoggedInIfNeeded(tester);
@@ -519,7 +525,9 @@ Future<void> _waitForEntryState(WidgetTester tester) async {
     await Future<dynamic>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 150));
   }
-  DualTestHelper.log('ℹ️ Entry state timeout: not on login/main/conversation page');
+  DualTestHelper.log(
+    'ℹ️ Entry state timeout: not on login/main/conversation page',
+  );
 }
 
 Future<void> _ensureLoggedInIfNeeded(WidgetTester tester) async {
@@ -784,7 +792,9 @@ Future<void> _drainUnexpectedFrameworkExceptions(WidgetTester tester) async {
   }
 
   if (unexpected.isNotEmpty) {
-    DualTestHelper.log('⚠️ Unexpected framework exception: ${unexpected.first}');
+    DualTestHelper.log(
+      '⚠️ Unexpected framework exception: ${unexpected.first}',
+    );
   }
 }
 

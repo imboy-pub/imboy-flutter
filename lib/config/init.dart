@@ -32,6 +32,7 @@ import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/message_webrtc.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/push_notification_service.dart';
@@ -463,11 +464,6 @@ class AppInitializer {
       if (kDebugMode) debugPrint('🔧 initConfig: 开始解密配置');
       final key = await Env.signKey();
       if (kDebugMode) debugPrint('🔐 [INIT] signKey initialized');
-      if (kDebugMode) {
-        debugPrint(
-          '🔐 [INIT] signKey value: $key, iv: ${Env().solidifiedKeyIv}',
-        );
-      }
       Map<String, dynamic> payload =
           jsonDecode(
                 EncrypterService.aesDecrypt(
@@ -512,10 +508,12 @@ class AppInitializer {
         Keys.uploadUrl,
         payload['upload_url'] as String,
       );
-      await StorageService.to.setString(
-        Keys.uploadKey,
-        payload['upload_key'] as String,
+      // H8: upload_key 改用加密安全存储，同时更新内存缓存供同步访问
+      await StorageSecureService.to.write(
+        key: Keys.uploadKey,
+        value: payload['upload_key'] as String,
       );
+      await Env.getUploadKey(); // populate in-memory cache
       await StorageService.to.setString(
         Keys.uploadScene,
         payload['upload_scene'] as String,

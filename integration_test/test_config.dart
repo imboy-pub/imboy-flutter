@@ -1,7 +1,5 @@
-// 集成测试配置
-//
-// 通过环境变量配置测试账号
-// 运行命令示例：
+// DEPRECATED: 此文件已无活跃引用，请勿新增依赖。
+// 配置改用 integration_test/flows/test_utils.dart 中的 FlowConfig。
 // flutter test integration_test/e2e_chat_test.dart \
 //   --dart-define=TEST_PHONE=13800138000 \
 //   --dart-define=TEST_PASSWORD=test123456

@@ -21,7 +21,7 @@ void main() {
 
   late ApiTestClient client;
 
-  setUpAll(() {
+  setUpAll(() async {
     final baseUrl = E2ETestConfig.apiBaseUrl;
     if (baseUrl.isEmpty) {
       throw StateError(
@@ -30,6 +30,14 @@ void main() {
       );
     }
     client = ApiTestClient(baseUrl: baseUrl);
+    if (!E2ETestConfig.isConfigured) return;
+    final resp = await client.login(
+      account: E2ETestConfig.testPhone,
+      password: E2ETestConfig.testPassword,
+    );
+    if (resp['code'] != 0) {
+      throw StateError('E2E 登录失败: ${resp['msg']}，后续测试无法运行');
+    }
   });
 
   tearDownAll(() {
@@ -106,8 +114,10 @@ void main() {
           if (data['updatable'] == true) {
             expect(data.containsKey('vsn'), isTrue);
             expect(data.containsKey('upgrade_type'), isTrue);
-            debugPrint('[E2E] 版本检查: 有新版本 ${data['vsn']}, '
-                '升级类型=${data['upgrade_type']}');
+            debugPrint(
+              '[E2E] 版本检查: 有新版本 ${data['vsn']}, '
+              '升级类型=${data['upgrade_type']}',
+            );
           } else {
             debugPrint('[E2E] 版本检查: 当前已是最新版本');
           }
@@ -126,8 +136,7 @@ void main() {
         final data = resp['data'];
         if (data != null && data is Map<String, dynamic>) {
           // 版本号极大时应该没有更新
-          expect(data['updatable'], isFalse,
-              reason: '极大版本号不应有更新');
+          expect(data['updatable'], isFalse, reason: '极大版本号不应有更新');
         }
       }
     });
@@ -153,8 +162,10 @@ void main() {
       expect(data, isNotNull);
       expect(data, isA<Map<String, dynamic>>());
 
-      debugPrint('[E2E] 用户信息: uid=${client.currentUid}, '
-          'nickname=${data?['nickname']}');
+      debugPrint(
+        '[E2E] 用户信息: uid=${client.currentUid}, '
+        'nickname=${data?['nickname']}',
+      );
     });
 
     test('3.2 获取用户设置', () async {
@@ -263,8 +274,7 @@ void main() {
         if (data is Map<String, dynamic>) {
           // ws_url 是 WebSocket 连接的关键
           if (data.containsKey('ws_url')) {
-            expect(data['ws_url'], isNotEmpty,
-                reason: '初始化配置必须包含 ws_url');
+            expect(data['ws_url'], isNotEmpty, reason: '初始化配置必须包含 ws_url');
             debugPrint('[E2E] WebSocket URL: ${data['ws_url']}');
           }
         }
@@ -321,8 +331,7 @@ void main() {
       try {
         final resp = await noAuthClient.get('/v1/user/show');
         // 未认证应该返回错误
-        expect(resp['code'], isNot(0),
-            reason: '未认证访问应返回错误');
+        expect(resp['code'], isNot(0), reason: '未认证访问应返回错误');
         debugPrint('[E2E] 未认证访问 code: ${resp['code']}');
       } finally {
         noAuthClient.close();
@@ -331,8 +340,7 @@ void main() {
 
     test('10.2 无效路径 - 返回 404', () async {
       final resp = await client.get('/v1/nonexistent/endpoint');
-      expect(resp['code'], isNot(0),
-          reason: '无效路径应返回错误');
+      expect(resp['code'], isNot(0), reason: '无效路径应返回错误');
       debugPrint('[E2E] 无效路径 code: ${resp['code']}');
     });
   });

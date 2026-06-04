@@ -883,6 +883,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           focusNode: _keyboardListenerFocusNode,
           onKeyEvent: _handleKeyboardShortcuts,
           child: TextField(
+            key: const Key('chat_message_input'),
             controller: _textController,
             focusNode: _inputFocusNode,
             maxLines: widget.maxLines,

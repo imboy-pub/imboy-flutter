@@ -125,11 +125,7 @@ void main() {
       }
 
       // 检查是否有失败提示
-      final failText = _findAnyText(<String>[
-        '发送失败',
-        '消息发送失败',
-        'Send failed',
-      ]);
+      final failText = _findAnyText(<String>['发送失败', '消息发送失败', 'Send failed']);
       if (tester.any(failText)) {
         TestHelper.log('⚠️ 检测到发送失败提示');
       }
@@ -161,7 +157,8 @@ bool _isOnMainShellPage(WidgetTester tester) {
       (widget) => widget.runtimeType.toString() == 'GlassBottomNavigationBar',
     ),
   );
-  final hasBottomBar = tester.any(find.byType(BottomNavigationBar)) ||
+  final hasBottomBar =
+      tester.any(find.byType(BottomNavigationBar)) ||
       tester.any(find.byType(NavigationBar)) ||
       tester.any(find.byType(BottomAppBar)) ||
       hasGlassBottomBar;
@@ -204,12 +201,7 @@ bool _isOnPeopleInfoPage(WidgetTester tester) {
   final hasMessageAction =
       tester.any(find.byIcon(Icons.message_outlined)) ||
       tester.any(
-        _findAnyText(<String>[
-          '发消息',
-          '發訊息',
-          'Send message',
-          'メッセージを送る',
-        ]),
+        _findAnyText(<String>['发消息', '發訊息', 'Send message', 'メッセージを送る']),
       );
   return hasPeopleInfoType || (hasMoreAction && hasMessageAction);
 }
@@ -541,8 +533,8 @@ void _installPlatformChannelStubs() {
   const secureChannel = MethodChannel('imboy/secure');
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(secureChannel, (MethodCall call) async {
-    return null;
-  });
+        return null;
+      });
 }
 
 Future<void> _drainUnexpectedFrameworkExceptions(WidgetTester tester) async {
@@ -573,8 +565,8 @@ Future<bool> _ensureBackendAvailable() async {
   final stopwatch = Stopwatch()..start();
   final client = HttpClient()
     ..connectionTimeout = const Duration(seconds: 5)
-    ..badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
+    ..badCertificateCallback = (X509Certificate cert, String host, int port) =>
+        true;
 
   try {
     final request = await client
@@ -582,8 +574,7 @@ Future<bool> _ensureBackendAvailable() async {
         .timeout(const Duration(seconds: 5));
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
 
-    final response =
-        await request.close().timeout(const Duration(seconds: 5));
+    final response = await request.close().timeout(const Duration(seconds: 5));
     await response
         .drain<List<int>>(<int>[])
         .timeout(const Duration(seconds: 2));

@@ -1,6 +1,5 @@
-// 测试辅助工具
-//
-// 提供常用的测试辅助方法
+// DEPRECATED: 此文件已无 import 引用，请勿新增依赖。
+// 共享工具请使用 integration_test/flows/test_utils.dart。
 
 import 'dart:async' as async;
 import 'dart:convert';

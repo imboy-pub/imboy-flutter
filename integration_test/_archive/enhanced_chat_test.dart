@@ -24,9 +24,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('增强聊天测试', () {
-    testWidgets(
-      '完整聊天流程',
-      (WidgetTester tester) async {
+    testWidgets('完整聊天流程', (WidgetTester tester) async {
       TestHelper.log('🚀 开始增强聊天测试');
       TestConfig.printHelp();
 
@@ -86,9 +84,7 @@ void main() {
 
       TestHelper.log('✅ 增强聊天测试完成');
       await _drainUnexpectedFrameworkExceptions(tester);
-    },
-      timeout: Timeout(Duration(minutes: 5)),
-    );
+    }, timeout: Timeout(Duration(minutes: 5)));
   });
 }
 
@@ -246,17 +242,18 @@ Future<bool> _ensureBackendAvailable() async {
   final uri = Uri.parse('$baseUrl${API.initConfig}');
   final client = HttpClient()
     ..connectionTimeout = const Duration(seconds: 5)
-    ..badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
+    ..badCertificateCallback = (X509Certificate cert, String host, int port) =>
+        true;
 
   try {
     final request = await client
         .getUrl(uri)
         .timeout(const Duration(seconds: 5));
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-    final response =
-        await request.close().timeout(const Duration(seconds: 5));
-    await response.drain<List<int>>(<int>[]).timeout(const Duration(seconds: 2));
+    final response = await request.close().timeout(const Duration(seconds: 5));
+    await response
+        .drain<List<int>>(<int>[])
+        .timeout(const Duration(seconds: 2));
     final code = response.statusCode;
     if (code < 200 || code >= 400) return false;
     _backendProbePassed = true;
