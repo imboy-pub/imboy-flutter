@@ -58,8 +58,8 @@ void main() {
   });
 
   group('SQLCipher Migration - New User Flow', () {
-    testWidgets('new user gets encryption key on first database open',
-        (tester) async {
+    test('new user gets encryption key on first database open',
+        () async {
       const uid = 'new_user_001';
 
       // Before: no key exists
@@ -76,8 +76,8 @@ void main() {
       }
     });
 
-    testWidgets('encryption key survives app restart simulation',
-        (tester) async {
+    test('encryption key survives app restart simulation',
+        () async {
       const uid = 'restart_user';
 
       final key1 = await DbEncryptionKeyService.getOrCreateKey(uid);
@@ -89,8 +89,8 @@ void main() {
   });
 
   group('SQLCipher Migration - Upgrade User Flow', () {
-    testWidgets('existing user without key gets new key on upgrade',
-        (tester) async {
+    test('existing user without key gets new key on upgrade',
+        () async {
       const uid = 'upgrade_user';
 
       // Simulate pre-SQLCipher state: user exists, no encryption key
@@ -102,7 +102,7 @@ void main() {
       expect(await DbEncryptionKeyService.hasKey(uid), isTrue);
     });
 
-    testWidgets('multiple users maintain separate keys', (tester) async {
+    test('multiple users maintain separate keys', () async {
       final keys = <String, String>{};
       final uids = ['user_a', 'user_b', 'user_c'];
 
@@ -122,8 +122,8 @@ void main() {
   });
 
   group('SQLCipher Migration - Backup Cleanup', () {
-    testWidgets('expired backup files are eligible for cleanup',
-        (tester) async {
+    test('expired backup files are eligible for cleanup',
+        () async {
       final tempDir = Directory.systemTemp.createTempSync(
         'sqlcipher_int_test_',
       );
@@ -148,8 +148,8 @@ void main() {
       }
     });
 
-    testWidgets('recent backup files are not eligible for cleanup',
-        (tester) async {
+    test('recent backup files are not eligible for cleanup',
+        () async {
       final tempDir = Directory.systemTemp.createTempSync(
         'sqlcipher_int_test2_',
       );
@@ -172,7 +172,7 @@ void main() {
   });
 
   group('SQLCipher Migration - Key Lifecycle', () {
-    testWidgets('account logout clears encryption key', (tester) async {
+    test('account logout clears encryption key', () async {
       const uid = 'logout_user';
 
       // Login: create key
@@ -184,7 +184,7 @@ void main() {
       expect(await DbEncryptionKeyService.hasKey(uid), isFalse);
     });
 
-    testWidgets('re-login generates new key after logout', (tester) async {
+    test('re-login generates new key after logout', () async {
       const uid = 'relogin_user';
 
       // First login

@@ -28,8 +28,12 @@ void main() {
 
       // 打印所有 Widget 类型
       print('📊 当前页面 Widget 统计:');
-      print('  - Scaffold 数量: ${tester.widgetList(find.byType(Scaffold)).length}');
-      print('  - Container 数量: ${tester.widgetList(find.byType(Container)).length}');
+      print(
+        '  - Scaffold 数量: ${tester.widgetList(find.byType(Scaffold)).length}',
+      );
+      print(
+        '  - Container 数量: ${tester.widgetList(find.byType(Container)).length}',
+      );
       print('  - Text 数量: ${tester.widgetList(find.byType(Text)).length}');
       print('  - Image 数量: ${tester.widgetList(find.byType(Image)).length}');
 
@@ -192,7 +196,9 @@ void main() {
       print('📸 步骤 7: 保存当前状态截图');
       // 注意：在实际设备上可以使用 binding.takeScreenshot()
       // 这里我们只打印信息
-      print('✅ 截图应保存到: test_automation/reports/screenshots/01_simple_tap_after_login.png');
+      print(
+        '✅ 截图应保存到: test_automation/reports/screenshots/01_simple_tap_after_login.png',
+      );
 
       // ========== 测试总结 ==========
       final separator = '=' * 60;
@@ -211,7 +217,7 @@ void main() {
       } else {
         print('ℹ️ 未确认登录页（可能已在主页）');
       }
-      print('='*60 + '\n');
+      print('=' * 60 + '\n');
 
       // 最终断言
       expect(true, isTrue, reason: '测试完成 - 应用运行正常');
