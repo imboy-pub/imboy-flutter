@@ -139,10 +139,11 @@ dependencies:
     git:
       url: https://github.com/leeyisoft/amap_flutter_map_plus.git
       ref: main
-  amap_flutter_location_plus:          # Amap location services
-    git:
-      url: https://github.com/xiejeep/amap_flutter_location_plus.git
-      ref: main
+  amap_flutter_location_plus:
+    path: plugin/amap_flutter_location_plus       # Amap location services
+#    git:
+#      url: https://github.com/xiejeep/amap_flutter_location_plus.git
+#      ref: main
   map_launcher: ^4.4.2               # Map apps launcher (Google Maps, Amap, etc.)
 
   # ┌─────────────────────────────────────────────────────────────────┐

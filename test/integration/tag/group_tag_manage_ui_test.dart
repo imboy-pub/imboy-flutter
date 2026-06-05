@@ -164,8 +164,8 @@ void main() {
       await tester.tap(find.byIcon(Icons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text(t.cancel), findsOneWidget);
-      expect(find.text(t.confirm), findsOneWidget);
+      expect(find.text(t.common.cancel), findsOneWidget);
+      expect(find.text(t.common.confirm), findsOneWidget);
     });
 
     testWidgets('对话框输入框有正确的提示文本', (tester) async {
@@ -202,7 +202,7 @@ void main() {
       await tester.enterText(find.byType(TextField), 'test_tag');
       await tester.pump();
 
-      final cancelButton = find.widgetWithText(TextButton, t.cancel);
+      final cancelButton = find.widgetWithText(TextButton, t.common.cancel);
       await tester.tap(cancelButton);
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -219,7 +219,7 @@ void main() {
       await tester.enterText(find.byType(TextField), 'confirm_tag');
       await tester.pump();
 
-      final confirmButton = find.widgetWithText(TextButton, t.confirm);
+      final confirmButton = find.widgetWithText(TextButton, t.common.confirm);
       await tester.tap(confirmButton);
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -264,7 +264,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // 不输入任何内容，直接点击确认
-      final confirmButton = find.widgetWithText(TextButton, t.confirm);
+      final confirmButton = find.widgetWithText(TextButton, t.common.confirm);
       await tester.tap(confirmButton);
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -316,7 +316,7 @@ void main() {
       expect(find.text('测试标签'), findsOneWidget);
 
       // Step 5: 点击确认
-      final confirmButton = find.widgetWithText(TextButton, t.confirm);
+      final confirmButton = find.widgetWithText(TextButton, t.common.confirm);
       await tester.tap(confirmButton);
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -337,7 +337,7 @@ void main() {
       await tester.pump();
 
       // 点击取消
-      final cancelButton = find.widgetWithText(TextButton, t.cancel);
+      final cancelButton = find.widgetWithText(TextButton, t.common.cancel);
       await tester.tap(cancelButton);
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -608,7 +608,7 @@ void main() {
       await tester.enterText(find.byType(TextField), '新标签');
       await tester.pump();
 
-      final confirmButton = find.widgetWithText(TextButton, t.confirm);
+      final confirmButton = find.widgetWithText(TextButton, t.common.confirm);
       await tester.tap(confirmButton);
       await tester.pump(const Duration(milliseconds: 100));
 

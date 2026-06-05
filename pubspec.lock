@@ -28,11 +28,9 @@ packages:
   amap_flutter_location_plus:
     dependency: "direct main"
     description:
-      path: "."
-      ref: main
-      resolved-ref: "0d9178d6edf82cc63cc9e83d89c8b8789d861abf"
-      url: "https://github.com/xiejeep/amap_flutter_location_plus.git"
-    source: git
+      path: "plugin/amap_flutter_location_plus"
+      relative: true
+    source: path
     version: "3.1.2"
   amap_flutter_map_plus:
     dependency: "direct main"

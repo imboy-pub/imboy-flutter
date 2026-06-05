@@ -74,7 +74,7 @@ void main() {
       await tester.pump();
 
       // 查找添加标签的提示
-      expect(find.text(t.addTag), findsOneWidget);
+      expect(find.text(t.common.addTag), findsOneWidget);
     });
 
     testWidgets('标签区域有导航箭头', (tester) async {
@@ -95,7 +95,9 @@ void main() {
       await tester.pump();
 
       // 初始状态：保存按钮应该禁用
-      final buttonsBefore = tester.widgetList<TextButton>(find.byType(TextButton));
+      final buttonsBefore = tester.widgetList<TextButton>(
+        find.byType(TextButton),
+      );
       expect(buttonsBefore.any((button) => button.onPressed == null), isTrue);
 
       // 修改备注
@@ -103,7 +105,9 @@ void main() {
       await tester.pump();
 
       // 保存按钮应该启用
-      final buttonsAfter = tester.widgetList<TextButton>(find.byType(TextButton));
+      final buttonsAfter = tester.widgetList<TextButton>(
+        find.byType(TextButton),
+      );
       expect(buttonsAfter.any((button) => button.onPressed != null), isTrue);
     });
 
@@ -189,7 +193,9 @@ void main() {
     });
 
     testWidgets('处理特殊字符标签名', (tester) async {
-      await tester.pumpWidget(_buildContactTagPage(peerTag: '工作-标签,朋友_群,家人(重要)'));
+      await tester.pumpWidget(
+        _buildContactTagPage(peerTag: '工作-标签,朋友_群,家人(重要)'),
+      );
       await tester.pump();
 
       // 验证页面能处理特殊字符
@@ -233,7 +239,10 @@ void main() {
       final notifier = container.read(contactSettingTagProvider.notifier);
 
       notifier.setVal('test_value');
-      expect(container.read(contactSettingTagProvider).val, equals('test_value'));
+      expect(
+        container.read(contactSettingTagProvider).val,
+        equals('test_value'),
+      );
     });
 
     test('TextEditingController 初始化', () {
@@ -331,9 +340,7 @@ void main() {
   // =====================================================
   group('联系人标签完整流程测试 - 标签CRUD', () {
     testWidgets('标签显示：已有标签正确渲染', (tester) async {
-      await tester.pumpWidget(
-        _buildContactTagPage(peerTag: 'VIP客户,合作伙伴,重要'),
-      );
+      await tester.pumpWidget(_buildContactTagPage(peerTag: 'VIP客户,合作伙伴,重要'));
       await tester.pump();
 
       // 验证所有标签都显示
@@ -360,7 +367,7 @@ void main() {
       await tester.pump();
 
       // 验证添加标签提示显示
-      expect(find.text(t.addTag), findsOneWidget);
+      expect(find.text(t.common.addTag), findsOneWidget);
     });
 
     testWidgets('标签删除：验证标签不显示在空标签页面', (tester) async {
@@ -369,7 +376,7 @@ void main() {
       await tester.pump();
 
       // 验证添加标签提示显示
-      expect(find.text(t.addTag), findsOneWidget);
+      expect(find.text(t.common.addTag), findsOneWidget);
     });
   });
 

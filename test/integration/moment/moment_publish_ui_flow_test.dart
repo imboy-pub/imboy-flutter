@@ -14,9 +14,7 @@ class MomentCreateTestWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TranslationProvider(
-      child: MaterialApp(home: child),
-    );
+    return TranslationProvider(child: MaterialApp(home: child));
   }
 }
 
@@ -30,7 +28,7 @@ void main() {
         await tester.pump();
 
         expect(find.byType(MomentCreatePage), findsOneWidget);
-        expect(find.text(t.momentsSend), findsOneWidget);
+        expect(find.text(t.chat.momentsSend), findsOneWidget);
       });
 
       testWidgets('has confirm button in AppBar', (tester) async {
@@ -40,7 +38,7 @@ void main() {
         await tester.pump();
 
         expect(find.byType(TextButton), findsWidgets);
-        expect(find.text(t.confirm), findsOneWidget);
+        expect(find.text(t.common.confirm), findsOneWidget);
       });
 
       testWidgets('has content TextField', (tester) async {
@@ -110,7 +108,9 @@ void main() {
         );
         await tester.pump();
 
-        final textField = tester.widget<TextField>(find.byType(TextField).first);
+        final textField = tester.widget<TextField>(
+          find.byType(TextField).first,
+        );
         expect(textField.maxLines, 6);
       });
 
@@ -120,7 +120,9 @@ void main() {
         );
         await tester.pump();
 
-        final textField = tester.widget<TextField>(find.byType(TextField).first);
+        final textField = tester.widget<TextField>(
+          find.byType(TextField).first,
+        );
         expect(textField.maxLength, 5000);
       });
 
@@ -130,7 +132,9 @@ void main() {
         );
         await tester.pump();
 
-        final textField = tester.widget<TextField>(find.byType(TextField).first);
+        final textField = tester.widget<TextField>(
+          find.byType(TextField).first,
+        );
         expect(textField.decoration?.hintText, isNotEmpty);
       });
     });
@@ -146,8 +150,9 @@ void main() {
         expect(dropdown, findsOneWidget);
 
         // Default value should be 1 (friends only)
-        final dropdownWidget =
-            tester.widget<DropdownButtonFormField<int>>(dropdown);
+        final dropdownWidget = tester.widget<DropdownButtonFormField<int>>(
+          dropdown,
+        );
         expect(dropdownWidget.initialValue, 1);
       });
 
@@ -168,7 +173,10 @@ void main() {
 
     group('Media Upload Flow Tests', () {
       test('media count is limited to 9', () {
-        final media = List.generate(9, (i) => {'type': 'image', 'url': 'url_$i'});
+        final media = List.generate(
+          9,
+          (i) => {'type': 'image', 'url': 'url_$i'},
+        );
 
         final canAddMore = media.length < 9;
         expect(canAddMore, isFalse);
@@ -176,7 +184,10 @@ void main() {
       });
 
       test('can add media when count is less than 9', () {
-        final media = List.generate(5, (i) => {'type': 'image', 'url': 'url_$i'});
+        final media = List.generate(
+          5,
+          (i) => {'type': 'image', 'url': 'url_$i'},
+        );
 
         final canAddMore = media.length < 9;
         expect(canAddMore, isTrue);
@@ -244,7 +255,7 @@ void main() {
       test('media only allows submission', () {
         final content = '';
         final media = [
-          {'type': 'image', 'url': 'http://example.com/image.jpg'}
+          {'type': 'image', 'url': 'http://example.com/image.jpg'},
         ];
 
         final canSubmit = content.trim().isNotEmpty || media.isNotEmpty;
@@ -254,7 +265,7 @@ void main() {
       test('both content and media allows submission', () {
         final content = 'Test content';
         final media = [
-          {'type': 'image', 'url': 'http://example.com/image.jpg'}
+          {'type': 'image', 'url': 'http://example.com/image.jpg'},
         ];
 
         final canSubmit = content.trim().isNotEmpty || media.isNotEmpty;
@@ -312,10 +323,10 @@ void main() {
       test('publish success fires MomentTimelineChangedEvent', () async {
         final receivedEvents = <MomentTimelineChangedEvent>[];
 
-        final subscription =
-            AppEventBus.on<MomentTimelineChangedEvent>().listen((event) {
-          receivedEvents.add(event);
-        });
+        final subscription = AppEventBus.on<MomentTimelineChangedEvent>()
+            .listen((event) {
+              receivedEvents.add(event);
+            });
 
         // Simulate successful publish
         const momentId = 'moment_new_001';
@@ -339,10 +350,10 @@ void main() {
       test('event payload contains moment data', () async {
         final receivedEvents = <MomentTimelineChangedEvent>[];
 
-        final subscription =
-            AppEventBus.on<MomentTimelineChangedEvent>().listen((event) {
-          receivedEvents.add(event);
-        });
+        final subscription = AppEventBus.on<MomentTimelineChangedEvent>()
+            .listen((event) {
+              receivedEvents.add(event);
+            });
 
         const payload = {
           'id': 'moment_001',
@@ -484,10 +495,10 @@ void main() {
 
         // 3. Event is fired
         final receivedEvents = <MomentTimelineChangedEvent>[];
-        final subscription =
-            AppEventBus.on<MomentTimelineChangedEvent>().listen((event) {
-          receivedEvents.add(event);
-        });
+        final subscription = AppEventBus.on<MomentTimelineChangedEvent>()
+            .listen((event) {
+              receivedEvents.add(event);
+            });
 
         const momentId = 'moment_flow_001';
         AppEventBus.fire(
@@ -511,47 +522,49 @@ void main() {
         await subscription.cancel();
       });
 
-      test('full flow with media: media -> submit -> event -> return',
-          () async {
-        // 1. User adds media
-        final media = [
-          {'type': 'image', 'url': 'https://example.com/image.jpg'}
-        ];
-        expect(media.isNotEmpty, isTrue);
+      test(
+        'full flow with media: media -> submit -> event -> return',
+        () async {
+          // 1. User adds media
+          final media = [
+            {'type': 'image', 'url': 'https://example.com/image.jpg'},
+          ];
+          expect(media.isNotEmpty, isTrue);
 
-        // 2. User submits without content
-        const content = '';
-        final canSubmit = content.trim().isNotEmpty || media.isNotEmpty;
-        expect(canSubmit, isTrue);
+          // 2. User submits without content
+          const content = '';
+          final canSubmit = content.trim().isNotEmpty || media.isNotEmpty;
+          expect(canSubmit, isTrue);
 
-        // 3. Event is fired
-        final receivedEvents = <MomentTimelineChangedEvent>[];
-        final subscription =
-            AppEventBus.on<MomentTimelineChangedEvent>().listen((event) {
-          receivedEvents.add(event);
-        });
+          // 3. Event is fired
+          final receivedEvents = <MomentTimelineChangedEvent>[];
+          final subscription = AppEventBus.on<MomentTimelineChangedEvent>()
+              .listen((event) {
+                receivedEvents.add(event);
+              });
 
-        const momentId = 'moment_media_001';
-        AppEventBus.fire(
-          MomentTimelineChangedEvent(
-            action: 'moment_new',
-            momentId: momentId,
-            payload: {'id': momentId, 'media': media},
-          ),
-        );
+          const momentId = 'moment_media_001';
+          AppEventBus.fire(
+            MomentTimelineChangedEvent(
+              action: 'moment_new',
+              momentId: momentId,
+              payload: {'id': momentId, 'media': media},
+            ),
+          );
 
-        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
+          await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
-        // 4. Event received
-        expect(receivedEvents.length, 1);
-        expect(receivedEvents[0].action, 'moment_new');
+          // 4. Event received
+          expect(receivedEvents.length, 1);
+          expect(receivedEvents[0].action, 'moment_new');
 
-        // 5. Return true for success
-        const result = true;
-        expect(result, isTrue);
+          // 5. Return true for success
+          const result = true;
+          expect(result, isTrue);
 
-        await subscription.cancel();
-      });
+          await subscription.cancel();
+        },
+      );
     });
   });
 }

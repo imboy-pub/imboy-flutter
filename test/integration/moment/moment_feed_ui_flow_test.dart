@@ -127,7 +127,7 @@ void main() {
         await _pumpMomentFeedPage(tester);
 
         expect(find.byType(MomentFeedPage), findsOneWidget);
-        expect(find.text(t.moments), findsOneWidget);
+        expect(find.text(t.discovery.moments), findsOneWidget);
       });
 
       testWidgets('shows publish button in AppBar', (tester) async {
@@ -756,7 +756,7 @@ class _MomentCard extends StatelessWidget {
                   IconButton(
                     onPressed: onDeleteTap,
                     icon: const Icon(Icons.delete_outline),
-                    tooltip: context.t.delete,
+                    tooltip: context.t.common.delete,
                   ),
               ],
             ),
@@ -858,4 +858,3 @@ class _MomentMediaCell extends StatelessWidget {
     );
   }
 }
-

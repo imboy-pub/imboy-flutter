@@ -30,16 +30,24 @@ class AssetsService {
     // H8: read from in-memory cache only (populated from secure storage)
     final uploadKey = Env.uploadKeySync;
     if (uploadKey == null || uploadKey.isEmpty) {
-      iPrint(
-        'AssetsService.authData: uploadKey is null or empty, triggering refresh',
-      );
-      // 触发异步刷新配置
-      _refreshUploadKey();
+      iPrint('AssetsService.authData: uploadKey is null or empty');
+      // 返回空签名，调用方应检查 needRefresh 并等待刷新后重试
       return {'v': v, 'a': '', 's': Env.uploadScene ?? '', 'needRefresh': true};
     }
 
     String tk = EncrypterService.md5("$uploadKey$v").substring(8, 24);
     return {'v': v, 'a': tk, 's': Env.uploadScene ?? ''};
+  }
+
+  /// 同步版本：确保 uploadKey 可用后再生成签名
+  /// 如果 uploadKey 为空，先等待刷新完成
+  static Future<Map<String, dynamic>> authDataAsync() async {
+    var data = authData();
+    if (data['needRefresh'] == true) {
+      await _refreshUploadKey();
+      data = authData();
+    }
+    return data;
   }
 
   /// 异步刷新 uploadKey
@@ -99,6 +107,43 @@ class AssetsService {
 
   /// 获取URL地址的 v 参数，和当前时间做比较，再决定是否重新生成授权令牌
   /// Assets.viewUrl
+  /// 异步版本：当 uploadKey 可能为空时使用
+  /// 先确保 uploadKey 已加载，再生成带签名的 URL
+  static Future<Uri> viewUrlAsync(String url) async {
+    if (isObjectKey(url)) {
+      return Uri(path: url);
+    }
+    int now = DateTimeHelper.second();
+    int diff = 3600;
+
+    Uri u = Uri.parse(url);
+
+    int v = 0;
+    final vParam = u.queryParameters['v'];
+    if (vParam != null && vParam.isNotEmpty) {
+      v = int.tryParse(vParam) ?? 0;
+    }
+
+    if (v > 0 && now < (v + diff)) {
+      return u;
+    }
+
+    final data = await authDataAsync();
+    Map<String, String> q = Map<String, String>.from(u.queryParameters)
+      ..addAll({
+        's': data['s']?.toString() ?? '',
+        'a': data['a']?.toString() ?? '',
+        'v': data['v'].toString(),
+      });
+    return Uri(
+      scheme: u.scheme,
+      host: u.host,
+      path: u.path,
+      port: u.port,
+      queryParameters: q,
+    );
+  }
+
   static Uri viewUrl(String url) {
     // Garage object_key：同步层不解析，原样透传给 async 下载边界
     // （IMBoyCacheManager / AssetUrlResolver）换取短时 presigned URL。

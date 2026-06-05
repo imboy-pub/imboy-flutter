@@ -128,6 +128,10 @@ abstract interface class Env implements EnvField {
   static String? _uploadKeyCache;
   static String? get uploadKeySync => _uploadKeyCache;
 
+  /// For testing only — sets the in-memory cache directly without secure storage.
+  @visibleForTesting
+  static set uploadKey(String? value) => _uploadKeyCache = value;
+
   static Future<String?> getUploadKey() async {
     final key = await StorageSecureService.to.read(key: Keys.uploadKey);
     _uploadKeyCache = key;

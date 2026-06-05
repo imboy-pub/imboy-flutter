@@ -128,7 +128,7 @@ class IMBoyCacheManager {
       final rawUri = Uri.parse(url);
       cacheKey =
           '${rawUri.scheme}://${rawUri.host}:${rawUri.port}${rawUri.path}';
-      final viewUri = AssetsService.viewUrl(url);
+      final viewUri = await AssetsService.viewUrlAsync(url);
       downloadUrl = viewUri.toString();
       extSource = viewUri.path;
     }
