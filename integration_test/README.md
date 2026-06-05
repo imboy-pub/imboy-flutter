@@ -3,7 +3,7 @@
 ## 测试三层架构
 
 ```
-Tier 1 ── API 契约测试      test/api/              dart test，无设备，可 CI
+Tier 1 ── API/WS 契约测试   test/api/              dart test，无设备，可 CI，环境变量配置
 Tier 2 ── 冒烟门控          integration_test/smoke/ flutter test，需真机，合并必须绿
 Tier 3 ── UI 流程测试       integration_test/       flutter test，需真机，回归可选
 ```
@@ -121,21 +121,3 @@ flutter test integration_test/auth/password_change_test.dart \
 | `tab_channel` | 频道 | 索引 2，功能开关控制 |
 | `tab_mine` | 我 | 最后索引 |
 
----
-
-## test_automation/ 关系
-
-`test_automation/scenarios/executable_cases.yaml` 引用的测试路径在重构后保持不变，YAML 无需修改。
-
-```bash
-bash test_automation/scripts/run_yaml_mapped_suite.sh
-bash test_automation/scripts/run_yaml_mapped_suite.sh --resume --run-id <RUN_ID>
-bash test_automation/scripts/run_yaml_mapped_suite.sh --rerun-failed
-```
-
----
-
-## 废弃文件
-
-- `integration_test/test_helper.dart` → 用 `flows/test_utils.dart`
-- `integration_test/test_config.dart` → 用 `FlowConfig`
