@@ -15,16 +15,12 @@ class AppFeatureRegistry {
     FeatureKeys.channelOrder: FeatureKeys.channel,
   };
 
-  /// W1.5 稳定化 Sprint 本地硬关闭集合（2026-04-17）：
-  /// 优先级高于远程 snapshot — 即使后端 payload 返回 true，此处仍强制关闭。
-  /// 目的：稳定化期避免不完善功能暴露给 App Store 审核 + 早期用户。
-  /// 解除：删除对应 key 即可恢复（功能代码保留）。
-  ///
-  /// 注：friendTag（好友分类）+ moment interactions（相册互动）已从本集合移除 —
-  /// 用户决定在稳定化期继续完善这两项，而非隐藏。
+  /// 本地硬关闭集合 — 优先级高于远程 snapshot，后端返回 true 也无效。
+  /// 解除：后端 API 就绪后删除对应 key，功能代码无需恢复。
+  /// 详见 docs/feature-status.md § 待后端支持（前端隐藏）
   static const Set<String> _localDisabledKeys = {
-    FeatureKeys.wallet,
-    FeatureKeys.liveRoom,
+    FeatureKeys.wallet, // 后端待实现：/v1/wallet/{balance,transactions,topup}
+    FeatureKeys.liveRoom, // 后端待实现：WHIP 服务器 + 直播列表 API
   };
 
   static Map<String, dynamic> get snapshot {
