@@ -35,7 +35,7 @@ void main() {
 
     // 从 init_config 获取 ws_url，回退为 API URL 推导
     try {
-      final resp = await apiClient.get('/v1/app/init_config');
+      final resp = await apiClient.get('/v1/init');
       if (resp['code'] == 0 && resp['data'] is Map) {
         wsUrl = ((resp['data'] as Map)['ws_url'] as String?) ?? '';
       }

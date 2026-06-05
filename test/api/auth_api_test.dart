@@ -90,7 +90,7 @@ void main() {
 
   group('App 初始化配置', () {
     test('2.1 init_config 无需认证可达，返回 code=0', () async {
-      final resp = await client.get('/v1/app/init_config');
+      final resp = await client.get('/v1/init');
       expect(resp, containsPair('code', 0), reason: 'init_config 应返回 code=0');
     });
 

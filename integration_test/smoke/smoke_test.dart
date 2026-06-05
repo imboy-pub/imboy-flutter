@@ -41,7 +41,7 @@ void main() {
     // 验证后端可达（init_config 接口无需认证）
     final Map<String, dynamic> initResp;
     try {
-      initResp = await client!.get('/v1/app/init_config');
+      initResp = await client!.get('/v1/init');
     } on Exception catch (e) {
       fail('冒烟测试要求后端可达，当前不可达: $baseUrl — $e');
     }
