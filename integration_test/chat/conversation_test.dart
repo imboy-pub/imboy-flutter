@@ -11,7 +11,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/main.dart' as app;
+import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../flows/test_utils.dart';
@@ -21,11 +21,10 @@ void main() {
 
   group('会话管理', () {
     testWidgets('会话列表显示与交互', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
+      await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'conv_01_launch');
 
-      if (!await checkPreconditions(tester)) return;
+      await checkPreconditions(tester);
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'conv_02_after_login');
@@ -55,10 +54,9 @@ void main() {
     }, timeout: const Timeout(Duration(minutes: 5)));
 
     testWidgets('长按会话项出现操作菜单', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
+      await ensureAppLaunched(tester, maxSeconds: 3);
 
-      if (!await checkPreconditions(tester)) return;
+      await checkPreconditions(tester);
 
       if (!await _openConversationTab(tester)) {
         markTestSkipped('无法进入会话列表，跳过');
@@ -112,10 +110,9 @@ void main() {
     }, timeout: const Timeout(Duration(minutes: 5)));
 
     testWidgets('搜索入口可访问', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
+      await ensureAppLaunched(tester, maxSeconds: 3);
 
-      if (!await checkPreconditions(tester)) return;
+      await checkPreconditions(tester);
 
       if (!await _openConversationTab(tester)) {
         markTestSkipped('无法进入会话列表，跳过');

@@ -16,7 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/main.dart' as app;
+import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../flows/test_utils.dart';
@@ -35,11 +35,10 @@ void main() {
 
   group('修改密码', () {
     testWidgets('修改密码页面可访问，表单字段完整', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
+      await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'pwd_01_launch');
 
-      if (!await checkPreconditions(tester)) return;
+      await checkPreconditions(tester);
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'pwd_02_after_login');

@@ -6,7 +6,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:flutter/material.dart';
-import 'package:imboy/main.dart' as app;
+import 'flows/app_launcher.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +14,7 @@ void main() {
   group('IM Boy 基础功能测试', () {
     testWidgets('应用启动测试', (WidgetTester tester) async {
       // 构建应用
-      app.main();
+      await ensureAppLaunched(tester);
       await tester.pumpAndSettle();
 
       // 验证应用启动
@@ -22,7 +22,7 @@ void main() {
     });
 
     testWidgets('查找基本组件', (WidgetTester tester) async {
-      app.main();
+      await ensureAppLaunched(tester);
       await tester.pumpAndSettle();
 
       // 等待启动页加载完成

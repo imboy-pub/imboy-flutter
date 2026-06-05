@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/main.dart' as app;
+import 'flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 import 'flows/test_utils.dart';
 
@@ -11,17 +11,20 @@ void main() {
 
   group('C2C 聊天', () {
     testWidgets('打开已有单聊并发送文本消息', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
-      if (!await checkPreconditions(tester)) return;
+      await ensureAppLaunched(tester, maxSeconds: 3);
+      await checkPreconditions(tester);
       await settle(tester, maxSeconds: 2);
 
       if (!await _openConversationTab(tester)) { markTestSkipped('无法进入会话列表'); return; }
       await settle(tester, maxSeconds: 2);
 
-      if (!tester.any(find.byType(ListTile))) { markTestSkipped('会话列表为空'); return; }
+      // 优先用 Key 定位会话列表项，降级回退到 ListTile 类型查找
+      final convItemFinder = tester.any(find.byKey(const Key('conversation_list_item')))
+          ? find.byKey(const Key('conversation_list_item'))
+          : find.byType(ListTile);
+      if (!tester.any(convItemFinder)) { markTestSkipped('会话列表为空'); return; }
 
-      await safeTap(tester, find.byType(ListTile).first);
+      await safeTap(tester, convItemFinder.first);
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'c2c_01_chat_page');
 

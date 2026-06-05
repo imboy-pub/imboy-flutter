@@ -11,7 +11,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/main.dart' as app;
+import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../flows/test_utils.dart';
@@ -21,11 +21,10 @@ void main() {
 
   group('好友管理', () {
     testWidgets('联系人列表可访问', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
+      await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'friend_01_launch');
 
-      if (!await checkPreconditions(tester)) return;
+      await checkPreconditions(tester);
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'friend_02_after_login');
@@ -46,10 +45,9 @@ void main() {
     }, timeout: const Timeout(Duration(minutes: 5)));
 
     testWidgets('点击好友进入详情页', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
+      await ensureAppLaunched(tester, maxSeconds: 3);
 
-      if (!await checkPreconditions(tester)) return;
+      await checkPreconditions(tester);
 
       if (!await _openContactTab(tester)) {
         markTestSkipped('无法进入联系人页，跳过');

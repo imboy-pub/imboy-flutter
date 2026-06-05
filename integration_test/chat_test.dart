@@ -6,7 +6,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:flutter/material.dart';
-import 'package:imboy/main.dart' as app;
+import 'flows/app_launcher.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +14,7 @@ void main() {
   group('IM Boy 聊天功能测试', () {
     testWidgets('发送消息测试', (WidgetTester tester) async {
       // 启动应用
-      app.main();
+      await ensureAppLaunched(tester);
       await tester.pumpAndSettle();
 
       // 等待应用完全加载
@@ -48,7 +48,7 @@ void main() {
     });
 
     testWidgets('输入框测试', (WidgetTester tester) async {
-      app.main();
+      await ensureAppLaunched(tester);
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 3));
 

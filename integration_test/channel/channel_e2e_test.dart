@@ -18,7 +18,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/main.dart' as app;
+import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../flows/test_utils.dart';
@@ -28,11 +28,10 @@ void main() {
 
   group('频道端到端验收', () {
     testWidgets('进入已订阅频道详情并发布文本消息', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
+      await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'channel_01_launch');
 
-      if (!await checkPreconditions(tester)) return;
+      await checkPreconditions(tester);
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'channel_02_after_login');
@@ -123,11 +122,10 @@ void main() {
       final channelCustomId = _buildCustomId();
       final msg = '[CHANNEL-E2E-CREATE] $ts';
 
-      app.main();
-      await settle(tester, maxSeconds: 3);
+      await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'channel_create_01_launch');
 
-      if (!await checkPreconditions(tester)) return;
+      await checkPreconditions(tester);
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'channel_create_02_after_login');

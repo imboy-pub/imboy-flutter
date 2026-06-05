@@ -1,7 +1,7 @@
 // integration_test/channel/channel_subscribed_detail_consistency_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/main.dart' as app;
+import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 import '../flows/test_utils.dart';
 
@@ -10,9 +10,8 @@ void main() {
 
   group('频道订阅详情一致性', () {
     testWidgets('已订阅频道详情页数据正常显示', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
-      if (!await checkPreconditions(tester)) return;
+      await ensureAppLaunched(tester, maxSeconds: 3);
+      await checkPreconditions(tester);
       await settle(tester, maxSeconds: 2);
 
       if (!await _openChannelTab(tester)) {

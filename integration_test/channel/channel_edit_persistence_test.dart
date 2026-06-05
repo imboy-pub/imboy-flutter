@@ -1,7 +1,7 @@
 // integration_test/channel/channel_edit_persistence_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/main.dart' as app;
+import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 import '../flows/test_utils.dart';
 
@@ -12,9 +12,8 @@ void main() {
     testWidgets('编辑频道描述后保存不出现失败提示', (tester) async {
       final newDesc = '[E2E-DESC] ${DateTime.now().millisecondsSinceEpoch}';
 
-      app.main();
-      await settle(tester, maxSeconds: 3);
-      if (!await checkPreconditions(tester)) return;
+      await ensureAppLaunched(tester, maxSeconds: 3);
+      await checkPreconditions(tester);
       await settle(tester, maxSeconds: 2);
 
       if (!await _openChannelTab(tester)) {

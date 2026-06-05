@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:imboy/main.dart' as app;
+import 'flows/app_launcher.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +19,7 @@ void main() {
 
       // 步骤 1: 启动应用
       print('📍 步骤 1: 启动应用');
-      app.main();
+      await ensureAppLaunched(tester);
 
       // 分步 pump 等待异步初始化完成（不能用 pumpAndSettle，
       // 因为 loading 动画会导致它超时）

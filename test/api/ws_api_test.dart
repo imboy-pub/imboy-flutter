@@ -85,6 +85,35 @@ void main() {
       expect(disconnected, isFalse, reason: '认证连接 5 秒内不应被断开，error=$wsError');
       await ws.close();
     });
+
+    test('1.3 无 token 连接 — 5 秒内被服务端断开或拒绝建立', () async {
+      var rejected = false;
+      try {
+        final ws = await _connect(wsUrl); // 无 token
+        var serverClosed = false;
+        ws.listen(
+          (_) {},
+          onError: (_) {
+            serverClosed = true;
+          },
+          onDone: () {
+            serverClosed = true;
+          },
+        );
+        await Future<void>.delayed(const Duration(seconds: 5));
+        rejected = serverClosed;
+        if (!serverClosed) await ws.close();
+      } on WebSocketException {
+        rejected = true;
+      } on SocketException {
+        rejected = true;
+      }
+      expect(
+        rejected,
+        isTrue,
+        reason: '无 token 的 WebSocket 连接应在 5 秒内被服务端拒绝或断开',
+      );
+    });
   });
 
   // ──────────────────────────────────────────────
@@ -97,27 +126,37 @@ void main() {
         return;
       }
       final ws = await _connect(wsUrl, token: apiClient.accessToken!);
-      final completer = Completer<void>();
-      final received = <String>[];
+      final allMessages = <String>[];
+
       ws.listen(
-        (data) {
-          received.add(data.toString());
-          if (!completer.isCompleted) completer.complete();
-        },
-        onError: (Object e) {
-          if (!completer.isCompleted) completer.completeError(e);
-        },
-        onDone: () {
-          if (!completer.isCompleted) completer.complete();
-        },
+        (data) => allMessages.add(data.toString()),
+        onError: (_) {},
+        onDone: () {},
       );
+
+      // 短暂等待，排空服务端在连接建立时可能推送的初始化消息，
+      // 避免 completer 被初始化消息而非 pong 触发。
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      final countBeforePing = allMessages.length;
+
       ws.add('ping');
-      await completer.future.timeout(
-        const Duration(seconds: 5),
-        onTimeout: () => fail('ping 后 5 秒内未收到任何响应'),
-      );
+
+      // 轮询等待 ping 之后收到新消息（最多 5 秒）
+      const deadline = Duration(seconds: 5);
+      final start = DateTime.now();
+      while (allMessages.length == countBeforePing) {
+        if (DateTime.now().difference(start) >= deadline) {
+          fail('ping 后 5 秒内未收到任何响应');
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+
       await ws.close();
-      expect(received, isNotEmpty, reason: 'ping 后应收到服务端响应');
+      expect(
+        allMessages.length,
+        greaterThan(countBeforePing),
+        reason: 'ping 后应收到服务端响应（pong 或业务消息）',
+      );
     });
   });
 

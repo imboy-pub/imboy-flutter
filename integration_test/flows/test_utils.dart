@@ -229,13 +229,12 @@ Future<bool> performLogin(
   return true;
 }
 
-/// 若需要登录则自动登录，否则直接返回 true。
-/// 前置未配置时调用 markTestSkipped（不抛异常，测试框架标记 skip 而非 fail）。
-Future<bool> autoLoginOrSkip(WidgetTester tester) async {
-  if (!isOnLoginPage(tester)) return true;
+/// 若需要登录则自动登录，否则直接返回。
+/// 前置未配置或登录失败时调用 markTestSkipped（抛出 Skip 异常，测试框架标记 SKIP）。
+Future<void> autoLoginOrSkip(WidgetTester tester) async {
+  if (!isOnLoginPage(tester)) return;
   if (!FlowConfig.hasCredentials) {
     markTestSkipped('未配置 TEST_PHONE / TEST_PASSWORD，跳过');
-    return false;
   }
   final ok = await performLogin(
     tester,
@@ -244,9 +243,7 @@ Future<bool> autoLoginOrSkip(WidgetTester tester) async {
   );
   if (!ok) {
     markTestSkipped('自动登录失败，跳过');
-    return false;
   }
-  return true;
 }
 
 // ──────────────────────────────────────────────
@@ -306,25 +303,23 @@ void drainKnownFrameworkExceptions(WidgetTester tester) {
 // ──────────────────────────────────────────────
 
 /// 标准前置检查：后端可达 → App 进入入口 → 自动登录。
-/// 返回 false 时调用方应立即 `return`（markTestSkipped 已在内部调用）。
+/// 失败时调用 markTestSkipped（抛出 Skip 异常，测试框架标记 SKIP，不会假绿）。
 ///
 /// 使用示例：
 /// ```dart
 /// testWidgets('会话列表', (tester) async {
 ///   app.main();
 ///   await settle(tester, maxSeconds: 3);
-///   if (!await checkPreconditions(tester)) return;
+///   await checkPreconditions(tester); // 失败自动 skip，不会假绿
 ///   // ... 实际断言
 /// });
 /// ```
-Future<bool> checkPreconditions(WidgetTester tester) async {
+Future<void> checkPreconditions(WidgetTester tester) async {
   if (!await ensureBackendAvailable()) {
     markTestSkipped('后端不可达，跳过');
-    return false;
   }
   if (!await waitForEntryState(tester)) {
     markTestSkipped('App 入口状态超时，跳过');
-    return false;
   }
-  return autoLoginOrSkip(tester);
+  await autoLoginOrSkip(tester);
 }

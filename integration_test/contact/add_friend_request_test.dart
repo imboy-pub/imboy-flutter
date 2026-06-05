@@ -12,7 +12,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/main.dart' as app;
+import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../flows/test_utils.dart';
@@ -27,11 +27,10 @@ void main() {
 
   group('添加好友', () {
     testWidgets('搜索用户并发送好友请求', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
+      await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'add_friend_01_launch');
 
-      if (!await checkPreconditions(tester)) return;
+      await checkPreconditions(tester);
 
       await settle(tester, maxSeconds: 2);
 

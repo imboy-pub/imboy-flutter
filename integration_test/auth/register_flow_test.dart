@@ -10,7 +10,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/main.dart' as app;
+import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../flows/test_utils.dart';
@@ -25,8 +25,7 @@ void main() {
       final email = 'e2e_$ts@test.imboy.pub';
       final password = 'Test${ts}x!';
 
-      app.main();
-      await settle(tester, maxSeconds: 3);
+      await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'reg_01_launch');
 
       if (!await ensureBackendAvailable()) {

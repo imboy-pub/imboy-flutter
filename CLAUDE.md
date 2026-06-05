@@ -8,11 +8,7 @@
 
 ## 文档双语规则 (MANDATORY)
 
-- 面向用户/贡献者文档必须同时提供**简体中文 + English**。
-- 简体中文为权威版本，英文在同一 PR 内同步跟进。
-- 代码块、命令、配置原样保留，不翻译。
-- AI 代理默认双语输出；commit 前缀 `docs(bilingual):`。
-- 例外（仅中文）：`.claude/plan/*`、`.claude/memory/*`、内部会议纪要。
+> 见根级 [CLAUDE.md](../CLAUDE.md#双语文档规则--bilingual-documentation-rule-mandatory)
 
 ---
 
@@ -96,13 +92,12 @@ plugin/            # 插件源码（勿动 plugin/r_upgrade）
 
 ## 常用命令
 
+> 基础命令见 [README.md](./README.md)。发布专用命令：
+
 ```bash
-flutter pub get
-flutter run
-flutter test
-dart run slang                      # 生成 i18n 代码
-flutter pub run build_runner build
-flutter build apk / flutter build ios
+flutter pub run build_runner build  # 生成代码（Provider、JSON 序列化等）
+flutter build apk                   # Android 发布构建
+flutter build ios                   # iOS 发布构建
 ```
 
 ### 环境配置

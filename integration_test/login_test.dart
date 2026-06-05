@@ -5,14 +5,14 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:imboy/main.dart' as app;
+import 'flows/app_launcher.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('登录流程测试', () {
     testWidgets('查找登录入口', (WidgetTester tester) async {
-      app.main();
+      await ensureAppLaunched(tester);
       await tester.pumpAndSettle();
 
       // 等待应用加载

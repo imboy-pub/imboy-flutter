@@ -594,58 +594,6 @@ Layout:
 
 ---
 
-## 12. 与现有 Token 的兼容映射 | Compatibility
-
-> **重要**：本 DESIGN.md **不推倒现有 `lib/theme/default/` 下的任何文件**。下表是「语义 → 现有 Token」的映射，用于新代码参考，以及未来增量优化的方向。
-
-### 12.1 颜色映射
-
-| 本文档语义 | 现有 Token | 需要的动作 |
-|------------|-----------|-----------|
-| `brand` / `primary` | `AppColors.primary` (`#2474E5`) | ✅ 已对齐 |
-| `brandLight` | `AppColors.primaryLight` (`#E3F2FD`) | ✅ 已对齐 |
-| `brandDark` | `AppColors.primaryDark` (`#1565C0`) | ✅ 已对齐 |
-| `iosBlue` | `AppColors.iosBlue` (`#007AFF`) | ✅ 已落地（2026-04-17） |
-| `iosRed` | `AppColors.iosRed` (`#FF3B30`) | ✅ 已落地 |
-| `iosGreen` | `AppColors.iosGreen` (`#34C759`) | ✅ 已落地 |
-| `iosGray6` / `surfaceGrouped` | `AppColors.lightSurfaceGrouped` (`#F2F2F7`) | ✅ 已落地 |
-| `separator` | `AppColors.lightDivider` (`#E5E5E5`) | ⚠️ 建议调整为 `#C6C6C8` 更贴 iOS |
-| 暗色 `surface` | `AppColors.darkSurface` (`#121212`) | ⚠️ 建议调整为 `#1C1C1E` |
-| 暗色 `surfaceGrouped` | `AppColors.darkBackground` (`#121212`) | ⚠️ 建议新增 `#000000` (OLED) / `#1C1C1E` 两档 |
-| Sent Bubble | `AppColors.lightSentMessageBackground` (= `primary`) | ✅ 已对齐 |
-| Received Bubble 暗 | `AppColors.darkReceivedMessageBackground` (`#2A2A2A`) | ⚠️ 建议调为 `#1C1C1E` 更 iOS |
-| Sent Bubble 暗 | `AppColors.darkSentMessageBackground` (`#42A5F5`) | ⚠️ 建议调为 `#3D8BF0` |
-
-### 12.2 间距映射
-
-| 本文档 Token | 现有 `AppSpacing` | 状态 |
-|-------------|-------------------|------|
-| `space4` (16pt) | `AppSpacing.md` 或同值 | ✅ 应已对齐 |
-| Page padding 16pt | `AppSpacing.pagePadding` | ✅ |
-| Cell padding 16/12pt | `AppSpacing.cardPadding` | 确认值 |
-
-> **动作**：阅读 `lib/theme/default/app_spacing.dart`，若存在 `md=16`、`sm=12`、`lg=20`、`xl=24` 的 4pt 基数体系即视为对齐；否则仅新页面使用本文档值，不触碰旧代码。
-
-### 12.3 圆角映射
-
-| 本文档 | 现有 `AppRadius` | 状态 |
-|-------|-----------------|------|
-| `radiusMedium` (10) | `AppRadius.md` | 确认 |
-| `radiusLarge` (14) | `AppRadius.lg` | 确认 |
-| `radiusXLarge` (20) | `AppRadius.xl` | ⚠️ 若无需新增，**聊天气泡使用此值** |
-
-### 12.4 字体映射
-
-| 本文档 | 现有 `FontSizeType` | 建议 |
-|-------|---------------------|------|
-| Body 17pt | 无直接对应，最接近 `medium(16)` | 新页面正文用 `medium`，不新增枚举 |
-| Headline 17pt w600 | `medium(16)` + `FontWeight.w600` | 可接受 |
-| Footnote 13pt | `small(12)` | 可接受 |
-| Caption 1 12pt | `small(12)` | ✅ |
-
-> **结论**：**现有 Token 体系 85% 已经对齐本 DESIGN.md**。只需增量添加 `iosBlue/iosRed/iosGreen/surfaceGrouped` 和微调几个暗色值，不需要破坏性重构。
-
----
 
 ## 13. AI Coding Agent 使用指引 | For Coding Agents
 
@@ -743,12 +691,6 @@ Scaffold(
 
 ---
 
-## 附录 A：与 getdesign.md 的关系
-
-本 DESIGN.md 结构参考了 [getdesign.md](https://getdesign.md/) 的社区模板，但内容完全基于 **Apple Human Interface Guidelines**（公开免费）、项目现有的 `lib/theme/default/` Token 体系、以及 IMBoy 的产品历史决策（2026-01-15 品牌蓝决议）原创撰写。
-
-未来若有余力，可将此文件贡献回 getdesign.md 作为「iOS-native IM」类别的参考实现。
-
 ## 附录 B：参考链接
 
 - Apple Human Interface Guidelines: https://developer.apple.com/design/human-interface-guidelines
@@ -763,19 +705,8 @@ Scaffold(
 | 版本 | 日期 | 变更 |
 |------|------|------|
 | 0.1 | 2026-04-10 | 初版，确立 iOS 原生感方向 + 双蓝策略 |
-| 0.2 | 2026-04-24 | Slice-10~18 排版 / 色彩 / 数字等宽批量落地（详见下表） |
+| 0.2 | 2026-04-24 | Slice-10~18 排版 / 色彩 / 数字等宽批量落地 |
 
-### 0.2 批次明细（Slice-10 ~ Slice-18，2026-04-24）
-
-| Slice | 范围 | 变更要点 |
-|-------|------|---------|
-| 10~13 | 色彩批量（§2） | `primary` / `iosBlue` / `iosGreen` / `iosOrange` / `iosRed` 语义分层在登录、联系人、会话、Tab Bar、AppBar 落地 |
-| 14-C | GlassAppBar 返回按钮 | `common_bar.dart` 返回按钮改 `AppColors.getIosBlue(brightness)`（§2.1 双蓝策略：导航系统蓝） |
-| 14-D | contact/ 硬编码色彩 | `contact_page` 在线状态改 `getIosGreen`/`iosOrange`/`getIosBlue`；`contact_provider` `bgColor` 改 `iosOrange`/`iosGreen`/`iosBlue`；`add_friend_page` 扫码图标改 `iosBlue`（§2.4 语义色） |
-| 15 | 数字键盘字重 + enum 弃用 | `numeric_keypad` Thin → w400 Body（§3.3 禁 w300）；`FontSizeType` 给 `thin/extraLight/light` 加 `@Deprecated` 注释 |
-| 16 | w500/w600 混用整改 | `feedback_page.dart` 反馈内容 16pt 改 w400（§3.2 Body），保留合理的标题 w600 + caption w500 并列 |
-| 17 | `FontFeature.tabularFigures()` | 会话列表时间戳 / web 版未读徽章 / 朋友圈通知时间戳（§3.4 数字优先等宽） |
-| 18 | 行高补齐 | `messageMsgWidget` 引用/搜索预览 Body 加 `height: 1.4`（§3.4 CJK 1.4-1.5）；其他多行 body 经审计已均有 height |
 
 **未来演进约束**：
 - 颜色/字号/间距等「tokens」变更必须在此文档先落地，再改代码

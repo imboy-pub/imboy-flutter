@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/main.dart' as app;
+import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 import '../flows/test_utils.dart';
 
@@ -11,9 +11,8 @@ void main() {
 
   group('群聊', () {
     testWidgets('进入已有群聊并发送文本消息', (tester) async {
-      app.main();
-      await settle(tester, maxSeconds: 3);
-      if (!await checkPreconditions(tester)) return;
+      await ensureAppLaunched(tester, maxSeconds: 3);
+      await checkPreconditions(tester);
       await settle(tester, maxSeconds: 2);
 
       if (!await _openConversationTab(tester)) {
