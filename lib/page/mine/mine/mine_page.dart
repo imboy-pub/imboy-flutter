@@ -228,12 +228,13 @@ class _MinePageState extends ConsumerState<MinePage> {
 
   Widget _buildQuickActions(BuildContext context) {
     final List<QuickActionItem> items = [
-      QuickActionItem(
-        icon: const Icon(CupertinoIcons.creditcard_fill),
-        label: t.account.wallet,
-        onTap: () => context.push('/wallet'),
-        color: const Color(0xFFFF9500),
-      ),
+      if (AppFeatureRegistry.isEnabled('wallet'))
+        QuickActionItem(
+          icon: const Icon(CupertinoIcons.creditcard_fill),
+          label: t.account.wallet,
+          onTap: () => context.push('/wallet'),
+          color: const Color(0xFFFF9500),
+        ),
       if (AppFeatureRegistry.isEnabled('channel'))
         QuickActionItem(
           icon: const Icon(CupertinoIcons.dot_radiowaves_left_right),

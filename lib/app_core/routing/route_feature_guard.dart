@@ -51,14 +51,14 @@ class RouteFeatureGuard {
     if (path == AppRoutes.momentFeed ||
         path == AppRoutes.momentCreate ||
         path.startsWith('${AppRoutes.momentRoot}/')) {
-      return 'moment';
+      return 'moment_tab';
     }
     if (path == '/channel' || path.startsWith('/channel/')) {
-      return 'channel';
+      return 'channel_tab';
     }
     if (path == '/contact/people_nearby' ||
         path.startsWith('/contact/people_nearby/')) {
-      return 'location';
+      return 'people_nearby_page';
     }
     return null;
   }
