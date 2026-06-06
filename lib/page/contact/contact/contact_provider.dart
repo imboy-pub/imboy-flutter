@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -110,7 +111,7 @@ class ContactNotifier extends _$ContactNotifier {
       ),
     );
 
-    if (AppFeatureRegistry.isEnabled('location')) {
+    if (AppFeatureRegistry.isEnabled(FeatureKeys.location)) {
       topItems.add(
         ContactModel(
           peerId: kPeerIdPeopleNearby,

@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -200,9 +201,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     final isSubscribed = channel.isSubscribed;
     final canPublish = channel.canPublish;
     final invitationEnabled = AppFeatureRegistry.isEnabled(
-      'channel_invitation',
+      FeatureKeys.channelInvitation,
     );
-    final orderEnabled = AppFeatureRegistry.isEnabled('channel_order');
+    final orderEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder);
     final items = <PopupMenuEntry<String>>[];
 
     if (canPublish) {
@@ -1232,13 +1233,13 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         _shareChannel(channel);
         break;
       case 'invitation_center':
-        if (!AppFeatureRegistry.isEnabled('channel_invitation')) {
+        if (!AppFeatureRegistry.isEnabled(FeatureKeys.channelInvitation)) {
           break;
         }
         context.push('/channel/invitations');
         break;
       case 'my_orders':
-        if (!AppFeatureRegistry.isEnabled('channel_order')) {
+        if (!AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder)) {
           break;
         }
         _showMyOrdersSheet(channelId);
@@ -1253,7 +1254,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         break;
       case 'manage_subscribers':
         final invitationEnabled = AppFeatureRegistry.isEnabled(
-          'channel_invitation',
+          FeatureKeys.channelInvitation,
         );
         final isPrivate = channel?.type == ChannelType.private;
         context.push(

@@ -14,5 +14,5 @@ class FeatureKeys {
   // 代码保留，待 v2 决策（见 .claude/plans/stabilization-sprint-2026Q2.md 第六节）。
   static const wallet = 'wallet';
   static const liveRoom = 'live_room';
-  static const friendTag = 'friend_tag';
+  // friendTag removed — zero references confirmed (Task B3)
 }

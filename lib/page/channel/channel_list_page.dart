@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -78,7 +79,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
           ),
         ),
         actions: [
-          if (AppFeatureRegistry.isEnabled('channel_invitation'))
+          if (AppFeatureRegistry.isEnabled(FeatureKeys.channelInvitation))
             IconButton(
               icon: const Icon(Icons.mark_email_unread_outlined),
               onPressed: () {
@@ -87,7 +88,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
               tooltip: t.common.channelInvitations,
               color: AppColors.getTextColor(brightness),
             ),
-          if (AppFeatureRegistry.isEnabled('channel_discover'))
+          if (AppFeatureRegistry.isEnabled(FeatureKeys.channelDiscover))
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {

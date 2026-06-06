@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'dart:async';
 
 import 'package:badges/badges.dart' as badges;
@@ -43,7 +44,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
   bool _isTabEnabled(String entry) {
     if (entry == 'channel_tab') {
-      return AppFeatureRegistry.isEnabled('channel');
+      return AppFeatureRegistry.isEnabled(FeatureKeys.channel);
     }
     final manifest = AppManifestService.manifest;
     if (manifest != null) {
@@ -139,7 +140,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   Widget build(BuildContext context) {
     final t = context.t;
     // channelEnabled 控制会话列表顶部频道置顶区显示（Slice-5 接线）
-    final channelEnabled = AppFeatureRegistry.isEnabled('channel');
+    final channelEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.channel);
     final pageList = _buildPageList();
     final labelFontSize = ThemeManager.instance.getFontSize(
       FontSizeType.small,

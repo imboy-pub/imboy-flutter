@@ -53,6 +53,10 @@ class RouteFeatureGuard {
         path.startsWith('${AppRoutes.momentRoot}/')) {
       return 'moment_tab';
     }
+    // NOTE: /channel/discover must be checked before the /channel/ wildcard.
+    if (path == '/channel/discover' || path.startsWith('/channel/discover/')) {
+      return 'channel_discover_page';
+    }
     if (path == '/channel' || path.startsWith('/channel/')) {
       return 'channel_tab';
     }
@@ -60,19 +64,31 @@ class RouteFeatureGuard {
         path.startsWith('/contact/people_nearby/')) {
       return 'people_nearby_page';
     }
+    if (RegExp(r'^/group/[^/]+/vote(?:/|$)').hasMatch(path)) {
+      return 'group_vote_page';
+    }
+    if (RegExp(r'^/group/[^/]+/schedule(?:/|$)').hasMatch(path)) {
+      return 'group_schedule_page';
+    }
+    if (RegExp(r'^/group/[^/]+/task(?:/|$)').hasMatch(path)) {
+      return 'group_task_page';
+    }
     return null;
   }
 
-  /// Human-readable name for a feature key or app entry.
+  /// Human-readable name for a feature key or app entry name.
   static String _displayName(String key) => switch (key) {
-    FeatureKeys.moment || 'moment' => t.discovery.moment,
-    FeatureKeys.channel || 'channel' => t.channel.title,
-    FeatureKeys.channelDiscover => t.channel.discover,
+    FeatureKeys.moment || 'moment' || 'moment_tab' => t.discovery.moment,
+    FeatureKeys.channel || 'channel' || 'channel_tab' => t.channel.title,
+    FeatureKeys.channelDiscover ||
+    'channel_discover_page' => t.channel.discover,
     FeatureKeys.channelInvitation => t.common.channelInvitations,
-    FeatureKeys.location || 'location' => t.discovery.findNearbyPeople,
-    FeatureKeys.groupVote => t.groupVote.title,
-    FeatureKeys.groupSchedule => t.groupSchedule.title,
-    FeatureKeys.groupTask => t.groupTask.title,
+    FeatureKeys.location ||
+    'location' ||
+    'people_nearby_page' => t.discovery.findNearbyPeople,
+    FeatureKeys.groupVote || 'group_vote_page' => t.groupVote.title,
+    FeatureKeys.groupSchedule || 'group_schedule_page' => t.groupSchedule.title,
+    FeatureKeys.groupTask || 'group_task_page' => t.groupTask.title,
     _ => '',
   };
 

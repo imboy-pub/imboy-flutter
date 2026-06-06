@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -228,14 +229,14 @@ class _MinePageState extends ConsumerState<MinePage> {
 
   Widget _buildQuickActions(BuildContext context) {
     final List<QuickActionItem> items = [
-      if (AppFeatureRegistry.isEnabled('wallet'))
+      if (AppFeatureRegistry.isEnabled(FeatureKeys.wallet))
         QuickActionItem(
           icon: const Icon(CupertinoIcons.creditcard_fill),
           label: t.account.wallet,
           onTap: () => context.push('/wallet'),
           color: const Color(0xFFFF9500),
         ),
-      if (AppFeatureRegistry.isEnabled('channel'))
+      if (AppFeatureRegistry.isEnabled(FeatureKeys.channel))
         QuickActionItem(
           icon: const Icon(CupertinoIcons.dot_radiowaves_left_right),
           label: t.discovery.myChannels,

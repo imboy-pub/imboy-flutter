@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -200,7 +201,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         if (state.connectDesc.isNotEmpty)
           SliverToBoxAdapter(child: NetworkFailureTips()),
 
-        if (AppFeatureRegistry.isEnabled('channel'))
+        if (AppFeatureRegistry.isEnabled(FeatureKeys.channel))
           const SliverToBoxAdapter(child: SubscribedChannelStrip()),
 
         if (state.isLoading)
