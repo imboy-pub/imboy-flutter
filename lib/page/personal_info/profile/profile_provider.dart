@@ -5,11 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/config/const.dart';
-import 'package:imboy/component/http/http_client.dart';
-import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/service/user_profile_service.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -128,7 +126,6 @@ class ProfileState {
 /// 个人资料 Provider
 @riverpod
 class ProfileNotifier extends _$ProfileNotifier {
-  final HttpClient _httpclient = HttpClient.client;
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -225,39 +222,12 @@ class ProfileNotifier extends _$ProfileNotifier {
     try {
       state = state.copyWith(isLoading: true);
 
-      IMBoyHttpResponse resp = await _httpclient.put(
-        API.userUpdate,
-        data: {"field": field, "value": value},
-      );
+      // 统一走 UserProfileService：PUT 更新 + 本地缓存同步（含 setting 字段归属处理），
+      // 与 PersonalInfoPage 共用同一实现，避免双入口逻辑漂移。
+      final ok = await UserProfileService.updateField(field, value);
 
-      if (resp.ok) {
-        // 更新本地数据
-        Map<String, dynamic> payload = UserRepoLocal.to.current.toMap();
-
-        // 隐私设置字段需要同时更新 setting 对象
-        if ([
-          'allow_search',
-          'allow_add_by_phone',
-          'allow_add_by_qr',
-          'show_online_status',
-          'allow_nearby_visible',
-        ].contains(field)) {
-          // 确保 setting 对象存在
-          if (payload['setting'] == null) {
-            payload['setting'] = <String, dynamic>{};
-          } else if (payload['setting'] is! Map) {
-            payload['setting'] = <String, dynamic>{};
-          }
-          // 更新 setting 中的字段
-          (payload['setting'] as Map<String, dynamic>)[field] = value;
-        } else {
-          // 非隐私设置字段，更新顶层字段
-          payload[field] = value;
-        }
-
-        UserRepoLocal.to.changeInfo(payload);
-
-        // 更新状态
+      if (ok) {
+        // 更新内存状态
         switch (field) {
           case 'avatar':
             state = state.copyWith(avatar: value as String?);

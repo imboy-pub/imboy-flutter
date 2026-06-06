@@ -12,11 +12,11 @@ import 'package:imboy/page/qrcode/qrcode_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/service/user_profile_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import '../set_nickname/set_nickname_page.dart';
 import '../widget/more_page.dart';
-import 'personal_info_provider.dart';
 
 /// 个人信息页面 - 像素级对齐 iOS 17 Premium 风格
 class PersonalInfoPage extends ConsumerStatefulWidget {
@@ -296,15 +296,11 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
       ),
     );
     if (strNoEmpty(url)) {
-      if (await ref.read(personalInfoProvider.notifier).changeInfo({
-        "field": "avatar",
-        "value": url,
-      })) {
+      // 统一走 UserProfileService：PUT 更新 + 本地缓存同步内聚于一处，
+      // 与 ProfilePage 共用同一实现，避免双入口逻辑漂移。
+      if (await UserProfileService.updateField("avatar", url)) {
         setState(() {
           currentUserAvatar = url!;
-          Map<String, dynamic> payload = UserRepoLocal.to.current.toMap();
-          payload["avatar"] = url;
-          UserRepoLocal.to.changeInfo(payload);
         });
       }
     }
