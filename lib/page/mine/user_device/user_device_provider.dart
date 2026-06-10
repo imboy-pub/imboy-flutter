@@ -117,9 +117,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
               deviceVsn = jsonDecode(vsnStr) as Map<dynamic, dynamic>;
             }
           } on Exception catch (e) {
-            if (kDebugMode) {
-              debugPrint('[UserDeviceProvider] error: ${e.runtimeType}');
-            }
+            if (kDebugMode) {}
             deviceVsn = {};
           }
         }
@@ -150,9 +148,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       return list;
     } on Exception catch (e) {
       state = state.copyWith(isLoading: false);
-      if (kDebugMode) {
-        debugPrint('UserDeviceNotifier.page error: ${e.runtimeType}');
-      }
+      if (kDebugMode) {}
       return [];
     }
   }
@@ -253,11 +249,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       state = state.copyWith(isLoadingSessions: false);
       return false;
     } on Exception catch (e) {
-      if (kDebugMode) {
-        debugPrint(
-          'UserDeviceNotifier.loadActiveSessions error: ${e.runtimeType}',
-        );
-      }
+      if (kDebugMode) {}
       state = state.copyWith(isLoadingSessions: false);
       return false;
     }
@@ -277,11 +269,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
         deviceType: deviceType,
       );
     } on Exception catch (e) {
-      if (kDebugMode) {
-        debugPrint(
-          'UserDeviceNotifier.checkLoginConflict error: ${e.runtimeType}',
-        );
-      }
+      if (kDebugMode) {}
       return null;
     }
   }
@@ -313,9 +301,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
 
       return result;
     } on Exception catch (e) {
-      if (kDebugMode) {
-        debugPrint('UserDeviceNotifier.kickDevice error: ${e.runtimeType}');
-      }
+      if (kDebugMode) {}
       return null;
     }
   }
@@ -348,11 +334,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
 
       return result;
     } on Exception catch (e) {
-      if (kDebugMode) {
-        debugPrint(
-          'UserDeviceNotifier.kickAllOtherDevices error: ${e.runtimeType}',
-        );
-      }
+      if (kDebugMode) {}
       return null;
     }
   }
@@ -368,9 +350,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
           return name;
         }
       }
-    } catch (e) {
-      debugPrint('[UserDeviceProvider] device operation failed: $e');
-    }
+    } catch (e) {}
 
     // 本地库回退
     try {
@@ -379,9 +359,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       if (m != null && m.deviceName.isNotEmpty) {
         return m.deviceName;
       }
-    } catch (e) {
-      debugPrint('[UserDeviceProvider] device operation failed: $e');
-    }
+    } catch (e) {}
 
     return '';
   }

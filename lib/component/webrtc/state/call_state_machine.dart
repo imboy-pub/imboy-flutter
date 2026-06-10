@@ -166,7 +166,6 @@ class WebRTCCallStateMachine {
   /// 开始连接（转为连接中状态）
   Future<void> startConnecting() async {
     if (!canTransitionTo(WebRTCCallState.connecting)) {
-      debugPrint('Cannot transition to connecting from $_state');
       return;
     }
 
@@ -215,7 +214,6 @@ class WebRTCCallStateMachine {
   /// 挂断通话
   Future<void> hangup({String? reason}) async {
     if (!canTransitionTo(WebRTCCallState.ended)) {
-      debugPrint('Cannot transition to ended from $_state');
       return;
     }
 
@@ -267,7 +265,6 @@ class WebRTCCallStateMachine {
     }
 
     if (!canTransitionTo(newState)) {
-      debugPrint('Invalid state transition: $_state -> $newState');
       throw StateError('Invalid state transition: $_state -> $newState');
     }
 
@@ -289,8 +286,6 @@ class WebRTCCallStateMachine {
     if (!_stateController.isClosed) {
       _stateController.add(event);
     }
-
-    debugPrint('Call state changed: $previousState -> $newState');
   }
 
   /// 检查是否可以转换到目标状态
@@ -480,8 +475,6 @@ class WebRTCCallStateMachineManager {
     _stateMachines[sessionId] = stateMachine;
     _userSessions[peerId] = sessionId;
 
-    debugPrint('Created CallStateMachine for session $sessionId');
-
     return stateMachine;
   }
 
@@ -504,14 +497,11 @@ class WebRTCCallStateMachineManager {
     final stateMachine = _stateMachines.remove(sessionId);
     if (stateMachine != null) {
       _userSessions.remove(stateMachine.peerId);
-      debugPrint('Removed CallStateMachine for session $sessionId');
     }
   }
 
   /// 关闭所有状态机
   Future<void> closeAll() async {
-    debugPrint('Closing all CallStateMachines (${_stateMachines.length})');
-
     final stateMachines = List<WebRTCCallStateMachine>.from(
       _stateMachines.values,
     );

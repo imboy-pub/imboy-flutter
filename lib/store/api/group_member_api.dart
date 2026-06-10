@@ -31,7 +31,6 @@ class GroupMemberApi extends HttpClient {
       data: {'gid': gid, 'member_uids': memberUserIds},
     );
 
-    debugPrint("GroupMemberApi/join resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -47,7 +46,6 @@ class GroupMemberApi extends HttpClient {
       data: {'gid': gid, 'member_uids': memberUserIds},
     );
 
-    debugPrint("GroupMemberApi/leave resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -59,7 +57,6 @@ class GroupMemberApi extends HttpClient {
       API.groupMemberAlias,
       data: {'gid': gid, 'alias': alias},
     );
-    debugPrint("GroupMemberApi/changeAlias resp: ${resp.payload.toString()}");
     return resp.ok;
   }
 
@@ -69,7 +66,6 @@ class GroupMemberApi extends HttpClient {
       queryParameters: {'uid1': uid1, 'uid2': uid2},
     );
 
-    debugPrint("GroupMemberApi/sameGroup resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -90,7 +86,6 @@ class GroupMemberApi extends HttpClient {
       data: {'gid': gid, 'user_id': userId, 'role': role},
     );
 
-    debugPrint("GroupMemberApi/updateRole resp: ${resp.payload.toString()}");
     return resp.ok;
   }
 
@@ -121,7 +116,6 @@ class GroupMemberApi extends HttpClient {
       data: {'gid': gid, 'user_id': userId, 'duration': duration},
     );
 
-    debugPrint("GroupMemberApi/mute resp: ${resp.payload.toString()}");
     return resp.ok;
   }
 
@@ -138,7 +132,6 @@ class GroupMemberApi extends HttpClient {
       data: {'gid': gid, 'user_id': userId},
     );
 
-    debugPrint("GroupMemberApi/unmute resp: ${resp.payload.toString()}");
     return resp.ok;
   }
 }

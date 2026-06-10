@@ -51,12 +51,7 @@ class EncrypterService {
       final encryptedBytes = base64.decode(encryptedBase64);
 
       // 调试日志：仅在开发环境下输出
-      if (kDebugMode) {
-        debugPrint('[AES_DECRYPT] Key MD5: ${md5(key)}, IV MD5: ${md5(ivStr)}');
-        debugPrint(
-          '[AES_DECRYPT] Encrypted length: ${encryptedBytes.length} bytes',
-        );
-      }
+      if (kDebugMode) {}
 
       final cipher = CBCBlockCipher(AESEngine());
       final params = ParametersWithIV<KeyParameter>(
@@ -74,9 +69,7 @@ class EncrypterService {
       try {
         return utf8.decode(decrypted);
       } on FormatException catch (e) {
-        if (kDebugMode) {
-          debugPrint('[AES_DECRYPT] UTF-8 decode failed: $e');
-        }
+        if (kDebugMode) {}
 
         // 尝试 Latin-1 编码（不会失败，但可能显示乱码）
         final latin1Result = String.fromCharCodes(decrypted);
@@ -90,9 +83,7 @@ class EncrypterService {
         );
       }
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint('[AES_DECRYPT] error: $e');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }

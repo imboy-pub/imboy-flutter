@@ -107,11 +107,9 @@ class E2EEKeyService {
 
       // 🔧 Web 平台优化：使用 Web Crypto API（非阻塞）
       if (kIsWeb) {
-        debugPrint('🔐 Web 平台：使用 Web Crypto API 生成密钥...');
         final keyPairWeb = await generateRSAKeyPairWeb();
         publicKeyPem = keyPairWeb['publicKey']!;
         privateKeyPem = keyPairWeb['privateKey']!;
-        debugPrint('✅ Web 平台：密钥生成完成');
       } else {
         // 移动端/桌面端：使用 pointycastle
         // 在 isolate 中运行以避免阻塞主线程

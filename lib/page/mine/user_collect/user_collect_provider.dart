@@ -149,9 +149,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       state.hasMore = result.length >= size;
       return result;
     } on Exception catch (e) {
-      if (kDebugMode) {
-        debugPrint('UserCollectNotifier.page error: ${e.runtimeType}');
-      }
+      if (kDebugMode) {}
       // 出错返回空列表，外层会显示错误态或重试
       state.hasMore = false;
       return [];
@@ -174,9 +172,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           item.info = Map<String, dynamic>.from(decrypted);
         }
       } on Exception catch (e) {
-        if (kDebugMode) {
-          debugPrint('[UserCollectProvider] decrypt failed: ${e.runtimeType}');
-        }
+        if (kDebugMode) {}
       }
     }
   }
@@ -914,9 +910,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         return false;
       }
     } on Exception catch (e) {
-      if (kDebugMode) {
-        debugPrint('UserCollectNotifier.remove error: ${e.runtimeType}');
-      }
+      if (kDebugMode) {}
       return false;
     } finally {
       // 无论成功或失败都释放锁
@@ -930,9 +924,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       authorId,
       autoFetch: true,
     );
-    if (kDebugMode) {
-      debugPrint("userCollectLogic/getCollectSource found: ${obj != null}");
-    }
+    if (kDebugMode) {}
     if (obj == null) {
       return '';
     }
@@ -982,9 +974,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     int kind = getCollectKind(msg);
     // 如果消息类型不支持收藏，直接返回失败
     if (kind <= 0) {
-      if (kDebugMode) {
-        debugPrint("userCollectLogic/add 消息类型不支持收藏: ${msg.runtimeType}");
-      }
+      if (kDebugMode) {}
       return false;
     }
 
@@ -995,9 +985,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
 
     // 如果数据库中没有找到消息，尝试从Message对象创建
     if (msg2 == null) {
-      if (kDebugMode) {
-        debugPrint("userCollectLogic/add 未在数据库中找到消息，尝试从Message对象创建");
-      }
+      if (kDebugMode) {}
       try {
         // 创建一个基本的MessageModel
         final payload = _extractPayloadFromMessage(msg);
@@ -1017,9 +1005,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           msgType: payload['msg_type'] as String?, // ✅ 修复：从 payload 提取 msg_type
         );
       } on Exception catch (e) {
-        if (kDebugMode) {
-          debugPrint("userCollectLogic/add 从Message对象创建失败: ${e.runtimeType}");
-        }
+        if (kDebugMode) {}
         return false;
       }
     }
@@ -1030,9 +1016,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       try {
         info['payload'] = jsonDecode(payload);
       } on Exception catch (e) {
-        if (kDebugMode) {
-          debugPrint("userCollectLogic/add 解析payload失败: ${e.runtimeType}");
-        }
+        if (kDebugMode) {}
         info['payload'] = <String, dynamic>{};
       }
     }
@@ -1054,11 +1038,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       if (info['payload'] is Map) {
         final payloadData = info['payload'] as Map<String, dynamic>;
         finalMsgType = payloadData['msg_type']?.toString();
-        if (kDebugMode) {
-          debugPrint(
-            "userCollectLogic/add msg_type from payload: $finalMsgType",
-          );
-        }
+        if (kDebugMode) {}
       }
     }
 
@@ -1089,21 +1069,13 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         default:
           finalMsgType = 'text';
       }
-      if (kDebugMode) {
-        debugPrint(
-          "userCollectLogic/add inferred msg_type: $finalMsgType from kind $kind",
-        );
-      }
+      if (kDebugMode) {}
     }
 
     // 强制设置 msg_type 到顶层
     info['msg_type'] = finalMsgType;
 
-    if (kDebugMode) {
-      debugPrint(
-        "userCollectLogic/add kind=$kind, msgType=${info['msg_type']}",
-      );
-    }
+    if (kDebugMode) {}
 
     // 显示加载状态
     EasyLoading.show(status: t.main.collecting);
@@ -1113,9 +1085,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     // 隐藏加载状态
     EasyLoading.dismiss();
 
-    if (kDebugMode) {
-      debugPrint("userCollectLogic/add result: $res, kind: $kind");
-    }
+    if (kDebugMode) {}
 
     if (res) {
       await UserCollectRepo().save({
@@ -1167,9 +1137,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       if (msgType.isEmpty) {
         payload['msg_type'] = 'custom';
       }
-      debugPrint(
-        "_extractPayloadFromMessage CustomMessage: msg_type=${payload['msg_type']}",
-      );
     }
 
     // 添加peer_id

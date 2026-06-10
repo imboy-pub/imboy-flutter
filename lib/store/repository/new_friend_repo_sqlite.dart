@@ -55,7 +55,6 @@ class NewFriendRepo {
       NewFriendRepo.updatedAt: obj.updatedAt,
       NewFriendRepo.createdAt: DateTimeHelper.millisecond(),
     };
-    debugPrint("> on NewFriendRepo/insert/1 $insert");
 
     if (txn != null) {
       await txn.insert(NewFriendRepo.tableName, insert);

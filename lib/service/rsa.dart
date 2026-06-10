@@ -575,31 +575,20 @@ class RSAService {
     // 所有平台统一使用 pointycastle（纯 Dart 实现）
     // 这样可以保证跨平台一致性，避免 Web Crypto API 兼容性问题
     try {
-      debugPrint('🔐 RSA Async: 开始解析公钥...');
       final publicKey = parsePublicKeyFromPem(pubKeyPem);
       final modulusStr = publicKey.modulus?.toRadixString(16) ?? 'null';
-      debugPrint(
-        '🔐 RSA Async: 公钥解析成功, modulus前20字符=${modulusStr.length > 20 ? modulusStr.substring(0, 20) : modulusStr}...',
-      );
 
       // 🔒 使用 RSA-OAEP-SHA256 填充
       final engine = OAEPEncoding.withSHA256(RSAEngine())
         ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
 
       final input = Uint8List.fromList(utf8.encode(plaintext));
-      debugPrint('🔐 RSA Async: 明文长度=${input.length}');
 
       final encrypted = engine.process(input);
-      debugPrint(
-        '🔐 RSA Async: 加密后长度=${encrypted.length}, 前10字节=${encrypted.length >= 10 ? encrypted.sublist(0, 10) : encrypted}',
-      );
 
       final result = base64.encode(encrypted);
-      debugPrint('🔐 RSA Async: Base64结果长度=${result.length}');
       return result;
     } catch (e, stackTrace) {
-      debugPrint('❌ RSA 加密失败: $e');
-      debugPrint('📚 堆栈: $stackTrace');
       throw Exception('RSA 加密失败: $e');
     }
   }
@@ -635,7 +624,6 @@ class RSAService {
 
       // 🔒 安全修复：使用 Web Crypto API 为每个用户生成唯一的密钥对
       // 不再使用固定的测试密钥（安全漏洞 S3）
-      debugPrint('🔐 [RSA] Web 平台生成新的 RSA 密钥对...');
 
       final keyPair = await generateRSAKeyPairWeb();
 
@@ -647,13 +635,11 @@ class RSAService {
       storage.setItem('rsa_public_key', _cachedPublicKey!);
       storage.setItem('rsa_private_key', _cachedPrivateKey!);
 
-      debugPrint('✅ [RSA] Web 平台 RSA 密钥对已生成并存储');
       return _cachedPublicKey!;
     } catch (e) {
       _isInitialized = false;
       _cachedPublicKey = null;
       _cachedPrivateKey = null;
-      debugPrint('❌ [RSA] Web 平台初始化 RSA 密钥对失败: $e');
       throw Exception('Web 平台初始化 RSA 密钥对失败: $e');
     }
   }

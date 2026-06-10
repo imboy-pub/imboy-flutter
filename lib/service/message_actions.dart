@@ -1264,7 +1264,6 @@ class MessageActions {
     try {
       // 1. 打印调试日志
       iPrint('🚫 [NOT_A_FRIEND] msgId=$msgId, chatType=$chatType');
-      debugPrint('🚫 [NOT_A_FRIEND] 无法发送消息 - 非好友关系');
 
       // 2. 通过事件总线通知 UI 显示错误提示
       try {
@@ -1272,9 +1271,7 @@ class MessageActions {
           AppErrorEvent(message: '非好友关系，无法发送消息', errorType: 'not_a_friend'),
         );
         iPrint('✅ [NOT_A_FRIEND] 已发送错误提示事件');
-      } on Object catch (e) {
-        debugPrint('⚠️ [NOT_A_FRIEND] 发送事件失败: $e');
-      }
+      } on Object catch (e) {}
 
       // 3. 更新消息状态为失败
       // 4. 从重试队列移除
@@ -1290,9 +1287,7 @@ class MessageActions {
             ),
           );
           iPrint('✅ [NOT_A_FRIEND] 消息状态已更新为 error: msgId=$msgId');
-        } on Object catch (e) {
-          debugPrint('⚠️ [NOT_A_FRIEND] 更新消息状态失败: $e');
-        }
+        } on Object catch (e) {}
 
         try {
           // 从重试队列移除（不重试）
@@ -1304,9 +1299,7 @@ class MessageActions {
             ),
           );
           iPrint('🗑️ [NOT_A_FRIEND] 消息已从重试队列移除: msgId=$msgId');
-        } on Object catch (e) {
-          debugPrint('⚠️ [NOT_A_FRIEND] 从重试队列移除失败: $e');
-        }
+        } on Object catch (e) {}
       }
     } on Object catch (e, s) {
       iPrint('❌ [handleNotAFriendError] 处理异常: error=$e\nstacktrace=$s');
@@ -1333,7 +1326,6 @@ class MessageActions {
     try {
       // 1. 打印调试日志
       iPrint('🚫 [DENYLIST] msgId=$msgId, chatType=$chatType');
-      debugPrint('🚫 [DENYLIST] 无法发送消息 - 对方已将您加入黑名单');
 
       // 2. 通过事件总线通知 UI 显示错误提示
       try {
@@ -1344,9 +1336,7 @@ class MessageActions {
           ),
         );
         iPrint('✅ [DENYLIST] 已发送错误提示事件');
-      } on Object catch (e) {
-        debugPrint('⚠️ [DENYLIST] 发送事件失败: $e');
-      }
+      } on Object catch (e) {}
 
       // 3. 更新消息状态为失败
       // 4. 从重试队列移除
@@ -1362,9 +1352,7 @@ class MessageActions {
             ),
           );
           iPrint('✅ [DENYLIST] 消息状态已更新为 error: msgId=$msgId');
-        } on Object catch (e) {
-          debugPrint('⚠️ [DENYLIST] 更新消息状态失败: $e');
-        }
+        } on Object catch (e) {}
 
         try {
           // 从重试队列移除（不重试）
@@ -1376,9 +1364,7 @@ class MessageActions {
             ),
           );
           iPrint('🗑️ [DENYLIST] 消息已从重试队列移除: msgId=$msgId');
-        } on Object catch (e) {
-          debugPrint('⚠️ [DENYLIST] 从重试队列移除失败: $e');
-        }
+        } on Object catch (e) {}
       }
     } on Object catch (e, s) {
       iPrint('❌ [handleDenylistError] 处理异常: error=$e\nstacktrace=$s');

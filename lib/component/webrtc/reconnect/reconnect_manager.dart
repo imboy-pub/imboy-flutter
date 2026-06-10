@@ -85,30 +85,23 @@ class WebRTCReconnectManager {
   /// 计划重连
   void _scheduleReconnect({String? reason}) {
     if (!config.enabled) {
-      debugPrint('Reconnect disabled, skipping reconnect');
       _notifyState(WebRTCReconnectState.disabled);
       return;
     }
 
     if (_retryCount >= config.maxRetries) {
-      debugPrint('Max retries reached, giving up');
       _notifyState(WebRTCReconnectState.gaveUp);
       dispose();
       return;
     }
 
     if (_isReconnecting) {
-      debugPrint('Already reconnecting, skipping');
       return;
     }
 
     _isReconnecting = true;
 
     final delay = config.calculateRetryDelay(_retryCount);
-    debugPrint(
-      'Scheduling reconnect attempt ${_retryCount + 1}/${config.maxRetries} '
-      'in ${delay.inSeconds}s (reason: $reason)',
-    );
 
     _notifyState(
       WebRTCReconnectState.scheduled,
@@ -123,10 +116,8 @@ class WebRTCReconnectManager {
       );
 
       try {
-        debugPrint('Executing reconnect attempt $_retryCount');
         await onReconnect();
       } catch (e, s) {
-        debugPrint('Reconnect attempt $_retryCount failed: $e\n$s');
         _isReconnecting = false;
 
         // 如果未达到最大重试次数，继续重试
@@ -169,26 +160,19 @@ class WebRTCReconnectManager {
         try {
           heartbeatSent = await onSendHeartbeat!();
         } catch (e) {
-          debugPrint('Heartbeat send error: $e');
           heartbeatSent = false;
         }
       }
 
       // 如果没有心跳回调或发送失败，仅记录日志
       if (heartbeatSent) {
-        debugPrint(
-          'Heartbeat sent at ${_lastHeartbeatTime!.toIso8601String()}',
-        );
-      } else {
-        debugPrint('Heartbeat skipped (no callback or send failed)');
-      }
+      } else {}
 
       // 设置心跳超时检测
       _heartbeatTimeoutTimer?.cancel();
       _heartbeatTimeoutTimer = Timer(config.heartbeatTimeout, () {
         // 心跳超时，认为连接已断开
         if (_isConnected) {
-          debugPrint('Heartbeat timeout, connection lost');
           onDisconnected();
         }
       });

@@ -44,7 +44,6 @@ class UserRepoLocal {
     try {
       return await SecureTokenStorageService.getToken();
     } on Object catch (e, s) {
-      debugPrint("accessToken on Exception: $e; $s");
       // 令牌解密失败，数据已被清除，需要重新登录
       _handleTokenDecryptionFailure();
     }
@@ -55,7 +54,6 @@ class UserRepoLocal {
     try {
       return await SecureTokenStorageService.getRefreshToken();
     } on Object catch (e, s) {
-      debugPrint("refreshToken on Exception: $e; $s");
       // 令牌解密失败，数据已被清除，需要重新登录
       _handleTokenDecryptionFailure();
     }
@@ -65,7 +63,6 @@ class UserRepoLocal {
   /// 处理令牌解密失败的情况
   /// 当密钥丢失或数据损坏时触发，清除本地数据并引导用户重新登录
   void _handleTokenDecryptionFailure() {
-    debugPrint("_handleTokenDecryptionFailure: 检测到令牌解密失败，准备清理本地数据");
     // 标记需要重新登录，避免在当前会话中重复尝试解密
     StorageService.to.setBool('token_decryption_failed', true);
   }
@@ -94,9 +91,6 @@ class UserRepoLocal {
       // 不再在这里执行导航，由调用方处理
       // WebSocketService.to.closeSocket(permanent: true);
       // Get.offAll(() => const LoginPage());
-      debugPrint(
-        "UserRepoLocal.current: user data is empty, throwing exception",
-      );
       throw StateError('User not logged in or user data is empty');
     }
     return UserModel.fromJson(user);
@@ -109,7 +103,6 @@ class UserRepoLocal {
   UserModel? get currentUser {
     Map<String, dynamic> user = StorageService.getMap(Keys.currentUser);
     if (user.isEmpty) {
-      debugPrint("UserRepoLocal.currentUser: user data is empty");
       return null;
     }
     return UserModel.fromJson(user);
@@ -140,13 +133,11 @@ class UserRepoLocal {
     _validateRefreshToken(payload['refreshtoken']);
 
     final uid = payload['uid'];
-    debugPrint('✅ loginAfter payload 验证通过: uid=$uid');
   }
 
   /// 验证 uid 字段
   void _validateUid(dynamic uid) {
     if (uid == null || uid.toString().isEmpty) {
-      debugPrint('❌ loginAfter 验证失败: uid 为空');
       throw ArgumentError('登录响应缺少有效的 uid 字段');
     }
   }
@@ -158,9 +149,6 @@ class UserRepoLocal {
         token.trim().isEmpty ||
         token.length < _minTokenLength) {
       // 安全考虑：不在日志中记录敏感 token 值
-      debugPrint(
-        '❌ loginAfter 验证失败: token 无效 (长度: ${token is String ? token.length : "非字符串"})',
-      );
       throw ArgumentError(
         '登录响应包含无效的 token 字段: token 不能为空且长度必须大于 $_minTokenLength',
       );
@@ -172,7 +160,6 @@ class UserRepoLocal {
     if (refreshToken == null ||
         refreshToken is! String ||
         refreshToken.trim().isEmpty) {
-      debugPrint('❌ loginAfter 验证失败: refreshtoken 为空');
       throw ArgumentError('登录响应包含无效的 refreshtoken 字段');
     }
   }
@@ -261,16 +248,13 @@ class UserRepoLocal {
       try {
         E2EEService.clearCache();
         iPrint("> quitLogin: E2EE cache cleared");
-      } on Object catch (e, s) {
-        debugPrint("quitLogin error clearing E2EE cache: $e; $s");
-      }
+      } on Object catch (e, s) {}
 
       iPrint("> quitLogin: Clearing secure tokens");
       try {
         await SecureTokenStorageService.clear();
         iPrint("> quitLogin: Secure tokens cleared successfully");
       } on Object catch (e, s) {
-        debugPrint("quitLogin error clearing tokens: $e; $s");
         // FlutterKeychain 不支持 macos
       }
 
@@ -281,7 +265,6 @@ class UserRepoLocal {
       iPrint("> quitLogin: Logout process completed successfully");
       return true;
     } on Object catch (e, s) {
-      debugPrint("quitLogin error: $e; $s");
       return false;
     }
   }

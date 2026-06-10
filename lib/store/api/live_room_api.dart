@@ -13,7 +13,6 @@ class LiveRoomApi extends HttpClient {
       API.liveRoomList,
       queryParameters: {'page': page, 'size': size},
     );
-    debugPrint("> on LiveRoomApi/list resp: ${resp.payload}");
     if (!resp.ok) return null;
     return resp.payload as Map<String, dynamic>?;
   }
@@ -24,7 +23,6 @@ class LiveRoomApi extends HttpClient {
       API.liveRoomMyList,
       queryParameters: {'page': page, 'size': size},
     );
-    debugPrint("> on LiveRoomApi/myList resp: ${resp.payload}");
     if (!resp.ok) return null;
     return resp.payload as Map<String, dynamic>?;
   }
@@ -40,7 +38,6 @@ class LiveRoomApi extends HttpClient {
       API.liveRoomCreate,
       data: {'title': title, 'cover': cover, 'tag_id': tagId, 'scene': scene},
     );
-    debugPrint("> on LiveRoomApi/create resp: ${resp.payload}");
     if (!resp.ok) {
       EasyLoading.showError(resp.msg);
       return null;
@@ -54,7 +51,6 @@ class LiveRoomApi extends HttpClient {
       API.liveRoomStart,
       data: {'room_id': roomId},
     );
-    debugPrint("> on LiveRoomApi/start resp: ${resp.payload}");
     if (!resp.ok) {
       EasyLoading.showError(resp.msg);
     }
@@ -67,7 +63,6 @@ class LiveRoomApi extends HttpClient {
       API.liveRoomStop,
       data: {'room_id': roomId},
     );
-    debugPrint("> on LiveRoomApi/stop resp: ${resp.payload}");
     if (!resp.ok) {
       EasyLoading.showError(resp.msg);
     }
@@ -80,7 +75,6 @@ class LiveRoomApi extends HttpClient {
       API.liveRoomDetail,
       queryParameters: {'room_id': roomId},
     );
-    debugPrint("> on LiveRoomApi/detail resp: ${resp.payload}");
     if (!resp.ok) return null;
     return LiveRoomModel.fromJson(resp.payload as Map<String, dynamic>);
   }

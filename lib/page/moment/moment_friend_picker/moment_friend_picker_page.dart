@@ -127,7 +127,6 @@ class _MomentFriendPickerPageState
         _loadingFriends = false;
       });
     } on Exception catch (e) {
-      debugPrint('MomentFriendPicker loadFriends failed: $e');
       if (!mounted) return;
       setState(() => _loadingFriends = false);
     }
@@ -157,7 +156,6 @@ class _MomentFriendPickerPageState
         _loadingTags = false;
       });
     } on Exception catch (e) {
-      debugPrint('MomentFriendPicker loadTags failed: $e');
       if (!mounted) return;
       setState(() => _loadingTags = false);
     }
@@ -190,7 +188,6 @@ class _MomentFriendPickerPageState
       if (mounted) setState(() {});
       return uids;
     } on Exception catch (e) {
-      debugPrint('MomentFriendPicker ensureTagUids failed: $e');
       entry.loading = false;
       if (mounted) {
         EasyLoading.showToast(t.momentFriendPicker.tagLoadFailed);

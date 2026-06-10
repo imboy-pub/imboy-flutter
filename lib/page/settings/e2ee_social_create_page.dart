@@ -267,16 +267,12 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
         setState(() => _isLoading = false);
         final shards = result['shards'] as List;
 
-        if (kDebugMode) {
-          debugPrint('[E2EE] sending shards to ${shards.length} proxies...');
-        }
+        if (kDebugMode) {}
         final sentCount = await E2EESocialService.sendShardsToProxies(
           shards.cast<Map<String, dynamic>>(),
         );
 
-        if (kDebugMode) {
-          debugPrint('[E2EE] sent $sentCount/${shards.length} shards');
-        }
+        if (kDebugMode) {}
 
         showCupertinoDialog<void>(
           context: context,

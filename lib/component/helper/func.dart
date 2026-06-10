@@ -13,9 +13,7 @@ import 'package:imboy/theme/theme_manager.dart';
 export 'locale_helper.dart';
 
 void iPrint(String str) {
-  if (kDebugMode) {
-    debugPrint("iPrint $str");
-  }
+  if (kDebugMode) {}
 }
 
 /// 获取系统版本（Web 兼容）

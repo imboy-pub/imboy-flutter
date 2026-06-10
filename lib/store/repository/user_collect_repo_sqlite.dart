@@ -109,7 +109,6 @@ class UserCollectRepo {
       UserCollectRepo.createdAt: obj.createdAt,
       UserCollectRepo.info: jsonEncode(obj.info),
     };
-    debugPrint("UserCollectRepo_insert/1 $insert");
 
     if (txn != null) {
       await txn.insert(UserCollectRepo.tableName, insert);

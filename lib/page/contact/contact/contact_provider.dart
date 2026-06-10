@@ -145,25 +145,15 @@ class ContactNotifier extends _$ContactNotifier {
   // 获取好友列表
   Future<List<ContactModel>> listFriend(bool onRefresh) async {
     // [DIAG #19] 进入点：记录触发方式 + 当前 uid
-    debugPrint(
-      "> [DIAG #19] listFriend ENTER onRefresh=$onRefresh "
-      "currentUid=${UserRepoLocal.to.currentUid}",
-    );
     List<ContactModel> contact = [];
     if (onRefresh == false) {
       contact = await ContactRepo().findFriend();
     }
     if (contact.isNotEmpty) {
-      debugPrint(
-        "> [DIAG #19] listFriend EARLY-RETURN local count=${contact.length}",
-      );
       return contact;
     }
     final repo = ContactRepo();
     final dataMap = await contact_provider.ContactApi().listFriend();
-    debugPrint(
-      "> [DIAG #19] listFriend remote dataMap.length=${dataMap.length}",
-    );
     int saveOk = 0;
     int saveFail = 0;
     for (var json in dataMap) {
@@ -175,10 +165,6 @@ class ContactNotifier extends _$ContactNotifier {
       }
     }
     contact = await ContactRepo().findFriend();
-    debugPrint(
-      "> [DIAG #19] listFriend AFTER save ok=$saveOk fail=$saveFail "
-      "final findFriend.count=${contact.length}",
-    );
     return contact;
   }
 

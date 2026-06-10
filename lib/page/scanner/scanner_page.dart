@@ -81,9 +81,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
   }
 
   Future<void> onDetect(BarcodeCapture barcodes) async {
-    if (kDebugMode) {
-      debugPrint("> scanner onDetect ${barcodes.barcodes.length}");
-    }
+    if (kDebugMode) {}
     final scannerNotifier = ref.read(scannerProvider.notifier);
     final scannerState = ref.read(scannerProvider);
 
@@ -334,9 +332,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                           BarcodeCapture? res = await controller.analyzeImage(
                             image.path,
                           );
-                          if (kDebugMode) {
-                            debugPrint("> on barcode detected: ${res != null}");
-                          }
+                          if (kDebugMode) {}
                           if (res == null) {
                             state.showSnackBar(
                               SnackBar(

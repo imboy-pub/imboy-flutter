@@ -260,11 +260,7 @@ class PassportNotifier extends _$PassportNotifier {
               (route) => false,
             );
           }
-        } else {
-          debugPrint(
-            'Warning: navigatorKey.currentContext is null, cannot navigate back',
-          );
-        }
+        } else {}
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -436,9 +432,7 @@ class PassportNotifier extends _$PassportNotifier {
         "rsa_encrypt": rsaEncrypt,
       };
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('_encryptPassword error: $e\n$stackTrace');
-      }
+      if (kDebugMode) {}
       return <String, dynamic>{
         "error": "${t.common.passwordEncryptFailed}: $e",
         "password": null,
@@ -512,9 +506,7 @@ class PassportNotifier extends _$PassportNotifier {
         return 1;
       }
     } on PlatformException catch (e, s) {
-      if (kDebugMode) {
-        debugPrint('PlatformException in _login: $e, trace $s');
-      }
+      if (kDebugMode) {}
       if (e.code.contains('34018') ||
           e.message?.contains('entitlement') == true) {
         safeUpdateState((state) => state.copyWith(error: '安全存储初始化失败，请重启应用'));
@@ -523,9 +515,7 @@ class PassportNotifier extends _$PassportNotifier {
       }
       return 0;
     } catch (e, s) {
-      if (kDebugMode) {
-        debugPrint('_login error: $e, trace $s');
-      }
+      if (kDebugMode) {}
       safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
       return 0;
     }
@@ -591,14 +581,10 @@ class PassportNotifier extends _$PassportNotifier {
     try {
       return await RSAService.publicKey();
     } on PlatformException catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('登录设备公钥获取失败: $e\n$stackTrace');
-      }
+      if (kDebugMode) {}
       return '';
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('登录设备公钥获取失败: $e\n$stackTrace');
-      }
+      if (kDebugMode) {}
       return '';
     }
   }
@@ -730,9 +716,6 @@ class PassportNotifier extends _$PassportNotifier {
   void snackBar(dynamic message, {Icon? icon}) {
     final context = navigatorKey.currentContext;
     if (context == null) {
-      debugPrint(
-        'Warning: navigatorKey.currentContext is null, cannot show SnackBar',
-      );
       return;
     }
 
@@ -758,7 +741,6 @@ class PassportNotifier extends _$PassportNotifier {
   Future<void> initPlatformState() async {
     // Web 平台不支持 JVerify 一键登录
     if (kIsWeb) {
-      debugPrint("JVerify: Web 平台不支持一键登录功能");
       return;
     }
 
@@ -773,14 +755,10 @@ class PassportNotifier extends _$PassportNotifier {
       jverify!.setup(appKey: Env().jiguangAppKey, channel: "devloper-default");
 
       jverify!.addAuthPageEventListener((JVAuthPageEvent event) {
-        if (kDebugMode) {
-          debugPrint("receive auth page event :${event.toMap()}");
-        }
+        if (kDebugMode) {}
       });
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint("JVerify初始化异常: $e");
-      }
+      if (kDebugMode) {}
     }
   }
 
@@ -1071,7 +1049,6 @@ class PassportNotifier extends _$PassportNotifier {
       if (deviceId.isEmpty || keyId == null || publicKey == null) {
         // 信息不完整无法上报，也就拿不到 other_device_count，
         // 无法确认是否换设备；保守不置位横幅，避免误报。
-        debugPrint('⚠️ E2EE 密钥信息不完整，跳过上报');
         return;
       }
 
@@ -1090,9 +1067,7 @@ class PassportNotifier extends _$PassportNotifier {
       );
 
       if (!result.ok) {
-        if (kDebugMode) {
-          debugPrint('E2EE 公钥上报失败，但不影响登录');
-        }
+        if (kDebugMode) {}
         return;
       }
 
@@ -1106,9 +1081,7 @@ class PassportNotifier extends _$PassportNotifier {
       }
     } catch (e) {
       // E2EE 公钥上报失败不应该阻止登录
-      if (kDebugMode) {
-        debugPrint('E2EE 公钥上报异常: $e');
-      }
+      if (kDebugMode) {}
     }
   }
 

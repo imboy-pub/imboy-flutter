@@ -195,7 +195,7 @@ class _ChatPanelHeader extends StatelessWidget {
   }
 }
 
-/// 占位 body（2.1.b/c 接入 ChatMessageList + ChatInput）
+/// 占位 body：消息加载中或首次打开无历史记录时显示
 class _ChatPanelPlaceholder extends StatelessWidget {
   final String peerId;
   final String chatType;
@@ -204,35 +204,13 @@ class _ChatPanelPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.construction,
-            size: 64,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '$chatType chat: $peerId',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'TODO Phase 2.1.b/c — ChatMessageList + ChatInput',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
+    return Center(
+      child: Icon(
+        chatType == 'C2G' ? Icons.group_outlined : Icons.chat_bubble_outline,
+        size: 64,
+        color: colorScheme.onSurfaceVariant.withAlpha(76),
       ),
     );
   }

@@ -60,9 +60,6 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
   PeopleNearbyState build() {
     // 初始化时从本地存储读取可见性设置
     final isVisible = UserRepoLocal.to.setting.peopleNearbyVisible;
-    debugPrint(
-      "PeopleNearbyState init peopleNearbyVisible $isVisible; ${UserRepoLocal.to.setting.peopleNearbyVisible}",
-    );
 
     return PeopleNearbyState(peopleNearbyVisible: isVisible);
   }
@@ -117,15 +114,9 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     DateTime s = DateTime.now();
     AMapPosition? l = await LocationService().getCurrentPosition();
     DateTime end = DateTime.now();
-    debugPrint(
-      "PeopleNearbyNotifier init peopleNearbyVisible ${state.peopleNearbyVisible} diff ${end.difference(s)}",
-    );
     updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
     await peopleNearby();
     DateTime end2 = DateTime.now();
-    debugPrint(
-      "PeopleNearbyNotifier init peopleNearbyVisible diff2 ${end2.difference(s)}",
-    );
   }
 
   /// 获取附近的人

@@ -42,9 +42,6 @@ class ChannelApi extends HttpClient {
     if (tags != null) data['tags'] = tags;
 
     final resp = await post('/v1/channel/create', data: data);
-    debugPrint(
-      "ChannelApi_createChannel resp: ok=${resp.ok}, code=${resp.code}",
-    );
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -56,7 +53,6 @@ class ChannelApi extends HttpClient {
   /// 获取频道信息
   Future<ChannelModel?> getChannel(String channelId) async {
     final resp = await get('/v1/channel/$channelId');
-    debugPrint("ChannelApi_getChannel resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -68,7 +64,6 @@ class ChannelApi extends HttpClient {
   /// 通过自定义 ID 获取频道
   Future<ChannelModel?> getChannelByCustomId(String customId) async {
     final resp = await get('/v1/channel/by_custom_id/$customId');
-    debugPrint("ChannelApi_getChannelByCustomId resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -93,9 +88,6 @@ class ChannelApi extends HttpClient {
     if (tags != null) data['tags'] = tags;
 
     final resp = await put('/v1/channel/$channelId/update', data: data);
-    debugPrint(
-      "ChannelApi_updateChannel resp: ok=${resp.ok}, code=${resp.code}, msg=${resp.msg}",
-    );
 
     if (!resp.ok) {
       throw Exception(resp.msg);
@@ -116,7 +108,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/delete',
       data: <String, dynamic>{},
     );
-    debugPrint("ChannelApi_deleteChannel resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -128,7 +119,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/subscribe',
       data: <String, dynamic>{},
     );
-    debugPrint("ChannelApi_subscribe resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -138,7 +128,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/unsubscribe',
       data: <String, dynamic>{},
     );
-    debugPrint("ChannelApi_unsubscribe resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -163,7 +152,6 @@ class ChannelApi extends HttpClient {
     if (cursor != null) params['cursor'] = cursor;
 
     final resp = await get('/v1/channels/subscribed', queryParameters: params);
-    debugPrint("ChannelApi_getSubscribedChannelsPage resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return const ChannelPageResult(
@@ -205,7 +193,6 @@ class ChannelApi extends HttpClient {
   /// 对应 `GET /v1/channels/unread/summary`。
   Future<Map<String, dynamic>> getUnreadSummary() async {
     final resp = await get('/v1/channels/unread/summary');
-    debugPrint("ChannelApi_getUnreadSummary resp: ok=${resp.ok}");
 
     if (!resp.ok ||
         resp.payload == null ||
@@ -244,7 +231,6 @@ class ChannelApi extends HttpClient {
   /// 获取我管理的频道列表
   Future<List<ChannelModel>> getManagedChannels() async {
     final resp = await get('/v1/channels/managed');
-    debugPrint("ChannelApi_getManagedChannels resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -271,7 +257,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/subscribers',
       queryParameters: params,
     );
-    debugPrint("ChannelApi_getSubscribers resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -297,9 +282,6 @@ class ChannelApi extends HttpClient {
     if (payload != null) data['payload'] = payload;
 
     final resp = await post('/v1/channel/$channelId/message', data: data);
-    debugPrint(
-      "ChannelApi_publishMessage resp: ok=${resp.ok}, code=${resp.code}, msg=${resp.msg}",
-    );
 
     if (!resp.ok) {
       throw Exception(resp.msg);
@@ -324,7 +306,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/messages',
       queryParameters: params,
     );
-    debugPrint("ChannelApi_getMessages resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -346,7 +327,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/read',
       data: {'message_id': messageId},
     );
-    debugPrint("ChannelApi_markAsRead resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -361,7 +341,6 @@ class ChannelApi extends HttpClient {
       '/v1/channels/search',
       queryParameters: {'keyword': keyword, 'limit': limit},
     );
-    debugPrint("ChannelApi_searchChannels resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -384,7 +363,6 @@ class ChannelApi extends HttpClient {
     if (category != null) params['category'] = category;
 
     final resp = await get('/v1/channels/discover', queryParameters: params);
-    debugPrint("ChannelApi_discoverChannels resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -406,21 +384,18 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/admin',
       data: {'user_id': userId, 'role': role},
     );
-    debugPrint("ChannelApi_addAdmin resp: ok=${resp.ok}");
     return resp.ok;
   }
 
   /// 移除管理员
   Future<bool> removeAdmin(String channelId, String userId) async {
     final resp = await delete('/v1/channel/$channelId/admin/$userId');
-    debugPrint("ChannelApi_removeAdmin resp: ok=${resp.ok}");
     return resp.ok;
   }
 
   /// 获取管理员列表
   Future<List<Map<String, dynamic>>> getAdmins(String channelId) async {
     final resp = await get('/v1/channel/$channelId/admins');
-    debugPrint("ChannelApi_getAdmins resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -442,14 +417,12 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/admin/$userId/role',
       data: {'role': role},
     );
-    debugPrint("ChannelApi_updateAdminRole resp: ok=${resp.ok}");
     return resp.ok;
   }
 
   /// 移除订阅者
   Future<bool> removeSubscriber(String channelId, String userId) async {
     final resp = await delete('/v1/channel/$channelId/subscriber/$userId');
-    debugPrint("ChannelApi_removeSubscriber resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -463,7 +436,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/message/$messageId/pin',
       data: {'pinned': pinned},
     );
-    debugPrint("ChannelApi_setMessagePinned resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -473,7 +445,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/message/$messageId/delete',
       data: <String, dynamic>{},
     );
-    debugPrint("ChannelApi_deleteMessage resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -485,7 +456,6 @@ class ChannelApi extends HttpClient {
     if (lastSyncTime != null) params['since'] = lastSyncTime;
 
     final resp = await get('/v1/channels/sync', queryParameters: params);
-    debugPrint("ChannelApi_sync resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -499,7 +469,6 @@ class ChannelApi extends HttpClient {
   /// 获取频道统计数据
   Future<ChannelStatsModel?> getChannelStats(String channelId) async {
     final resp = await get('/v1/channel/$channelId/stats');
-    debugPrint("ChannelApi_getChannelStats resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -517,7 +486,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/stats/daily',
       queryParameters: {'days': days},
     );
-    debugPrint("ChannelApi_getDailyStats resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -543,7 +511,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/message/$messageId/view',
       data: <String, dynamic>{},
     );
-    debugPrint("ChannelApi_recordMessageView resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -557,7 +524,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/message/$messageId/reaction',
       data: {'reaction_type': reactionType},
     );
-    debugPrint("ChannelApi_addReaction resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -570,7 +536,6 @@ class ChannelApi extends HttpClient {
     final resp = await delete(
       '/v1/channel/$channelId/message/$messageId/reaction/$reactionType',
     );
-    debugPrint("ChannelApi_removeReaction resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -585,7 +550,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/$channelId/invitation',
       data: {'invitee_uid': inviteeUid},
     );
-    debugPrint("ChannelApi_createInvitation resp: ok=${resp.ok}");
     if (!resp.ok || resp.payload == null) return null;
     return resp.payload as Map<String, dynamic>;
   }
@@ -596,7 +560,6 @@ class ChannelApi extends HttpClient {
       '/v1/channel/invitation/accept',
       data: {'invitation_id': invitationId},
     );
-    debugPrint("ChannelApi_acceptInvitation resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -606,14 +569,12 @@ class ChannelApi extends HttpClient {
       '/v1/channel/invitation/reject',
       data: {'invitation_id': invitationId},
     );
-    debugPrint("ChannelApi_rejectInvitation resp: ok=${resp.ok}");
     return resp.ok;
   }
 
   /// 获取我收到的邀请列表
   Future<List<Map<String, dynamic>>> getMyInvitations() async {
     final resp = await get('/v1/channel/invitations/my');
-    debugPrint("ChannelApi_getMyInvitations resp: ok=${resp.ok}");
     if (!resp.ok || resp.payload == null) return [];
     final list = resp.payload['list'] as List?;
     return list?.cast<Map<String, dynamic>>() ?? [];
@@ -622,7 +583,6 @@ class ChannelApi extends HttpClient {
   /// 获取我发出的邀请列表
   Future<List<Map<String, dynamic>>> getSentInvitations() async {
     final resp = await get('/v1/channel/invitations/sent');
-    debugPrint("ChannelApi_getSentInvitations resp: ok=${resp.ok}");
     if (!resp.ok || resp.payload == null) return [];
     final list = resp.payload['list'] as List?;
     return list?.cast<Map<String, dynamic>>() ?? [];
@@ -635,9 +595,6 @@ class ChannelApi extends HttpClient {
     final resp = await post(
       '/v1/channel/$channelId/order',
       data: <String, dynamic>{},
-    );
-    debugPrint(
-      "ChannelApi_createOrder resp: ok=${resp.ok}, code=${resp.code}, msg=${resp.msg}",
     );
 
     if (!resp.ok || resp.payload == null) {
@@ -655,14 +612,12 @@ class ChannelApi extends HttpClient {
       '/v1/channel/order/pay',
       data: {'order_no': orderNo},
     );
-    debugPrint("ChannelApi_payOrder resp: ok=${resp.ok}");
     return resp.ok;
   }
 
   /// 获取我的订单列表
   Future<List<ChannelOrderModel>> getMyOrders() async {
     final resp = await get('/v1/channel/orders/my');
-    debugPrint("ChannelApi_getMyOrders resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -681,7 +636,6 @@ class ChannelApi extends HttpClient {
   /// 获取订单详情
   Future<ChannelOrderModel?> getOrder({required String orderNo}) async {
     final resp = await get('/v1/channel/order/$orderNo');
-    debugPrint("ChannelApi_getOrder resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;

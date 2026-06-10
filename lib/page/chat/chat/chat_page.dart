@@ -27,7 +27,6 @@ import 'mixin/message_event_handler.dart';
 import 'mixin/selection_handler.dart';
 
 // UI 组件
-import '../widget/burn_badge.dart';
 import '../widget/message_quick_action_menu.dart';
 import '../widget/typing_indicator.dart';
 
@@ -51,6 +50,9 @@ import 'package:imboy/component/chat/mention_text_reducer.dart'
 import 'package:imboy/service/storage.dart';
 
 import 'package:imboy/component/ui/avatar.dart' as imboy;
+
+// 消息条目 Widget（从 chatMessageBuilder 闭包提取）
+import 'chat_message_item.dart';
 
 // 性能优化开关：设置为 true 使用优化的 ChatMessageList，false 使用原 ChatAnimatedList
 const bool _useOptimizedMessageList = false;
@@ -279,12 +281,9 @@ class ChatPageState extends ConsumerState<ChatPage>
         performanceMonitor.cleanupInvisibleMessages();
         if (kDebugMode) {
           final stats = performanceMonitor.getMemoryStats();
-          debugPrint('内存使用统计: $stats');
         }
       });
-    } catch (e, stack) {
-      debugPrint('Error in initState: $e\n$stack');
-    }
+    } catch (e, stack) {}
   }
 
   // 延迟初始化控制器（需要 ref 访问）
@@ -345,7 +344,6 @@ class ChatPageState extends ConsumerState<ChatPage>
 
       _setupEventListeners();
     } catch (e, stack) {
-      debugPrint('_initChat error: $e\n$stack');
       // 显示错误提示
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -415,9 +413,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       );
       if (!mounted || me == null) return;
       _currentUserGroupRole = me.role;
-    } catch (e) {
-      debugPrint('[chat] preload group role failed: $e');
-    }
+    } catch (e) {}
   }
 
   /// 预加载E2EE设备密钥
@@ -433,15 +429,12 @@ class ChatPageState extends ConsumerState<ChatPage>
       if (_chatType == MessageFlowType.c2g) {
         // 群组：预加载群组成员设备密钥
         await E2EEService.getGroupDevicePublicKeys(widget.peerId);
-        debugPrint('E2EE: 已预加载群组设备密钥 ${widget.peerId}');
       } else {
         // 单聊：预加载对方设备密钥
         await E2EEService.getUserDevicePublicKeys(widget.peerId);
-        debugPrint('E2EE: 已预加载用户设备密钥 ${widget.peerId}');
       }
     } catch (e) {
       // 预加载失败不影响聊天，发送时会重试
-      debugPrint('E2EE: 预加载设备密钥失败（将在发送时重试）: $e');
     }
   }
 
@@ -502,27 +495,18 @@ class ChatPageState extends ConsumerState<ChatPage>
           _editingMessageId = id;
         },
       );
-    } catch (e) {
-      debugPrint('[ChatPage] chat operation failed: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> _applySecureFlag() async {
     try {
       await _secureChannel.invokeMethod(_burnEnabled ? 'enable' : 'disable');
-    } catch (e) {
-      debugPrint('[ChatPage] chat operation failed: $e');
-    }
+    } catch (e) {}
   }
 
   // 检查消息是否为阅后即焚（使用工具类）
   bool _isBurnMessage(Message message) {
     return ChatPageUtils.isBurnMessage(message);
-  }
-
-  // 获取消息的阅后即焚时长（使用工具类）
-  int _burnAfterMsFromMessage(Message message) {
-    return ChatPageUtils.getBurnAfterMs(message);
   }
 
   // 为消息添加阅后即焚元数据（使用工具类）
@@ -591,109 +575,80 @@ class ChatPageState extends ConsumerState<ChatPage>
       );
 
       // 单独处理 AppErrorEvent 的 SnackBar 显示（需要 context）
-      _ssAppErrorLocal = AppEventBus.on<AppErrorEvent>().listen(
-        (error) {
-          if (!mounted) return;
-          if (isRelevantChatError(
-            errorType: error.errorType,
-            message: error.message,
-          )) {
-            EasyLoading.showToast(error.message);
-          }
-        },
-        onError: (Object error) {
-          debugPrint('AppErrorEvent listener error: $error');
-        },
-      );
+      _ssAppErrorLocal = AppEventBus.on<AppErrorEvent>().listen((error) {
+        if (!mounted) return;
+        if (isRelevantChatError(
+          errorType: error.errorType,
+          message: error.message,
+        )) {
+          EasyLoading.showToast(error.message);
+        }
+      }, onError: (Object error) {});
 
       // 监听E2EE密钥不匹配事件，引导用户重新登录
-      _ssE2EEKeyMismatch = AppEventBus.on<E2EEKeyMismatchEvent>().listen(
-        (event) {
-          if (!mounted) return;
-          _showE2EEKeyMismatchDialog();
-        },
-        onError: (Object error) {
-          debugPrint('E2EEKeyMismatchEvent listener error: $error');
-        },
-      );
+      _ssE2EEKeyMismatch = AppEventBus.on<E2EEKeyMismatchEvent>().listen((
+        event,
+      ) {
+        if (!mounted) return;
+        _showE2EEKeyMismatchDialog();
+      }, onError: (Object error) {});
 
       // 监听禁言事件
-      _ssUserMuted = AppEventBus.on<UserMutedEvent>().listen(
-        (event) {
-          if (!mounted) return;
-          if (!muteEventMatchesConversation(
-            eventConversationId: event.conversationId,
-            currentConversationId: _conversationUk3,
-          )) {
-            return;
-          }
-          _applyMuteState(event);
-        },
-        onError: (Object error) {
-          debugPrint('UserMutedEvent listener error: $error');
-        },
-      );
+      _ssUserMuted = AppEventBus.on<UserMutedEvent>().listen((event) {
+        if (!mounted) return;
+        if (!muteEventMatchesConversation(
+          eventConversationId: event.conversationId,
+          currentConversationId: _conversationUk3,
+        )) {
+          return;
+        }
+        _applyMuteState(event);
+      }, onError: (Object error) {});
 
-      _ssUserUnmuted = AppEventBus.on<UserUnmutedEvent>().listen(
-        (event) {
-          if (!mounted) return;
-          if (!muteEventMatchesConversation(
-            eventConversationId: event.conversationId,
-            currentConversationId: _conversationUk3,
-          )) {
-            return;
-          }
-          _clearMuteState();
-        },
-        onError: (Object error) {
-          debugPrint('UserUnmutedEvent listener error: $error');
-        },
-      );
+      _ssUserUnmuted = AppEventBus.on<UserUnmutedEvent>().listen((event) {
+        if (!mounted) return;
+        if (!muteEventMatchesConversation(
+          eventConversationId: event.conversationId,
+          currentConversationId: _conversationUk3,
+        )) {
+          return;
+        }
+        _clearMuteState();
+      }, onError: (Object error) {});
 
       // F5-A slice-4b-2: 订阅群成员角色变更，实时刷新 @所有人 权限
       // 只响应"本群 + 当前用户"的变更，其他群成员改角色与本页无关
       if (_chatType == MessageFlowType.c2g) {
-        _ssGroupMemberRole = AppEventBus.on<GroupMemberRoleEvent>().listen(
-          (event) {
-            if (!mounted) return;
-            if (event.gid.toString() != widget.peerId) return;
-            if (event.userId.toString() != UserRepoLocal.to.currentUid) return;
-            _currentUserGroupRole = event.role;
-          },
-          onError: (Object error) {
-            debugPrint('GroupMemberRoleEvent listener error: $error');
-          },
-        );
+        _ssGroupMemberRole = AppEventBus.on<GroupMemberRoleEvent>().listen((
+          event,
+        ) {
+          if (!mounted) return;
+          if (event.gid.toString() != widget.peerId) return;
+          if (event.userId.toString() != UserRepoLocal.to.currentUid) return;
+          _currentUserGroupRole = event.role;
+        }, onError: (Object error) {});
 
         // slice-9c: 当前用户在群内被禁言/解禁时实时锁定/恢复输入框
         final currentUid = UserRepoLocal.to.currentUid;
-        _ssGroupMemberMute = AppEventBus.on<GroupMemberMuteEvent>().listen(
-          (event) {
-            if (!mounted) return;
-            if (event.gid.toString() != widget.peerId) return;
-            if (event.userId != currentUid) return;
-            _applyGroupMemberMuteState(event);
-          },
-          onError: (Object error) {
-            debugPrint('GroupMemberMuteEvent listener error: $error');
-          },
-        );
+        _ssGroupMemberMute = AppEventBus.on<GroupMemberMuteEvent>().listen((
+          event,
+        ) {
+          if (!mounted) return;
+          if (event.gid.toString() != widget.peerId) return;
+          if (event.userId != currentUid) return;
+          _applyGroupMemberMuteState(event);
+        }, onError: (Object error) {});
 
-        _ssGroupMemberUnmute = AppEventBus.on<GroupMemberUnmuteEvent>().listen(
-          (event) {
-            if (!mounted) return;
-            if (event.gid.toString() != widget.peerId) return;
-            if (event.userId != currentUid) return;
-            _clearMuteState();
-          },
-          onError: (Object error) {
-            debugPrint('GroupMemberUnmuteEvent listener error: $error');
-          },
-        );
+        _ssGroupMemberUnmute = AppEventBus.on<GroupMemberUnmuteEvent>().listen((
+          event,
+        ) {
+          if (!mounted) return;
+          if (event.gid.toString() != widget.peerId) return;
+          if (event.userId != currentUid) return;
+          _clearMuteState();
+        }, onError: (Object error) {});
       }
-    } catch (e) {
-      debugPrint('_setupEventListeners error: $e');
-    }
+    } catch (e) {}
   }
 
   /// 群成员被禁言时（通过 GroupMemberMuteEvent）更新输入框禁用状态。
@@ -809,9 +764,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     // Riverpod Provider 会自动处理资源释放
     try {
       _secureChannel.invokeMethod('disable');
-    } catch (e) {
-      debugPrint('[ChatPage] chat operation failed: $e');
-    }
+    } catch (e) {}
 
     super.dispose();
   }
@@ -820,14 +773,12 @@ class ChatPageState extends ConsumerState<ChatPage>
   void _notifyChatActive(bool isActive) {
     // 检查 widget 是否仍然 mounted（在 dispose 中调用时可能已 unmounted）
     if (!mounted) {
-      debugPrint('_notifyChatActive: widget 已 unmounted，跳过更新');
       return;
     }
 
     try {
       final conversationUk3 = _conversationUk3;
       if (conversationUk3.isEmpty) {
-        debugPrint('_notifyChatActive: 会话UK3为空，跳过更新');
         return;
       }
 
@@ -844,9 +795,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       } else {
         ref.read(activeConversationProvider.notifier).clearActiveConversation();
       }
-    } catch (e) {
-      debugPrint('Error updating active conversation: $e');
-    }
+    } catch (e) {}
   }
 
   // 移除了 _clearUnreadOnEnter()，依靠消息本身的可见性检查来渐进式消除未读数
@@ -860,26 +809,19 @@ class ChatPageState extends ConsumerState<ChatPage>
       final messages =
           ref.read(chatProvider.notifier).chatService?.messages ?? [];
       if (messages.isEmpty) {
-        debugPrint("[chat] 消息列表为空，无法滚动");
         return;
       }
 
       // 查找目标消息在列表中的索引
       final targetIndex = messages.indexWhere((m) => m.id == widget.msgId);
       if (targetIndex == -1) {
-        debugPrint("[chat] 未找到目标消息: ${widget.msgId}");
         return;
       }
-
-      debugPrint(
-        "[chat] 找到目标消息: ${widget.msgId}, 索引: $targetIndex, 总消息数: ${messages.length}",
-      );
 
       // 增加重试次数和间隔，确保在复杂布局或低端机上也能成功定位
       for (var attempt = 0; attempt < 15; attempt++) {
         // 检查 widget 是否仍然 mounted
         if (!mounted) {
-          debugPrint("[chat] 页面已销毁，停止滚动尝试");
           return;
         }
 
@@ -902,7 +844,6 @@ class ChatPageState extends ConsumerState<ChatPage>
 
         // 检查目标消息是否已挂载到视图树中
         if (_targetMessageKey.currentContext != null) {
-          debugPrint("[chat] 滚动定位成功，目标消息已进入视图树，尝试次数: ${attempt + 1}");
           break;
         }
       }
@@ -914,7 +855,6 @@ class ChatPageState extends ConsumerState<ChatPage>
             .highlightMessage(widget.msgId);
       }
     } catch (e) {
-      debugPrint("[chat] 滚动到目标消息失败: $e");
       _fallbackScrollToMessage();
     }
   }
@@ -930,8 +870,6 @@ class ChatPageState extends ConsumerState<ChatPage>
       final targetIndex = messages.indexWhere((m) => m.id == widget.msgId);
 
       if (targetIndex == -1) return;
-
-      debugPrint("[chat] 执行降级滚动定位: index=$targetIndex");
 
       // 估算滚动位置 (reverse: true, index 0 is bottom)
       // 假设平均消息高度为100像素（带头像和间距的消息通常更高）
@@ -950,9 +888,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           curve: Curves.easeOutCubic,
         );
       }
-    } catch (e) {
-      debugPrint("[chat] 降级滚动失败: $e");
-    }
+    } catch (e) {}
   }
 
   // 标记消息为已读
@@ -981,7 +917,6 @@ class ChatPageState extends ConsumerState<ChatPage>
           );
       return true;
     } catch (e, stack) {
-      debugPrint("_addMessage error: $e : $stack");
       return false;
     }
   }
@@ -990,8 +925,6 @@ class ChatPageState extends ConsumerState<ChatPage>
   /// Message retry callback.
   Future<void> _onMessageRetry(String messageId) async {
     try {
-      debugPrint('开始重试消息: $messageId');
-
       // 显示加载状态
       EasyLoading.show(status: t.common.retryingSend);
 
@@ -1009,7 +942,6 @@ class ChatPageState extends ConsumerState<ChatPage>
     } catch (e) {
       EasyLoading.dismiss();
       EasyLoading.showError('${t.common.retryAbnormal}: $e');
-      debugPrint('消息重试异常: $e');
     }
   }
 
@@ -1082,7 +1014,6 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     // 如果用户选择了好友，发送名片消息
     if (result != null && mounted) {
-      debugPrint('发送名片消息: uid=${result.peerId}, title=${result.title}');
       await _attachmentHandler.sendVisitCardMessage(
         context,
         result.peerId.toString(),
@@ -1102,8 +1033,6 @@ class ChatPageState extends ConsumerState<ChatPage>
       'sign': widget.peerSign,
     };
 
-    debugPrint('打开收藏选择页面，peer: $peer');
-
     // 打开收藏页面（选择模式）
     final result = await Navigator.push<UserCollectModel>(
       context,
@@ -1114,13 +1043,9 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     // 如果用户选择了收藏消息，发送它
     if (result != null && mounted) {
-      debugPrint('用户选择了收藏消息: kind=${result.kind}, kindId=${result.kindId}');
-      debugPrint('收藏消息 info: ${result.info.toString()}');
-
       try {
         await _attachmentHandler.sendCollectMessage(context, result.info);
       } catch (e, s) {
-        debugPrint('发送收藏消息失败: $e\n堆栈: $s');
         if (mounted) {
           EasyLoading.showError(t.common.operationFailedAgainLater);
         }
@@ -1619,77 +1544,60 @@ class ChatPageState extends ConsumerState<ChatPage>
               peerId: widget.peerId,
               peerTitle: widget.peerTitle,
             ),
-            // 将输入框移出 Stack，放入 Column 底部，实现消息列表与输入框的自然联动
             ChatInputHeightListener(
               composerHeight: composerHeightNotifier,
-              child: _buildChatInput(context),
+              child: ChatInput(
+                key: _chatInputKey,
+                composerHeight: composerHeightNotifier,
+                type: _chatType,
+                peerId: widget.peerId,
+                onSendPressed: _handleSendPressed,
+                onTextChanged: _handleInputChanged,
+                isMuted: _isMuted,
+                muteMessage: _muteMessage,
+                onMentionsChanged: _chatType == MessageFlowType.c2g
+                    ? (mentionIds) {
+                        _currentMentionIds = mentionIds;
+                      }
+                    : null,
+                voiceWidget: VoiceWidget(
+                  startRecord: () {},
+                  stopRecord: _handleVoiceSelection,
+                  height: 46,
+                  margin: EdgeInsets.zero,
+                ),
+                extraWidget: ExtraItems(
+                  type: _chatType,
+                  handleImageSelection: _handleImageSelection,
+                  handleFileSelection: _handleFileSelection,
+                  handlePickerSelection: _handlePickerSelection,
+                  handleLocationSelection: _handleLocationSelection,
+                  handleVisitCardSelection: _handleVisitCardSelection,
+                  handleCollectSelection: _handleCollectSelection,
+                  handleStickerSelection: _handleStickerSelection,
+                  options: {
+                    "to": widget.peerId,
+                    "title": widget.peerTitle,
+                    "avatar": widget.peerAvatar,
+                    "sign": widget.peerSign,
+                  },
+                ),
+                quoteTipsWidget: QuoteTipsWidget(
+                  title: resolveQuoteAuthorName(
+                    quoteAuthorId: quoteMessage?.authorId,
+                    currentUid: UserRepoLocal.to.currentUid,
+                    myNickname: UserRepoLocal.to.current.nickname,
+                    peerTitle: widget.peerTitle,
+                  ),
+                  message: quoteMessage,
+                  close: () => updateQuoteMessage(null),
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  /// 导航到聊天设置页面
-  Widget _buildChatInput(BuildContext context) {
-    return ChatInput(
-      key: _chatInputKey,
-      composerHeight: composerHeightNotifier, // 使用可动画的高度
-      type: _chatType,
-      peerId: widget.peerId,
-      onSendPressed: _handleSendPressed,
-      onTextChanged: _handleInputChanged,
-      isMuted: _isMuted,
-      muteMessage: _muteMessage,
-      // @提及变更回调
-      onMentionsChanged: _chatType == MessageFlowType.c2g
-          ? (mentionIds) {
-              _currentMentionIds = mentionIds;
-            }
-          : null,
-      // sendButtonVisibilityMode: SendButtonVisibilityMode.editing,
-      voiceWidget: VoiceWidget(
-        startRecord: () {},
-        stopRecord: _handleVoiceSelection,
-        height: 46,
-        margin: EdgeInsets.zero,
-      ),
-      extraWidget: ExtraItems(
-        type: _chatType,
-        handleImageSelection: _handleImageSelection,
-        handleFileSelection: _handleFileSelection,
-        handlePickerSelection: _handlePickerSelection,
-        handleLocationSelection: _handleLocationSelection,
-        handleVisitCardSelection: _handleVisitCardSelection,
-        handleCollectSelection: _handleCollectSelection,
-        handleStickerSelection: _handleStickerSelection,
-        options: {
-          "to": widget.peerId,
-          "title": widget.peerTitle,
-          "avatar": widget.peerAvatar,
-          "sign": widget.peerSign,
-        },
-      ),
-      quoteTipsWidget: QuoteTipsWidget(
-        title: resolveQuoteAuthorName(
-          quoteAuthorId: quoteMessage?.authorId,
-          currentUid: UserRepoLocal.to.currentUid,
-          myNickname: UserRepoLocal.to.current.nickname,
-          peerTitle: widget.peerTitle,
-        ),
-        message: quoteMessage,
-        close: () => updateQuoteMessage(null),
-      ),
-    );
-  }
-
-  /// 构建聊天背景装饰（使用 ChatBackgroundManager）
-  BoxDecoration _buildBackgroundDecoration(
-    ChatBackgroundState backgroundState,
-  ) {
-    return ref
-        .read(chatBackgroundManagerProvider.notifier)
-        .getCurrentBackgroundDecoration();
   }
 
   /// 构建聊天主界面
@@ -1698,10 +1606,6 @@ class ChatPageState extends ConsumerState<ChatPage>
     ThemeData theme,
     ChatState chatState,
   ) {
-    // 使用 provider 获取聊天背景状态
-    final backgroundState = ref.watch(chatBackgroundManagerProvider);
-    final themeNotifier = ref.read(themeProvider.notifier);
-
     // 使用 flutter_chat_ui 的 Chat widget
     // 注意：flutter_chat_ui 内部通过 `Provider.value(value: widget.chatController)` 把
     // controller 注入子 widget，chat_animated_list 在 initState 时 `context.read` 一次性
@@ -1725,7 +1629,9 @@ class ChatPageState extends ConsumerState<ChatPage>
       onMessageTap: _onMessageTap,
       onMessageSecondaryTap: _onMessageSecondaryTap,
       // onMessageStatusTap: _onMessageStatusTap,
-      decoration: _buildBackgroundDecoration(backgroundState),
+      decoration: ref
+          .read(chatBackgroundManagerProvider.notifier)
+          .getCurrentBackgroundDecoration(),
       resolveUser: (id) => Future.value(switch (id) {
         'me' => currentUser,
         'recipient' => _peerUser,
@@ -1734,452 +1640,298 @@ class ChatPageState extends ConsumerState<ChatPage>
       // timeFormat: DateFormat("y-MM-dd HH:mm"),
       timeFormat: RelativeDateFormat(),
       theme: ChatThemeConfig.chatTheme,
-      builders: Builders(
-        chatAnimatedListBuilder: (context, itemBuilder) {
-          // 直接使用 chatState 而不是 Obx
-          // 使用 Column 布局后，不再需要底部的 padding，联动效果更自然
-          const bottomGap = 0.0;
+      builders: _buildMessageBuilders(context, chatState),
+    );
+  }
 
-          // 只在第一次 build 时滚动到底部（防止重复创建回调）
-          if (!_hasScrolledToBottom && widget.msgId.isEmpty) {
-            _hasScrolledToBottom = true;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              // 检查 widget 是否仍然 mounted（防止页面销毁后执行）
-              if (!mounted) return;
-              try {
-                // 再次检查 mounted，确保安全
-                if (mounted) {
-                  ref.read(chatProvider.notifier).chatService?.scrollToBottom();
-                }
-              } catch (e) {
-                debugPrint('滚动到底部失败: $e');
-              }
-            });
-          }
+  /// 构建所有消息类型的 Builders 配置。
+  ///
+  /// 从 [_buildChatWidget] 提取，减少单方法行数。
+  Builders _buildMessageBuilders(BuildContext context, ChatState chatState) {
+    return Builders(
+      chatAnimatedListBuilder: (context, itemBuilder) {
+        if (!_hasScrolledToBottom && widget.msgId.isEmpty) {
+          _hasScrolledToBottom = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            try {
+              ref.read(chatProvider.notifier).chatService?.scrollToBottom();
+            } catch (e) {
+              // 滚动失败静默忽略
+            }
+          });
+        }
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: bottomGap),
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (sn) {
-                if (sn is UserScrollNotification) {
-                  _chatInputKey.currentState?.hideAllPanel();
-                }
-                return false;
-              },
-              child: _useOptimizedMessageList
-                  ? _buildOptimizedMessageList()
-                  : _buildOriginalMessageList(itemBuilder, chatState),
-            ),
-          );
-        },
-        // 输入框已移至外部 Column，这里返回空
-        composerBuilder: (context) => const SizedBox.shrink(),
-        // 自定义回到底部按钮（自动避让 Composer）
-        scrollToBottomBuilder: (ctx, animation, onPressed) => ScrollToBottom(
-          animation: animation,
-          onPressed: onPressed,
-          right: 16,
-          bottom: 20,
-          useComposerHeightForBottomOffset: false, // 已经在 Column 内部，无需额外偏移
-          mini: true,
-        ),
-        // 自定义空态文案
-        emptyChatListBuilder: (ctx) {
-          if (chatState.isLoading && chatState.hasMoreMessage) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!chatState.hasMoreMessage &&
-              (ref.read(chatProvider.notifier).chatService?.messages.isEmpty ??
-                  true)) {
-            return EmptyChatList(text: t.common.noData);
-          }
-          return const SizedBox.shrink();
-        },
-        customMessageBuilder:
-            (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) {
-              // 获取当前会话的所有消息，用于图片预览时的跨消息导航
-              final allMessages = ref
-                  .read(chatProvider.notifier)
-                  .chatService
-                  ?.messages;
-              return CustomMessageBuilder(
-                type: _chatType,
-                message: message,
-                messages: allMessages,
-              );
-            },
-        imageMessageBuilder:
-            (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) {
-              // 用 GestureDetector 包裹，实现点击预览功能
-              return GestureDetector(
-                onTap: () => _previewImageMessage(message, index),
-                child: FlyerChatImageMessage(
-                  message: message,
-                  index: index,
-                  showStatus: false,
-                  showTime: true,
+        return NotificationListener<ScrollNotification>(
+          onNotification: (sn) {
+            if (sn is UserScrollNotification) {
+              _chatInputKey.currentState?.hideAllPanel();
+            }
+            return false;
+          },
+          child: _useOptimizedMessageList
+              ? ChatMessageList(
+                  messages:
+                      ref.read(chatProvider.notifier).chatService?.messages ??
+                      [],
+                  currentUserId: currentUser.id,
+                  scrollController: ref
+                      .read(messageScrollManagerProvider.notifier)
+                      .scrollController,
+                  targetMsgId: widget.msgId,
+                  targetMessageKey: _targetMessageKey,
+                  onMessageLongPress: (msg) => _onMessageLongPress(
+                    context,
+                    msg,
+                    index: 0,
+                    details: LongPressStartDetails(
+                      globalPosition: Offset.zero,
+                      localPosition: Offset.zero,
+                    ),
+                  ),
+                  onMessageDoubleTap: (msg) =>
+                      _onMessageDoubleTap(context, msg, index: 0),
+                  onMessageTap: (msg) => _onMessageTap(
+                    context,
+                    msg,
+                    index: 0,
+                    details: TapUpDetails(
+                      kind: PointerDeviceKind.unknown,
+                      globalPosition: Offset.zero,
+                      localPosition: Offset.zero,
+                    ),
+                  ),
+                )
+              : ChatAnimatedList(
+                  scrollController: ref
+                      .read(messageScrollManagerProvider.notifier)
+                      .scrollController,
+                  reversed: true,
+                  itemBuilder: itemBuilder,
+                  onEndReached: () async {
+                    if (_conversationUk3.isNotEmpty &&
+                        !chatState.isLoading &&
+                        chatState.hasMoreMessage) {
+                      await ref
+                          .read(chatProvider.notifier)
+                          .loadMoreMessages(conversation);
+                    }
+                  },
+                  onStartReached: () async {
+                    if (_conversationUk3.isNotEmpty &&
+                        !chatState.isLoadingNewer &&
+                        chatState.hasMoreMessage) {
+                      await ref
+                          .read(chatProvider.notifier)
+                          .loadNewerMessages(conversation);
+                    }
+                  },
+                  messageGroupingTimeoutInSeconds: 60,
                 ),
-              );
-            },
-        systemMessageBuilder:
-            (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) {
-              return FlyerChatSystemMessage(message: message, index: index);
-            },
-        textMessageBuilder:
-            (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) {
-              // C1 Z 路径：用群当前活跃成员名集合对消息文本做降级投影。
-              // 被 @ 用户已退群 → `~~@已退群成员~~`（GptMarkdown 渲染删除线）。
-              // 空集合 / 无 @ 时 applyTo 短路，零分配。
-              final activeNames = ref
-                  .watch(mentionNotifierProvider)
-                  .userIdToName
-                  .values
-                  .toSet();
-              final projected = MentionTextReducer.applyTo(
-                message,
-                activeNames,
-              );
-              return FlyerChatTextMessage(
-                message: projected,
-                index: index,
-                showStatus: false,
-                showTime: true,
-              );
-            },
-        // 文本流消息组件（用于 AI 对话等流式输出场景）
-        // 注意：当前使用简化的加载状态，完整实现需要集成 StreamStateManager
-        textStreamMessageBuilder:
-            (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) {
-              // 从 ChatStreamStateNotifier 获取该消息的实时流状态
-              final streamStateMap = ref.watch(chatStreamStateNotifierProvider);
-              final streamState =
-                  streamStateMap[message.id] ?? const StreamStateLoading();
-              return FlyerChatTextStreamMessage(
-                message: message,
-                index: index,
-                streamState: streamState,
-                showStatus: false,
-                showTime: true,
-                loadingText: '...',
-              );
-            },
-        fileMessageBuilder:
-            (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) {
-              return FlyerChatFileMessage(
-                message: message,
-                index: index,
-                showStatus: false,
-                showTime: true,
-              );
-            },
-        // 视频消息组件
-        videoMessageBuilder:
-            (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) {
-              return FlyerChatVideoMessage(
-                message: message,
-                index: index,
-                showStatus: false,
-                showTime: true,
-              );
-            },
-        // 音频消息组件 - 连接 VoicePlaybackService
-        audioMessageBuilder:
-            (
-              context,
-              message,
-              index, {
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) {
-              // 监听语音播放状态
-              final playbackState = ref.watch(voicePlaybackServiceProvider);
-
-              return FlyerChatAudioMessage(
-                message: message,
-                index: index,
-                showStatus: false,
-                showTime: true,
-                isPlaying:
-                    playbackState.currentMessageId == message.id &&
-                    playbackState.isPlaying,
-                isPaused:
-                    playbackState.currentMessageId == message.id &&
-                    playbackState.isPaused,
-                currentPositionMs: playbackState.currentMessageId == message.id
-                    ? playbackState.currentPosition
-                    : 0,
-                currentDurationMs: playbackState.currentMessageId == message.id
-                    ? playbackState.currentDuration
-                    : 0,
-                onPlayPause: (audioPath, msg, totalDuration) {
-                  // 使用 VoicePlaybackService 统一管理播放
-                  ref
-                      .read(voicePlaybackServiceProvider.notifier)
-                      .play(
-                        path: audioPath,
-                        messageId: msg.id,
-                        durationMs: totalDuration.inMilliseconds,
-                      );
-                },
-              );
-            },
-        chatMessageBuilder:
-            (
-              context,
-              message,
-              index,
-              animation,
-              child, {
-              bool? isRemoved,
-              required bool isSentByMe,
-              MessageGroupStatus? groupStatus,
-            }) {
-              // 如果是目标消息，绑定 GlobalKey 以便定位
-              Key? itemKey;
-              if (widget.msgId.isNotEmpty && message.id == widget.msgId) {
-                itemKey = _targetMessageKey;
-              }
-
-              final isSystemMessage = message.authorId == 'system';
-              final isFirstInGroup = groupStatus?.isFirst ?? true;
-              final isLastInGroup = groupStatus?.isLast ?? true;
-              final shouldShowAvatar = shouldShowMessageAvatar(
-                isSystemMessage: isSystemMessage,
-                isLastInGroup: isLastInGroup,
-                isRemoved: isRemoved,
-              );
-              final isCurrentUser = message.authorId == currentUser.id;
-              final shouldShowUsername = shouldShowMessageUsername(
-                isSystemMessage: isSystemMessage,
-                isFirstInGroup: isFirstInGroup,
-                isRemoved: isRemoved,
-              );
-
-              final statusSpec = resolveMessageStatusIcon(message.status);
-              Widget? statusIcon;
-              if (statusSpec.hasIcon) {
-                final color = statusSpec.colorKey == 'sendMessageBg'
-                    ? themeNotifier.getChatColor(statusSpec.colorKey!)
-                    : themeNotifier.getThemeColor(statusSpec.colorKey!);
-                statusIcon = Icon(statusSpec.iconData, size: 16, color: color);
-              }
-              Widget? avatar;
-              if (shouldShowAvatar) {
-                avatar = Padding(
-                  padding: EdgeInsets.only(
-                    left: isCurrentUser ? 8 : 0,
-                    right: isCurrentUser ? 0 : 8,
-                  ),
-                  // 使用 flutter_chat_ui 的 Avatar 组件，它会通过 userId
-                  // 自动从 UserCache 获取用户信息和头像
-                  child: flutter_chat_ui.Avatar(
-                    userId: message.authorId,
-                    size: 40,
-                  ),
-                );
-              } else if (!isSystemMessage) {
-                avatar = const SizedBox(width: 40);
-              }
-
-              // 在消息末尾添加状态图标
-              final burnBadge = _isBurnMessage(message)
-                  ? BurnBadge(
-                      isSentByMe: isCurrentUser,
-                      burnAfterMs: _burnAfterMsFromMessage(message),
-                      burnReadAtMs: parseBurnReadAtMs(message.metadata),
-                      burnTicker: _burnTicker,
-                    )
-                  : null;
-
-              Widget messageBody = burnBadge == null
-                  ? child
-                  : Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: isCurrentUser
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
-                      children: [
-                        child,
-                        const SizedBox(height: 2),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            right: isCurrentUser ? 2 : 0,
-                            left: isCurrentUser ? 0 : 2,
-                          ),
-                          child: burnBadge,
-                        ),
-                      ],
-                    );
-
-              if (isCurrentUser && statusIcon != null) {
-                statusIcon = GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => _onMessageStatusTap(context, message),
-                  child: statusIcon,
-                );
-                child = Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(child: messageBody),
-                    const SizedBox(width: 4),
-                    statusIcon,
-                  ],
-                );
-              } else {
-                child = messageBody;
-              }
-              final chatMsg = ChatMessage(
-                key: itemKey,
-                message: message,
-                index: index,
-                animation: animation,
-                isRemoved: isRemoved,
-                groupStatus: groupStatus,
-                topWidget: shouldShowUsername
-                    ? Padding(
-                        padding: EdgeInsets.only(
-                          bottom: 4,
-                          left: isCurrentUser ? 0 : 48,
-                          right: isCurrentUser ? 48 : 0,
-                        ),
-                        child: Username(userId: message.authorId),
-                      )
-                    : null,
-                leadingWidget: !isCurrentUser
-                    ? avatar
-                    : isSystemMessage
-                    ? null
-                    : const SizedBox(width: 40),
-                trailingWidget: isCurrentUser
-                    ? avatar
-                    : isSystemMessage
-                    ? null
-                    : const SizedBox(width: 40),
-                receivedMessageScaleAnimationAlignment: isSystemMessage
-                    ? Alignment.center
-                    : Alignment.centerLeft,
-                receivedMessageAlignment: isSystemMessage
-                    ? AlignmentDirectional.center
-                    : AlignmentDirectional.centerStart,
-                horizontalPadding: isSystemMessage ? 0 : 8,
-                child: child,
-              );
-              // 可视阈值已读（受隐私设置控制）
-              final s = UserRepoLocal.to.setting;
-              if (!s.enableVisibilityRead) {
-                return chatMsg;
-              }
-              final double fractionThreshold = normalizeVisibilityFraction(
-                s.visibilityReadFraction,
-              );
-              final int delayMs = normalizeVisibilityDelayMs(
-                s.visibilityReadDelayMs,
-              );
-              // 当来自对方的消息可视比例达到阈值并持续 delayMs 后推进水位
-              return VisibilityDetector(
-                key: Key('msg_vis_${message.id}'),
-                onVisibilityChanged: (info) {
-                  final fraction = info.visibleFraction;
-                  // 标记当前消息是否可见（用于后续检查）
-                  if (fraction > 0.1) {
-                    performanceMonitor.markMessageVisible(message.id);
-                  } else {
-                    performanceMonitor.markMessageInvisible(message.id);
-                  }
-
-                  // 仅处理来自对方的消息
-                  final isIncoming = message.authorId != currentUser.id;
-                  if (!isIncoming) return;
-                  // 已处理过的消息无需重复
-                  if (_readCommitted.contains(message.id)) return;
-
-                  // 达到可视阈值，启动延时判定
-                  if (fraction >= fractionThreshold) {
-                    _readDelayTimers[message.id]?.cancel();
-                    _readDelayTimers[message.id] = Timer(
-                      Duration(milliseconds: delayMs),
-                      () async {
-                        if (!mounted) return;
-                        // 仍处于可见状态才推进水位
-                        if (performanceMonitor.isMessageVisible(message.id)) {
-                          try {
-                            final ok = await ref
-                                .read(chatProvider.notifier)
-                                .markAsRead(_chatType, widget.peerId, [
-                                  message.id,
-                                ], syncToServer: true);
-                            if (ok) {
-                              _readCommitted.add(message.id);
-                              if (_isBurnMessage(message) &&
-                                  (message.metadata?['burn_read_at'] ?? 0) ==
-                                      0) {
-                                ref
-                                    .read(chatProvider.notifier)
-                                    .markBurnReadAt(
-                                      conversation,
-                                      message.id,
-                                      readAtMs: DateTimeHelper.millisecond(),
-                                    );
-                              }
-                            }
-                          } catch (e) {
-                            debugPrint('[ChatPage] chat operation failed: $e');
-                          }
-                        }
-                      },
-                    );
-                  } else {
-                    // 可见比例下降，取消未完成的判定
-                    _readDelayTimers[message.id]?.cancel();
-                    _readDelayTimers.remove(message.id);
-                  }
-                },
-                child: chatMsg,
-              );
-            },
+        );
+      },
+      composerBuilder: (context) => const SizedBox.shrink(),
+      scrollToBottomBuilder: (ctx, animation, onPressed) => ScrollToBottom(
+        animation: animation,
+        onPressed: onPressed,
+        right: 16,
+        bottom: 20,
+        useComposerHeightForBottomOffset: false,
+        mini: true,
       ),
+      emptyChatListBuilder: (ctx) {
+        if (chatState.isLoading && chatState.hasMoreMessage) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!chatState.hasMoreMessage &&
+            (ref.read(chatProvider.notifier).chatService?.messages.isEmpty ??
+                true)) {
+          return EmptyChatList(text: t.common.noData);
+        }
+        return const SizedBox.shrink();
+      },
+      customMessageBuilder:
+          (
+            context,
+            message,
+            index, {
+            required bool isSentByMe,
+            MessageGroupStatus? groupStatus,
+          }) {
+            final allMessages = ref
+                .read(chatProvider.notifier)
+                .chatService
+                ?.messages;
+            return CustomMessageBuilder(
+              type: _chatType,
+              message: message,
+              messages: allMessages,
+            );
+          },
+      imageMessageBuilder:
+          (
+            context,
+            message,
+            index, {
+            required bool isSentByMe,
+            MessageGroupStatus? groupStatus,
+          }) {
+            return GestureDetector(
+              onTap: () => _previewImageMessage(message, index),
+              child: FlyerChatImageMessage(
+                message: message,
+                index: index,
+                showStatus: false,
+                showTime: true,
+              ),
+            );
+          },
+      systemMessageBuilder:
+          (
+            context,
+            message,
+            index, {
+            required bool isSentByMe,
+            MessageGroupStatus? groupStatus,
+          }) {
+            return FlyerChatSystemMessage(message: message, index: index);
+          },
+      textMessageBuilder:
+          (
+            context,
+            message,
+            index, {
+            required bool isSentByMe,
+            MessageGroupStatus? groupStatus,
+          }) {
+            // C1 Z 路径：用群当前活跃成员名集合对消息文本做降级投影。
+            // 被 @ 用户已退群 → `~~@已退群成员~~`（GptMarkdown 渲染删除线）。
+            final activeNames = ref
+                .watch(mentionNotifierProvider)
+                .userIdToName
+                .values
+                .toSet();
+            final projected = MentionTextReducer.applyTo(message, activeNames);
+            return FlyerChatTextMessage(
+              message: projected,
+              index: index,
+              showStatus: false,
+              showTime: true,
+            );
+          },
+      textStreamMessageBuilder:
+          (
+            context,
+            message,
+            index, {
+            required bool isSentByMe,
+            MessageGroupStatus? groupStatus,
+          }) {
+            final streamStateMap = ref.watch(chatStreamStateNotifierProvider);
+            final streamState =
+                streamStateMap[message.id] ?? const StreamStateLoading();
+            return FlyerChatTextStreamMessage(
+              message: message,
+              index: index,
+              streamState: streamState,
+              showStatus: false,
+              showTime: true,
+              loadingText: '...',
+            );
+          },
+      fileMessageBuilder:
+          (
+            context,
+            message,
+            index, {
+            required bool isSentByMe,
+            MessageGroupStatus? groupStatus,
+          }) {
+            return FlyerChatFileMessage(
+              message: message,
+              index: index,
+              showStatus: false,
+              showTime: true,
+            );
+          },
+      videoMessageBuilder:
+          (
+            context,
+            message,
+            index, {
+            required bool isSentByMe,
+            MessageGroupStatus? groupStatus,
+          }) {
+            return FlyerChatVideoMessage(
+              message: message,
+              index: index,
+              showStatus: false,
+              showTime: true,
+            );
+          },
+      audioMessageBuilder:
+          (
+            context,
+            message,
+            index, {
+            required bool isSentByMe,
+            MessageGroupStatus? groupStatus,
+          }) {
+            final playbackState = ref.watch(voicePlaybackServiceProvider);
+            final isThis = (String id) => playbackState.currentMessageId == id;
+            return FlyerChatAudioMessage(
+              message: message,
+              index: index,
+              showStatus: false,
+              showTime: true,
+              isPlaying: isThis(message.id) && playbackState.isPlaying,
+              isPaused: isThis(message.id) && playbackState.isPaused,
+              currentPositionMs: isThis(message.id)
+                  ? playbackState.currentPosition
+                  : 0,
+              currentDurationMs: isThis(message.id)
+                  ? playbackState.currentDuration
+                  : 0,
+              onPlayPause: (audioPath, msg, totalDuration) {
+                ref
+                    .read(voicePlaybackServiceProvider.notifier)
+                    .play(
+                      path: audioPath,
+                      messageId: msg.id,
+                      durationMs: totalDuration.inMilliseconds,
+                    );
+              },
+            );
+          },
+      chatMessageBuilder:
+          (
+            context,
+            message,
+            index,
+            animation,
+            child, {
+            bool? isRemoved,
+            required bool isSentByMe,
+            MessageGroupStatus? groupStatus,
+          }) {
+            return ChatMessageItem(
+              message: message,
+              index: index,
+              animation: animation,
+              child: child,
+              currentUser: currentUser,
+              targetMsgId: widget.msgId,
+              targetMessageKey: _targetMessageKey,
+              burnTicker: _burnTicker,
+              performanceMonitor: performanceMonitor,
+              readDelayTimers: _readDelayTimers,
+              readCommitted: _readCommitted,
+              onMessageStatusTap: _onMessageStatusTap,
+              onVisibleRead: _onVisibleRead,
+              isRemoved: isRemoved,
+              groupStatus: groupStatus,
+            );
+          },
     );
   }
 
@@ -2224,68 +1976,35 @@ class ChatPageState extends ConsumerState<ChatPage>
     }
   }
 
-  /// 构建优化的消息列表（性能优化版）
-  Widget _buildOptimizedMessageList() {
-    final messages =
-        ref.read(chatProvider.notifier).chatService?.messages ?? [];
-
-    return ChatMessageList(
-      messages: messages,
-      currentUserId: currentUser.id,
-      scrollController: ref
-          .read(messageScrollManagerProvider.notifier)
-          .scrollController,
-      // 传递 msgId 和 targetMessageKey 以支持滚动定位
-      targetMsgId: widget.msgId,
-      targetMessageKey: _targetMessageKey,
-      onMessageLongPress: (message) => _onMessageLongPress(
-        context,
-        message,
-        index: 0,
-        details: LongPressStartDetails(
-          globalPosition: Offset.zero,
-          localPosition: Offset.zero,
-        ),
-      ),
-      onMessageDoubleTap: (message) =>
-          _onMessageDoubleTap(context, message, index: 0),
-      onMessageTap: (message) => _onMessageTap(
-        context,
-        message,
-        index: 0,
-        details: TapUpDetails(
-          kind: PointerDeviceKind.unknown,
-          globalPosition: Offset.zero,
-          localPosition: Offset.zero,
-        ),
-      ),
-    );
-  }
-
-  /// 构建原始消息列表（ChatAnimatedList）
-  Widget _buildOriginalMessageList(ChatItem itemBuilder, ChatState chatState) {
-    return ChatAnimatedList(
-      scrollController: ref
-          .read(messageScrollManagerProvider.notifier)
-          .scrollController,
-      reversed: true,
-      itemBuilder: itemBuilder,
-      onEndReached: () async {
-        if (_conversationUk3.isNotEmpty &&
-            !chatState.isLoading &&
-            chatState.hasMoreMessage) {
-          await ref.read(chatProvider.notifier).loadMoreMessages(conversation);
+  /// 可视阈值已读：标记消息为已读并处理阅后即焚水位。
+  ///
+  /// 由 [ChatMessageItem.onVisibleRead] 回调触发，仅在消息持续可见超过
+  /// 设定延迟后执行。
+  Future<void> _onVisibleRead(Message message) async {
+    if (!mounted) return;
+    try {
+      final ok = await ref.read(chatProvider.notifier).markAsRead(
+        _chatType,
+        widget.peerId,
+        [message.id],
+        syncToServer: true,
+      );
+      if (ok) {
+        _readCommitted.add(message.id);
+        if (_isBurnMessage(message) &&
+            (message.metadata?['burn_read_at'] ?? 0) == 0) {
+          ref
+              .read(chatProvider.notifier)
+              .markBurnReadAt(
+                conversation,
+                message.id,
+                readAtMs: DateTimeHelper.millisecond(),
+              );
         }
-      },
-      onStartReached: () async {
-        if (_conversationUk3.isNotEmpty &&
-            !chatState.isLoadingNewer &&
-            chatState.hasMoreMessage) {
-          await ref.read(chatProvider.notifier).loadNewerMessages(conversation);
-        }
-      },
-      messageGroupingTimeoutInSeconds: 60,
-    );
+      }
+    } catch (e) {
+      // 读取失败静默忽略
+    }
   }
 
   // 处理聊天设置返回结果

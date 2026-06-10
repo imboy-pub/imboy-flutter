@@ -30,7 +30,6 @@ String sysLang(String pkg) {
   /// See https://en.wikipedia.org/wiki/Locale_(computer_software)
   /// LANG=kitten dart myfile.dart  # localeName is "kitten"
   String local = Platform.localeName;
-  debugPrint("> sysLang $local");
   // zh_Hans_CN ui.window.locale.toString();
   if (pkg == 'jiffy') {
     local = jiffyLocal(local);

@@ -75,7 +75,6 @@ class GroupVoteApi extends HttpClient {
     if (endAt != null) data['end_at'] = endAt;
 
     final resp = await post(API.groupVoteCreate, data: data);
-    debugPrint("GroupVoteApi_createVote resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -95,7 +94,6 @@ class GroupVoteApi extends HttpClient {
     if (status != null) query['status'] = status;
 
     final resp = await get(API.groupVoteList, queryParameters: query);
-    debugPrint("GroupVoteApi_getVotes resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -115,7 +113,6 @@ class GroupVoteApi extends HttpClient {
       API.groupVoteDetail,
       queryParameters: {'gid': groupId, 'vote_id': voteIdText},
     );
-    debugPrint("GroupVoteApi_getVote resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -141,7 +138,6 @@ class GroupVoteApi extends HttpClient {
         'option_ids': optionIdsText,
       },
     );
-    debugPrint("GroupVoteApi_castVote resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -161,7 +157,6 @@ class GroupVoteApi extends HttpClient {
     };
 
     final resp = await post(API.groupVoteUpdate, data: data);
-    debugPrint("GroupVoteApi_updateVote resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -176,7 +171,6 @@ class GroupVoteApi extends HttpClient {
       API.groupVoteCancel,
       data: {'gid': groupId, 'vote_id': voteIdText},
     );
-    debugPrint("GroupVoteApi_cancelVote resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -191,7 +185,6 @@ class GroupVoteApi extends HttpClient {
       API.groupVoteClose,
       data: {'gid': groupId, 'vote_id': voteIdText},
     );
-    debugPrint("GroupVoteApi_closeVote resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -205,7 +198,6 @@ class GroupVoteApi extends HttpClient {
       API.groupVoteMyVote,
       queryParameters: {'vote_id': voteIdText},
     );
-    debugPrint("GroupVoteApi_getMyVotes resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];

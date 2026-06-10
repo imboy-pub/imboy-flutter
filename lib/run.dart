@@ -42,7 +42,6 @@ Future<void> main() async {
     await AppInitializer.initialize(env: appEnv, signKeyVsn: '1');
     await run();
   } catch (e, s) {
-    debugPrint("Application initialization failed: $e, $s");
   }
 }
 
@@ -170,7 +169,6 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
       themeNotifier.updateFontSize(fontSizeValue);
       _fontSizeInitialized = true;
     } catch (e) {
-      debugPrint('IMBoyApp: 初始化字体大小失败 - $e');
       _fontSizeInitialized = true;
     }
   }

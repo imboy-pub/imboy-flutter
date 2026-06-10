@@ -17,7 +17,6 @@ void main() async {
   try {
     await AppInitializer.initialize(env: appEnv, signKeyVsn: '1');
   } catch (e, s) {
-    debugPrint("Application initialization failed: $e, $s");
     return;
   }
 

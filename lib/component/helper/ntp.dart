@@ -109,11 +109,7 @@ class NtpHelper {
         if (kDebugMode) debugPrint('✅ NtpHelper: NTP 同步成功，偏移量: $_offset ms');
         return _offset;
       } on Exception catch (e) {
-        if (kDebugMode) {
-          debugPrint(
-            '❌ NtpHelper: NTP 同步失败 (第 ${i + 1}/$_maxRetry 次): ${e.runtimeType}',
-          );
-        }
+        if (kDebugMode) {}
         if (i == _maxRetry - 1) return 0; // 返回安全值
       }
     }

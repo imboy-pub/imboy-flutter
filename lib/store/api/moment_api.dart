@@ -40,7 +40,6 @@ class MomentApi extends HttpClient {
     }
 
     final resp = await post(API.momentCreate, data: body);
-    debugPrint('MomentApi.createPost ok=${resp.ok}, code=${resp.code}');
     if (!resp.ok ||
         resp.payload == null ||
         resp.payload is! Map<String, dynamic>) {
@@ -51,7 +50,6 @@ class MomentApi extends HttpClient {
 
   Future<Map<String, dynamic>?> getPost(String momentId) async {
     final resp = await get(API.momentDetail(momentId));
-    debugPrint('MomentApi.getPost ok=${resp.ok}, code=${resp.code}');
     if (!resp.ok ||
         resp.payload == null ||
         resp.payload is! Map<String, dynamic>) {
@@ -77,7 +75,6 @@ class MomentApi extends HttpClient {
       params['cursor'] = cursor;
     }
     final resp = await get(API.momentsFeed, queryParameters: params);
-    debugPrint('MomentApi.getFeedPage ok=${resp.ok}, code=${resp.code}');
     if (!resp.ok ||
         resp.payload == null ||
         resp.payload is! Map<String, dynamic>) {
@@ -111,7 +108,6 @@ class MomentApi extends HttpClient {
       params['cursor'] = cursor;
     }
     final resp = await get(API.momentsUser(uid), queryParameters: params);
-    debugPrint('MomentApi.getUserPostsPage ok=${resp.ok}, code=${resp.code}');
     if (!resp.ok ||
         resp.payload == null ||
         resp.payload is! Map<String, dynamic>) {

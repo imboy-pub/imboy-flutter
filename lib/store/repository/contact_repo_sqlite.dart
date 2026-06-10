@@ -307,42 +307,31 @@ class ContactRepo implements ContactRepository {
   @override
   Future<ContactModel?> save(Map<String, dynamic> json) async {
     // [DIAG #19] 诊断日志：查 Flutter 当前 uid + 入参 JSON
-    debugPrint(
-      "> ContactRepo.save ENTER currentUid=${UserRepoLocal.to.currentUid} json=${json.toString()}",
-    );
     // json['id'] 兼容 api响应的数据
     String uid = (json['id'] ?? (json[ContactRepo.peerId] ?? "")).toString();
     if (uid.isEmpty) {
       // peerId 为空，跳过保存
-      debugPrint("> ContactRepo.save SKIP empty uid");
       return null;
     }
     if (uid == UserRepoLocal.to.currentUid) {
-      debugPrint("> ContactRepo.save SKIP self uid=$uid");
       return null;
       // throw Exception('Add yourself as a friend');
     }
     return await _db.transaction<ContactModel?>((txn) async {
       ContactModel? old = await findByUid(uid, autoFetch: false, txn: txn);
       if (old is ContactModel) {
-        debugPrint("> ContactRepo.save UPDATE branch uid=$uid");
         try {
           await update(json, txn: txn);
           return await findByUid(uid, autoFetch: false, txn: txn);
         } catch (e, st) {
-          debugPrint("> ContactRepo.save UPDATE error: $e\n$st");
           return null;
         }
       } else {
         try {
           ContactModel model = ContactModel.fromMap(json);
           await insert(model, txn: txn);
-          debugPrint("> ContactRepo.save INSERT ok peerId=${model.peerId}");
           return model;
         } catch (e, st) {
-          debugPrint(
-            "> ContactRepo.save INSERT error: $e\n$st\njson: ${json.toString()}",
-          );
           return null;
         }
       }

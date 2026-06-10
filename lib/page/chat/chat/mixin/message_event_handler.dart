@@ -46,7 +46,6 @@ mixin MessageEventHandler {
     // 使用 UserCollectHelper 判断消息是否支持收藏
     // 支持：文本、图片、语音、视频、文件、位置、名片
     int kind = UserCollectHelper.getCollectKind(message);
-    debugPrint("canCollectMessage: type=${message.runtimeType}, kind=$kind");
     return kind > 0;
   }
 

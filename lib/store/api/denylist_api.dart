@@ -10,7 +10,6 @@ class DenylistApi extends HttpClient {
       API.denylistPage,
       queryParameters: {'page': page, 'size': size},
     );
-    debugPrint("> on Api/denylistPage resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -23,7 +22,6 @@ class DenylistApi extends HttpClient {
       API.denylistAdd,
       data: {"denied_user_id": deniedUserUid},
     );
-    debugPrint("> on Api/denylistAdd resp: ${resp.toString()}");
     return resp.ok ? resp.payload as Map<String, dynamic>? : null;
   }
 
@@ -33,7 +31,6 @@ class DenylistApi extends HttpClient {
       API.denylistRemove,
       data: {"denied_user_id": deniedUserUid},
     );
-    debugPrint("> on Api/denylistRemove resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
 }

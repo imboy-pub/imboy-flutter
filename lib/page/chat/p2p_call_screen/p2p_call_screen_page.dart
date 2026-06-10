@@ -96,7 +96,6 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
 
   Future<void> _initData() async {
     media = widget.option['media'] as String? ?? 'video';
-    debugPrint("> rtc initData view ${DateTime.now()}");
 
     await localRenderer.initialize();
     await remoteRenderer.initialize();
@@ -104,13 +103,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
     final notifier = ref.read(p2pCallScreenProvider.notifier);
 
     // 设置回调
-    notifier.onSignalingStateChange = (RTCSignalingState state) {
-      debugPrint("> rtc onSignalingStateChange view ${state.toString()}");
-    };
+    notifier.onSignalingStateChange = (RTCSignalingState state) {};
 
     notifier.onCallStateChange =
         (WebRTCSession? s1, WebRTCCallState state) async {
-          debugPrint("> rtc onCallStateChange view ${state.toString()}");
           switch (state) {
             case WebRTCCallState.callStateInvite:
               break;
@@ -177,7 +173,6 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
         };
 
     notifier.onLocalStream = ((stream) {
-      debugPrint("> rtc stream onLocalStream view ${DateTime.now()}");
       if (mounted) {
         setState(() {
           localRenderer.srcObject = stream;
@@ -186,7 +181,6 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
     });
 
     notifier.onAddRemoteStream = ((_, stream) {
-      debugPrint("> rtc stream onAddRemoteStream view ${DateTime.now()}");
       if (mounted) {
         setState(() {
           remoteRenderer.srcObject = stream;
@@ -195,7 +189,6 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
     });
 
     notifier.onRemoveRemoteStream = ((_, stream) {
-      debugPrint("> rtc onRemoveRemoteStream ${DateTime.now()}");
       if (mounted) {
         setState(() {
           remoteRenderer.srcObject = null;

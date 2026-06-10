@@ -13,20 +13,10 @@ class ContactApi extends HttpClient {
     // [DIAG #19] API 层：响应形状与 friend 数组长度
     final payload = resp.payload;
     final friendRaw = (payload is Map) ? payload['friend'] : null;
-    debugPrint(
-      "> [DIAG #19] ContactApi.listFriend resp.ok=${resp.ok} "
-      "payload.isMap=${payload is Map} "
-      "payload.keys=${payload is Map ? payload.keys.toList() : null} "
-      "friend.isList=${friendRaw is List} "
-      "friend.length=${friendRaw is List ? friendRaw.length : -1}",
-    );
     if (!resp.ok) {
       return [];
     }
     if (friendRaw is! List) {
-      debugPrint(
-        "> [DIAG #19] ContactApi.listFriend friend is NOT a List — returning []",
-      );
       return [];
     }
     return friendRaw;
@@ -39,24 +29,16 @@ class ContactApi extends HttpClient {
       queryParameters: {"id": uid},
     );
     ContactModel? ct;
-    if (kDebugMode) {
-      debugPrint("> on Api/syncByUid resp: ok=${resp.ok}");
-    }
+    if (kDebugMode) {}
     if (resp.ok && resp.payload.isNotEmpty == true) {
       try {
         await (ContactRepo()).save(resp.payload as Map<String, dynamic>);
         ct = ContactModel.fromMap(resp.payload as Map<String, dynamic>);
       } on Exception catch (e) {
-        if (kDebugMode) {
-          debugPrint("> on Api/syncByUid error: $e");
-        }
+        if (kDebugMode) {}
       }
     } else {
-      if (kDebugMode) {
-        debugPrint(
-          "> on Api/syncByUid failed: ${resp.error?.message ?? 'Unknown error'}",
-        );
-      }
+      if (kDebugMode) {}
     }
     return ct;
   }
@@ -67,18 +49,14 @@ class ContactApi extends HttpClient {
       API.friendChangeRemark,
       data: {'uid': uid, 'remark': remark},
     );
-    if (kDebugMode) {
-      debugPrint("> on changeRemark resp: ok=${resp.ok}");
-    }
+    if (kDebugMode) {}
     return resp.ok;
   }
 
   /// 删除联系人
   Future<bool> deleteContact(String uid) async {
     IMBoyHttpResponse resp = await post(API.deleteFriend, data: {'uid': uid});
-    if (kDebugMode) {
-      debugPrint("> on deleteContact resp: ok=${resp.ok}");
-    }
+    if (kDebugMode) {}
     return resp.ok;
   }
 }

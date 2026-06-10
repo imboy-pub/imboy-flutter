@@ -109,7 +109,6 @@ class E2EEHealthCheckService {
 
       // 检查密钥版本是否匹配
       if (expectedKeyId != null && currentKeyId != expectedKeyId) {
-        debugPrint('⚠️ [E2EE] 密钥版本不匹配: 期望=$expectedKeyId, 当前=$currentKeyId');
         return E2EEHealthCheckResult(
           needsUpdate: true,
           currentVersion: currentKeyId,
@@ -130,7 +129,6 @@ class E2EEHealthCheckService {
         reason: 'ok',
       );
     } catch (e) {
-      debugPrint('❌ [E2EE] 检查密钥版本失败: $e');
       return E2EEHealthCheckResult(
         needsUpdate: true,
         reason: 'error',
@@ -176,10 +174,8 @@ class E2EEHealthCheckService {
       // 强制刷新缓存
       await E2EEService.getUserDevicePublicKeys(uid, forceRefresh: true);
 
-      debugPrint('✅ [E2EE] 已同步好友 $uid 的公钥');
       return true;
     } catch (e) {
-      debugPrint('❌ [E2EE] 同步好友公钥失败: $e');
       return false;
     }
   }
@@ -211,7 +207,6 @@ class E2EEHealthCheckService {
     try {
       return await E2EEKeyService.hasKey();
     } catch (e) {
-      debugPrint('❌ [E2EE] 检查密钥存在性失败: $e');
       return false;
     }
   }
@@ -223,7 +218,6 @@ class E2EEHealthCheckService {
     try {
       return await E2EEKeyService.getKeyInfo();
     } catch (e) {
-      debugPrint('❌ [E2EE] 获取密钥信息失败: $e');
       return null;
     }
   }
@@ -307,11 +301,8 @@ class E2EEHealthCheckService {
       final failedMessages = await _findFailedE2EEMessages(conversationUk3);
 
       if (failedMessages.isEmpty) {
-        debugPrint('✅ [E2EE] 没有找到解密失败的消息');
         return 0;
       }
-
-      debugPrint('📋 [E2EE] 找到 ${failedMessages.length} 条解密失败的消息，开始重试...');
 
       int recoveredCount = 0;
       int current = 0;
@@ -328,10 +319,8 @@ class E2EEHealthCheckService {
         }
       }
 
-      debugPrint('✅ [E2EE] 重试完成: 成功恢复 $recoveredCount/$total 条消息');
       return recoveredCount;
     } catch (e) {
-      debugPrint('❌ [E2EE] 重试解密失败消息异常: $e');
       return 0;
     }
   }
@@ -346,7 +335,6 @@ class E2EEHealthCheckService {
     try {
       final db = await SqliteService.to.db;
       if (db == null) {
-        debugPrint('❌ [E2EE] 数据库未初始化');
         return [];
       }
 
@@ -395,15 +383,12 @@ class E2EEHealthCheckService {
             if (_isE2EEFailedMessage(msg)) {
               failedMessages.add(msg);
             }
-          } catch (e) {
-            debugPrint('⚠️ [E2EE] 解析消息失败: $e');
-          }
+          } catch (e) {}
         }
       }
 
       return failedMessages;
     } catch (e) {
-      debugPrint('❌ [E2EE] 查询失败消息异常: $e');
       return [];
     }
   }
@@ -458,7 +443,6 @@ class E2EEHealthCheckService {
 
       // 检查是否有原始密文
       if (payloadMap['_e2ee_raw_ciphertext'] == null) {
-        debugPrint('⚠️ [E2EE] 消息 ${msg.id} 没有原始密文，跳过');
         return false;
       }
 
@@ -468,7 +452,6 @@ class E2EEHealthCheckService {
       // 检查是否解密成功
       if (result.containsKey('_e2ee_failed') &&
           result['_e2ee_failed'] == true) {
-        debugPrint('⚠️ [E2EE] 消息 ${msg.id} 重试解密仍然失败');
         return false;
       }
 
@@ -484,10 +467,8 @@ class E2EEHealthCheckService {
         'e2ee': null, // 清除失败标记
       });
 
-      debugPrint('✅ [E2EE] 消息 ${msg.id} 解密成功并已更新');
       return true;
     } catch (e) {
-      debugPrint('❌ [E2EE] 重试解密消息 ${msg.id} 异常: $e');
       return false;
     }
   }
@@ -500,7 +481,6 @@ class E2EEHealthCheckService {
     try {
       final db = await SqliteService.to.db;
       if (db == null) {
-        debugPrint('❌ [E2EE] 数据库未初始化');
         return 0.0;
       }
 
@@ -547,13 +527,9 @@ class E2EEHealthCheckService {
       }
 
       final rate = failedMessages / totalMessages;
-      debugPrint(
-        '📊 [E2EE] 会话 $conversationUk3 解密失败率: ${(rate * 100).toStringAsFixed(2)}% ($failedMessages/$totalMessages)',
-      );
 
       return rate;
     } catch (e) {
-      debugPrint('❌ [E2EE] 检查解密失败率异常: $e');
       return 0.0;
     }
   }

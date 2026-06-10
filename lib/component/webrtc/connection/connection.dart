@@ -164,7 +164,6 @@ class WebRTCConnection {
                 _dataChannel!.send(RTCDataChannelMessage(heartbeatMsg));
                 return true;
               } catch (e) {
-                debugPrint('Failed to send heartbeat: $e');
                 return false;
               }
             }
@@ -183,7 +182,6 @@ class WebRTCConnection {
 
       _setState(WebRTCConnectionState.ready);
     } catch (e, s) {
-      debugPrint('WebRTCConnection initialize error: $e\n$s');
       _setState(WebRTCConnectionState.failed, error: e.toString());
       rethrow;
     }
@@ -208,7 +206,6 @@ class WebRTCConnection {
 
       return offer;
     } catch (e, s) {
-      debugPrint('WebRTCConnection createOffer error: $e\n$s');
       _setState(WebRTCConnectionState.failed, error: e.toString());
       rethrow;
     } finally {
@@ -238,7 +235,6 @@ class WebRTCConnection {
 
       return answer;
     } catch (e, s) {
-      debugPrint('WebRTCConnection createAnswer error: $e\n$s');
       _setState(WebRTCConnectionState.failed, error: e.toString());
       rethrow;
     } finally {
@@ -253,7 +249,6 @@ class WebRTCConnection {
     try {
       await _pc?.setRemoteDescription(description);
     } catch (e, s) {
-      debugPrint('WebRTCConnection setRemoteDescription error: $e\n$s');
       rethrow;
     }
   }
@@ -263,7 +258,6 @@ class WebRTCConnection {
     try {
       await _pc?.addCandidate(candidate);
     } catch (e, s) {
-      debugPrint('WebRTCConnection addIceCandidate error: $e\n$s');
       // ICE 候选添加失败不视为致命错误
     }
   }
@@ -273,7 +267,6 @@ class WebRTCConnection {
     try {
       await _pc?.restartIce();
     } catch (e, s) {
-      debugPrint('WebRTCConnection restartIce error: $e\n$s');
       rethrow;
     }
   }
@@ -330,9 +323,7 @@ class WebRTCConnection {
       );
 
       await _stateController.close();
-    } catch (e, s) {
-      debugPrint('WebRTCConnection close error: $e\n$s');
-    }
+    } catch (e, s) {}
   }
 
   /// 设置状态
@@ -374,7 +365,6 @@ class WebRTCConnection {
     _pc!.onIceCandidate = (candidate) {
       if (candidate.candidate == null) {
         _iceGatheringComplete = true;
-        debugPrint('ICE gathering complete for session $sessionId');
       }
       // 将 ICE 候选添加到流中
       if (!_iceCandidateController.isClosed) {
@@ -384,31 +374,26 @@ class WebRTCConnection {
 
     // ICE 连接状态
     _pc!.onIceConnectionState = (state) {
-      debugPrint('ICE connection state: $state');
       _handleIceConnectionState(state);
     };
 
     // 信令状态
     _pc!.onSignalingState = (state) {
-      debugPrint('Signaling state: $state');
       _handleSignalingState(state);
     };
 
     // 连接状态
     _pc!.onConnectionState = (state) {
-      debugPrint('Connection state: $state');
       _handleConnectionState(state);
     };
 
     // 媒体轨道
     _pc!.onTrack = (event) {
-      debugPrint('Received track: ${event.track.kind}');
       _handleRemoteTrack(event);
     };
 
     // 需要重新协商
     _pc!.onRenegotiationNeeded = () async {
-      debugPrint('Renegotiation needed');
       // 仅在作为发起方且未在协商中时处理
       if (_state == WebRTCConnectionState.ready &&
           mediaType == WebRTCMediaType.video) {
@@ -418,7 +403,6 @@ class WebRTCConnection {
 
     // 数据通道（接收方）
     _pc!.onDataChannel = (channel) {
-      debugPrint('Received data channel: ${channel.label}');
       _setupDataChannel(channel);
     };
   }
@@ -519,9 +503,6 @@ class WebRTCConnection {
 
     // 备用配置：仅用于开发测试
     // 生产环境必须通过 config.iceServers 传入后端获取的 TURN 凭证
-    debugPrint(
-      'WARNING: Using fallback ICE configuration without TURN servers',
-    );
     return {
       'iceServers': [
         {'urls': 'stun:stun.l.google.com:19302'},
@@ -541,7 +522,6 @@ class WebRTCConnection {
     try {
       _localStream = await navigator.mediaDevices.getUserMedia(constraints);
     } catch (e) {
-      debugPrint('Failed to get user media: $e');
       rethrow;
     }
   }
@@ -561,7 +541,6 @@ class WebRTCConnection {
 
       _setupDataChannel(channel);
     } catch (e) {
-      debugPrint('Failed to create data channel: $e');
       // 数据通道创建失败不是致命错误
     }
   }
@@ -571,13 +550,9 @@ class WebRTCConnection {
     _dataChannel = channel;
 
     channel.onDataChannelState = (state) {
-      debugPrint('Data channel state: $state');
       // 数据通道状态变化时通知外部
       if (state == RTCDataChannelState.RTCDataChannelOpen) {
-        debugPrint('Data channel is open and ready');
-      } else if (state == RTCDataChannelState.RTCDataChannelClosed) {
-        debugPrint('Data channel is closed');
-      }
+      } else if (state == RTCDataChannelState.RTCDataChannelClosed) {}
     };
 
     channel.onMessage = (RTCDataChannelMessage data) {

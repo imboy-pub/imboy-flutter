@@ -49,7 +49,6 @@ class LocationService {
       // Android: 优先高德，失败时降级到 geolocator
       return await _getCurrentPositionAndroid();
     }
-    debugPrint('LocationService: Unsupported platform');
     return null;
   }
 
@@ -59,8 +58,6 @@ class LocationService {
   /// 1. 高德返回 null（定位失败）
   /// 2. 高德返回 (0.0, 0.0) 无效坐标（通常表示 Key 认证失败）
   Future<AMapPosition?> _getCurrentPositionAndroid() async {
-    debugPrint('LocationService: Android 平台开始定位（高德优先）');
-
     // 尝试使用高德地图定位
     AMapPosition? amapResult = await AMapHelper().startLocation();
 
@@ -71,27 +68,11 @@ class LocationService {
 
       // 检查是否为有效坐标
       if (_isValidCoordinate(lat, lng)) {
-        debugPrint(
-          'LocationService: Android 高德定位成功 - '
-          '纬度: $lat, 经度: $lng, 地址: ${amapResult.address}',
-        );
         return amapResult;
-      } else {
-        debugPrint(
-          'LocationService: Android 高德返回无效坐标 ($lat, $lng)，'
-          '可能原因：高德 Key 认证失败 (INVALID_USER_SCODE)，'
-          '降级到 geolocator',
-        );
-      }
-    } else {
-      debugPrint(
-        'LocationService: Android 高德定位失败（返回 null），'
-        '降级到 geolocator',
-      );
-    }
+      } else {}
+    } else {}
 
     // 降级到 geolocator
-    debugPrint('LocationService: Android 使用 geolocator 作为降级方案');
     return await _getCurrentPositionGeolocator();
   }
 
@@ -158,10 +139,6 @@ class LocationService {
   /// 由于高德 Key 认证问题会导致整个流失效，
   /// Android 的持续定位直接使用 geolocator 以保证可靠性
   Stream<AMapPosition>? _getPositionStreamAndroid() {
-    debugPrint(
-      'LocationService: Android 持续定位使用 geolocator '
-      '(高德 Key 可能不可靠，建议使用一次性定位获取地址)',
-    );
     return _getPositionStreamGeolocator();
   }
 
@@ -185,7 +162,6 @@ class LocationService {
       // 检查定位服务是否启用
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        debugPrint('LocationService: 定位服务未启用');
         return null;
       }
 
@@ -194,13 +170,11 @@ class LocationService {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          debugPrint('LocationService: 定位权限被拒绝');
           return null;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        debugPrint('LocationService: 定位权限被永久拒绝');
         return null;
       }
 
@@ -212,11 +186,6 @@ class LocationService {
         ),
       );
 
-      debugPrint(
-        'LocationService: Geolocator定位成功 - '
-        '纬度: ${position.latitude}, 经度: ${position.longitude}',
-      );
-
       return AMapPosition(
         latLng: LatLng(position.latitude, position.longitude),
         id: '',
@@ -226,7 +195,6 @@ class LocationService {
         distance: position.accuracy.toString(),
       );
     } catch (e) {
-      debugPrint('LocationService: Geolocator定位失败 - $e');
       return null;
     }
   }
@@ -243,11 +211,6 @@ class LocationService {
       return Geolocator.getPositionStream(
         locationSettings: locationSettings,
       ).map((position) {
-        debugPrint(
-          'LocationService: Geolocator位置更新 - '
-          '纬度: ${position.latitude}, 经度: ${position.longitude}',
-        );
-
         return AMapPosition(
           latLng: LatLng(position.latitude, position.longitude),
           id: '',
@@ -258,7 +221,6 @@ class LocationService {
         );
       });
     } catch (e) {
-      debugPrint('LocationService: Geolocator定位流失败 - $e');
       return null;
     }
   }

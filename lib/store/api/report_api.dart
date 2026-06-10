@@ -25,7 +25,6 @@ class ReportApi extends HttpClient {
         'description': description,
       },
     );
-    debugPrint("> on ReportApi/create resp: ${resp.payload}");
     return resp.ok;
   }
 }

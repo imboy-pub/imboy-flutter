@@ -98,7 +98,6 @@ class ChatAttachmentHandler {
   Future<void> uploadFile(BuildContext context, PlatformFile file) async {
     final String? path = file.path;
     if (path == null) {
-      debugPrint("uploadFile: file.path 为空，取消上传");
       return;
     }
     try {
@@ -127,9 +126,7 @@ class ChatAttachmentHandler {
         }),
       );
       await onMessageCreated(message);
-    } on Object catch (e) {
-      debugPrint("File presign upload error: $e");
-    }
+    } on Object catch (e) {}
   }
 
   /// 处理相机选择
@@ -166,7 +163,6 @@ class ChatAttachmentHandler {
       if (!context.mounted || entity == null) return;
       await uploadCameraAsset(context, entity);
     } catch (e) {
-      debugPrint("Camera picker error: $e");
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${t.common.cameraShootFailed}: $e')),
@@ -186,17 +182,13 @@ class ChatAttachmentHandler {
       try {
         final meta = await AttachmentApi.uploadImageEntityViaPresign(entity);
         await handleImageUploadPresign(meta, entity);
-      } on Object catch (e) {
-        debugPrint("Camera image presign upload error: $e");
-      }
+      } on Object catch (e) {}
     } else if (entity.type == AssetType.video) {
       // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
       try {
         final resp = await AttachmentApi.uploadVideoViaPresign(entity);
         await handleVideoUpload(resp);
-      } on Object catch (e) {
-        debugPrint("Camera video presign upload error: $e");
-      }
+      } on Object catch (e) {}
     }
     // 上传后删除临时文件
     (await entity.file)?.deleteSync();
@@ -283,17 +275,13 @@ class ChatAttachmentHandler {
       try {
         final meta = await AttachmentApi.uploadImageEntityViaPresign(entity);
         await handleImageUploadPresign(meta, entity);
-      } on Object catch (e) {
-        debugPrint("Selected image presign upload error: $e");
-      }
+      } on Object catch (e) {}
     } else if (entity.type == AssetType.video) {
       // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
       try {
         final resp = await AttachmentApi.uploadVideoViaPresign(entity);
         await handleSelectedVideoUpload(resp);
-      } on Object catch (e) {
-        debugPrint("Selected video presign upload error: $e");
-      }
+      } on Object catch (e) {}
     }
   }
 
@@ -363,9 +351,7 @@ class ChatAttachmentHandler {
       );
       await obj.file.delete(recursive: true);
       await onMessageCreated(message);
-    } on Object catch (e) {
-      debugPrint("Voice presign upload error: $e");
-    }
+    } on Object catch (e) {}
   }
 
   /// 处理位置选择

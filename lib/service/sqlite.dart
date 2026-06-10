@@ -110,9 +110,7 @@ class SqliteService {
       if (!kIsWeb) {
         try {
           await Directory(dirname(path)).create(recursive: true);
-        } catch (e) {
-          debugPrint('[SqliteService] directory creation failed: $e');
-        }
+        } catch (e) {}
 
         // 加密平台不复制明文模板：
         // SQLCipher 创建数据库时会自动加密，onCreate 回调负责建表。

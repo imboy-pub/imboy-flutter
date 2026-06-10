@@ -47,7 +47,6 @@ class DynamicColorManager {
 
       return _isDynamicColorSupported!;
     } catch (e) {
-      debugPrint('DynamicColorManager: 检测动态颜色支持失败 - $e');
       _isDynamicColorSupported = false;
       return false;
     }
@@ -93,7 +92,6 @@ class DynamicColorManager {
         dark: _cachedDarkDynamicColorScheme,
       );
     } catch (e) {
-      debugPrint('DynamicColorManager: 获取动态颜色方案失败 - $e');
       return null;
     }
   }
@@ -132,7 +130,6 @@ class DynamicColorManager {
       // 合并动态颜色和基础颜色
       return _mergeDynamicColors(baseColorScheme, dynamicScheme);
     } catch (e) {
-      debugPrint('DynamicColorManager: 创建动态颜色方案失败 - $e');
       return baseColorScheme;
     }
   }

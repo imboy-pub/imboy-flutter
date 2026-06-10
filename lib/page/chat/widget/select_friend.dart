@@ -43,7 +43,6 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   @override
   void initState() {
     super.initState();
-    debugPrint("SelectFriendPage init ${widget.peer.toString()}");
     // 延迟加载数据，确保 ref 已准备好
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadData();
@@ -309,7 +308,6 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
         children: [
           RefreshIndicator(
             onRefresh: () async {
-              debugPrint(">>> contact onRefresh");
               // 检查网络状态
               var connectivityResult = await Connectivity().checkConnectivity();
               if (connectivityResult.contains(ConnectivityResult.none)) {

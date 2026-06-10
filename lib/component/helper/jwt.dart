@@ -19,11 +19,7 @@ bool tokenExpired(String? token) {
 
     // 边界值处理
     if (exp == null || exp <= 0) {
-      if (kDebugMode) {
-        debugPrint(
-          '❌ Token validation failed: invalid exp value: ${claims['exp']}',
-        );
-      }
+      if (kDebugMode) {}
       return true;
     }
 
@@ -32,22 +28,14 @@ bool tokenExpired(String? token) {
     // 修正后的核心逻辑
     final expired = current >= (exp - buffer);
 
-    if (kDebugMode && expired) {
-      debugPrint(
-        '❌ Token validation failed: token expired (exp=$exp, current=$current)',
-      );
-    }
+    if (kDebugMode && expired) {}
 
     return expired;
   } on JoseException catch (e) {
-    if (kDebugMode) {
-      debugPrint('❌ JWT processing error (${e.runtimeType}): ${e.message}');
-    }
+    if (kDebugMode) {}
     return true;
   } catch (e) {
-    if (kDebugMode) {
-      debugPrint('❌ Unexpected token validation error: ${e.runtimeType}');
-    }
+    if (kDebugMode) {}
     return true;
   }
 }

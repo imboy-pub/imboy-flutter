@@ -228,9 +228,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                               ),
                             ),
                             keyboardType: TextInputType.number,
-                            onCompleted: (v) {
-                              debugPrint("Completed");
-                            },
+                            onCompleted: (v) {},
                             onChanged: (value) {
                               setState(() {
                                 currentText = value;

@@ -402,9 +402,7 @@ class AppInitializer {
       IMBoyHttpResponse? resp1;
       for (int attempt = 1; attempt <= maxRetries; attempt++) {
         final startTime = DateTime.now();
-        if (kDebugMode) {
-          debugPrint('🔧 initConfig: attempt $attempt/$maxRetries');
-        }
+        if (kDebugMode) {}
 
         resp1 = await HttpClient.client
             .get(API.initConfig)
@@ -420,30 +418,20 @@ class AppInitializer {
             );
 
         final elapsed = DateTime.now().difference(startTime).inMilliseconds;
-        if (kDebugMode) {
-          debugPrint('🔧 initConfig: 请求完成 code=${resp1.code}, 耗时=${elapsed}ms');
-        }
+        if (kDebugMode) {}
 
         if (resp1.ok) break;
 
         if (attempt < maxRetries) {
           final delay = Duration(seconds: 1 << (attempt - 1)); // 1s, 2s, 4s
-          if (kDebugMode) {
-            debugPrint(
-              '⚠️ initConfig: 请求失败 code=${resp1.code}，${delay.inSeconds}秒后重试...',
-            );
-          }
+          if (kDebugMode) {}
           await Future<dynamic>.delayed(delay);
         }
       }
 
-      if (kDebugMode) {
-        debugPrint("initConfig completed with code ${resp1!.code}");
-      }
+      if (kDebugMode) {}
       if (!resp1!.ok) {
-        if (kDebugMode) {
-          debugPrint('❌ initConfig: 请求失败 ${resp1.code} (已重试 $maxRetries 次)');
-        }
+        if (kDebugMode) {}
         final error = {
           "error": t.common.initConfigNetworkError(code: resp1.code.toString()),
         };
@@ -482,26 +470,16 @@ class AppInitializer {
       }
 
       // 安全日志：不输出完整配置负载，可能包含敏感的 URL 和密钥
-      if (kDebugMode) {
-        debugPrint(
-          "initConfig_payload received ${payload.keys.length} config items",
-        );
-      }
+      if (kDebugMode) {}
 
       final wsUrl = payload['ws_url'];
-      if (kDebugMode) {
-        debugPrint(
-          '🔧 initConfig: ws_url present: ${wsUrl != null && wsUrl.isNotEmpty == true}',
-        );
-      }
+      if (kDebugMode) {}
 
       if (wsUrl != null && wsUrl.isNotEmpty == true) {
         await StorageService.to.setString(Keys.wsUrl, wsUrl as String);
         if (kDebugMode) debugPrint('✅ initConfig: Saved ws_url to storage');
       } else {
-        if (kDebugMode) {
-          debugPrint('⚠️ initConfig: ws_url is null or empty, not saved');
-        }
+        if (kDebugMode) {}
       }
 
       await StorageService.to.setString(
@@ -529,10 +507,7 @@ class AppInitializer {
       _initConfigCompleter!.complete(payload);
       return payload;
     } on Exception catch (e, stack) {
-      if (kDebugMode) {
-        debugPrint('❌ initConfig: 请求异常 ${e.runtimeType}');
-        debugPrint('❌ initConfig: 堆栈追踪: $stack');
-      }
+      if (kDebugMode) {}
       final error = {"error": t.common.initConfigFetchFailed};
       // 确保在异常情况下也清理 Completer
       if (!_initConfigCompleter!.isCompleted) {

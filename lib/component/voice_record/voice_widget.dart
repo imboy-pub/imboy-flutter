@@ -354,9 +354,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (kDebugMode) {
-      debugPrint("VoiceWidget didChangeAppLifecycleState: $state");
-    }
+    if (kDebugMode) {}
 
     // 当应用进入后台、暂停或不活动状态时，停止录音
     if (state == AppLifecycleState.paused ||
@@ -364,9 +362,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         state == AppLifecycleState.inactive) {
       // 如果正在录音，强制停止
       if (recorder.isRecording && overlayEntry != null) {
-        if (kDebugMode) {
-          debugPrint("App going to background, force stopping recording");
-        }
+        if (kDebugMode) {}
         forceStopRecording();
       }
     }
@@ -404,11 +400,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   void onInputModeChanged() {
     if (kDebugMode) debugPrint("VoiceWidget onInputModeChanged");
     if (overlayEntry != null) {
-      if (kDebugMode) {
-        debugPrint(
-          "Voice widget detected input mode change, stopping recording",
-        );
-      }
+      if (kDebugMode) {}
       forceStopRecording();
     }
   }
@@ -506,11 +498,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
             }
 
             // 只在调试模式下打印日志
-            if (const bool.fromEnvironment('DEBUG_AUDIO')) {
-              debugPrint(
-                "> on record listen dbLevel $dbLevel; normalizedAmplitude $normalizedAmplitude; e ${e.toString()} ${DateTime.now()}",
-              );
-            }
+            if (const bool.fromEnvironment('DEBUG_AUDIO')) {}
             if (overlayEntry != null) {
               overlayEntry!.markNeedsBuild();
             }

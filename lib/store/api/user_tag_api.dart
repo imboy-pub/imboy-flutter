@@ -18,7 +18,6 @@ class UserTagApi extends HttpClient {
       queryParameters: {'page': page, 'size': size, 'scene': scene, 'kwd': kwd},
     );
 
-    debugPrint("> on UserTagApi/page resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -36,7 +35,6 @@ class UserTagApi extends HttpClient {
       API.userTagRelationAdd,
       data: {"scene": scene, "objectId": objectId, "tag": tag},
     );
-    debugPrint("UserTagApi/add resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 
@@ -48,9 +46,6 @@ class UserTagApi extends HttpClient {
     IMBoyHttpResponse resp = await post(
       API.userTagChangeName,
       data: {"scene": scene, "tagId": tagId, "tagName": tagName},
-    );
-    debugPrint(
-      "UserTagApi/changeName resp: ${resp.code.toString()}; ${resp.msg}",
     );
     if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
@@ -66,7 +61,6 @@ class UserTagApi extends HttpClient {
       API.userTagDelete,
       data: {"scene": scene, "tag": tagName},
     );
-    debugPrint("UserTagApi/deleteTag resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 
@@ -75,7 +69,6 @@ class UserTagApi extends HttpClient {
       API.userTagAdd,
       data: {"scene": scene, "tag": tagName},
     );
-    debugPrint("UserTagApi/addTag resp: ${resp.toString()}");
     if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
     }
@@ -106,7 +99,6 @@ class UserTagApi extends HttpClient {
       },
     );
 
-    debugPrint("UserTagApi/pageRelation resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -122,7 +114,6 @@ class UserTagApi extends HttpClient {
       API.userTagRelationRemove,
       data: {"scene": scene, "tagId": tagId, "objectId": objectId},
     );
-    debugPrint("UserTagApi/delete resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 
@@ -141,7 +132,6 @@ class UserTagApi extends HttpClient {
         "objectIds": objectIds,
       },
     );
-    debugPrint("UserTagApi/setRelation resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 }

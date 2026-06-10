@@ -13,7 +13,6 @@ class UserCollectApi extends HttpClient {
       API.userCollectPage,
       queryParameters: args,
     );
-    debugPrint("UserCollectApi_page resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -26,7 +25,6 @@ class UserCollectApi extends HttpClient {
       API.userCollectRemove,
       data: {'kind_id': kindId},
     );
-    debugPrint("> on Api/deleteDevice resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
 
@@ -44,10 +42,6 @@ class UserCollectApi extends HttpClient {
     String source,
     Map<String, dynamic> info,
   ) async {
-    debugPrint(
-      "> on UserCollectApi add params: kind=$kind, kindId=$kindId, source=$source",
-    );
-    debugPrint("> on UserCollectApi add info keys: ${info.keys.toList()}");
     IMBoyHttpResponse resp = await post(
       API.userCollectAdd,
       data: {'kind': kind, 'kind_id': kindId, 'source': source, 'info': info},
@@ -56,15 +50,8 @@ class UserCollectApi extends HttpClient {
         receiveTimeout: const Duration(minutes: 5),
       ),
     );
-    debugPrint(
-      "> on UserCollectApi add resp: ok=${resp.ok}, code=${resp.code}, msg=${resp.msg}",
-    );
-    debugPrint(
-      "> on UserCollectApi add resp payload: ${resp.payload.toString()}",
-    );
     // 如果请求失败，显示详细错误信息
     if (!resp.ok) {
-      debugPrint("> on UserCollectApi add error: ${resp.error?.message}");
       EasyLoading.showError(
         resp.msg.isNotEmpty ? resp.msg : t.common.tipFailed,
       );

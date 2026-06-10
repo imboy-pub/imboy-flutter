@@ -248,7 +248,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                               "adCode": _sendMsg!.adCode,
                             };
                           }
-                          debugPrint("sendLocation ${map.toString()}");
                           if (widget.isMapImage && _sendMsg != null) {
                             final Marker marker = Marker(
                               anchor: const Offset(0.5, 1),
@@ -433,7 +432,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
   }
 
   Future<void> takeSnapshotReturn(Map<String, dynamic> map) async {
-    debugPrint("> takeSnapshotReturn ${map.toString()}");
     try {
       Uint8List? imageBytes = await _controller?.takeSnapshot();
       map["image"] = imageBytes;
@@ -446,7 +444,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
 
   void _onCameraMove(CameraPosition cameraPosition) {
     //这里需要保证放大缩小的时候中心点位置不变
-    debugPrint('onCameraMove===> ${cameraPosition.toMap()}');
   }
 
   void _onCameraMoveEnd(CameraPosition cameraPosition) {
@@ -459,24 +456,15 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       _search(cameraPosition.target);
     }
     _moveByUser = true;
-    debugPrint('_onCameraMoveEnd===> ${cameraPosition.toMap()}');
   }
 
-  void _onMapPoiTouched(AMapPoi poi) {
-    debugPrint('_onMapPoiTouched===> ${poi.toJson()}');
-  }
+  void _onMapPoiTouched(AMapPoi poi) {}
 
-  void _onLocationChanged(AMapLocation location) {
-    debugPrint('_onLocationChanged ${location.toJson()}');
-  }
+  void _onLocationChanged(AMapLocation location) {}
 
-  void _onMapTap(LatLng latLng) {
-    debugPrint('_onMapTap===> ${latLng.toJson()}');
-  }
+  void _onMapTap(LatLng latLng) {}
 
-  void _onMapLongPress(LatLng latLng) {
-    debugPrint('_onMapLongPress===> ${latLng.toJson()}');
-  }
+  void _onMapLongPress(LatLng latLng) {}
 
   Future<void> _showMyLocation() async {
     _changeCameraPosition(widget.latLng!); //我的位置
@@ -529,7 +517,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       page,
     );
     // 安全日志：不输出完整响应数据
-    debugPrint("> amap_search completed with status ${response.statusCode}");
     // on amap_search {"count":"10","infocode":"10000","pois":[
     // {"parent":"",
     // "address":"宝田一路与臣田三路交叉口东南100米","distance":"22","pcode":"440000","adcode":"440306","pname":"广东省","cityname":"深圳市",

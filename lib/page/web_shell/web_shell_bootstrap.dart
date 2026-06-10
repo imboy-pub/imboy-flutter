@@ -411,7 +411,6 @@ class _WebChatInputState extends ConsumerState<_WebChatInput> {
 
       if (mounted) _controller.clear();
     } catch (e, st) {
-      debugPrint('_WebChatInput send error: $e\n$st');
     } finally {
       if (mounted) setState(() => _sending = false);
     }

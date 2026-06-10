@@ -11,7 +11,6 @@ class UserDeviceApi extends HttpClient {
       API.userDevicePage,
       queryParameters: {'page': page, 'size': size},
     );
-    debugPrint("> on Api/userDevicePage resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -32,19 +31,11 @@ class UserDeviceApi extends HttpClient {
     required String deviceId,
     required String name,
   }) async {
-    debugPrint("> on Api/changeName request: deviceId=$deviceId, name=$name");
     IMBoyHttpResponse resp = await post(
       API.userDeviceChangeName,
       data: {"did": deviceId, "name": name},
     );
-    debugPrint(
-      "> on Api/changeName response: ok=${resp.ok}, code=${resp.code}, msg=${resp.msg}",
-    );
-    if (!resp.ok) {
-      debugPrint(
-        "> on Api/changeName failed: ${resp.error?.message ?? 'unknown error'}",
-      );
-    }
+    if (!resp.ok) {}
     return resp;
   }
 
@@ -54,7 +45,6 @@ class UserDeviceApi extends HttpClient {
       API.userDeviceDelete,
       data: {"did": deviceId},
     );
-    debugPrint("> on Api/deleteDevice resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
 
@@ -62,11 +52,7 @@ class UserDeviceApi extends HttpClient {
   /// 返回当前用户的活跃设备会话信息
   Future<Map<String, dynamic>?> getActiveSessions() async {
     IMBoyHttpResponse resp = await get(API.userDeviceSessions);
-    debugPrint("> on Api/getActiveSessions resp: ${resp.payload.toString()}");
     if (!resp.ok) {
-      debugPrint(
-        "> on Api/getActiveSessions failed: ${resp.error?.message ?? 'unknown error'}",
-      );
       return null;
     }
     return resp.payload as Map<String, dynamic>?;
@@ -83,18 +69,11 @@ class UserDeviceApi extends HttpClient {
   Future<Map<String, dynamic>?> checkLoginConflict({
     required String deviceType,
   }) async {
-    debugPrint("> on Api/checkLoginConflict request: deviceType=$deviceType");
     IMBoyHttpResponse resp = await post(
       API.userDeviceCheckLogin,
       data: {"device_type": deviceType},
     );
-    debugPrint(
-      "> on Api/checkLoginConflict response: ok=${resp.ok}, code=${resp.code}, payload=${resp.payload}",
-    );
     if (!resp.ok) {
-      debugPrint(
-        "> on Api/checkLoginConflict failed: ${resp.error?.message ?? 'unknown error'}",
-      );
       return null;
     }
     return resp.payload as Map<String, dynamic>?;
@@ -110,20 +89,11 @@ class UserDeviceApi extends HttpClient {
     required String deviceType,
     required String deviceId,
   }) async {
-    debugPrint(
-      "> on Api/kickDevice request: deviceType=$deviceType, deviceId=$deviceId",
-    );
     IMBoyHttpResponse resp = await post(
       API.userDeviceKick,
       data: {"device_type": deviceType, "device_id": deviceId},
     );
-    debugPrint(
-      "> on Api/kickDevice response: ok=${resp.ok}, code=${resp.code}, payload=${resp.payload}",
-    );
     if (!resp.ok) {
-      debugPrint(
-        "> on Api/kickDevice failed: ${resp.error?.message ?? 'unknown error'}",
-      );
       return null;
     }
     return resp.payload as Map<String, dynamic>?;
@@ -139,20 +109,11 @@ class UserDeviceApi extends HttpClient {
     required String deviceType,
     required String deviceId,
   }) async {
-    debugPrint(
-      "> on Api/kickAllOtherDevices request: deviceType=$deviceType, deviceId=$deviceId",
-    );
     IMBoyHttpResponse resp = await post(
       API.userDeviceKickOthers,
       data: {"device_type": deviceType, "device_id": deviceId},
     );
-    debugPrint(
-      "> on Api/kickAllOtherDevices response: ok=${resp.ok}, code=${resp.code}, payload=${resp.payload}",
-    );
     if (!resp.ok) {
-      debugPrint(
-        "> on Api/kickAllOtherDevices failed: ${resp.error?.message ?? 'unknown error'}",
-      );
       return null;
     }
     return resp.payload as Map<String, dynamic>?;

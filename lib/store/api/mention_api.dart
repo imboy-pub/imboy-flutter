@@ -19,7 +19,6 @@ class MentionApi extends HttpClient {
     if (groupId != null) data['group_id'] = groupId;
 
     final resp = await post(API.mentionList, data: data);
-    debugPrint("MentionApi_getMentions resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -34,7 +33,6 @@ class MentionApi extends HttpClient {
     if (groupId != null) data['group_id'] = groupId;
 
     final resp = await post(API.mentionUnread, data: data);
-    debugPrint("MentionApi_getUnreadCount resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return 0;
@@ -49,7 +47,6 @@ class MentionApi extends HttpClient {
       API.mentionMarkRead,
       data: {'mention_id': mentionId},
     );
-    debugPrint("MentionApi_markAsRead resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -59,7 +56,6 @@ class MentionApi extends HttpClient {
     if (groupId != null) data['group_id'] = groupId;
 
     final resp = await post(API.mentionMarkRead, data: data);
-    debugPrint("MentionApi_markAllAsRead resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -73,7 +69,6 @@ class MentionApi extends HttpClient {
       API.mentionSuggest,
       data: {'group_id': groupId, 'keyword': keyword, 'limit': limit},
     );
-    debugPrint("MentionApi_getSuggest resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];

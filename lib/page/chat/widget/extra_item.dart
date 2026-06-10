@@ -174,7 +174,6 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
             if (!context.mounted) return;
 
             AMapPosition? l = await LocationService().getCurrentPosition();
-            debugPrint("getLocation ${l?.latLng.toJson().toString()}");
             if (l != null && context.mounted) {
               // 使用 go_router 进行导航
               final result = await context.push<Map<String, dynamic>>(

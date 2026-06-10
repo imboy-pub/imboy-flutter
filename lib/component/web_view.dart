@@ -46,7 +46,6 @@ class WebViewPageState extends State<WebViewPage> {
             EasyLoading.dismiss();
             if (widget.title.isEmpty && widget._controller != null) {
               widget._controller!.getTitle().then((title) {
-                debugPrint('> getTitle onPageFinished $title end');
                 if (title != null) {
                   setState(() {
                     widget.title = title;

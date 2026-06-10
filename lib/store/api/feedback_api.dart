@@ -11,7 +11,6 @@ class FeedbackApi extends HttpClient {
       API.feedbackPage,
       queryParameters: {'page': page, 'size': size},
     );
-    debugPrint("> on Api/feedbackPage resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -22,7 +21,6 @@ class FeedbackApi extends HttpClient {
   Future<bool> add(Map<String, dynamic> data) async {
     data['sys_version'] = getSystemVersion();
     IMBoyHttpResponse resp = await post(API.feedbackAdd, data: data);
-    debugPrint("> on Api/feedbackAdd resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 
@@ -32,14 +30,12 @@ class FeedbackApi extends HttpClient {
       API.feedbackRemove,
       data: {"feedback_id": feedbackId},
     );
-    debugPrint("> on Api/feedbackRemove resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
 
   /// 修改用户反馈
   Future<bool> change(Map<String, dynamic> data) async {
     IMBoyHttpResponse resp = await post(API.feedbackChange, data: data);
-    debugPrint("> on Api/feedbackRemove resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
 
@@ -52,7 +48,6 @@ class FeedbackApi extends HttpClient {
       API.feedbackPageReply,
       queryParameters: {'feedback_id': feedbackId, 'page': page, 'size': size},
     );
-    debugPrint("> on Api/feedbackPageReply resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }

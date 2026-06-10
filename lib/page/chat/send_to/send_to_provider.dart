@@ -74,9 +74,7 @@ class SendToLogic {
       );
 
       return true;
-    } catch (e, s) {
-      debugPrint("> on sendMsg ${e.toString()} ${s.toString()}");
-    }
+    } catch (e, s) {}
     return false;
   }
 

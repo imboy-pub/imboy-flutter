@@ -126,36 +126,30 @@ class MessageRepo implements MessageRepository {
   bool _validateMessageData(MessageModel msg) {
     // 验证 ID 不为空
     if (msg.id.isEmpty) {
-      debugPrint('MessageRepo: 消息 ID 不能为空');
       return false;
     }
 
     // 验证 fromId 和 toId
     if (msg.fromId == 0) {
-      debugPrint('MessageRepo: 发送者 ID 不能为空');
       return false;
     }
 
     if (msg.toId == 0) {
-      debugPrint('MessageRepo: 接收者 ID 不能为空');
       return false;
     }
 
     // 验证 conversationUk3
     if (msg.conversationUk3.isEmpty) {
-      debugPrint('MessageRepo: 会话 UK3 不能为空');
       return false;
     }
 
     // 验证时间戳在合理范围内 (2000-01-01 到 2100-01-01)
     if (msg.createdAt < 946684800000 || msg.createdAt > 4102444800000) {
-      debugPrint('MessageRepo: 消息时间戳不在合理范围内');
       return false;
     }
 
     // 验证状态值
     if (msg.status != null && (msg.status! < 0 || msg.status! > 100)) {
-      debugPrint('MessageRepo: 消息状态值不在有效范围内');
       return false;
     }
 
@@ -297,9 +291,7 @@ class MessageRepo implements MessageRepository {
         MessageRepo.action: msg.action,
         MessageRepo.e2ee: msg.e2ee != null ? json.encode(msg.e2ee) : '',
       };
-      if (kDebugMode) {
-        debugPrint("> on MessageModel/insert tb $targetTableName");
-      }
+      if (kDebugMode) {}
       if (txn != null) {
         await txn.insert(targetTableName, insert);
       } else {
@@ -317,9 +309,7 @@ class MessageRepo implements MessageRepository {
         ),
       );
     } else {
-      if (kDebugMode) {
-        debugPrint("> on MessageModel/insert count $count");
-      }
+      if (kDebugMode) {}
     }
     return msg;
   }
@@ -489,9 +479,6 @@ class MessageRepo implements MessageRepository {
       }
       return messages;
     } on Object catch (e) {
-      debugPrint(
-        "MessageRepo pageForConversation error: $e, where: $where, args: $args",
-      );
       return [];
     }
   }
@@ -536,9 +523,6 @@ class MessageRepo implements MessageRepository {
       }
       return messages;
     } on Object catch (e) {
-      debugPrint(
-        "MessageRepo pageNewerForConversation error: $e, where: $where, args: $args",
-      );
       return [];
     }
   }
@@ -614,10 +598,6 @@ class MessageRepo implements MessageRepository {
         offset: offset,
       );
 
-      debugPrint(
-        "> on MessageRepo_page tb $tableName, $conversationUk3, kwd $kwd, page $page, len ${maps.length}",
-      );
-
       if (maps.isEmpty) {
         return [];
       }
@@ -628,7 +608,6 @@ class MessageRepo implements MessageRepository {
       }
       return messages;
     } on Object catch (e) {
-      debugPrint("MessageRepo page error: $e");
       return [];
     }
   }
@@ -663,11 +642,7 @@ class MessageRepo implements MessageRepository {
         CREATE INDEX IF NOT EXISTS idx_${tableName}_conversation_created
         ON $tableName (${MessageRepo.conversationUk3}, ${MessageRepo.createdAt} DESC)
       ''');
-
-      debugPrint("Search indexes created for $tableName");
-    } on Object catch (e) {
-      debugPrint("Error creating search indexes: $e");
-    }
+    } on Object catch (e) {}
   }
 
   //
@@ -873,9 +848,7 @@ class MessageRepo implements MessageRepository {
               if (decoded is Map) {
                 payload = decoded.cast<String, dynamic>();
               }
-            } on Object catch (e) {
-              debugPrint('[MessageRepo] JSON payload parsing failed: $e');
-            }
+            } on Object catch (e) {}
           }
 
           // WebSocket API v2.0: msg_type/action/e2ee 在顶层，不在 payload 内
@@ -1025,7 +998,6 @@ class MessageRepo implements MessageRepository {
     try {
       return DateTimeHelper.rfc3339ToMillisecond(s);
     } on Object catch (e) {
-      debugPrint('[MessageRepo] JSON payload parsing failed: $e');
       return 0;
     }
   }
@@ -1074,9 +1046,7 @@ class MessageRepo implements MessageRepository {
           avatar = ct?.avatar ?? '';
           title = ct?.title ?? '';
         }
-      } on Object catch (e) {
-        debugPrint('[MessageRepo] offline sync failed: $e');
-      }
+      } on Object catch (e) {}
 
       // WebSocket API v2.0: 从顶层字段读取 msg_type 和 status
       if (kDebugMode) {
@@ -1166,9 +1136,7 @@ class MessageRepo implements MessageRepository {
             await msg.toMessageModel().toTypeMessage(),
             'Message',
           );
-        } on Object catch (e) {
-          debugPrint('[MessageRepo] dedup failed: $e');
-        }
+        } on Object catch (e) {}
       }
     }
   }
@@ -1350,7 +1318,6 @@ class MessageRepo implements MessageRepository {
 
       return allMessages;
     } on Object catch (e) {
-      debugPrint("MessageRepo getMessages error: $e");
       return [];
     }
   }
@@ -1401,7 +1368,6 @@ class MessageRepo implements MessageRepository {
 
       return messages;
     } on Object catch (e) {
-      debugPrint("_getMessagesFromTable error: $e, table: $table");
       return [];
     }
   }
@@ -1438,7 +1404,6 @@ class MessageRepo implements MessageRepository {
 
       return total;
     } on Object catch (e) {
-      debugPrint('MessageRepo.countMessagesWithUser error: $e');
       return 0;
     }
   }

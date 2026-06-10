@@ -74,7 +74,6 @@ IMBoyHttpResponse handleResponse(
 
 IMBoyHttpResponse handleException(String uri, Exception exception) {
   var parseException = _parseException(exception);
-  debugPrint("> on handleException $uri: ${parseException.message.toString()}");
   return IMBoyHttpResponse.failureFromError(error: parseException);
 }
 

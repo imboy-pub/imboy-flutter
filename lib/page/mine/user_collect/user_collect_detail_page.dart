@@ -110,9 +110,6 @@ class UserCollectDetailPage extends ConsumerWidget {
                   obj.info,
                 );
 
-                debugPrint('收藏消息原始 info keys: ${info.keys.toList()}');
-                debugPrint('收藏消息 kind: ${obj.kind}');
-
                 // 多种方式尝试获取 msg_type
                 String? msgType = info['msg_type']?.toString();
 
@@ -121,7 +118,6 @@ class UserCollectDetailPage extends ConsumerWidget {
                   if (info['payload'] is Map) {
                     final payload = info['payload'] as Map<String, dynamic>;
                     msgType = payload['msg_type']?.toString();
-                    debugPrint('从 payload 获取 msg_type: $msgType');
                   }
                 }
 
@@ -152,7 +148,6 @@ class UserCollectDetailPage extends ConsumerWidget {
                     default:
                       msgType = 'text';
                   }
-                  debugPrint('根据 kind ${obj.kind} 推断 msg_type: $msgType');
                 }
 
                 // 确保 msg_type 在顶层（msgType 在此处已确保非空）
@@ -162,20 +157,12 @@ class UserCollectDetailPage extends ConsumerWidget {
                 // 生成新的消息 ID
                 info['id'] = Xid().toString();
 
-                debugPrint('处理后的 info keys: ${info.keys.toList()}');
-                debugPrint(
-                  '最终 msg_type: ${info['msg_type']}, type: ${info['type']}',
-                );
-                debugPrint('payload 存在: ${info.containsKey('payload')}');
                 if (info['payload'] is Map) {
                   final payload = info['payload'] as Map<String, dynamic>;
-                  debugPrint('payload keys: ${payload.keys.toList()}');
                 }
 
                 try {
                   var msg = await MessageModel.fromJson(info).toTypeMessage();
-
-                  debugPrint('创建的 Message 类型: ${msg.runtimeType}');
 
                   // 使用 Navigator.push 替代 Get.to
                   Navigator.push(
@@ -188,7 +175,6 @@ class UserCollectDetailPage extends ConsumerWidget {
                     notifier.change(obj.kindId.toString());
                   });
                 } catch (e, s) {
-                  debugPrint('转发收藏消息失败: $e\n堆栈: $s');
                   EasyLoading.showError(t.common.operationFailedAgainLater);
                 }
               },

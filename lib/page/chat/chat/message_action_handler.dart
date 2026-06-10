@@ -113,9 +113,7 @@ class MessageActionHandler {
           behavior: SnackBarBehavior.floating,
         ),
       );
-    } catch (e) {
-      debugPrint('[MessageActionHandler] action failed: $e');
-    }
+    } catch (e) {}
   }
 
   /// 删除消息（仅自己）
@@ -273,7 +271,6 @@ class MessageActionHandler {
     } catch (e, stack) {
       EasyLoading.dismiss();
       EasyLoading.showError(t.common.operationFailedAgainLater);
-      debugPrint('撤回消息异常: $e\n$stack');
     }
   }
 

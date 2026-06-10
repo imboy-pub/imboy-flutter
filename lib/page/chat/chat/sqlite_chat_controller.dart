@@ -91,7 +91,6 @@ class SqliteChatController
     // 打印所有消息ID以便调试
     if (kDebugMode) {
       final messageIds = _messages.map((m) => m.id).toList();
-      debugPrint('removeMessageById: 当前消息ID列表: $messageIds');
     }
 
     final index = _messages.indexWhere((m) => m.id == id);
@@ -230,9 +229,7 @@ class SqliteChatController
       await container
           .read(messageScrollManagerProvider.notifier)
           .scrollToBottom(animated: animated);
-    } catch (e) {
-      debugPrint('[SqliteChatController] operation failed: $e');
-    }
+    } catch (e) {}
   }
 
   /// 滚动到指定消息（优化版）

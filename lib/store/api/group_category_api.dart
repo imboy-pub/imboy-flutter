@@ -22,7 +22,6 @@ class GroupCategoryApi extends HttpClient {
   /// 获取用户的群分组列表
   Future<List<Map<String, dynamic>>> getCategories() async {
     final resp = await get(API.groupCategoryList);
-    debugPrint("GroupCategoryApi_getCategories resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -40,7 +39,6 @@ class GroupCategoryApi extends HttpClient {
     if (sortOrder != null) data['sort_order'] = sortOrder;
 
     final resp = await post(API.groupCategoryCreate, data: data);
-    debugPrint("GroupCategoryApi_createCategory resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -58,14 +56,12 @@ class GroupCategoryApi extends HttpClient {
       API.groupCategoryRename,
       data: {'id': categoryId, 'category_name': name},
     );
-    debugPrint("GroupCategoryApi_renameCategory resp: ok=${resp.ok}");
     return resp.ok;
   }
 
   /// 删除群分组
   Future<bool> deleteCategory(int categoryId) async {
     final resp = await post(API.groupCategoryDelete, data: {'id': categoryId});
-    debugPrint("GroupCategoryApi_deleteCategory resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -78,7 +74,6 @@ class GroupCategoryApi extends HttpClient {
       API.groupCategoryMoveGroup,
       data: {'gid': groupId, 'category_id': categoryId},
     );
-    debugPrint("GroupCategoryApi_moveGroupToCategory resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -92,7 +87,6 @@ class GroupCategoryApi extends HttpClient {
       API.groupCategorySort,
       data: {'sort_orders': sortOrders},
     );
-    debugPrint("GroupCategoryApi_sortCategories resp: ok=${resp.ok}");
     return resp.ok;
   }
 }

@@ -22,7 +22,6 @@ class GroupTagApi extends HttpClient {
   /// 获取群的标签列表
   Future<List<Map<String, dynamic>>> getGroupTags(String groupId) async {
     final resp = await get(API.groupTagList, queryParameters: {'gid': groupId});
-    debugPrint("GroupTagApi_getGroupTags resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -41,7 +40,6 @@ class GroupTagApi extends HttpClient {
     if (color != null) data['color'] = color;
 
     final resp = await post(API.groupTagAdd, data: data);
-    debugPrint("GroupTagApi_addTag resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -54,7 +52,6 @@ class GroupTagApi extends HttpClient {
       API.groupTagRemove,
       data: {'gid': groupId, 'tag_name': tagName},
     );
-    debugPrint("GroupTagApi_removeTag resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -67,7 +64,6 @@ class GroupTagApi extends HttpClient {
       API.groupTagSearch,
       queryParameters: {'tag_name': tagName, 'limit': limit},
     );
-    debugPrint("GroupTagApi_searchByTag resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -79,7 +75,6 @@ class GroupTagApi extends HttpClient {
   /// 获取热门标签
   Future<List<Map<String, dynamic>>> getHotTags({int limit = 20}) async {
     final resp = await get(API.groupTagHot, queryParameters: {'limit': limit});
-    debugPrint("GroupTagApi_getHotTags resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return [];

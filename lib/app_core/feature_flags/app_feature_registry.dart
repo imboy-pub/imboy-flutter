@@ -41,9 +41,6 @@ class AppFeatureRegistry {
         API.appFeatures,
       );
       if (!response.ok || response.payload is! Map) {
-        debugPrint(
-          'AppFeatureRegistry: skip refresh, code=${response.code}, payload=${response.payload.runtimeType}',
-        );
         return;
       }
 
@@ -52,9 +49,7 @@ class AppFeatureRegistry {
       );
       _cache = normalized;
       await StorageService.setMap(Keys.appFeatures, normalized);
-    } catch (error) {
-      debugPrint('AppFeatureRegistry: refresh failed: $error');
-    }
+    } catch (error) {}
   }
 
   static bool isEnabled(String featureKey) {

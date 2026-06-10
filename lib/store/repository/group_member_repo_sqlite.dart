@@ -307,7 +307,6 @@ class GroupMemberRepo {
           .where((id) => id.isNotEmpty)
           .toList();
     } catch (e) {
-      debugPrint('GroupMemberRepo.groupIdsByUserId error: $e');
       return [];
     }
   }

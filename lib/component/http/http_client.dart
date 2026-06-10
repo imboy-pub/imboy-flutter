@@ -43,9 +43,7 @@ bool _certificateValidationCallback(X509Certificate cert) {
       'imboy.pub',
     };
     final allowed = trustedCNs.contains(cn) || cn.endsWith('.imboy.pub');
-    if (!allowed) {
-      debugPrint("HttpClient: reject dev certificate, CN=$cn");
-    }
+    if (!allowed) {}
     return allowed;
   }
   // 生产环境进行严格验证
@@ -154,7 +152,6 @@ class HttpClient {
   void setProxy(String proxy) {
     // Web 平台不支持代理设置
     if (kIsWeb) {
-      debugPrint("HttpClient: Web 平台不支持代理设置");
       return;
     }
 
@@ -176,7 +173,6 @@ class HttpClient {
   static Completer<void>? _loginExpiredCompleter;
 
   void _notifyAuthExpired({String reason = ''}) {
-    debugPrint("HttpClient: auth expired event emitted, reason=$reason");
     if (onAuthExpired != null) {
       onAuthExpired!.call();
       return;
@@ -201,14 +197,12 @@ class HttpClient {
       _dio.options.headers.remove(Keys.refreshTokenKey);
 
       final headers = await defaultHeaders();
-      debugPrint("_setDefaultConfig: skip auth bootstrap for public uri=$uri");
       _dio.options.headers.addAll(headers);
       return;
     }
 
     // 检查是否存在令牌解密失败标记，如果有则触发重新登录
     if (UserRepoLocal.to.hasTokenDecryptionFailure) {
-      debugPrint("_setDefaultConfig: 检测到令牌解密失败，触发重新登录流程");
       await _handleTokenDecryptionFailure();
       return;
     }
@@ -219,7 +213,6 @@ class HttpClient {
 
     // 如果用户本地记录显示已登录，但 Token 为空，说明 Token 失效
     if (isLoggedIn && strEmpty(tk)) {
-      debugPrint("_setDefaultConfig: 用户已登录但 Token 为空，触发重新登录流程");
       await _handleTokenExpired();
       return;
     }
@@ -234,7 +227,6 @@ class HttpClient {
     }
     Map<String, dynamic> headers = await defaultHeaders();
     // 安全日志：不输出包含敏感信息的完整 headers
-    debugPrint("_setDefaultConfig: Adding ${headers.length} default headers");
     _dio.options.headers.addAll(headers);
   }
 
@@ -248,7 +240,6 @@ class HttpClient {
     try {
       final rtk = await UserRepoLocal.to.refreshToken;
       if (rtk.isEmpty) {
-        debugPrint("_refreshTokenWithMutex: refresh token 为空，跳过刷新");
         _tokenRefreshCompleter!.complete('');
         return '';
       }
@@ -259,7 +250,6 @@ class HttpClient {
       _tokenRefreshCompleter!.complete(newTk);
       return newTk;
     } catch (e) {
-      debugPrint("_refreshTokenWithMutex: 刷新失败 $e");
       _tokenRefreshCompleter!.completeError(e);
       rethrow;
     } finally {
@@ -272,12 +262,10 @@ class HttpClient {
   Future<void> _handleTokenExpired() async {
     // 已有过期处理流程在进行中，等待其完成
     if (_loginExpiredCompleter != null) {
-      debugPrint("_handleTokenExpired: 正在处理登录过期流程，等待完成");
       return _loginExpiredCompleter!.future;
     }
 
     _loginExpiredCompleter = Completer<void>();
-    debugPrint("_handleTokenExpired: 开始处理登录过期流程");
 
     try {
       // 执行登出操作
@@ -305,7 +293,6 @@ class HttpClient {
       _notifyAuthExpired(reason: 'token_expired');
       _loginExpiredCompleter!.complete();
     } catch (e) {
-      debugPrint("_handleTokenExpired: 处理失败 $e");
       _loginExpiredCompleter!.completeError(e);
     } finally {
       // 延迟重置，防止跳转过程中的重复请求立即重入
@@ -317,7 +304,6 @@ class HttpClient {
 
   /// 处理令牌解密失败的后续流程
   Future<void> _handleTokenDecryptionFailure() async {
-    debugPrint("_handleTokenDecryptionFailure: 开始清理并触发重新登录");
     // 清除失败标记
     UserRepoLocal.to.clearTokenDecryptionFailureFlag();
     // 执行登出操作

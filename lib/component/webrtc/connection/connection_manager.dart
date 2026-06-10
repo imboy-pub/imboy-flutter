@@ -21,9 +21,7 @@ class WebRTCConnectionManager {
   factory WebRTCConnectionManager() => instance;
 
   /// 私有构造函数
-  WebRTCConnectionManager._internal() {
-    debugPrint('WebRTCConnectionManager initialized');
-  }
+  WebRTCConnectionManager._internal() {}
 
   /// 活跃的连接映射 (sessionId -> connection)
   final Map<String, WebRTCConnection> _connections = {};
@@ -64,18 +62,14 @@ class WebRTCConnectionManager {
   }) async {
     // 检查是否已存在相同会话
     if (_connections.containsKey(sessionId)) {
-      debugPrint('Connection $sessionId already exists');
       return _connections[sessionId]!;
     }
 
     // 检查用户是否已在其他通话中
     final existingSessionId = _userSessions[peerId];
     if (existingSessionId != null) {
-      debugPrint('User $peerId already in session $existingSessionId');
       throw StateError('User $peerId is already in a call');
     }
-
-    debugPrint('Creating new WebRTC connection: $sessionId with $peerId');
 
     // 创建连接实例
     final connection = WebRTCConnection(
@@ -107,8 +101,6 @@ class WebRTCConnectionManager {
     // 存储连接
     _connections[sessionId] = connection;
     _userSessions[peerId] = sessionId;
-
-    debugPrint('Connection $sessionId created and initialized');
 
     return connection;
   }
@@ -160,7 +152,6 @@ class WebRTCConnectionManager {
   Future<void> closeConnection(String sessionId, {String? reason}) async {
     final connection = _connections.remove(sessionId);
     if (connection != null) {
-      debugPrint('Closing connection $sessionId (reason: $reason)');
       await connection.close(reason: reason);
     }
   }
@@ -205,9 +196,7 @@ class WebRTCConnectionManager {
     for (final connection in connections) {
       try {
         await connection.close(reason: reason ?? 'close_all');
-      } catch (e, s) {
-        debugPrint('Error closing connection ${connection.sessionId}: $e\n$s');
-      }
+      } catch (e, s) {}
     }
   }
 
@@ -224,9 +213,7 @@ class WebRTCConnectionManager {
       _removeConnection(sessionId);
     }
 
-    if (closedSessions.isNotEmpty) {
-      debugPrint('Cleaned up ${closedSessions.length} closed connections');
-    }
+    if (closedSessions.isNotEmpty) {}
   }
 
   /// 获取连接统计信息
@@ -252,24 +239,13 @@ class WebRTCConnectionManager {
 
   /// 打印调试信息
   void printDebugInfo() {
-    debugPrint('=== WebRTC Connection Manager Debug Info ===');
-    debugPrint('Active connections: ${_connections.length}');
-    debugPrint('User sessions: ${_userSessions.length}');
-
-    _connections.forEach((sessionId, connection) {
-      debugPrint(
-        '  - $sessionId: ${connection.state} with ${connection.peerId}',
-      );
-    });
+    _connections.forEach((sessionId, connection) {});
 
     final stats = getStatistics();
-    debugPrint('Statistics: $stats');
-    debugPrint('==========================================');
   }
 
   /// 释放资源
   Future<void> dispose() async {
-    debugPrint('Disposing WebRTCConnectionManager');
     await closeAll(reason: 'manager_dispose');
     await _stateController.close();
   }
@@ -277,16 +253,9 @@ class WebRTCConnectionManager {
   /// 检查内存泄漏（用于调试）
   void checkMemoryLeaks() {
     if (_connections.isNotEmpty) {
-      debugPrint(
-        '⚠️  Memory leak warning: ${_connections.length} connections still active',
-      );
       printDebugInfo();
     }
 
-    if (_userSessions.isNotEmpty) {
-      debugPrint(
-        '⚠️  Memory leak warning: ${_userSessions.length} user sessions still active',
-      );
-    }
+    if (_userSessions.isNotEmpty) {}
   }
 }

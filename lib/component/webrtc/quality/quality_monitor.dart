@@ -65,18 +65,12 @@ class WebRTCNetworkQualityMonitor {
   /// 开始监控
   void startMonitoring() {
     if (_monitorTimer != null) {
-      debugPrint('Quality monitoring already started');
       return;
     }
 
     if (!config.enabled) {
-      debugPrint('Quality monitoring disabled');
       return;
     }
-
-    debugPrint(
-      'Starting WebRTC quality monitoring (interval: ${config.monitorInterval})',
-    );
 
     // 立即收集一次统计
     _collectStats();
@@ -91,14 +85,12 @@ class WebRTCNetworkQualityMonitor {
   void stopMonitoring() {
     _monitorTimer?.cancel();
     _monitorTimer = null;
-    debugPrint('Stopped WebRTC quality monitoring');
   }
 
   /// 收集统计信息
   Future<void> _collectStats() async {
     final pc = connection.peerConnection;
     if (pc == null) {
-      debugPrint('PeerConnection is null, skipping stats collection');
       return;
     }
 
@@ -124,8 +116,6 @@ class WebRTCNetworkQualityMonitor {
         // 通知质量等级变化
         final quality = config.getNetworkQuality(_qualityScore);
         _qualityController.add(quality);
-
-        debugPrint('Quality score changed to $_qualityScore ($quality)');
       }
 
       // 发布统计更新
@@ -135,9 +125,7 @@ class WebRTCNetworkQualityMonitor {
       if (config.enableAdaptiveBitrate) {
         _adjustBitrate();
       }
-    } catch (e, s) {
-      debugPrint('Failed to collect WebRTC stats: $e\n$s');
-    }
+    } catch (e, s) {}
   }
 
   /// 解析统计信息
@@ -229,8 +217,6 @@ class WebRTCNetworkQualityMonitor {
     final quality = config.getNetworkQuality(_qualityScore);
     final targetBitrate = config.calculateTargetBitrate(_qualityScore);
 
-    debugPrint('Adjusting bitrate: $quality -> $targetBitrate bps');
-
     // DONE(2026-04-04): 通过 RTP 发送者动态设置码率
     try {
       final pc = connection.peerConnection;
@@ -262,9 +248,7 @@ class WebRTCNetworkQualityMonitor {
         parameters.encodings = updated;
         await sender.setParameters(parameters);
       }
-    } catch (e, s) {
-      debugPrint('Failed to adjust bitrate: $e\n$s');
-    }
+    } catch (e, s) {}
   }
 
   /// 释放资源
@@ -273,7 +257,6 @@ class WebRTCNetworkQualityMonitor {
     await _statsController.close();
     await _qualityScoreController.close();
     await _qualityController.close();
-    debugPrint('WebRTC quality monitor disposed');
   }
 }
 

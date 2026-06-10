@@ -12,7 +12,6 @@ class DefaultHttpTransformer extends HttpTransformer {
   @override
   IMBoyHttpResponse parse(Response<dynamic> response, String uri) {
     // 安全日志：不输出完整响应数据
-    debugPrint("uri $uri, statusCode: ${response.statusCode}");
     if (response.data is! Map) {
       return IMBoyHttpResponse.failure();
     }

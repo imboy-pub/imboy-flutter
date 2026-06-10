@@ -92,14 +92,10 @@ class AppManifestService {
       );
 
       if (response.statusCode == 304) {
-        debugPrint('AppManifestService: 304 Not Modified, cache is fresh');
         return;
       }
 
       if (response.statusCode != 200 || response.data is! Map) {
-        debugPrint(
-          'AppManifestService: skip refresh, status=${response.statusCode}',
-        );
         return;
       }
 
@@ -113,15 +109,7 @@ class AppManifestService {
         _etag = newEtag;
         await StorageService.to.setString(Keys.appManifestEtag, newEtag);
       }
-
-      debugPrint(
-        'AppManifestService: refreshed, '
-        'app_entries=${_cache?.appEntries.length}, '
-        'plugins=${_cache?.plugins.length}',
-      );
-    } catch (error) {
-      debugPrint('AppManifestService: refresh failed: $error');
-    }
+    } catch (error) {}
   }
 
   /// Replace cache for testing.

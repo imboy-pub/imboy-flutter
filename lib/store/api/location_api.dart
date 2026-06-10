@@ -23,7 +23,6 @@ class LocationApi extends HttpClient {
         'latitude': latitude,
       },
     );
-    debugPrint("> on Api/peopleNearby resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -44,14 +43,12 @@ class LocationApi extends HttpClient {
         "latitude": latitude,
       },
     );
-    debugPrint("> on Api/makeMyselfVisible resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 
   /// 让自己不可见
   Future<bool> makeMyselfUnVisible() async {
     IMBoyHttpResponse resp = await post(API.makeMyselfUnVisible);
-    debugPrint("> on Api/makeMyselfUnVisible resp: ${resp.payload}");
     return resp.ok ? true : false;
   }
 }

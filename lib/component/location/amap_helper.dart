@@ -46,14 +46,6 @@ class AMapHelper {
       final androidKey = Env().aMapAndroidKey;
       final iosKey = Env().aMapIosKey;
 
-      debugPrint('===== 高德地图 Key 配置调试 =====');
-      debugPrint('当前环境: $currentEnv');
-      debugPrint('Android Key: $androidKey');
-      debugPrint('Android Key 长度: ${androidKey.length}');
-      debugPrint('iOS Key: $iosKey');
-      debugPrint('iOS Key 长度: ${iosKey.length}');
-      debugPrint('===============================');
-
       AMapFlutterLocation.setApiKey(androidKey, iosKey);
     }
   }
@@ -64,7 +56,6 @@ class AMapHelper {
 
     // Web 平台不支持高德地图原生插件，跳过初始化
     if (kIsWeb) {
-      debugPrint('AMapHelper: Web 平台不支持高德地图定位');
       return;
     }
 
@@ -73,16 +64,12 @@ class AMapHelper {
     stream.listen((Map<String, Object> result) {
       // https://lbs.amap.com/api/android-location-sdk/guide/utilities/location-type
       // https://lbs.amap.com/api/flutter/guide/positioning-flutter-plug-in/interface-info
-      debugPrint("AMapHelper listen result ${result.toString()}");
 
       // 【增强】检查高德返回的错误码
       final errorCode = result['errorCode'];
       final errorInfo = result['errorInfo'];
 
       if (errorCode != null && errorCode != 0) {
-        debugPrint(
-          '⚠️ AMapHelper 定位失败: errorCode=$errorCode, errorInfo=$errorInfo',
-        );
         if (!completer.isCompleted) {
           completer.complete(null);
         }
@@ -96,7 +83,6 @@ class AMapHelper {
 
       // 【增强】检查坐标有效性
       if (latitude == 0.0 && longitude == 0.0) {
-        debugPrint('⚠️ AMapHelper 返回无效坐标 (0, 0)');
         if (!completer.isCompleted) {
           completer.complete(null);
         }
@@ -165,19 +151,14 @@ class AMapHelper {
 
   /// 开始定位
   Future<AMapPosition?> startLocation() async {
-    debugPrint("===== AMapHelper.startLocation() 开始 =====");
-
     // Web 平台不支持高德地图定位
     if (kIsWeb) {
-      debugPrint('AMapHelper: Web 平台不支持高德地图定位，返回 null');
       return null;
     }
 
     // 1. 检查权限
     bool p = await requestLocationPermission();
-    debugPrint("AMapHelper 权限检查结果: $p");
     if (!p) {
-      debugPrint('❌ AMapHelper 权限被拒绝');
       return null;
     }
 
@@ -197,7 +178,6 @@ class AMapHelper {
         Future<dynamic>.delayed(const Duration(seconds: 15), () => null).then((
           _,
         ) {
-          debugPrint('⏰ AMapHelper 定位超时（15秒）');
           if (!completer.isCompleted) {
             completer.complete(null);
           }
@@ -205,11 +185,9 @@ class AMapHelper {
         });
 
     // 6. 开启定位
-    debugPrint('AMapHelper 调用 location.startLocation()...');
     try {
       location.startLocation();
     } catch (e) {
-      debugPrint('❌ AMapHelper startLocation 异常: $e');
       if (!completer.isCompleted) {
         completer.complete(null);
       }
@@ -218,9 +196,6 @@ class AMapHelper {
     // 7. 等待定位结果或超时
     final result = await Future.any([completer.future, timeoutFuture]);
 
-    debugPrint(
-      "===== AMapHelper.startLocation() 结束，结果: ${result != null ? '成功' : '失败'} =====",
-    );
     return result;
   }
 
@@ -271,7 +246,6 @@ class AMapApi {
       "page_size": page.toString(),
       "page_num": size.toString(),
     };
-    debugPrint("amapapi_getAmapPoi ${queryParameters.toString()}");
     return await Dio().get(
       "https://restapi.amap.com/v5/place/around",
       queryParameters: queryParameters,
@@ -295,7 +269,6 @@ class AMapApi {
       "page_size": page.toString(),
       "page_num": size.toString(),
     };
-    debugPrint("amapapi_getMapByKeyword ${queryParameters.toString()}");
     // https://lbs.amap.com/api/webservice/guide/api/newpoisearch
     return await Dio().get(
       "https://restapi.amap.com/v5/place/text",

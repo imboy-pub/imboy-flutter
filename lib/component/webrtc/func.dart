@@ -27,7 +27,6 @@ Future<bool> sendWebRTCMsg(
 }) async {
   // 使用 NetworkMonitorService 检查网络状态
   if (!NetworkMonitorService.to.hasNetwork) {
-    debugPrint('WebRTC消息发送失败：无网络连接');
     return false;
   }
 

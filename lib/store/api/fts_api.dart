@@ -187,7 +187,6 @@ class FtsApi extends HttpClient {
 
       return null;
     } on Exception catch (e) {
-      debugPrint('[FtsApi] searchMessages error: $e');
       return null;
     }
   }
@@ -244,7 +243,6 @@ class FtsApi extends HttpClient {
 
       return null;
     } on Exception catch (e) {
-      debugPrint('[FtsApi] searchConversationMessages error: $e');
       return null;
     }
   }

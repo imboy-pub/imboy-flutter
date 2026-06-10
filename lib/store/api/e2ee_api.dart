@@ -106,9 +106,7 @@ class E2EEApi extends HttpClient {
   }
 
   void debugLogUserKeys(List<Map<String, dynamic>> list) {
-    if (kDebugMode) {
-      debugPrint('E2EEApi.userKeys count=${list.length}');
-    }
+    if (kDebugMode) {}
   }
 
   /// 获取当前活跃的合规公钥

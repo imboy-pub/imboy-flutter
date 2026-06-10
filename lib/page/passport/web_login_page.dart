@@ -232,9 +232,7 @@ class QRLogin extends _$QRLogin {
             );
             timer.cancel();
         }
-      } catch (e) {
-        debugPrint('轮询扫码状态失败: $e');
-      }
+      } catch (e) {}
     });
   }
 

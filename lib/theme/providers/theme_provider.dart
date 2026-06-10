@@ -35,9 +35,7 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
             : (isDarkMode ? ThemeMode.dark : ThemeMode.light);
         state = mode;
       });
-    } catch (e) {
-      debugPrint('ThemeModeNotifier: 加载主题模式失败 - $e');
-    }
+    } catch (e) {}
   }
 
   /// 设置主题模式
@@ -52,9 +50,7 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
           prefs.setBool('theme_is_dark_mode', mode == ThemeMode.dark);
         }
       });
-    } catch (e) {
-      debugPrint('ThemeModeNotifier: 保存主题模式失败 - $e');
-    }
+    } catch (e) {}
   }
 
   /// 切换主题模式
@@ -140,9 +136,7 @@ class ThemeNotifier extends _$ThemeNotifier {
       if (state.followSystemTheme) {
         applySystemTheme();
       }
-    } catch (e) {
-      debugPrint('ThemeManager: 初始化主题系统失败 - $e');
-    }
+    } catch (e) {}
   }
 
   /// 获取亮色主题（支持动态字体缩放）
@@ -208,9 +202,7 @@ class ThemeNotifier extends _$ThemeNotifier {
       await prefs.setString('theme_font_size', state.fontSizeOption.value);
       await prefs.setBool('theme_follow_system', state.followSystemTheme);
       await prefs.setBool('theme_use_dynamic_color', state.useDynamicColor);
-    } catch (e) {
-      debugPrint('ThemeManager: 保存主题设置失败 - $e');
-    }
+    } catch (e) {}
   }
 
   /// 从本地存储加载主题设置
@@ -238,7 +230,6 @@ class ThemeNotifier extends _$ThemeNotifier {
       _cachedLightTheme = AppTheme.getLightThemeFromOption(fontSizeOption);
       _cachedDarkTheme = AppTheme.getDarkThemeFromOption(fontSizeOption);
     } catch (e) {
-      debugPrint('ThemeManager: 加载主题设置失败 - $e');
       // 使用默认设置
       state = const ThemeState();
     }
@@ -443,7 +434,6 @@ class ThemeNotifier extends _$ThemeNotifier {
         state = state.copyWith(useDynamicColor: false);
       }
     } catch (e) {
-      debugPrint('ThemeManager: 检测动态颜色支持失败 - $e');
       state = state.copyWith(isDynamicColorSupported: false);
       if (state.useDynamicColor) {
         state = state.copyWith(useDynamicColor: false);

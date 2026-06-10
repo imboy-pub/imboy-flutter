@@ -30,7 +30,6 @@ class GroupAlbumApi extends HttpClient {
       API.groupAlbumList,
       queryParameters: {'gid': groupId, 'page': page, 'size': size},
     );
-    debugPrint("GroupAlbumApi_getAlbums resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return const {
@@ -73,7 +72,6 @@ class GroupAlbumApi extends HttpClient {
     }
 
     final resp = await post(API.groupAlbumCreate, data: data);
-    debugPrint("GroupAlbumApi_createAlbum resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -96,7 +94,6 @@ class GroupAlbumApi extends HttpClient {
       API.groupAlbumRename,
       data: {'album_id': id, 'album_name': name},
     );
-    debugPrint("GroupAlbumApi_renameAlbum resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -124,7 +121,6 @@ class GroupAlbumApi extends HttpClient {
       }),
       options: Options(contentType: 'multipart/form-data'),
     );
-    debugPrint("GroupAlbumApi_uploadPhoto resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -153,7 +149,6 @@ class GroupAlbumApi extends HttpClient {
       API.groupAlbumPhotoList,
       queryParameters: {'album_id': aid, 'page': page, 'size': size},
     );
-    debugPrint("GroupAlbumApi_getPhotos resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return const {
@@ -187,7 +182,6 @@ class GroupAlbumApi extends HttpClient {
       API.groupAlbumPhotoDetail,
       queryParameters: {'photo_id': text},
     );
-    debugPrint("GroupAlbumApi_getPhotoDetail resp: ok=${resp.ok}");
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -206,7 +200,6 @@ class GroupAlbumApi extends HttpClient {
       API.groupAlbumPhotoDelete,
       data: {'photo_id': text},
     );
-    debugPrint("GroupAlbumApi_deletePhoto resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -223,7 +216,6 @@ class GroupAlbumApi extends HttpClient {
       API.groupAlbumCoverUpdate,
       data: {'album_id': aid, 'photo_id': pid},
     );
-    debugPrint("GroupAlbumApi_updateAlbumCover resp: ok=${resp.ok}");
     return resp.ok;
   }
 
@@ -233,7 +225,6 @@ class GroupAlbumApi extends HttpClient {
     final text = albumId.toString().trim();
     if (text.isEmpty) return false;
     final resp = await post(API.groupAlbumDelete, data: {'album_id': text});
-    debugPrint("GroupAlbumApi_deleteAlbum resp: ok=${resp.ok}");
     return resp.ok;
   }
 }

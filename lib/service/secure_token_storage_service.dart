@@ -40,7 +40,6 @@ class SecureTokenStorageService {
       final token = await StorageSecureService.to.read(key: _tokenKey);
       return token ?? '';
     } on Exception catch (e) {
-      debugPrint('SecureTokenStorageService.getToken: 读取失败; $e');
       rethrow;
     }
   }
@@ -52,26 +51,15 @@ class SecureTokenStorageService {
       );
       return refreshToken ?? '';
     } on Exception catch (e) {
-      debugPrint('SecureTokenStorageService.getRefreshToken: 读取失败; $e');
       rethrow;
     }
   }
 
   static Future<void> clear() async {
     try {
-      debugPrint(
-        'SecureTokenStorageService.clear: Removing token key: $_tokenKey',
-      );
       await StorageSecureService.to.delete(key: _tokenKey);
-      debugPrint(
-        'SecureTokenStorageService.clear: Removing refresh token key: $_refreshTokenKey',
-      );
       await StorageSecureService.to.delete(key: _refreshTokenKey);
-      debugPrint(
-        'SecureTokenStorageService.clear: All tokens cleared successfully',
-      );
     } on Exception catch (e, s) {
-      debugPrint('SecureTokenStorageService.clear error: $e; $s');
       rethrow;
     }
   }

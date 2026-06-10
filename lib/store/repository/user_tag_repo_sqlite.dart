@@ -47,9 +47,6 @@ class UserTagRepo {
       limit: limit,
       offset: offset,
     );
-    debugPrint(
-      "UserTagRepo_page repo ${maps.length} $where, ${maps.toList().toString()}",
-    );
     if (maps.isEmpty) {
       return [];
     }
@@ -73,7 +70,6 @@ class UserTagRepo {
       UserTagRepo.updatedAt: obj.updatedAt,
       UserTagRepo.createdAt: obj.createdAt,
     };
-    debugPrint("UserTagRepo/insert/1 $insert");
     if (txn != null) {
       await txn.insert(UserTagRepo.tableName, insert);
     } else {

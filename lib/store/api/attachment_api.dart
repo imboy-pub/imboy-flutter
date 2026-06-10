@@ -180,9 +180,6 @@ class AttachmentApi {
       );
     }
 
-    debugPrint(
-      '> uploadViaPresign ok object_key=$objectKey size=${bytes.length}',
-    );
     return objectKey;
   }
 
@@ -476,7 +473,6 @@ class AttachmentApi {
         return;
       } on Object catch (e) {
         lastError = e;
-        debugPrint('> PUT 直传失败 (尝试 ${attempt + 1}/$_putMaxAttempts): $e');
         if (attempt < _putMaxAttempts - 1) {
           // 指数退避：500ms, 1000ms, 2000ms ...
           await doDelay(Duration(milliseconds: 500 * (1 << attempt)));
@@ -514,9 +510,6 @@ class AttachmentApi {
     data['a'] = authData['a'];
     data['s'] = authData['s'];
     // 安全日志：只输出文件名，不输出完整的认证参数
-    debugPrint(
-      "> on upload filename: ${(data['file'] as MultipartFile).filename}",
-    );
     FormData formData = FormData.fromMap(data);
     String baseUrl = Env.uploadUrl;
     if (strEmpty(baseUrl)) {
@@ -524,11 +517,9 @@ class AttachmentApi {
       baseUrl = StorageService.to.getString(Keys.uploadUrl);
     }
     if (strEmpty(baseUrl)) {
-      debugPrint("上传失败: uploadUrl 未配置，请检查后端 initConfig 接口是否返回 upload_url");
       errorCallback(Exception('uploadUrl 未配置'));
       return;
     }
-    debugPrint("> on upload URL configured");
     var options = BaseOptions(
       baseUrl: baseUrl,
       contentType: 'application/x-www-form-urlencoded',
@@ -557,9 +548,6 @@ class AttachmentApi {
         )
         .then((response) {
           // 安全日志：不输出完整响应数据，可能包含敏感信息
-          debugPrint(
-            "> on upload completed with status ${response.statusCode}",
-          );
           Map<String, dynamic> resp =
               json.decode(response.data as String) as Map<String, dynamic>;
           callback(
@@ -568,7 +556,6 @@ class AttachmentApi {
           );
         })
         .catchError((Object e) {
-          debugPrint("> on upload error ${e.toString()}");
           errorCallback(e);
         });
   }
@@ -624,10 +611,6 @@ class AttachmentApi {
     // Android 9 兼容性：获取文件路径，处理可能的 null 情况
     File? file = await entity.file;
     if (file == null) {
-      debugPrint("❌ uploadVideo: 无法获取文件 entity.file is null");
-      debugPrint("   AssetType: ${entity.type}, title: ${entity.title}");
-      debugPrint("   尝试使用替代方法获取文件...");
-
       // 尝试使用 originBytes 作为替代方案
       try {
         if (entity.type == AssetType.image) {
@@ -638,11 +621,9 @@ class AttachmentApi {
             final tempFile = File('${tempDir.path}/${Xid().toString()}.jpg');
             await tempFile.writeAsBytes(bytes);
             file = tempFile;
-            debugPrint("✅ 使用 originBytes 创建临时文件成功: ${tempFile.path}");
           }
         }
       } catch (e) {
-        debugPrint("❌ 替代方法失败: $e");
         errorCallback(Exception(t.common.attachmentGetFileFailed));
         return;
       }
@@ -768,9 +749,6 @@ class AttachmentApi {
 
       // Android 9 兼容性：处理 thumbData 为 null 的情况
       if (thumbData == null || thumbData.isEmpty) {
-        debugPrint("❌ uploadVideo: thumbnailDataWithSize 返回空数据");
-        debugPrint("   尝试使用 originBytes 作为替代...");
-
         // 尝试使用 originBytes 作为替代
         final Uint8List? originData = await entity.originBytes;
         if (originData != null && originData.isNotEmpty) {
@@ -796,7 +774,6 @@ class AttachmentApi {
                 }
               })
               .catchError((Object e) {
-                debugPrint("> on preUpload catchError ${e.toString()}");
                 errorCallback(e);
               });
         } else {
@@ -827,7 +804,6 @@ class AttachmentApi {
             }
           })
           .catchError((Object e) {
-            debugPrint("> on preUpload catchError ${e.toString()}");
             errorCallback(e);
           });
     } else if (entity.type == AssetType.image && uploadOriginalImage == true) {
@@ -836,7 +812,6 @@ class AttachmentApi {
 
       // Android 9 兼容性：处理 originBytes 为 null 的情况
       if (thumbData == null || thumbData.isEmpty) {
-        debugPrint("❌ uploadVideo: originBytes 返回空数据");
         errorCallback(Exception(t.common.attachmentGetOriginalImageFailed));
         return;
       }
@@ -862,7 +837,6 @@ class AttachmentApi {
             }
           })
           .catchError((Object e) {
-            debugPrint("> on preUpload catchError ${e.toString()}");
             errorCallback(e);
           });
     }
@@ -895,9 +869,6 @@ class AttachmentApi {
     Map<String, dynamic> data = {
       'file': await MultipartFile.fromFile(path, filename: name),
     };
-    debugPrint(
-      "> on uploadFile ${Env.uploadUrl}; path1 $path, name: $name, ext: $ext",
-    );
     await _upload(prefix, data, callback, errorCallback, process: process);
   }
 
@@ -917,7 +888,6 @@ class AttachmentApi {
       'file': MultipartFile.fromBytes(file, filename: name),
     };
     // 安全日志：不输出完整数据，只输出文件信息
-    debugPrint("> on uploadBytes name: $name, ext: $ext");
     await _upload(prefix, data, callback, errorCallback, process: process);
   }
 }

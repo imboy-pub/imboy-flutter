@@ -17,7 +17,6 @@ class GroupApi extends HttpClient {
       queryParameters: {'page': page, 'size': size, 'attr': attr},
     );
 
-    debugPrint("> on GroupApi/page resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -29,7 +28,6 @@ class GroupApi extends HttpClient {
       API.groupDetail,
       queryParameters: {"gid": gid},
     );
-    debugPrint("GroupApi/detail resp.payload: ${resp.payload.toString()}");
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
     }
@@ -63,7 +61,6 @@ class GroupApi extends HttpClient {
 
   Future<Map<String, dynamic>?> dissolve({required String gid}) async {
     IMBoyHttpResponse resp = await post(API.groupDissolve, data: {"gid": gid});
-    debugPrint("GroupApi/dissolve resp.payload: ${resp.payload.toString()}");
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
     }
@@ -84,9 +81,6 @@ class GroupApi extends HttpClient {
         "latitude": latitude, // 维度
       },
     );
-    debugPrint(
-      "GroupApi/groupFace2face resp.payload: ${resp.payload.toString()}",
-    );
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
     }
@@ -100,9 +94,6 @@ class GroupApi extends HttpClient {
     IMBoyHttpResponse resp = await post(
       API.groupFace2faceSave,
       data: {"code": code, "gid": gid},
-    );
-    debugPrint(
-      "GroupApi/groupFace2faceSave resp.payload: ${resp.payload.toString()}",
     );
     if (resp.ok == false) {
       EasyLoading.showError(resp.msg);
@@ -119,10 +110,6 @@ class GroupApi extends HttpClient {
       API.groupAdd,
       data: {"member_uids": memberUserIds},
     );
-    debugPrint("GroupApi/add resp: ${resp.toString()}");
-    debugPrint(
-      "GroupApi/add resp.ok: ${resp.ok}, resp.code: ${resp.code}, resp.payload: ${resp.payload}",
-    );
     return resp.ok ? resp.payload as Map<String, dynamic>? : null;
   }
 
@@ -132,7 +119,6 @@ class GroupApi extends HttpClient {
   }) async {
     data['gid'] = gid;
     IMBoyHttpResponse resp = await post(API.groupEdit, data: data);
-    debugPrint("GroupApi/groupEdit resp: ${resp.code.toString()}; ${resp.msg}");
     if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
     }
@@ -144,7 +130,6 @@ class GroupApi extends HttpClient {
       API.userTagAdd,
       data: {"scene": scene, "tag": tagName},
     );
-    debugPrint("GroupApi/addTag resp: ${resp.toString()}");
     if (resp.code == ErrorCode.ERROR) {
       EasyLoading.showError(resp.msg);
     }
@@ -175,7 +160,6 @@ class GroupApi extends HttpClient {
       },
     );
 
-    debugPrint("GroupApi/pageRelation resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       return null;
     }
@@ -191,7 +175,6 @@ class GroupApi extends HttpClient {
       API.userTagRelationRemove,
       data: {"scene": scene, "tagId": tagId, "objectId": objectId},
     );
-    debugPrint("GroupApi/delete resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 
@@ -210,7 +193,6 @@ class GroupApi extends HttpClient {
         "objectIds": objectIds,
       },
     );
-    debugPrint("GroupApi/setRelation resp: ${resp.toString()}");
     return resp.ok ? true : false;
   }
 
@@ -226,7 +208,6 @@ class GroupApi extends HttpClient {
       data: {'gid': gid, 'new_owner_uid': newOwnerUid},
     );
 
-    debugPrint("GroupApi/transfer resp: ${resp.payload.toString()}");
     return resp.ok;
   }
 }

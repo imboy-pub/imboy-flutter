@@ -389,9 +389,7 @@ class ConversationRepo {
     for (final msgId in msgIds) {
       try {
         MessageRetry.instance.removeFromRetryQueue(msgId);
-      } on Object catch (e) {
-        debugPrint('清理重试队列失败: $msgId, error: $e');
-      }
+      } on Object catch (e) {}
     }
     iPrint('已从重试队列清理 ${msgIds.length} 条消息: conversationUk3=$uk3');
   }
