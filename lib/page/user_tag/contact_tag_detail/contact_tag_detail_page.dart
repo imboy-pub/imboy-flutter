@@ -233,13 +233,16 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                               oldName: widget.tag.name,
                                               newName: '',
                                             );
-                                        Navigator.pop(context, true);
-                                        if (mounted) Navigator.pop(context);
+                                        if (context.mounted)
+                                          Navigator.pop(context, true);
+                                        if (context.mounted)
+                                          Navigator.pop(context);
                                         EasyLoading.showSuccess(
                                           t.common.tipSuccess,
                                         );
                                       } else {
-                                        Navigator.pop(context, false);
+                                        if (context.mounted)
+                                          Navigator.pop(context, false);
                                         EasyLoading.showError(
                                           t.common.tipFailed,
                                         );

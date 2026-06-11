@@ -215,7 +215,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                     );
                     // 调用 Provider 的 updateItem 方法
                     notifier.updateItem(updatedObj);
-                    Navigator.pop(context);
+                    if (context.mounted) Navigator.pop(context);
                   }
                 });
               },
@@ -272,7 +272,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                   notifier.updateState(
                     currentState.copyWith(items: updatedItems),
                   );
-                  Navigator.pop(context);
+                  if (context.mounted) Navigator.pop(context);
                 }
               },
               iconColor: AppColors.getIosRed(Theme.of(context).brightness),

@@ -46,7 +46,7 @@ class _QrLoginConfirmPageState extends ConsumerState<QrLoginConfirmPage> {
       switch (next) {
         case QrLoginConfirmSuccess() || QrLoginConfirmCancelledByMe():
           Future<dynamic>.delayed(const Duration(milliseconds: 800), () {
-            if (mounted) Navigator.of(context).pop();
+            if (context.mounted) Navigator.of(context).pop();
           });
         default:
           break;
@@ -60,7 +60,7 @@ class _QrLoginConfirmPageState extends ConsumerState<QrLoginConfirmPage> {
           ref.read(qrLoginConfirmProvider.notifier).confirm(widget.qrToken),
       onCancel: () => ref.read(qrLoginConfirmProvider.notifier).cancelByMe(),
       onClose: () {
-        if (mounted) Navigator.of(context).pop();
+        if (context.mounted) Navigator.of(context).pop();
       },
     );
   }

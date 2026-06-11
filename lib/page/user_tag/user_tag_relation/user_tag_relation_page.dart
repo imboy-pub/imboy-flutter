@@ -299,7 +299,8 @@ class _UserTagRelationPageState extends ConsumerState<UserTagRelationPage> {
                           nextTags: tagItems,
                           tagIdByName: _tagIdByName,
                         )) {
-                      Navigator.of(context).pop(tagItems.join(','));
+                      if (context.mounted)
+                        Navigator.of(context).pop(tagItems.join(','));
                     }
                   }
                 },
