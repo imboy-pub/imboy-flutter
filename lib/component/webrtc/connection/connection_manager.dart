@@ -3,6 +3,7 @@
 /// 管理所有 WebRTC 连接的生命周期，替代全局 webRTCSessions Map
 library;
 
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'connection.dart';
 import 'connection_state.dart';
@@ -195,7 +196,9 @@ class WebRTCConnectionManager {
     for (final connection in connections) {
       try {
         await connection.close(reason: reason ?? 'close_all');
-      } catch (e) {}
+      } catch (e) {
+        debugPrint('[connection_manager] close error: $e');
+      }
     }
   }
 

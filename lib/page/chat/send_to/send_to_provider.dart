@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:xid/xid.dart';
@@ -73,7 +74,9 @@ class SendToLogic {
       );
 
       return true;
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[send_to_provider] block error: $e');
+    }
     return false;
   }
 

@@ -1270,7 +1270,9 @@ class MessageActions {
           AppErrorEvent(message: '非好友关系，无法发送消息', errorType: 'not_a_friend'),
         );
         iPrint('✅ [NOT_A_FRIEND] 已发送错误提示事件');
-      } on Object {}
+      } on Object catch (e) {
+        iPrint('[message_actions] iPrint error: $e');
+      }
 
       // 3. 更新消息状态为失败
       // 4. 从重试队列移除
@@ -1286,7 +1288,9 @@ class MessageActions {
             ),
           );
           iPrint('✅ [NOT_A_FRIEND] 消息状态已更新为 error: msgId=$msgId');
-        } on Object {}
+        } on Object catch (e) {
+          iPrint('[message_actions] iPrint error: $e');
+        }
 
         try {
           // 从重试队列移除（不重试）
@@ -1298,7 +1302,9 @@ class MessageActions {
             ),
           );
           iPrint('🗑️ [NOT_A_FRIEND] 消息已从重试队列移除: msgId=$msgId');
-        } on Object {}
+        } on Object catch (e) {
+          iPrint('[message_actions] iPrint error: $e');
+        }
       }
     } on Object catch (e, s) {
       iPrint('❌ [handleNotAFriendError] 处理异常: error=$e\nstacktrace=$s');
@@ -1335,7 +1341,9 @@ class MessageActions {
           ),
         );
         iPrint('✅ [DENYLIST] 已发送错误提示事件');
-      } on Object {}
+      } on Object catch (e) {
+        iPrint('[message_actions] iPrint error: $e');
+      }
 
       // 3. 更新消息状态为失败
       // 4. 从重试队列移除
@@ -1351,7 +1359,9 @@ class MessageActions {
             ),
           );
           iPrint('✅ [DENYLIST] 消息状态已更新为 error: msgId=$msgId');
-        } on Object {}
+        } on Object catch (e) {
+          iPrint('[message_actions] iPrint error: $e');
+        }
 
         try {
           // 从重试队列移除（不重试）
@@ -1363,7 +1373,9 @@ class MessageActions {
             ),
           );
           iPrint('🗑️ [DENYLIST] 消息已从重试队列移除: msgId=$msgId');
-        } on Object {}
+        } on Object catch (e) {
+          iPrint('[message_actions] iPrint error: $e');
+        }
       }
     } on Object catch (e, s) {
       iPrint('❌ [handleDenylistError] 处理异常: error=$e\nstacktrace=$s');

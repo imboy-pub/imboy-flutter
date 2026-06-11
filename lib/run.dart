@@ -42,6 +42,7 @@ Future<void> main() async {
     await AppInitializer.initialize(env: appEnv, signKeyVsn: '1');
     await run();
   } catch (e) {
+    debugPrint('[run] run error: $e');
   }
 }
 

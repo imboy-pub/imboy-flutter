@@ -113,7 +113,9 @@ class MessageActionHandler {
           behavior: SnackBarBehavior.floating,
         ),
       );
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[message_action_handler] Duration error: $e');
+    }
   }
 
   /// 删除消息（仅自己）

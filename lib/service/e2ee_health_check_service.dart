@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
 import 'package:sqflite_sqlcipher/sqflite.dart';
@@ -382,7 +383,10 @@ class E2EEHealthCheckService {
             if (_isE2EEFailedMessage(msg)) {
               failedMessages.add(msg);
             }
-          } catch (e) {}
+          } catch (e) {
+            debugPrint('[e2ee_health_check_service] add error: $e');
+            // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+          }
         }
       }
 

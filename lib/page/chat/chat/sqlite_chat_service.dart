@@ -242,7 +242,9 @@ class SqliteChatService
       await _ref
           .read(messageScrollManagerProvider.notifier)
           .scrollToBottom(animated: animated);
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[sqlite_chat_service] scrollToBottom error: $e');
+    }
   }
 
   /// 滚动到指定消息（优化版）

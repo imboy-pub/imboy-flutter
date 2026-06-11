@@ -350,7 +350,9 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
           return name;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[user_device_provider] block error: $e');
+    }
 
     // 本地库回退
     try {
@@ -359,7 +361,9 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       if (m != null && m.deviceName.isNotEmpty) {
         return m.deviceName;
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[user_device_provider] find error: $e');
+    }
 
     return '';
   }

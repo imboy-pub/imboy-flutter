@@ -388,7 +388,10 @@ class ConversationRepo {
     for (final msgId in msgIds) {
       try {
         MessageRetry.instance.removeFromRetryQueue(msgId);
-      } on Object {}
+      } on Object catch (e) {
+        iPrint('[conversation_repo_sqlite] removeFromRetryQueue error: $e');
+        // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+      }
     }
     iPrint('已从重试队列清理 ${msgIds.length} 条消息: conversationUk3=$uk3');
   }

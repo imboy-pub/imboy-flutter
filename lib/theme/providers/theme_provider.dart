@@ -35,7 +35,9 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
             : (isDarkMode ? ThemeMode.dark : ThemeMode.light);
         state = mode;
       });
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[theme_provider] block error: $e');
+    }
   }
 
   /// 设置主题模式
@@ -50,7 +52,9 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
           prefs.setBool('theme_is_dark_mode', mode == ThemeMode.dark);
         }
       });
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[theme_provider] setBool error: $e');
+    }
   }
 
   /// 切换主题模式
@@ -136,7 +140,9 @@ class ThemeNotifier extends _$ThemeNotifier {
       if (state.followSystemTheme) {
         applySystemTheme();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[theme_provider] applySystemTheme error: $e');
+    }
   }
 
   /// 获取亮色主题（支持动态字体缩放）
@@ -202,7 +208,9 @@ class ThemeNotifier extends _$ThemeNotifier {
       await prefs.setString('theme_font_size', state.fontSizeOption.value);
       await prefs.setBool('theme_follow_system', state.followSystemTheme);
       await prefs.setBool('theme_use_dynamic_color', state.useDynamicColor);
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[theme_provider] setBool error: $e');
+    }
   }
 
   /// 从本地存储加载主题设置

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -73,7 +74,10 @@ class E2EEShardMessageHandler {
           _handleC2CMessage(action, payload, data);
           break;
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[e2ee_shard_message_handler] _handleC2CMessage error: $e');
+      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    }
   }
 
   /// 处理 S2C 消息（服务端到客户端）
@@ -115,7 +119,10 @@ class E2EEShardMessageHandler {
             _sendShardStoredConfirmation(shardId, payload);
           })
           .catchError((Object error) {});
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[e2ee_shard_message_handler] catchError error: $e');
+      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    }
   }
 
   /// 发送分片存储确认消息
@@ -139,7 +146,10 @@ class E2EEShardMessageHandler {
 
       final messageId = E2EESocialService.generateMessageId();
       ws.sendMessage(jsonEncode(confirmMessage), messageId);
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[e2ee_shard_message_handler] sendMessage error: $e');
+      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    }
   }
 
   /// 处理分片存储确认
@@ -245,7 +255,12 @@ class E2EEShardMessageHandler {
           .catchError((Object error) {
             _sendDecryptShardError(shardId, '读取分片失败');
           });
-    } catch (e) {}
+    } catch (e) {
+      debugPrint(
+        '[e2ee_shard_message_handler] _sendDecryptShardError error: $e',
+      );
+      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    }
   }
 
   /// 发送解密后的分片
@@ -271,7 +286,10 @@ class E2EEShardMessageHandler {
 
       final messageId = E2EESocialService.generateMessageId();
       ws.sendMessage(jsonEncode(responseMessage), messageId);
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[e2ee_shard_message_handler] sendMessage error: $e');
+      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    }
   }
 
   /// 发送解密分片错误
@@ -291,7 +309,10 @@ class E2EEShardMessageHandler {
 
       final messageId = E2EESocialService.generateMessageId();
       ws.sendMessage(jsonEncode(errorMessage), messageId);
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[e2ee_shard_message_handler] sendMessage error: $e');
+      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    }
   }
 
   /// 使用代理的私钥解密分片

@@ -232,7 +232,9 @@ class QRLogin extends _$QRLogin {
             );
             timer.cancel();
         }
-      } catch (e) {}
+      } catch (e) {
+        debugPrint('[web_login_page] cancel error: $e');
+      }
     });
   }
 

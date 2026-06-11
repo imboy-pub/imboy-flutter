@@ -283,7 +283,9 @@ class ChatPageState extends ConsumerState<ChatPage>
           final stats = performanceMonitor.getMemoryStats();
         }
       });
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_page] getMemoryStats error: $e');
+    }
   }
 
   // 延迟初始化控制器（需要 ref 访问）
@@ -413,7 +415,9 @@ class ChatPageState extends ConsumerState<ChatPage>
       );
       if (!mounted || me == null) return;
       _currentUserGroupRole = me.role;
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_page] GroupMemberRepo error: $e');
+    }
   }
 
   /// 预加载E2EE设备密钥
@@ -495,13 +499,17 @@ class ChatPageState extends ConsumerState<ChatPage>
           _editingMessageId = id;
         },
       );
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_page] block error: $e');
+    }
   }
 
   Future<void> _applySecureFlag() async {
     try {
       await _secureChannel.invokeMethod(_burnEnabled ? 'enable' : 'disable');
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_page] invokeMethod error: $e');
+    }
   }
 
   // 检查消息是否为阅后即焚（使用工具类）
@@ -648,7 +656,9 @@ class ChatPageState extends ConsumerState<ChatPage>
           _clearMuteState();
         }, onError: (Object error) {});
       }
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_page] _clearMuteState error: $e');
+    }
   }
 
   /// 群成员被禁言时（通过 GroupMemberMuteEvent）更新输入框禁用状态。
@@ -764,7 +774,9 @@ class ChatPageState extends ConsumerState<ChatPage>
     // Riverpod Provider 会自动处理资源释放
     try {
       _secureChannel.invokeMethod('disable');
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_page] invokeMethod error: $e');
+    }
 
     super.dispose();
   }
@@ -795,7 +807,9 @@ class ChatPageState extends ConsumerState<ChatPage>
       } else {
         ref.read(activeConversationProvider.notifier).clearActiveConversation();
       }
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_page] read error: $e');
+    }
   }
 
   // 移除了 _clearUnreadOnEnter()，依靠消息本身的可见性检查来渐进式消除未读数
@@ -888,7 +902,9 @@ class ChatPageState extends ConsumerState<ChatPage>
           curve: Curves.easeOutCubic,
         );
       }
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_page] Duration error: $e');
+    }
   }
 
   // 标记消息为已读

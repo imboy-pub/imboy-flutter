@@ -323,7 +323,9 @@ class WebRTCConnection {
       );
 
       await _stateController.close();
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[connection] close error: $e');
+    }
   }
 
   /// 设置状态

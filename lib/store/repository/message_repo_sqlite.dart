@@ -642,7 +642,10 @@ class MessageRepo implements MessageRepository {
         CREATE INDEX IF NOT EXISTS idx_${tableName}_conversation_created
         ON $tableName (${MessageRepo.conversationUk3}, ${MessageRepo.createdAt} DESC)
       ''');
-    } on Object {}
+    } on Object catch (e) {
+      func_helper.iPrint('[message_repo_sqlite] execute error: $e');
+      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    }
   }
 
   //
@@ -848,7 +851,10 @@ class MessageRepo implements MessageRepository {
               if (decoded is Map) {
                 payload = decoded.cast<String, dynamic>();
               }
-            } on Object {}
+            } on Object catch (e) {
+              func_helper.iPrint('[message_repo_sqlite] decode error: $e');
+              // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+            }
           }
 
           // WebSocket API v2.0: msg_type/action/e2ee 在顶层，不在 payload 内
@@ -1046,7 +1052,10 @@ class MessageRepo implements MessageRepository {
           avatar = ct?.avatar ?? '';
           title = ct?.title ?? '';
         }
-      } on Object {}
+      } on Object catch (e) {
+        func_helper.iPrint('[message_repo_sqlite] findByUid error: $e');
+        // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+      }
 
       // WebSocket API v2.0: 从顶层字段读取 msg_type 和 status
       if (kDebugMode) {
@@ -1136,7 +1145,10 @@ class MessageRepo implements MessageRepository {
             await msg.toMessageModel().toTypeMessage(),
             'Message',
           );
-        } on Object {}
+        } on Object catch (e) {
+          func_helper.iPrint('[message_repo_sqlite] toMessageModel error: $e');
+          // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+        }
       }
     }
   }

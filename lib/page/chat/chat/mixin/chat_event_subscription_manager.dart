@@ -85,7 +85,11 @@ class ChatEventSubscriptionManager {
       _setupMessageStateListener(onMountedStateChanged);
       _setupReEditListener();
       _setupAppErrorListener(onMountedStateChanged);
-    } catch (e) {}
+    } catch (e) {
+      iPrint(
+        '[chat_event_subscription_manager] _setupAppErrorListener error: $e',
+      );
+    }
   }
 
   /// 监听聊天扩展事件（加入群组、清理消息、删除消息等）
@@ -135,7 +139,9 @@ class ChatEventSubscriptionManager {
                 ?.removeMessageById(obj.payload['msg']?.id as String? ?? '');
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        iPrint('[chat_event_subscription_manager] removeMessageById error: $e');
+      }
     }, onError: (Object error) {});
   }
 
@@ -203,7 +209,9 @@ class ChatEventSubscriptionManager {
           const Duration(seconds: 5),
           () => msgIds.remove(msg.id),
         );
-      } catch (e) {}
+      } catch (e) {
+        iPrint('[chat_event_subscription_manager] remove error: $e');
+      }
     }, onError: (Object error) {});
   }
 
@@ -271,7 +279,9 @@ class ChatEventSubscriptionManager {
         } else {
           iPrint('消息未找到或组件未挂载: msgId=${msg.id}');
         }
-      } catch (e) {}
+      } catch (e) {
+        iPrint('[chat_event_subscription_manager] iPrint error: $e');
+      }
     }, onError: (Object error) {});
   }
 
@@ -286,7 +296,9 @@ class ChatEventSubscriptionManager {
         }
         // 将消息文本填充到输入框
         chatInputKey.currentState?.setText(msg.text);
-      } catch (e) {}
+      } catch (e) {
+        iPrint('[chat_event_subscription_manager] setText error: $e');
+      }
     }, onError: (Object error) {});
   }
 
@@ -300,7 +312,9 @@ class ChatEventSubscriptionManager {
           // 这里需要 context 来显示 SnackBar，由调用者处理
           iPrint('✅ [AppErrorEvent] 收到错误: ${error.message}');
         }
-      } catch (e) {}
+      } catch (e) {
+        iPrint('[chat_event_subscription_manager] iPrint error: $e');
+      }
     }, onError: (Object error) {});
   }
 

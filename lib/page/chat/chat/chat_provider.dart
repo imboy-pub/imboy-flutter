@@ -394,7 +394,9 @@ class ChatNotifier extends _$ChatNotifier {
 
     try {
       MessageRetry.instance.removeFromRetryQueue(msg.id);
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_provider] removeFromRetryQueue error: $e');
+    }
 
     final ConversationRepo repo = ConversationRepo();
     final String tb = MessageRepo.getTableName(cm.type);
@@ -407,7 +409,9 @@ class ChatNotifier extends _$ChatNotifier {
         if (_chatService?.isDisposed != true) {
           await _chatService?.removeMessageById(msg.id);
         }
-      } catch (e) {}
+      } catch (e) {
+        iPrint('[chat_provider] removeMessageById error: $e');
+      }
 
       final items = await mRepo.page(conversationUk3: cm.uk3, page: 1, size: 1);
       final lastMsg = items.isEmpty ? null : items[0];
@@ -533,7 +537,9 @@ class ChatNotifier extends _$ChatNotifier {
       if (updated.isNotEmpty) {
         AppEventBus.fireData(updated);
       }
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_provider] fireData error: $e');
+    }
   }
 
   Future<void> _enqueueReadReceipt({
@@ -569,7 +575,9 @@ class ChatNotifier extends _$ChatNotifier {
           : (jsonDecode(raw) is List ? (jsonDecode(raw) as List) : <dynamic>[]);
       list.add(item);
       await sp.setString(key, jsonEncode(list));
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_provider] setString error: $e');
+    }
   }
 
   Future<void> _flushPending(String key) async {
@@ -600,7 +608,9 @@ class ChatNotifier extends _$ChatNotifier {
       }
 
       await sp.setString(key, '[]');
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_provider] setString error: $e');
+    }
   }
 
   /// 阅后即焚清理
@@ -1162,7 +1172,9 @@ class ChatNotifier extends _$ChatNotifier {
       ref
           .read(messageScrollManagerProvider.notifier)
           .highlightMessage(messageId);
-    } catch (e) {}
+    } catch (e) {
+      iPrint('[chat_provider] highlightMessage error: $e');
+    }
   }
 
   Future<void> updateConversationAfterRevoke(

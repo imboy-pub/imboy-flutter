@@ -74,7 +74,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         _muteEnabled = (conversation?.isMuted ?? 0) > 0;
         _conversationId = conversation?.id;
       });
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[chat_setting_page] block error: $e');
+    }
   }
 
   /// C7-α-2: 持久化 DND 开关到 conversation.is_muted 列
@@ -85,7 +87,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         ConversationRepo.isMuted: muted ? 1 : 0,
       });
       backDoRefresh = true;
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[chat_setting_page] ConversationRepo error: $e');
+    }
   }
 
   Future<void> _persistBurnSetting() async {

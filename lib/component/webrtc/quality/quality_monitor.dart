@@ -3,6 +3,7 @@
 /// 监控网络连接质量并自适应调整码率
 library;
 
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:flutter_webrtc/flutter_webrtc.dart' show RTCRtpEncoding;
 import '../connection/connection.dart';
@@ -124,7 +125,9 @@ class WebRTCNetworkQualityMonitor {
       if (config.enableAdaptiveBitrate) {
         _adjustBitrate();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[quality_monitor] _adjustBitrate error: $e');
+    }
   }
 
   /// 解析统计信息
@@ -247,7 +250,9 @@ class WebRTCNetworkQualityMonitor {
         parameters.encodings = updated;
         await sender.setParameters(parameters);
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[quality_monitor] setParameters error: $e');
+    }
   }
 
   /// 释放资源

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -48,7 +49,9 @@ class AppFeatureRegistry {
       );
       _cache = normalized;
       await StorageService.setMap(Keys.appFeatures, normalized);
-    } catch (error) {}
+    } catch (error) {
+      debugPrint('[app_feature_registry] setMap error: $error');
+    }
   }
 
   static bool isEnabled(String featureKey) {

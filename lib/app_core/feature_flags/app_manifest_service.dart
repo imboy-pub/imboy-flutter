@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
@@ -108,7 +109,9 @@ class AppManifestService {
         _etag = newEtag;
         await StorageService.to.setString(Keys.appManifestEtag, newEtag);
       }
-    } catch (error) {}
+    } catch (error) {
+      debugPrint('[app_manifest_service] setString error: $error');
+    }
   }
 
   /// Replace cache for testing.

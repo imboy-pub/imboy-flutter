@@ -246,7 +246,10 @@ class UserRepoLocal {
       try {
         E2EEService.clearCache();
         iPrint("> quitLogin: E2EE cache cleared");
-      } on Object catch (e) {}
+      } on Object catch (e) {
+        iPrint('[user_repo_local] iPrint error: $e');
+        // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+      }
 
       iPrint("> quitLogin: Clearing secure tokens");
       try {

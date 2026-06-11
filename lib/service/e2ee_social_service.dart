@@ -91,7 +91,10 @@ class E2EESocialService {
 
       // 保存新元数据
       await StorageSecureService.to.saveE2EEShardMetadataList(metadataList);
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[e2ee_social_service] saveE2EEShardMetadataList error: $e');
+      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    }
   }
 
   /// 获取本地存储的分片元数据
@@ -120,7 +123,12 @@ class E2EESocialService {
         shardId,
         status,
       );
-    } catch (e) {}
+    } catch (e) {
+      debugPrint(
+        '[e2ee_social_service] updateE2EEShardMetadataStatus error: $e',
+      );
+      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    }
   }
 
   /// 清理本地分片数据
@@ -128,7 +136,10 @@ class E2EESocialService {
     try {
       await StorageSecureService.to.deleteE2EEShardMetadataList();
       await StorageSecureService.to.deleteAllE2EEShards();
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[e2ee_social_service] deleteAllE2EEShards error: $e');
+      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    }
   }
 
   /// 获取用户的恢复分片
@@ -663,7 +674,10 @@ class E2EESocialService {
         if (success) {
           sentCount++;
         }
-      } catch (e) {}
+      } catch (e) {
+        debugPrint('[e2ee_social_service] sendMessage error: $e');
+        // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+      }
     }
 
     return sentCount;
@@ -729,7 +743,10 @@ class E2EESocialService {
             final shard = jsonDecode(shardJson) as Map<String, dynamic>;
             shards.add(shard);
           }
-        } catch (e) {}
+        } catch (e) {
+          debugPrint('[e2ee_social_service] add error: $e');
+          // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+        }
       }
 
       return shards;
