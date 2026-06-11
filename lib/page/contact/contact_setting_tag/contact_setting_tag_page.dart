@@ -83,7 +83,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                       )) {
                     EasyLoading.showSuccess(t.common.tipSuccess);
                     widget.onRemarkChanged?.call(trimmedText);
-                    if (mounted) Navigator.of(context).pop(trimmedText);
+                    if (context.mounted) Navigator.of(context).pop(trimmedText);
                   }
                 }
               : null,

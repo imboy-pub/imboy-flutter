@@ -244,7 +244,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                             .read(addMemberProvider.notifier)
                             .joinGroup(widget.groupId, state.selects);
                         EasyLoading.dismiss();
-                        if (res && mounted) {
+                        if (res && context.mounted) {
                           ref.read(addMemberProvider.notifier).resetData();
                           Navigator.of(context).pop();
                         }

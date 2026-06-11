@@ -283,7 +283,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
                   onTap: () async {
                     Navigator.of(sheetCtx).pop();
                     await Clipboard.setData(ClipboardData(text: copyable));
-                    if (!mounted) return;
+                    if (!ctx.mounted) return;
                     ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
                       SnackBar(
                         content: Text(t.main.copied),
@@ -327,7 +327,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
         message.id,
         widget.selection.chatType,
       );
-      if (!mounted) return;
+      if (!ctx.mounted) return;
       ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
         SnackBar(
           content: Text(ok ? t.common.revokeSuccess : t.common.revokeFailed),
@@ -335,7 +335,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
         ),
       );
     } catch (e) {
-      if (!mounted) return;
+      if (!ctx.mounted) return;
       ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
         SnackBar(
           content: Text('${t.common.revokeFailed}: $e'),

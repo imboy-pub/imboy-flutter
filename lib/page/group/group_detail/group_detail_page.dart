@@ -177,7 +177,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   GroupModel? group = await GroupDetailService().find(
                     widget.groupId,
                   );
-                  if (group != null && mounted) {
+                  if (group != null && context.mounted) {
                     Navigator.push(
                       context,
                       CupertinoPageRoute<void>(
@@ -202,7 +202,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   GroupModel? group = await GroupDetailService().find(
                     widget.groupId,
                   );
-                  if (group != null && mounted) {
+                  if (group != null && context.mounted) {
                     context.push('/qrcode/group', extra: {'group': group});
                   }
                 },

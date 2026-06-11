@@ -237,7 +237,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                   .read(contactSettingProvider.notifier)
                   .deleteContact(widget.peerId)) {
                 EasyLoading.showSuccess(t.common.tipSuccess);
-                if (mounted) context.go('/bottom_navigation');
+                if (context.mounted) context.go('/bottom_navigation');
               } else {
                 EasyLoading.showError(t.common.error);
               }

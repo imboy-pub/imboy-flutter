@@ -213,7 +213,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
               final error = await ref
                   .read(bindEmailProvider.notifier)
                   .sendCode();
-              if (error != null && mounted) {
+              if (error != null && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(error),

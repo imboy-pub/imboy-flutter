@@ -170,7 +170,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                   .read(removeMemberProvider.notifier)
                   .removeMembers(widget.groupId);
               EasyLoading.dismiss();
-              if (res && mounted) {
+              if (res && context.mounted) {
                 context.pop(state.selects);
               } else {
                 EasyLoading.showError(t.common.tipFailed);

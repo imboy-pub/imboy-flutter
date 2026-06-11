@@ -215,7 +215,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
               final error = await ref
                   .read(bindMobileProvider.notifier)
                   .sendCode();
-              if (error != null && mounted) {
+              if (error != null && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(error),

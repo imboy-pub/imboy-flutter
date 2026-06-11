@@ -538,7 +538,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           .deleteDevice(widget.model.deviceId);
       EasyLoading.dismiss();
 
-      if (res && mounted) {
+      if (res && context.mounted) {
         EasyLoading.showSuccess(t.common.tipSuccess);
         Navigator.of(context).pop(); // 返回设备列表页
       } else {

@@ -68,7 +68,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                       await Future<dynamic>.delayed(
                         const Duration(milliseconds: 100),
                       );
-                      if (!mounted) return;
+                      if (!context.mounted) return;
                       context.push('/account_security');
                     },
                   ),
@@ -82,7 +82,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                       await Future<dynamic>.delayed(
                         const Duration(milliseconds: 100),
                       );
-                      if (!mounted) return;
+                      if (!context.mounted) return;
                       context.push('/account_security');
                     },
                   ),

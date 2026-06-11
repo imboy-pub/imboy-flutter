@@ -277,7 +277,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
     if (id != null && !item.isRead) {
       await notifier.markRead(id);
     }
-    if (!mounted) return;
+    if (!context.mounted) return;
     context.push('/moment/${item.momentId}');
   }
 
