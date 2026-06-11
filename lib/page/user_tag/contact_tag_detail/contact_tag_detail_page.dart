@@ -486,18 +486,20 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                         )
                                                         .updateTag(updatedTag);
 
-                                                    Navigator.pop(
-                                                      context,
-                                                      true,
-                                                    );
+                                                    if (context.mounted)
+                                                      Navigator.pop(
+                                                        context,
+                                                        true,
+                                                      );
                                                     EasyLoading.showSuccess(
                                                       t.common.tipSuccess,
                                                     );
                                                   } else {
-                                                    Navigator.pop(
-                                                      context,
-                                                      false,
-                                                    );
+                                                    if (context.mounted)
+                                                      Navigator.pop(
+                                                        context,
+                                                        false,
+                                                      );
                                                     EasyLoading.showError(
                                                       t.common.tipFailed,
                                                     );

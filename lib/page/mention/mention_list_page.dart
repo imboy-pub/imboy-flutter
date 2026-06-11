@@ -121,7 +121,8 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
       await _markAsRead(mentionId);
     }
 
-    if (groupId.isEmpty || msgId.isEmpty || !mounted) {
+    if (!mounted) return;
+    if (groupId.isEmpty || msgId.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(t.mention.navInfoMissing)));

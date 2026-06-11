@@ -274,6 +274,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
 
         if (kDebugMode) {}
 
+        if (!mounted) return;
         showCupertinoDialog<void>(
           context: context,
           builder: (context) {

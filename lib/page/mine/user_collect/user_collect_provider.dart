@@ -755,6 +755,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     Icons.close,
                     size: 16,
                     color: Theme.of(
+                      // ignore: use_build_context_synchronously resolveWith 同步回调,paint 时 context 有效
                       context,
                     ).colorScheme.onPrimary.withValues(alpha: 0.75),
                   ),
@@ -831,6 +832,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                         Icons.grid_view,
                         size: 18,
                         color: Theme.of(
+                          // ignore: use_build_context_synchronously resolveWith 同步回调,paint 时 context 有效
                           context,
                         ).colorScheme.onPrimary.withValues(alpha: 0.8),
                       ),
@@ -850,6 +852,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     Icons.close,
                     size: 16,
                     color: Theme.of(
+                      // ignore: use_build_context_synchronously resolveWith 同步回调,paint 时 context 有效
                       context,
                     ).colorScheme.onPrimary.withValues(alpha: 0.7),
                   ),

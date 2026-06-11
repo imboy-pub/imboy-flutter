@@ -163,6 +163,7 @@ class UserCollectDetailPage extends ConsumerWidget {
 
                 try {
                   var msg = await MessageModel.fromJson(info).toTypeMessage();
+                  if (!context.mounted) return;
 
                   // 使用 Navigator.push 替代 Get.to
                   Navigator.push(

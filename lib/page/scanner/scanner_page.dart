@@ -333,6 +333,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                             image.path,
                           );
                           if (kDebugMode) {}
+                          if (!context.mounted) return;
                           if (res == null) {
                             state.showSnackBar(
                               SnackBar(

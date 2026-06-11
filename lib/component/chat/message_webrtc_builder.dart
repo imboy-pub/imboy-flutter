@@ -141,6 +141,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
           ? null
           : () async {
               ContactModel? peer = await ContactRepo().findByUid(peerId);
+              if (!context.mounted) return;
               // UserModel peer = UserModel(
               //   uid: peerId,
               //   account: c!.account,

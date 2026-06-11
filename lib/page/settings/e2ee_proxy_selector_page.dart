@@ -171,6 +171,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           });
         } on Exception {
           // 关闭加载对话框
+          if (!mounted) return;
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

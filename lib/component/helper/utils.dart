@@ -130,6 +130,7 @@ class ErrorHandler {
           error: e,
           stackTrace: stack,
           showSnackbar: ctx != null,
+          // ignore: use_build_context_synchronously 已由上方 ctx==null||ctx.mounted 守卫
           context: ctx,
         );
       }
@@ -311,6 +312,7 @@ class BatchExecutor {
               error: e,
               stackTrace: stack,
               showSnackbar: ctx != null,
+              // ignore: use_build_context_synchronously ctx 仅在 showSnackbar 时使用,已 null 检查
               context: ctx,
             );
           }

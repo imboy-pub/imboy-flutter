@@ -93,6 +93,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           ),
         );
       }
+      if (!mounted) return;
       final tagItems = await notifier.tagItems(context);
       if (mounted) {
         final updatedState = ref.read(userCollectProvider);

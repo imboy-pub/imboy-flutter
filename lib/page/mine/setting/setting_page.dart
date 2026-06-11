@@ -438,6 +438,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     );
     if (confirmed == true && context.mounted) {
       await UserRepoLocal.to.quitLogin();
+      // ignore: use_build_context_synchronously 已内联 context.mounted 守卫
       if (context.mounted) context.go('/welcome');
     }
   }
