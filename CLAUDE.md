@@ -146,4 +146,4 @@ lib/i18n/
 - Widget 测试用 `ProviderScope` 包裹组件。
 - 单元测试直接测业务逻辑，不依赖 UI 层。
 - 纯函数契约测试 + SQLite ffi in-memory 测试优先。
-- 当前基线：全量回归绿（`flutter analyze` 零警告）。
+- 当前基线（2026-06-11）：`dart analyze lib` 从 353 降至约 60 个问题、**零 error**。已清零的类别：空 catch（85→0，均补可观测日志）、未用 import/catch 子句/catch 栈、`use_build_context_synchronously`（57→0，加 mounted/context.mounted 守卫）、未用局部变量。剩余约 60 项为 `dead_code`/`unused_field`/`unused_element` 等，属死代码清理范围（CLEANUP_PLAN T12），尚未处理。**勿再宣称"零警告"**——以 `dart analyze lib` 实跑为准。
