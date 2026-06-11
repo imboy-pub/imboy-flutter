@@ -347,7 +347,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       _setupEventListeners();
     } catch (e) {
       // 显示错误提示
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${t.common.chatInitFailed}: $e')),
         );
@@ -1029,7 +1029,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     );
 
     // 如果用户选择了好友，发送名片消息
-    if (result != null && mounted) {
+    if (result != null && context.mounted) {
       await _attachmentHandler.sendVisitCardMessage(
         context,
         result.peerId.toString(),
@@ -1058,7 +1058,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     );
 
     // 如果用户选择了收藏消息，发送它
-    if (result != null && mounted) {
+    if (result != null && context.mounted) {
       try {
         await _attachmentHandler.sendCollectMessage(context, result.info);
       } catch (e) {

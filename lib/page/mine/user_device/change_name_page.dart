@@ -76,7 +76,7 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
                     });
                   } else {
                     bool res = await widget.callback(trimmedText);
-                    if (res && mounted) {
+                    if (res && context.mounted) {
                       Navigator.of(context).pop();
                     }
                   }
@@ -135,7 +135,7 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
             });
           } else {
             bool res = await widget.callback(val);
-            if (res && mounted) {
+            if (res && context.mounted) {
               Navigator.of(context).pop();
             }
           }
