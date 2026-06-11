@@ -289,20 +289,6 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
             child: const Icon(Icons.close),
           ),
         ),
-        // rightDMActions: <Widget>[
-        //   ComMomButton(
-        //     margin: const EdgeInsets.symmetric(
-        //       vertical: 7,
-        //       horizontal: 5,
-        //     ),
-        //     onTap: () {
-        //       if (!listNoEmpty(selects)) {
-        //         Get.snackbar('', t.common.pleaseSelectMembersForAdd);
-        //       }
-        //     },
-        //     text: t.common.buttonConfirm,
-        //   ),
-        // ],
       ),
       body: Stack(
         children: [

@@ -1,20 +1,5 @@
 import 'package:imboy/service/storage_secure.dart' show StorageSecureService;
 
-/*
-// 保存
-await SecureTokenStorageService.saveToken("your_token_here");
-await SecureTokenStorageService.saveRefreshToken("your_refresh_token_here");
-
-// 读取
-String token = await SecureTokenStorageService.getToken();
-String refreshToken = await SecureTokenStorageService.getRefreshToken();
-
-// 清空
-await SecureTokenStorageService.clear();
-await SecureKeyService.clear();
-
- */
-
 /// Token 安全存储服务
 ///
 /// 使用 flutter_secure_storage（iOS Keychain / Android EncryptedSharedPreferences）

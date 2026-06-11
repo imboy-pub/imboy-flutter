@@ -21,7 +21,6 @@
 | `migration_service.dart` | 数据库迁移（含快照备份） | upgrade/downgrade.sql |
 | `storage.dart` | 键值对存储 | shared_preferences |
 | `storage_secure.dart` | 安全存储 | flutter_secure_storage |
-| `secure_key_service.dart` | 安全密钥管理 | - |
 | `secure_token_storage_service.dart` | Token 存储 | - |
 | `encrypter.dart` | AES 加密解密 | pointycastle |
 | `rsa.dart` | RSA 加密 | pointycastle |

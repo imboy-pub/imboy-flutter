@@ -276,32 +276,6 @@ GoRouter createAppRouter({
         pageBuilder: (context, state) =>
             CupertinoPage(key: state.pageKey, child: const LaunchChatPage()),
       ),
-      // 新路由（使用 Riverpod 版本的 ChatPageRiverpod）
-      // 示例：/chat_riverpod/user123?type=C2C&title=测试&avatar=xxx
-      GoRoute(
-        path: '/chat_riverpod/:peerId',
-        name: 'chat_riverpod',
-        pageBuilder: (context, state) {
-          final peerId = state.pathParameters['peerId'] ?? '';
-          final type = state.uri.queryParameters['type'] ?? 'C2C';
-          final msgId = state.uri.queryParameters['msg_id'] ?? '';
-          final title = state.uri.queryParameters['title'] ?? '';
-          final avatar = state.uri.queryParameters['avatar'] ?? '';
-          final sign = state.uri.queryParameters['sign'] ?? '';
-          return CupertinoPage(
-            key: state.pageKey,
-            child: ChatPage(
-              peerId: peerId,
-              type: type,
-              peerTitle: title,
-              peerAvatar: avatar,
-              peerSign: sign,
-              msgId: msgId,
-            ),
-          );
-        },
-      ),
-
       // ==================== 联系人相关 ====================
       GoRoute(
         path: '/contact',

@@ -34,7 +34,6 @@
 | `SearchField` | `ui/search_field.dart` | 搜索框 |
 | `Password` | `ui/password.dart` | 密码输入 |
 | `ContactCard` | `ui/contact_card.dart` | 联系人卡片 |
-| `EasyDialog` | `ui/easy_dialog.dart` | 对话框 |
 | `GesturePageRoute` | `ui/gesture_page_route.dart` | iOS 风格滑动返回路由 |
 
 路由跳转推荐：`CupertinoPageRoute` 或 `RouteHelper.pushWithGesture(context, builder)`。
@@ -42,8 +41,6 @@
 ---
 
 ## 聊天组件
-
-消息类型枚举（`chat/enum.dart`）：`text | image | video | audio | file | location | custom | quote | webrtc | revoke`
 
 | Builder | 文件 | 触发条件 |
 |---------|------|---------|

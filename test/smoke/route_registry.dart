@@ -67,7 +67,6 @@ const Set<String> leakyRoutesQuarantine = {
   'channel_list',
   'channel_subscribers',
   'chat',
-  'chat_riverpod',
   // E2EE 页 initState 经 service 异步加载（getPendingTransfers/getShards），触发 token 过期 →
   // quitLogin → PersistentMessageQueue 周期清理 Timer + dio http2 socket Timer 泄漏，
   // 无头烟雾测试 teardown 触发 pending-timer 不变量失败，非渲染崩溃，由 integration_test 覆盖
@@ -160,7 +159,6 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
         '构造成本高，留待 E2E 覆盖',
   ),
   const SmokeRoute(name: 'launch_chat', location: '/launch_chat'),
-  const SmokeRoute(name: 'chat_riverpod', location: '/chat_riverpod/1001'),
 
   // ==================== 联系人（嵌套） ====================
   const SmokeRoute(name: 'contact', location: '/contact'),

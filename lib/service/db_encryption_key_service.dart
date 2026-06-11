@@ -4,7 +4,7 @@ import 'package:imboy/service/storage_secure.dart';
 
 /// 数据库加密密钥管理服务
 ///
-/// 专门管理 SQLCipher 数据库的加密密钥，与 SecureKeyService（AES 密钥）分离。
+/// 专门管理 SQLCipher 数据库的加密密钥。
 /// 每个用户独立密钥（数据库文件本身已按 uid 隔离）。
 ///
 /// 设计决策：

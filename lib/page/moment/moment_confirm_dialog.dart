@@ -4,12 +4,6 @@ import 'package:imboy/theme/default/app_colors.dart';
 
 /// 朋友圈模块专用的确认对话框。
 ///
-/// 为什么不复用 `EasyDialog.showConfirm`：
-/// - `EasyDialog` 是 callback 风格（`onConfirm`/`onCancel`），需要自己 pop；
-///   这里的调用方希望 `Future<bool>` 直接 await，两种 API 叠加更乱。
-/// - 破坏性操作（删除朋友圈、删除评论）需要 `AppColors.iosRed` 的确认按钮，
-///   改共享 dialog 会污染其他模块；模块私有更安全。
-///
 /// 约束：
 /// - barrier 点击视为"取消"，返回 false（防止点空白误触发破坏性操作）。
 /// - `isDestructive = true` 时 confirm 按钮文字色切到 `AppColors.iosRed`。
