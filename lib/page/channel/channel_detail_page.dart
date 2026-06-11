@@ -707,17 +707,17 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     final t = context.t;
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(t.channel.deleteChannel),
         content: Text(t.channel.deleteChannelConfirm),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(t.common.cancel),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               final success = await _channelService.deleteChannel(
                 channel.id.toString(),
               );
@@ -1202,17 +1202,17 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       case 'unsubscribe':
         showDialog<void>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (dialogContext) => AlertDialog(
             title: Text(t.channel.unsubscribeConfirm),
             content: Text(t.channel.unsubscribeConfirmDesc),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.pop(dialogContext),
                 child: Text(t.common.cancel),
               ),
               TextButton(
                 onPressed: () async {
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                   final success = await ref
                       .read(channelListProvider.notifier)
                       .unsubscribeChannel(channelId);
@@ -1692,7 +1692,7 @@ class _ChannelMessageItem extends StatelessWidget {
                                   ),
                                 ],
                               ).then((value) {
-                                if (value != null) {
+                                if (value != null && context.mounted) {
                                   _handleMessageAction(value, context);
                                 }
                               });

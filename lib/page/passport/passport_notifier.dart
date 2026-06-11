@@ -833,7 +833,7 @@ class PassportNotifier extends _$PassportNotifier {
       if (action == 'need_set_password') {
         await StorageService.to.setBool(Keys.needSetPwd, true);
         final context = navigatorKey.currentContext;
-        if (context != null) {
+        if (context != null && context.mounted) {
           Navigator.pushReplacement(
             context,
             CupertinoPageRoute<dynamic>(builder: (_) => SetPasswordPage()),
@@ -843,7 +843,7 @@ class PassportNotifier extends _$PassportNotifier {
         final user = UserRepoLocal.to.current;
         final needGuide = (user.email.isEmpty || user.mobile.isEmpty);
         final context = navigatorKey.currentContext;
-        if (context != null) {
+        if (context != null && context.mounted) {
           if (needGuide) {
             Navigator.pushAndRemoveUntil(
               context,
@@ -897,7 +897,7 @@ class PassportNotifier extends _$PassportNotifier {
     }
 
     final context = navigatorKey.currentContext;
-    if (context == null) {
+    if (context == null || !context.mounted) {
       snackBar('无法获取屏幕尺寸');
       return null;
     }

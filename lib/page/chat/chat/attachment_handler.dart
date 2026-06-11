@@ -88,6 +88,7 @@ class ChatAttachmentHandler {
   Future<void> handleFileSelection(BuildContext context) async {
     final result = await FilePicker.pickFiles(type: FileType.any);
     if (result == null || result.files.single.path == null) return;
+    if (!context.mounted) return;
     await uploadFile(context, result.files.single);
   }
 
@@ -264,6 +265,7 @@ class ChatAttachmentHandler {
     if (!hasPermission) return;
 
     final result = await onSelect();
+    if (!context.mounted) return;
     if (result != null) {
       for (var entity in result) {
         await uploadSelectedAsset(context, entity);
