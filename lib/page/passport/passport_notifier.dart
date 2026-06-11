@@ -431,7 +431,7 @@ class PassportNotifier extends _$PassportNotifier {
         "password": encryptedPassword,
         "rsa_encrypt": rsaEncrypt,
       };
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (kDebugMode) {}
       return <String, dynamic>{
         "error": "${t.common.passwordEncryptFailed}: $e",
@@ -505,7 +505,7 @@ class PassportNotifier extends _$PassportNotifier {
         }
         return 1;
       }
-    } on PlatformException catch (e, s) {
+    } on PlatformException catch (e) {
       if (kDebugMode) {}
       if (e.code.contains('34018') ||
           e.message?.contains('entitlement') == true) {
@@ -514,7 +514,7 @@ class PassportNotifier extends _$PassportNotifier {
         safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
       }
       return 0;
-    } catch (e, s) {
+    } catch (e) {
       if (kDebugMode) {}
       safeUpdateState((state) => state.copyWith(error: '登录失败，请重试'));
       return 0;
@@ -580,10 +580,10 @@ class PassportNotifier extends _$PassportNotifier {
   Future<String> _getLoginPublicKey() async {
     try {
       return await RSAService.publicKey();
-    } on PlatformException catch (e, stackTrace) {
+    } on PlatformException catch (e) {
       if (kDebugMode) {}
       return '';
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (kDebugMode) {}
       return '';
     }

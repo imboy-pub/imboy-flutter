@@ -31,7 +31,7 @@ bool tokenExpired(String? token) {
     if (kDebugMode && expired) {}
 
     return expired;
-  } on JoseException catch (e) {
+  } on JoseException {
     if (kDebugMode) {}
     return true;
   } catch (e) {

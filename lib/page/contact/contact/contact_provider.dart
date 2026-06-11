@@ -1,10 +1,8 @@
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
-import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/api/contact_api.dart' as contact_provider;
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';

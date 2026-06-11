@@ -588,7 +588,7 @@ class RSAService {
 
       final result = base64.encode(encrypted);
       return result;
-    } catch (e, stackTrace) {
+    } catch (e) {
       throw Exception('RSA 加密失败: $e');
     }
   }

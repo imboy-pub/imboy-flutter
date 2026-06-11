@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:imboy/service/storage_secure.dart' show StorageSecureService;
 
 /*
@@ -39,7 +38,7 @@ class SecureTokenStorageService {
     try {
       final token = await StorageSecureService.to.read(key: _tokenKey);
       return token ?? '';
-    } on Exception catch (e) {
+    } on Exception {
       rethrow;
     }
   }
@@ -50,7 +49,7 @@ class SecureTokenStorageService {
         key: _refreshTokenKey,
       );
       return refreshToken ?? '';
-    } on Exception catch (e) {
+    } on Exception {
       rethrow;
     }
   }
@@ -59,7 +58,7 @@ class SecureTokenStorageService {
     try {
       await StorageSecureService.to.delete(key: _tokenKey);
       await StorageSecureService.to.delete(key: _refreshTokenKey);
-    } on Exception catch (e, s) {
+    } on Exception catch (e) {
       rethrow;
     }
   }

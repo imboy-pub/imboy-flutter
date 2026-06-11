@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -186,7 +185,7 @@ class FtsApi extends HttpClient {
       }
 
       return null;
-    } on Exception catch (e) {
+    } on Exception {
       return null;
     }
   }
@@ -242,7 +241,7 @@ class FtsApi extends HttpClient {
       }
 
       return null;
-    } on Exception catch (e) {
+    } on Exception {
       return null;
     }
   }

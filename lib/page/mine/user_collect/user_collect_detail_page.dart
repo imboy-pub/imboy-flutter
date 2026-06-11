@@ -174,7 +174,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                     // 调用 Provider 的 change 方法
                     notifier.change(obj.kindId.toString());
                   });
-                } catch (e, s) {
+                } catch (e) {
                   EasyLoading.showError(t.common.operationFailedAgainLater);
                 }
               },

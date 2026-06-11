@@ -478,7 +478,7 @@ class MessageRepo implements MessageRepository {
         messages.add(MessageModel.fromJson(map));
       }
       return messages;
-    } on Object catch (e) {
+    } on Object {
       return [];
     }
   }
@@ -522,7 +522,7 @@ class MessageRepo implements MessageRepository {
         messages.add(MessageModel.fromJson(maps[i]));
       }
       return messages;
-    } on Object catch (e) {
+    } on Object {
       return [];
     }
   }
@@ -607,7 +607,7 @@ class MessageRepo implements MessageRepository {
         messages.add(MessageModel.fromJson(maps[i]));
       }
       return messages;
-    } on Object catch (e) {
+    } on Object {
       return [];
     }
   }
@@ -642,7 +642,7 @@ class MessageRepo implements MessageRepository {
         CREATE INDEX IF NOT EXISTS idx_${tableName}_conversation_created
         ON $tableName (${MessageRepo.conversationUk3}, ${MessageRepo.createdAt} DESC)
       ''');
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   //
@@ -848,7 +848,7 @@ class MessageRepo implements MessageRepository {
               if (decoded is Map) {
                 payload = decoded.cast<String, dynamic>();
               }
-            } on Object catch (e) {}
+            } on Object {}
           }
 
           // WebSocket API v2.0: msg_type/action/e2ee 在顶层，不在 payload 内
@@ -997,7 +997,7 @@ class MessageRepo implements MessageRepository {
     if (asInt != null) return asInt;
     try {
       return DateTimeHelper.rfc3339ToMillisecond(s);
-    } on Object catch (e) {
+    } on Object {
       return 0;
     }
   }
@@ -1046,7 +1046,7 @@ class MessageRepo implements MessageRepository {
           avatar = ct?.avatar ?? '';
           title = ct?.title ?? '';
         }
-      } on Object catch (e) {}
+      } on Object {}
 
       // WebSocket API v2.0: 从顶层字段读取 msg_type 和 status
       if (kDebugMode) {
@@ -1136,7 +1136,7 @@ class MessageRepo implements MessageRepository {
             await msg.toMessageModel().toTypeMessage(),
             'Message',
           );
-        } on Object catch (e) {}
+        } on Object {}
       }
     }
   }
@@ -1317,7 +1317,7 @@ class MessageRepo implements MessageRepository {
       }
 
       return allMessages;
-    } on Object catch (e) {
+    } on Object {
       return [];
     }
   }
@@ -1367,7 +1367,7 @@ class MessageRepo implements MessageRepository {
       }
 
       return messages;
-    } on Object catch (e) {
+    } on Object {
       return [];
     }
   }
@@ -1403,7 +1403,7 @@ class MessageRepo implements MessageRepository {
       }
 
       return total;
-    } on Object catch (e) {
+    } on Object {
       return 0;
     }
   }

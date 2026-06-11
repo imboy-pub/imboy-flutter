@@ -185,7 +185,7 @@ class PublisherNotifier extends _$PublisherNotifier {
     if (_resourceUrl != null) {
       try {
         await http.delete(Uri.parse(_resourceUrl!));
-      } on Exception catch (e) {
+      } on Exception {
         if (kDebugMode) {}
       }
       _resourceUrl = null;

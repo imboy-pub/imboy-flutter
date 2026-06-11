@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/e2ee_social_service.dart';

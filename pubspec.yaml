@@ -345,6 +345,7 @@ dev_dependencies:
 # https://dart.dev/tools/pub/pubspec
   permission_handler_platform_interface: any
   plugin_platform_interface: any
+  yaml: any
 flutter:
 
   # ┌─ Material Design ───────────────────────────────────────────────┐

@@ -41,7 +41,7 @@ Future<void> main() async {
   try {
     await AppInitializer.initialize(env: appEnv, signKeyVsn: '1');
     await run();
-  } catch (e, s) {
+  } catch (e) {
   }
 }
 

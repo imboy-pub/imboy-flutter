@@ -410,7 +410,7 @@ class _WebChatInputState extends ConsumerState<_WebChatInput> {
       );
 
       if (mounted) _controller.clear();
-    } catch (e, st) {
+    } catch (e) {
     } finally {
       if (mounted) setState(() => _sending = false);
     }

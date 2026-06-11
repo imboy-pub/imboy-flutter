@@ -283,7 +283,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           final stats = performanceMonitor.getMemoryStats();
         }
       });
-    } catch (e, stack) {}
+    } catch (e) {}
   }
 
   // 延迟初始化控制器（需要 ref 访问）
@@ -343,7 +343,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       }
 
       _setupEventListeners();
-    } catch (e, stack) {
+    } catch (e) {
       // 显示错误提示
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -916,7 +916,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             animated: true, // 新消息使用动画
           );
       return true;
-    } catch (e, stack) {
+    } catch (e) {
       return false;
     }
   }
@@ -1045,7 +1045,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     if (result != null && mounted) {
       try {
         await _attachmentHandler.sendCollectMessage(context, result.info);
-      } catch (e, s) {
+      } catch (e) {
         if (mounted) {
           EasyLoading.showError(t.common.operationFailedAgainLater);
         }

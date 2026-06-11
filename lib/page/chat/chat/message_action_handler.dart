@@ -268,7 +268,7 @@ class MessageActionHandler {
           '${t.common.revokeFailed}, ${t.common.pleaseCheckNetworkConnection}',
         );
       }
-    } catch (e, stack) {
+    } catch (e) {
       EasyLoading.dismiss();
       EasyLoading.showError(t.common.operationFailedAgainLater);
     }

@@ -6,7 +6,6 @@
 /// - strict_e2ee: 仅接收方公钥加密（现有 E2EE 逻辑）
 library;
 
-import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';

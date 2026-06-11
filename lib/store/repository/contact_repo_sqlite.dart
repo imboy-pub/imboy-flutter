@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -323,7 +322,7 @@ class ContactRepo implements ContactRepository {
         try {
           await update(json, txn: txn);
           return await findByUid(uid, autoFetch: false, txn: txn);
-        } catch (e, st) {
+        } catch (e) {
           return null;
         }
       } else {
@@ -331,7 +330,7 @@ class ContactRepo implements ContactRepository {
           ContactModel model = ContactModel.fromMap(json);
           await insert(model, txn: txn);
           return model;
-        } catch (e, st) {
+        } catch (e) {
           return null;
         }
       }

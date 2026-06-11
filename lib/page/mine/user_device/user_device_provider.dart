@@ -116,7 +116,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
             if (vsnStr.isNotEmpty) {
               deviceVsn = jsonDecode(vsnStr) as Map<dynamic, dynamic>;
             }
-          } on Exception catch (e) {
+          } on Exception {
             if (kDebugMode) {}
             deviceVsn = {};
           }
@@ -146,7 +146,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
 
       state = state.copyWith(deviceList: list, isLoading: false);
       return list;
-    } on Exception catch (e) {
+    } on Exception {
       state = state.copyWith(isLoading: false);
       if (kDebugMode) {}
       return [];
@@ -248,7 +248,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
 
       state = state.copyWith(isLoadingSessions: false);
       return false;
-    } on Exception catch (e) {
+    } on Exception {
       if (kDebugMode) {}
       state = state.copyWith(isLoadingSessions: false);
       return false;
@@ -268,7 +268,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       return await api.UserDeviceApi().checkLoginConflict(
         deviceType: deviceType,
       );
-    } on Exception catch (e) {
+    } on Exception {
       if (kDebugMode) {}
       return null;
     }
@@ -300,7 +300,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       }
 
       return result;
-    } on Exception catch (e) {
+    } on Exception {
       if (kDebugMode) {}
       return null;
     }
@@ -333,7 +333,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       }
 
       return result;
-    } on Exception catch (e) {
+    } on Exception {
       if (kDebugMode) {}
       return null;
     }

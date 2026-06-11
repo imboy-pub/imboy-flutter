@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';

@@ -101,7 +101,7 @@ Future<bool> requestPhotoPermission() async {
       EasyLoading.showInfo(t.common.noPermission);
       return false;
     }
-  } on Exception catch (e) {
+  } on Exception {
     if (kDebugMode) {}
     EasyLoading.showInfo(t.common.permissionAcquisitionFailed);
     return false;
@@ -127,7 +127,7 @@ Future<bool> requestCameraPermission() async {
         return false;
       }
     }
-  } on Exception catch (e) {
+  } on Exception {
     if (kDebugMode) {}
     EasyLoading.showInfo(t.common.permissionAcquisitionFailed);
     return false;

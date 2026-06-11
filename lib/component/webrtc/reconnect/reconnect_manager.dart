@@ -4,7 +4,6 @@
 library;
 
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'reconnect_config.dart';
 
 /// WebRTC 重连管理器
@@ -117,7 +116,7 @@ class WebRTCReconnectManager {
 
       try {
         await onReconnect();
-      } catch (e, s) {
+      } catch (e) {
         _isReconnecting = false;
 
         // 如果未达到最大重试次数，继续重试

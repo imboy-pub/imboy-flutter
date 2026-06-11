@@ -342,7 +342,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           ),
         );
       }
-    } on Exception catch (e) {
+    } on Exception {
       if (kDebugMode) {}
     }
     return results;

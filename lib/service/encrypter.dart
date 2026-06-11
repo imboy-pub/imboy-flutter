@@ -68,7 +68,7 @@ class EncrypterService {
       // 尝试解码为 UTF-8，失败则尝试其他编码
       try {
         return utf8.decode(decrypted);
-      } on FormatException catch (e) {
+      } on FormatException {
         if (kDebugMode) {}
 
         // 尝试 Latin-1 编码（不会失败，但可能显示乱码）

@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/e2ee_service.dart';
@@ -43,7 +41,7 @@ class UserRepoLocal {
   Future<String> get accessToken async {
     try {
       return await SecureTokenStorageService.getToken();
-    } on Object catch (e, s) {
+    } on Object catch (e) {
       // 令牌解密失败，数据已被清除，需要重新登录
       _handleTokenDecryptionFailure();
     }
@@ -53,7 +51,7 @@ class UserRepoLocal {
   Future<String> get refreshToken async {
     try {
       return await SecureTokenStorageService.getRefreshToken();
-    } on Object catch (e, s) {
+    } on Object catch (e) {
       // 令牌解密失败，数据已被清除，需要重新登录
       _handleTokenDecryptionFailure();
     }
@@ -248,13 +246,13 @@ class UserRepoLocal {
       try {
         E2EEService.clearCache();
         iPrint("> quitLogin: E2EE cache cleared");
-      } on Object catch (e, s) {}
+      } on Object catch (e) {}
 
       iPrint("> quitLogin: Clearing secure tokens");
       try {
         await SecureTokenStorageService.clear();
         iPrint("> quitLogin: Secure tokens cleared successfully");
-      } on Object catch (e, s) {
+      } on Object catch (e) {
         // FlutterKeychain 不支持 macos
       }
 
@@ -264,7 +262,7 @@ class UserRepoLocal {
       SqliteService.to.close();
       iPrint("> quitLogin: Logout process completed successfully");
       return true;
-    } on Object catch (e, s) {
+    } on Object catch (e) {
       return false;
     }
   }

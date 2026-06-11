@@ -108,7 +108,7 @@ class NtpHelper {
         await _saveCache(offset);
         if (kDebugMode) debugPrint('✅ NtpHelper: NTP 同步成功，偏移量: $_offset ms');
         return _offset;
-      } on Exception catch (e) {
+      } on Exception {
         if (kDebugMode) {}
         if (i == _maxRetry - 1) return 0; // 返回安全值
       }

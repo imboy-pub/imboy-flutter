@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';

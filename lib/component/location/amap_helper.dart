@@ -10,7 +10,6 @@ import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/env.dart';
-import 'package:imboy/config/init.dart' show currentEnv;
 
 /// https://lbs.amap.com/api/flutter/guide/positioning-flutter-plug-in/interface-info
 

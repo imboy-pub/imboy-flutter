@@ -181,7 +181,7 @@ class WebRTCConnection {
       }
 
       _setState(WebRTCConnectionState.ready);
-    } catch (e, s) {
+    } catch (e) {
       _setState(WebRTCConnectionState.failed, error: e.toString());
       rethrow;
     }
@@ -205,7 +205,7 @@ class WebRTCConnection {
       }
 
       return offer;
-    } catch (e, s) {
+    } catch (e) {
       _setState(WebRTCConnectionState.failed, error: e.toString());
       rethrow;
     } finally {
@@ -234,7 +234,7 @@ class WebRTCConnection {
       await _waitForIceGathering();
 
       return answer;
-    } catch (e, s) {
+    } catch (e) {
       _setState(WebRTCConnectionState.failed, error: e.toString());
       rethrow;
     } finally {
@@ -248,7 +248,7 @@ class WebRTCConnection {
   Future<void> setRemoteDescription(RTCSessionDescription description) async {
     try {
       await _pc?.setRemoteDescription(description);
-    } catch (e, s) {
+    } catch (e) {
       rethrow;
     }
   }
@@ -257,7 +257,7 @@ class WebRTCConnection {
   Future<void> addIceCandidate(RTCIceCandidate candidate) async {
     try {
       await _pc?.addCandidate(candidate);
-    } catch (e, s) {
+    } catch (e) {
       // ICE 候选添加失败不视为致命错误
     }
   }
@@ -266,7 +266,7 @@ class WebRTCConnection {
   Future<void> _restartIce() async {
     try {
       await _pc?.restartIce();
-    } catch (e, s) {
+    } catch (e) {
       rethrow;
     }
   }
@@ -323,7 +323,7 @@ class WebRTCConnection {
       );
 
       await _stateController.close();
-    } catch (e, s) {}
+    } catch (e) {}
   }
 
   /// 设置状态

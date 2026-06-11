@@ -34,7 +34,7 @@ class ContactApi extends HttpClient {
       try {
         await (ContactRepo()).save(resp.payload as Map<String, dynamic>);
         ct = ContactModel.fromMap(resp.payload as Map<String, dynamic>);
-      } on Exception catch (e) {
+      } on Exception {
         if (kDebugMode) {}
       }
     } else {

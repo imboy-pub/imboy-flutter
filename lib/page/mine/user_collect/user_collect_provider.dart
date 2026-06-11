@@ -148,7 +148,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       // 非翻页或第一页：直接按照数量判断 hasMore
       state.hasMore = result.length >= size;
       return result;
-    } on Exception catch (e) {
+    } on Exception {
       if (kDebugMode) {}
       // 出错返回空列表，外层会显示错误态或重试
       state.hasMore = false;
@@ -171,7 +171,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         if (!identical(decrypted, item.info)) {
           item.info = Map<String, dynamic>.from(decrypted);
         }
-      } on Exception catch (e) {
+      } on Exception {
         if (kDebugMode) {}
       }
     }
@@ -909,7 +909,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         if (kDebugMode) iPrint('local delete failed after remote remove');
         return false;
       }
-    } on Exception catch (e) {
+    } on Exception {
       if (kDebugMode) {}
       return false;
     } finally {
@@ -1004,7 +1004,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           status: 10, // 假设为已发送状态
           msgType: payload['msg_type'] as String?, // ✅ 修复：从 payload 提取 msg_type
         );
-      } on Exception catch (e) {
+      } on Exception {
         if (kDebugMode) {}
         return false;
       }
@@ -1015,7 +1015,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     if (payload is String) {
       try {
         info['payload'] = jsonDecode(payload);
-      } on Exception catch (e) {
+      } on Exception {
         if (kDebugMode) {}
         info['payload'] = <String, dynamic>{};
       }

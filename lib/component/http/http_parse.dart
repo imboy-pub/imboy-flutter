@@ -2,7 +2,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/error_code.dart';

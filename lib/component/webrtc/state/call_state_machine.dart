@@ -4,7 +4,6 @@
 library;
 
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'call_state.dart';
 import '../connection/connection.dart';
 import '../connection/connection_state.dart';

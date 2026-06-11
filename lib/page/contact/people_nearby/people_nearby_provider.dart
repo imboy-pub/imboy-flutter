@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/location/location_service.dart';

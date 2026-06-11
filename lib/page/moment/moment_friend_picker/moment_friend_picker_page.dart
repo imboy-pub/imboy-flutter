@@ -126,7 +126,7 @@ class _MomentFriendPickerPageState
         _displayFriends = list;
         _loadingFriends = false;
       });
-    } on Exception catch (e) {
+    } on Exception {
       if (!mounted) return;
       setState(() => _loadingFriends = false);
     }
@@ -155,7 +155,7 @@ class _MomentFriendPickerPageState
         _tags = items;
         _loadingTags = false;
       });
-    } on Exception catch (e) {
+    } on Exception {
       if (!mounted) return;
       setState(() => _loadingTags = false);
     }
@@ -187,7 +187,7 @@ class _MomentFriendPickerPageState
       entry.loading = false;
       if (mounted) setState(() {});
       return uids;
-    } on Exception catch (e) {
+    } on Exception {
       entry.loading = false;
       if (mounted) {
         EasyLoading.showToast(t.momentFriendPicker.tagLoadFailed);

@@ -625,12 +625,12 @@ class MessageS2CService {
           ),
         );
       }
-    } on Object catch (e) {}
+    } on Object {}
 
     // 统一执行退登与清理
     try {
       AppEventBus.fire(WebSocketForceCloseEvent(permanent: true));
-    } on Object catch (e) {}
+    } on Object {}
 
     EasyLoading.showSuccess(t.common.confirmRecoverSuccess);
     await UserRepoLocal.to.quitLogin();
@@ -1091,7 +1091,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelMessage(payload);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   /// 处理频道订阅通知
@@ -1107,7 +1107,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelSubscribed(payload);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   /// 处理频道取消订阅通知
@@ -1123,7 +1123,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelUnsubscribed(payload);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   /// 处理频道信息更新通知
@@ -1138,7 +1138,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelUpdated(payload);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   static Future<void> _handleChannelMessageDeleted(
@@ -1152,7 +1152,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelMessageDeleted(payload);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   static Future<void> _handleChannelMessageRevoked(
@@ -1166,7 +1166,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelMessageRevoked(payload);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   /// 处理频道删除通知
@@ -1182,7 +1182,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelDeleted(payload);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   static Future<void> _handleChannelInvitationCreated(
@@ -1193,7 +1193,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelInvitationCreated(payload);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   static Future<void> _handleChannelInvitationAccepted(
@@ -1204,7 +1204,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelInvitationAccepted(payload);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   static Future<void> _handleChannelOrderPaid(
@@ -1215,7 +1215,7 @@ class MessageS2CService {
 
     try {
       await ChannelService.to.handleChannelOrderPaid(payload);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   /// 处理频道未读计数更新
@@ -1243,6 +1243,6 @@ class MessageS2CService {
           unreadCount: unreadCount,
         ),
       );
-    } on Object catch (e) {}
+    } on Object {}
   }
 }

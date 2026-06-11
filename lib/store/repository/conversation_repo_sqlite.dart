@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -389,7 +388,7 @@ class ConversationRepo {
     for (final msgId in msgIds) {
       try {
         MessageRetry.instance.removeFromRetryQueue(msgId);
-      } on Object catch (e) {}
+      } on Object {}
     }
     iPrint('已从重试队列清理 ${msgIds.length} 条消息: conversationUk3=$uk3');
   }

@@ -16,7 +16,7 @@ void main() async {
 
   try {
     await AppInitializer.initialize(env: appEnv, signKeyVsn: '1');
-  } catch (e, s) {
+  } catch (e) {
     return;
   }
 

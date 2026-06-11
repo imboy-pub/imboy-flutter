@@ -126,7 +126,7 @@ class ChatAttachmentHandler {
         }),
       );
       await onMessageCreated(message);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   /// 处理相机选择
@@ -182,13 +182,13 @@ class ChatAttachmentHandler {
       try {
         final meta = await AttachmentApi.uploadImageEntityViaPresign(entity);
         await handleImageUploadPresign(meta, entity);
-      } on Object catch (e) {}
+      } on Object {}
     } else if (entity.type == AssetType.video) {
       // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
       try {
         final resp = await AttachmentApi.uploadVideoViaPresign(entity);
         await handleVideoUpload(resp);
-      } on Object catch (e) {}
+      } on Object {}
     }
     // 上传后删除临时文件
     (await entity.file)?.deleteSync();
@@ -275,13 +275,13 @@ class ChatAttachmentHandler {
       try {
         final meta = await AttachmentApi.uploadImageEntityViaPresign(entity);
         await handleImageUploadPresign(meta, entity);
-      } on Object catch (e) {}
+      } on Object {}
     } else if (entity.type == AssetType.video) {
       // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
       try {
         final resp = await AttachmentApi.uploadVideoViaPresign(entity);
         await handleSelectedVideoUpload(resp);
-      } on Object catch (e) {}
+      } on Object {}
     }
   }
 
@@ -351,7 +351,7 @@ class ChatAttachmentHandler {
       );
       await obj.file.delete(recursive: true);
       await onMessageCreated(message);
-    } on Object catch (e) {}
+    } on Object {}
   }
 
   /// 处理位置选择

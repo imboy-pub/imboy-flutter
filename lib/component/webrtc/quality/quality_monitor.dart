@@ -4,7 +4,6 @@
 library;
 
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' show RTCRtpEncoding;
 import '../connection/connection.dart';
 import 'quality_config.dart';
@@ -125,7 +124,7 @@ class WebRTCNetworkQualityMonitor {
       if (config.enableAdaptiveBitrate) {
         _adjustBitrate();
       }
-    } catch (e, s) {}
+    } catch (e) {}
   }
 
   /// 解析统计信息
@@ -248,7 +247,7 @@ class WebRTCNetworkQualityMonitor {
         parameters.encodings = updated;
         await sender.setParameters(parameters);
       }
-    } catch (e, s) {}
+    } catch (e) {}
   }
 
   /// 释放资源

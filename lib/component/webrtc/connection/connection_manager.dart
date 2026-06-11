@@ -4,7 +4,6 @@
 library;
 
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'connection.dart';
 import 'connection_state.dart';
 import 'connection_config.dart';
@@ -196,7 +195,7 @@ class WebRTCConnectionManager {
     for (final connection in connections) {
       try {
         await connection.close(reason: reason ?? 'close_all');
-      } catch (e, s) {}
+      } catch (e) {}
     }
   }
 

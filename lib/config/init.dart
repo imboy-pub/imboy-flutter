@@ -506,7 +506,7 @@ class AppInitializer {
       _initConfigCache = payload;
       _initConfigCompleter!.complete(payload);
       return payload;
-    } on Exception catch (e, stack) {
+    } on Exception catch (e) {
       if (kDebugMode) {}
       final error = {"error": t.common.initConfigFetchFailed};
       // 确保在异常情况下也清理 Completer
