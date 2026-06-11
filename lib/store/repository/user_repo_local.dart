@@ -41,7 +41,7 @@ class UserRepoLocal {
   Future<String> get accessToken async {
     try {
       return await SecureTokenStorageService.getToken();
-    } on Object catch (e) {
+    } on Object {
       // 令牌解密失败，数据已被清除，需要重新登录
       _handleTokenDecryptionFailure();
     }
@@ -51,7 +51,7 @@ class UserRepoLocal {
   Future<String> get refreshToken async {
     try {
       return await SecureTokenStorageService.getRefreshToken();
-    } on Object catch (e) {
+    } on Object {
       // 令牌解密失败，数据已被清除，需要重新登录
       _handleTokenDecryptionFailure();
     }
@@ -129,8 +129,6 @@ class UserRepoLocal {
 
     // 验证 refreshtoken
     _validateRefreshToken(payload['refreshtoken']);
-
-    final uid = payload['uid'];
   }
 
   /// 验证 uid 字段
@@ -255,7 +253,7 @@ class UserRepoLocal {
       try {
         await SecureTokenStorageService.clear();
         iPrint("> quitLogin: Secure tokens cleared successfully");
-      } on Object catch (e) {
+      } on Object {
         // FlutterKeychain 不支持 macos
       }
 
@@ -265,7 +263,7 @@ class UserRepoLocal {
       SqliteService.to.close();
       iPrint("> quitLogin: Logout process completed successfully");
       return true;
-    } on Object catch (e) {
+    } on Object {
       return false;
     }
   }

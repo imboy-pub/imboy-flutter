@@ -152,15 +152,8 @@ class ContactNotifier extends _$ContactNotifier {
     }
     final repo = ContactRepo();
     final dataMap = await contact_provider.ContactApi().listFriend();
-    int saveOk = 0;
-    int saveFail = 0;
     for (var json in dataMap) {
-      final r = await repo.save(json as Map<String, dynamic>);
-      if (r == null) {
-        saveFail++;
-      } else {
-        saveOk++;
-      }
+      await repo.save(json as Map<String, dynamic>);
     }
     contact = await ContactRepo().findFriend();
     return contact;

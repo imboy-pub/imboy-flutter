@@ -66,7 +66,6 @@ class AMapHelper {
 
       // 【增强】检查高德返回的错误码
       final errorCode = result['errorCode'];
-      final errorInfo = result['errorInfo'];
 
       if (errorCode != null && errorCode != 0) {
         if (!completer.isCompleted) {

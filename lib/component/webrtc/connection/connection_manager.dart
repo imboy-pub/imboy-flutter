@@ -242,8 +242,6 @@ class WebRTCConnectionManager {
   /// 打印调试信息
   void printDebugInfo() {
     _connections.forEach((sessionId, connection) {});
-
-    final stats = getStatistics();
   }
 
   /// 释放资源

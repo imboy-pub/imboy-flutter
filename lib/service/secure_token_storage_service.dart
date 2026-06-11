@@ -58,7 +58,7 @@ class SecureTokenStorageService {
     try {
       await StorageSecureService.to.delete(key: _tokenKey);
       await StorageSecureService.to.delete(key: _refreshTokenKey);
-    } on Exception catch (e) {
+    } on Exception {
       rethrow;
     }
   }

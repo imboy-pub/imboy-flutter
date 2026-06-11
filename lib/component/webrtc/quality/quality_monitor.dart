@@ -216,7 +216,6 @@ class WebRTCNetworkQualityMonitor {
 
   /// 调整码率
   Future<void> _adjustBitrate() async {
-    final quality = config.getNetworkQuality(_qualityScore);
     final targetBitrate = config.calculateTargetBitrate(_qualityScore);
 
     // DONE(2026-04-04): 通过 RTP 发送者动态设置码率

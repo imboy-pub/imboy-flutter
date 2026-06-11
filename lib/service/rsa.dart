@@ -576,7 +576,6 @@ class RSAService {
     // 这样可以保证跨平台一致性，避免 Web Crypto API 兼容性问题
     try {
       final publicKey = parsePublicKeyFromPem(pubKeyPem);
-      final modulusStr = publicKey.modulus?.toRadixString(16) ?? 'null';
 
       // 🔒 使用 RSA-OAEP-SHA256 填充
       final engine = OAEPEncoding.withSHA256(RSAEngine())

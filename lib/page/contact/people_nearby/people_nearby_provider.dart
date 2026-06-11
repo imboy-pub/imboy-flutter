@@ -110,12 +110,9 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
 
   /// 初始化
   Future<void> init() async {
-    DateTime s = DateTime.now();
     AMapPosition? l = await LocationService().getCurrentPosition();
-    DateTime end = DateTime.now();
     updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
     await peopleNearby();
-    DateTime end2 = DateTime.now();
   }
 
   /// 获取附近的人

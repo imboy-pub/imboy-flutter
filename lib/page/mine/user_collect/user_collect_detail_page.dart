@@ -157,9 +157,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                 // 生成新的消息 ID
                 info['id'] = Xid().toString();
 
-                if (info['payload'] is Map) {
-                  final payload = info['payload'] as Map<String, dynamic>;
-                }
+                if (info['payload'] is Map) {}
 
                 try {
                   var msg = await MessageModel.fromJson(info).toTypeMessage();

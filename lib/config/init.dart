@@ -401,7 +401,6 @@ class AppInitializer {
       const maxRetries = 3;
       IMBoyHttpResponse? resp1;
       for (int attempt = 1; attempt <= maxRetries; attempt++) {
-        final startTime = DateTime.now();
         if (kDebugMode) {}
 
         resp1 = await HttpClient.client
@@ -417,7 +416,6 @@ class AppInitializer {
               },
             );
 
-        final elapsed = DateTime.now().difference(startTime).inMilliseconds;
         if (kDebugMode) {}
 
         if (resp1.ok) break;
@@ -506,7 +504,7 @@ class AppInitializer {
       _initConfigCache = payload;
       _initConfigCompleter!.complete(payload);
       return payload;
-    } on Exception catch (e) {
+    } on Exception {
       if (kDebugMode) {}
       final error = {"error": t.common.initConfigFetchFailed};
       // 确保在异常情况下也清理 Completer

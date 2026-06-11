@@ -580,7 +580,7 @@ class PassportNotifier extends _$PassportNotifier {
   Future<String> _getLoginPublicKey() async {
     try {
       return await RSAService.publicKey();
-    } on PlatformException catch (e) {
+    } on PlatformException {
       if (kDebugMode) {}
       return '';
     } catch (e) {
