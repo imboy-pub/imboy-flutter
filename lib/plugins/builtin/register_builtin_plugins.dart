@@ -11,6 +11,8 @@ import 'package:imboy/component/chat/message_unsupported_builder.dart';
 import 'package:imboy/component/chat/message_video_builder.dart';
 import 'package:imboy/component/chat/message_visit_card_builder.dart';
 import 'package:imboy/component/chat/message_webrtc_builder.dart';
+import 'package:imboy/component/chat/message_red_packet_builder.dart';
+import 'package:imboy/component/chat/message_transfer_builder.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/plugins/registry/message_type_registry.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -43,6 +45,8 @@ void registerBuiltinPlugins(MessageTypeRegistry registry) {
     WebrtcVideoMessageTypePlugin(),
     _VisitCardMessageTypePlugin(),
     UnsupportedMessageTypePlugin(),
+    RedPacketMessageTypePlugin(),
+    TransferMessageTypePlugin(),
   ]);
 }
 

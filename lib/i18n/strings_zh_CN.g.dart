@@ -4764,6 +4764,63 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '密钥创建失败: $error'
 	String e2eeKeyRecreationFailed({required Object error}) => '密钥创建失败: ${error}';
+
+	/// zh-CN: '红包'
+	String get redPacket => '红包';
+
+	/// zh-CN: '转账'
+	String get transfer => '转账';
+
+	/// zh-CN: '提现'
+	String get withdraw => '提现';
+
+	/// zh-CN: '发红包'
+	String get redPacketSend => '发红包';
+
+	/// zh-CN: '抢红包'
+	String get redPacketOpen => '抢红包';
+
+	/// zh-CN: '红包详情'
+	String get redPacketDetail => '红包详情';
+
+	/// zh-CN: '发起转账'
+	String get transferSend => '发起转账';
+
+	/// zh-CN: '确认收钱'
+	String get transferAccept => '确认收钱';
+
+	/// zh-CN: '恭喜发财，大吉大利'
+	String get greetingDefault => '恭喜发财，大吉大利';
+
+	/// zh-CN: '领到金额：$amount 元'
+	String grabAmountYuan({required Object amount}) => '领到金额：${amount} 元';
+
+	/// zh-CN: '转账金额：$amount 元'
+	String transferAmountYuan({required Object amount}) => '转账金额：${amount} 元';
+
+	/// zh-CN: '余额不足'
+	String get insufficientBalance => '余额不足';
+
+	/// zh-CN: '去充值'
+	String get goToRecharge => '去充值';
+
+	/// zh-CN: '提现成功'
+	String get withdrawSuccess => '提现成功';
+
+	/// zh-CN: '确认提现'
+	String get withdrawConfirm => '确认提现';
+
+	/// zh-CN: '请输入不低于1元的金额'
+	String get withdrawAmountError => '请输入不低于1元的金额';
+
+	/// zh-CN: '请输入提现账号'
+	String get withdrawAccountEmpty => '请输入提现账号';
+
+	/// zh-CN: '提现方式'
+	String get withdrawMethod => '提现方式';
+
+	/// zh-CN: '提现账号'
+	String get withdrawAccount => '提现账号';
 }
 
 // Path: complaint
@@ -8234,6 +8291,25 @@ extension on Translations {
 			'common.loadFailedWithError' => ({required Object error}) => '加载失败: ${error}',
 			'common.webAudioNotSupported' => 'Web 平台暂不支持语音消息播放',
 			'common.e2eeKeyRecreationFailed' => ({required Object error}) => '密钥创建失败: ${error}',
+			'common.redPacket' => '红包',
+			'common.transfer' => '转账',
+			'common.withdraw' => '提现',
+			'common.redPacketSend' => '发红包',
+			'common.redPacketOpen' => '抢红包',
+			'common.redPacketDetail' => '红包详情',
+			'common.transferSend' => '发起转账',
+			'common.transferAccept' => '确认收钱',
+			'common.greetingDefault' => '恭喜发财，大吉大利',
+			'common.grabAmountYuan' => ({required Object amount}) => '领到金额：${amount} 元',
+			'common.transferAmountYuan' => ({required Object amount}) => '转账金额：${amount} 元',
+			'common.insufficientBalance' => '余额不足',
+			'common.goToRecharge' => '去充值',
+			'common.withdrawSuccess' => '提现成功',
+			'common.withdrawConfirm' => '确认提现',
+			'common.withdrawAmountError' => '请输入不低于1元的金额',
+			'common.withdrawAccountEmpty' => '请输入提现账号',
+			'common.withdrawMethod' => '提现方式',
+			'common.withdrawAccount' => '提现账号',
 			'complaint.complaint' => '投诉',
 			'complaintReason.spam' => '垃圾信息',
 			'complaintReason.harassment' => '骚扰',
@@ -8708,6 +8784,8 @@ extension on Translations {
 			'main.webQRRefresh' => '刷新二维码',
 			'main.webSwitchToQR' => '使用 QR 码登录',
 			'main.e2eeErrDefault' => '端到端加密失败，消息未发送',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeSocialTotalShards' => '总分片数',
 			'main.e2eeSocialThreshold' => '恢复阈值',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '恢复密钥时需要 ${count} 个代理协助',
@@ -8727,8 +8805,6 @@ extension on Translations {
 			'main.e2eeSocialProxyUserLabel' => '代理用户',
 			'main.e2eeSocialRecoveryThresholdLabel' => '恢复阈值',
 			'main.e2eeSocialShardIndexLabel' => '分片编号',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeTransferQRHint' => '请在新设备上扫描此二维码',
 			'main.e2eeTransferQRExpiry' => ({required Object time}) => '二维码将在 ${time} 过期',
 			'main.e2eeTransferRefreshQR' => '刷新二维码',

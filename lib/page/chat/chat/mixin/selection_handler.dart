@@ -76,4 +76,14 @@ mixin SelectionHandler {
       longitude,
     );
   }
+
+  /// 处理红包选择
+  Future<void> handleRedPacketSelection(Map<String, dynamic> data) async {
+    await attachmentHandler.handleRedPacketSelection(data);
+  }
+
+  /// 处理转账选择
+  Future<void> handleTransferSelection(Map<String, dynamic> data) async {
+    await attachmentHandler.handleTransferSelection(data);
+  }
 }

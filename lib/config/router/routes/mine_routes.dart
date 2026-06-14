@@ -28,6 +28,48 @@ List<RouteBase> mineRoutes() => [
         CupertinoPage(key: state.pageKey, child: const WalletPage()),
   ),
   GoRoute(
+    path: '/wallet/withdraw',
+    name: 'wallet_withdraw',
+    pageBuilder: (context, state) =>
+        CupertinoPage(key: state.pageKey, child: const WithdrawPage()),
+  ),
+  GoRoute(
+    path: '/red_packet_send',
+    name: 'red_packet_send',
+    pageBuilder: (context, state) {
+      final extra = state.extra as Map<String, dynamic>?;
+      return CupertinoPage(
+        key: state.pageKey,
+        child: RedPacketSendPage(
+          chatType: extra?['type'] ?? 'C2C',
+          toUid: extra?['to'] ?? '',
+        ),
+      );
+    },
+  ),
+  GoRoute(
+    path: '/red_packet_detail',
+    name: 'red_packet_detail',
+    pageBuilder: (context, state) {
+      final extra = state.extra as Map<String, dynamic>?;
+      return CupertinoPage(
+        key: state.pageKey,
+        child: RedPacketDetailPage(packetId: extra?['packetId'] ?? ''),
+      );
+    },
+  ),
+  GoRoute(
+    path: '/transfer_send',
+    name: 'transfer_send',
+    pageBuilder: (context, state) {
+      final extra = state.extra as Map<String, dynamic>?;
+      return CupertinoPage(
+        key: state.pageKey,
+        child: TransferSendPage(toUid: extra?['to'] ?? ''),
+      );
+    },
+  ),
+  GoRoute(
     path: '/favorites',
     name: 'favorites',
     pageBuilder: (context, state) =>

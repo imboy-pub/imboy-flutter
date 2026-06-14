@@ -1588,6 +1588,8 @@ class ChatPageState extends ConsumerState<ChatPage>
                   handleVisitCardSelection: _handleVisitCardSelection,
                   handleCollectSelection: _handleCollectSelection,
                   handleStickerSelection: _handleStickerSelection,
+                  handleRedPacketSelection: handleRedPacketSelection,
+                  handleTransferSelection: handleTransferSelection,
                   options: {
                     "to": widget.peerId,
                     "title": widget.peerTitle,

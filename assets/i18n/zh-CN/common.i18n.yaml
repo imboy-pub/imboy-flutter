@@ -1045,3 +1045,22 @@ imageLoadFailed: 加载失败
 loadFailedWithError(error): "加载失败: $error"
 webAudioNotSupported: Web 平台暂不支持语音消息播放
 e2eeKeyRecreationFailed(error): "密钥创建失败: $error"
+redPacket: 红包
+transfer: 转账
+withdraw: 提现
+redPacketSend: 发红包
+redPacketOpen: 抢红包
+redPacketDetail: 红包详情
+transferSend: 发起转账
+transferAccept: 确认收钱
+greetingDefault: 恭喜发财，大吉大利
+grabAmountYuan(amount): "领到金额：$amount 元"
+transferAmountYuan(amount): "转账金额：$amount 元"
+insufficientBalance: 余额不足
+goToRecharge: 去充值
+withdrawSuccess: 提现成功
+withdrawConfirm: 确认提现
+withdrawAmountError: 请输入不低于1元的金额
+withdrawAccountEmpty: 请输入提现账号
+withdrawMethod: 提现方式
+withdrawAccount: 提现账号

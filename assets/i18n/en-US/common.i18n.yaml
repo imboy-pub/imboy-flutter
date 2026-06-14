@@ -1039,3 +1039,22 @@ imageLoadFailed: Load failed
 loadFailedWithError(error): "Load failed: $error"
 webAudioNotSupported: Voice messages are not supported on the web platform
 e2eeKeyRecreationFailed(error): "Key creation failed: $error"
+redPacket: Red Packet
+transfer: Transfer
+withdraw: Withdraw
+redPacketSend: Send Red Packet
+redPacketOpen: Open Red Packet
+redPacketDetail: Red Packet Details
+transferSend: Send Transfer
+transferAccept: Accept Transfer
+greetingDefault: Best wishes!
+grabAmountYuan(amount): "Grabbed: $amount CNY"
+transferAmountYuan(amount): "Transfer: $amount CNY"
+insufficientBalance: Insufficient Balance
+goToRecharge: Recharge
+withdrawSuccess: Withdrawal Successful
+withdrawConfirm: Confirm Withdrawal
+withdrawAmountError: Amount must be at least 1 CNY
+withdrawAccountEmpty: Please enter your withdrawal account
+withdrawMethod: Withdrawal Method
+withdrawAccount: Withdrawal Account

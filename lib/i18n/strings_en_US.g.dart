@@ -1646,6 +1646,25 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String loadFailedWithError({required Object error}) => 'Load failed: ${error}';
 	@override String get webAudioNotSupported => 'Voice messages are not supported on the web platform';
 	@override String e2eeKeyRecreationFailed({required Object error}) => 'Key creation failed: ${error}';
+	@override String get redPacket => 'Red Packet';
+	@override String get transfer => 'Transfer';
+	@override String get withdraw => 'Withdraw';
+	@override String get redPacketSend => 'Send Red Packet';
+	@override String get redPacketOpen => 'Open Red Packet';
+	@override String get redPacketDetail => 'Red Packet Details';
+	@override String get transferSend => 'Send Transfer';
+	@override String get transferAccept => 'Accept Transfer';
+	@override String get greetingDefault => 'Best wishes!';
+	@override String grabAmountYuan({required Object amount}) => 'Grabbed: ${amount} CNY';
+	@override String transferAmountYuan({required Object amount}) => 'Transfer: ${amount} CNY';
+	@override String get insufficientBalance => 'Insufficient Balance';
+	@override String get goToRecharge => 'Recharge';
+	@override String get withdrawSuccess => 'Withdrawal Successful';
+	@override String get withdrawConfirm => 'Confirm Withdrawal';
+	@override String get withdrawAmountError => 'Amount must be at least 1 CNY';
+	@override String get withdrawAccountEmpty => 'Please enter your withdrawal account';
+	@override String get withdrawMethod => 'Withdrawal Method';
+	@override String get withdrawAccount => 'Withdrawal Account';
 }
 
 // Path: complaint
@@ -3956,6 +3975,25 @@ extension on TranslationsEnUs {
 			'common.loadFailedWithError' => ({required Object error}) => 'Load failed: ${error}',
 			'common.webAudioNotSupported' => 'Voice messages are not supported on the web platform',
 			'common.e2eeKeyRecreationFailed' => ({required Object error}) => 'Key creation failed: ${error}',
+			'common.redPacket' => 'Red Packet',
+			'common.transfer' => 'Transfer',
+			'common.withdraw' => 'Withdraw',
+			'common.redPacketSend' => 'Send Red Packet',
+			'common.redPacketOpen' => 'Open Red Packet',
+			'common.redPacketDetail' => 'Red Packet Details',
+			'common.transferSend' => 'Send Transfer',
+			'common.transferAccept' => 'Accept Transfer',
+			'common.greetingDefault' => 'Best wishes!',
+			'common.grabAmountYuan' => ({required Object amount}) => 'Grabbed: ${amount} CNY',
+			'common.transferAmountYuan' => ({required Object amount}) => 'Transfer: ${amount} CNY',
+			'common.insufficientBalance' => 'Insufficient Balance',
+			'common.goToRecharge' => 'Recharge',
+			'common.withdrawSuccess' => 'Withdrawal Successful',
+			'common.withdrawConfirm' => 'Confirm Withdrawal',
+			'common.withdrawAmountError' => 'Amount must be at least 1 CNY',
+			'common.withdrawAccountEmpty' => 'Please enter your withdrawal account',
+			'common.withdrawMethod' => 'Withdrawal Method',
+			'common.withdrawAccount' => 'Withdrawal Account',
 			'complaint.complaint' => 'Complaint',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harassment',
@@ -4437,6 +4475,8 @@ extension on TranslationsEnUs {
 			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'User ${uid}',
 			'main.e2eeSocialShardSentViaWs' => 'Shards sent directly to proxy devices via WebSocket',
 			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => 'Sent to ${sent} proxy devices (out of ${total})',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeSocialManageTitle' => 'Manage shards',
 			'main.e2eeSocialMyShards' => 'My shards',
 			'main.e2eeSocialProxyShards' => 'Proxy shards',
@@ -4456,8 +4496,6 @@ extension on TranslationsEnUs {
 			'main.e2eeTransferReceiving' => 'Receiving transfer...',
 			'main.e2eeTransferPageTitle' => 'Transfer Between Devices',
 			'main.e2eeTransferPendingItem' => 'Pending Key Transfer',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeTransferPendingItemDesc' => 'Tap to view details',
 			'main.e2eeTransferView' => 'View',
 			'main.e2eeSocialTitle' => 'Social Recovery',

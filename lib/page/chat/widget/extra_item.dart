@@ -122,6 +122,8 @@ class ExtraItems extends ConsumerStatefulWidget {
     this.handleVisitCardSelection,
     this.handleCollectSelection,
     this.handleStickerSelection,
+    this.handleRedPacketSelection,
+    this.handleTransferSelection,
     required this.type,
     required this.options,
   });
@@ -136,6 +138,8 @@ class ExtraItems extends ConsumerStatefulWidget {
   final void Function()? handleVisitCardSelection;
   final void Function()? handleCollectSelection;
   final void Function()? handleStickerSelection;
+  final void Function(Map<String, dynamic>)? handleRedPacketSelection;
+  final void Function(Map<String, dynamic>)? handleTransferSelection;
 
   @override
   ConsumerState<ExtraItems> createState() => _ExtraItemsState();
@@ -264,6 +268,43 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
           image: const Icon(Icons.face_outlined, size: iconSize),
           onPressed: widget.handleStickerSelection,
         ),
+        ExtraItem(
+          title: t.common.redPacket,
+          image: const Icon(
+            Icons.redeem,
+            size: iconSize,
+            color: AppColors.iosRed,
+          ),
+          onPressed: () async {
+            FocusScope.of(context).requestFocus(FocusNode());
+            final result = await context.push<Map<String, dynamic>>(
+              '/red_packet_send',
+              extra: {'type': widget.type, 'to': widget.options['to']},
+            );
+            if (result != null && widget.handleRedPacketSelection != null) {
+              widget.handleRedPacketSelection!(result);
+            }
+          },
+        ),
+        if (widget.type != 'C2G')
+          ExtraItem(
+            title: t.common.transfer,
+            image: const Icon(
+              Icons.swap_horiz,
+              size: iconSize,
+              color: Colors.orange,
+            ),
+            onPressed: () async {
+              FocusScope.of(context).requestFocus(FocusNode());
+              final result = await context.push<Map<String, dynamic>>(
+                '/transfer_send',
+                extra: {'to': widget.options['to']},
+              );
+              if (result != null && widget.handleTransferSelection != null) {
+                widget.handleTransferSelection!(result);
+              }
+            },
+          ),
       ]),
     ];
 

@@ -494,4 +494,45 @@ class ChatAttachmentHandler {
       EasyLoading.showError(t.common.tipFailed);
     }
   }
+
+  /// 处理发送红包消息
+  Future<void> handleRedPacketSelection(Map<String, dynamic> data) async {
+    final message = CustomMessage(
+      authorId: _currentUser.id,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(
+        DateTimeHelper.millisecond(),
+        isUtc: true,
+      ),
+      id: Xid().toString(),
+      metadata: _withBurnMetadata({
+        'msg_type': 'redPacket',
+        'id': data['id'],
+        'greeting': data['greeting'],
+        'amount': data['amount'],
+        'count': data['count'],
+        'type': data['type'],
+      }),
+    );
+    await onMessageCreated(message);
+  }
+
+  /// 处理发送转账消息
+  Future<void> handleTransferSelection(Map<String, dynamic> data) async {
+    final message = CustomMessage(
+      authorId: _currentUser.id,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(
+        DateTimeHelper.millisecond(),
+        isUtc: true,
+      ),
+      id: Xid().toString(),
+      metadata: _withBurnMetadata({
+        'msg_type': 'transfer',
+        'id': data['id'],
+        'amount': data['amount'],
+        'remark': data['remark'],
+        'status': 'pending',
+      }),
+    );
+    await onMessageCreated(message);
+  }
 }

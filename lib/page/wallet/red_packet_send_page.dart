@@ -1,0 +1,257 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/api/wallet_api.dart';
+import 'package:imboy/page/wallet/wallet_provider.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+
+class RedPacketSendPage extends ConsumerStatefulWidget {
+  final String chatType; // 'C2C' (单聊) or 'C2G' (群聊)
+  final String toUid; // 对方ID（uid 或 group_id）
+
+  const RedPacketSendPage({
+    super.key,
+    required this.chatType,
+    required this.toUid,
+  });
+
+  @override
+  ConsumerState<RedPacketSendPage> createState() => _RedPacketSendPageState();
+}
+
+class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _amountController = TextEditingController();
+  final _countController = TextEditingController(text: '1');
+  final _greetingController = TextEditingController();
+  String _selectedType = 'fixed'; // 'fixed' (普通红包) or 'random' (拼手气)
+
+  bool get _isGroup => widget.chatType == 'C2G';
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _countController.dispose();
+    _greetingController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSend(double maxBalanceYuan) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final amountYuan = double.tryParse(_amountController.text) ?? 0.0;
+    if (amountYuan < 0.01) {
+      EasyLoading.showError(t.common.rechargeAmountError);
+      return;
+    }
+    if (amountYuan > maxBalanceYuan) {
+      EasyLoading.showError(t.common.insufficientBalance);
+      return;
+    }
+
+    final amountCents = (amountYuan * 100).toInt();
+    final count = _isGroup ? (int.tryParse(_countController.text) ?? 1) : 1;
+    final greeting = _greetingController.text.trim().isNotEmpty
+        ? _greetingController.text.trim()
+        : t.common.greetingDefault;
+
+    EasyLoading.show(status: t.common.loading);
+    final packetId = await WalletApi().sendRedPacket(
+      amount: amountCents,
+      count: count,
+      type: _isGroup ? _selectedType : 'fixed',
+      greeting: greeting,
+    );
+
+    if (packetId != null && packetId.isNotEmpty) {
+      EasyLoading.dismiss();
+      ref.invalidate(walletProvider); // 刷新余额
+
+      // 将结果返回给上一个页面，在 ChatPage 触发 WebSocket 投递
+      if (mounted) {
+        Navigator.pop(context, {
+          'msg_type': 'redPacket',
+          'id': packetId,
+          'greeting': greeting,
+          'amount': amountCents,
+          'count': count,
+          'type': _isGroup ? _selectedType : 'fixed',
+        });
+      }
+    } else {
+      EasyLoading.dismiss();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final walletState = ref.watch(walletProvider);
+    final balanceYuan = walletState.balance / 100.0;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(t.common.redPacketSend),
+        elevation: 0,
+        backgroundColor: AppColors.iosRed,
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 红包类型切换（仅群聊）
+              if (_isGroup) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _selectedType == 'random' ? '当前为：拼手气红包' : '当前为：普通红包',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedType = _selectedType == 'random'
+                              ? 'fixed'
+                              : 'random';
+                        });
+                      },
+                      child: Text(
+                        _selectedType == 'random' ? '改为普通红包' : '改为拼手气红包',
+                        style: TextStyle(color: AppColors.iosRed),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // 红包个数（仅群聊）
+              if (_isGroup) ...[
+                const Text(
+                  '红包个数',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _countController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    suffixText: '个',
+                    border: OutlineInputBorder(
+                      borderRadius: AppRadius.borderRadiusMedium,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '请输入红包个数';
+                    }
+                    final count = int.tryParse(value);
+                    if (count == null || count < 1) {
+                      return '红包个数必须大于等于 1';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+              ],
+
+              // 总金额输入
+              Text(
+                _selectedType == 'random' ? '总金额' : '单个金额',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  prefixText: '￥ ',
+                  hintText: '0.00',
+                  border: OutlineInputBorder(
+                    borderRadius: AppRadius.borderRadiusMedium,
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '请输入金额';
+                  }
+                  final amount = double.tryParse(value);
+                  if (amount == null || amount < 0.01) {
+                    return '金额必须大于 0';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
+
+              // 祝福语
+              const Text(
+                '留言/祝福语',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _greetingController,
+                decoration: InputDecoration(
+                  hintText: t.common.greetingDefault,
+                  border: OutlineInputBorder(
+                    borderRadius: AppRadius.borderRadiusMedium,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 钱包余额提示
+              Text(
+                '钱包当前余额: ￥${balanceYuan.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.white54 : Colors.black45,
+                ),
+              ),
+              const SizedBox(height: 48),
+
+              // 塞钱发送按钮
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: () => _handleSend(balanceYuan),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.iosRed,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: AppRadius.borderRadiusMedium,
+                    ),
+                  ),
+                  child: Text(
+                    _selectedType == 'random' ? '塞钱发红包' : '放入钱包发送',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -98,5 +98,13 @@ export 'package:imboy/page/qrcode/qrcode_page.dart';
 export 'package:imboy/page/single/markdown_page.dart';
 export 'package:imboy/page/single/video_viewer_page.dart';
 export 'package:imboy/page/single/network_failure_guidance_page.dart';
+
+// ============================================================================
+// 社交财务（红包、转账、提现）
+// ============================================================================
+export 'package:imboy/page/wallet/withdraw_page.dart';
+export 'package:imboy/page/wallet/red_packet_send_page.dart';
+export 'package:imboy/page/wallet/red_packet_detail_page.dart';
+export 'package:imboy/page/wallet/transfer_send_page.dart';
 export 'package:imboy/page/single/privacy_policy_page.dart';
 export 'package:imboy/page/single/terms_of_service_page.dart';
