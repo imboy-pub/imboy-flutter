@@ -99,13 +99,41 @@ class ThemeManager {
     return _notifier.getChatColor(colorKey);
   }
 
+  /// 容器未注入时的字族回退（与 ThemeNotifier.getTextStyle 保持一致）
+  static const List<String> _fallbackFontFamily = [
+    'PingFang SC',
+    'Heiti SC',
+    'Microsoft YaHei',
+    'sans-serif',
+  ];
+
+  /// 容器未注入（widget 测试 / 启动早期）时的降级文本样式。
+  ///
+  /// 取固定基础字号（不经 FontSizeOption 缩放）——等价于默认设置
+  /// （FontSizeOption.normal scale=1.0）下的生产渲染，也等价于迁移前的
+  /// 硬编码 `fontSize: type.size`，从而避免 `_notifier` 断言崩溃。
+  TextStyle _fallbackTextStyle(
+    FontSizeType type, {
+    FontWeight? fontWeight,
+    Color? color,
+  }) {
+    return TextStyle(
+      fontSize: type.size,
+      fontWeight: fontWeight ?? FontWeight.normal,
+      color: color,
+      fontFamilyFallback: _fallbackFontFamily,
+    );
+  }
+
   /// 获取字体大小（支持动态缩放）
   double getFontSize(FontSizeType type, {BuildContext? context}) {
+    if (_container == null) return type.size;
     return _notifier.getFontSize(type, context: context);
   }
 
   /// 获取缩放后的字体大小
   double getScaledFontSize(FontSizeType type, {BuildContext? context}) {
+    if (_container == null) return type.size;
     return _notifier.getScaledFontSize(type, context: context);
   }
 
@@ -116,6 +144,9 @@ class ThemeManager {
     Color? color,
     BuildContext? context,
   }) {
+    if (_container == null) {
+      return _fallbackTextStyle(type, fontWeight: fontWeight, color: color);
+    }
     return _notifier.getTextStyle(
       type,
       fontWeight: fontWeight,

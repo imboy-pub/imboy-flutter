@@ -9,14 +9,26 @@ enum FontSizeType {
   /// 超小字体 - 10px
   tiny(10.0, '超小'),
 
+  /// iOS Caption2 - 11px（iOS 保真页 Apple 字号阶）
+  caption2(11.0, '注释'),
+
   /// 小字体 - 12px
   small(12.0, '小'),
+
+  /// iOS Footnote - 13px（iOS 保真页 Apple 字号阶）
+  footnote(13.0, '脚注'),
 
   /// 普通字体 - 14px
   normal(14.0, '普通'),
 
+  /// iOS Subheadline - 15px（iOS 保真页 Apple 字号阶）
+  subheadline(15.0, '副标题'),
+
   /// 中等字体 - 16px
   medium(16.0, '中等'),
+
+  /// iOS Body - 17px（iOS 保真页 Apple 字号阶）
+  body(17.0, '正文'),
 
   /// 大字体 - 18px
   large(18.0, '大'),
@@ -75,6 +87,18 @@ enum FontSizeType {
       case 'extra_large_title':
       case '超大标题':
         return FontSizeType.extraLargeTitle;
+      case 'caption2':
+      case '注释':
+        return FontSizeType.caption2;
+      case 'footnote':
+      case '脚注':
+        return FontSizeType.footnote;
+      case 'subheadline':
+      case '副标题':
+        return FontSizeType.subheadline;
+      case 'body':
+      case '正文':
+        return FontSizeType.body;
       default:
         return null;
     }
