@@ -23,7 +23,8 @@ pre-commit:
         banned=$(git diff --cached --diff-filter=ACM -- {staged_files} \
           | grep '^+' | grep -v '^+++' \
           | grep -vE '^\+[[:space:]]*///' \
-          | grep -E 'Color\(0x|fontSize:\s*[0-9]|\bColors\.[a-zA-Z]' || true)
+          | grep -E 'Color\(0x|fontSize:\s*[0-9]|\bColors\.[a-zA-Z]' \
+          | grep -vE 'Colors\.transparent' || true)
         if [ -n "$banned" ]; then
           echo "❌ 禁止硬编码 Color/fontSize/Colors.*，请使用 AppColors/AppSpacing/FontSizeType Token:" >&2
           echo "$banned" >&2
