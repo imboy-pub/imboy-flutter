@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 
@@ -78,7 +79,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: AppColors.iosOrange,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   t.common.e2eeImportantNote,
@@ -154,7 +158,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       children: [
         Text(
           t.common.e2eeBackupPwdStrengthLabel,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: FontSizeType.small.size,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 8),
         LinearProgressIndicator(
@@ -166,17 +173,20 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         const SizedBox(height: 4),
         Text(
           _getStrengthLabel(strength),
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(
+            fontSize: FontSizeType.small.size,
+            color: AppColors.textSecondary,
+          ),
         ),
       ],
     );
   }
 
   Color _getStrengthColor(double strength) {
-    if (strength < 0.3) return Colors.red;
-    if (strength < 0.6) return Colors.orange;
+    if (strength < 0.3) return AppColors.iosRed;
+    if (strength < 0.6) return AppColors.iosOrange;
     if (strength < 0.8) return Colors.yellow.shade700;
-    return Colors.green;
+    return AppColors.iosGreen;
   }
 
   String _getStrengthLabel(double strength) {
@@ -196,7 +206,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       onPressed: isEnabled ? _handleExport : null,
       style: ElevatedButton.styleFrom(
         minimumSize: const Size(double.infinity, 48),
-        backgroundColor: isEnabled ? null : Colors.grey,
+        backgroundColor: isEnabled ? null : AppColors.iosGray,
       ),
       child: _isExporting
           ? const SizedBox(
@@ -218,7 +228,11 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                const Icon(
+                  Icons.check_circle,
+                  color: AppColors.iosGreen,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -234,7 +248,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             const SizedBox(height: 8),
             Text(
               'File: ${_generatedFilePath?.split('/').last ?? ""}',
-              style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                fontFamily: 'monospace',
+              ),
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
