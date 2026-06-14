@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 「新设备登录后待引导」持久标记键 / Pending-guide flag key after a new-device login.
 ///
@@ -88,7 +89,10 @@ class E2EERecoveryBanner extends StatelessWidget {
       child: InkWell(
         onTap: () => context.push('/e2ee_key_recovery'),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.medium,
+          ),
           child: Row(
             children: [
               Icon(

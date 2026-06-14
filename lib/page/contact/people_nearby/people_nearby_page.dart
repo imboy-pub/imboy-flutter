@@ -11,6 +11,7 @@ import 'package:imboy/store/model/people_model.dart';
 import 'people_nearby_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 附近的人页面 - 像素级对齐 iOS 17 Premium 风格
 class PeopleNearbyPage extends ConsumerStatefulWidget {
@@ -112,7 +113,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                     if (state.peopleList.isNotEmpty)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
+                          horizontal: AppSpacing.small,
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
@@ -186,9 +187,14 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
     Brightness brightness,
   ) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.regular,
+        AppSpacing.regular,
+        AppSpacing.regular,
+        AppSpacing.small,
+      ),
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.xLarge),
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
           borderRadius: BorderRadius.circular(20),

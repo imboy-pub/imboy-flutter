@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 搜索栏组件
@@ -20,7 +21,10 @@ Widget searchBar(
   Widget Function(List<dynamic>)? doBuildResults,
 }) {
   return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    margin: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.regular,
+      vertical: AppSpacing.small,
+    ),
     child: SearchBar(
       leading:
           leading ??
@@ -67,7 +71,10 @@ Widget searchBar(
         ),
       ),
       padding: WidgetStateProperty.all(
-        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        const EdgeInsets.symmetric(
+          horizontal: AppSpacing.medium,
+          vertical: AppSpacing.small,
+        ),
       ),
       controller: controller,
       focusNode: focusNode,
@@ -208,8 +215,8 @@ class SearchBarDelegate extends SearchDelegate<dynamic> {
                       color: ThemeManager.instance.getThemeColor('surface'),
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                          horizontal: AppSpacing.regular,
+                          vertical: AppSpacing.medium,
                         ),
                         onTap: () => onTapForItem(items[i]),
                         leading: Avatar(

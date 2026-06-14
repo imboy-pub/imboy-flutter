@@ -15,6 +15,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -248,7 +249,10 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
         child: Row(
           children: [
             // 头像

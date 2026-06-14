@@ -12,6 +12,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'group_list_provider.dart';
 import 'group_list_service.dart';
@@ -132,7 +133,12 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
         // 搜索框
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              AppSpacing.medium,
+            ),
             child: CupertinoSearchTextField(
               placeholder: t.common.search,
               onSubmitted: (v) {
@@ -146,13 +152,13 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
         SliverToBoxAdapter(
           child: Container(
             height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: ['all', 'join', 'manager', 'owner'].map((attr) {
                 final selected = state.attr == attr;
                 return Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.only(right: AppSpacing.small),
                   child: ChoiceChip(
                     selected: selected,
                     label: Text(
@@ -168,7 +174,9 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                     selectedColor: AppColors.getIosBlue(brightness),
                     onSelected: (_) => _switchAttr(attr),
                     showCheckmark: false,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.medium,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18),
                     ),
@@ -186,7 +194,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
           SliverFillRemaining(child: NoDataView(text: t.common.noData))
         else
           SliverPadding(
-            padding: const EdgeInsets.only(top: 8, bottom: 40),
+            padding: const EdgeInsets.only(top: AppSpacing.small, bottom: 40),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final model = state.groupList[index];

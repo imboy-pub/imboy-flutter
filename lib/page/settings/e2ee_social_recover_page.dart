@@ -12,6 +12,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// E2EE 社交恢复 - 恢复密钥页面
 /// 零信任架构：通过代理分片恢复密钥
@@ -132,7 +133,10 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
 
   Widget _buildInfoCard(int threshold, int totalShards, bool canRecover) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: canRecover
@@ -144,7 +148,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         borderRadius: AppRadius.borderRadiusMedium,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -211,10 +215,10 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         : AppColors.iosBlue;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.regular),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -274,7 +278,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
   Widget _buildShardsList() {
     return Expanded(
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
         itemCount: _shards.length,
         itemBuilder: (context, index) {
           final shard = _shards[index];
@@ -307,7 +311,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
     }
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: AppSpacing.small),
       child: ListTile(
         leading: Container(
           width: 40,
@@ -350,7 +354,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
 
   Widget _buildRecoverButton(bool canRecover, int threshold) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
         color: CupertinoColors.systemBackground.resolveFrom(context),
         boxShadow: [

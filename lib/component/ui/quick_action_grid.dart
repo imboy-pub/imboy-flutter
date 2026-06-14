@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 极简高效宫格项
 class QuickActionItem {
@@ -33,7 +34,10 @@ class QuickActionGrid extends StatelessWidget {
     final brightness = theme.brightness;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: items
@@ -53,7 +57,7 @@ class QuickActionGrid extends StatelessWidget {
         onTap: item.onTap,
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.medium),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

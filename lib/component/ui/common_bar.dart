@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 毛玻璃效果的导航栏
 ///
@@ -96,7 +97,10 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: SafeArea(
             bottom: false,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.regular,
+                vertical: AppSpacing.small,
+              ),
               child: Row(
                 children: [
                   // Leading widget

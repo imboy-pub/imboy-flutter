@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_schedule_service.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 群日程页面
 class GroupSchedulePage extends ConsumerStatefulWidget {
@@ -184,7 +185,10 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
     final scheduleId = _resolveScheduleRouteId(schedule);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: InkWell(
         onTap: () async {
           if (scheduleId.isEmpty) {
@@ -200,7 +204,7 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.regular),
           child: Row(
             children: [
               Container(

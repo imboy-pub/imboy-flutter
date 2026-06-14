@@ -10,6 +10,7 @@ import '../personal_info/personal_info_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MorePage extends ConsumerStatefulWidget {
@@ -110,7 +111,7 @@ class _MorePageState extends ConsumerState<MorePage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       decoration: BoxDecoration(
         color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
         borderRadius: AppRadius.borderRadiusMedium,
@@ -162,7 +163,10 @@ class _MorePageState extends ConsumerState<MorePage> {
     return InkWell(
       onTap: onPressed,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.regular,
+        ),
         child: Row(
           children: [
             Container(

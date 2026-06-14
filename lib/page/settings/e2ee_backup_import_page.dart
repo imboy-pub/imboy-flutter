@@ -8,6 +8,7 @@ import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// E2EE 备份导入页面
 ///
@@ -63,7 +64,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         children: [
           _buildWarningCard(),
           const SizedBox(height: 24),
@@ -85,7 +86,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     return Card(
       color: Colors.orange.shade50,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -121,7 +122,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   Widget _buildFileSelector() {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -134,7 +135,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               onTap: _selectFile,
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.regular),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: AppRadius.borderRadiusSmall,
@@ -178,7 +179,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -231,7 +232,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: AppSpacing.small),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

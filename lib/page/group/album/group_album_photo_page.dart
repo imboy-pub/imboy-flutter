@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 群相册图片列表页
 class GroupAlbumPhotoPage extends ConsumerStatefulWidget {
@@ -360,7 +361,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
       onRefresh: () => _loadPhotos(refresh: true),
       child: GridView.builder(
         controller: _scrollController,
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppSpacing.medium),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           mainAxisSpacing: 8,
@@ -438,7 +439,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                     borderRadius: AppRadius.borderRadiusRegular,
                     onTap: () => _deletePhoto(photo),
                     child: const Padding(
-                      padding: EdgeInsets.all(4),
+                      padding: EdgeInsets.all(AppSpacing.tiny),
                       child: Icon(
                         Icons.delete_outline,
                         size: 16,

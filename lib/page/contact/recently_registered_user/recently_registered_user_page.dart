@@ -11,6 +11,7 @@ import 'package:imboy/store/model/people_model.dart';
 import 'recently_registered_user_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 最近注册用户页面 - 像素级对齐 iOS 17 Premium 风格
 class RecentlyRegisteredUserPage extends ConsumerStatefulWidget {
@@ -43,7 +44,12 @@ class _RecentlyRegisteredUserPageState
         // 说明卡片 Section
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              AppSpacing.small,
+            ),
             child: _buildTipsCard(context, brightness == Brightness.dark),
           ),
         ),
@@ -85,7 +91,7 @@ class _RecentlyRegisteredUserPageState
 
   Widget _buildTipsCard(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
         color: AppColors.getIosBlue(
           Theme.of(context).brightness,
@@ -138,7 +144,10 @@ class _RecentlyRegisteredUserPageState
         children: [
           if (model.createdAt > 0)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.small,
+                vertical: AppSpacing.tiny,
+              ),
               decoration: BoxDecoration(
                 color: AppColors.getIosBlue(brightness).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),

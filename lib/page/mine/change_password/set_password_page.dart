@@ -11,6 +11,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mine/change_password/set_password_provider.dart';
 
@@ -34,7 +35,7 @@ class SetPasswordPage extends ConsumerWidget {
         Theme.of(context).brightness,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -43,7 +44,7 @@ class SetPasswordPage extends ConsumerWidget {
             // 安全说明卡片
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.large),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
@@ -54,7 +55,7 @@ class SetPasswordPage extends ConsumerWidget {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(AppSpacing.medium),
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withAlpha(51),
                           borderRadius: AppRadius.borderRadiusMedium,
@@ -93,7 +94,7 @@ class SetPasswordPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(AppSpacing.medium),
                     decoration: BoxDecoration(
                       color: colorScheme.surfaceContainerHighest.withAlpha(128),
                       borderRadius: AppRadius.borderRadiusSmall,
@@ -129,7 +130,7 @@ class SetPasswordPage extends ConsumerWidget {
 
             // 密码设置表单卡片
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.large),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
@@ -139,7 +140,7 @@ class SetPasswordPage extends ConsumerWidget {
                 children: [
                   // 新密码输入
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.regular),
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: AppRadius.borderRadiusMedium,
@@ -193,7 +194,7 @@ class SetPasswordPage extends ConsumerWidget {
 
                   // 确认密码输入
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.regular),
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: AppRadius.borderRadiusMedium,

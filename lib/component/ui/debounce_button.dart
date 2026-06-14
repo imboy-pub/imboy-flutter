@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 防抖按钮组件
 ///
@@ -270,7 +271,7 @@ class _DebounceFloatingActionButtonState
       enableFeedback: widget.enableFeedback,
       child: _isSubmitting
           ? Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(AppSpacing.regular),
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(

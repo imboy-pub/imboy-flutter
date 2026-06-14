@@ -24,6 +24,7 @@ import 'package:imboy/store/model/moment_notify_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 class MomentNotifyPage extends ConsumerStatefulWidget {
   const MomentNotifyPage({super.key});
@@ -148,7 +149,9 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
                   ),
                   const SizedBox(height: 6),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xxLarge,
+                    ),
                     child: Text(
                       t.momentNotify.emptyHint,
                       style: TextStyle(
@@ -177,7 +180,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
         itemBuilder: (context, index) {
           if (index >= state.items.length) {
             return const Padding(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSpacing.regular),
               child: Center(child: CircularProgressIndicator()),
             );
           }
@@ -260,7 +263,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.large),
         color: AppColors.iosRed,
         child: Text(
           t.momentNotify.delete,
@@ -294,7 +297,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
       builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.momentNotify.clearConfirmTitle),
         content: Padding(
-          padding: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: AppSpacing.small),
           child: Text(t.momentNotify.clearConfirmMessage),
         ),
         actions: [

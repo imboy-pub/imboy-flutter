@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
@@ -53,7 +54,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
 
   Widget _buildTestControls() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       color: Theme.of(context).cardColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -112,7 +113,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       itemCount: _testResults.length,
       separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) {

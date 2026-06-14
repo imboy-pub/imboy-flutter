@@ -10,6 +10,7 @@ import 'package:imboy/page/group/group_select/group_select_provider.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 class GroupSelectPage extends ConsumerStatefulWidget {
   const GroupSelectPage({super.key});
@@ -102,8 +103,8 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
-                        left: 12,
-                        right: 20,
+                        left: AppSpacing.medium,
+                        right: AppSpacing.large,
                         bottom: 10,
                       ),
                       child: HorizontalLine(height: isDark ? 0.5 : 1.0),

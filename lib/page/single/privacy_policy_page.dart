@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 隐私政策页面
 ///
@@ -17,7 +18,7 @@ class PrivacyPolicyPage extends ConsumerWidget {
     return Scaffold(
       appBar: GlassAppBar(title: t.main.privacyPolicy),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -95,7 +96,7 @@ class PrivacyPolicyPage extends ConsumerWidget {
 
   Widget _buildSection(ThemeData theme, String title, String content) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: AppSpacing.large),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

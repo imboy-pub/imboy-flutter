@@ -21,6 +21,7 @@ import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:synchronized/synchronized.dart';
 
 import 'package:imboy/config/enum.dart';
@@ -364,7 +365,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
 
           // 退出/解散按钮
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.regular,
+              vertical: AppSpacing.xxLarge,
+            ),
             child: SizedBox(
               width: double.infinity,
               height: 50,
@@ -405,8 +409,13 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   Widget _buildMemberSection(GroupDetailState state) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.fromLTRB(
+        AppSpacing.regular,
+        AppSpacing.large,
+        AppSpacing.regular,
+        AppSpacing.small,
+      ),
+      padding: const EdgeInsets.all(AppSpacing.large),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
         borderRadius: BorderRadius.circular(20),

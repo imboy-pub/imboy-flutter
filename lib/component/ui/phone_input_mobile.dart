@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 /// 移动端电话号码输入组件（完整功能）
@@ -42,8 +43,8 @@ class MobilePhoneInputWidget extends StatelessWidget {
               borderSide: BorderSide(color: Colors.grey.shade300),
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
+              horizontal: AppSpacing.regular,
+              vertical: AppSpacing.regular,
             ),
           ),
     );

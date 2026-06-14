@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 贴图/表情包项
 class StickerItem {
@@ -59,7 +60,10 @@ class StickerPicker extends StatelessWidget {
           Container(
             width: 36,
             height: 4,
-            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            margin: const EdgeInsets.only(
+              top: AppSpacing.medium,
+              bottom: AppSpacing.small,
+            ),
             decoration: BoxDecoration(
               color: Theme.of(
                 context,
@@ -69,7 +73,7 @@ class StickerPicker extends StatelessWidget {
           ),
           Expanded(
             child: GridView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.regular),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
                 mainAxisSpacing: 16,
@@ -81,7 +85,7 @@ class StickerPicker extends StatelessWidget {
                 return GestureDetector(
                   onTap: () => onStickerSelected(sticker),
                   child: Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(AppSpacing.tiny),
                     decoration: BoxDecoration(
                       color: isDark
                           ? AppColors.darkSurfaceGrouped

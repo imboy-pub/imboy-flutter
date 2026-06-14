@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 
@@ -47,7 +48,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         children: [
           _buildWarningCard(),
           const SizedBox(height: 24),
@@ -73,7 +74,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     return Card(
       color: Colors.orange.shade50,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -222,7 +223,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     return Card(
       color: Colors.green.shade50,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

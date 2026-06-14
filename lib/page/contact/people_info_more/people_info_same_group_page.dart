@@ -14,6 +14,7 @@ import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 共同群组列表页面
 class PeopleInfoSameGroupPage extends ConsumerStatefulWidget {
@@ -120,8 +121,8 @@ class _PeopleInfoSameGroupPageState
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                    left: 12,
-                                    right: 20,
+                                    left: AppSpacing.medium,
+                                    right: AppSpacing.large,
                                     bottom: 10,
                                   ),
                                   child: HorizontalLine(
@@ -140,7 +141,10 @@ class _PeopleInfoSameGroupPageState
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 8),
+            padding: const EdgeInsets.only(
+              top: AppSpacing.small,
+              bottom: AppSpacing.small,
+            ),
             child: Text(t.main.numUnit(param: '${widget.groupList.length}')),
           ),
         ],

@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 修改名称页面
 class ChangeNamePage extends ConsumerStatefulWidget {
@@ -93,7 +94,7 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
         keyboardType: TextInputType.text,
         textCapitalization: TextCapitalization.words,
         decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
+          contentPadding: const EdgeInsets.fromLTRB(14, 0, AppSpacing.small, 0),
           filled: true,
           fillColor: Theme.of(context).cardColor,
           focusedBorder: OutlineInputBorder(

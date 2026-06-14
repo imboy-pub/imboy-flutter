@@ -16,6 +16,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'remove_member_provider.dart';
 
@@ -68,7 +69,10 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
             child: Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 8),
+                  padding: const EdgeInsets.only(
+                    left: AppSpacing.regular,
+                    right: AppSpacing.small,
+                  ),
                   child: Icon(
                     isSelected
                         ? CupertinoIcons.check_mark_circled_solid
@@ -113,7 +117,10 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                               Icons.info_outline,
                               color: AppColors.primary,
                             ),
-                            padding: const EdgeInsets.only(left: 8, right: 8),
+                            padding: const EdgeInsets.only(
+                              left: AppSpacing.small,
+                              right: AppSpacing.small,
+                            ),
                             onPressed: () {
                               // 路由 /people_info/:id 通过 pathParameters 解析 id，
                               // scene 走 queryParameters；extra 在该路由 builder 中不会被读取。
@@ -144,7 +151,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
       appBar: GlassAppBar(
         title: t.common.removeMember,
         leading: Padding(
-          padding: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: AppSpacing.small),
           child: TextButton(
             onPressed: () {
               context.pop();

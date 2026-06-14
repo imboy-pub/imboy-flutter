@@ -3,6 +3,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 不支持的消息类型构建器
 ///
@@ -29,7 +30,10 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
     final displayType = msgType.isNotEmpty ? msgType : originalType;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: AppSpacing.small,
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

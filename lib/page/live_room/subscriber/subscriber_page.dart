@@ -10,6 +10,7 @@ import 'package:imboy/page/live_room/subscriber/subscriber_provider.dart'
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// WHEP Subscriber 拉流页面
 /// 使用 WHEP 协议（WebRTC-HTTP Egress Protocol）从媒体服务器拉取音视频流
@@ -65,7 +66,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
           // 显示当前观看人数（若有房间信息）
           if (widget.room != null)
             Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.only(right: AppSpacing.small),
               child: Row(
                 children: [
                   const Icon(Icons.remove_red_eye, size: 14),
@@ -98,8 +99,8 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                   left: 16,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: AppSpacing.small,
+                      vertical: AppSpacing.tiny,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.black54,
@@ -116,7 +117,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
           ),
           // 控制面板
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.regular),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

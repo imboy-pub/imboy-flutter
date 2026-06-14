@@ -6,6 +6,7 @@ import 'package:imboy/page/settings/e2ee_transfer_receive_page.dart';
 import 'package:imboy/service/e2ee_transfer_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// E2EE 设备间传输入口页面
 class E2EETransferPage extends StatelessWidget {
@@ -56,7 +57,12 @@ class E2EETransferPage extends StatelessWidget {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.regular,
+        AppSpacing.regular,
+        AppSpacing.regular,
+        AppSpacing.small,
+      ),
       child: Text(
         title,
         style: TextStyle(
@@ -76,7 +82,10 @@ class E2EETransferPage extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: ListTile(
         leading: Icon(icon, size: 32, color: CupertinoColors.activeBlue),
         title: Text(title),
@@ -89,13 +98,16 @@ class E2EETransferPage extends StatelessWidget {
 
   Widget _buildPendingTransfersCard(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: FutureBuilder<List<Map<String, dynamic>>>(
         future: E2EETransferService.getPendingTransfers(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Padding(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSpacing.regular),
               child: Center(child: CupertinoActivityIndicator()),
             );
           }

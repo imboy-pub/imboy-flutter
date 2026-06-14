@@ -7,6 +7,7 @@ import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TypingIndicatorWidget extends ConsumerStatefulWidget {
@@ -91,13 +92,16 @@ class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       alignment: Alignment.centerLeft,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(AppSpacing.small),
             decoration: BoxDecoration(
               color: themeNotifier.getThemeColor('chatBubbleIncoming'),
               borderRadius: AppRadius.borderRadiusRegular,

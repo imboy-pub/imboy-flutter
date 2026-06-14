@@ -10,6 +10,7 @@ import 'package:imboy/page/live_room/publisher/publisher_provider.dart'
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// WHIP Publisher 推流页面
 /// 使用 WHIP 协议（WebRTC-HTTP Ingestion Protocol）向媒体服务器推送音视频流
@@ -91,8 +92,8 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                   left: 16,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: AppSpacing.small,
+                      vertical: AppSpacing.tiny,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.black54,
@@ -111,8 +112,8 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                     right: 16,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: AppSpacing.small,
+                        vertical: AppSpacing.tiny,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.black54,
@@ -132,7 +133,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
           ),
           // 控制面板
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.regular),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

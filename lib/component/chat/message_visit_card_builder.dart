@@ -4,6 +4,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 
 import 'package:imboy/store/model/message_model.dart';
@@ -92,7 +93,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
           ),
           child: Container(
             width: 240,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppSpacing.medium),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -131,7 +132,9 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.small,
+                  ),
                   child: Divider(
                     height: 1,
                     color: subTextColor.withValues(alpha: 0.2),

@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 启动页（克制化版本，DESIGN.md §1 Clarity / Deference 原则）
 ///
@@ -210,7 +211,10 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 bottom: 0,
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 8, bottom: 8),
+                    padding: const EdgeInsets.only(
+                      right: AppSpacing.small,
+                      bottom: AppSpacing.small,
+                    ),
                     child: ExcludeSemantics(
                       child: Text(
                         'DEV',

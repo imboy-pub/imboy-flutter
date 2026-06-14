@@ -13,6 +13,7 @@ import 'package:imboy/store/api/live_room_api.dart';
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 class LiveRoomListPage extends ConsumerStatefulWidget {
   const LiveRoomListPage({super.key});
@@ -132,7 +133,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
                 itemBuilder: (context, index) {
                   if (index == state.items.length) {
                     return const Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.all(AppSpacing.regular),
                       child: Center(child: CircularProgressIndicator()),
                     );
                   }

@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 class QuoteTipsWidget extends StatelessWidget {
   const QuoteTipsWidget({
@@ -178,7 +179,10 @@ class QuoteTipsWidget extends StatelessWidget {
     return animatedBuilder(
       true,
       Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.small,
+        ),
         decoration: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark
               ? AppColors.darkSurface

@@ -8,6 +8,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'channel_di_provider.dart';
@@ -140,7 +141,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
         children: [
           // 搜索框
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.regular),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -374,7 +375,7 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
           ),
           if (widget.channel.isVerified)
             Container(
-              margin: const EdgeInsets.only(left: 4),
+              margin: const EdgeInsets.only(left: AppSpacing.tiny),
               child: const Icon(
                 Icons.verified,
                 size: 16,

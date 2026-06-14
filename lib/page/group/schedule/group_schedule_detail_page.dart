@@ -4,6 +4,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_schedule_service.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 群日程详情页
 class GroupScheduleDetailPage extends ConsumerStatefulWidget {
@@ -163,7 +164,7 @@ class _GroupScheduleDetailPageState
     return RefreshIndicator(
       onRefresh: _loadDetail,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         children: [
           Text(
             _toText(schedule['title']),
@@ -254,7 +255,7 @@ class _InfoLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: AppSpacing.small),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

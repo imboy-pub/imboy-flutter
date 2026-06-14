@@ -4,6 +4,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_vote_service.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 群投票详情页
 class GroupVoteDetailPage extends ConsumerStatefulWidget {
@@ -244,7 +245,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     return RefreshIndicator(
       onRefresh: _loadVoteDetail,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         children: [
           Text(
             _toText(_vote!['title']),
@@ -272,7 +273,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
           const SizedBox(height: 16),
           ...options.map(
             (option) => Card(
-              margin: const EdgeInsets.only(bottom: 8),
+              margin: const EdgeInsets.only(bottom: AppSpacing.small),
               child: _buildOptionItem(option, isMultiple),
             ),
           ),

@@ -13,6 +13,7 @@ import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// E2EE 密钥传输 - 接收页面
 /// 扫描旧设备的二维码接收密钥
@@ -172,7 +173,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
   Widget _buildStatusView() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.xLarge),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 群相册页面
 class GroupAlbumPage extends ConsumerStatefulWidget {
@@ -304,7 +305,10 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final albumId = _resolveAlbumId(album);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: ListTile(
         leading: const Icon(Icons.photo_album_outlined),
         title: Text(name),

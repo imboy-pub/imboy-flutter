@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 极简列表项 (Minimalist & Flat List Tile)
 ///
@@ -43,7 +44,11 @@ class FlatListTile extends StatelessWidget {
       child: Container(
         height: height,
         padding:
-            padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding ??
+            const EdgeInsets.symmetric(
+              horizontal: AppSpacing.regular,
+              vertical: AppSpacing.regular,
+            ),
         child: Row(
           children: [
             // 前置图标/头像

@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 
 import 'package:imboy/page/scanner/qr_login_confirm_rules.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// QR 登录确认页展示组件。
 ///
@@ -49,7 +50,7 @@ class QrLoginConfirmContent extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
           child: Center(child: _buildBody(context)),
         ),
       ),
@@ -223,7 +224,7 @@ class _DeviceInfoCard extends StatelessWidget {
     }
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
         color: AppColors.lightPageBackground,
         borderRadius: BorderRadius.circular(12),

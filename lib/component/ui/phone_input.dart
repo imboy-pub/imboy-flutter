@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 // 条件导入：移动端使用完整的电话号码输入组件
 import 'phone_input_stub.dart' if (dart.library.io) 'phone_input_mobile.dart';
@@ -111,7 +112,10 @@ class _WebPhoneInputWidgetState extends State<_WebPhoneInputWidget> {
         borderRadius: AppRadius.borderRadiusSmall,
         borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.regular,
+      ),
     );
 
     return Row(
@@ -123,8 +127,8 @@ class _WebPhoneInputWidgetState extends State<_WebPhoneInputWidget> {
             border: Border.all(color: Colors.grey.shade300),
             borderRadius: AppRadius.borderRadiusSmall,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          margin: const EdgeInsets.only(right: 8),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.medium),
+          margin: const EdgeInsets.only(right: AppSpacing.small),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _selectedCountryCode,

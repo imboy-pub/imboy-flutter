@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/theme_manager.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -121,9 +122,9 @@ Future<void> incomingCallScreen(
             Padding(
               padding: const EdgeInsets.only(
                 right: 6,
-                left: 16,
-                top: 16,
-                bottom: 16,
+                left: AppSpacing.regular,
+                top: AppSpacing.regular,
+                bottom: AppSpacing.regular,
               ),
               child: Avatar(imgUri: peer.avatar, width: 44, height: 44),
             ),

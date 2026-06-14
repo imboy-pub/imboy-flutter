@@ -3,6 +3,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/e2ee_plus_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// E2EE 备份管理页面
 ///
@@ -77,7 +78,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
 
     return ListView.builder(
       itemCount: _backupHistory.length,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(AppSpacing.small),
       itemBuilder: (context, index) {
         final backup = _backupHistory[index];
         return _buildBackupCard(backup as Map<String, dynamic>);
@@ -91,7 +92,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
     final backupVersion = backup['backup_version'] ?? 0;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: AppSpacing.small),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.blue.shade100,
@@ -207,7 +208,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
 
   Widget _buildDetailRow(String label, dynamic value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: AppSpacing.small),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

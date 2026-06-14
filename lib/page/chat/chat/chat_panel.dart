@@ -20,6 +20,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/page/chat/widget/chat_message_list.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// Web 嵌入式聊天面板
 ///
@@ -157,7 +158,7 @@ class _ChatPanelHeader extends StatelessWidget {
 
     return Container(
       height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       color: colorScheme.surfaceContainer,
       child: Row(
         children: [

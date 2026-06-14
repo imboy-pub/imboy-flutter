@@ -8,6 +8,7 @@ import 'package:imboy/service/e2ee_social_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// E2EE 社交恢复入口页面
 /// 通过信任的联系人恢复密钥
@@ -80,7 +81,10 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
 
   Widget _buildStatusCard() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.purple.shade50, Colors.purple.shade100],
@@ -90,7 +94,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
         borderRadius: AppRadius.borderRadiusMedium,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.large),
         child: Column(
           children: [
             Row(
@@ -138,9 +142,12 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
 
   Widget _buildExistingShardsCard() {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -165,7 +172,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
             ...(_shards.take(3).map((shard) => _buildShardItem(shard))),
             if (_shards.length > 3)
               Padding(
-                padding: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(top: AppSpacing.small),
                 child: Text(
                   t.common.e2eeSocialMoreShards(count: _shards.length - 3),
                   style: TextStyle(
@@ -186,7 +193,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
     final status = shard['status'];
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: AppSpacing.medium),
       child: Row(
         children: [
           Container(
@@ -292,12 +299,15 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
     required VoidCallback onTap,
   }) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: AppRadius.borderRadiusMedium,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.regular),
           child: Row(
             children: [
               Container(

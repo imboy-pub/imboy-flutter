@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/mention_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// @提及列表页面
 class MentionListPage extends ConsumerStatefulWidget {
@@ -183,7 +184,7 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
             }
             return const Center(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(AppSpacing.regular),
                 child: CircularProgressIndicator(),
               ),
             );

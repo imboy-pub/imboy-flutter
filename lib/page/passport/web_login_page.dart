@@ -21,6 +21,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/qr_login_response_rules.dart';
@@ -631,7 +632,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         Container(
           width: 256,
           height: 256,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.regular),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),

@@ -12,6 +12,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 part 'logout_account_page.g.dart';
 
@@ -186,7 +187,7 @@ class LogoutAccountPage extends ConsumerWidget {
 
           if (state.error != null && state.error!.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(AppSpacing.regular),
               child: Text(
                 state.error!,
                 style: const TextStyle(color: AppColors.iosRed, fontSize: 13),

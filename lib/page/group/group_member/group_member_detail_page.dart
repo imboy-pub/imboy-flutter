@@ -14,6 +14,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 群成员详情页（slice-10）。
 ///
@@ -159,7 +160,9 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.regular,
+                ),
                 child: Text(
                   t.common.muteDuration,
                   style: ThemeManager.instance.getTextStyle(
@@ -170,7 +173,9 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
               ),
               ...muteDurationOptions.map(
                 (opt) => ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xLarge,
+                  ),
                   title: Text(_labelForKey(opt.labelKey)),
                   onTap: () => Navigator.of(ctx).pop(opt.seconds),
                 ),
@@ -270,7 +275,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     final isMuted = member.isMuted();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -319,7 +324,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
       color: colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusMedium),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Row(
           children: [
             Avatar(imgUri: member.avatar, width: 56, height: 56),
@@ -363,7 +368,10 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     required ColorScheme colorScheme,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.medium,
+      ),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: AppRadius.borderRadiusMedium,

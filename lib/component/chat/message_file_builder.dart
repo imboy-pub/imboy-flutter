@@ -6,6 +6,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 文件消息构建器
 class MessageFileBuilder extends StatelessWidget {
@@ -47,7 +48,10 @@ class MessageFileBuilder extends StatelessWidget {
       },
       child: Container(
         width: 240,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.tiny,
+          vertical: AppSpacing.tiny,
+        ),
         child: Row(
           children: [
             Expanded(

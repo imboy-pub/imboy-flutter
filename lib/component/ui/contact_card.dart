@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 联系人名片组件 - iOS 17 Premium 风格
 class ContactCard extends StatelessWidget {
@@ -41,7 +42,7 @@ class ContactCard extends StatelessWidget {
     }
 
     return Container(
-      padding: padding ?? const EdgeInsets.all(20.0),
+      padding: padding ?? const EdgeInsets.all(AppSpacing.large),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

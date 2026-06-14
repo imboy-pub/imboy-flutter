@@ -3,6 +3,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 密码输入框组件
 ///
@@ -118,8 +119,8 @@ class PasswordTextField extends StatelessWidget {
 
         // 内容内边距 - 使用 Design Token
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 16.0,
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.regular,
         ),
 
         // 前缀图标 - 锁

@@ -6,6 +6,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'send_to_provider.dart';
 
@@ -77,7 +78,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
           children: [
             // 搜索框
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.regular),
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(

@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_task_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 群作业/任务页面
 class GroupTaskPage extends ConsumerStatefulWidget {
@@ -138,7 +139,10 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   Widget _buildFilterTabs() {
     final t = context.t;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: Row(
         children: [
           _buildFilterChip(0, t.groupTask.all),
@@ -204,7 +208,10 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     final taskId = _resolveTaskRouteId(task);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: InkWell(
         onTap: () async {
           if (taskId.isEmpty) {
@@ -220,7 +227,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.regular),
           child: Row(
             children: [
               Checkbox(

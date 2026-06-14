@@ -25,6 +25,7 @@ import 'package:imboy/page/chat/widget/chat_input.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 消息操作处理器
 ///
@@ -285,7 +286,7 @@ class MessageActionHandler {
           : const Color.fromRGBO(240, 240, 240, 1),
       isScrollControlled: true,
       builder: (context) => Padding(
-        padding: const EdgeInsets.only(top: 24),
+        padding: const EdgeInsets.only(top: AppSpacing.xLarge),
         child: SendToPage(msg: msg),
       ),
     );

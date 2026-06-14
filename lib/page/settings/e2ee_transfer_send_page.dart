@@ -9,6 +9,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// E2EE 密钥传输 - 发送页面
 /// 显示二维码，供新设备扫描
@@ -144,7 +145,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
     if (_errorMessage != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.xLarge),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -184,7 +185,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
     final qrData = E2EETransferService.generateQRCodeData(_sessionId!);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSpacing.xLarge),
       child: Column(
         children: [
           const Icon(
@@ -207,7 +208,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
           ),
           const SizedBox(height: 32),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.regular),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: AppRadius.borderRadiusMedium,
@@ -256,7 +257,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
         return CupertinoAlertDialog(
           title: Text(t.main.e2eeTransferEnterUidTitle),
           content: Padding(
-            padding: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.only(top: AppSpacing.medium),
             child: CupertinoTextField(
               controller: controller,
               placeholder: t.main.e2eeTransferUidPlaceholder,

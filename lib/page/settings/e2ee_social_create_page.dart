@@ -6,6 +6,7 @@ import 'package:imboy/service/e2ee_social_service.dart';
 import 'package:imboy/page/settings/e2ee_proxy_selector_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// E2EE 社交恢复 - 创建分片页面
 /// 选择代理并创建恢复分片
@@ -40,9 +41,9 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
 
   Widget _buildSettingsCard() {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -130,9 +131,9 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
 
   Widget _buildProxySelectionCard() {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -164,7 +165,9 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
             if (_selectedProxies.isEmpty)
               Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.xxLarge,
+                  ),
                   child: Text(t.common.e2eeSocialAddProxyHint),
                 ),
               )
@@ -187,7 +190,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
     final uid = proxy['uid'];
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: AppSpacing.small),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: AppColors.iosPurple,
@@ -213,7 +216,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
 
   Widget _buildCreateButton() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       child: SizedBox(
         width: double.infinity,
         child: CupertinoButton.filled(

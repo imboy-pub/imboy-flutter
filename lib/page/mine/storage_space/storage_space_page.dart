@@ -8,6 +8,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'storage_space_provider.dart';
 
@@ -37,7 +38,10 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
       title: t.main.storageSpace,
       useLargeTitle: false,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -58,7 +62,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
     Translations t,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusCell,
@@ -174,7 +178,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
   ) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.large),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusCell,
@@ -226,7 +230,10 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           icon: Icons.cached,
           iconColor: AppColors.iosOrange,
           action: CupertinoButton(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.regular,
+              vertical: AppSpacing.tiny,
+            ),
             color: AppColors.getIosBlue(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(20),
             onPressed: () async {
@@ -277,7 +284,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
     Widget? action,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusCell,

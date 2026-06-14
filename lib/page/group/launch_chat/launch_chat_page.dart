@@ -14,6 +14,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'launch_chat_provider.dart';
@@ -63,7 +64,10 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
               children: [
                 // 选择状态图标 - 使用优化后的主题色
                 Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 12),
+                  padding: const EdgeInsets.only(
+                    left: AppSpacing.regular,
+                    right: AppSpacing.medium,
+                  ),
                   child: Icon(
                     isSelected
                         ? CupertinoIcons.check_mark_circled_solid
@@ -123,7 +127,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
         title: t.common.selectContacts,
         leadingWidth: 72,
         leading: Padding(
-          padding: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: AppSpacing.small),
           child: TextButton(
             onPressed: () {
               Navigator.of(context).pop();
@@ -141,7 +145,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
         ),
         rightDMActions: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: AppSpacing.regular),
             child: RoundedElevatedButton(
               text: '${t.common.buttonAccomplish}${state.selectsTips}',
               highlighted: state.selects.isNotEmpty && !_isCreatingGroup,
@@ -199,8 +203,11 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
         children: [
           // 顶部功能入口
           Container(
-            margin: const EdgeInsets.only(top: 16, bottom: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            margin: const EdgeInsets.only(
+              top: AppSpacing.regular,
+              bottom: AppSpacing.small,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
             child: Container(
               decoration: BoxDecoration(
                 color: isDark
@@ -221,7 +228,9 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                 children: [
                   // 选择群聊选项
                   ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.regular,
+                    ),
                     title: Text(
                       t.contact.selectAGroup,
                       style: TextStyle(
@@ -247,7 +256,9 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                   ),
                   // 面对面建群选项
                   ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.regular,
+                    ),
                     title: Text(
                       t.chat.createGroupF2f,
                       style: TextStyle(

@@ -9,6 +9,7 @@ import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'change_info_provider.dart';
 
@@ -88,12 +89,15 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
           : AppColors.lightPageBackground,
       appBar: GlassAppBar(automaticallyImplyLeading: true, title: widget.title),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.large,
+        ),
         child: Column(
           children: [
             if (widget.subtitle.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.only(bottom: AppSpacing.large),
                 child: Text(
                   widget.subtitle,
                   textAlign: TextAlign.center,
@@ -101,7 +105,10 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                 ),
               ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.regular,
+                vertical: AppSpacing.medium,
+              ),
               decoration: BoxDecoration(
                 color: isDark ? colorScheme.surface : Colors.white,
                 borderRadius: AppRadius.borderRadiusMedium,

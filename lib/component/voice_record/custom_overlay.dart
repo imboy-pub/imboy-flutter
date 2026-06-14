@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/theme_manager.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 语音录制悬浮层
 class CustomOverlay extends StatelessWidget {
@@ -99,7 +100,9 @@ class CustomOverlay extends StatelessWidget {
                       Container(
                         width: width - 40, // 明确设置宽度以匹配可用空间
                         height: 64,
-                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.large,
+                        ),
                         child: isCancelling
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,

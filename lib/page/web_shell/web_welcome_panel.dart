@@ -11,6 +11,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// Web Shell 默认欢迎屏
 class WebWelcomePanel extends StatelessWidget {
@@ -43,7 +44,7 @@ class WebWelcomePanel extends StatelessWidget {
     return Container(
       color: colorScheme.surface,
       alignment: Alignment.center,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSpacing.xLarge),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: Column(

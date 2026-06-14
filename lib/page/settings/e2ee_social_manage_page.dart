@@ -6,6 +6,7 @@ import 'package:imboy/service/e2ee_social_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// E2EE 社交恢复 - 管理分片页面
 /// 查看和管理所有恢复分片
@@ -79,21 +80,21 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
           : Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.regular),
                   child: CupertinoSlidingSegmentedControl<int>(
                     groupValue: _tabController.index,
                     children: {
                       0: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
+                          horizontal: AppSpacing.large,
+                          vertical: AppSpacing.small,
                         ),
                         child: Text(t.main.e2eeSocialMyShards),
                       ),
                       1: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
+                          horizontal: AppSpacing.large,
+                          vertical: AppSpacing.small,
                         ),
                         child: Text(t.main.e2eeSocialProxyShards),
                       ),
@@ -124,7 +125,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       itemCount: _userShards.length,
       itemBuilder: (context, index) {
         final shard = _userShards[index];
@@ -139,7 +140,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       itemCount: _proxyShards.length,
       itemBuilder: (context, index) {
         final shard = _proxyShards[index];
@@ -166,9 +167,9 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
     final createdAt = shard['created_at'];
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.medium),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -176,8 +177,8 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                    horizontal: AppSpacing.small,
+                    vertical: AppSpacing.tiny,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.purple.shade100,
@@ -259,9 +260,9 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
     final createdAt = shard['created_at'];
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.medium),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -322,7 +323,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: AppSpacing.tiny),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

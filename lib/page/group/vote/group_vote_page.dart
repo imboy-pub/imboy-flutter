@@ -7,6 +7,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_vote_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 群投票页面
 class GroupVotePage extends ConsumerStatefulWidget {
@@ -158,7 +159,10 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
     final voteId = _resolveVoteId(vote);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: InkWell(
         onTap: () async {
           if (voteId.isEmpty) {
@@ -175,7 +179,7 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.regular),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -192,8 +196,8 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: AppSpacing.small,
+                      vertical: AppSpacing.tiny,
                     ),
                     decoration: BoxDecoration(
                       color: statusColor.withValues(alpha: 0.1),

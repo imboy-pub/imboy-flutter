@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 聊天性能监控工具（增强版）
 /// 用于监控聊天界面的渲染性能和内存使用
@@ -311,7 +312,7 @@ class _PerformanceMonitorPanelState extends State<PerformanceMonitorPanel> {
     final isGood = fps >= 58.0;
 
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(AppSpacing.small),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.7),
         borderRadius: AppRadius.borderRadiusSmall,

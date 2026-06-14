@@ -14,6 +14,7 @@ import 'package:imboy/config/enum.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import '../confirm_new_friend/confirm_new_friend_page.dart';
 import 'add_friend_page.dart';
@@ -70,7 +71,12 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
         // 搜索栏
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              AppSpacing.small,
+            ),
             child: CupertinoSearchTextField(
               placeholder: t.account.hintLoginAccount,
               onSubmitted: (v) =>
@@ -86,7 +92,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
           SliverFillRemaining(child: _buildEmptyState(context))
         else
           SliverPadding(
-            padding: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.only(bottom: AppSpacing.large),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final model = state.items[index] as NewFriendModel;
@@ -152,7 +158,10 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
         ),
         subtitle: Text(model.msg, maxLines: 2, overflow: TextOverflow.ellipsis),
         trailing: _buildStatusAction(context, model, fromSelf, brightness),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
       ),
     );
   }
@@ -160,7 +169,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
   Widget _buildTag(String label, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      margin: const EdgeInsets.only(left: 8),
+      margin: const EdgeInsets.only(left: AppSpacing.small),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
@@ -205,7 +214,10 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
     }
 
     return CupertinoButton(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.tiny,
+      ),
       color: AppColors.getIosBlue(brightness),
       borderRadius: BorderRadius.circular(18),
       onPressed: () => Navigator.push(

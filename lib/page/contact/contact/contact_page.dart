@@ -16,6 +16,7 @@ import 'package:imboy/page/web_shell/web_shell.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'contact_menu_decoration.dart';
 import 'contact_provider.dart';
@@ -120,7 +121,10 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     return ImBoyListTile(
       onTap: () => _handleContactTap(model),
       onLongPress: () => _handleContactLongPress(model),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       leading: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -214,7 +218,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     return Container(
       height: 32,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       alignment: Alignment.centerLeft,
       color: isDark
           ? AppColors.darkSurfaceGrouped
@@ -255,7 +259,12 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         // 搜索框
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              AppSpacing.small,
+            ),
             child: CupertinoSearchTextField(placeholder: t.common.search),
           ),
         ),
