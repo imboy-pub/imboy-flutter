@@ -287,6 +287,15 @@ class API {
   static const walletTransactions = '/v1/wallet/transactions';
   static const walletTopup = '/v1/wallet/topup';
 
+  // 红包、转账、提现 API
+  static const walletRedPacketSend = '/v1/wallet/red_packet/send';
+  static const walletRedPacketOpen = '/v1/wallet/red_packet/open';
+  static String walletRedPacketDetail(String id) =>
+      '/v1/wallet/red_packet/$id/detail';
+  static const walletTransferSend = '/v1/wallet/transfer/send';
+  static const walletTransferAccept = '/v1/wallet/transfer/accept';
+  static const walletWithdraw = '/v1/wallet/withdraw';
+
   // 钱包充值（真实链路：创建订单 → 拉起支付 → 查询状态）
   static const walletRechargeOrder = '/v1/wallet/recharge/order';
   static const walletRechargePay = '/v1/wallet/recharge/pay';

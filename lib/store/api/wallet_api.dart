@@ -156,4 +156,103 @@ class WalletApi extends HttpClient {
       Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
     );
   }
+
+  /// 发送红包
+  /// [amount] 总金额（分）
+  /// [count] 红包个数
+  /// [type] random (拼手气), fixed (普通红包)
+  /// [greeting] 祝福语
+  /// 返回 新建红包ID (String) 或 null
+  Future<String?> sendRedPacket({
+    required int amount,
+    required int count,
+    String type = 'fixed',
+    String greeting = '恭喜发财，大吉大利',
+  }) async {
+    IMBoyHttpResponse resp = await post(
+      API.walletRedPacketSend,
+      data: {
+        'amount': amount,
+        'count': count,
+        'type': type,
+        'greeting': greeting,
+      },
+    );
+    if (!resp.ok || resp.payload == null) {
+      EasyLoading.showError(resp.msg);
+      return null;
+    }
+    return resp.payload['red_packet_id']?.toString();
+  }
+
+  /// 抢红包 / 拆红包
+  /// 返回抢到的金额（分）或 null
+  Future<int?> openRedPacket(String packetId) async {
+    IMBoyHttpResponse resp = await post(
+      API.walletRedPacketOpen,
+      data: {'red_packet_id': packetId},
+    );
+    if (!resp.ok || resp.payload == null) {
+      EasyLoading.showError(resp.msg);
+      return null;
+    }
+    return (resp.payload['grab_amount'] as num?)?.toInt();
+  }
+
+  /// 查询红包领取详情
+  Future<Map<String, dynamic>?> getRedPacketDetail(String packetId) async {
+    IMBoyHttpResponse resp = await get(API.walletRedPacketDetail(packetId));
+    if (!resp.ok || resp.payload == null) {
+      return null;
+    }
+    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+  }
+
+  /// 发起单聊转账
+  /// [receiverUid] 接收者 UID
+  /// [amount] 金额（分）
+  /// [remark] 转账说明备注
+  Future<String?> sendTransfer({
+    required String receiverUid,
+    required int amount,
+    String remark = '转账给好友',
+  }) async {
+    IMBoyHttpResponse resp = await post(
+      API.walletTransferSend,
+      data: {'receiver_uid': receiverUid, 'amount': amount, 'remark': remark},
+    );
+    if (!resp.ok || resp.payload == null) {
+      EasyLoading.showError(resp.msg);
+      return null;
+    }
+    return resp.payload['transfer_id']?.toString();
+  }
+
+  /// 收取转账
+  Future<bool> acceptTransfer(String transferId) async {
+    IMBoyHttpResponse resp = await post(
+      API.walletTransferAccept,
+      data: {'transfer_id': transferId},
+    );
+    if (!resp.ok) {
+      EasyLoading.showError(resp.msg);
+    }
+    return resp.ok;
+  }
+
+  /// 提现至支付宝/微信
+  Future<bool> withdraw({
+    required int amount,
+    required String method, // alipay / wechat
+    required String account, // 支付宝/微信账号
+  }) async {
+    IMBoyHttpResponse resp = await post(
+      API.walletWithdraw,
+      data: {'amount': amount, 'payment_method': method, 'account': account},
+    );
+    if (!resp.ok) {
+      EasyLoading.showError(resp.msg);
+    }
+    return resp.ok;
+  }
 }

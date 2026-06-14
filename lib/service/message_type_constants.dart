@@ -74,6 +74,12 @@ enum MsgTypeEnum {
 
   /// 引用消息
   quote,
+
+  /// 红包消息
+  redPacket,
+
+  /// 转账消息
+  transfer,
 }
 
 /// MsgTypeEnum 扩展方法
@@ -109,6 +115,10 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MessageType.webrtcVideo;
       case MsgTypeEnum.quote:
         return MessageType.quote;
+      case MsgTypeEnum.redPacket:
+        return MessageType.redPacket;
+      case MsgTypeEnum.transfer:
+        return MessageType.transfer;
     }
   }
 
@@ -143,6 +153,10 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MsgTypeEnum.webrtcVideo;
       case MessageType.quote:
         return MsgTypeEnum.quote;
+      case MessageType.redPacket:
+        return MsgTypeEnum.redPacket;
+      case MessageType.transfer:
+        return MsgTypeEnum.transfer;
       default:
         return null;
     }
@@ -297,6 +311,12 @@ abstract class MessageType {
 
   /// 个人名片消息
   static const String visitCard = 'visitCard';
+
+  /// 红包消息
+  static const String redPacket = 'redPacket';
+
+  /// 转账消息
+  static const String transfer = 'transfer';
 
   /// 自定义消息
   ///
