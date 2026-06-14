@@ -53,17 +53,16 @@ void main() {
       expect(find.text('Alice'), findsOneWidget);
     });
 
-    testWidgets('渲染占位文本（含 chatType + peerId）', (tester) async {
+    testWidgets('C2C 占位渲染 chat_bubble_outline 图标', (tester) async {
+      // 占位实现已从 TODO 文本演进为图标（_ChatPanelPlaceholder）
       await _pumpPanel(tester, peerId: 'p_42', chatType: 'C2C');
-      expect(find.text('C2C chat: p_42'), findsOneWidget);
+      expect(find.byIcon(Icons.chat_bubble_outline), findsOneWidget);
     });
 
-    testWidgets('渲染占位 TODO 提示', (tester) async {
+    testWidgets('占位 body 居中渲染（Center）', (tester) async {
       await _pumpPanel(tester);
-      expect(
-        find.text('TODO Phase 2.1.b/c — ChatMessageList + ChatInput'),
-        findsOneWidget,
-      );
+      // 占位区为 Center 包裹的图标；TODO 文本占位已移除
+      expect(find.byType(Center), findsWidgets);
     });
   });
 
@@ -80,19 +79,15 @@ void main() {
       expect(find.byIcon(Icons.person), findsNothing);
     });
 
-    testWidgets('占位文本反映 chatType (C2G)', (tester) async {
+    testWidgets('C2G 占位渲染 group_outlined 图标', (tester) async {
       await _pumpPanel(tester, peerId: 'g1', chatType: 'C2G');
-      expect(find.text('C2G chat: g1'), findsOneWidget);
+      expect(find.byIcon(Icons.group_outlined), findsOneWidget);
     });
   });
 
   group('ChatPanel — 关闭按钮', () {
     testWidgets('onClose 提供时渲染关闭按钮 + tooltip', (tester) async {
-      await _pumpPanel(
-        tester,
-        closeTooltip: '关闭',
-        onClose: () {},
-      );
+      await _pumpPanel(tester, closeTooltip: '关闭', onClose: () {});
       expect(find.byIcon(Icons.close), findsOneWidget);
       expect(find.byTooltip('关闭'), findsOneWidget);
     });
@@ -104,10 +99,7 @@ void main() {
 
     testWidgets('点击关闭按钮触发 onClose 回调', (tester) async {
       var callCount = 0;
-      await _pumpPanel(
-        tester,
-        onClose: () => callCount++,
-      );
+      await _pumpPanel(tester, onClose: () => callCount++);
       await tester.tap(find.byIcon(Icons.close));
       await tester.pump();
       expect(callCount, 1);
