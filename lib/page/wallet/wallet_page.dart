@@ -95,8 +95,17 @@ class _WalletPageState extends ConsumerState<WalletPage> {
               }
               final amountFen = (yuan * 100).round();
               Navigator.of(ctx).pop();
-              if (await ref.read(walletProvider.notifier).topup(amountFen))
+              // 充值真实链路：创建订单 → 拉起支付（沙箱即时入账）→ 轮询 → 刷新余额
+              EasyLoading.show(status: t.main.payingDots);
+              final ok = await ref
+                  .read(walletProvider.notifier)
+                  .recharge(amountFen);
+              EasyLoading.dismiss();
+              if (ok) {
                 EasyLoading.showSuccess(t.common.rechargeSuccess);
+              } else {
+                EasyLoading.showError(t.common.purchaseFailed);
+              }
             },
             child: Text(t.common.rechargeConfirm),
           ),
@@ -181,8 +190,11 @@ class _WalletPageState extends ConsumerState<WalletPage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: isDark
-                ? [const Color(0xFF1E3A8A), const Color(0xFF1E1B4B)]
-                : [AppColors.primary, const Color(0xFF1E40AF)],
+                ? [
+                    AppColors.walletCardGradientDarkStart,
+                    AppColors.walletCardGradientDarkEnd,
+                  ]
+                : [AppColors.primary, AppColors.walletCardGradientLightEnd],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -244,7 +256,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             context,
             CupertinoIcons.qrcode_viewfinder,
             t.chat.receivePayment,
-            const Color(0xFF5856D6),
+            AppColors.iosPurple,
             isDark,
           ),
           const SizedBox(width: 12),
@@ -252,7 +264,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             context,
             CupertinoIcons.money_yen,
             t.common.smallChange,
-            const Color(0xFFFF9500),
+            AppColors.iosOrange,
             isDark,
             subtitle: state.isLoading ? '...' : balance,
           ),
@@ -261,7 +273,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             context,
             CupertinoIcons.creditcard,
             t.chat.bankCard,
-            const Color(0xFF007AFF),
+            AppColors.iosBlue,
             isDark,
           ),
         ],
@@ -312,32 +324,32 @@ class _WalletPageState extends ConsumerState<WalletPage> {
       {
         'icon': CupertinoIcons.creditcard_fill,
         'label': t.common.creditCardRepayment,
-        'color': const Color(0xFF34C759),
+        'color': AppColors.iosGreen,
       },
       {
         'icon': CupertinoIcons.phone_fill,
         'label': t.account.mobileRecharge,
-        'color': const Color(0xFF5AC8FA),
+        'color': AppColors.iosSkyBlue,
       },
       {
         'icon': CupertinoIcons.briefcase_fill,
         'label': t.group.financialManagement,
-        'color': const Color(0xFFFF9500),
+        'color': AppColors.iosOrange,
       },
       {
         'icon': CupertinoIcons.bolt_fill,
         'label': t.main.lifePayment,
-        'color': const Color(0xFFFFCC00),
+        'color': AppColors.iosYellow,
       },
       {
         'icon': CupertinoIcons.heart_fill,
         'label': t.main.medicalHealth,
-        'color': const Color(0xFFFF2D55),
+        'color': AppColors.iosPink,
       },
       {
         'icon': CupertinoIcons.car_fill,
         'label': t.main.traffic,
-        'color': const Color(0xFF007AFF),
+        'color': AppColors.iosBlue,
       },
     ];
 
