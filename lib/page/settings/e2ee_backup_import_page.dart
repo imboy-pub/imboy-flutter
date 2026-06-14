@@ -7,6 +7,7 @@ import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 备份导入页面
 ///
@@ -90,7 +91,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.info_outline, color: Colors.orange),
+                const Icon(Icons.info_outline, color: AppColors.iosOrange),
                 const SizedBox(width: 8),
                 Text(
                   t.common.e2eeBackupImportGuide,
@@ -144,7 +145,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                       _selectedFile != null
                           ? Icons.check_circle
                           : Icons.cloud_upload_outlined,
-                      color: _selectedFile != null ? Colors.green : Colors.grey,
+                      color: _selectedFile != null
+                          ? AppColors.iosGreen
+                          : AppColors.iosGray,
                       size: 48,
                     ),
                     const SizedBox(height: 8),
@@ -154,9 +157,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                           : t.common.e2eeBackupSelectFileHint,
                       style: TextStyle(
                         color: _selectedFile != null
-                            ? Colors.green
+                            ? AppColors.iosGreen
                             : Colors.grey.shade600,
-                        fontSize: 12,
+                        fontSize: FontSizeType.small.size,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -181,7 +184,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.info_outline, color: Colors.blue),
+                const Icon(Icons.info_outline, color: AppColors.iosBlue),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -192,7 +195,11 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                     ),
                   ),
                 ),
-                const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                const Icon(
+                  Icons.check_circle,
+                  color: AppColors.iosGreen,
+                  size: 20,
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -211,7 +218,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             const SizedBox(height: 8),
             Text(
               t.common.e2eeBackupFileValid,
-              style: const TextStyle(fontSize: 12, color: Colors.green),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.iosGreen,
+              ),
             ),
           ],
         ),
@@ -269,7 +279,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       onPressed: isEnabled ? _handleImport : null,
       style: ElevatedButton.styleFrom(
         minimumSize: const Size(double.infinity, 48),
-        backgroundColor: isEnabled ? null : Colors.grey,
+        backgroundColor: isEnabled ? null : AppColors.iosGray,
       ),
       child: _isImporting
           ? const SizedBox(
@@ -368,7 +378,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             const SizedBox(height: 12),
             Text(
               t.common.e2eeBackupImportSuccessNote,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),

@@ -5,6 +5,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
 import 'package:imboy/page/settings/e2ee_proxy_selector_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 社交恢复 - 创建分片页面
 /// 选择代理并创建恢复分片
@@ -47,7 +48,10 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
           children: [
             Text(
               t.common.e2eeSocialShardSettings,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: FontSizeType.medium.size,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 16),
             _buildSlider(
@@ -68,7 +72,10 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
             const SizedBox(height: 16),
             Text(
               t.common.e2eeSocialShardStoredNote,
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.iosGray,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -98,11 +105,11 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontSize: 14)),
+            Text(label, style: TextStyle(fontSize: FontSizeType.normal.size)),
             Text(
               '$value',
-              style: const TextStyle(
-                fontSize: 14,
+              style: TextStyle(
+                fontSize: FontSizeType.normal.size,
                 fontWeight: FontWeight.w600,
                 color: CupertinoColors.activeBlue,
               ),
@@ -134,8 +141,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
               children: [
                 Text(
                   t.main.e2eeSocialSelectProxy,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: FontSizeType.medium.size,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -148,7 +155,10 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
             const SizedBox(height: 8),
             Text(
               t.main.e2eeSocialProxyNeeded(count: _totalShards),
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.iosGray,
+              ),
             ),
             const SizedBox(height: 16),
             if (_selectedProxies.isEmpty)
@@ -180,7 +190,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.purple,
+          backgroundColor: AppColors.iosPurple,
           child: Text(
             (nickname as String).substring(0, 1).toUpperCase(),
             style: const TextStyle(color: Colors.white),
@@ -293,7 +303,10 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                   const SizedBox(height: 8),
                   Text(
                     t.main.e2eeSocialShardSentViaWs,
-                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: FontSizeType.small.size,
+                      color: AppColors.iosGray,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -311,12 +324,18 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                       sent: sentCount,
                       total: shards.length,
                     ),
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: FontSizeType.small.size,
+                      color: AppColors.iosGray,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     t.common.e2eeSocialZeroTrustNote,
-                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: FontSizeType.tiny.size,
+                      color: AppColors.iosGray,
+                    ),
                   ),
                 ],
               ),

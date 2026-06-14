@@ -5,7 +5,9 @@ import 'package:imboy/page/settings/e2ee_social_create_page.dart';
 import 'package:imboy/page/settings/e2ee_social_recover_page.dart';
 import 'package:imboy/page/settings/e2ee_social_manage_page.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 社交恢复入口页面
 /// 通过信任的联系人恢复密钥
@@ -95,7 +97,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
               children: [
                 Icon(
                   _canRecover ? Icons.check_circle : Icons.info_outline,
-                  color: _canRecover ? Colors.green : Colors.purple,
+                  color: _canRecover ? AppColors.iosGreen : AppColors.iosPurple,
                   size: 32,
                 ),
                 const SizedBox(width: 12),
@@ -107,10 +109,10 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                         _canRecover
                             ? t.main.e2eeSocialCanRecover
                             : t.main.e2eeSocialSetupProxy,
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: FontSizeType.large.size,
                           fontWeight: FontWeight.bold,
-                          color: Colors.purple,
+                          color: AppColors.iosPurple,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -144,12 +146,16 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.folder_open, color: Colors.purple, size: 20),
+                const Icon(
+                  Icons.folder_open,
+                  color: AppColors.iosPurple,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   t.main.e2eeSocialExistingShards,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: FontSizeType.medium.size,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -162,7 +168,10 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   t.common.e2eeSocialMoreShards(count: _shards.length - 3),
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: FontSizeType.small.size,
+                    color: AppColors.iosGray,
+                  ),
                 ),
               ),
           ],
@@ -209,8 +218,10 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                 Text(
                   t.chat.e2eeSocialStatus(status: status as Object),
                   style: TextStyle(
-                    fontSize: 12,
-                    color: status == 'active' ? Colors.green : Colors.grey,
+                    fontSize: FontSizeType.small.size,
+                    color: status == 'active'
+                        ? AppColors.iosGreen
+                        : AppColors.iosGray,
                   ),
                 ),
               ],
@@ -228,7 +239,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
           icon: Icons.create,
           title: t.chat.e2eeSocialCreateShardsTitle,
           description: t.chat.e2eeSocialCreateShardsDesc,
-          color: Colors.blue,
+          color: AppColors.iosBlue,
           onTap: () {
             Navigator.push(
               context,
@@ -244,7 +255,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
             icon: Icons.restore,
             title: t.main.e2eeSocialRecoverKeyTitle,
             description: t.main.e2eeSocialRecoverKeyDesc,
-            color: Colors.green,
+            color: AppColors.iosGreen,
             onTap: () {
               Navigator.push(
                 context,
@@ -259,7 +270,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
           icon: Icons.manage_accounts,
           title: t.main.e2eeSocialManageShardsTitle,
           description: t.main.e2eeSocialManageShardsDesc,
-          color: Colors.orange,
+          color: AppColors.iosOrange,
           onTap: () {
             Navigator.push(
               context,
@@ -304,8 +315,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: FontSizeType.medium.size,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -320,7 +331,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                   ],
                 ),
               ),
-              const Icon(Icons.navigate_next, color: Colors.grey),
+              const Icon(Icons.navigate_next, color: AppColors.iosGray),
             ],
           ),
         ),

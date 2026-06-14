@@ -9,7 +9,9 @@ import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart'
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 社交恢复 - 恢复密钥页面
 /// 零信任架构：通过代理分片恢复密钥
@@ -150,7 +152,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
               children: [
                 Icon(
                   canRecover ? Icons.check_circle : Icons.info_outline,
-                  color: canRecover ? Colors.green : Colors.orange,
+                  color: canRecover ? AppColors.iosGreen : AppColors.iosOrange,
                   size: 32,
                 ),
                 const SizedBox(width: 12),
@@ -163,9 +165,11 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                             ? t.main.e2eeCanRecoverKey
                             : t.main.e2eeInsufficientShards,
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: FontSizeType.large.size,
                           fontWeight: FontWeight.bold,
-                          color: canRecover ? Colors.green : Colors.orange,
+                          color: canRecover
+                              ? AppColors.iosGreen
+                              : AppColors.iosOrange,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -202,7 +206,9 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
 
   Widget _buildProgressCard(int threshold) {
     final progress = _collectedCount / threshold;
-    final progressColor = progress >= 1.0 ? Colors.green : Colors.blue;
+    final progressColor = progress >= 1.0
+        ? AppColors.iosGreen
+        : AppColors.iosBlue;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -222,8 +228,8 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                       children: [
                         Text(
                           _statusMessage,
-                          style: const TextStyle(
-                            fontSize: 16,
+                          style: TextStyle(
+                            fontSize: FontSizeType.medium.size,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -288,15 +294,15 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
     IconData statusIcon;
     switch (status) {
       case 'active':
-        statusColor = Colors.green;
+        statusColor = AppColors.iosGreen;
         statusIcon = Icons.check_circle;
         break;
       case 'pending':
-        statusColor = Colors.orange;
+        statusColor = AppColors.iosOrange;
         statusIcon = Icons.pending;
         break;
       default:
-        statusColor = Colors.grey;
+        statusColor = AppColors.iosGray;
         statusIcon = Icons.help_outline;
     }
 
@@ -432,12 +438,18 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                     const SizedBox(height: 8),
                     Text(
                       t.main.e2eeUsedShards(count: _collectedCount),
-                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                      style: TextStyle(
+                        fontSize: FontSizeType.small.size,
+                        color: AppColors.iosGray,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       t.main.e2eeSocialZeroTrustHint3,
-                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                      style: TextStyle(
+                        fontSize: FontSizeType.tiny.size,
+                        color: AppColors.iosGray,
+                      ),
                     ),
                   ],
                 ),

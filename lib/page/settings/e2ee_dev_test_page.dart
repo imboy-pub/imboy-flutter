@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
@@ -65,7 +66,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
                   icon: const Icon(Icons.play_arrow, size: 18),
                   label: const Text('运行所有测试'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppColors.iosBlue,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -83,7 +84,10 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
           const SizedBox(height: 12),
           Text(
             '测试进度: ${_testResults.where((r) => r.status == TestStatus.pass).length} / ${_testResults.length}',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: FontSizeType.small.size,
+            ),
           ),
         ],
       ),
@@ -123,7 +127,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
     IconData statusIcon;
     switch (result.status) {
       case TestStatus.pass:
-        statusColor = Colors.green;
+        statusColor = AppColors.iosGreen;
         statusIcon = Icons.check_circle;
         break;
       case TestStatus.fail:
@@ -131,11 +135,11 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
         statusIcon = Icons.error;
         break;
       case TestStatus.running:
-        statusColor = Colors.blue;
+        statusColor = AppColors.iosBlue;
         statusIcon = Icons.hourglass_empty;
         break;
       case TestStatus.pending:
-        statusColor = Colors.grey;
+        statusColor = AppColors.iosGray;
         statusIcon = Icons.pending;
         break;
     }
@@ -148,7 +152,10 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
         trailing: result.duration != null
             ? Text(
                 '${result.duration}ms',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: FontSizeType.small.size,
+                  color: AppColors.textSecondary,
+                ),
               )
             : null,
       ),
@@ -512,7 +519,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
             if (passed > 0)
               Text(
                 '✅ 通过: $passed',
-                style: const TextStyle(color: Colors.green),
+                style: const TextStyle(color: AppColors.iosGreen),
               ),
             if (failed > 0)
               Text(
@@ -523,7 +530,7 @@ class _E2EEDevTestPageState extends State<E2EEDevTestPage> {
             Text(
               failed == 0 ? '所有测试通过！' : '有失败的测试，请检查',
               style: TextStyle(
-                color: failed == 0 ? Colors.green : Colors.orange,
+                color: failed == 0 ? AppColors.iosGreen : AppColors.iosOrange,
                 fontWeight: FontWeight.bold,
               ),
             ),

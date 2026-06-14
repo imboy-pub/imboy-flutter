@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/e2ee_plus_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 备份管理页面
 ///
@@ -59,7 +60,10 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             const SizedBox(height: 16),
             Text(
               t.common.e2eeBackupNoRecords,
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: FontSizeType.medium.size,
+                color: AppColors.textSecondary,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -211,7 +215,10 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             width: 80,
             child: Text(
               label,
-              style: const TextStyle(color: Colors.grey, fontSize: 13),
+              style: TextStyle(
+                color: AppColors.iosGray,
+                fontSize: FontSizeType.small.size,
+              ),
             ),
           ),
           Expanded(
