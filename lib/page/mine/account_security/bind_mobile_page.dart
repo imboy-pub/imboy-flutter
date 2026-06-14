@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/phone_input.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mine/account_security/bind_mobile_provider.dart';
 
@@ -74,7 +75,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                 trailing: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
-                    vertical: 4,
+                    vertical: AppSpacing.tiny,
                   ),
                   decoration: BoxDecoration(
                     color:
@@ -124,7 +125,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                           isDense: true,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 0,
-                            vertical: 12,
+                            vertical: AppSpacing.medium,
                           ),
                         ),
                       ),
@@ -152,7 +153,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                         ],
                         padding: const EdgeInsets.symmetric(
                           horizontal: 0,
-                          vertical: 12,
+                          vertical: AppSpacing.medium,
                         ),
                         decoration: null,
                         style: const TextStyle(fontSize: 17),
@@ -168,7 +169,12 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
 
           // 校验状态 Section
           Padding(
-            padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xxLarge,
+              AppSpacing.small,
+              AppSpacing.xxLarge,
+              0,
+            ),
             child: Column(
               children: [
                 _ValidationRow(
@@ -188,7 +194,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
           ),
 
           Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(AppSpacing.xLarge),
             child: Text(
               t.common.verificationCodeSentToMobile,
               textAlign: TextAlign.center,
@@ -206,7 +212,10 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
     BindMobileState state,
   ) {
     return CupertinoButton(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: 0,
+      ),
       color: AppColors.getIosBlue(Theme.of(context).brightness),
       disabledColor: AppColors.iosGray.withValues(alpha: 0.3),
       borderRadius: BorderRadius.circular(16),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 ///
 class TagItem extends StatelessWidget {
@@ -27,7 +28,10 @@ class TagItem extends StatelessWidget {
         color: selectedBackgroundColor,
       ),
       margin: const EdgeInsets.only(right: 10.0, top: 6, bottom: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10.0,
+        vertical: AppSpacing.tiny,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

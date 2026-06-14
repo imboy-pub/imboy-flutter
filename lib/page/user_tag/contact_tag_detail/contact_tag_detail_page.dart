@@ -18,6 +18,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'contact_tag_detail_provider.dart';
 import 'select_tag_friend_page.dart';
@@ -72,7 +73,10 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
       onLongPress: model.onLongPressed,
       child: Container(
         color: menuDecoration?.bgColor,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.small,
+        ),
         child: Row(
           children: [
             // 头像或图标
@@ -112,7 +116,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
     return Container(
       height: 32,
       width: double.infinity,
-      padding: const EdgeInsets.only(left: 16),
+      padding: const EdgeInsets.only(left: AppSpacing.regular),
       alignment: Alignment.centerLeft,
       color: isDark ? Colors.grey[800] : Colors.grey[200],
       child: Text(
@@ -204,9 +208,9 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                               context: context,
                               builder: (context) => AlertDialog(
                                 contentPadding: const EdgeInsets.fromLTRB(
-                                  20,
-                                  20,
-                                  20,
+                                  AppSpacing.large,
+                                  AppSpacing.large,
+                                  AppSpacing.large,
                                   0,
                                 ),
                                 content: Text(t.common.deleteTagTips),
@@ -302,7 +306,12 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
           Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.small,
+                  2,
+                  AppSpacing.small,
+                  2,
+                ),
                 child: searchBar(
                   context,
                   leading: InkWell(

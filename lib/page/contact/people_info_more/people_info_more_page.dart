@@ -12,6 +12,7 @@ import 'people_info_same_group_page.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 用户更多信息页面
 class PeopleInfoMorePage extends ConsumerStatefulWidget {
@@ -43,7 +44,10 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
     VoidCallback? onTap,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: 6.0,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusRegular,
@@ -58,7 +62,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
         child: CellPressable(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(AppSpacing.large),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -128,7 +132,10 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
     PeopleInfoMoreState state,
   ) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: 6.0,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusRegular,
@@ -154,7 +161,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                 }
               : null,
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(AppSpacing.large),
             child: Row(
               children: [
                 // 图标容器
@@ -212,7 +219,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                 if (state.groupCount > 0) ...[
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: AppSpacing.medium,
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(

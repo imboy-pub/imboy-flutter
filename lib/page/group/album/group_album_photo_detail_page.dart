@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// 群相册图片详情页
@@ -240,7 +241,7 @@ class _GroupAlbumPhotoDetailPageState
     final url = _resolvePhotoUrl(photo);
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       children: [
         AspectRatio(
           aspectRatio: 1,
@@ -331,8 +332,11 @@ class _GroupAlbumPhotoDetailPageState
 
   Widget _buildInfoTile(String label, String value) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      margin: const EdgeInsets.only(bottom: AppSpacing.small),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: 10,
+      ),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: AppRadius.borderRadiusSmall,

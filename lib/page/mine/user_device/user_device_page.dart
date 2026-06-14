@@ -10,6 +10,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'user_device_provider.dart';
 import 'user_device_detail_page.dart';
@@ -45,7 +46,12 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
         // 提示信息 Section
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              0,
+            ),
             child: _buildTipsCard(context, brightness == Brightness.dark),
           ),
         ),
@@ -77,7 +83,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
 
   Widget _buildTipsCard(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(AppSpacing.medium),
       decoration: BoxDecoration(
         color: AppColors.getIosBlue(
           Theme.of(context).brightness,

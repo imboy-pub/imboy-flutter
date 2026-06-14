@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mine/change_password/change_password_provider.dart';
 
@@ -45,7 +46,7 @@ class ChangePasswordPage extends ConsumerWidget {
                 trailing: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
-                    vertical: 4,
+                    vertical: AppSpacing.tiny,
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.getIosBlue(
@@ -117,7 +118,12 @@ class ChangePasswordPage extends ConsumerWidget {
               state.newLength > 0 ||
               state.confirmLength > 0)
             Padding(
-              padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.xxLarge,
+                AppSpacing.small,
+                AppSpacing.xxLarge,
+                0,
+              ),
               child: Column(
                 children: [
                   _ValidationRow(
@@ -171,7 +177,10 @@ class ChangePasswordPage extends ConsumerWidget {
               placeholder: hint,
               obscureText: obscure,
               onChanged: onChanged,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.medium,
+                vertical: AppSpacing.small,
+              ),
               decoration: null,
               style: const TextStyle(fontSize: 17),
             ),

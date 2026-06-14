@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/page/mine/select_region/select_region_provider.dart';
 
 /// 选择地区页面 - 像素级对齐 iOS 17 Premium 风格
@@ -106,7 +107,12 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
         // 搜索框
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              AppSpacing.small,
+            ),
             child: CupertinoSearchTextField(
               controller: _searchC,
               placeholder: t.common.search,
@@ -117,7 +123,12 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
         // 路径回显 Section
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(28, 4, 16, 4),
+            padding: const EdgeInsets.fromLTRB(
+              28,
+              AppSpacing.tiny,
+              AppSpacing.regular,
+              AppSpacing.tiny,
+            ),
             child: Text(
               provider.selectedVal.isEmpty
                   ? t.common.all

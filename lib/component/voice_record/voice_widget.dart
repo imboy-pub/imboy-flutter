@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/theme_manager.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:imboy/component/helper/func.dart';
 
@@ -662,7 +663,9 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                 ),
               ],
             ),
-        margin: widget.margin ?? const EdgeInsets.fromLTRB(50, 0, 50, 20),
+        margin:
+            widget.margin ??
+            const EdgeInsets.fromLTRB(50, 0, 50, AppSpacing.large),
         child: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

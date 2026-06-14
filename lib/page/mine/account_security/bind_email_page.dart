@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mine/account_security/bind_email_provider.dart';
 
@@ -72,7 +73,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                 trailing: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
-                    vertical: 4,
+                    vertical: AppSpacing.tiny,
                   ),
                   decoration: BoxDecoration(
                     color:
@@ -120,7 +121,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                         keyboardType: TextInputType.emailAddress,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 0,
-                          vertical: 12,
+                          vertical: AppSpacing.medium,
                         ),
                         decoration: null,
                         style: const TextStyle(fontSize: 17),
@@ -149,7 +150,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                         ],
                         padding: const EdgeInsets.symmetric(
                           horizontal: 0,
-                          vertical: 12,
+                          vertical: AppSpacing.medium,
                         ),
                         decoration: null,
                         style: const TextStyle(fontSize: 17),
@@ -165,7 +166,12 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
 
           // 校验状态 Section
           Padding(
-            padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xxLarge,
+              AppSpacing.small,
+              AppSpacing.xxLarge,
+              0,
+            ),
             child: Column(
               children: [
                 _ValidationRow(
@@ -185,7 +191,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
           ),
 
           Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(AppSpacing.xLarge),
             child: Text(
               t.common.verificationCodeSentToEmail,
               textAlign: TextAlign.center,
@@ -204,7 +210,10 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
   ) {
     final bool canSend = state.canSendCode;
     return CupertinoButton(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: 0,
+      ),
       color: AppColors.getIosBlue(Theme.of(context).brightness),
       disabledColor: AppColors.iosGray.withValues(alpha: 0.3),
       borderRadius: BorderRadius.circular(16),

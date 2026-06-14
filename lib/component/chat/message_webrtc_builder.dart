@@ -9,6 +9,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 class WebRTCMessageBuilder extends StatelessWidget {
   const WebRTCMessageBuilder({
@@ -37,7 +38,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 2, right: 4),
+            padding: const EdgeInsets.only(top: 2, right: AppSpacing.tiny),
             child: Text(
               // '通话时长 10:48',
               title,
@@ -69,7 +70,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
           // 根据类型显示不同图标
           isVideo ? const Icon(Icons.videocam) : const Icon(Icons.call),
           Padding(
-            padding: const EdgeInsets.only(top: 2, left: 4),
+            padding: const EdgeInsets.only(top: 2, left: AppSpacing.tiny),
             child: Text(
               // '通话时长 10:48',
               title,
@@ -159,7 +160,12 @@ class WebRTCMessageBuilder extends StatelessWidget {
               }
             },
       child: Padding(
-        padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 8),
+        padding: const EdgeInsets.only(
+          left: 10,
+          right: 10,
+          top: AppSpacing.small,
+          bottom: AppSpacing.small,
+        ),
         child: _buildBody(context, msgType, title, userIsAuthor),
       ),
     );

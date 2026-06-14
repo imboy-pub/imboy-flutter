@@ -18,6 +18,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'people_info_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 用户详情页面 - iOS 17 Premium 风格重构
 class PeopleInfoPage extends ConsumerWidget {
@@ -72,7 +73,12 @@ class PeopleInfoPage extends ConsumerWidget {
         // 用户名片 Section
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              AppSpacing.small,
+            ),
             child: Container(
               decoration: BoxDecoration(
                 color: isDark
@@ -89,7 +95,7 @@ class PeopleInfoPage extends ConsumerWidget {
                 gender: state.gender,
                 region: state.region,
                 heroTag: 'avatar_$id',
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(AppSpacing.large),
               ),
             ),
           ),
@@ -99,10 +105,17 @@ class PeopleInfoPage extends ConsumerWidget {
         if (!isSelf && !isBot)
           SliverToBoxAdapter(
             child: ImBoySettingsSection(
-              margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              margin: const EdgeInsets.fromLTRB(
+                AppSpacing.regular,
+                AppSpacing.small,
+                AppSpacing.regular,
+                0,
+              ),
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.tiny,
+                  ),
                   child: UserOnlineStatusDetailWidget(
                     isOnline: state.status == 'online',
                     lastSeenTimestamp: state.lastSeenAt,
@@ -167,7 +180,12 @@ class PeopleInfoPage extends ConsumerWidget {
         if (state.isFriend == 1 || scene == 'denylist')
           SliverToBoxAdapter(
             child: ImBoySettingsSection(
-              margin: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+              margin: const EdgeInsets.fromLTRB(
+                AppSpacing.regular,
+                AppSpacing.xLarge,
+                AppSpacing.regular,
+                0,
+              ),
               children: [
                 if (!isSelf)
                   ImBoySettingsTile(
@@ -207,7 +225,12 @@ class PeopleInfoPage extends ConsumerWidget {
         if (state.isFriend != 1 && !isSelf && !isBot && scene != 'denylist')
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 32, 16, 32),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.regular,
+                AppSpacing.xxLarge,
+                AppSpacing.regular,
+                AppSpacing.xxLarge,
+              ),
               child: SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -309,9 +332,9 @@ class PeopleInfoPage extends ConsumerWidget {
 
   Widget _buildWarningTip(BuildContext context, Brightness brightness) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         decoration: BoxDecoration(
           color: AppColors.getIosRed(brightness).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(14),

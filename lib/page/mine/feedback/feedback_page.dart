@@ -14,6 +14,7 @@ import 'package:imboy/store/api/feedback_api.dart' show FeedbackApi;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:feedback/feedback.dart';
 import 'package:imboy/page/mine/feedback/feedback_provider.dart';
 
@@ -110,9 +111,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
         // 说明 Section
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              0,
+            ),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.regular),
               decoration: BoxDecoration(
                 color: AppColors.getIosBlue(brightness).withValues(alpha: 0.1),
                 borderRadius: AppRadius.borderRadiusCell,
@@ -148,7 +154,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                     ),
                   ),
                   CupertinoButton(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.regular,
+                    ),
                     color: AppColors.getIosBlue(brightness),
                     borderRadius: BorderRadius.circular(20),
                     onPressed: _showFeedbackEditor,
@@ -174,7 +182,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
             children: state.itemList.isEmpty
                 ? [
                     const Padding(
-                      padding: EdgeInsets.all(32),
+                      padding: EdgeInsets.all(AppSpacing.xxLarge),
                       child: Center(child: Text('No history')),
                     ),
                   ]

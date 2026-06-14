@@ -13,6 +13,7 @@ import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'message_search_provider.dart';
 
@@ -142,7 +143,10 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     Translations t,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: AppSpacing.small,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
@@ -183,7 +187,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: AppSpacing.regular,
                     vertical: 10,
                   ),
                   prefixIcon: state.isSearching
@@ -255,7 +259,10 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     Translations t,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: AppSpacing.small,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
@@ -335,7 +342,10 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.medium,
+          vertical: 6,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.1)
@@ -368,7 +378,10 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     Translations t,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Row(
         children: [
@@ -470,7 +483,12 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       children: [
         // 标题栏
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.regular,
+            AppSpacing.regular,
+            AppSpacing.regular,
+            AppSpacing.small,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -567,7 +585,10 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       children: [
         // 结果统计
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.small,
+          ),
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
           child: Row(
             children: [
@@ -585,7 +606,9 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                     ref.read(messageSearchProvider.notifier).resetFilters();
                   },
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.small,
+                    ),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
@@ -605,14 +628,14 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         Expanded(
           child: ListView.builder(
             controller: _scrollController,
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
             itemCount: state.searchResults.length + (state.hasMore ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == state.searchResults.length) {
                 // 加载更多指示器
                 return Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.regular),
                     child: state.isLoading
                         ? const CircularProgressIndicator()
                         : TextButton(
@@ -656,7 +679,10 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: AppSpacing.tiny,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusMedium,
@@ -675,7 +701,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         borderRadius: AppRadius.borderRadiusMedium,
         onTap: () => _onResultTap(result),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AppSpacing.medium),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -685,8 +711,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   // 会话图标
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: AppSpacing.small,
+                      vertical: AppSpacing.tiny,
                     ),
                     decoration: BoxDecoration(
                       color: result.type == 'C2G'

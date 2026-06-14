@@ -30,6 +30,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'conversation_provider.dart';
@@ -172,13 +173,21 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     return IosPageTemplate(
       title: t.chat.titleMessage,
       actions: [
-        Padding(padding: EdgeInsets.only(right: 8.0), child: RightButton()),
+        Padding(
+          padding: EdgeInsets.only(right: AppSpacing.small),
+          child: RightButton(),
+        ),
       ],
       slivers: [
         // 搜索框 - 嵌入 List 顶部
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              AppSpacing.medium,
+            ),
             child: CupertinoSearchTextField(
               key: const Key('conversation_search_input'),
               placeholder: t.common.search,
@@ -213,7 +222,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
           )
         else
           SliverPadding(
-            padding: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.only(bottom: AppSpacing.large),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final model = state.conversations[index];

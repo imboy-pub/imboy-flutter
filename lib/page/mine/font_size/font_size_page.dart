@@ -8,6 +8,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'font_size_page.g.dart';
@@ -115,7 +116,7 @@ class FontSizePage extends ConsumerWidget {
       useLargeTitle: false,
       bottomWidget: _buildBottomControl(context, ref, state, options, cs, t),
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(AppSpacing.xLarge),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -130,7 +131,7 @@ class FontSizePage extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.large),
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: AppRadius.borderRadiusCell,
@@ -304,7 +305,10 @@ class FontSizePage extends ConsumerWidget {
           style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.small,
+            vertical: 2,
+          ),
           decoration: BoxDecoration(
             color: AppColors.getIosBlue(
               Theme.of(context).brightness,

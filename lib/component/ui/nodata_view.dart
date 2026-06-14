@@ -3,6 +3,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 无数据视图组件 - 使用优化后的主题系统
 class NoDataView extends StatelessWidget {
@@ -50,7 +51,7 @@ class NoDataView extends StatelessWidget {
         onTap: onTop,
         borderRadius: AppRadius.borderRadiusMedium, // 添加圆角点击效果
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.xLarge),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -59,7 +60,9 @@ class NoDataView extends StatelessWidget {
                 Container(
                   width: iconBgSize,
                   height: iconBgSize,
-                  padding: iconBgSize == null ? const EdgeInsets.all(16) : null,
+                  padding: iconBgSize == null
+                      ? const EdgeInsets.all(AppSpacing.regular)
+                      : null,
                   alignment: iconBgSize == null ? null : Alignment.center,
                   decoration: BoxDecoration(
                     color: secondaryColor.withValues(alpha: 0.1),
@@ -105,7 +108,7 @@ class NoDataView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
+                    horizontal: AppSpacing.medium,
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
