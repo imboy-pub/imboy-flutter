@@ -18,7 +18,9 @@ pre-commit:
       run: gitleaks protect --staged --no-banner --redact
     design-tokens:
       glob: "lib/**/*.dart"
-      exclude: "lib/theme/**/*.dart,**/*.{g,freezed}.dart"
+      exclude:
+        - "lib/theme/**/*.dart"
+        - "**/*.{g,freezed}.dart"
       run: |
         banned=$(git diff --cached --diff-filter=ACM -- {staged_files} \
           | grep '^+' | grep -v '^+++' \
