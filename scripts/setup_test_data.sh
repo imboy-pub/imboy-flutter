@@ -6,7 +6,7 @@
 #   - 双向好友关系（C2C 消息发送的前置条件，否则 not_a_friend 拒发）
 #
 # 用法：
-#   source script/test.env && bash script/setup_test_data.sh
+#   source scripts/test.env && bash scripts/setup_test_data.sh
 #
 # 前置：PostgreSQL 已启动并可连接
 # 注意：库重置/恢复后这批数据会丢失，重跑本脚本即可恢复。

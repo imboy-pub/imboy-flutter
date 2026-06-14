@@ -60,7 +60,7 @@ if [[ -f "$ROOT_DIR/android/local.properties" ]]; then
   if rg -q '^flutter\.versionCode=' "$ROOT_DIR/android/local.properties"; then
     ok "flutter.versionCode is configured in android/local.properties"
   else
-    warn "flutter.versionCode not configured; use ./script/build_play_aab.sh <build_number> to ensure monotonic Play build numbers"
+    warn "flutter.versionCode not configured; use ./scripts/build_play_aab.sh <build_number> to ensure monotonic Play build numbers"
   fi
 fi
 

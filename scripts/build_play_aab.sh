@@ -7,11 +7,11 @@ cd "$ROOT_DIR"
 if [[ $# -lt 1 ]]; then
   cat <<'USAGE'
 Usage:
-  ./script/build_play_aab.sh <build_number> [build_name]
+  ./scripts/build_play_aab.sh <build_number> [build_name]
 
 Examples:
-  ./script/build_play_aab.sh 70101
-  ./script/build_play_aab.sh 70102 0.7.2
+  ./scripts/build_play_aab.sh 70101
+  ./scripts/build_play_aab.sh 70102 0.7.2
 USAGE
   exit 1
 fi
