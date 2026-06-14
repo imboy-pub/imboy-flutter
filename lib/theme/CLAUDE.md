@@ -102,6 +102,43 @@ GetMaterialApp(
 
 工具方法：`getIosBlue() / getIosRed() / getIosGreen() / getIosSeparator() / getSurfaceGrouped()`
 
+### 叠加层 / 透明色（2026-06-14 新增）
+| 常量 | 值 | 用途 |
+|------|-----|------|
+| `transparent` | `0x00000000` | 全透明（黑底）。WebView 背景等"无色"语义 |
+| `overlayLight` | `0x14FFFFFF` | 8% 白高光叠加（splash atmosphere） |
+| `overlayLightStrong` | `0x1FFFFFFF` | 12% 白高光叠加 |
+| `overlayWhiteTransparent` | `0x00FFFFFF` | 白色全透明（白→透明渐变末端） |
+
+> ⚠️ `overlayWhiteTransparent`（白底透明）**不可**用 `transparent`（黑底透明）替代——
+> 白→黑插值会在渐变中段出灰边。两者 alpha 都是 0 但 RGB 不同。
+
+## UI Token 收尾进度（2026-06-14）
+
+### `Color(0x` 收尾
+- **范围**：非 `theme/` 目录、非 `.g.dart` 生成物的源文件。
+- **原始**：7 处硬编码颜色（splash 3 / web_view 1 / shimmer_box 2 / tag 1；另有 1 处在注释中忽略）。
+- **已消除 4 处**（值精确相等、零视觉变更、`dart analyze` 零 issue）：
+  - `splash_page.dart`：`0x14FFFFFF`→`overlayLight`、`0x1FFFFFFF`→`overlayLightStrong`、渐变末端 `0x00FFFFFF`→`overlayWhiteTransparent`
+  - `web_view.dart`：`0x00000000`→`transparent`（已补 import）
+- **剩 3 处待真机定夺**（现成别名值 ≠ 原值，属视觉变更，**勿当机械任务批量改**）：
+  - `component/ui/shimmer_box.dart:17` `baseColor = 0xFFE0E0E0`（vs 拟用 `shimmerBase` 0xFFEDEDED）
+  - `component/ui/shimmer_box.dart:18` `highlightColor = 0xFFF5F5F5`（vs `shimmerHighlight` 0xFFF2F2F7）
+  - `component/ui/tag.dart:17` `backgroundColor = 0xfff8f8f8`（vs `tagBackground` 0xFFEDEDED）
+  - 处理方案二选一：A 采纳别名向语义色收敛（真机暗/亮各扫一眼确认）；B 新增精确 token 保原值。
+
+### 存量现状（本轮未动，仅记账）
+| 类别 | 量级 | 说明 |
+|------|------|------|
+| `fontSize:` | ~579 | 见下方 ⚠️ 提醒，**非机械任务** |
+| `Colors.*` | ~1900 | Material 内置色直引，待向 `AppColors` 收敛 |
+| `EdgeInsets` | ~787 | 待向 `AppSpacing` 收敛 |
+
+> ⚠️ **关键提醒（勿机械批量做）**：把 `fontSize: 14` 改成 `FontSizeType.normal.size` 只是
+> **"无缩放收益的换皮"**——`.size` 取的是固定基础字号，用户的"字体大小"设置不会生效。
+> 真正合规要走 `context.textStyle(FontSizeType.normal)` / `ThemeManager` 的 `getFontSize/getTextStyle`，
+> 才享受 `FontSizeOption` 的缩放。这属**行为变更**，需真机验证各档字号，不可当 token 替换批量跑。
+
 ## 字体系统
 
 ### FontSizeType（枚举）

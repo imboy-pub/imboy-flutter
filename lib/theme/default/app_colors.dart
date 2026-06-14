@@ -23,6 +23,18 @@ class AppColors {
   static const Color splashGradientMidDark = Color(0xFF172554);
   static const Color splashGradientEndDark = Color(0xFF0F1729);
 
+  // ============ 叠加层 / 透明色 ============
+  /// 全透明（黑底，0x00000000）。用于 WebView 背景等需"无色"语义处。
+  static const Color transparent = Color(0x00000000);
+
+  /// 白色高光叠加层（splash atmosphere 等）。8% / 12% 白。
+  static const Color overlayLight = Color(0x14FFFFFF);
+  static const Color overlayLightStrong = Color(0x1FFFFFFF);
+
+  /// 白色全透明（0x00FFFFFF）。用于"白色高光 → 透明"的渐变末端。
+  /// ⚠️ 不可用 [transparent]（黑底透明）替代，否则白→黑插值会出灰边。
+  static const Color overlayWhiteTransparent = Color(0x00FFFFFF);
+
   // ============ Material 3 次要色系统 ============
   static const Color secondary = Color(0xFF5C6BC0);
   static const Color secondaryContainer = Color(0xFFE8EAF6);

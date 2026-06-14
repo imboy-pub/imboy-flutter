@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 // ignore: must_be_immutable
 class WebViewPage extends StatefulWidget {
@@ -77,7 +78,7 @@ class WebViewPageState extends State<WebViewPage> {
 
     // setBackgroundColor is not supported on macOS
     if (defaultTargetPlatform != TargetPlatform.macOS) {
-      widget._controller!.setBackgroundColor(const Color(0x00000000));
+      widget._controller!.setBackgroundColor(AppColors.transparent);
     }
   }
 
