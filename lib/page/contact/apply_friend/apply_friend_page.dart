@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_page.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -123,15 +123,16 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                   final result = await Navigator.push(
                     context,
                     CupertinoPageRoute<dynamic>(
-                      builder: (_) => UserTagRelationPage(
+                      builder: (_) => TagRelationPage(
                         peerId: widget.uid,
                         peerTag: providerState.peerTag,
                         scene: 'friend',
                       ),
                     ),
                   );
-                  if (result != null && result is String)
+                  if (result != null && result is String) {
                     ref.read(applyFriendProvider.notifier).updateTag(result);
+                  }
                 },
               ),
             ],

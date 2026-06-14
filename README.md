@@ -250,8 +250,8 @@ flutter build ios --release
 - iOS 依赖异常时，优先进入 `ios/` 执行 `pod install`。
 - Android 打包配置以 `android/app/build.gradle` 为准。
 - Google Play 发版前可参考：
-  - `script/build_play_aab.sh`
-  - `script/check_play_release.sh`
+  - `scripts/build_play_aab.sh`
+  - `scripts/check_play_release.sh`
 
 ## 多语言支持
 

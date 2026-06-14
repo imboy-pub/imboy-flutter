@@ -249,12 +249,12 @@ class _ChannelListItem extends StatelessWidget {
       case ChannelUserRole.creator:
         return AppColors.primary;
       case ChannelUserRole.admin:
-        return Colors.orange;
+        return AppColors.iosOrange;
       case ChannelUserRole.editor:
-        return Colors.blue;
+        return AppColors.iosBlue;
       case ChannelUserRole.subscriber:
       case ChannelUserRole.none:
-        return Colors.grey;
+        return AppColors.iosGray;
     }
   }
 

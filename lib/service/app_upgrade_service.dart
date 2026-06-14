@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/single/upgrade.dart';
+import 'package:imboy/page/single/upgrade_page.dart';
 import 'package:imboy/service/app_downgrade_cleaner.dart';
 import 'package:imboy/service/app_upgrade_log_api_reporter.dart';
 import 'package:imboy/service/app_upgrade_orchestrator.dart';

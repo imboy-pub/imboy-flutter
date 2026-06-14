@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 
 import 'package:imboy/service/assets.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 // 导出语言辅助工具，方便其他文件使用
@@ -404,11 +405,11 @@ Widget genderIcon(int gender) {
   if (gender == 1) {
     icon = const Icon(Icons.male, color: Colors.lightBlueAccent);
   } else if (gender == 2) {
-    icon = const Icon(Icons.female, color: Colors.pink);
+    icon = const Icon(Icons.female, color: AppColors.iosPink);
   } else if (gender == 3) {
     icon = const Icon(Icons.security, color: Colors.black87);
   } else {
-    icon = const Icon(Icons.battery_unknown, color: Colors.grey);
+    icon = const Icon(Icons.battery_unknown, color: AppColors.iosGray);
   }
   return icon;
 }

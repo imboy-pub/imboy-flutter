@@ -135,7 +135,7 @@ class UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     final roleValue = json['role'];
     return UserModel(
-      uid: parseModelString(json['uid'] ?? json['id']),
+      uid: parseModelString(json['user_id'] ?? json['uid'] ?? json['id']),
       account: parseModelString(json['account']),
       email: parseModelString(json['email']),
       mobile: parseModelString(json['mobile']),

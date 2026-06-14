@@ -34,8 +34,9 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted)
+      if (mounted) {
         ref.read(setRegionProvider.notifier).initData(widget.currentValue);
+      }
     });
     _searchC.addListener(_onSearchChanged);
   }
@@ -50,8 +51,9 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
   void _onSearchChanged() {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      if (mounted)
+      if (mounted) {
         ref.read(setRegionProvider.notifier).applyTopSearch(_searchC.text);
+      }
     });
   }
 
@@ -69,8 +71,9 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
           onPressed: state.hasChanged
               ? () async {
                   if (await widget.onSave(state.selectedRegion) &&
-                      context.mounted)
+                      context.mounted) {
                     Navigator.of(context).pop();
+                  }
                 }
               : null,
           child: Text(

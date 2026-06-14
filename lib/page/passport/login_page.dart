@@ -241,7 +241,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
       children: [
         Container(
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7),
+            color: isDark ? AppColors.darkSurfaceGroupedTertiary : AppColors.lightSurfaceGrouped,
             borderRadius: BorderRadius.circular(10),
           ),
           child: PhoneInputWidget(
@@ -365,8 +365,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
         const SizedBox(height: 32),
         _buildLoginButton(() async {
           if (_emailController.text.isEmpty ||
-              _emailCodeController.text.isEmpty)
+              _emailCodeController.text.isEmpty) {
             return;
+          }
           final err = await notifier.loginUserByCode(
             'email',
             _emailController.text,

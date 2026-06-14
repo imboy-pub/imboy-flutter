@@ -101,7 +101,7 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
                       icon: const Icon(
                         Icons.close,
                         size: 18,
-                        color: Colors.grey,
+                        color: AppColors.iosGray,
                       ),
                       onPressed: () {
                         widget.onDelete(item);

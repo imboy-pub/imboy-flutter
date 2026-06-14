@@ -14,8 +14,6 @@ PODS:
     - Flutter
   - audio_waveforms (0.0.1):
     - Flutter
-  - camera_avfoundation (0.0.1):
-    - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
@@ -139,10 +137,6 @@ PODS:
     - GoogleUtilities/Privacy
   - ic_storage_space (0.1.1):
     - Flutter
-  - image_crop (0.0.1):
-    - Flutter
-  - image_picker_ios (0.0.1):
-    - Flutter
   - integration_test (0.0.1):
     - Flutter
   - JCore (5.4.0)
@@ -189,8 +183,6 @@ PODS:
   - SDWebImage (5.21.7):
     - SDWebImage/Core (= 5.21.7)
   - SDWebImage/Core (5.21.7)
-  - sensors_plus (0.0.1):
-    - Flutter
   - Sentry/HybridSDK (8.58.3)
   - sentry_flutter (9.21.0):
     - Flutter
@@ -230,7 +222,6 @@ DEPENDENCIES:
   - amap_flutter_map_plus (from `.symlinks/plugins/amap_flutter_map_plus/ios`)
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - audio_waveforms (from `.symlinks/plugins/audio_waveforms/ios`)
-  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - emoji_picker_flutter (from `.symlinks/plugins/emoji_picker_flutter/ios`)
@@ -245,8 +236,6 @@ DEPENDENCIES:
   - flutter_webrtc (from `.symlinks/plugins/flutter_webrtc/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - ic_storage_space (from `.symlinks/plugins/ic_storage_space/ios`)
-  - image_crop (from `.symlinks/plugins/image_crop/ios`)
-  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/darwin`)
   - JVerification
@@ -260,7 +249,6 @@ DEPENDENCIES:
   - PhoneNumberKit (~> 3.8.0)
   - photo_manager (from `.symlinks/plugins/photo_manager/darwin`)
   - r_upgrade (from `.symlinks/plugins/r_upgrade/ios`)
-  - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -307,8 +295,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/audio_session/ios"
   audio_waveforms:
     :path: ".symlinks/plugins/audio_waveforms/ios"
-  camera_avfoundation:
-    :path: ".symlinks/plugins/camera_avfoundation/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   device_info_plus:
@@ -337,10 +323,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/geolocator_apple/darwin"
   ic_storage_space:
     :path: ".symlinks/plugins/ic_storage_space/ios"
-  image_crop:
-    :path: ".symlinks/plugins/image_crop/ios"
-  image_picker_ios:
-    :path: ".symlinks/plugins/image_picker_ios/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
   just_audio:
@@ -363,8 +345,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/photo_manager/darwin"
   r_upgrade:
     :path: ".symlinks/plugins/r_upgrade/ios"
-  sensors_plus:
-    :path: ".symlinks/plugins/sensors_plus/ios"
   sentry_flutter:
     :path: ".symlinks/plugins/sentry_flutter/ios"
   share_plus:
@@ -392,7 +372,6 @@ SPEC CHECKSUMS:
   AMapLocation: 6e44f50b044dc54c6b3dcb1dee5ffd6de2689e41
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   audio_waveforms: a6dde7fe7c0ea05f06ffbdb0f7c1b2b2ba6cedcf
-  camera_avfoundation: 968a9a5323c79a99c166ad9d7866bfd2047b5a9b
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
@@ -418,8 +397,6 @@ SPEC CHECKSUMS:
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   ic_storage_space: d2c12892dec7eabbf6757df81e72539a16aa7dc6
-  image_crop: d83cf4373d8a94b985477cb57af0a050274a9c8c
-  image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   JCore: 97f24c92979f9923ef5cfdbd626a29e9504215dd
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
@@ -437,7 +414,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   r_upgrade: 5c37115e210f79501aa194b0146f7c1866c39e8c
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
-  sensors_plus: 6a11ed0c2e1d0bd0b20b4029d3bad27d96e0c65b
   Sentry: 108fdbb76299c4189af12246bf0308c09c278922
   sentry_flutter: 32e67cb4756ce3de42bbd56581fa935922ff328f
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a

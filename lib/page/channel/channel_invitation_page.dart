@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 import 'channel_di_provider.dart';
 
@@ -151,15 +152,15 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
   Color _statusColor(int status) {
     switch (status) {
       case 0:
-        return Colors.orange;
+        return AppColors.iosOrange;
       case 1:
-        return Colors.green;
+        return AppColors.iosGreen;
       case 2:
       case 3:
       case 4:
-        return Colors.grey;
+        return AppColors.iosGray;
       default:
-        return Colors.grey;
+        return AppColors.iosGray;
     }
   }
 
@@ -224,13 +225,13 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                 ),
                 Text(
                   t.chat.createdAtLabel(
-                    time: DateFormat("yyyy-MM-dd HH:mm").format(createdAt),
+                    time: DateTimeHelper.dateTimeFmt(createdAt, pattern: "yyyy-MM-dd HH:mm", relative: false),
                   ),
                 ),
                 if (expiresAt != null)
                   Text(
                     t.chat.expiredAtLabel(
-                      time: DateFormat("yyyy-MM-dd HH:mm").format(expiresAt),
+                      time: DateTimeHelper.dateTimeFmt(expiresAt, pattern: "yyyy-MM-dd HH:mm", relative: false),
                     ),
                   ),
                 // Internal IDs removed from UI display
@@ -416,7 +417,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                   ),
                   Text(
                     t.chat.createdAtLabel(
-                      time: DateFormat("yyyy-MM-dd HH:mm").format(createdAt),
+                      time: DateTimeHelper.dateTimeFmt(createdAt, pattern: "yyyy-MM-dd HH:mm", relative: false),
                     ),
                   ),
                   if (isPending) ...[

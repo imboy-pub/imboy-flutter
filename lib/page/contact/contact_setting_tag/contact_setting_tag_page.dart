@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_page.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -188,15 +188,16 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                   Navigator.push(
                     context,
                     CupertinoPageRoute<dynamic>(
-                      builder: (_) => UserTagRelationPage(
+                      builder: (_) => TagRelationPage(
                         peerId: widget.peerId,
                         peerTag: _currentTag,
                         scene: 'friend',
                       ),
                     ),
                   ).then((value) {
-                    if (value != null && value is String)
+                    if (value != null && value is String) {
                       setState(() => _currentTag = value);
+                    }
                   });
                 },
               ),

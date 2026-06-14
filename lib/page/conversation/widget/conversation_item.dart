@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart' as badges;
+import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,10 +69,9 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 头像区域 + 未读角标
-            badges.Badge(
-              position: badges.BadgePosition.topStart(top: -4, start: -4),
+            BadgeWidget(
               showBadge: (remindCounter > 0),
-              badgeContent: Text(
+              content: Text(
                 remindCounter > 99 ? '99+' : "$remindCounter",
                 style: const TextStyle(
                   color: Colors.white,
@@ -81,11 +80,11 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
                   fontFeatures: [FontFeature.tabularFigures()],
                 ),
               ),
-              badgeStyle: badges.BadgeStyle(
-                badgeColor: AppColors.iosRed,
-                padding: const EdgeInsets.all(5),
-                elevation: 0,
-              ),
+              color: AppColors.iosRed,
+              padding: const EdgeInsets.all(5),
+              top: -4,
+              left: -4,
+              right: null,
               child: GestureDetector(
                 onTap: widget.onTapAvatar,
                 child: currentModel.type == 'C2G'

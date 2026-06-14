@@ -40,6 +40,11 @@ class AppColors {
   static const Color shimmerHighlight = Color(0xFFF5F5F5);
   static const Color tagBackground = Color(0xFFF8F8F8);
 
+  // ============ 钱包卡片渐变色 ============
+  static const Color walletCardGradientLightEnd = Color(0xFF1E40AF);
+  static const Color walletCardGradientDarkStart = Color(0xFF1E3A8A);
+  static const Color walletCardGradientDarkEnd = Color(0xFF1E1B4B);
+
   // ============ Material 3 次要色系统 ============
   static const Color secondary = Color(0xFF5C6BC0);
   static const Color secondaryContainer = Color(0xFFE8EAF6);
@@ -118,6 +123,12 @@ class AppColors {
   static const Color iosOrangeDark = Color(0xFFFF9F0A);
   static const Color iosYellow = Color(0xFFFFCC00);
   static const Color iosYellowDark = Color(0xFFFFD60A);
+  static const Color iosPurple = Color(0xFF5856D6);
+  static const Color iosPurpleDark = Color(0xFF6E6CE0);
+  static const Color iosSkyBlue = Color(0xFF5AC8FA);
+  static const Color iosSkyBlueDark = Color(0xFF64D2FF);
+  static const Color iosPink = Color(0xFFFF2D55);
+  static const Color iosPinkDark = Color(0xFFFF375F);
   static const Color iosTeal = Color(0xFF00C896);
   static const Color iosGray = Color(0xFF8E8E93);
   static const Color iosGray2 = Color(0xFFAEAEB2);
@@ -166,6 +177,23 @@ class AppColors {
   static const Color infoBlueContainer = Color(0xFFE1F5FE);
   static const Color infoBlue = Color(0xFF0277BD);
 
+  // ============ 聊天壁纸渐变色 ============
+  static const Color chatWallpaperBlueLightStart = Color(0xFF64B5F6);
+  // chatWallpaperBlueLightEnd → splashGradientStart (0xFF42A5F5)
+  static const Color chatWallpaperPurpleLightStart = Color(0xFFBA68C8);
+  static const Color chatWallpaperPurpleLightEnd = Color(0xFFAB47BC);
+
+  // ============ 第三方品牌色 ============
+  static const Color wechatBlue = Color(0xFF576B95);
+
+  // ============ 语义色补充 ============
+  static const Color successBackground = Color(0xFFE8F5E9);
+  static const Color deepNavy = Color(0xFF01579B);
+  static const Color upgradeBackground = Color(0xFF333130);
+  static const Color iosTertiaryLabel = Color(0xFF545458);
+  static const Color lightNearBlack = Color(0xFF1A1A1A);
+  static const Color neutralGray = Color(0xFF999999);
+
   // ============ 透明度变体 ============
   static Color get primaryAlpha10 => primary.withValues(alpha: 0.1);
   static Color get primaryAlpha20 => primary.withValues(alpha: 0.2);
@@ -185,8 +213,9 @@ class AppColors {
   static Color get textSecondary => lightTextSecondary;
 
   static Color getTextColor(Brightness b, {bool isSecondary = false}) {
-    if (b == Brightness.dark)
+    if (b == Brightness.dark) {
       return isSecondary ? darkTextSecondary : darkTextPrimary;
+    }
     return isSecondary ? lightTextSecondary : lightTextPrimary;
   }
 
@@ -227,18 +256,21 @@ class AppColors {
     Brightness b, {
     bool isSecondary = false,
   }) {
-    if (b == Brightness.light)
+    if (b == Brightness.light) {
       return isSecondary ? lightTextSecondary : lightTextPrimary;
-    if (isEyeCare)
+    }
+    if (isEyeCare) {
       return isSecondary ? eyeCareTextSecondary : eyeCareTextPrimary;
+    }
     return isSecondary ? darkTextSecondary : darkTextPrimary;
   }
 
   static Color getChatBubbleBackground(bool isSent, bool isOLED, Brightness b) {
-    if (b == Brightness.light)
+    if (b == Brightness.light) {
       return isSent
           ? lightSentMessageBackground
           : lightReceivedMessageBackground;
+    }
     if (isSent) return darkSentMessageBackground;
     return isOLED
         ? oledReceivedMessageBackground

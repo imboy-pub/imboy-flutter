@@ -70,8 +70,9 @@ class SetGenderPage extends ConsumerWidget {
                     final success = await ref
                         .read(setGenderProvider.notifier)
                         .selectGender(option['id'] as String, ref);
-                    if (success && context.mounted)
+                    if (success && context.mounted) {
                       Navigator.of(context).pop(true);
+                    }
                   },
           );
         }).toList(),

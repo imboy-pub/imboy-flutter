@@ -16,7 +16,7 @@ export '../../page/mine/help/help_page.dart';
 export '../../page/mine/logout_account/logout_account_page.dart';
 export '../../page/mine/user_device/user_device_page.dart';
 export '../../page/mine/user_device/user_device_detail_page.dart';
-export '../../page/single/upgrade.dart';
+export '../../page/single/upgrade_page.dart';
 export '../../service/feature_registry.dart';
 export '../../service/notification.dart' show NotificationService;
 export '../../service/notification_provider.dart'

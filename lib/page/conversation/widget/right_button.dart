@@ -2,55 +2,64 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
-import 'package:popover/popover.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
-class RightButton extends StatelessWidget {
+class RightButton extends StatefulWidget {
   const RightButton({super.key});
+
+  @override
+  State<RightButton> createState() => _RightButtonState();
+}
+
+class _RightButtonState extends State<RightButton> {
+  final _addKey = GlobalKey();
+
+  Future<void> _showAddMenu() async {
+    final renderBox =
+        _addKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final position = RelativeRect.fromRect(
+      renderBox.localToGlobal(Offset.zero, ancestor: overlay) &
+          renderBox.size,
+      Offset.zero & overlay.size,
+    );
+    await showMenu<void>(
+      context: context,
+      position: position,
+      color: Theme.of(context).colorScheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shadowColor:
+          Theme.of(context).colorScheme.shadow.withValues(alpha: 0.15),
+      elevation: 4,
+      constraints: const BoxConstraints(maxWidth: 160),
+      items: const [
+        PopupMenuItem<void>(
+          padding: EdgeInsets.zero,
+          child: SizedBox(width: 160, child: RightButtonList()),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 搜索按钮
         IconButton(
-          onPressed: () {
-            context.push('/message_search');
-          },
+          onPressed: () => context.push('/message_search'),
           icon: Icon(
             Icons.search,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
-        // 添加按钮（弹出菜单）
         IconButton(
-          onPressed: () {
-            showPopover(
-              context: context,
-              bodyBuilder: (context) => const RightButtonList(),
-              direction: PopoverDirection.bottom,
-              width: 160,
-              // 移除固定高度，让内容决定高度
-              arrowHeight: 8,
-              arrowWidth: 16,
-              arrowDxOffset: 0,
-              contentDxOffset: 0,
-              arrowDyOffset: -4,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              shadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.shadow.withValues(alpha: 0.15),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            );
-          },
+          key: _addKey,
+          onPressed: _showAddMenu,
           icon: Icon(
             Icons.add_circle_outline,
             color: Theme.of(context).colorScheme.onSurface,

@@ -5,7 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -321,16 +322,13 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                           if (!scannerState.isStarted) {
                             controller.start();
                           }
-                          final ImagePicker picker = ImagePicker();
-                          final XFile? image = await picker.pickImage(
-                            source: ImageSource.gallery,
-                          );
-                          if (image == null) {
-                            return;
-                          }
+                          final media = await CapabilityLocator.I
+                              .get<MediaPickerCapability>()
+                              .pickSingle(context, MediaType.image);
+                          if (media == null) return;
                           if (!mounted) return;
                           BarcodeCapture? res = await controller.analyzeImage(
-                            image.path,
+                            media.path,
                           );
                           if (kDebugMode) {}
                           if (!context.mounted) return;

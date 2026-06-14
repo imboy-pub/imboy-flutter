@@ -154,7 +154,7 @@ void main() {
         final stats = ackManager.getStats();
 
         expect(stats['pending_count'], 2);
-        expect(stats['max_retries'], 3);
+        expect(stats['max_retries'], 4);
         expect(stats['retry_interval_ms'], 3000);
         expect(stats['pending_ack_list'], isA<List<dynamic>>());
       });

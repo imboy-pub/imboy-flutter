@@ -34,7 +34,7 @@ class AddFriendPage extends ConsumerWidget {
               _buildFeatureTile(
                 context,
                 icon: CupertinoIcons.location_fill,
-                color: const Color(0xFF007AFF),
+                color: AppColors.iosBlue,
                 title: t.discovery.peopleNearby,
                 subtitle: t.common.nearbyPeopleTips,
                 onTap: () => Navigator.push(
@@ -47,7 +47,7 @@ class AddFriendPage extends ConsumerWidget {
               _buildFeatureTile(
                 context,
                 icon: CupertinoIcons.group_solid,
-                color: const Color(0xFF34C759),
+                color: AppColors.iosGreen,
                 title: t.chat.createGroupF2f,
                 subtitle: t.group.enterSameGroup,
                 onTap: () => Navigator.push(
@@ -58,7 +58,7 @@ class AddFriendPage extends ConsumerWidget {
               _buildFeatureTile(
                 context,
                 icon: CupertinoIcons.qrcode_viewfinder,
-                color: const Color(0xFF5856D6),
+                color: AppColors.iosPurple,
                 title: t.account.scanQrCode,
                 subtitle: t.chat.scanQrCodeBusinessCard,
                 onTap: () => Navigator.push(
@@ -69,7 +69,7 @@ class AddFriendPage extends ConsumerWidget {
               _buildFeatureTile(
                 context,
                 icon: CupertinoIcons.person_fill,
-                color: const Color(0xFFFF9500),
+                color: AppColors.iosOrange,
                 title: t.account.newlyRegisteredPeople,
                 subtitle: t.common.allowedBeSearched,
                 onTap: () => Navigator.push(

@@ -67,7 +67,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 title: Text(t.main.favorites),
                 leading: _buildIcon(
                   CupertinoIcons.star_fill,
-                  const Color(0xFFFFCC00),
+                  AppColors.iosYellow,
                 ),
                 onTap: () => context.push('/favorites'),
               ),
@@ -75,7 +75,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 title: Text(t.main.storageSpace),
                 leading: _buildIcon(
                   CupertinoIcons.circle_grid_hex_fill,
-                  const Color(0xFF5AC8FA),
+                  AppColors.iosSkyBlue,
                 ),
                 onTap: () => context.push('/storage_space'),
               ),
@@ -83,7 +83,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 title: Text(t.account.loginDeviceManagement),
                 leading: _buildIcon(
                   CupertinoIcons.device_phone_portrait,
-                  const Color(0xFF5856D6),
+                  AppColors.iosPurple,
                 ),
                 onTap: () => context.push('/devices'),
               ),
@@ -100,7 +100,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 title: Text(t.main.setting),
                 leading: _buildIcon(
                   CupertinoIcons.settings,
-                  const Color(0xFF8E8E93),
+                  AppColors.iosGray,
                 ),
                 onTap: () => context.push('/mine/setting'),
               ),
@@ -108,7 +108,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 title: Text(t.common.feedback),
                 leading: _buildIcon(
                   CupertinoIcons.hand_thumbsup_fill,
-                  const Color(0xFF34C759),
+                  AppColors.iosGreen,
                 ),
                 onTap: () => context.push('/feedback'),
               ),
@@ -234,7 +234,7 @@ class _MinePageState extends ConsumerState<MinePage> {
           icon: const Icon(CupertinoIcons.creditcard_fill),
           label: t.account.wallet,
           onTap: () => context.push('/wallet'),
-          color: const Color(0xFFFF9500),
+          color: AppColors.iosOrange,
         ),
       if (AppFeatureRegistry.isEnabled(FeatureKeys.channel))
         QuickActionItem(
@@ -247,7 +247,7 @@ class _MinePageState extends ConsumerState<MinePage> {
         icon: const Icon(CupertinoIcons.bookmark_fill),
         label: t.main.favorites,
         onTap: () => context.push('/favorites'),
-        color: const Color(0xFFFF3B30),
+        color: AppColors.iosRed,
       ),
     ];
 

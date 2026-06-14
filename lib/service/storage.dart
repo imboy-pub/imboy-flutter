@@ -89,6 +89,24 @@ class StorageService {
     }
   }
 
+  /// 存储整数值
+  /// Store integer value
+  Future<bool> setInt(String key, int value) async {
+    if (_prefs == null) {
+      throw Exception('StorageService not initialized. Call init() first.');
+    }
+    return await _prefs!.setInt(key, value);
+  }
+
+  /// 获取整数值（可空）
+  /// Get integer value (nullable)
+  int? getInt(String key) {
+    if (_prefs == null) {
+      throw Exception('StorageService not initialized. Call init() first.');
+    }
+    return _prefs!.getInt(key);
+  }
+
   /// 存储布尔值
   /// Store boolean value
   Future<bool> setBool(String key, bool value) async {

@@ -256,7 +256,7 @@ class PassportNotifier extends _$PassportNotifier {
             // 栈中无更多页面时，回到首页避免 crash
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (_) => const BottomNavigationPage()),
+              MaterialPageRoute<void>(builder: (_) => const BottomNavigationPage()),
               (route) => false,
             );
           }
@@ -908,7 +908,7 @@ class PassportNotifier extends _$PassportNotifier {
     JVUIConfig uiConfig = JVUIConfig();
 
     uiConfig.navHidden = false;
-    uiConfig.navColor = Colors.green.toARGB32();
+    uiConfig.navColor = AppColors.iosGreen.toARGB32();
     uiConfig.navText = " ";
     uiConfig.navTextColor = Colors.white.toARGB32();
     uiConfig.navReturnImgPath = null;

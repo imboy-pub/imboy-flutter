@@ -223,7 +223,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.star, color: Colors.amber, size: 20),
+                        Icon(Icons.star, color: AppColors.iosYellow, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           t.chat.rating,
@@ -256,7 +256,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                           horizontal: 4.0,
                         ),
                         itemBuilder: (context, _) =>
-                            const Icon(Icons.star, color: Colors.amber),
+                            const Icon(Icons.star, color: AppColors.iosYellow),
                         onRatingUpdate: (rating) {},
                         ignoreGestures: true,
                       ),
@@ -467,9 +467,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
   Color _getStatusColor(BuildContext context, String status) {
     final colorScheme = Theme.of(context).colorScheme;
     if (status == t.main.processed) {
-      return Colors.green;
+      return AppColors.iosGreen;
     } else if (status == t.common.loading) {
-      return Colors.orange;
+      return AppColors.iosOrange;
     } else if (status == t.common.submitted) {
       return colorScheme.primary;
     }

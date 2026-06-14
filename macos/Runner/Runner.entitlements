@@ -35,5 +35,11 @@
     <true/>
     <key>com.apple.security.personal-information.photos-library</key>
     <true/>
+
+    <!-- Keychain 访问权限 - flutter_secure_storage 必需（与 Release/DebugProfile 一致）-->
+    <key>keychain-access-groups</key>
+    <array>
+        <string>$(AppIdentifierPrefix)$(CFBundleIdentifier)</string>
+    </array>
 </dict>
 </plist>

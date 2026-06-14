@@ -245,7 +245,7 @@ class UpdatePage extends ConsumerWidget {
               textInputAction: TextInputAction.newline,
               style: TextStyle(
                 fontSize: 16,
-                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                color: isDark ? Colors.white : AppColors.lightNearBlack,
                 height: 1.4,
               ),
               decoration: InputDecoration(
@@ -254,7 +254,7 @@ class UpdatePage extends ConsumerWidget {
                   fontSize: 16,
                   color: isDark
                       ? AppColors.iosGray3Dark
-                      : const Color(0xFFCCCCCC),
+                      : AppColors.iosGray3,
                 ),
                 filled: false,
                 border: InputBorder.none,
@@ -264,7 +264,7 @@ class UpdatePage extends ConsumerWidget {
                 focusedErrorBorder: InputBorder.none,
                 counterStyle: TextStyle(
                   fontSize: 12,
-                  color: isDark ? AppColors.iosGray : const Color(0xFF999999),
+                  color: isDark ? AppColors.iosGray : AppColors.neutralGray,
                 ),
               ),
               readOnly: false,
@@ -295,7 +295,7 @@ class UpdatePage extends ConsumerWidget {
   ) {
     Widget secondary = const Text(
       '√',
-      style: TextStyle(fontSize: 20, color: Colors.green),
+      style: TextStyle(fontSize: 20, color: AppColors.iosGreen),
     );
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;

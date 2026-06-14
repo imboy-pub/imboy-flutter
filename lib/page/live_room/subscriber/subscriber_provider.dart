@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -117,26 +117,29 @@ class SubscriberNotifier extends _$SubscriberNotifier {
       if (localDesc == null) throw Exception('无法获取本地 SDP');
 
       // 5. POST SDP offer 到 WHEP 端点
-      final response = await http
-          .post(
-            Uri.parse(state.serverUrl),
-            headers: {
-              'Content-Type': 'application/sdp',
-              'Accept': 'application/sdp',
-            },
-            body: localDesc.sdp,
-          )
-          .timeout(const Duration(seconds: 10));
+      final response = await Dio().post<String>(
+        state.serverUrl,
+        data: localDesc.sdp,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/sdp',
+            'Accept': 'application/sdp',
+          },
+          responseType: ResponseType.plain,
+          sendTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      );
 
       if (response.statusCode != 201 && response.statusCode != 200) {
         throw Exception('WHEP 服务器拒绝连接: HTTP ${response.statusCode}');
       }
 
       // 6. 记录 resource URL（用于 DELETE 停止拉流）
-      _resourceUrl = response.headers['location'];
+      _resourceUrl = response.headers.value('location');
 
       // 7. 设置远端 SDP answer
-      final answerSdp = response.body;
+      final answerSdp = response.data ?? '';
       await _pc!.setRemoteDescription(
         RTCSessionDescription(answerSdp, 'answer'),
       );
@@ -154,7 +157,7 @@ class SubscriberNotifier extends _$SubscriberNotifier {
   Future<void> stopSubscribe(RTCVideoRenderer remoteRenderer) async {
     if (_resourceUrl != null) {
       try {
-        await http.delete(Uri.parse(_resourceUrl!));
+        await Dio().delete<void>(_resourceUrl!);
       } on Exception {
         if (kDebugMode) {}
       }

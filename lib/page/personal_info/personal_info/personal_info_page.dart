@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
+import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 
 import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -29,7 +30,8 @@ class PersonalInfoPage extends ConsumerStatefulWidget {
 class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
   static const String _avatarHeroTag = 'personal_info_avatar_hero';
   String currentUserAvatar = UserRepoLocal.to.current.avatar;
-  final ImagePickerPlatform _picker = ImagePickerPlatform.instance;
+  MediaPickerCapability get _picker =>
+      CapabilityLocator.I.get<MediaPickerCapability>();
 
   @override
   Widget build(BuildContext context) {
@@ -258,14 +260,14 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.pop(ctx);
-              _getImage(ImageSource.camera);
+              _getImage();
             },
             child: Text(t.common.buttonTakingPictures),
           ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.pop(ctx);
-              _getImage(ImageSource.gallery);
+              _getImage();
             },
             child: Text(t.main.chooseFromAlbum),
           ),
@@ -279,17 +281,17 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     );
   }
 
-  Future<void> _getImage(ImageSource source) async {
-    final XFile? file = await _picker.getImageFromSource(source: source);
-    if (file != null) _cropImage(file);
+  Future<void> _getImage() async {
+    final media = await _picker.pickSingle(context, MediaType.image);
+    if (media != null) _cropImage(media.path);
   }
 
-  Future<void> _cropImage(XFile x) async {
+  Future<void> _cropImage(String path) async {
     String? url = await Navigator.push(
       context,
       CupertinoPageRoute<String>(
         builder: (_) => CropImageRoute(
-          File(x.path),
+          File(path),
           "avatar",
           filename: UserRepoLocal.to.current.uid,
         ),

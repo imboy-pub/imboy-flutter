@@ -12,7 +12,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/single/markdown.dart';
+import 'package:imboy/page/single/markdown_page.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/store/api/user_api.dart';

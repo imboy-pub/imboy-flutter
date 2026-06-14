@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -126,7 +127,6 @@ class ProfileState {
 /// 个人资料 Provider
 @riverpod
 class ProfileNotifier extends _$ProfileNotifier {
-  final ImagePicker _picker = ImagePicker();
 
   @override
   ProfileState build() {
@@ -320,19 +320,12 @@ class ProfileNotifier extends _$ProfileNotifier {
   }
 
   /// 选择图片
-  Future<File?> pickImage(ImageSource source) async {
+  Future<File?> pickImage(BuildContext context) async {
     try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
-      );
-
-      if (image != null) {
-        return File(image.path);
-      }
-      return null;
+      final media = await CapabilityLocator.I
+          .get<MediaPickerCapability>()
+          .pickSingle(context, MediaType.image);
+      return media != null ? File(media.path) : null;
     } catch (e) {
       iPrint('选择图片失败: ${e.runtimeType}');
       return null;

@@ -42,7 +42,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
   Color get _inputFill =>
       _isDark ? AppColors.darkSurfaceContainer : Colors.white;
   Color get _unselectedLabel =>
-      _isDark ? AppColors.darkTextSecondary : Colors.grey;
+      _isDark ? AppColors.darkTextSecondary : AppColors.iosGray;
 
   @override
   Widget build(BuildContext context) {

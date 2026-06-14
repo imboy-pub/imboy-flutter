@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -180,18 +181,18 @@ class UserOnlineTimeHelper {
   static Color getStatusColor(LastSeenStatus status, BuildContext context) {
     switch (status) {
       case LastSeenStatus.online:
-        return Colors.green;
+        return AppColors.iosGreen;
       case LastSeenStatus.justNow:
       case LastSeenStatus.withinMinutes:
       case LastSeenStatus.withinHours:
-        return Colors.orange;
+        return AppColors.iosOrange;
       case LastSeenStatus.withinDays:
       case LastSeenStatus.withinWeeks:
-        return Colors.blue;
+        return AppColors.iosBlue;
       case LastSeenStatus.withinMonths:
-        return Colors.purple;
+        return AppColors.iosPurple;
       case LastSeenStatus.longTimeAgo:
-        return Colors.grey;
+        return AppColors.iosGray;
       case LastSeenStatus.hidden:
         return Colors.grey.withValues(alpha: 0.5);
     }

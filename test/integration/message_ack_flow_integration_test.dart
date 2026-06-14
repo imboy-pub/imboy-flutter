@@ -101,14 +101,14 @@ void main() {
         // 等待超时（实际是30秒，测试中模拟）
         // 注意：由于超时时间较长，这里只验证机制存在
         final stats = ackManager.getStats();
-        expect(stats['max_retries'], 3); // 最多重试3次
+        expect(stats['max_retries'], 4); // 最多重试4次
         expect(stats['retry_interval_ms'], 3000); // 重试间隔3秒
       });
 
       test('应该在达到最大重试次数后停止', () {
         // 这个测试验证配置正确性
         final stats = ackManager.getStats();
-        expect(stats['max_retries'], 3);
+        expect(stats['max_retries'], 4);
       });
 
       test('cleanupExpired 应该清理超过30秒的 ACK', () {
@@ -208,7 +208,7 @@ void main() {
         ackManager.debugMarkRetryCeilingReached(
           messageId: msgId,
           messageType: 'C2C',
-          retryCount: 3,
+          retryCount: 4,
         );
         await Future<dynamic>.delayed(const Duration(milliseconds: 20));
 
@@ -217,8 +217,8 @@ void main() {
         expect(stats['retry_ceiling_hit_count'], 1);
         expect(stats['recent_retry_ceiling_hits'], isA<List<dynamic>>());
         expect((stats['recent_retry_ceiling_hits'] as List<dynamic>).isNotEmpty, isTrue);
-        expect(capturedEvent!.retryCount, 3);
-        expect(capturedEvent!.maxRetryCount, 3);
+        expect(capturedEvent!.retryCount, 4);
+        expect(capturedEvent!.maxRetryCount, 4);
 
         await subscription.cancel();
       });
@@ -230,7 +230,7 @@ void main() {
         final stats = ackManager.getStats();
 
         expect(stats['pending_count'], 2);
-        expect(stats['max_retries'], 3);
+        expect(stats['max_retries'], 4);
         expect(stats['retry_interval_ms'], 3000);
         expect(stats['pending_ack_list'], contains('msg1'));
         expect(stats['pending_ack_list'], contains('msg2'));

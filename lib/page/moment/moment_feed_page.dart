@@ -371,7 +371,7 @@ class _MomentCard extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           color: isDark
                               ? AppColors.darkTextPrimary
-                              : const Color(0xFF576B95),
+                              : AppColors.wechatBlue,
                         ),
                       ),
                       if (canDelete && onDeleteTap != null)

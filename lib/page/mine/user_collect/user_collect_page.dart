@@ -146,12 +146,13 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final list = prefs.getStringList(_kPinnedPrefsKey) ?? <String>[];
-      if (mounted)
+      if (mounted) {
         setState(
           () => _pinnedIds
             ..clear()
             ..addAll(list),
         );
+      }
     } catch (_) {}
   }
 
@@ -300,15 +301,16 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       EasyLoading.dismiss();
       if (failCount == 0) {
         EasyLoading.showSuccess(t.common.deleteSuccess);
-      } else if (successCount > 0)
+      } else if (successCount > 0) {
         EasyLoading.showInfo(
           t.common.partialDeleteSuccess(
             success: '$successCount',
             fail: '$failCount',
           ),
         );
-      else
+      } else {
         EasyLoading.showError(t.common.saveFailed);
+      }
       notifier.updateState(
         currentState.copyWith(items: updatedItems.reversed.toList()),
       );
@@ -571,7 +573,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 );
                 if (result != null && mounted) {
                   final updatedItems = currentState.items.map((item) {
-                    if (item.kindId == obj.kindId)
+                    if (item.kindId == obj.kindId) {
                       return UserCollectModel(
                         userId: item.userId,
                         kind: item.kind,
@@ -583,6 +585,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                         createdAt: item.createdAt,
                         info: item.info,
                       );
+                    }
                     return item;
                   }).toList();
                   notifier.updateState(
@@ -723,10 +726,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       kind: currentState.kind,
       kwd: query,
     );
-    if (mounted)
+    if (mounted) {
       notifier.updateState(
         currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1),
       );
+    }
   }
 
   Future<void> _resetSearch() async {
@@ -758,10 +762,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       size: currentState.size,
       tag: tag,
     );
-    if (mounted)
+    if (mounted) {
       notifier.updateState(
         currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1),
       );
+    }
   }
 
   Future<void> _searchByKind(
@@ -776,7 +781,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       size: currentState.size,
       kind: kind,
     );
-    if (mounted)
+    if (mounted) {
       notifier.updateState(
         currentState.copyWith(
           items: list,
@@ -784,6 +789,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           page: list.isNotEmpty ? 2 : 1,
         ),
       );
+    }
   }
 
   @override

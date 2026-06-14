@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
@@ -375,7 +376,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           CupertinoActionSheetAction(
             onPressed: () async {
               Navigator.pop(context);
-              final file = await profileNotifier.pickImage(ImageSource.camera);
+              final file = await profileNotifier.pickImage(context);
               if (file != null) await profileNotifier.uploadAvatar(file);
             },
             child: Text(t.main.takePhoto),
@@ -383,7 +384,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           CupertinoActionSheetAction(
             onPressed: () async {
               Navigator.pop(context);
-              final file = await profileNotifier.pickImage(ImageSource.gallery);
+              final file = await profileNotifier.pickImage(context);
               if (file != null) await profileNotifier.uploadAvatar(file);
             },
             child: Text(t.main.selectFromAlbum),
@@ -541,7 +542,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   void _editBackground(BuildContext context) {
-    final ImagePicker picker = ImagePicker();
     showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) => CupertinoActionSheet(
@@ -549,26 +549,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           CupertinoActionSheetAction(
             onPressed: () async {
               Navigator.pop(ctx);
-              final file = await picker.pickImage(
-                source: ImageSource.gallery,
-                maxWidth: 1920,
-                maxHeight: 1080,
-              );
-              if (file != null) await _uploadAndSetBackground(file.path);
+              if (!context.mounted) return;
+              final media = await CapabilityLocator.I
+                  .get<MediaPickerCapability>()
+                  .pickSingle(context, MediaType.image);
+              if (media != null) await _uploadAndSetBackground(media.path);
             },
             child: Text(t.main.chooseFromAlbum),
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final file = await picker.pickImage(
-                source: ImageSource.camera,
-                maxWidth: 1920,
-                maxHeight: 1080,
-              );
-              if (file != null) await _uploadAndSetBackground(file.path);
-            },
-            child: Text(t.main.takePhoto),
           ),
         ],
         cancelButton: CupertinoActionSheetAction(

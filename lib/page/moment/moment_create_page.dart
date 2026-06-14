@@ -15,7 +15,8 @@ import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_radius.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:video_compress/video_compress.dart';
 
 class MomentCreatePage extends StatefulWidget {
@@ -27,7 +28,8 @@ class MomentCreatePage extends StatefulWidget {
 
 class _MomentCreatePageState extends State<MomentCreatePage> {
   final MomentFacade _api = MomentFacade.instance;
-  final ImagePicker _picker = ImagePicker();
+  MediaPickerCapability get _picker =>
+      CapabilityLocator.I.get<MediaPickerCapability>();
 
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _allowUidsController = TextEditingController();
@@ -128,20 +130,15 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     return completer.future;
   }
 
-  Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickImage() async {
     if (_isUploading || _media.length >= momentMaxImageCount) return;
-    final file = await _picker.pickImage(
-      source: source,
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: 88,
-    );
-    if (file == null || !mounted) return;
+    final media = await _picker.pickSingle(context, MediaType.image);
+    if (media == null || !mounted) return;
 
     setState(() {
       _isUploading = true;
     });
-    final url = await _uploadFile('img', File(file.path));
+    final url = await _uploadFile('img', File(media.path));
     if (!mounted) return;
     setState(() {
       _isUploading = false;
@@ -154,28 +151,28 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     }
   }
 
-  Future<void> _pickVideo(ImageSource source) async {
+  Future<void> _pickVideo() async {
     if (_isUploading || _media.length >= momentMaxImageCount) return;
-    final video = await _picker.pickVideo(source: source);
-    if (video == null || !mounted) return;
+    final media = await _picker.pickSingle(context, MediaType.video);
+    if (media == null || !mounted) return;
 
     setState(() {
       _isUploading = true;
     });
-    final file = File(video.path);
+    final file = File(media.path);
     final url = await _uploadFile('video', file);
 
     String coverUrl = '';
     int durationMs = 0;
     try {
       final thumb = await VideoCompress.getFileThumbnail(
-        video.path,
+        media.path,
         quality: 60,
         position: -1,
       );
       final uploadedCover = await _uploadFile('img', thumb);
       coverUrl = uploadedCover ?? '';
-      final mediaInfo = await VideoCompress.getMediaInfo(video.path);
+      final mediaInfo = await VideoCompress.getMediaInfo(media.path);
       durationMs = (mediaInfo.duration ?? 0).toInt();
     } on Exception {
       coverUrl = '';
@@ -334,7 +331,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 title: Text(context.t.main.selectFromAlbum),
                 onTap: () async {
                   Navigator.of(ctx).pop();
-                  await _pickImage(ImageSource.gallery);
+                  await _pickImage();
                 },
               ),
               ListTile(
@@ -342,7 +339,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 title: Text(context.t.main.takePhoto),
                 onTap: () async {
                   Navigator.of(ctx).pop();
-                  await _pickImage(ImageSource.camera);
+                  await _pickImage();
                 },
               ),
               ListTile(
@@ -350,7 +347,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 title: Text(context.t.chat.momentsSelectVideo),
                 onTap: () async {
                   Navigator.of(ctx).pop();
-                  await _pickVideo(ImageSource.gallery);
+                  await _pickVideo();
                 },
               ),
               ListTile(
@@ -358,7 +355,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 title: Text(context.t.chat.momentsRecordVideo),
                 onTap: () async {
                   Navigator.of(ctx).pop();
-                  await _pickVideo(ImageSource.camera);
+                  await _pickVideo();
                 },
               ),
             ],

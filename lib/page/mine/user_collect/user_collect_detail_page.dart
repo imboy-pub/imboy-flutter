@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart'
     show TagRelationPage;
 
@@ -14,7 +15,6 @@ import 'package:imboy/page/personal_info/update/update_page.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
 
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:xid/xid.dart';
 
 import 'user_collect_provider.dart';
@@ -505,7 +505,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                         fontSize: 15,
                         color: isDark
                             ? Theme.of(context).colorScheme.onSurface
-                            : const Color(0xFF01579B),
+                            : AppColors.deepNavy,
                         height: 1.4,
                       ),
                     ),

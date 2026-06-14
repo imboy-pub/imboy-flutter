@@ -11,7 +11,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
-import 'package:intl/intl.dart';
+import 'package:imboy/component/helper/datetime.dart';
 
 import 'change_name_page.dart';
 import 'user_device_provider.dart';
@@ -110,7 +110,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                 decoration: BoxDecoration(
                   color: isDark
                       ? AppColors.primaryAlpha20
-                      : const Color(0xFFE8F5E9),
+                      : AppColors.successBackground,
                   borderRadius: AppRadius.borderRadiusRegular,
                 ),
                 child: Icon(
@@ -462,7 +462,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       return t.common.unknown;
     }
     final dt = DateTime.fromMillisecondsSinceEpoch(widget.model.lastActiveAt);
-    return DateFormat('yyyy-MM-dd HH:mm:ss').format(dt);
+    return DateTimeHelper.dateTimeFmt(dt, pattern: 'yyyy-MM-dd HH:mm:ss', relative: false);
   }
 
   /// 编辑设备名称

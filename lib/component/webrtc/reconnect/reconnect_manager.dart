@@ -38,8 +38,6 @@ class WebRTCReconnectManager {
   /// 是否已连接
   bool _isConnected = false;
 
-  /// 最后心跳时间
-  DateTime? _lastHeartbeatTime;
 
   /// 重连状态变更流控制器
   final StreamController<WebRTCReconnectStateEvent> _stateController =
@@ -151,8 +149,6 @@ class WebRTCReconnectManager {
   /// 发送心跳
   Future<void> _sendHeartbeat() async {
     if (_isConnected && !_isReconnecting) {
-      _lastHeartbeatTime = DateTime.now();
-
       // 尝试通过回调发送心跳消息
       bool heartbeatSent = false;
       if (onSendHeartbeat != null) {

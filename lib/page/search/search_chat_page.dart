@@ -101,7 +101,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       }).toList();
       notifier.updateSearchResults(messages);
       notifier.addToHistory(effectiveQuery);
-      if (mounted)
+      if (mounted) {
         setState(() {
           words = {
             effectiveQuery: HighlightedWord(
@@ -112,6 +112,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
             ),
           };
         });
+      }
     } catch (_) {
       notifier.setError(t.common.searchError);
     } finally {
@@ -214,14 +215,16 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
   }
 
   Widget _buildSearchContent(SearchDataState state, Brightness b) {
-    if (state.isLoading && state.searchResults.isEmpty)
+    if (state.isLoading && state.searchResults.isEmpty) {
       return const Padding(
         padding: EdgeInsets.only(top: 100),
         child: CupertinoActivityIndicator(),
       );
+    }
     if (state.currentQuery.isEmpty) return _buildHistoryList(state, b);
-    if (state.searchResults.isEmpty)
+    if (state.searchResults.isEmpty) {
       return _buildEmptyResults(state.currentQuery);
+    }
 
     return Column(
       children: state.searchResults

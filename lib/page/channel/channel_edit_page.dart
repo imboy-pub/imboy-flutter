@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -32,7 +33,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   late TextEditingController _descriptionController;
   late TextEditingController _customIdController;
   final _tagController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
+  MediaPickerCapability get _picker =>
+      CapabilityLocator.I.get<MediaPickerCapability>();
 
   bool _isLoading = false;
   bool _isSaving = false;
@@ -164,18 +166,13 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     }
   }
 
-  Future<void> _pickAvatar(ImageSource source) async {
+  Future<void> _pickAvatar() async {
     Navigator.of(context).pop();
     try {
-      final image = await _picker.pickImage(
-        source: source,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
-      );
-      if (image == null || !mounted) return;
+      final media = await _picker.pickSingle(context, MediaType.image);
+      if (media == null || !mounted) return;
 
-      final file = File(image.path);
+      final file = File(media.path);
       setState(() => _avatarFile = file);
       await _uploadAvatar(file);
     } catch (_) {
@@ -239,12 +236,12 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
             ListTile(
               leading: const Icon(Icons.camera_alt),
               title: Text(context.t.main.takePhoto),
-              onTap: () => _pickAvatar(ImageSource.camera),
+              onTap: () => _pickAvatar(),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
               title: Text(context.t.main.selectFromAlbum),
-              onTap: () => _pickAvatar(ImageSource.gallery),
+              onTap: () => _pickAvatar(),
             ),
             ListTile(
               leading: const Icon(Icons.close),
@@ -490,14 +487,14 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                 children: [
                   Icon(
                     _selectedType == 0 ? Icons.public : Icons.lock_outline,
-                    color: Colors.grey,
+                    color: AppColors.iosGray,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     _selectedType == 0
                         ? t.channel.typePublic
                         : t.channel.typePrivate,
-                    style: const TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: AppColors.iosGray),
                   ),
                   const Spacer(),
                   Text(

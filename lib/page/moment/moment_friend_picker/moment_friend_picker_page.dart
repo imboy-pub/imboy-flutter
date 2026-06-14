@@ -27,6 +27,7 @@ import 'package:imboy/store/api/user_tag_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// 朋友圈选择器一次性拉取的标签数量上限。
@@ -385,7 +386,7 @@ class _MomentFriendPickerPageState
       return Center(
         child: Text(
           t.momentFriendPicker.emptyFriends,
-          style: const TextStyle(color: Colors.grey),
+          style: const TextStyle(color: AppColors.iosGray),
         ),
       );
     }

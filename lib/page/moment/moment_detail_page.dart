@@ -103,8 +103,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       isLoading: _loadingMoreComments,
       hasMore: _commentsHasMore,
       cursor: _commentsCursor,
-    ))
+    )) {
       return;
+    }
     final cursor = _commentsCursor!;
     setState(() => _loadingMoreComments = true);
     final page = await _api.listComments(
@@ -235,10 +236,12 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   @override
   Widget build(BuildContext context) {
     final post = _moment;
-    if (_loading)
+    if (_loading) {
       return const Scaffold(body: Center(child: CupertinoActivityIndicator()));
-    if (post == null)
+    }
+    if (post == null) {
       return Scaffold(body: Center(child: Text(t.common.momentsNotFound)));
+    }
 
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 // ignore: must_be_immutable
 class NetworkFailureTips extends StatelessWidget {
@@ -26,14 +27,14 @@ class NetworkFailureTips extends StatelessWidget {
           children: [
             const Padding(
               padding: EdgeInsets.only(left: 10),
-              child: Icon(Icons.info_sharp, color: Colors.red),
+              child: Icon(Icons.info_sharp, color: AppColors.iosRed),
             ),
             Expanded(
               child: Text(
                 // '当前网络不可用，请检查你的网络设置。',
                 "${t.common.networkNotAvailable}${t.error.pleaseCheckNetwork}",
                 // '当前网络不可用，请检查你的网络设置。当前网络不可用，请检查你的网络设置。当前网络不可用，请检查你的网络设置。',
-                style: const TextStyle(color: Colors.red),
+                style: const TextStyle(color: AppColors.iosRed),
               ),
             ),
             const Icon(

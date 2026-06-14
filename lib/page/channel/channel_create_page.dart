@@ -9,7 +9,8 @@ import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 
 import 'channel_provider.dart';
 
@@ -27,7 +28,8 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
   final _descriptionController = TextEditingController();
   final _customIdController = TextEditingController();
   final _tagController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
+  MediaPickerCapability get _picker =>
+      CapabilityLocator.I.get<MediaPickerCapability>();
   int _selectedType = 0;
   bool _isPublic = true;
   bool _isUploadingAvatar = false;
@@ -72,18 +74,13 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
     }
   }
 
-  Future<void> _pickAvatar(ImageSource source) async {
+  Future<void> _pickAvatar() async {
     Navigator.of(context).pop();
     try {
-      final image = await _picker.pickImage(
-        source: source,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
-      );
-      if (image == null || !mounted) return;
+      final media = await _picker.pickSingle(context, MediaType.image);
+      if (media == null || !mounted) return;
 
-      final file = File(image.path);
+      final file = File(media.path);
       setState(() => _avatarFile = file);
       await _uploadAvatar(file);
     } catch (_) {
@@ -148,12 +145,12 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
             ListTile(
               leading: const Icon(Icons.camera_alt),
               title: Text(context.t.main.takePhoto),
-              onTap: () => _pickAvatar(ImageSource.camera),
+              onTap: () => _pickAvatar(),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
               title: Text(context.t.main.selectFromAlbum),
-              onTap: () => _pickAvatar(ImageSource.gallery),
+              onTap: () => _pickAvatar(),
             ),
             ListTile(
               leading: const Icon(Icons.close),

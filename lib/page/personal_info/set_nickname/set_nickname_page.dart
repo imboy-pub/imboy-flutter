@@ -39,8 +39,9 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                   final success = await ref
                       .read(setNicknameProvider.notifier)
                       .saveNickname(ref);
-                  if (success && context.mounted)
+                  if (success && context.mounted) {
                     Navigator.of(context).pop(true);
+                  }
                 }
               : null,
           child: state.isSaving

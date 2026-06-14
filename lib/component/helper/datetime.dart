@@ -4,7 +4,14 @@ import 'package:imboy/i18n/strings.g.dart';
 
 class DateTimeHelper {
   /// 通用日期时间格式化
-  static String dateTimeFmt(DateTime dt, {String pattern = 'y-MM-dd HH:mm'}) {
+  static String dateTimeFmt(
+    DateTime dt, {
+    String pattern = 'y-MM-dd HH:mm',
+    bool relative = true,
+  }) {
+    if (!relative) {
+      return DateFormat(pattern).format(dt);
+    }
     // 使用同步后的时间计算 diff（应用 NTP/服务器时间偏移）
     final nowMs = millisecond();
     final dtMs = dt.toUtc().millisecondsSinceEpoch;

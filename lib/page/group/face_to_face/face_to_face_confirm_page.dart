@@ -133,8 +133,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       title: '',
       useLargeTitle: false,
       backgroundColor: isDark
-          ? const Color(0xFF1C1C1E)
-          : const Color(0xFFF2F2F7),
+          ? AppColors.darkSurfaceGrouped
+          : AppColors.lightSurfaceGrouped,
       bottomWidget: _buildBottomButton(context, theme),
       child: Column(
         children: [
@@ -232,7 +232,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                     Map<String, dynamic> group =
                         res['group'] as Map<String, dynamic>;
                     await GroupRepo().save('', group);
-                    if (context.mounted)
+                    if (context.mounted) {
                       context.pushReplacement(
                         '/chat/${widget.gid}',
                         extra: {
@@ -243,6 +243,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                           'memberCount': memberList.length,
                         },
                       );
+                    }
                   } catch (_) {
                     EasyLoading.showError(t.common.tipFailed);
                   } finally {

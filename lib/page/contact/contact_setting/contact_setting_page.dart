@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/api/denylist_api.dart';
 import 'package:imboy/store/model/denylist_model.dart';
@@ -14,7 +15,6 @@ import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 import 'contact_setting_provider.dart';
 import '../contact_setting_tag/contact_setting_tag_page.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 
 /// 联系人设置页面 - 像素级对齐 iOS 17 Premium 风格
 class ContactSettingPage extends ConsumerStatefulWidget {
@@ -100,7 +100,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                 title: Text(t.contact.recommendToFriend),
                 leading: _buildIcon(
                   Icons.share_outlined,
-                  const Color(0xFF5856D6),
+                  AppColors.iosPurple,
                 ),
                 onTap: () =>
                     EasyLoading.showInfo(t.common.featureInDevelopment),

@@ -57,7 +57,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
   Color get _inputFill =>
       _isDark ? AppColors.darkSurfaceContainer : Colors.white;
   Color get _unselectedLabel =>
-      _isDark ? AppColors.darkTextSecondary : Colors.grey;
+      _isDark ? AppColors.darkTextSecondary : AppColors.iosGray;
 
   @override
   Widget build(BuildContext context) {
@@ -425,7 +425,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
               child: Text(
                 "OR",
                 style: TextStyle(
-                  color: _isDark ? AppColors.darkTextSecondary : Colors.grey,
+                  color: _isDark ? AppColors.darkTextSecondary : AppColors.iosGray,
                 ),
               ),
             ),

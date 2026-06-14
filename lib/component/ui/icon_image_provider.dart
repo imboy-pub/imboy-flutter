@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// from https://stackoverflow.com/questions/63779906/how-to-convert-icon-widget-to-imageprovider
 class IconImageProvider extends ImageProvider<IconImageProvider> {
@@ -15,7 +16,7 @@ class IconImageProvider extends ImageProvider<IconImageProvider> {
     this.icon, {
     this.scale = 1.0,
     this.size = 48,
-    this.color = Colors.grey,
+    this.color = AppColors.iosGray,
     this.bgColor,
   });
 

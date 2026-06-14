@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/user_online_time_helper.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class UserOnlineStatusWidget extends StatelessWidget {
   final bool isOnline;
@@ -133,7 +134,7 @@ class UserOnlineStatusDetailWidget extends StatelessWidget {
             ),
             style: Theme.of(
               context,
-            ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+            ).textTheme.bodySmall?.copyWith(color: AppColors.iosGray),
           ),
         ],
       ],

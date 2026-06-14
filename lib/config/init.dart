@@ -468,10 +468,18 @@ class AppInitializer {
       }
 
       // 安全日志：不输出完整配置负载，可能包含敏感的 URL 和密钥
-      if (kDebugMode) {}
+      if (kDebugMode) {
+        debugPrint(
+          '🔧 initConfig 诊断: env=$currentEnv keys=${payload.keys.toList()}',
+        );
+      }
 
       final wsUrl = payload['ws_url'];
-      if (kDebugMode) {}
+      if (kDebugMode) {
+        debugPrint(
+          '🔧 initConfig 诊断: ws_url=${wsUrl == null ? "null" : "(${wsUrl.runtimeType}, len=${wsUrl.toString().length})"}',
+        );
+      }
 
       if (wsUrl != null && wsUrl.isNotEmpty == true) {
         await StorageService.to.setString(Keys.wsUrl, wsUrl as String);
@@ -480,32 +488,38 @@ class AppInitializer {
         if (kDebugMode) {}
       }
 
+      // null 安全转换：后端 E2EE 改造后 upload_key/upload_scene 可能为空串或缺失，
+      // 直接 `as String` 遇 null 会抛 TypeError(Error 子类)，无法被 on Exception 捕获，导致 init 硬崩
       await StorageService.to.setString(
         Keys.uploadUrl,
-        payload['upload_url'] as String,
+        (payload['upload_url'] as String?) ?? '',
       );
       // H8: upload_key 改用加密安全存储，同时更新内存缓存供同步访问
       await StorageSecureService.to.write(
         key: Keys.uploadKey,
-        value: payload['upload_key'] as String,
+        value: (payload['upload_key'] as String?) ?? '',
       );
       await Env.getUploadKey(); // populate in-memory cache
       await StorageService.to.setString(
         Keys.uploadScene,
-        payload['upload_scene'] as String,
+        (payload['upload_scene'] as String?) ?? '',
       );
 
       await StorageService.to.setString(
         Keys.apiPublicKey,
-        payload['login_rsa_pub_key'] as String,
+        (payload['login_rsa_pub_key'] as String?) ?? '',
       );
 
       // 4. 缓存结果并完成
       _initConfigCache = payload;
       _initConfigCompleter!.complete(payload);
       return payload;
-    } on Exception {
-      if (kDebugMode) {}
+    } on Exception catch (e, stack) {
+      // 记录真实异常以便诊断（如 macOS Keychain entitlement 缺失会抛 PlatformException）
+      logger.e("initConfig failed during payload persistence", error: e, stackTrace: stack);
+      if (kDebugMode) {
+        debugPrint('❌ initConfig: 配置处理异常 ${e.runtimeType}: $e');
+      }
       final error = {"error": t.common.initConfigFetchFailed};
       // 确保在异常情况下也清理 Completer
       if (!_initConfigCompleter!.isCompleted) {
@@ -588,6 +602,10 @@ class AppInitializer {
     // 必须在 WebSocket 服务初始化之前初始化，以便监听消息
     E2EEShardMessageHandler.to.init();
     iPrint('✅ [INIT] E2EE分片消息处理器已初始化');
+
+    // 初始化 E2EE 健康检查与自愈服务（支持增量通知拉取与设备权威状态对账）
+    E2EEHealthCheckService.to.init();
+    iPrint('✅ [INIT] E2EE健康检查与自愈服务已初始化');
 
     // 最后初始化WebSocket服务，确保依赖的服务都已注册
     final wsService = WebSocketService.to;
@@ -726,6 +744,9 @@ class AppInitializer {
         if (tokenExpired(token)) {
           await _refreshToken();
         }
+
+        // App恢复时主动拉取E2EE密钥通知，保证最新的换机公钥对齐
+        unawaited(E2EEHealthCheckService.to.pullKeyNotifications());
 
         // 检查WebSocket服务是否已注册
         if (serviceContainer.isRegistered<WebSocketService>()) {

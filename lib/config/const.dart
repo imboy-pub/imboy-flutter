@@ -287,6 +287,12 @@ class API {
   static const walletTransactions = '/v1/wallet/transactions';
   static const walletTopup = '/v1/wallet/topup';
 
+  // 钱包充值（真实链路：创建订单 → 拉起支付 → 查询状态）
+  static const walletRechargeOrder = '/v1/wallet/recharge/order';
+  static const walletRechargePay = '/v1/wallet/recharge/pay';
+  static String walletRechargeOrderStatus(String orderNo) =>
+      '/v1/wallet/recharge/$orderNo';
+
   // 附件 presign 直传（Garage S3），均 JWT 保护
   static const attachmentPresign = '/v1/attachment/presign';
   static const attachmentConfirm = '/v1/attachment/confirm';

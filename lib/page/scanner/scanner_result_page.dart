@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class ScannerResultPage extends StatelessWidget {
   final String scanResult;
@@ -57,7 +58,7 @@ class ScannerResultPage extends StatelessWidget {
                 FloatingActionButton(
                   heroTag: "open_in_browser",
                   tooltip: t.main.openInBrowser,
-                  backgroundColor: isUrl(scanResult) ? null : Colors.grey,
+                  backgroundColor: isUrl(scanResult) ? null : AppColors.iosGray,
                   onPressed: () {
                     if (isUrl(scanResult)) {
                       Navigator.push(

@@ -27,10 +27,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:imboy/config/init.dart' show appName;
-import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/channel_content/public.dart';
 import 'package:imboy/modules/messaging/public.dart' show MessagingFacade;
@@ -50,6 +48,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'web_chat_title_resolver.dart';
 import 'web_message_actions.dart';
 import 'web_shell.dart';
+import 'web_shell_helper_panels.dart';
 
 /// Web Shell 业务接线层（i18n + 业务 page 注入）
 class WebShellBootstrap extends ConsumerWidget {
@@ -108,10 +107,10 @@ class WebShellBootstrap extends ConsumerWidget {
               .selectItem(ChatSelection(peerId: sel.uid, chatType: 'C2C'));
         },
       ),
-      channelBuilder: (sel) => _PlaceholderPanel('Channel: ${sel.channelId}'),
+      channelBuilder: (sel) => PlaceholderPanel('Channel: ${sel.channelId}'),
       // Phase 3.2-min: 最小可用 Mine 面板（用户简介 + 登出）
       // 真实 Mine 子页面（设置 / 个人信息 / 收藏 等）留待 Phase 3.2.b 渐进接入
-      mineBuilder: (sel) => _WebMineMinPanel(
+      mineBuilder: (sel) => WebMineMinPanel(
         section: sel.section,
         logoutLabel: t.common.buttonLogout,
       ),
@@ -698,121 +697,3 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
   }
 }
 
-/// Phase 3.2-min — Web Shell Mine Tab 最小面板
-///
-/// 当前展示：当前用户 uid + 登出按钮。Phase 3.2.b 之后渐进接入：
-/// - 头像 / 昵称 / 签名 / 二维码（接 UserRepoLocal.current）
-/// - 设置子项（消息通知 / 主题 / 语言 / 安全 / 关于）→ section 路由分发
-class _WebMineMinPanel extends ConsumerWidget {
-  final String? section;
-  final String logoutLabel;
-
-  const _WebMineMinPanel({required this.section, required this.logoutLabel});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final t = Translations.of(context);
-    final uid = UserRepoLocal.to.currentUid;
-    return Container(
-      color: colorScheme.surface,
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: colorScheme.primaryContainer,
-            child: Icon(
-              Icons.person,
-              size: 40,
-              color: colorScheme.onPrimaryContainer,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            uid.isEmpty ? t.common.notLoggedIn : 'UID: $uid',
-            style: theme.textTheme.titleMedium,
-          ),
-          if (section != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              'section: $section',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-          const SizedBox(height: 24),
-          OutlinedButton.icon(
-            key: const ValueKey('web-mine-logout-btn'),
-            onPressed: uid.isEmpty
-                ? null
-                : () async {
-                    final ok = await UserRepoLocal.to.quitLogin();
-                    if (!context.mounted) return;
-                    if (ok) {
-                      // 跳到登录页（路由守卫会在 isLoggedIn=false 时也会拦截，
-                      // 但显式跳转更可靠）
-                      context.go(AppRoutes.signIn);
-                    } else {
-                      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-                        SnackBar(
-                          content: Text(t.common.logoutFailed),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    }
-                  },
-            icon: const Icon(Icons.logout),
-            label: Text(logoutLabel),
-            style: OutlinedButton.styleFrom(minimumSize: const Size(180, 44)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Phase 2/3 实施真实 panel 前的占位 widget
-class _PlaceholderPanel extends StatelessWidget {
-  final String label;
-
-  const _PlaceholderPanel(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      color: colorScheme.surface,
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.construction,
-            size: 64,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'TODO Phase 2/3',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

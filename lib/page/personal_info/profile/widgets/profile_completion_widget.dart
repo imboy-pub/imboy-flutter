@@ -130,7 +130,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
     dynamic profileNotifier,
     bool isDark,
   ) {
-    final suggestions = profileNotifier.getCompletionSuggestions();
+    final List<dynamic> suggestions = profileNotifier.getCompletionSuggestions() as List<dynamic>;
     if (suggestions.isEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

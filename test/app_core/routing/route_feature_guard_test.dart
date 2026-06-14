@@ -6,21 +6,25 @@ import 'package:imboy/app_core/routing/route_feature_guard.dart';
 void main() {
   group('RouteFeatureGuard.appEntryForPath', () {
     test('returns moment for moment routes', () {
-      expect(RouteFeatureGuard.appEntryForPath('/moment/feed'), 'moment');
-      expect(RouteFeatureGuard.appEntryForPath('/moment/create'), 'moment');
-      expect(RouteFeatureGuard.appEntryForPath('/moment/abc123'), 'moment');
+      expect(RouteFeatureGuard.appEntryForPath('/moment/feed'), 'moment_tab');
+      expect(RouteFeatureGuard.appEntryForPath('/moment/create'), 'moment_tab');
+      expect(RouteFeatureGuard.appEntryForPath('/moment/abc123'), 'moment_tab');
     });
 
     test('returns channel for channel routes', () {
-      expect(RouteFeatureGuard.appEntryForPath('/channel'), 'channel');
-      expect(RouteFeatureGuard.appEntryForPath('/channel/xyz'), 'channel');
-      expect(RouteFeatureGuard.appEntryForPath('/channel/discover'), 'channel');
+      expect(RouteFeatureGuard.appEntryForPath('/channel'), 'channel_tab');
+      expect(RouteFeatureGuard.appEntryForPath('/channel/xyz'), 'channel_tab');
+      // discover 是独立的 app entry（须在 /channel/ 通配前判定）
+      expect(
+        RouteFeatureGuard.appEntryForPath('/channel/discover'),
+        'channel_discover_page',
+      );
     });
 
-    test('returns location for people_nearby', () {
+    test('returns people_nearby_page for people_nearby', () {
       expect(
         RouteFeatureGuard.appEntryForPath('/contact/people_nearby'),
-        'location',
+        'people_nearby_page',
       );
     });
 
@@ -49,7 +53,7 @@ void main() {
       AppManifestService.replaceForTest(<String, dynamic>{
         'features': <String, dynamic>{},
         'policy': <String, dynamic>{},
-        'app_entries': ['moment', 'channel', 'location'],
+        'app_entries': ['moment_tab', 'channel_tab', 'people_nearby_page'],
         'admin_entries': <dynamic>[],
         'plugins': <dynamic>[],
         'generated_at': 0,
@@ -86,7 +90,7 @@ void main() {
       AppManifestService.replaceForTest(<String, dynamic>{
         'features': <String, dynamic>{},
         'policy': <String, dynamic>{},
-        'app_entries': ['moment'],
+        'app_entries': ['moment_tab'],
         'admin_entries': <dynamic>[],
         'plugins': <dynamic>[],
         'generated_at': 0,

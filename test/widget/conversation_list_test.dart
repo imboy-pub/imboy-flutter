@@ -8,6 +8,7 @@
 // 运行方式 / How to run:
 //   flutter test test/widget/conversation_list_test.dart
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,6 +65,19 @@ Widget _buildTestApp(Widget home, {List<dynamic> overrides = const []}) {
   );
 }
 
+/// Riverpod 3: NotifierProvider 不再支持 overrideWithValue（_SyncValueProviderElement
+/// 类型不匹配），改用 overrideWith + fake notifier 注入固定 state。
+class _FakeConversationNotifier extends ConversationNotifier {
+  _FakeConversationNotifier(this._initial);
+  final ConversationState _initial;
+  @override
+  ConversationState build() => _initial;
+}
+
+/// 便捷：把 ConversationState 包成 conversationProvider override。
+dynamic _convOverride(ConversationState s) =>
+    conversationProvider.overrideWith(() => _FakeConversationNotifier(s));
+
 // ---------------------------------------------------------------------------
 // 固定测试数据 / Fixed test data
 // ---------------------------------------------------------------------------
@@ -106,7 +120,7 @@ void main() {
         _buildTestApp(
           const ConversationPage(),
           overrides: [
-            conversationProvider.overrideWithValue(
+            _convOverride(
               const ConversationState(conversationMap: {}, isLoading: false),
             ),
           ],
@@ -126,7 +140,7 @@ void main() {
         _buildTestApp(
           const ConversationPage(),
           overrides: [
-            conversationProvider.overrideWithValue(
+            _convOverride(
               const ConversationState(conversationMap: {}, isLoading: false),
             ),
           ],
@@ -135,7 +149,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 搜索框 TextField 应存在
-      expect(find.byType(TextField), findsAtLeastNWidgets(1));
+      expect(find.byType(CupertinoSearchTextField), findsAtLeastNWidgets(1));
     });
   });
 
@@ -147,7 +161,7 @@ void main() {
         _buildTestApp(
           const ConversationPage(),
           overrides: [
-            conversationProvider.overrideWithValue(
+            _convOverride(
               const ConversationState(conversationMap: {}, isLoading: true),
             ),
           ],
@@ -168,7 +182,7 @@ void main() {
         _buildTestApp(
           const ConversationPage(),
           overrides: [
-            conversationProvider.overrideWithValue(
+            _convOverride(
               ConversationState(
                 conversationMap: _toMap(_kConversations),
                 isLoading: false,
@@ -191,7 +205,7 @@ void main() {
         _buildTestApp(
           const ConversationPage(),
           overrides: [
-            conversationProvider.overrideWithValue(
+            _convOverride(
               ConversationState(
                 conversationMap: _toMap(_kConversations),
                 isLoading: false,
@@ -216,7 +230,7 @@ void main() {
         _buildTestApp(
           const ConversationPage(),
           overrides: [
-            conversationProvider.overrideWithValue(
+            _convOverride(
               ConversationState(
                 conversationMap: _toMap(_kConversations),
                 isLoading: false,
@@ -249,7 +263,7 @@ void main() {
         _buildTestApp(
           const ConversationPage(),
           overrides: [
-            conversationProvider.overrideWithValue(
+            _convOverride(
               ConversationState(
                 conversationMap: _toMap(readConversations),
                 isLoading: false,
@@ -291,7 +305,7 @@ void main() {
         _buildTestApp(
           const ConversationPage(),
           overrides: [
-            conversationProvider.overrideWithValue(
+            _convOverride(
               ConversationState(
                 conversationMap: _toMap([pinnedConv, normalConv]),
                 isLoading: false,
@@ -322,7 +336,7 @@ void main() {
         _buildTestApp(
           const ConversationPage(),
           overrides: [
-            conversationProvider.overrideWithValue(
+            _convOverride(
               ConversationState(
                 conversationMap: _toMap(_kConversations),
                 isLoading: false,
@@ -333,13 +347,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // 对第一条会话做右向拖拽，触发 endActionPane 滑出
-      final firstItem = find.text('张三').first;
-      await tester.drag(firstItem, const Offset(-200, 0));
+      // 对第一条会话做左向 fling，触发 endActionPane 滑出
+      // flutter_slidable 在 widget test 中需 fling（高速 drag）才能展开 action pane
+      await tester.fling(find.text('张三').first, const Offset(-300, 0), 2000);
       await tester.pumpAndSettle();
 
       // 操作面板中的"删除"图标应出现
-      expect(find.byIcon(Icons.delete), findsWidgets);
+      expect(find.byIcon(CupertinoIcons.delete_solid), findsWidgets);
     });
   });
 }

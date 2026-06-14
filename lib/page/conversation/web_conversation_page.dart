@@ -84,7 +84,7 @@ class _WebConversationPageState extends ConsumerState<WebConversationPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      color: isDark ? AppColors.chatWebSurfaceDarkest : const Color(0xFFFFFFFF),
+      color: isDark ? AppColors.chatWebSurfaceDarkest : AppColors.lightSurface,
       child: Column(
         children: [
           // 顶部搜索栏

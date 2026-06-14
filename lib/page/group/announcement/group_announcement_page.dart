@@ -294,7 +294,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     return Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
+                        border: Border.all(color: AppColors.iosGray),
                         borderRadius: AppRadius.borderRadiusTiny,
                       ),
                       child: Row(

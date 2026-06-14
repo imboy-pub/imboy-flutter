@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart' as badges;
+import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -191,9 +191,8 @@ class _ChannelAvatar extends StatelessWidget {
 
     if (unreadCount <= 0) return avatarWidget;
 
-    return badges.Badge(
-      position: badges.BadgePosition.topEnd(top: -4, end: -4),
-      badgeContent: Text(
+    return BadgeWidget(
+      content: Text(
         unreadCount > 99 ? '99+' : unreadCount.toString(),
         style: const TextStyle(
           color: Colors.white,
@@ -201,11 +200,8 @@ class _ChannelAvatar extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      badgeStyle: badges.BadgeStyle(
-        badgeColor: AppColors.messageFailed,
-        borderRadius: AppRadius.borderRadiusMedium,
-        elevation: 2,
-      ),
+      color: AppColors.messageFailed,
+      borderRadius: AppRadius.borderRadiusMedium,
       child: avatarWidget,
     );
   }
