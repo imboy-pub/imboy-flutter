@@ -6,7 +6,7 @@ library;
 
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
-import 'package:intl/intl.dart';
+import 'package:imboy/component/helper/datetime.dart';
 
 /// CD-1 付费频道是否处于锁定状态
 ///
@@ -90,5 +90,5 @@ String formatMessageTime(DateTime time, {DateTime? now}) {
   if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
   if (diff.inHours < 24) return '${diff.inHours}h ago';
   if (diff.inDays < 7) return '${diff.inDays}d ago';
-  return DateFormat('MM-dd HH:mm').format(time);
+  return DateTimeHelper.dateTimeFmt(time, pattern: 'MM-dd HH:mm', relative: false);
 }
