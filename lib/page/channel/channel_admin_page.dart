@@ -96,7 +96,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
     final picked = await showModalBottomSheet<({String userId, int role})>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (_) => _ContactPickerSheet(
         existingAdminIds: existingIds,
         channelId: widget.channelId,

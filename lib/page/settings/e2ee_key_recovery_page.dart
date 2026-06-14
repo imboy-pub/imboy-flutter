@@ -406,7 +406,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
-      color: Colors.transparent,
+      color: AppColors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: AppRadius.borderRadiusMedium,
@@ -525,7 +525,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
-      color: Colors.transparent,
+      color: AppColors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: AppRadius.borderRadiusMedium,

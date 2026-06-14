@@ -157,7 +157,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                         ? AppColors.getIosBlue(
                             brightness,
                           ).withValues(alpha: 0.3)
-                        : Colors.transparent),
+                        : AppColors.transparent),
               width: 2,
             ),
           ),

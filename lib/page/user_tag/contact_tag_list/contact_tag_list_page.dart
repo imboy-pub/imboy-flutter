@@ -179,7 +179,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (context) => UserTagSavePage(scene: 'friend'),
     );
   }
@@ -188,7 +188,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (context) => UserTagSavePage(tag: obj, scene: 'friend'),
     );
   }

@@ -11,6 +11,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 单个导航项数据载体（不可变）
 class WebNavItem {
@@ -125,7 +126,7 @@ class _WebNavRailItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? colorScheme.primary.withAlpha(31) // ≈ 0.12 alpha
-                : Colors.transparent,
+                : AppColors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Stack(

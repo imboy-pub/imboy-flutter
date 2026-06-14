@@ -390,7 +390,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
         // DESIGN.md §9.1：聊天气泡（含语音气泡）不带阴影
       ),
       child: Material(
-        color: Colors.transparent,
+        color: AppColors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(
             MessageSpacing.bubbleBorderRadius,

@@ -4,6 +4,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -109,7 +110,7 @@ class MentionListWidget extends StatelessWidget {
   Widget _buildMentionItem(BuildContext context, MentionCandidate candidate) {
     final colorScheme = Theme.of(context).colorScheme;
     return Material(
-      color: Colors.transparent,
+      color: AppColors.transparent,
       child: InkWell(
         onTap: () => onSelected(candidate),
         child: Container(

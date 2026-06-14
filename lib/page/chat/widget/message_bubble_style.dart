@@ -139,7 +139,7 @@ class MessageBubbleStyle {
     required BuildContext context,
     MessageStatus status = MessageStatus.delivered,
   }) {
-    if (!isSentByMe) return Colors.transparent;
+    if (!isSentByMe) return AppColors.transparent;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 

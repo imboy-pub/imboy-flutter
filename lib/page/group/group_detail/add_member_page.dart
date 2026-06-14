@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -145,7 +146,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                         ? Theme.of(
                             context,
                           ).colorScheme.primary.withValues(alpha: 0.5)
-                        : Colors.transparent,
+                        : AppColors.transparent,
                     width: 2,
                   ),
                 ),

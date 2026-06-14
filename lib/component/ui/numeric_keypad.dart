@@ -1,6 +1,7 @@
 // NumericKeypad
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/ui/sound_manager.dart';
 
 class NumericKeypad extends StatelessWidget {
@@ -78,7 +79,7 @@ class NumericKeypad extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.transparent,
+          color: AppColors.transparent,
           border: Border(
             top: BorderSide(
               width: 0.5,

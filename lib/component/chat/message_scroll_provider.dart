@@ -411,7 +411,7 @@ class ScrollToBottomButton extends ConsumerWidget {
             ],
           ),
           child: Material(
-            color: Colors.transparent,
+            color: AppColors.transparent,
             child: InkWell(
               borderRadius: AppRadius.borderRadiusLarge,
               onTap: () {

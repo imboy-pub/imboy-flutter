@@ -120,7 +120,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
     if (selectedIndex < 0) selectedIndex = 2;
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (ctx) {
         int tempIndex = selectedIndex;
         return Container(

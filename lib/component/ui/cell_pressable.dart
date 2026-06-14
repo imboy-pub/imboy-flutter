@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// iOS 风格 Cell 按下反馈 widget
 ///
@@ -84,7 +85,7 @@ class _CellPressableState extends State<CellPressable> {
       onLongPressCancel: hasLongPress ? () => _setPressed(false) : null,
       onLongPressUp: hasLongPress ? () => _setPressed(false) : null,
       child: ColoredBox(
-        color: _pressed ? highlightColor : Colors.transparent,
+        color: _pressed ? highlightColor : AppColors.transparent,
         child: widget.child,
       ),
     );

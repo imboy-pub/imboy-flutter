@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:video_player/video_player.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -274,8 +275,8 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                       const Color(
                         0x99000000,
                       ), // Colors.black.withValues(alpha: 0.6)
-                      Colors.transparent,
-                      Colors.transparent,
+                      AppColors.transparent,
+                      AppColors.transparent,
                       const Color(
                         0x99000000,
                       ), // Colors.black.withValues(alpha: 0.6)

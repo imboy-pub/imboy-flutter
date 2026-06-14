@@ -153,7 +153,7 @@ class ImBoySettingsSection extends StatelessWidget {
             )
           : footer,
       margin: margin ?? const EdgeInsets.fromLTRB(16, 24, 16, 0),
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       dividerMargin: 56,
       children: children,
     );

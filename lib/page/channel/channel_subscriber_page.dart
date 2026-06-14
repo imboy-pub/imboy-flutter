@@ -232,7 +232,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     final inviteeUid = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (_) => _InviteContactPickerSheet(
         channelId: widget.channelId,
         pendingInviteeIds: pendingIds,

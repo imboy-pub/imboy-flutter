@@ -22,7 +22,7 @@ class MessageQuickActionMenu {
   }) {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (BuildContext context) {
         return Material(
           color: Theme.of(context).scaffoldBackgroundColor,
@@ -71,7 +71,7 @@ class MessageQuickActionMenu {
   }) {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (BuildContext context) {
         final isMe = message.authorId == UserRepoLocal.to.currentUid;
         // 检查是否在撤回有效期内（例如2分钟）

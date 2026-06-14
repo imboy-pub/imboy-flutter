@@ -252,7 +252,7 @@ class PrivacySettingsPage extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
-      color: Colors.transparent,
+      color: AppColors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Padding(

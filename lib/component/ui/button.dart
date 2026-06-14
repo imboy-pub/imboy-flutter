@@ -306,7 +306,7 @@ ButtonStyle modernOutlinedButtonStyle(
       if (states.contains(WidgetState.hovered)) {
         return effectiveBorderColor.withValues(alpha: 0.02);
       }
-      return Colors.transparent;
+      return AppColors.transparent;
     }),
     side: WidgetStateProperty.resolveWith<BorderSide>((
       Set<WidgetState> states,

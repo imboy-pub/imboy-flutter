@@ -108,9 +108,9 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.transparent,
+                  AppColors.transparent,
                   Theme.of(context).dividerColor.withValues(alpha: 0.5),
-                  Colors.transparent,
+                  AppColors.transparent,
                 ],
               ),
             ),
@@ -489,7 +489,7 @@ void showMessageActionMenu({
 }) {
   showModalBottomSheet<void>(
     context: context,
-    backgroundColor: Colors.transparent,
+    backgroundColor: AppColors.transparent,
     builder: (BuildContext context) {
       return Container(
         margin: const EdgeInsets.all(16),

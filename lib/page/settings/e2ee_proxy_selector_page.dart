@@ -344,7 +344,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
             : (isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white),
         borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
-          color: isSelected ? AppColors.iosBlue : Colors.transparent,
+          color: isSelected ? AppColors.iosBlue : AppColors.transparent,
           width: 2,
         ),
       ),
@@ -402,7 +402,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                     color: isSelected ? AppColors.iosBlue : AppColors.iosGray2,
                     width: 2,
                   ),
-                  color: isSelected ? AppColors.iosBlue : Colors.transparent,
+                  color: isSelected ? AppColors.iosBlue : AppColors.transparent,
                 ),
                 child: isSelected
                     ? const Icon(Icons.check, color: Colors.white, size: 16)
