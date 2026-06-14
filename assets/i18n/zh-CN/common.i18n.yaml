@@ -843,6 +843,9 @@ noSentInvitations: 暂无发出的邀请
 processingDots: 处理中...
 purchaseFailed: 购买失败，请稍后重试
 purchaseSuccess: 购买成功
+insufficientBalanceTitle: 余额不足
+insufficientBalanceContent(balance, price, currency): "当前余额 $currency $balance，需支付 $currency $price。请先充值后再购买。"
+goRecharge: 去充值
 noOrders: 暂无订单
 orderDetailLoadFailed: 订单详情加载失败
 orderNoLabel(no): "订单号: $no"

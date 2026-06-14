@@ -202,6 +202,7 @@ payingDots: 支付中...
 purchaseAndUnlock: 立即购买并解锁
 orderDetail: 订单详情
 orderAmountLabel(currency, amount): "金额: $currency $amount"
+channelPriceLabel(currency, amount): "价格：$currency $amount"
 e2eeKeyRecoveryTitle: 端到端加密密钥管理
 e2eeRecoveryMethods: 密钥恢复方法
 e2eeDangerousOps: 危险操作

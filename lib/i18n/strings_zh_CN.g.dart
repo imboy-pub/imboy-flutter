@@ -40,34 +40,34 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
-	late final TranslationsAccountZhCn account = TranslationsAccountZhCn.internal(_root);
-	late final TranslationsChannelZhCn channel = TranslationsChannelZhCn.internal(_root);
-	late final TranslationsChatZhCn chat = TranslationsChatZhCn.internal(_root);
-	late final TranslationsCommonZhCn common = TranslationsCommonZhCn.internal(_root);
-	late final TranslationsComplaintZhCn complaint = TranslationsComplaintZhCn.internal(_root);
-	late final TranslationsComplaintReasonZhCn complaintReason = TranslationsComplaintReasonZhCn.internal(_root);
-	late final TranslationsContactZhCn contact = TranslationsContactZhCn.internal(_root);
-	late final TranslationsDiscoveryZhCn discovery = TranslationsDiscoveryZhCn.internal(_root);
-	late final TranslationsErrorZhCn error = TranslationsErrorZhCn.internal(_root);
-	late final TranslationsGroupZhCn group = TranslationsGroupZhCn.internal(_root);
-	late final TranslationsGroupCategoryZhCn groupCategory = TranslationsGroupCategoryZhCn.internal(_root);
-	late final TranslationsGroupListZhCn groupList = TranslationsGroupListZhCn.internal(_root);
-	late final TranslationsGroupScheduleZhCn groupSchedule = TranslationsGroupScheduleZhCn.internal(_root);
-	late final TranslationsGroupTagZhCn groupTag = TranslationsGroupTagZhCn.internal(_root);
-	late final TranslationsGroupTaskZhCn groupTask = TranslationsGroupTaskZhCn.internal(_root);
-	late final TranslationsGroupVoteZhCn groupVote = TranslationsGroupVoteZhCn.internal(_root);
-	late final TranslationsMainZhCn main = TranslationsMainZhCn.internal(_root);
-	late final TranslationsMentionZhCn mention = TranslationsMentionZhCn.internal(_root);
-	late final TranslationsMomentFriendPickerZhCn momentFriendPicker = TranslationsMomentFriendPickerZhCn.internal(_root);
-	late final TranslationsMomentNotifyZhCn momentNotify = TranslationsMomentNotifyZhCn.internal(_root);
-	late final TranslationsPassportZhCn passport = TranslationsPassportZhCn.internal(_root);
-	late final TranslationsSplashZhCn splash = TranslationsSplashZhCn.internal(_root);
-	late final TranslationsWelcomeZhCn welcome = TranslationsWelcomeZhCn.internal(_root);
+	late final Translations$account$zh_CN account = Translations$account$zh_CN.internal(_root);
+	late final Translations$channel$zh_CN channel = Translations$channel$zh_CN.internal(_root);
+	late final Translations$chat$zh_CN chat = Translations$chat$zh_CN.internal(_root);
+	late final Translations$common$zh_CN common = Translations$common$zh_CN.internal(_root);
+	late final Translations$complaint$zh_CN complaint = Translations$complaint$zh_CN.internal(_root);
+	late final Translations$complaintReason$zh_CN complaintReason = Translations$complaintReason$zh_CN.internal(_root);
+	late final Translations$contact$zh_CN contact = Translations$contact$zh_CN.internal(_root);
+	late final Translations$discovery$zh_CN discovery = Translations$discovery$zh_CN.internal(_root);
+	late final Translations$error$zh_CN error = Translations$error$zh_CN.internal(_root);
+	late final Translations$group$zh_CN group = Translations$group$zh_CN.internal(_root);
+	late final Translations$groupCategory$zh_CN groupCategory = Translations$groupCategory$zh_CN.internal(_root);
+	late final Translations$groupList$zh_CN groupList = Translations$groupList$zh_CN.internal(_root);
+	late final Translations$groupSchedule$zh_CN groupSchedule = Translations$groupSchedule$zh_CN.internal(_root);
+	late final Translations$groupTag$zh_CN groupTag = Translations$groupTag$zh_CN.internal(_root);
+	late final Translations$groupTask$zh_CN groupTask = Translations$groupTask$zh_CN.internal(_root);
+	late final Translations$groupVote$zh_CN groupVote = Translations$groupVote$zh_CN.internal(_root);
+	late final Translations$main$zh_CN main = Translations$main$zh_CN.internal(_root);
+	late final Translations$mention$zh_CN mention = Translations$mention$zh_CN.internal(_root);
+	late final Translations$momentFriendPicker$zh_CN momentFriendPicker = Translations$momentFriendPicker$zh_CN.internal(_root);
+	late final Translations$momentNotify$zh_CN momentNotify = Translations$momentNotify$zh_CN.internal(_root);
+	late final Translations$passport$zh_CN passport = Translations$passport$zh_CN.internal(_root);
+	late final Translations$splash$zh_CN splash = Translations$splash$zh_CN.internal(_root);
+	late final Translations$welcome$zh_CN welcome = Translations$welcome$zh_CN.internal(_root);
 }
 
 // Path: account
-class TranslationsAccountZhCn {
-	TranslationsAccountZhCn.internal(this._root);
+class Translations$account$zh_CN {
+	Translations$account$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -423,8 +423,8 @@ class TranslationsAccountZhCn {
 }
 
 // Path: channel
-class TranslationsChannelZhCn {
-	TranslationsChannelZhCn.internal(this._root);
+class Translations$channel$zh_CN {
+	Translations$channel$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -804,8 +804,8 @@ class TranslationsChannelZhCn {
 }
 
 // Path: chat
-class TranslationsChatZhCn {
-	TranslationsChatZhCn.internal(this._root);
+class Translations$chat$zh_CN {
+	Translations$chat$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1620,8 +1620,8 @@ class TranslationsChatZhCn {
 }
 
 // Path: common
-class TranslationsCommonZhCn {
-	TranslationsCommonZhCn.internal(this._root);
+class Translations$common$zh_CN {
+	Translations$common$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -4159,6 +4159,15 @@ class TranslationsCommonZhCn {
 	/// zh-CN: '购买成功'
 	String get purchaseSuccess => '购买成功';
 
+	/// zh-CN: '余额不足'
+	String get insufficientBalanceTitle => '余额不足';
+
+	/// zh-CN: '当前余额 $currency $balance，需支付 $currency $price。请先充值后再购买。'
+	String insufficientBalanceContent({required Object currency, required Object balance, required Object price}) => '当前余额 ${currency} ${balance}，需支付 ${currency} ${price}。请先充值后再购买。';
+
+	/// zh-CN: '去充值'
+	String get goRecharge => '去充值';
+
 	/// zh-CN: '暂无订单'
 	String get noOrders => '暂无订单';
 
@@ -4758,8 +4767,8 @@ class TranslationsCommonZhCn {
 }
 
 // Path: complaint
-class TranslationsComplaintZhCn {
-	TranslationsComplaintZhCn.internal(this._root);
+class Translations$complaint$zh_CN {
+	Translations$complaint$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -4770,8 +4779,8 @@ class TranslationsComplaintZhCn {
 }
 
 // Path: complaintReason
-class TranslationsComplaintReasonZhCn {
-	TranslationsComplaintReasonZhCn.internal(this._root);
+class Translations$complaintReason$zh_CN {
+	Translations$complaintReason$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -4791,8 +4800,8 @@ class TranslationsComplaintReasonZhCn {
 }
 
 // Path: contact
-class TranslationsContactZhCn {
-	TranslationsContactZhCn.internal(this._root);
+class Translations$contact$zh_CN {
+	Translations$contact$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -4953,8 +4962,8 @@ class TranslationsContactZhCn {
 }
 
 // Path: discovery
-class TranslationsDiscoveryZhCn {
-	TranslationsDiscoveryZhCn.internal(this._root);
+class Translations$discovery$zh_CN {
+	Translations$discovery$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -5049,8 +5058,8 @@ class TranslationsDiscoveryZhCn {
 }
 
 // Path: error
-class TranslationsErrorZhCn {
-	TranslationsErrorZhCn.internal(this._root);
+class Translations$error$zh_CN {
+	Translations$error$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -5094,8 +5103,8 @@ class TranslationsErrorZhCn {
 }
 
 // Path: group
-class TranslationsGroupZhCn {
-	TranslationsGroupZhCn.internal(this._root);
+class Translations$group$zh_CN {
+	Translations$group$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -5229,8 +5238,8 @@ class TranslationsGroupZhCn {
 }
 
 // Path: groupCategory
-class TranslationsGroupCategoryZhCn {
-	TranslationsGroupCategoryZhCn.internal(this._root);
+class Translations$groupCategory$zh_CN {
+	Translations$groupCategory$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -5289,8 +5298,8 @@ class TranslationsGroupCategoryZhCn {
 }
 
 // Path: groupList
-class TranslationsGroupListZhCn {
-	TranslationsGroupListZhCn.internal(this._root);
+class Translations$groupList$zh_CN {
+	Translations$groupList$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -5313,8 +5322,8 @@ class TranslationsGroupListZhCn {
 }
 
 // Path: groupSchedule
-class TranslationsGroupScheduleZhCn {
-	TranslationsGroupScheduleZhCn.internal(this._root);
+class Translations$groupSchedule$zh_CN {
+	Translations$groupSchedule$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -5397,8 +5406,8 @@ class TranslationsGroupScheduleZhCn {
 }
 
 // Path: groupTag
-class TranslationsGroupTagZhCn {
-	TranslationsGroupTagZhCn.internal(this._root);
+class Translations$groupTag$zh_CN {
+	Translations$groupTag$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -5433,8 +5442,8 @@ class TranslationsGroupTagZhCn {
 }
 
 // Path: groupTask
-class TranslationsGroupTaskZhCn {
-	TranslationsGroupTaskZhCn.internal(this._root);
+class Translations$groupTask$zh_CN {
+	Translations$groupTask$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -5511,8 +5520,8 @@ class TranslationsGroupTaskZhCn {
 }
 
 // Path: groupVote
-class TranslationsGroupVoteZhCn {
-	TranslationsGroupVoteZhCn.internal(this._root);
+class Translations$groupVote$zh_CN {
+	Translations$groupVote$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -5592,8 +5601,8 @@ class TranslationsGroupVoteZhCn {
 }
 
 // Path: main
-class TranslationsMainZhCn {
-	TranslationsMainZhCn.internal(this._root);
+class Translations$main$zh_CN {
+	Translations$main$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -6211,6 +6220,9 @@ class TranslationsMainZhCn {
 	/// zh-CN: '金额: $currency $amount'
 	String orderAmountLabel({required Object currency, required Object amount}) => '金额: ${currency} ${amount}';
 
+	/// zh-CN: '价格：$currency $amount'
+	String channelPriceLabel({required Object currency, required Object amount}) => '价格：${currency} ${amount}';
+
 	/// zh-CN: '端到端加密密钥管理'
 	String get e2eeKeyRecoveryTitle => '端到端加密密钥管理';
 
@@ -6435,8 +6447,8 @@ class TranslationsMainZhCn {
 }
 
 // Path: mention
-class TranslationsMentionZhCn {
-	TranslationsMentionZhCn.internal(this._root);
+class Translations$mention$zh_CN {
+	Translations$mention$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -6477,8 +6489,8 @@ class TranslationsMentionZhCn {
 }
 
 // Path: momentFriendPicker
-class TranslationsMomentFriendPickerZhCn {
-	TranslationsMomentFriendPickerZhCn.internal(this._root);
+class Translations$momentFriendPicker$zh_CN {
+	Translations$momentFriendPicker$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -6519,8 +6531,8 @@ class TranslationsMomentFriendPickerZhCn {
 }
 
 // Path: momentNotify
-class TranslationsMomentNotifyZhCn {
-	TranslationsMomentNotifyZhCn.internal(this._root);
+class Translations$momentNotify$zh_CN {
+	Translations$momentNotify$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -6567,8 +6579,8 @@ class TranslationsMomentNotifyZhCn {
 }
 
 // Path: passport
-class TranslationsPassportZhCn {
-	TranslationsPassportZhCn.internal(this._root);
+class Translations$passport$zh_CN {
+	Translations$passport$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -6606,8 +6618,8 @@ class TranslationsPassportZhCn {
 }
 
 // Path: splash
-class TranslationsSplashZhCn {
-	TranslationsSplashZhCn.internal(this._root);
+class Translations$splash$zh_CN {
+	Translations$splash$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -6618,8 +6630,8 @@ class TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class TranslationsWelcomeZhCn {
-	TranslationsWelcomeZhCn.internal(this._root);
+class Translations$welcome$zh_CN {
+	Translations$welcome$zh_CN.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -8018,6 +8030,9 @@ extension on Translations {
 			'common.processingDots' => '处理中...',
 			'common.purchaseFailed' => '购买失败，请稍后重试',
 			'common.purchaseSuccess' => '购买成功',
+			'common.insufficientBalanceTitle' => '余额不足',
+			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => '当前余额 ${currency} ${balance}，需支付 ${currency} ${price}。请先充值后再购买。',
+			'common.goRecharge' => '去充值',
 			'common.noOrders' => '暂无订单',
 			'common.orderDetailLoadFailed' => '订单详情加载失败',
 			'common.orderNoLabel' => ({required Object no}) => '订单号: ${no}',
@@ -8198,11 +8213,11 @@ extension on Translations {
 			'common.e2eeTransferPendingSection' => '待处理的传输',
 			'common.e2eeTransferLoadFailed' => '加载失败',
 			'common.e2eeTransferLoadFailedDesc' => '无法加载待处理的传输，请重试',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferNoPending' => '暂无待处理的传输',
 			'common.e2eeTransferNoPendingDesc' => '当有设备向您发送密钥时，会显示在这里',
 			'common.e2eeSocialEnoughShards' => '您已有足够的分片可以恢复密钥',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialMoreShards' => ({required Object count}) => '还有 ${count} 个分片...',
 			'common.e2eeProxyLoadFriendsFailed' => '加载好友列表失败，请重试',
 			'common.e2eeProxyNoPublicKey' => '该好友没有可用的公钥',
@@ -8665,6 +8680,7 @@ extension on Translations {
 			'main.purchaseAndUnlock' => '立即购买并解锁',
 			'main.orderDetail' => '订单详情',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '金额: ${currency} ${amount}',
+			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => '价格：${currency} ${amount}',
 			'main.e2eeKeyRecoveryTitle' => '端到端加密密钥管理',
 			'main.e2eeRecoveryMethods' => '密钥恢复方法',
 			'main.e2eeDangerousOps' => '危险操作',
@@ -8711,12 +8727,12 @@ extension on Translations {
 			'main.e2eeSocialProxyUserLabel' => '代理用户',
 			'main.e2eeSocialRecoveryThresholdLabel' => '恢复阈值',
 			'main.e2eeSocialShardIndexLabel' => '分片编号',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeTransferQRHint' => '请在新设备上扫描此二维码',
 			'main.e2eeTransferQRExpiry' => ({required Object time}) => '二维码将在 ${time} 过期',
 			'main.e2eeTransferRefreshQR' => '刷新二维码',
 			'main.e2eeTransferEnterUidTitle' => '输入接收方用户 ID',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeTransferUidPlaceholder' => '接收方用户 ID',
 			'main.e2eeTransferReceiving' => '正在接受传输...',
 			'main.e2eeTransferPageTitle' => '设备间传输',

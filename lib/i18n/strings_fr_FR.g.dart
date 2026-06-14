@@ -39,24 +39,24 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsFrFr $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsFrFr(meta: meta ?? this.$meta);
 
 	// Translations
-	@override late final _TranslationsAccountFrFr account = _TranslationsAccountFrFr._(_root);
-	@override late final _TranslationsChannelFrFr channel = _TranslationsChannelFrFr._(_root);
-	@override late final _TranslationsChatFrFr chat = _TranslationsChatFrFr._(_root);
-	@override late final _TranslationsCommonFrFr common = _TranslationsCommonFrFr._(_root);
-	@override late final _TranslationsComplaintFrFr complaint = _TranslationsComplaintFrFr._(_root);
-	@override late final _TranslationsContactFrFr contact = _TranslationsContactFrFr._(_root);
-	@override late final _TranslationsDiscoveryFrFr discovery = _TranslationsDiscoveryFrFr._(_root);
-	@override late final _TranslationsErrorFrFr error = _TranslationsErrorFrFr._(_root);
-	@override late final _TranslationsGroupFrFr group = _TranslationsGroupFrFr._(_root);
-	@override late final _TranslationsMainFrFr main = _TranslationsMainFrFr._(_root);
-	@override late final _TranslationsPassportFrFr passport = _TranslationsPassportFrFr._(_root);
-	@override late final _TranslationsSplashFrFr splash = _TranslationsSplashFrFr._(_root);
-	@override late final _TranslationsWelcomeFrFr welcome = _TranslationsWelcomeFrFr._(_root);
+	@override late final _Translations$account$fr_FR account = _Translations$account$fr_FR._(_root);
+	@override late final _Translations$channel$fr_FR channel = _Translations$channel$fr_FR._(_root);
+	@override late final _Translations$chat$fr_FR chat = _Translations$chat$fr_FR._(_root);
+	@override late final _Translations$common$fr_FR common = _Translations$common$fr_FR._(_root);
+	@override late final _Translations$complaint$fr_FR complaint = _Translations$complaint$fr_FR._(_root);
+	@override late final _Translations$contact$fr_FR contact = _Translations$contact$fr_FR._(_root);
+	@override late final _Translations$discovery$fr_FR discovery = _Translations$discovery$fr_FR._(_root);
+	@override late final _Translations$error$fr_FR error = _Translations$error$fr_FR._(_root);
+	@override late final _Translations$group$fr_FR group = _Translations$group$fr_FR._(_root);
+	@override late final _Translations$main$fr_FR main = _Translations$main$fr_FR._(_root);
+	@override late final _Translations$passport$fr_FR passport = _Translations$passport$fr_FR._(_root);
+	@override late final _Translations$splash$fr_FR splash = _Translations$splash$fr_FR._(_root);
+	@override late final _Translations$welcome$fr_FR welcome = _Translations$welcome$fr_FR._(_root);
 }
 
 // Path: account
-class _TranslationsAccountFrFr extends TranslationsAccountZhCn {
-	_TranslationsAccountFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$account$fr_FR extends Translations$account$zh_CN {
+	_Translations$account$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -162,8 +162,8 @@ class _TranslationsAccountFrFr extends TranslationsAccountZhCn {
 }
 
 // Path: channel
-class _TranslationsChannelFrFr extends TranslationsChannelZhCn {
-	_TranslationsChannelFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
+	_Translations$channel$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -284,8 +284,8 @@ class _TranslationsChannelFrFr extends TranslationsChannelZhCn {
 }
 
 // Path: chat
-class _TranslationsChatFrFr extends TranslationsChatZhCn {
-	_TranslationsChatFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
+	_Translations$chat$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -461,8 +461,8 @@ class _TranslationsChatFrFr extends TranslationsChatZhCn {
 }
 
 // Path: common
-class _TranslationsCommonFrFr extends TranslationsCommonZhCn {
-	_TranslationsCommonFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$common$fr_FR extends Translations$common$zh_CN {
+	_Translations$common$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1183,8 +1183,8 @@ class _TranslationsCommonFrFr extends TranslationsCommonZhCn {
 }
 
 // Path: complaint
-class _TranslationsComplaintFrFr extends TranslationsComplaintZhCn {
-	_TranslationsComplaintFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$complaint$fr_FR extends Translations$complaint$zh_CN {
+	_Translations$complaint$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1193,8 +1193,8 @@ class _TranslationsComplaintFrFr extends TranslationsComplaintZhCn {
 }
 
 // Path: contact
-class _TranslationsContactFrFr extends TranslationsContactZhCn {
-	_TranslationsContactFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$contact$fr_FR extends Translations$contact$zh_CN {
+	_Translations$contact$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1250,8 +1250,8 @@ class _TranslationsContactFrFr extends TranslationsContactZhCn {
 }
 
 // Path: discovery
-class _TranslationsDiscoveryFrFr extends TranslationsDiscoveryZhCn {
-	_TranslationsDiscoveryFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$discovery$fr_FR extends Translations$discovery$zh_CN {
+	_Translations$discovery$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1272,8 +1272,8 @@ class _TranslationsDiscoveryFrFr extends TranslationsDiscoveryZhCn {
 }
 
 // Path: error
-class _TranslationsErrorFrFr extends TranslationsErrorZhCn {
-	_TranslationsErrorFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$error$fr_FR extends Translations$error$zh_CN {
+	_Translations$error$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1288,8 +1288,8 @@ class _TranslationsErrorFrFr extends TranslationsErrorZhCn {
 }
 
 // Path: group
-class _TranslationsGroupFrFr extends TranslationsGroupZhCn {
-	_TranslationsGroupFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$group$fr_FR extends Translations$group$zh_CN {
+	_Translations$group$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1318,8 +1318,8 @@ class _TranslationsGroupFrFr extends TranslationsGroupZhCn {
 }
 
 // Path: main
-class _TranslationsMainFrFr extends TranslationsMainZhCn {
-	_TranslationsMainFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$main$fr_FR extends Translations$main$zh_CN {
+	_Translations$main$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1517,8 +1517,8 @@ class _TranslationsMainFrFr extends TranslationsMainZhCn {
 }
 
 // Path: passport
-class _TranslationsPassportFrFr extends TranslationsPassportZhCn {
-	_TranslationsPassportFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$passport$fr_FR extends Translations$passport$zh_CN {
+	_Translations$passport$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1536,8 +1536,8 @@ class _TranslationsPassportFrFr extends TranslationsPassportZhCn {
 }
 
 // Path: splash
-class _TranslationsSplashFrFr extends TranslationsSplashZhCn {
-	_TranslationsSplashFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$splash$fr_FR extends Translations$splash$zh_CN {
+	_Translations$splash$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 
@@ -1546,8 +1546,8 @@ class _TranslationsSplashFrFr extends TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class _TranslationsWelcomeFrFr extends TranslationsWelcomeZhCn {
-	_TranslationsWelcomeFrFr._(TranslationsFrFr root) : this._root = root, super.internal(root);
+class _Translations$welcome$fr_FR extends Translations$welcome$zh_CN {
+	_Translations$welcome$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
 
 	final TranslationsFrFr _root; // ignore: unused_field
 

@@ -39,24 +39,24 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsJaJp $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsJaJp(meta: meta ?? this.$meta);
 
 	// Translations
-	@override late final _TranslationsAccountJaJp account = _TranslationsAccountJaJp._(_root);
-	@override late final _TranslationsChannelJaJp channel = _TranslationsChannelJaJp._(_root);
-	@override late final _TranslationsChatJaJp chat = _TranslationsChatJaJp._(_root);
-	@override late final _TranslationsCommonJaJp common = _TranslationsCommonJaJp._(_root);
-	@override late final _TranslationsComplaintJaJp complaint = _TranslationsComplaintJaJp._(_root);
-	@override late final _TranslationsContactJaJp contact = _TranslationsContactJaJp._(_root);
-	@override late final _TranslationsDiscoveryJaJp discovery = _TranslationsDiscoveryJaJp._(_root);
-	@override late final _TranslationsErrorJaJp error = _TranslationsErrorJaJp._(_root);
-	@override late final _TranslationsGroupJaJp group = _TranslationsGroupJaJp._(_root);
-	@override late final _TranslationsMainJaJp main = _TranslationsMainJaJp._(_root);
-	@override late final _TranslationsPassportJaJp passport = _TranslationsPassportJaJp._(_root);
-	@override late final _TranslationsSplashJaJp splash = _TranslationsSplashJaJp._(_root);
-	@override late final _TranslationsWelcomeJaJp welcome = _TranslationsWelcomeJaJp._(_root);
+	@override late final _Translations$account$ja_JP account = _Translations$account$ja_JP._(_root);
+	@override late final _Translations$channel$ja_JP channel = _Translations$channel$ja_JP._(_root);
+	@override late final _Translations$chat$ja_JP chat = _Translations$chat$ja_JP._(_root);
+	@override late final _Translations$common$ja_JP common = _Translations$common$ja_JP._(_root);
+	@override late final _Translations$complaint$ja_JP complaint = _Translations$complaint$ja_JP._(_root);
+	@override late final _Translations$contact$ja_JP contact = _Translations$contact$ja_JP._(_root);
+	@override late final _Translations$discovery$ja_JP discovery = _Translations$discovery$ja_JP._(_root);
+	@override late final _Translations$error$ja_JP error = _Translations$error$ja_JP._(_root);
+	@override late final _Translations$group$ja_JP group = _Translations$group$ja_JP._(_root);
+	@override late final _Translations$main$ja_JP main = _Translations$main$ja_JP._(_root);
+	@override late final _Translations$passport$ja_JP passport = _Translations$passport$ja_JP._(_root);
+	@override late final _Translations$splash$ja_JP splash = _Translations$splash$ja_JP._(_root);
+	@override late final _Translations$welcome$ja_JP welcome = _Translations$welcome$ja_JP._(_root);
 }
 
 // Path: account
-class _TranslationsAccountJaJp extends TranslationsAccountZhCn {
-	_TranslationsAccountJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$account$ja_JP extends Translations$account$zh_CN {
+	_Translations$account$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -162,8 +162,8 @@ class _TranslationsAccountJaJp extends TranslationsAccountZhCn {
 }
 
 // Path: channel
-class _TranslationsChannelJaJp extends TranslationsChannelZhCn {
-	_TranslationsChannelJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
+	_Translations$channel$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -284,8 +284,8 @@ class _TranslationsChannelJaJp extends TranslationsChannelZhCn {
 }
 
 // Path: chat
-class _TranslationsChatJaJp extends TranslationsChatZhCn {
-	_TranslationsChatJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
+	_Translations$chat$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -461,8 +461,8 @@ class _TranslationsChatJaJp extends TranslationsChatZhCn {
 }
 
 // Path: common
-class _TranslationsCommonJaJp extends TranslationsCommonZhCn {
-	_TranslationsCommonJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$common$ja_JP extends Translations$common$zh_CN {
+	_Translations$common$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1183,8 +1183,8 @@ class _TranslationsCommonJaJp extends TranslationsCommonZhCn {
 }
 
 // Path: complaint
-class _TranslationsComplaintJaJp extends TranslationsComplaintZhCn {
-	_TranslationsComplaintJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$complaint$ja_JP extends Translations$complaint$zh_CN {
+	_Translations$complaint$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1193,8 +1193,8 @@ class _TranslationsComplaintJaJp extends TranslationsComplaintZhCn {
 }
 
 // Path: contact
-class _TranslationsContactJaJp extends TranslationsContactZhCn {
-	_TranslationsContactJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$contact$ja_JP extends Translations$contact$zh_CN {
+	_Translations$contact$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1250,8 +1250,8 @@ class _TranslationsContactJaJp extends TranslationsContactZhCn {
 }
 
 // Path: discovery
-class _TranslationsDiscoveryJaJp extends TranslationsDiscoveryZhCn {
-	_TranslationsDiscoveryJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$discovery$ja_JP extends Translations$discovery$zh_CN {
+	_Translations$discovery$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1272,8 +1272,8 @@ class _TranslationsDiscoveryJaJp extends TranslationsDiscoveryZhCn {
 }
 
 // Path: error
-class _TranslationsErrorJaJp extends TranslationsErrorZhCn {
-	_TranslationsErrorJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$error$ja_JP extends Translations$error$zh_CN {
+	_Translations$error$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1288,8 +1288,8 @@ class _TranslationsErrorJaJp extends TranslationsErrorZhCn {
 }
 
 // Path: group
-class _TranslationsGroupJaJp extends TranslationsGroupZhCn {
-	_TranslationsGroupJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$group$ja_JP extends Translations$group$zh_CN {
+	_Translations$group$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1318,8 +1318,8 @@ class _TranslationsGroupJaJp extends TranslationsGroupZhCn {
 }
 
 // Path: main
-class _TranslationsMainJaJp extends TranslationsMainZhCn {
-	_TranslationsMainJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$main$ja_JP extends Translations$main$zh_CN {
+	_Translations$main$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1517,8 +1517,8 @@ class _TranslationsMainJaJp extends TranslationsMainZhCn {
 }
 
 // Path: passport
-class _TranslationsPassportJaJp extends TranslationsPassportZhCn {
-	_TranslationsPassportJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$passport$ja_JP extends Translations$passport$zh_CN {
+	_Translations$passport$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1536,8 +1536,8 @@ class _TranslationsPassportJaJp extends TranslationsPassportZhCn {
 }
 
 // Path: splash
-class _TranslationsSplashJaJp extends TranslationsSplashZhCn {
-	_TranslationsSplashJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$splash$ja_JP extends Translations$splash$zh_CN {
+	_Translations$splash$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
@@ -1546,8 +1546,8 @@ class _TranslationsSplashJaJp extends TranslationsSplashZhCn {
 }
 
 // Path: welcome
-class _TranslationsWelcomeJaJp extends TranslationsWelcomeZhCn {
-	_TranslationsWelcomeJaJp._(TranslationsJaJp root) : this._root = root, super.internal(root);
+class _Translations$welcome$ja_JP extends Translations$welcome$zh_CN {
+	_Translations$welcome$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
 
 	final TranslationsJaJp _root; // ignore: unused_field
 
