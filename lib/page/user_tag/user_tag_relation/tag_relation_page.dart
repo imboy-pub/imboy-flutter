@@ -418,7 +418,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         gradient: isDark
             ? null
             : const LinearGradient(
-                colors: [Color(0xFFE8F5E9), Colors.white],
+                colors: [AppColors.successBackground, Colors.white],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

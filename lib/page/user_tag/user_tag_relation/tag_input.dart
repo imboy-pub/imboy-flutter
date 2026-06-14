@@ -348,7 +348,7 @@ class _TagInputState extends State<TagInput> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.lightbulb_outline, size: 16, color: Colors.orange),
+                Icon(Icons.lightbulb_outline, size: 16, color: AppColors.iosOrange),
                 const SizedBox(width: 8),
                 Text(
                   t.contact.suggestedTags,

@@ -165,8 +165,9 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                                 ref
                                     .read(contactTagListProvider.notifier)
                                     .updateTag(newTag);
-                                if (context.mounted)
+                                if (context.mounted) {
                                   Navigator.of(context).pop();
+                                }
                               }
                             } else if (_valueChanged) {
                               // 修改标签名称
@@ -209,8 +210,9 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                                 }
 
                                 EasyLoading.showSuccess(t.common.tipSuccess);
-                                if (context.mounted)
+                                if (context.mounted) {
                                   Navigator.of(context).pop();
+                                }
                               } else {
                                 EasyLoading.showError(t.common.tipFailed);
                               }
