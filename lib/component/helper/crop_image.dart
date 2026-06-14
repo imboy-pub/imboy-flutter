@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:image_crop/image_crop.dart';
+import 'package:crop_your_image/crop_your_image.dart';
 
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -19,9 +19,7 @@ class CropImageRoute extends StatefulWidget {
 
   String prefix;
   String filename;
-  File image; //原始图片路径
-
-  //图片缩放比例
+  File image;
   double imageScale = 1.0;
 
   @override
@@ -30,11 +28,19 @@ class CropImageRoute extends StatefulWidget {
 }
 
 class _CropImageRouteState extends State<CropImageRoute> {
-  final cropKey = GlobalKey<CropState>();
+  final _controller = CropController();
+  Uint8List? _imageBytes;
+  bool _isCropping = false;
 
   @override
-  void dispose() {
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    final bytes = await widget.image.readAsBytes();
+    if (mounted) setState(() => _imageBytes = bytes);
   }
 
   @override
@@ -46,52 +52,52 @@ class _CropImageRouteState extends State<CropImageRoute> {
         width: size.width,
         color: Colors.black,
         child: Column(
-          children: <Widget>[
+          children: [
             Expanded(
-              child: SizedBox(
-                height: size.height * 0.8,
-                child: Crop.file(
-                  widget.image,
-                  key: cropKey,
-                  aspectRatio: 1.0,
-                  alwaysShowGrid: true,
-                ),
-              ),
+              child: _imageBytes == null
+                  ? const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    )
+                  : Crop(
+                      image: _imageBytes!,
+                      controller: _controller,
+                      aspectRatio: 1.0,
+                      onCropped: _onCropped,
+                    ),
             ),
             Row(
               children: [
                 TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: () => Navigator.of(context).pop(),
                   child: Text(
                     t.common.buttonCancel,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      //color: Colors.white,
-                      //fontSize: 16.0,
-                      fontWeight: FontWeight.normal,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.normal),
                   ),
                 ),
-                const Expanded(
-                  child: SizedBox.shrink(), // 中间用Expanded控件
-                ),
+                const Expanded(child: SizedBox.shrink()),
                 TextButton(
-                  onPressed: () {
-                    _crop(widget.image);
-                  },
+                  onPressed: (_imageBytes == null || _isCropping)
+                      ? null
+                      : _startCrop,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Text(
-                      t.common.buttonAccomplish,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        //color: Colors.white,
-                        //fontSize: 16.0,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
+                    child: _isCropping
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            t.common.buttonAccomplish,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -102,46 +108,35 @@ class _CropImageRouteState extends State<CropImageRoute> {
     );
   }
 
-  Future<void> _crop(File originalFile) async {
-    final crop = cropKey.currentState;
-    final area = crop!.area;
-    if (area == null) {
-      //裁剪结果为空
-    }
-
-    final scale = cropKey.currentState?.scale;
-
-    await ImageCrop.requestPermissions().then((value) async {
-      if (value) {
-        File sample = await ImageCrop.sampleImage(
-          file: originalFile,
-          preferredSize: (880 / scale!).round(),
-        );
-        File croppedFile = await ImageCrop.cropImage(
-          file: sample,
-          area: crop.area!,
-          scale: widget.imageScale,
-        );
-        upload(croppedFile);
-        Future<dynamic>.delayed(const Duration(milliseconds: 200)).then((
-          value,
-        ) {
-          sample.delete();
-          croppedFile.delete();
-        });
-      } else {
-        upload(originalFile);
-      }
-    });
+  void _startCrop() {
+    setState(() => _isCropping = true);
+    _controller.crop();
   }
 
-  ///上传头像
-  Future<void> upload(File file) async {
+  Future<void> _onCropped(CropResult result) async {
+    switch (result) {
+      case CropSuccess(:final croppedImage):
+        final tmpFile = File(
+          '${Directory.systemTemp.path}/cropped_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+        await tmpFile.writeAsBytes(croppedImage);
+        await _upload(tmpFile);
+        Future<void>.delayed(const Duration(milliseconds: 200))
+            .then((_) => tmpFile
+                .delete()
+                .catchError((_) => tmpFile, test: (_) => true));
+      case CropFailure(:final cause):
+        if (kDebugMode) debugPrint('> crop failed: $cause');
+    }
+    if (mounted) setState(() => _isCropping = false);
+  }
+
+  Future<void> _upload(File file) async {
     await AttachmentApi.uploadFileViaPresignCompat(
       widget.prefix,
       file,
       (Map<String, dynamic> resp, String uri) async {
-        Navigator.pop(context, uri); //这里的url在上一页调用的result可以拿到
+        if (mounted) Navigator.pop(context, uri);
       },
       (Error error) {
         if (kDebugMode) debugPrint("> on upload ${error.runtimeType}");
