@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// iOS 风格毛玻璃底部导航栏 - iOS 17 Premium 风格
 class GlassBottomNavigationBar extends StatelessWidget {
@@ -76,17 +77,17 @@ class GlassBottomNavigationBar extends StatelessWidget {
                       // 标签
                       Text(
                         item.label,
-                        style: TextStyle(
-                          fontSize: 10,
-                          height: 1.2,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                          color: isSelected
-                              ? AppColors.primary
-                              : AppColors.iosGray,
-                          letterSpacing: -0.2,
-                        ),
+                        style: context
+                            .textStyle(
+                              FontSizeType.tiny,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.iosGray,
+                            )
+                            .copyWith(height: 1.2, letterSpacing: -0.2),
                         maxLines: 1,
                         overflow: TextOverflow.clip,
                       ),

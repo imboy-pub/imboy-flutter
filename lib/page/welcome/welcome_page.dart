@@ -11,6 +11,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 支持的语言列表
 final List<AppLocale> _supportedLocales = AppLocale.values;
@@ -149,7 +150,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                   itemBuilder: (context, index) {
                     final page = _pages(context)[index];
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xLarge,
+                      ),
                       child: SingleChildScrollView(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -165,22 +168,25 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                             const SizedBox(height: 24),
                             Text(
                               page['title'] as String,
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primaryDark,
-                                letterSpacing: -0.5,
-                              ),
+                              style: context
+                                  .textStyle(
+                                    FontSizeType.extraLargeTitle,
+                                    color: AppColors.primaryDark,
+                                    fontWeight: FontWeight.bold,
+                                  )
+                                  .copyWith(letterSpacing: -0.5),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 12),
                             Text(
                               page['desc'] as String,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: AppColors.slateText,
-                                height: 1.6,
-                              ),
+                              // context.textStyle 无 height 参数，copyWith 补回
+                              style: context
+                                  .textStyle(
+                                    FontSizeType.medium,
+                                    color: AppColors.slateText,
+                                  )
+                                  .copyWith(height: 1.6),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -191,7 +197,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(AppSpacing.xLarge),
                 child: Column(
                   children: [
                     // Indicator
@@ -200,7 +206,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                       children: List.generate(_pages(context).length, (index) {
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.tiny,
+                          ),
                           width: _currentPage == index ? 24 : 8,
                           height: 8,
                           decoration: BoxDecoration(
@@ -240,10 +248,10 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                           _currentPage == _pages(context).length - 1
                               ? context.t.welcome.getStarted
                               : context.t.welcome.next,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
+                          style: context.textStyle(
+                            FontSizeType.large,
                             color: Colors.white,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -256,13 +264,13 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                           context.go('/sign_in');
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(AppSpacing.small),
                           child: Text(
                             context.t.welcome.skip,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                            style: context.textStyle(
+                              FontSizeType.normal,
                               color: AppColors.slateText,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -296,7 +304,10 @@ class _LanguageSelector extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showLanguageSelector(context),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.medium,
+          vertical: AppSpacing.small,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: AppRadius.borderRadiusMedium,
@@ -316,10 +327,10 @@ class _LanguageSelector extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               names[currentLocale] ?? currentLocale.languageCode,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: AppColors.primary,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(width: 4),
@@ -370,14 +381,14 @@ class _LanguageSelector extends StatelessWidget {
               Expanded(
                 child: Text(
                   names[locale] ?? locale.languageCode,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: locale == currentLocale
-                        ? FontWeight.w600
-                        : FontWeight.normal,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: locale == currentLocale
                         ? AppColors.primary
                         : AppColors.slateText,
+                    fontWeight: locale == currentLocale
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                   ),
                 ),
               ),

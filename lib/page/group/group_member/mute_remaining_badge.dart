@@ -18,6 +18,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_member/group_member_mute_rules.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class MuteRemainingBadge extends StatelessWidget {
   /// 解禁时间（毫秒 epoch）；`null` 或 <= `nowMs` 视为未禁言。
@@ -48,9 +49,9 @@ class MuteRemainingBadge extends StatelessWidget {
       ),
       child: Text(
         t.chat.mutedFor(label: label),
-        style: TextStyle(
+        style: context.textStyle(
+          FontSizeType.tiny,
           color: color,
-          fontSize: 10,
           fontWeight: FontWeight.w500,
         ),
       ),

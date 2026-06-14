@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:imboy/page/splash/splash_page.dart' show kBrandLogoHeroTag;
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// Passport 系列页面（登录 / 注册 / 找回密码）的品牌标题组件。
 ///
@@ -58,7 +59,8 @@ class PassportTitle extends StatelessWidget {
         Text(
           'IMBoy',
           style: TextStyle(
-            fontSize: 28,
+            // 品牌 wordmark 固定字号：不随用户字号缩放，保持品牌视觉一致。
+            fontSize: FontSizeType.extraLargeTitle.size,
             fontWeight: FontWeight.w700,
             color: brandColor,
             letterSpacing: 1.2,
@@ -68,14 +70,15 @@ class PassportTitle extends StatelessWidget {
         // Slogan：自适应亮/暗色模式
         Text(
           'Simple · Secure · Reliable',
-          style: TextStyle(
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.lightTextSecondary,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 2.0,
-          ),
+          style: context
+              .textStyle(
+                FontSizeType.footnote,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
+                fontWeight: FontWeight.w500,
+              )
+              .copyWith(letterSpacing: 2.0),
         ),
       ],
     );

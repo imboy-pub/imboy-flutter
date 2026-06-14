@@ -13,6 +13,8 @@ import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class PinCodeVerificationPage extends ConsumerStatefulWidget {
   final String account;
@@ -85,7 +87,7 @@ class _PinCodeVerificationPageState
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.large),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -107,8 +109,8 @@ class _PinCodeVerificationPageState
                         children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 0.0,
-                              vertical: 8,
+                              horizontal: AppSpacing.none,
+                              vertical: AppSpacing.small,
                             ),
                             child: RichText(
                               text: TextSpan(
@@ -118,16 +120,17 @@ class _PinCodeVerificationPageState
                                 children: [
                                   TextSpan(
                                     text: widget.account,
-                                    style: TextStyle(
+                                    style: context.textStyle(
+                                      FontSizeType.medium,
                                       color: textPrimary,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 16,
                                     ),
                                   ),
                                 ],
-                                style: TextStyle(
+                                // 字号归一：15 非枚举值，就近 normal(14)，真机复核
+                                style: context.textStyle(
+                                  FontSizeType.normal,
                                   color: textSecondary,
-                                  fontSize: 15,
                                 ),
                               ),
                               textAlign: TextAlign.center,
@@ -154,9 +157,10 @@ class _PinCodeVerificationPageState
                                 focusedBorderColor: AppColors.primary,
                                 filledBorderColor: AppColors.primary,
                                 fillColor: surfaceContainerColor,
+                                // 固定字号（不缩放）：pin 格子固定 40×50，缩放会溢出
                                 textStyle: TextStyle(
                                   color: textPrimary,
-                                  fontSize: 20,
+                                  fontSize: FontSizeType.extraLarge.size,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -171,13 +175,13 @@ class _PinCodeVerificationPageState
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0,
+                              horizontal: AppSpacing.large,
                             ),
                             child: Text(
                               hasError ? t.common.pinCodeFillTips : '',
-                              style: TextStyle(
+                              style: context.textStyle(
+                                FontSizeType.small,
                                 color: errorColor,
-                                fontSize: 12,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
@@ -188,9 +192,10 @@ class _PinCodeVerificationPageState
                               Expanded(
                                 child: Text(
                                   t.common.notReceiveCoeQ,
-                                  style: TextStyle(
+                                  // 字号归一：15→normal(14)，真机复核
+                                  style: context.textStyle(
+                                    FontSizeType.normal,
                                     color: textSecondary,
-                                    fontSize: 15,
                                   ),
                                 ),
                               ),
@@ -208,9 +213,12 @@ class _PinCodeVerificationPageState
                                           t.main.codeSentToParam(
                                             param: widget.account,
                                           ),
-                                          style: const TextStyle(
+                                          // 异步回调无 mounted 守卫：用固定 .size 避免
+                                          // context-after-await；彩底白字待onAccent语义token
+                                          style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: 20,
+                                            fontSize:
+                                                FontSizeType.extraLarge.size,
                                           ),
                                         ),
                                         icon: const Icon(
@@ -222,9 +230,12 @@ class _PinCodeVerificationPageState
                                       notifier.snackBar(
                                         Text(
                                           res,
-                                          style: const TextStyle(
+                                          // 异步回调无 mounted 守卫：用固定 .size 避免
+                                          // context-after-await；彩底白字待onAccent语义token
+                                          style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: 20,
+                                            fontSize:
+                                                FontSizeType.extraLarge.size,
                                           ),
                                         ),
                                       );
@@ -232,10 +243,10 @@ class _PinCodeVerificationPageState
                                   },
                                   child: Text(
                                     t.chat.resendCode,
-                                    style: const TextStyle(
+                                    style: context.textStyle(
+                                      FontSizeType.medium,
                                       color: AppColors.primary,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 16,
                                     ),
                                   ),
                                 ),
@@ -248,8 +259,8 @@ class _PinCodeVerificationPageState
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 0.0,
-                                  vertical: 8.0,
+                                  horizontal: AppSpacing.none,
+                                  vertical: AppSpacing.small,
                                 ),
                                 child: StatefulBuilder(
                                   builder: (context, setLocalState) {
@@ -276,8 +287,8 @@ class _PinCodeVerificationPageState
                               const SizedBox(height: 10),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 0.0,
-                                  vertical: 8.0,
+                                  horizontal: AppSpacing.none,
+                                  vertical: AppSpacing.small,
                                 ),
                                 child: StatefulBuilder(
                                   builder: (context, setLocalState) {
@@ -340,9 +351,12 @@ class _PinCodeVerificationPageState
                                       notifier.snackBar(
                                         Text(
                                           res,
-                                          style: const TextStyle(
+                                          // 异步回调无 mounted 守卫：用固定 .size 避免
+                                          // context-after-await；彩底白字待onAccent语义token
+                                          style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: 20,
+                                            fontSize:
+                                                FontSizeType.extraLarge.size,
                                           ),
                                         ),
                                       );
@@ -359,8 +373,8 @@ class _PinCodeVerificationPageState
                                 ),
                                 child: Text(
                                   t.main.setParam(param: t.account.password),
-                                  style: const TextStyle(
-                                    fontSize: 16.0,
+                                  style: context.textStyle(
+                                    FontSizeType.medium,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -391,12 +405,14 @@ class _PinCodeVerificationPageState
                             },
                             child: Text(
                               t.account.login,
-                              style: const TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                                fontSize: 14,
-                              ),
+                              // context.textStyle 无 letterSpacing 参数，copyWith 补回
+                              style: context
+                                  .textStyle(
+                                    FontSizeType.normal,
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  )
+                                  .copyWith(letterSpacing: 0.5),
                             ),
                           ),
                         ],

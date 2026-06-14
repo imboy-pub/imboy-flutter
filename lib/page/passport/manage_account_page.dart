@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// ManageAccountPage
 /// 注册成功后的引导页：引导用户前往"账户安全"绑定手机号或关联邮箱，或返回登录
@@ -29,9 +31,9 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
             const SizedBox(height: 20),
             Text(
               t.account.accountSecurityEnhance,
-              style: const TextStyle(
+              style: context.textStyle(
+                FontSizeType.largeTitle,
                 color: AppColors.lightTextPrimary,
-                fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -41,11 +43,12 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
               child: Text(
                 t.common.bindMobileAndEmailTips,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppColors.lightTextSecondary,
-                  fontSize: 16,
-                  height: 1.5,
-                ),
+                style: context
+                    .textStyle(
+                      FontSizeType.medium,
+                      color: AppColors.lightTextSecondary,
+                    )
+                    .copyWith(height: 1.5),
               ),
             ),
             const SizedBox(height: 20),
@@ -59,6 +62,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 },
                 children: [
                   _buildPage(
+                    context: context,
                     icon: Icons.phone_iphone,
                     title: t.account.bindMobile,
                     subtitle: t.account.bindMobileFor,
@@ -73,6 +77,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                     },
                   ),
                   _buildPage(
+                    context: context,
                     icon: Icons.alternate_email,
                     title: t.account.linkEmail,
                     subtitle: t.account.linkEmailFor,
@@ -106,14 +111,16 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: AppRadius.borderRadiusRegular,
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.regular,
+                  ),
                   elevation: 0,
                 ),
                 child: Center(
                   child: Text(
                     t.common.buttonAccomplish,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: context.textStyle(
+                      FontSizeType.medium,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -127,9 +134,9 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
               },
               child: Text(
                 t.chat.later,
-                style: const TextStyle(
+                style: context.textStyle(
+                  FontSizeType.medium,
                   color: AppColors.lightTextSecondary,
-                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -142,13 +149,17 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
   }
 
   Widget _buildPage({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xLarge,
+        vertical: AppSpacing.large,
+      ),
       padding: const EdgeInsets.all(30),
       decoration: BoxDecoration(
         color: AppColors.lightSurfaceContainer,
@@ -160,7 +171,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.large),
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
@@ -170,10 +181,10 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
           const SizedBox(height: 24),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+            style: context.textStyle(
+              FontSizeType.extraLarge,
               color: AppColors.lightTextPrimary,
+              fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
           ),
@@ -181,11 +192,12 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.lightTextSecondary,
-              height: 1.5,
-            ),
+            style: context
+                .textStyle(
+                  FontSizeType.normal,
+                  color: AppColors.lightTextSecondary,
+                )
+                .copyWith(height: 1.5),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
@@ -204,8 +216,8 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
               ),
               child: Text(
                 t.common.bindNow,
-                style: const TextStyle(
-                  fontSize: 16,
+                style: context.textStyle(
+                  FontSizeType.medium,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -219,7 +231,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
   Widget _buildDot({required int index}) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.tiny),
       height: 8,
       width: _currentPage == index ? 24 : 8,
       decoration: BoxDecoration(

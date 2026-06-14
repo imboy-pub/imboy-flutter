@@ -10,6 +10,8 @@ import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'denylist_provider.dart';
 
@@ -42,7 +44,12 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
         // 警告 Section
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              AppSpacing.none,
+            ),
             child: _buildWarningCard(context),
           ),
         ),
@@ -55,7 +62,10 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
             child: AzListView(
               data: denylistState.items,
               itemCount: denylistState.items.length,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.regular,
+                vertical: AppSpacing.medium,
+              ),
               itemBuilder: (context, index) {
                 final model = denylistState.items[index];
                 return _buildDenylistItem(context, model, brightness);
@@ -69,8 +79,8 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                   padding: const EdgeInsets.only(top: 20, bottom: 6, left: 8),
                   child: Text(
                     model.getSuspensionTag(),
-                    style: const TextStyle(
-                      fontSize: 13,
+                    style: context.textStyle(
+                      FontSizeType.footnote,
                       color: AppColors.iosGray,
                     ),
                   ),
@@ -103,7 +113,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
   Widget _buildWarningCard(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     return Container(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(AppSpacing.medium),
       decoration: BoxDecoration(
         color: AppColors.getIosRed(brightness).withValues(alpha: 0.05),
         borderRadius: AppRadius.borderRadiusCell,
@@ -127,19 +137,20 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
               children: [
                 Text(
                   t.common.denylistNoteTitle,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   t.common.denylistNoteDesc,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.iosGray,
-                    height: 1.4,
-                  ),
+                  style: context
+                      .textStyle(
+                        FontSizeType.footnote,
+                        color: AppColors.iosGray,
+                      )
+                      .copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -162,7 +173,10 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
           const SizedBox(height: 16),
           Text(
             t.contact.denylistEmpty,
-            style: const TextStyle(color: AppColors.iosGray, fontSize: 15),
+            style: context.textStyle(
+              FontSizeType.subheadline,
+              color: AppColors.iosGray,
+            ),
           ),
         ],
       ),
@@ -210,10 +224,10 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
           const SizedBox(width: 4),
           Text(
             t.contact.blocked,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
+            style: context.textStyle(
+              FontSizeType.caption2,
               color: AppColors.getIosRed(brightness),
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -226,7 +240,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
       background: const SizedBox.shrink(),
       secondaryBackground: Container(
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.large),
         color: AppColors.getIosRed(brightness),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,

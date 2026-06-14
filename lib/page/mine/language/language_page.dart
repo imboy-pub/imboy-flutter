@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/storage.dart';
@@ -267,8 +268,8 @@ class LanguagePage extends ConsumerWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
-            textStyle: const TextStyle(
-              fontSize: 17,
+            textStyle: context.textStyle(
+              FontSizeType.body,
               fontWeight: FontWeight.w600,
             ),
           ),
