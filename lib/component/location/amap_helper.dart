@@ -5,7 +5,7 @@ import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
 import 'package:amap_flutter_location_plus/amap_flutter_location_plus.dart';
 import 'package:amap_flutter_location_plus/amap_location_option.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/component/helper/func.dart';
