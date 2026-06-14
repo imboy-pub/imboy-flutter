@@ -32,7 +32,6 @@ import '../widget/typing_indicator.dart';
 
 // 显式导入需要特殊处理的
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
 // T4.2b: 域 MessageStatus（与 flutter_chat_core.MessageStatus 同名,用前缀避免冲突）
@@ -1892,7 +1891,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             MessageGroupStatus? groupStatus,
           }) {
             final playbackState = ref.watch(voicePlaybackServiceProvider);
-            final isThis = (String id) => playbackState.currentMessageId == id;
+            bool isThis(String id) => playbackState.currentMessageId == id;
             return FlyerChatAudioMessage(
               message: message,
               index: index,
@@ -1932,7 +1931,6 @@ class ChatPageState extends ConsumerState<ChatPage>
               message: message,
               index: index,
               animation: animation,
-              child: child,
               currentUser: currentUser,
               targetMsgId: widget.msgId,
               targetMessageKey: _targetMessageKey,
@@ -1944,6 +1942,7 @@ class ChatPageState extends ConsumerState<ChatPage>
               onVisibleRead: _onVisibleRead,
               isRemoved: isRemoved,
               groupStatus: groupStatus,
+              child: child,
             );
           },
     );

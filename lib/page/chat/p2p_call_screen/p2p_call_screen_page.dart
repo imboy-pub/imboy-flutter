@@ -317,7 +317,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                       endAt: DateTimeHelper.millisecond(),
                     );
                   },
-                  backgroundColor: Colors.pink,
+                  backgroundColor: AppColors.iosPink,
                   child: const Icon(Icons.call_end, color: Colors.white),
                 ),
               FloatingActionButton(
@@ -358,7 +358,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage> {
                     endAt: DateTimeHelper.millisecond(),
                   );
                 },
-                backgroundColor: Colors.pink,
+                backgroundColor: AppColors.iosPink,
                 child: const Icon(Icons.call_end, color: Colors.white),
               ),
             ),

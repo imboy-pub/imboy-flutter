@@ -6,7 +6,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:octo_image/octo_image.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:imboy/component/ui/shimmer_box.dart';
 
 /// 视频消息构建器
 class MessageVideoBuilder extends StatelessWidget {
@@ -69,7 +69,7 @@ class MessageVideoBuilder extends StatelessWidget {
               width: displayWidth,
               height: displayHeight,
               fit: BoxFit.cover,
-              placeholderBuilder: (context) => Shimmer.fromColors(
+              placeholderBuilder: (context) => ShimmerBox(
                 baseColor: Colors.grey[300]!,
                 highlightColor: Colors.grey[100]!,
                 child: Container(

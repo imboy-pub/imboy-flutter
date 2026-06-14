@@ -9,32 +9,10 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/chat/widget/chat_input_types.dart';
 import 'package:imboy/service/quick_reply_service.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-
-/// 适配器：将项目的 [StorageService] 桥接到 domain 层 [QuickReplyStore]。
-/// 刻意保留在 UI 层文件里，保持 `quick_reply_service.dart` 纯粹可测。
-class _StorageServiceQuickReplyStore implements QuickReplyStore {
-  const _StorageServiceQuickReplyStore();
-
-  @override
-  Future<String?> getString(String key) async {
-    final v = StorageService.to.getString(key);
-    return v.isEmpty ? null : v;
-  }
-
-  @override
-  Future<void> setString(String key, String value) async {
-    await StorageService.to.setString(key, value);
-  }
-
-  @override
-  Future<void> remove(String key) async {
-    await StorageService.to.remove(key);
-  }
-}
 
 class QuickReplyManagePage extends StatefulWidget {
   /// [defaults] 必传：首次使用时的内置默认列表（通常是 chat_input 同样的 i18n
@@ -57,7 +35,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
   void initState() {
     super.initState();
     _service = QuickReplyService(
-      const _StorageServiceQuickReplyStore(),
+      const StorageServiceQuickReplyStore(),
       defaults: widget.defaults,
     );
     _refresh();

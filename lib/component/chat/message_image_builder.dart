@@ -7,7 +7,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:octo_image/octo_image.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:imboy/component/ui/shimmer_box.dart';
 
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -122,7 +122,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
     return OctoImage(
       image: cachedImageProvider(_imageUrl),
       fit: BoxFit.cover,
-      placeholderBuilder: (context) => Shimmer.fromColors(
+      placeholderBuilder: (context) => ShimmerBox(
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
         child: Container(color: Colors.white),

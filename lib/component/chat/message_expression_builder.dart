@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:octo_image/octo_image.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:imboy/component/ui/shimmer_box.dart';
 
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 表情/贴图消息构建器
 class ExpressionMessageBuilder extends StatelessWidget {
@@ -49,7 +50,7 @@ class ExpressionMessageBuilder extends StatelessWidget {
           width: width,
           height: height,
           fit: BoxFit.contain,
-          placeholderBuilder: (context) => Shimmer.fromColors(
+          placeholderBuilder: (context) => ShimmerBox(
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
             child: Container(width: width, height: height, color: Colors.white),
@@ -58,7 +59,7 @@ class ExpressionMessageBuilder extends StatelessWidget {
             width: width,
             height: height,
             color: Colors.grey[200],
-            child: const Icon(Icons.broken_image, color: Colors.grey),
+            child: const Icon(Icons.broken_image, color: AppColors.iosGray),
           ),
         ),
       ),

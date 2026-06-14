@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
@@ -145,15 +147,13 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
   }
 
   /// 选择并设置自定义图片背景
-  Future<bool> pickCustomImage() async {
-    final picker = ImagePicker();
-    final XFile? file = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-    );
-    if (file == null) return false;
+  Future<bool> pickCustomImage(BuildContext context) async {
+    final media = await CapabilityLocator.I
+        .get<MediaPickerCapability>()
+        .pickSingle(context, MediaType.image);
+    if (media == null) return false;
     state = state.copyWith(
-      customImagePath: file.path,
+      customImagePath: media.path,
       currentBackground: 'custom_image',
     );
     _saveSettings();
@@ -382,7 +382,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
             return GestureDetector(
               onTap: () async {
                 if (option == 'custom_image') {
-                  await manager.pickCustomImage();
+                  await manager.pickCustomImage(context);
                 } else {
                   manager.setBackground(option);
                 }
@@ -447,7 +447,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         return Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF64B5F6), Color(0xFF42A5F5)],
+              colors: [AppColors.chatWallpaperBlueLightStart, AppColors.splashGradientStart],
             ),
           ),
         );
@@ -455,14 +455,14 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         return Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFFBA68C8), Color(0xFFAB47BC)],
+              colors: [AppColors.chatWallpaperPurpleLightStart, AppColors.chatWallpaperPurpleLightEnd],
             ),
           ),
         );
       case 'solid_color':
         return Container(
           color: Colors.grey[300],
-          child: const Icon(Icons.color_lens, color: Colors.grey),
+          child: const Icon(Icons.color_lens, color: AppColors.iosGray),
         );
       case 'custom_image':
         final path = state.customImagePath;
@@ -474,12 +474,12 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         }
         return Container(
           color: Colors.grey[200],
-          child: const Icon(Icons.add_photo_alternate, color: Colors.grey),
+          child: const Icon(Icons.add_photo_alternate, color: AppColors.iosGray),
         );
       default:
         return Container(
           color: Colors.grey[200],
-          child: const Icon(Icons.wallpaper, color: Colors.grey),
+          child: const Icon(Icons.wallpaper, color: AppColors.iosGray),
         );
     }
   }

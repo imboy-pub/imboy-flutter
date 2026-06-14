@@ -222,9 +222,26 @@ class MessageSpacing {
   // 辅助方法
   // ========================================
 
-  /// 根据是否为发送者返回对应的气泡圆角
+  /// 根据是否为发送者返回对应的气泡圆角。
+  ///
+  /// 方向圆角：发送方 topRight 小角（尾巴指向自己），接收方 topLeft 小角（指向对方），
+  /// 其余三角为大圆角。与 message_bubble_style._getBubbleBorderRadius 设计一致。
   static BorderRadius getBubbleBorderRadius(bool isSentByMe) {
-    return BorderRadius.circular(bubbleBorderRadius);
+    const big = Radius.circular(bubbleBorderRadius);
+    const small = Radius.circular(bubbleDirectionRadius);
+    return isSentByMe
+        ? const BorderRadius.only(
+            topLeft: big,
+            topRight: small,
+            bottomLeft: big,
+            bottomRight: big,
+          )
+        : const BorderRadius.only(
+            topLeft: small,
+            topRight: big,
+            bottomLeft: big,
+            bottomRight: big,
+          );
   }
 
   /// 根据是否为发送者返回对应的阴影效果

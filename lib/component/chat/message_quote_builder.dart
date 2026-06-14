@@ -28,10 +28,12 @@ class QuoteMessageBuilder extends StatelessWidget {
     Map<String, dynamic> quoteMsgMap =
         message.metadata?['quote_msg'] as Map<String, dynamic>? ?? {};
 
-    if (quoteMsgMap.isEmpty)
+    if (quoteMsgMap.isEmpty) {
       return _buildQuoteErrorWidget(context, userIsAuthor, isDark);
-    if (!quoteMsgMap.containsKey('authorId'))
+    }
+    if (!quoteMsgMap.containsKey('authorId')) {
       quoteMsgMap['authorId'] = message.authorId;
+    }
 
     late Message quoteMsg;
     try {
@@ -182,13 +184,14 @@ class QuoteMessageBuilder extends StatelessWidget {
     Color color,
   ) {
     TextStyle style = TextStyle(color: color, fontSize: 13, height: 1.2);
-    if (quoteMsg is TextMessage)
+    if (quoteMsg is TextMessage) {
       return Text(
         quoteMsg.text,
         style: style,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       );
+    }
 
     IconData icon = CupertinoIcons.doc;
     String label = t.chat.customMessage;

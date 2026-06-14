@@ -3,7 +3,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart'
     hide VideoMessageBuilder, AudioMessageBuilder;
 import 'package:octo_image/octo_image.dart';
 import 'package:open_file/open_file.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:imboy/component/ui/shimmer_box.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -246,7 +246,7 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
             thumb,
             w: MediaQuery.of(context).size.width,
           ),
-          placeholderBuilder: (context) => Shimmer.fromColors(
+          placeholderBuilder: (context) => ShimmerBox(
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
             child: Container(color: Colors.white),

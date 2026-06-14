@@ -3,21 +3,18 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+export 'package:imboy/page/chat/chat/chat_stream_state_notifier.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:flyer_chat_text_stream_message/flyer_chat_text_stream_message.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:xid/xid.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:just_audio/just_audio.dart' as just_audio;
 import 'package:file_saver/file_saver.dart';
-import 'package:popup_menu/popup_menu.dart' as popupmenu;
 
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/string.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
@@ -26,7 +23,6 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/modules/messaging/public.dart';
-import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -802,135 +798,6 @@ class ChatNotifier extends _$ChatNotifier {
     await _flushPending(_spPendingReactionsKey);
   }
 
-  // ===== 消息菜单 =====
-
-  List<popupmenu.MenuItemProvider> getPopupMenuItems(Message message) {
-    final List<popupmenu.MenuItemProvider> items = [];
-
-    bool canCopy = false;
-    final String msgType = message.metadata?['msg_type'] as String? ?? '';
-    if (message is TextMessage) {
-      canCopy = true;
-    } else if (msgType == MessageType.quote) {
-      canCopy = true;
-    }
-
-    if (canCopy) {
-      items.add(
-        popupmenu.MenuItem(
-          title: t.common.buttonCopy,
-          userInfo: {"id": "copy", "msg": message},
-          textAlign: TextAlign.center,
-          image: const Icon(Icons.copy, size: 16, color: Color(0xffc5c5c5)),
-        ),
-      );
-    }
-
-    bool canSave = false;
-    if (message is ImageMessage) {
-      canSave = true;
-    } else if (message is FileMessage) {
-      canSave = true;
-    } else if (msgType == MessageType.video || msgType == MessageType.voice) {
-      canSave = true;
-    }
-
-    if (canSave) {
-      items.add(
-        popupmenu.MenuItem(
-          title: t.common.buttonSave,
-          userInfo: {"id": "save", "msg": message},
-          textAlign: TextAlign.center,
-          textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-          image: const Icon(Icons.save_alt, size: 16, color: Color(0xffc5c5c5)),
-        ),
-      );
-    }
-
-    final bool canCollect = UserCollectHelper.getCollectKind(message) > 0;
-    if (canCollect) {
-      items.add(
-        popupmenu.MenuItem(
-          title: t.main.favorites,
-          userInfo: {"id": "collect", "msg": message},
-          textAlign: TextAlign.center,
-          textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-          image: const Icon(
-            Icons.collections_bookmark,
-            size: 16,
-            color: Color(0xffc5c5c5),
-          ),
-        ),
-      );
-    }
-
-    final String msgTypeForMenu =
-        message.metadata?['msg_type']?.toString() ?? '';
-    bool isRevoked =
-        (message is CustomMessage) &&
-        msgTypeForMenu.toUpperCase().contains('REVOKE');
-    if (msgTypeForMenu == MessageType.webrtcAudio ||
-        msgTypeForMenu == MessageType.webrtcVideo) {
-      isRevoked = true;
-    }
-
-    if (!isRevoked) {
-      items.add(
-        popupmenu.MenuItem(
-          title: t.chat.forward,
-          userInfo: {"id": "transpond", "msg": message},
-          textAlign: TextAlign.center,
-          textStyle: const TextStyle(fontSize: 10.0, color: Color(0xffc5c5c5)),
-          image: const Icon(Icons.moving, color: Color(0xffc5c5c5)),
-        ),
-      );
-      items.add(
-        popupmenu.MenuItem(
-          title: t.main.quote,
-          userInfo: {"id": "quote", "msg": message},
-          textAlign: TextAlign.center,
-          image: const Icon(
-            Icons.format_quote,
-            size: 16,
-            color: Color(0xffc5c5c5),
-          ),
-        ),
-      );
-    }
-
-    if (message.authorId == UserRepoLocal.to.currentUid && !isRevoked) {
-      items.add(
-        popupmenu.MenuItem(
-          title: t.chat.revoke,
-          userInfo: {"id": "revoke", "msg": message},
-          textAlign: TextAlign.center,
-          textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-          image: const Icon(
-            Icons.layers_clear_rounded,
-            size: 16,
-            color: Color(0xffc5c5c5),
-          ),
-        ),
-      );
-    }
-
-    items.add(
-      popupmenu.MenuItem(
-        title: t.common.buttonDelete,
-        userInfo: {"id": "delete", "msg": message},
-        textAlign: TextAlign.center,
-        textStyle: const TextStyle(color: Color(0xffc5c5c5), fontSize: 10.0),
-        image: const Icon(
-          Icons.remove_circle_outline_rounded,
-          size: 16,
-          color: Color(0xffc5c5c5),
-        ),
-      ),
-    );
-
-    return items;
-  }
-
   // ===== 系统提示 =====
 
   String parseSysPrompt(String sysPrompt) {
@@ -1337,43 +1204,3 @@ class ChatNotifier extends _$ChatNotifier {
   }
 }
 
-/// 文本流消息的实时状态管理
-class ChatStreamStateNotifier extends Notifier<Map<String, StreamState>> {
-  @override
-  Map<String, StreamState> build() => {};
-
-  void startStream(String messageId) {
-    state = {...state, messageId: const StreamStateLoading()};
-  }
-
-  void updateStream(String messageId, String accumulatedText) {
-    state = {...state, messageId: StreamStateStreaming(accumulatedText)};
-  }
-
-  void completeStream(String messageId, String finalText) {
-    state = {...state, messageId: StreamStateCompleted(finalText)};
-  }
-
-  void errorStream(String messageId, Object error, {String? partial}) {
-    state = {
-      ...state,
-      messageId: StreamStateError(error, accumulatedText: partial),
-    };
-  }
-
-  StreamState getState(String messageId) {
-    return state[messageId] ?? const StreamStateLoading();
-  }
-
-  void clearCompleted() {
-    state = Map<String, StreamState>.fromEntries(
-      state.entries.where((e) => e.value is! StreamStateCompleted),
-    );
-  }
-}
-
-/// 全局文本流消息状态 Provider
-final chatStreamStateNotifierProvider =
-    NotifierProvider<ChatStreamStateNotifier, Map<String, StreamState>>(
-      ChatStreamStateNotifier.new,
-    );

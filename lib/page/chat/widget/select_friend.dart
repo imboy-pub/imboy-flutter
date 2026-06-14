@@ -115,7 +115,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
         susTag,
         textScaleFactor: 1.2,
         style: const TextStyle(
-          color: Color(0xff333333),
+          color: AppColors.lightTextSecondary,
           fontSize: 12.0,
           fontWeight: FontWeight.w600,
         ),

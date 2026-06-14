@@ -520,13 +520,16 @@ class ChatNetworkService {
     if (didToPem.isEmpty) {
       throw Exception('no_recipient_keys');
     }
+    // 零信任契约：kid 取后端返回的 key_id（device_id→key_id 映射）；
+    // 缺失时回退 device_id 兼容旧数据，避免发送中断。
+    final didToKid = deviceKeys['didToKid'] ?? {};
 
     final recipients = <RecipientDevice>[];
     for (final entry in didToPem.entries) {
       recipients.add(
         RecipientDevice(
           deviceId: entry.key,
-          keyId: entry.key,
+          keyId: didToKid[entry.key] ?? entry.key,
           publicKey: entry.value,
         ),
       );

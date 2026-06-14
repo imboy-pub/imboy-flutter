@@ -84,8 +84,8 @@ class _BurnBadgeState extends State<BurnBadge>
   }
 
   Color _arcColor(BuildContext context, double fraction) {
-    if (fraction > 0.5) return const Color(0xFF34C759);
-    if (fraction > 0.25) return const Color(0xFFFF9500);
+    if (fraction > 0.5) return AppColors.iosGreen;
+    if (fraction > 0.25) return AppColors.iosOrange;
     return AppColors.getIosRed(Theme.of(context).brightness);
   }
 

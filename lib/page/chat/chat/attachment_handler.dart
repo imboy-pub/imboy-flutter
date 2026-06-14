@@ -7,7 +7,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:wechat_camera_picker/wechat_camera_picker.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image/image.dart' as img;
@@ -153,18 +153,16 @@ class ChatAttachmentHandler {
       bool hasPermission = await requestCameraPermission();
       if (!hasPermission || !context.mounted) return;
 
-      final AssetEntity? entity = await CameraPicker.pickFromCamera(
+      final List<AssetEntity>? assets = await AssetPicker.pickAssets(
         context,
-        pickerConfig: const CameraPickerConfig(
-          enableRecording: true,
-          onlyEnableRecording: false,
-          enableTapRecording: true,
-          maximumRecordingDuration: Duration(seconds: 24),
+        pickerConfig: const AssetPickerConfig(
+          maxAssets: 1,
+          requestType: RequestType.common,
         ),
       );
 
-      if (!context.mounted || entity == null) return;
-      await uploadCameraAsset(context, entity);
+      if (!context.mounted || assets == null || assets.isEmpty) return;
+      await uploadCameraAsset(context, assets.first);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

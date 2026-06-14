@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     hide CustomMessageBuilder;
@@ -220,7 +221,7 @@ class _MessageStatusIcon extends StatelessWidget {
   const _MessageStatusIcon();
 
   // 使用固定颜色值，避免运行时查询
-  static const Color _deliveredColor = Color(0xFF4CAF50);
+  static const Color _deliveredColor = AppColors.onlineIndicator;
 
   @override
   Widget build(BuildContext context) {

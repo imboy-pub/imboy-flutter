@@ -38,4 +38,4 @@ export 'package:file_picker/file_picker.dart';
 export 'package:map_launcher/map_launcher.dart';
 export 'package:mime/mime.dart';
 export 'package:photo_view/photo_view.dart';
-export 'package:wechat_camera_picker/wechat_camera_picker.dart';
+export 'package:wechat_assets_picker/wechat_assets_picker.dart';

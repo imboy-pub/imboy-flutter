@@ -16,63 +16,12 @@ import 'package:imboy/component/chat/mention_provider.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/page/chat/widget/quick_reply_manage_page.dart';
+import 'package:imboy/page/chat/widget/chat_input_types.dart';
 import 'package:imboy/service/quick_reply_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-
-/// 生产环境的 [QuickReplyStore] 适配器：桥接项目已有的 [StorageService]。
-///
-/// 不放在 `quick_reply_service.dart` 里是为了保持 domain 层纯测试（不
-/// 传递依赖 StorageService → config/init.dart 等单例链）。
-class _StorageServiceQuickReplyStore implements QuickReplyStore {
-  const _StorageServiceQuickReplyStore();
-
-  @override
-  Future<String?> getString(String key) async {
-    final v = StorageService.to.getString(key);
-    return v.isEmpty ? null : v;
-  }
-
-  @override
-  Future<void> setString(String key, String value) async {
-    await StorageService.to.setString(key, value);
-  }
-
-  @override
-  Future<void> remove(String key) async {
-    await StorageService.to.remove(key);
-  }
-}
-
-/// 键盘高度观察者
-class _KeyboardObserver with WidgetsBindingObserver {
-  final VoidCallback onKeyboardChanged;
-
-  _KeyboardObserver(this.onKeyboardChanged);
-
-  @override
-  void didChangeMetrics() {
-    super.didChangeMetrics();
-    onKeyboardChanged();
-  }
-}
-
-/// 部分代码来自该项目，感谢作者 CaiJingLong https://github.com/CaiJingLong/flutter_like_wechat_input
-/// 输入类型枚举
-enum InputType {
-  text, // 文本输入
-  voice, // 语音输入
-  emoji, // 表情输入
-  extra, // 附加功能
-}
-
-/// 发送按钮显示模式
-enum SendButtonVisibilityMode {
-  editing, // 编辑时显示
-  always, // 始终显示
-}
 
 /// 聊天输入框组件
 class ChatInput extends StatefulWidget {
@@ -242,7 +191,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   ];
 
   /// S2: 从 StorageService 加载当前用户的快捷回复列表到 _quickReplies。
-  /// 未持久化时返回内置默认。适配器 [_StorageServiceQuickReplyStore] 桥接
+  /// 未持久化时返回内置默认。适配器 [StorageServiceQuickReplyStore] 桥接
   /// 项目已有的 [StorageService]。
   Future<void> _loadQuickReplies() async {
     final uid = UserRepoLocal.to.currentUid;
@@ -252,7 +201,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       return;
     }
     final service = QuickReplyService(
-      const _StorageServiceQuickReplyStore(),
+      const StorageServiceQuickReplyStore(),
       defaults: _defaultQuickReplies,
     );
     final list = await service.load(uid);
@@ -325,7 +274,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
     // 监听后续的键盘变化
     WidgetsBinding.instance.addObserver(
-      _KeyboardObserver(_updateComposerHeightByKeyboard),
+      ChatKeyboardObserver(_updateComposerHeightByKeyboard),
     );
   }
 
