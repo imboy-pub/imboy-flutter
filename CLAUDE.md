@@ -2,7 +2,7 @@
 
 # ImBoy App - 架构文档 / Architecture Document
 
-> 最后更新 / Last updated：2026-05-08 CST | Flutter 客户端
+> 最后更新 / Last updated：2026-06-13 CST | Flutter 客户端
 
 ---
 
@@ -53,12 +53,17 @@ lib/
 ├── service/       # 核心业务服务   → lib/service/CLAUDE.md
 ├── store/         # 数据层 (Repo/Api/Model) → lib/store/CLAUDE.md
 ├── theme/         # 主题系统       → lib/theme/CLAUDE.md
+├── app_core/      # 应用核心（feature_flags / routing）
+├── plugins/       # 插件体系（builtin / contracts / registry）
+├── modules/       # DDD 功能模块（messaging / social_graph / group_collab 等）
 ├── config/        # 配置与路由
 ├── utils/         # 工具类
-└── i18n/          # slang 翻译文件 (*.i18n.yaml)
+└── i18n/          # slang 生成物（*.g.dart），勿手动修改
+assets/i18n/       # 国际化源文件 <locale>/<namespace>.i18n.yaml（先改这里）
 assets/migrations/ # SQLite 迁移脚本
 test/              # 单元/集成测试
 plugin/            # 插件源码（勿动 plugin/r_upgrade）
+scripts/           # 构建/测试脚本
 ```
 
 **保留区（禁止修改）**：`ios/*`、`macos/*`、`plugin/r_upgrade`
@@ -118,17 +123,25 @@ flutter build ios                   # iOS 发布构建
 ## 国际化
 
 ```
-lib/i18n/
-├── zh-CN.i18n.yaml   # 权威主文件（先改这里）
-├── en-US.i18n.yaml
-└── strings.g.dart    # 自动生成，勿手动修改
+assets/i18n/              ← 权威源文件目录（slang input_directory）
+├── zh-CN/               ← 基准语言（base_locale）
+│   ├── common.i18n.yaml
+│   ├── chat.i18n.yaml
+│   ├── group.i18n.yaml
+│   └── ...（每个 namespace 一个文件）
+├── en-US/
+├── zh-Hant/
+└── ...（共 10 个语言）
+lib/i18n/                ← 生成物目录（slang output_directory），勿手动修改
 ```
 
-新增翻译：在 `zh-CN.i18n.yaml` 添加键 → `dart run slang` → 同步其他语言文件。
+新增翻译：在 `assets/i18n/zh-CN/<namespace>.i18n.yaml` 添加键 → `dart run slang` → 同步其他语言文件。
 
 ---
 
 ## 模块索引
+
+### 传统层
 
 | 模块路径 | 职责 | 文档 |
 |---------|------|------|
@@ -137,7 +150,34 @@ lib/i18n/
 | `lib/service/` | WebSocket、消息、数据库服务 | [service/CLAUDE.md](./lib/service/CLAUDE.md) |
 | `lib/store/` | Repository、Api、Model | [store/CLAUDE.md](./lib/store/CLAUDE.md) |
 | `lib/theme/` | 主题管理和样式系统 | [theme/CLAUDE.md](./lib/theme/CLAUDE.md) |
-| `lib/modules/messaging/` | 消息 DDD 模块（充血领域 + 四层架构） | [messaging/CLAUDE.md](./lib/modules/messaging/CLAUDE.md) |
+
+### 应用核心
+
+| 模块路径 | 职责 |
+|---------|------|
+| `lib/app_core/feature_flags/` | 功能开关（Feature Flag）管理 |
+| `lib/app_core/routing/` | 路由配置与守卫 |
+
+### 插件体系
+
+| 模块路径 | 职责 |
+|---------|------|
+| `lib/plugins/builtin/` | 内置插件实现 |
+| `lib/plugins/contracts/` | 插件接口契约 |
+| `lib/plugins/registry/` | 插件注册表 |
+
+### DDD 功能模块（lib/modules/）
+
+| 模块路径 | 职责 | 文档 |
+|---------|------|------|
+| `lib/modules/messaging/` | 消息（充血领域 + 四层架构） | [messaging/CLAUDE.md](./lib/modules/messaging/CLAUDE.md) |
+| `lib/modules/social_graph/` | 好友关系与社交图谱 | — |
+| `lib/modules/group_collab/` | 群组协作（任务/投票/日程） | — |
+| `lib/modules/channel_content/` | 频道内容订阅 | — |
+| `lib/modules/moment_social/` | 朋友圈与动态 | — |
+| `lib/modules/identity/` | 身份认证与账户 | — |
+| `lib/modules/security_privacy/` | 安全与隐私（E2EE/DND） | — |
+| `lib/modules/ops_governance/` | 运营治理（举报/审核） | — |
 
 ---
 

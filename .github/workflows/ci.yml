@@ -45,6 +45,10 @@ jobs:
       - name: Analyze code
         run: flutter analyze
 
+      - name: Check module boundaries
+        run: dart scripts/check_boundaries.dart
+        continue-on-error: true   # 基线期，收集数据；归零后删此行
+
       - name: New code guard (changed dart files)
         run: .github/scripts/lint_changed_dart.sh
 

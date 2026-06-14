@@ -13,6 +13,7 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/service/network_monitor.dart';
 
@@ -281,7 +282,7 @@ class HttpClient {
             SnackBar(
               content: Text(t.chat.loginExpiredMessage),
               duration: const Duration(seconds: 2),
-              backgroundColor: Colors.orange,
+              backgroundColor: AppColors.iosOrange,
             ),
           );
         }

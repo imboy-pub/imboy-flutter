@@ -1,4 +1,3 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 
 import 'package:imboy/store/model/people_model.dart';
@@ -50,10 +49,7 @@ class AvatarList extends StatelessWidget {
             children: [
               for (int j = i; j < i + column && j < memberList.length; j++)
                 if (memberList[j].account == 'last')
-                  DottedBorder(
-                    options: RoundedRectDottedBorderOptions(
-                      radius: const Radius.circular(12),
-                    ),
+                  _RoundedDottedBorder(
                     child: ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(12)),
                       child: SizedBox(height: height ?? 56, width: width ?? 56),
@@ -64,10 +60,7 @@ class AvatarList extends StatelessWidget {
                     onTap: onTapAdd,
                     child: Padding(
                       padding: const EdgeInsets.only(right: 10),
-                      child: DottedBorder(
-                        options: RoundedRectDottedBorderOptions(
-                          radius: const Radius.circular(12),
-                        ),
+                      child: _RoundedDottedBorder(
                         child: ClipRRect(
                           borderRadius: const BorderRadius.all(
                             Radius.circular(12),
@@ -86,10 +79,7 @@ class AvatarList extends StatelessWidget {
                     onTap: onTapRemove,
                     child: Padding(
                       padding: const EdgeInsets.only(right: 10),
-                      child: DottedBorder(
-                        options: RoundedRectDottedBorderOptions(
-                          radius: const Radius.circular(12),
-                        ),
+                      child: _RoundedDottedBorder(
                         child: ClipRRect(
                           borderRadius: const BorderRadius.all(
                             Radius.circular(12),
@@ -130,4 +120,65 @@ class AvatarList extends StatelessWidget {
       ],
     );
   }
+}
+
+// 圆角虚线边框，替代 dotted_border 包（radius=12, dash=4/4, stroke=1）
+class _RoundedDottedBorder extends StatelessWidget {
+  const _RoundedDottedBorder({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _DottedBorderPainter(
+        color: Theme.of(context).colorScheme.outline,
+      ),
+      child: child,
+    );
+  }
+}
+
+class _DottedBorderPainter extends CustomPainter {
+  const _DottedBorderPainter({required this.color});
+
+  final Color color;
+
+  static const double _radius = 12.0;
+  static const double _dashWidth = 4.0;
+  static const double _dashGap = 4.0;
+  static const double _strokeWidth = 1.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = _strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(
+        _strokeWidth / 2,
+        _strokeWidth / 2,
+        size.width - _strokeWidth,
+        size.height - _strokeWidth,
+      ),
+      const Radius.circular(_radius),
+    );
+
+    final path = Path()..addRRect(rrect);
+    for (final metric in path.computeMetrics()) {
+      double distance = 0;
+      while (distance < metric.length) {
+        canvas.drawPath(
+          metric.extractPath(distance, distance + _dashWidth),
+          paint,
+        );
+        distance += _dashWidth + _dashGap;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DottedBorderPainter old) => old.color != color;
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_radius.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:imboy/component/ui/shimmer_box.dart';
 
 class ShimmerList extends StatelessWidget {
   final int itemCount;
@@ -34,7 +34,7 @@ class ShimmerList extends StatelessWidget {
         return Container(
           height: itemHeight,
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Shimmer.fromColors(
+          child: ShimmerBox(
             baseColor: baseColor,
             highlightColor: highlightColor,
             child: Row(

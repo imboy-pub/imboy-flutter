@@ -11,7 +11,7 @@
 | 子模块 | 职责 | 关键文件 |
 |-------|------|---------|
 | `ui/` | 通用 UI 组件 | `avatar.dart`, `button.dart`, `common_bar.dart`, `gesture_page_route.dart` |
-| `chat/` | 聊天消息组件 | `message.dart`, `message_*_builder.dart`, `enum.dart` |
+| `chat/` | 聊天消息组件 | `message.dart`, `message_*_builder.dart` |
 | `helper/` | 辅助工具函数 | `func.dart`, `datetime.dart`, `string.dart`, `permission.dart`, `picker_method.dart` |
 | `http/` | 网络请求封装 | `http_client.dart`, `http_interceptor.dart`, `http_response.dart` |
 | `video/` | 视频处理 | `video_compress_manager.dart`, `video_thumbnail.dart` |

@@ -25,11 +25,8 @@ dependencies:
   # └─────────────────────────────────────────────────────────────────┘
   cupertino_icons: ^1.0.8        # iOS style icons
   flutter_screenutil: ^5.9.3    # Screen adaptation utility
-  flutter_animate: ^4.5.2        # Animation library for smooth transitions
   octo_image: ^2.1.0              # Multi-purpose Flutter image widget
   flutter_svg: ^2.2.4             # SVG rendering support
-  dotted_border: ^3.1.0           # Custom border styles
-  shimmer: ^3.0.0                 # Shimmer effect for loading states
   flutter_easyloading: ^3.0.5     # Toast/loading widgets
   flutter_native_splash: ^2.4.7    # Splash screen generation utility
 
@@ -41,7 +38,6 @@ dependencies:
   web_socket_channel: ^3.0.3      # WebSocket support for real-time communication
   protobuf: ^6.0.0                # Protocol Buffers runtime for binary WS frames
   fixnum: ^1.1.0                  # 64-bit integer support (protobuf generated code)
-  http: ^1.6.0                     # Additional HTTP utilities
   connectivity_plus: ^7.1.1        # Network status monitoring (WiFi/Cellular)
   webview_flutter: ^4.13.0         # WebView integration for in-app browsing
   url_launcher: ^6.3.2              # URL handling for opening links in browser/apps
@@ -75,18 +71,12 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 📷 Media & Camera                                               │
   # └─────────────────────────────────────────────────────────────────┘
-  wechat_camera_picker: ^4.5.0       # Camera picker with iOS-style interface
-  wechat_assets_picker: ^10.1.1     # Asset picker for photos/videos
+  wechat_assets_picker: ^10.1.1     # Asset picker for photos/videos (incl. camera)
   photo_view: ^0.15.0                # Interactive image viewer with zoom/pan
   photo_manager: ^3.9.0              # Media management (gallery access)
   video_compress: ^3.1.4             # Video compression before upload
-  image_picker: ^1.2.1               # System image picker
   file_picker: ^11.0.0               # File picker
   open_file: ^3.5.10                  # File opening with default apps
-  image_crop:                         # Image cropping utility
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/image_crop.git
-      ref: leeyi
   image: ^4.8.0                      # Image manipulation library
   video_player: ^2.11.1               # Video playback support
   flutter_local_notifications: ^21.0.0 # Local notifications support
@@ -106,7 +96,6 @@ dependencies:
   flutter_chat_core: any             # Core chat data models
   flutter_chat_ui: any               # Chat UI components
   flyer_chat_audio_message: any      # Audio message component
-  flyer_chat_custom_message: any     # Custom message component
   flyer_chat_file_message: any       # File message component
   flyer_chat_image_message: any      # Image message component
   flyer_chat_location_message: any   # Location message component
@@ -117,7 +106,7 @@ dependencies:
 
   emoji_picker_flutter: ^4.4.0       # Emoji picker integration
   highlight_text: ^1.8.0            # Text highlighting support
-  flutter_markdown: ^0.7.7          # Markdown rendering
+  flutter_markdown_plus: ^1.0.7      # Markdown rendering (replaces flutter_markdown)
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 📋 Lists & Navigation                                            │
@@ -128,7 +117,6 @@ dependencies:
       ref: leeyi
   easy_refresh: ^3.4.0               # Pull-to-refresh functionality
   flutter_slidable: ^4.0.3           # Slidable list items with actions
-  sliding_up_panel: ^2.0.0+1        # Sliding panel components
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 📍 Maps & Location                                               │
@@ -162,7 +150,6 @@ dependencies:
   asn1lib: ^1.6.5                   # ASN.1 encoding/decoding
   crypto: ^3.0.6                    # Cryptographic hashing utilities
   convert: ^3.1.2                   # Data conversion utilities
-  image_picker_platform_interface: ^2.10.0 # Image picker platform interface
   permission_handler: ^12.0.1       # Permission requests
   path_provider: ^2.1.5              # File system path utilities
   file_saver: ^0.3.1                  # File saving utilities
@@ -178,14 +165,8 @@ dependencies:
     git:
       url: https://github.com/leeyisoft/IcStorageSpace.git
       ref: leeyi
-  badges: ^3.2.0                     # Badge indicators on icons
   carousel_slider_plus: ^7.1.1      # Carousel slider component
-  textfield_tags: ^3.0.1             # Tag input field component
   flutter_rating_bar: ^4.0.1          # Rating bar component
-  filter_list:                         # Filterable list component
-    git:
-      url: https://gitee.com/imboy-tripartite-deps/flutter_plugin_filter_list.git
-      ref: leeyi
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 🔐 Authentication & Security                                     │
@@ -212,9 +193,7 @@ dependencies:
   lpinyin: ^2.0.3                    # Chinese pinyin conversion
   intl: ^0.20.2                      # Internationalization utilities
   feedback: ^3.2.0                   # Feedback collection UI
-  popover: ^0.4.0                    # Popover dialogs
-  popup_menu: ^2.1.0                 # Popup menu display
-  #characters: ^1.4.1                 # Character utilities (pinned by Flutter SDK)
+#characters: ^1.4.1                 # Character utilities (pinned by Flutter SDK)
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 🏗️ State Management & Navigation                                   │
@@ -226,6 +205,7 @@ dependencies:
   go_router: ^17.2.0                 # Declarative routing (go_router)
   flutter_riverpod: ^3.3.1           # State management
   riverpod_annotation: ^4.0.1       # Riverpod code generation (updated: 4.0.0 → 4.0.1)
+  crop_your_image: ^2.0.0
 
 
 dependency_overrides:
@@ -273,8 +253,6 @@ dependency_overrides:
     path: plugin/flutter_chat_ui/packages/flutter_chat_core
   flutter_chat_ui:
     path: plugin/flutter_chat_ui/packages/flutter_chat_ui
-  flyer_chat_custom_message:
-    path: plugin/flutter_chat_ui/packages/flyer_chat_custom_message
   flyer_chat_text_stream_message:
     path: plugin/flutter_chat_ui/packages/flyer_chat_text_stream_message
   flyer_chat_text_message:

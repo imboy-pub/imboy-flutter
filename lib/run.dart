@@ -11,6 +11,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/adapters/wechat_assets_picker_adapter.dart';
+import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/app_logger.dart';
@@ -19,6 +22,7 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
@@ -29,6 +33,35 @@ import 'service/message.dart';
 /// 应用级共享 ProviderContainer
 /// MessageService 和 Widget 树共用，保证状态同步
 final appProviderContainer = ProviderContainer();
+
+/// VM 注入登录辅助（仅调试用）：通过 appProviderContainer 调用真实 loginUser
+/// 返回 null=成功，否则错误字符串
+Future<String?> debugVmLogin(
+  String accountType,
+  String account,
+  String password,
+) async {
+  debugPrint('🔍 debugVmLogin START');
+  // passportProvider 是 autoDispose，用 listen 保持存活
+  final sub = appProviderContainer.listen(passportProvider, (_, _) {});
+  try {
+    final result = await appProviderContainer
+        .read(passportProvider.notifier)
+        .loginUser(accountType, account, password);
+    debugPrint('🔍 debugVmLogin RESULT: $result');
+    debugVmLoginResult = result ?? 'SUCCESS_NULL';
+    return result;
+  } catch (e, s) {
+    debugPrint('🔍 debugVmLogin THREW: $e\n$s');
+    debugVmLoginResult = 'THREW: $e';
+    return e.toString();
+  } finally {
+    sub.close();
+  }
+}
+
+/// 调试用：存储最后一次 debugVmLogin 的结果
+String debugVmLoginResult = '';
 
 /// 应用初始化标志（防止重复初始化）
 bool _localeInitialized = false;
@@ -71,6 +104,11 @@ Future<void> run() async {
     // 强制竖屏 DeviceOrientation.portraitUp
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
+
+  // 注册能力契约层适配器
+  CapabilityLocator.I.register<MediaPickerCapability>(
+    const WechatAssetsPickerAdapter(),
+  );
 
   // 注入共享 ProviderContainer 到 MessageService，确保与 UI 状态同步
   MessageService.setProviderContainer(appProviderContainer);

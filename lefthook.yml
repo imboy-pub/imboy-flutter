@@ -16,6 +16,19 @@ pre-commit:
       run: dart analyze --no-fatal-warnings {staged_files}
     gitleaks:
       run: gitleaks protect --staged --no-banner --redact
+    design-tokens:
+      glob: "lib/**/*.dart"
+      exclude: "lib/theme/**/*.dart,**/*.{g,freezed}.dart"
+      run: |
+        banned=$(git diff --cached --diff-filter=ACM -- {staged_files} \
+          | grep '^+' | grep -v '^+++' \
+          | grep -vE '^\+[[:space:]]*///' \
+          | grep -E 'Color\(0x|fontSize:\s*[0-9]|\bColors\.[a-zA-Z]' || true)
+        if [ -n "$banned" ]; then
+          echo "❌ 禁止硬编码 Color/fontSize/Colors.*，请使用 AppColors/AppSpacing/FontSizeType Token:" >&2
+          echo "$banned" >&2
+          exit 1
+        fi
 
 commit-msg:
   commands:

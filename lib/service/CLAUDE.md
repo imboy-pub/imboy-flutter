@@ -14,7 +14,6 @@
 | `message_offline.dart` | 离线消息拉取/批量插入 | - |
 | `message_retry.dart` | 消息重试（指数退避） | 3次上限 |
 | `message_webrtc.dart` | WebRTC 信令处理 | - |
-| `message_manage_service.dart` | 消息管理 | - |
 | `websocket_message_queue.dart` | WS 消息队列 | PersistentMessageQueue |
 | `sqlite.dart` | SQLite（v9, WAL, 64MB缓存） | synchronized并发控制 |
 | `cached_sqlite_service.dart` | SQLite 查询缓存 | - |
