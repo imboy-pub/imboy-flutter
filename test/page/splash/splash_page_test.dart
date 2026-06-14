@@ -1,7 +1,6 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -320,48 +319,53 @@ void main() {
       },
     );
 
-    testWidgets(
-      'Default (no Reduce Motion): 4 Animate widgets — atmosphere breathing '
-      '+ 3 staged entrance (logo / wordmark / slogan)',
-      (tester) async {
-        await _pumpSplash(tester, size: const Size(390, 844));
+    testWidgets('Default (no Reduce Motion): entrance animation active '
+        '(logo wrapped in ScaleTransition)', (tester) async {
+      await _pumpSplash(tester, size: const Size(390, 844));
 
-        // P1-6 added atmosphere breathing layer (5 total).
-        // P1-8 removed security text (back to 4): atmosphere + logo +
-        // wordmark + slogan.
-        expect(find.byType(Animate), findsNWidgets(4));
-        await _drainSplashTimer(tester);
-      },
-    );
+      // logo image 的祖先含 ScaleTransition = 入场动画已激活。
+      // 用 ancestor 精确锚定 splash logo，规避框架自身的 Fade/Scale 过渡干扰。
+      expect(
+        find.ancestor(
+          of: find.byType(Image),
+          matching: find.byType(ScaleTransition),
+        ),
+        findsOneWidget,
+      );
+      await _drainSplashTimer(tester);
+    });
 
-    testWidgets(
-      'Reduce Motion enabled: skips all Animate wrappers, renders end states '
-      'directly (Image / Text widgets still present, animations gone)',
-      (tester) async {
-        // Inject system-level disableAnimations=true via platformDispatcher.
-        // MediaQuery.disableAnimationsOf reads from there, so MaterialApp's
-        // internally-rebuilt MediaQuery will pick it up.
-        tester.platformDispatcher.accessibilityFeaturesTestValue =
-            const _DisableAnimFeatures();
-        addTearDown(
-          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
-        );
+    testWidgets('Reduce Motion enabled: entrance animation short-circuited '
+        '(ScaleTransition gone, Image / Text end states still present)', (
+      tester,
+    ) async {
+      // Inject system-level disableAnimations=true via platformDispatcher.
+      // MediaQuery.disableAnimationsOf reads from there, so MaterialApp's
+      // internally-rebuilt MediaQuery will pick it up.
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const _DisableAnimFeatures();
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
 
-        await _pumpSplash(tester, size: const Size(390, 844));
+      await _pumpSplash(tester, size: const Size(390, 844));
 
-        // Zero Animate wrappers — every staged entrance is short-circuited.
-        expect(
-          find.byType(Animate),
-          findsNothing,
-          reason: 'Reduce Motion must short-circuit flutter_animate chains',
-        );
+      // Reduce Motion 下 logo 直接返回静态 image（无 ScaleTransition 祖先），
+      // 证明入场动画被短路。用 ancestor 锚定 logo，不受框架 Scale 过渡干扰。
+      expect(
+        find.ancestor(
+          of: find.byType(Image),
+          matching: find.byType(ScaleTransition),
+        ),
+        findsNothing,
+        reason: 'Reduce Motion must short-circuit splash entrance animations',
+      );
 
-        // Brand surface still visually intact (terminal state rendered):
-        expect(find.byType(Image), findsOneWidget);
-        expect(find.text('ImBoy'), findsOneWidget);
+      // Brand surface still visually intact (terminal state rendered):
+      expect(find.byType(Image), findsOneWidget);
+      expect(find.text('ImBoy'), findsOneWidget);
 
-        await _drainSplashTimer(tester);
-      },
-    );
+      await _drainSplashTimer(tester);
+    });
   });
 }
