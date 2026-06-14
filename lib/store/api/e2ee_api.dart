@@ -131,16 +131,22 @@ class E2EEApi extends HttpClient {
 
   /// GET /v1/e2ee/notifications/pull — 拉取待处理的 E2EE 通知
   ///
-  /// 通知格式 [{type, payload, created_at}]；失败返回空列表
-  Future<List<Map<String, dynamic>>> pullNotifications() async {
-    final IMBoyHttpResponse resp = await get(API.e2eeNotificationsPull);
+  /// 支持增量拉取，返回好友的密钥变更记录
+  Future<List<Map<String, dynamic>>> pullNotifications({
+    int since = 0,
+    int limit = 50,
+  }) async {
+    final IMBoyHttpResponse resp = await get(
+      API.e2eeNotificationsPull,
+      queryParameters: {'since': since, 'limit': limit},
+    );
     if (!resp.ok) return [];
     final p = resp.payload;
     if (p is List) {
       return p.whereType<Map<String, dynamic>>().toList();
     }
     if (p is Map<String, dynamic>) {
-      final list = p['list'] ?? p['notifications'];
+      final list = p['notifications'] ?? p['list'];
       if (list is List) {
         return list.whereType<Map<String, dynamic>>().toList();
       }

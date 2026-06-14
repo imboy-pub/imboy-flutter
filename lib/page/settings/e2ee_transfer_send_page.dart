@@ -8,6 +8,7 @@ import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 密钥传输 - 发送页面
 /// 显示二维码，供新设备扫描
@@ -104,6 +105,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
 
       final result = await E2EETransferService.createTransfer(
         toUid: toUid,
+        fromDeviceId: deviceId ?? '',
         encryptedKeyBundle: encryptedKeyBundle,
       );
       setState(() {
@@ -193,12 +195,15 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
           const SizedBox(height: 16),
           Text(
             t.main.e2eeTransferQRHint,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: FontSizeType.large.size,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             t.main.e2eeTransferQRExpiry(time: _expiresAt ?? ''),
-            style: const TextStyle(color: Colors.grey),
+            style: const TextStyle(color: AppColors.iosGray),
           ),
           const SizedBox(height: 32),
           Container(
@@ -223,7 +228,10 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
           const SizedBox(height: 24),
           Text(
             t.common.e2eeTransferSessionCreated,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
+            style: TextStyle(
+              fontSize: FontSizeType.small.size,
+              color: AppColors.iosGray,
+            ),
           ),
           const SizedBox(height: 32),
           CupertinoButton.filled(

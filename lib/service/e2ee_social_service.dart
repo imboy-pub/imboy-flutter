@@ -183,7 +183,10 @@ class E2EESocialService {
     }
   }
 
-  /// 解密分片（代理调用）
+  /// 获取待解密的加密分片（零信任：服务端不解密）
+  ///
+  /// 返回 payload 含 `encrypted_shard`，需代理客户端用本地私钥 RSA-OAEP
+  /// 解密后再回传明文（参见 [decryptShardForRequester]）。
   ///
   /// [shardId] 分片 ID
   static Future<Map<String, dynamic>> decryptShard({

@@ -11,6 +11,7 @@ import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 密钥恢复入口页面
 ///
@@ -82,7 +83,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     child: Text(
                       t.main.e2eeRecoveryMethods,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: FontSizeType.normal.size,
                         fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white70 : Colors.black54,
                       ),
@@ -96,7 +97,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     description: t.account.e2eeDeviceTransferDesc,
                     securityLevel: 3,
                     icon: Icons.devices,
-                    iconColor: Colors.blue,
+                    iconColor: AppColors.iosBlue,
                     status: t.chat.e2eeStatusAvailable,
                     onTap: () {
                       Navigator.push(
@@ -117,7 +118,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     description: t.main.e2eeSocialRecoveryDesc,
                     securityLevel: 2,
                     icon: Icons.people,
-                    iconColor: Colors.purple,
+                    iconColor: AppColors.iosPurple,
                     status: t.chat.e2eeStatusAvailable,
                     onTap: () {
                       Navigator.push(
@@ -138,7 +139,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     description: t.common.e2eeLocalBackupDesc,
                     securityLevel: 4,
                     icon: Icons.backup,
-                    iconColor: Colors.green,
+                    iconColor: AppColors.iosGreen,
                     status: t.chat.e2eeStatusAvailable,
                     onTap: () => _showLocalBackupOptions(context),
                   ),
@@ -151,7 +152,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     child: Text(
                       t.main.e2eeDangerousOps,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: FontSizeType.normal.size,
                         fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white70 : Colors.black54,
                       ),
@@ -164,7 +165,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     title: t.chat.e2eeGenerateNewKey,
                     description: t.chat.e2eeGenerateNewKeyDesc,
                     icon: Icons.refresh,
-                    iconColor: Colors.orange,
+                    iconColor: AppColors.iosOrange,
                     onTap: () => _showGenerateNewKeyDialog(context),
                   ),
 
@@ -207,7 +208,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.lock, color: Colors.blue, size: 24),
+                const Icon(Icons.lock, color: AppColors.iosBlue, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -215,10 +216,10 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     children: [
                       Text(
                         t.common.e2eeCurrentKeyInfo,
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: FontSizeType.large.size,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          color: AppColors.iosBlue,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -238,14 +239,14 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green,
+                    color: AppColors.iosGreen,
                     borderRadius: AppRadius.borderRadiusMedium,
                   ),
                   child: Text(
                     t.chat.e2eeActivated,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: FontSizeType.small.size,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -290,22 +291,22 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           children: [
             const Icon(
               Icons.warning_amber_rounded,
-              color: Colors.orange,
+              color: AppColors.iosOrange,
               size: 48,
             ),
             const SizedBox(height: 16),
             Text(
               t.common.e2eeNoKeyDetected,
-              style: const TextStyle(
-                fontSize: 18,
+              style: TextStyle(
+                fontSize: FontSizeType.large.size,
                 fontWeight: FontWeight.bold,
-                color: Colors.orange,
+                color: AppColors.iosOrange,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               t.common.e2eeNoKeyDesc,
-              style: const TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: FontSizeType.normal.size),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -314,7 +315,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               icon: const Icon(Icons.add),
               label: Text(t.chat.e2eeGenerateNewKey),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
+                backgroundColor: AppColors.iosOrange,
                 foregroundColor: Colors.white,
                 minimumSize: const Size(160, 44),
               ),
@@ -445,8 +446,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                         children: [
                           Text(
                             title,
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: TextStyle(
+                              fontSize: FontSizeType.medium.size,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -492,7 +493,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                                 : Icons.star_border,
                             size: 14,
                             color: index < securityLevel
-                                ? Colors.amber
+                                ? AppColors.iosYellow
                                 : Colors.grey.shade400,
                           ),
                         ),
@@ -555,7 +556,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       Text(
                         title,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.w500,
                           color: iconColor,
                         ),
@@ -676,7 +677,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             },
             child: Text(
               t.common.e2eeConfirmGenerate,
-              style: const TextStyle(color: Colors.orange),
+              style: const TextStyle(color: AppColors.iosOrange),
             ),
           ),
         ],
@@ -835,7 +836,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                         children: [
                           const Icon(
                             Icons.warning_amber_rounded,
-                            color: Colors.orange,
+                            color: AppColors.iosOrange,
                             size: 18,
                           ),
                           const SizedBox(width: 8),
@@ -843,7 +844,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                             t.common.e2eeImportantNote,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.orange,
+                              color: AppColors.iosOrange,
                             ),
                           ),
                         ],
@@ -913,7 +914,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(t.common.e2eeKeyDeleted),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.iosGreen,
         ),
       );
     } on Exception {

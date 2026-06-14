@@ -4,6 +4,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_transfer_send_page.dart';
 import 'package:imboy/page/settings/e2ee_transfer_receive_page.dart';
 import 'package:imboy/service/e2ee_transfer_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 设备间传输入口页面
 class E2EETransferPage extends StatelessWidget {
@@ -57,10 +59,10 @@ class E2EETransferPage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 14,
+        style: TextStyle(
+          fontSize: FontSizeType.normal.size,
           fontWeight: FontWeight.w600,
-          color: Colors.grey,
+          color: AppColors.iosGray,
         ),
       ),
     );
@@ -79,7 +81,7 @@ class E2EETransferPage extends StatelessWidget {
         leading: Icon(icon, size: 32, color: CupertinoColors.activeBlue),
         title: Text(title),
         subtitle: Text(description),
-        trailing: const Icon(CupertinoIcons.forward, color: Colors.grey),
+        trailing: const Icon(CupertinoIcons.forward, color: AppColors.iosGray),
         onTap: onTap,
       ),
     );

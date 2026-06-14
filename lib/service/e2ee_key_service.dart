@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart' show kIsWeb, debugPrint, compute;
+import 'package:flutter/foundation.dart' show kIsWeb, compute;
 import 'package:pointycastle/export.dart' as pg;
 import 'package:pointycastle/pointycastle.dart';
 

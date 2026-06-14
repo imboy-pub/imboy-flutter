@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 社交恢复 - 管理分片页面
 /// 查看和管理所有恢复分片
@@ -196,8 +198,8 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                       idx: shardIndex as int,
                       total: totalShards as int,
                     ),
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: FontSizeType.normal.size,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -265,13 +267,13 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
           children: [
             Row(
               children: [
-                const Icon(Icons.person, size: 20, color: Colors.purple),
+                const Icon(Icons.person, size: 20, color: AppColors.iosPurple),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     t.main.e2eeSocialUserShard(uid: uid.toString()),
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: FontSizeType.normal.size,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -294,7 +296,9 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                 Icon(
                   status == 'active' ? Icons.check_circle : Icons.history,
                   size: 16,
-                  color: status == 'active' ? Colors.green : Colors.grey,
+                  color: status == 'active'
+                      ? AppColors.iosGreen
+                      : AppColors.iosGray,
                 ),
                 const SizedBox(width: 4),
                 Text(
@@ -302,8 +306,10 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                       ? t.main.e2eeSocialShardValid
                       : t.main.e2eeSocialShardUsed,
                   style: TextStyle(
-                    fontSize: 12,
-                    color: status == 'active' ? Colors.green : Colors.grey,
+                    fontSize: FontSizeType.small.size,
+                    color: status == 'active'
+                        ? AppColors.iosGreen
+                        : AppColors.iosGray,
                   ),
                 ),
               ],
@@ -324,10 +330,18 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
             width: 80,
             child: Text(
               label,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.iosGray,
+              ),
             ),
           ),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 12))),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(fontSize: FontSizeType.small.size),
+            ),
+          ),
         ],
       ),
     );

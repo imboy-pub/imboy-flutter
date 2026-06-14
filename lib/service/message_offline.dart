@@ -9,6 +9,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/service/e2ee_health_check_service.dart';
 
 import 'message_s2c.dart';
 
@@ -371,6 +372,8 @@ class MessageOfflineService {
           'current_pull_fetched_messages': totalFetched,
         },
       );
+      // 触发 E2EE 密钥变更通知拉取并同步
+      unawaited(E2EEHealthCheckService.to.pullKeyNotifications());
       return true;
     } on Object catch (e) {
       _failedTotal++;

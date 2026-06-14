@@ -12,6 +12,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 密钥传输 - 接收页面
 /// 扫描旧设备的二维码接收密钥
@@ -192,7 +193,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
             const SizedBox(height: 24),
             Text(
               _statusMessage ?? t.common.e2eeTransferProcessingMsg,
-              style: const TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: FontSizeType.medium.size),
               textAlign: TextAlign.center,
             ),
             if (_isFailed) ...[

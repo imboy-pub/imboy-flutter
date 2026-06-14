@@ -18,6 +18,14 @@ class E2EEService {
   static final Map<String, Map<String, String>> _userKeyCacheByDevice = {};
   static final Map<String, Map<String, String>> _groupKeyCacheByDevice = {};
 
+  /// 设备 ID → 密钥版本 ID（kid）映射缓存，与公钥缓存同生命周期。
+  ///
+  /// 零信任契约：组装 e2ee recipients[].kid 时必须消费后端 user_keys /
+  /// group_member_keys 返回的 key_id，不能用 device_id 充当 kid，否则
+  /// 多密钥版本（密钥轮换/换设备）场景下接收方会选错密钥导致解密失败。
+  static final Map<String, Map<String, String>> _userKidCacheByDevice = {};
+  static final Map<String, Map<String, String>> _groupKidCacheByDevice = {};
+
   /// 缓存条目的存入时间戳（毫秒），用于 TTL 过期检查
   static final Map<String, int> _userKeyCacheTimestamp = {};
   static final Map<String, int> _groupKeyCacheTimestamp = {};
@@ -30,6 +38,29 @@ class E2EEService {
     final cachedAt = timestamps[key];
     if (cachedAt == null) return true;
     return DateTime.now().millisecondsSinceEpoch - cachedAt > _cacheTtlMs;
+  }
+
+  /// 组装用户设备密钥结果：device_id→public_key 与 device_id→kid 两份映射。
+  /// didToKid 从 kid 缓存读取（与 didToPem 同生命周期写入）。
+  static Map<String, Map<String, String>> _userKeyResult(
+    String uid,
+    Map<String, String> didToPem,
+  ) {
+    return {
+      'didToPem': didToPem,
+      'didToKid': _userKidCacheByDevice[uid] ?? const <String, String>{},
+    };
+  }
+
+  /// 组装群组设备密钥结果，语义同 [_userKeyResult]。
+  static Map<String, Map<String, String>> _groupKeyResult(
+    String gid,
+    Map<String, String> didToPem,
+  ) {
+    return {
+      'didToPem': didToPem,
+      'didToKid': _groupKidCacheByDevice[gid] ?? const <String, String>{},
+    };
   }
 
   static void setUserDeviceKeyCacheForTest(
@@ -49,6 +80,8 @@ class E2EEService {
   static void clearKeyCacheForTest() {
     _userKeyCacheByDevice.clear();
     _groupKeyCacheByDevice.clear();
+    _userKidCacheByDevice.clear();
+    _groupKidCacheByDevice.clear();
     _userKeyCacheTimestamp.clear();
     _groupKeyCacheTimestamp.clear();
   }
@@ -59,6 +92,8 @@ class E2EEService {
   static void clearCache() {
     _userKeyCacheByDevice.clear();
     _groupKeyCacheByDevice.clear();
+    _userKidCacheByDevice.clear();
+    _groupKidCacheByDevice.clear();
     _userKeyCacheTimestamp.clear();
     _groupKeyCacheTimestamp.clear();
     iPrint('E2EE: 缓存已清理');
@@ -69,6 +104,7 @@ class E2EEService {
   /// 当接收方更新密钥后，发送方需要调用此方法清除缓存
   static void clearUserKeyCache(String uid) {
     _userKeyCacheByDevice.remove(uid);
+    _userKidCacheByDevice.remove(uid);
     _userKeyCacheTimestamp.remove(uid);
     iPrint('E2EE: 已清除用户 $uid 的公钥缓存');
   }
@@ -475,7 +511,7 @@ class E2EEService {
     if (!forceRefresh && !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
       final cached = _userKeyCacheByDevice[uid];
       if (cached != null && cached.isNotEmpty) {
-        return {'didToPem': cached};
+        return _userKeyResult(uid, cached);
       }
     }
 
@@ -491,11 +527,14 @@ class E2EEService {
       try {
         final list = await E2EEApi().userKeys(uid: uid);
         final didToPem = <String, String>{};
+        final didToKid = <String, String>{};
         for (final row in list) {
           final did = row['device_id']?.toString() ?? '';
           final pem = row['public_key']?.toString() ?? '';
           if (did.isEmpty || pem.isEmpty) continue;
           didToPem[did] = pem;
+          final kid = row['key_id']?.toString() ?? '';
+          if (kid.isNotEmpty) didToKid[did] = kid;
         }
 
         // 🔧 修复：如果 API 返回空列表但有缓存（未过期），使用缓存
@@ -505,14 +544,15 @@ class E2EEService {
               cached.isNotEmpty &&
               !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
             iPrint('⚠️ [E2EE] API 返回空，使用缓存: uid=$uid, 设备数=${cached.length}');
-            return {'didToPem': cached};
+            return _userKeyResult(uid, cached);
           }
         }
 
         _userKeyCacheByDevice[uid] = didToPem;
+        _userKidCacheByDevice[uid] = didToKid;
         _userKeyCacheTimestamp[uid] = DateTime.now().millisecondsSinceEpoch;
         iPrint('✅ [E2EE] 获取用户公钥成功: uid=$uid, 设备数=${didToPem.length}');
-        return {'didToPem': didToPem};
+        return _userKeyResult(uid, didToPem);
       } catch (e) {
         attempt++;
         if (attempt >= maxRetries) {
@@ -522,7 +562,7 @@ class E2EEService {
               cached.isNotEmpty &&
               !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
             iPrint('⚠️ [E2EE] API 失败，使用缓存: uid=$uid, 设备数=${cached.length}');
-            return {'didToPem': cached};
+            return _userKeyResult(uid, cached);
           }
           iPrint('获取用户设备密钥失败（已重试$maxRetries次）: $e');
           rethrow;
@@ -551,7 +591,7 @@ class E2EEService {
     if (!forceRefresh && !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
       final cached = _groupKeyCacheByDevice[gid];
       if (cached != null && cached.isNotEmpty) {
-        return {'didToPem': cached};
+        return _groupKeyResult(gid, cached);
       }
     }
 
@@ -567,6 +607,7 @@ class E2EEService {
       try {
         final members = await E2EEApi().groupMemberKeys(gid: gid);
         final didToPem = <String, String>{};
+        final didToKid = <String, String>{};
         for (final m in members) {
           final devices = m['devices'];
           if (devices is! List) continue;
@@ -576,6 +617,8 @@ class E2EEService {
             final pem = row['public_key']?.toString() ?? '';
             if (did.isEmpty || pem.isEmpty) continue;
             didToPem[did] = pem;
+            final kid = row['key_id']?.toString() ?? '';
+            if (kid.isNotEmpty) didToKid[did] = kid;
           }
         }
 
@@ -586,13 +629,14 @@ class E2EEService {
               cached.isNotEmpty &&
               !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
             iPrint('⚠️ [E2EE] API 返回空，使用缓存: gid=$gid, 设备数=${cached.length}');
-            return {'didToPem': cached};
+            return _groupKeyResult(gid, cached);
           }
         }
 
         _groupKeyCacheByDevice[gid] = didToPem;
+        _groupKidCacheByDevice[gid] = didToKid;
         _groupKeyCacheTimestamp[gid] = DateTime.now().millisecondsSinceEpoch;
-        return {'didToPem': didToPem};
+        return _groupKeyResult(gid, didToPem);
       } catch (e) {
         attempt++;
         if (attempt >= maxRetries) {
@@ -602,7 +646,7 @@ class E2EEService {
               cached.isNotEmpty &&
               !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
             iPrint('⚠️ [E2EE] API 失败，使用缓存: gid=$gid, 设备数=${cached.length}');
-            return {'didToPem': cached};
+            return _groupKeyResult(gid, cached);
           }
           iPrint('获取群组设备密钥失败（已重试$maxRetries次）: $e');
           rethrow;

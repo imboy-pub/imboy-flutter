@@ -23,18 +23,25 @@ class E2EEPlusApi extends HttpClient {
   /// 从旧设备创建传输会话，将密钥传输到新设备
   ///
   /// 请求参数:
-  /// - to_uid: 目标用户 ID  /// - encrypted_key_bundle: 使用目标用户公钥加密的密钥包
+  /// - to_uid: 目标用户 ID
+  /// - from_device_id: 发送方设备 ID（零信任契约必填）
+  /// - encrypted_key_bundle: 使用目标用户公钥加密的密钥包
   ///
   /// 返回:
   /// - session_id: 会话 ID
   /// - expires_at: 过期时间（UTC）
   Future<Map<String, dynamic>> createTransferSession({
     required String toUid,
+    required String fromDeviceId,
     required String encryptedKeyBundle,
   }) async {
     IMBoyHttpResponse resp = await post(
       API.e2eeTransferCreate,
-      data: {'to_uid': toUid, 'encrypted_key_bundle': encryptedKeyBundle},
+      data: {
+        'to_uid': toUid,
+        'from_device_id': fromDeviceId,
+        'encrypted_key_bundle': encryptedKeyBundle,
+      },
     );
     if (!resp.ok) {
       throw Exception(resp.msg);
@@ -306,17 +313,18 @@ class E2EEPlusApi extends HttpClient {
     return [];
   }
 
-  /// 解密分片
+  /// 获取待解密的加密分片
   ///
   /// POST /v1/e2ee/social/decrypt_shard
   ///
-  /// 代理用户解密存储的分片
+  /// 零信任契约：服务端不再解密，仅按 shard_id 返回加密分片；
+  /// 由代理客户端用本地私钥 RSA-OAEP 解密后回传明文分片。
   ///
   /// 请求参数:
   /// - shard_id: 分片 ID
   ///
   /// 返回:
-  /// - decrypted_shard: 解密后的分片数据
+  /// - encrypted_shard: 加密分片密文（需代理客户端本地解密）
   Future<Map<String, dynamic>> decryptShard({required String shardId}) async {
     IMBoyHttpResponse resp = await post(
       API.e2eeSocialDecryptShard,

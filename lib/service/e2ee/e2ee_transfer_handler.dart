@@ -247,9 +247,10 @@ class E2EETransferHandler {
         recipientPublicKeyPem,
       );
 
-      // 5. 调用服务创建传输会话
+      // 5. 调用服务创建传输会话（零信任契约：必须携带发送方设备 ID）
       final response = await E2EETransferService.createTransfer(
         toUid: toUid,
+        fromDeviceId: deviceId ?? '',
         encryptedKeyBundle: encryptedBundle,
       );
 

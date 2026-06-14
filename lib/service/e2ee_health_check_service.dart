@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'dart:convert';
 
 import 'package:sqflite_sqlcipher/sqflite.dart';
@@ -10,6 +11,11 @@ import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'dart:async';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/websocket_events.dart';
+import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 
 /// E2EE 健康检查结果
 ///
@@ -63,6 +69,158 @@ class E2EEHealthCheckService {
   static final E2EEHealthCheckService _instance =
       E2EEHealthCheckService._internal();
   static E2EEHealthCheckService get to => _instance;
+
+  // ================================================================
+  // 核心事件监听与生命周期初始化
+  // ================================================================
+
+  StreamSubscription<dynamic>? _wsStatusSubscription;
+  AppLifecycleListener? _lifecycleListener;
+
+  /// 防重入标志：避免 WS 重连、离线拉取、前后台切换并发触发
+  bool _isPulling = false;
+
+  /// 初始化服务并开始监听 WebSocket 状态变化及 App 生命周期
+  void init() {
+    _wsStatusSubscription?.cancel();
+    _wsStatusSubscription = AppEventBus.on<WebSocketStatusChangedEvent>()
+        .listen((event) {
+          if (event.status.toLowerCase() == 'connected') {
+            unawaited(pullKeyNotifications());
+          }
+        });
+
+    // 监听应用从后台返回前台，同步离线期间错过的密钥变更
+    _lifecycleListener?.dispose();
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () {
+        unawaited(pullKeyNotifications());
+      },
+    );
+
+    // 异步校验服务端密钥状态，并在需要时引导恢复
+    Future.microtask(() async {
+      await checkServerKeyStatusAndGuide();
+    });
+  }
+
+  /// 释放服务资源
+  void dispose() {
+    _wsStatusSubscription?.cancel();
+    _wsStatusSubscription = null;
+    _lifecycleListener?.dispose();
+    _lifecycleListener = null;
+  }
+
+  /// 增量拉取好友密钥变更通知并同步公钥
+  ///
+  /// 协议一致性修复 D3：客户端通过增量拉取好友密钥变更通知，
+  /// 自动清除并更新失效的好友公钥缓存，从而彻底解决对端重装/换机后导致的解密失败。
+  Future<void> pullKeyNotifications() async {
+    if (_isPulling) return;
+    _isPulling = true;
+    try {
+      // 1. 获取本地存储的上次拉取游标（毫秒时间戳）
+      final int since =
+          StorageService.to.getInt('e2ee_notification_last_since') ?? 0;
+
+      // 2. 调用 API 增量拉取密钥变更记录
+      final api = E2EEApi();
+      final List<Map<String, dynamic>> notifications = await api
+          .pullNotifications(since: since, limit: 50);
+
+      if (notifications.isEmpty) {
+        if (kDebugMode) debugPrint('ℹ️ [E2EE_HEALTH] 暂无密钥变更通知 since=$since');
+        return;
+      }
+
+      if (kDebugMode) {
+        debugPrint(
+          'ℹ️ [E2EE_HEALTH] 收到 ${notifications.length} 条密钥变更通知 since=$since',
+        );
+      }
+
+      int successCount = 0;
+      int maxUpdatedAt = since;
+
+      for (final notify in notifications) {
+        final String? peerUid = notify['uid']?.toString();
+        if (peerUid != null && peerUid.isNotEmpty) {
+          // 3. 同步好友最新公钥（强制刷新缓存并落库）
+          final bool success = await syncFriendPublicKey(peerUid);
+          if (success) {
+            successCount++;
+          }
+        }
+
+        // 获取并跟踪最新更新时间作为下次拉取游标
+        final rawUpdatedAt = notify['updated_at'];
+        if (rawUpdatedAt != null) {
+          int? updatedAtVal;
+          if (rawUpdatedAt is int) {
+            updatedAtVal = rawUpdatedAt;
+          } else if (rawUpdatedAt is String) {
+            updatedAtVal = DateTime.tryParse(
+              rawUpdatedAt,
+            )?.millisecondsSinceEpoch;
+          }
+          if (updatedAtVal != null && updatedAtVal > maxUpdatedAt) {
+            maxUpdatedAt = updatedAtVal;
+          }
+        }
+      }
+
+      // 4. 更新游标并持久化
+      if (maxUpdatedAt > since) {
+        await StorageService.to.setInt(
+          'e2ee_notification_last_since',
+          maxUpdatedAt,
+        );
+        if (kDebugMode) {
+          debugPrint(
+            '✅ [E2EE_HEALTH] E2EE 变更游标更新：$since -> $maxUpdatedAt (同步成功数: $successCount/${notifications.length})',
+          );
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('❌ [E2EE_HEALTH] 拉取/应用 E2EE 密钥通知失败: $e');
+      }
+    } finally {
+      _isPulling = false;
+    }
+  }
+
+  /// 校验服务端密钥状态，若本地密钥丢失且服务端已注册，则自动标记需要恢复引导
+  Future<void> checkServerKeyStatusAndGuide() async {
+    try {
+      final hasKey = await hasValidKey();
+      if (hasKey) return; // 本地已有密钥，无需引导恢复
+
+      final api = E2EEApi();
+      final status = await api.keyStatus();
+      if (status == null) return;
+
+      // check_key_status 返回：{has_valid_key: bool, has_recovery_options: bool, ...}
+      final bool serverHasKey = status['has_valid_key'] == true;
+      final bool hasRecovery = status['has_recovery_options'] == true;
+
+      if (serverHasKey && hasRecovery) {
+        // 如果本地无密钥，但服务端确实有有效密钥注册且有可用恢复选项：
+        // 自动置位恢复引导标记，让首屏弹出引导弹窗与显示引导横幅！
+        await StorageService.to.setBool(kE2eeNewDeviceGuidePendingKey, true);
+        await StorageService.to.setBool(kE2eeRecoveryNeededKey, true);
+
+        if (kDebugMode) {
+          debugPrint('✅ [E2EE_HEALTH] 服务端存在权威密钥且支持恢复，已置位恢复引导标记');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('❌ [E2EE_HEALTH] 校验服务端密钥状态失败: $e');
+      }
+    }
+  }
 
   // ================================================================
   // 密钥版本检查
