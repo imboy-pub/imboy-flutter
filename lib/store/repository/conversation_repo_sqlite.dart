@@ -7,6 +7,7 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
+import 'package:imboy/service/app_logger.dart';
 
 import 'package:imboy/component/helper/func.dart';
 
@@ -388,9 +389,12 @@ class ConversationRepo {
     for (final msgId in msgIds) {
       try {
         MessageRetry.instance.removeFromRetryQueue(msgId);
-      } on Object catch (e) {
-        iPrint('[conversation_repo_sqlite] removeFromRetryQueue error: $e');
-        // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+      } on Object catch (e, s) {
+        AppLogger.error(
+          '[conversation_repo_sqlite] removeFromRetryQueue error',
+          e,
+          s,
+        );
       }
     }
     iPrint('已从重试队列清理 ${msgIds.length} 条消息: conversationUk3=$uk3');

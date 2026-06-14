@@ -12,6 +12,7 @@ import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'dart:async';
+import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/websocket_events.dart';
@@ -541,9 +542,8 @@ class E2EEHealthCheckService {
             if (_isE2EEFailedMessage(msg)) {
               failedMessages.add(msg);
             }
-          } catch (e) {
-            debugPrint('[e2ee_health_check_service] add error: $e');
-            // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+          } catch (e, s) {
+            AppLogger.error('[e2ee_health_check_service] add error', e, s);
           }
         }
       }

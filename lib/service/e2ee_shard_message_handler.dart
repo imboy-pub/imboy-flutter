@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:imboy/service/app_logger.dart';
 
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
@@ -74,9 +75,8 @@ class E2EEShardMessageHandler {
           _handleC2CMessage(action, payload, data);
           break;
       }
-    } catch (e) {
-      debugPrint('[e2ee_shard_message_handler] _handleC2CMessage error: $e');
-      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    } catch (e, s) {
+      AppLogger.error('[e2ee_shard_message_handler] handle message error', e, s);
     }
   }
 
@@ -118,10 +118,15 @@ class E2EEShardMessageHandler {
             // 发送确认消息给服务端
             _sendShardStoredConfirmation(shardId, payload);
           })
-          .catchError((Object error) {});
-    } catch (e) {
-      debugPrint('[e2ee_shard_message_handler] catchError error: $e');
-      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+          .catchError((Object error, StackTrace stackTrace) {
+            AppLogger.error(
+              '[e2ee_shard_message_handler] storeReceivedShard error',
+              error,
+              stackTrace,
+            );
+          });
+    } catch (e, s) {
+      AppLogger.error('[e2ee_shard_message_handler] handleStoreShard error', e, s);
     }
   }
 
@@ -146,9 +151,12 @@ class E2EEShardMessageHandler {
 
       final messageId = E2EESocialService.generateMessageId();
       ws.sendMessage(jsonEncode(confirmMessage), messageId);
-    } catch (e) {
-      debugPrint('[e2ee_shard_message_handler] sendMessage error: $e');
-      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    } catch (e, s) {
+      AppLogger.error(
+        '[e2ee_shard_message_handler] sendShardStoredConfirmation error',
+        e,
+        s,
+      );
     }
   }
 
@@ -248,18 +256,17 @@ class E2EEShardMessageHandler {
                     _sendDecryptShardError(shardId, '解密失败');
                   }
                 })
-                .catchError((Object error) {
+                .catchError((Object error, StackTrace stackTrace) {
+                  AppLogger.error('[e2ee_shard_message_handler] decrypt error', error, stackTrace);
                   _sendDecryptShardError(shardId, '解密过程中出错');
                 });
           })
-          .catchError((Object error) {
+          .catchError((Object error, StackTrace stackTrace) {
+            AppLogger.error('[e2ee_shard_message_handler] getE2EEShard error', error, stackTrace);
             _sendDecryptShardError(shardId, '读取分片失败');
           });
-    } catch (e) {
-      debugPrint(
-        '[e2ee_shard_message_handler] _sendDecryptShardError error: $e',
-      );
-      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    } catch (e, s) {
+      AppLogger.error('[e2ee_shard_message_handler] handleDecryptShard error', e, s);
     }
   }
 
@@ -286,9 +293,12 @@ class E2EEShardMessageHandler {
 
       final messageId = E2EESocialService.generateMessageId();
       ws.sendMessage(jsonEncode(responseMessage), messageId);
-    } catch (e) {
-      debugPrint('[e2ee_shard_message_handler] sendMessage error: $e');
-      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    } catch (e, s) {
+      AppLogger.error(
+        '[e2ee_shard_message_handler] sendDecryptedShard error',
+        e,
+        s,
+      );
     }
   }
 
@@ -309,9 +319,12 @@ class E2EEShardMessageHandler {
 
       final messageId = E2EESocialService.generateMessageId();
       ws.sendMessage(jsonEncode(errorMessage), messageId);
-    } catch (e) {
-      debugPrint('[e2ee_shard_message_handler] sendMessage error: $e');
-      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    } catch (e, s) {
+      AppLogger.error(
+        '[e2ee_shard_message_handler] sendDecryptShardError error',
+        e,
+        s,
+      );
     }
   }
 

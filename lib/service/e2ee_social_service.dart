@@ -10,6 +10,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/app_logger.dart';
 
 /// E2EE 社交恢复服务
 /// 使用 Shamir Secret Sharing 将密钥分割成多个分片
@@ -91,9 +92,8 @@ class E2EESocialService {
 
       // 保存新元数据
       await StorageSecureService.to.saveE2EEShardMetadataList(metadataList);
-    } catch (e) {
-      debugPrint('[e2ee_social_service] saveE2EEShardMetadataList error: $e');
-      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    } catch (e, s) {
+      AppLogger.error('[e2ee_social_service] saveE2EEShardMetadataList error', e, s);
     }
   }
 
@@ -123,11 +123,12 @@ class E2EESocialService {
         shardId,
         status,
       );
-    } catch (e) {
-      debugPrint(
-        '[e2ee_social_service] updateE2EEShardMetadataStatus error: $e',
+    } catch (e, s) {
+      AppLogger.error(
+        '[e2ee_social_service] updateE2EEShardMetadataStatus error',
+        e,
+        s,
       );
-      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
     }
   }
 
@@ -136,9 +137,8 @@ class E2EESocialService {
     try {
       await StorageSecureService.to.deleteE2EEShardMetadataList();
       await StorageSecureService.to.deleteAllE2EEShards();
-    } catch (e) {
-      debugPrint('[e2ee_social_service] deleteAllE2EEShards error: $e');
-      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    } catch (e, s) {
+      AppLogger.error('[e2ee_social_service] clearLocalShardData error', e, s);
     }
   }
 
@@ -677,9 +677,8 @@ class E2EESocialService {
         if (success) {
           sentCount++;
         }
-      } catch (e) {
-        debugPrint('[e2ee_social_service] sendMessage error: $e');
-        // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+      } catch (e, s) {
+        AppLogger.error('[e2ee_social_service] sendMessage error', e, s);
       }
     }
 
@@ -746,9 +745,8 @@ class E2EESocialService {
             final shard = jsonDecode(shardJson) as Map<String, dynamic>;
             shards.add(shard);
           }
-        } catch (e) {
-          debugPrint('[e2ee_social_service] add error: $e');
-          // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+        } catch (e, s) {
+          AppLogger.error('[e2ee_social_service] read shard error', e, s);
         }
       }
 

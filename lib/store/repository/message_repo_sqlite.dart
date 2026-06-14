@@ -8,7 +8,6 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/event_bus.dart';
-import 'package:imboy/service/message_conversation_utils.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -23,6 +22,8 @@ import 'package:imboy/modules/messaging/infrastructure/message_repository.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
+import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/store/repository/message_repo_types.dart';
 
 class MessageRepo implements MessageRepository {
   // v2.0 表名常量（与服务端保持一致）
@@ -642,9 +643,9 @@ class MessageRepo implements MessageRepository {
         CREATE INDEX IF NOT EXISTS idx_${tableName}_conversation_created
         ON $tableName (${MessageRepo.conversationUk3}, ${MessageRepo.createdAt} DESC)
       ''');
-    } on Object catch (e) {
-      func_helper.iPrint('[message_repo_sqlite] execute error: $e');
-      // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+    } on Object catch (e, s) {
+      AppLogger.error('[message_repo_sqlite] execute error', e, s);
+      rethrow;
     }
   }
 
@@ -775,7 +776,7 @@ class MessageRepo implements MessageRepository {
       }
     }
 
-    final List<_InsertedOfflineMessage> inserted = [];
+    final List<InsertedOfflineMessage> inserted = [];
     try {
       // 先收集 S2C 消息，在事务外处理
       final List<Map<String, dynamic>> s2cMessages = [];
@@ -851,9 +852,8 @@ class MessageRepo implements MessageRepository {
               if (decoded is Map) {
                 payload = decoded.cast<String, dynamic>();
               }
-            } on Object catch (e) {
-              func_helper.iPrint('[message_repo_sqlite] decode error: $e');
-              // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+            } on Object catch (e, s) {
+              AppLogger.error('[message_repo_sqlite] decode error', e, s);
             }
           }
 
@@ -935,7 +935,7 @@ class MessageRepo implements MessageRepository {
           await txn.insert(tableName, insertData);
 
           inserted.add(
-            _InsertedOfflineMessage(
+            InsertedOfflineMessage(
               id: msgId,
               type: type,
               fromId: fromId,
@@ -1009,7 +1009,7 @@ class MessageRepo implements MessageRepository {
   }
 
   Future<void> _syncOfflineConversationsAndNotify(
-    List<_InsertedOfflineMessage> inserted,
+    List<InsertedOfflineMessage> inserted,
   ) async {
     final conversationRepo = ConversationRepo();
     final contactRepo = ContactRepo();
@@ -1021,13 +1021,13 @@ class MessageRepo implements MessageRepository {
     // 注意：如果没有打开的聊天页面，currentConversationUk3 将为空
     final String currentConversationUk3 = _currentActiveConversationUk3 ?? '';
 
-    final Map<String, _OfflineConversationAgg> convAgg = {};
+    final Map<String, OfflineConversationAgg> convAgg = {};
     final currentUid = UserRepoLocal.to.currentUid; // C7-β
     for (final msg in inserted) {
       final key = '${msg.type}::${msg.peerId}';
       final agg = convAgg.putIfAbsent(
         key,
-        () => _OfflineConversationAgg(
+        () => OfflineConversationAgg(
           type: msg.type,
           peerId: msg.peerId,
           currentUid: currentUid,
@@ -1052,9 +1052,8 @@ class MessageRepo implements MessageRepository {
           avatar = ct?.avatar ?? '';
           title = ct?.title ?? '';
         }
-      } on Object catch (e) {
-        func_helper.iPrint('[message_repo_sqlite] findByUid error: $e');
-        // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+      } on Object catch (e, s) {
+        AppLogger.error('[message_repo_sqlite] findByUid error', e, s);
       }
 
       // WebSocket API v2.0: 从顶层字段读取 msg_type 和 status
@@ -1145,9 +1144,8 @@ class MessageRepo implements MessageRepository {
             await msg.toMessageModel().toTypeMessage(),
             'Message',
           );
-        } on Object catch (e) {
-          func_helper.iPrint('[message_repo_sqlite] toMessageModel error: $e');
-          // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+        } on Object catch (e, s) {
+          AppLogger.error('[message_repo_sqlite] toMessageModel error', e, s);
         }
       }
     }
@@ -1417,85 +1415,6 @@ class MessageRepo implements MessageRepository {
       return total;
     } on Object {
       return 0;
-    }
-  }
-}
-
-class _InsertedOfflineMessage {
-  final String id;
-  final String type;
-  final String fromId;
-  final String toId;
-  final Map<String, dynamic> payload;
-  final int createdAt;
-  final int isAuthor;
-  final int topicId;
-  final String conversationUk3;
-  final int status;
-  final String peerId;
-  final String msgType; // WebSocket API v2.0: 顶层 msg_type 字段
-
-  const _InsertedOfflineMessage({
-    required this.id,
-    required this.type,
-    required this.fromId,
-    required this.toId,
-    required this.payload,
-    required this.createdAt,
-    required this.isAuthor,
-    required this.topicId,
-    required this.conversationUk3,
-    required this.status,
-    required this.peerId,
-    required this.msgType, // WebSocket API v2.0
-  });
-
-  MessageModel toMessageModel() {
-    return MessageModel(
-      id,
-      autoId: 0,
-      type: type,
-      fromId: parseModelInt(fromId),
-      toId: parseModelInt(toId),
-      payload: payload,
-      createdAt: createdAt,
-      isAuthor: isAuthor,
-      topicId: topicId,
-      conversationUk3: conversationUk3,
-      status: status,
-      msgType: msgType, // WebSocket API v2.0
-    );
-  }
-}
-
-class _OfflineConversationAgg {
-  final String type;
-  final String peerId;
-  final String currentUid; // C7-β: 判定消息是否 @ 当前用户
-  _InsertedOfflineMessage? latest;
-  int unreadDelta = 0;
-  int mentionDelta = 0; // C7-β
-
-  _OfflineConversationAgg({
-    required this.type,
-    required this.peerId,
-    this.currentUid = '',
-  });
-
-  void observe(_InsertedOfflineMessage msg, String currentConversationUk3) {
-    if (latest == null || msg.createdAt >= (latest?.createdAt ?? 0)) {
-      latest = msg;
-    }
-    if (msg.isAuthor == 0 && msg.conversationUk3 != currentConversationUk3) {
-      unreadDelta += 1;
-      // C7-β：离线批量路径对称累加 mention_unread
-      final mentionIds = extractMentionIdsFromPayload(msg.payload);
-      mentionDelta += computeMentionUnreadIncrement(
-        isFromCurrentUser: false, // isAuthor == 0 保证非自己
-        isUserInChat: false, // 路径前提保证不在当前会话
-        mentionIds: mentionIds,
-        currentUid: currentUid,
-      );
     }
   }
 }

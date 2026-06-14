@@ -7,6 +7,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/service/app_logger.dart';
 
 import 'package:imboy/service/secure_token_storage_service.dart'
     show SecureTokenStorageService;
@@ -121,8 +122,8 @@ class UserRepoLocal {
   ///
   /// 抛出 [ArgumentError] 当任何必需字段无效时
   void validateLoginPayload(Map<String, dynamic> payload) {
-    // 验证 uid
-    _validateUid(payload['uid']);
+    // 验证 user_id（兼容旧键 uid，T22/BE-17）
+    _validateUid(payload['user_id'] ?? payload['uid']);
 
     // 验证 token
     _validateToken(payload['token']);
@@ -190,7 +191,7 @@ class UserRepoLocal {
 
     await StorageService.to.setString(
       Keys.currentUid,
-      payload['uid'].toString(),
+      (payload['user_id'] ?? payload['uid']).toString(),
     );
 
     await SecureTokenStorageService.saveToken(payload['token'] as String);
@@ -244,9 +245,8 @@ class UserRepoLocal {
       try {
         E2EEService.clearCache();
         iPrint("> quitLogin: E2EE cache cleared");
-      } on Object catch (e) {
-        iPrint('[user_repo_local] iPrint error: $e');
-        // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+      } on Object catch (e, s) {
+        AppLogger.error('[user_repo_local] clearCache error', e, s);
       }
 
       iPrint("> quitLogin: Clearing secure tokens");

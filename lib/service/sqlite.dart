@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
@@ -110,9 +110,9 @@ class SqliteService {
       if (!kIsWeb) {
         try {
           await Directory(dirname(path)).create(recursive: true);
-        } catch (e) {
-          iPrint('[sqlite] Directory error: $e');
-          // TODO(error-handling): 高危路径，评估是否应 rethrow/上报
+        } catch (e, s) {
+          AppLogger.error('[sqlite] Directory creation error', e, s);
+          rethrow;
         }
 
         // 加密平台不复制明文模板：
