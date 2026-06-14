@@ -14,7 +14,7 @@ class TagItem extends StatelessWidget {
     super.key,
     required this.tag,
     required this.onTagDelete,
-    this.backgroundColor = const Color(0xfff8f8f8),
+    this.backgroundColor = AppColors.tagBackground,
     this.selectedBackgroundColor = AppColors.tagAccent,
     this.tagSelectedColor = AppColors.tagAccent,
   });

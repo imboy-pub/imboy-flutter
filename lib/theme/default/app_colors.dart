@@ -35,6 +35,11 @@ class AppColors {
   /// ⚠️ 不可用 [transparent]（黑底透明）替代，否则白→黑插值会出灰边。
   static const Color overlayWhiteTransparent = Color(0x00FFFFFF);
 
+  // ============ 组件辅助色（shimmer / tag，保原值零视觉变更） ============
+  static const Color shimmerBase = Color(0xFFE0E0E0);
+  static const Color shimmerHighlight = Color(0xFFF5F5F5);
+  static const Color tagBackground = Color(0xFFF8F8F8);
+
   // ============ Material 3 次要色系统 ============
   static const Color secondary = Color(0xFF5C6BC0);
   static const Color secondaryContainer = Color(0xFFE8EAF6);
