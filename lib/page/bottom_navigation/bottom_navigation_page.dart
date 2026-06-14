@@ -1,7 +1,7 @@
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'dart:async';
 
-import 'package:badges/badges.dart' as badges;
+import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -320,27 +320,24 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         WebSocketConnectionState.disconnected =>
           isDark ? AppColors.iosRedDark : AppColors.iosRed,
       };
-      return badges.Badge(
-        showBadge: true,
-        position: badges.BadgePosition.topEnd(top: 0, end: 0),
-        badgeStyle: badges.BadgeStyle(
-          badgeColor: badgeColor,
-          padding: const EdgeInsets.all(4),
-          elevation: 0,
-          borderSide: BorderSide(
-            color: isSelected
-                ? (isDark ? AppColors.darkSurfaceGrouped : Colors.white)
-                : (isDark ? AppColors.darkSurface : Colors.white),
-            width: 1.5,
-          ),
+      return BadgeWidget(
+        color: badgeColor,
+        padding: const EdgeInsets.all(4),
+        borderSide: BorderSide(
+          color: isSelected
+              ? (isDark ? AppColors.darkSurfaceGrouped : Colors.white)
+              : (isDark ? AppColors.darkSurface : Colors.white),
+          width: 1.5,
         ),
+        top: 0,
+        right: 0,
         child: icon,
       );
     }
 
     if (item.remindCount > 0) {
-      return badges.Badge(
-        badgeContent: Text(
+      return BadgeWidget(
+        content: Text(
           item.remindCount > 99 ? '99+' : '${item.remindCount}',
           style: const TextStyle(
             color: Colors.white,
@@ -349,12 +346,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
             fontFeatures: [FontFeature.tabularFigures()],
           ),
         ),
-        position: badges.BadgePosition.topEnd(top: -4, end: -4),
-        badgeStyle: const badges.BadgeStyle(
-          badgeColor: AppColors.iosRed,
-          padding: EdgeInsets.all(4),
-          elevation: 0,
-        ),
+        color: AppColors.iosRed,
+        padding: const EdgeInsets.all(4),
         child: icon,
       );
     }
