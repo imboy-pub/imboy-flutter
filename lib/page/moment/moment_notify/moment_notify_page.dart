@@ -23,6 +23,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/moment_notify_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class MomentNotifyPage extends ConsumerStatefulWidget {
   const MomentNotifyPage({super.key});
@@ -138,7 +139,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
                   const Icon(
                     Icons.notifications_none,
                     size: 64,
-                    color: Colors.grey,
+                    color: AppColors.iosGray,
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -150,7 +151,10 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 32),
                     child: Text(
                       t.momentNotify.emptyHint,
-                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                      style: TextStyle(
+                        color: AppColors.iosGray,
+                        fontSize: FontSizeType.small.size,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -237,7 +241,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
                   timeText,
                   // DESIGN.md §3.4：时间戳数字等宽对齐
                   style: const TextStyle(
-                    color: Colors.grey,
+                    color: AppColors.iosGray,
                     fontSize: 12,
                     fontFeatures: [FontFeature.tabularFigures()],
                   ),
