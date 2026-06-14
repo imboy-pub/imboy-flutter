@@ -8,6 +8,7 @@ import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 社交恢复 - 好友选择器页面
 ///
@@ -224,9 +225,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                   total: widget.requiredCount,
                 ),
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: FontSizeType.normal.size,
                   color: selectedCount >= widget.requiredCount
-                      ? Colors.green
+                      ? AppColors.iosGreen
                       : isDark
                       ? Colors.white70
                       : Colors.black54,
@@ -293,7 +294,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         children: [
           Icon(
             canConfirm ? Icons.check_circle : Icons.info_outline,
-            color: canConfirm ? Colors.green : Colors.blue,
+            color: canConfirm ? AppColors.iosGreen : AppColors.iosBlue,
             size: 24,
           ),
           const SizedBox(width: 12),
@@ -308,7 +309,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: canConfirm ? Colors.green : Colors.blue,
+                    color: canConfirm ? AppColors.iosGreen : AppColors.iosBlue,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -338,12 +339,12 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
       decoration: BoxDecoration(
         color: isSelected
             ? (isDark
-                  ? Colors.blue.withValues(alpha: 0.2)
-                  : Colors.blue.withValues(alpha: 0.1))
+                  ? AppColors.iosBlue.withValues(alpha: 0.2)
+                  : AppColors.iosBlue.withValues(alpha: 0.1))
             : (isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white),
         borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
-          color: isSelected ? Colors.blue : Colors.transparent,
+          color: isSelected ? AppColors.iosBlue : Colors.transparent,
           width: 2,
         ),
       ),
@@ -398,10 +399,10 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: isSelected ? Colors.blue : Colors.grey.shade400,
+                    color: isSelected ? AppColors.iosBlue : AppColors.iosGray2,
                     width: 2,
                   ),
-                  color: isSelected ? Colors.blue : Colors.transparent,
+                  color: isSelected ? AppColors.iosBlue : Colors.transparent,
                 ),
                 child: isSelected
                     ? const Icon(Icons.check, color: Colors.white, size: 16)
@@ -438,7 +439,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
           child: ElevatedButton(
             onPressed: canConfirm ? _confirmSelection : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: canConfirm ? Colors.blue : Colors.grey.shade300,
+              backgroundColor: canConfirm
+                  ? AppColors.iosBlue
+                  : AppColors.iosGray4,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: AppRadius.borderRadiusSmall,
@@ -449,7 +452,10 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
               canConfirm
                   ? t.common.e2eeProxyConfirmCount(count: selectedCount)
                   : t.chat.e2eeProxyNeedAtLeast(count: widget.requiredCount),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: FontSizeType.medium.size,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ),
