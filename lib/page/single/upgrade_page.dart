@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:r_upgrade/r_upgrade.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -571,7 +572,7 @@ class UpgradeCardState extends State<UpgradeCard> {
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     decoration: TextDecoration.none,
-                    color: Color(0xFF333130),
+                    color: AppColors.upgradeBackground,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -642,7 +643,9 @@ class UpgradeCardState extends State<UpgradeCard> {
                       child: LinearProgressIndicator(
                         value: widget.progress,
                         backgroundColor: Colors.grey[200],
-                        valueColor: const AlwaysStoppedAnimation(Colors.blue),
+                        valueColor: const AlwaysStoppedAnimation(
+                          AppColors.iosBlue,
+                        ),
                       ),
                     )
                   : const SizedBox.shrink(),
@@ -663,7 +666,7 @@ class UpgradeCardState extends State<UpgradeCard> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Colors.grey,
+                            color: AppColors.iosGray,
                           ),
                         ),
                       ),
@@ -672,7 +675,7 @@ class UpgradeCardState extends State<UpgradeCard> {
                   Container(
                     height: 40,
                     width: 0.5,
-                    color: const Color(0xffC0C5D6),
+                    color: AppColors.lightDivider,
                   ),
                   Visibility(
                     visible: widget.positiveBtn.isNotEmpty,
