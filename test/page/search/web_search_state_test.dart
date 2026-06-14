@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/page/search/web_search_page.dart';
+import 'package:imboy/page/search/web_search_state.dart';
 
 void main() {
   group('WebSearchState 纯内存', () {

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/page/single/network_failure_guidance.dart';
+import 'package:imboy/page/single/network_failure_guidance_page.dart';
 import 'package:imboy/page/single/privacy_policy_page.dart';
 import 'package:imboy/page/single/terms_of_service_page.dart';
 
