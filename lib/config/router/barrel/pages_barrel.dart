@@ -95,8 +95,8 @@ export 'package:imboy/page/search/web_search_page.dart'; // Web 端全局搜索
 export 'package:imboy/page/scanner/scanner_page.dart';
 export 'package:imboy/page/scanner/scanner_result_page.dart';
 export 'package:imboy/page/qrcode/qrcode_page.dart';
-export 'package:imboy/page/single/markdown.dart';
-export 'package:imboy/page/single/video_viewer.dart';
-export 'package:imboy/page/single/network_failure_guidance.dart';
+export 'package:imboy/page/single/markdown_page.dart';
+export 'package:imboy/page/single/video_viewer_page.dart';
+export 'package:imboy/page/single/network_failure_guidance_page.dart';
 export 'package:imboy/page/single/privacy_policy_page.dart';
 export 'package:imboy/page/single/terms_of_service_page.dart';
