@@ -129,20 +129,40 @@ class ConversationRepo {
       obj.type,
       obj.peerId.toString(),
     );
-    int unreadNumOld = oldObj == null ? 0 : oldObj.unreadNum;
-    int mentionUnreadOld = oldObj == null ? 0 : oldObj.mentionUnread; // C7-β
-    // obj.isShow = oldObj?.isShow ?? 1;
-    obj.unreadNum = obj.unreadNum + unreadNumOld;
-    obj.mentionUnread = obj.mentionUnread + mentionUnreadOld; // C7-β 对称累加
     if (oldObj == null) {
       obj.id = await insert(obj);
+      return obj;
     } else {
-      Map<String, dynamic> data = obj.toJson();
-      data.remove(ConversationRepo.id);
-      await updateById(oldObj.id, data);
-      obj = (await findByPeerId(obj.type, obj.peerId.toString()))!;
+      // 存在旧会话，合并更新
+      // 核心安全点 [C1]：未读计数和艾特计数走 SQL-level 自增相加，由 SQLite 在事务锁线程中原子计算，绝不在 Dart 内存中进行绝对值覆写！
+      await _db.transaction((txn) async {
+        await txn.rawUpdate(
+          'UPDATE ${ConversationRepo.tableName} '
+          'SET ${ConversationRepo.subtitle} = ?, '
+          '    ${ConversationRepo.lastTime} = ?, '
+          '    ${ConversationRepo.lastMsgId} = ?, '
+          '    ${ConversationRepo.lastMsgStatus} = ?, '
+          '    ${ConversationRepo.msgType} = ?, '
+          '    ${ConversationRepo.isShow} = 1, '
+          '    ${ConversationRepo.payload} = ?, '
+          '    ${ConversationRepo.unreadNum} = ${ConversationRepo.unreadNum} + ?, '
+          '    ${ConversationRepo.mentionUnread} = ${ConversationRepo.mentionUnread} + ? '
+          'WHERE id = ?',
+          [
+            obj.subtitle,
+            obj.lastTime,
+            obj.lastMsgId,
+            obj.lastMsgStatus,
+            obj.msgType,
+            jsonEncode(obj.payload),
+            obj.unreadNum, // 增量值
+            obj.mentionUnread, // 艾特增量值
+            oldObj.id,
+          ],
+        );
+      });
+      return (await findByPeerId(obj.type, obj.peerId.toString()))!;
     }
-    return obj;
   }
 
   //
@@ -164,6 +184,8 @@ class ConversationRepo {
         ConversationRepo.lastMsgId,
         ConversationRepo.lastMsgStatus,
         ConversationRepo.unreadNum,
+        ConversationRepo.mentionUnread,
+        ConversationRepo.isMuted,
         ConversationRepo.type,
         ConversationRepo.msgType,
         ConversationRepo.isShow,
@@ -217,6 +239,8 @@ class ConversationRepo {
         ConversationRepo.lastMsgId,
         ConversationRepo.lastMsgStatus,
         ConversationRepo.unreadNum,
+        ConversationRepo.mentionUnread,
+        ConversationRepo.isMuted,
         ConversationRepo.payload,
         ConversationRepo.type,
         ConversationRepo.msgType,
@@ -262,6 +286,8 @@ class ConversationRepo {
           ConversationRepo.lastMsgId,
           ConversationRepo.lastMsgStatus,
           ConversationRepo.unreadNum,
+          ConversationRepo.mentionUnread,
+          ConversationRepo.isMuted,
           ConversationRepo.payload,
           ConversationRepo.type,
           ConversationRepo.msgType,
@@ -287,6 +313,8 @@ class ConversationRepo {
           ConversationRepo.lastMsgId,
           ConversationRepo.lastMsgStatus,
           ConversationRepo.unreadNum,
+          ConversationRepo.mentionUnread,
+          ConversationRepo.isMuted,
           ConversationRepo.payload,
           ConversationRepo.type,
           ConversationRepo.msgType,
@@ -327,6 +355,8 @@ class ConversationRepo {
           ConversationRepo.lastMsgId,
           ConversationRepo.lastMsgStatus,
           ConversationRepo.unreadNum,
+          ConversationRepo.mentionUnread,
+          ConversationRepo.isMuted,
           ConversationRepo.payload,
           ConversationRepo.type,
           ConversationRepo.msgType,
@@ -352,6 +382,8 @@ class ConversationRepo {
           ConversationRepo.lastMsgId,
           ConversationRepo.lastMsgStatus,
           ConversationRepo.unreadNum,
+          ConversationRepo.mentionUnread,
+          ConversationRepo.isMuted,
           ConversationRepo.payload,
           ConversationRepo.type,
           ConversationRepo.msgType,
@@ -466,6 +498,8 @@ class ConversationRepo {
           ConversationRepo.lastMsgId,
           ConversationRepo.lastMsgStatus,
           ConversationRepo.unreadNum,
+          ConversationRepo.mentionUnread,
+          ConversationRepo.isMuted,
           ConversationRepo.payload,
           ConversationRepo.type,
           ConversationRepo.msgType,

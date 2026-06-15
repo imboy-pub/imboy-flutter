@@ -227,21 +227,25 @@ class ConversationModel {
     ConversationRepo.payload: payload,
   };
 
-  factory ConversationModel.empty() => ConversationModel.fromJson({
-    ConversationRepo.id: 0,
-    ConversationRepo.peerId: "",
-    ConversationRepo.avatar: "",
-    ConversationRepo.title: "",
-    ConversationRepo.region: "",
-    ConversationRepo.sign: "",
-    ConversationRepo.subtitle: 0,
-    ConversationRepo.lastTime: "",
-    ConversationRepo.lastMsgId: 0,
-    ConversationRepo.lastMsgStatus: 0,
-    ConversationRepo.unreadNum: "",
-    ConversationRepo.type: 0,
-    ConversationRepo.msgType: <String, dynamic>{},
-  });
+  factory ConversationModel.empty() => ConversationModel(
+    id: 0,
+    peerId: 0,
+    avatar: "",
+    title: "",
+    region: "",
+    sign: "",
+    subtitle: "",
+    lastTime: 0,
+    lastMsgId: 0,
+    lastMsgStatus: 11,
+    unreadNum: 0,
+    mentionUnread: 0,
+    isMuted: 0,
+    type: "C2C",
+    msgType: "empty",
+    isShow: 1,
+    payload: null,
+  );
 
   ConversationModel copyWith({
     int? id,
