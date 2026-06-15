@@ -1,0 +1,14 @@
+---
+title: Notifications
+emptyTitle: Aucune nouvelle notification
+emptyHint: Les « J'aime » et commentaires de vos amis s'affichent ici
+actionLike: a aimé votre moment
+actionComment: a commenté
+markAllRead: Tout marquer lu
+clearAll: Tout effacer
+clearConfirmTitle: Effacer toutes les notifications ?
+clearConfirmMessage: Action irréversible
+confirm: OK
+cancel: Annuler
+delete: Supprimer
+loadFailed: Échec du chargement. Réessayez plus tard.

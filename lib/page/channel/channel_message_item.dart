@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
@@ -528,9 +530,28 @@ class ChannelMessageItem extends StatelessWidget {
       case ChannelMessageType.file:
       case 'file':
         return _buildFileContent(context, textColor);
+      case ChannelMessageType.audio:
+      case 'audio':
+      case 'voice':
+        return _buildAudioContent(context, textColor);
       default:
         return _buildTextContent(textColor);
     }
+  }
+
+  Widget _buildAudioContent(BuildContext context, Color textColor) {
+    final payload = message.payload ?? {};
+    final durationMs = (payload['duration_ms'] as num?)?.toInt() ?? 0;
+    final durationSec = (durationMs / 1000).round();
+    final uri = payload['uri']?.toString() ?? '';
+
+    return _ChannelAudioPlayer(
+      uri: uri,
+      messageId: message.id.toString(),
+      durationSec: durationSec,
+      durationMs: durationMs,
+      textColor: textColor,
+    );
   }
 
   Widget _buildTextContent(Color textColor) {
@@ -689,4 +710,112 @@ class ChannelMessageItem extends StatelessWidget {
   }
 
   String _formatFileSize(int bytes) => formatFileSize(bytes);
+}
+
+class _ChannelAudioPlayer extends ConsumerStatefulWidget {
+  final String uri;
+  final String messageId;
+  final int durationSec;
+  final int durationMs;
+  final Color textColor;
+
+  const _ChannelAudioPlayer({
+    required this.uri,
+    required this.messageId,
+    required this.durationSec,
+    required this.durationMs,
+    required this.textColor,
+  });
+
+  @override
+  ConsumerState<_ChannelAudioPlayer> createState() => _ChannelAudioPlayerState();
+}
+
+class _ChannelAudioPlayerState extends ConsumerState<_ChannelAudioPlayer> {
+  bool _isLoading = false;
+
+  Future<void> _togglePlay() async {
+    if (_isLoading) return;
+
+    final playbackState = ref.read(voicePlaybackServiceProvider);
+    final notifier = ref.read(voicePlaybackServiceProvider.notifier);
+
+    // 同一个音频且正在播放，则暂停
+    if (playbackState.currentAudioPath == widget.uri && playbackState.isPlaying) {
+      await notifier.pause();
+      return;
+    }
+
+    // 同一个音频且处于暂停，则恢复
+    if (playbackState.currentAudioPath == widget.uri && playbackState.isPaused) {
+      await notifier.resume();
+      return;
+    }
+
+    // 否则下载并播放
+    setState(() => _isLoading = true);
+    try {
+      final file = await IMBoyCacheManager().getSingleFile(
+        widget.uri,
+        validateImageData: false,
+      );
+
+      if (await file.exists() && mounted) {
+        await notifier.play(
+          path: file.path,
+          messageId: widget.messageId,
+          durationMs: widget.durationMs,
+        );
+      }
+    } catch (e) {
+      iPrint('播放频道语音失败: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final playbackState = ref.watch(voicePlaybackServiceProvider);
+    final isThis = playbackState.currentMessageId == widget.messageId;
+    final isPlaying = isThis && playbackState.isPlaying;
+
+    return InkWell(
+      onTap: _togglePlay,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _isLoading
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: widget.textColor,
+                    ),
+                  )
+                : Icon(
+                    isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                    color: widget.textColor,
+                    size: 20,
+                  ),
+            const SizedBox(width: 8),
+            Text(
+              "${widget.durationSec}''",
+              style: TextStyle(
+                color: widget.textColor,
+                fontSize: 14,
+                fontFamily: 'monospace',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

@@ -1,0 +1,12 @@
+---
+title: "@Упоминания"
+noMention: Нет упоминаний
+allRead: Всё прочитано
+markAsRead: Отметить прочитанным
+newMention: Новое упоминание
+fromGroup: Из группы
+fromChat: Из чата
+viewContext: Показать контекст
+mentionCount: 'Новых упоминаний: $count'
+mentionAllDenied: Только администратор может использовать @все
+navInfoMissing: Нет данных о позиции сообщения, переход невозможен

@@ -44,11 +44,21 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$chat$ko_KR chat = _Translations$chat$ko_KR._(_root);
 	@override late final _Translations$common$ko_KR common = _Translations$common$ko_KR._(_root);
 	@override late final _Translations$complaint$ko_KR complaint = _Translations$complaint$ko_KR._(_root);
+	@override late final _Translations$complaintReason$ko_KR complaintReason = _Translations$complaintReason$ko_KR._(_root);
 	@override late final _Translations$contact$ko_KR contact = _Translations$contact$ko_KR._(_root);
 	@override late final _Translations$discovery$ko_KR discovery = _Translations$discovery$ko_KR._(_root);
 	@override late final _Translations$error$ko_KR error = _Translations$error$ko_KR._(_root);
 	@override late final _Translations$group$ko_KR group = _Translations$group$ko_KR._(_root);
+	@override late final _Translations$groupCategory$ko_KR groupCategory = _Translations$groupCategory$ko_KR._(_root);
+	@override late final _Translations$groupList$ko_KR groupList = _Translations$groupList$ko_KR._(_root);
+	@override late final _Translations$groupSchedule$ko_KR groupSchedule = _Translations$groupSchedule$ko_KR._(_root);
+	@override late final _Translations$groupTag$ko_KR groupTag = _Translations$groupTag$ko_KR._(_root);
+	@override late final _Translations$groupTask$ko_KR groupTask = _Translations$groupTask$ko_KR._(_root);
+	@override late final _Translations$groupVote$ko_KR groupVote = _Translations$groupVote$ko_KR._(_root);
 	@override late final _Translations$main$ko_KR main = _Translations$main$ko_KR._(_root);
+	@override late final _Translations$mention$ko_KR mention = _Translations$mention$ko_KR._(_root);
+	@override late final _Translations$momentFriendPicker$ko_KR momentFriendPicker = _Translations$momentFriendPicker$ko_KR._(_root);
+	@override late final _Translations$momentNotify$ko_KR momentNotify = _Translations$momentNotify$ko_KR._(_root);
 	@override late final _Translations$passport$ko_KR passport = _Translations$passport$ko_KR._(_root);
 	@override late final _Translations$splash$ko_KR splash = _Translations$splash$ko_KR._(_root);
 	@override late final _Translations$welcome$ko_KR welcome = _Translations$welcome$ko_KR._(_root);
@@ -159,6 +169,24 @@ class _Translations$account$ko_KR extends Translations$account$zh_CN {
 	@override String get setBirthday => '생일 설정';
 	@override String sentToEmail({required Object param}) => '${param}으로 전송됨';
 	@override String get nicknameRules => '• 닉네임 길이: 2-24자 • 공백이나 이모지만 포함할 수 없습니다 • 민감 단어를 포함할 수 없습니다 • 변경 사항은 모든 채팅에 반영됩니다';
+	@override String get refreshDeviceKey => '기기 키 새로고침';
+	@override String get refreshDeviceKeyHint => '메시지를 복호화할 수 없을 때 이 버튼으로 키를 새로고침하세요';
+	@override String get refreshingDeviceKey => '기기 키를 새로고침하는 중...';
+	@override String get deviceKeyRefreshed => '기기 키가 새로고침되었습니다';
+	@override String get rechargeTitle => '충전';
+	@override String get rechargeAmountHint => '충전 금액을 입력하세요 (1위안~10000위안)';
+	@override String get rechargeAmountExample => '예: 100';
+	@override String get e2eeDeviceTransfer => '기기 간 전송';
+	@override String get e2eeDeviceTransferDesc => 'QR 코드로 새 기기에 키를 직접 전송합니다';
+	@override String get e2eeDeviceIdLabel => '기기 ID';
+	@override String get webQRLoginTitle => 'QR 로그인';
+	@override String get webQRLoginHint => 'ImBoy 모바일 앱으로 QR 코드를 스캔하세요';
+	@override String get webSwitchToPassword => '계정 비밀번호로 로그인';
+	@override String get webPasswordLoginTitle => '계정 로그인';
+	@override String get webAccountHint => '계정/휴대폰번호/이메일을 입력하세요';
+	@override String get webPasswordHint => '비밀번호를 입력하세요';
+	@override String get e2eeTransferFromOldDevice => '이전 기기에서 키 받기';
+	@override String get pleaseRelogin => '다시 로그인해주세요';
 }
 
 // Path: channel
@@ -258,10 +286,16 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get updateRoleFailed => '역할 업데이트 실패';
 	@override String get userId => '사용자 ID';
 	@override String get userIdHint => '사용자 ID 입력';
+	@override String get selectFromContacts => '연락처에서 선택';
+	@override String get searchContactsHint => '닉네임 또는 계정 검색';
+	@override String get noContactsToAdd => '모든 친구가 이미 관리자입니다';
+	@override String get selectRole => '역할 선택';
 	@override String get noAdmins => '관리자가 없습니다';
 	@override String get roleCreator => '생성자';
 	@override String get roleAdmin => '관리자';
+	@override String get roleAdminDesc => '채널을 관리할 수 있습니다';
 	@override String get roleEditor => '편집자';
+	@override String get roleEditorDesc => '메시지를 게시할 수 있습니다';
 	@override String get roleUnknown => '알 수 없음';
 	@override String get searchSubscribers => '구독자 검색';
 	@override String get subscriberSearchHint => '닉네임 또는 ID로 검색';
@@ -273,6 +307,11 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get removeSubscriberFailed => '구독자 제거 실패';
 	@override String get subscribedAt => '구독일';
 	@override String get viewProfile => '프로필 보기';
+	@override String get inviteFromContacts => '친구 초대';
+	@override String get inviteSearchHint => '닉네임 또는 계정 검색';
+	@override String get noContactsToInvite => '모든 친구가 이미 초대되었거나 구독 중입니다';
+	@override String get inviteSuccess => '초대를 보냈습니다';
+	@override String get inviteFailed => '초대 전송 실패';
 	@override String get updateSuccess => '채널이 업데이트되었습니다';
 	@override String get updateFailed => '채널 업데이트 실패';
 	@override String get typeCannotChange => '생성 후 변경할 수 없습니다';
@@ -303,6 +342,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get businessCard => '명함';
 	@override String get busyTryAgainLater => '상대방이 바쁩니다. 나중에 다시 시도해 주세요';
 	@override String get later => '나중에';
+	@override String peerIsTyping({required Object name}) => '${name}님이 입력 중...';
 	@override String get changeGroupChatName => '그룹 채팅 이름을 수정하면 그룹 내 다른 구성원에게 알림이 갑니다.';
 	@override String get chatHistory => '채팅 기록';
 	@override String get chatHoldDownTalk => '눌러서 말하기';
@@ -333,12 +373,31 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get forwardTo => '전달 대상';
 	@override String get forwardToFriend => '친구에게 전달';
 	@override String get great => '매우 좋음';
+	@override String get groupFile => '그룹 파일';
+	@override String get groupFileImagePreview => '이미지 미리보기';
+	@override String get groupFileVideoPreview => '동영상 미리보기';
+	@override String get groupFileAudioPreview => '오디오 미리보기';
+	@override String get groupFileMediaPause => '일시정지';
+	@override String get groupFileMediaPlay => '재생';
+	@override String get groupFileUrlMissing => '파일 주소가 없어 열 수 없습니다';
+	@override String get groupFileUrlInvalid => '파일 주소가 잘못되었습니다';
+	@override String get groupFilePreview => '파일 미리보기';
+	@override String get groupFileUnnamed => '이름 없는 파일';
+	@override String groupFileCategoryEmpty({required Object category}) => '${category}에 파일이 없습니다';
+	@override String get groupFileEmpty => '그룹 파일이 없습니다';
+	@override String get groupFileCategoryDoc => '문서';
+	@override String get groupFileCategoryImage => '이미지';
+	@override String get groupFileCategoryVideo => '동영상';
+	@override String get groupFileCategoryAudio => '오디오';
+	@override String get groupFileCategoryOther => '기타';
 	@override String get groupChat => '그룹 채팅';
 	@override String get image => '이미지';
 	@override String get imageMessage => '[이미지]';
 	@override String get initiateChat => '그룹 채팅 시작';
 	@override String get justChat => '채팅만';
 	@override String get location => '위치';
+	@override String get exportMyData => '내 데이터 내보내기';
+	@override String get exportDataDesc => '개인정보, 연락처 및 채팅 기록을 내보냅니다';
 	@override String get message => '메시지';
 	@override String get messageHandlingMixin => '메시지 처리 믹스인';
 	@override String get messageMarkTitle => '메시지 표시';
@@ -364,14 +423,33 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get recentChats => '최근 채팅';
 	@override String get recentForwards => '최근 전달';
 	@override String get remindMeLater => '나중에 알림';
+	@override String get quickReplyManage => '빠른 답장 관리';
+	@override String get quickReplyEmpty => '빠른 답장이 없습니다. 우측 하단을 눌러 추가하세요';
+	@override String get quickReplyDuplicate => '내용이 이미 존재합니다';
+	@override String quickReplyMaxReached({required Object max}) => '최대 ${max}개';
+	@override String get quickReplyHint => '내용 입력...';
+	@override String get muteMember => 'Mute Member';
+	@override String get unmuteMember => 'Unmute';
+	@override String get muteUntil => 'Muted Until';
+	@override String get muted => 'Muted';
+	@override String mutedFor({required Object label}) => '채팅 금지 ${label}';
+	@override String muteUnitMinutes({required Object count}) => '${count}분';
+	@override String muteUnitHours({required Object count}) => '${count}시간';
+	@override String muteUnitDays({required Object count}) => '${count}일';
+	@override String get youAreMuted => '채팅이 금지되었습니다';
+	@override String youAreMutedWithTime({required Object minutes}) => '채팅이 금지되었습니다. 남은 시간 ${minutes}분';
 	@override String get repliedAt => '답장 시간';
 	@override String get reply => '답장';
 	@override String get replyTo => '답장 대상';
 	@override String get resendCode => '인증 코드 재전송';
 	@override String get revoke => '회수';
 	@override String get scanQrCodeBusinessCard => 'QR코드 명함 스캔';
+	@override String get singleChat => 'Private Chat';
+	@override String get privateChat => 'Private Chat';
+	@override String get groupMessage => 'Group message';
 	@override String get sendFriendRequest => '친구 추가 요청 보내기';
 	@override String get sendMsgRejected => '메시지가 전송되었으나 상대방이 거부했습니다.';
+	@override String get sendMessage => '메시지 보내기';
 	@override String get sendSeparatelyTo => '각각 전송';
 	@override String get sendTo => '전송 대상';
 	@override String get send => _root.common.buttonSend;
@@ -393,6 +471,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get video => '비디오';
 	@override String get videoMessage => '[비디오]';
 	@override String get viewAttachments => '첨부 파일 보기';
+	@override String get viewLargeImage => '크게 보기';
 	@override String get voice => '음성';
 	@override String get voiceInput => '음성 입력';
 	@override String get voiceMessage => '음성 메시지';
@@ -428,6 +507,15 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => '지원되지 않는 메시지 유형';
 	@override String get passwordMismatch => '비밀번호가 일치하지 않습니다';
 	@override String get pleaseTryAgainLater => '나중에 다시 시도해 주세요';
+	@override String get momentsSelectVideo => '동영상 선택';
+	@override String get momentsRecordVideo => '동영상 촬영';
+	@override String get momentsVisibilityPrivate => '나만 보기';
+	@override String get momentsMediaTooManyImages => '이미지는 최대 9장까지 선택할 수 있습니다';
+	@override String get momentsMediaTooManyVideos => '동영상은 최대 1개까지만 선택할 수 있습니다';
+	@override String get momentsMediaMixedImageAndVideo => '이미지와 동영상은 함께 게시할 수 없습니다';
+	@override String get momentsReplyPrefix => '답글 @';
+	@override String get momentsReplySeparator => ': ';
+	@override String get momentsReplyingTo => '@{name}님에게 답글 작성 중';
 	@override String get sendNewMessage => '새 메시지 전송';
 	@override String get markRead => '읽음으로 표시';
 	@override String get markUnread => '읽지 않음으로 표시';
@@ -446,18 +534,70 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get quickReplyThanks => '감사합니다';
 	@override String get quickReplyWait => '잠시만요';
 	@override String get messageMute => _root.chat.chatSettingMute;
-	@override String get quickReplyManage => '管理快捷回复';
-	@override String get quickReplyEmpty => '暂无快捷回复，点击右下角添加';
-	@override String get quickReplyDuplicate => '内容已存在';
-	@override String quickReplyMaxReached({required Object max}) => '最多 ${max} 条';
-	@override String get quickReplyHint => '输入内容...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muteUntil => 'Muted Until';
-	@override String get muted => 'Muted';
-	@override String get singleChat => 'Private Chat';
-	@override String get privateChat => 'Private Chat';
-	@override String get groupMessage => 'Group message';
+	@override String groupCategoryGroupCount({required Object count}) => '그룹 ${count}개';
+	@override String get groupAlbumCreateTitle => '그룹 앨범 만들기';
+	@override String get groupAlbumCreated => '앨범이 생성되었습니다';
+	@override String get profileCompleted => '프로필이 완성되었습니다!';
+	@override String profileProgress({required Object percent}) => '${percent}% 완료';
+	@override String createdAtLabel({required Object time}) => '생성 시간: ${time}';
+	@override String expiredAtLabel({required Object time}) => '만료 시간: ${time}';
+	@override String get myReceivedTab => '받은 초대';
+	@override String orderStatusLabel({required Object status}) => '상태: ${status}';
+	@override String orderCreatedAtLabel({required Object time}) => '생성 시간: ${time}';
+	@override String orderPaymentAtLabel({required Object time}) => '결제 시간: ${time}';
+	@override String get orderStatusPending => '결제 대기';
+	@override String get orderStatusPaid => '결제 완료';
+	@override String get orderStatusRefunded => '환불됨';
+	@override String get orderStatusExpired => '만료됨';
+	@override String get defaultFileName => '파일';
+	@override String get fileUrlInvalid => '파일 링크가 잘못되었습니다';
+	@override String get e2eeStatusAvailable => '사용 가능';
+	@override String get e2eeGenerateNewKey => '새 키 생성';
+	@override String get e2eeGenerateNewKeyDesc => '새 E2EE 키 쌍을 생성합니다 (이전 메시지는 복호화할 수 없음)';
+	@override String get e2eeActivated => '활성화됨';
+	@override String get e2eeCreatedAtLabel => '생성 시간';
+	@override String get e2eeGeneratingKey => '키를 생성하는 중입니다. 잠시만 기다려 주세요...';
+	@override String get e2eeNewKeyGenerated => '새 E2EE 키 쌍이 생성되었습니다!';
+	@override String get e2eeReady => '준비 완료';
+	@override String e2eeReadyWithShards({required Object count}) => '준비 완료 (샤드 ${count}개)';
+	@override String get webFeatureMultiDevice => '다중 기기 동기화';
+	@override String get webFeatureMultiDeviceDesc => '휴대폰과 PC 간에 자유롭게 전환하며 메시지가 실시간으로 동기화됩니다';
+	@override String get webFeatureE2EE => '종단간 암호화';
+	@override String get webFeatureE2EEDesc => '모든 메시지는 종단간 암호화되어 개인정보를 안전하게 보호합니다';
+	@override String get webFeatureFileTransfer => '파일 전송';
+	@override String get webFeatureFileTransferDesc => '드래그 앤 드롭으로 파일을 보낼 수 있으며 다양한 형식을 지원합니다';
+	@override String get webQRStatusWaiting => 'ImBoy 모바일 앱 열기 > 설정 > 스캔';
+	@override String get webQRStatusScanned => '휴대폰에서 "로그인 확인"을 눌러주세요';
+	@override String get webQRStatusVerifying => '확인 중...';
+	@override String get webQRStatusExpired => '새로고침을 눌러 다시 스캔해주세요';
+	@override String get e2eeErrInvalidFormat => '메시지 형식 오류, 암호화 실패';
+	@override String get e2eeSocialCreateTitle => '복구 샤드 만들기';
+	@override String get e2eeSocialCreateBtn => '샤드 만들기';
+	@override String get e2eeSocialCreateFailTitle => '생성 실패';
+	@override String get e2eeSocialCreateFailBody => '샤드 생성 실패, 다시 시도해주세요';
+	@override String get e2eeSocialCreateFirst => '샤드를 생성해야 내용을 볼 수 있습니다';
+	@override String get e2eeSocialUsedAtLabel => '사용 시간';
+	@override String get e2eeTransferSendTitle => '새 기기로 키 전송';
+	@override String get e2eeTransferCreateBtn => '만들기';
+	@override String get e2eeTransferReceiveTitle => '이전 기기에서 키 받기';
+	@override String get e2eeTransferSendDesc => 'QR 코드로 새 기기에 키를 전송합니다';
+	@override String get e2eeTransferReceiveDesc => '이전 기기의 QR 코드를 스캔하여 키를 받습니다';
+	@override String e2eeSocialStatus({required Object status}) => '상태: ${status}';
+	@override String get e2eeSocialCreateShardsTitle => '복구 샤드 만들기';
+	@override String get e2eeSocialCreateShardsDesc => '키를 여러 샤드로 분할하여 대리자 기기에 저장합니다 (서버에는 저장 안 함)';
+	@override String e2eeProxyNeedAtLeast({required Object count}) => '대리자를 최소 ${count}명 선택해주세요';
+	@override String get e2eeRecreatingKey => '키를 다시 만드는 중...';
+	@override String get e2eeKeyRecreated => '키가 다시 만들어졌습니다';
+	@override String get e2eeRecoveryNewDeviceTitle => '새 기기 로그인 감지';
+	@override String get e2eeRecoveryNewDeviceBody => '메시지 보안을 위해 이 기기에 새 종단간 암호화 키가 생성되었습니다.\n\n이전 메시지는 이전 기기의 키로 암호화되어 있어 먼저 키를 복구해야 볼 수 있습니다. "기기 전송", "소셜 복구" 또는 "로컬 백업 가져오기"로 복구할 수 있습니다.';
+	@override String get e2eeRecoveryDecryptFailedTitle => '이 메시지를 복호화할 수 없습니다';
+	@override String get e2eeRecoveryDecryptFailedBody => '이 메시지는 다른 기기의 키로 암호화되었습니다.\n\n기기를 교체했거나 앱을 다시 설치했다면, 암호화 키를 복구한 후 이전 메시지를 확인하세요.';
+	@override String get e2eeRecoveryLater => '나중에';
+	@override String get e2eeRecoveryGoRecover => '복구하러 가기';
+	@override String get e2eeRecoveryBannerText => '암호화된 이전 메시지가 감지되었습니다. 키를 복구해야 볼 수 있습니다. 탭하여 복구로 이동';
+	@override String get liveRoomCreateTitle => '라이브 룸 만들기';
+	@override String get liveRoomCreating => '생성 중...';
+	@override String get liveRoomWatch => '라이브 시청';
 }
 
 // Path: common
@@ -498,7 +638,9 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get bindMobileAndEmailTips => '휴대폰 번호와 이메일을 연결하여 계정 보안을 강화하세요';
 	@override String get bindNow => '지금 연결';
 	@override String get buttonCancel => '취소';
+	@override String get buttonCreate => '만들기';
 	@override String get buttonChangePassword => '비밀번호 변경';
+	@override String get phoneInputHint => '휴대폰 번호를 입력하세요';
 	@override String get buttonClose => '닫기';
 	@override String get buttonConfirm => '확인';
 	@override String get buttonContinue => '계속';
@@ -525,6 +667,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get canNotAddYourselfFriend => '자신을 친구로 추가할 수 없습니다';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
+	@override String get operationSuccessful => '작업이 완료되었습니다';
 	@override String get save => _root.common.buttonSave;
 	@override String get reset => '재설정';
 	@override String get clear => '지우기';
@@ -553,6 +696,8 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get checkForUpdates => '업데이트 확인';
 	@override String get clearAll => '모두 지우기';
 	@override String get clearChatRecord => '채팅 기록 비우기';
+	@override String get complaintSuccess => '신고가 접수되었습니다';
+	@override String get complaintFailed => '신고 실패, 나중에 다시 시도해주세요';
 	@override String get confirmCode => '인증 코드';
 	@override String get confirmCodeError => '인증 코드가 비어있습니다';
 	@override String get confirmCodeSuccess => '계정이 확인되었습니다.';
@@ -564,6 +709,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get contactSettingTag => '연락처 설정 태그';
 	@override String get contactTagListLogic => '연락처 태그 목록 논리';
 	@override String get contactTags => '연락처 태그';
+	@override String get contactInfoNotSynced => '연락처 정보가 동기화되지 않았습니다';
 	@override String get continueDownloading => '다운로드 계속';
 	@override String get copy => '복사';
 	@override String get coupon => '쿠폰';
@@ -638,6 +784,24 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get genderUpdateSuccess => '성별 설정 성공';
 	@override String get groupAddLocal => '연락처에 저장';
 	@override String get groupAnnouncement => '그룹 공지';
+	@override String get groupFileUploadSuccess => '파일 업로드 완료';
+	@override String get groupFileUploadFailed => '파일 업로드 실패, 나중에 다시 시도해주세요';
+	@override String get groupFileDeleteSuccess => '파일이 삭제되었습니다';
+	@override String get groupFileDeleteFailed => '삭제 실패, 나중에 다시 시도해주세요';
+	@override String get groupFileClosePreview => '미리보기 닫기';
+	@override String get groupFileUploadTooltip => '파일 업로드';
+	@override String get groupFileSearch => '그룹 파일 검색';
+	@override String get groupFileReadFailed => '파일 읽기 실패, 다시 시도해주세요';
+	@override String get groupFileDeleteTitle => '그룹 파일 삭제';
+	@override String groupFileDeleteConfirm({required Object name}) => '파일 "${name}"을(를) 삭제하시겠습니까?';
+	@override String get groupFileImageLoadFailed => '이미지 로드 실패';
+	@override String get groupFileOpenFailed => '파일 링크를 열 수 없습니다';
+	@override String get groupFileSearchClear => '지우기';
+	@override String get groupFileSearchAction => '검색';
+	@override String get groupFileCategoryAll => '전체';
+	@override String get groupFileSearchEmpty => '일치하는 파일이 없습니다';
+	@override String get groupFileAudioLoadFailed => '오디오 로드 실패';
+	@override String get groupFileAudioLoading => '오디오 로드 중...';
 	@override String groupQrcodeTips({required Object days, required Object date}) => '이 QR코드는 ${days}일 내 (${date} 전) 유효하며, 다시 들어가면 업데이트됩니다';
 	@override String get groupSearchTips => '그룹 이름 및 그룹 소개';
 	@override String get helpDocument => '도움말 문서';
@@ -661,7 +825,9 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get loading => '로딩 중';
 	@override String get locationMessage => '위치 메시지';
 	@override String get loginDeviceManagementTips => '귀하의 계정은 다음 기기에서 로그인했습니다. 기기를 삭제할 수 있으며 삭제 후 해당 기기에서 로그인할 때 보안 검증이 필요합니다.';
+	@override String get logoutFailed => '로그아웃 실패';
 	@override String get logoutNotice => '《계정 탈퇴 안내》';
+	@override String get exportDataSuccess => '데이터를 내보냈습니다';
 	@override String get manually => '수동 선택';
 	@override String get messageCall => '메시지 보내기';
 	@override String get messageContent => '메시지 내용';
@@ -709,6 +875,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get noUpdateDescription => '업데이트 설명 없음';
 	@override String get normalModel => '일반 모드';
 	@override String get notAuthorizedLatLong => '위도 경도를 얻도록 승인하지 않았습니다';
+	@override String get notLoggedIn => '로그인되어 있지 않습니다';
 	@override String get notBad => '나쁘지 않음';
 	@override String get notBound => '연결되지 않음';
 	@override String get notFilled => '작성되지 않음';
@@ -720,9 +887,9 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get notShow => '표시 안 함';
 	@override String get notTurnedLocationService => '위치 서비스를 켜지 않았습니다';
 	@override String get nowNewVersion => '새 버전을 감지하지 못했습니다';
-	@override String get off => _root.common.disabled;
+	@override String get kFalse => _root.common.disabled;
 	@override String get offlineNotification => '오프라인 알림';
-	@override String get on => _root.common.enabled;
+	@override String get kTrue => _root.common.enabled;
 	@override String get operationFailedAgainLater => '작업 실패, 나중에 다시 시도해 주세요';
 	@override String get optionsNo => '아니요';
 	@override String get optionsRename => '이름을 바꾸고 싶습니다';
@@ -755,12 +922,57 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get releaseFingerCancelSending => '손가락을 놓으면 전송 취소';
 	@override String get removeContactFromTag => '태그에서 연락처 제거';
 	@override String get removeMember => '구성원 제거';
+	@override String get atMentionYouTag => '[@회원님] ';
+	@override String get atMentionLeftMember => '@탈퇴한 멤버';
+	@override String get muteNotifications => '메시지 방해 금지';
+	@override String get muteNotificationsHint => '켜면 새 메시지 알림을 받지 않지만, 대화 목록에서 읽지 않음은 볼 수 있습니다';
+	@override String get revokeExpired => '2분이 경과하여 회수할 수 없습니다';
+	@override String get quickReplyAddTitle => '빠른 답장 추가';
+	@override String get quickReplyEditTitle => '빠른 답장 편집';
+	@override String get removeAdmin => 'Remove Admin';
+	@override String get setAdminConfirm => 'Set this member as admin?';
+	@override String get removeAdminConfirm => 'Remove admin role from this member?';
+	@override String get muteMemberConfirm => 'Mute this member?';
+	@override String get unmuteMemberConfirm => 'Unmute this member?';
+	@override String get kickMemberConfirm => 'Remove this member from the group?';
+	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
+	@override String get setAdminSuccess => 'Admin set';
+	@override String get setAdminFailed => 'Failed to set admin';
+	@override String get removeAdminSuccess => 'Admin removed';
+	@override String get removeAdminFailed => 'Failed to remove admin';
+	@override String get muteMemberSuccess => 'Member muted';
+	@override String get muteMemberFailed => 'Failed to mute member';
+	@override String get unmuteMemberSuccess => 'Member unmuted';
+	@override String get unmuteMemberFailed => 'Failed to unmute member';
+	@override String get kickMemberSuccess => 'Member removed';
+	@override String get kickMemberFailed => 'Failed to remove member';
+	@override String get transferGroupSuccess => 'Ownership transferred';
+	@override String get transferGroupFailed => 'Failed to transfer ownership';
+	@override String get notMuted => 'Not Muted';
+	@override String get muteDuration => 'Mute Duration';
+	@override String get muteDuration1hour => '1 Hour';
+	@override String get muteDuration6hours => '6 Hours';
+	@override String get muteDuration12hours => '12 Hours';
+	@override String get muteDuration1day => '1 Day';
+	@override String get muteDuration3days => '3 Days';
+	@override String get muteDuration7days => '7 Days';
+	@override String get muteDurationPermanent => 'Permanent';
+	@override String get muteDuration5min => '5분';
+	@override String get muteDuration10min => '10분';
+	@override String get muteDuration30min => '30분';
+	@override String get muteDuration30days => '30일';
+	@override String muteUnitSeconds({required Object count}) => '${count}초';
+	@override String get throttleWarning => '요청이 너무 잦습니다. 나중에 다시 시도해주세요';
+	@override String throttleRetryAfter({required Object seconds}) => '요청이 너무 잦습니다. ${seconds}초 후에 다시 시도해주세요';
+	@override String get mutedCannotSend => '채팅 금지 중에는 메시지를 보낼 수 없습니다';
 	@override String get resendCodeSuccess => '새 이메일이 전송되었습니다.';
 	@override String get resetFilters => '필터 재설정';
 	@override String get saveQrCode => 'QR코드 저장';
 	@override String get saveSuccess => '저장 성공';
 	@override String get scanQrcodeAddFriend => '위 QR코드 패턴을 스캔하여 친구로 추가하세요';
 	@override String get search => '검색';
+	@override String get searchScope => 'Search scope';
+	@override String get searchAll => 'All messages';
 	@override String get searchChatContent => '채팅 내용 검색';
 	@override String get searchChatRecord => '채팅 기록 검색';
 	@override String get searchError => '검색 오류';
@@ -890,6 +1102,11 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get selectExpirationDateOptional => '만료 날짜 선택 (선택 사항)';
 	@override String get groupAnnouncementDeleteConfirm => '이 공지를 삭제하시겠습니까?';
 	@override String get groupAnnouncementDelete => '삭제';
+	@override String get groupAnnouncementLoadFailed => '공지를 불러오지 못했습니다. 나중에 다시 시도해주세요';
+	@override String get groupAnnouncementPublishFailed => '공지 게시 실패';
+	@override String get groupAnnouncementPublishSuccess => '공지가 게시되었습니다';
+	@override String get groupAnnouncementDeleteFailed => '공지 삭제 실패';
+	@override String get groupAnnouncementDeleteSuccess => '공지가 삭제되었습니다';
 	@override String get privacyClearChatHistory => '채팅 기록 삭제';
 	@override String get privacyClearChatHistoryConfirm => '모든 채팅 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.';
 	@override String get privacyLogoutAccountConfirm => '계정을 탈퇴할까요? 계정과 모든 데이터가 영구 삭제되며 되돌릴 수 없습니다.';
@@ -1033,6 +1250,24 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get changeFailed => '수정 실패';
 	@override String get submitted => '제출됨';
 	@override String get viewSecurityHelp => '보안 도움말 보기';
+	@override String get momentsNoData => '모멘트가 없습니다';
+	@override String get momentsDeleteConfirm => '이 모멘트를 삭제하시겠습니까?';
+	@override String get momentsDeleteCommentConfirm => '이 댓글을 삭제하시겠습니까?';
+	@override String get momentsNotFound => '모멘트가 없거나 볼 권한이 없습니다';
+	@override String get momentsContentOrMediaRequired => '내용 또는 미디어 중 하나는 필수입니다';
+	@override String get momentsPublishFailed => '게시 실패';
+	@override String get momentsAllowComment => '댓글 허용';
+	@override String get momentsReportReason => '신고 사유';
+	@override String get momentsNoComments => '댓글이 없습니다';
+	@override String get momentsContentHint => '무엇을 공유하시겠어요?...';
+	@override String get momentsAddMedia => '미디어 추가';
+	@override String get momentsAllowUidsLabel => '공개할 UID 목록 (쉼표로 구분)';
+	@override String get momentsCommentFailed => '댓글 작성 실패, 나중에 다시 시도해주세요';
+	@override String get momentsDeleteFailed => '삭제 실패, 나중에 다시 시도해주세요';
+	@override String get momentsReportSubmitted => '신고가 접수되었습니다';
+	@override String get momentsReportFailed => '신고 실패, 나중에 다시 시도해주세요';
+	@override String get momentsLoadMoreComments => '댓글 더 보기';
+	@override String get momentsUploadFailed => '미디어 업로드 실패, 나중에 다시 시도해주세요';
 	@override String get transactionHistory => '거래 내역';
 	@override String get paymentPasswordSetSuccess => '결제 비밀번호 설정 성공';
 	@override String get paymentPasswordSetFailed => '결제 비밀번호 설정 실패';
@@ -1047,6 +1282,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get personalSignature => '개인 서명';
 	@override String get personalBackground => '개인 배경';
 	@override String get setBackgroundImage => '배경 이미지 설정';
+	@override String get expression => '이모티콘';
 	@override String get extendedInfo => '추가 정보';
 	@override String get profession => '직업';
 	@override String get pleaseEnterProfession => 'Please enter profession';
@@ -1127,6 +1363,10 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get noDetailedInfo => '이 사용자는 개인 서명 등 세부 정보를 설정하지 않았습니다';
 	@override String get noNewRegisteredUsers => '현재 새로 등록한 사용자가 없습니다 나중에 다시 확인하세요';
 	@override String get newRegisteredUsersTip => '최근 등록한 사용자가 여기에 표시됩니다. 친구로 추가할 수 있습니다';
+	@override String get notificationFriendRequest => '친구 요청';
+	@override String notificationFriendRequestBody({required Object requesterName}) => '${requesterName}님이 친구로 추가 요청했습니다';
+	@override String get notificationGroupInvite => '그룹 초대';
+	@override String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName}님이 ${groupName} 그룹에 초대했습니다';
 	@override String get youRevokedMessage => '메시지를 회수했습니다';
 	@override String get otherRevokedMessage => '상대방이 메시지를 회수했습니다';
 	@override String get networkFailureTryAgain => '네트워크 오류, 다시 시도해 주세요!';
@@ -1143,43 +1383,295 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get smaller => '더 작게';
 	@override String currentFontScale({required Object param1, required Object param2}) => '현재: ${param1} ${param2}%';
 	@override String emailUpdatedTo({required Object param}) => '이메일이 ${param}으로 업데이트되었습니다';
-	@override String get atMentionYouTag => '[@你] ';
-	@override String get atMentionLeftMember => '@已退群成员';
-	@override String get muteNotifications => '消息免打扰';
-	@override String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
-	@override String get revokeExpired => '超过 2 分钟，无法撤回';
-	@override String get quickReplyAddTitle => '新增快捷回复';
-	@override String get quickReplyEditTitle => '编辑快捷回复';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get muteMemberConfirm => 'Mute this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get transferGroupSuccess => 'Ownership transferred';
-	@override String get transferGroupFailed => 'Failed to transfer ownership';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration6hours => '6 Hours';
-	@override String get muteDuration12hours => '12 Hours';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration3days => '3 Days';
-	@override String get muteDuration7days => '7 Days';
-	@override String get muteDurationPermanent => 'Permanent';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String groupAnnouncementExpiry({required Object time}) => '유효 기간: ${time}';
+	@override String get groupAlbumCreateFailed => '생성 실패, 나중에 다시 시도해주세요';
+	@override String get groupAlbumDeleteTitle => '그룹 앨범 삭제';
+	@override String groupAlbumDeleteConfirm({required Object name}) => '앨범 "${name}"을(를) 삭제하시겠습니까?';
+	@override String get groupAlbumDeleted => '앨범이 삭제되었습니다';
+	@override String get groupAlbumDeleteFailed => '삭제 실패, 나중에 다시 시도해주세요';
+	@override String get groupAlbumRenameFailed => '변경 실패, 나중에 다시 시도해주세요';
+	@override String get groupAlbumUploadTooltip => '이미지 업로드';
+	@override String get groupAlbumDeleteTooltip => '앨범 삭제';
+	@override String get groupAlbumNoAlbum => '그룹 앨범이 없습니다';
+	@override String get groupAlbumPhotoReadFailed => '이미지 읽기 실패, 다시 시도해주세요';
+	@override String get groupAlbumPhotoUploaded => '이미지 업로드 완료';
+	@override String get groupAlbumPhotoUploadFailed => '이미지 업로드 실패, 나중에 다시 시도해주세요';
+	@override String get groupAlbumCreateTooltip => '앨범 만들기';
+	@override String get groupAlbumPhotoBatchDeleteTitle => '이미지 일괄 삭제';
+	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => '선택한 이미지 ${count}장을 삭제하시겠습니까?';
+	@override String get groupAlbumPhotoDeleteFailed => '삭제 실패, 나중에 다시 시도해주세요';
+	@override String groupAlbumPhotoDeletedAll({required Object count}) => '이미지 ${count}장 삭제됨';
+	@override String groupAlbumPhotoDeletedPartial({required Object success, required Object fail}) => '${success}장 삭제, ${fail}장 실패';
+	@override String get groupAlbumPhotoDeleteTitle => '이미지 삭제';
+	@override String get groupAlbumPhotoDeleteConfirm => '이 이미지를 삭제하시겠습니까?';
+	@override String get groupAlbumPhotoDeleted => '이미지가 삭제되었습니다';
+	@override String get groupAlbumPhotoBatchDeleteTooltip => '일괄 삭제';
+	@override String get groupAlbumPhotoExitSelection => '선택 취소';
+	@override String get groupAlbumPhotoOpenFailed => '이미지 링크를 열 수 없습니다';
+	@override String get groupAlbumPhotoNotFound => '이미지가 없거나 삭제되었습니다';
+	@override String get groupAlbumPhotoOpenExternal => '외부 앱으로 열기';
+	@override String get groupAlbumPhotoCoverUpdated => '앨범 표지로 설정되었습니다';
+	@override String get groupAlbumPhotoCoverFailed => '표지 설정 실패, 나중에 다시 시도해주세요';
+	@override String get groupAlbumPhotoNext => '다음';
+	@override String get groupAlbumPhotoResolution => '해상도';
+	@override String get groupAlbumPhotoUploader => '업로더';
+	@override String get sectionDisplay => '표시';
+	@override String get sectionTheme => '테마';
+	@override String get selectLanguage => '언어 선택';
+	@override String get completionSuggestions => '보완 추천';
+	@override String get sectionGeneral => '일반';
+	@override String get sectionPrivacySecurity => '개인정보 및 보안';
+	@override String get sectionHelpAbout => '도움말 및 정보';
+	@override String get msgOnlyVisibleToParties => '메시지는 발신자와 수신자만 볼 수 있습니다';
+	@override String get msgNotEncrypted => '메시지가 암호화되지 않았습니다';
+	@override String durationMinutes({required Object count}) => '${count}분';
+	@override String durationSeconds({required Object count}) => '${count}초';
+	@override String get rechargeAmountError => '1위안에서 10000위안 사이의 금액을 입력하세요';
+	@override String get rechargeSuccess => '충전 완료';
+	@override String get rechargeConfirm => '충전 확인';
+	@override String get transactionHistory2 => '거래 내역';
+	@override String get noTransactionHistory => '거래 내역이 없습니다';
+	@override String get allLoaded => '— 모두 불러옴 —';
+	@override String get transactionTypeIncome => '충전';
+	@override String get transactionTypeExpense => '사용';
+	@override String get sectionLoginCredentials => '로그인 정보';
+	@override String get channelInvitations => '채널 초대';
+	@override String get acceptInvitationFailed => '초대 수락 실패';
+	@override String get rejectInvitationFailed => '초대 거절 실패';
+	@override String get invitationAccepted => '초대를 수락했습니다';
+	@override String get invitationRejected => '초대를 거절했습니다';
+	@override String get invitationStatusPending => '대기 중';
+	@override String get invitationStatusAccepted => '수락됨';
+	@override String get invitationStatusRejected => '거절됨';
+	@override String get invitationStatusExpired => '만료됨';
+	@override String get invitationStatusCancelled => '취소됨';
+	@override String get invitationStatusUnknown => '알 수 없음';
+	@override String get noReceivedInvitations => '받은 초대가 없습니다';
+	@override String get noSentInvitations => '보낸 초대가 없습니다';
+	@override String get processingDots => '처리 중...';
+	@override String get purchaseFailed => '구매 실패, 나중에 다시 시도해주세요';
+	@override String get purchaseSuccess => '구매 완료';
+	@override String get insufficientBalanceTitle => '잔액 부족';
+	@override String insufficientBalanceContent({required Object currency, required Object balance, required Object price}) => '현재 잔액 ${currency} ${balance}, 결제 필요 금액 ${currency} ${price}. 먼저 충전 후 구매하세요.';
+	@override String get goRecharge => '충전하러 가기';
+	@override String get noOrders => '주문이 없습니다';
+	@override String get orderDetailLoadFailed => '주문 상세를 불러오지 못했습니다';
+	@override String orderNoLabel({required Object no}) => '주문 번호: ${no}';
+	@override String get orderStatusCancelled => '취소됨';
+	@override String get orderStatusUnknown => '알 수 없음';
+	@override String get removeReaction => '리액션 제거';
+	@override String removeReactionConfirm({required Object emoji}) => '${emoji} 리액션을 제거하시겠습니까?';
+	@override String get fileOpenFailed => '이 파일을 열 수 없습니다';
+	@override String get e2eeLocalBackup => '로컬 백업';
+	@override String get e2eeLocalBackupDesc => '암호화된 백업 파일을 로컬 또는 클라우드에 내보냅니다';
+	@override String get e2eeDeleteKey => '키 삭제';
+	@override String get e2eeDeleteKeyDesc => '로컬에 저장된 키를 삭제합니다 (복구 불가)';
+	@override String get e2eeCurrentKeyInfo => '현재 키 정보';
+	@override String get e2eeE2EEEnabled => '종단간 암호화가 활성화되었습니다';
+	@override String get e2eeNoKeyDetected => 'E2EE 키가 감지되지 않았습니다';
+	@override String get e2eeNoKeyDesc => '먼저 키 쌍을 생성하거나 백업에서 복구해야 합니다';
+	@override String get e2eeAboutTitle => '종단간 암호화 정보';
+	@override String get e2eeInfoPoint1 => '• 메시지는 전송 전에 암호화되며 서버는 내용을 볼 수 없습니다';
+	@override String get e2eeInfoPoint2 => '• 기기를 변경하거나 키를 삭제하면 이전 메시지를 복호화할 수 없을 수 있습니다';
+	@override String get e2eeInfoPoint3 => '• 데이터 손실을 방지하려면 정기적으로 키를 백업하세요';
+	@override String get e2eeExportBackup => '백업 내보내기';
+	@override String get e2eeExportBackupDesc => '암호화된 백업 파일 생성';
+	@override String get e2eeImportBackup => '백업 가져오기';
+	@override String get e2eeImportBackupDesc => '백업 파일에서 키 복구';
+	@override String get e2eeBackupManage => '백업 관리';
+	@override String get e2eeBackupManageDesc => '백업 기록 보기';
+	@override String get e2eeGenerateKeyConfirm => '새 E2EE 키 쌍을 생성하시겠습니까?';
+	@override String get e2eeWarnOldMessagesLost => '• 이전 메시지를 복호화할 수 없습니다';
+	@override String get e2eeWarnNeedNewBackup => '• 백업 파일을 다시 생성해야 합니다';
+	@override String get e2eeConfirmGenerate => '생성 확인';
+	@override String get e2eeDeleteKeyConfirm => '현재 키를 삭제하시겠습니까?';
+	@override String get e2eeWarnCannotRestore => '• 삭제 후 복구할 수 없습니다';
+	@override String get e2eeWarnAllMsgsLost => '• 모든 E2EE 메시지를 복호화할 수 없습니다';
+	@override String get e2eeConfirmDelete => '삭제 확인';
+	@override String get e2eeKeyGeneratedSuccess => '키가 생성되었습니다';
+	@override String e2eeDeviceIdInfo({required Object id}) => '기기 ID: ${id}';
+	@override String e2eeKeyIdInfo({required Object id}) => '키 ID: ${id}';
+	@override String e2eeCreatedAtInfo({required Object time}) => '생성 시간: ${time}';
+	@override String get e2eeImportantNote => '중요 안내';
+	@override String get e2eeWarnOldMayNotDecrypt => '• 이전 메시지를 복호화할 수 없을 수 있습니다';
+	@override String get e2eeSuggestBackupNow => '• 지금 백업을 내보내는 것을 권장합니다';
+	@override String get e2eeGoBackup => '백업하러 가기';
+	@override String get e2eeKeyGenerateFailed => '키 생성 실패, 다시 시도해주세요';
+	@override String get e2eeKeyDeleted => '키가 삭제되었습니다';
+	@override String get e2eeDeleteFailed => '삭제 실패, 다시 시도해주세요';
+	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => '사용 가능한 샤드: ${available}개, ${required}명의 대리자 필요';
+	@override String get e2eeNoRecoveryShards => '사용 가능한 복구 샤드가 없습니다';
+	@override String get e2eeRecoverSuccess => '복구 완료';
+	@override String get e2eeRecoverFailed => '복구 실패';
+	@override String get e2eeRecoverKeyFailed => '키 복구 실패, 다시 시도해주세요';
+	@override String get e2eeLoadingShards => '샤드 정보를 불러오는 중...';
+	@override String get e2eeNoShards => '사용 가능한 샤드가 없습니다';
+	@override String get e2eeLoadFailed => '불러오기 실패, 다시 시도해주세요';
+	@override String e2eeContactingProxy({required Object name}) => '연락 중: ${name}';
+	@override String get e2eeRecoveryFailed => '복구 실패, 다시 시도해주세요';
+	@override String get webFeatureNotification => '데스크톱 알림';
+	@override String get webFeatureNotificationDesc => '페이지를 보지 않을 때도 새 메시지 알림을 받습니다';
+	@override String get webQRConfirmOnPhone => '휴대폰에서 로그인을 확인해주세요';
+	@override String get webQRLoginFailed => '로그인 실패';
+	@override String get webQRLoginSuccess => '로그인 완료';
+	@override String webQRExpiresIn({required Object seconds}) => '${seconds}초 후 만료';
+	@override String get webQRStatusFailed => '로그인 실패, 다시 시도해주세요';
+	@override String get webQRStatusSuccess => '이동 중...';
+	@override String get webLoginEmptyError => '계정과 비밀번호를 입력하세요';
+	@override String get webQRGenerateFailed => 'QR 코드 생성 실패';
+	@override String get webQRTokenInvalid => '로그인 토큰이 잘못되었습니다';
+	@override String get e2eeErrNoRecipientKey => '상대의 기기 키를 가져올 수 없어 메시지가 전송되지 않았습니다';
+	@override String get e2eeDecryptFailed => '메시지를 복호화할 수 없습니다';
+	@override String get e2eeDecryptFailedReasons => '이 메시지를 복호화할 수 없습니다. 가능한 원인';
+	@override String get e2eeDecryptReasonOtherDevice => '• 다른 기기에서 로그인함';
+	@override String get e2eeDecryptReasonKeyExpired => '• 기기 키가 만료됨';
+	@override String get e2eeDecryptReasonDataCorrupt => '• 앱 데이터 손상';
+	@override String get e2eeDecryptChooseSolution => '해결 방법을 선택하세요';
+	@override String get e2eeDecryptActionRecreateKey => '키 다시 만들기 (권장)';
+	@override String get e2eeDecryptActionRelogin => '다시 로그인';
+	@override String get e2eeDecryptActionRemindLater => '나중에 알림';
+	@override String get e2eeBackupExportTitle => 'E2EE 백업 내보내기';
+	@override String get e2eeBackupPwdCantRecover => '• 백업 비밀번호는 복구할 수 없으니 반드시 기억해주세요!';
+	@override String get e2eeBackupStoreMultipleNote => '• 백업 파일을 여러 안전한 위치(이메일, 클라우드, USB)에 보관하는 것을 권장합니다';
+	@override String get e2eeBackupPwdLabel => '백업 비밀번호 *';
+	@override String get e2eeBackupPwdHint => '최소 12자, 대소문자/숫자/특수문자 포함';
+	@override String get e2eeBackupConfirmPwdLabel => '비밀번호 확인 *';
+	@override String get e2eeBackupConfirmPwdHint => '비밀번호 다시 입력';
+	@override String get e2eeBackupNoteLabel => '메모 (선택)';
+	@override String get e2eeBackupNoteHint => '예: 메인 휴대폰 백업 - 2026년 1월';
+	@override String get e2eeBackupPwdStrengthLabel => '비밀번호 강도';
+	@override String get e2eeBackupPwdWeak => '약함 - 복잡도를 높이세요';
+	@override String get e2eeBackupPwdMedium => '보통 - 길이나 복잡도를 높이세요';
+	@override String get e2eeBackupPwdStrong => '강함 - 사용 가능';
+	@override String get e2eeBackupPwdVeryStrong => '매우 강함 - 안전';
+	@override String get e2eeBackupGenerateBtn => '백업 파일 생성';
+	@override String get e2eeBackupFileGenerated => '백업 파일이 생성되었습니다!';
+	@override String get e2eeBackupShareBtn => '이메일/클라우드로 공유';
+	@override String get e2eeBackupShareContent => '제 Imboy E2EE 키 백업 파일입니다. 안전하게 보관하고 타인에게 노출하지 마세요.';
+	@override String get e2eeBackupErrPwdMismatch => '비밀번호가 일치하지 않습니다';
+	@override String get e2eeBackupErrNoKeyData => '키 데이터를 가져올 수 없습니다';
+	@override String get e2eeBackupErrExportFailed => '내보내기 실패, 다시 시도해주세요';
+	@override String get e2eeBackupErrShareFailed => '공유 실패, 다시 시도해주세요';
+	@override String get e2eeBackupExportSuccessTitle => '백업 내보내기 완료';
+	@override String get e2eeBackupExportSuccessBody => 'E2EE 키 백업이 생성되었습니다.';
+	@override String get e2eeBackupImportantNoteColon => '중요 안내';
+	@override String get e2eeBackupKeepSafe => '• 백업 파일과 비밀번호를 안전하게 보관하세요';
+	@override String get e2eeBackupStoreMultipleLoc => '• 파일을 여러 안전한 위치에 보관하세요';
+	@override String get e2eeBackupPwdCantRecoverNote => '• 비밀번호는 복구할 수 없으니 반드시 기억해주세요';
+	@override String get e2eeBackupImportTitle => 'E2EE 백업 가져오기';
+	@override String get e2eeBackupImportGuide => '가져오기 안내';
+	@override String get e2eeBackupImportReplaceKey => '• 가져오면 현재 E2EE 키가 교체됩니다';
+	@override String get e2eeBackupImportTrustedSource => '• 백업 파일이 신뢰할 수 있는 출처인지 확인하세요';
+	@override String get e2eeBackupSelectFile => '백업 파일 선택';
+	@override String get e2eeBackupSelectFileHint => '백업 파일(.enc)을 선택하세요';
+	@override String get e2eeBackupInfoTitle => '백업 정보';
+	@override String get e2eeBackupVersionLabel => '버전';
+	@override String get e2eeBackupAlgorithmLabel => '알고리즘';
+	@override String get e2eeBackupFileSizeLabel => '파일 크기';
+	@override String get e2eeBackupFileValid => '✓ 파일 형식이 유효합니다';
+	@override String get e2eeBackupImportPwdHint => '백업 시 설정한 비밀번호를 입력하세요';
+	@override String get e2eeBackupImportBtn => '키 가져오기';
+	@override String get e2eeBackupErrSelectFile => '파일 선택 실패, 다시 시도해주세요';
+	@override String get e2eeBackupErrValidateFailed => '파일 검증 실패, 파일 형식을 확인해주세요';
+	@override String get e2eeBackupErrImportFailed => '가져오기 실패, 비밀번호를 확인해주세요';
+	@override String get e2eeBackupImportSuccessTitle => '가져오기 완료';
+	@override String get e2eeBackupImportSuccessBody => 'E2EE 키가 복구되었습니다!';
+	@override String get e2eeBackupImportSuccessNote => '참고: 이전 메시지를 볼 수 없을 수 있으며 이는 E2EE의 정상적인 동작입니다';
+	@override String get e2eeBackupNoRecords => '백업 기록이 없습니다';
+	@override String get e2eeBackupNoRecordsHint => '백업을 내보내면 기록이 여기에 표시됩니다';
+	@override String e2eeBackupDeviceLabel({required Object id}) => '기기 ${id}';
+	@override String e2eeBackupCreatedAtLabel({required Object time}) => '생성일 ${time}';
+	@override String get e2eeBackupDetailTitle => '백업 상세';
+	@override String get e2eeBackupDeviceIdLabel => '기기 ID';
+	@override String get e2eeBackupVersionNum => '백업 버전';
+	@override String get e2eeBackupCreatedAtRow => '생성 시간';
+	@override String get e2eeBackupFileSizeRow => '파일 크기';
+	@override String get e2eeBackupNoteRow => '메모';
+	@override String get e2eeBackupDeleteTitle => '백업 기록 삭제';
+	@override String get e2eeBackupDeleteConfirm => '이 백업 기록을 삭제하시겠습니까?';
+	@override String get e2eeBackupDeleteSuccess => '백업 기록이 삭제되었습니다';
+	@override String get e2eeSocialShardSettings => '샤드 설정';
+	@override String get e2eeSocialShardStoredNote => '안내: 샤드는 대리자 기기에 저장되며 서버에는 어떤 샤드도 저장되지 않습니다';
+	@override String get e2eeSocialAddProxy => '대리자 추가';
+	@override String get e2eeSocialAddProxyHint => '대리자 연락처를 추가해주세요';
+	@override String e2eeSocialCreateNeedMore({required Object count}) => '대리자를 ${count}명 더 추가해주세요';
+	@override String get e2eeSocialCreateSuccessTitle => '샤드 생성 완료';
+	@override String e2eeSocialTotalShardsInfo({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다';
+	@override String e2eeSocialThresholdInfo({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다';
+	@override String get e2eeSocialZeroTrustNote => '제로 트러스트 구조: 서버는 어떤 샤드도 저장하지 않습니다';
+	@override String get e2eeSocialNoShards => '생성한 복구 샤드가 없습니다';
+	@override String get e2eeSocialNoProxyShards => '대리자 샤드가 없습니다';
+	@override String get e2eeSocialKeyVersionLabel => '키 버전';
+	@override String get e2eeTransferErrNoKey => '먼저 키 쌍을 생성해주세요';
+	@override String get e2eeTransferErrInitFailed => '초기화 실패, 다시 시도해주세요';
+	@override String get e2eeTransferErrNoRecipientKey => '수신자에게 사용 가능한 공개 키가 없습니다';
+	@override String get e2eeTransferErrKeyNotFound => '키를 찾을 수 없습니다';
+	@override String get e2eeTransferErrCreateFailed => '전송 세션 생성 실패, 다시 시도해주세요';
+	@override String get e2eeTransferCreateSessionBtn => '전송 세션 만들기';
+	@override String get e2eeTransferSessionCreated => '전송 세션이 생성되었습니다';
+	@override String get e2eeTransferUidEmptyError => '올바른 사용자 ID를 입력해주세요';
+	@override String get e2eeTransferSuccess => '전송 완료!';
+	@override String get e2eeTransferFailed => '전송 실패, 다시 시도해주세요';
+	@override String get e2eeTransferProcessingMsg => '처리 중...';
+	@override String get e2eeTransferSuccessTitle => '전송 완료';
+	@override String get e2eeTransferSuccessBody => '키가 현재 기기로 전송되었습니다';
+	@override String e2eeTransferScanError({required Object error}) => '스캔 오류: ${error}';
+	@override String get e2eeTransferErrNoDeviceId => '기기 ID를 가져올 수 없습니다';
+	@override String get passwordEncryptFailed => '비밀번호 암호화 실패';
+	@override String get initConfigTimeout => '설정 불러오기 시간 초과: 네트워크 연결 또는 서버 상태를 확인해주세요';
+	@override String initConfigNetworkError({required Object code}) => '네트워크 또는 서버 오류 (HTTP ${code})';
+	@override String get initConfigProtocolError => '서버 응답 프로토콜 오류';
+	@override String get initConfigFetchFailed => '설정 불러오기 실패, 네트워크 연결을 확인해주세요';
+	@override String get attachmentGetFileFailed => '파일을 가져올 수 없습니다. 다시 시도하거나 앨범에서 선택하세요';
+	@override String get attachmentGetFileFailedAndroid9 => '파일 가져오기 실패, Android 9 호환성 문제일 수 있습니다';
+	@override String get attachmentGetImageDataFailed => '이미지 데이터를 가져올 수 없습니다. 다시 시도해주세요';
+	@override String get attachmentGetOriginalImageFailed => '원본 이미지 데이터를 가져올 수 없습니다';
+	@override String get saveFailedRetry => '저장 실패, 다시 시도해주세요';
+	@override String get downloadFileNotFound => '다운로드 파일이 없습니다. 다시 시도해주세요';
+	@override String downloadHashRetrying({required Object retry, required Object max}) => '파일 검증 실패, 다시 다운로드하는 중 (${retry}/${max})';
+	@override String get downloadHashFailed => '파일 검증이 여러 번 실패했습니다. 네트워크를 확인하고 다시 시도해주세요';
+	@override String get e2eeTransferToNewDevice => '새 기기로 전송';
+	@override String get e2eeTransferPendingSection => '대기 중인 전송';
+	@override String get e2eeTransferLoadFailed => '불러오기 실패';
+	@override String get e2eeTransferLoadFailedDesc => '대기 중인 전송을 불러올 수 없습니다. 다시 시도해주세요';
+	@override String get e2eeTransferNoPending => '대기 중인 전송이 없습니다';
+	@override String get e2eeTransferNoPendingDesc => '기기가 키를 전송하면 여기에 표시됩니다';
+	@override String get e2eeSocialEnoughShards => '키를 복구할 수 있는 충분한 샤드가 있습니다';
+	@override String e2eeSocialMoreShards({required Object count}) => '샤드 ${count}개 더...';
+	@override String get e2eeProxyLoadFriendsFailed => '친구 목록을 불러오지 못했습니다. 다시 시도해주세요';
+	@override String get e2eeProxyNoPublicKey => '이 친구에게 사용 가능한 공개 키가 없습니다';
+	@override String e2eeProxyGetKeyFailed({required Object name}) => '${name}의 공개 키를 가져오지 못했습니다';
+	@override String get e2eeProxySelectFailed => '대리자 선택 실패, 다시 시도해주세요';
+	@override String get e2eeProxyNoFriends => '친구가 없습니다';
+	@override String get e2eeProxyNoFriendsHint => '먼저 친구를 추가한 뒤 복구 대리자를 설정해주세요';
+	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => '최소 ${count}명의 신뢰하는 연락처가 필요하며, ${selected}명 선택됨';
+	@override String e2eeProxyConfirmCount({required Object count}) => '선택 확인 (대리자 ${count}명)';
+	@override String get buttonBackHome => '홈으로';
+	@override String get featureNotEnabled => '이 기능은 활성화되어 있지 않습니다';
+	@override String featureDisabledName({required Object name}) => '${name} 기능이 활성화되어 있지 않아 일시적으로 접근할 수 없습니다';
+	@override String get imageLoadFailed => '불러오기 실패';
+	@override String loadFailedWithError({required Object error}) => '불러오기 실패: ${error}';
+	@override String get webAudioNotSupported => 'Web에서는 음성 메시지 재생을 지원하지 않습니다';
+	@override String e2eeKeyRecreationFailed({required Object error}) => '키 생성 실패: ${error}';
+	@override String get redPacket => '복주머니';
+	@override String get transfer => '송금';
+	@override String get withdraw => '출금';
+	@override String get redPacketSend => '복주머니 보내기';
+	@override String get redPacketOpen => '복주머니 받기';
+	@override String get redPacketDetail => '복주머니 상세';
+	@override String get transferSend => '송금하기';
+	@override String get transferAccept => '송금 수락';
+	@override String get greetingDefault => '새해 복 많이 받으세요';
+	@override String grabAmountYuan({required Object amount}) => '받은 금액: ${amount}위안';
+	@override String transferAmountYuan({required Object amount}) => '송금액: ${amount}위안';
+	@override String get insufficientBalance => '잔액 부족';
+	@override String get goToRecharge => '충전하러 가기';
+	@override String get withdrawSuccess => '출금 완료';
+	@override String get withdrawConfirm => '출금 확인';
+	@override String get withdrawAmountError => '1위안 이상의 금액을 입력해주세요';
+	@override String get withdrawAccountEmpty => '출금 계좌를 입력해주세요';
+	@override String get withdrawMethod => '출금 방식';
+	@override String get withdrawAccount => '출금 계좌';
 }
 
 // Path: complaint
@@ -1190,6 +1682,19 @@ class _Translations$complaint$ko_KR extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => '신고';
+}
+
+// Path: complaintReason
+class _Translations$complaintReason$ko_KR extends Translations$complaintReason$zh_CN {
+	_Translations$complaintReason$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get spam => '스팸';
+	@override String get harassment => '괴롭힘';
+	@override String get inappropriate => '부적절한 내용';
+	@override String get other => '기타';
 }
 
 // Path: contact
@@ -1229,6 +1734,7 @@ class _Translations$contact$ko_KR extends Translations$contact$zh_CN {
 	@override String get pleaseEnterRemark => '메모를 입력해 주세요';
 	@override String get enterRemark => '메모 이름을 입력해 주세요';
 	@override String get pleaseEnterTags => '태그를 입력하세요';
+	@override String get momentsVisibilityFriends => '친구만';
 	@override String tagLengthExceeded({required Object param}) => '태그 길이는 ${param}자를 초과할 수 없습니다';
 	@override String maxTagsExceeded({required Object param}) => '최대 ${param}개의 태그를 추가할 수 있습니다';
 	@override String selectedTags({required Object param, required Object max}) => '선택된 태그 (${param}/${max})';
@@ -1247,6 +1753,8 @@ class _Translations$contact$ko_KR extends Translations$contact$zh_CN {
 	@override String get tagIdeas => '아이디어';
 	@override String get tagMemo => '메모';
 	@override String get friendRequestSent => '전송됨';
+	@override String get channelMaxTagsCount => '태그는 최대 8개까지 추가할 수 있습니다';
+	@override String get tagInputHint => '태그 입력...';
 }
 
 // Path: discovery
@@ -1265,10 +1773,26 @@ class _Translations$discovery$ko_KR extends Translations$discovery$zh_CN {
 	@override String get scanResult => '스캔 결과';
 	@override String get scannerResult => '스캐너 결과';
 	@override String get titleDiscover => '발견';
+	@override String get myChannels => '내 채널';
+	@override String get channelSquare => '채널 광장';
 	@override String get otherUsersCanFindMe => '다른 사용자가 검색을 통해 찾을 수 있습니다';
 	@override String get moments => '모멘트';
+	@override String get momentsReport => '모멘트 신고';
+	@override String get momentsReportDesc => '추가 설명';
+	@override String get momentsComments => '댓글';
+	@override String get momentsWriteComment => '댓글을 입력하세요...';
+	@override String get momentsVisibility => '공개 범위';
+	@override String get momentsVisibilityPublic => '공개';
+	@override String get momentsVisibilityPartial => '일부만';
+	@override String get momentsVisibilityExclude => '특정 친구 제외';
+	@override String get momentsDenyUidsLabel => '제외할 UID 목록 (쉼표로 구분)';
+	@override String get momentsDraftRestored => '마지막 저장된 임시글이 복원되었습니다';
+	@override String get momentsFeedStale => '네트워크 오류로 캐시된 내용을 표시합니다';
 	@override String get discover => '발견';
 	@override String get shake => '흔들기';
+	@override String get openChannel => '채널 열기';
+	@override String get paidChannelLocked => '유료 채널 콘텐츠가 잠겨 있습니다';
+	@override String get webQRScanned => '스캔 완료';
 }
 
 // Path: error
@@ -1285,6 +1809,11 @@ class _Translations$error$ko_KR extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. 휴대전화 설정 - 일반 - 셀룰러 데이터를 열고 셀룰러 데이터 스위치를 켜 주세요.';
 	@override String get networkTroubleshootingStep3 => '3. 여전히 네트워크에 연결할 수 없는 경우, 휴대전화가 연결된 Wi-Fi가 인터넷에 액세스할 수 있는지 확인하거나 네트워크 운영자에게 문의해 주세요.';
 	@override String get suggestCheckNetwork => '네트워크 설정을 확인하는 것이 좋습니다.';
+	@override String e2eeStartRecoveryBtn({required Object required}) => '키 복구 시작 (${required}명의 대리자 필요)';
+	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => '샤드 부족 (${required}개 필요, 현재 ${current}개)';
+	@override String get e2eeErrTimeout => '암호화 시간 초과, 네트워크 연결을 확인하고 다시 시도해주세요';
+	@override String get e2eeErrNetwork => '네트워크 오류로 암호화 실패, 메시지가 전송되지 않았습니다';
+	@override String get liveRoomTitleRequired => '제목을 입력해주세요';
 }
 
 // Path: group
@@ -1298,6 +1827,7 @@ class _Translations$group$ko_KR extends Translations$group$zh_CN {
 	@override String get enterSameGroup => '주변 친구와 같은 그룹 채팅에 들어가세요';
 	@override String get enterTheGroup => '그룹 입장';
 	@override String get groupAlias => '그룹 내 내 닉네임';
+	@override String get groupAlbum => '그룹 앨범';
 	@override String get groupDissolve => '그룹 해체';
 	@override String get groupJoin => '그룹 참여';
 	@override String get groupLeave => '그룹 나가기';
@@ -1305,16 +1835,193 @@ class _Translations$group$ko_KR extends Translations$group$zh_CN {
 	@override String get groupMembers => '그룹 구성원';
 	@override String get groupName => '그룹 채팅 이름';
 	@override String get mutualGroupsWithHer => '해당 사용자와의 공통 그룹 채팅';
-	@override String get selectGroup => '그룹 채팅 선택';
-	@override String get sureToDissolveGroup => '이 그룹을 해체하시겠습니까?';
-	@override String get sureToLeaveGroup => '이 그룹을 나가시겠습니까?';
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
-	@override String get groupGuest => '嘉宾';
+	@override String get groupGuest => '게스트';
 	@override String get groupMember => 'Member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get transferGroup => 'Transfer Ownership';
 	@override String get joinTime => 'Join Time';
+	@override String get selectGroup => '그룹 채팅 선택';
+	@override String get sureToDissolveGroup => '이 그룹을 해체하시겠습니까?';
+	@override String get sureToLeaveGroup => '이 그룹을 나가시겠습니까?';
+	@override String get groupAlbumNameHint => '앨범 이름을 입력하세요';
+	@override String get groupAlbumRenameTitle => '앨범 이름 변경';
+	@override String get groupAlbumRenamed => '앨범 이름이 변경되었습니다';
+	@override String get groupAlbumUnnamed => '이름 없는 앨범';
+	@override String groupAlbumPhotoCount({required Object count}) => '이미지 ${count}장';
+	@override String get groupAlbumPhotoIdMissing => '이미지 ID가 없어 상세정보를 볼 수 없습니다';
+	@override String get groupAlbumPhotoListTitle => '앨범 이미지';
+	@override String groupAlbumPhotoSelectedCount({required Object count}) => '${count}개 선택됨';
+	@override String get groupAlbumPhotoEmpty => '이미지가 없습니다';
+	@override String get groupAlbumPhotoUrlMissing => '이미지 주소가 없어 열 수 없습니다';
+	@override String get groupAlbumPhotoUrlInvalid => '이미지 주소가 잘못되었습니다';
+	@override String get groupAlbumPhotoDetailTitle => '이미지 상세';
+	@override String get groupAlbumPhotoSetCover => '표지로 설정';
+	@override String get groupAlbumPhotoPrev => '이전';
+	@override String get groupAlbumPhotoLikeCount => '좋아요 수';
+	@override String get groupAlbumPhotoCommentCount => '댓글 수';
+	@override String get groupAlbumPhotoMyLike => '내 좋아요';
+	@override String get groupAlbumPhotoIdLabel => '이미지 ID';
+	@override String get e2eeKeyManagement => 'E2EE 키 관리';
+	@override String get e2eeKeyManagementSubtitle => '종단간 암호화 키를 백업, 복구 및 관리합니다';
+}
+
+// Path: groupCategory
+class _Translations$groupCategory$ko_KR extends Translations$groupCategory$zh_CN {
+	_Translations$groupCategory$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '그룹 폴더';
+	@override String get createCategory => '폴더 만들기';
+	@override String get categoryName => '폴더 이름';
+	@override String get categoryDesc => '폴더 설명 (선택)';
+	@override String get noCategory => '폴더가 없습니다';
+	@override String get createFirst => '첫 폴더를 만들어보세요';
+	@override String get addGroup => '그룹을 폴더에 추가';
+	@override String get removeGroup => '폴더에서 제거';
+	@override String get deleteCategory => '폴더 삭제';
+	@override String get deleteCategoryConfirm => '이 폴더를 삭제하시겠습니까? 그룹은 삭제되지 않습니다.';
+	@override String get categoryCreated => '폴더가 생성되었습니다';
+	@override String get categoryDeleted => '폴더가 삭제되었습니다';
+	@override String get renameCategory => '폴더 이름 변경';
+	@override String get categoryRenamed => '폴더 이름이 변경되었습니다';
+	@override String get renameFailed => '이름 변경 실패, 다시 시도해주세요';
+	@override String get deleteFailed => '삭제 실패, 다시 시도해주세요';
+	@override String get categoryDetailTip => '이 폴더의 그룹은 그룹 목록에서 "폴더로 이동"으로 관리할 수 있습니다';
+}
+
+// Path: groupList
+class _Translations$groupList$ko_KR extends Translations$groupList$zh_CN {
+	_Translations$groupList$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get attrAll => '전체';
+	@override String get attrOwner => '내가 만듦';
+	@override String get attrManager => '내가 관리';
+	@override String get attrJoin => '내가 참여';
+	@override String get refresh => '새로고침';
+}
+
+// Path: groupSchedule
+class _Translations$groupSchedule$ko_KR extends Translations$groupSchedule$zh_CN {
+	_Translations$groupSchedule$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '그룹 일정';
+	@override String get createSchedule => '일정 만들기';
+	@override String get scheduleTitle => '일정 제목';
+	@override String get selectDate => '날짜 선택';
+	@override String get selectTime => '시간 선택';
+	@override String get location => '장소';
+	@override String get reminder => '알림';
+	@override String get noReminder => '알림 없음';
+	@override String get noSchedule => '일정이 없습니다';
+	@override String get scheduleCreated => '일정이 생성되었습니다';
+	@override String get scheduleUpdated => '일정이 수정되었습니다';
+	@override String get reminder15min => '15분 전';
+	@override String get reminder1hour => '1시간 전';
+	@override String get reminder1day => '1일 전';
+	@override String get startTime => '시작 시간';
+	@override String get endTime => '종료 시간';
+	@override String get participants => '참여 인원';
+	@override String get statusCancelled => '취소됨';
+	@override String get statusInProgress => '진행 중';
+	@override String get cancelSuccess => '일정이 취소되었습니다';
+	@override String get cancelFailed => '취소 실패, 나중에 다시 시도해주세요';
+	@override String get confirmAttend => '참석 확인';
+	@override String get declineAttend => '불참';
+	@override String get cancelSchedule => '일정 취소';
+	@override String get scheduleIdMissing => '일정 ID가 없어 상세정보를 볼 수 없습니다';
+}
+
+// Path: groupTag
+class _Translations$groupTag$ko_KR extends Translations$groupTag$zh_CN {
+	_Translations$groupTag$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '그룹 태그';
+	@override String get addTag => '태그 추가';
+	@override String get tagName => '태그 이름';
+	@override String get tagColor => '태그 색상';
+	@override String get noTag => '태그가 없습니다';
+	@override String get tagAdded => '태그가 추가되었습니다';
+	@override String get tagRemoved => '태그가 제거되었습니다';
+	@override String get removeTitle => '태그 제거';
+	@override String get removeConfirm => '이 태그를 제거하시겠습니까?';
+}
+
+// Path: groupTask
+class _Translations$groupTask$ko_KR extends Translations$groupTask$zh_CN {
+	_Translations$groupTask$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '그룹 작업';
+	@override String get createTask => '작업 만들기';
+	@override String get taskTitle => '작업 제목';
+	@override String get taskDescription => '작업 설명';
+	@override String get assignTo => '담당자';
+	@override String get deadline => '마감 시간';
+	@override String get noDeadline => '마감 시간 없음';
+	@override String get noTask => '작업이 없습니다';
+	@override String get all => '전체';
+	@override String get pending => '미완료';
+	@override String get completed => '완료';
+	@override String get taskCreated => '작업이 생성되었습니다';
+	@override String get taskSubmitted => '작업이 제출되었습니다';
+	@override String get taskCompleted => '작업이 완료되었습니다';
+	@override String get overdue => '마감';
+	@override String daysLeft({required Object days}) => '${days}일 후 마감';
+	@override String hoursLeft({required Object hours}) => '${hours}시간 후 마감';
+	@override String get dueSoon => '마감 임박';
+	@override String get submitFailed => '제출 실패, 나중에 다시 시도해주세요';
+	@override String get taskId => '작업 ID';
+	@override String get pendingReview => '검토 대기';
+	@override String get taskIdMissing => '작업 ID가 없어 상세정보를 볼 수 없습니다';
+	@override String get taskIdMissingSubmit => '작업 ID가 없어 제출할 수 없습니다';
+}
+
+// Path: groupVote
+class _Translations$groupVote$ko_KR extends Translations$groupVote$zh_CN {
+	_Translations$groupVote$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '그룹 투표';
+	@override String get createVote => '투표 만들기';
+	@override String get voteTitle => '투표 제목';
+	@override String get voteOptions => '투표 항목';
+	@override String get addOption => '항목 추가';
+	@override String get allowMultiple => '다중 선택 허용';
+	@override String get anonymous => '익명 투표';
+	@override String get deadline => '마감 시간';
+	@override String get noDeadline => '마감 시간 없음';
+	@override String get noVote => '투표가 없습니다';
+	@override String get voteEnded => '투표가 종료되었습니다';
+	@override String totalVotes({required Object count}) => '총 ${count}표';
+	@override String get voteSuccess => '투표 완료';
+	@override String get hasVoted => '투표함';
+	@override String get viewResults => '결과 보기';
+	@override String get cancelVoteSuccess => '투표를 취소했습니다';
+	@override String get cancelVoteFailed => '취소 실패, 나중에 다시 시도해주세요';
+	@override String get endVoteFailed => '종료 실패, 나중에 다시 시도해주세요';
+	@override String get eachOptionPerLine => '한 줄에 하나씩 입력';
+	@override String get statusInProgress => '진행 중';
+	@override String get updateVote => '투표 수정';
+	@override String get cancelMyVote => '내 투표 취소';
+	@override String get voteIdMissing => '투표 ID가 없어 상세정보를 볼 수 없습니다';
+	@override String participantCount({required Object count}) => '참여 인원: ${count}';
 }
 
 // Path: main
@@ -1338,6 +2045,8 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get audio => '오디오';
 	@override String get barcodeFound => '바코드를 찾았습니다!';
 	@override String get botQianFan => '천판 로봇';
+	@override String get liveRoomWhipLabel => 'WHIP 스트리밍 주소';
+	@override String get liveRoomWhepLabel => 'WHEP 수신 주소';
 	@override String get cache => '캐시';
 	@override String get camera => '촬영';
 	@override String get changeNameView => '이름 변경';
@@ -1415,6 +2124,9 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get recentlyUsed => '최근 사용';
 	@override String get releaseEnd => '놓으면 종료';
 	@override String remainingChars({required Object param}) => '${param}자 더 입력할 수 있습니다';
+	@override String get kickMember => 'Remove from Group';
+	@override String get memberDetail => 'Member Details';
+	@override String get memberRole => 'Role';
 	@override String get replied => '답장됨';
 	@override String get ringing => '벨 울림...';
 	@override String get ruRu => '러시아어';
@@ -1439,6 +2151,7 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get timeRange => '시간 범위';
 	@override String get timeWeekdays => '월요일, 화요일, 수요일, 목요일, 금요일, 토요일, 일요일';
 	@override String get titleMine => '내 정보';
+	@override String get titleSquare => '광장';
 	@override String get tooBad => '너무 나쁨';
 	@override String get tryAgainQ => '다시 시도하시겠습니까?';
 	@override String get type => '유형';
@@ -1511,9 +2224,154 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get larger => '더 크게';
 	@override String currentLength({required Object param1, required Object param2}) => '현재 길이: ${param1} / ${param2}';
 	@override String get fillIn => '입력';
-	@override String get kickMember => 'Remove from Group';
-	@override String get memberDetail => 'Member Details';
-	@override String get memberRole => 'Role';
+	@override String get msgProtectedByComplianceKey => '메시지는 규정 준수 키로 보호됩니다';
+	@override String inviterLabel({required Object uid}) => '초대자: ${uid}';
+	@override String inviteeLabel({required Object uid}) => '초대받은 사람: ${uid}';
+	@override String get mySentTab => '보낸 초대';
+	@override String get reject => '거절';
+	@override String get myOrders => '내 주문';
+	@override String get purchaseUnlockHint => '구매 시 채널의 과거 메시지와 향후 업데이트를 볼 수 있습니다.';
+	@override String get payingDots => '결제 중...';
+	@override String get purchaseAndUnlock => '구매하고 잠금 해제';
+	@override String get orderDetail => '주문 상세';
+	@override String orderAmountLabel({required Object currency, required Object amount}) => '금액: ${currency} ${amount}';
+	@override String channelPriceLabel({required Object currency, required Object amount}) => '가격: ${currency} ${amount}';
+	@override String get e2eeKeyRecoveryTitle => '종단간 암호화 키 관리';
+	@override String get e2eeRecoveryMethods => '키 복구 방법';
+	@override String get e2eeDangerousOps => '위험 작업';
+	@override String get e2eeSocialRecovery => '소셜 복구';
+	@override String get e2eeSocialRecoveryDesc => '신뢰하는 연락처의 도움으로 키를 복구합니다';
+	@override String get e2eeKeyIdLabel => '키 ID';
+	@override String get e2eeWarnIrreversible => '• 이 작업은 되돌릴 수 없습니다';
+	@override String get e2eeWarnNeedRestoreOrNew => '• 백업에서 복구하거나 새 키를 생성해야 합니다';
+	@override String get gotIt => '확인';
+	@override String get e2eeRecoverKeyTitle => '키 복구';
+	@override String get e2eeCanRecoverKey => '키를 복구할 수 있습니다';
+	@override String get e2eeInsufficientShards => '샤드 수가 부족합니다';
+	@override String e2eeProxyUser({required Object uid}) => '대리자: ${uid}';
+	@override String e2eeShardLabel({required Object index, required Object total}) => '샤드 ${index} / ${total}';
+	@override String get e2eeReloadShards => '새로고침';
+	@override String get e2eeRecovering => '복구 중...';
+	@override String get e2eeKeyRestored => '키가 복구되었습니다';
+	@override String e2eeUsedShards({required Object count}) => '대리자 샤드 ${count}개 사용됨';
+	@override String get e2eePreparing => '복구 준비 중...';
+	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => '진행률: ${collected} / ${total} 샤드';
+	@override String e2eeCollectingShards({required Object collected, required Object total}) => '샤드 수집 중 (${collected}/${total})...';
+	@override String get e2eeShardsCollected => '샤드 수집 완료, 키를 재조립하는 중...';
+	@override String get webQRLoggingIn => '로그인 중...';
+	@override String get webQRExpired => 'QR 코드가 만료되었습니다';
+	@override String get webQRRefresh => 'QR 코드 새로고침';
+	@override String get webSwitchToQR => 'QR 코드로 로그인';
+	@override String get e2eeErrDefault => '종단간 암호화 실패, 메시지가 전송되지 않았습니다';
+	@override String get e2eeSocialTotalShards => '전체 샤드 수';
+	@override String get e2eeSocialThreshold => '복구 임계값';
+	@override String e2eeSocialThresholdHint({required Object count}) => '키 복구 시 ${count}명의 대리자가 필요합니다';
+	@override String get e2eeSocialSelectProxy => '복구 대리자 선택';
+	@override String e2eeSocialProxyNeeded({required Object count}) => '${count}명의 신뢰하는 연락처가 대리자로 필요합니다';
+	@override String e2eeSocialProxyDefaultName({required Object uid}) => '사용자 ${uid}';
+	@override String get e2eeSocialShardSentViaWs => '샤드는 WebSocket으로 대리자 기기에 직접 전송되어 저장됩니다';
+	@override String e2eeSocialSentCount({required Object sent, required Object total}) => '대리자 기기 ${sent}개에 전송됨 (전체 ${total}개)';
+	@override String get e2eeSocialManageTitle => '샤드 관리';
+	@override String get e2eeSocialMyShards => '내 샤드';
+	@override String get e2eeSocialProxyShards => '대리자 샤드';
+	@override String e2eeSocialShardOf({required Object idx, required Object total}) => '샤드 ${idx} / ${total}';
+	@override String get e2eeSocialShardActive => '활성';
+	@override String get e2eeSocialShardUsed => '사용됨';
+	@override String get e2eeSocialShardValid => '샤드 유효';
+	@override String e2eeSocialUserShard({required Object uid}) => '사용자 ${uid}의 키 샤드';
+	@override String get e2eeSocialProxyUserLabel => '대리자';
+	@override String get e2eeSocialRecoveryThresholdLabel => '복구 임계값';
+	@override String get e2eeSocialShardIndexLabel => '샤드 번호';
+	@override String get e2eeTransferQRHint => '새 기기에서 이 QR 코드를 스캔하세요';
+	@override String e2eeTransferQRExpiry({required Object time}) => 'QR 코드가 ${time}에 만료됩니다';
+	@override String get e2eeTransferRefreshQR => 'QR 코드 새로고침';
+	@override String get e2eeTransferEnterUidTitle => '수신자 사용자 ID 입력';
+	@override String get e2eeTransferUidPlaceholder => '수신자 사용자 ID';
+	@override String get e2eeTransferReceiving => '수신 중...';
+	@override String get e2eeTransferPageTitle => '기기 간 전송';
+	@override String get e2eeTransferPendingItem => '대기 중인 키 전송';
+	@override String get e2eeTransferPendingItemDesc => '탭하여 상세 보기';
+	@override String get e2eeTransferView => '보기';
+	@override String get e2eeSocialTitle => '소셜 복구';
+	@override String get e2eeSocialCanRecover => '키를 복구할 수 있습니다';
+	@override String get e2eeSocialSetupProxy => '복구 대리자 설정';
+	@override String get e2eeSocialChooseProxy => '신뢰하는 연락처를 복구 대리자로 선택하세요';
+	@override String get e2eeSocialExistingShards => '기존 복구 샤드';
+	@override String get e2eeSocialRecoverKeyTitle => '키 복구';
+	@override String get e2eeSocialRecoverKeyDesc => '대리자의 샤드로 키를 복구합니다';
+	@override String get e2eeSocialManageShardsTitle => '샤드 관리';
+	@override String get e2eeSocialManageShardsDesc => '모든 복구 샤드를 보고 관리합니다';
+	@override String get e2eeSocialZeroTrustHint1 => '제로 트러스트 구조: 서버는 샤드를 저장하지 않고 대리자에 직접 연결합니다';
+	@override String get e2eeSocialZeroTrustHint2 => '제로 트러스트 구조: 샤드는 대리자 기기에 저장됩니다';
+	@override String get e2eeSocialZeroTrustHint3 => '제로 트러스트 구조: 샤드는 대리자 기기에 저장되며 서버는 평문에 접근하지 않습니다';
+	@override String e2eeProxyMinCount({required Object count}) => '대리자를 최소 ${count}명 선택해주세요';
+	@override String get e2eeProxySelectTitle => '복구 대리자 선택';
+	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => '${selected} / ${total} 선택됨';
+	@override String get e2eeProxyReachedMin => '최소 대리자 수에 도달했습니다';
+	@override String get liveRoomTitleLabel => '라이브 룸 제목';
+	@override String get liveRoomTitleHint => '라이브 룸 제목을 입력하세요';
+}
+
+// Path: mention
+class _Translations$mention$ko_KR extends Translations$mention$zh_CN {
+	_Translations$mention$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '@멘션';
+	@override String get noMention => '멘션이 없습니다';
+	@override String get allRead => '모두 읽음';
+	@override String get markAsRead => '읽음으로 표시';
+	@override String get newMention => '새 멘션';
+	@override String get fromGroup => '그룹에서';
+	@override String get fromChat => '채팅에서';
+	@override String get viewContext => '문맥 보기';
+	@override String mentionCount({required Object count}) => '새 멘션 ${count}건';
+	@override String get mentionAllDenied => '관리자만 @모두를 사용할 수 있습니다';
+	@override String get navInfoMissing => '메시지 위치 정보가 없어 이동할 수 없습니다';
+}
+
+// Path: momentFriendPicker
+class _Translations$momentFriendPicker$ko_KR extends Translations$momentFriendPicker$zh_CN {
+	_Translations$momentFriendPicker$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '친구 선택';
+	@override String get titleAllow => '공개할 친구';
+	@override String get titleDeny => '제외할 친구';
+	@override String get confirm => '확인';
+	@override String confirmWithCount({required Object count}) => '확인(${count})';
+	@override String selectedCount({required Object count}) => '${count}명 선택';
+	@override String get emptyFriends => '친구가 없습니다';
+	@override String get tagsLabel => '태그로 선택';
+	@override String get emptyTags => '태그가 없습니다';
+	@override String get tagLoadFailed => '태그를 불러오지 못했습니다';
+	@override String get searchHint => '친구 검색';
+}
+
+// Path: momentNotify
+class _Translations$momentNotify$ko_KR extends Translations$momentNotify$zh_CN {
+	_Translations$momentNotify$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '알림';
+	@override String get emptyTitle => '새 알림이 없습니다';
+	@override String get emptyHint => '친구가 내 모멘트에 좋아요나 댓글을 남기면 여기에 표시됩니다';
+	@override String get actionLike => '님이 회원님의 모멘트를 좋아합니다';
+	@override String get actionComment => '님이 댓글을 남겼습니다';
+	@override String get markAllRead => '모두 읽음';
+	@override String get clearAll => '전체 삭제';
+	@override String get clearConfirmTitle => '모든 알림을 삭제하시겠습니까?';
+	@override String get clearConfirmMessage => '삭제 후에는 복구할 수 없습니다';
+	@override String get confirm => '확인';
+	@override String get cancel => '취소';
+	@override String get delete => '삭제';
+	@override String get loadFailed => '불러오기 실패, 나중에 다시 시도해주세요';
 }
 
 // Path: passport
@@ -1669,6 +2527,24 @@ extension on TranslationsKoKr {
 			'account.setBirthday' => '생일 설정',
 			'account.sentToEmail' => ({required Object param}) => '${param}으로 전송됨',
 			'account.nicknameRules' => '• 닉네임 길이: 2-24자 • 공백이나 이모지만 포함할 수 없습니다 • 민감 단어를 포함할 수 없습니다 • 변경 사항은 모든 채팅에 반영됩니다',
+			'account.refreshDeviceKey' => '기기 키 새로고침',
+			'account.refreshDeviceKeyHint' => '메시지를 복호화할 수 없을 때 이 버튼으로 키를 새로고침하세요',
+			'account.refreshingDeviceKey' => '기기 키를 새로고침하는 중...',
+			'account.deviceKeyRefreshed' => '기기 키가 새로고침되었습니다',
+			'account.rechargeTitle' => '충전',
+			'account.rechargeAmountHint' => '충전 금액을 입력하세요 (1위안~10000위안)',
+			'account.rechargeAmountExample' => '예: 100',
+			'account.e2eeDeviceTransfer' => '기기 간 전송',
+			'account.e2eeDeviceTransferDesc' => 'QR 코드로 새 기기에 키를 직접 전송합니다',
+			'account.e2eeDeviceIdLabel' => '기기 ID',
+			'account.webQRLoginTitle' => 'QR 로그인',
+			'account.webQRLoginHint' => 'ImBoy 모바일 앱으로 QR 코드를 스캔하세요',
+			'account.webSwitchToPassword' => '계정 비밀번호로 로그인',
+			'account.webPasswordLoginTitle' => '계정 로그인',
+			'account.webAccountHint' => '계정/휴대폰번호/이메일을 입력하세요',
+			'account.webPasswordHint' => '비밀번호를 입력하세요',
+			'account.e2eeTransferFromOldDevice' => '이전 기기에서 키 받기',
+			'account.pleaseRelogin' => '다시 로그인해주세요',
 			'channel.title' => '채널',
 			'channel.loading' => '로딩 중...',
 			'channel.subscribed' => '구독 중',
@@ -1759,10 +2635,16 @@ extension on TranslationsKoKr {
 			'channel.updateRoleFailed' => '역할 업데이트 실패',
 			'channel.userId' => '사용자 ID',
 			'channel.userIdHint' => '사용자 ID 입력',
+			'channel.selectFromContacts' => '연락처에서 선택',
+			'channel.searchContactsHint' => '닉네임 또는 계정 검색',
+			'channel.noContactsToAdd' => '모든 친구가 이미 관리자입니다',
+			'channel.selectRole' => '역할 선택',
 			'channel.noAdmins' => '관리자가 없습니다',
 			'channel.roleCreator' => '생성자',
 			'channel.roleAdmin' => '관리자',
+			'channel.roleAdminDesc' => '채널을 관리할 수 있습니다',
 			'channel.roleEditor' => '편집자',
+			'channel.roleEditorDesc' => '메시지를 게시할 수 있습니다',
 			'channel.roleUnknown' => '알 수 없음',
 			'channel.searchSubscribers' => '구독자 검색',
 			'channel.subscriberSearchHint' => '닉네임 또는 ID로 검색',
@@ -1774,6 +2656,11 @@ extension on TranslationsKoKr {
 			'channel.removeSubscriberFailed' => '구독자 제거 실패',
 			'channel.subscribedAt' => '구독일',
 			'channel.viewProfile' => '프로필 보기',
+			'channel.inviteFromContacts' => '친구 초대',
+			'channel.inviteSearchHint' => '닉네임 또는 계정 검색',
+			'channel.noContactsToInvite' => '모든 친구가 이미 초대되었거나 구독 중입니다',
+			'channel.inviteSuccess' => '초대를 보냈습니다',
+			'channel.inviteFailed' => '초대 전송 실패',
 			'channel.updateSuccess' => '채널이 업데이트되었습니다',
 			'channel.updateFailed' => '채널 업데이트 실패',
 			'channel.typeCannotChange' => '생성 후 변경할 수 없습니다',
@@ -1795,6 +2682,7 @@ extension on TranslationsKoKr {
 			'chat.businessCard' => '명함',
 			'chat.busyTryAgainLater' => '상대방이 바쁩니다. 나중에 다시 시도해 주세요',
 			'chat.later' => '나중에',
+			'chat.peerIsTyping' => ({required Object name}) => '${name}님이 입력 중...',
 			'chat.changeGroupChatName' => '그룹 채팅 이름을 수정하면 그룹 내 다른 구성원에게 알림이 갑니다.',
 			'chat.chatHistory' => '채팅 기록',
 			'chat.chatHoldDownTalk' => '눌러서 말하기',
@@ -1825,12 +2713,31 @@ extension on TranslationsKoKr {
 			'chat.forwardTo' => '전달 대상',
 			'chat.forwardToFriend' => '친구에게 전달',
 			'chat.great' => '매우 좋음',
+			'chat.groupFile' => '그룹 파일',
+			'chat.groupFileImagePreview' => '이미지 미리보기',
+			'chat.groupFileVideoPreview' => '동영상 미리보기',
+			'chat.groupFileAudioPreview' => '오디오 미리보기',
+			'chat.groupFileMediaPause' => '일시정지',
+			'chat.groupFileMediaPlay' => '재생',
+			'chat.groupFileUrlMissing' => '파일 주소가 없어 열 수 없습니다',
+			'chat.groupFileUrlInvalid' => '파일 주소가 잘못되었습니다',
+			'chat.groupFilePreview' => '파일 미리보기',
+			'chat.groupFileUnnamed' => '이름 없는 파일',
+			'chat.groupFileCategoryEmpty' => ({required Object category}) => '${category}에 파일이 없습니다',
+			'chat.groupFileEmpty' => '그룹 파일이 없습니다',
+			'chat.groupFileCategoryDoc' => '문서',
+			'chat.groupFileCategoryImage' => '이미지',
+			'chat.groupFileCategoryVideo' => '동영상',
+			'chat.groupFileCategoryAudio' => '오디오',
+			'chat.groupFileCategoryOther' => '기타',
 			'chat.groupChat' => '그룹 채팅',
 			'chat.image' => '이미지',
 			'chat.imageMessage' => '[이미지]',
 			'chat.initiateChat' => '그룹 채팅 시작',
 			'chat.justChat' => '채팅만',
 			'chat.location' => '위치',
+			'chat.exportMyData' => '내 데이터 내보내기',
+			'chat.exportDataDesc' => '개인정보, 연락처 및 채팅 기록을 내보냅니다',
 			'chat.message' => '메시지',
 			'chat.messageHandlingMixin' => '메시지 처리 믹스인',
 			'chat.messageMarkTitle' => '메시지 표시',
@@ -1856,14 +2763,33 @@ extension on TranslationsKoKr {
 			'chat.recentChats' => '최근 채팅',
 			'chat.recentForwards' => '최근 전달',
 			'chat.remindMeLater' => '나중에 알림',
+			'chat.quickReplyManage' => '빠른 답장 관리',
+			'chat.quickReplyEmpty' => '빠른 답장이 없습니다. 우측 하단을 눌러 추가하세요',
+			'chat.quickReplyDuplicate' => '내용이 이미 존재합니다',
+			'chat.quickReplyMaxReached' => ({required Object max}) => '최대 ${max}개',
+			'chat.quickReplyHint' => '내용 입력...',
+			'chat.muteMember' => 'Mute Member',
+			'chat.unmuteMember' => 'Unmute',
+			'chat.muteUntil' => 'Muted Until',
+			'chat.muted' => 'Muted',
+			'chat.mutedFor' => ({required Object label}) => '채팅 금지 ${label}',
+			'chat.muteUnitMinutes' => ({required Object count}) => '${count}분',
+			'chat.muteUnitHours' => ({required Object count}) => '${count}시간',
+			'chat.muteUnitDays' => ({required Object count}) => '${count}일',
+			'chat.youAreMuted' => '채팅이 금지되었습니다',
+			'chat.youAreMutedWithTime' => ({required Object minutes}) => '채팅이 금지되었습니다. 남은 시간 ${minutes}분',
 			'chat.repliedAt' => '답장 시간',
 			'chat.reply' => '답장',
 			'chat.replyTo' => '답장 대상',
 			'chat.resendCode' => '인증 코드 재전송',
 			'chat.revoke' => '회수',
 			'chat.scanQrCodeBusinessCard' => 'QR코드 명함 스캔',
+			'chat.singleChat' => 'Private Chat',
+			'chat.privateChat' => 'Private Chat',
+			'chat.groupMessage' => 'Group message',
 			'chat.sendFriendRequest' => '친구 추가 요청 보내기',
 			'chat.sendMsgRejected' => '메시지가 전송되었으나 상대방이 거부했습니다.',
+			'chat.sendMessage' => '메시지 보내기',
 			'chat.sendSeparatelyTo' => '각각 전송',
 			'chat.sendTo' => '전송 대상',
 			'chat.send' => _root.common.buttonSend,
@@ -1885,6 +2811,7 @@ extension on TranslationsKoKr {
 			'chat.video' => '비디오',
 			'chat.videoMessage' => '[비디오]',
 			'chat.viewAttachments' => '첨부 파일 보기',
+			'chat.viewLargeImage' => '크게 보기',
 			'chat.voice' => '음성',
 			'chat.voiceInput' => '음성 입력',
 			'chat.voiceMessage' => '음성 메시지',
@@ -1920,6 +2847,15 @@ extension on TranslationsKoKr {
 			'chat.unsupportedMessageType' => '지원되지 않는 메시지 유형',
 			'chat.passwordMismatch' => '비밀번호가 일치하지 않습니다',
 			'chat.pleaseTryAgainLater' => '나중에 다시 시도해 주세요',
+			'chat.momentsSelectVideo' => '동영상 선택',
+			'chat.momentsRecordVideo' => '동영상 촬영',
+			'chat.momentsVisibilityPrivate' => '나만 보기',
+			'chat.momentsMediaTooManyImages' => '이미지는 최대 9장까지 선택할 수 있습니다',
+			'chat.momentsMediaTooManyVideos' => '동영상은 최대 1개까지만 선택할 수 있습니다',
+			'chat.momentsMediaMixedImageAndVideo' => '이미지와 동영상은 함께 게시할 수 없습니다',
+			'chat.momentsReplyPrefix' => '답글 @',
+			'chat.momentsReplySeparator' => ': ',
+			'chat.momentsReplyingTo' => '@{name}님에게 답글 작성 중',
 			'chat.sendNewMessage' => '새 메시지 전송',
 			'chat.markRead' => '읽음으로 표시',
 			'chat.markUnread' => '읽지 않음으로 표시',
@@ -1938,21 +2874,75 @@ extension on TranslationsKoKr {
 			'chat.quickReplyThanks' => '감사합니다',
 			'chat.quickReplyWait' => '잠시만요',
 			'chat.messageMute' => _root.chat.chatSettingMute,
-			'chat.quickReplyManage' => '管理快捷回复',
-			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
-			'chat.quickReplyDuplicate' => '内容已存在',
-			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
-			'chat.quickReplyHint' => '输入内容...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muteUntil' => 'Muted Until',
-			'chat.muted' => 'Muted',
-			'chat.singleChat' => 'Private Chat',
-			'chat.privateChat' => 'Private Chat',
-			'chat.groupMessage' => 'Group message',
+			'chat.groupCategoryGroupCount' => ({required Object count}) => '그룹 ${count}개',
+			'chat.groupAlbumCreateTitle' => '그룹 앨범 만들기',
+			'chat.groupAlbumCreated' => '앨범이 생성되었습니다',
+			'chat.profileCompleted' => '프로필이 완성되었습니다!',
+			'chat.profileProgress' => ({required Object percent}) => '${percent}% 완료',
+			'chat.createdAtLabel' => ({required Object time}) => '생성 시간: ${time}',
+			'chat.expiredAtLabel' => ({required Object time}) => '만료 시간: ${time}',
+			'chat.myReceivedTab' => '받은 초대',
+			'chat.orderStatusLabel' => ({required Object status}) => '상태: ${status}',
+			'chat.orderCreatedAtLabel' => ({required Object time}) => '생성 시간: ${time}',
+			'chat.orderPaymentAtLabel' => ({required Object time}) => '결제 시간: ${time}',
+			'chat.orderStatusPending' => '결제 대기',
+			'chat.orderStatusPaid' => '결제 완료',
+			'chat.orderStatusRefunded' => '환불됨',
+			'chat.orderStatusExpired' => '만료됨',
+			'chat.defaultFileName' => '파일',
+			'chat.fileUrlInvalid' => '파일 링크가 잘못되었습니다',
+			'chat.e2eeStatusAvailable' => '사용 가능',
+			'chat.e2eeGenerateNewKey' => '새 키 생성',
+			'chat.e2eeGenerateNewKeyDesc' => '새 E2EE 키 쌍을 생성합니다 (이전 메시지는 복호화할 수 없음)',
+			'chat.e2eeActivated' => '활성화됨',
+			'chat.e2eeCreatedAtLabel' => '생성 시간',
+			'chat.e2eeGeneratingKey' => '키를 생성하는 중입니다. 잠시만 기다려 주세요...',
+			'chat.e2eeNewKeyGenerated' => '새 E2EE 키 쌍이 생성되었습니다!',
+			'chat.e2eeReady' => '준비 완료',
+			'chat.e2eeReadyWithShards' => ({required Object count}) => '준비 완료 (샤드 ${count}개)',
+			'chat.webFeatureMultiDevice' => '다중 기기 동기화',
+			'chat.webFeatureMultiDeviceDesc' => '휴대폰과 PC 간에 자유롭게 전환하며 메시지가 실시간으로 동기화됩니다',
+			'chat.webFeatureE2EE' => '종단간 암호화',
+			'chat.webFeatureE2EEDesc' => '모든 메시지는 종단간 암호화되어 개인정보를 안전하게 보호합니다',
+			'chat.webFeatureFileTransfer' => '파일 전송',
+			'chat.webFeatureFileTransferDesc' => '드래그 앤 드롭으로 파일을 보낼 수 있으며 다양한 형식을 지원합니다',
+			'chat.webQRStatusWaiting' => 'ImBoy 모바일 앱 열기 > 설정 > 스캔',
+			'chat.webQRStatusScanned' => '휴대폰에서 "로그인 확인"을 눌러주세요',
+			'chat.webQRStatusVerifying' => '확인 중...',
+			'chat.webQRStatusExpired' => '새로고침을 눌러 다시 스캔해주세요',
+			'chat.e2eeErrInvalidFormat' => '메시지 형식 오류, 암호화 실패',
+			'chat.e2eeSocialCreateTitle' => '복구 샤드 만들기',
+			'chat.e2eeSocialCreateBtn' => '샤드 만들기',
+			'chat.e2eeSocialCreateFailTitle' => '생성 실패',
+			'chat.e2eeSocialCreateFailBody' => '샤드 생성 실패, 다시 시도해주세요',
+			'chat.e2eeSocialCreateFirst' => '샤드를 생성해야 내용을 볼 수 있습니다',
+			'chat.e2eeSocialUsedAtLabel' => '사용 시간',
+			'chat.e2eeTransferSendTitle' => '새 기기로 키 전송',
+			'chat.e2eeTransferCreateBtn' => '만들기',
+			'chat.e2eeTransferReceiveTitle' => '이전 기기에서 키 받기',
+			'chat.e2eeTransferSendDesc' => 'QR 코드로 새 기기에 키를 전송합니다',
+			'chat.e2eeTransferReceiveDesc' => '이전 기기의 QR 코드를 스캔하여 키를 받습니다',
+			'chat.e2eeSocialStatus' => ({required Object status}) => '상태: ${status}',
+			'chat.e2eeSocialCreateShardsTitle' => '복구 샤드 만들기',
+			'chat.e2eeSocialCreateShardsDesc' => '키를 여러 샤드로 분할하여 대리자 기기에 저장합니다 (서버에는 저장 안 함)',
+			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '대리자를 최소 ${count}명 선택해주세요',
+			'chat.e2eeRecreatingKey' => '키를 다시 만드는 중...',
+			'chat.e2eeKeyRecreated' => '키가 다시 만들어졌습니다',
+			'chat.e2eeRecoveryNewDeviceTitle' => '새 기기 로그인 감지',
+			'chat.e2eeRecoveryNewDeviceBody' => '메시지 보안을 위해 이 기기에 새 종단간 암호화 키가 생성되었습니다.\n\n이전 메시지는 이전 기기의 키로 암호화되어 있어 먼저 키를 복구해야 볼 수 있습니다. "기기 전송", "소셜 복구" 또는 "로컬 백업 가져오기"로 복구할 수 있습니다.',
+			'chat.e2eeRecoveryDecryptFailedTitle' => '이 메시지를 복호화할 수 없습니다',
+			'chat.e2eeRecoveryDecryptFailedBody' => '이 메시지는 다른 기기의 키로 암호화되었습니다.\n\n기기를 교체했거나 앱을 다시 설치했다면, 암호화 키를 복구한 후 이전 메시지를 확인하세요.',
+			'chat.e2eeRecoveryLater' => '나중에',
+			'chat.e2eeRecoveryGoRecover' => '복구하러 가기',
+			'chat.e2eeRecoveryBannerText' => '암호화된 이전 메시지가 감지되었습니다. 키를 복구해야 볼 수 있습니다. 탭하여 복구로 이동',
+			'chat.liveRoomCreateTitle' => '라이브 룸 만들기',
+			'chat.liveRoomCreating' => '생성 중...',
+			'chat.liveRoomWatch' => '라이브 시청',
 			'common.about' => '정보',
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
+			_ => null,
+		} ?? switch (path) {
 			'common.acceptFriendRequest' => '친구 요청 수락',
 			'common.addFriend' => '친구 추가',
 			'common.addPhoneContact' => '연락처 추가',
@@ -1981,7 +2971,9 @@ extension on TranslationsKoKr {
 			'common.bindMobileAndEmailTips' => '휴대폰 번호와 이메일을 연결하여 계정 보안을 강화하세요',
 			'common.bindNow' => '지금 연결',
 			'common.buttonCancel' => '취소',
+			'common.buttonCreate' => '만들기',
 			'common.buttonChangePassword' => '비밀번호 변경',
+			'common.phoneInputHint' => '휴대폰 번호를 입력하세요',
 			'common.buttonClose' => '닫기',
 			'common.buttonConfirm' => '확인',
 			'common.buttonContinue' => '계속',
@@ -2008,6 +3000,7 @@ extension on TranslationsKoKr {
 			'common.canNotAddYourselfFriend' => '자신을 친구로 추가할 수 없습니다',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
+			'common.operationSuccessful' => '작업이 완료되었습니다',
 			'common.save' => _root.common.buttonSave,
 			'common.reset' => '재설정',
 			'common.clear' => '지우기',
@@ -2036,6 +3029,8 @@ extension on TranslationsKoKr {
 			'common.checkForUpdates' => '업데이트 확인',
 			'common.clearAll' => '모두 지우기',
 			'common.clearChatRecord' => '채팅 기록 비우기',
+			'common.complaintSuccess' => '신고가 접수되었습니다',
+			'common.complaintFailed' => '신고 실패, 나중에 다시 시도해주세요',
 			'common.confirmCode' => '인증 코드',
 			'common.confirmCodeError' => '인증 코드가 비어있습니다',
 			'common.confirmCodeSuccess' => '계정이 확인되었습니다.',
@@ -2047,6 +3042,7 @@ extension on TranslationsKoKr {
 			'common.contactSettingTag' => '연락처 설정 태그',
 			'common.contactTagListLogic' => '연락처 태그 목록 논리',
 			'common.contactTags' => '연락처 태그',
+			'common.contactInfoNotSynced' => '연락처 정보가 동기화되지 않았습니다',
 			'common.continueDownloading' => '다운로드 계속',
 			'common.copy' => '복사',
 			'common.coupon' => '쿠폰',
@@ -2083,8 +3079,6 @@ extension on TranslationsKoKr {
 			'common.errorInvalidRequest' => _root.common.error,
 			'common.errorLengthBetween' => ({required Object param, required Object min, required Object max}) => '${param}의 길이는 ${min}과(와) ${max} 사이여야 합니다',
 			'common.errorManyRequest' => _root.common.error,
-			_ => null,
-		} ?? switch (path) {
 			'common.errorNoPackageToRemove' => _root.common.error,
 			'common.errorNoValidFileOrUrl' => _root.common.error,
 			'common.errorNonexistentDirectory' => _root.common.error,
@@ -2123,6 +3117,24 @@ extension on TranslationsKoKr {
 			'common.genderUpdateSuccess' => '성별 설정 성공',
 			'common.groupAddLocal' => '연락처에 저장',
 			'common.groupAnnouncement' => '그룹 공지',
+			'common.groupFileUploadSuccess' => '파일 업로드 완료',
+			'common.groupFileUploadFailed' => '파일 업로드 실패, 나중에 다시 시도해주세요',
+			'common.groupFileDeleteSuccess' => '파일이 삭제되었습니다',
+			'common.groupFileDeleteFailed' => '삭제 실패, 나중에 다시 시도해주세요',
+			'common.groupFileClosePreview' => '미리보기 닫기',
+			'common.groupFileUploadTooltip' => '파일 업로드',
+			'common.groupFileSearch' => '그룹 파일 검색',
+			'common.groupFileReadFailed' => '파일 읽기 실패, 다시 시도해주세요',
+			'common.groupFileDeleteTitle' => '그룹 파일 삭제',
+			'common.groupFileDeleteConfirm' => ({required Object name}) => '파일 "${name}"을(를) 삭제하시겠습니까?',
+			'common.groupFileImageLoadFailed' => '이미지 로드 실패',
+			'common.groupFileOpenFailed' => '파일 링크를 열 수 없습니다',
+			'common.groupFileSearchClear' => '지우기',
+			'common.groupFileSearchAction' => '검색',
+			'common.groupFileCategoryAll' => '전체',
+			'common.groupFileSearchEmpty' => '일치하는 파일이 없습니다',
+			'common.groupFileAudioLoadFailed' => '오디오 로드 실패',
+			'common.groupFileAudioLoading' => '오디오 로드 중...',
 			'common.groupQrcodeTips' => ({required Object days, required Object date}) => '이 QR코드는 ${days}일 내 (${date} 전) 유효하며, 다시 들어가면 업데이트됩니다',
 			'common.groupSearchTips' => '그룹 이름 및 그룹 소개',
 			'common.helpDocument' => '도움말 문서',
@@ -2146,7 +3158,9 @@ extension on TranslationsKoKr {
 			'common.loading' => '로딩 중',
 			'common.locationMessage' => '위치 메시지',
 			'common.loginDeviceManagementTips' => '귀하의 계정은 다음 기기에서 로그인했습니다. 기기를 삭제할 수 있으며 삭제 후 해당 기기에서 로그인할 때 보안 검증이 필요합니다.',
+			'common.logoutFailed' => '로그아웃 실패',
 			'common.logoutNotice' => '《계정 탈퇴 안내》',
+			'common.exportDataSuccess' => '데이터를 내보냈습니다',
 			'common.manually' => '수동 선택',
 			'common.messageCall' => '메시지 보내기',
 			'common.messageContent' => '메시지 내용',
@@ -2194,6 +3208,7 @@ extension on TranslationsKoKr {
 			'common.noUpdateDescription' => '업데이트 설명 없음',
 			'common.normalModel' => '일반 모드',
 			'common.notAuthorizedLatLong' => '위도 경도를 얻도록 승인하지 않았습니다',
+			'common.notLoggedIn' => '로그인되어 있지 않습니다',
 			'common.notBad' => '나쁘지 않음',
 			'common.notBound' => '연결되지 않음',
 			'common.notFilled' => '작성되지 않음',
@@ -2205,9 +3220,9 @@ extension on TranslationsKoKr {
 			'common.notShow' => '표시 안 함',
 			'common.notTurnedLocationService' => '위치 서비스를 켜지 않았습니다',
 			'common.nowNewVersion' => '새 버전을 감지하지 못했습니다',
-			'common.off' => _root.common.disabled,
+			'common.kFalse' => _root.common.disabled,
 			'common.offlineNotification' => '오프라인 알림',
-			'common.on' => _root.common.enabled,
+			'common.kTrue' => _root.common.enabled,
 			'common.operationFailedAgainLater' => '작업 실패, 나중에 다시 시도해 주세요',
 			'common.optionsNo' => '아니요',
 			'common.optionsRename' => '이름을 바꾸고 싶습니다',
@@ -2240,12 +3255,57 @@ extension on TranslationsKoKr {
 			'common.releaseFingerCancelSending' => '손가락을 놓으면 전송 취소',
 			'common.removeContactFromTag' => '태그에서 연락처 제거',
 			'common.removeMember' => '구성원 제거',
+			'common.atMentionYouTag' => '[@회원님] ',
+			'common.atMentionLeftMember' => '@탈퇴한 멤버',
+			'common.muteNotifications' => '메시지 방해 금지',
+			'common.muteNotificationsHint' => '켜면 새 메시지 알림을 받지 않지만, 대화 목록에서 읽지 않음은 볼 수 있습니다',
+			'common.revokeExpired' => '2분이 경과하여 회수할 수 없습니다',
+			'common.quickReplyAddTitle' => '빠른 답장 추가',
+			'common.quickReplyEditTitle' => '빠른 답장 편집',
+			'common.removeAdmin' => 'Remove Admin',
+			'common.setAdminConfirm' => 'Set this member as admin?',
+			'common.removeAdminConfirm' => 'Remove admin role from this member?',
+			'common.muteMemberConfirm' => 'Mute this member?',
+			'common.unmuteMemberConfirm' => 'Unmute this member?',
+			'common.kickMemberConfirm' => 'Remove this member from the group?',
+			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
+			'common.setAdminSuccess' => 'Admin set',
+			'common.setAdminFailed' => 'Failed to set admin',
+			'common.removeAdminSuccess' => 'Admin removed',
+			'common.removeAdminFailed' => 'Failed to remove admin',
+			'common.muteMemberSuccess' => 'Member muted',
+			'common.muteMemberFailed' => 'Failed to mute member',
+			'common.unmuteMemberSuccess' => 'Member unmuted',
+			'common.unmuteMemberFailed' => 'Failed to unmute member',
+			'common.kickMemberSuccess' => 'Member removed',
+			'common.kickMemberFailed' => 'Failed to remove member',
+			'common.transferGroupSuccess' => 'Ownership transferred',
+			'common.transferGroupFailed' => 'Failed to transfer ownership',
+			'common.notMuted' => 'Not Muted',
+			'common.muteDuration' => 'Mute Duration',
+			'common.muteDuration1hour' => '1 Hour',
+			'common.muteDuration6hours' => '6 Hours',
+			'common.muteDuration12hours' => '12 Hours',
+			'common.muteDuration1day' => '1 Day',
+			'common.muteDuration3days' => '3 Days',
+			'common.muteDuration7days' => '7 Days',
+			'common.muteDurationPermanent' => 'Permanent',
+			'common.muteDuration5min' => '5분',
+			'common.muteDuration10min' => '10분',
+			'common.muteDuration30min' => '30분',
+			'common.muteDuration30days' => '30일',
+			'common.muteUnitSeconds' => ({required Object count}) => '${count}초',
+			'common.throttleWarning' => '요청이 너무 잦습니다. 나중에 다시 시도해주세요',
+			'common.throttleRetryAfter' => ({required Object seconds}) => '요청이 너무 잦습니다. ${seconds}초 후에 다시 시도해주세요',
+			'common.mutedCannotSend' => '채팅 금지 중에는 메시지를 보낼 수 없습니다',
 			'common.resendCodeSuccess' => '새 이메일이 전송되었습니다.',
 			'common.resetFilters' => '필터 재설정',
 			'common.saveQrCode' => 'QR코드 저장',
 			'common.saveSuccess' => '저장 성공',
 			'common.scanQrcodeAddFriend' => '위 QR코드 패턴을 스캔하여 친구로 추가하세요',
 			'common.search' => '검색',
+			'common.searchScope' => 'Search scope',
+			'common.searchAll' => 'All messages',
 			'common.searchChatContent' => '채팅 내용 검색',
 			'common.searchChatRecord' => '채팅 기록 검색',
 			'common.searchError' => '검색 오류',
@@ -2375,6 +3435,11 @@ extension on TranslationsKoKr {
 			'common.selectExpirationDateOptional' => '만료 날짜 선택 (선택 사항)',
 			'common.groupAnnouncementDeleteConfirm' => '이 공지를 삭제하시겠습니까?',
 			'common.groupAnnouncementDelete' => '삭제',
+			'common.groupAnnouncementLoadFailed' => '공지를 불러오지 못했습니다. 나중에 다시 시도해주세요',
+			'common.groupAnnouncementPublishFailed' => '공지 게시 실패',
+			'common.groupAnnouncementPublishSuccess' => '공지가 게시되었습니다',
+			'common.groupAnnouncementDeleteFailed' => '공지 삭제 실패',
+			'common.groupAnnouncementDeleteSuccess' => '공지가 삭제되었습니다',
 			'common.privacyClearChatHistory' => '채팅 기록 삭제',
 			'common.privacyClearChatHistoryConfirm' => '모든 채팅 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
 			'common.privacyLogoutAccountConfirm' => '계정을 탈퇴할까요? 계정과 모든 데이터가 영구 삭제되며 되돌릴 수 없습니다.',
@@ -2390,6 +3455,8 @@ extension on TranslationsKoKr {
 			'common.showOnlineStatus' => '온라인 상태 표시',
 			'common.showOnlineStatusDesc' => '친구가 온라인 상태를 볼 수 있습니다',
 			'common.allowNearbyVisible' => '주변 사용자에게 표시',
+			_ => null,
+		} ?? switch (path) {
 			'common.dataSettings' => '데이터 설정',
 			'common.clearChatRecords' => '채팅 기록 삭제',
 			'common.clearChatRecordsDesc' => '모든 채팅 기록을 삭제합니다. 이 작업은 되돌릴 수 없습니다',
@@ -2518,6 +3585,24 @@ extension on TranslationsKoKr {
 			'common.changeFailed' => '수정 실패',
 			'common.submitted' => '제출됨',
 			'common.viewSecurityHelp' => '보안 도움말 보기',
+			'common.momentsNoData' => '모멘트가 없습니다',
+			'common.momentsDeleteConfirm' => '이 모멘트를 삭제하시겠습니까?',
+			'common.momentsDeleteCommentConfirm' => '이 댓글을 삭제하시겠습니까?',
+			'common.momentsNotFound' => '모멘트가 없거나 볼 권한이 없습니다',
+			'common.momentsContentOrMediaRequired' => '내용 또는 미디어 중 하나는 필수입니다',
+			'common.momentsPublishFailed' => '게시 실패',
+			'common.momentsAllowComment' => '댓글 허용',
+			'common.momentsReportReason' => '신고 사유',
+			'common.momentsNoComments' => '댓글이 없습니다',
+			'common.momentsContentHint' => '무엇을 공유하시겠어요?...',
+			'common.momentsAddMedia' => '미디어 추가',
+			'common.momentsAllowUidsLabel' => '공개할 UID 목록 (쉼표로 구분)',
+			'common.momentsCommentFailed' => '댓글 작성 실패, 나중에 다시 시도해주세요',
+			'common.momentsDeleteFailed' => '삭제 실패, 나중에 다시 시도해주세요',
+			'common.momentsReportSubmitted' => '신고가 접수되었습니다',
+			'common.momentsReportFailed' => '신고 실패, 나중에 다시 시도해주세요',
+			'common.momentsLoadMoreComments' => '댓글 더 보기',
+			'common.momentsUploadFailed' => '미디어 업로드 실패, 나중에 다시 시도해주세요',
 			'common.transactionHistory' => '거래 내역',
 			'common.paymentPasswordSetSuccess' => '결제 비밀번호 설정 성공',
 			'common.paymentPasswordSetFailed' => '결제 비밀번호 설정 실패',
@@ -2532,6 +3617,7 @@ extension on TranslationsKoKr {
 			'common.personalSignature' => '개인 서명',
 			'common.personalBackground' => '개인 배경',
 			'common.setBackgroundImage' => '배경 이미지 설정',
+			'common.expression' => '이모티콘',
 			'common.extendedInfo' => '추가 정보',
 			'common.profession' => '직업',
 			'common.pleaseEnterProfession' => 'Please enter profession',
@@ -2597,8 +3683,6 @@ extension on TranslationsKoKr {
 			'common.seconds' => '초',
 			'common.messageCannotLocatedMayBeDeleted' => '메시지를 찾을 수 없습니다. 삭제되었을 수 있습니다',
 			'common.settingFailedPleaseTryAgain' => '설정 실패, 다시 시도해 주세요',
-			_ => null,
-		} ?? switch (path) {
 			'common.partialDeleteSuccess' => ({required Object success, required Object fail}) => '부분 삭제 성공: ${success} 성공, ${fail} 실패',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => '수집된 비디오 메시지 형식이 올바르지 않습니다. 비디오 URI를 찾을 수 없습니다',
 			'common.recordingCancelled' => '녹음이 취소됨',
@@ -2614,6 +3698,10 @@ extension on TranslationsKoKr {
 			'common.noDetailedInfo' => '이 사용자는 개인 서명 등 세부 정보를 설정하지 않았습니다',
 			'common.noNewRegisteredUsers' => '현재 새로 등록한 사용자가 없습니다 나중에 다시 확인하세요',
 			'common.newRegisteredUsersTip' => '최근 등록한 사용자가 여기에 표시됩니다. 친구로 추가할 수 있습니다',
+			'common.notificationFriendRequest' => '친구 요청',
+			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName}님이 친구로 추가 요청했습니다',
+			'common.notificationGroupInvite' => '그룹 초대',
+			'common.notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName}님이 ${groupName} 그룹에 초대했습니다',
 			'common.youRevokedMessage' => '메시지를 회수했습니다',
 			'common.otherRevokedMessage' => '상대방이 메시지를 회수했습니다',
 			'common.networkFailureTryAgain' => '네트워크 오류, 다시 시도해 주세요!',
@@ -2630,44 +3718,302 @@ extension on TranslationsKoKr {
 			'common.smaller' => '더 작게',
 			'common.currentFontScale' => ({required Object param1, required Object param2}) => '현재: ${param1} ${param2}%',
 			'common.emailUpdatedTo' => ({required Object param}) => '이메일이 ${param}으로 업데이트되었습니다',
-			'common.atMentionYouTag' => '[@你] ',
-			'common.atMentionLeftMember' => '@已退群成员',
-			'common.muteNotifications' => '消息免打扰',
-			'common.muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
-			'common.revokeExpired' => '超过 2 分钟，无法撤回',
-			'common.quickReplyAddTitle' => '新增快捷回复',
-			'common.quickReplyEditTitle' => '编辑快捷回复',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.muteMemberConfirm' => 'Mute this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.transferGroupSuccess' => 'Ownership transferred',
-			'common.transferGroupFailed' => 'Failed to transfer ownership',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration6hours' => '6 Hours',
-			'common.muteDuration12hours' => '12 Hours',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration3days' => '3 Days',
-			'common.muteDuration7days' => '7 Days',
-			'common.muteDurationPermanent' => 'Permanent',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.groupAnnouncementExpiry' => ({required Object time}) => '유효 기간: ${time}',
+			'common.groupAlbumCreateFailed' => '생성 실패, 나중에 다시 시도해주세요',
+			'common.groupAlbumDeleteTitle' => '그룹 앨범 삭제',
+			'common.groupAlbumDeleteConfirm' => ({required Object name}) => '앨범 "${name}"을(를) 삭제하시겠습니까?',
+			'common.groupAlbumDeleted' => '앨범이 삭제되었습니다',
+			'common.groupAlbumDeleteFailed' => '삭제 실패, 나중에 다시 시도해주세요',
+			'common.groupAlbumRenameFailed' => '변경 실패, 나중에 다시 시도해주세요',
+			'common.groupAlbumUploadTooltip' => '이미지 업로드',
+			'common.groupAlbumDeleteTooltip' => '앨범 삭제',
+			'common.groupAlbumNoAlbum' => '그룹 앨범이 없습니다',
+			'common.groupAlbumPhotoReadFailed' => '이미지 읽기 실패, 다시 시도해주세요',
+			'common.groupAlbumPhotoUploaded' => '이미지 업로드 완료',
+			'common.groupAlbumPhotoUploadFailed' => '이미지 업로드 실패, 나중에 다시 시도해주세요',
+			'common.groupAlbumCreateTooltip' => '앨범 만들기',
+			'common.groupAlbumPhotoBatchDeleteTitle' => '이미지 일괄 삭제',
+			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => '선택한 이미지 ${count}장을 삭제하시겠습니까?',
+			'common.groupAlbumPhotoDeleteFailed' => '삭제 실패, 나중에 다시 시도해주세요',
+			'common.groupAlbumPhotoDeletedAll' => ({required Object count}) => '이미지 ${count}장 삭제됨',
+			'common.groupAlbumPhotoDeletedPartial' => ({required Object success, required Object fail}) => '${success}장 삭제, ${fail}장 실패',
+			'common.groupAlbumPhotoDeleteTitle' => '이미지 삭제',
+			'common.groupAlbumPhotoDeleteConfirm' => '이 이미지를 삭제하시겠습니까?',
+			'common.groupAlbumPhotoDeleted' => '이미지가 삭제되었습니다',
+			'common.groupAlbumPhotoBatchDeleteTooltip' => '일괄 삭제',
+			'common.groupAlbumPhotoExitSelection' => '선택 취소',
+			'common.groupAlbumPhotoOpenFailed' => '이미지 링크를 열 수 없습니다',
+			'common.groupAlbumPhotoNotFound' => '이미지가 없거나 삭제되었습니다',
+			'common.groupAlbumPhotoOpenExternal' => '외부 앱으로 열기',
+			'common.groupAlbumPhotoCoverUpdated' => '앨범 표지로 설정되었습니다',
+			'common.groupAlbumPhotoCoverFailed' => '표지 설정 실패, 나중에 다시 시도해주세요',
+			'common.groupAlbumPhotoNext' => '다음',
+			'common.groupAlbumPhotoResolution' => '해상도',
+			'common.groupAlbumPhotoUploader' => '업로더',
+			'common.sectionDisplay' => '표시',
+			'common.sectionTheme' => '테마',
+			'common.selectLanguage' => '언어 선택',
+			'common.completionSuggestions' => '보완 추천',
+			'common.sectionGeneral' => '일반',
+			'common.sectionPrivacySecurity' => '개인정보 및 보안',
+			'common.sectionHelpAbout' => '도움말 및 정보',
+			'common.msgOnlyVisibleToParties' => '메시지는 발신자와 수신자만 볼 수 있습니다',
+			'common.msgNotEncrypted' => '메시지가 암호화되지 않았습니다',
+			'common.durationMinutes' => ({required Object count}) => '${count}분',
+			'common.durationSeconds' => ({required Object count}) => '${count}초',
+			'common.rechargeAmountError' => '1위안에서 10000위안 사이의 금액을 입력하세요',
+			'common.rechargeSuccess' => '충전 완료',
+			'common.rechargeConfirm' => '충전 확인',
+			'common.transactionHistory2' => '거래 내역',
+			'common.noTransactionHistory' => '거래 내역이 없습니다',
+			'common.allLoaded' => '— 모두 불러옴 —',
+			'common.transactionTypeIncome' => '충전',
+			'common.transactionTypeExpense' => '사용',
+			'common.sectionLoginCredentials' => '로그인 정보',
+			'common.channelInvitations' => '채널 초대',
+			'common.acceptInvitationFailed' => '초대 수락 실패',
+			'common.rejectInvitationFailed' => '초대 거절 실패',
+			'common.invitationAccepted' => '초대를 수락했습니다',
+			'common.invitationRejected' => '초대를 거절했습니다',
+			'common.invitationStatusPending' => '대기 중',
+			'common.invitationStatusAccepted' => '수락됨',
+			'common.invitationStatusRejected' => '거절됨',
+			'common.invitationStatusExpired' => '만료됨',
+			'common.invitationStatusCancelled' => '취소됨',
+			'common.invitationStatusUnknown' => '알 수 없음',
+			'common.noReceivedInvitations' => '받은 초대가 없습니다',
+			'common.noSentInvitations' => '보낸 초대가 없습니다',
+			'common.processingDots' => '처리 중...',
+			'common.purchaseFailed' => '구매 실패, 나중에 다시 시도해주세요',
+			'common.purchaseSuccess' => '구매 완료',
+			'common.insufficientBalanceTitle' => '잔액 부족',
+			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => '현재 잔액 ${currency} ${balance}, 결제 필요 금액 ${currency} ${price}. 먼저 충전 후 구매하세요.',
+			'common.goRecharge' => '충전하러 가기',
+			'common.noOrders' => '주문이 없습니다',
+			'common.orderDetailLoadFailed' => '주문 상세를 불러오지 못했습니다',
+			'common.orderNoLabel' => ({required Object no}) => '주문 번호: ${no}',
+			'common.orderStatusCancelled' => '취소됨',
+			'common.orderStatusUnknown' => '알 수 없음',
+			'common.removeReaction' => '리액션 제거',
+			'common.removeReactionConfirm' => ({required Object emoji}) => '${emoji} 리액션을 제거하시겠습니까?',
+			'common.fileOpenFailed' => '이 파일을 열 수 없습니다',
+			'common.e2eeLocalBackup' => '로컬 백업',
+			'common.e2eeLocalBackupDesc' => '암호화된 백업 파일을 로컬 또는 클라우드에 내보냅니다',
+			'common.e2eeDeleteKey' => '키 삭제',
+			'common.e2eeDeleteKeyDesc' => '로컬에 저장된 키를 삭제합니다 (복구 불가)',
+			'common.e2eeCurrentKeyInfo' => '현재 키 정보',
+			'common.e2eeE2EEEnabled' => '종단간 암호화가 활성화되었습니다',
+			'common.e2eeNoKeyDetected' => 'E2EE 키가 감지되지 않았습니다',
+			'common.e2eeNoKeyDesc' => '먼저 키 쌍을 생성하거나 백업에서 복구해야 합니다',
+			'common.e2eeAboutTitle' => '종단간 암호화 정보',
+			'common.e2eeInfoPoint1' => '• 메시지는 전송 전에 암호화되며 서버는 내용을 볼 수 없습니다',
+			'common.e2eeInfoPoint2' => '• 기기를 변경하거나 키를 삭제하면 이전 메시지를 복호화할 수 없을 수 있습니다',
+			'common.e2eeInfoPoint3' => '• 데이터 손실을 방지하려면 정기적으로 키를 백업하세요',
+			'common.e2eeExportBackup' => '백업 내보내기',
+			'common.e2eeExportBackupDesc' => '암호화된 백업 파일 생성',
+			'common.e2eeImportBackup' => '백업 가져오기',
+			'common.e2eeImportBackupDesc' => '백업 파일에서 키 복구',
+			'common.e2eeBackupManage' => '백업 관리',
+			'common.e2eeBackupManageDesc' => '백업 기록 보기',
+			'common.e2eeGenerateKeyConfirm' => '새 E2EE 키 쌍을 생성하시겠습니까?',
+			'common.e2eeWarnOldMessagesLost' => '• 이전 메시지를 복호화할 수 없습니다',
+			'common.e2eeWarnNeedNewBackup' => '• 백업 파일을 다시 생성해야 합니다',
+			'common.e2eeConfirmGenerate' => '생성 확인',
+			'common.e2eeDeleteKeyConfirm' => '현재 키를 삭제하시겠습니까?',
+			'common.e2eeWarnCannotRestore' => '• 삭제 후 복구할 수 없습니다',
+			'common.e2eeWarnAllMsgsLost' => '• 모든 E2EE 메시지를 복호화할 수 없습니다',
+			'common.e2eeConfirmDelete' => '삭제 확인',
+			'common.e2eeKeyGeneratedSuccess' => '키가 생성되었습니다',
+			'common.e2eeDeviceIdInfo' => ({required Object id}) => '기기 ID: ${id}',
+			'common.e2eeKeyIdInfo' => ({required Object id}) => '키 ID: ${id}',
+			'common.e2eeCreatedAtInfo' => ({required Object time}) => '생성 시간: ${time}',
+			'common.e2eeImportantNote' => '중요 안내',
+			'common.e2eeWarnOldMayNotDecrypt' => '• 이전 메시지를 복호화할 수 없을 수 있습니다',
+			'common.e2eeSuggestBackupNow' => '• 지금 백업을 내보내는 것을 권장합니다',
+			'common.e2eeGoBackup' => '백업하러 가기',
+			'common.e2eeKeyGenerateFailed' => '키 생성 실패, 다시 시도해주세요',
+			'common.e2eeKeyDeleted' => '키가 삭제되었습니다',
+			'common.e2eeDeleteFailed' => '삭제 실패, 다시 시도해주세요',
+			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '사용 가능한 샤드: ${available}개, ${required}명의 대리자 필요',
+			'common.e2eeNoRecoveryShards' => '사용 가능한 복구 샤드가 없습니다',
+			'common.e2eeRecoverSuccess' => '복구 완료',
+			'common.e2eeRecoverFailed' => '복구 실패',
+			'common.e2eeRecoverKeyFailed' => '키 복구 실패, 다시 시도해주세요',
+			'common.e2eeLoadingShards' => '샤드 정보를 불러오는 중...',
+			'common.e2eeNoShards' => '사용 가능한 샤드가 없습니다',
+			'common.e2eeLoadFailed' => '불러오기 실패, 다시 시도해주세요',
+			'common.e2eeContactingProxy' => ({required Object name}) => '연락 중: ${name}',
+			'common.e2eeRecoveryFailed' => '복구 실패, 다시 시도해주세요',
+			'common.webFeatureNotification' => '데스크톱 알림',
+			'common.webFeatureNotificationDesc' => '페이지를 보지 않을 때도 새 메시지 알림을 받습니다',
+			'common.webQRConfirmOnPhone' => '휴대폰에서 로그인을 확인해주세요',
+			'common.webQRLoginFailed' => '로그인 실패',
+			'common.webQRLoginSuccess' => '로그인 완료',
+			'common.webQRExpiresIn' => ({required Object seconds}) => '${seconds}초 후 만료',
+			'common.webQRStatusFailed' => '로그인 실패, 다시 시도해주세요',
+			'common.webQRStatusSuccess' => '이동 중...',
+			'common.webLoginEmptyError' => '계정과 비밀번호를 입력하세요',
+			'common.webQRGenerateFailed' => 'QR 코드 생성 실패',
+			'common.webQRTokenInvalid' => '로그인 토큰이 잘못되었습니다',
+			'common.e2eeErrNoRecipientKey' => '상대의 기기 키를 가져올 수 없어 메시지가 전송되지 않았습니다',
+			'common.e2eeDecryptFailed' => '메시지를 복호화할 수 없습니다',
+			'common.e2eeDecryptFailedReasons' => '이 메시지를 복호화할 수 없습니다. 가능한 원인',
+			'common.e2eeDecryptReasonOtherDevice' => '• 다른 기기에서 로그인함',
+			'common.e2eeDecryptReasonKeyExpired' => '• 기기 키가 만료됨',
+			'common.e2eeDecryptReasonDataCorrupt' => '• 앱 데이터 손상',
+			'common.e2eeDecryptChooseSolution' => '해결 방법을 선택하세요',
+			'common.e2eeDecryptActionRecreateKey' => '키 다시 만들기 (권장)',
+			'common.e2eeDecryptActionRelogin' => '다시 로그인',
+			'common.e2eeDecryptActionRemindLater' => '나중에 알림',
+			'common.e2eeBackupExportTitle' => 'E2EE 백업 내보내기',
+			'common.e2eeBackupPwdCantRecover' => '• 백업 비밀번호는 복구할 수 없으니 반드시 기억해주세요!',
+			'common.e2eeBackupStoreMultipleNote' => '• 백업 파일을 여러 안전한 위치(이메일, 클라우드, USB)에 보관하는 것을 권장합니다',
+			'common.e2eeBackupPwdLabel' => '백업 비밀번호 *',
+			'common.e2eeBackupPwdHint' => '최소 12자, 대소문자/숫자/특수문자 포함',
+			'common.e2eeBackupConfirmPwdLabel' => '비밀번호 확인 *',
+			'common.e2eeBackupConfirmPwdHint' => '비밀번호 다시 입력',
+			'common.e2eeBackupNoteLabel' => '메모 (선택)',
+			'common.e2eeBackupNoteHint' => '예: 메인 휴대폰 백업 - 2026년 1월',
+			'common.e2eeBackupPwdStrengthLabel' => '비밀번호 강도',
+			'common.e2eeBackupPwdWeak' => '약함 - 복잡도를 높이세요',
+			'common.e2eeBackupPwdMedium' => '보통 - 길이나 복잡도를 높이세요',
+			'common.e2eeBackupPwdStrong' => '강함 - 사용 가능',
+			'common.e2eeBackupPwdVeryStrong' => '매우 강함 - 안전',
+			'common.e2eeBackupGenerateBtn' => '백업 파일 생성',
+			'common.e2eeBackupFileGenerated' => '백업 파일이 생성되었습니다!',
+			'common.e2eeBackupShareBtn' => '이메일/클라우드로 공유',
+			'common.e2eeBackupShareContent' => '제 Imboy E2EE 키 백업 파일입니다. 안전하게 보관하고 타인에게 노출하지 마세요.',
+			'common.e2eeBackupErrPwdMismatch' => '비밀번호가 일치하지 않습니다',
+			'common.e2eeBackupErrNoKeyData' => '키 데이터를 가져올 수 없습니다',
+			'common.e2eeBackupErrExportFailed' => '내보내기 실패, 다시 시도해주세요',
+			'common.e2eeBackupErrShareFailed' => '공유 실패, 다시 시도해주세요',
+			'common.e2eeBackupExportSuccessTitle' => '백업 내보내기 완료',
+			'common.e2eeBackupExportSuccessBody' => 'E2EE 키 백업이 생성되었습니다.',
+			'common.e2eeBackupImportantNoteColon' => '중요 안내',
+			'common.e2eeBackupKeepSafe' => '• 백업 파일과 비밀번호를 안전하게 보관하세요',
+			'common.e2eeBackupStoreMultipleLoc' => '• 파일을 여러 안전한 위치에 보관하세요',
+			'common.e2eeBackupPwdCantRecoverNote' => '• 비밀번호는 복구할 수 없으니 반드시 기억해주세요',
+			'common.e2eeBackupImportTitle' => 'E2EE 백업 가져오기',
+			'common.e2eeBackupImportGuide' => '가져오기 안내',
+			'common.e2eeBackupImportReplaceKey' => '• 가져오면 현재 E2EE 키가 교체됩니다',
+			'common.e2eeBackupImportTrustedSource' => '• 백업 파일이 신뢰할 수 있는 출처인지 확인하세요',
+			'common.e2eeBackupSelectFile' => '백업 파일 선택',
+			'common.e2eeBackupSelectFileHint' => '백업 파일(.enc)을 선택하세요',
+			'common.e2eeBackupInfoTitle' => '백업 정보',
+			'common.e2eeBackupVersionLabel' => '버전',
+			'common.e2eeBackupAlgorithmLabel' => '알고리즘',
+			'common.e2eeBackupFileSizeLabel' => '파일 크기',
+			'common.e2eeBackupFileValid' => '✓ 파일 형식이 유효합니다',
+			'common.e2eeBackupImportPwdHint' => '백업 시 설정한 비밀번호를 입력하세요',
+			'common.e2eeBackupImportBtn' => '키 가져오기',
+			'common.e2eeBackupErrSelectFile' => '파일 선택 실패, 다시 시도해주세요',
+			'common.e2eeBackupErrValidateFailed' => '파일 검증 실패, 파일 형식을 확인해주세요',
+			'common.e2eeBackupErrImportFailed' => '가져오기 실패, 비밀번호를 확인해주세요',
+			'common.e2eeBackupImportSuccessTitle' => '가져오기 완료',
+			'common.e2eeBackupImportSuccessBody' => 'E2EE 키가 복구되었습니다!',
+			'common.e2eeBackupImportSuccessNote' => '참고: 이전 메시지를 볼 수 없을 수 있으며 이는 E2EE의 정상적인 동작입니다',
+			'common.e2eeBackupNoRecords' => '백업 기록이 없습니다',
+			'common.e2eeBackupNoRecordsHint' => '백업을 내보내면 기록이 여기에 표시됩니다',
+			'common.e2eeBackupDeviceLabel' => ({required Object id}) => '기기 ${id}',
+			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => '생성일 ${time}',
+			'common.e2eeBackupDetailTitle' => '백업 상세',
+			'common.e2eeBackupDeviceIdLabel' => '기기 ID',
+			'common.e2eeBackupVersionNum' => '백업 버전',
+			'common.e2eeBackupCreatedAtRow' => '생성 시간',
+			'common.e2eeBackupFileSizeRow' => '파일 크기',
+			'common.e2eeBackupNoteRow' => '메모',
+			'common.e2eeBackupDeleteTitle' => '백업 기록 삭제',
+			'common.e2eeBackupDeleteConfirm' => '이 백업 기록을 삭제하시겠습니까?',
+			'common.e2eeBackupDeleteSuccess' => '백업 기록이 삭제되었습니다',
+			'common.e2eeSocialShardSettings' => '샤드 설정',
+			'common.e2eeSocialShardStoredNote' => '안내: 샤드는 대리자 기기에 저장되며 서버에는 어떤 샤드도 저장되지 않습니다',
+			'common.e2eeSocialAddProxy' => '대리자 추가',
+			'common.e2eeSocialAddProxyHint' => '대리자 연락처를 추가해주세요',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '대리자를 ${count}명 더 추가해주세요',
+			'common.e2eeSocialCreateSuccessTitle' => '샤드 생성 완료',
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다',
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다',
+			'common.e2eeSocialZeroTrustNote' => '제로 트러스트 구조: 서버는 어떤 샤드도 저장하지 않습니다',
+			'common.e2eeSocialNoShards' => '생성한 복구 샤드가 없습니다',
+			'common.e2eeSocialNoProxyShards' => '대리자 샤드가 없습니다',
+			'common.e2eeSocialKeyVersionLabel' => '키 버전',
+			'common.e2eeTransferErrNoKey' => '먼저 키 쌍을 생성해주세요',
+			'common.e2eeTransferErrInitFailed' => '초기화 실패, 다시 시도해주세요',
+			'common.e2eeTransferErrNoRecipientKey' => '수신자에게 사용 가능한 공개 키가 없습니다',
+			'common.e2eeTransferErrKeyNotFound' => '키를 찾을 수 없습니다',
+			'common.e2eeTransferErrCreateFailed' => '전송 세션 생성 실패, 다시 시도해주세요',
+			'common.e2eeTransferCreateSessionBtn' => '전송 세션 만들기',
+			'common.e2eeTransferSessionCreated' => '전송 세션이 생성되었습니다',
+			'common.e2eeTransferUidEmptyError' => '올바른 사용자 ID를 입력해주세요',
+			'common.e2eeTransferSuccess' => '전송 완료!',
+			'common.e2eeTransferFailed' => '전송 실패, 다시 시도해주세요',
+			'common.e2eeTransferProcessingMsg' => '처리 중...',
+			'common.e2eeTransferSuccessTitle' => '전송 완료',
+			'common.e2eeTransferSuccessBody' => '키가 현재 기기로 전송되었습니다',
+			'common.e2eeTransferScanError' => ({required Object error}) => '스캔 오류: ${error}',
+			'common.e2eeTransferErrNoDeviceId' => '기기 ID를 가져올 수 없습니다',
+			'common.passwordEncryptFailed' => '비밀번호 암호화 실패',
+			'common.initConfigTimeout' => '설정 불러오기 시간 초과: 네트워크 연결 또는 서버 상태를 확인해주세요',
+			'common.initConfigNetworkError' => ({required Object code}) => '네트워크 또는 서버 오류 (HTTP ${code})',
+			'common.initConfigProtocolError' => '서버 응답 프로토콜 오류',
+			'common.initConfigFetchFailed' => '설정 불러오기 실패, 네트워크 연결을 확인해주세요',
+			'common.attachmentGetFileFailed' => '파일을 가져올 수 없습니다. 다시 시도하거나 앨범에서 선택하세요',
+			'common.attachmentGetFileFailedAndroid9' => '파일 가져오기 실패, Android 9 호환성 문제일 수 있습니다',
+			'common.attachmentGetImageDataFailed' => '이미지 데이터를 가져올 수 없습니다. 다시 시도해주세요',
+			'common.attachmentGetOriginalImageFailed' => '원본 이미지 데이터를 가져올 수 없습니다',
+			'common.saveFailedRetry' => '저장 실패, 다시 시도해주세요',
+			'common.downloadFileNotFound' => '다운로드 파일이 없습니다. 다시 시도해주세요',
+			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '파일 검증 실패, 다시 다운로드하는 중 (${retry}/${max})',
+			'common.downloadHashFailed' => '파일 검증이 여러 번 실패했습니다. 네트워크를 확인하고 다시 시도해주세요',
+			'common.e2eeTransferToNewDevice' => '새 기기로 전송',
+			'common.e2eeTransferPendingSection' => '대기 중인 전송',
+			'common.e2eeTransferLoadFailed' => '불러오기 실패',
+			'common.e2eeTransferLoadFailedDesc' => '대기 중인 전송을 불러올 수 없습니다. 다시 시도해주세요',
+			_ => null,
+		} ?? switch (path) {
+			'common.e2eeTransferNoPending' => '대기 중인 전송이 없습니다',
+			'common.e2eeTransferNoPendingDesc' => '기기가 키를 전송하면 여기에 표시됩니다',
+			'common.e2eeSocialEnoughShards' => '키를 복구할 수 있는 충분한 샤드가 있습니다',
+			'common.e2eeSocialMoreShards' => ({required Object count}) => '샤드 ${count}개 더...',
+			'common.e2eeProxyLoadFriendsFailed' => '친구 목록을 불러오지 못했습니다. 다시 시도해주세요',
+			'common.e2eeProxyNoPublicKey' => '이 친구에게 사용 가능한 공개 키가 없습니다',
+			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => '${name}의 공개 키를 가져오지 못했습니다',
+			'common.e2eeProxySelectFailed' => '대리자 선택 실패, 다시 시도해주세요',
+			'common.e2eeProxyNoFriends' => '친구가 없습니다',
+			'common.e2eeProxyNoFriendsHint' => '먼저 친구를 추가한 뒤 복구 대리자를 설정해주세요',
+			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '최소 ${count}명의 신뢰하는 연락처가 필요하며, ${selected}명 선택됨',
+			'common.e2eeProxyConfirmCount' => ({required Object count}) => '선택 확인 (대리자 ${count}명)',
+			'common.buttonBackHome' => '홈으로',
+			'common.featureNotEnabled' => '이 기능은 활성화되어 있지 않습니다',
+			'common.featureDisabledName' => ({required Object name}) => '${name} 기능이 활성화되어 있지 않아 일시적으로 접근할 수 없습니다',
+			'common.imageLoadFailed' => '불러오기 실패',
+			'common.loadFailedWithError' => ({required Object error}) => '불러오기 실패: ${error}',
+			'common.webAudioNotSupported' => 'Web에서는 음성 메시지 재생을 지원하지 않습니다',
+			'common.e2eeKeyRecreationFailed' => ({required Object error}) => '키 생성 실패: ${error}',
+			'common.redPacket' => '복주머니',
+			'common.transfer' => '송금',
+			'common.withdraw' => '출금',
+			'common.redPacketSend' => '복주머니 보내기',
+			'common.redPacketOpen' => '복주머니 받기',
+			'common.redPacketDetail' => '복주머니 상세',
+			'common.transferSend' => '송금하기',
+			'common.transferAccept' => '송금 수락',
+			'common.greetingDefault' => '새해 복 많이 받으세요',
+			'common.grabAmountYuan' => ({required Object amount}) => '받은 금액: ${amount}위안',
+			'common.transferAmountYuan' => ({required Object amount}) => '송금액: ${amount}위안',
+			'common.insufficientBalance' => '잔액 부족',
+			'common.goToRecharge' => '충전하러 가기',
+			'common.withdrawSuccess' => '출금 완료',
+			'common.withdrawConfirm' => '출금 확인',
+			'common.withdrawAmountError' => '1위안 이상의 금액을 입력해주세요',
+			'common.withdrawAccountEmpty' => '출금 계좌를 입력해주세요',
+			'common.withdrawMethod' => '출금 방식',
+			'common.withdrawAccount' => '출금 계좌',
 			'complaint.complaint' => '신고',
+			'complaintReason.spam' => '스팸',
+			'complaintReason.harassment' => '괴롭힘',
+			'complaintReason.inappropriate' => '부적절한 내용',
+			'complaintReason.other' => '기타',
 			'contact.applyFriend' => '친구 신청',
 			'contact.applyFriendLogic' => '친구 신청 논리',
 			'contact.applyParam' => ({required Object param}) => '${param} 신청',
@@ -2698,6 +4044,7 @@ extension on TranslationsKoKr {
 			'contact.pleaseEnterRemark' => '메모를 입력해 주세요',
 			'contact.enterRemark' => '메모 이름을 입력해 주세요',
 			'contact.pleaseEnterTags' => '태그를 입력하세요',
+			'contact.momentsVisibilityFriends' => '친구만',
 			'contact.tagLengthExceeded' => ({required Object param}) => '태그 길이는 ${param}자를 초과할 수 없습니다',
 			'contact.maxTagsExceeded' => ({required Object param}) => '최대 ${param}개의 태그를 추가할 수 있습니다',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '선택된 태그 (${param}/${max})',
@@ -2716,6 +4063,8 @@ extension on TranslationsKoKr {
 			'contact.tagIdeas' => '아이디어',
 			'contact.tagMemo' => '메모',
 			'contact.friendRequestSent' => '전송됨',
+			'contact.channelMaxTagsCount' => '태그는 최대 8개까지 추가할 수 있습니다',
+			'contact.tagInputHint' => '태그 입력...',
 			'discovery.findNearbyPeople' => '주변 사람 찾기',
 			'discovery.moment' => '모멘트',
 			'discovery.nearbyPeopleExplain' => '주변 사용자가 귀하의 프로필을 보고 메시지를 보낼 수 있습니다. 이는 새 친구를 찾는 데 도움이 될 수 있지만 과도한 주의를 끌 수도 있습니다. 언제든지 프로필 공유를 중단할 수 있습니다.\n전화번호는 숨겨집니다.',
@@ -2725,10 +4074,26 @@ extension on TranslationsKoKr {
 			'discovery.scanResult' => '스캔 결과',
 			'discovery.scannerResult' => '스캐너 결과',
 			'discovery.titleDiscover' => '발견',
+			'discovery.myChannels' => '내 채널',
+			'discovery.channelSquare' => '채널 광장',
 			'discovery.otherUsersCanFindMe' => '다른 사용자가 검색을 통해 찾을 수 있습니다',
 			'discovery.moments' => '모멘트',
+			'discovery.momentsReport' => '모멘트 신고',
+			'discovery.momentsReportDesc' => '추가 설명',
+			'discovery.momentsComments' => '댓글',
+			'discovery.momentsWriteComment' => '댓글을 입력하세요...',
+			'discovery.momentsVisibility' => '공개 범위',
+			'discovery.momentsVisibilityPublic' => '공개',
+			'discovery.momentsVisibilityPartial' => '일부만',
+			'discovery.momentsVisibilityExclude' => '특정 친구 제외',
+			'discovery.momentsDenyUidsLabel' => '제외할 UID 목록 (쉼표로 구분)',
+			'discovery.momentsDraftRestored' => '마지막 저장된 임시글이 복원되었습니다',
+			'discovery.momentsFeedStale' => '네트워크 오류로 캐시된 내용을 표시합니다',
 			'discovery.discover' => '발견',
 			'discovery.shake' => '흔들기',
+			'discovery.openChannel' => '채널 열기',
+			'discovery.paidChannelLocked' => '유료 채널 콘텐츠가 잠겨 있습니다',
+			'discovery.webQRScanned' => '스캔 완료',
 			'error.restartRequired' => '앱 재시작 필요',
 			'error.networkFailureGuidance' => '네트워크 오류 안내',
 			'error.pleaseCheckNetwork' => '네트워크 설정을 확인해 주세요.',
@@ -2736,10 +4101,16 @@ extension on TranslationsKoKr {
 			'error.networkTroubleshootingStep2' => '2. 휴대전화 설정 - 일반 - 셀룰러 데이터를 열고 셀룰러 데이터 스위치를 켜 주세요.',
 			'error.networkTroubleshootingStep3' => '3. 여전히 네트워크에 연결할 수 없는 경우, 휴대전화가 연결된 Wi-Fi가 인터넷에 액세스할 수 있는지 확인하거나 네트워크 운영자에게 문의해 주세요.',
 			'error.suggestCheckNetwork' => '네트워크 설정을 확인하는 것이 좋습니다.',
+			'error.e2eeStartRecoveryBtn' => ({required Object required}) => '키 복구 시작 (${required}명의 대리자 필요)',
+			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => '샤드 부족 (${required}개 필요, 현재 ${current}개)',
+			'error.e2eeErrTimeout' => '암호화 시간 초과, 네트워크 연결을 확인하고 다시 시도해주세요',
+			'error.e2eeErrNetwork' => '네트워크 오류로 암호화 실패, 메시지가 전송되지 않았습니다',
+			'error.liveRoomTitleRequired' => '제목을 입력해주세요',
 			'group.financialManagement' => '자산 관리',
 			'group.enterSameGroup' => '주변 친구와 같은 그룹 채팅에 들어가세요',
 			'group.enterTheGroup' => '그룹 입장',
 			'group.groupAlias' => '그룹 내 내 닉네임',
+			'group.groupAlbum' => '그룹 앨범',
 			'group.groupDissolve' => '그룹 해체',
 			'group.groupJoin' => '그룹 참여',
 			'group.groupLeave' => '그룹 나가기',
@@ -2747,16 +4118,139 @@ extension on TranslationsKoKr {
 			'group.groupMembers' => '그룹 구성원',
 			'group.groupName' => '그룹 채팅 이름',
 			'group.mutualGroupsWithHer' => '해당 사용자와의 공통 그룹 채팅',
-			'group.selectGroup' => '그룹 채팅 선택',
-			'group.sureToDissolveGroup' => '이 그룹을 해체하시겠습니까?',
-			'group.sureToLeaveGroup' => '이 그룹을 나가시겠습니까?',
 			'group.groupOwner' => 'Owner',
 			'group.groupAdmin' => 'Admin',
-			'group.groupGuest' => '嘉宾',
+			'group.groupGuest' => '게스트',
 			'group.groupMember' => 'Member',
 			'group.setAdmin' => 'Set as Admin',
 			'group.transferGroup' => 'Transfer Ownership',
 			'group.joinTime' => 'Join Time',
+			'group.selectGroup' => '그룹 채팅 선택',
+			'group.sureToDissolveGroup' => '이 그룹을 해체하시겠습니까?',
+			'group.sureToLeaveGroup' => '이 그룹을 나가시겠습니까?',
+			'group.groupAlbumNameHint' => '앨범 이름을 입력하세요',
+			'group.groupAlbumRenameTitle' => '앨범 이름 변경',
+			'group.groupAlbumRenamed' => '앨범 이름이 변경되었습니다',
+			'group.groupAlbumUnnamed' => '이름 없는 앨범',
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '이미지 ${count}장',
+			'group.groupAlbumPhotoIdMissing' => '이미지 ID가 없어 상세정보를 볼 수 없습니다',
+			'group.groupAlbumPhotoListTitle' => '앨범 이미지',
+			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '${count}개 선택됨',
+			'group.groupAlbumPhotoEmpty' => '이미지가 없습니다',
+			'group.groupAlbumPhotoUrlMissing' => '이미지 주소가 없어 열 수 없습니다',
+			'group.groupAlbumPhotoUrlInvalid' => '이미지 주소가 잘못되었습니다',
+			'group.groupAlbumPhotoDetailTitle' => '이미지 상세',
+			'group.groupAlbumPhotoSetCover' => '표지로 설정',
+			'group.groupAlbumPhotoPrev' => '이전',
+			'group.groupAlbumPhotoLikeCount' => '좋아요 수',
+			'group.groupAlbumPhotoCommentCount' => '댓글 수',
+			'group.groupAlbumPhotoMyLike' => '내 좋아요',
+			'group.groupAlbumPhotoIdLabel' => '이미지 ID',
+			'group.e2eeKeyManagement' => 'E2EE 키 관리',
+			'group.e2eeKeyManagementSubtitle' => '종단간 암호화 키를 백업, 복구 및 관리합니다',
+			'groupCategory.title' => '그룹 폴더',
+			'groupCategory.createCategory' => '폴더 만들기',
+			'groupCategory.categoryName' => '폴더 이름',
+			'groupCategory.categoryDesc' => '폴더 설명 (선택)',
+			'groupCategory.noCategory' => '폴더가 없습니다',
+			'groupCategory.createFirst' => '첫 폴더를 만들어보세요',
+			'groupCategory.addGroup' => '그룹을 폴더에 추가',
+			'groupCategory.removeGroup' => '폴더에서 제거',
+			'groupCategory.deleteCategory' => '폴더 삭제',
+			'groupCategory.deleteCategoryConfirm' => '이 폴더를 삭제하시겠습니까? 그룹은 삭제되지 않습니다.',
+			'groupCategory.categoryCreated' => '폴더가 생성되었습니다',
+			'groupCategory.categoryDeleted' => '폴더가 삭제되었습니다',
+			'groupCategory.renameCategory' => '폴더 이름 변경',
+			'groupCategory.categoryRenamed' => '폴더 이름이 변경되었습니다',
+			'groupCategory.renameFailed' => '이름 변경 실패, 다시 시도해주세요',
+			'groupCategory.deleteFailed' => '삭제 실패, 다시 시도해주세요',
+			'groupCategory.categoryDetailTip' => '이 폴더의 그룹은 그룹 목록에서 "폴더로 이동"으로 관리할 수 있습니다',
+			'groupList.attrAll' => '전체',
+			'groupList.attrOwner' => '내가 만듦',
+			'groupList.attrManager' => '내가 관리',
+			'groupList.attrJoin' => '내가 참여',
+			'groupList.refresh' => '새로고침',
+			'groupSchedule.title' => '그룹 일정',
+			'groupSchedule.createSchedule' => '일정 만들기',
+			'groupSchedule.scheduleTitle' => '일정 제목',
+			'groupSchedule.selectDate' => '날짜 선택',
+			'groupSchedule.selectTime' => '시간 선택',
+			'groupSchedule.location' => '장소',
+			'groupSchedule.reminder' => '알림',
+			'groupSchedule.noReminder' => '알림 없음',
+			'groupSchedule.noSchedule' => '일정이 없습니다',
+			'groupSchedule.scheduleCreated' => '일정이 생성되었습니다',
+			'groupSchedule.scheduleUpdated' => '일정이 수정되었습니다',
+			'groupSchedule.reminder15min' => '15분 전',
+			'groupSchedule.reminder1hour' => '1시간 전',
+			'groupSchedule.reminder1day' => '1일 전',
+			'groupSchedule.startTime' => '시작 시간',
+			'groupSchedule.endTime' => '종료 시간',
+			'groupSchedule.participants' => '참여 인원',
+			'groupSchedule.statusCancelled' => '취소됨',
+			'groupSchedule.statusInProgress' => '진행 중',
+			'groupSchedule.cancelSuccess' => '일정이 취소되었습니다',
+			'groupSchedule.cancelFailed' => '취소 실패, 나중에 다시 시도해주세요',
+			'groupSchedule.confirmAttend' => '참석 확인',
+			'groupSchedule.declineAttend' => '불참',
+			'groupSchedule.cancelSchedule' => '일정 취소',
+			'groupSchedule.scheduleIdMissing' => '일정 ID가 없어 상세정보를 볼 수 없습니다',
+			'groupTag.title' => '그룹 태그',
+			'groupTag.addTag' => '태그 추가',
+			'groupTag.tagName' => '태그 이름',
+			'groupTag.tagColor' => '태그 색상',
+			'groupTag.noTag' => '태그가 없습니다',
+			'groupTag.tagAdded' => '태그가 추가되었습니다',
+			'groupTag.tagRemoved' => '태그가 제거되었습니다',
+			'groupTag.removeTitle' => '태그 제거',
+			'groupTag.removeConfirm' => '이 태그를 제거하시겠습니까?',
+			'groupTask.title' => '그룹 작업',
+			'groupTask.createTask' => '작업 만들기',
+			'groupTask.taskTitle' => '작업 제목',
+			'groupTask.taskDescription' => '작업 설명',
+			'groupTask.assignTo' => '담당자',
+			'groupTask.deadline' => '마감 시간',
+			'groupTask.noDeadline' => '마감 시간 없음',
+			'groupTask.noTask' => '작업이 없습니다',
+			'groupTask.all' => '전체',
+			'groupTask.pending' => '미완료',
+			'groupTask.completed' => '완료',
+			'groupTask.taskCreated' => '작업이 생성되었습니다',
+			'groupTask.taskSubmitted' => '작업이 제출되었습니다',
+			'groupTask.taskCompleted' => '작업이 완료되었습니다',
+			'groupTask.overdue' => '마감',
+			'groupTask.daysLeft' => ({required Object days}) => '${days}일 후 마감',
+			'groupTask.hoursLeft' => ({required Object hours}) => '${hours}시간 후 마감',
+			'groupTask.dueSoon' => '마감 임박',
+			'groupTask.submitFailed' => '제출 실패, 나중에 다시 시도해주세요',
+			'groupTask.taskId' => '작업 ID',
+			'groupTask.pendingReview' => '검토 대기',
+			'groupTask.taskIdMissing' => '작업 ID가 없어 상세정보를 볼 수 없습니다',
+			'groupTask.taskIdMissingSubmit' => '작업 ID가 없어 제출할 수 없습니다',
+			'groupVote.title' => '그룹 투표',
+			'groupVote.createVote' => '투표 만들기',
+			'groupVote.voteTitle' => '투표 제목',
+			'groupVote.voteOptions' => '투표 항목',
+			'groupVote.addOption' => '항목 추가',
+			'groupVote.allowMultiple' => '다중 선택 허용',
+			'groupVote.anonymous' => '익명 투표',
+			'groupVote.deadline' => '마감 시간',
+			'groupVote.noDeadline' => '마감 시간 없음',
+			'groupVote.noVote' => '투표가 없습니다',
+			'groupVote.voteEnded' => '투표가 종료되었습니다',
+			'groupVote.totalVotes' => ({required Object count}) => '총 ${count}표',
+			'groupVote.voteSuccess' => '투표 완료',
+			'groupVote.hasVoted' => '투표함',
+			'groupVote.viewResults' => '결과 보기',
+			'groupVote.cancelVoteSuccess' => '투표를 취소했습니다',
+			'groupVote.cancelVoteFailed' => '취소 실패, 나중에 다시 시도해주세요',
+			'groupVote.endVoteFailed' => '종료 실패, 나중에 다시 시도해주세요',
+			'groupVote.eachOptionPerLine' => '한 줄에 하나씩 입력',
+			'groupVote.statusInProgress' => '진행 중',
+			'groupVote.updateVote' => '투표 수정',
+			'groupVote.cancelMyVote' => '내 투표 취소',
+			'groupVote.voteIdMissing' => '투표 ID가 없어 상세정보를 볼 수 없습니다',
+			'groupVote.participantCount' => ({required Object count}) => '참여 인원: ${count}',
 			'main.change' => '수정',
 			'main.entertainment' => '영화 및 공연',
 			'main.lifePayment' => '생활 요금 결제',
@@ -2771,6 +4265,8 @@ extension on TranslationsKoKr {
 			'main.audio' => '오디오',
 			'main.barcodeFound' => '바코드를 찾았습니다!',
 			'main.botQianFan' => '천판 로봇',
+			'main.liveRoomWhipLabel' => 'WHIP 스트리밍 주소',
+			'main.liveRoomWhepLabel' => 'WHEP 수신 주소',
 			'main.cache' => '캐시',
 			'main.camera' => '촬영',
 			'main.changeNameView' => '이름 변경',
@@ -2848,6 +4344,9 @@ extension on TranslationsKoKr {
 			'main.recentlyUsed' => '최근 사용',
 			'main.releaseEnd' => '놓으면 종료',
 			'main.remainingChars' => ({required Object param}) => '${param}자 더 입력할 수 있습니다',
+			'main.kickMember' => 'Remove from Group',
+			'main.memberDetail' => 'Member Details',
+			'main.memberRole' => 'Role',
 			'main.replied' => '답장됨',
 			'main.ringing' => '벨 울림...',
 			'main.ruRu' => '러시아어',
@@ -2872,6 +4371,7 @@ extension on TranslationsKoKr {
 			'main.timeRange' => '시간 범위',
 			'main.timeWeekdays' => '월요일, 화요일, 수요일, 목요일, 금요일, 토요일, 일요일',
 			'main.titleMine' => '내 정보',
+			'main.titleSquare' => '광장',
 			'main.tooBad' => '너무 나쁨',
 			'main.tryAgainQ' => '다시 시도하시겠습니까?',
 			'main.type' => '유형',
@@ -2944,9 +4444,129 @@ extension on TranslationsKoKr {
 			'main.larger' => '더 크게',
 			'main.currentLength' => ({required Object param1, required Object param2}) => '현재 길이: ${param1} / ${param2}',
 			'main.fillIn' => '입력',
-			'main.kickMember' => 'Remove from Group',
-			'main.memberDetail' => 'Member Details',
-			'main.memberRole' => 'Role',
+			'main.msgProtectedByComplianceKey' => '메시지는 규정 준수 키로 보호됩니다',
+			'main.inviterLabel' => ({required Object uid}) => '초대자: ${uid}',
+			'main.inviteeLabel' => ({required Object uid}) => '초대받은 사람: ${uid}',
+			'main.mySentTab' => '보낸 초대',
+			'main.reject' => '거절',
+			'main.myOrders' => '내 주문',
+			'main.purchaseUnlockHint' => '구매 시 채널의 과거 메시지와 향후 업데이트를 볼 수 있습니다.',
+			'main.payingDots' => '결제 중...',
+			'main.purchaseAndUnlock' => '구매하고 잠금 해제',
+			'main.orderDetail' => '주문 상세',
+			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '금액: ${currency} ${amount}',
+			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => '가격: ${currency} ${amount}',
+			'main.e2eeKeyRecoveryTitle' => '종단간 암호화 키 관리',
+			'main.e2eeRecoveryMethods' => '키 복구 방법',
+			'main.e2eeDangerousOps' => '위험 작업',
+			'main.e2eeSocialRecovery' => '소셜 복구',
+			'main.e2eeSocialRecoveryDesc' => '신뢰하는 연락처의 도움으로 키를 복구합니다',
+			'main.e2eeKeyIdLabel' => '키 ID',
+			'main.e2eeWarnIrreversible' => '• 이 작업은 되돌릴 수 없습니다',
+			'main.e2eeWarnNeedRestoreOrNew' => '• 백업에서 복구하거나 새 키를 생성해야 합니다',
+			'main.gotIt' => '확인',
+			'main.e2eeRecoverKeyTitle' => '키 복구',
+			'main.e2eeCanRecoverKey' => '키를 복구할 수 있습니다',
+			'main.e2eeInsufficientShards' => '샤드 수가 부족합니다',
+			'main.e2eeProxyUser' => ({required Object uid}) => '대리자: ${uid}',
+			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '샤드 ${index} / ${total}',
+			'main.e2eeReloadShards' => '새로고침',
+			'main.e2eeRecovering' => '복구 중...',
+			'main.e2eeKeyRestored' => '키가 복구되었습니다',
+			'main.e2eeUsedShards' => ({required Object count}) => '대리자 샤드 ${count}개 사용됨',
+			'main.e2eePreparing' => '복구 준비 중...',
+			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '진행률: ${collected} / ${total} 샤드',
+			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => '샤드 수집 중 (${collected}/${total})...',
+			'main.e2eeShardsCollected' => '샤드 수집 완료, 키를 재조립하는 중...',
+			'main.webQRLoggingIn' => '로그인 중...',
+			'main.webQRExpired' => 'QR 코드가 만료되었습니다',
+			'main.webQRRefresh' => 'QR 코드 새로고침',
+			'main.webSwitchToQR' => 'QR 코드로 로그인',
+			'main.e2eeErrDefault' => '종단간 암호화 실패, 메시지가 전송되지 않았습니다',
+			_ => null,
+		} ?? switch (path) {
+			'main.e2eeSocialTotalShards' => '전체 샤드 수',
+			'main.e2eeSocialThreshold' => '복구 임계값',
+			'main.e2eeSocialThresholdHint' => ({required Object count}) => '키 복구 시 ${count}명의 대리자가 필요합니다',
+			'main.e2eeSocialSelectProxy' => '복구 대리자 선택',
+			'main.e2eeSocialProxyNeeded' => ({required Object count}) => '${count}명의 신뢰하는 연락처가 대리자로 필요합니다',
+			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => '사용자 ${uid}',
+			'main.e2eeSocialShardSentViaWs' => '샤드는 WebSocket으로 대리자 기기에 직접 전송되어 저장됩니다',
+			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => '대리자 기기 ${sent}개에 전송됨 (전체 ${total}개)',
+			'main.e2eeSocialManageTitle' => '샤드 관리',
+			'main.e2eeSocialMyShards' => '내 샤드',
+			'main.e2eeSocialProxyShards' => '대리자 샤드',
+			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => '샤드 ${idx} / ${total}',
+			'main.e2eeSocialShardActive' => '활성',
+			'main.e2eeSocialShardUsed' => '사용됨',
+			'main.e2eeSocialShardValid' => '샤드 유효',
+			'main.e2eeSocialUserShard' => ({required Object uid}) => '사용자 ${uid}의 키 샤드',
+			'main.e2eeSocialProxyUserLabel' => '대리자',
+			'main.e2eeSocialRecoveryThresholdLabel' => '복구 임계값',
+			'main.e2eeSocialShardIndexLabel' => '샤드 번호',
+			'main.e2eeTransferQRHint' => '새 기기에서 이 QR 코드를 스캔하세요',
+			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'QR 코드가 ${time}에 만료됩니다',
+			'main.e2eeTransferRefreshQR' => 'QR 코드 새로고침',
+			'main.e2eeTransferEnterUidTitle' => '수신자 사용자 ID 입력',
+			'main.e2eeTransferUidPlaceholder' => '수신자 사용자 ID',
+			'main.e2eeTransferReceiving' => '수신 중...',
+			'main.e2eeTransferPageTitle' => '기기 간 전송',
+			'main.e2eeTransferPendingItem' => '대기 중인 키 전송',
+			'main.e2eeTransferPendingItemDesc' => '탭하여 상세 보기',
+			'main.e2eeTransferView' => '보기',
+			'main.e2eeSocialTitle' => '소셜 복구',
+			'main.e2eeSocialCanRecover' => '키를 복구할 수 있습니다',
+			'main.e2eeSocialSetupProxy' => '복구 대리자 설정',
+			'main.e2eeSocialChooseProxy' => '신뢰하는 연락처를 복구 대리자로 선택하세요',
+			'main.e2eeSocialExistingShards' => '기존 복구 샤드',
+			'main.e2eeSocialRecoverKeyTitle' => '키 복구',
+			'main.e2eeSocialRecoverKeyDesc' => '대리자의 샤드로 키를 복구합니다',
+			'main.e2eeSocialManageShardsTitle' => '샤드 관리',
+			'main.e2eeSocialManageShardsDesc' => '모든 복구 샤드를 보고 관리합니다',
+			'main.e2eeSocialZeroTrustHint1' => '제로 트러스트 구조: 서버는 샤드를 저장하지 않고 대리자에 직접 연결합니다',
+			'main.e2eeSocialZeroTrustHint2' => '제로 트러스트 구조: 샤드는 대리자 기기에 저장됩니다',
+			'main.e2eeSocialZeroTrustHint3' => '제로 트러스트 구조: 샤드는 대리자 기기에 저장되며 서버는 평문에 접근하지 않습니다',
+			'main.e2eeProxyMinCount' => ({required Object count}) => '대리자를 최소 ${count}명 선택해주세요',
+			'main.e2eeProxySelectTitle' => '복구 대리자 선택',
+			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '${selected} / ${total} 선택됨',
+			'main.e2eeProxyReachedMin' => '최소 대리자 수에 도달했습니다',
+			'main.liveRoomTitleLabel' => '라이브 룸 제목',
+			'main.liveRoomTitleHint' => '라이브 룸 제목을 입력하세요',
+			'mention.title' => '@멘션',
+			'mention.noMention' => '멘션이 없습니다',
+			'mention.allRead' => '모두 읽음',
+			'mention.markAsRead' => '읽음으로 표시',
+			'mention.newMention' => '새 멘션',
+			'mention.fromGroup' => '그룹에서',
+			'mention.fromChat' => '채팅에서',
+			'mention.viewContext' => '문맥 보기',
+			'mention.mentionCount' => ({required Object count}) => '새 멘션 ${count}건',
+			'mention.mentionAllDenied' => '관리자만 @모두를 사용할 수 있습니다',
+			'mention.navInfoMissing' => '메시지 위치 정보가 없어 이동할 수 없습니다',
+			'momentFriendPicker.title' => '친구 선택',
+			'momentFriendPicker.titleAllow' => '공개할 친구',
+			'momentFriendPicker.titleDeny' => '제외할 친구',
+			'momentFriendPicker.confirm' => '확인',
+			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '확인(${count})',
+			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count}명 선택',
+			'momentFriendPicker.emptyFriends' => '친구가 없습니다',
+			'momentFriendPicker.tagsLabel' => '태그로 선택',
+			'momentFriendPicker.emptyTags' => '태그가 없습니다',
+			'momentFriendPicker.tagLoadFailed' => '태그를 불러오지 못했습니다',
+			'momentFriendPicker.searchHint' => '친구 검색',
+			'momentNotify.title' => '알림',
+			'momentNotify.emptyTitle' => '새 알림이 없습니다',
+			'momentNotify.emptyHint' => '친구가 내 모멘트에 좋아요나 댓글을 남기면 여기에 표시됩니다',
+			'momentNotify.actionLike' => '님이 회원님의 모멘트를 좋아합니다',
+			'momentNotify.actionComment' => '님이 댓글을 남겼습니다',
+			'momentNotify.markAllRead' => '모두 읽음',
+			'momentNotify.clearAll' => '전체 삭제',
+			'momentNotify.clearConfirmTitle' => '모든 알림을 삭제하시겠습니까?',
+			'momentNotify.clearConfirmMessage' => '삭제 후에는 복구할 수 없습니다',
+			'momentNotify.confirm' => '확인',
+			'momentNotify.cancel' => '취소',
+			'momentNotify.delete' => '삭제',
+			'momentNotify.loadFailed' => '불러오기 실패, 나중에 다시 시도해주세요',
 			'passport.retrievePassword' => '비밀번호 찾기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',

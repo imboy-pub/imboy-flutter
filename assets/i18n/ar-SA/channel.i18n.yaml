@@ -1,3 +1,4 @@
+---
 title: القنوات
 loading: جاري التحميل...
 subscribed: مشترك
@@ -9,10 +10,8 @@ searchHint: البحث بالاسم أو المعرف
 searchTip: أدخل كلمات مفتاحية للبحث
 noResults: لم يتم العثور على قنوات
 noRecommendedChannels: لا توجد قنوات موصى بها تحقق مرة أخرى لاحقاً
-noSubscribedChannels: "لا توجد اشتراكات
-اكتشف المزيد من القنوات"
-noManagedChannels: "لا توجد قنوات مُدارة
-أنشئ قناة للبدء"
+noSubscribedChannels: لا توجد اشتراكات اكتشف المزيد من القنوات
+noManagedChannels: لا توجد قنوات مُدارة أنشئ قناة للبدء
 noMessages: لا توجد رسائل
 subscribers: مشتركين
 pinned: مثبت
@@ -32,7 +31,7 @@ nameTooLong: لا يمكن أن يتجاوز 50 حرفاً
 descriptionLabel: الوصف
 descriptionHint: وصف قناتك (اختياري)
 customIdLabel: معرف مخصص (اختياري)
-customIdHint: "مثال: my_channel"
+customIdHint: 'مثال: my_channel'
 customIdHelper: يتيح البحث بالمعرف
 customIdInvalid: فقط أحرف وأرقام وشرطات سفلية
 customIdLength: يجب أن يكون 4-30 حرفاً
@@ -90,10 +89,16 @@ updateRoleSuccess: تم تحديث الدور بنجاح
 updateRoleFailed: فشل تحديث الدور
 userId: معرف المستخدم
 userIdHint: أدخل معرف المستخدم
+selectFromContacts: اختيار من جهات الاتصال
+searchContactsHint: ابحث بالاسم أو الحساب
+noContactsToAdd: جميع الأصدقاء مشرفون بالفعل
+selectRole: اختيار الدور
 noAdmins: لا يوجد مسؤولين
 roleCreator: المنشئ
 roleAdmin: مسؤول
+roleAdminDesc: يدير القناة
 roleEditor: محرر
+roleEditorDesc: ينشر الرسائل
 roleUnknown: غير معروف
 searchSubscribers: البحث عن المشتركين
 subscriberSearchHint: البحث بالاسم أو المعرف
@@ -105,6 +110,11 @@ removeSubscriberSuccess: تمت إزالة المشترك
 removeSubscriberFailed: فشل إزالة المشترك
 subscribedAt: مشترك منذ
 viewProfile: عرض الملف الشخصي
+inviteFromContacts: دعوة صديق
+inviteSearchHint: ابحث بالاسم أو الحساب
+noContactsToInvite: جميع الأصدقاء مدعوون أو مشتركون بالفعل
+inviteSuccess: تم إرسال الدعوة
+inviteFailed: تعذّر إرسال الدعوة
 updateSuccess: تم تحديث القناة بنجاح
 updateFailed: فشل تحديث القناة
 typeCannotChange: لا يمكن تغييره بعد الإنشاء

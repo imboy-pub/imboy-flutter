@@ -1,0 +1,12 @@
+---
+title: Выбор друзей
+titleAllow: Показать
+titleDeny: Скрыть от
+confirm: ОК
+confirmWithCount: ОК($count)
+selectedCount: 'Выбрано: $count'
+emptyFriends: Нет друзей
+tagsLabel: По меткам
+emptyTags: Нет меток
+tagLoadFailed: Не удалось загрузить метки
+searchHint: Поиск друзей

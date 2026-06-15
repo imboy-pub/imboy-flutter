@@ -1,12 +1,13 @@
+---
 account: Compte
 accountSecurity: Sécurité du compte
 mobileRecharge: Recharge mobile
 avatar: Photo de profil
 accountSecurityEnhance: Améliorer la sécurité du compte
 bindMobile: Associer le numéro de téléphone
-bindMobileFor: "Utilisé pour la connexion, la récupération du mot de passe et la réception de notifications importantes."
+bindMobileFor: Utilisé pour la connexion, la récupération du mot de passe et la réception de notifications importantes.
 linkEmail: Associer l'adresse e-mail
-linkEmailFor: "Utilisé pour la connexion, l'authentification et la réception des factures."
+linkEmailFor: Utilisé pour la connexion, l'authentification et la réception des factures.
 codeSentToEmail: Code envoyé par e-mail
 codeSentToMobile: Code envoyé par SMS
 currentDevice: Appareil actuel
@@ -35,7 +36,7 @@ myQrcode: Mon code QR
 newPassword: Nouveau mot de passe
 newlyRegisteredPeople: Nouveaux inscrits
 nickname: Surnom
-nicknameChangeVisibility: "Après modification du surnom, il ne s'affichera que dans ce groupe et tous les membres du groupe pourront le voir."
+nicknameChangeVisibility: Après modification du surnom, il ne s'affichera que dans ce groupe et tous les membres du groupe pourront le voir.
 nicknameCharsRemaining: Il reste encore $param caractères.
 nicknameHint: Entrez un surnom.
 nicknameSaving: Enregistrement en cours...
@@ -45,7 +46,7 @@ recentlyRegisteredUser: Utilisateur récemment inscrit
 recoverCodePasswordDesc: Nous enverrons le code de récupération de mot de passe à votre adresse e-mail.
 recoverPassword: Récupérer le mot de passe
 recoverPasswordDesc: Entrez votre adresse e-mail. Nous vous enverrons un code de réinitialisation du mot de passe.
-recoverPasswordIntro: "Ne vous inquiétez pas, cela arrive souvent."
+recoverPasswordIntro: Ne vous inquiétez pas, cela arrive souvent.
 birthday: Date de naissance
 region: Région
 retypePassword: Ressaisir le mot de passe
@@ -95,7 +96,22 @@ profile: Profile
 setGender: Définir le genre
 setBirthday: Définir la date de naissance
 sentToEmail: Envoyé à $param
-nicknameRules: "• Longueur du surnom : 2-24 caractères
-• Ne peut pas contenir uniquement des espaces ou des émojis
-• Ne peut pas contenir de mots sensibles
-• Les modifications seront reflétées dans tous les chats"
+nicknameRules: "• Longueur du surnom : 2-24 caractères • Ne peut pas contenir uniquement des espaces ou des émojis • Ne peut pas contenir de mots sensibles • Les modifications seront reflétées dans tous les chats"
+refreshDeviceKey: Actualiser la clé
+refreshDeviceKeyHint: Si les messages ne se déchiffrent pas, actualisez la clé ici
+refreshingDeviceKey: Actualisation de la clé...
+deviceKeyRefreshed: Clé actualisée
+rechargeTitle: Recharger
+rechargeAmountHint: Montant (yuan), 1–10000
+rechargeAmountExample: ex. 100
+e2eeDeviceTransfer: Transfert entre appareils
+e2eeDeviceTransferDesc: Transférer la clé vers un nouvel appareil via QR code
+e2eeDeviceIdLabel: ID d'appareil
+webQRLoginTitle: Connexion par QR code
+webQRLoginHint: Scannez le QR code avec l'app ImBoy
+webSwitchToPassword: Connexion par mot de passe
+webPasswordLoginTitle: Connexion compte
+webAccountHint: Compte/mobile/e-mail
+webPasswordHint: Mot de passe
+e2eeTransferFromOldDevice: Depuis l'ancien appareil
+pleaseRelogin: Reconnectez-vous

@@ -1,0 +1,10 @@
+---
+title: Étiquettes de groupe
+addTag: Ajouter une étiquette
+tagName: Nom de l'étiquette
+tagColor: Couleur de l'étiquette
+noTag: Aucune étiquette
+tagAdded: Étiquette ajoutée
+tagRemoved: Étiquette supprimée
+removeTitle: Supprimer l'étiquette
+removeConfirm: Supprimer cette étiquette ?

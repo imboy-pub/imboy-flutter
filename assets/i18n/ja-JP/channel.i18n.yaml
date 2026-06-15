@@ -1,3 +1,4 @@
+---
 title: チャンネル
 loading: 読み込み中...
 subscribed: 購読済み
@@ -9,10 +10,8 @@ searchHint: チャンネル名またはIDを検索
 searchTip: キーワードを入力してチャンネルを検索
 noResults: チャンネルが見つかりません
 noRecommendedChannels: おすすめチャンネルはありません また後でチェックしてください
-noSubscribedChannels: "購読中のチャンネルはありません
-もっとチャンネルを見つけましょう"
-noManagedChannels: "管理中のチャンネルはありません
-チャンネルを作成して始めましょう"
+noSubscribedChannels: 購読中のチャンネルはありません もっとチャンネルを見つけましょう
+noManagedChannels: 管理中のチャンネルはありません チャンネルを作成して始めましょう
 noMessages: メッセージはありません
 subscribers: 購読者
 pinned: ピン留め
@@ -90,10 +89,16 @@ updateRoleSuccess: 役割を更新しました
 updateRoleFailed: 役割の更新に失敗しました
 userId: ユーザーID
 userIdHint: ユーザーIDを入力
+selectFromContacts: 連絡先から選択
+searchContactsHint: ニックネームまたはアカウントを検索
+noContactsToAdd: すべての友達がすでに管理者です
+selectRole: ロールを選択
 noAdmins: 管理者がいません
 roleCreator: 作成者
 roleAdmin: 管理者
+roleAdminDesc: チャンネルを管理可能
 roleEditor: 編集者
+roleEditorDesc: メッセージを投稿可能
 roleUnknown: 不明
 searchSubscribers: 購読者を検索
 subscriberSearchHint: ニックネームまたはIDで検索
@@ -105,6 +110,11 @@ removeSubscriberSuccess: 購読者を削除しました
 removeSubscriberFailed: 購読者の削除に失敗しました
 subscribedAt: 購読日
 viewProfile: プロフィールを見る
+inviteFromContacts: 友達を招待
+inviteSearchHint: ニックネームまたはアカウントを検索
+noContactsToInvite: すべての友達は招待済みまたは購読済みです
+inviteSuccess: 招待を送信しました
+inviteFailed: 招待の送信に失敗しました
 updateSuccess: チャンネルを更新しました
 updateFailed: チャンネルの更新に失敗しました
 typeCannotChange: 作成後は変更できません

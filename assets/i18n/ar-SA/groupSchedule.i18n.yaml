@@ -1,0 +1,26 @@
+---
+title: جدول المجموعة
+createSchedule: إنشاء فعالية
+scheduleTitle: العنوان
+selectDate: اختيار التاريخ
+selectTime: اختيار الوقت
+location: الموقع
+reminder: تذكير
+noReminder: بلا تذكير
+noSchedule: لا توجد فعاليات
+scheduleCreated: تم إنشاء الفعالية
+scheduleUpdated: تم تحديث الفعالية
+reminder15min: قبل 15 دقيقة
+reminder1hour: قبل ساعة
+reminder1day: قبل يوم
+startTime: البدء
+endTime: الانتهاء
+participants: المشاركون
+statusCancelled: ملغى
+statusInProgress: جارٍ
+cancelSuccess: تم إلغاء الفعالية
+cancelFailed: تعذّر الإلغاء، حاول لاحقاً
+confirmAttend: تأكيد الحضور
+declineAttend: لن أحضر
+cancelSchedule: إلغاء الفعالية
+scheduleIdMissing: معرّف الفعالية مفقود، لا يمكن عرض التفاصيل

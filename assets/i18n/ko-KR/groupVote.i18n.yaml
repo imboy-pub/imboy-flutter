@@ -1,0 +1,25 @@
+---
+title: 그룹 투표
+createVote: 투표 만들기
+voteTitle: 투표 제목
+voteOptions: 투표 항목
+addOption: 항목 추가
+allowMultiple: 다중 선택 허용
+anonymous: 익명 투표
+deadline: 마감 시간
+noDeadline: 마감 시간 없음
+noVote: 투표가 없습니다
+voteEnded: 투표가 종료되었습니다
+totalVotes: 총 $count표
+voteSuccess: 투표 완료
+hasVoted: 투표함
+viewResults: 결과 보기
+cancelVoteSuccess: 투표를 취소했습니다
+cancelVoteFailed: 취소 실패, 나중에 다시 시도해주세요
+endVoteFailed: 종료 실패, 나중에 다시 시도해주세요
+eachOptionPerLine: 한 줄에 하나씩 입력
+statusInProgress: 진행 중
+updateVote: 투표 수정
+cancelMyVote: 내 투표 취소
+voteIdMissing: 투표 ID가 없어 상세정보를 볼 수 없습니다
+participantCount: '참여 인원: $count'

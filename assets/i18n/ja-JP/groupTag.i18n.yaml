@@ -1,0 +1,10 @@
+---
+title: グループタグ
+addTag: タグを追加
+tagName: タグ名
+tagColor: タグの色
+noTag: タグはありません
+tagAdded: タグを追加しました
+tagRemoved: タグを削除しました
+removeTitle: タグを削除
+removeConfirm: このタグを削除しますか？

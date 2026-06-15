@@ -1,7 +1,9 @@
+---
 financialManagement: Gestion financière
 enterSameGroup: Entrer dans le même groupe que les amis à proximité
 enterTheGroup: Rejoindre ce groupe
 groupAlias: Mon surnom dans ce groupe
+groupAlbum: Album de groupe
 groupDissolve: Dissoudre le groupe
 groupJoin: Rejoindre le groupe
 groupLeave: Quitter le groupe
@@ -9,13 +11,33 @@ groupManagement: Gestion de groupe
 groupMembers: Membres du groupe
 groupName: Nom du groupe
 mutualGroupsWithHer: Groupes communs avec lui/elle
-selectGroup: Sélectionner un groupe.
-sureToDissolveGroup: Confirmer la dissolution du groupe ?
-sureToLeaveGroup: Confirmer le départ du groupe ?
 groupOwner: Owner
 groupAdmin: Admin
-groupGuest: 嘉宾
+groupGuest: Invité d'honneur
 groupMember: Member
 setAdmin: Set as Admin
 transferGroup: Transfer Ownership
 joinTime: Join Time
+selectGroup: Sélectionner un groupe.
+sureToDissolveGroup: Confirmer la dissolution du groupe ?
+sureToLeaveGroup: Confirmer le départ du groupe ?
+groupAlbumNameHint: Nom de l'album
+groupAlbumRenameTitle: Renommer l'album
+groupAlbumRenamed: Album renommé
+groupAlbumUnnamed: Album sans nom
+groupAlbumPhotoCount(count): "$count images"
+groupAlbumPhotoIdMissing: ID d'image manquant, détails indisponibles
+groupAlbumPhotoListTitle: Images de l'album
+groupAlbumPhotoSelectedCount(count): "$count sélectionnés"
+groupAlbumPhotoEmpty: Aucune image
+groupAlbumPhotoUrlMissing: Adresse de l'image manquante, ouverture impossible
+groupAlbumPhotoUrlInvalid: Adresse de l'image invalide
+groupAlbumPhotoDetailTitle: Détails de l'image
+groupAlbumPhotoSetCover: Couverture
+groupAlbumPhotoPrev: Précédent
+groupAlbumPhotoLikeCount: J'aime
+groupAlbumPhotoCommentCount: Commentaires
+groupAlbumPhotoMyLike: Mon J'aime
+groupAlbumPhotoIdLabel: ID d'image
+e2eeKeyManagement: Gestion des clés E2EE
+e2eeKeyManagementSubtitle: Sauvegarder, restaurer et gérer les clés E2EE

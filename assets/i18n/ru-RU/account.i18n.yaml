@@ -1,12 +1,13 @@
+---
 account: Аккаунт
 accountSecurity: Безопасность аккаунта
 mobileRecharge: Пополнение мобильного
 avatar: Аватар
 accountSecurityEnhance: Повысить безопасность аккаунта
 bindMobile: Привязать мобильный
-bindMobileFor: "Для входа, восстановления пароля и уведомлений"
+bindMobileFor: Для входа, восстановления пароля и уведомлений
 linkEmail: Связать электронную почту
-linkEmailFor: "Для входа, проверки личности и получения счетов"
+linkEmailFor: Для входа, проверки личности и получения счетов
 codeSentToEmail: Код подтверждения отправлен на электронную почту
 codeSentToMobile: Код подтверждения отправлен на мобильный
 currentDevice: Текущее устройство
@@ -23,7 +24,7 @@ genderSaving: Сохранение...
 groupQrcode: QR-код группы
 hintLoginAccount: Аккаунт/Эл. почта
 logOut: Выйти
-areYouSureLogOut: "Вы уверены, что хотите выйти?"
+areYouSureLogOut: Вы уверены, что хотите выйти?
 login: Войти
 loginDeviceManagement: Управление устройствами входа
 loginEmail: Эл. почта для входа
@@ -45,7 +46,7 @@ recentlyRegisteredUser: Недавно зарегистрированный по
 recoverCodePasswordDesc: Код восстановления отправлен на эл. почту
 recoverPassword: Восстановить пароль
 recoverPasswordDesc: Введите адрес электронной почты. Мы отправим вам код для сброса пароля.
-recoverPasswordIntro: "Не расстраивайтесь, это бывает."
+recoverPasswordIntro: Не расстраивайтесь, это бывает.
 birthday: Дата рождения
 region: Регион
 retypePassword: Введите пароль снова
@@ -54,7 +55,7 @@ securityCenter: Центр безопасности
 setNickname: Установить никнейм
 signature: Подпись
 signup: Регистрация
-signupFormDesc: "Заполните форму, чтобы завершить регистрацию"
+signupFormDesc: Заполните форму, чтобы завершить регистрацию
 sourceQrcode: Добавить через сканирование
 switchAccount: Переключить аккаунт
 changeEmail: Изменить эл. почту
@@ -65,9 +66,9 @@ newMobileSameAsCurrent: Новый мобильный совпадает с те
 setPassword: Установить пароль
 setLoginPassword: Установить пароль для входа
 enhanceAccountSecurity: Повысить безопасность аккаунта
-passwordLengthRequirement: "Пароль: 4-32 символа"
+passwordLengthRequirement: 'Пароль: 4-32 символа'
 passwordMinLength: Пароль должен быть не менее $min символов
-pleaseEnterPassword: "Пожалуйста, введите пароль"
+pleaseEnterPassword: Пожалуйста, введите пароль
 changeMobile: Изменить мобильный
 currentMobile: Текущий мобильный
 newMobile: Новый мобильный
@@ -81,21 +82,36 @@ otherDevice: Другое устройство
 loginPassword: Пароль для входа
 loginPasswordDesc: Используется для входа в аккаунт IMBoy
 oldPassword: Старый пароль
-enterOldPassword: "Пожалуйста, введите старый пароль"
-enterNewPassword: "Пожалуйста, введите новый пароль"
-enterNewPasswordAgain: "Пожалуйста, введите новый пароль ещё раз"
+enterOldPassword: Пожалуйста, введите старый пароль
+enterNewPassword: Пожалуйста, введите новый пароль
+enterNewPasswordAgain: Пожалуйста, введите новый пароль ещё раз
 balance: Баланс
 recharge: Пополнить
 withdraw: Вывести
 paymentPassword: Платёжный пароль
 setPaymentPassword: Установить платёжный пароль
-enterPaymentPassword: "Пожалуйста, введите платёжный пароль"
+enterPaymentPassword: Пожалуйста, введите платёжный пароль
 myQRCode: Мой QR-код
 profile: Profile
 setGender: Установить пол
 setBirthday: Установить дату рождения
 sentToEmail: Отправлено на $param
-nicknameRules: "• 2–24 символа
-• Нельзя только пробелы или только эмодзи
-• Нельзя чувствительные слова
-• После изменения отображается во всех чатах"
+nicknameRules: "• 2–24 символа • Нельзя только пробелы или только эмодзи • Нельзя чувствительные слова • После изменения отображается во всех чатах"
+refreshDeviceKey: Обновить ключ устройства
+refreshDeviceKeyHint: Если сообщения не расшифровываются, обновите ключ этой кнопкой
+refreshingDeviceKey: Обновление ключа устройства...
+deviceKeyRefreshed: Ключ устройства обновлён
+rechargeTitle: Пополнение
+rechargeAmountHint: Введите сумму пополнения (юаней), 1–10000
+rechargeAmountExample: 'Например: 100'
+e2eeDeviceTransfer: Передача между устройствами
+e2eeDeviceTransferDesc: Прямая передача ключа на новое устройство через QR-код
+e2eeDeviceIdLabel: ID устройства
+webQRLoginTitle: Вход по QR-коду
+webQRLoginHint: Отсканируйте QR-код приложением ImBoy на телефоне
+webSwitchToPassword: Войти по паролю
+webPasswordLoginTitle: Вход по аккаунту
+webAccountHint: Введите аккаунт/телефон/email
+webPasswordHint: Введите пароль
+e2eeTransferFromOldDevice: Получить ключ со старого устройства
+pleaseRelogin: Войдите заново

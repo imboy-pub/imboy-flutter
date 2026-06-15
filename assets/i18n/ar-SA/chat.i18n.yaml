@@ -1,3 +1,4 @@
+---
 bankCard: بطاقة بنكية
 cards: بطاقات
 jdShopping: تسوق JD
@@ -11,6 +12,7 @@ awaitingReply: في انتظار الرد
 businessCard: بطاقة عمل
 busyTryAgainLater: الطرف الآخر مشغول، يرجى المحاولة مرة أخرى لاحقاً
 later: لاحقاً
+peerIsTyping(name): "$name يكتب..."
 changeGroupChatName: بعد تعديل اسم المجموعة، سيتم إخطار الأعضاء الآخرين في المجموعة.
 chatHistory: سجل الدردشة
 chatHoldDownTalk: اضغط مطولاً للتحدث
@@ -41,12 +43,31 @@ forwardReply: إعادة توجيه الرد
 forwardTo: إعادة توجيه إلى
 forwardToFriend: إعادة توجيه إلى صديق
 great: ممتاز جداً
+groupFile: ملفات المجموعة
+groupFileImagePreview: معاينة الصورة
+groupFileVideoPreview: معاينة الفيديو
+groupFileAudioPreview: معاينة الصوت
+groupFileMediaPause: إيقاف مؤقت
+groupFileMediaPlay: تشغيل
+groupFileUrlMissing: عنوان الملف مفقود، لا يمكن الفتح
+groupFileUrlInvalid: عنوان الملف غير صالح
+groupFilePreview: معاينة الملف
+groupFileUnnamed: ملف بدون اسم
+groupFileCategoryEmpty: لا توجد ملفات في ${category}
+groupFileEmpty: لا توجد ملفات للمجموعة
+groupFileCategoryDoc: مستندات
+groupFileCategoryImage: صور
+groupFileCategoryVideo: فيديو
+groupFileCategoryAudio: صوت
+groupFileCategoryOther: أخرى
 groupChat: دردشة جماعية
 image: صورة
 imageMessage: "[صورة]"
 initiateChat: بدء مجموعة
 justChat: دردشة فقط
 location: الموقع
+exportMyData: تصدير بياناتي
+exportDataDesc: تصدير بياناتك الشخصية وجهات الاتصال وسجل المحادثات
 message: رسالة
 messageHandlingMixin: مزيج معالجة الرسائل
 messageMarkTitle: تعليم الرسالة
@@ -55,12 +76,12 @@ card: بطاقة عمل
 messageType: نوع الرسالة
 messageVisitCardBuilder: منشئ بطاقة زيارة الرسالة
 messageWasWithdrawn: تم سحب رسالة
-messageWasWithdrawnWithTitle: $param سحب رسالة
+messageWasWithdrawnWithTitle: "$param سحب رسالة"
 messageWebrtcBuilder: منشئ رسالة الويب rtc
 momentStatus: منشورات والحالة
 offline: غير متصل
 online: متصل
-paramAlreadyExist: $param موجود بالفعل
+paramAlreadyExist: "$param موجود بالفعل"
 pin: تثبيت
 pinChat: تثبيت الدردشة
 pinned: تم التثبيت
@@ -72,14 +93,33 @@ readAgreeParam: لقد قرأت ووافقت على $param
 recentChats: المحادثات الأخيرة
 recentForwards: إعادة التوجيه الأخيرة
 remindMeLater: ذكرني لاحقاً
+quickReplyManage: إدارة الردود السريعة
+quickReplyEmpty: لا توجد ردود سريعة. اضغط زر الإضافة
+quickReplyDuplicate: المحتوى موجود مسبقاً
+quickReplyMaxReached: الحد الأقصى $max
+quickReplyHint: أدخل المحتوى...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+mutedFor: كتم $label
+muteUnitMinutes: "$count دقيقة"
+muteUnitHours: "$count ساعة"
+muteUnitDays: "$count يوماً"
+youAreMuted: تم كتمك
+youAreMutedWithTime: تم كتمك، المتبقي $minutes دقيقة
 repliedAt: رد في
 reply: رد
 replyTo: رد على
 resendCode: إعادة إرسال رمز التحقق
 revoke: سحب
 scanQrCodeBusinessCard: مسح بطاقة عمل رمز QR
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message
 sendFriendRequest: إرسال طلب إضافة صديق
 sendMsgRejected: تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.
+sendMessage: إرسال رسالة
 sendSeparatelyTo: إرسال بشكل منفصل إلى
 sendTo: إرسال إلى
 send: "@:common.buttonSend"
@@ -87,8 +127,7 @@ sender: المرسل
 sending: جارٍ الإرسال...
 signatureInputHint: تلميح إدخال التوقيع
 signaturePlaceholder: عنصر نائب للتوقيع
-signupIntro: "تم إرسال رمز التأكيد إلى بريدك الإلكتروني،
-يرجى إدخال رمز التأكيد لتأكيد حسابك."
+signupIntro: تم إرسال رمز التأكيد إلى بريدك الإلكتروني، يرجى إدخال رمز التأكيد لتأكيد حسابك.
 socialProfile: الملف الاجتماعي
 status: الحالة
 storageSpaceData: مساحة التخزين والبيانات
@@ -102,6 +141,7 @@ userData: بيانات المستخدم
 video: فيديو
 videoMessage: "[فيديو]"
 viewAttachments: تصفح المرفقات
+viewLargeImage: عرض بالحجم الكامل
 voice: صوت
 voiceInput: إدخال صوتي
 voiceMessage: رسالة صوتية
@@ -137,6 +177,15 @@ visibleRatioLabel: نسبة الرؤية (0.1~1.0)
 unsupportedMessageType: نوع رسالة غير مدعوم
 passwordMismatch: كلمتا المرور غير متطابقتين
 pleaseTryAgainLater: يرجى المحاولة مرة أخرى لاحقاً
+momentsSelectVideo: اختيار فيديو
+momentsRecordVideo: تسجيل فيديو
+momentsVisibilityPrivate: أنا فقط
+momentsMediaTooManyImages: يمكنك اختيار 9 صور كحد أقصى
+momentsMediaTooManyVideos: يمكنك اختيار فيديو واحد فقط
+momentsMediaMixedImageAndVideo: لا يمكن نشر الصور والفيديو معاً
+momentsReplyPrefix: رد @
+momentsReplySeparator: ": "
+momentsReplyingTo: رد على @{name}
 sendNewMessage: إرسال رسالة جديدة
 markRead: تعليم كمقروء
 markUnread: تعليم كغير مقروء
@@ -155,15 +204,73 @@ quickReplyReceived: تم الاستلام
 quickReplyThanks: شكراً
 quickReplyWait: انتظر قليلاً
 messageMute: "@:chat.chatSettingMute"
-quickReplyManage: 管理快捷回复
-quickReplyEmpty: 暂无快捷回复，点击右下角添加
-quickReplyDuplicate: 内容已存在
-quickReplyMaxReached: 最多 $max 条
-quickReplyHint: 输入内容...
-muteMember: Mute Member
-unmuteMember: Unmute
-muteUntil: Muted Until
-muted: Muted
-singleChat: Private Chat
-privateChat: Private Chat
-groupMessage: Group message
+groupCategoryGroupCount(count): "$count مجموعة"
+groupAlbumCreateTitle: إنشاء ألبوم مجموعة
+groupAlbumCreated: تم إنشاء الألبوم
+profileCompleted: اكتمل الملف الشخصي!
+profileProgress(percent): "${percent}% مكتمل"
+createdAtLabel(time): 'أنشئ في: $time'
+expiredAtLabel(time): 'ينتهي في: $time'
+myReceivedTab: المستلمة
+orderStatusLabel(status): 'الحالة: $status'
+orderCreatedAtLabel(time): 'أنشئ في: $time'
+orderPaymentAtLabel(time): 'وقت الدفع: $time'
+orderStatusPending: بانتظار الدفع
+orderStatusPaid: مدفوع
+orderStatusRefunded: تم الاسترداد
+orderStatusExpired: منتهٍ
+defaultFileName: ملف
+fileUrlInvalid: رابط الملف غير صالح
+e2eeStatusAvailable: متاح
+e2eeGenerateNewKey: إنشاء مفتاح جديد
+e2eeGenerateNewKeyDesc: إنشاء زوج مفاتيح E2EE جديد (لن يمكن فك الرسائل القديمة)
+e2eeActivated: مفعّل
+e2eeCreatedAtLabel: تاريخ الإنشاء
+e2eeGeneratingKey: جارٍ إنشاء المفتاح، انتظر...
+e2eeNewKeyGenerated: تم إنشاء زوج مفاتيح E2EE جديد!
+e2eeReady: جاهز
+e2eeReadyWithShards(count): جاهز ($count شظية)
+webFeatureMultiDevice: مزامنة الأجهزة
+webFeatureMultiDeviceDesc: بدّل بحرية بين الهاتف والكمبيوتر، وتُزامَل الرسائل لحظياً
+webFeatureE2EE: تشفير من طرف إلى طرف
+webFeatureE2EEDesc: جميع الرسائل مشفّرة من طرف إلى طرف لحماية خصوصيتك
+webFeatureFileTransfer: نقل الملفات
+webFeatureFileTransferDesc: اسحب الملف لإرساله، مع دعم صيغ متعددة
+webQRStatusWaiting: افتح ImBoy على الهاتف > الإعدادات > مسح
+webQRStatusScanned: اضغط «تأكيد الدخول» على هاتفك
+webQRStatusVerifying: جارٍ التحقق...
+webQRStatusExpired: حدّث وأعد المسح
+e2eeErrInvalidFormat: تنسيق الرسالة خاطئ، فشل التشفير
+e2eeSocialCreateTitle: إنشاء شظايا الاستعادة
+e2eeSocialCreateBtn: إنشاء الشظايا
+e2eeSocialCreateFailTitle: تعذّر الإنشاء
+e2eeSocialCreateFailBody: تعذّر إنشاء الشظايا، أعد المحاولة
+e2eeSocialCreateFirst: سيظهر المحتوى بعد إنشاء الشظايا
+e2eeSocialUsedAtLabel: وقت الاستخدام
+e2eeTransferSendTitle: إرسال المفتاح إلى جهاز جديد
+e2eeTransferCreateBtn: إنشاء
+e2eeTransferReceiveTitle: استقبال المفتاح من الجهاز القديم
+e2eeTransferSendDesc: نقل المفتاح إلى جهاز جديد عبر رمز QR
+e2eeTransferReceiveDesc: امسح رمز QR للجهاز القديم لاستقبال المفتاح
+e2eeSocialStatus(status): 'الحالة: $status'
+e2eeSocialCreateShardsTitle: إنشاء شظايا الاستعادة
+e2eeSocialCreateShardsDesc: قسّم المفتاح إلى شظايا وخزّنها على أجهزة الوكلاء (الخادم لا يحفظ)
+e2eeProxyNeedAtLeast(count): اختر $count وكلاء على الأقل
+e2eeRecreatingKey: جارٍ إعادة إنشاء المفتاح...
+e2eeKeyRecreated: تمت إعادة إنشاء المفتاح
+e2eeRecoveryNewDeviceTitle: تم رصد دخول من جهاز جديد
+e2eeRecoveryNewDeviceBody: |-
+  لحماية الرسائل، أنشأ هذا الجهاز مفتاح تشفير من طرف إلى طرف جديد.
+
+  الرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ويجب استعادة المفتاح أولاً لعرضها. يمكنك الاستعادة عبر «نقل الأجهزة» أو «الاستعادة الاجتماعية» أو استيراد نسخة محلية.
+e2eeRecoveryDecryptFailedTitle: تعذّر فك تشفير هذه الرسالة
+e2eeRecoveryDecryptFailedBody: |-
+  هذه الرسالة مشفّرة بمفتاح جهاز آخر.
+
+  إذا غيّرت الجهاز أو أعدت تثبيت التطبيق، فاستعد مفتاح التشفير لعرض الرسائل السابقة.
+e2eeRecoveryLater: لاحقاً
+e2eeRecoveryGoRecover: استعادة
+e2eeRecoveryBannerText: تم رصد رسائل سابقة مشفّرة، استعد المفتاح لعرضها. اضغط للمتابعة
+liveRoomCreateTitle: إنشاء غرفة بث مباشر
+liveRoomCreating: جارٍ الإنشاء...
+liveRoomWatch: مشاهدة البث

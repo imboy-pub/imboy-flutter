@@ -18,6 +18,9 @@ import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/api/wallet_api.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/voice_record/voice_widget.dart';
+import 'package:xid/xid.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -55,6 +58,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   ChannelStatsModel? _stats;
   late final ChannelService _channelService = ref.read(channelServiceProvider);
   bool _isUploadingMedia = false;
+  bool _showVoiceInput = false;
   bool _isPaying = false;
   bool _isLoadingStats = false;
   String? _statsRequestedChannelId;
@@ -334,88 +338,111 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             color: Colors.grey[600],
             onPressed: isBusy ? null : () => _pickAndSendMedia(channel),
           ),
+          // 语音/键盘 切换按钮
+          IconButton(
+            icon: Icon(
+              _showVoiceInput ? Icons.keyboard_alt_outlined : Icons.mic_none,
+              size: 28,
+            ),
+            color: Colors.grey[600],
+            onPressed: isBusy
+                ? null
+                : () {
+                    setState(() {
+                      _showVoiceInput = !_showVoiceInput;
+                      if (_showVoiceInput) {
+                        _messageFocusNode.unfocus();
+                      } else {
+                        _messageFocusNode.requestFocus();
+                      }
+                    });
+                  },
+          ),
           // 输入框
           Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 2),
-              constraints: const BoxConstraints(minHeight: 44, maxHeight: 120),
-              decoration: BoxDecoration(
-                color: surface,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: isDark
-                      ? AppColors.iosSeparatorDark
-                      : Colors.grey.withValues(alpha: 0.2),
-                  width: 0.5,
-                ),
-              ),
-              child: TextField(
-                controller: _messageController,
-                focusNode: _messageFocusNode,
-                enabled: !isBusy,
-                onChanged: (_) {
-                  // 触发 UI 刷新以切换发送/语音按钮
-                  setState(() {});
-                },
-                decoration: InputDecoration(
-                  hintText: context.t.channel.writeMessage,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10, // 调整以垂直居中
-                  ),
-                ),
-                style: TextStyle(
-                  fontSize: 17,
-                  color: isDark ? Colors.white : Colors.black,
-                  height: 1.4, // CJK行高
-                ),
-                maxLines: null, // 允许自动折行
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) {
-                  if (!isBusy) {
-                    _sendMessage(channel);
-                  }
-                },
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          // 右侧：发送/语音按钮
-          Container(
-            margin: const EdgeInsets.only(bottom: 6),
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: hasText ? AppColors.primary : Colors.transparent,
-              shape: BoxShape.circle,
-            ),
-            child: isBusy
-                ? const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
+            child: _showVoiceInput
+                ? VoiceWidget(
+                    startRecord: () {},
+                    stopRecord: _handleVoiceRecordFinished,
+                    height: 44,
+                    margin: EdgeInsets.zero,
                   )
-                : IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(
-                      hasText ? Icons.arrow_upward : Icons.mic_none,
-                      size: 20,
-                      color: hasText ? Colors.white : Colors.grey[600],
+                : Container(
+                    margin: const EdgeInsets.only(bottom: 2),
+                    constraints: const BoxConstraints(minHeight: 44, maxHeight: 120),
+                    decoration: BoxDecoration(
+                      color: surface,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: isDark
+                            ? AppColors.iosSeparatorDark
+                            : Colors.grey.withValues(alpha: 0.2),
+                        width: 0.5,
+                      ),
                     ),
-                    onPressed: isBusy
-                        ? null
-                        : () {
-                            if (hasText) {
-                              _sendMessage(channel);
-                            } else {
-                              // TODO: 频道语音发送功能
-                            }
-                          },
+                    child: TextField(
+                      controller: _messageController,
+                      focusNode: _messageFocusNode,
+                      enabled: !isBusy,
+                      onChanged: (_) {
+                        // 触发 UI 刷新以切换发送按钮
+                        setState(() {});
+                      },
+                      decoration: InputDecoration(
+                        hintText: context.t.channel.writeMessage,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10, // 调整以垂直居中
+                        ),
+                      ),
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: isDark ? Colors.white : Colors.black,
+                        height: 1.4, // CJK行高
+                      ),
+                      maxLines: null, // 允许自动折行
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) {
+                        if (!isBusy) {
+                          _sendMessage(channel);
+                        }
+                      },
+                    ),
                   ),
           ),
+          if (!_showVoiceInput) ...[
+            const SizedBox(width: 8),
+            // 右侧：发送按钮
+            Container(
+              margin: const EdgeInsets.only(bottom: 6),
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: hasText ? AppColors.primary : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+              child: isBusy
+                  ? const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : hasText
+                      ? IconButton(
+                          padding: EdgeInsets.zero,
+                          icon: const Icon(
+                            Icons.arrow_upward,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => _sendMessage(channel),
+                        )
+                      : const SizedBox.shrink(),
+            ),
+          ],
         ],
       ),
     );
@@ -444,6 +471,63 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(context.t.channel.publishFailed)));
+    }
+  }
+
+  /// 处理录制的频道语音消息发送
+  Future<void> _handleVoiceRecordFinished(AudioFile? obj) async {
+    if (obj == null) return;
+    final t = context.t;
+    final Uint8List bytes = await obj.file.readAsBytes();
+    if (bytes.isEmpty) return;
+
+    setState(() => _isUploadingMedia = true);
+    EasyLoading.show(status: t.common.loading);
+
+    try {
+      final String mime = obj.mimeType;
+      final String ext = mime.contains('/') ? mime.split('/').last : 'mp3';
+      final String name = '${Xid().toString()}.$ext';
+
+      // 1. 上传音频文件到 S3
+      final meta = await AttachmentApi.uploadBytesViaPresignMeta(
+        bytes,
+        name,
+        mime,
+        process: false,
+      );
+      final String? uploadedUri = meta['object_key'] as String?;
+
+      if (uploadedUri != null && uploadedUri.isNotEmpty) {
+        // 2. 发送频道消息，msgType 为 ChannelMessageType.audio
+        final success = await ref
+            .read(channelDetailProvider.notifier)
+            .publishMessage(
+              content: '',
+              msgType: ChannelMessageType.audio,
+              payload: {
+                'uri': uploadedUri,
+                'duration_ms': obj.duration.inMilliseconds,
+                'size': bytes.length,
+                'waveform': obj.waveform,
+              },
+            );
+
+        if (success) {
+          EasyLoading.showSuccess(t.common.tipSuccess);
+        } else {
+          EasyLoading.showError(t.channel.publishFailed);
+        }
+      } else {
+        EasyLoading.showError(t.common.uploadFailed);
+      }
+    } catch (e) {
+      EasyLoading.showError('发送语音失败: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isUploadingMedia = false);
+      }
+      EasyLoading.dismiss();
     }
   }
 

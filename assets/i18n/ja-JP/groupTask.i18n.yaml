@@ -1,0 +1,24 @@
+---
+title: グループタスク
+createTask: タスクを作成
+taskTitle: タスク名
+taskDescription: タスクの説明
+assignTo: 担当者
+deadline: 期限
+noDeadline: 期限なし
+noTask: タスクはありません
+all: すべて
+pending: 未完了
+completed: 完了
+taskCreated: タスクを作成しました
+taskSubmitted: タスクを提出しました
+taskCompleted: タスクが完了しました
+overdue: 期限切れ
+daysLeft: あと $days 日
+hoursLeft: あと $hours 時間
+dueSoon: 期限が迫っています
+submitFailed: 提出に失敗しました。後でもう一度お試しください
+taskId: タスクID
+pendingReview: 審査待ち
+taskIdMissing: タスクIDがありません。詳細を表示できません
+taskIdMissingSubmit: タスクIDがありません。提出できません

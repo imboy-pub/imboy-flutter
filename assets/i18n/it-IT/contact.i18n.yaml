@@ -1,3 +1,4 @@
+---
 applyFriend: Richiedi amicizia
 applyFriendLogic: Logica richiesta amicizia
 applyParam: Richiedi $param
@@ -6,9 +7,8 @@ applyChanges: Riavvia l’app per applicare le modifiche.
 inputNewTag: Inserisci nuovo tag...
 denylist: Lista bloccati
 denylistEmpty: Lista bloccati vuota
-denylistEmptyDesc: "Non hai ancora bloccato alcun utente
-Gli utenti bloccati non potranno inviarti messaggi"
-favoriteGroupTagsEtc: "Raccolta nomi, nomi gruppo, tag ecc."
+denylistEmptyDesc: Non hai ancora bloccato alcun utente Gli utenti bloccati non potranno inviarti messaggi
+favoriteGroupTagsEtc: Raccolta nomi, nomi gruppo, tag ecc.
 groupRemarkView: Vista nota gruppo
 groupRemarkVisibility: La nota della chat di gruppo è visibile solo a te
 newFriend: Nuovo amico
@@ -29,6 +29,7 @@ currentTags: Tag attuali ($param)
 pleaseEnterRemark: Inserisci nota
 enterRemark: Inserisci nome nota
 pleaseEnterTags: Inserisci tag
+momentsVisibilityFriends: Solo amici
 tagLengthExceeded: La lunghezza del tag non può superare i $param caratteri
 maxTagsExceeded: Massimo $param tag consentiti
 selectedTags: Tag selezionati ($param/$max)
@@ -47,3 +48,5 @@ tagProject: Progetto
 tagIdeas: Idee
 tagMemo: Memo
 friendRequestSent: Inviato
+channelMaxTagsCount: Massimo 8 tag
+tagInputHint: Tag...

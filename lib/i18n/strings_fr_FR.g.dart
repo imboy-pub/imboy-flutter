@@ -44,11 +44,21 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$chat$fr_FR chat = _Translations$chat$fr_FR._(_root);
 	@override late final _Translations$common$fr_FR common = _Translations$common$fr_FR._(_root);
 	@override late final _Translations$complaint$fr_FR complaint = _Translations$complaint$fr_FR._(_root);
+	@override late final _Translations$complaintReason$fr_FR complaintReason = _Translations$complaintReason$fr_FR._(_root);
 	@override late final _Translations$contact$fr_FR contact = _Translations$contact$fr_FR._(_root);
 	@override late final _Translations$discovery$fr_FR discovery = _Translations$discovery$fr_FR._(_root);
 	@override late final _Translations$error$fr_FR error = _Translations$error$fr_FR._(_root);
 	@override late final _Translations$group$fr_FR group = _Translations$group$fr_FR._(_root);
+	@override late final _Translations$groupCategory$fr_FR groupCategory = _Translations$groupCategory$fr_FR._(_root);
+	@override late final _Translations$groupList$fr_FR groupList = _Translations$groupList$fr_FR._(_root);
+	@override late final _Translations$groupSchedule$fr_FR groupSchedule = _Translations$groupSchedule$fr_FR._(_root);
+	@override late final _Translations$groupTag$fr_FR groupTag = _Translations$groupTag$fr_FR._(_root);
+	@override late final _Translations$groupTask$fr_FR groupTask = _Translations$groupTask$fr_FR._(_root);
+	@override late final _Translations$groupVote$fr_FR groupVote = _Translations$groupVote$fr_FR._(_root);
 	@override late final _Translations$main$fr_FR main = _Translations$main$fr_FR._(_root);
+	@override late final _Translations$mention$fr_FR mention = _Translations$mention$fr_FR._(_root);
+	@override late final _Translations$momentFriendPicker$fr_FR momentFriendPicker = _Translations$momentFriendPicker$fr_FR._(_root);
+	@override late final _Translations$momentNotify$fr_FR momentNotify = _Translations$momentNotify$fr_FR._(_root);
 	@override late final _Translations$passport$fr_FR passport = _Translations$passport$fr_FR._(_root);
 	@override late final _Translations$splash$fr_FR splash = _Translations$splash$fr_FR._(_root);
 	@override late final _Translations$welcome$fr_FR welcome = _Translations$welcome$fr_FR._(_root);
@@ -159,6 +169,24 @@ class _Translations$account$fr_FR extends Translations$account$zh_CN {
 	@override String get setBirthday => 'Définir la date de naissance';
 	@override String sentToEmail({required Object param}) => 'Envoyé à ${param}';
 	@override String get nicknameRules => '• Longueur du surnom : 2-24 caractères • Ne peut pas contenir uniquement des espaces ou des émojis • Ne peut pas contenir de mots sensibles • Les modifications seront reflétées dans tous les chats';
+	@override String get refreshDeviceKey => 'Actualiser la clé';
+	@override String get refreshDeviceKeyHint => 'Si les messages ne se déchiffrent pas, actualisez la clé ici';
+	@override String get refreshingDeviceKey => 'Actualisation de la clé...';
+	@override String get deviceKeyRefreshed => 'Clé actualisée';
+	@override String get rechargeTitle => 'Recharger';
+	@override String get rechargeAmountHint => 'Montant (yuan), 1–10000';
+	@override String get rechargeAmountExample => 'ex. 100';
+	@override String get e2eeDeviceTransfer => 'Transfert entre appareils';
+	@override String get e2eeDeviceTransferDesc => 'Transférer la clé vers un nouvel appareil via QR code';
+	@override String get e2eeDeviceIdLabel => 'ID d\'appareil';
+	@override String get webQRLoginTitle => 'Connexion par QR code';
+	@override String get webQRLoginHint => 'Scannez le QR code avec l\'app ImBoy';
+	@override String get webSwitchToPassword => 'Connexion par mot de passe';
+	@override String get webPasswordLoginTitle => 'Connexion compte';
+	@override String get webAccountHint => 'Compte/mobile/e-mail';
+	@override String get webPasswordHint => 'Mot de passe';
+	@override String get e2eeTransferFromOldDevice => 'Depuis l\'ancien appareil';
+	@override String get pleaseRelogin => 'Reconnectez-vous';
 }
 
 // Path: channel
@@ -258,10 +286,16 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get updateRoleFailed => 'Échec de la mise à jour du rôle';
 	@override String get userId => 'ID utilisateur';
 	@override String get userIdHint => 'Entrez l\'ID utilisateur';
+	@override String get selectFromContacts => 'Depuis les contacts';
+	@override String get searchContactsHint => 'Rechercher pseudo ou compte';
+	@override String get noContactsToAdd => 'Tous les amis sont déjà administrateurs';
+	@override String get selectRole => 'Choisir un rôle';
 	@override String get noAdmins => 'Aucun admin';
 	@override String get roleCreator => 'Créateur';
 	@override String get roleAdmin => 'Admin';
+	@override String get roleAdminDesc => 'Gérer le canal';
 	@override String get roleEditor => 'Éditeur';
+	@override String get roleEditorDesc => 'Publier des messages';
 	@override String get roleUnknown => 'Inconnu';
 	@override String get searchSubscribers => 'Rechercher des abonnés';
 	@override String get subscriberSearchHint => 'Rechercher par nom ou ID';
@@ -273,6 +307,11 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get removeSubscriberFailed => 'Échec de la suppression de l\'abonné';
 	@override String get subscribedAt => 'Abonné le';
 	@override String get viewProfile => 'Voir le profil';
+	@override String get inviteFromContacts => 'Inviter des amis';
+	@override String get inviteSearchHint => 'Rechercher pseudo ou compte';
+	@override String get noContactsToInvite => 'Tous les amis déjà invités ou abonnés';
+	@override String get inviteSuccess => 'Invitation envoyée';
+	@override String get inviteFailed => 'Échec de l\'envoi de l\'invitation';
 	@override String get updateSuccess => 'Canal mis à jour avec succès';
 	@override String get updateFailed => 'Échec de la mise à jour du canal';
 	@override String get typeCannotChange => 'Ne peut pas être modifié après création';
@@ -303,6 +342,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get businessCard => 'Carte de visite';
 	@override String get busyTryAgainLater => 'Votre interlocuteur est occupé. Réessayez plus tard.';
 	@override String get later => 'Plus tard';
+	@override String peerIsTyping({required Object name}) => '${name} écrit...';
 	@override String get changeGroupChatName => 'Après avoir modifié le nom du groupe, les autres membres seront notifiés dans le groupe.';
 	@override String get chatHistory => 'Historique de conversation';
 	@override String get chatHoldDownTalk => 'Maintenez pour parler';
@@ -333,12 +373,31 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get forwardTo => 'Transférer à';
 	@override String get forwardToFriend => 'Transférer à un ami';
 	@override String get great => 'Excellent';
+	@override String get groupFile => 'Fichiers du groupe';
+	@override String get groupFileImagePreview => 'Aperçu image';
+	@override String get groupFileVideoPreview => 'Aperçu vidéo';
+	@override String get groupFileAudioPreview => 'Aperçu audio';
+	@override String get groupFileMediaPause => 'Pause';
+	@override String get groupFileMediaPlay => 'Lire';
+	@override String get groupFileUrlMissing => 'Adresse du fichier manquante, ouverture impossible';
+	@override String get groupFileUrlInvalid => 'Adresse du fichier invalide';
+	@override String get groupFilePreview => 'Aperçu du fichier';
+	@override String get groupFileUnnamed => 'Fichier sans nom';
+	@override String groupFileCategoryEmpty({required Object category}) => '${category} : aucun fichier';
+	@override String get groupFileEmpty => 'Aucun fichier de groupe';
+	@override String get groupFileCategoryDoc => 'Document';
+	@override String get groupFileCategoryImage => 'Image';
+	@override String get groupFileCategoryVideo => 'Vidéo';
+	@override String get groupFileCategoryAudio => 'Audio';
+	@override String get groupFileCategoryOther => 'Autre';
 	@override String get groupChat => 'Conversation de groupe';
 	@override String get image => 'Photo';
 	@override String get imageMessage => '[Image]';
 	@override String get initiateChat => 'Initier une conversation de groupe';
 	@override String get justChat => 'Chat uniquement';
 	@override String get location => 'Emplacement';
+	@override String get exportMyData => 'Exporter mes données';
+	@override String get exportDataDesc => 'Exporter vos infos, contacts et historique de discussion';
 	@override String get message => 'Message';
 	@override String get messageHandlingMixin => 'Mixin de gestion des messages';
 	@override String get messageMarkTitle => 'Marquer le message';
@@ -364,14 +423,33 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get recentChats => 'Chats récents';
 	@override String get recentForwards => 'Transferts récents';
 	@override String get remindMeLater => 'Me rappeler plus tard.';
+	@override String get quickReplyManage => 'Gérer les réponses rapides';
+	@override String get quickReplyEmpty => 'Aucune réponse rapide. Touchez en bas à droite pour ajouter';
+	@override String get quickReplyDuplicate => 'Contenu déjà existant';
+	@override String quickReplyMaxReached({required Object max}) => 'Max. ${max} réponses';
+	@override String get quickReplyHint => 'Saisir le contenu...';
+	@override String get muteMember => 'Mute Member';
+	@override String get unmuteMember => 'Unmute';
+	@override String get muteUntil => 'Muted Until';
+	@override String get muted => 'Muted';
+	@override String mutedFor({required Object label}) => 'Mu : ${label}';
+	@override String muteUnitMinutes({required Object count}) => '${count} min';
+	@override String muteUnitHours({required Object count}) => '${count} h';
+	@override String muteUnitDays({required Object count}) => '${count} j';
+	@override String get youAreMuted => 'Vous avez été mis en sourdine';
+	@override String youAreMutedWithTime({required Object minutes}) => 'Vous êtes en sourdine, encore ${minutes} min.';
 	@override String get repliedAt => 'Répondu à';
 	@override String get reply => 'Répondre';
 	@override String get replyTo => 'Répondre à';
 	@override String get resendCode => 'Renvoyer le code';
 	@override String get revoke => 'Retirer';
 	@override String get scanQrCodeBusinessCard => 'Scanner la carte de visite QR';
+	@override String get singleChat => 'Private Chat';
+	@override String get privateChat => 'Private Chat';
+	@override String get groupMessage => 'Group message';
 	@override String get sendFriendRequest => 'Envoyer une demande d’ami';
 	@override String get sendMsgRejected => 'Message envoyé mais rejeté par votre interlocuteur.';
+	@override String get sendMessage => 'Envoyer un message';
 	@override String get sendSeparatelyTo => 'Envoyer séparément à';
 	@override String get sendTo => 'Envoyer à';
 	@override String get send => _root.common.buttonSend;
@@ -393,6 +471,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get video => 'Vidéo';
 	@override String get videoMessage => '[Vidéo]';
 	@override String get viewAttachments => 'Voir les pièces jointes.';
+	@override String get viewLargeImage => 'Voir en grand';
 	@override String get voice => 'Vocal';
 	@override String get voiceInput => 'Saisie vocale';
 	@override String get voiceMessage => 'Message vocal';
@@ -428,6 +507,15 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'Type de message non pris en charge.';
 	@override String get passwordMismatch => 'Les mots de passe ne correspondent pas.';
 	@override String get pleaseTryAgainLater => 'Réessayez plus tard.';
+	@override String get momentsSelectVideo => 'Choisir une vidéo';
+	@override String get momentsRecordVideo => 'Filmer une vidéo';
+	@override String get momentsVisibilityPrivate => 'Privé';
+	@override String get momentsMediaTooManyImages => '9 images maximum';
+	@override String get momentsMediaTooManyVideos => '1 vidéo maximum';
+	@override String get momentsMediaMixedImageAndVideo => 'Images et vidéo impossibles ensemble';
+	@override String get momentsReplyPrefix => 'Répondre @';
+	@override String get momentsReplySeparator => '：';
+	@override String get momentsReplyingTo => 'Réponse à @{name}';
 	@override String get sendNewMessage => 'Envoyer un nouveau message';
 	@override String get markRead => 'Marquer comme lu';
 	@override String get markUnread => 'Marquer comme non lu';
@@ -446,18 +534,70 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get quickReplyThanks => 'Merci';
 	@override String get quickReplyWait => 'Un instant';
 	@override String get messageMute => _root.chat.chatSettingMute;
-	@override String get quickReplyManage => '管理快捷回复';
-	@override String get quickReplyEmpty => '暂无快捷回复，点击右下角添加';
-	@override String get quickReplyDuplicate => '内容已存在';
-	@override String quickReplyMaxReached({required Object max}) => '最多 ${max} 条';
-	@override String get quickReplyHint => '输入内容...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muteUntil => 'Muted Until';
-	@override String get muted => 'Muted';
-	@override String get singleChat => 'Private Chat';
-	@override String get privateChat => 'Private Chat';
-	@override String get groupMessage => 'Group message';
+	@override String groupCategoryGroupCount({required Object count}) => '${count} groupes';
+	@override String get groupAlbumCreateTitle => 'Créer un album de groupe';
+	@override String get groupAlbumCreated => 'Album créé';
+	@override String get profileCompleted => 'Profil complet !';
+	@override String profileProgress({required Object percent}) => '${percent}% complet';
+	@override String createdAtLabel({required Object time}) => 'Créé : ${time}';
+	@override String expiredAtLabel({required Object time}) => 'Expire : ${time}';
+	@override String get myReceivedTab => 'Reçues';
+	@override String orderStatusLabel({required Object status}) => 'Statut : ${status}';
+	@override String orderCreatedAtLabel({required Object time}) => 'Créé : ${time}';
+	@override String orderPaymentAtLabel({required Object time}) => 'Payé : ${time}';
+	@override String get orderStatusPending => 'À payer';
+	@override String get orderStatusPaid => 'Payée';
+	@override String get orderStatusRefunded => 'Remboursée';
+	@override String get orderStatusExpired => 'Expirée';
+	@override String get defaultFileName => 'Fichier';
+	@override String get fileUrlInvalid => 'Lien du fichier invalide';
+	@override String get e2eeStatusAvailable => 'Disponible';
+	@override String get e2eeGenerateNewKey => 'Générer une nouvelle clé';
+	@override String get e2eeGenerateNewKeyDesc => 'Créer une nouvelle paire de clés E2EE (anciens messages indéchiffrables)';
+	@override String get e2eeActivated => 'Actif';
+	@override String get e2eeCreatedAtLabel => 'Créée le';
+	@override String get e2eeGeneratingKey => 'Génération de la clé, patientez...';
+	@override String get e2eeNewKeyGenerated => 'Nouvelle paire de clés E2EE créée !';
+	@override String get e2eeReady => 'Prêt';
+	@override String e2eeReadyWithShards({required Object count}) => 'Prêt (${count} fragments)';
+	@override String get webFeatureMultiDevice => 'Multi-appareils';
+	@override String get webFeatureMultiDeviceDesc => 'Basculez entre mobile et PC, synchronisation en temps réel';
+	@override String get webFeatureE2EE => 'E2EE';
+	@override String get webFeatureE2EEDesc => 'Tous les messages chiffrés de bout en bout pour votre vie privée';
+	@override String get webFeatureFileTransfer => 'Transfert de fichiers';
+	@override String get webFeatureFileTransferDesc => 'Glissez-déposez vos fichiers, tous formats';
+	@override String get webQRStatusWaiting => 'Ouvrir ImBoy > Paramètres > Scanner';
+	@override String get webQRStatusScanned => 'Sur le mobile, appuyez sur « Connexion »';
+	@override String get webQRStatusVerifying => 'Vérification...';
+	@override String get webQRStatusExpired => 'Actualisez et rescannez';
+	@override String get e2eeErrInvalidFormat => 'Format de message invalide, échec du chiffrement';
+	@override String get e2eeSocialCreateTitle => 'Créer des fragments';
+	@override String get e2eeSocialCreateBtn => 'Créer les fragments';
+	@override String get e2eeSocialCreateFailTitle => 'Échec';
+	@override String get e2eeSocialCreateFailBody => 'Échec de la création. Réessayez.';
+	@override String get e2eeSocialCreateFirst => 'Visible après création';
+	@override String get e2eeSocialUsedAtLabel => 'Utilisé le';
+	@override String get e2eeTransferSendTitle => 'Envoyer la clé au nouvel appareil';
+	@override String get e2eeTransferCreateBtn => 'Créer';
+	@override String get e2eeTransferReceiveTitle => 'Recevoir la clé de l\'ancien appareil';
+	@override String get e2eeTransferSendDesc => 'Transférer la clé au nouvel appareil via QR code';
+	@override String get e2eeTransferReceiveDesc => 'Scanner le QR code de l\'ancien appareil';
+	@override String e2eeSocialStatus({required Object status}) => 'Statut : ${status}';
+	@override String get e2eeSocialCreateShardsTitle => 'Créer des fragments';
+	@override String get e2eeSocialCreateShardsDesc => 'Diviser la clé en fragments stockés chez les dépositaires (serveur exclu)';
+	@override String e2eeProxyNeedAtLeast({required Object count}) => 'Au moins ${count} dépositaires';
+	@override String get e2eeRecreatingKey => 'Recréation de la clé...';
+	@override String get e2eeKeyRecreated => 'Clé recréée';
+	@override String get e2eeRecoveryNewDeviceTitle => 'Nouvel appareil détecté';
+	@override String get e2eeRecoveryNewDeviceBody => 'Pour protéger vos messages, une nouvelle clé E2EE a été générée sur cet appareil.\n\nLes anciens messages, chiffrés avec la clé de l\'ancien appareil, nécessitent d\'abord une restauration. Restaurez via « Transfert », « Récupération sociale » ou « Sauvegarde locale ».';
+	@override String get e2eeRecoveryDecryptFailedTitle => 'Message indéchiffrable';
+	@override String get e2eeRecoveryDecryptFailedBody => 'Ce message est chiffré avec la clé d\'un autre appareil.\n\nSi vous avez changé d\'appareil ou réinstallé l\'app, restaurez la clé pour lire les anciens messages.';
+	@override String get e2eeRecoveryLater => 'Plus tard';
+	@override String get e2eeRecoveryGoRecover => 'Restaurer';
+	@override String get e2eeRecoveryBannerText => 'Anciens messages chiffrés détectés. Restaurez la clé pour les afficher. Touchez pour restaurer.';
+	@override String get liveRoomCreateTitle => 'Créer un live';
+	@override String get liveRoomCreating => 'Création...';
+	@override String get liveRoomWatch => 'Regarder';
 }
 
 // Path: common
@@ -498,7 +638,9 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get bindMobileAndEmailTips => 'Liez votre numéro de téléphone et votre adresse e-mail pour renforcer la sécurité de votre compte.';
 	@override String get bindNow => 'Associer maintenant';
 	@override String get buttonCancel => 'Annuler';
+	@override String get buttonCreate => 'Créer';
 	@override String get buttonChangePassword => 'Modifier le mot de passe';
+	@override String get phoneInputHint => 'Numéro de téléphone';
 	@override String get buttonClose => 'Fermer';
 	@override String get buttonConfirm => 'Confirmer';
 	@override String get buttonContinue => 'Continuer';
@@ -525,6 +667,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get canNotAddYourselfFriend => 'Vous ne pouvez pas vous ajouter vous-même comme ami.';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
+	@override String get operationSuccessful => 'Succès';
 	@override String get save => _root.common.buttonSave;
 	@override String get reset => 'Réinitialiser';
 	@override String get clear => 'Vider';
@@ -553,6 +696,8 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get checkForUpdates => 'Vérifier les mises à jour';
 	@override String get clearAll => 'Tout effacer';
 	@override String get clearChatRecord => 'Effacer l\'historique de conversation';
+	@override String get complaintSuccess => 'Signalement envoyé';
+	@override String get complaintFailed => 'Échec du signalement. Réessayez plus tard.';
 	@override String get confirmCode => 'Code de confirmation';
 	@override String get confirmCodeError => 'Le code de confirmation est vide.';
 	@override String get confirmCodeSuccess => 'Compte confirmé.';
@@ -564,6 +709,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get contactSettingTag => 'Paramètres des étiquettes de contact';
 	@override String get contactTagListLogic => 'Logique de la liste des étiquettes de contact';
 	@override String get contactTags => 'Étiquettes de contacts';
+	@override String get contactInfoNotSynced => 'Contacts non synchronisés';
 	@override String get continueDownloading => 'Continuer le téléchargement';
 	@override String get copy => 'Copier';
 	@override String get coupon => 'Coupon de réduction';
@@ -638,6 +784,24 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get genderUpdateSuccess => 'Genre défini avec succès.';
 	@override String get groupAddLocal => 'Enregistrer dans les contacts';
 	@override String get groupAnnouncement => 'Annonce de groupe';
+	@override String get groupFileUploadSuccess => 'Fichier envoyé';
+	@override String get groupFileUploadFailed => 'Échec de l\'envoi. Réessayez plus tard.';
+	@override String get groupFileDeleteSuccess => 'Fichier supprimé';
+	@override String get groupFileDeleteFailed => 'Échec de la suppression. Réessayez plus tard.';
+	@override String get groupFileClosePreview => 'Fermer l\'aperçu';
+	@override String get groupFileUploadTooltip => 'Envoyer un fichier';
+	@override String get groupFileSearch => 'Rechercher dans les fichiers';
+	@override String get groupFileReadFailed => 'Lecture du fichier impossible. Réessayez.';
+	@override String get groupFileDeleteTitle => 'Supprimer le fichier';
+	@override String groupFileDeleteConfirm({required Object name}) => 'Supprimer le fichier « ${name} » ?';
+	@override String get groupFileImageLoadFailed => 'Chargement de l\'image impossible';
+	@override String get groupFileOpenFailed => 'Impossible d\'ouvrir le lien du fichier';
+	@override String get groupFileSearchClear => 'Effacer';
+	@override String get groupFileSearchAction => 'Rechercher';
+	@override String get groupFileCategoryAll => 'Tout';
+	@override String get groupFileSearchEmpty => 'Aucun fichier correspondant';
+	@override String get groupFileAudioLoadFailed => 'Chargement de l\'audio impossible';
+	@override String get groupFileAudioLoading => 'Chargement de l\'audio...';
 	@override String groupQrcodeTips({required Object days, required Object date}) => 'Ce code QR est valide pendant ${days} jours (avant ${date}). Il sera mis à jour lors de la prochaine visite.';
 	@override String get groupSearchTips => 'Nom du groupe et description du groupe.';
 	@override String get helpDocument => 'Document d\'aide';
@@ -661,7 +825,9 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get loading => 'Chargement';
 	@override String get locationMessage => 'Message de localisation';
 	@override String get loginDeviceManagementTips => 'Votre compte s\'est connecté sur les appareils suivants. Vous pouvez supprimer des appareils. Après suppression, une vérification de sécurité sera nécessaire lors de la prochaine connexion sur cet appareil.';
+	@override String get logoutFailed => 'Échec de la déconnexion';
 	@override String get logoutNotice => '« Avis de suppression »';
+	@override String get exportDataSuccess => 'Données exportées';
 	@override String get manually => 'Sélection manuelle';
 	@override String get messageCall => 'Envoyer un message';
 	@override String get messageContent => 'Contenu du message';
@@ -709,6 +875,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get noUpdateDescription => 'Aucune description de mise à jour.';
 	@override String get normalModel => 'Mode normal';
 	@override String get notAuthorizedLatLong => 'Vous n\'avez pas autorisé l\'obtention de la longitude et de la latitude.';
+	@override String get notLoggedIn => 'Non connecté';
 	@override String get notBad => 'Pas mal';
 	@override String get notBound => 'Non lié';
 	@override String get notFilled => 'Non rempli';
@@ -720,9 +887,9 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get notShow => 'Ne pas afficher';
 	@override String get notTurnedLocationService => 'Vous n\'avez pas activé le service de localisation.';
 	@override String get nowNewVersion => 'Aucune nouvelle version détectée.';
-	@override String get off => _root.common.disabled;
+	@override String get kFalse => _root.common.disabled;
 	@override String get offlineNotification => 'Notification hors ligne';
-	@override String get on => _root.common.enabled;
+	@override String get kTrue => _root.common.enabled;
 	@override String get operationFailedAgainLater => 'Opération échouée. Réessayez plus tard.';
 	@override String get optionsNo => 'Non';
 	@override String get optionsRename => 'Je veux renommer';
@@ -755,12 +922,57 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get releaseFingerCancelSending => 'Relâchez le doigt pour annuler l\'envoi.';
 	@override String get removeContactFromTag => 'Supprimer le contact de l\'étiquette.';
 	@override String get removeMember => 'Supprimer le membre.';
+	@override String get atMentionYouTag => '[@vous] ';
+	@override String get atMentionLeftMember => '@membre parti';
+	@override String get muteNotifications => 'Notifications en sourdine';
+	@override String get muteNotificationsHint => 'Aucune notification, mais les messages non lus restent visibles dans la liste';
+	@override String get revokeExpired => 'Plus de 2 minutes, rappel impossible';
+	@override String get quickReplyAddTitle => 'Ajouter une réponse rapide';
+	@override String get quickReplyEditTitle => 'Modifier la réponse rapide';
+	@override String get removeAdmin => 'Remove Admin';
+	@override String get setAdminConfirm => 'Set this member as admin?';
+	@override String get removeAdminConfirm => 'Remove admin role from this member?';
+	@override String get muteMemberConfirm => 'Mute this member?';
+	@override String get unmuteMemberConfirm => 'Unmute this member?';
+	@override String get kickMemberConfirm => 'Remove this member from the group?';
+	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
+	@override String get setAdminSuccess => 'Admin set';
+	@override String get setAdminFailed => 'Failed to set admin';
+	@override String get removeAdminSuccess => 'Admin removed';
+	@override String get removeAdminFailed => 'Failed to remove admin';
+	@override String get muteMemberSuccess => 'Member muted';
+	@override String get muteMemberFailed => 'Failed to mute member';
+	@override String get unmuteMemberSuccess => 'Member unmuted';
+	@override String get unmuteMemberFailed => 'Failed to unmute member';
+	@override String get kickMemberSuccess => 'Member removed';
+	@override String get kickMemberFailed => 'Failed to remove member';
+	@override String get transferGroupSuccess => 'Ownership transferred';
+	@override String get transferGroupFailed => 'Failed to transfer ownership';
+	@override String get notMuted => 'Not Muted';
+	@override String get muteDuration => 'Mute Duration';
+	@override String get muteDuration1hour => '1 Hour';
+	@override String get muteDuration6hours => '6 Hours';
+	@override String get muteDuration12hours => '12 Hours';
+	@override String get muteDuration1day => '1 Day';
+	@override String get muteDuration3days => '3 Days';
+	@override String get muteDuration7days => '7 Days';
+	@override String get muteDurationPermanent => 'Permanent';
+	@override String get muteDuration5min => '5 min';
+	@override String get muteDuration10min => '10 min';
+	@override String get muteDuration30min => '30 min';
+	@override String get muteDuration30days => '30 j';
+	@override String muteUnitSeconds({required Object count}) => '${count} s';
+	@override String get throttleWarning => 'Trop d\'actions. Réessayez plus tard.';
+	@override String throttleRetryAfter({required Object seconds}) => 'Trop d\'actions. Réessayez dans ${seconds} s.';
+	@override String get mutedCannotSend => 'Envoi impossible pendant la sourdine';
 	@override String get resendCodeSuccess => 'Nouvel e-mail envoyé.';
 	@override String get resetFilters => 'Réinitialiser les filtres';
 	@override String get saveQrCode => 'Enregistrer le code QR';
 	@override String get saveSuccess => 'Enregistré avec succès.';
 	@override String get scanQrcodeAddFriend => 'Scannez le code QR ci-dessus pour m\'ajouter comme ami.';
 	@override String get search => 'Rechercher';
+	@override String get searchScope => 'Search scope';
+	@override String get searchAll => 'All messages';
 	@override String get searchChatContent => 'Rechercher le contenu de la conversation';
 	@override String get searchChatRecord => 'Rechercher l\'historique de conversation';
 	@override String get searchError => 'Erreur de recherche.';
@@ -890,6 +1102,11 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get selectExpirationDateOptional => 'Sélectionner la date d\'expiration (facultatif)';
 	@override String get groupAnnouncementDeleteConfirm => 'Confirmer la suppression de cette annonce ?';
 	@override String get groupAnnouncementDelete => 'Supprimer';
+	@override String get groupAnnouncementLoadFailed => 'Chargement de l\'annonce impossible. Réessayez plus tard.';
+	@override String get groupAnnouncementPublishFailed => 'Publication de l\'annonce impossible';
+	@override String get groupAnnouncementPublishSuccess => 'Annonce publiée';
+	@override String get groupAnnouncementDeleteFailed => 'Suppression de l\'annonce impossible';
+	@override String get groupAnnouncementDeleteSuccess => 'Annonce supprimée';
 	@override String get privacyClearChatHistory => 'Effacer l\'historique de conversation';
 	@override String get privacyClearChatHistoryConfirm => 'Confirmer l\'effacement de tout l\'historique de conversation ? Cette action est irréversible.';
 	@override String get privacyLogoutAccountConfirm => 'Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée.';
@@ -1033,6 +1250,24 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get changeFailed => 'Échec de la modification.';
 	@override String get submitted => 'Soumis';
 	@override String get viewSecurityHelp => 'Voir l\'aide de sécurité';
+	@override String get momentsNoData => 'Aucun moment';
+	@override String get momentsDeleteConfirm => 'Supprimer ce moment ?';
+	@override String get momentsDeleteCommentConfirm => 'Supprimer ce commentaire ?';
+	@override String get momentsNotFound => 'Moment introuvable ou accès refusé';
+	@override String get momentsContentOrMediaRequired => 'Renseignez du contenu ou un média';
+	@override String get momentsPublishFailed => 'Échec de la publication';
+	@override String get momentsAllowComment => 'Autoriser les commentaires';
+	@override String get momentsReportReason => 'Motif du signalement';
+	@override String get momentsNoComments => 'Aucun commentaire';
+	@override String get momentsContentHint => 'Écrire quelque chose...';
+	@override String get momentsAddMedia => 'Ajouter un média';
+	@override String get momentsAllowUidsLabel => 'UIDs autorisés (séparés par virgule)';
+	@override String get momentsCommentFailed => 'Échec du commentaire. Réessayez plus tard.';
+	@override String get momentsDeleteFailed => 'Échec de la suppression. Réessayez plus tard.';
+	@override String get momentsReportSubmitted => 'Signalement envoyé';
+	@override String get momentsReportFailed => 'Échec du signalement. Réessayez plus tard.';
+	@override String get momentsLoadMoreComments => 'Charger plus de commentaires';
+	@override String get momentsUploadFailed => 'Échec de l\'envoi du média. Réessayez plus tard.';
 	@override String get transactionHistory => 'Historique des transactions';
 	@override String get paymentPasswordSetSuccess => 'Mot de passe de paiement défini avec succès.';
 	@override String get paymentPasswordSetFailed => 'Échec de la définition du mot de passe de paiement.';
@@ -1047,6 +1282,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get personalSignature => 'Signature personnelle';
 	@override String get personalBackground => 'Arrière-plan personnel';
 	@override String get setBackgroundImage => 'Définir l\'image d\'arrière-plan';
+	@override String get expression => 'Emoji';
 	@override String get extendedInfo => 'Informations étendues';
 	@override String get profession => 'Profession';
 	@override String get pleaseEnterProfession => 'Please enter profession';
@@ -1127,6 +1363,10 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get noDetailedInfo => 'Cet utilisateur n\'a pas défini de signature personnelle et d\'autres informations détaillées.';
 	@override String get noNewRegisteredUsers => 'Aucun nouvel utilisateur inscrit pour le moment. Veuillez revenir plus tard.';
 	@override String get newRegisteredUsersTip => 'Les utilisateurs récemment inscrits sont affichés ici. Vous pouvez les ajouter comme amis.';
+	@override String get notificationFriendRequest => 'Demande d\'ami';
+	@override String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} veut vous ajouter en ami';
+	@override String get notificationGroupInvite => 'Invitation de groupe';
+	@override String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} vous invite à rejoindre le groupe ${groupName}';
 	@override String get youRevokedMessage => 'Vous avez révoqué un message.';
 	@override String get otherRevokedMessage => 'Votre interlocuteur a révoqué un message.';
 	@override String get networkFailureTryAgain => 'Erreur réseau. Veuillez réessayer !';
@@ -1143,43 +1383,295 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get smaller => 'Plus petit';
 	@override String currentFontScale({required Object param1, required Object param2}) => 'Actuel : ${param1} ${param2}%';
 	@override String emailUpdatedTo({required Object param}) => 'E-mail mis à jour vers ${param}';
-	@override String get atMentionYouTag => '[@你] ';
-	@override String get atMentionLeftMember => '@已退群成员';
-	@override String get muteNotifications => '消息免打扰';
-	@override String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
-	@override String get revokeExpired => '超过 2 分钟，无法撤回';
-	@override String get quickReplyAddTitle => '新增快捷回复';
-	@override String get quickReplyEditTitle => '编辑快捷回复';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get muteMemberConfirm => 'Mute this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get transferGroupSuccess => 'Ownership transferred';
-	@override String get transferGroupFailed => 'Failed to transfer ownership';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration6hours => '6 Hours';
-	@override String get muteDuration12hours => '12 Hours';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration3days => '3 Days';
-	@override String get muteDuration7days => '7 Days';
-	@override String get muteDurationPermanent => 'Permanent';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String groupAnnouncementExpiry({required Object time}) => 'Valable jusqu\'au : ${time}';
+	@override String get groupAlbumCreateFailed => 'Échec de la création. Réessayez plus tard.';
+	@override String get groupAlbumDeleteTitle => 'Supprimer l\'album';
+	@override String groupAlbumDeleteConfirm({required Object name}) => 'Supprimer l\'album « ${name} » ?';
+	@override String get groupAlbumDeleted => 'Album supprimé';
+	@override String get groupAlbumDeleteFailed => 'Échec de la suppression. Réessayez plus tard.';
+	@override String get groupAlbumRenameFailed => 'Échec de la modification. Réessayez plus tard.';
+	@override String get groupAlbumUploadTooltip => 'Envoyer une image';
+	@override String get groupAlbumDeleteTooltip => 'Supprimer l\'album';
+	@override String get groupAlbumNoAlbum => 'Aucun album de groupe';
+	@override String get groupAlbumPhotoReadFailed => 'Lecture de l\'image impossible. Réessayez.';
+	@override String get groupAlbumPhotoUploaded => 'Image envoyée';
+	@override String get groupAlbumPhotoUploadFailed => 'Échec de l\'envoi. Réessayez plus tard.';
+	@override String get groupAlbumCreateTooltip => 'Créer un album';
+	@override String get groupAlbumPhotoBatchDeleteTitle => 'Supprimer les images';
+	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => 'Supprimer les ${count} images sélectionnées ?';
+	@override String get groupAlbumPhotoDeleteFailed => 'Échec de la suppression. Réessayez plus tard.';
+	@override String groupAlbumPhotoDeletedAll({required Object count}) => '${count} images supprimées';
+	@override String groupAlbumPhotoDeletedPartial({required Object success, required Object fail}) => '${success} supprimées, ${fail} échecs';
+	@override String get groupAlbumPhotoDeleteTitle => 'Supprimer l\'image';
+	@override String get groupAlbumPhotoDeleteConfirm => 'Supprimer cette image ?';
+	@override String get groupAlbumPhotoDeleted => 'Image supprimée';
+	@override String get groupAlbumPhotoBatchDeleteTooltip => 'Supprimer';
+	@override String get groupAlbumPhotoExitSelection => 'Quitter la sélection';
+	@override String get groupAlbumPhotoOpenFailed => 'Impossible d\'ouvrir le lien de l\'image';
+	@override String get groupAlbumPhotoNotFound => 'Image introuvable ou supprimée';
+	@override String get groupAlbumPhotoOpenExternal => 'Ouvrir externe';
+	@override String get groupAlbumPhotoCoverUpdated => 'Couverture de l\'album définie';
+	@override String get groupAlbumPhotoCoverFailed => 'Échec de la couverture. Réessayez plus tard.';
+	@override String get groupAlbumPhotoNext => 'Suivant';
+	@override String get groupAlbumPhotoResolution => 'Résolution';
+	@override String get groupAlbumPhotoUploader => 'Par';
+	@override String get sectionDisplay => 'Affichage';
+	@override String get sectionTheme => 'Thème';
+	@override String get selectLanguage => 'Langue';
+	@override String get completionSuggestions => 'Conseils :';
+	@override String get sectionGeneral => 'Général';
+	@override String get sectionPrivacySecurity => 'Confidentialité et sécurité';
+	@override String get sectionHelpAbout => 'Aide et à propos';
+	@override String get msgOnlyVisibleToParties => 'Message lisible uniquement par expéditeur et destinataire';
+	@override String get msgNotEncrypted => 'Message non chiffré';
+	@override String durationMinutes({required Object count}) => '${count} min';
+	@override String durationSeconds({required Object count}) => '${count} s';
+	@override String get rechargeAmountError => 'Montant entre 1 et 10000 yuan';
+	@override String get rechargeSuccess => 'Rechargé';
+	@override String get rechargeConfirm => 'Confirmer la recharge';
+	@override String get transactionHistory2 => 'Transactions';
+	@override String get noTransactionHistory => 'Aucune transaction';
+	@override String get allLoaded => '— Tout est chargé —';
+	@override String get transactionTypeIncome => 'Recharge';
+	@override String get transactionTypeExpense => 'Dépense';
+	@override String get sectionLoginCredentials => 'Identifiants';
+	@override String get channelInvitations => 'Invitations de canal';
+	@override String get acceptInvitationFailed => 'Échec de l\'acceptation';
+	@override String get rejectInvitationFailed => 'Échec du refus';
+	@override String get invitationAccepted => 'Invitation acceptée';
+	@override String get invitationRejected => 'Invitation refusée';
+	@override String get invitationStatusPending => 'En attente';
+	@override String get invitationStatusAccepted => 'Acceptée';
+	@override String get invitationStatusRejected => 'Refusée';
+	@override String get invitationStatusExpired => 'Expirée';
+	@override String get invitationStatusCancelled => 'Annulée';
+	@override String get invitationStatusUnknown => 'Inconnu';
+	@override String get noReceivedInvitations => 'Aucune invitation reçue';
+	@override String get noSentInvitations => 'Aucune invitation envoyée';
+	@override String get processingDots => 'Traitement...';
+	@override String get purchaseFailed => 'Échec de l\'achat. Réessayez plus tard.';
+	@override String get purchaseSuccess => 'Acheté';
+	@override String get insufficientBalanceTitle => 'Solde insuffisant';
+	@override String insufficientBalanceContent({required Object currency, required Object balance, required Object price}) => 'Solde : ${currency} ${balance}, requis : ${currency} ${price}. Rechargez d\'abord.';
+	@override String get goRecharge => 'Recharger';
+	@override String get noOrders => 'Aucune commande';
+	@override String get orderDetailLoadFailed => 'Détails de la commande indisponibles';
+	@override String orderNoLabel({required Object no}) => 'Commande n° : ${no}';
+	@override String get orderStatusCancelled => 'Annulée';
+	@override String get orderStatusUnknown => 'Inconnu';
+	@override String get removeReaction => 'Retirer la réaction';
+	@override String removeReactionConfirm({required Object emoji}) => 'Retirer la réaction ${emoji} ?';
+	@override String get fileOpenFailed => 'Impossible d\'ouvrir ce fichier';
+	@override String get e2eeLocalBackup => 'Sauvegarde locale';
+	@override String get e2eeLocalBackupDesc => 'Exporter une sauvegarde chiffrée localement ou dans le cloud';
+	@override String get e2eeDeleteKey => 'Supprimer la clé';
+	@override String get e2eeDeleteKeyDesc => 'Supprimer la clé locale (irréversible)';
+	@override String get e2eeCurrentKeyInfo => 'Clé actuelle';
+	@override String get e2eeE2EEEnabled => 'E2EE activé';
+	@override String get e2eeNoKeyDetected => 'Aucune clé E2EE détectée';
+	@override String get e2eeNoKeyDesc => 'Générez d\'abord une paire de clés ou restaurez depuis une sauvegarde';
+	@override String get e2eeAboutTitle => 'À propos de l\'E2EE';
+	@override String get e2eeInfoPoint1 => '• Messages chiffrés avant l\'envoi, le serveur n\'en voit pas le contenu';
+	@override String get e2eeInfoPoint2 => '• Après changement d\'appareil ou suppression de clé, les anciens messages peuvent être indéchiffrables';
+	@override String get e2eeInfoPoint3 => '• Sauvegardez régulièrement vos clés pour éviter toute perte';
+	@override String get e2eeExportBackup => 'Exporter la sauvegarde';
+	@override String get e2eeExportBackupDesc => 'Créer une sauvegarde chiffrée';
+	@override String get e2eeImportBackup => 'Importer la sauvegarde';
+	@override String get e2eeImportBackupDesc => 'Restaurer la clé depuis une sauvegarde';
+	@override String get e2eeBackupManage => 'Gestion des sauvegardes';
+	@override String get e2eeBackupManageDesc => 'Voir l\'historique des sauvegardes';
+	@override String get e2eeGenerateKeyConfirm => 'Créer une nouvelle paire de clés E2EE ?';
+	@override String get e2eeWarnOldMessagesLost => '• Anciens messages indéchiffrables';
+	@override String get e2eeWarnNeedNewBackup => '• Nouvelle sauvegarde requise';
+	@override String get e2eeConfirmGenerate => 'Générer';
+	@override String get e2eeDeleteKeyConfirm => 'Supprimer la clé actuelle ?';
+	@override String get e2eeWarnCannotRestore => '• Suppression irréversible';
+	@override String get e2eeWarnAllMsgsLost => '• Tous les messages E2EE indéchiffrables';
+	@override String get e2eeConfirmDelete => 'Supprimer';
+	@override String get e2eeKeyGeneratedSuccess => 'Clé générée';
+	@override String e2eeDeviceIdInfo({required Object id}) => 'ID d\'appareil : ${id}';
+	@override String e2eeKeyIdInfo({required Object id}) => 'ID de clé : ${id}';
+	@override String e2eeCreatedAtInfo({required Object time}) => 'Créée le : ${time}';
+	@override String get e2eeImportantNote => 'Important';
+	@override String get e2eeWarnOldMayNotDecrypt => '• Anciens messages potentiellement indéchiffrables';
+	@override String get e2eeSuggestBackupNow => '• Exportez la sauvegarde maintenant';
+	@override String get e2eeGoBackup => 'Sauvegarde';
+	@override String get e2eeKeyGenerateFailed => 'Échec de la génération. Réessayez.';
+	@override String get e2eeKeyDeleted => 'Clé supprimée';
+	@override String get e2eeDeleteFailed => 'Échec de la suppression. Réessayez.';
+	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => 'Fragments : ${available} disponibles, ${required} dépositaires requis';
+	@override String get e2eeNoRecoveryShards => 'Aucun fragment de restauration';
+	@override String get e2eeRecoverSuccess => 'Restaurée';
+	@override String get e2eeRecoverFailed => 'Échec de la restauration';
+	@override String get e2eeRecoverKeyFailed => 'Échec de la restauration. Réessayez.';
+	@override String get e2eeLoadingShards => 'Chargement des fragments...';
+	@override String get e2eeNoShards => 'Aucun fragment disponible';
+	@override String get e2eeLoadFailed => 'Échec du chargement. Réessayez.';
+	@override String e2eeContactingProxy({required Object name}) => 'Connexion à : ${name}';
+	@override String get e2eeRecoveryFailed => 'Échec de la restauration. Réessayez.';
+	@override String get webFeatureNotification => 'Notifications bureau';
+	@override String get webFeatureNotificationDesc => 'Recevez les nouveaux messages même en arrière-plan';
+	@override String get webQRConfirmOnPhone => 'Confirmez sur le mobile';
+	@override String get webQRLoginFailed => 'Échec de la connexion';
+	@override String get webQRLoginSuccess => 'Connecté';
+	@override String webQRExpiresIn({required Object seconds}) => 'Expire dans ${seconds} s';
+	@override String get webQRStatusFailed => 'Échec de la connexion. Réessayez.';
+	@override String get webQRStatusSuccess => 'Redirection...';
+	@override String get webLoginEmptyError => 'Compte et mot de passe requis';
+	@override String get webQRGenerateFailed => 'QR code indisponible';
+	@override String get webQRTokenInvalid => 'Jeton de connexion invalide';
+	@override String get e2eeErrNoRecipientKey => 'Clé de l\'appareil destinataire indisponible, message non envoyé';
+	@override String get e2eeDecryptFailed => 'Message indéchiffrable';
+	@override String get e2eeDecryptFailedReasons => 'Message indéchiffrable. Causes possibles :';
+	@override String get e2eeDecryptReasonOtherDevice => '• Connexion sur un autre appareil';
+	@override String get e2eeDecryptReasonKeyExpired => '• Clé d\'appareil expirée';
+	@override String get e2eeDecryptReasonDataCorrupt => '• Données de l\'app corrompues';
+	@override String get e2eeDecryptChooseSolution => 'Choisissez une solution :';
+	@override String get e2eeDecryptActionRecreateKey => 'Recréer la clé (recommandé)';
+	@override String get e2eeDecryptActionRelogin => 'Reconnexion';
+	@override String get e2eeDecryptActionRemindLater => 'Plus tard';
+	@override String get e2eeBackupExportTitle => 'Exporter la sauvegarde E2EE';
+	@override String get e2eeBackupPwdCantRecover => '• Mot de passe irrécupérable, gardez-le en sécurité !';
+	@override String get e2eeBackupStoreMultipleNote => '• Stockez la sauvegarde à plusieurs endroits (e-mail, cloud, USB)';
+	@override String get e2eeBackupPwdLabel => 'Mot de passe *';
+	@override String get e2eeBackupPwdHint => '12 caractères min, majuscules, minuscules, chiffres, symboles';
+	@override String get e2eeBackupConfirmPwdLabel => 'Confirmer *';
+	@override String get e2eeBackupConfirmPwdHint => 'Ressaisir le mot de passe';
+	@override String get e2eeBackupNoteLabel => 'Note (facultatif)';
+	@override String get e2eeBackupNoteHint => 'ex. Sauvegarde principale - jan. 2026';
+	@override String get e2eeBackupPwdStrengthLabel => 'Robustesse';
+	@override String get e2eeBackupPwdWeak => 'Faible';
+	@override String get e2eeBackupPwdMedium => 'Moyenne';
+	@override String get e2eeBackupPwdStrong => 'Forte';
+	@override String get e2eeBackupPwdVeryStrong => 'Très forte';
+	@override String get e2eeBackupGenerateBtn => 'Créer la sauvegarde';
+	@override String get e2eeBackupFileGenerated => 'Sauvegarde créée !';
+	@override String get e2eeBackupShareBtn => 'Partager par e-mail/cloud';
+	@override String get e2eeBackupShareContent => 'Voici ma sauvegarde de clé E2EE Imboy. Gardez-la en sécurité, ne la partagez pas.';
+	@override String get e2eeBackupErrPwdMismatch => 'Les mots de passe ne correspondent pas';
+	@override String get e2eeBackupErrNoKeyData => 'Données de clé indisponibles';
+	@override String get e2eeBackupErrExportFailed => 'Échec de l\'export. Réessayez.';
+	@override String get e2eeBackupErrShareFailed => 'Échec du partage. Réessayez.';
+	@override String get e2eeBackupExportSuccessTitle => 'Sauvegarde exportée';
+	@override String get e2eeBackupExportSuccessBody => 'Sauvegarde de clé E2EE créée.';
+	@override String get e2eeBackupImportantNoteColon => 'Important :';
+	@override String get e2eeBackupKeepSafe => '• Sauvegarde et mot de passe en sécurité';
+	@override String get e2eeBackupStoreMultipleLoc => '• Stockez à plusieurs endroits';
+	@override String get e2eeBackupPwdCantRecoverNote => '• Mot de passe irrécupérable';
+	@override String get e2eeBackupImportTitle => 'Importer la sauvegarde E2EE';
+	@override String get e2eeBackupImportGuide => 'Instructions';
+	@override String get e2eeBackupImportReplaceKey => '• La clé E2EE actuelle sera remplacée';
+	@override String get e2eeBackupImportTrustedSource => '• N\'importez que des sources fiables';
+	@override String get e2eeBackupSelectFile => 'Choisir le fichier';
+	@override String get e2eeBackupSelectFileHint => 'Touchez pour choisir (.enc)';
+	@override String get e2eeBackupInfoTitle => 'Infos sauvegarde';
+	@override String get e2eeBackupVersionLabel => 'Version';
+	@override String get e2eeBackupAlgorithmLabel => 'Algorithme';
+	@override String get e2eeBackupFileSizeLabel => 'Taille';
+	@override String get e2eeBackupFileValid => '✓ Format valide';
+	@override String get e2eeBackupImportPwdHint => 'Mot de passe de la sauvegarde';
+	@override String get e2eeBackupImportBtn => 'Importer la clé';
+	@override String get e2eeBackupErrSelectFile => 'Échec de la sélection. Réessayez.';
+	@override String get e2eeBackupErrValidateFailed => 'Échec de la validation. Vérifiez le format.';
+	@override String get e2eeBackupErrImportFailed => 'Échec de l\'import. Vérifiez le mot de passe.';
+	@override String get e2eeBackupImportSuccessTitle => 'Importée';
+	@override String get e2eeBackupImportSuccessBody => 'Clé E2EE restaurée !';
+	@override String get e2eeBackupImportSuccessNote => 'À noter : les anciens messages peuvent être inaccessibles (normal en E2EE)';
+	@override String get e2eeBackupNoRecords => 'Aucune sauvegarde';
+	@override String get e2eeBackupNoRecordsHint => 'Les sauvegardes apparaîtront ici après export';
+	@override String e2eeBackupDeviceLabel({required Object id}) => 'Appareil ${id}';
+	@override String e2eeBackupCreatedAtLabel({required Object time}) => 'Créée le ${time}';
+	@override String get e2eeBackupDetailTitle => 'Détails de la sauvegarde';
+	@override String get e2eeBackupDeviceIdLabel => 'ID d\'appareil';
+	@override String get e2eeBackupVersionNum => 'Version de sauvegarde';
+	@override String get e2eeBackupCreatedAtRow => 'Créée le';
+	@override String get e2eeBackupFileSizeRow => 'Taille';
+	@override String get e2eeBackupNoteRow => 'Note';
+	@override String get e2eeBackupDeleteTitle => 'Supprimer la sauvegarde';
+	@override String get e2eeBackupDeleteConfirm => 'Supprimer cette sauvegarde ?';
+	@override String get e2eeBackupDeleteSuccess => 'Sauvegarde supprimée';
+	@override String get e2eeSocialShardSettings => 'Paramètres des fragments';
+	@override String get e2eeSocialShardStoredNote => 'Les fragments sont stockés chez les dépositaires, le serveur n\'en conserve aucun';
+	@override String get e2eeSocialAddProxy => 'Ajouter un dépositaire';
+	@override String get e2eeSocialAddProxyHint => 'Ajoutez un dépositaire';
+	@override String e2eeSocialCreateNeedMore({required Object count}) => 'Ajoutez d\'abord ${count} dépositaires';
+	@override String get e2eeSocialCreateSuccessTitle => 'Fragments créés';
+	@override String e2eeSocialTotalShardsInfo({required Object count}) => 'Clé divisée en ${count} fragments';
+	@override String e2eeSocialThresholdInfo({required Object count}) => '${count} dépositaires suffisent pour restaurer';
+	@override String get e2eeSocialZeroTrustNote => 'Zero-Trust : le serveur ne conserve aucun fragment';
+	@override String get e2eeSocialNoShards => 'Aucun fragment créé';
+	@override String get e2eeSocialNoProxyShards => 'Aucun fragment dépositaire';
+	@override String get e2eeSocialKeyVersionLabel => 'Version de clé';
+	@override String get e2eeTransferErrNoKey => 'Créez d\'abord une paire de clés';
+	@override String get e2eeTransferErrInitFailed => 'Échec de l\'initialisation. Réessayez.';
+	@override String get e2eeTransferErrNoRecipientKey => 'Le destinataire n\'a pas de clé publique';
+	@override String get e2eeTransferErrKeyNotFound => 'Clé introuvable';
+	@override String get e2eeTransferErrCreateFailed => 'Échec de la création de session. Réessayez.';
+	@override String get e2eeTransferCreateSessionBtn => 'Créer une session';
+	@override String get e2eeTransferSessionCreated => 'Session créée';
+	@override String get e2eeTransferUidEmptyError => 'ID utilisateur valide requis';
+	@override String get e2eeTransferSuccess => 'Succès !';
+	@override String get e2eeTransferFailed => 'Échec du transfert. Réessayez.';
+	@override String get e2eeTransferProcessingMsg => 'Traitement...';
+	@override String get e2eeTransferSuccessTitle => 'Transférée';
+	@override String get e2eeTransferSuccessBody => 'Clé transférée sur cet appareil';
+	@override String e2eeTransferScanError({required Object error}) => 'Erreur de scan : ${error}';
+	@override String get e2eeTransferErrNoDeviceId => 'ID d\'appareil indisponible';
+	@override String get passwordEncryptFailed => 'Échec du chiffrement du mot de passe';
+	@override String get initConfigTimeout => 'Délai dépassé : vérifiez le réseau ou le serveur';
+	@override String initConfigNetworkError({required Object code}) => 'Erreur réseau ou serveur (HTTP ${code})';
+	@override String get initConfigProtocolError => 'Protocole serveur erroné';
+	@override String get initConfigFetchFailed => 'Configuration indisponible. Vérifiez le réseau.';
+	@override String get attachmentGetFileFailed => 'Fichier indisponible. Réessayez ou choisissez depuis l\'album.';
+	@override String get attachmentGetFileFailedAndroid9 => 'Fichier indisponible (compatibilité Android 9)';
+	@override String get attachmentGetImageDataFailed => 'Données d\'image indisponibles. Réessayez.';
+	@override String get attachmentGetOriginalImageFailed => 'Image originale indisponible';
+	@override String get saveFailedRetry => 'Échec de l\'enregistrement. Réessayez.';
+	@override String get downloadFileNotFound => 'Fichier téléchargé introuvable. Réessayez.';
+	@override String downloadHashRetrying({required Object retry, required Object max}) => 'Vérification échouée, retéléchargement (${retry}/${max})';
+	@override String get downloadHashFailed => 'Vérifications multiples échouées. Vérifiez le réseau.';
+	@override String get e2eeTransferToNewDevice => 'Vers le nouvel appareil';
+	@override String get e2eeTransferPendingSection => 'Transferts en attente';
+	@override String get e2eeTransferLoadFailed => 'Échec du chargement';
+	@override String get e2eeTransferLoadFailedDesc => 'Transferts en attente indisponibles. Réessayez.';
+	@override String get e2eeTransferNoPending => 'Aucun transfert en attente';
+	@override String get e2eeTransferNoPendingDesc => 'Les clés reçues apparaîtront ici';
+	@override String get e2eeSocialEnoughShards => 'Assez de fragments pour restaurer';
+	@override String e2eeSocialMoreShards({required Object count}) => '${count} fragments de plus...';
+	@override String get e2eeProxyLoadFriendsFailed => 'Liste d\'amis indisponible. Réessayez.';
+	@override String get e2eeProxyNoPublicKey => 'Aucune clé publique disponible';
+	@override String e2eeProxyGetKeyFailed({required Object name}) => 'Clé publique de ${name} indisponible';
+	@override String get e2eeProxySelectFailed => 'Échec de la sélection. Réessayez.';
+	@override String get e2eeProxyNoFriends => 'Aucun ami';
+	@override String get e2eeProxyNoFriendsHint => 'Ajoutez d\'abord des amis';
+	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => '${count} requis minimum, ${selected} choisis';
+	@override String e2eeProxyConfirmCount({required Object count}) => 'Confirmer (${count} dépositaires)';
+	@override String get buttonBackHome => 'Accueil';
+	@override String get featureNotEnabled => 'Fonction indisponible';
+	@override String featureDisabledName({required Object name}) => 'Fonction ${name} indisponible';
+	@override String get imageLoadFailed => 'Échec du chargement';
+	@override String loadFailedWithError({required Object error}) => 'Échec : ${error}';
+	@override String get webAudioNotSupported => 'Messages vocaux non supportés sur Web';
+	@override String e2eeKeyRecreationFailed({required Object error}) => 'Échec : ${error}';
+	@override String get redPacket => 'Enveloppe rouge';
+	@override String get transfer => 'Transfert';
+	@override String get withdraw => 'Retrait';
+	@override String get redPacketSend => 'Envoyer une enveloppe';
+	@override String get redPacketOpen => 'Ouvrir l\'enveloppe';
+	@override String get redPacketDetail => 'Détails de l\'enveloppe';
+	@override String get transferSend => 'Démarrer un transfert';
+	@override String get transferAccept => 'Accepter';
+	@override String get greetingDefault => 'Bonne année';
+	@override String grabAmountYuan({required Object amount}) => 'Reçu : ${amount} yuan';
+	@override String transferAmountYuan({required Object amount}) => 'Transfert : ${amount} yuan';
+	@override String get insufficientBalance => 'Solde insuffisant';
+	@override String get goToRecharge => 'Recharger';
+	@override String get withdrawSuccess => 'Retrait effectué';
+	@override String get withdrawConfirm => 'Confirmer le retrait';
+	@override String get withdrawAmountError => 'Montant minimum 1 yuan';
+	@override String get withdrawAccountEmpty => 'Compte de retrait requis';
+	@override String get withdrawMethod => 'Méthode de retrait';
+	@override String get withdrawAccount => 'Compte de retrait';
 }
 
 // Path: complaint
@@ -1190,6 +1682,19 @@ class _Translations$complaint$fr_FR extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => 'Plainte';
+}
+
+// Path: complaintReason
+class _Translations$complaintReason$fr_FR extends Translations$complaintReason$zh_CN {
+	_Translations$complaintReason$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get spam => 'Spam';
+	@override String get harassment => 'Harcèlement';
+	@override String get inappropriate => 'Contenu inapproprié';
+	@override String get other => 'Autre';
 }
 
 // Path: contact
@@ -1229,6 +1734,7 @@ class _Translations$contact$fr_FR extends Translations$contact$zh_CN {
 	@override String get pleaseEnterRemark => 'Veuillez entrer la remarque.';
 	@override String get enterRemark => 'Entrez la remarque.';
 	@override String get pleaseEnterTags => 'Entrez les étiquettes.';
+	@override String get momentsVisibilityFriends => 'Amis seulement';
 	@override String tagLengthExceeded({required Object param}) => 'La longueur de l\'étiquette ne peut pas dépasser ${param} caractères.';
 	@override String maxTagsExceeded({required Object param}) => 'Au maximum ${param} étiquettes autorisées.';
 	@override String selectedTags({required Object param, required Object max}) => 'Étiquettes sélectionnées (${param}/${max}).';
@@ -1247,6 +1753,8 @@ class _Translations$contact$fr_FR extends Translations$contact$zh_CN {
 	@override String get tagIdeas => 'Idées';
 	@override String get tagMemo => 'Mémo';
 	@override String get friendRequestSent => 'Envoyé';
+	@override String get channelMaxTagsCount => '8 étiquettes maximum';
+	@override String get tagInputHint => 'Étiquette...';
 }
 
 // Path: discovery
@@ -1265,10 +1773,26 @@ class _Translations$discovery$fr_FR extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'Résultat du scan';
 	@override String get scannerResult => 'Résultat du scan';
 	@override String get titleDiscover => 'Découvrir';
+	@override String get myChannels => 'Mes canaux';
+	@override String get channelSquare => 'Découvrir les canaux';
 	@override String get otherUsersCanFindMe => 'D\'autres utilisateurs peuvent me trouver via la recherche.';
 	@override String get moments => 'Fil d\'actualité';
+	@override String get momentsReport => 'Signaler le moment';
+	@override String get momentsReportDesc => 'Description';
+	@override String get momentsComments => 'Commentaires';
+	@override String get momentsWriteComment => 'Écrire un commentaire...';
+	@override String get momentsVisibility => 'Visibilité';
+	@override String get momentsVisibilityPublic => 'Public';
+	@override String get momentsVisibilityPartial => 'Partiel';
+	@override String get momentsVisibilityExclude => 'Exceptions';
+	@override String get momentsDenyUidsLabel => 'UIDs exclus (séparés par virgule)';
+	@override String get momentsDraftRestored => 'Brouillon précédent restauré';
+	@override String get momentsFeedStale => 'Erreur réseau, affichage du cache';
 	@override String get discover => 'Découvrir';
 	@override String get shake => 'Secouer';
+	@override String get openChannel => 'Ouvrir le canal';
+	@override String get paidChannelLocked => 'Contenu verrouillé (payant)';
+	@override String get webQRScanned => 'Scanné';
 }
 
 // Path: error
@@ -1285,6 +1809,11 @@ class _Translations$error$fr_FR extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. Ouvrez les paramètres du téléphone - Général - Données cellulaires et gardez les données cellulaires activées.';
 	@override String get networkTroubleshootingStep3 => '3. Si toujours impossible de se connecter au réseau, vérifiez si le Wi-Fi du téléphone a accès à Internet ou contactez l\'opérateur réseau.';
 	@override String get suggestCheckNetwork => 'Il est suggéré de vérifier les paramètres réseau.';
+	@override String e2eeStartRecoveryBtn({required Object required}) => 'Démarrer la restauration (${required} dépositaires requis)';
+	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => 'Fragments insuffisants (${required} requis, ${current} actuels)';
+	@override String get e2eeErrTimeout => 'Délai de chiffrement dépassé. Vérifiez le réseau et réessayez.';
+	@override String get e2eeErrNetwork => 'Erreur réseau, échec du chiffrement, message non envoyé';
+	@override String get liveRoomTitleRequired => 'Titre requis';
 }
 
 // Path: group
@@ -1298,6 +1827,7 @@ class _Translations$group$fr_FR extends Translations$group$zh_CN {
 	@override String get enterSameGroup => 'Entrer dans le même groupe que les amis à proximité';
 	@override String get enterTheGroup => 'Rejoindre ce groupe';
 	@override String get groupAlias => 'Mon surnom dans ce groupe';
+	@override String get groupAlbum => 'Album de groupe';
 	@override String get groupDissolve => 'Dissoudre le groupe';
 	@override String get groupJoin => 'Rejoindre le groupe';
 	@override String get groupLeave => 'Quitter le groupe';
@@ -1305,16 +1835,193 @@ class _Translations$group$fr_FR extends Translations$group$zh_CN {
 	@override String get groupMembers => 'Membres du groupe';
 	@override String get groupName => 'Nom du groupe';
 	@override String get mutualGroupsWithHer => 'Groupes communs avec lui/elle';
-	@override String get selectGroup => 'Sélectionner un groupe.';
-	@override String get sureToDissolveGroup => 'Confirmer la dissolution du groupe ?';
-	@override String get sureToLeaveGroup => 'Confirmer le départ du groupe ?';
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
-	@override String get groupGuest => '嘉宾';
+	@override String get groupGuest => 'Invité d\'honneur';
 	@override String get groupMember => 'Member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get transferGroup => 'Transfer Ownership';
 	@override String get joinTime => 'Join Time';
+	@override String get selectGroup => 'Sélectionner un groupe.';
+	@override String get sureToDissolveGroup => 'Confirmer la dissolution du groupe ?';
+	@override String get sureToLeaveGroup => 'Confirmer le départ du groupe ?';
+	@override String get groupAlbumNameHint => 'Nom de l\'album';
+	@override String get groupAlbumRenameTitle => 'Renommer l\'album';
+	@override String get groupAlbumRenamed => 'Album renommé';
+	@override String get groupAlbumUnnamed => 'Album sans nom';
+	@override String groupAlbumPhotoCount({required Object count}) => '${count} images';
+	@override String get groupAlbumPhotoIdMissing => 'ID d\'image manquant, détails indisponibles';
+	@override String get groupAlbumPhotoListTitle => 'Images de l\'album';
+	@override String groupAlbumPhotoSelectedCount({required Object count}) => '${count} sélectionnés';
+	@override String get groupAlbumPhotoEmpty => 'Aucune image';
+	@override String get groupAlbumPhotoUrlMissing => 'Adresse de l\'image manquante, ouverture impossible';
+	@override String get groupAlbumPhotoUrlInvalid => 'Adresse de l\'image invalide';
+	@override String get groupAlbumPhotoDetailTitle => 'Détails de l\'image';
+	@override String get groupAlbumPhotoSetCover => 'Couverture';
+	@override String get groupAlbumPhotoPrev => 'Précédent';
+	@override String get groupAlbumPhotoLikeCount => 'J\'aime';
+	@override String get groupAlbumPhotoCommentCount => 'Commentaires';
+	@override String get groupAlbumPhotoMyLike => 'Mon J\'aime';
+	@override String get groupAlbumPhotoIdLabel => 'ID d\'image';
+	@override String get e2eeKeyManagement => 'Gestion des clés E2EE';
+	@override String get e2eeKeyManagementSubtitle => 'Sauvegarder, restaurer et gérer les clés E2EE';
+}
+
+// Path: groupCategory
+class _Translations$groupCategory$fr_FR extends Translations$groupCategory$zh_CN {
+	_Translations$groupCategory$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Catégories de groupe';
+	@override String get createCategory => 'Créer une catégorie';
+	@override String get categoryName => 'Nom de la catégorie';
+	@override String get categoryDesc => 'Description (facultatif)';
+	@override String get noCategory => 'Aucune catégorie';
+	@override String get createFirst => 'Créer la première catégorie';
+	@override String get addGroup => 'Ajouter le groupe à la catégorie';
+	@override String get removeGroup => 'Retirer de la catégorie';
+	@override String get deleteCategory => 'Supprimer la catégorie';
+	@override String get deleteCategoryConfirm => 'Supprimer cette catégorie ? Les groupes seront conservés.';
+	@override String get categoryCreated => 'Catégorie créée';
+	@override String get categoryDeleted => 'Catégorie supprimée';
+	@override String get renameCategory => 'Renommer la catégorie';
+	@override String get categoryRenamed => 'Catégorie renommée';
+	@override String get renameFailed => 'Échec du renommage. Réessayez.';
+	@override String get deleteFailed => 'Échec de la suppression. Réessayez.';
+	@override String get categoryDetailTip => 'Les groupes de cette catégorie se gèrent depuis la liste des groupes via « Déplacer dans la catégorie »';
+}
+
+// Path: groupList
+class _Translations$groupList$fr_FR extends Translations$groupList$zh_CN {
+	_Translations$groupList$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get attrAll => 'Tout';
+	@override String get attrOwner => 'Créés';
+	@override String get attrManager => 'Gérés';
+	@override String get attrJoin => 'Rejoints';
+	@override String get refresh => 'Actualiser';
+}
+
+// Path: groupSchedule
+class _Translations$groupSchedule$fr_FR extends Translations$groupSchedule$zh_CN {
+	_Translations$groupSchedule$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Événements de groupe';
+	@override String get createSchedule => 'Créer un événement';
+	@override String get scheduleTitle => 'Titre de l\'événement';
+	@override String get selectDate => 'Choisir la date';
+	@override String get selectTime => 'Choisir l\'heure';
+	@override String get location => 'Lieu';
+	@override String get reminder => 'Rappel';
+	@override String get noReminder => 'Aucun rappel';
+	@override String get noSchedule => 'Aucun événement';
+	@override String get scheduleCreated => 'Événement créé';
+	@override String get scheduleUpdated => 'Événement mis à jour';
+	@override String get reminder15min => '15 min avant';
+	@override String get reminder1hour => '1 h avant';
+	@override String get reminder1day => '1 j avant';
+	@override String get startTime => 'Début';
+	@override String get endTime => 'Fin';
+	@override String get participants => 'Participants';
+	@override String get statusCancelled => 'Annulé';
+	@override String get statusInProgress => 'En cours';
+	@override String get cancelSuccess => 'Événement annulé';
+	@override String get cancelFailed => 'Échec de l\'annulation. Réessayez plus tard.';
+	@override String get confirmAttend => 'Participer';
+	@override String get declineAttend => 'Refuser';
+	@override String get cancelSchedule => 'Annuler l\'événement';
+	@override String get scheduleIdMissing => 'ID de l\'événement manquant, détails indisponibles';
+}
+
+// Path: groupTag
+class _Translations$groupTag$fr_FR extends Translations$groupTag$zh_CN {
+	_Translations$groupTag$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Étiquettes de groupe';
+	@override String get addTag => 'Ajouter une étiquette';
+	@override String get tagName => 'Nom de l\'étiquette';
+	@override String get tagColor => 'Couleur de l\'étiquette';
+	@override String get noTag => 'Aucune étiquette';
+	@override String get tagAdded => 'Étiquette ajoutée';
+	@override String get tagRemoved => 'Étiquette supprimée';
+	@override String get removeTitle => 'Supprimer l\'étiquette';
+	@override String get removeConfirm => 'Supprimer cette étiquette ?';
+}
+
+// Path: groupTask
+class _Translations$groupTask$fr_FR extends Translations$groupTask$zh_CN {
+	_Translations$groupTask$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Tâches de groupe';
+	@override String get createTask => 'Créer une tâche';
+	@override String get taskTitle => 'Titre de la tâche';
+	@override String get taskDescription => 'Description';
+	@override String get assignTo => 'Assignée à';
+	@override String get deadline => 'Échéance';
+	@override String get noDeadline => 'Sans échéance';
+	@override String get noTask => 'Aucune tâche';
+	@override String get all => 'Toutes';
+	@override String get pending => 'En cours';
+	@override String get completed => 'Terminées';
+	@override String get taskCreated => 'Tâche créée';
+	@override String get taskSubmitted => 'Tâche soumise';
+	@override String get taskCompleted => 'Tâche terminée';
+	@override String get overdue => 'En retard';
+	@override String daysLeft({required Object days}) => 'Échéance dans ${days} j';
+	@override String hoursLeft({required Object hours}) => 'Échéance dans ${hours} h';
+	@override String get dueSoon => 'Échéance proche';
+	@override String get submitFailed => 'Échec de l\'envoi. Réessayez plus tard.';
+	@override String get taskId => 'ID de tâche';
+	@override String get pendingReview => 'En attente de validation';
+	@override String get taskIdMissing => 'ID de tâche manquant, détails indisponibles';
+	@override String get taskIdMissingSubmit => 'ID de tâche manquant, envoi impossible';
+}
+
+// Path: groupVote
+class _Translations$groupVote$fr_FR extends Translations$groupVote$zh_CN {
+	_Translations$groupVote$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Sondage de groupe';
+	@override String get createVote => 'Créer un sondage';
+	@override String get voteTitle => 'Titre du sondage';
+	@override String get voteOptions => 'Options';
+	@override String get addOption => 'Ajouter une option';
+	@override String get allowMultiple => 'Choix multiple';
+	@override String get anonymous => 'Anonyme';
+	@override String get deadline => 'Échéance';
+	@override String get noDeadline => 'Sans échéance';
+	@override String get noVote => 'Aucun sondage';
+	@override String get voteEnded => 'Sondage terminé';
+	@override String totalVotes({required Object count}) => '${count} votes au total';
+	@override String get voteSuccess => 'Vote enregistré';
+	@override String get hasVoted => 'Déjà voté';
+	@override String get viewResults => 'Voir les résultats';
+	@override String get cancelVoteSuccess => 'Vote retiré';
+	@override String get cancelVoteFailed => 'Échec du retrait. Réessayez plus tard.';
+	@override String get endVoteFailed => 'Échec de la clôture. Réessayez plus tard.';
+	@override String get eachOptionPerLine => 'Une option par ligne';
+	@override String get statusInProgress => 'En cours';
+	@override String get updateVote => 'Modifier le sondage';
+	@override String get cancelMyVote => 'Retirer mon vote';
+	@override String get voteIdMissing => 'ID du sondage manquant, détails indisponibles';
+	@override String participantCount({required Object count}) => 'Participants : ${count}';
 }
 
 // Path: main
@@ -1338,6 +2045,8 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get audio => 'Son';
 	@override String get barcodeFound => 'Code-barres trouvé !';
 	@override String get botQianFan => 'Robot Qianfan';
+	@override String get liveRoomWhipLabel => 'URL d\'émission WHIP';
+	@override String get liveRoomWhepLabel => 'URL de réception WHEP';
 	@override String get cache => 'Mémoire cache';
 	@override String get camera => 'Appareil photo';
 	@override String get changeNameView => 'Modifier le nom';
@@ -1415,6 +2124,9 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get recentlyUsed => 'Récemment utilisé';
 	@override String get releaseEnd => 'Relâcher pour terminer';
 	@override String remainingChars({required Object param}) => 'Il reste encore ${param} caractères.';
+	@override String get kickMember => 'Remove from Group';
+	@override String get memberDetail => 'Member Details';
+	@override String get memberRole => 'Role';
 	@override String get replied => 'Répondu';
 	@override String get ringing => 'Sonnerie...';
 	@override String get ruRu => 'Russe (Russie)';
@@ -1439,6 +2151,7 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get timeRange => 'Période';
 	@override String get timeWeekdays => 'Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche';
 	@override String get titleMine => 'Moi';
+	@override String get titleSquare => 'Découvrir';
 	@override String get tooBad => 'Trop mauvais';
 	@override String get tryAgainQ => 'Voulez-vous réessayer ?';
 	@override String get type => 'Type';
@@ -1511,9 +2224,154 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get larger => 'Plus grand';
 	@override String currentLength({required Object param1, required Object param2}) => 'Longueur actuelle : ${param1} / ${param2}';
 	@override String get fillIn => 'Remplir';
-	@override String get kickMember => 'Remove from Group';
-	@override String get memberDetail => 'Member Details';
-	@override String get memberRole => 'Role';
+	@override String get msgProtectedByComplianceKey => 'Message protégé par clé de conformité';
+	@override String inviterLabel({required Object uid}) => 'Invité par : ${uid}';
+	@override String inviteeLabel({required Object uid}) => 'Invité : ${uid}';
+	@override String get mySentTab => 'Envoyées';
+	@override String get reject => 'Refuser';
+	@override String get myOrders => 'Commandes';
+	@override String get purchaseUnlockHint => 'Après achat, accédez à l\'historique et aux nouveautés du canal.';
+	@override String get payingDots => 'Paiement...';
+	@override String get purchaseAndUnlock => 'Acheter et déverrouiller';
+	@override String get orderDetail => 'Détails de la commande';
+	@override String orderAmountLabel({required Object currency, required Object amount}) => 'Montant : ${currency} ${amount}';
+	@override String channelPriceLabel({required Object currency, required Object amount}) => 'Prix : ${currency} ${amount}';
+	@override String get e2eeKeyRecoveryTitle => 'Gestion des clés E2EE';
+	@override String get e2eeRecoveryMethods => 'Méthodes de restauration';
+	@override String get e2eeDangerousOps => 'Actions sensibles';
+	@override String get e2eeSocialRecovery => 'Récupération sociale';
+	@override String get e2eeSocialRecoveryDesc => 'Restaurer la clé via des contacts de confiance';
+	@override String get e2eeKeyIdLabel => 'ID de clé';
+	@override String get e2eeWarnIrreversible => '• Action irréversible';
+	@override String get e2eeWarnNeedRestoreOrNew => '• Restaurer depuis une sauvegarde ou générer une nouvelle clé';
+	@override String get gotIt => 'Compris';
+	@override String get e2eeRecoverKeyTitle => 'Restaurer la clé';
+	@override String get e2eeCanRecoverKey => 'Clé restaurable';
+	@override String get e2eeInsufficientShards => 'Fragments insuffisants';
+	@override String e2eeProxyUser({required Object uid}) => 'Dépositaire : ${uid}';
+	@override String e2eeShardLabel({required Object index, required Object total}) => 'Fragment ${index} / ${total}';
+	@override String get e2eeReloadShards => 'Recharger';
+	@override String get e2eeRecovering => 'Restauration...';
+	@override String get e2eeKeyRestored => 'Clé restaurée';
+	@override String e2eeUsedShards({required Object count}) => '${count} fragments utilisés';
+	@override String get e2eePreparing => 'Préparation...';
+	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => 'Progression : ${collected} / ${total} fragments';
+	@override String e2eeCollectingShards({required Object collected, required Object total}) => 'Collecte des fragments (${collected}/${total})...';
+	@override String get e2eeShardsCollected => 'Fragments collectés, reconstitution de la clé...';
+	@override String get webQRLoggingIn => 'Connexion...';
+	@override String get webQRExpired => 'QR code expiré';
+	@override String get webQRRefresh => 'Actualiser le QR code';
+	@override String get webSwitchToQR => 'Connexion par QR code';
+	@override String get e2eeErrDefault => 'Échec E2EE, message non envoyé';
+	@override String get e2eeSocialTotalShards => 'Total de fragments';
+	@override String get e2eeSocialThreshold => 'Seuil de restauration';
+	@override String e2eeSocialThresholdHint({required Object count}) => '${count} dépositaires requis pour la restauration';
+	@override String get e2eeSocialSelectProxy => 'Choisir les dépositaires';
+	@override String e2eeSocialProxyNeeded({required Object count}) => '${count} contacts de confiance requis comme dépositaires';
+	@override String e2eeSocialProxyDefaultName({required Object uid}) => 'Utilisateur ${uid}';
+	@override String get e2eeSocialShardSentViaWs => 'Fragments envoyés directement aux dépositaires via WebSocket';
+	@override String e2eeSocialSentCount({required Object sent, required Object total}) => 'Envoyés à ${sent} sur ${total} dépositaires';
+	@override String get e2eeSocialManageTitle => 'Gérer les fragments';
+	@override String get e2eeSocialMyShards => 'Mes fragments';
+	@override String get e2eeSocialProxyShards => 'Fragments dépositaires';
+	@override String e2eeSocialShardOf({required Object idx, required Object total}) => 'Fragment ${idx} / ${total}';
+	@override String get e2eeSocialShardActive => 'Actif';
+	@override String get e2eeSocialShardUsed => 'Utilisé';
+	@override String get e2eeSocialShardValid => 'Fragment valide';
+	@override String e2eeSocialUserShard({required Object uid}) => 'Fragment de clé de ${uid}';
+	@override String get e2eeSocialProxyUserLabel => 'Dépositaire';
+	@override String get e2eeSocialRecoveryThresholdLabel => 'Seuil de restauration';
+	@override String get e2eeSocialShardIndexLabel => 'Numéro de fragment';
+	@override String get e2eeTransferQRHint => 'Scannez ce QR code sur le nouvel appareil';
+	@override String e2eeTransferQRExpiry({required Object time}) => 'QR code expire le ${time}';
+	@override String get e2eeTransferRefreshQR => 'Actualiser le QR code';
+	@override String get e2eeTransferEnterUidTitle => 'ID utilisateur du destinataire';
+	@override String get e2eeTransferUidPlaceholder => 'ID utilisateur destinataire';
+	@override String get e2eeTransferReceiving => 'Réception...';
+	@override String get e2eeTransferPageTitle => 'Transfert entre appareils';
+	@override String get e2eeTransferPendingItem => 'Transfert de clé en attente';
+	@override String get e2eeTransferPendingItemDesc => 'Touchez pour les détails';
+	@override String get e2eeTransferView => 'Voir';
+	@override String get e2eeSocialTitle => 'Récupération sociale';
+	@override String get e2eeSocialCanRecover => 'Clé restaurable';
+	@override String get e2eeSocialSetupProxy => 'Configurer les dépositaires';
+	@override String get e2eeSocialChooseProxy => 'Choisissez des contacts de confiance comme dépositaires';
+	@override String get e2eeSocialExistingShards => 'Fragments existants';
+	@override String get e2eeSocialRecoverKeyTitle => 'Restaurer la clé';
+	@override String get e2eeSocialRecoverKeyDesc => 'Restaurer via les fragments dépositaires';
+	@override String get e2eeSocialManageShardsTitle => 'Gérer les fragments';
+	@override String get e2eeSocialManageShardsDesc => 'Voir et gérer tous les fragments';
+	@override String get e2eeSocialZeroTrustHint1 => 'Zero-Trust : serveur sans fragments, contact direct des dépositaires';
+	@override String get e2eeSocialZeroTrustHint2 => 'Zero-Trust : fragments chez les dépositaires';
+	@override String get e2eeSocialZeroTrustHint3 => 'Zero-Trust : serveur sans accès au clair';
+	@override String e2eeProxyMinCount({required Object count}) => 'Au moins ${count} dépositaires';
+	@override String get e2eeProxySelectTitle => 'Choisir les dépositaires';
+	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => '${selected} / ${total} choisis';
+	@override String get e2eeProxyReachedMin => 'Nombre minimum atteint';
+	@override String get liveRoomTitleLabel => 'Titre du live';
+	@override String get liveRoomTitleHint => 'Titre du live';
+}
+
+// Path: mention
+class _Translations$mention$fr_FR extends Translations$mention$zh_CN {
+	_Translations$mention$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '@Mentions';
+	@override String get noMention => 'Aucune @mention';
+	@override String get allRead => 'Tout marquer lu';
+	@override String get markAsRead => 'Marquer comme lu';
+	@override String get newMention => 'Nouvelle @mention';
+	@override String get fromGroup => 'Depuis le groupe';
+	@override String get fromChat => 'Depuis la discussion';
+	@override String get viewContext => 'Voir le contexte';
+	@override String mentionCount({required Object count}) => '${count} nouvelles mentions';
+	@override String get mentionAllDenied => 'Seuls les administrateurs peuvent @tout';
+	@override String get navInfoMissing => 'Position du message manquante, navigation impossible';
+}
+
+// Path: momentFriendPicker
+class _Translations$momentFriendPicker$fr_FR extends Translations$momentFriendPicker$zh_CN {
+	_Translations$momentFriendPicker$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Choisir des amis';
+	@override String get titleAllow => 'Visible par';
+	@override String get titleDeny => 'Exclure';
+	@override String get confirm => 'Terminé';
+	@override String confirmWithCount({required Object count}) => 'Terminé (${count})';
+	@override String selectedCount({required Object count}) => '${count} sélectionnés';
+	@override String get emptyFriends => 'Aucun ami';
+	@override String get tagsLabel => 'Par étiquette';
+	@override String get emptyTags => 'Aucune étiquette';
+	@override String get tagLoadFailed => 'Échec du chargement des étiquettes';
+	@override String get searchHint => 'Rechercher un ami';
+}
+
+// Path: momentNotify
+class _Translations$momentNotify$fr_FR extends Translations$momentNotify$zh_CN {
+	_Translations$momentNotify$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Notifications';
+	@override String get emptyTitle => 'Aucune nouvelle notification';
+	@override String get emptyHint => 'Les « J\'aime » et commentaires de vos amis s\'affichent ici';
+	@override String get actionLike => 'a aimé votre moment';
+	@override String get actionComment => 'a commenté';
+	@override String get markAllRead => 'Tout marquer lu';
+	@override String get clearAll => 'Tout effacer';
+	@override String get clearConfirmTitle => 'Effacer toutes les notifications ?';
+	@override String get clearConfirmMessage => 'Action irréversible';
+	@override String get confirm => 'OK';
+	@override String get cancel => 'Annuler';
+	@override String get delete => 'Supprimer';
+	@override String get loadFailed => 'Échec du chargement. Réessayez plus tard.';
 }
 
 // Path: passport
@@ -1669,6 +2527,24 @@ extension on TranslationsFrFr {
 			'account.setBirthday' => 'Définir la date de naissance',
 			'account.sentToEmail' => ({required Object param}) => 'Envoyé à ${param}',
 			'account.nicknameRules' => '• Longueur du surnom : 2-24 caractères • Ne peut pas contenir uniquement des espaces ou des émojis • Ne peut pas contenir de mots sensibles • Les modifications seront reflétées dans tous les chats',
+			'account.refreshDeviceKey' => 'Actualiser la clé',
+			'account.refreshDeviceKeyHint' => 'Si les messages ne se déchiffrent pas, actualisez la clé ici',
+			'account.refreshingDeviceKey' => 'Actualisation de la clé...',
+			'account.deviceKeyRefreshed' => 'Clé actualisée',
+			'account.rechargeTitle' => 'Recharger',
+			'account.rechargeAmountHint' => 'Montant (yuan), 1–10000',
+			'account.rechargeAmountExample' => 'ex. 100',
+			'account.e2eeDeviceTransfer' => 'Transfert entre appareils',
+			'account.e2eeDeviceTransferDesc' => 'Transférer la clé vers un nouvel appareil via QR code',
+			'account.e2eeDeviceIdLabel' => 'ID d\'appareil',
+			'account.webQRLoginTitle' => 'Connexion par QR code',
+			'account.webQRLoginHint' => 'Scannez le QR code avec l\'app ImBoy',
+			'account.webSwitchToPassword' => 'Connexion par mot de passe',
+			'account.webPasswordLoginTitle' => 'Connexion compte',
+			'account.webAccountHint' => 'Compte/mobile/e-mail',
+			'account.webPasswordHint' => 'Mot de passe',
+			'account.e2eeTransferFromOldDevice' => 'Depuis l\'ancien appareil',
+			'account.pleaseRelogin' => 'Reconnectez-vous',
 			'channel.title' => 'Canaux',
 			'channel.loading' => 'Chargement...',
 			'channel.subscribed' => 'Abonné',
@@ -1759,10 +2635,16 @@ extension on TranslationsFrFr {
 			'channel.updateRoleFailed' => 'Échec de la mise à jour du rôle',
 			'channel.userId' => 'ID utilisateur',
 			'channel.userIdHint' => 'Entrez l\'ID utilisateur',
+			'channel.selectFromContacts' => 'Depuis les contacts',
+			'channel.searchContactsHint' => 'Rechercher pseudo ou compte',
+			'channel.noContactsToAdd' => 'Tous les amis sont déjà administrateurs',
+			'channel.selectRole' => 'Choisir un rôle',
 			'channel.noAdmins' => 'Aucun admin',
 			'channel.roleCreator' => 'Créateur',
 			'channel.roleAdmin' => 'Admin',
+			'channel.roleAdminDesc' => 'Gérer le canal',
 			'channel.roleEditor' => 'Éditeur',
+			'channel.roleEditorDesc' => 'Publier des messages',
 			'channel.roleUnknown' => 'Inconnu',
 			'channel.searchSubscribers' => 'Rechercher des abonnés',
 			'channel.subscriberSearchHint' => 'Rechercher par nom ou ID',
@@ -1774,6 +2656,11 @@ extension on TranslationsFrFr {
 			'channel.removeSubscriberFailed' => 'Échec de la suppression de l\'abonné',
 			'channel.subscribedAt' => 'Abonné le',
 			'channel.viewProfile' => 'Voir le profil',
+			'channel.inviteFromContacts' => 'Inviter des amis',
+			'channel.inviteSearchHint' => 'Rechercher pseudo ou compte',
+			'channel.noContactsToInvite' => 'Tous les amis déjà invités ou abonnés',
+			'channel.inviteSuccess' => 'Invitation envoyée',
+			'channel.inviteFailed' => 'Échec de l\'envoi de l\'invitation',
 			'channel.updateSuccess' => 'Canal mis à jour avec succès',
 			'channel.updateFailed' => 'Échec de la mise à jour du canal',
 			'channel.typeCannotChange' => 'Ne peut pas être modifié après création',
@@ -1795,6 +2682,7 @@ extension on TranslationsFrFr {
 			'chat.businessCard' => 'Carte de visite',
 			'chat.busyTryAgainLater' => 'Votre interlocuteur est occupé. Réessayez plus tard.',
 			'chat.later' => 'Plus tard',
+			'chat.peerIsTyping' => ({required Object name}) => '${name} écrit...',
 			'chat.changeGroupChatName' => 'Après avoir modifié le nom du groupe, les autres membres seront notifiés dans le groupe.',
 			'chat.chatHistory' => 'Historique de conversation',
 			'chat.chatHoldDownTalk' => 'Maintenez pour parler',
@@ -1825,12 +2713,31 @@ extension on TranslationsFrFr {
 			'chat.forwardTo' => 'Transférer à',
 			'chat.forwardToFriend' => 'Transférer à un ami',
 			'chat.great' => 'Excellent',
+			'chat.groupFile' => 'Fichiers du groupe',
+			'chat.groupFileImagePreview' => 'Aperçu image',
+			'chat.groupFileVideoPreview' => 'Aperçu vidéo',
+			'chat.groupFileAudioPreview' => 'Aperçu audio',
+			'chat.groupFileMediaPause' => 'Pause',
+			'chat.groupFileMediaPlay' => 'Lire',
+			'chat.groupFileUrlMissing' => 'Adresse du fichier manquante, ouverture impossible',
+			'chat.groupFileUrlInvalid' => 'Adresse du fichier invalide',
+			'chat.groupFilePreview' => 'Aperçu du fichier',
+			'chat.groupFileUnnamed' => 'Fichier sans nom',
+			'chat.groupFileCategoryEmpty' => ({required Object category}) => '${category} : aucun fichier',
+			'chat.groupFileEmpty' => 'Aucun fichier de groupe',
+			'chat.groupFileCategoryDoc' => 'Document',
+			'chat.groupFileCategoryImage' => 'Image',
+			'chat.groupFileCategoryVideo' => 'Vidéo',
+			'chat.groupFileCategoryAudio' => 'Audio',
+			'chat.groupFileCategoryOther' => 'Autre',
 			'chat.groupChat' => 'Conversation de groupe',
 			'chat.image' => 'Photo',
 			'chat.imageMessage' => '[Image]',
 			'chat.initiateChat' => 'Initier une conversation de groupe',
 			'chat.justChat' => 'Chat uniquement',
 			'chat.location' => 'Emplacement',
+			'chat.exportMyData' => 'Exporter mes données',
+			'chat.exportDataDesc' => 'Exporter vos infos, contacts et historique de discussion',
 			'chat.message' => 'Message',
 			'chat.messageHandlingMixin' => 'Mixin de gestion des messages',
 			'chat.messageMarkTitle' => 'Marquer le message',
@@ -1856,14 +2763,33 @@ extension on TranslationsFrFr {
 			'chat.recentChats' => 'Chats récents',
 			'chat.recentForwards' => 'Transferts récents',
 			'chat.remindMeLater' => 'Me rappeler plus tard.',
+			'chat.quickReplyManage' => 'Gérer les réponses rapides',
+			'chat.quickReplyEmpty' => 'Aucune réponse rapide. Touchez en bas à droite pour ajouter',
+			'chat.quickReplyDuplicate' => 'Contenu déjà existant',
+			'chat.quickReplyMaxReached' => ({required Object max}) => 'Max. ${max} réponses',
+			'chat.quickReplyHint' => 'Saisir le contenu...',
+			'chat.muteMember' => 'Mute Member',
+			'chat.unmuteMember' => 'Unmute',
+			'chat.muteUntil' => 'Muted Until',
+			'chat.muted' => 'Muted',
+			'chat.mutedFor' => ({required Object label}) => 'Mu : ${label}',
+			'chat.muteUnitMinutes' => ({required Object count}) => '${count} min',
+			'chat.muteUnitHours' => ({required Object count}) => '${count} h',
+			'chat.muteUnitDays' => ({required Object count}) => '${count} j',
+			'chat.youAreMuted' => 'Vous avez été mis en sourdine',
+			'chat.youAreMutedWithTime' => ({required Object minutes}) => 'Vous êtes en sourdine, encore ${minutes} min.',
 			'chat.repliedAt' => 'Répondu à',
 			'chat.reply' => 'Répondre',
 			'chat.replyTo' => 'Répondre à',
 			'chat.resendCode' => 'Renvoyer le code',
 			'chat.revoke' => 'Retirer',
 			'chat.scanQrCodeBusinessCard' => 'Scanner la carte de visite QR',
+			'chat.singleChat' => 'Private Chat',
+			'chat.privateChat' => 'Private Chat',
+			'chat.groupMessage' => 'Group message',
 			'chat.sendFriendRequest' => 'Envoyer une demande d’ami',
 			'chat.sendMsgRejected' => 'Message envoyé mais rejeté par votre interlocuteur.',
+			'chat.sendMessage' => 'Envoyer un message',
 			'chat.sendSeparatelyTo' => 'Envoyer séparément à',
 			'chat.sendTo' => 'Envoyer à',
 			'chat.send' => _root.common.buttonSend,
@@ -1885,6 +2811,7 @@ extension on TranslationsFrFr {
 			'chat.video' => 'Vidéo',
 			'chat.videoMessage' => '[Vidéo]',
 			'chat.viewAttachments' => 'Voir les pièces jointes.',
+			'chat.viewLargeImage' => 'Voir en grand',
 			'chat.voice' => 'Vocal',
 			'chat.voiceInput' => 'Saisie vocale',
 			'chat.voiceMessage' => 'Message vocal',
@@ -1920,6 +2847,15 @@ extension on TranslationsFrFr {
 			'chat.unsupportedMessageType' => 'Type de message non pris en charge.',
 			'chat.passwordMismatch' => 'Les mots de passe ne correspondent pas.',
 			'chat.pleaseTryAgainLater' => 'Réessayez plus tard.',
+			'chat.momentsSelectVideo' => 'Choisir une vidéo',
+			'chat.momentsRecordVideo' => 'Filmer une vidéo',
+			'chat.momentsVisibilityPrivate' => 'Privé',
+			'chat.momentsMediaTooManyImages' => '9 images maximum',
+			'chat.momentsMediaTooManyVideos' => '1 vidéo maximum',
+			'chat.momentsMediaMixedImageAndVideo' => 'Images et vidéo impossibles ensemble',
+			'chat.momentsReplyPrefix' => 'Répondre @',
+			'chat.momentsReplySeparator' => '：',
+			'chat.momentsReplyingTo' => 'Réponse à @{name}',
 			'chat.sendNewMessage' => 'Envoyer un nouveau message',
 			'chat.markRead' => 'Marquer comme lu',
 			'chat.markUnread' => 'Marquer comme non lu',
@@ -1938,21 +2874,75 @@ extension on TranslationsFrFr {
 			'chat.quickReplyThanks' => 'Merci',
 			'chat.quickReplyWait' => 'Un instant',
 			'chat.messageMute' => _root.chat.chatSettingMute,
-			'chat.quickReplyManage' => '管理快捷回复',
-			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
-			'chat.quickReplyDuplicate' => '内容已存在',
-			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
-			'chat.quickReplyHint' => '输入内容...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muteUntil' => 'Muted Until',
-			'chat.muted' => 'Muted',
-			'chat.singleChat' => 'Private Chat',
-			'chat.privateChat' => 'Private Chat',
-			'chat.groupMessage' => 'Group message',
+			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} groupes',
+			'chat.groupAlbumCreateTitle' => 'Créer un album de groupe',
+			'chat.groupAlbumCreated' => 'Album créé',
+			'chat.profileCompleted' => 'Profil complet !',
+			'chat.profileProgress' => ({required Object percent}) => '${percent}% complet',
+			'chat.createdAtLabel' => ({required Object time}) => 'Créé : ${time}',
+			'chat.expiredAtLabel' => ({required Object time}) => 'Expire : ${time}',
+			'chat.myReceivedTab' => 'Reçues',
+			'chat.orderStatusLabel' => ({required Object status}) => 'Statut : ${status}',
+			'chat.orderCreatedAtLabel' => ({required Object time}) => 'Créé : ${time}',
+			'chat.orderPaymentAtLabel' => ({required Object time}) => 'Payé : ${time}',
+			'chat.orderStatusPending' => 'À payer',
+			'chat.orderStatusPaid' => 'Payée',
+			'chat.orderStatusRefunded' => 'Remboursée',
+			'chat.orderStatusExpired' => 'Expirée',
+			'chat.defaultFileName' => 'Fichier',
+			'chat.fileUrlInvalid' => 'Lien du fichier invalide',
+			'chat.e2eeStatusAvailable' => 'Disponible',
+			'chat.e2eeGenerateNewKey' => 'Générer une nouvelle clé',
+			'chat.e2eeGenerateNewKeyDesc' => 'Créer une nouvelle paire de clés E2EE (anciens messages indéchiffrables)',
+			'chat.e2eeActivated' => 'Actif',
+			'chat.e2eeCreatedAtLabel' => 'Créée le',
+			'chat.e2eeGeneratingKey' => 'Génération de la clé, patientez...',
+			'chat.e2eeNewKeyGenerated' => 'Nouvelle paire de clés E2EE créée !',
+			'chat.e2eeReady' => 'Prêt',
+			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Prêt (${count} fragments)',
+			'chat.webFeatureMultiDevice' => 'Multi-appareils',
+			'chat.webFeatureMultiDeviceDesc' => 'Basculez entre mobile et PC, synchronisation en temps réel',
+			'chat.webFeatureE2EE' => 'E2EE',
+			'chat.webFeatureE2EEDesc' => 'Tous les messages chiffrés de bout en bout pour votre vie privée',
+			'chat.webFeatureFileTransfer' => 'Transfert de fichiers',
+			'chat.webFeatureFileTransferDesc' => 'Glissez-déposez vos fichiers, tous formats',
+			'chat.webQRStatusWaiting' => 'Ouvrir ImBoy > Paramètres > Scanner',
+			'chat.webQRStatusScanned' => 'Sur le mobile, appuyez sur « Connexion »',
+			'chat.webQRStatusVerifying' => 'Vérification...',
+			'chat.webQRStatusExpired' => 'Actualisez et rescannez',
+			'chat.e2eeErrInvalidFormat' => 'Format de message invalide, échec du chiffrement',
+			'chat.e2eeSocialCreateTitle' => 'Créer des fragments',
+			'chat.e2eeSocialCreateBtn' => 'Créer les fragments',
+			'chat.e2eeSocialCreateFailTitle' => 'Échec',
+			'chat.e2eeSocialCreateFailBody' => 'Échec de la création. Réessayez.',
+			'chat.e2eeSocialCreateFirst' => 'Visible après création',
+			'chat.e2eeSocialUsedAtLabel' => 'Utilisé le',
+			'chat.e2eeTransferSendTitle' => 'Envoyer la clé au nouvel appareil',
+			'chat.e2eeTransferCreateBtn' => 'Créer',
+			'chat.e2eeTransferReceiveTitle' => 'Recevoir la clé de l\'ancien appareil',
+			'chat.e2eeTransferSendDesc' => 'Transférer la clé au nouvel appareil via QR code',
+			'chat.e2eeTransferReceiveDesc' => 'Scanner le QR code de l\'ancien appareil',
+			'chat.e2eeSocialStatus' => ({required Object status}) => 'Statut : ${status}',
+			'chat.e2eeSocialCreateShardsTitle' => 'Créer des fragments',
+			'chat.e2eeSocialCreateShardsDesc' => 'Diviser la clé en fragments stockés chez les dépositaires (serveur exclu)',
+			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Au moins ${count} dépositaires',
+			'chat.e2eeRecreatingKey' => 'Recréation de la clé...',
+			'chat.e2eeKeyRecreated' => 'Clé recréée',
+			'chat.e2eeRecoveryNewDeviceTitle' => 'Nouvel appareil détecté',
+			'chat.e2eeRecoveryNewDeviceBody' => 'Pour protéger vos messages, une nouvelle clé E2EE a été générée sur cet appareil.\n\nLes anciens messages, chiffrés avec la clé de l\'ancien appareil, nécessitent d\'abord une restauration. Restaurez via « Transfert », « Récupération sociale » ou « Sauvegarde locale ».',
+			'chat.e2eeRecoveryDecryptFailedTitle' => 'Message indéchiffrable',
+			'chat.e2eeRecoveryDecryptFailedBody' => 'Ce message est chiffré avec la clé d\'un autre appareil.\n\nSi vous avez changé d\'appareil ou réinstallé l\'app, restaurez la clé pour lire les anciens messages.',
+			'chat.e2eeRecoveryLater' => 'Plus tard',
+			'chat.e2eeRecoveryGoRecover' => 'Restaurer',
+			'chat.e2eeRecoveryBannerText' => 'Anciens messages chiffrés détectés. Restaurez la clé pour les afficher. Touchez pour restaurer.',
+			'chat.liveRoomCreateTitle' => 'Créer un live',
+			'chat.liveRoomCreating' => 'Création...',
+			'chat.liveRoomWatch' => 'Regarder',
 			'common.about' => 'À propos',
 			'common.aboutApp' => 'À propos de l\'application',
 			'common.accept' => 'Accepter',
+			_ => null,
+		} ?? switch (path) {
 			'common.acceptFriendRequest' => 'Accepter la demande d\'ami',
 			'common.addFriend' => 'Ajouter un ami',
 			'common.addPhoneContact' => 'Ajouter un contact téléphonique',
@@ -1981,7 +2971,9 @@ extension on TranslationsFrFr {
 			'common.bindMobileAndEmailTips' => 'Liez votre numéro de téléphone et votre adresse e-mail pour renforcer la sécurité de votre compte.',
 			'common.bindNow' => 'Associer maintenant',
 			'common.buttonCancel' => 'Annuler',
+			'common.buttonCreate' => 'Créer',
 			'common.buttonChangePassword' => 'Modifier le mot de passe',
+			'common.phoneInputHint' => 'Numéro de téléphone',
 			'common.buttonClose' => 'Fermer',
 			'common.buttonConfirm' => 'Confirmer',
 			'common.buttonContinue' => 'Continuer',
@@ -2008,6 +3000,7 @@ extension on TranslationsFrFr {
 			'common.canNotAddYourselfFriend' => 'Vous ne pouvez pas vous ajouter vous-même comme ami.',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
+			'common.operationSuccessful' => 'Succès',
 			'common.save' => _root.common.buttonSave,
 			'common.reset' => 'Réinitialiser',
 			'common.clear' => 'Vider',
@@ -2036,6 +3029,8 @@ extension on TranslationsFrFr {
 			'common.checkForUpdates' => 'Vérifier les mises à jour',
 			'common.clearAll' => 'Tout effacer',
 			'common.clearChatRecord' => 'Effacer l\'historique de conversation',
+			'common.complaintSuccess' => 'Signalement envoyé',
+			'common.complaintFailed' => 'Échec du signalement. Réessayez plus tard.',
 			'common.confirmCode' => 'Code de confirmation',
 			'common.confirmCodeError' => 'Le code de confirmation est vide.',
 			'common.confirmCodeSuccess' => 'Compte confirmé.',
@@ -2047,6 +3042,7 @@ extension on TranslationsFrFr {
 			'common.contactSettingTag' => 'Paramètres des étiquettes de contact',
 			'common.contactTagListLogic' => 'Logique de la liste des étiquettes de contact',
 			'common.contactTags' => 'Étiquettes de contacts',
+			'common.contactInfoNotSynced' => 'Contacts non synchronisés',
 			'common.continueDownloading' => 'Continuer le téléchargement',
 			'common.copy' => 'Copier',
 			'common.coupon' => 'Coupon de réduction',
@@ -2083,8 +3079,6 @@ extension on TranslationsFrFr {
 			'common.errorInvalidRequest' => _root.common.error,
 			'common.errorLengthBetween' => ({required Object param, required Object min, required Object max}) => 'La longueur de ${param} doit être comprise entre ${min} et ${max}.',
 			'common.errorManyRequest' => _root.common.error,
-			_ => null,
-		} ?? switch (path) {
 			'common.errorNoPackageToRemove' => _root.common.error,
 			'common.errorNoValidFileOrUrl' => _root.common.error,
 			'common.errorNonexistentDirectory' => _root.common.error,
@@ -2123,6 +3117,24 @@ extension on TranslationsFrFr {
 			'common.genderUpdateSuccess' => 'Genre défini avec succès.',
 			'common.groupAddLocal' => 'Enregistrer dans les contacts',
 			'common.groupAnnouncement' => 'Annonce de groupe',
+			'common.groupFileUploadSuccess' => 'Fichier envoyé',
+			'common.groupFileUploadFailed' => 'Échec de l\'envoi. Réessayez plus tard.',
+			'common.groupFileDeleteSuccess' => 'Fichier supprimé',
+			'common.groupFileDeleteFailed' => 'Échec de la suppression. Réessayez plus tard.',
+			'common.groupFileClosePreview' => 'Fermer l\'aperçu',
+			'common.groupFileUploadTooltip' => 'Envoyer un fichier',
+			'common.groupFileSearch' => 'Rechercher dans les fichiers',
+			'common.groupFileReadFailed' => 'Lecture du fichier impossible. Réessayez.',
+			'common.groupFileDeleteTitle' => 'Supprimer le fichier',
+			'common.groupFileDeleteConfirm' => ({required Object name}) => 'Supprimer le fichier « ${name} » ?',
+			'common.groupFileImageLoadFailed' => 'Chargement de l\'image impossible',
+			'common.groupFileOpenFailed' => 'Impossible d\'ouvrir le lien du fichier',
+			'common.groupFileSearchClear' => 'Effacer',
+			'common.groupFileSearchAction' => 'Rechercher',
+			'common.groupFileCategoryAll' => 'Tout',
+			'common.groupFileSearchEmpty' => 'Aucun fichier correspondant',
+			'common.groupFileAudioLoadFailed' => 'Chargement de l\'audio impossible',
+			'common.groupFileAudioLoading' => 'Chargement de l\'audio...',
 			'common.groupQrcodeTips' => ({required Object days, required Object date}) => 'Ce code QR est valide pendant ${days} jours (avant ${date}). Il sera mis à jour lors de la prochaine visite.',
 			'common.groupSearchTips' => 'Nom du groupe et description du groupe.',
 			'common.helpDocument' => 'Document d\'aide',
@@ -2146,7 +3158,9 @@ extension on TranslationsFrFr {
 			'common.loading' => 'Chargement',
 			'common.locationMessage' => 'Message de localisation',
 			'common.loginDeviceManagementTips' => 'Votre compte s\'est connecté sur les appareils suivants. Vous pouvez supprimer des appareils. Après suppression, une vérification de sécurité sera nécessaire lors de la prochaine connexion sur cet appareil.',
+			'common.logoutFailed' => 'Échec de la déconnexion',
 			'common.logoutNotice' => '« Avis de suppression »',
+			'common.exportDataSuccess' => 'Données exportées',
 			'common.manually' => 'Sélection manuelle',
 			'common.messageCall' => 'Envoyer un message',
 			'common.messageContent' => 'Contenu du message',
@@ -2194,6 +3208,7 @@ extension on TranslationsFrFr {
 			'common.noUpdateDescription' => 'Aucune description de mise à jour.',
 			'common.normalModel' => 'Mode normal',
 			'common.notAuthorizedLatLong' => 'Vous n\'avez pas autorisé l\'obtention de la longitude et de la latitude.',
+			'common.notLoggedIn' => 'Non connecté',
 			'common.notBad' => 'Pas mal',
 			'common.notBound' => 'Non lié',
 			'common.notFilled' => 'Non rempli',
@@ -2205,9 +3220,9 @@ extension on TranslationsFrFr {
 			'common.notShow' => 'Ne pas afficher',
 			'common.notTurnedLocationService' => 'Vous n\'avez pas activé le service de localisation.',
 			'common.nowNewVersion' => 'Aucune nouvelle version détectée.',
-			'common.off' => _root.common.disabled,
+			'common.kFalse' => _root.common.disabled,
 			'common.offlineNotification' => 'Notification hors ligne',
-			'common.on' => _root.common.enabled,
+			'common.kTrue' => _root.common.enabled,
 			'common.operationFailedAgainLater' => 'Opération échouée. Réessayez plus tard.',
 			'common.optionsNo' => 'Non',
 			'common.optionsRename' => 'Je veux renommer',
@@ -2240,12 +3255,57 @@ extension on TranslationsFrFr {
 			'common.releaseFingerCancelSending' => 'Relâchez le doigt pour annuler l\'envoi.',
 			'common.removeContactFromTag' => 'Supprimer le contact de l\'étiquette.',
 			'common.removeMember' => 'Supprimer le membre.',
+			'common.atMentionYouTag' => '[@vous] ',
+			'common.atMentionLeftMember' => '@membre parti',
+			'common.muteNotifications' => 'Notifications en sourdine',
+			'common.muteNotificationsHint' => 'Aucune notification, mais les messages non lus restent visibles dans la liste',
+			'common.revokeExpired' => 'Plus de 2 minutes, rappel impossible',
+			'common.quickReplyAddTitle' => 'Ajouter une réponse rapide',
+			'common.quickReplyEditTitle' => 'Modifier la réponse rapide',
+			'common.removeAdmin' => 'Remove Admin',
+			'common.setAdminConfirm' => 'Set this member as admin?',
+			'common.removeAdminConfirm' => 'Remove admin role from this member?',
+			'common.muteMemberConfirm' => 'Mute this member?',
+			'common.unmuteMemberConfirm' => 'Unmute this member?',
+			'common.kickMemberConfirm' => 'Remove this member from the group?',
+			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
+			'common.setAdminSuccess' => 'Admin set',
+			'common.setAdminFailed' => 'Failed to set admin',
+			'common.removeAdminSuccess' => 'Admin removed',
+			'common.removeAdminFailed' => 'Failed to remove admin',
+			'common.muteMemberSuccess' => 'Member muted',
+			'common.muteMemberFailed' => 'Failed to mute member',
+			'common.unmuteMemberSuccess' => 'Member unmuted',
+			'common.unmuteMemberFailed' => 'Failed to unmute member',
+			'common.kickMemberSuccess' => 'Member removed',
+			'common.kickMemberFailed' => 'Failed to remove member',
+			'common.transferGroupSuccess' => 'Ownership transferred',
+			'common.transferGroupFailed' => 'Failed to transfer ownership',
+			'common.notMuted' => 'Not Muted',
+			'common.muteDuration' => 'Mute Duration',
+			'common.muteDuration1hour' => '1 Hour',
+			'common.muteDuration6hours' => '6 Hours',
+			'common.muteDuration12hours' => '12 Hours',
+			'common.muteDuration1day' => '1 Day',
+			'common.muteDuration3days' => '3 Days',
+			'common.muteDuration7days' => '7 Days',
+			'common.muteDurationPermanent' => 'Permanent',
+			'common.muteDuration5min' => '5 min',
+			'common.muteDuration10min' => '10 min',
+			'common.muteDuration30min' => '30 min',
+			'common.muteDuration30days' => '30 j',
+			'common.muteUnitSeconds' => ({required Object count}) => '${count} s',
+			'common.throttleWarning' => 'Trop d\'actions. Réessayez plus tard.',
+			'common.throttleRetryAfter' => ({required Object seconds}) => 'Trop d\'actions. Réessayez dans ${seconds} s.',
+			'common.mutedCannotSend' => 'Envoi impossible pendant la sourdine',
 			'common.resendCodeSuccess' => 'Nouvel e-mail envoyé.',
 			'common.resetFilters' => 'Réinitialiser les filtres',
 			'common.saveQrCode' => 'Enregistrer le code QR',
 			'common.saveSuccess' => 'Enregistré avec succès.',
 			'common.scanQrcodeAddFriend' => 'Scannez le code QR ci-dessus pour m\'ajouter comme ami.',
 			'common.search' => 'Rechercher',
+			'common.searchScope' => 'Search scope',
+			'common.searchAll' => 'All messages',
 			'common.searchChatContent' => 'Rechercher le contenu de la conversation',
 			'common.searchChatRecord' => 'Rechercher l\'historique de conversation',
 			'common.searchError' => 'Erreur de recherche.',
@@ -2375,6 +3435,11 @@ extension on TranslationsFrFr {
 			'common.selectExpirationDateOptional' => 'Sélectionner la date d\'expiration (facultatif)',
 			'common.groupAnnouncementDeleteConfirm' => 'Confirmer la suppression de cette annonce ?',
 			'common.groupAnnouncementDelete' => 'Supprimer',
+			'common.groupAnnouncementLoadFailed' => 'Chargement de l\'annonce impossible. Réessayez plus tard.',
+			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
+			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
+			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
+			'common.groupAnnouncementDeleteSuccess' => 'Annonce supprimée',
 			'common.privacyClearChatHistory' => 'Effacer l\'historique de conversation',
 			'common.privacyClearChatHistoryConfirm' => 'Confirmer l\'effacement de tout l\'historique de conversation ? Cette action est irréversible.',
 			'common.privacyLogoutAccountConfirm' => 'Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée.',
@@ -2390,6 +3455,8 @@ extension on TranslationsFrFr {
 			'common.showOnlineStatus' => 'Afficher le statut en ligne',
 			'common.showOnlineStatusDesc' => 'Les amis peuvent voir votre statut en ligne.',
 			'common.allowNearbyVisible' => 'Visible pour les personnes à proximité',
+			_ => null,
+		} ?? switch (path) {
 			'common.dataSettings' => 'Paramètres des données',
 			'common.clearChatRecords' => 'Effacer les enregistrements de conversation',
 			'common.clearChatRecordsDesc' => 'Effacer tous les enregistrements de conversation. Cette action est irréversible.',
@@ -2518,6 +3585,24 @@ extension on TranslationsFrFr {
 			'common.changeFailed' => 'Échec de la modification.',
 			'common.submitted' => 'Soumis',
 			'common.viewSecurityHelp' => 'Voir l\'aide de sécurité',
+			'common.momentsNoData' => 'Aucun moment',
+			'common.momentsDeleteConfirm' => 'Supprimer ce moment ?',
+			'common.momentsDeleteCommentConfirm' => 'Supprimer ce commentaire ?',
+			'common.momentsNotFound' => 'Moment introuvable ou accès refusé',
+			'common.momentsContentOrMediaRequired' => 'Renseignez du contenu ou un média',
+			'common.momentsPublishFailed' => 'Échec de la publication',
+			'common.momentsAllowComment' => 'Autoriser les commentaires',
+			'common.momentsReportReason' => 'Motif du signalement',
+			'common.momentsNoComments' => 'Aucun commentaire',
+			'common.momentsContentHint' => 'Écrire quelque chose...',
+			'common.momentsAddMedia' => 'Ajouter un média',
+			'common.momentsAllowUidsLabel' => 'UIDs autorisés (séparés par virgule)',
+			'common.momentsCommentFailed' => 'Échec du commentaire. Réessayez plus tard.',
+			'common.momentsDeleteFailed' => 'Échec de la suppression. Réessayez plus tard.',
+			'common.momentsReportSubmitted' => 'Signalement envoyé',
+			'common.momentsReportFailed' => 'Échec du signalement. Réessayez plus tard.',
+			'common.momentsLoadMoreComments' => 'Charger plus de commentaires',
+			'common.momentsUploadFailed' => 'Échec de l\'envoi du média. Réessayez plus tard.',
 			'common.transactionHistory' => 'Historique des transactions',
 			'common.paymentPasswordSetSuccess' => 'Mot de passe de paiement défini avec succès.',
 			'common.paymentPasswordSetFailed' => 'Échec de la définition du mot de passe de paiement.',
@@ -2532,6 +3617,7 @@ extension on TranslationsFrFr {
 			'common.personalSignature' => 'Signature personnelle',
 			'common.personalBackground' => 'Arrière-plan personnel',
 			'common.setBackgroundImage' => 'Définir l\'image d\'arrière-plan',
+			'common.expression' => 'Emoji',
 			'common.extendedInfo' => 'Informations étendues',
 			'common.profession' => 'Profession',
 			'common.pleaseEnterProfession' => 'Please enter profession',
@@ -2597,8 +3683,6 @@ extension on TranslationsFrFr {
 			'common.seconds' => 'secondes',
 			'common.messageCannotLocatedMayBeDeleted' => 'Le message ne peut pas être localisé. Il a peut-être été supprimé.',
 			'common.settingFailedPleaseTryAgain' => 'Échec du paramétrage. Réessayez.',
-			_ => null,
-		} ?? switch (path) {
 			'common.partialDeleteSuccess' => ({required Object success, required Object fail}) => 'Suppression partielle réussie : ${success} réussi, ${fail} échoué.',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => 'Le format du message vidéo collecté est incorrect. Impossible de trouver l\'URI vidéo.',
 			'common.recordingCancelled' => 'Enregistrement annulé.',
@@ -2614,6 +3698,10 @@ extension on TranslationsFrFr {
 			'common.noDetailedInfo' => 'Cet utilisateur n\'a pas défini de signature personnelle et d\'autres informations détaillées.',
 			'common.noNewRegisteredUsers' => 'Aucun nouvel utilisateur inscrit pour le moment. Veuillez revenir plus tard.',
 			'common.newRegisteredUsersTip' => 'Les utilisateurs récemment inscrits sont affichés ici. Vous pouvez les ajouter comme amis.',
+			'common.notificationFriendRequest' => 'Demande d\'ami',
+			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} veut vous ajouter en ami',
+			'common.notificationGroupInvite' => 'Invitation de groupe',
+			'common.notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} vous invite à rejoindre le groupe ${groupName}',
 			'common.youRevokedMessage' => 'Vous avez révoqué un message.',
 			'common.otherRevokedMessage' => 'Votre interlocuteur a révoqué un message.',
 			'common.networkFailureTryAgain' => 'Erreur réseau. Veuillez réessayer !',
@@ -2630,44 +3718,302 @@ extension on TranslationsFrFr {
 			'common.smaller' => 'Plus petit',
 			'common.currentFontScale' => ({required Object param1, required Object param2}) => 'Actuel : ${param1} ${param2}%',
 			'common.emailUpdatedTo' => ({required Object param}) => 'E-mail mis à jour vers ${param}',
-			'common.atMentionYouTag' => '[@你] ',
-			'common.atMentionLeftMember' => '@已退群成员',
-			'common.muteNotifications' => '消息免打扰',
-			'common.muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
-			'common.revokeExpired' => '超过 2 分钟，无法撤回',
-			'common.quickReplyAddTitle' => '新增快捷回复',
-			'common.quickReplyEditTitle' => '编辑快捷回复',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.muteMemberConfirm' => 'Mute this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.transferGroupSuccess' => 'Ownership transferred',
-			'common.transferGroupFailed' => 'Failed to transfer ownership',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration6hours' => '6 Hours',
-			'common.muteDuration12hours' => '12 Hours',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration3days' => '3 Days',
-			'common.muteDuration7days' => '7 Days',
-			'common.muteDurationPermanent' => 'Permanent',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.groupAnnouncementExpiry' => ({required Object time}) => 'Valable jusqu\'au : ${time}',
+			'common.groupAlbumCreateFailed' => 'Échec de la création. Réessayez plus tard.',
+			'common.groupAlbumDeleteTitle' => 'Supprimer l\'album',
+			'common.groupAlbumDeleteConfirm' => ({required Object name}) => 'Supprimer l\'album « ${name} » ?',
+			'common.groupAlbumDeleted' => 'Album supprimé',
+			'common.groupAlbumDeleteFailed' => 'Échec de la suppression. Réessayez plus tard.',
+			'common.groupAlbumRenameFailed' => 'Échec de la modification. Réessayez plus tard.',
+			'common.groupAlbumUploadTooltip' => 'Envoyer une image',
+			'common.groupAlbumDeleteTooltip' => 'Supprimer l\'album',
+			'common.groupAlbumNoAlbum' => 'Aucun album de groupe',
+			'common.groupAlbumPhotoReadFailed' => 'Lecture de l\'image impossible. Réessayez.',
+			'common.groupAlbumPhotoUploaded' => 'Image envoyée',
+			'common.groupAlbumPhotoUploadFailed' => 'Échec de l\'envoi. Réessayez plus tard.',
+			'common.groupAlbumCreateTooltip' => 'Créer un album',
+			'common.groupAlbumPhotoBatchDeleteTitle' => 'Supprimer les images',
+			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => 'Supprimer les ${count} images sélectionnées ?',
+			'common.groupAlbumPhotoDeleteFailed' => 'Échec de la suppression. Réessayez plus tard.',
+			'common.groupAlbumPhotoDeletedAll' => ({required Object count}) => '${count} images supprimées',
+			'common.groupAlbumPhotoDeletedPartial' => ({required Object success, required Object fail}) => '${success} supprimées, ${fail} échecs',
+			'common.groupAlbumPhotoDeleteTitle' => 'Supprimer l\'image',
+			'common.groupAlbumPhotoDeleteConfirm' => 'Supprimer cette image ?',
+			'common.groupAlbumPhotoDeleted' => 'Image supprimée',
+			'common.groupAlbumPhotoBatchDeleteTooltip' => 'Supprimer',
+			'common.groupAlbumPhotoExitSelection' => 'Quitter la sélection',
+			'common.groupAlbumPhotoOpenFailed' => 'Impossible d\'ouvrir le lien de l\'image',
+			'common.groupAlbumPhotoNotFound' => 'Image introuvable ou supprimée',
+			'common.groupAlbumPhotoOpenExternal' => 'Ouvrir externe',
+			'common.groupAlbumPhotoCoverUpdated' => 'Couverture de l\'album définie',
+			'common.groupAlbumPhotoCoverFailed' => 'Échec de la couverture. Réessayez plus tard.',
+			'common.groupAlbumPhotoNext' => 'Suivant',
+			'common.groupAlbumPhotoResolution' => 'Résolution',
+			'common.groupAlbumPhotoUploader' => 'Par',
+			'common.sectionDisplay' => 'Affichage',
+			'common.sectionTheme' => 'Thème',
+			'common.selectLanguage' => 'Langue',
+			'common.completionSuggestions' => 'Conseils :',
+			'common.sectionGeneral' => 'Général',
+			'common.sectionPrivacySecurity' => 'Confidentialité et sécurité',
+			'common.sectionHelpAbout' => 'Aide et à propos',
+			'common.msgOnlyVisibleToParties' => 'Message lisible uniquement par expéditeur et destinataire',
+			'common.msgNotEncrypted' => 'Message non chiffré',
+			'common.durationMinutes' => ({required Object count}) => '${count} min',
+			'common.durationSeconds' => ({required Object count}) => '${count} s',
+			'common.rechargeAmountError' => 'Montant entre 1 et 10000 yuan',
+			'common.rechargeSuccess' => 'Rechargé',
+			'common.rechargeConfirm' => 'Confirmer la recharge',
+			'common.transactionHistory2' => 'Transactions',
+			'common.noTransactionHistory' => 'Aucune transaction',
+			'common.allLoaded' => '— Tout est chargé —',
+			'common.transactionTypeIncome' => 'Recharge',
+			'common.transactionTypeExpense' => 'Dépense',
+			'common.sectionLoginCredentials' => 'Identifiants',
+			'common.channelInvitations' => 'Invitations de canal',
+			'common.acceptInvitationFailed' => 'Échec de l\'acceptation',
+			'common.rejectInvitationFailed' => 'Échec du refus',
+			'common.invitationAccepted' => 'Invitation acceptée',
+			'common.invitationRejected' => 'Invitation refusée',
+			'common.invitationStatusPending' => 'En attente',
+			'common.invitationStatusAccepted' => 'Acceptée',
+			'common.invitationStatusRejected' => 'Refusée',
+			'common.invitationStatusExpired' => 'Expirée',
+			'common.invitationStatusCancelled' => 'Annulée',
+			'common.invitationStatusUnknown' => 'Inconnu',
+			'common.noReceivedInvitations' => 'Aucune invitation reçue',
+			'common.noSentInvitations' => 'Aucune invitation envoyée',
+			'common.processingDots' => 'Traitement...',
+			'common.purchaseFailed' => 'Échec de l\'achat. Réessayez plus tard.',
+			'common.purchaseSuccess' => 'Acheté',
+			'common.insufficientBalanceTitle' => 'Solde insuffisant',
+			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => 'Solde : ${currency} ${balance}, requis : ${currency} ${price}. Rechargez d\'abord.',
+			'common.goRecharge' => 'Recharger',
+			'common.noOrders' => 'Aucune commande',
+			'common.orderDetailLoadFailed' => 'Détails de la commande indisponibles',
+			'common.orderNoLabel' => ({required Object no}) => 'Commande n° : ${no}',
+			'common.orderStatusCancelled' => 'Annulée',
+			'common.orderStatusUnknown' => 'Inconnu',
+			'common.removeReaction' => 'Retirer la réaction',
+			'common.removeReactionConfirm' => ({required Object emoji}) => 'Retirer la réaction ${emoji} ?',
+			'common.fileOpenFailed' => 'Impossible d\'ouvrir ce fichier',
+			'common.e2eeLocalBackup' => 'Sauvegarde locale',
+			'common.e2eeLocalBackupDesc' => 'Exporter une sauvegarde chiffrée localement ou dans le cloud',
+			'common.e2eeDeleteKey' => 'Supprimer la clé',
+			'common.e2eeDeleteKeyDesc' => 'Supprimer la clé locale (irréversible)',
+			'common.e2eeCurrentKeyInfo' => 'Clé actuelle',
+			'common.e2eeE2EEEnabled' => 'E2EE activé',
+			'common.e2eeNoKeyDetected' => 'Aucune clé E2EE détectée',
+			'common.e2eeNoKeyDesc' => 'Générez d\'abord une paire de clés ou restaurez depuis une sauvegarde',
+			'common.e2eeAboutTitle' => 'À propos de l\'E2EE',
+			'common.e2eeInfoPoint1' => '• Messages chiffrés avant l\'envoi, le serveur n\'en voit pas le contenu',
+			'common.e2eeInfoPoint2' => '• Après changement d\'appareil ou suppression de clé, les anciens messages peuvent être indéchiffrables',
+			'common.e2eeInfoPoint3' => '• Sauvegardez régulièrement vos clés pour éviter toute perte',
+			'common.e2eeExportBackup' => 'Exporter la sauvegarde',
+			'common.e2eeExportBackupDesc' => 'Créer une sauvegarde chiffrée',
+			'common.e2eeImportBackup' => 'Importer la sauvegarde',
+			'common.e2eeImportBackupDesc' => 'Restaurer la clé depuis une sauvegarde',
+			'common.e2eeBackupManage' => 'Gestion des sauvegardes',
+			'common.e2eeBackupManageDesc' => 'Voir l\'historique des sauvegardes',
+			'common.e2eeGenerateKeyConfirm' => 'Créer une nouvelle paire de clés E2EE ?',
+			'common.e2eeWarnOldMessagesLost' => '• Anciens messages indéchiffrables',
+			'common.e2eeWarnNeedNewBackup' => '• Nouvelle sauvegarde requise',
+			'common.e2eeConfirmGenerate' => 'Générer',
+			'common.e2eeDeleteKeyConfirm' => 'Supprimer la clé actuelle ?',
+			'common.e2eeWarnCannotRestore' => '• Suppression irréversible',
+			'common.e2eeWarnAllMsgsLost' => '• Tous les messages E2EE indéchiffrables',
+			'common.e2eeConfirmDelete' => 'Supprimer',
+			'common.e2eeKeyGeneratedSuccess' => 'Clé générée',
+			'common.e2eeDeviceIdInfo' => ({required Object id}) => 'ID d\'appareil : ${id}',
+			'common.e2eeKeyIdInfo' => ({required Object id}) => 'ID de clé : ${id}',
+			'common.e2eeCreatedAtInfo' => ({required Object time}) => 'Créée le : ${time}',
+			'common.e2eeImportantNote' => 'Important',
+			'common.e2eeWarnOldMayNotDecrypt' => '• Anciens messages potentiellement indéchiffrables',
+			'common.e2eeSuggestBackupNow' => '• Exportez la sauvegarde maintenant',
+			'common.e2eeGoBackup' => 'Sauvegarde',
+			'common.e2eeKeyGenerateFailed' => 'Échec de la génération. Réessayez.',
+			'common.e2eeKeyDeleted' => 'Clé supprimée',
+			'common.e2eeDeleteFailed' => 'Échec de la suppression. Réessayez.',
+			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => 'Fragments : ${available} disponibles, ${required} dépositaires requis',
+			'common.e2eeNoRecoveryShards' => 'Aucun fragment de restauration',
+			'common.e2eeRecoverSuccess' => 'Restaurée',
+			'common.e2eeRecoverFailed' => 'Échec de la restauration',
+			'common.e2eeRecoverKeyFailed' => 'Échec de la restauration. Réessayez.',
+			'common.e2eeLoadingShards' => 'Chargement des fragments...',
+			'common.e2eeNoShards' => 'Aucun fragment disponible',
+			'common.e2eeLoadFailed' => 'Échec du chargement. Réessayez.',
+			'common.e2eeContactingProxy' => ({required Object name}) => 'Connexion à : ${name}',
+			'common.e2eeRecoveryFailed' => 'Échec de la restauration. Réessayez.',
+			'common.webFeatureNotification' => 'Notifications bureau',
+			'common.webFeatureNotificationDesc' => 'Recevez les nouveaux messages même en arrière-plan',
+			'common.webQRConfirmOnPhone' => 'Confirmez sur le mobile',
+			'common.webQRLoginFailed' => 'Échec de la connexion',
+			'common.webQRLoginSuccess' => 'Connecté',
+			'common.webQRExpiresIn' => ({required Object seconds}) => 'Expire dans ${seconds} s',
+			'common.webQRStatusFailed' => 'Échec de la connexion. Réessayez.',
+			'common.webQRStatusSuccess' => 'Redirection...',
+			'common.webLoginEmptyError' => 'Compte et mot de passe requis',
+			'common.webQRGenerateFailed' => 'QR code indisponible',
+			'common.webQRTokenInvalid' => 'Jeton de connexion invalide',
+			'common.e2eeErrNoRecipientKey' => 'Clé de l\'appareil destinataire indisponible, message non envoyé',
+			'common.e2eeDecryptFailed' => 'Message indéchiffrable',
+			'common.e2eeDecryptFailedReasons' => 'Message indéchiffrable. Causes possibles :',
+			'common.e2eeDecryptReasonOtherDevice' => '• Connexion sur un autre appareil',
+			'common.e2eeDecryptReasonKeyExpired' => '• Clé d\'appareil expirée',
+			'common.e2eeDecryptReasonDataCorrupt' => '• Données de l\'app corrompues',
+			'common.e2eeDecryptChooseSolution' => 'Choisissez une solution :',
+			'common.e2eeDecryptActionRecreateKey' => 'Recréer la clé (recommandé)',
+			'common.e2eeDecryptActionRelogin' => 'Reconnexion',
+			'common.e2eeDecryptActionRemindLater' => 'Plus tard',
+			'common.e2eeBackupExportTitle' => 'Exporter la sauvegarde E2EE',
+			'common.e2eeBackupPwdCantRecover' => '• Mot de passe irrécupérable, gardez-le en sécurité !',
+			'common.e2eeBackupStoreMultipleNote' => '• Stockez la sauvegarde à plusieurs endroits (e-mail, cloud, USB)',
+			'common.e2eeBackupPwdLabel' => 'Mot de passe *',
+			'common.e2eeBackupPwdHint' => '12 caractères min, majuscules, minuscules, chiffres, symboles',
+			'common.e2eeBackupConfirmPwdLabel' => 'Confirmer *',
+			'common.e2eeBackupConfirmPwdHint' => 'Ressaisir le mot de passe',
+			'common.e2eeBackupNoteLabel' => 'Note (facultatif)',
+			'common.e2eeBackupNoteHint' => 'ex. Sauvegarde principale - jan. 2026',
+			'common.e2eeBackupPwdStrengthLabel' => 'Robustesse',
+			'common.e2eeBackupPwdWeak' => 'Faible',
+			'common.e2eeBackupPwdMedium' => 'Moyenne',
+			'common.e2eeBackupPwdStrong' => 'Forte',
+			'common.e2eeBackupPwdVeryStrong' => 'Très forte',
+			'common.e2eeBackupGenerateBtn' => 'Créer la sauvegarde',
+			'common.e2eeBackupFileGenerated' => 'Sauvegarde créée !',
+			'common.e2eeBackupShareBtn' => 'Partager par e-mail/cloud',
+			'common.e2eeBackupShareContent' => 'Voici ma sauvegarde de clé E2EE Imboy. Gardez-la en sécurité, ne la partagez pas.',
+			'common.e2eeBackupErrPwdMismatch' => 'Les mots de passe ne correspondent pas',
+			'common.e2eeBackupErrNoKeyData' => 'Données de clé indisponibles',
+			'common.e2eeBackupErrExportFailed' => 'Échec de l\'export. Réessayez.',
+			'common.e2eeBackupErrShareFailed' => 'Échec du partage. Réessayez.',
+			'common.e2eeBackupExportSuccessTitle' => 'Sauvegarde exportée',
+			'common.e2eeBackupExportSuccessBody' => 'Sauvegarde de clé E2EE créée.',
+			'common.e2eeBackupImportantNoteColon' => 'Important :',
+			'common.e2eeBackupKeepSafe' => '• Sauvegarde et mot de passe en sécurité',
+			'common.e2eeBackupStoreMultipleLoc' => '• Stockez à plusieurs endroits',
+			'common.e2eeBackupPwdCantRecoverNote' => '• Mot de passe irrécupérable',
+			'common.e2eeBackupImportTitle' => 'Importer la sauvegarde E2EE',
+			'common.e2eeBackupImportGuide' => 'Instructions',
+			'common.e2eeBackupImportReplaceKey' => '• La clé E2EE actuelle sera remplacée',
+			'common.e2eeBackupImportTrustedSource' => '• N\'importez que des sources fiables',
+			'common.e2eeBackupSelectFile' => 'Choisir le fichier',
+			'common.e2eeBackupSelectFileHint' => 'Touchez pour choisir (.enc)',
+			'common.e2eeBackupInfoTitle' => 'Infos sauvegarde',
+			'common.e2eeBackupVersionLabel' => 'Version',
+			'common.e2eeBackupAlgorithmLabel' => 'Algorithme',
+			'common.e2eeBackupFileSizeLabel' => 'Taille',
+			'common.e2eeBackupFileValid' => '✓ Format valide',
+			'common.e2eeBackupImportPwdHint' => 'Mot de passe de la sauvegarde',
+			'common.e2eeBackupImportBtn' => 'Importer la clé',
+			'common.e2eeBackupErrSelectFile' => 'Échec de la sélection. Réessayez.',
+			'common.e2eeBackupErrValidateFailed' => 'Échec de la validation. Vérifiez le format.',
+			'common.e2eeBackupErrImportFailed' => 'Échec de l\'import. Vérifiez le mot de passe.',
+			'common.e2eeBackupImportSuccessTitle' => 'Importée',
+			'common.e2eeBackupImportSuccessBody' => 'Clé E2EE restaurée !',
+			'common.e2eeBackupImportSuccessNote' => 'À noter : les anciens messages peuvent être inaccessibles (normal en E2EE)',
+			'common.e2eeBackupNoRecords' => 'Aucune sauvegarde',
+			'common.e2eeBackupNoRecordsHint' => 'Les sauvegardes apparaîtront ici après export',
+			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Appareil ${id}',
+			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => 'Créée le ${time}',
+			'common.e2eeBackupDetailTitle' => 'Détails de la sauvegarde',
+			'common.e2eeBackupDeviceIdLabel' => 'ID d\'appareil',
+			'common.e2eeBackupVersionNum' => 'Version de sauvegarde',
+			'common.e2eeBackupCreatedAtRow' => 'Créée le',
+			'common.e2eeBackupFileSizeRow' => 'Taille',
+			'common.e2eeBackupNoteRow' => 'Note',
+			'common.e2eeBackupDeleteTitle' => 'Supprimer la sauvegarde',
+			'common.e2eeBackupDeleteConfirm' => 'Supprimer cette sauvegarde ?',
+			'common.e2eeBackupDeleteSuccess' => 'Sauvegarde supprimée',
+			'common.e2eeSocialShardSettings' => 'Paramètres des fragments',
+			'common.e2eeSocialShardStoredNote' => 'Les fragments sont stockés chez les dépositaires, le serveur n\'en conserve aucun',
+			'common.e2eeSocialAddProxy' => 'Ajouter un dépositaire',
+			'common.e2eeSocialAddProxyHint' => 'Ajoutez un dépositaire',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Ajoutez d\'abord ${count} dépositaires',
+			'common.e2eeSocialCreateSuccessTitle' => 'Fragments créés',
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Clé divisée en ${count} fragments',
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} dépositaires suffisent pour restaurer',
+			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust : le serveur ne conserve aucun fragment',
+			'common.e2eeSocialNoShards' => 'Aucun fragment créé',
+			'common.e2eeSocialNoProxyShards' => 'Aucun fragment dépositaire',
+			'common.e2eeSocialKeyVersionLabel' => 'Version de clé',
+			'common.e2eeTransferErrNoKey' => 'Créez d\'abord une paire de clés',
+			'common.e2eeTransferErrInitFailed' => 'Échec de l\'initialisation. Réessayez.',
+			'common.e2eeTransferErrNoRecipientKey' => 'Le destinataire n\'a pas de clé publique',
+			'common.e2eeTransferErrKeyNotFound' => 'Clé introuvable',
+			'common.e2eeTransferErrCreateFailed' => 'Échec de la création de session. Réessayez.',
+			'common.e2eeTransferCreateSessionBtn' => 'Créer une session',
+			'common.e2eeTransferSessionCreated' => 'Session créée',
+			'common.e2eeTransferUidEmptyError' => 'ID utilisateur valide requis',
+			'common.e2eeTransferSuccess' => 'Succès !',
+			'common.e2eeTransferFailed' => 'Échec du transfert. Réessayez.',
+			'common.e2eeTransferProcessingMsg' => 'Traitement...',
+			'common.e2eeTransferSuccessTitle' => 'Transférée',
+			'common.e2eeTransferSuccessBody' => 'Clé transférée sur cet appareil',
+			'common.e2eeTransferScanError' => ({required Object error}) => 'Erreur de scan : ${error}',
+			'common.e2eeTransferErrNoDeviceId' => 'ID d\'appareil indisponible',
+			'common.passwordEncryptFailed' => 'Échec du chiffrement du mot de passe',
+			'common.initConfigTimeout' => 'Délai dépassé : vérifiez le réseau ou le serveur',
+			'common.initConfigNetworkError' => ({required Object code}) => 'Erreur réseau ou serveur (HTTP ${code})',
+			'common.initConfigProtocolError' => 'Protocole serveur erroné',
+			'common.initConfigFetchFailed' => 'Configuration indisponible. Vérifiez le réseau.',
+			'common.attachmentGetFileFailed' => 'Fichier indisponible. Réessayez ou choisissez depuis l\'album.',
+			'common.attachmentGetFileFailedAndroid9' => 'Fichier indisponible (compatibilité Android 9)',
+			'common.attachmentGetImageDataFailed' => 'Données d\'image indisponibles. Réessayez.',
+			'common.attachmentGetOriginalImageFailed' => 'Image originale indisponible',
+			'common.saveFailedRetry' => 'Échec de l\'enregistrement. Réessayez.',
+			'common.downloadFileNotFound' => 'Fichier téléchargé introuvable. Réessayez.',
+			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Vérification échouée, retéléchargement (${retry}/${max})',
+			'common.downloadHashFailed' => 'Vérifications multiples échouées. Vérifiez le réseau.',
+			'common.e2eeTransferToNewDevice' => 'Vers le nouvel appareil',
+			'common.e2eeTransferPendingSection' => 'Transferts en attente',
+			'common.e2eeTransferLoadFailed' => 'Échec du chargement',
+			'common.e2eeTransferLoadFailedDesc' => 'Transferts en attente indisponibles. Réessayez.',
+			_ => null,
+		} ?? switch (path) {
+			'common.e2eeTransferNoPending' => 'Aucun transfert en attente',
+			'common.e2eeTransferNoPendingDesc' => 'Les clés reçues apparaîtront ici',
+			'common.e2eeSocialEnoughShards' => 'Assez de fragments pour restaurer',
+			'common.e2eeSocialMoreShards' => ({required Object count}) => '${count} fragments de plus...',
+			'common.e2eeProxyLoadFriendsFailed' => 'Liste d\'amis indisponible. Réessayez.',
+			'common.e2eeProxyNoPublicKey' => 'Aucune clé publique disponible',
+			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'Clé publique de ${name} indisponible',
+			'common.e2eeProxySelectFailed' => 'Échec de la sélection. Réessayez.',
+			'common.e2eeProxyNoFriends' => 'Aucun ami',
+			'common.e2eeProxyNoFriendsHint' => 'Ajoutez d\'abord des amis',
+			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '${count} requis minimum, ${selected} choisis',
+			'common.e2eeProxyConfirmCount' => ({required Object count}) => 'Confirmer (${count} dépositaires)',
+			'common.buttonBackHome' => 'Accueil',
+			'common.featureNotEnabled' => 'Fonction indisponible',
+			'common.featureDisabledName' => ({required Object name}) => 'Fonction ${name} indisponible',
+			'common.imageLoadFailed' => 'Échec du chargement',
+			'common.loadFailedWithError' => ({required Object error}) => 'Échec : ${error}',
+			'common.webAudioNotSupported' => 'Messages vocaux non supportés sur Web',
+			'common.e2eeKeyRecreationFailed' => ({required Object error}) => 'Échec : ${error}',
+			'common.redPacket' => 'Enveloppe rouge',
+			'common.transfer' => 'Transfert',
+			'common.withdraw' => 'Retrait',
+			'common.redPacketSend' => 'Envoyer une enveloppe',
+			'common.redPacketOpen' => 'Ouvrir l\'enveloppe',
+			'common.redPacketDetail' => 'Détails de l\'enveloppe',
+			'common.transferSend' => 'Démarrer un transfert',
+			'common.transferAccept' => 'Accepter',
+			'common.greetingDefault' => 'Bonne année',
+			'common.grabAmountYuan' => ({required Object amount}) => 'Reçu : ${amount} yuan',
+			'common.transferAmountYuan' => ({required Object amount}) => 'Transfert : ${amount} yuan',
+			'common.insufficientBalance' => 'Solde insuffisant',
+			'common.goToRecharge' => 'Recharger',
+			'common.withdrawSuccess' => 'Retrait effectué',
+			'common.withdrawConfirm' => 'Confirmer le retrait',
+			'common.withdrawAmountError' => 'Montant minimum 1 yuan',
+			'common.withdrawAccountEmpty' => 'Compte de retrait requis',
+			'common.withdrawMethod' => 'Méthode de retrait',
+			'common.withdrawAccount' => 'Compte de retrait',
 			'complaint.complaint' => 'Plainte',
+			'complaintReason.spam' => 'Spam',
+			'complaintReason.harassment' => 'Harcèlement',
+			'complaintReason.inappropriate' => 'Contenu inapproprié',
+			'complaintReason.other' => 'Autre',
 			'contact.applyFriend' => 'Demande d’ami',
 			'contact.applyFriendLogic' => 'Logique de demande d\'ami',
 			'contact.applyParam' => ({required Object param}) => 'Demander ${param}',
@@ -2698,6 +4044,7 @@ extension on TranslationsFrFr {
 			'contact.pleaseEnterRemark' => 'Veuillez entrer la remarque.',
 			'contact.enterRemark' => 'Entrez la remarque.',
 			'contact.pleaseEnterTags' => 'Entrez les étiquettes.',
+			'contact.momentsVisibilityFriends' => 'Amis seulement',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La longueur de l\'étiquette ne peut pas dépasser ${param} caractères.',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Au maximum ${param} étiquettes autorisées.',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Étiquettes sélectionnées (${param}/${max}).',
@@ -2716,6 +4063,8 @@ extension on TranslationsFrFr {
 			'contact.tagIdeas' => 'Idées',
 			'contact.tagMemo' => 'Mémo',
 			'contact.friendRequestSent' => 'Envoyé',
+			'contact.channelMaxTagsCount' => '8 étiquettes maximum',
+			'contact.tagInputHint' => 'Étiquette...',
 			'discovery.findNearbyPeople' => 'Trouver des personnes à proximité',
 			'discovery.moment' => 'Moments',
 			'discovery.nearbyPeopleExplain' => 'Les utilisateurs à proximité peuvent voir votre profil et vous envoyer des messages. Cela peut vous aider à trouver de nouveaux amis, mais peut aussi attirer trop d\'attention. Vous pouvez cesser de partager votre profil à tout moment.\nVotre numéro de téléphone sera masqué.',
@@ -2725,10 +4074,26 @@ extension on TranslationsFrFr {
 			'discovery.scanResult' => 'Résultat du scan',
 			'discovery.scannerResult' => 'Résultat du scan',
 			'discovery.titleDiscover' => 'Découvrir',
+			'discovery.myChannels' => 'Mes canaux',
+			'discovery.channelSquare' => 'Découvrir les canaux',
 			'discovery.otherUsersCanFindMe' => 'D\'autres utilisateurs peuvent me trouver via la recherche.',
 			'discovery.moments' => 'Fil d\'actualité',
+			'discovery.momentsReport' => 'Signaler le moment',
+			'discovery.momentsReportDesc' => 'Description',
+			'discovery.momentsComments' => 'Commentaires',
+			'discovery.momentsWriteComment' => 'Écrire un commentaire...',
+			'discovery.momentsVisibility' => 'Visibilité',
+			'discovery.momentsVisibilityPublic' => 'Public',
+			'discovery.momentsVisibilityPartial' => 'Partiel',
+			'discovery.momentsVisibilityExclude' => 'Exceptions',
+			'discovery.momentsDenyUidsLabel' => 'UIDs exclus (séparés par virgule)',
+			'discovery.momentsDraftRestored' => 'Brouillon précédent restauré',
+			'discovery.momentsFeedStale' => 'Erreur réseau, affichage du cache',
 			'discovery.discover' => 'Découvrir',
 			'discovery.shake' => 'Secouer',
+			'discovery.openChannel' => 'Ouvrir le canal',
+			'discovery.paidChannelLocked' => 'Contenu verrouillé (payant)',
+			'discovery.webQRScanned' => 'Scanné',
 			'error.restartRequired' => 'Redémarrage requis',
 			'error.networkFailureGuidance' => 'Guide de dépannage réseau',
 			'error.pleaseCheckNetwork' => 'Vérifiez vos paramètres réseau.',
@@ -2736,10 +4101,16 @@ extension on TranslationsFrFr {
 			'error.networkTroubleshootingStep2' => '2. Ouvrez les paramètres du téléphone - Général - Données cellulaires et gardez les données cellulaires activées.',
 			'error.networkTroubleshootingStep3' => '3. Si toujours impossible de se connecter au réseau, vérifiez si le Wi-Fi du téléphone a accès à Internet ou contactez l\'opérateur réseau.',
 			'error.suggestCheckNetwork' => 'Il est suggéré de vérifier les paramètres réseau.',
+			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'Démarrer la restauration (${required} dépositaires requis)',
+			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'Fragments insuffisants (${required} requis, ${current} actuels)',
+			'error.e2eeErrTimeout' => 'Délai de chiffrement dépassé. Vérifiez le réseau et réessayez.',
+			'error.e2eeErrNetwork' => 'Erreur réseau, échec du chiffrement, message non envoyé',
+			'error.liveRoomTitleRequired' => 'Titre requis',
 			'group.financialManagement' => 'Gestion financière',
 			'group.enterSameGroup' => 'Entrer dans le même groupe que les amis à proximité',
 			'group.enterTheGroup' => 'Rejoindre ce groupe',
 			'group.groupAlias' => 'Mon surnom dans ce groupe',
+			'group.groupAlbum' => 'Album de groupe',
 			'group.groupDissolve' => 'Dissoudre le groupe',
 			'group.groupJoin' => 'Rejoindre le groupe',
 			'group.groupLeave' => 'Quitter le groupe',
@@ -2747,16 +4118,139 @@ extension on TranslationsFrFr {
 			'group.groupMembers' => 'Membres du groupe',
 			'group.groupName' => 'Nom du groupe',
 			'group.mutualGroupsWithHer' => 'Groupes communs avec lui/elle',
-			'group.selectGroup' => 'Sélectionner un groupe.',
-			'group.sureToDissolveGroup' => 'Confirmer la dissolution du groupe ?',
-			'group.sureToLeaveGroup' => 'Confirmer le départ du groupe ?',
 			'group.groupOwner' => 'Owner',
 			'group.groupAdmin' => 'Admin',
-			'group.groupGuest' => '嘉宾',
+			'group.groupGuest' => 'Invité d\'honneur',
 			'group.groupMember' => 'Member',
 			'group.setAdmin' => 'Set as Admin',
 			'group.transferGroup' => 'Transfer Ownership',
 			'group.joinTime' => 'Join Time',
+			'group.selectGroup' => 'Sélectionner un groupe.',
+			'group.sureToDissolveGroup' => 'Confirmer la dissolution du groupe ?',
+			'group.sureToLeaveGroup' => 'Confirmer le départ du groupe ?',
+			'group.groupAlbumNameHint' => 'Nom de l\'album',
+			'group.groupAlbumRenameTitle' => 'Renommer l\'album',
+			'group.groupAlbumRenamed' => 'Album renommé',
+			'group.groupAlbumUnnamed' => 'Album sans nom',
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} images',
+			'group.groupAlbumPhotoIdMissing' => 'ID d\'image manquant, détails indisponibles',
+			'group.groupAlbumPhotoListTitle' => 'Images de l\'album',
+			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '${count} sélectionnés',
+			'group.groupAlbumPhotoEmpty' => 'Aucune image',
+			'group.groupAlbumPhotoUrlMissing' => 'Adresse de l\'image manquante, ouverture impossible',
+			'group.groupAlbumPhotoUrlInvalid' => 'Adresse de l\'image invalide',
+			'group.groupAlbumPhotoDetailTitle' => 'Détails de l\'image',
+			'group.groupAlbumPhotoSetCover' => 'Couverture',
+			'group.groupAlbumPhotoPrev' => 'Précédent',
+			'group.groupAlbumPhotoLikeCount' => 'J\'aime',
+			'group.groupAlbumPhotoCommentCount' => 'Commentaires',
+			'group.groupAlbumPhotoMyLike' => 'Mon J\'aime',
+			'group.groupAlbumPhotoIdLabel' => 'ID d\'image',
+			'group.e2eeKeyManagement' => 'Gestion des clés E2EE',
+			'group.e2eeKeyManagementSubtitle' => 'Sauvegarder, restaurer et gérer les clés E2EE',
+			'groupCategory.title' => 'Catégories de groupe',
+			'groupCategory.createCategory' => 'Créer une catégorie',
+			'groupCategory.categoryName' => 'Nom de la catégorie',
+			'groupCategory.categoryDesc' => 'Description (facultatif)',
+			'groupCategory.noCategory' => 'Aucune catégorie',
+			'groupCategory.createFirst' => 'Créer la première catégorie',
+			'groupCategory.addGroup' => 'Ajouter le groupe à la catégorie',
+			'groupCategory.removeGroup' => 'Retirer de la catégorie',
+			'groupCategory.deleteCategory' => 'Supprimer la catégorie',
+			'groupCategory.deleteCategoryConfirm' => 'Supprimer cette catégorie ? Les groupes seront conservés.',
+			'groupCategory.categoryCreated' => 'Catégorie créée',
+			'groupCategory.categoryDeleted' => 'Catégorie supprimée',
+			'groupCategory.renameCategory' => 'Renommer la catégorie',
+			'groupCategory.categoryRenamed' => 'Catégorie renommée',
+			'groupCategory.renameFailed' => 'Échec du renommage. Réessayez.',
+			'groupCategory.deleteFailed' => 'Échec de la suppression. Réessayez.',
+			'groupCategory.categoryDetailTip' => 'Les groupes de cette catégorie se gèrent depuis la liste des groupes via « Déplacer dans la catégorie »',
+			'groupList.attrAll' => 'Tout',
+			'groupList.attrOwner' => 'Créés',
+			'groupList.attrManager' => 'Gérés',
+			'groupList.attrJoin' => 'Rejoints',
+			'groupList.refresh' => 'Actualiser',
+			'groupSchedule.title' => 'Événements de groupe',
+			'groupSchedule.createSchedule' => 'Créer un événement',
+			'groupSchedule.scheduleTitle' => 'Titre de l\'événement',
+			'groupSchedule.selectDate' => 'Choisir la date',
+			'groupSchedule.selectTime' => 'Choisir l\'heure',
+			'groupSchedule.location' => 'Lieu',
+			'groupSchedule.reminder' => 'Rappel',
+			'groupSchedule.noReminder' => 'Aucun rappel',
+			'groupSchedule.noSchedule' => 'Aucun événement',
+			'groupSchedule.scheduleCreated' => 'Événement créé',
+			'groupSchedule.scheduleUpdated' => 'Événement mis à jour',
+			'groupSchedule.reminder15min' => '15 min avant',
+			'groupSchedule.reminder1hour' => '1 h avant',
+			'groupSchedule.reminder1day' => '1 j avant',
+			'groupSchedule.startTime' => 'Début',
+			'groupSchedule.endTime' => 'Fin',
+			'groupSchedule.participants' => 'Participants',
+			'groupSchedule.statusCancelled' => 'Annulé',
+			'groupSchedule.statusInProgress' => 'En cours',
+			'groupSchedule.cancelSuccess' => 'Événement annulé',
+			'groupSchedule.cancelFailed' => 'Échec de l\'annulation. Réessayez plus tard.',
+			'groupSchedule.confirmAttend' => 'Participer',
+			'groupSchedule.declineAttend' => 'Refuser',
+			'groupSchedule.cancelSchedule' => 'Annuler l\'événement',
+			'groupSchedule.scheduleIdMissing' => 'ID de l\'événement manquant, détails indisponibles',
+			'groupTag.title' => 'Étiquettes de groupe',
+			'groupTag.addTag' => 'Ajouter une étiquette',
+			'groupTag.tagName' => 'Nom de l\'étiquette',
+			'groupTag.tagColor' => 'Couleur de l\'étiquette',
+			'groupTag.noTag' => 'Aucune étiquette',
+			'groupTag.tagAdded' => 'Étiquette ajoutée',
+			'groupTag.tagRemoved' => 'Étiquette supprimée',
+			'groupTag.removeTitle' => 'Supprimer l\'étiquette',
+			'groupTag.removeConfirm' => 'Supprimer cette étiquette ?',
+			'groupTask.title' => 'Tâches de groupe',
+			'groupTask.createTask' => 'Créer une tâche',
+			'groupTask.taskTitle' => 'Titre de la tâche',
+			'groupTask.taskDescription' => 'Description',
+			'groupTask.assignTo' => 'Assignée à',
+			'groupTask.deadline' => 'Échéance',
+			'groupTask.noDeadline' => 'Sans échéance',
+			'groupTask.noTask' => 'Aucune tâche',
+			'groupTask.all' => 'Toutes',
+			'groupTask.pending' => 'En cours',
+			'groupTask.completed' => 'Terminées',
+			'groupTask.taskCreated' => 'Tâche créée',
+			'groupTask.taskSubmitted' => 'Tâche soumise',
+			'groupTask.taskCompleted' => 'Tâche terminée',
+			'groupTask.overdue' => 'En retard',
+			'groupTask.daysLeft' => ({required Object days}) => 'Échéance dans ${days} j',
+			'groupTask.hoursLeft' => ({required Object hours}) => 'Échéance dans ${hours} h',
+			'groupTask.dueSoon' => 'Échéance proche',
+			'groupTask.submitFailed' => 'Échec de l\'envoi. Réessayez plus tard.',
+			'groupTask.taskId' => 'ID de tâche',
+			'groupTask.pendingReview' => 'En attente de validation',
+			'groupTask.taskIdMissing' => 'ID de tâche manquant, détails indisponibles',
+			'groupTask.taskIdMissingSubmit' => 'ID de tâche manquant, envoi impossible',
+			'groupVote.title' => 'Sondage de groupe',
+			'groupVote.createVote' => 'Créer un sondage',
+			'groupVote.voteTitle' => 'Titre du sondage',
+			'groupVote.voteOptions' => 'Options',
+			'groupVote.addOption' => 'Ajouter une option',
+			'groupVote.allowMultiple' => 'Choix multiple',
+			'groupVote.anonymous' => 'Anonyme',
+			'groupVote.deadline' => 'Échéance',
+			'groupVote.noDeadline' => 'Sans échéance',
+			'groupVote.noVote' => 'Aucun sondage',
+			'groupVote.voteEnded' => 'Sondage terminé',
+			'groupVote.totalVotes' => ({required Object count}) => '${count} votes au total',
+			'groupVote.voteSuccess' => 'Vote enregistré',
+			'groupVote.hasVoted' => 'Déjà voté',
+			'groupVote.viewResults' => 'Voir les résultats',
+			'groupVote.cancelVoteSuccess' => 'Vote retiré',
+			'groupVote.cancelVoteFailed' => 'Échec du retrait. Réessayez plus tard.',
+			'groupVote.endVoteFailed' => 'Échec de la clôture. Réessayez plus tard.',
+			'groupVote.eachOptionPerLine' => 'Une option par ligne',
+			'groupVote.statusInProgress' => 'En cours',
+			'groupVote.updateVote' => 'Modifier le sondage',
+			'groupVote.cancelMyVote' => 'Retirer mon vote',
+			'groupVote.voteIdMissing' => 'ID du sondage manquant, détails indisponibles',
+			'groupVote.participantCount' => ({required Object count}) => 'Participants : ${count}',
 			'main.change' => 'Modifier',
 			'main.entertainment' => 'Films et spectacles',
 			'main.lifePayment' => 'Paiement de factures',
@@ -2771,6 +4265,8 @@ extension on TranslationsFrFr {
 			'main.audio' => 'Son',
 			'main.barcodeFound' => 'Code-barres trouvé !',
 			'main.botQianFan' => 'Robot Qianfan',
+			'main.liveRoomWhipLabel' => 'URL d\'émission WHIP',
+			'main.liveRoomWhepLabel' => 'URL de réception WHEP',
 			'main.cache' => 'Mémoire cache',
 			'main.camera' => 'Appareil photo',
 			'main.changeNameView' => 'Modifier le nom',
@@ -2848,6 +4344,9 @@ extension on TranslationsFrFr {
 			'main.recentlyUsed' => 'Récemment utilisé',
 			'main.releaseEnd' => 'Relâcher pour terminer',
 			'main.remainingChars' => ({required Object param}) => 'Il reste encore ${param} caractères.',
+			'main.kickMember' => 'Remove from Group',
+			'main.memberDetail' => 'Member Details',
+			'main.memberRole' => 'Role',
 			'main.replied' => 'Répondu',
 			'main.ringing' => 'Sonnerie...',
 			'main.ruRu' => 'Russe (Russie)',
@@ -2872,6 +4371,7 @@ extension on TranslationsFrFr {
 			'main.timeRange' => 'Période',
 			'main.timeWeekdays' => 'Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche',
 			'main.titleMine' => 'Moi',
+			'main.titleSquare' => 'Découvrir',
 			'main.tooBad' => 'Trop mauvais',
 			'main.tryAgainQ' => 'Voulez-vous réessayer ?',
 			'main.type' => 'Type',
@@ -2944,9 +4444,129 @@ extension on TranslationsFrFr {
 			'main.larger' => 'Plus grand',
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Longueur actuelle : ${param1} / ${param2}',
 			'main.fillIn' => 'Remplir',
-			'main.kickMember' => 'Remove from Group',
-			'main.memberDetail' => 'Member Details',
-			'main.memberRole' => 'Role',
+			'main.msgProtectedByComplianceKey' => 'Message protégé par clé de conformité',
+			'main.inviterLabel' => ({required Object uid}) => 'Invité par : ${uid}',
+			'main.inviteeLabel' => ({required Object uid}) => 'Invité : ${uid}',
+			'main.mySentTab' => 'Envoyées',
+			'main.reject' => 'Refuser',
+			'main.myOrders' => 'Commandes',
+			'main.purchaseUnlockHint' => 'Après achat, accédez à l\'historique et aux nouveautés du canal.',
+			'main.payingDots' => 'Paiement...',
+			'main.purchaseAndUnlock' => 'Acheter et déverrouiller',
+			'main.orderDetail' => 'Détails de la commande',
+			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Montant : ${currency} ${amount}',
+			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => 'Prix : ${currency} ${amount}',
+			'main.e2eeKeyRecoveryTitle' => 'Gestion des clés E2EE',
+			'main.e2eeRecoveryMethods' => 'Méthodes de restauration',
+			'main.e2eeDangerousOps' => 'Actions sensibles',
+			'main.e2eeSocialRecovery' => 'Récupération sociale',
+			'main.e2eeSocialRecoveryDesc' => 'Restaurer la clé via des contacts de confiance',
+			'main.e2eeKeyIdLabel' => 'ID de clé',
+			'main.e2eeWarnIrreversible' => '• Action irréversible',
+			'main.e2eeWarnNeedRestoreOrNew' => '• Restaurer depuis une sauvegarde ou générer une nouvelle clé',
+			'main.gotIt' => 'Compris',
+			'main.e2eeRecoverKeyTitle' => 'Restaurer la clé',
+			'main.e2eeCanRecoverKey' => 'Clé restaurable',
+			'main.e2eeInsufficientShards' => 'Fragments insuffisants',
+			'main.e2eeProxyUser' => ({required Object uid}) => 'Dépositaire : ${uid}',
+			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Fragment ${index} / ${total}',
+			'main.e2eeReloadShards' => 'Recharger',
+			'main.e2eeRecovering' => 'Restauration...',
+			'main.e2eeKeyRestored' => 'Clé restaurée',
+			'main.e2eeUsedShards' => ({required Object count}) => '${count} fragments utilisés',
+			'main.e2eePreparing' => 'Préparation...',
+			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => 'Progression : ${collected} / ${total} fragments',
+			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => 'Collecte des fragments (${collected}/${total})...',
+			'main.e2eeShardsCollected' => 'Fragments collectés, reconstitution de la clé...',
+			'main.webQRLoggingIn' => 'Connexion...',
+			'main.webQRExpired' => 'QR code expiré',
+			'main.webQRRefresh' => 'Actualiser le QR code',
+			'main.webSwitchToQR' => 'Connexion par QR code',
+			'main.e2eeErrDefault' => 'Échec E2EE, message non envoyé',
+			_ => null,
+		} ?? switch (path) {
+			'main.e2eeSocialTotalShards' => 'Total de fragments',
+			'main.e2eeSocialThreshold' => 'Seuil de restauration',
+			'main.e2eeSocialThresholdHint' => ({required Object count}) => '${count} dépositaires requis pour la restauration',
+			'main.e2eeSocialSelectProxy' => 'Choisir les dépositaires',
+			'main.e2eeSocialProxyNeeded' => ({required Object count}) => '${count} contacts de confiance requis comme dépositaires',
+			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'Utilisateur ${uid}',
+			'main.e2eeSocialShardSentViaWs' => 'Fragments envoyés directement aux dépositaires via WebSocket',
+			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => 'Envoyés à ${sent} sur ${total} dépositaires',
+			'main.e2eeSocialManageTitle' => 'Gérer les fragments',
+			'main.e2eeSocialMyShards' => 'Mes fragments',
+			'main.e2eeSocialProxyShards' => 'Fragments dépositaires',
+			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => 'Fragment ${idx} / ${total}',
+			'main.e2eeSocialShardActive' => 'Actif',
+			'main.e2eeSocialShardUsed' => 'Utilisé',
+			'main.e2eeSocialShardValid' => 'Fragment valide',
+			'main.e2eeSocialUserShard' => ({required Object uid}) => 'Fragment de clé de ${uid}',
+			'main.e2eeSocialProxyUserLabel' => 'Dépositaire',
+			'main.e2eeSocialRecoveryThresholdLabel' => 'Seuil de restauration',
+			'main.e2eeSocialShardIndexLabel' => 'Numéro de fragment',
+			'main.e2eeTransferQRHint' => 'Scannez ce QR code sur le nouvel appareil',
+			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'QR code expire le ${time}',
+			'main.e2eeTransferRefreshQR' => 'Actualiser le QR code',
+			'main.e2eeTransferEnterUidTitle' => 'ID utilisateur du destinataire',
+			'main.e2eeTransferUidPlaceholder' => 'ID utilisateur destinataire',
+			'main.e2eeTransferReceiving' => 'Réception...',
+			'main.e2eeTransferPageTitle' => 'Transfert entre appareils',
+			'main.e2eeTransferPendingItem' => 'Transfert de clé en attente',
+			'main.e2eeTransferPendingItemDesc' => 'Touchez pour les détails',
+			'main.e2eeTransferView' => 'Voir',
+			'main.e2eeSocialTitle' => 'Récupération sociale',
+			'main.e2eeSocialCanRecover' => 'Clé restaurable',
+			'main.e2eeSocialSetupProxy' => 'Configurer les dépositaires',
+			'main.e2eeSocialChooseProxy' => 'Choisissez des contacts de confiance comme dépositaires',
+			'main.e2eeSocialExistingShards' => 'Fragments existants',
+			'main.e2eeSocialRecoverKeyTitle' => 'Restaurer la clé',
+			'main.e2eeSocialRecoverKeyDesc' => 'Restaurer via les fragments dépositaires',
+			'main.e2eeSocialManageShardsTitle' => 'Gérer les fragments',
+			'main.e2eeSocialManageShardsDesc' => 'Voir et gérer tous les fragments',
+			'main.e2eeSocialZeroTrustHint1' => 'Zero-Trust : serveur sans fragments, contact direct des dépositaires',
+			'main.e2eeSocialZeroTrustHint2' => 'Zero-Trust : fragments chez les dépositaires',
+			'main.e2eeSocialZeroTrustHint3' => 'Zero-Trust : serveur sans accès au clair',
+			'main.e2eeProxyMinCount' => ({required Object count}) => 'Au moins ${count} dépositaires',
+			'main.e2eeProxySelectTitle' => 'Choisir les dépositaires',
+			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '${selected} / ${total} choisis',
+			'main.e2eeProxyReachedMin' => 'Nombre minimum atteint',
+			'main.liveRoomTitleLabel' => 'Titre du live',
+			'main.liveRoomTitleHint' => 'Titre du live',
+			'mention.title' => '@Mentions',
+			'mention.noMention' => 'Aucune @mention',
+			'mention.allRead' => 'Tout marquer lu',
+			'mention.markAsRead' => 'Marquer comme lu',
+			'mention.newMention' => 'Nouvelle @mention',
+			'mention.fromGroup' => 'Depuis le groupe',
+			'mention.fromChat' => 'Depuis la discussion',
+			'mention.viewContext' => 'Voir le contexte',
+			'mention.mentionCount' => ({required Object count}) => '${count} nouvelles mentions',
+			'mention.mentionAllDenied' => 'Seuls les administrateurs peuvent @tout',
+			'mention.navInfoMissing' => 'Position du message manquante, navigation impossible',
+			'momentFriendPicker.title' => 'Choisir des amis',
+			'momentFriendPicker.titleAllow' => 'Visible par',
+			'momentFriendPicker.titleDeny' => 'Exclure',
+			'momentFriendPicker.confirm' => 'Terminé',
+			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'Terminé (${count})',
+			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} sélectionnés',
+			'momentFriendPicker.emptyFriends' => 'Aucun ami',
+			'momentFriendPicker.tagsLabel' => 'Par étiquette',
+			'momentFriendPicker.emptyTags' => 'Aucune étiquette',
+			'momentFriendPicker.tagLoadFailed' => 'Échec du chargement des étiquettes',
+			'momentFriendPicker.searchHint' => 'Rechercher un ami',
+			'momentNotify.title' => 'Notifications',
+			'momentNotify.emptyTitle' => 'Aucune nouvelle notification',
+			'momentNotify.emptyHint' => 'Les « J\'aime » et commentaires de vos amis s\'affichent ici',
+			'momentNotify.actionLike' => 'a aimé votre moment',
+			'momentNotify.actionComment' => 'a commenté',
+			'momentNotify.markAllRead' => 'Tout marquer lu',
+			'momentNotify.clearAll' => 'Tout effacer',
+			'momentNotify.clearConfirmTitle' => 'Effacer toutes les notifications ?',
+			'momentNotify.clearConfirmMessage' => 'Action irréversible',
+			'momentNotify.confirm' => 'OK',
+			'momentNotify.cancel' => 'Annuler',
+			'momentNotify.delete' => 'Supprimer',
+			'momentNotify.loadFailed' => 'Échec du chargement. Réessayez plus tard.',
 			'passport.retrievePassword' => 'Récupérer le mot de passe',
 			'passport.hintEmail' => 'Veuillez entrer votre adresse e-mail',
 			'passport.hintMobile' => 'Veuillez entrer votre numéro de téléphone',

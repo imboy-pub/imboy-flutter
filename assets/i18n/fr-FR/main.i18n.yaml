@@ -1,3 +1,4 @@
+---
 change: Modifier
 entertainment: Films et spectacles
 lifePayment: Paiement de factures
@@ -10,8 +11,10 @@ album: Album photo
 appSize: Taille de l'application
 arSa: Arabe (Arabie saoudite)
 audio: Son
-barcodeFound: "Code-barres trouvé !"
+barcodeFound: Code-barres trouvé !
 botQianFan: Robot Qianfan
+liveRoomWhipLabel: URL d'émission WHIP
+liveRoomWhepLabel: URL de réception WHEP
 cache: Mémoire cache
 camera: Appareil photo
 changeNameView: Modifier le nom
@@ -30,7 +33,7 @@ earlier: Plus tôt
 enGb: Anglais (Royaume-Uni)
 enUs: Anglais (États-Unis)
 enable: Activer
-example: "Exemple :"
+example: 'Exemple :'
 expired: Expiré
 extraItem: Article supplémentaire
 faceToFaceLogic: Logique de groupe en face à face
@@ -52,8 +55,8 @@ lastActiveTime: Dernière activité
 lastSeenHide: Masquer le statut en ligne
 lastSeenNever: Jamais connecté
 lastSeenWeeksAgo: Connecté il y a $param semaines.
-lastSeenExactTime: "Dernière connexion : $param."
-licenseAgreement: « Accord de licence et de service »
+lastSeenExactTime: 'Dernière connexion : $param.'
+licenseAgreement: "« Accord de licence et de service »"
 liveBroadcast: Direct
 liveRoomListView: Liste des salons en direct
 publisherPage: Page de diffusion
@@ -75,7 +78,7 @@ multiSelectMode: Mode de sélection multiple
 myFavorites: Mes favoris
 myLive: Mon direct
 name: Nom
-numUnit: $param unités
+numUnit: "$param unités"
 openInBrowser: Ouvrir dans le navigateur
 or: Ou
 otherParty: Votre interlocuteur
@@ -89,6 +92,9 @@ quote: Citer
 recentlyUsed: Récemment utilisé
 releaseEnd: Relâcher pour terminer
 remainingChars: Il reste encore $param caractères.
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role
 replied: Répondu
 ringing: Sonnerie...
 ruRu: Russe (Russie)
@@ -111,8 +117,9 @@ termOfServices: Conditions d'utilisation
 text: Texte
 thisWeek: Cette semaine
 timeRange: Période
-timeWeekdays: "Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche"
+timeWeekdays: Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche
 titleMine: Moi
+titleSquare: Découvrir
 tooBad: Trop mauvais
 tryAgainQ: Voulez-vous réessayer ?
 type: Type
@@ -154,7 +161,7 @@ toBeCompleted: À compléter
 availableCount: Disponible
 mostUsed: Les plus utilisés
 commentPlaceholder: Commentaire...
-delayMsLabel: "Délai en ms (>=100)"
+delayMsLabel: Délai en ms (>=100)
 processed: Traité
 export: Exporter
 school: École
@@ -183,8 +190,91 @@ collecting: Ajout aux favoris...
 user: Utilisateur
 recommended: Recommandé
 larger: Plus grand
-currentLength: "Longueur actuelle : $param1 / $param2"
+currentLength: 'Longueur actuelle : $param1 / $param2'
 fillIn: Remplir
-kickMember: Remove from Group
-memberDetail: Member Details
-memberRole: Role
+msgProtectedByComplianceKey: Message protégé par clé de conformité
+inviterLabel(uid): 'Invité par : $uid'
+inviteeLabel(uid): 'Invité : $uid'
+mySentTab: Envoyées
+reject: Refuser
+myOrders: Commandes
+purchaseUnlockHint: Après achat, accédez à l'historique et aux nouveautés du canal.
+payingDots: Paiement...
+purchaseAndUnlock: Acheter et déverrouiller
+orderDetail: Détails de la commande
+orderAmountLabel(currency, amount): 'Montant : $currency $amount'
+channelPriceLabel(currency, amount): 'Prix : $currency $amount'
+e2eeKeyRecoveryTitle: Gestion des clés E2EE
+e2eeRecoveryMethods: Méthodes de restauration
+e2eeDangerousOps: Actions sensibles
+e2eeSocialRecovery: Récupération sociale
+e2eeSocialRecoveryDesc: Restaurer la clé via des contacts de confiance
+e2eeKeyIdLabel: ID de clé
+e2eeWarnIrreversible: "• Action irréversible"
+e2eeWarnNeedRestoreOrNew: "• Restaurer depuis une sauvegarde ou générer une nouvelle clé"
+gotIt: Compris
+e2eeRecoverKeyTitle: Restaurer la clé
+e2eeCanRecoverKey: Clé restaurable
+e2eeInsufficientShards: Fragments insuffisants
+e2eeProxyUser(uid): 'Dépositaire : $uid'
+e2eeShardLabel(index, total): Fragment $index / $total
+e2eeReloadShards: Recharger
+e2eeRecovering: Restauration...
+e2eeKeyRestored: Clé restaurée
+e2eeUsedShards(count): "$count fragments utilisés"
+e2eePreparing: Préparation...
+e2eeRecoveryProgressLabel(collected, total): 'Progression : $collected / $total fragments'
+e2eeCollectingShards(collected, total): Collecte des fragments ($collected/$total)...
+e2eeShardsCollected: Fragments collectés, reconstitution de la clé...
+webQRLoggingIn: Connexion...
+webQRExpired: QR code expiré
+webQRRefresh: Actualiser le QR code
+webSwitchToQR: Connexion par QR code
+e2eeErrDefault: Échec E2EE, message non envoyé
+e2eeSocialTotalShards: Total de fragments
+e2eeSocialThreshold: Seuil de restauration
+e2eeSocialThresholdHint(count): "$count dépositaires requis pour la restauration"
+e2eeSocialSelectProxy: Choisir les dépositaires
+e2eeSocialProxyNeeded(count): "$count contacts de confiance requis comme dépositaires"
+e2eeSocialProxyDefaultName(uid): Utilisateur $uid
+e2eeSocialShardSentViaWs: Fragments envoyés directement aux dépositaires via WebSocket
+e2eeSocialSentCount(sent, total): Envoyés à $sent sur $total dépositaires
+e2eeSocialManageTitle: Gérer les fragments
+e2eeSocialMyShards: Mes fragments
+e2eeSocialProxyShards: Fragments dépositaires
+e2eeSocialShardOf(idx, total): Fragment $idx / $total
+e2eeSocialShardActive: Actif
+e2eeSocialShardUsed: Utilisé
+e2eeSocialShardValid: Fragment valide
+e2eeSocialUserShard(uid): Fragment de clé de $uid
+e2eeSocialProxyUserLabel: Dépositaire
+e2eeSocialRecoveryThresholdLabel: Seuil de restauration
+e2eeSocialShardIndexLabel: Numéro de fragment
+e2eeTransferQRHint: Scannez ce QR code sur le nouvel appareil
+e2eeTransferQRExpiry(time): QR code expire le $time
+e2eeTransferRefreshQR: Actualiser le QR code
+e2eeTransferEnterUidTitle: ID utilisateur du destinataire
+e2eeTransferUidPlaceholder: ID utilisateur destinataire
+e2eeTransferReceiving: Réception...
+e2eeTransferPageTitle: Transfert entre appareils
+e2eeTransferPendingItem: Transfert de clé en attente
+e2eeTransferPendingItemDesc: Touchez pour les détails
+e2eeTransferView: Voir
+e2eeSocialTitle: Récupération sociale
+e2eeSocialCanRecover: Clé restaurable
+e2eeSocialSetupProxy: Configurer les dépositaires
+e2eeSocialChooseProxy: Choisissez des contacts de confiance comme dépositaires
+e2eeSocialExistingShards: Fragments existants
+e2eeSocialRecoverKeyTitle: Restaurer la clé
+e2eeSocialRecoverKeyDesc: Restaurer via les fragments dépositaires
+e2eeSocialManageShardsTitle: Gérer les fragments
+e2eeSocialManageShardsDesc: Voir et gérer tous les fragments
+e2eeSocialZeroTrustHint1: 'Zero-Trust : serveur sans fragments, contact direct des dépositaires'
+e2eeSocialZeroTrustHint2: 'Zero-Trust : fragments chez les dépositaires'
+e2eeSocialZeroTrustHint3: 'Zero-Trust : serveur sans accès au clair'
+e2eeProxyMinCount(count): Au moins $count dépositaires
+e2eeProxySelectTitle: Choisir les dépositaires
+e2eeProxySelectedCount(selected, total): "$selected / $total choisis"
+e2eeProxyReachedMin: Nombre minimum atteint
+liveRoomTitleLabel: Titre du live
+liveRoomTitleHint: Titre du live

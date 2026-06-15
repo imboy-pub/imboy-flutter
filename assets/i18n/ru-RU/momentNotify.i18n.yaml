@@ -1,0 +1,14 @@
+---
+title: Уведомления
+emptyTitle: Нет новых уведомлений
+emptyHint: Здесь появятся лайки и комментарии друзей к вашим Моментам
+actionLike: оценил(а) ваш Момент
+actionComment: оставил(а) комментарий
+markAllRead: Прочитать все
+clearAll: Очистить всё
+clearConfirmTitle: Очистить все уведомления?
+clearConfirmMessage: Это действие нельзя отменить
+confirm: ОК
+cancel: Отмена
+delete: Удалить
+loadFailed: Не удалось загрузить, попробуйте позже

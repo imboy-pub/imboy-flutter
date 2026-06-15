@@ -1,0 +1,26 @@
+---
+title: Événements de groupe
+createSchedule: Créer un événement
+scheduleTitle: Titre de l'événement
+selectDate: Choisir la date
+selectTime: Choisir l'heure
+location: Lieu
+reminder: Rappel
+noReminder: Aucun rappel
+noSchedule: Aucun événement
+scheduleCreated: Événement créé
+scheduleUpdated: Événement mis à jour
+reminder15min: 15 min avant
+reminder1hour: 1 h avant
+reminder1day: 1 j avant
+startTime: Début
+endTime: Fin
+participants: Participants
+statusCancelled: Annulé
+statusInProgress: En cours
+cancelSuccess: Événement annulé
+cancelFailed: Échec de l'annulation. Réessayez plus tard.
+confirmAttend: Participer
+declineAttend: Refuser
+cancelSchedule: Annuler l'événement
+scheduleIdMissing: ID de l'événement manquant, détails indisponibles

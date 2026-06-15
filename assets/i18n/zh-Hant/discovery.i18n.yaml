@@ -1,15 +1,31 @@
 findNearbyPeople: 搜尋附近的人
 moment: 動態
-nearbyPeopleExplain: "附近的用家可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。
+nearbyPeopleExplain: '附近的用家可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。
 
-您的電話號碼將會被隱藏。"
+  您的電話號碼將會被隱藏。'
 peopleNearby: 附近的人
 peopleNearbyLogic: 附近的人邏輯
 scan: 掃一掃
 scanResult: 掃描結果
 scannerResult: 掃描結果
 titleDiscover: 發現
+myChannels: 我的頻道
+channelSquare: 頻道廣場
 otherUsersCanFindMe: 其他用家可以通過搜尋找到我
 moments: 動態
+momentsReport: 舉報動態
+momentsReportDesc: 補充說明
+momentsComments: 評論
+momentsWriteComment: 寫評論...
+momentsVisibility: 可見性
+momentsVisibilityPublic: 公開
+momentsVisibilityPartial: 部分可見
+momentsVisibilityExclude: 不給誰看
+momentsDenyUidsLabel: 不給誰看 UID 列表（逗號分隔）
+momentsDraftRestored: 已恢復上次未傳送的草稿
+momentsFeedStale: 網路異常，顯示的是快取內容
 discover: 發現
 shake: 搖一搖
+openChannel: 開啟頻道
+paidChannelLocked: 付費頻道內容已鎖定
+webQRScanned: 已掃描

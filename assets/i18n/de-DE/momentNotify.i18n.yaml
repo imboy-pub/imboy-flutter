@@ -1,0 +1,14 @@
+---
+title: Benachrichtigungen
+emptyTitle: Keine neuen Benachrichtigungen
+emptyHint: „Gefällt mir" und Kommentare von Freunden erscheinen hier
+actionLike: hat deinen Moment geliket
+actionComment: hat kommentiert
+markAllRead: Alle gelesen
+clearAll: Alle löschen
+clearConfirmTitle: Alle Benachrichtigungen löschen?
+clearConfirmMessage: Kann nicht rückgängig gemacht werden
+confirm: OK
+cancel: Abbrechen
+delete: Löschen
+loadFailed: Laden fehlgeschlagen. Bitte später erneut versuchen.

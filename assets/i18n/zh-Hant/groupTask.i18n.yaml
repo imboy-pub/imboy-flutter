@@ -1,0 +1,23 @@
+title: 群作業
+createTask: 建立任務
+taskTitle: 任務標題
+taskDescription: 任務描述
+assignTo: 指派給
+deadline: 截止時間
+noDeadline: 無截止時間
+noTask: 暫無任務
+all: 全部
+pending: 待完成
+completed: 已完成
+taskCreated: 任務建立成功
+taskSubmitted: 任務已提交
+taskCompleted: 任務已完成
+overdue: 已過期
+daysLeft: $days 天后截止
+hoursLeft: $hours 小時後截止
+dueSoon: 即將截止
+submitFailed: 提交失敗，請稍後重試
+taskId: 任務ID
+pendingReview: 待稽核
+taskIdMissing: 任務ID缺失，無法檢視詳情
+taskIdMissingSubmit: 任務ID缺失，無法提交

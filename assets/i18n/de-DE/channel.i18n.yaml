@@ -1,3 +1,4 @@
+---
 title: Kanäle
 loading: Laden...
 subscribed: Abonniert
@@ -9,10 +10,8 @@ searchHint: Kanalname oder ID suchen
 searchTip: Schlüsselwörter eingeben um Kanäle zu suchen
 noResults: Keine Kanäle gefunden
 noRecommendedChannels: Keine empfohlenen Kanäle Schauen Sie später vorbei
-noSubscribedChannels: "Keine abonnierten Kanäle
-Entdecke mehr Kanäle"
-noManagedChannels: "Keine verwalteten Kanäle
-Erstelle einen Kanal um zu beginnen"
+noSubscribedChannels: Keine abonnierten Kanäle Entdecke mehr Kanäle
+noManagedChannels: Keine verwalteten Kanäle Erstelle einen Kanal um zu beginnen
 noMessages: Keine Nachrichten
 subscribers: Abonnenten
 pinned: Angepinnt
@@ -32,9 +31,9 @@ nameTooLong: Kanalname darf 50 Zeichen nicht überschreiten
 descriptionLabel: Beschreibung
 descriptionHint: Beschreibe deinen Kanal (optional)
 customIdLabel: Benutzerdefinierte ID (optional)
-customIdHint: "z.B.: mein_kanal"
+customIdHint: 'z.B.: mein_kanal'
 customIdHelper: Ermöglicht Suche nach Kanal-ID
-customIdInvalid: "Nur Buchstaben, Zahlen und Unterstriche erlaubt"
+customIdInvalid: Nur Buchstaben, Zahlen und Unterstriche erlaubt
 customIdLength: Muss 4-30 Zeichen lang sein
 typeLabel: Kanaltyp
 typePublic: Öffentlich
@@ -53,7 +52,7 @@ react: Reagieren
 admin: Verwalten
 settings: Einstellungen
 editChannel: Kanal bearbeiten
-editChannelDesc: "Kanalname, Beschreibung usw. aktualisieren"
+editChannelDesc: Kanalname, Beschreibung usw. aktualisieren
 editChannelNotImplemented: Kanal bearbeiten kommt bald
 manageAdmins: Admins verwalten
 manageAdminsDesc: Kanal-Admins hinzufügen oder entfernen
@@ -63,7 +62,7 @@ manageSubscribersDesc: Kanal-Abonnenten anzeigen und verwalten
 manageSubscribersNotImplemented: Abonnenten verwalten kommt bald
 deleteChannel: Kanal löschen
 deleteChannelDesc: Diese Aktion kann nicht rückgängig gemacht werden
-deleteChannelConfirm: "Bist du sicher, dass du diesen Kanal löschen möchtest? Dies kann nicht rückgängig gemacht werden."
+deleteChannelConfirm: Bist du sicher, dass du diesen Kanal löschen möchtest? Dies kann nicht rückgängig gemacht werden.
 deleteChannelNotImplemented: Kanal löschen kommt bald
 channelDeleted: Kanal gelöscht
 deleteChannelFailed: Kanal löschen fehlgeschlagen
@@ -76,13 +75,13 @@ unpinMessageNotImplemented: Anpinnen aufheben kommt bald
 messagePinned: Nachricht angepinnt
 messageUnpinned: Anpinnen aufgehoben
 deleteMessage: Nachricht löschen
-deleteMessageConfirm: "Bist du sicher, dass du diese Nachricht löschen möchtest?"
+deleteMessageConfirm: Bist du sicher, dass du diese Nachricht löschen möchtest?
 messageDeleted: Nachricht gelöscht
 addAdmin: Admin hinzufügen
 addAdminSuccess: Admin erfolgreich hinzugefügt
 addAdminFailed: Admin hinzufügen fehlgeschlagen
 removeAdmin: Admin entfernen
-removeAdminConfirm: "Bist du sicher, dass du diesen Admin entfernen möchtest?"
+removeAdminConfirm: Bist du sicher, dass du diesen Admin entfernen möchtest?
 removeAdminSuccess: Admin entfernt
 removeAdminFailed: Admin entfernen fehlgeschlagen
 changeRole: Rolle ändern
@@ -90,21 +89,32 @@ updateRoleSuccess: Rolle erfolgreich aktualisiert
 updateRoleFailed: Rolle aktualisieren fehlgeschlagen
 userId: Benutzer-ID
 userIdHint: Benutzer-ID eingeben
+selectFromContacts: Aus Kontakten wählen
+searchContactsHint: Spitzname oder Konto suchen
+noContactsToAdd: Alle Freunde sind bereits Administratoren
+selectRole: Rolle wählen
 noAdmins: Keine Admins vorhanden
 roleCreator: Ersteller
 roleAdmin: Admin
+roleAdminDesc: Kanal verwalten
 roleEditor: Editor
+roleEditorDesc: Nachrichten veröffentlichen
 roleUnknown: Unbekannt
 searchSubscribers: Abonnenten suchen
 subscriberSearchHint: Nach Name oder ID suchen
 noSearchResults: Keine passenden Abonnenten gefunden
 noSubscribers: Keine Abonnenten vorhanden
 removeSubscriber: Abonnent entfernen
-removeSubscriberConfirm: "Bist du sicher, dass du diesen Abonnent entfernen möchtest?"
+removeSubscriberConfirm: Bist du sicher, dass du diesen Abonnent entfernen möchtest?
 removeSubscriberSuccess: Abonnent entfernt
 removeSubscriberFailed: Abonnent entfernen fehlgeschlagen
 subscribedAt: Abonniert am
 viewProfile: Profil ansehen
+inviteFromContacts: Freunde einladen
+inviteSearchHint: Spitzname oder Konto suchen
+noContactsToInvite: Alle Freunde bereits eingeladen oder abonniert
+inviteSuccess: Einladung gesendet
+inviteFailed: Einladung fehlgeschlagen
 updateSuccess: Kanal erfolgreich aktualisiert
 updateFailed: Kanal aktualisieren fehlgeschlagen
 typeCannotChange: Kann nach Erstellung nicht geändert werden

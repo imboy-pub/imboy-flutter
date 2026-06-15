@@ -1,0 +1,12 @@
+---
+title: "@멘션"
+noMention: 멘션이 없습니다
+allRead: 모두 읽음
+markAsRead: 읽음으로 표시
+newMention: 새 멘션
+fromGroup: 그룹에서
+fromChat: 채팅에서
+viewContext: 문맥 보기
+mentionCount: 새 멘션 $count건
+mentionAllDenied: 관리자만 @모두를 사용할 수 있습니다
+navInfoMissing: 메시지 위치 정보가 없어 이동할 수 없습니다

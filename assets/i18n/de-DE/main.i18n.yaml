@@ -1,5 +1,6 @@
+---
 change: Ändern
-entertainment: "Filme & Shows"
+entertainment: Filme & Shows
 lifePayment: Rechnungszahlung
 medicalHealth: Gesundheit
 meituanDelivery: Meituan Lieferung
@@ -10,12 +11,14 @@ album: Fotos
 appSize: App-Größe
 arSa: Arabisch (Saudi-Arabien)
 audio: Audio
-barcodeFound: "Strichcode gefunden!"
+barcodeFound: Strichcode gefunden!
 botQianFan: QianFan Robot
+liveRoomWhipLabel: WHIP-Streaming-URL
+liveRoomWhepLabel: WHEP-Empfangs-URL
 cache: Cache
 camera: Kamera
 changeNameView: Namen ändern
-changeParam: $param ändern
+changeParam: "$param ändern"
 chooseFromAlbum: Aus Album auswählen
 clean: Bereinigen
 codeSentToParam: Bestätigungscode an $param gesendet
@@ -30,7 +33,7 @@ earlier: Früher
 enGb: Britisches Englisch
 enUs: Amerikanisches Englisch
 enable: Aktivieren
-example: "Beispiel:"
+example: 'Beispiel:'
 expired: Abgelaufen
 extraItem: Zusätzliches Element
 faceToFaceLogic: Logik für Face-to-Face
@@ -75,7 +78,7 @@ multiSelectMode: Mehrfachauswahl-Modus
 myFavorites: Meine Favoriten
 myLive: Mein Live-Stream
 name: Name
-numUnit: $param Stück
+numUnit: "$param Stück"
 openInBrowser: Im Browser öffnen
 or: Oder
 otherParty: Gegenüber
@@ -89,6 +92,9 @@ quote: Zitat
 recentlyUsed: Kürzlich verwendet
 releaseEnd: Zum Beenden loslassen
 remainingChars: Noch $param Zeichen möglich
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role
 replied: Geantwortet
 ringing: Klingelt...
 ruRu: Russisch (Russland)
@@ -97,7 +103,7 @@ selected: Ausgewählt
 sent: Gesendet
 sentByMe: Von mir gesendet
 sentByOthers: Von anderen gesendet
-setParam: $param einstellen
+setParam: "$param einstellen"
 setting: Einstellungen
 siginQ: Bereits ein Konto?
 signInWith: Mit $param anmelden
@@ -111,8 +117,9 @@ termOfServices: Nutzungsbedingungen
 text: Text
 thisWeek: Diese Woche
 timeRange: Zeitbereich
-timeWeekdays: "Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag,Sonntag"
+timeWeekdays: Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag,Sonntag
 titleMine: Ich
+titleSquare: Entdecken
 tooBad: Zu schlecht
 tryAgainQ: Nochmal versuchen?
 type: Typ
@@ -154,11 +161,11 @@ toBeCompleted: Noch zu vervollständigen
 availableCount: Verfügbar
 mostUsed: Am häufigsten verwendet
 commentPlaceholder: Kommentar...
-delayMsLabel: "Verzögerung in ms (>=100)"
+delayMsLabel: Verzögerung in ms (>=100)
 processed: Verarbeitet
 export: Exportieren
 school: Schule
-hobbiesAndInterests: "Hobbys & Interessen"
+hobbiesAndInterests: Hobbys & Interessen
 interests: Interests
 pleaseEnterSchool: Please enter school
 pleaseEnterInterests: Please enter interests
@@ -173,7 +180,7 @@ pleaseTryAgain: Bitte versuchen Sie es erneut
 secret: Geheim
 takePhoto: Foto aufnehmen
 publishing: Wird veröffentlicht...
-deletingInProgressPleaseWait: "Wird gelöscht, bitte warten..."
+deletingInProgressPleaseWait: Wird gelöscht, bitte warten...
 testUser1: Benutzer 1
 testUser2: Benutzer 2
 testUser3: Benutzer 3
@@ -183,8 +190,91 @@ collecting: Wird favorisiert...
 user: Benutzer
 recommended: Empfohlen
 larger: Größer
-currentLength: "Aktuelle Länge: $param1 / $param2"
+currentLength: 'Aktuelle Länge: $param1 / $param2'
 fillIn: Ausfüllen
-kickMember: Remove from Group
-memberDetail: Member Details
-memberRole: Role
+msgProtectedByComplianceKey: Nachricht durch Compliance-Schlüssel geschützt
+inviterLabel(uid): 'Eingeladen von: $uid'
+inviteeLabel(uid): 'Eingeladener: $uid'
+mySentTab: Gesendet
+reject: Ablehnen
+myOrders: Bestellungen
+purchaseUnlockHint: Nach Kauf werden Verlauf und neue Nachrichten freigeschaltet.
+payingDots: Zahlung...
+purchaseAndUnlock: Jetzt kaufen & freischalten
+orderDetail: Bestelldetails
+orderAmountLabel(currency, amount): 'Betrag: $currency $amount'
+channelPriceLabel(currency, amount): 'Preis: $currency $amount'
+e2eeKeyRecoveryTitle: E2EE-Schlüsselverwaltung
+e2eeRecoveryMethods: Wiederherstellungsmethoden
+e2eeDangerousOps: Kritische Aktionen
+e2eeSocialRecovery: Soziale Wiederherstellung
+e2eeSocialRecoveryDesc: Schlüssel mit Hilfe vertrauter Kontakte wiederherstellen
+e2eeKeyIdLabel: Schlüssel-ID
+e2eeWarnIrreversible: "• Vorgang nicht umkehrbar"
+e2eeWarnNeedRestoreOrNew: "• Aus Backup wiederherstellen oder neuen Schlüssel erstellen"
+gotIt: Verstanden
+e2eeRecoverKeyTitle: Schlüssel wiederherstellen
+e2eeCanRecoverKey: Schlüssel wiederherstellbar
+e2eeInsufficientShards: Nicht genügend Fragmente
+e2eeProxyUser(uid): 'Treuhänder: $uid'
+e2eeShardLabel(index, total): Fragment $index / $total
+e2eeReloadShards: Neu laden
+e2eeRecovering: Wird wiederhergestellt...
+e2eeKeyRestored: Schlüssel wiederhergestellt
+e2eeUsedShards(count): "$count Treuhänder-Fragmente verwendet"
+e2eePreparing: Wird vorbereitet...
+e2eeRecoveryProgressLabel(collected, total): 'Fortschritt: $collected / $total Fragmente'
+e2eeCollectingShards(collected, total): Sammle Fragmente ($collected/$total)...
+e2eeShardsCollected: Fragmente gesammelt, Schlüssel wird zusammengesetzt...
+webQRLoggingIn: Anmeldung...
+webQRExpired: QR-Code abgelaufen
+webQRRefresh: QR-Code aktualisieren
+webSwitchToQR: Per QR-Code anmelden
+e2eeErrDefault: E2EE fehlgeschlagen, Nachricht nicht gesendet
+e2eeSocialTotalShards: Fragmente gesamt
+e2eeSocialThreshold: Schwellenwert
+e2eeSocialThresholdHint(count): Für Wiederherstellung sind $count Treuhänder nötig
+e2eeSocialSelectProxy: Treuhänder wählen
+e2eeSocialProxyNeeded(count): "$count vertrauenswürdige Kontakte als Treuhänder nötig"
+e2eeSocialProxyDefaultName(uid): Benutzer $uid
+e2eeSocialShardSentViaWs: Fragmente per WebSocket direkt an Treuhänder gesendet
+e2eeSocialSentCount(sent, total): An $sent von $total Treuhänder gesendet
+e2eeSocialManageTitle: Fragmente verwalten
+e2eeSocialMyShards: Meine Fragmente
+e2eeSocialProxyShards: Treuhänder-Fragmente
+e2eeSocialShardOf(idx, total): Fragment $idx / $total
+e2eeSocialShardActive: Aktiv
+e2eeSocialShardUsed: Verwendet
+e2eeSocialShardValid: Fragment gültig
+e2eeSocialUserShard(uid): Schlüsselfragment von $uid
+e2eeSocialProxyUserLabel: Treuhänder
+e2eeSocialRecoveryThresholdLabel: Schwellenwert
+e2eeSocialShardIndexLabel: Fragment-Nr.
+e2eeTransferQRHint: QR-Code am neuen Gerät scannen
+e2eeTransferQRExpiry(time): QR-Code läuft $time ab
+e2eeTransferRefreshQR: QR-Code aktualisieren
+e2eeTransferEnterUidTitle: Empfänger-Benutzer-ID eingeben
+e2eeTransferUidPlaceholder: Empfänger-Benutzer-ID
+e2eeTransferReceiving: Wird empfangen...
+e2eeTransferPageTitle: Geräteübertragung
+e2eeTransferPendingItem: Ausstehende Schlüsselübertragung
+e2eeTransferPendingItemDesc: Tippen für Details
+e2eeTransferView: Ansehen
+e2eeSocialTitle: Soziale Wiederherstellung
+e2eeSocialCanRecover: Schlüssel wiederherstellbar
+e2eeSocialSetupProxy: Treuhänder einrichten
+e2eeSocialChooseProxy: Vertrauenswürdige Kontakte als Treuhänder wählen
+e2eeSocialExistingShards: Vorhandene Fragmente
+e2eeSocialRecoverKeyTitle: Schlüssel wiederherstellen
+e2eeSocialRecoverKeyDesc: Mit Treuhänder-Fragmenten wiederherstellen
+e2eeSocialManageShardsTitle: Fragmente verwalten
+e2eeSocialManageShardsDesc: Alle Fragmente ansehen und verwalten
+e2eeSocialZeroTrustHint1: 'Zero-Trust: Server ohne Fragmente, direkter Kontakt zu Treuhändern'
+e2eeSocialZeroTrustHint2: 'Zero-Trust: Fragmente bei Treuhändern'
+e2eeSocialZeroTrustHint3: 'Zero-Trust: Server hat keinen Zugriff auf Klartext'
+e2eeProxyMinCount(count): Mindestens $count Treuhänder wählen
+e2eeProxySelectTitle: Treuhänder wählen
+e2eeProxySelectedCount(selected, total): "$selected / $total gewählt"
+e2eeProxyReachedMin: Mindestanzahl erreicht
+liveRoomTitleLabel: Livestream-Titel
+liveRoomTitleHint: Livestream-Titel eingeben

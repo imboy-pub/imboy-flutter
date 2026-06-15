@@ -1,7 +1,9 @@
+---
 financialManagement: Gestione patrimoniale
 enterSameGroup: Entra nella stessa chat di gruppo con gli amici vicini
 enterTheGroup: Entra nel gruppo
 groupAlias: Il mio nickname nel gruppo
+groupAlbum: Album di gruppo
 groupDissolve: Sciogli gruppo
 groupJoin: Unisciti al gruppo
 groupLeave: Esci dal gruppo
@@ -9,13 +11,33 @@ groupManagement: Gestione gruppo
 groupMembers: Membri gruppo
 groupName: Nome gruppo
 mutualGroupsWithHer: Gruppi comuni con lui/lei
-selectGroup: Seleziona una chat di gruppo
-sureToDissolveGroup: Sei sicuro di voler sciogliere questo gruppo?
-sureToLeaveGroup: Sei sicuro di voler uscire da questo gruppo?
 groupOwner: Owner
 groupAdmin: Admin
-groupGuest: 嘉宾
+groupGuest: Ospite d'onore
 groupMember: Member
 setAdmin: Set as Admin
 transferGroup: Transfer Ownership
 joinTime: Join Time
+selectGroup: Seleziona una chat di gruppo
+sureToDissolveGroup: Sei sicuro di voler sciogliere questo gruppo?
+sureToLeaveGroup: Sei sicuro di voler uscire da questo gruppo?
+groupAlbumNameHint: Nome album
+groupAlbumRenameTitle: Rinomina album
+groupAlbumRenamed: Album rinominato
+groupAlbumUnnamed: Album senza nome
+groupAlbumPhotoCount(count): "$count immagini"
+groupAlbumPhotoIdMissing: ID immagine mancante, dettagli non disponibili
+groupAlbumPhotoListTitle: Immagini album
+groupAlbumPhotoSelectedCount(count): "$count selezionati"
+groupAlbumPhotoEmpty: Nessuna immagine
+groupAlbumPhotoUrlMissing: Indirizzo immagine mancante, apertura impossibile
+groupAlbumPhotoUrlInvalid: Indirizzo immagine non valido
+groupAlbumPhotoDetailTitle: Dettagli immagine
+groupAlbumPhotoSetCover: Copertina
+groupAlbumPhotoPrev: Precedente
+groupAlbumPhotoLikeCount: Mi piace
+groupAlbumPhotoCommentCount: Commenti
+groupAlbumPhotoMyLike: Il mio Mi piace
+groupAlbumPhotoIdLabel: ID immagine
+e2eeKeyManagement: Gestione chiavi E2EE
+e2eeKeyManagementSubtitle: Backup, ripristino e gestione chiavi E2EE

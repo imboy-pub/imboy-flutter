@@ -1,7 +1,13 @@
+---
 restartRequired: Требуется перезапуск приложения
 networkFailureGuidance: Руководство при сетевых ошибках
-pleaseCheckNetwork: "Пожалуйста, проверьте настройки сети."
+pleaseCheckNetwork: Пожалуйста, проверьте настройки сети.
 networkTroubleshootingStep1: 1. Включите Wi-Fi в настройках телефона
 networkTroubleshootingStep2: 2. Включите мобильные данные
 networkTroubleshootingStep3: 3. Проверьте интернет или обратитесь к оператору
 suggestCheckNetwork: Рекомендуется проверить настройки сети.
+e2eeStartRecoveryBtn(required): 'Начать восстановление (нужно посредников: $required)'
+e2eeInsufficientShardBtn(required, current): Недостаточно фрагментов (нужно $required, есть $current)
+e2eeErrTimeout: Превышено время шифрования, проверьте сеть и попробуйте ещё раз
+e2eeErrNetwork: Сетевая ошибка, шифрование не выполнено, сообщение не отправлено
+liveRoomTitleRequired: Введите название

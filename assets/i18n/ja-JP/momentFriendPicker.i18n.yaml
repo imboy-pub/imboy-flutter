@@ -1,0 +1,12 @@
+---
+title: 友達を選択
+titleAllow: 公開対象
+titleDeny: 除外対象
+confirm: 完了
+confirmWithCount: 完了($count)
+selectedCount: "$count 人選択中"
+emptyFriends: 友達がいません
+tagsLabel: タグで選択
+emptyTags: タグはありません
+tagLoadFailed: タグの読み込みに失敗しました
+searchHint: 友達を検索

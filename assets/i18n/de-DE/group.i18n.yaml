@@ -1,7 +1,9 @@
+---
 financialManagement: Vermögensverwaltung
 enterSameGroup: Mit Freunden in der Nähe denselben Gruppenchat beitreten
 enterTheGroup: Der Gruppe beitreten
 groupAlias: Mein Spitzname in dieser Gruppe
+groupAlbum: Gruppenalbum
 groupDissolve: Gruppe auflösen
 groupJoin: Gruppe beitreten
 groupLeave: Gruppe verlassen
@@ -9,13 +11,33 @@ groupManagement: Gruppenverwaltung
 groupMembers: Gruppenmitglieder
 groupName: Gruppenname
 mutualGroupsWithHer: Gemeinsame Gruppen
-selectGroup: Gruppe auswählen
-sureToDissolveGroup: Gruppe wirklich auflösen?
-sureToLeaveGroup: Gruppe wirklich verlassen?
 groupOwner: Owner
 groupAdmin: Admin
-groupGuest: 嘉宾
+groupGuest: Ehrengast
 groupMember: Member
 setAdmin: Set as Admin
 transferGroup: Transfer Ownership
 joinTime: Join Time
+selectGroup: Gruppe auswählen
+sureToDissolveGroup: Gruppe wirklich auflösen?
+sureToLeaveGroup: Gruppe wirklich verlassen?
+groupAlbumNameHint: Albumname eingeben
+groupAlbumRenameTitle: Album umbenennen
+groupAlbumRenamed: Album umbenannt
+groupAlbumUnnamed: Unbenanntes Album
+groupAlbumPhotoCount(count): "$count Bilder"
+groupAlbumPhotoIdMissing: Bild-ID fehlt, Details können nicht angezeigt werden
+groupAlbumPhotoListTitle: Albumbilder
+groupAlbumPhotoSelectedCount(count): "$count ausgewählt"
+groupAlbumPhotoEmpty: Keine Bilder
+groupAlbumPhotoUrlMissing: Bildadresse fehlt, kann nicht geöffnet werden
+groupAlbumPhotoUrlInvalid: Bildadresse ungültig
+groupAlbumPhotoDetailTitle: Bild-Details
+groupAlbumPhotoSetCover: Als Cover festlegen
+groupAlbumPhotoPrev: Zurück
+groupAlbumPhotoLikeCount: Gefällt-mir
+groupAlbumPhotoCommentCount: Kommentare
+groupAlbumPhotoMyLike: Mein Like
+groupAlbumPhotoIdLabel: Bild-ID
+e2eeKeyManagement: E2EE-Schlüsselverwaltung
+e2eeKeyManagementSubtitle: E2EE-Schlüssel sichern, wiederherstellen und verwalten

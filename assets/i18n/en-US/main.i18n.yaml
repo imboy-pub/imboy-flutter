@@ -276,3 +276,4 @@ e2eeProxySelectedCount(selected, total): Selected $selected / $total
 e2eeProxyReachedMin: Minimum proxy count reached
 liveRoomTitleLabel: Live Room Title
 liveRoomTitleHint: Enter live room title
+channelPriceLabel(currency, amount): "Price: $currency $amount"

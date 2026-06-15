@@ -1,7 +1,9 @@
+---
 financialManagement: 자산 관리
 enterSameGroup: 주변 친구와 같은 그룹 채팅에 들어가세요
 enterTheGroup: 그룹 입장
 groupAlias: 그룹 내 내 닉네임
+groupAlbum: 그룹 앨범
 groupDissolve: 그룹 해체
 groupJoin: 그룹 참여
 groupLeave: 그룹 나가기
@@ -9,13 +11,33 @@ groupManagement: 그룹 관리
 groupMembers: 그룹 구성원
 groupName: 그룹 채팅 이름
 mutualGroupsWithHer: 해당 사용자와의 공통 그룹 채팅
-selectGroup: 그룹 채팅 선택
-sureToDissolveGroup: 이 그룹을 해체하시겠습니까?
-sureToLeaveGroup: 이 그룹을 나가시겠습니까?
 groupOwner: Owner
 groupAdmin: Admin
-groupGuest: 嘉宾
+groupGuest: 게스트
 groupMember: Member
 setAdmin: Set as Admin
 transferGroup: Transfer Ownership
 joinTime: Join Time
+selectGroup: 그룹 채팅 선택
+sureToDissolveGroup: 이 그룹을 해체하시겠습니까?
+sureToLeaveGroup: 이 그룹을 나가시겠습니까?
+groupAlbumNameHint: 앨범 이름을 입력하세요
+groupAlbumRenameTitle: 앨범 이름 변경
+groupAlbumRenamed: 앨범 이름이 변경되었습니다
+groupAlbumUnnamed: 이름 없는 앨범
+groupAlbumPhotoCount(count): 이미지 $count장
+groupAlbumPhotoIdMissing: 이미지 ID가 없어 상세정보를 볼 수 없습니다
+groupAlbumPhotoListTitle: 앨범 이미지
+groupAlbumPhotoSelectedCount(count): "$count개 선택됨"
+groupAlbumPhotoEmpty: 이미지가 없습니다
+groupAlbumPhotoUrlMissing: 이미지 주소가 없어 열 수 없습니다
+groupAlbumPhotoUrlInvalid: 이미지 주소가 잘못되었습니다
+groupAlbumPhotoDetailTitle: 이미지 상세
+groupAlbumPhotoSetCover: 표지로 설정
+groupAlbumPhotoPrev: 이전
+groupAlbumPhotoLikeCount: 좋아요 수
+groupAlbumPhotoCommentCount: 댓글 수
+groupAlbumPhotoMyLike: 내 좋아요
+groupAlbumPhotoIdLabel: 이미지 ID
+e2eeKeyManagement: E2EE 키 관리
+e2eeKeyManagementSubtitle: 종단간 암호화 키를 백업, 복구 및 관리합니다

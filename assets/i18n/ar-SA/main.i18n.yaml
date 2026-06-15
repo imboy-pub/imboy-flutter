@@ -1,3 +1,4 @@
+---
 change: تعديل
 entertainment: أفلام وعروض
 lifePayment: دفع فواتير
@@ -10,8 +11,10 @@ album: ألبوم
 appSize: حجم التطبيق
 arSa: العربية (السعودية)
 audio: صوت
-barcodeFound: "تم العثور على الباركود!"
+barcodeFound: تم العثور على الباركود!
 botQianFan: روبوت Qianfan
+liveRoomWhipLabel: عنوان بث WHIP
+liveRoomWhepLabel: عنوان استقبال WHEP
 cache: الذاكرة المؤقتة
 camera: تصوير
 changeNameView: عرض تغيير الاسم
@@ -30,7 +33,7 @@ earlier: أقدم
 enGb: الإنجليزية (المملكة المتحدة)
 enUs: الإنجليزية (الولايات المتحدة)
 enable: تمكين
-example: "مثال:"
+example: 'مثال:'
 expired: منتهية الصلاحية
 extraItem: عنصر إضافي
 faceToFaceLogic: منطق وجهاً لوجه
@@ -75,7 +78,7 @@ multiSelectMode: وضع التحديد المتعدد
 myFavorites: مفضلاتي
 myLive: بثي المباشر
 name: الاسم
-numUnit: $param عنصر
+numUnit: "$param عنصر"
 openInBrowser: فتح في المتصفح
 or: أو
 otherParty: الطرف الآخر
@@ -89,6 +92,9 @@ quote: اقتباس
 recentlyUsed: استخدمت مؤخراً
 releaseEnd: اترك للإنهاء
 remainingChars: لا يزال بإمكانك إدخال $param حرف
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role
 replied: تم الرد
 ringing: جارٍ الرنين...
 ruRu: الروسية (روسيا)
@@ -113,6 +119,7 @@ thisWeek: هذا الأسبوع
 timeRange: النطاق الزمني
 timeWeekdays: الاثنين،الثلاثاء،الأربعاء،الخميس،الجمعة،السبت،الأحد
 titleMine: أنا
+titleSquare: الساحة
 tooBad: سيء جداً
 tryAgainQ: هل تريد المحاولة مرة أخرى؟
 type: النوع
@@ -154,7 +161,7 @@ toBeCompleted: يجب إكماله
 availableCount: قابل للاختيار
 mostUsed: الأكثر استخداماً
 commentPlaceholder: تعليق...
-delayMsLabel: "تأخير بالمللي ثانية (>=100)"
+delayMsLabel: تأخير بالمللي ثانية (>=100)
 processed: تمت المعالجة
 export: تصدير
 school: المدرسة
@@ -183,8 +190,91 @@ collecting: جارٍ الإضافة إلى المفضلة...
 user: مستخدم
 recommended: مُوصى به
 larger: أكبر
-currentLength: "الطول الحالي: $param1 / $param2"
+currentLength: 'الطول الحالي: $param1 / $param2'
 fillIn: ملء
-kickMember: Remove from Group
-memberDetail: Member Details
-memberRole: Role
+msgProtectedByComplianceKey: الرسائل محمية بمفتاح الامتثال
+inviterLabel(uid): 'الداعي: $uid'
+inviteeLabel(uid): 'المدعو: $uid'
+mySentTab: المُرسلة
+reject: رفض
+myOrders: طلباتي
+purchaseUnlockHint: بعد الشراء يُفتح سجل رسائل القناة والتحديثات القادمة.
+payingDots: جارٍ الدفع...
+purchaseAndUnlock: شراء وفتح
+orderDetail: تفاصيل الطلب
+orderAmountLabel(currency, amount): 'المبلغ: $currency $amount'
+channelPriceLabel(currency, amount): 'السعر: $currency $amount'
+e2eeKeyRecoveryTitle: إدارة مفاتيح التشفير من طرف إلى طرف
+e2eeRecoveryMethods: طرق استعادة المفتاح
+e2eeDangerousOps: إجراءات خطرة
+e2eeSocialRecovery: الاستعادة الاجتماعية
+e2eeSocialRecoveryDesc: استعادة المفتاح بمساعدة جهات اتصال موثوقة
+e2eeKeyIdLabel: معرّف المفتاح
+e2eeWarnIrreversible: "• هذا الإجراء غير قابل للتراجع"
+e2eeWarnNeedRestoreOrNew: "• يجب الاستعادة من نسخة أو إنشاء مفتاح جديد"
+gotIt: فهمت
+e2eeRecoverKeyTitle: استعادة المفتاح
+e2eeCanRecoverKey: يمكن استعادة المفتاح
+e2eeInsufficientShards: عدد الشظايا غير كافٍ
+e2eeProxyUser(uid): 'الوكيل: $uid'
+e2eeShardLabel(index, total): شظية $index / $total
+e2eeReloadShards: إعادة التحميل
+e2eeRecovering: جارٍ الاستعادة...
+e2eeKeyRestored: تمت استعادة المفتاح
+e2eeUsedShards(count): تم استخدام $count شظية وكلاء
+e2eePreparing: جارٍ التحضير...
+e2eeRecoveryProgressLabel(collected, total): 'التقدم: $collected / $total شظية'
+e2eeCollectingShards(collected, total): جارٍ جمع الشظايا ($collected/$total)...
+e2eeShardsCollected: اكتمل جمع الشظايا، جارٍ إعادة تجميع المفتاح...
+webQRLoggingIn: جارٍ الدخول...
+webQRExpired: انتهت صلاحية رمز QR
+webQRRefresh: تحديث رمز QR
+webSwitchToQR: الدخول برمز QR
+e2eeErrDefault: فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة
+e2eeSocialTotalShards: إجمالي الشظايا
+e2eeSocialThreshold: حد الاستعادة
+e2eeSocialThresholdHint(count): يلزم $count وكيل للاستعادة
+e2eeSocialSelectProxy: اختيار الوكلاء
+e2eeSocialProxyNeeded(count): يلزم $count جهة اتصال موثوقة كوكلاء
+e2eeSocialProxyDefaultName(uid): المستخدم $uid
+e2eeSocialShardSentViaWs: أُرسلت الشظايا مباشرةً إلى أجهزة الوكلاء عبر WebSocket
+e2eeSocialSentCount(sent, total): أُرسل إلى $sent من أصل $total جهاز
+e2eeSocialManageTitle: إدارة الشظايا
+e2eeSocialMyShards: شظاياي
+e2eeSocialProxyShards: شظايا الوكلاء
+e2eeSocialShardOf(idx, total): شظية $idx / $total
+e2eeSocialShardActive: نشطة
+e2eeSocialShardUsed: مستخدمة
+e2eeSocialShardValid: الشظية صالحة
+e2eeSocialUserShard(uid): شظية مفتاح المستخدم $uid
+e2eeSocialProxyUserLabel: الوكيل
+e2eeSocialRecoveryThresholdLabel: حد الاستعادة
+e2eeSocialShardIndexLabel: رقم الشظية
+e2eeTransferQRHint: امسح رمز QR هذا على الجهاز الجديد
+e2eeTransferQRExpiry(time): تنتهي صلاحية رمز QR في $time
+e2eeTransferRefreshQR: تحديث رمز QR
+e2eeTransferEnterUidTitle: أدخل معرّف المستلم
+e2eeTransferUidPlaceholder: معرّف المستخدم المستلم
+e2eeTransferReceiving: جارٍ الاستقبال...
+e2eeTransferPageTitle: النقل بين الأجهزة
+e2eeTransferPendingItem: نقل مفتاح معلّق
+e2eeTransferPendingItemDesc: اضغط للتفاصيل
+e2eeTransferView: عرض
+e2eeSocialTitle: الاستعادة الاجتماعية
+e2eeSocialCanRecover: يمكن استعادة المفتاح
+e2eeSocialSetupProxy: إعداد الوكلاء
+e2eeSocialChooseProxy: اختر جهات اتصال موثوقة كوكلاء
+e2eeSocialExistingShards: شظايا الاستعادة الحالية
+e2eeSocialRecoverKeyTitle: استعادة المفتاح
+e2eeSocialRecoverKeyDesc: استعادة المفتاح من شظايا الوكلاء
+e2eeSocialManageShardsTitle: إدارة الشظايا
+e2eeSocialManageShardsDesc: عرض وإدارة جميع شظايا الاستعادة
+e2eeSocialZeroTrustHint1: 'ثقة صفرية: لا يحفظ الخادم الشظايا، يتواصل مع الوكلاء مباشرة'
+e2eeSocialZeroTrustHint2: 'ثقة صفرية: تُخزَّن الشظايا على أجهزة الوكلاء'
+e2eeSocialZeroTrustHint3: 'ثقة صفرية: الشظايا لدى الوكلاء، ولا يلمس الخادم النص الصريح'
+e2eeProxyMinCount(count): اختر $count وكلاء على الأقل
+e2eeProxySelectTitle: اختيار وكلاء الاستعادة
+e2eeProxySelectedCount(selected, total): 'محدد: $selected / $total'
+e2eeProxyReachedMin: تم بلوغ الحد الأدنى للوكلاء
+liveRoomTitleLabel: عنوان الغرفة
+liveRoomTitleHint: أدخل عنوان الغرفة

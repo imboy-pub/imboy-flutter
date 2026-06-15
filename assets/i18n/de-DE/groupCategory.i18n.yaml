@@ -1,0 +1,18 @@
+---
+title: Gruppenkategorien
+createCategory: Kategorie erstellen
+categoryName: Kategorie-Name
+categoryDesc: Beschreibung (optional)
+noCategory: Keine Kategorien
+createFirst: Erste Kategorie erstellen
+addGroup: Gruppe zur Kategorie hinzufügen
+removeGroup: Aus Kategorie entfernen
+deleteCategory: Kategorie löschen
+deleteCategoryConfirm: Diese Kategorie wirklich löschen? Gruppen bleiben erhalten.
+categoryCreated: Kategorie erstellt
+categoryDeleted: Kategorie gelöscht
+renameCategory: Kategorie umbenennen
+categoryRenamed: Kategorie umbenannt
+renameFailed: Umbenennen fehlgeschlagen. Bitte erneut versuchen.
+deleteFailed: Löschen fehlgeschlagen. Bitte erneut versuchen.
+categoryDetailTip: Gruppen dieser Kategorie lassen sich in der Gruppenliste über „In Kategorie verschieben" verwalten

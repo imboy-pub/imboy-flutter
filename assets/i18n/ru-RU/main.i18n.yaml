@@ -1,3 +1,4 @@
+---
 change: Изменить
 entertainment: Кино и мероприятия
 lifePayment: Оплата счетов
@@ -10,8 +11,10 @@ album: Фото
 appSize: Размер приложения
 arSa: Арабский (Саудовская Аравия)
 audio: Аудио
-barcodeFound: "Штрих-код найден!"
+barcodeFound: Штрих-код найден!
 botQianFan: Робот Qianfan
+liveRoomWhipLabel: Адрес трансляции WHIP
+liveRoomWhepLabel: Адрес приёма WHEP
 cache: Кэш
 camera: Камера
 changeNameView: Изменить имя
@@ -30,7 +33,7 @@ earlier: Раньше
 enGb: Английский (Великобритания)
 enUs: Английский (США)
 enable: Включено
-example: "Пример:"
+example: 'Пример:'
 expired: Истёк
 extraItem: Дополнительный элемент
 faceToFaceLogic: Логика общения лицом к лицу
@@ -51,9 +54,9 @@ keepSecret: Конфиденциально
 lastActiveTime: Последняя активность
 lastSeenHide: Скрыть онлайн-статус
 lastSeenNever: Никогда в сети
-lastSeenWeeksAgo: $param недель назад
+lastSeenWeeksAgo: "$param недель назад"
 lastSeenExactTime: Последний раз в сети $param
-licenseAgreement: «Лицензионное соглашение и условия обслуживания»
+licenseAgreement: "«Лицензионное соглашение и условия обслуживания»"
 liveBroadcast: Прямая трансляция
 liveRoomListView: Представление списка трансляций
 publisherPage: Страница трансляции
@@ -75,7 +78,7 @@ multiSelectMode: Режим множественного выбора
 myFavorites: Моё избранное
 myLive: Моя трансляция
 name: Имя
-numUnit: $param шт.
+numUnit: "$param шт."
 openInBrowser: Открыть в браузере
 or: Или
 otherParty: Собеседник
@@ -89,6 +92,9 @@ quote: Цитата
 recentlyUsed: Недавно использованные
 releaseEnd: Отпустите для завершения
 remainingChars: Осталось $param символов
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role
 replied: Ответлено
 ringing: Звонок...
 ruRu: Русский (Россия)
@@ -111,8 +117,9 @@ termOfServices: Условия обслуживания
 text: Текст
 thisWeek: На этой неделе
 timeRange: Временной диапазон
-timeWeekdays: "Понедельник, Вторник, Среда, Четверг, Пятница, Суббота, Воскресенье"
+timeWeekdays: Понедельник, Вторник, Среда, Четверг, Пятница, Суббота, Воскресенье
 titleMine: Мой
+titleSquare: Площадка
 tooBad: Очень плохо
 tryAgainQ: Попробовать снова?
 type: Тип
@@ -154,7 +161,7 @@ toBeCompleted: Требуется завершение
 availableCount: Доступно
 mostUsed: Наиболее используемые
 commentPlaceholder: Комментарий...
-delayMsLabel: "Задержка в мс (>=100)"
+delayMsLabel: Задержка в мс (>=100)
 processed: Обработано
 export: Экспорт
 school: Школа
@@ -169,11 +176,11 @@ selectFromAlbum: Выбрать из альбома
 volumeUp: Увеличить громкость
 volumeDown: Уменьшить громкость
 fastRewind: Быстрая перемотка назад $seconds сек
-pleaseTryAgain: "Пожалуйста, попробуйте снова"
+pleaseTryAgain: Пожалуйста, попробуйте снова
 secret: Конфиденциально
 takePhoto: Сделать фото
 publishing: Публикация...
-deletingInProgressPleaseWait: "Удаление в процессе, пожалуйста, подождите..."
+deletingInProgressPleaseWait: Удаление в процессе, пожалуйста, подождите...
 testUser1: Пользователь1
 testUser2: Пользователь2
 testUser3: Пользователь3
@@ -183,8 +190,91 @@ collecting: Сохранение...
 user: Пользователь
 recommended: Рекомендуется
 larger: Больше
-currentLength: "Текущая длина: $param1 / $param2"
+currentLength: 'Текущая длина: $param1 / $param2'
 fillIn: Заполнить
-kickMember: Remove from Group
-memberDetail: Member Details
-memberRole: Role
+msgProtectedByComplianceKey: Сообщения защищены ключом соответствия
+inviterLabel(uid): 'Пригласивший: $uid'
+inviteeLabel(uid): 'Приглашённый: $uid'
+mySentTab: Отправленные
+reject: Отклонить
+myOrders: Мои заказы
+purchaseUnlockHint: После покупки откроется история сообщений канала и новые публикации.
+payingDots: Оплата...
+purchaseAndUnlock: Купить и открыть
+orderDetail: Детали заказа
+orderAmountLabel(currency, amount): 'Сумма: $currency $amount'
+channelPriceLabel(currency, amount): 'Цена: $currency $amount'
+e2eeKeyRecoveryTitle: Управление ключами сквозного шифрования
+e2eeRecoveryMethods: Способы восстановления ключа
+e2eeDangerousOps: Опасные действия
+e2eeSocialRecovery: Социальное восстановление
+e2eeSocialRecoveryDesc: Восстановление ключа с помощью доверенных контактов
+e2eeKeyIdLabel: ID ключа
+e2eeWarnIrreversible: "• Это действие необратимо"
+e2eeWarnNeedRestoreOrNew: "• Нужно восстановить из копии или создать новый ключ"
+gotIt: Понятно
+e2eeRecoverKeyTitle: Восстановить ключ
+e2eeCanRecoverKey: Ключ можно восстановить
+e2eeInsufficientShards: Недостаточно фрагментов
+e2eeProxyUser(uid): 'Посредник: $uid'
+e2eeShardLabel(index, total): Фрагмент $index / $total
+e2eeReloadShards: Обновить
+e2eeRecovering: Восстановление...
+e2eeKeyRestored: Ключ восстановлен
+e2eeUsedShards(count): 'Использовано фрагментов посредников: $count'
+e2eePreparing: Подготовка...
+e2eeRecoveryProgressLabel(collected, total): 'Прогресс: $collected / $total фрагментов'
+e2eeCollectingShards(collected, total): Сбор фрагментов ($collected/$total)...
+e2eeShardsCollected: Фрагменты собраны, сборка ключа...
+webQRLoggingIn: Вход...
+webQRExpired: Срок действия QR-кода истёк
+webQRRefresh: Обновить QR-код
+webSwitchToQR: Войти по QR-коду
+e2eeErrDefault: Ошибка сквозного шифрования, сообщение не отправлено
+e2eeSocialTotalShards: Всего фрагментов
+e2eeSocialThreshold: Порог восстановления
+e2eeSocialThresholdHint(count): Для восстановления нужно $count посредников
+e2eeSocialSelectProxy: Выбор посредников
+e2eeSocialProxyNeeded(count): Нужно $count доверенных контактов как посредников
+e2eeSocialProxyDefaultName(uid): Пользователь $uid
+e2eeSocialShardSentViaWs: Фрагменты отправлены напрямую на устройства посредников через WebSocket
+e2eeSocialSentCount(sent, total): Отправлено $sent из $total устройств
+e2eeSocialManageTitle: Управление фрагментами
+e2eeSocialMyShards: Мои фрагменты
+e2eeSocialProxyShards: Фрагменты посредников
+e2eeSocialShardOf(idx, total): Фрагмент $idx / $total
+e2eeSocialShardActive: Активен
+e2eeSocialShardUsed: Использован
+e2eeSocialShardValid: Фрагмент действителен
+e2eeSocialUserShard(uid): Фрагмент ключа пользователя $uid
+e2eeSocialProxyUserLabel: Посредник
+e2eeSocialRecoveryThresholdLabel: Порог восстановления
+e2eeSocialShardIndexLabel: Номер фрагмента
+e2eeTransferQRHint: Отсканируйте этот QR-код на новом устройстве
+e2eeTransferQRExpiry(time): Срок QR-кода истекает $time
+e2eeTransferRefreshQR: Обновить QR-код
+e2eeTransferEnterUidTitle: Введите ID получателя
+e2eeTransferUidPlaceholder: ID пользователя-получателя
+e2eeTransferReceiving: Приём...
+e2eeTransferPageTitle: Передача между устройствами
+e2eeTransferPendingItem: Ожидающая передача ключа
+e2eeTransferPendingItemDesc: Нажмите для деталей
+e2eeTransferView: Открыть
+e2eeSocialTitle: Социальное восстановление
+e2eeSocialCanRecover: Ключ можно восстановить
+e2eeSocialSetupProxy: Настроить посредников
+e2eeSocialChooseProxy: Выберите доверенные контакты как посредников
+e2eeSocialExistingShards: Существующие фрагменты
+e2eeSocialRecoverKeyTitle: Восстановить ключ
+e2eeSocialRecoverKeyDesc: Восстановить ключ из фрагментов посредников
+e2eeSocialManageShardsTitle: Управление фрагментами
+e2eeSocialManageShardsDesc: Просмотр и управление всеми фрагментами восстановления
+e2eeSocialZeroTrustHint1: 'Нулевое доверие: сервер не хранит фрагменты, связь напрямую с посредниками'
+e2eeSocialZeroTrustHint2: 'Нулевое доверие: фрагменты хранятся на устройствах посредников'
+e2eeSocialZeroTrustHint3: 'Нулевое доверие: фрагменты у посредников, сервер не видит открытый текст'
+e2eeProxyMinCount(count): Выберите минимум $count посредников
+e2eeProxySelectTitle: Выбор посредников восстановления
+e2eeProxySelectedCount(selected, total): Выбрано $selected / $total
+e2eeProxyReachedMin: Достигнуто минимальное число посредников
+liveRoomTitleLabel: Название трансляции
+liveRoomTitleHint: Введите название трансляции

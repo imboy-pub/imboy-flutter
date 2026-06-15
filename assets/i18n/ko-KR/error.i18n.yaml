@@ -1,7 +1,13 @@
+---
 restartRequired: 앱 재시작 필요
 networkFailureGuidance: 네트워크 오류 안내
 pleaseCheckNetwork: 네트워크 설정을 확인해 주세요.
 networkTroubleshootingStep1: 1. 휴대전화 설정을 열고 Wi-Fi 스위치를 켜 주세요.
 networkTroubleshootingStep2: 2. 휴대전화 설정 - 일반 - 셀룰러 데이터를 열고 셀룰러 데이터 스위치를 켜 주세요.
-networkTroubleshootingStep3: "3. 여전히 네트워크에 연결할 수 없는 경우, 휴대전화가 연결된 Wi-Fi가 인터넷에 액세스할 수 있는지 확인하거나 네트워크 운영자에게 문의해 주세요."
+networkTroubleshootingStep3: 3. 여전히 네트워크에 연결할 수 없는 경우, 휴대전화가 연결된 Wi-Fi가 인터넷에 액세스할 수 있는지 확인하거나 네트워크 운영자에게 문의해 주세요.
 suggestCheckNetwork: 네트워크 설정을 확인하는 것이 좋습니다.
+e2eeStartRecoveryBtn(required): 키 복구 시작 ($required명의 대리자 필요)
+e2eeInsufficientShardBtn(required, current): 샤드 부족 ($required개 필요, 현재 $current개)
+e2eeErrTimeout: 암호화 시간 초과, 네트워크 연결을 확인하고 다시 시도해주세요
+e2eeErrNetwork: 네트워크 오류로 암호화 실패, 메시지가 전송되지 않았습니다
+liveRoomTitleRequired: 제목을 입력해주세요

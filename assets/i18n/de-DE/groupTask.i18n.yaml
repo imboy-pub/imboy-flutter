@@ -1,0 +1,24 @@
+---
+title: Gruppen-Aufgaben
+createTask: Aufgabe erstellen
+taskTitle: Aufgaben-Titel
+taskDescription: Beschreibung
+assignTo: Zugewiesen an
+deadline: Frist
+noDeadline: Keine Frist
+noTask: Keine Aufgaben
+all: Alle
+pending: Offen
+completed: Erledigt
+taskCreated: Aufgabe erstellt
+taskSubmitted: Aufgabe eingereicht
+taskCompleted: Aufgabe erledigt
+overdue: Überfällig
+daysLeft: Frist in $days Tagen
+hoursLeft: Frist in $hours Std.
+dueSoon: Frist bald
+submitFailed: Einreichen fehlgeschlagen. Bitte später erneut versuchen.
+taskId: Aufgaben-ID
+pendingReview: Prüfung ausstehend
+taskIdMissing: Aufgaben-ID fehlt, Details können nicht angezeigt werden
+taskIdMissingSubmit: Aufgaben-ID fehlt, Einreichen nicht möglich

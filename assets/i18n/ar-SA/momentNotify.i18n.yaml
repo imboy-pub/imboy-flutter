@@ -1,0 +1,14 @@
+---
+title: الإشعارات
+emptyTitle: لا توجد إشعارات جديدة
+emptyHint: تظهر هنا إعجابات الأصدقاء وتعليقاتهم على لحظاتك
+actionLike: أعجب بلحظتك
+actionComment: علّق
+markAllRead: قراءة الكل
+clearAll: مسح الكل
+clearConfirmTitle: مسح كل الإشعارات؟
+clearConfirmMessage: لا يمكن التراجع عن هذا الإجراء
+confirm: موافق
+cancel: إلغاء
+delete: حذف
+loadFailed: تعذّر التحميل، حاول لاحقاً

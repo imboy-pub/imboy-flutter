@@ -318,6 +318,9 @@ abstract class MessageType {
   /// 转账消息
   static const String transfer = 'transfer';
 
+  /// 群日程卡片消息
+  static const String groupSchedule = 'groupSchedule';
+
   /// 自定义消息
   ///
   /// 作为通用兜底类型使用。

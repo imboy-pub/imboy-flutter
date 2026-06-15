@@ -1,0 +1,24 @@
+---
+title: Tâches de groupe
+createTask: Créer une tâche
+taskTitle: Titre de la tâche
+taskDescription: Description
+assignTo: Assignée à
+deadline: Échéance
+noDeadline: Sans échéance
+noTask: Aucune tâche
+all: Toutes
+pending: En cours
+completed: Terminées
+taskCreated: Tâche créée
+taskSubmitted: Tâche soumise
+taskCompleted: Tâche terminée
+overdue: En retard
+daysLeft: Échéance dans $days j
+hoursLeft: Échéance dans $hours h
+dueSoon: Échéance proche
+submitFailed: Échec de l'envoi. Réessayez plus tard.
+taskId: ID de tâche
+pendingReview: En attente de validation
+taskIdMissing: ID de tâche manquant, détails indisponibles
+taskIdMissingSubmit: ID de tâche manquant, envoi impossible

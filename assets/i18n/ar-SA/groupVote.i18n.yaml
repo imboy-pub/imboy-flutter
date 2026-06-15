@@ -1,0 +1,25 @@
+---
+title: استطلاعات المجموعة
+createVote: إنشاء استطلاع
+voteTitle: سؤال الاستطلاع
+voteOptions: الخيارات
+addOption: إضافة خيار
+allowMultiple: السماح بالاختيار المتعدد
+anonymous: تصويت مجهول
+deadline: الموعد النهائي
+noDeadline: بلا موعد نهائي
+noVote: لا توجد استطلاعات
+voteEnded: انتهى التصويت
+totalVotes: إجمالي $count صوتاً
+voteSuccess: تم التصويت
+hasVoted: تم التصويت
+viewResults: النتائج
+cancelVoteSuccess: تم إلغاء التصويت
+cancelVoteFailed: تعذّر الإلغاء، حاول لاحقاً
+endVoteFailed: تعذّر الإنهاء، حاول لاحقاً
+eachOptionPerLine: خيار واحد في كل سطر
+statusInProgress: جارٍ
+updateVote: تعديل الاستطلاع
+cancelMyVote: إلغاء تصويتي
+voteIdMissing: معرّف الاستطلاع مفقود، لا يمكن عرض التفاصيل
+participantCount: 'المشاركون: $count'

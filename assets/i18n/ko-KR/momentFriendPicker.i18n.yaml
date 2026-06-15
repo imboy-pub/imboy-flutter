@@ -1,0 +1,12 @@
+---
+title: 친구 선택
+titleAllow: 공개할 친구
+titleDeny: 제외할 친구
+confirm: 확인
+confirmWithCount: 확인($count)
+selectedCount: "$count명 선택"
+emptyFriends: 친구가 없습니다
+tagsLabel: 태그로 선택
+emptyTags: 태그가 없습니다
+tagLoadFailed: 태그를 불러오지 못했습니다
+searchHint: 친구 검색

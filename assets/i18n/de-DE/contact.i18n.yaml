@@ -1,14 +1,14 @@
+---
 applyFriend: Freund hinzufügen
 applyFriendLogic: Logik für Freund hinzufügen
-applyParam: $param beantragen
+applyParam: "$param beantragen"
 blocked: Blockiert
-applyChanges: "Bitte starten Sie die App neu, um die Änderungen zu übernehmen"
+applyChanges: Bitte starten Sie die App neu, um die Änderungen zu übernehmen
 inputNewTag: Neuen Tag eingeben...
 denylist: Sperrliste
 denylistEmpty: Sperrliste ist leer
-denylistEmptyDesc: "Sie haben noch keine Benutzer blockiert
-Blockierte Benutzer können Ihnen keine Nachrichten senden"
-favoriteGroupTagsEtc: "Favoriten, Namen, Gruppen, Tags usw."
+denylistEmptyDesc: Sie haben noch keine Benutzer blockiert Blockierte Benutzer können Ihnen keine Nachrichten senden
+favoriteGroupTagsEtc: Favoriten, Namen, Gruppen, Tags usw.
 groupRemarkView: Gruppenbemerkungsansicht
 groupRemarkVisibility: Gruppenbemerkung ist nur für Sie sichtbar
 newFriend: Neue Freunde
@@ -29,6 +29,7 @@ currentTags: Aktuelle Tags ($param)
 pleaseEnterRemark: Bitte Bemerkung eingeben
 enterRemark: Bemerkung eingeben
 pleaseEnterTags: Bitte Tags eingeben
+momentsVisibilityFriends: Nur Freunde
 tagLengthExceeded: Tag-Länge darf $param Zeichen nicht überschreiten
 maxTagsExceeded: Maximal $param Tags erlaubt
 selectedTags: Ausgewählte Tags ($param/$max)
@@ -47,3 +48,5 @@ tagProject: Projekt
 tagIdeas: Ideen
 tagMemo: Notiz
 friendRequestSent: Gesendet
+channelMaxTagsCount: Max. 8 Tags
+tagInputHint: Tag eingeben...

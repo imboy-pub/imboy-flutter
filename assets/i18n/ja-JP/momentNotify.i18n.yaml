@@ -1,0 +1,14 @@
+---
+title: 通知
+emptyTitle: 新しい通知はありません
+emptyHint: 友達からの「いいね」やコメントはここに表示されます
+actionLike: があなたのモーメントに「いいね」しました
+actionComment: がコメントしました
+markAllRead: すべて既読にする
+clearAll: すべて削除
+clearConfirmTitle: すべての通知を削除しますか？
+clearConfirmMessage: 削除後は復元できません
+confirm: OK
+cancel: キャンセル
+delete: 削除
+loadFailed: 読み込みに失敗しました。後でもう一度お試しください

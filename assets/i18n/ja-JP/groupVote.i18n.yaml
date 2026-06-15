@@ -1,0 +1,25 @@
+---
+title: グループ投票
+createVote: 投票を作成
+voteTitle: 投票タイトル
+voteOptions: 投票の選択肢
+addOption: 選択肢を追加
+allowMultiple: 複数選択を許可
+anonymous: 匿名投票
+deadline: 期限
+noDeadline: 期限なし
+noVote: 投票はありません
+voteEnded: 投票は終了しました
+totalVotes: 計 $count 票
+voteSuccess: 投票しました
+hasVoted: 投票済み
+viewResults: 結果を見る
+cancelVoteSuccess: 投票を取り消しました
+cancelVoteFailed: 取り消しに失敗しました。後でもう一度お試しください
+endVoteFailed: 終了処理に失敗しました。後でもう一度お試しください
+eachOptionPerLine: 1行に1つの選択肢
+statusInProgress: 進行中
+updateVote: 投票を更新
+cancelMyVote: 自分の投票を取り消す
+voteIdMissing: 投票IDがありません。詳細を表示できません
+participantCount: '参加者数: $count'

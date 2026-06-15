@@ -1,0 +1,12 @@
+---
+title: "@メンション"
+noMention: "@メンションはありません"
+allRead: すべて既読にする
+markAsRead: 既読にする
+newMention: 新しい@メンション
+fromGroup: グループから
+fromChat: チャットから
+viewContext: 前後のメッセージを見る
+mentionCount: "$count 件の新しいメンション"
+mentionAllDenied: 管理者のみ @全員 できます
+navInfoMissing: メッセージの位置情報がありません。移動できません

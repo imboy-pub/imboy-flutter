@@ -2,6 +2,7 @@ financialManagement: 理財通
 enterSameGroup: 與身邊的朋友進入同一個群組聊天
 enterTheGroup: 進入該群組
 groupAlias: 我在本群組的暱稱
+groupAlbum: 群相簿
 groupDissolve: 解散群組
 groupJoin: 加入群組
 groupLeave: 退出群組
@@ -9,13 +10,33 @@ groupManagement: 群組管理
 groupMembers: 群組成員
 groupName: 群組名稱
 mutualGroupsWithHer: 我和他的共同群組
-selectGroup: 選擇群組
-sureToDissolveGroup: 確定要解散本群組嗎？
-sureToLeaveGroup: 確定要退出本群組嗎？
 groupOwner: Owner
 groupAdmin: Admin
-groupGuest: 嘉宾
+groupGuest: 嘉賓
 groupMember: Member
 setAdmin: Set as Admin
 transferGroup: Transfer Ownership
 joinTime: Join Time
+selectGroup: 選擇群組
+sureToDissolveGroup: 確定要解散本群組嗎？
+sureToLeaveGroup: 確定要退出本群組嗎？
+groupAlbumNameHint: 請輸入相簿名稱
+groupAlbumRenameTitle: 重新命名相簿
+groupAlbumRenamed: 相簿名稱已更新
+groupAlbumUnnamed: 未命名相簿
+groupAlbumPhotoCount(count): $count 張圖片
+groupAlbumPhotoIdMissing: 圖片ID缺失，無法檢視詳情
+groupAlbumPhotoListTitle: 相簿圖片
+groupAlbumPhotoSelectedCount(count): 已選擇 $count 項
+groupAlbumPhotoEmpty: 暫無圖片
+groupAlbumPhotoUrlMissing: 圖片地址缺失，無法開啟
+groupAlbumPhotoUrlInvalid: 圖片地址無效
+groupAlbumPhotoDetailTitle: 圖片詳情
+groupAlbumPhotoSetCover: 設為封面
+groupAlbumPhotoPrev: 上一張
+groupAlbumPhotoLikeCount: 點贊數
+groupAlbumPhotoCommentCount: 評論數
+groupAlbumPhotoMyLike: 我的點贊
+groupAlbumPhotoIdLabel: 圖片ID
+e2eeKeyManagement: E2EE 金鑰管理
+e2eeKeyManagementSubtitle: 備份、恢復和管理端到端加密金鑰

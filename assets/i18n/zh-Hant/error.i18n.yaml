@@ -5,3 +5,8 @@ networkTroubleshootingStep1: 1.開啟手機設定並把 Wi-Fi 開關保持開啟
 networkTroubleshootingStep2: 2.開啟手機設定-一般-流動數據，並把流動數據開關保持開啟狀態。
 networkTroubleshootingStep3: 3.如仍無法連接網路，請檢查手機連接的 Wi-Fi 是否已連上互聯網或聯絡電訊商。
 suggestCheckNetwork: 建議檢查網路設定。
+e2eeStartRecoveryBtn(required): 開始恢復金鑰（需要 $required 個代理協助）
+e2eeInsufficientShardBtn(required, current): 分片不足（需要 $required 個，當前 $current 個）
+e2eeErrTimeout: 加密超時，請檢查網路連線後重試
+e2eeErrNetwork: 網路錯誤，加密失敗，訊息未傳送
+liveRoomTitleRequired: 標題不能為空

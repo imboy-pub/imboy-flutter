@@ -1,0 +1,13 @@
+title: 訊息通知
+emptyTitle: 暫無新訊息
+emptyHint: 好友點贊或評論你的朋友圈後，會出現在這裡
+actionLike: 讚了你的朋友圈
+actionComment: 評論了你
+markAllRead: 全部已讀
+clearAll: 清空全部
+clearConfirmTitle: 清空所有通知?
+clearConfirmMessage: 清空後無法恢復
+confirm: 確定
+cancel: 取消
+delete: 刪除
+loadFailed: 載入失敗，請稍後重試

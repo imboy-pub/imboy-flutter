@@ -1,7 +1,9 @@
+---
 financialManagement: Инвестиции
 enterSameGroup: Войти в одну группу с друзьями рядом
 enterTheGroup: Войти в эту группу
 groupAlias: Мой никнейм в этой группе
+groupAlbum: Альбом группы
 groupDissolve: Роспуск группы
 groupJoin: Вступить в группу
 groupLeave: Покинуть группу
@@ -9,13 +11,33 @@ groupManagement: Управление группой
 groupMembers: Участники группы
 groupName: Название группы
 mutualGroupsWithHer: Общие группы
-selectGroup: Выбрать групповой чат
-sureToDissolveGroup: Распустить эту группу?
-sureToLeaveGroup: Покинуть эту группу?
 groupOwner: Owner
 groupAdmin: Admin
-groupGuest: 嘉宾
+groupGuest: Гость
 groupMember: Member
 setAdmin: Set as Admin
 transferGroup: Transfer Ownership
 joinTime: Join Time
+selectGroup: Выбрать групповой чат
+sureToDissolveGroup: Распустить эту группу?
+sureToLeaveGroup: Покинуть эту группу?
+groupAlbumNameHint: Введите название альбома
+groupAlbumRenameTitle: Переименовать альбом
+groupAlbumRenamed: Альбом переименован
+groupAlbumUnnamed: Альбом без названия
+groupAlbumPhotoCount(count): "$count фото"
+groupAlbumPhotoIdMissing: ID фото отсутствует, нельзя открыть детали
+groupAlbumPhotoListTitle: Фото альбома
+groupAlbumPhotoSelectedCount(count): 'Выбрано: $count'
+groupAlbumPhotoEmpty: Нет фото
+groupAlbumPhotoUrlMissing: Адрес фото отсутствует, не удаётся открыть
+groupAlbumPhotoUrlInvalid: Недействительный адрес фото
+groupAlbumPhotoDetailTitle: Информация о фото
+groupAlbumPhotoSetCover: Сделать обложкой
+groupAlbumPhotoPrev: Назад
+groupAlbumPhotoLikeCount: Лайки
+groupAlbumPhotoCommentCount: Комментарии
+groupAlbumPhotoMyLike: Мой лайк
+groupAlbumPhotoIdLabel: ID фото
+e2eeKeyManagement: Управление ключами E2EE
+e2eeKeyManagementSubtitle: Резервное копирование, восстановление и управление ключами сквозного шифрования

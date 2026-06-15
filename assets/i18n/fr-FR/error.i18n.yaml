@@ -1,7 +1,13 @@
+---
 restartRequired: Redémarrage requis
 networkFailureGuidance: Guide de dépannage réseau
 pleaseCheckNetwork: Vérifiez vos paramètres réseau.
 networkTroubleshootingStep1: 1. Ouvrez les paramètres du téléphone et gardez le Wi-Fi activé.
 networkTroubleshootingStep2: 2. Ouvrez les paramètres du téléphone - Général - Données cellulaires et gardez les données cellulaires activées.
-networkTroubleshootingStep3: "3. Si toujours impossible de se connecter au réseau, vérifiez si le Wi-Fi du téléphone a accès à Internet ou contactez l'opérateur réseau."
+networkTroubleshootingStep3: 3. Si toujours impossible de se connecter au réseau, vérifiez si le Wi-Fi du téléphone a accès à Internet ou contactez l'opérateur réseau.
 suggestCheckNetwork: Il est suggéré de vérifier les paramètres réseau.
+e2eeStartRecoveryBtn(required): Démarrer la restauration ($required dépositaires requis)
+e2eeInsufficientShardBtn(required, current): Fragments insuffisants ($required requis, $current actuels)
+e2eeErrTimeout: Délai de chiffrement dépassé. Vérifiez le réseau et réessayez.
+e2eeErrNetwork: Erreur réseau, échec du chiffrement, message non envoyé
+liveRoomTitleRequired: Titre requis

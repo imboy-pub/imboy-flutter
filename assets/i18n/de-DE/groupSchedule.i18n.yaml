@@ -1,0 +1,26 @@
+---
+title: Gruppen-Termine
+createSchedule: Termin erstellen
+scheduleTitle: Termin-Titel
+selectDate: Datum wählen
+selectTime: Uhrzeit wählen
+location: Ort
+reminder: Erinnerung
+noReminder: Keine Erinnerung
+noSchedule: Keine Termine
+scheduleCreated: Termin erstellt
+scheduleUpdated: Termin aktualisiert
+reminder15min: 15 Min. vorher
+reminder1hour: 1 Std. vorher
+reminder1day: 1 Tag vorher
+startTime: Beginn
+endTime: Ende
+participants: Teilnehmer
+statusCancelled: Abgesagt
+statusInProgress: Läuft
+cancelSuccess: Termin abgesagt
+cancelFailed: Absagen fehlgeschlagen. Bitte später erneut versuchen.
+confirmAttend: Teilnehmen
+declineAttend: Absagen
+cancelSchedule: Termin absagen
+scheduleIdMissing: Termin-ID fehlt, Details können nicht angezeigt werden

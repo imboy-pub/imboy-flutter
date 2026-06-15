@@ -1,0 +1,24 @@
+---
+title: 그룹 작업
+createTask: 작업 만들기
+taskTitle: 작업 제목
+taskDescription: 작업 설명
+assignTo: 담당자
+deadline: 마감 시간
+noDeadline: 마감 시간 없음
+noTask: 작업이 없습니다
+all: 전체
+pending: 미완료
+completed: 완료
+taskCreated: 작업이 생성되었습니다
+taskSubmitted: 작업이 제출되었습니다
+taskCompleted: 작업이 완료되었습니다
+overdue: 마감
+daysLeft: "$days일 후 마감"
+hoursLeft: "$hours시간 후 마감"
+dueSoon: 마감 임박
+submitFailed: 제출 실패, 나중에 다시 시도해주세요
+taskId: 작업 ID
+pendingReview: 검토 대기
+taskIdMissing: 작업 ID가 없어 상세정보를 볼 수 없습니다
+taskIdMissingSubmit: 작업 ID가 없어 제출할 수 없습니다

@@ -1,15 +1,32 @@
+---
 findNearbyPeople: البحث عن أشخاص قريبين
 moment: اللحظات
-nearbyPeopleExplain: "يمكن للمستخدمين القريبين عرض ملفك الشخصي وإرسال رسائل إليك. قد يساعدك هذا في العثور على أصدقاء جدد، لكنه قد يجذب أيضاً الكثير من الاهتمام. يمكنك إيقاف مشاركة ملفك الشخصي في أي وقت.
-
-رقم هاتفك سيتم إخفاؤه."
+nearbyPeopleExplain: |-
+  يمكن للمستخدمين القريبين عرض ملفك الشخصي وإرسال رسائل إليك. قد يساعدك هذا في العثور على أصدقاء جدد، لكنه قد يجذب أيضاً الكثير من الاهتمام. يمكنك إيقاف مشاركة ملفك الشخصي في أي وقت.
+  رقم هاتفك سيتم إخفاؤه.
 peopleNearby: أشخاص قريبون
 peopleNearbyLogic: منطق الأشخاص القريبين
 scan: مسح ضوئي
 scanResult: نتيجة المسح
 scannerResult: نتيجة الماسح
 titleDiscover: اكتشاف
+myChannels: قنواتي
+channelSquare: ساحة القنوات
 otherUsersCanFindMe: يمكن للمستخدمين الآخرين العثور علي من خلال البحث
 moments: اللحظات
+momentsReport: الإبلاغ عن المنشور
+momentsReportDesc: وصف إضافي
+momentsComments: التعليقات
+momentsWriteComment: اكتب تعليقاً...
+momentsVisibility: الظهور
+momentsVisibilityPublic: عام
+momentsVisibilityPartial: بعض الأشخاص
+momentsVisibilityExclude: إخفاء عن...
+momentsDenyUidsLabel: قائمة UID المخفي عنهم (مفصولة بفواصل)
+momentsDraftRestored: تمت استعادة المسودة الأخيرة
+momentsFeedStale: خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً
 discover: اكتشاف
 shake: هز
+openChannel: فتح القناة
+paidChannelLocked: محتوى القناة المدفوعة مقفل
+webQRScanned: تم المسح

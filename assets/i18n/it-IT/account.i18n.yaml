@@ -1,12 +1,13 @@
+---
 account: Account
 accountSecurity: Sicurezza account
 mobileRecharge: Ricarica mobile
 avatar: Avatar
 accountSecurityEnhance: Migliora la sicurezza dell'account
 bindMobile: Collega numero di telefono
-bindMobileFor: "Usato per accedere, recuperare la password e ricevere notifiche importanti"
+bindMobileFor: Usato per accedere, recuperare la password e ricevere notifiche importanti
 linkEmail: Collega email
-linkEmailFor: "Usato per accedere, verificare l'identità e ricevere bollette"
+linkEmailFor: Usato per accedere, verificare l'identità e ricevere bollette
 codeSentToEmail: Codice di verifica inviato all'email
 codeSentToMobile: Codice di verifica inviato al telefono
 currentDevice: Dispositivo corrente
@@ -35,7 +36,7 @@ myQrcode: Il mio codice QR
 newPassword: Nuova password
 newlyRegisteredPeople: Persone appena registrate
 nickname: Nickname
-nicknameChangeVisibility: "Dopo la modifica del nickname, verrà visualizzato solo in questo gruppo e tutti i membri del gruppo potranno vederlo."
+nicknameChangeVisibility: Dopo la modifica del nickname, verrà visualizzato solo in questo gruppo e tutti i membri del gruppo potranno vederlo.
 nicknameCharsRemaining: Puoi inserire ancora $param caratteri
 nicknameHint: Inserisci nickname
 nicknameSaving: Salvataggio in corso...
@@ -45,7 +46,7 @@ recentlyRegisteredUser: Utente registrato di recente
 recoverCodePasswordDesc: Invieremo il codice di recupero password alla tua email.
 recoverPassword: Recupera password
 recoverPasswordDesc: Inserisci il tuo indirizzo email. Ti invieremo un codice per reimpostare la password.
-recoverPasswordIntro: "Non preoccuparti, succede."
+recoverPasswordIntro: Non preoccuparti, succede.
 birthday: Compleanno
 region: Regione
 retypePassword: Reinserisci password
@@ -95,7 +96,22 @@ profile: Profile
 setGender: Imposta genere
 setBirthday: Imposta compleanno
 sentToEmail: Inviato a $param
-nicknameRules: "• Lunghezza nickname: 2-24 caratteri
-• Non può contenere solo spazi bianchi o emoji
-• Non può contenere parole sensibili
-• Le modifiche saranno riflesse in tutte le chat"
+nicknameRules: "• Lunghezza nickname: 2-24 caratteri • Non può contenere solo spazi bianchi o emoji • Non può contenere parole sensibili • Le modifiche saranno riflesse in tutte le chat"
+refreshDeviceKey: Aggiorna chiave dispositivo
+refreshDeviceKeyHint: Se i messaggi non si decifrano, aggiorna la chiave qui
+refreshingDeviceKey: Aggiornamento chiave...
+deviceKeyRefreshed: Chiave aggiornata
+rechargeTitle: Ricarica
+rechargeAmountHint: Importo (yuan), 1–10000
+rechargeAmountExample: es. 100
+e2eeDeviceTransfer: Trasferimento tra dispositivi
+e2eeDeviceTransferDesc: Trasferisci la chiave al nuovo dispositivo via QR code
+e2eeDeviceIdLabel: ID dispositivo
+webQRLoginTitle: Accesso via QR code
+webQRLoginHint: Scansiona il QR code con l'app ImBoy
+webSwitchToPassword: Accesso con password
+webPasswordLoginTitle: Accesso account
+webAccountHint: Account/mobile/email
+webPasswordHint: Password
+e2eeTransferFromOldDevice: Dal vecchio dispositivo
+pleaseRelogin: Riaccedi

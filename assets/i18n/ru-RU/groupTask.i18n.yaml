@@ -1,0 +1,24 @@
+---
+title: Задачи группы
+createTask: Создать задачу
+taskTitle: Название задачи
+taskDescription: Описание задачи
+assignTo: Назначить
+deadline: Срок
+noDeadline: Без срока
+noTask: Нет задач
+all: Все
+pending: В работе
+completed: Завершено
+taskCreated: Задача создана
+taskSubmitted: Задача отправлена
+taskCompleted: Задача завершена
+overdue: Просрочено
+daysLeft: Срок через $days дн.
+hoursLeft: Срок через $hours ч
+dueSoon: Скоро срок
+submitFailed: Не удалось отправить, попробуйте позже
+taskId: ID задачи
+pendingReview: На проверке
+taskIdMissing: ID задачи отсутствует, нельзя открыть детали
+taskIdMissingSubmit: ID задачи отсутствует, нельзя отправить

@@ -1,0 +1,12 @@
+---
+title: Choisir des amis
+titleAllow: Visible par
+titleDeny: Exclure
+confirm: Terminé
+confirmWithCount: Terminé ($count)
+selectedCount: "$count sélectionnés"
+emptyFriends: Aucun ami
+tagsLabel: Par étiquette
+emptyTags: Aucune étiquette
+tagLoadFailed: Échec du chargement des étiquettes
+searchHint: Rechercher un ami

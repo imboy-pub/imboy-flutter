@@ -1,0 +1,12 @@
+---
+title: Scegli amici
+titleAllow: Visibile a
+titleDeny: Escludi
+confirm: Fatto
+confirmWithCount: Fatto ($count)
+selectedCount: "$count selezionati"
+emptyFriends: Nessun amico
+tagsLabel: Per tag
+emptyTags: Nessun tag
+tagLoadFailed: Caricamento tag fallito
+searchHint: Cerca amico

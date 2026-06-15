@@ -597,6 +597,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get liveRoomCreateTitle => 'Create Live Room';
 	@override String get liveRoomCreating => 'Creating...';
 	@override String get liveRoomWatch => 'Watch Live';
+	@override String get sendMessage => 'Send Message';
 }
 
 // Path: common
@@ -1665,6 +1666,12 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'Please enter your withdrawal account';
 	@override String get withdrawMethod => 'Withdrawal Method';
 	@override String get withdrawAccount => 'Withdrawal Account';
+	@override String get contactInfoNotSynced => 'Contacts not synced';
+	@override String get logoutFailed => 'Logout failed';
+	@override String get notLoggedIn => 'Not logged in';
+	@override String get insufficientBalanceTitle => 'Insufficient Balance';
+	@override String insufficientBalanceContent({required Object currency, required Object balance, required Object price}) => 'Current balance ${currency} ${balance}, requires ${currency} ${price}. Please top up first.';
+	@override String get goRecharge => 'Top Up';
 }
 
 // Path: complaint
@@ -2302,6 +2309,7 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get e2eeProxyReachedMin => 'Minimum proxy count reached';
 	@override String get liveRoomTitleLabel => 'Live Room Title';
 	@override String get liveRoomTitleHint => 'Enter live room title';
+	@override String channelPriceLabel({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}';
 }
 
 // Path: mention
@@ -2929,12 +2937,13 @@ extension on TranslationsEnUs {
 			'chat.liveRoomCreateTitle' => 'Create Live Room',
 			'chat.liveRoomCreating' => 'Creating...',
 			'chat.liveRoomWatch' => 'Watch Live',
+			'chat.sendMessage' => 'Send Message',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
-			'common.acceptFriendRequest' => 'Accept friend request',
 			_ => null,
 		} ?? switch (path) {
+			'common.acceptFriendRequest' => 'Accept friend request',
 			'common.addFriend' => 'Add friend',
 			'common.addPhoneContact' => 'Add phone contact',
 			'common.creditCardRepayment' => 'Credit Card Repayment',
@@ -3446,9 +3455,9 @@ extension on TranslationsEnUs {
 			'common.accountDeletionNotAvailable' => 'Account deletion feature is not available yet',
 			'common.chatDeleteMessage' => 'Delete message',
 			'common.chatCopy' => 'Copy',
-			'common.chatSaveImage' => 'Save image',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatSaveImage' => 'Save image',
 			'common.chatDeleteLocalOnly' => 'Delete local only',
 			'common.chatDownloadFile' => 'Download file',
 			'common.chatShareFile' => 'Share file',
@@ -3960,9 +3969,9 @@ extension on TranslationsEnUs {
 			'common.e2eeSocialMoreShards' => ({required Object count}) => '${count} more shards...',
 			'common.e2eeProxyLoadFriendsFailed' => 'Failed to load friend list, please retry',
 			'common.e2eeProxyNoPublicKey' => 'This contact has no available public key',
-			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'Failed to get public key for ${name}',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'Failed to get public key for ${name}',
 			'common.e2eeProxySelectFailed' => 'Failed to select proxies, please retry',
 			'common.e2eeProxyNoFriends' => 'No friends yet',
 			'common.e2eeProxyNoFriendsHint' => 'Add friends first before setting up recovery proxies',
@@ -3994,6 +4003,12 @@ extension on TranslationsEnUs {
 			'common.withdrawAccountEmpty' => 'Please enter your withdrawal account',
 			'common.withdrawMethod' => 'Withdrawal Method',
 			'common.withdrawAccount' => 'Withdrawal Account',
+			'common.contactInfoNotSynced' => 'Contacts not synced',
+			'common.logoutFailed' => 'Logout failed',
+			'common.notLoggedIn' => 'Not logged in',
+			'common.insufficientBalanceTitle' => 'Insufficient Balance',
+			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => 'Current balance ${currency} ${balance}, requires ${currency} ${price}. Please top up first.',
+			'common.goRecharge' => 'Top Up',
 			'complaint.complaint' => 'Complaint',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harassment',
@@ -4468,6 +4483,8 @@ extension on TranslationsEnUs {
 			'main.webSwitchToQR' => 'Login with QR code',
 			'main.e2eeErrDefault' => 'End-to-end encryption failed, message not sent',
 			'main.e2eeSocialTotalShards' => 'Total shards',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeSocialThreshold' => 'Recovery threshold',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Need ${count} proxies to recover key',
 			'main.e2eeSocialSelectProxy' => 'Select recovery proxies',
@@ -4475,8 +4492,6 @@ extension on TranslationsEnUs {
 			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'User ${uid}',
 			'main.e2eeSocialShardSentViaWs' => 'Shards sent directly to proxy devices via WebSocket',
 			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => 'Sent to ${sent} proxy devices (out of ${total})',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeSocialManageTitle' => 'Manage shards',
 			'main.e2eeSocialMyShards' => 'My shards',
 			'main.e2eeSocialProxyShards' => 'Proxy shards',
@@ -4516,6 +4531,7 @@ extension on TranslationsEnUs {
 			'main.e2eeProxyReachedMin' => 'Minimum proxy count reached',
 			'main.liveRoomTitleLabel' => 'Live Room Title',
 			'main.liveRoomTitleHint' => 'Enter live room title',
+			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}',
 			'mention.title' => '@Mentions',
 			'mention.noMention' => 'No mentions yet',
 			'mention.allRead' => 'All read',

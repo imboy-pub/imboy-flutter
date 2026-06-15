@@ -1,0 +1,14 @@
+---
+title: Notifiche
+emptyTitle: Nessuna nuova notifica
+emptyHint: I « Mi piace » e i commenti degli amici appaiono qui
+actionLike: ha messo mi piace al tuo momento
+actionComment: ha commentato
+markAllRead: Segna tutto letto
+clearAll: Cancella tutto
+clearConfirmTitle: Cancellare tutte le notifiche ?
+clearConfirmMessage: Operazione irreversibile
+confirm: OK
+cancel: Annulla
+delete: Elimina
+loadFailed: Caricamento fallito. Riprova più tardi.

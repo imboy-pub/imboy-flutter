@@ -1,3 +1,4 @@
+---
 bankCard: Банковская карта
 cards: шт.
 jdShopping: Покупки на JD
@@ -9,13 +10,14 @@ attachmentProvider: Поставщик вложений
 audioMessage: Голосовое сообщение
 awaitingReply: Ожидает ответа
 businessCard: Визитка
-busyTryAgainLater: "Собеседник занят, попробуйте позже"
+busyTryAgainLater: Собеседник занят, попробуйте позже
 later: Позже
+peerIsTyping(name): "$name печатает..."
 changeGroupChatName: Участники увидят новое имя группы
 chatHistory: История чата
 chatHoldDownTalk: Нажмите и удерживайте для разговора
 chatMessage: Сообщение чата
-chatMomentSportDataEtc: "Чаты, моменты, спортивные данные и т.д."
+chatMomentSportDataEtc: Чаты, моменты, спортивные данные и т.д.
 chatSettingMute: Без звука
 chatSettingMuteDesc: Отключить уведомления для этого чата
 chatSettingMuted: Без звука включено
@@ -41,12 +43,31 @@ forwardReply: Переслать ответ
 forwardTo: Переслать
 forwardToFriend: Переслать другу
 great: Превосходно
+groupFile: Файлы группы
+groupFileImagePreview: Просмотр изображения
+groupFileVideoPreview: Просмотр видео
+groupFileAudioPreview: Прослушивание аудио
+groupFileMediaPause: Пауза
+groupFileMediaPlay: Воспроизвести
+groupFileUrlMissing: Адрес файла отсутствует, не удаётся открыть
+groupFileUrlInvalid: Недействительный адрес файла
+groupFilePreview: Предпросмотр файла
+groupFileUnnamed: Файл без названия
+groupFileCategoryEmpty: В категории ${category} нет файлов
+groupFileEmpty: Нет файлов группы
+groupFileCategoryDoc: Документы
+groupFileCategoryImage: Изображения
+groupFileCategoryVideo: Видео
+groupFileCategoryAudio: Аудио
+groupFileCategoryOther: Другое
 groupChat: Групповой чат
 image: Изображение
 imageMessage: "[Изображение]"
 initiateChat: Начать групповой чат
 justChat: Только чат
 location: Местоположение
+exportMyData: Экспорт моих данных
+exportDataDesc: Экспорт личных данных, контактов и истории чатов
 message: Сообщение
 messageHandlingMixin: Миксин обработки сообщений
 messageMarkTitle: Пометка сообщения
@@ -55,12 +76,12 @@ card: Карточка
 messageType: Тип сообщения
 messageVisitCardBuilder: Конструктор визитных карточек сообщений
 messageWasWithdrawn: отозвал сообщение
-messageWasWithdrawnWithTitle: $param отозвал сообщение
+messageWasWithdrawnWithTitle: "$param отозвал сообщение"
 messageWebrtcBuilder: Конструктор WebRTC сообщений
 momentStatus: Моменты и статус
 offline: Не в сети
 online: В сети
-paramAlreadyExist: $param уже существует
+paramAlreadyExist: "$param уже существует"
 pin: Закрепить
 pinChat: Закрепить чат
 pinned: Закреплено
@@ -72,14 +93,33 @@ readAgreeParam: Прочитал и согласен с $param
 recentChats: Недавние чаты
 recentForwards: Недавние пересылки
 remindMeLater: Напомнить позже
+quickReplyManage: Управление быстрыми ответами
+quickReplyEmpty: Нет быстрых ответов. Нажмите в правом нижнем углу, чтобы добавить
+quickReplyDuplicate: Такой ответ уже существует
+quickReplyMaxReached: Максимум $max
+quickReplyHint: Введите текст...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+mutedFor: Мут $label
+muteUnitMinutes: "$count мин"
+muteUnitHours: "$count ч"
+muteUnitDays: "$count дн."
+youAreMuted: Вы в муте
+youAreMutedWithTime: Вы в муте, осталось $minutes мин
 repliedAt: Ответлено в
 reply: Ответить
 replyTo: Ответить
 resendCode: Отправить код снова
 revoke: Отозвать
 scanQrCodeBusinessCard: Сканировать QR-код визитки
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message
 sendFriendRequest: Отправить запрос дружбы
 sendMsgRejected: Сообщение отклонено собеседником
+sendMessage: Отправить сообщение
 sendSeparatelyTo: Отправить отдельно
 sendTo: Отправить
 send: "@:common.buttonSend"
@@ -87,8 +127,7 @@ sender: Отправитель
 sending: Отправка...
 signatureInputHint: Подсказка ввода подписи
 signaturePlaceholder: Заполнитель подписи
-signupIntro: "Код подтверждения отправлен на эл. почту
-Введите код для завершения регистрации"
+signupIntro: Код подтверждения отправлен на эл. почту Введите код для завершения регистрации
 socialProfile: Социальный профиль
 status: Статус
 storageSpaceData: Память и данные
@@ -102,6 +141,7 @@ userData: Данные пользователя
 video: Видео
 videoMessage: "[Видео]"
 viewAttachments: Просмотреть вложения
+viewLargeImage: Открыть полностью
 voice: Голос
 voiceInput: Голосовой ввод
 voiceMessage: Голосовое сообщение
@@ -120,7 +160,7 @@ profileExportProfile: Экспортировать профиль
 momentsSend: Отправить
 videoCompressInProgress: Задача сжатия уже выполняется
 videoCompressing: Сжатие видео...
-loginExpiredMessage: "Срок входа истёк, войдите снова"
+loginExpiredMessage: Срок входа истёк, войдите снова
 geometricPattern: Геометрический узор
 ripplePattern: Узор рябь
 customImage: Пользовательское изображение
@@ -136,7 +176,16 @@ alreadySent: Уже отправлено
 visibleRatioLabel: Коэффициент видимости (0.1~1.0)
 unsupportedMessageType: Неподдерживаемый тип сообщения
 passwordMismatch: Пароли не совпадают
-pleaseTryAgainLater: "Пожалуйста, попробуйте позже"
+pleaseTryAgainLater: Пожалуйста, попробуйте позже
+momentsSelectVideo: Выбрать видео
+momentsRecordVideo: Снять видео
+momentsVisibilityPrivate: Только я
+momentsMediaTooManyImages: Можно выбрать не более 9 изображений
+momentsMediaTooManyVideos: Можно выбрать только 1 видео
+momentsMediaMixedImageAndVideo: Нельзя прикрепить изображения и видео одновременно
+momentsReplyPrefix: Ответ @
+momentsReplySeparator: ": "
+momentsReplyingTo: Ответ @{name}
 sendNewMessage: Отправить новое сообщение
 markRead: Пометить как прочитанное
 markUnread: Пометить как непрочитанное
@@ -155,15 +204,73 @@ quickReplyReceived: Получено
 quickReplyThanks: Спасибо
 quickReplyWait: Минутку
 messageMute: "@:chat.chatSettingMute"
-quickReplyManage: 管理快捷回复
-quickReplyEmpty: 暂无快捷回复，点击右下角添加
-quickReplyDuplicate: 内容已存在
-quickReplyMaxReached: 最多 $max 条
-quickReplyHint: 输入内容...
-muteMember: Mute Member
-unmuteMember: Unmute
-muteUntil: Muted Until
-muted: Muted
-singleChat: Private Chat
-privateChat: Private Chat
-groupMessage: Group message
+groupCategoryGroupCount(count): "$count групп"
+groupAlbumCreateTitle: Создать альбом группы
+groupAlbumCreated: Альбом создан
+profileCompleted: Профиль заполнен!
+profileProgress(percent): "${percent}% заполнено"
+createdAtLabel(time): 'Создано: $time'
+expiredAtLabel(time): 'Истекает: $time'
+myReceivedTab: Полученные
+orderStatusLabel(status): 'Статус: $status'
+orderCreatedAtLabel(time): 'Создано: $time'
+orderPaymentAtLabel(time): 'Оплачено: $time'
+orderStatusPending: Ожидает оплаты
+orderStatusPaid: Оплачено
+orderStatusRefunded: Возврат оформлен
+orderStatusExpired: Истекло
+defaultFileName: Файл
+fileUrlInvalid: Недействительная ссылка на файл
+e2eeStatusAvailable: Доступно
+e2eeGenerateNewKey: Создать новый ключ
+e2eeGenerateNewKeyDesc: Создать новую пару ключей E2EE (старые сообщения нельзя будет расшифровать)
+e2eeActivated: Активно
+e2eeCreatedAtLabel: Создан
+e2eeGeneratingKey: Создание ключа, подождите...
+e2eeNewKeyGenerated: Новая пара ключей E2EE создана!
+e2eeReady: Готово
+e2eeReadyWithShards(count): 'Готово (фрагментов: $count)'
+webFeatureMultiDevice: Синхронизация устройств
+webFeatureMultiDeviceDesc: Переключайтесь между телефоном и ПК, сообщения синхронизируются в реальном времени
+webFeatureE2EE: Сквозное шифрование
+webFeatureE2EEDesc: Все сообщения зашифрованы сквозным шифрованием для защиты конфиденциальности
+webFeatureFileTransfer: Передача файлов
+webFeatureFileTransferDesc: Перетащите файл, чтобы отправить; поддерживаются разные форматы
+webQRStatusWaiting: Откройте ImBoy на телефоне > Настройки > Сканировать
+webQRStatusScanned: Нажмите «Подтвердить вход» на телефоне
+webQRStatusVerifying: Проверка...
+webQRStatusExpired: Обновите и отсканируйте снова
+e2eeErrInvalidFormat: Неверный формат сообщения, шифрование не выполнено
+e2eeSocialCreateTitle: Создать фрагменты восстановления
+e2eeSocialCreateBtn: Создать фрагменты
+e2eeSocialCreateFailTitle: Не удалось создать
+e2eeSocialCreateFailBody: Не удалось создать фрагменты, попробуйте ещё раз
+e2eeSocialCreateFirst: Содержимое появится после создания фрагментов
+e2eeSocialUsedAtLabel: Дата использования
+e2eeTransferSendTitle: Отправить ключ на новое устройство
+e2eeTransferCreateBtn: Создать
+e2eeTransferReceiveTitle: Получить ключ со старого устройства
+e2eeTransferSendDesc: Передача ключа на новое устройство через QR-код
+e2eeTransferReceiveDesc: Сканируйте QR-код старого устройства для получения ключа
+e2eeSocialStatus(status): 'Статус: $status'
+e2eeSocialCreateShardsTitle: Создать фрагменты восстановления
+e2eeSocialCreateShardsDesc: Разделить ключ на фрагменты и хранить на устройствах посредников (сервер не хранит)
+e2eeProxyNeedAtLeast(count): Выберите минимум $count посредников
+e2eeRecreatingKey: Создание ключа заново...
+e2eeKeyRecreated: Ключ создан заново
+e2eeRecoveryNewDeviceTitle: Обнаружен вход с нового устройства
+e2eeRecoveryNewDeviceBody: |-
+  Для защиты сообщений на этом устройстве создан новый ключ сквозного шифрования.
+
+  Прошлые сообщения зашифрованы ключом старого устройства — сначала восстановите ключ, чтобы их прочитать. Восстановить можно через «Передачу устройств», «Социальное восстановление» или импорт локальной копии.
+e2eeRecoveryDecryptFailedTitle: Не удалось расшифровать сообщение
+e2eeRecoveryDecryptFailedBody: |-
+  Это сообщение зашифровано ключом другого устройства.
+
+  Если вы сменили устройство или переустановили приложение, восстановите ключ шифрования, чтобы прочитать прошлые сообщения.
+e2eeRecoveryLater: Позже
+e2eeRecoveryGoRecover: Восстановить
+e2eeRecoveryBannerText: Обнаружены зашифрованные прошлые сообщения. Для просмотра восстановите ключ. Нажмите, чтобы перейти
+liveRoomCreateTitle: Создать трансляцию
+liveRoomCreating: Создание...
+liveRoomWatch: Смотреть трансляцию

@@ -1,3 +1,4 @@
+---
 account: アカウント
 accountSecurity: アカウントのセキュリティ
 mobileRecharge: 携帯電話チャージ
@@ -39,7 +40,7 @@ nicknameChangeVisibility: ニックネームを変更すると、このグルー
 nicknameCharsRemaining: あと$param文字入力できます
 nicknameHint: ニックネームを入力してください
 nicknameSaving: 保存中...
-paramLogin: $paramでログイン
+paramLogin: "$paramでログイン"
 password: パスワード
 recentlyRegisteredUser: 最近登録したユーザー
 recoverCodePasswordDesc: パスワード回復コードをあなたのメールアドレスに送信します。
@@ -72,7 +73,7 @@ changeMobile: 携帯電話番号を変更
 currentMobile: 現在の携帯電話番号
 newMobile: 新しい携帯電話番号
 enterMobileHint: 携帯電話番号を入力してください
-codeSentToMobileParam: $paramに送信しました
+codeSentToMobileParam: "$paramに送信しました"
 privacyLogoutAccount: アカウントを削除
 wallet: ウォレット
 changeLoginPassword: ログインパスワードを変更
@@ -94,8 +95,23 @@ myQRCode: マイQRコード
 profile: Profile
 setGender: 性別を設定
 setBirthday: 誕生日を設定
-sentToEmail: $paramに送信しました
-nicknameRules: "• ニックネームの長さ：2〜24文字
-• 空白または絵文字のみにすることはできません
-• 敏感な単語を含めることはできません
-• 変更はすべてのチャットに反映されます"
+sentToEmail: "$paramに送信しました"
+nicknameRules: "• ニックネームの長さ：2〜24文字 • 空白または絵文字のみにすることはできません • 敏感な単語を含めることはできません • 変更はすべてのチャットに反映されます"
+refreshDeviceKey: デバイスキーを更新
+refreshDeviceKeyHint: メッセージを復号できない場合は、このボタンでキーを更新してください
+refreshingDeviceKey: デバイスキーを更新中...
+deviceKeyRefreshed: デバイスキーを更新しました
+rechargeTitle: チャージ
+rechargeAmountHint: チャージ金額を入力（元）。1元〜10000元
+rechargeAmountExample: 例：100
+e2eeDeviceTransfer: デバイス間転送
+e2eeDeviceTransferDesc: QRコードで新しいデバイスにキーを転送します
+e2eeDeviceIdLabel: デバイス ID
+webQRLoginTitle: QRコードでログイン
+webQRLoginHint: ImBoyスマートフォン版でQRコードをスキャン
+webSwitchToPassword: アカウントとパスワードでログイン
+webPasswordLoginTitle: アカウントログイン
+webAccountHint: アカウント/電話番号/メールアドレスを入力
+webPasswordHint: パスワードを入力
+e2eeTransferFromOldDevice: 古いデバイスからキーを受信
+pleaseRelogin: 再度ログインしてください

@@ -1,13 +1,13 @@
+---
 applyFriend: 友達申請
 applyFriendLogic: 友達申請ロジック
-applyParam: $paramを申請
+applyParam: "$paramを申請"
 blocked: ブロック済み
 applyChanges: 変更を適用するにはアプリを再起動してください
 inputNewTag: 新しいタグを入力...
 denylist: ブロックリスト
 denylistEmpty: ブロックリストは空です
-denylistEmptyDesc: "まだブロックしているユーザーはいません
-ブロックされたユーザーはあなたにメッセージを送信できません"
+denylistEmptyDesc: まだブロックしているユーザーはいません ブロックされたユーザーはあなたにメッセージを送信できません
 favoriteGroupTagsEtc: コレクション：人名、グループ名、タグなど
 groupRemarkView: グループ備考画面
 groupRemarkVisibility: グループチャットの備考は自分にのみ表示されます
@@ -29,6 +29,7 @@ currentTags: 現在のタグ ($param)
 pleaseEnterRemark: 備考名を入力してください
 enterRemark: 備考名を入力してください
 pleaseEnterTags: タグを入力してください
+momentsVisibilityFriends: 友達のみ
 tagLengthExceeded: タグの長さは$param文字を超えることはできません
 maxTagsExceeded: 最大$param個のタグを追加できます
 selectedTags: 選択したタグ ($param/$max)
@@ -47,3 +48,5 @@ tagProject: プロジェクト
 tagIdeas: アイデア
 tagMemo: メモ
 friendRequestSent: 送信済み
+channelMaxTagsCount: タグは最大8個まで追加できます
+tagInputHint: タグを入力...

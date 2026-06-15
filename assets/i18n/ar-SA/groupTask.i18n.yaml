@@ -1,0 +1,24 @@
+---
+title: مهام المجموعة
+createTask: إنشاء مهمة
+taskTitle: عنوان المهمة
+taskDescription: وصف المهمة
+assignTo: تعيين إلى
+deadline: الموعد النهائي
+noDeadline: بلا موعد نهائي
+noTask: لا توجد مهام
+all: الكل
+pending: قيد التنفيذ
+completed: مكتملة
+taskCreated: تم إنشاء المهمة
+taskSubmitted: تم إرسال المهمة
+taskCompleted: تمت المهمة
+overdue: متأخرة
+daysLeft: الموعد النهائي بعد $days يوماً
+hoursLeft: الموعد النهائي بعد $hours ساعة
+dueSoon: الموعد قريب
+submitFailed: تعذّر الإرسال، حاول لاحقاً
+taskId: معرّف المهمة
+pendingReview: قيد المراجعة
+taskIdMissing: معرّف المهمة مفقود، لا يمكن عرض التفاصيل
+taskIdMissingSubmit: معرّف المهمة مفقود، لا يمكن الإرسال

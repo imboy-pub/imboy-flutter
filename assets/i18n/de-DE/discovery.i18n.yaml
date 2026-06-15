@@ -1,15 +1,32 @@
+---
 findNearbyPeople: Personen in der Nähe finden
 moment: Momente
-nearbyPeopleExplain: "Benutzer in Ihrer Nähe können Ihr Profil sehen und Ihnen Nachrichten senden. Finden Sie neue Freunde oder beenden Sie das Teilen jederzeit.
-
-Ihre Telefonnummer bleibt verborgen."
+nearbyPeopleExplain: |-
+  Benutzer in Ihrer Nähe können Ihr Profil sehen und Ihnen Nachrichten senden. Finden Sie neue Freunde oder beenden Sie das Teilen jederzeit.
+  Ihre Telefonnummer bleibt verborgen.
 peopleNearby: Personen in der Nähe
 peopleNearbyLogic: Logik für Personen in der Nähe
 scan: Scannen
 scanResult: Scan-Ergebnis
 scannerResult: Scanner-Ergebnis
 titleDiscover: Entdecken
+myChannels: Meine Kanäle
+channelSquare: Kanal-Entdecken
 otherUsersCanFindMe: Andere Benutzer können mich durch Suche finden
 moments: Momente
+momentsReport: Moment melden
+momentsReportDesc: Beschreibung
+momentsComments: Kommentare
+momentsWriteComment: Kommentar schreiben...
+momentsVisibility: Sichtbarkeit
+momentsVisibilityPublic: Öffentlich
+momentsVisibilityPartial: Teilweise
+momentsVisibilityExclude: Ausnahmen
+momentsDenyUidsLabel: Ausgeschlossen UIDs (kommagetrennt)
+momentsDraftRestored: Letzter Entwurf wiederhergestellt
+momentsFeedStale: Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt
 discover: Entdecken
 shake: Schütteln
+openChannel: Kanal öffnen
+paidChannelLocked: Inhalt gesperrt (Kostenpflichtig)
+webQRScanned: Gescannt

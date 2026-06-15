@@ -44,11 +44,21 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$chat$ar_SA chat = _Translations$chat$ar_SA._(_root);
 	@override late final _Translations$common$ar_SA common = _Translations$common$ar_SA._(_root);
 	@override late final _Translations$complaint$ar_SA complaint = _Translations$complaint$ar_SA._(_root);
+	@override late final _Translations$complaintReason$ar_SA complaintReason = _Translations$complaintReason$ar_SA._(_root);
 	@override late final _Translations$contact$ar_SA contact = _Translations$contact$ar_SA._(_root);
 	@override late final _Translations$discovery$ar_SA discovery = _Translations$discovery$ar_SA._(_root);
 	@override late final _Translations$error$ar_SA error = _Translations$error$ar_SA._(_root);
 	@override late final _Translations$group$ar_SA group = _Translations$group$ar_SA._(_root);
+	@override late final _Translations$groupCategory$ar_SA groupCategory = _Translations$groupCategory$ar_SA._(_root);
+	@override late final _Translations$groupList$ar_SA groupList = _Translations$groupList$ar_SA._(_root);
+	@override late final _Translations$groupSchedule$ar_SA groupSchedule = _Translations$groupSchedule$ar_SA._(_root);
+	@override late final _Translations$groupTag$ar_SA groupTag = _Translations$groupTag$ar_SA._(_root);
+	@override late final _Translations$groupTask$ar_SA groupTask = _Translations$groupTask$ar_SA._(_root);
+	@override late final _Translations$groupVote$ar_SA groupVote = _Translations$groupVote$ar_SA._(_root);
 	@override late final _Translations$main$ar_SA main = _Translations$main$ar_SA._(_root);
+	@override late final _Translations$mention$ar_SA mention = _Translations$mention$ar_SA._(_root);
+	@override late final _Translations$momentFriendPicker$ar_SA momentFriendPicker = _Translations$momentFriendPicker$ar_SA._(_root);
+	@override late final _Translations$momentNotify$ar_SA momentNotify = _Translations$momentNotify$ar_SA._(_root);
 	@override late final _Translations$passport$ar_SA passport = _Translations$passport$ar_SA._(_root);
 	@override late final _Translations$splash$ar_SA splash = _Translations$splash$ar_SA._(_root);
 	@override late final _Translations$welcome$ar_SA welcome = _Translations$welcome$ar_SA._(_root);
@@ -159,6 +169,24 @@ class _Translations$account$ar_SA extends Translations$account$zh_CN {
 	@override String get setBirthday => 'تعيين تاريخ الميلاد';
 	@override String sentToEmail({required Object param}) => 'تم الإرسال إلى ${param}';
 	@override String get nicknameRules => '• طول اللقب 2-24 حرف • لا يمكن أن يحتوي على مسافات أو رموز تعبيرية فقط • لا يمكن أن يحتوي على كلمات حساسة • بعد التعديل، سيتم عرضه في جميع الدردشات';
+	@override String get refreshDeviceKey => 'تحديث مفتاح الجهاز';
+	@override String get refreshDeviceKeyHint => 'إذا لم تُفكّ الرسائل، حدّث المفتاح بهذا الزر';
+	@override String get refreshingDeviceKey => 'جارٍ تحديث مفتاح الجهاز...';
+	@override String get deviceKeyRefreshed => 'تم تحديث مفتاح الجهاز';
+	@override String get rechargeTitle => 'شحن';
+	@override String get rechargeAmountHint => 'أدخل مبلغ الشحن (يوان)، 1–10000';
+	@override String get rechargeAmountExample => 'مثال: 100';
+	@override String get e2eeDeviceTransfer => 'نقل بين الأجهزة';
+	@override String get e2eeDeviceTransferDesc => 'نقل المفتاح مباشرةً إلى جهاز جديد عبر رمز QR';
+	@override String get e2eeDeviceIdLabel => 'معرّف الجهاز';
+	@override String get webQRLoginTitle => 'تسجيل الدخول برمز QR';
+	@override String get webQRLoginHint => 'امسح رمز QR بتطبيق ImBoy على هاتفك';
+	@override String get webSwitchToPassword => 'الدخول بكلمة المرور';
+	@override String get webPasswordLoginTitle => 'دخول بالحساب';
+	@override String get webAccountHint => 'أدخل الحساب/الهاتف/البريد';
+	@override String get webPasswordHint => 'أدخل كلمة المرور';
+	@override String get e2eeTransferFromOldDevice => 'استقبال المفتاح من الجهاز القديم';
+	@override String get pleaseRelogin => 'سجّل الدخول مجدداً';
 }
 
 // Path: channel
@@ -258,10 +286,16 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get updateRoleFailed => 'فشل تحديث الدور';
 	@override String get userId => 'معرف المستخدم';
 	@override String get userIdHint => 'أدخل معرف المستخدم';
+	@override String get selectFromContacts => 'اختيار من جهات الاتصال';
+	@override String get searchContactsHint => 'ابحث بالاسم أو الحساب';
+	@override String get noContactsToAdd => 'جميع الأصدقاء مشرفون بالفعل';
+	@override String get selectRole => 'اختيار الدور';
 	@override String get noAdmins => 'لا يوجد مسؤولين';
 	@override String get roleCreator => 'المنشئ';
 	@override String get roleAdmin => 'مسؤول';
+	@override String get roleAdminDesc => 'يدير القناة';
 	@override String get roleEditor => 'محرر';
+	@override String get roleEditorDesc => 'ينشر الرسائل';
 	@override String get roleUnknown => 'غير معروف';
 	@override String get searchSubscribers => 'البحث عن المشتركين';
 	@override String get subscriberSearchHint => 'البحث بالاسم أو المعرف';
@@ -273,6 +307,11 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get removeSubscriberFailed => 'فشل إزالة المشترك';
 	@override String get subscribedAt => 'مشترك منذ';
 	@override String get viewProfile => 'عرض الملف الشخصي';
+	@override String get inviteFromContacts => 'دعوة صديق';
+	@override String get inviteSearchHint => 'ابحث بالاسم أو الحساب';
+	@override String get noContactsToInvite => 'جميع الأصدقاء مدعوون أو مشتركون بالفعل';
+	@override String get inviteSuccess => 'تم إرسال الدعوة';
+	@override String get inviteFailed => 'تعذّر إرسال الدعوة';
 	@override String get updateSuccess => 'تم تحديث القناة بنجاح';
 	@override String get updateFailed => 'فشل تحديث القناة';
 	@override String get typeCannotChange => 'لا يمكن تغييره بعد الإنشاء';
@@ -303,6 +342,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get businessCard => 'بطاقة عمل';
 	@override String get busyTryAgainLater => 'الطرف الآخر مشغول، يرجى المحاولة مرة أخرى لاحقاً';
 	@override String get later => 'لاحقاً';
+	@override String peerIsTyping({required Object name}) => '${name} يكتب...';
 	@override String get changeGroupChatName => 'بعد تعديل اسم المجموعة، سيتم إخطار الأعضاء الآخرين في المجموعة.';
 	@override String get chatHistory => 'سجل الدردشة';
 	@override String get chatHoldDownTalk => 'اضغط مطولاً للتحدث';
@@ -333,12 +373,31 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get forwardTo => 'إعادة توجيه إلى';
 	@override String get forwardToFriend => 'إعادة توجيه إلى صديق';
 	@override String get great => 'ممتاز جداً';
+	@override String get groupFile => 'ملفات المجموعة';
+	@override String get groupFileImagePreview => 'معاينة الصورة';
+	@override String get groupFileVideoPreview => 'معاينة الفيديو';
+	@override String get groupFileAudioPreview => 'معاينة الصوت';
+	@override String get groupFileMediaPause => 'إيقاف مؤقت';
+	@override String get groupFileMediaPlay => 'تشغيل';
+	@override String get groupFileUrlMissing => 'عنوان الملف مفقود، لا يمكن الفتح';
+	@override String get groupFileUrlInvalid => 'عنوان الملف غير صالح';
+	@override String get groupFilePreview => 'معاينة الملف';
+	@override String get groupFileUnnamed => 'ملف بدون اسم';
+	@override String groupFileCategoryEmpty({required Object category}) => 'لا توجد ملفات في ${category}';
+	@override String get groupFileEmpty => 'لا توجد ملفات للمجموعة';
+	@override String get groupFileCategoryDoc => 'مستندات';
+	@override String get groupFileCategoryImage => 'صور';
+	@override String get groupFileCategoryVideo => 'فيديو';
+	@override String get groupFileCategoryAudio => 'صوت';
+	@override String get groupFileCategoryOther => 'أخرى';
 	@override String get groupChat => 'دردشة جماعية';
 	@override String get image => 'صورة';
 	@override String get imageMessage => '[صورة]';
 	@override String get initiateChat => 'بدء مجموعة';
 	@override String get justChat => 'دردشة فقط';
 	@override String get location => 'الموقع';
+	@override String get exportMyData => 'تصدير بياناتي';
+	@override String get exportDataDesc => 'تصدير بياناتك الشخصية وجهات الاتصال وسجل المحادثات';
 	@override String get message => 'رسالة';
 	@override String get messageHandlingMixin => 'مزيج معالجة الرسائل';
 	@override String get messageMarkTitle => 'تعليم الرسالة';
@@ -364,14 +423,33 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get recentChats => 'المحادثات الأخيرة';
 	@override String get recentForwards => 'إعادة التوجيه الأخيرة';
 	@override String get remindMeLater => 'ذكرني لاحقاً';
+	@override String get quickReplyManage => 'إدارة الردود السريعة';
+	@override String get quickReplyEmpty => 'لا توجد ردود سريعة. اضغط زر الإضافة';
+	@override String get quickReplyDuplicate => 'المحتوى موجود مسبقاً';
+	@override String quickReplyMaxReached({required Object max}) => 'الحد الأقصى ${max}';
+	@override String get quickReplyHint => 'أدخل المحتوى...';
+	@override String get muteMember => 'Mute Member';
+	@override String get unmuteMember => 'Unmute';
+	@override String get muteUntil => 'Muted Until';
+	@override String get muted => 'Muted';
+	@override String mutedFor({required Object label}) => 'كتم ${label}';
+	@override String muteUnitMinutes({required Object count}) => '${count} دقيقة';
+	@override String muteUnitHours({required Object count}) => '${count} ساعة';
+	@override String muteUnitDays({required Object count}) => '${count} يوماً';
+	@override String get youAreMuted => 'تم كتمك';
+	@override String youAreMutedWithTime({required Object minutes}) => 'تم كتمك، المتبقي ${minutes} دقيقة';
 	@override String get repliedAt => 'رد في';
 	@override String get reply => 'رد';
 	@override String get replyTo => 'رد على';
 	@override String get resendCode => 'إعادة إرسال رمز التحقق';
 	@override String get revoke => 'سحب';
 	@override String get scanQrCodeBusinessCard => 'مسح بطاقة عمل رمز QR';
+	@override String get singleChat => 'Private Chat';
+	@override String get privateChat => 'Private Chat';
+	@override String get groupMessage => 'Group message';
 	@override String get sendFriendRequest => 'إرسال طلب إضافة صديق';
 	@override String get sendMsgRejected => 'تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.';
+	@override String get sendMessage => 'إرسال رسالة';
 	@override String get sendSeparatelyTo => 'إرسال بشكل منفصل إلى';
 	@override String get sendTo => 'إرسال إلى';
 	@override String get send => _root.common.buttonSend;
@@ -393,6 +471,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get video => 'فيديو';
 	@override String get videoMessage => '[فيديو]';
 	@override String get viewAttachments => 'تصفح المرفقات';
+	@override String get viewLargeImage => 'عرض بالحجم الكامل';
 	@override String get voice => 'صوت';
 	@override String get voiceInput => 'إدخال صوتي';
 	@override String get voiceMessage => 'رسالة صوتية';
@@ -428,6 +507,15 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'نوع رسالة غير مدعوم';
 	@override String get passwordMismatch => 'كلمتا المرور غير متطابقتين';
 	@override String get pleaseTryAgainLater => 'يرجى المحاولة مرة أخرى لاحقاً';
+	@override String get momentsSelectVideo => 'اختيار فيديو';
+	@override String get momentsRecordVideo => 'تسجيل فيديو';
+	@override String get momentsVisibilityPrivate => 'أنا فقط';
+	@override String get momentsMediaTooManyImages => 'يمكنك اختيار 9 صور كحد أقصى';
+	@override String get momentsMediaTooManyVideos => 'يمكنك اختيار فيديو واحد فقط';
+	@override String get momentsMediaMixedImageAndVideo => 'لا يمكن نشر الصور والفيديو معاً';
+	@override String get momentsReplyPrefix => 'رد @';
+	@override String get momentsReplySeparator => ': ';
+	@override String get momentsReplyingTo => 'رد على @{name}';
 	@override String get sendNewMessage => 'إرسال رسالة جديدة';
 	@override String get markRead => 'تعليم كمقروء';
 	@override String get markUnread => 'تعليم كغير مقروء';
@@ -446,18 +534,70 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get quickReplyThanks => 'شكراً';
 	@override String get quickReplyWait => 'انتظر قليلاً';
 	@override String get messageMute => _root.chat.chatSettingMute;
-	@override String get quickReplyManage => '管理快捷回复';
-	@override String get quickReplyEmpty => '暂无快捷回复，点击右下角添加';
-	@override String get quickReplyDuplicate => '内容已存在';
-	@override String quickReplyMaxReached({required Object max}) => '最多 ${max} 条';
-	@override String get quickReplyHint => '输入内容...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muteUntil => 'Muted Until';
-	@override String get muted => 'Muted';
-	@override String get singleChat => 'Private Chat';
-	@override String get privateChat => 'Private Chat';
-	@override String get groupMessage => 'Group message';
+	@override String groupCategoryGroupCount({required Object count}) => '${count} مجموعة';
+	@override String get groupAlbumCreateTitle => 'إنشاء ألبوم مجموعة';
+	@override String get groupAlbumCreated => 'تم إنشاء الألبوم';
+	@override String get profileCompleted => 'اكتمل الملف الشخصي!';
+	@override String profileProgress({required Object percent}) => '${percent}% مكتمل';
+	@override String createdAtLabel({required Object time}) => 'أنشئ في: ${time}';
+	@override String expiredAtLabel({required Object time}) => 'ينتهي في: ${time}';
+	@override String get myReceivedTab => 'المستلمة';
+	@override String orderStatusLabel({required Object status}) => 'الحالة: ${status}';
+	@override String orderCreatedAtLabel({required Object time}) => 'أنشئ في: ${time}';
+	@override String orderPaymentAtLabel({required Object time}) => 'وقت الدفع: ${time}';
+	@override String get orderStatusPending => 'بانتظار الدفع';
+	@override String get orderStatusPaid => 'مدفوع';
+	@override String get orderStatusRefunded => 'تم الاسترداد';
+	@override String get orderStatusExpired => 'منتهٍ';
+	@override String get defaultFileName => 'ملف';
+	@override String get fileUrlInvalid => 'رابط الملف غير صالح';
+	@override String get e2eeStatusAvailable => 'متاح';
+	@override String get e2eeGenerateNewKey => 'إنشاء مفتاح جديد';
+	@override String get e2eeGenerateNewKeyDesc => 'إنشاء زوج مفاتيح E2EE جديد (لن يمكن فك الرسائل القديمة)';
+	@override String get e2eeActivated => 'مفعّل';
+	@override String get e2eeCreatedAtLabel => 'تاريخ الإنشاء';
+	@override String get e2eeGeneratingKey => 'جارٍ إنشاء المفتاح، انتظر...';
+	@override String get e2eeNewKeyGenerated => 'تم إنشاء زوج مفاتيح E2EE جديد!';
+	@override String get e2eeReady => 'جاهز';
+	@override String e2eeReadyWithShards({required Object count}) => 'جاهز (${count} شظية)';
+	@override String get webFeatureMultiDevice => 'مزامنة الأجهزة';
+	@override String get webFeatureMultiDeviceDesc => 'بدّل بحرية بين الهاتف والكمبيوتر، وتُزامَل الرسائل لحظياً';
+	@override String get webFeatureE2EE => 'تشفير من طرف إلى طرف';
+	@override String get webFeatureE2EEDesc => 'جميع الرسائل مشفّرة من طرف إلى طرف لحماية خصوصيتك';
+	@override String get webFeatureFileTransfer => 'نقل الملفات';
+	@override String get webFeatureFileTransferDesc => 'اسحب الملف لإرساله، مع دعم صيغ متعددة';
+	@override String get webQRStatusWaiting => 'افتح ImBoy على الهاتف > الإعدادات > مسح';
+	@override String get webQRStatusScanned => 'اضغط «تأكيد الدخول» على هاتفك';
+	@override String get webQRStatusVerifying => 'جارٍ التحقق...';
+	@override String get webQRStatusExpired => 'حدّث وأعد المسح';
+	@override String get e2eeErrInvalidFormat => 'تنسيق الرسالة خاطئ، فشل التشفير';
+	@override String get e2eeSocialCreateTitle => 'إنشاء شظايا الاستعادة';
+	@override String get e2eeSocialCreateBtn => 'إنشاء الشظايا';
+	@override String get e2eeSocialCreateFailTitle => 'تعذّر الإنشاء';
+	@override String get e2eeSocialCreateFailBody => 'تعذّر إنشاء الشظايا، أعد المحاولة';
+	@override String get e2eeSocialCreateFirst => 'سيظهر المحتوى بعد إنشاء الشظايا';
+	@override String get e2eeSocialUsedAtLabel => 'وقت الاستخدام';
+	@override String get e2eeTransferSendTitle => 'إرسال المفتاح إلى جهاز جديد';
+	@override String get e2eeTransferCreateBtn => 'إنشاء';
+	@override String get e2eeTransferReceiveTitle => 'استقبال المفتاح من الجهاز القديم';
+	@override String get e2eeTransferSendDesc => 'نقل المفتاح إلى جهاز جديد عبر رمز QR';
+	@override String get e2eeTransferReceiveDesc => 'امسح رمز QR للجهاز القديم لاستقبال المفتاح';
+	@override String e2eeSocialStatus({required Object status}) => 'الحالة: ${status}';
+	@override String get e2eeSocialCreateShardsTitle => 'إنشاء شظايا الاستعادة';
+	@override String get e2eeSocialCreateShardsDesc => 'قسّم المفتاح إلى شظايا وخزّنها على أجهزة الوكلاء (الخادم لا يحفظ)';
+	@override String e2eeProxyNeedAtLeast({required Object count}) => 'اختر ${count} وكلاء على الأقل';
+	@override String get e2eeRecreatingKey => 'جارٍ إعادة إنشاء المفتاح...';
+	@override String get e2eeKeyRecreated => 'تمت إعادة إنشاء المفتاح';
+	@override String get e2eeRecoveryNewDeviceTitle => 'تم رصد دخول من جهاز جديد';
+	@override String get e2eeRecoveryNewDeviceBody => 'لحماية الرسائل، أنشأ هذا الجهاز مفتاح تشفير من طرف إلى طرف جديد.\n\nالرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ويجب استعادة المفتاح أولاً لعرضها. يمكنك الاستعادة عبر «نقل الأجهزة» أو «الاستعادة الاجتماعية» أو استيراد نسخة محلية.';
+	@override String get e2eeRecoveryDecryptFailedTitle => 'تعذّر فك تشفير هذه الرسالة';
+	@override String get e2eeRecoveryDecryptFailedBody => 'هذه الرسالة مشفّرة بمفتاح جهاز آخر.\n\nإذا غيّرت الجهاز أو أعدت تثبيت التطبيق، فاستعد مفتاح التشفير لعرض الرسائل السابقة.';
+	@override String get e2eeRecoveryLater => 'لاحقاً';
+	@override String get e2eeRecoveryGoRecover => 'استعادة';
+	@override String get e2eeRecoveryBannerText => 'تم رصد رسائل سابقة مشفّرة، استعد المفتاح لعرضها. اضغط للمتابعة';
+	@override String get liveRoomCreateTitle => 'إنشاء غرفة بث مباشر';
+	@override String get liveRoomCreating => 'جارٍ الإنشاء...';
+	@override String get liveRoomWatch => 'مشاهدة البث';
 }
 
 // Path: common
@@ -498,7 +638,9 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get bindMobileAndEmailTips => 'ربط رقم الهاتف المحمول وعنوان البريد الإلكتروني لتحسين أمان حسابك';
 	@override String get bindNow => 'ربط الآن';
 	@override String get buttonCancel => 'إلغاء';
+	@override String get buttonCreate => 'إنشاء';
 	@override String get buttonChangePassword => 'تغيير كلمة المرور';
+	@override String get phoneInputHint => 'أدخل رقم الهاتف';
 	@override String get buttonClose => 'إغلاق';
 	@override String get buttonConfirm => 'تأكيد';
 	@override String get buttonContinue => 'متابعة';
@@ -525,6 +667,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get canNotAddYourselfFriend => 'لا يمكنك إضافة نفسك كصديق';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
+	@override String get operationSuccessful => 'تمت العملية بنجاح';
 	@override String get save => _root.common.buttonSave;
 	@override String get reset => 'إعادة تعيين';
 	@override String get clear => 'مسح';
@@ -553,6 +696,8 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get checkForUpdates => 'التحقق من التحديثات';
 	@override String get clearAll => 'مسح الكل';
 	@override String get clearChatRecord => 'مسح سجل الدردشة';
+	@override String get complaintSuccess => 'تم إرسال الشكوى';
+	@override String get complaintFailed => 'تعذّر إرسال الشكوى، حاول لاحقاً';
 	@override String get confirmCode => 'رمز التأكيد';
 	@override String get confirmCodeError => 'رمز التأكيد فارغ';
 	@override String get confirmCodeSuccess => 'تم تأكيد الحساب.';
@@ -564,6 +709,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get contactSettingTag => 'علامة إعدادات جهات الاتصال';
 	@override String get contactTagListLogic => 'منطق قائمة علامات جهات الاتصال';
 	@override String get contactTags => 'علامات جهات الاتصال';
+	@override String get contactInfoNotSynced => 'جهات الاتصال غير متزامنة';
 	@override String get continueDownloading => 'متابعة التنزيل';
 	@override String get copy => 'نسخ';
 	@override String get coupon => 'قسيمة';
@@ -638,6 +784,24 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get genderUpdateSuccess => 'تم تعيين الجنس بنجاح';
 	@override String get groupAddLocal => 'حفظ في جهات الاتصال';
 	@override String get groupAnnouncement => 'إعلان المجموعة';
+	@override String get groupFileUploadSuccess => 'تم رفع الملف';
+	@override String get groupFileUploadFailed => 'تعذّر رفع الملف، حاول لاحقاً';
+	@override String get groupFileDeleteSuccess => 'تم حذف الملف';
+	@override String get groupFileDeleteFailed => 'تعذّر الحذف، حاول لاحقاً';
+	@override String get groupFileClosePreview => 'إغلاق المعاينة';
+	@override String get groupFileUploadTooltip => 'رفع ملف';
+	@override String get groupFileSearch => 'البحث في ملفات المجموعة';
+	@override String get groupFileReadFailed => 'تعذّرت قراءة الملف، أعد المحاولة';
+	@override String get groupFileDeleteTitle => 'حذف ملف المجموعة';
+	@override String groupFileDeleteConfirm({required Object name}) => 'حذف الملف «${name}»؟';
+	@override String get groupFileImageLoadFailed => 'تعذّر تحميل الصورة';
+	@override String get groupFileOpenFailed => 'تعذّر فتح رابط الملف';
+	@override String get groupFileSearchClear => 'مسح';
+	@override String get groupFileSearchAction => 'بحث';
+	@override String get groupFileCategoryAll => 'الكل';
+	@override String get groupFileSearchEmpty => 'لا توجد ملفات مطابقة';
+	@override String get groupFileAudioLoadFailed => 'تعذّر تحميل الصوت';
+	@override String get groupFileAudioLoading => 'جارٍ تحميل الصوت...';
 	@override String groupQrcodeTips({required Object days, required Object date}) => 'رمز QR صالح لمدة ${days} يوماً (قبل ${date})، وسيتم تحديثه عند إعادة الدخول';
 	@override String get groupSearchTips => 'اسم المجموعة ووصف المجموعة';
 	@override String get helpDocument => 'مستند المساعدة';
@@ -661,7 +825,9 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get loading => 'جارٍ التحميل';
 	@override String get locationMessage => 'رسالة موقع';
 	@override String get loginDeviceManagementTips => 'تم تسجيل الدخول إلى حسابك على الأجهزة التالية، يمكنك حذف الأجهزة، وستحتاج إلى التحقق الأمني عند تسجيل الدخول التالي على هذه الأجهزة بعد الحذف.';
+	@override String get logoutFailed => 'تعذّر تسجيل الخروج';
 	@override String get logoutNotice => 'إشعار إلغاء الحساب';
+	@override String get exportDataSuccess => 'تم تصدير البيانات';
 	@override String get manually => 'اختيار يدوي';
 	@override String get messageCall => 'إرسال رسالة';
 	@override String get messageContent => 'محتوى الرسالة';
@@ -709,6 +875,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get noUpdateDescription => 'لا يوجد وصف للتحديث';
 	@override String get normalModel => 'الوضع العادي';
 	@override String get notAuthorizedLatLong => 'لم تقم بتفويض الحصول على خطوط الطول والعرض';
+	@override String get notLoggedIn => 'لم تسجّل الدخول';
 	@override String get notBad => 'ليس سيئاً';
 	@override String get notBound => 'غير مرتبط';
 	@override String get notFilled => 'غير مملوء';
@@ -720,9 +887,9 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get notShow => 'عدم العرض';
 	@override String get notTurnedLocationService => 'لم تقم بتشغيل خدمة الموقع';
 	@override String get nowNewVersion => 'لم يتم اكتشاف إصدار جديد';
-	@override String get off => _root.common.disabled;
+	@override String get kFalse => _root.common.disabled;
 	@override String get offlineNotification => 'إشعار عدم الاتصال';
-	@override String get on => _root.common.enabled;
+	@override String get kTrue => _root.common.enabled;
 	@override String get operationFailedAgainLater => 'فشلت العملية، يرجى المحاولة مرة أخرى لاحقاً';
 	@override String get optionsNo => 'لا';
 	@override String get optionsRename => 'أريد إعادة التسمية';
@@ -755,12 +922,57 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get releaseFingerCancelSending => 'اترك إصبعك لإلغاء الإرسال';
 	@override String get removeContactFromTag => 'إزالة جهة الاتصال من العلامة';
 	@override String get removeMember => 'إزالة العضو';
+	@override String get atMentionYouTag => '[@أنت] ';
+	@override String get atMentionLeftMember => '@عضو غادر';
+	@override String get muteNotifications => 'كتم الإشعارات';
+	@override String get muteNotificationsHint => 'عند التفعيل لن تصلك تنبيهات الرسائل الجديدة، لكن يمكنك رؤية غير المقروء في قائمة المحادثات';
+	@override String get revokeExpired => 'مرّت أكثر من دقيقتين، لا يمكن السحب';
+	@override String get quickReplyAddTitle => 'رد سريع جديد';
+	@override String get quickReplyEditTitle => 'تعديل رد سريع';
+	@override String get removeAdmin => 'Remove Admin';
+	@override String get setAdminConfirm => 'Set this member as admin?';
+	@override String get removeAdminConfirm => 'Remove admin role from this member?';
+	@override String get muteMemberConfirm => 'Mute this member?';
+	@override String get unmuteMemberConfirm => 'Unmute this member?';
+	@override String get kickMemberConfirm => 'Remove this member from the group?';
+	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
+	@override String get setAdminSuccess => 'Admin set';
+	@override String get setAdminFailed => 'Failed to set admin';
+	@override String get removeAdminSuccess => 'Admin removed';
+	@override String get removeAdminFailed => 'Failed to remove admin';
+	@override String get muteMemberSuccess => 'Member muted';
+	@override String get muteMemberFailed => 'Failed to mute member';
+	@override String get unmuteMemberSuccess => 'Member unmuted';
+	@override String get unmuteMemberFailed => 'Failed to unmute member';
+	@override String get kickMemberSuccess => 'Member removed';
+	@override String get kickMemberFailed => 'Failed to remove member';
+	@override String get transferGroupSuccess => 'Ownership transferred';
+	@override String get transferGroupFailed => 'Failed to transfer ownership';
+	@override String get notMuted => 'Not Muted';
+	@override String get muteDuration => 'Mute Duration';
+	@override String get muteDuration1hour => '1 Hour';
+	@override String get muteDuration6hours => '6 Hours';
+	@override String get muteDuration12hours => '12 Hours';
+	@override String get muteDuration1day => '1 Day';
+	@override String get muteDuration3days => '3 Days';
+	@override String get muteDuration7days => '7 Days';
+	@override String get muteDurationPermanent => 'Permanent';
+	@override String get muteDuration5min => '5 دقائق';
+	@override String get muteDuration10min => '10 دقائق';
+	@override String get muteDuration30min => '30 دقيقة';
+	@override String get muteDuration30days => '30 يوماً';
+	@override String muteUnitSeconds({required Object count}) => '${count} ثانية';
+	@override String get throttleWarning => 'محاولات كثيرة جداً، حاول لاحقاً';
+	@override String throttleRetryAfter({required Object seconds}) => 'محاولات كثيرة جداً، حاول بعد ${seconds} ثانية';
+	@override String get mutedCannotSend => 'لا يمكن إرسال الرسائل أثناء الكتم';
 	@override String get resendCodeSuccess => 'تم إرسال بريد إلكتروني جديد.';
 	@override String get resetFilters => 'إعادة تعيين التصفية';
 	@override String get saveQrCode => 'حفظ رمز QR';
 	@override String get saveSuccess => 'تم الحفظ بنجاح';
 	@override String get scanQrcodeAddFriend => 'امسح رمز QR أعلاه لإضافتني كصديق';
 	@override String get search => 'بحث';
+	@override String get searchScope => 'Search scope';
+	@override String get searchAll => 'All messages';
 	@override String get searchChatContent => 'البحث في محتوى الدردشة';
 	@override String get searchChatRecord => 'البحث في سجل الدردشة';
 	@override String get searchError => 'خطأ في البحث';
@@ -890,6 +1102,11 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get selectExpirationDateOptional => 'اختيار تاريخ انتهاء الصلاحية (اختياري)';
 	@override String get groupAnnouncementDeleteConfirm => 'هل أنت متأكد من حذف هذا الإعلان؟';
 	@override String get groupAnnouncementDelete => 'حذف';
+	@override String get groupAnnouncementLoadFailed => 'تعذّر تحميل الإعلان، حاول لاحقاً';
+	@override String get groupAnnouncementPublishFailed => 'تعذّر نشر الإعلان';
+	@override String get groupAnnouncementPublishSuccess => 'تم نشر الإعلان';
+	@override String get groupAnnouncementDeleteFailed => 'تعذّر حذف الإعلان';
+	@override String get groupAnnouncementDeleteSuccess => 'تم حذف الإعلان';
 	@override String get privacyClearChatHistory => 'مسح سجل الدردشة';
 	@override String get privacyClearChatHistoryConfirm => 'هل أنت متأكد من مسح جميع سجلات الدردشة؟ هذا الإجراء لا يمكن التراجع عنه.';
 	@override String get privacyLogoutAccountConfirm => 'هل أنت متأكد من إلغاء الحساب؟ سيتم حذف حسابك وجميع بياناتك بشكل دائم، ولا يمكن التراجع عن هذا الإجراء.';
@@ -1033,6 +1250,24 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get changeFailed => 'فشل التعديل';
 	@override String get submitted => 'تم الإرسال';
 	@override String get viewSecurityHelp => 'عرض مساعدة الأمان';
+	@override String get momentsNoData => 'لا توجد منشورات';
+	@override String get momentsDeleteConfirm => 'حذف هذا المنشور؟';
+	@override String get momentsDeleteCommentConfirm => 'حذف هذا التعليق؟';
+	@override String get momentsNotFound => 'المنشور غير موجود أو لا يمكن عرضه';
+	@override String get momentsContentOrMediaRequired => 'أدخل نصاً أو أضف وسائط';
+	@override String get momentsPublishFailed => 'تعذّر النشر';
+	@override String get momentsAllowComment => 'السماح بالتعليقات';
+	@override String get momentsReportReason => 'سبب الإبلاغ';
+	@override String get momentsNoComments => 'لا تعليقات';
+	@override String get momentsContentHint => 'شارك شيئاً...';
+	@override String get momentsAddMedia => 'إضافة وسائط';
+	@override String get momentsAllowUidsLabel => 'قائمة UID المسموح لهم (مفصولة بفواصل)';
+	@override String get momentsCommentFailed => 'تعذّر إضافة التعليق، حاول لاحقاً';
+	@override String get momentsDeleteFailed => 'تعذّر الحذف، حاول لاحقاً';
+	@override String get momentsReportSubmitted => 'تم إرسال الإبلاغ';
+	@override String get momentsReportFailed => 'تعذّر الإبلاغ، حاول لاحقاً';
+	@override String get momentsLoadMoreComments => 'المزيد من التعليقات';
+	@override String get momentsUploadFailed => 'تعذّر رفع الوسائط، حاول لاحقاً';
 	@override String get transactionHistory => 'سجل المعاملات';
 	@override String get paymentPasswordSetSuccess => 'نجح تعيين كلمة مرور الدفع';
 	@override String get paymentPasswordSetFailed => 'فشل تعيين كلمة مرور الدفع';
@@ -1047,6 +1282,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get personalSignature => 'التوقيع الشخصي';
 	@override String get personalBackground => 'الخلفية الشخصية';
 	@override String get setBackgroundImage => 'تعيين صورة الخلفية';
+	@override String get expression => 'رموز تعبيرية';
 	@override String get extendedInfo => 'معلومات موسعة';
 	@override String get profession => 'المهنة';
 	@override String get pleaseEnterProfession => 'Please enter profession';
@@ -1127,6 +1363,10 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get noDetailedInfo => 'لم يقم هذا المستخدم بتعيين توقيع شخصي أو تفاصيل أخرى';
 	@override String get noNewRegisteredUsers => 'لا يوجد مستخدمون جدد مسجلون حالياً يرجى العودة لاحقاً للعرض';
 	@override String get newRegisteredUsersTip => 'يعرض هذا المستخدمون المسجلون مؤخراً، يمكنك إضافتهم كأصدقاء بنشاط';
+	@override String get notificationFriendRequest => 'طلب صداقة';
+	@override String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} يريد إضافتك صديقاً';
+	@override String get notificationGroupInvite => 'دعوة لمجموعة';
+	@override String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} يدعوك للانضمام إلى مجموعة ${groupName}';
 	@override String get youRevokedMessage => 'قمت بسحب رسالة';
 	@override String get otherRevokedMessage => 'قام الطرف الآخر بسحب رسالة';
 	@override String get networkFailureTryAgain => 'فشل الشبكة، يرجى المحاولة مرة أخرى!';
@@ -1143,43 +1383,295 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get smaller => 'أصغر';
 	@override String currentFontScale({required Object param1, required Object param2}) => 'الحالي: ${param1} ${param2}%';
 	@override String emailUpdatedTo({required Object param}) => 'تم تحديث البريد الإلكتروني إلى ${param}';
-	@override String get atMentionYouTag => '[@你] ';
-	@override String get atMentionLeftMember => '@已退群成员';
-	@override String get muteNotifications => '消息免打扰';
-	@override String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
-	@override String get revokeExpired => '超过 2 分钟，无法撤回';
-	@override String get quickReplyAddTitle => '新增快捷回复';
-	@override String get quickReplyEditTitle => '编辑快捷回复';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get muteMemberConfirm => 'Mute this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get transferGroupSuccess => 'Ownership transferred';
-	@override String get transferGroupFailed => 'Failed to transfer ownership';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration6hours => '6 Hours';
-	@override String get muteDuration12hours => '12 Hours';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration3days => '3 Days';
-	@override String get muteDuration7days => '7 Days';
-	@override String get muteDurationPermanent => 'Permanent';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String groupAnnouncementExpiry({required Object time}) => 'صالح حتى: ${time}';
+	@override String get groupAlbumCreateFailed => 'تعذّر الإنشاء، حاول لاحقاً';
+	@override String get groupAlbumDeleteTitle => 'حذف ألبوم المجموعة';
+	@override String groupAlbumDeleteConfirm({required Object name}) => 'حذف الألبوم «${name}»؟';
+	@override String get groupAlbumDeleted => 'تم حذف الألبوم';
+	@override String get groupAlbumDeleteFailed => 'تعذّر الحذف، حاول لاحقاً';
+	@override String get groupAlbumRenameFailed => 'تعذّر التحديث، حاول لاحقاً';
+	@override String get groupAlbumUploadTooltip => 'رفع صورة';
+	@override String get groupAlbumDeleteTooltip => 'حذف الألبوم';
+	@override String get groupAlbumNoAlbum => 'لا توجد ألبومات';
+	@override String get groupAlbumPhotoReadFailed => 'تعذّرت قراءة الصورة، أعد المحاولة';
+	@override String get groupAlbumPhotoUploaded => 'تم رفع الصورة';
+	@override String get groupAlbumPhotoUploadFailed => 'تعذّر رفع الصورة، حاول لاحقاً';
+	@override String get groupAlbumCreateTooltip => 'إنشاء ألبوم';
+	@override String get groupAlbumPhotoBatchDeleteTitle => 'حذف الصور';
+	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => 'حذف الصور المحددة (${count})؟';
+	@override String get groupAlbumPhotoDeleteFailed => 'تعذّر الحذف، حاول لاحقاً';
+	@override String groupAlbumPhotoDeletedAll({required Object count}) => 'تم حذف ${count} صورة';
+	@override String groupAlbumPhotoDeletedPartial({required Object success, required Object fail}) => 'تم حذف ${success}، تعذّر حذف ${fail}';
+	@override String get groupAlbumPhotoDeleteTitle => 'حذف صورة';
+	@override String get groupAlbumPhotoDeleteConfirm => 'حذف هذه الصورة؟';
+	@override String get groupAlbumPhotoDeleted => 'تم حذف الصورة';
+	@override String get groupAlbumPhotoBatchDeleteTooltip => 'حذف المحدد';
+	@override String get groupAlbumPhotoExitSelection => 'إنهاء التحديد';
+	@override String get groupAlbumPhotoOpenFailed => 'تعذّر فتح رابط الصورة';
+	@override String get groupAlbumPhotoNotFound => 'الصورة غير موجودة أو محذوفة';
+	@override String get groupAlbumPhotoOpenExternal => 'فتح خارجي';
+	@override String get groupAlbumPhotoCoverUpdated => 'تم تعيينها كغلاف للألبوم';
+	@override String get groupAlbumPhotoCoverFailed => 'تعذّر تعيين الغلاف، حاول لاحقاً';
+	@override String get groupAlbumPhotoNext => 'التالي';
+	@override String get groupAlbumPhotoResolution => 'الدقة';
+	@override String get groupAlbumPhotoUploader => 'رفعها';
+	@override String get sectionDisplay => 'العرض';
+	@override String get sectionTheme => 'السمة';
+	@override String get selectLanguage => 'اختيار اللغة';
+	@override String get completionSuggestions => 'اقتراحات التحسين:';
+	@override String get sectionGeneral => 'عام';
+	@override String get sectionPrivacySecurity => 'الخصوصية والأمان';
+	@override String get sectionHelpAbout => 'مساعدة وحول';
+	@override String get msgOnlyVisibleToParties => 'الرسائل مرئية للمرسل والمستلم فقط';
+	@override String get msgNotEncrypted => 'تُرسل الرسائل دون تشفير';
+	@override String durationMinutes({required Object count}) => '${count} دقيقة';
+	@override String durationSeconds({required Object count}) => '${count} ثانية';
+	@override String get rechargeAmountError => 'أدخل مبلغاً بين 1 و10000 يوان';
+	@override String get rechargeSuccess => 'تم الشحن';
+	@override String get rechargeConfirm => 'تأكيد الشحن';
+	@override String get transactionHistory2 => 'سجل العمليات';
+	@override String get noTransactionHistory => 'لا توجد عمليات';
+	@override String get allLoaded => '— تم تحميل الكل —';
+	@override String get transactionTypeIncome => 'شحن';
+	@override String get transactionTypeExpense => 'مصروفات';
+	@override String get sectionLoginCredentials => 'بيانات الدخول';
+	@override String get channelInvitations => 'دعوات القناة';
+	@override String get acceptInvitationFailed => 'تعذّر قبول الدعوة';
+	@override String get rejectInvitationFailed => 'تعذّر رفض الدعوة';
+	@override String get invitationAccepted => 'تم قبول الدعوة';
+	@override String get invitationRejected => 'تم رفض الدعوة';
+	@override String get invitationStatusPending => 'قيد الانتظار';
+	@override String get invitationStatusAccepted => 'مقبولة';
+	@override String get invitationStatusRejected => 'مرفوضة';
+	@override String get invitationStatusExpired => 'منتهية';
+	@override String get invitationStatusCancelled => 'ملغاة';
+	@override String get invitationStatusUnknown => 'غير معروف';
+	@override String get noReceivedInvitations => 'لا توجد دعوات مستلمة';
+	@override String get noSentInvitations => 'لا توجد دعوات مرسلة';
+	@override String get processingDots => 'جارٍ المعالجة...';
+	@override String get purchaseFailed => 'تعذّر الشراء، حاول لاحقاً';
+	@override String get purchaseSuccess => 'تم الشراء';
+	@override String get insufficientBalanceTitle => 'رصيد غير كافٍ';
+	@override String insufficientBalanceContent({required Object currency, required Object balance, required Object price}) => 'رصيدك الحالي ${currency} ${balance}، المطلوب ${currency} ${price}. اشحن رصيدك أولاً.';
+	@override String get goRecharge => 'اشحن الرصيد';
+	@override String get noOrders => 'لا توجد طلبات';
+	@override String get orderDetailLoadFailed => 'تعذّر تحميل الطلب';
+	@override String orderNoLabel({required Object no}) => 'رقم الطلب: ${no}';
+	@override String get orderStatusCancelled => 'ملغى';
+	@override String get orderStatusUnknown => 'غير معروف';
+	@override String get removeReaction => 'إزالة التفاعل';
+	@override String removeReactionConfirm({required Object emoji}) => 'إزالة تفاعل ${emoji}؟';
+	@override String get fileOpenFailed => 'تعذّر فتح هذا الملف';
+	@override String get e2eeLocalBackup => 'نسخة محلية احتياطية';
+	@override String get e2eeLocalBackupDesc => 'تصدير نسخة مشفّرة إلى الجهاز أو السحابة';
+	@override String get e2eeDeleteKey => 'حذف المفتاح';
+	@override String get e2eeDeleteKeyDesc => 'حذف المفتاح من الجهاز (لا يمكن استعادته)';
+	@override String get e2eeCurrentKeyInfo => 'المفتاح الحالي';
+	@override String get e2eeE2EEEnabled => 'التشفير من طرف إلى طرف مفعّل';
+	@override String get e2eeNoKeyDetected => 'لم يُعثر على مفتاح E2EE';
+	@override String get e2eeNoKeyDesc => 'عليك أولاً إنشاء زوج مفاتيح أو الاستعادة من نسخة احتياطية';
+	@override String get e2eeAboutTitle => 'حول التشفير من طرف إلى طرف';
+	@override String get e2eeInfoPoint1 => '• تُشفّر رسائلك قبل الإرسال، ولا يمكن للخادم رؤية المحتوى';
+	@override String get e2eeInfoPoint2 => '• عند تغيير الجهاز أو حذف المفتاح قد لا يمكن فك الرسائل القديمة';
+	@override String get e2eeInfoPoint3 => '• احرص على نسخ المفتاح احتياطياً بانتظام لتجنب فقدان البيانات';
+	@override String get e2eeExportBackup => 'تصدير النسخة';
+	@override String get e2eeExportBackupDesc => 'إنشاء نسخة احتياطية مشفّرة';
+	@override String get e2eeImportBackup => 'استيراد النسخة';
+	@override String get e2eeImportBackupDesc => 'استعادة المفتاح من نسخة احتياطية';
+	@override String get e2eeBackupManage => 'إدارة النسخ';
+	@override String get e2eeBackupManageDesc => 'عرض سجل النسخ الاحتياطية';
+	@override String get e2eeGenerateKeyConfirm => 'إنشاء زوج مفاتيح E2EE جديد؟';
+	@override String get e2eeWarnOldMessagesLost => '• لن يمكن فك الرسائل القديمة';
+	@override String get e2eeWarnNeedNewBackup => '• ستحتاج إلى إنشاء نسخة احتياطية جديدة';
+	@override String get e2eeConfirmGenerate => 'إنشاء';
+	@override String get e2eeDeleteKeyConfirm => 'حذف المفتاح الحالي؟';
+	@override String get e2eeWarnCannotRestore => '• لا يمكن الاستعادة بعد الحذف';
+	@override String get e2eeWarnAllMsgsLost => '• لن يمكن فك جميع رسائل E2EE';
+	@override String get e2eeConfirmDelete => 'حذف';
+	@override String get e2eeKeyGeneratedSuccess => 'تم إنشاء المفتاح';
+	@override String e2eeDeviceIdInfo({required Object id}) => 'معرّف الجهاز: ${id}';
+	@override String e2eeKeyIdInfo({required Object id}) => 'معرّف المفتاح: ${id}';
+	@override String e2eeCreatedAtInfo({required Object time}) => 'تاريخ الإنشاء: ${time}';
+	@override String get e2eeImportantNote => 'ملاحظة مهمة';
+	@override String get e2eeWarnOldMayNotDecrypt => '• قد لا يمكن فك الرسائل القديمة';
+	@override String get e2eeSuggestBackupNow => '• ننصح بتصدير النسخة فوراً';
+	@override String get e2eeGoBackup => 'إنشاء نسخة';
+	@override String get e2eeKeyGenerateFailed => 'تعذّر إنشاء المفتاح، أعد المحاولة';
+	@override String get e2eeKeyDeleted => 'تم حذف المفتاح';
+	@override String get e2eeDeleteFailed => 'تعذّر الحذف، أعد المحاولة';
+	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => 'الشظايا المتاحة: ${available}، يلزم ${required} وكيلاً';
+	@override String get e2eeNoRecoveryShards => 'لا توجد شظايا استعادة متاحة';
+	@override String get e2eeRecoverSuccess => 'تمت الاستعادة';
+	@override String get e2eeRecoverFailed => 'تعذّرت الاستعادة';
+	@override String get e2eeRecoverKeyFailed => 'تعذّرت استعادة المفتاح، أعد المحاولة';
+	@override String get e2eeLoadingShards => 'جارٍ تحميل الشظايا...';
+	@override String get e2eeNoShards => 'لا توجد شظايا متاحة';
+	@override String get e2eeLoadFailed => 'تعذّر التحميل، أعد المحاولة';
+	@override String e2eeContactingProxy({required Object name}) => 'جارٍ التواصل مع: ${name}';
+	@override String get e2eeRecoveryFailed => 'تعذّرت الاستعادة، أعد المحاولة';
+	@override String get webFeatureNotification => 'إشعارات سطح المكتب';
+	@override String get webFeatureNotificationDesc => 'تصلك تنبيهات الرسائل الجديدة حتى مع إغلاق الصفحة';
+	@override String get webQRConfirmOnPhone => 'أكّد الدخول على هاتفك';
+	@override String get webQRLoginFailed => 'تعذّر الدخول';
+	@override String get webQRLoginSuccess => 'تم الدخول';
+	@override String webQRExpiresIn({required Object seconds}) => 'ينتهي خلال ${seconds} ثانية';
+	@override String get webQRStatusFailed => 'تعذّر الدخول، أعد المحاولة';
+	@override String get webQRStatusSuccess => 'جارٍ التحويل...';
+	@override String get webLoginEmptyError => 'أدخل الحساب وكلمة المرور';
+	@override String get webQRGenerateFailed => 'تعذّر إنشاء رمز QR';
+	@override String get webQRTokenInvalid => 'رمز الدخول غير صالح';
+	@override String get e2eeErrNoRecipientKey => 'تعذّر الحصول على مفتاح جهاز الطرف الآخر، لم تُرسل الرسالة';
+	@override String get e2eeDecryptFailed => 'تعذّر فك تشفير الرسالة';
+	@override String get e2eeDecryptFailedReasons => 'لا يمكن فك تشفير هذه الرسالة. الأسباب المحتملة:';
+	@override String get e2eeDecryptReasonOtherDevice => '• سجّلت الدخول على جهاز آخر';
+	@override String get e2eeDecryptReasonKeyExpired => '• انتهت صلاحية مفتاح الجهاز';
+	@override String get e2eeDecryptReasonDataCorrupt => '• تلف بيانات التطبيق';
+	@override String get e2eeDecryptChooseSolution => 'اختر حلاً:';
+	@override String get e2eeDecryptActionRecreateKey => 'إنشاء المفتاح من جديد (موصى به)';
+	@override String get e2eeDecryptActionRelogin => 'إعادة تسجيل الدخول';
+	@override String get e2eeDecryptActionRemindLater => 'ذكّرني لاحقاً';
+	@override String get e2eeBackupExportTitle => 'تصدير نسخة E2EE';
+	@override String get e2eeBackupPwdCantRecover => '• لا يمكن استرداد كلمة مرور النسخة، احفظها جيداً!';
+	@override String get e2eeBackupStoreMultipleNote => '• يُفضّل حفظ النسخة في عدة أماكن آمنة (بريد، سحابة، فلاش)';
+	@override String get e2eeBackupPwdLabel => 'كلمة مرور النسخة *';
+	@override String get e2eeBackupPwdHint => '12 حرفاً على الأقل، أحرف كبيرة وصغيرة وأرقام ورموز';
+	@override String get e2eeBackupConfirmPwdLabel => 'تأكيد كلمة المرور *';
+	@override String get e2eeBackupConfirmPwdHint => 'أعد إدخال كلمة المرور';
+	@override String get e2eeBackupNoteLabel => 'ملاحظة (اختياري)';
+	@override String get e2eeBackupNoteHint => 'مثال: نسخة الهاتف الأساسي - يناير 2026';
+	@override String get e2eeBackupPwdStrengthLabel => 'قوة كلمة المرور';
+	@override String get e2eeBackupPwdWeak => 'ضعيفة - زِد التعقيد';
+	@override String get e2eeBackupPwdMedium => 'متوسطة - زِد الطول أو التعقيد';
+	@override String get e2eeBackupPwdStrong => 'قوية - مناسبة';
+	@override String get e2eeBackupPwdVeryStrong => 'قوية جداً - آمنة';
+	@override String get e2eeBackupGenerateBtn => 'إنشاء ملف النسخة';
+	@override String get e2eeBackupFileGenerated => 'تم إنشاء ملف النسخة الاحتياطية!';
+	@override String get e2eeBackupShareBtn => 'مشاركة عبر بريد/سحابة';
+	@override String get e2eeBackupShareContent => 'هذا ملف نسخة احتياطية لمفاتيح Imboy E2EE. احفظه بأمان ولا تُطلع عليه أحداً.';
+	@override String get e2eeBackupErrPwdMismatch => 'كلمتا المرور غير متطابقتين';
+	@override String get e2eeBackupErrNoKeyData => 'تعذّر الحصول على بيانات المفتاح';
+	@override String get e2eeBackupErrExportFailed => 'تعذّر التصدير، أعد المحاولة';
+	@override String get e2eeBackupErrShareFailed => 'تعذّرت المشاركة، أعد المحاولة';
+	@override String get e2eeBackupExportSuccessTitle => 'تم تصدير النسخة';
+	@override String get e2eeBackupExportSuccessBody => 'تم إنشاء نسخة مفتاح E2EE بنجاح.';
+	@override String get e2eeBackupImportantNoteColon => 'ملاحظة مهمة:';
+	@override String get e2eeBackupKeepSafe => '• احفظ ملف النسخة وكلمة المرور بأمان';
+	@override String get e2eeBackupStoreMultipleLoc => '• يُفضّل حفظ الملف في عدة أماكن آمنة';
+	@override String get e2eeBackupPwdCantRecoverNote => '• لا يمكن استرداد كلمة المرور، احفظها جيداً';
+	@override String get e2eeBackupImportTitle => 'استيراد نسخة E2EE';
+	@override String get e2eeBackupImportGuide => 'تعليمات الاستيراد';
+	@override String get e2eeBackupImportReplaceKey => '• بعد الاستيراد سيُستبدل مفتاح E2EE الحالي';
+	@override String get e2eeBackupImportTrustedSource => '• تأكد أن الملف من مصدر موثوق';
+	@override String get e2eeBackupSelectFile => 'اختيار ملف النسخة';
+	@override String get e2eeBackupSelectFileHint => 'اختر ملف النسخة (.enc)';
+	@override String get e2eeBackupInfoTitle => 'معلومات النسخة';
+	@override String get e2eeBackupVersionLabel => 'الإصدار';
+	@override String get e2eeBackupAlgorithmLabel => 'الخوارزمية';
+	@override String get e2eeBackupFileSizeLabel => 'حجم الملف';
+	@override String get e2eeBackupFileValid => '✓ تنسيق الملف صالح';
+	@override String get e2eeBackupImportPwdHint => 'أدخل كلمة المرور المحددة عند الإنشاء';
+	@override String get e2eeBackupImportBtn => 'استيراد المفتاح';
+	@override String get e2eeBackupErrSelectFile => 'تعذّر اختيار الملف، أعد المحاولة';
+	@override String get e2eeBackupErrValidateFailed => 'فشل التحقق من الملف، تحقق من التنسيق';
+	@override String get e2eeBackupErrImportFailed => 'تعذّر الاستيراد، تحقق من كلمة المرور';
+	@override String get e2eeBackupImportSuccessTitle => 'تم الاستيراد';
+	@override String get e2eeBackupImportSuccessBody => 'تمت استعادة مفتاح E2EE!';
+	@override String get e2eeBackupImportSuccessNote => 'ملاحظة: قد لا تكون الرسائل القديمة متاحة، وهذا سلوك طبيعي لـ E2EE';
+	@override String get e2eeBackupNoRecords => 'لا توجد نسخ احتياطية';
+	@override String get e2eeBackupNoRecordsHint => 'بعد التصدير سيظهر السجل هنا';
+	@override String e2eeBackupDeviceLabel({required Object id}) => 'جهاز ${id}';
+	@override String e2eeBackupCreatedAtLabel({required Object time}) => 'أُنشئ ${time}';
+	@override String get e2eeBackupDetailTitle => 'تفاصيل النسخة';
+	@override String get e2eeBackupDeviceIdLabel => 'معرّف الجهاز';
+	@override String get e2eeBackupVersionNum => 'إصدار النسخة';
+	@override String get e2eeBackupCreatedAtRow => 'تاريخ الإنشاء';
+	@override String get e2eeBackupFileSizeRow => 'حجم الملف';
+	@override String get e2eeBackupNoteRow => 'ملاحظة';
+	@override String get e2eeBackupDeleteTitle => 'حذف سجل النسخة';
+	@override String get e2eeBackupDeleteConfirm => 'حذف سجل النسخة هذا؟';
+	@override String get e2eeBackupDeleteSuccess => 'تم حذف السجل';
+	@override String get e2eeSocialShardSettings => 'إعدادات الشظايا';
+	@override String get e2eeSocialShardStoredNote => 'تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية';
+	@override String get e2eeSocialAddProxy => 'إضافة وكيل';
+	@override String get e2eeSocialAddProxyHint => 'أضف جهات اتصال كوكلاء';
+	@override String e2eeSocialCreateNeedMore({required Object count}) => 'أضف ${count} وكلاء آخرين';
+	@override String get e2eeSocialCreateSuccessTitle => 'تم إنشاء الشظايا';
+	@override String e2eeSocialTotalShardsInfo({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا';
+	@override String e2eeSocialThresholdInfo({required Object count}) => 'يكفي ${count} وكيل للاستعادة';
+	@override String get e2eeSocialZeroTrustNote => 'بنية الثقة الصفرية: لا يحفظ الخادم أي شظية';
+	@override String get e2eeSocialNoShards => 'لم تنشئ أي شظايا استعادة بعد';
+	@override String get e2eeSocialNoProxyShards => 'لا توجد شظايا وكلاء';
+	@override String get e2eeSocialKeyVersionLabel => 'إصدار المفتاح';
+	@override String get e2eeTransferErrNoKey => 'أنشئ زوج مفاتيح أولاً';
+	@override String get e2eeTransferErrInitFailed => 'فشل التهيئة، أعد المحاولة';
+	@override String get e2eeTransferErrNoRecipientKey => 'لا يملك المستلم مفتاحاً عاماً متاحاً';
+	@override String get e2eeTransferErrKeyNotFound => 'المفتاح غير موجود';
+	@override String get e2eeTransferErrCreateFailed => 'تعذّر إنشاء جلسة النقل، أعد المحاولة';
+	@override String get e2eeTransferCreateSessionBtn => 'إنشاء جلسة نقل';
+	@override String get e2eeTransferSessionCreated => 'تم إنشاء جلسة النقل';
+	@override String get e2eeTransferUidEmptyError => 'أدخل معرّف مستخدم صالحاً';
+	@override String get e2eeTransferSuccess => 'تم النقل!';
+	@override String get e2eeTransferFailed => 'تعذّر النقل، أعد المحاولة';
+	@override String get e2eeTransferProcessingMsg => 'جارٍ المعالجة...';
+	@override String get e2eeTransferSuccessTitle => 'تم النقل';
+	@override String get e2eeTransferSuccessBody => 'تم نقل المفتاح إلى هذا الجهاز';
+	@override String e2eeTransferScanError({required Object error}) => 'خطأ المسح: ${error}';
+	@override String get e2eeTransferErrNoDeviceId => 'تعذّر الحصول على معرّف الجهاز';
+	@override String get passwordEncryptFailed => 'تعذّر تشفير كلمة المرور';
+	@override String get initConfigTimeout => 'انتهت مهلة تحميل الإعدادات: تحقق من الشبكة أو حالة الخادم';
+	@override String initConfigNetworkError({required Object code}) => 'عطل شبكة أو عطل خادم (HTTP ${code})';
+	@override String get initConfigProtocolError => 'خطأ في بروتوكول استجابة الخادم';
+	@override String get initConfigFetchFailed => 'تعذّر تحميل الإعدادات، تحقق من الشبكة';
+	@override String get attachmentGetFileFailed => 'تعذّر الحصول على الملف، أعد المحاولة أو اختر من المعرض';
+	@override String get attachmentGetFileFailedAndroid9 => 'فشل الحصول على الملف، قد تكون مشكلة توافق مع Android 9';
+	@override String get attachmentGetImageDataFailed => 'تعذّر الحصول على بيانات الصورة، أعد المحاولة';
+	@override String get attachmentGetOriginalImageFailed => 'تعذّر الحصول على الصورة الأصلية';
+	@override String get saveFailedRetry => 'تعذّر الحفظ، أعد المحاولة';
+	@override String get downloadFileNotFound => 'ملف التنزيل غير موجود، أعد المحاولة';
+	@override String downloadHashRetrying({required Object retry, required Object max}) => 'فشل التحقق من الملف، إعادة التنزيل (${retry}/${max})';
+	@override String get downloadHashFailed => 'فشل التحقق من الملف عدة مرات، تحقق من الشبكة وأعد المحاولة';
+	@override String get e2eeTransferToNewDevice => 'نقل إلى جهاز جديد';
+	@override String get e2eeTransferPendingSection => 'عمليات نقل معلّقة';
+	@override String get e2eeTransferLoadFailed => 'تعذّر التحميل';
+	@override String get e2eeTransferLoadFailedDesc => 'تعذّر تحميل عمليات النقل المعلّقة، أعد المحاولة';
+	@override String get e2eeTransferNoPending => 'لا توجد عمليات نقل معلّقة';
+	@override String get e2eeTransferNoPendingDesc => 'عند إرسال جهاز مفتاحاً إليك، يظهر هنا';
+	@override String get e2eeSocialEnoughShards => 'لديك شظايا كافية للاستعادة';
+	@override String e2eeSocialMoreShards({required Object count}) => '${count} شظايا إضافية...';
+	@override String get e2eeProxyLoadFriendsFailed => 'تعذّر تحميل قائمة الأصدقاء، أعد المحاولة';
+	@override String get e2eeProxyNoPublicKey => 'لا يملك هذا الصديق مفتاحاً عاماً متاحاً';
+	@override String e2eeProxyGetKeyFailed({required Object name}) => 'تعذّر الحصول على المفتاح العام لـ ${name}';
+	@override String get e2eeProxySelectFailed => 'تعذّر اختيار الوكلاء، أعد المحاولة';
+	@override String get e2eeProxyNoFriends => 'لا يوجد أصدقاء';
+	@override String get e2eeProxyNoFriendsHint => 'أضف أصدقاء أولاً ثم اضبط الوكلاء';
+	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => 'يلزم ${count} جهة موثوقة على الأقل، محدد ${selected}';
+	@override String e2eeProxyConfirmCount({required Object count}) => 'تأكيد الاختيار (${count} وكيل)';
+	@override String get buttonBackHome => 'الرئيسية';
+	@override String get featureNotEnabled => 'هذه الميزة غير مفعّلة';
+	@override String featureDisabledName({required Object name}) => 'ميزة ${name} غير مفعّلة وغير متاحة مؤقتاً';
+	@override String get imageLoadFailed => 'تعذّر التحميل';
+	@override String loadFailedWithError({required Object error}) => 'تعذّر التحميل: ${error}';
+	@override String get webAudioNotSupported => 'لا يدعم الويب تشغيل الرسائل الصوتية';
+	@override String e2eeKeyRecreationFailed({required Object error}) => 'تعذّر إنشاء المفتاح: ${error}';
+	@override String get redPacket => 'مغلف أحمر';
+	@override String get transfer => 'تحويل';
+	@override String get withdraw => 'سحب';
+	@override String get redPacketSend => 'إرسال مغلف';
+	@override String get redPacketOpen => 'فتح المغلف';
+	@override String get redPacketDetail => 'تفاصيل المغلف';
+	@override String get transferSend => 'تحويل أموال';
+	@override String get transferAccept => 'استلام التحويل';
+	@override String get greetingDefault => 'كل عام وأنتم بخير وازدهار';
+	@override String grabAmountYuan({required Object amount}) => 'المبلغ الملتقط: ${amount} يوان';
+	@override String transferAmountYuan({required Object amount}) => 'مبلغ التحويل: ${amount} يوان';
+	@override String get insufficientBalance => 'رصيد غير كافٍ';
+	@override String get goToRecharge => 'اشحن الرصيد';
+	@override String get withdrawSuccess => 'تم السحب';
+	@override String get withdrawConfirm => 'تأكيد السحب';
+	@override String get withdrawAmountError => 'أدخل مبلغاً لا يقل عن يوان واحد';
+	@override String get withdrawAccountEmpty => 'أدخل حساب السحب';
+	@override String get withdrawMethod => 'طريقة السحب';
+	@override String get withdrawAccount => 'حساب السحب';
 }
 
 // Path: complaint
@@ -1190,6 +1682,19 @@ class _Translations$complaint$ar_SA extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => 'شكوى';
+}
+
+// Path: complaintReason
+class _Translations$complaintReason$ar_SA extends Translations$complaintReason$zh_CN {
+	_Translations$complaintReason$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get spam => 'رسائل مزعجة';
+	@override String get harassment => 'مضايقة';
+	@override String get inappropriate => 'محتوى غير لائق';
+	@override String get other => 'أخرى';
 }
 
 // Path: contact
@@ -1229,6 +1734,7 @@ class _Translations$contact$ar_SA extends Translations$contact$zh_CN {
 	@override String get pleaseEnterRemark => 'يرجى إدخال الملاحظة';
 	@override String get enterRemark => 'يرجى إدخال الملاحظة';
 	@override String get pleaseEnterTags => 'يرجى إدخال العلامات';
+	@override String get momentsVisibilityFriends => 'الأصدقاء فقط';
 	@override String tagLengthExceeded({required Object param}) => 'لا يمكن أن يتجاوز طول العلامة ${param} حرف';
 	@override String maxTagsExceeded({required Object param}) => 'يمكنك إضافة ${param} علامات كحد أقصى';
 	@override String selectedTags({required Object param, required Object max}) => 'العلامات المحددة (${param}/${max})';
@@ -1247,6 +1753,8 @@ class _Translations$contact$ar_SA extends Translations$contact$zh_CN {
 	@override String get tagIdeas => 'أفكار';
 	@override String get tagMemo => 'مذكرة';
 	@override String get friendRequestSent => 'تم الإرسال';
+	@override String get channelMaxTagsCount => 'يمكنك إضافة 8 وسوم كحد أقصى';
+	@override String get tagInputHint => 'أدخل وسماً...';
 }
 
 // Path: discovery
@@ -1265,10 +1773,26 @@ class _Translations$discovery$ar_SA extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'نتيجة المسح';
 	@override String get scannerResult => 'نتيجة الماسح';
 	@override String get titleDiscover => 'اكتشاف';
+	@override String get myChannels => 'قنواتي';
+	@override String get channelSquare => 'ساحة القنوات';
 	@override String get otherUsersCanFindMe => 'يمكن للمستخدمين الآخرين العثور علي من خلال البحث';
 	@override String get moments => 'اللحظات';
+	@override String get momentsReport => 'الإبلاغ عن المنشور';
+	@override String get momentsReportDesc => 'وصف إضافي';
+	@override String get momentsComments => 'التعليقات';
+	@override String get momentsWriteComment => 'اكتب تعليقاً...';
+	@override String get momentsVisibility => 'الظهور';
+	@override String get momentsVisibilityPublic => 'عام';
+	@override String get momentsVisibilityPartial => 'بعض الأشخاص';
+	@override String get momentsVisibilityExclude => 'إخفاء عن...';
+	@override String get momentsDenyUidsLabel => 'قائمة UID المخفي عنهم (مفصولة بفواصل)';
+	@override String get momentsDraftRestored => 'تمت استعادة المسودة الأخيرة';
+	@override String get momentsFeedStale => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً';
 	@override String get discover => 'اكتشاف';
 	@override String get shake => 'هز';
+	@override String get openChannel => 'فتح القناة';
+	@override String get paidChannelLocked => 'محتوى القناة المدفوعة مقفل';
+	@override String get webQRScanned => 'تم المسح';
 }
 
 // Path: error
@@ -1285,6 +1809,11 @@ class _Translations$error$ar_SA extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. افتح إعدادات الهاتف - عام - بيانات الهاتف المحمول، وقم بإبقاء مفتاح بيانات الهاتف المحمول قيد التشغيل.';
 	@override String get networkTroubleshootingStep3 => '3. إذا كنت لا تزال غير قادر على الاتصال بالشبكة، يرجى التحقق مما إذا كان Wi-Fi المتصل بالهاتف متصلاً بالإنترنت أو استشارة مشغل الشبكة.';
 	@override String get suggestCheckNetwork => 'يُقترح التحقق من إعدادات الشبكة.';
+	@override String e2eeStartRecoveryBtn({required Object required}) => 'بدء الاستعادة (يلزم ${required} وكيلاً)';
+	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => 'شظايا غير كافية (يلزم ${required}، المتاح ${current})';
+	@override String get e2eeErrTimeout => 'انتهت مهلة التشفير، تحقق من الشبكة وأعد المحاولة';
+	@override String get e2eeErrNetwork => 'خطأ شبكة، فشل التشفير، لم تُرسل الرسالة';
+	@override String get liveRoomTitleRequired => 'أدخل العنوان';
 }
 
 // Path: group
@@ -1298,6 +1827,7 @@ class _Translations$group$ar_SA extends Translations$group$zh_CN {
 	@override String get enterSameGroup => 'انضم إلى نفس المجموعة مع الأصدقاء من حولك';
 	@override String get enterTheGroup => 'الانضمام إلى هذه المجموعة';
 	@override String get groupAlias => 'لقبي في هذه المجموعة';
+	@override String get groupAlbum => 'ألبوم المجموعة';
 	@override String get groupDissolve => 'حلّ الدردشة الجماعية';
 	@override String get groupJoin => 'الانضمام إلى الدردشة الجماعية';
 	@override String get groupLeave => 'مغادرة الدردشة الجماعية';
@@ -1305,16 +1835,193 @@ class _Translations$group$ar_SA extends Translations$group$zh_CN {
 	@override String get groupMembers => 'أعضاء الدردشة الجماعية';
 	@override String get groupName => 'اسم الدردشة الجماعية';
 	@override String get mutualGroupsWithHer => 'المجموعات المشتركة بيني وبينه';
-	@override String get selectGroup => 'اختيار مجموعة';
-	@override String get sureToDissolveGroup => 'هل أنت متأكد من حل هذه المجموعة؟';
-	@override String get sureToLeaveGroup => 'هل أنت متأكد من مغادرة هذه المجموعة؟';
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
-	@override String get groupGuest => '嘉宾';
+	@override String get groupGuest => 'ضيف';
 	@override String get groupMember => 'Member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get transferGroup => 'Transfer Ownership';
 	@override String get joinTime => 'Join Time';
+	@override String get selectGroup => 'اختيار مجموعة';
+	@override String get sureToDissolveGroup => 'هل أنت متأكد من حل هذه المجموعة؟';
+	@override String get sureToLeaveGroup => 'هل أنت متأكد من مغادرة هذه المجموعة؟';
+	@override String get groupAlbumNameHint => 'أدخل اسم الألبوم';
+	@override String get groupAlbumRenameTitle => 'إعادة تسمية الألبوم';
+	@override String get groupAlbumRenamed => 'تمت إعادة تسمية الألبوم';
+	@override String get groupAlbumUnnamed => 'ألبوم بدون اسم';
+	@override String groupAlbumPhotoCount({required Object count}) => '${count} صورة';
+	@override String get groupAlbumPhotoIdMissing => 'معرّف الصورة مفقود، لا يمكن عرض التفاصيل';
+	@override String get groupAlbumPhotoListTitle => 'صور الألبوم';
+	@override String groupAlbumPhotoSelectedCount({required Object count}) => 'محدد: ${count}';
+	@override String get groupAlbumPhotoEmpty => 'لا توجد صور';
+	@override String get groupAlbumPhotoUrlMissing => 'عنوان الصورة مفقود، لا يمكن الفتح';
+	@override String get groupAlbumPhotoUrlInvalid => 'عنوان الصورة غير صالح';
+	@override String get groupAlbumPhotoDetailTitle => 'تفاصيل الصورة';
+	@override String get groupAlbumPhotoSetCover => 'تعيين كغلاف';
+	@override String get groupAlbumPhotoPrev => 'السابق';
+	@override String get groupAlbumPhotoLikeCount => 'الإعجابات';
+	@override String get groupAlbumPhotoCommentCount => 'التعليقات';
+	@override String get groupAlbumPhotoMyLike => 'إعجابي';
+	@override String get groupAlbumPhotoIdLabel => 'معرّف الصورة';
+	@override String get e2eeKeyManagement => 'إدارة مفاتيح E2EE';
+	@override String get e2eeKeyManagementSubtitle => 'نسخ احتياطي واستعادة وإدارة مفاتيح التشفير من طرف إلى طرف';
+}
+
+// Path: groupCategory
+class _Translations$groupCategory$ar_SA extends Translations$groupCategory$zh_CN {
+	_Translations$groupCategory$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'مجلدات المجموعات';
+	@override String get createCategory => 'إنشاء مجلد';
+	@override String get categoryName => 'اسم المجلد';
+	@override String get categoryDesc => 'وصف المجلد (اختياري)';
+	@override String get noCategory => 'لا توجد مجلدات';
+	@override String get createFirst => 'أنشئ مجلدك الأول';
+	@override String get addGroup => 'إضافة مجموعة إلى المجلد';
+	@override String get removeGroup => 'إزالة من المجلد';
+	@override String get deleteCategory => 'حذف المجلد';
+	@override String get deleteCategoryConfirm => 'حذف هذا المجلد؟ لن تُحذف المجموعات.';
+	@override String get categoryCreated => 'تم إنشاء المجلد';
+	@override String get categoryDeleted => 'تم حذف المجلد';
+	@override String get renameCategory => 'إعادة تسمية المجلد';
+	@override String get categoryRenamed => 'تمت إعادة تسمية المجلد';
+	@override String get renameFailed => 'تعذّرت إعادة التسمية، أعد المحاولة';
+	@override String get deleteFailed => 'تعذّر الحذف، أعد المحاولة';
+	@override String get categoryDetailTip => 'يمكن إدارة مجموعات هذا المجلد عبر «نقل إلى مجلد» في قائمة المجموعات';
+}
+
+// Path: groupList
+class _Translations$groupList$ar_SA extends Translations$groupList$zh_CN {
+	_Translations$groupList$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get attrAll => 'الكل';
+	@override String get attrOwner => 'أنشأتها';
+	@override String get attrManager => 'أديرها';
+	@override String get attrJoin => 'أنضم إليها';
+	@override String get refresh => 'تحديث';
+}
+
+// Path: groupSchedule
+class _Translations$groupSchedule$ar_SA extends Translations$groupSchedule$zh_CN {
+	_Translations$groupSchedule$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'جدول المجموعة';
+	@override String get createSchedule => 'إنشاء فعالية';
+	@override String get scheduleTitle => 'العنوان';
+	@override String get selectDate => 'اختيار التاريخ';
+	@override String get selectTime => 'اختيار الوقت';
+	@override String get location => 'الموقع';
+	@override String get reminder => 'تذكير';
+	@override String get noReminder => 'بلا تذكير';
+	@override String get noSchedule => 'لا توجد فعاليات';
+	@override String get scheduleCreated => 'تم إنشاء الفعالية';
+	@override String get scheduleUpdated => 'تم تحديث الفعالية';
+	@override String get reminder15min => 'قبل 15 دقيقة';
+	@override String get reminder1hour => 'قبل ساعة';
+	@override String get reminder1day => 'قبل يوم';
+	@override String get startTime => 'البدء';
+	@override String get endTime => 'الانتهاء';
+	@override String get participants => 'المشاركون';
+	@override String get statusCancelled => 'ملغى';
+	@override String get statusInProgress => 'جارٍ';
+	@override String get cancelSuccess => 'تم إلغاء الفعالية';
+	@override String get cancelFailed => 'تعذّر الإلغاء، حاول لاحقاً';
+	@override String get confirmAttend => 'تأكيد الحضور';
+	@override String get declineAttend => 'لن أحضر';
+	@override String get cancelSchedule => 'إلغاء الفعالية';
+	@override String get scheduleIdMissing => 'معرّف الفعالية مفقود، لا يمكن عرض التفاصيل';
+}
+
+// Path: groupTag
+class _Translations$groupTag$ar_SA extends Translations$groupTag$zh_CN {
+	_Translations$groupTag$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'وسوم المجموعة';
+	@override String get addTag => 'إضافة وسم';
+	@override String get tagName => 'اسم الوسم';
+	@override String get tagColor => 'لون الوسم';
+	@override String get noTag => 'لا توجد وسوم';
+	@override String get tagAdded => 'تمت إضافة الوسم';
+	@override String get tagRemoved => 'تمت إزالة الوسم';
+	@override String get removeTitle => 'إزالة الوسم';
+	@override String get removeConfirm => 'إزالة هذا الوسم؟';
+}
+
+// Path: groupTask
+class _Translations$groupTask$ar_SA extends Translations$groupTask$zh_CN {
+	_Translations$groupTask$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'مهام المجموعة';
+	@override String get createTask => 'إنشاء مهمة';
+	@override String get taskTitle => 'عنوان المهمة';
+	@override String get taskDescription => 'وصف المهمة';
+	@override String get assignTo => 'تعيين إلى';
+	@override String get deadline => 'الموعد النهائي';
+	@override String get noDeadline => 'بلا موعد نهائي';
+	@override String get noTask => 'لا توجد مهام';
+	@override String get all => 'الكل';
+	@override String get pending => 'قيد التنفيذ';
+	@override String get completed => 'مكتملة';
+	@override String get taskCreated => 'تم إنشاء المهمة';
+	@override String get taskSubmitted => 'تم إرسال المهمة';
+	@override String get taskCompleted => 'تمت المهمة';
+	@override String get overdue => 'متأخرة';
+	@override String daysLeft({required Object days}) => 'الموعد النهائي بعد ${days} يوماً';
+	@override String hoursLeft({required Object hours}) => 'الموعد النهائي بعد ${hours} ساعة';
+	@override String get dueSoon => 'الموعد قريب';
+	@override String get submitFailed => 'تعذّر الإرسال، حاول لاحقاً';
+	@override String get taskId => 'معرّف المهمة';
+	@override String get pendingReview => 'قيد المراجعة';
+	@override String get taskIdMissing => 'معرّف المهمة مفقود، لا يمكن عرض التفاصيل';
+	@override String get taskIdMissingSubmit => 'معرّف المهمة مفقود، لا يمكن الإرسال';
+}
+
+// Path: groupVote
+class _Translations$groupVote$ar_SA extends Translations$groupVote$zh_CN {
+	_Translations$groupVote$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'استطلاعات المجموعة';
+	@override String get createVote => 'إنشاء استطلاع';
+	@override String get voteTitle => 'سؤال الاستطلاع';
+	@override String get voteOptions => 'الخيارات';
+	@override String get addOption => 'إضافة خيار';
+	@override String get allowMultiple => 'السماح بالاختيار المتعدد';
+	@override String get anonymous => 'تصويت مجهول';
+	@override String get deadline => 'الموعد النهائي';
+	@override String get noDeadline => 'بلا موعد نهائي';
+	@override String get noVote => 'لا توجد استطلاعات';
+	@override String get voteEnded => 'انتهى التصويت';
+	@override String totalVotes({required Object count}) => 'إجمالي ${count} صوتاً';
+	@override String get voteSuccess => 'تم التصويت';
+	@override String get hasVoted => 'تم التصويت';
+	@override String get viewResults => 'النتائج';
+	@override String get cancelVoteSuccess => 'تم إلغاء التصويت';
+	@override String get cancelVoteFailed => 'تعذّر الإلغاء، حاول لاحقاً';
+	@override String get endVoteFailed => 'تعذّر الإنهاء، حاول لاحقاً';
+	@override String get eachOptionPerLine => 'خيار واحد في كل سطر';
+	@override String get statusInProgress => 'جارٍ';
+	@override String get updateVote => 'تعديل الاستطلاع';
+	@override String get cancelMyVote => 'إلغاء تصويتي';
+	@override String get voteIdMissing => 'معرّف الاستطلاع مفقود، لا يمكن عرض التفاصيل';
+	@override String participantCount({required Object count}) => 'المشاركون: ${count}';
 }
 
 // Path: main
@@ -1338,6 +2045,8 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get audio => 'صوت';
 	@override String get barcodeFound => 'تم العثور على الباركود!';
 	@override String get botQianFan => 'روبوت Qianfan';
+	@override String get liveRoomWhipLabel => 'عنوان بث WHIP';
+	@override String get liveRoomWhepLabel => 'عنوان استقبال WHEP';
 	@override String get cache => 'الذاكرة المؤقتة';
 	@override String get camera => 'تصوير';
 	@override String get changeNameView => 'عرض تغيير الاسم';
@@ -1415,6 +2124,9 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get recentlyUsed => 'استخدمت مؤخراً';
 	@override String get releaseEnd => 'اترك للإنهاء';
 	@override String remainingChars({required Object param}) => 'لا يزال بإمكانك إدخال ${param} حرف';
+	@override String get kickMember => 'Remove from Group';
+	@override String get memberDetail => 'Member Details';
+	@override String get memberRole => 'Role';
 	@override String get replied => 'تم الرد';
 	@override String get ringing => 'جارٍ الرنين...';
 	@override String get ruRu => 'الروسية (روسيا)';
@@ -1439,6 +2151,7 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get timeRange => 'النطاق الزمني';
 	@override String get timeWeekdays => 'الاثنين،الثلاثاء،الأربعاء،الخميس،الجمعة،السبت،الأحد';
 	@override String get titleMine => 'أنا';
+	@override String get titleSquare => 'الساحة';
 	@override String get tooBad => 'سيء جداً';
 	@override String get tryAgainQ => 'هل تريد المحاولة مرة أخرى؟';
 	@override String get type => 'النوع';
@@ -1511,9 +2224,154 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get larger => 'أكبر';
 	@override String currentLength({required Object param1, required Object param2}) => 'الطول الحالي: ${param1} / ${param2}';
 	@override String get fillIn => 'ملء';
-	@override String get kickMember => 'Remove from Group';
-	@override String get memberDetail => 'Member Details';
-	@override String get memberRole => 'Role';
+	@override String get msgProtectedByComplianceKey => 'الرسائل محمية بمفتاح الامتثال';
+	@override String inviterLabel({required Object uid}) => 'الداعي: ${uid}';
+	@override String inviteeLabel({required Object uid}) => 'المدعو: ${uid}';
+	@override String get mySentTab => 'المُرسلة';
+	@override String get reject => 'رفض';
+	@override String get myOrders => 'طلباتي';
+	@override String get purchaseUnlockHint => 'بعد الشراء يُفتح سجل رسائل القناة والتحديثات القادمة.';
+	@override String get payingDots => 'جارٍ الدفع...';
+	@override String get purchaseAndUnlock => 'شراء وفتح';
+	@override String get orderDetail => 'تفاصيل الطلب';
+	@override String orderAmountLabel({required Object currency, required Object amount}) => 'المبلغ: ${currency} ${amount}';
+	@override String channelPriceLabel({required Object currency, required Object amount}) => 'السعر: ${currency} ${amount}';
+	@override String get e2eeKeyRecoveryTitle => 'إدارة مفاتيح التشفير من طرف إلى طرف';
+	@override String get e2eeRecoveryMethods => 'طرق استعادة المفتاح';
+	@override String get e2eeDangerousOps => 'إجراءات خطرة';
+	@override String get e2eeSocialRecovery => 'الاستعادة الاجتماعية';
+	@override String get e2eeSocialRecoveryDesc => 'استعادة المفتاح بمساعدة جهات اتصال موثوقة';
+	@override String get e2eeKeyIdLabel => 'معرّف المفتاح';
+	@override String get e2eeWarnIrreversible => '• هذا الإجراء غير قابل للتراجع';
+	@override String get e2eeWarnNeedRestoreOrNew => '• يجب الاستعادة من نسخة أو إنشاء مفتاح جديد';
+	@override String get gotIt => 'فهمت';
+	@override String get e2eeRecoverKeyTitle => 'استعادة المفتاح';
+	@override String get e2eeCanRecoverKey => 'يمكن استعادة المفتاح';
+	@override String get e2eeInsufficientShards => 'عدد الشظايا غير كافٍ';
+	@override String e2eeProxyUser({required Object uid}) => 'الوكيل: ${uid}';
+	@override String e2eeShardLabel({required Object index, required Object total}) => 'شظية ${index} / ${total}';
+	@override String get e2eeReloadShards => 'إعادة التحميل';
+	@override String get e2eeRecovering => 'جارٍ الاستعادة...';
+	@override String get e2eeKeyRestored => 'تمت استعادة المفتاح';
+	@override String e2eeUsedShards({required Object count}) => 'تم استخدام ${count} شظية وكلاء';
+	@override String get e2eePreparing => 'جارٍ التحضير...';
+	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => 'التقدم: ${collected} / ${total} شظية';
+	@override String e2eeCollectingShards({required Object collected, required Object total}) => 'جارٍ جمع الشظايا (${collected}/${total})...';
+	@override String get e2eeShardsCollected => 'اكتمل جمع الشظايا، جارٍ إعادة تجميع المفتاح...';
+	@override String get webQRLoggingIn => 'جارٍ الدخول...';
+	@override String get webQRExpired => 'انتهت صلاحية رمز QR';
+	@override String get webQRRefresh => 'تحديث رمز QR';
+	@override String get webSwitchToQR => 'الدخول برمز QR';
+	@override String get e2eeErrDefault => 'فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة';
+	@override String get e2eeSocialTotalShards => 'إجمالي الشظايا';
+	@override String get e2eeSocialThreshold => 'حد الاستعادة';
+	@override String e2eeSocialThresholdHint({required Object count}) => 'يلزم ${count} وكيل للاستعادة';
+	@override String get e2eeSocialSelectProxy => 'اختيار الوكلاء';
+	@override String e2eeSocialProxyNeeded({required Object count}) => 'يلزم ${count} جهة اتصال موثوقة كوكلاء';
+	@override String e2eeSocialProxyDefaultName({required Object uid}) => 'المستخدم ${uid}';
+	@override String get e2eeSocialShardSentViaWs => 'أُرسلت الشظايا مباشرةً إلى أجهزة الوكلاء عبر WebSocket';
+	@override String e2eeSocialSentCount({required Object sent, required Object total}) => 'أُرسل إلى ${sent} من أصل ${total} جهاز';
+	@override String get e2eeSocialManageTitle => 'إدارة الشظايا';
+	@override String get e2eeSocialMyShards => 'شظاياي';
+	@override String get e2eeSocialProxyShards => 'شظايا الوكلاء';
+	@override String e2eeSocialShardOf({required Object idx, required Object total}) => 'شظية ${idx} / ${total}';
+	@override String get e2eeSocialShardActive => 'نشطة';
+	@override String get e2eeSocialShardUsed => 'مستخدمة';
+	@override String get e2eeSocialShardValid => 'الشظية صالحة';
+	@override String e2eeSocialUserShard({required Object uid}) => 'شظية مفتاح المستخدم ${uid}';
+	@override String get e2eeSocialProxyUserLabel => 'الوكيل';
+	@override String get e2eeSocialRecoveryThresholdLabel => 'حد الاستعادة';
+	@override String get e2eeSocialShardIndexLabel => 'رقم الشظية';
+	@override String get e2eeTransferQRHint => 'امسح رمز QR هذا على الجهاز الجديد';
+	@override String e2eeTransferQRExpiry({required Object time}) => 'تنتهي صلاحية رمز QR في ${time}';
+	@override String get e2eeTransferRefreshQR => 'تحديث رمز QR';
+	@override String get e2eeTransferEnterUidTitle => 'أدخل معرّف المستلم';
+	@override String get e2eeTransferUidPlaceholder => 'معرّف المستخدم المستلم';
+	@override String get e2eeTransferReceiving => 'جارٍ الاستقبال...';
+	@override String get e2eeTransferPageTitle => 'النقل بين الأجهزة';
+	@override String get e2eeTransferPendingItem => 'نقل مفتاح معلّق';
+	@override String get e2eeTransferPendingItemDesc => 'اضغط للتفاصيل';
+	@override String get e2eeTransferView => 'عرض';
+	@override String get e2eeSocialTitle => 'الاستعادة الاجتماعية';
+	@override String get e2eeSocialCanRecover => 'يمكن استعادة المفتاح';
+	@override String get e2eeSocialSetupProxy => 'إعداد الوكلاء';
+	@override String get e2eeSocialChooseProxy => 'اختر جهات اتصال موثوقة كوكلاء';
+	@override String get e2eeSocialExistingShards => 'شظايا الاستعادة الحالية';
+	@override String get e2eeSocialRecoverKeyTitle => 'استعادة المفتاح';
+	@override String get e2eeSocialRecoverKeyDesc => 'استعادة المفتاح من شظايا الوكلاء';
+	@override String get e2eeSocialManageShardsTitle => 'إدارة الشظايا';
+	@override String get e2eeSocialManageShardsDesc => 'عرض وإدارة جميع شظايا الاستعادة';
+	@override String get e2eeSocialZeroTrustHint1 => 'ثقة صفرية: لا يحفظ الخادم الشظايا، يتواصل مع الوكلاء مباشرة';
+	@override String get e2eeSocialZeroTrustHint2 => 'ثقة صفرية: تُخزَّن الشظايا على أجهزة الوكلاء';
+	@override String get e2eeSocialZeroTrustHint3 => 'ثقة صفرية: الشظايا لدى الوكلاء، ولا يلمس الخادم النص الصريح';
+	@override String e2eeProxyMinCount({required Object count}) => 'اختر ${count} وكلاء على الأقل';
+	@override String get e2eeProxySelectTitle => 'اختيار وكلاء الاستعادة';
+	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => 'محدد: ${selected} / ${total}';
+	@override String get e2eeProxyReachedMin => 'تم بلوغ الحد الأدنى للوكلاء';
+	@override String get liveRoomTitleLabel => 'عنوان الغرفة';
+	@override String get liveRoomTitleHint => 'أدخل عنوان الغرفة';
+}
+
+// Path: mention
+class _Translations$mention$ar_SA extends Translations$mention$zh_CN {
+	_Translations$mention$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '@إشارات';
+	@override String get noMention => 'لا توجد إشارات';
+	@override String get allRead => 'تمت قراءة الكل';
+	@override String get markAsRead => 'وضع علامة مقروء';
+	@override String get newMention => 'إشارة جديدة';
+	@override String get fromGroup => 'من مجموعة';
+	@override String get fromChat => 'من محادثة';
+	@override String get viewContext => 'عرض السياق';
+	@override String mentionCount({required Object count}) => '${count} إشارات جديدة';
+	@override String get mentionAllDenied => 'للمشرفين فقط استخدام @الجميع';
+	@override String get navInfoMissing => 'معلومات موقع الرسالة مفقودة، لا يمكن الانتقال';
+}
+
+// Path: momentFriendPicker
+class _Translations$momentFriendPicker$ar_SA extends Translations$momentFriendPicker$zh_CN {
+	_Translations$momentFriendPicker$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'اختيار الأصدقاء';
+	@override String get titleAllow => 'السماح لـ';
+	@override String get titleDeny => 'إخفاء عن';
+	@override String get confirm => 'موافق';
+	@override String confirmWithCount({required Object count}) => 'موافق(${count})';
+	@override String selectedCount({required Object count}) => 'تم اختيار ${count}';
+	@override String get emptyFriends => 'لا يوجد أصدقاء';
+	@override String get tagsLabel => 'حسب الوسم';
+	@override String get emptyTags => 'لا توجد وسوم';
+	@override String get tagLoadFailed => 'تعذّر تحميل الوسوم';
+	@override String get searchHint => 'ابحث عن أصدقاء';
+}
+
+// Path: momentNotify
+class _Translations$momentNotify$ar_SA extends Translations$momentNotify$zh_CN {
+	_Translations$momentNotify$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'الإشعارات';
+	@override String get emptyTitle => 'لا توجد إشعارات جديدة';
+	@override String get emptyHint => 'تظهر هنا إعجابات الأصدقاء وتعليقاتهم على لحظاتك';
+	@override String get actionLike => 'أعجب بلحظتك';
+	@override String get actionComment => 'علّق';
+	@override String get markAllRead => 'قراءة الكل';
+	@override String get clearAll => 'مسح الكل';
+	@override String get clearConfirmTitle => 'مسح كل الإشعارات؟';
+	@override String get clearConfirmMessage => 'لا يمكن التراجع عن هذا الإجراء';
+	@override String get confirm => 'موافق';
+	@override String get cancel => 'إلغاء';
+	@override String get delete => 'حذف';
+	@override String get loadFailed => 'تعذّر التحميل، حاول لاحقاً';
 }
 
 // Path: passport
@@ -1669,6 +2527,24 @@ extension on TranslationsArSa {
 			'account.setBirthday' => 'تعيين تاريخ الميلاد',
 			'account.sentToEmail' => ({required Object param}) => 'تم الإرسال إلى ${param}',
 			'account.nicknameRules' => '• طول اللقب 2-24 حرف • لا يمكن أن يحتوي على مسافات أو رموز تعبيرية فقط • لا يمكن أن يحتوي على كلمات حساسة • بعد التعديل، سيتم عرضه في جميع الدردشات',
+			'account.refreshDeviceKey' => 'تحديث مفتاح الجهاز',
+			'account.refreshDeviceKeyHint' => 'إذا لم تُفكّ الرسائل، حدّث المفتاح بهذا الزر',
+			'account.refreshingDeviceKey' => 'جارٍ تحديث مفتاح الجهاز...',
+			'account.deviceKeyRefreshed' => 'تم تحديث مفتاح الجهاز',
+			'account.rechargeTitle' => 'شحن',
+			'account.rechargeAmountHint' => 'أدخل مبلغ الشحن (يوان)، 1–10000',
+			'account.rechargeAmountExample' => 'مثال: 100',
+			'account.e2eeDeviceTransfer' => 'نقل بين الأجهزة',
+			'account.e2eeDeviceTransferDesc' => 'نقل المفتاح مباشرةً إلى جهاز جديد عبر رمز QR',
+			'account.e2eeDeviceIdLabel' => 'معرّف الجهاز',
+			'account.webQRLoginTitle' => 'تسجيل الدخول برمز QR',
+			'account.webQRLoginHint' => 'امسح رمز QR بتطبيق ImBoy على هاتفك',
+			'account.webSwitchToPassword' => 'الدخول بكلمة المرور',
+			'account.webPasswordLoginTitle' => 'دخول بالحساب',
+			'account.webAccountHint' => 'أدخل الحساب/الهاتف/البريد',
+			'account.webPasswordHint' => 'أدخل كلمة المرور',
+			'account.e2eeTransferFromOldDevice' => 'استقبال المفتاح من الجهاز القديم',
+			'account.pleaseRelogin' => 'سجّل الدخول مجدداً',
 			'channel.title' => 'القنوات',
 			'channel.loading' => 'جاري التحميل...',
 			'channel.subscribed' => 'مشترك',
@@ -1759,10 +2635,16 @@ extension on TranslationsArSa {
 			'channel.updateRoleFailed' => 'فشل تحديث الدور',
 			'channel.userId' => 'معرف المستخدم',
 			'channel.userIdHint' => 'أدخل معرف المستخدم',
+			'channel.selectFromContacts' => 'اختيار من جهات الاتصال',
+			'channel.searchContactsHint' => 'ابحث بالاسم أو الحساب',
+			'channel.noContactsToAdd' => 'جميع الأصدقاء مشرفون بالفعل',
+			'channel.selectRole' => 'اختيار الدور',
 			'channel.noAdmins' => 'لا يوجد مسؤولين',
 			'channel.roleCreator' => 'المنشئ',
 			'channel.roleAdmin' => 'مسؤول',
+			'channel.roleAdminDesc' => 'يدير القناة',
 			'channel.roleEditor' => 'محرر',
+			'channel.roleEditorDesc' => 'ينشر الرسائل',
 			'channel.roleUnknown' => 'غير معروف',
 			'channel.searchSubscribers' => 'البحث عن المشتركين',
 			'channel.subscriberSearchHint' => 'البحث بالاسم أو المعرف',
@@ -1774,6 +2656,11 @@ extension on TranslationsArSa {
 			'channel.removeSubscriberFailed' => 'فشل إزالة المشترك',
 			'channel.subscribedAt' => 'مشترك منذ',
 			'channel.viewProfile' => 'عرض الملف الشخصي',
+			'channel.inviteFromContacts' => 'دعوة صديق',
+			'channel.inviteSearchHint' => 'ابحث بالاسم أو الحساب',
+			'channel.noContactsToInvite' => 'جميع الأصدقاء مدعوون أو مشتركون بالفعل',
+			'channel.inviteSuccess' => 'تم إرسال الدعوة',
+			'channel.inviteFailed' => 'تعذّر إرسال الدعوة',
 			'channel.updateSuccess' => 'تم تحديث القناة بنجاح',
 			'channel.updateFailed' => 'فشل تحديث القناة',
 			'channel.typeCannotChange' => 'لا يمكن تغييره بعد الإنشاء',
@@ -1795,6 +2682,7 @@ extension on TranslationsArSa {
 			'chat.businessCard' => 'بطاقة عمل',
 			'chat.busyTryAgainLater' => 'الطرف الآخر مشغول، يرجى المحاولة مرة أخرى لاحقاً',
 			'chat.later' => 'لاحقاً',
+			'chat.peerIsTyping' => ({required Object name}) => '${name} يكتب...',
 			'chat.changeGroupChatName' => 'بعد تعديل اسم المجموعة، سيتم إخطار الأعضاء الآخرين في المجموعة.',
 			'chat.chatHistory' => 'سجل الدردشة',
 			'chat.chatHoldDownTalk' => 'اضغط مطولاً للتحدث',
@@ -1825,12 +2713,31 @@ extension on TranslationsArSa {
 			'chat.forwardTo' => 'إعادة توجيه إلى',
 			'chat.forwardToFriend' => 'إعادة توجيه إلى صديق',
 			'chat.great' => 'ممتاز جداً',
+			'chat.groupFile' => 'ملفات المجموعة',
+			'chat.groupFileImagePreview' => 'معاينة الصورة',
+			'chat.groupFileVideoPreview' => 'معاينة الفيديو',
+			'chat.groupFileAudioPreview' => 'معاينة الصوت',
+			'chat.groupFileMediaPause' => 'إيقاف مؤقت',
+			'chat.groupFileMediaPlay' => 'تشغيل',
+			'chat.groupFileUrlMissing' => 'عنوان الملف مفقود، لا يمكن الفتح',
+			'chat.groupFileUrlInvalid' => 'عنوان الملف غير صالح',
+			'chat.groupFilePreview' => 'معاينة الملف',
+			'chat.groupFileUnnamed' => 'ملف بدون اسم',
+			'chat.groupFileCategoryEmpty' => ({required Object category}) => 'لا توجد ملفات في ${category}',
+			'chat.groupFileEmpty' => 'لا توجد ملفات للمجموعة',
+			'chat.groupFileCategoryDoc' => 'مستندات',
+			'chat.groupFileCategoryImage' => 'صور',
+			'chat.groupFileCategoryVideo' => 'فيديو',
+			'chat.groupFileCategoryAudio' => 'صوت',
+			'chat.groupFileCategoryOther' => 'أخرى',
 			'chat.groupChat' => 'دردشة جماعية',
 			'chat.image' => 'صورة',
 			'chat.imageMessage' => '[صورة]',
 			'chat.initiateChat' => 'بدء مجموعة',
 			'chat.justChat' => 'دردشة فقط',
 			'chat.location' => 'الموقع',
+			'chat.exportMyData' => 'تصدير بياناتي',
+			'chat.exportDataDesc' => 'تصدير بياناتك الشخصية وجهات الاتصال وسجل المحادثات',
 			'chat.message' => 'رسالة',
 			'chat.messageHandlingMixin' => 'مزيج معالجة الرسائل',
 			'chat.messageMarkTitle' => 'تعليم الرسالة',
@@ -1856,14 +2763,33 @@ extension on TranslationsArSa {
 			'chat.recentChats' => 'المحادثات الأخيرة',
 			'chat.recentForwards' => 'إعادة التوجيه الأخيرة',
 			'chat.remindMeLater' => 'ذكرني لاحقاً',
+			'chat.quickReplyManage' => 'إدارة الردود السريعة',
+			'chat.quickReplyEmpty' => 'لا توجد ردود سريعة. اضغط زر الإضافة',
+			'chat.quickReplyDuplicate' => 'المحتوى موجود مسبقاً',
+			'chat.quickReplyMaxReached' => ({required Object max}) => 'الحد الأقصى ${max}',
+			'chat.quickReplyHint' => 'أدخل المحتوى...',
+			'chat.muteMember' => 'Mute Member',
+			'chat.unmuteMember' => 'Unmute',
+			'chat.muteUntil' => 'Muted Until',
+			'chat.muted' => 'Muted',
+			'chat.mutedFor' => ({required Object label}) => 'كتم ${label}',
+			'chat.muteUnitMinutes' => ({required Object count}) => '${count} دقيقة',
+			'chat.muteUnitHours' => ({required Object count}) => '${count} ساعة',
+			'chat.muteUnitDays' => ({required Object count}) => '${count} يوماً',
+			'chat.youAreMuted' => 'تم كتمك',
+			'chat.youAreMutedWithTime' => ({required Object minutes}) => 'تم كتمك، المتبقي ${minutes} دقيقة',
 			'chat.repliedAt' => 'رد في',
 			'chat.reply' => 'رد',
 			'chat.replyTo' => 'رد على',
 			'chat.resendCode' => 'إعادة إرسال رمز التحقق',
 			'chat.revoke' => 'سحب',
 			'chat.scanQrCodeBusinessCard' => 'مسح بطاقة عمل رمز QR',
+			'chat.singleChat' => 'Private Chat',
+			'chat.privateChat' => 'Private Chat',
+			'chat.groupMessage' => 'Group message',
 			'chat.sendFriendRequest' => 'إرسال طلب إضافة صديق',
 			'chat.sendMsgRejected' => 'تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.',
+			'chat.sendMessage' => 'إرسال رسالة',
 			'chat.sendSeparatelyTo' => 'إرسال بشكل منفصل إلى',
 			'chat.sendTo' => 'إرسال إلى',
 			'chat.send' => _root.common.buttonSend,
@@ -1885,6 +2811,7 @@ extension on TranslationsArSa {
 			'chat.video' => 'فيديو',
 			'chat.videoMessage' => '[فيديو]',
 			'chat.viewAttachments' => 'تصفح المرفقات',
+			'chat.viewLargeImage' => 'عرض بالحجم الكامل',
 			'chat.voice' => 'صوت',
 			'chat.voiceInput' => 'إدخال صوتي',
 			'chat.voiceMessage' => 'رسالة صوتية',
@@ -1920,6 +2847,15 @@ extension on TranslationsArSa {
 			'chat.unsupportedMessageType' => 'نوع رسالة غير مدعوم',
 			'chat.passwordMismatch' => 'كلمتا المرور غير متطابقتين',
 			'chat.pleaseTryAgainLater' => 'يرجى المحاولة مرة أخرى لاحقاً',
+			'chat.momentsSelectVideo' => 'اختيار فيديو',
+			'chat.momentsRecordVideo' => 'تسجيل فيديو',
+			'chat.momentsVisibilityPrivate' => 'أنا فقط',
+			'chat.momentsMediaTooManyImages' => 'يمكنك اختيار 9 صور كحد أقصى',
+			'chat.momentsMediaTooManyVideos' => 'يمكنك اختيار فيديو واحد فقط',
+			'chat.momentsMediaMixedImageAndVideo' => 'لا يمكن نشر الصور والفيديو معاً',
+			'chat.momentsReplyPrefix' => 'رد @',
+			'chat.momentsReplySeparator' => ': ',
+			'chat.momentsReplyingTo' => 'رد على @{name}',
 			'chat.sendNewMessage' => 'إرسال رسالة جديدة',
 			'chat.markRead' => 'تعليم كمقروء',
 			'chat.markUnread' => 'تعليم كغير مقروء',
@@ -1938,21 +2874,75 @@ extension on TranslationsArSa {
 			'chat.quickReplyThanks' => 'شكراً',
 			'chat.quickReplyWait' => 'انتظر قليلاً',
 			'chat.messageMute' => _root.chat.chatSettingMute,
-			'chat.quickReplyManage' => '管理快捷回复',
-			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
-			'chat.quickReplyDuplicate' => '内容已存在',
-			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
-			'chat.quickReplyHint' => '输入内容...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muteUntil' => 'Muted Until',
-			'chat.muted' => 'Muted',
-			'chat.singleChat' => 'Private Chat',
-			'chat.privateChat' => 'Private Chat',
-			'chat.groupMessage' => 'Group message',
+			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} مجموعة',
+			'chat.groupAlbumCreateTitle' => 'إنشاء ألبوم مجموعة',
+			'chat.groupAlbumCreated' => 'تم إنشاء الألبوم',
+			'chat.profileCompleted' => 'اكتمل الملف الشخصي!',
+			'chat.profileProgress' => ({required Object percent}) => '${percent}% مكتمل',
+			'chat.createdAtLabel' => ({required Object time}) => 'أنشئ في: ${time}',
+			'chat.expiredAtLabel' => ({required Object time}) => 'ينتهي في: ${time}',
+			'chat.myReceivedTab' => 'المستلمة',
+			'chat.orderStatusLabel' => ({required Object status}) => 'الحالة: ${status}',
+			'chat.orderCreatedAtLabel' => ({required Object time}) => 'أنشئ في: ${time}',
+			'chat.orderPaymentAtLabel' => ({required Object time}) => 'وقت الدفع: ${time}',
+			'chat.orderStatusPending' => 'بانتظار الدفع',
+			'chat.orderStatusPaid' => 'مدفوع',
+			'chat.orderStatusRefunded' => 'تم الاسترداد',
+			'chat.orderStatusExpired' => 'منتهٍ',
+			'chat.defaultFileName' => 'ملف',
+			'chat.fileUrlInvalid' => 'رابط الملف غير صالح',
+			'chat.e2eeStatusAvailable' => 'متاح',
+			'chat.e2eeGenerateNewKey' => 'إنشاء مفتاح جديد',
+			'chat.e2eeGenerateNewKeyDesc' => 'إنشاء زوج مفاتيح E2EE جديد (لن يمكن فك الرسائل القديمة)',
+			'chat.e2eeActivated' => 'مفعّل',
+			'chat.e2eeCreatedAtLabel' => 'تاريخ الإنشاء',
+			'chat.e2eeGeneratingKey' => 'جارٍ إنشاء المفتاح، انتظر...',
+			'chat.e2eeNewKeyGenerated' => 'تم إنشاء زوج مفاتيح E2EE جديد!',
+			'chat.e2eeReady' => 'جاهز',
+			'chat.e2eeReadyWithShards' => ({required Object count}) => 'جاهز (${count} شظية)',
+			'chat.webFeatureMultiDevice' => 'مزامنة الأجهزة',
+			'chat.webFeatureMultiDeviceDesc' => 'بدّل بحرية بين الهاتف والكمبيوتر، وتُزامَل الرسائل لحظياً',
+			'chat.webFeatureE2EE' => 'تشفير من طرف إلى طرف',
+			'chat.webFeatureE2EEDesc' => 'جميع الرسائل مشفّرة من طرف إلى طرف لحماية خصوصيتك',
+			'chat.webFeatureFileTransfer' => 'نقل الملفات',
+			'chat.webFeatureFileTransferDesc' => 'اسحب الملف لإرساله، مع دعم صيغ متعددة',
+			'chat.webQRStatusWaiting' => 'افتح ImBoy على الهاتف > الإعدادات > مسح',
+			'chat.webQRStatusScanned' => 'اضغط «تأكيد الدخول» على هاتفك',
+			'chat.webQRStatusVerifying' => 'جارٍ التحقق...',
+			'chat.webQRStatusExpired' => 'حدّث وأعد المسح',
+			'chat.e2eeErrInvalidFormat' => 'تنسيق الرسالة خاطئ، فشل التشفير',
+			'chat.e2eeSocialCreateTitle' => 'إنشاء شظايا الاستعادة',
+			'chat.e2eeSocialCreateBtn' => 'إنشاء الشظايا',
+			'chat.e2eeSocialCreateFailTitle' => 'تعذّر الإنشاء',
+			'chat.e2eeSocialCreateFailBody' => 'تعذّر إنشاء الشظايا، أعد المحاولة',
+			'chat.e2eeSocialCreateFirst' => 'سيظهر المحتوى بعد إنشاء الشظايا',
+			'chat.e2eeSocialUsedAtLabel' => 'وقت الاستخدام',
+			'chat.e2eeTransferSendTitle' => 'إرسال المفتاح إلى جهاز جديد',
+			'chat.e2eeTransferCreateBtn' => 'إنشاء',
+			'chat.e2eeTransferReceiveTitle' => 'استقبال المفتاح من الجهاز القديم',
+			'chat.e2eeTransferSendDesc' => 'نقل المفتاح إلى جهاز جديد عبر رمز QR',
+			'chat.e2eeTransferReceiveDesc' => 'امسح رمز QR للجهاز القديم لاستقبال المفتاح',
+			'chat.e2eeSocialStatus' => ({required Object status}) => 'الحالة: ${status}',
+			'chat.e2eeSocialCreateShardsTitle' => 'إنشاء شظايا الاستعادة',
+			'chat.e2eeSocialCreateShardsDesc' => 'قسّم المفتاح إلى شظايا وخزّنها على أجهزة الوكلاء (الخادم لا يحفظ)',
+			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'اختر ${count} وكلاء على الأقل',
+			'chat.e2eeRecreatingKey' => 'جارٍ إعادة إنشاء المفتاح...',
+			'chat.e2eeKeyRecreated' => 'تمت إعادة إنشاء المفتاح',
+			'chat.e2eeRecoveryNewDeviceTitle' => 'تم رصد دخول من جهاز جديد',
+			'chat.e2eeRecoveryNewDeviceBody' => 'لحماية الرسائل، أنشأ هذا الجهاز مفتاح تشفير من طرف إلى طرف جديد.\n\nالرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ويجب استعادة المفتاح أولاً لعرضها. يمكنك الاستعادة عبر «نقل الأجهزة» أو «الاستعادة الاجتماعية» أو استيراد نسخة محلية.',
+			'chat.e2eeRecoveryDecryptFailedTitle' => 'تعذّر فك تشفير هذه الرسالة',
+			'chat.e2eeRecoveryDecryptFailedBody' => 'هذه الرسالة مشفّرة بمفتاح جهاز آخر.\n\nإذا غيّرت الجهاز أو أعدت تثبيت التطبيق، فاستعد مفتاح التشفير لعرض الرسائل السابقة.',
+			'chat.e2eeRecoveryLater' => 'لاحقاً',
+			'chat.e2eeRecoveryGoRecover' => 'استعادة',
+			'chat.e2eeRecoveryBannerText' => 'تم رصد رسائل سابقة مشفّرة، استعد المفتاح لعرضها. اضغط للمتابعة',
+			'chat.liveRoomCreateTitle' => 'إنشاء غرفة بث مباشر',
+			'chat.liveRoomCreating' => 'جارٍ الإنشاء...',
+			'chat.liveRoomWatch' => 'مشاهدة البث',
 			'common.about' => 'حول',
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
+			_ => null,
+		} ?? switch (path) {
 			'common.acceptFriendRequest' => 'قبول طلب الصداقة',
 			'common.addFriend' => 'إضافة صديق',
 			'common.addPhoneContact' => 'إضافة جهة اتصال هاتف',
@@ -1981,7 +2971,9 @@ extension on TranslationsArSa {
 			'common.bindMobileAndEmailTips' => 'ربط رقم الهاتف المحمول وعنوان البريد الإلكتروني لتحسين أمان حسابك',
 			'common.bindNow' => 'ربط الآن',
 			'common.buttonCancel' => 'إلغاء',
+			'common.buttonCreate' => 'إنشاء',
 			'common.buttonChangePassword' => 'تغيير كلمة المرور',
+			'common.phoneInputHint' => 'أدخل رقم الهاتف',
 			'common.buttonClose' => 'إغلاق',
 			'common.buttonConfirm' => 'تأكيد',
 			'common.buttonContinue' => 'متابعة',
@@ -2008,6 +3000,7 @@ extension on TranslationsArSa {
 			'common.canNotAddYourselfFriend' => 'لا يمكنك إضافة نفسك كصديق',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
+			'common.operationSuccessful' => 'تمت العملية بنجاح',
 			'common.save' => _root.common.buttonSave,
 			'common.reset' => 'إعادة تعيين',
 			'common.clear' => 'مسح',
@@ -2036,6 +3029,8 @@ extension on TranslationsArSa {
 			'common.checkForUpdates' => 'التحقق من التحديثات',
 			'common.clearAll' => 'مسح الكل',
 			'common.clearChatRecord' => 'مسح سجل الدردشة',
+			'common.complaintSuccess' => 'تم إرسال الشكوى',
+			'common.complaintFailed' => 'تعذّر إرسال الشكوى، حاول لاحقاً',
 			'common.confirmCode' => 'رمز التأكيد',
 			'common.confirmCodeError' => 'رمز التأكيد فارغ',
 			'common.confirmCodeSuccess' => 'تم تأكيد الحساب.',
@@ -2047,6 +3042,7 @@ extension on TranslationsArSa {
 			'common.contactSettingTag' => 'علامة إعدادات جهات الاتصال',
 			'common.contactTagListLogic' => 'منطق قائمة علامات جهات الاتصال',
 			'common.contactTags' => 'علامات جهات الاتصال',
+			'common.contactInfoNotSynced' => 'جهات الاتصال غير متزامنة',
 			'common.continueDownloading' => 'متابعة التنزيل',
 			'common.copy' => 'نسخ',
 			'common.coupon' => 'قسيمة',
@@ -2083,8 +3079,6 @@ extension on TranslationsArSa {
 			'common.errorInvalidRequest' => _root.common.error,
 			'common.errorLengthBetween' => ({required Object param, required Object min, required Object max}) => 'يجب أن يكون طول ${param} بين ${min} و ${max}',
 			'common.errorManyRequest' => _root.common.error,
-			_ => null,
-		} ?? switch (path) {
 			'common.errorNoPackageToRemove' => _root.common.error,
 			'common.errorNoValidFileOrUrl' => _root.common.error,
 			'common.errorNonexistentDirectory' => _root.common.error,
@@ -2123,6 +3117,24 @@ extension on TranslationsArSa {
 			'common.genderUpdateSuccess' => 'تم تعيين الجنس بنجاح',
 			'common.groupAddLocal' => 'حفظ في جهات الاتصال',
 			'common.groupAnnouncement' => 'إعلان المجموعة',
+			'common.groupFileUploadSuccess' => 'تم رفع الملف',
+			'common.groupFileUploadFailed' => 'تعذّر رفع الملف، حاول لاحقاً',
+			'common.groupFileDeleteSuccess' => 'تم حذف الملف',
+			'common.groupFileDeleteFailed' => 'تعذّر الحذف، حاول لاحقاً',
+			'common.groupFileClosePreview' => 'إغلاق المعاينة',
+			'common.groupFileUploadTooltip' => 'رفع ملف',
+			'common.groupFileSearch' => 'البحث في ملفات المجموعة',
+			'common.groupFileReadFailed' => 'تعذّرت قراءة الملف، أعد المحاولة',
+			'common.groupFileDeleteTitle' => 'حذف ملف المجموعة',
+			'common.groupFileDeleteConfirm' => ({required Object name}) => 'حذف الملف «${name}»؟',
+			'common.groupFileImageLoadFailed' => 'تعذّر تحميل الصورة',
+			'common.groupFileOpenFailed' => 'تعذّر فتح رابط الملف',
+			'common.groupFileSearchClear' => 'مسح',
+			'common.groupFileSearchAction' => 'بحث',
+			'common.groupFileCategoryAll' => 'الكل',
+			'common.groupFileSearchEmpty' => 'لا توجد ملفات مطابقة',
+			'common.groupFileAudioLoadFailed' => 'تعذّر تحميل الصوت',
+			'common.groupFileAudioLoading' => 'جارٍ تحميل الصوت...',
 			'common.groupQrcodeTips' => ({required Object days, required Object date}) => 'رمز QR صالح لمدة ${days} يوماً (قبل ${date})، وسيتم تحديثه عند إعادة الدخول',
 			'common.groupSearchTips' => 'اسم المجموعة ووصف المجموعة',
 			'common.helpDocument' => 'مستند المساعدة',
@@ -2146,7 +3158,9 @@ extension on TranslationsArSa {
 			'common.loading' => 'جارٍ التحميل',
 			'common.locationMessage' => 'رسالة موقع',
 			'common.loginDeviceManagementTips' => 'تم تسجيل الدخول إلى حسابك على الأجهزة التالية، يمكنك حذف الأجهزة، وستحتاج إلى التحقق الأمني عند تسجيل الدخول التالي على هذه الأجهزة بعد الحذف.',
+			'common.logoutFailed' => 'تعذّر تسجيل الخروج',
 			'common.logoutNotice' => 'إشعار إلغاء الحساب',
+			'common.exportDataSuccess' => 'تم تصدير البيانات',
 			'common.manually' => 'اختيار يدوي',
 			'common.messageCall' => 'إرسال رسالة',
 			'common.messageContent' => 'محتوى الرسالة',
@@ -2194,6 +3208,7 @@ extension on TranslationsArSa {
 			'common.noUpdateDescription' => 'لا يوجد وصف للتحديث',
 			'common.normalModel' => 'الوضع العادي',
 			'common.notAuthorizedLatLong' => 'لم تقم بتفويض الحصول على خطوط الطول والعرض',
+			'common.notLoggedIn' => 'لم تسجّل الدخول',
 			'common.notBad' => 'ليس سيئاً',
 			'common.notBound' => 'غير مرتبط',
 			'common.notFilled' => 'غير مملوء',
@@ -2205,9 +3220,9 @@ extension on TranslationsArSa {
 			'common.notShow' => 'عدم العرض',
 			'common.notTurnedLocationService' => 'لم تقم بتشغيل خدمة الموقع',
 			'common.nowNewVersion' => 'لم يتم اكتشاف إصدار جديد',
-			'common.off' => _root.common.disabled,
+			'common.kFalse' => _root.common.disabled,
 			'common.offlineNotification' => 'إشعار عدم الاتصال',
-			'common.on' => _root.common.enabled,
+			'common.kTrue' => _root.common.enabled,
 			'common.operationFailedAgainLater' => 'فشلت العملية، يرجى المحاولة مرة أخرى لاحقاً',
 			'common.optionsNo' => 'لا',
 			'common.optionsRename' => 'أريد إعادة التسمية',
@@ -2240,12 +3255,57 @@ extension on TranslationsArSa {
 			'common.releaseFingerCancelSending' => 'اترك إصبعك لإلغاء الإرسال',
 			'common.removeContactFromTag' => 'إزالة جهة الاتصال من العلامة',
 			'common.removeMember' => 'إزالة العضو',
+			'common.atMentionYouTag' => '[@أنت] ',
+			'common.atMentionLeftMember' => '@عضو غادر',
+			'common.muteNotifications' => 'كتم الإشعارات',
+			'common.muteNotificationsHint' => 'عند التفعيل لن تصلك تنبيهات الرسائل الجديدة، لكن يمكنك رؤية غير المقروء في قائمة المحادثات',
+			'common.revokeExpired' => 'مرّت أكثر من دقيقتين، لا يمكن السحب',
+			'common.quickReplyAddTitle' => 'رد سريع جديد',
+			'common.quickReplyEditTitle' => 'تعديل رد سريع',
+			'common.removeAdmin' => 'Remove Admin',
+			'common.setAdminConfirm' => 'Set this member as admin?',
+			'common.removeAdminConfirm' => 'Remove admin role from this member?',
+			'common.muteMemberConfirm' => 'Mute this member?',
+			'common.unmuteMemberConfirm' => 'Unmute this member?',
+			'common.kickMemberConfirm' => 'Remove this member from the group?',
+			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
+			'common.setAdminSuccess' => 'Admin set',
+			'common.setAdminFailed' => 'Failed to set admin',
+			'common.removeAdminSuccess' => 'Admin removed',
+			'common.removeAdminFailed' => 'Failed to remove admin',
+			'common.muteMemberSuccess' => 'Member muted',
+			'common.muteMemberFailed' => 'Failed to mute member',
+			'common.unmuteMemberSuccess' => 'Member unmuted',
+			'common.unmuteMemberFailed' => 'Failed to unmute member',
+			'common.kickMemberSuccess' => 'Member removed',
+			'common.kickMemberFailed' => 'Failed to remove member',
+			'common.transferGroupSuccess' => 'Ownership transferred',
+			'common.transferGroupFailed' => 'Failed to transfer ownership',
+			'common.notMuted' => 'Not Muted',
+			'common.muteDuration' => 'Mute Duration',
+			'common.muteDuration1hour' => '1 Hour',
+			'common.muteDuration6hours' => '6 Hours',
+			'common.muteDuration12hours' => '12 Hours',
+			'common.muteDuration1day' => '1 Day',
+			'common.muteDuration3days' => '3 Days',
+			'common.muteDuration7days' => '7 Days',
+			'common.muteDurationPermanent' => 'Permanent',
+			'common.muteDuration5min' => '5 دقائق',
+			'common.muteDuration10min' => '10 دقائق',
+			'common.muteDuration30min' => '30 دقيقة',
+			'common.muteDuration30days' => '30 يوماً',
+			'common.muteUnitSeconds' => ({required Object count}) => '${count} ثانية',
+			'common.throttleWarning' => 'محاولات كثيرة جداً، حاول لاحقاً',
+			'common.throttleRetryAfter' => ({required Object seconds}) => 'محاولات كثيرة جداً، حاول بعد ${seconds} ثانية',
+			'common.mutedCannotSend' => 'لا يمكن إرسال الرسائل أثناء الكتم',
 			'common.resendCodeSuccess' => 'تم إرسال بريد إلكتروني جديد.',
 			'common.resetFilters' => 'إعادة تعيين التصفية',
 			'common.saveQrCode' => 'حفظ رمز QR',
 			'common.saveSuccess' => 'تم الحفظ بنجاح',
 			'common.scanQrcodeAddFriend' => 'امسح رمز QR أعلاه لإضافتني كصديق',
 			'common.search' => 'بحث',
+			'common.searchScope' => 'Search scope',
+			'common.searchAll' => 'All messages',
 			'common.searchChatContent' => 'البحث في محتوى الدردشة',
 			'common.searchChatRecord' => 'البحث في سجل الدردشة',
 			'common.searchError' => 'خطأ في البحث',
@@ -2375,6 +3435,11 @@ extension on TranslationsArSa {
 			'common.selectExpirationDateOptional' => 'اختيار تاريخ انتهاء الصلاحية (اختياري)',
 			'common.groupAnnouncementDeleteConfirm' => 'هل أنت متأكد من حذف هذا الإعلان؟',
 			'common.groupAnnouncementDelete' => 'حذف',
+			'common.groupAnnouncementLoadFailed' => 'تعذّر تحميل الإعلان، حاول لاحقاً',
+			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
+			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
+			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
+			'common.groupAnnouncementDeleteSuccess' => 'تم حذف الإعلان',
 			'common.privacyClearChatHistory' => 'مسح سجل الدردشة',
 			'common.privacyClearChatHistoryConfirm' => 'هل أنت متأكد من مسح جميع سجلات الدردشة؟ هذا الإجراء لا يمكن التراجع عنه.',
 			'common.privacyLogoutAccountConfirm' => 'هل أنت متأكد من إلغاء الحساب؟ سيتم حذف حسابك وجميع بياناتك بشكل دائم، ولا يمكن التراجع عن هذا الإجراء.',
@@ -2390,6 +3455,8 @@ extension on TranslationsArSa {
 			'common.showOnlineStatus' => 'عرض الحالة عبر الإنترنت',
 			'common.showOnlineStatusDesc' => 'يمكن للأصدقاء رؤية حالتك عبر الإنترنت',
 			'common.allowNearbyVisible' => 'مرئي للأشخاص القريبين',
+			_ => null,
+		} ?? switch (path) {
 			'common.dataSettings' => 'إعدادات البيانات',
 			'common.clearChatRecords' => 'مسح سجلات الدردشة',
 			'common.clearChatRecordsDesc' => 'مسح جميع سجلات الدردشة، هذا الإجراء لا يمكن التراجع عنه',
@@ -2518,6 +3585,24 @@ extension on TranslationsArSa {
 			'common.changeFailed' => 'فشل التعديل',
 			'common.submitted' => 'تم الإرسال',
 			'common.viewSecurityHelp' => 'عرض مساعدة الأمان',
+			'common.momentsNoData' => 'لا توجد منشورات',
+			'common.momentsDeleteConfirm' => 'حذف هذا المنشور؟',
+			'common.momentsDeleteCommentConfirm' => 'حذف هذا التعليق؟',
+			'common.momentsNotFound' => 'المنشور غير موجود أو لا يمكن عرضه',
+			'common.momentsContentOrMediaRequired' => 'أدخل نصاً أو أضف وسائط',
+			'common.momentsPublishFailed' => 'تعذّر النشر',
+			'common.momentsAllowComment' => 'السماح بالتعليقات',
+			'common.momentsReportReason' => 'سبب الإبلاغ',
+			'common.momentsNoComments' => 'لا تعليقات',
+			'common.momentsContentHint' => 'شارك شيئاً...',
+			'common.momentsAddMedia' => 'إضافة وسائط',
+			'common.momentsAllowUidsLabel' => 'قائمة UID المسموح لهم (مفصولة بفواصل)',
+			'common.momentsCommentFailed' => 'تعذّر إضافة التعليق، حاول لاحقاً',
+			'common.momentsDeleteFailed' => 'تعذّر الحذف، حاول لاحقاً',
+			'common.momentsReportSubmitted' => 'تم إرسال الإبلاغ',
+			'common.momentsReportFailed' => 'تعذّر الإبلاغ، حاول لاحقاً',
+			'common.momentsLoadMoreComments' => 'المزيد من التعليقات',
+			'common.momentsUploadFailed' => 'تعذّر رفع الوسائط، حاول لاحقاً',
 			'common.transactionHistory' => 'سجل المعاملات',
 			'common.paymentPasswordSetSuccess' => 'نجح تعيين كلمة مرور الدفع',
 			'common.paymentPasswordSetFailed' => 'فشل تعيين كلمة مرور الدفع',
@@ -2532,6 +3617,7 @@ extension on TranslationsArSa {
 			'common.personalSignature' => 'التوقيع الشخصي',
 			'common.personalBackground' => 'الخلفية الشخصية',
 			'common.setBackgroundImage' => 'تعيين صورة الخلفية',
+			'common.expression' => 'رموز تعبيرية',
 			'common.extendedInfo' => 'معلومات موسعة',
 			'common.profession' => 'المهنة',
 			'common.pleaseEnterProfession' => 'Please enter profession',
@@ -2597,8 +3683,6 @@ extension on TranslationsArSa {
 			'common.seconds' => 'ثانية',
 			'common.messageCannotLocatedMayBeDeleted' => 'لم يمكن تحديد موقع الرسالة، ربما تم حذفها',
 			'common.settingFailedPleaseTryAgain' => 'فشل التعيين، يرجى المحاولة مرة أخرى',
-			_ => null,
-		} ?? switch (path) {
 			'common.partialDeleteSuccess' => ({required Object success, required Object fail}) => 'نجح الحذف الجزئي: ${success} نجح، ${fail} فشل',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => 'تنسيق رسالة الفيديو المفضلة غير صحيح، لا يمكن العثور على video uri',
 			'common.recordingCancelled' => 'تم إلغاء التسجيل',
@@ -2614,6 +3698,10 @@ extension on TranslationsArSa {
 			'common.noDetailedInfo' => 'لم يقم هذا المستخدم بتعيين توقيع شخصي أو تفاصيل أخرى',
 			'common.noNewRegisteredUsers' => 'لا يوجد مستخدمون جدد مسجلون حالياً يرجى العودة لاحقاً للعرض',
 			'common.newRegisteredUsersTip' => 'يعرض هذا المستخدمون المسجلون مؤخراً، يمكنك إضافتهم كأصدقاء بنشاط',
+			'common.notificationFriendRequest' => 'طلب صداقة',
+			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} يريد إضافتك صديقاً',
+			'common.notificationGroupInvite' => 'دعوة لمجموعة',
+			'common.notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} يدعوك للانضمام إلى مجموعة ${groupName}',
 			'common.youRevokedMessage' => 'قمت بسحب رسالة',
 			'common.otherRevokedMessage' => 'قام الطرف الآخر بسحب رسالة',
 			'common.networkFailureTryAgain' => 'فشل الشبكة، يرجى المحاولة مرة أخرى!',
@@ -2630,44 +3718,302 @@ extension on TranslationsArSa {
 			'common.smaller' => 'أصغر',
 			'common.currentFontScale' => ({required Object param1, required Object param2}) => 'الحالي: ${param1} ${param2}%',
 			'common.emailUpdatedTo' => ({required Object param}) => 'تم تحديث البريد الإلكتروني إلى ${param}',
-			'common.atMentionYouTag' => '[@你] ',
-			'common.atMentionLeftMember' => '@已退群成员',
-			'common.muteNotifications' => '消息免打扰',
-			'common.muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
-			'common.revokeExpired' => '超过 2 分钟，无法撤回',
-			'common.quickReplyAddTitle' => '新增快捷回复',
-			'common.quickReplyEditTitle' => '编辑快捷回复',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.muteMemberConfirm' => 'Mute this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.transferGroupSuccess' => 'Ownership transferred',
-			'common.transferGroupFailed' => 'Failed to transfer ownership',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration6hours' => '6 Hours',
-			'common.muteDuration12hours' => '12 Hours',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration3days' => '3 Days',
-			'common.muteDuration7days' => '7 Days',
-			'common.muteDurationPermanent' => 'Permanent',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.groupAnnouncementExpiry' => ({required Object time}) => 'صالح حتى: ${time}',
+			'common.groupAlbumCreateFailed' => 'تعذّر الإنشاء، حاول لاحقاً',
+			'common.groupAlbumDeleteTitle' => 'حذف ألبوم المجموعة',
+			'common.groupAlbumDeleteConfirm' => ({required Object name}) => 'حذف الألبوم «${name}»؟',
+			'common.groupAlbumDeleted' => 'تم حذف الألبوم',
+			'common.groupAlbumDeleteFailed' => 'تعذّر الحذف، حاول لاحقاً',
+			'common.groupAlbumRenameFailed' => 'تعذّر التحديث، حاول لاحقاً',
+			'common.groupAlbumUploadTooltip' => 'رفع صورة',
+			'common.groupAlbumDeleteTooltip' => 'حذف الألبوم',
+			'common.groupAlbumNoAlbum' => 'لا توجد ألبومات',
+			'common.groupAlbumPhotoReadFailed' => 'تعذّرت قراءة الصورة، أعد المحاولة',
+			'common.groupAlbumPhotoUploaded' => 'تم رفع الصورة',
+			'common.groupAlbumPhotoUploadFailed' => 'تعذّر رفع الصورة، حاول لاحقاً',
+			'common.groupAlbumCreateTooltip' => 'إنشاء ألبوم',
+			'common.groupAlbumPhotoBatchDeleteTitle' => 'حذف الصور',
+			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => 'حذف الصور المحددة (${count})؟',
+			'common.groupAlbumPhotoDeleteFailed' => 'تعذّر الحذف، حاول لاحقاً',
+			'common.groupAlbumPhotoDeletedAll' => ({required Object count}) => 'تم حذف ${count} صورة',
+			'common.groupAlbumPhotoDeletedPartial' => ({required Object success, required Object fail}) => 'تم حذف ${success}، تعذّر حذف ${fail}',
+			'common.groupAlbumPhotoDeleteTitle' => 'حذف صورة',
+			'common.groupAlbumPhotoDeleteConfirm' => 'حذف هذه الصورة؟',
+			'common.groupAlbumPhotoDeleted' => 'تم حذف الصورة',
+			'common.groupAlbumPhotoBatchDeleteTooltip' => 'حذف المحدد',
+			'common.groupAlbumPhotoExitSelection' => 'إنهاء التحديد',
+			'common.groupAlbumPhotoOpenFailed' => 'تعذّر فتح رابط الصورة',
+			'common.groupAlbumPhotoNotFound' => 'الصورة غير موجودة أو محذوفة',
+			'common.groupAlbumPhotoOpenExternal' => 'فتح خارجي',
+			'common.groupAlbumPhotoCoverUpdated' => 'تم تعيينها كغلاف للألبوم',
+			'common.groupAlbumPhotoCoverFailed' => 'تعذّر تعيين الغلاف، حاول لاحقاً',
+			'common.groupAlbumPhotoNext' => 'التالي',
+			'common.groupAlbumPhotoResolution' => 'الدقة',
+			'common.groupAlbumPhotoUploader' => 'رفعها',
+			'common.sectionDisplay' => 'العرض',
+			'common.sectionTheme' => 'السمة',
+			'common.selectLanguage' => 'اختيار اللغة',
+			'common.completionSuggestions' => 'اقتراحات التحسين:',
+			'common.sectionGeneral' => 'عام',
+			'common.sectionPrivacySecurity' => 'الخصوصية والأمان',
+			'common.sectionHelpAbout' => 'مساعدة وحول',
+			'common.msgOnlyVisibleToParties' => 'الرسائل مرئية للمرسل والمستلم فقط',
+			'common.msgNotEncrypted' => 'تُرسل الرسائل دون تشفير',
+			'common.durationMinutes' => ({required Object count}) => '${count} دقيقة',
+			'common.durationSeconds' => ({required Object count}) => '${count} ثانية',
+			'common.rechargeAmountError' => 'أدخل مبلغاً بين 1 و10000 يوان',
+			'common.rechargeSuccess' => 'تم الشحن',
+			'common.rechargeConfirm' => 'تأكيد الشحن',
+			'common.transactionHistory2' => 'سجل العمليات',
+			'common.noTransactionHistory' => 'لا توجد عمليات',
+			'common.allLoaded' => '— تم تحميل الكل —',
+			'common.transactionTypeIncome' => 'شحن',
+			'common.transactionTypeExpense' => 'مصروفات',
+			'common.sectionLoginCredentials' => 'بيانات الدخول',
+			'common.channelInvitations' => 'دعوات القناة',
+			'common.acceptInvitationFailed' => 'تعذّر قبول الدعوة',
+			'common.rejectInvitationFailed' => 'تعذّر رفض الدعوة',
+			'common.invitationAccepted' => 'تم قبول الدعوة',
+			'common.invitationRejected' => 'تم رفض الدعوة',
+			'common.invitationStatusPending' => 'قيد الانتظار',
+			'common.invitationStatusAccepted' => 'مقبولة',
+			'common.invitationStatusRejected' => 'مرفوضة',
+			'common.invitationStatusExpired' => 'منتهية',
+			'common.invitationStatusCancelled' => 'ملغاة',
+			'common.invitationStatusUnknown' => 'غير معروف',
+			'common.noReceivedInvitations' => 'لا توجد دعوات مستلمة',
+			'common.noSentInvitations' => 'لا توجد دعوات مرسلة',
+			'common.processingDots' => 'جارٍ المعالجة...',
+			'common.purchaseFailed' => 'تعذّر الشراء، حاول لاحقاً',
+			'common.purchaseSuccess' => 'تم الشراء',
+			'common.insufficientBalanceTitle' => 'رصيد غير كافٍ',
+			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => 'رصيدك الحالي ${currency} ${balance}، المطلوب ${currency} ${price}. اشحن رصيدك أولاً.',
+			'common.goRecharge' => 'اشحن الرصيد',
+			'common.noOrders' => 'لا توجد طلبات',
+			'common.orderDetailLoadFailed' => 'تعذّر تحميل الطلب',
+			'common.orderNoLabel' => ({required Object no}) => 'رقم الطلب: ${no}',
+			'common.orderStatusCancelled' => 'ملغى',
+			'common.orderStatusUnknown' => 'غير معروف',
+			'common.removeReaction' => 'إزالة التفاعل',
+			'common.removeReactionConfirm' => ({required Object emoji}) => 'إزالة تفاعل ${emoji}؟',
+			'common.fileOpenFailed' => 'تعذّر فتح هذا الملف',
+			'common.e2eeLocalBackup' => 'نسخة محلية احتياطية',
+			'common.e2eeLocalBackupDesc' => 'تصدير نسخة مشفّرة إلى الجهاز أو السحابة',
+			'common.e2eeDeleteKey' => 'حذف المفتاح',
+			'common.e2eeDeleteKeyDesc' => 'حذف المفتاح من الجهاز (لا يمكن استعادته)',
+			'common.e2eeCurrentKeyInfo' => 'المفتاح الحالي',
+			'common.e2eeE2EEEnabled' => 'التشفير من طرف إلى طرف مفعّل',
+			'common.e2eeNoKeyDetected' => 'لم يُعثر على مفتاح E2EE',
+			'common.e2eeNoKeyDesc' => 'عليك أولاً إنشاء زوج مفاتيح أو الاستعادة من نسخة احتياطية',
+			'common.e2eeAboutTitle' => 'حول التشفير من طرف إلى طرف',
+			'common.e2eeInfoPoint1' => '• تُشفّر رسائلك قبل الإرسال، ولا يمكن للخادم رؤية المحتوى',
+			'common.e2eeInfoPoint2' => '• عند تغيير الجهاز أو حذف المفتاح قد لا يمكن فك الرسائل القديمة',
+			'common.e2eeInfoPoint3' => '• احرص على نسخ المفتاح احتياطياً بانتظام لتجنب فقدان البيانات',
+			'common.e2eeExportBackup' => 'تصدير النسخة',
+			'common.e2eeExportBackupDesc' => 'إنشاء نسخة احتياطية مشفّرة',
+			'common.e2eeImportBackup' => 'استيراد النسخة',
+			'common.e2eeImportBackupDesc' => 'استعادة المفتاح من نسخة احتياطية',
+			'common.e2eeBackupManage' => 'إدارة النسخ',
+			'common.e2eeBackupManageDesc' => 'عرض سجل النسخ الاحتياطية',
+			'common.e2eeGenerateKeyConfirm' => 'إنشاء زوج مفاتيح E2EE جديد؟',
+			'common.e2eeWarnOldMessagesLost' => '• لن يمكن فك الرسائل القديمة',
+			'common.e2eeWarnNeedNewBackup' => '• ستحتاج إلى إنشاء نسخة احتياطية جديدة',
+			'common.e2eeConfirmGenerate' => 'إنشاء',
+			'common.e2eeDeleteKeyConfirm' => 'حذف المفتاح الحالي؟',
+			'common.e2eeWarnCannotRestore' => '• لا يمكن الاستعادة بعد الحذف',
+			'common.e2eeWarnAllMsgsLost' => '• لن يمكن فك جميع رسائل E2EE',
+			'common.e2eeConfirmDelete' => 'حذف',
+			'common.e2eeKeyGeneratedSuccess' => 'تم إنشاء المفتاح',
+			'common.e2eeDeviceIdInfo' => ({required Object id}) => 'معرّف الجهاز: ${id}',
+			'common.e2eeKeyIdInfo' => ({required Object id}) => 'معرّف المفتاح: ${id}',
+			'common.e2eeCreatedAtInfo' => ({required Object time}) => 'تاريخ الإنشاء: ${time}',
+			'common.e2eeImportantNote' => 'ملاحظة مهمة',
+			'common.e2eeWarnOldMayNotDecrypt' => '• قد لا يمكن فك الرسائل القديمة',
+			'common.e2eeSuggestBackupNow' => '• ننصح بتصدير النسخة فوراً',
+			'common.e2eeGoBackup' => 'إنشاء نسخة',
+			'common.e2eeKeyGenerateFailed' => 'تعذّر إنشاء المفتاح، أعد المحاولة',
+			'common.e2eeKeyDeleted' => 'تم حذف المفتاح',
+			'common.e2eeDeleteFailed' => 'تعذّر الحذف، أعد المحاولة',
+			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => 'الشظايا المتاحة: ${available}، يلزم ${required} وكيلاً',
+			'common.e2eeNoRecoveryShards' => 'لا توجد شظايا استعادة متاحة',
+			'common.e2eeRecoverSuccess' => 'تمت الاستعادة',
+			'common.e2eeRecoverFailed' => 'تعذّرت الاستعادة',
+			'common.e2eeRecoverKeyFailed' => 'تعذّرت استعادة المفتاح، أعد المحاولة',
+			'common.e2eeLoadingShards' => 'جارٍ تحميل الشظايا...',
+			'common.e2eeNoShards' => 'لا توجد شظايا متاحة',
+			'common.e2eeLoadFailed' => 'تعذّر التحميل، أعد المحاولة',
+			'common.e2eeContactingProxy' => ({required Object name}) => 'جارٍ التواصل مع: ${name}',
+			'common.e2eeRecoveryFailed' => 'تعذّرت الاستعادة، أعد المحاولة',
+			'common.webFeatureNotification' => 'إشعارات سطح المكتب',
+			'common.webFeatureNotificationDesc' => 'تصلك تنبيهات الرسائل الجديدة حتى مع إغلاق الصفحة',
+			'common.webQRConfirmOnPhone' => 'أكّد الدخول على هاتفك',
+			'common.webQRLoginFailed' => 'تعذّر الدخول',
+			'common.webQRLoginSuccess' => 'تم الدخول',
+			'common.webQRExpiresIn' => ({required Object seconds}) => 'ينتهي خلال ${seconds} ثانية',
+			'common.webQRStatusFailed' => 'تعذّر الدخول، أعد المحاولة',
+			'common.webQRStatusSuccess' => 'جارٍ التحويل...',
+			'common.webLoginEmptyError' => 'أدخل الحساب وكلمة المرور',
+			'common.webQRGenerateFailed' => 'تعذّر إنشاء رمز QR',
+			'common.webQRTokenInvalid' => 'رمز الدخول غير صالح',
+			'common.e2eeErrNoRecipientKey' => 'تعذّر الحصول على مفتاح جهاز الطرف الآخر، لم تُرسل الرسالة',
+			'common.e2eeDecryptFailed' => 'تعذّر فك تشفير الرسالة',
+			'common.e2eeDecryptFailedReasons' => 'لا يمكن فك تشفير هذه الرسالة. الأسباب المحتملة:',
+			'common.e2eeDecryptReasonOtherDevice' => '• سجّلت الدخول على جهاز آخر',
+			'common.e2eeDecryptReasonKeyExpired' => '• انتهت صلاحية مفتاح الجهاز',
+			'common.e2eeDecryptReasonDataCorrupt' => '• تلف بيانات التطبيق',
+			'common.e2eeDecryptChooseSolution' => 'اختر حلاً:',
+			'common.e2eeDecryptActionRecreateKey' => 'إنشاء المفتاح من جديد (موصى به)',
+			'common.e2eeDecryptActionRelogin' => 'إعادة تسجيل الدخول',
+			'common.e2eeDecryptActionRemindLater' => 'ذكّرني لاحقاً',
+			'common.e2eeBackupExportTitle' => 'تصدير نسخة E2EE',
+			'common.e2eeBackupPwdCantRecover' => '• لا يمكن استرداد كلمة مرور النسخة، احفظها جيداً!',
+			'common.e2eeBackupStoreMultipleNote' => '• يُفضّل حفظ النسخة في عدة أماكن آمنة (بريد، سحابة، فلاش)',
+			'common.e2eeBackupPwdLabel' => 'كلمة مرور النسخة *',
+			'common.e2eeBackupPwdHint' => '12 حرفاً على الأقل، أحرف كبيرة وصغيرة وأرقام ورموز',
+			'common.e2eeBackupConfirmPwdLabel' => 'تأكيد كلمة المرور *',
+			'common.e2eeBackupConfirmPwdHint' => 'أعد إدخال كلمة المرور',
+			'common.e2eeBackupNoteLabel' => 'ملاحظة (اختياري)',
+			'common.e2eeBackupNoteHint' => 'مثال: نسخة الهاتف الأساسي - يناير 2026',
+			'common.e2eeBackupPwdStrengthLabel' => 'قوة كلمة المرور',
+			'common.e2eeBackupPwdWeak' => 'ضعيفة - زِد التعقيد',
+			'common.e2eeBackupPwdMedium' => 'متوسطة - زِد الطول أو التعقيد',
+			'common.e2eeBackupPwdStrong' => 'قوية - مناسبة',
+			'common.e2eeBackupPwdVeryStrong' => 'قوية جداً - آمنة',
+			'common.e2eeBackupGenerateBtn' => 'إنشاء ملف النسخة',
+			'common.e2eeBackupFileGenerated' => 'تم إنشاء ملف النسخة الاحتياطية!',
+			'common.e2eeBackupShareBtn' => 'مشاركة عبر بريد/سحابة',
+			'common.e2eeBackupShareContent' => 'هذا ملف نسخة احتياطية لمفاتيح Imboy E2EE. احفظه بأمان ولا تُطلع عليه أحداً.',
+			'common.e2eeBackupErrPwdMismatch' => 'كلمتا المرور غير متطابقتين',
+			'common.e2eeBackupErrNoKeyData' => 'تعذّر الحصول على بيانات المفتاح',
+			'common.e2eeBackupErrExportFailed' => 'تعذّر التصدير، أعد المحاولة',
+			'common.e2eeBackupErrShareFailed' => 'تعذّرت المشاركة، أعد المحاولة',
+			'common.e2eeBackupExportSuccessTitle' => 'تم تصدير النسخة',
+			'common.e2eeBackupExportSuccessBody' => 'تم إنشاء نسخة مفتاح E2EE بنجاح.',
+			'common.e2eeBackupImportantNoteColon' => 'ملاحظة مهمة:',
+			'common.e2eeBackupKeepSafe' => '• احفظ ملف النسخة وكلمة المرور بأمان',
+			'common.e2eeBackupStoreMultipleLoc' => '• يُفضّل حفظ الملف في عدة أماكن آمنة',
+			'common.e2eeBackupPwdCantRecoverNote' => '• لا يمكن استرداد كلمة المرور، احفظها جيداً',
+			'common.e2eeBackupImportTitle' => 'استيراد نسخة E2EE',
+			'common.e2eeBackupImportGuide' => 'تعليمات الاستيراد',
+			'common.e2eeBackupImportReplaceKey' => '• بعد الاستيراد سيُستبدل مفتاح E2EE الحالي',
+			'common.e2eeBackupImportTrustedSource' => '• تأكد أن الملف من مصدر موثوق',
+			'common.e2eeBackupSelectFile' => 'اختيار ملف النسخة',
+			'common.e2eeBackupSelectFileHint' => 'اختر ملف النسخة (.enc)',
+			'common.e2eeBackupInfoTitle' => 'معلومات النسخة',
+			'common.e2eeBackupVersionLabel' => 'الإصدار',
+			'common.e2eeBackupAlgorithmLabel' => 'الخوارزمية',
+			'common.e2eeBackupFileSizeLabel' => 'حجم الملف',
+			'common.e2eeBackupFileValid' => '✓ تنسيق الملف صالح',
+			'common.e2eeBackupImportPwdHint' => 'أدخل كلمة المرور المحددة عند الإنشاء',
+			'common.e2eeBackupImportBtn' => 'استيراد المفتاح',
+			'common.e2eeBackupErrSelectFile' => 'تعذّر اختيار الملف، أعد المحاولة',
+			'common.e2eeBackupErrValidateFailed' => 'فشل التحقق من الملف، تحقق من التنسيق',
+			'common.e2eeBackupErrImportFailed' => 'تعذّر الاستيراد، تحقق من كلمة المرور',
+			'common.e2eeBackupImportSuccessTitle' => 'تم الاستيراد',
+			'common.e2eeBackupImportSuccessBody' => 'تمت استعادة مفتاح E2EE!',
+			'common.e2eeBackupImportSuccessNote' => 'ملاحظة: قد لا تكون الرسائل القديمة متاحة، وهذا سلوك طبيعي لـ E2EE',
+			'common.e2eeBackupNoRecords' => 'لا توجد نسخ احتياطية',
+			'common.e2eeBackupNoRecordsHint' => 'بعد التصدير سيظهر السجل هنا',
+			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'جهاز ${id}',
+			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => 'أُنشئ ${time}',
+			'common.e2eeBackupDetailTitle' => 'تفاصيل النسخة',
+			'common.e2eeBackupDeviceIdLabel' => 'معرّف الجهاز',
+			'common.e2eeBackupVersionNum' => 'إصدار النسخة',
+			'common.e2eeBackupCreatedAtRow' => 'تاريخ الإنشاء',
+			'common.e2eeBackupFileSizeRow' => 'حجم الملف',
+			'common.e2eeBackupNoteRow' => 'ملاحظة',
+			'common.e2eeBackupDeleteTitle' => 'حذف سجل النسخة',
+			'common.e2eeBackupDeleteConfirm' => 'حذف سجل النسخة هذا؟',
+			'common.e2eeBackupDeleteSuccess' => 'تم حذف السجل',
+			'common.e2eeSocialShardSettings' => 'إعدادات الشظايا',
+			'common.e2eeSocialShardStoredNote' => 'تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية',
+			'common.e2eeSocialAddProxy' => 'إضافة وكيل',
+			'common.e2eeSocialAddProxyHint' => 'أضف جهات اتصال كوكلاء',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'أضف ${count} وكلاء آخرين',
+			'common.e2eeSocialCreateSuccessTitle' => 'تم إنشاء الشظايا',
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا',
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'يكفي ${count} وكيل للاستعادة',
+			'common.e2eeSocialZeroTrustNote' => 'بنية الثقة الصفرية: لا يحفظ الخادم أي شظية',
+			'common.e2eeSocialNoShards' => 'لم تنشئ أي شظايا استعادة بعد',
+			'common.e2eeSocialNoProxyShards' => 'لا توجد شظايا وكلاء',
+			'common.e2eeSocialKeyVersionLabel' => 'إصدار المفتاح',
+			'common.e2eeTransferErrNoKey' => 'أنشئ زوج مفاتيح أولاً',
+			'common.e2eeTransferErrInitFailed' => 'فشل التهيئة، أعد المحاولة',
+			'common.e2eeTransferErrNoRecipientKey' => 'لا يملك المستلم مفتاحاً عاماً متاحاً',
+			'common.e2eeTransferErrKeyNotFound' => 'المفتاح غير موجود',
+			'common.e2eeTransferErrCreateFailed' => 'تعذّر إنشاء جلسة النقل، أعد المحاولة',
+			'common.e2eeTransferCreateSessionBtn' => 'إنشاء جلسة نقل',
+			'common.e2eeTransferSessionCreated' => 'تم إنشاء جلسة النقل',
+			'common.e2eeTransferUidEmptyError' => 'أدخل معرّف مستخدم صالحاً',
+			'common.e2eeTransferSuccess' => 'تم النقل!',
+			'common.e2eeTransferFailed' => 'تعذّر النقل، أعد المحاولة',
+			'common.e2eeTransferProcessingMsg' => 'جارٍ المعالجة...',
+			'common.e2eeTransferSuccessTitle' => 'تم النقل',
+			'common.e2eeTransferSuccessBody' => 'تم نقل المفتاح إلى هذا الجهاز',
+			'common.e2eeTransferScanError' => ({required Object error}) => 'خطأ المسح: ${error}',
+			'common.e2eeTransferErrNoDeviceId' => 'تعذّر الحصول على معرّف الجهاز',
+			'common.passwordEncryptFailed' => 'تعذّر تشفير كلمة المرور',
+			'common.initConfigTimeout' => 'انتهت مهلة تحميل الإعدادات: تحقق من الشبكة أو حالة الخادم',
+			'common.initConfigNetworkError' => ({required Object code}) => 'عطل شبكة أو عطل خادم (HTTP ${code})',
+			'common.initConfigProtocolError' => 'خطأ في بروتوكول استجابة الخادم',
+			'common.initConfigFetchFailed' => 'تعذّر تحميل الإعدادات، تحقق من الشبكة',
+			'common.attachmentGetFileFailed' => 'تعذّر الحصول على الملف، أعد المحاولة أو اختر من المعرض',
+			'common.attachmentGetFileFailedAndroid9' => 'فشل الحصول على الملف، قد تكون مشكلة توافق مع Android 9',
+			'common.attachmentGetImageDataFailed' => 'تعذّر الحصول على بيانات الصورة، أعد المحاولة',
+			'common.attachmentGetOriginalImageFailed' => 'تعذّر الحصول على الصورة الأصلية',
+			'common.saveFailedRetry' => 'تعذّر الحفظ، أعد المحاولة',
+			'common.downloadFileNotFound' => 'ملف التنزيل غير موجود، أعد المحاولة',
+			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'فشل التحقق من الملف، إعادة التنزيل (${retry}/${max})',
+			'common.downloadHashFailed' => 'فشل التحقق من الملف عدة مرات، تحقق من الشبكة وأعد المحاولة',
+			'common.e2eeTransferToNewDevice' => 'نقل إلى جهاز جديد',
+			'common.e2eeTransferPendingSection' => 'عمليات نقل معلّقة',
+			'common.e2eeTransferLoadFailed' => 'تعذّر التحميل',
+			'common.e2eeTransferLoadFailedDesc' => 'تعذّر تحميل عمليات النقل المعلّقة، أعد المحاولة',
+			_ => null,
+		} ?? switch (path) {
+			'common.e2eeTransferNoPending' => 'لا توجد عمليات نقل معلّقة',
+			'common.e2eeTransferNoPendingDesc' => 'عند إرسال جهاز مفتاحاً إليك، يظهر هنا',
+			'common.e2eeSocialEnoughShards' => 'لديك شظايا كافية للاستعادة',
+			'common.e2eeSocialMoreShards' => ({required Object count}) => '${count} شظايا إضافية...',
+			'common.e2eeProxyLoadFriendsFailed' => 'تعذّر تحميل قائمة الأصدقاء، أعد المحاولة',
+			'common.e2eeProxyNoPublicKey' => 'لا يملك هذا الصديق مفتاحاً عاماً متاحاً',
+			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'تعذّر الحصول على المفتاح العام لـ ${name}',
+			'common.e2eeProxySelectFailed' => 'تعذّر اختيار الوكلاء، أعد المحاولة',
+			'common.e2eeProxyNoFriends' => 'لا يوجد أصدقاء',
+			'common.e2eeProxyNoFriendsHint' => 'أضف أصدقاء أولاً ثم اضبط الوكلاء',
+			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => 'يلزم ${count} جهة موثوقة على الأقل، محدد ${selected}',
+			'common.e2eeProxyConfirmCount' => ({required Object count}) => 'تأكيد الاختيار (${count} وكيل)',
+			'common.buttonBackHome' => 'الرئيسية',
+			'common.featureNotEnabled' => 'هذه الميزة غير مفعّلة',
+			'common.featureDisabledName' => ({required Object name}) => 'ميزة ${name} غير مفعّلة وغير متاحة مؤقتاً',
+			'common.imageLoadFailed' => 'تعذّر التحميل',
+			'common.loadFailedWithError' => ({required Object error}) => 'تعذّر التحميل: ${error}',
+			'common.webAudioNotSupported' => 'لا يدعم الويب تشغيل الرسائل الصوتية',
+			'common.e2eeKeyRecreationFailed' => ({required Object error}) => 'تعذّر إنشاء المفتاح: ${error}',
+			'common.redPacket' => 'مغلف أحمر',
+			'common.transfer' => 'تحويل',
+			'common.withdraw' => 'سحب',
+			'common.redPacketSend' => 'إرسال مغلف',
+			'common.redPacketOpen' => 'فتح المغلف',
+			'common.redPacketDetail' => 'تفاصيل المغلف',
+			'common.transferSend' => 'تحويل أموال',
+			'common.transferAccept' => 'استلام التحويل',
+			'common.greetingDefault' => 'كل عام وأنتم بخير وازدهار',
+			'common.grabAmountYuan' => ({required Object amount}) => 'المبلغ الملتقط: ${amount} يوان',
+			'common.transferAmountYuan' => ({required Object amount}) => 'مبلغ التحويل: ${amount} يوان',
+			'common.insufficientBalance' => 'رصيد غير كافٍ',
+			'common.goToRecharge' => 'اشحن الرصيد',
+			'common.withdrawSuccess' => 'تم السحب',
+			'common.withdrawConfirm' => 'تأكيد السحب',
+			'common.withdrawAmountError' => 'أدخل مبلغاً لا يقل عن يوان واحد',
+			'common.withdrawAccountEmpty' => 'أدخل حساب السحب',
+			'common.withdrawMethod' => 'طريقة السحب',
+			'common.withdrawAccount' => 'حساب السحب',
 			'complaint.complaint' => 'شكوى',
+			'complaintReason.spam' => 'رسائل مزعجة',
+			'complaintReason.harassment' => 'مضايقة',
+			'complaintReason.inappropriate' => 'محتوى غير لائق',
+			'complaintReason.other' => 'أخرى',
 			'contact.applyFriend' => 'طلب إضافة صديق',
 			'contact.applyFriendLogic' => 'منطق طلب الصداقة',
 			'contact.applyParam' => ({required Object param}) => 'طلب ${param}',
@@ -2698,6 +4044,7 @@ extension on TranslationsArSa {
 			'contact.pleaseEnterRemark' => 'يرجى إدخال الملاحظة',
 			'contact.enterRemark' => 'يرجى إدخال الملاحظة',
 			'contact.pleaseEnterTags' => 'يرجى إدخال العلامات',
+			'contact.momentsVisibilityFriends' => 'الأصدقاء فقط',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'لا يمكن أن يتجاوز طول العلامة ${param} حرف',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'يمكنك إضافة ${param} علامات كحد أقصى',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'العلامات المحددة (${param}/${max})',
@@ -2716,6 +4063,8 @@ extension on TranslationsArSa {
 			'contact.tagIdeas' => 'أفكار',
 			'contact.tagMemo' => 'مذكرة',
 			'contact.friendRequestSent' => 'تم الإرسال',
+			'contact.channelMaxTagsCount' => 'يمكنك إضافة 8 وسوم كحد أقصى',
+			'contact.tagInputHint' => 'أدخل وسماً...',
 			'discovery.findNearbyPeople' => 'البحث عن أشخاص قريبين',
 			'discovery.moment' => 'اللحظات',
 			'discovery.nearbyPeopleExplain' => 'يمكن للمستخدمين القريبين عرض ملفك الشخصي وإرسال رسائل إليك. قد يساعدك هذا في العثور على أصدقاء جدد، لكنه قد يجذب أيضاً الكثير من الاهتمام. يمكنك إيقاف مشاركة ملفك الشخصي في أي وقت.\nرقم هاتفك سيتم إخفاؤه.',
@@ -2725,10 +4074,26 @@ extension on TranslationsArSa {
 			'discovery.scanResult' => 'نتيجة المسح',
 			'discovery.scannerResult' => 'نتيجة الماسح',
 			'discovery.titleDiscover' => 'اكتشاف',
+			'discovery.myChannels' => 'قنواتي',
+			'discovery.channelSquare' => 'ساحة القنوات',
 			'discovery.otherUsersCanFindMe' => 'يمكن للمستخدمين الآخرين العثور علي من خلال البحث',
 			'discovery.moments' => 'اللحظات',
+			'discovery.momentsReport' => 'الإبلاغ عن المنشور',
+			'discovery.momentsReportDesc' => 'وصف إضافي',
+			'discovery.momentsComments' => 'التعليقات',
+			'discovery.momentsWriteComment' => 'اكتب تعليقاً...',
+			'discovery.momentsVisibility' => 'الظهور',
+			'discovery.momentsVisibilityPublic' => 'عام',
+			'discovery.momentsVisibilityPartial' => 'بعض الأشخاص',
+			'discovery.momentsVisibilityExclude' => 'إخفاء عن...',
+			'discovery.momentsDenyUidsLabel' => 'قائمة UID المخفي عنهم (مفصولة بفواصل)',
+			'discovery.momentsDraftRestored' => 'تمت استعادة المسودة الأخيرة',
+			'discovery.momentsFeedStale' => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً',
 			'discovery.discover' => 'اكتشاف',
 			'discovery.shake' => 'هز',
+			'discovery.openChannel' => 'فتح القناة',
+			'discovery.paidChannelLocked' => 'محتوى القناة المدفوعة مقفل',
+			'discovery.webQRScanned' => 'تم المسح',
 			'error.restartRequired' => 'إعادة تشغيل مطلوبة',
 			'error.networkFailureGuidance' => 'إرشادات فشل الشبكة',
 			'error.pleaseCheckNetwork' => 'يرجى التحقق من إعدادات الشبكة الخاصة بك.',
@@ -2736,10 +4101,16 @@ extension on TranslationsArSa {
 			'error.networkTroubleshootingStep2' => '2. افتح إعدادات الهاتف - عام - بيانات الهاتف المحمول، وقم بإبقاء مفتاح بيانات الهاتف المحمول قيد التشغيل.',
 			'error.networkTroubleshootingStep3' => '3. إذا كنت لا تزال غير قادر على الاتصال بالشبكة، يرجى التحقق مما إذا كان Wi-Fi المتصل بالهاتف متصلاً بالإنترنت أو استشارة مشغل الشبكة.',
 			'error.suggestCheckNetwork' => 'يُقترح التحقق من إعدادات الشبكة.',
+			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'بدء الاستعادة (يلزم ${required} وكيلاً)',
+			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'شظايا غير كافية (يلزم ${required}، المتاح ${current})',
+			'error.e2eeErrTimeout' => 'انتهت مهلة التشفير، تحقق من الشبكة وأعد المحاولة',
+			'error.e2eeErrNetwork' => 'خطأ شبكة، فشل التشفير، لم تُرسل الرسالة',
+			'error.liveRoomTitleRequired' => 'أدخل العنوان',
 			'group.financialManagement' => 'إدارة مالية',
 			'group.enterSameGroup' => 'انضم إلى نفس المجموعة مع الأصدقاء من حولك',
 			'group.enterTheGroup' => 'الانضمام إلى هذه المجموعة',
 			'group.groupAlias' => 'لقبي في هذه المجموعة',
+			'group.groupAlbum' => 'ألبوم المجموعة',
 			'group.groupDissolve' => 'حلّ الدردشة الجماعية',
 			'group.groupJoin' => 'الانضمام إلى الدردشة الجماعية',
 			'group.groupLeave' => 'مغادرة الدردشة الجماعية',
@@ -2747,16 +4118,139 @@ extension on TranslationsArSa {
 			'group.groupMembers' => 'أعضاء الدردشة الجماعية',
 			'group.groupName' => 'اسم الدردشة الجماعية',
 			'group.mutualGroupsWithHer' => 'المجموعات المشتركة بيني وبينه',
-			'group.selectGroup' => 'اختيار مجموعة',
-			'group.sureToDissolveGroup' => 'هل أنت متأكد من حل هذه المجموعة؟',
-			'group.sureToLeaveGroup' => 'هل أنت متأكد من مغادرة هذه المجموعة؟',
 			'group.groupOwner' => 'Owner',
 			'group.groupAdmin' => 'Admin',
-			'group.groupGuest' => '嘉宾',
+			'group.groupGuest' => 'ضيف',
 			'group.groupMember' => 'Member',
 			'group.setAdmin' => 'Set as Admin',
 			'group.transferGroup' => 'Transfer Ownership',
 			'group.joinTime' => 'Join Time',
+			'group.selectGroup' => 'اختيار مجموعة',
+			'group.sureToDissolveGroup' => 'هل أنت متأكد من حل هذه المجموعة؟',
+			'group.sureToLeaveGroup' => 'هل أنت متأكد من مغادرة هذه المجموعة؟',
+			'group.groupAlbumNameHint' => 'أدخل اسم الألبوم',
+			'group.groupAlbumRenameTitle' => 'إعادة تسمية الألبوم',
+			'group.groupAlbumRenamed' => 'تمت إعادة تسمية الألبوم',
+			'group.groupAlbumUnnamed' => 'ألبوم بدون اسم',
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} صورة',
+			'group.groupAlbumPhotoIdMissing' => 'معرّف الصورة مفقود، لا يمكن عرض التفاصيل',
+			'group.groupAlbumPhotoListTitle' => 'صور الألبوم',
+			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => 'محدد: ${count}',
+			'group.groupAlbumPhotoEmpty' => 'لا توجد صور',
+			'group.groupAlbumPhotoUrlMissing' => 'عنوان الصورة مفقود، لا يمكن الفتح',
+			'group.groupAlbumPhotoUrlInvalid' => 'عنوان الصورة غير صالح',
+			'group.groupAlbumPhotoDetailTitle' => 'تفاصيل الصورة',
+			'group.groupAlbumPhotoSetCover' => 'تعيين كغلاف',
+			'group.groupAlbumPhotoPrev' => 'السابق',
+			'group.groupAlbumPhotoLikeCount' => 'الإعجابات',
+			'group.groupAlbumPhotoCommentCount' => 'التعليقات',
+			'group.groupAlbumPhotoMyLike' => 'إعجابي',
+			'group.groupAlbumPhotoIdLabel' => 'معرّف الصورة',
+			'group.e2eeKeyManagement' => 'إدارة مفاتيح E2EE',
+			'group.e2eeKeyManagementSubtitle' => 'نسخ احتياطي واستعادة وإدارة مفاتيح التشفير من طرف إلى طرف',
+			'groupCategory.title' => 'مجلدات المجموعات',
+			'groupCategory.createCategory' => 'إنشاء مجلد',
+			'groupCategory.categoryName' => 'اسم المجلد',
+			'groupCategory.categoryDesc' => 'وصف المجلد (اختياري)',
+			'groupCategory.noCategory' => 'لا توجد مجلدات',
+			'groupCategory.createFirst' => 'أنشئ مجلدك الأول',
+			'groupCategory.addGroup' => 'إضافة مجموعة إلى المجلد',
+			'groupCategory.removeGroup' => 'إزالة من المجلد',
+			'groupCategory.deleteCategory' => 'حذف المجلد',
+			'groupCategory.deleteCategoryConfirm' => 'حذف هذا المجلد؟ لن تُحذف المجموعات.',
+			'groupCategory.categoryCreated' => 'تم إنشاء المجلد',
+			'groupCategory.categoryDeleted' => 'تم حذف المجلد',
+			'groupCategory.renameCategory' => 'إعادة تسمية المجلد',
+			'groupCategory.categoryRenamed' => 'تمت إعادة تسمية المجلد',
+			'groupCategory.renameFailed' => 'تعذّرت إعادة التسمية، أعد المحاولة',
+			'groupCategory.deleteFailed' => 'تعذّر الحذف، أعد المحاولة',
+			'groupCategory.categoryDetailTip' => 'يمكن إدارة مجموعات هذا المجلد عبر «نقل إلى مجلد» في قائمة المجموعات',
+			'groupList.attrAll' => 'الكل',
+			'groupList.attrOwner' => 'أنشأتها',
+			'groupList.attrManager' => 'أديرها',
+			'groupList.attrJoin' => 'أنضم إليها',
+			'groupList.refresh' => 'تحديث',
+			'groupSchedule.title' => 'جدول المجموعة',
+			'groupSchedule.createSchedule' => 'إنشاء فعالية',
+			'groupSchedule.scheduleTitle' => 'العنوان',
+			'groupSchedule.selectDate' => 'اختيار التاريخ',
+			'groupSchedule.selectTime' => 'اختيار الوقت',
+			'groupSchedule.location' => 'الموقع',
+			'groupSchedule.reminder' => 'تذكير',
+			'groupSchedule.noReminder' => 'بلا تذكير',
+			'groupSchedule.noSchedule' => 'لا توجد فعاليات',
+			'groupSchedule.scheduleCreated' => 'تم إنشاء الفعالية',
+			'groupSchedule.scheduleUpdated' => 'تم تحديث الفعالية',
+			'groupSchedule.reminder15min' => 'قبل 15 دقيقة',
+			'groupSchedule.reminder1hour' => 'قبل ساعة',
+			'groupSchedule.reminder1day' => 'قبل يوم',
+			'groupSchedule.startTime' => 'البدء',
+			'groupSchedule.endTime' => 'الانتهاء',
+			'groupSchedule.participants' => 'المشاركون',
+			'groupSchedule.statusCancelled' => 'ملغى',
+			'groupSchedule.statusInProgress' => 'جارٍ',
+			'groupSchedule.cancelSuccess' => 'تم إلغاء الفعالية',
+			'groupSchedule.cancelFailed' => 'تعذّر الإلغاء، حاول لاحقاً',
+			'groupSchedule.confirmAttend' => 'تأكيد الحضور',
+			'groupSchedule.declineAttend' => 'لن أحضر',
+			'groupSchedule.cancelSchedule' => 'إلغاء الفعالية',
+			'groupSchedule.scheduleIdMissing' => 'معرّف الفعالية مفقود، لا يمكن عرض التفاصيل',
+			'groupTag.title' => 'وسوم المجموعة',
+			'groupTag.addTag' => 'إضافة وسم',
+			'groupTag.tagName' => 'اسم الوسم',
+			'groupTag.tagColor' => 'لون الوسم',
+			'groupTag.noTag' => 'لا توجد وسوم',
+			'groupTag.tagAdded' => 'تمت إضافة الوسم',
+			'groupTag.tagRemoved' => 'تمت إزالة الوسم',
+			'groupTag.removeTitle' => 'إزالة الوسم',
+			'groupTag.removeConfirm' => 'إزالة هذا الوسم؟',
+			'groupTask.title' => 'مهام المجموعة',
+			'groupTask.createTask' => 'إنشاء مهمة',
+			'groupTask.taskTitle' => 'عنوان المهمة',
+			'groupTask.taskDescription' => 'وصف المهمة',
+			'groupTask.assignTo' => 'تعيين إلى',
+			'groupTask.deadline' => 'الموعد النهائي',
+			'groupTask.noDeadline' => 'بلا موعد نهائي',
+			'groupTask.noTask' => 'لا توجد مهام',
+			'groupTask.all' => 'الكل',
+			'groupTask.pending' => 'قيد التنفيذ',
+			'groupTask.completed' => 'مكتملة',
+			'groupTask.taskCreated' => 'تم إنشاء المهمة',
+			'groupTask.taskSubmitted' => 'تم إرسال المهمة',
+			'groupTask.taskCompleted' => 'تمت المهمة',
+			'groupTask.overdue' => 'متأخرة',
+			'groupTask.daysLeft' => ({required Object days}) => 'الموعد النهائي بعد ${days} يوماً',
+			'groupTask.hoursLeft' => ({required Object hours}) => 'الموعد النهائي بعد ${hours} ساعة',
+			'groupTask.dueSoon' => 'الموعد قريب',
+			'groupTask.submitFailed' => 'تعذّر الإرسال، حاول لاحقاً',
+			'groupTask.taskId' => 'معرّف المهمة',
+			'groupTask.pendingReview' => 'قيد المراجعة',
+			'groupTask.taskIdMissing' => 'معرّف المهمة مفقود، لا يمكن عرض التفاصيل',
+			'groupTask.taskIdMissingSubmit' => 'معرّف المهمة مفقود، لا يمكن الإرسال',
+			'groupVote.title' => 'استطلاعات المجموعة',
+			'groupVote.createVote' => 'إنشاء استطلاع',
+			'groupVote.voteTitle' => 'سؤال الاستطلاع',
+			'groupVote.voteOptions' => 'الخيارات',
+			'groupVote.addOption' => 'إضافة خيار',
+			'groupVote.allowMultiple' => 'السماح بالاختيار المتعدد',
+			'groupVote.anonymous' => 'تصويت مجهول',
+			'groupVote.deadline' => 'الموعد النهائي',
+			'groupVote.noDeadline' => 'بلا موعد نهائي',
+			'groupVote.noVote' => 'لا توجد استطلاعات',
+			'groupVote.voteEnded' => 'انتهى التصويت',
+			'groupVote.totalVotes' => ({required Object count}) => 'إجمالي ${count} صوتاً',
+			'groupVote.voteSuccess' => 'تم التصويت',
+			'groupVote.hasVoted' => 'تم التصويت',
+			'groupVote.viewResults' => 'النتائج',
+			'groupVote.cancelVoteSuccess' => 'تم إلغاء التصويت',
+			'groupVote.cancelVoteFailed' => 'تعذّر الإلغاء، حاول لاحقاً',
+			'groupVote.endVoteFailed' => 'تعذّر الإنهاء، حاول لاحقاً',
+			'groupVote.eachOptionPerLine' => 'خيار واحد في كل سطر',
+			'groupVote.statusInProgress' => 'جارٍ',
+			'groupVote.updateVote' => 'تعديل الاستطلاع',
+			'groupVote.cancelMyVote' => 'إلغاء تصويتي',
+			'groupVote.voteIdMissing' => 'معرّف الاستطلاع مفقود، لا يمكن عرض التفاصيل',
+			'groupVote.participantCount' => ({required Object count}) => 'المشاركون: ${count}',
 			'main.change' => 'تعديل',
 			'main.entertainment' => 'أفلام وعروض',
 			'main.lifePayment' => 'دفع فواتير',
@@ -2771,6 +4265,8 @@ extension on TranslationsArSa {
 			'main.audio' => 'صوت',
 			'main.barcodeFound' => 'تم العثور على الباركود!',
 			'main.botQianFan' => 'روبوت Qianfan',
+			'main.liveRoomWhipLabel' => 'عنوان بث WHIP',
+			'main.liveRoomWhepLabel' => 'عنوان استقبال WHEP',
 			'main.cache' => 'الذاكرة المؤقتة',
 			'main.camera' => 'تصوير',
 			'main.changeNameView' => 'عرض تغيير الاسم',
@@ -2848,6 +4344,9 @@ extension on TranslationsArSa {
 			'main.recentlyUsed' => 'استخدمت مؤخراً',
 			'main.releaseEnd' => 'اترك للإنهاء',
 			'main.remainingChars' => ({required Object param}) => 'لا يزال بإمكانك إدخال ${param} حرف',
+			'main.kickMember' => 'Remove from Group',
+			'main.memberDetail' => 'Member Details',
+			'main.memberRole' => 'Role',
 			'main.replied' => 'تم الرد',
 			'main.ringing' => 'جارٍ الرنين...',
 			'main.ruRu' => 'الروسية (روسيا)',
@@ -2872,6 +4371,7 @@ extension on TranslationsArSa {
 			'main.timeRange' => 'النطاق الزمني',
 			'main.timeWeekdays' => 'الاثنين،الثلاثاء،الأربعاء،الخميس،الجمعة،السبت،الأحد',
 			'main.titleMine' => 'أنا',
+			'main.titleSquare' => 'الساحة',
 			'main.tooBad' => 'سيء جداً',
 			'main.tryAgainQ' => 'هل تريد المحاولة مرة أخرى؟',
 			'main.type' => 'النوع',
@@ -2944,9 +4444,129 @@ extension on TranslationsArSa {
 			'main.larger' => 'أكبر',
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'الطول الحالي: ${param1} / ${param2}',
 			'main.fillIn' => 'ملء',
-			'main.kickMember' => 'Remove from Group',
-			'main.memberDetail' => 'Member Details',
-			'main.memberRole' => 'Role',
+			'main.msgProtectedByComplianceKey' => 'الرسائل محمية بمفتاح الامتثال',
+			'main.inviterLabel' => ({required Object uid}) => 'الداعي: ${uid}',
+			'main.inviteeLabel' => ({required Object uid}) => 'المدعو: ${uid}',
+			'main.mySentTab' => 'المُرسلة',
+			'main.reject' => 'رفض',
+			'main.myOrders' => 'طلباتي',
+			'main.purchaseUnlockHint' => 'بعد الشراء يُفتح سجل رسائل القناة والتحديثات القادمة.',
+			'main.payingDots' => 'جارٍ الدفع...',
+			'main.purchaseAndUnlock' => 'شراء وفتح',
+			'main.orderDetail' => 'تفاصيل الطلب',
+			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'المبلغ: ${currency} ${amount}',
+			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => 'السعر: ${currency} ${amount}',
+			'main.e2eeKeyRecoveryTitle' => 'إدارة مفاتيح التشفير من طرف إلى طرف',
+			'main.e2eeRecoveryMethods' => 'طرق استعادة المفتاح',
+			'main.e2eeDangerousOps' => 'إجراءات خطرة',
+			'main.e2eeSocialRecovery' => 'الاستعادة الاجتماعية',
+			'main.e2eeSocialRecoveryDesc' => 'استعادة المفتاح بمساعدة جهات اتصال موثوقة',
+			'main.e2eeKeyIdLabel' => 'معرّف المفتاح',
+			'main.e2eeWarnIrreversible' => '• هذا الإجراء غير قابل للتراجع',
+			'main.e2eeWarnNeedRestoreOrNew' => '• يجب الاستعادة من نسخة أو إنشاء مفتاح جديد',
+			'main.gotIt' => 'فهمت',
+			'main.e2eeRecoverKeyTitle' => 'استعادة المفتاح',
+			'main.e2eeCanRecoverKey' => 'يمكن استعادة المفتاح',
+			'main.e2eeInsufficientShards' => 'عدد الشظايا غير كافٍ',
+			'main.e2eeProxyUser' => ({required Object uid}) => 'الوكيل: ${uid}',
+			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'شظية ${index} / ${total}',
+			'main.e2eeReloadShards' => 'إعادة التحميل',
+			'main.e2eeRecovering' => 'جارٍ الاستعادة...',
+			'main.e2eeKeyRestored' => 'تمت استعادة المفتاح',
+			'main.e2eeUsedShards' => ({required Object count}) => 'تم استخدام ${count} شظية وكلاء',
+			'main.e2eePreparing' => 'جارٍ التحضير...',
+			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => 'التقدم: ${collected} / ${total} شظية',
+			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => 'جارٍ جمع الشظايا (${collected}/${total})...',
+			'main.e2eeShardsCollected' => 'اكتمل جمع الشظايا، جارٍ إعادة تجميع المفتاح...',
+			'main.webQRLoggingIn' => 'جارٍ الدخول...',
+			'main.webQRExpired' => 'انتهت صلاحية رمز QR',
+			'main.webQRRefresh' => 'تحديث رمز QR',
+			'main.webSwitchToQR' => 'الدخول برمز QR',
+			'main.e2eeErrDefault' => 'فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة',
+			_ => null,
+		} ?? switch (path) {
+			'main.e2eeSocialTotalShards' => 'إجمالي الشظايا',
+			'main.e2eeSocialThreshold' => 'حد الاستعادة',
+			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'يلزم ${count} وكيل للاستعادة',
+			'main.e2eeSocialSelectProxy' => 'اختيار الوكلاء',
+			'main.e2eeSocialProxyNeeded' => ({required Object count}) => 'يلزم ${count} جهة اتصال موثوقة كوكلاء',
+			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'المستخدم ${uid}',
+			'main.e2eeSocialShardSentViaWs' => 'أُرسلت الشظايا مباشرةً إلى أجهزة الوكلاء عبر WebSocket',
+			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => 'أُرسل إلى ${sent} من أصل ${total} جهاز',
+			'main.e2eeSocialManageTitle' => 'إدارة الشظايا',
+			'main.e2eeSocialMyShards' => 'شظاياي',
+			'main.e2eeSocialProxyShards' => 'شظايا الوكلاء',
+			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => 'شظية ${idx} / ${total}',
+			'main.e2eeSocialShardActive' => 'نشطة',
+			'main.e2eeSocialShardUsed' => 'مستخدمة',
+			'main.e2eeSocialShardValid' => 'الشظية صالحة',
+			'main.e2eeSocialUserShard' => ({required Object uid}) => 'شظية مفتاح المستخدم ${uid}',
+			'main.e2eeSocialProxyUserLabel' => 'الوكيل',
+			'main.e2eeSocialRecoveryThresholdLabel' => 'حد الاستعادة',
+			'main.e2eeSocialShardIndexLabel' => 'رقم الشظية',
+			'main.e2eeTransferQRHint' => 'امسح رمز QR هذا على الجهاز الجديد',
+			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'تنتهي صلاحية رمز QR في ${time}',
+			'main.e2eeTransferRefreshQR' => 'تحديث رمز QR',
+			'main.e2eeTransferEnterUidTitle' => 'أدخل معرّف المستلم',
+			'main.e2eeTransferUidPlaceholder' => 'معرّف المستخدم المستلم',
+			'main.e2eeTransferReceiving' => 'جارٍ الاستقبال...',
+			'main.e2eeTransferPageTitle' => 'النقل بين الأجهزة',
+			'main.e2eeTransferPendingItem' => 'نقل مفتاح معلّق',
+			'main.e2eeTransferPendingItemDesc' => 'اضغط للتفاصيل',
+			'main.e2eeTransferView' => 'عرض',
+			'main.e2eeSocialTitle' => 'الاستعادة الاجتماعية',
+			'main.e2eeSocialCanRecover' => 'يمكن استعادة المفتاح',
+			'main.e2eeSocialSetupProxy' => 'إعداد الوكلاء',
+			'main.e2eeSocialChooseProxy' => 'اختر جهات اتصال موثوقة كوكلاء',
+			'main.e2eeSocialExistingShards' => 'شظايا الاستعادة الحالية',
+			'main.e2eeSocialRecoverKeyTitle' => 'استعادة المفتاح',
+			'main.e2eeSocialRecoverKeyDesc' => 'استعادة المفتاح من شظايا الوكلاء',
+			'main.e2eeSocialManageShardsTitle' => 'إدارة الشظايا',
+			'main.e2eeSocialManageShardsDesc' => 'عرض وإدارة جميع شظايا الاستعادة',
+			'main.e2eeSocialZeroTrustHint1' => 'ثقة صفرية: لا يحفظ الخادم الشظايا، يتواصل مع الوكلاء مباشرة',
+			'main.e2eeSocialZeroTrustHint2' => 'ثقة صفرية: تُخزَّن الشظايا على أجهزة الوكلاء',
+			'main.e2eeSocialZeroTrustHint3' => 'ثقة صفرية: الشظايا لدى الوكلاء، ولا يلمس الخادم النص الصريح',
+			'main.e2eeProxyMinCount' => ({required Object count}) => 'اختر ${count} وكلاء على الأقل',
+			'main.e2eeProxySelectTitle' => 'اختيار وكلاء الاستعادة',
+			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => 'محدد: ${selected} / ${total}',
+			'main.e2eeProxyReachedMin' => 'تم بلوغ الحد الأدنى للوكلاء',
+			'main.liveRoomTitleLabel' => 'عنوان الغرفة',
+			'main.liveRoomTitleHint' => 'أدخل عنوان الغرفة',
+			'mention.title' => '@إشارات',
+			'mention.noMention' => 'لا توجد إشارات',
+			'mention.allRead' => 'تمت قراءة الكل',
+			'mention.markAsRead' => 'وضع علامة مقروء',
+			'mention.newMention' => 'إشارة جديدة',
+			'mention.fromGroup' => 'من مجموعة',
+			'mention.fromChat' => 'من محادثة',
+			'mention.viewContext' => 'عرض السياق',
+			'mention.mentionCount' => ({required Object count}) => '${count} إشارات جديدة',
+			'mention.mentionAllDenied' => 'للمشرفين فقط استخدام @الجميع',
+			'mention.navInfoMissing' => 'معلومات موقع الرسالة مفقودة، لا يمكن الانتقال',
+			'momentFriendPicker.title' => 'اختيار الأصدقاء',
+			'momentFriendPicker.titleAllow' => 'السماح لـ',
+			'momentFriendPicker.titleDeny' => 'إخفاء عن',
+			'momentFriendPicker.confirm' => 'موافق',
+			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'موافق(${count})',
+			'momentFriendPicker.selectedCount' => ({required Object count}) => 'تم اختيار ${count}',
+			'momentFriendPicker.emptyFriends' => 'لا يوجد أصدقاء',
+			'momentFriendPicker.tagsLabel' => 'حسب الوسم',
+			'momentFriendPicker.emptyTags' => 'لا توجد وسوم',
+			'momentFriendPicker.tagLoadFailed' => 'تعذّر تحميل الوسوم',
+			'momentFriendPicker.searchHint' => 'ابحث عن أصدقاء',
+			'momentNotify.title' => 'الإشعارات',
+			'momentNotify.emptyTitle' => 'لا توجد إشعارات جديدة',
+			'momentNotify.emptyHint' => 'تظهر هنا إعجابات الأصدقاء وتعليقاتهم على لحظاتك',
+			'momentNotify.actionLike' => 'أعجب بلحظتك',
+			'momentNotify.actionComment' => 'علّق',
+			'momentNotify.markAllRead' => 'قراءة الكل',
+			'momentNotify.clearAll' => 'مسح الكل',
+			'momentNotify.clearConfirmTitle' => 'مسح كل الإشعارات؟',
+			'momentNotify.clearConfirmMessage' => 'لا يمكن التراجع عن هذا الإجراء',
+			'momentNotify.confirm' => 'موافق',
+			'momentNotify.cancel' => 'إلغاء',
+			'momentNotify.delete' => 'حذف',
+			'momentNotify.loadFailed' => 'تعذّر التحميل، حاول لاحقاً',
 			'passport.retrievePassword' => 'استعادة كلمة المرور',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',

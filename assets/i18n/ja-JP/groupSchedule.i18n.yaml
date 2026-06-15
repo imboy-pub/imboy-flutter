@@ -1,0 +1,26 @@
+---
+title: グループスケジュール
+createSchedule: スケジュールを作成
+scheduleTitle: スケジュール名
+selectDate: 日付を選択
+selectTime: 時刻を選択
+location: 場所
+reminder: リマインダー
+noReminder: リマインダーなし
+noSchedule: スケジュールはありません
+scheduleCreated: スケジュールを作成しました
+scheduleUpdated: スケジュールを更新しました
+reminder15min: 15分前
+reminder1hour: 1時間前
+reminder1day: 1日前
+startTime: 開始時刻
+endTime: 終了時刻
+participants: 参加者数
+statusCancelled: キャンセル済み
+statusInProgress: 進行中
+cancelSuccess: スケジュールをキャンセルしました
+cancelFailed: キャンセルに失敗しました。後でもう一度お試しください
+confirmAttend: 参加する
+declineAttend: 参加しない
+cancelSchedule: スケジュールをキャンセル
+scheduleIdMissing: スケジュールIDがありません。詳細を表示できません

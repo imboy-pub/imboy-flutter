@@ -1,7 +1,8 @@
+---
 bankCard: Bankkarte
 cards: Stück
 jdShopping: JD Einkaufen
-receivePayment: "Empfangen & Zahlen"
+receivePayment: Empfangen & Zahlen
 alreadyEntered: Sie haben bereits eingegeben
 alreadyMember: Bereits Mitglied
 appSqliteFileSizeExplain: Lokale SQLite-Größe des Kontos. Bereinigen Sie Bilder/Videos/Dateien in Chat-Verläufen oder leeren Sie alle Nachrichten.
@@ -9,13 +10,14 @@ attachmentProvider: Anhangsanbieter
 audioMessage: Sprachnachricht
 awaitingReply: Warten auf Antwort
 businessCard: Visitenkarte
-busyTryAgainLater: "Der Gesprächspartner ist beschäftigt, bitte versuchen Sie es später erneut"
+busyTryAgainLater: Der Gesprächspartner ist beschäftigt, bitte versuchen Sie es später erneut
 later: Später
+peerIsTyping(name): "$name tippt..."
 changeGroupChatName: Gruppennamenänderung benachrichtigt andere Mitglieder.
 chatHistory: Chat-Verlauf
 chatHoldDownTalk: Zum Sprechen gedrückt halten
 chatMessage: Chatnachrichten
-chatMomentSportDataEtc: "Chat, Momente, Bewegungsdaten usw."
+chatMomentSportDataEtc: Chat, Momente, Bewegungsdaten usw.
 chatSettingMute: Nachrichten stummschalten
 chatSettingMuteDesc: Benachrichtigungen für diesen Chat deaktivieren
 chatSettingMuted: Stummschaltung aktiviert
@@ -41,12 +43,31 @@ forwardReply: Antwort weiterleiten
 forwardTo: Weiterleiten an
 forwardToFriend: An Freund weiterleiten
 great: Ausgezeichnet
+groupFile: Gruppendateien
+groupFileImagePreview: Bildvorschau
+groupFileVideoPreview: Videovorschau
+groupFileAudioPreview: Audiovorschau
+groupFileMediaPause: Pause
+groupFileMediaPlay: Wiedergabe
+groupFileUrlMissing: Dateiadresse fehlt, kann nicht geöffnet werden
+groupFileUrlInvalid: Dateiadresse ungültig
+groupFilePreview: Dateivorschau
+groupFileUnnamed: Unbenannte Datei
+groupFileCategoryEmpty: "${category}: Keine Dateien"
+groupFileEmpty: Keine Gruppendateien
+groupFileCategoryDoc: Dokument
+groupFileCategoryImage: Bild
+groupFileCategoryVideo: Video
+groupFileCategoryAudio: Audio
+groupFileCategoryOther: Sonstiges
 groupChat: Gruppenchat
 image: Bild
 imageMessage: "[Bild]"
 initiateChat: Gruppenchat starten
 justChat: Nur Chat
 location: Standort
+exportMyData: Meine Daten exportieren
+exportDataDesc: Persönliche Daten, Kontakte und Chat-Verlauf exportieren
 message: Nachricht
 messageHandlingMixin: Nachrichtenverarbeitungs-Mixin
 messageMarkTitle: Nachrichtenmarkierung
@@ -55,12 +76,12 @@ card: Karte
 messageType: Nachrichtentyp
 messageVisitCardBuilder: Visitenkarten-Nachrichten-Builder
 messageWasWithdrawn: hat eine Nachricht zurückgerufen
-messageWasWithdrawnWithTitle: $param hat eine Nachricht zurückgerufen
+messageWasWithdrawnWithTitle: "$param hat eine Nachricht zurückgerufen"
 messageWebrtcBuilder: WebRTC-Nachrichten-Builder
 momentStatus: Momente und Status
 offline: Offline
 online: Online
-paramAlreadyExist: $param existiert bereits
+paramAlreadyExist: "$param existiert bereits"
 pin: Anheften
 pinChat: Chat anheften
 pinned: Angepinnt
@@ -72,14 +93,33 @@ readAgreeParam: Habe gelesen und zugestimmt $param
 recentChats: Letzte Chats
 recentForwards: Kürzlich weitergeleitet
 remindMeLater: Später erinnern
+quickReplyManage: Schnellantworten verwalten
+quickReplyEmpty: Keine Schnellantworten. Unten rechts tippen zum Hinzufügen
+quickReplyDuplicate: Inhalt existiert bereits
+quickReplyMaxReached: Max. $max Einträge
+quickReplyHint: Inhalt eingeben...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+mutedFor: 'Stummgeschaltet: $label'
+muteUnitMinutes: "$count Min."
+muteUnitHours: "$count Std."
+muteUnitDays: "$count Tage"
+youAreMuted: Sie wurden stummgeschaltet
+youAreMutedWithTime: Sie sind stummgeschaltet, noch $minutes Min.
 repliedAt: Geantwortet am
 reply: Antworten
 replyTo: Antworten an
 resendCode: Code erneut senden
 revoke: Widerrufen
 scanQrCodeBusinessCard: QR-Code-Visitenkarte scannen
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message
 sendFriendRequest: Freundschaftsanfrage senden
-sendMsgRejected: "Nachricht gesendet, aber vom Gesprächspartner abgelehnt."
+sendMsgRejected: Nachricht gesendet, aber vom Gesprächspartner abgelehnt.
+sendMessage: Nachricht senden
 sendSeparatelyTo: Getrennt senden an
 sendTo: Senden an
 send: "@:common.buttonSend"
@@ -87,8 +127,7 @@ sender: Absender
 sending: Wird gesendet...
 signatureInputHint: Signatur-Eingabehinweis
 signaturePlaceholder: Signatur-Platzhalter
-signupIntro: "Der Bestätigungscode wurde an Ihre E-Mail gesendet,
-bitte geben Sie den Bestätigungscode ein, um Ihr Konto zu bestätigen."
+signupIntro: Der Bestätigungscode wurde an Ihre E-Mail gesendet, bitte geben Sie den Bestätigungscode ein, um Ihr Konto zu bestätigen.
 socialProfile: Soziales Profil
 status: Status
 storageSpaceData: Speicherplatz und Daten
@@ -102,6 +141,7 @@ userData: Benutzerdaten
 video: Video
 videoMessage: "[Video]"
 viewAttachments: Anhänge anzeigen
+viewLargeImage: Großes Bild ansehen
 voice: Sprache
 voiceInput: Spracheingabe
 voiceMessage: Sprachnachricht
@@ -120,7 +160,7 @@ profileExportProfile: Profil exportieren
 momentsSend: Senden
 videoCompressInProgress: Komprimierungsaufgabe bereits in Bearbeitung
 videoCompressing: Video wird komprimiert...
-loginExpiredMessage: "Anmeldung abgelaufen, bitte erneut anmelden"
+loginExpiredMessage: Anmeldung abgelaufen, bitte erneut anmelden
 geometricPattern: Geometrisches Muster
 ripplePattern: Wellenmuster
 customImage: Benutzerdefiniertes Bild
@@ -128,7 +168,7 @@ voiceRecordResultEmpty: Sprachaufnahme-Ergebnis ist leer
 voiceFileInvalid: Sprachdatei ungültig
 burnAfterReading: Nach dem Lesen vernichten
 visibleThresholdRead: Sichtbarkeitsschwelle gelesen
-readThresholdDelay: "Leseschwelle & Verzögerung"
+readThresholdDelay: Leseschwelle & Verzögerung
 goodReadability: Gute Lesbarkeit
 profileCompleteness: Profil-Vollständigkeit
 tagStatistics: Tag-Statistik
@@ -137,6 +177,15 @@ visibleRatioLabel: Sichtbares Verhältnis (0.1~1.0)
 unsupportedMessageType: Nicht unterstützter Nachrichtentyp
 passwordMismatch: Passwörter stimmen nicht überein
 pleaseTryAgainLater: Bitte versuchen Sie es später erneut
+momentsSelectVideo: Video auswählen
+momentsRecordVideo: Video aufnehmen
+momentsVisibilityPrivate: Nur ich
+momentsMediaTooManyImages: Max. 9 Bilder auswählbar
+momentsMediaTooManyVideos: Max. 1 Video auswählbar
+momentsMediaMixedImageAndVideo: Bilder und Video nicht gleichzeitig
+momentsReplyPrefix: Antwort @
+momentsReplySeparator: "："
+momentsReplyingTo: Antwort an @{name}
 sendNewMessage: Neue Nachricht senden
 markRead: Als gelesen markieren
 markUnread: Als ungelesen markieren
@@ -147,7 +196,7 @@ setAvatar: Avatar festlegen
 fastForward: Schnell vor $seconds Sekunden
 messageId: Nachrichten-ID
 chatType: Chat-Typ
-voiceFileEmptyPleaseTryAgain: "Sprachdatei ist leer, bitte erneut versuchen"
+voiceFileEmptyPleaseTryAgain: Sprachdatei ist leer, bitte erneut versuchen
 sendingVoice: Sprache wird gesendet...
 deletingMessage: Wird gelöscht...
 deletingLocalMessage: Lokale Nachricht wird gelöscht...
@@ -155,15 +204,73 @@ quickReplyReceived: Erhalten
 quickReplyThanks: Danke
 quickReplyWait: Einen Moment
 messageMute: "@:chat.chatSettingMute"
-quickReplyManage: 管理快捷回复
-quickReplyEmpty: 暂无快捷回复，点击右下角添加
-quickReplyDuplicate: 内容已存在
-quickReplyMaxReached: 最多 $max 条
-quickReplyHint: 输入内容...
-muteMember: Mute Member
-unmuteMember: Unmute
-muteUntil: Muted Until
-muted: Muted
-singleChat: Private Chat
-privateChat: Private Chat
-groupMessage: Group message
+groupCategoryGroupCount(count): "$count Gruppen"
+groupAlbumCreateTitle: Gruppenalbum erstellen
+groupAlbumCreated: Album erstellt
+profileCompleted: Profil vollständig!
+profileProgress(percent): "${percent}% vollständig"
+createdAtLabel(time): 'Erstellt: $time'
+expiredAtLabel(time): 'Gültig bis: $time'
+myReceivedTab: Erhalten
+orderStatusLabel(status): 'Status: $status'
+orderCreatedAtLabel(time): 'Erstellt: $time'
+orderPaymentAtLabel(time): 'Bezahlt: $time'
+orderStatusPending: Offen
+orderStatusPaid: Bezahlt
+orderStatusRefunded: Erstattet
+orderStatusExpired: Abgelaufen
+defaultFileName: Datei
+fileUrlInvalid: Dateilink ungültig
+e2eeStatusAvailable: Verfügbar
+e2eeGenerateNewKey: Neuen Schlüssel erstellen
+e2eeGenerateNewKeyDesc: Neues E2EE-Schlüsselpaar erstellen (alte Nachrichten nicht mehr entschlüsselbar)
+e2eeActivated: Aktiv
+e2eeCreatedAtLabel: Erstellt am
+e2eeGeneratingKey: Schlüssel wird erstellt, bitte warten...
+e2eeNewKeyGenerated: Neues E2EE-Schlüsselpaar erstellt!
+e2eeReady: Bereit
+e2eeReadyWithShards(count): Bereit ($count Fragmente)
+webFeatureMultiDevice: Multi-Geräte-Sync
+webFeatureMultiDeviceDesc: Nahtlos zwischen Handy und PC wechseln, Nachrichten in Echtzeit synchronisieren
+webFeatureE2EE: E2EE
+webFeatureE2EEDesc: Alle Nachrichten E2EE-verschlüsselt für maximale Privatsphäre
+webFeatureFileTransfer: Dateiübertragung
+webFeatureFileTransferDesc: Dateien per Drag & Drop senden, alle Formate
+webQRStatusWaiting: ImBoy-App öffnen > Einstellungen > Scannen
+webQRStatusScanned: Am Handy „Anmelden" antippen
+webQRStatusVerifying: Wird geprüft...
+webQRStatusExpired: Aktualisieren und erneut scannen
+e2eeErrInvalidFormat: Ungültiges Nachrichtenformat, Verschlüsselung fehlgeschlagen
+e2eeSocialCreateTitle: Wiederherstellungs-Fragmente erstellen
+e2eeSocialCreateBtn: Fragmente erstellen
+e2eeSocialCreateFailTitle: Fehlgeschlagen
+e2eeSocialCreateFailBody: Fragmente konnten nicht erstellt werden. Bitte erneut versuchen.
+e2eeSocialCreateFirst: Nach Erstellung sichtbar
+e2eeSocialUsedAtLabel: Verwendet am
+e2eeTransferSendTitle: Schlüssel an neues Gerät senden
+e2eeTransferCreateBtn: Erstellen
+e2eeTransferReceiveTitle: Schlüssel vom alten Gerät empfangen
+e2eeTransferSendDesc: Schlüssel per QR-Code an neues Gerät
+e2eeTransferReceiveDesc: QR-Code des alten Geräts scannen
+e2eeSocialStatus(status): 'Status: $status'
+e2eeSocialCreateShardsTitle: Fragmente erstellen
+e2eeSocialCreateShardsDesc: Schlüssel in Fragmente teilen, bei Treuhändern speichern (nicht auf Server)
+e2eeProxyNeedAtLeast(count): Mindestens $count Treuhänder wählen
+e2eeRecreatingKey: Schlüssel wird neu erstellt...
+e2eeKeyRecreated: Schlüssel neu erstellt
+e2eeRecoveryNewDeviceTitle: Neue Gerätenutzung erkannt
+e2eeRecoveryNewDeviceBody: |-
+  Zum Schutz der Nachrichten wurde auf diesem Gerät ein neuer E2EE-Schlüssel erstellt.
+
+  Ältere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und müssen zuerst wiederhergestellt werden. Über „Geräteübertragung“, „Soziale Wiederherstellung“ oder „Lokales Backup“ wiederherstellen.
+e2eeRecoveryDecryptFailedTitle: Diese Nachricht kann nicht entschlüsselt werden
+e2eeRecoveryDecryptFailedBody: |-
+  Diese Nachricht wurde mit dem Schlüssel eines anderen Geräts verschlüsselt.
+
+  Wenn Sie das Gerät gewechselt oder die App neu installiert haben, stellen Sie den Schlüssel wieder her, um ältere Nachrichten zu lesen.
+e2eeRecoveryLater: Später
+e2eeRecoveryGoRecover: Wiederherstellen
+e2eeRecoveryBannerText: Verschlüsselte ältere Nachrichten erkannt. Schlüssel zum Anzeigen wiederherstellen. Tippen für Wiederherstellung.
+liveRoomCreateTitle: Livestream erstellen
+liveRoomCreating: Wird erstellt...
+liveRoomWatch: Ansehen

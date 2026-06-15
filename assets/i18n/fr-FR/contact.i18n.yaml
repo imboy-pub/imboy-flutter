@@ -1,3 +1,4 @@
+---
 applyFriend: Demande d’ami
 applyFriendLogic: Logique de demande d'ami
 applyParam: Demander $param
@@ -6,9 +7,8 @@ applyChanges: Redémarrez l'application pour appliquer les modifications.
 inputNewTag: Saisir une nouvelle étiquette...
 denylist: Liste de blocage
 denylistEmpty: Liste de blocage vide
-denylistEmptyDesc: "Vous n'avez bloqué aucun utilisateur.
-Les utilisateurs bloqués ne pourront pas vous envoyer de messages."
-favoriteGroupTagsEtc: "Enregistrer les noms, noms de groupe, étiquettes, etc."
+denylistEmptyDesc: Vous n'avez bloqué aucun utilisateur. Les utilisateurs bloqués ne pourront pas vous envoyer de messages.
+favoriteGroupTagsEtc: Enregistrer les noms, noms de groupe, étiquettes, etc.
 groupRemarkView: Vue des remarques de groupe
 groupRemarkVisibility: La remarque du groupe n'est visible que par vous.
 newFriend: Nouvel ami
@@ -29,6 +29,7 @@ currentTags: Étiquettes actuelles ($param)
 pleaseEnterRemark: Veuillez entrer la remarque.
 enterRemark: Entrez la remarque.
 pleaseEnterTags: Entrez les étiquettes.
+momentsVisibilityFriends: Amis seulement
 tagLengthExceeded: La longueur de l'étiquette ne peut pas dépasser $param caractères.
 maxTagsExceeded: Au maximum $param étiquettes autorisées.
 selectedTags: Étiquettes sélectionnées ($param/$max).
@@ -47,3 +48,5 @@ tagProject: Projet
 tagIdeas: Idées
 tagMemo: Mémo
 friendRequestSent: Envoyé
+channelMaxTagsCount: 8 étiquettes maximum
+tagInputHint: Étiquette...

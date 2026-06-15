@@ -1,12 +1,13 @@
+---
 account: 계정
 accountSecurity: 계정 보안
 mobileRecharge: 모바일 충전
 avatar: 프로필 사진
 accountSecurityEnhance: 계정 보안 강화
 bindMobile: 휴대폰 번호 연결
-bindMobileFor: "로그인, 비밀번호 찾기 및 중요 알림 수신에 사용"
+bindMobileFor: 로그인, 비밀번호 찾기 및 중요 알림 수신에 사용
 linkEmail: 이메일 연결
-linkEmailFor: "로그인, 신원 확인 및 청구서 수신에 사용"
+linkEmailFor: 로그인, 신원 확인 및 청구서 수신에 사용
 codeSentToEmail: 인증 코드가 이메일로 전송되었습니다
 codeSentToMobile: 인증 코드가 휴대폰으로 전송되었습니다
 currentDevice: 현재 기기
@@ -36,10 +37,10 @@ newPassword: 새 비밀번호
 newlyRegisteredPeople: 새로 등록한 사람
 nickname: 닉네임
 nicknameChangeVisibility: 닉네임 수정 후 이 그룹 내에서만 표시되며 그룹 구성원 모두 볼 수 있습니다.
-nicknameCharsRemaining: $param자 더 입력할 수 있습니다
+nicknameCharsRemaining: "$param자 더 입력할 수 있습니다"
 nicknameHint: 닉네임을 입력해 주세요
 nicknameSaving: 저장 중...
-paramLogin: $param 로그인
+paramLogin: "$param 로그인"
 password: 비밀번호
 recentlyRegisteredUser: 최근 등록 사용자
 recoverCodePasswordDesc: 비밀번호 복구 코드를 이메일로 보내드립니다.
@@ -72,7 +73,7 @@ changeMobile: 휴대폰 번호 변경
 currentMobile: 현재 휴대폰 번호
 newMobile: 새 휴대폰 번호
 enterMobileHint: 휴대폰 번호를 입력해 주세요
-codeSentToMobileParam: $param으로 전송됨
+codeSentToMobileParam: "$param으로 전송됨"
 privacyLogoutAccount: 계정 탈퇴
 wallet: 지갑
 changeLoginPassword: 로그인 비밀번호 변경
@@ -94,8 +95,23 @@ myQRCode: 내 QR코드
 profile: Profile
 setGender: 성별 설정
 setBirthday: 생일 설정
-sentToEmail: $param으로 전송됨
-nicknameRules: "• 닉네임 길이: 2-24자
-• 공백이나 이모지만 포함할 수 없습니다
-• 민감 단어를 포함할 수 없습니다
-• 변경 사항은 모든 채팅에 반영됩니다"
+sentToEmail: "$param으로 전송됨"
+nicknameRules: "• 닉네임 길이: 2-24자 • 공백이나 이모지만 포함할 수 없습니다 • 민감 단어를 포함할 수 없습니다 • 변경 사항은 모든 채팅에 반영됩니다"
+refreshDeviceKey: 기기 키 새로고침
+refreshDeviceKeyHint: 메시지를 복호화할 수 없을 때 이 버튼으로 키를 새로고침하세요
+refreshingDeviceKey: 기기 키를 새로고침하는 중...
+deviceKeyRefreshed: 기기 키가 새로고침되었습니다
+rechargeTitle: 충전
+rechargeAmountHint: 충전 금액을 입력하세요 (1위안~10000위안)
+rechargeAmountExample: '예: 100'
+e2eeDeviceTransfer: 기기 간 전송
+e2eeDeviceTransferDesc: QR 코드로 새 기기에 키를 직접 전송합니다
+e2eeDeviceIdLabel: 기기 ID
+webQRLoginTitle: QR 로그인
+webQRLoginHint: ImBoy 모바일 앱으로 QR 코드를 스캔하세요
+webSwitchToPassword: 계정 비밀번호로 로그인
+webPasswordLoginTitle: 계정 로그인
+webAccountHint: 계정/휴대폰번호/이메일을 입력하세요
+webPasswordHint: 비밀번호를 입력하세요
+e2eeTransferFromOldDevice: 이전 기기에서 키 받기
+pleaseRelogin: 다시 로그인해주세요

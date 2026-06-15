@@ -9,10 +9,8 @@ searchHint: 搜尋頻道名稱或ID
 searchTip: 輸入關鍵詞搜尋頻道
 noResults: 未找到相關頻道
 noRecommendedChannels: 暫無推薦頻道 稍後再來看看吧
-noSubscribedChannels: "暫無訂閱的頻道
-去發現更多精彩頻道吧"
-noManagedChannels: "暫無管理的頻道
-建立一個頻道開始你的創作"
+noSubscribedChannels: 暫無訂閱的頻道 去發現更多精彩頻道吧
+noManagedChannels: 暫無管理的頻道 建立一個頻道開始你的創作
 noMessages: 暫無訊息
 subscribers: 訂閱者
 pinned: 置頂
@@ -90,10 +88,16 @@ updateRoleSuccess: 角色更新成功
 updateRoleFailed: 角色更新失敗
 userId: 使用者ID
 userIdHint: 請輸入使用者ID
+selectFromContacts: 從聯絡人選擇
+searchContactsHint: 搜尋暱稱或賬號
+noContactsToAdd: 所有好友都已是管理員
+selectRole: 選擇角色
 noAdmins: 暫無管理員
 roleCreator: 建立者
 roleAdmin: 管理員
+roleAdminDesc: 可管理頻道
 roleEditor: 編輯
+roleEditorDesc: 可釋出訊息
 roleUnknown: 未知
 searchSubscribers: 搜尋訂閱者
 subscriberSearchHint: 輸入暱稱或ID搜尋
@@ -105,6 +109,11 @@ removeSubscriberSuccess: 訂閱者已移除
 removeSubscriberFailed: 移除訂閱者失敗
 subscribedAt: 訂閱於
 viewProfile: 查看資料
+inviteFromContacts: 邀請好友
+inviteSearchHint: 搜尋暱稱或賬號
+noContactsToInvite: 所有好友都已被邀請或已訂閱
+inviteSuccess: 邀請已傳送
+inviteFailed: 邀請傳送失敗
 updateSuccess: 頻道更新成功
 updateFailed: 頻道更新失敗
 typeCannotChange: 建立後不可更改

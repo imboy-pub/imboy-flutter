@@ -1,15 +1,32 @@
+---
 findNearbyPeople: 近くの人を探す
 moment: モーメンツ
-nearbyPeopleExplain: "近くのユーザーがあなたのプロフィールを表示してメッセージを送ることができます。これは新しい友達を見つけるのに役立つかもしれませんが、過度な注意を引く可能性もあります。いつでもプロフィールの共有を停止できます。
-
-電話番号は非表示になります。"
+nearbyPeopleExplain: |-
+  近くのユーザーがあなたのプロフィールを表示してメッセージを送ることができます。これは新しい友達を見つけるのに役立つかもしれませんが、過度な注意を引く可能性もあります。いつでもプロフィールの共有を停止できます。
+  電話番号は非表示になります。
 peopleNearby: 近くの人
 peopleNearbyLogic: 近くの人ロジック
 scan: スキャン
 scanResult: スキャン結果
 scannerResult: スキャン結果
 titleDiscover: 発見
+myChannels: マイチャンネル
+channelSquare: チャンネル広場
 otherUsersCanFindMe: 他のユーザーが検索で私を見つけることができます
 moments: モーメンツ
+momentsReport: モーメントを通報
+momentsReportDesc: 詳細説明
+momentsComments: コメント
+momentsWriteComment: コメントを書く...
+momentsVisibility: 公開範囲
+momentsVisibilityPublic: 全員に公開
+momentsVisibilityPartial: 一部の友達
+momentsVisibilityExclude: 一部の友達を除外
+momentsDenyUidsLabel: 除外対象 UID リスト（カンマ区切り）
+momentsDraftRestored: 前回の未送信下書きを復元しました
+momentsFeedStale: 通信エラーのため、キャッシュの内容を表示しています
 discover: 発見
 shake: シェイク
+openChannel: チャンネルを開く
+paidChannelLocked: 有料チャンネルの内容はロックされています
+webQRScanned: スキャン済み

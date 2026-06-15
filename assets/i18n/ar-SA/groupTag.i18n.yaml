@@ -1,0 +1,10 @@
+---
+title: وسوم المجموعة
+addTag: إضافة وسم
+tagName: اسم الوسم
+tagColor: لون الوسم
+noTag: لا توجد وسوم
+tagAdded: تمت إضافة الوسم
+tagRemoved: تمت إزالة الوسم
+removeTitle: إزالة الوسم
+removeConfirm: إزالة هذا الوسم؟

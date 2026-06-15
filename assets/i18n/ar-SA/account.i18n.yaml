@@ -1,3 +1,4 @@
+---
 account: حساب
 accountSecurity: أمان الحساب
 mobileRecharge: شحن الهاتف المحمول
@@ -95,7 +96,22 @@ profile: Profile
 setGender: تعيين الجنس
 setBirthday: تعيين تاريخ الميلاد
 sentToEmail: تم الإرسال إلى $param
-nicknameRules: "• طول اللقب 2-24 حرف
-• لا يمكن أن يحتوي على مسافات أو رموز تعبيرية فقط
-• لا يمكن أن يحتوي على كلمات حساسة
-• بعد التعديل، سيتم عرضه في جميع الدردشات"
+nicknameRules: "• طول اللقب 2-24 حرف • لا يمكن أن يحتوي على مسافات أو رموز تعبيرية فقط • لا يمكن أن يحتوي على كلمات حساسة • بعد التعديل، سيتم عرضه في جميع الدردشات"
+refreshDeviceKey: تحديث مفتاح الجهاز
+refreshDeviceKeyHint: إذا لم تُفكّ الرسائل، حدّث المفتاح بهذا الزر
+refreshingDeviceKey: جارٍ تحديث مفتاح الجهاز...
+deviceKeyRefreshed: تم تحديث مفتاح الجهاز
+rechargeTitle: شحن
+rechargeAmountHint: أدخل مبلغ الشحن (يوان)، 1–10000
+rechargeAmountExample: 'مثال: 100'
+e2eeDeviceTransfer: نقل بين الأجهزة
+e2eeDeviceTransferDesc: نقل المفتاح مباشرةً إلى جهاز جديد عبر رمز QR
+e2eeDeviceIdLabel: معرّف الجهاز
+webQRLoginTitle: تسجيل الدخول برمز QR
+webQRLoginHint: امسح رمز QR بتطبيق ImBoy على هاتفك
+webSwitchToPassword: الدخول بكلمة المرور
+webPasswordLoginTitle: دخول بالحساب
+webAccountHint: أدخل الحساب/الهاتف/البريد
+webPasswordHint: أدخل كلمة المرور
+e2eeTransferFromOldDevice: استقبال المفتاح من الجهاز القديم
+pleaseRelogin: سجّل الدخول مجدداً

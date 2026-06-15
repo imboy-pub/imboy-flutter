@@ -1,3 +1,4 @@
+---
 bankCard: 銀行カード
 cards: 枚
 jdShopping: JDショッピング
@@ -11,6 +12,7 @@ awaitingReply: 返信待ち
 businessCard: 連絡先カード
 busyTryAgainLater: 相手が忙しいです。後でもう一度お試しください。
 later: 後で
+peerIsTyping(name): "$nameが入力中..."
 changeGroupChatName: グループチャット名を変更すると、グループ内の他のメンバーに通知されます。
 chatHistory: チャット履歴
 chatHoldDownTalk: 押して話す
@@ -41,12 +43,31 @@ forwardReply: 転送して返信
 forwardTo: 転送先
 forwardToFriend: 友達に転送
 great: 素晴らしい
+groupFile: グループファイル
+groupFileImagePreview: 画像プレビュー
+groupFileVideoPreview: 動画プレビュー
+groupFileAudioPreview: 音声プレビュー
+groupFileMediaPause: 一時停止
+groupFileMediaPlay: 再生
+groupFileUrlMissing: ファイルのアドレスが見つかりません。開けません
+groupFileUrlInvalid: ファイルのアドレスが無効です
+groupFilePreview: ファイルプレビュー
+groupFileUnnamed: 無題のファイル
+groupFileCategoryEmpty: "${category}にファイルはありません"
+groupFileEmpty: グループファイルはありません
+groupFileCategoryDoc: ドキュメント
+groupFileCategoryImage: 画像
+groupFileCategoryVideo: 動画
+groupFileCategoryAudio: 音声
+groupFileCategoryOther: その他
 groupChat: グループチャット
 image: 画像
 imageMessage: "[画像]"
 initiateChat: グループチャットを開始
 justChat: チャットのみ
 location: 位置
+exportMyData: マイデータを書き出す
+exportDataDesc: 個人情報、連絡先、チャット履歴を書き出します
 message: メッセージ
 messageHandlingMixin: メッセージ処理ミックスイン
 messageMarkTitle: メッセージマーク
@@ -55,12 +76,12 @@ card: 名刺
 messageType: メッセージタイプ
 messageVisitCardBuilder: メッセージ名刺ビルダー
 messageWasWithdrawn: メッセージを取り消しました
-messageWasWithdrawnWithTitle: $paramがメッセージを取り消しました
+messageWasWithdrawnWithTitle: "$paramがメッセージを取り消しました"
 messageWebrtcBuilder: メッセージWebRTCビルダー
 momentStatus: モーメンツとステータス
 offline: オフライン
 online: オンライン
-paramAlreadyExist: $paramは既に存在します
+paramAlreadyExist: "$paramは既に存在します"
 pin: ピン留め
 pinChat: チャットをピン留め
 pinned: ピン留め済み
@@ -68,18 +89,37 @@ privateReply: プライベート返信
 qrCodeBusinessCard: QRコード名刺
 quoteReply: 引用返信
 rating: 評価
-readAgreeParam: $paramを読んで同意しました
+readAgreeParam: "$paramを読んで同意しました"
 recentChats: 最近のチャット
 recentForwards: 最近の転送
 remindMeLater: 後で知らせる
+quickReplyManage: クイック返信を管理
+quickReplyEmpty: クイック返信がありません。右下をタップして追加
+quickReplyDuplicate: 内容がすでに存在します
+quickReplyMaxReached: 最大 $max 件
+quickReplyHint: 内容を入力...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+mutedFor: ミュート $label
+muteUnitMinutes: "$count 分"
+muteUnitHours: "$count 時間"
+muteUnitDays: "$count 日"
+youAreMuted: ミュートされました
+youAreMutedWithTime: ミュートされています。残り $minutes 分
 repliedAt: 返信日時
 reply: 返信
 replyTo: 返信
 resendCode: 認証コードを再送
 revoke: 送信取消
 scanQrCodeBusinessCard: QRコード名刺をスキャン
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message
 sendFriendRequest: 友達追加リクエストを送信
 sendMsgRejected: メッセージは送信されましたが、相手に拒否されました。
+sendMessage: メッセージ
 sendSeparatelyTo: 別々に送信
 sendTo: 送信先
 send: "@:common.buttonSend"
@@ -87,8 +127,7 @@ sender: 送信者
 sending: 送信中...
 signatureInputHint: 署名入力ヒント
 signaturePlaceholder: 署名プレースホルダー
-signupIntro: "確認コードをあなたのメールアドレスに送信しました。
-確認コードを入力してアカウントを確認してください。"
+signupIntro: 確認コードをあなたのメールアドレスに送信しました。 確認コードを入力してアカウントを確認してください。
 socialProfile: ソーシャルプロフィール
 status: ステータス
 storageSpaceData: ストレージ容量とデータ
@@ -102,6 +141,7 @@ userData: ユーザーデータ
 video: 動画
 videoMessage: "[動画]"
 viewAttachments: 添付ファイルを表示
+viewLargeImage: 拡大表示
 voice: 音声
 voiceInput: 音声入力
 voiceMessage: 音声メッセージ
@@ -137,6 +177,15 @@ visibleRatioLabel: 表示率 (0.1~1.0)
 unsupportedMessageType: サポートされていないメッセージタイプ
 passwordMismatch: パスワードが一致しません
 pleaseTryAgainLater: 後でもう一度お試しください
+momentsSelectVideo: 動画を選択
+momentsRecordVideo: 動画を撮影
+momentsVisibilityPrivate: 非公開
+momentsMediaTooManyImages: 画像は最大9枚まで選択できます
+momentsMediaTooManyVideos: 動画は最大1つまで選択できます
+momentsMediaMixedImageAndVideo: 画像と動画を同時に公開することはできません
+momentsReplyPrefix: 返信 @
+momentsReplySeparator: "："
+momentsReplyingTo: "@{name}に返信中"
 sendNewMessage: 新しいメッセージを送信
 markRead: 既読にする
 markUnread: 未読にする
@@ -155,15 +204,73 @@ quickReplyReceived: 受信しました
 quickReplyThanks: ありがとう
 quickReplyWait: 少し待ってください
 messageMute: "@:chat.chatSettingMute"
-quickReplyManage: 管理快捷回复
-quickReplyEmpty: 暂无快捷回复，点击右下角添加
-quickReplyDuplicate: 内容已存在
-quickReplyMaxReached: 最多 $max 条
-quickReplyHint: 输入内容...
-muteMember: Mute Member
-unmuteMember: Unmute
-muteUntil: Muted Until
-muted: Muted
-singleChat: Private Chat
-privateChat: Private Chat
-groupMessage: Group message
+groupCategoryGroupCount(count): "$count グループ"
+groupAlbumCreateTitle: グループアルバムを作成
+groupAlbumCreated: アルバムを作成しました
+profileCompleted: プロフィールが完了しました！
+profileProgress(percent): "${percent}% 完了"
+createdAtLabel(time): '作成日時: $time'
+expiredAtLabel(time): '有効期限: $time'
+myReceivedTab: 受信
+orderStatusLabel(status): 'ステータス: $status'
+orderCreatedAtLabel(time): '作成日時: $time'
+orderPaymentAtLabel(time): '支払日時: $time'
+orderStatusPending: 未払い
+orderStatusPaid: 支払済み
+orderStatusRefunded: 返金済み
+orderStatusExpired: 期限切れ
+defaultFileName: ファイル
+fileUrlInvalid: ファイルリンクが無効です
+e2eeStatusAvailable: 利用可能
+e2eeGenerateNewKey: 新しいキーを生成
+e2eeGenerateNewKeyDesc: 新しいE2EEキーペアを生成します（古いメッセージは復号できなくなります）
+e2eeActivated: 有効
+e2eeCreatedAtLabel: 作成日時
+e2eeGeneratingKey: キーを生成中です。お待ちください...
+e2eeNewKeyGenerated: 新しいE2EEキーペアを生成しました！
+e2eeReady: 準備完了
+e2eeReadyWithShards(count): 準備完了（シャード $count 個）
+webFeatureMultiDevice: マルチデバイス同期
+webFeatureMultiDeviceDesc: スマートフォンとPCをシームレスに切り替え、メッセージをリアルタイム同期
+webFeatureE2EE: エンドツーエンド暗号化
+webFeatureE2EEDesc: すべてのメッセージをエンドツーエンドで暗号化し、プライバシーを保護
+webFeatureFileTransfer: ファイル転送
+webFeatureFileTransferDesc: ドラッグ&ドロップでファイルを送信、あらゆる形式に対応
+webQRStatusWaiting: ImBoyスマートフォン版を開く ＞ 設定 ＞ スキャン
+webQRStatusScanned: スマートフォンで「ログインを確認」をタップしてください
+webQRStatusVerifying: 確認中...
+webQRStatusExpired: 更新ボタンを押して再度スキャンしてください
+e2eeErrInvalidFormat: メッセージの形式が正しくありません。暗号化に失敗しました
+e2eeSocialCreateTitle: 復元シャードを作成
+e2eeSocialCreateBtn: シャードを作成
+e2eeSocialCreateFailTitle: 作成に失敗しました
+e2eeSocialCreateFailBody: シャードの作成に失敗しました。もう一度お試しください
+e2eeSocialCreateFirst: シャードを作成すると内容が表示されます
+e2eeSocialUsedAtLabel: 使用日時
+e2eeTransferSendTitle: 新しいデバイスにキーを送信
+e2eeTransferCreateBtn: 作成
+e2eeTransferReceiveTitle: 古いデバイスからキーを受信
+e2eeTransferSendDesc: QRコードでキーを新しいデバイスに転送
+e2eeTransferReceiveDesc: 古いデバイスのQRコードをスキャンしてキーを受信
+e2eeSocialStatus(status): 'ステータス: $status'
+e2eeSocialCreateShardsTitle: 復元シャードを作成
+e2eeSocialCreateShardsDesc: キーを複数のシャードに分割し、代理デバイスに保存します（サーバーには保存されません）
+e2eeProxyNeedAtLeast(count): 最低 $count 人の代理者を選択してください
+e2eeRecreatingKey: キーを再作成中...
+e2eeKeyRecreated: キーを再作成しました
+e2eeRecoveryNewDeviceTitle: 新しいデバイスのログインを検出しました
+e2eeRecoveryNewDeviceBody: |-
+  メッセージの安全性を保つため、このデバイスで新しいエンドツーエンド暗号キーを生成しました。
+
+  過去のメッセージは旧デバイスのキーで暗号化されているため、閲覧にはキーの復元が必要です。「デバイス転送」「ソーシャルリカバリ」「ローカルバックアップの読み込み」で復元できます。
+e2eeRecoveryDecryptFailedTitle: このメッセージを復号できません
+e2eeRecoveryDecryptFailedBody: |-
+  このメッセージは別のデバイスのキーで暗号化されています。
+
+  デバイスを変更したりアプリを再インストールした場合は、暗号キーを復元してから過去のメッセージを閲覧してください。
+e2eeRecoveryLater: 後で
+e2eeRecoveryGoRecover: 復元へ
+e2eeRecoveryBannerText: 暗号化された過去のメッセージを検出しました。閲覧にはキーの復元が必要です。タップして復元へ
+liveRoomCreateTitle: 配信ルームを作成
+liveRoomCreating: 作成中...
+liveRoomWatch: 配信を見る

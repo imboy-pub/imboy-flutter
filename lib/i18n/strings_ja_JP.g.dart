@@ -44,11 +44,21 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$chat$ja_JP chat = _Translations$chat$ja_JP._(_root);
 	@override late final _Translations$common$ja_JP common = _Translations$common$ja_JP._(_root);
 	@override late final _Translations$complaint$ja_JP complaint = _Translations$complaint$ja_JP._(_root);
+	@override late final _Translations$complaintReason$ja_JP complaintReason = _Translations$complaintReason$ja_JP._(_root);
 	@override late final _Translations$contact$ja_JP contact = _Translations$contact$ja_JP._(_root);
 	@override late final _Translations$discovery$ja_JP discovery = _Translations$discovery$ja_JP._(_root);
 	@override late final _Translations$error$ja_JP error = _Translations$error$ja_JP._(_root);
 	@override late final _Translations$group$ja_JP group = _Translations$group$ja_JP._(_root);
+	@override late final _Translations$groupCategory$ja_JP groupCategory = _Translations$groupCategory$ja_JP._(_root);
+	@override late final _Translations$groupList$ja_JP groupList = _Translations$groupList$ja_JP._(_root);
+	@override late final _Translations$groupSchedule$ja_JP groupSchedule = _Translations$groupSchedule$ja_JP._(_root);
+	@override late final _Translations$groupTag$ja_JP groupTag = _Translations$groupTag$ja_JP._(_root);
+	@override late final _Translations$groupTask$ja_JP groupTask = _Translations$groupTask$ja_JP._(_root);
+	@override late final _Translations$groupVote$ja_JP groupVote = _Translations$groupVote$ja_JP._(_root);
 	@override late final _Translations$main$ja_JP main = _Translations$main$ja_JP._(_root);
+	@override late final _Translations$mention$ja_JP mention = _Translations$mention$ja_JP._(_root);
+	@override late final _Translations$momentFriendPicker$ja_JP momentFriendPicker = _Translations$momentFriendPicker$ja_JP._(_root);
+	@override late final _Translations$momentNotify$ja_JP momentNotify = _Translations$momentNotify$ja_JP._(_root);
 	@override late final _Translations$passport$ja_JP passport = _Translations$passport$ja_JP._(_root);
 	@override late final _Translations$splash$ja_JP splash = _Translations$splash$ja_JP._(_root);
 	@override late final _Translations$welcome$ja_JP welcome = _Translations$welcome$ja_JP._(_root);
@@ -159,6 +169,24 @@ class _Translations$account$ja_JP extends Translations$account$zh_CN {
 	@override String get setBirthday => '誕生日を設定';
 	@override String sentToEmail({required Object param}) => '${param}に送信しました';
 	@override String get nicknameRules => '• ニックネームの長さ：2〜24文字 • 空白または絵文字のみにすることはできません • 敏感な単語を含めることはできません • 変更はすべてのチャットに反映されます';
+	@override String get refreshDeviceKey => 'デバイスキーを更新';
+	@override String get refreshDeviceKeyHint => 'メッセージを復号できない場合は、このボタンでキーを更新してください';
+	@override String get refreshingDeviceKey => 'デバイスキーを更新中...';
+	@override String get deviceKeyRefreshed => 'デバイスキーを更新しました';
+	@override String get rechargeTitle => 'チャージ';
+	@override String get rechargeAmountHint => 'チャージ金額を入力（元）。1元〜10000元';
+	@override String get rechargeAmountExample => '例：100';
+	@override String get e2eeDeviceTransfer => 'デバイス間転送';
+	@override String get e2eeDeviceTransferDesc => 'QRコードで新しいデバイスにキーを転送します';
+	@override String get e2eeDeviceIdLabel => 'デバイス ID';
+	@override String get webQRLoginTitle => 'QRコードでログイン';
+	@override String get webQRLoginHint => 'ImBoyスマートフォン版でQRコードをスキャン';
+	@override String get webSwitchToPassword => 'アカウントとパスワードでログイン';
+	@override String get webPasswordLoginTitle => 'アカウントログイン';
+	@override String get webAccountHint => 'アカウント/電話番号/メールアドレスを入力';
+	@override String get webPasswordHint => 'パスワードを入力';
+	@override String get e2eeTransferFromOldDevice => '古いデバイスからキーを受信';
+	@override String get pleaseRelogin => '再度ログインしてください';
 }
 
 // Path: channel
@@ -258,10 +286,16 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get updateRoleFailed => '役割の更新に失敗しました';
 	@override String get userId => 'ユーザーID';
 	@override String get userIdHint => 'ユーザーIDを入力';
+	@override String get selectFromContacts => '連絡先から選択';
+	@override String get searchContactsHint => 'ニックネームまたはアカウントを検索';
+	@override String get noContactsToAdd => 'すべての友達がすでに管理者です';
+	@override String get selectRole => 'ロールを選択';
 	@override String get noAdmins => '管理者がいません';
 	@override String get roleCreator => '作成者';
 	@override String get roleAdmin => '管理者';
+	@override String get roleAdminDesc => 'チャンネルを管理可能';
 	@override String get roleEditor => '編集者';
+	@override String get roleEditorDesc => 'メッセージを投稿可能';
 	@override String get roleUnknown => '不明';
 	@override String get searchSubscribers => '購読者を検索';
 	@override String get subscriberSearchHint => 'ニックネームまたはIDで検索';
@@ -273,6 +307,11 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get removeSubscriberFailed => '購読者の削除に失敗しました';
 	@override String get subscribedAt => '購読日';
 	@override String get viewProfile => 'プロフィールを見る';
+	@override String get inviteFromContacts => '友達を招待';
+	@override String get inviteSearchHint => 'ニックネームまたはアカウントを検索';
+	@override String get noContactsToInvite => 'すべての友達は招待済みまたは購読済みです';
+	@override String get inviteSuccess => '招待を送信しました';
+	@override String get inviteFailed => '招待の送信に失敗しました';
 	@override String get updateSuccess => 'チャンネルを更新しました';
 	@override String get updateFailed => 'チャンネルの更新に失敗しました';
 	@override String get typeCannotChange => '作成後は変更できません';
@@ -303,6 +342,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get businessCard => '連絡先カード';
 	@override String get busyTryAgainLater => '相手が忙しいです。後でもう一度お試しください。';
 	@override String get later => '後で';
+	@override String peerIsTyping({required Object name}) => '${name}が入力中...';
 	@override String get changeGroupChatName => 'グループチャット名を変更すると、グループ内の他のメンバーに通知されます。';
 	@override String get chatHistory => 'チャット履歴';
 	@override String get chatHoldDownTalk => '押して話す';
@@ -333,12 +373,31 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get forwardTo => '転送先';
 	@override String get forwardToFriend => '友達に転送';
 	@override String get great => '素晴らしい';
+	@override String get groupFile => 'グループファイル';
+	@override String get groupFileImagePreview => '画像プレビュー';
+	@override String get groupFileVideoPreview => '動画プレビュー';
+	@override String get groupFileAudioPreview => '音声プレビュー';
+	@override String get groupFileMediaPause => '一時停止';
+	@override String get groupFileMediaPlay => '再生';
+	@override String get groupFileUrlMissing => 'ファイルのアドレスが見つかりません。開けません';
+	@override String get groupFileUrlInvalid => 'ファイルのアドレスが無効です';
+	@override String get groupFilePreview => 'ファイルプレビュー';
+	@override String get groupFileUnnamed => '無題のファイル';
+	@override String groupFileCategoryEmpty({required Object category}) => '${category}にファイルはありません';
+	@override String get groupFileEmpty => 'グループファイルはありません';
+	@override String get groupFileCategoryDoc => 'ドキュメント';
+	@override String get groupFileCategoryImage => '画像';
+	@override String get groupFileCategoryVideo => '動画';
+	@override String get groupFileCategoryAudio => '音声';
+	@override String get groupFileCategoryOther => 'その他';
 	@override String get groupChat => 'グループチャット';
 	@override String get image => '画像';
 	@override String get imageMessage => '[画像]';
 	@override String get initiateChat => 'グループチャットを開始';
 	@override String get justChat => 'チャットのみ';
 	@override String get location => '位置';
+	@override String get exportMyData => 'マイデータを書き出す';
+	@override String get exportDataDesc => '個人情報、連絡先、チャット履歴を書き出します';
 	@override String get message => 'メッセージ';
 	@override String get messageHandlingMixin => 'メッセージ処理ミックスイン';
 	@override String get messageMarkTitle => 'メッセージマーク';
@@ -364,14 +423,33 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get recentChats => '最近のチャット';
 	@override String get recentForwards => '最近の転送';
 	@override String get remindMeLater => '後で知らせる';
+	@override String get quickReplyManage => 'クイック返信を管理';
+	@override String get quickReplyEmpty => 'クイック返信がありません。右下をタップして追加';
+	@override String get quickReplyDuplicate => '内容がすでに存在します';
+	@override String quickReplyMaxReached({required Object max}) => '最大 ${max} 件';
+	@override String get quickReplyHint => '内容を入力...';
+	@override String get muteMember => 'Mute Member';
+	@override String get unmuteMember => 'Unmute';
+	@override String get muteUntil => 'Muted Until';
+	@override String get muted => 'Muted';
+	@override String mutedFor({required Object label}) => 'ミュート ${label}';
+	@override String muteUnitMinutes({required Object count}) => '${count} 分';
+	@override String muteUnitHours({required Object count}) => '${count} 時間';
+	@override String muteUnitDays({required Object count}) => '${count} 日';
+	@override String get youAreMuted => 'ミュートされました';
+	@override String youAreMutedWithTime({required Object minutes}) => 'ミュートされています。残り ${minutes} 分';
 	@override String get repliedAt => '返信日時';
 	@override String get reply => '返信';
 	@override String get replyTo => '返信';
 	@override String get resendCode => '認証コードを再送';
 	@override String get revoke => '送信取消';
 	@override String get scanQrCodeBusinessCard => 'QRコード名刺をスキャン';
+	@override String get singleChat => 'Private Chat';
+	@override String get privateChat => 'Private Chat';
+	@override String get groupMessage => 'Group message';
 	@override String get sendFriendRequest => '友達追加リクエストを送信';
 	@override String get sendMsgRejected => 'メッセージは送信されましたが、相手に拒否されました。';
+	@override String get sendMessage => 'メッセージ';
 	@override String get sendSeparatelyTo => '別々に送信';
 	@override String get sendTo => '送信先';
 	@override String get send => _root.common.buttonSend;
@@ -393,6 +471,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get video => '動画';
 	@override String get videoMessage => '[動画]';
 	@override String get viewAttachments => '添付ファイルを表示';
+	@override String get viewLargeImage => '拡大表示';
 	@override String get voice => '音声';
 	@override String get voiceInput => '音声入力';
 	@override String get voiceMessage => '音声メッセージ';
@@ -428,6 +507,15 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'サポートされていないメッセージタイプ';
 	@override String get passwordMismatch => 'パスワードが一致しません';
 	@override String get pleaseTryAgainLater => '後でもう一度お試しください';
+	@override String get momentsSelectVideo => '動画を選択';
+	@override String get momentsRecordVideo => '動画を撮影';
+	@override String get momentsVisibilityPrivate => '非公開';
+	@override String get momentsMediaTooManyImages => '画像は最大9枚まで選択できます';
+	@override String get momentsMediaTooManyVideos => '動画は最大1つまで選択できます';
+	@override String get momentsMediaMixedImageAndVideo => '画像と動画を同時に公開することはできません';
+	@override String get momentsReplyPrefix => '返信 @';
+	@override String get momentsReplySeparator => '：';
+	@override String get momentsReplyingTo => '@{name}に返信中';
 	@override String get sendNewMessage => '新しいメッセージを送信';
 	@override String get markRead => '既読にする';
 	@override String get markUnread => '未読にする';
@@ -446,18 +534,70 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get quickReplyThanks => 'ありがとう';
 	@override String get quickReplyWait => '少し待ってください';
 	@override String get messageMute => _root.chat.chatSettingMute;
-	@override String get quickReplyManage => '管理快捷回复';
-	@override String get quickReplyEmpty => '暂无快捷回复，点击右下角添加';
-	@override String get quickReplyDuplicate => '内容已存在';
-	@override String quickReplyMaxReached({required Object max}) => '最多 ${max} 条';
-	@override String get quickReplyHint => '输入内容...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muteUntil => 'Muted Until';
-	@override String get muted => 'Muted';
-	@override String get singleChat => 'Private Chat';
-	@override String get privateChat => 'Private Chat';
-	@override String get groupMessage => 'Group message';
+	@override String groupCategoryGroupCount({required Object count}) => '${count} グループ';
+	@override String get groupAlbumCreateTitle => 'グループアルバムを作成';
+	@override String get groupAlbumCreated => 'アルバムを作成しました';
+	@override String get profileCompleted => 'プロフィールが完了しました！';
+	@override String profileProgress({required Object percent}) => '${percent}% 完了';
+	@override String createdAtLabel({required Object time}) => '作成日時: ${time}';
+	@override String expiredAtLabel({required Object time}) => '有効期限: ${time}';
+	@override String get myReceivedTab => '受信';
+	@override String orderStatusLabel({required Object status}) => 'ステータス: ${status}';
+	@override String orderCreatedAtLabel({required Object time}) => '作成日時: ${time}';
+	@override String orderPaymentAtLabel({required Object time}) => '支払日時: ${time}';
+	@override String get orderStatusPending => '未払い';
+	@override String get orderStatusPaid => '支払済み';
+	@override String get orderStatusRefunded => '返金済み';
+	@override String get orderStatusExpired => '期限切れ';
+	@override String get defaultFileName => 'ファイル';
+	@override String get fileUrlInvalid => 'ファイルリンクが無効です';
+	@override String get e2eeStatusAvailable => '利用可能';
+	@override String get e2eeGenerateNewKey => '新しいキーを生成';
+	@override String get e2eeGenerateNewKeyDesc => '新しいE2EEキーペアを生成します（古いメッセージは復号できなくなります）';
+	@override String get e2eeActivated => '有効';
+	@override String get e2eeCreatedAtLabel => '作成日時';
+	@override String get e2eeGeneratingKey => 'キーを生成中です。お待ちください...';
+	@override String get e2eeNewKeyGenerated => '新しいE2EEキーペアを生成しました！';
+	@override String get e2eeReady => '準備完了';
+	@override String e2eeReadyWithShards({required Object count}) => '準備完了（シャード ${count} 個）';
+	@override String get webFeatureMultiDevice => 'マルチデバイス同期';
+	@override String get webFeatureMultiDeviceDesc => 'スマートフォンとPCをシームレスに切り替え、メッセージをリアルタイム同期';
+	@override String get webFeatureE2EE => 'エンドツーエンド暗号化';
+	@override String get webFeatureE2EEDesc => 'すべてのメッセージをエンドツーエンドで暗号化し、プライバシーを保護';
+	@override String get webFeatureFileTransfer => 'ファイル転送';
+	@override String get webFeatureFileTransferDesc => 'ドラッグ&ドロップでファイルを送信、あらゆる形式に対応';
+	@override String get webQRStatusWaiting => 'ImBoyスマートフォン版を開く ＞ 設定 ＞ スキャン';
+	@override String get webQRStatusScanned => 'スマートフォンで「ログインを確認」をタップしてください';
+	@override String get webQRStatusVerifying => '確認中...';
+	@override String get webQRStatusExpired => '更新ボタンを押して再度スキャンしてください';
+	@override String get e2eeErrInvalidFormat => 'メッセージの形式が正しくありません。暗号化に失敗しました';
+	@override String get e2eeSocialCreateTitle => '復元シャードを作成';
+	@override String get e2eeSocialCreateBtn => 'シャードを作成';
+	@override String get e2eeSocialCreateFailTitle => '作成に失敗しました';
+	@override String get e2eeSocialCreateFailBody => 'シャードの作成に失敗しました。もう一度お試しください';
+	@override String get e2eeSocialCreateFirst => 'シャードを作成すると内容が表示されます';
+	@override String get e2eeSocialUsedAtLabel => '使用日時';
+	@override String get e2eeTransferSendTitle => '新しいデバイスにキーを送信';
+	@override String get e2eeTransferCreateBtn => '作成';
+	@override String get e2eeTransferReceiveTitle => '古いデバイスからキーを受信';
+	@override String get e2eeTransferSendDesc => 'QRコードでキーを新しいデバイスに転送';
+	@override String get e2eeTransferReceiveDesc => '古いデバイスのQRコードをスキャンしてキーを受信';
+	@override String e2eeSocialStatus({required Object status}) => 'ステータス: ${status}';
+	@override String get e2eeSocialCreateShardsTitle => '復元シャードを作成';
+	@override String get e2eeSocialCreateShardsDesc => 'キーを複数のシャードに分割し、代理デバイスに保存します（サーバーには保存されません）';
+	@override String e2eeProxyNeedAtLeast({required Object count}) => '最低 ${count} 人の代理者を選択してください';
+	@override String get e2eeRecreatingKey => 'キーを再作成中...';
+	@override String get e2eeKeyRecreated => 'キーを再作成しました';
+	@override String get e2eeRecoveryNewDeviceTitle => '新しいデバイスのログインを検出しました';
+	@override String get e2eeRecoveryNewDeviceBody => 'メッセージの安全性を保つため、このデバイスで新しいエンドツーエンド暗号キーを生成しました。\n\n過去のメッセージは旧デバイスのキーで暗号化されているため、閲覧にはキーの復元が必要です。「デバイス転送」「ソーシャルリカバリ」「ローカルバックアップの読み込み」で復元できます。';
+	@override String get e2eeRecoveryDecryptFailedTitle => 'このメッセージを復号できません';
+	@override String get e2eeRecoveryDecryptFailedBody => 'このメッセージは別のデバイスのキーで暗号化されています。\n\nデバイスを変更したりアプリを再インストールした場合は、暗号キーを復元してから過去のメッセージを閲覧してください。';
+	@override String get e2eeRecoveryLater => '後で';
+	@override String get e2eeRecoveryGoRecover => '復元へ';
+	@override String get e2eeRecoveryBannerText => '暗号化された過去のメッセージを検出しました。閲覧にはキーの復元が必要です。タップして復元へ';
+	@override String get liveRoomCreateTitle => '配信ルームを作成';
+	@override String get liveRoomCreating => '作成中...';
+	@override String get liveRoomWatch => '配信を見る';
 }
 
 // Path: common
@@ -498,7 +638,9 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get bindMobileAndEmailTips => '携帯電話番号とメールアドレスを登録して、アカウントのセキュリティを向上させましょう';
 	@override String get bindNow => '今すぐ登録';
 	@override String get buttonCancel => 'キャンセル';
+	@override String get buttonCreate => '作成';
 	@override String get buttonChangePassword => 'パスワードを変更';
+	@override String get phoneInputHint => '電話番号を入力';
 	@override String get buttonClose => '閉じる';
 	@override String get buttonConfirm => '確認';
 	@override String get buttonContinue => '続行';
@@ -525,6 +667,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get canNotAddYourselfFriend => '自分自身を友達に追加することはできません';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
+	@override String get operationSuccessful => '操作成功';
 	@override String get save => _root.common.buttonSave;
 	@override String get reset => 'リセット';
 	@override String get clear => '消去';
@@ -553,6 +696,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get checkForUpdates => '更新を確認';
 	@override String get clearAll => 'すべて削除';
 	@override String get clearChatRecord => 'チャット履歴を消去';
+	@override String get complaintSuccess => '通報を送信しました';
+	@override String get complaintFailed => '通報の送信に失敗しました。後でもう一度お試しください';
 	@override String get confirmCode => '確認コード';
 	@override String get confirmCodeError => '確認コードが空です';
 	@override String get confirmCodeSuccess => 'アカウントを確認しました。';
@@ -564,6 +709,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get contactSettingTag => '連絡先設定タグ';
 	@override String get contactTagListLogic => '連絡先タグリストロジック';
 	@override String get contactTags => '連絡先タグ';
+	@override String get contactInfoNotSynced => '連絡先情報が未同期です';
 	@override String get continueDownloading => 'ダウンロードを続行';
 	@override String get copy => 'コピー';
 	@override String get coupon => 'クーポン';
@@ -638,6 +784,24 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get genderUpdateSuccess => '性別を設定しました';
 	@override String get groupAddLocal => '連絡先に保存';
 	@override String get groupAnnouncement => 'グループのお知らせ';
+	@override String get groupFileUploadSuccess => 'ファイルをアップロードしました';
+	@override String get groupFileUploadFailed => 'ファイルのアップロードに失敗しました。後でもう一度お試しください';
+	@override String get groupFileDeleteSuccess => 'ファイルを削除しました';
+	@override String get groupFileDeleteFailed => '削除に失敗しました。後でもう一度お試しください';
+	@override String get groupFileClosePreview => 'プレビューを閉じる';
+	@override String get groupFileUploadTooltip => 'ファイルをアップロード';
+	@override String get groupFileSearch => 'グループファイルを検索';
+	@override String get groupFileReadFailed => 'ファイルの読み込みに失敗しました。もう一度お試しください';
+	@override String get groupFileDeleteTitle => 'グループファイルを削除';
+	@override String groupFileDeleteConfirm({required Object name}) => 'ファイル「${name}」を削除しますか？';
+	@override String get groupFileImageLoadFailed => '画像の読み込みに失敗しました';
+	@override String get groupFileOpenFailed => 'ファイルリンクを開けません';
+	@override String get groupFileSearchClear => 'クリア';
+	@override String get groupFileSearchAction => '検索';
+	@override String get groupFileCategoryAll => 'すべて';
+	@override String get groupFileSearchEmpty => '一致するファイルが見つかりません';
+	@override String get groupFileAudioLoadFailed => '音声の読み込みに失敗しました';
+	@override String get groupFileAudioLoading => '音声を読み込み中...';
 	@override String groupQrcodeTips({required Object days, required Object date}) => 'このQRコードは${days}日内（${date}まで）有効です。再度入ると更新されます';
 	@override String get groupSearchTips => 'グループ名とグループ説明';
 	@override String get helpDocument => 'ヘルプドキュメント';
@@ -661,7 +825,9 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get loading => '読み込み中';
 	@override String get locationMessage => '位置メッセージ';
 	@override String get loginDeviceManagementTips => 'あなたのアカウントは以下のデバイスでログインしたことがあります。デバイスを削除できます。削除後、次回そのデバイスでログインする際にセキュリティ認証が必要です。';
+	@override String get logoutFailed => 'ログアウトに失敗しました';
 	@override String get logoutNotice => '《ログアウトに関する注意事項》';
+	@override String get exportDataSuccess => 'データを書き出しました';
 	@override String get manually => '手動で選択';
 	@override String get messageCall => 'メッセージを送る';
 	@override String get messageContent => 'メッセージ内容';
@@ -709,6 +875,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get noUpdateDescription => '更新説明なし';
 	@override String get normalModel => '通常モード';
 	@override String get notAuthorizedLatLong => 'まだ経度緯度の取得を許可していません';
+	@override String get notLoggedIn => 'ログインしていません';
 	@override String get notBad => '悪くない';
 	@override String get notBound => '未登録';
 	@override String get notFilled => '未入力';
@@ -720,9 +887,9 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get notShow => '表示しない';
 	@override String get notTurnedLocationService => 'まだ位置情報サービスを開いていません';
 	@override String get nowNewVersion => '新しいバージョンは検出されませんでした';
-	@override String get off => _root.common.disabled;
+	@override String get kFalse => _root.common.disabled;
 	@override String get offlineNotification => 'オフライン通知';
-	@override String get on => _root.common.enabled;
+	@override String get kTrue => _root.common.enabled;
 	@override String get operationFailedAgainLater => '操作に失敗しました。後でもう一度お試しください';
 	@override String get optionsNo => 'いいえ';
 	@override String get optionsRename => '名前を変更したい';
@@ -755,12 +922,57 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get releaseFingerCancelSending => '指を離して送信をキャンセル';
 	@override String get removeContactFromTag => 'タグから連絡先を削除';
 	@override String get removeMember => 'メンバーを削除';
+	@override String get atMentionYouTag => '[@あなた] ';
+	@override String get atMentionLeftMember => '@退会済みメンバー';
+	@override String get muteNotifications => '通知をオフ';
+	@override String get muteNotificationsHint => 'オンにすると新着通知は届きませんが、会話リストで未読は確認できます';
+	@override String get revokeExpired => '2分を超過しているため、取り消せません';
+	@override String get quickReplyAddTitle => 'クイック返信を追加';
+	@override String get quickReplyEditTitle => 'クイック返信を編集';
+	@override String get removeAdmin => 'Remove Admin';
+	@override String get setAdminConfirm => 'Set this member as admin?';
+	@override String get removeAdminConfirm => 'Remove admin role from this member?';
+	@override String get muteMemberConfirm => 'Mute this member?';
+	@override String get unmuteMemberConfirm => 'Unmute this member?';
+	@override String get kickMemberConfirm => 'Remove this member from the group?';
+	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
+	@override String get setAdminSuccess => 'Admin set';
+	@override String get setAdminFailed => 'Failed to set admin';
+	@override String get removeAdminSuccess => 'Admin removed';
+	@override String get removeAdminFailed => 'Failed to remove admin';
+	@override String get muteMemberSuccess => 'Member muted';
+	@override String get muteMemberFailed => 'Failed to mute member';
+	@override String get unmuteMemberSuccess => 'Member unmuted';
+	@override String get unmuteMemberFailed => 'Failed to unmute member';
+	@override String get kickMemberSuccess => 'Member removed';
+	@override String get kickMemberFailed => 'Failed to remove member';
+	@override String get transferGroupSuccess => 'Ownership transferred';
+	@override String get transferGroupFailed => 'Failed to transfer ownership';
+	@override String get notMuted => 'Not Muted';
+	@override String get muteDuration => 'Mute Duration';
+	@override String get muteDuration1hour => '1 Hour';
+	@override String get muteDuration6hours => '6 Hours';
+	@override String get muteDuration12hours => '12 Hours';
+	@override String get muteDuration1day => '1 Day';
+	@override String get muteDuration3days => '3 Days';
+	@override String get muteDuration7days => '7 Days';
+	@override String get muteDurationPermanent => 'Permanent';
+	@override String get muteDuration5min => '5分';
+	@override String get muteDuration10min => '10分';
+	@override String get muteDuration30min => '30分';
+	@override String get muteDuration30days => '30日';
+	@override String muteUnitSeconds({required Object count}) => '${count} 秒';
+	@override String get throttleWarning => '操作が頻繁すぎます。後でもう一度お試しください';
+	@override String throttleRetryAfter({required Object seconds}) => '操作が頻繁すぎます。${seconds} 秒後にもう一度お試しください';
+	@override String get mutedCannotSend => 'ミュート中はメッセージを送信できません';
 	@override String get resendCodeSuccess => '新しいメールを送信しました。';
 	@override String get resetFilters => 'フィルターをリセット';
 	@override String get saveQrCode => 'QRコードを保存';
 	@override String get saveSuccess => '保存しました';
 	@override String get scanQrcodeAddFriend => '上のQRコードをスキャンして友達に追加してください';
 	@override String get search => '検索';
+	@override String get searchScope => 'Search scope';
+	@override String get searchAll => 'All messages';
 	@override String get searchChatContent => 'チャット内容を検索';
 	@override String get searchChatRecord => 'チャット履歴を検索';
 	@override String get searchError => '検索エラー';
@@ -890,6 +1102,11 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get selectExpirationDateOptional => '有効期限を選択（オプション）';
 	@override String get groupAnnouncementDeleteConfirm => 'この公告を削除してもよろしいですか？';
 	@override String get groupAnnouncementDelete => '削除';
+	@override String get groupAnnouncementLoadFailed => 'お知らせの読み込みに失敗しました。後でもう一度お試しください';
+	@override String get groupAnnouncementPublishFailed => 'お知らせの公開に失敗しました';
+	@override String get groupAnnouncementPublishSuccess => 'お知らせを公開しました';
+	@override String get groupAnnouncementDeleteFailed => 'お知らせの削除に失敗しました';
+	@override String get groupAnnouncementDeleteSuccess => 'お知らせを削除しました';
 	@override String get privacyClearChatHistory => 'チャット履歴を消去';
 	@override String get privacyClearChatHistoryConfirm => 'すべてのチャット履歴を消去してもよろしいですか？この操作は取り消せません。';
 	@override String get privacyLogoutAccountConfirm => 'アカウントを削除してもよろしいですか？この操作によりアカウントとすべてのデータが永久に削除され、復元することはできません。';
@@ -1033,6 +1250,24 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get changeFailed => '変更に失敗しました';
 	@override String get submitted => '提出済み';
 	@override String get viewSecurityHelp => 'セキュリティヘルプを表示';
+	@override String get momentsNoData => 'モーメントはありません';
+	@override String get momentsDeleteConfirm => 'このモーメントを削除しますか？';
+	@override String get momentsDeleteCommentConfirm => 'このコメントを削除しますか？';
+	@override String get momentsNotFound => 'モーメントが存在しないか、表示する権限がありません';
+	@override String get momentsContentOrMediaRequired => '内容またはメディアを少なくとも1つ入力してください';
+	@override String get momentsPublishFailed => '公開に失敗しました';
+	@override String get momentsAllowComment => 'コメントを許可';
+	@override String get momentsReportReason => '通報理由';
+	@override String get momentsNoComments => 'コメントはありません';
+	@override String get momentsContentHint => '何か書く...';
+	@override String get momentsAddMedia => 'メディアを追加';
+	@override String get momentsAllowUidsLabel => '公開対象 UID リスト（カンマ区切り）';
+	@override String get momentsCommentFailed => 'コメントの送信に失敗しました。後でもう一度お試しください';
+	@override String get momentsDeleteFailed => '削除に失敗しました。後でもう一度お試しください';
+	@override String get momentsReportSubmitted => '通報を送信しました';
+	@override String get momentsReportFailed => '通報に失敗しました。後でもう一度お試しください';
+	@override String get momentsLoadMoreComments => 'コメントをさらに読み込む';
+	@override String get momentsUploadFailed => 'メディアのアップロードに失敗しました。後でもう一度お試しください';
 	@override String get transactionHistory => '取引履歴';
 	@override String get paymentPasswordSetSuccess => '支払いパスワードを設定しました';
 	@override String get paymentPasswordSetFailed => '支払いパスワードの設定に失敗しました';
@@ -1047,6 +1282,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get personalSignature => '署名';
 	@override String get personalBackground => '個人背景';
 	@override String get setBackgroundImage => '背景画像を設定';
+	@override String get expression => 'スタンプ';
 	@override String get extendedInfo => '拡張情報';
 	@override String get profession => '職業';
 	@override String get pleaseEnterProfession => 'Please enter profession';
@@ -1127,6 +1363,10 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get noDetailedInfo => '自己紹介などの詳細情報が未設定です';
 	@override String get noNewRegisteredUsers => '現在、新規登録ユーザーはいません 後でもう一度確認してください';
 	@override String get newRegisteredUsersTip => 'ここには最近登録したユーザーが表示されます。友達として追加できます';
+	@override String get notificationFriendRequest => '友達リクエスト';
+	@override String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} さんが友達追加をリクエストしました';
+	@override String get notificationGroupInvite => 'グループへの招待';
+	@override String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} さんがグループ ${groupName} へ招待しました';
 	@override String get youRevokedMessage => 'あなたがメッセージを取り消しました';
 	@override String get otherRevokedMessage => '相手がメッセージを取り消しました';
 	@override String get networkFailureTryAgain => 'ネットワークエラーです。もう一度お試しください！';
@@ -1143,43 +1383,295 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get smaller => 'より小さい';
 	@override String currentFontScale({required Object param1, required Object param2}) => '現在：${param1} ${param2}%';
 	@override String emailUpdatedTo({required Object param}) => 'メールアドレスを${param}に更新しました';
-	@override String get atMentionYouTag => '[@你] ';
-	@override String get atMentionLeftMember => '@已退群成员';
-	@override String get muteNotifications => '消息免打扰';
-	@override String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
-	@override String get revokeExpired => '超过 2 分钟，无法撤回';
-	@override String get quickReplyAddTitle => '新增快捷回复';
-	@override String get quickReplyEditTitle => '编辑快捷回复';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get muteMemberConfirm => 'Mute this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get transferGroupSuccess => 'Ownership transferred';
-	@override String get transferGroupFailed => 'Failed to transfer ownership';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration6hours => '6 Hours';
-	@override String get muteDuration12hours => '12 Hours';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration3days => '3 Days';
-	@override String get muteDuration7days => '7 Days';
-	@override String get muteDurationPermanent => 'Permanent';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String groupAnnouncementExpiry({required Object time}) => '有効期限: ${time}';
+	@override String get groupAlbumCreateFailed => '作成に失敗しました。後でもう一度お試しください';
+	@override String get groupAlbumDeleteTitle => 'グループアルバムを削除';
+	@override String groupAlbumDeleteConfirm({required Object name}) => 'アルバム「${name}」を削除しますか？';
+	@override String get groupAlbumDeleted => 'アルバムを削除しました';
+	@override String get groupAlbumDeleteFailed => '削除に失敗しました。後でもう一度お試しください';
+	@override String get groupAlbumRenameFailed => '変更に失敗しました。後でもう一度お試しください';
+	@override String get groupAlbumUploadTooltip => '画像をアップロード';
+	@override String get groupAlbumDeleteTooltip => 'アルバムを削除';
+	@override String get groupAlbumNoAlbum => 'グループアルバムはありません';
+	@override String get groupAlbumPhotoReadFailed => '画像の読み込みに失敗しました。もう一度お試しください';
+	@override String get groupAlbumPhotoUploaded => '画像をアップロードしました';
+	@override String get groupAlbumPhotoUploadFailed => '画像のアップロードに失敗しました。後でもう一度お試しください';
+	@override String get groupAlbumCreateTooltip => 'アルバムを作成';
+	@override String get groupAlbumPhotoBatchDeleteTitle => '画像を一括削除';
+	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => '選択した ${count} 枚の画像を削除しますか？';
+	@override String get groupAlbumPhotoDeleteFailed => '削除に失敗しました。後でもう一度お試しください';
+	@override String groupAlbumPhotoDeletedAll({required Object count}) => '${count} 枚の画像を削除しました';
+	@override String groupAlbumPhotoDeletedPartial({required Object success, required Object fail}) => '${success} 枚削除、${fail} 枚失敗';
+	@override String get groupAlbumPhotoDeleteTitle => '画像を削除';
+	@override String get groupAlbumPhotoDeleteConfirm => 'この画像を削除しますか？';
+	@override String get groupAlbumPhotoDeleted => '画像を削除しました';
+	@override String get groupAlbumPhotoBatchDeleteTooltip => '一括削除';
+	@override String get groupAlbumPhotoExitSelection => '選択を終了';
+	@override String get groupAlbumPhotoOpenFailed => '画像リンクを開けません';
+	@override String get groupAlbumPhotoNotFound => '画像が存在しないか、削除されています';
+	@override String get groupAlbumPhotoOpenExternal => '外部アプリで開く';
+	@override String get groupAlbumPhotoCoverUpdated => 'アルバムの表紙に設定しました';
+	@override String get groupAlbumPhotoCoverFailed => '表紙の設定に失敗しました。後でもう一度お試しください';
+	@override String get groupAlbumPhotoNext => '次へ';
+	@override String get groupAlbumPhotoResolution => '解像度';
+	@override String get groupAlbumPhotoUploader => '投稿者';
+	@override String get sectionDisplay => '表示';
+	@override String get sectionTheme => 'テーマ';
+	@override String get selectLanguage => '言語を選択';
+	@override String get completionSuggestions => '充実のヒント：';
+	@override String get sectionGeneral => '一般';
+	@override String get sectionPrivacySecurity => 'プライバシーとセキュリティ';
+	@override String get sectionHelpAbout => 'ヘルプとアプリ情報';
+	@override String get msgOnlyVisibleToParties => 'メッセージは送受信者のみ閲覧できます';
+	@override String get msgNotEncrypted => 'メッセージは暗号化されていません';
+	@override String durationMinutes({required Object count}) => '${count}分';
+	@override String durationSeconds({required Object count}) => '${count}秒';
+	@override String get rechargeAmountError => '1元〜10000元の金額を入力してください';
+	@override String get rechargeSuccess => 'チャージしました';
+	@override String get rechargeConfirm => 'チャージを確認';
+	@override String get transactionHistory2 => '取引履歴';
+	@override String get noTransactionHistory => '取引履歴はありません';
+	@override String get allLoaded => '— すべて読み込み済み —';
+	@override String get transactionTypeIncome => 'チャージ';
+	@override String get transactionTypeExpense => '利用';
+	@override String get sectionLoginCredentials => 'ログイン情報';
+	@override String get channelInvitations => 'チャンネルの招待';
+	@override String get acceptInvitationFailed => '招待の承認に失敗しました';
+	@override String get rejectInvitationFailed => '招待の辞退に失敗しました';
+	@override String get invitationAccepted => '招待を承認しました';
+	@override String get invitationRejected => '招待を辞退しました';
+	@override String get invitationStatusPending => '承認待ち';
+	@override String get invitationStatusAccepted => '承認済み';
+	@override String get invitationStatusRejected => '辞退済み';
+	@override String get invitationStatusExpired => '期限切れ';
+	@override String get invitationStatusCancelled => 'キャンセル済み';
+	@override String get invitationStatusUnknown => '不明';
+	@override String get noReceivedInvitations => '受信した招待はありません';
+	@override String get noSentInvitations => '送信した招待はありません';
+	@override String get processingDots => '処理中...';
+	@override String get purchaseFailed => '購入に失敗しました。後でもう一度お試しください';
+	@override String get purchaseSuccess => '購入しました';
+	@override String get insufficientBalanceTitle => '残高不足';
+	@override String insufficientBalanceContent({required Object currency, required Object balance, required Object price}) => '現在の残高は ${currency} ${balance}、支払い額は ${currency} ${price} です。チャージ後に購入してください。';
+	@override String get goRecharge => 'チャージへ';
+	@override String get noOrders => '注文はありません';
+	@override String get orderDetailLoadFailed => '注文詳細の読み込みに失敗しました';
+	@override String orderNoLabel({required Object no}) => '注文番号: ${no}';
+	@override String get orderStatusCancelled => 'キャンセル済み';
+	@override String get orderStatusUnknown => '不明';
+	@override String get removeReaction => 'リアクションを削除';
+	@override String removeReactionConfirm({required Object emoji}) => '${emoji} リアクションを削除しますか？';
+	@override String get fileOpenFailed => 'このファイルを開けません';
+	@override String get e2eeLocalBackup => 'ローカルバックアップ';
+	@override String get e2eeLocalBackupDesc => '暗号化バックアップをローカルまたはクラウドに書き出します';
+	@override String get e2eeDeleteKey => 'キーを削除';
+	@override String get e2eeDeleteKeyDesc => 'ローカルのキーを削除します（復元できません）';
+	@override String get e2eeCurrentKeyInfo => '現在のキー情報';
+	@override String get e2eeE2EEEnabled => 'エンドツーエンド暗号化が有効です';
+	@override String get e2eeNoKeyDetected => 'E2EEキーが検出されませんでした';
+	@override String get e2eeNoKeyDesc => 'まずキーペアを生成するか、バックアップから復元してください';
+	@override String get e2eeAboutTitle => 'エンドツーエンド暗号化について';
+	@override String get e2eeInfoPoint1 => '• メッセージは送信前に暗号化され、サーバーは内容を閲覧できません';
+	@override String get e2eeInfoPoint2 => '• デバイスの変更やキーの削除後、古いメッセージは復号できない場合があります';
+	@override String get e2eeInfoPoint3 => '• データ損失を防ぐため、定期的にキーをバックアップしてください';
+	@override String get e2eeExportBackup => 'バックアップを書き出す';
+	@override String get e2eeExportBackupDesc => '暗号化バックアップを生成します';
+	@override String get e2eeImportBackup => 'バックアップを読み込む';
+	@override String get e2eeImportBackupDesc => 'バックアップファイルからキーを復元します';
+	@override String get e2eeBackupManage => 'バックアップ管理';
+	@override String get e2eeBackupManageDesc => 'バックアップ履歴を表示します';
+	@override String get e2eeGenerateKeyConfirm => '新しいE2EEキーペアを生成しますか？';
+	@override String get e2eeWarnOldMessagesLost => '• 古いメッセージは復号できなくなります';
+	@override String get e2eeWarnNeedNewBackup => '• バックアップファイルを再作成する必要があります';
+	@override String get e2eeConfirmGenerate => '生成';
+	@override String get e2eeDeleteKeyConfirm => '現在のキーを削除しますか？';
+	@override String get e2eeWarnCannotRestore => '• 削除後に復元できません';
+	@override String get e2eeWarnAllMsgsLost => '• すべてのE2EEメッセージが復号できなくなります';
+	@override String get e2eeConfirmDelete => '削除';
+	@override String get e2eeKeyGeneratedSuccess => 'キーを生成しました';
+	@override String e2eeDeviceIdInfo({required Object id}) => 'デバイス ID: ${id}';
+	@override String e2eeKeyIdInfo({required Object id}) => 'キー ID: ${id}';
+	@override String e2eeCreatedAtInfo({required Object time}) => '作成日時: ${time}';
+	@override String get e2eeImportantNote => '重要なお知らせ';
+	@override String get e2eeWarnOldMayNotDecrypt => '• 古いメッセージは復元できない場合があります';
+	@override String get e2eeSuggestBackupNow => '• すぐにバックアップを書き出すことをお勧めします';
+	@override String get e2eeGoBackup => 'バックアップへ';
+	@override String get e2eeKeyGenerateFailed => 'キーの生成に失敗しました。もう一度お試しください';
+	@override String get e2eeKeyDeleted => 'キーを削除しました';
+	@override String get e2eeDeleteFailed => '削除に失敗しました。もう一度お試しください';
+	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => '利用可能なシャード: ${available} 個、復元には ${required} 人の代理者の協力が必要です';
+	@override String get e2eeNoRecoveryShards => '利用可能な復元シャードがありません';
+	@override String get e2eeRecoverSuccess => '復元しました';
+	@override String get e2eeRecoverFailed => '復元に失敗しました';
+	@override String get e2eeRecoverKeyFailed => 'キーの復元に失敗しました。もう一度お試しください';
+	@override String get e2eeLoadingShards => 'シャード情報を読み込み中...';
+	@override String get e2eeNoShards => '利用可能なシャードがありません';
+	@override String get e2eeLoadFailed => '読み込みに失敗しました。もう一度お試しください';
+	@override String e2eeContactingProxy({required Object name}) => '連絡中: ${name}';
+	@override String get e2eeRecoveryFailed => '復元に失敗しました。もう一度お試しください';
+	@override String get webFeatureNotification => 'デスクトップ通知';
+	@override String get webFeatureNotificationDesc => 'アプリを開いていなくても新着メッセージをお知らせ';
+	@override String get webQRConfirmOnPhone => 'スマートフォンでログインを確認してください';
+	@override String get webQRLoginFailed => 'ログインに失敗しました';
+	@override String get webQRLoginSuccess => 'ログインしました';
+	@override String webQRExpiresIn({required Object seconds}) => 'あと ${seconds} 秒で期限切れ';
+	@override String get webQRStatusFailed => 'ログインに失敗しました。もう一度お試しください';
+	@override String get webQRStatusSuccess => '移動しています...';
+	@override String get webLoginEmptyError => 'アカウントとパスワードを入力してください';
+	@override String get webQRGenerateFailed => 'QRコードの生成に失敗しました';
+	@override String get webQRTokenInvalid => 'ログイントークンが無効です';
+	@override String get e2eeErrNoRecipientKey => '相手のデバイスキーを取得できません。メッセージは送信されませんでした';
+	@override String get e2eeDecryptFailed => 'メッセージを復号できません';
+	@override String get e2eeDecryptFailedReasons => 'このメッセージは復号できません。考えられる原因：';
+	@override String get e2eeDecryptReasonOtherDevice => '• 別のデバイスでログインしている';
+	@override String get e2eeDecryptReasonKeyExpired => '• デバイスキーの有効期限が切れている';
+	@override String get e2eeDecryptReasonDataCorrupt => '• アプリのデータが破損している';
+	@override String get e2eeDecryptChooseSolution => '解決方法を選択してください：';
+	@override String get e2eeDecryptActionRecreateKey => 'キーを再作成（推奨）';
+	@override String get e2eeDecryptActionRelogin => '再度ログイン';
+	@override String get e2eeDecryptActionRemindLater => '後で通知';
+	@override String get e2eeBackupExportTitle => 'E2EEバックアップを書き出す';
+	@override String get e2eeBackupPwdCantRecover => '• バックアップパスワードは復元できません。必ず保管してください！';
+	@override String get e2eeBackupStoreMultipleNote => '• バックアップファイルは複数の安全な場所（メール、クラウド、USBメモリ）に保管することをお勧めします';
+	@override String get e2eeBackupPwdLabel => 'バックアップパスワード *';
+	@override String get e2eeBackupPwdHint => '12文字以上で、大文字・小文字・数字・記号を含めてください';
+	@override String get e2eeBackupConfirmPwdLabel => 'パスワード（確認） *';
+	@override String get e2eeBackupConfirmPwdHint => 'もう一度パスワードを入力';
+	@override String get e2eeBackupNoteLabel => 'メモ（任意）';
+	@override String get e2eeBackupNoteHint => '例：メイン端末のバックアップ - 2026年1月';
+	@override String get e2eeBackupPwdStrengthLabel => 'パスワードの強度';
+	@override String get e2eeBackupPwdWeak => '弱い - 複雑さを上げてください';
+	@override String get e2eeBackupPwdMedium => '普通 - 長さか複雑さを上げてください';
+	@override String get e2eeBackupPwdStrong => '強い - 使用可能';
+	@override String get e2eeBackupPwdVeryStrong => '非常に強い - 安全';
+	@override String get e2eeBackupGenerateBtn => 'バックアップファイルを生成';
+	@override String get e2eeBackupFileGenerated => 'バックアップファイルを生成しました！';
+	@override String get e2eeBackupShareBtn => 'メール/クラウドで共有';
+	@override String get e2eeBackupShareContent => 'これは私のImboy E2EEキーのバックアップファイルです。大切に保管し、他人に共有しないでください。';
+	@override String get e2eeBackupErrPwdMismatch => '入力したパスワードが一致しません';
+	@override String get e2eeBackupErrNoKeyData => 'キーデータを取得できません';
+	@override String get e2eeBackupErrExportFailed => '書き出しに失敗しました。もう一度お試しください';
+	@override String get e2eeBackupErrShareFailed => '共有に失敗しました。もう一度お試しください';
+	@override String get e2eeBackupExportSuccessTitle => 'バックアップの書き出し完了';
+	@override String get e2eeBackupExportSuccessBody => 'E2EEキーのバックアップを生成しました。';
+	@override String get e2eeBackupImportantNoteColon => '重要なお知らせ：';
+	@override String get e2eeBackupKeepSafe => '• バックアップファイルとパスワードは大切に保管してください';
+	@override String get e2eeBackupStoreMultipleLoc => '• 複数の安全な場所に保管することをお勧めします';
+	@override String get e2eeBackupPwdCantRecoverNote => '• パスワードは復元できません。必ず保管してください';
+	@override String get e2eeBackupImportTitle => 'E2EEバックアップを読み込む';
+	@override String get e2eeBackupImportGuide => '読み込みの手順';
+	@override String get e2eeBackupImportReplaceKey => '• 読み込み後、現在のE2EEキーは置き換えられます';
+	@override String get e2eeBackupImportTrustedSource => '• バックアップファイルが信頼できる出典であることを確認してください';
+	@override String get e2eeBackupSelectFile => 'バックアップファイルを選択';
+	@override String get e2eeBackupSelectFileHint => 'タップしてバックアップファイルを選択 (.enc)';
+	@override String get e2eeBackupInfoTitle => 'バックアップ情報';
+	@override String get e2eeBackupVersionLabel => 'バージョン';
+	@override String get e2eeBackupAlgorithmLabel => 'アルゴリズム';
+	@override String get e2eeBackupFileSizeLabel => 'ファイルサイズ';
+	@override String get e2eeBackupFileValid => '✓ ファイル形式は有効です';
+	@override String get e2eeBackupImportPwdHint => 'バックアップ作成時のパスワードを入力';
+	@override String get e2eeBackupImportBtn => 'キーを読み込む';
+	@override String get e2eeBackupErrSelectFile => 'ファイルの選択に失敗しました。もう一度お試しください';
+	@override String get e2eeBackupErrValidateFailed => 'ファイルの検証に失敗しました。ファイル形式を確認してください';
+	@override String get e2eeBackupErrImportFailed => '読み込みに失敗しました。パスワードが正しいか確認してください';
+	@override String get e2eeBackupImportSuccessTitle => '読み込み完了';
+	@override String get e2eeBackupImportSuccessBody => 'E2EEキーを復元しました！';
+	@override String get e2eeBackupImportSuccessNote => '注意：古いメッセージは閲覧できない場合があります。これはE2EEの正常な動作です';
+	@override String get e2eeBackupNoRecords => 'バックアップ履歴はありません';
+	@override String get e2eeBackupNoRecordsHint => 'バックアップを書き出すと、ここに履歴が表示されます';
+	@override String e2eeBackupDeviceLabel({required Object id}) => 'デバイス ${id}';
+	@override String e2eeBackupCreatedAtLabel({required Object time}) => '作成日時 ${time}';
+	@override String get e2eeBackupDetailTitle => 'バックアップの詳細';
+	@override String get e2eeBackupDeviceIdLabel => 'デバイス ID';
+	@override String get e2eeBackupVersionNum => 'バックアップバージョン';
+	@override String get e2eeBackupCreatedAtRow => '作成日時';
+	@override String get e2eeBackupFileSizeRow => 'ファイルサイズ';
+	@override String get e2eeBackupNoteRow => 'メモ';
+	@override String get e2eeBackupDeleteTitle => 'バックアップ履歴を削除';
+	@override String get e2eeBackupDeleteConfirm => 'このバックアップ履歴を削除しますか？';
+	@override String get e2eeBackupDeleteSuccess => 'バックアップ履歴を削除しました';
+	@override String get e2eeSocialShardSettings => 'シャード設定';
+	@override String get e2eeSocialShardStoredNote => '説明：シャードは代理デバイスに保存され、サーバーには一切保存されません';
+	@override String get e2eeSocialAddProxy => '代理者を追加';
+	@override String get e2eeSocialAddProxyHint => '代理者の連絡先を追加してください';
+	@override String e2eeSocialCreateNeedMore({required Object count}) => '先に ${count} 人の代理者を追加してください';
+	@override String get e2eeSocialCreateSuccessTitle => 'シャードを作成しました';
+	@override String e2eeSocialTotalShardsInfo({required Object count}) => 'キーを ${count} 個のシャードに分割しました';
+	@override String e2eeSocialThresholdInfo({required Object count}) => '${count} 人の代理者の協力でキーを復元できます';
+	@override String get e2eeSocialZeroTrustNote => 'ゼロトラスト構成：サーバーにはシャードを一切保存しません';
+	@override String get e2eeSocialNoShards => '復元シャードをまだ作成していません';
+	@override String get e2eeSocialNoProxyShards => '代理シャードはありません';
+	@override String get e2eeSocialKeyVersionLabel => 'キーのバージョン';
+	@override String get e2eeTransferErrNoKey => '先にキーペアを生成してください';
+	@override String get e2eeTransferErrInitFailed => '初期化に失敗しました。もう一度お試しください';
+	@override String get e2eeTransferErrNoRecipientKey => '受信者に利用可能な公開鍵がありません';
+	@override String get e2eeTransferErrKeyNotFound => 'キーが見つかりません';
+	@override String get e2eeTransferErrCreateFailed => '転送セッションの作成に失敗しました。もう一度お試しください';
+	@override String get e2eeTransferCreateSessionBtn => '転送セッションを作成';
+	@override String get e2eeTransferSessionCreated => '転送セッションを作成しました';
+	@override String get e2eeTransferUidEmptyError => '有効なユーザーIDを入力してください';
+	@override String get e2eeTransferSuccess => '転送に成功しました！';
+	@override String get e2eeTransferFailed => '転送に失敗しました。もう一度お試しください';
+	@override String get e2eeTransferProcessingMsg => '処理中...';
+	@override String get e2eeTransferSuccessTitle => '転送完了';
+	@override String get e2eeTransferSuccessBody => 'キーをこのデバイスに転送しました';
+	@override String e2eeTransferScanError({required Object error}) => 'スキャンエラー: ${error}';
+	@override String get e2eeTransferErrNoDeviceId => 'デバイス IDを取得できません';
+	@override String get passwordEncryptFailed => 'パスワードの暗号化に失敗しました';
+	@override String get initConfigTimeout => '設定の取得がタイムアウトしました：ネットワーク接続またはサーバーの状態を確認してください';
+	@override String initConfigNetworkError({required Object code}) => 'ネットワークまたはサーバーの障害です (HTTP ${code})';
+	@override String get initConfigProtocolError => 'サーバープロトコルに誤りがあります';
+	@override String get initConfigFetchFailed => '設定の取得に失敗しました。ネットワーク接続を確認してください';
+	@override String get attachmentGetFileFailed => 'ファイルを取得できません。もう一度お試しいただくか、アルバムから選択してください';
+	@override String get attachmentGetFileFailedAndroid9 => 'ファイルの取得に失敗しました。Android 9では互換性の問題がある可能性があります';
+	@override String get attachmentGetImageDataFailed => '画像データを取得できません。もう一度お試しください';
+	@override String get attachmentGetOriginalImageFailed => '元の画像データを取得できません';
+	@override String get saveFailedRetry => '保存に失敗しました。もう一度お試しください';
+	@override String get downloadFileNotFound => 'ダウンロードファイルが存在しません。もう一度お試しください';
+	@override String downloadHashRetrying({required Object retry, required Object max}) => 'ファイルの検証に失敗しました。再ダウンロード中 (${retry}/${max})';
+	@override String get downloadHashFailed => 'ファイルの検証が複数回失敗しました。ネットワークを確認して再度お試しください';
+	@override String get e2eeTransferToNewDevice => '新しいデバイスへ転送';
+	@override String get e2eeTransferPendingSection => '保留中の転送';
+	@override String get e2eeTransferLoadFailed => '読み込みに失敗しました';
+	@override String get e2eeTransferLoadFailedDesc => '保留中の転送を読み込めません。もう一度お試しください';
+	@override String get e2eeTransferNoPending => '保留中の転送はありません';
+	@override String get e2eeTransferNoPendingDesc => 'デバイスからキーが送信されると、ここに表示されます';
+	@override String get e2eeSocialEnoughShards => 'キーを復元するのに十分なシャードがあります';
+	@override String e2eeSocialMoreShards({required Object count}) => '他 ${count} 個のシャード...';
+	@override String get e2eeProxyLoadFriendsFailed => '友達リストの読み込みに失敗しました。もう一度お試しください';
+	@override String get e2eeProxyNoPublicKey => 'この友達には利用可能な公開鍵がありません';
+	@override String e2eeProxyGetKeyFailed({required Object name}) => '${name} の公開鍵の取得に失敗しました';
+	@override String get e2eeProxySelectFailed => '代理者の選択に失敗しました。もう一度お試しください';
+	@override String get e2eeProxyNoFriends => '友達がいません';
+	@override String get e2eeProxyNoFriendsHint => '先に友達を追加してから復元の代理者を設定してください';
+	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => '最低 ${count} 人の信頼できる連絡先が必要です。${selected} 人選択中';
+	@override String e2eeProxyConfirmCount({required Object count}) => '選択を確認（代理者 ${count} 人）';
+	@override String get buttonBackHome => 'ホームへ';
+	@override String get featureNotEnabled => 'この機能は現在利用できません';
+	@override String featureDisabledName({required Object name}) => '${name} 機能が無効のため、一時的に利用できません';
+	@override String get imageLoadFailed => '読み込みに失敗しました';
+	@override String loadFailedWithError({required Object error}) => '読み込みに失敗しました: ${error}';
+	@override String get webAudioNotSupported => 'Web版では音声メッセージの再生に対応していません';
+	@override String e2eeKeyRecreationFailed({required Object error}) => 'キーの作成に失敗しました: ${error}';
+	@override String get redPacket => 'お年玉';
+	@override String get transfer => '送金';
+	@override String get withdraw => '出金';
+	@override String get redPacketSend => 'お年玉を送る';
+	@override String get redPacketOpen => 'お年玉を受け取る';
+	@override String get redPacketDetail => 'お年玉の詳細';
+	@override String get transferSend => '送金を開始';
+	@override String get transferAccept => '受領を確認';
+	@override String get greetingDefault => '謹賀新年';
+	@override String grabAmountYuan({required Object amount}) => '受取金額：${amount} 元';
+	@override String transferAmountYuan({required Object amount}) => '送金金額：${amount} 元';
+	@override String get insufficientBalance => '残高不足';
+	@override String get goToRecharge => 'チャージへ';
+	@override String get withdrawSuccess => '出金しました';
+	@override String get withdrawConfirm => '出金を確認';
+	@override String get withdrawAmountError => '1元以上の金額を入力してください';
+	@override String get withdrawAccountEmpty => '出金先のアカウントを入力してください';
+	@override String get withdrawMethod => '出金方法';
+	@override String get withdrawAccount => '出金先アカウント';
 }
 
 // Path: complaint
@@ -1190,6 +1682,19 @@ class _Translations$complaint$ja_JP extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => '通報';
+}
+
+// Path: complaintReason
+class _Translations$complaintReason$ja_JP extends Translations$complaintReason$zh_CN {
+	_Translations$complaintReason$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get spam => 'スパム';
+	@override String get harassment => 'ハラスメント';
+	@override String get inappropriate => '不適切な内容';
+	@override String get other => 'その他';
 }
 
 // Path: contact
@@ -1229,6 +1734,7 @@ class _Translations$contact$ja_JP extends Translations$contact$zh_CN {
 	@override String get pleaseEnterRemark => '備考名を入力してください';
 	@override String get enterRemark => '備考名を入力してください';
 	@override String get pleaseEnterTags => 'タグを入力してください';
+	@override String get momentsVisibilityFriends => '友達のみ';
 	@override String tagLengthExceeded({required Object param}) => 'タグの長さは${param}文字を超えることはできません';
 	@override String maxTagsExceeded({required Object param}) => '最大${param}個のタグを追加できます';
 	@override String selectedTags({required Object param, required Object max}) => '選択したタグ (${param}/${max})';
@@ -1247,6 +1753,8 @@ class _Translations$contact$ja_JP extends Translations$contact$zh_CN {
 	@override String get tagIdeas => 'アイデア';
 	@override String get tagMemo => 'メモ';
 	@override String get friendRequestSent => '送信済み';
+	@override String get channelMaxTagsCount => 'タグは最大8個まで追加できます';
+	@override String get tagInputHint => 'タグを入力...';
 }
 
 // Path: discovery
@@ -1265,10 +1773,26 @@ class _Translations$discovery$ja_JP extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'スキャン結果';
 	@override String get scannerResult => 'スキャン結果';
 	@override String get titleDiscover => '発見';
+	@override String get myChannels => 'マイチャンネル';
+	@override String get channelSquare => 'チャンネル広場';
 	@override String get otherUsersCanFindMe => '他のユーザーが検索で私を見つけることができます';
 	@override String get moments => 'モーメンツ';
+	@override String get momentsReport => 'モーメントを通報';
+	@override String get momentsReportDesc => '詳細説明';
+	@override String get momentsComments => 'コメント';
+	@override String get momentsWriteComment => 'コメントを書く...';
+	@override String get momentsVisibility => '公開範囲';
+	@override String get momentsVisibilityPublic => '全員に公開';
+	@override String get momentsVisibilityPartial => '一部の友達';
+	@override String get momentsVisibilityExclude => '一部の友達を除外';
+	@override String get momentsDenyUidsLabel => '除外対象 UID リスト（カンマ区切り）';
+	@override String get momentsDraftRestored => '前回の未送信下書きを復元しました';
+	@override String get momentsFeedStale => '通信エラーのため、キャッシュの内容を表示しています';
 	@override String get discover => '発見';
 	@override String get shake => 'シェイク';
+	@override String get openChannel => 'チャンネルを開く';
+	@override String get paidChannelLocked => '有料チャンネルの内容はロックされています';
+	@override String get webQRScanned => 'スキャン済み';
 }
 
 // Path: error
@@ -1285,6 +1809,11 @@ class _Translations$error$ja_JP extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. スマートフォンの設定 - 一般 - モバイルデータ通信を開き、モバイルデータ通信スイッチをオンにします。';
 	@override String get networkTroubleshootingStep3 => '3. まだネットワークに接続できない場合、スマートフォンが接続しているWi-Fiがインターネットにアクセスできるかどうかを確認するか、ネットワーク事業者にお問い合わせください。';
 	@override String get suggestCheckNetwork => 'ネットワーク設定を確認することをお勧めします。';
+	@override String e2eeStartRecoveryBtn({required Object required}) => 'キーの復元を開始（${required} 人の代理者の協力が必要）';
+	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => 'シャード不足（必要 ${required} 個、現在 ${current} 個）';
+	@override String get e2eeErrTimeout => '暗号化がタイムアウトしました。ネットワーク接続を確認して再度お試しください';
+	@override String get e2eeErrNetwork => 'ネットワークエラーのため暗号化に失敗しました。メッセージは送信されませんでした';
+	@override String get liveRoomTitleRequired => 'タイトルを入力してください';
 }
 
 // Path: group
@@ -1298,6 +1827,7 @@ class _Translations$group$ja_JP extends Translations$group$zh_CN {
 	@override String get enterSameGroup => '近くの友達と同じグループチャットに入る';
 	@override String get enterTheGroup => 'このグループに入る';
 	@override String get groupAlias => 'グループ内のニックネーム';
+	@override String get groupAlbum => 'グループアルバム';
 	@override String get groupDissolve => 'グループを解散';
 	@override String get groupJoin => 'グループに参加';
 	@override String get groupLeave => 'グループを退出';
@@ -1305,16 +1835,193 @@ class _Translations$group$ja_JP extends Translations$group$zh_CN {
 	@override String get groupMembers => 'グループメンバー';
 	@override String get groupName => 'グループ名';
 	@override String get mutualGroupsWithHer => '相手との共通グループチャット';
-	@override String get selectGroup => 'グループチャットを選択';
-	@override String get sureToDissolveGroup => 'このグループを解散してもよろしいですか？';
-	@override String get sureToLeaveGroup => 'このグループを退出してもよろしいですか？';
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
-	@override String get groupGuest => '嘉宾';
+	@override String get groupGuest => 'ゲスト';
 	@override String get groupMember => 'Member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get transferGroup => 'Transfer Ownership';
 	@override String get joinTime => 'Join Time';
+	@override String get selectGroup => 'グループチャットを選択';
+	@override String get sureToDissolveGroup => 'このグループを解散してもよろしいですか？';
+	@override String get sureToLeaveGroup => 'このグループを退出してもよろしいですか？';
+	@override String get groupAlbumNameHint => 'アルバム名を入力';
+	@override String get groupAlbumRenameTitle => 'アルバムの名前を変更';
+	@override String get groupAlbumRenamed => 'アルバム名を変更しました';
+	@override String get groupAlbumUnnamed => '無題のアルバム';
+	@override String groupAlbumPhotoCount({required Object count}) => '${count} 枚の画像';
+	@override String get groupAlbumPhotoIdMissing => '画像IDがありません。詳細を表示できません';
+	@override String get groupAlbumPhotoListTitle => 'アルバムの画像';
+	@override String groupAlbumPhotoSelectedCount({required Object count}) => '${count} 件選択中';
+	@override String get groupAlbumPhotoEmpty => '画像はありません';
+	@override String get groupAlbumPhotoUrlMissing => '画像のアドレスが見つかりません。開けません';
+	@override String get groupAlbumPhotoUrlInvalid => '画像のアドレスが無効です';
+	@override String get groupAlbumPhotoDetailTitle => '画像の詳細';
+	@override String get groupAlbumPhotoSetCover => '表紙に設定';
+	@override String get groupAlbumPhotoPrev => '前へ';
+	@override String get groupAlbumPhotoLikeCount => 'いいね数';
+	@override String get groupAlbumPhotoCommentCount => 'コメント数';
+	@override String get groupAlbumPhotoMyLike => '自分のいいね';
+	@override String get groupAlbumPhotoIdLabel => '画像ID';
+	@override String get e2eeKeyManagement => 'E2EEキー管理';
+	@override String get e2eeKeyManagementSubtitle => 'エンドツーエンド暗号キーのバックアップ、復元、管理';
+}
+
+// Path: groupCategory
+class _Translations$groupCategory$ja_JP extends Translations$groupCategory$zh_CN {
+	_Translations$groupCategory$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'グループカテゴリ';
+	@override String get createCategory => 'カテゴリを作成';
+	@override String get categoryName => 'カテゴリ名';
+	@override String get categoryDesc => 'カテゴリの説明（任意）';
+	@override String get noCategory => 'カテゴリはありません';
+	@override String get createFirst => '最初のカテゴリを作成しましょう';
+	@override String get addGroup => 'グループをカテゴリに追加';
+	@override String get removeGroup => 'カテゴリから削除';
+	@override String get deleteCategory => 'カテゴリを削除';
+	@override String get deleteCategoryConfirm => 'このカテゴリを削除しますか？グループは削除されません。';
+	@override String get categoryCreated => 'カテゴリを作成しました';
+	@override String get categoryDeleted => 'カテゴリを削除しました';
+	@override String get renameCategory => 'カテゴリの名前を変更';
+	@override String get categoryRenamed => 'カテゴリの名前を変更しました';
+	@override String get renameFailed => '名前の変更に失敗しました。もう一度お試しください';
+	@override String get deleteFailed => '削除に失敗しました。もう一度お試しください';
+	@override String get categoryDetailTip => 'このカテゴリのグループは、グループリストの「カテゴリに移動」から管理できます';
+}
+
+// Path: groupList
+class _Translations$groupList$ja_JP extends Translations$groupList$zh_CN {
+	_Translations$groupList$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get attrAll => 'すべて';
+	@override String get attrOwner => '作成済み';
+	@override String get attrManager => '管理中';
+	@override String get attrJoin => '参加中';
+	@override String get refresh => '更新';
+}
+
+// Path: groupSchedule
+class _Translations$groupSchedule$ja_JP extends Translations$groupSchedule$zh_CN {
+	_Translations$groupSchedule$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'グループスケジュール';
+	@override String get createSchedule => 'スケジュールを作成';
+	@override String get scheduleTitle => 'スケジュール名';
+	@override String get selectDate => '日付を選択';
+	@override String get selectTime => '時刻を選択';
+	@override String get location => '場所';
+	@override String get reminder => 'リマインダー';
+	@override String get noReminder => 'リマインダーなし';
+	@override String get noSchedule => 'スケジュールはありません';
+	@override String get scheduleCreated => 'スケジュールを作成しました';
+	@override String get scheduleUpdated => 'スケジュールを更新しました';
+	@override String get reminder15min => '15分前';
+	@override String get reminder1hour => '1時間前';
+	@override String get reminder1day => '1日前';
+	@override String get startTime => '開始時刻';
+	@override String get endTime => '終了時刻';
+	@override String get participants => '参加者数';
+	@override String get statusCancelled => 'キャンセル済み';
+	@override String get statusInProgress => '進行中';
+	@override String get cancelSuccess => 'スケジュールをキャンセルしました';
+	@override String get cancelFailed => 'キャンセルに失敗しました。後でもう一度お試しください';
+	@override String get confirmAttend => '参加する';
+	@override String get declineAttend => '参加しない';
+	@override String get cancelSchedule => 'スケジュールをキャンセル';
+	@override String get scheduleIdMissing => 'スケジュールIDがありません。詳細を表示できません';
+}
+
+// Path: groupTag
+class _Translations$groupTag$ja_JP extends Translations$groupTag$zh_CN {
+	_Translations$groupTag$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'グループタグ';
+	@override String get addTag => 'タグを追加';
+	@override String get tagName => 'タグ名';
+	@override String get tagColor => 'タグの色';
+	@override String get noTag => 'タグはありません';
+	@override String get tagAdded => 'タグを追加しました';
+	@override String get tagRemoved => 'タグを削除しました';
+	@override String get removeTitle => 'タグを削除';
+	@override String get removeConfirm => 'このタグを削除しますか？';
+}
+
+// Path: groupTask
+class _Translations$groupTask$ja_JP extends Translations$groupTask$zh_CN {
+	_Translations$groupTask$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'グループタスク';
+	@override String get createTask => 'タスクを作成';
+	@override String get taskTitle => 'タスク名';
+	@override String get taskDescription => 'タスクの説明';
+	@override String get assignTo => '担当者';
+	@override String get deadline => '期限';
+	@override String get noDeadline => '期限なし';
+	@override String get noTask => 'タスクはありません';
+	@override String get all => 'すべて';
+	@override String get pending => '未完了';
+	@override String get completed => '完了';
+	@override String get taskCreated => 'タスクを作成しました';
+	@override String get taskSubmitted => 'タスクを提出しました';
+	@override String get taskCompleted => 'タスクが完了しました';
+	@override String get overdue => '期限切れ';
+	@override String daysLeft({required Object days}) => 'あと ${days} 日';
+	@override String hoursLeft({required Object hours}) => 'あと ${hours} 時間';
+	@override String get dueSoon => '期限が迫っています';
+	@override String get submitFailed => '提出に失敗しました。後でもう一度お試しください';
+	@override String get taskId => 'タスクID';
+	@override String get pendingReview => '審査待ち';
+	@override String get taskIdMissing => 'タスクIDがありません。詳細を表示できません';
+	@override String get taskIdMissingSubmit => 'タスクIDがありません。提出できません';
+}
+
+// Path: groupVote
+class _Translations$groupVote$ja_JP extends Translations$groupVote$zh_CN {
+	_Translations$groupVote$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'グループ投票';
+	@override String get createVote => '投票を作成';
+	@override String get voteTitle => '投票タイトル';
+	@override String get voteOptions => '投票の選択肢';
+	@override String get addOption => '選択肢を追加';
+	@override String get allowMultiple => '複数選択を許可';
+	@override String get anonymous => '匿名投票';
+	@override String get deadline => '期限';
+	@override String get noDeadline => '期限なし';
+	@override String get noVote => '投票はありません';
+	@override String get voteEnded => '投票は終了しました';
+	@override String totalVotes({required Object count}) => '計 ${count} 票';
+	@override String get voteSuccess => '投票しました';
+	@override String get hasVoted => '投票済み';
+	@override String get viewResults => '結果を見る';
+	@override String get cancelVoteSuccess => '投票を取り消しました';
+	@override String get cancelVoteFailed => '取り消しに失敗しました。後でもう一度お試しください';
+	@override String get endVoteFailed => '終了処理に失敗しました。後でもう一度お試しください';
+	@override String get eachOptionPerLine => '1行に1つの選択肢';
+	@override String get statusInProgress => '進行中';
+	@override String get updateVote => '投票を更新';
+	@override String get cancelMyVote => '自分の投票を取り消す';
+	@override String get voteIdMissing => '投票IDがありません。詳細を表示できません';
+	@override String participantCount({required Object count}) => '参加者数: ${count}';
 }
 
 // Path: main
@@ -1338,6 +2045,8 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get audio => 'オーディオ';
 	@override String get barcodeFound => 'バーコードが見つかりました！';
 	@override String get botQianFan => '千帆ボット';
+	@override String get liveRoomWhipLabel => 'WHIP 配信アドレス';
+	@override String get liveRoomWhepLabel => 'WHEP 受信アドレス';
 	@override String get cache => 'キャッシュ';
 	@override String get camera => 'カメラ';
 	@override String get changeNameView => '名前変更画面';
@@ -1415,6 +2124,9 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get recentlyUsed => '最近使用';
 	@override String get releaseEnd => '指を離して終了';
 	@override String remainingChars({required Object param}) => 'あと${param}文字入力できます';
+	@override String get kickMember => 'Remove from Group';
+	@override String get memberDetail => 'Member Details';
+	@override String get memberRole => 'Role';
 	@override String get replied => '返信しました';
 	@override String get ringing => '呼び出し中...';
 	@override String get ruRu => 'ロシア語（ロシア）';
@@ -1439,6 +2151,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get timeRange => '時間範囲';
 	@override String get timeWeekdays => '月曜,火曜,水曜,木曜,金曜,土曜,日曜';
 	@override String get titleMine => 'マイページ';
+	@override String get titleSquare => '広場';
 	@override String get tooBad => '最悪';
 	@override String get tryAgainQ => 'もう一度試しますか？';
 	@override String get type => 'タイプ';
@@ -1511,9 +2224,154 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get larger => 'より大きい';
 	@override String currentLength({required Object param1, required Object param2}) => '現在の長さ：${param1} / ${param2}';
 	@override String get fillIn => '入力';
-	@override String get kickMember => 'Remove from Group';
-	@override String get memberDetail => 'Member Details';
-	@override String get memberRole => 'Role';
+	@override String get msgProtectedByComplianceKey => 'メッセージはコンプライアンスキーで保護されています';
+	@override String inviterLabel({required Object uid}) => '招待者: ${uid}';
+	@override String inviteeLabel({required Object uid}) => '招待先: ${uid}';
+	@override String get mySentTab => '送信';
+	@override String get reject => '辞退';
+	@override String get myOrders => '注文履歴';
+	@override String get purchaseUnlockHint => '購入すると、チャンネルの過去のメッセージと今後の更新を閲覧できます。';
+	@override String get payingDots => '決済中...';
+	@override String get purchaseAndUnlock => '今すぐ購入してロック解除';
+	@override String get orderDetail => '注文詳細';
+	@override String orderAmountLabel({required Object currency, required Object amount}) => '金額: ${currency} ${amount}';
+	@override String channelPriceLabel({required Object currency, required Object amount}) => '価格：${currency} ${amount}';
+	@override String get e2eeKeyRecoveryTitle => 'エンドツーエンド暗号キー管理';
+	@override String get e2eeRecoveryMethods => 'キーの復元方法';
+	@override String get e2eeDangerousOps => '危険な操作';
+	@override String get e2eeSocialRecovery => 'ソーシャルリカバリ';
+	@override String get e2eeSocialRecoveryDesc => '信頼する連絡先の協力でキーを復元します';
+	@override String get e2eeKeyIdLabel => 'キー ID';
+	@override String get e2eeWarnIrreversible => '• この操作は取り消せません';
+	@override String get e2eeWarnNeedRestoreOrNew => '• バックアップから復元するか、新しいキーを生成する必要があります';
+	@override String get gotIt => '了解';
+	@override String get e2eeRecoverKeyTitle => 'キーを復元';
+	@override String get e2eeCanRecoverKey => 'キーを復元できます';
+	@override String get e2eeInsufficientShards => 'シャードが不足しています';
+	@override String e2eeProxyUser({required Object uid}) => '代理ユーザー: ${uid}';
+	@override String e2eeShardLabel({required Object index, required Object total}) => 'シャード ${index} / ${total}';
+	@override String get e2eeReloadShards => '再読み込み';
+	@override String get e2eeRecovering => '復元中...';
+	@override String get e2eeKeyRestored => 'キーを復元しました';
+	@override String e2eeUsedShards({required Object count}) => '${count} 個の代理シャードを使用しました';
+	@override String get e2eePreparing => '復元を準備中...';
+	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => '進捗: ${collected} / ${total} シャード';
+	@override String e2eeCollectingShards({required Object collected, required Object total}) => 'シャードを収集中 (${collected}/${total})...';
+	@override String get e2eeShardsCollected => 'シャードの収集が完了しました。キーを再構築中...';
+	@override String get webQRLoggingIn => 'ログイン中...';
+	@override String get webQRExpired => 'QRコードの有効期限が切れました';
+	@override String get webQRRefresh => 'QRコードを更新';
+	@override String get webSwitchToQR => 'QRコードでログイン';
+	@override String get e2eeErrDefault => 'エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした';
+	@override String get e2eeSocialTotalShards => 'シャードの合計数';
+	@override String get e2eeSocialThreshold => '復元のしきい値';
+	@override String e2eeSocialThresholdHint({required Object count}) => 'キーの復元には ${count} 人の代理者の協力が必要です';
+	@override String get e2eeSocialSelectProxy => '復元の代理者を選択';
+	@override String e2eeSocialProxyNeeded({required Object count}) => '${count} 人の信頼できる連絡先を代理者として追加してください';
+	@override String e2eeSocialProxyDefaultName({required Object uid}) => 'ユーザー ${uid}';
+	@override String get e2eeSocialShardSentViaWs => 'シャードはWebSocket経由で代理デバイスに直接送信・保存されました';
+	@override String e2eeSocialSentCount({required Object sent, required Object total}) => '${sent} / ${total} 件の代理デバイスに送信済み';
+	@override String get e2eeSocialManageTitle => 'シャードを管理';
+	@override String get e2eeSocialMyShards => 'マイシャード';
+	@override String get e2eeSocialProxyShards => '代理シャード';
+	@override String e2eeSocialShardOf({required Object idx, required Object total}) => 'シャード ${idx} / ${total}';
+	@override String get e2eeSocialShardActive => '有効';
+	@override String get e2eeSocialShardUsed => '使用済み';
+	@override String get e2eeSocialShardValid => 'シャードは有効です';
+	@override String e2eeSocialUserShard({required Object uid}) => 'ユーザー ${uid} のキーシャード';
+	@override String get e2eeSocialProxyUserLabel => '代理ユーザー';
+	@override String get e2eeSocialRecoveryThresholdLabel => '復元のしきい値';
+	@override String get e2eeSocialShardIndexLabel => 'シャード番号';
+	@override String get e2eeTransferQRHint => '新しいデバイスでこのQRコードをスキャンしてください';
+	@override String e2eeTransferQRExpiry({required Object time}) => 'QRコードは ${time} に期限切れになります';
+	@override String get e2eeTransferRefreshQR => 'QRコードを更新';
+	@override String get e2eeTransferEnterUidTitle => '受信者のユーザーIDを入力';
+	@override String get e2eeTransferUidPlaceholder => '受信者のユーザーID';
+	@override String get e2eeTransferReceiving => '受信中...';
+	@override String get e2eeTransferPageTitle => 'デバイス間転送';
+	@override String get e2eeTransferPendingItem => '保留中のキー転送';
+	@override String get e2eeTransferPendingItemDesc => 'タップして詳細を表示';
+	@override String get e2eeTransferView => '表示';
+	@override String get e2eeSocialTitle => 'ソーシャルリカバリ';
+	@override String get e2eeSocialCanRecover => 'キーを復元できます';
+	@override String get e2eeSocialSetupProxy => '復元の代理者を設定';
+	@override String get e2eeSocialChooseProxy => '信頼できる連絡先を復元の代理者として選択';
+	@override String get e2eeSocialExistingShards => '既存の復元シャード';
+	@override String get e2eeSocialRecoverKeyTitle => 'キーを復元';
+	@override String get e2eeSocialRecoverKeyDesc => '代理者のシャードでキーを復元';
+	@override String get e2eeSocialManageShardsTitle => 'シャードを管理';
+	@override String get e2eeSocialManageShardsDesc => 'すべての復元シャードを表示・管理';
+	@override String get e2eeSocialZeroTrustHint1 => 'ゼロトラスト構成：サーバーはシャードを保存せず、代理者に直接連絡します';
+	@override String get e2eeSocialZeroTrustHint2 => 'ゼロトラスト構成：シャードは代理デバイスに保存されます';
+	@override String get e2eeSocialZeroTrustHint3 => 'ゼロトラスト構成：シャードは代理デバイスが保存し、サーバーは平文に触れません';
+	@override String e2eeProxyMinCount({required Object count}) => '最低 ${count} 人の代理者を選択してください';
+	@override String get e2eeProxySelectTitle => '復元の代理者を選択';
+	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => '選択中 ${selected} / ${total}';
+	@override String get e2eeProxyReachedMin => '最少代理者数に達しました';
+	@override String get liveRoomTitleLabel => '配信ルーム名';
+	@override String get liveRoomTitleHint => '配信ルーム名を入力';
+}
+
+// Path: mention
+class _Translations$mention$ja_JP extends Translations$mention$zh_CN {
+	_Translations$mention$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '@メンション';
+	@override String get noMention => '@メンションはありません';
+	@override String get allRead => 'すべて既読にする';
+	@override String get markAsRead => '既読にする';
+	@override String get newMention => '新しい@メンション';
+	@override String get fromGroup => 'グループから';
+	@override String get fromChat => 'チャットから';
+	@override String get viewContext => '前後のメッセージを見る';
+	@override String mentionCount({required Object count}) => '${count} 件の新しいメンション';
+	@override String get mentionAllDenied => '管理者のみ @全員 できます';
+	@override String get navInfoMissing => 'メッセージの位置情報がありません。移動できません';
+}
+
+// Path: momentFriendPicker
+class _Translations$momentFriendPicker$ja_JP extends Translations$momentFriendPicker$zh_CN {
+	_Translations$momentFriendPicker$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '友達を選択';
+	@override String get titleAllow => '公開対象';
+	@override String get titleDeny => '除外対象';
+	@override String get confirm => '完了';
+	@override String confirmWithCount({required Object count}) => '完了(${count})';
+	@override String selectedCount({required Object count}) => '${count} 人選択中';
+	@override String get emptyFriends => '友達がいません';
+	@override String get tagsLabel => 'タグで選択';
+	@override String get emptyTags => 'タグはありません';
+	@override String get tagLoadFailed => 'タグの読み込みに失敗しました';
+	@override String get searchHint => '友達を検索';
+}
+
+// Path: momentNotify
+class _Translations$momentNotify$ja_JP extends Translations$momentNotify$zh_CN {
+	_Translations$momentNotify$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '通知';
+	@override String get emptyTitle => '新しい通知はありません';
+	@override String get emptyHint => '友達からの「いいね」やコメントはここに表示されます';
+	@override String get actionLike => 'があなたのモーメントに「いいね」しました';
+	@override String get actionComment => 'がコメントしました';
+	@override String get markAllRead => 'すべて既読にする';
+	@override String get clearAll => 'すべて削除';
+	@override String get clearConfirmTitle => 'すべての通知を削除しますか？';
+	@override String get clearConfirmMessage => '削除後は復元できません';
+	@override String get confirm => 'OK';
+	@override String get cancel => 'キャンセル';
+	@override String get delete => '削除';
+	@override String get loadFailed => '読み込みに失敗しました。後でもう一度お試しください';
 }
 
 // Path: passport
@@ -1669,6 +2527,24 @@ extension on TranslationsJaJp {
 			'account.setBirthday' => '誕生日を設定',
 			'account.sentToEmail' => ({required Object param}) => '${param}に送信しました',
 			'account.nicknameRules' => '• ニックネームの長さ：2〜24文字 • 空白または絵文字のみにすることはできません • 敏感な単語を含めることはできません • 変更はすべてのチャットに反映されます',
+			'account.refreshDeviceKey' => 'デバイスキーを更新',
+			'account.refreshDeviceKeyHint' => 'メッセージを復号できない場合は、このボタンでキーを更新してください',
+			'account.refreshingDeviceKey' => 'デバイスキーを更新中...',
+			'account.deviceKeyRefreshed' => 'デバイスキーを更新しました',
+			'account.rechargeTitle' => 'チャージ',
+			'account.rechargeAmountHint' => 'チャージ金額を入力（元）。1元〜10000元',
+			'account.rechargeAmountExample' => '例：100',
+			'account.e2eeDeviceTransfer' => 'デバイス間転送',
+			'account.e2eeDeviceTransferDesc' => 'QRコードで新しいデバイスにキーを転送します',
+			'account.e2eeDeviceIdLabel' => 'デバイス ID',
+			'account.webQRLoginTitle' => 'QRコードでログイン',
+			'account.webQRLoginHint' => 'ImBoyスマートフォン版でQRコードをスキャン',
+			'account.webSwitchToPassword' => 'アカウントとパスワードでログイン',
+			'account.webPasswordLoginTitle' => 'アカウントログイン',
+			'account.webAccountHint' => 'アカウント/電話番号/メールアドレスを入力',
+			'account.webPasswordHint' => 'パスワードを入力',
+			'account.e2eeTransferFromOldDevice' => '古いデバイスからキーを受信',
+			'account.pleaseRelogin' => '再度ログインしてください',
 			'channel.title' => 'チャンネル',
 			'channel.loading' => '読み込み中...',
 			'channel.subscribed' => '購読済み',
@@ -1759,10 +2635,16 @@ extension on TranslationsJaJp {
 			'channel.updateRoleFailed' => '役割の更新に失敗しました',
 			'channel.userId' => 'ユーザーID',
 			'channel.userIdHint' => 'ユーザーIDを入力',
+			'channel.selectFromContacts' => '連絡先から選択',
+			'channel.searchContactsHint' => 'ニックネームまたはアカウントを検索',
+			'channel.noContactsToAdd' => 'すべての友達がすでに管理者です',
+			'channel.selectRole' => 'ロールを選択',
 			'channel.noAdmins' => '管理者がいません',
 			'channel.roleCreator' => '作成者',
 			'channel.roleAdmin' => '管理者',
+			'channel.roleAdminDesc' => 'チャンネルを管理可能',
 			'channel.roleEditor' => '編集者',
+			'channel.roleEditorDesc' => 'メッセージを投稿可能',
 			'channel.roleUnknown' => '不明',
 			'channel.searchSubscribers' => '購読者を検索',
 			'channel.subscriberSearchHint' => 'ニックネームまたはIDで検索',
@@ -1774,6 +2656,11 @@ extension on TranslationsJaJp {
 			'channel.removeSubscriberFailed' => '購読者の削除に失敗しました',
 			'channel.subscribedAt' => '購読日',
 			'channel.viewProfile' => 'プロフィールを見る',
+			'channel.inviteFromContacts' => '友達を招待',
+			'channel.inviteSearchHint' => 'ニックネームまたはアカウントを検索',
+			'channel.noContactsToInvite' => 'すべての友達は招待済みまたは購読済みです',
+			'channel.inviteSuccess' => '招待を送信しました',
+			'channel.inviteFailed' => '招待の送信に失敗しました',
 			'channel.updateSuccess' => 'チャンネルを更新しました',
 			'channel.updateFailed' => 'チャンネルの更新に失敗しました',
 			'channel.typeCannotChange' => '作成後は変更できません',
@@ -1795,6 +2682,7 @@ extension on TranslationsJaJp {
 			'chat.businessCard' => '連絡先カード',
 			'chat.busyTryAgainLater' => '相手が忙しいです。後でもう一度お試しください。',
 			'chat.later' => '後で',
+			'chat.peerIsTyping' => ({required Object name}) => '${name}が入力中...',
 			'chat.changeGroupChatName' => 'グループチャット名を変更すると、グループ内の他のメンバーに通知されます。',
 			'chat.chatHistory' => 'チャット履歴',
 			'chat.chatHoldDownTalk' => '押して話す',
@@ -1825,12 +2713,31 @@ extension on TranslationsJaJp {
 			'chat.forwardTo' => '転送先',
 			'chat.forwardToFriend' => '友達に転送',
 			'chat.great' => '素晴らしい',
+			'chat.groupFile' => 'グループファイル',
+			'chat.groupFileImagePreview' => '画像プレビュー',
+			'chat.groupFileVideoPreview' => '動画プレビュー',
+			'chat.groupFileAudioPreview' => '音声プレビュー',
+			'chat.groupFileMediaPause' => '一時停止',
+			'chat.groupFileMediaPlay' => '再生',
+			'chat.groupFileUrlMissing' => 'ファイルのアドレスが見つかりません。開けません',
+			'chat.groupFileUrlInvalid' => 'ファイルのアドレスが無効です',
+			'chat.groupFilePreview' => 'ファイルプレビュー',
+			'chat.groupFileUnnamed' => '無題のファイル',
+			'chat.groupFileCategoryEmpty' => ({required Object category}) => '${category}にファイルはありません',
+			'chat.groupFileEmpty' => 'グループファイルはありません',
+			'chat.groupFileCategoryDoc' => 'ドキュメント',
+			'chat.groupFileCategoryImage' => '画像',
+			'chat.groupFileCategoryVideo' => '動画',
+			'chat.groupFileCategoryAudio' => '音声',
+			'chat.groupFileCategoryOther' => 'その他',
 			'chat.groupChat' => 'グループチャット',
 			'chat.image' => '画像',
 			'chat.imageMessage' => '[画像]',
 			'chat.initiateChat' => 'グループチャットを開始',
 			'chat.justChat' => 'チャットのみ',
 			'chat.location' => '位置',
+			'chat.exportMyData' => 'マイデータを書き出す',
+			'chat.exportDataDesc' => '個人情報、連絡先、チャット履歴を書き出します',
 			'chat.message' => 'メッセージ',
 			'chat.messageHandlingMixin' => 'メッセージ処理ミックスイン',
 			'chat.messageMarkTitle' => 'メッセージマーク',
@@ -1856,14 +2763,33 @@ extension on TranslationsJaJp {
 			'chat.recentChats' => '最近のチャット',
 			'chat.recentForwards' => '最近の転送',
 			'chat.remindMeLater' => '後で知らせる',
+			'chat.quickReplyManage' => 'クイック返信を管理',
+			'chat.quickReplyEmpty' => 'クイック返信がありません。右下をタップして追加',
+			'chat.quickReplyDuplicate' => '内容がすでに存在します',
+			'chat.quickReplyMaxReached' => ({required Object max}) => '最大 ${max} 件',
+			'chat.quickReplyHint' => '内容を入力...',
+			'chat.muteMember' => 'Mute Member',
+			'chat.unmuteMember' => 'Unmute',
+			'chat.muteUntil' => 'Muted Until',
+			'chat.muted' => 'Muted',
+			'chat.mutedFor' => ({required Object label}) => 'ミュート ${label}',
+			'chat.muteUnitMinutes' => ({required Object count}) => '${count} 分',
+			'chat.muteUnitHours' => ({required Object count}) => '${count} 時間',
+			'chat.muteUnitDays' => ({required Object count}) => '${count} 日',
+			'chat.youAreMuted' => 'ミュートされました',
+			'chat.youAreMutedWithTime' => ({required Object minutes}) => 'ミュートされています。残り ${minutes} 分',
 			'chat.repliedAt' => '返信日時',
 			'chat.reply' => '返信',
 			'chat.replyTo' => '返信',
 			'chat.resendCode' => '認証コードを再送',
 			'chat.revoke' => '送信取消',
 			'chat.scanQrCodeBusinessCard' => 'QRコード名刺をスキャン',
+			'chat.singleChat' => 'Private Chat',
+			'chat.privateChat' => 'Private Chat',
+			'chat.groupMessage' => 'Group message',
 			'chat.sendFriendRequest' => '友達追加リクエストを送信',
 			'chat.sendMsgRejected' => 'メッセージは送信されましたが、相手に拒否されました。',
+			'chat.sendMessage' => 'メッセージ',
 			'chat.sendSeparatelyTo' => '別々に送信',
 			'chat.sendTo' => '送信先',
 			'chat.send' => _root.common.buttonSend,
@@ -1885,6 +2811,7 @@ extension on TranslationsJaJp {
 			'chat.video' => '動画',
 			'chat.videoMessage' => '[動画]',
 			'chat.viewAttachments' => '添付ファイルを表示',
+			'chat.viewLargeImage' => '拡大表示',
 			'chat.voice' => '音声',
 			'chat.voiceInput' => '音声入力',
 			'chat.voiceMessage' => '音声メッセージ',
@@ -1920,6 +2847,15 @@ extension on TranslationsJaJp {
 			'chat.unsupportedMessageType' => 'サポートされていないメッセージタイプ',
 			'chat.passwordMismatch' => 'パスワードが一致しません',
 			'chat.pleaseTryAgainLater' => '後でもう一度お試しください',
+			'chat.momentsSelectVideo' => '動画を選択',
+			'chat.momentsRecordVideo' => '動画を撮影',
+			'chat.momentsVisibilityPrivate' => '非公開',
+			'chat.momentsMediaTooManyImages' => '画像は最大9枚まで選択できます',
+			'chat.momentsMediaTooManyVideos' => '動画は最大1つまで選択できます',
+			'chat.momentsMediaMixedImageAndVideo' => '画像と動画を同時に公開することはできません',
+			'chat.momentsReplyPrefix' => '返信 @',
+			'chat.momentsReplySeparator' => '：',
+			'chat.momentsReplyingTo' => '@{name}に返信中',
 			'chat.sendNewMessage' => '新しいメッセージを送信',
 			'chat.markRead' => '既読にする',
 			'chat.markUnread' => '未読にする',
@@ -1938,21 +2874,75 @@ extension on TranslationsJaJp {
 			'chat.quickReplyThanks' => 'ありがとう',
 			'chat.quickReplyWait' => '少し待ってください',
 			'chat.messageMute' => _root.chat.chatSettingMute,
-			'chat.quickReplyManage' => '管理快捷回复',
-			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
-			'chat.quickReplyDuplicate' => '内容已存在',
-			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
-			'chat.quickReplyHint' => '输入内容...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muteUntil' => 'Muted Until',
-			'chat.muted' => 'Muted',
-			'chat.singleChat' => 'Private Chat',
-			'chat.privateChat' => 'Private Chat',
-			'chat.groupMessage' => 'Group message',
+			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} グループ',
+			'chat.groupAlbumCreateTitle' => 'グループアルバムを作成',
+			'chat.groupAlbumCreated' => 'アルバムを作成しました',
+			'chat.profileCompleted' => 'プロフィールが完了しました！',
+			'chat.profileProgress' => ({required Object percent}) => '${percent}% 完了',
+			'chat.createdAtLabel' => ({required Object time}) => '作成日時: ${time}',
+			'chat.expiredAtLabel' => ({required Object time}) => '有効期限: ${time}',
+			'chat.myReceivedTab' => '受信',
+			'chat.orderStatusLabel' => ({required Object status}) => 'ステータス: ${status}',
+			'chat.orderCreatedAtLabel' => ({required Object time}) => '作成日時: ${time}',
+			'chat.orderPaymentAtLabel' => ({required Object time}) => '支払日時: ${time}',
+			'chat.orderStatusPending' => '未払い',
+			'chat.orderStatusPaid' => '支払済み',
+			'chat.orderStatusRefunded' => '返金済み',
+			'chat.orderStatusExpired' => '期限切れ',
+			'chat.defaultFileName' => 'ファイル',
+			'chat.fileUrlInvalid' => 'ファイルリンクが無効です',
+			'chat.e2eeStatusAvailable' => '利用可能',
+			'chat.e2eeGenerateNewKey' => '新しいキーを生成',
+			'chat.e2eeGenerateNewKeyDesc' => '新しいE2EEキーペアを生成します（古いメッセージは復号できなくなります）',
+			'chat.e2eeActivated' => '有効',
+			'chat.e2eeCreatedAtLabel' => '作成日時',
+			'chat.e2eeGeneratingKey' => 'キーを生成中です。お待ちください...',
+			'chat.e2eeNewKeyGenerated' => '新しいE2EEキーペアを生成しました！',
+			'chat.e2eeReady' => '準備完了',
+			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備完了（シャード ${count} 個）',
+			'chat.webFeatureMultiDevice' => 'マルチデバイス同期',
+			'chat.webFeatureMultiDeviceDesc' => 'スマートフォンとPCをシームレスに切り替え、メッセージをリアルタイム同期',
+			'chat.webFeatureE2EE' => 'エンドツーエンド暗号化',
+			'chat.webFeatureE2EEDesc' => 'すべてのメッセージをエンドツーエンドで暗号化し、プライバシーを保護',
+			'chat.webFeatureFileTransfer' => 'ファイル転送',
+			'chat.webFeatureFileTransferDesc' => 'ドラッグ&ドロップでファイルを送信、あらゆる形式に対応',
+			'chat.webQRStatusWaiting' => 'ImBoyスマートフォン版を開く ＞ 設定 ＞ スキャン',
+			'chat.webQRStatusScanned' => 'スマートフォンで「ログインを確認」をタップしてください',
+			'chat.webQRStatusVerifying' => '確認中...',
+			'chat.webQRStatusExpired' => '更新ボタンを押して再度スキャンしてください',
+			'chat.e2eeErrInvalidFormat' => 'メッセージの形式が正しくありません。暗号化に失敗しました',
+			'chat.e2eeSocialCreateTitle' => '復元シャードを作成',
+			'chat.e2eeSocialCreateBtn' => 'シャードを作成',
+			'chat.e2eeSocialCreateFailTitle' => '作成に失敗しました',
+			'chat.e2eeSocialCreateFailBody' => 'シャードの作成に失敗しました。もう一度お試しください',
+			'chat.e2eeSocialCreateFirst' => 'シャードを作成すると内容が表示されます',
+			'chat.e2eeSocialUsedAtLabel' => '使用日時',
+			'chat.e2eeTransferSendTitle' => '新しいデバイスにキーを送信',
+			'chat.e2eeTransferCreateBtn' => '作成',
+			'chat.e2eeTransferReceiveTitle' => '古いデバイスからキーを受信',
+			'chat.e2eeTransferSendDesc' => 'QRコードでキーを新しいデバイスに転送',
+			'chat.e2eeTransferReceiveDesc' => '古いデバイスのQRコードをスキャンしてキーを受信',
+			'chat.e2eeSocialStatus' => ({required Object status}) => 'ステータス: ${status}',
+			'chat.e2eeSocialCreateShardsTitle' => '復元シャードを作成',
+			'chat.e2eeSocialCreateShardsDesc' => 'キーを複数のシャードに分割し、代理デバイスに保存します（サーバーには保存されません）',
+			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '最低 ${count} 人の代理者を選択してください',
+			'chat.e2eeRecreatingKey' => 'キーを再作成中...',
+			'chat.e2eeKeyRecreated' => 'キーを再作成しました',
+			'chat.e2eeRecoveryNewDeviceTitle' => '新しいデバイスのログインを検出しました',
+			'chat.e2eeRecoveryNewDeviceBody' => 'メッセージの安全性を保つため、このデバイスで新しいエンドツーエンド暗号キーを生成しました。\n\n過去のメッセージは旧デバイスのキーで暗号化されているため、閲覧にはキーの復元が必要です。「デバイス転送」「ソーシャルリカバリ」「ローカルバックアップの読み込み」で復元できます。',
+			'chat.e2eeRecoveryDecryptFailedTitle' => 'このメッセージを復号できません',
+			'chat.e2eeRecoveryDecryptFailedBody' => 'このメッセージは別のデバイスのキーで暗号化されています。\n\nデバイスを変更したりアプリを再インストールした場合は、暗号キーを復元してから過去のメッセージを閲覧してください。',
+			'chat.e2eeRecoveryLater' => '後で',
+			'chat.e2eeRecoveryGoRecover' => '復元へ',
+			'chat.e2eeRecoveryBannerText' => '暗号化された過去のメッセージを検出しました。閲覧にはキーの復元が必要です。タップして復元へ',
+			'chat.liveRoomCreateTitle' => '配信ルームを作成',
+			'chat.liveRoomCreating' => '作成中...',
+			'chat.liveRoomWatch' => '配信を見る',
 			'common.about' => '概要',
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
+			_ => null,
+		} ?? switch (path) {
 			'common.acceptFriendRequest' => '友達リクエストを承認',
 			'common.addFriend' => '友達を追加',
 			'common.addPhoneContact' => '電話番号の連絡先を追加',
@@ -1981,7 +2971,9 @@ extension on TranslationsJaJp {
 			'common.bindMobileAndEmailTips' => '携帯電話番号とメールアドレスを登録して、アカウントのセキュリティを向上させましょう',
 			'common.bindNow' => '今すぐ登録',
 			'common.buttonCancel' => 'キャンセル',
+			'common.buttonCreate' => '作成',
 			'common.buttonChangePassword' => 'パスワードを変更',
+			'common.phoneInputHint' => '電話番号を入力',
 			'common.buttonClose' => '閉じる',
 			'common.buttonConfirm' => '確認',
 			'common.buttonContinue' => '続行',
@@ -2008,6 +3000,7 @@ extension on TranslationsJaJp {
 			'common.canNotAddYourselfFriend' => '自分自身を友達に追加することはできません',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
+			'common.operationSuccessful' => '操作成功',
 			'common.save' => _root.common.buttonSave,
 			'common.reset' => 'リセット',
 			'common.clear' => '消去',
@@ -2036,6 +3029,8 @@ extension on TranslationsJaJp {
 			'common.checkForUpdates' => '更新を確認',
 			'common.clearAll' => 'すべて削除',
 			'common.clearChatRecord' => 'チャット履歴を消去',
+			'common.complaintSuccess' => '通報を送信しました',
+			'common.complaintFailed' => '通報の送信に失敗しました。後でもう一度お試しください',
 			'common.confirmCode' => '確認コード',
 			'common.confirmCodeError' => '確認コードが空です',
 			'common.confirmCodeSuccess' => 'アカウントを確認しました。',
@@ -2047,6 +3042,7 @@ extension on TranslationsJaJp {
 			'common.contactSettingTag' => '連絡先設定タグ',
 			'common.contactTagListLogic' => '連絡先タグリストロジック',
 			'common.contactTags' => '連絡先タグ',
+			'common.contactInfoNotSynced' => '連絡先情報が未同期です',
 			'common.continueDownloading' => 'ダウンロードを続行',
 			'common.copy' => 'コピー',
 			'common.coupon' => 'クーポン',
@@ -2083,8 +3079,6 @@ extension on TranslationsJaJp {
 			'common.errorInvalidRequest' => _root.common.error,
 			'common.errorLengthBetween' => ({required Object param, required Object min, required Object max}) => '${param}の長さは${min}から${max}の間である必要があります',
 			'common.errorManyRequest' => _root.common.error,
-			_ => null,
-		} ?? switch (path) {
 			'common.errorNoPackageToRemove' => _root.common.error,
 			'common.errorNoValidFileOrUrl' => _root.common.error,
 			'common.errorNonexistentDirectory' => _root.common.error,
@@ -2123,6 +3117,24 @@ extension on TranslationsJaJp {
 			'common.genderUpdateSuccess' => '性別を設定しました',
 			'common.groupAddLocal' => '連絡先に保存',
 			'common.groupAnnouncement' => 'グループのお知らせ',
+			'common.groupFileUploadSuccess' => 'ファイルをアップロードしました',
+			'common.groupFileUploadFailed' => 'ファイルのアップロードに失敗しました。後でもう一度お試しください',
+			'common.groupFileDeleteSuccess' => 'ファイルを削除しました',
+			'common.groupFileDeleteFailed' => '削除に失敗しました。後でもう一度お試しください',
+			'common.groupFileClosePreview' => 'プレビューを閉じる',
+			'common.groupFileUploadTooltip' => 'ファイルをアップロード',
+			'common.groupFileSearch' => 'グループファイルを検索',
+			'common.groupFileReadFailed' => 'ファイルの読み込みに失敗しました。もう一度お試しください',
+			'common.groupFileDeleteTitle' => 'グループファイルを削除',
+			'common.groupFileDeleteConfirm' => ({required Object name}) => 'ファイル「${name}」を削除しますか？',
+			'common.groupFileImageLoadFailed' => '画像の読み込みに失敗しました',
+			'common.groupFileOpenFailed' => 'ファイルリンクを開けません',
+			'common.groupFileSearchClear' => 'クリア',
+			'common.groupFileSearchAction' => '検索',
+			'common.groupFileCategoryAll' => 'すべて',
+			'common.groupFileSearchEmpty' => '一致するファイルが見つかりません',
+			'common.groupFileAudioLoadFailed' => '音声の読み込みに失敗しました',
+			'common.groupFileAudioLoading' => '音声を読み込み中...',
 			'common.groupQrcodeTips' => ({required Object days, required Object date}) => 'このQRコードは${days}日内（${date}まで）有効です。再度入ると更新されます',
 			'common.groupSearchTips' => 'グループ名とグループ説明',
 			'common.helpDocument' => 'ヘルプドキュメント',
@@ -2146,7 +3158,9 @@ extension on TranslationsJaJp {
 			'common.loading' => '読み込み中',
 			'common.locationMessage' => '位置メッセージ',
 			'common.loginDeviceManagementTips' => 'あなたのアカウントは以下のデバイスでログインしたことがあります。デバイスを削除できます。削除後、次回そのデバイスでログインする際にセキュリティ認証が必要です。',
+			'common.logoutFailed' => 'ログアウトに失敗しました',
 			'common.logoutNotice' => '《ログアウトに関する注意事項》',
+			'common.exportDataSuccess' => 'データを書き出しました',
 			'common.manually' => '手動で選択',
 			'common.messageCall' => 'メッセージを送る',
 			'common.messageContent' => 'メッセージ内容',
@@ -2194,6 +3208,7 @@ extension on TranslationsJaJp {
 			'common.noUpdateDescription' => '更新説明なし',
 			'common.normalModel' => '通常モード',
 			'common.notAuthorizedLatLong' => 'まだ経度緯度の取得を許可していません',
+			'common.notLoggedIn' => 'ログインしていません',
 			'common.notBad' => '悪くない',
 			'common.notBound' => '未登録',
 			'common.notFilled' => '未入力',
@@ -2205,9 +3220,9 @@ extension on TranslationsJaJp {
 			'common.notShow' => '表示しない',
 			'common.notTurnedLocationService' => 'まだ位置情報サービスを開いていません',
 			'common.nowNewVersion' => '新しいバージョンは検出されませんでした',
-			'common.off' => _root.common.disabled,
+			'common.kFalse' => _root.common.disabled,
 			'common.offlineNotification' => 'オフライン通知',
-			'common.on' => _root.common.enabled,
+			'common.kTrue' => _root.common.enabled,
 			'common.operationFailedAgainLater' => '操作に失敗しました。後でもう一度お試しください',
 			'common.optionsNo' => 'いいえ',
 			'common.optionsRename' => '名前を変更したい',
@@ -2240,12 +3255,57 @@ extension on TranslationsJaJp {
 			'common.releaseFingerCancelSending' => '指を離して送信をキャンセル',
 			'common.removeContactFromTag' => 'タグから連絡先を削除',
 			'common.removeMember' => 'メンバーを削除',
+			'common.atMentionYouTag' => '[@あなた] ',
+			'common.atMentionLeftMember' => '@退会済みメンバー',
+			'common.muteNotifications' => '通知をオフ',
+			'common.muteNotificationsHint' => 'オンにすると新着通知は届きませんが、会話リストで未読は確認できます',
+			'common.revokeExpired' => '2分を超過しているため、取り消せません',
+			'common.quickReplyAddTitle' => 'クイック返信を追加',
+			'common.quickReplyEditTitle' => 'クイック返信を編集',
+			'common.removeAdmin' => 'Remove Admin',
+			'common.setAdminConfirm' => 'Set this member as admin?',
+			'common.removeAdminConfirm' => 'Remove admin role from this member?',
+			'common.muteMemberConfirm' => 'Mute this member?',
+			'common.unmuteMemberConfirm' => 'Unmute this member?',
+			'common.kickMemberConfirm' => 'Remove this member from the group?',
+			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
+			'common.setAdminSuccess' => 'Admin set',
+			'common.setAdminFailed' => 'Failed to set admin',
+			'common.removeAdminSuccess' => 'Admin removed',
+			'common.removeAdminFailed' => 'Failed to remove admin',
+			'common.muteMemberSuccess' => 'Member muted',
+			'common.muteMemberFailed' => 'Failed to mute member',
+			'common.unmuteMemberSuccess' => 'Member unmuted',
+			'common.unmuteMemberFailed' => 'Failed to unmute member',
+			'common.kickMemberSuccess' => 'Member removed',
+			'common.kickMemberFailed' => 'Failed to remove member',
+			'common.transferGroupSuccess' => 'Ownership transferred',
+			'common.transferGroupFailed' => 'Failed to transfer ownership',
+			'common.notMuted' => 'Not Muted',
+			'common.muteDuration' => 'Mute Duration',
+			'common.muteDuration1hour' => '1 Hour',
+			'common.muteDuration6hours' => '6 Hours',
+			'common.muteDuration12hours' => '12 Hours',
+			'common.muteDuration1day' => '1 Day',
+			'common.muteDuration3days' => '3 Days',
+			'common.muteDuration7days' => '7 Days',
+			'common.muteDurationPermanent' => 'Permanent',
+			'common.muteDuration5min' => '5分',
+			'common.muteDuration10min' => '10分',
+			'common.muteDuration30min' => '30分',
+			'common.muteDuration30days' => '30日',
+			'common.muteUnitSeconds' => ({required Object count}) => '${count} 秒',
+			'common.throttleWarning' => '操作が頻繁すぎます。後でもう一度お試しください',
+			'common.throttleRetryAfter' => ({required Object seconds}) => '操作が頻繁すぎます。${seconds} 秒後にもう一度お試しください',
+			'common.mutedCannotSend' => 'ミュート中はメッセージを送信できません',
 			'common.resendCodeSuccess' => '新しいメールを送信しました。',
 			'common.resetFilters' => 'フィルターをリセット',
 			'common.saveQrCode' => 'QRコードを保存',
 			'common.saveSuccess' => '保存しました',
 			'common.scanQrcodeAddFriend' => '上のQRコードをスキャンして友達に追加してください',
 			'common.search' => '検索',
+			'common.searchScope' => 'Search scope',
+			'common.searchAll' => 'All messages',
 			'common.searchChatContent' => 'チャット内容を検索',
 			'common.searchChatRecord' => 'チャット履歴を検索',
 			'common.searchError' => '検索エラー',
@@ -2375,6 +3435,11 @@ extension on TranslationsJaJp {
 			'common.selectExpirationDateOptional' => '有効期限を選択（オプション）',
 			'common.groupAnnouncementDeleteConfirm' => 'この公告を削除してもよろしいですか？',
 			'common.groupAnnouncementDelete' => '削除',
+			'common.groupAnnouncementLoadFailed' => 'お知らせの読み込みに失敗しました。後でもう一度お試しください',
+			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
+			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
+			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
+			'common.groupAnnouncementDeleteSuccess' => 'お知らせを削除しました',
 			'common.privacyClearChatHistory' => 'チャット履歴を消去',
 			'common.privacyClearChatHistoryConfirm' => 'すべてのチャット履歴を消去してもよろしいですか？この操作は取り消せません。',
 			'common.privacyLogoutAccountConfirm' => 'アカウントを削除してもよろしいですか？この操作によりアカウントとすべてのデータが永久に削除され、復元することはできません。',
@@ -2390,6 +3455,8 @@ extension on TranslationsJaJp {
 			'common.showOnlineStatus' => 'オンラインステータスを表示',
 			'common.showOnlineStatusDesc' => '友達があなたのオンラインステータスを見ることができます',
 			'common.allowNearbyVisible' => '近くの人に表示',
+			_ => null,
+		} ?? switch (path) {
 			'common.dataSettings' => 'データ設定',
 			'common.clearChatRecords' => 'チャット履歴を消去',
 			'common.clearChatRecordsDesc' => 'すべてのチャット履歴を消去します。この操作は取り消せません',
@@ -2518,6 +3585,24 @@ extension on TranslationsJaJp {
 			'common.changeFailed' => '変更に失敗しました',
 			'common.submitted' => '提出済み',
 			'common.viewSecurityHelp' => 'セキュリティヘルプを表示',
+			'common.momentsNoData' => 'モーメントはありません',
+			'common.momentsDeleteConfirm' => 'このモーメントを削除しますか？',
+			'common.momentsDeleteCommentConfirm' => 'このコメントを削除しますか？',
+			'common.momentsNotFound' => 'モーメントが存在しないか、表示する権限がありません',
+			'common.momentsContentOrMediaRequired' => '内容またはメディアを少なくとも1つ入力してください',
+			'common.momentsPublishFailed' => '公開に失敗しました',
+			'common.momentsAllowComment' => 'コメントを許可',
+			'common.momentsReportReason' => '通報理由',
+			'common.momentsNoComments' => 'コメントはありません',
+			'common.momentsContentHint' => '何か書く...',
+			'common.momentsAddMedia' => 'メディアを追加',
+			'common.momentsAllowUidsLabel' => '公開対象 UID リスト（カンマ区切り）',
+			'common.momentsCommentFailed' => 'コメントの送信に失敗しました。後でもう一度お試しください',
+			'common.momentsDeleteFailed' => '削除に失敗しました。後でもう一度お試しください',
+			'common.momentsReportSubmitted' => '通報を送信しました',
+			'common.momentsReportFailed' => '通報に失敗しました。後でもう一度お試しください',
+			'common.momentsLoadMoreComments' => 'コメントをさらに読み込む',
+			'common.momentsUploadFailed' => 'メディアのアップロードに失敗しました。後でもう一度お試しください',
 			'common.transactionHistory' => '取引履歴',
 			'common.paymentPasswordSetSuccess' => '支払いパスワードを設定しました',
 			'common.paymentPasswordSetFailed' => '支払いパスワードの設定に失敗しました',
@@ -2532,6 +3617,7 @@ extension on TranslationsJaJp {
 			'common.personalSignature' => '署名',
 			'common.personalBackground' => '個人背景',
 			'common.setBackgroundImage' => '背景画像を設定',
+			'common.expression' => 'スタンプ',
 			'common.extendedInfo' => '拡張情報',
 			'common.profession' => '職業',
 			'common.pleaseEnterProfession' => 'Please enter profession',
@@ -2597,8 +3683,6 @@ extension on TranslationsJaJp {
 			'common.seconds' => '秒',
 			'common.messageCannotLocatedMayBeDeleted' => 'メッセージが見つかりません。削除された可能性があります',
 			'common.settingFailedPleaseTryAgain' => '設定に失敗しました。もう一度お試しください',
-			_ => null,
-		} ?? switch (path) {
 			'common.partialDeleteSuccess' => ({required Object success, required Object fail}) => '部分的な削除成功：${success}成功、${fail}失敗',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => '収集した動画メッセージの形式が正しくありません。動画URIが見つかりません',
 			'common.recordingCancelled' => '録音がキャンセルされました',
@@ -2614,6 +3698,10 @@ extension on TranslationsJaJp {
 			'common.noDetailedInfo' => '自己紹介などの詳細情報が未設定です',
 			'common.noNewRegisteredUsers' => '現在、新規登録ユーザーはいません 後でもう一度確認してください',
 			'common.newRegisteredUsersTip' => 'ここには最近登録したユーザーが表示されます。友達として追加できます',
+			'common.notificationFriendRequest' => '友達リクエスト',
+			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} さんが友達追加をリクエストしました',
+			'common.notificationGroupInvite' => 'グループへの招待',
+			'common.notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} さんがグループ ${groupName} へ招待しました',
 			'common.youRevokedMessage' => 'あなたがメッセージを取り消しました',
 			'common.otherRevokedMessage' => '相手がメッセージを取り消しました',
 			'common.networkFailureTryAgain' => 'ネットワークエラーです。もう一度お試しください！',
@@ -2630,44 +3718,302 @@ extension on TranslationsJaJp {
 			'common.smaller' => 'より小さい',
 			'common.currentFontScale' => ({required Object param1, required Object param2}) => '現在：${param1} ${param2}%',
 			'common.emailUpdatedTo' => ({required Object param}) => 'メールアドレスを${param}に更新しました',
-			'common.atMentionYouTag' => '[@你] ',
-			'common.atMentionLeftMember' => '@已退群成员',
-			'common.muteNotifications' => '消息免打扰',
-			'common.muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
-			'common.revokeExpired' => '超过 2 分钟，无法撤回',
-			'common.quickReplyAddTitle' => '新增快捷回复',
-			'common.quickReplyEditTitle' => '编辑快捷回复',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.muteMemberConfirm' => 'Mute this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.transferGroupSuccess' => 'Ownership transferred',
-			'common.transferGroupFailed' => 'Failed to transfer ownership',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration6hours' => '6 Hours',
-			'common.muteDuration12hours' => '12 Hours',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration3days' => '3 Days',
-			'common.muteDuration7days' => '7 Days',
-			'common.muteDurationPermanent' => 'Permanent',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.groupAnnouncementExpiry' => ({required Object time}) => '有効期限: ${time}',
+			'common.groupAlbumCreateFailed' => '作成に失敗しました。後でもう一度お試しください',
+			'common.groupAlbumDeleteTitle' => 'グループアルバムを削除',
+			'common.groupAlbumDeleteConfirm' => ({required Object name}) => 'アルバム「${name}」を削除しますか？',
+			'common.groupAlbumDeleted' => 'アルバムを削除しました',
+			'common.groupAlbumDeleteFailed' => '削除に失敗しました。後でもう一度お試しください',
+			'common.groupAlbumRenameFailed' => '変更に失敗しました。後でもう一度お試しください',
+			'common.groupAlbumUploadTooltip' => '画像をアップロード',
+			'common.groupAlbumDeleteTooltip' => 'アルバムを削除',
+			'common.groupAlbumNoAlbum' => 'グループアルバムはありません',
+			'common.groupAlbumPhotoReadFailed' => '画像の読み込みに失敗しました。もう一度お試しください',
+			'common.groupAlbumPhotoUploaded' => '画像をアップロードしました',
+			'common.groupAlbumPhotoUploadFailed' => '画像のアップロードに失敗しました。後でもう一度お試しください',
+			'common.groupAlbumCreateTooltip' => 'アルバムを作成',
+			'common.groupAlbumPhotoBatchDeleteTitle' => '画像を一括削除',
+			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => '選択した ${count} 枚の画像を削除しますか？',
+			'common.groupAlbumPhotoDeleteFailed' => '削除に失敗しました。後でもう一度お試しください',
+			'common.groupAlbumPhotoDeletedAll' => ({required Object count}) => '${count} 枚の画像を削除しました',
+			'common.groupAlbumPhotoDeletedPartial' => ({required Object success, required Object fail}) => '${success} 枚削除、${fail} 枚失敗',
+			'common.groupAlbumPhotoDeleteTitle' => '画像を削除',
+			'common.groupAlbumPhotoDeleteConfirm' => 'この画像を削除しますか？',
+			'common.groupAlbumPhotoDeleted' => '画像を削除しました',
+			'common.groupAlbumPhotoBatchDeleteTooltip' => '一括削除',
+			'common.groupAlbumPhotoExitSelection' => '選択を終了',
+			'common.groupAlbumPhotoOpenFailed' => '画像リンクを開けません',
+			'common.groupAlbumPhotoNotFound' => '画像が存在しないか、削除されています',
+			'common.groupAlbumPhotoOpenExternal' => '外部アプリで開く',
+			'common.groupAlbumPhotoCoverUpdated' => 'アルバムの表紙に設定しました',
+			'common.groupAlbumPhotoCoverFailed' => '表紙の設定に失敗しました。後でもう一度お試しください',
+			'common.groupAlbumPhotoNext' => '次へ',
+			'common.groupAlbumPhotoResolution' => '解像度',
+			'common.groupAlbumPhotoUploader' => '投稿者',
+			'common.sectionDisplay' => '表示',
+			'common.sectionTheme' => 'テーマ',
+			'common.selectLanguage' => '言語を選択',
+			'common.completionSuggestions' => '充実のヒント：',
+			'common.sectionGeneral' => '一般',
+			'common.sectionPrivacySecurity' => 'プライバシーとセキュリティ',
+			'common.sectionHelpAbout' => 'ヘルプとアプリ情報',
+			'common.msgOnlyVisibleToParties' => 'メッセージは送受信者のみ閲覧できます',
+			'common.msgNotEncrypted' => 'メッセージは暗号化されていません',
+			'common.durationMinutes' => ({required Object count}) => '${count}分',
+			'common.durationSeconds' => ({required Object count}) => '${count}秒',
+			'common.rechargeAmountError' => '1元〜10000元の金額を入力してください',
+			'common.rechargeSuccess' => 'チャージしました',
+			'common.rechargeConfirm' => 'チャージを確認',
+			'common.transactionHistory2' => '取引履歴',
+			'common.noTransactionHistory' => '取引履歴はありません',
+			'common.allLoaded' => '— すべて読み込み済み —',
+			'common.transactionTypeIncome' => 'チャージ',
+			'common.transactionTypeExpense' => '利用',
+			'common.sectionLoginCredentials' => 'ログイン情報',
+			'common.channelInvitations' => 'チャンネルの招待',
+			'common.acceptInvitationFailed' => '招待の承認に失敗しました',
+			'common.rejectInvitationFailed' => '招待の辞退に失敗しました',
+			'common.invitationAccepted' => '招待を承認しました',
+			'common.invitationRejected' => '招待を辞退しました',
+			'common.invitationStatusPending' => '承認待ち',
+			'common.invitationStatusAccepted' => '承認済み',
+			'common.invitationStatusRejected' => '辞退済み',
+			'common.invitationStatusExpired' => '期限切れ',
+			'common.invitationStatusCancelled' => 'キャンセル済み',
+			'common.invitationStatusUnknown' => '不明',
+			'common.noReceivedInvitations' => '受信した招待はありません',
+			'common.noSentInvitations' => '送信した招待はありません',
+			'common.processingDots' => '処理中...',
+			'common.purchaseFailed' => '購入に失敗しました。後でもう一度お試しください',
+			'common.purchaseSuccess' => '購入しました',
+			'common.insufficientBalanceTitle' => '残高不足',
+			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => '現在の残高は ${currency} ${balance}、支払い額は ${currency} ${price} です。チャージ後に購入してください。',
+			'common.goRecharge' => 'チャージへ',
+			'common.noOrders' => '注文はありません',
+			'common.orderDetailLoadFailed' => '注文詳細の読み込みに失敗しました',
+			'common.orderNoLabel' => ({required Object no}) => '注文番号: ${no}',
+			'common.orderStatusCancelled' => 'キャンセル済み',
+			'common.orderStatusUnknown' => '不明',
+			'common.removeReaction' => 'リアクションを削除',
+			'common.removeReactionConfirm' => ({required Object emoji}) => '${emoji} リアクションを削除しますか？',
+			'common.fileOpenFailed' => 'このファイルを開けません',
+			'common.e2eeLocalBackup' => 'ローカルバックアップ',
+			'common.e2eeLocalBackupDesc' => '暗号化バックアップをローカルまたはクラウドに書き出します',
+			'common.e2eeDeleteKey' => 'キーを削除',
+			'common.e2eeDeleteKeyDesc' => 'ローカルのキーを削除します（復元できません）',
+			'common.e2eeCurrentKeyInfo' => '現在のキー情報',
+			'common.e2eeE2EEEnabled' => 'エンドツーエンド暗号化が有効です',
+			'common.e2eeNoKeyDetected' => 'E2EEキーが検出されませんでした',
+			'common.e2eeNoKeyDesc' => 'まずキーペアを生成するか、バックアップから復元してください',
+			'common.e2eeAboutTitle' => 'エンドツーエンド暗号化について',
+			'common.e2eeInfoPoint1' => '• メッセージは送信前に暗号化され、サーバーは内容を閲覧できません',
+			'common.e2eeInfoPoint2' => '• デバイスの変更やキーの削除後、古いメッセージは復号できない場合があります',
+			'common.e2eeInfoPoint3' => '• データ損失を防ぐため、定期的にキーをバックアップしてください',
+			'common.e2eeExportBackup' => 'バックアップを書き出す',
+			'common.e2eeExportBackupDesc' => '暗号化バックアップを生成します',
+			'common.e2eeImportBackup' => 'バックアップを読み込む',
+			'common.e2eeImportBackupDesc' => 'バックアップファイルからキーを復元します',
+			'common.e2eeBackupManage' => 'バックアップ管理',
+			'common.e2eeBackupManageDesc' => 'バックアップ履歴を表示します',
+			'common.e2eeGenerateKeyConfirm' => '新しいE2EEキーペアを生成しますか？',
+			'common.e2eeWarnOldMessagesLost' => '• 古いメッセージは復号できなくなります',
+			'common.e2eeWarnNeedNewBackup' => '• バックアップファイルを再作成する必要があります',
+			'common.e2eeConfirmGenerate' => '生成',
+			'common.e2eeDeleteKeyConfirm' => '現在のキーを削除しますか？',
+			'common.e2eeWarnCannotRestore' => '• 削除後に復元できません',
+			'common.e2eeWarnAllMsgsLost' => '• すべてのE2EEメッセージが復号できなくなります',
+			'common.e2eeConfirmDelete' => '削除',
+			'common.e2eeKeyGeneratedSuccess' => 'キーを生成しました',
+			'common.e2eeDeviceIdInfo' => ({required Object id}) => 'デバイス ID: ${id}',
+			'common.e2eeKeyIdInfo' => ({required Object id}) => 'キー ID: ${id}',
+			'common.e2eeCreatedAtInfo' => ({required Object time}) => '作成日時: ${time}',
+			'common.e2eeImportantNote' => '重要なお知らせ',
+			'common.e2eeWarnOldMayNotDecrypt' => '• 古いメッセージは復元できない場合があります',
+			'common.e2eeSuggestBackupNow' => '• すぐにバックアップを書き出すことをお勧めします',
+			'common.e2eeGoBackup' => 'バックアップへ',
+			'common.e2eeKeyGenerateFailed' => 'キーの生成に失敗しました。もう一度お試しください',
+			'common.e2eeKeyDeleted' => 'キーを削除しました',
+			'common.e2eeDeleteFailed' => '削除に失敗しました。もう一度お試しください',
+			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '利用可能なシャード: ${available} 個、復元には ${required} 人の代理者の協力が必要です',
+			'common.e2eeNoRecoveryShards' => '利用可能な復元シャードがありません',
+			'common.e2eeRecoverSuccess' => '復元しました',
+			'common.e2eeRecoverFailed' => '復元に失敗しました',
+			'common.e2eeRecoverKeyFailed' => 'キーの復元に失敗しました。もう一度お試しください',
+			'common.e2eeLoadingShards' => 'シャード情報を読み込み中...',
+			'common.e2eeNoShards' => '利用可能なシャードがありません',
+			'common.e2eeLoadFailed' => '読み込みに失敗しました。もう一度お試しください',
+			'common.e2eeContactingProxy' => ({required Object name}) => '連絡中: ${name}',
+			'common.e2eeRecoveryFailed' => '復元に失敗しました。もう一度お試しください',
+			'common.webFeatureNotification' => 'デスクトップ通知',
+			'common.webFeatureNotificationDesc' => 'アプリを開いていなくても新着メッセージをお知らせ',
+			'common.webQRConfirmOnPhone' => 'スマートフォンでログインを確認してください',
+			'common.webQRLoginFailed' => 'ログインに失敗しました',
+			'common.webQRLoginSuccess' => 'ログインしました',
+			'common.webQRExpiresIn' => ({required Object seconds}) => 'あと ${seconds} 秒で期限切れ',
+			'common.webQRStatusFailed' => 'ログインに失敗しました。もう一度お試しください',
+			'common.webQRStatusSuccess' => '移動しています...',
+			'common.webLoginEmptyError' => 'アカウントとパスワードを入力してください',
+			'common.webQRGenerateFailed' => 'QRコードの生成に失敗しました',
+			'common.webQRTokenInvalid' => 'ログイントークンが無効です',
+			'common.e2eeErrNoRecipientKey' => '相手のデバイスキーを取得できません。メッセージは送信されませんでした',
+			'common.e2eeDecryptFailed' => 'メッセージを復号できません',
+			'common.e2eeDecryptFailedReasons' => 'このメッセージは復号できません。考えられる原因：',
+			'common.e2eeDecryptReasonOtherDevice' => '• 別のデバイスでログインしている',
+			'common.e2eeDecryptReasonKeyExpired' => '• デバイスキーの有効期限が切れている',
+			'common.e2eeDecryptReasonDataCorrupt' => '• アプリのデータが破損している',
+			'common.e2eeDecryptChooseSolution' => '解決方法を選択してください：',
+			'common.e2eeDecryptActionRecreateKey' => 'キーを再作成（推奨）',
+			'common.e2eeDecryptActionRelogin' => '再度ログイン',
+			'common.e2eeDecryptActionRemindLater' => '後で通知',
+			'common.e2eeBackupExportTitle' => 'E2EEバックアップを書き出す',
+			'common.e2eeBackupPwdCantRecover' => '• バックアップパスワードは復元できません。必ず保管してください！',
+			'common.e2eeBackupStoreMultipleNote' => '• バックアップファイルは複数の安全な場所（メール、クラウド、USBメモリ）に保管することをお勧めします',
+			'common.e2eeBackupPwdLabel' => 'バックアップパスワード *',
+			'common.e2eeBackupPwdHint' => '12文字以上で、大文字・小文字・数字・記号を含めてください',
+			'common.e2eeBackupConfirmPwdLabel' => 'パスワード（確認） *',
+			'common.e2eeBackupConfirmPwdHint' => 'もう一度パスワードを入力',
+			'common.e2eeBackupNoteLabel' => 'メモ（任意）',
+			'common.e2eeBackupNoteHint' => '例：メイン端末のバックアップ - 2026年1月',
+			'common.e2eeBackupPwdStrengthLabel' => 'パスワードの強度',
+			'common.e2eeBackupPwdWeak' => '弱い - 複雑さを上げてください',
+			'common.e2eeBackupPwdMedium' => '普通 - 長さか複雑さを上げてください',
+			'common.e2eeBackupPwdStrong' => '強い - 使用可能',
+			'common.e2eeBackupPwdVeryStrong' => '非常に強い - 安全',
+			'common.e2eeBackupGenerateBtn' => 'バックアップファイルを生成',
+			'common.e2eeBackupFileGenerated' => 'バックアップファイルを生成しました！',
+			'common.e2eeBackupShareBtn' => 'メール/クラウドで共有',
+			'common.e2eeBackupShareContent' => 'これは私のImboy E2EEキーのバックアップファイルです。大切に保管し、他人に共有しないでください。',
+			'common.e2eeBackupErrPwdMismatch' => '入力したパスワードが一致しません',
+			'common.e2eeBackupErrNoKeyData' => 'キーデータを取得できません',
+			'common.e2eeBackupErrExportFailed' => '書き出しに失敗しました。もう一度お試しください',
+			'common.e2eeBackupErrShareFailed' => '共有に失敗しました。もう一度お試しください',
+			'common.e2eeBackupExportSuccessTitle' => 'バックアップの書き出し完了',
+			'common.e2eeBackupExportSuccessBody' => 'E2EEキーのバックアップを生成しました。',
+			'common.e2eeBackupImportantNoteColon' => '重要なお知らせ：',
+			'common.e2eeBackupKeepSafe' => '• バックアップファイルとパスワードは大切に保管してください',
+			'common.e2eeBackupStoreMultipleLoc' => '• 複数の安全な場所に保管することをお勧めします',
+			'common.e2eeBackupPwdCantRecoverNote' => '• パスワードは復元できません。必ず保管してください',
+			'common.e2eeBackupImportTitle' => 'E2EEバックアップを読み込む',
+			'common.e2eeBackupImportGuide' => '読み込みの手順',
+			'common.e2eeBackupImportReplaceKey' => '• 読み込み後、現在のE2EEキーは置き換えられます',
+			'common.e2eeBackupImportTrustedSource' => '• バックアップファイルが信頼できる出典であることを確認してください',
+			'common.e2eeBackupSelectFile' => 'バックアップファイルを選択',
+			'common.e2eeBackupSelectFileHint' => 'タップしてバックアップファイルを選択 (.enc)',
+			'common.e2eeBackupInfoTitle' => 'バックアップ情報',
+			'common.e2eeBackupVersionLabel' => 'バージョン',
+			'common.e2eeBackupAlgorithmLabel' => 'アルゴリズム',
+			'common.e2eeBackupFileSizeLabel' => 'ファイルサイズ',
+			'common.e2eeBackupFileValid' => '✓ ファイル形式は有効です',
+			'common.e2eeBackupImportPwdHint' => 'バックアップ作成時のパスワードを入力',
+			'common.e2eeBackupImportBtn' => 'キーを読み込む',
+			'common.e2eeBackupErrSelectFile' => 'ファイルの選択に失敗しました。もう一度お試しください',
+			'common.e2eeBackupErrValidateFailed' => 'ファイルの検証に失敗しました。ファイル形式を確認してください',
+			'common.e2eeBackupErrImportFailed' => '読み込みに失敗しました。パスワードが正しいか確認してください',
+			'common.e2eeBackupImportSuccessTitle' => '読み込み完了',
+			'common.e2eeBackupImportSuccessBody' => 'E2EEキーを復元しました！',
+			'common.e2eeBackupImportSuccessNote' => '注意：古いメッセージは閲覧できない場合があります。これはE2EEの正常な動作です',
+			'common.e2eeBackupNoRecords' => 'バックアップ履歴はありません',
+			'common.e2eeBackupNoRecordsHint' => 'バックアップを書き出すと、ここに履歴が表示されます',
+			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'デバイス ${id}',
+			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => '作成日時 ${time}',
+			'common.e2eeBackupDetailTitle' => 'バックアップの詳細',
+			'common.e2eeBackupDeviceIdLabel' => 'デバイス ID',
+			'common.e2eeBackupVersionNum' => 'バックアップバージョン',
+			'common.e2eeBackupCreatedAtRow' => '作成日時',
+			'common.e2eeBackupFileSizeRow' => 'ファイルサイズ',
+			'common.e2eeBackupNoteRow' => 'メモ',
+			'common.e2eeBackupDeleteTitle' => 'バックアップ履歴を削除',
+			'common.e2eeBackupDeleteConfirm' => 'このバックアップ履歴を削除しますか？',
+			'common.e2eeBackupDeleteSuccess' => 'バックアップ履歴を削除しました',
+			'common.e2eeSocialShardSettings' => 'シャード設定',
+			'common.e2eeSocialShardStoredNote' => '説明：シャードは代理デバイスに保存され、サーバーには一切保存されません',
+			'common.e2eeSocialAddProxy' => '代理者を追加',
+			'common.e2eeSocialAddProxyHint' => '代理者の連絡先を追加してください',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '先に ${count} 人の代理者を追加してください',
+			'common.e2eeSocialCreateSuccessTitle' => 'シャードを作成しました',
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'キーを ${count} 個のシャードに分割しました',
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} 人の代理者の協力でキーを復元できます',
+			'common.e2eeSocialZeroTrustNote' => 'ゼロトラスト構成：サーバーにはシャードを一切保存しません',
+			'common.e2eeSocialNoShards' => '復元シャードをまだ作成していません',
+			'common.e2eeSocialNoProxyShards' => '代理シャードはありません',
+			'common.e2eeSocialKeyVersionLabel' => 'キーのバージョン',
+			'common.e2eeTransferErrNoKey' => '先にキーペアを生成してください',
+			'common.e2eeTransferErrInitFailed' => '初期化に失敗しました。もう一度お試しください',
+			'common.e2eeTransferErrNoRecipientKey' => '受信者に利用可能な公開鍵がありません',
+			'common.e2eeTransferErrKeyNotFound' => 'キーが見つかりません',
+			'common.e2eeTransferErrCreateFailed' => '転送セッションの作成に失敗しました。もう一度お試しください',
+			'common.e2eeTransferCreateSessionBtn' => '転送セッションを作成',
+			'common.e2eeTransferSessionCreated' => '転送セッションを作成しました',
+			'common.e2eeTransferUidEmptyError' => '有効なユーザーIDを入力してください',
+			'common.e2eeTransferSuccess' => '転送に成功しました！',
+			'common.e2eeTransferFailed' => '転送に失敗しました。もう一度お試しください',
+			'common.e2eeTransferProcessingMsg' => '処理中...',
+			'common.e2eeTransferSuccessTitle' => '転送完了',
+			'common.e2eeTransferSuccessBody' => 'キーをこのデバイスに転送しました',
+			'common.e2eeTransferScanError' => ({required Object error}) => 'スキャンエラー: ${error}',
+			'common.e2eeTransferErrNoDeviceId' => 'デバイス IDを取得できません',
+			'common.passwordEncryptFailed' => 'パスワードの暗号化に失敗しました',
+			'common.initConfigTimeout' => '設定の取得がタイムアウトしました：ネットワーク接続またはサーバーの状態を確認してください',
+			'common.initConfigNetworkError' => ({required Object code}) => 'ネットワークまたはサーバーの障害です (HTTP ${code})',
+			'common.initConfigProtocolError' => 'サーバープロトコルに誤りがあります',
+			'common.initConfigFetchFailed' => '設定の取得に失敗しました。ネットワーク接続を確認してください',
+			'common.attachmentGetFileFailed' => 'ファイルを取得できません。もう一度お試しいただくか、アルバムから選択してください',
+			'common.attachmentGetFileFailedAndroid9' => 'ファイルの取得に失敗しました。Android 9では互換性の問題がある可能性があります',
+			'common.attachmentGetImageDataFailed' => '画像データを取得できません。もう一度お試しください',
+			'common.attachmentGetOriginalImageFailed' => '元の画像データを取得できません',
+			'common.saveFailedRetry' => '保存に失敗しました。もう一度お試しください',
+			'common.downloadFileNotFound' => 'ダウンロードファイルが存在しません。もう一度お試しください',
+			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'ファイルの検証に失敗しました。再ダウンロード中 (${retry}/${max})',
+			'common.downloadHashFailed' => 'ファイルの検証が複数回失敗しました。ネットワークを確認して再度お試しください',
+			'common.e2eeTransferToNewDevice' => '新しいデバイスへ転送',
+			'common.e2eeTransferPendingSection' => '保留中の転送',
+			'common.e2eeTransferLoadFailed' => '読み込みに失敗しました',
+			'common.e2eeTransferLoadFailedDesc' => '保留中の転送を読み込めません。もう一度お試しください',
+			_ => null,
+		} ?? switch (path) {
+			'common.e2eeTransferNoPending' => '保留中の転送はありません',
+			'common.e2eeTransferNoPendingDesc' => 'デバイスからキーが送信されると、ここに表示されます',
+			'common.e2eeSocialEnoughShards' => 'キーを復元するのに十分なシャードがあります',
+			'common.e2eeSocialMoreShards' => ({required Object count}) => '他 ${count} 個のシャード...',
+			'common.e2eeProxyLoadFriendsFailed' => '友達リストの読み込みに失敗しました。もう一度お試しください',
+			'common.e2eeProxyNoPublicKey' => 'この友達には利用可能な公開鍵がありません',
+			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => '${name} の公開鍵の取得に失敗しました',
+			'common.e2eeProxySelectFailed' => '代理者の選択に失敗しました。もう一度お試しください',
+			'common.e2eeProxyNoFriends' => '友達がいません',
+			'common.e2eeProxyNoFriendsHint' => '先に友達を追加してから復元の代理者を設定してください',
+			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '最低 ${count} 人の信頼できる連絡先が必要です。${selected} 人選択中',
+			'common.e2eeProxyConfirmCount' => ({required Object count}) => '選択を確認（代理者 ${count} 人）',
+			'common.buttonBackHome' => 'ホームへ',
+			'common.featureNotEnabled' => 'この機能は現在利用できません',
+			'common.featureDisabledName' => ({required Object name}) => '${name} 機能が無効のため、一時的に利用できません',
+			'common.imageLoadFailed' => '読み込みに失敗しました',
+			'common.loadFailedWithError' => ({required Object error}) => '読み込みに失敗しました: ${error}',
+			'common.webAudioNotSupported' => 'Web版では音声メッセージの再生に対応していません',
+			'common.e2eeKeyRecreationFailed' => ({required Object error}) => 'キーの作成に失敗しました: ${error}',
+			'common.redPacket' => 'お年玉',
+			'common.transfer' => '送金',
+			'common.withdraw' => '出金',
+			'common.redPacketSend' => 'お年玉を送る',
+			'common.redPacketOpen' => 'お年玉を受け取る',
+			'common.redPacketDetail' => 'お年玉の詳細',
+			'common.transferSend' => '送金を開始',
+			'common.transferAccept' => '受領を確認',
+			'common.greetingDefault' => '謹賀新年',
+			'common.grabAmountYuan' => ({required Object amount}) => '受取金額：${amount} 元',
+			'common.transferAmountYuan' => ({required Object amount}) => '送金金額：${amount} 元',
+			'common.insufficientBalance' => '残高不足',
+			'common.goToRecharge' => 'チャージへ',
+			'common.withdrawSuccess' => '出金しました',
+			'common.withdrawConfirm' => '出金を確認',
+			'common.withdrawAmountError' => '1元以上の金額を入力してください',
+			'common.withdrawAccountEmpty' => '出金先のアカウントを入力してください',
+			'common.withdrawMethod' => '出金方法',
+			'common.withdrawAccount' => '出金先アカウント',
 			'complaint.complaint' => '通報',
+			'complaintReason.spam' => 'スパム',
+			'complaintReason.harassment' => 'ハラスメント',
+			'complaintReason.inappropriate' => '不適切な内容',
+			'complaintReason.other' => 'その他',
 			'contact.applyFriend' => '友達申請',
 			'contact.applyFriendLogic' => '友達申請ロジック',
 			'contact.applyParam' => ({required Object param}) => '${param}を申請',
@@ -2698,6 +4044,7 @@ extension on TranslationsJaJp {
 			'contact.pleaseEnterRemark' => '備考名を入力してください',
 			'contact.enterRemark' => '備考名を入力してください',
 			'contact.pleaseEnterTags' => 'タグを入力してください',
+			'contact.momentsVisibilityFriends' => '友達のみ',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'タグの長さは${param}文字を超えることはできません',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最大${param}個のタグを追加できます',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '選択したタグ (${param}/${max})',
@@ -2716,6 +4063,8 @@ extension on TranslationsJaJp {
 			'contact.tagIdeas' => 'アイデア',
 			'contact.tagMemo' => 'メモ',
 			'contact.friendRequestSent' => '送信済み',
+			'contact.channelMaxTagsCount' => 'タグは最大8個まで追加できます',
+			'contact.tagInputHint' => 'タグを入力...',
 			'discovery.findNearbyPeople' => '近くの人を探す',
 			'discovery.moment' => 'モーメンツ',
 			'discovery.nearbyPeopleExplain' => '近くのユーザーがあなたのプロフィールを表示してメッセージを送ることができます。これは新しい友達を見つけるのに役立つかもしれませんが、過度な注意を引く可能性もあります。いつでもプロフィールの共有を停止できます。\n電話番号は非表示になります。',
@@ -2725,10 +4074,26 @@ extension on TranslationsJaJp {
 			'discovery.scanResult' => 'スキャン結果',
 			'discovery.scannerResult' => 'スキャン結果',
 			'discovery.titleDiscover' => '発見',
+			'discovery.myChannels' => 'マイチャンネル',
+			'discovery.channelSquare' => 'チャンネル広場',
 			'discovery.otherUsersCanFindMe' => '他のユーザーが検索で私を見つけることができます',
 			'discovery.moments' => 'モーメンツ',
+			'discovery.momentsReport' => 'モーメントを通報',
+			'discovery.momentsReportDesc' => '詳細説明',
+			'discovery.momentsComments' => 'コメント',
+			'discovery.momentsWriteComment' => 'コメントを書く...',
+			'discovery.momentsVisibility' => '公開範囲',
+			'discovery.momentsVisibilityPublic' => '全員に公開',
+			'discovery.momentsVisibilityPartial' => '一部の友達',
+			'discovery.momentsVisibilityExclude' => '一部の友達を除外',
+			'discovery.momentsDenyUidsLabel' => '除外対象 UID リスト（カンマ区切り）',
+			'discovery.momentsDraftRestored' => '前回の未送信下書きを復元しました',
+			'discovery.momentsFeedStale' => '通信エラーのため、キャッシュの内容を表示しています',
 			'discovery.discover' => '発見',
 			'discovery.shake' => 'シェイク',
+			'discovery.openChannel' => 'チャンネルを開く',
+			'discovery.paidChannelLocked' => '有料チャンネルの内容はロックされています',
+			'discovery.webQRScanned' => 'スキャン済み',
 			'error.restartRequired' => 'アプリの再起動が必要です',
 			'error.networkFailureGuidance' => 'ネットワーク障害ガイダンス',
 			'error.pleaseCheckNetwork' => 'ネットワーク設定を確認してください。',
@@ -2736,10 +4101,16 @@ extension on TranslationsJaJp {
 			'error.networkTroubleshootingStep2' => '2. スマートフォンの設定 - 一般 - モバイルデータ通信を開き、モバイルデータ通信スイッチをオンにします。',
 			'error.networkTroubleshootingStep3' => '3. まだネットワークに接続できない場合、スマートフォンが接続しているWi-Fiがインターネットにアクセスできるかどうかを確認するか、ネットワーク事業者にお問い合わせください。',
 			'error.suggestCheckNetwork' => 'ネットワーク設定を確認することをお勧めします。',
+			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'キーの復元を開始（${required} 人の代理者の協力が必要）',
+			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'シャード不足（必要 ${required} 個、現在 ${current} 個）',
+			'error.e2eeErrTimeout' => '暗号化がタイムアウトしました。ネットワーク接続を確認して再度お試しください',
+			'error.e2eeErrNetwork' => 'ネットワークエラーのため暗号化に失敗しました。メッセージは送信されませんでした',
+			'error.liveRoomTitleRequired' => 'タイトルを入力してください',
 			'group.financialManagement' => '資産運用',
 			'group.enterSameGroup' => '近くの友達と同じグループチャットに入る',
 			'group.enterTheGroup' => 'このグループに入る',
 			'group.groupAlias' => 'グループ内のニックネーム',
+			'group.groupAlbum' => 'グループアルバム',
 			'group.groupDissolve' => 'グループを解散',
 			'group.groupJoin' => 'グループに参加',
 			'group.groupLeave' => 'グループを退出',
@@ -2747,16 +4118,139 @@ extension on TranslationsJaJp {
 			'group.groupMembers' => 'グループメンバー',
 			'group.groupName' => 'グループ名',
 			'group.mutualGroupsWithHer' => '相手との共通グループチャット',
-			'group.selectGroup' => 'グループチャットを選択',
-			'group.sureToDissolveGroup' => 'このグループを解散してもよろしいですか？',
-			'group.sureToLeaveGroup' => 'このグループを退出してもよろしいですか？',
 			'group.groupOwner' => 'Owner',
 			'group.groupAdmin' => 'Admin',
-			'group.groupGuest' => '嘉宾',
+			'group.groupGuest' => 'ゲスト',
 			'group.groupMember' => 'Member',
 			'group.setAdmin' => 'Set as Admin',
 			'group.transferGroup' => 'Transfer Ownership',
 			'group.joinTime' => 'Join Time',
+			'group.selectGroup' => 'グループチャットを選択',
+			'group.sureToDissolveGroup' => 'このグループを解散してもよろしいですか？',
+			'group.sureToLeaveGroup' => 'このグループを退出してもよろしいですか？',
+			'group.groupAlbumNameHint' => 'アルバム名を入力',
+			'group.groupAlbumRenameTitle' => 'アルバムの名前を変更',
+			'group.groupAlbumRenamed' => 'アルバム名を変更しました',
+			'group.groupAlbumUnnamed' => '無題のアルバム',
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 枚の画像',
+			'group.groupAlbumPhotoIdMissing' => '画像IDがありません。詳細を表示できません',
+			'group.groupAlbumPhotoListTitle' => 'アルバムの画像',
+			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '${count} 件選択中',
+			'group.groupAlbumPhotoEmpty' => '画像はありません',
+			'group.groupAlbumPhotoUrlMissing' => '画像のアドレスが見つかりません。開けません',
+			'group.groupAlbumPhotoUrlInvalid' => '画像のアドレスが無効です',
+			'group.groupAlbumPhotoDetailTitle' => '画像の詳細',
+			'group.groupAlbumPhotoSetCover' => '表紙に設定',
+			'group.groupAlbumPhotoPrev' => '前へ',
+			'group.groupAlbumPhotoLikeCount' => 'いいね数',
+			'group.groupAlbumPhotoCommentCount' => 'コメント数',
+			'group.groupAlbumPhotoMyLike' => '自分のいいね',
+			'group.groupAlbumPhotoIdLabel' => '画像ID',
+			'group.e2eeKeyManagement' => 'E2EEキー管理',
+			'group.e2eeKeyManagementSubtitle' => 'エンドツーエンド暗号キーのバックアップ、復元、管理',
+			'groupCategory.title' => 'グループカテゴリ',
+			'groupCategory.createCategory' => 'カテゴリを作成',
+			'groupCategory.categoryName' => 'カテゴリ名',
+			'groupCategory.categoryDesc' => 'カテゴリの説明（任意）',
+			'groupCategory.noCategory' => 'カテゴリはありません',
+			'groupCategory.createFirst' => '最初のカテゴリを作成しましょう',
+			'groupCategory.addGroup' => 'グループをカテゴリに追加',
+			'groupCategory.removeGroup' => 'カテゴリから削除',
+			'groupCategory.deleteCategory' => 'カテゴリを削除',
+			'groupCategory.deleteCategoryConfirm' => 'このカテゴリを削除しますか？グループは削除されません。',
+			'groupCategory.categoryCreated' => 'カテゴリを作成しました',
+			'groupCategory.categoryDeleted' => 'カテゴリを削除しました',
+			'groupCategory.renameCategory' => 'カテゴリの名前を変更',
+			'groupCategory.categoryRenamed' => 'カテゴリの名前を変更しました',
+			'groupCategory.renameFailed' => '名前の変更に失敗しました。もう一度お試しください',
+			'groupCategory.deleteFailed' => '削除に失敗しました。もう一度お試しください',
+			'groupCategory.categoryDetailTip' => 'このカテゴリのグループは、グループリストの「カテゴリに移動」から管理できます',
+			'groupList.attrAll' => 'すべて',
+			'groupList.attrOwner' => '作成済み',
+			'groupList.attrManager' => '管理中',
+			'groupList.attrJoin' => '参加中',
+			'groupList.refresh' => '更新',
+			'groupSchedule.title' => 'グループスケジュール',
+			'groupSchedule.createSchedule' => 'スケジュールを作成',
+			'groupSchedule.scheduleTitle' => 'スケジュール名',
+			'groupSchedule.selectDate' => '日付を選択',
+			'groupSchedule.selectTime' => '時刻を選択',
+			'groupSchedule.location' => '場所',
+			'groupSchedule.reminder' => 'リマインダー',
+			'groupSchedule.noReminder' => 'リマインダーなし',
+			'groupSchedule.noSchedule' => 'スケジュールはありません',
+			'groupSchedule.scheduleCreated' => 'スケジュールを作成しました',
+			'groupSchedule.scheduleUpdated' => 'スケジュールを更新しました',
+			'groupSchedule.reminder15min' => '15分前',
+			'groupSchedule.reminder1hour' => '1時間前',
+			'groupSchedule.reminder1day' => '1日前',
+			'groupSchedule.startTime' => '開始時刻',
+			'groupSchedule.endTime' => '終了時刻',
+			'groupSchedule.participants' => '参加者数',
+			'groupSchedule.statusCancelled' => 'キャンセル済み',
+			'groupSchedule.statusInProgress' => '進行中',
+			'groupSchedule.cancelSuccess' => 'スケジュールをキャンセルしました',
+			'groupSchedule.cancelFailed' => 'キャンセルに失敗しました。後でもう一度お試しください',
+			'groupSchedule.confirmAttend' => '参加する',
+			'groupSchedule.declineAttend' => '参加しない',
+			'groupSchedule.cancelSchedule' => 'スケジュールをキャンセル',
+			'groupSchedule.scheduleIdMissing' => 'スケジュールIDがありません。詳細を表示できません',
+			'groupTag.title' => 'グループタグ',
+			'groupTag.addTag' => 'タグを追加',
+			'groupTag.tagName' => 'タグ名',
+			'groupTag.tagColor' => 'タグの色',
+			'groupTag.noTag' => 'タグはありません',
+			'groupTag.tagAdded' => 'タグを追加しました',
+			'groupTag.tagRemoved' => 'タグを削除しました',
+			'groupTag.removeTitle' => 'タグを削除',
+			'groupTag.removeConfirm' => 'このタグを削除しますか？',
+			'groupTask.title' => 'グループタスク',
+			'groupTask.createTask' => 'タスクを作成',
+			'groupTask.taskTitle' => 'タスク名',
+			'groupTask.taskDescription' => 'タスクの説明',
+			'groupTask.assignTo' => '担当者',
+			'groupTask.deadline' => '期限',
+			'groupTask.noDeadline' => '期限なし',
+			'groupTask.noTask' => 'タスクはありません',
+			'groupTask.all' => 'すべて',
+			'groupTask.pending' => '未完了',
+			'groupTask.completed' => '完了',
+			'groupTask.taskCreated' => 'タスクを作成しました',
+			'groupTask.taskSubmitted' => 'タスクを提出しました',
+			'groupTask.taskCompleted' => 'タスクが完了しました',
+			'groupTask.overdue' => '期限切れ',
+			'groupTask.daysLeft' => ({required Object days}) => 'あと ${days} 日',
+			'groupTask.hoursLeft' => ({required Object hours}) => 'あと ${hours} 時間',
+			'groupTask.dueSoon' => '期限が迫っています',
+			'groupTask.submitFailed' => '提出に失敗しました。後でもう一度お試しください',
+			'groupTask.taskId' => 'タスクID',
+			'groupTask.pendingReview' => '審査待ち',
+			'groupTask.taskIdMissing' => 'タスクIDがありません。詳細を表示できません',
+			'groupTask.taskIdMissingSubmit' => 'タスクIDがありません。提出できません',
+			'groupVote.title' => 'グループ投票',
+			'groupVote.createVote' => '投票を作成',
+			'groupVote.voteTitle' => '投票タイトル',
+			'groupVote.voteOptions' => '投票の選択肢',
+			'groupVote.addOption' => '選択肢を追加',
+			'groupVote.allowMultiple' => '複数選択を許可',
+			'groupVote.anonymous' => '匿名投票',
+			'groupVote.deadline' => '期限',
+			'groupVote.noDeadline' => '期限なし',
+			'groupVote.noVote' => '投票はありません',
+			'groupVote.voteEnded' => '投票は終了しました',
+			'groupVote.totalVotes' => ({required Object count}) => '計 ${count} 票',
+			'groupVote.voteSuccess' => '投票しました',
+			'groupVote.hasVoted' => '投票済み',
+			'groupVote.viewResults' => '結果を見る',
+			'groupVote.cancelVoteSuccess' => '投票を取り消しました',
+			'groupVote.cancelVoteFailed' => '取り消しに失敗しました。後でもう一度お試しください',
+			'groupVote.endVoteFailed' => '終了処理に失敗しました。後でもう一度お試しください',
+			'groupVote.eachOptionPerLine' => '1行に1つの選択肢',
+			'groupVote.statusInProgress' => '進行中',
+			'groupVote.updateVote' => '投票を更新',
+			'groupVote.cancelMyVote' => '自分の投票を取り消す',
+			'groupVote.voteIdMissing' => '投票IDがありません。詳細を表示できません',
+			'groupVote.participantCount' => ({required Object count}) => '参加者数: ${count}',
 			'main.change' => '変更',
 			'main.entertainment' => '映画・ショー',
 			'main.lifePayment' => '料金支払い',
@@ -2771,6 +4265,8 @@ extension on TranslationsJaJp {
 			'main.audio' => 'オーディオ',
 			'main.barcodeFound' => 'バーコードが見つかりました！',
 			'main.botQianFan' => '千帆ボット',
+			'main.liveRoomWhipLabel' => 'WHIP 配信アドレス',
+			'main.liveRoomWhepLabel' => 'WHEP 受信アドレス',
 			'main.cache' => 'キャッシュ',
 			'main.camera' => 'カメラ',
 			'main.changeNameView' => '名前変更画面',
@@ -2848,6 +4344,9 @@ extension on TranslationsJaJp {
 			'main.recentlyUsed' => '最近使用',
 			'main.releaseEnd' => '指を離して終了',
 			'main.remainingChars' => ({required Object param}) => 'あと${param}文字入力できます',
+			'main.kickMember' => 'Remove from Group',
+			'main.memberDetail' => 'Member Details',
+			'main.memberRole' => 'Role',
 			'main.replied' => '返信しました',
 			'main.ringing' => '呼び出し中...',
 			'main.ruRu' => 'ロシア語（ロシア）',
@@ -2872,6 +4371,7 @@ extension on TranslationsJaJp {
 			'main.timeRange' => '時間範囲',
 			'main.timeWeekdays' => '月曜,火曜,水曜,木曜,金曜,土曜,日曜',
 			'main.titleMine' => 'マイページ',
+			'main.titleSquare' => '広場',
 			'main.tooBad' => '最悪',
 			'main.tryAgainQ' => 'もう一度試しますか？',
 			'main.type' => 'タイプ',
@@ -2944,9 +4444,129 @@ extension on TranslationsJaJp {
 			'main.larger' => 'より大きい',
 			'main.currentLength' => ({required Object param1, required Object param2}) => '現在の長さ：${param1} / ${param2}',
 			'main.fillIn' => '入力',
-			'main.kickMember' => 'Remove from Group',
-			'main.memberDetail' => 'Member Details',
-			'main.memberRole' => 'Role',
+			'main.msgProtectedByComplianceKey' => 'メッセージはコンプライアンスキーで保護されています',
+			'main.inviterLabel' => ({required Object uid}) => '招待者: ${uid}',
+			'main.inviteeLabel' => ({required Object uid}) => '招待先: ${uid}',
+			'main.mySentTab' => '送信',
+			'main.reject' => '辞退',
+			'main.myOrders' => '注文履歴',
+			'main.purchaseUnlockHint' => '購入すると、チャンネルの過去のメッセージと今後の更新を閲覧できます。',
+			'main.payingDots' => '決済中...',
+			'main.purchaseAndUnlock' => '今すぐ購入してロック解除',
+			'main.orderDetail' => '注文詳細',
+			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '金額: ${currency} ${amount}',
+			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => '価格：${currency} ${amount}',
+			'main.e2eeKeyRecoveryTitle' => 'エンドツーエンド暗号キー管理',
+			'main.e2eeRecoveryMethods' => 'キーの復元方法',
+			'main.e2eeDangerousOps' => '危険な操作',
+			'main.e2eeSocialRecovery' => 'ソーシャルリカバリ',
+			'main.e2eeSocialRecoveryDesc' => '信頼する連絡先の協力でキーを復元します',
+			'main.e2eeKeyIdLabel' => 'キー ID',
+			'main.e2eeWarnIrreversible' => '• この操作は取り消せません',
+			'main.e2eeWarnNeedRestoreOrNew' => '• バックアップから復元するか、新しいキーを生成する必要があります',
+			'main.gotIt' => '了解',
+			'main.e2eeRecoverKeyTitle' => 'キーを復元',
+			'main.e2eeCanRecoverKey' => 'キーを復元できます',
+			'main.e2eeInsufficientShards' => 'シャードが不足しています',
+			'main.e2eeProxyUser' => ({required Object uid}) => '代理ユーザー: ${uid}',
+			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'シャード ${index} / ${total}',
+			'main.e2eeReloadShards' => '再読み込み',
+			'main.e2eeRecovering' => '復元中...',
+			'main.e2eeKeyRestored' => 'キーを復元しました',
+			'main.e2eeUsedShards' => ({required Object count}) => '${count} 個の代理シャードを使用しました',
+			'main.e2eePreparing' => '復元を準備中...',
+			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '進捗: ${collected} / ${total} シャード',
+			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => 'シャードを収集中 (${collected}/${total})...',
+			'main.e2eeShardsCollected' => 'シャードの収集が完了しました。キーを再構築中...',
+			'main.webQRLoggingIn' => 'ログイン中...',
+			'main.webQRExpired' => 'QRコードの有効期限が切れました',
+			'main.webQRRefresh' => 'QRコードを更新',
+			'main.webSwitchToQR' => 'QRコードでログイン',
+			'main.e2eeErrDefault' => 'エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした',
+			_ => null,
+		} ?? switch (path) {
+			'main.e2eeSocialTotalShards' => 'シャードの合計数',
+			'main.e2eeSocialThreshold' => '復元のしきい値',
+			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'キーの復元には ${count} 人の代理者の協力が必要です',
+			'main.e2eeSocialSelectProxy' => '復元の代理者を選択',
+			'main.e2eeSocialProxyNeeded' => ({required Object count}) => '${count} 人の信頼できる連絡先を代理者として追加してください',
+			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'ユーザー ${uid}',
+			'main.e2eeSocialShardSentViaWs' => 'シャードはWebSocket経由で代理デバイスに直接送信・保存されました',
+			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => '${sent} / ${total} 件の代理デバイスに送信済み',
+			'main.e2eeSocialManageTitle' => 'シャードを管理',
+			'main.e2eeSocialMyShards' => 'マイシャード',
+			'main.e2eeSocialProxyShards' => '代理シャード',
+			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => 'シャード ${idx} / ${total}',
+			'main.e2eeSocialShardActive' => '有効',
+			'main.e2eeSocialShardUsed' => '使用済み',
+			'main.e2eeSocialShardValid' => 'シャードは有効です',
+			'main.e2eeSocialUserShard' => ({required Object uid}) => 'ユーザー ${uid} のキーシャード',
+			'main.e2eeSocialProxyUserLabel' => '代理ユーザー',
+			'main.e2eeSocialRecoveryThresholdLabel' => '復元のしきい値',
+			'main.e2eeSocialShardIndexLabel' => 'シャード番号',
+			'main.e2eeTransferQRHint' => '新しいデバイスでこのQRコードをスキャンしてください',
+			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'QRコードは ${time} に期限切れになります',
+			'main.e2eeTransferRefreshQR' => 'QRコードを更新',
+			'main.e2eeTransferEnterUidTitle' => '受信者のユーザーIDを入力',
+			'main.e2eeTransferUidPlaceholder' => '受信者のユーザーID',
+			'main.e2eeTransferReceiving' => '受信中...',
+			'main.e2eeTransferPageTitle' => 'デバイス間転送',
+			'main.e2eeTransferPendingItem' => '保留中のキー転送',
+			'main.e2eeTransferPendingItemDesc' => 'タップして詳細を表示',
+			'main.e2eeTransferView' => '表示',
+			'main.e2eeSocialTitle' => 'ソーシャルリカバリ',
+			'main.e2eeSocialCanRecover' => 'キーを復元できます',
+			'main.e2eeSocialSetupProxy' => '復元の代理者を設定',
+			'main.e2eeSocialChooseProxy' => '信頼できる連絡先を復元の代理者として選択',
+			'main.e2eeSocialExistingShards' => '既存の復元シャード',
+			'main.e2eeSocialRecoverKeyTitle' => 'キーを復元',
+			'main.e2eeSocialRecoverKeyDesc' => '代理者のシャードでキーを復元',
+			'main.e2eeSocialManageShardsTitle' => 'シャードを管理',
+			'main.e2eeSocialManageShardsDesc' => 'すべての復元シャードを表示・管理',
+			'main.e2eeSocialZeroTrustHint1' => 'ゼロトラスト構成：サーバーはシャードを保存せず、代理者に直接連絡します',
+			'main.e2eeSocialZeroTrustHint2' => 'ゼロトラスト構成：シャードは代理デバイスに保存されます',
+			'main.e2eeSocialZeroTrustHint3' => 'ゼロトラスト構成：シャードは代理デバイスが保存し、サーバーは平文に触れません',
+			'main.e2eeProxyMinCount' => ({required Object count}) => '最低 ${count} 人の代理者を選択してください',
+			'main.e2eeProxySelectTitle' => '復元の代理者を選択',
+			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '選択中 ${selected} / ${total}',
+			'main.e2eeProxyReachedMin' => '最少代理者数に達しました',
+			'main.liveRoomTitleLabel' => '配信ルーム名',
+			'main.liveRoomTitleHint' => '配信ルーム名を入力',
+			'mention.title' => '@メンション',
+			'mention.noMention' => '@メンションはありません',
+			'mention.allRead' => 'すべて既読にする',
+			'mention.markAsRead' => '既読にする',
+			'mention.newMention' => '新しい@メンション',
+			'mention.fromGroup' => 'グループから',
+			'mention.fromChat' => 'チャットから',
+			'mention.viewContext' => '前後のメッセージを見る',
+			'mention.mentionCount' => ({required Object count}) => '${count} 件の新しいメンション',
+			'mention.mentionAllDenied' => '管理者のみ @全員 できます',
+			'mention.navInfoMissing' => 'メッセージの位置情報がありません。移動できません',
+			'momentFriendPicker.title' => '友達を選択',
+			'momentFriendPicker.titleAllow' => '公開対象',
+			'momentFriendPicker.titleDeny' => '除外対象',
+			'momentFriendPicker.confirm' => '完了',
+			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '完了(${count})',
+			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} 人選択中',
+			'momentFriendPicker.emptyFriends' => '友達がいません',
+			'momentFriendPicker.tagsLabel' => 'タグで選択',
+			'momentFriendPicker.emptyTags' => 'タグはありません',
+			'momentFriendPicker.tagLoadFailed' => 'タグの読み込みに失敗しました',
+			'momentFriendPicker.searchHint' => '友達を検索',
+			'momentNotify.title' => '通知',
+			'momentNotify.emptyTitle' => '新しい通知はありません',
+			'momentNotify.emptyHint' => '友達からの「いいね」やコメントはここに表示されます',
+			'momentNotify.actionLike' => 'があなたのモーメントに「いいね」しました',
+			'momentNotify.actionComment' => 'がコメントしました',
+			'momentNotify.markAllRead' => 'すべて既読にする',
+			'momentNotify.clearAll' => 'すべて削除',
+			'momentNotify.clearConfirmTitle' => 'すべての通知を削除しますか？',
+			'momentNotify.clearConfirmMessage' => '削除後は復元できません',
+			'momentNotify.confirm' => 'OK',
+			'momentNotify.cancel' => 'キャンセル',
+			'momentNotify.delete' => '削除',
+			'momentNotify.loadFailed' => '読み込みに失敗しました。後でもう一度お試しください',
 			'passport.retrievePassword' => 'パスワードを回復',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',

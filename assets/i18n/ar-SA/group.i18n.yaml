@@ -1,7 +1,9 @@
+---
 financialManagement: إدارة مالية
 enterSameGroup: انضم إلى نفس المجموعة مع الأصدقاء من حولك
 enterTheGroup: الانضمام إلى هذه المجموعة
 groupAlias: لقبي في هذه المجموعة
+groupAlbum: ألبوم المجموعة
 groupDissolve: حلّ الدردشة الجماعية
 groupJoin: الانضمام إلى الدردشة الجماعية
 groupLeave: مغادرة الدردشة الجماعية
@@ -9,13 +11,33 @@ groupManagement: إدارة الدردشة الجماعية
 groupMembers: أعضاء الدردشة الجماعية
 groupName: اسم الدردشة الجماعية
 mutualGroupsWithHer: المجموعات المشتركة بيني وبينه
-selectGroup: اختيار مجموعة
-sureToDissolveGroup: هل أنت متأكد من حل هذه المجموعة؟
-sureToLeaveGroup: هل أنت متأكد من مغادرة هذه المجموعة؟
 groupOwner: Owner
 groupAdmin: Admin
-groupGuest: 嘉宾
+groupGuest: ضيف
 groupMember: Member
 setAdmin: Set as Admin
 transferGroup: Transfer Ownership
 joinTime: Join Time
+selectGroup: اختيار مجموعة
+sureToDissolveGroup: هل أنت متأكد من حل هذه المجموعة؟
+sureToLeaveGroup: هل أنت متأكد من مغادرة هذه المجموعة؟
+groupAlbumNameHint: أدخل اسم الألبوم
+groupAlbumRenameTitle: إعادة تسمية الألبوم
+groupAlbumRenamed: تمت إعادة تسمية الألبوم
+groupAlbumUnnamed: ألبوم بدون اسم
+groupAlbumPhotoCount(count): "$count صورة"
+groupAlbumPhotoIdMissing: معرّف الصورة مفقود، لا يمكن عرض التفاصيل
+groupAlbumPhotoListTitle: صور الألبوم
+groupAlbumPhotoSelectedCount(count): 'محدد: $count'
+groupAlbumPhotoEmpty: لا توجد صور
+groupAlbumPhotoUrlMissing: عنوان الصورة مفقود، لا يمكن الفتح
+groupAlbumPhotoUrlInvalid: عنوان الصورة غير صالح
+groupAlbumPhotoDetailTitle: تفاصيل الصورة
+groupAlbumPhotoSetCover: تعيين كغلاف
+groupAlbumPhotoPrev: السابق
+groupAlbumPhotoLikeCount: الإعجابات
+groupAlbumPhotoCommentCount: التعليقات
+groupAlbumPhotoMyLike: إعجابي
+groupAlbumPhotoIdLabel: معرّف الصورة
+e2eeKeyManagement: إدارة مفاتيح E2EE
+e2eeKeyManagementSubtitle: نسخ احتياطي واستعادة وإدارة مفاتيح التشفير من طرف إلى طرف

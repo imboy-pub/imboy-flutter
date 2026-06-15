@@ -95,7 +95,22 @@ profile: Profile
 setGender: 設定性別
 setBirthday: 設定生日
 sentToEmail: 已傳送至 $param
-nicknameRules: "• 暱稱長度為 2-24 個字元
-• 不能僅包含空白字元或表情符號
-• 不能包含敏感詞彙
-• 修改後將在所有聊天中顯示"
+nicknameRules: • 暱稱長度為 2-24 個字元 • 不能僅包含空白字元或表情符號 • 不能包含敏感詞彙 • 修改後將在所有聊天中顯示
+refreshDeviceKey: 重新整理裝置金鑰
+refreshDeviceKeyHint: 如果訊息無法解密，點選此按鈕重新整理金鑰
+refreshingDeviceKey: 正在重新整理裝置金鑰...
+deviceKeyRefreshed: 裝置金鑰已重新整理
+rechargeTitle: 充值
+rechargeAmountHint: 請輸入充值金額（元），1元～10000元
+rechargeAmountExample: 例如：100
+e2eeDeviceTransfer: 裝置間傳輸
+e2eeDeviceTransferDesc: 透過二維碼直接傳輸金鑰到新裝置
+e2eeDeviceIdLabel: 裝置 ID
+webQRLoginTitle: 掃碼登入
+webQRLoginHint: 使用 ImBoy 手機版掃描二維碼
+webSwitchToPassword: 使用賬號密碼登入
+webPasswordLoginTitle: 賬號登入
+webAccountHint: 請輸入賬號/手機號/郵箱
+webPasswordHint: 請輸入密碼
+e2eeTransferFromOldDevice: 從舊裝置接收金鑰
+pleaseRelogin: 請重新登入

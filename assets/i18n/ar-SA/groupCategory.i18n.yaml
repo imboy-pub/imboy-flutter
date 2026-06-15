@@ -1,0 +1,18 @@
+---
+title: مجلدات المجموعات
+createCategory: إنشاء مجلد
+categoryName: اسم المجلد
+categoryDesc: وصف المجلد (اختياري)
+noCategory: لا توجد مجلدات
+createFirst: أنشئ مجلدك الأول
+addGroup: إضافة مجموعة إلى المجلد
+removeGroup: إزالة من المجلد
+deleteCategory: حذف المجلد
+deleteCategoryConfirm: حذف هذا المجلد؟ لن تُحذف المجموعات.
+categoryCreated: تم إنشاء المجلد
+categoryDeleted: تم حذف المجلد
+renameCategory: إعادة تسمية المجلد
+categoryRenamed: تمت إعادة تسمية المجلد
+renameFailed: تعذّرت إعادة التسمية، أعد المحاولة
+deleteFailed: تعذّر الحذف، أعد المحاولة
+categoryDetailTip: يمكن إدارة مجموعات هذا المجلد عبر «نقل إلى مجلد» في قائمة المجموعات

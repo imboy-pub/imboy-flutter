@@ -1,3 +1,4 @@
+---
 change: Modifica
 entertainment: Cinema e spettacoli
 lifePayment: Pagamento bollette
@@ -10,8 +11,10 @@ album: Foto
 appSize: Dimensione app
 arSa: Arabo (Arabia Saudita)
 audio: Audio
-barcodeFound: "Codice a barre trovato!"
+barcodeFound: Codice a barre trovato!
 botQianFan: Robot Qianfan
+liveRoomWhipLabel: URL di trasmissione WHIP
+liveRoomWhepLabel: URL di ricezione WHEP
 cache: Cache
 camera: Fotocamera
 changeNameView: Schermata modifica nome
@@ -30,7 +33,7 @@ earlier: Prima
 enGb: Inglese (Regno Unito)
 enUs: Inglese (Stati Uniti)
 enable: Abilita
-example: "Es:"
+example: 'Es:'
 expired: Scaduto
 extraItem: Elemento aggiuntivo
 faceToFaceLogic: Logica faccia a faccia
@@ -53,7 +56,7 @@ lastSeenHide: Nascondi stato online
 lastSeenNever: Mai online
 lastSeenWeeksAgo: Online $param settimane fa
 lastSeenExactTime: Online l'ultima volta $param
-licenseAgreement: «Accordo di licenza software e servizi»
+licenseAgreement: "«Accordo di licenza software e servizi»"
 liveBroadcast: Live streaming
 liveRoomListView: Vista stanza live
 publisherPage: Pagina streaming
@@ -75,7 +78,7 @@ multiSelectMode: Modalità selezione multipla
 myFavorites: I miei preferiti
 myLive: Il mio live
 name: Nome
-numUnit: $param elementi
+numUnit: "$param elementi"
 openInBrowser: Apri nel browser
 or: Oppure
 otherParty: Altra parte
@@ -89,6 +92,9 @@ quote: Cita
 recentlyUsed: Usato di recente
 releaseEnd: Rilascia per finire
 remainingChars: Puoi inserire ancora $param caratteri
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role
 replied: Risposto
 ringing: Sta squillando...
 ruRu: Russo (Russia)
@@ -111,8 +117,9 @@ termOfServices: Termini di servizio
 text: Testo
 thisWeek: Questa settimana
 timeRange: Intervallo di tempo
-timeWeekdays: "Lunedì,Martedì,Mercoledì,Giovedì,Venerdì,Sabato,Domenica"
+timeWeekdays: Lunedì,Martedì,Mercoledì,Giovedì,Venerdì,Sabato,Domenica
 titleMine: Io
+titleSquare: Esplora
 tooBad: Troppo brutto
 tryAgainQ: Vuoi riprovare?
 type: Tipo
@@ -154,11 +161,11 @@ toBeCompleted: Da completare
 availableCount: Disponibile
 mostUsed: Più usati
 commentPlaceholder: Commento...
-delayMsLabel: "Ritardo in ms (>=100)"
+delayMsLabel: Ritardo in ms (>=100)
 processed: Elaborato
 export: Esporta
 school: Scuola
-hobbiesAndInterests: "Hobby & Interessi"
+hobbiesAndInterests: Hobby & Interessi
 interests: Interests
 pleaseEnterSchool: Please enter school
 pleaseEnterInterests: Please enter interests
@@ -173,7 +180,7 @@ pleaseTryAgain: Riprova
 secret: Segreto
 takePhoto: Scatta foto
 publishing: Pubblicazione...
-deletingInProgressPleaseWait: "Eliminazione in corso, attendere..."
+deletingInProgressPleaseWait: Eliminazione in corso, attendere...
 testUser1: Utente 1
 testUser2: Utente 2
 testUser3: Utente 3
@@ -183,8 +190,91 @@ collecting: Raccolta in corso...
 user: Utente
 recommended: Consigliato
 larger: Più grande
-currentLength: "Lunghezza attuale: $param1 / $param2"
+currentLength: 'Lunghezza attuale: $param1 / $param2'
 fillIn: Compila
-kickMember: Remove from Group
-memberDetail: Member Details
-memberRole: Role
+msgProtectedByComplianceKey: Messaggio protetto da chiave di conformità
+inviterLabel(uid): 'Invitato da: $uid'
+inviteeLabel(uid): 'Invitato: $uid'
+mySentTab: Inviati
+reject: Rifiuta
+myOrders: Ordini
+purchaseUnlockHint: Dopo l'acquisto, accedi allo storico e agli aggiornamenti del canale.
+payingDots: Pagamento...
+purchaseAndUnlock: Acquista e sblocca
+orderDetail: Dettagli ordine
+orderAmountLabel(currency, amount): 'Importo: $currency $amount'
+channelPriceLabel(currency, amount): 'Prezzo: $currency $amount'
+e2eeKeyRecoveryTitle: Gestione chiavi E2EE
+e2eeRecoveryMethods: Metodi di ripristino
+e2eeDangerousOps: Operazioni sensibili
+e2eeSocialRecovery: Recupero sociale
+e2eeSocialRecoveryDesc: Ripristina la chiave tramite contatti fidati
+e2eeKeyIdLabel: ID chiave
+e2eeWarnIrreversible: "• Operazione irreversibile"
+e2eeWarnNeedRestoreOrNew: "• Ripristina da backup o genera una nuova chiave"
+gotIt: Capito
+e2eeRecoverKeyTitle: Ripristina chiave
+e2eeCanRecoverKey: Chiave ripristinabile
+e2eeInsufficientShards: Frammenti insufficienti
+e2eeProxyUser(uid): 'Garante: $uid'
+e2eeShardLabel(index, total): Frammento $index / $total
+e2eeReloadShards: Ricarica
+e2eeRecovering: Ripristino...
+e2eeKeyRestored: Chiave ripristinata
+e2eeUsedShards(count): "$count frammenti usati"
+e2eePreparing: Preparazione...
+e2eeRecoveryProgressLabel(collected, total): 'Avanzamento: $collected / $total frammenti'
+e2eeCollectingShards(collected, total): Raccolta frammenti ($collected/$total)...
+e2eeShardsCollected: Frammenti raccolti, ricostruzione chiave...
+webQRLoggingIn: Accesso...
+webQRExpired: QR code scaduto
+webQRRefresh: Aggiorna QR code
+webSwitchToQR: Accesso via QR code
+e2eeErrDefault: E2EE fallito, messaggio non inviato
+e2eeSocialTotalShards: Totale frammenti
+e2eeSocialThreshold: Soglia di ripristino
+e2eeSocialThresholdHint(count): "$count garanti richiesti per il ripristino"
+e2eeSocialSelectProxy: Scegli garanti
+e2eeSocialProxyNeeded(count): "$count contatti fidati richiesti come garanti"
+e2eeSocialProxyDefaultName(uid): Utente $uid
+e2eeSocialShardSentViaWs: Frammenti inviati direttamente ai garanti via WebSocket
+e2eeSocialSentCount(sent, total): Inviati a $sent su $total garanti
+e2eeSocialManageTitle: Gestisci frammenti
+e2eeSocialMyShards: I miei frammenti
+e2eeSocialProxyShards: Frammenti garanti
+e2eeSocialShardOf(idx, total): Frammento $idx / $total
+e2eeSocialShardActive: Attivo
+e2eeSocialShardUsed: Usato
+e2eeSocialShardValid: Frammento valido
+e2eeSocialUserShard(uid): Frammento di chiave di $uid
+e2eeSocialProxyUserLabel: Garante
+e2eeSocialRecoveryThresholdLabel: Soglia di ripristino
+e2eeSocialShardIndexLabel: Numero frammento
+e2eeTransferQRHint: Scansiona questo QR code sul nuovo dispositivo
+e2eeTransferQRExpiry(time): QR code scade il $time
+e2eeTransferRefreshQR: Aggiorna QR code
+e2eeTransferEnterUidTitle: ID utente del destinatario
+e2eeTransferUidPlaceholder: ID utente destinatario
+e2eeTransferReceiving: Ricezione...
+e2eeTransferPageTitle: Trasferimento tra dispositivi
+e2eeTransferPendingItem: Trasferimento chiave in sospeso
+e2eeTransferPendingItemDesc: Tocca per i dettagli
+e2eeTransferView: Vedi
+e2eeSocialTitle: Recupero sociale
+e2eeSocialCanRecover: Chiave ripristinabile
+e2eeSocialSetupProxy: Configura garanti
+e2eeSocialChooseProxy: Scegli contatti fidati come garanti
+e2eeSocialExistingShards: Frammenti esistenti
+e2eeSocialRecoverKeyTitle: Ripristina chiave
+e2eeSocialRecoverKeyDesc: Ripristina tramite frammenti garanti
+e2eeSocialManageShardsTitle: Gestisci frammenti
+e2eeSocialManageShardsDesc: Vedi e gestisci tutti i frammenti
+e2eeSocialZeroTrustHint1: 'Zero-Trust: server senza frammenti, contatto diretto dei garanti'
+e2eeSocialZeroTrustHint2: 'Zero-Trust: frammenti dai garanti'
+e2eeSocialZeroTrustHint3: 'Zero-Trust: server senza accesso al testo in chiaro'
+e2eeProxyMinCount(count): Almeno $count garanti
+e2eeProxySelectTitle: Scegli garanti
+e2eeProxySelectedCount(selected, total): "$selected / $total scelti"
+e2eeProxyReachedMin: Numero minimo raggiunto
+liveRoomTitleLabel: Titolo live
+liveRoomTitleHint: Titolo live

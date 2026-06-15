@@ -44,11 +44,21 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$chat$ru_RU chat = _Translations$chat$ru_RU._(_root);
 	@override late final _Translations$common$ru_RU common = _Translations$common$ru_RU._(_root);
 	@override late final _Translations$complaint$ru_RU complaint = _Translations$complaint$ru_RU._(_root);
+	@override late final _Translations$complaintReason$ru_RU complaintReason = _Translations$complaintReason$ru_RU._(_root);
 	@override late final _Translations$contact$ru_RU contact = _Translations$contact$ru_RU._(_root);
 	@override late final _Translations$discovery$ru_RU discovery = _Translations$discovery$ru_RU._(_root);
 	@override late final _Translations$error$ru_RU error = _Translations$error$ru_RU._(_root);
 	@override late final _Translations$group$ru_RU group = _Translations$group$ru_RU._(_root);
+	@override late final _Translations$groupCategory$ru_RU groupCategory = _Translations$groupCategory$ru_RU._(_root);
+	@override late final _Translations$groupList$ru_RU groupList = _Translations$groupList$ru_RU._(_root);
+	@override late final _Translations$groupSchedule$ru_RU groupSchedule = _Translations$groupSchedule$ru_RU._(_root);
+	@override late final _Translations$groupTag$ru_RU groupTag = _Translations$groupTag$ru_RU._(_root);
+	@override late final _Translations$groupTask$ru_RU groupTask = _Translations$groupTask$ru_RU._(_root);
+	@override late final _Translations$groupVote$ru_RU groupVote = _Translations$groupVote$ru_RU._(_root);
 	@override late final _Translations$main$ru_RU main = _Translations$main$ru_RU._(_root);
+	@override late final _Translations$mention$ru_RU mention = _Translations$mention$ru_RU._(_root);
+	@override late final _Translations$momentFriendPicker$ru_RU momentFriendPicker = _Translations$momentFriendPicker$ru_RU._(_root);
+	@override late final _Translations$momentNotify$ru_RU momentNotify = _Translations$momentNotify$ru_RU._(_root);
 	@override late final _Translations$passport$ru_RU passport = _Translations$passport$ru_RU._(_root);
 	@override late final _Translations$splash$ru_RU splash = _Translations$splash$ru_RU._(_root);
 	@override late final _Translations$welcome$ru_RU welcome = _Translations$welcome$ru_RU._(_root);
@@ -159,6 +169,24 @@ class _Translations$account$ru_RU extends Translations$account$zh_CN {
 	@override String get setBirthday => 'Установить дату рождения';
 	@override String sentToEmail({required Object param}) => 'Отправлено на ${param}';
 	@override String get nicknameRules => '• 2–24 символа • Нельзя только пробелы или только эмодзи • Нельзя чувствительные слова • После изменения отображается во всех чатах';
+	@override String get refreshDeviceKey => 'Обновить ключ устройства';
+	@override String get refreshDeviceKeyHint => 'Если сообщения не расшифровываются, обновите ключ этой кнопкой';
+	@override String get refreshingDeviceKey => 'Обновление ключа устройства...';
+	@override String get deviceKeyRefreshed => 'Ключ устройства обновлён';
+	@override String get rechargeTitle => 'Пополнение';
+	@override String get rechargeAmountHint => 'Введите сумму пополнения (юаней), 1–10000';
+	@override String get rechargeAmountExample => 'Например: 100';
+	@override String get e2eeDeviceTransfer => 'Передача между устройствами';
+	@override String get e2eeDeviceTransferDesc => 'Прямая передача ключа на новое устройство через QR-код';
+	@override String get e2eeDeviceIdLabel => 'ID устройства';
+	@override String get webQRLoginTitle => 'Вход по QR-коду';
+	@override String get webQRLoginHint => 'Отсканируйте QR-код приложением ImBoy на телефоне';
+	@override String get webSwitchToPassword => 'Войти по паролю';
+	@override String get webPasswordLoginTitle => 'Вход по аккаунту';
+	@override String get webAccountHint => 'Введите аккаунт/телефон/email';
+	@override String get webPasswordHint => 'Введите пароль';
+	@override String get e2eeTransferFromOldDevice => 'Получить ключ со старого устройства';
+	@override String get pleaseRelogin => 'Войдите заново';
 }
 
 // Path: channel
@@ -258,10 +286,16 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get updateRoleFailed => 'Не удалось обновить роль';
 	@override String get userId => 'ID пользователя';
 	@override String get userIdHint => 'Введите ID пользователя';
+	@override String get selectFromContacts => 'Выбрать из контактов';
+	@override String get searchContactsHint => 'Поиск по нику или аккаунту';
+	@override String get noContactsToAdd => 'Все друзья уже администраторы';
+	@override String get selectRole => 'Выбрать роль';
 	@override String get noAdmins => 'Нет администраторов';
 	@override String get roleCreator => 'Создатель';
 	@override String get roleAdmin => 'Администратор';
+	@override String get roleAdminDesc => 'Может управлять каналом';
 	@override String get roleEditor => 'Редактор';
+	@override String get roleEditorDesc => 'Может публиковать сообщения';
 	@override String get roleUnknown => 'Неизвестно';
 	@override String get searchSubscribers => 'Поиск подписчиков';
 	@override String get subscriberSearchHint => 'Поиск по имени или ID';
@@ -273,6 +307,11 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get removeSubscriberFailed => 'Не удалось удалить подписчика';
 	@override String get subscribedAt => 'Подписан';
 	@override String get viewProfile => 'Посмотреть профиль';
+	@override String get inviteFromContacts => 'Пригласить друга';
+	@override String get inviteSearchHint => 'Поиск по нику или аккаунту';
+	@override String get noContactsToInvite => 'Все друзья уже приглашены или подписаны';
+	@override String get inviteSuccess => 'Приглашение отправлено';
+	@override String get inviteFailed => 'Не удалось отправить приглашение';
 	@override String get updateSuccess => 'Канал успешно обновлён';
 	@override String get updateFailed => 'Не удалось обновить канал';
 	@override String get typeCannotChange => 'Нельзя изменить после создания';
@@ -303,6 +342,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get businessCard => 'Визитка';
 	@override String get busyTryAgainLater => 'Собеседник занят, попробуйте позже';
 	@override String get later => 'Позже';
+	@override String peerIsTyping({required Object name}) => '${name} печатает...';
 	@override String get changeGroupChatName => 'Участники увидят новое имя группы';
 	@override String get chatHistory => 'История чата';
 	@override String get chatHoldDownTalk => 'Нажмите и удерживайте для разговора';
@@ -333,12 +373,31 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get forwardTo => 'Переслать';
 	@override String get forwardToFriend => 'Переслать другу';
 	@override String get great => 'Превосходно';
+	@override String get groupFile => 'Файлы группы';
+	@override String get groupFileImagePreview => 'Просмотр изображения';
+	@override String get groupFileVideoPreview => 'Просмотр видео';
+	@override String get groupFileAudioPreview => 'Прослушивание аудио';
+	@override String get groupFileMediaPause => 'Пауза';
+	@override String get groupFileMediaPlay => 'Воспроизвести';
+	@override String get groupFileUrlMissing => 'Адрес файла отсутствует, не удаётся открыть';
+	@override String get groupFileUrlInvalid => 'Недействительный адрес файла';
+	@override String get groupFilePreview => 'Предпросмотр файла';
+	@override String get groupFileUnnamed => 'Файл без названия';
+	@override String groupFileCategoryEmpty({required Object category}) => 'В категории ${category} нет файлов';
+	@override String get groupFileEmpty => 'Нет файлов группы';
+	@override String get groupFileCategoryDoc => 'Документы';
+	@override String get groupFileCategoryImage => 'Изображения';
+	@override String get groupFileCategoryVideo => 'Видео';
+	@override String get groupFileCategoryAudio => 'Аудио';
+	@override String get groupFileCategoryOther => 'Другое';
 	@override String get groupChat => 'Групповой чат';
 	@override String get image => 'Изображение';
 	@override String get imageMessage => '[Изображение]';
 	@override String get initiateChat => 'Начать групповой чат';
 	@override String get justChat => 'Только чат';
 	@override String get location => 'Местоположение';
+	@override String get exportMyData => 'Экспорт моих данных';
+	@override String get exportDataDesc => 'Экспорт личных данных, контактов и истории чатов';
 	@override String get message => 'Сообщение';
 	@override String get messageHandlingMixin => 'Миксин обработки сообщений';
 	@override String get messageMarkTitle => 'Пометка сообщения';
@@ -364,14 +423,33 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get recentChats => 'Недавние чаты';
 	@override String get recentForwards => 'Недавние пересылки';
 	@override String get remindMeLater => 'Напомнить позже';
+	@override String get quickReplyManage => 'Управление быстрыми ответами';
+	@override String get quickReplyEmpty => 'Нет быстрых ответов. Нажмите в правом нижнем углу, чтобы добавить';
+	@override String get quickReplyDuplicate => 'Такой ответ уже существует';
+	@override String quickReplyMaxReached({required Object max}) => 'Максимум ${max}';
+	@override String get quickReplyHint => 'Введите текст...';
+	@override String get muteMember => 'Mute Member';
+	@override String get unmuteMember => 'Unmute';
+	@override String get muteUntil => 'Muted Until';
+	@override String get muted => 'Muted';
+	@override String mutedFor({required Object label}) => 'Мут ${label}';
+	@override String muteUnitMinutes({required Object count}) => '${count} мин';
+	@override String muteUnitHours({required Object count}) => '${count} ч';
+	@override String muteUnitDays({required Object count}) => '${count} дн.';
+	@override String get youAreMuted => 'Вы в муте';
+	@override String youAreMutedWithTime({required Object minutes}) => 'Вы в муте, осталось ${minutes} мин';
 	@override String get repliedAt => 'Ответлено в';
 	@override String get reply => 'Ответить';
 	@override String get replyTo => 'Ответить';
 	@override String get resendCode => 'Отправить код снова';
 	@override String get revoke => 'Отозвать';
 	@override String get scanQrCodeBusinessCard => 'Сканировать QR-код визитки';
+	@override String get singleChat => 'Private Chat';
+	@override String get privateChat => 'Private Chat';
+	@override String get groupMessage => 'Group message';
 	@override String get sendFriendRequest => 'Отправить запрос дружбы';
 	@override String get sendMsgRejected => 'Сообщение отклонено собеседником';
+	@override String get sendMessage => 'Отправить сообщение';
 	@override String get sendSeparatelyTo => 'Отправить отдельно';
 	@override String get sendTo => 'Отправить';
 	@override String get send => _root.common.buttonSend;
@@ -393,6 +471,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get video => 'Видео';
 	@override String get videoMessage => '[Видео]';
 	@override String get viewAttachments => 'Просмотреть вложения';
+	@override String get viewLargeImage => 'Открыть полностью';
 	@override String get voice => 'Голос';
 	@override String get voiceInput => 'Голосовой ввод';
 	@override String get voiceMessage => 'Голосовое сообщение';
@@ -428,6 +507,15 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'Неподдерживаемый тип сообщения';
 	@override String get passwordMismatch => 'Пароли не совпадают';
 	@override String get pleaseTryAgainLater => 'Пожалуйста, попробуйте позже';
+	@override String get momentsSelectVideo => 'Выбрать видео';
+	@override String get momentsRecordVideo => 'Снять видео';
+	@override String get momentsVisibilityPrivate => 'Только я';
+	@override String get momentsMediaTooManyImages => 'Можно выбрать не более 9 изображений';
+	@override String get momentsMediaTooManyVideos => 'Можно выбрать только 1 видео';
+	@override String get momentsMediaMixedImageAndVideo => 'Нельзя прикрепить изображения и видео одновременно';
+	@override String get momentsReplyPrefix => 'Ответ @';
+	@override String get momentsReplySeparator => ': ';
+	@override String get momentsReplyingTo => 'Ответ @{name}';
 	@override String get sendNewMessage => 'Отправить новое сообщение';
 	@override String get markRead => 'Пометить как прочитанное';
 	@override String get markUnread => 'Пометить как непрочитанное';
@@ -446,18 +534,70 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get quickReplyThanks => 'Спасибо';
 	@override String get quickReplyWait => 'Минутку';
 	@override String get messageMute => _root.chat.chatSettingMute;
-	@override String get quickReplyManage => '管理快捷回复';
-	@override String get quickReplyEmpty => '暂无快捷回复，点击右下角添加';
-	@override String get quickReplyDuplicate => '内容已存在';
-	@override String quickReplyMaxReached({required Object max}) => '最多 ${max} 条';
-	@override String get quickReplyHint => '输入内容...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muteUntil => 'Muted Until';
-	@override String get muted => 'Muted';
-	@override String get singleChat => 'Private Chat';
-	@override String get privateChat => 'Private Chat';
-	@override String get groupMessage => 'Group message';
+	@override String groupCategoryGroupCount({required Object count}) => '${count} групп';
+	@override String get groupAlbumCreateTitle => 'Создать альбом группы';
+	@override String get groupAlbumCreated => 'Альбом создан';
+	@override String get profileCompleted => 'Профиль заполнен!';
+	@override String profileProgress({required Object percent}) => '${percent}% заполнено';
+	@override String createdAtLabel({required Object time}) => 'Создано: ${time}';
+	@override String expiredAtLabel({required Object time}) => 'Истекает: ${time}';
+	@override String get myReceivedTab => 'Полученные';
+	@override String orderStatusLabel({required Object status}) => 'Статус: ${status}';
+	@override String orderCreatedAtLabel({required Object time}) => 'Создано: ${time}';
+	@override String orderPaymentAtLabel({required Object time}) => 'Оплачено: ${time}';
+	@override String get orderStatusPending => 'Ожидает оплаты';
+	@override String get orderStatusPaid => 'Оплачено';
+	@override String get orderStatusRefunded => 'Возврат оформлен';
+	@override String get orderStatusExpired => 'Истекло';
+	@override String get defaultFileName => 'Файл';
+	@override String get fileUrlInvalid => 'Недействительная ссылка на файл';
+	@override String get e2eeStatusAvailable => 'Доступно';
+	@override String get e2eeGenerateNewKey => 'Создать новый ключ';
+	@override String get e2eeGenerateNewKeyDesc => 'Создать новую пару ключей E2EE (старые сообщения нельзя будет расшифровать)';
+	@override String get e2eeActivated => 'Активно';
+	@override String get e2eeCreatedAtLabel => 'Создан';
+	@override String get e2eeGeneratingKey => 'Создание ключа, подождите...';
+	@override String get e2eeNewKeyGenerated => 'Новая пара ключей E2EE создана!';
+	@override String get e2eeReady => 'Готово';
+	@override String e2eeReadyWithShards({required Object count}) => 'Готово (фрагментов: ${count})';
+	@override String get webFeatureMultiDevice => 'Синхронизация устройств';
+	@override String get webFeatureMultiDeviceDesc => 'Переключайтесь между телефоном и ПК, сообщения синхронизируются в реальном времени';
+	@override String get webFeatureE2EE => 'Сквозное шифрование';
+	@override String get webFeatureE2EEDesc => 'Все сообщения зашифрованы сквозным шифрованием для защиты конфиденциальности';
+	@override String get webFeatureFileTransfer => 'Передача файлов';
+	@override String get webFeatureFileTransferDesc => 'Перетащите файл, чтобы отправить; поддерживаются разные форматы';
+	@override String get webQRStatusWaiting => 'Откройте ImBoy на телефоне > Настройки > Сканировать';
+	@override String get webQRStatusScanned => 'Нажмите «Подтвердить вход» на телефоне';
+	@override String get webQRStatusVerifying => 'Проверка...';
+	@override String get webQRStatusExpired => 'Обновите и отсканируйте снова';
+	@override String get e2eeErrInvalidFormat => 'Неверный формат сообщения, шифрование не выполнено';
+	@override String get e2eeSocialCreateTitle => 'Создать фрагменты восстановления';
+	@override String get e2eeSocialCreateBtn => 'Создать фрагменты';
+	@override String get e2eeSocialCreateFailTitle => 'Не удалось создать';
+	@override String get e2eeSocialCreateFailBody => 'Не удалось создать фрагменты, попробуйте ещё раз';
+	@override String get e2eeSocialCreateFirst => 'Содержимое появится после создания фрагментов';
+	@override String get e2eeSocialUsedAtLabel => 'Дата использования';
+	@override String get e2eeTransferSendTitle => 'Отправить ключ на новое устройство';
+	@override String get e2eeTransferCreateBtn => 'Создать';
+	@override String get e2eeTransferReceiveTitle => 'Получить ключ со старого устройства';
+	@override String get e2eeTransferSendDesc => 'Передача ключа на новое устройство через QR-код';
+	@override String get e2eeTransferReceiveDesc => 'Сканируйте QR-код старого устройства для получения ключа';
+	@override String e2eeSocialStatus({required Object status}) => 'Статус: ${status}';
+	@override String get e2eeSocialCreateShardsTitle => 'Создать фрагменты восстановления';
+	@override String get e2eeSocialCreateShardsDesc => 'Разделить ключ на фрагменты и хранить на устройствах посредников (сервер не хранит)';
+	@override String e2eeProxyNeedAtLeast({required Object count}) => 'Выберите минимум ${count} посредников';
+	@override String get e2eeRecreatingKey => 'Создание ключа заново...';
+	@override String get e2eeKeyRecreated => 'Ключ создан заново';
+	@override String get e2eeRecoveryNewDeviceTitle => 'Обнаружен вход с нового устройства';
+	@override String get e2eeRecoveryNewDeviceBody => 'Для защиты сообщений на этом устройстве создан новый ключ сквозного шифрования.\n\nПрошлые сообщения зашифрованы ключом старого устройства — сначала восстановите ключ, чтобы их прочитать. Восстановить можно через «Передачу устройств», «Социальное восстановление» или импорт локальной копии.';
+	@override String get e2eeRecoveryDecryptFailedTitle => 'Не удалось расшифровать сообщение';
+	@override String get e2eeRecoveryDecryptFailedBody => 'Это сообщение зашифровано ключом другого устройства.\n\nЕсли вы сменили устройство или переустановили приложение, восстановите ключ шифрования, чтобы прочитать прошлые сообщения.';
+	@override String get e2eeRecoveryLater => 'Позже';
+	@override String get e2eeRecoveryGoRecover => 'Восстановить';
+	@override String get e2eeRecoveryBannerText => 'Обнаружены зашифрованные прошлые сообщения. Для просмотра восстановите ключ. Нажмите, чтобы перейти';
+	@override String get liveRoomCreateTitle => 'Создать трансляцию';
+	@override String get liveRoomCreating => 'Создание...';
+	@override String get liveRoomWatch => 'Смотреть трансляцию';
 }
 
 // Path: common
@@ -498,7 +638,9 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get bindMobileAndEmailTips => 'Привяжите телефон и эл. почту для безопасности';
 	@override String get bindNow => 'Привязать сейчас';
 	@override String get buttonCancel => 'Отмена';
+	@override String get buttonCreate => 'Создать';
 	@override String get buttonChangePassword => 'Изменить пароль';
+	@override String get phoneInputHint => 'Введите номер телефона';
 	@override String get buttonClose => 'Закрыть';
 	@override String get buttonConfirm => 'Подтвердить';
 	@override String get buttonContinue => 'Продолжить';
@@ -525,6 +667,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get canNotAddYourselfFriend => 'Вы не можете добавить себя в друзья';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
+	@override String get operationSuccessful => 'Операция выполнена';
 	@override String get save => _root.common.buttonSave;
 	@override String get reset => 'Сбросить';
 	@override String get clear => 'Очистить';
@@ -553,6 +696,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get checkForUpdates => 'Проверить обновления';
 	@override String get clearAll => 'Очистить всё';
 	@override String get clearChatRecord => 'Очистить историю чата';
+	@override String get complaintSuccess => 'Жалоба отправлена';
+	@override String get complaintFailed => 'Не удалось отправить жалобу, попробуйте позже';
 	@override String get confirmCode => 'Код подтверждения';
 	@override String get confirmCodeError => 'Код подтверждения пуст';
 	@override String get confirmCodeSuccess => 'Аккаунт подтверждён.';
@@ -564,6 +709,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get contactSettingTag => 'Тег настроек контактов';
 	@override String get contactTagListLogic => 'Логика списка тегов контактов';
 	@override String get contactTags => 'Теги контактов';
+	@override String get contactInfoNotSynced => 'Контакты не синхронизированы';
 	@override String get continueDownloading => 'Продолжить загрузку';
 	@override String get copy => 'Копировать';
 	@override String get coupon => 'Купон';
@@ -638,6 +784,24 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get genderUpdateSuccess => 'Пол успешно установлен';
 	@override String get groupAddLocal => 'Сохранить в контакты';
 	@override String get groupAnnouncement => 'Объявление группы';
+	@override String get groupFileUploadSuccess => 'Файл загружен';
+	@override String get groupFileUploadFailed => 'Не удалось загрузить файл, попробуйте позже';
+	@override String get groupFileDeleteSuccess => 'Файл удалён';
+	@override String get groupFileDeleteFailed => 'Не удалось удалить, попробуйте позже';
+	@override String get groupFileClosePreview => 'Закрыть предпросмотр';
+	@override String get groupFileUploadTooltip => 'Загрузить файл';
+	@override String get groupFileSearch => 'Поиск по файлам группы';
+	@override String get groupFileReadFailed => 'Не удалось прочитать файл, попробуйте ещё раз';
+	@override String get groupFileDeleteTitle => 'Удалить файл группы';
+	@override String groupFileDeleteConfirm({required Object name}) => 'Удалить файл «${name}»?';
+	@override String get groupFileImageLoadFailed => 'Не удалось загрузить изображение';
+	@override String get groupFileOpenFailed => 'Не удаётся открыть ссылку на файл';
+	@override String get groupFileSearchClear => 'Очистить';
+	@override String get groupFileSearchAction => 'Поиск';
+	@override String get groupFileCategoryAll => 'Все';
+	@override String get groupFileSearchEmpty => 'Файлы не найдены';
+	@override String get groupFileAudioLoadFailed => 'Не удалось загрузить аудио';
+	@override String get groupFileAudioLoading => 'Загрузка аудио...';
 	@override String groupQrcodeTips({required Object days, required Object date}) => 'Действителен ${days} дней (до ${date}). Обновится при повторном входе';
 	@override String get groupSearchTips => 'Название группы и описание группы';
 	@override String get helpDocument => 'Справка';
@@ -661,7 +825,9 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get loading => 'Загрузка';
 	@override String get locationMessage => 'Сообщение о местоположении';
 	@override String get loginDeviceManagementTips => 'Управляйте устройствами. После удаления потребуется проверка безопасности';
+	@override String get logoutFailed => 'Не удалось выйти';
 	@override String get logoutNotice => '«Важная информация об удалении аккаунта»';
+	@override String get exportDataSuccess => 'Данные экспортированы';
 	@override String get manually => 'Вручную';
 	@override String get messageCall => 'Отправить сообщение';
 	@override String get messageContent => 'Содержание сообщения';
@@ -709,6 +875,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get noUpdateDescription => 'Нет описания обновления';
 	@override String get normalModel => 'Обычный режим';
 	@override String get notAuthorizedLatLong => 'Вы ещё не авторизовали получение геолокации';
+	@override String get notLoggedIn => 'Вы не вошли в систему';
 	@override String get notBad => 'Неплохо';
 	@override String get notBound => 'Не привязано';
 	@override String get notFilled => 'Не заполнено';
@@ -720,9 +887,9 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get notShow => 'Не показывать';
 	@override String get notTurnedLocationService => 'Вы ещё не включили службу геолокации';
 	@override String get nowNewVersion => 'Новых версий не обнаружено';
-	@override String get off => _root.common.disabled;
+	@override String get kFalse => _root.common.disabled;
 	@override String get offlineNotification => 'Уведомление о выходе из сети';
-	@override String get on => _root.common.enabled;
+	@override String get kTrue => _root.common.enabled;
 	@override String get operationFailedAgainLater => 'Операция не удалась, попробуйте позже';
 	@override String get optionsNo => 'Нет';
 	@override String get optionsRename => 'Хочу переименовать';
@@ -755,12 +922,57 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get releaseFingerCancelSending => 'Отпустите палец, чтобы отменить отправку';
 	@override String get removeContactFromTag => 'Удалить контакт из тега';
 	@override String get removeMember => 'Удалить участника';
+	@override String get atMentionYouTag => '[@вы] ';
+	@override String get atMentionLeftMember => '@покинувший участник';
+	@override String get muteNotifications => 'Без уведомлений';
+	@override String get muteNotificationsHint => 'Если включено, вы не будете получать уведомления о новых сообщениях, но сможете видеть непрочитанные в списке чатов';
+	@override String get revokeExpired => 'Прошло более 2 минут, отзыв невозможен';
+	@override String get quickReplyAddTitle => 'Новый быстрый ответ';
+	@override String get quickReplyEditTitle => 'Изменить быстрый ответ';
+	@override String get removeAdmin => 'Remove Admin';
+	@override String get setAdminConfirm => 'Set this member as admin?';
+	@override String get removeAdminConfirm => 'Remove admin role from this member?';
+	@override String get muteMemberConfirm => 'Mute this member?';
+	@override String get unmuteMemberConfirm => 'Unmute this member?';
+	@override String get kickMemberConfirm => 'Remove this member from the group?';
+	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
+	@override String get setAdminSuccess => 'Admin set';
+	@override String get setAdminFailed => 'Failed to set admin';
+	@override String get removeAdminSuccess => 'Admin removed';
+	@override String get removeAdminFailed => 'Failed to remove admin';
+	@override String get muteMemberSuccess => 'Member muted';
+	@override String get muteMemberFailed => 'Failed to mute member';
+	@override String get unmuteMemberSuccess => 'Member unmuted';
+	@override String get unmuteMemberFailed => 'Failed to unmute member';
+	@override String get kickMemberSuccess => 'Member removed';
+	@override String get kickMemberFailed => 'Failed to remove member';
+	@override String get transferGroupSuccess => 'Ownership transferred';
+	@override String get transferGroupFailed => 'Failed to transfer ownership';
+	@override String get notMuted => 'Not Muted';
+	@override String get muteDuration => 'Mute Duration';
+	@override String get muteDuration1hour => '1 Hour';
+	@override String get muteDuration6hours => '6 Hours';
+	@override String get muteDuration12hours => '12 Hours';
+	@override String get muteDuration1day => '1 Day';
+	@override String get muteDuration3days => '3 Days';
+	@override String get muteDuration7days => '7 Days';
+	@override String get muteDurationPermanent => 'Permanent';
+	@override String get muteDuration5min => '5 минут';
+	@override String get muteDuration10min => '10 минут';
+	@override String get muteDuration30min => '30 минут';
+	@override String get muteDuration30days => '30 дней';
+	@override String muteUnitSeconds({required Object count}) => '${count} сек';
+	@override String get throttleWarning => 'Слишком много запросов, попробуйте позже';
+	@override String throttleRetryAfter({required Object seconds}) => 'Слишком много запросов, попробуйте через ${seconds} сек';
+	@override String get mutedCannotSend => 'В муте нельзя отправлять сообщения';
 	@override String get resendCodeSuccess => 'Новое письмо отправлено.';
 	@override String get resetFilters => 'Сбросить фильтры';
 	@override String get saveQrCode => 'Сохранить QR-код';
 	@override String get saveSuccess => 'Успешно сохранено';
 	@override String get scanQrcodeAddFriend => 'Отсканируйте QR-код выше, чтобы добавить меня в друзья';
 	@override String get search => 'Поиск';
+	@override String get searchScope => 'Search scope';
+	@override String get searchAll => 'All messages';
 	@override String get searchChatContent => 'Найти содержание чата';
 	@override String get searchChatRecord => 'Найти историю чата';
 	@override String get searchError => 'Ошибка поиска';
@@ -890,6 +1102,11 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get selectExpirationDateOptional => 'Выберите срок действия (необязательно)';
 	@override String get groupAnnouncementDeleteConfirm => 'Удалить это объявление?';
 	@override String get groupAnnouncementDelete => 'Удалить';
+	@override String get groupAnnouncementLoadFailed => 'Не удалось загрузить объявление, попробуйте позже';
+	@override String get groupAnnouncementPublishFailed => 'Не удалось опубликовать объявление';
+	@override String get groupAnnouncementPublishSuccess => 'Объявление опубликовано';
+	@override String get groupAnnouncementDeleteFailed => 'Не удалось удалить объявление';
+	@override String get groupAnnouncementDeleteSuccess => 'Объявление удалено';
 	@override String get privacyClearChatHistory => 'Очистить историю чата';
 	@override String get privacyClearChatHistoryConfirm => 'Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.';
 	@override String get privacyLogoutAccountConfirm => 'Удалить аккаунт? Это действие окончательно удалит аккаунт и все данные. Его нельзя отменить.';
@@ -1033,6 +1250,24 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get changeFailed => 'Не удалось изменить';
 	@override String get submitted => 'Отправлено';
 	@override String get viewSecurityHelp => 'Посмотреть справку по безопасности';
+	@override String get momentsNoData => 'Нет публикаций';
+	@override String get momentsDeleteConfirm => 'Удалить эту публикацию?';
+	@override String get momentsDeleteCommentConfirm => 'Удалить этот комментарий?';
+	@override String get momentsNotFound => 'Публикация не найдена или нет доступа';
+	@override String get momentsContentOrMediaRequired => 'Заполните текст или добавьте медиа';
+	@override String get momentsPublishFailed => 'Не удалось опубликовать';
+	@override String get momentsAllowComment => 'Разрешить комментарии';
+	@override String get momentsReportReason => 'Причина жалобы';
+	@override String get momentsNoComments => 'Нет комментариев';
+	@override String get momentsContentHint => 'Поделитесь чем-нибудь...';
+	@override String get momentsAddMedia => 'Добавить медиа';
+	@override String get momentsAllowUidsLabel => 'UID с доступом (через запятую)';
+	@override String get momentsCommentFailed => 'Не удалось добавить комментарий, попробуйте позже';
+	@override String get momentsDeleteFailed => 'Не удалось удалить, попробуйте позже';
+	@override String get momentsReportSubmitted => 'Жалоба отправлена';
+	@override String get momentsReportFailed => 'Не удалось отправить жалобу, попробуйте позже';
+	@override String get momentsLoadMoreComments => 'Ещё комментарии';
+	@override String get momentsUploadFailed => 'Не удалось загрузить медиа, попробуйте позже';
 	@override String get transactionHistory => 'История транзакций';
 	@override String get paymentPasswordSetSuccess => 'Платёжный пароль успешно установлен';
 	@override String get paymentPasswordSetFailed => 'Не удалось установить платёжный пароль';
@@ -1047,6 +1282,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get personalSignature => 'Личная подпись';
 	@override String get personalBackground => 'Личный фон';
 	@override String get setBackgroundImage => 'Установить изображение фона';
+	@override String get expression => 'Эмодзи';
 	@override String get extendedInfo => 'Дополнительная информация';
 	@override String get profession => 'Профессия';
 	@override String get pleaseEnterProfession => 'Please enter profession';
@@ -1127,6 +1363,10 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get noDetailedInfo => 'Этот пользователь не установил подробную личную информацию';
 	@override String get noNewRegisteredUsers => 'Нет новых зарегистрированных пользователей Пожалуйста, попробуйте позже';
 	@override String get newRegisteredUsersTip => 'Здесь отображаются недавно зарегистрированные пользователи, вы можете добавить их в друзья';
+	@override String get notificationFriendRequest => 'Заявка в друзья';
+	@override String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} хочет добавить вас в друзья';
+	@override String get notificationGroupInvite => 'Приглашение в группу';
+	@override String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} приглашает вас в группу ${groupName}';
 	@override String get youRevokedMessage => 'Вы отозвали сообщение';
 	@override String get otherRevokedMessage => 'Собеседник отозвал сообщение';
 	@override String get networkFailureTryAgain => 'Сетевая ошибка, попробуйте снова!';
@@ -1143,43 +1383,295 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get smaller => 'Меньше';
 	@override String currentFontScale({required Object param1, required Object param2}) => 'Текущий: ${param1} ${param2}%';
 	@override String emailUpdatedTo({required Object param}) => 'Эл. почта обновлена на ${param}';
-	@override String get atMentionYouTag => '[@你] ';
-	@override String get atMentionLeftMember => '@已退群成员';
-	@override String get muteNotifications => '消息免打扰';
-	@override String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
-	@override String get revokeExpired => '超过 2 分钟，无法撤回';
-	@override String get quickReplyAddTitle => '新增快捷回复';
-	@override String get quickReplyEditTitle => '编辑快捷回复';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get muteMemberConfirm => 'Mute this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get transferGroupSuccess => 'Ownership transferred';
-	@override String get transferGroupFailed => 'Failed to transfer ownership';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration6hours => '6 Hours';
-	@override String get muteDuration12hours => '12 Hours';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration3days => '3 Days';
-	@override String get muteDuration7days => '7 Days';
-	@override String get muteDurationPermanent => 'Permanent';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String groupAnnouncementExpiry({required Object time}) => 'Действует до: ${time}';
+	@override String get groupAlbumCreateFailed => 'Не удалось создать, попробуйте позже';
+	@override String get groupAlbumDeleteTitle => 'Удалить альбом группы';
+	@override String groupAlbumDeleteConfirm({required Object name}) => 'Удалить альбом «${name}»?';
+	@override String get groupAlbumDeleted => 'Альбом удалён';
+	@override String get groupAlbumDeleteFailed => 'Не удалось удалить, попробуйте позже';
+	@override String get groupAlbumRenameFailed => 'Не удалось переименовать, попробуйте позже';
+	@override String get groupAlbumUploadTooltip => 'Загрузить фото';
+	@override String get groupAlbumDeleteTooltip => 'Удалить альбом';
+	@override String get groupAlbumNoAlbum => 'Нет альбомов';
+	@override String get groupAlbumPhotoReadFailed => 'Не удалось прочитать фото, попробуйте ещё раз';
+	@override String get groupAlbumPhotoUploaded => 'Фото загружено';
+	@override String get groupAlbumPhotoUploadFailed => 'Не удалось загрузить фото, попробуйте позже';
+	@override String get groupAlbumCreateTooltip => 'Создать альбом';
+	@override String get groupAlbumPhotoBatchDeleteTitle => 'Удалить фото';
+	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => 'Удалить выбранные фото (${count})?';
+	@override String get groupAlbumPhotoDeleteFailed => 'Не удалось удалить, попробуйте позже';
+	@override String groupAlbumPhotoDeletedAll({required Object count}) => 'Удалено фото: ${count}';
+	@override String groupAlbumPhotoDeletedPartial({required Object success, required Object fail}) => 'Удалено: ${success}, не удалось: ${fail}';
+	@override String get groupAlbumPhotoDeleteTitle => 'Удалить фото';
+	@override String get groupAlbumPhotoDeleteConfirm => 'Удалить это фото?';
+	@override String get groupAlbumPhotoDeleted => 'Фото удалено';
+	@override String get groupAlbumPhotoBatchDeleteTooltip => 'Удалить выбранные';
+	@override String get groupAlbumPhotoExitSelection => 'Выйти из выбора';
+	@override String get groupAlbumPhotoOpenFailed => 'Не удаётся открыть ссылку на фото';
+	@override String get groupAlbumPhotoNotFound => 'Фото не найдено или удалено';
+	@override String get groupAlbumPhotoOpenExternal => 'Открыть во внешнем приложении';
+	@override String get groupAlbumPhotoCoverUpdated => 'Обложка установлена';
+	@override String get groupAlbumPhotoCoverFailed => 'Не удалось установить обложку, попробуйте позже';
+	@override String get groupAlbumPhotoNext => 'Далее';
+	@override String get groupAlbumPhotoResolution => 'Разрешение';
+	@override String get groupAlbumPhotoUploader => 'Загрузил';
+	@override String get sectionDisplay => 'Отображение';
+	@override String get sectionTheme => 'Тема';
+	@override String get selectLanguage => 'Выбор языка';
+	@override String get completionSuggestions => 'Рекомендации:';
+	@override String get sectionGeneral => 'Основные';
+	@override String get sectionPrivacySecurity => 'Конфиденциальность и безопасность';
+	@override String get sectionHelpAbout => 'Справка и о приложении';
+	@override String get msgOnlyVisibleToParties => 'Сообщения видны только отправителю и получателю';
+	@override String get msgNotEncrypted => 'Сообщения передаются без шифрования';
+	@override String durationMinutes({required Object count}) => '${count} мин';
+	@override String durationSeconds({required Object count}) => '${count} сек';
+	@override String get rechargeAmountError => 'Введите сумму от 1 до 10000 юаней';
+	@override String get rechargeSuccess => 'Счёт пополнен';
+	@override String get rechargeConfirm => 'Подтвердить пополнение';
+	@override String get transactionHistory2 => 'История операций';
+	@override String get noTransactionHistory => 'Нет операций';
+	@override String get allLoaded => '— всё загружено —';
+	@override String get transactionTypeIncome => 'Пополнение';
+	@override String get transactionTypeExpense => 'Списание';
+	@override String get sectionLoginCredentials => 'Учётные данные';
+	@override String get channelInvitations => 'Приглашения в канал';
+	@override String get acceptInvitationFailed => 'Не удалось принять приглашение';
+	@override String get rejectInvitationFailed => 'Не удалось отклонить приглашение';
+	@override String get invitationAccepted => 'Приглашение принято';
+	@override String get invitationRejected => 'Приглашение отклонено';
+	@override String get invitationStatusPending => 'Ожидает';
+	@override String get invitationStatusAccepted => 'Принято';
+	@override String get invitationStatusRejected => 'Отклонено';
+	@override String get invitationStatusExpired => 'Истекло';
+	@override String get invitationStatusCancelled => 'Отменено';
+	@override String get invitationStatusUnknown => 'Неизвестно';
+	@override String get noReceivedInvitations => 'Нет полученных приглашений';
+	@override String get noSentInvitations => 'Нет отправленных приглашений';
+	@override String get processingDots => 'Обработка...';
+	@override String get purchaseFailed => 'Не удалось купить, попробуйте позже';
+	@override String get purchaseSuccess => 'Покупка совершена';
+	@override String get insufficientBalanceTitle => 'Недостаточно средств';
+	@override String insufficientBalanceContent({required Object currency, required Object balance, required Object price}) => 'Текущий баланс ${currency} ${balance}, требуется ${currency} ${price}. Сначала пополните счёт.';
+	@override String get goRecharge => 'Пополнить счёт';
+	@override String get noOrders => 'Нет заказов';
+	@override String get orderDetailLoadFailed => 'Не удалось загрузить заказ';
+	@override String orderNoLabel({required Object no}) => 'Заказ: ${no}';
+	@override String get orderStatusCancelled => 'Отменено';
+	@override String get orderStatusUnknown => 'Неизвестно';
+	@override String get removeReaction => 'Убрать реакцию';
+	@override String removeReactionConfirm({required Object emoji}) => 'Убрать реакцию ${emoji}?';
+	@override String get fileOpenFailed => 'Не удаётся открыть этот файл';
+	@override String get e2eeLocalBackup => 'Локальная резервная копия';
+	@override String get e2eeLocalBackupDesc => 'Экспорт зашифрованной резервной копии на устройство или в облако';
+	@override String get e2eeDeleteKey => 'Удалить ключ';
+	@override String get e2eeDeleteKeyDesc => 'Удалить ключ с устройства (без возможности восстановления)';
+	@override String get e2eeCurrentKeyInfo => 'Текущий ключ';
+	@override String get e2eeE2EEEnabled => 'Сквозное шифрование включено';
+	@override String get e2eeNoKeyDetected => 'Ключ E2EE не найден';
+	@override String get e2eeNoKeyDesc => 'Сначала создайте пару ключей или восстановите из резервной копии';
+	@override String get e2eeAboutTitle => 'О сквозном шифровании';
+	@override String get e2eeInfoPoint1 => '• Сообщения шифруются до отправки, сервер не видит содержимое';
+	@override String get e2eeInfoPoint2 => '• При смене устройства или удалении ключа старые сообщения могут не расшифроваться';
+	@override String get e2eeInfoPoint3 => '• Регулярно создавайте резервные копии ключа, чтобы не потерять данные';
+	@override String get e2eeExportBackup => 'Экспортировать копию';
+	@override String get e2eeExportBackupDesc => 'Создать зашифрованную резервную копию';
+	@override String get e2eeImportBackup => 'Импортировать копию';
+	@override String get e2eeImportBackupDesc => 'Восстановить ключ из резервной копии';
+	@override String get e2eeBackupManage => 'Управление копиями';
+	@override String get e2eeBackupManageDesc => 'Просмотр истории резервных копий';
+	@override String get e2eeGenerateKeyConfirm => 'Создать новую пару ключей E2EE?';
+	@override String get e2eeWarnOldMessagesLost => '• Старые сообщения нельзя будет расшифровать';
+	@override String get e2eeWarnNeedNewBackup => '• Потребуется создать новую резервную копию';
+	@override String get e2eeConfirmGenerate => 'Создать';
+	@override String get e2eeDeleteKeyConfirm => 'Удалить текущий ключ?';
+	@override String get e2eeWarnCannotRestore => '• После удаления восстановление невозможно';
+	@override String get e2eeWarnAllMsgsLost => '• Все сообщения E2EE нельзя будет расшифровать';
+	@override String get e2eeConfirmDelete => 'Удалить';
+	@override String get e2eeKeyGeneratedSuccess => 'Ключ создан';
+	@override String e2eeDeviceIdInfo({required Object id}) => 'ID устройства: ${id}';
+	@override String e2eeKeyIdInfo({required Object id}) => 'ID ключа: ${id}';
+	@override String e2eeCreatedAtInfo({required Object time}) => 'Создан: ${time}';
+	@override String get e2eeImportantNote => 'Важно';
+	@override String get e2eeWarnOldMayNotDecrypt => '• Старые сообщения могут не расшифроваться';
+	@override String get e2eeSuggestBackupNow => '• Рекомендуем сразу экспортировать копию';
+	@override String get e2eeGoBackup => 'Создать копию';
+	@override String get e2eeKeyGenerateFailed => 'Не удалось создать ключ, попробуйте ещё раз';
+	@override String get e2eeKeyDeleted => 'Ключ удалён';
+	@override String get e2eeDeleteFailed => 'Не удалось удалить, попробуйте ещё раз';
+	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => 'Доступно фрагментов: ${available}, нужно посредников: ${required}';
+	@override String get e2eeNoRecoveryShards => 'Нет доступных фрагментов для восстановления';
+	@override String get e2eeRecoverSuccess => 'Восстановлено';
+	@override String get e2eeRecoverFailed => 'Не удалось восстановить';
+	@override String get e2eeRecoverKeyFailed => 'Не удалось восстановить ключ, попробуйте ещё раз';
+	@override String get e2eeLoadingShards => 'Загрузка фрагментов...';
+	@override String get e2eeNoShards => 'Нет доступных фрагментов';
+	@override String get e2eeLoadFailed => 'Не удалось загрузить, попробуйте ещё раз';
+	@override String e2eeContactingProxy({required Object name}) => 'Связь с: ${name}';
+	@override String get e2eeRecoveryFailed => 'Не удалось восстановить, попробуйте ещё раз';
+	@override String get webFeatureNotification => 'Уведомления на рабочем столе';
+	@override String get webFeatureNotificationDesc => 'Получайте уведомления о новых сообщениях даже с закрытой вкладкой';
+	@override String get webQRConfirmOnPhone => 'Подтвердите вход на телефоне';
+	@override String get webQRLoginFailed => 'Не удалось войти';
+	@override String get webQRLoginSuccess => 'Вход выполнен';
+	@override String webQRExpiresIn({required Object seconds}) => 'Истекает через ${seconds} сек';
+	@override String get webQRStatusFailed => 'Не удалось войти, попробуйте ещё раз';
+	@override String get webQRStatusSuccess => 'Перенаправление...';
+	@override String get webLoginEmptyError => 'Введите аккаунт и пароль';
+	@override String get webQRGenerateFailed => 'Не удалось создать QR-код';
+	@override String get webQRTokenInvalid => 'Недействительный токен входа';
+	@override String get e2eeErrNoRecipientKey => 'Не удалось получить ключ устройства собеседника, сообщение не отправлено';
+	@override String get e2eeDecryptFailed => 'Не удалось расшифровать сообщение';
+	@override String get e2eeDecryptFailedReasons => 'Сообщение не удалось расшифровать. Возможные причины:';
+	@override String get e2eeDecryptReasonOtherDevice => '• Вы вошли на другом устройстве';
+	@override String get e2eeDecryptReasonKeyExpired => '• Срок действия ключа устройства истёк';
+	@override String get e2eeDecryptReasonDataCorrupt => '• Повреждены данные приложения';
+	@override String get e2eeDecryptChooseSolution => 'Выберите решение:';
+	@override String get e2eeDecryptActionRecreateKey => 'Создать ключ заново (рекомендуется)';
+	@override String get e2eeDecryptActionRelogin => 'Войти заново';
+	@override String get e2eeDecryptActionRemindLater => 'Напомнить позже';
+	@override String get e2eeBackupExportTitle => 'Экспорт резервной копии E2EE';
+	@override String get e2eeBackupPwdCantRecover => '• Пароль резервной копии нельзя восстановить, обязательно запомните его!';
+	@override String get e2eeBackupStoreMultipleNote => '• Храните копию в нескольких надёжных местах (почта, облако, флешка)';
+	@override String get e2eeBackupPwdLabel => 'Пароль резервной копии *';
+	@override String get e2eeBackupPwdHint => 'Минимум 12 символов: заглавные и строчные буквы, цифры, спецсимволы';
+	@override String get e2eeBackupConfirmPwdLabel => 'Подтвердите пароль *';
+	@override String get e2eeBackupConfirmPwdHint => 'Введите пароль ещё раз';
+	@override String get e2eeBackupNoteLabel => 'Заметка (необязательно)';
+	@override String get e2eeBackupNoteHint => 'Например: копия основного телефона - январь 2026';
+	@override String get e2eeBackupPwdStrengthLabel => 'Надёжность пароля';
+	@override String get e2eeBackupPwdWeak => 'Слабый - повысьте сложность';
+	@override String get e2eeBackupPwdMedium => 'Средний - увеличьте длину или сложность';
+	@override String get e2eeBackupPwdStrong => 'Надёжный - подходит';
+	@override String get e2eeBackupPwdVeryStrong => 'Очень надёжный - безопасно';
+	@override String get e2eeBackupGenerateBtn => 'Создать файл копии';
+	@override String get e2eeBackupFileGenerated => 'Файл резервной копии создан!';
+	@override String get e2eeBackupShareBtn => 'Отправить через почту/облако';
+	@override String get e2eeBackupShareContent => 'Это файл резервной копии ключей Imboy E2EE. Храните в безопасности и не передавайте другим.';
+	@override String get e2eeBackupErrPwdMismatch => 'Пароли не совпадают';
+	@override String get e2eeBackupErrNoKeyData => 'Не удалось получить данные ключа';
+	@override String get e2eeBackupErrExportFailed => 'Не удалось экспортировать, попробуйте ещё раз';
+	@override String get e2eeBackupErrShareFailed => 'Не удалось отправить, попробуйте ещё раз';
+	@override String get e2eeBackupExportSuccessTitle => 'Резервная копия экспортирована';
+	@override String get e2eeBackupExportSuccessBody => 'Резервная копия ключа E2EE успешно создана.';
+	@override String get e2eeBackupImportantNoteColon => 'Важно:';
+	@override String get e2eeBackupKeepSafe => '• Храните файл копии и пароль в безопасности';
+	@override String get e2eeBackupStoreMultipleLoc => '• Храните файл в нескольких надёжных местах';
+	@override String get e2eeBackupPwdCantRecoverNote => '• Пароль нельзя восстановить, обязательно запомните его';
+	@override String get e2eeBackupImportTitle => 'Импорт резервной копии E2EE';
+	@override String get e2eeBackupImportGuide => 'Инструкция по импорту';
+	@override String get e2eeBackupImportReplaceKey => '• После импорта текущий ключ E2EE будет заменён';
+	@override String get e2eeBackupImportTrustedSource => '• Убедитесь, что файл из надёжного источника';
+	@override String get e2eeBackupSelectFile => 'Выбрать файл копии';
+	@override String get e2eeBackupSelectFileHint => 'Выберите файл копии (.enc)';
+	@override String get e2eeBackupInfoTitle => 'Информация о копии';
+	@override String get e2eeBackupVersionLabel => 'Версия';
+	@override String get e2eeBackupAlgorithmLabel => 'Алгоритм';
+	@override String get e2eeBackupFileSizeLabel => 'Размер файла';
+	@override String get e2eeBackupFileValid => '✓ Формат файла корректен';
+	@override String get e2eeBackupImportPwdHint => 'Введите пароль, заданный при создании копии';
+	@override String get e2eeBackupImportBtn => 'Импортировать ключ';
+	@override String get e2eeBackupErrSelectFile => 'Не удалось выбрать файл, попробуйте ещё раз';
+	@override String get e2eeBackupErrValidateFailed => 'Ошибка проверки файла, проверьте формат';
+	@override String get e2eeBackupErrImportFailed => 'Не удалось импортировать, проверьте пароль';
+	@override String get e2eeBackupImportSuccessTitle => 'Импорт выполнен';
+	@override String get e2eeBackupImportSuccessBody => 'Ключ E2EE восстановлен!';
+	@override String get e2eeBackupImportSuccessNote => 'Примечание: старые сообщения могут быть недоступны — это нормальное поведение E2EE';
+	@override String get e2eeBackupNoRecords => 'Нет резервных копий';
+	@override String get e2eeBackupNoRecordsHint => 'После экспорта здесь появится история';
+	@override String e2eeBackupDeviceLabel({required Object id}) => 'Устройство ${id}';
+	@override String e2eeBackupCreatedAtLabel({required Object time}) => 'Создано ${time}';
+	@override String get e2eeBackupDetailTitle => 'Детали копии';
+	@override String get e2eeBackupDeviceIdLabel => 'ID устройства';
+	@override String get e2eeBackupVersionNum => 'Версия копии';
+	@override String get e2eeBackupCreatedAtRow => 'Дата создания';
+	@override String get e2eeBackupFileSizeRow => 'Размер файла';
+	@override String get e2eeBackupNoteRow => 'Заметка';
+	@override String get e2eeBackupDeleteTitle => 'Удалить запись о копии';
+	@override String get e2eeBackupDeleteConfirm => 'Удалить эту запись о копии?';
+	@override String get e2eeBackupDeleteSuccess => 'Запись удалена';
+	@override String get e2eeSocialShardSettings => 'Настройки фрагментов';
+	@override String get e2eeSocialShardStoredNote => 'Фрагменты хранятся на устройствах посредников, сервер не хранит ни одного';
+	@override String get e2eeSocialAddProxy => 'Добавить посредника';
+	@override String get e2eeSocialAddProxyHint => 'Добавьте контакты-посредники';
+	@override String e2eeSocialCreateNeedMore({required Object count}) => 'Добавьте ещё ${count} посредников';
+	@override String get e2eeSocialCreateSuccessTitle => 'Фрагменты созданы';
+	@override String e2eeSocialTotalShardsInfo({required Object count}) => 'Ключ разделён на ${count} фрагментов';
+	@override String e2eeSocialThresholdInfo({required Object count}) => 'Для восстановления хватит ${count} посредников';
+	@override String get e2eeSocialZeroTrustNote => 'Архитектура нулевого доверия: сервер не хранит фрагменты';
+	@override String get e2eeSocialNoShards => 'Вы ещё не создали фрагменты восстановления';
+	@override String get e2eeSocialNoProxyShards => 'Нет фрагментов посредников';
+	@override String get e2eeSocialKeyVersionLabel => 'Версия ключа';
+	@override String get e2eeTransferErrNoKey => 'Сначала создайте пару ключей';
+	@override String get e2eeTransferErrInitFailed => 'Ошибка инициализации, попробуйте ещё раз';
+	@override String get e2eeTransferErrNoRecipientKey => 'У получателя нет доступного открытого ключа';
+	@override String get e2eeTransferErrKeyNotFound => 'Ключ не найден';
+	@override String get e2eeTransferErrCreateFailed => 'Не удалось создать сеанс передачи, попробуйте ещё раз';
+	@override String get e2eeTransferCreateSessionBtn => 'Создать сеанс передачи';
+	@override String get e2eeTransferSessionCreated => 'Сеанс передачи создан';
+	@override String get e2eeTransferUidEmptyError => 'Введите корректный ID пользователя';
+	@override String get e2eeTransferSuccess => 'Передача завершена!';
+	@override String get e2eeTransferFailed => 'Не удалось передать, попробуйте ещё раз';
+	@override String get e2eeTransferProcessingMsg => 'Обработка...';
+	@override String get e2eeTransferSuccessTitle => 'Передача завершена';
+	@override String get e2eeTransferSuccessBody => 'Ключ передан на это устройство';
+	@override String e2eeTransferScanError({required Object error}) => 'Ошибка сканирования: ${error}';
+	@override String get e2eeTransferErrNoDeviceId => 'Не удалось получить ID устройства';
+	@override String get passwordEncryptFailed => 'Не удалось зашифровать пароль';
+	@override String get initConfigTimeout => 'Тайм-аут загрузки настроек: проверьте сеть или состояние сервера';
+	@override String initConfigNetworkError({required Object code}) => 'Сетевой сбой или сбой сервера (HTTP ${code})';
+	@override String get initConfigProtocolError => 'Ошибка протокола ответа сервера';
+	@override String get initConfigFetchFailed => 'Не удалось загрузить настройки, проверьте сеть';
+	@override String get attachmentGetFileFailed => 'Не удалось получить файл, попробуйте ещё раз или выберите из галереи';
+	@override String get attachmentGetFileFailedAndroid9 => 'Ошибка получения файла, возможна проблема совместимости с Android 9';
+	@override String get attachmentGetImageDataFailed => 'Не удалось получить данные изображения, попробуйте ещё раз';
+	@override String get attachmentGetOriginalImageFailed => 'Не удалось получить оригинал изображения';
+	@override String get saveFailedRetry => 'Не удалось сохранить, попробуйте ещё раз';
+	@override String get downloadFileNotFound => 'Файл загрузки не найден, попробуйте ещё раз';
+	@override String downloadHashRetrying({required Object retry, required Object max}) => 'Ошибка проверки файла, перезагрузка (${retry}/${max})';
+	@override String get downloadHashFailed => 'Многократная ошибка проверки файла, проверьте сеть и попробуйте ещё раз';
+	@override String get e2eeTransferToNewDevice => 'Передать на новое устройство';
+	@override String get e2eeTransferPendingSection => 'Ожидающие передачи';
+	@override String get e2eeTransferLoadFailed => 'Не удалось загрузить';
+	@override String get e2eeTransferLoadFailedDesc => 'Не удалось загрузить ожидающие передачи, попробуйте ещё раз';
+	@override String get e2eeTransferNoPending => 'Нет ожидающих передач';
+	@override String get e2eeTransferNoPendingDesc => 'Когда устройство отправит вам ключ, появится здесь';
+	@override String get e2eeSocialEnoughShards => 'Достаточно фрагментов для восстановления';
+	@override String e2eeSocialMoreShards({required Object count}) => 'Ещё фрагментов: ${count}...';
+	@override String get e2eeProxyLoadFriendsFailed => 'Не удалось загрузить список друзей, попробуйте ещё раз';
+	@override String get e2eeProxyNoPublicKey => 'У этого друга нет доступного открытого ключа';
+	@override String e2eeProxyGetKeyFailed({required Object name}) => 'Не удалось получить открытый ключ: ${name}';
+	@override String get e2eeProxySelectFailed => 'Не удалось выбрать посредников, попробуйте ещё раз';
+	@override String get e2eeProxyNoFriends => 'Нет друзей';
+	@override String get e2eeProxyNoFriendsHint => 'Сначала добавьте друзей, затем настройте посредников';
+	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => 'Нужно минимум ${count} доверенных контактов, выбрано ${selected}';
+	@override String e2eeProxyConfirmCount({required Object count}) => 'Подтвердить (посредников: ${count})';
+	@override String get buttonBackHome => 'На главную';
+	@override String get featureNotEnabled => 'Эта функция отключена';
+	@override String featureDisabledName({required Object name}) => 'Функция ${name} отключена и временно недоступна';
+	@override String get imageLoadFailed => 'Не удалось загрузить';
+	@override String loadFailedWithError({required Object error}) => 'Ошибка загрузки: ${error}';
+	@override String get webAudioNotSupported => 'Воспроизведение голосовых сообщений в Web не поддерживается';
+	@override String e2eeKeyRecreationFailed({required Object error}) => 'Не удалось создать ключ: ${error}';
+	@override String get redPacket => 'Красный конверт';
+	@override String get transfer => 'Перевод';
+	@override String get withdraw => 'Вывод средств';
+	@override String get redPacketSend => 'Отправить конверт';
+	@override String get redPacketOpen => 'Открыть конверт';
+	@override String get redPacketDetail => 'Детали конверта';
+	@override String get transferSend => 'Сделать перевод';
+	@override String get transferAccept => 'Принять перевод';
+	@override String get greetingDefault => 'Счастья и процветания!';
+	@override String grabAmountYuan({required Object amount}) => 'Получено: ${amount} юаней';
+	@override String transferAmountYuan({required Object amount}) => 'Перевод: ${amount} юаней';
+	@override String get insufficientBalance => 'Недостаточно средств';
+	@override String get goToRecharge => 'Пополнить счёт';
+	@override String get withdrawSuccess => 'Вывод выполнен';
+	@override String get withdrawConfirm => 'Подтвердить вывод';
+	@override String get withdrawAmountError => 'Введите сумму не менее 1 юаня';
+	@override String get withdrawAccountEmpty => 'Введите счёт для вывода';
+	@override String get withdrawMethod => 'Способ вывода';
+	@override String get withdrawAccount => 'Счёт для вывода';
 }
 
 // Path: complaint
@@ -1190,6 +1682,19 @@ class _Translations$complaint$ru_RU extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => 'Жалоба';
+}
+
+// Path: complaintReason
+class _Translations$complaintReason$ru_RU extends Translations$complaintReason$zh_CN {
+	_Translations$complaintReason$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get spam => 'Спам';
+	@override String get harassment => 'Преследование';
+	@override String get inappropriate => 'Неподходящий контент';
+	@override String get other => 'Другое';
 }
 
 // Path: contact
@@ -1229,6 +1734,7 @@ class _Translations$contact$ru_RU extends Translations$contact$zh_CN {
 	@override String get pleaseEnterRemark => 'Пожалуйста, введите примечание';
 	@override String get enterRemark => 'Введите примечание';
 	@override String get pleaseEnterTags => 'Пожалуйста, введите теги';
+	@override String get momentsVisibilityFriends => 'Только друзья';
 	@override String tagLengthExceeded({required Object param}) => 'Длина тега не может превышать ${param} символов';
 	@override String maxTagsExceeded({required Object param}) => 'Максимум ${param} тегов';
 	@override String selectedTags({required Object param, required Object max}) => 'Выбрано тегов (${param}/${max})';
@@ -1247,6 +1753,8 @@ class _Translations$contact$ru_RU extends Translations$contact$zh_CN {
 	@override String get tagIdeas => 'Идеи';
 	@override String get tagMemo => 'Заметка';
 	@override String get friendRequestSent => 'Отправлено';
+	@override String get channelMaxTagsCount => 'Можно добавить не более 8 меток';
+	@override String get tagInputHint => 'Введите метку...';
 }
 
 // Path: discovery
@@ -1265,10 +1773,26 @@ class _Translations$discovery$ru_RU extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'Результат сканирования';
 	@override String get scannerResult => 'Результат сканирования';
 	@override String get titleDiscover => 'Обнаружить';
+	@override String get myChannels => 'Мои каналы';
+	@override String get channelSquare => 'Площадка каналов';
 	@override String get otherUsersCanFindMe => 'Другие пользователи могут найти меня через поиск';
 	@override String get moments => 'Моменты';
+	@override String get momentsReport => 'Пожаловаться на публикацию';
+	@override String get momentsReportDesc => 'Дополнительное описание';
+	@override String get momentsComments => 'Комментарии';
+	@override String get momentsWriteComment => 'Написать комментарий...';
+	@override String get momentsVisibility => 'Видимость';
+	@override String get momentsVisibilityPublic => 'Все';
+	@override String get momentsVisibilityPartial => 'Некоторые';
+	@override String get momentsVisibilityExclude => 'Скрыть от...';
+	@override String get momentsDenyUidsLabel => 'Скрыть от UID (через запятую)';
+	@override String get momentsDraftRestored => 'Восстановлен черновик';
+	@override String get momentsFeedStale => 'Сетевая ошибка, показан кэш';
 	@override String get discover => 'Обзор';
 	@override String get shake => 'Встряхнуть';
+	@override String get openChannel => 'Открыть канал';
+	@override String get paidChannelLocked => 'Содержимое платного канала заблокировано';
+	@override String get webQRScanned => 'Отсканировано';
 }
 
 // Path: error
@@ -1285,6 +1809,11 @@ class _Translations$error$ru_RU extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. Включите мобильные данные';
 	@override String get networkTroubleshootingStep3 => '3. Проверьте интернет или обратитесь к оператору';
 	@override String get suggestCheckNetwork => 'Рекомендуется проверить настройки сети.';
+	@override String e2eeStartRecoveryBtn({required Object required}) => 'Начать восстановление (нужно посредников: ${required})';
+	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => 'Недостаточно фрагментов (нужно ${required}, есть ${current})';
+	@override String get e2eeErrTimeout => 'Превышено время шифрования, проверьте сеть и попробуйте ещё раз';
+	@override String get e2eeErrNetwork => 'Сетевая ошибка, шифрование не выполнено, сообщение не отправлено';
+	@override String get liveRoomTitleRequired => 'Введите название';
 }
 
 // Path: group
@@ -1298,6 +1827,7 @@ class _Translations$group$ru_RU extends Translations$group$zh_CN {
 	@override String get enterSameGroup => 'Войти в одну группу с друзьями рядом';
 	@override String get enterTheGroup => 'Войти в эту группу';
 	@override String get groupAlias => 'Мой никнейм в этой группе';
+	@override String get groupAlbum => 'Альбом группы';
 	@override String get groupDissolve => 'Роспуск группы';
 	@override String get groupJoin => 'Вступить в группу';
 	@override String get groupLeave => 'Покинуть группу';
@@ -1305,16 +1835,193 @@ class _Translations$group$ru_RU extends Translations$group$zh_CN {
 	@override String get groupMembers => 'Участники группы';
 	@override String get groupName => 'Название группы';
 	@override String get mutualGroupsWithHer => 'Общие группы';
-	@override String get selectGroup => 'Выбрать групповой чат';
-	@override String get sureToDissolveGroup => 'Распустить эту группу?';
-	@override String get sureToLeaveGroup => 'Покинуть эту группу?';
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
-	@override String get groupGuest => '嘉宾';
+	@override String get groupGuest => 'Гость';
 	@override String get groupMember => 'Member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get transferGroup => 'Transfer Ownership';
 	@override String get joinTime => 'Join Time';
+	@override String get selectGroup => 'Выбрать групповой чат';
+	@override String get sureToDissolveGroup => 'Распустить эту группу?';
+	@override String get sureToLeaveGroup => 'Покинуть эту группу?';
+	@override String get groupAlbumNameHint => 'Введите название альбома';
+	@override String get groupAlbumRenameTitle => 'Переименовать альбом';
+	@override String get groupAlbumRenamed => 'Альбом переименован';
+	@override String get groupAlbumUnnamed => 'Альбом без названия';
+	@override String groupAlbumPhotoCount({required Object count}) => '${count} фото';
+	@override String get groupAlbumPhotoIdMissing => 'ID фото отсутствует, нельзя открыть детали';
+	@override String get groupAlbumPhotoListTitle => 'Фото альбома';
+	@override String groupAlbumPhotoSelectedCount({required Object count}) => 'Выбрано: ${count}';
+	@override String get groupAlbumPhotoEmpty => 'Нет фото';
+	@override String get groupAlbumPhotoUrlMissing => 'Адрес фото отсутствует, не удаётся открыть';
+	@override String get groupAlbumPhotoUrlInvalid => 'Недействительный адрес фото';
+	@override String get groupAlbumPhotoDetailTitle => 'Информация о фото';
+	@override String get groupAlbumPhotoSetCover => 'Сделать обложкой';
+	@override String get groupAlbumPhotoPrev => 'Назад';
+	@override String get groupAlbumPhotoLikeCount => 'Лайки';
+	@override String get groupAlbumPhotoCommentCount => 'Комментарии';
+	@override String get groupAlbumPhotoMyLike => 'Мой лайк';
+	@override String get groupAlbumPhotoIdLabel => 'ID фото';
+	@override String get e2eeKeyManagement => 'Управление ключами E2EE';
+	@override String get e2eeKeyManagementSubtitle => 'Резервное копирование, восстановление и управление ключами сквозного шифрования';
+}
+
+// Path: groupCategory
+class _Translations$groupCategory$ru_RU extends Translations$groupCategory$zh_CN {
+	_Translations$groupCategory$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Папки групп';
+	@override String get createCategory => 'Создать папку';
+	@override String get categoryName => 'Название папки';
+	@override String get categoryDesc => 'Описание папки (необязательно)';
+	@override String get noCategory => 'Нет папок';
+	@override String get createFirst => 'Создайте первую папку';
+	@override String get addGroup => 'Добавить группу в папку';
+	@override String get removeGroup => 'Убрать из папки';
+	@override String get deleteCategory => 'Удалить папку';
+	@override String get deleteCategoryConfirm => 'Удалить эту папку? Группы не будут удалены.';
+	@override String get categoryCreated => 'Папка создана';
+	@override String get categoryDeleted => 'Папка удалена';
+	@override String get renameCategory => 'Переименовать папку';
+	@override String get categoryRenamed => 'Папка переименована';
+	@override String get renameFailed => 'Не удалось переименовать, попробуйте ещё раз';
+	@override String get deleteFailed => 'Не удалось удалить, попробуйте ещё раз';
+	@override String get categoryDetailTip => 'Группы в этой папке можно переносить через «В папку» в списке групп';
+}
+
+// Path: groupList
+class _Translations$groupList$ru_RU extends Translations$groupList$zh_CN {
+	_Translations$groupList$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get attrAll => 'Все';
+	@override String get attrOwner => 'Мои';
+	@override String get attrManager => 'Управляю';
+	@override String get attrJoin => 'Участвую';
+	@override String get refresh => 'Обновить';
+}
+
+// Path: groupSchedule
+class _Translations$groupSchedule$ru_RU extends Translations$groupSchedule$zh_CN {
+	_Translations$groupSchedule$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'События группы';
+	@override String get createSchedule => 'Создать событие';
+	@override String get scheduleTitle => 'Название';
+	@override String get selectDate => 'Выбрать дату';
+	@override String get selectTime => 'Выбрать время';
+	@override String get location => 'Место';
+	@override String get reminder => 'Напоминание';
+	@override String get noReminder => 'Без напоминания';
+	@override String get noSchedule => 'Нет событий';
+	@override String get scheduleCreated => 'Событие создано';
+	@override String get scheduleUpdated => 'Событие обновлено';
+	@override String get reminder15min => 'За 15 минут';
+	@override String get reminder1hour => 'За 1 час';
+	@override String get reminder1day => 'За 1 день';
+	@override String get startTime => 'Начало';
+	@override String get endTime => 'Конец';
+	@override String get participants => 'Участники';
+	@override String get statusCancelled => 'Отменено';
+	@override String get statusInProgress => 'Идёт';
+	@override String get cancelSuccess => 'Событие отменено';
+	@override String get cancelFailed => 'Не удалось отменить, попробуйте позже';
+	@override String get confirmAttend => 'Подтвердить участие';
+	@override String get declineAttend => 'Не приду';
+	@override String get cancelSchedule => 'Отменить событие';
+	@override String get scheduleIdMissing => 'ID события отсутствует, нельзя открыть детали';
+}
+
+// Path: groupTag
+class _Translations$groupTag$ru_RU extends Translations$groupTag$zh_CN {
+	_Translations$groupTag$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Метки групп';
+	@override String get addTag => 'Добавить метку';
+	@override String get tagName => 'Название метки';
+	@override String get tagColor => 'Цвет метки';
+	@override String get noTag => 'Нет меток';
+	@override String get tagAdded => 'Метка добавлена';
+	@override String get tagRemoved => 'Метка удалена';
+	@override String get removeTitle => 'Удалить метку';
+	@override String get removeConfirm => 'Удалить эту метку?';
+}
+
+// Path: groupTask
+class _Translations$groupTask$ru_RU extends Translations$groupTask$zh_CN {
+	_Translations$groupTask$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Задачи группы';
+	@override String get createTask => 'Создать задачу';
+	@override String get taskTitle => 'Название задачи';
+	@override String get taskDescription => 'Описание задачи';
+	@override String get assignTo => 'Назначить';
+	@override String get deadline => 'Срок';
+	@override String get noDeadline => 'Без срока';
+	@override String get noTask => 'Нет задач';
+	@override String get all => 'Все';
+	@override String get pending => 'В работе';
+	@override String get completed => 'Завершено';
+	@override String get taskCreated => 'Задача создана';
+	@override String get taskSubmitted => 'Задача отправлена';
+	@override String get taskCompleted => 'Задача завершена';
+	@override String get overdue => 'Просрочено';
+	@override String daysLeft({required Object days}) => 'Срок через ${days} дн.';
+	@override String hoursLeft({required Object hours}) => 'Срок через ${hours} ч';
+	@override String get dueSoon => 'Скоро срок';
+	@override String get submitFailed => 'Не удалось отправить, попробуйте позже';
+	@override String get taskId => 'ID задачи';
+	@override String get pendingReview => 'На проверке';
+	@override String get taskIdMissing => 'ID задачи отсутствует, нельзя открыть детали';
+	@override String get taskIdMissingSubmit => 'ID задачи отсутствует, нельзя отправить';
+}
+
+// Path: groupVote
+class _Translations$groupVote$ru_RU extends Translations$groupVote$zh_CN {
+	_Translations$groupVote$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Опросы группы';
+	@override String get createVote => 'Создать опрос';
+	@override String get voteTitle => 'Вопрос опроса';
+	@override String get voteOptions => 'Варианты ответа';
+	@override String get addOption => 'Добавить вариант';
+	@override String get allowMultiple => 'Разрешить несколько ответов';
+	@override String get anonymous => 'Анонимный опрос';
+	@override String get deadline => 'Срок';
+	@override String get noDeadline => 'Без срока';
+	@override String get noVote => 'Нет опросов';
+	@override String get voteEnded => 'Опрос завершён';
+	@override String totalVotes({required Object count}) => 'Всего ${count} голосов';
+	@override String get voteSuccess => 'Голос принят';
+	@override String get hasVoted => 'Вы проголосовали';
+	@override String get viewResults => 'Результаты';
+	@override String get cancelVoteSuccess => 'Голос отменён';
+	@override String get cancelVoteFailed => 'Не удалось отменить, попробуйте позже';
+	@override String get endVoteFailed => 'Не удалось завершить, попробуйте позже';
+	@override String get eachOptionPerLine => 'По одному варианту на строку';
+	@override String get statusInProgress => 'Идёт';
+	@override String get updateVote => 'Изменить опрос';
+	@override String get cancelMyVote => 'Отменить мой голос';
+	@override String get voteIdMissing => 'ID опроса отсутствует, нельзя открыть детали';
+	@override String participantCount({required Object count}) => 'Участников: ${count}';
 }
 
 // Path: main
@@ -1338,6 +2045,8 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get audio => 'Аудио';
 	@override String get barcodeFound => 'Штрих-код найден!';
 	@override String get botQianFan => 'Робот Qianfan';
+	@override String get liveRoomWhipLabel => 'Адрес трансляции WHIP';
+	@override String get liveRoomWhepLabel => 'Адрес приёма WHEP';
 	@override String get cache => 'Кэш';
 	@override String get camera => 'Камера';
 	@override String get changeNameView => 'Изменить имя';
@@ -1415,6 +2124,9 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get recentlyUsed => 'Недавно использованные';
 	@override String get releaseEnd => 'Отпустите для завершения';
 	@override String remainingChars({required Object param}) => 'Осталось ${param} символов';
+	@override String get kickMember => 'Remove from Group';
+	@override String get memberDetail => 'Member Details';
+	@override String get memberRole => 'Role';
 	@override String get replied => 'Ответлено';
 	@override String get ringing => 'Звонок...';
 	@override String get ruRu => 'Русский (Россия)';
@@ -1439,6 +2151,7 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get timeRange => 'Временной диапазон';
 	@override String get timeWeekdays => 'Понедельник, Вторник, Среда, Четверг, Пятница, Суббота, Воскресенье';
 	@override String get titleMine => 'Мой';
+	@override String get titleSquare => 'Площадка';
 	@override String get tooBad => 'Очень плохо';
 	@override String get tryAgainQ => 'Попробовать снова?';
 	@override String get type => 'Тип';
@@ -1511,9 +2224,154 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get larger => 'Больше';
 	@override String currentLength({required Object param1, required Object param2}) => 'Текущая длина: ${param1} / ${param2}';
 	@override String get fillIn => 'Заполнить';
-	@override String get kickMember => 'Remove from Group';
-	@override String get memberDetail => 'Member Details';
-	@override String get memberRole => 'Role';
+	@override String get msgProtectedByComplianceKey => 'Сообщения защищены ключом соответствия';
+	@override String inviterLabel({required Object uid}) => 'Пригласивший: ${uid}';
+	@override String inviteeLabel({required Object uid}) => 'Приглашённый: ${uid}';
+	@override String get mySentTab => 'Отправленные';
+	@override String get reject => 'Отклонить';
+	@override String get myOrders => 'Мои заказы';
+	@override String get purchaseUnlockHint => 'После покупки откроется история сообщений канала и новые публикации.';
+	@override String get payingDots => 'Оплата...';
+	@override String get purchaseAndUnlock => 'Купить и открыть';
+	@override String get orderDetail => 'Детали заказа';
+	@override String orderAmountLabel({required Object currency, required Object amount}) => 'Сумма: ${currency} ${amount}';
+	@override String channelPriceLabel({required Object currency, required Object amount}) => 'Цена: ${currency} ${amount}';
+	@override String get e2eeKeyRecoveryTitle => 'Управление ключами сквозного шифрования';
+	@override String get e2eeRecoveryMethods => 'Способы восстановления ключа';
+	@override String get e2eeDangerousOps => 'Опасные действия';
+	@override String get e2eeSocialRecovery => 'Социальное восстановление';
+	@override String get e2eeSocialRecoveryDesc => 'Восстановление ключа с помощью доверенных контактов';
+	@override String get e2eeKeyIdLabel => 'ID ключа';
+	@override String get e2eeWarnIrreversible => '• Это действие необратимо';
+	@override String get e2eeWarnNeedRestoreOrNew => '• Нужно восстановить из копии или создать новый ключ';
+	@override String get gotIt => 'Понятно';
+	@override String get e2eeRecoverKeyTitle => 'Восстановить ключ';
+	@override String get e2eeCanRecoverKey => 'Ключ можно восстановить';
+	@override String get e2eeInsufficientShards => 'Недостаточно фрагментов';
+	@override String e2eeProxyUser({required Object uid}) => 'Посредник: ${uid}';
+	@override String e2eeShardLabel({required Object index, required Object total}) => 'Фрагмент ${index} / ${total}';
+	@override String get e2eeReloadShards => 'Обновить';
+	@override String get e2eeRecovering => 'Восстановление...';
+	@override String get e2eeKeyRestored => 'Ключ восстановлен';
+	@override String e2eeUsedShards({required Object count}) => 'Использовано фрагментов посредников: ${count}';
+	@override String get e2eePreparing => 'Подготовка...';
+	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => 'Прогресс: ${collected} / ${total} фрагментов';
+	@override String e2eeCollectingShards({required Object collected, required Object total}) => 'Сбор фрагментов (${collected}/${total})...';
+	@override String get e2eeShardsCollected => 'Фрагменты собраны, сборка ключа...';
+	@override String get webQRLoggingIn => 'Вход...';
+	@override String get webQRExpired => 'Срок действия QR-кода истёк';
+	@override String get webQRRefresh => 'Обновить QR-код';
+	@override String get webSwitchToQR => 'Войти по QR-коду';
+	@override String get e2eeErrDefault => 'Ошибка сквозного шифрования, сообщение не отправлено';
+	@override String get e2eeSocialTotalShards => 'Всего фрагментов';
+	@override String get e2eeSocialThreshold => 'Порог восстановления';
+	@override String e2eeSocialThresholdHint({required Object count}) => 'Для восстановления нужно ${count} посредников';
+	@override String get e2eeSocialSelectProxy => 'Выбор посредников';
+	@override String e2eeSocialProxyNeeded({required Object count}) => 'Нужно ${count} доверенных контактов как посредников';
+	@override String e2eeSocialProxyDefaultName({required Object uid}) => 'Пользователь ${uid}';
+	@override String get e2eeSocialShardSentViaWs => 'Фрагменты отправлены напрямую на устройства посредников через WebSocket';
+	@override String e2eeSocialSentCount({required Object sent, required Object total}) => 'Отправлено ${sent} из ${total} устройств';
+	@override String get e2eeSocialManageTitle => 'Управление фрагментами';
+	@override String get e2eeSocialMyShards => 'Мои фрагменты';
+	@override String get e2eeSocialProxyShards => 'Фрагменты посредников';
+	@override String e2eeSocialShardOf({required Object idx, required Object total}) => 'Фрагмент ${idx} / ${total}';
+	@override String get e2eeSocialShardActive => 'Активен';
+	@override String get e2eeSocialShardUsed => 'Использован';
+	@override String get e2eeSocialShardValid => 'Фрагмент действителен';
+	@override String e2eeSocialUserShard({required Object uid}) => 'Фрагмент ключа пользователя ${uid}';
+	@override String get e2eeSocialProxyUserLabel => 'Посредник';
+	@override String get e2eeSocialRecoveryThresholdLabel => 'Порог восстановления';
+	@override String get e2eeSocialShardIndexLabel => 'Номер фрагмента';
+	@override String get e2eeTransferQRHint => 'Отсканируйте этот QR-код на новом устройстве';
+	@override String e2eeTransferQRExpiry({required Object time}) => 'Срок QR-кода истекает ${time}';
+	@override String get e2eeTransferRefreshQR => 'Обновить QR-код';
+	@override String get e2eeTransferEnterUidTitle => 'Введите ID получателя';
+	@override String get e2eeTransferUidPlaceholder => 'ID пользователя-получателя';
+	@override String get e2eeTransferReceiving => 'Приём...';
+	@override String get e2eeTransferPageTitle => 'Передача между устройствами';
+	@override String get e2eeTransferPendingItem => 'Ожидающая передача ключа';
+	@override String get e2eeTransferPendingItemDesc => 'Нажмите для деталей';
+	@override String get e2eeTransferView => 'Открыть';
+	@override String get e2eeSocialTitle => 'Социальное восстановление';
+	@override String get e2eeSocialCanRecover => 'Ключ можно восстановить';
+	@override String get e2eeSocialSetupProxy => 'Настроить посредников';
+	@override String get e2eeSocialChooseProxy => 'Выберите доверенные контакты как посредников';
+	@override String get e2eeSocialExistingShards => 'Существующие фрагменты';
+	@override String get e2eeSocialRecoverKeyTitle => 'Восстановить ключ';
+	@override String get e2eeSocialRecoverKeyDesc => 'Восстановить ключ из фрагментов посредников';
+	@override String get e2eeSocialManageShardsTitle => 'Управление фрагментами';
+	@override String get e2eeSocialManageShardsDesc => 'Просмотр и управление всеми фрагментами восстановления';
+	@override String get e2eeSocialZeroTrustHint1 => 'Нулевое доверие: сервер не хранит фрагменты, связь напрямую с посредниками';
+	@override String get e2eeSocialZeroTrustHint2 => 'Нулевое доверие: фрагменты хранятся на устройствах посредников';
+	@override String get e2eeSocialZeroTrustHint3 => 'Нулевое доверие: фрагменты у посредников, сервер не видит открытый текст';
+	@override String e2eeProxyMinCount({required Object count}) => 'Выберите минимум ${count} посредников';
+	@override String get e2eeProxySelectTitle => 'Выбор посредников восстановления';
+	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => 'Выбрано ${selected} / ${total}';
+	@override String get e2eeProxyReachedMin => 'Достигнуто минимальное число посредников';
+	@override String get liveRoomTitleLabel => 'Название трансляции';
+	@override String get liveRoomTitleHint => 'Введите название трансляции';
+}
+
+// Path: mention
+class _Translations$mention$ru_RU extends Translations$mention$zh_CN {
+	_Translations$mention$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '@Упоминания';
+	@override String get noMention => 'Нет упоминаний';
+	@override String get allRead => 'Всё прочитано';
+	@override String get markAsRead => 'Отметить прочитанным';
+	@override String get newMention => 'Новое упоминание';
+	@override String get fromGroup => 'Из группы';
+	@override String get fromChat => 'Из чата';
+	@override String get viewContext => 'Показать контекст';
+	@override String mentionCount({required Object count}) => 'Новых упоминаний: ${count}';
+	@override String get mentionAllDenied => 'Только администратор может использовать @все';
+	@override String get navInfoMissing => 'Нет данных о позиции сообщения, переход невозможен';
+}
+
+// Path: momentFriendPicker
+class _Translations$momentFriendPicker$ru_RU extends Translations$momentFriendPicker$zh_CN {
+	_Translations$momentFriendPicker$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Выбор друзей';
+	@override String get titleAllow => 'Показать';
+	@override String get titleDeny => 'Скрыть от';
+	@override String get confirm => 'ОК';
+	@override String confirmWithCount({required Object count}) => 'ОК(${count})';
+	@override String selectedCount({required Object count}) => 'Выбрано: ${count}';
+	@override String get emptyFriends => 'Нет друзей';
+	@override String get tagsLabel => 'По меткам';
+	@override String get emptyTags => 'Нет меток';
+	@override String get tagLoadFailed => 'Не удалось загрузить метки';
+	@override String get searchHint => 'Поиск друзей';
+}
+
+// Path: momentNotify
+class _Translations$momentNotify$ru_RU extends Translations$momentNotify$zh_CN {
+	_Translations$momentNotify$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Уведомления';
+	@override String get emptyTitle => 'Нет новых уведомлений';
+	@override String get emptyHint => 'Здесь появятся лайки и комментарии друзей к вашим Моментам';
+	@override String get actionLike => 'оценил(а) ваш Момент';
+	@override String get actionComment => 'оставил(а) комментарий';
+	@override String get markAllRead => 'Прочитать все';
+	@override String get clearAll => 'Очистить всё';
+	@override String get clearConfirmTitle => 'Очистить все уведомления?';
+	@override String get clearConfirmMessage => 'Это действие нельзя отменить';
+	@override String get confirm => 'ОК';
+	@override String get cancel => 'Отмена';
+	@override String get delete => 'Удалить';
+	@override String get loadFailed => 'Не удалось загрузить, попробуйте позже';
 }
 
 // Path: passport
@@ -1669,6 +2527,24 @@ extension on TranslationsRuRu {
 			'account.setBirthday' => 'Установить дату рождения',
 			'account.sentToEmail' => ({required Object param}) => 'Отправлено на ${param}',
 			'account.nicknameRules' => '• 2–24 символа • Нельзя только пробелы или только эмодзи • Нельзя чувствительные слова • После изменения отображается во всех чатах',
+			'account.refreshDeviceKey' => 'Обновить ключ устройства',
+			'account.refreshDeviceKeyHint' => 'Если сообщения не расшифровываются, обновите ключ этой кнопкой',
+			'account.refreshingDeviceKey' => 'Обновление ключа устройства...',
+			'account.deviceKeyRefreshed' => 'Ключ устройства обновлён',
+			'account.rechargeTitle' => 'Пополнение',
+			'account.rechargeAmountHint' => 'Введите сумму пополнения (юаней), 1–10000',
+			'account.rechargeAmountExample' => 'Например: 100',
+			'account.e2eeDeviceTransfer' => 'Передача между устройствами',
+			'account.e2eeDeviceTransferDesc' => 'Прямая передача ключа на новое устройство через QR-код',
+			'account.e2eeDeviceIdLabel' => 'ID устройства',
+			'account.webQRLoginTitle' => 'Вход по QR-коду',
+			'account.webQRLoginHint' => 'Отсканируйте QR-код приложением ImBoy на телефоне',
+			'account.webSwitchToPassword' => 'Войти по паролю',
+			'account.webPasswordLoginTitle' => 'Вход по аккаунту',
+			'account.webAccountHint' => 'Введите аккаунт/телефон/email',
+			'account.webPasswordHint' => 'Введите пароль',
+			'account.e2eeTransferFromOldDevice' => 'Получить ключ со старого устройства',
+			'account.pleaseRelogin' => 'Войдите заново',
 			'channel.title' => 'Каналы',
 			'channel.loading' => 'Загрузка...',
 			'channel.subscribed' => 'Подписан',
@@ -1759,10 +2635,16 @@ extension on TranslationsRuRu {
 			'channel.updateRoleFailed' => 'Не удалось обновить роль',
 			'channel.userId' => 'ID пользователя',
 			'channel.userIdHint' => 'Введите ID пользователя',
+			'channel.selectFromContacts' => 'Выбрать из контактов',
+			'channel.searchContactsHint' => 'Поиск по нику или аккаунту',
+			'channel.noContactsToAdd' => 'Все друзья уже администраторы',
+			'channel.selectRole' => 'Выбрать роль',
 			'channel.noAdmins' => 'Нет администраторов',
 			'channel.roleCreator' => 'Создатель',
 			'channel.roleAdmin' => 'Администратор',
+			'channel.roleAdminDesc' => 'Может управлять каналом',
 			'channel.roleEditor' => 'Редактор',
+			'channel.roleEditorDesc' => 'Может публиковать сообщения',
 			'channel.roleUnknown' => 'Неизвестно',
 			'channel.searchSubscribers' => 'Поиск подписчиков',
 			'channel.subscriberSearchHint' => 'Поиск по имени или ID',
@@ -1774,6 +2656,11 @@ extension on TranslationsRuRu {
 			'channel.removeSubscriberFailed' => 'Не удалось удалить подписчика',
 			'channel.subscribedAt' => 'Подписан',
 			'channel.viewProfile' => 'Посмотреть профиль',
+			'channel.inviteFromContacts' => 'Пригласить друга',
+			'channel.inviteSearchHint' => 'Поиск по нику или аккаунту',
+			'channel.noContactsToInvite' => 'Все друзья уже приглашены или подписаны',
+			'channel.inviteSuccess' => 'Приглашение отправлено',
+			'channel.inviteFailed' => 'Не удалось отправить приглашение',
 			'channel.updateSuccess' => 'Канал успешно обновлён',
 			'channel.updateFailed' => 'Не удалось обновить канал',
 			'channel.typeCannotChange' => 'Нельзя изменить после создания',
@@ -1795,6 +2682,7 @@ extension on TranslationsRuRu {
 			'chat.businessCard' => 'Визитка',
 			'chat.busyTryAgainLater' => 'Собеседник занят, попробуйте позже',
 			'chat.later' => 'Позже',
+			'chat.peerIsTyping' => ({required Object name}) => '${name} печатает...',
 			'chat.changeGroupChatName' => 'Участники увидят новое имя группы',
 			'chat.chatHistory' => 'История чата',
 			'chat.chatHoldDownTalk' => 'Нажмите и удерживайте для разговора',
@@ -1825,12 +2713,31 @@ extension on TranslationsRuRu {
 			'chat.forwardTo' => 'Переслать',
 			'chat.forwardToFriend' => 'Переслать другу',
 			'chat.great' => 'Превосходно',
+			'chat.groupFile' => 'Файлы группы',
+			'chat.groupFileImagePreview' => 'Просмотр изображения',
+			'chat.groupFileVideoPreview' => 'Просмотр видео',
+			'chat.groupFileAudioPreview' => 'Прослушивание аудио',
+			'chat.groupFileMediaPause' => 'Пауза',
+			'chat.groupFileMediaPlay' => 'Воспроизвести',
+			'chat.groupFileUrlMissing' => 'Адрес файла отсутствует, не удаётся открыть',
+			'chat.groupFileUrlInvalid' => 'Недействительный адрес файла',
+			'chat.groupFilePreview' => 'Предпросмотр файла',
+			'chat.groupFileUnnamed' => 'Файл без названия',
+			'chat.groupFileCategoryEmpty' => ({required Object category}) => 'В категории ${category} нет файлов',
+			'chat.groupFileEmpty' => 'Нет файлов группы',
+			'chat.groupFileCategoryDoc' => 'Документы',
+			'chat.groupFileCategoryImage' => 'Изображения',
+			'chat.groupFileCategoryVideo' => 'Видео',
+			'chat.groupFileCategoryAudio' => 'Аудио',
+			'chat.groupFileCategoryOther' => 'Другое',
 			'chat.groupChat' => 'Групповой чат',
 			'chat.image' => 'Изображение',
 			'chat.imageMessage' => '[Изображение]',
 			'chat.initiateChat' => 'Начать групповой чат',
 			'chat.justChat' => 'Только чат',
 			'chat.location' => 'Местоположение',
+			'chat.exportMyData' => 'Экспорт моих данных',
+			'chat.exportDataDesc' => 'Экспорт личных данных, контактов и истории чатов',
 			'chat.message' => 'Сообщение',
 			'chat.messageHandlingMixin' => 'Миксин обработки сообщений',
 			'chat.messageMarkTitle' => 'Пометка сообщения',
@@ -1856,14 +2763,33 @@ extension on TranslationsRuRu {
 			'chat.recentChats' => 'Недавние чаты',
 			'chat.recentForwards' => 'Недавние пересылки',
 			'chat.remindMeLater' => 'Напомнить позже',
+			'chat.quickReplyManage' => 'Управление быстрыми ответами',
+			'chat.quickReplyEmpty' => 'Нет быстрых ответов. Нажмите в правом нижнем углу, чтобы добавить',
+			'chat.quickReplyDuplicate' => 'Такой ответ уже существует',
+			'chat.quickReplyMaxReached' => ({required Object max}) => 'Максимум ${max}',
+			'chat.quickReplyHint' => 'Введите текст...',
+			'chat.muteMember' => 'Mute Member',
+			'chat.unmuteMember' => 'Unmute',
+			'chat.muteUntil' => 'Muted Until',
+			'chat.muted' => 'Muted',
+			'chat.mutedFor' => ({required Object label}) => 'Мут ${label}',
+			'chat.muteUnitMinutes' => ({required Object count}) => '${count} мин',
+			'chat.muteUnitHours' => ({required Object count}) => '${count} ч',
+			'chat.muteUnitDays' => ({required Object count}) => '${count} дн.',
+			'chat.youAreMuted' => 'Вы в муте',
+			'chat.youAreMutedWithTime' => ({required Object minutes}) => 'Вы в муте, осталось ${minutes} мин',
 			'chat.repliedAt' => 'Ответлено в',
 			'chat.reply' => 'Ответить',
 			'chat.replyTo' => 'Ответить',
 			'chat.resendCode' => 'Отправить код снова',
 			'chat.revoke' => 'Отозвать',
 			'chat.scanQrCodeBusinessCard' => 'Сканировать QR-код визитки',
+			'chat.singleChat' => 'Private Chat',
+			'chat.privateChat' => 'Private Chat',
+			'chat.groupMessage' => 'Group message',
 			'chat.sendFriendRequest' => 'Отправить запрос дружбы',
 			'chat.sendMsgRejected' => 'Сообщение отклонено собеседником',
+			'chat.sendMessage' => 'Отправить сообщение',
 			'chat.sendSeparatelyTo' => 'Отправить отдельно',
 			'chat.sendTo' => 'Отправить',
 			'chat.send' => _root.common.buttonSend,
@@ -1885,6 +2811,7 @@ extension on TranslationsRuRu {
 			'chat.video' => 'Видео',
 			'chat.videoMessage' => '[Видео]',
 			'chat.viewAttachments' => 'Просмотреть вложения',
+			'chat.viewLargeImage' => 'Открыть полностью',
 			'chat.voice' => 'Голос',
 			'chat.voiceInput' => 'Голосовой ввод',
 			'chat.voiceMessage' => 'Голосовое сообщение',
@@ -1920,6 +2847,15 @@ extension on TranslationsRuRu {
 			'chat.unsupportedMessageType' => 'Неподдерживаемый тип сообщения',
 			'chat.passwordMismatch' => 'Пароли не совпадают',
 			'chat.pleaseTryAgainLater' => 'Пожалуйста, попробуйте позже',
+			'chat.momentsSelectVideo' => 'Выбрать видео',
+			'chat.momentsRecordVideo' => 'Снять видео',
+			'chat.momentsVisibilityPrivate' => 'Только я',
+			'chat.momentsMediaTooManyImages' => 'Можно выбрать не более 9 изображений',
+			'chat.momentsMediaTooManyVideos' => 'Можно выбрать только 1 видео',
+			'chat.momentsMediaMixedImageAndVideo' => 'Нельзя прикрепить изображения и видео одновременно',
+			'chat.momentsReplyPrefix' => 'Ответ @',
+			'chat.momentsReplySeparator' => ': ',
+			'chat.momentsReplyingTo' => 'Ответ @{name}',
 			'chat.sendNewMessage' => 'Отправить новое сообщение',
 			'chat.markRead' => 'Пометить как прочитанное',
 			'chat.markUnread' => 'Пометить как непрочитанное',
@@ -1938,21 +2874,75 @@ extension on TranslationsRuRu {
 			'chat.quickReplyThanks' => 'Спасибо',
 			'chat.quickReplyWait' => 'Минутку',
 			'chat.messageMute' => _root.chat.chatSettingMute,
-			'chat.quickReplyManage' => '管理快捷回复',
-			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
-			'chat.quickReplyDuplicate' => '内容已存在',
-			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
-			'chat.quickReplyHint' => '输入内容...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muteUntil' => 'Muted Until',
-			'chat.muted' => 'Muted',
-			'chat.singleChat' => 'Private Chat',
-			'chat.privateChat' => 'Private Chat',
-			'chat.groupMessage' => 'Group message',
+			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} групп',
+			'chat.groupAlbumCreateTitle' => 'Создать альбом группы',
+			'chat.groupAlbumCreated' => 'Альбом создан',
+			'chat.profileCompleted' => 'Профиль заполнен!',
+			'chat.profileProgress' => ({required Object percent}) => '${percent}% заполнено',
+			'chat.createdAtLabel' => ({required Object time}) => 'Создано: ${time}',
+			'chat.expiredAtLabel' => ({required Object time}) => 'Истекает: ${time}',
+			'chat.myReceivedTab' => 'Полученные',
+			'chat.orderStatusLabel' => ({required Object status}) => 'Статус: ${status}',
+			'chat.orderCreatedAtLabel' => ({required Object time}) => 'Создано: ${time}',
+			'chat.orderPaymentAtLabel' => ({required Object time}) => 'Оплачено: ${time}',
+			'chat.orderStatusPending' => 'Ожидает оплаты',
+			'chat.orderStatusPaid' => 'Оплачено',
+			'chat.orderStatusRefunded' => 'Возврат оформлен',
+			'chat.orderStatusExpired' => 'Истекло',
+			'chat.defaultFileName' => 'Файл',
+			'chat.fileUrlInvalid' => 'Недействительная ссылка на файл',
+			'chat.e2eeStatusAvailable' => 'Доступно',
+			'chat.e2eeGenerateNewKey' => 'Создать новый ключ',
+			'chat.e2eeGenerateNewKeyDesc' => 'Создать новую пару ключей E2EE (старые сообщения нельзя будет расшифровать)',
+			'chat.e2eeActivated' => 'Активно',
+			'chat.e2eeCreatedAtLabel' => 'Создан',
+			'chat.e2eeGeneratingKey' => 'Создание ключа, подождите...',
+			'chat.e2eeNewKeyGenerated' => 'Новая пара ключей E2EE создана!',
+			'chat.e2eeReady' => 'Готово',
+			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Готово (фрагментов: ${count})',
+			'chat.webFeatureMultiDevice' => 'Синхронизация устройств',
+			'chat.webFeatureMultiDeviceDesc' => 'Переключайтесь между телефоном и ПК, сообщения синхронизируются в реальном времени',
+			'chat.webFeatureE2EE' => 'Сквозное шифрование',
+			'chat.webFeatureE2EEDesc' => 'Все сообщения зашифрованы сквозным шифрованием для защиты конфиденциальности',
+			'chat.webFeatureFileTransfer' => 'Передача файлов',
+			'chat.webFeatureFileTransferDesc' => 'Перетащите файл, чтобы отправить; поддерживаются разные форматы',
+			'chat.webQRStatusWaiting' => 'Откройте ImBoy на телефоне > Настройки > Сканировать',
+			'chat.webQRStatusScanned' => 'Нажмите «Подтвердить вход» на телефоне',
+			'chat.webQRStatusVerifying' => 'Проверка...',
+			'chat.webQRStatusExpired' => 'Обновите и отсканируйте снова',
+			'chat.e2eeErrInvalidFormat' => 'Неверный формат сообщения, шифрование не выполнено',
+			'chat.e2eeSocialCreateTitle' => 'Создать фрагменты восстановления',
+			'chat.e2eeSocialCreateBtn' => 'Создать фрагменты',
+			'chat.e2eeSocialCreateFailTitle' => 'Не удалось создать',
+			'chat.e2eeSocialCreateFailBody' => 'Не удалось создать фрагменты, попробуйте ещё раз',
+			'chat.e2eeSocialCreateFirst' => 'Содержимое появится после создания фрагментов',
+			'chat.e2eeSocialUsedAtLabel' => 'Дата использования',
+			'chat.e2eeTransferSendTitle' => 'Отправить ключ на новое устройство',
+			'chat.e2eeTransferCreateBtn' => 'Создать',
+			'chat.e2eeTransferReceiveTitle' => 'Получить ключ со старого устройства',
+			'chat.e2eeTransferSendDesc' => 'Передача ключа на новое устройство через QR-код',
+			'chat.e2eeTransferReceiveDesc' => 'Сканируйте QR-код старого устройства для получения ключа',
+			'chat.e2eeSocialStatus' => ({required Object status}) => 'Статус: ${status}',
+			'chat.e2eeSocialCreateShardsTitle' => 'Создать фрагменты восстановления',
+			'chat.e2eeSocialCreateShardsDesc' => 'Разделить ключ на фрагменты и хранить на устройствах посредников (сервер не хранит)',
+			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Выберите минимум ${count} посредников',
+			'chat.e2eeRecreatingKey' => 'Создание ключа заново...',
+			'chat.e2eeKeyRecreated' => 'Ключ создан заново',
+			'chat.e2eeRecoveryNewDeviceTitle' => 'Обнаружен вход с нового устройства',
+			'chat.e2eeRecoveryNewDeviceBody' => 'Для защиты сообщений на этом устройстве создан новый ключ сквозного шифрования.\n\nПрошлые сообщения зашифрованы ключом старого устройства — сначала восстановите ключ, чтобы их прочитать. Восстановить можно через «Передачу устройств», «Социальное восстановление» или импорт локальной копии.',
+			'chat.e2eeRecoveryDecryptFailedTitle' => 'Не удалось расшифровать сообщение',
+			'chat.e2eeRecoveryDecryptFailedBody' => 'Это сообщение зашифровано ключом другого устройства.\n\nЕсли вы сменили устройство или переустановили приложение, восстановите ключ шифрования, чтобы прочитать прошлые сообщения.',
+			'chat.e2eeRecoveryLater' => 'Позже',
+			'chat.e2eeRecoveryGoRecover' => 'Восстановить',
+			'chat.e2eeRecoveryBannerText' => 'Обнаружены зашифрованные прошлые сообщения. Для просмотра восстановите ключ. Нажмите, чтобы перейти',
+			'chat.liveRoomCreateTitle' => 'Создать трансляцию',
+			'chat.liveRoomCreating' => 'Создание...',
+			'chat.liveRoomWatch' => 'Смотреть трансляцию',
 			'common.about' => 'О приложении',
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
+			_ => null,
+		} ?? switch (path) {
 			'common.acceptFriendRequest' => 'Подтвердить запрос дружбы',
 			'common.addFriend' => 'Добавить друга',
 			'common.addPhoneContact' => 'Добавить контакт',
@@ -1981,7 +2971,9 @@ extension on TranslationsRuRu {
 			'common.bindMobileAndEmailTips' => 'Привяжите телефон и эл. почту для безопасности',
 			'common.bindNow' => 'Привязать сейчас',
 			'common.buttonCancel' => 'Отмена',
+			'common.buttonCreate' => 'Создать',
 			'common.buttonChangePassword' => 'Изменить пароль',
+			'common.phoneInputHint' => 'Введите номер телефона',
 			'common.buttonClose' => 'Закрыть',
 			'common.buttonConfirm' => 'Подтвердить',
 			'common.buttonContinue' => 'Продолжить',
@@ -2008,6 +3000,7 @@ extension on TranslationsRuRu {
 			'common.canNotAddYourselfFriend' => 'Вы не можете добавить себя в друзья',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
+			'common.operationSuccessful' => 'Операция выполнена',
 			'common.save' => _root.common.buttonSave,
 			'common.reset' => 'Сбросить',
 			'common.clear' => 'Очистить',
@@ -2036,6 +3029,8 @@ extension on TranslationsRuRu {
 			'common.checkForUpdates' => 'Проверить обновления',
 			'common.clearAll' => 'Очистить всё',
 			'common.clearChatRecord' => 'Очистить историю чата',
+			'common.complaintSuccess' => 'Жалоба отправлена',
+			'common.complaintFailed' => 'Не удалось отправить жалобу, попробуйте позже',
 			'common.confirmCode' => 'Код подтверждения',
 			'common.confirmCodeError' => 'Код подтверждения пуст',
 			'common.confirmCodeSuccess' => 'Аккаунт подтверждён.',
@@ -2047,6 +3042,7 @@ extension on TranslationsRuRu {
 			'common.contactSettingTag' => 'Тег настроек контактов',
 			'common.contactTagListLogic' => 'Логика списка тегов контактов',
 			'common.contactTags' => 'Теги контактов',
+			'common.contactInfoNotSynced' => 'Контакты не синхронизированы',
 			'common.continueDownloading' => 'Продолжить загрузку',
 			'common.copy' => 'Копировать',
 			'common.coupon' => 'Купон',
@@ -2083,8 +3079,6 @@ extension on TranslationsRuRu {
 			'common.errorInvalidRequest' => _root.common.error,
 			'common.errorLengthBetween' => ({required Object param, required Object min, required Object max}) => 'Длина ${param} должна быть между ${min} и ${max}',
 			'common.errorManyRequest' => _root.common.error,
-			_ => null,
-		} ?? switch (path) {
 			'common.errorNoPackageToRemove' => _root.common.error,
 			'common.errorNoValidFileOrUrl' => _root.common.error,
 			'common.errorNonexistentDirectory' => _root.common.error,
@@ -2123,6 +3117,24 @@ extension on TranslationsRuRu {
 			'common.genderUpdateSuccess' => 'Пол успешно установлен',
 			'common.groupAddLocal' => 'Сохранить в контакты',
 			'common.groupAnnouncement' => 'Объявление группы',
+			'common.groupFileUploadSuccess' => 'Файл загружен',
+			'common.groupFileUploadFailed' => 'Не удалось загрузить файл, попробуйте позже',
+			'common.groupFileDeleteSuccess' => 'Файл удалён',
+			'common.groupFileDeleteFailed' => 'Не удалось удалить, попробуйте позже',
+			'common.groupFileClosePreview' => 'Закрыть предпросмотр',
+			'common.groupFileUploadTooltip' => 'Загрузить файл',
+			'common.groupFileSearch' => 'Поиск по файлам группы',
+			'common.groupFileReadFailed' => 'Не удалось прочитать файл, попробуйте ещё раз',
+			'common.groupFileDeleteTitle' => 'Удалить файл группы',
+			'common.groupFileDeleteConfirm' => ({required Object name}) => 'Удалить файл «${name}»?',
+			'common.groupFileImageLoadFailed' => 'Не удалось загрузить изображение',
+			'common.groupFileOpenFailed' => 'Не удаётся открыть ссылку на файл',
+			'common.groupFileSearchClear' => 'Очистить',
+			'common.groupFileSearchAction' => 'Поиск',
+			'common.groupFileCategoryAll' => 'Все',
+			'common.groupFileSearchEmpty' => 'Файлы не найдены',
+			'common.groupFileAudioLoadFailed' => 'Не удалось загрузить аудио',
+			'common.groupFileAudioLoading' => 'Загрузка аудио...',
 			'common.groupQrcodeTips' => ({required Object days, required Object date}) => 'Действителен ${days} дней (до ${date}). Обновится при повторном входе',
 			'common.groupSearchTips' => 'Название группы и описание группы',
 			'common.helpDocument' => 'Справка',
@@ -2146,7 +3158,9 @@ extension on TranslationsRuRu {
 			'common.loading' => 'Загрузка',
 			'common.locationMessage' => 'Сообщение о местоположении',
 			'common.loginDeviceManagementTips' => 'Управляйте устройствами. После удаления потребуется проверка безопасности',
+			'common.logoutFailed' => 'Не удалось выйти',
 			'common.logoutNotice' => '«Важная информация об удалении аккаунта»',
+			'common.exportDataSuccess' => 'Данные экспортированы',
 			'common.manually' => 'Вручную',
 			'common.messageCall' => 'Отправить сообщение',
 			'common.messageContent' => 'Содержание сообщения',
@@ -2194,6 +3208,7 @@ extension on TranslationsRuRu {
 			'common.noUpdateDescription' => 'Нет описания обновления',
 			'common.normalModel' => 'Обычный режим',
 			'common.notAuthorizedLatLong' => 'Вы ещё не авторизовали получение геолокации',
+			'common.notLoggedIn' => 'Вы не вошли в систему',
 			'common.notBad' => 'Неплохо',
 			'common.notBound' => 'Не привязано',
 			'common.notFilled' => 'Не заполнено',
@@ -2205,9 +3220,9 @@ extension on TranslationsRuRu {
 			'common.notShow' => 'Не показывать',
 			'common.notTurnedLocationService' => 'Вы ещё не включили службу геолокации',
 			'common.nowNewVersion' => 'Новых версий не обнаружено',
-			'common.off' => _root.common.disabled,
+			'common.kFalse' => _root.common.disabled,
 			'common.offlineNotification' => 'Уведомление о выходе из сети',
-			'common.on' => _root.common.enabled,
+			'common.kTrue' => _root.common.enabled,
 			'common.operationFailedAgainLater' => 'Операция не удалась, попробуйте позже',
 			'common.optionsNo' => 'Нет',
 			'common.optionsRename' => 'Хочу переименовать',
@@ -2240,12 +3255,57 @@ extension on TranslationsRuRu {
 			'common.releaseFingerCancelSending' => 'Отпустите палец, чтобы отменить отправку',
 			'common.removeContactFromTag' => 'Удалить контакт из тега',
 			'common.removeMember' => 'Удалить участника',
+			'common.atMentionYouTag' => '[@вы] ',
+			'common.atMentionLeftMember' => '@покинувший участник',
+			'common.muteNotifications' => 'Без уведомлений',
+			'common.muteNotificationsHint' => 'Если включено, вы не будете получать уведомления о новых сообщениях, но сможете видеть непрочитанные в списке чатов',
+			'common.revokeExpired' => 'Прошло более 2 минут, отзыв невозможен',
+			'common.quickReplyAddTitle' => 'Новый быстрый ответ',
+			'common.quickReplyEditTitle' => 'Изменить быстрый ответ',
+			'common.removeAdmin' => 'Remove Admin',
+			'common.setAdminConfirm' => 'Set this member as admin?',
+			'common.removeAdminConfirm' => 'Remove admin role from this member?',
+			'common.muteMemberConfirm' => 'Mute this member?',
+			'common.unmuteMemberConfirm' => 'Unmute this member?',
+			'common.kickMemberConfirm' => 'Remove this member from the group?',
+			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
+			'common.setAdminSuccess' => 'Admin set',
+			'common.setAdminFailed' => 'Failed to set admin',
+			'common.removeAdminSuccess' => 'Admin removed',
+			'common.removeAdminFailed' => 'Failed to remove admin',
+			'common.muteMemberSuccess' => 'Member muted',
+			'common.muteMemberFailed' => 'Failed to mute member',
+			'common.unmuteMemberSuccess' => 'Member unmuted',
+			'common.unmuteMemberFailed' => 'Failed to unmute member',
+			'common.kickMemberSuccess' => 'Member removed',
+			'common.kickMemberFailed' => 'Failed to remove member',
+			'common.transferGroupSuccess' => 'Ownership transferred',
+			'common.transferGroupFailed' => 'Failed to transfer ownership',
+			'common.notMuted' => 'Not Muted',
+			'common.muteDuration' => 'Mute Duration',
+			'common.muteDuration1hour' => '1 Hour',
+			'common.muteDuration6hours' => '6 Hours',
+			'common.muteDuration12hours' => '12 Hours',
+			'common.muteDuration1day' => '1 Day',
+			'common.muteDuration3days' => '3 Days',
+			'common.muteDuration7days' => '7 Days',
+			'common.muteDurationPermanent' => 'Permanent',
+			'common.muteDuration5min' => '5 минут',
+			'common.muteDuration10min' => '10 минут',
+			'common.muteDuration30min' => '30 минут',
+			'common.muteDuration30days' => '30 дней',
+			'common.muteUnitSeconds' => ({required Object count}) => '${count} сек',
+			'common.throttleWarning' => 'Слишком много запросов, попробуйте позже',
+			'common.throttleRetryAfter' => ({required Object seconds}) => 'Слишком много запросов, попробуйте через ${seconds} сек',
+			'common.mutedCannotSend' => 'В муте нельзя отправлять сообщения',
 			'common.resendCodeSuccess' => 'Новое письмо отправлено.',
 			'common.resetFilters' => 'Сбросить фильтры',
 			'common.saveQrCode' => 'Сохранить QR-код',
 			'common.saveSuccess' => 'Успешно сохранено',
 			'common.scanQrcodeAddFriend' => 'Отсканируйте QR-код выше, чтобы добавить меня в друзья',
 			'common.search' => 'Поиск',
+			'common.searchScope' => 'Search scope',
+			'common.searchAll' => 'All messages',
 			'common.searchChatContent' => 'Найти содержание чата',
 			'common.searchChatRecord' => 'Найти историю чата',
 			'common.searchError' => 'Ошибка поиска',
@@ -2375,6 +3435,11 @@ extension on TranslationsRuRu {
 			'common.selectExpirationDateOptional' => 'Выберите срок действия (необязательно)',
 			'common.groupAnnouncementDeleteConfirm' => 'Удалить это объявление?',
 			'common.groupAnnouncementDelete' => 'Удалить',
+			'common.groupAnnouncementLoadFailed' => 'Не удалось загрузить объявление, попробуйте позже',
+			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
+			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
+			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
+			'common.groupAnnouncementDeleteSuccess' => 'Объявление удалено',
 			'common.privacyClearChatHistory' => 'Очистить историю чата',
 			'common.privacyClearChatHistoryConfirm' => 'Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.',
 			'common.privacyLogoutAccountConfirm' => 'Удалить аккаунт? Это действие окончательно удалит аккаунт и все данные. Его нельзя отменить.',
@@ -2390,6 +3455,8 @@ extension on TranslationsRuRu {
 			'common.showOnlineStatus' => 'Показать онлайн-статус',
 			'common.showOnlineStatusDesc' => 'Друзья могут видеть ваш онлайн-статус',
 			'common.allowNearbyVisible' => 'Видимый для находящихся рядом',
+			_ => null,
+		} ?? switch (path) {
 			'common.dataSettings' => 'Настройки данных',
 			'common.clearChatRecords' => 'Очистить записи чата',
 			'common.clearChatRecordsDesc' => 'Очистить все записи чата, это действие нельзя отменить',
@@ -2518,6 +3585,24 @@ extension on TranslationsRuRu {
 			'common.changeFailed' => 'Не удалось изменить',
 			'common.submitted' => 'Отправлено',
 			'common.viewSecurityHelp' => 'Посмотреть справку по безопасности',
+			'common.momentsNoData' => 'Нет публикаций',
+			'common.momentsDeleteConfirm' => 'Удалить эту публикацию?',
+			'common.momentsDeleteCommentConfirm' => 'Удалить этот комментарий?',
+			'common.momentsNotFound' => 'Публикация не найдена или нет доступа',
+			'common.momentsContentOrMediaRequired' => 'Заполните текст или добавьте медиа',
+			'common.momentsPublishFailed' => 'Не удалось опубликовать',
+			'common.momentsAllowComment' => 'Разрешить комментарии',
+			'common.momentsReportReason' => 'Причина жалобы',
+			'common.momentsNoComments' => 'Нет комментариев',
+			'common.momentsContentHint' => 'Поделитесь чем-нибудь...',
+			'common.momentsAddMedia' => 'Добавить медиа',
+			'common.momentsAllowUidsLabel' => 'UID с доступом (через запятую)',
+			'common.momentsCommentFailed' => 'Не удалось добавить комментарий, попробуйте позже',
+			'common.momentsDeleteFailed' => 'Не удалось удалить, попробуйте позже',
+			'common.momentsReportSubmitted' => 'Жалоба отправлена',
+			'common.momentsReportFailed' => 'Не удалось отправить жалобу, попробуйте позже',
+			'common.momentsLoadMoreComments' => 'Ещё комментарии',
+			'common.momentsUploadFailed' => 'Не удалось загрузить медиа, попробуйте позже',
 			'common.transactionHistory' => 'История транзакций',
 			'common.paymentPasswordSetSuccess' => 'Платёжный пароль успешно установлен',
 			'common.paymentPasswordSetFailed' => 'Не удалось установить платёжный пароль',
@@ -2532,6 +3617,7 @@ extension on TranslationsRuRu {
 			'common.personalSignature' => 'Личная подпись',
 			'common.personalBackground' => 'Личный фон',
 			'common.setBackgroundImage' => 'Установить изображение фона',
+			'common.expression' => 'Эмодзи',
 			'common.extendedInfo' => 'Дополнительная информация',
 			'common.profession' => 'Профессия',
 			'common.pleaseEnterProfession' => 'Please enter profession',
@@ -2597,8 +3683,6 @@ extension on TranslationsRuRu {
 			'common.seconds' => 'секунды',
 			'common.messageCannotLocatedMayBeDeleted' => 'Не удаётся найти сообщение, возможно, оно было удалено',
 			'common.settingFailedPleaseTryAgain' => 'Не удалось выполнить настройку, попробуйте снова',
-			_ => null,
-		} ?? switch (path) {
 			'common.partialDeleteSuccess' => ({required Object success, required Object fail}) => 'Частичное удаление успешно: ${success} успешно, ${fail} не удалось',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => 'Неверный формат видео',
 			'common.recordingCancelled' => 'Запись отменена',
@@ -2614,6 +3698,10 @@ extension on TranslationsRuRu {
 			'common.noDetailedInfo' => 'Этот пользователь не установил подробную личную информацию',
 			'common.noNewRegisteredUsers' => 'Нет новых зарегистрированных пользователей Пожалуйста, попробуйте позже',
 			'common.newRegisteredUsersTip' => 'Здесь отображаются недавно зарегистрированные пользователи, вы можете добавить их в друзья',
+			'common.notificationFriendRequest' => 'Заявка в друзья',
+			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} хочет добавить вас в друзья',
+			'common.notificationGroupInvite' => 'Приглашение в группу',
+			'common.notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} приглашает вас в группу ${groupName}',
 			'common.youRevokedMessage' => 'Вы отозвали сообщение',
 			'common.otherRevokedMessage' => 'Собеседник отозвал сообщение',
 			'common.networkFailureTryAgain' => 'Сетевая ошибка, попробуйте снова!',
@@ -2630,44 +3718,302 @@ extension on TranslationsRuRu {
 			'common.smaller' => 'Меньше',
 			'common.currentFontScale' => ({required Object param1, required Object param2}) => 'Текущий: ${param1} ${param2}%',
 			'common.emailUpdatedTo' => ({required Object param}) => 'Эл. почта обновлена на ${param}',
-			'common.atMentionYouTag' => '[@你] ',
-			'common.atMentionLeftMember' => '@已退群成员',
-			'common.muteNotifications' => '消息免打扰',
-			'common.muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
-			'common.revokeExpired' => '超过 2 分钟，无法撤回',
-			'common.quickReplyAddTitle' => '新增快捷回复',
-			'common.quickReplyEditTitle' => '编辑快捷回复',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.muteMemberConfirm' => 'Mute this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.transferGroupSuccess' => 'Ownership transferred',
-			'common.transferGroupFailed' => 'Failed to transfer ownership',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration6hours' => '6 Hours',
-			'common.muteDuration12hours' => '12 Hours',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration3days' => '3 Days',
-			'common.muteDuration7days' => '7 Days',
-			'common.muteDurationPermanent' => 'Permanent',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.groupAnnouncementExpiry' => ({required Object time}) => 'Действует до: ${time}',
+			'common.groupAlbumCreateFailed' => 'Не удалось создать, попробуйте позже',
+			'common.groupAlbumDeleteTitle' => 'Удалить альбом группы',
+			'common.groupAlbumDeleteConfirm' => ({required Object name}) => 'Удалить альбом «${name}»?',
+			'common.groupAlbumDeleted' => 'Альбом удалён',
+			'common.groupAlbumDeleteFailed' => 'Не удалось удалить, попробуйте позже',
+			'common.groupAlbumRenameFailed' => 'Не удалось переименовать, попробуйте позже',
+			'common.groupAlbumUploadTooltip' => 'Загрузить фото',
+			'common.groupAlbumDeleteTooltip' => 'Удалить альбом',
+			'common.groupAlbumNoAlbum' => 'Нет альбомов',
+			'common.groupAlbumPhotoReadFailed' => 'Не удалось прочитать фото, попробуйте ещё раз',
+			'common.groupAlbumPhotoUploaded' => 'Фото загружено',
+			'common.groupAlbumPhotoUploadFailed' => 'Не удалось загрузить фото, попробуйте позже',
+			'common.groupAlbumCreateTooltip' => 'Создать альбом',
+			'common.groupAlbumPhotoBatchDeleteTitle' => 'Удалить фото',
+			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => 'Удалить выбранные фото (${count})?',
+			'common.groupAlbumPhotoDeleteFailed' => 'Не удалось удалить, попробуйте позже',
+			'common.groupAlbumPhotoDeletedAll' => ({required Object count}) => 'Удалено фото: ${count}',
+			'common.groupAlbumPhotoDeletedPartial' => ({required Object success, required Object fail}) => 'Удалено: ${success}, не удалось: ${fail}',
+			'common.groupAlbumPhotoDeleteTitle' => 'Удалить фото',
+			'common.groupAlbumPhotoDeleteConfirm' => 'Удалить это фото?',
+			'common.groupAlbumPhotoDeleted' => 'Фото удалено',
+			'common.groupAlbumPhotoBatchDeleteTooltip' => 'Удалить выбранные',
+			'common.groupAlbumPhotoExitSelection' => 'Выйти из выбора',
+			'common.groupAlbumPhotoOpenFailed' => 'Не удаётся открыть ссылку на фото',
+			'common.groupAlbumPhotoNotFound' => 'Фото не найдено или удалено',
+			'common.groupAlbumPhotoOpenExternal' => 'Открыть во внешнем приложении',
+			'common.groupAlbumPhotoCoverUpdated' => 'Обложка установлена',
+			'common.groupAlbumPhotoCoverFailed' => 'Не удалось установить обложку, попробуйте позже',
+			'common.groupAlbumPhotoNext' => 'Далее',
+			'common.groupAlbumPhotoResolution' => 'Разрешение',
+			'common.groupAlbumPhotoUploader' => 'Загрузил',
+			'common.sectionDisplay' => 'Отображение',
+			'common.sectionTheme' => 'Тема',
+			'common.selectLanguage' => 'Выбор языка',
+			'common.completionSuggestions' => 'Рекомендации:',
+			'common.sectionGeneral' => 'Основные',
+			'common.sectionPrivacySecurity' => 'Конфиденциальность и безопасность',
+			'common.sectionHelpAbout' => 'Справка и о приложении',
+			'common.msgOnlyVisibleToParties' => 'Сообщения видны только отправителю и получателю',
+			'common.msgNotEncrypted' => 'Сообщения передаются без шифрования',
+			'common.durationMinutes' => ({required Object count}) => '${count} мин',
+			'common.durationSeconds' => ({required Object count}) => '${count} сек',
+			'common.rechargeAmountError' => 'Введите сумму от 1 до 10000 юаней',
+			'common.rechargeSuccess' => 'Счёт пополнен',
+			'common.rechargeConfirm' => 'Подтвердить пополнение',
+			'common.transactionHistory2' => 'История операций',
+			'common.noTransactionHistory' => 'Нет операций',
+			'common.allLoaded' => '— всё загружено —',
+			'common.transactionTypeIncome' => 'Пополнение',
+			'common.transactionTypeExpense' => 'Списание',
+			'common.sectionLoginCredentials' => 'Учётные данные',
+			'common.channelInvitations' => 'Приглашения в канал',
+			'common.acceptInvitationFailed' => 'Не удалось принять приглашение',
+			'common.rejectInvitationFailed' => 'Не удалось отклонить приглашение',
+			'common.invitationAccepted' => 'Приглашение принято',
+			'common.invitationRejected' => 'Приглашение отклонено',
+			'common.invitationStatusPending' => 'Ожидает',
+			'common.invitationStatusAccepted' => 'Принято',
+			'common.invitationStatusRejected' => 'Отклонено',
+			'common.invitationStatusExpired' => 'Истекло',
+			'common.invitationStatusCancelled' => 'Отменено',
+			'common.invitationStatusUnknown' => 'Неизвестно',
+			'common.noReceivedInvitations' => 'Нет полученных приглашений',
+			'common.noSentInvitations' => 'Нет отправленных приглашений',
+			'common.processingDots' => 'Обработка...',
+			'common.purchaseFailed' => 'Не удалось купить, попробуйте позже',
+			'common.purchaseSuccess' => 'Покупка совершена',
+			'common.insufficientBalanceTitle' => 'Недостаточно средств',
+			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => 'Текущий баланс ${currency} ${balance}, требуется ${currency} ${price}. Сначала пополните счёт.',
+			'common.goRecharge' => 'Пополнить счёт',
+			'common.noOrders' => 'Нет заказов',
+			'common.orderDetailLoadFailed' => 'Не удалось загрузить заказ',
+			'common.orderNoLabel' => ({required Object no}) => 'Заказ: ${no}',
+			'common.orderStatusCancelled' => 'Отменено',
+			'common.orderStatusUnknown' => 'Неизвестно',
+			'common.removeReaction' => 'Убрать реакцию',
+			'common.removeReactionConfirm' => ({required Object emoji}) => 'Убрать реакцию ${emoji}?',
+			'common.fileOpenFailed' => 'Не удаётся открыть этот файл',
+			'common.e2eeLocalBackup' => 'Локальная резервная копия',
+			'common.e2eeLocalBackupDesc' => 'Экспорт зашифрованной резервной копии на устройство или в облако',
+			'common.e2eeDeleteKey' => 'Удалить ключ',
+			'common.e2eeDeleteKeyDesc' => 'Удалить ключ с устройства (без возможности восстановления)',
+			'common.e2eeCurrentKeyInfo' => 'Текущий ключ',
+			'common.e2eeE2EEEnabled' => 'Сквозное шифрование включено',
+			'common.e2eeNoKeyDetected' => 'Ключ E2EE не найден',
+			'common.e2eeNoKeyDesc' => 'Сначала создайте пару ключей или восстановите из резервной копии',
+			'common.e2eeAboutTitle' => 'О сквозном шифровании',
+			'common.e2eeInfoPoint1' => '• Сообщения шифруются до отправки, сервер не видит содержимое',
+			'common.e2eeInfoPoint2' => '• При смене устройства или удалении ключа старые сообщения могут не расшифроваться',
+			'common.e2eeInfoPoint3' => '• Регулярно создавайте резервные копии ключа, чтобы не потерять данные',
+			'common.e2eeExportBackup' => 'Экспортировать копию',
+			'common.e2eeExportBackupDesc' => 'Создать зашифрованную резервную копию',
+			'common.e2eeImportBackup' => 'Импортировать копию',
+			'common.e2eeImportBackupDesc' => 'Восстановить ключ из резервной копии',
+			'common.e2eeBackupManage' => 'Управление копиями',
+			'common.e2eeBackupManageDesc' => 'Просмотр истории резервных копий',
+			'common.e2eeGenerateKeyConfirm' => 'Создать новую пару ключей E2EE?',
+			'common.e2eeWarnOldMessagesLost' => '• Старые сообщения нельзя будет расшифровать',
+			'common.e2eeWarnNeedNewBackup' => '• Потребуется создать новую резервную копию',
+			'common.e2eeConfirmGenerate' => 'Создать',
+			'common.e2eeDeleteKeyConfirm' => 'Удалить текущий ключ?',
+			'common.e2eeWarnCannotRestore' => '• После удаления восстановление невозможно',
+			'common.e2eeWarnAllMsgsLost' => '• Все сообщения E2EE нельзя будет расшифровать',
+			'common.e2eeConfirmDelete' => 'Удалить',
+			'common.e2eeKeyGeneratedSuccess' => 'Ключ создан',
+			'common.e2eeDeviceIdInfo' => ({required Object id}) => 'ID устройства: ${id}',
+			'common.e2eeKeyIdInfo' => ({required Object id}) => 'ID ключа: ${id}',
+			'common.e2eeCreatedAtInfo' => ({required Object time}) => 'Создан: ${time}',
+			'common.e2eeImportantNote' => 'Важно',
+			'common.e2eeWarnOldMayNotDecrypt' => '• Старые сообщения могут не расшифроваться',
+			'common.e2eeSuggestBackupNow' => '• Рекомендуем сразу экспортировать копию',
+			'common.e2eeGoBackup' => 'Создать копию',
+			'common.e2eeKeyGenerateFailed' => 'Не удалось создать ключ, попробуйте ещё раз',
+			'common.e2eeKeyDeleted' => 'Ключ удалён',
+			'common.e2eeDeleteFailed' => 'Не удалось удалить, попробуйте ещё раз',
+			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => 'Доступно фрагментов: ${available}, нужно посредников: ${required}',
+			'common.e2eeNoRecoveryShards' => 'Нет доступных фрагментов для восстановления',
+			'common.e2eeRecoverSuccess' => 'Восстановлено',
+			'common.e2eeRecoverFailed' => 'Не удалось восстановить',
+			'common.e2eeRecoverKeyFailed' => 'Не удалось восстановить ключ, попробуйте ещё раз',
+			'common.e2eeLoadingShards' => 'Загрузка фрагментов...',
+			'common.e2eeNoShards' => 'Нет доступных фрагментов',
+			'common.e2eeLoadFailed' => 'Не удалось загрузить, попробуйте ещё раз',
+			'common.e2eeContactingProxy' => ({required Object name}) => 'Связь с: ${name}',
+			'common.e2eeRecoveryFailed' => 'Не удалось восстановить, попробуйте ещё раз',
+			'common.webFeatureNotification' => 'Уведомления на рабочем столе',
+			'common.webFeatureNotificationDesc' => 'Получайте уведомления о новых сообщениях даже с закрытой вкладкой',
+			'common.webQRConfirmOnPhone' => 'Подтвердите вход на телефоне',
+			'common.webQRLoginFailed' => 'Не удалось войти',
+			'common.webQRLoginSuccess' => 'Вход выполнен',
+			'common.webQRExpiresIn' => ({required Object seconds}) => 'Истекает через ${seconds} сек',
+			'common.webQRStatusFailed' => 'Не удалось войти, попробуйте ещё раз',
+			'common.webQRStatusSuccess' => 'Перенаправление...',
+			'common.webLoginEmptyError' => 'Введите аккаунт и пароль',
+			'common.webQRGenerateFailed' => 'Не удалось создать QR-код',
+			'common.webQRTokenInvalid' => 'Недействительный токен входа',
+			'common.e2eeErrNoRecipientKey' => 'Не удалось получить ключ устройства собеседника, сообщение не отправлено',
+			'common.e2eeDecryptFailed' => 'Не удалось расшифровать сообщение',
+			'common.e2eeDecryptFailedReasons' => 'Сообщение не удалось расшифровать. Возможные причины:',
+			'common.e2eeDecryptReasonOtherDevice' => '• Вы вошли на другом устройстве',
+			'common.e2eeDecryptReasonKeyExpired' => '• Срок действия ключа устройства истёк',
+			'common.e2eeDecryptReasonDataCorrupt' => '• Повреждены данные приложения',
+			'common.e2eeDecryptChooseSolution' => 'Выберите решение:',
+			'common.e2eeDecryptActionRecreateKey' => 'Создать ключ заново (рекомендуется)',
+			'common.e2eeDecryptActionRelogin' => 'Войти заново',
+			'common.e2eeDecryptActionRemindLater' => 'Напомнить позже',
+			'common.e2eeBackupExportTitle' => 'Экспорт резервной копии E2EE',
+			'common.e2eeBackupPwdCantRecover' => '• Пароль резервной копии нельзя восстановить, обязательно запомните его!',
+			'common.e2eeBackupStoreMultipleNote' => '• Храните копию в нескольких надёжных местах (почта, облако, флешка)',
+			'common.e2eeBackupPwdLabel' => 'Пароль резервной копии *',
+			'common.e2eeBackupPwdHint' => 'Минимум 12 символов: заглавные и строчные буквы, цифры, спецсимволы',
+			'common.e2eeBackupConfirmPwdLabel' => 'Подтвердите пароль *',
+			'common.e2eeBackupConfirmPwdHint' => 'Введите пароль ещё раз',
+			'common.e2eeBackupNoteLabel' => 'Заметка (необязательно)',
+			'common.e2eeBackupNoteHint' => 'Например: копия основного телефона - январь 2026',
+			'common.e2eeBackupPwdStrengthLabel' => 'Надёжность пароля',
+			'common.e2eeBackupPwdWeak' => 'Слабый - повысьте сложность',
+			'common.e2eeBackupPwdMedium' => 'Средний - увеличьте длину или сложность',
+			'common.e2eeBackupPwdStrong' => 'Надёжный - подходит',
+			'common.e2eeBackupPwdVeryStrong' => 'Очень надёжный - безопасно',
+			'common.e2eeBackupGenerateBtn' => 'Создать файл копии',
+			'common.e2eeBackupFileGenerated' => 'Файл резервной копии создан!',
+			'common.e2eeBackupShareBtn' => 'Отправить через почту/облако',
+			'common.e2eeBackupShareContent' => 'Это файл резервной копии ключей Imboy E2EE. Храните в безопасности и не передавайте другим.',
+			'common.e2eeBackupErrPwdMismatch' => 'Пароли не совпадают',
+			'common.e2eeBackupErrNoKeyData' => 'Не удалось получить данные ключа',
+			'common.e2eeBackupErrExportFailed' => 'Не удалось экспортировать, попробуйте ещё раз',
+			'common.e2eeBackupErrShareFailed' => 'Не удалось отправить, попробуйте ещё раз',
+			'common.e2eeBackupExportSuccessTitle' => 'Резервная копия экспортирована',
+			'common.e2eeBackupExportSuccessBody' => 'Резервная копия ключа E2EE успешно создана.',
+			'common.e2eeBackupImportantNoteColon' => 'Важно:',
+			'common.e2eeBackupKeepSafe' => '• Храните файл копии и пароль в безопасности',
+			'common.e2eeBackupStoreMultipleLoc' => '• Храните файл в нескольких надёжных местах',
+			'common.e2eeBackupPwdCantRecoverNote' => '• Пароль нельзя восстановить, обязательно запомните его',
+			'common.e2eeBackupImportTitle' => 'Импорт резервной копии E2EE',
+			'common.e2eeBackupImportGuide' => 'Инструкция по импорту',
+			'common.e2eeBackupImportReplaceKey' => '• После импорта текущий ключ E2EE будет заменён',
+			'common.e2eeBackupImportTrustedSource' => '• Убедитесь, что файл из надёжного источника',
+			'common.e2eeBackupSelectFile' => 'Выбрать файл копии',
+			'common.e2eeBackupSelectFileHint' => 'Выберите файл копии (.enc)',
+			'common.e2eeBackupInfoTitle' => 'Информация о копии',
+			'common.e2eeBackupVersionLabel' => 'Версия',
+			'common.e2eeBackupAlgorithmLabel' => 'Алгоритм',
+			'common.e2eeBackupFileSizeLabel' => 'Размер файла',
+			'common.e2eeBackupFileValid' => '✓ Формат файла корректен',
+			'common.e2eeBackupImportPwdHint' => 'Введите пароль, заданный при создании копии',
+			'common.e2eeBackupImportBtn' => 'Импортировать ключ',
+			'common.e2eeBackupErrSelectFile' => 'Не удалось выбрать файл, попробуйте ещё раз',
+			'common.e2eeBackupErrValidateFailed' => 'Ошибка проверки файла, проверьте формат',
+			'common.e2eeBackupErrImportFailed' => 'Не удалось импортировать, проверьте пароль',
+			'common.e2eeBackupImportSuccessTitle' => 'Импорт выполнен',
+			'common.e2eeBackupImportSuccessBody' => 'Ключ E2EE восстановлен!',
+			'common.e2eeBackupImportSuccessNote' => 'Примечание: старые сообщения могут быть недоступны — это нормальное поведение E2EE',
+			'common.e2eeBackupNoRecords' => 'Нет резервных копий',
+			'common.e2eeBackupNoRecordsHint' => 'После экспорта здесь появится история',
+			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Устройство ${id}',
+			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => 'Создано ${time}',
+			'common.e2eeBackupDetailTitle' => 'Детали копии',
+			'common.e2eeBackupDeviceIdLabel' => 'ID устройства',
+			'common.e2eeBackupVersionNum' => 'Версия копии',
+			'common.e2eeBackupCreatedAtRow' => 'Дата создания',
+			'common.e2eeBackupFileSizeRow' => 'Размер файла',
+			'common.e2eeBackupNoteRow' => 'Заметка',
+			'common.e2eeBackupDeleteTitle' => 'Удалить запись о копии',
+			'common.e2eeBackupDeleteConfirm' => 'Удалить эту запись о копии?',
+			'common.e2eeBackupDeleteSuccess' => 'Запись удалена',
+			'common.e2eeSocialShardSettings' => 'Настройки фрагментов',
+			'common.e2eeSocialShardStoredNote' => 'Фрагменты хранятся на устройствах посредников, сервер не хранит ни одного',
+			'common.e2eeSocialAddProxy' => 'Добавить посредника',
+			'common.e2eeSocialAddProxyHint' => 'Добавьте контакты-посредники',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Добавьте ещё ${count} посредников',
+			'common.e2eeSocialCreateSuccessTitle' => 'Фрагменты созданы',
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Ключ разделён на ${count} фрагментов',
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Для восстановления хватит ${count} посредников',
+			'common.e2eeSocialZeroTrustNote' => 'Архитектура нулевого доверия: сервер не хранит фрагменты',
+			'common.e2eeSocialNoShards' => 'Вы ещё не создали фрагменты восстановления',
+			'common.e2eeSocialNoProxyShards' => 'Нет фрагментов посредников',
+			'common.e2eeSocialKeyVersionLabel' => 'Версия ключа',
+			'common.e2eeTransferErrNoKey' => 'Сначала создайте пару ключей',
+			'common.e2eeTransferErrInitFailed' => 'Ошибка инициализации, попробуйте ещё раз',
+			'common.e2eeTransferErrNoRecipientKey' => 'У получателя нет доступного открытого ключа',
+			'common.e2eeTransferErrKeyNotFound' => 'Ключ не найден',
+			'common.e2eeTransferErrCreateFailed' => 'Не удалось создать сеанс передачи, попробуйте ещё раз',
+			'common.e2eeTransferCreateSessionBtn' => 'Создать сеанс передачи',
+			'common.e2eeTransferSessionCreated' => 'Сеанс передачи создан',
+			'common.e2eeTransferUidEmptyError' => 'Введите корректный ID пользователя',
+			'common.e2eeTransferSuccess' => 'Передача завершена!',
+			'common.e2eeTransferFailed' => 'Не удалось передать, попробуйте ещё раз',
+			'common.e2eeTransferProcessingMsg' => 'Обработка...',
+			'common.e2eeTransferSuccessTitle' => 'Передача завершена',
+			'common.e2eeTransferSuccessBody' => 'Ключ передан на это устройство',
+			'common.e2eeTransferScanError' => ({required Object error}) => 'Ошибка сканирования: ${error}',
+			'common.e2eeTransferErrNoDeviceId' => 'Не удалось получить ID устройства',
+			'common.passwordEncryptFailed' => 'Не удалось зашифровать пароль',
+			'common.initConfigTimeout' => 'Тайм-аут загрузки настроек: проверьте сеть или состояние сервера',
+			'common.initConfigNetworkError' => ({required Object code}) => 'Сетевой сбой или сбой сервера (HTTP ${code})',
+			'common.initConfigProtocolError' => 'Ошибка протокола ответа сервера',
+			'common.initConfigFetchFailed' => 'Не удалось загрузить настройки, проверьте сеть',
+			'common.attachmentGetFileFailed' => 'Не удалось получить файл, попробуйте ещё раз или выберите из галереи',
+			'common.attachmentGetFileFailedAndroid9' => 'Ошибка получения файла, возможна проблема совместимости с Android 9',
+			'common.attachmentGetImageDataFailed' => 'Не удалось получить данные изображения, попробуйте ещё раз',
+			'common.attachmentGetOriginalImageFailed' => 'Не удалось получить оригинал изображения',
+			'common.saveFailedRetry' => 'Не удалось сохранить, попробуйте ещё раз',
+			'common.downloadFileNotFound' => 'Файл загрузки не найден, попробуйте ещё раз',
+			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Ошибка проверки файла, перезагрузка (${retry}/${max})',
+			'common.downloadHashFailed' => 'Многократная ошибка проверки файла, проверьте сеть и попробуйте ещё раз',
+			'common.e2eeTransferToNewDevice' => 'Передать на новое устройство',
+			'common.e2eeTransferPendingSection' => 'Ожидающие передачи',
+			'common.e2eeTransferLoadFailed' => 'Не удалось загрузить',
+			'common.e2eeTransferLoadFailedDesc' => 'Не удалось загрузить ожидающие передачи, попробуйте ещё раз',
+			_ => null,
+		} ?? switch (path) {
+			'common.e2eeTransferNoPending' => 'Нет ожидающих передач',
+			'common.e2eeTransferNoPendingDesc' => 'Когда устройство отправит вам ключ, появится здесь',
+			'common.e2eeSocialEnoughShards' => 'Достаточно фрагментов для восстановления',
+			'common.e2eeSocialMoreShards' => ({required Object count}) => 'Ещё фрагментов: ${count}...',
+			'common.e2eeProxyLoadFriendsFailed' => 'Не удалось загрузить список друзей, попробуйте ещё раз',
+			'common.e2eeProxyNoPublicKey' => 'У этого друга нет доступного открытого ключа',
+			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'Не удалось получить открытый ключ: ${name}',
+			'common.e2eeProxySelectFailed' => 'Не удалось выбрать посредников, попробуйте ещё раз',
+			'common.e2eeProxyNoFriends' => 'Нет друзей',
+			'common.e2eeProxyNoFriendsHint' => 'Сначала добавьте друзей, затем настройте посредников',
+			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => 'Нужно минимум ${count} доверенных контактов, выбрано ${selected}',
+			'common.e2eeProxyConfirmCount' => ({required Object count}) => 'Подтвердить (посредников: ${count})',
+			'common.buttonBackHome' => 'На главную',
+			'common.featureNotEnabled' => 'Эта функция отключена',
+			'common.featureDisabledName' => ({required Object name}) => 'Функция ${name} отключена и временно недоступна',
+			'common.imageLoadFailed' => 'Не удалось загрузить',
+			'common.loadFailedWithError' => ({required Object error}) => 'Ошибка загрузки: ${error}',
+			'common.webAudioNotSupported' => 'Воспроизведение голосовых сообщений в Web не поддерживается',
+			'common.e2eeKeyRecreationFailed' => ({required Object error}) => 'Не удалось создать ключ: ${error}',
+			'common.redPacket' => 'Красный конверт',
+			'common.transfer' => 'Перевод',
+			'common.withdraw' => 'Вывод средств',
+			'common.redPacketSend' => 'Отправить конверт',
+			'common.redPacketOpen' => 'Открыть конверт',
+			'common.redPacketDetail' => 'Детали конверта',
+			'common.transferSend' => 'Сделать перевод',
+			'common.transferAccept' => 'Принять перевод',
+			'common.greetingDefault' => 'Счастья и процветания!',
+			'common.grabAmountYuan' => ({required Object amount}) => 'Получено: ${amount} юаней',
+			'common.transferAmountYuan' => ({required Object amount}) => 'Перевод: ${amount} юаней',
+			'common.insufficientBalance' => 'Недостаточно средств',
+			'common.goToRecharge' => 'Пополнить счёт',
+			'common.withdrawSuccess' => 'Вывод выполнен',
+			'common.withdrawConfirm' => 'Подтвердить вывод',
+			'common.withdrawAmountError' => 'Введите сумму не менее 1 юаня',
+			'common.withdrawAccountEmpty' => 'Введите счёт для вывода',
+			'common.withdrawMethod' => 'Способ вывода',
+			'common.withdrawAccount' => 'Счёт для вывода',
 			'complaint.complaint' => 'Жалоба',
+			'complaintReason.spam' => 'Спам',
+			'complaintReason.harassment' => 'Преследование',
+			'complaintReason.inappropriate' => 'Неподходящий контент',
+			'complaintReason.other' => 'Другое',
 			'contact.applyFriend' => 'Добавить в друзья',
 			'contact.applyFriendLogic' => 'Логика добавления в друзья',
 			'contact.applyParam' => ({required Object param}) => 'Заявка ${param}',
@@ -2698,6 +4044,7 @@ extension on TranslationsRuRu {
 			'contact.pleaseEnterRemark' => 'Пожалуйста, введите примечание',
 			'contact.enterRemark' => 'Введите примечание',
 			'contact.pleaseEnterTags' => 'Пожалуйста, введите теги',
+			'contact.momentsVisibilityFriends' => 'Только друзья',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Длина тега не может превышать ${param} символов',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Максимум ${param} тегов',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Выбрано тегов (${param}/${max})',
@@ -2716,6 +4063,8 @@ extension on TranslationsRuRu {
 			'contact.tagIdeas' => 'Идеи',
 			'contact.tagMemo' => 'Заметка',
 			'contact.friendRequestSent' => 'Отправлено',
+			'contact.channelMaxTagsCount' => 'Можно добавить не более 8 меток',
+			'contact.tagInputHint' => 'Введите метку...',
 			'discovery.findNearbyPeople' => 'Найти людей рядом',
 			'discovery.moment' => 'Моменты',
 			'discovery.nearbyPeopleExplain' => 'Пользователи рядом могут просматривать ваш профиль и отправлять вам сообщения. Это может помочь вам найти новых друзей, но также может привлечь чрезмерное внимание. Вы можете в любое время прекратить публикацию вашего профиля.\nВаш номер телефона будет скрыт.',
@@ -2725,10 +4074,26 @@ extension on TranslationsRuRu {
 			'discovery.scanResult' => 'Результат сканирования',
 			'discovery.scannerResult' => 'Результат сканирования',
 			'discovery.titleDiscover' => 'Обнаружить',
+			'discovery.myChannels' => 'Мои каналы',
+			'discovery.channelSquare' => 'Площадка каналов',
 			'discovery.otherUsersCanFindMe' => 'Другие пользователи могут найти меня через поиск',
 			'discovery.moments' => 'Моменты',
+			'discovery.momentsReport' => 'Пожаловаться на публикацию',
+			'discovery.momentsReportDesc' => 'Дополнительное описание',
+			'discovery.momentsComments' => 'Комментарии',
+			'discovery.momentsWriteComment' => 'Написать комментарий...',
+			'discovery.momentsVisibility' => 'Видимость',
+			'discovery.momentsVisibilityPublic' => 'Все',
+			'discovery.momentsVisibilityPartial' => 'Некоторые',
+			'discovery.momentsVisibilityExclude' => 'Скрыть от...',
+			'discovery.momentsDenyUidsLabel' => 'Скрыть от UID (через запятую)',
+			'discovery.momentsDraftRestored' => 'Восстановлен черновик',
+			'discovery.momentsFeedStale' => 'Сетевая ошибка, показан кэш',
 			'discovery.discover' => 'Обзор',
 			'discovery.shake' => 'Встряхнуть',
+			'discovery.openChannel' => 'Открыть канал',
+			'discovery.paidChannelLocked' => 'Содержимое платного канала заблокировано',
+			'discovery.webQRScanned' => 'Отсканировано',
 			'error.restartRequired' => 'Требуется перезапуск приложения',
 			'error.networkFailureGuidance' => 'Руководство при сетевых ошибках',
 			'error.pleaseCheckNetwork' => 'Пожалуйста, проверьте настройки сети.',
@@ -2736,10 +4101,16 @@ extension on TranslationsRuRu {
 			'error.networkTroubleshootingStep2' => '2. Включите мобильные данные',
 			'error.networkTroubleshootingStep3' => '3. Проверьте интернет или обратитесь к оператору',
 			'error.suggestCheckNetwork' => 'Рекомендуется проверить настройки сети.',
+			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'Начать восстановление (нужно посредников: ${required})',
+			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'Недостаточно фрагментов (нужно ${required}, есть ${current})',
+			'error.e2eeErrTimeout' => 'Превышено время шифрования, проверьте сеть и попробуйте ещё раз',
+			'error.e2eeErrNetwork' => 'Сетевая ошибка, шифрование не выполнено, сообщение не отправлено',
+			'error.liveRoomTitleRequired' => 'Введите название',
 			'group.financialManagement' => 'Инвестиции',
 			'group.enterSameGroup' => 'Войти в одну группу с друзьями рядом',
 			'group.enterTheGroup' => 'Войти в эту группу',
 			'group.groupAlias' => 'Мой никнейм в этой группе',
+			'group.groupAlbum' => 'Альбом группы',
 			'group.groupDissolve' => 'Роспуск группы',
 			'group.groupJoin' => 'Вступить в группу',
 			'group.groupLeave' => 'Покинуть группу',
@@ -2747,16 +4118,139 @@ extension on TranslationsRuRu {
 			'group.groupMembers' => 'Участники группы',
 			'group.groupName' => 'Название группы',
 			'group.mutualGroupsWithHer' => 'Общие группы',
-			'group.selectGroup' => 'Выбрать групповой чат',
-			'group.sureToDissolveGroup' => 'Распустить эту группу?',
-			'group.sureToLeaveGroup' => 'Покинуть эту группу?',
 			'group.groupOwner' => 'Owner',
 			'group.groupAdmin' => 'Admin',
-			'group.groupGuest' => '嘉宾',
+			'group.groupGuest' => 'Гость',
 			'group.groupMember' => 'Member',
 			'group.setAdmin' => 'Set as Admin',
 			'group.transferGroup' => 'Transfer Ownership',
 			'group.joinTime' => 'Join Time',
+			'group.selectGroup' => 'Выбрать групповой чат',
+			'group.sureToDissolveGroup' => 'Распустить эту группу?',
+			'group.sureToLeaveGroup' => 'Покинуть эту группу?',
+			'group.groupAlbumNameHint' => 'Введите название альбома',
+			'group.groupAlbumRenameTitle' => 'Переименовать альбом',
+			'group.groupAlbumRenamed' => 'Альбом переименован',
+			'group.groupAlbumUnnamed' => 'Альбом без названия',
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} фото',
+			'group.groupAlbumPhotoIdMissing' => 'ID фото отсутствует, нельзя открыть детали',
+			'group.groupAlbumPhotoListTitle' => 'Фото альбома',
+			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => 'Выбрано: ${count}',
+			'group.groupAlbumPhotoEmpty' => 'Нет фото',
+			'group.groupAlbumPhotoUrlMissing' => 'Адрес фото отсутствует, не удаётся открыть',
+			'group.groupAlbumPhotoUrlInvalid' => 'Недействительный адрес фото',
+			'group.groupAlbumPhotoDetailTitle' => 'Информация о фото',
+			'group.groupAlbumPhotoSetCover' => 'Сделать обложкой',
+			'group.groupAlbumPhotoPrev' => 'Назад',
+			'group.groupAlbumPhotoLikeCount' => 'Лайки',
+			'group.groupAlbumPhotoCommentCount' => 'Комментарии',
+			'group.groupAlbumPhotoMyLike' => 'Мой лайк',
+			'group.groupAlbumPhotoIdLabel' => 'ID фото',
+			'group.e2eeKeyManagement' => 'Управление ключами E2EE',
+			'group.e2eeKeyManagementSubtitle' => 'Резервное копирование, восстановление и управление ключами сквозного шифрования',
+			'groupCategory.title' => 'Папки групп',
+			'groupCategory.createCategory' => 'Создать папку',
+			'groupCategory.categoryName' => 'Название папки',
+			'groupCategory.categoryDesc' => 'Описание папки (необязательно)',
+			'groupCategory.noCategory' => 'Нет папок',
+			'groupCategory.createFirst' => 'Создайте первую папку',
+			'groupCategory.addGroup' => 'Добавить группу в папку',
+			'groupCategory.removeGroup' => 'Убрать из папки',
+			'groupCategory.deleteCategory' => 'Удалить папку',
+			'groupCategory.deleteCategoryConfirm' => 'Удалить эту папку? Группы не будут удалены.',
+			'groupCategory.categoryCreated' => 'Папка создана',
+			'groupCategory.categoryDeleted' => 'Папка удалена',
+			'groupCategory.renameCategory' => 'Переименовать папку',
+			'groupCategory.categoryRenamed' => 'Папка переименована',
+			'groupCategory.renameFailed' => 'Не удалось переименовать, попробуйте ещё раз',
+			'groupCategory.deleteFailed' => 'Не удалось удалить, попробуйте ещё раз',
+			'groupCategory.categoryDetailTip' => 'Группы в этой папке можно переносить через «В папку» в списке групп',
+			'groupList.attrAll' => 'Все',
+			'groupList.attrOwner' => 'Мои',
+			'groupList.attrManager' => 'Управляю',
+			'groupList.attrJoin' => 'Участвую',
+			'groupList.refresh' => 'Обновить',
+			'groupSchedule.title' => 'События группы',
+			'groupSchedule.createSchedule' => 'Создать событие',
+			'groupSchedule.scheduleTitle' => 'Название',
+			'groupSchedule.selectDate' => 'Выбрать дату',
+			'groupSchedule.selectTime' => 'Выбрать время',
+			'groupSchedule.location' => 'Место',
+			'groupSchedule.reminder' => 'Напоминание',
+			'groupSchedule.noReminder' => 'Без напоминания',
+			'groupSchedule.noSchedule' => 'Нет событий',
+			'groupSchedule.scheduleCreated' => 'Событие создано',
+			'groupSchedule.scheduleUpdated' => 'Событие обновлено',
+			'groupSchedule.reminder15min' => 'За 15 минут',
+			'groupSchedule.reminder1hour' => 'За 1 час',
+			'groupSchedule.reminder1day' => 'За 1 день',
+			'groupSchedule.startTime' => 'Начало',
+			'groupSchedule.endTime' => 'Конец',
+			'groupSchedule.participants' => 'Участники',
+			'groupSchedule.statusCancelled' => 'Отменено',
+			'groupSchedule.statusInProgress' => 'Идёт',
+			'groupSchedule.cancelSuccess' => 'Событие отменено',
+			'groupSchedule.cancelFailed' => 'Не удалось отменить, попробуйте позже',
+			'groupSchedule.confirmAttend' => 'Подтвердить участие',
+			'groupSchedule.declineAttend' => 'Не приду',
+			'groupSchedule.cancelSchedule' => 'Отменить событие',
+			'groupSchedule.scheduleIdMissing' => 'ID события отсутствует, нельзя открыть детали',
+			'groupTag.title' => 'Метки групп',
+			'groupTag.addTag' => 'Добавить метку',
+			'groupTag.tagName' => 'Название метки',
+			'groupTag.tagColor' => 'Цвет метки',
+			'groupTag.noTag' => 'Нет меток',
+			'groupTag.tagAdded' => 'Метка добавлена',
+			'groupTag.tagRemoved' => 'Метка удалена',
+			'groupTag.removeTitle' => 'Удалить метку',
+			'groupTag.removeConfirm' => 'Удалить эту метку?',
+			'groupTask.title' => 'Задачи группы',
+			'groupTask.createTask' => 'Создать задачу',
+			'groupTask.taskTitle' => 'Название задачи',
+			'groupTask.taskDescription' => 'Описание задачи',
+			'groupTask.assignTo' => 'Назначить',
+			'groupTask.deadline' => 'Срок',
+			'groupTask.noDeadline' => 'Без срока',
+			'groupTask.noTask' => 'Нет задач',
+			'groupTask.all' => 'Все',
+			'groupTask.pending' => 'В работе',
+			'groupTask.completed' => 'Завершено',
+			'groupTask.taskCreated' => 'Задача создана',
+			'groupTask.taskSubmitted' => 'Задача отправлена',
+			'groupTask.taskCompleted' => 'Задача завершена',
+			'groupTask.overdue' => 'Просрочено',
+			'groupTask.daysLeft' => ({required Object days}) => 'Срок через ${days} дн.',
+			'groupTask.hoursLeft' => ({required Object hours}) => 'Срок через ${hours} ч',
+			'groupTask.dueSoon' => 'Скоро срок',
+			'groupTask.submitFailed' => 'Не удалось отправить, попробуйте позже',
+			'groupTask.taskId' => 'ID задачи',
+			'groupTask.pendingReview' => 'На проверке',
+			'groupTask.taskIdMissing' => 'ID задачи отсутствует, нельзя открыть детали',
+			'groupTask.taskIdMissingSubmit' => 'ID задачи отсутствует, нельзя отправить',
+			'groupVote.title' => 'Опросы группы',
+			'groupVote.createVote' => 'Создать опрос',
+			'groupVote.voteTitle' => 'Вопрос опроса',
+			'groupVote.voteOptions' => 'Варианты ответа',
+			'groupVote.addOption' => 'Добавить вариант',
+			'groupVote.allowMultiple' => 'Разрешить несколько ответов',
+			'groupVote.anonymous' => 'Анонимный опрос',
+			'groupVote.deadline' => 'Срок',
+			'groupVote.noDeadline' => 'Без срока',
+			'groupVote.noVote' => 'Нет опросов',
+			'groupVote.voteEnded' => 'Опрос завершён',
+			'groupVote.totalVotes' => ({required Object count}) => 'Всего ${count} голосов',
+			'groupVote.voteSuccess' => 'Голос принят',
+			'groupVote.hasVoted' => 'Вы проголосовали',
+			'groupVote.viewResults' => 'Результаты',
+			'groupVote.cancelVoteSuccess' => 'Голос отменён',
+			'groupVote.cancelVoteFailed' => 'Не удалось отменить, попробуйте позже',
+			'groupVote.endVoteFailed' => 'Не удалось завершить, попробуйте позже',
+			'groupVote.eachOptionPerLine' => 'По одному варианту на строку',
+			'groupVote.statusInProgress' => 'Идёт',
+			'groupVote.updateVote' => 'Изменить опрос',
+			'groupVote.cancelMyVote' => 'Отменить мой голос',
+			'groupVote.voteIdMissing' => 'ID опроса отсутствует, нельзя открыть детали',
+			'groupVote.participantCount' => ({required Object count}) => 'Участников: ${count}',
 			'main.change' => 'Изменить',
 			'main.entertainment' => 'Кино и мероприятия',
 			'main.lifePayment' => 'Оплата счетов',
@@ -2771,6 +4265,8 @@ extension on TranslationsRuRu {
 			'main.audio' => 'Аудио',
 			'main.barcodeFound' => 'Штрих-код найден!',
 			'main.botQianFan' => 'Робот Qianfan',
+			'main.liveRoomWhipLabel' => 'Адрес трансляции WHIP',
+			'main.liveRoomWhepLabel' => 'Адрес приёма WHEP',
 			'main.cache' => 'Кэш',
 			'main.camera' => 'Камера',
 			'main.changeNameView' => 'Изменить имя',
@@ -2848,6 +4344,9 @@ extension on TranslationsRuRu {
 			'main.recentlyUsed' => 'Недавно использованные',
 			'main.releaseEnd' => 'Отпустите для завершения',
 			'main.remainingChars' => ({required Object param}) => 'Осталось ${param} символов',
+			'main.kickMember' => 'Remove from Group',
+			'main.memberDetail' => 'Member Details',
+			'main.memberRole' => 'Role',
 			'main.replied' => 'Ответлено',
 			'main.ringing' => 'Звонок...',
 			'main.ruRu' => 'Русский (Россия)',
@@ -2872,6 +4371,7 @@ extension on TranslationsRuRu {
 			'main.timeRange' => 'Временной диапазон',
 			'main.timeWeekdays' => 'Понедельник, Вторник, Среда, Четверг, Пятница, Суббота, Воскресенье',
 			'main.titleMine' => 'Мой',
+			'main.titleSquare' => 'Площадка',
 			'main.tooBad' => 'Очень плохо',
 			'main.tryAgainQ' => 'Попробовать снова?',
 			'main.type' => 'Тип',
@@ -2944,9 +4444,129 @@ extension on TranslationsRuRu {
 			'main.larger' => 'Больше',
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Текущая длина: ${param1} / ${param2}',
 			'main.fillIn' => 'Заполнить',
-			'main.kickMember' => 'Remove from Group',
-			'main.memberDetail' => 'Member Details',
-			'main.memberRole' => 'Role',
+			'main.msgProtectedByComplianceKey' => 'Сообщения защищены ключом соответствия',
+			'main.inviterLabel' => ({required Object uid}) => 'Пригласивший: ${uid}',
+			'main.inviteeLabel' => ({required Object uid}) => 'Приглашённый: ${uid}',
+			'main.mySentTab' => 'Отправленные',
+			'main.reject' => 'Отклонить',
+			'main.myOrders' => 'Мои заказы',
+			'main.purchaseUnlockHint' => 'После покупки откроется история сообщений канала и новые публикации.',
+			'main.payingDots' => 'Оплата...',
+			'main.purchaseAndUnlock' => 'Купить и открыть',
+			'main.orderDetail' => 'Детали заказа',
+			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Сумма: ${currency} ${amount}',
+			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => 'Цена: ${currency} ${amount}',
+			'main.e2eeKeyRecoveryTitle' => 'Управление ключами сквозного шифрования',
+			'main.e2eeRecoveryMethods' => 'Способы восстановления ключа',
+			'main.e2eeDangerousOps' => 'Опасные действия',
+			'main.e2eeSocialRecovery' => 'Социальное восстановление',
+			'main.e2eeSocialRecoveryDesc' => 'Восстановление ключа с помощью доверенных контактов',
+			'main.e2eeKeyIdLabel' => 'ID ключа',
+			'main.e2eeWarnIrreversible' => '• Это действие необратимо',
+			'main.e2eeWarnNeedRestoreOrNew' => '• Нужно восстановить из копии или создать новый ключ',
+			'main.gotIt' => 'Понятно',
+			'main.e2eeRecoverKeyTitle' => 'Восстановить ключ',
+			'main.e2eeCanRecoverKey' => 'Ключ можно восстановить',
+			'main.e2eeInsufficientShards' => 'Недостаточно фрагментов',
+			'main.e2eeProxyUser' => ({required Object uid}) => 'Посредник: ${uid}',
+			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Фрагмент ${index} / ${total}',
+			'main.e2eeReloadShards' => 'Обновить',
+			'main.e2eeRecovering' => 'Восстановление...',
+			'main.e2eeKeyRestored' => 'Ключ восстановлен',
+			'main.e2eeUsedShards' => ({required Object count}) => 'Использовано фрагментов посредников: ${count}',
+			'main.e2eePreparing' => 'Подготовка...',
+			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => 'Прогресс: ${collected} / ${total} фрагментов',
+			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => 'Сбор фрагментов (${collected}/${total})...',
+			'main.e2eeShardsCollected' => 'Фрагменты собраны, сборка ключа...',
+			'main.webQRLoggingIn' => 'Вход...',
+			'main.webQRExpired' => 'Срок действия QR-кода истёк',
+			'main.webQRRefresh' => 'Обновить QR-код',
+			'main.webSwitchToQR' => 'Войти по QR-коду',
+			'main.e2eeErrDefault' => 'Ошибка сквозного шифрования, сообщение не отправлено',
+			_ => null,
+		} ?? switch (path) {
+			'main.e2eeSocialTotalShards' => 'Всего фрагментов',
+			'main.e2eeSocialThreshold' => 'Порог восстановления',
+			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Для восстановления нужно ${count} посредников',
+			'main.e2eeSocialSelectProxy' => 'Выбор посредников',
+			'main.e2eeSocialProxyNeeded' => ({required Object count}) => 'Нужно ${count} доверенных контактов как посредников',
+			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'Пользователь ${uid}',
+			'main.e2eeSocialShardSentViaWs' => 'Фрагменты отправлены напрямую на устройства посредников через WebSocket',
+			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => 'Отправлено ${sent} из ${total} устройств',
+			'main.e2eeSocialManageTitle' => 'Управление фрагментами',
+			'main.e2eeSocialMyShards' => 'Мои фрагменты',
+			'main.e2eeSocialProxyShards' => 'Фрагменты посредников',
+			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => 'Фрагмент ${idx} / ${total}',
+			'main.e2eeSocialShardActive' => 'Активен',
+			'main.e2eeSocialShardUsed' => 'Использован',
+			'main.e2eeSocialShardValid' => 'Фрагмент действителен',
+			'main.e2eeSocialUserShard' => ({required Object uid}) => 'Фрагмент ключа пользователя ${uid}',
+			'main.e2eeSocialProxyUserLabel' => 'Посредник',
+			'main.e2eeSocialRecoveryThresholdLabel' => 'Порог восстановления',
+			'main.e2eeSocialShardIndexLabel' => 'Номер фрагмента',
+			'main.e2eeTransferQRHint' => 'Отсканируйте этот QR-код на новом устройстве',
+			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'Срок QR-кода истекает ${time}',
+			'main.e2eeTransferRefreshQR' => 'Обновить QR-код',
+			'main.e2eeTransferEnterUidTitle' => 'Введите ID получателя',
+			'main.e2eeTransferUidPlaceholder' => 'ID пользователя-получателя',
+			'main.e2eeTransferReceiving' => 'Приём...',
+			'main.e2eeTransferPageTitle' => 'Передача между устройствами',
+			'main.e2eeTransferPendingItem' => 'Ожидающая передача ключа',
+			'main.e2eeTransferPendingItemDesc' => 'Нажмите для деталей',
+			'main.e2eeTransferView' => 'Открыть',
+			'main.e2eeSocialTitle' => 'Социальное восстановление',
+			'main.e2eeSocialCanRecover' => 'Ключ можно восстановить',
+			'main.e2eeSocialSetupProxy' => 'Настроить посредников',
+			'main.e2eeSocialChooseProxy' => 'Выберите доверенные контакты как посредников',
+			'main.e2eeSocialExistingShards' => 'Существующие фрагменты',
+			'main.e2eeSocialRecoverKeyTitle' => 'Восстановить ключ',
+			'main.e2eeSocialRecoverKeyDesc' => 'Восстановить ключ из фрагментов посредников',
+			'main.e2eeSocialManageShardsTitle' => 'Управление фрагментами',
+			'main.e2eeSocialManageShardsDesc' => 'Просмотр и управление всеми фрагментами восстановления',
+			'main.e2eeSocialZeroTrustHint1' => 'Нулевое доверие: сервер не хранит фрагменты, связь напрямую с посредниками',
+			'main.e2eeSocialZeroTrustHint2' => 'Нулевое доверие: фрагменты хранятся на устройствах посредников',
+			'main.e2eeSocialZeroTrustHint3' => 'Нулевое доверие: фрагменты у посредников, сервер не видит открытый текст',
+			'main.e2eeProxyMinCount' => ({required Object count}) => 'Выберите минимум ${count} посредников',
+			'main.e2eeProxySelectTitle' => 'Выбор посредников восстановления',
+			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => 'Выбрано ${selected} / ${total}',
+			'main.e2eeProxyReachedMin' => 'Достигнуто минимальное число посредников',
+			'main.liveRoomTitleLabel' => 'Название трансляции',
+			'main.liveRoomTitleHint' => 'Введите название трансляции',
+			'mention.title' => '@Упоминания',
+			'mention.noMention' => 'Нет упоминаний',
+			'mention.allRead' => 'Всё прочитано',
+			'mention.markAsRead' => 'Отметить прочитанным',
+			'mention.newMention' => 'Новое упоминание',
+			'mention.fromGroup' => 'Из группы',
+			'mention.fromChat' => 'Из чата',
+			'mention.viewContext' => 'Показать контекст',
+			'mention.mentionCount' => ({required Object count}) => 'Новых упоминаний: ${count}',
+			'mention.mentionAllDenied' => 'Только администратор может использовать @все',
+			'mention.navInfoMissing' => 'Нет данных о позиции сообщения, переход невозможен',
+			'momentFriendPicker.title' => 'Выбор друзей',
+			'momentFriendPicker.titleAllow' => 'Показать',
+			'momentFriendPicker.titleDeny' => 'Скрыть от',
+			'momentFriendPicker.confirm' => 'ОК',
+			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'ОК(${count})',
+			'momentFriendPicker.selectedCount' => ({required Object count}) => 'Выбрано: ${count}',
+			'momentFriendPicker.emptyFriends' => 'Нет друзей',
+			'momentFriendPicker.tagsLabel' => 'По меткам',
+			'momentFriendPicker.emptyTags' => 'Нет меток',
+			'momentFriendPicker.tagLoadFailed' => 'Не удалось загрузить метки',
+			'momentFriendPicker.searchHint' => 'Поиск друзей',
+			'momentNotify.title' => 'Уведомления',
+			'momentNotify.emptyTitle' => 'Нет новых уведомлений',
+			'momentNotify.emptyHint' => 'Здесь появятся лайки и комментарии друзей к вашим Моментам',
+			'momentNotify.actionLike' => 'оценил(а) ваш Момент',
+			'momentNotify.actionComment' => 'оставил(а) комментарий',
+			'momentNotify.markAllRead' => 'Прочитать все',
+			'momentNotify.clearAll' => 'Очистить всё',
+			'momentNotify.clearConfirmTitle' => 'Очистить все уведомления?',
+			'momentNotify.clearConfirmMessage' => 'Это действие нельзя отменить',
+			'momentNotify.confirm' => 'ОК',
+			'momentNotify.cancel' => 'Отмена',
+			'momentNotify.delete' => 'Удалить',
+			'momentNotify.loadFailed' => 'Не удалось загрузить, попробуйте позже',
 			'passport.retrievePassword' => 'Восстановить пароль',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',

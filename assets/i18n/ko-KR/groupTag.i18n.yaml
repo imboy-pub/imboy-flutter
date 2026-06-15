@@ -1,0 +1,10 @@
+---
+title: 그룹 태그
+addTag: 태그 추가
+tagName: 태그 이름
+tagColor: 태그 색상
+noTag: 태그가 없습니다
+tagAdded: 태그가 추가되었습니다
+tagRemoved: 태그가 제거되었습니다
+removeTitle: 태그 제거
+removeConfirm: 이 태그를 제거하시겠습니까?

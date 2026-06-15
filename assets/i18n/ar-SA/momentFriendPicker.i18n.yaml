@@ -1,0 +1,12 @@
+---
+title: اختيار الأصدقاء
+titleAllow: السماح لـ
+titleDeny: إخفاء عن
+confirm: موافق
+confirmWithCount: موافق($count)
+selectedCount: تم اختيار $count
+emptyFriends: لا يوجد أصدقاء
+tagsLabel: حسب الوسم
+emptyTags: لا توجد وسوم
+tagLoadFailed: تعذّر تحميل الوسوم
+searchHint: ابحث عن أصدقاء

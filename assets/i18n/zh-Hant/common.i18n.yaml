@@ -29,7 +29,9 @@ buttonBind: 綁定
 bindMobileAndEmailTips: 綁定手機號和郵箱，讓您的帳號更安全
 bindNow: 立即綁定
 buttonCancel: 取消
+buttonCreate: 建立
 buttonChangePassword: 修改密碼
+phoneInputHint: 請輸入手機號
 buttonClose: 關閉
 buttonConfirm: 確認
 buttonContinue: 繼續
@@ -54,9 +56,10 @@ cacheTips: 快取是使用應用過程中產生的暫時資料，清理快取不
 callDuration: 通話時長
 calling: 正在通話
 canNotAddYourselfFriend: 您不能新增自己為好友
-cancel: "@:common.buttonCancel"
-ok: "@:common.buttonOk"
-save: "@:common.buttonSave"
+cancel: '@:common.buttonCancel'
+ok: '@:common.buttonOk'
+operationSuccessful: 操作成功
+save: '@:common.buttonSave'
 reset: 重設
 clear: 清除
 saveTag: 儲存標籤 ($count)
@@ -84,6 +87,8 @@ chatErrorNotAFriendDesc: 訊息無法發送，請先添加對方為好友
 checkForUpdates: 檢查更新
 clearAll: 全部清除
 clearChatRecord: 清空聊天記錄
+complaintSuccess: 投訴已提交
+complaintFailed: 投訴失敗，請稍後再試
 confirmCode: 確認碼
 confirmCodeError: 確認碼為空
 confirmCodeSuccess: 帳號已確認。
@@ -95,12 +100,13 @@ contactSetting: 通訊錄設定
 contactSettingTag: 通訊錄標籤設定
 contactTagListLogic: 通訊錄標籤清單邏輯
 contactTags: 通訊錄標籤
+contactInfoNotSynced: 聯絡人資訊未同步
 continueDownloading: 繼續下載
 copy: 複製
 coupon: 票券
 createGroupF2fConfirmTips: 這些朋友也將進入群組聊天
 createGroupF2fTips: 和身邊的朋友輸入同樣的四個數字，進入同一個群組聊天
-delete: "@:common.buttonDelete"
+delete: '@:common.buttonDelete'
 deleteCollectConfirmDesc: 刪除後無法恢復，確定要刪除這則收藏嗎？
 deleteContact: 刪除聯絡人
 deleteForEveryone: 刪除所有人的訊息
@@ -116,42 +122,42 @@ downloaded: 已下載
 edit: 編輯
 editTag: 編輯標籤
 errorAccessDenied: 對 $param 的存取被拒絕
-errorCliVersionNotFound: "@:common.error"
+errorCliVersionNotFound: '@:common.error'
 errorEmptyDirectory: $param 為空
-errorFailedConnectServer: "@:common.error"
-errorFailedToConnect: "@:common.error"
+errorFailedConnectServer: '@:common.error'
+errorFailedToConnect: '@:common.error'
 errorFileNotFound: 在 $param 中沒有找到檔案
 errorFolderNotFound: 資料夾 $param 未找到
-errorHttpNotSupported: "@:common.error"
-errorInternalServer: "@:common.error"
+errorHttpNotSupported: '@:common.error'
+errorInternalServer: '@:common.error'
 errorInvalid: $param 是無效的
-errorInvalidDart: "@:common.error"
-errorInvalidFileOrDirectory: "@:common.error"
-errorInvalidJson: "@:common.error"
-errorInvalidRequest: "@:common.error"
+errorInvalidDart: '@:common.error'
+errorInvalidFileOrDirectory: '@:common.error'
+errorInvalidJson: '@:common.error'
+errorInvalidRequest: '@:common.error'
 errorLengthBetween: $param 長度必須在 $min 和 $max 之間
-errorManyRequest: "@:common.error"
-errorNoPackageToRemove: "@:common.error"
-errorNoValidFileOrUrl: "@:common.error"
-errorNonexistentDirectory: "@:common.error"
-errorPackageNotFound: "@:common.error"
+errorManyRequest: '@:common.error'
+errorNoPackageToRemove: '@:common.error'
+errorNoValidFileOrUrl: '@:common.error'
+errorNonexistentDirectory: '@:common.error'
+errorPackageNotFound: '@:common.error'
 errorPassword: 密碼錯誤
-errorRequestForbidden: "@:common.error"
-errorRequestSyntax: "@:common.error"
+errorRequestForbidden: '@:common.error'
+errorRequestSyntax: '@:common.error'
 errorRequired: $param 是必須的
-errorRequiredPath: "@:common.error"
-errorRetypePassword: "@:common.error"
+errorRequiredPath: '@:common.error'
+errorRetypePassword: '@:common.error'
 errorSame: $param1 和 $param2 必須相同
-errorServerDown: "@:common.error"
-errorServerRefused: "@:common.error"
-errorSpecialCharactersInKey: "@:common.error"
-errorUnexpected: "@:common.error"
-errorUnnecessaryParameter: "@:common.error"
-errorUnnecessaryParameterPlural: "@:common.error"
-errorUpdateCli: "@:common.error"
-failedGetLatLong: "@:common.errorNetwork"
-failedGetMapTryAgain: "@:common.errorNetwork"
-failedRequestPleaseCheckNetwork: "@:common.errorNetwork"
+errorServerDown: '@:common.error'
+errorServerRefused: '@:common.error'
+errorSpecialCharactersInKey: '@:common.error'
+errorUnexpected: '@:common.error'
+errorUnnecessaryParameter: '@:common.error'
+errorUnnecessaryParameterPlural: '@:common.error'
+errorUpdateCli: '@:common.error'
+failedGetLatLong: '@:common.errorNetwork'
+failedGetMapTryAgain: '@:common.errorNetwork'
+failedRequestPleaseCheckNetwork: '@:common.errorNetwork'
 feedback: 回饋建議
 feedbackBuilder: 回饋建構器
 feedbackContentRequired: 回饋內容不能為空
@@ -169,6 +175,24 @@ genderUpdateFailed: 性別設定失敗，請重試
 genderUpdateSuccess: 性別設定成功
 groupAddLocal: 儲存到聯絡人
 groupAnnouncement: 群組公告
+groupFileUploadSuccess: 檔案上傳成功
+groupFileUploadFailed: 檔案上傳失敗，請稍後重試
+groupFileDeleteSuccess: 檔案已刪除
+groupFileDeleteFailed: 刪除失敗，請稍後重試
+groupFileClosePreview: 關閉預覽
+groupFileUploadTooltip: 上傳檔案
+groupFileSearch: 搜尋群檔案
+groupFileReadFailed: 檔案讀取失敗，請重試
+groupFileDeleteTitle: 刪除群檔案
+groupFileDeleteConfirm: 確定刪除檔案「$name」嗎？
+groupFileImageLoadFailed: 圖片載入失敗
+groupFileOpenFailed: 無法開啟檔案連結
+groupFileSearchClear: 清空
+groupFileSearchAction: 搜尋
+groupFileCategoryAll: 全部
+groupFileSearchEmpty: 未找到匹配檔案
+groupFileAudioLoadFailed: 音訊載入失敗
+groupFileAudioLoading: 音訊載入中...
 groupQrcodeTips: 該二維碼 $days 天內（$date 前）有效，重新進入將更新
 groupSearchTips: 群組名稱和群組簡介
 helpDocument: 說明檔案
@@ -178,7 +202,7 @@ incomingCall: $param 來電
 info: 資訊
 infoLoggedInOnAnotherDevice: 您的帳號已於$param在其他設備登入
 installNow: 立即安裝
-iosAppIdUnknown: "AppStore 未上架或 AppID[$param]不存在"
+iosAppIdUnknown: AppStore 未上架或 AppID[$param]不存在
 koKr: 韓語（韓國）
 languageSetting: 語言設定
 languageState: 語言狀態
@@ -192,7 +216,9 @@ loadMore: 載入更多
 loading: 載入中
 locationMessage: 位置訊息
 loginDeviceManagementTips: 您的帳號在以下設備中登入過，您可以刪除設備，刪除後在該設備登入時需進行安全驗證。
+logoutFailed: 退出登入失敗
 logoutNotice: 《註銷須知》
+exportDataSuccess: 資料已匯出
 manually: 手動選擇
 messageCall: 發訊息
 messageContent: 訊息內容
@@ -240,6 +266,7 @@ noSiginQ: 還沒有帳號？
 noUpdateDescription: 無更新說明
 normalModel: 一般模式
 notAuthorizedLatLong: 您還沒有授權獲取經緯度
+notLoggedIn: 未登入
 notBad: 還不錯
 notBound: 未綁定
 notFilled: 未填寫
@@ -251,9 +278,9 @@ notSet: 未設定
 notShow: 不顯示
 notTurnedLocationService: 您還沒有開啟位置服務
 nowNewVersion: 未檢測到新版本
-off: "@:common.disabled"
+false: '@:common.disabled'
 offlineNotification: 下線通知
-on: "@:common.enabled"
+true: '@:common.enabled'
 operationFailedAgainLater: 操作失敗，請稍後重試
 optionsNo: 否
 optionsRename: 我想重新命名
@@ -286,12 +313,57 @@ regionSelectTitle: 選擇地區
 releaseFingerCancelSending: 鬆開手指，取消傳送
 removeContactFromTag: 從標籤中移除聯絡人
 removeMember: 移出成員
+atMentionYouTag: '[@你] '
+atMentionLeftMember: '@已退群成員'
+muteNotifications: 訊息免打擾
+muteNotificationsHint: 開啟後不會收到新訊息提醒，但仍可在會話列表看到未讀
+revokeExpired: 超過 2 分鐘，無法撤回
+quickReplyAddTitle: 新增快捷回覆
+quickReplyEditTitle: 編輯快捷回覆
+removeAdmin: Remove Admin
+setAdminConfirm: Set this member as admin?
+removeAdminConfirm: Remove admin role from this member?
+muteMemberConfirm: Mute this member?
+unmuteMemberConfirm: Unmute this member?
+kickMemberConfirm: Remove this member from the group?
+transferGroupConfirm: Transfer group ownership to this member? You will become an admin after transfer.
+setAdminSuccess: Admin set
+setAdminFailed: Failed to set admin
+removeAdminSuccess: Admin removed
+removeAdminFailed: Failed to remove admin
+muteMemberSuccess: Member muted
+muteMemberFailed: Failed to mute member
+unmuteMemberSuccess: Member unmuted
+unmuteMemberFailed: Failed to unmute member
+kickMemberSuccess: Member removed
+kickMemberFailed: Failed to remove member
+transferGroupSuccess: Ownership transferred
+transferGroupFailed: Failed to transfer ownership
+notMuted: Not Muted
+muteDuration: Mute Duration
+muteDuration1hour: 1 Hour
+muteDuration6hours: 6 Hours
+muteDuration12hours: 12 Hours
+muteDuration1day: 1 Day
+muteDuration3days: 3 Days
+muteDuration7days: 7 Days
+muteDurationPermanent: Permanent
+muteDuration5min: 5分鐘
+muteDuration10min: 10分鐘
+muteDuration30min: 30分鐘
+muteDuration30days: 30天
+muteUnitSeconds: $count 秒
+throttleWarning: 操作頻率過高，請稍後再試
+throttleRetryAfter: 操作頻率過高，請 $seconds 秒後再試
+mutedCannotSend: 禁言期間無法傳送訊息
 resendCodeSuccess: 已傳送新郵件。
 resetFilters: 重設篩選
 saveQrCode: 儲存二維碼
 saveSuccess: 儲存成功
 scanQrcodeAddFriend: 掃一掃上面的二維碼圖案，加我為好友
 search: 搜尋
+searchScope: Search scope
+searchAll: All messages
 searchChatContent: 搜尋聊天內容
 searchChatRecord: 搜尋聊天記錄
 searchError: 搜尋錯誤
@@ -305,7 +377,7 @@ searchHint: 輸入關鍵詞搜尋訊息
 searchHistory: 搜尋記錄
 searchLocation: 搜尋地點
 searchMessagesHint: 搜尋訊息提示
-searchNoFound: "搜尋結果為空 :("
+searchNoFound: 搜尋結果為空 :(
 searchNoResults: 無搜尋結果
 noSearchHistory: 暫無搜尋記錄
 searchRegion: 搜尋地區
@@ -401,7 +473,7 @@ feedbackSlogan: 您的建議是我們改進的動力
 newFeedback: 新建回饋
 feedbackHistory: 回饋記錄
 confirmDelete: 確認刪除
-processing: "@:common.loading"
+processing: '@:common.loading'
 verificationCode: 驗證碼
 feedbackContent: 回饋內容
 officialReply: 官方回覆
@@ -410,8 +482,8 @@ locationHidden: 已隱藏您的位置
 locationVisible: 已顯示您的位置
 noNearbyPeople: 暫無附近的人
 clickSearchButtonToFind: 點擊上方的搜尋按鈕搜尋附近的人
-operationSuccess: "@:common.success"
-operationFailed: "@:common.error"
+operationSuccess: '@:common.success'
+operationFailed: '@:common.error'
 featureInDevelopment: 功能開發中...
 addedToDenylist: 已加入黑名單
 bindSuccess: 綁定成功
@@ -421,6 +493,11 @@ pleaseEnterAnnouncementContent: 請輸入公告內容
 selectExpirationDateOptional: 選擇有效期（可選）
 groupAnnouncementDeleteConfirm: 確定要刪除這則公告嗎？
 groupAnnouncementDelete: 刪除
+groupAnnouncementLoadFailed: 公告載入失敗，請稍後重試
+groupAnnouncementPublishFailed: 公告發布失敗
+groupAnnouncementPublishSuccess: 公告已釋出
+groupAnnouncementDeleteFailed: 公告刪除失敗
+groupAnnouncementDeleteSuccess: 公告已刪除
 privacyClearChatHistory: 清除聊天記錄
 privacyClearChatHistoryConfirm: 確定要清除所有聊天記錄嗎？此操作不可恢復。
 privacyLogoutAccountConfirm: 確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。
@@ -536,9 +613,9 @@ userNotSetSignature: 該用家還沒有設定個人簽名等詳細資訊
 verificationMessage: 驗證訊息
 burnEnabledMessage: 開啟後：訊息在被閱讀後 $duration 自動銷毀
 burnDisabledMessage: 關閉後：訊息不會自動銷毀
-visibleEnabledMessage: "開啟後：可見比例≥$percentage%，持續≥$delayms"
+visibleEnabledMessage: 開啟後：可見比例≥$percentage%，持續≥$delayms
 visibleDisabledMessage: 關閉後：不會基於可視自動已讀
-visibleThresholdInfo: "可見比例: $percentage% | 延時: $delayms"
+visibleThresholdInfo: '可見比例: $percentage% | 延時: $delayms'
 noGroupAnnouncement: 暫無群組公告
 announcementContentCannotBeEmpty: 公告內容不能為空
 announcementPublishSuccess: 公告發布成功
@@ -564,6 +641,24 @@ validationPassed: 驗證通過
 changeFailed: 修改失敗
 submitted: 已提交
 viewSecurityHelp: 檢視安全說明
+momentsNoData: 暫無動態
+momentsDeleteConfirm: 確定刪除這條動態嗎？
+momentsDeleteCommentConfirm: 確定刪除這條評論嗎？
+momentsNotFound: 動態不存在或無許可權檢視
+momentsContentOrMediaRequired: 內容或媒體至少填寫一項
+momentsPublishFailed: 釋出失敗
+momentsAllowComment: 允許評論
+momentsReportReason: 舉報原因
+momentsNoComments: 暫無評論
+momentsContentHint: 寫點什麼...
+momentsAddMedia: 新增媒體
+momentsAllowUidsLabel: 允許可見 UID 列表（逗號分隔）
+momentsCommentFailed: 評論失敗，請稍後重試
+momentsDeleteFailed: 刪除失敗，請稍後重試
+momentsReportSubmitted: 舉報已提交
+momentsReportFailed: 舉報失敗，請稍後重試
+momentsLoadMoreComments: 載入更多評論
+momentsUploadFailed: 媒體上傳失敗，請稍後重試
 transactionHistory: 交易記錄
 paymentPasswordSetSuccess: 支付密碼設定成功
 paymentPasswordSetFailed: 支付密碼設定失敗
@@ -578,6 +673,7 @@ personalDisplay: 個人展示
 personalSignature: 個性簽名
 personalBackground: 個人背景
 setBackgroundImage: 設定背景圖片
+expression: 表情
 extendedInfo: 擴展資訊
 profession: 職業
 pleaseEnterProfession: Please enter profession
@@ -656,59 +752,314 @@ quickReplyOk: 好的
 quickReplyOkThanks: 好的，謝謝
 tagInspiration: 靈感
 noDetailedInfo: 該用家還沒有設定個人簽名等詳細資訊
-noNewRegisteredUsers: "目前沒有新註冊的用家
-請稍後再來檢視"
+noNewRegisteredUsers: 目前沒有新註冊的用家 請稍後再來檢視
 newRegisteredUsersTip: 這裡顯示最近註冊的用家，您可以主動新增他們為好友
+notificationFriendRequest: 好友請求
+notificationFriendRequestBody(requesterName): $requesterName 請求新增您為好友
+notificationGroupInvite: 群邀請
+notificationGroupInviteBody(inviterName, groupName): $inviterName 邀請您加入群組 $groupName
 youRevokedMessage: 您撤回了一則訊息
 otherRevokedMessage: 對方撤回了一則訊息
 networkFailureTryAgain: 網路故障，請重試！
 networkNotAvailable: 目前網路不可用。
 pleaseCheckNetworkConnection: 請檢查您的網路連接。
-lastSeenMinutesAgo: "@:common.timeMinutesAgo"
-lastSeenHoursAgo: "@:common.timeHoursAgo"
-lastSeenDaysAgo: "@:common.timeDaysAgo"
-fontSettings: "@:common.fontSizeSetting"
-failed: "@:common.error"
+lastSeenMinutesAgo: '@:common.timeMinutesAgo'
+lastSeenHoursAgo: '@:common.timeHoursAgo'
+lastSeenDaysAgo: '@:common.timeDaysAgo'
+fontSettings: '@:common.fontSizeSetting'
+failed: '@:common.error'
 lazyUserNoSignature: 暫無個人簽名
 noFavoritesYet: 暫無收藏內容，快去收藏一些有趣的訊息吧
 fontPreviewText: 這是正文內容，您可以在這裡看到不同字體大小的顯示效果。
 smaller: 更小
-currentFontScale: "目前：$param1 $param2%"
+currentFontScale: 目前：$param1 $param2%
 emailUpdatedTo: 郵箱已更新為 $param
-atMentionYouTag: "[@你] "
-atMentionLeftMember: "@已退群成员"
-muteNotifications: 消息免打扰
-muteNotificationsHint: 开启后不会收到新消息提醒，但仍可在会话列表看到未读
-revokeExpired: 超过 2 分钟，无法撤回
-quickReplyAddTitle: 新增快捷回复
-quickReplyEditTitle: 编辑快捷回复
-removeAdmin: Remove Admin
-setAdminConfirm: Set this member as admin?
-removeAdminConfirm: Remove admin role from this member?
-muteMemberConfirm: Mute this member?
-unmuteMemberConfirm: Unmute this member?
-kickMemberConfirm: Remove this member from the group?
-transferGroupConfirm: Transfer group ownership to this member? You will become an admin after transfer.
-setAdminSuccess: Admin set
-setAdminFailed: Failed to set admin
-removeAdminSuccess: Admin removed
-removeAdminFailed: Failed to remove admin
-muteMemberSuccess: Member muted
-muteMemberFailed: Failed to mute member
-unmuteMemberSuccess: Member unmuted
-unmuteMemberFailed: Failed to unmute member
-kickMemberSuccess: Member removed
-kickMemberFailed: Failed to remove member
-transferGroupSuccess: Ownership transferred
-transferGroupFailed: Failed to transfer ownership
-notMuted: Not Muted
-muteDuration: Mute Duration
-muteDuration1hour: 1 Hour
-muteDuration6hours: 6 Hours
-muteDuration12hours: 12 Hours
-muteDuration1day: 1 Day
-muteDuration3days: 3 Days
-muteDuration7days: 7 Days
-muteDurationPermanent: Permanent
-searchScope: Search scope
-searchAll: All messages
+groupAnnouncementExpiry(time): '有效期至: $time'
+groupAlbumCreateFailed: 建立失敗，請稍後重試
+groupAlbumDeleteTitle: 刪除群相簿
+groupAlbumDeleteConfirm(name): 確定刪除相簿「$name」嗎？
+groupAlbumDeleted: 相簿已刪除
+groupAlbumDeleteFailed: 刪除失敗，請稍後重試
+groupAlbumRenameFailed: 更新失敗，請稍後重試
+groupAlbumUploadTooltip: 上傳圖片
+groupAlbumDeleteTooltip: 刪除相簿
+groupAlbumNoAlbum: 暫無群相簿
+groupAlbumPhotoReadFailed: 圖片讀取失敗，請重試
+groupAlbumPhotoUploaded: 圖片上傳成功
+groupAlbumPhotoUploadFailed: 圖片上傳失敗，請稍後重試
+groupAlbumCreateTooltip: 新建相簿
+groupAlbumPhotoBatchDeleteTitle: 批次刪除圖片
+groupAlbumPhotoBatchDeleteConfirm(count): 確定刪除選中的 $count 張圖片嗎？
+groupAlbumPhotoDeleteFailed: 刪除失敗，請稍後重試
+groupAlbumPhotoDeletedAll(count): 已刪除$count張圖片
+groupAlbumPhotoDeletedPartial(success, fail): 已刪除$success張，$fail張刪除失敗
+groupAlbumPhotoDeleteTitle: 刪除圖片
+groupAlbumPhotoDeleteConfirm: 確定刪除這張圖片嗎？
+groupAlbumPhotoDeleted: 圖片已刪除
+groupAlbumPhotoBatchDeleteTooltip: 批次刪除
+groupAlbumPhotoExitSelection: 退出選擇
+groupAlbumPhotoOpenFailed: 無法開啟圖片連結
+groupAlbumPhotoNotFound: 圖片不存在或已刪除
+groupAlbumPhotoOpenExternal: 外部開啟
+groupAlbumPhotoCoverUpdated: 已設為相簿封面
+groupAlbumPhotoCoverFailed: 設定封面失敗，請稍後重試
+groupAlbumPhotoNext: 下一張
+groupAlbumPhotoResolution: 解析度
+groupAlbumPhotoUploader: 上傳者
+sectionDisplay: 顯示
+sectionTheme: 主題
+selectLanguage: 選擇語言
+completionSuggestions: 完善建議：
+sectionGeneral: 通用
+sectionPrivacySecurity: 隱私與安全
+sectionHelpAbout: 幫助與關於
+msgOnlyVisibleToParties: 訊息僅收發雙方可讀
+msgNotEncrypted: 訊息未加密傳輸
+durationMinutes(count): ${count}分鐘
+durationSeconds(count): ${count}秒
+rechargeAmountError: 請輸入1元到10000元之間的金額
+rechargeSuccess: 充值成功
+rechargeConfirm: 確認充值
+transactionHistory2: 流水記錄
+noTransactionHistory: 暫無流水記錄
+allLoaded: — 已全部載入 —
+transactionTypeIncome: 充值
+transactionTypeExpense: 消費
+sectionLoginCredentials: 登入憑證
+channelInvitations: 頻道邀請
+acceptInvitationFailed: 接受邀請失敗
+rejectInvitationFailed: 拒絕邀請失敗
+invitationAccepted: 已接受邀請
+invitationRejected: 已拒絕邀請
+invitationStatusPending: 待處理
+invitationStatusAccepted: 已接受
+invitationStatusRejected: 已拒絕
+invitationStatusExpired: 已過期
+invitationStatusCancelled: 已取消
+invitationStatusUnknown: 未知
+noReceivedInvitations: 暫無收到的邀請
+noSentInvitations: 暫無發出的邀請
+processingDots: 處理中...
+purchaseFailed: 購買失敗，請稍後重試
+purchaseSuccess: 購買成功
+insufficientBalanceTitle: 餘額不足
+insufficientBalanceContent(balance, price, currency): 當前餘額 $currency $balance，需支付 $currency $price。請先充值後再購買。
+goRecharge: 去充值
+noOrders: 暫無訂單
+orderDetailLoadFailed: 訂單詳情載入失敗
+orderNoLabel(no): '訂單號: $no'
+orderStatusCancelled: 已取消
+orderStatusUnknown: 未知
+removeReaction: 移除反應
+removeReactionConfirm(emoji): 確定要移除 $emoji 反應嗎？
+fileOpenFailed: 無法開啟該檔案
+e2eeLocalBackup: 本地備份
+e2eeLocalBackupDesc: 匯出加密備份檔案到本地或雲端
+e2eeDeleteKey: 刪除金鑰
+e2eeDeleteKeyDesc: 刪除本地儲存的金鑰（無法恢復）
+e2eeCurrentKeyInfo: 當前金鑰資訊
+e2eeE2EEEnabled: 端到端加密已啟用
+e2eeNoKeyDetected: 未檢測到 E2EE 金鑰
+e2eeNoKeyDesc: 您需要先生成金鑰對或從備份中恢復
+e2eeAboutTitle: 關於端到端加密
+e2eeInfoPoint1: • 您的訊息在傳送前已加密，伺服器無法檢視內容
+e2eeInfoPoint2: • 更換裝置或刪除金鑰後，舊訊息可能無法解密
+e2eeInfoPoint3: • 請定期備份金鑰以防資料丟失
+e2eeExportBackup: 匯出備份
+e2eeExportBackupDesc: 生成加密備份檔案
+e2eeImportBackup: 匯入備份
+e2eeImportBackupDesc: 從備份檔案恢復金鑰
+e2eeBackupManage: 備份管理
+e2eeBackupManageDesc: 檢視備份歷史記錄
+e2eeGenerateKeyConfirm: 確定要生成新的 E2EE 金鑰對嗎？
+e2eeWarnOldMessagesLost: • 舊訊息將無法解密
+e2eeWarnNeedNewBackup: • 需要重新生成備份檔案
+e2eeConfirmGenerate: 確認生成
+e2eeDeleteKeyConfirm: 確定要刪除當前金鑰嗎？
+e2eeWarnCannotRestore: • 刪除後無法恢復
+e2eeWarnAllMsgsLost: • 所有 E2EE 訊息將無法解密
+e2eeConfirmDelete: 確認刪除
+e2eeKeyGeneratedSuccess: 金鑰生成成功
+e2eeDeviceIdInfo(id): '裝置 ID: $id'
+e2eeKeyIdInfo(id): '金鑰 ID: $id'
+e2eeCreatedAtInfo(time): '建立時間: $time'
+e2eeImportantNote: 重要提示
+e2eeWarnOldMayNotDecrypt: • 舊訊息可能無法解密
+e2eeSuggestBackupNow: • 建議立即匯出備份
+e2eeGoBackup: 去備份
+e2eeKeyGenerateFailed: 金鑰生成失敗，請重試
+e2eeKeyDeleted: 金鑰已刪除
+e2eeDeleteFailed: 刪除失敗，請重試
+e2eeShardAvailableInfo(available, required): '可用分片: $available 個，需要 $required 個代理協助'
+e2eeNoRecoveryShards: 沒有可用的恢復分片
+e2eeRecoverSuccess: 恢復成功
+e2eeRecoverFailed: 恢復失敗
+e2eeRecoverKeyFailed: 恢復金鑰失敗，請重試
+e2eeLoadingShards: 載入分片資訊...
+e2eeNoShards: 沒有可用的分片
+e2eeLoadFailed: 載入失敗，請重試
+e2eeContactingProxy(name): '正在聯絡: $name'
+e2eeRecoveryFailed: 恢復失敗，請重試
+webFeatureNotification: 桌面通知
+webFeatureNotificationDesc: 即使不在頁面也能收到新訊息提醒
+webQRConfirmOnPhone: 請在手機上確認登入
+webQRLoginFailed: 登入失敗
+webQRLoginSuccess: 登入成功
+webQRExpiresIn(seconds): $seconds 秒後過期
+webQRStatusFailed: 登入失敗，請重試
+webQRStatusSuccess: 正在跳轉...
+webLoginEmptyError: 請輸入賬號和密碼
+webQRGenerateFailed: 生成二維碼失敗
+webQRTokenInvalid: 登入令牌無效
+e2eeErrNoRecipientKey: 無法獲取對方裝置金鑰，訊息未傳送
+e2eeDecryptFailed: 訊息無法解密
+e2eeDecryptFailedReasons: 此訊息無法解密，可能原因是：
+e2eeDecryptReasonOtherDevice: • 您在其他裝置上登入
+e2eeDecryptReasonKeyExpired: • 裝置金鑰已過期
+e2eeDecryptReasonDataCorrupt: • 應用資料損壞
+e2eeDecryptChooseSolution: 請選擇解決方案：
+e2eeDecryptActionRecreateKey: 重新建立金鑰（推薦）
+e2eeDecryptActionRelogin: 重新登入
+e2eeDecryptActionRemindLater: 稍後提醒我
+e2eeBackupExportTitle: 匯出 E2EE 備份
+e2eeBackupPwdCantRecover: • 備份密碼無法找回，請務必牢記！
+e2eeBackupStoreMultipleNote: • 建議將備份檔案儲存到多個安全位置（郵件、雲盤、隨身碟）
+e2eeBackupPwdLabel: 備份密碼 *
+e2eeBackupPwdHint: 至少 12 位，包含大小寫字母、數字和特殊符號
+e2eeBackupConfirmPwdLabel: 確認密碼 *
+e2eeBackupConfirmPwdHint: 再次輸入密碼
+e2eeBackupNoteLabel: 備註（可選）
+e2eeBackupNoteHint: 例如：主手機備份 - 2026年1月
+e2eeBackupPwdStrengthLabel: 密碼強度
+e2eeBackupPwdWeak: 弱 - 建議增加複雜度
+e2eeBackupPwdMedium: 中等 - 建議增加長度或複雜度
+e2eeBackupPwdStrong: 強 - 可以使用
+e2eeBackupPwdVeryStrong: 非常強 - 安全
+e2eeBackupGenerateBtn: 生成備份檔案
+e2eeBackupFileGenerated: 備份檔案已生成！
+e2eeBackupShareBtn: 透過郵件/雲盤分享
+e2eeBackupShareContent: 這是我的 Imboy E2EE 金鑰備份檔案，請妥善保管，切勿洩露給他人。
+e2eeBackupErrPwdMismatch: 兩次輸入的密碼不一致
+e2eeBackupErrNoKeyData: 無法獲取金鑰資料
+e2eeBackupErrExportFailed: 匯出失敗，請重試
+e2eeBackupErrShareFailed: 分享失敗，請重試
+e2eeBackupExportSuccessTitle: 備份匯出成功
+e2eeBackupExportSuccessBody: 您的 E2EE 金鑰備份已成功生成。
+e2eeBackupImportantNoteColon: 重要提示：
+e2eeBackupKeepSafe: • 請妥善保管備份檔案和密碼
+e2eeBackupStoreMultipleLoc: • 建議將檔案儲存到多個安全位置
+e2eeBackupPwdCantRecoverNote: • 密碼無法找回，請務必牢記
+e2eeBackupImportTitle: 匯入 E2EE 備份
+e2eeBackupImportGuide: 匯入說明
+e2eeBackupImportReplaceKey: • 匯入後，當前的 E2EE 金鑰將被替換
+e2eeBackupImportTrustedSource: • 請確保備份檔案來自可信任的來源
+e2eeBackupSelectFile: 選擇備份檔案
+e2eeBackupSelectFileHint: 點選選擇備份檔案 (.enc)
+e2eeBackupInfoTitle: 備份資訊
+e2eeBackupVersionLabel: 版本號
+e2eeBackupAlgorithmLabel: 演算法
+e2eeBackupFileSizeLabel: 檔案大小
+e2eeBackupFileValid: ✓ 檔案格式有效
+e2eeBackupImportPwdHint: 請輸入備份時設定的密碼
+e2eeBackupImportBtn: 匯入金鑰
+e2eeBackupErrSelectFile: 選擇檔案失敗，請重試
+e2eeBackupErrValidateFailed: 檔案驗證失敗，請檢查檔案格式
+e2eeBackupErrImportFailed: 匯入失敗，請檢查密碼是否正確
+e2eeBackupImportSuccessTitle: 匯入成功
+e2eeBackupImportSuccessBody: E2EE 金鑰已成功恢復！
+e2eeBackupImportSuccessNote: 注意：舊訊息可能無法訪問，這是 E2EE 的正常行為
+e2eeBackupNoRecords: 暫無備份記錄
+e2eeBackupNoRecordsHint: 匯出備份後將在此顯示歷史記錄
+e2eeBackupDeviceLabel(id): 裝置 $id
+e2eeBackupCreatedAtLabel(time): 建立於 $time
+e2eeBackupDetailTitle: 備份詳情
+e2eeBackupDeviceIdLabel: 裝置 ID
+e2eeBackupVersionNum: 備份版本
+e2eeBackupCreatedAtRow: 建立時間
+e2eeBackupFileSizeRow: 檔案大小
+e2eeBackupNoteRow: 備註
+e2eeBackupDeleteTitle: 刪除備份記錄
+e2eeBackupDeleteConfirm: 確定要刪除此備份記錄嗎？
+e2eeBackupDeleteSuccess: 備份記錄已刪除
+e2eeSocialShardSettings: 分片設定
+e2eeSocialShardStoredNote: 說明：分片將儲存在代理裝置上，服務端不儲存任何分片
+e2eeSocialAddProxy: 新增代理
+e2eeSocialAddProxyHint: 請新增代理聯絡人
+e2eeSocialCreateNeedMore(count): 請先新增 $count 個代理
+e2eeSocialCreateSuccessTitle: 分片建立成功
+e2eeSocialTotalShardsInfo(count): 金鑰已分割成 $count 個分片
+e2eeSocialThresholdInfo(count): 需要 $count 個代理協助即可恢復金鑰
+e2eeSocialZeroTrustNote: 零信任架構：服務端不儲存任何分片
+e2eeSocialNoShards: 您還沒有建立任何恢復分片
+e2eeSocialNoProxyShards: 沒有代理分片
+e2eeSocialKeyVersionLabel: 金鑰版本
+e2eeTransferErrNoKey: 請先生成金鑰對
+e2eeTransferErrInitFailed: 初始化失敗，請重試
+e2eeTransferErrNoRecipientKey: 接收方沒有可用的公鑰
+e2eeTransferErrKeyNotFound: 金鑰未找到
+e2eeTransferErrCreateFailed: 建立傳輸會話失敗，請重試
+e2eeTransferCreateSessionBtn: 建立傳輸會話
+e2eeTransferSessionCreated: 傳輸會話已建立
+e2eeTransferUidEmptyError: 請輸入有效的使用者 ID
+e2eeTransferSuccess: 傳輸成功！
+e2eeTransferFailed: 傳輸失敗，請重試
+e2eeTransferProcessingMsg: 處理中...
+e2eeTransferSuccessTitle: 傳輸成功
+e2eeTransferSuccessBody: 金鑰已成功傳輸到當前裝置
+e2eeTransferScanError(error): '掃描錯誤: $error'
+e2eeTransferErrNoDeviceId: 無法獲取裝置 ID
+passwordEncryptFailed: 密碼加密失敗
+initConfigTimeout: '配置獲取超時: 請檢查網路連線或服務端狀態'
+initConfigNetworkError(code): 網路故障或服務故障 (HTTP $code)
+initConfigProtocolError: 服務故障協議有誤
+initConfigFetchFailed: 配置獲取失敗，請檢查網路連線
+attachmentGetFileFailed: 無法獲取檔案，請重試或使用相簿選擇
+attachmentGetFileFailedAndroid9: 檔案獲取失敗，Android 9 可能存在相容性問題
+attachmentGetImageDataFailed: 無法獲取圖片資料，請重試
+attachmentGetOriginalImageFailed: 無法獲取原始圖片資料
+saveFailedRetry: 儲存失敗，請重試
+downloadFileNotFound: 下載檔案不存在，請重試
+downloadHashRetrying(retry, max): 檔案校驗失敗，正在重新下載 ($retry/$max)
+downloadHashFailed: 檔案多次校驗失敗，請檢查網路後重試
+e2eeTransferToNewDevice: 傳輸到新裝置
+e2eeTransferPendingSection: 待處理的傳輸
+e2eeTransferLoadFailed: 載入失敗
+e2eeTransferLoadFailedDesc: 無法載入待處理的傳輸，請重試
+e2eeTransferNoPending: 暫無待處理的傳輸
+e2eeTransferNoPendingDesc: 當有裝置向您傳送金鑰時，會顯示在這裡
+e2eeSocialEnoughShards: 您已有足夠的分片可以恢復金鑰
+e2eeSocialMoreShards(count): 還有 $count 個分片...
+e2eeProxyLoadFriendsFailed: 載入好友列表失敗，請重試
+e2eeProxyNoPublicKey: 該好友沒有可用的公鑰
+e2eeProxyGetKeyFailed(name): 獲取 $name 的公鑰失敗
+e2eeProxySelectFailed: 選擇代理失敗，請重試
+e2eeProxyNoFriends: 暫無好友
+e2eeProxyNoFriendsHint: 請先新增好友後再設定恢復代理
+e2eeProxyNeedMore(count, selected): 至少需要 $count 個信任的聯絡人，已選擇 $selected 個
+e2eeProxyConfirmCount(count): 確認選擇 ($count 個代理)
+buttonBackHome: 返回首頁
+featureNotEnabled: 當前功能未啟用
+featureDisabledName(name): $name 功能未啟用，暫時無法訪問
+imageLoadFailed: 載入失敗
+loadFailedWithError(error): '載入失敗: $error'
+webAudioNotSupported: Web 平臺暫不支援語音訊息播放
+e2eeKeyRecreationFailed(error): '金鑰建立失敗: $error'
+redPacket: 紅包
+transfer: 轉賬
+withdraw: 提現
+redPacketSend: 發紅包
+redPacketOpen: 搶紅包
+redPacketDetail: 紅包詳情
+transferSend: 發起轉賬
+transferAccept: 確認收錢
+greetingDefault: 恭喜發財，大吉大利
+grabAmountYuan(amount): 領到金額：$amount 元
+transferAmountYuan(amount): 轉賬金額：$amount 元
+insufficientBalance: 餘額不足
+goToRecharge: 去充值
+withdrawSuccess: 提現成功
+withdrawConfirm: 確認提現
+withdrawAmountError: 請輸入不低於1元的金額
+withdrawAccountEmpty: 請輸入提現賬號
+withdrawMethod: 提現方式
+withdrawAccount: 提現賬號

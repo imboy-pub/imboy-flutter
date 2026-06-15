@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:xid/xid.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -131,6 +135,37 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
       );
       if (schedule != null && mounted) {
         _loadSchedules();
+
+        // 自动向群内分发一条交互式群日程卡片消息
+        try {
+          final currentUid = UserRepoLocal.to.currentUid;
+          final timeStr =
+              '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')} ${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
+
+          final message = CustomMessage(
+            authorId: currentUid,
+            id: Xid().toString(),
+            createdAt: DateTime.now(),
+            metadata: {
+              'msg_type': 'groupSchedule',
+              'id': schedule['id']?.toString() ?? '',
+              'group_id': widget.groupId,
+              'title': titleController.text,
+              'start_time': timeStr,
+            },
+          );
+
+          await ref.read(chatProvider.notifier).addMessage(
+                currentUid,
+                widget.groupId,
+                '', // Group Avatar
+                '', // Group Title
+                'C2G', // MessageFlowType.c2g
+                message,
+              );
+        } catch (e) {
+          debugPrint('发送群日程消息失败: $e');
+        }
       }
     }
   }

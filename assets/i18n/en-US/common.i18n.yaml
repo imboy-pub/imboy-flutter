@@ -273,9 +273,9 @@ off: "@:common.disabled"
 offlineNotification: Offline notification
 on: "@:common.enabled"
 operationFailedAgainLater: Operation failed. Please try again later.
-optionsNo: No
+optionsNo: "No"
 optionsRename: I want to rename
-optionsYes: Yes
+optionsYes: "Yes"
 p2pCallScreenLogic: Call screen
 p2pCallScreenView: Call interface
 paramFormatError: $param format error
@@ -1058,3 +1058,9 @@ withdrawAmountError: Amount must be at least 1 CNY
 withdrawAccountEmpty: Please enter your withdrawal account
 withdrawMethod: Withdrawal Method
 withdrawAccount: Withdrawal Account
+contactInfoNotSynced: Contacts not synced
+logoutFailed: Logout failed
+notLoggedIn: Not logged in
+insufficientBalanceTitle: Insufficient Balance
+insufficientBalanceContent(balance, price, currency): "Current balance $currency $balance, requires $currency $price. Please top up first."
+goRecharge: Top Up

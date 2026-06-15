@@ -1,0 +1,10 @@
+---
+title: Метки групп
+addTag: Добавить метку
+tagName: Название метки
+tagColor: Цвет метки
+noTag: Нет меток
+tagAdded: Метка добавлена
+tagRemoved: Метка удалена
+removeTitle: Удалить метку
+removeConfirm: Удалить эту метку?

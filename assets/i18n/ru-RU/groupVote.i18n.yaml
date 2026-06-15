@@ -1,0 +1,25 @@
+---
+title: Опросы группы
+createVote: Создать опрос
+voteTitle: Вопрос опроса
+voteOptions: Варианты ответа
+addOption: Добавить вариант
+allowMultiple: Разрешить несколько ответов
+anonymous: Анонимный опрос
+deadline: Срок
+noDeadline: Без срока
+noVote: Нет опросов
+voteEnded: Опрос завершён
+totalVotes: Всего $count голосов
+voteSuccess: Голос принят
+hasVoted: Вы проголосовали
+viewResults: Результаты
+cancelVoteSuccess: Голос отменён
+cancelVoteFailed: Не удалось отменить, попробуйте позже
+endVoteFailed: Не удалось завершить, попробуйте позже
+eachOptionPerLine: По одному варианту на строку
+statusInProgress: Идёт
+updateVote: Изменить опрос
+cancelMyVote: Отменить мой голос
+voteIdMissing: ID опроса отсутствует, нельзя открыть детали
+participantCount: 'Участников: $count'

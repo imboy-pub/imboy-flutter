@@ -1,3 +1,4 @@
+---
 title: Canaux
 loading: Chargement...
 subscribed: Abonné
@@ -9,10 +10,8 @@ searchHint: Rechercher par nom ou ID
 searchTip: Entrez des mots-clés pour rechercher
 noResults: Aucun canal trouvé
 noRecommendedChannels: Aucune chaîne recommandée Revenez plus tard
-noSubscribedChannels: "Aucun canal abonné
-Découvrez plus de canaux"
-noManagedChannels: "Aucun canal géré
-Créez un canal pour commencer"
+noSubscribedChannels: Aucun canal abonné Découvrez plus de canaux
+noManagedChannels: Aucun canal géré Créez un canal pour commencer
 noMessages: Aucun message
 subscribers: abonnés
 pinned: Épinglé
@@ -32,16 +31,16 @@ nameTooLong: Le nom ne peut pas dépasser 50 caractères
 descriptionLabel: Description
 descriptionHint: Décrivez votre canal (optionnel)
 customIdLabel: ID personnalisé (optionnel)
-customIdHint: "ex: mon_canal"
+customIdHint: 'ex: mon_canal'
 customIdHelper: Permet la recherche par ID
-customIdInvalid: "Lettres, chiffres et underscores uniquement"
+customIdInvalid: Lettres, chiffres et underscores uniquement
 customIdLength: Doit contenir 4-30 caractères
 typeLabel: Type de canal
 typePublic: Public
 typePrivate: Privé
 typePublicDesc: Tout le monde peut trouver et s'abonner
 typePrivateDesc: Accessible uniquement par lien d'invitation
-createTips: "Après création, vous pourrez envoyer des messages à tous les abonnés. Seuls les admins peuvent publier."
+createTips: Après création, vous pourrez envoyer des messages à tous les abonnés. Seuls les admins peuvent publier.
 today: Aujourd'hui
 yesterday: Hier
 daysAgo: jours
@@ -53,7 +52,7 @@ react: Réagir
 admin: Administrer
 settings: Paramètres
 editChannel: Modifier le canal
-editChannelDesc: "Mettre à jour le nom, la description, etc."
+editChannelDesc: Mettre à jour le nom, la description, etc.
 editChannelNotImplemented: Modification du canal bientôt disponible
 manageAdmins: Gérer les admins
 manageAdminsDesc: Ajouter ou supprimer des administrateurs
@@ -90,10 +89,16 @@ updateRoleSuccess: Rôle mis à jour avec succès
 updateRoleFailed: Échec de la mise à jour du rôle
 userId: ID utilisateur
 userIdHint: Entrez l'ID utilisateur
+selectFromContacts: Depuis les contacts
+searchContactsHint: Rechercher pseudo ou compte
+noContactsToAdd: Tous les amis sont déjà administrateurs
+selectRole: Choisir un rôle
 noAdmins: Aucun admin
 roleCreator: Créateur
 roleAdmin: Admin
+roleAdminDesc: Gérer le canal
 roleEditor: Éditeur
+roleEditorDesc: Publier des messages
 roleUnknown: Inconnu
 searchSubscribers: Rechercher des abonnés
 subscriberSearchHint: Rechercher par nom ou ID
@@ -105,6 +110,11 @@ removeSubscriberSuccess: Abonné supprimé
 removeSubscriberFailed: Échec de la suppression de l'abonné
 subscribedAt: Abonné le
 viewProfile: Voir le profil
+inviteFromContacts: Inviter des amis
+inviteSearchHint: Rechercher pseudo ou compte
+noContactsToInvite: Tous les amis déjà invités ou abonnés
+inviteSuccess: Invitation envoyée
+inviteFailed: Échec de l'envoi de l'invitation
 updateSuccess: Canal mis à jour avec succès
 updateFailed: Échec de la mise à jour du canal
 typeCannotChange: Ne peut pas être modifié après création

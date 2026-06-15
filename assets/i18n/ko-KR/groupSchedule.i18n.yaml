@@ -1,0 +1,26 @@
+---
+title: 그룹 일정
+createSchedule: 일정 만들기
+scheduleTitle: 일정 제목
+selectDate: 날짜 선택
+selectTime: 시간 선택
+location: 장소
+reminder: 알림
+noReminder: 알림 없음
+noSchedule: 일정이 없습니다
+scheduleCreated: 일정이 생성되었습니다
+scheduleUpdated: 일정이 수정되었습니다
+reminder15min: 15분 전
+reminder1hour: 1시간 전
+reminder1day: 1일 전
+startTime: 시작 시간
+endTime: 종료 시간
+participants: 참여 인원
+statusCancelled: 취소됨
+statusInProgress: 진행 중
+cancelSuccess: 일정이 취소되었습니다
+cancelFailed: 취소 실패, 나중에 다시 시도해주세요
+confirmAttend: 참석 확인
+declineAttend: 불참
+cancelSchedule: 일정 취소
+scheduleIdMissing: 일정 ID가 없어 상세정보를 볼 수 없습니다

@@ -1,0 +1,18 @@
+---
+title: Папки групп
+createCategory: Создать папку
+categoryName: Название папки
+categoryDesc: Описание папки (необязательно)
+noCategory: Нет папок
+createFirst: Создайте первую папку
+addGroup: Добавить группу в папку
+removeGroup: Убрать из папки
+deleteCategory: Удалить папку
+deleteCategoryConfirm: Удалить эту папку? Группы не будут удалены.
+categoryCreated: Папка создана
+categoryDeleted: Папка удалена
+renameCategory: Переименовать папку
+categoryRenamed: Папка переименована
+renameFailed: Не удалось переименовать, попробуйте ещё раз
+deleteFailed: Не удалось удалить, попробуйте ещё раз
+categoryDetailTip: Группы в этой папке можно переносить через «В папку» в списке групп

@@ -1,15 +1,32 @@
+---
 findNearbyPeople: Найти людей рядом
 moment: Моменты
-nearbyPeopleExplain: "Пользователи рядом могут просматривать ваш профиль и отправлять вам сообщения. Это может помочь вам найти новых друзей, но также может привлечь чрезмерное внимание. Вы можете в любое время прекратить публикацию вашего профиля.
-
-Ваш номер телефона будет скрыт."
+nearbyPeopleExplain: |-
+  Пользователи рядом могут просматривать ваш профиль и отправлять вам сообщения. Это может помочь вам найти новых друзей, но также может привлечь чрезмерное внимание. Вы можете в любое время прекратить публикацию вашего профиля.
+  Ваш номер телефона будет скрыт.
 peopleNearby: Люди рядом
 peopleNearbyLogic: Логика людей поблизости
 scan: Сканировать
 scanResult: Результат сканирования
 scannerResult: Результат сканирования
 titleDiscover: Обнаружить
+myChannels: Мои каналы
+channelSquare: Площадка каналов
 otherUsersCanFindMe: Другие пользователи могут найти меня через поиск
 moments: Моменты
+momentsReport: Пожаловаться на публикацию
+momentsReportDesc: Дополнительное описание
+momentsComments: Комментарии
+momentsWriteComment: Написать комментарий...
+momentsVisibility: Видимость
+momentsVisibilityPublic: Все
+momentsVisibilityPartial: Некоторые
+momentsVisibilityExclude: Скрыть от...
+momentsDenyUidsLabel: Скрыть от UID (через запятую)
+momentsDraftRestored: Восстановлен черновик
+momentsFeedStale: Сетевая ошибка, показан кэш
 discover: Обзор
 shake: Встряхнуть
+openChannel: Открыть канал
+paidChannelLocked: Содержимое платного канала заблокировано
+webQRScanned: Отсканировано

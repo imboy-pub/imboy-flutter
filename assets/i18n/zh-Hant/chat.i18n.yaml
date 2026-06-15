@@ -11,6 +11,7 @@ awaitingReply: 待回覆
 businessCard: 名片
 busyTryAgainLater: 對方正忙，請稍後再試
 later: 以後再說
+peerIsTyping(name): $name 正在輸入...
 changeGroupChatName: 修改群組名稱後，將在群組內通知其他成員。
 chatHistory: 聊天記錄
 chatHoldDownTalk: 按住說話
@@ -33,7 +34,7 @@ chatStatusSeenDesc: 訊息已讀
 createGroupF2f: 面對面建群組
 displayProfile: 顯示您的資料
 file: 檔案
-fileMessage: "[檔案]"
+fileMessage: '[檔案]'
 fileSize: 檔案大小
 forgotPasswordPinCodeView: 忘記密碼驗證碼視圖
 forward: 轉發
@@ -41,12 +42,31 @@ forwardReply: 轉發回覆
 forwardTo: 轉發給
 forwardToFriend: 轉發給好友
 great: 太棒了
+groupFile: 群檔案
+groupFileImagePreview: 圖片預覽
+groupFileVideoPreview: 影片預覽
+groupFileAudioPreview: 音訊預覽
+groupFileMediaPause: 暫停
+groupFileMediaPlay: 播放
+groupFileUrlMissing: 檔案地址缺失，無法開啟
+groupFileUrlInvalid: 檔案地址無效
+groupFilePreview: 檔案預覽
+groupFileUnnamed: 未命名檔案
+groupFileCategoryEmpty: ${category}暫無檔案
+groupFileEmpty: 暫無群檔案
+groupFileCategoryDoc: 文件
+groupFileCategoryImage: 圖片
+groupFileCategoryVideo: 影片
+groupFileCategoryAudio: 音訊
+groupFileCategoryOther: 其他
 groupChat: 群組聊天
 image: 圖片
-imageMessage: "[圖片]"
+imageMessage: '[圖片]'
 initiateChat: 發起群組聊天
 justChat: 僅聊天
 location: 位置
+exportMyData: 匯出我的資料
+exportDataDesc: 匯出你的個人資訊、聯絡人和聊天記錄
 message: 訊息
 messageHandlingMixin: 訊息處理混入
 messageMarkTitle: 訊息標記
@@ -72,23 +92,41 @@ readAgreeParam: 已經閱讀並同意$param
 recentChats: 最近聊天
 recentForwards: 最近轉發
 remindMeLater: 下次再說
+quickReplyManage: 管理快捷回覆
+quickReplyEmpty: 暫無快捷回覆，點選右下角新增
+quickReplyDuplicate: 內容已存在
+quickReplyMaxReached: 最多 $max 條
+quickReplyHint: 輸入內容...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+mutedFor: 禁言 $label
+muteUnitMinutes: $count 分鐘
+muteUnitHours: $count 小時
+muteUnitDays: $count 天
+youAreMuted: 你已被禁言
+youAreMutedWithTime: 你已被禁言，剩餘 $minutes 分鐘
 repliedAt: 回覆於
 reply: 回覆
 replyTo: 回覆
 resendCode: 重發驗證碼
 revoke: 撤回
 scanQrCodeBusinessCard: 掃描二維碼卡片
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message
 sendFriendRequest: 傳送新增好友申請
 sendMsgRejected: 訊息已發出，但被對方拒收了。
+sendMessage: 發訊息
 sendSeparatelyTo: 分別傳送給
 sendTo: 傳送給
-send: "@:common.buttonSend"
+send: '@:common.buttonSend'
 sender: 發送者
 sending: 正在傳送...
 signatureInputHint: 簽名輸入提示
 signaturePlaceholder: 簽名占位符
-signupIntro: "確認碼已傳送到您的郵箱，
-請輸入確認碼確認您的帳號。"
+signupIntro: 確認碼已傳送到您的郵箱， 請輸入確認碼確認您的帳號。
 socialProfile: 社交資料
 status: 狀態
 storageSpaceData: 儲存空間和資料
@@ -100,8 +138,9 @@ unpin: 取消置頂
 unsupportedFileType: 不支援的檔案類型
 userData: 用家資料
 video: 影片
-videoMessage: "[影片]"
+videoMessage: '[影片]'
 viewAttachments: 瀏覽附件
+viewLargeImage: 檢視大圖
 voice: 語音
 voiceInput: 語音輸入
 voiceMessage: 語音訊息
@@ -137,6 +176,15 @@ visibleRatioLabel: 可見比例 (0.1~1.0)
 unsupportedMessageType: 不支援的訊息類型
 passwordMismatch: 兩次密碼不一致
 pleaseTryAgainLater: 請稍後重試
+momentsSelectVideo: 選擇影片
+momentsRecordVideo: 拍攝影片
+momentsVisibilityPrivate: 僅自己
+momentsMediaTooManyImages: 最多隻能選擇 9 張圖片
+momentsMediaTooManyVideos: 最多隻能選擇 1 個影片
+momentsMediaMixedImageAndVideo: 圖片和影片不能同時釋出
+momentsReplyPrefix: 回覆 @
+momentsReplySeparator: ：
+momentsReplyingTo: 正在回覆 @{name}
 sendNewMessage: 傳送新訊息
 markRead: 標記已讀
 markUnread: 標記未讀
@@ -154,16 +202,74 @@ deletingLocalMessage: 正在刪除本地訊息...
 quickReplyReceived: 收到
 quickReplyThanks: 謝謝
 quickReplyWait: 稍等
-messageMute: "@:chat.chatSettingMute"
-quickReplyManage: 管理快捷回复
-quickReplyEmpty: 暂无快捷回复，点击右下角添加
-quickReplyDuplicate: 内容已存在
-quickReplyMaxReached: 最多 $max 条
-quickReplyHint: 输入内容...
-muteMember: Mute Member
-unmuteMember: Unmute
-muteUntil: Muted Until
-muted: Muted
-singleChat: Private Chat
-privateChat: Private Chat
-groupMessage: Group message
+messageMute: '@:chat.chatSettingMute'
+groupCategoryGroupCount(count): $count 個群聊
+groupAlbumCreateTitle: 新建群相簿
+groupAlbumCreated: 相簿已建立
+profileCompleted: 資料已完善！
+profileProgress(percent): ${percent}% 完成
+createdAtLabel(time): '建立時間: $time'
+expiredAtLabel(time): '過期時間: $time'
+myReceivedTab: 我收到的
+orderStatusLabel(status): '狀態: $status'
+orderCreatedAtLabel(time): '建立時間: $time'
+orderPaymentAtLabel(time): '支付時間: $time'
+orderStatusPending: 待支付
+orderStatusPaid: 已支付
+orderStatusRefunded: 已退款
+orderStatusExpired: 已過期
+defaultFileName: 檔案
+fileUrlInvalid: 檔案連結無效
+e2eeStatusAvailable: 可用
+e2eeGenerateNewKey: 生成新金鑰
+e2eeGenerateNewKeyDesc: 生成新的 E2EE 金鑰對（舊訊息將無法解密）
+e2eeActivated: 已啟用
+e2eeCreatedAtLabel: 建立時間
+e2eeGeneratingKey: 正在生成金鑰，請稍候...
+e2eeNewKeyGenerated: 新的 E2EE 金鑰對已生成！
+e2eeReady: 準備就緒
+e2eeReadyWithShards(count): 準備就緒（$count 個分片）
+webFeatureMultiDevice: 多裝置同步
+webFeatureMultiDeviceDesc: 在手機和電腦之間無縫切換，訊息實時同步
+webFeatureE2EE: 端到端加密
+webFeatureE2EEDesc: 所有訊息都經過端到端加密，確保隱私安全
+webFeatureFileTransfer: 檔案傳輸
+webFeatureFileTransferDesc: 拖拽即可傳送檔案，支援各種格式
+webQRStatusWaiting: 開啟 ImBoy 手機版 > 設定 > 掃一掃
+webQRStatusScanned: 請在手機上點選"確認登入"
+webQRStatusVerifying: 正在驗證...
+webQRStatusExpired: 請點選重新整理重新掃碼
+e2eeErrInvalidFormat: 訊息格式錯誤，加密失敗
+e2eeSocialCreateTitle: 建立恢復分片
+e2eeSocialCreateBtn: 建立分片
+e2eeSocialCreateFailTitle: 建立失敗
+e2eeSocialCreateFailBody: 建立分片失敗，請重試
+e2eeSocialCreateFirst: 建立分片後才能看到內容
+e2eeSocialUsedAtLabel: 使用時間
+e2eeTransferSendTitle: 傳送金鑰到新裝置
+e2eeTransferCreateBtn: 建立
+e2eeTransferReceiveTitle: 從舊裝置接收金鑰
+e2eeTransferSendDesc: 透過二維碼將金鑰傳輸到新裝置
+e2eeTransferReceiveDesc: 掃描舊裝置二維碼接收金鑰
+e2eeSocialStatus(status): '狀態: $status'
+e2eeSocialCreateShardsTitle: 建立恢復分片
+e2eeSocialCreateShardsDesc: 將金鑰分割成多個分片，儲存到代理裝置（服務端不儲存）
+e2eeProxyNeedAtLeast(count): 請選擇至少 $count 個代理
+e2eeRecreatingKey: 正在重新建立金鑰...
+e2eeKeyRecreated: 金鑰已重新建立
+e2eeRecoveryNewDeviceTitle: 檢測到新裝置登入
+e2eeRecoveryNewDeviceBody: '為保護訊息安全，本裝置已生成新的端對端加密金鑰。
+
+
+  歷史訊息使用舊裝置的金鑰加密，需先恢復金鑰才能檢視。你可以透過「裝置轉移」「社交恢復」或「本地備份匯入」恢復。'
+e2eeRecoveryDecryptFailedTitle: 無法解密此訊息
+e2eeRecoveryDecryptFailedBody: '此訊息由其他裝置的金鑰加密。
+
+
+  若你更換了裝置或重新安裝了應用，請恢復加密金鑰後再檢視歷史訊息。'
+e2eeRecoveryLater: 稍後
+e2eeRecoveryGoRecover: 去恢復
+e2eeRecoveryBannerText: 檢測到加密歷史訊息，需恢復金鑰後才能檢視，點選前往恢復
+liveRoomCreateTitle: 建立直播間
+liveRoomCreating: 建立中...
+liveRoomWatch: 觀看直播

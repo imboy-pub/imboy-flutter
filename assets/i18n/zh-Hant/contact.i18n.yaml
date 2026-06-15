@@ -6,8 +6,7 @@ applyChanges: 請重新啟動應用以套用變更
 inputNewTag: 輸入新標籤...
 denylist: 黑名單
 denylistEmpty: 黑名單為空
-denylistEmptyDesc: "您還沒有封鎖任何用家
-被封鎖的用家將無法給您傳送訊息"
+denylistEmptyDesc: 您還沒有封鎖任何用家 被封鎖的用家將無法給您傳送訊息
 favoriteGroupTagsEtc: 收藏人名、群組名、標籤等
 groupRemarkView: 群組備註
 groupRemarkVisibility: 群組聊天的備註僅自己可見
@@ -29,6 +28,7 @@ currentTags: 目前標籤 ($param)
 pleaseEnterRemark: 請輸入備註名
 enterRemark: 請輸入備註名
 pleaseEnterTags: 請輸入標籤
+momentsVisibilityFriends: 僅好友
 tagLengthExceeded: 標籤長度不能超過 $param 個字元
 maxTagsExceeded: 最多只能新增 $param 個標籤
 selectedTags: 已選標籤 ($param/$max)
@@ -47,3 +47,5 @@ tagProject: 專案
 tagIdeas: 想法
 tagMemo: 備忘
 friendRequestSent: 已傳送
+channelMaxTagsCount: 最多可新增 8 個標籤
+tagInputHint: 輸入標籤...

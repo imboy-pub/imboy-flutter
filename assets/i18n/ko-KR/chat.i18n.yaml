@@ -1,21 +1,23 @@
+---
 bankCard: 은행 카드
 cards: 장
 jdShopping: JD 쇼핑
 receivePayment: 송금·결제
 alreadyEntered: 이미 입력했습니다
 alreadyMember: 이미 구성원
-appSqliteFileSizeExplain: "현재 계정의 로컬 sqlite 파일 크기입니다. 선택된 채팅 기록의 사진, 비디오 및 파일을 정리하거나 선택된 채팅 기록의 모든 메시지를 비울 수 있습니다."
+appSqliteFileSizeExplain: 현재 계정의 로컬 sqlite 파일 크기입니다. 선택된 채팅 기록의 사진, 비디오 및 파일을 정리하거나 선택된 채팅 기록의 모든 메시지를 비울 수 있습니다.
 attachmentProvider: 첨부 파일 제공자
 audioMessage: 음성 메시지
 awaitingReply: 답변 대기 중
 businessCard: 명함
 busyTryAgainLater: 상대방이 바쁩니다. 나중에 다시 시도해 주세요
 later: 나중에
+peerIsTyping(name): "$name님이 입력 중..."
 changeGroupChatName: 그룹 채팅 이름을 수정하면 그룹 내 다른 구성원에게 알림이 갑니다.
 chatHistory: 채팅 기록
 chatHoldDownTalk: 눌러서 말하기
 chatMessage: 채팅 메시지
-chatMomentSportDataEtc: "채팅, 모멘트, 운동 데이터 등"
+chatMomentSportDataEtc: 채팅, 모멘트, 운동 데이터 등
 chatSettingMute: 메시지 알림 끄기
 chatSettingMuteDesc: 이 채팅의 메시지 알림 끄기
 chatSettingMuted: 알림 차단됨
@@ -41,12 +43,31 @@ forwardReply: 전달 답장
 forwardTo: 전달 대상
 forwardToFriend: 친구에게 전달
 great: 매우 좋음
+groupFile: 그룹 파일
+groupFileImagePreview: 이미지 미리보기
+groupFileVideoPreview: 동영상 미리보기
+groupFileAudioPreview: 오디오 미리보기
+groupFileMediaPause: 일시정지
+groupFileMediaPlay: 재생
+groupFileUrlMissing: 파일 주소가 없어 열 수 없습니다
+groupFileUrlInvalid: 파일 주소가 잘못되었습니다
+groupFilePreview: 파일 미리보기
+groupFileUnnamed: 이름 없는 파일
+groupFileCategoryEmpty: "${category}에 파일이 없습니다"
+groupFileEmpty: 그룹 파일이 없습니다
+groupFileCategoryDoc: 문서
+groupFileCategoryImage: 이미지
+groupFileCategoryVideo: 동영상
+groupFileCategoryAudio: 오디오
+groupFileCategoryOther: 기타
 groupChat: 그룹 채팅
 image: 이미지
 imageMessage: "[이미지]"
 initiateChat: 그룹 채팅 시작
 justChat: 채팅만
 location: 위치
+exportMyData: 내 데이터 내보내기
+exportDataDesc: 개인정보, 연락처 및 채팅 기록을 내보냅니다
 message: 메시지
 messageHandlingMixin: 메시지 처리 믹스인
 messageMarkTitle: 메시지 표시
@@ -55,12 +76,12 @@ card: 명함
 messageType: 메시지 유형
 messageVisitCardBuilder: 메시지 명함 카드 빌더
 messageWasWithdrawn: 메시지를 회수했습니다
-messageWasWithdrawnWithTitle: $param님이 메시지를 회수했습니다
+messageWasWithdrawnWithTitle: "$param님이 메시지를 회수했습니다"
 messageWebrtcBuilder: 메시지 WebRTC 빌더
 momentStatus: 모멘트 및 상태
 offline: 오프라인
 online: 온라인
-paramAlreadyExist: $param이(가) 이미 존재합니다
+paramAlreadyExist: "$param이(가) 이미 존재합니다"
 pin: 고정
 pinChat: 채팅 고정
 pinned: 고정됨
@@ -68,18 +89,37 @@ privateReply: 개인 답장
 qrCodeBusinessCard: QR코드 명함
 quoteReply: 인용 답장
 rating: 평가
-readAgreeParam: $param을(를) 읽고 동의합니다
+readAgreeParam: "$param을(를) 읽고 동의합니다"
 recentChats: 최근 채팅
 recentForwards: 최근 전달
 remindMeLater: 나중에 알림
+quickReplyManage: 빠른 답장 관리
+quickReplyEmpty: 빠른 답장이 없습니다. 우측 하단을 눌러 추가하세요
+quickReplyDuplicate: 내용이 이미 존재합니다
+quickReplyMaxReached: 최대 $max개
+quickReplyHint: 내용 입력...
+muteMember: Mute Member
+unmuteMember: Unmute
+muteUntil: Muted Until
+muted: Muted
+mutedFor: 채팅 금지 $label
+muteUnitMinutes: "$count분"
+muteUnitHours: "$count시간"
+muteUnitDays: "$count일"
+youAreMuted: 채팅이 금지되었습니다
+youAreMutedWithTime: 채팅이 금지되었습니다. 남은 시간 $minutes분
 repliedAt: 답장 시간
 reply: 답장
 replyTo: 답장 대상
 resendCode: 인증 코드 재전송
 revoke: 회수
 scanQrCodeBusinessCard: QR코드 명함 스캔
+singleChat: Private Chat
+privateChat: Private Chat
+groupMessage: Group message
 sendFriendRequest: 친구 추가 요청 보내기
 sendMsgRejected: 메시지가 전송되었으나 상대방이 거부했습니다.
+sendMessage: 메시지 보내기
 sendSeparatelyTo: 각각 전송
 sendTo: 전송 대상
 send: "@:common.buttonSend"
@@ -87,8 +127,7 @@ sender: 발신자
 sending: 전송 중...
 signatureInputHint: 서명 입력 팁
 signaturePlaceholder: 서명 플레이스홀더
-signupIntro: "인증 코드가 이메일로 전송되었습니다.
-계정을 확인하려면 인증 코드를 입력해 주세요."
+signupIntro: 인증 코드가 이메일로 전송되었습니다. 계정을 확인하려면 인증 코드를 입력해 주세요.
 socialProfile: 소셜 프로필
 status: 상태
 storageSpaceData: 저장 공간 및 데이터
@@ -102,6 +141,7 @@ userData: 사용자 데이터
 video: 비디오
 videoMessage: "[비디오]"
 viewAttachments: 첨부 파일 보기
+viewLargeImage: 크게 보기
 voice: 음성
 voiceInput: 음성 입력
 voiceMessage: 음성 메시지
@@ -137,6 +177,15 @@ visibleRatioLabel: 가시성 비율 (0.1~1.0)
 unsupportedMessageType: 지원되지 않는 메시지 유형
 passwordMismatch: 비밀번호가 일치하지 않습니다
 pleaseTryAgainLater: 나중에 다시 시도해 주세요
+momentsSelectVideo: 동영상 선택
+momentsRecordVideo: 동영상 촬영
+momentsVisibilityPrivate: 나만 보기
+momentsMediaTooManyImages: 이미지는 최대 9장까지 선택할 수 있습니다
+momentsMediaTooManyVideos: 동영상은 최대 1개까지만 선택할 수 있습니다
+momentsMediaMixedImageAndVideo: 이미지와 동영상은 함께 게시할 수 없습니다
+momentsReplyPrefix: 답글 @
+momentsReplySeparator: ": "
+momentsReplyingTo: "@{name}님에게 답글 작성 중"
 sendNewMessage: 새 메시지 전송
 markRead: 읽음으로 표시
 markUnread: 읽지 않음으로 표시
@@ -144,7 +193,7 @@ pleaseEnterSignature: Please enter signature
 exportProfile: 프로필 내보내기
 setSignature: 서명 설정
 setAvatar: 프로필 사진 설정
-fastForward: $seconds초 빨리감기
+fastForward: "$seconds초 빨리감기"
 messageId: 메시지 ID
 chatType: 채팅 유형
 voiceFileEmptyPleaseTryAgain: 음성 파일이 비어있습니다. 다시 시도해 주세요
@@ -155,15 +204,73 @@ quickReplyReceived: 받았습니다
 quickReplyThanks: 감사합니다
 quickReplyWait: 잠시만요
 messageMute: "@:chat.chatSettingMute"
-quickReplyManage: 管理快捷回复
-quickReplyEmpty: 暂无快捷回复，点击右下角添加
-quickReplyDuplicate: 内容已存在
-quickReplyMaxReached: 最多 $max 条
-quickReplyHint: 输入内容...
-muteMember: Mute Member
-unmuteMember: Unmute
-muteUntil: Muted Until
-muted: Muted
-singleChat: Private Chat
-privateChat: Private Chat
-groupMessage: Group message
+groupCategoryGroupCount(count): 그룹 $count개
+groupAlbumCreateTitle: 그룹 앨범 만들기
+groupAlbumCreated: 앨범이 생성되었습니다
+profileCompleted: 프로필이 완성되었습니다!
+profileProgress(percent): "${percent}% 완료"
+createdAtLabel(time): '생성 시간: $time'
+expiredAtLabel(time): '만료 시간: $time'
+myReceivedTab: 받은 초대
+orderStatusLabel(status): '상태: $status'
+orderCreatedAtLabel(time): '생성 시간: $time'
+orderPaymentAtLabel(time): '결제 시간: $time'
+orderStatusPending: 결제 대기
+orderStatusPaid: 결제 완료
+orderStatusRefunded: 환불됨
+orderStatusExpired: 만료됨
+defaultFileName: 파일
+fileUrlInvalid: 파일 링크가 잘못되었습니다
+e2eeStatusAvailable: 사용 가능
+e2eeGenerateNewKey: 새 키 생성
+e2eeGenerateNewKeyDesc: 새 E2EE 키 쌍을 생성합니다 (이전 메시지는 복호화할 수 없음)
+e2eeActivated: 활성화됨
+e2eeCreatedAtLabel: 생성 시간
+e2eeGeneratingKey: 키를 생성하는 중입니다. 잠시만 기다려 주세요...
+e2eeNewKeyGenerated: 새 E2EE 키 쌍이 생성되었습니다!
+e2eeReady: 준비 완료
+e2eeReadyWithShards(count): 준비 완료 (샤드 $count개)
+webFeatureMultiDevice: 다중 기기 동기화
+webFeatureMultiDeviceDesc: 휴대폰과 PC 간에 자유롭게 전환하며 메시지가 실시간으로 동기화됩니다
+webFeatureE2EE: 종단간 암호화
+webFeatureE2EEDesc: 모든 메시지는 종단간 암호화되어 개인정보를 안전하게 보호합니다
+webFeatureFileTransfer: 파일 전송
+webFeatureFileTransferDesc: 드래그 앤 드롭으로 파일을 보낼 수 있으며 다양한 형식을 지원합니다
+webQRStatusWaiting: ImBoy 모바일 앱 열기 > 설정 > 스캔
+webQRStatusScanned: 휴대폰에서 "로그인 확인"을 눌러주세요
+webQRStatusVerifying: 확인 중...
+webQRStatusExpired: 새로고침을 눌러 다시 스캔해주세요
+e2eeErrInvalidFormat: 메시지 형식 오류, 암호화 실패
+e2eeSocialCreateTitle: 복구 샤드 만들기
+e2eeSocialCreateBtn: 샤드 만들기
+e2eeSocialCreateFailTitle: 생성 실패
+e2eeSocialCreateFailBody: 샤드 생성 실패, 다시 시도해주세요
+e2eeSocialCreateFirst: 샤드를 생성해야 내용을 볼 수 있습니다
+e2eeSocialUsedAtLabel: 사용 시간
+e2eeTransferSendTitle: 새 기기로 키 전송
+e2eeTransferCreateBtn: 만들기
+e2eeTransferReceiveTitle: 이전 기기에서 키 받기
+e2eeTransferSendDesc: QR 코드로 새 기기에 키를 전송합니다
+e2eeTransferReceiveDesc: 이전 기기의 QR 코드를 스캔하여 키를 받습니다
+e2eeSocialStatus(status): '상태: $status'
+e2eeSocialCreateShardsTitle: 복구 샤드 만들기
+e2eeSocialCreateShardsDesc: 키를 여러 샤드로 분할하여 대리자 기기에 저장합니다 (서버에는 저장 안 함)
+e2eeProxyNeedAtLeast(count): 대리자를 최소 $count명 선택해주세요
+e2eeRecreatingKey: 키를 다시 만드는 중...
+e2eeKeyRecreated: 키가 다시 만들어졌습니다
+e2eeRecoveryNewDeviceTitle: 새 기기 로그인 감지
+e2eeRecoveryNewDeviceBody: |-
+  메시지 보안을 위해 이 기기에 새 종단간 암호화 키가 생성되었습니다.
+
+  이전 메시지는 이전 기기의 키로 암호화되어 있어 먼저 키를 복구해야 볼 수 있습니다. "기기 전송", "소셜 복구" 또는 "로컬 백업 가져오기"로 복구할 수 있습니다.
+e2eeRecoveryDecryptFailedTitle: 이 메시지를 복호화할 수 없습니다
+e2eeRecoveryDecryptFailedBody: |-
+  이 메시지는 다른 기기의 키로 암호화되었습니다.
+
+  기기를 교체했거나 앱을 다시 설치했다면, 암호화 키를 복구한 후 이전 메시지를 확인하세요.
+e2eeRecoveryLater: 나중에
+e2eeRecoveryGoRecover: 복구하러 가기
+e2eeRecoveryBannerText: 암호화된 이전 메시지가 감지되었습니다. 키를 복구해야 볼 수 있습니다. 탭하여 복구로 이동
+liveRoomCreateTitle: 라이브 룸 만들기
+liveRoomCreating: 생성 중...
+liveRoomWatch: 라이브 시청

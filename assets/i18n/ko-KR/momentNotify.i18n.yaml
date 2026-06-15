@@ -1,0 +1,14 @@
+---
+title: 알림
+emptyTitle: 새 알림이 없습니다
+emptyHint: 친구가 내 모멘트에 좋아요나 댓글을 남기면 여기에 표시됩니다
+actionLike: 님이 회원님의 모멘트를 좋아합니다
+actionComment: 님이 댓글을 남겼습니다
+markAllRead: 모두 읽음
+clearAll: 전체 삭제
+clearConfirmTitle: 모든 알림을 삭제하시겠습니까?
+clearConfirmMessage: 삭제 후에는 복구할 수 없습니다
+confirm: 확인
+cancel: 취소
+delete: 삭제
+loadFailed: 불러오기 실패, 나중에 다시 시도해주세요

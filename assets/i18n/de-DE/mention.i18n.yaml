@@ -1,0 +1,12 @@
+---
+title: "@Erwähnungen"
+noMention: Keine @Erwähnungen
+allRead: Alle gelesen
+markAsRead: Als gelesen markieren
+newMention: Neue @Erwähnung
+fromGroup: Aus Gruppe
+fromChat: Aus Chat
+viewContext: Kontext ansehen
+mentionCount: "$count neue Erwähnungen"
+mentionAllDenied: Nur Administratoren können @alle verwenden
+navInfoMissing: Nachrichtenposition fehlt, Sprung nicht möglich

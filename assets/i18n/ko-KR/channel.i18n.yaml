@@ -1,3 +1,4 @@
+---
 title: 채널
 loading: 로딩 중...
 subscribed: 구독 중
@@ -9,10 +10,8 @@ searchHint: 채널 이름 또는 ID 검색
 searchTip: 키워드를 입력하여 채널 검색
 noResults: 채널을 찾을 수 없습니다
 noRecommendedChannels: 추천 채널이 없습니다 나중에 다시 확인하세요
-noSubscribedChannels: "구독 중인 채널이 없습니다
-더 많은 채널을 찾아보세요"
-noManagedChannels: "관리 중인 채널이 없습니다
-채널을 만들어 시작하세요"
+noSubscribedChannels: 구독 중인 채널이 없습니다 더 많은 채널을 찾아보세요
+noManagedChannels: 관리 중인 채널이 없습니다 채널을 만들어 시작하세요
 noMessages: 메시지가 없습니다
 subscribers: 구독자
 pinned: 고정됨
@@ -32,9 +31,9 @@ nameTooLong: 채널 이름은 50자 이내로 입력하세요
 descriptionLabel: 설명
 descriptionHint: 채널 설명 (선택사항)
 customIdLabel: 사용자 지정 ID (선택사항)
-customIdHint: "예: my_channel"
+customIdHint: '예: my_channel'
 customIdHelper: ID로 채널을 검색할 수 있습니다
-customIdInvalid: "영문, 숫자, 밑줄만 사용 가능"
+customIdInvalid: 영문, 숫자, 밑줄만 사용 가능
 customIdLength: 4-30자로 입력하세요
 typeLabel: 채널 유형
 typePublic: 공개
@@ -53,7 +52,7 @@ react: 반응
 admin: 관리
 settings: 설정
 editChannel: 채널 편집
-editChannelDesc: "채널 이름, 설명 등 업데이트"
+editChannelDesc: 채널 이름, 설명 등 업데이트
 editChannelNotImplemented: 채널 편집 기능 곧 출시
 manageAdmins: 관리자 관리
 manageAdminsDesc: 채널 관리자 추가 또는 제거
@@ -90,10 +89,16 @@ updateRoleSuccess: 역할이 업데이트되었습니다
 updateRoleFailed: 역할 업데이트 실패
 userId: 사용자 ID
 userIdHint: 사용자 ID 입력
+selectFromContacts: 연락처에서 선택
+searchContactsHint: 닉네임 또는 계정 검색
+noContactsToAdd: 모든 친구가 이미 관리자입니다
+selectRole: 역할 선택
 noAdmins: 관리자가 없습니다
 roleCreator: 생성자
 roleAdmin: 관리자
+roleAdminDesc: 채널을 관리할 수 있습니다
 roleEditor: 편집자
+roleEditorDesc: 메시지를 게시할 수 있습니다
 roleUnknown: 알 수 없음
 searchSubscribers: 구독자 검색
 subscriberSearchHint: 닉네임 또는 ID로 검색
@@ -105,6 +110,11 @@ removeSubscriberSuccess: 구독자가 제거되었습니다
 removeSubscriberFailed: 구독자 제거 실패
 subscribedAt: 구독일
 viewProfile: 프로필 보기
+inviteFromContacts: 친구 초대
+inviteSearchHint: 닉네임 또는 계정 검색
+noContactsToInvite: 모든 친구가 이미 초대되었거나 구독 중입니다
+inviteSuccess: 초대를 보냈습니다
+inviteFailed: 초대 전송 실패
 updateSuccess: 채널이 업데이트되었습니다
 updateFailed: 채널 업데이트 실패
 typeCannotChange: 생성 후 변경할 수 없습니다

@@ -1,3 +1,4 @@
+---
 change: 変更
 entertainment: 映画・ショー
 lifePayment: 料金支払い
@@ -12,10 +13,12 @@ arSa: アラビア語（サウジアラビア）
 audio: オーディオ
 barcodeFound: バーコードが見つかりました！
 botQianFan: 千帆ボット
+liveRoomWhipLabel: WHIP 配信アドレス
+liveRoomWhepLabel: WHEP 受信アドレス
 cache: キャッシュ
 camera: カメラ
 changeNameView: 名前変更画面
-changeParam: $paramを変更
+changeParam: "$paramを変更"
 chooseFromAlbum: アルバムから選択
 clean: クリーンアップ
 codeSentToParam: 認証コードを$paramに送信しました
@@ -30,7 +33,7 @@ earlier: もっと前
 enGb: イギリス英語
 enUs: アメリカ英語
 enable: 有効
-example: "例:"
+example: '例:'
 expired: 期限切れ
 extraItem: 追加項目
 faceToFaceLogic: 対面ロジック
@@ -51,9 +54,9 @@ keepSecret: 非公開
 lastActiveTime: 最終アクティブ時間
 lastSeenHide: オンラインステータスを非表示
 lastSeenNever: 一度もオンラインではない
-lastSeenWeeksAgo: $param週間前
+lastSeenWeeksAgo: "$param週間前"
 lastSeenExactTime: 最終オンライン $param
-licenseAgreement: 《ソフトウェアライセンスおよびサービス契約》
+licenseAgreement: "《ソフトウェアライセンスおよびサービス契約》"
 liveBroadcast: ライブ
 liveRoomListView: ライブルームリスト画面
 publisherPage: 配信ページ
@@ -75,20 +78,23 @@ multiSelectMode: 複数選択モード
 myFavorites: マイコレクション
 myLive: マイライブ
 name: 名前
-numUnit: $param個
+numUnit: "$param個"
 openInBrowser: ブラウザで開く
 or: または
 otherParty: 相手
 packageSize: パッケージサイズ
 peerHasHungUp: 相手が切断しました
 play: 再生
-pleaseInputParam: $paramを入力してください
+pleaseInputParam: "$paramを入力してください"
 pleaseSelect: 選択してください
 quickFilters: クイックフィルター
 quote: 引用
 recentlyUsed: 最近使用
 releaseEnd: 指を離して終了
 remainingChars: あと$param文字入力できます
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role
 replied: 返信しました
 ringing: 呼び出し中...
 ruRu: ロシア語（ロシア）
@@ -97,10 +103,10 @@ selected: 選択済み
 sent: 送信済み
 sentByMe: 自分
 sentByOthers: 相手
-setParam: $paramを設定
+setParam: "$paramを設定"
 setting: 設定
 siginQ: 既にアカウントをお持ちですか？
-signInWith: $paramでログイン
+signInWith: "$paramでログイン"
 source: ソース
 speakingTooShort: 録音時間が短すぎます
 speed: 速度
@@ -111,8 +117,9 @@ termOfServices: 利用規約
 text: テキスト
 thisWeek: 今週
 timeRange: 時間範囲
-timeWeekdays: "月曜,火曜,水曜,木曜,金曜,土曜,日曜"
+timeWeekdays: 月曜,火曜,水曜,木曜,金曜,土曜,日曜
 titleMine: マイページ
+titleSquare: 広場
 tooBad: 最悪
 tryAgainQ: もう一度試しますか？
 type: タイプ
@@ -154,7 +161,7 @@ toBeCompleted: 未完了
 availableCount: 選択可能
 mostUsed: 最も使用
 commentPlaceholder: コメント...
-delayMsLabel: "遅延ミリ秒 (>=100)"
+delayMsLabel: 遅延ミリ秒 (>=100)
 processed: 処理済み
 export: エクスポート
 school: 学校
@@ -185,6 +192,89 @@ recommended: 推奨
 larger: より大きい
 currentLength: 現在の長さ：$param1 / $param2
 fillIn: 入力
-kickMember: Remove from Group
-memberDetail: Member Details
-memberRole: Role
+msgProtectedByComplianceKey: メッセージはコンプライアンスキーで保護されています
+inviterLabel(uid): '招待者: $uid'
+inviteeLabel(uid): '招待先: $uid'
+mySentTab: 送信
+reject: 辞退
+myOrders: 注文履歴
+purchaseUnlockHint: 購入すると、チャンネルの過去のメッセージと今後の更新を閲覧できます。
+payingDots: 決済中...
+purchaseAndUnlock: 今すぐ購入してロック解除
+orderDetail: 注文詳細
+orderAmountLabel(currency, amount): '金額: $currency $amount'
+channelPriceLabel(currency, amount): 価格：$currency $amount
+e2eeKeyRecoveryTitle: エンドツーエンド暗号キー管理
+e2eeRecoveryMethods: キーの復元方法
+e2eeDangerousOps: 危険な操作
+e2eeSocialRecovery: ソーシャルリカバリ
+e2eeSocialRecoveryDesc: 信頼する連絡先の協力でキーを復元します
+e2eeKeyIdLabel: キー ID
+e2eeWarnIrreversible: "• この操作は取り消せません"
+e2eeWarnNeedRestoreOrNew: "• バックアップから復元するか、新しいキーを生成する必要があります"
+gotIt: 了解
+e2eeRecoverKeyTitle: キーを復元
+e2eeCanRecoverKey: キーを復元できます
+e2eeInsufficientShards: シャードが不足しています
+e2eeProxyUser(uid): '代理ユーザー: $uid'
+e2eeShardLabel(index, total): シャード $index / $total
+e2eeReloadShards: 再読み込み
+e2eeRecovering: 復元中...
+e2eeKeyRestored: キーを復元しました
+e2eeUsedShards(count): "$count 個の代理シャードを使用しました"
+e2eePreparing: 復元を準備中...
+e2eeRecoveryProgressLabel(collected, total): '進捗: $collected / $total シャード'
+e2eeCollectingShards(collected, total): シャードを収集中 ($collected/$total)...
+e2eeShardsCollected: シャードの収集が完了しました。キーを再構築中...
+webQRLoggingIn: ログイン中...
+webQRExpired: QRコードの有効期限が切れました
+webQRRefresh: QRコードを更新
+webSwitchToQR: QRコードでログイン
+e2eeErrDefault: エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした
+e2eeSocialTotalShards: シャードの合計数
+e2eeSocialThreshold: 復元のしきい値
+e2eeSocialThresholdHint(count): キーの復元には $count 人の代理者の協力が必要です
+e2eeSocialSelectProxy: 復元の代理者を選択
+e2eeSocialProxyNeeded(count): "$count 人の信頼できる連絡先を代理者として追加してください"
+e2eeSocialProxyDefaultName(uid): ユーザー $uid
+e2eeSocialShardSentViaWs: シャードはWebSocket経由で代理デバイスに直接送信・保存されました
+e2eeSocialSentCount(sent, total): "$sent / $total 件の代理デバイスに送信済み"
+e2eeSocialManageTitle: シャードを管理
+e2eeSocialMyShards: マイシャード
+e2eeSocialProxyShards: 代理シャード
+e2eeSocialShardOf(idx, total): シャード $idx / $total
+e2eeSocialShardActive: 有効
+e2eeSocialShardUsed: 使用済み
+e2eeSocialShardValid: シャードは有効です
+e2eeSocialUserShard(uid): ユーザー $uid のキーシャード
+e2eeSocialProxyUserLabel: 代理ユーザー
+e2eeSocialRecoveryThresholdLabel: 復元のしきい値
+e2eeSocialShardIndexLabel: シャード番号
+e2eeTransferQRHint: 新しいデバイスでこのQRコードをスキャンしてください
+e2eeTransferQRExpiry(time): QRコードは $time に期限切れになります
+e2eeTransferRefreshQR: QRコードを更新
+e2eeTransferEnterUidTitle: 受信者のユーザーIDを入力
+e2eeTransferUidPlaceholder: 受信者のユーザーID
+e2eeTransferReceiving: 受信中...
+e2eeTransferPageTitle: デバイス間転送
+e2eeTransferPendingItem: 保留中のキー転送
+e2eeTransferPendingItemDesc: タップして詳細を表示
+e2eeTransferView: 表示
+e2eeSocialTitle: ソーシャルリカバリ
+e2eeSocialCanRecover: キーを復元できます
+e2eeSocialSetupProxy: 復元の代理者を設定
+e2eeSocialChooseProxy: 信頼できる連絡先を復元の代理者として選択
+e2eeSocialExistingShards: 既存の復元シャード
+e2eeSocialRecoverKeyTitle: キーを復元
+e2eeSocialRecoverKeyDesc: 代理者のシャードでキーを復元
+e2eeSocialManageShardsTitle: シャードを管理
+e2eeSocialManageShardsDesc: すべての復元シャードを表示・管理
+e2eeSocialZeroTrustHint1: ゼロトラスト構成：サーバーはシャードを保存せず、代理者に直接連絡します
+e2eeSocialZeroTrustHint2: ゼロトラスト構成：シャードは代理デバイスに保存されます
+e2eeSocialZeroTrustHint3: ゼロトラスト構成：シャードは代理デバイスが保存し、サーバーは平文に触れません
+e2eeProxyMinCount(count): 最低 $count 人の代理者を選択してください
+e2eeProxySelectTitle: 復元の代理者を選択
+e2eeProxySelectedCount(selected, total): 選択中 $selected / $total
+e2eeProxyReachedMin: 最少代理者数に達しました
+liveRoomTitleLabel: 配信ルーム名
+liveRoomTitleHint: 配信ルーム名を入力

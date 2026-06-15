@@ -1,12 +1,13 @@
+---
 account: Konto
 accountSecurity: Kontosicherheit
 mobileRecharge: Handy-Aufladung
 avatar: Profilbild
 accountSecurityEnhance: Kontosicherheit verbessern
 bindMobile: Mobilfunknummer verbinden
-bindMobileFor: "Für Anmeldung, Passwort-Wiederherstellung und Empfang wichtiger Benachrichtigungen"
+bindMobileFor: Für Anmeldung, Passwort-Wiederherstellung und Empfang wichtiger Benachrichtigungen
 linkEmail: E-Mail verknüpfen
-linkEmailFor: "Für Anmeldung, Identitätsprüfung und Erhalt von Rechnungen"
+linkEmailFor: Für Anmeldung, Identitätsprüfung und Erhalt von Rechnungen
 codeSentToEmail: Bestätigungscode an E-Mail gesendet
 codeSentToMobile: Bestätigungscode an Mobilfunknummer gesendet
 currentDevice: Aktuelles Gerät
@@ -35,17 +36,17 @@ myQrcode: Mein QR-Code
 newPassword: Neues Passwort
 newlyRegisteredPeople: Kürzlich registrierte Personen
 nickname: Spitzname
-nicknameChangeVisibility: "Geänderter Spitzname wird nur in dieser Gruppe angezeigt, alle Mitglieder können ihn sehen."
+nicknameChangeVisibility: Geänderter Spitzname wird nur in dieser Gruppe angezeigt, alle Mitglieder können ihn sehen.
 nicknameCharsRemaining: Noch $param Zeichen möglich
 nicknameHint: Spitzname eingeben
 nicknameSaving: Wird gespeichert...
-paramLogin: $param Anmeldung
+paramLogin: "$param Anmeldung"
 password: Passwort
 recentlyRegisteredUser: Kürzlich registrierter Benutzer
 recoverCodePasswordDesc: Wir senden Ihnen den Passwort-Wiederherstellungscode per E-Mail.
 recoverPassword: Passwort wiederherstellen
 recoverPasswordDesc: Bitte geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Code zum Zurücksetzen des Passworts.
-recoverPasswordIntro: "Machen Sie sich keine Sorgen, das passiert oft."
+recoverPasswordIntro: Machen Sie sich keine Sorgen, das passiert oft.
 birthday: Geburtstag
 region: Region
 retypePassword: Passwort erneut eingeben
@@ -54,7 +55,7 @@ securityCenter: Sicherheitszentrum
 setNickname: Spitzname festlegen
 signature: Signatur
 signup: Registrieren
-signupFormDesc: "Bitte füllen Sie dieses Formular aus, um die Registrierung abzuschließen"
+signupFormDesc: Bitte füllen Sie dieses Formular aus, um die Registrierung abzuschließen
 sourceQrcode: Durch Scannen hinzufügen
 switchAccount: Konto wechseln
 changeEmail: E-Mail ändern
@@ -65,7 +66,7 @@ newMobileSameAsCurrent: Neue Mobilfunknummer identisch mit aktueller Bindung
 setPassword: Passwort festlegen
 setLoginPassword: Anmeldepasswort festlegen
 enhanceAccountSecurity: Kontosicherheit verbessern
-passwordLengthRequirement: "Passwortlänge: 4-32 beliebige Zeichen"
+passwordLengthRequirement: 'Passwortlänge: 4-32 beliebige Zeichen'
 passwordMinLength: Passwort muss mindestens $min Zeichen lang sein
 pleaseEnterPassword: Bitte Passwort eingeben
 changeMobile: Mobilfunknummer ändern
@@ -95,7 +96,22 @@ profile: Profile
 setGender: Geschlecht festlegen
 setBirthday: Geburtstag festlegen
 sentToEmail: Gesendet an $param
-nicknameRules: "• Spitznamenlänge: 2-24 Zeichen
-• Darf nicht nur aus Leerzeichen oder Emojis bestehen
-• Darf keine sensiblen Wörter enthalten
-• Änderungen werden in allen Chats angezeigt"
+nicknameRules: "• Spitznamenlänge: 2-24 Zeichen • Darf nicht nur aus Leerzeichen oder Emojis bestehen • Darf keine sensiblen Wörter enthalten • Änderungen werden in allen Chats angezeigt"
+refreshDeviceKey: Geräteschlüssel aktualisieren
+refreshDeviceKeyHint: Wenn Nachrichten nicht entschlüsselt werden können, Schlüssel hier aktualisieren
+refreshingDeviceKey: Geräteschlüssel wird aktualisiert...
+deviceKeyRefreshed: Geräteschlüssel aktualisiert
+rechargeTitle: Aufladen
+rechargeAmountHint: Betrag eingeben (Yuan), 1–10000
+rechargeAmountExample: z. B. 100
+e2eeDeviceTransfer: Geräteübertragung
+e2eeDeviceTransferDesc: Schlüssel per QR-Code auf neues Gerät übertragen
+e2eeDeviceIdLabel: Geräte-ID
+webQRLoginTitle: Per QR-Code anmelden
+webQRLoginHint: QR-Code mit der ImBoy-App scannen
+webSwitchToPassword: Mit Passwort anmelden
+webPasswordLoginTitle: Konto-Anmeldung
+webAccountHint: Konto/Handy/E-Mail eingeben
+webPasswordHint: Passwort eingeben
+e2eeTransferFromOldDevice: Vom alten Gerät empfangen
+pleaseRelogin: Bitte neu anmelden

@@ -1,7 +1,9 @@
+---
 financialManagement: 資産運用
 enterSameGroup: 近くの友達と同じグループチャットに入る
 enterTheGroup: このグループに入る
 groupAlias: グループ内のニックネーム
+groupAlbum: グループアルバム
 groupDissolve: グループを解散
 groupJoin: グループに参加
 groupLeave: グループを退出
@@ -9,13 +11,33 @@ groupManagement: グループ管理
 groupMembers: グループメンバー
 groupName: グループ名
 mutualGroupsWithHer: 相手との共通グループチャット
-selectGroup: グループチャットを選択
-sureToDissolveGroup: このグループを解散してもよろしいですか？
-sureToLeaveGroup: このグループを退出してもよろしいですか？
 groupOwner: Owner
 groupAdmin: Admin
-groupGuest: 嘉宾
+groupGuest: ゲスト
 groupMember: Member
 setAdmin: Set as Admin
 transferGroup: Transfer Ownership
 joinTime: Join Time
+selectGroup: グループチャットを選択
+sureToDissolveGroup: このグループを解散してもよろしいですか？
+sureToLeaveGroup: このグループを退出してもよろしいですか？
+groupAlbumNameHint: アルバム名を入力
+groupAlbumRenameTitle: アルバムの名前を変更
+groupAlbumRenamed: アルバム名を変更しました
+groupAlbumUnnamed: 無題のアルバム
+groupAlbumPhotoCount(count): "$count 枚の画像"
+groupAlbumPhotoIdMissing: 画像IDがありません。詳細を表示できません
+groupAlbumPhotoListTitle: アルバムの画像
+groupAlbumPhotoSelectedCount(count): "$count 件選択中"
+groupAlbumPhotoEmpty: 画像はありません
+groupAlbumPhotoUrlMissing: 画像のアドレスが見つかりません。開けません
+groupAlbumPhotoUrlInvalid: 画像のアドレスが無効です
+groupAlbumPhotoDetailTitle: 画像の詳細
+groupAlbumPhotoSetCover: 表紙に設定
+groupAlbumPhotoPrev: 前へ
+groupAlbumPhotoLikeCount: いいね数
+groupAlbumPhotoCommentCount: コメント数
+groupAlbumPhotoMyLike: 自分のいいね
+groupAlbumPhotoIdLabel: 画像ID
+e2eeKeyManagement: E2EEキー管理
+e2eeKeyManagementSubtitle: エンドツーエンド暗号キーのバックアップ、復元、管理

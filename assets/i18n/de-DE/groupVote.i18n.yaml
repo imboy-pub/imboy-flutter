@@ -1,0 +1,25 @@
+---
+title: Gruppen-Umfrage
+createVote: Umfrage erstellen
+voteTitle: Umfrage-Titel
+voteOptions: Optionen
+addOption: Option hinzufügen
+allowMultiple: Mehrfachauswahl erlauben
+anonymous: Anonyme Umfrage
+deadline: Frist
+noDeadline: Keine Frist
+noVote: Keine Umfragen
+voteEnded: Umfrage beendet
+totalVotes: "$count Stimmen gesamt"
+voteSuccess: Abstimmung gespeichert
+hasVoted: Bereits abgestimmt
+viewResults: Ergebnisse ansehen
+cancelVoteSuccess: Abstimmung zurückgezogen
+cancelVoteFailed: Zurückziehen fehlgeschlagen. Bitte später erneut versuchen.
+endVoteFailed: Beenden fehlgeschlagen. Bitte später erneut versuchen.
+eachOptionPerLine: Eine Option pro Zeile
+statusInProgress: Läuft
+updateVote: Umfrage aktualisieren
+cancelMyVote: Meine Abstimmung zurückziehen
+voteIdMissing: Umfrage-ID fehlt, Details können nicht angezeigt werden
+participantCount: 'Teilnehmer: $count'

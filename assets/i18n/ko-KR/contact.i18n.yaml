@@ -1,14 +1,14 @@
+---
 applyFriend: 친구 신청
 applyFriendLogic: 친구 신청 논리
-applyParam: $param 신청
+applyParam: "$param 신청"
 blocked: 차단됨
 applyChanges: 변경사항을 적용하려면 앱을 재시작하세요
 inputNewTag: 새 태그 입력...
 denylist: 차단 목록
 denylistEmpty: 차단 목록이 비어있습니다
-denylistEmptyDesc: "차단한 사용자가 없습니다
-차단된 사용자는 메시지를 보낼 수 없습니다"
-favoriteGroupTagsEtc: "즐겨찾기 이름, 그룹 이름, 태그 등"
+denylistEmptyDesc: 차단한 사용자가 없습니다 차단된 사용자는 메시지를 보낼 수 없습니다
+favoriteGroupTagsEtc: 즐겨찾기 이름, 그룹 이름, 태그 등
 groupRemarkView: 그룹 메모 보기
 groupRemarkVisibility: 그룹 채팅 메모는 나에게만 보입니다
 newFriend: 새 친구
@@ -29,6 +29,7 @@ currentTags: 현재 태그 ($param)
 pleaseEnterRemark: 메모를 입력해 주세요
 enterRemark: 메모 이름을 입력해 주세요
 pleaseEnterTags: 태그를 입력하세요
+momentsVisibilityFriends: 친구만
 tagLengthExceeded: 태그 길이는 $param자를 초과할 수 없습니다
 maxTagsExceeded: 최대 $param개의 태그를 추가할 수 있습니다
 selectedTags: 선택된 태그 ($param/$max)
@@ -47,3 +48,5 @@ tagProject: 프로젝트
 tagIdeas: 아이디어
 tagMemo: 메모
 friendRequestSent: 전송됨
+channelMaxTagsCount: 태그는 최대 8개까지 추가할 수 있습니다
+tagInputHint: 태그 입력...

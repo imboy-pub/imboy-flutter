@@ -44,11 +44,21 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	@override late final Translations$chat$zh_Hant chat = Translations$chat$zh_Hant.internal(_root);
 	@override late final Translations$common$zh_Hant common = Translations$common$zh_Hant.internal(_root);
 	@override late final Translations$complaint$zh_Hant complaint = Translations$complaint$zh_Hant.internal(_root);
+	@override late final Translations$complaintReason$zh_Hant complaintReason = Translations$complaintReason$zh_Hant.internal(_root);
 	@override late final Translations$contact$zh_Hant contact = Translations$contact$zh_Hant.internal(_root);
 	@override late final Translations$discovery$zh_Hant discovery = Translations$discovery$zh_Hant.internal(_root);
 	@override late final Translations$error$zh_Hant error = Translations$error$zh_Hant.internal(_root);
 	@override late final Translations$group$zh_Hant group = Translations$group$zh_Hant.internal(_root);
+	@override late final Translations$groupCategory$zh_Hant groupCategory = Translations$groupCategory$zh_Hant.internal(_root);
+	@override late final Translations$groupList$zh_Hant groupList = Translations$groupList$zh_Hant.internal(_root);
+	@override late final Translations$groupSchedule$zh_Hant groupSchedule = Translations$groupSchedule$zh_Hant.internal(_root);
+	@override late final Translations$groupTag$zh_Hant groupTag = Translations$groupTag$zh_Hant.internal(_root);
+	@override late final Translations$groupTask$zh_Hant groupTask = Translations$groupTask$zh_Hant.internal(_root);
+	@override late final Translations$groupVote$zh_Hant groupVote = Translations$groupVote$zh_Hant.internal(_root);
 	@override late final Translations$main$zh_Hant main = Translations$main$zh_Hant.internal(_root);
+	@override late final Translations$mention$zh_Hant mention = Translations$mention$zh_Hant.internal(_root);
+	@override late final Translations$momentFriendPicker$zh_Hant momentFriendPicker = Translations$momentFriendPicker$zh_Hant.internal(_root);
+	@override late final Translations$momentNotify$zh_Hant momentNotify = Translations$momentNotify$zh_Hant.internal(_root);
 	@override late final Translations$passport$zh_Hant passport = Translations$passport$zh_Hant.internal(_root);
 	@override late final Translations$splash$zh_Hant splash = Translations$splash$zh_Hant.internal(_root);
 	@override late final Translations$welcome$zh_Hant welcome = Translations$welcome$zh_Hant.internal(_root);
@@ -159,6 +169,24 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get setBirthday => '設定生日';
 	@override String sentToEmail({required Object param}) => '已傳送至 ${param}';
 	@override String get nicknameRules => '• 暱稱長度為 2-24 個字元 • 不能僅包含空白字元或表情符號 • 不能包含敏感詞彙 • 修改後將在所有聊天中顯示';
+	@override String get refreshDeviceKey => '重新整理裝置金鑰';
+	@override String get refreshDeviceKeyHint => '如果訊息無法解密，點選此按鈕重新整理金鑰';
+	@override String get refreshingDeviceKey => '正在重新整理裝置金鑰...';
+	@override String get deviceKeyRefreshed => '裝置金鑰已重新整理';
+	@override String get rechargeTitle => '充值';
+	@override String get rechargeAmountHint => '請輸入充值金額（元），1元～10000元';
+	@override String get rechargeAmountExample => '例如：100';
+	@override String get e2eeDeviceTransfer => '裝置間傳輸';
+	@override String get e2eeDeviceTransferDesc => '透過二維碼直接傳輸金鑰到新裝置';
+	@override String get e2eeDeviceIdLabel => '裝置 ID';
+	@override String get webQRLoginTitle => '掃碼登入';
+	@override String get webQRLoginHint => '使用 ImBoy 手機版掃描二維碼';
+	@override String get webSwitchToPassword => '使用賬號密碼登入';
+	@override String get webPasswordLoginTitle => '賬號登入';
+	@override String get webAccountHint => '請輸入賬號/手機號/郵箱';
+	@override String get webPasswordHint => '請輸入密碼';
+	@override String get e2eeTransferFromOldDevice => '從舊裝置接收金鑰';
+	@override String get pleaseRelogin => '請重新登入';
 }
 
 // Path: channel
@@ -258,10 +286,16 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get updateRoleFailed => '角色更新失敗';
 	@override String get userId => '使用者ID';
 	@override String get userIdHint => '請輸入使用者ID';
+	@override String get selectFromContacts => '從聯絡人選擇';
+	@override String get searchContactsHint => '搜尋暱稱或賬號';
+	@override String get noContactsToAdd => '所有好友都已是管理員';
+	@override String get selectRole => '選擇角色';
 	@override String get noAdmins => '暫無管理員';
 	@override String get roleCreator => '建立者';
 	@override String get roleAdmin => '管理員';
+	@override String get roleAdminDesc => '可管理頻道';
 	@override String get roleEditor => '編輯';
+	@override String get roleEditorDesc => '可釋出訊息';
 	@override String get roleUnknown => '未知';
 	@override String get searchSubscribers => '搜尋訂閱者';
 	@override String get subscriberSearchHint => '輸入暱稱或ID搜尋';
@@ -273,6 +307,11 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get removeSubscriberFailed => '移除訂閱者失敗';
 	@override String get subscribedAt => '訂閱於';
 	@override String get viewProfile => '查看資料';
+	@override String get inviteFromContacts => '邀請好友';
+	@override String get inviteSearchHint => '搜尋暱稱或賬號';
+	@override String get noContactsToInvite => '所有好友都已被邀請或已訂閱';
+	@override String get inviteSuccess => '邀請已傳送';
+	@override String get inviteFailed => '邀請傳送失敗';
 	@override String get updateSuccess => '頻道更新成功';
 	@override String get updateFailed => '頻道更新失敗';
 	@override String get typeCannotChange => '建立後不可更改';
@@ -303,6 +342,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get businessCard => '名片';
 	@override String get busyTryAgainLater => '對方正忙，請稍後再試';
 	@override String get later => '以後再說';
+	@override String peerIsTyping({required Object name}) => '${name} 正在輸入...';
 	@override String get changeGroupChatName => '修改群組名稱後，將在群組內通知其他成員。';
 	@override String get chatHistory => '聊天記錄';
 	@override String get chatHoldDownTalk => '按住說話';
@@ -333,12 +373,31 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get forwardTo => '轉發給';
 	@override String get forwardToFriend => '轉發給好友';
 	@override String get great => '太棒了';
+	@override String get groupFile => '群檔案';
+	@override String get groupFileImagePreview => '圖片預覽';
+	@override String get groupFileVideoPreview => '影片預覽';
+	@override String get groupFileAudioPreview => '音訊預覽';
+	@override String get groupFileMediaPause => '暫停';
+	@override String get groupFileMediaPlay => '播放';
+	@override String get groupFileUrlMissing => '檔案地址缺失，無法開啟';
+	@override String get groupFileUrlInvalid => '檔案地址無效';
+	@override String get groupFilePreview => '檔案預覽';
+	@override String get groupFileUnnamed => '未命名檔案';
+	@override String groupFileCategoryEmpty({required Object category}) => '${category}暫無檔案';
+	@override String get groupFileEmpty => '暫無群檔案';
+	@override String get groupFileCategoryDoc => '文件';
+	@override String get groupFileCategoryImage => '圖片';
+	@override String get groupFileCategoryVideo => '影片';
+	@override String get groupFileCategoryAudio => '音訊';
+	@override String get groupFileCategoryOther => '其他';
 	@override String get groupChat => '群組聊天';
 	@override String get image => '圖片';
 	@override String get imageMessage => '[圖片]';
 	@override String get initiateChat => '發起群組聊天';
 	@override String get justChat => '僅聊天';
 	@override String get location => '位置';
+	@override String get exportMyData => '匯出我的資料';
+	@override String get exportDataDesc => '匯出你的個人資訊、聯絡人和聊天記錄';
 	@override String get message => '訊息';
 	@override String get messageHandlingMixin => '訊息處理混入';
 	@override String get messageMarkTitle => '訊息標記';
@@ -364,14 +423,33 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get recentChats => '最近聊天';
 	@override String get recentForwards => '最近轉發';
 	@override String get remindMeLater => '下次再說';
+	@override String get quickReplyManage => '管理快捷回覆';
+	@override String get quickReplyEmpty => '暫無快捷回覆，點選右下角新增';
+	@override String get quickReplyDuplicate => '內容已存在';
+	@override String quickReplyMaxReached({required Object max}) => '最多 ${max} 條';
+	@override String get quickReplyHint => '輸入內容...';
+	@override String get muteMember => 'Mute Member';
+	@override String get unmuteMember => 'Unmute';
+	@override String get muteUntil => 'Muted Until';
+	@override String get muted => 'Muted';
+	@override String mutedFor({required Object label}) => '禁言 ${label}';
+	@override String muteUnitMinutes({required Object count}) => '${count} 分鐘';
+	@override String muteUnitHours({required Object count}) => '${count} 小時';
+	@override String muteUnitDays({required Object count}) => '${count} 天';
+	@override String get youAreMuted => '你已被禁言';
+	@override String youAreMutedWithTime({required Object minutes}) => '你已被禁言，剩餘 ${minutes} 分鐘';
 	@override String get repliedAt => '回覆於';
 	@override String get reply => '回覆';
 	@override String get replyTo => '回覆';
 	@override String get resendCode => '重發驗證碼';
 	@override String get revoke => '撤回';
 	@override String get scanQrCodeBusinessCard => '掃描二維碼卡片';
+	@override String get singleChat => 'Private Chat';
+	@override String get privateChat => 'Private Chat';
+	@override String get groupMessage => 'Group message';
 	@override String get sendFriendRequest => '傳送新增好友申請';
 	@override String get sendMsgRejected => '訊息已發出，但被對方拒收了。';
+	@override String get sendMessage => '發訊息';
 	@override String get sendSeparatelyTo => '分別傳送給';
 	@override String get sendTo => '傳送給';
 	@override String get send => _root.common.buttonSend;
@@ -393,6 +471,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get video => '影片';
 	@override String get videoMessage => '[影片]';
 	@override String get viewAttachments => '瀏覽附件';
+	@override String get viewLargeImage => '檢視大圖';
 	@override String get voice => '語音';
 	@override String get voiceInput => '語音輸入';
 	@override String get voiceMessage => '語音訊息';
@@ -428,6 +507,15 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => '不支援的訊息類型';
 	@override String get passwordMismatch => '兩次密碼不一致';
 	@override String get pleaseTryAgainLater => '請稍後重試';
+	@override String get momentsSelectVideo => '選擇影片';
+	@override String get momentsRecordVideo => '拍攝影片';
+	@override String get momentsVisibilityPrivate => '僅自己';
+	@override String get momentsMediaTooManyImages => '最多隻能選擇 9 張圖片';
+	@override String get momentsMediaTooManyVideos => '最多隻能選擇 1 個影片';
+	@override String get momentsMediaMixedImageAndVideo => '圖片和影片不能同時釋出';
+	@override String get momentsReplyPrefix => '回覆 @';
+	@override String get momentsReplySeparator => '：';
+	@override String get momentsReplyingTo => '正在回覆 @{name}';
 	@override String get sendNewMessage => '傳送新訊息';
 	@override String get markRead => '標記已讀';
 	@override String get markUnread => '標記未讀';
@@ -446,18 +534,70 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get quickReplyThanks => '謝謝';
 	@override String get quickReplyWait => '稍等';
 	@override String get messageMute => _root.chat.chatSettingMute;
-	@override String get quickReplyManage => '管理快捷回复';
-	@override String get quickReplyEmpty => '暂无快捷回复，点击右下角添加';
-	@override String get quickReplyDuplicate => '内容已存在';
-	@override String quickReplyMaxReached({required Object max}) => '最多 ${max} 条';
-	@override String get quickReplyHint => '输入内容...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muteUntil => 'Muted Until';
-	@override String get muted => 'Muted';
-	@override String get singleChat => 'Private Chat';
-	@override String get privateChat => 'Private Chat';
-	@override String get groupMessage => 'Group message';
+	@override String groupCategoryGroupCount({required Object count}) => '${count} 個群聊';
+	@override String get groupAlbumCreateTitle => '新建群相簿';
+	@override String get groupAlbumCreated => '相簿已建立';
+	@override String get profileCompleted => '資料已完善！';
+	@override String profileProgress({required Object percent}) => '${percent}% 完成';
+	@override String createdAtLabel({required Object time}) => '建立時間: ${time}';
+	@override String expiredAtLabel({required Object time}) => '過期時間: ${time}';
+	@override String get myReceivedTab => '我收到的';
+	@override String orderStatusLabel({required Object status}) => '狀態: ${status}';
+	@override String orderCreatedAtLabel({required Object time}) => '建立時間: ${time}';
+	@override String orderPaymentAtLabel({required Object time}) => '支付時間: ${time}';
+	@override String get orderStatusPending => '待支付';
+	@override String get orderStatusPaid => '已支付';
+	@override String get orderStatusRefunded => '已退款';
+	@override String get orderStatusExpired => '已過期';
+	@override String get defaultFileName => '檔案';
+	@override String get fileUrlInvalid => '檔案連結無效';
+	@override String get e2eeStatusAvailable => '可用';
+	@override String get e2eeGenerateNewKey => '生成新金鑰';
+	@override String get e2eeGenerateNewKeyDesc => '生成新的 E2EE 金鑰對（舊訊息將無法解密）';
+	@override String get e2eeActivated => '已啟用';
+	@override String get e2eeCreatedAtLabel => '建立時間';
+	@override String get e2eeGeneratingKey => '正在生成金鑰，請稍候...';
+	@override String get e2eeNewKeyGenerated => '新的 E2EE 金鑰對已生成！';
+	@override String get e2eeReady => '準備就緒';
+	@override String e2eeReadyWithShards({required Object count}) => '準備就緒（${count} 個分片）';
+	@override String get webFeatureMultiDevice => '多裝置同步';
+	@override String get webFeatureMultiDeviceDesc => '在手機和電腦之間無縫切換，訊息實時同步';
+	@override String get webFeatureE2EE => '端到端加密';
+	@override String get webFeatureE2EEDesc => '所有訊息都經過端到端加密，確保隱私安全';
+	@override String get webFeatureFileTransfer => '檔案傳輸';
+	@override String get webFeatureFileTransferDesc => '拖拽即可傳送檔案，支援各種格式';
+	@override String get webQRStatusWaiting => '開啟 ImBoy 手機版 > 設定 > 掃一掃';
+	@override String get webQRStatusScanned => '請在手機上點選"確認登入"';
+	@override String get webQRStatusVerifying => '正在驗證...';
+	@override String get webQRStatusExpired => '請點選重新整理重新掃碼';
+	@override String get e2eeErrInvalidFormat => '訊息格式錯誤，加密失敗';
+	@override String get e2eeSocialCreateTitle => '建立恢復分片';
+	@override String get e2eeSocialCreateBtn => '建立分片';
+	@override String get e2eeSocialCreateFailTitle => '建立失敗';
+	@override String get e2eeSocialCreateFailBody => '建立分片失敗，請重試';
+	@override String get e2eeSocialCreateFirst => '建立分片後才能看到內容';
+	@override String get e2eeSocialUsedAtLabel => '使用時間';
+	@override String get e2eeTransferSendTitle => '傳送金鑰到新裝置';
+	@override String get e2eeTransferCreateBtn => '建立';
+	@override String get e2eeTransferReceiveTitle => '從舊裝置接收金鑰';
+	@override String get e2eeTransferSendDesc => '透過二維碼將金鑰傳輸到新裝置';
+	@override String get e2eeTransferReceiveDesc => '掃描舊裝置二維碼接收金鑰';
+	@override String e2eeSocialStatus({required Object status}) => '狀態: ${status}';
+	@override String get e2eeSocialCreateShardsTitle => '建立恢復分片';
+	@override String get e2eeSocialCreateShardsDesc => '將金鑰分割成多個分片，儲存到代理裝置（服務端不儲存）';
+	@override String e2eeProxyNeedAtLeast({required Object count}) => '請選擇至少 ${count} 個代理';
+	@override String get e2eeRecreatingKey => '正在重新建立金鑰...';
+	@override String get e2eeKeyRecreated => '金鑰已重新建立';
+	@override String get e2eeRecoveryNewDeviceTitle => '檢測到新裝置登入';
+	@override String get e2eeRecoveryNewDeviceBody => '為保護訊息安全，本裝置已生成新的端對端加密金鑰。\n\n歷史訊息使用舊裝置的金鑰加密，需先恢復金鑰才能檢視。你可以透過「裝置轉移」「社交恢復」或「本地備份匯入」恢復。';
+	@override String get e2eeRecoveryDecryptFailedTitle => '無法解密此訊息';
+	@override String get e2eeRecoveryDecryptFailedBody => '此訊息由其他裝置的金鑰加密。\n\n若你更換了裝置或重新安裝了應用，請恢復加密金鑰後再檢視歷史訊息。';
+	@override String get e2eeRecoveryLater => '稍後';
+	@override String get e2eeRecoveryGoRecover => '去恢復';
+	@override String get e2eeRecoveryBannerText => '檢測到加密歷史訊息，需恢復金鑰後才能檢視，點選前往恢復';
+	@override String get liveRoomCreateTitle => '建立直播間';
+	@override String get liveRoomCreating => '建立中...';
+	@override String get liveRoomWatch => '觀看直播';
 }
 
 // Path: common
@@ -498,7 +638,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get bindMobileAndEmailTips => '綁定手機號和郵箱，讓您的帳號更安全';
 	@override String get bindNow => '立即綁定';
 	@override String get buttonCancel => '取消';
+	@override String get buttonCreate => '建立';
 	@override String get buttonChangePassword => '修改密碼';
+	@override String get phoneInputHint => '請輸入手機號';
 	@override String get buttonClose => '關閉';
 	@override String get buttonConfirm => '確認';
 	@override String get buttonContinue => '繼續';
@@ -525,6 +667,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get canNotAddYourselfFriend => '您不能新增自己為好友';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
+	@override String get operationSuccessful => '操作成功';
 	@override String get save => _root.common.buttonSave;
 	@override String get reset => '重設';
 	@override String get clear => '清除';
@@ -553,6 +696,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get checkForUpdates => '檢查更新';
 	@override String get clearAll => '全部清除';
 	@override String get clearChatRecord => '清空聊天記錄';
+	@override String get complaintSuccess => '投訴已提交';
+	@override String get complaintFailed => '投訴失敗，請稍後再試';
 	@override String get confirmCode => '確認碼';
 	@override String get confirmCodeError => '確認碼為空';
 	@override String get confirmCodeSuccess => '帳號已確認。';
@@ -564,6 +709,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get contactSettingTag => '通訊錄標籤設定';
 	@override String get contactTagListLogic => '通訊錄標籤清單邏輯';
 	@override String get contactTags => '通訊錄標籤';
+	@override String get contactInfoNotSynced => '聯絡人資訊未同步';
 	@override String get continueDownloading => '繼續下載';
 	@override String get copy => '複製';
 	@override String get coupon => '票券';
@@ -638,6 +784,24 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get genderUpdateSuccess => '性別設定成功';
 	@override String get groupAddLocal => '儲存到聯絡人';
 	@override String get groupAnnouncement => '群組公告';
+	@override String get groupFileUploadSuccess => '檔案上傳成功';
+	@override String get groupFileUploadFailed => '檔案上傳失敗，請稍後重試';
+	@override String get groupFileDeleteSuccess => '檔案已刪除';
+	@override String get groupFileDeleteFailed => '刪除失敗，請稍後重試';
+	@override String get groupFileClosePreview => '關閉預覽';
+	@override String get groupFileUploadTooltip => '上傳檔案';
+	@override String get groupFileSearch => '搜尋群檔案';
+	@override String get groupFileReadFailed => '檔案讀取失敗，請重試';
+	@override String get groupFileDeleteTitle => '刪除群檔案';
+	@override String groupFileDeleteConfirm({required Object name}) => '確定刪除檔案「${name}」嗎？';
+	@override String get groupFileImageLoadFailed => '圖片載入失敗';
+	@override String get groupFileOpenFailed => '無法開啟檔案連結';
+	@override String get groupFileSearchClear => '清空';
+	@override String get groupFileSearchAction => '搜尋';
+	@override String get groupFileCategoryAll => '全部';
+	@override String get groupFileSearchEmpty => '未找到匹配檔案';
+	@override String get groupFileAudioLoadFailed => '音訊載入失敗';
+	@override String get groupFileAudioLoading => '音訊載入中...';
 	@override String groupQrcodeTips({required Object days, required Object date}) => '該二維碼 ${days} 天內（${date} 前）有效，重新進入將更新';
 	@override String get groupSearchTips => '群組名稱和群組簡介';
 	@override String get helpDocument => '說明檔案';
@@ -661,7 +825,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get loading => '載入中';
 	@override String get locationMessage => '位置訊息';
 	@override String get loginDeviceManagementTips => '您的帳號在以下設備中登入過，您可以刪除設備，刪除後在該設備登入時需進行安全驗證。';
+	@override String get logoutFailed => '退出登入失敗';
 	@override String get logoutNotice => '《註銷須知》';
+	@override String get exportDataSuccess => '資料已匯出';
 	@override String get manually => '手動選擇';
 	@override String get messageCall => '發訊息';
 	@override String get messageContent => '訊息內容';
@@ -709,6 +875,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get noUpdateDescription => '無更新說明';
 	@override String get normalModel => '一般模式';
 	@override String get notAuthorizedLatLong => '您還沒有授權獲取經緯度';
+	@override String get notLoggedIn => '未登入';
 	@override String get notBad => '還不錯';
 	@override String get notBound => '未綁定';
 	@override String get notFilled => '未填寫';
@@ -720,9 +887,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get notShow => '不顯示';
 	@override String get notTurnedLocationService => '您還沒有開啟位置服務';
 	@override String get nowNewVersion => '未檢測到新版本';
-	@override String get off => _root.common.disabled;
+	@override String get kFalse => _root.common.disabled;
 	@override String get offlineNotification => '下線通知';
-	@override String get on => _root.common.enabled;
+	@override String get kTrue => _root.common.enabled;
 	@override String get operationFailedAgainLater => '操作失敗，請稍後重試';
 	@override String get optionsNo => '否';
 	@override String get optionsRename => '我想重新命名';
@@ -755,12 +922,57 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get releaseFingerCancelSending => '鬆開手指，取消傳送';
 	@override String get removeContactFromTag => '從標籤中移除聯絡人';
 	@override String get removeMember => '移出成員';
+	@override String get atMentionYouTag => '[@你] ';
+	@override String get atMentionLeftMember => '@已退群成員';
+	@override String get muteNotifications => '訊息免打擾';
+	@override String get muteNotificationsHint => '開啟後不會收到新訊息提醒，但仍可在會話列表看到未讀';
+	@override String get revokeExpired => '超過 2 分鐘，無法撤回';
+	@override String get quickReplyAddTitle => '新增快捷回覆';
+	@override String get quickReplyEditTitle => '編輯快捷回覆';
+	@override String get removeAdmin => 'Remove Admin';
+	@override String get setAdminConfirm => 'Set this member as admin?';
+	@override String get removeAdminConfirm => 'Remove admin role from this member?';
+	@override String get muteMemberConfirm => 'Mute this member?';
+	@override String get unmuteMemberConfirm => 'Unmute this member?';
+	@override String get kickMemberConfirm => 'Remove this member from the group?';
+	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
+	@override String get setAdminSuccess => 'Admin set';
+	@override String get setAdminFailed => 'Failed to set admin';
+	@override String get removeAdminSuccess => 'Admin removed';
+	@override String get removeAdminFailed => 'Failed to remove admin';
+	@override String get muteMemberSuccess => 'Member muted';
+	@override String get muteMemberFailed => 'Failed to mute member';
+	@override String get unmuteMemberSuccess => 'Member unmuted';
+	@override String get unmuteMemberFailed => 'Failed to unmute member';
+	@override String get kickMemberSuccess => 'Member removed';
+	@override String get kickMemberFailed => 'Failed to remove member';
+	@override String get transferGroupSuccess => 'Ownership transferred';
+	@override String get transferGroupFailed => 'Failed to transfer ownership';
+	@override String get notMuted => 'Not Muted';
+	@override String get muteDuration => 'Mute Duration';
+	@override String get muteDuration1hour => '1 Hour';
+	@override String get muteDuration6hours => '6 Hours';
+	@override String get muteDuration12hours => '12 Hours';
+	@override String get muteDuration1day => '1 Day';
+	@override String get muteDuration3days => '3 Days';
+	@override String get muteDuration7days => '7 Days';
+	@override String get muteDurationPermanent => 'Permanent';
+	@override String get muteDuration5min => '5分鐘';
+	@override String get muteDuration10min => '10分鐘';
+	@override String get muteDuration30min => '30分鐘';
+	@override String get muteDuration30days => '30天';
+	@override String muteUnitSeconds({required Object count}) => '${count} 秒';
+	@override String get throttleWarning => '操作頻率過高，請稍後再試';
+	@override String throttleRetryAfter({required Object seconds}) => '操作頻率過高，請 ${seconds} 秒後再試';
+	@override String get mutedCannotSend => '禁言期間無法傳送訊息';
 	@override String get resendCodeSuccess => '已傳送新郵件。';
 	@override String get resetFilters => '重設篩選';
 	@override String get saveQrCode => '儲存二維碼';
 	@override String get saveSuccess => '儲存成功';
 	@override String get scanQrcodeAddFriend => '掃一掃上面的二維碼圖案，加我為好友';
 	@override String get search => '搜尋';
+	@override String get searchScope => 'Search scope';
+	@override String get searchAll => 'All messages';
 	@override String get searchChatContent => '搜尋聊天內容';
 	@override String get searchChatRecord => '搜尋聊天記錄';
 	@override String get searchError => '搜尋錯誤';
@@ -890,6 +1102,11 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get selectExpirationDateOptional => '選擇有效期（可選）';
 	@override String get groupAnnouncementDeleteConfirm => '確定要刪除這則公告嗎？';
 	@override String get groupAnnouncementDelete => '刪除';
+	@override String get groupAnnouncementLoadFailed => '公告載入失敗，請稍後重試';
+	@override String get groupAnnouncementPublishFailed => '公告發布失敗';
+	@override String get groupAnnouncementPublishSuccess => '公告已釋出';
+	@override String get groupAnnouncementDeleteFailed => '公告刪除失敗';
+	@override String get groupAnnouncementDeleteSuccess => '公告已刪除';
 	@override String get privacyClearChatHistory => '清除聊天記錄';
 	@override String get privacyClearChatHistoryConfirm => '確定要清除所有聊天記錄嗎？此操作不可恢復。';
 	@override String get privacyLogoutAccountConfirm => '確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。';
@@ -1033,6 +1250,24 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get changeFailed => '修改失敗';
 	@override String get submitted => '已提交';
 	@override String get viewSecurityHelp => '檢視安全說明';
+	@override String get momentsNoData => '暫無動態';
+	@override String get momentsDeleteConfirm => '確定刪除這條動態嗎？';
+	@override String get momentsDeleteCommentConfirm => '確定刪除這條評論嗎？';
+	@override String get momentsNotFound => '動態不存在或無許可權檢視';
+	@override String get momentsContentOrMediaRequired => '內容或媒體至少填寫一項';
+	@override String get momentsPublishFailed => '釋出失敗';
+	@override String get momentsAllowComment => '允許評論';
+	@override String get momentsReportReason => '舉報原因';
+	@override String get momentsNoComments => '暫無評論';
+	@override String get momentsContentHint => '寫點什麼...';
+	@override String get momentsAddMedia => '新增媒體';
+	@override String get momentsAllowUidsLabel => '允許可見 UID 列表（逗號分隔）';
+	@override String get momentsCommentFailed => '評論失敗，請稍後重試';
+	@override String get momentsDeleteFailed => '刪除失敗，請稍後重試';
+	@override String get momentsReportSubmitted => '舉報已提交';
+	@override String get momentsReportFailed => '舉報失敗，請稍後重試';
+	@override String get momentsLoadMoreComments => '載入更多評論';
+	@override String get momentsUploadFailed => '媒體上傳失敗，請稍後重試';
 	@override String get transactionHistory => '交易記錄';
 	@override String get paymentPasswordSetSuccess => '支付密碼設定成功';
 	@override String get paymentPasswordSetFailed => '支付密碼設定失敗';
@@ -1047,6 +1282,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get personalSignature => '個性簽名';
 	@override String get personalBackground => '個人背景';
 	@override String get setBackgroundImage => '設定背景圖片';
+	@override String get expression => '表情';
 	@override String get extendedInfo => '擴展資訊';
 	@override String get profession => '職業';
 	@override String get pleaseEnterProfession => 'Please enter profession';
@@ -1127,6 +1363,10 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get noDetailedInfo => '該用家還沒有設定個人簽名等詳細資訊';
 	@override String get noNewRegisteredUsers => '目前沒有新註冊的用家 請稍後再來檢視';
 	@override String get newRegisteredUsersTip => '這裡顯示最近註冊的用家，您可以主動新增他們為好友';
+	@override String get notificationFriendRequest => '好友請求';
+	@override String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} 請求新增您為好友';
+	@override String get notificationGroupInvite => '群邀請';
+	@override String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} 邀請您加入群組 ${groupName}';
 	@override String get youRevokedMessage => '您撤回了一則訊息';
 	@override String get otherRevokedMessage => '對方撤回了一則訊息';
 	@override String get networkFailureTryAgain => '網路故障，請重試！';
@@ -1143,43 +1383,295 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get smaller => '更小';
 	@override String currentFontScale({required Object param1, required Object param2}) => '目前：${param1} ${param2}%';
 	@override String emailUpdatedTo({required Object param}) => '郵箱已更新為 ${param}';
-	@override String get atMentionYouTag => '[@你] ';
-	@override String get atMentionLeftMember => '@已退群成员';
-	@override String get muteNotifications => '消息免打扰';
-	@override String get muteNotificationsHint => '开启后不会收到新消息提醒，但仍可在会话列表看到未读';
-	@override String get revokeExpired => '超过 2 分钟，无法撤回';
-	@override String get quickReplyAddTitle => '新增快捷回复';
-	@override String get quickReplyEditTitle => '编辑快捷回复';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get muteMemberConfirm => 'Mute this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get transferGroupConfirm => 'Transfer group ownership to this member? You will become an admin after transfer.';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get transferGroupSuccess => 'Ownership transferred';
-	@override String get transferGroupFailed => 'Failed to transfer ownership';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration6hours => '6 Hours';
-	@override String get muteDuration12hours => '12 Hours';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration3days => '3 Days';
-	@override String get muteDuration7days => '7 Days';
-	@override String get muteDurationPermanent => 'Permanent';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String groupAnnouncementExpiry({required Object time}) => '有效期至: ${time}';
+	@override String get groupAlbumCreateFailed => '建立失敗，請稍後重試';
+	@override String get groupAlbumDeleteTitle => '刪除群相簿';
+	@override String groupAlbumDeleteConfirm({required Object name}) => '確定刪除相簿「${name}」嗎？';
+	@override String get groupAlbumDeleted => '相簿已刪除';
+	@override String get groupAlbumDeleteFailed => '刪除失敗，請稍後重試';
+	@override String get groupAlbumRenameFailed => '更新失敗，請稍後重試';
+	@override String get groupAlbumUploadTooltip => '上傳圖片';
+	@override String get groupAlbumDeleteTooltip => '刪除相簿';
+	@override String get groupAlbumNoAlbum => '暫無群相簿';
+	@override String get groupAlbumPhotoReadFailed => '圖片讀取失敗，請重試';
+	@override String get groupAlbumPhotoUploaded => '圖片上傳成功';
+	@override String get groupAlbumPhotoUploadFailed => '圖片上傳失敗，請稍後重試';
+	@override String get groupAlbumCreateTooltip => '新建相簿';
+	@override String get groupAlbumPhotoBatchDeleteTitle => '批次刪除圖片';
+	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => '確定刪除選中的 ${count} 張圖片嗎？';
+	@override String get groupAlbumPhotoDeleteFailed => '刪除失敗，請稍後重試';
+	@override String groupAlbumPhotoDeletedAll({required Object count}) => '已刪除${count}張圖片';
+	@override String groupAlbumPhotoDeletedPartial({required Object success, required Object fail}) => '已刪除${success}張，${fail}張刪除失敗';
+	@override String get groupAlbumPhotoDeleteTitle => '刪除圖片';
+	@override String get groupAlbumPhotoDeleteConfirm => '確定刪除這張圖片嗎？';
+	@override String get groupAlbumPhotoDeleted => '圖片已刪除';
+	@override String get groupAlbumPhotoBatchDeleteTooltip => '批次刪除';
+	@override String get groupAlbumPhotoExitSelection => '退出選擇';
+	@override String get groupAlbumPhotoOpenFailed => '無法開啟圖片連結';
+	@override String get groupAlbumPhotoNotFound => '圖片不存在或已刪除';
+	@override String get groupAlbumPhotoOpenExternal => '外部開啟';
+	@override String get groupAlbumPhotoCoverUpdated => '已設為相簿封面';
+	@override String get groupAlbumPhotoCoverFailed => '設定封面失敗，請稍後重試';
+	@override String get groupAlbumPhotoNext => '下一張';
+	@override String get groupAlbumPhotoResolution => '解析度';
+	@override String get groupAlbumPhotoUploader => '上傳者';
+	@override String get sectionDisplay => '顯示';
+	@override String get sectionTheme => '主題';
+	@override String get selectLanguage => '選擇語言';
+	@override String get completionSuggestions => '完善建議：';
+	@override String get sectionGeneral => '通用';
+	@override String get sectionPrivacySecurity => '隱私與安全';
+	@override String get sectionHelpAbout => '幫助與關於';
+	@override String get msgOnlyVisibleToParties => '訊息僅收發雙方可讀';
+	@override String get msgNotEncrypted => '訊息未加密傳輸';
+	@override String durationMinutes({required Object count}) => '${count}分鐘';
+	@override String durationSeconds({required Object count}) => '${count}秒';
+	@override String get rechargeAmountError => '請輸入1元到10000元之間的金額';
+	@override String get rechargeSuccess => '充值成功';
+	@override String get rechargeConfirm => '確認充值';
+	@override String get transactionHistory2 => '流水記錄';
+	@override String get noTransactionHistory => '暫無流水記錄';
+	@override String get allLoaded => '— 已全部載入 —';
+	@override String get transactionTypeIncome => '充值';
+	@override String get transactionTypeExpense => '消費';
+	@override String get sectionLoginCredentials => '登入憑證';
+	@override String get channelInvitations => '頻道邀請';
+	@override String get acceptInvitationFailed => '接受邀請失敗';
+	@override String get rejectInvitationFailed => '拒絕邀請失敗';
+	@override String get invitationAccepted => '已接受邀請';
+	@override String get invitationRejected => '已拒絕邀請';
+	@override String get invitationStatusPending => '待處理';
+	@override String get invitationStatusAccepted => '已接受';
+	@override String get invitationStatusRejected => '已拒絕';
+	@override String get invitationStatusExpired => '已過期';
+	@override String get invitationStatusCancelled => '已取消';
+	@override String get invitationStatusUnknown => '未知';
+	@override String get noReceivedInvitations => '暫無收到的邀請';
+	@override String get noSentInvitations => '暫無發出的邀請';
+	@override String get processingDots => '處理中...';
+	@override String get purchaseFailed => '購買失敗，請稍後重試';
+	@override String get purchaseSuccess => '購買成功';
+	@override String get insufficientBalanceTitle => '餘額不足';
+	@override String insufficientBalanceContent({required Object currency, required Object balance, required Object price}) => '當前餘額 ${currency} ${balance}，需支付 ${currency} ${price}。請先充值後再購買。';
+	@override String get goRecharge => '去充值';
+	@override String get noOrders => '暫無訂單';
+	@override String get orderDetailLoadFailed => '訂單詳情載入失敗';
+	@override String orderNoLabel({required Object no}) => '訂單號: ${no}';
+	@override String get orderStatusCancelled => '已取消';
+	@override String get orderStatusUnknown => '未知';
+	@override String get removeReaction => '移除反應';
+	@override String removeReactionConfirm({required Object emoji}) => '確定要移除 ${emoji} 反應嗎？';
+	@override String get fileOpenFailed => '無法開啟該檔案';
+	@override String get e2eeLocalBackup => '本地備份';
+	@override String get e2eeLocalBackupDesc => '匯出加密備份檔案到本地或雲端';
+	@override String get e2eeDeleteKey => '刪除金鑰';
+	@override String get e2eeDeleteKeyDesc => '刪除本地儲存的金鑰（無法恢復）';
+	@override String get e2eeCurrentKeyInfo => '當前金鑰資訊';
+	@override String get e2eeE2EEEnabled => '端到端加密已啟用';
+	@override String get e2eeNoKeyDetected => '未檢測到 E2EE 金鑰';
+	@override String get e2eeNoKeyDesc => '您需要先生成金鑰對或從備份中恢復';
+	@override String get e2eeAboutTitle => '關於端到端加密';
+	@override String get e2eeInfoPoint1 => '• 您的訊息在傳送前已加密，伺服器無法檢視內容';
+	@override String get e2eeInfoPoint2 => '• 更換裝置或刪除金鑰後，舊訊息可能無法解密';
+	@override String get e2eeInfoPoint3 => '• 請定期備份金鑰以防資料丟失';
+	@override String get e2eeExportBackup => '匯出備份';
+	@override String get e2eeExportBackupDesc => '生成加密備份檔案';
+	@override String get e2eeImportBackup => '匯入備份';
+	@override String get e2eeImportBackupDesc => '從備份檔案恢復金鑰';
+	@override String get e2eeBackupManage => '備份管理';
+	@override String get e2eeBackupManageDesc => '檢視備份歷史記錄';
+	@override String get e2eeGenerateKeyConfirm => '確定要生成新的 E2EE 金鑰對嗎？';
+	@override String get e2eeWarnOldMessagesLost => '• 舊訊息將無法解密';
+	@override String get e2eeWarnNeedNewBackup => '• 需要重新生成備份檔案';
+	@override String get e2eeConfirmGenerate => '確認生成';
+	@override String get e2eeDeleteKeyConfirm => '確定要刪除當前金鑰嗎？';
+	@override String get e2eeWarnCannotRestore => '• 刪除後無法恢復';
+	@override String get e2eeWarnAllMsgsLost => '• 所有 E2EE 訊息將無法解密';
+	@override String get e2eeConfirmDelete => '確認刪除';
+	@override String get e2eeKeyGeneratedSuccess => '金鑰生成成功';
+	@override String e2eeDeviceIdInfo({required Object id}) => '裝置 ID: ${id}';
+	@override String e2eeKeyIdInfo({required Object id}) => '金鑰 ID: ${id}';
+	@override String e2eeCreatedAtInfo({required Object time}) => '建立時間: ${time}';
+	@override String get e2eeImportantNote => '重要提示';
+	@override String get e2eeWarnOldMayNotDecrypt => '• 舊訊息可能無法解密';
+	@override String get e2eeSuggestBackupNow => '• 建議立即匯出備份';
+	@override String get e2eeGoBackup => '去備份';
+	@override String get e2eeKeyGenerateFailed => '金鑰生成失敗，請重試';
+	@override String get e2eeKeyDeleted => '金鑰已刪除';
+	@override String get e2eeDeleteFailed => '刪除失敗，請重試';
+	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => '可用分片: ${available} 個，需要 ${required} 個代理協助';
+	@override String get e2eeNoRecoveryShards => '沒有可用的恢復分片';
+	@override String get e2eeRecoverSuccess => '恢復成功';
+	@override String get e2eeRecoverFailed => '恢復失敗';
+	@override String get e2eeRecoverKeyFailed => '恢復金鑰失敗，請重試';
+	@override String get e2eeLoadingShards => '載入分片資訊...';
+	@override String get e2eeNoShards => '沒有可用的分片';
+	@override String get e2eeLoadFailed => '載入失敗，請重試';
+	@override String e2eeContactingProxy({required Object name}) => '正在聯絡: ${name}';
+	@override String get e2eeRecoveryFailed => '恢復失敗，請重試';
+	@override String get webFeatureNotification => '桌面通知';
+	@override String get webFeatureNotificationDesc => '即使不在頁面也能收到新訊息提醒';
+	@override String get webQRConfirmOnPhone => '請在手機上確認登入';
+	@override String get webQRLoginFailed => '登入失敗';
+	@override String get webQRLoginSuccess => '登入成功';
+	@override String webQRExpiresIn({required Object seconds}) => '${seconds} 秒後過期';
+	@override String get webQRStatusFailed => '登入失敗，請重試';
+	@override String get webQRStatusSuccess => '正在跳轉...';
+	@override String get webLoginEmptyError => '請輸入賬號和密碼';
+	@override String get webQRGenerateFailed => '生成二維碼失敗';
+	@override String get webQRTokenInvalid => '登入令牌無效';
+	@override String get e2eeErrNoRecipientKey => '無法獲取對方裝置金鑰，訊息未傳送';
+	@override String get e2eeDecryptFailed => '訊息無法解密';
+	@override String get e2eeDecryptFailedReasons => '此訊息無法解密，可能原因是：';
+	@override String get e2eeDecryptReasonOtherDevice => '• 您在其他裝置上登入';
+	@override String get e2eeDecryptReasonKeyExpired => '• 裝置金鑰已過期';
+	@override String get e2eeDecryptReasonDataCorrupt => '• 應用資料損壞';
+	@override String get e2eeDecryptChooseSolution => '請選擇解決方案：';
+	@override String get e2eeDecryptActionRecreateKey => '重新建立金鑰（推薦）';
+	@override String get e2eeDecryptActionRelogin => '重新登入';
+	@override String get e2eeDecryptActionRemindLater => '稍後提醒我';
+	@override String get e2eeBackupExportTitle => '匯出 E2EE 備份';
+	@override String get e2eeBackupPwdCantRecover => '• 備份密碼無法找回，請務必牢記！';
+	@override String get e2eeBackupStoreMultipleNote => '• 建議將備份檔案儲存到多個安全位置（郵件、雲盤、隨身碟）';
+	@override String get e2eeBackupPwdLabel => '備份密碼 *';
+	@override String get e2eeBackupPwdHint => '至少 12 位，包含大小寫字母、數字和特殊符號';
+	@override String get e2eeBackupConfirmPwdLabel => '確認密碼 *';
+	@override String get e2eeBackupConfirmPwdHint => '再次輸入密碼';
+	@override String get e2eeBackupNoteLabel => '備註（可選）';
+	@override String get e2eeBackupNoteHint => '例如：主手機備份 - 2026年1月';
+	@override String get e2eeBackupPwdStrengthLabel => '密碼強度';
+	@override String get e2eeBackupPwdWeak => '弱 - 建議增加複雜度';
+	@override String get e2eeBackupPwdMedium => '中等 - 建議增加長度或複雜度';
+	@override String get e2eeBackupPwdStrong => '強 - 可以使用';
+	@override String get e2eeBackupPwdVeryStrong => '非常強 - 安全';
+	@override String get e2eeBackupGenerateBtn => '生成備份檔案';
+	@override String get e2eeBackupFileGenerated => '備份檔案已生成！';
+	@override String get e2eeBackupShareBtn => '透過郵件/雲盤分享';
+	@override String get e2eeBackupShareContent => '這是我的 Imboy E2EE 金鑰備份檔案，請妥善保管，切勿洩露給他人。';
+	@override String get e2eeBackupErrPwdMismatch => '兩次輸入的密碼不一致';
+	@override String get e2eeBackupErrNoKeyData => '無法獲取金鑰資料';
+	@override String get e2eeBackupErrExportFailed => '匯出失敗，請重試';
+	@override String get e2eeBackupErrShareFailed => '分享失敗，請重試';
+	@override String get e2eeBackupExportSuccessTitle => '備份匯出成功';
+	@override String get e2eeBackupExportSuccessBody => '您的 E2EE 金鑰備份已成功生成。';
+	@override String get e2eeBackupImportantNoteColon => '重要提示：';
+	@override String get e2eeBackupKeepSafe => '• 請妥善保管備份檔案和密碼';
+	@override String get e2eeBackupStoreMultipleLoc => '• 建議將檔案儲存到多個安全位置';
+	@override String get e2eeBackupPwdCantRecoverNote => '• 密碼無法找回，請務必牢記';
+	@override String get e2eeBackupImportTitle => '匯入 E2EE 備份';
+	@override String get e2eeBackupImportGuide => '匯入說明';
+	@override String get e2eeBackupImportReplaceKey => '• 匯入後，當前的 E2EE 金鑰將被替換';
+	@override String get e2eeBackupImportTrustedSource => '• 請確保備份檔案來自可信任的來源';
+	@override String get e2eeBackupSelectFile => '選擇備份檔案';
+	@override String get e2eeBackupSelectFileHint => '點選選擇備份檔案 (.enc)';
+	@override String get e2eeBackupInfoTitle => '備份資訊';
+	@override String get e2eeBackupVersionLabel => '版本號';
+	@override String get e2eeBackupAlgorithmLabel => '演算法';
+	@override String get e2eeBackupFileSizeLabel => '檔案大小';
+	@override String get e2eeBackupFileValid => '✓ 檔案格式有效';
+	@override String get e2eeBackupImportPwdHint => '請輸入備份時設定的密碼';
+	@override String get e2eeBackupImportBtn => '匯入金鑰';
+	@override String get e2eeBackupErrSelectFile => '選擇檔案失敗，請重試';
+	@override String get e2eeBackupErrValidateFailed => '檔案驗證失敗，請檢查檔案格式';
+	@override String get e2eeBackupErrImportFailed => '匯入失敗，請檢查密碼是否正確';
+	@override String get e2eeBackupImportSuccessTitle => '匯入成功';
+	@override String get e2eeBackupImportSuccessBody => 'E2EE 金鑰已成功恢復！';
+	@override String get e2eeBackupImportSuccessNote => '注意：舊訊息可能無法訪問，這是 E2EE 的正常行為';
+	@override String get e2eeBackupNoRecords => '暫無備份記錄';
+	@override String get e2eeBackupNoRecordsHint => '匯出備份後將在此顯示歷史記錄';
+	@override String e2eeBackupDeviceLabel({required Object id}) => '裝置 ${id}';
+	@override String e2eeBackupCreatedAtLabel({required Object time}) => '建立於 ${time}';
+	@override String get e2eeBackupDetailTitle => '備份詳情';
+	@override String get e2eeBackupDeviceIdLabel => '裝置 ID';
+	@override String get e2eeBackupVersionNum => '備份版本';
+	@override String get e2eeBackupCreatedAtRow => '建立時間';
+	@override String get e2eeBackupFileSizeRow => '檔案大小';
+	@override String get e2eeBackupNoteRow => '備註';
+	@override String get e2eeBackupDeleteTitle => '刪除備份記錄';
+	@override String get e2eeBackupDeleteConfirm => '確定要刪除此備份記錄嗎？';
+	@override String get e2eeBackupDeleteSuccess => '備份記錄已刪除';
+	@override String get e2eeSocialShardSettings => '分片設定';
+	@override String get e2eeSocialShardStoredNote => '說明：分片將儲存在代理裝置上，服務端不儲存任何分片';
+	@override String get e2eeSocialAddProxy => '新增代理';
+	@override String get e2eeSocialAddProxyHint => '請新增代理聯絡人';
+	@override String e2eeSocialCreateNeedMore({required Object count}) => '請先新增 ${count} 個代理';
+	@override String get e2eeSocialCreateSuccessTitle => '分片建立成功';
+	@override String e2eeSocialTotalShardsInfo({required Object count}) => '金鑰已分割成 ${count} 個分片';
+	@override String e2eeSocialThresholdInfo({required Object count}) => '需要 ${count} 個代理協助即可恢復金鑰';
+	@override String get e2eeSocialZeroTrustNote => '零信任架構：服務端不儲存任何分片';
+	@override String get e2eeSocialNoShards => '您還沒有建立任何恢復分片';
+	@override String get e2eeSocialNoProxyShards => '沒有代理分片';
+	@override String get e2eeSocialKeyVersionLabel => '金鑰版本';
+	@override String get e2eeTransferErrNoKey => '請先生成金鑰對';
+	@override String get e2eeTransferErrInitFailed => '初始化失敗，請重試';
+	@override String get e2eeTransferErrNoRecipientKey => '接收方沒有可用的公鑰';
+	@override String get e2eeTransferErrKeyNotFound => '金鑰未找到';
+	@override String get e2eeTransferErrCreateFailed => '建立傳輸會話失敗，請重試';
+	@override String get e2eeTransferCreateSessionBtn => '建立傳輸會話';
+	@override String get e2eeTransferSessionCreated => '傳輸會話已建立';
+	@override String get e2eeTransferUidEmptyError => '請輸入有效的使用者 ID';
+	@override String get e2eeTransferSuccess => '傳輸成功！';
+	@override String get e2eeTransferFailed => '傳輸失敗，請重試';
+	@override String get e2eeTransferProcessingMsg => '處理中...';
+	@override String get e2eeTransferSuccessTitle => '傳輸成功';
+	@override String get e2eeTransferSuccessBody => '金鑰已成功傳輸到當前裝置';
+	@override String e2eeTransferScanError({required Object error}) => '掃描錯誤: ${error}';
+	@override String get e2eeTransferErrNoDeviceId => '無法獲取裝置 ID';
+	@override String get passwordEncryptFailed => '密碼加密失敗';
+	@override String get initConfigTimeout => '配置獲取超時: 請檢查網路連線或服務端狀態';
+	@override String initConfigNetworkError({required Object code}) => '網路故障或服務故障 (HTTP ${code})';
+	@override String get initConfigProtocolError => '服務故障協議有誤';
+	@override String get initConfigFetchFailed => '配置獲取失敗，請檢查網路連線';
+	@override String get attachmentGetFileFailed => '無法獲取檔案，請重試或使用相簿選擇';
+	@override String get attachmentGetFileFailedAndroid9 => '檔案獲取失敗，Android 9 可能存在相容性問題';
+	@override String get attachmentGetImageDataFailed => '無法獲取圖片資料，請重試';
+	@override String get attachmentGetOriginalImageFailed => '無法獲取原始圖片資料';
+	@override String get saveFailedRetry => '儲存失敗，請重試';
+	@override String get downloadFileNotFound => '下載檔案不存在，請重試';
+	@override String downloadHashRetrying({required Object retry, required Object max}) => '檔案校驗失敗，正在重新下載 (${retry}/${max})';
+	@override String get downloadHashFailed => '檔案多次校驗失敗，請檢查網路後重試';
+	@override String get e2eeTransferToNewDevice => '傳輸到新裝置';
+	@override String get e2eeTransferPendingSection => '待處理的傳輸';
+	@override String get e2eeTransferLoadFailed => '載入失敗';
+	@override String get e2eeTransferLoadFailedDesc => '無法載入待處理的傳輸，請重試';
+	@override String get e2eeTransferNoPending => '暫無待處理的傳輸';
+	@override String get e2eeTransferNoPendingDesc => '當有裝置向您傳送金鑰時，會顯示在這裡';
+	@override String get e2eeSocialEnoughShards => '您已有足夠的分片可以恢復金鑰';
+	@override String e2eeSocialMoreShards({required Object count}) => '還有 ${count} 個分片...';
+	@override String get e2eeProxyLoadFriendsFailed => '載入好友列表失敗，請重試';
+	@override String get e2eeProxyNoPublicKey => '該好友沒有可用的公鑰';
+	@override String e2eeProxyGetKeyFailed({required Object name}) => '獲取 ${name} 的公鑰失敗';
+	@override String get e2eeProxySelectFailed => '選擇代理失敗，請重試';
+	@override String get e2eeProxyNoFriends => '暫無好友';
+	@override String get e2eeProxyNoFriendsHint => '請先新增好友後再設定恢復代理';
+	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => '至少需要 ${count} 個信任的聯絡人，已選擇 ${selected} 個';
+	@override String e2eeProxyConfirmCount({required Object count}) => '確認選擇 (${count} 個代理)';
+	@override String get buttonBackHome => '返回首頁';
+	@override String get featureNotEnabled => '當前功能未啟用';
+	@override String featureDisabledName({required Object name}) => '${name} 功能未啟用，暫時無法訪問';
+	@override String get imageLoadFailed => '載入失敗';
+	@override String loadFailedWithError({required Object error}) => '載入失敗: ${error}';
+	@override String get webAudioNotSupported => 'Web 平臺暫不支援語音訊息播放';
+	@override String e2eeKeyRecreationFailed({required Object error}) => '金鑰建立失敗: ${error}';
+	@override String get redPacket => '紅包';
+	@override String get transfer => '轉賬';
+	@override String get withdraw => '提現';
+	@override String get redPacketSend => '發紅包';
+	@override String get redPacketOpen => '搶紅包';
+	@override String get redPacketDetail => '紅包詳情';
+	@override String get transferSend => '發起轉賬';
+	@override String get transferAccept => '確認收錢';
+	@override String get greetingDefault => '恭喜發財，大吉大利';
+	@override String grabAmountYuan({required Object amount}) => '領到金額：${amount} 元';
+	@override String transferAmountYuan({required Object amount}) => '轉賬金額：${amount} 元';
+	@override String get insufficientBalance => '餘額不足';
+	@override String get goToRecharge => '去充值';
+	@override String get withdrawSuccess => '提現成功';
+	@override String get withdrawConfirm => '確認提現';
+	@override String get withdrawAmountError => '請輸入不低於1元的金額';
+	@override String get withdrawAccountEmpty => '請輸入提現賬號';
+	@override String get withdrawMethod => '提現方式';
+	@override String get withdrawAccount => '提現賬號';
 }
 
 // Path: complaint
@@ -1190,6 +1682,19 @@ class Translations$complaint$zh_Hant extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => '投訴';
+}
+
+// Path: complaintReason
+class Translations$complaintReason$zh_Hant extends Translations$complaintReason$zh_CN {
+	Translations$complaintReason$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get spam => '垃圾資訊';
+	@override String get harassment => '騷擾';
+	@override String get inappropriate => '不當內容';
+	@override String get other => '其他';
 }
 
 // Path: contact
@@ -1229,6 +1734,7 @@ class Translations$contact$zh_Hant extends Translations$contact$zh_CN {
 	@override String get pleaseEnterRemark => '請輸入備註名';
 	@override String get enterRemark => '請輸入備註名';
 	@override String get pleaseEnterTags => '請輸入標籤';
+	@override String get momentsVisibilityFriends => '僅好友';
 	@override String tagLengthExceeded({required Object param}) => '標籤長度不能超過 ${param} 個字元';
 	@override String maxTagsExceeded({required Object param}) => '最多只能新增 ${param} 個標籤';
 	@override String selectedTags({required Object param, required Object max}) => '已選標籤 (${param}/${max})';
@@ -1247,6 +1753,8 @@ class Translations$contact$zh_Hant extends Translations$contact$zh_CN {
 	@override String get tagIdeas => '想法';
 	@override String get tagMemo => '備忘';
 	@override String get friendRequestSent => '已傳送';
+	@override String get channelMaxTagsCount => '最多可新增 8 個標籤';
+	@override String get tagInputHint => '輸入標籤...';
 }
 
 // Path: discovery
@@ -1265,10 +1773,26 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String get scanResult => '掃描結果';
 	@override String get scannerResult => '掃描結果';
 	@override String get titleDiscover => '發現';
+	@override String get myChannels => '我的頻道';
+	@override String get channelSquare => '頻道廣場';
 	@override String get otherUsersCanFindMe => '其他用家可以通過搜尋找到我';
 	@override String get moments => '動態';
+	@override String get momentsReport => '舉報動態';
+	@override String get momentsReportDesc => '補充說明';
+	@override String get momentsComments => '評論';
+	@override String get momentsWriteComment => '寫評論...';
+	@override String get momentsVisibility => '可見性';
+	@override String get momentsVisibilityPublic => '公開';
+	@override String get momentsVisibilityPartial => '部分可見';
+	@override String get momentsVisibilityExclude => '不給誰看';
+	@override String get momentsDenyUidsLabel => '不給誰看 UID 列表（逗號分隔）';
+	@override String get momentsDraftRestored => '已恢復上次未傳送的草稿';
+	@override String get momentsFeedStale => '網路異常，顯示的是快取內容';
 	@override String get discover => '發現';
 	@override String get shake => '搖一搖';
+	@override String get openChannel => '開啟頻道';
+	@override String get paidChannelLocked => '付費頻道內容已鎖定';
+	@override String get webQRScanned => '已掃描';
 }
 
 // Path: error
@@ -1285,6 +1809,11 @@ class Translations$error$zh_Hant extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2.開啟手機設定-一般-流動數據，並把流動數據開關保持開啟狀態。';
 	@override String get networkTroubleshootingStep3 => '3.如仍無法連接網路，請檢查手機連接的 Wi-Fi 是否已連上互聯網或聯絡電訊商。';
 	@override String get suggestCheckNetwork => '建議檢查網路設定。';
+	@override String e2eeStartRecoveryBtn({required Object required}) => '開始恢復金鑰（需要 ${required} 個代理協助）';
+	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => '分片不足（需要 ${required} 個，當前 ${current} 個）';
+	@override String get e2eeErrTimeout => '加密超時，請檢查網路連線後重試';
+	@override String get e2eeErrNetwork => '網路錯誤，加密失敗，訊息未傳送';
+	@override String get liveRoomTitleRequired => '標題不能為空';
 }
 
 // Path: group
@@ -1298,6 +1827,7 @@ class Translations$group$zh_Hant extends Translations$group$zh_CN {
 	@override String get enterSameGroup => '與身邊的朋友進入同一個群組聊天';
 	@override String get enterTheGroup => '進入該群組';
 	@override String get groupAlias => '我在本群組的暱稱';
+	@override String get groupAlbum => '群相簿';
 	@override String get groupDissolve => '解散群組';
 	@override String get groupJoin => '加入群組';
 	@override String get groupLeave => '退出群組';
@@ -1305,16 +1835,193 @@ class Translations$group$zh_Hant extends Translations$group$zh_CN {
 	@override String get groupMembers => '群組成員';
 	@override String get groupName => '群組名稱';
 	@override String get mutualGroupsWithHer => '我和他的共同群組';
-	@override String get selectGroup => '選擇群組';
-	@override String get sureToDissolveGroup => '確定要解散本群組嗎？';
-	@override String get sureToLeaveGroup => '確定要退出本群組嗎？';
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
-	@override String get groupGuest => '嘉宾';
+	@override String get groupGuest => '嘉賓';
 	@override String get groupMember => 'Member';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get transferGroup => 'Transfer Ownership';
 	@override String get joinTime => 'Join Time';
+	@override String get selectGroup => '選擇群組';
+	@override String get sureToDissolveGroup => '確定要解散本群組嗎？';
+	@override String get sureToLeaveGroup => '確定要退出本群組嗎？';
+	@override String get groupAlbumNameHint => '請輸入相簿名稱';
+	@override String get groupAlbumRenameTitle => '重新命名相簿';
+	@override String get groupAlbumRenamed => '相簿名稱已更新';
+	@override String get groupAlbumUnnamed => '未命名相簿';
+	@override String groupAlbumPhotoCount({required Object count}) => '${count} 張圖片';
+	@override String get groupAlbumPhotoIdMissing => '圖片ID缺失，無法檢視詳情';
+	@override String get groupAlbumPhotoListTitle => '相簿圖片';
+	@override String groupAlbumPhotoSelectedCount({required Object count}) => '已選擇 ${count} 項';
+	@override String get groupAlbumPhotoEmpty => '暫無圖片';
+	@override String get groupAlbumPhotoUrlMissing => '圖片地址缺失，無法開啟';
+	@override String get groupAlbumPhotoUrlInvalid => '圖片地址無效';
+	@override String get groupAlbumPhotoDetailTitle => '圖片詳情';
+	@override String get groupAlbumPhotoSetCover => '設為封面';
+	@override String get groupAlbumPhotoPrev => '上一張';
+	@override String get groupAlbumPhotoLikeCount => '點贊數';
+	@override String get groupAlbumPhotoCommentCount => '評論數';
+	@override String get groupAlbumPhotoMyLike => '我的點贊';
+	@override String get groupAlbumPhotoIdLabel => '圖片ID';
+	@override String get e2eeKeyManagement => 'E2EE 金鑰管理';
+	@override String get e2eeKeyManagementSubtitle => '備份、恢復和管理端到端加密金鑰';
+}
+
+// Path: groupCategory
+class Translations$groupCategory$zh_Hant extends Translations$groupCategory$zh_CN {
+	Translations$groupCategory$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '群分組';
+	@override String get createCategory => '建立分組';
+	@override String get categoryName => '分組名稱';
+	@override String get categoryDesc => '分組描述（可選）';
+	@override String get noCategory => '暫無分組';
+	@override String get createFirst => '建立第一個分組吧';
+	@override String get addGroup => '新增群聊到分組';
+	@override String get removeGroup => '從分組移除';
+	@override String get deleteCategory => '刪除分組';
+	@override String get deleteCategoryConfirm => '確定要刪除該分組嗎？群聊不會被刪除。';
+	@override String get categoryCreated => '分組建立成功';
+	@override String get categoryDeleted => '分組已刪除';
+	@override String get renameCategory => '重新命名分組';
+	@override String get categoryRenamed => '分組重新命名成功';
+	@override String get renameFailed => '重新命名失敗，請重試';
+	@override String get deleteFailed => '刪除失敗，請重試';
+	@override String get categoryDetailTip => '該分組下的群聊可以在群組列表中透過「移入分組」進行管理';
+}
+
+// Path: groupList
+class Translations$groupList$zh_Hant extends Translations$groupList$zh_CN {
+	Translations$groupList$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get attrAll => '全部';
+	@override String get attrOwner => '我建立';
+	@override String get attrManager => '我管理';
+	@override String get attrJoin => '我加入';
+	@override String get refresh => '重新整理';
+}
+
+// Path: groupSchedule
+class Translations$groupSchedule$zh_Hant extends Translations$groupSchedule$zh_CN {
+	Translations$groupSchedule$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '群日程';
+	@override String get createSchedule => '建立日程';
+	@override String get scheduleTitle => '日程標題';
+	@override String get selectDate => '選擇日期';
+	@override String get selectTime => '選擇時間';
+	@override String get location => '地點';
+	@override String get reminder => '提醒';
+	@override String get noReminder => '不提醒';
+	@override String get noSchedule => '暫無日程';
+	@override String get scheduleCreated => '日程建立成功';
+	@override String get scheduleUpdated => '日程更新成功';
+	@override String get reminder15min => '提前15分鐘';
+	@override String get reminder1hour => '提前1小時';
+	@override String get reminder1day => '提前1天';
+	@override String get startTime => '開始時間';
+	@override String get endTime => '結束時間';
+	@override String get participants => '參與人數';
+	@override String get statusCancelled => '已取消';
+	@override String get statusInProgress => '進行中';
+	@override String get cancelSuccess => '日程已取消';
+	@override String get cancelFailed => '取消失敗，請稍後重試';
+	@override String get confirmAttend => '確認參加';
+	@override String get declineAttend => '不參加';
+	@override String get cancelSchedule => '取消日程';
+	@override String get scheduleIdMissing => '日程ID缺失，無法檢視詳情';
+}
+
+// Path: groupTag
+class Translations$groupTag$zh_Hant extends Translations$groupTag$zh_CN {
+	Translations$groupTag$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '群標籤';
+	@override String get addTag => '新增標籤';
+	@override String get tagName => '標籤名稱';
+	@override String get tagColor => '標籤顏色';
+	@override String get noTag => '暫無標籤';
+	@override String get tagAdded => '標籤新增成功';
+	@override String get tagRemoved => '標籤已移除';
+	@override String get removeTitle => '移除標籤';
+	@override String get removeConfirm => '確定要移除這個標籤嗎？';
+}
+
+// Path: groupTask
+class Translations$groupTask$zh_Hant extends Translations$groupTask$zh_CN {
+	Translations$groupTask$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '群作業';
+	@override String get createTask => '建立任務';
+	@override String get taskTitle => '任務標題';
+	@override String get taskDescription => '任務描述';
+	@override String get assignTo => '指派給';
+	@override String get deadline => '截止時間';
+	@override String get noDeadline => '無截止時間';
+	@override String get noTask => '暫無任務';
+	@override String get all => '全部';
+	@override String get pending => '待完成';
+	@override String get completed => '已完成';
+	@override String get taskCreated => '任務建立成功';
+	@override String get taskSubmitted => '任務已提交';
+	@override String get taskCompleted => '任務已完成';
+	@override String get overdue => '已過期';
+	@override String daysLeft({required Object days}) => '${days} 天后截止';
+	@override String hoursLeft({required Object hours}) => '${hours} 小時後截止';
+	@override String get dueSoon => '即將截止';
+	@override String get submitFailed => '提交失敗，請稍後重試';
+	@override String get taskId => '任務ID';
+	@override String get pendingReview => '待稽核';
+	@override String get taskIdMissing => '任務ID缺失，無法檢視詳情';
+	@override String get taskIdMissingSubmit => '任務ID缺失，無法提交';
+}
+
+// Path: groupVote
+class Translations$groupVote$zh_Hant extends Translations$groupVote$zh_CN {
+	Translations$groupVote$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '群投票';
+	@override String get createVote => '建立投票';
+	@override String get voteTitle => '投票標題';
+	@override String get voteOptions => '投票選項';
+	@override String get addOption => '新增選項';
+	@override String get allowMultiple => '允許多選';
+	@override String get anonymous => '匿名投票';
+	@override String get deadline => '截止時間';
+	@override String get noDeadline => '無截止時間';
+	@override String get noVote => '暫無投票';
+	@override String get voteEnded => '投票已結束';
+	@override String totalVotes({required Object count}) => '共 ${count} 票';
+	@override String get voteSuccess => '投票成功';
+	@override String get hasVoted => '已投票';
+	@override String get viewResults => '檢視結果';
+	@override String get cancelVoteSuccess => '已取消投票';
+	@override String get cancelVoteFailed => '取消失敗，請稍後重試';
+	@override String get endVoteFailed => '結束失敗，請稍後重試';
+	@override String get eachOptionPerLine => '每行一個選項';
+	@override String get statusInProgress => '進行中';
+	@override String get updateVote => '更新投票';
+	@override String get cancelMyVote => '取消我的投票';
+	@override String get voteIdMissing => '投票ID缺失，無法檢視詳情';
+	@override String participantCount({required Object count}) => '參與人數: ${count}';
 }
 
 // Path: main
@@ -1338,6 +2045,8 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get audio => '音訊';
 	@override String get barcodeFound => '找到條碼！';
 	@override String get botQianFan => '千帆機器人';
+	@override String get liveRoomWhipLabel => 'WHIP 推流地址';
+	@override String get liveRoomWhepLabel => 'WHEP 拉流地址';
 	@override String get cache => '快取';
 	@override String get camera => '拍攝';
 	@override String get changeNameView => '修改名稱視圖';
@@ -1415,6 +2124,9 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get recentlyUsed => '最近使用';
 	@override String get releaseEnd => '鬆開結束';
 	@override String remainingChars({required Object param}) => '還可輸入 ${param} 個字元';
+	@override String get kickMember => 'Remove from Group';
+	@override String get memberDetail => 'Member Details';
+	@override String get memberRole => 'Role';
 	@override String get replied => '已回覆';
 	@override String get ringing => '已響鈴...';
 	@override String get ruRu => '俄羅斯俄語';
@@ -1439,6 +2151,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get timeRange => '時間範圍';
 	@override String get timeWeekdays => '星期一,星期二,星期三,星期四,星期五,星期六,星期日';
 	@override String get titleMine => '我的';
+	@override String get titleSquare => '廣場';
 	@override String get tooBad => '太差了';
 	@override String get tryAgainQ => '想再試一次嗎？';
 	@override String get type => '類型';
@@ -1511,9 +2224,154 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get larger => '更大';
 	@override String currentLength({required Object param1, required Object param2}) => '目前長度：${param1} / ${param2}';
 	@override String get fillIn => '填入';
-	@override String get kickMember => 'Remove from Group';
-	@override String get memberDetail => 'Member Details';
-	@override String get memberRole => 'Role';
+	@override String get msgProtectedByComplianceKey => '訊息受合規金鑰保護';
+	@override String inviterLabel({required Object uid}) => '邀請人: ${uid}';
+	@override String inviteeLabel({required Object uid}) => '被邀請人: ${uid}';
+	@override String get mySentTab => '我發出的';
+	@override String get reject => '拒絕';
+	@override String get myOrders => '我的訂單';
+	@override String get purchaseUnlockHint => '購買後可解鎖頻道歷史訊息與後續更新內容。';
+	@override String get payingDots => '支付中...';
+	@override String get purchaseAndUnlock => '立即購買並解鎖';
+	@override String get orderDetail => '訂單詳情';
+	@override String orderAmountLabel({required Object currency, required Object amount}) => '金額: ${currency} ${amount}';
+	@override String channelPriceLabel({required Object currency, required Object amount}) => '價格：${currency} ${amount}';
+	@override String get e2eeKeyRecoveryTitle => '端到端加密金鑰管理';
+	@override String get e2eeRecoveryMethods => '金鑰恢復方法';
+	@override String get e2eeDangerousOps => '危險操作';
+	@override String get e2eeSocialRecovery => '社交恢復';
+	@override String get e2eeSocialRecoveryDesc => '透過信任的聯絡人協助恢復金鑰';
+	@override String get e2eeKeyIdLabel => '金鑰 ID';
+	@override String get e2eeWarnIrreversible => '• 此操作不可撤銷';
+	@override String get e2eeWarnNeedRestoreOrNew => '• 需要從備份恢復或生成新金鑰';
+	@override String get gotIt => '我知道了';
+	@override String get e2eeRecoverKeyTitle => '恢復金鑰';
+	@override String get e2eeCanRecoverKey => '可以恢復金鑰';
+	@override String get e2eeInsufficientShards => '分片數量不足';
+	@override String e2eeProxyUser({required Object uid}) => '代理使用者: ${uid}';
+	@override String e2eeShardLabel({required Object index, required Object total}) => '分片 ${index} / ${total}';
+	@override String get e2eeReloadShards => '重新載入';
+	@override String get e2eeRecovering => '恢復中...';
+	@override String get e2eeKeyRestored => '金鑰已成功恢復';
+	@override String e2eeUsedShards({required Object count}) => '已使用 ${count} 個代理分片';
+	@override String get e2eePreparing => '準備恢復...';
+	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => '進度: ${collected} / ${total} 個分片';
+	@override String e2eeCollectingShards({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...';
+	@override String get e2eeShardsCollected => '分片收集完成，正在重組金鑰...';
+	@override String get webQRLoggingIn => '登入中...';
+	@override String get webQRExpired => '二維碼已過期';
+	@override String get webQRRefresh => '重新整理二維碼';
+	@override String get webSwitchToQR => '使用 QR 碼登入';
+	@override String get e2eeErrDefault => '端到端加密失敗，訊息未傳送';
+	@override String get e2eeSocialTotalShards => '總分片數';
+	@override String get e2eeSocialThreshold => '恢復閾值';
+	@override String e2eeSocialThresholdHint({required Object count}) => '恢復金鑰時需要 ${count} 個代理協助';
+	@override String get e2eeSocialSelectProxy => '選擇恢復代理';
+	@override String e2eeSocialProxyNeeded({required Object count}) => '需要 ${count} 個信任的聯絡人作為代理';
+	@override String e2eeSocialProxyDefaultName({required Object uid}) => '使用者 ${uid}';
+	@override String get e2eeSocialShardSentViaWs => '分片已透過 WebSocket 直接傳送到代理裝置儲存';
+	@override String e2eeSocialSentCount({required Object sent, required Object total}) => '已傳送到 ${sent} 個代理裝置（共 ${total} 個）';
+	@override String get e2eeSocialManageTitle => '管理分片';
+	@override String get e2eeSocialMyShards => '我的分片';
+	@override String get e2eeSocialProxyShards => '代理分片';
+	@override String e2eeSocialShardOf({required Object idx, required Object total}) => '分片 ${idx} / ${total}';
+	@override String get e2eeSocialShardActive => '活躍';
+	@override String get e2eeSocialShardUsed => '已使用';
+	@override String get e2eeSocialShardValid => '分片有效';
+	@override String e2eeSocialUserShard({required Object uid}) => '使用者 ${uid} 的金鑰分片';
+	@override String get e2eeSocialProxyUserLabel => '代理使用者';
+	@override String get e2eeSocialRecoveryThresholdLabel => '恢復閾值';
+	@override String get e2eeSocialShardIndexLabel => '分片編號';
+	@override String get e2eeTransferQRHint => '請在新裝置上掃描此二維碼';
+	@override String e2eeTransferQRExpiry({required Object time}) => '二維碼將在 ${time} 過期';
+	@override String get e2eeTransferRefreshQR => '重新整理二維碼';
+	@override String get e2eeTransferEnterUidTitle => '輸入接收方使用者 ID';
+	@override String get e2eeTransferUidPlaceholder => '接收方使用者 ID';
+	@override String get e2eeTransferReceiving => '正在接受傳輸...';
+	@override String get e2eeTransferPageTitle => '裝置間傳輸';
+	@override String get e2eeTransferPendingItem => '待處理的金鑰傳輸';
+	@override String get e2eeTransferPendingItemDesc => '點選檢視詳情';
+	@override String get e2eeTransferView => '檢視';
+	@override String get e2eeSocialTitle => '社交恢復';
+	@override String get e2eeSocialCanRecover => '可以恢復金鑰';
+	@override String get e2eeSocialSetupProxy => '設定恢復代理';
+	@override String get e2eeSocialChooseProxy => '選擇信任的聯絡人作為恢復代理';
+	@override String get e2eeSocialExistingShards => '現有恢復分片';
+	@override String get e2eeSocialRecoverKeyTitle => '恢復金鑰';
+	@override String get e2eeSocialRecoverKeyDesc => '使用代理的分片恢復金鑰';
+	@override String get e2eeSocialManageShardsTitle => '管理分片';
+	@override String get e2eeSocialManageShardsDesc => '檢視和管理所有恢復分片';
+	@override String get e2eeSocialZeroTrustHint1 => '零信任架構：服務端不儲存分片，直接聯絡代理';
+	@override String get e2eeSocialZeroTrustHint2 => '零信任架構：分片儲存在代理裝置';
+	@override String get e2eeSocialZeroTrustHint3 => '零信任架構：分片由代理裝置儲存，服務端不接觸明文';
+	@override String e2eeProxyMinCount({required Object count}) => '請至少選擇 ${count} 個代理';
+	@override String get e2eeProxySelectTitle => '選擇恢復代理';
+	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => '已選 ${selected} / ${total}';
+	@override String get e2eeProxyReachedMin => '已達到最少代理數量';
+	@override String get liveRoomTitleLabel => '直播間標題';
+	@override String get liveRoomTitleHint => '請輸入直播間標題';
+}
+
+// Path: mention
+class Translations$mention$zh_Hant extends Translations$mention$zh_CN {
+	Translations$mention$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '@提及';
+	@override String get noMention => '暫無@提及';
+	@override String get allRead => '全部已讀';
+	@override String get markAsRead => '標記為已讀';
+	@override String get newMention => '新的@提及';
+	@override String get fromGroup => '來自群聊';
+	@override String get fromChat => '來自聊天';
+	@override String get viewContext => '檢視上下文';
+	@override String mentionCount({required Object count}) => '${count} 條新提及';
+	@override String get mentionAllDenied => '僅管理員可以 @所有人';
+	@override String get navInfoMissing => '訊息定位資訊缺失，無法跳轉';
+}
+
+// Path: momentFriendPicker
+class Translations$momentFriendPicker$zh_Hant extends Translations$momentFriendPicker$zh_CN {
+	Translations$momentFriendPicker$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '選擇好友';
+	@override String get titleAllow => '指定可見';
+	@override String get titleDeny => '不給誰看';
+	@override String get confirm => '確定';
+	@override String confirmWithCount({required Object count}) => '確定(${count})';
+	@override String selectedCount({required Object count}) => '已選 ${count} 人';
+	@override String get emptyFriends => '暫無好友';
+	@override String get tagsLabel => '按標籤選';
+	@override String get emptyTags => '暫無標籤';
+	@override String get tagLoadFailed => '標籤載入失敗';
+	@override String get searchHint => '搜尋好友';
+}
+
+// Path: momentNotify
+class Translations$momentNotify$zh_Hant extends Translations$momentNotify$zh_CN {
+	Translations$momentNotify$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '訊息通知';
+	@override String get emptyTitle => '暫無新訊息';
+	@override String get emptyHint => '好友點贊或評論你的朋友圈後，會出現在這裡';
+	@override String get actionLike => '讚了你的朋友圈';
+	@override String get actionComment => '評論了你';
+	@override String get markAllRead => '全部已讀';
+	@override String get clearAll => '清空全部';
+	@override String get clearConfirmTitle => '清空所有通知?';
+	@override String get clearConfirmMessage => '清空後無法恢復';
+	@override String get confirm => '確定';
+	@override String get cancel => '取消';
+	@override String get delete => '刪除';
+	@override String get loadFailed => '載入失敗，請稍後重試';
 }
 
 // Path: passport
@@ -1669,6 +2527,24 @@ extension on TranslationsZhHant {
 			'account.setBirthday' => '設定生日',
 			'account.sentToEmail' => ({required Object param}) => '已傳送至 ${param}',
 			'account.nicknameRules' => '• 暱稱長度為 2-24 個字元 • 不能僅包含空白字元或表情符號 • 不能包含敏感詞彙 • 修改後將在所有聊天中顯示',
+			'account.refreshDeviceKey' => '重新整理裝置金鑰',
+			'account.refreshDeviceKeyHint' => '如果訊息無法解密，點選此按鈕重新整理金鑰',
+			'account.refreshingDeviceKey' => '正在重新整理裝置金鑰...',
+			'account.deviceKeyRefreshed' => '裝置金鑰已重新整理',
+			'account.rechargeTitle' => '充值',
+			'account.rechargeAmountHint' => '請輸入充值金額（元），1元～10000元',
+			'account.rechargeAmountExample' => '例如：100',
+			'account.e2eeDeviceTransfer' => '裝置間傳輸',
+			'account.e2eeDeviceTransferDesc' => '透過二維碼直接傳輸金鑰到新裝置',
+			'account.e2eeDeviceIdLabel' => '裝置 ID',
+			'account.webQRLoginTitle' => '掃碼登入',
+			'account.webQRLoginHint' => '使用 ImBoy 手機版掃描二維碼',
+			'account.webSwitchToPassword' => '使用賬號密碼登入',
+			'account.webPasswordLoginTitle' => '賬號登入',
+			'account.webAccountHint' => '請輸入賬號/手機號/郵箱',
+			'account.webPasswordHint' => '請輸入密碼',
+			'account.e2eeTransferFromOldDevice' => '從舊裝置接收金鑰',
+			'account.pleaseRelogin' => '請重新登入',
 			'channel.title' => '頻道',
 			'channel.loading' => '載入中...',
 			'channel.subscribed' => '已訂閱',
@@ -1759,10 +2635,16 @@ extension on TranslationsZhHant {
 			'channel.updateRoleFailed' => '角色更新失敗',
 			'channel.userId' => '使用者ID',
 			'channel.userIdHint' => '請輸入使用者ID',
+			'channel.selectFromContacts' => '從聯絡人選擇',
+			'channel.searchContactsHint' => '搜尋暱稱或賬號',
+			'channel.noContactsToAdd' => '所有好友都已是管理員',
+			'channel.selectRole' => '選擇角色',
 			'channel.noAdmins' => '暫無管理員',
 			'channel.roleCreator' => '建立者',
 			'channel.roleAdmin' => '管理員',
+			'channel.roleAdminDesc' => '可管理頻道',
 			'channel.roleEditor' => '編輯',
+			'channel.roleEditorDesc' => '可釋出訊息',
 			'channel.roleUnknown' => '未知',
 			'channel.searchSubscribers' => '搜尋訂閱者',
 			'channel.subscriberSearchHint' => '輸入暱稱或ID搜尋',
@@ -1774,6 +2656,11 @@ extension on TranslationsZhHant {
 			'channel.removeSubscriberFailed' => '移除訂閱者失敗',
 			'channel.subscribedAt' => '訂閱於',
 			'channel.viewProfile' => '查看資料',
+			'channel.inviteFromContacts' => '邀請好友',
+			'channel.inviteSearchHint' => '搜尋暱稱或賬號',
+			'channel.noContactsToInvite' => '所有好友都已被邀請或已訂閱',
+			'channel.inviteSuccess' => '邀請已傳送',
+			'channel.inviteFailed' => '邀請傳送失敗',
 			'channel.updateSuccess' => '頻道更新成功',
 			'channel.updateFailed' => '頻道更新失敗',
 			'channel.typeCannotChange' => '建立後不可更改',
@@ -1795,6 +2682,7 @@ extension on TranslationsZhHant {
 			'chat.businessCard' => '名片',
 			'chat.busyTryAgainLater' => '對方正忙，請稍後再試',
 			'chat.later' => '以後再說',
+			'chat.peerIsTyping' => ({required Object name}) => '${name} 正在輸入...',
 			'chat.changeGroupChatName' => '修改群組名稱後，將在群組內通知其他成員。',
 			'chat.chatHistory' => '聊天記錄',
 			'chat.chatHoldDownTalk' => '按住說話',
@@ -1825,12 +2713,31 @@ extension on TranslationsZhHant {
 			'chat.forwardTo' => '轉發給',
 			'chat.forwardToFriend' => '轉發給好友',
 			'chat.great' => '太棒了',
+			'chat.groupFile' => '群檔案',
+			'chat.groupFileImagePreview' => '圖片預覽',
+			'chat.groupFileVideoPreview' => '影片預覽',
+			'chat.groupFileAudioPreview' => '音訊預覽',
+			'chat.groupFileMediaPause' => '暫停',
+			'chat.groupFileMediaPlay' => '播放',
+			'chat.groupFileUrlMissing' => '檔案地址缺失，無法開啟',
+			'chat.groupFileUrlInvalid' => '檔案地址無效',
+			'chat.groupFilePreview' => '檔案預覽',
+			'chat.groupFileUnnamed' => '未命名檔案',
+			'chat.groupFileCategoryEmpty' => ({required Object category}) => '${category}暫無檔案',
+			'chat.groupFileEmpty' => '暫無群檔案',
+			'chat.groupFileCategoryDoc' => '文件',
+			'chat.groupFileCategoryImage' => '圖片',
+			'chat.groupFileCategoryVideo' => '影片',
+			'chat.groupFileCategoryAudio' => '音訊',
+			'chat.groupFileCategoryOther' => '其他',
 			'chat.groupChat' => '群組聊天',
 			'chat.image' => '圖片',
 			'chat.imageMessage' => '[圖片]',
 			'chat.initiateChat' => '發起群組聊天',
 			'chat.justChat' => '僅聊天',
 			'chat.location' => '位置',
+			'chat.exportMyData' => '匯出我的資料',
+			'chat.exportDataDesc' => '匯出你的個人資訊、聯絡人和聊天記錄',
 			'chat.message' => '訊息',
 			'chat.messageHandlingMixin' => '訊息處理混入',
 			'chat.messageMarkTitle' => '訊息標記',
@@ -1856,14 +2763,33 @@ extension on TranslationsZhHant {
 			'chat.recentChats' => '最近聊天',
 			'chat.recentForwards' => '最近轉發',
 			'chat.remindMeLater' => '下次再說',
+			'chat.quickReplyManage' => '管理快捷回覆',
+			'chat.quickReplyEmpty' => '暫無快捷回覆，點選右下角新增',
+			'chat.quickReplyDuplicate' => '內容已存在',
+			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 條',
+			'chat.quickReplyHint' => '輸入內容...',
+			'chat.muteMember' => 'Mute Member',
+			'chat.unmuteMember' => 'Unmute',
+			'chat.muteUntil' => 'Muted Until',
+			'chat.muted' => 'Muted',
+			'chat.mutedFor' => ({required Object label}) => '禁言 ${label}',
+			'chat.muteUnitMinutes' => ({required Object count}) => '${count} 分鐘',
+			'chat.muteUnitHours' => ({required Object count}) => '${count} 小時',
+			'chat.muteUnitDays' => ({required Object count}) => '${count} 天',
+			'chat.youAreMuted' => '你已被禁言',
+			'chat.youAreMutedWithTime' => ({required Object minutes}) => '你已被禁言，剩餘 ${minutes} 分鐘',
 			'chat.repliedAt' => '回覆於',
 			'chat.reply' => '回覆',
 			'chat.replyTo' => '回覆',
 			'chat.resendCode' => '重發驗證碼',
 			'chat.revoke' => '撤回',
 			'chat.scanQrCodeBusinessCard' => '掃描二維碼卡片',
+			'chat.singleChat' => 'Private Chat',
+			'chat.privateChat' => 'Private Chat',
+			'chat.groupMessage' => 'Group message',
 			'chat.sendFriendRequest' => '傳送新增好友申請',
 			'chat.sendMsgRejected' => '訊息已發出，但被對方拒收了。',
+			'chat.sendMessage' => '發訊息',
 			'chat.sendSeparatelyTo' => '分別傳送給',
 			'chat.sendTo' => '傳送給',
 			'chat.send' => _root.common.buttonSend,
@@ -1885,6 +2811,7 @@ extension on TranslationsZhHant {
 			'chat.video' => '影片',
 			'chat.videoMessage' => '[影片]',
 			'chat.viewAttachments' => '瀏覽附件',
+			'chat.viewLargeImage' => '檢視大圖',
 			'chat.voice' => '語音',
 			'chat.voiceInput' => '語音輸入',
 			'chat.voiceMessage' => '語音訊息',
@@ -1920,6 +2847,15 @@ extension on TranslationsZhHant {
 			'chat.unsupportedMessageType' => '不支援的訊息類型',
 			'chat.passwordMismatch' => '兩次密碼不一致',
 			'chat.pleaseTryAgainLater' => '請稍後重試',
+			'chat.momentsSelectVideo' => '選擇影片',
+			'chat.momentsRecordVideo' => '拍攝影片',
+			'chat.momentsVisibilityPrivate' => '僅自己',
+			'chat.momentsMediaTooManyImages' => '最多隻能選擇 9 張圖片',
+			'chat.momentsMediaTooManyVideos' => '最多隻能選擇 1 個影片',
+			'chat.momentsMediaMixedImageAndVideo' => '圖片和影片不能同時釋出',
+			'chat.momentsReplyPrefix' => '回覆 @',
+			'chat.momentsReplySeparator' => '：',
+			'chat.momentsReplyingTo' => '正在回覆 @{name}',
 			'chat.sendNewMessage' => '傳送新訊息',
 			'chat.markRead' => '標記已讀',
 			'chat.markUnread' => '標記未讀',
@@ -1938,21 +2874,75 @@ extension on TranslationsZhHant {
 			'chat.quickReplyThanks' => '謝謝',
 			'chat.quickReplyWait' => '稍等',
 			'chat.messageMute' => _root.chat.chatSettingMute,
-			'chat.quickReplyManage' => '管理快捷回复',
-			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
-			'chat.quickReplyDuplicate' => '内容已存在',
-			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
-			'chat.quickReplyHint' => '输入内容...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muteUntil' => 'Muted Until',
-			'chat.muted' => 'Muted',
-			'chat.singleChat' => 'Private Chat',
-			'chat.privateChat' => 'Private Chat',
-			'chat.groupMessage' => 'Group message',
+			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} 個群聊',
+			'chat.groupAlbumCreateTitle' => '新建群相簿',
+			'chat.groupAlbumCreated' => '相簿已建立',
+			'chat.profileCompleted' => '資料已完善！',
+			'chat.profileProgress' => ({required Object percent}) => '${percent}% 完成',
+			'chat.createdAtLabel' => ({required Object time}) => '建立時間: ${time}',
+			'chat.expiredAtLabel' => ({required Object time}) => '過期時間: ${time}',
+			'chat.myReceivedTab' => '我收到的',
+			'chat.orderStatusLabel' => ({required Object status}) => '狀態: ${status}',
+			'chat.orderCreatedAtLabel' => ({required Object time}) => '建立時間: ${time}',
+			'chat.orderPaymentAtLabel' => ({required Object time}) => '支付時間: ${time}',
+			'chat.orderStatusPending' => '待支付',
+			'chat.orderStatusPaid' => '已支付',
+			'chat.orderStatusRefunded' => '已退款',
+			'chat.orderStatusExpired' => '已過期',
+			'chat.defaultFileName' => '檔案',
+			'chat.fileUrlInvalid' => '檔案連結無效',
+			'chat.e2eeStatusAvailable' => '可用',
+			'chat.e2eeGenerateNewKey' => '生成新金鑰',
+			'chat.e2eeGenerateNewKeyDesc' => '生成新的 E2EE 金鑰對（舊訊息將無法解密）',
+			'chat.e2eeActivated' => '已啟用',
+			'chat.e2eeCreatedAtLabel' => '建立時間',
+			'chat.e2eeGeneratingKey' => '正在生成金鑰，請稍候...',
+			'chat.e2eeNewKeyGenerated' => '新的 E2EE 金鑰對已生成！',
+			'chat.e2eeReady' => '準備就緒',
+			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備就緒（${count} 個分片）',
+			'chat.webFeatureMultiDevice' => '多裝置同步',
+			'chat.webFeatureMultiDeviceDesc' => '在手機和電腦之間無縫切換，訊息實時同步',
+			'chat.webFeatureE2EE' => '端到端加密',
+			'chat.webFeatureE2EEDesc' => '所有訊息都經過端到端加密，確保隱私安全',
+			'chat.webFeatureFileTransfer' => '檔案傳輸',
+			'chat.webFeatureFileTransferDesc' => '拖拽即可傳送檔案，支援各種格式',
+			'chat.webQRStatusWaiting' => '開啟 ImBoy 手機版 > 設定 > 掃一掃',
+			'chat.webQRStatusScanned' => '請在手機上點選"確認登入"',
+			'chat.webQRStatusVerifying' => '正在驗證...',
+			'chat.webQRStatusExpired' => '請點選重新整理重新掃碼',
+			'chat.e2eeErrInvalidFormat' => '訊息格式錯誤，加密失敗',
+			'chat.e2eeSocialCreateTitle' => '建立恢復分片',
+			'chat.e2eeSocialCreateBtn' => '建立分片',
+			'chat.e2eeSocialCreateFailTitle' => '建立失敗',
+			'chat.e2eeSocialCreateFailBody' => '建立分片失敗，請重試',
+			'chat.e2eeSocialCreateFirst' => '建立分片後才能看到內容',
+			'chat.e2eeSocialUsedAtLabel' => '使用時間',
+			'chat.e2eeTransferSendTitle' => '傳送金鑰到新裝置',
+			'chat.e2eeTransferCreateBtn' => '建立',
+			'chat.e2eeTransferReceiveTitle' => '從舊裝置接收金鑰',
+			'chat.e2eeTransferSendDesc' => '透過二維碼將金鑰傳輸到新裝置',
+			'chat.e2eeTransferReceiveDesc' => '掃描舊裝置二維碼接收金鑰',
+			'chat.e2eeSocialStatus' => ({required Object status}) => '狀態: ${status}',
+			'chat.e2eeSocialCreateShardsTitle' => '建立恢復分片',
+			'chat.e2eeSocialCreateShardsDesc' => '將金鑰分割成多個分片，儲存到代理裝置（服務端不儲存）',
+			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '請選擇至少 ${count} 個代理',
+			'chat.e2eeRecreatingKey' => '正在重新建立金鑰...',
+			'chat.e2eeKeyRecreated' => '金鑰已重新建立',
+			'chat.e2eeRecoveryNewDeviceTitle' => '檢測到新裝置登入',
+			'chat.e2eeRecoveryNewDeviceBody' => '為保護訊息安全，本裝置已生成新的端對端加密金鑰。\n\n歷史訊息使用舊裝置的金鑰加密，需先恢復金鑰才能檢視。你可以透過「裝置轉移」「社交恢復」或「本地備份匯入」恢復。',
+			'chat.e2eeRecoveryDecryptFailedTitle' => '無法解密此訊息',
+			'chat.e2eeRecoveryDecryptFailedBody' => '此訊息由其他裝置的金鑰加密。\n\n若你更換了裝置或重新安裝了應用，請恢復加密金鑰後再檢視歷史訊息。',
+			'chat.e2eeRecoveryLater' => '稍後',
+			'chat.e2eeRecoveryGoRecover' => '去恢復',
+			'chat.e2eeRecoveryBannerText' => '檢測到加密歷史訊息，需恢復金鑰後才能檢視，點選前往恢復',
+			'chat.liveRoomCreateTitle' => '建立直播間',
+			'chat.liveRoomCreating' => '建立中...',
+			'chat.liveRoomWatch' => '觀看直播',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '接受',
+			_ => null,
+		} ?? switch (path) {
 			'common.acceptFriendRequest' => '通過好友驗證',
 			'common.addFriend' => '新增朋友',
 			'common.addPhoneContact' => '新增手機聯絡人',
@@ -1981,7 +2971,9 @@ extension on TranslationsZhHant {
 			'common.bindMobileAndEmailTips' => '綁定手機號和郵箱，讓您的帳號更安全',
 			'common.bindNow' => '立即綁定',
 			'common.buttonCancel' => '取消',
+			'common.buttonCreate' => '建立',
 			'common.buttonChangePassword' => '修改密碼',
+			'common.phoneInputHint' => '請輸入手機號',
 			'common.buttonClose' => '關閉',
 			'common.buttonConfirm' => '確認',
 			'common.buttonContinue' => '繼續',
@@ -2008,6 +3000,7 @@ extension on TranslationsZhHant {
 			'common.canNotAddYourselfFriend' => '您不能新增自己為好友',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
+			'common.operationSuccessful' => '操作成功',
 			'common.save' => _root.common.buttonSave,
 			'common.reset' => '重設',
 			'common.clear' => '清除',
@@ -2036,6 +3029,8 @@ extension on TranslationsZhHant {
 			'common.checkForUpdates' => '檢查更新',
 			'common.clearAll' => '全部清除',
 			'common.clearChatRecord' => '清空聊天記錄',
+			'common.complaintSuccess' => '投訴已提交',
+			'common.complaintFailed' => '投訴失敗，請稍後再試',
 			'common.confirmCode' => '確認碼',
 			'common.confirmCodeError' => '確認碼為空',
 			'common.confirmCodeSuccess' => '帳號已確認。',
@@ -2047,6 +3042,7 @@ extension on TranslationsZhHant {
 			'common.contactSettingTag' => '通訊錄標籤設定',
 			'common.contactTagListLogic' => '通訊錄標籤清單邏輯',
 			'common.contactTags' => '通訊錄標籤',
+			'common.contactInfoNotSynced' => '聯絡人資訊未同步',
 			'common.continueDownloading' => '繼續下載',
 			'common.copy' => '複製',
 			'common.coupon' => '票券',
@@ -2083,8 +3079,6 @@ extension on TranslationsZhHant {
 			'common.errorInvalidRequest' => _root.common.error,
 			'common.errorLengthBetween' => ({required Object param, required Object min, required Object max}) => '${param} 長度必須在 ${min} 和 ${max} 之間',
 			'common.errorManyRequest' => _root.common.error,
-			_ => null,
-		} ?? switch (path) {
 			'common.errorNoPackageToRemove' => _root.common.error,
 			'common.errorNoValidFileOrUrl' => _root.common.error,
 			'common.errorNonexistentDirectory' => _root.common.error,
@@ -2123,6 +3117,24 @@ extension on TranslationsZhHant {
 			'common.genderUpdateSuccess' => '性別設定成功',
 			'common.groupAddLocal' => '儲存到聯絡人',
 			'common.groupAnnouncement' => '群組公告',
+			'common.groupFileUploadSuccess' => '檔案上傳成功',
+			'common.groupFileUploadFailed' => '檔案上傳失敗，請稍後重試',
+			'common.groupFileDeleteSuccess' => '檔案已刪除',
+			'common.groupFileDeleteFailed' => '刪除失敗，請稍後重試',
+			'common.groupFileClosePreview' => '關閉預覽',
+			'common.groupFileUploadTooltip' => '上傳檔案',
+			'common.groupFileSearch' => '搜尋群檔案',
+			'common.groupFileReadFailed' => '檔案讀取失敗，請重試',
+			'common.groupFileDeleteTitle' => '刪除群檔案',
+			'common.groupFileDeleteConfirm' => ({required Object name}) => '確定刪除檔案「${name}」嗎？',
+			'common.groupFileImageLoadFailed' => '圖片載入失敗',
+			'common.groupFileOpenFailed' => '無法開啟檔案連結',
+			'common.groupFileSearchClear' => '清空',
+			'common.groupFileSearchAction' => '搜尋',
+			'common.groupFileCategoryAll' => '全部',
+			'common.groupFileSearchEmpty' => '未找到匹配檔案',
+			'common.groupFileAudioLoadFailed' => '音訊載入失敗',
+			'common.groupFileAudioLoading' => '音訊載入中...',
 			'common.groupQrcodeTips' => ({required Object days, required Object date}) => '該二維碼 ${days} 天內（${date} 前）有效，重新進入將更新',
 			'common.groupSearchTips' => '群組名稱和群組簡介',
 			'common.helpDocument' => '說明檔案',
@@ -2146,7 +3158,9 @@ extension on TranslationsZhHant {
 			'common.loading' => '載入中',
 			'common.locationMessage' => '位置訊息',
 			'common.loginDeviceManagementTips' => '您的帳號在以下設備中登入過，您可以刪除設備，刪除後在該設備登入時需進行安全驗證。',
+			'common.logoutFailed' => '退出登入失敗',
 			'common.logoutNotice' => '《註銷須知》',
+			'common.exportDataSuccess' => '資料已匯出',
 			'common.manually' => '手動選擇',
 			'common.messageCall' => '發訊息',
 			'common.messageContent' => '訊息內容',
@@ -2194,6 +3208,7 @@ extension on TranslationsZhHant {
 			'common.noUpdateDescription' => '無更新說明',
 			'common.normalModel' => '一般模式',
 			'common.notAuthorizedLatLong' => '您還沒有授權獲取經緯度',
+			'common.notLoggedIn' => '未登入',
 			'common.notBad' => '還不錯',
 			'common.notBound' => '未綁定',
 			'common.notFilled' => '未填寫',
@@ -2205,9 +3220,9 @@ extension on TranslationsZhHant {
 			'common.notShow' => '不顯示',
 			'common.notTurnedLocationService' => '您還沒有開啟位置服務',
 			'common.nowNewVersion' => '未檢測到新版本',
-			'common.off' => _root.common.disabled,
+			'common.kFalse' => _root.common.disabled,
 			'common.offlineNotification' => '下線通知',
-			'common.on' => _root.common.enabled,
+			'common.kTrue' => _root.common.enabled,
 			'common.operationFailedAgainLater' => '操作失敗，請稍後重試',
 			'common.optionsNo' => '否',
 			'common.optionsRename' => '我想重新命名',
@@ -2240,12 +3255,57 @@ extension on TranslationsZhHant {
 			'common.releaseFingerCancelSending' => '鬆開手指，取消傳送',
 			'common.removeContactFromTag' => '從標籤中移除聯絡人',
 			'common.removeMember' => '移出成員',
+			'common.atMentionYouTag' => '[@你] ',
+			'common.atMentionLeftMember' => '@已退群成員',
+			'common.muteNotifications' => '訊息免打擾',
+			'common.muteNotificationsHint' => '開啟後不會收到新訊息提醒，但仍可在會話列表看到未讀',
+			'common.revokeExpired' => '超過 2 分鐘，無法撤回',
+			'common.quickReplyAddTitle' => '新增快捷回覆',
+			'common.quickReplyEditTitle' => '編輯快捷回覆',
+			'common.removeAdmin' => 'Remove Admin',
+			'common.setAdminConfirm' => 'Set this member as admin?',
+			'common.removeAdminConfirm' => 'Remove admin role from this member?',
+			'common.muteMemberConfirm' => 'Mute this member?',
+			'common.unmuteMemberConfirm' => 'Unmute this member?',
+			'common.kickMemberConfirm' => 'Remove this member from the group?',
+			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
+			'common.setAdminSuccess' => 'Admin set',
+			'common.setAdminFailed' => 'Failed to set admin',
+			'common.removeAdminSuccess' => 'Admin removed',
+			'common.removeAdminFailed' => 'Failed to remove admin',
+			'common.muteMemberSuccess' => 'Member muted',
+			'common.muteMemberFailed' => 'Failed to mute member',
+			'common.unmuteMemberSuccess' => 'Member unmuted',
+			'common.unmuteMemberFailed' => 'Failed to unmute member',
+			'common.kickMemberSuccess' => 'Member removed',
+			'common.kickMemberFailed' => 'Failed to remove member',
+			'common.transferGroupSuccess' => 'Ownership transferred',
+			'common.transferGroupFailed' => 'Failed to transfer ownership',
+			'common.notMuted' => 'Not Muted',
+			'common.muteDuration' => 'Mute Duration',
+			'common.muteDuration1hour' => '1 Hour',
+			'common.muteDuration6hours' => '6 Hours',
+			'common.muteDuration12hours' => '12 Hours',
+			'common.muteDuration1day' => '1 Day',
+			'common.muteDuration3days' => '3 Days',
+			'common.muteDuration7days' => '7 Days',
+			'common.muteDurationPermanent' => 'Permanent',
+			'common.muteDuration5min' => '5分鐘',
+			'common.muteDuration10min' => '10分鐘',
+			'common.muteDuration30min' => '30分鐘',
+			'common.muteDuration30days' => '30天',
+			'common.muteUnitSeconds' => ({required Object count}) => '${count} 秒',
+			'common.throttleWarning' => '操作頻率過高，請稍後再試',
+			'common.throttleRetryAfter' => ({required Object seconds}) => '操作頻率過高，請 ${seconds} 秒後再試',
+			'common.mutedCannotSend' => '禁言期間無法傳送訊息',
 			'common.resendCodeSuccess' => '已傳送新郵件。',
 			'common.resetFilters' => '重設篩選',
 			'common.saveQrCode' => '儲存二維碼',
 			'common.saveSuccess' => '儲存成功',
 			'common.scanQrcodeAddFriend' => '掃一掃上面的二維碼圖案，加我為好友',
 			'common.search' => '搜尋',
+			'common.searchScope' => 'Search scope',
+			'common.searchAll' => 'All messages',
 			'common.searchChatContent' => '搜尋聊天內容',
 			'common.searchChatRecord' => '搜尋聊天記錄',
 			'common.searchError' => '搜尋錯誤',
@@ -2375,6 +3435,11 @@ extension on TranslationsZhHant {
 			'common.selectExpirationDateOptional' => '選擇有效期（可選）',
 			'common.groupAnnouncementDeleteConfirm' => '確定要刪除這則公告嗎？',
 			'common.groupAnnouncementDelete' => '刪除',
+			'common.groupAnnouncementLoadFailed' => '公告載入失敗，請稍後重試',
+			'common.groupAnnouncementPublishFailed' => '公告發布失敗',
+			'common.groupAnnouncementPublishSuccess' => '公告已釋出',
+			'common.groupAnnouncementDeleteFailed' => '公告刪除失敗',
+			'common.groupAnnouncementDeleteSuccess' => '公告已刪除',
 			'common.privacyClearChatHistory' => '清除聊天記錄',
 			'common.privacyClearChatHistoryConfirm' => '確定要清除所有聊天記錄嗎？此操作不可恢復。',
 			'common.privacyLogoutAccountConfirm' => '確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。',
@@ -2390,6 +3455,8 @@ extension on TranslationsZhHant {
 			'common.showOnlineStatus' => '顯示上線狀態',
 			'common.showOnlineStatusDesc' => '好友可以看到您的上線狀態',
 			'common.allowNearbyVisible' => '附近的人可見',
+			_ => null,
+		} ?? switch (path) {
 			'common.dataSettings' => '資料設定',
 			'common.clearChatRecords' => '清除聊天記錄',
 			'common.clearChatRecordsDesc' => '清除所有聊天記錄，此操作不可恢復',
@@ -2518,6 +3585,24 @@ extension on TranslationsZhHant {
 			'common.changeFailed' => '修改失敗',
 			'common.submitted' => '已提交',
 			'common.viewSecurityHelp' => '檢視安全說明',
+			'common.momentsNoData' => '暫無動態',
+			'common.momentsDeleteConfirm' => '確定刪除這條動態嗎？',
+			'common.momentsDeleteCommentConfirm' => '確定刪除這條評論嗎？',
+			'common.momentsNotFound' => '動態不存在或無許可權檢視',
+			'common.momentsContentOrMediaRequired' => '內容或媒體至少填寫一項',
+			'common.momentsPublishFailed' => '釋出失敗',
+			'common.momentsAllowComment' => '允許評論',
+			'common.momentsReportReason' => '舉報原因',
+			'common.momentsNoComments' => '暫無評論',
+			'common.momentsContentHint' => '寫點什麼...',
+			'common.momentsAddMedia' => '新增媒體',
+			'common.momentsAllowUidsLabel' => '允許可見 UID 列表（逗號分隔）',
+			'common.momentsCommentFailed' => '評論失敗，請稍後重試',
+			'common.momentsDeleteFailed' => '刪除失敗，請稍後重試',
+			'common.momentsReportSubmitted' => '舉報已提交',
+			'common.momentsReportFailed' => '舉報失敗，請稍後重試',
+			'common.momentsLoadMoreComments' => '載入更多評論',
+			'common.momentsUploadFailed' => '媒體上傳失敗，請稍後重試',
 			'common.transactionHistory' => '交易記錄',
 			'common.paymentPasswordSetSuccess' => '支付密碼設定成功',
 			'common.paymentPasswordSetFailed' => '支付密碼設定失敗',
@@ -2532,6 +3617,7 @@ extension on TranslationsZhHant {
 			'common.personalSignature' => '個性簽名',
 			'common.personalBackground' => '個人背景',
 			'common.setBackgroundImage' => '設定背景圖片',
+			'common.expression' => '表情',
 			'common.extendedInfo' => '擴展資訊',
 			'common.profession' => '職業',
 			'common.pleaseEnterProfession' => 'Please enter profession',
@@ -2597,8 +3683,6 @@ extension on TranslationsZhHant {
 			'common.seconds' => '秒',
 			'common.messageCannotLocatedMayBeDeleted' => '未能定位到該訊息，可能已被刪除',
 			'common.settingFailedPleaseTryAgain' => '設定失敗，請重試',
-			_ => null,
-		} ?? switch (path) {
 			'common.partialDeleteSuccess' => ({required Object success, required Object fail}) => '部分刪除成功：${success} 成功，${fail} 失敗',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => '收藏的影片訊息格式有誤，找不到 video uri',
 			'common.recordingCancelled' => '錄音已取消',
@@ -2614,6 +3698,10 @@ extension on TranslationsZhHant {
 			'common.noDetailedInfo' => '該用家還沒有設定個人簽名等詳細資訊',
 			'common.noNewRegisteredUsers' => '目前沒有新註冊的用家 請稍後再來檢視',
 			'common.newRegisteredUsersTip' => '這裡顯示最近註冊的用家，您可以主動新增他們為好友',
+			'common.notificationFriendRequest' => '好友請求',
+			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} 請求新增您為好友',
+			'common.notificationGroupInvite' => '群邀請',
+			'common.notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} 邀請您加入群組 ${groupName}',
 			'common.youRevokedMessage' => '您撤回了一則訊息',
 			'common.otherRevokedMessage' => '對方撤回了一則訊息',
 			'common.networkFailureTryAgain' => '網路故障，請重試！',
@@ -2630,44 +3718,302 @@ extension on TranslationsZhHant {
 			'common.smaller' => '更小',
 			'common.currentFontScale' => ({required Object param1, required Object param2}) => '目前：${param1} ${param2}%',
 			'common.emailUpdatedTo' => ({required Object param}) => '郵箱已更新為 ${param}',
-			'common.atMentionYouTag' => '[@你] ',
-			'common.atMentionLeftMember' => '@已退群成员',
-			'common.muteNotifications' => '消息免打扰',
-			'common.muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
-			'common.revokeExpired' => '超过 2 分钟，无法撤回',
-			'common.quickReplyAddTitle' => '新增快捷回复',
-			'common.quickReplyEditTitle' => '编辑快捷回复',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.muteMemberConfirm' => 'Mute this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.transferGroupConfirm' => 'Transfer group ownership to this member? You will become an admin after transfer.',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.transferGroupSuccess' => 'Ownership transferred',
-			'common.transferGroupFailed' => 'Failed to transfer ownership',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration6hours' => '6 Hours',
-			'common.muteDuration12hours' => '12 Hours',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration3days' => '3 Days',
-			'common.muteDuration7days' => '7 Days',
-			'common.muteDurationPermanent' => 'Permanent',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.groupAnnouncementExpiry' => ({required Object time}) => '有效期至: ${time}',
+			'common.groupAlbumCreateFailed' => '建立失敗，請稍後重試',
+			'common.groupAlbumDeleteTitle' => '刪除群相簿',
+			'common.groupAlbumDeleteConfirm' => ({required Object name}) => '確定刪除相簿「${name}」嗎？',
+			'common.groupAlbumDeleted' => '相簿已刪除',
+			'common.groupAlbumDeleteFailed' => '刪除失敗，請稍後重試',
+			'common.groupAlbumRenameFailed' => '更新失敗，請稍後重試',
+			'common.groupAlbumUploadTooltip' => '上傳圖片',
+			'common.groupAlbumDeleteTooltip' => '刪除相簿',
+			'common.groupAlbumNoAlbum' => '暫無群相簿',
+			'common.groupAlbumPhotoReadFailed' => '圖片讀取失敗，請重試',
+			'common.groupAlbumPhotoUploaded' => '圖片上傳成功',
+			'common.groupAlbumPhotoUploadFailed' => '圖片上傳失敗，請稍後重試',
+			'common.groupAlbumCreateTooltip' => '新建相簿',
+			'common.groupAlbumPhotoBatchDeleteTitle' => '批次刪除圖片',
+			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => '確定刪除選中的 ${count} 張圖片嗎？',
+			'common.groupAlbumPhotoDeleteFailed' => '刪除失敗，請稍後重試',
+			'common.groupAlbumPhotoDeletedAll' => ({required Object count}) => '已刪除${count}張圖片',
+			'common.groupAlbumPhotoDeletedPartial' => ({required Object success, required Object fail}) => '已刪除${success}張，${fail}張刪除失敗',
+			'common.groupAlbumPhotoDeleteTitle' => '刪除圖片',
+			'common.groupAlbumPhotoDeleteConfirm' => '確定刪除這張圖片嗎？',
+			'common.groupAlbumPhotoDeleted' => '圖片已刪除',
+			'common.groupAlbumPhotoBatchDeleteTooltip' => '批次刪除',
+			'common.groupAlbumPhotoExitSelection' => '退出選擇',
+			'common.groupAlbumPhotoOpenFailed' => '無法開啟圖片連結',
+			'common.groupAlbumPhotoNotFound' => '圖片不存在或已刪除',
+			'common.groupAlbumPhotoOpenExternal' => '外部開啟',
+			'common.groupAlbumPhotoCoverUpdated' => '已設為相簿封面',
+			'common.groupAlbumPhotoCoverFailed' => '設定封面失敗，請稍後重試',
+			'common.groupAlbumPhotoNext' => '下一張',
+			'common.groupAlbumPhotoResolution' => '解析度',
+			'common.groupAlbumPhotoUploader' => '上傳者',
+			'common.sectionDisplay' => '顯示',
+			'common.sectionTheme' => '主題',
+			'common.selectLanguage' => '選擇語言',
+			'common.completionSuggestions' => '完善建議：',
+			'common.sectionGeneral' => '通用',
+			'common.sectionPrivacySecurity' => '隱私與安全',
+			'common.sectionHelpAbout' => '幫助與關於',
+			'common.msgOnlyVisibleToParties' => '訊息僅收發雙方可讀',
+			'common.msgNotEncrypted' => '訊息未加密傳輸',
+			'common.durationMinutes' => ({required Object count}) => '${count}分鐘',
+			'common.durationSeconds' => ({required Object count}) => '${count}秒',
+			'common.rechargeAmountError' => '請輸入1元到10000元之間的金額',
+			'common.rechargeSuccess' => '充值成功',
+			'common.rechargeConfirm' => '確認充值',
+			'common.transactionHistory2' => '流水記錄',
+			'common.noTransactionHistory' => '暫無流水記錄',
+			'common.allLoaded' => '— 已全部載入 —',
+			'common.transactionTypeIncome' => '充值',
+			'common.transactionTypeExpense' => '消費',
+			'common.sectionLoginCredentials' => '登入憑證',
+			'common.channelInvitations' => '頻道邀請',
+			'common.acceptInvitationFailed' => '接受邀請失敗',
+			'common.rejectInvitationFailed' => '拒絕邀請失敗',
+			'common.invitationAccepted' => '已接受邀請',
+			'common.invitationRejected' => '已拒絕邀請',
+			'common.invitationStatusPending' => '待處理',
+			'common.invitationStatusAccepted' => '已接受',
+			'common.invitationStatusRejected' => '已拒絕',
+			'common.invitationStatusExpired' => '已過期',
+			'common.invitationStatusCancelled' => '已取消',
+			'common.invitationStatusUnknown' => '未知',
+			'common.noReceivedInvitations' => '暫無收到的邀請',
+			'common.noSentInvitations' => '暫無發出的邀請',
+			'common.processingDots' => '處理中...',
+			'common.purchaseFailed' => '購買失敗，請稍後重試',
+			'common.purchaseSuccess' => '購買成功',
+			'common.insufficientBalanceTitle' => '餘額不足',
+			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => '當前餘額 ${currency} ${balance}，需支付 ${currency} ${price}。請先充值後再購買。',
+			'common.goRecharge' => '去充值',
+			'common.noOrders' => '暫無訂單',
+			'common.orderDetailLoadFailed' => '訂單詳情載入失敗',
+			'common.orderNoLabel' => ({required Object no}) => '訂單號: ${no}',
+			'common.orderStatusCancelled' => '已取消',
+			'common.orderStatusUnknown' => '未知',
+			'common.removeReaction' => '移除反應',
+			'common.removeReactionConfirm' => ({required Object emoji}) => '確定要移除 ${emoji} 反應嗎？',
+			'common.fileOpenFailed' => '無法開啟該檔案',
+			'common.e2eeLocalBackup' => '本地備份',
+			'common.e2eeLocalBackupDesc' => '匯出加密備份檔案到本地或雲端',
+			'common.e2eeDeleteKey' => '刪除金鑰',
+			'common.e2eeDeleteKeyDesc' => '刪除本地儲存的金鑰（無法恢復）',
+			'common.e2eeCurrentKeyInfo' => '當前金鑰資訊',
+			'common.e2eeE2EEEnabled' => '端到端加密已啟用',
+			'common.e2eeNoKeyDetected' => '未檢測到 E2EE 金鑰',
+			'common.e2eeNoKeyDesc' => '您需要先生成金鑰對或從備份中恢復',
+			'common.e2eeAboutTitle' => '關於端到端加密',
+			'common.e2eeInfoPoint1' => '• 您的訊息在傳送前已加密，伺服器無法檢視內容',
+			'common.e2eeInfoPoint2' => '• 更換裝置或刪除金鑰後，舊訊息可能無法解密',
+			'common.e2eeInfoPoint3' => '• 請定期備份金鑰以防資料丟失',
+			'common.e2eeExportBackup' => '匯出備份',
+			'common.e2eeExportBackupDesc' => '生成加密備份檔案',
+			'common.e2eeImportBackup' => '匯入備份',
+			'common.e2eeImportBackupDesc' => '從備份檔案恢復金鑰',
+			'common.e2eeBackupManage' => '備份管理',
+			'common.e2eeBackupManageDesc' => '檢視備份歷史記錄',
+			'common.e2eeGenerateKeyConfirm' => '確定要生成新的 E2EE 金鑰對嗎？',
+			'common.e2eeWarnOldMessagesLost' => '• 舊訊息將無法解密',
+			'common.e2eeWarnNeedNewBackup' => '• 需要重新生成備份檔案',
+			'common.e2eeConfirmGenerate' => '確認生成',
+			'common.e2eeDeleteKeyConfirm' => '確定要刪除當前金鑰嗎？',
+			'common.e2eeWarnCannotRestore' => '• 刪除後無法恢復',
+			'common.e2eeWarnAllMsgsLost' => '• 所有 E2EE 訊息將無法解密',
+			'common.e2eeConfirmDelete' => '確認刪除',
+			'common.e2eeKeyGeneratedSuccess' => '金鑰生成成功',
+			'common.e2eeDeviceIdInfo' => ({required Object id}) => '裝置 ID: ${id}',
+			'common.e2eeKeyIdInfo' => ({required Object id}) => '金鑰 ID: ${id}',
+			'common.e2eeCreatedAtInfo' => ({required Object time}) => '建立時間: ${time}',
+			'common.e2eeImportantNote' => '重要提示',
+			'common.e2eeWarnOldMayNotDecrypt' => '• 舊訊息可能無法解密',
+			'common.e2eeSuggestBackupNow' => '• 建議立即匯出備份',
+			'common.e2eeGoBackup' => '去備份',
+			'common.e2eeKeyGenerateFailed' => '金鑰生成失敗，請重試',
+			'common.e2eeKeyDeleted' => '金鑰已刪除',
+			'common.e2eeDeleteFailed' => '刪除失敗，請重試',
+			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '可用分片: ${available} 個，需要 ${required} 個代理協助',
+			'common.e2eeNoRecoveryShards' => '沒有可用的恢復分片',
+			'common.e2eeRecoverSuccess' => '恢復成功',
+			'common.e2eeRecoverFailed' => '恢復失敗',
+			'common.e2eeRecoverKeyFailed' => '恢復金鑰失敗，請重試',
+			'common.e2eeLoadingShards' => '載入分片資訊...',
+			'common.e2eeNoShards' => '沒有可用的分片',
+			'common.e2eeLoadFailed' => '載入失敗，請重試',
+			'common.e2eeContactingProxy' => ({required Object name}) => '正在聯絡: ${name}',
+			'common.e2eeRecoveryFailed' => '恢復失敗，請重試',
+			'common.webFeatureNotification' => '桌面通知',
+			'common.webFeatureNotificationDesc' => '即使不在頁面也能收到新訊息提醒',
+			'common.webQRConfirmOnPhone' => '請在手機上確認登入',
+			'common.webQRLoginFailed' => '登入失敗',
+			'common.webQRLoginSuccess' => '登入成功',
+			'common.webQRExpiresIn' => ({required Object seconds}) => '${seconds} 秒後過期',
+			'common.webQRStatusFailed' => '登入失敗，請重試',
+			'common.webQRStatusSuccess' => '正在跳轉...',
+			'common.webLoginEmptyError' => '請輸入賬號和密碼',
+			'common.webQRGenerateFailed' => '生成二維碼失敗',
+			'common.webQRTokenInvalid' => '登入令牌無效',
+			'common.e2eeErrNoRecipientKey' => '無法獲取對方裝置金鑰，訊息未傳送',
+			'common.e2eeDecryptFailed' => '訊息無法解密',
+			'common.e2eeDecryptFailedReasons' => '此訊息無法解密，可能原因是：',
+			'common.e2eeDecryptReasonOtherDevice' => '• 您在其他裝置上登入',
+			'common.e2eeDecryptReasonKeyExpired' => '• 裝置金鑰已過期',
+			'common.e2eeDecryptReasonDataCorrupt' => '• 應用資料損壞',
+			'common.e2eeDecryptChooseSolution' => '請選擇解決方案：',
+			'common.e2eeDecryptActionRecreateKey' => '重新建立金鑰（推薦）',
+			'common.e2eeDecryptActionRelogin' => '重新登入',
+			'common.e2eeDecryptActionRemindLater' => '稍後提醒我',
+			'common.e2eeBackupExportTitle' => '匯出 E2EE 備份',
+			'common.e2eeBackupPwdCantRecover' => '• 備份密碼無法找回，請務必牢記！',
+			'common.e2eeBackupStoreMultipleNote' => '• 建議將備份檔案儲存到多個安全位置（郵件、雲盤、隨身碟）',
+			'common.e2eeBackupPwdLabel' => '備份密碼 *',
+			'common.e2eeBackupPwdHint' => '至少 12 位，包含大小寫字母、數字和特殊符號',
+			'common.e2eeBackupConfirmPwdLabel' => '確認密碼 *',
+			'common.e2eeBackupConfirmPwdHint' => '再次輸入密碼',
+			'common.e2eeBackupNoteLabel' => '備註（可選）',
+			'common.e2eeBackupNoteHint' => '例如：主手機備份 - 2026年1月',
+			'common.e2eeBackupPwdStrengthLabel' => '密碼強度',
+			'common.e2eeBackupPwdWeak' => '弱 - 建議增加複雜度',
+			'common.e2eeBackupPwdMedium' => '中等 - 建議增加長度或複雜度',
+			'common.e2eeBackupPwdStrong' => '強 - 可以使用',
+			'common.e2eeBackupPwdVeryStrong' => '非常強 - 安全',
+			'common.e2eeBackupGenerateBtn' => '生成備份檔案',
+			'common.e2eeBackupFileGenerated' => '備份檔案已生成！',
+			'common.e2eeBackupShareBtn' => '透過郵件/雲盤分享',
+			'common.e2eeBackupShareContent' => '這是我的 Imboy E2EE 金鑰備份檔案，請妥善保管，切勿洩露給他人。',
+			'common.e2eeBackupErrPwdMismatch' => '兩次輸入的密碼不一致',
+			'common.e2eeBackupErrNoKeyData' => '無法獲取金鑰資料',
+			'common.e2eeBackupErrExportFailed' => '匯出失敗，請重試',
+			'common.e2eeBackupErrShareFailed' => '分享失敗，請重試',
+			'common.e2eeBackupExportSuccessTitle' => '備份匯出成功',
+			'common.e2eeBackupExportSuccessBody' => '您的 E2EE 金鑰備份已成功生成。',
+			'common.e2eeBackupImportantNoteColon' => '重要提示：',
+			'common.e2eeBackupKeepSafe' => '• 請妥善保管備份檔案和密碼',
+			'common.e2eeBackupStoreMultipleLoc' => '• 建議將檔案儲存到多個安全位置',
+			'common.e2eeBackupPwdCantRecoverNote' => '• 密碼無法找回，請務必牢記',
+			'common.e2eeBackupImportTitle' => '匯入 E2EE 備份',
+			'common.e2eeBackupImportGuide' => '匯入說明',
+			'common.e2eeBackupImportReplaceKey' => '• 匯入後，當前的 E2EE 金鑰將被替換',
+			'common.e2eeBackupImportTrustedSource' => '• 請確保備份檔案來自可信任的來源',
+			'common.e2eeBackupSelectFile' => '選擇備份檔案',
+			'common.e2eeBackupSelectFileHint' => '點選選擇備份檔案 (.enc)',
+			'common.e2eeBackupInfoTitle' => '備份資訊',
+			'common.e2eeBackupVersionLabel' => '版本號',
+			'common.e2eeBackupAlgorithmLabel' => '演算法',
+			'common.e2eeBackupFileSizeLabel' => '檔案大小',
+			'common.e2eeBackupFileValid' => '✓ 檔案格式有效',
+			'common.e2eeBackupImportPwdHint' => '請輸入備份時設定的密碼',
+			'common.e2eeBackupImportBtn' => '匯入金鑰',
+			'common.e2eeBackupErrSelectFile' => '選擇檔案失敗，請重試',
+			'common.e2eeBackupErrValidateFailed' => '檔案驗證失敗，請檢查檔案格式',
+			'common.e2eeBackupErrImportFailed' => '匯入失敗，請檢查密碼是否正確',
+			'common.e2eeBackupImportSuccessTitle' => '匯入成功',
+			'common.e2eeBackupImportSuccessBody' => 'E2EE 金鑰已成功恢復！',
+			'common.e2eeBackupImportSuccessNote' => '注意：舊訊息可能無法訪問，這是 E2EE 的正常行為',
+			'common.e2eeBackupNoRecords' => '暫無備份記錄',
+			'common.e2eeBackupNoRecordsHint' => '匯出備份後將在此顯示歷史記錄',
+			'common.e2eeBackupDeviceLabel' => ({required Object id}) => '裝置 ${id}',
+			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => '建立於 ${time}',
+			'common.e2eeBackupDetailTitle' => '備份詳情',
+			'common.e2eeBackupDeviceIdLabel' => '裝置 ID',
+			'common.e2eeBackupVersionNum' => '備份版本',
+			'common.e2eeBackupCreatedAtRow' => '建立時間',
+			'common.e2eeBackupFileSizeRow' => '檔案大小',
+			'common.e2eeBackupNoteRow' => '備註',
+			'common.e2eeBackupDeleteTitle' => '刪除備份記錄',
+			'common.e2eeBackupDeleteConfirm' => '確定要刪除此備份記錄嗎？',
+			'common.e2eeBackupDeleteSuccess' => '備份記錄已刪除',
+			'common.e2eeSocialShardSettings' => '分片設定',
+			'common.e2eeSocialShardStoredNote' => '說明：分片將儲存在代理裝置上，服務端不儲存任何分片',
+			'common.e2eeSocialAddProxy' => '新增代理',
+			'common.e2eeSocialAddProxyHint' => '請新增代理聯絡人',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '請先新增 ${count} 個代理',
+			'common.e2eeSocialCreateSuccessTitle' => '分片建立成功',
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '金鑰已分割成 ${count} 個分片',
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '需要 ${count} 個代理協助即可恢復金鑰',
+			'common.e2eeSocialZeroTrustNote' => '零信任架構：服務端不儲存任何分片',
+			'common.e2eeSocialNoShards' => '您還沒有建立任何恢復分片',
+			'common.e2eeSocialNoProxyShards' => '沒有代理分片',
+			'common.e2eeSocialKeyVersionLabel' => '金鑰版本',
+			'common.e2eeTransferErrNoKey' => '請先生成金鑰對',
+			'common.e2eeTransferErrInitFailed' => '初始化失敗，請重試',
+			'common.e2eeTransferErrNoRecipientKey' => '接收方沒有可用的公鑰',
+			'common.e2eeTransferErrKeyNotFound' => '金鑰未找到',
+			'common.e2eeTransferErrCreateFailed' => '建立傳輸會話失敗，請重試',
+			'common.e2eeTransferCreateSessionBtn' => '建立傳輸會話',
+			'common.e2eeTransferSessionCreated' => '傳輸會話已建立',
+			'common.e2eeTransferUidEmptyError' => '請輸入有效的使用者 ID',
+			'common.e2eeTransferSuccess' => '傳輸成功！',
+			'common.e2eeTransferFailed' => '傳輸失敗，請重試',
+			'common.e2eeTransferProcessingMsg' => '處理中...',
+			'common.e2eeTransferSuccessTitle' => '傳輸成功',
+			'common.e2eeTransferSuccessBody' => '金鑰已成功傳輸到當前裝置',
+			'common.e2eeTransferScanError' => ({required Object error}) => '掃描錯誤: ${error}',
+			'common.e2eeTransferErrNoDeviceId' => '無法獲取裝置 ID',
+			'common.passwordEncryptFailed' => '密碼加密失敗',
+			'common.initConfigTimeout' => '配置獲取超時: 請檢查網路連線或服務端狀態',
+			'common.initConfigNetworkError' => ({required Object code}) => '網路故障或服務故障 (HTTP ${code})',
+			'common.initConfigProtocolError' => '服務故障協議有誤',
+			'common.initConfigFetchFailed' => '配置獲取失敗，請檢查網路連線',
+			'common.attachmentGetFileFailed' => '無法獲取檔案，請重試或使用相簿選擇',
+			'common.attachmentGetFileFailedAndroid9' => '檔案獲取失敗，Android 9 可能存在相容性問題',
+			'common.attachmentGetImageDataFailed' => '無法獲取圖片資料，請重試',
+			'common.attachmentGetOriginalImageFailed' => '無法獲取原始圖片資料',
+			'common.saveFailedRetry' => '儲存失敗，請重試',
+			'common.downloadFileNotFound' => '下載檔案不存在，請重試',
+			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '檔案校驗失敗，正在重新下載 (${retry}/${max})',
+			'common.downloadHashFailed' => '檔案多次校驗失敗，請檢查網路後重試',
+			'common.e2eeTransferToNewDevice' => '傳輸到新裝置',
+			'common.e2eeTransferPendingSection' => '待處理的傳輸',
+			'common.e2eeTransferLoadFailed' => '載入失敗',
+			'common.e2eeTransferLoadFailedDesc' => '無法載入待處理的傳輸，請重試',
+			_ => null,
+		} ?? switch (path) {
+			'common.e2eeTransferNoPending' => '暫無待處理的傳輸',
+			'common.e2eeTransferNoPendingDesc' => '當有裝置向您傳送金鑰時，會顯示在這裡',
+			'common.e2eeSocialEnoughShards' => '您已有足夠的分片可以恢復金鑰',
+			'common.e2eeSocialMoreShards' => ({required Object count}) => '還有 ${count} 個分片...',
+			'common.e2eeProxyLoadFriendsFailed' => '載入好友列表失敗，請重試',
+			'common.e2eeProxyNoPublicKey' => '該好友沒有可用的公鑰',
+			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => '獲取 ${name} 的公鑰失敗',
+			'common.e2eeProxySelectFailed' => '選擇代理失敗，請重試',
+			'common.e2eeProxyNoFriends' => '暫無好友',
+			'common.e2eeProxyNoFriendsHint' => '請先新增好友後再設定恢復代理',
+			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '至少需要 ${count} 個信任的聯絡人，已選擇 ${selected} 個',
+			'common.e2eeProxyConfirmCount' => ({required Object count}) => '確認選擇 (${count} 個代理)',
+			'common.buttonBackHome' => '返回首頁',
+			'common.featureNotEnabled' => '當前功能未啟用',
+			'common.featureDisabledName' => ({required Object name}) => '${name} 功能未啟用，暫時無法訪問',
+			'common.imageLoadFailed' => '載入失敗',
+			'common.loadFailedWithError' => ({required Object error}) => '載入失敗: ${error}',
+			'common.webAudioNotSupported' => 'Web 平臺暫不支援語音訊息播放',
+			'common.e2eeKeyRecreationFailed' => ({required Object error}) => '金鑰建立失敗: ${error}',
+			'common.redPacket' => '紅包',
+			'common.transfer' => '轉賬',
+			'common.withdraw' => '提現',
+			'common.redPacketSend' => '發紅包',
+			'common.redPacketOpen' => '搶紅包',
+			'common.redPacketDetail' => '紅包詳情',
+			'common.transferSend' => '發起轉賬',
+			'common.transferAccept' => '確認收錢',
+			'common.greetingDefault' => '恭喜發財，大吉大利',
+			'common.grabAmountYuan' => ({required Object amount}) => '領到金額：${amount} 元',
+			'common.transferAmountYuan' => ({required Object amount}) => '轉賬金額：${amount} 元',
+			'common.insufficientBalance' => '餘額不足',
+			'common.goToRecharge' => '去充值',
+			'common.withdrawSuccess' => '提現成功',
+			'common.withdrawConfirm' => '確認提現',
+			'common.withdrawAmountError' => '請輸入不低於1元的金額',
+			'common.withdrawAccountEmpty' => '請輸入提現賬號',
+			'common.withdrawMethod' => '提現方式',
+			'common.withdrawAccount' => '提現賬號',
 			'complaint.complaint' => '投訴',
+			'complaintReason.spam' => '垃圾資訊',
+			'complaintReason.harassment' => '騷擾',
+			'complaintReason.inappropriate' => '不當內容',
+			'complaintReason.other' => '其他',
 			'contact.applyFriend' => '申請好友',
 			'contact.applyFriendLogic' => '申請好友邏輯',
 			'contact.applyParam' => ({required Object param}) => '申請${param}',
@@ -2698,6 +4044,7 @@ extension on TranslationsZhHant {
 			'contact.pleaseEnterRemark' => '請輸入備註名',
 			'contact.enterRemark' => '請輸入備註名',
 			'contact.pleaseEnterTags' => '請輸入標籤',
+			'contact.momentsVisibilityFriends' => '僅好友',
 			'contact.tagLengthExceeded' => ({required Object param}) => '標籤長度不能超過 ${param} 個字元',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能新增 ${param} 個標籤',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '已選標籤 (${param}/${max})',
@@ -2716,6 +4063,8 @@ extension on TranslationsZhHant {
 			'contact.tagIdeas' => '想法',
 			'contact.tagMemo' => '備忘',
 			'contact.friendRequestSent' => '已傳送',
+			'contact.channelMaxTagsCount' => '最多可新增 8 個標籤',
+			'contact.tagInputHint' => '輸入標籤...',
 			'discovery.findNearbyPeople' => '搜尋附近的人',
 			'discovery.moment' => '動態',
 			'discovery.nearbyPeopleExplain' => '附近的用家可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。\n您的電話號碼將會被隱藏。',
@@ -2725,10 +4074,26 @@ extension on TranslationsZhHant {
 			'discovery.scanResult' => '掃描結果',
 			'discovery.scannerResult' => '掃描結果',
 			'discovery.titleDiscover' => '發現',
+			'discovery.myChannels' => '我的頻道',
+			'discovery.channelSquare' => '頻道廣場',
 			'discovery.otherUsersCanFindMe' => '其他用家可以通過搜尋找到我',
 			'discovery.moments' => '動態',
+			'discovery.momentsReport' => '舉報動態',
+			'discovery.momentsReportDesc' => '補充說明',
+			'discovery.momentsComments' => '評論',
+			'discovery.momentsWriteComment' => '寫評論...',
+			'discovery.momentsVisibility' => '可見性',
+			'discovery.momentsVisibilityPublic' => '公開',
+			'discovery.momentsVisibilityPartial' => '部分可見',
+			'discovery.momentsVisibilityExclude' => '不給誰看',
+			'discovery.momentsDenyUidsLabel' => '不給誰看 UID 列表（逗號分隔）',
+			'discovery.momentsDraftRestored' => '已恢復上次未傳送的草稿',
+			'discovery.momentsFeedStale' => '網路異常，顯示的是快取內容',
 			'discovery.discover' => '發現',
 			'discovery.shake' => '搖一搖',
+			'discovery.openChannel' => '開啟頻道',
+			'discovery.paidChannelLocked' => '付費頻道內容已鎖定',
+			'discovery.webQRScanned' => '已掃描',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.networkFailureGuidance' => '網路故障排查指引',
 			'error.pleaseCheckNetwork' => '請檢查您的網路設定。',
@@ -2736,10 +4101,16 @@ extension on TranslationsZhHant {
 			'error.networkTroubleshootingStep2' => '2.開啟手機設定-一般-流動數據，並把流動數據開關保持開啟狀態。',
 			'error.networkTroubleshootingStep3' => '3.如仍無法連接網路，請檢查手機連接的 Wi-Fi 是否已連上互聯網或聯絡電訊商。',
 			'error.suggestCheckNetwork' => '建議檢查網路設定。',
+			'error.e2eeStartRecoveryBtn' => ({required Object required}) => '開始恢復金鑰（需要 ${required} 個代理協助）',
+			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => '分片不足（需要 ${required} 個，當前 ${current} 個）',
+			'error.e2eeErrTimeout' => '加密超時，請檢查網路連線後重試',
+			'error.e2eeErrNetwork' => '網路錯誤，加密失敗，訊息未傳送',
+			'error.liveRoomTitleRequired' => '標題不能為空',
 			'group.financialManagement' => '理財通',
 			'group.enterSameGroup' => '與身邊的朋友進入同一個群組聊天',
 			'group.enterTheGroup' => '進入該群組',
 			'group.groupAlias' => '我在本群組的暱稱',
+			'group.groupAlbum' => '群相簿',
 			'group.groupDissolve' => '解散群組',
 			'group.groupJoin' => '加入群組',
 			'group.groupLeave' => '退出群組',
@@ -2747,16 +4118,139 @@ extension on TranslationsZhHant {
 			'group.groupMembers' => '群組成員',
 			'group.groupName' => '群組名稱',
 			'group.mutualGroupsWithHer' => '我和他的共同群組',
-			'group.selectGroup' => '選擇群組',
-			'group.sureToDissolveGroup' => '確定要解散本群組嗎？',
-			'group.sureToLeaveGroup' => '確定要退出本群組嗎？',
 			'group.groupOwner' => 'Owner',
 			'group.groupAdmin' => 'Admin',
-			'group.groupGuest' => '嘉宾',
+			'group.groupGuest' => '嘉賓',
 			'group.groupMember' => 'Member',
 			'group.setAdmin' => 'Set as Admin',
 			'group.transferGroup' => 'Transfer Ownership',
 			'group.joinTime' => 'Join Time',
+			'group.selectGroup' => '選擇群組',
+			'group.sureToDissolveGroup' => '確定要解散本群組嗎？',
+			'group.sureToLeaveGroup' => '確定要退出本群組嗎？',
+			'group.groupAlbumNameHint' => '請輸入相簿名稱',
+			'group.groupAlbumRenameTitle' => '重新命名相簿',
+			'group.groupAlbumRenamed' => '相簿名稱已更新',
+			'group.groupAlbumUnnamed' => '未命名相簿',
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 張圖片',
+			'group.groupAlbumPhotoIdMissing' => '圖片ID缺失，無法檢視詳情',
+			'group.groupAlbumPhotoListTitle' => '相簿圖片',
+			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '已選擇 ${count} 項',
+			'group.groupAlbumPhotoEmpty' => '暫無圖片',
+			'group.groupAlbumPhotoUrlMissing' => '圖片地址缺失，無法開啟',
+			'group.groupAlbumPhotoUrlInvalid' => '圖片地址無效',
+			'group.groupAlbumPhotoDetailTitle' => '圖片詳情',
+			'group.groupAlbumPhotoSetCover' => '設為封面',
+			'group.groupAlbumPhotoPrev' => '上一張',
+			'group.groupAlbumPhotoLikeCount' => '點贊數',
+			'group.groupAlbumPhotoCommentCount' => '評論數',
+			'group.groupAlbumPhotoMyLike' => '我的點贊',
+			'group.groupAlbumPhotoIdLabel' => '圖片ID',
+			'group.e2eeKeyManagement' => 'E2EE 金鑰管理',
+			'group.e2eeKeyManagementSubtitle' => '備份、恢復和管理端到端加密金鑰',
+			'groupCategory.title' => '群分組',
+			'groupCategory.createCategory' => '建立分組',
+			'groupCategory.categoryName' => '分組名稱',
+			'groupCategory.categoryDesc' => '分組描述（可選）',
+			'groupCategory.noCategory' => '暫無分組',
+			'groupCategory.createFirst' => '建立第一個分組吧',
+			'groupCategory.addGroup' => '新增群聊到分組',
+			'groupCategory.removeGroup' => '從分組移除',
+			'groupCategory.deleteCategory' => '刪除分組',
+			'groupCategory.deleteCategoryConfirm' => '確定要刪除該分組嗎？群聊不會被刪除。',
+			'groupCategory.categoryCreated' => '分組建立成功',
+			'groupCategory.categoryDeleted' => '分組已刪除',
+			'groupCategory.renameCategory' => '重新命名分組',
+			'groupCategory.categoryRenamed' => '分組重新命名成功',
+			'groupCategory.renameFailed' => '重新命名失敗，請重試',
+			'groupCategory.deleteFailed' => '刪除失敗，請重試',
+			'groupCategory.categoryDetailTip' => '該分組下的群聊可以在群組列表中透過「移入分組」進行管理',
+			'groupList.attrAll' => '全部',
+			'groupList.attrOwner' => '我建立',
+			'groupList.attrManager' => '我管理',
+			'groupList.attrJoin' => '我加入',
+			'groupList.refresh' => '重新整理',
+			'groupSchedule.title' => '群日程',
+			'groupSchedule.createSchedule' => '建立日程',
+			'groupSchedule.scheduleTitle' => '日程標題',
+			'groupSchedule.selectDate' => '選擇日期',
+			'groupSchedule.selectTime' => '選擇時間',
+			'groupSchedule.location' => '地點',
+			'groupSchedule.reminder' => '提醒',
+			'groupSchedule.noReminder' => '不提醒',
+			'groupSchedule.noSchedule' => '暫無日程',
+			'groupSchedule.scheduleCreated' => '日程建立成功',
+			'groupSchedule.scheduleUpdated' => '日程更新成功',
+			'groupSchedule.reminder15min' => '提前15分鐘',
+			'groupSchedule.reminder1hour' => '提前1小時',
+			'groupSchedule.reminder1day' => '提前1天',
+			'groupSchedule.startTime' => '開始時間',
+			'groupSchedule.endTime' => '結束時間',
+			'groupSchedule.participants' => '參與人數',
+			'groupSchedule.statusCancelled' => '已取消',
+			'groupSchedule.statusInProgress' => '進行中',
+			'groupSchedule.cancelSuccess' => '日程已取消',
+			'groupSchedule.cancelFailed' => '取消失敗，請稍後重試',
+			'groupSchedule.confirmAttend' => '確認參加',
+			'groupSchedule.declineAttend' => '不參加',
+			'groupSchedule.cancelSchedule' => '取消日程',
+			'groupSchedule.scheduleIdMissing' => '日程ID缺失，無法檢視詳情',
+			'groupTag.title' => '群標籤',
+			'groupTag.addTag' => '新增標籤',
+			'groupTag.tagName' => '標籤名稱',
+			'groupTag.tagColor' => '標籤顏色',
+			'groupTag.noTag' => '暫無標籤',
+			'groupTag.tagAdded' => '標籤新增成功',
+			'groupTag.tagRemoved' => '標籤已移除',
+			'groupTag.removeTitle' => '移除標籤',
+			'groupTag.removeConfirm' => '確定要移除這個標籤嗎？',
+			'groupTask.title' => '群作業',
+			'groupTask.createTask' => '建立任務',
+			'groupTask.taskTitle' => '任務標題',
+			'groupTask.taskDescription' => '任務描述',
+			'groupTask.assignTo' => '指派給',
+			'groupTask.deadline' => '截止時間',
+			'groupTask.noDeadline' => '無截止時間',
+			'groupTask.noTask' => '暫無任務',
+			'groupTask.all' => '全部',
+			'groupTask.pending' => '待完成',
+			'groupTask.completed' => '已完成',
+			'groupTask.taskCreated' => '任務建立成功',
+			'groupTask.taskSubmitted' => '任務已提交',
+			'groupTask.taskCompleted' => '任務已完成',
+			'groupTask.overdue' => '已過期',
+			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
+			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小時後截止',
+			'groupTask.dueSoon' => '即將截止',
+			'groupTask.submitFailed' => '提交失敗，請稍後重試',
+			'groupTask.taskId' => '任務ID',
+			'groupTask.pendingReview' => '待稽核',
+			'groupTask.taskIdMissing' => '任務ID缺失，無法檢視詳情',
+			'groupTask.taskIdMissingSubmit' => '任務ID缺失，無法提交',
+			'groupVote.title' => '群投票',
+			'groupVote.createVote' => '建立投票',
+			'groupVote.voteTitle' => '投票標題',
+			'groupVote.voteOptions' => '投票選項',
+			'groupVote.addOption' => '新增選項',
+			'groupVote.allowMultiple' => '允許多選',
+			'groupVote.anonymous' => '匿名投票',
+			'groupVote.deadline' => '截止時間',
+			'groupVote.noDeadline' => '無截止時間',
+			'groupVote.noVote' => '暫無投票',
+			'groupVote.voteEnded' => '投票已結束',
+			'groupVote.totalVotes' => ({required Object count}) => '共 ${count} 票',
+			'groupVote.voteSuccess' => '投票成功',
+			'groupVote.hasVoted' => '已投票',
+			'groupVote.viewResults' => '檢視結果',
+			'groupVote.cancelVoteSuccess' => '已取消投票',
+			'groupVote.cancelVoteFailed' => '取消失敗，請稍後重試',
+			'groupVote.endVoteFailed' => '結束失敗，請稍後重試',
+			'groupVote.eachOptionPerLine' => '每行一個選項',
+			'groupVote.statusInProgress' => '進行中',
+			'groupVote.updateVote' => '更新投票',
+			'groupVote.cancelMyVote' => '取消我的投票',
+			'groupVote.voteIdMissing' => '投票ID缺失，無法檢視詳情',
+			'groupVote.participantCount' => ({required Object count}) => '參與人數: ${count}',
 			'main.change' => '更改',
 			'main.entertainment' => '電影演出',
 			'main.lifePayment' => '生活繳費',
@@ -2771,6 +4265,8 @@ extension on TranslationsZhHant {
 			'main.audio' => '音訊',
 			'main.barcodeFound' => '找到條碼！',
 			'main.botQianFan' => '千帆機器人',
+			'main.liveRoomWhipLabel' => 'WHIP 推流地址',
+			'main.liveRoomWhepLabel' => 'WHEP 拉流地址',
 			'main.cache' => '快取',
 			'main.camera' => '拍攝',
 			'main.changeNameView' => '修改名稱視圖',
@@ -2848,6 +4344,9 @@ extension on TranslationsZhHant {
 			'main.recentlyUsed' => '最近使用',
 			'main.releaseEnd' => '鬆開結束',
 			'main.remainingChars' => ({required Object param}) => '還可輸入 ${param} 個字元',
+			'main.kickMember' => 'Remove from Group',
+			'main.memberDetail' => 'Member Details',
+			'main.memberRole' => 'Role',
 			'main.replied' => '已回覆',
 			'main.ringing' => '已響鈴...',
 			'main.ruRu' => '俄羅斯俄語',
@@ -2872,6 +4371,7 @@ extension on TranslationsZhHant {
 			'main.timeRange' => '時間範圍',
 			'main.timeWeekdays' => '星期一,星期二,星期三,星期四,星期五,星期六,星期日',
 			'main.titleMine' => '我的',
+			'main.titleSquare' => '廣場',
 			'main.tooBad' => '太差了',
 			'main.tryAgainQ' => '想再試一次嗎？',
 			'main.type' => '類型',
@@ -2944,9 +4444,129 @@ extension on TranslationsZhHant {
 			'main.larger' => '更大',
 			'main.currentLength' => ({required Object param1, required Object param2}) => '目前長度：${param1} / ${param2}',
 			'main.fillIn' => '填入',
-			'main.kickMember' => 'Remove from Group',
-			'main.memberDetail' => 'Member Details',
-			'main.memberRole' => 'Role',
+			'main.msgProtectedByComplianceKey' => '訊息受合規金鑰保護',
+			'main.inviterLabel' => ({required Object uid}) => '邀請人: ${uid}',
+			'main.inviteeLabel' => ({required Object uid}) => '被邀請人: ${uid}',
+			'main.mySentTab' => '我發出的',
+			'main.reject' => '拒絕',
+			'main.myOrders' => '我的訂單',
+			'main.purchaseUnlockHint' => '購買後可解鎖頻道歷史訊息與後續更新內容。',
+			'main.payingDots' => '支付中...',
+			'main.purchaseAndUnlock' => '立即購買並解鎖',
+			'main.orderDetail' => '訂單詳情',
+			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '金額: ${currency} ${amount}',
+			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => '價格：${currency} ${amount}',
+			'main.e2eeKeyRecoveryTitle' => '端到端加密金鑰管理',
+			'main.e2eeRecoveryMethods' => '金鑰恢復方法',
+			'main.e2eeDangerousOps' => '危險操作',
+			'main.e2eeSocialRecovery' => '社交恢復',
+			'main.e2eeSocialRecoveryDesc' => '透過信任的聯絡人協助恢復金鑰',
+			'main.e2eeKeyIdLabel' => '金鑰 ID',
+			'main.e2eeWarnIrreversible' => '• 此操作不可撤銷',
+			'main.e2eeWarnNeedRestoreOrNew' => '• 需要從備份恢復或生成新金鑰',
+			'main.gotIt' => '我知道了',
+			'main.e2eeRecoverKeyTitle' => '恢復金鑰',
+			'main.e2eeCanRecoverKey' => '可以恢復金鑰',
+			'main.e2eeInsufficientShards' => '分片數量不足',
+			'main.e2eeProxyUser' => ({required Object uid}) => '代理使用者: ${uid}',
+			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '分片 ${index} / ${total}',
+			'main.e2eeReloadShards' => '重新載入',
+			'main.e2eeRecovering' => '恢復中...',
+			'main.e2eeKeyRestored' => '金鑰已成功恢復',
+			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 個代理分片',
+			'main.e2eePreparing' => '準備恢復...',
+			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '進度: ${collected} / ${total} 個分片',
+			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...',
+			'main.e2eeShardsCollected' => '分片收集完成，正在重組金鑰...',
+			'main.webQRLoggingIn' => '登入中...',
+			'main.webQRExpired' => '二維碼已過期',
+			'main.webQRRefresh' => '重新整理二維碼',
+			'main.webSwitchToQR' => '使用 QR 碼登入',
+			'main.e2eeErrDefault' => '端到端加密失敗，訊息未傳送',
+			_ => null,
+		} ?? switch (path) {
+			'main.e2eeSocialTotalShards' => '總分片數',
+			'main.e2eeSocialThreshold' => '恢復閾值',
+			'main.e2eeSocialThresholdHint' => ({required Object count}) => '恢復金鑰時需要 ${count} 個代理協助',
+			'main.e2eeSocialSelectProxy' => '選擇恢復代理',
+			'main.e2eeSocialProxyNeeded' => ({required Object count}) => '需要 ${count} 個信任的聯絡人作為代理',
+			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => '使用者 ${uid}',
+			'main.e2eeSocialShardSentViaWs' => '分片已透過 WebSocket 直接傳送到代理裝置儲存',
+			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => '已傳送到 ${sent} 個代理裝置（共 ${total} 個）',
+			'main.e2eeSocialManageTitle' => '管理分片',
+			'main.e2eeSocialMyShards' => '我的分片',
+			'main.e2eeSocialProxyShards' => '代理分片',
+			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => '分片 ${idx} / ${total}',
+			'main.e2eeSocialShardActive' => '活躍',
+			'main.e2eeSocialShardUsed' => '已使用',
+			'main.e2eeSocialShardValid' => '分片有效',
+			'main.e2eeSocialUserShard' => ({required Object uid}) => '使用者 ${uid} 的金鑰分片',
+			'main.e2eeSocialProxyUserLabel' => '代理使用者',
+			'main.e2eeSocialRecoveryThresholdLabel' => '恢復閾值',
+			'main.e2eeSocialShardIndexLabel' => '分片編號',
+			'main.e2eeTransferQRHint' => '請在新裝置上掃描此二維碼',
+			'main.e2eeTransferQRExpiry' => ({required Object time}) => '二維碼將在 ${time} 過期',
+			'main.e2eeTransferRefreshQR' => '重新整理二維碼',
+			'main.e2eeTransferEnterUidTitle' => '輸入接收方使用者 ID',
+			'main.e2eeTransferUidPlaceholder' => '接收方使用者 ID',
+			'main.e2eeTransferReceiving' => '正在接受傳輸...',
+			'main.e2eeTransferPageTitle' => '裝置間傳輸',
+			'main.e2eeTransferPendingItem' => '待處理的金鑰傳輸',
+			'main.e2eeTransferPendingItemDesc' => '點選檢視詳情',
+			'main.e2eeTransferView' => '檢視',
+			'main.e2eeSocialTitle' => '社交恢復',
+			'main.e2eeSocialCanRecover' => '可以恢復金鑰',
+			'main.e2eeSocialSetupProxy' => '設定恢復代理',
+			'main.e2eeSocialChooseProxy' => '選擇信任的聯絡人作為恢復代理',
+			'main.e2eeSocialExistingShards' => '現有恢復分片',
+			'main.e2eeSocialRecoverKeyTitle' => '恢復金鑰',
+			'main.e2eeSocialRecoverKeyDesc' => '使用代理的分片恢復金鑰',
+			'main.e2eeSocialManageShardsTitle' => '管理分片',
+			'main.e2eeSocialManageShardsDesc' => '檢視和管理所有恢復分片',
+			'main.e2eeSocialZeroTrustHint1' => '零信任架構：服務端不儲存分片，直接聯絡代理',
+			'main.e2eeSocialZeroTrustHint2' => '零信任架構：分片儲存在代理裝置',
+			'main.e2eeSocialZeroTrustHint3' => '零信任架構：分片由代理裝置儲存，服務端不接觸明文',
+			'main.e2eeProxyMinCount' => ({required Object count}) => '請至少選擇 ${count} 個代理',
+			'main.e2eeProxySelectTitle' => '選擇恢復代理',
+			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '已選 ${selected} / ${total}',
+			'main.e2eeProxyReachedMin' => '已達到最少代理數量',
+			'main.liveRoomTitleLabel' => '直播間標題',
+			'main.liveRoomTitleHint' => '請輸入直播間標題',
+			'mention.title' => '@提及',
+			'mention.noMention' => '暫無@提及',
+			'mention.allRead' => '全部已讀',
+			'mention.markAsRead' => '標記為已讀',
+			'mention.newMention' => '新的@提及',
+			'mention.fromGroup' => '來自群聊',
+			'mention.fromChat' => '來自聊天',
+			'mention.viewContext' => '檢視上下文',
+			'mention.mentionCount' => ({required Object count}) => '${count} 條新提及',
+			'mention.mentionAllDenied' => '僅管理員可以 @所有人',
+			'mention.navInfoMissing' => '訊息定位資訊缺失，無法跳轉',
+			'momentFriendPicker.title' => '選擇好友',
+			'momentFriendPicker.titleAllow' => '指定可見',
+			'momentFriendPicker.titleDeny' => '不給誰看',
+			'momentFriendPicker.confirm' => '確定',
+			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '確定(${count})',
+			'momentFriendPicker.selectedCount' => ({required Object count}) => '已選 ${count} 人',
+			'momentFriendPicker.emptyFriends' => '暫無好友',
+			'momentFriendPicker.tagsLabel' => '按標籤選',
+			'momentFriendPicker.emptyTags' => '暫無標籤',
+			'momentFriendPicker.tagLoadFailed' => '標籤載入失敗',
+			'momentFriendPicker.searchHint' => '搜尋好友',
+			'momentNotify.title' => '訊息通知',
+			'momentNotify.emptyTitle' => '暫無新訊息',
+			'momentNotify.emptyHint' => '好友點贊或評論你的朋友圈後，會出現在這裡',
+			'momentNotify.actionLike' => '讚了你的朋友圈',
+			'momentNotify.actionComment' => '評論了你',
+			'momentNotify.markAllRead' => '全部已讀',
+			'momentNotify.clearAll' => '清空全部',
+			'momentNotify.clearConfirmTitle' => '清空所有通知?',
+			'momentNotify.clearConfirmMessage' => '清空後無法恢復',
+			'momentNotify.confirm' => '確定',
+			'momentNotify.cancel' => '取消',
+			'momentNotify.delete' => '刪除',
+			'momentNotify.loadFailed' => '載入失敗，請稍後重試',
 			'passport.retrievePassword' => '找回密碼',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',

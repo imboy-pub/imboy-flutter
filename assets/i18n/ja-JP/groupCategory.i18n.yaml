@@ -1,0 +1,18 @@
+---
+title: グループカテゴリ
+createCategory: カテゴリを作成
+categoryName: カテゴリ名
+categoryDesc: カテゴリの説明（任意）
+noCategory: カテゴリはありません
+createFirst: 最初のカテゴリを作成しましょう
+addGroup: グループをカテゴリに追加
+removeGroup: カテゴリから削除
+deleteCategory: カテゴリを削除
+deleteCategoryConfirm: このカテゴリを削除しますか？グループは削除されません。
+categoryCreated: カテゴリを作成しました
+categoryDeleted: カテゴリを削除しました
+renameCategory: カテゴリの名前を変更
+categoryRenamed: カテゴリの名前を変更しました
+renameFailed: 名前の変更に失敗しました。もう一度お試しください
+deleteFailed: 削除に失敗しました。もう一度お試しください
+categoryDetailTip: このカテゴリのグループは、グループリストの「カテゴリに移動」から管理できます

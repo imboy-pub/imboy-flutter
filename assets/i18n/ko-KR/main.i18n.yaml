@@ -1,3 +1,4 @@
+---
 change: 수정
 entertainment: 영화 및 공연
 lifePayment: 생활 요금 결제
@@ -10,12 +11,14 @@ album: 사진
 appSize: 앱 크기
 arSa: 아랍어 (사우디아라비아)
 audio: 오디오
-barcodeFound: "바코드를 찾았습니다!"
+barcodeFound: 바코드를 찾았습니다!
 botQianFan: 천판 로봇
+liveRoomWhipLabel: WHIP 스트리밍 주소
+liveRoomWhepLabel: WHEP 수신 주소
 cache: 캐시
 camera: 촬영
 changeNameView: 이름 변경
-changeParam: $param 수정
+changeParam: "$param 수정"
 chooseFromAlbum: 앨범에서 선택
 clean: 정리
 codeSentToParam: 인증 코드가 $param으로 전송되었습니다
@@ -30,7 +33,7 @@ earlier: 이전
 enGb: 영국 영어
 enUs: 미국 영어
 enable: 활성화
-example: "예:"
+example: '예:'
 expired: 만료됨
 extraItem: 추가 항목
 faceToFaceLogic: 대면 논리
@@ -51,9 +54,9 @@ keepSecret: 비공개
 lastActiveTime: 최근 활성 시간
 lastSeenHide: 온라인 상태 숨기기
 lastSeenNever: 온라인 한 적 없음
-lastSeenWeeksAgo: $param주 전
+lastSeenWeeksAgo: "$param주 전"
 lastSeenExactTime: 마지막 온라인 $param
-licenseAgreement: 《소프트웨어 라이선스 및 서비스 약관》
+licenseAgreement: "《소프트웨어 라이선스 및 서비스 약관》"
 liveBroadcast: 라이브 방송
 liveRoomListView: 라이브 방 목록 보기
 publisherPage: 스트리밍 페이지
@@ -75,20 +78,23 @@ multiSelectMode: 다중 선택 모드
 myFavorites: 내 즐겨찾기
 myLive: 내 라이브
 name: 이름
-numUnit: $param개
+numUnit: "$param개"
 openInBrowser: 브라우저에서 열기
 or: 또는
 otherParty: 상대방
 packageSize: 패키지 크기
 peerHasHungUp: 상대방이 전화를 끊었습니다
 play: 재생
-pleaseInputParam: $param을(를) 입력해 주세요
+pleaseInputParam: "$param을(를) 입력해 주세요"
 pleaseSelect: 선택해 주세요
 quickFilters: 빠른 필터
 quote: 인용
 recentlyUsed: 최근 사용
 releaseEnd: 놓으면 종료
-remainingChars: $param자 더 입력할 수 있습니다
+remainingChars: "$param자 더 입력할 수 있습니다"
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role
 replied: 답장됨
 ringing: 벨 울림...
 ruRu: 러시아어
@@ -97,10 +103,10 @@ selected: 선택됨
 sent: 전송됨
 sentByMe: 내가 보낸
 sentByOthers: 다른 사람이 보낸
-setParam: $param 설정
+setParam: "$param 설정"
 setting: 설정
 siginQ: 이미 계정이 있으신가요?
-signInWith: $param으로 로그인
+signInWith: "$param으로 로그인"
 source: 출처
 speakingTooShort: 말하기 시간이 너무 짧습니다
 speed: 속도
@@ -111,8 +117,9 @@ termOfServices: 서비스 약관
 text: 텍스트
 thisWeek: 이번 주
 timeRange: 시간 범위
-timeWeekdays: "월요일, 화요일, 수요일, 목요일, 금요일, 토요일, 일요일"
+timeWeekdays: 월요일, 화요일, 수요일, 목요일, 금요일, 토요일, 일요일
 titleMine: 내 정보
+titleSquare: 광장
 tooBad: 너무 나쁨
 tryAgainQ: 다시 시도하시겠습니까?
 type: 유형
@@ -154,7 +161,7 @@ toBeCompleted: 미완성
 availableCount: 선택 가능
 mostUsed: 가장 많이 사용
 commentPlaceholder: 댓글...
-delayMsLabel: "지연 시간(ms) (>=100)"
+delayMsLabel: 지연 시간(ms) (>=100)
 processed: 처리됨
 export: 내보내기
 school: 학교
@@ -168,7 +175,7 @@ exportAsText: Export as text format
 selectFromAlbum: 앨범에서 선택
 volumeUp: 볼륨 높이기
 volumeDown: 볼륨 낮추기
-fastRewind: $seconds초 되감기
+fastRewind: "$seconds초 되감기"
 pleaseTryAgain: 다시 시도해 주세요
 secret: 비공개
 takePhoto: 사진 촬영
@@ -183,8 +190,91 @@ collecting: 수집 중...
 user: 사용자
 recommended: 추천
 larger: 더 크게
-currentLength: "현재 길이: $param1 / $param2"
+currentLength: '현재 길이: $param1 / $param2'
 fillIn: 입력
-kickMember: Remove from Group
-memberDetail: Member Details
-memberRole: Role
+msgProtectedByComplianceKey: 메시지는 규정 준수 키로 보호됩니다
+inviterLabel(uid): '초대자: $uid'
+inviteeLabel(uid): '초대받은 사람: $uid'
+mySentTab: 보낸 초대
+reject: 거절
+myOrders: 내 주문
+purchaseUnlockHint: 구매 시 채널의 과거 메시지와 향후 업데이트를 볼 수 있습니다.
+payingDots: 결제 중...
+purchaseAndUnlock: 구매하고 잠금 해제
+orderDetail: 주문 상세
+orderAmountLabel(currency, amount): '금액: $currency $amount'
+channelPriceLabel(currency, amount): '가격: $currency $amount'
+e2eeKeyRecoveryTitle: 종단간 암호화 키 관리
+e2eeRecoveryMethods: 키 복구 방법
+e2eeDangerousOps: 위험 작업
+e2eeSocialRecovery: 소셜 복구
+e2eeSocialRecoveryDesc: 신뢰하는 연락처의 도움으로 키를 복구합니다
+e2eeKeyIdLabel: 키 ID
+e2eeWarnIrreversible: "• 이 작업은 되돌릴 수 없습니다"
+e2eeWarnNeedRestoreOrNew: "• 백업에서 복구하거나 새 키를 생성해야 합니다"
+gotIt: 확인
+e2eeRecoverKeyTitle: 키 복구
+e2eeCanRecoverKey: 키를 복구할 수 있습니다
+e2eeInsufficientShards: 샤드 수가 부족합니다
+e2eeProxyUser(uid): '대리자: $uid'
+e2eeShardLabel(index, total): 샤드 $index / $total
+e2eeReloadShards: 새로고침
+e2eeRecovering: 복구 중...
+e2eeKeyRestored: 키가 복구되었습니다
+e2eeUsedShards(count): 대리자 샤드 $count개 사용됨
+e2eePreparing: 복구 준비 중...
+e2eeRecoveryProgressLabel(collected, total): '진행률: $collected / $total 샤드'
+e2eeCollectingShards(collected, total): 샤드 수집 중 ($collected/$total)...
+e2eeShardsCollected: 샤드 수집 완료, 키를 재조립하는 중...
+webQRLoggingIn: 로그인 중...
+webQRExpired: QR 코드가 만료되었습니다
+webQRRefresh: QR 코드 새로고침
+webSwitchToQR: QR 코드로 로그인
+e2eeErrDefault: 종단간 암호화 실패, 메시지가 전송되지 않았습니다
+e2eeSocialTotalShards: 전체 샤드 수
+e2eeSocialThreshold: 복구 임계값
+e2eeSocialThresholdHint(count): 키 복구 시 $count명의 대리자가 필요합니다
+e2eeSocialSelectProxy: 복구 대리자 선택
+e2eeSocialProxyNeeded(count): "$count명의 신뢰하는 연락처가 대리자로 필요합니다"
+e2eeSocialProxyDefaultName(uid): 사용자 $uid
+e2eeSocialShardSentViaWs: 샤드는 WebSocket으로 대리자 기기에 직접 전송되어 저장됩니다
+e2eeSocialSentCount(sent, total): 대리자 기기 $sent개에 전송됨 (전체 $total개)
+e2eeSocialManageTitle: 샤드 관리
+e2eeSocialMyShards: 내 샤드
+e2eeSocialProxyShards: 대리자 샤드
+e2eeSocialShardOf(idx, total): 샤드 $idx / $total
+e2eeSocialShardActive: 활성
+e2eeSocialShardUsed: 사용됨
+e2eeSocialShardValid: 샤드 유효
+e2eeSocialUserShard(uid): 사용자 $uid의 키 샤드
+e2eeSocialProxyUserLabel: 대리자
+e2eeSocialRecoveryThresholdLabel: 복구 임계값
+e2eeSocialShardIndexLabel: 샤드 번호
+e2eeTransferQRHint: 새 기기에서 이 QR 코드를 스캔하세요
+e2eeTransferQRExpiry(time): QR 코드가 $time에 만료됩니다
+e2eeTransferRefreshQR: QR 코드 새로고침
+e2eeTransferEnterUidTitle: 수신자 사용자 ID 입력
+e2eeTransferUidPlaceholder: 수신자 사용자 ID
+e2eeTransferReceiving: 수신 중...
+e2eeTransferPageTitle: 기기 간 전송
+e2eeTransferPendingItem: 대기 중인 키 전송
+e2eeTransferPendingItemDesc: 탭하여 상세 보기
+e2eeTransferView: 보기
+e2eeSocialTitle: 소셜 복구
+e2eeSocialCanRecover: 키를 복구할 수 있습니다
+e2eeSocialSetupProxy: 복구 대리자 설정
+e2eeSocialChooseProxy: 신뢰하는 연락처를 복구 대리자로 선택하세요
+e2eeSocialExistingShards: 기존 복구 샤드
+e2eeSocialRecoverKeyTitle: 키 복구
+e2eeSocialRecoverKeyDesc: 대리자의 샤드로 키를 복구합니다
+e2eeSocialManageShardsTitle: 샤드 관리
+e2eeSocialManageShardsDesc: 모든 복구 샤드를 보고 관리합니다
+e2eeSocialZeroTrustHint1: '제로 트러스트 구조: 서버는 샤드를 저장하지 않고 대리자에 직접 연결합니다'
+e2eeSocialZeroTrustHint2: '제로 트러스트 구조: 샤드는 대리자 기기에 저장됩니다'
+e2eeSocialZeroTrustHint3: '제로 트러스트 구조: 샤드는 대리자 기기에 저장되며 서버는 평문에 접근하지 않습니다'
+e2eeProxyMinCount(count): 대리자를 최소 $count명 선택해주세요
+e2eeProxySelectTitle: 복구 대리자 선택
+e2eeProxySelectedCount(selected, total): "$selected / $total 선택됨"
+e2eeProxyReachedMin: 최소 대리자 수에 도달했습니다
+liveRoomTitleLabel: 라이브 룸 제목
+liveRoomTitleHint: 라이브 룸 제목을 입력하세요

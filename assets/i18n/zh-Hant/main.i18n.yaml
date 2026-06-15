@@ -12,6 +12,8 @@ arSa: 阿拉伯語（沙烏地阿拉伯）
 audio: 音訊
 barcodeFound: 找到條碼！
 botQianFan: 千帆機器人
+liveRoomWhipLabel: WHIP 推流地址
+liveRoomWhepLabel: WHEP 拉流地址
 cache: 快取
 camera: 拍攝
 changeNameView: 修改名稱視圖
@@ -89,6 +91,9 @@ quote: 引用
 recentlyUsed: 最近使用
 releaseEnd: 鬆開結束
 remainingChars: 還可輸入 $param 個字元
+kickMember: Remove from Group
+memberDetail: Member Details
+memberRole: Role
 replied: 已回覆
 ringing: 已響鈴...
 ruRu: 俄羅斯俄語
@@ -104,15 +109,16 @@ signInWith: 用$param登入
 source: 來源
 speakingTooShort: 說話時間太短
 speed: 速度
-star: "@:main.markStar"
+star: '@:main.markStar'
 stillNeeded: 還需
 storageSpace: 儲存空間
 termOfServices: 服務條款
 text: 文字
 thisWeek: 本週
 timeRange: 時間範圍
-timeWeekdays: "星期一,星期二,星期三,星期四,星期五,星期六,星期日"
+timeWeekdays: 星期一,星期二,星期三,星期四,星期五,星期六,星期日
 titleMine: 我的
+titleSquare: 廣場
 tooBad: 太差了
 tryAgainQ: 想再試一次嗎？
 type: 類型
@@ -136,7 +142,7 @@ current: 目前
 publish: 發布
 privacyPolicy: 隱私政策
 termsOfService: 服務條款
-saving: "@:common.loading"
+saving: '@:common.loading'
 topStories: 看一看
 systemDefault: 系統預設
 custom: 自訂
@@ -154,7 +160,7 @@ toBeCompleted: 待完善
 availableCount: 可選擇
 mostUsed: 最常用
 commentPlaceholder: 評論...
-delayMsLabel: "延時毫秒 (>=100)"
+delayMsLabel: 延時毫秒 (>=100)
 processed: 已處理
 export: 匯出
 school: 學校
@@ -185,6 +191,89 @@ recommended: 推薦
 larger: 更大
 currentLength: 目前長度：$param1 / $param2
 fillIn: 填入
-kickMember: Remove from Group
-memberDetail: Member Details
-memberRole: Role
+msgProtectedByComplianceKey: 訊息受合規金鑰保護
+inviterLabel(uid): '邀請人: $uid'
+inviteeLabel(uid): '被邀請人: $uid'
+mySentTab: 我發出的
+reject: 拒絕
+myOrders: 我的訂單
+purchaseUnlockHint: 購買後可解鎖頻道歷史訊息與後續更新內容。
+payingDots: 支付中...
+purchaseAndUnlock: 立即購買並解鎖
+orderDetail: 訂單詳情
+orderAmountLabel(currency, amount): '金額: $currency $amount'
+channelPriceLabel(currency, amount): 價格：$currency $amount
+e2eeKeyRecoveryTitle: 端到端加密金鑰管理
+e2eeRecoveryMethods: 金鑰恢復方法
+e2eeDangerousOps: 危險操作
+e2eeSocialRecovery: 社交恢復
+e2eeSocialRecoveryDesc: 透過信任的聯絡人協助恢復金鑰
+e2eeKeyIdLabel: 金鑰 ID
+e2eeWarnIrreversible: • 此操作不可撤銷
+e2eeWarnNeedRestoreOrNew: • 需要從備份恢復或生成新金鑰
+gotIt: 我知道了
+e2eeRecoverKeyTitle: 恢復金鑰
+e2eeCanRecoverKey: 可以恢復金鑰
+e2eeInsufficientShards: 分片數量不足
+e2eeProxyUser(uid): '代理使用者: $uid'
+e2eeShardLabel(index, total): 分片 $index / $total
+e2eeReloadShards: 重新載入
+e2eeRecovering: 恢復中...
+e2eeKeyRestored: 金鑰已成功恢復
+e2eeUsedShards(count): 已使用 $count 個代理分片
+e2eePreparing: 準備恢復...
+e2eeRecoveryProgressLabel(collected, total): '進度: $collected / $total 個分片'
+e2eeCollectingShards(collected, total): 正在收集分片 ($collected/$total)...
+e2eeShardsCollected: 分片收集完成，正在重組金鑰...
+webQRLoggingIn: 登入中...
+webQRExpired: 二維碼已過期
+webQRRefresh: 重新整理二維碼
+webSwitchToQR: 使用 QR 碼登入
+e2eeErrDefault: 端到端加密失敗，訊息未傳送
+e2eeSocialTotalShards: 總分片數
+e2eeSocialThreshold: 恢復閾值
+e2eeSocialThresholdHint(count): 恢復金鑰時需要 $count 個代理協助
+e2eeSocialSelectProxy: 選擇恢復代理
+e2eeSocialProxyNeeded(count): 需要 $count 個信任的聯絡人作為代理
+e2eeSocialProxyDefaultName(uid): 使用者 $uid
+e2eeSocialShardSentViaWs: 分片已透過 WebSocket 直接傳送到代理裝置儲存
+e2eeSocialSentCount(sent, total): 已傳送到 $sent 個代理裝置（共 $total 個）
+e2eeSocialManageTitle: 管理分片
+e2eeSocialMyShards: 我的分片
+e2eeSocialProxyShards: 代理分片
+e2eeSocialShardOf(idx, total): 分片 $idx / $total
+e2eeSocialShardActive: 活躍
+e2eeSocialShardUsed: 已使用
+e2eeSocialShardValid: 分片有效
+e2eeSocialUserShard(uid): 使用者 $uid 的金鑰分片
+e2eeSocialProxyUserLabel: 代理使用者
+e2eeSocialRecoveryThresholdLabel: 恢復閾值
+e2eeSocialShardIndexLabel: 分片編號
+e2eeTransferQRHint: 請在新裝置上掃描此二維碼
+e2eeTransferQRExpiry(time): 二維碼將在 $time 過期
+e2eeTransferRefreshQR: 重新整理二維碼
+e2eeTransferEnterUidTitle: 輸入接收方使用者 ID
+e2eeTransferUidPlaceholder: 接收方使用者 ID
+e2eeTransferReceiving: 正在接受傳輸...
+e2eeTransferPageTitle: 裝置間傳輸
+e2eeTransferPendingItem: 待處理的金鑰傳輸
+e2eeTransferPendingItemDesc: 點選檢視詳情
+e2eeTransferView: 檢視
+e2eeSocialTitle: 社交恢復
+e2eeSocialCanRecover: 可以恢復金鑰
+e2eeSocialSetupProxy: 設定恢復代理
+e2eeSocialChooseProxy: 選擇信任的聯絡人作為恢復代理
+e2eeSocialExistingShards: 現有恢復分片
+e2eeSocialRecoverKeyTitle: 恢復金鑰
+e2eeSocialRecoverKeyDesc: 使用代理的分片恢復金鑰
+e2eeSocialManageShardsTitle: 管理分片
+e2eeSocialManageShardsDesc: 檢視和管理所有恢復分片
+e2eeSocialZeroTrustHint1: 零信任架構：服務端不儲存分片，直接聯絡代理
+e2eeSocialZeroTrustHint2: 零信任架構：分片儲存在代理裝置
+e2eeSocialZeroTrustHint3: 零信任架構：分片由代理裝置儲存，服務端不接觸明文
+e2eeProxyMinCount(count): 請至少選擇 $count 個代理
+e2eeProxySelectTitle: 選擇恢復代理
+e2eeProxySelectedCount(selected, total): 已選 $selected / $total
+e2eeProxyReachedMin: 已達到最少代理數量
+liveRoomTitleLabel: 直播間標題
+liveRoomTitleHint: 請輸入直播間標題

@@ -1,0 +1,25 @@
+---
+title: Sondaggio di gruppo
+createVote: Crea sondaggio
+voteTitle: Titolo sondaggio
+voteOptions: Opzioni
+addOption: Aggiungi opzione
+allowMultiple: Scelta multipla
+anonymous: Anonimo
+deadline: Scadenza
+noDeadline: Senza scadenza
+noVote: Nessun sondaggio
+voteEnded: Sondaggio chiuso
+totalVotes: "$count voti in totale"
+voteSuccess: Voto registrato
+hasVoted: Già votato
+viewResults: Vedi risultati
+cancelVoteSuccess: Voto ritirato
+cancelVoteFailed: Ritiro fallito. Riprova più tardi.
+endVoteFailed: Chiusura fallita. Riprova più tardi.
+eachOptionPerLine: Un'opzione per riga
+statusInProgress: In corso
+updateVote: Modifica sondaggio
+cancelMyVote: Ritira il mio voto
+voteIdMissing: ID sondaggio mancante, dettagli non disponibili
+participantCount: 'Partecipanti: $count'
