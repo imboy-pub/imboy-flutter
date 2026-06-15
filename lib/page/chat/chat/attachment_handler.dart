@@ -43,6 +43,7 @@ class ChatAttachmentHandler {
     this.burnEnabled = false,
     this.burnAfterMs = 0,
     this.currentUserOverride,
+    this.isMutedCheck,
   });
 
   /// 对方 ID
@@ -54,6 +55,9 @@ class ChatAttachmentHandler {
   /// 消息创建回调
   final AttachmentUploadedCallback onMessageCreated;
 
+  /// 禁言检查回调 (C13)
+  final bool Function()? isMutedCheck;
+
   /// 是否启用阅后即焚
   final bool burnEnabled;
 
@@ -64,6 +68,15 @@ class ChatAttachmentHandler {
   /// 测试注入 fake 以脱离 StorageService 单例（`current` 在无数据时抛 StateError）。
   @visibleForTesting
   final User? currentUserOverride;
+
+  /// 安全拦截：如果用户被禁言，直接拦截消息创建与发送，并弹出 EasyLoading 提示 (C13)
+  Future<bool> _sendMessage(Message message) async {
+    if (isMutedCheck != null && isMutedCheck!()) {
+      EasyLoading.showError(t.chat.youAreMuted);
+      return false;
+    }
+    return await onMessageCreated(message);
+  }
 
   /// 获取当前用户
   User get _currentUser =>
@@ -126,7 +139,7 @@ class ChatAttachmentHandler {
           'md5': meta['md5'].toString(),
         }),
       );
-      await onMessageCreated(message);
+      await _sendMessage(message);
     } on Object catch (e) {
       debugPrint('[attachment_handler] onMessageCreated error: $e');
     }
@@ -222,7 +235,7 @@ class ChatAttachmentHandler {
         'md5': meta['md5'].toString(),
       }),
     );
-    await onMessageCreated(message);
+    await _sendMessage(message);
   }
 
   /// 处理视频上传
@@ -251,7 +264,7 @@ class ChatAttachmentHandler {
           'duration_ms': (video.duration! * 1000).round(),
       }),
     );
-    await onMessageCreated(message);
+    await _sendMessage(message);
   }
 
   /// 处理图片选择
@@ -321,7 +334,7 @@ class ChatAttachmentHandler {
           'duration_ms': (video.duration! * 1000).round(),
       }),
     );
-    await onMessageCreated(message);
+    await _sendMessage(message);
   }
 
   /// 处理语音选择
@@ -360,7 +373,7 @@ class ChatAttachmentHandler {
         }),
       );
       await obj.file.delete(recursive: true);
-      await onMessageCreated(message);
+      await _sendMessage(message);
     } on Object catch (e) {
       debugPrint('[attachment_handler] onMessageCreated error: $e');
     }
@@ -403,7 +416,7 @@ class ChatAttachmentHandler {
             'md5': resp['data']['md5'].toString(),
           }),
         );
-        await onMessageCreated(message);
+        await _sendMessage(message);
       },
       (Error error) => debugPrint("Location upload error: ${error.toString()}"),
       process: false,
@@ -434,7 +447,7 @@ class ChatAttachmentHandler {
         'height': height ?? 120,
       }),
     );
-    await onMessageCreated(message);
+    await _sendMessage(message);
   }
 
   /// 发送收藏消息
@@ -462,7 +475,7 @@ class ChatAttachmentHandler {
             ),
           )
         : msg0;
-    await onMessageCreated(msg);
+    await _sendMessage(msg);
   }
 
   /// 发送名片消息
@@ -487,7 +500,7 @@ class ChatAttachmentHandler {
         'avatar': avatar,
       }),
     );
-    final res = await onMessageCreated(message);
+    final res = await _sendMessage(message);
     if (res && context.mounted) {
       EasyLoading.showSuccess(t.common.tipSuccess);
     } else if (context.mounted) {
@@ -513,7 +526,7 @@ class ChatAttachmentHandler {
         'type': data['type'],
       }),
     );
-    await onMessageCreated(message);
+    await _sendMessage(message);
   }
 
   /// 处理发送转账消息
@@ -533,6 +546,6 @@ class ChatAttachmentHandler {
         'status': 'pending',
       }),
     );
-    await onMessageCreated(message);
+    await _sendMessage(message);
   }
 }

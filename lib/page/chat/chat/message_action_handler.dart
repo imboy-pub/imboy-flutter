@@ -39,6 +39,7 @@ class MessageActionHandler {
     required this.ref,
     required this.chatInputKey,
     required this.onEditingMessageIdChanged,
+    this.isMutedCheck,
   });
 
   /// 聊天类型 [C2C | C2G | C2S]
@@ -59,11 +60,18 @@ class MessageActionHandler {
   /// 编辑消息ID变更回调
   final void Function(String?) onEditingMessageIdChanged;
 
+  /// 禁言检查回调 (C13)
+  final bool Function()? isMutedCheck;
+
   /// 获取归一化后的聊天类型，非法值统一回落到 C2C
   String get _chatType => MessageFlowType.normalize(type);
 
   /// 编辑消息
   Future<void> editMessage(Message message) async {
+    if (isMutedCheck != null && isMutedCheck!()) {
+      EasyLoading.showError(t.chat.youAreMuted);
+      return;
+    }
     if (message is TextMessage) {
       iPrint(
         '✅ editMessage 被调用: messageId=${message.id}, text="${message.text}"',
@@ -90,6 +98,10 @@ class MessageActionHandler {
     Message message,
     String emoji,
   ) async {
+    if (isMutedCheck != null && isMutedCheck!()) {
+      EasyLoading.showError(t.chat.youAreMuted);
+      return;
+    }
     try {
       // ignore: deprecated_member_use
       HapticFeedback.lightImpact();

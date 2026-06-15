@@ -81,8 +81,15 @@ class E2EEHealthCheckService {
   /// 防重入标志：避免 WS 重连、离线拉取、前后台切换并发触发
   bool _isPulling = false;
 
-  /// 记录同步失败的好友 UID 列表，用于下一次轮询时重试，防跳过 (C6)
-  final Set<String> _failedSyncUids = {};
+  /// 记录同步失败的好友 UID 列表，持久化到本地以防 App 重启丢失 (C6-γ)
+  Set<String> get _failedSyncUids {
+    final list = StorageService.to.getStringList('e2ee_failed_sync_uids') ?? [];
+    return list.toSet();
+  }
+
+  Future<void> _saveFailedSyncUids(Set<String> set) async {
+    await StorageService.to.setList('e2ee_failed_sync_uids', set.toList());
+  }
 
   /// 初始化服务并开始监听 WebSocket 状态变化及 App 生命周期
   void init() {
@@ -124,13 +131,17 @@ class E2EEHealthCheckService {
     if (_isPulling) return;
     _isPulling = true;
     try {
-      // 1. 先对之前失败的公钥同步执行重试 (C6)
-      if (_failedSyncUids.isNotEmpty) {
-        final toRetry = List<String>.from(_failedSyncUids);
+      final failedUids = _failedSyncUids;
+      bool failedUidsChanged = false;
+
+      // 1. 先对之前失败的公钥同步执行重试 (C6-γ)
+      if (failedUids.isNotEmpty) {
+        final toRetry = failedUids.toList();
         for (final uid in toRetry) {
           final success = await syncFriendPublicKey(uid);
           if (success) {
-            _failedSyncUids.remove(uid);
+            failedUids.remove(uid);
+            failedUidsChanged = true;
           }
         }
       }
@@ -145,6 +156,9 @@ class E2EEHealthCheckService {
           .pullNotifications(since: since, limit: 50);
 
       if (notifications.isEmpty) {
+        if (failedUidsChanged) {
+          await _saveFailedSyncUids(failedUids);
+        }
         if (kDebugMode) debugPrint('ℹ️ [E2EE_HEALTH] 暂无密钥变更通知 since=$since');
         return;
       }
@@ -165,9 +179,13 @@ class E2EEHealthCheckService {
           final bool success = await syncFriendPublicKey(peerUid);
           if (success) {
             successCount++;
-            _failedSyncUids.remove(peerUid); // 成功，移出失败队列 (C6)
+            if (failedUids.remove(peerUid)) {
+              failedUidsChanged = true;
+            }
           } else {
-            _failedSyncUids.add(peerUid); // 失败，记录到失败重试队列 (C6)
+            if (failedUids.add(peerUid)) {
+              failedUidsChanged = true;
+            }
           }
         }
 
@@ -186,6 +204,10 @@ class E2EEHealthCheckService {
             maxUpdatedAt = updatedAtVal;
           }
         }
+      }
+
+      if (failedUidsChanged) {
+        await _saveFailedSyncUids(failedUids);
       }
 
       // 5. 更新游标并持久化
@@ -619,8 +641,8 @@ class E2EEHealthCheckService {
 
       if (payloadMap == null) return false;
 
-      // 检查是否有原始密文
-      if (payloadMap['_e2ee_raw_ciphertext'] == null) {
+      // 检查是否有原始密文 (C3-β)
+      if (payloadMap['_e2ee_raw'] == null) {
         return false;
       }
 

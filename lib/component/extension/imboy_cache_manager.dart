@@ -112,6 +112,17 @@ class IMBoyCacheManager {
       throw Exception('IMBoyCacheManager getSingleFile url is empty');
     }
 
+    // SSRF/Cache Pollution 安全加固：拒绝非 http/https 协议 (C7-α)
+    if (!url.startsWith('objkey://') && !AssetsService.isObjectKey(url)) {
+      final parsed = Uri.tryParse(url);
+      if (parsed == null ||
+          (parsed.hasScheme &&
+              parsed.scheme != 'http' &&
+              parsed.scheme != 'https')) {
+        throw Exception('Security Block: Invalid URI scheme in getSingleFile');
+      }
+    }
+
     // 下载边界分流：
     // - object_key（新 Garage 链路）→ async 换取短时 presigned URL；cacheKey 用
     //   稳定 object_key，与 rotating 签发参数解耦，命中率更高。

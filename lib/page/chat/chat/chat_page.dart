@@ -483,6 +483,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         burnEnabled: _burnEnabled,
         burnAfterMs: _burnAfterMs,
         onMessageCreated: _addMessage,
+        isMutedCheck: () => _isMuted,
       );
 
       // 初始化消息操作处理器
@@ -495,6 +496,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         onEditingMessageIdChanged: (id) {
           _editingMessageId = id;
         },
+        isMutedCheck: () => _isMuted,
       );
     } catch (e) {
       iPrint('[chat_page] block error: $e');
