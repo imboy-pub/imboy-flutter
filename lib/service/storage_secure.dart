@@ -143,8 +143,20 @@ class StorageSecureService {
   // ==========================================
 
   /// 存储私钥（E2EE）
-  /// Store private key for E2EE
+  /// Store private key for E2EE. Before overwriting, it archives the old private key
+  /// under 'e2ee_private_key_history_${existingKeyId}' to prevent historical data loss (C2).
   Future<void> savePrivateKey(String privateKey) async {
+    final existingKey = await getPrivateKey();
+    final existingKid = await getKeyId();
+    if (existingKey != null &&
+        existingKey.isNotEmpty &&
+        existingKid != null &&
+        existingKid.isNotEmpty) {
+      await write(
+        key: 'e2ee_private_key_history_$existingKid',
+        value: existingKey,
+      );
+    }
     await write(key: 'e2ee_private_key', value: privateKey);
   }
 
@@ -152,6 +164,20 @@ class StorageSecureService {
   /// Get private key for E2EE
   Future<String?> getPrivateKey() async {
     return await read(key: 'e2ee_private_key');
+  }
+
+  /// 按 kid 查找历史私钥（含当前私钥），解决因密钥更新导致历史密文永久无法解密的死锁 (C2)
+  Future<String?> getPrivateKeyByKid(String kid) async {
+    final currentKid = await getKeyId();
+    if (currentKid == kid) {
+      return await getPrivateKey();
+    }
+    final historyKey = await read(key: 'e2ee_private_key_history_$kid');
+    if (historyKey != null && historyKey.isNotEmpty) {
+      return historyKey;
+    }
+    // Fallback: 如果历史链里找不到，且不是当前 kid，回落尝试当前私钥
+    return await getPrivateKey();
   }
 
   /// 存储公钥（E2EE）

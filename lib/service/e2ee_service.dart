@@ -7,6 +7,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/e2ee_settings.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
+import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/service/compliance_key_service.dart';
@@ -351,7 +352,12 @@ class E2EEService {
     }
 
     final encKeyBytes = base64.decode(base64.normalize(ekB64));
-    final privateKeyObj = await RSAService.privateKeyObject();
+    final kid = myKey['kid']?.toString() ?? '';
+    final privateKeyPem = await StorageSecureService.to.getPrivateKeyByKid(kid);
+    if (privateKeyPem == null || privateKeyPem.isEmpty) {
+      throw Exception('私钥不存在 (kid: $kid)');
+    }
+    final privateKeyObj = RSAService.parsePrivateKeyFromPem(privateKeyPem);
     final aesKey = RSAService.rsaDecrypt(
       privateKeyObj,
       Uint8List.fromList(encKeyBytes),

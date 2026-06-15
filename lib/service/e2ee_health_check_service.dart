@@ -81,6 +81,9 @@ class E2EEHealthCheckService {
   /// 防重入标志：避免 WS 重连、离线拉取、前后台切换并发触发
   bool _isPulling = false;
 
+  /// 记录同步失败的好友 UID 列表，用于下一次轮询时重试，防跳过 (C6)
+  final Set<String> _failedSyncUids = {};
+
   /// 初始化服务并开始监听 WebSocket 状态变化及 App 生命周期
   void init() {
     _wsStatusSubscription?.cancel();
@@ -121,11 +124,22 @@ class E2EEHealthCheckService {
     if (_isPulling) return;
     _isPulling = true;
     try {
-      // 1. 获取本地存储的上次拉取游标（毫秒时间戳）
+      // 1. 先对之前失败的公钥同步执行重试 (C6)
+      if (_failedSyncUids.isNotEmpty) {
+        final toRetry = List<String>.from(_failedSyncUids);
+        for (final uid in toRetry) {
+          final success = await syncFriendPublicKey(uid);
+          if (success) {
+            _failedSyncUids.remove(uid);
+          }
+        }
+      }
+
+      // 2. 获取本地存储的上次拉取游标（毫秒时间戳）
       final int since =
           StorageService.to.getInt('e2ee_notification_last_since') ?? 0;
 
-      // 2. 调用 API 增量拉取密钥变更记录
+      // 3. 调用 API 增量拉取密钥变更记录
       final api = E2EEApi();
       final List<Map<String, dynamic>> notifications = await api
           .pullNotifications(since: since, limit: 50);
@@ -147,10 +161,13 @@ class E2EEHealthCheckService {
       for (final notify in notifications) {
         final String? peerUid = notify['uid']?.toString();
         if (peerUid != null && peerUid.isNotEmpty) {
-          // 3. 同步好友最新公钥（强制刷新缓存并落库）
+          // 4. 同步好友最新公钥（强制刷新缓存并落库）
           final bool success = await syncFriendPublicKey(peerUid);
           if (success) {
             successCount++;
+            _failedSyncUids.remove(peerUid); // 成功，移出失败队列 (C6)
+          } else {
+            _failedSyncUids.add(peerUid); // 失败，记录到失败重试队列 (C6)
           }
         }
 
@@ -171,7 +188,7 @@ class E2EEHealthCheckService {
         }
       }
 
-      // 4. 更新游标并持久化
+      // 5. 更新游标并持久化
       if (maxUpdatedAt > since) {
         await StorageService.to.setInt(
           'e2ee_notification_last_since',

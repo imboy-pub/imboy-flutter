@@ -1504,7 +1504,7 @@ class MessageService with EventSubscriptionManager {
           ),
         );
 
-        // 密钥不匹配：不保存原始密文，避免将密文写入 SQLite
+        // 密钥不匹配：保存原始密文，支持自愈机制重试恢复 (C3)
         return {
           'msg_type': originalMsgType,
           'text':
@@ -1512,15 +1512,17 @@ class MessageService with EventSubscriptionManager {
           '_e2ee_failed': true,
           '_e2ee_reason': 'key_mismatch',
           '_show_relogin_button': true, // 标记需要显示重新登录按钮
+          '_e2ee_raw': data, // 存储完整密文以便后续重试自愈解密 (C3)
         };
       }
 
-      // 其他解密错误：不保存原始密文，避免将密文写入 SQLite
+      // 其他解密错误：保存原始密文，支持自愈机制重试恢复 (C3)
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
         'text': '[消息解密失败]',
         '_e2ee_failed': true,
         '_e2ee_reason': 'decrypt_error',
+        '_e2ee_raw': data, // 存储完整密文以便后续重试自愈解密 (C3)
       };
     }
   }
