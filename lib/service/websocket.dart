@@ -663,9 +663,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
       // 统一 ACK 发送入口：所有需要 ACK 的消息类型（按优先级排序）
       // 优先级：S2C(服务端指令) > C2S(服务端确认) > C2C(单聊) > C2G(群聊)
+      // 【优化】升级为带有指数退避、4次重试QoS保护的 sendAck，解决上行丢包导致消息重复投递的缺陷 (D1)
       if (['S2C', 'C2S', 'C2C', 'C2G'].contains(type) && messageId.isNotEmpty) {
         try {
-          AckManager.to.sendAckDirect(type, messageId);
+          AckManager.to.sendAck(type, messageId);
         } catch (e) {
           iPrint('[WS_ACK] fail: $e');
         }

@@ -679,7 +679,7 @@ class E2EEService {
   /// 当用户重新生成密钥后，可以调用此方法重新尝试解密之前失败的消息
   ///
   /// 参数:
-  /// - failedPayload: 解密失败的消息 payload（包含 _e2ee_raw_ciphertext 等字段）
+  /// - failedPayload: 解密失败的消息 payload（包含 _e2ee_raw 等字段）
   ///
   /// 返回:
   /// - 解密成功后的 payload，如果仍然失败则返回原 payload
@@ -709,10 +709,6 @@ class E2EEService {
           rawE2ee = e2eeData.cast<String, dynamic>();
         }
       }
-
-      // 2. 如果 _e2ee_raw 中没有，尝试直接读取（兼容旧格式或直接传递的情况）
-      rawCiphertext ??= failedPayload['_e2ee_raw_ciphertext']?.toString();
-      rawE2ee ??= failedPayload['_e2ee_raw_e2ee'] as Map<String, dynamic>?;
 
       if (rawCiphertext == null || rawCiphertext.isEmpty) {
         iPrint('⚠️ [E2EE] 消息不包含原始密文，无法重试解密');
