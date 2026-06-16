@@ -14,6 +14,9 @@ class AppColors {
   static const Color primaryContainer = Color(0xFFBBDEFB);
   static const Color onPrimaryContainer = Color(0xFF0D47A1);
 
+  /// Primary 蓝底上的前景色（白）。用于主按钮内的图标/进度指示器等。
+  static const Color onPrimary = Color(0xFFFFFFFF);
+
   static const Color tagAccent = Color(0xFF649BEC);
   static const Color slateText = Color(0xFF64748B);
   static const Color slateMuted = Color(0xFFCBD5E1);

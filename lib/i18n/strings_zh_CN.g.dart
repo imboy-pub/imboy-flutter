@@ -391,6 +391,9 @@ class Translations$account$zh_CN {
 	/// zh-CN: '选择支付方式'
 	String get payMethodTitle => '选择支付方式';
 
+	/// zh-CN: '钱包余额'
+	String get payMethodWallet => '钱包余额';
+
 	/// zh-CN: '模拟支付（开发环境）'
 	String get payMethodMock => '模拟支付（开发环境）';
 
@@ -6857,6 +6860,7 @@ extension on Translations {
 			'account.rechargeAmountHint' => '请输入充值金额（元），1元～10000元',
 			'account.rechargeAmountExample' => '例如：100',
 			'account.payMethodTitle' => '选择支付方式',
+			'account.payMethodWallet' => '钱包余额',
 			'account.payMethodMock' => '模拟支付（开发环境）',
 			'account.payMethodAlipay' => '支付宝',
 			'account.payMethodWechat' => '微信支付',
@@ -7262,9 +7266,9 @@ extension on Translations {
 			'chat.e2eeRecoveryLater' => '稍后',
 			'chat.e2eeRecoveryGoRecover' => '去恢复',
 			'chat.e2eeRecoveryBannerText' => '检测到加密历史消息，需恢复密钥后才能查看，点击前往恢复',
-			'chat.liveRoomCreateTitle' => '创建直播间',
 			_ => null,
 		} ?? switch (path) {
+			'chat.liveRoomCreateTitle' => '创建直播间',
 			'chat.liveRoomCreating' => '创建中...',
 			'chat.liveRoomWatch' => '观看直播',
 			'common.about' => '关于',
@@ -7776,9 +7780,9 @@ extension on Translations {
 			'common.allowSearchByAccountDesc' => '其他用户可以通过你的账号找到你',
 			'common.allowAddByPhone' => '允许通过手机号添加',
 			'common.allowAddByPhoneDesc' => '其他用户可以通过你的手机号添加你为好友',
-			'common.allowAddByQR' => '允许通过二维码添加',
 			_ => null,
 		} ?? switch (path) {
+			'common.allowAddByQR' => '允许通过二维码添加',
 			'common.allowAddByQRDesc' => '其他用户可以通过扫描你的二维码添加你为好友',
 			'common.statusSettings' => '状态设置',
 			'common.showOnlineStatus' => '显示在线状态',
@@ -8290,9 +8294,9 @@ extension on Translations {
 			'common.attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
 			'common.attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
 			'common.attachmentGetOriginalImageFailed' => '无法获取原始图片数据',
-			'common.saveFailedRetry' => '保存失败，请重试',
 			_ => null,
 		} ?? switch (path) {
+			'common.saveFailedRetry' => '保存失败，请重试',
 			'common.downloadFileNotFound' => '下载文件不存在，请重试',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '文件校验失败，正在重新下载 (${retry}/${max})',
 			'common.downloadHashFailed' => '文件多次校验失败，请检查网络后重试',
@@ -8804,9 +8808,9 @@ extension on Translations {
 			'main.e2eeKeyRestored' => '密钥已成功恢复',
 			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 个代理分片',
 			'main.e2eePreparing' => '准备恢复...',
-			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '进度: ${collected} / ${total} 个分片',
 			_ => null,
 		} ?? switch (path) {
+			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '进度: ${collected} / ${total} 个分片',
 			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...',
 			'main.e2eeShardsCollected' => '分片收集完成，正在重组密钥...',
 			'main.webQRLoggingIn' => '登录中...',

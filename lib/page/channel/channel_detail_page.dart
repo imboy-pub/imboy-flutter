@@ -30,7 +30,9 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'channel_detail_rules.dart';
 import 'channel_message_item.dart';
+import 'channel_payment_method_sheet.dart';
 import 'channel_provider.dart';
+import 'channel_purchase_provider.dart';
 
 /// 频道详情页面
 ///
@@ -369,7 +371,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   )
                 : Container(
                     margin: const EdgeInsets.only(bottom: 2),
-                    constraints: const BoxConstraints(minHeight: 44, maxHeight: 120),
+                    constraints: const BoxConstraints(
+                      minHeight: 44,
+                      maxHeight: 120,
+                    ),
                     decoration: BoxDecoration(
                       color: surface,
                       borderRadius: BorderRadius.circular(18),
@@ -427,20 +432,20 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                       padding: EdgeInsets.all(8.0),
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                       ),
                     )
                   : hasText
-                      ? IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: const Icon(
-                            Icons.arrow_upward,
-                            size: 20,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => _sendMessage(channel),
-                        )
-                      : const SizedBox.shrink(),
+                  ? IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(
+                        Icons.arrow_upward,
+                        size: 20,
+                        color: AppColors.onPrimary,
+                      ),
+                      onPressed: () => _sendMessage(channel),
+                    )
+                  : const SizedBox.shrink(),
             ),
           ],
         ],
@@ -1019,30 +1024,56 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     );
   }
 
+  /// 购买并解锁付费频道（编排）。
+  ///
+  /// 流程：查钱包余额（用于展示+预检）→ 选支付方式 → 分发：
+  /// 钱包余额走真实扣款闭环；支付宝/微信占位提示即将开通（待 S4）。
   Future<void> _buyAndUnlock(ChannelModel channel) async {
     if (_isPaying) return;
-    final channelId = _resolveChannelId(channel);
 
+    // 余额仅在频道有明确价格时查询，用于 sheet 展示与不足预检。
+    int? balanceFen;
+    if (channel.hasPrice) {
+      final balance = await WalletApi().getBalance();
+      if (!mounted) return;
+      balanceFen = balance?.balance;
+    }
+    final balanceText = balanceFen == null
+        ? null
+        : '¥${(balanceFen / 100.0).toStringAsFixed(2)}';
+
+    final method = await showChannelPaymentMethodSheet(
+      context,
+      walletBalanceText: balanceText,
+    );
+    if (method == null || !mounted) return;
+
+    // 第三方支付 SDK 待 S4 接入，先占位提示。
+    if (method != 'wallet') {
+      EasyLoading.showToast(t.account.payMethodComingSoon);
+      return;
+    }
+
+    // 余额不足引导：避免直接发起注定失败的扣费订单。
+    if (channel.hasPrice && balanceFen != null && balanceFen < channel.price) {
+      await _showInsufficientBalanceDialog(channel, balanceFen);
+      return;
+    }
+
+    await _payChannelWithWallet(channel);
+  }
+
+  /// 钱包余额支付：创建订单→支付→轮询→订阅成功刷新。
+  Future<void> _payChannelWithWallet(ChannelModel channel) async {
+    final channelId = _resolveChannelId(channel);
     setState(() {
       _isPaying = true;
     });
 
     try {
-      // 余额不足引导：若频道有明确价格，购买前先查钱包余额。
-      // 余额 < 价格时，弹出引导去充值，避免直接发起注定失败的扣费订单。
-      if (channel.hasPrice) {
-        final balance = await WalletApi().getBalance();
-        if (!mounted) return;
-        if (balance != null && balance.balance < channel.price) {
-          setState(() {
-            _isPaying = false;
-          });
-          await _showInsufficientBalanceDialog(channel, balance.balance);
-          return;
-        }
-      }
-
-      final order = await _channelService.createAndPayOrder(channelId);
+      final order = await ref
+          .read(channelPurchaseProvider.notifier)
+          .purchase(channelId, paymentMethod: 'wallet');
       if (!mounted) return;
 
       if (order == null) {

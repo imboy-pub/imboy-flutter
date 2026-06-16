@@ -107,6 +107,7 @@ rechargeTitle: 充值
 rechargeAmountHint: 请输入充值金额（元），1元～10000元
 rechargeAmountExample: 例如：100
 payMethodTitle: 选择支付方式
+payMethodWallet: 钱包余额
 payMethodMock: 模拟支付（开发环境）
 payMethodAlipay: 支付宝
 payMethodWechat: 微信支付
