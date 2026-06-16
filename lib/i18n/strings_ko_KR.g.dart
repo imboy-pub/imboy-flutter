@@ -1527,6 +1527,8 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeDecryptReasonKeyExpired => '• 기기 키가 만료됨';
 	@override String get e2eeDecryptReasonDataCorrupt => '• 앱 데이터 손상';
 	@override String get e2eeDecryptChooseSolution => '해결 방법을 선택하세요';
+	@override String get e2eeDecryptRecreateHint => '안내: 재생성 후 상대방이 새 키를 다시 받아야 합니다. 변경 중 아직 전달되지 않은 암호화 메시지는 자동으로 재전송되지 않을 수 있습니다. 기존 메시지 기록에는 영향이 없습니다.';
+	@override String get e2eePeerKeyChanged => '상대방의 보안 번호가 변경되었습니다(앱 재설치 또는 기기 변경 때문일 수 있습니다). 보안을 중요하게 생각한다면 다른 경로로 상대방의 신원을 확인하세요.';
 	@override String get e2eeDecryptActionRecreateKey => '키 다시 만들기 (권장)';
 	@override String get e2eeDecryptActionRelogin => '다시 로그인';
 	@override String get e2eeDecryptActionRemindLater => '나중에 알림';
@@ -3862,6 +3864,8 @@ extension on TranslationsKoKr {
 			'common.e2eeDecryptReasonKeyExpired' => '• 기기 키가 만료됨',
 			'common.e2eeDecryptReasonDataCorrupt' => '• 앱 데이터 손상',
 			'common.e2eeDecryptChooseSolution' => '해결 방법을 선택하세요',
+			'common.e2eeDecryptRecreateHint' => '안내: 재생성 후 상대방이 새 키를 다시 받아야 합니다. 변경 중 아직 전달되지 않은 암호화 메시지는 자동으로 재전송되지 않을 수 있습니다. 기존 메시지 기록에는 영향이 없습니다.',
+			'common.e2eePeerKeyChanged' => '상대방의 보안 번호가 변경되었습니다(앱 재설치 또는 기기 변경 때문일 수 있습니다). 보안을 중요하게 생각한다면 다른 경로로 상대방의 신원을 확인하세요.',
 			'common.e2eeDecryptActionRecreateKey' => '키 다시 만들기 (권장)',
 			'common.e2eeDecryptActionRelogin' => '다시 로그인',
 			'common.e2eeDecryptActionRemindLater' => '나중에 알림',
@@ -3967,10 +3971,10 @@ extension on TranslationsKoKr {
 			'common.downloadHashFailed' => '파일 검증이 여러 번 실패했습니다. 네트워크를 확인하고 다시 시도해주세요',
 			'common.e2eeTransferToNewDevice' => '새 기기로 전송',
 			'common.e2eeTransferPendingSection' => '대기 중인 전송',
-			'common.e2eeTransferLoadFailed' => '불러오기 실패',
-			'common.e2eeTransferLoadFailedDesc' => '대기 중인 전송을 불러올 수 없습니다. 다시 시도해주세요',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferLoadFailed' => '불러오기 실패',
+			'common.e2eeTransferLoadFailedDesc' => '대기 중인 전송을 불러올 수 없습니다. 다시 시도해주세요',
 			'common.e2eeTransferNoPending' => '대기 중인 전송이 없습니다',
 			'common.e2eeTransferNoPendingDesc' => '기기가 키를 전송하면 여기에 표시됩니다',
 			'common.e2eeSocialEnoughShards' => '키를 복구할 수 있는 충분한 샤드가 있습니다',
@@ -4481,10 +4485,10 @@ extension on TranslationsKoKr {
 			'main.webQRLoggingIn' => '로그인 중...',
 			'main.webQRExpired' => 'QR 코드가 만료되었습니다',
 			'main.webQRRefresh' => 'QR 코드 새로고침',
-			'main.webSwitchToQR' => 'QR 코드로 로그인',
-			'main.e2eeErrDefault' => '종단간 암호화 실패, 메시지가 전송되지 않았습니다',
 			_ => null,
 		} ?? switch (path) {
+			'main.webSwitchToQR' => 'QR 코드로 로그인',
+			'main.e2eeErrDefault' => '종단간 암호화 실패, 메시지가 전송되지 않았습니다',
 			'main.e2eeSocialTotalShards' => '전체 샤드 수',
 			'main.e2eeSocialThreshold' => '복구 임계값',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '키 복구 시 ${count}명의 대리자가 필요합니다',

@@ -48,10 +48,7 @@ void main() {
     });
 
     test('空 payload 返回 unknown', () {
-      expect(
-        resolveNotificationType({}),
-        NotificationType.unknown,
-      );
+      expect(resolveNotificationType({}), NotificationType.unknown);
     });
 
     test('未知 notify_type 且无 conversation 字段 返回 unknown', () {
@@ -142,10 +139,7 @@ void main() {
         'notify_type': 'friend_request',
       });
       expect(result, isA<NotificationFriendRequestRoute>());
-      expect(
-        (result as NotificationFriendRequestRoute).requesterId,
-        isNull,
-      );
+      expect((result as NotificationFriendRequestRoute).requesterId, isNull);
       expect(result.toRoutePath(), '/contact/new_friend');
     });
   });
@@ -178,9 +172,7 @@ void main() {
     });
 
     test('群邀请缺 group_id 返回 Skip(missing_group_id)', () {
-      final result = parseNotificationPayload({
-        'notify_type': 'group_invite',
-      });
+      final result = parseNotificationPayload({'notify_type': 'group_invite'});
       expect(result, isA<NotificationParseSkip>());
       expect((result as NotificationParseSkip).reason, 'missing_group_id');
     });
@@ -218,10 +210,46 @@ void main() {
         'chat_type': 'C2C',
       });
       expect(result, isA<NotificationMessageRoute>());
+      expect((result as NotificationMessageRoute).peerId, '1838294017982465');
+    });
+  });
+
+  group('N-02 peerId 格式校验', () {
+    test('isValidNotificationPeerId: 合法纯数字 TSID 通过', () {
+      expect(isValidNotificationPeerId('1838294017982465'), isTrue);
+      expect(isValidNotificationPeerId('1'), isTrue);
+    });
+
+    test('isValidNotificationPeerId: 空/超长/含非数字字符拒绝', () {
+      expect(isValidNotificationPeerId(''), isFalse);
       expect(
-        (result as NotificationMessageRoute).peerId,
-        '1838294017982465',
-      );
+        isValidNotificationPeerId('123456789012345678901'),
+        isFalse,
+      ); // 21位
+      expect(isValidNotificationPeerId('12a45'), isFalse);
+      expect(isValidNotificationPeerId('c2c:1:2'), isFalse);
+      expect(isValidNotificationPeerId('../../etc'), isFalse);
+      expect(isValidNotificationPeerId('123 456'), isFalse);
+    });
+
+    test('parseNotificationPayload: 非法 peerId 降级为 invalid_peer_id Skip', () {
+      final result = parseNotificationPayload({
+        'notify_type': 'message',
+        'peer_id': '../../malicious',
+        'chat_type': 'C2C',
+      });
+      expect(result, isA<NotificationParseSkip>());
+      expect((result as NotificationParseSkip).reason, 'invalid_peer_id');
+    });
+
+    test('parseNotificationPayload: 合法 peerId 仍正常路由', () {
+      final result = parseNotificationPayload({
+        'notify_type': 'message',
+        'peer_id': '1838294017982465',
+        'chat_type': 'C2C',
+      });
+      expect(result, isA<NotificationMessageRoute>());
+      expect((result as NotificationMessageRoute).peerId, '1838294017982465');
     });
   });
 }

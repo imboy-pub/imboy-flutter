@@ -919,6 +919,8 @@ e2eeDecryptReasonOtherDevice: • 您在其他设备上登录
 e2eeDecryptReasonKeyExpired: • 设备密钥已过期
 e2eeDecryptReasonDataCorrupt: • 应用数据损坏
 e2eeDecryptChooseSolution: 请选择解决方案：
+e2eeDecryptRecreateHint: 提示：重建后，对方需重新获取你的新密钥；重建期间未送达的加密消息可能不会自动重发。历史消息不受影响。
+e2eePeerKeyChanged: 对方的安全码已变更（可能因对方重装应用或更换设备）。若你重视安全，请通过其他渠道与对方核实身份。
 e2eeDecryptActionRecreateKey: 重新创建密钥（推荐）
 e2eeDecryptActionRelogin: 重新登录
 e2eeDecryptActionRemindLater: 稍后提醒我

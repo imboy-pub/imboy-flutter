@@ -919,6 +919,8 @@ e2eeDecryptReasonOtherDevice: "• Anmeldung auf anderem Gerät"
 e2eeDecryptReasonKeyExpired: "• Geräteschlüssel abgelaufen"
 e2eeDecryptReasonDataCorrupt: "• App-Daten beschädigt"
 e2eeDecryptChooseSolution: 'Lösung wählen:'
+e2eeDecryptRecreateHint: "Hinweis: Nach der Neuerstellung muss die Gegenseite deinen neuen Schlüssel abrufen; während der Änderung noch nicht zugestellte verschlüsselte Nachrichten werden möglicherweise nicht automatisch erneut gesendet. Der Nachrichtenverlauf ist nicht betroffen."
+e2eePeerKeyChanged: "Die Sicherheitsnummer dieses Kontakts hat sich geändert (möglicherweise wurde die App neu installiert oder das Gerät gewechselt). Wenn dir Sicherheit wichtig ist, überprüfe die Identität über einen anderen Kanal."
 e2eeDecryptActionRecreateKey: Schlüssel neu erstellen (empfohlen)
 e2eeDecryptActionRelogin: Neu anmelden
 e2eeDecryptActionRemindLater: Später erinnern

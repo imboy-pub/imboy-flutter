@@ -1527,6 +1527,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeDecryptReasonKeyExpired => '• デバイスキーの有効期限が切れている';
 	@override String get e2eeDecryptReasonDataCorrupt => '• アプリのデータが破損している';
 	@override String get e2eeDecryptChooseSolution => '解決方法を選択してください：';
+	@override String get e2eeDecryptRecreateHint => 'ヒント：再作成後、相手はあなたの新しい鍵を取得し直す必要があります。変更中にまだ配信されていない暗号化メッセージは自動的に再送されない場合があります。メッセージ履歴には影響しません。';
+	@override String get e2eePeerKeyChanged => '相手の安全番号が変更されました（アプリの再インストールや端末の変更による可能性があります）。セキュリティを重視する場合は、別の手段で相手の本人確認を行ってください。';
 	@override String get e2eeDecryptActionRecreateKey => 'キーを再作成（推奨）';
 	@override String get e2eeDecryptActionRelogin => '再度ログイン';
 	@override String get e2eeDecryptActionRemindLater => '後で通知';
@@ -3862,6 +3864,8 @@ extension on TranslationsJaJp {
 			'common.e2eeDecryptReasonKeyExpired' => '• デバイスキーの有効期限が切れている',
 			'common.e2eeDecryptReasonDataCorrupt' => '• アプリのデータが破損している',
 			'common.e2eeDecryptChooseSolution' => '解決方法を選択してください：',
+			'common.e2eeDecryptRecreateHint' => 'ヒント：再作成後、相手はあなたの新しい鍵を取得し直す必要があります。変更中にまだ配信されていない暗号化メッセージは自動的に再送されない場合があります。メッセージ履歴には影響しません。',
+			'common.e2eePeerKeyChanged' => '相手の安全番号が変更されました（アプリの再インストールや端末の変更による可能性があります）。セキュリティを重視する場合は、別の手段で相手の本人確認を行ってください。',
 			'common.e2eeDecryptActionRecreateKey' => 'キーを再作成（推奨）',
 			'common.e2eeDecryptActionRelogin' => '再度ログイン',
 			'common.e2eeDecryptActionRemindLater' => '後で通知',
@@ -3967,10 +3971,10 @@ extension on TranslationsJaJp {
 			'common.downloadHashFailed' => 'ファイルの検証が複数回失敗しました。ネットワークを確認して再度お試しください',
 			'common.e2eeTransferToNewDevice' => '新しいデバイスへ転送',
 			'common.e2eeTransferPendingSection' => '保留中の転送',
-			'common.e2eeTransferLoadFailed' => '読み込みに失敗しました',
-			'common.e2eeTransferLoadFailedDesc' => '保留中の転送を読み込めません。もう一度お試しください',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferLoadFailed' => '読み込みに失敗しました',
+			'common.e2eeTransferLoadFailedDesc' => '保留中の転送を読み込めません。もう一度お試しください',
 			'common.e2eeTransferNoPending' => '保留中の転送はありません',
 			'common.e2eeTransferNoPendingDesc' => 'デバイスからキーが送信されると、ここに表示されます',
 			'common.e2eeSocialEnoughShards' => 'キーを復元するのに十分なシャードがあります',
@@ -4481,10 +4485,10 @@ extension on TranslationsJaJp {
 			'main.webQRLoggingIn' => 'ログイン中...',
 			'main.webQRExpired' => 'QRコードの有効期限が切れました',
 			'main.webQRRefresh' => 'QRコードを更新',
-			'main.webSwitchToQR' => 'QRコードでログイン',
-			'main.e2eeErrDefault' => 'エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした',
 			_ => null,
 		} ?? switch (path) {
+			'main.webSwitchToQR' => 'QRコードでログイン',
+			'main.e2eeErrDefault' => 'エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした',
 			'main.e2eeSocialTotalShards' => 'シャードの合計数',
 			'main.e2eeSocialThreshold' => '復元のしきい値',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'キーの復元には ${count} 人の代理者の協力が必要です',

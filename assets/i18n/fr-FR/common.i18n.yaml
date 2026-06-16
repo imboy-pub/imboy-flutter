@@ -919,6 +919,8 @@ e2eeDecryptReasonOtherDevice: "• Connexion sur un autre appareil"
 e2eeDecryptReasonKeyExpired: "• Clé d'appareil expirée"
 e2eeDecryptReasonDataCorrupt: "• Données de l'app corrompues"
 e2eeDecryptChooseSolution: 'Choisissez une solution :'
+e2eeDecryptRecreateHint: "Remarque : après la recréation, votre correspondant doit récupérer votre nouvelle clé ; les messages chiffrés non encore distribués pendant le changement pourraient ne pas être renvoyés automatiquement. L'historique des messages n'est pas affecté."
+e2eePeerKeyChanged: "Le code de sécurité de ce contact a changé (il a peut-être réinstallé l'application ou changé d'appareil). Si la sécurité vous importe, vérifiez son identité par un autre canal."
 e2eeDecryptActionRecreateKey: Recréer la clé (recommandé)
 e2eeDecryptActionRelogin: Reconnexion
 e2eeDecryptActionRemindLater: Plus tard

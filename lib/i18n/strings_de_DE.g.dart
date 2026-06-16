@@ -1527,6 +1527,8 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeDecryptReasonKeyExpired => '• Geräteschlüssel abgelaufen';
 	@override String get e2eeDecryptReasonDataCorrupt => '• App-Daten beschädigt';
 	@override String get e2eeDecryptChooseSolution => 'Lösung wählen:';
+	@override String get e2eeDecryptRecreateHint => 'Hinweis: Nach der Neuerstellung muss die Gegenseite deinen neuen Schlüssel abrufen; während der Änderung noch nicht zugestellte verschlüsselte Nachrichten werden möglicherweise nicht automatisch erneut gesendet. Der Nachrichtenverlauf ist nicht betroffen.';
+	@override String get e2eePeerKeyChanged => 'Die Sicherheitsnummer dieses Kontakts hat sich geändert (möglicherweise wurde die App neu installiert oder das Gerät gewechselt). Wenn dir Sicherheit wichtig ist, überprüfe die Identität über einen anderen Kanal.';
 	@override String get e2eeDecryptActionRecreateKey => 'Schlüssel neu erstellen (empfohlen)';
 	@override String get e2eeDecryptActionRelogin => 'Neu anmelden';
 	@override String get e2eeDecryptActionRemindLater => 'Später erinnern';
@@ -3862,6 +3864,8 @@ extension on TranslationsDeDe {
 			'common.e2eeDecryptReasonKeyExpired' => '• Geräteschlüssel abgelaufen',
 			'common.e2eeDecryptReasonDataCorrupt' => '• App-Daten beschädigt',
 			'common.e2eeDecryptChooseSolution' => 'Lösung wählen:',
+			'common.e2eeDecryptRecreateHint' => 'Hinweis: Nach der Neuerstellung muss die Gegenseite deinen neuen Schlüssel abrufen; während der Änderung noch nicht zugestellte verschlüsselte Nachrichten werden möglicherweise nicht automatisch erneut gesendet. Der Nachrichtenverlauf ist nicht betroffen.',
+			'common.e2eePeerKeyChanged' => 'Die Sicherheitsnummer dieses Kontakts hat sich geändert (möglicherweise wurde die App neu installiert oder das Gerät gewechselt). Wenn dir Sicherheit wichtig ist, überprüfe die Identität über einen anderen Kanal.',
 			'common.e2eeDecryptActionRecreateKey' => 'Schlüssel neu erstellen (empfohlen)',
 			'common.e2eeDecryptActionRelogin' => 'Neu anmelden',
 			'common.e2eeDecryptActionRemindLater' => 'Später erinnern',
@@ -3967,10 +3971,10 @@ extension on TranslationsDeDe {
 			'common.downloadHashFailed' => 'Mehrfachprüfung fehlgeschlagen. Netzwerk prüfen.',
 			'common.e2eeTransferToNewDevice' => 'An neues Gerät',
 			'common.e2eeTransferPendingSection' => 'Ausstehende Übertragungen',
-			'common.e2eeTransferLoadFailed' => 'Laden fehlgeschlagen',
-			'common.e2eeTransferLoadFailedDesc' => 'Ausstehende Übertragungen konnten nicht geladen werden. Bitte erneut versuchen.',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferLoadFailed' => 'Laden fehlgeschlagen',
+			'common.e2eeTransferLoadFailedDesc' => 'Ausstehende Übertragungen konnten nicht geladen werden. Bitte erneut versuchen.',
 			'common.e2eeTransferNoPending' => 'Keine ausstehenden Übertragungen',
 			'common.e2eeTransferNoPendingDesc' => 'Eingehende Schlüssel erscheinen hier',
 			'common.e2eeSocialEnoughShards' => 'Ausreichend Fragmente für Wiederherstellung',
@@ -4481,10 +4485,10 @@ extension on TranslationsDeDe {
 			'main.webQRLoggingIn' => 'Anmeldung...',
 			'main.webQRExpired' => 'QR-Code abgelaufen',
 			'main.webQRRefresh' => 'QR-Code aktualisieren',
-			'main.webSwitchToQR' => 'Per QR-Code anmelden',
-			'main.e2eeErrDefault' => 'E2EE fehlgeschlagen, Nachricht nicht gesendet',
 			_ => null,
 		} ?? switch (path) {
+			'main.webSwitchToQR' => 'Per QR-Code anmelden',
+			'main.e2eeErrDefault' => 'E2EE fehlgeschlagen, Nachricht nicht gesendet',
 			'main.e2eeSocialTotalShards' => 'Fragmente gesamt',
 			'main.e2eeSocialThreshold' => 'Schwellenwert',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Für Wiederherstellung sind ${count} Treuhänder nötig',

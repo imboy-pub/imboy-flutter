@@ -918,6 +918,8 @@ e2eeDecryptReasonOtherDevice: • 您在其他裝置上登入
 e2eeDecryptReasonKeyExpired: • 裝置金鑰已過期
 e2eeDecryptReasonDataCorrupt: • 應用資料損壞
 e2eeDecryptChooseSolution: 請選擇解決方案：
+e2eeDecryptRecreateHint: "提示：重建後，對方需重新取得你的新密鑰；重建期間未送達的加密訊息可能不會自動重發。歷史訊息不受影響。"
+e2eePeerKeyChanged: "對方的安全碼已變更（可能因對方重新安裝應用程式或更換裝置）。若你重視安全，請透過其他管道與對方核實身分。"
 e2eeDecryptActionRecreateKey: 重新建立金鑰（推薦）
 e2eeDecryptActionRelogin: 重新登入
 e2eeDecryptActionRemindLater: 稍後提醒我

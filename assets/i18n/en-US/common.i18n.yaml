@@ -913,6 +913,8 @@ e2eeDecryptReasonOtherDevice: • You logged in on another device
 e2eeDecryptReasonKeyExpired: • Device key has expired
 e2eeDecryptReasonDataCorrupt: • App data is corrupted
 e2eeDecryptChooseSolution: "Please choose a solution:"
+e2eeDecryptRecreateHint: "Note: after recreating, the other party needs to fetch your new key; encrypted messages not yet delivered during the change may not be resent automatically. Message history is not affected."
+e2eePeerKeyChanged: "This contact's safety number has changed (they may have reinstalled the app or switched devices). If security matters to you, verify their identity through another channel."
 e2eeDecryptActionRecreateKey: Recreate key (recommended)
 e2eeDecryptActionRelogin: Log in again
 e2eeDecryptActionRemindLater: Remind me later

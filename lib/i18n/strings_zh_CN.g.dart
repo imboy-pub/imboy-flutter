@@ -4387,6 +4387,12 @@ class Translations$common$zh_CN {
 	/// zh-CN: '请选择解决方案：'
 	String get e2eeDecryptChooseSolution => '请选择解决方案：';
 
+	/// zh-CN: '提示：重建后，对方需重新获取你的新密钥；重建期间未送达的加密消息可能不会自动重发。历史消息不受影响。'
+	String get e2eeDecryptRecreateHint => '提示：重建后，对方需重新获取你的新密钥；重建期间未送达的加密消息可能不会自动重发。历史消息不受影响。';
+
+	/// zh-CN: '对方的安全码已变更（可能因对方重装应用或更换设备）。若你重视安全，请通过其他渠道与对方核实身份。'
+	String get e2eePeerKeyChanged => '对方的安全码已变更（可能因对方重装应用或更换设备）。若你重视安全，请通过其他渠道与对方核实身份。';
+
 	/// zh-CN: '重新创建密钥（推荐）'
 	String get e2eeDecryptActionRecreateKey => '重新创建密钥（推荐）';
 
@@ -8163,6 +8169,8 @@ extension on Translations {
 			'common.e2eeDecryptReasonKeyExpired' => '• 设备密钥已过期',
 			'common.e2eeDecryptReasonDataCorrupt' => '• 应用数据损坏',
 			'common.e2eeDecryptChooseSolution' => '请选择解决方案：',
+			'common.e2eeDecryptRecreateHint' => '提示：重建后，对方需重新获取你的新密钥；重建期间未送达的加密消息可能不会自动重发。历史消息不受影响。',
+			'common.e2eePeerKeyChanged' => '对方的安全码已变更（可能因对方重装应用或更换设备）。若你重视安全，请通过其他渠道与对方核实身份。',
 			'common.e2eeDecryptActionRecreateKey' => '重新创建密钥（推荐）',
 			'common.e2eeDecryptActionRelogin' => '重新登录',
 			'common.e2eeDecryptActionRemindLater' => '稍后提醒我',
@@ -8268,10 +8276,10 @@ extension on Translations {
 			'common.downloadHashFailed' => '文件多次校验失败，请检查网络后重试',
 			'common.e2eeTransferToNewDevice' => '传输到新设备',
 			'common.e2eeTransferPendingSection' => '待处理的传输',
-			'common.e2eeTransferLoadFailed' => '加载失败',
-			'common.e2eeTransferLoadFailedDesc' => '无法加载待处理的传输，请重试',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferLoadFailed' => '加载失败',
+			'common.e2eeTransferLoadFailedDesc' => '无法加载待处理的传输，请重试',
 			'common.e2eeTransferNoPending' => '暂无待处理的传输',
 			'common.e2eeTransferNoPendingDesc' => '当有设备向您发送密钥时，会显示在这里',
 			'common.e2eeSocialEnoughShards' => '您已有足够的分片可以恢复密钥',
@@ -8782,10 +8790,10 @@ extension on Translations {
 			'main.webQRLoggingIn' => '登录中...',
 			'main.webQRExpired' => '二维码已过期',
 			'main.webQRRefresh' => '刷新二维码',
-			'main.webSwitchToQR' => '使用 QR 码登录',
-			'main.e2eeErrDefault' => '端到端加密失败，消息未发送',
 			_ => null,
 		} ?? switch (path) {
+			'main.webSwitchToQR' => '使用 QR 码登录',
+			'main.e2eeErrDefault' => '端到端加密失败，消息未发送',
 			'main.e2eeSocialTotalShards' => '总分片数',
 			'main.e2eeSocialThreshold' => '恢复阈值',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '恢复密钥时需要 ${count} 个代理协助',

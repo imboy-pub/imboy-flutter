@@ -202,6 +202,31 @@ final class E2EEKeyMismatchEvent extends AppEvent {
   }
 }
 
+/// 对端 E2EE 设备密钥变更事件（TOFU 安全告警）。
+///
+/// 当收到 S2C `e2ee_device_key_changed`（好友重装/换设备导致公钥变更）时触发，
+/// 供当前打开的 C2C 会话提示"对方安全码已变更"，让用户警觉中间人风险。
+final class E2EEPeerKeyChangedEvent extends AppEvent {
+  @override
+  List<Object?> get props => [uid, deviceId, keyId];
+
+  /// 密钥发生变更的对端用户 uid（TSID 字符串）
+  final String uid;
+  final String deviceId;
+  final String keyId;
+
+  const E2EEPeerKeyChangedEvent({
+    required this.uid,
+    this.deviceId = '',
+    this.keyId = '',
+  });
+
+  @override
+  String toString() {
+    return 'E2EEPeerKeyChangedEvent(uid: $uid, deviceId: $deviceId, keyId: $keyId)';
+  }
+}
+
 /// 消息状态变更事件
 ///
 /// 当消息状态发生变化时触发（如：发送中 → 已发送 → 已送达 → 已读）

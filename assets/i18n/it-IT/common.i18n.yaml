@@ -919,6 +919,8 @@ e2eeDecryptReasonOtherDevice: "• Accesso su altro dispositivo"
 e2eeDecryptReasonKeyExpired: "• Chiave dispositivo scaduta"
 e2eeDecryptReasonDataCorrupt: "• Dati app corrotti"
 e2eeDecryptChooseSolution: 'Scegli una soluzione :'
+e2eeDecryptRecreateHint: "Nota: dopo la ricreazione, l'altra persona deve recuperare la tua nuova chiave; i messaggi crittografati non ancora consegnati durante il cambio potrebbero non essere reinviati automaticamente. La cronologia dei messaggi non è interessata."
+e2eePeerKeyChanged: "Il codice di sicurezza di questo contatto è cambiato (potrebbe aver reinstallato l'app o cambiato dispositivo). Se la sicurezza è importante per te, verifica la sua identità tramite un altro canale."
 e2eeDecryptActionRecreateKey: Ricrea chiave (consigliato)
 e2eeDecryptActionRelogin: Nuovo accesso
 e2eeDecryptActionRemindLater: Più tardi

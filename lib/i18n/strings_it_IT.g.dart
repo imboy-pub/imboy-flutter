@@ -1527,6 +1527,8 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeDecryptReasonKeyExpired => '• Chiave dispositivo scaduta';
 	@override String get e2eeDecryptReasonDataCorrupt => '• Dati app corrotti';
 	@override String get e2eeDecryptChooseSolution => 'Scegli una soluzione :';
+	@override String get e2eeDecryptRecreateHint => 'Nota: dopo la ricreazione, l\'altra persona deve recuperare la tua nuova chiave; i messaggi crittografati non ancora consegnati durante il cambio potrebbero non essere reinviati automaticamente. La cronologia dei messaggi non è interessata.';
+	@override String get e2eePeerKeyChanged => 'Il codice di sicurezza di questo contatto è cambiato (potrebbe aver reinstallato l\'app o cambiato dispositivo). Se la sicurezza è importante per te, verifica la sua identità tramite un altro canale.';
 	@override String get e2eeDecryptActionRecreateKey => 'Ricrea chiave (consigliato)';
 	@override String get e2eeDecryptActionRelogin => 'Nuovo accesso';
 	@override String get e2eeDecryptActionRemindLater => 'Più tardi';
@@ -3862,6 +3864,8 @@ extension on TranslationsItIt {
 			'common.e2eeDecryptReasonKeyExpired' => '• Chiave dispositivo scaduta',
 			'common.e2eeDecryptReasonDataCorrupt' => '• Dati app corrotti',
 			'common.e2eeDecryptChooseSolution' => 'Scegli una soluzione :',
+			'common.e2eeDecryptRecreateHint' => 'Nota: dopo la ricreazione, l\'altra persona deve recuperare la tua nuova chiave; i messaggi crittografati non ancora consegnati durante il cambio potrebbero non essere reinviati automaticamente. La cronologia dei messaggi non è interessata.',
+			'common.e2eePeerKeyChanged' => 'Il codice di sicurezza di questo contatto è cambiato (potrebbe aver reinstallato l\'app o cambiato dispositivo). Se la sicurezza è importante per te, verifica la sua identità tramite un altro canale.',
 			'common.e2eeDecryptActionRecreateKey' => 'Ricrea chiave (consigliato)',
 			'common.e2eeDecryptActionRelogin' => 'Nuovo accesso',
 			'common.e2eeDecryptActionRemindLater' => 'Più tardi',
@@ -3967,10 +3971,10 @@ extension on TranslationsItIt {
 			'common.downloadHashFailed' => 'Verifiche multiple fallite. Controlla la rete.',
 			'common.e2eeTransferToNewDevice' => 'Al nuovo dispositivo',
 			'common.e2eeTransferPendingSection' => 'Trasferimenti in sospeso',
-			'common.e2eeTransferLoadFailed' => 'Caricamento fallito',
-			'common.e2eeTransferLoadFailedDesc' => 'Trasferimenti in sospeso non disponibili. Riprova.',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferLoadFailed' => 'Caricamento fallito',
+			'common.e2eeTransferLoadFailedDesc' => 'Trasferimenti in sospeso non disponibili. Riprova.',
 			'common.e2eeTransferNoPending' => 'Nessun trasferimento in sospeso',
 			'common.e2eeTransferNoPendingDesc' => 'Le chiavi ricevute appariranno qui',
 			'common.e2eeSocialEnoughShards' => 'Frammenti sufficienti per il ripristino',
@@ -4481,10 +4485,10 @@ extension on TranslationsItIt {
 			'main.webQRLoggingIn' => 'Accesso...',
 			'main.webQRExpired' => 'QR code scaduto',
 			'main.webQRRefresh' => 'Aggiorna QR code',
-			'main.webSwitchToQR' => 'Accesso via QR code',
-			'main.e2eeErrDefault' => 'E2EE fallito, messaggio non inviato',
 			_ => null,
 		} ?? switch (path) {
+			'main.webSwitchToQR' => 'Accesso via QR code',
+			'main.e2eeErrDefault' => 'E2EE fallito, messaggio non inviato',
 			'main.e2eeSocialTotalShards' => 'Totale frammenti',
 			'main.e2eeSocialThreshold' => 'Soglia di ripristino',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '${count} garanti richiesti per il ripristino',

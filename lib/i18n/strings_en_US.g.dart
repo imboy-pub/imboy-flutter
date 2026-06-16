@@ -1521,6 +1521,8 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeDecryptReasonKeyExpired => '• Device key has expired';
 	@override String get e2eeDecryptReasonDataCorrupt => '• App data is corrupted';
 	@override String get e2eeDecryptChooseSolution => 'Please choose a solution:';
+	@override String get e2eeDecryptRecreateHint => 'Note: after recreating, the other party needs to fetch your new key; encrypted messages not yet delivered during the change may not be resent automatically. Message history is not affected.';
+	@override String get e2eePeerKeyChanged => 'This contact\'s safety number has changed (they may have reinstalled the app or switched devices). If security matters to you, verify their identity through another channel.';
 	@override String get e2eeDecryptActionRecreateKey => 'Recreate key (recommended)';
 	@override String get e2eeDecryptActionRelogin => 'Log in again';
 	@override String get e2eeDecryptActionRemindLater => 'Remind me later';
@@ -3856,6 +3858,8 @@ extension on TranslationsEnUs {
 			'common.e2eeDecryptReasonKeyExpired' => '• Device key has expired',
 			'common.e2eeDecryptReasonDataCorrupt' => '• App data is corrupted',
 			'common.e2eeDecryptChooseSolution' => 'Please choose a solution:',
+			'common.e2eeDecryptRecreateHint' => 'Note: after recreating, the other party needs to fetch your new key; encrypted messages not yet delivered during the change may not be resent automatically. Message history is not affected.',
+			'common.e2eePeerKeyChanged' => 'This contact\'s safety number has changed (they may have reinstalled the app or switched devices). If security matters to you, verify their identity through another channel.',
 			'common.e2eeDecryptActionRecreateKey' => 'Recreate key (recommended)',
 			'common.e2eeDecryptActionRelogin' => 'Log in again',
 			'common.e2eeDecryptActionRemindLater' => 'Remind me later',
@@ -3967,10 +3971,10 @@ extension on TranslationsEnUs {
 			'common.e2eeTransferNoPendingDesc' => 'When a device sends you a key, it will appear here',
 			'common.e2eeSocialEnoughShards' => 'You have enough shards to recover your key',
 			'common.e2eeSocialMoreShards' => ({required Object count}) => '${count} more shards...',
-			'common.e2eeProxyLoadFriendsFailed' => 'Failed to load friend list, please retry',
-			'common.e2eeProxyNoPublicKey' => 'This contact has no available public key',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeProxyLoadFriendsFailed' => 'Failed to load friend list, please retry',
+			'common.e2eeProxyNoPublicKey' => 'This contact has no available public key',
 			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'Failed to get public key for ${name}',
 			'common.e2eeProxySelectFailed' => 'Failed to select proxies, please retry',
 			'common.e2eeProxyNoFriends' => 'No friends yet',
@@ -4481,10 +4485,10 @@ extension on TranslationsEnUs {
 			'main.webQRExpired' => 'QR code expired',
 			'main.webQRRefresh' => 'Refresh QR Code',
 			'main.webSwitchToQR' => 'Login with QR code',
-			'main.e2eeErrDefault' => 'End-to-end encryption failed, message not sent',
-			'main.e2eeSocialTotalShards' => 'Total shards',
 			_ => null,
 		} ?? switch (path) {
+			'main.e2eeErrDefault' => 'End-to-end encryption failed, message not sent',
+			'main.e2eeSocialTotalShards' => 'Total shards',
 			'main.e2eeSocialThreshold' => 'Recovery threshold',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Need ${count} proxies to recover key',
 			'main.e2eeSocialSelectProxy' => 'Select recovery proxies',

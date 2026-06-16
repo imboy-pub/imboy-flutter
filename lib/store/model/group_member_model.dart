@@ -76,6 +76,51 @@ class GroupMemberModel {
     return null;
   }
 
+  /// 不可变更新：返回字段替换后的新实例（遵循项目不可变性约定，避免原地修改）。
+  ///
+  /// [muteUntilMs] 为可空字段，copyWith 无法区分"不传"与"显式传 null"，
+  /// 故置空需用 [clearMuteUntil] = true 显式表达（解禁场景）。
+  GroupMemberModel copyWith({
+    int? id,
+    int? groupId,
+    int? userId,
+    String? nickname,
+    String? avatar,
+    String? sign,
+    String? account,
+    String? inviteCode,
+    String? alias,
+    String? description,
+    int? role,
+    int? isJoin,
+    String? joinMode,
+    int? status,
+    int? updatedAt,
+    int? createdAt,
+    int? muteUntilMs,
+    bool clearMuteUntil = false,
+  }) {
+    return GroupMemberModel(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
+      userId: userId ?? this.userId,
+      nickname: nickname ?? this.nickname,
+      avatar: avatar ?? this.avatar,
+      sign: sign ?? this.sign,
+      account: account ?? this.account,
+      inviteCode: inviteCode ?? this.inviteCode,
+      alias: alias ?? this.alias,
+      description: description ?? this.description,
+      role: role ?? this.role,
+      isJoin: isJoin ?? this.isJoin,
+      joinMode: joinMode ?? this.joinMode,
+      status: status ?? this.status,
+      updatedAt: updatedAt ?? this.updatedAt,
+      createdAt: createdAt ?? this.createdAt,
+      muteUntilMs: clearMuteUntil ? null : (muteUntilMs ?? this.muteUntilMs),
+    );
+  }
+
   factory GroupMemberModel.fromJson(Map<String, dynamic> json) {
     // iPrint("GroupMemberModel.fromJson ${json.toString()}");
     return GroupMemberModel(

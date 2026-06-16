@@ -21,6 +21,7 @@ import 'package:imboy/service/events/common_events.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 
 import 'package:imboy/page/group/group_role_rules.dart';
+import 'group_member_mute_util.dart';
 import 'mute_remaining_badge.dart';
 
 /// 群成员列表页面
@@ -71,8 +72,13 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           (m) => m.userId.toString() == event.userId,
         );
         if (idx == -1) return;
+        // BUG-11：不可变更新，替换匹配成员为新实例，避免原地修改 Model
         setState(() {
-          _memberList[idx].muteUntilMs = event.muteUntilMs;
+          _memberList = applyMemberMuteUpdate(
+            _memberList,
+            event.userId,
+            event.muteUntilMs,
+          );
         });
       },
       onError: (Object error) {
@@ -89,8 +95,9 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           (m) => m.userId.toString() == event.userId,
         );
         if (idx == -1) return;
+        // BUG-11：不可变更新，解禁置空 muteUntilMs
         setState(() {
-          _memberList[idx].muteUntilMs = null;
+          _memberList = applyMemberMuteUpdate(_memberList, event.userId, null);
         });
       },
       onError: (Object error) {

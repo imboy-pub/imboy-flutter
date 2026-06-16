@@ -144,6 +144,11 @@ NotificationParseResult parseNotificationPayload(Map<String, dynamic> data) {
       if (peerId == null) {
         return const NotificationParseSkip('missing_peer_id');
       }
+      // N-02：peerId 将直接拼入路由路径 `/chat/$peerId`，必须校验为合法 TSID
+      // （纯数字字符串），阻断被篡改的推送 payload 携带任意字符串进入路由。
+      if (!isValidNotificationPeerId(peerId)) {
+        return const NotificationParseSkip('invalid_peer_id');
+      }
       // chat_type 在新 schema 是 'C2C'/'C2G'；
       // 旧 FCM payload 用 'type' 字段承载 chatType，因 resolveNotificationType
       // 已识别此种情况进入 message 分支，这里读 'type' 做兜底；缺省 'C2C'。
@@ -187,6 +192,18 @@ NotificationParseResult parseNotificationPayload(Map<String, dynamic> data) {
     case NotificationType.unknown:
       return const NotificationParseSkip('unknown_type');
   }
+}
+
+/// 校验 [peerId] 是否为合法 TSID（纯数字字符串，长度 1..20）。
+///
+/// imboy 全平台 ID 为 64-bit TSID，JSON 以整数传输、前端转字符串，
+/// 路由 `/chat/:peerId` 期望纯数字。非数字/超长一律拒绝（N-02 纵深防御）。
+bool isValidNotificationPeerId(String peerId) {
+  if (peerId.isEmpty || peerId.length > 20) return false;
+  for (final code in peerId.codeUnits) {
+    if (code < 0x30 || code > 0x39) return false; // 非 '0'..'9'
+  }
+  return true;
 }
 
 /// 取 keys 中首个非空（去空白后非空）字符串值

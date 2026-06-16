@@ -1527,6 +1527,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeDecryptReasonKeyExpired => '• Срок действия ключа устройства истёк';
 	@override String get e2eeDecryptReasonDataCorrupt => '• Повреждены данные приложения';
 	@override String get e2eeDecryptChooseSolution => 'Выберите решение:';
+	@override String get e2eeDecryptRecreateHint => 'Примечание: после повторного создания собеседнику нужно получить ваш новый ключ; зашифрованные сообщения, не доставленные во время смены, могут не отправиться повторно автоматически. История сообщений не затрагивается.';
+	@override String get e2eePeerKeyChanged => 'Код безопасности этого контакта изменился (возможно, переустановлено приложение или сменено устройство). Если для вас важна безопасность, подтвердите личность собеседника другим способом.';
 	@override String get e2eeDecryptActionRecreateKey => 'Создать ключ заново (рекомендуется)';
 	@override String get e2eeDecryptActionRelogin => 'Войти заново';
 	@override String get e2eeDecryptActionRemindLater => 'Напомнить позже';
@@ -3862,6 +3864,8 @@ extension on TranslationsRuRu {
 			'common.e2eeDecryptReasonKeyExpired' => '• Срок действия ключа устройства истёк',
 			'common.e2eeDecryptReasonDataCorrupt' => '• Повреждены данные приложения',
 			'common.e2eeDecryptChooseSolution' => 'Выберите решение:',
+			'common.e2eeDecryptRecreateHint' => 'Примечание: после повторного создания собеседнику нужно получить ваш новый ключ; зашифрованные сообщения, не доставленные во время смены, могут не отправиться повторно автоматически. История сообщений не затрагивается.',
+			'common.e2eePeerKeyChanged' => 'Код безопасности этого контакта изменился (возможно, переустановлено приложение или сменено устройство). Если для вас важна безопасность, подтвердите личность собеседника другим способом.',
 			'common.e2eeDecryptActionRecreateKey' => 'Создать ключ заново (рекомендуется)',
 			'common.e2eeDecryptActionRelogin' => 'Войти заново',
 			'common.e2eeDecryptActionRemindLater' => 'Напомнить позже',
@@ -3967,10 +3971,10 @@ extension on TranslationsRuRu {
 			'common.downloadHashFailed' => 'Многократная ошибка проверки файла, проверьте сеть и попробуйте ещё раз',
 			'common.e2eeTransferToNewDevice' => 'Передать на новое устройство',
 			'common.e2eeTransferPendingSection' => 'Ожидающие передачи',
-			'common.e2eeTransferLoadFailed' => 'Не удалось загрузить',
-			'common.e2eeTransferLoadFailedDesc' => 'Не удалось загрузить ожидающие передачи, попробуйте ещё раз',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferLoadFailed' => 'Не удалось загрузить',
+			'common.e2eeTransferLoadFailedDesc' => 'Не удалось загрузить ожидающие передачи, попробуйте ещё раз',
 			'common.e2eeTransferNoPending' => 'Нет ожидающих передач',
 			'common.e2eeTransferNoPendingDesc' => 'Когда устройство отправит вам ключ, появится здесь',
 			'common.e2eeSocialEnoughShards' => 'Достаточно фрагментов для восстановления',
@@ -4481,10 +4485,10 @@ extension on TranslationsRuRu {
 			'main.webQRLoggingIn' => 'Вход...',
 			'main.webQRExpired' => 'Срок действия QR-кода истёк',
 			'main.webQRRefresh' => 'Обновить QR-код',
-			'main.webSwitchToQR' => 'Войти по QR-коду',
-			'main.e2eeErrDefault' => 'Ошибка сквозного шифрования, сообщение не отправлено',
 			_ => null,
 		} ?? switch (path) {
+			'main.webSwitchToQR' => 'Войти по QR-коду',
+			'main.e2eeErrDefault' => 'Ошибка сквозного шифрования, сообщение не отправлено',
 			'main.e2eeSocialTotalShards' => 'Всего фрагментов',
 			'main.e2eeSocialThreshold' => 'Порог восстановления',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Для восстановления нужно ${count} посредников',

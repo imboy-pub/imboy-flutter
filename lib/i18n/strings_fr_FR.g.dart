@@ -1527,6 +1527,8 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeDecryptReasonKeyExpired => '• Clé d\'appareil expirée';
 	@override String get e2eeDecryptReasonDataCorrupt => '• Données de l\'app corrompues';
 	@override String get e2eeDecryptChooseSolution => 'Choisissez une solution :';
+	@override String get e2eeDecryptRecreateHint => 'Remarque : après la recréation, votre correspondant doit récupérer votre nouvelle clé ; les messages chiffrés non encore distribués pendant le changement pourraient ne pas être renvoyés automatiquement. L\'historique des messages n\'est pas affecté.';
+	@override String get e2eePeerKeyChanged => 'Le code de sécurité de ce contact a changé (il a peut-être réinstallé l\'application ou changé d\'appareil). Si la sécurité vous importe, vérifiez son identité par un autre canal.';
 	@override String get e2eeDecryptActionRecreateKey => 'Recréer la clé (recommandé)';
 	@override String get e2eeDecryptActionRelogin => 'Reconnexion';
 	@override String get e2eeDecryptActionRemindLater => 'Plus tard';
@@ -3862,6 +3864,8 @@ extension on TranslationsFrFr {
 			'common.e2eeDecryptReasonKeyExpired' => '• Clé d\'appareil expirée',
 			'common.e2eeDecryptReasonDataCorrupt' => '• Données de l\'app corrompues',
 			'common.e2eeDecryptChooseSolution' => 'Choisissez une solution :',
+			'common.e2eeDecryptRecreateHint' => 'Remarque : après la recréation, votre correspondant doit récupérer votre nouvelle clé ; les messages chiffrés non encore distribués pendant le changement pourraient ne pas être renvoyés automatiquement. L\'historique des messages n\'est pas affecté.',
+			'common.e2eePeerKeyChanged' => 'Le code de sécurité de ce contact a changé (il a peut-être réinstallé l\'application ou changé d\'appareil). Si la sécurité vous importe, vérifiez son identité par un autre canal.',
 			'common.e2eeDecryptActionRecreateKey' => 'Recréer la clé (recommandé)',
 			'common.e2eeDecryptActionRelogin' => 'Reconnexion',
 			'common.e2eeDecryptActionRemindLater' => 'Plus tard',
@@ -3967,10 +3971,10 @@ extension on TranslationsFrFr {
 			'common.downloadHashFailed' => 'Vérifications multiples échouées. Vérifiez le réseau.',
 			'common.e2eeTransferToNewDevice' => 'Vers le nouvel appareil',
 			'common.e2eeTransferPendingSection' => 'Transferts en attente',
-			'common.e2eeTransferLoadFailed' => 'Échec du chargement',
-			'common.e2eeTransferLoadFailedDesc' => 'Transferts en attente indisponibles. Réessayez.',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferLoadFailed' => 'Échec du chargement',
+			'common.e2eeTransferLoadFailedDesc' => 'Transferts en attente indisponibles. Réessayez.',
 			'common.e2eeTransferNoPending' => 'Aucun transfert en attente',
 			'common.e2eeTransferNoPendingDesc' => 'Les clés reçues apparaîtront ici',
 			'common.e2eeSocialEnoughShards' => 'Assez de fragments pour restaurer',
@@ -4481,10 +4485,10 @@ extension on TranslationsFrFr {
 			'main.webQRLoggingIn' => 'Connexion...',
 			'main.webQRExpired' => 'QR code expiré',
 			'main.webQRRefresh' => 'Actualiser le QR code',
-			'main.webSwitchToQR' => 'Connexion par QR code',
-			'main.e2eeErrDefault' => 'Échec E2EE, message non envoyé',
 			_ => null,
 		} ?? switch (path) {
+			'main.webSwitchToQR' => 'Connexion par QR code',
+			'main.e2eeErrDefault' => 'Échec E2EE, message non envoyé',
 			'main.e2eeSocialTotalShards' => 'Total de fragments',
 			'main.e2eeSocialThreshold' => 'Seuil de restauration',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '${count} dépositaires requis pour la restauration',

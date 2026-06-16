@@ -12,6 +12,7 @@ import 'package:imboy/page/contact/new_friend/new_friend_provider.dart';
 import 'package:imboy/modules/channel_content/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/service/events/message_events.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -66,6 +67,55 @@ class MessageS2CService {
     return _providerContainer!;
   }
 
+  // ============================================
+  // S2C 重复投递去重层
+  // ============================================
+  //
+  // 历史问题：switchS2C 此前无任何去重，服务端按 2/5/7/11s 窗口重发 ACK 未到的 S2C 时，
+  // 非幂等动作（force_offline / apply_friend / group_member_join / user_muted 等）会
+  // 重复执行——重复踢登录、重复建联系人、重复弹 toast。
+  //
+  // 策略：在 switchS2C 顶部用 S2C 帧自带的稳定 id 做单点去重，命中则跳过 action 执行，
+  //       但【仍发送 ACK】（否则服务端继续重发）。
+  //       pull_offline_msg 是服务端主动 nudge（非事件），跨重连可能合法重发，单独走短 TTL。
+  static final Map<String, int> _processedS2CIds = {}; // key -> 处理时间戳(ms)
+  static const int _s2cDedupTtlMs = 5 * 60 * 1000; // 常规 5 分钟
+  static const int _s2cPullOfflineTtlMs = 2 * 1000; // pull_offline_msg 短 TTL
+
+  /// 构建 S2C 去重 key：优先用帧 id；id 为空时回退到 action+from+to+server_ts 复合 key
+  static String _buildS2CDedupKey(
+    Map<String, dynamic> data,
+    String action,
+    String from,
+    String to,
+  ) {
+    final id = data['id']?.toString() ?? '';
+    if (id.isNotEmpty) return id;
+    final serverTs = data['server_ts']?.toString() ?? '';
+    return '${action}_${from}_${to}_$serverTs';
+  }
+
+  /// 惰性清理过期去重标记（镜像 message.dart 的 _cleanExpiredReceivingMarks）
+  static void _cleanExpiredS2CIds(int now) {
+    if (_processedS2CIds.isEmpty) return;
+    final expiredKeys = <String>[];
+    // 用最长 TTL 作为清理阈值（短 TTL 的条目也会被这个窗口清掉，足够安全）
+    _processedS2CIds.forEach((key, ts) {
+      if (now - ts > _s2cDedupTtlMs) expiredKeys.add(key);
+    });
+    for (final key in expiredKeys) {
+      _processedS2CIds.remove(key);
+    }
+  }
+
+  /// 发送 S2C ACK（去重命中与正常路径共用，确保服务端始终收到 ACK 以停止重发）
+  static void _sendS2CAck(String msgId, bool autoAck) {
+    if (!autoAck) return;
+    if (msgId.isEmpty) return;
+    iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
+    AckManager.to.sendAckDirect('S2C', msgId);
+  }
+
   /// 处理 S2C 消息（WebSocket API v2.0 格式）
   ///
   /// v2.0 格式：
@@ -102,8 +152,29 @@ class MessageS2CService {
         return;
       }
 
+      // 【S2C 去重层】在 switch 之前用帧 id 做单点去重，杜绝重复投递导致的重复执行。
+      final actionLower = action.toLowerCase();
+      final dedupKey = _buildS2CDedupKey(
+        data,
+        actionLower,
+        from.toString(),
+        to.toString(),
+      );
+      final isPullOffline = actionLower == 'pull_offline_msg';
+      final ttl = isPullOffline ? _s2cPullOfflineTtlMs : _s2cDedupTtlMs;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      _cleanExpiredS2CIds(now);
+      final lastSeen = _processedS2CIds[dedupKey];
+      if (lastSeen != null && now - lastSeen < ttl) {
+        iPrint('🟡 [S2C dedup] 重复 S2C 已处理，跳过 action=$action key=$dedupKey');
+        // 重复也必须 ACK，否则服务端在重发窗口内继续重投
+        _sendS2CAck(msgId.toString(), autoAck);
+        return;
+      }
+      _processedS2CIds[dedupKey] = now;
+
       // v2.0: 使用 switch 处理不同的 action（统一转小写，避免大小写问题）
-      switch (action.toString().toLowerCase()) {
+      switch (actionLower) {
         case 'pull_offline_msg':
           await _handlePullOfflineMsg(data, payloadMap);
           break;
@@ -270,11 +341,7 @@ class MessageS2CService {
       }
 
       // 确认消息
-      if (autoAck) {
-        iPrint("> rtc msg CLIENT_ACK,S2C,$msgId,$deviceId");
-        // 直接发送 ACK 确认
-        AckManager.to.sendAckDirect('S2C', msgId as String);
-      }
+      _sendS2CAck(msgId.toString(), autoAck);
     } on Object catch (e, s) {
       iPrint("switchS2C error: $e, $s");
     }
@@ -757,6 +824,10 @@ class MessageS2CService {
     if (uid.isNotEmpty) {
       E2EEService.clearUserKeyCache(uid);
       iPrint('🔑 E2EE: 已清除用户 $uid 的公钥缓存（密钥已变更）');
+      // TOFU 安全告警：通知 UI 层（若正打开与该 uid 的 C2C 会话）提示"对方安全码已变更"
+      AppEventBus.fire(
+        E2EEPeerKeyChangedEvent(uid: uid, deviceId: deviceId, keyId: keyId),
+      );
     }
   }
 

@@ -1527,6 +1527,8 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeDecryptReasonKeyExpired => '• انتهت صلاحية مفتاح الجهاز';
 	@override String get e2eeDecryptReasonDataCorrupt => '• تلف بيانات التطبيق';
 	@override String get e2eeDecryptChooseSolution => 'اختر حلاً:';
+	@override String get e2eeDecryptRecreateHint => 'ملاحظة: بعد إعادة الإنشاء، يحتاج الطرف الآخر إلى جلب مفتاحك الجديد؛ وقد لا يُعاد إرسال الرسائل المشفّرة التي لم تُسلَّم أثناء التغيير تلقائيًا. لا يتأثّر سجل الرسائل.';
+	@override String get e2eePeerKeyChanged => 'تغيّر رمز الأمان لجهة الاتصال هذه (ربما أعاد تثبيت التطبيق أو غيّر الجهاز). إذا كان الأمان يهمّك، فتحقّق من هويته عبر قناة أخرى.';
 	@override String get e2eeDecryptActionRecreateKey => 'إنشاء المفتاح من جديد (موصى به)';
 	@override String get e2eeDecryptActionRelogin => 'إعادة تسجيل الدخول';
 	@override String get e2eeDecryptActionRemindLater => 'ذكّرني لاحقاً';
@@ -3862,6 +3864,8 @@ extension on TranslationsArSa {
 			'common.e2eeDecryptReasonKeyExpired' => '• انتهت صلاحية مفتاح الجهاز',
 			'common.e2eeDecryptReasonDataCorrupt' => '• تلف بيانات التطبيق',
 			'common.e2eeDecryptChooseSolution' => 'اختر حلاً:',
+			'common.e2eeDecryptRecreateHint' => 'ملاحظة: بعد إعادة الإنشاء، يحتاج الطرف الآخر إلى جلب مفتاحك الجديد؛ وقد لا يُعاد إرسال الرسائل المشفّرة التي لم تُسلَّم أثناء التغيير تلقائيًا. لا يتأثّر سجل الرسائل.',
+			'common.e2eePeerKeyChanged' => 'تغيّر رمز الأمان لجهة الاتصال هذه (ربما أعاد تثبيت التطبيق أو غيّر الجهاز). إذا كان الأمان يهمّك، فتحقّق من هويته عبر قناة أخرى.',
 			'common.e2eeDecryptActionRecreateKey' => 'إنشاء المفتاح من جديد (موصى به)',
 			'common.e2eeDecryptActionRelogin' => 'إعادة تسجيل الدخول',
 			'common.e2eeDecryptActionRemindLater' => 'ذكّرني لاحقاً',
@@ -3967,10 +3971,10 @@ extension on TranslationsArSa {
 			'common.downloadHashFailed' => 'فشل التحقق من الملف عدة مرات، تحقق من الشبكة وأعد المحاولة',
 			'common.e2eeTransferToNewDevice' => 'نقل إلى جهاز جديد',
 			'common.e2eeTransferPendingSection' => 'عمليات نقل معلّقة',
-			'common.e2eeTransferLoadFailed' => 'تعذّر التحميل',
-			'common.e2eeTransferLoadFailedDesc' => 'تعذّر تحميل عمليات النقل المعلّقة، أعد المحاولة',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferLoadFailed' => 'تعذّر التحميل',
+			'common.e2eeTransferLoadFailedDesc' => 'تعذّر تحميل عمليات النقل المعلّقة، أعد المحاولة',
 			'common.e2eeTransferNoPending' => 'لا توجد عمليات نقل معلّقة',
 			'common.e2eeTransferNoPendingDesc' => 'عند إرسال جهاز مفتاحاً إليك، يظهر هنا',
 			'common.e2eeSocialEnoughShards' => 'لديك شظايا كافية للاستعادة',
@@ -4481,10 +4485,10 @@ extension on TranslationsArSa {
 			'main.webQRLoggingIn' => 'جارٍ الدخول...',
 			'main.webQRExpired' => 'انتهت صلاحية رمز QR',
 			'main.webQRRefresh' => 'تحديث رمز QR',
-			'main.webSwitchToQR' => 'الدخول برمز QR',
-			'main.e2eeErrDefault' => 'فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة',
 			_ => null,
 		} ?? switch (path) {
+			'main.webSwitchToQR' => 'الدخول برمز QR',
+			'main.e2eeErrDefault' => 'فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة',
 			'main.e2eeSocialTotalShards' => 'إجمالي الشظايا',
 			'main.e2eeSocialThreshold' => 'حد الاستعادة',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'يلزم ${count} وكيل للاستعادة',

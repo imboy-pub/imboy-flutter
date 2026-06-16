@@ -919,6 +919,8 @@ e2eeDecryptReasonOtherDevice: "• 別のデバイスでログインしている
 e2eeDecryptReasonKeyExpired: "• デバイスキーの有効期限が切れている"
 e2eeDecryptReasonDataCorrupt: "• アプリのデータが破損している"
 e2eeDecryptChooseSolution: 解決方法を選択してください：
+e2eeDecryptRecreateHint: "ヒント：再作成後、相手はあなたの新しい鍵を取得し直す必要があります。変更中にまだ配信されていない暗号化メッセージは自動的に再送されない場合があります。メッセージ履歴には影響しません。"
+e2eePeerKeyChanged: "相手の安全番号が変更されました（アプリの再インストールや端末の変更による可能性があります）。セキュリティを重視する場合は、別の手段で相手の本人確認を行ってください。"
 e2eeDecryptActionRecreateKey: キーを再作成（推奨）
 e2eeDecryptActionRelogin: 再度ログイン
 e2eeDecryptActionRemindLater: 後で通知

@@ -1527,6 +1527,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeDecryptReasonKeyExpired => '• 裝置金鑰已過期';
 	@override String get e2eeDecryptReasonDataCorrupt => '• 應用資料損壞';
 	@override String get e2eeDecryptChooseSolution => '請選擇解決方案：';
+	@override String get e2eeDecryptRecreateHint => '提示：重建後，對方需重新取得你的新密鑰；重建期間未送達的加密訊息可能不會自動重發。歷史訊息不受影響。';
+	@override String get e2eePeerKeyChanged => '對方的安全碼已變更（可能因對方重新安裝應用程式或更換裝置）。若你重視安全，請透過其他管道與對方核實身分。';
 	@override String get e2eeDecryptActionRecreateKey => '重新建立金鑰（推薦）';
 	@override String get e2eeDecryptActionRelogin => '重新登入';
 	@override String get e2eeDecryptActionRemindLater => '稍後提醒我';
@@ -3862,6 +3864,8 @@ extension on TranslationsZhHant {
 			'common.e2eeDecryptReasonKeyExpired' => '• 裝置金鑰已過期',
 			'common.e2eeDecryptReasonDataCorrupt' => '• 應用資料損壞',
 			'common.e2eeDecryptChooseSolution' => '請選擇解決方案：',
+			'common.e2eeDecryptRecreateHint' => '提示：重建後，對方需重新取得你的新密鑰；重建期間未送達的加密訊息可能不會自動重發。歷史訊息不受影響。',
+			'common.e2eePeerKeyChanged' => '對方的安全碼已變更（可能因對方重新安裝應用程式或更換裝置）。若你重視安全，請透過其他管道與對方核實身分。',
 			'common.e2eeDecryptActionRecreateKey' => '重新建立金鑰（推薦）',
 			'common.e2eeDecryptActionRelogin' => '重新登入',
 			'common.e2eeDecryptActionRemindLater' => '稍後提醒我',
@@ -3967,10 +3971,10 @@ extension on TranslationsZhHant {
 			'common.downloadHashFailed' => '檔案多次校驗失敗，請檢查網路後重試',
 			'common.e2eeTransferToNewDevice' => '傳輸到新裝置',
 			'common.e2eeTransferPendingSection' => '待處理的傳輸',
-			'common.e2eeTransferLoadFailed' => '載入失敗',
-			'common.e2eeTransferLoadFailedDesc' => '無法載入待處理的傳輸，請重試',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferLoadFailed' => '載入失敗',
+			'common.e2eeTransferLoadFailedDesc' => '無法載入待處理的傳輸，請重試',
 			'common.e2eeTransferNoPending' => '暫無待處理的傳輸',
 			'common.e2eeTransferNoPendingDesc' => '當有裝置向您傳送金鑰時，會顯示在這裡',
 			'common.e2eeSocialEnoughShards' => '您已有足夠的分片可以恢復金鑰',
@@ -4481,10 +4485,10 @@ extension on TranslationsZhHant {
 			'main.webQRLoggingIn' => '登入中...',
 			'main.webQRExpired' => '二維碼已過期',
 			'main.webQRRefresh' => '重新整理二維碼',
-			'main.webSwitchToQR' => '使用 QR 碼登入',
-			'main.e2eeErrDefault' => '端到端加密失敗，訊息未傳送',
 			_ => null,
 		} ?? switch (path) {
+			'main.webSwitchToQR' => '使用 QR 碼登入',
+			'main.e2eeErrDefault' => '端到端加密失敗，訊息未傳送',
 			'main.e2eeSocialTotalShards' => '總分片數',
 			'main.e2eeSocialThreshold' => '恢復閾值',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '恢復金鑰時需要 ${count} 個代理協助',

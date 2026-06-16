@@ -48,6 +48,10 @@ import 'package:imboy/component/chat/mention_text_reducer.dart'
 // 显式导入 StorageService（解决编译错误）
 import 'package:imboy/service/storage.dart';
 
+// 显式导入 E2EE 事件（barrel 用 show 白名单未含 E2EEPeerKeyChangedEvent）
+import 'package:imboy/service/events/message_events.dart';
+import 'e2ee_peer_key_warning_rule.dart';
+
 import 'package:imboy/component/ui/avatar.dart' as imboy;
 
 // 消息条目 Widget（从 chatMessageBuilder 闭包提取）
@@ -542,6 +546,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   // AppErrorEvent 监听器订阅（需要单独处理以显示 SnackBar）
   StreamSubscription<AppErrorEvent>? _ssAppErrorLocal;
   StreamSubscription<E2EEKeyMismatchEvent>? _ssE2EEKeyMismatch;
+  StreamSubscription<E2EEPeerKeyChangedEvent>? _ssE2EEPeerKeyChanged;
   // 禁言事件监听
   StreamSubscription<UserMutedEvent>? _ssUserMuted;
   StreamSubscription<UserUnmutedEvent>? _ssUserUnmuted;
@@ -598,6 +603,22 @@ class ChatPageState extends ConsumerState<ChatPage>
       ) {
         if (!mounted) return;
         _showE2EEKeyMismatchDialog();
+      }, onError: (Object error) {});
+
+      // TOFU 安全告警：对端 E2EE 密钥变更（重装/换设备）。仅当前 C2C 会话且
+      // uid 匹配时提示，让用户警觉中间人风险（群聊 peerId 为群 id，天然不匹配）。
+      _ssE2EEPeerKeyChanged = AppEventBus.on<E2EEPeerKeyChangedEvent>().listen((
+        event,
+      ) {
+        if (!mounted) return;
+        if (!shouldWarnPeerKeyChanged(
+          isGroupChat: _chatType == MessageFlowType.c2g,
+          eventUid: event.uid,
+          currentPeerId: widget.peerId.toString(),
+        )) {
+          return;
+        }
+        EasyLoading.showToast(t.common.e2eePeerKeyChanged);
       }, onError: (Object error) {});
 
       // 监听禁言事件
@@ -736,6 +757,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     // 取消 E2EE密钥不匹配事件监听器
     _ssE2EEKeyMismatch?.cancel();
+    _ssE2EEPeerKeyChanged?.cancel();
 
     // 取消禁言事件监听
     _ssUserMuted?.cancel();
@@ -2071,6 +2093,8 @@ class ChatPageState extends ConsumerState<ChatPage>
             Text(t.common.e2eeDecryptReasonKeyExpired),
             Text(t.common.e2eeDecryptReasonDataCorrupt),
             const SizedBox(height: 16),
+            Text(t.common.e2eeDecryptRecreateHint),
+            const SizedBox(height: 16),
             Text(t.common.e2eeDecryptChooseSolution),
           ],
         ),
@@ -2098,29 +2122,32 @@ class ChatPageState extends ConsumerState<ChatPage>
     );
   }
 
-  /// 重新创建E2EE密钥
+  /// 重新创建 E2EE 密钥
+  ///
+  /// BUG-05 修复：旧实现仅清缓存 + 拉取本人**已有**公钥，并未真正重建密钥对，
+  /// 却无条件弹出成功提示（欺骗性 UX）。现改为真正重新生成密钥对并上报新公钥。
+  /// 旧私钥按 kid 归档（storage_secure C2 机制），历史密文不会因此丢失。
   Future<void> _refreshE2EEKeys() async {
     try {
-      EasyLoading.showToast(t.chat.e2eeRecreatingKey);
+      EasyLoading.show(status: t.chat.e2eeRecreatingKey);
 
-      // 1. 清除E2EE缓存
-      E2EEService.clearCache();
-
-      // 2. 重新生成密钥对（RSA服务会自动处理）
-      // 这里我们只需清理缓存，下次使用时会自动生成新的密钥对
-      // 并上传到服务器
-
-      // 3. 重新获取当前用户的设备密钥
-      final currentUid = UserRepoLocal.to.currentUid;
-      if (currentUid.isNotEmpty) {
-        // 清除标记，强制重新获取
-        await StorageService.to.remove('e2ee_key_refresh_time');
-        await E2EEService.getUserDevicePublicKeys(currentUid);
+      // 1. 真正重新生成密钥对并上报新公钥到服务端
+      final ok = await E2EEKeyService.regenerateAndReportDeviceKey();
+      if (!ok) {
+        EasyLoading.showError(
+          t.common.e2eeKeyRecreationFailed(error: 'report_failed'),
+        );
+        iPrint('E2EE: 密钥重建或上报失败');
+        return;
       }
 
+      // 2. 清本机内存公钥缓存，强制下次重新拉取对端最新公钥
+      E2EEService.clearCache();
+      await StorageService.to.remove('e2ee_key_refresh_time');
+
       EasyLoading.showSuccess(t.chat.e2eeKeyRecreated);
-      iPrint('E2EE: 密钥已重新创建');
-    } catch (e) {
+      iPrint('E2EE: 密钥已重新创建并上报');
+    } on Exception catch (e) {
       EasyLoading.showError(
         t.common.e2eeKeyRecreationFailed(error: e.toString()),
       );
