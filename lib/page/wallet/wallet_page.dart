@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/service/payment_launcher.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart'
@@ -122,14 +123,14 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(ctx).pop();
-              EasyLoading.showToast(t.account.payMethodComingSoon);
+              _doRecharge(amountFen, 'alipay');
             },
             child: Text(t.account.payMethodAlipay),
           ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(ctx).pop();
-              EasyLoading.showToast(t.account.payMethodComingSoon);
+              _doRecharge(amountFen, 'wechat');
             },
             child: Text(t.account.payMethodWechat),
           ),
@@ -142,7 +143,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     );
   }
 
-  /// 执行充值：创建订单 → 拉起支付（mock 即时入账）→ 轮询 → 刷新余额。
+  /// 执行充值：创建订单 → 拉起支付（mock 即时入账 / 第三方唤起收银台）→ 轮询
+  /// → 刷新余额。失败时按第三方唤起结果差异化提示。
   Future<void> _doRecharge(int amountFen, String method) async {
     EasyLoading.show(status: t.main.payingDots);
     final ok = await ref
@@ -151,8 +153,17 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     EasyLoading.dismiss();
     if (ok) {
       EasyLoading.showSuccess(t.common.rechargeSuccess);
-    } else {
-      EasyLoading.showError(t.common.purchaseFailed);
+      return;
+    }
+    switch (ref.read(walletProvider).lastLaunchResult) {
+      case PaymentLaunchResult.notConfigured:
+        EasyLoading.showToast(t.account.payMethodComingSoon);
+      case PaymentLaunchResult.cancelled:
+        EasyLoading.showToast(t.account.payCancelled);
+      case PaymentLaunchResult.failed:
+      case PaymentLaunchResult.success:
+      case null:
+        EasyLoading.showError(t.common.purchaseFailed);
     }
   }
 

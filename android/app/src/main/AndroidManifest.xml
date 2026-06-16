@@ -126,6 +126,16 @@
             android:name="com.amap.api.v2.apikey"
             android:value=""/>
 
+        <!-- 微信支付回调入口（继承 fluwx 的 FluwxWXEntryActivity）。
+             微信 SDK 硬性约定：必须位于 <applicationId>.wxapi.WXPayEntryActivity。
+             exported=true 供微信客户端回调，launchMode=singleTop 避免重复创建。 -->
+        <activity
+            android:name=".wxapi.WXPayEntryActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity="imboy.chat"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
@@ -134,6 +144,9 @@
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
     <!-- 用于动态查询其他 app 能力 -->
     <queries>
+        <!-- 第三方支付：检测/唤起微信与支付宝客户端（Android 11+ 包可见性要求） -->
+        <package android:name="com.tencent.mm"/>
+        <package android:name="com.eg.android.AlipayGphone"/>
         <intent>
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="https"/>

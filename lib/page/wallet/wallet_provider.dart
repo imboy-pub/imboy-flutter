@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/service/payment_launcher.dart';
 import 'package:imboy/store/api/wallet_api.dart';
 
 class WalletTransaction {
@@ -38,6 +39,9 @@ class WalletState {
   final int txPage;
   final bool txHasMore;
 
+  /// 最近一次第三方充值唤起结果；钱包/mock 充值或未发起时为 `null`。
+  final PaymentLaunchResult? lastLaunchResult;
+
   const WalletState({
     this.isLoading = false,
     this.balance = 0,
@@ -46,6 +50,7 @@ class WalletState {
     this.isTxLoading = false,
     this.txPage = 1,
     this.txHasMore = true,
+    this.lastLaunchResult,
   });
 
   WalletState copyWith({
@@ -56,6 +61,7 @@ class WalletState {
     bool? isTxLoading,
     int? txPage,
     bool? txHasMore,
+    PaymentLaunchResult? lastLaunchResult,
   }) => WalletState(
     isLoading: isLoading ?? this.isLoading,
     balance: balance ?? this.balance,
@@ -64,11 +70,17 @@ class WalletState {
     isTxLoading: isTxLoading ?? this.isTxLoading,
     txPage: txPage ?? this.txPage,
     txHasMore: txHasMore ?? this.txHasMore,
+    lastLaunchResult: lastLaunchResult ?? this.lastLaunchResult,
   );
 }
 
 class WalletNotifier extends Notifier<WalletState> {
   final _api = WalletApi();
+  PaymentLauncher _launcher = PaymentLauncher();
+
+  /// 测试注入第三方支付唤起器（隔离原生 SDK）。
+  // ignore: use_setters_to_change_properties
+  void debugSetLauncher(PaymentLauncher launcher) => _launcher = launcher;
 
   @override
   WalletState build() {
@@ -147,7 +159,14 @@ class WalletNotifier extends Notifier<WalletState> {
   ///   非生产白名单一致）；生产由调用方显式传 `alipay`/`wechat`/`stripe`。
   /// 返回 `true` 表示充值已入账成功。
   Future<bool> recharge(int amountFen, {String paymentMethod = 'mock'}) async {
-    state = state.copyWith(isLoading: true, error: null);
+    // 重置上一次唤起结果（const 重建以清空 lastLaunchResult）
+    state = const WalletState().copyWith(
+      balance: state.balance,
+      transactions: state.transactions,
+      txPage: state.txPage,
+      txHasMore: state.txHasMore,
+      isLoading: true,
+    );
 
     // 1. 创建充值订单
     final order = await _api.createRechargeOrder(
@@ -159,19 +178,27 @@ class WalletNotifier extends Notifier<WalletState> {
       return false;
     }
 
-    // 2. 拉起支付（沙箱网关即时入账；真实环境返回 SDK 参数）
-    // TODO(真机/真实SDK)：真实接入时，用 payParams 唤起对应支付 SDK 原生收银台，
-    //   待用户完成支付后再进入轮询；沙箱阶段后端在此即置为已支付。
+    // 2. 拉起支付（mock 网关即时入账；第三方返回 pay_params 供唤起收银台）
     final payParams = await _api.payRecharge(order.orderNo);
     if (payParams == null) {
       state = state.copyWith(isLoading: false);
       return false;
     }
 
-    // 3. 轮询订单状态，直到入账成功或超时
+    // 3. 第三方：唤起原生收银台（fluwx/tobias），取消/未配置则中止（不轮询）
+    if (paymentMethod != 'mock' && paymentMethod != 'wallet') {
+      final launched = await _launchThirdParty(paymentMethod, payParams);
+      if (launched != PaymentLaunchResult.success &&
+          launched != PaymentLaunchResult.failed) {
+        state = state.copyWith(isLoading: false);
+        return false; // cancelled / notConfigured：不轮询
+      }
+    }
+
+    // 4. 轮询订单状态，直到入账成功或超时（回调入账后命中）
     final paid = await _pollRechargeOrder(order.orderNo);
 
-    // 4. 刷新余额与流水
+    // 5. 刷新余额与流水
     if (paid) {
       await loadBalance();
       await loadTransactions();
@@ -179,6 +206,20 @@ class WalletNotifier extends Notifier<WalletState> {
       state = state.copyWith(isLoading: false);
     }
     return paid;
+  }
+
+  /// 唤起第三方收银台并记录结果到 state。
+  Future<PaymentLaunchResult> _launchThirdParty(
+    String method,
+    Map<dynamic, dynamic> payParams,
+  ) async {
+    final params = payParams['pay_params'];
+    final result = await _launcher.launch(
+      method,
+      params is Map ? params : const <dynamic, dynamic>{},
+    );
+    state = state.copyWith(lastLaunchResult: result);
+    return result;
   }
 
   /// 轮询充值订单状态。

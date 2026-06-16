@@ -848,6 +848,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  fluwx:
+    dependency: "direct main"
+    description:
+      name: fluwx
+      sha256: "7e92d2000ee49c5262a88c51ea2d22b91a753d5b29df27cc264bb0a115d65373"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.7.5"
   flyer_chat_audio_message:
     dependency: "direct main"
     description:
@@ -2166,6 +2174,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.11.0"
+  tobias:
+    dependency: "direct main"
+    description:
+      name: tobias
+      sha256: "6ab8c42904f46abc633d9f1ea5b8c27543fd9d101e7e0fbc8a3018f187fae731"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   tuple:
     dependency: transitive
     description:

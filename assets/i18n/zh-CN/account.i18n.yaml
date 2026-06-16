@@ -112,6 +112,7 @@ payMethodMock: 模拟支付（开发环境）
 payMethodAlipay: 支付宝
 payMethodWechat: 微信支付
 payMethodComingSoon: 该支付方式即将开通，敬请期待
+payCancelled: 支付已取消
 e2eeDeviceTransfer: 设备间传输
 e2eeDeviceTransferDesc: 通过二维码直接传输密钥到新设备
 e2eeDeviceIdLabel: 设备 ID

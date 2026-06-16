@@ -17,6 +17,7 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/service/payment_launcher.dart';
 import 'package:imboy/store/api/wallet_api.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
@@ -1048,9 +1049,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     );
     if (method == null || !mounted) return;
 
-    // 第三方支付 SDK 待 S4 接入，先占位提示。
+    // 第三方支付：唤起原生收银台（fluwx/tobias），回调入账后轮询命中。
     if (method != 'wallet') {
-      EasyLoading.showToast(t.account.payMethodComingSoon);
+      await _payChannelWithThirdParty(channel, method);
       return;
     }
 
@@ -1061,6 +1062,61 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     }
 
     await _payChannelWithWallet(channel);
+  }
+
+  /// 第三方支付：创建订单→唤起收银台→轮询→订阅成功刷新。
+  ///
+  /// 取消则静默返回；未配置（appId 缺失或后端二次签名未就绪）提示"即将开通"。
+  Future<void> _payChannelWithThirdParty(
+    ChannelModel channel,
+    String method,
+  ) async {
+    final channelId = _resolveChannelId(channel);
+    setState(() {
+      _isPaying = true;
+    });
+    final notifier = ref.read(channelPurchaseProvider.notifier);
+    try {
+      final order = await notifier.purchase(channelId, paymentMethod: method);
+      if (!mounted) return;
+
+      if (order == null) {
+        final result = ref.read(channelPurchaseProvider).lastLaunchResult;
+        _handleThirdPartyFailure(result);
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.common.purchaseSuccess)));
+
+      await ref.read(channelListProvider.notifier).loadSubscribedChannels();
+      await ref.read(channelDetailProvider.notifier).loadChannel(channelId);
+      _statsRequestedChannelId = null;
+      await _loadStats(channelId);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPaying = false;
+        });
+      }
+    }
+  }
+
+  /// 第三方支付失败/取消/未配置的差异化提示。
+  void _handleThirdPartyFailure(PaymentLaunchResult? result) {
+    switch (result) {
+      case PaymentLaunchResult.notConfigured:
+        EasyLoading.showToast(t.account.payMethodComingSoon);
+      case PaymentLaunchResult.cancelled:
+        EasyLoading.showToast(t.account.payCancelled);
+      case PaymentLaunchResult.failed:
+      case PaymentLaunchResult.success:
+      case null:
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.common.purchaseFailed)));
+    }
   }
 
   /// 钱包余额支付：创建订单→支付→轮询→订阅成功刷新。

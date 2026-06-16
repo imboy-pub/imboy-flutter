@@ -207,6 +207,12 @@ dependencies:
   riverpod_annotation: ^4.0.1       # Riverpod code generation (updated: 4.0.0 → 4.0.1)
   crop_your_image: ^2.0.0
 
+  # ┌─────────────────────────────────────────────────────────────────┐
+  # │ 💳 Payment SDKs (S4)                                             │
+  # └─────────────────────────────────────────────────────────────────┘
+  fluwx: ^5.5.6                     # WeChat Pay / open SDK (微信支付收银台)
+  tobias: ^4.0.0                    # Alipay SDK (支付宝收银台)
+
 
 dependency_overrides:
   # ┌─ Analyzer Override ───────────────────────────────────────────────┐
