@@ -86,7 +86,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           ),
           CupertinoDialogAction(
             isDefaultAction: true,
-            onPressed: () async {
+            onPressed: () {
               final input = controller.text.trim();
               final yuan = double.tryParse(input);
               if (yuan == null || yuan < 1 || yuan > 10000) {
@@ -95,23 +95,65 @@ class _WalletPageState extends ConsumerState<WalletPage> {
               }
               final amountFen = (yuan * 100).round();
               Navigator.of(ctx).pop();
-              // 充值真实链路：创建订单 → 拉起支付（沙箱即时入账）→ 轮询 → 刷新余额
-              EasyLoading.show(status: t.main.payingDots);
-              final ok = await ref
-                  .read(walletProvider.notifier)
-                  .recharge(amountFen);
-              EasyLoading.dismiss();
-              if (ok) {
-                EasyLoading.showSuccess(t.common.rechargeSuccess);
-              } else {
-                EasyLoading.showError(t.common.purchaseFailed);
-              }
+              _showPayMethodSheet(amountFen);
             },
             child: Text(t.common.rechargeConfirm),
           ),
         ],
       ),
     );
+  }
+
+  /// 金额确认后弹出支付方式选择。
+  /// mock 走开发即时入账链路；支付宝/微信暂未接入 SDK，提示即将开通（待 S4）。
+  void _showPayMethodSheet(int amountFen) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        title: Text(t.account.payMethodTitle),
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _doRecharge(amountFen, 'mock');
+            },
+            child: Text(t.account.payMethodMock),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              EasyLoading.showToast(t.account.payMethodComingSoon);
+            },
+            child: Text(t.account.payMethodAlipay),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              EasyLoading.showToast(t.account.payMethodComingSoon);
+            },
+            child: Text(t.account.payMethodWechat),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: Text(t.common.cancel),
+        ),
+      ),
+    );
+  }
+
+  /// 执行充值：创建订单 → 拉起支付（mock 即时入账）→ 轮询 → 刷新余额。
+  Future<void> _doRecharge(int amountFen, String method) async {
+    EasyLoading.show(status: t.main.payingDots);
+    final ok = await ref
+        .read(walletProvider.notifier)
+        .recharge(amountFen, paymentMethod: method);
+    EasyLoading.dismiss();
+    if (ok) {
+      EasyLoading.showSuccess(t.common.rechargeSuccess);
+    } else {
+      EasyLoading.showError(t.common.purchaseFailed);
+    }
   }
 
   @override

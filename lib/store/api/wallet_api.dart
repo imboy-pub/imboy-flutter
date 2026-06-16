@@ -106,10 +106,11 @@ class WalletApi extends HttpClient {
   /// 创建充值订单
   ///
   /// [amountFen] 充值金额（分），范围 100-1000000
-  /// [paymentMethod] 支付方式：wechat / alipay / stripe（沙箱阶段后端即时入账）
+  /// [paymentMethod] 支付方式：mock（开发联调，后端即时入账）/ alipay / wechat
+  ///   / stripe。必须与后端 recharge_logic 白名单一致，禁止传 `sandbox`。
   Future<RechargeOrder?> createRechargeOrder(
     int amountFen, {
-    String paymentMethod = 'sandbox',
+    String paymentMethod = 'mock',
   }) async {
     IMBoyHttpResponse resp = await post(
       API.walletRechargeOrder,

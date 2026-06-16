@@ -388,6 +388,21 @@ class Translations$account$zh_CN {
 	/// zh-CN: '例如：100'
 	String get rechargeAmountExample => '例如：100';
 
+	/// zh-CN: '选择支付方式'
+	String get payMethodTitle => '选择支付方式';
+
+	/// zh-CN: '模拟支付（开发环境）'
+	String get payMethodMock => '模拟支付（开发环境）';
+
+	/// zh-CN: '支付宝'
+	String get payMethodAlipay => '支付宝';
+
+	/// zh-CN: '微信支付'
+	String get payMethodWechat => '微信支付';
+
+	/// zh-CN: '该支付方式即将开通，敬请期待'
+	String get payMethodComingSoon => '该支付方式即将开通，敬请期待';
+
 	/// zh-CN: '设备间传输'
 	String get e2eeDeviceTransfer => '设备间传输';
 
@@ -6841,6 +6856,11 @@ extension on Translations {
 			'account.rechargeTitle' => '充值',
 			'account.rechargeAmountHint' => '请输入充值金额（元），1元～10000元',
 			'account.rechargeAmountExample' => '例如：100',
+			'account.payMethodTitle' => '选择支付方式',
+			'account.payMethodMock' => '模拟支付（开发环境）',
+			'account.payMethodAlipay' => '支付宝',
+			'account.payMethodWechat' => '微信支付',
+			'account.payMethodComingSoon' => '该支付方式即将开通，敬请期待',
 			'account.e2eeDeviceTransfer' => '设备间传输',
 			'account.e2eeDeviceTransferDesc' => '通过二维码直接传输密钥到新设备',
 			'account.e2eeDeviceIdLabel' => '设备 ID',
@@ -7243,13 +7263,13 @@ extension on Translations {
 			'chat.e2eeRecoveryGoRecover' => '去恢复',
 			'chat.e2eeRecoveryBannerText' => '检测到加密历史消息，需恢复密钥后才能查看，点击前往恢复',
 			'chat.liveRoomCreateTitle' => '创建直播间',
+			_ => null,
+		} ?? switch (path) {
 			'chat.liveRoomCreating' => '创建中...',
 			'chat.liveRoomWatch' => '观看直播',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
-			_ => null,
-		} ?? switch (path) {
 			'common.acceptFriendRequest' => '通过好友验证',
 			'common.addFriend' => '添加朋友',
 			'common.addPhoneContact' => '添加手机联系人',
@@ -7757,13 +7777,13 @@ extension on Translations {
 			'common.allowAddByPhone' => '允许通过手机号添加',
 			'common.allowAddByPhoneDesc' => '其他用户可以通过你的手机号添加你为好友',
 			'common.allowAddByQR' => '允许通过二维码添加',
+			_ => null,
+		} ?? switch (path) {
 			'common.allowAddByQRDesc' => '其他用户可以通过扫描你的二维码添加你为好友',
 			'common.statusSettings' => '状态设置',
 			'common.showOnlineStatus' => '显示在线状态',
 			'common.showOnlineStatusDesc' => '好友可以看到你的在线状态',
 			'common.allowNearbyVisible' => '附近的人可见',
-			_ => null,
-		} ?? switch (path) {
 			'common.dataSettings' => '数据设置',
 			'common.clearChatRecords' => '清除聊天记录',
 			'common.clearChatRecordsDesc' => '清除所有聊天记录，此操作不可恢复',
@@ -8271,13 +8291,13 @@ extension on Translations {
 			'common.attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
 			'common.attachmentGetOriginalImageFailed' => '无法获取原始图片数据',
 			'common.saveFailedRetry' => '保存失败，请重试',
+			_ => null,
+		} ?? switch (path) {
 			'common.downloadFileNotFound' => '下载文件不存在，请重试',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '文件校验失败，正在重新下载 (${retry}/${max})',
 			'common.downloadHashFailed' => '文件多次校验失败，请检查网络后重试',
 			'common.e2eeTransferToNewDevice' => '传输到新设备',
 			'common.e2eeTransferPendingSection' => '待处理的传输',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferLoadFailed' => '加载失败',
 			'common.e2eeTransferLoadFailedDesc' => '无法加载待处理的传输，请重试',
 			'common.e2eeTransferNoPending' => '暂无待处理的传输',
@@ -8785,13 +8805,13 @@ extension on Translations {
 			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 个代理分片',
 			'main.e2eePreparing' => '准备恢复...',
 			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '进度: ${collected} / ${total} 个分片',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...',
 			'main.e2eeShardsCollected' => '分片收集完成，正在重组密钥...',
 			'main.webQRLoggingIn' => '登录中...',
 			'main.webQRExpired' => '二维码已过期',
 			'main.webQRRefresh' => '刷新二维码',
-			_ => null,
-		} ?? switch (path) {
 			'main.webSwitchToQR' => '使用 QR 码登录',
 			'main.e2eeErrDefault' => '端到端加密失败，消息未发送',
 			'main.e2eeSocialTotalShards' => '总分片数',

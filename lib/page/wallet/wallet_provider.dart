@@ -143,12 +143,10 @@ class WalletNotifier extends Notifier<WalletState> {
   /// 已支付。真实接入支付 SDK 后，支付为异步过程，轮询用于等待回调入账。
   ///
   /// [amountFen] 充值金额（分）
-  /// [paymentMethod] 支付方式（沙箱默认 sandbox）
+  /// [paymentMethod] 支付方式。开发联调默认 `mock`（后端即时入账，须与后端
+  ///   非生产白名单一致）；生产由调用方显式传 `alipay`/`wechat`/`stripe`。
   /// 返回 `true` 表示充值已入账成功。
-  Future<bool> recharge(
-    int amountFen, {
-    String paymentMethod = 'sandbox',
-  }) async {
+  Future<bool> recharge(int amountFen, {String paymentMethod = 'mock'}) async {
     state = state.copyWith(isLoading: true, error: null);
 
     // 1. 创建充值订单

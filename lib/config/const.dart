@@ -302,6 +302,14 @@ class API {
   static String walletRechargeOrderStatus(String orderNo) =>
       '/v1/wallet/recharge/$orderNo';
 
+  // 付费频道订单（创建 → 支付 → 查询），均 JWT 保护
+  static String channelCreateOrder(String channelId) =>
+      '/v1/channel/$channelId/order';
+  static const channelOrderPay = '/v1/channel/order/pay';
+  static const channelMyOrders = '/v1/channel/orders/my';
+  static String channelOrderStatus(String orderNo) =>
+      '/v1/channel/order/$orderNo';
+
   // 附件 presign 直传（Garage S3），均 JWT 保护
   static const attachmentPresign = '/v1/attachment/presign';
   static const attachmentConfirm = '/v1/attachment/confirm';
