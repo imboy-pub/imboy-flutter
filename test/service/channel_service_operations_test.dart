@@ -46,7 +46,6 @@ class _FakeChannelApi extends ChannelApi {
     this.setMessagePinnedResult = true,
     this.subscribedChannels = const [],
     this.messages = const [],
-    this.publishMessageResult,
     this.markAsReadResult = true,
     this.deleteChannelResult = true,
     this.searchResult = const [],
@@ -68,7 +67,6 @@ class _FakeChannelApi extends ChannelApi {
   final bool setMessagePinnedResult;
   final List<ChannelModel> subscribedChannels;
   final List<ChannelMessageModel> messages;
-  final ChannelMessageModel? publishMessageResult;
   final bool markAsReadResult;
   final bool deleteChannelResult;
   final List<ChannelModel> searchResult;
@@ -177,7 +175,7 @@ class _FakeChannelApi extends ChannelApi {
     Map<String, dynamic>? payload,
   }) async {
     publishMessageCalls.add((channelId, content, msgType));
-    return publishMessageResult;
+    return null;
   }
 
   @override
@@ -387,9 +385,11 @@ class _FakeChannelMessageRepo extends ChannelMessageRepo {
   final List<String> deletedByChannelCalls = <String>[];
   final Map<String, bool> pinnedByMessageId = <String, bool>{};
   List<ChannelMessageModel> localMessages = <ChannelMessageModel>[];
+  bool throwOnSave = false;
 
   @override
   Future<void> saveMessage(ChannelMessageModel message, {dynamic txn}) async {
+    if (throwOnSave) throw Exception('saveMessage failed');
     savedMessages.add(message);
   }
 
@@ -1039,20 +1039,15 @@ void main() {
   });
 
   // ─── CH-8  publishMessage / getMessages / deleteChannel / markAsRead ────────
-  group('CH-8 publishMessage', () {
-    ChannelMessageModel msg(int id) => ChannelMessageModel(
-      id: id,
-      channelId: 100,
-      content: 'test',
-      msgType: 'channel_text',
-      createdAt: DateTime.fromMillisecondsSinceEpoch(1000),
-    );
-
-    test('API 返回消息 → 保存到本地 + 返回消息', () async {
-      final m = msg(99);
+  //
+  // publishMessage 已迁移至 WebSocket v2 (C2CH)：构造本地 pending 消息
+  // （负时间戳作 ID 表示等待服务端确认）→ 落库 → 经 WS 发送 → 返回 pending；
+  // 不再调用 _api.publishMessage。以下契约据此校验。
+  group('CH-8 publishMessage (WS v2)', () {
+    test('返回本地 pending 消息（负 id）并落库', () async {
       final msgRepo = _FakeChannelMessageRepo();
       final service = ChannelService.forTest(
-        api: _FakeChannelApi(publishMessageResult: m),
+        api: _FakeChannelApi(),
         repo: _FakeChannelRepo(),
         messageRepo: msgRepo,
       );
@@ -1064,33 +1059,35 @@ void main() {
       );
 
       expect(result, isNotNull);
-      expect(result!.id, 99);
+      expect(result!.id, lessThan(0), reason: '负时间戳作 pending 本地 ID');
+      expect(result.content, 'hello');
       expect(msgRepo.savedMessages, hasLength(1));
+      expect(msgRepo.savedMessages.single.id, result.id);
     });
 
-    test('API 返回 null → 不写本地 + 返回 null', () async {
-      final msgRepo = _FakeChannelMessageRepo();
+    test('不调用 _api.publishMessage（已走 WS）', () async {
+      final api = _FakeChannelApi();
       final service = ChannelService.forTest(
-        api: _FakeChannelApi(publishMessageResult: null),
+        api: api,
         repo: _FakeChannelRepo(),
-        messageRepo: msgRepo,
+        messageRepo: _FakeChannelMessageRepo(),
       );
 
-      final result = await service.publishMessage(
+      await service.publishMessage(
         channelId: '100',
         content: 'hello',
         msgType: 'channel_text',
       );
 
-      expect(result, isNull);
-      expect(msgRepo.savedMessages, isEmpty);
+      expect(api.publishMessageCalls, isEmpty);
     });
 
-    test('API 抛异常 → 返回 null，不崩溃', () async {
+    test('saveMessage 抛异常 → 返回 null，不崩溃', () async {
+      final msgRepo = _FakeChannelMessageRepo()..throwOnSave = true;
       final service = ChannelService.forTest(
-        api: _ThrowingChannelApi(),
+        api: _FakeChannelApi(),
         repo: _FakeChannelRepo(),
-        messageRepo: _FakeChannelMessageRepo(),
+        messageRepo: msgRepo,
       );
 
       final result = await service.publishMessage(
