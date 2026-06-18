@@ -963,7 +963,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 t.main.purchaseUnlockHint,
                 style: const TextStyle(fontSize: 14),
               ),
-              // 价格显示：后端返回 price>0 时展示具体价格，否则不展示（TODO 后端补字段）
+              // 价格显示：后端返回 price>0 时展示具体价格，否则不展示
               if (channel.hasPrice) ...[
                 const SizedBox(height: 10),
                 Row(

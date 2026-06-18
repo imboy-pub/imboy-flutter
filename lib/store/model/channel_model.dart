@@ -103,8 +103,7 @@ class ChannelModel {
 
   // 付费频道价格字段（仅 type == paid 时有意义）
   // price 单位：分（与钱包余额一致），currency 默认 CNY。
-  // TODO(后端)：需频道详情接口在付费频道返回 `price`（分）与 `currency`；
-  //   若后端未返回，price 为 0，UI 退化为不展示具体价格。
+  // 后端通过 channel_price LEFT JOIN 返回，DB 存「元」，接口已转换为「分」。
   final int price;
   final String currency;
 

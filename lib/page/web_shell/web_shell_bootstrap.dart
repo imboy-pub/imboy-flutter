@@ -22,7 +22,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_chat_core/flutter_chat_core.dart'
-    show Message, TextMessage;
+    show ImageMessage, Message, TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xid/xid.dart';
 
@@ -44,6 +44,9 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
+import 'package:imboy/component/image_gallery/image_gallery.dart'
+    show zoomInPhotoView;
 
 import 'web_chat_title_resolver.dart';
 import 'web_message_actions.dart';
@@ -238,8 +241,10 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
       messages: messages,
       currentUserId: widget.currentUserId,
       onMessageLongPress: _handleLongPress,
-      onMessageDoubleTap: (_) {
-        // TODO Phase 2.1.b-5b 接双击放大（图片/视频）
+      onMessageDoubleTap: (message) {
+        if (message is ImageMessage) {
+          zoomInPhotoView(context, message.source);
+        }
       },
       inputArea: widget.inputArea,
     );
@@ -369,6 +374,20 @@ class _WebChatInput extends ConsumerStatefulWidget {
 class _WebChatInputState extends ConsumerState<_WebChatInput> {
   final TextEditingController _controller = TextEditingController();
   bool _sending = false;
+  String _peerAvatar = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPeerAvatar();
+  }
+
+  Future<void> _loadPeerAvatar() async {
+    if (widget.selection.chatType != 'C2C') return;
+    final contact = await ContactRepo().findByUid(widget.selection.peerId);
+    if (!mounted) return;
+    setState(() => _peerAvatar = contact?.avatar ?? '');
+  }
 
   @override
   void dispose() {
@@ -397,7 +416,7 @@ class _WebChatInputState extends ConsumerState<_WebChatInput> {
       await notifier.addMessage(
         widget.currentUserId,
         widget.selection.peerId,
-        '', // peerAvatar 暂空，TODO Phase 2.1.d 接 contact_repo 解析
+        _peerAvatar,
         widget.selection.peerId, // peerTitle 暂用 peerId
         widget.selection.chatType,
         textMessage,
@@ -696,4 +715,3 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
     );
   }
 }
-

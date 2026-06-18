@@ -34,6 +34,20 @@
 					<string>imboy</string>
 				</array>
 			</dict>
+			<!-- 微信支付回调 scheme：将 wx 后面替换为实际的微信开放平台 AppID -->
+			<!-- WeChat Pay callback: replace suffix with your WeChat Open Platform AppID -->
+			<!-- Build with: flutter build ipa --dart-define=WECHAT_APP_ID=wx<YOUR_APPID> -->
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLName</key>
+				<string>weixin</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<!-- ⚠️ 投产前将此值替换为 wx<YOUR_WECHAT_APPID> -->
+					<string>wxIMBOY_REPLACE_WITH_YOUR_WECHAT_APPID</string>
+				</array>
+			</dict>
 		</array>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
@@ -43,6 +57,13 @@
 		<array>
 			<string>sms</string>
 			<string>tel</string>
+			<!-- 微信 / WeChat Pay -->
+			<string>weixin</string>
+			<string>weixinULAPI</string>
+			<string>weixinURLParamsAPI</string>
+			<!-- 支付宝 / Alipay -->
+			<string>alipay</string>
+			<string>alipayshare</string>
 		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>

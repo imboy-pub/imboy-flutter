@@ -128,9 +128,8 @@ class WalletApi extends HttpClient {
   /// 拉起充值支付
   ///
   /// 返回后端返回的支付参数（沙箱网关即时入账；真实环境为各支付 SDK 所需参数）。
-  /// TODO(真机/真实SDK)：真实接入微信/支付宝/Stripe 时，需将返回的支付参数
-  ///   交给对应 SDK（fluwx/tobias/flutter_stripe）唤起原生收银台，本方法仅负责
-  ///   向后端请求支付参数。沙箱阶段后端即时置为已支付，无需 SDK。
+  /// 本方法仅负责向后端请求支付参数。SDK 唤起（fluwx/tobias）由
+  /// PaymentLauncher.launch() 负责；沙箱阶段后端即时置为已支付，无需 SDK。
   Future<Map<String, dynamic>?> payRecharge(String orderNo) async {
     IMBoyHttpResponse resp = await post(
       API.walletRechargePay,
