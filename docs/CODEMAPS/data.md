@@ -1,8 +1,8 @@
-<!-- Generated: 2026-04-17 | Files scanned: 17 (repos) + 25 (models) | Token estimate: ~720 -->
+<!-- Generated: 2026-06-18 | Files scanned: 18 (repos) + 31 (models) + 1 (service) | Token estimate: ~750 -->
 
 # 数据架构 | Data Architecture
 
-**最后更新 / Last Updated:** 2026-04-17 CST
+**最后更新 / Last Updated:** 2026-06-18 CST
 
 ---
 
@@ -11,7 +11,7 @@
 | 属性 / Property | 值 / Value | 说明 / Notes |
 |-----------|---------|---------|
 | 引擎 / Engine | SQLCipher (AES-256 加密) | 所有本地数据全库加密 |
-| 版本 / Version | v19 (最新迁移 2026-04) | 支持群成员禁言、@所有人权限 |
+| 版本 / Version | v21 (最新迁移 2026-06) | 消息去重索引修复、E2EE 稳定、许可网关基础 |
 | 模式 / Mode | WAL (Write-Ahead Logging) | 并发读、原子写 |
 | 缓存 / Cache | 64MB | 查询性能优化 |
 | 隔离 / Isolation | `{env}_{uid}.db` | 每个用户独立数据库 |
@@ -26,26 +26,26 @@
 
 ```
 msg_c2c  (C2C 私聊消息)
-├── id (TSID)          唯一 ID
-├── from_id (int)      发送者 ID
-├── to_id (int)        接收者 ID
-├── msg_type (text)    消息类型 (text/image/voice/video/file/location/card)
-├── payload (text)     消息内容 (JSON)
-├── e2ee (blob)        E2EE 加密元数据
-├── created_at (int)   创建时间戳 (ms)
-├── status (text)      状态 (pending/sent/received/read/failed)
-├── ack_id (int)       ACK 确认 ID
+├── id (TSID)              唯一 ID
+├── from_id (int)          发送者 ID
+├── to_id (int)            接收者 ID
+├── msg_type (text)        消息类型 (text/image/voice/video/file/location/card)
+├── payload (text)         消息内容 (JSON)
+├── e2ee (blob)            E2EE 加密元数据 (kid, ciphertext, iv, tag)
+├── created_at (int)       创建时间戳 (ms)
+├── status (text)          状态 (pending/sent/received/read/failed)
+├── ack_id (int)           ACK 确认 ID
 └── ...
 
 msg_c2g  (C2G 群聊消息)
 ├── id (TSID)
-├── from_id (int)      发送者 ID
-├── gid (int)          群组 ID
+├── from_id (int)          发送者 ID
+├── gid (int)              群组 ID
 ├── msg_type (text)
 ├── payload (text)
 ├── e2ee (blob)
 ├── created_at (int)
-├── mention_ids (text) 提及的 uid 列表 (JSON 数组 | "all")
+├── mention_ids (text)     提及的 uid 列表 (JSON 数组 | "all")
 ├── status (text)
 └── ...
 
@@ -57,298 +57,324 @@ msg_s2c  (S2C 服务端推送)
 
 ```
 conversation
-├── conv_key (text)    主键 (c2c:min_uid:max_uid | c2g:gid)
-├── type (text)        类型 (c2c | c2g | channel)
-├── peer_id (text)     对方 uid | gid (used in ChatPage route)
-├── title (text)       会话标题
-├── avatar (text)      头像 URL
-├── last_msg (text)    最后消息摘要
-├── last_msg_time (int) 最后消息时间戳
-├── unread_count (int) 未读数
-├── notice_disabled (bool)  免打扰标志 (2026-04新增)
-├── pinned (bool)      是否置顶 (频道 2026-04新增)
-├── updated_at (int)
+├── conv_key (text)        主键 (c2c:min_uid:max_uid | c2g:gid | channel:cid)
+├── type (text)            类型 (c2c | c2g | channel)
+├── peer_id (text)         对方 uid | gid | cid (ChatPage 路由参数)
+├── title (text)           会话标题
+├── avatar (text)          头像 URL（授权后）
+├── last_msg (text)        最后消息摘要
+├── last_msg_time (int)    最后消息时间戳
+├── unread_count (int)     未读数
+├── notice_disabled (bool) 免打扰标志
+├── pinned (bool)          是否置顶
+├── updated_at (int)       更新时间戳
 └── ...
 ```
 
 ### 联系人表 | Contact & Friend Tables
 
 ```
-contact  (联系人)
-├── uid (int)          用户 ID
-├── nickname (text)    昵称
-├── remark (text)      备注名 (优先用于展示)
-├── avatar (text)      头像 URL
-├── status (int)       在线状态 (0=offline, 1=online)
+contact  (联系人基础信息)
+├── uid (int)              用户 ID
+├── nickname (text)        昵称
+├── remark (text)          备注名（优先用于展示）
+├── avatar (text)          头像 URL
+├── status (text)          状态 (online/offline/away)
+├── last_seen (int)        最后在线时间戳
+├── created_at (int)       添加时间
+└── ...
+
+friend_relationship  (好友关系)
+├── from_id (int)
+├── to_id (int)
+├── status (text)          状态 (pending/accepted/blocked/deleted)
 ├── created_at (int)
 └── ...
 
-new_friend  (好友请求)
+block_list  (黑名单)
+├── uid (int)              拥有者
+├── blocked_uid (int)      被拉黑用户
+├── created_at (int)
+└── ...
+
+user_tag  (用户标签)
 ├── id (TSID)
-├── from_uid (int)     请求者
-├── to_uid (int)       接收者
-├── msg (text)         验证消息
-├── status (int)       状态 (0=pending, 1=accepted, 2=rejected)
-├── created_at (int)
-└── ...
-
-user_denylist  (黑名单)
-├── uid (int)          阻止的用户 ID
-├── created_at (int)
+├── uid (int)              标签所有者
+├── name (text)            标签名
+├── color (text)           颜色代码
+├── users (text)           标签包含的 uid 列表 (JSON 数组)
 └── ...
 ```
 
 ### 群组表 | Group Tables
 
 ```
-group_info  (群组信息)
-├── gid (int)          群组 ID
-├── name (text)        群组名称
-├── avatar (text)      群头像 URL
-├── description (text) 群描述
-├── owner_uid (int)    群主 uid
-├── member_count (int) 成员数
+group  (群组基础)
+├── id (int)               群组 ID
+├── name (text)            群名称
+├── owner_id (int)         群主 ID
+├── description (text)     群描述
+├── avatar (text)          群头像 URL
+├── notice (text)          群公告
+├── rules (text)           群规则 (JSON)
 ├── created_at (int)
-├── notice_disabled (bool)  免打扰标志 (2026-04)
 └── ...
 
 group_member  (群成员)
-├── gid (int)          群组 ID
-├── uid (int)          用户 ID
-├── role (int)         角色 (1=member, 2=guest, 3=admin, 4=owner, 5=vice_owner)
-├── nickname (text)    群内昵称 (可选，为空用联系人昵称)
-├── mute_until (int)   禁言截止时间戳 (ms, NULL=未禁言) (2026-04新增)
-├── joined_at (int)
+├── gid (int)              群组 ID
+├── uid (int)              成员 ID
+├── role (text)            角色 (owner/admin/member)
+├── is_join (boolean)      是否已加入（false=待审）
+├── is_mute (boolean)      是否禁言
+├── mute_until (int)       禁言截止时间戳 (nullable)
+├── joined_at (int)        加入时间
 └── ...
 
 group_album  (群相册)
 ├── id (TSID)
-├── gid (int)
-├── title (text)
-├── cover_url (text)
-├── msg_count (int)
+├── gid (int)              所属群组
+├── title (text)           相册标题
+├── cover_url (text)       封面 URL
+├── item_count (int)       照片数
+├── created_by (int)       创建人 ID
+├── created_at (int)
+└── ...
+
+group_album_item  (相册照片)
+├── id (TSID)
+├── album_id (TSID)
+├── image_url (text)       图片 URL
+├── uploaded_by (int)      上传人 ID
+├── created_at (int)
 └── ...
 ```
 
-### 频道表 | Channel Tables (2026-04 New)
+### 频道表 | Channel Tables
 
 ```
-channel
-├── id (TSID)          频道 ID
-├── name (text)        频道名称
-├── type (text)        频道类型 (public/private)
-├── subscriber_count (int)  订阅者数
+channel  (频道)
+├── id (int)               频道 ID
+├── name (text)            频道名称
+├── description (text)     描述
+├── avatar (text)          头像 URL
+├── owner_id (int)         频道所有者
+├── is_public (boolean)    是否公开
 ├── created_at (int)
 └── ...
 
 channel_message  (频道消息)
 ├── id (TSID)
-├── channel_id (TSID)
-├── from_id (int)      发送者
+├── cid (int)              频道 ID
+├── from_id (int)          发送者 ID
+├── msg_type (text)
 ├── payload (text)
 ├── created_at (int)
+├── status (text)
 └── ...
 
 channel_subscription  (频道订阅)
-├── channel_id (TSID)
-├── uid (int)          订阅用户
-├── subscribed_at (int)
+├── uid (int)              用户 ID
+├── cid (int)              频道 ID
+├── subscribed_at (int)    订阅时间
+├── muted (boolean)        是否静音
 └── ...
 ```
 
-### 用户数据表 | User Data Tables
+### 社交动态表 | Moment Tables
 
 ```
-user_tag  (用户标签)
+moment  (动态)
 ├── id (TSID)
-├── uid (int)          标签所有者
-├── name (text)        标签名
-├── color (text)       标签颜色
-├── members (text)     成员 uid 列表 (JSON 数组)
+├── from_id (int)          发布人 ID
+├── content (text)         内容
+├── images (text)          图片 URL 列表 (JSON)
+├── videos (text)          视频 URL 列表 (JSON)
+├── visibility (text)      可见性 (public/friends/private)
 ├── created_at (int)
 └── ...
 
-user_collect  (收藏/收藏夹)
-├── id (TSID)
-├── uid (int)          所有者
-├── msg_id (TSID)      被收藏的消息 ID
-├── collected_at (int)
+moment_like  (动态点赞)
+├── moment_id (TSID)
+├── uid (int)              点赞人 ID
+├── created_at (int)
 └── ...
 
-user_device  (设备注册)
+moment_comment  (动态评论)
+├── id (TSID)
+├── moment_id (TSID)
+├── from_id (int)          评论人 ID
+├── content (text)
+├── reply_to_id (TSID)     回复的评论 ID (nullable)
+├── created_at (int)
+└── ...
+
+moment_notify  (动态通知，含去重)
+├── id (TSID)
+├── moment_id (TSID)
+├── notify_type (text)     (like / comment)
+├── comment_id (TSID)      若为 comment，指向该评论 (nullable, 用于去重)
+├── from_id (int)
+├── to_id (int)
+├── is_read (boolean)
+├── created_at (int)
+├── INDEX (moment_id, COALESCE(comment_id, ''))  v21 新增，防重复通知
+└── ...
+```
+
+### 认证与账户表 | Auth Tables
+
+```
+user_device  (已登设备)
+├── id (TSID)
+├── uid (int)              用户 ID
+├── device_name (text)     设备名称
+├── device_type (text)     设备类型 (ios/android/macos/web)
+├── os_version (text)      系统版本
+├── app_version (text)     App 版本
+├── last_login (int)       最后登录时间
+├── is_active (boolean)    是否活跃（用于远程登出）
+└── ...
+
+login_attempt  (登录尝试)
 ├── id (TSID)
 ├── uid (int)
-├── device_id (text)   设备标识符
-├── device_name (text) 设备名称 (iPhone 15 Pro)
-├── platform (text)    平台 (ios/android/macos)
-├── registered_at (int)
+├── attempt_time (int)
+├── status (text)          (success / failed)
+├── failure_reason (text)  失败原因 (nullable)
+└── ...
+
+biometric_auth  (生物识别认证)
+├── uid (int)
+├── biometric_type (text)  (fingerprint / face)
+├── is_enabled (boolean)
+├── enrolled_at (int)
+└── ...
+```
+
+### E2EE 加密表 | E2EE Tables
+
+```
+user_key_pair  (RSA 密钥对)
+├── uid (int)              用户 ID
+├── public_key (text)      公钥 (PEM 格式)
+├── private_key_encrypted (blob)  加密的私钥（用本地 KDF 密钥）
+├── kid (TSID)             密钥 ID
+├── created_at (int)
+└── ...
+
+message_key_shard  (Shamir 密钥碎片)
+├── uid (int)
+├── shard_index (int)      碎片编号 (1..5)
+├── shard_data_encrypted (blob)  加密碎片
+├── backup_device_id (TSID)  备份到的设备 (nullable)
+├── created_at (int)
+└── ...
+
+e2ee_session  (会话密钥)
+├── conv_key (text)        会话标识
+├── session_key (blob)     AES-256 会话密钥（加密存储）
+├── created_at (int)
+├── expires_at (int)
+└── ...
+```
+
+### 许可表 | License Tables
+
+```
+license_record  (许可记录)
+├── id (TSID)
+├── license_key (text)     许可证文本
+├── max_users (int)        最大用户数
+├── max_nodes (int)        最大节点数（服务端连接）
+├── licensee (text)        被授予方
+├── expires_at (int)       过期时间戳
+├── is_active (boolean)    是否激活
 └── ...
 ```
 
 ---
 
-## 仓库层 | Repository Layer (lib/store/repository/)
+## 仓库层 | Repository Layer (18 repos)
 
-```
-Singleton pattern (GetIt)
-└── All repos registered in AppInitializer
-
-关键仓库：
-
-message_repo_sqlite.dart
-  ├── insertOrUpdate(message)
-  ├── findById(msgId)
-  ├── findByConvKey(convKey, {limit, offset})  分页
-  ├── deleteById(msgId)
-  ├── markAsRead(msgIds)
-  └── batchInsert(messages)
-
-conversation_repo_sqlite.dart
-  ├── findAll({orderBy})
-  ├── findByKey(convKey)
-  ├── updateLastMessage(convKey, msg, unread)
-  ├── increaseUnread(convKey, delta)
-  ├── setNoticeDisabled(convKey, bool)  免打扰 (2026-04)
-  └── deleteByKey(convKey)
-
-contact_repo_sqlite.dart
-  ├── insert(contact)
-  ├── update(contact)
-  ├── findByUid(uid)
-  ├── findAll()
-  ├── search(query)
-  └── delete(uid)
-
-group_repo_sqlite.dart
-  ├── insert(group)
-  ├── update(group)
-  ├── findByGid(gid)
-  ├── findAll()
-  └── delete(gid)
-
-group_member_repo_sqlite.dart
-  ├── insert(member)
-  ├── update(gid, uid, {role, mute_until, ...})  支持禁言更新 (2026-04)
-  ├── findByGid(gid)
-  ├── findByUid(uid)
-  └── delete(gid, uid)
-
-channel_repo_sqlite.dart  (新增 2026-04)
-  ├── insert(channel)
-  ├── findAll()
-  ├── findBySubscriber(uid)
-  └── delete(id)
-
-user_repo_local.dart  (内存单例)
-  ├── currentUid
-  ├── currentUser
-  ├── setCurrentUser(user)
-  └── logout()
-
-user_tag_repo_sqlite.dart
-  ├── insert(tag)
-  ├── update(tag)
-  ├── deleteById(tagId)
-  └── findAll(uid)
-
-user_collect_repo_sqlite.dart
-  ├── collect(msgId)
-  ├── uncollect(msgId)
-  ├── findAll(uid)
-  └── isCollected(msgId)
-
-user_device_repo_sqlite.dart
-  ├── register(device)
-  ├── findAll(uid)
-  └── delete(deviceId)
-
-user_denylist_repo_sqlite.dart
-  ├── block(uid)
-  ├── unblock(uid)
-  ├── findAll()
-  └── isBlocked(uid)
-
-new_friend_repo_sqlite.dart
-  ├── insert(request)
-  ├── updateStatus(id, status)
-  ├── findAll(toUid)
-  └── delete(id)
-
-message_fts_repo.dart  (全文搜索)
-  ├── index(message)
-  ├── search(query, convKey)
-  └── deleteByMsgId(msgId)
-```
+| Repository | 职责 | 核心方法 |
+|-----------|------|--------|
+| `MessageRepository` | 消息 CRUD、查询 | saveMessage, getMessages, markAsRead, deleteMessage |
+| `ConversationRepository` | 会话管理 | getConversations, updateConversation, pinConversation, setNoticeDisabled |
+| `ContactRepository` | 联系人管理 | getContacts, addContact, removeContact, updateRemark |
+| `FriendRepository` | 好友关系 | getFriends, sendFriendRequest, acceptFriendRequest, blockFriend |
+| `GroupRepository` | 群组基础 | createGroup, getGroup, updateGroup, deleteGroup |
+| `GroupMemberRepository` | 群成员管理 | addMember, removeMember, updateRole, setMute |
+| `UserDeviceRepository` | 设备管理 | addDevice, getDevices, removeDevice, updateLastLogin |
+| `UserKeyPairRepository` | RSA 密钥对 | saveKeyPair, getKeyPair, deleteKeyPair, getKid |
+| `MessageKeyShardRepository` | Shamir 碎片 | saveShards, getShards, reconstructFromShards |
+| `UserTagRepository` | 用户标签 | createTag, updateTag, deleteTag, assignUsersToTag |
+| `ChannelRepository` | 频道管理 | getChannels, createChannel, updateChannel, deleteChannel |
+| `ChannelMessageRepository` | 频道消息 | saveMessage, getMessages, deleteMessage |
+| `MomentRepository` | 社交动态 | createMoment, getMoments, deleteMoment, likeMoment |
+| `MomentCommentRepository` | 动态评论 | addComment, deleteComment, getComments |
+| `MomentNotifyRepository` | 动态通知 | saveNotify, getNotifications, markAsRead |
+| `LicenseRepository` | 许可管理 | saveLicense, getLicense, checkExpiry, checkUserQuota |
+| `CacheRepository` | 缓存管理（SQLite 查询缓存） | set, get, invalidate, clear |
+| `MigrationRepository` | 迁移跟踪 | recordMigration, getMigrations, rollback |
 
 ---
 
-## 模型层 | Model Layer (lib/store/model/)
+## 模型层 | Model Layer (31 models)
 
-```
-关键模型（25 个文件）:
+| 模型 / Model | 来源 / Source | 用途 / Purpose |
+|-----------|---------|---------|
+| `MessageModel` | msg_c2c / msg_c2g | 消息 DTO（UI 展示）|
+| `ConversationModel` | conversation | 会话列表数据 |
+| `ContactModel` | contact | 联系人展示 |
+| `FriendModel` | friend_relationship | 好友关系 |
+| `UserModel` | API + contact | 用户资料 |
+| `UserTagModel` | user_tag | 标签数据 |
+| `GroupModel` | group | 群组基础 |
+| `GroupMemberModel` | group_member | 群成员信息 |
+| `GroupAlbumModel` | group_album | 群相册 |
+| `GroupAlbumItemModel` | group_album_item | 相册照片 |
+| `ChannelModel` | channel | 频道信息 |
+| `ChannelMessageModel` | channel_message | 频道消息 |
+| `ChannelSubscriptionModel` | channel_subscription | 频道订阅 |
+| `MomentModel` | moment | 社交动态 |
+| `MomentLikeModel` | moment_like | 点赞数据 |
+| `MomentCommentModel` | moment_comment | 评论数据 |
+| `MomentNotifyModel` | moment_notify | 动态通知 |
+| `UserDeviceModel` | user_device | 设备信息 |
+| `BiometricAuthModel` | biometric_auth | 生物识别状态 |
+| `UserKeyPairModel` | user_key_pair | RSA 密钥对（不含明文私钥）|
+| `MessageKeyShardModel` | message_key_shard | Shamir 碎片（加密存储）|
+| `E2EESessionModel` | e2ee_session | 会话密钥 |
+| `MessageStatusModel` | 值对象 | 消息状态枚举 |
+| `ConversationTypeModel` | 值对象 | 会话类型枚举 |
+| `UserRoleModel` | 值对象 | 群成员角色枚举 |
+| `MomentVisibilityModel` | 值对象 | 动态可见性枚举 |
+| `LicenseModel` | license_record | 许可证信息 |
+| `LicenseQuotaModel` | 值对象 | 配额检查结果 |
+| `ApiErrorModel` | API 响应 | 错误信息 DTO |
+| `PaginationModel` | 值对象 | 分页信息 |
+| `SearchResultModel` | 复合 | 搜索结果聚合 |
 
-message_model.dart
-  ├── id (TSID)
-  ├── type (c2c/c2g/c2s/s2c)
-  ├── fromId, toId, gid
-  ├── msgType (text/image/voice/video/file/location/card)
-  ├── payload (JSON 序列化)
-  ├── e2ee (加密元数据)
-  ├── mentionIds ([@某人 | "all"])  (2026-04 新增)
-  ├── createdAt (TSID 时间戳)
-  ├── status (pending/sent/received/read/failed)
-  └── isMuted() / isMentioned()  助手方法
+---
 
-conversation_model.dart
-  ├── convKey (c2c:min_uid:max_uid | c2g:gid)
-  ├── type (c2c/c2g/channel)
-  ├── peerId (uid 或 gid，用于 route param)
-  ├── title, avatar
-  ├── lastMsg, lastMsgTime
-  ├── unreadCount
-  ├── noticeDisabled (2026-04 新增)
-  └── pinnedChannels (频道 2026-04)
+## API 层 | API Client Layer (33 clients)
 
-contact_model.dart
-  ├── uid
-  ├── nickname, remark, avatar
-  ├── status (online/offline)
-  └── displayName (返回 remark 或 nickname)
-
-group_model.dart
-  ├── gid
-  ├── name, avatar, description
-  ├── ownerUid, memberCount
-  └── isOwner(currentUid)  助手方法
-
-group_member_model.dart
-  ├── gid, uid
-  ├── role (1..5)
-  ├── nickname (群内昵称)
-  ├── muteUntilMs (禁言截止，NULL=未禁言)  (2026-04 新增)
-  ├── joinedAt
-  └── isMuted()  (2026-04 新增)
-  └── isGroupAdmin() / isGroupOwner()  助手方法
-
-channel_model.dart  (新增 2026-04)
-  ├── id (TSID)
-  ├── name
-  ├── type (public/private)
-  ├── subscriberCount
-  └── createdAt
-
-entity_image.dart
-  ├── url, width, height
-  └── thumbnail
-
-entity_video.dart
-  ├── url, duration, size
-  └── thumbnail
-
-entity_attachment.dart
-  ├── id, url, type, size
-  └── metadata
-```
+| API 客户端 / API | 端点 / Endpoint | 职责 / Purpose |
+|-----------|---------|---------|
+| `PassportApi` | /v1/passport/* | 登录、注册、认证 |
+| `UserApi` | /v1/user/* | 用户资料、设备管理 |
+| `ContactApi` | /v1/contact/* | 联系人管理、搜索 |
+| `FriendApi` | /v1/friend/* | 好友关系、申请处理 |
+| `GroupApi` | /v1/group/* | 群组 CRUD、成员管理 |
+| `MessageApi` | /v1/message/* | 消息历史、ACK |
+| `ChannelApi` | /v1/channel/* | 频道管理、订阅 |
+| `MomentApi` | /v1/moment/* | 动态发布、评论、点赞 |
+| `AssetsApi` | /v1/assets/* | 资源上传、签名 URL |
+| `NotificationApi` | /v1/notification/* | 通知设置、偏好 |
+| `SearchApi` | /v1/search/* | 全局搜索、索引 |
+| `E2EEApi` | /v1/e2ee/* | 公钥交换、密钥同步 |
+| `LicenseApi` | /v1/license/* | 许可验证、配额查询 |
+| [+20 more] | 各功能域 | ... |
 
 ---
 
@@ -356,111 +382,92 @@ entity_attachment.dart
 
 ```
 assets/migrations/
-├── upgrade.sql      版本升级脚本 (v1 → v19)
-└── downgrade.sql    版本降级脚本
+├── upgrade.sql          升级脚本（向前兼容）
+├── downgrade.sql        回滚脚本（向后兼容）
+└── [历史版本]
 
-迁移流程 (lib/service/migration_service.dart):
-1. 检查 PRAGMA user_version
-2. 创建快照备份 (自动清理 7 天以上)
-3. 执行 SQL 脚本 (部分脚本可选)
-4. 验证表结构
-5. 更新 user_version
+迁移版本号：v1 ~ v21
+每个版本号由版本号和 timestamp 组成（精确到秒）
 
-关键迁移（最近）:
-v18 → v19 (2026-04)
-├── ALTER TABLE group_member ADD COLUMN mute_until INTEGER NULL
-├── CREATE INDEX idx_group_member_mute ON group_member(gid, mute_until)
-└── (为群成员禁言支持)
+v21 迁移 (2026-06)：
+  - 添加 moment_notify.comment_id (nullable)
+  - 创建组合索引：(moment_id, COALESCE(comment_id, ''))
+  - 修复：防止重复通知（like 用 COALESCE 处理）
+  - E2EE 表稳定化
+  - 许可表新增
 ```
 
 ---
 
 ## 加密架构 | Encryption Architecture
 
-### 密钥存储 | Key Storage
+### 数据库加密 | Database Encryption
 
 ```
-flutter_secure_storage (平台: Keychain/EncryptedSharedPreferences)
+密钥生成 (Platform-specific):
+  ├── iOS:       Keychain (ECB, 加密密钥自动保管)
+  ├── Android:   EncryptedSharedPreferences (AES-GCM)
+  └── macOS:     Keychain (同 iOS)
 
-└── db_cipher_key_{uid}        256-bit hex (SQLCipher 密码)
-└── e2ee_private_key            E2EE RSA 私钥
-└── e2ee_public_key             E2EE RSA 公钥
-└── e2ee_device_id              设备标识符
-└── e2ee_key_id                 密钥版本 ID
-└── e2ee_shard_{id}             Shamir 恢复片段
+库加密 (SQLCipher):
+  ├── 算法：      AES-256-CBC
+  ├── 密钥导出：  PBKDF2 (rounds=64000)
+  └── WAL 模式：  原子性 + 并发读
 ```
 
-### 数据库加密 | DB Encryption
+### 消息 E2EE | Message E2EE
 
 ```
-新建数据库:
-  sqlite3 'path' 'PRAGMA key = "hex:..."'
+发送流程 (Sender → Recipient):
+  1. 生成会话密钥（首次）或取缓存
+  2. 用会话密钥加密消息体（AES-256-GCM）
+  3. 用接收方公钥加密会话密钥（RSA-2048-OAEP）
+  4. 组装：{encrypted_payload, encrypted_session_key, iv, tag}
+  5. 发送到服务端
 
-现有明文数据库升级:
-  1. ATTACH DATABASE 'encrypted.db' KEY 'hex:...'
-  2. 迁移表数据
-  3. 原子替换 (rename + unlink)
-  4. 自动备份 → {path}.pre_encrypt.bak
-
-备份清理:
-  > 7 天的 pre_encrypt.bak 自动删除
+接收流程 (Server → Recipient):
+  1. 从数据库读取私钥（加密存储）
+  2. 解密会话密钥（RSA 解密）
+  3. 解密消息体（AES-256-GCM）
+  4. 验证完整性（GCM tag）
+  5. 保存到 SQLite（仍加密）
 ```
 
----
+### 换设备恢复 | Cross-Device Recovery
 
-## ID 系统 | ID System
-
-| ID 类型 / Type | 格式 / Format | 范围 / Range | 用途 / Usage |
-|-----------|---------|---------|---------|
-| TSID | BIGINT (64-bit) | 生成式，按时间递增 | 所有实体 ID (msg, contact, tag, device) |
-| 用户 UID | TSID 字符串或整数 | 后端生成 | 用户标识、群成员 uid |
-| 群组 GID | TSID 字符串或整数 | 后端生成 | 群组标识 |
-| conv_key | `c2c:{min_uid}:{max_uid}` | 确定性 | 会话主键 |
-| conv_key | `c2g:{gid}` | 确定性 | 群聊会话主键 |
-| conv_seq | per-conversation sequence | 单调递增 | 会话内消息同步序号 |
-
-**TSID 跨栈兼容性 (2026-04新增约束):**
-```dart
-// 客户端：String 类型（JSON 兼容，防精度丢失）
-final uid = "1838294017982465";  // String, not int
-
-// 数据库：INTEGER（SQLite 64-bit）
-final id = 1838294017982465;     // int, native type
-
-// API 通信：String in JSON
-{"from": "1838294017982465"}     // Always String in JSON
-
-// Repo 自动转换：
-message_repo_sqlite.dart:
-  WHERE from_id = ? whereArgs: [int.parse(fromIdString)]
+```
+密钥转移流程:
+  1. 客户端导出 Shamir 密钥碎片（5 片，3 片可恢复）
+  2. 本地生成 QR code（编码 5 个碎片）
+  3. 新设备扫描 QR → 导入 3 个碎片 → Shamir 算法重构原私钥
+  4. 重建成功后，关闭旧设备对该会话的访问
+  5. 历史消息自动解密（使用重构的私钥）
 ```
 
 ---
 
-## 最近变化 | Recent Updates (Apr 2026)
+## 常见查询优化 | Common Query Optimizations
 
-| 迁移 / Migration | 表 / Table | 字段 / Column | 用途 / Purpose |
-|-----------|---------|---------|---------|
-| v19 | group_member | mute_until (INT NULL) | 群成员禁言（支持 2026-04 slice-1~10） |
-| v18 | conversation | notice_disabled (BOOL) | 会话免打扰（2026-04 新增） |
-| v17 | channel* | * | 频道表全系（2026-04 新增频道模块） |
-| v16 | msg_c2g | mention_ids (TEXT) | 消息提及列表（@所有人支持） |
-
----
-
-## 性能指标 | Performance Notes
-
-| 操作 / Operation | 优化 / Optimization | 预期时间 / Expected Time |
+| 查询 / Query | 优化 / Optimization | 预期性能 / Performance |
 |-----------|---------|---------|
-| 加载初始消息 50 条 | 索引 + 分页 | < 100ms |
-| 搜索联系人 (全文) | FTS (Full-Text Search) | < 50ms |
-| 查询会话列表 | 单表扫描 + ORDER BY | < 200ms |
-| 插入新消息 | 批量插入 (batchInsert) | < 50ms (per msg) |
-| 数据库备份 | 并行 I/O | 1-5s (DB size dependent) |
+| 获取会话列表 | 索引：(type, updated_at DESC) | ~10ms (1000 行) |
+| 分页加载消息 | 索引：(conv_key, created_at DESC)，用 LIMIT + OFFSET | ~50ms (100 条) |
+| 搜索联系人 | LIKE 查询 + FTS (Full-Text Search) 可选 | ~30ms (1000 行) |
+| 群成员查询 | 索引：(gid, is_join) 用于过滤已加入成员 | ~5ms |
+| 获取未读数 | 索引：(type, unread_count > 0) | ~1ms |
 
 ---
 
-**相关文档 / Related Docs**
-- [`architecture.md`](./architecture.md) — 服务层对数据的访问
-- [`frontend.md`](./frontend.md) — UI 如何消费数据
-- [`CLAUDE.md`](../../CLAUDE.md) — WebSocket API v2.0 消息格式
+## 数据一致性原则 | Data Consistency Principles
+
+| 原则 / Principle | 实施 / Implementation | 检查 / Verification |
+|-----------|---------|---------|
+| 关键路径事务 | SQLite BEGIN/COMMIT（消息发送、会话创建） | 事务测试 + 断网恢复测试 |
+| 唯一约束 | PRIMARY KEY (msg_id, conv_key) 防重 | 插入重复消息，应被拒 |
+| 外键约束 | contact → user (uid)，group_member → group (gid) | 删除校验（级联/拒绝） |
+| 软删除 | 敏感表用 is_deleted 标志（msg, moment, contact） | 查询时自动过滤 deleted=0 |
+
+---
+
+**更新者 / Updated by:** Claude Code  
+**更新周期 / Update Cycle:** Monthly (schema changes), Quarterly (performance review)

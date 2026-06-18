@@ -1,70 +1,341 @@
-<!-- Generated: 2026-04-17 | Files scanned: 313 (pages) + 113 (components) | Token estimate: ~850 -->
+<!-- Generated: 2026-06-18 | Files scanned: 368 (pages) + 111 (components) | Token estimate: ~900 -->
 
 # 前端架构 | Frontend Architecture
 
-**最后更新 / Last Updated:** 2026-04-17 CST
+**最后更新 / Last Updated:** 2026-06-18 CST
 
 ---
 
-## 页面树 | Page Tree (22 modules, 313 files)
+## 页面树 | Page Tree (22 modules, 368 files)
 
 ```
-page/
-├── chat/              39  C2C/C2G 消息、消息展示 (Mixin 分层架构)
-│   ├── chat_page.dart                    主聊天界面 (8 个 Mixin)
-│   ├── chat_provider.dart                Riverpod 状态管理
-│   ├── mixin/                            行为分离 Mixin
-│   │   ├── chat_initialization_handler.dart
-│   │   ├── chat_message_handler.dart
-│   │   ├── chat_scroll_handler.dart
-│   │   ├── chat_input_handler.dart
-│   │   ├── chat_reaction_handler.dart
-│   │   ├── chat_selection_handler.dart
-│   │   ├── chat_media_handler.dart
-│   │   └── chat_webrtc_handler.dart
-│   └── [其他 UI 组件]
-├── mine/              50  个人资料、设置、收藏、设备
-├── group/             45  群组 CRUD、成员、设置、相册
-├── contact/           29  联系人列表、好友申请、标签
-├── personal_info/     21  个人编辑、头像
-├── passport/          15  登录、注册、认证
-├── user_tag/          14  用户标签与分类
-├── settings/          13  应用/E2EE 设置
-├── channel/           10  频道浏览、订阅、置顶区 (新增 2026-04)
-├── live_room/          8  直播流
-├── search/             7  全局搜索
-├── conversation/       6  会话列表、未读数合流 (更新 2026-04)
-├── single/             6  独立屏幕
-├── scanner/            4  二维码扫描
-├── moment/             4  社交动态
-├── qrcode/             3  二维码展示
-├── bottom_navigation/  3  底部导航控制器 (更新至 4-Tab 2026-04)
-├── wallet/             2  支付
-├── discover/           1  探索广场
-├── mention/            1  @mention
-├── splash/             1  启动屏
-└── welcome/            1  欢迎页
+page/                   368 files (+55 from 2026-04-17)
+├── mine/               50  个人空间、设备、钱包、收藏
+│   ├── mine_page.dart                  主页面（4 Tab 切换）
+│   ├── device_list_page.dart           已登设备列表
+│   ├── device_detail_page.dart         设备详情与登出
+│   ├── favorite_list_page.dart         收藏列表与管理
+│   ├── wallet_page.dart                账户余额、交易记录
+│   ├── setting_page.dart               应用设置
+│   ├── profile_view.dart               个人资料展示
+│   └── [其他 42 个文件] ─── 认证、账户、品牌
+│
+├── group/              55  群组 CRUD、成员、设置、相册
+│   ├── group_list_page.dart            群组列表
+│   ├── create_group_page.dart          创建群组
+│   ├── group_detail_page.dart          群详情（名称、公告、规则）
+│   ├── group_member_list_page.dart     成员列表（含禁言操作）
+│   ├── group_member_detail_page.dart   成员详情（角色、权限）
+│   ├── group_album_page.dart           群相册浏览
+│   ├── group_album_detail_page.dart    相册详情（发布、删除）
+│   ├── group_edit_page.dart            群设置编辑
+│   ├── group_notice_page.dart          群公告管理
+│   ├── group_role_page.dart            角色权限配置
+│   └── [其他 44 个文件] ─── 分享、邀请、转移
+│
+├── chat/               53  C2C/C2G 消息、聊天体验
+│   ├── chat_page.dart                  主聊天界面 (8 个 Mixin)
+│   │   └── mixin/
+│   │       ├── chat_initialization_handler.dart    初始化、数据加载
+│   │       ├── chat_message_handler.dart           消息发送/接收
+│   │       ├── chat_scroll_handler.dart            滚动、分页、跳转
+│   │       ├── chat_input_handler.dart             输入框、@提及、语音
+│   │       ├── chat_reaction_handler.dart          消息反应（emoji）
+│   │       ├── chat_selection_handler.dart         多选、转发、撤销
+│   │       ├── chat_media_handler.dart             图片/视频/文件上传
+│   │       └── chat_webrtc_handler.dart            语音/视频通话
+│   ├── chat_provider.dart              Riverpod 状态管理
+│   ├── message_bubble.dart             消息气泡渲染
+│   ├── message_input_field.dart        输入框组件
+│   ├── message_reaction_widget.dart    反应展示
+│   └── [其他 41 个文件] ─── 类型渲染、预览、转发
+│
+├── contact/            30  好友列表、申请、标签
+│   ├── contact_list_page.dart          好友列表
+│   ├── friend_request_page.dart        申请处理（待审、已批准）
+│   ├── add_friend_page.dart            添加好友（搜索、ID、二维码）
+│   ├── user_profile_page.dart          用户资料展示
+│   ├── block_list_page.dart            黑名单管理
+│   ├── tag_management_page.dart        标签管理
+│   └── [其他 24 个文件] ─── 搜索、推荐、分享
+│
+├── personal_info/      22  个人编辑、头像、认证
+│   ├── personal_info_page.dart         个人信息编辑
+│   ├── avatar_edit_page.dart           头像裁剪、上传
+│   ├── nickname_edit_page.dart         昵称编辑（字数限制）
+│   ├── status_edit_page.dart           个性签名编辑
+│   ├── authentication_page.dart        身份认证（RealName）
+│   └── [其他 17 个文件] ─── 生日、地区、职位
+│
+├── passport/           27  登录、注册、生物识别
+│   ├── login_page.dart                 用户名/手机登录
+│   ├── register_page.dart              注册（邮箱/手机）
+│   ├── password_reset_page.dart        忘记密码
+│   ├── password_reset_verify_page.dart 验证码确认
+│   ├── new_password_page.dart          新密码设置
+│   ├── biometric_auth_page.dart        生物识别注册
+│   ├── sso_login_page.dart             SSO 第三方登录
+│   └── [其他 20 个文件] ─── 验证、极光认证、OTP
+│
+├── channel/            18  频道浏览、订阅、推荐
+│   ├── channel_list_page.dart          频道列表
+│   ├── channel_detail_page.dart        频道内容浏览
+│   ├── channel_message_page.dart       频道消息流
+│   ├── channel_subscribe_page.dart     订阅管理
+│   ├── channel_recommendation_page.dart 推荐频道
+│   └── [其他 13 个文件] ─── 搜索、分享、举报
+│
+├── settings/           13  应用设置、E2EE、隐私
+│   ├── settings_page.dart              设置首页
+│   ├── e2ee_settings_page.dart         E2EE 加密设置
+│   ├── privacy_settings_page.dart      隐私控制（@、位置）
+│   ├── notification_settings_page.dart 通知设置（静音、优先级）
+│   ├── appearance_settings_page.dart   外观设置（暗黑模式、字号）
+│   └── [其他 8 个文件] ─── 通知、缓存、关于
+│
+├── user_tag/           14  标签与分类、关键词
+│   ├── tag_list_page.dart              标签列表
+│   ├── tag_create_page.dart            新建标签
+│   ├── tag_edit_page.dart              编辑标签
+│   ├── tag_assign_page.dart            给用户分配标签
+│   └── [其他 10 个文件] ─── 搜索、推荐、同步
+│
+├── web_shell/          16  网页容器、H5 加载
+│   ├── web_shell_page.dart             WebView 容器
+│   ├── web_shell_provider.dart         WebView 状态管理
+│   ├── js_bridge.dart                  JS↔Dart 通信桥接
+│   └── [其他 13 个文件] ─── 加载、注入、安全
+│
+├── search/              8  全局搜索、索引、过滤
+│   ├── search_page.dart                搜索界面
+│   ├── search_provider.dart            搜索 Provider
+│   ├── search_history_widget.dart      搜索历史
+│   └── [其他 5 个文件] ─── 过滤、排序、保存
+│
+├── scanner/            10  二维码、NFC 扫描
+│   ├── scanner_page.dart               二维码扫描界面
+│   ├── scanner_provider.dart           扫描状态管理
+│   ├── qr_code_content_page.dart       扫描结果页
+│   └── [其他 7 个文件] ─── NFC、内容解析
+│
+├── moment/             11  社交动态、朋友圈、评论
+│   ├── moment_list_page.dart           动态列表（信息流）
+│   ├── moment_detail_page.dart         动态详情
+│   ├── moment_create_page.dart         发布动态（文字、图片、视频）
+│   ├── moment_like_list_page.dart      点赞列表
+│   ├── moment_comment_list_page.dart   评论列表
+│   └── [其他 6 个文件] ─── 分享、删除、举报
+│
+├── live_room/           8  直播、流媒体、实时互动
+│   ├── live_room_page.dart             直播房间
+│   ├── live_stream_provider.dart       直播流 Provider
+│   ├── live_controls_widget.dart       直播控制条
+│   └── [其他 5 个文件] ─── 评论、打赏、分享
+│
+├── qrcode/              6  二维码展示、分享、导入
+│   ├── qr_code_page.dart               二维码展示页
+│   ├── qr_code_share_page.dart         分享二维码
+│   └── [其他 4 个文件] ─── 导入、编辑、保存
+│
+├── wallet/              6  支付、充值、交易记录
+│   ├── wallet_page.dart                钱包首页
+│   ├── recharge_page.dart              充值页面
+│   ├── transaction_list_page.dart      交易记录
+│   └── [其他 3 个文件] ─── 提现、设置、统计
+│
+├── single/              6  独立屏幕、弹窗、模态
+│   ├── single_image_viewer_page.dart   图片全屏查看
+│   ├── single_video_viewer_page.dart   视频播放器
+│   └── [其他 4 个文件] ─── 文件、位置、音频
+│
+├── conversation/        9  会话列表、快捷操作
+│   ├── conversation_list_page.dart     会话列表主页
+│   ├── conversation_provider.dart      会话 Provider
+│   ├── conversation_sort_menu.dart     排序菜单（时间/未读）
+│   └── [其他 6 个文件] ─── 搜索、筛选、置顶
+│
+├── bottom_navigation/   3  底部 4-Tab 导航
+│   ├── bottom_navigation_bar.dart      导航栏
+│   ├── bottom_navigation_provider.dart Tab 状态管理
+│   └── [其他 1 个文件] ─── Badge 显示
+│
+└── [其他模块]          11  文件
+    ├── welcome/        1  欢迎页
+    ├── splash/         1  启动屏（品牌、进度）
+    ├── discover/       1  探索广场
+    └── mention/        1  @mention 提及列表
 ```
 
 ---
 
-## 组件层次 | Component Hierarchy (113 files)
+## 组件层次 | Component Hierarchy (111 files)
 
 ```
-component/
-├── ui/            28  按钮、卡片、对话框、头像、徽章 (通用 UI 原件)
-├── chat/          23  消息气泡、输入框、反应、构建器 (聊天特定)
-├── webrtc/        20  语音/视频通话 UI + 信令
-├── helper/        15  图片、日期、验证、缓存图片提供 (工具函数)
-├── http/           8  Dio 客户端、拦截器、错误处理
-├── extension/      4  String、BuildContext、List 扩展
-├── location/       3  高德地图集成、地理定位
-├── voice_record/   2  音频录制
-├── image_gallery/  2  相册/媒体选择
-├── widget/         2  Widget 辅助 (if_widget, when_widget)
-├── locales/        1  本地化相关组件
-└── video/          1  视频播放
+component/                111 files
+├── ui/                  28  基础 UI 原件（Material 3 兼容）
+│   ├── button.dart          按钮（Primary / Secondary / Text / Icon）
+│   ├── card.dart            卡片（阴影、圆角、padding）
+│   ├── dialog.dart          对话框（确认/输入/选择）
+│   ├── avatar.dart          头像（用户/群组，支持 Placeholder）
+│   ├── badge.dart           徽章（通知红点、数字）
+│   ├── chip.dart            Chip（标签、可删除）
+│   ├── dropdown.dart        下拉菜单
+│   ├── switch.dart          开关
+│   ├── slider.dart          滑杆
+│   ├── progress.dart        进度条（线性、圆形）
+│   ├── tab_bar.dart         标签栏（顶部 / 底部）
+│   ├── text_field.dart      文本输入（带校验）
+│   ├── search_bar.dart      搜索栏
+│   ├── list_tile.dart       列表项（图标、标题、副标题）
+│   ├── divider.dart         分割线
+│   ├── snackbar.dart        顶部/底部提示
+│   ├── toast.dart           浮窗提示
+│   ├── loading.dart         加载动画（微调进度）
+│   ├── empty_state.dart     空状态（图片、文案、操作）
+│   └── [其他 10 个文件] ─── 选择器、时间、颜色
+│
+├── chat/                23  聊天特定组件
+│   ├── message_bubble.dart           消息气泡（发送/接收）
+│   ├── message_input_field.dart      输入框（多行、@提及、emoji）
+│   ├── message_reaction_widget.dart  反应展示与编辑
+│   ├── message_builder.dart          消息类型构建器
+│   ├── text_message_widget.dart      文本消息渲染
+│   ├── image_message_widget.dart     图片消息渲染
+│   ├── video_message_widget.dart     视频消息渲染
+│   ├── file_message_widget.dart      文件消息渲染
+│   ├── voice_message_widget.dart     语音消息渲染
+│   ├── location_message_widget.dart  位置消息渲染
+│   ├── card_message_widget.dart      卡片消息渲染
+│   ├── system_message_widget.dart    系统消息渲染
+│   ├── mention_popup.dart            @提及浮窗
+│   ├── forward_sheet.dart            转发菜单（单选、多选）
+│   ├── reply_widget.dart             引用回复显示
+│   └── [其他 8 个文件] ─── 长按菜单、时间戳、已读
+│
+├── webrtc/              20  WebRTC 通话 UI
+│   ├── call_page.dart                通话界面（视频/语音）
+│   ├── call_provider.dart            通话状态 Provider
+│   ├── call_controls_widget.dart     通话控制条（静音、切换摄像头）
+│   ├── video_renderer_widget.dart    视频渲染
+│   ├── audio_waveform_widget.dart    音频波形
+│   ├── call_info_widget.dart         通话信息展示
+│   ├── call_duration_widget.dart     通话时长计时
+│   ├── call_incoming_widget.dart     来电提示（头像、名称）
+│   ├── call_quality_indicator.dart   网络质量指示
+│   └── [其他 11 个文件] ─── 信令、群通话、录制
+│
+├── helper/              15  工具函数与提供者
+│   ├── image_picker_helper.dart      图片选择（单选/多选）
+│   ├── file_picker_helper.dart       文件选择
+│   ├── date_time_helper.dart         日期格式化
+│   ├── validation_helper.dart        输入校验（邮箱、手机、URL）
+│   ├── cached_image_provider.dart    缓存图片提供（已授权 URL）
+│   ├── image_cache_manager.dart      自定义缓存管理
+│   ├── platform_helper.dart          平台差异处理（iOS/Android）
+│   ├── permissions_helper.dart       权限申请（位置、相机、麦克风）
+│   ├── app_links_helper.dart         深链接处理
+│   └── [其他 6 个文件] ─── 剪贴板、计时、数据转换
+│
+├── http/                 8  HTTP/WebSocket 客户端层
+│   ├── dio_client.dart               Dio 封装（超时、重试）
+│   ├── request_interceptor.dart      请求拦截器（token 注入）
+│   ├── response_interceptor.dart     响应拦截器（错误转换）
+│   ├── error_handler.dart            错误处理（网络/业务/解析）
+│   ├── retry_policy.dart             重试策略（指数退避）
+│   └── [其他 3 个文件] ─── 缓存、代理、日志
+│
+├── extension/            4  Dart 扩展
+│   ├── string_extension.dart         String（去空格、截断、加密）
+│   ├── build_context_extension.dart  BuildContext（媒体查询、路由）
+│   ├── list_extension.dart           List（分组、扁平化、排序）
+│   └── [其他 1 个文件] ─── DateTime、数值扩展
+│
+├── location/             3  地理定位与地图
+│   ├── amap_service.dart             高德地图集成
+│   ├── location_picker_page.dart     位置选择器
+│   └── [其他 1 个文件] ─── 地址反查
+│
+├── voice_record/         2  音频录制
+│   ├── voice_recorder.dart           录音机逻辑
+│   └── [其他 1 个文件] ─── 播放、波形
+│
+├── image_gallery/        2  相册与媒体
+│   ├── gallery_picker_page.dart      相册选择
+│   └── [其他 1 个文件] ─── 滤镜、编辑
+│
+├── widget/               2  Widget 辅助
+│   ├── if_widget.dart                条件渲染
+│   └── [其他 1 个文件] ─── 循环、错误边界
+│
+├── locales/              1  本地化
+│   └── locale_switcher.dart          语言切换器
+│
+└── video/                1  视频播放
+    └── video_player_widget.dart      视频播放器封装
 ```
+
+---
+
+## ChatPage Mixin 分层架构 | ChatPage Mixin Architecture
+
+```
+ChatPage extends ConsumerStatefulWidget
+├── Mixin 1: ChatInitializationHandler
+│   ├── initState()        初始化 WebSocket、加载历史消息
+│   ├── loadHistoryMessages()  分页加载（向上滚动触发）
+│   └── setupProviderListeners() 监听 Riverpod 状态变化
+│
+├── Mixin 2: ChatMessageHandler
+│   ├── handleIncomingMessage()  处理 S2C 消息
+│   ├── sendMessage()       发送消息（包装、加密、重试）
+│   ├── resendMessage()     重发失败消息
+│   └── markAsRead()        标记已读 ACK
+│
+├── Mixin 3: ChatScrollHandler
+│   ├── onScroll()          滚动事件处理（加载更多）
+│   ├── scrollToBottom()    跳转到底部新消息
+│   ├── scrollToMessage()   跳转到指定消息
+│   └── updateReadPosition() 更新阅读位置（用于分页查询）
+│
+├── Mixin 4: ChatInputHandler
+│   ├── onInputChanged()    输入框变化（正在输入提示）
+│   ├── handleMentions()    @提及弹窗逻辑
+│   ├── insertMention()     插入 @用户
+│   ├── recordVoice()       语音录制
+│   └── cancelVoice()       取消语音
+│
+├── Mixin 5: ChatReactionHandler
+│   ├── showReactionPicker() emoji 选择器
+│   ├── addReaction()        添加反应
+│   ├── removeReaction()     删除反应
+│   └── updateReactionUI()   更新 UI
+│
+├── Mixin 6: ChatSelectionHandler
+│   ├── toggleSelectMode()   进入多选模式
+│   ├── selectMessage()      选中消息（高亮）
+│   ├── handleForward()      转发消息
+│   ├── handleDelete()       删除消息
+│   └── handleRevoke()       撤销消息（时间限制）
+│
+├── Mixin 7: ChatMediaHandler
+│   ├── pickImage()          选择图片
+│   ├── pickVideo()          选择视频
+│   ├── pickFile()           选择文件
+│   ├── pickLocation()       选择位置
+│   └── compressMedia()      压缩媒体（图片/视频）
+│
+└── Mixin 8: ChatWebRTCHandler
+    ├── initiateCalls()      发起语音/视频通话
+    ├── handleIncomingCall() 处理来电
+    ├── rejectCall()         拒绝通话
+    └── endCall()            结束通话
+```
+
+**特点：**
+- ✅ 行为分离，各 Mixin 职责单一
+- ✅ 易于单元测试（提取纯逻辑）
+- ✅ 易于维护（修改不影响其他 Mixin）
+- ✅ 支持扩展（添加新 Mixin 无需修改现有代码）
 
 ---
 
@@ -72,242 +343,171 @@ component/
 
 ```
 ConsumerWidget / ConsumerStatefulWidget
-  → ref.watch(xxxProvider)           读取状态
-  → ref.read(xxxProvider.notifier)  触发操作
-  → Notifier.build() / state        返回新状态
-  → Widget 重建 / Widget rebuild
-
-关键 Provider 位置：
-├── lib/page/chat/chat_provider.dart              消息列表、发送、输入框
-├── lib/page/conversation/conversation_provider.dart
-│   未读数、会话列表、最后消息
-├── lib/page/contact/contact_provider.dart       联系人列表、搜索、标签
-├── lib/page/group/group_provider.dart           群组列表、成员
-├── lib/service/websocket_status_provider.dart   WebSocket 连接状态
-├── lib/service/message_providers.dart           消息处理、S2C 事件
-└── lib/service/notification_provider.dart       通知状态（新增 2026-04）
+  ↓
+ref.watch(chatMessagesProvider)       ← 读取消息列表
+ref.read(chatNotifier.notifier)       ← 触发发送消息
+  ↓
+ChatNotifier.build()                  ← 返回 AsyncValue<List<Message>>
+  ↓
+message_provider.dart                 ← 监听消息变化
+  ├── watchMessages(convKey)          从 Repository 查询
+  ├── sendMessage(model)              调用 API + SQLite 持久化
+  └── updateMessage(id, status)       更新状态
+  ↓
+Repository (SQLite)                   ← 数据持久化
+  ↓
+Service (WebSocket, 加密, 通知)        ← 业务逻辑
+  ↓
+Widget 重建 / UI Rebuild               ← 显示新数据
 ```
 
 ---
 
-## 路由导航 | Navigation (go_router)
+## 关键 Provider/Notifier 伪代码 | Provider Pseudocode
 
-```
-路由结构 / Route Structure：
+```dart
+// lib/page/chat/chat_provider.dart
+final chatMessagesProvider = StateNotifierProvider.family<
+  ChatNotifier,
+  AsyncValue<List<MessageModel>>,
+  String  // convKey
+>((ref, convKey) {
+  final repo = ref.watch(messageRepositoryProvider);
+  return ChatNotifier(repo, convKey);
+});
 
-/                             → BottomNavigation
-├── /conversation             会话列表 (Tab 0)
-├── /contact                  联系人列表 (Tab 1)
-├── /channel                  频道广场 (Tab 2, 新增 2026-04)
-├── /mine                     我的 (Tab 3)
-│   ├── /mine/my_channels     我的频道 (新增 2026-04)
-│   ├── /mine/device          设备列表
-│   └── /mine/settings        应用设置
-│
-├── /chat/:type/:id           聊天页面
-│   ├── /chat/c2c/:uid        私聊
-│   └── /chat/c2g/:gid        群聊
-│
-├── /group/:gid               群组详情
-│   ├── /group/:gid/member    群成员列表
-│   ├── /group/:gid/edit      群编辑
-│   └── /group/:gid/album     群相册
-│
-├── /contact/add              加好友页面
-├── /channel/:cid             频道详情
-├── /channel/admin            频道管理
-├── /settings/e2ee            E2EE 设置
-├── /scanner                  二维码扫描
-├── /search                   全局搜索
-├── /login                    登录页
-├── /register                 注册页
-└── /splash                   启动屏
+class ChatNotifier extends StateNotifier<AsyncValue<List<MessageModel>>> {
+  ChatNotifier(this._repo, this._convKey) : super(const AsyncValue.loading());
+
+  Future<void> sendMessage(CreateMessageRequest req) async {
+    // 1. 乐观更新 UI
+    // 2. 调用 API
+    // 3. 更新 SQLite
+    // 4. 处理错误回滚
+  }
+
+  Future<void> loadMore() async {
+    // 1. 分页加载历史消息
+    // 2. 去重（检查 msg_id）
+    // 3. 更新状态
+  }
+}
+
+// lib/page/mine/mine_provider.dart
+final userProfileProvider = FutureProvider<UserModel>((ref) async {
+  final api = ref.watch(userApiProvider);
+  return api.getUserProfile();
+});
+
+// lib/service/websocket_provider.dart
+final webSocketProvider = StateProvider<WebSocketService>((ref) {
+  return WebSocketService();
+});
 ```
 
 ---
 
-## 聊天页 Mixin 架构 | ChatPage Mixin Architecture
-
-**文件：** `lib/page/chat/chat/chat_page.dart`
+## 路由导航 | Routing with go_router
 
 ```dart
-ChatPage (StatefulWidget, 1808 行)
-  ├── ChatInitializationHandler         初始化、加载、dispose
-  │   ├── _initChat()                   数据加载、WebSocket 连接
-  │   ├── _loadInitialMessages()        分页加载初始消息
-  │   └── _setupEventListeners()        事件总线订阅
-  │
-  ├── ChatMessageHandler               发送/接收消息、重试、ACK
-  │   ├── _sendTextMessage()            发送文本（含 @所有人 权限校验）
-  │   ├── _sendMediaMessage()           发送媒体 (图片/视频/音频)
-  │   ├── _retryMessage()               重试失败消息
-  │   └── _applyGroupMemberMuteState()  禁言状态应用
-  │
-  ├── ChatScrollHandler                滚动、分页、加载更多
-  │   ├── _onScrolling()                滚动检测
-  │   ├── _loadMoreMessages()           向上翻页加载历史
-  │   └── _jumpToLatest()               跳转至最新
-  │
-  ├── ChatInputHandler                输入框、文本编辑、禁言检测
-  │   ├── _onTextChanged()              实时输入监听
-  │   ├── _detectMentions()             提及候选 (@all / @某人)
-  │   └── _checkMutedStatus()           检查群成员禁言状态
-  │
-  ├── ChatReactionHandler             表情反应、表情选择
-  │   ├── _onReactionTap()              处理表情长按
-  │   └── _showEmojiPicker()            显示表情选择器
-  │
-  ├── ChatSelectionHandler            多选、批量删除
-  │   ├── _toggleSelection()            切换消息选中状态
-  │   └── _batchDelete()                批量删除消息
-  │
-  ├── ChatMediaHandler                图片/视频/音频处理
-  │   ├── _pickImage()                  选择图片
-  │   ├── _recordVoice()                录音
-  │   └── _previewMedia()               预览媒体
-  │
-  └── ChatWebRTCHandler               语音/视频通话信令
-      ├── _initiateCall()               发起通话
-      └── _handleCallSignaling()        处理信令消息
-
-Mixin 分离好处：
-✅ 单个 Mixin ≤ 300 行，职责单一
-✅ 易于测试、维护、扩展
-✅ 避免 2000+ 行 God Object
-✅ 特性可根据需要启用/禁用
+// lib/config/router_config.dart
+final routerConfig = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const SplashPage(),
+      routes: [
+        // 认证路由
+        GoRoute(
+          path: 'passport/login',
+          builder: (context, state) => const LoginPage(),
+        ),
+        // 主导航（4-Tab）
+        GoRoute(
+          path: 'conversation',
+          builder: (context, state) => const ConversationListPage(),
+          routes: [
+            GoRoute(
+              path: 'chat/:convKey',
+              builder: (context, state) => ChatPage(
+                convKey: state.pathParameters['convKey']!,
+              ),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: 'contact',
+          builder: (context, state) => const ContactListPage(),
+        ),
+        GoRoute(
+          path: 'group',
+          builder: (context, state) => const GroupListPage(),
+        ),
+        GoRoute(
+          path: 'mine',
+          builder: (context, state) => const MinePage(),
+        ),
+      ],
+    ),
+  ],
+);
 ```
 
 ---
 
-## 关键 Provider / Notifier 模式 | Key Providers
-
-### ChatProvider
+## 设计令牌 | Design Tokens (from lib/theme/)
 
 ```dart
-// 文件：lib/page/chat/chat/chat_provider.dart
-@riverpod
-class ChatNotifier extends _$ChatNotifier {
-  @override
-  Future<ChatState> build() async {
-    // 加载初始消息、会话信息、群成员（如果 c2g）
-  }
-
-  Future<void> sendMessage(MessageModel msg) async {
-    // 1. 检查禁言状态 → 如禁言则 toast + return
-    // 2. 调用 MessageService.send()
-    // 3. 订阅 WebSocket ACK / 失败事件
-    // 4. 更新本地消息列表 state
-  }
-
-  void onMessageReceived(MessageModel msg) {
-    // S2C 或 WebSocket 推送的消息到达
-    // 检查去重 + 插入本地 + 更新 UI
-  }
+// lib/theme/app_colors.dart
+abstract final class AppColors {
+  static const Color primary = Color(0xFF2474E5);     // 品牌蓝
+  static const Color iosBlue = Color(0xFF007AFF);     // iOS 链接色
+  static const Color iosRed = Color(0xFFFF3B30);      // 破坏性操作
+  static const Color surface = Color(0xFFF5F5F5);     // 背景
+  static const Color onSurface = Color(0xFF000000);   // 文本
+  // ... 更多色彩
 }
 
-class ChatState {
-  final List<MessageModel> messages;
-  final bool isLoading;
-  final String? error;
-  final bool isMuted;  // 群成员禁言状态
-  final String? muteMessage;  // 禁言提示文案
-  // ...
+// lib/theme/app_spacing.dart
+abstract final class AppSpacing {
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 16;
+  static const double lg = 24;
+  static const double xl = 32;
 }
-```
 
-### ConversationProvider
-
-```dart
-// 文件：lib/page/conversation/conversation_provider.dart
-@riverpod
-class ConversationNotifier extends _$ConversationNotifier {
-  @override
-  Future<List<ConversationModel>> build() async {
-    // 加载会话列表、未读数、最后消息
-  }
-
-  void updateConversation(String convKey, ConversationModel updated) {
-    // 实时更新会话列表项（未读数、最后消息、时间）
-  }
-}
-```
-
-### ContactProvider
-
-```dart
-// 文件：lib/page/contact/contact_provider.dart
-@riverpod
-class ContactNotifier extends _$ContactNotifier {
-  @override
-  Future<List<ContactModel>> build() async {
-    // 加载联系人列表、分类、标签
-  }
-
-  Future<void> searchContacts(String query) async {
-    // 搜索、过滤、排序
-  }
+// lib/theme/font_size_type.dart
+enum FontSizeType {
+  bodySmall(12),
+  body(14),
+  bodyLarge(16),
+  titleSmall(16),
+  titleMedium(18),
+  titleLarge(24),
+  headlineSmall(28),
+  headlineMedium(32),
+  headlineLarge(40);
 }
 ```
 
 ---
 
-## 设计系统 | Design System
+## 常见页面开发流程 | Common Page Development Workflow
 
-### 颜色令牌 | Color Tokens
-```dart
-// lib/theme/default/colors.dart
-AppColors.primary       // 品牌蓝 #2474E5 (Logo, 主按钮, 发送气泡)
-AppColors.iosBlue       // iOS 系统蓝 #007AFF (链接, Nav 按钮, 取消)
-AppColors.surface       // 卡片背景
-AppColors.iosRed        // 破坏性操作 #FF3B30
-AppColors.success       // 成功状态绿
-AppColors.error         // 错误红
 ```
-
-### 间距令牌 | Spacing Tokens
-```dart
-AppSpacing.xs           // 4px
-AppSpacing.sm           // 8px
-AppSpacing.md           // 12px
-AppSpacing.lg           // 16px (页面标准 padding)
-AppSpacing.xl           // 24px
-AppSpacing.xxl          // 32px
-```
-
-### 触达区域 | Touch Targets
-```
-所有可点击元素 ≥ 44×44pt (iOS HIG minimum)
-按钮间距 ≥ 8pt
+1. 在 lib/config/router_config.dart 添加路由
+2. 创建 lib/page/feature/feature_page.dart
+3. 创建 lib/page/feature/feature_provider.dart
+4. 定义 Provider（数据来源）和 Notifier（业务逻辑）
+5. 使用 ConsumerWidget 绑定 Provider
+6. 使用 AppColors / AppSpacing / FontSizeType Token
+7. 单元测试（test/ 目录）
+8. 集成测试（test_driver/ 目录）
+9. 提交前运行 `dart analyze lib` + `flutter test`
 ```
 
 ---
 
-## 最近变化 | Recent Updates (Apr 2026)
-
-| 日期 / Date | 变化 / Change | 影响 / Impact |
-|-----------|---------|---------|
-| 2026-04-17 | 添加 `InboundPipeline` 去重阶段 | 消息管道架构完善 |
-| 2026-04-17 | 添加 `NotificationGateway` 纯函数 | 通知决策可测试化 |
-| 2026-04-15 | 群成员禁言/解禁 S2C 接线 | 聊天页输入框实时禁用/恢复 |
-| 2026-04-15 | 频道置顶区 UI (Slice-5) | 会话列表顶部新增频道带状 |
-| 2026-04-10 | 四 Tab 导航重构 (Option C) | 消息/联系人/频道/我的 |
-| 2026-04-10 | 未读数合流 (私聊+频道) | 消息 Tab Badge 统计更新 |
-
----
-
-## 性能优化 | Performance Optimization
-
-| 优化 / Optimization | 实现 / Implementation | 收益 / Benefit |
-|-----------|---------|---------|
-| 消息分页 | 每页 50 条 + 向上加载 | 避免加载全量消息 |
-| 图片缓存 | `IMBoyCacheManager` + `cachedImageProvider` | 减少重复下载 |
-| 查询缓存 | `CachedSQLiteService` | 减少 DB 查询次数 |
-| Lazy loading | Provider auto-dispose + watch | 自动内存回收 |
-| 虚拟列表 | 聊天气泡列表使用 `ListView` | 仅渲染可见行 |
-
----
-
-**相关文档 / Related Docs**
-- [`architecture.md`](./architecture.md) — 系统整体设计
-- [`data.md`](./data.md) — 数据库与模型
-- [`CLAUDE.md`](../../CLAUDE.md) — 项目 CLAUDE 规范
+**更新者 / Updated by:** Claude Code  
+**更新周期 / Update Cycle:** 6 weeks (architecture), 2 weeks (minor)
