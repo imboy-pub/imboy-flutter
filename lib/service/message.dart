@@ -856,15 +856,8 @@ class MessageService with EventSubscriptionManager {
         mentionUnread: mentionIncrement, // C7-β
         id: 0,
       );
-      final savedConv = await _conversationRepo.save(conv);
 
-      // 保存消息到 sqlite
-      // Persist message to local DB
-      if (kDebugMode) {
-        iPrint(
-          '🔍 [DEBUG] 保存消息: msgId=$msgId, data[\'msg_type\']=${data['msg_type']}, msgContentType=$msgContentType',
-        );
-      }
+      // uk3 由 type+currentUid+peerId 纯派生（不依赖插入后的 id），可在事务前确定
       final msg = MessageModel(
         parseModelString(msgId),
         autoId: 0,
@@ -878,20 +871,63 @@ class MessageService with EventSubscriptionManager {
         ),
         isAuthor: tempMsg.isAuthor,
         topicId: parseModelInt(data['topic_id'], defaultValue: tempMsg.topicId),
-        conversationUk3: savedConv.uk3,
+        conversationUk3: conv.uk3,
         status: IMBoyMessageStatus.delivered,
         msgType: msgContentType, // WebSocket API v2.0: 从顶层读取消息内容类型
       );
-      final existed = await repo.save(msg);
+
+      // 保存消息到 sqlite
+      // Persist message to local DB
       if (kDebugMode) {
-        iPrint('🔍 [DEBUG] 消息保存完成: msgType=${msg.msgType}, existed=$existed');
+        iPrint(
+          '🔍 [DEBUG] 保存消息: msgId=$msgId, data[\'msg_type\']=${data['msg_type']}, msgContentType=$msgContentType',
+        );
       }
 
-      // 【修复】如果消息已存在（count > 0），跳过后续处理
-      // save 方法返回的是数据库中已存在的记录数
-      // 如果 count > 0，说明消息已存在，只是更新了数据，不需要触发通知
-      if (existed != null && existed > 0) {
-        iPrint('⚠️ 消息已存在（数据库检查），跳过后续处理: $msgId, count=$existed');
+      // 【根治重复投递未读双计】消息插入 + 会话 upsert + 未读自增 放入同一排他事务，
+      // 且仅在消息确认是新行（count==0）时才自增未读，彻底消除并发重复投递导致的角标偏大。
+      // exclusive:true 走全局 _dbLock.synchronized，串行化所有并发 _processMessageInBackground。
+      final (
+        ConversationModel savedConv,
+        bool isNewRow,
+      ) = await _conversationRepo.runInTransaction((txn) async {
+        // 1) 先存消息，用其返回的 count 判断是否新行（0=新行，>0=已存在）
+        final existed = await repo.save(msg, txn: txn);
+        final isNew = existed == null || existed == 0;
+
+        // 2) 会话元数据 upsert（autoIncrement:false → 不在 save 内自增，交由下方条件触发）
+        final convResult = await _conversationRepo.save(
+          conv,
+          txn: txn,
+          autoIncrement: false,
+        );
+
+        // 3) 仅当消息是新行时才自增未读 / @ 未读；重复消息只刷新会话元数据
+        if (isNew && (unreadIncrement > 0 || mentionIncrement > 0)) {
+          await _conversationRepo.incrementUnread(
+            convResult.id,
+            txn: txn,
+            unreadDelta: unreadIncrement,
+            mentionDelta: mentionIncrement,
+          );
+        }
+
+        // convResult 可能因 upsert 更新了字段，重新读出最新快照供 UI 使用
+        final fresh = await _conversationRepo.findByPeerId(
+          conv.type,
+          conv.peerId.toString(),
+          txn: txn,
+        );
+        return (fresh ?? convResult, isNew);
+      });
+      if (kDebugMode) {
+        iPrint('🔍 [DEBUG] 消息保存完成: msgType=${msg.msgType}, isNewRow=$isNewRow');
+      }
+
+      // 【修复】重复消息（非新行）跳过后续 UI/通知处理
+      // 与原 existed>0 守卫语义一致，但更彻底：未读已不会自增，且连 fireData 都不发
+      if (!isNewRow) {
+        iPrint('⚠️ 消息已存在（数据库检查），跳过后续处理: $msgId');
         return;
       }
 

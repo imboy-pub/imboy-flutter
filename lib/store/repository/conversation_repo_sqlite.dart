@@ -123,46 +123,103 @@ class ConversationRepo {
   }
 
   // 存在就更新，不存在就插入
-  Future<ConversationModel> save(ConversationModel obj) async {
+  //
+  // [txn]：可选的外部事务。传入时 save 不自开事务，复用调用方事务（用于把
+  //   会话 upsert 与消息插入并入同一原子单元）。
+  // [autoIncrement]：是否在更新已有会话时顺带自增 unread/mention。
+  //   - true（默认，向后兼容）：保持历史行为，更新时一并自增。
+  //   - false：只 upsert 会话元数据（subtitle/lastTime/payload 等），不碰未读计数；
+  //     调用方随后可按"消息是否新行"条件性地调用 [incrementUnread]。
+  Future<ConversationModel> save(
+    ConversationModel obj, {
+    Transaction? txn,
+    bool autoIncrement = true,
+  }) async {
     iPrint("ConversationRepo_save ${obj.toJson().toString()}");
-    ConversationModel? oldObj = await findByPeerId(
+    final ConversationModel? oldObj = await findByPeerId(
       obj.type,
       obj.peerId.toString(),
+      txn: txn,
     );
     if (oldObj == null) {
-      obj.id = await insert(obj);
+      obj.id = await insert(obj, txn: txn);
       return obj;
-    } else {
-      // 存在旧会话，合并更新
-      // 核心安全点 [C1]：未读计数和艾特计数走 SQL-level 自增相加，由 SQLite 在事务锁线程中原子计算，绝不在 Dart 内存中进行绝对值覆写！
-      await _db.transaction((txn) async {
-        await txn.rawUpdate(
-          'UPDATE ${ConversationRepo.tableName} '
-          'SET ${ConversationRepo.subtitle} = ?, '
-          '    ${ConversationRepo.lastTime} = ?, '
-          '    ${ConversationRepo.lastMsgId} = ?, '
-          '    ${ConversationRepo.lastMsgStatus} = ?, '
-          '    ${ConversationRepo.msgType} = ?, '
-          '    ${ConversationRepo.isShow} = 1, '
-          '    ${ConversationRepo.payload} = ?, '
-          '    ${ConversationRepo.unreadNum} = ${ConversationRepo.unreadNum} + ?, '
-          '    ${ConversationRepo.mentionUnread} = ${ConversationRepo.mentionUnread} + ? '
-          'WHERE id = ?',
-          [
-            obj.subtitle,
-            obj.lastTime,
-            obj.lastMsgId,
-            obj.lastMsgStatus,
-            obj.msgType,
-            jsonEncode(obj.payload),
-            obj.unreadNum, // 增量值
-            obj.mentionUnread, // 艾特增量值
-            oldObj.id,
-          ],
-        );
-      });
-      return (await findByPeerId(obj.type, obj.peerId.toString()))!;
     }
+    // 存在旧会话，合并更新
+    // 核心安全点 [C1]：未读计数和艾特计数走 SQL-level 自增相加，由 SQLite 在事务锁线程中原子计算，绝不在 Dart 内存中进行绝对值覆写！
+    //
+    // 当调用方需要把"未读自增"与"消息插入"做成同一原子单元（避免重复投递时未读双计），
+    // 应传 autoIncrement=false，并在确认消息是新行后再调用 incrementUnread()。
+    final unreadExpr = autoIncrement
+        ? '    ${ConversationRepo.unreadNum} = ${ConversationRepo.unreadNum} + ?, '
+              '    ${ConversationRepo.mentionUnread} = ${ConversationRepo.mentionUnread} + ? '
+        : '';
+    final sql =
+        'UPDATE ${ConversationRepo.tableName} '
+        'SET ${ConversationRepo.subtitle} = ?, '
+        '    ${ConversationRepo.lastTime} = ?, '
+        '    ${ConversationRepo.lastMsgId} = ?, '
+        '    ${ConversationRepo.lastMsgStatus} = ?, '
+        '    ${ConversationRepo.msgType} = ?, '
+        '    ${ConversationRepo.isShow} = 1, '
+        '    ${ConversationRepo.payload} = ?, '
+        '$unreadExpr'
+        'WHERE id = ?';
+    final args = <dynamic>[
+      obj.subtitle,
+      obj.lastTime,
+      obj.lastMsgId,
+      obj.lastMsgStatus,
+      obj.msgType,
+      jsonEncode(obj.payload),
+      if (autoIncrement) ...[
+        obj.unreadNum, // 增量值
+        obj.mentionUnread, // 艾特增量值
+      ],
+      oldObj.id,
+    ];
+
+    if (txn != null) {
+      await txn.rawUpdate(sql, args);
+    } else {
+      await _db.transaction((t) async {
+        await t.rawUpdate(sql, args);
+      });
+    }
+    return (await findByPeerId(obj.type, obj.peerId.toString(), txn: txn))!;
+  }
+
+  /// 原子自增未读 / @ 未读计数（SQL-level 相加，绝不内存覆写）。
+  ///
+  /// 供"消息插入 + 未读自增"需在同一事务内完成的场景使用：
+  /// 调用方先用 `save(conv, txn: txn, autoIncrement: false)` upsert 会话元数据，
+  /// 再根据"消息是否新行"条件性调用本方法自增，从而彻底消除重复投递时的未读双计。
+  ///
+  /// [convId] 由 save() 返回的会话对象提供（obj.id）。
+  /// [txn] 必须传入——本方法设计为只在事务内调用。
+  Future<void> incrementUnread(
+    int convId, {
+    required Transaction txn,
+    int unreadDelta = 0,
+    int mentionDelta = 0,
+  }) async {
+    await txn.rawUpdate(
+      'UPDATE ${ConversationRepo.tableName} '
+      'SET ${ConversationRepo.unreadNum} = ${ConversationRepo.unreadNum} + ?, '
+      '    ${ConversationRepo.mentionUnread} = ${ConversationRepo.mentionUnread} + ? '
+      'WHERE id = ?',
+      [unreadDelta, mentionDelta, convId],
+    );
+  }
+
+  /// 在排他事务内执行 action（走全局 _dbLock 串行化）。
+  ///
+  /// 用于把"消息插入 + 会话 upsert + 未读自增"打包成不可分割的原子单元，
+  /// 避免并发重复投递时两份处理互相穿插导致未读双计 / 消息双插。
+  Future<T> runInTransaction<T>(
+    Future<T> Function(Transaction txn) action,
+  ) async {
+    return await _db.transaction(action, exclusive: true);
   }
 
   //
