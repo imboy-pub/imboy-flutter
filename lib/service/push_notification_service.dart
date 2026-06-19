@@ -56,8 +56,19 @@ class PushNotificationService {
   Future<void> initialize() async {
     iPrint('[Push] 推送服务初始化...');
 
-    // 尝试初始化 FCM，失败则 graceful fallback
-    await _tryInitFcm();
+    // 整体加 15 秒超时：Huawei/中国设备访问 Google FCM 可能无限等待
+    try {
+      await _tryInitFcm().timeout(
+        const Duration(seconds: 15),
+        onTimeout: () {
+          logger.w('[Push] FCM 初始化超时 (15s)，降级为本地通知模式');
+          _fcmEnabled = false;
+        },
+      );
+    } catch (e) {
+      logger.w('[Push] FCM 初始化异常降级: $e');
+      _fcmEnabled = false;
+    }
 
     if (_fcmEnabled) {
       iPrint('[Push] 推送服务初始化完成 (FCM 模式)');
@@ -72,15 +83,13 @@ class PushNotificationService {
   /// 会捕获异常并 graceful skip，不影响应用正常运行。
   Future<void> _tryInitFcm() async {
     try {
-      await Firebase.initializeApp();
+      await Firebase.initializeApp().timeout(const Duration(seconds: 5));
       final messaging = FirebaseMessaging.instance;
 
       // 请求推送权限 (iOS 必需，Android 13+ 也需要)
-      final settings = await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      final settings = await messaging
+          .requestPermission(alert: true, badge: true, sound: true)
+          .timeout(const Duration(seconds: 5));
       iPrint('[Push] 权限状态: ${settings.authorizationStatus}');
 
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
@@ -88,8 +97,14 @@ class PushNotificationService {
         return;
       }
 
-      // 获取 FCM token
-      _pushToken = await messaging.getToken();
+      // 获取 FCM token（华为设备访问 Google 服务器可能超时）
+      _pushToken = await messaging.getToken().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          iPrint('[Push] FCM token 获取超时，降级为本地通知模式');
+          return null;
+        },
+      );
       iPrint('[Push] FCM token 获取成功: ${_pushToken != null}');
 
       // 监听 token 刷新

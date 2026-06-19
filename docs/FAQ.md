@@ -12,6 +12,15 @@ flutter build apk --release \
 
 ```
 
+```iphone16e leeyi
+flutter run \
+    --release \
+    --device-id 00008140-000E30561E32801C \
+    --dart-define=APP_ENV=pro \
+    -t lib/main.dart
+```
+
+
 ## 使用问题
 
 ### 1. 登录失败怎么办？
