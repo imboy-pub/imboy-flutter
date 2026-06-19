@@ -14,6 +14,9 @@ hooks:
     sqlite3:
       source: system
 
+tobias:
+  url_scheme: alipay
+
 dependencies:
   flutter:
     sdk: flutter

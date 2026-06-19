@@ -1,127 +1,125 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-	<dict>
-		<key>CADisableMinimumFrameDurationOnPhone</key>
-		<true/>
-		<key>CFBundleDevelopmentRegion</key>
-		<string>$(DEVELOPMENT_LANGUAGE)</string>
-		<key>CFBundleDisplayName</key>
-		<string>IMBoy</string>
-		<key>CFBundleExecutable</key>
-		<string>$(EXECUTABLE_NAME)</string>
-		<key>CFBundleIdentifier</key>
-		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-		<key>CFBundleInfoDictionaryVersion</key>
-		<string>6.0</string>
-		<key>CFBundleName</key>
-		<string>$(PRODUCT_NAME)</string>
-		<key>CFBundlePackageType</key>
-		<string>APPL</string>
-		<key>CFBundleShortVersionString</key>
-		<string>$(FLUTTER_BUILD_NAME)</string>
-		<key>CFBundleSignature</key>
-		<string>????</string>
-		<key>CFBundleURLTypes</key>
-		<array>
-			<dict>
-				<key>CFBundleTypeRole</key>
-				<string>Editor</string>
-				<key>CFBundleURLName</key>
-				<string>imboy.pub</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>imboy</string>
-				</array>
-			</dict>
-			<!-- 微信支付回调 scheme：将 wx 后面替换为实际的微信开放平台 AppID -->
-			<!-- WeChat Pay callback: replace suffix with your WeChat Open Platform AppID -->
-			<!-- Build with: flutter build ipa --dart-define=WECHAT_APP_ID=wx<YOUR_APPID> -->
-			<dict>
-				<key>CFBundleTypeRole</key>
-				<string>Editor</string>
-				<key>CFBundleURLName</key>
-				<string>weixin</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<!-- ⚠️ 投产前将此值替换为 wx<YOUR_WECHAT_APPID> -->
-					<string>wxIMBOY_REPLACE_WITH_YOUR_WECHAT_APPID</string>
-				</array>
-			</dict>
-		</array>
-		<key>CFBundleVersion</key>
-		<string>$(FLUTTER_BUILD_NUMBER)</string>
-		<key>LSApplicationCategoryType</key>
-		<string>public.app-category.social-networking</string>
-		<key>LSApplicationQueriesSchemes</key>
-		<array>
-			<string>sms</string>
-			<string>tel</string>
-			<!-- 微信 / WeChat Pay -->
+<dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>IMBoy</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array/>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>imboy.pub</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>imboy</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
 			<string>weixin</string>
-			<string>weixinULAPI</string>
-			<string>weixinURLParamsAPI</string>
-			<!-- 支付宝 / Alipay -->
-			<string>alipay</string>
-			<string>alipayshare</string>
-		</array>
-		<key>LSRequiresIPhoneOS</key>
-		<true/>
-		<key>NSAppTransportSecurity</key>
-		<dict>
-			<key>NSAllowsLocalNetworking</key>
-			<true/>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wxIMBOY_REPLACE_WITH_YOUR_WECHAT_APPID</string>
+			</array>
 		</dict>
-		<key>NSCameraUsageDescription</key>
-		<string>IMBoy needs camera access to take photos, scan QR codes, and make video calls.</string>
-		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>IMBoy uses your location to share location in chats, discover nearby people, and create face-to-face groups. Location is only accessed while you are actively using these features.</string>
-		<key>NSMicrophoneUsageDescription</key>
-		<string>IMBoy uses the microphone to record your speech and convert it to text.</string>
-		<key>NSPhotoLibraryAddUsageDescription</key>
-		<string>请允许$(PRODUCT_NAME)保存图片到相册</string>
-		<key>NSPhotoLibraryUsageDescription</key>
-		<string>请允许$(PRODUCT_NAME)访问您的相册</string>
-		<key>UIApplicationSceneManifest</key>
-		<dict>
-			<key>UIApplicationSupportsMultipleScenes</key>
-			<false/>
-		</dict>
-		<key>UIApplicationSupportsIndirectInputEvents</key>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.social-networking</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>sms</string>
+		<string>tel</string>
+		<string>weixin</string>
+		<string>weixinULAPI</string>
+		<string>weixinURLParamsAPI</string>
+		<string>alipay</string>
+		<string>alipayshare</string>
+	</array>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-		<key>UIBackgroundModes</key>
-		<array>
-			<string>audio</string>
-		</array>
-		<key>UILaunchStoryboardName</key>
-		<string>LaunchScreen</string>
-		<key>UIMainStoryboardFile</key>
-		<string>Main</string>
-		<key>UIStatusBarHidden</key>
-		<false/>
-		<key>UISupportedInterfaceOrientations</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-			<string>UIInterfaceOrientationLandscapeLeft</string>
-			<string>UIInterfaceOrientationLandscapeRight</string>
-			<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		</array>
-		<key>UISupportedInterfaceOrientations~ipad</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-			<string>UIInterfaceOrientationPortraitUpsideDown</string>
-			<string>UIInterfaceOrientationLandscapeLeft</string>
-			<string>UIInterfaceOrientationLandscapeRight</string>
-		</array>
-		<key>UIViewControllerBasedStatusBarAppearance</key>
-		<false/>
-		<key>LSSupportsOpeningDocumentsInPlace</key>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
 		<true/>
-		<key>UIFileSharingEnabled</key>
+		<key>NSAllowsLocalNetworking</key>
 		<true/>
-		<key>CFBundleLocalizations</key>
-		<array></array>
-		<key>ITSAppUsesNonExemptEncryption</key>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>IMBoy needs camera access to take photos, scan QR codes, and make video calls.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>IMBoy uses your location to share location in chats, discover nearby people, and create face-to-face groups. Location is only accessed while you are actively using these features.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>IMBoy uses the microphone to record your speech and convert it to text.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>请允许$(PRODUCT_NAME)保存图片到相册</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>请允许$(PRODUCT_NAME)访问您的相册</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UIStatusBarHidden</key>
+	<false/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+</dict>
 </plist>

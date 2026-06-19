@@ -101,6 +101,12 @@ PODS:
   - flutter_webrtc (1.4.0):
     - Flutter
     - WebRTC-SDK (= 144.7559.01)
+  - fluwx (0.0.1):
+    - Flutter
+    - fluwx/pay (= 0.0.1)
+  - fluwx/pay (0.0.1):
+    - Flutter
+    - WechatOpenSDK-XCFramework (~> 2.0.5)
   - FMDB/Core (2.7.12)
   - FMDB/SQLCipher (2.7.12):
     - FMDB/Core
@@ -203,6 +209,11 @@ PODS:
   - SQLCipher/standard (4.10.0):
     - SQLCipher/common
   - SwiftyGif (5.4.5)
+  - tobias (0.0.1):
+    - Flutter
+    - tobias/normal (= 0.0.1)
+  - tobias/normal (0.0.1):
+    - Flutter
   - url_launcher_ios (0.0.1):
     - Flutter
   - video_compress (0.3.0):
@@ -216,6 +227,7 @@ PODS:
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
     - FlutterMacOS
+  - WechatOpenSDK-XCFramework (2.0.5)
 
 DEPENDENCIES:
   - amap_flutter_location_plus (from `.symlinks/plugins/amap_flutter_location_plus/ios`)
@@ -234,6 +246,7 @@ DEPENDENCIES:
   - flutter_secure_storage_darwin (from `.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
   - flutter_sound (from `.symlinks/plugins/flutter_sound/ios`)
   - flutter_webrtc (from `.symlinks/plugins/flutter_webrtc/ios`)
+  - fluwx (from `.symlinks/plugins/fluwx/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - ic_storage_space (from `.symlinks/plugins/ic_storage_space/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
@@ -253,6 +266,7 @@ DEPENDENCIES:
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite_sqlcipher (from `.symlinks/plugins/sqflite_sqlcipher/ios`)
+  - tobias (from `.symlinks/plugins/tobias/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - video_compress (from `.symlinks/plugins/video_compress/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
@@ -285,6 +299,7 @@ SPEC REPOS:
     - SQLCipher
     - SwiftyGif
     - WebRTC-SDK
+    - WechatOpenSDK-XCFramework
 
 EXTERNAL SOURCES:
   amap_flutter_location_plus:
@@ -319,6 +334,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_sound/ios"
   flutter_webrtc:
     :path: ".symlinks/plugins/flutter_webrtc/ios"
+  fluwx:
+    :path: ".symlinks/plugins/fluwx/ios"
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/darwin"
   ic_storage_space:
@@ -353,6 +370,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sqflite_sqlcipher:
     :path: ".symlinks/plugins/sqflite_sqlcipher/ios"
+  tobias:
+    :path: ".symlinks/plugins/tobias/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   video_compress:
@@ -392,6 +411,7 @@ SPEC CHECKSUMS:
   flutter_sound: d95194f6476c9ad211d22b3a414d852c12c7ca44
   flutter_sound_core: 7f2626d249d3a57bfa6da892ef7e22d234482c1a
   flutter_webrtc: ec91d94b484ad49cf191ef93413f64a40ffd3b4c
+  fluwx: 2ef787502fccb3f3596b380509001a8ea71cbbff
   FMDB: 728731dd336af3936ce00f91d9d8495f5718a0e6
   geolocator_apple: ab36aa0e8b7d7a2d7639b3b4e48308394e8cef5e
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
@@ -421,12 +441,14 @@ SPEC CHECKSUMS:
   sqflite_sqlcipher: 8e5bdaae6b2c254f8a277a564f07bc4e2a8642a3
   SQLCipher: eb79c64049cb002b4e9fcb30edb7979bf4706dfc
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
+  tobias: f9c405df3ded93ad34539200fe3e7779cfb19081
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   video_compress: f2133a07762889d67f0711ac831faa26f956980e
   video_player_avfoundation: 3453f792138786248960ca029747fcd9f318ef52
   wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
   WebRTC-SDK: ab9b5319e458c2bfebdc92b3600740da35d5630d
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
+  WechatOpenSDK-XCFramework: ff342ae616bb86df3d236aca38059dfd4bc4a949
 
 PODFILE CHECKSUM: 4d6ca4c482843c3157fa90902338fe7b52be090e
 
