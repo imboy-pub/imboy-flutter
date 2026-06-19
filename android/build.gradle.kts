@@ -7,6 +7,9 @@ val flutterSdkPath = localProperties.getProperty("flutter.sdk")
 
 allprojects {
     repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
         google()
         mavenCentral()
         // 添加 Flutter SDK 的本地 Maven 仓库
