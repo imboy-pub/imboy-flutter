@@ -197,12 +197,56 @@ void main() {
       expect(objectKey, 'u1/file_1_a/x.png');
       expect(putUrlSeen, 'https://garage.local/put?sig=x');
       expect(putMimeSeen, 'image/png');
+      // 默认 scope=private（保持既有非聊天面行为），不带 scope_ref。
       expect(confirmBody, <String, dynamic>{
         'object_key': 'u1/file_1_a/x.png',
         'md5': expectedMd5,
         'mime_type': 'image/png',
         'size': bytes.length,
+        'scope': 'private',
       });
     });
+
+    test('scope=public → confirmBody 带 scope=public、不带 scope_ref', () async {
+      Map<String, dynamic>? confirmBody;
+      await AttachmentApi.uploadViaPresign(
+        bytes,
+        'a.jpg',
+        'image/jpeg',
+        process: false,
+        scope: 'public',
+        presignFn: (String f, String m) async => okPresign(),
+        putFn: (String u, Uint8List b, String m, bool p) async {},
+        confirmFn: (Map<String, dynamic> body) async {
+          confirmBody = body;
+          return IMBoyHttpResponse.success(<String, dynamic>{});
+        },
+      );
+      expect(confirmBody?['scope'], 'public');
+      expect(confirmBody?.containsKey('scope_ref'), isFalse);
+    });
+
+    test(
+      'scope=c2c + scopeRef → confirmBody 带 scope=c2c、scope_ref 透传',
+      () async {
+        Map<String, dynamic>? confirmBody;
+        await AttachmentApi.uploadViaPresign(
+          bytes,
+          'a.jpg',
+          'image/jpeg',
+          process: false,
+          scope: 'c2c',
+          scopeRef: 'c2c:1:2',
+          presignFn: (String f, String m) async => okPresign(),
+          putFn: (String u, Uint8List b, String m, bool p) async {},
+          confirmFn: (Map<String, dynamic> body) async {
+            confirmBody = body;
+            return IMBoyHttpResponse.success(<String, dynamic>{});
+          },
+        );
+        expect(confirmBody?['scope'], 'c2c');
+        expect(confirmBody?['scope_ref'], 'c2c:1:2');
+      },
+    );
   });
 }

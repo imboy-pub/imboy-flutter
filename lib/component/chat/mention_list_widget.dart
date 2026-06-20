@@ -219,7 +219,7 @@ class MentionListWidget extends StatelessWidget {
     if (candidate.avatar.isNotEmpty) {
       return ClipOval(
         child: Image(
-          image: cachedImageProvider(candidate.avatar),
+          image: avatarImageProvider(candidate.avatar),
           width: 40,
           height: 40,
           fit: BoxFit.cover,

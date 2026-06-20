@@ -309,6 +309,7 @@ class AppInitializer {
       await StorageService.to.remove(Keys.uploadUrl);
       await StorageService.to.remove(Keys.uploadKey);
       await StorageService.to.remove(Keys.uploadScene);
+      await StorageService.to.remove(Keys.publicBaseUrl);
       await AppFeatureRegistry.clear();
 
       logger.i(
@@ -510,13 +511,24 @@ class AppInitializer {
         (payload['login_rsa_pub_key'] as String?) ?? '',
       );
 
+      // 公开资源直读基址（scope=public，如头像）：缺失时存空串，
+      // Env.publicBaseUrl 读取时回退到内置默认（见 resource-access-control.md §9）。
+      await StorageService.to.setString(
+        Keys.publicBaseUrl,
+        (payload['public_base_url'] as String?) ?? '',
+      );
+
       // 4. 缓存结果并完成
       _initConfigCache = payload;
       _initConfigCompleter!.complete(payload);
       return payload;
     } on Exception catch (e, stack) {
       // 记录真实异常以便诊断（如 macOS Keychain entitlement 缺失会抛 PlatformException）
-      logger.e("initConfig failed during payload persistence", error: e, stackTrace: stack);
+      logger.e(
+        "initConfig failed during payload persistence",
+        error: e,
+        stackTrace: stack,
+      );
       if (kDebugMode) {
         debugPrint('❌ initConfig: 配置处理异常 ${e.runtimeType}: $e');
       }

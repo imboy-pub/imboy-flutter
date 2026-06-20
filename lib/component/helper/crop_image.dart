@@ -121,10 +121,9 @@ class _CropImageRouteState extends State<CropImageRoute> {
         );
         await tmpFile.writeAsBytes(croppedImage);
         await _upload(tmpFile);
-        Future<void>.delayed(const Duration(milliseconds: 200))
-            .then((_) => tmpFile
-                .delete()
-                .catchError((_) => tmpFile, test: (_) => true));
+        Future<void>.delayed(const Duration(milliseconds: 200)).then(
+          (_) => tmpFile.delete().catchError((_) => tmpFile, test: (_) => true),
+        );
       case CropFailure(:final cause):
         if (kDebugMode) debugPrint('> crop failed: $cause');
     }
@@ -132,6 +131,9 @@ class _CropImageRouteState extends State<CropImageRoute> {
   }
 
   Future<void> _upload(File file) async {
+    // 头像/封面类为公共资源（scope=public，走公开读桶），其余按 private。
+    // 与 avatarImageProvider 公开直读链路对齐（resource-access-control.md §9）。
+    final String scope = widget.prefix == 'avatar' ? 'public' : 'private';
     await AttachmentApi.uploadFileViaPresignCompat(
       widget.prefix,
       file,
@@ -142,6 +144,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
         if (kDebugMode) debugPrint("> on upload ${error.runtimeType}");
       },
       name: widget.filename,
+      scope: scope,
     );
   }
 }

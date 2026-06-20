@@ -127,7 +127,6 @@ class ProfileState {
 /// 个人资料 Provider
 @riverpod
 class ProfileNotifier extends _$ProfileNotifier {
-
   @override
   ProfileState build() {
     final user = UserRepoLocal.to.current;
@@ -346,6 +345,8 @@ class ProfileNotifier extends _$ProfileNotifier {
         (Map<String, dynamic> resp, String url) async {
           final status = resp['status'] ?? '';
           if (status == 'ok') {
+            // 头像为公共资源（scope=public），url 为 object_key（方案 B，
+            // 见 resource-access-control.md §9），直接作为 user.avatar 值。
             avatarUrl = url;
           }
           completer.complete(status == 'ok');
@@ -355,11 +356,14 @@ class ProfileNotifier extends _$ProfileNotifier {
           completer.complete(false);
         },
         process: true,
+        // 头像走公开读桶：scope=public，无 scope_ref。
+        scope: 'public',
       );
 
       final uploaded = await completer.future;
       if (!uploaded || avatarUrl == null) return false;
 
+      // 统一走 confirm 链路落库 + 更新 user.avatar，禁止旁路写 avatar。
       return await updateUserInfo('avatar', avatarUrl!);
     } catch (e) {
       iPrint('上传头像失败: ${e.runtimeType}');

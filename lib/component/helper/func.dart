@@ -386,6 +386,31 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
   }
 }
 
+/// 头像专用 ImageProvider（字段语义分流，见 resource-access-control.md §9）。
+///
+/// `user.avatar` 为 scope=public 资源：object_key 直拼 `public_base_url` 公开直读，
+/// **零 DB 查询、不调 view_url、不签名、可 CDN**——与消息附件渲染
+/// （[cachedImageProvider] → view_url）严格分开，勿用 `isObjectKey` 反向判头像。
+///
+/// 兼容过渡：旧 `i.imboy.pub` 完整 URL 头像（phase3 置空前）回退旧授权链路。
+ImageProvider<Object> avatarImageProvider(String? avatar, {double w = 400}) {
+  final String url = avatar ?? '';
+  if (url.isEmpty || url.contains("def_avatar.png", 0)) {
+    return IconImageProvider(Icons.person);
+  }
+  // public object_key → 公开直读
+  if (AssetsService.isObjectKey(url)) {
+    final headers = <String, String>{'User-Agent': 'imboy/1.0.0'};
+    return IMBoyCachedImageProvider(
+      AssetsService.publicUrl(url),
+      headers,
+      publicDirect: true,
+    );
+  }
+  // legacy 完整 URL（旧 go-fastdfs / i.imboy.pub）→ 旧授权链路兜底
+  return cachedImageProvider(url, w: w);
+}
+
 DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {
   // iPrint("dynamicAvatar_avatar $avatar; w $w");
   if (strEmpty(avatar)) {
@@ -395,7 +420,7 @@ DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {
     );
   }
   return DecorationImage(
-    image: cachedImageProvider(avatar!, w: w),
+    image: avatarImageProvider(avatar, w: w),
     fit: BoxFit.cover,
   );
 }

@@ -137,7 +137,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                       );
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundImage: cachedImageProvider(contact.avatar),
+                          backgroundImage: avatarImageProvider(contact.avatar),
                           backgroundColor: colorScheme.primaryContainer,
                           child: null,
                         ),

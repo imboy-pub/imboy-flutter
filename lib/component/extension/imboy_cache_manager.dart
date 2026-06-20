@@ -104,6 +104,11 @@ class IMBoyCacheManager {
 
     /// 是否验证图片数据（音频、视频等非图片文件应设为 false）
     bool validateImageData = true,
+
+    /// 公开资源直读（scope=public，如头像）：[url] 已是完整公开 URL，
+    /// 直接下载，**不**走 object_key 短时签发，**不**拼 go-fastdfs HMAC 授权
+    /// （见 resource-access-control.md §9）。
+    bool publicDirect = false,
   }) async {
     // 添加调试日志
     _log('📦 getSingleFile: url=$url, validateImageData=$validateImageData');
@@ -131,7 +136,14 @@ class IMBoyCacheManager {
     final String cacheKey;
     final String downloadUrl;
     final String extSource; // 推导文件扩展名的来源串
-    if (isObjKey) {
+    if (publicDirect) {
+      // 公开资源：url 即完整公开 URL，直读直下，cacheKey 用规范化 URL。
+      final rawUri = Uri.parse(url);
+      cacheKey =
+          '${rawUri.scheme}://${rawUri.host}:${rawUri.port}${rawUri.path}';
+      downloadUrl = url;
+      extSource = rawUri.path;
+    } else if (isObjKey) {
       cacheKey = 'objkey://$url';
       downloadUrl = await AssetUrlResolver.instance.resolve(url);
       extSource = url;

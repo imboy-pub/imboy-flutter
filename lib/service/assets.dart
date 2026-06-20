@@ -105,6 +105,16 @@ class AssetsService {
     return _objectKeyReg.hasMatch(input);
   }
 
+  /// 公开资源（scope=public，如头像/表情）直读 URL：
+  /// `public_base_url + '/' + object_key`。
+  ///
+  /// ⚠️ 仅供**字段语义为公开资源**的渲染（头像等）直拼，零 DB 查询、不签名、
+  /// 不调 view_url、可 CDN（见 resource-access-control.md §9）。
+  /// 消息附件等受限资源**不得**走此方法，须经 view_url 鉴权签发。
+  static String publicUrl(String objectKey) {
+    return '${Env.publicBaseUrl}/$objectKey';
+  }
+
   /// 获取URL地址的 v 参数，和当前时间做比较，再决定是否重新生成授权令牌
   /// Assets.viewUrl
   /// 异步版本：当 uploadKey 可能为空时使用

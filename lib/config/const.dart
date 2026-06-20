@@ -21,6 +21,8 @@ class Keys {
   static const String uploadUrl = "upload_url";
   static const String uploadKey = "upload_key";
   static const String uploadScene = "upload_scene";
+  // 公开资源（scope=public，如头像/表情）直读基址，由 /v1/init 下发
+  static const String publicBaseUrl = "public_base_url";
   static const String appFeatures = "app_features";
   static const String appManifest = "app_manifest";
   static const String appManifestEtag = "app_manifest_etag";

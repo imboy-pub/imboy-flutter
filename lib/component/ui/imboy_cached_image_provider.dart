@@ -23,10 +23,18 @@ class ImageNotFoundException implements Exception {
 }
 
 class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
-  const IMBoyCachedImageProvider(this.url, this.headers);
+  const IMBoyCachedImageProvider(
+    this.url,
+    this.headers, {
+    this.publicDirect = false,
+  });
 
   final String url;
   final Map<String, String> headers;
+
+  /// 公开资源直读（scope=public，如头像）：[url] 为完整公开 URL，直读直下，
+  /// 不走 object_key 短时签发 / go-fastdfs HMAC（见 resource-access-control.md §9）。
+  final bool publicDirect;
 
   @override
   Future<IMBoyCachedImageProvider> obtainKey(ImageConfiguration configuration) {
@@ -62,6 +70,7 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
         final file = await IMBoyCacheManager().getSingleFile(
           url,
           headers: headers,
+          publicDirect: publicDirect,
         );
 
         // 验证文件存在且可读
@@ -159,11 +168,13 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
     if (other.runtimeType != runtimeType) {
       return false;
     }
-    return other is IMBoyCachedImageProvider && other.url == url;
+    return other is IMBoyCachedImageProvider &&
+        other.url == url &&
+        other.publicDirect == publicDirect;
   }
 
   @override
-  int get hashCode => url.hashCode;
+  int get hashCode => Object.hash(url, publicDirect);
 
   @override
   String toString() => 'IMBoyCachedImageProvider(${url.hashCode})';

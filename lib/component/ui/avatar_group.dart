@@ -85,7 +85,7 @@ class GroupAvatar extends StatelessWidget {
         borderRadius: _getBorderRadius(),
         child: OctoImage(
           image: ResizeImage(
-            cachedImageProvider(url),
+            avatarImageProvider(url),
             width: size.toInt(),
             height: size.toInt(),
           ),
@@ -233,7 +233,7 @@ class GroupAvatar extends StatelessWidget {
       borderRadius: borderRadius ?? _getTileBorderRadius(),
       child: OctoImage(
         image: ResizeImage(
-          cachedImageProvider(url),
+          avatarImageProvider(url),
           width: (size / 2).toInt(),
           height: (size / 2).toInt(),
         ),

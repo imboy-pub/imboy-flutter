@@ -122,6 +122,20 @@ abstract interface class Env implements EnvField {
   @EnviedField(defaultValue: '')
   static String? uploadScene = StorageService.to.getString(Keys.uploadScene);
 
+  /// 公开资源直读基址默认值（Garage 公开读桶 / CDN，见 resource-access-control.md §9）。
+  static const String _publicBaseUrlDefault = 'https://s3.imboy.pub';
+
+  /// 公开资源（scope=public，如头像/表情）直读基址。
+  ///
+  /// 优先用服务端 `/v1/init` 下发值（initConfig 写入 StorageService），未下发时
+  /// 回退到内置默认，确保首次启动（init 完成前）头像即可渲染。末尾不带斜杠，
+  /// 供 `AssetsService.publicUrl` 直拼 object_key（零 DB 查询、不签名、可 CDN）。
+  static String get publicBaseUrl {
+    final String cached = StorageService.to.getString(Keys.publicBaseUrl);
+    final String base = cached.isNotEmpty ? cached : _publicBaseUrlDefault;
+    return base.endsWith('/') ? base.substring(0, base.length - 1) : base;
+  }
+
   // H8: uploadKey stored in secure storage only; never in plaintext SharedPreferences.
   // Use getUploadKey() to load from secure storage and update in-memory cache.
   // Use uploadKeySync for synchronous access after initialization.

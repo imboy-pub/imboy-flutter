@@ -98,10 +98,7 @@ class _MinePageState extends ConsumerState<MinePage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.main.setting),
-                leading: _buildIcon(
-                  CupertinoIcons.settings,
-                  AppColors.iosGray,
-                ),
+                leading: _buildIcon(CupertinoIcons.settings, AppColors.iosGray),
                 onTap: () => context.push('/mine/setting'),
               ),
               ImBoySettingsTile(
@@ -164,7 +161,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   image: hasAvatar
                       ? DecorationImage(
-                          image: cachedImageProvider(user.avatar),
+                          image: avatarImageProvider(user.avatar),
                           fit: BoxFit.cover,
                         )
                       : null,

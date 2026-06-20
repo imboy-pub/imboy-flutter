@@ -1,12 +1,6 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/config/env.dart';
-import 'package:imboy/config/init.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
@@ -21,7 +15,6 @@ import 'package:mime/mime.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
-import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -110,12 +103,17 @@ class AttachmentApi {
   /// 4. `POST /v1/attachment/confirm` 落 attachment 表（孤儿清理依赖此表）；
   /// 5. 返回 object_key（消息体 uri 字段语义改为存 object_key）。
   ///
-  /// 注意：旧 [_upload]（go-fastdfs）保留不删，调用点逐类切换。
+  /// 注意：旧 go-fastdfs 上传方法已下线删除（resource-access-control.md §10.5）。
   static Future<String> uploadViaPresign(
     Uint8List bytes,
     String fileName,
     String mime, {
     bool process = true,
+    // 资源访问控制（resource-access-control.md §7）：scope 决定上传桶与读鉴权，
+    // scopeRef 绑定可见范围实体（c2c→"c2c:min:max"，group→group_id）。
+    // 默认 private 保持既有非聊天面调用方行为（后端 presign/confirm 默认亦为 private）。
+    String scope = 'private',
+    String? scopeRef,
     // 以下三个为 @visibleForTesting 注入 seam：默认 null 走真实实现，
     // 调用方零改动；测试注入 fake 以脱离 HttpClient/Dio/网络验证编排逻辑。
     PresignFn? presignFn,
@@ -136,6 +134,9 @@ class AttachmentApi {
             queryParameters: <String, dynamic>{
               'filename': fileName,
               'mime_type': mime,
+              'scope': scope,
+              if (scopeRef != null && scopeRef.isNotEmpty)
+                'scope_ref': scopeRef,
             },
           );
     if (!presignResp.ok) {
@@ -167,6 +168,8 @@ class AttachmentApi {
       'md5': md5sum,
       'mime_type': mime,
       'size': bytes.length,
+      'scope': scope,
+      if (scopeRef != null && scopeRef.isNotEmpty) 'scope_ref': scopeRef,
     };
     final IMBoyHttpResponse confirmResp = confirmFn != null
         ? await confirmFn(confirmBody)
@@ -195,6 +198,8 @@ class AttachmentApi {
     Function errorCallback, {
     String name = "",
     bool process = true,
+    String scope = 'private',
+    String? scopeRef,
   }) async {
     try {
       final String path = file is PlatformFile
@@ -216,6 +221,8 @@ class AttachmentApi {
         fileName,
         mime,
         process: process,
+        scope: scope,
+        scopeRef: scopeRef,
       );
       await callback(compatResp(meta), meta['object_key'] as String);
     } on Object catch (e) {
@@ -231,6 +238,8 @@ class AttachmentApi {
     Function errorCallback, {
     String path = "",
     bool process = true,
+    String scope = 'private',
+    String? scopeRef,
   }) async {
     try {
       String ext = path.contains('.')
@@ -245,6 +254,8 @@ class AttachmentApi {
         fileName,
         mime,
         process: process,
+        scope: scope,
+        scopeRef: scopeRef,
       );
       await callback(compatResp(meta), meta['object_key'] as String);
     } on Object catch (e) {
@@ -271,12 +282,16 @@ class AttachmentApi {
     String fileName,
     String mime, {
     bool process = true,
+    String scope = 'private',
+    String? scopeRef,
   }) async {
     final String objectKey = await uploadViaPresign(
       bytes,
       fileName,
       mime,
       process: process,
+      scope: scope,
+      scopeRef: scopeRef,
     );
     return <String, dynamic>{
       'object_key': objectKey,
@@ -292,6 +307,8 @@ class AttachmentApi {
   static Future<Map<String, dynamic>> uploadImageEntityViaPresign(
     AssetEntity entity, {
     bool process = true,
+    String scope = 'private',
+    String? scopeRef,
   }) async {
     final Uint8List? bytes = await entity.originBytes;
     if (bytes == null || bytes.isEmpty) {
@@ -309,6 +326,8 @@ class AttachmentApi {
       name,
       mime,
       process: process,
+      scope: scope,
+      scopeRef: scopeRef,
     );
     return <String, dynamic>{
       'object_key': objectKey,
@@ -323,10 +342,12 @@ class AttachmentApi {
   ///
   /// 仅用于聊天视频（S5）：缩略图与视频分别 presign 直传，返回
   /// `{thumb: EntityImage, video: EntityVideo}`（uri 均为 object_key），
-  /// 形态与旧 [uploadVideo] 回调一致，下游 handleVideoUpload 无需改。
+  /// 下游 handleVideoUpload 无需改。
   static Future<Map<String, dynamic>> uploadVideoViaPresign(
-    AssetEntity entity,
-  ) async {
+    AssetEntity entity, {
+    String scope = 'private',
+    String? scopeRef,
+  }) async {
     final File? file = await entity.file;
     if (file == null) {
       throw Exception('uploadVideoViaPresign: 无法获取视频文件');
@@ -356,6 +377,8 @@ class AttachmentApi {
       thumbName,
       'image/jpeg',
       process: false,
+      scope: scope,
+      scopeRef: scopeRef,
     );
 
     // 2. 压缩视频 → presign
@@ -374,6 +397,8 @@ class AttachmentApi {
       videoBytes,
       videoName,
       'video/mp4',
+      scope: scope,
+      scopeRef: scopeRef,
     );
 
     final EntityImage thumb = EntityImage(
@@ -483,411 +508,5 @@ class AttachmentApi {
       EasyLoading.dismiss();
     }
     throw Exception('PUT 直传 Garage 失败（已重试 $_putMaxAttempts 次）: $lastError');
-  }
-
-  static Future<void> _upload(
-    String prefix,
-    Map<String, dynamic> data,
-    Function callback,
-    Function errorCallback, {
-    bool process = true,
-  }) async {
-    DateTime dt = DateTime.fromMillisecondsSinceEpoch(
-      DateTimeHelper.millisecond(),
-    );
-    String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
-    if (prefix == "avatar") {
-      savePath = "/$prefix/";
-    }
-
-    Map<String, dynamic> authData = AssetsService.authData();
-    // data = {'file':MultipartFile.fromFile(path, filename: name)};
-    data['output'] = 'json2';
-    data['path'] = savePath;
-    data['scene'] = Env.uploadScene;
-
-    data['v'] = authData['v'];
-    data['a'] = authData['a'];
-    data['s'] = authData['s'];
-    // 安全日志：只输出文件名，不输出完整的认证参数
-    FormData formData = FormData.fromMap(data);
-    String baseUrl = Env.uploadUrl;
-    if (strEmpty(baseUrl)) {
-      await AppInitializer.initConfig();
-      baseUrl = StorageService.to.getString(Keys.uploadUrl);
-    }
-    if (strEmpty(baseUrl)) {
-      errorCallback(Exception('uploadUrl 未配置'));
-      return;
-    }
-    var options = BaseOptions(
-      baseUrl: baseUrl,
-      contentType: 'application/x-www-form-urlencoded',
-      connectTimeout: const Duration(milliseconds: 30000),
-      sendTimeout: const Duration(milliseconds: 60000),
-      receiveTimeout: const Duration(milliseconds: 30000),
-    );
-    await Dio(options)
-        .post<dynamic>(
-          "$baseUrl/upload",
-          data: formData,
-          onSendProgress: (int sent, int total) {
-            // debugPrint('> on upload $sent / $total');
-            if (process) {
-              EasyLoading.showProgress(
-                sent / total,
-                status: t.common.uploading,
-              );
-              if (sent == total) {
-                Future<dynamic>.delayed(const Duration(milliseconds: 2000), () {
-                  EasyLoading.dismiss();
-                });
-              }
-            }
-          },
-        )
-        .then((response) {
-          // 安全日志：不输出完整响应数据，可能包含敏感信息
-          Map<String, dynamic> resp =
-              json.decode(response.data as String) as Map<String, dynamic>;
-          callback(
-            resp,
-            AssetsService.viewUrl(resp['data']['url'] as String).toString(),
-          );
-        })
-        .catchError((Object e) {
-          errorCallback(e);
-        });
-  }
-
-  static Future<dynamic> preUpload(
-    String prefix,
-    Map<String, dynamic> data,
-  ) async {
-    DateTime dt = DateTime.fromMillisecondsSinceEpoch(
-      DateTimeHelper.millisecond(),
-    );
-    String savePath = "/$prefix/${dt.year}${dt.month}/${dt.day}_${dt.hour}/";
-
-    Map<String, dynamic> authData = AssetsService.authData();
-    // data = {'file':MultipartFile.fromFile(path, filename: name)};
-    data['md5'] = data['md5'];
-    data['output'] = 'json2';
-    data['path'] = savePath;
-    data['scene'] = Env.uploadScene;
-    data['s'] = authData['s'];
-    data['v'] = authData['v'];
-    data['a'] = authData['a'];
-    var options = BaseOptions(
-      baseUrl: Env.uploadUrl,
-      contentType: 'application/x-www-form-urlencoded',
-      connectTimeout: const Duration(milliseconds: 30000),
-      sendTimeout: const Duration(milliseconds: 60000),
-      receiveTimeout: const Duration(milliseconds: 30000),
-    );
-    return Dio(
-      options,
-    ).get<dynamic>("${Env.uploadUrl}/upload", queryParameters: data);
-  }
-
-  /// 上传视频
-  static Future<void> uploadVideo(
-    String prefix,
-    AssetEntity entity,
-    Function callback,
-    Function errorCallback, {
-    bool uploadOriginalImage = false,
-  }) async {
-    int quality = 68;
-    int width = 800;
-    int height = 0;
-    if (entity.width < width) {
-      width = entity.width;
-      height = entity.height;
-    } else {
-      height = (entity.height / entity.width * width).toInt();
-    }
-
-    // Android 9 兼容性：获取文件路径，处理可能的 null 情况
-    File? file = await entity.file;
-    if (file == null) {
-      // 尝试使用 originBytes 作为替代方案
-      try {
-        if (entity.type == AssetType.image) {
-          final Uint8List? bytes = await entity.originBytes;
-          if (bytes != null) {
-            // 创建临时文件
-            final tempDir = await Directory.systemTemp.createTemp();
-            final tempFile = File('${tempDir.path}/${Xid().toString()}.jpg');
-            await tempFile.writeAsBytes(bytes);
-            file = tempFile;
-          }
-        }
-      } catch (e) {
-        errorCallback(Exception(t.common.attachmentGetFileFailed));
-        return;
-      }
-
-      if (file == null) {
-        errorCallback(Exception(t.common.attachmentGetFileFailedAndroid9));
-        return;
-      }
-    }
-
-    String path = file.path;
-
-    String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
-    // bool uploadOriginalImage = false;
-    // debugPrint("> on uploadOriginalImage: $uploadOriginalImage");
-    String name = "${Xid().toString()}.$ext";
-    if (entity.type == AssetType.video) {
-      String? thumbUri;
-      String? videoUri;
-      // 上传缩略图
-      File thumbnailFile = await VideoCompress.getFileThumbnail(
-        path,
-        quality: quality, // default(100)
-        position: -1, // default(-1)
-      );
-      // debugPrint("> on upload video ${thumbnailFile.path}");
-      String thumbPath = thumbnailFile.path;
-      var thumbName = thumbPath.substring(
-        thumbPath.lastIndexOf("/") + 1,
-        thumbPath.length,
-      );
-
-      String thumbMd5 = sha1
-          .convert(thumbnailFile.readAsBytesSync())
-          .toString();
-      Map<String, dynamic> data = {
-        'file': await MultipartFile.fromFile(thumbPath, filename: thumbName),
-      };
-      await _upload(
-        prefix,
-        data,
-        (Map<String, dynamic> resp, String imgUrl) {
-          thumbUri = imgUrl;
-        },
-        errorCallback,
-        process: false,
-      );
-      // end 上传缩略图
-
-      MediaInfo? mediaInfo = await VideoCompress.compressVideo(
-        path,
-        quality: VideoQuality.Res640x480Quality,
-        deleteOrigin: true,
-      );
-      File videoFile = mediaInfo!.file!;
-      String videoMd5 = sha1.convert(videoFile.readAsBytesSync()).toString();
-      Map<String, dynamic> preData = {'md5': videoMd5};
-      await preUpload(prefix, preData)
-          .then((response) async {
-            Map<String, dynamic> responseData =
-                json.decode(response.data as String) as Map<String, dynamic>;
-            String status = responseData['status'] as String? ?? '';
-            if (status == 'ok') {
-              videoUri = AssetsService.viewUrl(
-                responseData['data']['url'] as String,
-              ).toString();
-            } else {
-              Map<String, dynamic> data = {
-                'file': await MultipartFile.fromFile(
-                  videoFile.path,
-                  filename: name,
-                ),
-              };
-              await _upload(prefix, data, (
-                Map<String, dynamic> resp,
-                String uri,
-              ) {
-                String status = resp['status'] as String? ?? '';
-                if (status == 'ok') {
-                  videoUri = uri;
-                }
-              }, errorCallback);
-            }
-          })
-          .catchError((Object e) {
-            errorCallback(e);
-          });
-      EntityImage thumb = EntityImage(
-        md5: thumbMd5,
-        name: thumbName,
-        uri: thumbUri!,
-        size: (await thumbnailFile.readAsBytes()).length,
-        width: width,
-        height: height,
-      );
-      EntityVideo video = EntityVideo(
-        md5: videoMd5,
-        name: name,
-        uri: videoUri!,
-        // unit Bytes
-        size: mediaInfo.filesize,
-        duration: mediaInfo.duration,
-        author: mediaInfo.author,
-        width: mediaInfo.width!,
-        height: mediaInfo.height!,
-      );
-
-      await callback({'thumb': thumb, 'video': video}, '');
-      await VideoCompress.deleteAllCache();
-
-      // EntityImage thumb = EntityImage(
-      //   name: name,
-      //   uri: thumbUri,
-      //   size: await thumbnailFile.length(),
-      //   width: thumbnailFile.
-      // );
-    } else if (entity.type == AssetType.image && uploadOriginalImage == false) {
-      // 压缩上传图片
-      final Uint8List? thumbData = await entity.thumbnailDataWithSize(
-        ThumbnailSize(width, height),
-        quality: quality,
-      );
-
-      // Android 9 兼容性：处理 thumbData 为 null 的情况
-      if (thumbData == null || thumbData.isEmpty) {
-        // 尝试使用 originBytes 作为替代
-        final Uint8List? originData = await entity.originBytes;
-        if (originData != null && originData.isNotEmpty) {
-          Map<String, dynamic> preData = {'md5': sha1.convert(originData)};
-          await preUpload(prefix, preData)
-              .then((response) async {
-                Map<String, dynamic> responseData =
-                    json.decode(response.data as String)
-                        as Map<String, dynamic>;
-                String status = responseData['status'] as String? ?? '';
-                if (status == 'ok') {
-                  callback(
-                    responseData,
-                    AssetsService.viewUrl(
-                      responseData['data']['url'] as String,
-                    ).toString(),
-                  );
-                } else {
-                  Map<String, dynamic> data = {
-                    'file': MultipartFile.fromBytes(originData, filename: name),
-                  };
-                  await _upload(prefix, data, callback, errorCallback);
-                }
-              })
-              .catchError((Object e) {
-                errorCallback(e);
-              });
-        } else {
-          errorCallback(Exception(t.common.attachmentGetImageDataFailed));
-        }
-        return;
-      }
-
-      Map<String, dynamic> preData = {'md5': sha1.convert(thumbData)};
-      await preUpload(prefix, preData)
-          .then((response) async {
-            Map<String, dynamic> responseData =
-                json.decode(response.data as String) as Map<String, dynamic>;
-            String status = responseData['status'] as String? ?? '';
-            if (status == 'ok') {
-              callback(
-                responseData,
-                AssetsService.viewUrl(
-                  responseData['data']['url'] as String,
-                ).toString(),
-              );
-            } else {
-              Map<String, dynamic> data = {
-                'file': MultipartFile.fromBytes(thumbData, filename: name),
-              };
-
-              await _upload(prefix, data, callback, errorCallback);
-            }
-          })
-          .catchError((Object e) {
-            errorCallback(e);
-          });
-    } else if (entity.type == AssetType.image && uploadOriginalImage == true) {
-      // 不压缩上传
-      final Uint8List? thumbData = await entity.originBytes;
-
-      // Android 9 兼容性：处理 originBytes 为 null 的情况
-      if (thumbData == null || thumbData.isEmpty) {
-        errorCallback(Exception(t.common.attachmentGetOriginalImageFailed));
-        return;
-      }
-
-      Map<String, dynamic> preData = {'md5': sha1.convert(thumbData)};
-      await preUpload(prefix, preData)
-          .then((response) async {
-            Map<String, dynamic> responseData =
-                json.decode(response.data as String) as Map<String, dynamic>;
-            String status = responseData['status'] as String? ?? '';
-            if (status == 'ok') {
-              callback(
-                responseData,
-                AssetsService.viewUrl(
-                  responseData['data']['url'] as String,
-                ).toString(),
-              );
-            } else {
-              Map<String, dynamic> data = {
-                'file': await MultipartFile.fromFile(path, filename: name),
-              };
-              await _upload(prefix, data, callback, errorCallback);
-            }
-          })
-          .catchError((Object e) {
-            errorCallback(e);
-          });
-    }
-  }
-
-  static Future<void> uploadFile(
-    String prefix,
-    Object file,
-    Function callback,
-    Function errorCallback, {
-    String name = "",
-    bool process = true,
-  }) async {
-    String path = "";
-    if (file is PlatformFile) {
-      path = file.path!;
-    } else if (file is File) {
-      path = file.path;
-    } else {
-      throw Exception(t.chat.unsupportedFileType);
-    }
-
-    String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
-    if (name == "") {
-      name = "${Xid().toString()}.$ext";
-    } else {
-      name = "$name.$ext";
-    }
-
-    Map<String, dynamic> data = {
-      'file': await MultipartFile.fromFile(path, filename: name),
-    };
-    await _upload(prefix, data, callback, errorCallback, process: process);
-  }
-
-  static Future<void> uploadBytes(
-    String prefix,
-    Uint8List file,
-    Function callback,
-    Function errorCallback, {
-    String path = "",
-    bool process = true,
-  }) async {
-    String ext = path.substring(path.lastIndexOf(".") + 1, path.length);
-    ext = ext.isEmpty ? '.png' : ext;
-    String name = "${Xid().toString()}$ext";
-
-    Map<String, dynamic> data = {
-      'file': MultipartFile.fromBytes(file, filename: name),
-    };
-    // 安全日志：不输出完整数据，只输出文件信息
-    await _upload(prefix, data, callback, errorCallback, process: process);
   }
 }

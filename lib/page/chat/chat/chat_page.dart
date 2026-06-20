@@ -484,6 +484,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       _attachmentHandler = ChatAttachmentHandler(
         peerId: widget.peerId,
         conversationUk3: _conversationUk3,
+        type: _chatType,
         burnEnabled: _burnEnabled,
         burnAfterMs: _burnAfterMs,
         onMessageCreated: _addMessage,
