@@ -1666,6 +1666,15 @@ class Translations$common$zh_CN {
 	/// zh-CN: '拒绝'
 	String get declineCall => '拒绝';
 
+	/// zh-CN: '网络不佳，正在重连…'
+	String get reconnecting => '网络不佳，正在重连…';
+
+	/// zh-CN: '最小化'
+	String get minimize => '最小化';
+
+	/// zh-CN: '切换摄像头'
+	String get switchCamera => '切换摄像头';
+
 	/// zh-CN: '添加朋友'
 	String get addFriend => '添加朋友';
 
@@ -7287,6 +7296,9 @@ extension on Translations {
 			'common.acceptFriendRequest' => '通过好友验证',
 			'common.answer' => '接听',
 			'common.declineCall' => '拒绝',
+			'common.reconnecting' => '网络不佳，正在重连…',
+			'common.minimize' => '最小化',
+			'common.switchCamera' => '切换摄像头',
 			'common.addFriend' => '添加朋友',
 			'common.addPhoneContact' => '添加手机联系人',
 			'common.creditCardRepayment' => '信用卡还款',
@@ -7786,11 +7798,11 @@ extension on Translations {
 			'common.privacyClearChatHistory' => '清除聊天记录',
 			'common.privacyClearChatHistoryConfirm' => '确定要清除所有聊天记录吗？此操作不可恢复。',
 			'common.privacyLogoutAccountConfirm' => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacySettings' => '隐私设置',
 			'common.searchSettings' => '搜索设置',
 			'common.allowSearchByAccount' => '允许通过账号搜索',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowSearchByAccountDesc' => '其他用户可以通过你的账号找到你',
 			'common.allowAddByPhone' => '允许通过手机号添加',
 			'common.allowAddByPhoneDesc' => '其他用户可以通过你的手机号添加你为好友',
@@ -8300,11 +8312,11 @@ extension on Translations {
 			'common.passwordEncryptFailed' => '密码加密失败',
 			'common.initConfigTimeout' => '配置获取超时: 请检查网络连接或服务端状态',
 			'common.initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
+			_ => null,
+		} ?? switch (path) {
 			'common.initConfigProtocolError' => '服务故障协议有误',
 			'common.initConfigFetchFailed' => '配置获取失败，请检查网络连接',
 			'common.attachmentGetFileFailed' => '无法获取文件，请重试或使用相册选择',
-			_ => null,
-		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
 			'common.attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
 			'common.attachmentGetOriginalImageFailed' => '无法获取原始图片数据',
@@ -8814,11 +8826,11 @@ extension on Translations {
 			'main.e2eeCanRecoverKey' => '可以恢复密钥',
 			'main.e2eeInsufficientShards' => '分片数量不足',
 			'main.e2eeProxyUser' => ({required Object uid}) => '代理用户: ${uid}',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '分片 ${index} / ${total}',
 			'main.e2eeReloadShards' => '重新加载',
 			'main.e2eeRecovering' => '恢复中...',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeKeyRestored' => '密钥已成功恢复',
 			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 个代理分片',
 			'main.e2eePreparing' => '准备恢复...',

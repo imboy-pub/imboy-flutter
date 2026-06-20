@@ -5,6 +5,8 @@ acceptFriendRequest: 通过好友验证
 answer: 接听
 declineCall: 拒绝
 reconnecting: 网络不佳，正在重连…
+minimize: 最小化
+switchCamera: 切换摄像头
 addFriend: 添加朋友
 addPhoneContact: 添加手机联系人
 creditCardRepayment: 信用卡还款
