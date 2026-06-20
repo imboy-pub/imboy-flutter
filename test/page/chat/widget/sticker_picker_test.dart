@@ -21,21 +21,21 @@ void main() {
     );
   }
 
-  testWidgets('渲染默认贴图网格（6 个 GridView 项不崩溃）', (tester) async {
+  testWidgets('渲染默认贴图网格（16 个 GridView 项不崩溃）', (tester) async {
     await pump(tester, (_) {});
     expect(find.byType(StickerPicker), findsOneWidget);
     expect(find.byType(GridView), findsOneWidget);
-    // 内置 6 个贴图，文本标签可见
-    expect(find.text('[微笑]'), findsOneWidget);
-    expect(find.text('[点赞]'), findsOneWidget);
+    // 内置贴图，表情字符可见
+    expect(find.text('😊'), findsOneWidget);
+    expect(find.text('👍'), findsOneWidget);
   });
 
   testWidgets('点击贴图 → 触发 onStickerSelected 回调', (tester) async {
     StickerItem? selected;
     await pump(tester, (s) => selected = s);
-    await tester.tap(find.text('[微笑]'));
+    await tester.tap(find.text('😊'));
     await tester.pump();
     expect(selected, isNotNull);
-    expect(selected!.text, '[微笑]');
+    expect(selected!.text, '😊');
   });
 }

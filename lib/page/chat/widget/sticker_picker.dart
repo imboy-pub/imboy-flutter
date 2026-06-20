@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 贴图/表情包项
@@ -17,37 +18,31 @@ class StickerPicker extends StatelessWidget {
 
   final void Function(StickerItem sticker) onStickerSelected;
 
-  // 模拟一组内置贴图（实际应用中通常从服务器拉取或有更完善的管理）
-  static const List<StickerItem> _defaultStickers = [
-    StickerItem(
-      url: 'https://a.imboy.pub/sticker/default/smile.png',
-      text: '[微笑]',
-    ),
-    StickerItem(
-      url: 'https://a.imboy.pub/sticker/default/laugh.png',
-      text: '[大笑]',
-    ),
-    StickerItem(
-      url: 'https://a.imboy.pub/sticker/default/cry.png',
-      text: '[哭泣]',
-    ),
-    StickerItem(
-      url: 'https://a.imboy.pub/sticker/default/angry.png',
-      text: '[生气]',
-    ),
-    StickerItem(
-      url: 'https://a.imboy.pub/sticker/default/heart.png',
-      text: '[爱心]',
-    ),
-    StickerItem(
-      url: 'https://a.imboy.pub/sticker/default/thumb.png',
-      text: '[点赞]',
-    ),
-  ];
+  static List<StickerItem> _buildStickers() {
+    return [
+      const StickerItem(url: '', text: '😊'),
+      const StickerItem(url: '', text: '😆'),
+      const StickerItem(url: '', text: '😭'),
+      const StickerItem(url: '', text: '😡'),
+      const StickerItem(url: '', text: '❤️'),
+      const StickerItem(url: '', text: '👍'),
+      const StickerItem(url: '', text: '🎉'),
+      const StickerItem(url: '', text: '🔥'),
+      const StickerItem(url: '', text: '🤔'),
+      const StickerItem(url: '', text: '👏'),
+      const StickerItem(url: '', text: '😂'),
+      const StickerItem(url: '', text: '😎'),
+      const StickerItem(url: '', text: '👀'),
+      const StickerItem(url: '', text: '✨'),
+      const StickerItem(url: '', text: '🙏'),
+      const StickerItem(url: '', text: '😱'),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final stickers = _buildStickers();
 
     return Container(
       decoration: BoxDecoration(
@@ -79,9 +74,9 @@ class StickerPicker extends StatelessWidget {
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
               ),
-              itemCount: _defaultStickers.length,
+              itemCount: stickers.length,
               itemBuilder: (context, index) {
-                final sticker = _defaultStickers[index];
+                final sticker = stickers[index];
                 return GestureDetector(
                   onTap: () => onStickerSelected(sticker),
                   child: Container(
@@ -93,20 +88,11 @@ class StickerPicker extends StatelessWidget {
                       borderRadius: AppRadius.borderRadiusMedium,
                     ),
                     child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.insert_emoticon,
-                            size: 32,
-                          ), // 占位符，实际应使用 Image
-                          const SizedBox(height: 4),
-                          Text(
-                            sticker.text,
-                            style: const TextStyle(fontSize: 10),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                      child: Text(
+                        sticker.text,
+                        style: const TextStyle(
+                          fontSize: AppSizes.iconSizeLarge,
+                        ),
                       ),
                     ),
                   ),

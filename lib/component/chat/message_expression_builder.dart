@@ -8,6 +8,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 
 /// 表情/贴图消息构建器
 class ExpressionMessageBuilder extends StatelessWidget {
@@ -37,7 +38,10 @@ class ExpressionMessageBuilder extends StatelessWidget {
     if (url.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(8),
-        child: Text(text.isNotEmpty ? text : '[表情]'),
+        child: Text(
+          text.isNotEmpty ? text : '[表情]',
+          style: const TextStyle(fontSize: AppSizes.iconSizeXLarge),
+        ),
       );
     }
 
