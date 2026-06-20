@@ -2,6 +2,9 @@ about: 关于
 aboutApp: 关于应用
 accept: 接受
 acceptFriendRequest: 通过好友验证
+answer: 接听
+declineCall: 拒绝
+reconnecting: 网络不佳，正在重连…
 addFriend: 添加朋友
 addPhoneContact: 添加手机联系人
 creditCardRepayment: 信用卡还款

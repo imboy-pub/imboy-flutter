@@ -1660,6 +1660,12 @@ class Translations$common$zh_CN {
 	/// zh-CN: '通过好友验证'
 	String get acceptFriendRequest => '通过好友验证';
 
+	/// zh-CN: '接听'
+	String get answer => '接听';
+
+	/// zh-CN: '拒绝'
+	String get declineCall => '拒绝';
+
 	/// zh-CN: '添加朋友'
 	String get addFriend => '添加朋友';
 
@@ -7279,6 +7285,8 @@ extension on Translations {
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
 			'common.acceptFriendRequest' => '通过好友验证',
+			'common.answer' => '接听',
+			'common.declineCall' => '拒绝',
 			'common.addFriend' => '添加朋友',
 			'common.addPhoneContact' => '添加手机联系人',
 			'common.creditCardRepayment' => '信用卡还款',
@@ -7781,10 +7789,10 @@ extension on Translations {
 			'common.privacySettings' => '隐私设置',
 			'common.searchSettings' => '搜索设置',
 			'common.allowSearchByAccount' => '允许通过账号搜索',
-			'common.allowSearchByAccountDesc' => '其他用户可以通过你的账号找到你',
-			'common.allowAddByPhone' => '允许通过手机号添加',
 			_ => null,
 		} ?? switch (path) {
+			'common.allowSearchByAccountDesc' => '其他用户可以通过你的账号找到你',
+			'common.allowAddByPhone' => '允许通过手机号添加',
 			'common.allowAddByPhoneDesc' => '其他用户可以通过你的手机号添加你为好友',
 			'common.allowAddByQR' => '允许通过二维码添加',
 			'common.allowAddByQRDesc' => '其他用户可以通过扫描你的二维码添加你为好友',
@@ -8295,10 +8303,10 @@ extension on Translations {
 			'common.initConfigProtocolError' => '服务故障协议有误',
 			'common.initConfigFetchFailed' => '配置获取失败，请检查网络连接',
 			'common.attachmentGetFileFailed' => '无法获取文件，请重试或使用相册选择',
-			'common.attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
-			'common.attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
 			_ => null,
 		} ?? switch (path) {
+			'common.attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
+			'common.attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
 			'common.attachmentGetOriginalImageFailed' => '无法获取原始图片数据',
 			'common.saveFailedRetry' => '保存失败，请重试',
 			'common.downloadFileNotFound' => '下载文件不存在，请重试',
@@ -8809,10 +8817,10 @@ extension on Translations {
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '分片 ${index} / ${total}',
 			'main.e2eeReloadShards' => '重新加载',
 			'main.e2eeRecovering' => '恢复中...',
-			'main.e2eeKeyRestored' => '密钥已成功恢复',
-			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 个代理分片',
 			_ => null,
 		} ?? switch (path) {
+			'main.e2eeKeyRestored' => '密钥已成功恢复',
+			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 个代理分片',
 			'main.e2eePreparing' => '准备恢复...',
 			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '进度: ${collected} / ${total} 个分片',
 			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...',
