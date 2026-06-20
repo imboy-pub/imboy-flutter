@@ -2,23 +2,44 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/theme/theme_manager.dart';
-import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/session.dart';
 
 import 'package:imboy/config/init.dart';
 import 'package:imboy/modules/messaging/public.dart';
+import 'package:imboy/page/chat/p2p_call_screen/incoming_call_view.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_page.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/i18n/strings.g.dart';
 
 /// 发送WebRTC消息
+/// 构造 WebRTC 信令请求（纯函数，便于协议对齐测试）。
+///
+/// 后端契约（imboy `message_router_logic:route_normal_message`）：
+///   - 按 `type` 的 `webrtc_` 前缀（大小写不敏感）路由到 `webrtc_ws_logic`；
+///   - 取 **`to`** 键解析 ToUid——必须是 `to`，发 `to_id` 会触发后端
+///     `{badkey,<<"to">>}` 崩溃；
+///   - 整包逐字透传给对端，故对端 `WebRTCSignalingModel` 解析须与此格式对齐。
+Map<String, dynamic> buildWebRtcRequest({
+  required String event,
+  required Map<String, dynamic> payload,
+  required String msgId,
+  required String to,
+  required String from,
+  required int ts,
+}) {
+  return <String, dynamic>{
+    'ts': ts,
+    'id': msgId,
+    'to': to,
+    'from': from,
+    'type': 'webrtc_$event',
+    'payload': payload,
+  };
+}
+
 Future<bool> sendWebRTCMsg(
   String event,
   Map<String, dynamic> payload, {
@@ -31,13 +52,14 @@ Future<bool> sendWebRTCMsg(
     return false;
   }
 
-  Map<String, dynamic> request = {};
-  request["ts"] = DateTimeHelper.millisecond();
-  request["id"] = msgId;
-  request["to"] = to;
-  request["from"] = UserRepoLocal.to.currentUid;
-  request["type"] = "webrtc_$event";
-  request["payload"] = payload;
+  final request = buildWebRtcRequest(
+    event: event,
+    payload: payload,
+    msgId: msgId,
+    to: to,
+    from: UserRepoLocal.to.currentUid,
+    ts: DateTimeHelper.millisecond(),
+  );
 
   // 解耦：通过事件发送消息
   AppEventBus.fire(
@@ -102,133 +124,48 @@ Future<void> incomingCallScreen(
 
   if (!context.mounted) return;
 
-  final theme = Theme.of(context);
-  final size = MediaQuery.of(context).size;
-
+  // 全屏来电界面（FaceTime / iOS 风格）。沿用 showDialog 的弹出/关闭语义
+  // （60s 超时与拒接/接听均通过 pop 关闭），仅将廉价的小弹窗替换为全屏呈现。
   showDialog<void>(
     context: context,
     barrierDismissible: false,
-    builder: (dialogContext) => Dialog(
-      backgroundColor: ThemeManager.instance.isDarkMode
-          ? const Color.fromRGBO(80, 80, 80, 1)
-          : const Color.fromRGBO(240, 240, 240, 1),
-      shape: RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusCell),
-      child: SizedBox(
-        width: size.width * 0.8,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                right: 6,
-                left: AppSpacing.regular,
-                top: AppSpacing.regular,
-                bottom: AppSpacing.regular,
-              ),
-              child: Avatar(imgUri: peer.avatar, width: 44, height: 44),
-            ),
-            SizedBox(
-              width: 116,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 16),
-                  Text(
-                    peer.nickname,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Text(
-                      t.common.incomingCall(
-                        param: option['media'] == 'video'
-                            ? t.chat.video
-                            : t.main.audio,
-                      ),
-                      style: TextStyle(
-                        color: ThemeManager.instance.getThemeColor(
-                          'textPrimary',
-                        ),
-                        fontSize: 12,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-            const Spacer(),
-            FloatingActionButton(
-              mini: true,
-              heroTag: "RejectCall",
-              backgroundColor: theme.colorScheme.error,
-              onPressed: () async {
-                // DONE(2026-04-04): 标记消息已读
-                MessagingFacade.instance.markAsRead(
-                  'C2C',
-                  peer.peerId.toString(),
-                  [msgId],
-                );
-                MessagingFacade.instance.changeLocalMsgState(msgId, 5);
-                gTimer?.cancel();
-                gTimer = null;
-                await sendWebRTCMsg(
-                  'busy',
-                  {},
-                  msgId: msgId,
-                  to: peer.peerId.toString(),
-                );
-                p2pCallScreenOn = false;
-                if (dialogContext.mounted) {
-                  Navigator.of(dialogContext).pop();
-                }
-              },
-              child: Icon(Icons.call_end, color: theme.colorScheme.onError),
-            ),
-            const SizedBox(width: 8),
-            FloatingActionButton(
-              mini: true,
-              heroTag: "AcceptCall",
-              backgroundColor: theme.colorScheme.primary,
-              onPressed: () async {
-                // DONE(2026-04-04): 标记消息已读
-                MessagingFacade.instance.markAsRead(
-                  'C2C',
-                  peer.peerId.toString(),
-                  [msgId],
-                );
-                gTimer?.cancel();
-                gTimer = null;
-                if (dialogContext.mounted) {
-                  Navigator.of(dialogContext).pop();
-                }
-                option['msgId'] = msgId;
-                openCallScreen(
-                  context,
-                  peer,
-                  session: s,
-                  option,
-                  caller: false,
-                );
-              },
-              child: Icon(
-                option['media'] == 'video' ? Icons.videocam : Icons.phone,
-                color: ThemeManager.instance.getThemeColor('textPrimary'),
-              ),
-            ),
-            const SizedBox(width: 16),
-          ],
-        ),
-      ),
+    useSafeArea: false,
+    builder: (dialogContext) => IncomingCallView(
+      avatar: peer.avatar,
+      nickname: peer.nickname,
+      media: option['media'] as String,
+      onDecline: () async {
+        // DONE(2026-04-04): 标记消息已读
+        MessagingFacade.instance.markAsRead('C2C', peer.peerId.toString(), [
+          msgId,
+        ]);
+        MessagingFacade.instance.changeLocalMsgState(msgId, 5);
+        gTimer?.cancel();
+        gTimer = null;
+        await sendWebRTCMsg(
+          'busy',
+          {},
+          msgId: msgId,
+          to: peer.peerId.toString(),
+        );
+        p2pCallScreenOn = false;
+        if (dialogContext.mounted) {
+          Navigator.of(dialogContext).pop();
+        }
+      },
+      onAccept: () {
+        // DONE(2026-04-04): 标记消息已读
+        MessagingFacade.instance.markAsRead('C2C', peer.peerId.toString(), [
+          msgId,
+        ]);
+        gTimer?.cancel();
+        gTimer = null;
+        if (dialogContext.mounted) {
+          Navigator.of(dialogContext).pop();
+        }
+        option['msgId'] = msgId;
+        openCallScreen(context, peer, session: s, option, caller: false);
+      },
     ),
   );
 }

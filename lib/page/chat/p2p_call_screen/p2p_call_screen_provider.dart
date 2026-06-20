@@ -15,6 +15,28 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'p2p_call_screen_provider.g.dart';
 
+/// 悬浮窗松手吸附：按当前窗口中心落在屏幕左/右半区，吸附到对应边缘（FaceTime PiP 同款）。
+/// 返回吸附后的 left 像素值。
+double snapFloatingLeft({
+  required double currentLeft,
+  required double windowWidth,
+  required double screenWidth,
+  double margin = 10,
+}) {
+  final center = currentLeft + windowWidth / 2;
+  final rightEdge = screenWidth - windowWidth - margin;
+  return center < screenWidth / 2 ? margin : rightEdge;
+}
+
+/// 通话时长格式化：<1h 显示 mm:ss，≥1h 显示 hh:mm:ss（FaceTime 同款）。
+String formatCallDuration(int totalSeconds) {
+  final h = totalSeconds ~/ 3600;
+  final m = (totalSeconds % 3600) ~/ 60;
+  final s = totalSeconds % 60;
+  String two(int v) => v.toString().padLeft(2, '0');
+  return h > 0 ? '${two(h)}:${two(m)}:${two(s)}' : '${two(m)}:${two(s)}';
+}
+
 /// P2P Call Screen 状态
 class P2pCallScreenState {
   final bool cameraOff;
@@ -28,6 +50,13 @@ class P2pCallScreenState {
   final double localX;
   final double localY;
 
+  /// 悬浮窗位置（最小化后的小窗，left/top 像素坐标）。
+  final double floatX;
+  final double floatY;
+
+  /// 网络重连中（ICE Disconnected/Failed）。用于顶部“网络不佳”横幅。
+  final bool reconnecting;
+
   const P2pCallScreenState({
     this.cameraOff = false,
     this.micOff = false,
@@ -39,6 +68,9 @@ class P2pCallScreenState {
     this.callDuration = '00:00',
     this.localX = 0.0,
     this.localY = 0.0,
+    this.floatX = 0.0,
+    this.floatY = 0.0,
+    this.reconnecting = false,
   });
 
   P2pCallScreenState copyWith({
@@ -52,6 +84,9 @@ class P2pCallScreenState {
     String? callDuration,
     double? localX,
     double? localY,
+    double? floatX,
+    double? floatY,
+    bool? reconnecting,
   }) {
     return P2pCallScreenState(
       cameraOff: cameraOff ?? this.cameraOff,
@@ -64,6 +99,9 @@ class P2pCallScreenState {
       callDuration: callDuration ?? this.callDuration,
       localX: localX ?? this.localX,
       localY: localY ?? this.localY,
+      floatX: floatX ?? this.floatX,
+      floatY: floatY ?? this.floatY,
+      reconnecting: reconnecting ?? this.reconnecting,
     );
   }
 }
@@ -262,17 +300,23 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       sdpMid,
       sdpMLineIndex,
     );
+    // 跨网络 relay 定位用：记录“对端实际收到的候选类型”。
+    // 只见 host=信令丢 srflx/relay；见 srflx/relay 但媒体不通=ICE/SDP 或网络层。
+    final recvType = _parseIceCandidateType(candidateStr);
     String sid = sessionId(peerId);
     var s = webRTCSessions[sid];
     if (s != null && s.pc != null) {
       final description = await s.pc?.getRemoteDescription();
       if (description != null) {
+        iPrint('> rtc RECV ICE candidate type=$recvType applied');
         await s.pc?.addCandidate(candidate);
       } else {
+        iPrint('> rtc RECV ICE candidate type=$recvType queued(no remoteDesc)');
         s.remoteCandidates.add(candidate);
       }
       webRTCSessions[sid] = s;
     } else {
+      iPrint('> rtc RECV ICE candidate type=$recvType queued(no session/pc)');
       webRTCSessions[sid] = WebRTCSession(peerId: peerId, sid: sid)
         ..remoteCandidates.add(candidate);
     }
@@ -444,11 +488,14 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
           _iceRestartCount = 0;
           _iceDisconnectTimer?.cancel();
           _iceDisconnectTimer = null;
+          // 注意：此回调参数名为 state（遮蔽 Notifier.state），故用 setReconnecting
+          setReconnecting(false);
           updateConnected(true);
           break;
 
         case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-          // 断开后等待 5 秒尝试恢复
+          // 断开后等待 5 秒尝试恢复（顶部横幅提示用户网络不佳）
+          setReconnecting(true);
           _iceDisconnectTimer?.cancel();
           _iceDisconnectTimer = Timer(const Duration(seconds: 5), () {
             if (session?.pc?.iceConnectionState ==
@@ -461,6 +508,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
         case RTCIceConnectionState.RTCIceConnectionStateFailed:
           // ICE 失败时尝试重启
+          setReconnecting(true);
           _attemptIceRestart();
           break;
 
@@ -774,15 +822,14 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     );
   }
 
+  void setReconnecting(bool v) {
+    state = state.copyWith(reconnecting: v);
+  }
+
   void startCallTimer(void Function() onUpdate) {
     _callTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _callSeconds++;
-      final minutes = _callSeconds ~/ 60;
-      final seconds = _callSeconds % 60;
-      state = state.copyWith(
-        callDuration:
-            '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-      );
+      state = state.copyWith(callDuration: formatCallDuration(_callSeconds));
       onUpdate();
     });
   }
@@ -816,6 +863,15 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   void updateLocalPosition(double x, double y) {
     state = state.copyWith(localX: x, localY: y);
+  }
+
+  /// 进入悬浮窗：设定初始小窗位置（由页面用 MediaQuery 算出右上角）并最小化。
+  void enterFloating(double x, double y) {
+    state = state.copyWith(floatX: x, floatY: y, minimized: true);
+  }
+
+  void updateFloatPosition(double x, double y) {
+    state = state.copyWith(floatX: x, floatY: y);
   }
 
   Future<Map<String, dynamic>?> _getIceConf({
