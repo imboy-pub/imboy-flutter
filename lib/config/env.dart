@@ -93,22 +93,12 @@ abstract interface class Env implements EnvField {
     // 当 wsUrl 为空时的处理逻辑
     final cachedWsUrl = StorageService.to.getString(Keys.wsUrl);
 
-    // 【安全】生产环境不应使用缓存的 WebSocket URL
-    // 防止误用开发/测试环境的 WebSocket 地址
-    if (currentEnv == 'pro') {
-      if (cachedWsUrl.isNotEmpty) {
-        if (kDebugMode) debugPrint('⚠️ [Env] 生产环境检测到缓存的 WebSocket URL，将被清除');
-        // 清除缓存，防止下次使用
-        StorageService.to.remove(Keys.wsUrl);
-      }
-      // 生产环境返回 null，让应用从服务器获取或使用 API 构造的 URL
-      // WebSocket URL 通常从 initConfig API 获取
-      return null;
-    }
-
-    // 非生产环境可以使用缓存（开发/测试环境）
+    // 使用服务端下发的 ws_url（由 initConfig 写入缓存）。
+    // initConfig 在每次启动时从生产服务器重新获取并覆盖，不存在"误用开发 URL"的风险。
     if (cachedWsUrl.isNotEmpty) {
-      if (kDebugMode) debugPrint('ℹ️ [Env] 使用缓存的 WebSocket URL');
+      if (kDebugMode) {
+        debugPrint('ℹ️ [Env] 使用缓存的 WebSocket URL (env=$currentEnv)');
+      }
     }
     return _normalizeWsUrl(cachedWsUrl);
   }

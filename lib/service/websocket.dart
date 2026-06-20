@@ -189,18 +189,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// App 生命周期回调：检测前后台切换
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        _onAppResumed();
-        break;
-      case AppLifecycleState.paused:
-        // App 进入后台：OS 会挂起定时器，无需主动断开
-        break;
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.hidden:
-      case AppLifecycleState.detached:
-        // 过渡态/不可见态，无需处理
-        break;
+    if (state == AppLifecycleState.resumed) {
+      _onAppResumed();
     }
   }
 
@@ -401,7 +391,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       AppLogger.info('WebSocket 连接成功: ${Env.effectiveWsUrl}');
     } catch (e, s) {
       AppLogger.error('WebSocket 连接失败: ${Env.effectiveWsUrl}', e, s);
-      _handleConnectionFailure(e);
+      await _handleConnectionFailure(e);
       // 【修复】异常发生时确保清理 WebSocket 资源
       _cancelStream();
     } finally {
@@ -413,8 +403,20 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   }
 
   /// 处理连接失败后的操作
-  void _handleConnectionFailure(Object error) {
+  Future<void> _handleConnectionFailure(Object error) async {
+    // 在调度重连前必须先清零 _connecting，否则 _shouldReconnect() 因 !_connecting==false 而提前终止
+    _connecting = false;
     _updateStatus(SocketStatus.disconnected);
+
+    final String errorStr = error.toString();
+    if (errorStr.contains('401')) {
+      AppLogger.error('> ws: WebSocket 认证失败 (HTTP 401)，正在执行登出并重定向至登录页...');
+      _cancelStream();
+      await UserRepoLocal.to.quitLogin();
+      navigateToSignIn(source: 'websocket_unauthorized_401');
+      return;
+    }
+
     _scheduleReconnection();
   }
 
@@ -435,6 +437,14 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     return FramingMode.none;
   }
 
+  static const Map<String, int> _msgTypeMap = {
+    'C2C': FrameType.msgC2C,
+    'C2G': FrameType.msgC2G,
+    'C2CH': FrameType.msgC2CH,
+    'C2S': FrameType.msgC2S,
+    'S2C': FrameType.msgS2C,
+  };
+
   /// 将待发送的字符串消息编码为 v2 frame bytes（仅在 framing=v2 时使用）
   ///
   /// 对于业务消息（JSON 字符串），从 payload 中提取 type 字段决定 FrameType：
@@ -443,36 +453,14 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   Uint8List _encodeV2BusinessFrame(String message) {
     final payload = Uint8List.fromList(utf8.encode(message));
     int type = FrameType.msgC2S;
-    try {
-      if (message.startsWith('CLIENT_ACK')) {
-        type = FrameType.msgC2S;
-      } else if (message.startsWith('{')) {
+    if (message.startsWith('{')) {
+      try {
         final decoded = jsonDecode(message);
         if (decoded is Map) {
           final t = (decoded['type']?.toString() ?? '').toUpperCase();
-          switch (t) {
-            case 'C2C':
-              type = FrameType.msgC2C;
-              break;
-            case 'C2G':
-              type = FrameType.msgC2G;
-              break;
-            case 'C2CH':
-              type = FrameType.msgC2CH;
-              break;
-            case 'C2S':
-              type = FrameType.msgC2S;
-              break;
-            case 'S2C':
-              type = FrameType.msgS2C;
-              break;
-            default:
-              type = FrameType.msgC2S;
-          }
+          type = _msgTypeMap[t] ?? FrameType.msgC2S;
         }
-      }
-    } catch (_) {
-      // 解析失败时回退 msgC2S
+      } catch (_) {}
     }
     return ImboyFrame.encode(type: type, flags: 0, payload: payload);
   }
@@ -618,10 +606,9 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   void _onMessage(dynamic message) {
     // v2 路径：binary 数据走 frame 解码
     if (_framing == FramingMode.v2 && message is List<int>) {
-      final bytes = message is Uint8List
-          ? message
-          : Uint8List.fromList(message);
-      _handleV2Binary(bytes);
+      _handleV2Binary(
+        message is Uint8List ? message : Uint8List.fromList(message),
+      );
       return;
     }
 
@@ -642,41 +629,23 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       if (msg.isEmpty) return;
 
       final action = msg['action']?.toString() ?? '';
-      final messageType = msg['type']?.toString() ?? '';
+      final messageType = (msg['type']?.toString() ?? '').toUpperCase();
       final messageId = msg['id']?.toString() ?? '';
-
-      final type = messageType.toUpperCase();
-      msg['type'] = type;
+      msg['type'] = messageType;
 
       // 合并日志：每条消息仅 1 次日志调用（避免 PrettyPrinter 重复格式化）
-      iPrint('[WS] msg type=$type id=$messageId action=$action');
+      iPrint('[WS] msg type=$messageType id=$messageId action=$action');
 
-      // 【关键优化】立即发送ACK，避免服务器超时重试
-      // 先处理 WEBRTC（需要独立处理）
-      if (type.startsWith('WEBRTC_') && messageId.isNotEmpty) {
-        try {
-          AckManager.to.sendAckDirect('WEBRTC', messageId);
-        } catch (e) {
-          iPrint('[WS_ACK] WEBRTC ACK fail: $e');
+      if (messageId.isNotEmpty) {
+        if (messageType.startsWith('WEBRTC_')) {
+          _sendAckDirectSafe('WEBRTC', messageId);
+        } else if (['S2C', 'C2S', 'C2C', 'C2G'].contains(messageType)) {
+          _sendAckSafe(messageType, messageId);
         }
+        _handleMessageAck(action, messageId);
       }
-
-      // 统一 ACK 发送入口：所有需要 ACK 的消息类型（按优先级排序）
-      // 优先级：S2C(服务端指令) > C2S(服务端确认) > C2C(单聊) > C2G(群聊)
-      // 【优化】升级为带有指数退避、4次重试QoS保护的 sendAck，解决上行丢包导致消息重复投递的缺陷 (D1)
-      if (['S2C', 'C2S', 'C2C', 'C2G'].contains(type) && messageId.isNotEmpty) {
-        try {
-          AckManager.to.sendAck(type, messageId);
-        } catch (e) {
-          iPrint('[WS_ACK] fail: $e');
-        }
-      }
-
-      // 消息确认处理（包含ACK和撤回确认）
-      _handleMessageAck(action, messageId);
 
       // 【优化】过滤 ACK 相关消息，避免转发到 MessageService
-      // 这些消息已在 WebSocket 层面处理完成，不需要进一步处理
       if (action == 'CLIENT_ACK_CONFIRM' ||
           action == 'CLIENT_ACK_ERROR' ||
           action.endsWith('_ACK')) {
@@ -685,15 +654,31 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
       // 统一分发到事件总线（非阻塞，不等待处理完成）
       try {
-        // ⚡ 非阻塞处理：通过事件总线发布消息，解耦 WebSocket 和 MessageService
-        AppEventBus.fire(WebSocketMessageReceivedEvent(type: type, data: msg));
+        AppEventBus.fire(
+          WebSocketMessageReceivedEvent(type: messageType, data: msg),
+        );
       } catch (e) {
         iPrint('[WS] dispatch error: $e');
       }
     } catch (e) {
       iPrint('[WS] parse error: ${e.runtimeType}');
-      // 解析失败时发送原始消息事件
       _handleRawMessage(message);
+    }
+  }
+
+  void _sendAckDirectSafe(String type, String messageId) {
+    try {
+      AckManager.to.sendAckDirect(type, messageId);
+    } catch (e) {
+      iPrint('[WS_ACK] $type ACK fail: $e');
+    }
+  }
+
+  void _sendAckSafe(String type, String messageId) {
+    try {
+      AckManager.to.sendAck(type, messageId);
+    } catch (e) {
+      iPrint('[WS_ACK] fail: $e');
     }
   }
 
@@ -1057,20 +1042,14 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// 在开发环境中可通过 'debug_log_websocket_full' 开关启用详细日志
   void _logMessageSent(String message, String? messageId) {
     final id = messageId ?? 'unknown';
-
-    // 检查是否启用完整日志（仅开发环境）
-    final enableFullLog =
-        kDebugMode &&
-        StorageService.to.getBool('debug_log_websocket_full') == true;
-
-    if (enableFullLog) {
+    if (kDebugMode &&
+        StorageService.to.getBool('debug_log_websocket_full') == true) {
       // 开发环境且启用详细日志时输出完整内容
       iPrint('> ws: 消息已发送 ($id): $message ;');
     } else {
       // 默认只输出消息类型和大小（不包含敏感内容）
       final msgType = _getMessageTypeInfo(message);
-      final size = message.length;
-      iPrint('> ws: 消息已发送 ($id) [$msgType] [$size bytes]');
+      iPrint('> ws: 消息已发送 ($id) [$msgType] [${message.length} bytes]');
     }
   }
 
@@ -1081,12 +1060,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   String _getMessageTypeInfo(String message) {
     try {
       final data = jsonDecode(message);
-      final type = data['type']?.toString() ?? 'UNKNOWN';
-      final msgType = data['msg_type']?.toString() ?? 'unknown';
-      final hasE2ee = data['e2ee'] != null;
-      final encStatus = hasE2ee ? 'E2EE' : 'PLAIN';
+      final type = data['type'] ?? 'UNKNOWN';
+      final msgType = data['msg_type'] ?? 'unknown';
+      final encStatus = data['e2ee'] != null ? 'E2EE' : 'PLAIN';
       return '$type/$msgType/$encStatus';
-    } catch (e) {
+    } catch (_) {
       return 'UNKNOWN';
     }
   }
@@ -1117,21 +1095,16 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// 消息入队处理
   /// 使用消息内容的 SHA-1 摘要作为队列 ID，避免 hashCode 碰撞
   void _enqueueMessage(String message) {
-    final exists = _messageQueue.messages.any((m) => m.data == message);
-    if (!exists) {
-      // 从消息 JSON 中提取 id 字段作为唯一标识，回退使用内容长度+哈希组合
-      String msgId;
-      try {
-        final decoded = jsonDecode(message);
-        msgId = (decoded is Map && decoded.containsKey('id'))
-            ? decoded['id'].toString()
-            : '${message.length}_${message.hashCode}';
-      } catch (_) {
-        msgId = '${message.length}_${message.hashCode}';
+    if (_messageQueue.messages.any((m) => m.data == message)) return;
+    String msgId = '${message.length}_${message.hashCode}';
+    try {
+      final decoded = jsonDecode(message);
+      if (decoded is Map && decoded.containsKey('id')) {
+        msgId = decoded['id'].toString();
       }
-      _messageQueue.enqueue(msgId, message, priority: 0);
-      iPrint('> ws: 消息入队（当前队列长度：${_messageQueue.messages.length}）');
-    }
+    } catch (_) {}
+    _messageQueue.enqueue(msgId, message, priority: 0);
+    iPrint('> ws: 消息入队（当前队列长度：${_messageQueue.messages.length}）');
   }
 
   void _cancelStream() {
@@ -1157,21 +1130,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 获取WebSocket URL
   /// Get WebSocket URL
-  String? getWebSocketUrl() {
-    return Env.effectiveWsUrl;
-  }
+  String? getWebSocketUrl() => Env.effectiveWsUrl;
 
   /// 获取消息队列大小
   /// Get message queue size
-  int getMessageQueueSize() {
-    return _messageQueue.messages.length;
-  }
+  int getMessageQueueSize() => _messageQueue.messages.length;
 
   /// 获取待确认消息数量
   /// Get pending message count
-  int getPendingMessageCount() {
-    return _pendingMessages.length;
-  }
+  int getPendingMessageCount() => _pendingMessages.length;
 
   /// 获取连接统计信息
   /// Get connection statistics
@@ -1188,9 +1155,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 获取待确认消息列表（用于调试）
   /// Get pending messages list (for debugging)
-  List<String> getPendingMessages() {
-    return List<String>.from(_pendingMessages);
-  }
+  List<String> getPendingMessages() => List<String>.from(_pendingMessages);
 
   /// 清理过期的待确认消息
   /// Clean up expired pending messages
