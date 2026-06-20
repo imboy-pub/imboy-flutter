@@ -5,7 +5,7 @@ import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
 import 'package:amap_flutter_location_plus/amap_flutter_location_plus.dart';
 import 'package:amap_flutter_location_plus/amap_location_option.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 
 import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -68,6 +68,9 @@ class AMapHelper {
       final errorCode = result['errorCode'];
 
       if (errorCode != null && errorCode != 0) {
+        debugPrint(
+          '[AMap] 定位失败 errorCode=$errorCode errorInfo=${result['errorInfo']}',
+        );
         if (!completer.isCompleted) {
           completer.complete(null);
         }
@@ -81,12 +84,14 @@ class AMapHelper {
 
       // 【增强】检查坐标有效性
       if (latitude == 0.0 && longitude == 0.0) {
+        debugPrint('[AMap] 返回无效坐标(0,0) errorInfo=${result['errorInfo']}');
         if (!completer.isCompleted) {
           completer.complete(null);
         }
         stopLocation(location);
         return;
       }
+      debugPrint('[AMap] 定位成功 lat=$latitude lng=$longitude');
 
       AMapPosition p = AMapPosition(
         latLng: LatLng(latitude, longitude),
@@ -156,6 +161,7 @@ class AMapHelper {
 
     // 1. 检查权限
     bool p = await requestLocationPermission();
+    debugPrint('[AMap] 权限/定位服务检查结果 = $p');
     if (!p) {
       return null;
     }

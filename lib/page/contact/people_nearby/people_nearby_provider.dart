@@ -130,36 +130,44 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       return;
     }
 
-    int radius = 500000;
-    // 获取附近的人
-    Map<String, dynamic>? payload = await LocationApi().peopleNearby(
-      longitude: state.longitude, // 经度
-      latitude: state.latitude, // 维度
-      radius: radius,
-      unit: 'm',
-    );
+    state = state.copyWith(isLoading: true);
+    try {
+      int radius = 500000;
+      // 获取附近的人
+      Map<String, dynamic>? payload = await LocationApi().peopleNearby(
+        longitude: state.longitude, // 经度
+        latitude: state.latitude, // 维度
+        radius: radius,
+        unit: 'm',
+      );
 
-    if (payload == null) {
-      return;
-    }
-    List<Map<String, dynamic>> li = await ContactRepo().selectFriend(
-      columns: [ContactRepo.peerId],
-    );
-    List<String> friendUidList = [];
-    for (var f in li) {
-      friendUidList.add(f[ContactRepo.peerId] as String);
-    }
-
-    List<PeopleModel> l = [];
-    for (var json in (payload['list'] as List)) {
-      json['unit'] = payload['unit'];
-      PeopleModel model = PeopleModel.fromJson(json as Map<String, dynamic>);
-      if (json['id'] != UserRepoLocal.to.currentUid) {
-        model.isFriend = friendUidList.contains(json['id']);
-        l.add(model);
+      if (payload == null) {
+        return;
       }
+      List<Map<String, dynamic>> li = await ContactRepo().selectFriend(
+        columns: [ContactRepo.peerId],
+      );
+      List<String> friendUidList = [];
+      for (var f in li) {
+        // peer_id 在 SQLite 中为整型(TSID)，统一 toString 比较，避免 as String 崩溃
+        friendUidList.add(f[ContactRepo.peerId].toString());
+      }
+
+      List<PeopleModel> l = [];
+      for (var json in (payload['list'] as List)) {
+        json['unit'] = payload['unit'];
+        // 后端 id 以 JSON integer(TSID) 返回，统一按 String 比较（排除自己 + isFriend）
+        final String pid = (json['uid'] ?? json['id']).toString();
+        PeopleModel model = PeopleModel.fromJson(json as Map<String, dynamic>);
+        if (pid != UserRepoLocal.to.currentUid) {
+          model.isFriend = friendUidList.contains(pid);
+          l.add(model);
+        }
+      }
+      updatePeopleList(l);
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
-    updatePeopleList(l);
   }
 
   /// 让自己可见

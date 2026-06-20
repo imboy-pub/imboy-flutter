@@ -5,13 +5,13 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/people_model.dart';
 
 import 'people_nearby_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 附近的人页面 - 像素级对齐 iOS 17 Premium 风格
 class PeopleNearbyPage extends ConsumerStatefulWidget {
@@ -53,6 +53,13 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
     }
   }
 
+  /// 触发"附近的人"刷新：指南针旋转动画 + 重新拉取列表。
+  /// 供右上角刷新按钮与中部大指南针图标共用（点击指南针即可加载/刷新下方数据）。
+  void _refreshNearby() {
+    _rotateCompass();
+    ref.read(peopleNearbyProvider.notifier).peopleNearby();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(peopleNearbyProvider);
@@ -63,16 +70,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
     return IosPageTemplate(
       title: t.discovery.peopleNearby,
       useLargeTitle: false,
-      actions: [
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () {
-            _rotateCompass();
-            notifier.peopleNearby();
-          },
-          child: const Icon(CupertinoIcons.refresh, size: 22),
-        ),
-      ],
+      actions: const [],
       slivers: [
         // 搜索区域 Section - 增强视觉重感
         SliverToBoxAdapter(
@@ -208,14 +206,19 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
         ),
         child: Column(
           children: [
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) => Transform.rotate(
-                angle: _animationController.value * 6.28318,
-                child: Icon(
-                  CupertinoIcons.compass,
-                  color: AppColors.primary,
-                  size: 80,
+            // 点击大指南针即可刷新下方"附近的人"列表（旋转动画反馈）
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _refreshNearby,
+              child: AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) => Transform.rotate(
+                  angle: _animationController.value * 6.28318,
+                  child: const Icon(
+                    CupertinoIcons.compass,
+                    color: AppColors.primary,
+                    size: 80,
+                  ),
                 ),
               ),
             ),
@@ -287,10 +290,46 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return NoDataView(
-      text: t.common.noNearbyPeople,
-      description: t.common.clickSearchButtonToFind,
-      icon: CupertinoIcons.location_circle,
+    // 空状态指南针同样可点击 + 旋转动画：点它即重新搜索附近的人。
+    return Center(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _refreshNearby,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedBuilder(
+              animation: _animationController,
+              builder: (context, child) => Transform.rotate(
+                angle: _animationController.value * 6.28318,
+                child: const Icon(
+                  CupertinoIcons.compass,
+                  color: AppColors.iosGray3,
+                  size: 64,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              t.common.noNearbyPeople,
+              style: TextStyle(
+                fontSize: FontSizeType.subheadline.size,
+                fontWeight: FontWeight.w600,
+                color: AppColors.iosGray,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              t.common.clickSearchButtonToFind,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                color: AppColors.iosGray3,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
