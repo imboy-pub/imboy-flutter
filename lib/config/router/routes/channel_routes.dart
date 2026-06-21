@@ -35,6 +35,15 @@ List<RouteBase> channelRoutes() => [
           child: const ChannelInvitationPage(),
         ),
       ),
+      // 静态路径须放在 /:channelId 之前，否则 /orders 会被当作 channelId
+      GoRoute(
+        path: '/orders',
+        name: 'channel_orders',
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const ChannelOrderListPage(),
+        ),
+      ),
       GoRoute(
         path: '/:channelId',
         name: 'channel_detail',

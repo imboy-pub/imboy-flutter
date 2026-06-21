@@ -125,3 +125,12 @@ shareToChat: 发送给好友
 qrcode: 频道二维码
 qrcodeTips: 二维码$days天内（$date前）有效
 defaultName: 未命名频道
+# 付费频道「我的订单」
+myOrders: 我的订单
+noOrders: 暂无订单记录
+orderValidUntil: 有效期至
+orderStatusPending: 待支付
+orderStatusPaid: 已支付
+orderStatusRefunded: 已退款
+orderStatusCancelled: 已取消
+orderStatusExpired: 已过期

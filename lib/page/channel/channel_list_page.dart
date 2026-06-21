@@ -79,6 +79,15 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
           ),
         ),
         actions: [
+          if (AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder))
+            IconButton(
+              icon: const Icon(Icons.receipt_long_outlined),
+              onPressed: () {
+                context.push('/channel/orders');
+              },
+              tooltip: t.channel.myOrders,
+              color: AppColors.getTextColor(brightness),
+            ),
           if (AppFeatureRegistry.isEnabled(FeatureKeys.channelInvitation))
             IconButton(
               icon: const Icon(Icons.mark_email_unread_outlined),

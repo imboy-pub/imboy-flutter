@@ -822,6 +822,30 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '未命名频道'
 	String get defaultName => '未命名频道';
+
+	/// zh-CN: '我的订单'
+	String get myOrders => '我的订单';
+
+	/// zh-CN: '暂无订单记录'
+	String get noOrders => '暂无订单记录';
+
+	/// zh-CN: '有效期至'
+	String get orderValidUntil => '有效期至';
+
+	/// zh-CN: '待支付'
+	String get orderStatusPending => '待支付';
+
+	/// zh-CN: '已支付'
+	String get orderStatusPaid => '已支付';
+
+	/// zh-CN: '已退款'
+	String get orderStatusRefunded => '已退款';
+
+	/// zh-CN: '已取消'
+	String get orderStatusCancelled => '已取消';
+
+	/// zh-CN: '已过期'
+	String get orderStatusExpired => '已过期';
 }
 
 // Path: chat
@@ -7019,6 +7043,14 @@ extension on Translations {
 			'channel.qrcode' => '频道二维码',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => '二维码${days}天内（${date}前）有效',
 			'channel.defaultName' => '未命名频道',
+			'channel.myOrders' => '我的订单',
+			'channel.noOrders' => '暂无订单记录',
+			'channel.orderValidUntil' => '有效期至',
+			'channel.orderStatusPending' => '待支付',
+			'channel.orderStatusPaid' => '已支付',
+			'channel.orderStatusRefunded' => '已退款',
+			'channel.orderStatusCancelled' => '已取消',
+			'channel.orderStatusExpired' => '已过期',
 			'chat.bankCard' => '银行卡',
 			'chat.cards' => '张',
 			'chat.jdShopping' => '京东购物',
@@ -7276,6 +7308,8 @@ extension on Translations {
 			'chat.e2eeSocialCreateShardsTitle' => '创建恢复分片',
 			'chat.e2eeSocialCreateShardsDesc' => '将密钥分割成多个分片，存储到代理设备（服务端不保存）',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '请选择至少 ${count} 个代理',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeRecreatingKey' => '正在重新创建密钥...',
 			'chat.e2eeKeyRecreated' => '密钥已重新创建',
 			'chat.e2eeRecoveryNewDeviceTitle' => '检测到新设备登录',
@@ -7284,8 +7318,6 @@ extension on Translations {
 			'chat.e2eeRecoveryDecryptFailedBody' => '此消息由其他设备的密钥加密。\n\n若你更换了设备或重新安装了应用，请恢复加密密钥后再查看历史消息。',
 			'chat.e2eeRecoveryLater' => '稍后',
 			'chat.e2eeRecoveryGoRecover' => '去恢复',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeRecoveryBannerText' => '检测到加密历史消息，需恢复密钥后才能查看，点击前往恢复',
 			'chat.liveRoomCreateTitle' => '创建直播间',
 			'chat.liveRoomCreating' => '创建中...',
@@ -7790,6 +7822,8 @@ extension on Translations {
 			'common.selectExpirationDateOptional' => '选择有效期（可选）',
 			'common.groupAnnouncementDeleteConfirm' => '确定要删除这条公告吗？',
 			'common.groupAnnouncementDelete' => '删除',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementLoadFailed' => '公告加载失败，请稍后重试',
 			'common.groupAnnouncementPublishFailed' => '公告发布失败',
 			'common.groupAnnouncementPublishSuccess' => '公告已发布',
@@ -7798,8 +7832,6 @@ extension on Translations {
 			'common.privacyClearChatHistory' => '清除聊天记录',
 			'common.privacyClearChatHistoryConfirm' => '确定要清除所有聊天记录吗？此操作不可恢复。',
 			'common.privacyLogoutAccountConfirm' => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。',
-			_ => null,
-		} ?? switch (path) {
 			'common.privacySettings' => '隐私设置',
 			'common.searchSettings' => '搜索设置',
 			'common.allowSearchByAccount' => '允许通过账号搜索',
@@ -8304,6 +8336,8 @@ extension on Translations {
 			'common.e2eeTransferUidEmptyError' => '请输入有效的用户 ID',
 			'common.e2eeTransferSuccess' => '传输成功！',
 			'common.e2eeTransferFailed' => '传输失败，请重试',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferProcessingMsg' => '处理中...',
 			'common.e2eeTransferSuccessTitle' => '传输成功',
 			'common.e2eeTransferSuccessBody' => '密钥已成功传输到当前设备',
@@ -8312,8 +8346,6 @@ extension on Translations {
 			'common.passwordEncryptFailed' => '密码加密失败',
 			'common.initConfigTimeout' => '配置获取超时: 请检查网络连接或服务端状态',
 			'common.initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigProtocolError' => '服务故障协议有误',
 			'common.initConfigFetchFailed' => '配置获取失败，请检查网络连接',
 			'common.attachmentGetFileFailed' => '无法获取文件，请重试或使用相册选择',
@@ -8818,6 +8850,8 @@ extension on Translations {
 			'main.e2eeDangerousOps' => '危险操作',
 			'main.e2eeSocialRecovery' => '社交恢复',
 			'main.e2eeSocialRecoveryDesc' => '通过信任的联系人协助恢复密钥',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeKeyIdLabel' => '密钥 ID',
 			'main.e2eeWarnIrreversible' => '• 此操作不可撤销',
 			'main.e2eeWarnNeedRestoreOrNew' => '• 需要从备份恢复或生成新密钥',
@@ -8826,8 +8860,6 @@ extension on Translations {
 			'main.e2eeCanRecoverKey' => '可以恢复密钥',
 			'main.e2eeInsufficientShards' => '分片数量不足',
 			'main.e2eeProxyUser' => ({required Object uid}) => '代理用户: ${uid}',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '分片 ${index} / ${total}',
 			'main.e2eeReloadShards' => '重新加载',
 			'main.e2eeRecovering' => '恢复中...',
