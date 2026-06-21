@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -9,6 +10,7 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
+import 'channel_order_status_ui.dart';
 import 'channel_purchase_provider.dart' show channelOrderApiProvider;
 
 /// 付费频道「我的订单」数据源。
@@ -91,90 +93,96 @@ class _OrderTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.t;
     final brightness = Theme.of(context).brightness;
-    final (label, color) = _statusOf(order.status, t);
+    final (label, color) = channelOrderStatusStyle(order.status, t);
     final title = (order.channelName == null || order.channelName!.isEmpty)
         ? '#${order.channelId}'
         : order.channelName!;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.getSurfaceColor(brightness),
-        borderRadius: AppRadius.card,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: AppColors.primaryLight,
-              shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: () => context.push('/channel/order/${order.orderNo}'),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.getSurfaceColor(brightness),
+          borderRadius: AppRadius.card,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: AppColors.primaryLight,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.campaign_outlined,
+                size: 22,
+                color: AppColors.primary,
+              ),
             ),
-            child: const Icon(
-              Icons.campaign_outlined,
-              size: 22,
-              color: AppColors.primary,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyle(
+                      FontSizeType.subheadline,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.getTextColor(brightness),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _subtitle(t),
+                    style: context.textStyle(
+                      FontSizeType.small,
+                      color: AppColors.slateText,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  '¥${order.amount.toStringAsFixed(2)}',
                   style: context.textStyle(
                     FontSizeType.subheadline,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.getTextColor(brightness),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  _subtitle(t),
-                  style: context.textStyle(
-                    FontSizeType.small,
-                    color: AppColors.slateText,
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    label,
+                    style: context.textStyle(
+                      FontSizeType.caption2,
+                      fontWeight: FontWeight.w600,
+                      color: color,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '¥${order.amount.toStringAsFixed(2)}',
-                style: context.textStyle(
-                  FontSizeType.subheadline,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.getTextColor(brightness),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  label,
-                  style: context.textStyle(
-                    FontSizeType.caption2,
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -187,29 +195,4 @@ class _OrderTile extends StatelessWidget {
     return '$created · ${t.channel.orderValidUntil} '
         '${end.toString().split(' ').first}';
   }
-
-  static (String, Color) _statusOf(int status, Translations t) =>
-      switch (status) {
-        ChannelOrderStatus.paid => (
-          t.channel.orderStatusPaid,
-          AppColors.success,
-        ),
-        ChannelOrderStatus.pending => (
-          t.channel.orderStatusPending,
-          AppColors.warning,
-        ),
-        ChannelOrderStatus.refunded => (
-          t.channel.orderStatusRefunded,
-          AppColors.iosRed,
-        ),
-        ChannelOrderStatus.cancelled => (
-          t.channel.orderStatusCancelled,
-          AppColors.slateText,
-        ),
-        ChannelOrderStatus.expired => (
-          t.channel.orderStatusExpired,
-          AppColors.slateText,
-        ),
-        _ => (t.channel.orderStatusPending, AppColors.slateText),
-      };
 }

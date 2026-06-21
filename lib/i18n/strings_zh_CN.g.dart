@@ -846,6 +846,54 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '已过期'
 	String get orderStatusExpired => '已过期';
+
+	/// zh-CN: '订单详情'
+	String get orderDetail => '订单详情';
+
+	/// zh-CN: '订单号'
+	String get orderNo => '订单号';
+
+	/// zh-CN: '频道'
+	String get orderChannel => '频道';
+
+	/// zh-CN: '金额'
+	String get orderAmount => '金额';
+
+	/// zh-CN: '状态'
+	String get orderStatusLabel => '状态';
+
+	/// zh-CN: '支付方式'
+	String get orderPaymentMethod => '支付方式';
+
+	/// zh-CN: '下单时间'
+	String get orderCreatedAt => '下单时间';
+
+	/// zh-CN: '支付时间'
+	String get orderPaidAt => '支付时间';
+
+	/// zh-CN: '订阅周期'
+	String get orderSubscriptionPeriod => '订阅周期';
+
+	/// zh-CN: '钱包余额'
+	String get payWallet => '钱包余额';
+
+	/// zh-CN: '支付宝'
+	String get payAlipay => '支付宝';
+
+	/// zh-CN: '微信支付'
+	String get payWechat => '微信支付';
+
+	/// zh-CN: '申请退款'
+	String get refundApply => '申请退款';
+
+	/// zh-CN: '确认退款'
+	String get refundConfirmTitle => '确认退款';
+
+	/// zh-CN: '确定要对该订单申请退款吗？退款后将取消订阅。'
+	String get refundConfirmMessage => '确定要对该订单申请退款吗？退款后将取消订阅。';
+
+	/// zh-CN: '退款申请已提交'
+	String get refundSuccess => '退款申请已提交';
 }
 
 // Path: chat
@@ -7051,6 +7099,22 @@ extension on Translations {
 			'channel.orderStatusRefunded' => '已退款',
 			'channel.orderStatusCancelled' => '已取消',
 			'channel.orderStatusExpired' => '已过期',
+			'channel.orderDetail' => '订单详情',
+			'channel.orderNo' => '订单号',
+			'channel.orderChannel' => '频道',
+			'channel.orderAmount' => '金额',
+			'channel.orderStatusLabel' => '状态',
+			'channel.orderPaymentMethod' => '支付方式',
+			'channel.orderCreatedAt' => '下单时间',
+			'channel.orderPaidAt' => '支付时间',
+			'channel.orderSubscriptionPeriod' => '订阅周期',
+			'channel.payWallet' => '钱包余额',
+			'channel.payAlipay' => '支付宝',
+			'channel.payWechat' => '微信支付',
+			'channel.refundApply' => '申请退款',
+			'channel.refundConfirmTitle' => '确认退款',
+			'channel.refundConfirmMessage' => '确定要对该订单申请退款吗？退款后将取消订阅。',
+			'channel.refundSuccess' => '退款申请已提交',
 			'chat.bankCard' => '银行卡',
 			'chat.cards' => '张',
 			'chat.jdShopping' => '京东购物',
@@ -7292,6 +7356,8 @@ extension on Translations {
 			'chat.webQRStatusScanned' => '请在手机上点击"确认登录"',
 			'chat.webQRStatusVerifying' => '正在验证...',
 			'chat.webQRStatusExpired' => '请点击刷新重新扫码',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeErrInvalidFormat' => '消息格式错误，加密失败',
 			'chat.e2eeSocialCreateTitle' => '创建恢复分片',
 			'chat.e2eeSocialCreateBtn' => '创建分片',
@@ -7308,8 +7374,6 @@ extension on Translations {
 			'chat.e2eeSocialCreateShardsTitle' => '创建恢复分片',
 			'chat.e2eeSocialCreateShardsDesc' => '将密钥分割成多个分片，存储到代理设备（服务端不保存）',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '请选择至少 ${count} 个代理',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeRecreatingKey' => '正在重新创建密钥...',
 			'chat.e2eeKeyRecreated' => '密钥已重新创建',
 			'chat.e2eeRecoveryNewDeviceTitle' => '检测到新设备登录',
@@ -7806,6 +7870,8 @@ extension on Translations {
 			'common.verificationCode' => '验证码',
 			'common.feedbackContent' => '反馈内容',
 			'common.officialReply' => '官方回复',
+			_ => null,
+		} ?? switch (path) {
 			'common.setPasswordSecurityTips' => '为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。',
 			'common.locationHidden' => '已隐藏您的位置',
 			'common.locationVisible' => '已显示您的位置',
@@ -7822,8 +7888,6 @@ extension on Translations {
 			'common.selectExpirationDateOptional' => '选择有效期（可选）',
 			'common.groupAnnouncementDeleteConfirm' => '确定要删除这条公告吗？',
 			'common.groupAnnouncementDelete' => '删除',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementLoadFailed' => '公告加载失败，请稍后重试',
 			'common.groupAnnouncementPublishFailed' => '公告发布失败',
 			'common.groupAnnouncementPublishSuccess' => '公告已发布',
@@ -8320,6 +8384,8 @@ extension on Translations {
 			'common.e2eeSocialAddProxyHint' => '请添加代理联系人',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '请先添加 ${count} 个代理',
 			'common.e2eeSocialCreateSuccessTitle' => '分片创建成功',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '密钥已分割成 ${count} 个分片',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '需要 ${count} 个代理协助即可恢复密钥',
 			'common.e2eeSocialZeroTrustNote' => '零信任架构：服务端不保存任何分片',
@@ -8336,8 +8402,6 @@ extension on Translations {
 			'common.e2eeTransferUidEmptyError' => '请输入有效的用户 ID',
 			'common.e2eeTransferSuccess' => '传输成功！',
 			'common.e2eeTransferFailed' => '传输失败，请重试',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferProcessingMsg' => '处理中...',
 			'common.e2eeTransferSuccessTitle' => '传输成功',
 			'common.e2eeTransferSuccessBody' => '密钥已成功传输到当前设备',
@@ -8834,6 +8898,8 @@ extension on Translations {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '当前长度：${param1} / ${param2}',
 			'main.fillIn' => '填入',
 			'main.msgProtectedByComplianceKey' => '消息受合规密钥保护',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => '邀请人: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '被邀请人: ${uid}',
 			'main.mySentTab' => '我发出的',
@@ -8850,8 +8916,6 @@ extension on Translations {
 			'main.e2eeDangerousOps' => '危险操作',
 			'main.e2eeSocialRecovery' => '社交恢复',
 			'main.e2eeSocialRecoveryDesc' => '通过信任的联系人协助恢复密钥',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeKeyIdLabel' => '密钥 ID',
 			'main.e2eeWarnIrreversible' => '• 此操作不可撤销',
 			'main.e2eeWarnNeedRestoreOrNew' => '• 需要从备份恢复或生成新密钥',

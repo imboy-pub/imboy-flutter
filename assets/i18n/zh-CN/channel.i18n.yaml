@@ -134,3 +134,20 @@ orderStatusPaid: 已支付
 orderStatusRefunded: 已退款
 orderStatusCancelled: 已取消
 orderStatusExpired: 已过期
+# 订单详情 + 退款
+orderDetail: 订单详情
+orderNo: 订单号
+orderChannel: 频道
+orderAmount: 金额
+orderStatusLabel: 状态
+orderPaymentMethod: 支付方式
+orderCreatedAt: 下单时间
+orderPaidAt: 支付时间
+orderSubscriptionPeriod: 订阅周期
+payWallet: 钱包余额
+payAlipay: 支付宝
+payWechat: 微信支付
+refundApply: 申请退款
+refundConfirmTitle: 确认退款
+refundConfirmMessage: 确定要对该订单申请退款吗？退款后将取消订阅。
+refundSuccess: 退款申请已提交

@@ -45,6 +45,17 @@ List<RouteBase> channelRoutes() => [
         ),
       ),
       GoRoute(
+        path: '/order/:orderNo',
+        name: 'channel_order_detail',
+        pageBuilder: (context, state) {
+          final orderNo = state.pathParameters['orderNo']!;
+          return CupertinoPage(
+            key: state.pageKey,
+            child: ChannelOrderDetailPage(orderNo: orderNo),
+          );
+        },
+      ),
+      GoRoute(
         path: '/:channelId',
         name: 'channel_detail',
         pageBuilder: (context, state) {

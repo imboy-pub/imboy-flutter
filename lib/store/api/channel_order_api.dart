@@ -71,4 +71,22 @@ class ChannelOrderApi extends HttpClient {
     }
     return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
   }
+
+  /// 申请退款。仅已支付订单可退；成功后端置为已退款并返回空对象。
+  ///
+  /// [reason] 退款原因，可空（后端有默认值）。返回是否受理成功。
+  Future<bool> refundOrder(String orderNo, {String? reason}) async {
+    IMBoyHttpResponse resp = await post(
+      API.channelOrderRefund,
+      data: {
+        'order_no': orderNo,
+        if (reason != null && reason.isNotEmpty) 'refund_reason': reason,
+      },
+    );
+    if (!resp.ok) {
+      EasyLoading.showError(resp.msg);
+      return false;
+    }
+    return true;
+  }
 }
