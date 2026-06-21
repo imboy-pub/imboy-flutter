@@ -1,0 +1,18 @@
+# 白标配置 / White-label config
+# 改完本文件后运行 / After editing, run:
+#   dart run scripts/apply_brand.dart
+#
+# 脚本会把下列值打进原生工程与 Dart 源码（幂等，可重复运行）。
+
+# 应用显示名（桌面图标下方文字，iOS + Android）
+app_name: IMBoy
+
+# 品牌主色 (ARGB hex, 0xAARRGGBB) —— 写进 AppColors.primary
+primary_color: 0xFF2474E5
+
+# 生产 API 域名（结尾不要 /）
+api_base_url: https://pro.imboy.pub
+
+# 公开资源直读域名（头像/表情，结尾不要 /）。生产由服务端 /v1/init 下发，
+# 此处仅作首次启动 init 完成前的占位默认值。
+public_base_url: https://s3.imboy.pub
