@@ -27,7 +27,9 @@ class VideoQualityConfig {
   static const int minVideoHeight = 720;
 
   /// 最小帧率（fps）
-  static const int minFrameRate = 60;
+  /// ⚠️ 不得超过 30：iOS AVCaptureDevice 前置相机仅支持 1-30fps，
+  /// 设为 60 会触发 setActiveVideoMaxFrameDuration 崩溃（NSInvalidArgumentException）。
+  static const int minFrameRate = 30;
 }
 
 /// DataChannel 配置

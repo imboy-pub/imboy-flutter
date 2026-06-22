@@ -842,7 +842,12 @@ class MessageRepo implements MessageRepository {
           }
 
           // 解析消息负载
+          // E2EE 消息的 payload 是密文字符串（base64(nonce).base64(ciphertext)），
+          // 非 JSON。此处禁止 json.decode，否则会抛 FormatException 并把密文丢成 {}，
+          // 导致离线加密消息内容永久丢失。密文原样落库，由读取路径
+          // MessageModelMapper.toTypeMessage() 解密（decrypt-on-read）。
           Map<String, dynamic> payload = {};
+          String? rawPayloadCipher; // 非空表示原始密文/非 JSON 字符串，原样落库
           final payloadRaw = msgData['payload'];
           if (payloadRaw is Map) {
             payload = payloadRaw.cast<String, dynamic>();
@@ -851,9 +856,12 @@ class MessageRepo implements MessageRepository {
               final decoded = json.decode(payloadRaw);
               if (decoded is Map) {
                 payload = decoded.cast<String, dynamic>();
+              } else {
+                rawPayloadCipher = payloadRaw;
               }
-            } on Object catch (e, s) {
-              AppLogger.error('[message_repo_sqlite] decode error', e, s);
+            } on FormatException {
+              // 非 JSON：E2EE 密文等，原样保留供读取路径解密，不丢内容、不刷屏
+              rawPayloadCipher = payloadRaw;
             }
           }
 
@@ -919,7 +927,7 @@ class MessageRepo implements MessageRepository {
             MessageRepo.type: type,
             MessageRepo.from: fromId,
             MessageRepo.to: toId,
-            MessageRepo.payload: json.encode(payload),
+            MessageRepo.payload: rawPayloadCipher ?? json.encode(payload),
             MessageRepo.createdAt: createdAt,
             MessageRepo.isAuthor: isAuthor ? 1 : 0,
             MessageRepo.topicId: topicId,

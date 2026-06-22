@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'contact_setting_tag_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -107,19 +108,17 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
             header: Text(t.contact.remark.toUpperCase()),
             children: [
               CupertinoListTile.notched(
-                title: Expanded(
-                  child: CupertinoTextField(
-                    controller: controller.remarkTextController,
-                    focusNode: controller.remarkFocusNode,
-                    autofocus: true,
-                    maxLength: 40,
-                    placeholder: t.contact.remark,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: null,
-                    style: const TextStyle(fontSize: 16),
-                    onChanged: (v) => controller.valueOnChange(
-                      v.trim().isNotEmpty && widget.peerRemark != v,
-                    ),
+                title: CupertinoTextField(
+                  controller: controller.remarkTextController,
+                  focusNode: controller.remarkFocusNode,
+                  autofocus: true,
+                  maxLength: 40,
+                  placeholder: t.contact.remark,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: null,
+                  style: TextStyle(fontSize: FontSizeType.medium.size),
+                  onChanged: (v) => controller.valueOnChange(
+                    v.trim().isNotEmpty && widget.peerRemark != v,
                   ),
                 ),
               ),

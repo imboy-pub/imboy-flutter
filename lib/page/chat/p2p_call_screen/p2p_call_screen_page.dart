@@ -81,6 +81,19 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 尊重系统“减弱动态效果”(WCAG 2.3.3): 关闭无限呼吸动画，定格稳态光环。
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+    if (reduceMotion && _pulse.isAnimating) {
+      _pulse.stop();
+      _pulse.value = 0.5;
+    } else if (!reduceMotion && !_pulse.isAnimating) {
+      _pulse.repeat(reverse: true);
+    }
+  }
+
+  @override
   void dispose() {
     // 在 dispose 之前发送 bye 消息通知对方（用缓存的 notifier，勿用 ref）
     if (msgId.isNotEmpty) {
@@ -752,6 +765,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                 : RTCVideoView(
                     switchRenderer ? localRenderer : remoteRenderer,
                     objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                    // ponytail: 前置自视图镜像; 显示本地渲染器时才镜像。
+                    // 切后置摄像头的去镜像暂未跟踪 facing, 真机批次再补。
+                    mirror: switchRenderer,
                   ),
           ),
         ),
@@ -767,6 +783,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
         child: RTCVideoView(
           switchRenderer ? remoteRenderer : localRenderer,
           objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+          // ponytail: 铺满显示本地渲染器(已切换)时镜像前置自视图。
+          mirror: !switchRenderer,
         ),
       ),
     );
@@ -952,7 +970,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     // 控件可见性：音频/呼出常驻；接通视频点屏切换。淡入淡出替代硬切。
     final bool toolsVisible = !hasRemoteVideo || state.showTool;
 
-    return Scaffold(
+    final scaffold = Scaffold(
       backgroundColor: CallTokens.black,
       body: Stack(
         children: [
@@ -982,6 +1000,17 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           _buildControlBar(state, visible: toolsVisible),
         ],
       ),
+    );
+
+    // 入场淡入（FaceTime 进场观感）；Reduce Motion 时瞬时呈现。
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: MediaQuery.of(context).disableAnimations
+          ? Duration.zero
+          : const Duration(milliseconds: 260),
+      curve: Curves.easeOut,
+      builder: (_, value, child) => Opacity(opacity: value, child: child),
+      child: scaffold,
     );
   }
 }

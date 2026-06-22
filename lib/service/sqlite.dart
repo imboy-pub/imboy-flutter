@@ -56,8 +56,16 @@ class SqliteService {
   /// 获取数据库连接实例
   /// Get the database connection instance
   Future<Database?> get db async {
-    if (_db != null) return _db;
+    // 仅当缓存句柄仍处于打开状态才复用。迁移回滚等路径可能在 SqliteService
+    // 之外关闭底层 Database（见 migration_service._restoreFromSnapshot）却未重置
+    // _db，旧逻辑会派发已关闭句柄导致 database_closed 刷屏。此处改为按 isOpen
+    // 判断并自动重开。
+    final cached = _db;
+    if (cached != null && cached.isOpen) return cached;
     return await _initLock.synchronized(() async {
+      // 双重检查：可能已被其它等待者重开
+      final c = _db;
+      if (c != null && c.isOpen) return c;
       _db = await _initDatabase();
       return _db;
     });
