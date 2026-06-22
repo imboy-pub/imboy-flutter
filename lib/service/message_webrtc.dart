@@ -114,8 +114,11 @@ class MessageWebrtc {
           changeLocalMsgState(id, 4);
         }
         webrtcMsgIds.clear();
-        // Close dialogs using navigatorKey
-        if (navigatorKey.currentContext != null) {
+        // 关闭来电对话框（incomingCallScreen 是 showDialog 路由）。
+        // ⚠️ 必须用 canPop 守卫：通话已进入 OverlayEntry（非路由）时无对话框
+        // 可弹，裸 pop 会弹掉最后一个 go_router 页面并触发断言崩溃；
+        // 此时通话页 overlay 由其自身 BYE 处理（closePage）负责关闭。
+        if (navigatorKey.currentState?.canPop() ?? false) {
           navigatorKey.currentState?.pop();
         }
         gTimer?.cancel();

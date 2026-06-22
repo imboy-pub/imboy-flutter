@@ -66,4 +66,30 @@ void main() {
     await tester.tap(find.byIcon(Icons.phone));
     expect(accepted, isTrue);
   });
+
+  testWidgets('Reduce Motion: 关闭呼吸动画(pumpAndSettle 不挂起)', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          // disableAnimations=true → 无限呼吸动画应被停止
+          data: const MediaQueryData(
+            size: Size(400, 800),
+            disableAnimations: true,
+          ),
+          child: const IncomingCallView(
+            avatar: '',
+            nickname: '张三',
+            media: 'video',
+            onAccept: _noop,
+            onDecline: _noop,
+          ),
+        ),
+      ),
+    );
+    // 若呼吸动画未被停止, pumpAndSettle 会因无限动画超时失败。
+    await tester.pumpAndSettle();
+    expect(find.text('张三'), findsOneWidget);
+  });
 }
+
+void _noop() {}

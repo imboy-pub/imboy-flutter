@@ -48,6 +48,19 @@ class _IncomingCallViewState extends State<IncomingCallView>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 尊重系统“减弱动态效果”(WCAG 2.3.3): 关闭无限呼吸动画，定格稳态光环。
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+    if (reduceMotion && _pulse.isAnimating) {
+      _pulse.stop();
+      _pulse.value = 0.5;
+    } else if (!reduceMotion && !_pulse.isAnimating) {
+      _pulse.repeat(reverse: true);
+    }
+  }
+
+  @override
   void dispose() {
     _pulse.dispose();
     super.dispose();
