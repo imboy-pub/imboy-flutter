@@ -148,8 +148,9 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                       ),
                       selected: _selectedMethod == 'alipay',
                       onSelected: (selected) {
-                        if (selected)
+                        if (selected) {
                           setState(() => _selectedMethod = 'alipay');
+                        }
                       },
                     ),
                   ),
@@ -170,8 +171,9 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                       ),
                       selected: _selectedMethod == 'wechat',
                       onSelected: (selected) {
-                        if (selected)
+                        if (selected) {
                           setState(() => _selectedMethod = 'wechat');
+                        }
                       },
                     ),
                   ),

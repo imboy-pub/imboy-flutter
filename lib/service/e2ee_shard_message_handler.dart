@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:imboy/service/app_logger.dart';
@@ -76,7 +75,11 @@ class E2EEShardMessageHandler {
           break;
       }
     } catch (e, s) {
-      AppLogger.error('[e2ee_shard_message_handler] handle message error', e, s);
+      AppLogger.error(
+        '[e2ee_shard_message_handler] handle message error',
+        e,
+        s,
+      );
     }
   }
 
@@ -126,7 +129,11 @@ class E2EEShardMessageHandler {
             );
           });
     } catch (e, s) {
-      AppLogger.error('[e2ee_shard_message_handler] handleStoreShard error', e, s);
+      AppLogger.error(
+        '[e2ee_shard_message_handler] handleStoreShard error',
+        e,
+        s,
+      );
     }
   }
 
@@ -257,16 +264,28 @@ class E2EEShardMessageHandler {
                   }
                 })
                 .catchError((Object error, StackTrace stackTrace) {
-                  AppLogger.error('[e2ee_shard_message_handler] decrypt error', error, stackTrace);
+                  AppLogger.error(
+                    '[e2ee_shard_message_handler] decrypt error',
+                    error,
+                    stackTrace,
+                  );
                   _sendDecryptShardError(shardId, '解密过程中出错');
                 });
           })
           .catchError((Object error, StackTrace stackTrace) {
-            AppLogger.error('[e2ee_shard_message_handler] getE2EEShard error', error, stackTrace);
+            AppLogger.error(
+              '[e2ee_shard_message_handler] getE2EEShard error',
+              error,
+              stackTrace,
+            );
             _sendDecryptShardError(shardId, '读取分片失败');
           });
     } catch (e, s) {
-      AppLogger.error('[e2ee_shard_message_handler] handleDecryptShard error', e, s);
+      AppLogger.error(
+        '[e2ee_shard_message_handler] handleDecryptShard error',
+        e,
+        s,
+      );
     }
   }
 

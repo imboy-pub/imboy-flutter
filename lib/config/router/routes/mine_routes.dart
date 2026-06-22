@@ -41,8 +41,8 @@ List<RouteBase> mineRoutes() => [
       return CupertinoPage(
         key: state.pageKey,
         child: RedPacketSendPage(
-          chatType: extra?['type'] ?? 'C2C',
-          toUid: extra?['to'] ?? '',
+          chatType: extra?['type'] as String? ?? 'C2C',
+          toUid: extra?['to'] as String? ?? '',
         ),
       );
     },
@@ -54,7 +54,9 @@ List<RouteBase> mineRoutes() => [
       final extra = state.extra as Map<String, dynamic>?;
       return CupertinoPage(
         key: state.pageKey,
-        child: RedPacketDetailPage(packetId: extra?['packetId'] ?? ''),
+        child: RedPacketDetailPage(
+          packetId: extra?['packetId'] as String? ?? '',
+        ),
       );
     },
   ),
@@ -65,7 +67,7 @@ List<RouteBase> mineRoutes() => [
       final extra = state.extra as Map<String, dynamic>?;
       return CupertinoPage(
         key: state.pageKey,
-        child: TransferSendPage(toUid: extra?['to'] ?? ''),
+        child: TransferSendPage(toUid: extra?['to'] as String? ?? ''),
       );
     },
   ),

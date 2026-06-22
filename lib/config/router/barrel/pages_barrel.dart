@@ -21,7 +21,6 @@ export 'package:imboy/page/web_shell/web_shell.dart';
 // 会话和聊天
 // ============================================================================
 export 'package:imboy/page/conversation/conversation_page.dart';
-export 'package:imboy/page/conversation/web_conversation_page.dart'; // Web 会话列表
 export 'package:imboy/page/chat/chat/chat_page.dart';
 export 'package:imboy/page/chat/send_to/send_to_page.dart';
 export 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
