@@ -199,17 +199,16 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
 
   @override
   MessageSearchState build() {
-    _loadSearchHistory();
-    return const MessageSearchState();
+    // build() 内禁止读写 state（此时 provider 尚未初始化），
+    // 直接把历史记录算好作为初始状态返回。
+    return MessageSearchState(searchHistory: _loadSearchHistory());
   }
 
-  void _loadSearchHistory() {
+  List<String> _loadSearchHistory() {
     try {
-      final history =
-          StorageService.to.getStringList(_messageSearchHistoryKey) ?? [];
-      state = state.copyWith(searchHistory: history);
+      return StorageService.to.getStringList(_messageSearchHistoryKey) ?? [];
     } on Exception {
-      state = state.copyWith(searchHistory: []);
+      return [];
     }
   }
 

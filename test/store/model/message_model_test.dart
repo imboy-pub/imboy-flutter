@@ -344,6 +344,26 @@ void main() {
       expect(model.e2ee?['algorithm'], 'xchacha20');
     });
   });
+
+  // 钉死离线 E2EE 修复依赖的读路径不变量：batchInsertOfflineMessages 现把密文
+  // （非 JSON 字符串）原样落库，fromJson 必须保留为 String 供 decrypt-on-read，
+  // 否则强转 {} 会丢失加密消息内容。
+  group('MessageModel TDD Tests - E2EE 密文 payload 往返', () {
+    test('非 JSON 密文 payload 保留为 String', () {
+      const cipher = 'aBc123.XyZ789=='; // base64(nonce).base64(ciphertext)
+      final model = MessageModel.fromJson({
+        'id': 'm1',
+        'type': 'C2C',
+        'from': 1,
+        'to': 2,
+        'payload': cipher,
+        'e2ee': '{"e2ee":true}',
+      });
+
+      expect(model.payload, isA<String>());
+      expect(model.payload, cipher);
+    });
+  });
 }
 
 // Helper function to parse JSON
