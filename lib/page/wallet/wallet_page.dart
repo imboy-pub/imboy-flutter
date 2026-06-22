@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/service/payment_launcher.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -143,6 +144,29 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     );
   }
 
+  /// 钱包更多操作菜单。当前仅「提现」一项（后端 withdraw 已就绪，此前钱包
+  /// 首页无任何入口可达 withdraw_page，本菜单为其收口）。
+  void _showMoreSheet(BuildContext context) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.push('/wallet/withdraw');
+            },
+            child: Text(t.common.withdraw),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: Text(t.common.cancel),
+        ),
+      ),
+    );
+  }
+
   /// 执行充值：创建订单 → 拉起支付（mock 即时入账 / 第三方唤起收银台）→ 轮询
   /// → 刷新余额。失败时按第三方唤起结果差异化提示。
   Future<void> _doRecharge(int amountFen, String method) async {
@@ -187,7 +211,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
         CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Icon(CupertinoIcons.ellipsis_circle, size: 22),
-          onPressed: () => EasyLoading.showToast(t.common.comingSoon),
+          onPressed: () => _showMoreSheet(context),
         ),
       ],
       backgroundColor: isDark
