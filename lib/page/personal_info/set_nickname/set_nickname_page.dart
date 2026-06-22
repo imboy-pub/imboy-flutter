@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'set_nickname_provider.dart';
 
@@ -67,23 +68,21 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
             footer: Text(t.account.nicknameRules),
             children: [
               CupertinoListTile.notched(
-                title: Expanded(
-                  child: CupertinoTextField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    maxLength: 24,
-                    autofocus: true,
-                    placeholder: t.account.nicknameHint,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 0,
-                      vertical: 12,
-                    ),
-                    decoration: null,
-                    style: const TextStyle(fontSize: 17),
-                    onChanged: (v) => ref
-                        .read(setNicknameProvider.notifier)
-                        .onNicknameChanged(v, ref),
+                title: CupertinoTextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  maxLength: 24,
+                  autofocus: true,
+                  placeholder: t.account.nicknameHint,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 0,
+                    vertical: 12,
                   ),
+                  decoration: null,
+                  style: TextStyle(fontSize: FontSizeType.body.size),
+                  onChanged: (v) => ref
+                      .read(setNicknameProvider.notifier)
+                      .onNicknameChanged(v, ref),
                 ),
                 trailing: Text(
                   state.remainingChars.toString(),

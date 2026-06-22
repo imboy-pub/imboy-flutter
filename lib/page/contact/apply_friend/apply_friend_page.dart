@@ -6,6 +6,7 @@ import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'apply_friend_provider.dart';
 
 /// 申请添加好友页面 - 像素级对齐 iOS 17 Premium 风格
@@ -63,17 +64,15 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
             header: Text(t.chat.sendFriendRequest.toUpperCase()),
             children: [
               CupertinoListTile.notched(
-                title: Expanded(
-                  child: CupertinoTextField(
-                    controller: _msgC,
-                    placeholder: t.common.pleaseEnterVerificationMessage,
-                    minLines: 3,
-                    maxLines: 5,
-                    maxLength: 100,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: null,
-                    style: const TextStyle(fontSize: 16),
-                  ),
+                title: CupertinoTextField(
+                  controller: _msgC,
+                  placeholder: t.common.pleaseEnterVerificationMessage,
+                  minLines: 3,
+                  maxLines: 5,
+                  maxLength: 100,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: null,
+                  style: TextStyle(fontSize: FontSizeType.medium.size),
                 ),
               ),
             ],
