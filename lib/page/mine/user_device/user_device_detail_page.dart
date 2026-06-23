@@ -128,10 +128,10 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                   children: [
                     Text(
                       _deviceName,
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.large,
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: FontSizeType.large.size,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

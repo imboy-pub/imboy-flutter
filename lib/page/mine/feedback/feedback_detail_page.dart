@@ -109,8 +109,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                                   : widget.model.type == 'feature_request'
                                   ? t.chat.featureRequest
                                   : widget.model.type,
-                              style: TextStyle(
-                                fontSize: FontSizeType.large.size,
+                              style: context.textStyle(
+                                FontSizeType.large,
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),
@@ -118,8 +118,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                             AppSpacing.verticalTiny,
                             Text(
                               '${t.common.submittedAt} ${DateTimeHelper.lastTimeFmt(widget.model.createdAt)}',
-                              style: TextStyle(
-                                fontSize: FontSizeType.normal.size,
+                              style: context.textStyle(
+                                FontSizeType.normal,
                                 color: colorScheme.onSurface.withAlpha(179),
                               ),
                             ),
@@ -140,8 +140,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         ),
                         child: Text(
                           widget.model.statusDesc,
-                          style: TextStyle(
-                            fontSize: FontSizeType.normal.size,
+                          style: context.textStyle(
+                            FontSizeType.normal,
                             fontWeight: FontWeight.w500,
                             color: _getStatusColor(
                               context,
@@ -191,8 +191,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                                   AppSpacing.horizontalSmall,
                                   Text(
                                     t.chat.viewAttachments,
-                                    style: TextStyle(
-                                      fontSize: FontSizeType.normal.size,
+                                    style: context.textStyle(
+                                      FontSizeType.normal,
                                       fontWeight: FontWeight.w500,
                                       color: colorScheme.secondary,
                                     ),
@@ -229,8 +229,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         AppSpacing.horizontalSmall,
                         Text(
                           t.chat.rating,
-                          style: TextStyle(
-                            fontSize: FontSizeType.medium.size,
+                          style: context.textStyle(
+                            FontSizeType.medium,
                             fontWeight: FontWeight.w600,
                             color: colorScheme.onSurface,
                           ),
@@ -238,8 +238,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         AppSpacing.horizontalMedium,
                         Text(
                           '${widget.model.rating} ${widget.model.ratingDesc}',
-                          style: TextStyle(
-                            fontSize: FontSizeType.normal.size,
+                          style: context.textStyle(
+                            FontSizeType.normal,
                             color: colorScheme.onSurface.withAlpha(179),
                           ),
                         ),
@@ -290,8 +290,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       AppSpacing.horizontalSmall,
                       Text(
                         t.common.feedbackContent,
-                        style: TextStyle(
-                          fontSize: FontSizeType.medium.size,
+                        style: context.textStyle(
+                          FontSizeType.medium,
                           fontWeight: FontWeight.w600,
                           color: colorScheme.onSurface,
                         ),
@@ -308,11 +308,12 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                     ),
                     child: Text(
                       widget.model.body,
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
-                        color: colorScheme.onSurface,
-                        height: 1.5,
-                      ),
+                      style: context
+                          .textStyle(
+                            FontSizeType.medium,
+                            color: colorScheme.onSurface,
+                          )
+                          .copyWith(height: 1.5),
                     ),
                   ),
                 ],
@@ -338,8 +339,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       AppSpacing.horizontalSmall,
                       Text(
                         t.common.officialReply,
-                        style: TextStyle(
-                          fontSize: FontSizeType.medium.size,
+                        style: context.textStyle(
+                          FontSizeType.medium,
                           fontWeight: FontWeight.w600,
                           color: colorScheme.onSurface,
                         ),
@@ -413,8 +414,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
               AppSpacing.horizontalSmall,
               Text(
                 '${t.chat.repliedAt} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
-                style: TextStyle(
-                  fontSize: FontSizeType.normal.size,
+                style: context.textStyle(
+                  FontSizeType.normal,
                   fontWeight: FontWeight.w500,
                   color: colorScheme.onSurface,
                 ),
@@ -431,8 +432,8 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                 ),
                 child: Text(
                   replyModel.statusDesc,
-                  style: TextStyle(
-                    fontSize: FontSizeType.small.size,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     fontWeight: FontWeight.w500,
                     color: _getStatusColor(context, replyModel.statusDesc),
                   ),
@@ -453,11 +454,12 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
             ),
             child: Text(
               replyModel.body,
-              style: TextStyle(
-                fontSize: FontSizeType.subheadline.size,
-                color: colorScheme.onSurface,
-                height: 1.4,
-              ),
+              style: context
+                  .textStyle(
+                    FontSizeType.subheadline,
+                    color: colorScheme.onSurface,
+                  )
+                  .copyWith(height: 1.4),
             ),
           ),
         ],

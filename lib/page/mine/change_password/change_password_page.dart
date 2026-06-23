@@ -57,8 +57,8 @@ class ChangePasswordPage extends ConsumerWidget {
                   ),
                   child: Text(
                     t.common.enabled,
-                    style: TextStyle(
-                      fontSize: FontSizeType.small.size,
+                    style: context.textStyle(
+                      FontSizeType.small,
                       fontWeight: FontWeight.w600,
                       color: AppColors.getIosBlue(Theme.of(context).brightness),
                     ),
@@ -171,10 +171,7 @@ class ChangePasswordPage extends ConsumerWidget {
         children: [
           SizedBox(
             width: 80,
-            child: Text(
-              label,
-              style: TextStyle(fontSize: FontSizeType.body.size),
-            ),
+            child: Text(label, style: context.textStyle(FontSizeType.body)),
           ),
           Expanded(
             child: CupertinoTextField(
@@ -186,7 +183,7 @@ class ChangePasswordPage extends ConsumerWidget {
                 vertical: AppSpacing.small,
               ),
               decoration: null,
-              style: TextStyle(fontSize: FontSizeType.body.size),
+              style: context.textStyle(FontSizeType.body),
             ),
           ),
           CupertinoButton(
@@ -236,8 +233,8 @@ class ChangePasswordPage extends ConsumerWidget {
               ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   t.common.buttonSave,
-                  style: TextStyle(
-                    fontSize: FontSizeType.body.size,
+                  style: context.textStyle(
+                    FontSizeType.body,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -267,8 +264,8 @@ class _ValidationRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.iosGray,
               ),
             ),
@@ -281,8 +278,8 @@ class _ValidationRow extends StatelessWidget {
           AppSpacing.horizontalTiny,
           Text(
             text,
-            style: TextStyle(
-              fontSize: FontSizeType.small.size,
+            style: context.textStyle(
+              FontSizeType.small,
               color: color,
               fontWeight: FontWeight.w500,
             ),

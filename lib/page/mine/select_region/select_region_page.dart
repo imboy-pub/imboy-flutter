@@ -134,8 +134,8 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
               provider.selectedVal.isEmpty
                   ? t.common.all
                   : provider.selectedVal,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosGray,
                 fontWeight: FontWeight.w500,
               ),
@@ -174,8 +174,8 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
     return ImBoySettingsTile(
       title: Text(
         title,
-        style: TextStyle(
-          fontSize: FontSizeType.body.size,
+        style: context.textStyle(
+          FontSizeType.body,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
         ),
       ),

@@ -202,9 +202,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                   AppSpacing.horizontalTiny,
                   Text(
                     tag,
-                    style: TextStyle(
+                    style: context.textStyle(
+                      FontSizeType.caption2,
                       color: AppColors.getIosBlue(Theme.of(context).brightness),
-                      fontSize: FontSizeType.caption2.size,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -486,9 +486,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                       AppSpacing.horizontalTiny,
                       Text(
                         t.chat.pinned,
-                        style: TextStyle(
+                        style: context.textStyle(
+                          FontSizeType.caption2,
                           color: AppColors.getIosBlue(brightness),
-                          fontSize: FontSizeType.caption2.size,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -506,8 +506,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                         obj.source,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: FontSizeType.small.size,
+                        style: context.textStyle(
+                          FontSizeType.small,
                           color: AppColors.iosGray,
                         ),
                       ),
@@ -517,8 +517,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                               obj.updatedAt > 0
                           ? DateTimeHelper.lastTimeFmt(obj.updatedAt)
                           : DateTimeHelper.lastTimeFmt(obj.createdAt),
-                      style: TextStyle(
-                        fontSize: FontSizeType.small.size,
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: AppColors.iosGray,
                       ),
                     ),
@@ -663,7 +663,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     t.common.messageContent,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: FontSizeType.normal.size),
+                style: context.textStyle(FontSizeType.normal),
               ),
             ],
           ),
@@ -880,9 +880,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           AppSpacing.verticalRegular,
           Text(
             t.common.noFavoritesYet,
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.subheadline,
               color: AppColors.iosGray,
-              fontSize: FontSizeType.subheadline.size,
             ),
           ),
         ],
@@ -973,8 +973,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 AppSpacing.horizontalMedium,
                 Text(
                   t.main.type,
-                  style: TextStyle(
-                    fontSize: FontSizeType.medium.size,
+                  style: context.textStyle(
+                    FontSizeType.medium,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -991,8 +991,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     return ChoiceChip(
                       label: Text(
                         e.value,
-                        style: TextStyle(
-                          fontSize: FontSizeType.footnote.size,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
                           color: isSelected ? AppColors.onPrimary : null,
                         ),
                       ),

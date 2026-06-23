@@ -293,8 +293,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       children: [
         Text(
           value,
-          style: TextStyle(
-            fontSize: FontSizeType.subheadline.size,
+          style: context.textStyle(
+            FontSizeType.subheadline,
             color: Theme.of(context).brightness == Brightness.dark
                 ? AppColors.darkTextSecondary
                 : AppColors.lightTextSecondary,
@@ -314,8 +314,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       children: [
         Text(
           "${t.common.version} $appVsn",
-          style: TextStyle(
-            fontSize: FontSizeType.subheadline.size,
+          style: context.textStyle(
+            FontSizeType.subheadline,
             color: isDark
                 ? AppColors.darkTextSecondary
                 : AppColors.lightTextSecondary,
@@ -343,8 +343,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       child: DropdownButton<String>(
         value: _normalizeEnvValue(currentEnv),
         isDense: true,
-        style: TextStyle(
-          fontSize: FontSizeType.normal.size,
+        style: context.textStyle(
+          FontSizeType.normal,
           color: AppColors.iosRed,
           fontWeight: FontWeight.w600,
         ),

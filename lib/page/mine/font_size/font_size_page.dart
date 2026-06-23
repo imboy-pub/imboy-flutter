@@ -122,12 +122,13 @@ class FontSizePage extends ConsumerWidget {
           children: [
             Text(
               t.main.previewEffect.toUpperCase(),
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
-                fontWeight: FontWeight.w400,
-                color: AppColors.iosGray,
-                letterSpacing: -0.08,
-              ),
+              style: context
+                  .textStyle(
+                    FontSizeType.footnote,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.iosGray,
+                  )
+                  .copyWith(letterSpacing: -0.08),
             ),
             AppSpacing.verticalMedium,
             Container(
@@ -174,8 +175,8 @@ class FontSizePage extends ConsumerWidget {
                   notifier.isPreviewAccessible
                       ? t.chat.goodReadability
                       : t.common.fontTooSmallMayAffect,
-                  style: TextStyle(
-                    fontSize: FontSizeType.small.size,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     color: notifier.isPreviewAccessible
                         ? AppColors.iosBlue
                         : AppColors.iosRed,
@@ -222,8 +223,8 @@ class FontSizePage extends ConsumerWidget {
         children: [
           Text(
             t.common.dragSliderAdjustFontSize,
-            style: TextStyle(
-              fontSize: FontSizeType.footnote.size,
+            style: context.textStyle(
+              FontSizeType.footnote,
               color: AppColors.iosGray,
             ),
           ),
@@ -270,15 +271,15 @@ class FontSizePage extends ConsumerWidget {
               children: [
                 Text(
                   t.common.smaller,
-                  style: TextStyle(
-                    fontSize: FontSizeType.footnote.size,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
                     color: AppColors.iosGray,
                   ),
                 ),
                 Text(
                   t.main.larger,
-                  style: TextStyle(
-                    fontSize: FontSizeType.body.size,
+                  style: context.textStyle(
+                    FontSizeType.body,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -305,8 +306,8 @@ class FontSizePage extends ConsumerWidget {
             param1: state.previewOption.displayName,
             param2: ((state.previewOption.scale * 100).toInt()).toString(),
           ),
-          style: TextStyle(
-            fontSize: FontSizeType.small.size,
+          style: context.textStyle(
+            FontSizeType.small,
             color: AppColors.iosGray,
           ),
         ),
@@ -323,8 +324,8 @@ class FontSizePage extends ConsumerWidget {
           ),
           child: Text(
             t.main.recommended,
-            style: TextStyle(
-              fontSize: FontSizeType.small.size,
+            style: context.textStyle(
+              FontSizeType.small,
               color: AppColors.getIosBlue(Theme.of(context).brightness),
               fontWeight: FontWeight.w600,
             ),

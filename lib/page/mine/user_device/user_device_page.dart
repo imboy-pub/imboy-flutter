@@ -103,13 +103,14 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           Expanded(
             child: Text(
               t.common.loginDeviceManagementTips,
-              style: TextStyle(
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
-                height: 1.4,
-                fontSize: FontSizeType.footnote.size,
-              ),
+              style: context
+                  .textStyle(
+                    FontSizeType.footnote,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
+                  )
+                  .copyWith(height: 1.4),
             ),
           ),
         ],
@@ -130,9 +131,9 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           AppSpacing.verticalRegular,
           Text(
             t.common.noData,
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.subheadline,
               color: AppColors.iosGray,
-              fontSize: FontSizeType.subheadline.size,
             ),
           ),
         ],
@@ -189,8 +190,8 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
               ),
               child: Text(
                 t.account.currentDevice,
-                style: TextStyle(
-                  fontSize: FontSizeType.tiny.size,
+                style: context.textStyle(
+                  FontSizeType.tiny,
                   fontWeight: FontWeight.w600,
                   color: AppColors.getIosBlue(brightness),
                 ),
@@ -212,8 +213,8 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           const SizedBox(width: 6),
           Text(
             model.online ? t.chat.online : t.chat.offline,
-            style: TextStyle(
-              fontSize: FontSizeType.small.size,
+            style: context.textStyle(
+              FontSizeType.small,
               color: AppColors.iosGray,
             ),
           ),
@@ -221,8 +222,8 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
             AppSpacing.horizontalSmall,
             Text(
               DateTimeHelper.lastTimeFmt(model.lastActiveAt),
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.iosGray,
               ),
             ),

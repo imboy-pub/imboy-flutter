@@ -195,8 +195,8 @@ class _MinePageState extends ConsumerState<MinePage> {
                     ? Center(
                         child: Text(
                           nickname.substring(0, 1).toUpperCase(),
-                          style: TextStyle(
-                            fontSize: FontSizeType.extraLargeTitle.size,
+                          style: context.textStyle(
+                            FontSizeType.extraLargeTitle,
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
                           ),
@@ -212,17 +212,18 @@ class _MinePageState extends ConsumerState<MinePage> {
                   children: [
                     Text(
                       nickname,
-                      style: TextStyle(
-                        fontSize: FontSizeType.title.size,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.6,
-                      ),
+                      style: context
+                          .textStyle(
+                            FontSizeType.title,
+                            fontWeight: FontWeight.w600,
+                          )
+                          .copyWith(letterSpacing: -0.6),
                     ),
                     const SizedBox(height: AppSpacing.tiny),
                     Text(
                       'ID: ${user?.account ?? '-'}',
-                      style: TextStyle(
-                        fontSize: FontSizeType.normal.size,
+                      style: context.textStyle(
+                        FontSizeType.normal,
                         color: AppColors.iosGray,
                       ),
                     ),

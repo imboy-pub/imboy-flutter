@@ -138,16 +138,16 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                       children: [
                         Text(
                           t.common.feedback,
-                          style: TextStyle(
-                            fontSize: FontSizeType.subheadline.size,
+                          style: context.textStyle(
+                            FontSizeType.subheadline,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           t.common.feedbackSlogan,
-                          style: TextStyle(
-                            fontSize: FontSizeType.footnote.size,
+                          style: context.textStyle(
+                            FontSizeType.footnote,
                             color: AppColors.iosGray,
                           ),
                         ),
@@ -163,8 +163,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                     onPressed: _showFeedbackEditor,
                     child: Text(
                       t.common.newFeedback,
-                      style: TextStyle(
-                        fontSize: FontSizeType.footnote.size,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
                         color: AppColors.lightSurface,
                         fontWeight: FontWeight.w600,
                       ),
@@ -231,14 +231,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           model.body,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: FontSizeType.medium.size),
+          style: context.textStyle(FontSizeType.medium),
         ),
         subtitle: Row(
           children: [
             Text(
               DateTimeHelper.lastTimeFmt(model.createdAt),
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.iosGray,
               ),
             ),
@@ -254,8 +254,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
             AppSpacing.horizontalSmall,
             Text(
               model.statusDesc,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: _getStatusColor(model.statusDesc),
               ),
             ),
@@ -272,8 +272,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
               ),
               child: Text(
                 model.type,
-                style: TextStyle(
-                  fontSize: FontSizeType.tiny.size,
+                style: context.textStyle(
+                  FontSizeType.tiny,
                   color: AppColors.iosGray,
                 ),
               ),

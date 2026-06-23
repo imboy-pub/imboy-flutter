@@ -192,16 +192,16 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
         children: [
           Text(
             appName + t.main.usedSpace,
-            style: TextStyle(
-              fontSize: FontSizeType.subheadline.size,
+            style: context.textStyle(
+              FontSizeType.subheadline,
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: AppSpacing.small),
           Text(
             formatBytes(state.appAllBytes, num: 1000),
-            style: TextStyle(
-              fontSize: FontSizeType.extraLargeTitle.size,
+            style: context.textStyle(
+              FontSizeType.extraLargeTitle,
               fontWeight: FontWeight.w700,
               color: AppColors.primary,
             ),
@@ -215,8 +215,8 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
                   : '0',
               param2: formatBytes(state.totalDiskSpace, num: 1000),
             ),
-            style: TextStyle(
-              fontSize: FontSizeType.footnote.size,
+            style: context.textStyle(
+              FontSizeType.footnote,
               color: AppColors.iosGray,
             ),
           ),
@@ -254,8 +254,8 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
             },
             child: Text(
               t.main.clean,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 fontWeight: FontWeight.bold,
                 color: AppColors.onPrimary,
               ),
@@ -317,8 +317,8 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(
-                    fontSize: FontSizeType.body.size,
+                  style: context.textStyle(
+                    FontSizeType.body,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -329,16 +329,16 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           const SizedBox(height: AppSpacing.regular),
           Text(
             formatBytes(value, num: 1000),
-            style: TextStyle(
-              fontSize: FontSizeType.extraLargeTitle.size,
+            style: context.textStyle(
+              FontSizeType.extraLargeTitle,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             description,
-            style: TextStyle(
-              fontSize: FontSizeType.footnote.size,
+            style: context.textStyle(
+              FontSizeType.footnote,
               color: AppColors.iosGray,
             ),
           ),

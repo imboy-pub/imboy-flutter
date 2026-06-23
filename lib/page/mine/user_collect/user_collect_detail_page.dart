@@ -74,8 +74,8 @@ class UserCollectDetailPage extends ConsumerWidget {
             // 标题
             Text(
               t.common.operationOptions,
-              style: TextStyle(
-                fontSize: FontSizeType.large.size,
+              style: context.textStyle(
+                FontSizeType.large,
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
@@ -299,8 +299,8 @@ class UserCollectDetailPage extends ConsumerWidget {
                 ),
                 child: Text(
                   t.common.buttonCancel,
-                  style: TextStyle(
-                    fontSize: FontSizeType.medium.size,
+                  style: context.textStyle(
+                    FontSizeType.medium,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -349,8 +349,8 @@ class UserCollectDetailPage extends ConsumerWidget {
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
-                          fontSize: FontSizeType.medium.size,
+                        style: context.textStyle(
+                          FontSizeType.medium,
                           fontWeight: FontWeight.w600,
                           color: isDestructive
                               ? AppColors.getIosRed(
@@ -362,8 +362,8 @@ class UserCollectDetailPage extends ConsumerWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: TextStyle(
-                          fontSize: FontSizeType.normal.size,
+                        style: context.textStyle(
+                          FontSizeType.normal,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -441,8 +441,8 @@ class UserCollectDetailPage extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       "${t.main.from} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
-                      style: TextStyle(
-                        fontSize: FontSizeType.normal.size,
+                      style: context.textStyle(
+                        FontSizeType.normal,
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.8),
@@ -493,8 +493,8 @@ class UserCollectDetailPage extends ConsumerWidget {
                         AppSpacing.horizontalSmall,
                         Text(
                           "${t.contact.remark}:",
-                          style: TextStyle(
-                            fontSize: FontSizeType.medium.size,
+                          style: context.textStyle(
+                            FontSizeType.medium,
                             fontWeight: FontWeight.w600,
                             color: isDark
                                 ? Theme.of(context).colorScheme.onSurface
@@ -506,13 +506,14 @@ class UserCollectDetailPage extends ConsumerWidget {
                     AppSpacing.verticalSmall,
                     Text(
                       obj.remark,
-                      style: TextStyle(
-                        fontSize: FontSizeType.subheadline.size,
-                        color: isDark
-                            ? Theme.of(context).colorScheme.onSurface
-                            : AppColors.deepNavy,
-                        height: 1.4,
-                      ),
+                      style: context
+                          .textStyle(
+                            FontSizeType.subheadline,
+                            color: isDark
+                                ? Theme.of(context).colorScheme.onSurface
+                                : AppColors.deepNavy,
+                          )
+                          .copyWith(height: 1.4),
                     ),
                   ],
                 ),

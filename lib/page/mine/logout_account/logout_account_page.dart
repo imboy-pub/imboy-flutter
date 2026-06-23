@@ -191,9 +191,9 @@ class LogoutAccountPage extends ConsumerWidget {
               padding: const EdgeInsets.all(AppSpacing.regular),
               child: Text(
                 state.error!,
-                style: TextStyle(
+                style: context.textStyle(
+                  FontSizeType.footnote,
                   color: AppColors.iosRed,
-                  fontSize: FontSizeType.footnote.size,
                 ),
               ),
             ),
@@ -244,8 +244,8 @@ class LogoutAccountPage extends ConsumerWidget {
               ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   t.account.logoutAccount,
-                  style: TextStyle(
-                    fontSize: FontSizeType.body.size,
+                  style: context.textStyle(
+                    FontSizeType.body,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

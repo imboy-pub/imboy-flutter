@@ -86,8 +86,8 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                   ),
                   child: Text(
                     hasBound ? t.main.bound : t.common.notBound,
-                    style: TextStyle(
-                      fontSize: FontSizeType.small.size,
+                    style: context.textStyle(
+                      FontSizeType.small,
                       fontWeight: FontWeight.w600,
                       color: hasBound
                           ? AppColors.getIosBlue(brightness)
@@ -113,7 +113,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                       width: 80,
                       child: Text(
                         t.account.email,
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                     Expanded(
@@ -128,7 +128,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                           vertical: AppSpacing.medium,
                         ),
                         decoration: null,
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                   ],
@@ -141,7 +141,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                       width: 80,
                       child: Text(
                         t.common.verificationCode,
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                     Expanded(
@@ -160,7 +160,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                           vertical: AppSpacing.medium,
                         ),
                         decoration: null,
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                     AppSpacing.horizontalSmall,
@@ -202,9 +202,9 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
             child: Text(
               t.common.verificationCodeSentToEmail,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosGray,
-                fontSize: FontSizeType.footnote.size,
               ),
             ),
           ),
@@ -249,8 +249,8 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
               state.seconds > 0
                   ? '${state.seconds}s'
                   : t.common.getVerificationCode,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -298,8 +298,8 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
               ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   hasBound ? t.common.confirmChange : t.common.bindNow,
-                  style: TextStyle(
-                    fontSize: FontSizeType.body.size,
+                  style: context.textStyle(
+                    FontSizeType.body,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -329,8 +329,8 @@ class _ValidationRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.iosGray,
               ),
             ),
@@ -343,7 +343,7 @@ class _ValidationRow extends StatelessWidget {
           AppSpacing.horizontalTiny,
           Text(
             text,
-            style: TextStyle(fontSize: FontSizeType.small.size, color: color),
+            style: context.textStyle(FontSizeType.small, color: color),
           ),
         ],
       ),

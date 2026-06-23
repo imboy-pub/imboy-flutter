@@ -74,8 +74,8 @@ class SetPasswordPage extends ConsumerWidget {
                           children: [
                             Text(
                               t.account.setLoginPassword,
-                              style: TextStyle(
-                                fontSize: FontSizeType.medium.size,
+                              style: context.textStyle(
+                                FontSizeType.medium,
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),
@@ -83,8 +83,8 @@ class SetPasswordPage extends ConsumerWidget {
                             AppSpacing.verticalTiny,
                             Text(
                               t.account.enhanceAccountSecurity,
-                              style: TextStyle(
-                                fontSize: FontSizeType.normal.size,
+                              style: context.textStyle(
+                                FontSizeType.normal,
                                 color: colorScheme.onSurface.withAlpha(179),
                               ),
                             ),
@@ -105,17 +105,18 @@ class SetPasswordPage extends ConsumerWidget {
                       children: [
                         Text(
                           t.common.setPasswordSecurityTips,
-                          style: TextStyle(
-                            fontSize: FontSizeType.normal.size,
-                            color: colorScheme.onSurface.withAlpha(204),
-                            height: 1.4,
-                          ),
+                          style: context
+                              .textStyle(
+                                FontSizeType.normal,
+                                color: colorScheme.onSurface.withAlpha(204),
+                              )
+                              .copyWith(height: 1.4),
                         ),
                         AppSpacing.verticalSmall,
                         Text(
                           t.account.passwordLengthRequirement,
-                          style: TextStyle(
-                            fontSize: FontSizeType.footnote.size,
+                          style: context.textStyle(
+                            FontSizeType.footnote,
                             color: colorScheme.primary,
                             fontWeight: FontWeight.w500,
                           ),
@@ -162,8 +163,8 @@ class SetPasswordPage extends ConsumerWidget {
                             AppSpacing.horizontalSmall,
                             Text(
                               t.account.newPassword,
-                              style: TextStyle(
-                                fontSize: FontSizeType.normal.size,
+                              style: context.textStyle(
+                                FontSizeType.normal,
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),
@@ -216,8 +217,8 @@ class SetPasswordPage extends ConsumerWidget {
                             AppSpacing.horizontalSmall,
                             Text(
                               t.account.retypePassword,
-                              style: TextStyle(
-                                fontSize: FontSizeType.normal.size,
+                              style: context.textStyle(
+                                FontSizeType.normal,
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),

@@ -88,8 +88,8 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                   ),
                   child: Text(
                     hasBound ? t.main.bound : t.common.notBound,
-                    style: TextStyle(
-                      fontSize: FontSizeType.small.size,
+                    style: context.textStyle(
+                      FontSizeType.small,
                       fontWeight: FontWeight.w600,
                       color: hasBound
                           ? AppColors.getIosBlue(brightness)
@@ -114,7 +114,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                       width: 80,
                       child: Text(
                         '手机号',
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                     Expanded(
@@ -144,7 +144,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                       width: 80,
                       child: Text(
                         '验证码',
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                     Expanded(
@@ -163,7 +163,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                           vertical: AppSpacing.medium,
                         ),
                         decoration: null,
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                     AppSpacing.horizontalSmall,
@@ -205,9 +205,9 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
             child: Text(
               t.common.verificationCodeSentToMobile,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosGray,
-                fontSize: FontSizeType.footnote.size,
               ),
             ),
           ),
@@ -251,8 +251,8 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
               state.seconds > 0
                   ? '${state.seconds}s'
                   : t.common.getVerificationCode,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -300,8 +300,8 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
               ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   hasBound ? t.common.confirmChange : t.common.bindNow,
-                  style: TextStyle(
-                    fontSize: FontSizeType.body.size,
+                  style: context.textStyle(
+                    FontSizeType.body,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -331,8 +331,8 @@ class _ValidationRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.iosGray,
               ),
             ),
@@ -345,7 +345,7 @@ class _ValidationRow extends StatelessWidget {
           AppSpacing.horizontalTiny,
           Text(
             text,
-            style: TextStyle(fontSize: FontSizeType.small.size, color: color),
+            style: context.textStyle(FontSizeType.small, color: color),
           ),
         ],
       ),
