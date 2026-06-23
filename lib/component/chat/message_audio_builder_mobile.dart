@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
@@ -479,14 +480,18 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
                 width: 1,
               ),
             ),
-            child: Icon(
-              isPlayingUI
-                  ? (isPausedUI
-                        ? CupertinoIcons.play_fill
-                        : CupertinoIcons.pause_fill)
-                  : CupertinoIcons.play_fill,
-              color: iconColor,
-              size: 20,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                isPlayingUI
+                    ? (isPausedUI
+                          ? CupertinoIcons.play_fill
+                          : CupertinoIcons.pause_fill)
+                    : CupertinoIcons.play_fill,
+                key: ValueKey<bool>(isPlayingUI && !isPausedUI),
+                color: iconColor,
+                size: 20,
+              ),
             ),
           ),
         );
@@ -506,16 +511,23 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
 
     // 插件不可用时显示简化的波形可视化
     if (!_waveformPluginSupported || _waveformController == null) {
-      return SizedBox(
-        height: 32,
-        child: CustomPaint(
-          painter: _SimpleWaveformPainter(
-            isActive: widget.isPlaying && !widget.isPaused,
-            color: waveColor,
-            inactiveColor: inactive,
-          ),
-          size: const Size(double.infinity, 32),
-        ),
+      return AnimatedBuilder(
+        animation: _animationController,
+        builder: (context, child) {
+          final isPlaying = widget.isPlaying && !widget.isPaused;
+          return SizedBox(
+            height: 32,
+            child: CustomPaint(
+              painter: _SimpleWaveformPainter(
+                isActive: isPlaying,
+                color: waveColor,
+                inactiveColor: inactive,
+                progress: isPlaying ? _animationController.value : 0.0,
+              ),
+              size: const Size(double.infinity, 32),
+            ),
+          );
+        },
       );
     }
 
@@ -667,38 +679,57 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
   }
 }
 
-/// 简单的波形绘制器，用于音频波形插件不可用时
+/// 简单的波形绘制器，用于音频波形插件不可用时（支持动态声波与进度流光动画）
 class _SimpleWaveformPainter extends CustomPainter {
   const _SimpleWaveformPainter({
     required this.isActive,
     required this.color,
     required this.inactiveColor,
+    this.progress = 0.0,
   });
 
   final bool isActive;
   final Color color;
   final Color inactiveColor;
+  final double progress;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final waveCount = 40;
+    final waveCount = 35;
     final waveWidth = size.width / waveCount;
     final paint = Paint()
-      ..strokeWidth = waveWidth * 0.6
+      ..strokeWidth = waveWidth * 0.55
       ..strokeCap = StrokeCap.round;
 
     for (int i = 0; i < waveCount; i++) {
-      // 生成类似音频波形的随机高度模式
-      final baseHeight = size.height * 0.3;
-      final variance = size.height * 0.4;
-      final waveHeight =
-          baseHeight +
-          (variance *
-              (0.5 + 0.5 * (i % 3 == 0 ? 1.0 : (i % 5 == 0 ? 0.8 : 0.3))));
+      // 1. 根据正弦波与余弦波动效计算实时动态波形高度
+      double heightFactor;
+      if (isActive) {
+        // 利用 progress 加上水平索引偏置，形成非常自然的律动流光效果
+        heightFactor = 0.35 +
+            0.55 *
+                (0.5 * math.sin(progress * 2 * math.pi + i * 0.45) +
+                    0.5 * math.cos(progress * 4 * math.pi - i * 0.2));
+      } else {
+        // 静止状态下的基础音浪特征
+        heightFactor = 0.2 +
+            0.45 *
+                (0.5 +
+                    0.5 *
+                        (i % 3 == 0 ? 1.0 : (i % 5 == 0 ? 0.8 : 0.3)));
+      }
 
-      paint.color = isActive && (i % 5 < 3) ? color : inactiveColor;
+      final waveHeight = size.height * heightFactor;
 
+      // 2. 音频播放进度条流动高亮效果：
+      // 如果当前音浪柱位置在播放进度比例内，就高亮为 active color，否则为 inactiveColor
       final x = i * waveWidth + waveWidth / 2;
+      final currentProgressRatio = x / size.width;
+
+      final isHighlighted = isActive ? (currentProgressRatio <= progress) : false;
+
+      paint.color = isHighlighted ? color : inactiveColor;
+
       final y1 = (size.height - waveHeight) / 2;
       final y2 = (size.height + waveHeight) / 2;
 
@@ -708,6 +739,6 @@ class _SimpleWaveformPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_SimpleWaveformPainter oldDelegate) {
-    return oldDelegate.isActive != isActive;
+    return oldDelegate.isActive != isActive || oldDelegate.progress != progress;
   }
 }
