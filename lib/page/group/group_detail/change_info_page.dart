@@ -10,7 +10,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'change_info_provider.dart';
 
@@ -102,8 +102,8 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                 child: Text(
                   widget.subtitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: colorScheme.outline,
                   ),
                 ),
@@ -156,8 +156,8 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                       autofocus: true,
                       maxLines: 1,
                       maxLength: 80,
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         color: colorScheme.onSurface,
                       ),
                       decoration: InputDecoration(

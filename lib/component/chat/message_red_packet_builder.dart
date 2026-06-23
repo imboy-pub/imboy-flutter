@@ -33,7 +33,10 @@ class MessageRedPacketBuilder extends ConsumerWidget {
           onTap: () => _handleOpenRedPacket(context, ref, packetId),
           borderRadius: AppRadius.borderRadiusMedium,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -71,10 +74,7 @@ class MessageRedPacketBuilder extends ConsumerWidget {
                 const Divider(color: Colors.white24, height: 16),
                 const Text(
                   'IMBoy 红包',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 10,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 10),
                 ),
               ],
             ),
@@ -84,7 +84,11 @@ class MessageRedPacketBuilder extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleOpenRedPacket(BuildContext context, WidgetRef ref, String packetId) async {
+  Future<void> _handleOpenRedPacket(
+    BuildContext context,
+    WidgetRef ref,
+    String packetId,
+  ) async {
     if (packetId.isEmpty) return;
 
     // 弹出经典“開”字纸红包对话框
@@ -126,7 +130,8 @@ class _RedPacketOpenDialog extends StatefulWidget {
   State<_RedPacketOpenDialog> createState() => _RedPacketOpenDialogState();
 }
 
-class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog> with SingleTickerProviderStateMixin {
+class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   bool _isOpening = false;
 
@@ -196,9 +201,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog> with SingleT
                 left: 0,
                 right: 0,
                 height: 240,
-                child: CustomPaint(
-                  painter: _RedPacketHeaderPainter(),
-                ),
+                child: CustomPaint(painter: _RedPacketHeaderPainter()),
               ),
               Align(
                 alignment: const Alignment(0, -0.4),
@@ -222,10 +225,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog> with SingleT
                     const SizedBox(height: 8),
                     const Text(
                       '大吉大利，恭喜发财',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.white70),
                     ),
                   ],
                 ),
@@ -244,7 +244,10 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog> with SingleT
                       decoration: BoxDecoration(
                         color: Colors.amber.shade600,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.amber.shade200, width: 2),
+                        border: Border.all(
+                          color: Colors.amber.shade200,
+                          width: 2,
+                        ),
                         boxShadow: const [
                           BoxShadow(
                             color: Colors.black12,

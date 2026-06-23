@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -104,11 +105,14 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Row(
                 children: [
                   // Leading widget
-                  if (leading != null)
-                    leading!
-                  else if (automaticallyImplyLeading &&
-                      Navigator.canPop(context))
+                  if (leading != null) ...[
+                    leading!,
+                    const SizedBox(width: AppSpacing.medium),
+                  ] else if (automaticallyImplyLeading &&
+                      Navigator.canPop(context)) ...[
                     _buildDefaultLeading(context),
+                    const SizedBox(width: AppSpacing.medium),
+                  ],
                   // Title
                   Expanded(
                     child:
@@ -145,10 +149,17 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
     return GestureDetector(
       onTap: () {
         final nav = Navigator.of(context);
-        // 安全的 pop 循环：每次检查是否可以 pop
-        for (int i = 0; i < popTime && nav.canPop(); i++) {
-          nav.pop();
-        }
+        // 帧末执行 pop：避开导航同步重入窗口（_flushHistoryUpdates 期间
+        // _debugLocked=true）。canPop() 不检测该锁，若在重入窗口里同步 pop
+        // 会触发 '!_debugLocked' 断言，且该断言一旦抛出会中断 history flush，
+        // 让导航栈短暂卡死、后续 pop 连锁失败。postFrame 把 pop 推到当前
+        // 同步栈之外，绕开重入锁（_debugLocked 是同步锁，不跨帧）。
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (!nav.mounted) return;
+          for (int i = 0; i < popTime && nav.canPop(); i++) {
+            nav.pop();
+          }
+        });
       },
       child: Container(
         width: 36,

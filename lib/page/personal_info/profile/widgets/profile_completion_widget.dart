@@ -46,8 +46,8 @@ class ProfileCompletionWidget extends ConsumerWidget {
             children: [
               Text(
                 t.chat.profileCompleteness,
-                style: TextStyle(
-                  fontSize: FontSizeType.body.size,
+                style: context.textStyle(
+                  FontSizeType.body,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -62,8 +62,8 @@ class ProfileCompletionWidget extends ConsumerWidget {
                 ),
                 child: Text(
                   profileState.completenessLevel,
-                  style: TextStyle(
-                    fontSize: FontSizeType.small.size,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     fontWeight: FontWeight.w600,
                     color: profileState.completenessColor,
                   ),

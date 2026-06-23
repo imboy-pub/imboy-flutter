@@ -81,8 +81,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: Text(
                       t.main.e2eeRecoveryMethods,
-                      style: TextStyle(
-                        fontSize: FontSizeType.normal.size,
+                      style: context.textStyle(
+                        FontSizeType.normal,
                         fontWeight: FontWeight.w500,
                         color: AppColors.iosGray,
                       ),

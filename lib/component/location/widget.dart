@@ -76,9 +76,10 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     if (!mounted || !_sheetController.isAttached) return;
     final screenH = MediaQuery.of(context).size.height;
     final range = (_kMaxChildSize - _kMinChildSize) * screenH;
-    final pos = ((_sheetController.size - _kMinChildSize) /
-            (_kMaxChildSize - _kMinChildSize))
-        .clamp(0.0, 1.0);
+    final pos =
+        ((_sheetController.size - _kMinChildSize) /
+                (_kMaxChildSize - _kMinChildSize))
+            .clamp(0.0, 1.0);
     setState(() {
       _fabHeightSend = pos * range * .5 + 30;
       _fabHeight = pos * range * .5 + 16;
@@ -214,9 +215,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                               size: 32,
                               color: snapshot.data!
                                   ? Theme.of(context).primaryColor
-                                  : Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
+                                  : Theme.of(context).colorScheme.onSurface
                                         .withValues(alpha: 0.54),
                             );
                           },
@@ -335,21 +334,24 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                   children: <Widget>[
                                     Flexible(
                                       child: AnimatedContainer(
-                                        duration:
-                                            const Duration(milliseconds: 200),
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
                                         width: _animate
                                             ? widthMax * .8
                                             : widthMax,
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              widget.searchBarStyle.borderRadius,
+                                          borderRadius: widget
+                                              .searchBarStyle
+                                              .borderRadius,
                                           color: Theme.of(
                                             context,
                                           ).colorScheme.surface,
                                         ),
                                         child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 10),
+                                          padding: const EdgeInsets.only(
+                                            left: 10,
+                                          ),
                                           child: Theme(
                                             data: Theme.of(context).copyWith(
                                               primaryColor: Colors.black,
@@ -391,9 +393,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                             milliseconds: 200,
                                           ),
                                           width: _animate
-                                              ? MediaQuery.of(context)
-                                                        .size
-                                                        .width *
+                                              ? MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
                                                     .2
                                               : 0,
                                           child: ColoredBox(
@@ -401,8 +403,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                               context,
                                             ).colorScheme.surface,
                                             child: Center(
-                                              child:
-                                                  Text(t.common.buttonCancel),
+                                              child: Text(
+                                                t.common.buttonCancel,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -440,9 +443,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                         trailing: _seLindex == index
                                             ? Icon(
                                                 Icons.check,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onPrimary,
                                               )
                                             : const SizedBox.shrink(),
                                       ),

@@ -250,8 +250,8 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
         children: [
           Text(
             _toText(_vote!['title']),
-            style: TextStyle(
-              fontSize: FontSizeType.extraLarge.size,
+            style: context.textStyle(
+              FontSizeType.extraLarge,
               fontWeight: FontWeight.w700,
             ),
           ),

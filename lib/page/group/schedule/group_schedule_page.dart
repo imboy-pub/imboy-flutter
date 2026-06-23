@@ -257,14 +257,14 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
                   children: [
                     Text(
                       '${dt.day}',
-                      style: TextStyle(
-                        fontSize: FontSizeType.extraLarge.size,
+                      style: context.textStyle(
+                        FontSizeType.extraLarge,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       _getMonthName(dt.month),
-                      style: TextStyle(fontSize: FontSizeType.small.size),
+                      style: context.textStyle(FontSizeType.small),
                     ),
                   ],
                 ),
@@ -276,8 +276,8 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
                   children: [
                     Text(
                       schedule['title'] as String? ?? '',
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

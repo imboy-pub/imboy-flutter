@@ -59,7 +59,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             children: [
               Text(
                 t.account.rechargeAmountHint,
-                style: TextStyle(fontSize: FontSizeType.footnote.size),
+                style: context.textStyle(FontSizeType.footnote),
               ),
               AppSpacing.verticalMedium,
               CupertinoTextField(
@@ -74,8 +74,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                   padding: EdgeInsets.only(left: 8),
                   child: Text(
                     '¥',
-                    style: TextStyle(
-                      fontSize: FontSizeType.body.size,
+                    style: context.textStyle(
+                      FontSizeType.body,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -299,8 +299,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             AppSpacing.verticalRegular,
             Text(
               t.main.totalAssets,
-              style: TextStyle(
-                fontSize: FontSizeType.normal.size,
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: AppColors.onPrimary.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w500,
               ),
@@ -310,12 +310,13 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                 ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
                 : Text(
                     balance,
-                    style: TextStyle(
-                      fontSize: FontSizeType.extraLargeTitle.size,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.onPrimary,
-                      letterSpacing: -1,
-                    ),
+                    style: context
+                        .textStyle(
+                          FontSizeType.extraLargeTitle,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.onPrimary,
+                        )
+                        .copyWith(letterSpacing: -1),
                   ),
           ],
         ),
@@ -386,16 +387,16 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             AppSpacing.verticalSmall,
             Text(
               label,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 fontWeight: FontWeight.w600,
               ),
             ),
             if (subtitle != null)
               Text(
                 subtitle,
-                style: TextStyle(
-                  fontSize: FontSizeType.caption2.size,
+                style: context.textStyle(
+                  FontSizeType.caption2,
                   color: AppColors.iosGray,
                   fontWeight: FontWeight.w500,
                 ),
@@ -466,8 +467,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                 AppSpacing.verticalSmall,
                 Text(
                   s['label'] as String,
-                  style: TextStyle(
-                    fontSize: FontSizeType.small.size,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     color: isDark
                         ? AppColors.darkTextPrimary
                         : AppColors.lightTextPrimary,

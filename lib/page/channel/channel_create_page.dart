@@ -430,8 +430,8 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                       _isPublic
                           ? t.channel.typePublicDesc
                           : t.channel.typePrivateDesc,
-                      style: TextStyle(
-                        fontSize: FontSizeType.footnote.size,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
                         color: AppColors.primary,
                       ),
                     ),

@@ -106,8 +106,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             AppSpacing.verticalSmall,
             Text(
               t.common.e2eeBackupImportReplaceKey,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosOrange,
               ),
             ),

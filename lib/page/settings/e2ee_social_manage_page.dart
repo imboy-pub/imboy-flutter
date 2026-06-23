@@ -199,8 +199,8 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                       idx: shardIndex as int,
                       total: totalShards as int,
                     ),
-                    style: TextStyle(
-                      fontSize: FontSizeType.normal.size,
+                    style: context.textStyle(
+                      FontSizeType.normal,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -220,8 +220,8 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                     status == 'active'
                         ? t.main.e2eeSocialShardActive
                         : t.main.e2eeSocialShardUsed,
-                    style: TextStyle(
-                      fontSize: FontSizeType.caption2.size,
+                    style: context.textStyle(
+                      FontSizeType.caption2,
                       color: status == 'active'
                           ? AppColors.iosGreen
                           : AppColors.iosGray,
@@ -273,8 +273,8 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                 Expanded(
                   child: Text(
                     t.main.e2eeSocialUserShard(uid: uid.toString()),
-                    style: TextStyle(
-                      fontSize: FontSizeType.normal.size,
+                    style: context.textStyle(
+                      FontSizeType.normal,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -306,8 +306,8 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                   status == 'active'
                       ? t.main.e2eeSocialShardValid
                       : t.main.e2eeSocialShardUsed,
-                  style: TextStyle(
-                    fontSize: FontSizeType.small.size,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     color: status == 'active'
                         ? AppColors.iosGreen
                         : AppColors.iosGray,
@@ -331,8 +331,8 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
             width: 80,
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.iosGray,
               ),
             ),
@@ -340,7 +340,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
           Expanded(
             child: Text(
               value,
-              style: TextStyle(fontSize: FontSizeType.small.size),
+              style: context.textStyle(FontSizeType.small),
             ),
           ),
         ],

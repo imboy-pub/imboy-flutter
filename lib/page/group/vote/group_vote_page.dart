@@ -189,8 +189,8 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
                   Expanded(
                     child: Text(
                       vote['title'] as String? ?? '',
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -206,9 +206,9 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
                     ),
                     child: Text(
                       statusText,
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: statusColor,
-                        fontSize: FontSizeType.small.size,
                       ),
                     ),
                   ),

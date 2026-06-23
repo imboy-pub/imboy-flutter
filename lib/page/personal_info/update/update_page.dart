@@ -248,17 +248,18 @@ class UpdatePage extends ConsumerWidget {
               maxLength: maxLength,
               textCapitalization: TextCapitalization.sentences,
               textInputAction: TextInputAction.newline,
-              style: TextStyle(
-                fontSize: FontSizeType.medium.size,
-                color: isDark
-                    ? AppColors.lightSurface
-                    : AppColors.lightNearBlack,
-                height: 1.4,
-              ),
+              style: context
+                  .textStyle(
+                    FontSizeType.medium,
+                    color: isDark
+                        ? AppColors.lightSurface
+                        : AppColors.lightNearBlack,
+                  )
+                  .copyWith(height: 1.4),
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(AppSpacing.regular),
-                hintStyle: TextStyle(
-                  fontSize: FontSizeType.medium.size,
+                hintStyle: context.textStyle(
+                  FontSizeType.medium,
                   color: isDark ? AppColors.iosGray3Dark : AppColors.iosGray3,
                 ),
                 filled: false,
@@ -267,8 +268,8 @@ class UpdatePage extends ConsumerWidget {
                 focusedBorder: InputBorder.none,
                 errorBorder: InputBorder.none,
                 focusedErrorBorder: InputBorder.none,
-                counterStyle: TextStyle(
-                  fontSize: FontSizeType.small.size,
+                counterStyle: context.textStyle(
+                  FontSizeType.small,
                   color: isDark ? AppColors.iosGray : AppColors.neutralGray,
                 ),
               ),
@@ -300,8 +301,8 @@ class UpdatePage extends ConsumerWidget {
   ) {
     Widget secondary = Text(
       '√',
-      style: TextStyle(
-        fontSize: FontSizeType.extraLarge.size,
+      style: context.textStyle(
+        FontSizeType.extraLarge,
         color: AppColors.iosGreen,
       ),
     );
@@ -333,12 +334,15 @@ class UpdatePage extends ConsumerWidget {
             value: '1',
             title: Text(
               t.main.male,
-              style: TextStyle(
-                fontSize: state.value == '1'
-                    ? FontSizeType.extraLarge.size
-                    : FontSizeType.medium.size,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: state.value == '1'
+                  ? context.textStyle(
+                      FontSizeType.extraLarge,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    )
+                  : context.textStyle(
+                      FontSizeType.medium,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
             ),
             selected: false,
             secondary: state.value == '1' ? secondary : null,
@@ -356,12 +360,15 @@ class UpdatePage extends ConsumerWidget {
             value: '2',
             title: Text(
               t.main.female,
-              style: TextStyle(
-                fontSize: state.value == '2'
-                    ? FontSizeType.extraLarge.size
-                    : FontSizeType.medium.size,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: state.value == '2'
+                  ? context.textStyle(
+                      FontSizeType.extraLarge,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    )
+                  : context.textStyle(
+                      FontSizeType.medium,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
             ),
             selected: false,
             secondary: state.value == '2' ? secondary : null,
@@ -379,12 +386,15 @@ class UpdatePage extends ConsumerWidget {
             value: '3',
             title: Text(
               t.main.keepSecret,
-              style: TextStyle(
-                fontSize: state.value == '3'
-                    ? FontSizeType.extraLarge.size
-                    : FontSizeType.medium.size,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: state.value == '3'
+                  ? context.textStyle(
+                      FontSizeType.extraLarge,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    )
+                  : context.textStyle(
+                      FontSizeType.medium,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
             ),
             selected: false,
             secondary: state.value == '3' ? secondary : null,

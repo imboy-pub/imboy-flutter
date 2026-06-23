@@ -22,7 +22,7 @@ import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:synchronized/synchronized.dart';
 
 import 'package:imboy/config/enum.dart';
@@ -170,8 +170,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 title: Text(t.group.groupName),
                 trailing: Text(
                   state.title.isEmpty ? t.main.unnamed : state.title,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -261,8 +261,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   strEmpty(state.myGroupAlias)
                       ? UserRepoLocal.to.current.nickname
                       : state.myGroupAlias!,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -292,8 +292,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   strEmpty(state.groupRemark)
                       ? state.group?.title ?? ''
                       : state.groupRemark!,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -394,8 +394,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   isGroupOwner(state.role)
                       ? t.group.groupDissolve
                       : t.group.groupLeave,
-                  style: TextStyle(
-                    fontSize: FontSizeType.body.size,
+                  style: context.textStyle(
+                    FontSizeType.body,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -431,15 +431,15 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             children: [
               Text(
                 t.group.groupMembers,
-                style: TextStyle(
-                  fontSize: FontSizeType.body.size,
+                style: context.textStyle(
+                  FontSizeType.body,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
                 '${state.memberCount}',
-                style: TextStyle(
-                  fontSize: FontSizeType.subheadline.size,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
                   color: AppColors.iosGray,
                 ),
               ),
@@ -481,8 +481,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 padding: EdgeInsets.zero,
                 child: Text(
                   t.common.viewAllGroupMember,
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     fontWeight: FontWeight.w600,
                     color: AppColors.getIosBlue(Theme.of(context).brightness),
                   ),

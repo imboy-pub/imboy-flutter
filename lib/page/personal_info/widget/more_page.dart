@@ -52,8 +52,8 @@ class _MorePageState extends ConsumerState<MorePage> {
                 title: t.account.gender,
                 trailing: Text(
                   UserRepoLocal.to.current.genderTitle,
-                  style: TextStyle(
-                    fontSize: FontSizeType.medium.size,
+                  style: context.textStyle(
+                    FontSizeType.medium,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -68,8 +68,8 @@ class _MorePageState extends ConsumerState<MorePage> {
                 title: t.account.region,
                 trailing: Text(
                   _formatRegion(UserRepoLocal.to.current.region),
-                  style: TextStyle(
-                    fontSize: FontSizeType.medium.size,
+                  style: context.textStyle(
+                    FontSizeType.medium,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -90,8 +90,8 @@ class _MorePageState extends ConsumerState<MorePage> {
                     textAlign: TextAlign.right,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: FontSizeType.medium.size,
+                    style: context.textStyle(
+                      FontSizeType.medium,
                       color: UserRepoLocal.to.current.sign.isEmpty
                           ? colorScheme.outline.withValues(alpha: 0.5)
                           : colorScheme.onSurfaceVariant,
@@ -183,8 +183,8 @@ class _MorePageState extends ConsumerState<MorePage> {
             const SizedBox(width: AppSpacing.regular),
             Text(
               title,
-              style: TextStyle(
-                fontSize: FontSizeType.medium.size,
+              style: context.textStyle(
+                FontSizeType.medium,
                 fontWeight: FontWeight.w500,
                 color: colorScheme.onSurface,
               ),

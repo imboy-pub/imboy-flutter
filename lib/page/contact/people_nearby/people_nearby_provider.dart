@@ -108,30 +108,31 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     state = state.copyWith(peopleList: []);
   }
 
-  /// 初始化
+  /// 初始化：直接拉取附近的人。坐标为空时由 peopleNearby 内部定位，
+  /// 避免此处与 peopleNearby 重复定位拖慢首次进入。
   Future<void> init() async {
-    AMapPosition? l = await LocationService().getCurrentPosition();
-    updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
     await peopleNearby();
   }
 
   /// 获取附近的人
   Future<void> peopleNearby() async {
-    if (state.longitude.isEmpty) {
-      AMapPosition? l = await LocationService().getCurrentPosition();
-      updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
-    }
-
-    // 检查坐标是否有效（包括 "0.0", "0.0000000" 等无效坐标）
-    if (!_isValidCoordinate(state.longitude, state.latitude)) {
-      EasyLoading.showInfo(
-        "${t.common.failedGetLatLong}\n${t.common.notTurnedLocationService}\n${t.main.or} ${t.common.notAuthorizedLatLong}",
-      );
-      return;
-    }
-
+    // 进入即置加载态：首次定位(GPS+权限)耗时期间显示加载菊花，
+    // 而非误导性的空状态。finally 统一兜底关闭。
     state = state.copyWith(isLoading: true);
     try {
+      if (state.longitude.isEmpty) {
+        AMapPosition? l = await LocationService().getCurrentPosition();
+        updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
+      }
+
+      // 检查坐标是否有效（包括 "0.0", "0.0000000" 等无效坐标）
+      if (!_isValidCoordinate(state.longitude, state.latitude)) {
+        EasyLoading.showInfo(
+          "${t.common.failedGetLatLong}\n${t.common.notTurnedLocationService}\n${t.main.or} ${t.common.notAuthorizedLatLong}",
+        );
+        return;
+      }
+
       int radius = 500000;
       // 获取附近的人
       Map<String, dynamic>? payload = await LocationApi().peopleNearby(

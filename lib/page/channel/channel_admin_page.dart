@@ -360,9 +360,9 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
                   ),
                   child: Text(
                     t.channel.roleCreator,
-                    style: TextStyle(
+                    style: context.textStyle(
+                      FontSizeType.small,
                       color: AppColors.primary,
-                      fontSize: FontSizeType.small.size,
                     ),
                   ),
                 )

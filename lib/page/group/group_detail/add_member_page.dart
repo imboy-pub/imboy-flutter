@@ -18,7 +18,7 @@ import 'package:imboy/page/contact/contact/contact_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'add_member_provider.dart';
 
@@ -168,8 +168,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                   children: [
                     Text(
                       model.title,
-                      style: TextStyle(
-                        fontSize: FontSizeType.large.size,
+                      style: context.textStyle(
+                        FontSizeType.large,
                         color: isMember
                             ? Theme.of(
                                 context,
@@ -186,8 +186,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                       const SizedBox(height: 2),
                       Text(
                         t.chat.alreadyMember,
-                        style: TextStyle(
-                          fontSize: FontSizeType.small.size,
+                        style: context.textStyle(
+                          FontSizeType.small,
                           color: Theme.of(context).colorScheme.outline,
                         ),
                       ),
@@ -208,8 +208,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                   ),
                   child: Text(
                     t.main.selected,
-                    style: TextStyle(
-                      fontSize: FontSizeType.tiny.size,
+                    style: context.textStyle(
+                      FontSizeType.tiny,
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontWeight: FontWeight.w600,
                     ),
@@ -278,8 +278,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                 ),
                 child: Text(
                   '${t.common.buttonAccomplish}${state.selectsTips}',
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -371,8 +371,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                             indexBarOptions: IndexBarOptions(
                               needRebuild: true,
                               ignoreDragCancel: true,
-                              downTextStyle: TextStyle(
-                                fontSize: FontSizeType.small.size,
+                              downTextStyle: context.textStyle(
+                                FontSizeType.small,
                                 color: Theme.of(context).colorScheme.onPrimary,
                               ),
                               downItemDecoration: BoxDecoration(

@@ -672,8 +672,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       )
                     : Text(
                         t.chat.momentsSend,
-                        style: TextStyle(
-                          fontSize: FontSizeType.normal.size,
+                        style: context.textStyle(
+                          FontSizeType.normal,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

@@ -227,8 +227,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                   selected: selectedCount,
                   total: widget.requiredCount,
                 ),
-                style: TextStyle(
-                  fontSize: FontSizeType.normal.size,
+                style: context.textStyle(
+                  FontSizeType.normal,
                   color: selectedCount >= widget.requiredCount
                       ? AppColors.iosGreen
                       : AppColors.iosGray,
@@ -315,8 +315,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                   canConfirm
                       ? t.main.e2eeProxyReachedMin
                       : t.main.e2eeProxySelectTitle,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     fontWeight: FontWeight.bold,
                     color: canConfirm ? AppColors.iosGreen : AppColors.iosBlue,
                   ),
@@ -327,8 +327,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                     count: widget.requiredCount,
                     selected: selectedCount,
                   ),
-                  style: TextStyle(
-                    fontSize: FontSizeType.footnote.size,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
                     color: canConfirm ? AppColors.iosGreen : AppColors.iosBlue,
                   ),
                 ),
@@ -382,8 +382,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                   children: [
                     Text(
                       contact.title,
-                      style: TextStyle(
-                        fontSize: FontSizeType.subheadline.size,
+                      style: context.textStyle(
+                        FontSizeType.subheadline,
                         fontWeight: FontWeight.w500,
                       ),
                       maxLines: 1,
@@ -393,8 +393,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                       const SizedBox(height: 2),
                       Text(
                         contact.sign,
-                        style: TextStyle(
-                          fontSize: FontSizeType.footnote.size,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
                           color: AppColors.iosGray,
                         ),
                         maxLines: 1,
@@ -470,8 +470,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
               canConfirm
                   ? t.common.e2eeProxyConfirmCount(count: selectedCount)
                   : t.chat.e2eeProxyNeedAtLeast(count: widget.requiredCount),
-              style: TextStyle(
-                fontSize: FontSizeType.medium.size,
+              style: context.textStyle(
+                FontSizeType.medium,
                 fontWeight: FontWeight.w500,
               ),
             ),

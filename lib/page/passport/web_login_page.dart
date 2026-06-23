@@ -463,8 +463,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 AppSpacing.horizontalRegular,
                 Text(
                   'ImBoy Web',
-                  style: TextStyle(
-                    fontSize: FontSizeType.extraLargeTitle.size,
+                  style: context.textStyle(
+                    FontSizeType.extraLargeTitle,
                     fontWeight: FontWeight.bold,
                     color: AppColors.darkTextPrimary,
                   ),

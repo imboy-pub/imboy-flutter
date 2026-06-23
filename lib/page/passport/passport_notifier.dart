@@ -729,9 +729,9 @@ class PassportNotifier extends _$PassportNotifier {
           content: message is String
               ? Text(
                   message,
-                  style: TextStyle(
+                  style: context.textStyle(
+                    FontSizeType.medium,
                     color: AppColors.onPrimary,
-                    fontSize: FontSizeType.medium.size,
                   ),
                 )
               : message as Widget,

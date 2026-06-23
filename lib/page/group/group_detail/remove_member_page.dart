@@ -17,7 +17,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'remove_member_provider.dart';
 
@@ -105,8 +105,8 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                           flex: 3,
                           child: Text(
                             model.alias.isEmpty ? model.nickname : model.alias,
-                            style: TextStyle(
-                              fontSize: FontSizeType.normal.size,
+                            style: context.textStyle(
+                              FontSizeType.normal,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),

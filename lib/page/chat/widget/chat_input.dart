@@ -853,10 +853,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
               counterText: '',
-              filled: isFocused,
-              fillColor: isFocused
-                  ? _themeColor('primary').withValues(alpha: 0.05)
-                  : Colors.transparent,
+              filled: false,
             ),
             style: TextStyle(
               color: _themeColor('textPrimary'),
@@ -1148,41 +1145,52 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
                 // 中间输入区域（文本输入框或语音按钮）
                 Expanded(
-                  child: Container(
-                    constraints: BoxConstraints(
-                      minHeight: 40,
-                      maxHeight: (widget.maxLines ?? 6) * 24.0 + 16,
-                    ),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          // 暗色下输入框用半透明白高光叠加，提升与底图对比
-                          ? Colors.white.withValues(alpha: 0.05)
-                          : AppColors.lightSurface,
-                      borderRadius: AppRadius.borderRadiusLarge,
-                      border: Border.all(
-                        color: AppColors.getIosSeparator(
-                          Theme.of(context).brightness,
-                        ).withValues(alpha: 0.2),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: _buildInputButton(),
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: _isFocused,
+                    builder: (context, isFocused, _) {
+                      return Container(
+                        constraints: BoxConstraints(
+                          minHeight: 40,
+                          maxHeight: (widget.maxLines ?? 6) * 24.0 + 16,
                         ),
-                        // @提及列表
-                        Positioned(
-                          bottom: 50,
-                          left: 0,
-                          right: 0,
-                          child: _buildMentionList(),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              // 暗色下输入框用半透明白高光叠加，提升与底图对比
+                              ? const Color(0xFFFFFFFF).withValues(
+                                  alpha: isFocused ? 0.08 : 0.05,
+                                )
+                              : AppColors.lightSurface,
+                          borderRadius: AppRadius.borderRadiusLarge,
+                          border: Border.all(
+                            color: isFocused
+                                ? _themeColor('primary').withValues(alpha: 0.5)
+                                : AppColors.getIosSeparator(
+                                    Theme.of(context).brightness,
+                                  ).withValues(alpha: 0.2),
+                            width: isFocused ? 1.0 : 0.5,
+                          ),
                         ),
-                      ],
-                    ),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              child: _buildInputButton(),
+                            ),
+                            // @提及列表
+                            Positioned(
+                              bottom: 50,
+                              left: 0,
+                              right: 0,
+                              child: _buildMentionList(),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
 

@@ -38,7 +38,6 @@ class WebRTCReconnectManager {
   /// 是否已连接
   bool _isConnected = false;
 
-
   /// 重连状态变更流控制器
   final StreamController<WebRTCReconnectStateEvent> _stateController =
       StreamController<WebRTCReconnectStateEvent>.broadcast();

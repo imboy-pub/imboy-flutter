@@ -10,6 +10,7 @@ import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -69,6 +70,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   double start = 0.0;
   double offset = 0.0;
   bool isUp = false;
+  bool _isPressed = false;
   String textShow = t.chat.chatHoldDownTalk;
   String toastShow = t.common.slideUpCancelSending;
 
@@ -203,6 +205,9 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
   Future<void> hideVoiceView(BuildContext ctx) async {
     iPrint("hideVoiceView ${DateTime.now()}");
+    setState(() {
+      _isPressed = false;
+    });
     try {
       String? result = await recorderStop(recorder);
       iPrint("recorderStop result: $result");
@@ -377,6 +382,9 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     }
 
     isUp = true; // 标记为取消状态
+    setState(() {
+      _isPressed = false;
+    });
     // 先取消订阅并停止录音器，然后清理录音状态
     cancelRecorderSubscriptions(
       from: 'forceStopRecording',
@@ -613,14 +621,24 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = ThemeManager.instance.getThemeColor('primary');
+    final onSurfaceColor = ThemeManager.instance.getThemeColor('onSurface');
+
     return GestureDetector(
       onLongPressStart: (details) {
         HapticFeedback.mediumImpact(); // 添加触觉反馈
         start = details.globalPosition.dy;
+        setState(() {
+          _isPressed = true;
+        });
         showVoiceView(context);
       },
       onLongPressEnd: (details) {
         HapticFeedback.lightImpact(); // 添加触觉反馈
+        setState(() {
+          _isPressed = false;
+        });
         hideVoiceView(context);
       },
       onLongPressMoveUpdate: (details) {
@@ -634,34 +652,29 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         decoration:
             widget.decoration ??
             BoxDecoration(
-              borderRadius: AppRadius.borderRadiusMedium,
-              gradient: LinearGradient(
-                colors: [
-                  ThemeManager.instance
-                      .getThemeColor('primary')
-                      .withValues(alpha: 0.1),
-                  ThemeManager.instance
-                      .getThemeColor('primary')
-                      .withValues(alpha: 0.05),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              borderRadius: AppRadius.borderRadiusLarge,
+              color: _isPressed
+                  ? primaryColor.withValues(alpha: 0.15)
+                  : (isDark
+                        ? const Color(0xFFFFFFFF).withValues(alpha: 0.05)
+                        : AppColors.lightSurface),
               border: Border.all(
-                width: 1.5,
-                color: ThemeManager.instance
-                    .getThemeColor('primary')
-                    .withValues(alpha: 0.3),
+                width: _isPressed ? 1.0 : 0.5,
+                color: _isPressed
+                    ? primaryColor.withValues(alpha: 0.5)
+                    : AppColors.getIosSeparator(
+                        Theme.of(context).brightness,
+                      ).withValues(alpha: 0.2),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: ThemeManager.instance
-                      .getThemeColor('primary')
-                      .withValues(alpha: 0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: _isPressed
+                  ? [
+                      BoxShadow(
+                        color: primaryColor.withValues(alpha: 0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
             ),
         margin:
             widget.margin ??
@@ -672,16 +685,22 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
             children: [
               Icon(
                 Icons.mic,
-                color: ThemeManager.instance.getThemeColor('primary'),
-                size: 24,
+                color: _isPressed
+                    ? primaryColor
+                    : onSurfaceColor.withValues(alpha: 0.65),
+                size: 20,
               ),
               const SizedBox(width: 8),
               Text(
                 textShow,
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: ThemeManager.instance.getThemeColor('onSurface'),
+                  fontSize: ThemeManager.instance.getFontSize(
+                    FontSizeType.subheadline,
+                  ),
+                  fontWeight: FontWeight.w600,
+                  color: _isPressed
+                      ? primaryColor
+                      : onSurfaceColor.withValues(alpha: 0.8),
                 ),
               ),
             ],

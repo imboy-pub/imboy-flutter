@@ -505,8 +505,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                   const Spacer(),
                   Text(
                     t.channel.typeCannotChange,
-                    style: TextStyle(
-                      fontSize: FontSizeType.small.size,
+                    style: context.textStyle(
+                      FontSizeType.small,
                       color: AppColors.iosGray,
                     ),
                   ),

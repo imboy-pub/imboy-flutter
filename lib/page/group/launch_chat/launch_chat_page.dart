@@ -98,8 +98,8 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                     ),
                     child: Text(
                       model.title,
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         color: colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
@@ -136,8 +136,8 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
             child: Text(
               t.common.buttonCancel,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: FontSizeType.medium.size,
+              style: context.textStyle(
+                FontSizeType.medium,
                 color: colorScheme.onSurface,
                 fontWeight: FontWeight.normal,
               ),
@@ -234,8 +234,8 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                     ),
                     title: Text(
                       t.contact.selectAGroup,
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         color: colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
@@ -262,8 +262,8 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                     ),
                     title: Text(
                       t.chat.createGroupF2f,
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         color: colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
@@ -311,8 +311,8 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                             indexBarOptions: IndexBarOptions(
                               needRebuild: true,
                               ignoreDragCancel: true,
-                              downTextStyle: TextStyle(
-                                fontSize: FontSizeType.small.size,
+                              downTextStyle: context.textStyle(
+                                FontSizeType.small,
                                 color: AppColors.onPrimary,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -344,8 +344,8 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                                   ),
                                 ],
                               ),
-                              indexHintTextStyle: TextStyle(
-                                fontSize: FontSizeType.largeTitle.size,
+                              indexHintTextStyle: context.textStyle(
+                                FontSizeType.largeTitle,
                                 color: AppColors.onPrimary,
                                 fontWeight: FontWeight.w600,
                               ),

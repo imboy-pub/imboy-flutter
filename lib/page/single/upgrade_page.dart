@@ -571,12 +571,13 @@ class UpgradeCardState extends State<UpgradeCard> {
                 padding: const EdgeInsets.only(top: 25),
                 child: Text(
                   widget.title,
-                  style: TextStyle(
-                    fontSize: FontSizeType.large.size,
-                    fontWeight: FontWeight.w600,
-                    decoration: TextDecoration.none,
-                    color: AppColors.upgradeBackground,
-                  ),
+                  style: context
+                      .textStyle(
+                        FontSizeType.large,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.upgradeBackground,
+                      )
+                      .copyWith(decoration: TextDecoration.none),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -675,8 +676,8 @@ class UpgradeCardState extends State<UpgradeCard> {
                         onPressed: widget.negativeCallback,
                         child: Text(
                           widget.negativeBtn,
-                          style: TextStyle(
-                            fontSize: FontSizeType.medium.size,
+                          style: context.textStyle(
+                            FontSizeType.medium,
                             fontWeight: FontWeight.w500,
                             color: AppColors.iosGray,
                           ),
@@ -696,8 +697,8 @@ class UpgradeCardState extends State<UpgradeCard> {
                         onPressed: widget.positiveCallback,
                         child: Text(
                           widget.positiveBtn,
-                          style: TextStyle(
-                            fontSize: FontSizeType.medium.size,
+                          style: context.textStyle(
+                            FontSizeType.medium,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

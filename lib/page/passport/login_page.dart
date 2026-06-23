@@ -282,8 +282,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
               borderRadius: BorderRadius.circular(10),
               child: Text(
                 t.common.getVerificationCode,
-                style: TextStyle(
-                  fontSize: FontSizeType.footnote.size,
+                style: context.textStyle(
+                  FontSizeType.footnote,
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -354,8 +354,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
               borderRadius: BorderRadius.circular(10),
               child: Text(
                 t.passport.getVerifyCode,
-                style: TextStyle(
-                  fontSize: FontSizeType.footnote.size,
+                style: context.textStyle(
+                  FontSizeType.footnote,
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),

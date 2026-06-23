@@ -380,19 +380,19 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               controller: _searchController,
               focusNode: _searchFocusNode,
               onChanged: _onSearchChanged,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.subheadline,
                 color: isDark
                     ? AppColors.darkTextPrimary
                     : AppColors.lightTextPrimary,
-                fontSize: FontSizeType.subheadline.size,
               ),
               decoration: InputDecoration(
                 hintText: t.common.search,
-                hintStyle: TextStyle(
+                hintStyle: context.textStyle(
+                  FontSizeType.subheadline,
                   color: isDark
                       ? AppColors.chatWebSecondaryDark
                       : AppColors.chatWebSecondaryLight,
-                  fontSize: FontSizeType.subheadline.size,
                 ),
                 filled: true,
                 fillColor: isDark
@@ -439,11 +439,11 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           AppSpacing.verticalRegular,
           Text(
             t.common.search,
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.normal,
               color: isDark
                   ? AppColors.chatWebSecondaryDark
                   : AppColors.chatWebSecondaryLight,
-              fontSize: FontSizeType.normal.size,
             ),
           ),
         ],
@@ -468,11 +468,11 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             AppSpacing.verticalRegular,
             Text(
               t.common.searchChatContent,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: isDark
                     ? AppColors.chatWebSecondaryDark
                     : AppColors.chatWebSecondaryLight,
-                fontSize: FontSizeType.normal.size,
               ),
             ),
           ],
@@ -491,21 +491,21 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             children: [
               Text(
                 t.common.searchHistory,
-                style: TextStyle(
+                style: context.textStyle(
+                  FontSizeType.normal,
+                  fontWeight: FontWeight.w500,
                   color: isDark
                       ? AppColors.chatWebSecondaryDark
                       : AppColors.chatWebSecondaryLight,
-                  fontSize: FontSizeType.normal.size,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
               TextButton(
                 onPressed: _clearSearchHistory,
                 child: Text(
                   t.common.clear,
-                  style: TextStyle(
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: AppColors.chatWebBrand,
-                    fontSize: FontSizeType.normal.size,
                   ),
                 ),
               ),
@@ -528,11 +528,11 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 ),
                 title: Text(
                   search,
-                  style: TextStyle(
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: isDark
                         ? AppColors.darkTextPrimary
                         : AppColors.lightTextPrimary,
-                    fontSize: FontSizeType.subheadline.size,
                   ),
                 ),
                 trailing: IconButton(
@@ -575,9 +575,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             AppSpacing.verticalRegular,
             Text(
               _state.error!,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: isDark ? AppColors.iosRedDark : AppColors.iosRed,
-                fontSize: FontSizeType.normal.size,
               ),
             ),
           ],
@@ -600,11 +600,11 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             AppSpacing.verticalRegular,
             Text(
               '${t.common.search}: "${_state.query}"',
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: isDark
                     ? AppColors.chatWebSecondaryDark
                     : AppColors.chatWebSecondaryLight,
-                fontSize: FontSizeType.normal.size,
               ),
               textAlign: TextAlign.center,
             ),
@@ -659,12 +659,12 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           : AppColors.chatWebBackgroundLight,
       child: Text(
         title,
-        style: TextStyle(
+        style: context.textStyle(
+          FontSizeType.footnote,
+          fontWeight: FontWeight.w500,
           color: isDark
               ? AppColors.chatWebSecondaryDark
               : AppColors.chatWebSecondaryLight,
-          fontSize: FontSizeType.footnote.size,
-          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -704,12 +704,12 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   TextHighlight(
                     text: item.title,
                     words: words,
-                    textStyle: TextStyle(
+                    textStyle: context.textStyle(
+                      FontSizeType.subheadline,
+                      fontWeight: FontWeight.w500,
                       color: isDark
                           ? AppColors.darkTextPrimary
                           : AppColors.lightTextPrimary,
-                      fontSize: FontSizeType.subheadline.size,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   if (item.subtitle != null) ...[
@@ -717,11 +717,11 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                     TextHighlight(
                       text: item.subtitle!,
                       words: words,
-                      textStyle: TextStyle(
+                      textStyle: context.textStyle(
+                        FontSizeType.footnote,
                         color: isDark
                             ? AppColors.chatWebSecondaryDark
                             : AppColors.chatWebSecondaryLight,
-                        fontSize: FontSizeType.footnote.size,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -737,11 +737,11 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               AppSpacing.horizontalSmall,
               Text(
                 DateTimeHelper.lastTimeFmt(item.metadata!['timestamp'] as int),
-                style: TextStyle(
+                style: context.textStyle(
+                  FontSizeType.small,
                   color: isDark
                       ? AppColors.chatWebSecondaryDark
                       : AppColors.chatWebSecondaryLight,
-                  fontSize: FontSizeType.small.size,
                 ),
               ),
             ],

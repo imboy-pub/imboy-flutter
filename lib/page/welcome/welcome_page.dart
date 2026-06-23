@@ -119,12 +119,13 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                         type: MaterialType.transparency,
                         child: Text(
                           'ImBoy',
-                          style: TextStyle(
-                            fontSize: FontSizeType.large.size,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primaryDark,
-                            letterSpacing: 0.5,
-                          ),
+                          style: context
+                              .textStyle(
+                                FontSizeType.large,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primaryDark,
+                              )
+                              .copyWith(letterSpacing: 0.5),
                         ),
                       ),
                     ),

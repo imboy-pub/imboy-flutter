@@ -393,8 +393,8 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
             widget.channel.description ?? '',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: FontSizeType.footnote.size,
+            style: context.textStyle(
+              FontSizeType.footnote,
               color: AppColors.iosGray,
             ),
           ),
@@ -405,9 +405,9 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
               AppSpacing.horizontalTiny,
               Text(
                 '${widget.channel.subscriberCount} ${t.channel.subscribers}',
-                style: TextStyle(
+                style: context.textStyle(
+                  FontSizeType.small,
                   color: AppColors.iosGray,
-                  fontSize: FontSizeType.small.size,
                 ),
               ),
               if (widget.channel.tags != null &&
@@ -416,9 +416,9 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
                 Expanded(
                   child: Text(
                     widget.channel.tags!.take(2).join(' · '),
-                    style: TextStyle(
+                    style: context.textStyle(
+                      FontSizeType.small,
                       color: AppColors.iosGray,
-                      fontSize: FontSizeType.small.size,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -74,8 +74,8 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
         scrolledUnderElevation: 0,
         title: Text(
           t.channel.title,
-          style: TextStyle(
-            fontSize: FontSizeType.extraLarge.size,
+          style: context.textStyle(
+            FontSizeType.extraLarge,
             fontWeight: FontWeight.w700,
             color: AppColors.getTextColor(brightness),
           ),
@@ -309,8 +309,8 @@ class _ChannelListItem extends StatelessWidget {
           Expanded(
             child: Text(
               channel.name,
-              style: TextStyle(
-                fontSize: FontSizeType.medium.size,
+              style: context.textStyle(
+                FontSizeType.medium,
                 fontWeight: FontWeight.w600,
                 color: AppColors.getTextColor(brightness),
               ),
@@ -328,8 +328,8 @@ class _ChannelListItem extends StatelessWidget {
               ),
               child: Text(
                 _getRoleLabel(channel.userRole, t),
-                style: TextStyle(
-                  fontSize: FontSizeType.tiny.size,
+                style: context.textStyle(
+                  FontSizeType.tiny,
                   fontWeight: FontWeight.w600,
                   color: _getRoleColor(channel.userRole),
                 ),
@@ -353,9 +353,9 @@ class _ChannelListItem extends StatelessWidget {
           AppSpacing.horizontalTiny,
           Text(
             '${channel.subscriberCount} ${t.channel.subscribers}',
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.small,
               color: AppColors.getTextColor(brightness, isSecondary: true),
-              fontSize: FontSizeType.small.size,
             ),
           ),
           if (channel.tags != null && channel.tags!.isNotEmpty) ...[
@@ -363,9 +363,9 @@ class _ChannelListItem extends StatelessWidget {
             Expanded(
               child: Text(
                 channel.tags!.take(2).join(' · '),
-                style: TextStyle(
+                style: context.textStyle(
+                  FontSizeType.small,
                   color: AppColors.getTextColor(brightness, isSecondary: true),
-                  fontSize: FontSizeType.small.size,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),

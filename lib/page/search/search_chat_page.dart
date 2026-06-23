@@ -202,8 +202,8 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       selected: isSelected,
       label: Text(
         label,
-        style: TextStyle(
-          fontSize: FontSizeType.footnote.size,
+        style: context.textStyle(
+          FontSizeType.footnote,
           color: isSelected ? AppColors.onPrimary : null,
         ),
       ),
@@ -307,9 +307,9 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
           Expanded(
             child: Text(
               author.nickname,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.medium,
                 fontWeight: FontWeight.w600,
-                fontSize: FontSizeType.medium.size,
               ),
             ),
           ),
@@ -317,8 +317,8 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
             DateTimeHelper.lastTimeFmt(
               message.createdAt!.millisecondsSinceEpoch,
             ),
-            style: TextStyle(
-              fontSize: FontSizeType.small.size,
+            style: context.textStyle(
+              FontSizeType.small,
               color: AppColors.iosGray,
             ),
           ),

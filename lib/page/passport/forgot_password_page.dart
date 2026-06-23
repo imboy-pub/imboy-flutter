@@ -77,8 +77,8 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
 
                     Text(
                       t.account.recoverPassword,
-                      style: TextStyle(
-                        fontSize: FontSizeType.extraLarge.size,
+                      style: context.textStyle(
+                        FontSizeType.extraLarge,
                         fontWeight: FontWeight.bold,
                         color: _isDark
                             ? AppColors.darkTextPrimary
@@ -192,9 +192,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
             },
             child: Text(
               t.common.nextStep,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.large,
                 color: AppColors.onPrimary,
-                fontSize: FontSizeType.large.size,
               ),
             ),
           ),
@@ -270,9 +270,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
             },
             child: Text(
               t.common.nextStep,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.large,
                 color: AppColors.onPrimary,
-                fontSize: FontSizeType.large.size,
               ),
             ),
           ),

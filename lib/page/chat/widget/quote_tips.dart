@@ -38,9 +38,9 @@ class QuoteTipsWidget extends StatelessWidget {
     if (message is TextMessage) {
       body = Text(
         (message as TextMessage).text,
-        style: TextStyle(
+        style: context.textStyle(
+          FontSizeType.normal,
           color: AppColors.iosGray,
-          fontSize: FontSizeType.normal.size,
         ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
@@ -62,9 +62,9 @@ class QuoteTipsWidget extends StatelessWidget {
           Expanded(
             child: Text(
               fileMsg.name,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: AppColors.iosGray,
-                fontSize: FontSizeType.normal.size,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -79,9 +79,9 @@ class QuoteTipsWidget extends StatelessWidget {
           AppSpacing.horizontalSmall,
           Text(
             "[${t.chat.voiceMessage}]",
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.normal,
               color: AppColors.iosGray,
-              fontSize: FontSizeType.normal.size,
             ),
           ),
         ],
@@ -98,11 +98,9 @@ class QuoteTipsWidget extends StatelessWidget {
           AppSpacing.horizontalSmall,
           Text(
             t.common.messageRevoked,
-            style: TextStyle(
-              color: AppColors.iosGray,
-              fontStyle: FontStyle.italic,
-              fontSize: FontSizeType.normal.size,
-            ),
+            style: context
+                .textStyle(FontSizeType.normal, color: AppColors.iosGray)
+                .copyWith(fontStyle: FontStyle.italic),
           ),
         ],
       );
@@ -115,9 +113,9 @@ class QuoteTipsWidget extends StatelessWidget {
           Expanded(
             child: Text(
               "[${t.main.quote}] $txt",
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: AppColors.iosGray,
-                fontSize: FontSizeType.normal.size,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -134,9 +132,9 @@ class QuoteTipsWidget extends StatelessWidget {
           AppSpacing.horizontalSmall,
           Text(
             "[${t.chat.voiceMessage}] ${durationMS.toStringAsFixed(1)}''",
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.normal,
               color: AppColors.iosGray,
-              fontSize: FontSizeType.normal.size,
             ),
           ),
         ],
@@ -149,9 +147,9 @@ class QuoteTipsWidget extends StatelessWidget {
           Expanded(
             child: Text(
               "[${t.groupSchedule.location}] ${message?.metadata?['title'] ?? ''}",
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: AppColors.iosGray,
-                fontSize: FontSizeType.normal.size,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -166,9 +164,9 @@ class QuoteTipsWidget extends StatelessWidget {
           AppSpacing.horizontalSmall,
           Text(
             "[${t.chat.video}]",
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.normal,
               color: AppColors.iosGray,
-              fontSize: FontSizeType.normal.size,
             ),
           ),
         ],
@@ -185,9 +183,9 @@ class QuoteTipsWidget extends StatelessWidget {
           Expanded(
             child: Text(
               "[${t.chat.businessCard}] ${message?.metadata?['title'] ?? ''}",
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: AppColors.iosGray,
-                fontSize: FontSizeType.normal.size,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

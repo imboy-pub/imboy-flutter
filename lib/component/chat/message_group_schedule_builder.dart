@@ -51,7 +51,11 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.calendar_month, color: AppColors.primary, size: 24),
+                    const Icon(
+                      Icons.calendar_month,
+                      color: AppColors.primary,
+                      size: 24,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       t.groupSchedule.title,
@@ -78,10 +82,7 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     '时间: $startTime',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
                 const Divider(height: 20),
@@ -95,7 +96,11 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                         color: isDark ? Colors.white54 : Colors.black54,
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 12,
+                      color: Colors.grey,
+                    ),
                   ],
                 ),
               ],

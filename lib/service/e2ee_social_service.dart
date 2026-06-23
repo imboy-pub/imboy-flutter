@@ -93,7 +93,11 @@ class E2EESocialService {
       // 保存新元数据
       await StorageSecureService.to.saveE2EEShardMetadataList(metadataList);
     } catch (e, s) {
-      AppLogger.error('[e2ee_social_service] saveE2EEShardMetadataList error', e, s);
+      AppLogger.error(
+        '[e2ee_social_service] saveE2EEShardMetadataList error',
+        e,
+        s,
+      );
     }
   }
 

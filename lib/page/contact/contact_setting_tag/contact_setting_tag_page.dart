@@ -117,7 +117,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                   placeholder: t.contact.remark,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: null,
-                  style: TextStyle(fontSize: FontSizeType.medium.size),
+                  style: context.textStyle(FontSizeType.medium),
                   onChanged: (v) => controller.valueOnChange(
                     v.trim().isNotEmpty && widget.peerRemark != v,
                   ),
@@ -155,8 +155,8 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                                   ),
                                   child: Text(
                                     tag,
-                                    style: TextStyle(
-                                      fontSize: FontSizeType.small.size,
+                                    style: context.textStyle(
+                                      FontSizeType.small,
                                       color: AppColors.primary,
                                     ),
                                   ),
@@ -171,8 +171,8 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                     if (_currentTag.isEmpty)
                       Text(
                         t.common.addTag,
-                        style: TextStyle(
-                          fontSize: FontSizeType.normal.size,
+                        style: context.textStyle(
+                          FontSizeType.normal,
                           color: AppColors.iosGray,
                         ),
                       ),

@@ -122,8 +122,8 @@ class _SignupPageState extends ConsumerState<SignupPage>
                     children: [
                       Text(
                         t.main.siginQ,
-                        style: TextStyle(
-                          fontSize: FontSizeType.footnote.size,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
                           fontWeight: FontWeight.w600,
                           color: _isDark
                               ? AppColors.darkTextPrimary
@@ -135,9 +135,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
                         onTap: () => context.go(AppRoutes.signIn),
                         child: Text(
                           t.account.login,
-                          style: TextStyle(
+                          style: context.textStyle(
+                            FontSizeType.footnote,
                             color: AppColors.primary,
-                            fontSize: FontSizeType.footnote.size,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -248,9 +248,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          textStyle: TextStyle(
+          textStyle: context.textStyle(
+            FontSizeType.large,
             color: AppColors.onPrimary,
-            fontSize: FontSizeType.large.size,
           ),
           onPressed: () async {
             final nickname = _nicknameController.text.trim();
@@ -377,9 +377,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          textStyle: TextStyle(
+          textStyle: context.textStyle(
+            FontSizeType.large,
             color: AppColors.onPrimary,
-            fontSize: FontSizeType.large.size,
           ),
           onPressed: () async {
             final nickname = _nicknameController.text.trim();
@@ -474,8 +474,8 @@ class _SignupPageState extends ConsumerState<SignupPage>
         const SizedBox(height: 5),
         Text(
           t.passport.oneKeyLogin,
-          style: TextStyle(
-            fontSize: FontSizeType.small.size,
+          style: context.textStyle(
+            FontSizeType.small,
             color: _unselectedLabel,
           ),
         ),

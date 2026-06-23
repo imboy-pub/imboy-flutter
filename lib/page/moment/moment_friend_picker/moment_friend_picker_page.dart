@@ -368,9 +368,9 @@ class _MomentFriendPickerPageState
             AppSpacing.horizontalTiny,
             Text(
               entry.tag.name,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: fg,
-                fontSize: FontSizeType.footnote.size,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
@@ -412,8 +412,8 @@ class _MomentFriendPickerPageState
           alignment: Alignment.centerLeft,
           child: Text(
             c.getSuspensionTag(),
-            style: TextStyle(
-              fontSize: FontSizeType.small.size,
+            style: context.textStyle(
+              FontSizeType.small,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -436,7 +436,7 @@ class _MomentFriendPickerPageState
             Expanded(
               child: Text(
                 c.title,
-                style: TextStyle(fontSize: FontSizeType.subheadline.size),
+                style: context.textStyle(FontSizeType.subheadline),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -467,8 +467,8 @@ class _MomentFriendPickerPageState
         ),
         child: Text(
           t.momentFriendPicker.selectedCount(count: count),
-          style: TextStyle(
-            fontSize: FontSizeType.footnote.size,
+          style: context.textStyle(
+            FontSizeType.footnote,
             fontWeight: FontWeight.w500,
           ),
         ),

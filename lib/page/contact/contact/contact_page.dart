@@ -182,8 +182,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       ),
       title: Text(
         model.title,
-        style: TextStyle(
-          fontSize: FontSizeType.body.size,
+        style: context.textStyle(
+          FontSizeType.body,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -192,8 +192,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               isOnline: model.status == 'online',
               lastSeenTimestamp: model.lastSeenAt,
               hideOnlineStatus: false,
-              textStyle: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              textStyle: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosGray,
               ),
               indicatorSize: 0,
@@ -231,8 +231,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
           : AppColors.lightSurfaceGrouped,
       child: Text(
         tag,
-        style: TextStyle(
-          fontSize: FontSizeType.footnote.size,
+        style: context.textStyle(
+          FontSizeType.footnote,
           fontWeight: FontWeight.w600,
           color: AppColors.iosGray,
         ),
@@ -321,8 +321,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                   ).withValues(alpha: 0.9),
                   shape: BoxShape.circle,
                 ),
-                indexHintTextStyle: TextStyle(
-                  fontSize: FontSizeType.largeTitle.size,
+                indexHintTextStyle: context.textStyle(
+                  FontSizeType.largeTitle,
                   color: AppColors.onPrimary,
                   fontWeight: FontWeight.w600,
                 ),
