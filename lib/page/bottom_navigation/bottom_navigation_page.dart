@@ -228,16 +228,16 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                 context,
               ).colorScheme.surfaceContainerLow,
               indicatorColor: AppColors.primary.withValues(alpha: 0.15),
-              selectedLabelTextStyle: TextStyle(
+              selectedLabelTextStyle: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.primary,
-                fontSize: FontSizeType.small.size,
                 fontWeight: FontWeight.w600,
               ),
-              unselectedLabelTextStyle: TextStyle(
+              unselectedLabelTextStyle: context.textStyle(
+                FontSizeType.small,
                 color: Theme.of(
                   context,
                 ).colorScheme.onSurface.withValues(alpha: 0.5),
-                fontSize: FontSizeType.small.size,
               ),
               destinations: navigationItems.map((item) {
                 return NavigationRailDestination(
@@ -340,12 +340,13 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       return BadgeWidget(
         content: Text(
           item.remindCount > 99 ? '99+' : '${item.remindCount}',
-          style: TextStyle(
-            color: AppColors.onPrimary,
-            fontSize: FontSizeType.tiny.size,
-            fontWeight: FontWeight.bold,
-            fontFeatures: [FontFeature.tabularFigures()],
-          ),
+          style: context
+              .textStyle(
+                FontSizeType.tiny,
+                color: AppColors.onPrimary,
+                fontWeight: FontWeight.bold,
+              )
+              .copyWith(fontFeatures: [FontFeature.tabularFigures()]),
         ),
         color: AppColors.iosRed,
         padding: AppSpacing.allTiny,

@@ -107,8 +107,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   children: [
                     Text(
                       t.common.smallChange,
-                      style: TextStyle(
-                        fontSize: FontSizeType.normal.size,
+                      style: context.textStyle(
+                        FontSizeType.normal,
                         color: AppColors.getTextColor(
                           brightness,
                           isSecondary: true,
@@ -118,8 +118,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                     AppSpacing.verticalSmall,
                     Text(
                       '￥${balanceYuan.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: FontSizeType.extraLargeTitle.size,
+                      style: context.textStyle(
+                        FontSizeType.extraLargeTitle,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -131,8 +131,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
               // 提现渠道选择
               Text(
                 t.common.withdrawMethod,
-                style: TextStyle(
-                  fontSize: FontSizeType.medium.size,
+                style: context.textStyle(
+                  FontSizeType.medium,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -191,8 +191,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
               // 提现账号输入
               Text(
                 t.common.withdrawAccount,
-                style: TextStyle(
-                  fontSize: FontSizeType.medium.size,
+                style: context.textStyle(
+                  FontSizeType.medium,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -219,8 +219,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                 t.common.withdrawConfirm.contains('Confirm')
                     ? 'Withdrawal Amount'
                     : '提现金额',
-                style: TextStyle(
-                  fontSize: FontSizeType.medium.size,
+                style: context.textStyle(
+                  FontSizeType.medium,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -265,8 +265,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   ),
                   child: Text(
                     t.common.withdrawConfirm,
-                    style: TextStyle(
-                      fontSize: FontSizeType.medium.size,
+                    style: context.textStyle(
+                      FontSizeType.medium,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

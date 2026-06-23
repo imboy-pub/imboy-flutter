@@ -172,12 +172,13 @@ class _Badge extends StatelessWidget {
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: TextStyle(
-          color: colorScheme.onError,
-          fontSize: FontSizeType.tiny.size,
-          fontWeight: FontWeight.w600,
-          height: 1.2,
-        ),
+        style: context
+            .textStyle(
+              FontSizeType.tiny,
+              color: colorScheme.onError,
+              fontWeight: FontWeight.w600,
+            )
+            .copyWith(height: 1.2),
       ),
     );
   }

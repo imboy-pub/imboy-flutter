@@ -76,12 +76,13 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
               showBadge: (remindCounter > 0),
               content: Text(
                 remindCounter > 99 ? '99+' : "$remindCounter",
-                style: TextStyle(
-                  color: AppColors.onPrimary,
-                  fontSize: FontSizeType.caption2.size,
-                  fontWeight: FontWeight.bold,
-                  fontFeatures: [FontFeature.tabularFigures()],
-                ),
+                style: context
+                    .textStyle(
+                      FontSizeType.caption2,
+                      color: AppColors.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    )
+                    .copyWith(fontFeatures: [FontFeature.tabularFigures()]),
               ),
               color: AppColors.iosRed,
               padding: const EdgeInsets.all(5),
@@ -173,12 +174,15 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
 
     return Text(
       displayTitle,
-      style: TextStyle(
-        fontSize: FontSizeType.body.size,
-        fontWeight: FontWeight.w600,
-        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-        letterSpacing: -0.4,
-      ),
+      style: context
+          .textStyle(
+            FontSizeType.body,
+            fontWeight: FontWeight.w600,
+            color: isDark
+                ? AppColors.darkTextPrimary
+                : AppColors.lightTextPrimary,
+          )
+          .copyWith(letterSpacing: -0.4),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
@@ -196,12 +200,13 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
       children: [
         Text(
           DateTimeHelper.lastTimeFmt(currentModel.lastTime),
-          style: TextStyle(
-            fontSize: FontSizeType.footnote.size,
-            color: AppColors.iosGray,
-            fontWeight: FontWeight.w400,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
+          style: context
+              .textStyle(
+                FontSizeType.footnote,
+                color: AppColors.iosGray,
+                fontWeight: FontWeight.w400,
+              )
+              .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
         ),
         AppSpacing.horizontalTiny,
         const Icon(
@@ -219,12 +224,9 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
     bool isDark,
   ) {
     String content = currentModel.content;
-    TextStyle contentStyle = TextStyle(
-      fontSize: FontSizeType.subheadline.size,
-      color: AppColors.iosGray,
-      height: 1.3,
-      letterSpacing: -0.2,
-    );
+    TextStyle contentStyle = context
+        .textStyle(FontSizeType.subheadline, color: AppColors.iosGray)
+        .copyWith(height: 1.3, letterSpacing: -0.2);
 
     if (content.contains('_color_red_')) {
       List<String> parts = content.split('_color_red_');

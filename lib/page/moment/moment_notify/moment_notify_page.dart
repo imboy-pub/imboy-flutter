@@ -154,9 +154,9 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
                     ),
                     child: Text(
                       t.momentNotify.emptyHint,
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: AppColors.iosGray,
-                        fontSize: FontSizeType.small.size,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -243,11 +243,9 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
                 Text(
                   timeText,
                   // DESIGN.md §3.4：时间戳数字等宽对齐
-                  style: TextStyle(
-                    color: AppColors.iosGray,
-                    fontSize: FontSizeType.small.size,
-                    fontFeatures: [FontFeature.tabularFigures()],
-                  ),
+                  style: context
+                      .textStyle(FontSizeType.small, color: AppColors.iosGray)
+                      .copyWith(fontFeatures: [FontFeature.tabularFigures()]),
                 ),
               ],
             ),

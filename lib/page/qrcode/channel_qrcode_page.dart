@@ -229,8 +229,8 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
             AppSpacing.horizontalSmall,
             Text(
               text,
-              style: TextStyle(
-                fontSize: FontSizeType.subheadline.size,
+              style: context.textStyle(
+                FontSizeType.subheadline,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primary,
               ),

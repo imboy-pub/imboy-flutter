@@ -93,13 +93,13 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                 children: [
                   Text(
                     model.title,
-                    style: TextStyle(fontSize: FontSizeType.medium.size),
+                    style: context.textStyle(FontSizeType.medium),
                   ),
                   if (model.sign.isNotEmpty)
                     Text(
                       model.sign,
-                      style: TextStyle(
-                        fontSize: FontSizeType.small.size,
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: AppColors.iosGray,
                       ),
                       maxLines: 1,
@@ -125,8 +125,8 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
       color: isDark ? AppColors.iosGray6 : AppColors.iosGray5,
       child: Text(
         tag,
-        style: TextStyle(
-          fontSize: FontSizeType.normal.size,
+        style: context.textStyle(
+          FontSizeType.normal,
           color: AppColors.getTextColor(
             isDark ? Brightness.dark : Brightness.light,
           ),
@@ -530,11 +530,9 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                 child: Text(
                                                   t.common.removeContactFromTag,
                                                   textAlign: TextAlign.center,
-                                                  style: TextStyle(
+                                                  style: context.textStyle(
+                                                    FontSizeType.medium,
                                                     color: AppColors.iosRed,
-                                                    fontSize: FontSizeType
-                                                        .medium
-                                                        .size,
                                                     fontWeight:
                                                         FontWeight.normal,
                                                   ),
@@ -549,10 +547,8 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                 child: Text(
                                                   t.common.buttonCancel,
                                                   textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontSize: FontSizeType
-                                                        .medium
-                                                        .size,
+                                                  style: context.textStyle(
+                                                    FontSizeType.medium,
                                                     fontWeight:
                                                         FontWeight.normal,
                                                   ),
@@ -593,8 +589,8 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                         indexBarOptions: IndexBarOptions(
                           needRebuild: true,
                           ignoreDragCancel: true,
-                          downTextStyle: TextStyle(
-                            fontSize: FontSizeType.small.size,
+                          downTextStyle: context.textStyle(
+                            FontSizeType.small,
                             color: AppColors.onPrimary,
                           ),
                           downItemDecoration: const BoxDecoration(
@@ -644,9 +640,9 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
                         t.common.buttonAdd,
-                        style: TextStyle(
+                        style: context.textStyle(
+                          FontSizeType.medium,
                           color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.normal,
                         ),
                       ),

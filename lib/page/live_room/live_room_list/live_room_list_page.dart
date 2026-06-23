@@ -183,9 +183,9 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
               const SizedBox(width: 2),
               Text(
                 '${room.viewerCount}',
-                style: TextStyle(
+                style: context.textStyle(
+                  FontSizeType.small,
                   color: secondaryColor,
-                  fontSize: FontSizeType.small.size,
                 ),
               ),
             ],

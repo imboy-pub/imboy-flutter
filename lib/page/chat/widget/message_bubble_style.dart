@@ -112,25 +112,26 @@ class MessageBubbleStyle {
   }) {
     final theme = Theme.of(context);
 
-    return TextStyle(
-      fontSize: FontSizeType.medium.size,
-      fontWeight: FontWeight.w400,
-      color: isSentByMe
-          ? AppColors.sentMessageText
-          : AppColors.getTextColor(theme.brightness),
-      height: 1.4,
-    );
+    return context
+        .textStyle(
+          FontSizeType.medium,
+          fontWeight: FontWeight.w400,
+          color: isSentByMe
+              ? AppColors.sentMessageText
+              : AppColors.getTextColor(theme.brightness),
+        )
+        .copyWith(height: 1.4);
   }
 
   /// 获取时间戳样式
   static TextStyle getTimestampStyle(BuildContext context) {
-    return TextStyle(
-      fontSize: FontSizeType.small.size,
+    return context.textStyle(
+      FontSizeType.small,
+      fontWeight: FontWeight.w400,
       color: AppColors.getTextColor(
         Theme.of(context).brightness,
         isSecondary: true,
       ).withValues(alpha: 0.54),
-      fontWeight: FontWeight.w400,
     );
   }
 

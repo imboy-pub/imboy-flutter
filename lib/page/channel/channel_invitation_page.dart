@@ -404,8 +404,8 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                       Expanded(
                         child: Text(
                           channelName,
-                          style: TextStyle(
-                            fontSize: FontSizeType.subheadline.size,
+                          style: context.textStyle(
+                            FontSizeType.subheadline,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

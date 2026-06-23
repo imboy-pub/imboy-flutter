@@ -72,7 +72,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                   maxLength: 100,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: null,
-                  style: TextStyle(fontSize: FontSizeType.medium.size),
+                  style: context.textStyle(FontSizeType.medium),
                 ),
               ),
             ],
@@ -91,7 +91,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                       width: 80,
                       child: Text(
                         t.contact.remark,
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                     Expanded(
@@ -101,7 +101,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                         maxLength: 80,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: null,
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                   ],
@@ -212,8 +212,8 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
               ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   t.common.buttonSend,
-                  style: TextStyle(
-                    fontSize: FontSizeType.body.size,
+                  style: context.textStyle(
+                    FontSizeType.body,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

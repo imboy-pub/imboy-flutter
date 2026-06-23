@@ -116,8 +116,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                         _canRecover
                             ? t.main.e2eeSocialCanRecover
                             : t.main.e2eeSocialSetupProxy,
-                        style: TextStyle(
-                          fontSize: FontSizeType.large.size,
+                        style: context.textStyle(
+                          FontSizeType.large,
                           fontWeight: FontWeight.bold,
                           color: AppColors.iosPurple,
                         ),
@@ -127,8 +127,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                         _canRecover
                             ? t.common.e2eeSocialEnoughShards
                             : t.main.e2eeSocialChooseProxy,
-                        style: TextStyle(
-                          fontSize: FontSizeType.footnote.size,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
                           color: AppColors.iosPurple,
                         ),
                       ),
@@ -164,8 +164,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                 AppSpacing.horizontalSmall,
                 Text(
                   t.main.e2eeSocialExistingShards,
-                  style: TextStyle(
-                    fontSize: FontSizeType.medium.size,
+                  style: context.textStyle(
+                    FontSizeType.medium,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -178,8 +178,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                 padding: const EdgeInsets.only(top: AppSpacing.small),
                 child: Text(
                   t.common.e2eeSocialMoreShards(count: _shards.length - 3),
-                  style: TextStyle(
-                    fontSize: FontSizeType.small.size,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -223,12 +223,12 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
               children: [
                 Text(
                   t.main.e2eeProxyUser(uid: proxyUid as Object),
-                  style: TextStyle(fontSize: FontSizeType.footnote.size),
+                  style: context.textStyle(FontSizeType.footnote),
                 ),
                 Text(
                   t.chat.e2eeSocialStatus(status: status as Object),
-                  style: TextStyle(
-                    fontSize: FontSizeType.small.size,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     color: status == 'active'
                         ? AppColors.iosGreen
                         : AppColors.iosGray,
@@ -328,16 +328,16 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     AppSpacing.verticalTiny,
                     Text(
                       description,
-                      style: TextStyle(
-                        fontSize: FontSizeType.footnote.size,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
                         color: AppColors.iosGray,
                       ),
                     ),

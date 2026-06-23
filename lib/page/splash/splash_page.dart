@@ -219,13 +219,14 @@ class _SplashPageState extends ConsumerState<SplashPage>
                     child: ExcludeSemantics(
                       child: Text(
                         'DEV',
-                        style: TextStyle(
-                          fontSize: FontSizeType.tiny.size,
-                          fontWeight: FontWeight.w600,
-                          // 固定品牌渐变底上的白色标记，与主题无关
-                          color: Colors.white.withValues(alpha: 0.45),
-                          letterSpacing: 1.0,
-                        ),
+                        style: context
+                            .textStyle(
+                              FontSizeType.tiny,
+                              fontWeight: FontWeight.w600,
+                              // 固定品牌渐变底上的白色标记，与主题无关
+                              color: Colors.white.withValues(alpha: 0.45),
+                            )
+                            .copyWith(letterSpacing: 1.0),
                       ),
                     ),
                   ),
@@ -311,13 +312,14 @@ class _SplashPageState extends ConsumerState<SplashPage>
   Widget _buildSlogan(BuildContext context, {required bool disableAnim}) {
     final node = Text(
       context.t.splash.slogan,
-      style: TextStyle(
-        fontSize: FontSizeType.subheadline.size,
-        fontWeight: FontWeight.w500,
-        // 固定品牌渐变底上的白色文字，与主题无关
-        color: Colors.white.withValues(alpha: 0.85),
-        letterSpacing: 0.3,
-      ),
+      style: context
+          .textStyle(
+            FontSizeType.subheadline,
+            fontWeight: FontWeight.w500,
+            // 固定品牌渐变底上的白色文字，与主题无关
+            color: Colors.white.withValues(alpha: 0.85),
+          )
+          .copyWith(letterSpacing: 0.3),
     );
     if (disableAnim) return node;
     return FadeTransition(opacity: _sloganFade, child: node);

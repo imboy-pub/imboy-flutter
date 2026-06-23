@@ -98,8 +98,8 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
               // 转账金额输入
               Text(
                 '转账金额',
-                style: TextStyle(
-                  fontSize: FontSizeType.subheadline.size,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -132,8 +132,8 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
               // 备注说明
               Text(
                 '转账备注',
-                style: TextStyle(
-                  fontSize: FontSizeType.subheadline.size,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -152,8 +152,8 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
               // 钱包余额提示
               Text(
                 '钱包当前余额: ￥${balanceYuan.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: FontSizeType.footnote.size,
+                style: context.textStyle(
+                  FontSizeType.footnote,
                   color: AppColors.getTextColor(
                     Theme.of(context).brightness,
                     isSecondary: true,
@@ -177,8 +177,8 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                   ),
                   child: Text(
                     '确认转账',
-                    style: TextStyle(
-                      fontSize: FontSizeType.medium.size,
+                    style: context.textStyle(
+                      FontSizeType.medium,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

@@ -194,7 +194,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
             const SizedBox(height: AppSpacing.xLarge),
             Text(
               _statusMessage ?? t.common.e2eeTransferProcessingMsg,
-              style: TextStyle(fontSize: FontSizeType.medium.size),
+              style: context.textStyle(FontSizeType.medium),
               textAlign: TextAlign.center,
             ),
             if (_isFailed) ...[

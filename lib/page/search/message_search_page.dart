@@ -181,8 +181,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                 autofocus: true,
                 decoration: InputDecoration(
                   hintText: t.common.searchHint,
-                  hintStyle: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  hintStyle: context.textStyle(
+                    FontSizeType.normal,
                     color: AppColors.textSecondary.withValues(alpha: 0.7),
                   ),
                   border: InputBorder.none,
@@ -240,10 +240,10 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               t.common.buttonCancel,
-              style: TextStyle(
-                fontSize: FontSizeType.normal.size,
-                color: AppColors.primary,
+              style: context.textStyle(
+                FontSizeType.normal,
                 fontWeight: FontWeight.w500,
+                color: AppColors.primary,
               ),
             ),
           ),
@@ -359,12 +359,12 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: FontSizeType.small.size,
+          style: context.textStyle(
+            FontSizeType.small,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             color: isSelected
                 ? AppColors.primary
                 : Theme.of(context).colorScheme.onSurface,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
       ),
@@ -394,8 +394,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
           Expanded(
             child: Text(
               '${t.common.searchScope}: ${widget.conversationTitle}',
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.textSecondary,
               ),
             ),
@@ -411,8 +411,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             },
             child: Text(
               t.common.searchAll,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.primary,
               ),
             ),
@@ -468,8 +468,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             AppSpacing.verticalRegular,
             Text(
               t.common.noSearchHistory,
-              style: TextStyle(
-                fontSize: FontSizeType.normal.size,
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: AppColors.textSecondary,
               ),
             ),
@@ -494,8 +494,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             children: [
               Text(
                 t.common.searchHistory,
-                style: TextStyle(
-                  fontSize: FontSizeType.large.size,
+                style: context.textStyle(
+                  FontSizeType.large,
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -506,8 +506,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                 },
                 child: Text(
                   t.common.clearAll,
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: AppColors.primary,
                   ),
                 ),
@@ -529,8 +529,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                 ),
                 title: Text(
                   query,
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
@@ -594,8 +594,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             children: [
               Text(
                 '${state.totalResults} ${t.common.searchResults}',
-                style: TextStyle(
-                  fontSize: FontSizeType.small.size,
+                style: context.textStyle(
+                  FontSizeType.small,
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -614,8 +614,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   ),
                   child: Text(
                     t.common.resetFilters,
-                    style: TextStyle(
-                      fontSize: FontSizeType.small.size,
+                    style: context.textStyle(
+                      FontSizeType.small,
                       color: AppColors.primary,
                     ),
                   ),
@@ -724,12 +724,12 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                       result.type == 'C2G'
                           ? t.chat.groupChat
                           : t.chat.privateChat,
-                      style: TextStyle(
-                        fontSize: FontSizeType.tiny.size,
+                      style: context.textStyle(
+                        FontSizeType.tiny,
+                        fontWeight: FontWeight.w500,
                         color: result.type == 'C2G'
                             ? AppColors.secondary
                             : AppColors.primary,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -738,8 +738,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   Expanded(
                     child: Text(
                       sender.nickname,
-                      style: TextStyle(
-                        fontSize: FontSizeType.small.size,
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: AppColors.textSecondary,
                       ),
                       maxLines: 1,
@@ -749,8 +749,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   // 时间
                   Text(
                     DateTimeHelper.lastTimeFmt(result.createdAt),
-                    style: TextStyle(
-                      fontSize: FontSizeType.tiny.size,
+                    style: context.textStyle(
+                      FontSizeType.tiny,
                       color: AppColors.textSecondary.withValues(alpha: 0.7),
                     ),
                   ),
@@ -761,11 +761,12 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               TextHighlight(
                 text: _getMessageContent(result),
                 words: _highlightWords,
-                textStyle: TextStyle(
-                  fontSize: FontSizeType.normal.size,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  height: 1.4,
-                ),
+                textStyle: context
+                    .textStyle(
+                      FontSizeType.normal,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    )
+                    .copyWith(height: 1.4),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),

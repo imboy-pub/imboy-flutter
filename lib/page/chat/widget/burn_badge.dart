@@ -156,12 +156,12 @@ class _BurnBadgeState extends State<BurnBadge>
           AppSpacing.horizontalTiny,
           Text(
             text,
-            style: TextStyle(
-              fontSize: FontSizeType.tiny.size,
-              color: color,
-              height: 1.0,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
+            style: context
+                .textStyle(FontSizeType.tiny, color: color)
+                .copyWith(
+                  height: 1.0,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
           ),
         ],
       ),

@@ -68,12 +68,9 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                 padding: AppSpacing.allRegular,
                 child: Text(
                   '"${widget.msg}"',
-                  style: TextStyle(
-                    fontSize: FontSizeType.medium.size,
-                    height: 1.4,
-                    fontStyle: FontStyle.italic,
-                    color: AppColors.iosGray,
-                  ),
+                  style: context
+                      .textStyle(FontSizeType.medium, color: AppColors.iosGray)
+                      .copyWith(height: 1.4, fontStyle: FontStyle.italic),
                 ),
               ),
             ],
@@ -92,7 +89,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                       width: 80,
                       child: Text(
                         t.contact.remark,
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                     Expanded(
@@ -102,7 +99,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                         maxLength: 80,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: null,
-                        style: TextStyle(fontSize: FontSizeType.body.size),
+                        style: context.textStyle(FontSizeType.body),
                       ),
                     ),
                   ],
@@ -201,8 +198,8 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
           },
           child: Text(
             t.common.buttonAccomplish,
-            style: TextStyle(
-              fontSize: FontSizeType.body.size,
+            style: context.textStyle(
+              FontSizeType.body,
               fontWeight: FontWeight.w600,
             ),
           ),

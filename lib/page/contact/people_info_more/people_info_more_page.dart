@@ -89,8 +89,8 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     Expanded(
                       child: Text(
                         title,
-                        style: TextStyle(
-                          fontSize: FontSizeType.medium.size,
+                        style: context.textStyle(
+                          FontSizeType.medium,
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
@@ -112,12 +112,13 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                   content,
                   maxLines: maxLines,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
-                    height: 1.5,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: context
+                      .textStyle(
+                        FontSizeType.subheadline,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w400,
+                      )
+                      .copyWith(height: 1.5),
                 ),
               ],
             ),
@@ -196,8 +197,8 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     children: [
                       Text(
                         t.group.mutualGroupsWithHer,
-                        style: TextStyle(
-                          fontSize: FontSizeType.medium.size,
+                        style: context.textStyle(
+                          FontSizeType.medium,
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
@@ -207,8 +208,8 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                         state.groupCount > 0
                             ? t.main.numUnit(param: '${state.groupCount}')
                             : t.common.noCommonGroups,
-                        style: TextStyle(
-                          fontSize: FontSizeType.normal.size,
+                        style: context.textStyle(
+                          FontSizeType.normal,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -231,8 +232,8 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     ),
                     child: Text(
                       '${state.groupCount}',
-                      style: TextStyle(
-                        fontSize: FontSizeType.normal.size,
+                      style: context.textStyle(
+                        FontSizeType.normal,
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.primary,
                       ),

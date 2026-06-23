@@ -150,8 +150,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: Text(
                       t.main.e2eeDangerousOps,
-                      style: TextStyle(
-                        fontSize: FontSizeType.normal.size,
+                      style: context.textStyle(
+                        FontSizeType.normal,
                         fontWeight: FontWeight.w500,
                         color: AppColors.iosGray,
                       ),
@@ -218,8 +218,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     children: [
                       Text(
                         t.common.e2eeCurrentKeyInfo,
-                        style: TextStyle(
-                          fontSize: FontSizeType.large.size,
+                        style: context.textStyle(
+                          FontSizeType.large,
                           fontWeight: FontWeight.bold,
                           color: AppColors.iosBlue,
                         ),
@@ -227,8 +227,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       AppSpacing.verticalTiny,
                       Text(
                         t.common.e2eeE2EEEnabled,
-                        style: TextStyle(
-                          fontSize: FontSizeType.footnote.size,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
                           color: AppColors.iosBlue,
                         ),
                       ),
@@ -246,9 +246,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   ),
                   child: Text(
                     t.chat.e2eeActivated,
-                    style: TextStyle(
+                    style: context.textStyle(
+                      FontSizeType.small,
                       color: AppColors.onPrimary,
-                      fontSize: FontSizeType.small.size,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -302,8 +302,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             AppSpacing.verticalRegular,
             Text(
               t.common.e2eeNoKeyDetected,
-              style: TextStyle(
-                fontSize: FontSizeType.large.size,
+              style: context.textStyle(
+                FontSizeType.large,
                 fontWeight: FontWeight.bold,
                 color: AppColors.iosOrange,
               ),
@@ -311,7 +311,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             AppSpacing.verticalSmall,
             Text(
               t.common.e2eeNoKeyDesc,
-              style: TextStyle(fontSize: FontSizeType.normal.size),
+              style: context.textStyle(FontSizeType.normal),
               textAlign: TextAlign.center,
             ),
             AppSpacing.verticalRegular,
@@ -342,8 +342,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             width: 80,
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosGray,
               ),
             ),
@@ -351,8 +351,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -386,8 +386,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 AppSpacing.horizontalSmall,
                 Text(
                   t.common.e2eeAboutTitle,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -396,17 +396,17 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             AppSpacing.verticalMedium,
             Text(
               t.common.e2eeInfoPoint1,
-              style: TextStyle(fontSize: FontSizeType.footnote.size),
+              style: context.textStyle(FontSizeType.footnote),
             ),
             AppSpacing.verticalTiny,
             Text(
               t.common.e2eeInfoPoint2,
-              style: TextStyle(fontSize: FontSizeType.footnote.size),
+              style: context.textStyle(FontSizeType.footnote),
             ),
             AppSpacing.verticalTiny,
             Text(
               t.common.e2eeInfoPoint3,
-              style: TextStyle(fontSize: FontSizeType.footnote.size),
+              style: context.textStyle(FontSizeType.footnote),
             ),
           ],
         ),
@@ -470,8 +470,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                         children: [
                           Text(
                             title,
-                            style: TextStyle(
-                              fontSize: FontSizeType.medium.size,
+                            style: context.textStyle(
+                              FontSizeType.medium,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -489,8 +489,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                             ),
                             child: Text(
                               status,
-                              style: TextStyle(
-                                fontSize: FontSizeType.caption2.size,
+                              style: context.textStyle(
+                                FontSizeType.caption2,
                                 color: status == t.chat.e2eeStatusAvailable
                                     ? AppColors.iosGreen
                                     : AppColors.iosGray,
@@ -502,8 +502,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       AppSpacing.verticalTiny,
                       Text(
                         description,
-                        style: TextStyle(
-                          fontSize: FontSizeType.footnote.size,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
                           color: AppColors.iosGray,
                         ),
                       ),
@@ -578,8 +578,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
-                          fontSize: FontSizeType.medium.size,
+                        style: context.textStyle(
+                          FontSizeType.medium,
                           fontWeight: FontWeight.w500,
                           color: iconColor,
                         ),
@@ -587,8 +587,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       AppSpacing.verticalTiny,
                       Text(
                         description,
-                        style: TextStyle(
-                          fontSize: FontSizeType.footnote.size,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
                           color: AppColors.iosGray,
                         ),
                       ),

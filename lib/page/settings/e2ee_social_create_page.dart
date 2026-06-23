@@ -49,8 +49,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
           children: [
             Text(
               t.common.e2eeSocialShardSettings,
-              style: TextStyle(
-                fontSize: FontSizeType.medium.size,
+              style: context.textStyle(
+                FontSizeType.medium,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -73,16 +73,16 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
             const SizedBox(height: AppSpacing.regular),
             Text(
               t.common.e2eeSocialShardStoredNote,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.iosGray,
               ),
             ),
             const SizedBox(height: AppSpacing.small),
             Text(
               t.main.e2eeSocialThresholdHint(count: _threshold),
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: CupertinoColors.activeBlue,
               ),
             ),
@@ -106,11 +106,11 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: TextStyle(fontSize: FontSizeType.normal.size)),
+            Text(label, style: context.textStyle(FontSizeType.normal)),
             Text(
               '$value',
-              style: TextStyle(
-                fontSize: FontSizeType.normal.size,
+              style: context.textStyle(
+                FontSizeType.normal,
                 fontWeight: FontWeight.w600,
                 color: CupertinoColors.activeBlue,
               ),
@@ -142,8 +142,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
               children: [
                 Text(
                   t.main.e2eeSocialSelectProxy,
-                  style: TextStyle(
-                    fontSize: FontSizeType.medium.size,
+                  style: context.textStyle(
+                    FontSizeType.medium,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -156,8 +156,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
             const SizedBox(height: AppSpacing.small),
             Text(
               t.main.e2eeSocialProxyNeeded(count: _totalShards),
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.iosGray,
               ),
             ),
@@ -306,8 +306,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                   const SizedBox(height: AppSpacing.small),
                   Text(
                     t.main.e2eeSocialShardSentViaWs,
-                    style: TextStyle(
-                      fontSize: FontSizeType.small.size,
+                    style: context.textStyle(
+                      FontSizeType.small,
                       color: AppColors.iosGray,
                     ),
                   ),
@@ -316,8 +316,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                     t.common.e2eeSocialThresholdInfo(
                       count: result['threshold'] as int,
                     ),
-                    style: TextStyle(
-                      fontSize: FontSizeType.footnote.size,
+                    style: context.textStyle(
+                      FontSizeType.footnote,
                       color: CupertinoColors.activeBlue,
                     ),
                   ),
@@ -327,16 +327,16 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                       sent: sentCount,
                       total: shards.length,
                     ),
-                    style: TextStyle(
-                      fontSize: FontSizeType.small.size,
+                    style: context.textStyle(
+                      FontSizeType.small,
                       color: AppColors.iosGray,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.small),
                   Text(
                     t.common.e2eeSocialZeroTrustNote,
-                    style: TextStyle(
-                      fontSize: FontSizeType.tiny.size,
+                    style: context.textStyle(
+                      FontSizeType.tiny,
                       color: AppColors.iosGray,
                     ),
                   ),

@@ -327,8 +327,8 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       subtitle: TextHighlight(
         text: message.metadata?['text'] as String? ?? '',
         words: words,
-        textStyle: TextStyle(
-          fontSize: FontSizeType.normal.size,
+        textStyle: context.textStyle(
+          FontSizeType.normal,
           color: AppColors.iosGray,
         ),
       ),

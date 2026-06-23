@@ -196,8 +196,8 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
           const SizedBox(height: AppSpacing.regular),
           Text(
             t.main.e2eeTransferQRHint,
-            style: TextStyle(
-              fontSize: FontSizeType.large.size,
+            style: context.textStyle(
+              FontSizeType.large,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -229,8 +229,8 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
           const SizedBox(height: AppSpacing.xLarge),
           Text(
             t.common.e2eeTransferSessionCreated,
-            style: TextStyle(
-              fontSize: FontSizeType.small.size,
+            style: context.textStyle(
+              FontSizeType.small,
               color: AppColors.iosGray,
             ),
           ),

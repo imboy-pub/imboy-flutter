@@ -174,8 +174,8 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                         canRecover
                             ? t.main.e2eeCanRecoverKey
                             : t.main.e2eeInsufficientShards,
-                        style: TextStyle(
-                          fontSize: FontSizeType.large.size,
+                        style: context.textStyle(
+                          FontSizeType.large,
                           fontWeight: FontWeight.bold,
                           color: canRecover
                               ? AppColors.iosGreen
@@ -188,8 +188,8 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                           available: totalShards,
                           required: threshold,
                         ),
-                        style: TextStyle(
-                          fontSize: FontSizeType.footnote.size,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
                           color: canRecover
                               ? AppColors.iosGreen
                               : AppColors.iosOrange,
@@ -198,8 +198,8 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                       const SizedBox(height: AppSpacing.tiny),
                       Text(
                         t.main.e2eeSocialZeroTrustHint1,
-                        style: TextStyle(
-                          fontSize: FontSizeType.caption2.size,
+                        style: context.textStyle(
+                          FontSizeType.caption2,
                           color: AppColors.iosGray,
                         ),
                       ),
@@ -238,8 +238,8 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                       children: [
                         Text(
                           _statusMessage,
-                          style: TextStyle(
-                            fontSize: FontSizeType.medium.size,
+                          style: context.textStyle(
+                            FontSizeType.medium,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -249,8 +249,8 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                             t.common.e2eeContactingProxy(
                               name: _currentProxyName!,
                             ),
-                            style: TextStyle(
-                              fontSize: FontSizeType.footnote.size,
+                            style: context.textStyle(
+                              FontSizeType.footnote,
                               color: AppColors.iosGray,
                             ),
                           ),
@@ -272,8 +272,8 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                   collected: _collectedCount,
                   total: threshold,
                 ),
-                style: TextStyle(
-                  fontSize: FontSizeType.footnote.size,
+                style: context.textStyle(
+                  FontSizeType.footnote,
                   color: AppColors.iosGray,
                 ),
               ),
@@ -451,16 +451,16 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                     const SizedBox(height: AppSpacing.small),
                     Text(
                       t.main.e2eeUsedShards(count: _collectedCount),
-                      style: TextStyle(
-                        fontSize: FontSizeType.small.size,
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: AppColors.iosGray,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.small),
                     Text(
                       t.main.e2eeSocialZeroTrustHint3,
-                      style: TextStyle(
-                        fontSize: FontSizeType.tiny.size,
+                      style: context.textStyle(
+                        FontSizeType.tiny,
                         color: AppColors.iosGray,
                       ),
                     ),

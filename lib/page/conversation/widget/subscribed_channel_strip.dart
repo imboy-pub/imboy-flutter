@@ -196,9 +196,9 @@ class _ChannelAvatar extends StatelessWidget {
     return BadgeWidget(
       content: Text(
         unreadCount > 99 ? '99+' : unreadCount.toString(),
-        style: TextStyle(
+        style: context.textStyle(
+          FontSizeType.tiny,
           color: AppColors.onPrimary,
-          fontSize: FontSizeType.tiny.size,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -214,10 +214,10 @@ class _ChannelAvatar extends StatelessWidget {
       child: Center(
         child: Text(
           name.isNotEmpty ? name[0].toUpperCase() : '?',
-          style: TextStyle(
+          style: context.textStyle(
+            FontSizeType.large,
             color: AppColors.primary,
             fontWeight: FontWeight.bold,
-            fontSize: FontSizeType.large.size,
           ),
         ),
       ),

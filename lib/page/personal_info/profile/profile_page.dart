@@ -73,8 +73,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.nickname.isEmpty
                       ? t.common.notSet
                       : profileState.nickname,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -84,8 +84,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 title: Text(t.account.gender),
                 trailing: Text(
                   profileNotifier.getGenderText(profileState.gender),
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -97,8 +97,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.birthday.isEmpty
                       ? t.common.notSet
                       : profileState.birthday,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -108,8 +108,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 title: Text(t.account.region),
                 trailing: Text(
                   profileNotifier.formatRegion(profileState.region),
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -130,8 +130,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.email.isEmpty
                       ? t.common.notSet
                       : profileState.email,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -142,8 +142,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.mobile.isEmpty
                       ? t.common.notSet
                       : profileState.mobile,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -191,8 +191,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.profession.isEmpty
                       ? t.common.notSet
                       : profileState.profession,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -204,8 +204,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.school.isEmpty
                       ? t.common.notSet
                       : profileState.school,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -217,8 +217,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.interests.isEmpty
                       ? t.common.notSet
                       : profileState.interests,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -342,17 +342,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             AppSpacing.verticalRegular,
             Text(
               state.nickname.isEmpty ? t.common.nicknameNotSet : state.nickname,
-              style: TextStyle(
-                fontSize: FontSizeType.title.size,
-                fontWeight: FontWeight.bold,
-                letterSpacing: -0.5,
-              ),
+              style: context
+                  .textStyle(FontSizeType.title, fontWeight: FontWeight.bold)
+                  .copyWith(letterSpacing: -0.5),
             ),
             AppSpacing.verticalTiny,
             Text(
               'ID: ${UserRepoLocal.to.current.account}',
-              style: TextStyle(
-                fontSize: FontSizeType.normal.size,
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: AppColors.iosGray,
               ),
             ),
@@ -364,8 +362,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               onPressed: () => _editAvatar(context, notifier),
               child: Text(
                 t.common.avatarEditAvatar,
-                style: TextStyle(
-                  fontSize: FontSizeType.normal.size,
+                style: context.textStyle(
+                  FontSizeType.normal,
                   fontWeight: FontWeight.w600,
                   color: AppColors.getIosBlue(brightness),
                 ),
@@ -465,9 +463,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                     Text(
                       t.account.birthday,
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.body,
                         fontWeight: FontWeight.w600,
-                        fontSize: FontSizeType.body.size,
                       ),
                     ),
                     CupertinoButton(

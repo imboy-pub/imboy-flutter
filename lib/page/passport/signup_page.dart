@@ -474,10 +474,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
         const SizedBox(height: 5),
         Text(
           t.passport.oneKeyLogin,
-          style: context.textStyle(
-            FontSizeType.small,
-            color: _unselectedLabel,
-          ),
+          style: context.textStyle(FontSizeType.small, color: _unselectedLabel),
         ),
       ],
     );

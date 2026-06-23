@@ -261,8 +261,8 @@ class _TagInputState extends State<TagInput> {
                     ),
                     child: Text(
                       '$usageCount',
-                      style: TextStyle(
-                        fontSize: FontSizeType.tiny.size,
+                      style: context.textStyle(
+                        FontSizeType.tiny,
                         color: isSelected
                             ? AppColors.onPrimary
                             : AppColors.primary,

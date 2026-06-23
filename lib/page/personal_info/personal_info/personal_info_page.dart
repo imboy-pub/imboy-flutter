@@ -59,8 +59,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 title: Text(t.account.nickname),
                 trailing: Text(
                   nickname.isEmpty ? t.common.notSet : nickname,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -78,8 +78,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 title: Text(t.account.account),
                 trailing: Text(
                   account,
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -89,8 +89,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   title: Text(t.account.loginEmail),
                   trailing: Text(
                     UserRepoLocal.to.current.email,
-                    style: TextStyle(
-                      fontSize: FontSizeType.subheadline.size,
+                    style: context.textStyle(
+                      FontSizeType.subheadline,
                       color: AppColors.iosGray,
                     ),
                   ),
@@ -172,8 +172,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                                 nickname.isNotEmpty
                                     ? nickname.substring(0, 1).toUpperCase()
                                     : '?',
-                                style: TextStyle(
-                                  fontSize: FontSizeType.extraLargeTitle.size,
+                                style: context.textStyle(
+                                  FontSizeType.extraLargeTitle,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.primary,
                                 ),
@@ -210,20 +210,16 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
           AppSpacing.verticalMedium,
           Text(
             nickname,
-            style: TextStyle(
-              fontSize: FontSizeType.title.size,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.5,
-            ),
+            style: context
+                .textStyle(FontSizeType.title, fontWeight: FontWeight.w600)
+                .copyWith(letterSpacing: -0.5),
           ),
           const SizedBox(height: 2),
           Text(
             'ID: $account',
-            style: TextStyle(
-              fontSize: FontSizeType.normal.size,
-              color: AppColors.iosGray,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
+            style: context
+                .textStyle(FontSizeType.normal, color: AppColors.iosGray)
+                .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
           ),
         ],
       ),

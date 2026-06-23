@@ -97,14 +97,15 @@ class ExtraItem extends StatelessWidget {
               Flexible(
                 child: Text(
                   title,
-                  style: TextStyle(
-                    fontSize: FontSizeType.small.size,
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.8),
-                    height: 1.1,
-                  ),
+                  style: context
+                      .textStyle(
+                        FontSizeType.small,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.8),
+                      )
+                      .copyWith(height: 1.1),
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

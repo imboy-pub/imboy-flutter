@@ -254,8 +254,8 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    textStyle: TextStyle(
-                      fontSize: FontSizeType.body.size,
+                    textStyle: context.textStyle(
+                      FontSizeType.body,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -365,8 +365,8 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
             Expanded(
               child: Text(
                 t.common.addedToDenylistTips,
-                style: TextStyle(
-                  fontSize: FontSizeType.normal.size,
+                style: context.textStyle(
+                  FontSizeType.normal,
                   fontWeight: FontWeight.w500,
                 ),
               ),

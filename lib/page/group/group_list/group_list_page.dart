@@ -164,8 +164,8 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                     selected: selected,
                     label: Text(
                       _attrLabel(attr),
-                      style: TextStyle(
-                        fontSize: FontSizeType.footnote.size,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
                         fontWeight: selected
                             ? FontWeight.w600
                             : FontWeight.normal,

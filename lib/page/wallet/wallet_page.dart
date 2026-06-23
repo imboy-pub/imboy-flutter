@@ -496,8 +496,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           padding: const EdgeInsets.fromLTRB(28, 24, 16, 8),
           child: Text(
             t.common.transactionHistory2.toUpperCase(),
-            style: TextStyle(
-              fontSize: FontSizeType.footnote.size,
+            style: context.textStyle(
+              FontSizeType.footnote,
               fontWeight: FontWeight.w600,
               color: AppColors.iosGray,
             ),

@@ -195,17 +195,14 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
     if (model.status == NewFriendStatus.added.index) {
       return Text(
         t.common.added,
-        style: TextStyle(
-          fontSize: FontSizeType.normal.size,
-          color: AppColors.iosGray,
-        ),
+        style: context.textStyle(FontSizeType.normal, color: AppColors.iosGray),
       );
     }
     if (model.status == NewFriendStatus.expired.index) {
       return Text(
         t.main.expired,
-        style: TextStyle(
-          fontSize: FontSizeType.normal.size,
+        style: context.textStyle(
+          FontSizeType.normal,
           color: AppColors.getIosRed(brightness).withValues(alpha: 0.5),
         ),
       );
@@ -213,10 +210,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
     if (fromSelf) {
       return Text(
         t.common.awaitingVerification,
-        style: TextStyle(
-          fontSize: FontSizeType.normal.size,
-          color: AppColors.iosGray,
-        ),
+        style: context.textStyle(FontSizeType.normal, color: AppColors.iosGray),
       );
     }
 
@@ -241,8 +235,8 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
       ),
       child: Text(
         t.common.accept,
-        style: TextStyle(
-          fontSize: FontSizeType.footnote.size,
+        style: context.textStyle(
+          FontSizeType.footnote,
           fontWeight: FontWeight.bold,
           color: AppColors.onPrimary,
         ),

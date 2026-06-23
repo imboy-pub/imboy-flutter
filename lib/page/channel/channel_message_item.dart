@@ -122,10 +122,7 @@ class ChannelMessageItem extends StatelessWidget {
           ).withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: Text(
-          emoji,
-          style: TextStyle(fontSize: FontSizeType.largeTitle.size),
-        ),
+        child: Text(emoji, style: context.textStyle(FontSizeType.largeTitle)),
       ),
     );
   }
@@ -175,7 +172,7 @@ class ChannelMessageItem extends StatelessWidget {
               message.authorName != null && message.authorName!.isNotEmpty
                   ? message.authorName![0].toUpperCase()
                   : '?',
-              style: TextStyle(fontSize: FontSizeType.normal.size),
+              style: context.textStyle(FontSizeType.normal),
             )
           : null,
     );
@@ -205,13 +202,13 @@ class ChannelMessageItem extends StatelessWidget {
                       children: [
                         Text(
                           message.authorName ?? '',
-                          style: TextStyle(
-                            fontSize: FontSizeType.small.size,
+                          style: context.textStyle(
+                            FontSizeType.small,
+                            fontWeight: FontWeight.w500,
                             color: AppColors.getTextColor(
                               Theme.of(context).brightness,
                               isSecondary: true,
                             ),
-                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         if (isManaged) ...[
@@ -227,8 +224,8 @@ class ChannelMessageItem extends StatelessWidget {
                             ),
                             child: Text(
                               t.channel.admin,
-                              style: TextStyle(
-                                fontSize: FontSizeType.tiny.size,
+                              style: context.textStyle(
+                                FontSizeType.tiny,
                                 color: AppColors.primary,
                               ),
                             ),
@@ -286,8 +283,8 @@ class ChannelMessageItem extends StatelessWidget {
                         const SizedBox(width: 2),
                         Text(
                           '${message.viewCount}',
-                          style: TextStyle(
-                            fontSize: FontSizeType.tiny.size,
+                          style: context.textStyle(
+                            FontSizeType.tiny,
                             color: AppColors.getTextColor(
                               Theme.of(context).brightness,
                               isSecondary: true,
@@ -526,7 +523,7 @@ class ChannelMessageItem extends StatelessWidget {
             ),
             child: Text(
               '$emoji $count',
-              style: TextStyle(fontSize: FontSizeType.caption2.size),
+              style: context.textStyle(FontSizeType.caption2),
             ),
           ),
         ),
@@ -731,8 +728,8 @@ class ChannelMessageItem extends StatelessWidget {
                   AppSpacing.verticalTiny,
                   Text(
                     _formatFileSize(size),
-                    style: TextStyle(
-                      fontSize: FontSizeType.small.size,
+                    style: context.textStyle(
+                      FontSizeType.small,
                       color: textColor.withValues(alpha: 0.7),
                     ),
                   ),
@@ -866,12 +863,13 @@ class _ChannelAudioPlayerState extends ConsumerState<_ChannelAudioPlayer> {
             AppSpacing.horizontalSmall,
             Text(
               "${widget.durationSec}''",
-              style: TextStyle(
-                color: widget.textColor,
-                fontSize: FontSizeType.normal.size,
-                fontFamily: 'monospace',
-                fontWeight: FontWeight.bold,
-              ),
+              style: context
+                  .textStyle(
+                    FontSizeType.normal,
+                    fontWeight: FontWeight.bold,
+                    color: widget.textColor,
+                  )
+                  .copyWith(fontFamily: 'monospace'),
             ),
           ],
         ),

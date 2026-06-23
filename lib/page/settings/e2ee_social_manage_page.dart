@@ -338,10 +338,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: context.textStyle(FontSizeType.small),
-            ),
+            child: Text(value, style: context.textStyle(FontSizeType.small)),
           ),
         ],
       ),

@@ -98,9 +98,9 @@ class ScannerResultPage extends StatelessWidget {
           child: Text(
             scanResult,
             textAlign: TextAlign.left,
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.largeTitle,
               color: Theme.of(context).colorScheme.onSurface,
-              fontSize: FontSizeType.largeTitle.size,
             ),
           ),
         ),
@@ -129,9 +129,9 @@ class ScannerResultPage extends StatelessWidget {
             child: Text(
               txt,
               textAlign: TextAlign.left,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.largeTitle,
                 color: Theme.of(context).colorScheme.onSurface,
-                fontSize: FontSizeType.largeTitle.size,
               ),
             ),
           ),

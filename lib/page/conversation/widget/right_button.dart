@@ -161,8 +161,8 @@ class RightButtonList extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
-                  fontSize: FontSizeType.medium.size,
+                style: context.textStyle(
+                  FontSizeType.medium,
                   fontWeight: FontWeight.normal,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),

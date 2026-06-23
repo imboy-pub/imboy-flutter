@@ -62,10 +62,10 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
       color: Theme.of(context).colorScheme.surface,
       child: Text(
         tag,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface,
-          fontSize: FontSizeType.small.size,
+        style: context.textStyle(
+          FontSizeType.small,
           fontWeight: FontWeight.w600,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );
@@ -159,8 +159,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                             padding: const EdgeInsets.only(left: 10),
                             child: Text(
                               model.title,
-                              style: TextStyle(
-                                fontSize: FontSizeType.medium.size,
+                              style: context.textStyle(
+                                FontSizeType.medium,
                                 fontWeight: FontWeight.normal,
                               ),
                               maxLines: 6,
@@ -178,8 +178,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                             padding: const EdgeInsets.only(left: 10),
                             child: Text(
                               peer['title']!,
-                              style: TextStyle(
-                                fontSize: FontSizeType.medium.size,
+                              style: context.textStyle(
+                                FontSizeType.medium,
                                 fontWeight: FontWeight.normal,
                               ),
                               maxLines: 6,
@@ -266,7 +266,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                     ),
                     child: Text(
                       model.title,
-                      style: TextStyle(fontSize: FontSizeType.normal.size),
+                      style: context.textStyle(FontSizeType.normal),
                     ),
                   ),
                 ),
@@ -335,8 +335,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               indexBarOptions: IndexBarOptions(
                 needRebuild: true,
                 ignoreDragCancel: true,
-                downTextStyle: TextStyle(
-                  fontSize: FontSizeType.small.size,
+                downTextStyle: context.textStyle(
+                  FontSizeType.small,
                   // 索引条拖拽气泡文字：品牌蓝气泡上的白字，无对应语义 token，保留
                   color: Colors.white,
                 ),

@@ -197,16 +197,16 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         AppSpacing.verticalTiny,
         Text(
           value,
-          style: TextStyle(
-            fontSize: FontSizeType.medium.size,
+          style: context.textStyle(
+            FontSizeType.medium,
             fontWeight: FontWeight.w600,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Text(
           label,
-          style: TextStyle(
-            fontSize: FontSizeType.small.size,
+          style: context.textStyle(
+            FontSizeType.small,
             color: Theme.of(
               context,
             ).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -390,8 +390,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                               t.common.saveTag(
                                 count: _currentTags.length.toString(),
                               ),
-                              style: TextStyle(
-                                fontSize: FontSizeType.medium.size,
+                              style: context.textStyle(
+                                FontSizeType.medium,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -463,8 +463,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
               AppSpacing.horizontalMedium,
               Text(
                 t.chat.tagStatistics,
-                style: TextStyle(
-                  fontSize: FontSizeType.medium.size,
+                style: context.textStyle(
+                  FontSizeType.medium,
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),

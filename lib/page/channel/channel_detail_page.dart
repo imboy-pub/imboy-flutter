@@ -409,13 +409,15 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                           vertical: 10, // 调整以垂直居中
                         ),
                       ),
-                      style: TextStyle(
-                        fontSize: FontSizeType.body.size,
-                        color: AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                        ),
-                        height: 1.4, // CJK行高
-                      ),
+                      style: context
+                          .textStyle(
+                            FontSizeType.body,
+                            color: AppColors.getTextColor(
+                              Theme.of(context).brightness,
+                            ),
+                          )
+                          .copyWith(height: 1.4), // CJK行高
+
                       maxLines: null, // 允许自动折行
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) {
@@ -749,8 +751,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               AppSpacing.verticalRegular,
               Text(
                 context.t.channel.settings,
-                style: TextStyle(
-                  fontSize: FontSizeType.extraLarge.size,
+                style: context.textStyle(
+                  FontSizeType.extraLarge,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -963,8 +965,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   Expanded(
                     child: Text(
                       t.discovery.paidChannelLocked,
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -974,7 +976,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               const SizedBox(height: 10),
               Text(
                 t.main.purchaseUnlockHint,
-                style: TextStyle(fontSize: FontSizeType.normal.size),
+                style: context.textStyle(FontSizeType.normal),
               ),
               // 价格显示：后端返回 price>0 时展示具体价格，否则不展示
               if (channel.hasPrice) ...[
@@ -992,8 +994,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                         currency: channel.currency,
                         amount: channel.priceYuan.toStringAsFixed(2),
                       ),
-                      style: TextStyle(
-                        fontSize: FontSizeType.subheadline.size,
+                      style: context.textStyle(
+                        FontSizeType.subheadline,
                         fontWeight: FontWeight.w700,
                         color: AppColors.primary,
                       ),
@@ -1223,8 +1225,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               AppSpacing.verticalMedium,
               Text(
                 t.main.myOrders,
-                style: TextStyle(
-                  fontSize: FontSizeType.medium.size,
+                style: context.textStyle(
+                  FontSizeType.medium,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -1417,15 +1419,15 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         AppSpacing.verticalTiny,
         Text(
           value,
-          style: TextStyle(
+          style: context.textStyle(
+            FontSizeType.medium,
             fontWeight: FontWeight.bold,
-            fontSize: FontSizeType.medium.size,
           ),
         ),
         Text(
           label,
-          style: TextStyle(
-            fontSize: FontSizeType.caption2.size,
+          style: context.textStyle(
+            FontSizeType.caption2,
             color: secondaryColor,
           ),
         ),
@@ -1469,8 +1471,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           ),
           child: Text(
             dateText,
-            style: TextStyle(
-              fontSize: FontSizeType.small.size,
+            style: context.textStyle(
+              FontSizeType.small,
               color: AppColors.getTextColor(
                 Theme.of(context).brightness,
                 isSecondary: true,
@@ -1588,8 +1590,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               padding: AppSpacing.allRegular,
               child: Text(
                 channel.name,
-                style: TextStyle(
-                  fontSize: FontSizeType.large.size,
+                style: context.textStyle(
+                  FontSizeType.large,
                   fontWeight: FontWeight.bold,
                 ),
               ),

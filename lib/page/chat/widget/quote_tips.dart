@@ -38,10 +38,7 @@ class QuoteTipsWidget extends StatelessWidget {
     if (message is TextMessage) {
       body = Text(
         (message as TextMessage).text,
-        style: context.textStyle(
-          FontSizeType.normal,
-          color: AppColors.iosGray,
-        ),
+        style: context.textStyle(FontSizeType.normal, color: AppColors.iosGray),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       );
@@ -237,8 +234,8 @@ class QuoteTipsWidget extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: FontSizeType.footnote.size,
+                    style: context.textStyle(
+                      FontSizeType.footnote,
                       fontWeight: FontWeight.w600,
                       color: AppColors.getIosBlue(Theme.of(context).brightness),
                     ),

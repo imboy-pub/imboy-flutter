@@ -8,7 +8,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
+import 'package:imboy/theme/default/font_types.dart'
+    show FontSizeType, BuildContextThemeAccess;
 import 'package:imboy/page/group/announcement/group_announcement_provider.dart';
 // canManageAnnouncement re-exported from group_announcement_provider.dart
 
@@ -146,8 +147,8 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     announcement.publisherName.isNotEmpty
                         ? announcement.publisherName[0].toUpperCase()
                         : '?',
-                    style: TextStyle(
-                      fontSize: FontSizeType.medium.size,
+                    style: context.textStyle(
+                      FontSizeType.medium,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -158,20 +159,20 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                   children: [
                     Text(
                       announcement.publisherName,
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         fontWeight: FontWeight.w600,
-                        fontSize: FontSizeType.medium.size,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       notifier.formatTime(announcement.createdAt),
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontSize: FontSizeType.small.size,
                       ),
                     ),
                   ],
@@ -197,13 +198,14 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
             // 公告内容
             Text(
               announcement.content,
-              style: TextStyle(
-                fontSize: FontSizeType.subheadline.size,
-                height: 1.5,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.9),
-              ),
+              style: context
+                  .textStyle(
+                    FontSizeType.subheadline,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.9),
+                  )
+                  .copyWith(height: 1.5),
             ),
             if (announcement.expiredAt != null) ...[
               const SizedBox(height: AppSpacing.regular),
@@ -233,11 +235,11 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                       t.common.groupAnnouncementExpiry(
                         time: notifier.formatTime(announcement.expiredAt!),
                       ),
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.6),
-                        fontSize: FontSizeType.small.size,
                       ),
                     ),
                   ],

@@ -118,9 +118,9 @@ class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
           AppSpacing.horizontalSmall,
           Text(
             t.chat.peerIsTyping(name: widget.peerTitle),
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.small,
               color: themeNotifier.getThemeColor('textSecondary'),
-              fontSize: FontSizeType.small.size,
             ),
           ),
         ],

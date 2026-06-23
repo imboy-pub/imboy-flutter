@@ -1157,9 +1157,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                         decoration: BoxDecoration(
                           color: isDark
                               // 暗色下输入框用半透明白高光叠加，提升与底图对比
-                              ? const Color(0xFFFFFFFF).withValues(
-                                  alpha: isFocused ? 0.08 : 0.05,
-                                )
+                              ? const Color(
+                                  0xFFFFFFFF,
+                                ).withValues(alpha: isFocused ? 0.08 : 0.05)
                               : AppColors.lightSurface,
                           borderRadius: AppRadius.borderRadiusLarge,
                           border: Border.all(

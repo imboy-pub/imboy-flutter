@@ -222,8 +222,8 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
             AppSpacing.horizontalSmall,
             Text(
               text,
-              style: TextStyle(
-                fontSize: FontSizeType.subheadline.size,
+              style: context.textStyle(
+                FontSizeType.subheadline,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primary,
               ),

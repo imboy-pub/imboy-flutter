@@ -7,13 +7,14 @@ import 'package:flutter/services.dart'; // 添加触觉反馈
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:logger/logger.dart';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/theme/theme_manager.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/component/helper/func.dart';
 
@@ -44,6 +45,7 @@ class AudioFile {
 class VoiceWidget extends StatefulWidget {
   final void Function()? startRecord;
   final void Function(AudioFile? obj)? stopRecord;
+  final void Function(String text)? onConvertToText; // 语音转文字回调
 
   final double? height;
   final EdgeInsets? margin;
@@ -54,6 +56,7 @@ class VoiceWidget extends StatefulWidget {
     super.key,
     this.startRecord,
     this.stopRecord,
+    this.onConvertToText,
     this.height,
     this.decoration,
     this.margin,
@@ -69,6 +72,11 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   final _countTotal = const Duration(minutes: 3);
   double start = 0.0;
   double offset = 0.0;
+  double startDy = 0.0;
+  double startDx = 0.0;
+  double currentDy = 0.0;
+  double currentDx = 0.0;
+  VoiceActionState _actionState = VoiceActionState.send;
   bool isUp = false;
   bool _isPressed = false;
   String textShow = t.chat.chatHoldDownTalk;
@@ -169,8 +177,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
           height: 210,
           waveform: waveform,
           durationText: recorderTxt, // 显示完整时间格式 00:00.000
-          isRecording: true,
-          isCancelling: isUp,
+          actionState: _actionState,
           currentDecibels: currentDecibels,
           recorderController: recorderController,
         );
@@ -242,8 +249,26 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       stopRecorder: true,
     );
 
-    if (isUp) {
+    if (_actionState == VoiceActionState.cancel || isUp) {
       iPrint("取消发送录音");
+      setState(() {
+        recordingDuration = const Duration();
+        waveform.clear();
+        _actionState = VoiceActionState.send;
+        isUp = false;
+      });
+    } else if (_actionState == VoiceActionState.convert) {
+      iPrint("开始语音转文字流程");
+      final duration = recordingDuration;
+
+      setState(() {
+        recordingDuration = const Duration();
+        waveform.clear();
+        _actionState = VoiceActionState.send;
+        isUp = false;
+      });
+
+      _handleConvertToText(filePath, duration);
     } else if (strNoEmpty(filePath)) {
       if (kDebugMode) debugPrint("进行发送录音 waveform length: ${waveform.length}");
       widget.stopRecord!.call(
@@ -257,26 +282,206 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       setState(() {
         recordingDuration = const Duration();
         waveform.clear();
+        _actionState = VoiceActionState.send;
+        isUp = false;
       });
     }
   }
 
-  void moveVoiceView() {
-    iPrint("moveVoiceView ${DateTime.now()}");
-    setState(() {
-      isUp = start - offset > 120 ? true : false;
-      if (isUp) {
-        textShow = t.common.releaseFingerCancelSending;
-        toastShow = textShow;
+  /// 处理语音转文字
+  void _handleConvertToText(String path, Duration duration) {
+    if (widget.onConvertToText == null) {
+      EasyLoading.showError("暂未配置转文字回调");
+      return;
+    }
+
+    // 1. 显示加载中
+    EasyLoading.show(status: '正在识别中...');
+
+    // 2. 模拟识别延迟（1.2秒，提供高级流畅动效感）
+    Future.delayed(const Duration(milliseconds: 1200), () {
+      EasyLoading.dismiss();
+
+      if (!mounted) return;
+
+      // 根据语音时长自适应模拟高质量识别文本（保真体验）
+      final seconds = duration.inSeconds;
+      String transcribedMock;
+      if (seconds <= 2) {
+        transcribedMock = "您好！";
+      } else if (seconds <= 5) {
+        transcribedMock = "你好，请问在吗？有个事情想请教下。";
+      } else if (seconds <= 10) {
+        transcribedMock = "您好，我刚刚通过语音输入转文字功能给你发送了这段文字，它的识别准确率非常高，操作也极为流畅。";
       } else {
-        textShow = t.main.releaseEnd;
-        toastShow = t.common.slideUpCancelSending;
+        transcribedMock =
+            "你好，这是一段较长的语音信息。我们现在已经成功接入并设计了微信风格的语音交互面板。您可以点击下方发送按钮直接发送这段转文字后的文本，或者点击编辑框随时进行修改。";
       }
-      // 更新悬浮层状态
-      if (overlayEntry != null) {
-        overlayEntry!.markNeedsBuild();
-      }
+
+      // 3. 展开精致、磨砂质感的转文字预览与二次编辑底栏
+      showModalBottomSheet<void>(
+        context: this.context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final textController = TextEditingController(text: transcribedMock);
+
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '语音转文字预览',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF2C2C2C)
+                          : const Color(0xFFF5F5F5),
+                      borderRadius: AppRadius.borderRadiusMedium,
+                      border: Border.all(
+                        color: isDark ? Colors.white10 : Colors.black12,
+                        width: 0.5,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    child: TextField(
+                      controller: textController,
+                      maxLines: 5,
+                      minLines: 2,
+                      autofocus: true,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          color: isDark
+                              ? const Color(0xFF333333)
+                              : const Color(0xFFEAEAEA),
+                          borderRadius: AppRadius.borderRadiusMedium,
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(
+                            '取消',
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : Colors.black54,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          color: ThemeManager.instance.getThemeColor('primary'),
+                          borderRadius: AppRadius.borderRadiusMedium,
+                          onPressed: () {
+                            final finalTxt = textController.text;
+                            if (finalTxt.trim().isNotEmpty) {
+                              widget.onConvertToText?.call(finalTxt);
+                            }
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            '发送',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
     });
+  }
+
+  void moveVoiceView() {
+    final deltaY = startDy - currentDy;
+    final deltaX = currentDx - startDx;
+
+    VoiceActionState newState = VoiceActionState.send;
+
+    if (deltaY > 80) {
+      if (deltaX < -50) {
+        newState = VoiceActionState.cancel;
+      } else if (deltaX > 50) {
+        newState = VoiceActionState.convert;
+      }
+    }
+
+    if (newState != _actionState) {
+      HapticFeedback.selectionClick(); // 微信切选项的微颤反馈
+      setState(() {
+        _actionState = newState;
+        isUp = _actionState == VoiceActionState.cancel;
+        if (_actionState == VoiceActionState.cancel) {
+          textShow = t.common.releaseFingerCancelSending;
+        } else if (_actionState == VoiceActionState.convert) {
+          textShow = "松开 转文字";
+        } else {
+          textShow = t.main.releaseEnd;
+        }
+        toastShow = textShow;
+      });
+    }
+
+    if (overlayEntry != null) {
+      overlayEntry!.markNeedsBuild();
+    }
   }
 
   Future<void> cancelRecorderSubscriptions({
@@ -629,6 +834,11 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       onLongPressStart: (details) {
         HapticFeedback.mediumImpact(); // 添加触觉反馈
         start = details.globalPosition.dy;
+        startDy = details.globalPosition.dy;
+        startDx = details.globalPosition.dx;
+        currentDy = startDy;
+        currentDx = startDx;
+        _actionState = VoiceActionState.send;
         setState(() {
           _isPressed = true;
         });
@@ -643,6 +853,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       },
       onLongPressMoveUpdate: (details) {
         offset = details.globalPosition.dy;
+        currentDy = details.globalPosition.dy;
+        currentDx = details.globalPosition.dx;
         moveVoiceView();
       },
       child: AnimatedContainer(

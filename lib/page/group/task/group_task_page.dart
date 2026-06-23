@@ -258,12 +258,13 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                   children: [
                     Text(
                       task['title'] as String? ?? '',
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
-                        decoration: status == 1
-                            ? TextDecoration.lineThrough
-                            : null,
-                      ),
+                      style: context
+                          .textStyle(FontSizeType.medium)
+                          .copyWith(
+                            decoration: status == 1
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
                     ),
                     if (task['description'] != null) ...[
                       AppSpacing.verticalTiny,
@@ -286,8 +287,8 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                           AppSpacing.horizontalTiny,
                           Text(
                             _formatDeadline(deadline),
-                            style: TextStyle(
-                              fontSize: FontSizeType.small.size,
+                            style: context.textStyle(
+                              FontSizeType.small,
                               color: _getDeadlineColor(context, deadline),
                             ),
                           ),

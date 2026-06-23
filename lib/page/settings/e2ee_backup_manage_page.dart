@@ -61,16 +61,16 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             AppSpacing.verticalRegular,
             Text(
               t.common.e2eeBackupNoRecords,
-              style: TextStyle(
-                fontSize: FontSizeType.medium.size,
+              style: context.textStyle(
+                FontSizeType.medium,
                 color: AppColors.textSecondary,
               ),
             ),
             AppSpacing.verticalSmall,
             Text(
               t.common.e2eeBackupNoRecordsHint,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosGray2,
               ),
             ),
@@ -219,16 +219,16 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             width: 80,
             child: Text(
               label,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.iosGray,
-                fontSize: FontSizeType.small.size,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value.toString(),
-              style: TextStyle(fontSize: FontSizeType.footnote.size),
+              style: context.textStyle(FontSizeType.footnote),
             ),
           ),
         ],

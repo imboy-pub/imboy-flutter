@@ -227,19 +227,17 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
             AppSpacing.verticalRegular,
             Text(
               t.discovery.findNearbyPeople,
-              style: context.textStyle(
-                FontSizeType.large,
-                fontWeight: FontWeight.bold,
-              ).copyWith(letterSpacing: -0.5),
+              style: context
+                  .textStyle(FontSizeType.large, fontWeight: FontWeight.bold)
+                  .copyWith(letterSpacing: -0.5),
             ),
             AppSpacing.verticalSmall,
             Text(
               t.common.nearbyPeopleTips,
               textAlign: TextAlign.center,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: AppColors.iosGray,
-              ).copyWith(height: 1.4),
+              style: context
+                  .textStyle(FontSizeType.footnote, color: AppColors.iosGray)
+                  .copyWith(height: 1.4),
             ),
           ],
         ),

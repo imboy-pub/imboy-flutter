@@ -89,12 +89,13 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                   Expanded(
                     child: Text(
                       t.common.createGroupF2fTips,
-                      style: TextStyle(
-                        fontSize: FontSizeType.normal.size,
-                        height: 1.4,
-                        color: AppColors.iosGray,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: context
+                          .textStyle(
+                            FontSizeType.normal,
+                            color: AppColors.iosGray,
+                            fontWeight: FontWeight.w500,
+                          )
+                          .copyWith(height: 1.4),
                     ),
                   ),
                 ],
@@ -117,9 +118,9 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
               ),
               child: Text(
                 state.errorInfo,
-                style: TextStyle(
+                style: context.textStyle(
+                  FontSizeType.normal,
                   color: AppColors.iosRed,
-                  fontSize: FontSizeType.normal.size,
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
@@ -174,11 +175,12 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
           child: hasValue
               ? Text(
                   state.resultData[index],
-                  style: TextStyle(
-                    fontSize: FontSizeType.extraLargeTitle.size,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -1,
-                  ),
+                  style: context
+                      .textStyle(
+                        FontSizeType.extraLargeTitle,
+                        fontWeight: FontWeight.bold,
+                      )
+                      .copyWith(letterSpacing: -1),
                 )
               : Container(
                   width: 8,

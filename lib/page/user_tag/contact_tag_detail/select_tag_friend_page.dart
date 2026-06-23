@@ -119,7 +119,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                     ),
                     child: Text(
                       model.title,
-                      style: TextStyle(fontSize: FontSizeType.normal.size),
+                      style: context.textStyle(FontSizeType.normal),
                     ),
                   ),
                 ),
@@ -142,8 +142,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
       color: isDark ? AppColors.iosGray6 : AppColors.iosGray5,
       child: Text(
         tag,
-        style: TextStyle(
-          fontSize: FontSizeType.normal.size,
+        style: context.textStyle(
+          FontSizeType.normal,
           color: AppColors.getTextColor(
             isDark ? Brightness.dark : Brightness.light,
           ),
@@ -242,8 +242,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               indexBarOptions: IndexBarOptions(
                 needRebuild: true,
                 ignoreDragCancel: true,
-                downTextStyle: TextStyle(
-                  fontSize: FontSizeType.small.size,
+                downTextStyle: context.textStyle(
+                  FontSizeType.small,
                   color: AppColors.onPrimary,
                 ),
                 downItemDecoration: const BoxDecoration(

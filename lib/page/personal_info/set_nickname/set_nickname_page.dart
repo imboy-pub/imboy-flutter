@@ -79,15 +79,15 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                     vertical: 12,
                   ),
                   decoration: null,
-                  style: TextStyle(fontSize: FontSizeType.body.size),
+                  style: context.textStyle(FontSizeType.body),
                   onChanged: (v) => ref
                       .read(setNicknameProvider.notifier)
                       .onNicknameChanged(v, ref),
                 ),
                 trailing: Text(
                   state.remainingChars.toString(),
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: state.remainingChars < 0
                         ? AppColors.iosRed
                         : AppColors.iosGray,
@@ -112,9 +112,9 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                   Expanded(
                     child: Text(
                       state.validationError,
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.footnote,
                         color: AppColors.iosRed,
-                        fontSize: FontSizeType.footnote.size,
                       ),
                     ),
                   ),

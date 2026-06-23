@@ -522,8 +522,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: FontSizeType.large.size,
+                style: context.textStyle(
+                  FontSizeType.large,
                   fontWeight: FontWeight.w600,
                   color: AppColors.darkTextPrimary,
                 ),
@@ -531,8 +531,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               AppSpacing.verticalTiny,
               Text(
                 desc,
-                style: TextStyle(
-                  fontSize: FontSizeType.normal.size,
+                style: context.textStyle(
+                  FontSizeType.normal,
                   color: AppColors.darkTextSecondary,
                 ),
               ),
@@ -577,9 +577,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 },
                 child: Text(
                   t.account.webSwitchToPassword,
-                  style: TextStyle(
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: AppColors.primary,
-                    fontSize: FontSizeType.normal.size,
                   ),
                 ),
               ),
@@ -595,9 +595,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 },
                 child: Text(
                   t.main.webSwitchToQR,
-                  style: TextStyle(
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: AppColors.primary,
-                    fontSize: FontSizeType.normal.size,
                   ),
                 ),
               ),
@@ -614,8 +614,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
       children: [
         Text(
           t.account.webQRLoginTitle,
-          style: TextStyle(
-            fontSize: FontSizeType.largeTitle.size,
+          style: context.textStyle(
+            FontSizeType.largeTitle,
             fontWeight: FontWeight.bold,
             color: AppColors.darkTextPrimary,
           ),
@@ -623,8 +623,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         AppSpacing.verticalSmall,
         Text(
           t.account.webQRLoginHint,
-          style: TextStyle(
-            fontSize: FontSizeType.normal.size,
+          style: context.textStyle(
+            FontSizeType.normal,
             color: AppColors.darkTextSecondary,
           ),
         ),
@@ -665,8 +665,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             qrState.status == QRLoginStatus.scanned)
           Text(
             t.common.webQRExpiresIn(seconds: qrState.remainingSeconds),
-            style: TextStyle(
-              fontSize: FontSizeType.small.size,
+            style: context.textStyle(
+              FontSizeType.small,
               color: AppColors.darkTextDisabled,
             ),
           ),
@@ -708,16 +708,16 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 AppSpacing.verticalRegular,
                 Text(
                   t.discovery.webQRScanned,
-                  style: TextStyle(
-                    fontSize: FontSizeType.large.size,
+                  style: context.textStyle(
+                    FontSizeType.large,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),
                 ),
                 Text(
                   t.common.webQRConfirmOnPhone,
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -735,8 +735,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               AppSpacing.verticalRegular,
               Text(
                 t.main.webQRLoggingIn,
-                style: TextStyle(
-                  fontSize: FontSizeType.medium.size,
+                style: context.textStyle(
+                  FontSizeType.medium,
                   color: AppColors.primary,
                 ),
               ),
@@ -759,8 +759,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 AppSpacing.verticalSmall,
                 Text(
                   t.main.webQRExpired,
-                  style: TextStyle(
-                    fontSize: FontSizeType.medium.size,
+                  style: context.textStyle(
+                    FontSizeType.medium,
                     color: AppColors.lightTextDisabled,
                   ),
                 ),
@@ -784,8 +784,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 AppSpacing.verticalSmall,
                 Text(
                   qrState.errorMessage ?? t.common.webQRLoginFailed,
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: AppColors.iosRed,
                   ),
                   textAlign: TextAlign.center,
@@ -808,8 +808,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               AppSpacing.verticalRegular,
               Text(
                 t.common.webQRLoginSuccess,
-                style: TextStyle(
-                  fontSize: FontSizeType.large.size,
+                style: context.textStyle(
+                  FontSizeType.large,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
                 ),
@@ -855,8 +855,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: FontSizeType.small.size,
+            style: context.textStyle(
+              FontSizeType.small,
               color: AppColors.darkTextSecondary,
             ),
           ),
@@ -874,8 +874,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
       children: [
         Text(
           t.account.webPasswordLoginTitle,
-          style: TextStyle(
-            fontSize: FontSizeType.largeTitle.size,
+          style: context.textStyle(
+            FontSizeType.largeTitle,
             fontWeight: FontWeight.bold,
             color: AppColors.darkTextPrimary,
           ),
@@ -940,9 +940,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 borderRadius: BorderRadius.circular(24),
               ),
             ),
-            textStyle: TextStyle(
+            textStyle: context.textStyle(
+              FontSizeType.medium,
               color: AppColors.onPrimary,
-              fontSize: FontSizeType.medium.size,
               fontWeight: FontWeight.w600,
             ),
             onPressed: () async {
@@ -979,9 +979,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           onPressed: () => context.push(AppRoutes.forgotPassword),
           child: Text(
             t.account.forgotPassword,
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.normal,
               color: AppColors.primary,
-              fontSize: FontSizeType.normal.size,
             ),
           ),
         ),

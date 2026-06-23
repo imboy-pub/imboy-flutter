@@ -114,8 +114,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             AppSpacing.verticalTiny,
             Text(
               t.common.e2eeBackupImportTrustedSource,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosOrange,
               ),
             ),
@@ -162,11 +162,11 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                       _selectedFile != null
                           ? (_selectedFile!.path.split('/').last)
                           : t.common.e2eeBackupSelectFileHint,
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: _selectedFile != null
                             ? AppColors.iosGreen
                             : AppColors.iosGray,
-                        fontSize: FontSizeType.small.size,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -225,8 +225,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             AppSpacing.verticalSmall,
             Text(
               t.common.e2eeBackupFileValid,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.iosGreen,
               ),
             ),
@@ -246,17 +246,14 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             width: 80,
             child: Text(
               label,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosGray,
-                fontSize: FontSizeType.footnote.size,
               ),
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: TextStyle(fontSize: FontSizeType.footnote.size),
-            ),
+            child: Text(value, style: context.textStyle(FontSizeType.footnote)),
           ),
         ],
       ),
@@ -393,8 +390,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             AppSpacing.verticalMedium,
             Text(
               t.common.e2eeBackupImportSuccessNote,
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
+              style: context.textStyle(
+                FontSizeType.small,
                 color: AppColors.textSecondary,
               ),
             ),

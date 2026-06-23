@@ -123,15 +123,15 @@ class AddFriendPage extends ConsumerWidget {
               children: [
                 Text(
                   "${t.account.myAccount}：",
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: AppColors.iosGray,
                   ),
                 ),
                 Text(
                   UserRepoLocal.to.current.account,
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

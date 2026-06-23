@@ -111,13 +111,14 @@ class _RecentlyRegisteredUserPageState
           Expanded(
             child: Text(
               t.common.newRegisteredUsersTip,
-              style: TextStyle(
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
-                height: 1.4,
-                fontSize: FontSizeType.footnote.size,
-              ),
+              style: context
+                  .textStyle(
+                    FontSizeType.footnote,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
+                  )
+                  .copyWith(height: 1.4),
             ),
           ),
         ],

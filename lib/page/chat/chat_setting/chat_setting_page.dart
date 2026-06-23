@@ -250,25 +250,25 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
+                        style: context.textStyle(
+                          FontSizeType.medium,
+                          fontWeight: FontWeight.w500,
                           color: isDestructive
                               ? AppColors.getIosRed(
                                   Theme.of(context).brightness,
                                 )
                               : Theme.of(context).colorScheme.onSurface,
-                          fontSize: FontSizeType.medium.size,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       if (subtitle != null) ...[
                         AppSpacing.verticalTiny,
                         Text(
                           subtitle,
-                          style: TextStyle(
+                          style: context.textStyle(
+                            FontSizeType.small,
                             color: Theme.of(
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.6),
-                            fontSize: FontSizeType.small.size,
                           ),
                         ),
                       ],
@@ -393,11 +393,11 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           onTap: _selectBurnDuration,
           trailing: Text(
             _formatBurnAfterMs(_burnAfterMs),
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.normal,
               color: Theme.of(
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.8),
-              fontSize: FontSizeType.normal.size,
             ),
           ),
         ),
@@ -521,10 +521,10 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         ),
         titleWidget: Text(
           t.common.chatSettings,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: FontSizeType.large.size,
+          style: context.textStyle(
+            FontSizeType.large,
             fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),

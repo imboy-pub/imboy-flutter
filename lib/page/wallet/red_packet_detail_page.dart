@@ -148,8 +148,8 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                             ),
                             child: Text(
                               '🈲 零信任端解密',
-                              style: TextStyle(
-                                fontSize: FontSizeType.tiny.size,
+                              style: context.textStyle(
+                                FontSizeType.tiny,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.lightTextPrimary,
                               ),
@@ -160,35 +160,36 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                       AppSpacing.verticalMedium,
                       Text(
                         _packet!.greeting,
-                        style: TextStyle(
+                        style: context.textStyle(
+                          FontSizeType.subheadline,
                           color: AppColors.onPrimary.withValues(alpha: 0.7),
-                          fontSize: FontSizeType.subheadline.size,
                         ),
                       ),
                       AppSpacing.verticalRegular,
                       if (_myGrabbedAmount != null) ...[
                         Text(
                           (_myGrabbedAmount! / 100.0).toStringAsFixed(2),
-                          style: TextStyle(
-                            color: AppColors.onPrimary,
-                            fontSize: FontSizeType.extraLargeTitle.size,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'monospace',
-                          ),
+                          style: context
+                              .textStyle(
+                                FontSizeType.extraLargeTitle,
+                                color: AppColors.onPrimary,
+                                fontWeight: FontWeight.bold,
+                              )
+                              .copyWith(fontFamily: 'monospace'),
                         ),
                         Text(
                           '元',
-                          style: TextStyle(
+                          style: context.textStyle(
+                            FontSizeType.normal,
                             color: AppColors.onPrimary.withValues(alpha: 0.7),
-                            fontSize: FontSizeType.normal.size,
                           ),
                         ),
                       ] else ...[
                         Text(
                           '未领到该红包',
-                          style: TextStyle(
+                          style: context.textStyle(
+                            FontSizeType.large,
                             color: AppColors.onPrimary.withValues(alpha: 0.7),
-                            fontSize: FontSizeType.large.size,
                           ),
                         ),
                       ],
@@ -208,8 +209,8 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                 _packet!.isFinished
                     ? '共 ${_packet!.amountYuan.toStringAsFixed(2)} 元，${_packet!.count} 个红包已抢光'
                     : '已抢 ${_receivers.length}/${_packet!.count} 个，共 ${((_packet!.amount - _packet!.remainAmount) / 100.0).toStringAsFixed(2)}/${_packet!.amountYuan.toStringAsFixed(2)} 元',
-                style: TextStyle(
-                  fontSize: FontSizeType.normal.size,
+                style: context.textStyle(
+                  FontSizeType.normal,
                   color: AppColors.iosGray,
                 ),
               ),
@@ -263,8 +264,8 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                               const SizedBox(width: 2),
                               Text(
                                 '手气最佳',
-                                style: TextStyle(
-                                  fontSize: FontSizeType.tiny.size,
+                                style: context.textStyle(
+                                  FontSizeType.tiny,
                                   color: AppColors.iosOrange,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -280,8 +281,8 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                   ),
                   trailing: Text(
                     '￥${r.amountYuan.toStringAsFixed(2)} 元',
-                    style: TextStyle(
-                      fontSize: FontSizeType.medium.size,
+                    style: context.textStyle(
+                      FontSizeType.medium,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

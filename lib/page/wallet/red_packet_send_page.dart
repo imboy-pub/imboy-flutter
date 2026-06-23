@@ -118,8 +118,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                       _selectedType == 'random'
                           ? t.common.redPacketCurrentLucky
                           : t.common.redPacketCurrentNormal,
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -147,8 +147,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
               if (_isGroup) ...[
                 Text(
                   '红包个数',
-                  style: TextStyle(
-                    fontSize: FontSizeType.subheadline.size,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -179,8 +179,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
               // 总金额输入
               Text(
                 _selectedType == 'random' ? '总金额' : '单个金额',
-                style: TextStyle(
-                  fontSize: FontSizeType.subheadline.size,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -213,8 +213,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
               // 祝福语
               Text(
                 '留言/祝福语',
-                style: TextStyle(
-                  fontSize: FontSizeType.subheadline.size,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -233,8 +233,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
               // 钱包余额提示
               Text(
                 '钱包当前余额: ￥${balanceYuan.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: FontSizeType.footnote.size,
+                style: context.textStyle(
+                  FontSizeType.footnote,
                   color: AppColors.getTextColor(
                     Theme.of(context).brightness,
                     isSecondary: true,
@@ -258,8 +258,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                   ),
                   child: Text(
                     _selectedType == 'random' ? '塞钱发红包' : '放入钱包发送',
-                    style: TextStyle(
-                      fontSize: FontSizeType.medium.size,
+                    style: context.textStyle(
+                      FontSizeType.medium,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

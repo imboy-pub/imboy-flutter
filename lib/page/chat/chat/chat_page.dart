@@ -51,6 +51,7 @@ import 'package:imboy/service/storage.dart';
 
 // 显式导入 E2EE 事件（barrel 用 show 白名单未含 E2EEPeerKeyChangedEvent）
 import 'package:imboy/service/events/message_events.dart';
+import 'package:imboy/service/encryption_mode.dart';
 import 'e2ee_peer_key_warning_rule.dart';
 
 import 'package:imboy/component/ui/avatar.dart' as imboy;
@@ -426,8 +427,9 @@ class ChatPageState extends ConsumerState<ChatPage>
   ///
   /// 在聊天页面初始化时预先获取对方设备的公钥，避免发送消息时等待
   Future<void> _preloadE2EEDeviceKeys() async {
-    // 只在E2EE启用时预加载
-    if (!E2EESettings.isEnabled()) {
+    // 只在E2EE启用时预加载（本地开关或后端策略要求）
+    if (!E2EESettings.isEnabled() &&
+        !EncryptionModeService.current.requiresEncryption) {
       return;
     }
 
@@ -1602,6 +1604,9 @@ class ChatPageState extends ConsumerState<ChatPage>
                 voiceWidget: VoiceWidget(
                   startRecord: () {},
                   stopRecord: _handleVoiceSelection,
+                  onConvertToText: (text) {
+                    _handleSendPressed(text);
+                  },
                   height: 46,
                   margin: EdgeInsets.zero,
                 ),

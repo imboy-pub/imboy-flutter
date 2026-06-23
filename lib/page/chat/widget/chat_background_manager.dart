@@ -364,8 +364,8 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       children: [
         Text(
           t.common.backgroundSelectColor,
-          style: TextStyle(
-            fontSize: FontSizeType.large.size,
+          style: context.textStyle(
+            FontSizeType.large,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -421,8 +421,8 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
                       padding: AppSpacing.allSmall,
                       child: Text(
                         name,
-                        style: TextStyle(
-                          fontSize: FontSizeType.small.size,
+                        style: context.textStyle(
+                          FontSizeType.small,
                           fontWeight: state.currentBackground == option
                               ? FontWeight.w600
                               : FontWeight.w400,
@@ -510,8 +510,8 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       children: [
         Text(
           t.common.backgroundTransparency,
-          style: TextStyle(
-            fontSize: FontSizeType.large.size,
+          style: context.textStyle(
+            FontSizeType.large,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -539,8 +539,8 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       children: [
         Text(
           t.common.backgroundUseCustomColor,
-          style: TextStyle(
-            fontSize: FontSizeType.large.size,
+          style: context.textStyle(
+            FontSizeType.large,
             fontWeight: FontWeight.w600,
           ),
         ),

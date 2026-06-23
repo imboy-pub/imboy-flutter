@@ -104,9 +104,9 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                     ),
                     child: Text(
                       state.stateStr,
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: AppColors.onPrimary,
-                        fontSize: FontSizeType.small.size,
                       ),
                     ),
                   ),
@@ -128,9 +128,9 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                       ),
                       child: Text(
                         'Key: ${'*' * 8}',
-                        style: TextStyle(
+                        style: context.textStyle(
+                          FontSizeType.tiny,
                           color: AppColors.darkTextPrimary,
-                          fontSize: FontSizeType.tiny.size,
                         ),
                       ),
                     ),

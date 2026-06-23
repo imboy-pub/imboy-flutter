@@ -146,8 +146,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
           Text(
             t.common.createGroupF2fConfirmTips,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: FontSizeType.subheadline.size,
+            style: context.textStyle(
+              FontSizeType.subheadline,
               color: AppColors.iosGray,
               fontWeight: FontWeight.w500,
             ),
@@ -189,8 +189,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
           alignment: Alignment.center,
           child: Text(
             char,
-            style: TextStyle(
-              fontSize: FontSizeType.extraLargeTitle.size,
+            style: context.textStyle(
+              FontSizeType.extraLargeTitle,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
@@ -257,8 +257,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
               ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   t.group.enterTheGroup,
-                  style: TextStyle(
-                    fontSize: FontSizeType.body.size,
+                  style: context.textStyle(
+                    FontSizeType.body,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

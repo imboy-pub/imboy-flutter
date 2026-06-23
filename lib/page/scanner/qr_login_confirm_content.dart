@@ -118,16 +118,16 @@ class QrLoginConfirmContent extends StatelessWidget {
         AppSpacing.verticalXLarge,
         Text(
           'Web 端登录确认',
-          style: TextStyle(
-            fontSize: FontSizeType.title.size,
+          style: context.textStyle(
+            FontSizeType.title,
             fontWeight: FontWeight.w600,
           ),
         ),
         AppSpacing.verticalSmall,
         Text(
           '请确认是否在 Web 端登录此账号',
-          style: TextStyle(
-            fontSize: FontSizeType.normal.size,
+          style: context.textStyle(
+            FontSizeType.normal,
             color: AppColors.lightTextSecondary,
           ),
         ),
@@ -150,8 +150,8 @@ class QrLoginConfirmContent extends StatelessWidget {
             ),
             child: Text(
               '确认登录',
-              style: TextStyle(
-                fontSize: FontSizeType.medium.size,
+              style: context.textStyle(
+                FontSizeType.medium,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -165,8 +165,8 @@ class QrLoginConfirmContent extends StatelessWidget {
             onPressed: onCancel,
             child: Text(
               '取消',
-              style: TextStyle(
-                fontSize: FontSizeType.medium.size,
+              style: context.textStyle(
+                FontSizeType.medium,
                 color: AppColors.iosRed,
               ),
             ),
@@ -261,7 +261,7 @@ class _DeviceInfoCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Text(
                   line,
-                  style: TextStyle(fontSize: FontSizeType.normal.size),
+                  style: context.textStyle(FontSizeType.normal),
                 ),
               ),
             )

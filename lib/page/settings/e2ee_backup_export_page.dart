@@ -97,16 +97,16 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             const SizedBox(height: AppSpacing.small),
             Text(
               t.common.e2eeBackupPwdCantRecover,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosOrange,
               ),
             ),
             const SizedBox(height: AppSpacing.tiny),
             Text(
               t.common.e2eeBackupStoreMultipleNote,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosOrange,
               ),
             ),
@@ -165,8 +165,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       children: [
         Text(
           t.common.e2eeBackupPwdStrengthLabel,
-          style: TextStyle(
-            fontSize: FontSizeType.small.size,
+          style: context.textStyle(
+            FontSizeType.small,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -180,8 +180,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         const SizedBox(height: AppSpacing.tiny),
         Text(
           _getStrengthLabel(strength),
-          style: TextStyle(
-            fontSize: FontSizeType.small.size,
+          style: context.textStyle(
+            FontSizeType.small,
             color: AppColors.textSecondary,
           ),
         ),
@@ -255,10 +255,9 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             const SizedBox(height: AppSpacing.small),
             Text(
               'File: ${_generatedFilePath?.split('/').last ?? ""}',
-              style: TextStyle(
-                fontSize: FontSizeType.small.size,
-                fontFamily: 'monospace',
-              ),
+              style: context
+                  .textStyle(FontSizeType.small)
+                  .copyWith(fontFamily: 'monospace'),
             ),
             const SizedBox(height: AppSpacing.medium),
             OutlinedButton.icon(

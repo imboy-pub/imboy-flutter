@@ -196,9 +196,9 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
               child: Text(
                 txt,
                 textAlign: TextAlign.left,
-                style: TextStyle(
+                style: context.textStyle(
+                  FontSizeType.largeTitle,
                   color: AppColors.getTextColor(brightness),
-                  fontSize: FontSizeType.largeTitle.size,
                 ),
               ),
             ),

@@ -74,7 +74,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                   const SizedBox(width: 2),
                   Text(
                     '${widget.room!.viewerCount}',
-                    style: TextStyle(fontSize: FontSizeType.small.size),
+                    style: context.textStyle(FontSizeType.small),
                   ),
                 ],
               ),
@@ -111,9 +111,9 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                     ),
                     child: Text(
                       state.stateStr,
-                      style: TextStyle(
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: AppColors.onPrimary,
-                        fontSize: FontSizeType.small.size,
                       ),
                     ),
                   ),

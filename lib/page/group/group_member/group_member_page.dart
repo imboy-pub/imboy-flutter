@@ -230,9 +230,9 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       ),
       child: Text(
         label,
-        style: TextStyle(
+        style: context.textStyle(
+          FontSizeType.tiny,
           color: color,
-          fontSize: FontSizeType.tiny.size,
           fontWeight: FontWeight.w500,
         ),
       ),

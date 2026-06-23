@@ -105,8 +105,8 @@ class ProfileCompletionWidget extends ConsumerWidget {
                       t.chat.profileProgress(
                         percent: profileState.completeness,
                       ),
-                      style: TextStyle(
-                        fontSize: FontSizeType.footnote.size,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
                         color: AppColors.iosGray,
                       ),
                     ),
@@ -116,12 +116,13 @@ class ProfileCompletionWidget extends ConsumerWidget {
               const SizedBox(width: AppSpacing.regular),
               Text(
                 '${profileState.completeness}%',
-                style: TextStyle(
-                  fontSize: FontSizeType.largeTitle.size,
-                  fontWeight: FontWeight.bold,
-                  color: profileState.completenessColor,
-                  letterSpacing: -1,
-                ),
+                style: context
+                    .textStyle(
+                      FontSizeType.largeTitle,
+                      fontWeight: FontWeight.bold,
+                      color: profileState.completenessColor,
+                    )
+                    .copyWith(letterSpacing: -1),
               ),
             ],
           ),
@@ -157,8 +158,8 @@ class ProfileCompletionWidget extends ConsumerWidget {
             const SizedBox(width: AppSpacing.small),
             Text(
               t.chat.profileCompleted,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 color: AppColors.iosGreen,
                 fontWeight: FontWeight.w600,
               ),
@@ -173,8 +174,8 @@ class ProfileCompletionWidget extends ConsumerWidget {
       children: [
         Text(
           t.common.completionSuggestions,
-          style: TextStyle(
-            fontSize: FontSizeType.footnote.size,
+          style: context.textStyle(
+            FontSizeType.footnote,
             fontWeight: FontWeight.w500,
             color: AppColors.iosGray,
           ),
@@ -197,8 +198,8 @@ class ProfileCompletionWidget extends ConsumerWidget {
                   ),
                   child: Text(
                     suggestion,
-                    style: TextStyle(
-                      fontSize: FontSizeType.small.size,
+                    style: context.textStyle(
+                      FontSizeType.small,
                       color: AppColors.primary,
                       fontWeight: FontWeight.w500,
                     ),

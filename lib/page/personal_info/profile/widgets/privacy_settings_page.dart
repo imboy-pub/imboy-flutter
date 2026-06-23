@@ -143,8 +143,8 @@ class PrivacySettingsPage extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
           child: Text(
             title,
-            style: TextStyle(
-              fontSize: FontSizeType.normal.size,
+            style: context.textStyle(
+              FontSizeType.normal,
               fontWeight: FontWeight.w500,
               color: AppColors.getTextColor(
                 Theme.of(context).brightness,
@@ -220,8 +220,8 @@ class PrivacySettingsPage extends ConsumerWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: FontSizeType.medium.size,
+                  style: context.textStyle(
+                    FontSizeType.medium,
                     fontWeight: FontWeight.w400,
                     color: AppColors.getTextColor(Theme.of(context).brightness),
                   ),
@@ -229,8 +229,8 @@ class PrivacySettingsPage extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.tiny),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: FontSizeType.footnote.size,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
                     color: AppColors.getTextColor(
                       Theme.of(context).brightness,
                       isSecondary: true,
@@ -286,8 +286,8 @@ class PrivacySettingsPage extends ConsumerWidget {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
-                        fontSize: FontSizeType.medium.size,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         fontWeight: FontWeight.w400,
                         color: AppColors.getTextColor(
                           Theme.of(context).brightness,
@@ -297,8 +297,8 @@ class PrivacySettingsPage extends ConsumerWidget {
                     const SizedBox(height: AppSpacing.tiny),
                     Text(
                       subtitle,
-                      style: TextStyle(
-                        fontSize: FontSizeType.footnote.size,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
                         color: AppColors.getTextColor(
                           Theme.of(context).brightness,
                           isSecondary: true,
