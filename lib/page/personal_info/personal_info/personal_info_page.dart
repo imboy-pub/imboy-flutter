@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -205,7 +206,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          AppSpacing.verticalMedium,
           Text(
             nickname,
             style: TextStyle(

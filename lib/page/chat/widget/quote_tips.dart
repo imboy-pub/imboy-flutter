@@ -49,7 +49,7 @@ class QuoteTipsWidget extends StatelessWidget {
       body = Row(
         children: [
           Icon(CupertinoIcons.photo, size: 16, color: AppColors.iosGray),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           ImageView(uri: (message as ImageMessage).source, height: 32),
         ],
       );
@@ -58,7 +58,7 @@ class QuoteTipsWidget extends StatelessWidget {
       body = Row(
         children: [
           Icon(CupertinoIcons.doc, size: 16, color: AppColors.iosGray),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Expanded(
             child: Text(
               fileMsg.name,
@@ -76,7 +76,7 @@ class QuoteTipsWidget extends StatelessWidget {
       body = Row(
         children: [
           Icon(CupertinoIcons.mic, size: 16, color: AppColors.iosGray),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Text(
             "[${t.chat.voiceMessage}]",
             style: TextStyle(
@@ -95,7 +95,7 @@ class QuoteTipsWidget extends StatelessWidget {
       body = Row(
         children: [
           Icon(CupertinoIcons.slash_circle, size: 16, color: AppColors.iosGray),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Text(
             t.common.messageRevoked,
             style: TextStyle(
@@ -111,7 +111,7 @@ class QuoteTipsWidget extends StatelessWidget {
       body = Row(
         children: [
           Icon(CupertinoIcons.quote_bubble, size: 16, color: AppColors.iosGray),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Expanded(
             child: Text(
               "[${t.main.quote}] $txt",
@@ -131,7 +131,7 @@ class QuoteTipsWidget extends StatelessWidget {
       body = Row(
         children: [
           Icon(CupertinoIcons.mic, size: 16, color: AppColors.iosGray),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Text(
             "[${t.chat.voiceMessage}] ${durationMS.toStringAsFixed(1)}''",
             style: TextStyle(
@@ -145,7 +145,7 @@ class QuoteTipsWidget extends StatelessWidget {
       body = Row(
         children: [
           Icon(CupertinoIcons.location, size: 16, color: AppColors.iosGray),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Expanded(
             child: Text(
               "[${t.groupSchedule.location}] ${message?.metadata?['title'] ?? ''}",
@@ -163,7 +163,7 @@ class QuoteTipsWidget extends StatelessWidget {
       body = Row(
         children: [
           Icon(CupertinoIcons.videocam, size: 16, color: AppColors.iosGray),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Text(
             "[${t.chat.video}]",
             style: TextStyle(
@@ -181,7 +181,7 @@ class QuoteTipsWidget extends StatelessWidget {
             size: 16,
             color: AppColors.iosGray,
           ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Expanded(
             child: Text(
               "[${t.chat.businessCard}] ${message?.metadata?['title'] ?? ''}",
@@ -231,7 +231,7 @@ class QuoteTipsWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,5 @@
 import 'dart:convert' show jsonDecode;
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -515,7 +516,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      AppSpacing.verticalSmall,
                       Text(
                         address,
                         maxLines: 4,
@@ -544,7 +545,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   child: Container(
                     width: screenWidth - 20,
                     height: screenHeight - 160,
-                    padding: const EdgeInsets.all(16),
+                    padding: AppSpacing.allRegular,
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: AppRadius.borderRadiusSmall,
@@ -559,7 +560,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                               color: AppColors.primary,
                               size: 24,
                             ),
-                            const SizedBox(width: 8),
+                            AppSpacing.horizontalSmall,
                             Expanded(
                               child: Text(
                                 title,
@@ -575,7 +576,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        AppSpacing.verticalMedium,
                         Text(
                           address,
                           style: TextStyle(
@@ -601,7 +602,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         children: [
           Expanded(
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: AppSpacing.allMedium,
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: AppRadius.borderRadiusSmall,
@@ -636,7 +637,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                       },
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.horizontalMedium,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -650,7 +651,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        AppSpacing.verticalTiny,
                         Text(
                           t.common.personalCard,
                           style: TextStyle(color: AppColors.primary),
@@ -750,7 +751,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.horizontalMedium,
                   Icon(
                     Icons.close,
                     size: 16,
@@ -847,7 +848,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.horizontalMedium,
                   Icon(
                     Icons.close,
                     size: 16,
@@ -1181,7 +1182,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.local_offer, size: 12, color: AppColors.info),
-                  const SizedBox(width: 4),
+                  AppSpacing.horizontalTiny,
                   Text(
                     tag,
                     style: TextStyle(

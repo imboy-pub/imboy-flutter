@@ -110,7 +110,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                         fit: BoxFit.contain,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    AppSpacing.horizontalSmall,
                     // P1-5: Hero 接力 Splash 36pt → Welcome 18pt 自然过渡
                     // Material(transparent) 防 Hero flight 期间失去 TextStyle 上下文
                     Hero(
@@ -165,7 +165,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                                 height: 220,
                               ),
                             ),
-                            const SizedBox(height: 24),
+                            AppSpacing.verticalXLarge,
                             Text(
                               page['title'] as String,
                               style: context
@@ -177,7 +177,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                                   .copyWith(letterSpacing: -0.5),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 12),
+                            AppSpacing.verticalMedium,
                             Text(
                               page['desc'] as String,
                               // context.textStyle 无 height 参数，copyWith 补回
@@ -220,7 +220,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                         );
                       }),
                     ),
-                    const SizedBox(height: 32),
+                    AppSpacing.verticalXXLarge,
                     // Button
                     SizedBox(
                       width: double.infinity,
@@ -256,7 +256,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    AppSpacing.verticalRegular,
                     // Skip Link
                     if (_currentPage < _pages(context).length - 1)
                       GestureDetector(
@@ -326,7 +326,7 @@ class _LanguageSelector extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.language, size: 18, color: AppColors.primary),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             Text(
               names[currentLocale] ?? currentLocale.languageCode,
               style: context.textStyle(
@@ -335,7 +335,7 @@ class _LanguageSelector extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 4),
+            AppSpacing.horizontalTiny,
             const Icon(
               Icons.keyboard_arrow_down,
               size: 18,
@@ -379,7 +379,7 @@ class _LanguageSelector extends StatelessWidget {
                     ? AppColors.primary
                     : Colors.transparent,
               ),
-              const SizedBox(width: 12),
+              AppSpacing.horizontalMedium,
               Expanded(
                 child: Text(
                   names[locale] ?? locale.languageCode,

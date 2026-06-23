@@ -7,6 +7,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/chat_input_types.dart';
@@ -154,7 +155,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
           : _replies.isEmpty
           ? Center(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: AppSpacing.allXLarge,
                 child: Text(
                   t.chat.quickReplyEmpty,
                   textAlign: TextAlign.center,

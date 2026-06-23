@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -63,26 +64,26 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
         title: t.common.deviceDetails,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: AppSpacing.allRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 设备信息卡片
             _buildDeviceInfoCard(context, isDark),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 设备详情
             _buildDeviceDetailsCard(context, isDark),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 活跃时间提示
             _buildActiveTimeTips(context, isDark),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
 
             // 下线设备按钮（仅非当前设备显示）
             if (widget.model.deviceId != deviceId)
               _buildForceOfflineButton(context),
-            if (widget.model.deviceId != deviceId) const SizedBox(height: 12),
+            if (widget.model.deviceId != deviceId) AppSpacing.verticalMedium,
 
             // 删除设备按钮
             _buildDeleteButton(context),
@@ -95,7 +96,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
   /// 构建设备信息卡片
   Widget _buildDeviceInfoCard(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(20.0),
+      padding: AppSpacing.allLarge,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusRegular,
@@ -120,7 +121,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                   color: AppColors.primary,
                 ),
               ),
-              const SizedBox(width: 16),
+              AppSpacing.horizontalRegular,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +136,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    AppSpacing.verticalTiny,
                     Text(
                       widget.model.showType,
                       style: TextStyle(
@@ -149,7 +150,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
 
           // 在线状态
           Row(
@@ -164,7 +165,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 8),
+              AppSpacing.horizontalSmall,
               Text(
                 widget.model.online ? t.chat.online : t.chat.offline,
                 style: TextStyle(
@@ -240,7 +241,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       child: CellPressable(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: AppSpacing.allRegular,
           child: Row(
             children: [
               Icon(
@@ -250,7 +251,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                   context,
                 ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
-              const SizedBox(width: 12),
+              AppSpacing.horizontalMedium,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,7 +264,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                         ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    AppSpacing.verticalTiny,
                     Text(
                       value,
                       style: TextStyle(
@@ -277,7 +278,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                 ),
               ),
               if (showArrow) ...[
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 Icon(
                   Icons.chevron_right,
                   color: Theme.of(
@@ -305,7 +306,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
   /// 构建活跃时间提示
   Widget _buildActiveTimeTips(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: AppSpacing.allRegular,
       decoration: BoxDecoration(
         color: isDark
             ? AppColors.info.withValues(alpha: 0.1)
@@ -321,7 +322,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       child: Row(
         children: [
           Icon(Icons.info_outline, color: AppColors.info, size: 20),
-          const SizedBox(width: 12),
+          AppSpacing.horizontalMedium,
           Expanded(
             child: Text(
               t.common.lastActiveTips,

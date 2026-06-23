@@ -166,7 +166,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                         style: TextStyle(fontSize: FontSizeType.body.size),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    AppSpacing.horizontalSmall,
                     _buildCodeButton(context, ref, asyncState),
                   ],
                 ),
@@ -342,7 +342,7 @@ class _ValidationRow extends StatelessWidget {
             size: 14,
             color: color,
           ),
-          const SizedBox(width: 4),
+          AppSpacing.horizontalTiny,
           Text(
             text,
             style: TextStyle(fontSize: FontSizeType.small.size, color: color),

@@ -140,7 +140,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.verticalRegular,
               ],
 
               // 红包个数（仅群聊）
@@ -152,7 +152,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSmall,
                 TextFormField(
                   controller: _countController,
                   keyboardType: TextInputType.number,
@@ -173,7 +173,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
+                AppSpacing.verticalXLarge,
               ],
 
               // 总金额输入
@@ -184,7 +184,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               TextFormField(
                 controller: _amountController,
                 keyboardType: const TextInputType.numberWithOptions(
@@ -208,7 +208,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              AppSpacing.verticalXLarge,
 
               // 祝福语
               Text(
@@ -218,7 +218,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               TextFormField(
                 controller: _greetingController,
                 decoration: InputDecoration(
@@ -228,7 +228,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.verticalRegular,
 
               // 钱包余额提示
               Text(
@@ -241,7 +241,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 48),
+              AppSpacing.verticalXXXLarge,
 
               // 塞钱发送按钮
               SizedBox(

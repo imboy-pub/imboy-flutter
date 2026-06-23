@@ -427,7 +427,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   ),
           ),
           if (!_showVoiceInput) ...[
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             // 右侧：发送按钮
             Container(
               margin: const EdgeInsets.only(bottom: 6),
@@ -439,7 +439,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               ),
               child: isBusy
                   ? const Padding(
-                      padding: EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8),
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         color: AppColors.onPrimary,
@@ -730,7 +730,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         expand: false,
         builder: (context, scrollController) => SingleChildScrollView(
           controller: scrollController,
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.allRegular,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -746,7 +746,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.verticalRegular,
               Text(
                 context.t.channel.settings,
                 style: TextStyle(
@@ -754,7 +754,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.verticalRegular,
               ListTile(
                 leading: const Icon(Icons.edit_outlined),
                 title: Text(context.t.channel.editChannel),
@@ -852,7 +852,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(state.error!),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             ElevatedButton(
               onPressed: () {
                 final channel = ref.read(channelDetailProvider).channel;
@@ -941,10 +941,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   Widget _buildPaidLockedView(ChannelModel channel) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allRegular,
         child: Container(
           constraints: const BoxConstraints(maxWidth: 460),
-          padding: const EdgeInsets.all(20),
+          padding: AppSpacing.allLarge,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: AppRadius.borderRadiusMedium,
@@ -959,7 +959,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               Row(
                 children: [
                   const Icon(Icons.lock_outline, color: AppColors.iosYellow),
-                  const SizedBox(width: 8),
+                  AppSpacing.horizontalSmall,
                   Expanded(
                     child: Text(
                       t.discovery.paidChannelLocked,
@@ -1220,7 +1220,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           height: MediaQuery.of(ctx).size.height * 0.62,
           child: Column(
             children: [
-              const SizedBox(height: 12),
+              AppSpacing.verticalMedium,
               Text(
                 t.main.myOrders,
                 style: TextStyle(
@@ -1228,7 +1228,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               Expanded(
                 child: orders.isEmpty
                     ? Center(child: Text(t.common.noOrders))
@@ -1365,7 +1365,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.allRegular,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
@@ -1414,7 +1414,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     return Column(
       children: [
         Icon(icon, size: 20, color: secondaryColor),
-        const SizedBox(height: 4),
+        AppSpacing.verticalTiny,
         Text(
           value,
           style: TextStyle(
@@ -1585,7 +1585,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.allRegular,
               child: Text(
                 channel.name,
                 style: TextStyle(

@@ -186,7 +186,7 @@ class _PinCodeVerificationPageState
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          AppSpacing.verticalLarge,
                           Row(
                             children: [
                               Expanded(
@@ -384,7 +384,7 @@ class _PinCodeVerificationPageState
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    AppSpacing.verticalLarge,
                     FadeAnimation(
                       delay: 1,
                       child: Row(

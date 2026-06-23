@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -198,7 +199,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     size: 10,
                     color: AppColors.getIosBlue(Theme.of(context).brightness),
                   ),
-                  const SizedBox(width: 4),
+                  AppSpacing.horizontalTiny,
                   Text(
                     tag,
                     style: TextStyle(
@@ -405,14 +406,14 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   Widget _buildLoadErrorPanel(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: AppSpacing.allMedium,
       color: AppColors.getIosRed(
         Theme.of(context).brightness,
       ).withValues(alpha: 0.1),
       child: Row(
         children: [
           const Icon(Icons.error_outline, color: AppColors.iosRed),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Expanded(child: Text(t.common.loadError)),
           CupertinoButton(
             padding: EdgeInsets.zero,
@@ -469,7 +470,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             }
           },
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allRegular,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -482,7 +483,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                         size: 12,
                         color: AppColors.getIosBlue(brightness),
                       ),
-                      const SizedBox(width: 4),
+                      AppSpacing.horizontalTiny,
                       Text(
                         t.chat.pinned,
                         style: TextStyle(
@@ -493,10 +494,10 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  AppSpacing.verticalSmall,
                 ],
                 notifier.buildItemBody(context, obj, 'page'),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMedium,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -524,7 +525,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                   ],
                 ),
                 if (obj.tag.isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                  AppSpacing.verticalSmall,
                   buildItemTag(obj.tag, context),
                 ],
               ],
@@ -645,7 +646,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     width: 44,
                     height: 44,
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.horizontalMedium,
                   Expanded(
                     child: Text(
                       widget.peer['title'] ?? '',
@@ -656,7 +657,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              AppSpacing.verticalMedium,
               Text(
                 model.info['payload']?['text'] as String? ??
                     t.common.messageContent,
@@ -876,7 +877,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             size: 60,
             color: AppColors.iosGray.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
           Text(
             t.common.noFavoritesYet,
             style: TextStyle(
@@ -969,7 +970,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                   size: 18,
                   color: AppColors.getIosBlue(brightness),
                 ),
-                const SizedBox(width: 12),
+                AppSpacing.horizontalMedium,
                 Text(
                   t.main.type,
                   style: TextStyle(
@@ -1012,7 +1013,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               if (currentState.tagItems.isNotEmpty) ...[
                 const Divider(indent: 16, endIndent: 16, height: 1),
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: AppSpacing.allRegular,
                   child: Wrap(
                     spacing: 6,
                     runSpacing: 6,

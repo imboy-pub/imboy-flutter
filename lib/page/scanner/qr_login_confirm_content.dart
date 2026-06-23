@@ -96,7 +96,7 @@ class QrLoginConfirmContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const CircularProgressIndicator(color: AppColors.primary),
-        const SizedBox(height: 24),
+        AppSpacing.verticalXLarge,
         Text(hint, style: TextStyle(fontSize: FontSizeType.medium.size)),
       ],
     );
@@ -115,7 +115,7 @@ class QrLoginConfirmContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const Icon(Icons.computer_outlined, size: 80, color: AppColors.primary),
-        const SizedBox(height: 24),
+        AppSpacing.verticalXLarge,
         Text(
           'Web 端登录确认',
           style: TextStyle(
@@ -123,7 +123,7 @@ class QrLoginConfirmContent extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 8),
+        AppSpacing.verticalSmall,
         Text(
           '请确认是否在 Web 端登录此账号',
           style: TextStyle(
@@ -132,7 +132,7 @@ class QrLoginConfirmContent extends StatelessWidget {
           ),
         ),
         if (deviceInfo != null) ...[
-          const SizedBox(height: 24),
+          AppSpacing.verticalXLarge,
           _DeviceInfoCard(deviceInfo: deviceInfo),
         ],
         const SizedBox(height: 40),
@@ -157,7 +157,7 @@ class QrLoginConfirmContent extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        AppSpacing.verticalMedium,
         SizedBox(
           width: double.infinity,
           height: 48,
@@ -185,7 +185,7 @@ class QrLoginConfirmContent extends StatelessWidget {
           size: 80,
           color: AppColors.primary,
         ),
-        const SizedBox(height: 24),
+        AppSpacing.verticalXLarge,
         Text(
           '登录成功',
           style: TextStyle(
@@ -202,7 +202,7 @@ class QrLoginConfirmContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 80, color: AppColors.lightTextSecondary),
-        const SizedBox(height: 24),
+        AppSpacing.verticalXLarge,
         Text(
           message,
           style: TextStyle(fontSize: FontSizeType.medium.size),

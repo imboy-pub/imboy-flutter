@@ -361,7 +361,7 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
               color: AppColors.getIosRed(brightness),
               size: 24,
             ),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             Expanded(
               child: Text(
                 t.common.addedToDenylistTips,

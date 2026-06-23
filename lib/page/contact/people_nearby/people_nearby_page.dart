@@ -127,7 +127,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                           ),
                         ),
                       ),
-                    const SizedBox(width: 8),
+                    AppSpacing.horizontalSmall,
                     const CupertinoListTileChevron(),
                   ],
                 ),
@@ -224,7 +224,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               t.discovery.findNearbyPeople,
               style: TextStyle(
@@ -233,7 +233,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                 letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(
               t.common.nearbyPeopleTips,
               textAlign: TextAlign.center,
@@ -272,7 +272,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
             size: 12,
             color: AppColors.getIosBlue(brightness).withValues(alpha: 0.7),
           ),
-          const SizedBox(width: 4),
+          AppSpacing.horizontalTiny,
           Text(
             distance,
             style: TextStyle(
@@ -311,7 +311,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             Text(
               t.common.noNearbyPeople,
               style: TextStyle(
@@ -320,7 +320,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                 color: AppColors.iosGray,
               ),
             ),
-            const SizedBox(height: 4),
+            AppSpacing.verticalTiny,
             Text(
               t.common.clickSearchButtonToFind,
               textAlign: TextAlign.center,

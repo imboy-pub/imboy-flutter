@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -101,7 +102,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                           : AppColors.lightSurfaceGrouped,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    padding: const EdgeInsets.all(4),
+                    padding: AppSpacing.allTiny,
                     child: TabBar(
                       controller: _tabController,
                       indicator: BoxDecoration(
@@ -130,7 +131,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  AppSpacing.verticalXXLarge,
 
                   SizedBox(
                     height: 320,
@@ -193,7 +194,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
           onSelect: (val) => _accountController.text = val,
           onDelete: (val) => notifier.removeHistory('account', val),
         ),
-        const SizedBox(height: 16),
+        AppSpacing.verticalRegular,
         TextField(
           key: const Key('login_password_input'),
           controller: _passwordController,
@@ -214,7 +215,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
             ),
           ),
         ),
-        const SizedBox(height: 32),
+        AppSpacing.verticalXXLarge,
         _buildLoginButton(() {
           final account = _accountController.text;
           final pwd = _passwordController.text;
@@ -262,7 +263,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
             hintText: t.account.mobile,
           ),
         ),
-        const SizedBox(height: 16),
+        AppSpacing.verticalRegular,
         Row(
           children: [
             Expanded(
@@ -274,7 +275,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             CupertinoButton(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               color: AppColors.primary.withValues(alpha: 0.1),
@@ -299,7 +300,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
             ),
           ],
         ),
-        const SizedBox(height: 32),
+        AppSpacing.verticalXXLarge,
         _buildLoginButton(() async {
           if (_fullMobile.isEmpty || _mobileCodeController.text.isEmpty) return;
           final err = await notifier.loginUserByCode(
@@ -334,7 +335,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
           onDelete: (val) => notifier.removeHistory('email', val),
           keyboardType: TextInputType.emailAddress,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.verticalRegular,
         Row(
           children: [
             Expanded(
@@ -346,7 +347,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             CupertinoButton(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               color: AppColors.primary.withValues(alpha: 0.1),
@@ -371,7 +372,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
             ),
           ],
         ),
-        const SizedBox(height: 32),
+        AppSpacing.verticalXXLarge,
         _buildLoginButton(() async {
           if (_emailController.text.isEmpty ||
               _emailCodeController.text.isEmpty) {

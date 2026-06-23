@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/debounce_button.dart';
@@ -98,7 +99,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
                       Tab(text: t.account.mobile),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  AppSpacing.verticalLarge,
 
                   SizedBox(
                     height: 340,
@@ -111,11 +112,11 @@ class _SignupPageState extends ConsumerState<SignupPage>
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  AppSpacing.verticalLarge,
                   // Quick Login / One Click Login
                   _buildQuickLogin(notifier),
 
-                  const SizedBox(height: 20),
+                  AppSpacing.verticalLarge,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -236,7 +237,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        AppSpacing.verticalLarge,
         DebounceButton(
           text: t.common.nextStep,
           width: double.infinity,
@@ -365,7 +366,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        AppSpacing.verticalLarge,
         DebounceButton(
           text: t.common.nextStep,
           width: double.infinity,
@@ -443,7 +444,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        AppSpacing.verticalLarge,
         Semantics(
           label: t.passport.oneKeyLogin,
           button: true,

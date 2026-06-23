@@ -131,7 +131,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                     color: AppColors.getIosBlue(brightness),
                     size: 32,
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.horizontalMedium,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,7 +242,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 color: AppColors.iosGray,
               ),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             Container(
               width: 4,
               height: 4,
@@ -251,7 +251,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             Text(
               model.statusDesc,
               style: TextStyle(
@@ -278,7 +278,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             const CupertinoListTileChevron(),
           ],
         ),

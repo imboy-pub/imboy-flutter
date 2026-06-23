@@ -13,6 +13,7 @@
 library;
 
 import 'package:azlistview/azlistview.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -313,7 +314,7 @@ class _MomentFriendPickerPageState
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         itemCount: _tags.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => AppSpacing.horizontalSmall,
         itemBuilder: (context, i) => _buildTagChip(_tags[i]),
       ),
     );
@@ -364,7 +365,7 @@ class _MomentFriendPickerPageState
                 size: 14,
                 color: fg,
               ),
-            const SizedBox(width: 4),
+            AppSpacing.horizontalTiny,
             Text(
               entry.tag.name,
               style: TextStyle(
@@ -431,7 +432,7 @@ class _MomentFriendPickerPageState
         child: Row(
           children: [
             Avatar(imgUri: c.avatar, width: 40, height: 40),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             Expanded(
               child: Text(
                 c.title,

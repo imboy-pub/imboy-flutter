@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -68,12 +69,12 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   if (_keyInfo.isNotEmpty) _buildKeyInfoCard(context),
                   if (_keyInfo.isEmpty) _buildNoKeyCard(context),
 
-                  const SizedBox(height: 20),
+                  AppSpacing.verticalLarge,
 
                   // E2EE 说明卡片
                   _buildE2EEInfoCard(context),
 
-                  const SizedBox(height: 20),
+                  AppSpacing.verticalLarge,
 
                   // 恢复方法分组
                   Padding(
@@ -107,7 +108,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     },
                   ),
 
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMedium,
 
                   // 方法 B: 社交恢复（已实现）
                   _buildRecoveryMethodCard(
@@ -128,7 +129,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     },
                   ),
 
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMedium,
 
                   // 方法 C: 本地备份（已实现）
                   _buildRecoveryMethodCard(
@@ -142,7 +143,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     onTap: () => _showLocalBackupOptions(context),
                   ),
 
-                  const SizedBox(height: 20),
+                  AppSpacing.verticalLarge,
 
                   // 危险操作区域
                   Padding(
@@ -167,7 +168,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     onTap: () => _showGenerateNewKeyDialog(context),
                   ),
 
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMedium,
 
                   // 删除密钥
                   _buildDangerActionCard(
@@ -203,14 +204,14 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
         border: Border.all(color: AppColors.iosBlue.withValues(alpha: 0.2)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 const Icon(Icons.lock, color: AppColors.iosBlue, size: 24),
-                const SizedBox(width: 12),
+                AppSpacing.horizontalMedium,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +224,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                           color: AppColors.iosBlue,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      AppSpacing.verticalTiny,
                       Text(
                         t.common.e2eeE2EEEnabled,
                         style: TextStyle(
@@ -254,7 +255,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             _buildInfoRow(
               t.account.e2eeDeviceIdLabel,
               _keyInfo['device_id'] as String? ?? t.common.unknown,
@@ -290,7 +291,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
         border: Border.all(color: AppColors.iosOrange.withValues(alpha: 0.2)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: AppSpacing.allLarge,
         child: Column(
           children: [
             const Icon(
@@ -298,7 +299,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               color: AppColors.iosOrange,
               size: 48,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               t.common.e2eeNoKeyDetected,
               style: TextStyle(
@@ -307,13 +308,13 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 color: AppColors.iosOrange,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(
               t.common.e2eeNoKeyDesc,
               style: TextStyle(fontSize: FontSizeType.normal.size),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             ElevatedButton.icon(
               onPressed: () => _showGenerateNewKeyDialog(context),
               icon: const Icon(Icons.add),
@@ -375,14 +376,14 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
         border: Border.all(color: AppColors.iosBlue.withValues(alpha: 0.2)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Icon(Icons.info_outline, color: AppColors.iosBlue, size: 20),
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 Text(
                   t.common.e2eeAboutTitle,
                   style: TextStyle(
@@ -392,17 +393,17 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             Text(
               t.common.e2eeInfoPoint1,
               style: TextStyle(fontSize: FontSizeType.footnote.size),
             ),
-            const SizedBox(height: 4),
+            AppSpacing.verticalTiny,
             Text(
               t.common.e2eeInfoPoint2,
               style: TextStyle(fontSize: FontSizeType.footnote.size),
             ),
-            const SizedBox(height: 4),
+            AppSpacing.verticalTiny,
             Text(
               t.common.e2eeInfoPoint3,
               style: TextStyle(fontSize: FontSizeType.footnote.size),
@@ -449,7 +450,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allRegular,
             child: Row(
               children: [
                 Container(
@@ -460,7 +461,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   ),
                   child: Icon(icon, color: iconColor, size: 24),
                 ),
-                const SizedBox(width: 16),
+                AppSpacing.horizontalRegular,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -474,7 +475,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          AppSpacing.horizontalSmall,
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
@@ -498,7 +499,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      AppSpacing.verticalTiny,
                       Text(
                         description,
                         style: TextStyle(
@@ -506,7 +507,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                           color: AppColors.iosGray,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      AppSpacing.verticalSmall,
                       Row(
                         children: List.generate(
                           5,
@@ -559,7 +560,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             border: Border.all(color: iconColor.withValues(alpha: 0.3)),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allRegular,
             child: Row(
               children: [
                 Container(
@@ -570,7 +571,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   ),
                   child: Icon(icon, color: iconColor, size: 24),
                 ),
-                const SizedBox(width: 16),
+                AppSpacing.horizontalRegular,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -583,7 +584,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                           color: iconColor,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      AppSpacing.verticalTiny,
                       Text(
                         description,
                         style: TextStyle(
@@ -653,7 +654,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 );
               },
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
           ],
         ),
       ),
@@ -671,7 +672,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.common.e2eeGenerateKeyConfirm),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             Text(
               t.common.warning,
               style: const TextStyle(
@@ -715,7 +716,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.common.e2eeDeleteKeyConfirm),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             Text(
               t.common.warning,
               style: const TextStyle(
@@ -797,7 +798,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
-            const SizedBox(width: 16),
+            AppSpacing.horizontalRegular,
             Text(t.chat.e2eeGeneratingKey),
           ],
         ),
@@ -825,7 +826,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(t.chat.e2eeNewKeyGenerated),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMedium,
                 Text(
                   t.common.e2eeDeviceIdInfo(
                     id: _maskId(keyInfo['device_id']?.toString() ?? ''),
@@ -841,9 +842,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     time: keyInfo['created_at'].toString(),
                   ),
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMedium,
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: AppSpacing.allMedium,
                   decoration: BoxDecoration(
                     color: AppColors.iosOrange.withValues(alpha: 0.1),
                     borderRadius: AppRadius.borderRadiusSmall,
@@ -858,7 +859,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                             color: AppColors.iosOrange,
                             size: 18,
                           ),
-                          const SizedBox(width: 8),
+                          AppSpacing.horizontalSmall,
                           Text(
                             t.common.e2eeImportantNote,
                             style: const TextStyle(
@@ -868,7 +869,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      AppSpacing.verticalTiny,
                       Text(t.common.e2eeWarnOldMayNotDecrypt),
                       Text(t.common.e2eeSuggestBackupNow),
                       Text(t.main.e2eeWarnIrreversible),

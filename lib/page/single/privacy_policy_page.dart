@@ -28,14 +28,14 @@ class PrivacyPolicyPage extends ConsumerWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(
               '生效日期：2026-01-01',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
             _buildSection(
               theme,
               '1. 信息收集',
@@ -87,7 +87,7 @@ class PrivacyPolicyPage extends ConsumerWidget {
                   '冷静期结束后，您的账号数据将被永久删除。',
             ),
             _buildSection(theme, '7. 联系我们', '如有隐私相关问题，请通过应用内「反馈」功能联系我们。'),
-            const SizedBox(height: 32),
+            AppSpacing.verticalXXLarge,
           ],
         ),
       ),
@@ -106,7 +106,7 @@ class PrivacyPolicyPage extends ConsumerWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          AppSpacing.verticalSmall,
           Text(
             content,
             style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),

@@ -80,7 +80,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
 
             // 复制按钮（仅文本类型）
             if (obj.kind == 1)
@@ -283,7 +283,7 @@ class UserCollectDetailPage extends ConsumerWidget {
               isDestructive: true,
             ),
 
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 取消按钮
             Container(
@@ -306,7 +306,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
           ],
         ),
       ),
@@ -331,18 +331,18 @@ class UserCollectDetailPage extends ConsumerWidget {
         child: CellPressable(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding: AppSpacing.symmetricRegular,
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: AppSpacing.allMedium,
                   decoration: BoxDecoration(
                     color: iconColor.withValues(alpha: 0.1),
                     borderRadius: AppRadius.borderRadiusMedium,
                   ),
                   child: Icon(icon, color: iconColor, size: 24),
                 ),
-                const SizedBox(width: 16),
+                AppSpacing.horizontalRegular,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,8 +422,8 @@ class UserCollectDetailPage extends ConsumerWidget {
           children: [
             // 来源信息卡片
             Container(
-              margin: const EdgeInsets.all(16.0),
-              padding: const EdgeInsets.all(16.0),
+              margin: AppSpacing.allRegular,
+              padding: AppSpacing.allRegular,
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusMedium,
@@ -437,7 +437,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                         : AppColors.primary,
                     size: 20,
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.horizontalMedium,
                   Expanded(
                     child: Text(
                       "${t.main.from} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
@@ -461,7 +461,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                   horizontal: 16.0,
                   vertical: 8.0,
                 ),
-                padding: const EdgeInsets.all(16.0),
+                padding: AppSpacing.allRegular,
                 decoration: BoxDecoration(
                   color: isDark
                       ? Theme.of(
@@ -490,7 +490,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                               : AppColors.primary,
                           size: 20,
                         ),
-                        const SizedBox(width: 8),
+                        AppSpacing.horizontalSmall,
                         Text(
                           "${t.contact.remark}:",
                           style: TextStyle(
@@ -503,7 +503,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    AppSpacing.verticalSmall,
                     Text(
                       obj.remark,
                       style: TextStyle(
@@ -520,8 +520,8 @@ class UserCollectDetailPage extends ConsumerWidget {
 
             // 内容卡片
             Container(
-              margin: const EdgeInsets.all(16.0),
-              padding: const EdgeInsets.all(20.0),
+              margin: AppSpacing.allRegular,
+              padding: AppSpacing.allLarge,
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
@@ -529,7 +529,7 @@ class UserCollectDetailPage extends ConsumerWidget {
               child: notifier.buildItemBody(context, obj, 'detail'),
             ),
 
-            const SizedBox(height: 32),
+            AppSpacing.verticalXXLarge,
           ],
         ),
       ),

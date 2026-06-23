@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -386,7 +387,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allRegular,
         children: [
           TextField(
             controller: _contentController,
@@ -397,7 +398,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               border: const OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 12),
+          AppSpacing.verticalMedium,
           Row(
             children: [
               FilledButton.tonalIcon(
@@ -411,7 +412,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 ),
               ),
               if (_isUploading) ...[
-                const SizedBox(width: 12),
+                AppSpacing.horizontalMedium,
                 const SizedBox(
                   width: 16,
                   height: 16,
@@ -473,7 +474,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               }),
             ),
           ],
-          const SizedBox(height: 20),
+          AppSpacing.verticalLarge,
           DropdownButtonFormField<int>(
             key: ValueKey<int>(_visibility),
             initialValue: _visibility,
@@ -511,7 +512,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             },
           ),
           if (momentVisibilityRequiresAllowUids(_visibility)) ...[
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             _buildUidPickerField(
               controller: _allowUidsController,
               labelText: t.common.momentsAllowUidsLabel,
@@ -520,7 +521,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             ),
           ],
           if (momentVisibilityRequiresDenyUids(_visibility)) ...[
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             _buildUidPickerField(
               controller: _denyUidsController,
               labelText: t.discovery.momentsDenyUidsLabel,
@@ -528,7 +529,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               pickerTitle: t.momentFriendPicker.titleDeny,
             ),
           ],
-          const SizedBox(height: 12),
+          AppSpacing.verticalMedium,
           SwitchListTile(
             value: _allowComment,
             onChanged: (value) {

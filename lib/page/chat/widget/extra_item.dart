@@ -92,7 +92,7 @@ class ExtraItem extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               // 标题文字
               Flexible(
                 child: Text(

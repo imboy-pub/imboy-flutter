@@ -40,7 +40,7 @@ class SetPasswordPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
 
             // 安全说明卡片
             Container(
@@ -67,7 +67,7 @@ class SetPasswordPage extends ConsumerWidget {
                           size: 24,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      AppSpacing.horizontalRegular,
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +80,7 @@ class SetPasswordPage extends ConsumerWidget {
                                 color: colorScheme.onSurface,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            AppSpacing.verticalTiny,
                             Text(
                               t.account.enhanceAccountSecurity,
                               style: TextStyle(
@@ -93,7 +93,7 @@ class SetPasswordPage extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.verticalRegular,
                   Container(
                     padding: const EdgeInsets.all(AppSpacing.medium),
                     decoration: BoxDecoration(
@@ -111,7 +111,7 @@ class SetPasswordPage extends ConsumerWidget {
                             height: 1.4,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        AppSpacing.verticalSmall,
                         Text(
                           t.account.passwordLengthRequirement,
                           style: TextStyle(
@@ -127,7 +127,7 @@ class SetPasswordPage extends ConsumerWidget {
               ),
             ),
 
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
 
             // 密码设置表单卡片
             Container(
@@ -159,7 +159,7 @@ class SetPasswordPage extends ConsumerWidget {
                               color: colorScheme.primary,
                               size: 20,
                             ),
-                            const SizedBox(width: 8),
+                            AppSpacing.horizontalSmall,
                             Text(
                               t.account.newPassword,
                               style: TextStyle(
@@ -170,7 +170,7 @@ class SetPasswordPage extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        AppSpacing.verticalMedium,
                         PasswordTextField(
                           obscureText: state.newPwdObscure,
                           hintText: t.account.pleaseEnterPassword,
@@ -191,7 +191,7 @@ class SetPasswordPage extends ConsumerWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  AppSpacing.verticalRegular,
 
                   // 确认密码输入
                   Container(
@@ -213,7 +213,7 @@ class SetPasswordPage extends ConsumerWidget {
                               color: colorScheme.primary,
                               size: 20,
                             ),
-                            const SizedBox(width: 8),
+                            AppSpacing.horizontalSmall,
                             Text(
                               t.account.retypePassword,
                               style: TextStyle(
@@ -224,7 +224,7 @@ class SetPasswordPage extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        AppSpacing.verticalMedium,
                         PasswordTextField(
                           obscureText: state.retypePwdObscure,
                           hintText: t.account.retypePassword,
@@ -248,7 +248,7 @@ class SetPasswordPage extends ConsumerWidget {
               ),
             ),
 
-            const SizedBox(height: 32),
+            AppSpacing.verticalXXLarge,
 
             // 确认按钮
             Container(

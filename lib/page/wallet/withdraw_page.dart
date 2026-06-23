@@ -84,7 +84,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
               // 余额展示卡片
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding: AppSpacing.allXLarge,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: isDark
@@ -115,7 +115,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    AppSpacing.verticalSmall,
                     Text(
                       '￥${balanceYuan.toStringAsFixed(2)}',
                       style: TextStyle(
@@ -126,7 +126,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              AppSpacing.verticalXXLarge,
 
               // 提现渠道选择
               Text(
@@ -136,7 +136,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 12),
+              AppSpacing.verticalMedium,
               Row(
                 children: [
                   Expanded(
@@ -145,7 +145,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(Icons.payment, size: 20),
-                          const SizedBox(width: 8),
+                          AppSpacing.horizontalSmall,
                           Text(
                             t.common.withdrawMethod.contains('Method')
                                 ? 'Alipay'
@@ -161,14 +161,14 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  AppSpacing.horizontalRegular,
                   Expanded(
                     child: ChoiceChip(
                       label: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(Icons.chat_bubble_outline, size: 20),
-                          const SizedBox(width: 8),
+                          AppSpacing.horizontalSmall,
                           Text(
                             t.common.withdrawMethod.contains('Method')
                                 ? 'WeChat'
@@ -186,7 +186,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              AppSpacing.verticalXLarge,
 
               // 提现账号输入
               Text(
@@ -196,7 +196,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               TextFormField(
                 controller: _accountController,
                 decoration: InputDecoration(
@@ -212,7 +212,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              AppSpacing.verticalXLarge,
 
               // 提现金额输入
               Text(
@@ -224,7 +224,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               TextFormField(
                 controller: _amountController,
                 keyboardType: const TextInputType.numberWithOptions(
@@ -248,7 +248,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 48),
+              AppSpacing.verticalXXXLarge,
 
               // 提现按钮
               SizedBox(

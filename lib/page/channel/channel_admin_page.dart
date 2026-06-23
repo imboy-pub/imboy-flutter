@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/material.dart';
@@ -318,7 +319,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(_error!),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             ElevatedButton(
               onPressed: _loadAdmins,
               child: Text(t.common.buttonRetry),

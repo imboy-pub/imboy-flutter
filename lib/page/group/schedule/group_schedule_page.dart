@@ -281,13 +281,13 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    AppSpacing.verticalTiny,
                     Text(
                       '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     if (schedule['location'] != null) ...[
-                      const SizedBox(height: 4),
+                      AppSpacing.verticalTiny,
                       Row(
                         children: [
                           const Icon(Icons.location_on, size: 14),

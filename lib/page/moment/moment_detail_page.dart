@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -346,7 +347,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: AppSpacing.allLarge,
       decoration: BoxDecoration(
         color: isDark
             ? AppColors.darkSurfaceGroupedTertiary
@@ -364,7 +365,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
           Row(
             children: [
               Avatar(imgUri: authorAvatar, width: 48, height: 48),
-              const SizedBox(width: 12),
+              AppSpacing.horizontalMedium,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,7 +405,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
               padding: const EdgeInsets.only(top: 16),
               child: _buildMediaGrid(context, media),
             ),
-          const SizedBox(height: 20),
+          AppSpacing.verticalLarge,
           Row(
             children: [
               _buildInteraction(
@@ -414,7 +415,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                 liked ? AppColors.iosRed : AppColors.iosGray,
                 _toggleLike,
               ),
-              const SizedBox(width: 24),
+              AppSpacing.horizontalXLarge,
               _buildInteraction(
                 CupertinoIcons.chat_bubble,
                 CupertinoIcons.chat_bubble,
@@ -629,7 +630,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              AppSpacing.horizontalSmall,
               CupertinoButton(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 color: AppColors.getIosBlue(brightness),

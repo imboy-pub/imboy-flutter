@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'dart:io';
 
@@ -590,7 +591,7 @@ class UpgradeCardState extends State<UpgradeCard> {
                 ),
                 child: Container(
                   width: MediaQuery.of(context).size.width - 40,
-                  margin: const EdgeInsets.all(8),
+                  margin: AppSpacing.allSmall,
                   child: Scrollbar(
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,

@@ -172,7 +172,7 @@ class _ChatPanelHeader extends StatelessWidget {
               color: colorScheme.primary,
             ),
           ),
-          const SizedBox(width: 12),
+          AppSpacing.horizontalMedium,
           Expanded(
             child: Text(
               title,

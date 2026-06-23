@@ -267,7 +267,7 @@ class _GroupAlbumPhotoDetailPageState
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        AppSpacing.verticalRegular,
         if (name.isNotEmpty)
           Text(
             name,
@@ -276,10 +276,10 @@ class _GroupAlbumPhotoDetailPageState
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
         if (createdAt.isNotEmpty) ...[
-          const SizedBox(height: 8),
+          AppSpacing.verticalSmall,
           Text(createdAt, style: Theme.of(context).textTheme.bodySmall),
         ],
-        const SizedBox(height: 16),
+        AppSpacing.verticalRegular,
         Column(
           children: [
             SizedBox(
@@ -290,7 +290,7 @@ class _GroupAlbumPhotoDetailPageState
                 label: Text(t.common.groupAlbumPhotoOpenExternal),
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -305,7 +305,7 @@ class _GroupAlbumPhotoDetailPageState
                 label: Text(t.group.groupAlbumPhotoSetCover),
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
@@ -316,7 +316,7 @@ class _GroupAlbumPhotoDetailPageState
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        AppSpacing.verticalLarge,
         _buildInfoTile(
           t.common.groupAlbumPhotoResolution,
           width > 0 && height > 0 ? '$width × $height' : '-',

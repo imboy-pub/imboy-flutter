@@ -103,7 +103,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(
               t.common.e2eeBackupImportReplaceKey,
               style: TextStyle(
@@ -111,7 +111,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 color: AppColors.iosOrange,
               ),
             ),
-            const SizedBox(height: 4),
+            AppSpacing.verticalTiny,
             Text(
               t.common.e2eeBackupImportTrustedSource,
               style: TextStyle(
@@ -136,7 +136,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               t.common.e2eeBackupSelectFile,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             InkWell(
               onTap: _selectFile,
               child: Container(
@@ -157,7 +157,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                           : AppColors.iosGray,
                       size: 48,
                     ),
-                    const SizedBox(height: 8),
+                    AppSpacing.verticalSmall,
                     Text(
                       _selectedFile != null
                           ? (_selectedFile!.path.split('/').last)
@@ -192,7 +192,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             Row(
               children: [
                 const Icon(Icons.info_outline, color: AppColors.iosBlue),
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 Expanded(
                   child: Text(
                     t.common.e2eeBackupInfoTitle,
@@ -209,7 +209,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             _buildInfoRow(
               t.common.e2eeBackupVersionLabel,
               _backupInfo!['version'].toString(),
@@ -222,7 +222,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               t.common.e2eeBackupFileSizeLabel,
               '${_backupInfo!['file_size']} bytes',
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(
               t.common.e2eeBackupFileValid,
               style: TextStyle(
@@ -384,13 +384,13 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.common.e2eeBackupImportSuccessBody),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             Text(
               'Device ID: ${_maskId(result['device_id']?.toString() ?? '')}',
             ),
             Text('Key ID: ${_maskId(result['key_id']?.toString() ?? '')}'),
             Text('${t.common.e2eeBackupCreatedAtRow}: ${result['created_at']}'),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             Text(
               t.common.e2eeBackupImportSuccessNote,
               style: TextStyle(

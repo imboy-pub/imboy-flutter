@@ -28,14 +28,14 @@ class TermsOfServicePage extends ConsumerWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(
               '生效日期：2026-01-01',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
             _buildSection(
               theme,
               '1. 服务说明',
@@ -72,7 +72,7 @@ class TermsOfServicePage extends ConsumerWidget {
                   '• 用户间的纠纷由用户自行协商解决',
             ),
             _buildSection(theme, '6. 适用法律', '本条款受中华人民共和国法律管辖。'),
-            const SizedBox(height: 32),
+            AppSpacing.verticalXXLarge,
           ],
         ),
       ),
@@ -91,7 +91,7 @@ class TermsOfServicePage extends ConsumerWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          AppSpacing.verticalSmall,
           Text(
             content,
             style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),

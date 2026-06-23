@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -336,7 +337,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(Icons.broken_image_outlined, size: 36),
-                          const SizedBox(height: 8),
+                          AppSpacing.verticalSmall,
                           Text(ctx.t.common.groupFileImageLoadFailed),
                         ],
                       ),
@@ -561,7 +562,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemBuilder: (context, index) => chips[index],
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => AppSpacing.horizontalSmall,
         itemCount: chips.length,
       ),
     );

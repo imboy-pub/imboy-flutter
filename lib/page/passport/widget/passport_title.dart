@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:imboy/page/splash/splash_page.dart' show kBrandLogoHeroTag;
 import 'package:imboy/theme/default/app_colors.dart';
@@ -54,7 +55,7 @@ class PassportTitle extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        AppSpacing.verticalMedium,
         // Wordmark "IMBoy"：统一品牌色，w700 字重
         Text(
           'IMBoy',

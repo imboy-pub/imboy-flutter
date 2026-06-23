@@ -85,7 +85,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                         size: 20,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    AppSpacing.horizontalRegular,
                     Expanded(
                       child: Text(
                         title,
@@ -105,7 +105,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                AppSpacing.verticalRegular,
 
                 // 内容
                 Text(
@@ -187,7 +187,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                   ),
                 ),
 
-                const SizedBox(width: 16),
+                AppSpacing.horizontalRegular,
 
                 // 文字内容
                 Expanded(
@@ -202,7 +202,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      AppSpacing.verticalTiny,
                       Text(
                         state.groupCount > 0
                             ? t.main.numUnit(param: '${state.groupCount}')
@@ -238,7 +238,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  AppSpacing.horizontalSmall,
                   Icon(
                     Icons.chevron_right,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -297,7 +297,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 8),
+                AppSpacing.verticalSmall,
 
                 // 共同群组卡片
                 _buildMutualGroupsCard(context, state),
@@ -325,7 +325,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                 // 空状态提示
                 if (!hasAnyInfo) _buildEmptyState(context),
 
-                const SizedBox(height: 32),
+                AppSpacing.verticalXXLarge,
               ],
             ),
           );

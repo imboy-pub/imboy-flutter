@@ -131,7 +131,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                 size: 64,
                 color: AppColors.iosRed,
               ),
-              const SizedBox(height: 16),
+              AppSpacing.verticalRegular,
               Text(
                 t.common.unknown,
                 style: context.textStyle(
@@ -139,7 +139,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                   color: textPrimary,
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.verticalRegular,
               ElevatedButton(
                 onPressed: () {
                   if (!context.mounted) return;
@@ -399,7 +399,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  AppSpacing.verticalLarge,
                   FadeAnimation(
                     delay: 1,
                     child: Row(

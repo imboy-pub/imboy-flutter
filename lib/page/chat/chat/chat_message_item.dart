@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
@@ -160,7 +161,7 @@ class ChatMessageItem extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(child: messageBody),
-          const SizedBox(width: 4),
+          AppSpacing.horizontalTiny,
           tappableStatus,
         ],
       );

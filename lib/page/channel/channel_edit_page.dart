@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'dart:io';
 
@@ -307,14 +308,14 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.allRegular,
           children: [
             // 频道名称
             Text(
               t.account.avatar,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Center(
               child: InkWell(
                 onTap: (_isSaving || _isUploadingAvatar)
@@ -377,7 +378,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 频道名称
             TextFormField(
@@ -399,7 +400,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
               },
               maxLength: 50,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 频道描述
             TextFormField(
@@ -414,7 +415,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
               maxLines: 3,
               maxLength: 500,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 自定义 ID
             TextFormField(
@@ -430,14 +431,14 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
               readOnly: true,
               enabled: false,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 标签
             Text(
               t.groupTag.addTag,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Row(
               children: [
                 Expanded(
@@ -472,16 +473,16 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                     .toList(),
               ),
             ],
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 频道类型（只读显示）
             Text(
               t.channel.typeLabel,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: AppSpacing.allMedium,
               decoration: BoxDecoration(
                 color: AppColors.getIosSeparator(
                   Theme.of(context).brightness,
@@ -494,7 +495,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                     _selectedType == 0 ? Icons.public : Icons.lock_outline,
                     color: AppColors.iosGray,
                   ),
-                  const SizedBox(width: 8),
+                  AppSpacing.horizontalSmall,
                   Text(
                     _selectedType == 0
                         ? t.channel.typePublic
@@ -512,7 +513,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
 
             // 统计信息
             if (_channel != null) ...[
@@ -520,9 +521,9 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                 t.channel.stats,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: AppSpacing.allMedium,
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: AppRadius.borderRadiusSmall,
@@ -550,7 +551,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       child: Row(
         children: [
           Icon(icon, size: 20, color: AppColors.primary),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Text(label),
           const Spacer(),
           Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),

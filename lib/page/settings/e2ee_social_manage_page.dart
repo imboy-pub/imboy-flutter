@@ -192,7 +192,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 Expanded(
                   child: Text(
                     t.main.e2eeSocialShardOf(
@@ -231,7 +231,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             _buildInfoRow(t.main.e2eeSocialProxyUserLabel, proxyUid.toString()),
             _buildInfoRow(
               t.main.e2eeSocialRecoveryThresholdLabel,
@@ -269,7 +269,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
             Row(
               children: [
                 const Icon(Icons.person, size: 20, color: AppColors.iosPurple),
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 Expanded(
                   child: Text(
                     t.main.e2eeSocialUserShard(uid: uid.toString()),
@@ -281,7 +281,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             _buildInfoRow(t.main.e2eeSocialShardIndexLabel, '$shardIndex'),
             _buildInfoRow(
               t.common.e2eeSocialKeyVersionLabel,
@@ -291,7 +291,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
               t.common.e2eeBackupCreatedAtRow,
               _formatDateTime(createdAt),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Row(
               children: [
                 Icon(
@@ -301,7 +301,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                       ? AppColors.iosGreen
                       : AppColors.iosGray,
                 ),
-                const SizedBox(width: 4),
+                AppSpacing.horizontalTiny,
                 Text(
                   status == 'active'
                       ? t.main.e2eeSocialShardValid

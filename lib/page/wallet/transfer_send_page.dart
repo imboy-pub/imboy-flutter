@@ -103,7 +103,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               TextFormField(
                 controller: _amountController,
                 keyboardType: const TextInputType.numberWithOptions(
@@ -127,7 +127,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              AppSpacing.verticalXLarge,
 
               // 备注说明
               Text(
@@ -137,7 +137,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               TextFormField(
                 controller: _remarkController,
                 decoration: InputDecoration(
@@ -147,7 +147,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.verticalRegular,
 
               // 钱包余额提示
               Text(
@@ -160,7 +160,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 48),
+              AppSpacing.verticalXXXLarge,
 
               // 确认按钮
               SizedBox(

@@ -278,7 +278,7 @@ class _ValidationRow extends StatelessWidget {
             size: 14,
             color: color,
           ),
-          const SizedBox(width: 4),
+          AppSpacing.horizontalTiny,
           Text(
             text,
             style: TextStyle(

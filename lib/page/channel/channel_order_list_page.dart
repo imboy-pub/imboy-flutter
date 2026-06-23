@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -74,7 +75,7 @@ class ChannelOrderListPage extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: orders.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 4),
+              separatorBuilder: (_, _) => AppSpacing.verticalTiny,
               itemBuilder: (context, i) => _OrderTile(order: orders[i]),
             ),
           );
@@ -122,7 +123,7 @@ class _OrderTile extends StatelessWidget {
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +138,7 @@ class _OrderTile extends StatelessWidget {
                       color: AppColors.getTextColor(brightness),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  AppSpacing.verticalTiny,
                   Text(
                     _subtitle(t),
                     style: context.textStyle(
@@ -148,7 +149,7 @@ class _OrderTile extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [

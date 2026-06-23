@@ -1,4 +1,5 @@
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
@@ -411,7 +412,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               ),
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                padding: AppSpacing.symmetricSmall,
                 // S2-b: 末尾追加"管理"入口（settings icon 按钮）
                 itemCount: replies.length + 1,
                 itemBuilder: (context, index) {
@@ -1095,7 +1096,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     size: 18,
                     color: _themeColor('error').withValues(alpha: 0.7),
                   ),
-                  const SizedBox(width: 8),
+                  AppSpacing.horizontalSmall,
                   Flexible(
                     child: Text(
                       widget.muteMessage ?? t.common.mutedCannotSend,

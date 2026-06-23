@@ -388,7 +388,7 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 4),
+          AppSpacing.verticalTiny,
           Text(
             widget.channel.description ?? '',
             maxLines: 2,
@@ -398,11 +398,11 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
               color: AppColors.iosGray,
             ),
           ),
-          const SizedBox(height: 4),
+          AppSpacing.verticalTiny,
           Row(
             children: [
               Icon(Icons.people_outline, size: 14, color: AppColors.iosGray),
-              const SizedBox(width: 4),
+              AppSpacing.horizontalTiny,
               Text(
                 '${widget.channel.subscriberCount} ${t.channel.subscribers}',
                 style: TextStyle(
@@ -412,7 +412,7 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
               ),
               if (widget.channel.tags != null &&
                   widget.channel.tags!.isNotEmpty) ...[
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 Expanded(
                   child: Text(
                     widget.channel.tags!.take(2).join(' · '),

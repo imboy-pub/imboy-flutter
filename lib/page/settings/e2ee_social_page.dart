@@ -70,7 +70,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
           : ListView(
               children: [
                 _buildStatusCard(),
-                const SizedBox(height: 24),
+                AppSpacing.verticalXLarge,
                 if (_shards.isNotEmpty) _buildExistingShardsCard(),
                 _buildActionCards(),
                 const SizedBox(height: 40),
@@ -107,7 +107,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                   color: _canRecover ? AppColors.iosGreen : AppColors.iosPurple,
                   size: 32,
                 ),
-                const SizedBox(width: 12),
+                AppSpacing.horizontalMedium,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +122,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                           color: AppColors.iosPurple,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      AppSpacing.verticalTiny,
                       Text(
                         _canRecover
                             ? t.common.e2eeSocialEnoughShards
@@ -161,7 +161,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                   color: AppColors.iosPurple,
                   size: 20,
                 ),
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 Text(
                   t.main.e2eeSocialExistingShards,
                   style: TextStyle(
@@ -171,7 +171,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             ...(_shards.take(3).map((shard) => _buildShardItem(shard))),
             if (_shards.length > 3)
               Padding(
@@ -216,7 +216,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          AppSpacing.horizontalMedium,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,7 +259,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
             );
           },
         ),
-        const SizedBox(height: 12),
+        AppSpacing.verticalMedium,
         if (_canRecover)
           _buildActionCard(
             icon: Icons.restore,
@@ -275,7 +275,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
               );
             },
           ),
-        const SizedBox(height: 12),
+        AppSpacing.verticalMedium,
         _buildActionCard(
           icon: Icons.manage_accounts,
           title: t.main.e2eeSocialManageShardsTitle,
@@ -321,7 +321,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
-              const SizedBox(width: 16),
+              AppSpacing.horizontalRegular,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,7 +333,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    AppSpacing.verticalTiny,
                     Text(
                       description,
                       style: TextStyle(

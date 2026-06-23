@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -175,7 +176,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                           color: AppColors.iosGray,
                         ),
                       ),
-                    const SizedBox(width: 4),
+                    AppSpacing.horizontalTiny,
                     const Icon(
                       CupertinoIcons.chevron_right,
                       size: 14,

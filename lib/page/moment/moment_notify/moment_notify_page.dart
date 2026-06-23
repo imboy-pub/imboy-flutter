@@ -142,7 +142,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
                     size: 64,
                     color: AppColors.iosGray,
                   ),
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMedium,
                   Text(
                     t.momentNotify.emptyTitle,
                     style: Theme.of(context).textTheme.titleMedium,

@@ -11,6 +11,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -83,7 +84,7 @@ class WebNavRail extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             for (var i = 0; i < items.length; i++)
               _WebNavRailItem(
                 item: items[i],

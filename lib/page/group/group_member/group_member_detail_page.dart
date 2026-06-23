@@ -180,7 +180,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
                   onTap: () => Navigator.of(ctx).pop(opt.seconds),
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
             ],
           ),
         );
@@ -281,7 +281,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
         children: [
           // ── 成员头像 & 基本信息 ──
           _buildProfileCard(member, colorScheme),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
 
           // ── 禁言状态 ──
           _buildInfoRow(
@@ -293,7 +293,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             ),
             colorScheme: colorScheme,
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
 
           // ── 管理员操作区 ──
           if (canMute) ...[
@@ -328,7 +328,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
         child: Row(
           children: [
             Avatar(imgUri: member.avatar, width: 56, height: 56),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,7 +341,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
                     ),
                   ),
                   if (member.sign.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    AppSpacing.verticalTiny,
                     Text(
                       member.sign,
                       style: ThemeManager.instance.getTextStyle(

@@ -57,7 +57,7 @@ class WebWelcomePanel extends StatelessWidget {
               // 0.6 * 255 ≈ 153，避免使用已弃用的 withOpacity（项目惯用 withAlpha）
               color: colorScheme.primary.withAlpha(153),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
             Text(
               title,
               style: textTheme.headlineSmall?.copyWith(
@@ -67,7 +67,7 @@ class WebWelcomePanel extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             if (subtitle != null) ...[
-              const SizedBox(height: 12),
+              AppSpacing.verticalMedium,
               Text(
                 subtitle!,
                 style: textTheme.bodyMedium?.copyWith(

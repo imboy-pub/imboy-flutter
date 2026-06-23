@@ -107,7 +107,7 @@ class _RecentlyRegisteredUserPageState
             color: AppColors.getIosBlue(Theme.of(context).brightness),
             size: 20,
           ),
-          const SizedBox(width: 12),
+          AppSpacing.horizontalMedium,
           Expanded(
             child: Text(
               t.common.newRegisteredUsersTip,
@@ -162,7 +162,7 @@ class _RecentlyRegisteredUserPageState
                 ),
               ),
             ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           const Icon(
             CupertinoIcons.chevron_right,
             size: 14,

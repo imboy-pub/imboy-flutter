@@ -58,7 +58,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.backup_outlined, size: 64, color: AppColors.iosGray4),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               t.common.e2eeBackupNoRecords,
               style: TextStyle(
@@ -66,7 +66,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(
               t.common.e2eeBackupNoRecordsHint,
               style: TextStyle(

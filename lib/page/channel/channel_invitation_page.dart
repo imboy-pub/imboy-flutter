@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -305,7 +306,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(_error ?? ''),
-              const SizedBox(height: 12),
+              AppSpacing.verticalMedium,
               ElevatedButton(
                 onPressed: _loadInvitations,
                 child: Text(t.common.buttonRetry),
@@ -392,14 +393,14 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: AppSpacing.allMedium,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       const Icon(Icons.mark_email_unread_outlined, size: 20),
-                      const SizedBox(width: 8),
+                      AppSpacing.horizontalSmall,
                       Expanded(
                         child: Text(
                           channelName,
@@ -418,7 +419,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  AppSpacing.verticalSmall,
                   Text(
                     t.main.inviterLabel(
                       uid: inviterUid.isEmpty ? "-" : inviterUid,
@@ -434,7 +435,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                     ),
                   ),
                   if (isPending) ...[
-                    const SizedBox(height: 12),
+                    AppSpacing.verticalMedium,
                     Row(
                       children: [
                         Expanded(
@@ -472,7 +473,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                     ),
                   ],
                   if (channelId.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    AppSpacing.verticalSmall,
                     TextButton.icon(
                       onPressed: () => context.push('/channel/$channelId'),
                       icon: const Icon(Icons.open_in_new),

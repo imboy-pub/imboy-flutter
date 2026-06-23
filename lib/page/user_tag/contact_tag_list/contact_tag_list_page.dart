@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -148,7 +149,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                   size: 14,
                   color: AppColors.iosGray3,
                 ),
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 ReorderableDragStartListener(
                   index: index,
                   child: const Icon(

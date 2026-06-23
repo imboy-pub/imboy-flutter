@@ -157,7 +157,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                     ref.read(publisherProvider.notifier).saveServerUrl(v);
                   },
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMedium,
                 // 推流/停止按钮
                 ElevatedButton.icon(
                   onPressed: state.isConnecting

@@ -1,4 +1,5 @@
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -115,7 +116,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
             tooltip: t.channel.create,
             color: AppColors.getTextColor(brightness),
           ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
         ],
       ),
       body: Column(
@@ -169,7 +170,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(state.error!),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             ElevatedButton(
               onPressed: () {
                 final notifier = ref.read(channelListProvider.notifier);
@@ -349,7 +350,7 @@ class _ChannelListItem extends StatelessWidget {
             size: 14,
             color: AppColors.getTextColor(brightness, isSecondary: true),
           ),
-          const SizedBox(width: 4),
+          AppSpacing.horizontalTiny,
           Text(
             '${channel.subscriberCount} ${t.channel.subscribers}',
             style: TextStyle(
@@ -358,7 +359,7 @@ class _ChannelListItem extends StatelessWidget {
             ),
           ),
           if (channel.tags != null && channel.tags!.isNotEmpty) ...[
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             Expanded(
               child: Text(
                 channel.tags!.take(2).join(' · '),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:just_audio/just_audio.dart';
@@ -97,15 +98,15 @@ class _GroupFileAudioPreviewPageState extends State<GroupFileAudioPreviewPage> {
       appBar: GlassAppBar(title: widget.title, automaticallyImplyLeading: true),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: AppSpacing.allLarge,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.audiotrack, size: 56),
-              const SizedBox(height: 16),
+              AppSpacing.verticalRegular,
               if (_isPreparing) ...[
                 const CircularProgressIndicator(),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMedium,
                 Text(t.common.groupFileAudioLoading),
               ] else if (_errorText != null) ...[
                 Text(_errorText!),
@@ -119,7 +120,7 @@ class _GroupFileAudioPreviewPageState extends State<GroupFileAudioPreviewPage> {
                 Text(
                   '${_formatDuration(_position)} / ${_formatDuration(_duration)}',
                 ),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSmall,
                 FilledButton.icon(
                   onPressed: _togglePlay,
                   icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),

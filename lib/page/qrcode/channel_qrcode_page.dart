@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -78,7 +79,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
                             )
                           : null,
                     ),
-                    const SizedBox(height: 16),
+                    AppSpacing.verticalRegular,
                     Text(
                       channelName.isNotEmpty
                           ? channelName
@@ -102,7 +103,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 48),
+            AppSpacing.verticalXXXLarge,
             _buildActionButtons(context, channelId),
           ],
         ),
@@ -133,14 +134,14 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
       ),
       child: Column(
         children: [
-          Padding(padding: const EdgeInsets.all(24), child: header),
+          Padding(padding: AppSpacing.allXLarge, child: header),
           Container(
             height: 0.33,
             margin: const EdgeInsets.symmetric(horizontal: 24),
             color: Colors.black12,
           ),
           Padding(
-            padding: const EdgeInsets.all(32),
+            padding: AppSpacing.allXXLarge,
             child: Column(
               children: [
                 QrImageView(
@@ -164,7 +165,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
                     size: Size.square(40),
                   ),
                 ),
-                const SizedBox(height: 24),
+                AppSpacing.verticalXLarge,
                 Text(
                   footerText,
                   textAlign: TextAlign.center,
@@ -193,7 +194,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
             () => _saveChannelQrCode(context, channelId),
           ),
         ),
-        const SizedBox(width: 16),
+        AppSpacing.horizontalRegular,
         Expanded(
           child: _buildPremiumBtn(
             context,
@@ -225,7 +226,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 20, color: AppColors.primary),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             Text(
               text,
               style: TextStyle(

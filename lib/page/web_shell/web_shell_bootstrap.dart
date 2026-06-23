@@ -20,6 +20,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     show ImageMessage, Message, TextMessage;
@@ -442,7 +443,7 @@ class _WebChatInputState extends ConsumerState<_WebChatInput> {
     final t = Translations.of(context);
     final canSend = !_sending && widget.currentUserId.isNotEmpty;
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: AppSpacing.allMedium,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainer,
         border: Border(
@@ -474,7 +475,7 @@ class _WebChatInputState extends ConsumerState<_WebChatInput> {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           IconButton(
             key: const ValueKey('web-chat-input-send-btn'),
             icon: _sending
@@ -607,7 +608,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
     final t = Translations.of(context);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: AppSpacing.allXLarge,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -617,9 +618,9 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
               size: 56,
               color: colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(widget.selection.uid, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(
               t.common.contactInfoNotSynced,
               style: theme.textTheme.bodySmall?.copyWith(
@@ -627,7 +628,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
             ElevatedButton.icon(
               key: const ValueKey('web-contact-unsynced-send-msg-btn'),
               onPressed: widget.onSendMessage,
@@ -663,14 +664,14 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
           Text(
             c.title,
             style: theme.textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           if (c.account.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            AppSpacing.verticalTiny,
             Text(
               c.account,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -679,7 +680,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
             ),
           ],
           if (c.region.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            AppSpacing.verticalTiny,
             Text(
               c.region,
               style: theme.textTheme.bodySmall?.copyWith(
@@ -688,9 +689,9 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
             ),
           ],
           if (c.sign.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: AppSpacing.allMedium,
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(8),
@@ -702,7 +703,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
               ),
             ),
           ],
-          const SizedBox(height: 32),
+          AppSpacing.verticalXXLarge,
           // "发消息"按钮
           ElevatedButton.icon(
             key: const ValueKey('web-contact-send-msg-btn'),

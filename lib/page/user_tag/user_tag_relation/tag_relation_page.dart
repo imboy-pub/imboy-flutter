@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -193,7 +194,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
     return Column(
       children: [
         Icon(icon, color: AppColors.primary, size: 20),
-        const SizedBox(height: 4),
+        AppSpacing.verticalTiny,
         Text(
           value,
           style: TextStyle(
@@ -294,13 +295,13 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                 // 快捷操作栏
                 _buildQuickActions(isDark),
 
-                const SizedBox(height: 16),
+                AppSpacing.verticalRegular,
 
                 // 标签编辑区域
                 Expanded(
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: const EdgeInsets.all(16),
+                    padding: AppSpacing.allRegular,
                     decoration: BoxDecoration(
                       color: isDark
                           ? Theme.of(
@@ -332,7 +333,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                AppSpacing.verticalRegular,
 
                 // 底部保存按钮
                 if (_hasChanges())
@@ -381,7 +382,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                AppSpacing.horizontalMedium,
                                 Text(t.common.loading),
                               ],
                             )
@@ -410,8 +411,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         : '';
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: AppSpacing.allRegular,
+      padding: AppSpacing.allRegular,
       decoration: BoxDecoration(
         color: isDark
             ? Theme.of(context).colorScheme.surfaceContainerHighest
@@ -448,7 +449,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: AppSpacing.allSmall,
                 decoration: BoxDecoration(
                   color: AppColors.primary,
                   borderRadius: AppRadius.borderRadiusSmall,
@@ -459,7 +460,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 12),
+              AppSpacing.horizontalMedium,
               Text(
                 t.chat.tagStatistics,
                 style: TextStyle(
@@ -470,7 +471,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
           Row(
             children: [
               Expanded(
@@ -506,7 +507,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
   Widget _buildQuickActions(bool isDark) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(12),
+      padding: AppSpacing.allMedium,
       decoration: BoxDecoration(
         color: isDark
             ? Theme.of(context).colorScheme.surfaceContainerHighest
@@ -537,7 +538,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
             Icons.refresh,
             _hasChanges() ? _resetTags : null,
           ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           _buildQuickActionButton(
             t.common.clear,
             Icons.clear_all,

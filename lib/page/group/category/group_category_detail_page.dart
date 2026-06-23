@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/service/group_category_service.dart';
@@ -155,7 +156,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
                 _deleteCategory();
               },
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
           ],
         ),
       ),
@@ -185,7 +186,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
   Widget _buildBody(Translations t) {
     return ListView(
       children: [
-        const SizedBox(height: 24),
+        AppSpacing.verticalXLarge,
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Card(
@@ -193,7 +194,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
               borderRadius: AppRadius.borderRadiusMedium,
             ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.allRegular,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -202,7 +203,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
                     size: 20,
                     color: AppColors.iosGray,
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.horizontalMedium,
                   Expanded(
                     child: Text(
                       t.groupCategory.categoryDetailTip,
@@ -217,7 +218,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        AppSpacing.verticalXLarge,
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Card(

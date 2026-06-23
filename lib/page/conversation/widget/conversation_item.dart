@@ -1,4 +1,5 @@
 import 'package:imboy/component/ui/badge_widget.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -123,7 +124,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
                       _buildTime(currentModel, theme, isDark),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  AppSpacing.verticalTiny,
                   // 消息预览
                   Row(
                     children: [
@@ -202,7 +203,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
-        const SizedBox(width: 4),
+        AppSpacing.horizontalTiny,
         const Icon(
           CupertinoIcons.chevron_right,
           size: 12,

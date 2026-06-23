@@ -1,4 +1,5 @@
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'dart:async';
 
 import 'package:imboy/component/ui/badge_widget.dart';
@@ -322,7 +323,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       };
       return BadgeWidget(
         color: badgeColor,
-        padding: const EdgeInsets.all(4),
+        padding: AppSpacing.allTiny,
         borderSide: BorderSide(
           color: isSelected
               ? (isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurface)
@@ -347,7 +348,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
           ),
         ),
         color: AppColors.iosRed,
-        padding: const EdgeInsets.all(4),
+        padding: AppSpacing.allTiny,
         child: icon,
       );
     }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -168,7 +169,7 @@ class _TagInputState extends State<TagInput> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.allRegular,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: AppRadius.borderRadiusMedium,
@@ -179,7 +180,7 @@ class _TagInputState extends State<TagInput> {
           Row(
             children: [
               Icon(Icons.local_offer, size: 16, color: AppColors.primary),
-              const SizedBox(width: 8),
+              AppSpacing.horizontalSmall,
               Text(
                 t.contact.selectedTags(
                   param: _currentTags.length.toString(),
@@ -192,7 +193,7 @@ class _TagInputState extends State<TagInput> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          AppSpacing.verticalMedium,
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -246,7 +247,7 @@ class _TagInputState extends State<TagInput> {
                   ),
                 ),
                 if (usageCount > 0) ...[
-                  const SizedBox(width: 4),
+                  AppSpacing.horizontalTiny,
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 4,
@@ -271,7 +272,7 @@ class _TagInputState extends State<TagInput> {
                   ),
                 ],
                 if (isSelected) ...[
-                  const SizedBox(width: 4),
+                  AppSpacing.horizontalTiny,
                   Icon(Icons.close, size: 16, color: AppColors.onPrimary),
                 ],
               ],
@@ -306,7 +307,7 @@ class _TagInputState extends State<TagInput> {
             ).colorScheme.onSurface.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
+          contentPadding: AppSpacing.allRegular,
           suffixIcon: _controller.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.add_circle),
@@ -348,7 +349,7 @@ class _TagInputState extends State<TagInput> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allRegular,
             child: Row(
               children: [
                 Icon(
@@ -356,7 +357,7 @@ class _TagInputState extends State<TagInput> {
                   size: 16,
                   color: AppColors.iosOrange,
                 ),
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 Text(
                   t.contact.suggestedTags,
                   style: TextStyle(
@@ -391,7 +392,7 @@ class _TagInputState extends State<TagInput> {
         // 当前标签显示
         if (_currentTags.isNotEmpty) ...[
           _buildCurrentTags(),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
         ],
 
         // 输入框

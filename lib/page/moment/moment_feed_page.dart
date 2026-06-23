@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -261,7 +262,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
             size: 60,
             color: AppColors.iosGray.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
           Text(
             t.common.momentsNoData,
             style: TextStyle(
@@ -362,7 +363,7 @@ class _MomentCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Avatar(imgUri: authorAvatar, width: 44, height: 44),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,7 +430,7 @@ class _MomentCard extends StatelessWidget {
                               : AppColors.iosGray,
                           onLikeTap,
                         ),
-                        const SizedBox(width: 20),
+                        AppSpacing.horizontalLarge,
                         _buildInteractionButton(
                           CupertinoIcons.chat_bubble,
                           parseModelInt(stats['comment_count']),

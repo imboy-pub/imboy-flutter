@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -154,7 +155,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
-                  padding: const EdgeInsets.all(8),
+                  padding: AppSpacing.allSmall,
                   decoration: BoxDecoration(
                     color: Theme.of(
                       context,
@@ -236,7 +237,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
           ),
 
           // 第二行操作：保存和发送者操作
-          const SizedBox(height: 8),
+          AppSpacing.verticalSmall,
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -499,7 +500,7 @@ void showMessageActionMenu({
     backgroundColor: AppColors.transparent,
     builder: (BuildContext context) {
       return Container(
-        margin: const EdgeInsets.all(16),
+        margin: AppSpacing.allRegular,
         child: MessageActionMenu(
           message: message,
           isSentByMe: isSentByMe,

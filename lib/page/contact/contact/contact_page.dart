@@ -259,7 +259,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
           child: const Icon(CupertinoIcons.person_add, size: 22),
           onPressed: () => context.push('/contact/add_friend'),
         ),
-        const SizedBox(width: 8),
+        AppSpacing.horizontalSmall,
       ],
       slivers: [
         // 搜索框

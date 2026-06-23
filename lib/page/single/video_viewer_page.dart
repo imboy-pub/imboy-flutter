@@ -11,6 +11,7 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 import 'package:imboy/component/video/video_controller.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -237,7 +238,7 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const CircularProgressIndicator(),
-                    const SizedBox(height: 8),
+                    AppSpacing.verticalSmall,
                     Text("${t.common.loading}..."),
                   ],
                 ),

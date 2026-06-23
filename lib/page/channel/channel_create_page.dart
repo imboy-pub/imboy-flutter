@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'dart:io';
 
@@ -212,13 +213,13 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.allRegular,
           children: [
             Text(
               t.account.avatar,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Center(
               child: InkWell(
                 onTap: _isUploadingAvatar ? null : _showAvatarPicker,
@@ -275,7 +276,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 频道名称
             TextFormField(
@@ -297,7 +298,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
               },
               maxLength: 50,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 频道描述
             TextFormField(
@@ -312,7 +313,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
               maxLines: 3,
               maxLength: 500,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 自定义 ID
             TextFormField(
@@ -336,14 +337,14 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 标签
             Text(
               t.groupTag.addTag,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Row(
               children: [
                 Expanded(
@@ -378,14 +379,14 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                     .toList(),
               ),
             ],
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 频道类型
             Text(
               t.channel.typeLabel,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             SegmentedButton<int>(
               segments: [
                 ButtonSegment(
@@ -407,11 +408,11 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                 });
               },
             ),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
 
             // 频道类型说明
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: AppSpacing.allMedium,
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: AppRadius.borderRadiusSmall,
@@ -423,7 +424,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                     color: AppColors.primary,
                     size: 20,
                   ),
-                  const SizedBox(width: 8),
+                  AppSpacing.horizontalSmall,
                   Expanded(
                     child: Text(
                       _isPublic
@@ -438,7 +439,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
 
             // 提示信息
             Text(
@@ -455,7 +456,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
             if (state.error != null)
               Container(
                 margin: const EdgeInsets.only(top: 16),
-                padding: const EdgeInsets.all(12),
+                padding: AppSpacing.allMedium,
                 decoration: BoxDecoration(
                   color: AppColors.iosRed.withValues(alpha: 0.1),
                   borderRadius: AppRadius.borderRadiusSmall,
@@ -467,7 +468,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                       color: AppColors.iosRed,
                       size: 20,
                     ),
-                    const SizedBox(width: 8),
+                    AppSpacing.horizontalSmall,
                     Expanded(
                       child: Text(
                         state.error!,

@@ -1,4 +1,5 @@
 import 'package:imboy/component/ui/badge_widget.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -62,7 +63,7 @@ class _ChannelStripBody extends StatelessWidget {
             child: Row(
               children: [
                 const Icon(Icons.campaign, size: 14, color: AppColors.primary),
-                const SizedBox(width: 4),
+                AppSpacing.horizontalTiny,
                 Text(
                   t.channel.title,
                   style: theme.textTheme.labelSmall?.copyWith(
@@ -104,7 +105,7 @@ class _ChannelTile extends StatelessWidget {
               name: summary.name,
               unreadCount: summary.unreadCount,
             ),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             // 频道名 + 消息预览
             Expanded(
               child: Column(

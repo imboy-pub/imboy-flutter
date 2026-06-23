@@ -223,7 +223,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         child: CellPressable(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.allRegular,
             child: Row(
               children: [
                 if (icon != null) ...[
@@ -242,7 +242,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                       color: iconColor ?? Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.horizontalMedium,
                 ],
                 Expanded(
                   child: Column(

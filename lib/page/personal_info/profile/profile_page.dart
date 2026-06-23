@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -276,7 +277,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           child: Row(
             children: [
               const Icon(CupertinoIcons.share, size: 18),
-              const SizedBox(width: 12),
+              AppSpacing.horizontalMedium,
               Text(t.common.profileShareProfile),
             ],
           ),
@@ -286,7 +287,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           child: Row(
             children: [
               const Icon(CupertinoIcons.cloud_download, size: 18),
-              const SizedBox(width: 12),
+              AppSpacing.horizontalMedium,
               Text(t.chat.profileExportProfile),
             ],
           ),
@@ -305,7 +306,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: AppSpacing.allXLarge,
         decoration: BoxDecoration(
           color: isDark
               ? AppColors.darkSurfaceGroupedTertiary
@@ -338,7 +339,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               state.nickname.isEmpty ? t.common.nicknameNotSet : state.nickname,
               style: TextStyle(
@@ -347,7 +348,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(height: 4),
+            AppSpacing.verticalTiny,
             Text(
               'ID: ${UserRepoLocal.to.current.account}',
               style: TextStyle(
@@ -355,7 +356,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 color: AppColors.iosGray,
               ),
             ),
-            const SizedBox(height: 20),
+            AppSpacing.verticalLarge,
             CupertinoButton(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               color: AppColors.getIosBlue(brightness).withValues(alpha: 0.1),

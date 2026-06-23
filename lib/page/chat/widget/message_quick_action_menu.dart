@@ -4,6 +4,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -49,7 +50,7 @@ class MessageQuickActionMenu {
                   onDelete();
                 },
               ),
-              const SizedBox(height: 16),
+              AppSpacing.verticalRegular,
             ],
           ),
         );
@@ -94,7 +95,7 @@ class MessageQuickActionMenu {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 8),
+                AppSpacing.verticalSmall,
                 // 顶部指示条
                 Container(
                   width: 40,
@@ -104,7 +105,7 @@ class MessageQuickActionMenu {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.verticalRegular,
 
                 // 复制 (仅文本)
                 if (message is TextMessage)
@@ -194,7 +195,7 @@ class MessageQuickActionMenu {
                   },
                 ),
 
-                const SizedBox(height: 16),
+                AppSpacing.verticalRegular,
               ],
             ),
           ),

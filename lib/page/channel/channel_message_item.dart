@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -74,7 +75,7 @@ class ChannelMessageItem extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allRegular,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -82,7 +83,7 @@ class ChannelMessageItem extends StatelessWidget {
               context.t.channel.selectReaction,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -114,7 +115,7 @@ class ChannelMessageItem extends StatelessWidget {
         _addReaction(context, type);
       },
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: AppSpacing.allMedium,
         decoration: BoxDecoration(
           color: AppColors.getIosSeparator(
             Theme.of(context).brightness,
@@ -187,7 +188,7 @@ class ChannelMessageItem extends StatelessWidget {
             ? MainAxisAlignment.end
             : MainAxisAlignment.start,
         children: [
-          if (!isSentByMe) ...[avatarWidget, const SizedBox(width: 8)],
+          if (!isSentByMe) ...[avatarWidget, AppSpacing.horizontalSmall],
 
           Flexible(
             child: Column(
@@ -214,7 +215,7 @@ class ChannelMessageItem extends StatelessWidget {
                           ),
                         ),
                         if (isManaged) ...[
-                          const SizedBox(width: 4),
+                          AppSpacing.horizontalTiny,
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 4,
@@ -270,7 +271,7 @@ class ChannelMessageItem extends StatelessWidget {
                           size: 12,
                           color: AppColors.primary,
                         ),
-                        const SizedBox(width: 8),
+                        AppSpacing.horizontalSmall,
                       ],
                       // 浏览量
                       if (message.viewCount > 0 || isSentByMe) ...[
@@ -293,7 +294,7 @@ class ChannelMessageItem extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        AppSpacing.horizontalSmall,
                       ],
                       // 反应
                       Tooltip(
@@ -316,12 +317,12 @@ class ChannelMessageItem extends StatelessWidget {
                       ),
                       if (message.reactionSummary != null &&
                           message.reactionSummary!.isNotEmpty) ...[
-                        const SizedBox(width: 4),
+                        AppSpacing.horizontalTiny,
                         _buildReactionSummary(context),
                       ],
                       // 管理操作
                       if (isManaged) ...[
-                        const SizedBox(width: 8),
+                        AppSpacing.horizontalSmall,
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTapDown: (details) {
@@ -404,7 +405,7 @@ class ChannelMessageItem extends StatelessWidget {
                       ],
                       // 状态 (如发送中，失败) -> 用 ID < 0 判定
                       if (isSentByMe && message.id < 0) ...[
-                        const SizedBox(width: 8),
+                        AppSpacing.horizontalSmall,
                         const SizedBox(
                           width: 10,
                           height: 10,
@@ -421,7 +422,7 @@ class ChannelMessageItem extends StatelessWidget {
             ),
           ),
 
-          if (isSentByMe) ...[const SizedBox(width: 8), avatarWidget],
+          if (isSentByMe) ...[AppSpacing.horizontalSmall, avatarWidget],
         ],
       ),
     );
@@ -673,7 +674,7 @@ class ChannelMessageItem extends StatelessWidget {
               ),
             ),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: AppSpacing.allMedium,
             decoration: BoxDecoration(
               color: AppColors.darkBackground.withValues(alpha: 0.54),
               borderRadius: AppRadius.borderRadiusXLarge,
@@ -703,7 +704,7 @@ class ChannelMessageItem extends StatelessWidget {
             },
       borderRadius: AppRadius.borderRadiusSmall,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: AppSpacing.allMedium,
         decoration: BoxDecoration(
           color: AppColors.getIosSeparator(
             Theme.of(context).brightness,
@@ -713,7 +714,7 @@ class ChannelMessageItem extends StatelessWidget {
         child: Row(
           children: [
             Icon(Icons.insert_drive_file, size: 36, color: textColor),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -727,7 +728,7 @@ class ChannelMessageItem extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  AppSpacing.verticalTiny,
                   Text(
                     _formatFileSize(size),
                     style: TextStyle(
@@ -862,7 +863,7 @@ class _ChannelAudioPlayerState extends ConsumerState<_ChannelAudioPlayer> {
                     color: widget.textColor,
                     size: 20,
                   ),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             Text(
               "${widget.durationSec}''",
               style: TextStyle(

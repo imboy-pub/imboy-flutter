@@ -176,9 +176,9 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
                     ? AppColors.getIosRed(Theme.of(context).brightness)
                     : secondaryColor,
               ),
-              const SizedBox(width: 4),
+              AppSpacing.horizontalTiny,
               Text(room.isLive ? 'LIVE' : 'Idle'),
-              const SizedBox(width: 12),
+              AppSpacing.horizontalMedium,
               Icon(Icons.remove_red_eye, size: 12, color: secondaryColor),
               const SizedBox(width: 2),
               Text(

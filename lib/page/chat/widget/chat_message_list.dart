@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/rendering.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter/services.dart';
@@ -150,7 +151,7 @@ class _ReceivedMessageWrapper extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           const _Avatar(),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Flexible(
             child: _MessageBubble(
               message: message,
@@ -186,7 +187,7 @@ class _SentMessageWrapper extends StatelessWidget {
               messageTypeRegistry: messageTypeRegistry,
             ),
           ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           const _MessageStatusIcon(),
         ],
       ),

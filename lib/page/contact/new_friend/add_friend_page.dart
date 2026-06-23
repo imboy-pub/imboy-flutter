@@ -117,7 +117,7 @@ class AddFriendPage extends ConsumerWidget {
                 }
               },
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -135,7 +135,7 @@ class AddFriendPage extends ConsumerWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(width: 12),
+                AppSpacing.horizontalMedium,
                 GestureDetector(
                   onTap: () => Navigator.push(
                     context,

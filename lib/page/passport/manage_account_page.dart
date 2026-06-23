@@ -29,7 +29,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
           children: [
             const SizedBox(height: 40),
             Icon(Icons.shield_outlined, color: AppColors.primary, size: 80),
-            const SizedBox(height: 20),
+            AppSpacing.verticalLarge,
             Text(
               t.account.accountSecurityEnhance,
               style: context.textStyle(
@@ -56,7 +56,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                     .copyWith(height: 1.5),
               ),
             ),
-            const SizedBox(height: 20),
+            AppSpacing.verticalLarge,
             Expanded(
               child: PageView(
                 controller: _pageController,
@@ -132,7 +132,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             TextButton(
               onPressed: () {
                 context.go('/bottom_navigation');
@@ -148,7 +148,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            AppSpacing.verticalLarge,
           ],
         ),
       ),
@@ -190,7 +190,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
             ),
             child: Icon(icon, size: 48, color: AppColors.primary),
           ),
-          const SizedBox(height: 24),
+          AppSpacing.verticalXLarge,
           Text(
             title,
             style: context.textStyle(
@@ -202,7 +202,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
+          AppSpacing.verticalMedium,
           Text(
             subtitle,
             textAlign: TextAlign.center,

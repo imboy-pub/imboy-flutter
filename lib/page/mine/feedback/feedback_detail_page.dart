@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -65,16 +66,16 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
         Theme.of(context).brightness,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: AppSpacing.allRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
 
             // 反馈基本信息卡片
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: AppSpacing.allLarge,
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
@@ -86,7 +87,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: AppSpacing.allMedium,
                         decoration: BoxDecoration(
                           color: colorScheme.primary.withAlpha(51),
                           borderRadius: AppRadius.borderRadiusMedium,
@@ -97,7 +98,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                           size: 24,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      AppSpacing.horizontalRegular,
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +115,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                                 color: colorScheme.onSurface,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            AppSpacing.verticalTiny,
                             Text(
                               '${t.common.submittedAt} ${DateTimeHelper.lastTimeFmt(widget.model.createdAt)}',
                               style: TextStyle(
@@ -152,7 +153,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  AppSpacing.verticalLarge,
 
                   // 操作按钮行
                   Row(
@@ -187,7 +188,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                                     color: colorScheme.secondary,
                                     size: 20,
                                   ),
-                                  const SizedBox(width: 8),
+                                  AppSpacing.horizontalSmall,
                                   Text(
                                     t.chat.viewAttachments,
                                     style: TextStyle(
@@ -208,13 +209,13 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 评分信息卡片（如果有评分）
             if (widget.model.rating.isNotEmpty)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
+                padding: AppSpacing.allLarge,
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: AppRadius.borderRadiusRegular,
@@ -225,7 +226,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                     Row(
                       children: [
                         Icon(Icons.star, color: AppColors.iosYellow, size: 20),
-                        const SizedBox(width: 8),
+                        AppSpacing.horizontalSmall,
                         Text(
                           t.chat.rating,
                           style: TextStyle(
@@ -234,7 +235,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        AppSpacing.horizontalMedium,
                         Text(
                           '${widget.model.rating} ${widget.model.ratingDesc}',
                           style: TextStyle(
@@ -244,7 +245,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    AppSpacing.verticalMedium,
                     Center(
                       child: RatingBar.builder(
                         initialRating: double.parse(widget.model.rating),
@@ -266,12 +267,12 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                 ),
               ),
 
-            if (widget.model.rating.isNotEmpty) const SizedBox(height: 16),
+            if (widget.model.rating.isNotEmpty) AppSpacing.verticalRegular,
 
             // 反馈内容卡片
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: AppSpacing.allLarge,
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
@@ -286,7 +287,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         color: colorScheme.primary,
                         size: 20,
                       ),
-                      const SizedBox(width: 8),
+                      AppSpacing.horizontalSmall,
                       Text(
                         t.common.feedbackContent,
                         style: TextStyle(
@@ -297,10 +298,10 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.verticalRegular,
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding: AppSpacing.allRegular,
                     decoration: BoxDecoration(
                       color: colorScheme.surfaceContainerHighest.withAlpha(128),
                       borderRadius: AppRadius.borderRadiusMedium,
@@ -318,12 +319,12 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
 
             // 回复列表卡片
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: AppSpacing.allLarge,
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: AppRadius.borderRadiusRegular,
@@ -334,7 +335,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   Row(
                     children: [
                       Icon(Icons.reply, color: colorScheme.secondary, size: 20),
-                      const SizedBox(width: 8),
+                      AppSpacing.horizontalSmall,
                       Text(
                         t.common.officialReply,
                         style: TextStyle(
@@ -345,7 +346,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.verticalRegular,
 
                   // 回复列表
                   Container(
@@ -361,7 +362,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                             shrinkWrap: true,
                             itemCount: state.pageReplyList.length,
                             separatorBuilder: (context, index) =>
-                                const SizedBox(height: 12),
+                                AppSpacing.verticalMedium,
                             itemBuilder: (BuildContext context, int index) {
                               FeedbackReplyModel replyModel =
                                   state.pageReplyList[index];
@@ -373,7 +374,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
           ],
         ),
       ),
@@ -385,7 +386,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.allRegular,
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: AppRadius.borderRadiusMedium,
@@ -409,7 +410,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   size: 16,
                 ),
               ),
-              const SizedBox(width: 8),
+              AppSpacing.horizontalSmall,
               Text(
                 '${t.chat.repliedAt} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
                 style: TextStyle(
@@ -440,12 +441,12 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
             ],
           ),
 
-          const SizedBox(height: 12),
+          AppSpacing.verticalMedium,
 
           // 回复内容
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(12),
+            padding: AppSpacing.allMedium,
             decoration: BoxDecoration(
               color: colorScheme.secondaryContainer.withAlpha(51),
               borderRadius: AppRadius.borderRadiusSmall,

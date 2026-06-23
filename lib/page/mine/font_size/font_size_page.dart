@@ -129,7 +129,7 @@ class FontSizePage extends ConsumerWidget {
                 letterSpacing: -0.08,
               ),
             ),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMedium,
             Container(
               padding: const EdgeInsets.all(AppSpacing.large),
               decoration: BoxDecoration(
@@ -145,7 +145,7 @@ class FontSizePage extends ConsumerWidget {
                         .getPreviewTextStyle(context, FontSizeType.large)
                         .copyWith(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMedium,
                   Text(
                     t.common.fontPreviewText,
                     style: notifier.getPreviewTextStyle(
@@ -153,7 +153,7 @@ class FontSizePage extends ConsumerWidget {
                       FontSizeType.normal,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  AppSpacing.verticalSmall,
                   Text(
                     t.main.thisIsAuxiliaryText,
                     style: notifier.getPreviewTextStyle(
@@ -161,12 +161,12 @@ class FontSizePage extends ConsumerWidget {
                       FontSizeType.small,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMedium,
                   _buildPreviewFooter(context, ref, state, cs, t),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -227,7 +227,7 @@ class FontSizePage extends ConsumerWidget {
               color: AppColors.iosGray,
             ),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: iosBlue,

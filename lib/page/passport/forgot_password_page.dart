@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/phone_input.dart';
@@ -97,7 +98,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                         Tab(text: t.account.mobile),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    AppSpacing.verticalLarge,
 
                     SizedBox(
                       height: 200,
@@ -148,7 +149,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        AppSpacing.verticalLarge,
         SizedBox(
           width: double.infinity,
           height: 50,
@@ -227,7 +228,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
             hintText: t.main.pleaseInputParam(param: t.account.mobile),
           ),
         ),
-        const SizedBox(height: 20),
+        AppSpacing.verticalLarge,
         SizedBox(
           width: double.infinity,
           height: 50,

@@ -8,6 +8,7 @@
 library;
 
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'dart:convert';
 
@@ -356,7 +357,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   /// 构建搜索栏
   Widget _buildSearchBar(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: AppSpacing.allMedium,
       color: isDark
           ? AppColors.chatWebBackgroundDark
           : AppColors.chatWebBackgroundLight,
@@ -435,7 +436,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(color: AppColors.chatWebBrand),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
           Text(
             t.common.search,
             style: TextStyle(
@@ -464,7 +465,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   ? AppColors.chatWebDividerDark
                   : AppColors.chatWebDividerLight,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               t.common.searchChatContent,
               style: TextStyle(
@@ -571,7 +572,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               size: 64,
               color: isDark ? AppColors.iosRedDark : AppColors.iosRed,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               _state.error!,
               style: TextStyle(
@@ -596,7 +597,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   ? AppColors.chatWebDividerDark
                   : AppColors.chatWebDividerLight,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               '${t.common.search}: "${_state.query}"',
               style: TextStyle(
@@ -692,7 +693,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           children: [
             // 图标或头像
             _buildItemIcon(item, isDark),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
 
             // 内容
             Expanded(
@@ -733,7 +734,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             // 时间戳（消息类型）
             if (item.type == SearchItemType.message &&
                 item.metadata?['timestamp'] != null) ...[
-              const SizedBox(width: 8),
+              AppSpacing.horizontalSmall,
               Text(
                 DateTimeHelper.lastTimeFmt(item.metadata!['timestamp'] as int),
                 style: TextStyle(

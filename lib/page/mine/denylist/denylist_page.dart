@@ -142,7 +142,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 4),
+                AppSpacing.verticalTiny,
                 Text(
                   t.common.denylistNoteDesc,
                   style: context
@@ -170,7 +170,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
             size: 60,
             color: AppColors.iosGray.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
           Text(
             t.contact.denylistEmpty,
             style: context.textStyle(
@@ -221,7 +221,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
             size: 10,
             color: AppColors.getIosRed(brightness),
           ),
-          const SizedBox(width: 4),
+          AppSpacing.horizontalTiny,
           Text(
             t.contact.blocked,
             style: context.textStyle(
@@ -246,7 +246,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const Icon(CupertinoIcons.minus_circle, color: AppColors.onPrimary),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             Text(
               t.common.buttonRemove,
               style: const TextStyle(

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -60,7 +61,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                 t.account.rechargeAmountHint,
                 style: TextStyle(fontSize: FontSizeType.footnote.size),
               ),
-              const SizedBox(height: 12),
+              AppSpacing.verticalMedium,
               CupertinoTextField(
                 controller: controller,
                 keyboardType: const TextInputType.numberWithOptions(
@@ -267,7 +268,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(24),
+        padding: AppSpacing.allXLarge,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: isDark
@@ -295,7 +296,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
               size: 48,
               color: AppColors.onPrimary.withValues(alpha: 0.7),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               t.main.totalAssets,
               style: TextStyle(
@@ -304,7 +305,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             state.isLoading
                 ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
                 : Text(
@@ -340,7 +341,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             AppColors.iosPurple,
             isDark,
           ),
-          const SizedBox(width: 12),
+          AppSpacing.horizontalMedium,
           _buildActionItem(
             context,
             CupertinoIcons.money_yen,
@@ -349,7 +350,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             isDark,
             subtitle: state.isLoading ? '...' : balance,
           ),
-          const SizedBox(width: 12),
+          AppSpacing.horizontalMedium,
           _buildActionItem(
             context,
             CupertinoIcons.creditcard,
@@ -382,7 +383,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
         child: Column(
           children: [
             Icon(icon, size: 28, color: color),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(
               label,
               style: TextStyle(
@@ -440,7 +441,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     ];
 
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: AppSpacing.allSmall,
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -462,7 +463,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                   size: 26,
                   color: s['color'] as Color,
                 ),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSmall,
                 Text(
                   s['label'] as String,
                   style: TextStyle(

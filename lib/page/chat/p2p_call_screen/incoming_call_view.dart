@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
@@ -101,7 +102,7 @@ class _IncomingCallViewState extends State<IncomingCallView>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 12),
+                    AppSpacing.verticalMedium,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

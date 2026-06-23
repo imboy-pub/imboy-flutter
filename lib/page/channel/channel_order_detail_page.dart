@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
@@ -105,7 +106,7 @@ class _OrderDetailBody extends ConsumerWidget {
     final isRefunding = ref.watch(channelRefundProvider);
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.allRegular,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -143,7 +144,7 @@ class _OrderDetailBody extends ConsumerWidget {
           ),
         ),
         if (order.status == ChannelOrderStatus.paid) ...[
-          const SizedBox(height: 24),
+          AppSpacing.verticalXLarge,
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
@@ -226,7 +227,7 @@ class _OrderDetailBody extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          AppSpacing.horizontalMedium,
           Expanded(
             child: Text(
               value,
@@ -261,7 +262,7 @@ class _OrderDetailBody extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          AppSpacing.horizontalMedium,
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(

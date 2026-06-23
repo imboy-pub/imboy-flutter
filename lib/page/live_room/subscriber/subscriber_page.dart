@@ -141,7 +141,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                     ref.read(subscriberProvider.notifier).saveServerUrl(v);
                   },
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMedium,
                 // 播放/停止按钮
                 ElevatedButton.icon(
                   onPressed: state.isConnecting

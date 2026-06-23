@@ -127,7 +127,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
             size: 60,
             color: AppColors.iosGray.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
           Text(
             t.common.noData,
             style: TextStyle(
@@ -180,7 +180,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
             ),
           ),
           if (isCurrentDevice) ...[
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
@@ -218,7 +218,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
             ),
           ),
           if (model.lastActiveAt > 0) ...[
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             Text(
               DateTimeHelper.lastTimeFmt(model.lastActiveAt),
               style: TextStyle(

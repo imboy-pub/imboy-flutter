@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -172,14 +173,14 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
             () => _applyFilter('all'),
             b,
           ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           _buildFilterChip(
             t.chat.textMessage,
             state.selectedMessageType == MessageType.text,
             () => _applyFilter(MessageType.text),
             b,
           ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           _buildFilterChip(
             t.chat.imageMessage,
             state.selectedMessageType == MessageType.image,
@@ -271,7 +272,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
               size: 60,
               color: AppColors.iosGray3,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               t.common.searchNoResults,
               style: const TextStyle(color: AppColors.iosGray),

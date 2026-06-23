@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,7 +26,7 @@ class WebMineMinPanel extends ConsumerWidget {
     final uid = UserRepoLocal.to.currentUid;
     return Container(
       color: colorScheme.surface,
-      padding: const EdgeInsets.all(24),
+      padding: AppSpacing.allXLarge,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -40,13 +41,13 @@ class WebMineMinPanel extends ConsumerWidget {
               color: colorScheme.onPrimaryContainer,
             ),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
           Text(
             uid.isEmpty ? t.common.notLoggedIn : 'UID: $uid',
             style: theme.textTheme.titleMedium,
           ),
           if (section != null) ...[
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(
               'section: $section',
               style: theme.textTheme.bodySmall?.copyWith(
@@ -54,7 +55,7 @@ class WebMineMinPanel extends ConsumerWidget {
               ),
             ),
           ],
-          const SizedBox(height: 24),
+          AppSpacing.verticalXLarge,
           OutlinedButton.icon(
             key: const ValueKey('web-mine-logout-btn'),
             onPressed: uid.isEmpty
@@ -104,14 +105,14 @@ class PlaceholderPanel extends StatelessWidget {
             size: 64,
             color: colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalRegular,
           Text(
             label,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 8),
+          AppSpacing.verticalSmall,
           Text(
             t.common.featureInDevelopment,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(

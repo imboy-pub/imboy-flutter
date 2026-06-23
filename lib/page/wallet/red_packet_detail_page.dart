@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -156,7 +157,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      AppSpacing.verticalMedium,
                       Text(
                         _packet!.greeting,
                         style: TextStyle(
@@ -164,7 +165,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                           fontSize: FontSizeType.subheadline.size,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      AppSpacing.verticalRegular,
                       if (_myGrabbedAmount != null) ...[
                         Text(
                           (_myGrabbedAmount! / 100.0).toStringAsFixed(2),
@@ -242,7 +243,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                     children: [
                       Text('用户: ${r.receiverUid}'),
                       if (isBestLuck) ...[
-                        const SizedBox(width: 8),
+                        AppSpacing.horizontalSmall,
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,

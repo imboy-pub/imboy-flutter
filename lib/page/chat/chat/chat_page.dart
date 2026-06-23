@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/gestures.dart';
 import 'package:go_router/go_router.dart';
@@ -2080,7 +2081,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         title: Row(
           children: [
             Icon(Icons.lock_outline, color: AppColors.iosOrange),
-            const SizedBox(width: 12),
+            AppSpacing.horizontalMedium,
             Text(t.common.e2eeDecryptFailed),
           ],
         ),
@@ -2089,13 +2090,13 @@ class ChatPageState extends ConsumerState<ChatPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.common.e2eeDecryptFailedReasons),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSmall,
             Text(t.common.e2eeDecryptReasonOtherDevice),
             Text(t.common.e2eeDecryptReasonKeyExpired),
             Text(t.common.e2eeDecryptReasonDataCorrupt),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(t.common.e2eeDecryptRecreateHint),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(t.common.e2eeDecryptChooseSolution),
           ],
         ),

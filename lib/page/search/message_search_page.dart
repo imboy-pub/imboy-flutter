@@ -234,7 +234,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           // 取消按钮
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -283,7 +283,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               onTap: () =>
                   ref.read(messageSearchProvider.notifier).setTypeFilter('all'),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             _buildFilterChip(
               context: context,
               label: t.chat.privateChat,
@@ -291,7 +291,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               onTap: () =>
                   ref.read(messageSearchProvider.notifier).setTypeFilter('C2C'),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             _buildFilterChip(
               context: context,
               label: t.chat.groupChat,
@@ -299,7 +299,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               onTap: () =>
                   ref.read(messageSearchProvider.notifier).setTypeFilter('C2G'),
             ),
-            const SizedBox(width: 16),
+            AppSpacing.horizontalRegular,
             // 时间范围过滤
             _buildFilterChip(
               context: context,
@@ -309,7 +309,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   .read(messageSearchProvider.notifier)
                   .setTimeRangeFilter('all'),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             _buildFilterChip(
               context: context,
               label: t.common.today,
@@ -318,7 +318,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   .read(messageSearchProvider.notifier)
                   .setTimeRangeFilter('today'),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSmall,
             _buildFilterChip(
               context: context,
               label: t.main.thisWeek,
@@ -390,7 +390,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
             size: 16,
             color: AppColors.textSecondary,
           ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Expanded(
             child: Text(
               '${t.common.searchScope}: ${widget.conversationTitle}',
@@ -465,7 +465,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               size: 64,
               color: AppColors.textSecondary.withValues(alpha: 0.3),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               t.common.noSearchHistory,
               style: TextStyle(
@@ -600,7 +600,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                 ),
               ),
               if (state.hasActiveFilters()) ...[
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 TextButton(
                   onPressed: () {
                     ref.read(messageSearchProvider.notifier).resetFilters();
@@ -733,7 +733,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  AppSpacing.horizontalSmall,
                   // 发送者名称
                   Expanded(
                     child: Text(
@@ -756,7 +756,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               // 消息内容（高亮显示）
               TextHighlight(
                 text: _getMessageContent(result),

@@ -294,24 +294,24 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         title: t.common.chatSettingBackground,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.allRegular,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 背景预览
             _buildBackgroundPreview(state, manager),
 
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
 
             // 背景选择
             _buildBackgroundOptions(context, state, manager),
 
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
 
             // 透明度调节
             _buildOpacitySlider(context, state, manager),
 
-            const SizedBox(height: 24),
+            AppSpacing.verticalXLarge,
 
             // 自定义颜色
             _buildCustomColorSection(context, state, manager),
@@ -515,7 +515,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 12),
+        AppSpacing.verticalMedium,
         Slider(
           value: state.backgroundOpacity,
           min: 0.1,
@@ -544,7 +544,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 12),
+        AppSpacing.verticalMedium,
         SwitchListTile(
           title: Text(t.common.backgroundUseCustomColor),
           subtitle: Text(t.common.backgroundOnlySolidColor),
@@ -552,7 +552,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
           onChanged: (value) => manager.setUseCustomColor(value),
         ),
         if (state.useCustomColor) ...[
-          const SizedBox(height: 12),
+          AppSpacing.verticalMedium,
           GestureDetector(
             onTap: () => _showColorPicker(context, manager),
             child: Container(

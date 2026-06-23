@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -303,7 +304,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(_error!),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             ElevatedButton(
               onPressed: () => _loadSubscribers(refresh: true),
               child: Text(t.common.buttonRetry),

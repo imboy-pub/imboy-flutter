@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -465,7 +466,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                AppSpacing.horizontalSmall,
                 Text(
                   t.common.reconnecting,
                   style: const TextStyle(
@@ -867,7 +868,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                       height: 44,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  AppSpacing.verticalSmall,
                   Text(
                     state.connected ? state.callDuration : t.common.calling,
                     style: const TextStyle(

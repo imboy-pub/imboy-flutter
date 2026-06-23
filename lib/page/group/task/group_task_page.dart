@@ -266,7 +266,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                       ),
                     ),
                     if (task['description'] != null) ...[
-                      const SizedBox(height: 4),
+                      AppSpacing.verticalTiny,
                       Text(
                         task['description'] as String,
                         style: Theme.of(context).textTheme.bodySmall,
@@ -275,7 +275,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                       ),
                     ],
                     if (deadline != null) ...[
-                      const SizedBox(height: 4),
+                      AppSpacing.verticalTiny,
                       Row(
                         children: [
                           Icon(
@@ -283,7 +283,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                             size: 14,
                             color: _getDeadlineColor(context, deadline),
                           ),
-                          const SizedBox(width: 4),
+                          AppSpacing.horizontalTiny,
                           Text(
                             _formatDeadline(deadline),
                             style: TextStyle(

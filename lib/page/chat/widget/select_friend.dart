@@ -1,4 +1,5 @@
 import 'package:azlistview/azlistview.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -283,7 +284,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
       appBar: GlassAppBar(
         title: t.contact.selectFriends,
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: AppSpacing.allSmall,
           child: InkWell(
             onTap: () {
               Navigator.of(context).pop();

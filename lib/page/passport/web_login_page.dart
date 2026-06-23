@@ -460,7 +460,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   size: 48,
                   color: AppColors.primary,
                 ),
-                const SizedBox(width: 16),
+                AppSpacing.horizontalRegular,
                 Text(
                   'ImBoy Web',
                   style: TextStyle(
@@ -478,19 +478,19 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               t.chat.webFeatureMultiDevice,
               t.chat.webFeatureMultiDeviceDesc,
             ),
-            const SizedBox(height: 32),
+            AppSpacing.verticalXXLarge,
             _buildFeatureItem(
               Icons.lock_outline,
               t.chat.webFeatureE2EE,
               t.chat.webFeatureE2EEDesc,
             ),
-            const SizedBox(height: 32),
+            AppSpacing.verticalXXLarge,
             _buildFeatureItem(
               Icons.notifications_outlined,
               t.common.webFeatureNotification,
               t.common.webFeatureNotificationDesc,
             ),
-            const SizedBox(height: 32),
+            AppSpacing.verticalXXLarge,
             _buildFeatureItem(
               Icons.attach_file,
               t.chat.webFeatureFileTransfer,
@@ -515,7 +515,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           ),
           child: Icon(icon, color: AppColors.primary),
         ),
-        const SizedBox(width: 20),
+        AppSpacing.horizontalLarge,
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -528,7 +528,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   color: AppColors.darkTextPrimary,
                 ),
               ),
-              const SizedBox(height: 4),
+              AppSpacing.verticalTiny,
               Text(
                 desc,
                 style: TextStyle(
@@ -567,7 +567,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             if (!_showPasswordLogin) ...[
               // QR 码登录
               _buildQRLoginSection(qrState),
-              const SizedBox(height: 24),
+              AppSpacing.verticalXLarge,
               // 切换到密码登录
               TextButton(
                 onPressed: () {
@@ -586,7 +586,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             ] else ...[
               // 账号密码登录
               _buildPasswordLoginSection(passportState, passportNotifier),
-              const SizedBox(height: 24),
+              AppSpacing.verticalXLarge,
               // 切换回 QR 码登录
               TextButton(
                 onPressed: () {
@@ -620,7 +620,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             color: AppColors.darkTextPrimary,
           ),
         ),
-        const SizedBox(height: 8),
+        AppSpacing.verticalSmall,
         Text(
           t.account.webQRLoginHint,
           style: TextStyle(
@@ -628,7 +628,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             color: AppColors.darkTextSecondary,
           ),
         ),
-        const SizedBox(height: 32),
+        AppSpacing.verticalXXLarge,
         // QR 码容器
         Container(
           width: 256,
@@ -641,10 +641,10 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           ),
           child: _buildQRContent(qrState),
         ),
-        const SizedBox(height: 16),
+        AppSpacing.verticalRegular,
         // 状态文字
         _buildQRStatusText(qrState),
-        const SizedBox(height: 16),
+        AppSpacing.verticalRegular,
         // 刷新按钮（过期时显示）
         if (qrState.status == QRLoginStatus.expired ||
             qrState.status == QRLoginStatus.failed)
@@ -705,7 +705,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   size: 64,
                   color: AppColors.primary,
                 ),
-                const SizedBox(height: 16),
+                AppSpacing.verticalRegular,
                 Text(
                   t.discovery.webQRScanned,
                   style: TextStyle(
@@ -732,7 +732,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const CircularProgressIndicator(color: AppColors.primary),
-              const SizedBox(height: 16),
+              AppSpacing.verticalRegular,
               Text(
                 t.main.webQRLoggingIn,
                 style: TextStyle(
@@ -756,7 +756,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   size: 64,
                   color: AppColors.lightTextDisabled,
                 ),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSmall,
                 Text(
                   t.main.webQRExpired,
                   style: TextStyle(
@@ -781,7 +781,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   size: 64,
                   color: AppColors.iosRed,
                 ),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSmall,
                 Text(
                   qrState.errorMessage ?? t.common.webQRLoginFailed,
                   style: TextStyle(
@@ -805,7 +805,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 size: 64,
                 color: AppColors.primary,
               ),
-              const SizedBox(height: 16),
+              AppSpacing.verticalRegular,
               Text(
                 t.common.webQRLoginSuccess,
                 style: TextStyle(
@@ -850,7 +850,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 16, color: AppColors.darkTextSecondary),
-        const SizedBox(width: 8),
+        AppSpacing.horizontalSmall,
         Flexible(
           child: Text(
             text,
@@ -880,7 +880,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             color: AppColors.darkTextPrimary,
           ),
         ),
-        const SizedBox(height: 32),
+        AppSpacing.verticalXXLarge,
         // 账号输入
         TextField(
           controller: _accountController,
@@ -897,7 +897,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        AppSpacing.verticalRegular,
         // 密码输入
         TextField(
           controller: _passwordController,
@@ -927,7 +927,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        AppSpacing.verticalXLarge,
         // 登录按钮
         SizedBox(
           width: double.infinity,
@@ -973,7 +973,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             },
           ),
         ),
-        const SizedBox(height: 16),
+        AppSpacing.verticalRegular,
         // 忘记密码
         TextButton(
           onPressed: () => context.push(AppRoutes.forgotPassword),
