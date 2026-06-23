@@ -79,11 +79,16 @@ class MessageS2CService {
   //       但【仍发送 ACK】（否则服务端继续重发）。
   //       pull_offline_msg 是服务端主动 nudge（非事件），跨重连可能合法重发，单独走短 TTL。
   static final Map<String, int> _processedS2CIds = {}; // key -> 处理时间戳(ms)
-  static const int _s2cDedupTtlMs = 5 * 60 * 1000; // 常规 5 分钟
-  static const int _s2cPullOfflineTtlMs = 2 * 1000; // pull_offline_msg 短 TTL
+  // 常规去重 TTL 必须 ≫ 服务端 S2C 重发窗口（2/5/7/11s，最大约 11s），
+  // 否则窗口内的重投会被当作新事件重复执行。@visibleForTesting 供特征化测试断言此不变量。
+  @visibleForTesting
+  static const int s2cDedupTtlMs = 5 * 60 * 1000; // 常规 5 分钟
+  @visibleForTesting
+  static const int s2cPullOfflineTtlMs = 2 * 1000; // pull_offline_msg 短 TTL
 
   /// 构建 S2C 去重 key：优先用帧 id；id 为空时回退到 action+from+to+server_ts 复合 key
-  static String _buildS2CDedupKey(
+  @visibleForTesting
+  static String buildS2CDedupKey(
     Map<String, dynamic> data,
     String action,
     String from,
@@ -101,7 +106,7 @@ class MessageS2CService {
     final expiredKeys = <String>[];
     // 用最长 TTL 作为清理阈值（短 TTL 的条目也会被这个窗口清掉，足够安全）
     _processedS2CIds.forEach((key, ts) {
-      if (now - ts > _s2cDedupTtlMs) expiredKeys.add(key);
+      if (now - ts > s2cDedupTtlMs) expiredKeys.add(key);
     });
     for (final key in expiredKeys) {
       _processedS2CIds.remove(key);
@@ -154,14 +159,14 @@ class MessageS2CService {
 
       // 【S2C 去重层】在 switch 之前用帧 id 做单点去重，杜绝重复投递导致的重复执行。
       final actionLower = action.toLowerCase();
-      final dedupKey = _buildS2CDedupKey(
+      final dedupKey = buildS2CDedupKey(
         data,
         actionLower,
         from.toString(),
         to.toString(),
       );
       final isPullOffline = actionLower == 'pull_offline_msg';
-      final ttl = isPullOffline ? _s2cPullOfflineTtlMs : _s2cDedupTtlMs;
+      final ttl = isPullOffline ? s2cPullOfflineTtlMs : s2cDedupTtlMs;
       final now = DateTime.now().millisecondsSinceEpoch;
       _cleanExpiredS2CIds(now);
       final lastSeen = _processedS2CIds[dedupKey];
