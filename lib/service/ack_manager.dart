@@ -5,6 +5,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
+import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/websocket.dart';
 
 /// ACK管理器 - 负责ACK的发送和重试
@@ -63,17 +64,16 @@ class AckManager {
     }
   }
 
-  /// 最大重试次数
-  ///
-  /// 与服务端 QoS 投递重试次数对齐（协议一致性修复 D1）：
-  /// 服务端在线投递重试节奏为 2s/5s/7s/11s 共 4 次后转离线存储，
-  /// 客户端 ACK 重试次数需对应设置为 4，避免服务端已完成全部重试
-  /// 而客户端尚未重试到位导致消息被误判为未达成 ACK。
-  static const int _maxRetries = 4;
+  /// 最大重试次数（单一真值 [RetryPolicy.maxRetryAttempts]）
+  static const int _maxRetries = RetryPolicy.maxRetryAttempts;
 
-  /// 重试间隔策略（毫秒）
-  /// 采用指数退避：3s -> 5s -> 10s -> 15s（对应服务端4次重试窗口）
-  static const List<int> _retryIntervals = [3000, 5000, 10000, 15000];
+  /// 重试间隔（毫秒）——单一真值 [RetryPolicy.ackConfirmRetryIntervals]。
+  ///
+  /// 语义：客户端发 CLIENT_ACK 后等服务端 confirm 的重试，独立于服务端
+  /// 投递重试（后端 elib_retry_config 按消息类型 c2c/c2s/s2c 不同）。
+  /// 4 次 [3,5,10,15]s 总跨度 33s，足以覆盖服务端最长投递窗口（c2s ~23s），
+  /// 确保服务端放弃投递前持续收到 ACK。
+  static const List<int> _retryIntervals = RetryPolicy.ackConfirmRetryIntervals;
 
   /// 获取当前重试次数对应的间隔
   int _getRetryInterval(int retryCount) {

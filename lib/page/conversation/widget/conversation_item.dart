@@ -125,8 +125,11 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
                   // 消息预览
                   Row(
                     children: [
-                      if (currentModel.lastMsgStatus ==
-                          IMBoyMessageStatus.sending)
+                      // 在制中（发送中 / 待重试）均显示进度指示，
+                      // 待重试不再误显示为彻底失败。
+                      if (IMBoyMessageStatus.isInFlightStatus(
+                        currentModel.lastMsgStatus,
+                      ))
                         const Padding(
                           padding: EdgeInsets.only(right: 4),
                           child: CupertinoActivityIndicator(radius: 6),

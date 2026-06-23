@@ -5,6 +5,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
+import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -32,8 +33,8 @@ class MessageRetry with EventSubscriptionManager {
   /// Message retry queue for failed messages.
   final Map<String, MessageRetryInfo> _retryQueue = {};
 
-  /// 最大自动重试次数（不含首次发送）
-  static const int _maxRetryAttempts = 4;
+  /// 最大自动重试次数（单一真值 [RetryPolicy.maxRetryAttempts]）
+  static const int _maxRetryAttempts = RetryPolicy.maxRetryAttempts;
 
   /// 重试定时器
   /// Retry timer.
@@ -145,9 +146,10 @@ class MessageRetry with EventSubscriptionManager {
 
       iPrint('🔍 [RETRY_SCAN] 开始扫描失败消息...');
 
-      // 需要重试的消息状态：sending（发送中）和 error（错误）
+      // 需要重试的消息状态：sending（发送中）、pendingRetry（待重试）和 error（错误）
       final statusesToRetry = [
         IMBoyMessageStatus.sending,
+        IMBoyMessageStatus.pendingRetry,
         IMBoyMessageStatus.error,
       ];
 
@@ -234,7 +236,34 @@ class MessageRetry with EventSubscriptionManager {
       lastRetryTime: DateTimeHelper.millisecond(),
     );
     _ensureTimerRunning();
+    // 标记为"待重试"中间态（异步容错；不覆盖已成功/已撤回的终态）
+    unawaited(_markPendingRetryStatus(messageId, normalizedType));
     iPrint('消息加入重试队列: $messageId, type=$normalizedType');
+  }
+
+  /// 将队列中消息置为 pendingRetry 中间态（仅当其仍处发送中/失败态）。
+  ///
+  /// 守卫：已 sent/delivered/seen/撤回 的终态不回退，避免覆盖成功/撤回结果。
+  Future<void> _markPendingRetryStatus(String messageId, String type) async {
+    try {
+      final repo = getMessageRepo(type);
+      final msg = await repo.find(messageId);
+      if (msg == null) return;
+      final s = msg.status;
+      if (s == IMBoyMessageStatus.sent ||
+          s == IMBoyMessageStatus.delivered ||
+          s == IMBoyMessageStatus.seen ||
+          IMBoyMessageStatus.isRevokedStatus(s) ||
+          s == IMBoyMessageStatus.pendingRetry) {
+        return;
+      }
+      await repo.update({
+        'id': messageId,
+        'status': IMBoyMessageStatus.pendingRetry,
+      });
+    } on Object catch (e) {
+      iPrint('⚠️ [RETRY_QUEUE] 置 pendingRetry 失败: $messageId, $e');
+    }
   }
 
   /// 从重试队列中移除消息
@@ -252,8 +281,8 @@ class MessageRetry with EventSubscriptionManager {
 
     final now = DateTimeHelper.millisecond();
 
-    // 重试间隔配置：3秒、5秒、10秒、20秒
-    const intervals = [3000, 5000, 10000, 20000];
+    // 重试间隔：单一真值源 RetryPolicy（与 SDK sendWithAck 对齐）
+    final intervals = RetryPolicy.messageSendRetryIntervals;
 
     // 筛选需要重试的消息
     final List<MessageRetryInfo> toRemove = [];
@@ -322,11 +351,12 @@ class MessageRetry with EventSubscriptionManager {
       // 仅允许 error/sending 状态进入重试发送路径。
       final updatedRows = await repo.updateWithConditions(
         {'id': info.messageId, 'status': IMBoyMessageStatus.sending},
-        where: "id = ? AND status IN (?, ?)",
+        where: "id = ? AND status IN (?, ?, ?)",
         whereArgs: [
           info.messageId,
           IMBoyMessageStatus.error,
           IMBoyMessageStatus.sending,
+          IMBoyMessageStatus.pendingRetry,
         ],
       );
 

@@ -52,6 +52,17 @@ class IMBoyMessageStatus {
   /// 流转：→ delivered (20) / seen (21) / error (41) / 撤回状态
   static const int sent = 11;
 
+  /// 待重试（pending_retry）
+  ///
+  /// 含义：消息发送失败后已入队、等待自动重试（尚未彻底失败）
+  /// 触发时机：发送失败但连接可恢复 / 离线入队，等待重连后自动重发
+  /// 重要说明：
+  ///   - ⚠️ 区别于 error(41)：error 是已放弃（达重试上限/不可恢复）
+  ///   - 落在 sending band(10-19)，故 isSendingStatus 视其为进行中（UI 显示发送中）
+  /// UI 表现：发送中图标（可附"排队中"提示）
+  /// 流转：→ sending (10) 重发 / sent (11) / error (41) 达上限
+  static const int pendingRetry = 12;
+
   // ==================== 投递/阅读状态 (20-29) ====================
 
   /// 已投递
@@ -116,6 +127,18 @@ class IMBoyMessageStatus {
   /// 判断是否为发送状态（10-19）
   static bool isSendingStatus(int? status) {
     return status != null && status >= 10 && status < 20;
+  }
+
+  /// 判断是否为待重试状态（pending_retry）
+  static bool isPendingRetryStatus(int? status) {
+    return status == pendingRetry;
+  }
+
+  /// 判断消息是否"在制中"（未终结，仍可能转 sent/error）
+  ///
+  /// 仅含 sending / pendingRetry；sent 已视为客户端发送完成，不算在制中。
+  static bool isInFlightStatus(int? status) {
+    return status == sending || status == pendingRetry;
   }
 
   /// 判断是否为撤回状态（30-39）
@@ -365,12 +388,15 @@ class MessageModel {
     );
   }
 
-  /// 10 发送中 sending;  11 已发送 sent;
+  /// 10 发送中 sending;  11 已发送 sent;  12 待重试 pendingRetry;
   /// 20 未读 delivered;  21 已读 seen;
   /// 41 错误（发送失败） error;
   ///  enum MessageStatus { delivered, error, seen, sending, sent }
+  ///
+  /// pendingRetry 属于"在制中"（已入队等待自动重试），chat 库枚举无独立
+  /// 中间态，归入 sending（时钟图标）而非 error（红叉），避免误报失败。
   MessageStatus get typesStatus {
-    if (status == IMBoyMessageStatus.sending) {
+    if (IMBoyMessageStatus.isInFlightStatus(status)) {
       return MessageStatus.sending;
     } else if (status == IMBoyMessageStatus.sent) {
       return MessageStatus.sent;
