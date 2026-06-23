@@ -111,13 +111,8 @@ void main() {
     });
 
     test('bad magic 抛异常', () {
-      final buf = Uint8List.fromList([
-        0xFF, 0xFF, 2, 0, 1, 0, 0, 0, 0,
-      ]);
-      expect(
-        () => ImboyFrame.tryDecode(buf),
-        throwsA(isA<FormatException>()),
-      );
+      final buf = Uint8List.fromList([0xFF, 0xFF, 2, 0, 1, 0, 0, 0, 0]);
+      expect(() => ImboyFrame.tryDecode(buf), throwsA(isA<FormatException>()));
     });
 
     test('frame too large 抛异常', () {
@@ -125,10 +120,7 @@ void main() {
         0x49, 0x42, 2, 0, 0x20,
         0x01, 0x00, 0x00, 0x01, // Len = 0x01000001 > 16MB
       ]);
-      expect(
-        () => ImboyFrame.tryDecode(buf),
-        throwsA(isA<FormatException>()),
-      );
+      expect(() => ImboyFrame.tryDecode(buf), throwsA(isA<FormatException>()));
     });
   });
 
@@ -139,8 +131,11 @@ void main() {
         (FrameType.heartbeatPong, 0, _u16(42)),
         (FrameType.ack, 0, _u64(0xDEADBEEFCAFEBABE)),
         (FrameType.msgC2C, FrameFlags.ack, Uint8List.fromList([1, 2, 3])),
-        (FrameType.msgC2G, FrameFlags.cmp | FrameFlags.ack,
-            Uint8List(1024)..fillRange(0, 1024, 0xAB)),
+        (
+          FrameType.msgC2G,
+          FrameFlags.cmp | FrameFlags.ack,
+          Uint8List(1024)..fillRange(0, 1024, 0xAB),
+        ),
       ];
 
       for (final (t, f, p) in cases) {
@@ -189,7 +184,19 @@ void main() {
         flags: 0,
         payload: _u64(1),
       );
-      final partial = Uint8List.fromList([0x49, 0x42, 2, 0, 0x20, 0, 0, 0, 100, 1, 2]);
+      final partial = Uint8List.fromList([
+        0x49,
+        0x42,
+        2,
+        0,
+        0x20,
+        0,
+        0,
+        0,
+        100,
+        1,
+        2,
+      ]);
       final buf = Uint8List.fromList([...f1, ...partial]);
 
       final (frames, remaining) = ImboyFrame.decodeStream(buf);
@@ -259,10 +266,7 @@ void main() {
       final result = ImboyFrame.tryDecode(bin);
       expect(result, isNotNull);
       expect(result!.frame.type, FrameType.heartbeatPing);
-      expect(
-        ByteData.sublistView(result.frame.payload).getUint16(0),
-        7,
-      );
+      expect(ByteData.sublistView(result.frame.payload).getUint16(0), 7);
     });
 
     test('heartbeatPong 生成有效帧', () {
@@ -270,10 +274,7 @@ void main() {
       final result = ImboyFrame.tryDecode(bin);
       expect(result, isNotNull);
       expect(result!.frame.type, FrameType.heartbeatPong);
-      expect(
-        ByteData.sublistView(result.frame.payload).getUint16(0),
-        42,
-      );
+      expect(ByteData.sublistView(result.frame.payload).getUint16(0), 42);
     });
 
     test('ack 帧 17 字节', () {
@@ -294,25 +295,69 @@ void main() {
     test('heartbeat ping seq=7 的字节序列', () {
       final bin = ImboyFrame.heartbeatPing(7);
       expect(bin, [
-        0x49, 0x42,        // magic "IB"
-        0x02,              // version
-        0x27,              // flags = ACK(0x20) | PRI=7 (0x07)
-        0x01,              // type = HEARTBEAT_PING
+        0x49, 0x42, // magic "IB"
+        0x02, // version
+        0x27, // flags = ACK(0x20) | PRI=7 (0x07)
+        0x01, // type = HEARTBEAT_PING
         0x00, 0x00, 0x00, 0x02, // len = 2
-        0x00, 0x07,        // seq = 7
+        0x00, 0x07, // seq = 7
       ]);
     });
 
     test('ack msg_id=0x1234567890ABCDEF 的字节序列', () {
       final bin = ImboyFrame.ack(0x1234567890ABCDEF);
       expect(bin, [
-        0x49, 0x42,
+        0x49,
+        0x42,
         0x02,
         0x00,
         0x03,
-        0x00, 0x00, 0x00, 0x08,
-        0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF,
+        0x00,
+        0x00,
+        0x00,
+        0x08,
+        0x12,
+        0x34,
+        0x56,
+        0x78,
+        0x90,
+        0xAB,
+        0xCD,
+        0xEF,
       ]);
+    });
+  });
+
+  group('ACK 方向编码 (flags bit4-3) — 修复 C2G/S2C 走错清理路径的 bug', () {
+    test('默认方向 C2C，flags=0，向后兼容', () {
+      final bin = ImboyFrame.ack(123);
+      final r = ImboyFrame.tryDecode(bin)!;
+      expect(r.frame.flags, 0);
+      expect(AckDirection.of(r.frame.flags), AckDirection.c2c);
+    });
+
+    test('C2C/C2G/S2C/C2S 方向编码进 flags bit4-3（与 Erlang 端一致）', () {
+      final cases = {
+        AckDirection.c2c: 0x00,
+        AckDirection.c2g: 0x08,
+        AckDirection.s2c: 0x10,
+        AckDirection.c2s: 0x18,
+      };
+      cases.forEach((dir, expectedFlags) {
+        final bin = ImboyFrame.ack(99, direction: dir);
+        final r = ImboyFrame.tryDecode(bin)!;
+        expect(r.frame.flags, expectedFlags);
+        expect(ByteData.sublistView(r.frame.payload).getUint64(0), 99);
+        expect(AckDirection.of(r.frame.flags), dir);
+      });
+    });
+
+    test('fromType 映射消息类型字符串，未知默认 C2C', () {
+      expect(AckDirection.fromType('C2C'), AckDirection.c2c);
+      expect(AckDirection.fromType('C2G'), AckDirection.c2g);
+      expect(AckDirection.fromType('S2C'), AckDirection.s2c);
+      expect(AckDirection.fromType('C2S'), AckDirection.c2s);
+      expect(AckDirection.fromType('unknown'), AckDirection.c2c);
     });
   });
 }

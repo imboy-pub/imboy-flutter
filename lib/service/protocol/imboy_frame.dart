@@ -19,7 +19,37 @@ class FrameFlags {
   static const int cmp = 0x80; // bit7: 载荷是否 zstd 压缩
   static const int enc = 0x40; // bit6: 载荷是否 E2EE (预留)
   static const int ack = 0x20; // bit5: 是否需要 ACK
+  static const int dirMask = 0x18; // bits4-3: ACK 帧方向
+  static const int dirShift = 3;
   static const int priorityMask = 0x07; // bits0-2: 优先级
+}
+
+/// ACK 帧方向编码值（写入 flags bit4-3），与后端 imboy_frame.hrl 对齐。
+///
+/// 修复此前 ACK 帧不携带方向、后端硬编码 C2C 导致 C2G/S2C 走错清理路径的 bug。
+class AckDirection {
+  static const int c2c = 0;
+  static const int c2g = 1;
+  static const int s2c = 2;
+  static const int c2s = 3;
+
+  /// 消息类型字符串 → 方向编码；未知默认 c2c
+  static int fromType(String type) {
+    switch (type.toUpperCase()) {
+      case 'C2G':
+        return c2g;
+      case 'S2C':
+        return s2c;
+      case 'C2S':
+        return c2s;
+      default:
+        return c2c;
+    }
+  }
+
+  /// 从 flags 解析方向编码值
+  static int of(int flags) =>
+      (flags & FrameFlags.dirMask) >> FrameFlags.dirShift;
 }
 
 /// 帧类型枚举
@@ -247,12 +277,13 @@ class ImboyFrame {
     return encode(type: FrameType.heartbeatPong, flags: 7, payload: payload);
   }
 
-  /// ACK 帧
-  static Uint8List ack(int msgId) {
+  /// ACK 帧（方向编码进 flags bit4-3，默认 C2C 向后兼容）
+  static Uint8List ack(int msgId, {int direction = AckDirection.c2c}) {
     _checkUint64(msgId);
     final payload = Uint8List(8);
     ByteData.sublistView(payload).setUint64(0, msgId, Endian.big);
-    return encode(type: FrameType.ack, flags: 0, payload: payload);
+    final flags = (direction << FrameFlags.dirShift) & FrameFlags.dirMask;
+    return encode(type: FrameType.ack, flags: flags, payload: payload);
   }
 
   /// NACK 帧
