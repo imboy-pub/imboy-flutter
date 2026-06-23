@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -254,9 +255,11 @@ class _GroupAlbumPhotoDetailPageState
                   ? AppColors.darkSurface
                   : AppColors.lightSurfaceContainer,
               child: url.isNotEmpty
-                  ? Image(
-                      image: cachedImageProvider(url),
-                      fit: BoxFit.cover,
+                  ? PhotoView(
+                      imageProvider: cachedImageProvider(url, w: 0),
+                      backgroundDecoration: const BoxDecoration(
+                        color: Colors.transparent,
+                      ),
                       errorBuilder: (_, _, _) => const Center(
                         child: Icon(Icons.broken_image_outlined),
                       ),

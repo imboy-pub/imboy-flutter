@@ -7,6 +7,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart'
+    show zoomInPhotoViewGalleryWithInitialPage;
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -488,20 +490,35 @@ class _MomentMediaPreview extends StatelessWidget {
   const _MomentMediaPreview({required this.media});
   @override
   Widget build(BuildContext context) {
+    final imageUrls = media
+        .where((m) => parseModelString(m['type']) != 'video')
+        .map(pickMediaPreviewUrl)
+        .where((u) => u.isNotEmpty)
+        .toList();
     if (media.length == 1) {
-      return _MomentMediaCell(item: media.first, size: 200);
+      final isVideo = parseModelString(media.first['type']) == 'video';
+      return _MomentMediaCell(
+        item: media.first,
+        size: 200,
+        imageUrls: isVideo ? const [] : imageUrls,
+        imageIndex: 0,
+      );
     }
+    int imgIdx = 0;
+    final cellSize = (MediaQuery.of(context).size.width - 100) / 3;
     return Wrap(
       spacing: 6,
       runSpacing: 6,
-      children: media
-          .map(
-            (item) => _MomentMediaCell(
-              item: item,
-              size: (MediaQuery.of(context).size.width - 100) / 3,
-            ),
-          )
-          .toList(),
+      children: media.map((item) {
+        final isVideo = parseModelString(item['type']) == 'video';
+        final idx = isVideo ? 0 : imgIdx++;
+        return _MomentMediaCell(
+          item: item,
+          size: cellSize,
+          imageUrls: isVideo ? const [] : imageUrls,
+          imageIndex: idx,
+        );
+      }).toList(),
     );
   }
 }
@@ -509,7 +526,14 @@ class _MomentMediaPreview extends StatelessWidget {
 class _MomentMediaCell extends StatefulWidget {
   final Map<String, dynamic> item;
   final double size;
-  const _MomentMediaCell({required this.item, required this.size});
+  final List<String> imageUrls;
+  final int imageIndex;
+  const _MomentMediaCell({
+    required this.item,
+    required this.size,
+    this.imageUrls = const [],
+    this.imageIndex = 0,
+  });
   @override
   State<_MomentMediaCell> createState() => _MomentMediaCellState();
 }
@@ -543,18 +567,27 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
     final type = parseModelString(widget.item['type']);
     final previewUrl = pickMediaPreviewUrl(widget.item);
     if (type != 'video') {
-      return Container(
-        width: widget.size,
-        height: widget.size,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: AppColors.iosGray.withValues(alpha: 0.1),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: OctoImage(
-          image: cachedImageProvider(previewUrl),
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
+      return GestureDetector(
+        onTap: widget.imageUrls.isNotEmpty
+            ? () => zoomInPhotoViewGalleryWithInitialPage(
+                context,
+                widget.imageUrls,
+                widget.imageIndex,
+              )
+            : null,
+        child: Container(
+          width: widget.size,
+          height: widget.size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: AppColors.iosGray.withValues(alpha: 0.1),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: OctoImage(
+            image: cachedImageProvider(previewUrl),
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
+          ),
         ),
       );
     }

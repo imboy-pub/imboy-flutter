@@ -3,6 +3,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
@@ -331,18 +332,11 @@ class _AvatarPreviewPage extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: GestureDetector(
-        onTap: () => Navigator.of(context).pop(),
-        child: Center(
-          child: Hero(
-            tag: heroTag,
-            child: InteractiveViewer(
-              child: Image(
-                image: cachedImageProvider(url, w: 0),
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
+      body: Hero(
+        tag: heroTag,
+        child: PhotoView(
+          imageProvider: cachedImageProvider(url, w: 0),
+          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
         ),
       ),
     );

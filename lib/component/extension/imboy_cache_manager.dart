@@ -94,6 +94,21 @@ class IMBoyCacheManager {
       return true;
     }
 
+    // HEIC/HEIF: ISO Base Media File Format — ftyp box at offset 4
+    if (bytes.length >= 12 &&
+        bytes[4] == 0x66 &&
+        bytes[5] == 0x74 &&
+        bytes[6] == 0x79 &&
+        bytes[7] == 0x70) {
+      final brand = String.fromCharCodes(bytes.sublist(8, 12));
+      if (brand.startsWith('hei') ||
+          brand.startsWith('hev') ||
+          brand == 'mif1' ||
+          brand == 'msf1') {
+        return true;
+      }
+    }
+
     return false;
   }
 

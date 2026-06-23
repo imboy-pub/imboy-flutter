@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart'
+    show zoomInPhotoViewGalleryWithInitialPage;
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -276,8 +278,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
             child: Text(
               t.discovery.momentsComments,
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
+              style: context.textStyle(
+                FontSizeType.footnote,
                 fontWeight: FontWeight.w600,
                 color: AppColors.iosGray,
               ),
@@ -316,7 +318,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                     ? const CupertinoActivityIndicator(radius: 8)
                     : Text(
                         t.common.momentsLoadMoreComments,
-                        style: TextStyle(fontSize: FontSizeType.normal.size),
+                        style: context.textStyle(FontSizeType.normal),
                       ),
               ),
             ),
@@ -372,15 +374,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                   children: [
                     Text(
                       displayName,
-                      style: TextStyle(
-                        fontSize: FontSizeType.body.size,
+                      style: context.textStyle(
+                        FontSizeType.body,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
                       parseModelString(post['created_at']),
-                      style: TextStyle(
-                        fontSize: FontSizeType.footnote.size,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
                         color: AppColors.iosGray,
                       ),
                     ),
@@ -394,10 +396,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
               padding: const EdgeInsets.only(top: 16),
               child: Text(
                 content,
-                style: TextStyle(
-                  fontSize: FontSizeType.medium.size,
-                  height: 1.4,
-                ),
+                style: context
+                    .textStyle(FontSizeType.medium)
+                    .copyWith(height: 1.4),
               ),
             ),
           if (media.isNotEmpty)
@@ -434,24 +435,46 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     BuildContext context,
     List<Map<String, dynamic>> media,
   ) {
-    if (media.length == 1) return _buildMediaItem(media.first, 240);
+    final imageUrls = media
+        .where((m) => parseModelString(m['type']) != 'video')
+        .map(pickMediaPreviewUrl)
+        .where((u) => u.isNotEmpty)
+        .toList();
+    if (media.length == 1) {
+      final isVideo = parseModelString(media.first['type']) == 'video';
+      return _buildMediaItem(
+        media.first,
+        240,
+        isVideo ? const [] : imageUrls,
+        0,
+      );
+    }
+    int imgIdx = 0;
+    final cellSize = (MediaQuery.of(context).size.width - 64) / 3;
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: media
-          .map(
-            (m) => _buildMediaItem(
-              m,
-              (MediaQuery.of(context).size.width - 64) / 3,
-            ),
-          )
-          .toList(),
+      children: media.map((m) {
+        final isVideo = parseModelString(m['type']) == 'video';
+        final idx = isVideo ? 0 : imgIdx++;
+        return _buildMediaItem(
+          m,
+          cellSize,
+          isVideo ? const [] : imageUrls,
+          idx,
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildMediaItem(Map<String, dynamic> item, double size) {
+  Widget _buildMediaItem(
+    Map<String, dynamic> item,
+    double size,
+    List<String> imageUrls,
+    int imageIndex,
+  ) {
     final previewUrl = pickMediaPreviewUrl(item);
-    return Container(
+    final child = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
@@ -460,6 +483,12 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       ),
       clipBehavior: Clip.antiAlias,
       child: Image(image: cachedImageProvider(previewUrl), fit: BoxFit.cover),
+    );
+    if (imageUrls.isEmpty) return child;
+    return GestureDetector(
+      onTap: () =>
+          zoomInPhotoViewGalleryWithInitialPage(context, imageUrls, imageIndex),
+      child: child,
     );
   }
 
@@ -478,8 +507,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
           const SizedBox(width: 6),
           Text(
             label,
-            style: TextStyle(
-              fontSize: FontSizeType.normal.size,
+            style: context.textStyle(
+              FontSizeType.normal,
               color: color,
               fontWeight: FontWeight.w600,
             ),
@@ -527,14 +556,14 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       ),
       title: Text(
         displayName,
-        style: TextStyle(
-          fontSize: FontSizeType.subheadline.size,
+        style: context.textStyle(
+          FontSizeType.subheadline,
           fontWeight: FontWeight.w600,
         ),
       ),
       subtitle: Text(
         subtitleText,
-        style: TextStyle(fontSize: FontSizeType.normal.size, height: 1.3),
+        style: context.textStyle(FontSizeType.normal).copyWith(height: 1.3),
       ),
       trailing: canDeleteComment(comment, _moment!, currentUid: currentUid)
           ? CupertinoButton(
@@ -587,8 +616,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                         '{name}',
                         _replyToName,
                       ),
-                      style: TextStyle(
-                        fontSize: FontSizeType.small.size,
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: AppColors.iosGray,
                       ),
                     ),
@@ -621,12 +650,12 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       hintText: t.discovery.momentsWriteComment,
                       border: InputBorder.none,
                       isDense: true,
-                      hintStyle: TextStyle(
-                        fontSize: FontSizeType.subheadline.size,
+                      hintStyle: context.textStyle(
+                        FontSizeType.subheadline,
                         color: AppColors.iosGray,
                       ),
                     ),
-                    style: TextStyle(fontSize: FontSizeType.subheadline.size),
+                    style: context.textStyle(FontSizeType.subheadline),
                   ),
                 ),
               ),

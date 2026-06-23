@@ -237,10 +237,8 @@ Future<void> zoomInPhotoView(BuildContext context, String thumb) async {
     context: context,
     isScrollControlled: true,
     enableDrag: false,
-    builder: (context) => InkWell(
-      onTap: () {
-        Navigator.of(context).pop();
-      },
+    builder: (context) => GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
       child: PhotoView(imageProvider: thumbProvider),
     ),
   );
@@ -263,10 +261,8 @@ Future<void> zoomInPhotoViewGallery(
     context: context,
     isScrollControlled: true,
     enableDrag: false,
-    builder: (context) => InkWell(
-      onTap: () {
-        Navigator.of(context).pop();
-      },
+    builder: (context) => GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
       child: PhotoViewGallery.builder(
         scrollPhysics: const BouncingScrollPhysics(),
         builder: (BuildContext context, int index) {
@@ -318,10 +314,8 @@ Future<void> zoomInPhotoViewGalleryWithInitialPage(
     context: context,
     isScrollControlled: true,
     enableDrag: false,
-    builder: (context) => InkWell(
-      onTap: () {
-        Navigator.of(context).pop();
-      },
+    builder: (context) => GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
       child: PhotoViewGallery.builder(
         scrollPhysics: const BouncingScrollPhysics(),
         builder: (BuildContext context, int index) {

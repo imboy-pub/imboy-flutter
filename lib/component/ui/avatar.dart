@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/image_gallery/image_gallery.dart'
+    show zoomInPhotoView;
 
 import 'avatar_group.dart';
 
@@ -139,7 +141,10 @@ class Avatar extends StatelessWidget {
     }
 
     return InkWell(
-      onTap: onTap,
+      // 默认行为：点击头像放大预览（双指缩放）。传了自定义 onTap 则优先用调用方的。
+      onTap:
+          onTap ??
+          (imgUri.isNotEmpty ? () => zoomInPhotoView(context, imgUri) : null),
       borderRadius: BorderRadius.circular(radius),
       child: Wrap(
         verticalDirection: VerticalDirection.down,
