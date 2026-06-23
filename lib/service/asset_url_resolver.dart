@@ -26,7 +26,7 @@ class _CachedUrl {
 
 /// object_key → 短时 presigned GET URL 解析器。
 ///
-/// - 异步：经后端 `GET /v1/attachment/view_url` 换取 600s 短时签发 URL。
+/// - 异步：经后端 `GET /api/v1/attachment/view_url` 换取 600s 短时签发 URL。
 /// - TTL 缓存：本地缓存 540s（提前 60s 失效，规避临界过期）。
 /// - 并发合并：同一 object_key 的并发请求复用同一次网络往返。
 ///
@@ -99,7 +99,7 @@ class AssetUrlResolver {
     }
   }
 
-  /// 默认网络获取：`GET /v1/attachment/view_url?object_key=`（JWT，走 HttpClient）。
+  /// 默认网络获取：`GET /api/v1/attachment/view_url?object_key=`（JWT，走 HttpClient）。
   Future<String> _fetchFromBackend(String objectKey) async {
     final resp = await HttpClient.client.get(
       API.attachmentViewUrl,

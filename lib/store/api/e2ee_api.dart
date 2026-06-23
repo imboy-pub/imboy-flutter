@@ -27,7 +27,7 @@ class E2EEReportResult {
 class E2EEApi extends HttpClient {
   /// 上报当前设备的 E2EE 公钥
   ///
-  /// POST /v1/e2ee/report_device_key
+  /// POST /api/v1/e2ee/report_device_key
   ///
   /// 将当前设备的 E2EE 公钥上传到服务器，使其他用户可以发送加密消息
   ///
@@ -119,7 +119,7 @@ class E2EEApi extends HttpClient {
     return resp.payload as Map<String, dynamic>?;
   }
 
-  /// GET /v1/e2ee/key/status — 查询当前设备密钥的服务端注册状态
+  /// GET /api/v1/e2ee/key/status — 查询当前设备密钥的服务端注册状态
   ///
   /// 返回 {has_valid_key, recovery_options, recommended_method} 或 null
   Future<Map<String, dynamic>?> keyStatus() async {
@@ -129,7 +129,7 @@ class E2EEApi extends HttpClient {
     return p is Map<String, dynamic> ? p : null;
   }
 
-  /// GET /v1/e2ee/notifications/pull — 拉取待处理的 E2EE 通知
+  /// GET /api/v1/e2ee/notifications/pull — 拉取待处理的 E2EE 通知
   ///
   /// 支持增量拉取，返回好友的密钥变更记录
   Future<List<Map<String, dynamic>>> pullNotifications({

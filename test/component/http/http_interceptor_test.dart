@@ -28,7 +28,7 @@ void main() {
     test('业务 API host → false（仍需注入 JWT）', () {
       expect(
         isPublicStorageRequest(
-          Uri.parse('https://pro.imboy.pub/v1/attachment/confirm'),
+          Uri.parse('https://pro.imboy.pub/api/v1/attachment/confirm'),
           'https://s3.imboy.pub',
         ),
         isFalse,
@@ -47,7 +47,7 @@ void main() {
 
     test('base 为空 → false（不误伤业务请求）', () {
       expect(
-        isPublicStorageRequest(Uri.parse('https://pro.imboy.pub/v1/x'), ''),
+        isPublicStorageRequest(Uri.parse('https://pro.imboy.pub/api/v1/x'), ''),
         isFalse,
       );
     });

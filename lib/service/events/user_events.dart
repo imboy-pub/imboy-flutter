@@ -323,7 +323,7 @@ final class GroupEditEvent extends AppEvent {
 
 /// 群公告发布的广播事件（S2C `group_notice_published`）
 ///
-/// 触发时机：群主/管理员通过 `POST /v1/group/notice/publish` 发布新公告
+/// 触发时机：群主/管理员通过 `POST /api/v1/group/notice/publish` 发布新公告
 /// 后，后端向所有群成员广播。UI 层（GroupAnnouncementProvider）可订阅此
 /// 事件触发 REST 拉取刷新，或在聊天页显示 toast / 气泡提示。
 ///

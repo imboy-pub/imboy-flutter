@@ -426,8 +426,8 @@ class E2EEHealthCheckService {
 
   /// 获取 E2EE 系统的整体健康状态
   ///
-  /// 同时查询本地密钥状态、服务端注册状态（/v1/e2ee/key/status）
-  /// 和待处理通知（/v1/e2ee/notifications/pull）。
+  /// 同时查询本地密钥状态、服务端注册状态（/api/v1/e2ee/key/status）
+  /// 和待处理通知（/api/v1/e2ee/notifications/pull）。
   /// Returns: 健康状态 Map
   Future<Map<String, dynamic>> getHealthStatus() async {
     try {

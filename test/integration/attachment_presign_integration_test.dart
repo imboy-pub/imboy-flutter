@@ -47,7 +47,7 @@ void main() {
       test('presign → PUT → confirm → view_url → 读回一致 → 反向 403', () async {
         // 1. presign
         final pre = await dio.get<dynamic>(
-          '/v1/attachment/presign',
+          '/api/v1/attachment/presign',
           queryParameters: <String, dynamic>{
             'filename': 'it_test.png',
             'mime_type': 'image/png',
@@ -89,7 +89,7 @@ void main() {
 
         // 3. confirm 落库
         final confirm = await dio.post<dynamic>(
-          '/v1/attachment/confirm',
+          '/api/v1/attachment/confirm',
           data: <String, dynamic>{
             'object_key': objectKey,
             'md5': 'integration-md5',
@@ -104,7 +104,7 @@ void main() {
 
         // 4. view_url 签发
         final view = await dio.get<dynamic>(
-          '/v1/attachment/view_url',
+          '/api/v1/attachment/view_url',
           queryParameters: <String, dynamic>{'object_key': objectKey},
         );
         final viewBody = view.data is String

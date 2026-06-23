@@ -3,7 +3,7 @@
 /// 职责：
 ///   1. 暴露 `state` 给 UI（[QrLoginConfirmState] sealed 变体）
 ///   2. 暴露 `scan(qrToken)` / `confirm(qrToken)` / `cancelByMe()` 三个动作
-///   3. 调用后端 `/v1/passport/qr_login/{scan,confirm}` 后委托
+///   3. 调用后端 `/api/v1/passport/qr_login/{scan,confirm}` 后委托
 ///      [parseScanResponse] / [parseConfirmResponse] 转换为状态
 ///
 /// 不做（避免与 Web 端 [QRLogin] Notifier 行为重叠）：
@@ -26,8 +26,8 @@ import 'package:imboy/page/scanner/qr_login_confirm_rules.dart';
 part 'qr_login_confirm_provider.g.dart';
 
 /// 后端 QR 登录路由（与 `imboy/src/imboy_router.erl:184-188` 对齐）。
-const String _kQrLoginScanPath = '/v1/passport/qr_login/scan';
-const String _kQrLoginConfirmPath = '/v1/passport/qr_login/confirm';
+const String _kQrLoginScanPath = '/api/v1/passport/qr_login/scan';
+const String _kQrLoginConfirmPath = '/api/v1/passport/qr_login/confirm';
 
 /// QR 登录确认状态 Notifier。
 ///

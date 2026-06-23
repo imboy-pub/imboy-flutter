@@ -142,7 +142,7 @@ class ContactModel extends ISuspensionBean {
       }
     }
 
-    // updated_at 缺失时回退到 created_at：对齐后端 /v1/friend/list SELECT
+    // updated_at 缺失时回退到 created_at：对齐后端 /api/v1/friend/list SELECT
     // 仅返回 f.created_at（imboy/src/ds/friend_ds.erl:315），避免 UI 侧显示
     // "刚刚" 之类的虚假时间戳。两者都缺才回退到 DateTime.now()。
     final updateAt = parseModelDateTime(

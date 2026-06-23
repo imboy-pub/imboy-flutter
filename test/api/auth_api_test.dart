@@ -80,7 +80,7 @@ void main() {
         deviceId: 'e2e-noauth-test',
       );
       try {
-        final resp = await noAuthClient.get('/v1/user/show');
+        final resp = await noAuthClient.get('/api/v1/user/show');
         expect(resp['code'], isNot(0), reason: '未认证访问受保护接口应返回错误 code');
       } finally {
         noAuthClient.close();
@@ -90,13 +90,13 @@ void main() {
 
   group('App 初始化配置', () {
     test('2.1 init_config 无需认证可达，返回 code=0', () async {
-      final resp = await client.get('/v1/init');
+      final resp = await client.get('/api/v1/init');
       expect(resp, containsPair('code', 0), reason: 'init_config 应返回 code=0');
     });
 
     test('2.2 版本检查响应包含 updatable 字段', () async {
       final resp = await client.get(
-        '/v1/app_version/check',
+        '/api/v1/app_version/check',
         queryParameters: {'vsn': '0.1.0'},
       );
       expect(resp, containsPair('code', isA<int>()));
@@ -111,7 +111,7 @@ void main() {
 
     test('2.3 极高版本号不触发更新', () async {
       final resp = await client.get(
-        '/v1/app_version/check',
+        '/api/v1/app_version/check',
         queryParameters: {'vsn': '99.99.99'},
       );
       if (resp['code'] == 0 && resp['data'] is Map) {
@@ -131,7 +131,7 @@ void main() {
         return;
       }
       final resp = await client.get(
-        '/v1/user/show',
+        '/api/v1/user/show',
         queryParameters: {'uid': client.currentUid},
       );
       ApiAssert.success(resp, context: '获取用户信息');
@@ -141,7 +141,7 @@ void main() {
 
   group('错误处理', () {
     test('4.1 无效路径 — 返回非 0 code', () async {
-      final resp = await client.get('/v1/nonexistent_e2e_endpoint_xyz');
+      final resp = await client.get('/api/v1/nonexistent_e2e_endpoint_xyz');
       expect(resp['code'], isNot(0), reason: '无效路径应返回错误');
     });
   });

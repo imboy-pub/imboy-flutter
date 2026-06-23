@@ -122,7 +122,7 @@ class GroupMemberApi extends HttpClient {
   /// [gid] 群组 ID。
   /// [userId] 成员用户 ID。
   ///
-  /// 对应后端（slice-9b）：`POST /v1/group_member/unmute`，将 `mute_until`
+  /// 对应后端（slice-9b）：`POST /api/v1/group_member/unmute`，将 `mute_until`
   /// 设为 0 / NULL 并广播 `group_member_mute` 通知（mute_until=0）让客户端
   /// 同步本地 Repo。
   Future<bool> unmute({required String gid, required String userId}) async {

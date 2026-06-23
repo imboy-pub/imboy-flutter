@@ -8,7 +8,7 @@ import 'package:imboy/config/const.dart';
 class MsgApi extends HttpClient {
   /// 查询会话消息历史（conv_seq 游标分页）
   ///
-  /// 后端接口：GET /v1/msg/history
+  /// 后端接口：GET /api/v1/msg/history
   ///
   /// 参数：
   /// - [chatType]  会话类型，'c2c' 或 'c2g'

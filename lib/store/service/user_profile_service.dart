@@ -5,7 +5,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// 用户资料更新服务。
 ///
-/// 统一封装「PUT /v1/user/update 更新单个字段 + 同步本地 UserRepoLocal 缓存」逻辑，
+/// 统一封装「PUT /api/v1/user/update 更新单个字段 + 同步本地 UserRepoLocal 缓存」逻辑，
 /// 消除 PersonalInfoPage 与 ProfilePage 各自手写、且行为不一致的重复实现（DRY）。
 ///
 /// 隐私设置类字段写入 `payload['setting']`，其余字段写顶层，与后端数据结构对齐。

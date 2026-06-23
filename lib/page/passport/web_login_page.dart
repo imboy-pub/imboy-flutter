@@ -135,7 +135,7 @@ class QRLogin extends _$QRLogin {
 
       // 调用后端 API 生成登录 QR 码
       final response = await HttpClient.client.post(
-        '/v1/passport/qr_login/create',
+        '/api/v1/passport/qr_login/create',
         data: {
           'device_id': _webDeviceId,
           'device_name': 'Web Browser',
@@ -193,7 +193,7 @@ class QRLogin extends _$QRLogin {
 
       try {
         final response = await HttpClient.client.get(
-          '/v1/passport/qr_login/status',
+          '/api/v1/passport/qr_login/status',
           queryParameters: {'session_token': state.sessionToken},
         );
 
@@ -340,7 +340,8 @@ class QRLogin extends _$QRLogin {
       },
     );
     _sseSession = session;
-    final url = '/v1/passport/qr_login/subscribe?session_token=$sessionToken';
+    final url =
+        '/api/v1/passport/qr_login/subscribe?session_token=$sessionToken';
     unawaited(session.start(url, gracePeriodSeconds: gracePeriodSeconds));
   }
 

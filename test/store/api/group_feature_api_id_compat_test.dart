@@ -208,7 +208,7 @@ void main() {
 
         expect(result, isNotNull);
         expect(api.lastMethod, 'GET');
-        expect(api.lastUri, '/v1/group_schedule/detail');
+        expect(api.lastUri, '/api/v1/group_schedule/detail');
         expect(api.lastQuery?['group_id'], 'group_test_id');
         expect(api.lastQuery?['schedule_id'], 'sched_abc123');
       },
@@ -223,7 +223,7 @@ void main() {
 
         expect(ok, isTrue);
         expect(api.lastMethod, 'POST');
-        expect(api.lastUri, '/v1/group_schedule/cancel');
+        expect(api.lastUri, '/api/v1/group_schedule/cancel');
         expect(api.lastData['schedule_id'], '42');
       },
     );
@@ -254,7 +254,7 @@ void main() {
 
       expect(result, isNotNull);
       expect(api.lastMethod, 'GET');
-      expect(api.lastUri, '/v1/group/task/detail');
+      expect(api.lastUri, '/api/v1/group/task/detail');
       expect(api.lastQuery?['task_id'], 'hZ9Pq1');
     });
 
@@ -269,7 +269,7 @@ void main() {
 
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
-      expect(api.lastUri, '/v1/group/task/submit');
+      expect(api.lastUri, '/api/v1/group/task/submit');
       expect(api.lastData['task_id'], 'task_7f1b');
       expect(api.lastData['content'], 'done');
     });
@@ -285,7 +285,7 @@ void main() {
 
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
-      expect(api.lastUri, '/v1/group/task/review');
+      expect(api.lastUri, '/api/v1/group/task/review');
       expect(api.lastData['assignment_id'], 'assign_test_id');
       expect(api.lastData['score'], 1);
     });
@@ -324,7 +324,7 @@ void main() {
       );
 
       expect(api.lastMethod, 'GET');
-      expect(api.lastUri, '/v1/group/file/list');
+      expect(api.lastUri, '/api/v1/group/file/list');
       expect(api.lastQuery?['gid'], 'gid_test_id');
       expect(api.lastQuery?['page'], 2);
       expect(api.lastQuery?['size'], 10);
@@ -362,7 +362,7 @@ void main() {
       final ok = await api.deleteFile(11);
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
-      expect(api.lastUri, '/v1/group/file/delete');
+      expect(api.lastUri, '/api/v1/group/file/delete');
       expect(api.lastData['file_id'], '11');
     });
 
@@ -379,7 +379,7 @@ void main() {
         final stats = await api.getCategoryStats(groupId: 'gid_test_id');
 
         expect(api.lastMethod, 'GET');
-        expect(api.lastUri, '/v1/group/file/categories');
+        expect(api.lastUri, '/api/v1/group/file/categories');
         expect(api.lastQuery?['gid'], 'gid_test_id');
         expect(stats.length, 1);
         expect(stats.first['category'], 'document');
@@ -404,7 +404,7 @@ void main() {
       );
 
       expect(api.lastMethod, 'GET');
-      expect(api.lastUri, '/v1/group/file/search');
+      expect(api.lastUri, '/api/v1/group/file/search');
       expect(api.lastQuery?['gid'], 'gid_test_id');
       expect(api.lastQuery?['keyword'], '设计文档');
       expect(api.lastQuery?['page'], 2);
@@ -454,7 +454,7 @@ void main() {
 
         expect(result, isNotNull);
         expect(api.lastMethod, 'POST');
-        expect(api.lastUri, '/v1/group/file/upload');
+        expect(api.lastUri, '/api/v1/group/file/upload');
         final formData = api.lastData as FormData;
         final fields = Map<String, String>.fromEntries(formData.fields);
         expect(fields['gid'], 'gid_test_id');
@@ -482,7 +482,7 @@ void main() {
       );
 
       expect(api.lastMethod, 'GET');
-      expect(api.lastUri, '/v1/group_album/list');
+      expect(api.lastUri, '/api/v1/group_album/list');
       expect(api.lastQuery?['gid'], 'gid_test_id');
       expect(api.lastQuery?['page'], 3);
       expect(api.lastQuery?['size'], 15);
@@ -516,7 +516,7 @@ void main() {
       final ok = await api.deleteAlbum('alb_test_id');
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
-      expect(api.lastUri, '/v1/group_album/delete');
+      expect(api.lastUri, '/api/v1/group_album/delete');
       expect(api.lastData['album_id'], 'alb_test_id');
     });
 
@@ -534,7 +534,7 @@ void main() {
 
       expect(result, isNotNull);
       expect(api.lastMethod, 'POST');
-      expect(api.lastUri, '/v1/group_album/create');
+      expect(api.lastUri, '/api/v1/group_album/create');
       expect(api.lastData['gid'], 'gid_test_id');
       expect(api.lastData['album_name'], '项目资料');
     });
@@ -559,7 +559,7 @@ void main() {
 
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
-      expect(api.lastUri, '/v1/group_album/rename');
+      expect(api.lastUri, '/api/v1/group_album/rename');
       expect(api.lastData['album_id'], 'alb_test_id');
       expect(api.lastData['album_name'], '新名字');
     });
@@ -601,7 +601,7 @@ void main() {
 
       expect(result, isNotNull);
       expect(api.lastMethod, 'POST');
-      expect(api.lastUri, '/v1/group_album/photo/upload');
+      expect(api.lastUri, '/api/v1/group_album/photo/upload');
       final formData = api.lastData as FormData;
       final fields = Map<String, String>.fromEntries(formData.fields);
       expect(fields['gid'], 'gid_test_id');
@@ -626,7 +626,7 @@ void main() {
       );
 
       expect(api.lastMethod, 'GET');
-      expect(api.lastUri, '/v1/group_album/photo/list');
+      expect(api.lastUri, '/api/v1/group_album/photo/list');
       expect(api.lastQuery?['album_id'], 'alb_test_id');
       expect(api.lastQuery?['page'], 2);
       expect(api.lastQuery?['size'], 6);
@@ -653,7 +653,7 @@ void main() {
 
       expect(detail, isNotNull);
       expect(api.lastMethod, 'GET');
-      expect(api.lastUri, '/v1/group_album/photo/detail');
+      expect(api.lastUri, '/api/v1/group_album/photo/detail');
       expect(api.lastQuery?['photo_id'], '101');
       expect(detail?['id'], 101);
     });
@@ -670,7 +670,7 @@ void main() {
       final ok = await api.deletePhoto(101);
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
-      expect(api.lastUri, '/v1/group_album/photo/delete');
+      expect(api.lastUri, '/api/v1/group_album/photo/delete');
       expect(api.lastData['photo_id'], '101');
     });
 
@@ -680,7 +680,7 @@ void main() {
 
       expect(ok, isTrue);
       expect(api.lastMethod, 'POST');
-      expect(api.lastUri, '/v1/group_album/cover/update');
+      expect(api.lastUri, '/api/v1/group_album/cover/update');
       expect(api.lastData['album_id'], '9');
       expect(api.lastData['photo_id'], '101');
     });

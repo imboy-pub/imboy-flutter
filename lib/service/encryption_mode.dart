@@ -84,7 +84,7 @@ extension EncryptionModeExt on EncryptionMode {
 
 /// 全局加密模式服务
 ///
-/// 从后端 /v1/app/policy API 获取当前部署的加密策略，
+/// 从后端 /api/v1/app/policy API 获取当前部署的加密策略，
 /// 供 E2EEService 和消息发送流程参考。
 class EncryptionModeService {
   EncryptionModeService._();

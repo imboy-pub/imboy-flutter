@@ -146,7 +146,7 @@ String _fallbackForCode(int code) {
   }
 }
 
-/// 解析 `POST /v1/passport/qr_login/scan` 响应。
+/// 解析 `POST /api/v1/passport/qr_login/scan` 响应。
 ///
 /// 成功路径：`ok && code==0 && payload.status == "scanned"` → AwaitingConfirm，
 /// 同时尽力解析 device_name / platform 填充 deviceInfo。
@@ -168,7 +168,7 @@ QrLoginConfirmState parseScanResponse({
   return mapQrLoginErrorCode(code, errorMessage);
 }
 
-/// 解析 `POST /v1/passport/qr_login/confirm` 响应。
+/// 解析 `POST /api/v1/passport/qr_login/confirm` 响应。
 ///
 /// 成功路径：`ok && code==0 && payload.status == "confirmed"` → Success。
 QrLoginConfirmState parseConfirmResponse({

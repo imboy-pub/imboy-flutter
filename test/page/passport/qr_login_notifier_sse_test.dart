@@ -17,8 +17,10 @@ import 'package:imboy/page/passport/sse_client.dart';
 import 'package:imboy/page/passport/web_login_page.dart';
 
 class FakeSseClient implements SseClient {
-  final StreamController<String> _framesCtrl = StreamController<String>.broadcast();
-  final StreamController<Object> _errorsCtrl = StreamController<Object>.broadcast();
+  final StreamController<String> _framesCtrl =
+      StreamController<String>.broadcast();
+  final StreamController<Object> _errorsCtrl =
+      StreamController<Object>.broadcast();
   bool _isOpen = false;
   bool closed = false;
   int connectCalls = 0;
@@ -89,8 +91,10 @@ void main() {
       notifier.startSseSession('my_session_xyz');
       await Future<dynamic>.delayed(Duration.zero);
 
-      expect(fake.lastUrl,
-          '/v1/passport/qr_login/subscribe?session_token=my_session_xyz');
+      expect(
+        fake.lastUrl,
+        '/api/v1/passport/qr_login/subscribe?session_token=my_session_xyz',
+      );
     });
 
     test('重复调 startSseSession → 旧 session 被 close', () async {

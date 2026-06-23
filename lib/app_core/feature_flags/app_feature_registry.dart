@@ -19,7 +19,7 @@ class AppFeatureRegistry {
   /// 解除：后端 API 就绪后删除对应 key，功能代码无需恢复。
   /// 详见 docs/feature-status.md § 待后端支持（前端隐藏）
   static const Set<String> _localDisabledKeys = {
-    // 钱包已解禁：后端 /v1/wallet/{balance,transactions,recharge/*} 已实现并通过测试，
+    // 钱包已解禁：后端 /api/v1/wallet/{balance,transactions,recharge/*} 已实现并通过测试，
     // 沙箱(mock)模式可走通充值闭环；真实支付 SDK(fluwx/tobias/flutter_stripe)待接入。
     FeatureKeys.liveRoom, // 后端待实现：WHIP 服务器 + 直播列表 API
   };

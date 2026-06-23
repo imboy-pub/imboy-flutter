@@ -117,7 +117,7 @@ abstract interface class Env implements EnvField {
 
   /// 公开资源（scope=public，如头像/表情）直读基址。
   ///
-  /// 优先用服务端 `/v1/init` 下发值（initConfig 写入 StorageService），未下发时
+  /// 优先用服务端 `/api/v1/init` 下发值（initConfig 写入 StorageService），未下发时
   /// 回退到内置默认，确保首次启动（init 完成前）头像即可渲染。末尾不带斜杠，
   /// 供 `AssetsService.publicUrl` 直拼 object_key（零 DB 查询、不签名、可 CDN）。
   static String get publicBaseUrl {

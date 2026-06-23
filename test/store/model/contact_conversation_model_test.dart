@@ -44,10 +44,10 @@ void main() {
       expect(model.isFrom, 1);
     });
 
-    // 真实 /v1/friend/list 响应切片（2026-04-19 curl 实捕）
+    // 真实 /api/v1/friend/list 响应切片（2026-04-19 curl 实捕）
     // 关键特征：id 是 int BIGINT；updated_at 缺失；is_from/source/last_seen_at = null
     test(
-      'accepts real /v1/friend/list payload without throw (TSID int, missing updated_at, null fields)',
+      'accepts real /api/v1/friend/list payload without throw (TSID int, missing updated_at, null fields)',
       () {
         final realJson = <String, dynamic>{
           'account': '60002',

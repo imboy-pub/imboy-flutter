@@ -11,7 +11,7 @@
 /// 优势：
 ///   - 与已有 HTTP URL QR 命名空间隔离，零冲突
 ///   - scheme 大小写不敏感（RFC 3986 § 6.2.2.1），用户/扫码器随意大小写
-///   - token 透传到后端 `/v1/passport/qr_login/scan`，本端不做 base64 校验
+///   - token 透传到后端 `/api/v1/passport/qr_login/scan`，本端不做 base64 校验
 ///
 /// 兼容形式 2（备用）：HTTP(S) URL with `/qr_login_qr` path + `?token=` query，
 /// 供未来后端短链网关使用。
@@ -40,7 +40,7 @@ sealed class QrLoginIntent {
   const QrLoginIntent();
 }
 
-/// Web 端登录 QR，token 字段透传给后端 `/v1/passport/qr_login/{scan,confirm}`。
+/// Web 端登录 QR，token 字段透传给后端 `/api/v1/passport/qr_login/{scan,confirm}`。
 final class QrLoginIntentWebLogin extends QrLoginIntent {
   const QrLoginIntentWebLogin(this.qrToken);
 

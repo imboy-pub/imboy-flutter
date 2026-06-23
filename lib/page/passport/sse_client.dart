@@ -23,7 +23,7 @@ import 'sse_client_io.dart' if (dart.library.html) 'sse_client_web.dart';
 /// final client = createSseClient();
 /// final framesSub = client.frames.listen(_handleFrame);
 /// final errorsSub = client.errors.listen(_handleError);
-/// await client.connect('/v1/passport/qr_login/subscribe?session_token=xxx');
+/// await client.connect('/api/v1/passport/qr_login/subscribe?session_token=xxx');
 /// ...
 /// await client.close();
 /// framesSub.cancel(); errorsSub.cancel();

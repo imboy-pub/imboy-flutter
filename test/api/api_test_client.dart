@@ -101,7 +101,7 @@ class ApiTestClient {
   }) async {
     _log('登录: $account');
     final resp = await _dio.post<dynamic>(
-      '/v1/passport/login',
+      '/api/v1/passport/login',
       data: {
         'account': account,
         'pwd': password,
@@ -126,7 +126,7 @@ class ApiTestClient {
     final h = _defaultHeaders();
     if (_refreshToken != null) h['imboy-refreshtoken'] = _refreshToken!;
     final resp = await _dio.post<dynamic>(
-      '/v1/refreshtoken',
+      '/api/v1/refreshtoken',
       options: Options(headers: h),
     );
     final body = _parse(resp);

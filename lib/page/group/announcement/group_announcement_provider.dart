@@ -97,11 +97,11 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
-      // B-6-1 修复：后端无 /v1/group/notice/list 路由，正确路径是
-      // /v1/group_notice/page（imboy_router.erl:355；handler page/3 GET）。
+      // B-6-1 修复：后端无 /api/v1/group/notice/list 路由，正确路径是
+      // /api/v1/group_notice/page（imboy_router.erl:355；handler page/3 GET）。
       // QS: gid/page/size；响应 payload: {list,total,page,size}。
       final response = await HttpClient.client.get(
-        '/v1/group_notice/page',
+        '/api/v1/group_notice/page',
         queryParameters: {
           'gid': groupId,
           'page': currentPage,
@@ -200,7 +200,7 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
           expiredAt ??
           DateTime.now().add(const Duration(days: 365)).millisecondsSinceEpoch;
       final response = await HttpClient.client.post(
-        '/v1/group_notice/add',
+        '/api/v1/group_notice/add',
         data: {
           'gid': groupId,
           'title': buildNoticeTitle(content),
@@ -225,7 +225,7 @@ class GroupAnnouncementNotifier extends _$GroupAnnouncementNotifier {
   Future<bool> deleteAnnouncement(String announcementId) async {
     try {
       final response = await HttpClient.client.post(
-        '/v1/group_notice/delete',
+        '/api/v1/group_notice/delete',
         data: {'notice_id': announcementId},
       );
 

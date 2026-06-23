@@ -65,7 +65,7 @@ final class QrCreateFailure extends QrCreateResult {
 /// 后端默认 QR 过期秒数（对齐 `qr_login_handler.erl:101` 的 60s TTL）。
 const int _kDefaultExpiresInSeconds = 60;
 
-/// 解析 `POST /v1/passport/qr_login/create` 的响应。
+/// 解析 `POST /api/v1/passport/qr_login/create` 的响应。
 ///
 /// - HTTP 错误（`ok=false`）→ [QrCreateFailure]
 /// - payload 非 `Map<String, dynamic>` 或缺关键字段 / 空字段 → [QrCreateFailure]
@@ -147,7 +147,7 @@ final class QrStatusUnknown extends QrStatusEvent {
   final String? rawStatus;
 }
 
-/// 解析 `GET /v1/passport/qr_login/status` 的响应。
+/// 解析 `GET /api/v1/passport/qr_login/status` 的响应。
 ///
 /// - `ok=false` 或 `code≠0` → [QrStatusStopPolling]（停止轮询，避免攻击会话）
 /// - payload 非 `Map<String, dynamic>` → [QrStatusStopPolling]

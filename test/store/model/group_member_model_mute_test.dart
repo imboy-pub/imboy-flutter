@@ -2,7 +2,7 @@
 ///
 /// 背景：后端迁移 `priv/migrations/00000051_group_member_mute.sql` 给
 /// `group_member` 增加了 `mute_until TIMESTAMPTZ NULL` 列，API
-/// `POST /v1/group_member/mute` 以及 S2C 通知 `group_member_mute` 都
+/// `POST /api/v1/group_member/mute` 以及 S2C 通知 `group_member_mute` 都
 /// 会下发 `mute_until`。客户端必须：
 ///   1. 能正确持有该字段（nullable，缺省 null 表示未禁言）
 ///   2. 在 JSON 往返中保持语义（null/int ms/RFC3339 三种输入形态）

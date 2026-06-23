@@ -1,4 +1,4 @@
-/// Task #19 复现 + 回归保护：`/v1/friend/list` 拉取后本地 contact 表 0 行 bug。
+/// Task #19 复现 + 回归保护：`/api/v1/friend/list` 拉取后本地 contact 表 0 行 bug。
 ///
 /// 根因（双 RED）：
 ///
@@ -17,7 +17,7 @@
 /// 本测试套件：
 ///   1. 复刻 baseline_schema.sql 的 contact 表 schema（含 uk_FromTo）
 ///      + 复刻 ContactRepo.insert() 的 map 构造 → in-memory SQLite ffi
-///   2. 钉死真实 /v1/friend/list 单条 payload 一定可以落库（基线绿）
+///   2. 钉死真实 /api/v1/friend/list 单条 payload 一定可以落库（基线绿）
 ///   3. 模拟"同好友被后端重复返回"场景 → 当前 txn.insert 无 replace 会抛
 ///      → 修复后必须用 replace 算法 → 第二次成功落库（覆盖）
 ///   4. 钉死 NOT NULL 列默认值（status / sign / source）不会因 null 输入
@@ -109,7 +109,7 @@ Map<String, Object?> _buildInsertMap({
   };
 }
 
-/// 真实 /v1/friend/list 响应切片（与 contact_conversation_model_test 一致）。
+/// 真实 /api/v1/friend/list 响应切片（与 contact_conversation_model_test 一致）。
 Map<String, dynamic> _realFriendJson({int id = 1000000056}) {
   return <String, dynamic>{
     'account': '60002',
@@ -132,7 +132,7 @@ Map<String, dynamic> _realFriendJson({int id = 1000000056}) {
 }
 
 void main() {
-  group('Task #19 - /v1/friend/list 落库链路', () {
+  group('Task #19 - /api/v1/friend/list 落库链路', () {
     test('基线：真实后端 payload 单条 → 落库成功（peer_id 列正确）', () async {
       final db = await _openDb();
       try {
@@ -159,31 +159,25 @@ void main() {
       }
     });
 
-    test(
-      'BUG #19 反例钉死：不传 conflictAlgorithm 时 uk_FromTo UNIQUE 必然抛错',
-      () async {
-        // 该测试用于证明"修复前的语义陷阱真实存在"：在 in-memory 数据库上
-        // 直接复现重复 INSERT 不传 ConflictAlgorithm.replace 的失败路径，
-        // 防止未来回归（即有人误删 ContactRepo.insert 的 replace 算法时）
-        // 仅靠正向用例无法察觉。
-        final db = await _openDb();
-        try {
-          final map = _buildInsertMap(
-            currentUid: '999',
-            json: _realFriendJson(),
-          );
-          await db.insert('contact', map); // 第一次：无 conflictAlgorithm
+    test('BUG #19 反例钉死：不传 conflictAlgorithm 时 uk_FromTo UNIQUE 必然抛错', () async {
+      // 该测试用于证明"修复前的语义陷阱真实存在"：在 in-memory 数据库上
+      // 直接复现重复 INSERT 不传 ConflictAlgorithm.replace 的失败路径，
+      // 防止未来回归（即有人误删 ContactRepo.insert 的 replace 算法时）
+      // 仅靠正向用例无法察觉。
+      final db = await _openDb();
+      try {
+        final map = _buildInsertMap(currentUid: '999', json: _realFriendJson());
+        await db.insert('contact', map); // 第一次：无 conflictAlgorithm
 
-          await expectLater(
-            db.insert('contact', map), // 第二次：仍无 conflictAlgorithm
-            throwsA(isA<DatabaseException>()),
-            reason: '反例钉死：不传 ConflictAlgorithm 时必抛 UNIQUE 约束错误',
-          );
-        } finally {
-          await db.close();
-        }
-      },
-    );
+        await expectLater(
+          db.insert('contact', map), // 第二次：仍无 conflictAlgorithm
+          throwsA(isA<DatabaseException>()),
+          reason: '反例钉死：不传 ConflictAlgorithm 时必抛 UNIQUE 约束错误',
+        );
+      } finally {
+        await db.close();
+      }
+    });
 
     test(
       'BUG #19 修复钉死：txn.insert(conflictAlgorithm: replace) → 重复 payload 覆盖更新',
@@ -260,32 +254,29 @@ void main() {
       },
     );
 
-    test(
-      '批量场景：listFriend 返回 3 条好友，全部落库 → count=3',
-      () async {
-        final db = await _openDb();
-        try {
-          final ids = [1000000001, 1000000002, 1000000003];
-          for (final id in ids) {
-            final map = _buildInsertMap(
-              currentUid: '999',
-              json: _realFriendJson(id: id),
-            );
-            await db.insert(
-              'contact',
-              map,
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-          }
-          expect(
-            await _countContact(db),
-            3,
-            reason: 'Task #19 报告"0 行落库" — 钉死正常路径必须 = 3',
+    test('批量场景：listFriend 返回 3 条好友，全部落库 → count=3', () async {
+      final db = await _openDb();
+      try {
+        final ids = [1000000001, 1000000002, 1000000003];
+        for (final id in ids) {
+          final map = _buildInsertMap(
+            currentUid: '999',
+            json: _realFriendJson(id: id),
           );
-        } finally {
-          await db.close();
+          await db.insert(
+            'contact',
+            map,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
         }
-      },
-    );
+        expect(
+          await _countContact(db),
+          3,
+          reason: 'Task #19 报告"0 行落库" — 钉死正常路径必须 = 3',
+        );
+      } finally {
+        await db.close();
+      }
+    });
   });
 }

@@ -98,9 +98,9 @@ class AttachmentApi {
   ///
   /// 链路：
   /// 1. 前置校验文件大小（≤[maxUploadBytes]）与 MIME 白名单，不符立即抛错；
-  /// 2. `GET /v1/attachment/presign` 取 {put_url, object_key}（JWT，走 HttpClient）；
+  /// 2. `GET /api/v1/attachment/presign` 取 {put_url, object_key}（JWT，走 HttpClient）；
   /// 3. 裸 Dio PUT 直传 Garage（不注 JWT；进度回调 + 指数退避重试 [_putMaxAttempts] 次）；
-  /// 4. `POST /v1/attachment/confirm` 落 attachment 表（孤儿清理依赖此表）；
+  /// 4. `POST /api/v1/attachment/confirm` 落 attachment 表（孤儿清理依赖此表）；
   /// 5. 返回 object_key（消息体 uri 字段语义改为存 object_key）。
   ///
   /// 注意：旧 go-fastdfs 上传方法已下线删除（resource-access-control.md §10.5）。

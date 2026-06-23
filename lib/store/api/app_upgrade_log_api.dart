@@ -8,7 +8,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 /// 上报升级过程中的关键事件到服务端，用于版本分布统计和问题排查。
 /// 上报失败静默忽略，不影响用户体验。
 class AppUpgradeLogApi {
-  static const String _reportPath = '/v1/app_upgrade/report';
+  static const String _reportPath = '/api/v1/app_upgrade/report';
 
   /// 上报升级事件
   ///

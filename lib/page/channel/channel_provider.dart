@@ -253,7 +253,7 @@ class ChannelListNotifier extends _$ChannelListNotifier {
   /// 订阅频道
   ///
   /// 走 ChannelService.subscribeChannel 以保证：
-  ///   1. 调用 /v1/channel/:id/subscribe
+  ///   1. 调用 /api/v1/channel/:id/subscribe
   ///   2. 拉取频道信息并 saveChannel 到本地
   ///   3. saveSubscription 写入本地订阅表
   /// 旧实现直连 _api.subscribe 会跳过 2/3 步，导致冷启动后订阅关系丢失。

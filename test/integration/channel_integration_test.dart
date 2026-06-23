@@ -114,7 +114,7 @@ void main() {
 
         api.stub(
           method: 'POST',
-          path: '/v1/channel/create',
+          path: '/api/v1/channel/create',
           response: IMBoyHttpResponse.success({
             'id': 1001,
             'name': '稳定测试频道',
@@ -130,7 +130,7 @@ void main() {
         );
         api.stub(
           method: 'GET',
-          path: '/v1/channel/channel_1001',
+          path: '/api/v1/channel/channel_1001',
           response: IMBoyHttpResponse.success({
             'id': 1001,
             'name': '稳定测试频道',
@@ -146,12 +146,12 @@ void main() {
         );
         api.stub(
           method: 'POST',
-          path: '/v1/channel/channel_1001/subscribe',
+          path: '/api/v1/channel/channel_1001/subscribe',
           response: IMBoyHttpResponse.success({'ok': true}),
         );
         api.stub(
           method: 'GET',
-          path: '/v1/channels/subscribed',
+          path: '/api/v1/channels/subscribed',
           response: IMBoyHttpResponse.success({
             'list': [
               {
@@ -174,7 +174,7 @@ void main() {
         );
         api.stub(
           method: 'POST',
-          path: '/v1/channel/1001/message',
+          path: '/api/v1/channel/1001/message',
           response: IMBoyHttpResponse.success({
             'id': 5001,
             'channel_id': 1001,
@@ -199,7 +199,7 @@ void main() {
         expect(created.type, ChannelType.private);
         final createReq = api.lastRequest();
         expect(createReq.method, 'POST');
-        expect(createReq.path, '/v1/channel/create');
+        expect(createReq.path, '/api/v1/channel/create');
         expect(
           (createReq.data as Map<String, dynamic>)['custom_id'],
           'stable_channel_1001',
@@ -212,11 +212,14 @@ void main() {
         final detail = await api.getChannel('channel_1001');
         expect(detail, isNotNull);
         expect(detail!.isVerified, isTrue);
-        expect(api.lastRequest().path, '/v1/channel/channel_1001');
+        expect(api.lastRequest().path, '/api/v1/channel/channel_1001');
 
         final subscribed = await api.subscribe('channel_1001');
         expect(subscribed, isTrue);
-        expect(api.lastRequest().path, '/v1/channel/channel_1001/subscribe');
+        expect(
+          api.lastRequest().path,
+          '/api/v1/channel/channel_1001/subscribe',
+        );
 
         final subscribedPage = await api.getSubscribedChannelsPage(
           cursor: 'cursor_1',
@@ -226,7 +229,7 @@ void main() {
         expect(subscribedPage.hasMore, isTrue);
         expect(subscribedPage.nextCursor, 'cursor_2');
         final subscribedReq = api.lastRequest();
-        expect(subscribedReq.path, '/v1/channels/subscribed');
+        expect(subscribedReq.path, '/api/v1/channels/subscribed');
         expect(subscribedReq.queryParameters?['cursor'], 'cursor_1');
         expect(subscribedReq.queryParameters?['limit'], 20);
 
@@ -238,7 +241,7 @@ void main() {
         expect(message, isNotNull);
         expect(message!.id, 5001);
         final publishReq = api.lastRequest();
-        expect(publishReq.path, '/v1/channel/1001/message');
+        expect(publishReq.path, '/api/v1/channel/1001/message');
         expect(
           (publishReq.data as Map<String, dynamic>)['content'],
           'hello ci',
@@ -257,7 +260,7 @@ void main() {
 
         api.stub(
           method: 'POST',
-          path: '/v1/channel/2001/invitation',
+          path: '/api/v1/channel/2001/invitation',
           response: IMBoyHttpResponse.success({
             'id': 'inv_2001',
             'channel_id': 'channel_2001',
@@ -267,17 +270,17 @@ void main() {
         );
         api.stub(
           method: 'POST',
-          path: '/v1/channel/invitation/accept',
+          path: '/api/v1/channel/invitation/accept',
           response: IMBoyHttpResponse.success({'ok': true}),
         );
         api.stub(
           method: 'POST',
-          path: '/v1/channel/invitation/reject',
+          path: '/api/v1/channel/invitation/reject',
           response: IMBoyHttpResponse.success({'ok': true}),
         );
         api.stub(
           method: 'GET',
-          path: '/v1/channel/invitations/my',
+          path: '/api/v1/channel/invitations/my',
           response: IMBoyHttpResponse.success({
             'list': [
               {
@@ -291,7 +294,7 @@ void main() {
         );
         api.stub(
           method: 'GET',
-          path: '/v1/channel/invitations/sent',
+          path: '/api/v1/channel/invitations/sent',
           response: IMBoyHttpResponse.success({
             'list': [
               {
@@ -311,7 +314,7 @@ void main() {
         expect(invitation, isNotNull);
         expect(invitation!['id'], 'inv_2001');
         final createReq = api.lastRequest();
-        expect(createReq.path, '/v1/channel/2001/invitation');
+        expect(createReq.path, '/api/v1/channel/2001/invitation');
         expect(
           (createReq.data as Map<String, dynamic>)['invitee_uid'],
           'user_2002',
@@ -320,7 +323,7 @@ void main() {
         final accepted = await api.acceptInvitation(invitationId: 'inv_2001');
         expect(accepted, isTrue);
         final acceptReq = api.lastRequest();
-        expect(acceptReq.path, '/v1/channel/invitation/accept');
+        expect(acceptReq.path, '/api/v1/channel/invitation/accept');
         expect(
           (acceptReq.data as Map<String, dynamic>)['invitation_id'],
           'inv_2001',
@@ -329,7 +332,7 @@ void main() {
         final rejected = await api.rejectInvitation(invitationId: 'inv_2002');
         expect(rejected, isTrue);
         final rejectReq = api.lastRequest();
-        expect(rejectReq.path, '/v1/channel/invitation/reject');
+        expect(rejectReq.path, '/api/v1/channel/invitation/reject');
         expect(
           (rejectReq.data as Map<String, dynamic>)['invitation_id'],
           'inv_2002',
@@ -338,12 +341,12 @@ void main() {
         final myInvites = await api.getMyInvitations();
         expect(myInvites, hasLength(1));
         expect(myInvites.first['id'], 'inv_2001');
-        expect(api.lastRequest().path, '/v1/channel/invitations/my');
+        expect(api.lastRequest().path, '/api/v1/channel/invitations/my');
 
         final sentInvites = await api.getSentInvitations();
         expect(sentInvites, hasLength(1));
         expect(sentInvites.first['id'], 'inv_2002');
-        expect(api.lastRequest().path, '/v1/channel/invitations/sent');
+        expect(api.lastRequest().path, '/api/v1/channel/invitations/sent');
       },
     );
 
@@ -371,24 +374,24 @@ void main() {
 
         api.stub(
           method: 'POST',
-          path: '/v1/channel/3001/order',
+          path: '/api/v1/channel/3001/order',
           response: IMBoyHttpResponse.success(orderPayload),
         );
         api.stub(
           method: 'POST',
-          path: '/v1/channel/order/pay',
+          path: '/api/v1/channel/order/pay',
           response: IMBoyHttpResponse.success({'ok': true}),
         );
         api.stub(
           method: 'GET',
-          path: '/v1/channel/orders/my',
+          path: '/api/v1/channel/orders/my',
           response: IMBoyHttpResponse.success({
             'list': [orderPayload],
           }),
         );
         api.stub(
           method: 'GET',
-          path: '/v1/channel/order/CH1767225600000123',
+          path: '/api/v1/channel/order/CH1767225600000123',
           response: IMBoyHttpResponse.success(orderPayload),
         );
 
@@ -396,12 +399,12 @@ void main() {
         expect(created, isNotNull);
         expect(created!.orderNo, 'CH1767225600000123');
         expect(created.paymentMethod, 'mock');
-        expect(api.lastRequest().path, '/v1/channel/3001/order');
+        expect(api.lastRequest().path, '/api/v1/channel/3001/order');
 
         final paid = await api.payOrder(orderNo: 'CH1767225600000123');
         expect(paid, isTrue);
         final payReq = api.lastRequest();
-        expect(payReq.path, '/v1/channel/order/pay');
+        expect(payReq.path, '/api/v1/channel/order/pay');
         expect(
           (payReq.data as Map<String, dynamic>)['order_no'],
           'CH1767225600000123',
@@ -410,13 +413,16 @@ void main() {
         final orders = await api.getMyOrders();
         expect(orders, hasLength(1));
         expect(orders.first.channelId, 3001);
-        expect(api.lastRequest().path, '/v1/channel/orders/my');
+        expect(api.lastRequest().path, '/api/v1/channel/orders/my');
 
         final detail = await api.getOrder(orderNo: 'CH1767225600000123');
         expect(detail, isNotNull);
         expect(detail!.orderNo, 'CH1767225600000123');
         expect(detail.status, 1);
-        expect(api.lastRequest().path, '/v1/channel/order/CH1767225600000123');
+        expect(
+          api.lastRequest().path,
+          '/api/v1/channel/order/CH1767225600000123',
+        );
       },
     );
   });
@@ -604,43 +610,43 @@ void main() {
     test('API endpoints should match backend routes', () {
       // 验证前端 API 客户端的 URL 路径与后端路由配置一致
       final expectedEndpoints = {
-        'create': '/v1/channel/create',
-        'show': '/v1/channel/:channel_id',
-        'by_custom_id': '/v1/channel/by_custom_id/:custom_id',
-        'update': '/v1/channel/:channel_id/update',
-        'delete': '/v1/channel/:channel_id/delete',
-        'subscribe': '/v1/channel/:channel_id/subscribe',
-        'unsubscribe': '/v1/channel/:channel_id/unsubscribe',
-        'subscribed': '/v1/channels/subscribed',
-        'managed': '/v1/channels/managed',
-        'publish_message': '/v1/channel/:channel_id/message',
-        'messages': '/v1/channel/:channel_id/messages',
-        'mark_read': '/v1/channel/:channel_id/read',
-        'search': '/v1/channels/search',
-        'discover': '/v1/channels/discover',
-        'add_admin': '/v1/channel/:channel_id/admin',
-        'remove_admin': '/v1/channel/:channel_id/admin/:user_id',
-        'update_admin_role': '/v1/channel/:channel_id/admin/:user_id/role',
-        'create_invitation': '/v1/channel/:channel_id/invitation',
-        'accept_invitation': '/v1/channel/invitation/accept',
-        'reject_invitation': '/v1/channel/invitation/reject',
-        'my_invitations': '/v1/channel/invitations/my',
-        'sent_invitations': '/v1/channel/invitations/sent',
-        'create_order': '/v1/channel/:channel_id/order',
-        'pay_order': '/v1/channel/order/pay',
-        'my_orders': '/v1/channel/orders/my',
-        'get_order': '/v1/channel/order/:order_no',
+        'create': '/api/v1/channel/create',
+        'show': '/api/v1/channel/:channel_id',
+        'by_custom_id': '/api/v1/channel/by_custom_id/:custom_id',
+        'update': '/api/v1/channel/:channel_id/update',
+        'delete': '/api/v1/channel/:channel_id/delete',
+        'subscribe': '/api/v1/channel/:channel_id/subscribe',
+        'unsubscribe': '/api/v1/channel/:channel_id/unsubscribe',
+        'subscribed': '/api/v1/channels/subscribed',
+        'managed': '/api/v1/channels/managed',
+        'publish_message': '/api/v1/channel/:channel_id/message',
+        'messages': '/api/v1/channel/:channel_id/messages',
+        'mark_read': '/api/v1/channel/:channel_id/read',
+        'search': '/api/v1/channels/search',
+        'discover': '/api/v1/channels/discover',
+        'add_admin': '/api/v1/channel/:channel_id/admin',
+        'remove_admin': '/api/v1/channel/:channel_id/admin/:user_id',
+        'update_admin_role': '/api/v1/channel/:channel_id/admin/:user_id/role',
+        'create_invitation': '/api/v1/channel/:channel_id/invitation',
+        'accept_invitation': '/api/v1/channel/invitation/accept',
+        'reject_invitation': '/api/v1/channel/invitation/reject',
+        'my_invitations': '/api/v1/channel/invitations/my',
+        'sent_invitations': '/api/v1/channel/invitations/sent',
+        'create_order': '/api/v1/channel/:channel_id/order',
+        'pay_order': '/api/v1/channel/order/pay',
+        'my_orders': '/api/v1/channel/orders/my',
+        'get_order': '/api/v1/channel/order/:order_no',
       };
 
       // 验证所有端点都已定义
       expect(expectedEndpoints.length, 26);
       expect(
         expectedEndpoints['update_admin_role'],
-        '/v1/channel/:channel_id/admin/:user_id/role',
+        '/api/v1/channel/:channel_id/admin/:user_id/role',
       );
       expect(
         expectedEndpoints['create_order'],
-        '/v1/channel/:channel_id/order',
+        '/api/v1/channel/:channel_id/order',
       );
 
       // 注意：实际的 URL 验证需要在运行时通过 mock 或集成测试完成

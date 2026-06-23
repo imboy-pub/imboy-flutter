@@ -35,12 +35,12 @@ void main() {
   // 1. 已订阅频道列表
   // ──────────────────────────────────────────────
   group('已订阅频道', () {
-    test('1.1 GET /v1/channels/subscribed — code=0', () async {
+    test('1.1 GET /api/v1/channels/subscribed — code=0', () async {
       if (!loggedIn) {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/channels/subscribed');
+      final resp = await client.get('/api/v1/channels/subscribed');
       ApiAssert.success(resp, context: '已订阅频道列表');
     });
 
@@ -49,7 +49,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/channels/subscribed');
+      final resp = await client.get('/api/v1/channels/subscribed');
       if (resp['code'] != 0) return;
       expect(
         resp['data'] == null || resp['data'] is List,
@@ -63,12 +63,12 @@ void main() {
   // 2. 我管理的频道
   // ──────────────────────────────────────────────
   group('管理频道', () {
-    test('2.1 GET /v1/channels/managed — code=0', () async {
+    test('2.1 GET /api/v1/channels/managed — code=0', () async {
       if (!loggedIn) {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/channels/managed');
+      final resp = await client.get('/api/v1/channels/managed');
       ApiAssert.success(resp, context: '管理频道列表');
     });
   });
@@ -77,12 +77,12 @@ void main() {
   // 3. 未读摘要
   // ──────────────────────────────────────────────
   group('未读摘要', () {
-    test('3.1 GET /v1/channels/unread/summary — 接口可达', () async {
+    test('3.1 GET /api/v1/channels/unread/summary — 接口可达', () async {
       if (!loggedIn) {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/channels/unread/summary');
+      final resp = await client.get('/api/v1/channels/unread/summary');
       expect(resp, containsPair('code', isA<int>()));
     });
   });
@@ -96,7 +96,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/channel/000000000000000000');
+      final resp = await client.get('/api/v1/channel/000000000000000000');
       expect(resp['code'], isNot(0), reason: '无效 channelId 应返回业务错误');
     });
   });
@@ -111,7 +111,7 @@ void main() {
         return;
       }
       final resp = await client.post(
-        '/v1/channel/create',
+        '/api/v1/channel/create',
         data: {'name': '', 'description': 'api-test'},
       );
       expect(
@@ -133,7 +133,7 @@ void main() {
         return;
       }
       final resp = await client.get(
-        '/v1/channel/000000000000000000/messages',
+        '/api/v1/channel/000000000000000000/messages',
         queryParameters: {'page': 1, 'size': 10},
       );
       expect(resp, containsPair('code', isA<int>()));

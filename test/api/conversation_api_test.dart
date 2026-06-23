@@ -39,7 +39,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/conversation/mine');
+      final resp = await client.get('/api/v1/conversation/mine');
       ApiAssert.success(resp, context: '会话列表');
     });
 
@@ -48,7 +48,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/conversation/pinned');
+      final resp = await client.get('/api/v1/conversation/pinned');
       expect(resp, containsPair('code', isA<int>()));
     });
   });
@@ -62,7 +62,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/msg/offline');
+      final resp = await client.get('/api/v1/msg/offline');
       ApiAssert.success(resp, context: '离线消息');
     });
 
@@ -71,7 +71,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/msg/offline');
+      final resp = await client.get('/api/v1/msg/offline');
       if (resp['code'] != 0) return;
       expect(
         resp['data'] == null || resp['data'] is List,
@@ -90,7 +90,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/friend/list');
+      final resp = await client.get('/api/v1/friend/list');
       ApiAssert.success(resp, context: '好友列表');
     });
   });
@@ -105,7 +105,7 @@ void main() {
         return;
       }
       final resp = await client.post(
-        '/v1/group/page',
+        '/api/v1/group/page',
         data: {'page': 1, 'size': 10},
       );
       expect(resp, containsPair('code', isA<int>()));
@@ -128,7 +128,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/fts/recently_user');
+      final resp = await client.get('/api/v1/fts/recently_user');
       expect(resp, containsPair('code', isA<int>()));
     });
   });
@@ -142,7 +142,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final resp = await client.get('/v1/user/setting');
+      final resp = await client.get('/api/v1/user/setting');
       expect(resp, containsPair('code', isA<int>()));
     });
   });
@@ -158,7 +158,7 @@ void main() {
       }
       // 用无效 to_uid 触发业务错误，验证接口存在且响应格式正确
       final resp = await client.post(
-        '/v1/msg/c2c/send',
+        '/api/v1/msg/c2c/send',
         data: {
           'to_uid': '0',
           'msg_type': 'text',

@@ -37,7 +37,7 @@ class MessageOfflineService {
 
   /// 游标：各类消息最后一条消息的时间戳（毫秒）
   ///
-  /// 协议一致性修复 D4：服务端 /v1/msg/offline 支持通过 c2c_last_msg_at、
+  /// 协议一致性修复 D4：服务端 /api/v1/msg/offline 支持通过 c2c_last_msg_at、
   /// c2g_last_msg_at、s2c_last_msg_at 参数做增量拉取，返回值中 next_last_msg_at
   /// 字段即为下次请求时应传入的游标值。客户端保存游标并在每次请求时携带，
   /// 避免每次全量拉取带来的性能压力。

@@ -16,7 +16,7 @@ import 'channel_purchase_provider.dart' show channelOrderApiProvider;
 /// 付费频道「我的订单」数据源。
 ///
 /// 复用 [channelOrderApiProvider]（与购买编排同一注入点，便于测试覆盖）。
-/// 后端 `/v1/channel/orders/my` 返回 `{list: [...]}`，封顶 50 条、无分页。
+/// 后端 `/api/v1/channel/orders/my` 返回 `{list: [...]}`，封顶 50 条、无分页。
 final channelMyOrdersProvider =
     FutureProvider.autoDispose<List<ChannelOrderModel>>((ref) async {
       final api = ref.watch(channelOrderApiProvider);

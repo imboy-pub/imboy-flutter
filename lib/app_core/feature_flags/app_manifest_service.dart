@@ -4,7 +4,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
 
-/// Manifest data returned by /v1/app/manifest.
+/// Manifest data returned by /api/v1/app/manifest.
 class AppManifest {
   final Map<String, dynamic> features;
   final Map<String, dynamic> policy;
@@ -59,7 +59,7 @@ class AppManifest {
 
 /// Service to fetch and cache the app manifest.
 ///
-/// Fetches from /v1/app/manifest on startup and caches locally.
+/// Fetches from /api/v1/app/manifest on startup and caches locally.
 /// Supports Etag/If-None-Match for 304 optimization.
 /// Refreshes when receiving a manifest_updated S2C event.
 class AppManifestService {

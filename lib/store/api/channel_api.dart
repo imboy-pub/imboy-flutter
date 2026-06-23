@@ -39,7 +39,7 @@ class ChannelApi extends HttpClient {
     if (customId != null) data['custom_id'] = customId;
     if (tags != null) data['tags'] = tags;
 
-    final resp = await post('/v1/channel/create', data: data);
+    final resp = await post('/api/v1/channel/create', data: data);
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -50,7 +50,7 @@ class ChannelApi extends HttpClient {
 
   /// 获取频道信息
   Future<ChannelModel?> getChannel(String channelId) async {
-    final resp = await get('/v1/channel/$channelId');
+    final resp = await get('/api/v1/channel/$channelId');
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -61,7 +61,7 @@ class ChannelApi extends HttpClient {
 
   /// 通过自定义 ID 获取频道
   Future<ChannelModel?> getChannelByCustomId(String customId) async {
-    final resp = await get('/v1/channel/by_custom_id/$customId');
+    final resp = await get('/api/v1/channel/by_custom_id/$customId');
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -85,7 +85,7 @@ class ChannelApi extends HttpClient {
     if (avatar != null) data['avatar'] = avatar;
     if (tags != null) data['tags'] = tags;
 
-    final resp = await put('/v1/channel/$channelId/update', data: data);
+    final resp = await put('/api/v1/channel/$channelId/update', data: data);
 
     if (!resp.ok) {
       throw Exception(resp.msg);
@@ -103,7 +103,7 @@ class ChannelApi extends HttpClient {
   /// 删除频道
   Future<bool> deleteChannel(String channelId) async {
     final resp = await post(
-      '/v1/channel/$channelId/delete',
+      '/api/v1/channel/$channelId/delete',
       data: <String, dynamic>{},
     );
     return resp.ok;
@@ -114,7 +114,7 @@ class ChannelApi extends HttpClient {
   /// 订阅频道
   Future<bool> subscribe(String channelId) async {
     final resp = await post(
-      '/v1/channel/$channelId/subscribe',
+      '/api/v1/channel/$channelId/subscribe',
       data: <String, dynamic>{},
     );
     return resp.ok;
@@ -123,7 +123,7 @@ class ChannelApi extends HttpClient {
   /// 取消订阅
   Future<bool> unsubscribe(String channelId) async {
     final resp = await post(
-      '/v1/channel/$channelId/unsubscribe',
+      '/api/v1/channel/$channelId/unsubscribe',
       data: <String, dynamic>{},
     );
     return resp.ok;
@@ -149,7 +149,10 @@ class ChannelApi extends HttpClient {
     final params = <String, dynamic>{'limit': limit};
     if (cursor != null) params['cursor'] = cursor;
 
-    final resp = await get('/v1/channels/subscribed', queryParameters: params);
+    final resp = await get(
+      '/api/v1/channels/subscribed',
+      queryParameters: params,
+    );
 
     if (!resp.ok || resp.payload == null) {
       return const ChannelPageResult(
@@ -188,9 +191,9 @@ class ChannelApi extends HttpClient {
 
   /// 拉取频道未读汇总（服务端权威）
   ///
-  /// 对应 `GET /v1/channels/unread/summary`。
+  /// 对应 `GET /api/v1/channels/unread/summary`。
   Future<Map<String, dynamic>> getUnreadSummary() async {
-    final resp = await get('/v1/channels/unread/summary');
+    final resp = await get('/api/v1/channels/unread/summary');
 
     if (!resp.ok ||
         resp.payload == null ||
@@ -228,7 +231,7 @@ class ChannelApi extends HttpClient {
 
   /// 获取我管理的频道列表
   Future<List<ChannelModel>> getManagedChannels() async {
-    final resp = await get('/v1/channels/managed');
+    final resp = await get('/api/v1/channels/managed');
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -252,7 +255,7 @@ class ChannelApi extends HttpClient {
     if (cursor != null) params['cursor'] = cursor;
 
     final resp = await get(
-      '/v1/channel/$channelId/subscribers',
+      '/api/v1/channel/$channelId/subscribers',
       queryParameters: params,
     );
 
@@ -279,7 +282,7 @@ class ChannelApi extends HttpClient {
 
     if (payload != null) data['payload'] = payload;
 
-    final resp = await post('/v1/channel/$channelId/message', data: data);
+    final resp = await post('/api/v1/channel/$channelId/message', data: data);
 
     if (!resp.ok) {
       throw Exception(resp.msg);
@@ -301,7 +304,7 @@ class ChannelApi extends HttpClient {
     if (cursor != null) params['cursor'] = cursor;
 
     final resp = await get(
-      '/v1/channel/$channelId/messages',
+      '/api/v1/channel/$channelId/messages',
       queryParameters: params,
     );
 
@@ -322,7 +325,7 @@ class ChannelApi extends HttpClient {
   /// 标记已读
   Future<bool> markAsRead(String channelId, String messageId) async {
     final resp = await post(
-      '/v1/channel/$channelId/read',
+      '/api/v1/channel/$channelId/read',
       data: {'message_id': messageId},
     );
     return resp.ok;
@@ -336,7 +339,7 @@ class ChannelApi extends HttpClient {
     int limit = 20,
   }) async {
     final resp = await get(
-      '/v1/channels/search',
+      '/api/v1/channels/search',
       queryParameters: {'keyword': keyword, 'limit': limit},
     );
 
@@ -360,7 +363,10 @@ class ChannelApi extends HttpClient {
     final params = <String, dynamic>{'limit': limit};
     if (category != null) params['category'] = category;
 
-    final resp = await get('/v1/channels/discover', queryParameters: params);
+    final resp = await get(
+      '/api/v1/channels/discover',
+      queryParameters: params,
+    );
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -379,7 +385,7 @@ class ChannelApi extends HttpClient {
   /// 添加管理员
   Future<bool> addAdmin(String channelId, String userId, int role) async {
     final resp = await post(
-      '/v1/channel/$channelId/admin',
+      '/api/v1/channel/$channelId/admin',
       data: {'user_id': userId, 'role': role},
     );
     return resp.ok;
@@ -387,13 +393,13 @@ class ChannelApi extends HttpClient {
 
   /// 移除管理员
   Future<bool> removeAdmin(String channelId, String userId) async {
-    final resp = await delete('/v1/channel/$channelId/admin/$userId');
+    final resp = await delete('/api/v1/channel/$channelId/admin/$userId');
     return resp.ok;
   }
 
   /// 获取管理员列表
   Future<List<Map<String, dynamic>>> getAdmins(String channelId) async {
-    final resp = await get('/v1/channel/$channelId/admins');
+    final resp = await get('/api/v1/channel/$channelId/admins');
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -412,7 +418,7 @@ class ChannelApi extends HttpClient {
     int role,
   ) async {
     final resp = await put(
-      '/v1/channel/$channelId/admin/$userId/role',
+      '/api/v1/channel/$channelId/admin/$userId/role',
       data: {'role': role},
     );
     return resp.ok;
@@ -420,7 +426,7 @@ class ChannelApi extends HttpClient {
 
   /// 移除订阅者
   Future<bool> removeSubscriber(String channelId, String userId) async {
-    final resp = await delete('/v1/channel/$channelId/subscriber/$userId');
+    final resp = await delete('/api/v1/channel/$channelId/subscriber/$userId');
     return resp.ok;
   }
 
@@ -431,7 +437,7 @@ class ChannelApi extends HttpClient {
     bool pinned,
   ) async {
     final resp = await post(
-      '/v1/channel/$channelId/message/$messageId/pin',
+      '/api/v1/channel/$channelId/message/$messageId/pin',
       data: {'pinned': pinned},
     );
     return resp.ok;
@@ -440,7 +446,7 @@ class ChannelApi extends HttpClient {
   /// 删除消息
   Future<bool> deleteMessage(String channelId, String messageId) async {
     final resp = await post(
-      '/v1/channel/$channelId/message/$messageId/delete',
+      '/api/v1/channel/$channelId/message/$messageId/delete',
       data: <String, dynamic>{},
     );
     return resp.ok;
@@ -453,7 +459,7 @@ class ChannelApi extends HttpClient {
     final params = <String, dynamic>{};
     if (lastSyncTime != null) params['since'] = lastSyncTime;
 
-    final resp = await get('/v1/channels/sync', queryParameters: params);
+    final resp = await get('/api/v1/channels/sync', queryParameters: params);
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -466,7 +472,7 @@ class ChannelApi extends HttpClient {
 
   /// 获取频道统计数据
   Future<ChannelStatsModel?> getChannelStats(String channelId) async {
-    final resp = await get('/v1/channel/$channelId/stats');
+    final resp = await get('/api/v1/channel/$channelId/stats');
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -481,7 +487,7 @@ class ChannelApi extends HttpClient {
     int days = 7,
   }) async {
     final resp = await get(
-      '/v1/channel/$channelId/stats/daily',
+      '/api/v1/channel/$channelId/stats/daily',
       queryParameters: {'days': days},
     );
 
@@ -506,7 +512,7 @@ class ChannelApi extends HttpClient {
     required String messageId,
   }) async {
     final resp = await post(
-      '/v1/channel/$channelId/message/$messageId/view',
+      '/api/v1/channel/$channelId/message/$messageId/view',
       data: <String, dynamic>{},
     );
     return resp.ok;
@@ -519,7 +525,7 @@ class ChannelApi extends HttpClient {
     required String reactionType,
   }) async {
     final resp = await post(
-      '/v1/channel/$channelId/message/$messageId/reaction',
+      '/api/v1/channel/$channelId/message/$messageId/reaction',
       data: {'reaction_type': reactionType},
     );
     return resp.ok;
@@ -532,7 +538,7 @@ class ChannelApi extends HttpClient {
     required String reactionType,
   }) async {
     final resp = await delete(
-      '/v1/channel/$channelId/message/$messageId/reaction/$reactionType',
+      '/api/v1/channel/$channelId/message/$messageId/reaction/$reactionType',
     );
     return resp.ok;
   }
@@ -545,7 +551,7 @@ class ChannelApi extends HttpClient {
     required String inviteeUid,
   }) async {
     final resp = await post(
-      '/v1/channel/$channelId/invitation',
+      '/api/v1/channel/$channelId/invitation',
       data: {'invitee_uid': inviteeUid},
     );
     if (!resp.ok || resp.payload == null) return null;
@@ -555,7 +561,7 @@ class ChannelApi extends HttpClient {
   /// 接受频道邀请
   Future<bool> acceptInvitation({required String invitationId}) async {
     final resp = await post(
-      '/v1/channel/invitation/accept',
+      '/api/v1/channel/invitation/accept',
       data: {'invitation_id': invitationId},
     );
     return resp.ok;
@@ -564,7 +570,7 @@ class ChannelApi extends HttpClient {
   /// 拒绝频道邀请
   Future<bool> rejectInvitation({required String invitationId}) async {
     final resp = await post(
-      '/v1/channel/invitation/reject',
+      '/api/v1/channel/invitation/reject',
       data: {'invitation_id': invitationId},
     );
     return resp.ok;
@@ -572,7 +578,7 @@ class ChannelApi extends HttpClient {
 
   /// 获取我收到的邀请列表
   Future<List<Map<String, dynamic>>> getMyInvitations() async {
-    final resp = await get('/v1/channel/invitations/my');
+    final resp = await get('/api/v1/channel/invitations/my');
     if (!resp.ok || resp.payload == null) return [];
     final list = resp.payload['list'] as List?;
     return list?.cast<Map<String, dynamic>>() ?? [];
@@ -580,7 +586,7 @@ class ChannelApi extends HttpClient {
 
   /// 获取我发出的邀请列表
   Future<List<Map<String, dynamic>>> getSentInvitations() async {
-    final resp = await get('/v1/channel/invitations/sent');
+    final resp = await get('/api/v1/channel/invitations/sent');
     if (!resp.ok || resp.payload == null) return [];
     final list = resp.payload['list'] as List?;
     return list?.cast<Map<String, dynamic>>() ?? [];
@@ -591,7 +597,7 @@ class ChannelApi extends HttpClient {
   /// 创建频道订单
   Future<ChannelOrderModel?> createOrder({required String channelId}) async {
     final resp = await post(
-      '/v1/channel/$channelId/order',
+      '/api/v1/channel/$channelId/order',
       data: <String, dynamic>{},
     );
 
@@ -607,7 +613,7 @@ class ChannelApi extends HttpClient {
   /// 支付订单（模拟支付）
   Future<bool> payOrder({required String orderNo}) async {
     final resp = await post(
-      '/v1/channel/order/pay',
+      '/api/v1/channel/order/pay',
       data: {'order_no': orderNo},
     );
     return resp.ok;
@@ -615,7 +621,7 @@ class ChannelApi extends HttpClient {
 
   /// 获取我的订单列表
   Future<List<ChannelOrderModel>> getMyOrders() async {
-    final resp = await get('/v1/channel/orders/my');
+    final resp = await get('/api/v1/channel/orders/my');
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -633,7 +639,7 @@ class ChannelApi extends HttpClient {
 
   /// 获取订单详情
   Future<ChannelOrderModel?> getOrder({required String orderNo}) async {
-    final resp = await get('/v1/channel/order/$orderNo');
+    final resp = await get('/api/v1/channel/order/$orderNo');
 
     if (!resp.ok || resp.payload == null) {
       return null;
