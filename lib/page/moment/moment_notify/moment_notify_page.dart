@@ -243,9 +243,9 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
                 Text(
                   timeText,
                   // DESIGN.md §3.4：时间戳数字等宽对齐
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.iosGray,
-                    fontSize: 12,
+                    fontSize: FontSizeType.small.size,
                     fontFeatures: [FontFeature.tabularFigures()],
                   ),
                 ),

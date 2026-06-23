@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -200,7 +201,10 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       selected: isSelected,
       label: Text(
         label,
-        style: TextStyle(fontSize: 13, color: isSelected ? Colors.white : null),
+        style: TextStyle(
+          fontSize: FontSizeType.footnote.size,
+          color: isSelected ? AppColors.onPrimary : null,
+        ),
       ),
       selectedColor: AppColors.getIosBlue(b),
       showCheckmark: false,
@@ -298,21 +302,30 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
           Expanded(
             child: Text(
               author.nickname,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: FontSizeType.medium.size,
+              ),
             ),
           ),
           Text(
             DateTimeHelper.lastTimeFmt(
               message.createdAt!.millisecondsSinceEpoch,
             ),
-            style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+            style: TextStyle(
+              fontSize: FontSizeType.small.size,
+              color: AppColors.iosGray,
+            ),
           ),
         ],
       ),
       subtitle: TextHighlight(
         text: message.metadata?['text'] as String? ?? '',
         words: words,
-        textStyle: const TextStyle(fontSize: 14, color: AppColors.iosGray),
+        textStyle: TextStyle(
+          fontSize: FontSizeType.normal.size,
+          color: AppColors.iosGray,
+        ),
       ),
     );
   }

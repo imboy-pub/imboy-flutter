@@ -11,6 +11,7 @@ import 'package:imboy/store/model/user_device_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'user_device_provider.dart';
 import 'user_device_detail_page.dart';
@@ -107,7 +108,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                     ? AppColors.darkTextSecondary
                     : AppColors.lightTextSecondary,
                 height: 1.4,
-                fontSize: 13,
+                fontSize: FontSizeType.footnote.size,
               ),
             ),
           ),
@@ -129,7 +130,10 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           const SizedBox(height: 16),
           Text(
             t.common.noData,
-            style: const TextStyle(color: AppColors.iosGray, fontSize: 15),
+            style: TextStyle(
+              color: AppColors.iosGray,
+              fontSize: FontSizeType.subheadline.size,
+            ),
           ),
         ],
       ),
@@ -163,7 +167,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
         child: Icon(
           _getDeviceIcon(model.deviceType),
           size: 20,
-          color: Colors.white,
+          color: AppColors.onPrimary,
         ),
       ),
       title: Row(
@@ -186,7 +190,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
               child: Text(
                 t.account.currentDevice,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: FontSizeType.tiny.size,
                   fontWeight: FontWeight.w600,
                   color: AppColors.getIosBlue(brightness),
                 ),
@@ -208,13 +212,19 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           const SizedBox(width: 6),
           Text(
             model.online ? t.chat.online : t.chat.offline,
-            style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+            style: TextStyle(
+              fontSize: FontSizeType.small.size,
+              color: AppColors.iosGray,
+            ),
           ),
           if (model.lastActiveAt > 0) ...[
             const SizedBox(width: 8),
             Text(
               DateTimeHelper.lastTimeFmt(model.lastActiveAt),
-              style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.iosGray,
+              ),
             ),
           ],
         ],
@@ -234,14 +244,14 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                 ? (_) => _showForceOfflineDialog(context, model)
                 : null,
             backgroundColor: AppColors.iosOrange,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             icon: CupertinoIcons.power,
             label: t.common.forceOffline,
           ),
           SlidableAction(
             onPressed: (_) => _showDeleteDialog(context, model),
             backgroundColor: AppColors.getIosRed(brightness),
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             icon: CupertinoIcons.delete,
             label: t.common.buttonDelete,
           ),

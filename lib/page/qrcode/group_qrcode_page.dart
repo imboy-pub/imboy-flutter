@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -76,8 +77,8 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                     Text(
                       "${t.chat.groupChat}: ${widget.group.title.isEmpty ? widget.group.computeTitle : widget.group.title}",
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style: TextStyle(
+                        fontSize: FontSizeType.large.size,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
@@ -159,8 +160,8 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                 Text(
                   footerText,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 13,
+                  style: TextStyle(
+                    fontSize: FontSizeType.footnote.size,
                     color: AppColors.iosGray,
                     fontWeight: FontWeight.w500,
                   ),
@@ -219,8 +220,8 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
             const SizedBox(width: 8),
             Text(
               text,
-              style: const TextStyle(
-                fontSize: 15,
+              style: TextStyle(
+                fontSize: FontSizeType.subheadline.size,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primary,
               ),

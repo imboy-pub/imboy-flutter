@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
@@ -160,7 +161,7 @@ class RightButtonList extends StatelessWidget {
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: FontSizeType.medium.size,
                   fontWeight: FontWeight.normal,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),

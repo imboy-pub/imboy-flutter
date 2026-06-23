@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -142,10 +143,10 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                               color: Colors.yellow.shade700,
                               borderRadius: AppRadius.borderRadiusTiny,
                             ),
-                            child: const Text(
+                            child: Text(
                               '🈲 零信任端解密',
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: FontSizeType.tiny.size,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
                               ),
@@ -156,30 +157,36 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                       const SizedBox(height: 12),
                       Text(
                         _packet!.greeting,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 15,
+                        style: TextStyle(
+                          color: AppColors.onPrimary.withValues(alpha: 0.7),
+                          fontSize: FontSizeType.subheadline.size,
                         ),
                       ),
                       const SizedBox(height: 16),
                       if (_myGrabbedAmount != null) ...[
                         Text(
                           (_myGrabbedAmount! / 100.0).toStringAsFixed(2),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 48,
+                            fontSize: FontSizeType.extraLargeTitle.size,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'monospace',
                           ),
                         ),
-                        const Text(
+                        Text(
                           '元',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                          style: TextStyle(
+                            color: AppColors.onPrimary.withValues(alpha: 0.7),
+                            fontSize: FontSizeType.normal.size,
+                          ),
                         ),
                       ] else ...[
-                        const Text(
+                        Text(
                           '未领到该红包',
-                          style: TextStyle(color: Colors.white70, fontSize: 18),
+                          style: TextStyle(
+                            color: AppColors.onPrimary.withValues(alpha: 0.7),
+                            fontSize: FontSizeType.large.size,
+                          ),
                         ),
                       ],
                     ],
@@ -198,7 +205,10 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                 _packet!.isFinished
                     ? '共 ${_packet!.amountYuan.toStringAsFixed(2)} 元，${_packet!.count} 个红包已抢光'
                     : '已抢 ${_receivers.length}/${_packet!.count} 个，共 ${((_packet!.amount - _packet!.remainAmount) / 100.0).toStringAsFixed(2)}/${_packet!.amountYuan.toStringAsFixed(2)} 元',
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: FontSizeType.normal.size,
+                  color: AppColors.iosGray,
+                ),
               ),
             ),
           ),
@@ -246,7 +256,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                               Text(
                                 '手气最佳',
                                 style: TextStyle(
-                                  fontSize: 10,
+                                  fontSize: FontSizeType.tiny.size,
                                   color: Colors.orange.shade900,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -262,8 +272,8 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                   ),
                   trailing: Text(
                     '￥${r.amountYuan.toStringAsFixed(2)} 元',
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: FontSizeType.medium.size,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

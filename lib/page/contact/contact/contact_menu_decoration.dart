@@ -24,14 +24,18 @@ ContactMenuDecoration? contactMenuDecorationOf(int peerId) {
       return const ContactMenuDecoration(
         bgColor: AppColors.iosOrange,
         iconData: Center(
-          child: Icon(Icons.dynamic_feed, size: 24, color: Colors.white),
+          child: Icon(Icons.dynamic_feed, size: 24, color: AppColors.onPrimary),
         ),
       );
     case kPeerIdPeopleNearby:
       return const ContactMenuDecoration(
         bgColor: AppColors.iosOrange,
         iconData: Center(
-          child: Icon(Icons.person_pin_circle, size: 24, color: Colors.white),
+          child: Icon(
+            Icons.person_pin_circle,
+            size: 24,
+            color: AppColors.onPrimary,
+          ),
         ),
       );
     case kPeerIdNewFriend:
@@ -42,12 +46,12 @@ ContactMenuDecoration? contactMenuDecorationOf(int peerId) {
     case kPeerIdGroup:
       return const ContactMenuDecoration(
         bgColor: AppColors.iosGreen,
-        iconData: Icon(Icons.people, size: 24, color: Colors.white),
+        iconData: Icon(Icons.people, size: 24, color: AppColors.onPrimary),
       );
     case kPeerIdTag:
       return const ContactMenuDecoration(
         bgColor: AppColors.iosBlue,
-        iconData: Icon(Icons.local_offer, size: 24, color: Colors.white),
+        iconData: Icon(Icons.local_offer, size: 24, color: AppColors.onPrimary),
       );
     default:
       return null;

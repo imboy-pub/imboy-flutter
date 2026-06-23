@@ -7,6 +7,8 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 import 'package:imboy/page/group/announcement/group_announcement_provider.dart';
 // canManageAnnouncement re-exported from group_announcement_provider.dart
 
@@ -68,7 +70,9 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
           : RefreshIndicator(
               onRefresh: () => notifier.onRefresh(),
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.regular,
+                ),
                 itemCount: state.announcements.length + (state.hasMore ? 1 : 0),
                 itemBuilder: (context, index) {
                   // 加载更多指示器
@@ -76,7 +80,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     notifier.onLoadMore();
                     return const Center(
                       child: Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: EdgeInsets.all(AppSpacing.regular),
                         child: CircularProgressIndicator(),
                       ),
                     );
@@ -105,7 +109,10 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: AppRadius.borderRadiusRegular,
@@ -126,7 +133,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.large),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -139,13 +146,13 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     announcement.publisherName.isNotEmpty
                         ? announcement.publisherName[0].toUpperCase()
                         : '?',
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: FontSizeType.medium.size,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.medium),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -153,7 +160,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                       announcement.publisherName,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                        fontSize: FontSizeType.medium.size,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -164,7 +171,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontSize: 12,
+                        fontSize: FontSizeType.small.size,
                       ),
                     ),
                   ],
@@ -186,12 +193,12 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                   ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.regular),
             // 公告内容
             Text(
               announcement.content,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: FontSizeType.subheadline.size,
                 height: 1.5,
                 color: Theme.of(
                   context,
@@ -199,7 +206,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
               ),
             ),
             if (announcement.expiredAt != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.regular),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -230,7 +237,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.6),
-                        fontSize: 12,
+                        fontSize: FontSizeType.small.size,
                       ),
                     ),
                   ],
@@ -275,7 +282,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                   border: const OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.regular),
               InkWell(
                 onTap: () async {
                   final date = await showDatePicker(
@@ -292,7 +299,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                   valueListenable: expiredDateNotifier,
                   builder: (context, expiredDate, child) {
                     return Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(AppSpacing.medium),
                       decoration: BoxDecoration(
                         border: Border.all(color: AppColors.iosGray),
                         borderRadius: AppRadius.borderRadiusTiny,
@@ -300,7 +307,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                       child: Row(
                         children: [
                           const Icon(Icons.event, size: 20),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppSpacing.small),
                           Text(
                             expiredDate != null
                                 ? '${expiredDate.year}-${expiredDate.month.toString().padLeft(2, '0')}-${expiredDate.day.toString().padLeft(2, '0')}'
@@ -379,7 +386,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
               backgroundColor: AppColors.getIosRed(
                 Theme.of(context).brightness,
               ),
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.onPrimary,
             ),
             child: Text(t.common.groupAnnouncementDelete),
           ),

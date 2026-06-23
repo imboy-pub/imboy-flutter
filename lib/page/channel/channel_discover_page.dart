@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -392,16 +393,22 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
             widget.channel.description ?? '',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            style: TextStyle(
+              fontSize: FontSizeType.footnote.size,
+              color: AppColors.iosGray,
+            ),
           ),
           const SizedBox(height: 4),
           Row(
             children: [
-              Icon(Icons.people_outline, size: 14, color: Colors.grey[600]),
+              Icon(Icons.people_outline, size: 14, color: AppColors.iosGray),
               const SizedBox(width: 4),
               Text(
                 '${widget.channel.subscriberCount} ${t.channel.subscribers}',
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                style: TextStyle(
+                  color: AppColors.iosGray,
+                  fontSize: FontSizeType.small.size,
+                ),
               ),
               if (widget.channel.tags != null &&
                   widget.channel.tags!.isNotEmpty) ...[
@@ -409,7 +416,10 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
                 Expanded(
                   child: Text(
                     widget.channel.tags!.take(2).join(' · '),
-                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                    style: TextStyle(
+                      color: AppColors.iosGray,
+                      fontSize: FontSizeType.small.size,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

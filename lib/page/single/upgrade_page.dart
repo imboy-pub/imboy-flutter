@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
@@ -568,8 +569,8 @@ class UpgradeCardState extends State<UpgradeCard> {
                 padding: const EdgeInsets.only(top: 25),
                 child: Text(
                   widget.title,
-                  style: const TextStyle(
-                    fontSize: 18,
+                  style: TextStyle(
+                    fontSize: FontSizeType.large.size,
                     fontWeight: FontWeight.w600,
                     decoration: TextDecoration.none,
                     color: AppColors.upgradeBackground,
@@ -672,8 +673,8 @@ class UpgradeCardState extends State<UpgradeCard> {
                         onPressed: widget.negativeCallback,
                         child: Text(
                           widget.negativeBtn,
-                          style: const TextStyle(
-                            fontSize: 16,
+                          style: TextStyle(
+                            fontSize: FontSizeType.medium.size,
                             fontWeight: FontWeight.w500,
                             color: AppColors.iosGray,
                           ),
@@ -693,8 +694,8 @@ class UpgradeCardState extends State<UpgradeCard> {
                         onPressed: widget.positiveCallback,
                         child: Text(
                           widget.positiveBtn,
-                          style: const TextStyle(
-                            fontSize: 16,
+                          style: TextStyle(
+                            fontSize: FontSizeType.medium.size,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

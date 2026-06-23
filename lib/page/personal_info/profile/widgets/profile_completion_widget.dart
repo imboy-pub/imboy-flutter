@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../profile_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 资料完善度组件 - iOS 17 Premium 风格
 class ProfileCompletionWidget extends ConsumerWidget {
@@ -16,14 +18,21 @@ class ProfileCompletionWidget extends ConsumerWidget {
     final isDark = brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
+      padding: const EdgeInsets.all(AppSpacing.large),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            color: AppColors.lightTextPrimary.withValues(
+              alpha: isDark ? 0.2 : 0.04,
+            ),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -37,15 +46,15 @@ class ProfileCompletionWidget extends ConsumerWidget {
             children: [
               Text(
                 t.chat.profileCompleteness,
-                style: const TextStyle(
-                  fontSize: 17,
+                style: TextStyle(
+                  fontSize: FontSizeType.body.size,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
-                  vertical: 4,
+                  vertical: AppSpacing.tiny,
                 ),
                 decoration: BoxDecoration(
                   color: profileState.completenessColor.withValues(alpha: 0.1),
@@ -54,7 +63,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
                 child: Text(
                   profileState.completenessLevel,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: FontSizeType.small.size,
                     fontWeight: FontWeight.w600,
                     color: profileState.completenessColor,
                   ),
@@ -63,7 +72,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
 
           Row(
             children: [
@@ -91,24 +100,24 @@ class ProfileCompletionWidget extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSpacing.small),
                     Text(
                       t.chat.profileProgress(
                         percent: profileState.completeness,
                       ),
-                      style: const TextStyle(
-                        fontSize: 13,
+                      style: TextStyle(
+                        fontSize: FontSizeType.footnote.size,
                         color: AppColors.iosGray,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.regular),
               Text(
                 '${profileState.completeness}%',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: FontSizeType.largeTitle.size,
                   fontWeight: FontWeight.bold,
                   color: profileState.completenessColor,
                   letterSpacing: -1,
@@ -117,7 +126,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
 
           _buildSuggestions(context, profileNotifier, isDark),
         ],
@@ -134,7 +143,10 @@ class ProfileCompletionWidget extends ConsumerWidget {
         profileNotifier.getCompletionSuggestions() as List<dynamic>;
     if (suggestions.isEmpty) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.medium,
+          vertical: AppSpacing.small,
+        ),
         decoration: BoxDecoration(
           color: AppColors.iosGreen.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
@@ -142,11 +154,11 @@ class ProfileCompletionWidget extends ConsumerWidget {
         child: Row(
           children: [
             const Icon(Icons.check_circle, color: AppColors.iosGreen, size: 18),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.small),
             Text(
               t.chat.profileCompleted,
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
                 color: AppColors.iosGreen,
                 fontWeight: FontWeight.w600,
               ),
@@ -161,8 +173,8 @@ class ProfileCompletionWidget extends ConsumerWidget {
       children: [
         Text(
           t.common.completionSuggestions,
-          style: const TextStyle(
-            fontSize: 13,
+          style: TextStyle(
+            fontSize: FontSizeType.footnote.size,
             fontWeight: FontWeight.w500,
             color: AppColors.iosGray,
           ),
@@ -185,8 +197,8 @@ class ProfileCompletionWidget extends ConsumerWidget {
                   ),
                   child: Text(
                     suggestion,
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style: TextStyle(
+                      fontSize: FontSizeType.small.size,
                       color: AppColors.primary,
                       fontWeight: FontWeight.w500,
                     ),

@@ -154,9 +154,9 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
                 size: 64,
                 color: AppColors.iosRed,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.regular),
               Text(_errorMessage!, textAlign: TextAlign.center),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xLarge),
               CupertinoButton.filled(
                 child: Text(t.common.buttonRetry),
                 onPressed: () {
@@ -193,7 +193,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
             size: 48,
             color: CupertinoColors.activeBlue,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
           Text(
             t.main.e2eeTransferQRHint,
             style: TextStyle(
@@ -201,20 +201,20 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.small),
           Text(
             t.main.e2eeTransferQRExpiry(time: _expiresAt ?? ''),
             style: const TextStyle(color: AppColors.iosGray),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppSpacing.xxLarge),
           Container(
             padding: const EdgeInsets.all(AppSpacing.regular),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.lightSurface,
               borderRadius: AppRadius.borderRadiusMedium,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
+                  color: AppColors.lightTextPrimary.withValues(alpha: 0.1),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
@@ -226,7 +226,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
               size: 250,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
           Text(
             t.common.e2eeTransferSessionCreated,
             style: TextStyle(
@@ -234,7 +234,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
               color: AppColors.iosGray,
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppSpacing.xxLarge),
           CupertinoButton.filled(
             child: Text(t.main.e2eeTransferRefreshQR),
             onPressed: () {

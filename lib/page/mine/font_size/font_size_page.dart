@@ -122,8 +122,8 @@ class FontSizePage extends ConsumerWidget {
           children: [
             Text(
               t.main.previewEffect.toUpperCase(),
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
                 fontWeight: FontWeight.w400,
                 color: AppColors.iosGray,
                 letterSpacing: -0.08,
@@ -175,7 +175,7 @@ class FontSizePage extends ConsumerWidget {
                       ? t.chat.goodReadability
                       : t.common.fontTooSmallMayAffect,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: FontSizeType.small.size,
                     color: notifier.isPreviewAccessible
                         ? AppColors.iosBlue
                         : AppColors.iosRed,
@@ -222,14 +222,17 @@ class FontSizePage extends ConsumerWidget {
         children: [
           Text(
             t.common.dragSliderAdjustFontSize,
-            style: const TextStyle(fontSize: 13, color: AppColors.iosGray),
+            style: TextStyle(
+              fontSize: FontSizeType.footnote.size,
+              color: AppColors.iosGray,
+            ),
           ),
           const SizedBox(height: 16),
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: iosBlue,
               inactiveTrackColor: AppColors.iosGray5.withValues(alpha: 0.6),
-              thumbColor: Colors.white,
+              thumbColor: AppColors.onPrimary,
               trackHeight: 4.0,
               thumbShape: const RoundSliderThumbShape(
                 enabledThumbRadius: 14.0,
@@ -238,7 +241,7 @@ class FontSizePage extends ConsumerWidget {
               tickMarkShape: const RoundSliderTickMarkShape(
                 tickMarkRadius: 3.5,
               ),
-              activeTickMarkColor: Colors.white,
+              activeTickMarkColor: AppColors.onPrimary,
               inactiveTickMarkColor: AppColors.iosGray4,
             ),
             child: Slider(
@@ -267,15 +270,15 @@ class FontSizePage extends ConsumerWidget {
               children: [
                 Text(
                   t.common.smaller,
-                  style: const TextStyle(
-                    fontSize: 13,
+                  style: TextStyle(
+                    fontSize: FontSizeType.footnote.size,
                     color: AppColors.iosGray,
                   ),
                 ),
                 Text(
                   t.main.larger,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  style: TextStyle(
+                    fontSize: FontSizeType.body.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -302,7 +305,10 @@ class FontSizePage extends ConsumerWidget {
             param1: state.previewOption.displayName,
             param2: ((state.previewOption.scale * 100).toInt()).toString(),
           ),
-          style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+          style: TextStyle(
+            fontSize: FontSizeType.small.size,
+            color: AppColors.iosGray,
+          ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(
@@ -318,7 +324,7 @@ class FontSizePage extends ConsumerWidget {
           child: Text(
             t.main.recommended,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: FontSizeType.small.size,
               color: AppColors.getIosBlue(Theme.of(context).brightness),
               fontWeight: FontWeight.w600,
             ),

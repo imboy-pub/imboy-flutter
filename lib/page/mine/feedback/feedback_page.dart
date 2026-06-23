@@ -15,6 +15,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:feedback/feedback.dart';
 import 'package:imboy/page/mine/feedback/feedback_provider.dart';
 
@@ -137,16 +138,16 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                       children: [
                         Text(
                           t.common.feedback,
-                          style: const TextStyle(
-                            fontSize: 15,
+                          style: TextStyle(
+                            fontSize: FontSizeType.subheadline.size,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           t.common.feedbackSlogan,
-                          style: const TextStyle(
-                            fontSize: 13,
+                          style: TextStyle(
+                            fontSize: FontSizeType.footnote.size,
                             color: AppColors.iosGray,
                           ),
                         ),
@@ -162,8 +163,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                     onPressed: _showFeedbackEditor,
                     child: Text(
                       t.common.newFeedback,
-                      style: const TextStyle(
-                        fontSize: 13,
+                      style: TextStyle(
+                        fontSize: FontSizeType.footnote.size,
                         color: AppColors.lightSurface,
                         fontWeight: FontWeight.w600,
                       ),
@@ -215,7 +216,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           SlidableAction(
             onPressed: (_) => _showDeleteDialog(context, model, index),
             backgroundColor: AppColors.getIosRed(brightness),
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             icon: CupertinoIcons.delete,
             label: t.common.buttonDelete,
           ),
@@ -230,13 +231,16 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           model.body,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 16),
+          style: TextStyle(fontSize: FontSizeType.medium.size),
         ),
         subtitle: Row(
           children: [
             Text(
               DateTimeHelper.lastTimeFmt(model.createdAt),
-              style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.iosGray,
+              ),
             ),
             const SizedBox(width: 8),
             Container(
@@ -251,7 +255,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
             Text(
               model.statusDesc,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: FontSizeType.small.size,
                 color: _getStatusColor(model.statusDesc),
               ),
             ),
@@ -268,7 +272,10 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
               ),
               child: Text(
                 model.type,
-                style: const TextStyle(fontSize: 10, color: AppColors.iosGray),
+                style: TextStyle(
+                  fontSize: FontSizeType.tiny.size,
+                  color: AppColors.iosGray,
+                ),
               ),
             ),
             const SizedBox(width: 8),

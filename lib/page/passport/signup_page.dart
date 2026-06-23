@@ -122,7 +122,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
                       Text(
                         t.main.siginQ,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: FontSizeType.footnote.size,
                           fontWeight: FontWeight.w600,
                           color: _isDark
                               ? AppColors.darkTextPrimary
@@ -134,9 +134,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
                         onTap: () => context.go(AppRoutes.signIn),
                         child: Text(
                           t.account.login,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.primary,
-                            fontSize: 13,
+                            fontSize: FontSizeType.footnote.size,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -473,7 +473,10 @@ class _SignupPageState extends ConsumerState<SignupPage>
         const SizedBox(height: 5),
         Text(
           t.passport.oneKeyLogin,
-          style: TextStyle(fontSize: 12, color: _unselectedLabel),
+          style: TextStyle(
+            fontSize: FontSizeType.small.size,
+            color: _unselectedLabel,
+          ),
         ),
       ],
     );

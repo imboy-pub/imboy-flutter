@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -260,7 +261,7 @@ class _TagInputState extends State<TagInput> {
                     child: Text(
                       '$usageCount',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: FontSizeType.tiny.size,
                         color: isSelected ? Colors.white : AppColors.primary,
                         fontWeight: FontWeight.w600,
                       ),

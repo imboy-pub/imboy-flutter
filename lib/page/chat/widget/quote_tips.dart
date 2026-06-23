@@ -7,6 +7,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class QuoteTipsWidget extends StatelessWidget {
   const QuoteTipsWidget({
@@ -37,7 +38,10 @@ class QuoteTipsWidget extends StatelessWidget {
     if (message is TextMessage) {
       body = Text(
         (message as TextMessage).text,
-        style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+        style: TextStyle(
+          color: AppColors.iosGray,
+          fontSize: FontSizeType.normal.size,
+        ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       );
@@ -58,7 +62,10 @@ class QuoteTipsWidget extends StatelessWidget {
           Expanded(
             child: Text(
               fileMsg.name,
-              style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+              style: TextStyle(
+                color: AppColors.iosGray,
+                fontSize: FontSizeType.normal.size,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -72,7 +79,10 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             "[${t.chat.voiceMessage}]",
-            style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+            style: TextStyle(
+              color: AppColors.iosGray,
+              fontSize: FontSizeType.normal.size,
+            ),
           ),
         ],
       );
@@ -91,7 +101,7 @@ class QuoteTipsWidget extends StatelessWidget {
             style: TextStyle(
               color: AppColors.iosGray,
               fontStyle: FontStyle.italic,
-              fontSize: 14,
+              fontSize: FontSizeType.normal.size,
             ),
           ),
         ],
@@ -105,7 +115,10 @@ class QuoteTipsWidget extends StatelessWidget {
           Expanded(
             child: Text(
               "[${t.main.quote}] $txt",
-              style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+              style: TextStyle(
+                color: AppColors.iosGray,
+                fontSize: FontSizeType.normal.size,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -121,7 +134,10 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             "[${t.chat.voiceMessage}] ${durationMS.toStringAsFixed(1)}''",
-            style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+            style: TextStyle(
+              color: AppColors.iosGray,
+              fontSize: FontSizeType.normal.size,
+            ),
           ),
         ],
       );
@@ -133,7 +149,10 @@ class QuoteTipsWidget extends StatelessWidget {
           Expanded(
             child: Text(
               "[${t.groupSchedule.location}] ${message?.metadata?['title'] ?? ''}",
-              style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+              style: TextStyle(
+                color: AppColors.iosGray,
+                fontSize: FontSizeType.normal.size,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -147,7 +166,10 @@ class QuoteTipsWidget extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             "[${t.chat.video}]",
-            style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+            style: TextStyle(
+              color: AppColors.iosGray,
+              fontSize: FontSizeType.normal.size,
+            ),
           ),
         ],
       );
@@ -163,7 +185,10 @@ class QuoteTipsWidget extends StatelessWidget {
           Expanded(
             child: Text(
               "[${t.chat.businessCard}] ${message?.metadata?['title'] ?? ''}",
-              style: TextStyle(color: AppColors.iosGray, fontSize: 14),
+              style: TextStyle(
+                color: AppColors.iosGray,
+                fontSize: FontSizeType.normal.size,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -215,7 +240,7 @@ class QuoteTipsWidget extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: FontSizeType.footnote.size,
                       fontWeight: FontWeight.w600,
                       color: AppColors.getIosBlue(Theme.of(context).brightness),
                     ),

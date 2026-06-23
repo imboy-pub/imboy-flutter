@@ -8,6 +8,7 @@
 library;
 
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -380,7 +381,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               onChanged: _onSearchChanged,
               style: TextStyle(
                 color: isDark ? Colors.white : Colors.black,
-                fontSize: 15,
+                fontSize: FontSizeType.subheadline.size,
               ),
               decoration: InputDecoration(
                 hintText: t.common.search,
@@ -388,7 +389,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   color: isDark
                       ? AppColors.chatWebSecondaryDark
                       : AppColors.chatWebSecondaryLight,
-                  fontSize: 15,
+                  fontSize: FontSizeType.subheadline.size,
                 ),
                 filled: true,
                 fillColor: isDark ? AppColors.chatWebSurfaceDark : Colors.white,
@@ -437,7 +438,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               color: isDark
                   ? AppColors.chatWebSecondaryDark
                   : AppColors.chatWebSecondaryLight,
-              fontSize: 14,
+              fontSize: FontSizeType.normal.size,
             ),
           ),
         ],
@@ -466,7 +467,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 color: isDark
                     ? AppColors.chatWebSecondaryDark
                     : AppColors.chatWebSecondaryLight,
-                fontSize: 14,
+                fontSize: FontSizeType.normal.size,
               ),
             ),
           ],
@@ -489,7 +490,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   color: isDark
                       ? AppColors.chatWebSecondaryDark
                       : AppColors.chatWebSecondaryLight,
-                  fontSize: 14,
+                  fontSize: FontSizeType.normal.size,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -497,9 +498,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 onPressed: _clearSearchHistory,
                 child: Text(
                   t.common.clear,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.chatWebBrand,
-                    fontSize: 14,
+                    fontSize: FontSizeType.normal.size,
                   ),
                 ),
               ),
@@ -524,7 +525,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   search,
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black,
-                    fontSize: 15,
+                    fontSize: FontSizeType.subheadline.size,
                   ),
                 ),
                 trailing: IconButton(
@@ -569,7 +570,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               _state.error!,
               style: TextStyle(
                 color: isDark ? AppColors.iosRedDark : AppColors.iosRed,
-                fontSize: 14,
+                fontSize: FontSizeType.normal.size,
               ),
             ),
           ],
@@ -596,7 +597,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 color: isDark
                     ? AppColors.chatWebSecondaryDark
                     : AppColors.chatWebSecondaryLight,
-                fontSize: 14,
+                fontSize: FontSizeType.normal.size,
               ),
               textAlign: TextAlign.center,
             ),
@@ -655,7 +656,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           color: isDark
               ? AppColors.chatWebSecondaryDark
               : AppColors.chatWebSecondaryLight,
-          fontSize: 13,
+          fontSize: FontSizeType.footnote.size,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -696,7 +697,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                     words: words,
                     textStyle: TextStyle(
                       color: isDark ? Colors.white : Colors.black,
-                      fontSize: 15,
+                      fontSize: FontSizeType.subheadline.size,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -709,7 +710,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                         color: isDark
                             ? AppColors.chatWebSecondaryDark
                             : AppColors.chatWebSecondaryLight,
-                        fontSize: 13,
+                        fontSize: FontSizeType.footnote.size,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -729,7 +730,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   color: isDark
                       ? AppColors.chatWebSecondaryDark
                       : AppColors.chatWebSecondaryLight,
-                  fontSize: 12,
+                  fontSize: FontSizeType.small.size,
                 ),
               ),
             ],

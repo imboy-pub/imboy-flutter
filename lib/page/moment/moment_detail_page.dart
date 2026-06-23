@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -274,8 +275,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
             child: Text(
               t.discovery.momentsComments,
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
                 fontWeight: FontWeight.w600,
                 color: AppColors.iosGray,
               ),
@@ -314,7 +315,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                     ? const CupertinoActivityIndicator(radius: 8)
                     : Text(
                         t.common.momentsLoadMoreComments,
-                        style: const TextStyle(fontSize: 14),
+                        style: TextStyle(fontSize: FontSizeType.normal.size),
                       ),
               ),
             ),
@@ -368,15 +369,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                   children: [
                     Text(
                       displayName,
-                      style: const TextStyle(
-                        fontSize: 17,
+                      style: TextStyle(
+                        fontSize: FontSizeType.body.size,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
                       parseModelString(post['created_at']),
-                      style: const TextStyle(
-                        fontSize: 13,
+                      style: TextStyle(
+                        fontSize: FontSizeType.footnote.size,
                         color: AppColors.iosGray,
                       ),
                     ),
@@ -390,7 +391,10 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
               padding: const EdgeInsets.only(top: 16),
               child: Text(
                 content,
-                style: const TextStyle(fontSize: 16, height: 1.4),
+                style: TextStyle(
+                  fontSize: FontSizeType.medium.size,
+                  height: 1.4,
+                ),
               ),
             ),
           if (media.isNotEmpty)
@@ -472,7 +476,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
           Text(
             label,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: FontSizeType.normal.size,
               color: color,
               fontWeight: FontWeight.w600,
             ),
@@ -520,11 +524,14 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       ),
       title: Text(
         displayName,
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        style: TextStyle(
+          fontSize: FontSizeType.subheadline.size,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       subtitle: Text(
         subtitleText,
-        style: const TextStyle(fontSize: 14, height: 1.3),
+        style: TextStyle(fontSize: FontSizeType.normal.size, height: 1.3),
       ),
       trailing: canDeleteComment(comment, _moment!, currentUid: currentUid)
           ? CupertinoButton(
@@ -577,8 +584,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                         '{name}',
                         _replyToName,
                       ),
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: TextStyle(
+                        fontSize: FontSizeType.small.size,
                         color: AppColors.iosGray,
                       ),
                     ),
@@ -611,12 +618,12 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       hintText: t.discovery.momentsWriteComment,
                       border: InputBorder.none,
                       isDense: true,
-                      hintStyle: const TextStyle(
-                        fontSize: 15,
+                      hintStyle: TextStyle(
+                        fontSize: FontSizeType.subheadline.size,
                         color: AppColors.iosGray,
                       ),
                     ),
-                    style: const TextStyle(fontSize: 15),
+                    style: TextStyle(fontSize: FontSizeType.subheadline.size),
                   ),
                 ),
               ),
@@ -633,8 +640,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       )
                     : Text(
                         t.chat.momentsSend,
-                        style: const TextStyle(
-                          fontSize: 14,
+                        style: TextStyle(
+                          fontSize: FontSizeType.normal.size,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

@@ -7,6 +7,8 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart'
     show TagRelationPage;
 
@@ -57,7 +59,10 @@ class UserCollectDetailPage extends ConsumerWidget {
             Container(
               width: 40,
               height: 4,
-              margin: const EdgeInsets.only(top: 16, bottom: 24),
+              margin: const EdgeInsets.only(
+                top: AppSpacing.regular,
+                bottom: AppSpacing.xLarge,
+              ),
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
@@ -70,7 +75,7 @@ class UserCollectDetailPage extends ConsumerWidget {
             Text(
               t.common.operationOptions,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: FontSizeType.large.size,
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
@@ -294,8 +299,8 @@ class UserCollectDetailPage extends ConsumerWidget {
                 ),
                 child: Text(
                   t.common.buttonCancel,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: FontSizeType.medium.size,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -345,7 +350,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                       Text(
                         title,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.w600,
                           color: isDestructive
                               ? AppColors.getIosRed(
@@ -358,7 +363,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                       Text(
                         subtitle,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: FontSizeType.normal.size,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -437,7 +442,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                     child: Text(
                       "${t.main.from} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: FontSizeType.normal.size,
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.8),
@@ -489,7 +494,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                         Text(
                           "${t.contact.remark}:",
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: FontSizeType.medium.size,
                             fontWeight: FontWeight.w600,
                             color: isDark
                                 ? Theme.of(context).colorScheme.onSurface
@@ -502,7 +507,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                     Text(
                       obj.remark,
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: FontSizeType.subheadline.size,
                         color: isDark
                             ? Theme.of(context).colorScheme.onSurface
                             : AppColors.deepNavy,

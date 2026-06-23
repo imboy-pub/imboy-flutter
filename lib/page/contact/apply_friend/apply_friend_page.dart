@@ -161,7 +161,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
@@ -209,11 +209,11 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                   }
                 },
           child: _isSubmitting
-              ? const CupertinoActivityIndicator(color: Colors.white)
+              ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   t.common.buttonSend,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  style: TextStyle(
+                    fontSize: FontSizeType.body.size,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

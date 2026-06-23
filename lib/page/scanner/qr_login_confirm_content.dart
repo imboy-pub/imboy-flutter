@@ -12,6 +12,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/page/scanner/qr_login_confirm_rules.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -96,7 +97,7 @@ class QrLoginConfirmContent extends StatelessWidget {
       children: [
         const CircularProgressIndicator(color: AppColors.primary),
         const SizedBox(height: 24),
-        Text(hint, style: const TextStyle(fontSize: 16)),
+        Text(hint, style: TextStyle(fontSize: FontSizeType.medium.size)),
       ],
     );
   }
@@ -104,7 +105,7 @@ class QrLoginConfirmContent extends StatelessWidget {
   Widget _info(String text) {
     return Text(
       text,
-      style: const TextStyle(fontSize: 16),
+      style: TextStyle(fontSize: FontSizeType.medium.size),
       textAlign: TextAlign.center,
     );
   }
@@ -115,14 +116,20 @@ class QrLoginConfirmContent extends StatelessWidget {
       children: [
         const Icon(Icons.computer_outlined, size: 80, color: AppColors.primary),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Web 端登录确认',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: FontSizeType.title.size,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           '请确认是否在 Web 端登录此账号',
-          style: TextStyle(fontSize: 14, color: AppColors.lightTextSecondary),
+          style: TextStyle(
+            fontSize: FontSizeType.normal.size,
+            color: AppColors.lightTextSecondary,
+          ),
         ),
         if (deviceInfo != null) ...[
           const SizedBox(height: 24),
@@ -141,9 +148,12 @@ class QrLoginConfirmContent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
               ),
             ),
-            child: const Text(
+            child: Text(
               '确认登录',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: FontSizeType.medium.size,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
@@ -153,9 +163,12 @@ class QrLoginConfirmContent extends StatelessWidget {
           height: 48,
           child: TextButton(
             onPressed: onCancel,
-            child: const Text(
+            child: Text(
               '取消',
-              style: TextStyle(fontSize: 16, color: AppColors.iosRed),
+              style: TextStyle(
+                fontSize: FontSizeType.medium.size,
+                color: AppColors.iosRed,
+              ),
             ),
           ),
         ),
@@ -166,12 +179,19 @@ class QrLoginConfirmContent extends StatelessWidget {
   Widget _success() {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: const [
-        Icon(Icons.check_circle_outline, size: 80, color: AppColors.primary),
-        SizedBox(height: 24),
+      children: [
+        const Icon(
+          Icons.check_circle_outline,
+          size: 80,
+          color: AppColors.primary,
+        ),
+        const SizedBox(height: 24),
         Text(
           '登录成功',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: FontSizeType.large.size,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );
@@ -185,7 +205,7 @@ class QrLoginConfirmContent extends StatelessWidget {
         const SizedBox(height: 24),
         Text(
           message,
-          style: const TextStyle(fontSize: 16),
+          style: TextStyle(fontSize: FontSizeType.medium.size),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 40),
@@ -199,7 +219,10 @@ class QrLoginConfirmContent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
               ),
             ),
-            child: const Text('关闭', style: TextStyle(fontSize: 16)),
+            child: Text(
+              '关闭',
+              style: TextStyle(fontSize: FontSizeType.medium.size),
+            ),
           ),
         ),
       ],
@@ -236,7 +259,10 @@ class _DeviceInfoCard extends StatelessWidget {
             .map(
               (line) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Text(line, style: const TextStyle(fontSize: 14)),
+                child: Text(
+                  line,
+                  style: TextStyle(fontSize: FontSizeType.normal.size),
+                ),
               ),
             )
             .toList(),

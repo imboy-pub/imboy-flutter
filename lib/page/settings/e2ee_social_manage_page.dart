@@ -181,13 +181,13 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                     vertical: AppSpacing.tiny,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.purple.shade100,
+                    color: AppColors.iosPurple.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     '$shardIndex',
-                    style: TextStyle(
-                      color: Colors.purple.shade700,
+                    style: const TextStyle(
+                      color: AppColors.iosPurple,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -212,8 +212,8 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                   ),
                   decoration: BoxDecoration(
                     color: status == 'active'
-                        ? Colors.green.shade100
-                        : Colors.grey.shade200,
+                        ? AppColors.iosGreen.withValues(alpha: 0.2)
+                        : AppColors.iosGray5,
                     borderRadius: AppRadius.borderRadiusSmall,
                   ),
                   child: Text(
@@ -221,10 +221,10 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
                         ? t.main.e2eeSocialShardActive
                         : t.main.e2eeSocialShardUsed,
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: FontSizeType.caption2.size,
                       color: status == 'active'
-                          ? Colors.green.shade700
-                          : Colors.grey.shade600,
+                          ? AppColors.iosGreen
+                          : AppColors.iosGray,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

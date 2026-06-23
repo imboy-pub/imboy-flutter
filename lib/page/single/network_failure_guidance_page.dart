@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -24,7 +25,7 @@ class NetworkFailureGuidancePage extends ConsumerWidget {
                 t.error.suggestCheckNetwork,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 17.0,
+                  fontSize: FontSizeType.body.size,
                   fontWeight: FontWeight.w600,
                 ),
               ),

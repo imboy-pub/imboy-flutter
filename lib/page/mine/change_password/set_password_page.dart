@@ -10,6 +10,7 @@ import 'package:imboy/modules/identity/public.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -74,7 +75,7 @@ class SetPasswordPage extends ConsumerWidget {
                             Text(
                               t.account.setLoginPassword,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: FontSizeType.medium.size,
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),
@@ -83,7 +84,7 @@ class SetPasswordPage extends ConsumerWidget {
                             Text(
                               t.account.enhanceAccountSecurity,
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: FontSizeType.normal.size,
                                 color: colorScheme.onSurface.withAlpha(179),
                               ),
                             ),
@@ -105,7 +106,7 @@ class SetPasswordPage extends ConsumerWidget {
                         Text(
                           t.common.setPasswordSecurityTips,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: FontSizeType.normal.size,
                             color: colorScheme.onSurface.withAlpha(204),
                             height: 1.4,
                           ),
@@ -114,7 +115,7 @@ class SetPasswordPage extends ConsumerWidget {
                         Text(
                           t.account.passwordLengthRequirement,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: FontSizeType.footnote.size,
                             color: colorScheme.primary,
                             fontWeight: FontWeight.w500,
                           ),
@@ -162,7 +163,7 @@ class SetPasswordPage extends ConsumerWidget {
                             Text(
                               t.account.newPassword,
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: FontSizeType.normal.size,
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),
@@ -216,7 +217,7 @@ class SetPasswordPage extends ConsumerWidget {
                             Text(
                               t.account.retypePassword,
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: FontSizeType.normal.size,
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),

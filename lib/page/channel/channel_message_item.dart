@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -118,7 +119,10 @@ class ChannelMessageItem extends StatelessWidget {
           color: Colors.grey.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: Text(emoji, style: const TextStyle(fontSize: 24)),
+        child: Text(
+          emoji,
+          style: TextStyle(fontSize: FontSizeType.largeTitle.size),
+        ),
       ),
     );
   }
@@ -168,7 +172,7 @@ class ChannelMessageItem extends StatelessWidget {
               message.authorName != null && message.authorName!.isNotEmpty
                   ? message.authorName![0].toUpperCase()
                   : '?',
-              style: const TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: FontSizeType.normal.size),
             )
           : null,
     );
@@ -199,7 +203,7 @@ class ChannelMessageItem extends StatelessWidget {
                         Text(
                           message.authorName ?? '',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: FontSizeType.small.size,
                             color: Colors.grey[600],
                             fontWeight: FontWeight.w500,
                           ),
@@ -217,8 +221,8 @@ class ChannelMessageItem extends StatelessWidget {
                             ),
                             child: Text(
                               t.channel.admin,
-                              style: const TextStyle(
-                                fontSize: 9,
+                              style: TextStyle(
+                                fontSize: FontSizeType.tiny.size,
                                 color: AppColors.primary,
                               ),
                             ),
@@ -274,7 +278,7 @@ class ChannelMessageItem extends StatelessWidget {
                         Text(
                           '${message.viewCount}',
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: FontSizeType.tiny.size,
                             color: Colors.grey[500],
                           ),
                         ),
@@ -508,7 +512,10 @@ class ChannelMessageItem extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: AppRadius.borderRadiusCell,
             ),
-            child: Text('$emoji $count', style: const TextStyle(fontSize: 11)),
+            child: Text(
+              '$emoji $count',
+              style: TextStyle(fontSize: FontSizeType.caption2.size),
+            ),
           ),
         ),
       );
@@ -581,7 +588,11 @@ class ChannelMessageItem extends StatelessWidget {
   Widget _buildTextContent(Color textColor) {
     return SelectableText(
       message.content,
-      style: TextStyle(fontSize: 16, height: 1.4, color: textColor),
+      style: TextStyle(
+        fontSize: FontSizeType.medium.size,
+        height: 1.4,
+        color: textColor,
+      ),
     );
   }
 
@@ -701,7 +712,7 @@ class ChannelMessageItem extends StatelessWidget {
                   Text(
                     _formatFileSize(size),
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: FontSizeType.small.size,
                       color: textColor.withValues(alpha: 0.7),
                     ),
                   ),
@@ -837,7 +848,7 @@ class _ChannelAudioPlayerState extends ConsumerState<_ChannelAudioPlayer> {
               "${widget.durationSec}''",
               style: TextStyle(
                 color: widget.textColor,
-                fontSize: 14,
+                fontSize: FontSizeType.normal.size,
                 fontFamily: 'monospace',
                 fontWeight: FontWeight.bold,
               ),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -190,7 +191,10 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
             child: Text(
               txt,
               textAlign: TextAlign.left,
-              style: const TextStyle(color: Colors.black, fontSize: 24),
+              style: TextStyle(
+                color: AppColors.lightTextPrimary,
+                fontSize: FontSizeType.largeTitle.size,
+              ),
             ),
           ),
         ),

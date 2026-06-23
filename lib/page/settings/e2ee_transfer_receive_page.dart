@@ -191,14 +191,14 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
                 height: 64,
                 child: CupertinoActivityIndicator(),
               ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xLarge),
             Text(
               _statusMessage ?? t.common.e2eeTransferProcessingMsg,
               style: TextStyle(fontSize: FontSizeType.medium.size),
               textAlign: TextAlign.center,
             ),
             if (_isFailed) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xLarge),
               CupertinoButton.filled(
                 child: Text(t.common.buttonRetry),
                 onPressed: () {

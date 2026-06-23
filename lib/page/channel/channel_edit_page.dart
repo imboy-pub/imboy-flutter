@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -499,7 +500,10 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                   const Spacer(),
                   Text(
                     t.channel.typeCannotChange,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: FontSizeType.small.size,
+                      color: AppColors.iosGray,
+                    ),
                   ),
                 ],
               ),

@@ -8,6 +8,8 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 
@@ -338,9 +340,10 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
           child: Center(
             child: Text(
               t.common.chatSettingBackground,
-              style: const TextStyle(
-                fontSize: 18,
+              style: TextStyle(
+                fontSize: FontSizeType.large.size,
                 fontWeight: FontWeight.w500,
+                // 背景预览图上的半透明黑标题文字，无对应语义 token，保留
                 color: Colors.black54,
               ),
             ),
@@ -361,9 +364,12 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       children: [
         Text(
           t.common.backgroundSelectColor,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: FontSizeType.large.size,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        const SizedBox(height: 12),
+        AppSpacing.verticalMedium,
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -412,11 +418,11 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: AppSpacing.allSmall,
                       child: Text(
                         name,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: FontSizeType.small.size,
                           fontWeight: state.currentBackground == option
                               ? FontWeight.w600
                               : FontWeight.w400,
@@ -504,7 +510,10 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       children: [
         Text(
           t.common.backgroundTransparency,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: FontSizeType.large.size,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 12),
         Slider(
@@ -530,7 +539,10 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       children: [
         Text(
           t.common.backgroundUseCustomColor,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: FontSizeType.large.size,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 12),
         SwitchListTile(

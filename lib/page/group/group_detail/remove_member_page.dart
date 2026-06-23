@@ -17,6 +17,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 
 import 'remove_member_provider.dart';
 
@@ -83,7 +84,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                   ),
                 ),
                 Avatar(imgUri: model.avatar, width: 49, height: 49),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.small),
                 Expanded(
                   child: Container(
                     alignment: Alignment.centerLeft,
@@ -105,7 +106,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                           child: Text(
                             model.alias.isEmpty ? model.nickname : model.alias,
                             style: TextStyle(
-                              fontSize: 14.0,
+                              fontSize: FontSizeType.normal.size,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),

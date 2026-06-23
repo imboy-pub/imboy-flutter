@@ -167,7 +167,10 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                       width: 1,
                     ),
                   ),
-                  child: Text(emoji, style: const TextStyle(fontSize: 20)),
+                  child: Text(
+                    emoji,
+                    style: TextStyle(fontSize: FontSizeType.extraLarge.size),
+                  ),
                 ),
               ),
             ),

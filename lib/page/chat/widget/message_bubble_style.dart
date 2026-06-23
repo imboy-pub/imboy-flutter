@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 消息气泡样式配置类
 /// 提供现代化的消息气泡样式设计
@@ -112,7 +113,7 @@ class MessageBubbleStyle {
     final theme = Theme.of(context);
 
     return TextStyle(
-      fontSize: 16,
+      fontSize: FontSizeType.medium.size,
       fontWeight: FontWeight.w400,
       color: isSentByMe
           ? AppColors.sentMessageText
@@ -124,7 +125,7 @@ class MessageBubbleStyle {
   /// 获取时间戳样式
   static TextStyle getTimestampStyle(BuildContext context) {
     return TextStyle(
-      fontSize: 12,
+      fontSize: FontSizeType.small.size,
       color: AppColors.getTextColor(
         Theme.of(context).brightness,
         isSecondary: true,

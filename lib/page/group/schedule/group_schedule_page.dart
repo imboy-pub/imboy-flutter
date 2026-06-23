@@ -11,6 +11,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_schedule_service.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 群日程页面
 class GroupSchedulePage extends ConsumerStatefulWidget {
@@ -65,7 +66,7 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
                 labelText: t.groupSchedule.scheduleTitle,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.regular),
             Row(
               children: [
                 Expanded(
@@ -256,27 +257,27 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
                   children: [
                     Text(
                       '${dt.day}',
-                      style: const TextStyle(
-                        fontSize: 20,
+                      style: TextStyle(
+                        fontSize: FontSizeType.extraLarge.size,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
                       _getMonthName(dt.month),
-                      style: const TextStyle(fontSize: 12),
+                      style: TextStyle(fontSize: FontSizeType.small.size),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.regular),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       schedule['title'] as String? ?? '',
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: FontSizeType.medium.size,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

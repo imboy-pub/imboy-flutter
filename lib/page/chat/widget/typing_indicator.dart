@@ -9,6 +9,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TypingIndicatorWidget extends ConsumerStatefulWidget {
@@ -114,12 +115,12 @@ class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
               size: 6,
             ),
           ),
-          const SizedBox(width: 8),
+          AppSpacing.horizontalSmall,
           Text(
             t.chat.peerIsTyping(name: widget.peerTitle),
             style: TextStyle(
               color: themeNotifier.getThemeColor('textSecondary'),
-              fontSize: 12,
+              fontSize: FontSizeType.small.size,
             ),
           ),
         ],

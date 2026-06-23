@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -118,8 +119,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                       _selectedType == 'random'
                           ? t.common.redPacketCurrentLucky
                           : t.common.redPacketCurrentNormal,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: FontSizeType.medium.size,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -145,9 +146,12 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
 
               // 红包个数（仅群聊）
               if (_isGroup) ...[
-                const Text(
+                Text(
                   '红包个数',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -176,8 +180,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
               // 总金额输入
               Text(
                 _selectedType == 'random' ? '总金额' : '单个金额',
-                style: const TextStyle(
-                  fontSize: 15,
+                style: TextStyle(
+                  fontSize: FontSizeType.subheadline.size,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -208,9 +212,12 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
               const SizedBox(height: 24),
 
               // 祝福语
-              const Text(
+              Text(
                 '留言/祝福语',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: FontSizeType.subheadline.size,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -228,7 +235,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
               Text(
                 '钱包当前余额: ￥${balanceYuan.toStringAsFixed(2)}',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: FontSizeType.footnote.size,
                   color: isDark ? Colors.white54 : Colors.black45,
                 ),
               ),
@@ -249,8 +256,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                   ),
                   child: Text(
                     _selectedType == 'random' ? '塞钱发红包' : '放入钱包发送',
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: FontSizeType.medium.size,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

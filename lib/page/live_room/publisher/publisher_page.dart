@@ -125,9 +125,9 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                       ),
                       child: Text(
                         'Key: ${'*' * 8}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.darkTextPrimary,
-                          fontSize: 10,
+                          fontSize: FontSizeType.tiny.size,
                         ),
                       ),
                     ),

@@ -13,6 +13,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 用户更多信息页面
 class PeopleInfoMorePage extends ConsumerStatefulWidget {
@@ -89,7 +90,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                       child: Text(
                         title,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
@@ -112,7 +113,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                   maxLines: maxLines,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: FontSizeType.subheadline.size,
                     height: 1.5,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w400,
@@ -196,7 +197,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                       Text(
                         t.group.mutualGroupsWithHer,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
@@ -207,7 +208,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                             ? t.main.numUnit(param: '${state.groupCount}')
                             : t.common.noCommonGroups,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: FontSizeType.normal.size,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -231,7 +232,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     child: Text(
                       '${state.groupCount}',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: FontSizeType.normal.size,
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.primary,
                       ),

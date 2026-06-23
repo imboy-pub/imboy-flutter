@@ -65,9 +65,9 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                     color: AppColors.getIosBlue(brightness),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.mail,
-                    color: Colors.white,
+                    color: AppColors.onPrimary,
                     size: 18,
                   ),
                 ),
@@ -87,7 +87,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                   child: Text(
                     hasBound ? t.main.bound : t.common.notBound,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: FontSizeType.small.size,
                       fontWeight: FontWeight.w600,
                       color: hasBound
                           ? AppColors.getIosBlue(brightness)
@@ -202,7 +202,10 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
             child: Text(
               t.common.verificationCodeSentToEmail,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.iosGray, fontSize: 13),
+              style: TextStyle(
+                color: AppColors.iosGray,
+                fontSize: FontSizeType.footnote.size,
+              ),
             ),
           ),
         ],
@@ -241,12 +244,15 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
           : null,
       minimumSize: Size(44, 44),
       child: state.isSendingCode
-          ? const CupertinoActivityIndicator(radius: 8, color: Colors.white)
+          ? CupertinoActivityIndicator(radius: 8, color: AppColors.onPrimary)
           : Text(
               state.seconds > 0
                   ? '${state.seconds}s'
                   : t.common.getVerificationCode,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                fontWeight: FontWeight.w600,
+              ),
             ),
     );
   }
@@ -271,7 +277,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -289,11 +295,11 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                 }
               : null,
           child: state.isSubmitting
-              ? const CupertinoActivityIndicator(color: Colors.white)
+              ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   hasBound ? t.common.confirmChange : t.common.bindNow,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  style: TextStyle(
+                    fontSize: FontSizeType.body.size,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -323,7 +329,10 @@ class _ValidationRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.iosGray,
+              ),
             ),
           ),
           Icon(
@@ -332,7 +341,10 @@ class _ValidationRow extends StatelessWidget {
             color: color,
           ),
           const SizedBox(width: 4),
-          Text(text, style: TextStyle(fontSize: 12, color: color)),
+          Text(
+            text,
+            style: TextStyle(fontSize: FontSizeType.small.size, color: color),
+          ),
         ],
       ),
     );

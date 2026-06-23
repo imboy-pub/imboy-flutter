@@ -87,7 +87,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                 trailing: Text(
                   state.remainingChars.toString(),
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: FontSizeType.normal.size,
                     color: state.remainingChars < 0
                         ? AppColors.iosRed
                         : AppColors.iosGray,
@@ -112,9 +112,9 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                   Expanded(
                     child: Text(
                       state.validationError,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.iosRed,
-                        fontSize: 13,
+                        fontSize: FontSizeType.footnote.size,
                       ),
                     ),
                   ),

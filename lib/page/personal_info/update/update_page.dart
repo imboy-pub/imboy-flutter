@@ -69,7 +69,7 @@ class UpdatePage extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
               ),
               child: Material(
-                color: Colors.transparent,
+                color: AppColors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
                   onTap: state.valueChanged
@@ -111,7 +111,7 @@ class UpdatePage extends ConsumerWidget {
                         FontSizeType.small,
                         fontWeight: FontWeight.w600,
                         color: state.valueChanged
-                            ? Colors.white
+                            ? AppColors.onPrimary
                             : AppColors.getTextColor(
                                 Theme.of(context).brightness,
                                 isSecondary: true,
@@ -142,21 +142,26 @@ class UpdatePage extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest
+            : AppColors.lightSurface,
         borderRadius: AppRadius.borderRadiusMedium,
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.05),
+                ? AppColors.lightTextPrimary.withValues(alpha: 0.2)
+                : AppColors.lightTextPrimary.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.tiny,
+        vertical: 2,
+      ),
       child: TextFormField(
         autofocus: true,
         focusNode: focusNode,
@@ -213,7 +218,7 @@ class UpdatePage extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(AppSpacing.regular),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -221,13 +226,13 @@ class UpdatePage extends ConsumerWidget {
             decoration: BoxDecoration(
               color: isDark
                   ? colorScheme.surfaceContainerHighest
-                  : Colors.white,
+                  : AppColors.lightSurface,
               borderRadius: AppRadius.borderRadiusMedium,
               boxShadow: [
                 BoxShadow(
                   color: isDark
-                      ? Colors.black.withValues(alpha: 0.2)
-                      : Colors.black.withValues(alpha: 0.05),
+                      ? AppColors.lightTextPrimary.withValues(alpha: 0.2)
+                      : AppColors.lightTextPrimary.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -244,14 +249,16 @@ class UpdatePage extends ConsumerWidget {
               textCapitalization: TextCapitalization.sentences,
               textInputAction: TextInputAction.newline,
               style: TextStyle(
-                fontSize: 16,
-                color: isDark ? Colors.white : AppColors.lightNearBlack,
+                fontSize: FontSizeType.medium.size,
+                color: isDark
+                    ? AppColors.lightSurface
+                    : AppColors.lightNearBlack,
                 height: 1.4,
               ),
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.all(16),
+                contentPadding: const EdgeInsets.all(AppSpacing.regular),
                 hintStyle: TextStyle(
-                  fontSize: 16,
+                  fontSize: FontSizeType.medium.size,
                   color: isDark ? AppColors.iosGray3Dark : AppColors.iosGray3,
                 ),
                 filled: false,
@@ -261,7 +268,7 @@ class UpdatePage extends ConsumerWidget {
                 errorBorder: InputBorder.none,
                 focusedErrorBorder: InputBorder.none,
                 counterStyle: TextStyle(
-                  fontSize: 12,
+                  fontSize: FontSizeType.small.size,
                   color: isDark ? AppColors.iosGray : AppColors.neutralGray,
                 ),
               ),
@@ -291,24 +298,29 @@ class UpdatePage extends ConsumerWidget {
     WidgetRef ref,
     TextEditingController controller,
   ) {
-    Widget secondary = const Text(
+    Widget secondary = Text(
       '√',
-      style: TextStyle(fontSize: 20, color: AppColors.iosGreen),
+      style: TextStyle(
+        fontSize: FontSizeType.extraLarge.size,
+        color: AppColors.iosGreen,
+      ),
     );
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
     final state = ref.watch(updatePageProvider);
 
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest
+            : AppColors.lightSurface,
         borderRadius: AppRadius.borderRadiusMedium,
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.05),
+                ? AppColors.lightTextPrimary.withValues(alpha: 0.2)
+                : AppColors.lightTextPrimary.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -322,7 +334,9 @@ class UpdatePage extends ConsumerWidget {
             title: Text(
               t.main.male,
               style: TextStyle(
-                fontSize: state.value == '1' ? 20 : 16,
+                fontSize: state.value == '1'
+                    ? FontSizeType.extraLarge.size
+                    : FontSizeType.medium.size,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -343,7 +357,9 @@ class UpdatePage extends ConsumerWidget {
             title: Text(
               t.main.female,
               style: TextStyle(
-                fontSize: state.value == '2' ? 20 : 16,
+                fontSize: state.value == '2'
+                    ? FontSizeType.extraLarge.size
+                    : FontSizeType.medium.size,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -364,7 +380,9 @@ class UpdatePage extends ConsumerWidget {
             title: Text(
               t.main.keepSecret,
               style: TextStyle(
-                fontSize: state.value == '3' ? 20 : 16,
+                fontSize: state.value == '3'
+                    ? FontSizeType.extraLarge.size
+                    : FontSizeType.medium.size,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -379,7 +397,7 @@ class UpdatePage extends ConsumerWidget {
               onChanged(val, ref, controller);
             },
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSpacing.tiny),
         ],
       ),
     );

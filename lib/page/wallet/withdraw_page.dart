@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -109,7 +110,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                     Text(
                       t.common.smallChange,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: FontSizeType.normal.size,
                         color: AppColors.getTextColor(
                           brightness,
                           isSecondary: true,
@@ -119,8 +120,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                     const SizedBox(height: 8),
                     Text(
                       '￥${balanceYuan.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 32,
+                      style: TextStyle(
+                        fontSize: FontSizeType.extraLargeTitle.size,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -132,8 +133,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
               // 提现渠道选择
               Text(
                 t.common.withdrawMethod,
-                style: const TextStyle(
-                  fontSize: 16,
+                style: TextStyle(
+                  fontSize: FontSizeType.medium.size,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -192,8 +193,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
               // 提现账号输入
               Text(
                 t.common.withdrawAccount,
-                style: const TextStyle(
-                  fontSize: 16,
+                style: TextStyle(
+                  fontSize: FontSizeType.medium.size,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -220,8 +221,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                 t.common.withdrawConfirm.contains('Confirm')
                     ? 'Withdrawal Amount'
                     : '提现金额',
-                style: const TextStyle(
-                  fontSize: 16,
+                style: TextStyle(
+                  fontSize: FontSizeType.medium.size,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -266,8 +267,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   ),
                   child: Text(
                     t.common.withdrawConfirm,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: FontSizeType.medium.size,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

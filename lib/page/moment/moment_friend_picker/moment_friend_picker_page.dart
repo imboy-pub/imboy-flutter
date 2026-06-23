@@ -13,6 +13,7 @@
 library;
 
 import 'package:azlistview/azlistview.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -368,7 +369,7 @@ class _MomentFriendPickerPageState
               entry.tag.name,
               style: TextStyle(
                 color: fg,
-                fontSize: 13,
+                fontSize: FontSizeType.footnote.size,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
@@ -410,7 +411,10 @@ class _MomentFriendPickerPageState
           alignment: Alignment.centerLeft,
           child: Text(
             c.getSuspensionTag(),
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: FontSizeType.small.size,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         );
       },
@@ -431,7 +435,7 @@ class _MomentFriendPickerPageState
             Expanded(
               child: Text(
                 c.title,
-                style: const TextStyle(fontSize: 15),
+                style: TextStyle(fontSize: FontSizeType.subheadline.size),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -462,7 +466,10 @@ class _MomentFriendPickerPageState
         ),
         child: Text(
           t.momentFriendPicker.selectedCount(count: count),
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: FontSizeType.footnote.size,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );

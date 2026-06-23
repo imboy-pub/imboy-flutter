@@ -91,7 +91,10 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(model.title, style: const TextStyle(fontSize: 16)),
+                  Text(
+                    model.title,
+                    style: TextStyle(fontSize: FontSizeType.medium.size),
+                  ),
                   if (model.sign.isNotEmpty)
                     Text(
                       model.sign,
@@ -123,7 +126,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
       child: Text(
         tag,
         style: TextStyle(
-          fontSize: 14,
+          fontSize: FontSizeType.normal.size,
           color: isDark ? Colors.white : Colors.black87,
           fontWeight: FontWeight.bold,
         ),
@@ -525,9 +528,11 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                 child: Text(
                                                   t.common.removeContactFromTag,
                                                   textAlign: TextAlign.center,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     color: AppColors.iosRed,
-                                                    fontSize: 16.0,
+                                                    fontSize: FontSizeType
+                                                        .medium
+                                                        .size,
                                                     fontWeight:
                                                         FontWeight.normal,
                                                   ),
@@ -542,8 +547,10 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                 child: Text(
                                                   t.common.buttonCancel,
                                                   textAlign: TextAlign.center,
-                                                  style: const TextStyle(
-                                                    fontSize: 16.0,
+                                                  style: TextStyle(
+                                                    fontSize: FontSizeType
+                                                        .medium
+                                                        .size,
                                                     fontWeight:
                                                         FontWeight.normal,
                                                   ),
@@ -584,8 +591,8 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                         indexBarOptions: IndexBarOptions(
                           needRebuild: true,
                           ignoreDragCancel: true,
-                          downTextStyle: const TextStyle(
-                            fontSize: 12,
+                          downTextStyle: TextStyle(
+                            fontSize: FontSizeType.small.size,
                             color: Colors.white,
                           ),
                           downItemDecoration: const BoxDecoration(
@@ -637,7 +644,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                         t.common.buttonAdd,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 16.0,
+                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.normal,
                         ),
                       ),

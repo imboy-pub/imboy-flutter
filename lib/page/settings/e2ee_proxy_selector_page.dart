@@ -8,6 +8,7 @@ import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 社交恢复 - 好友选择器页面
@@ -218,7 +219,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         actions: [
           Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.regular,
+              ),
               child: Text(
                 t.main.e2eeProxySelectedCount(
                   selected: selectedCount,
@@ -228,9 +231,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                   fontSize: FontSizeType.normal.size,
                   color: selectedCount >= widget.requiredCount
                       ? AppColors.iosGreen
-                      : isDark
-                      ? Colors.white70
-                      : Colors.black54,
+                      : AppColors.iosGray,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -247,7 +248,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                 _buildInfoCard(isDark),
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.small,
+                    ),
                     itemCount: _contacts.length,
                     itemBuilder: (context, index) {
                       final contact = _contacts[index];
@@ -278,13 +281,19 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
     final canConfirm = selectedCount >= widget.requiredCount;
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(AppSpacing.regular),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: canConfirm
-              ? [Colors.green.shade50, Colors.green.shade100]
-              : [Colors.blue.shade50, Colors.blue.shade100],
+              ? [
+                  AppColors.iosGreen.withValues(alpha: 0.1),
+                  AppColors.iosGreen.withValues(alpha: 0.2),
+                ]
+              : [
+                  AppColors.iosBlue.withValues(alpha: 0.1),
+                  AppColors.iosBlue.withValues(alpha: 0.2),
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -297,7 +306,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
             color: canConfirm ? AppColors.iosGreen : AppColors.iosBlue,
             size: 24,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.medium),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,22 +316,20 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                       ? t.main.e2eeProxyReachedMin
                       : t.main.e2eeProxySelectTitle,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: FontSizeType.subheadline.size,
                     fontWeight: FontWeight.bold,
                     color: canConfirm ? AppColors.iosGreen : AppColors.iosBlue,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.tiny),
                 Text(
                   t.common.e2eeProxyNeedMore(
                     count: widget.requiredCount,
                     selected: selectedCount,
                   ),
                   style: TextStyle(
-                    fontSize: 13,
-                    color: canConfirm
-                        ? Colors.green.shade700
-                        : Colors.blue.shade700,
+                    fontSize: FontSizeType.footnote.size,
+                    color: canConfirm ? AppColors.iosGreen : AppColors.iosBlue,
                   ),
                 ),
               ],
@@ -335,13 +342,18 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
 
   Widget _buildContactItem(ContactModel contact, bool isSelected, bool isDark) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.tiny,
+      ),
       decoration: BoxDecoration(
         color: isSelected
             ? (isDark
                   ? AppColors.iosBlue.withValues(alpha: 0.2)
                   : AppColors.iosBlue.withValues(alpha: 0.1))
-            : (isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white),
+            : (isDark
+                  ? AppColors.darkSurfaceGroupedTertiary
+                  : AppColors.lightSurface),
         borderRadius: AppRadius.borderRadiusMedium,
         border: Border.all(
           color: isSelected ? AppColors.iosBlue : AppColors.transparent,
@@ -352,7 +364,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         onTap: () => _toggleSelection(contact.peerId.toString()),
         borderRadius: AppRadius.borderRadiusMedium,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AppSpacing.medium),
           child: Row(
             children: [
               // 头像
@@ -362,7 +374,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                 height: 50,
                 heroTag: 'avatar_${contact.peerId}',
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.medium),
               // 信息
               Expanded(
                 child: Column(
@@ -370,8 +382,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                   children: [
                     Text(
                       contact.title,
-                      style: const TextStyle(
-                        fontSize: 15,
+                      style: TextStyle(
+                        fontSize: FontSizeType.subheadline.size,
                         fontWeight: FontWeight.w500,
                       ),
                       maxLines: 1,
@@ -382,8 +394,8 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                       Text(
                         contact.sign,
                         style: TextStyle(
-                          fontSize: 13,
-                          color: isDark ? Colors.white60 : Colors.black54,
+                          fontSize: FontSizeType.footnote.size,
+                          color: AppColors.iosGray,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -405,7 +417,11 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                   color: isSelected ? AppColors.iosBlue : AppColors.transparent,
                 ),
                 child: isSelected
-                    ? const Icon(Icons.check, color: Colors.white, size: 16)
+                    ? const Icon(
+                        Icons.check,
+                        color: AppColors.onPrimary,
+                        size: 16,
+                      )
                     : null,
               ),
             ],
@@ -420,12 +436,14 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
     final canConfirm = selectedCount >= widget.requiredCount;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.lightTextPrimary.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -435,14 +453,14 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         top: false,
         child: SizedBox(
           width: double.infinity,
-          height: 48,
+          height: AppSpacing.xxxLarge,
           child: ElevatedButton(
             onPressed: canConfirm ? _confirmSelection : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: canConfirm
                   ? AppColors.iosBlue
                   : AppColors.iosGray4,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.onPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: AppRadius.borderRadiusSmall,
               ),

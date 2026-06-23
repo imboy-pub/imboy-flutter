@@ -1,4 +1,5 @@
 import 'package:imboy/component/ui/badge_widget.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -73,9 +74,9 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
               showBadge: (remindCounter > 0),
               content: Text(
                 remindCounter > 99 ? '99+' : "$remindCounter",
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 11,
+                  fontSize: FontSizeType.caption2.size,
                   fontWeight: FontWeight.bold,
                   fontFeatures: [FontFeature.tabularFigures()],
                 ),
@@ -171,7 +172,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
     return Text(
       displayTitle,
       style: TextStyle(
-        fontSize: 17,
+        fontSize: FontSizeType.body.size,
         fontWeight: FontWeight.w600,
         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         letterSpacing: -0.4,
@@ -194,7 +195,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
         Text(
           DateTimeHelper.lastTimeFmt(currentModel.lastTime),
           style: TextStyle(
-            fontSize: 13,
+            fontSize: FontSizeType.footnote.size,
             color: AppColors.iosGray,
             fontWeight: FontWeight.w400,
             fontFeatures: const [FontFeature.tabularFigures()],
@@ -217,7 +218,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
   ) {
     String content = currentModel.content;
     TextStyle contentStyle = TextStyle(
-      fontSize: 15,
+      fontSize: FontSizeType.subheadline.size,
       color: AppColors.iosGray,
       height: 1.3,
       letterSpacing: -0.2,

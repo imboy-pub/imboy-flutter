@@ -77,7 +77,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
                     Text(
                       t.account.recoverPassword,
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: FontSizeType.extraLarge.size,
                         fontWeight: FontWeight.bold,
                         color: _isDark
                             ? AppColors.darkTextPrimary

@@ -11,6 +11,7 @@ import 'package:imboy/page/mine/feedback/feedback_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 反馈详情页面
 class FeedbackDetailPage extends ConsumerStatefulWidget {
@@ -108,7 +109,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                                   ? t.chat.featureRequest
                                   : widget.model.type,
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: FontSizeType.large.size,
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),
@@ -117,7 +118,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                             Text(
                               '${t.common.submittedAt} ${DateTimeHelper.lastTimeFmt(widget.model.createdAt)}',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: FontSizeType.normal.size,
                                 color: colorScheme.onSurface.withAlpha(179),
                               ),
                             ),
@@ -139,7 +140,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         child: Text(
                           widget.model.statusDesc,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: FontSizeType.normal.size,
                             fontWeight: FontWeight.w500,
                             color: _getStatusColor(
                               context,
@@ -190,7 +191,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                                   Text(
                                     t.chat.viewAttachments,
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: FontSizeType.normal.size,
                                       fontWeight: FontWeight.w500,
                                       color: colorScheme.secondary,
                                     ),
@@ -228,7 +229,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         Text(
                           t.chat.rating,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: FontSizeType.medium.size,
                             fontWeight: FontWeight.w600,
                             color: colorScheme.onSurface,
                           ),
@@ -237,7 +238,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         Text(
                           '${widget.model.rating} ${widget.model.ratingDesc}',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: FontSizeType.normal.size,
                             color: colorScheme.onSurface.withAlpha(179),
                           ),
                         ),
@@ -289,7 +290,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       Text(
                         t.common.feedbackContent,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.w600,
                           color: colorScheme.onSurface,
                         ),
@@ -307,7 +308,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                     child: Text(
                       widget.model.body,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: FontSizeType.medium.size,
                         color: colorScheme.onSurface,
                         height: 1.5,
                       ),
@@ -337,7 +338,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       Text(
                         t.common.officialReply,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.w600,
                           color: colorScheme.onSurface,
                         ),
@@ -412,7 +413,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
               Text(
                 '${t.chat.repliedAt} ${DateTimeHelper.lastTimeFmt(replyModel.createdAt)}',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: FontSizeType.normal.size,
                   fontWeight: FontWeight.w500,
                   color: colorScheme.onSurface,
                 ),
@@ -430,7 +431,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                 child: Text(
                   replyModel.statusDesc,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: FontSizeType.small.size,
                     fontWeight: FontWeight.w500,
                     color: _getStatusColor(context, replyModel.statusDesc),
                   ),
@@ -452,7 +453,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
             child: Text(
               replyModel.body,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: FontSizeType.subheadline.size,
                 color: colorScheme.onSurface,
                 height: 1.4,
               ),

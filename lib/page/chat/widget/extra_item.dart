@@ -14,6 +14,8 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class ExtraItem extends StatelessWidget {
   const ExtraItem({
@@ -44,7 +46,10 @@ class ExtraItem extends StatelessWidget {
         borderRadius: AppRadius.borderRadiusRegular,
         child: Container(
           width: width ?? 64,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.tiny,
+            vertical: AppSpacing.small,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -93,7 +98,7 @@ class ExtraItem extends StatelessWidget {
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: FontSizeType.small.size,
                     fontWeight: FontWeight.w400,
                     color: Theme.of(
                       context,

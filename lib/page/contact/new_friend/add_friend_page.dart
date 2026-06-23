@@ -9,6 +9,8 @@ import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:imboy/page/qrcode/qrcode_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'new_friend_provider.dart';
 
@@ -95,9 +97,11 @@ class AddFriendPage extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: AppSpacing.allLarge,
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+          color: isDark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurface,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -119,15 +123,15 @@ class AddFriendPage extends ConsumerWidget {
               children: [
                 Text(
                   "${t.account.myAccount}：",
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: FontSizeType.normal.size,
                     color: AppColors.iosGray,
                   ),
                 ),
                 Text(
                   UserRepoLocal.to.current.account,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: FontSizeType.normal.size,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -168,7 +172,7 @@ class AddFriendPage extends ConsumerWidget {
           color: color,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: Colors.white, size: 18),
+        child: Icon(icon, color: AppColors.onPrimary, size: 18),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
       subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),

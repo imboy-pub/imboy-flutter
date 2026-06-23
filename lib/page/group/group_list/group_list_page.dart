@@ -13,6 +13,7 @@ import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'group_list_provider.dart';
 import 'group_list_service.dart';
@@ -164,7 +165,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                     label: Text(
                       _attrLabel(attr),
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: FontSizeType.footnote.size,
                         fontWeight: selected
                             ? FontWeight.w600
                             : FontWeight.normal,

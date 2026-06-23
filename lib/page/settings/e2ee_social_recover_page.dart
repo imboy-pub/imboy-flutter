@@ -121,7 +121,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
           : Column(
               children: [
                 _buildInfoCard(threshold, totalShards, canRecover),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.regular),
                 if (_isRecovering) _buildProgressCard(threshold),
                 if (!_isRecovering && _shards.isNotEmpty) _buildShardsList(),
                 if (!_isRecovering && _shards.isEmpty) _buildEmptyView(),
@@ -140,8 +140,14 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: canRecover
-              ? [Colors.green.shade50, Colors.green.shade100]
-              : [Colors.orange.shade50, Colors.orange.shade100],
+              ? [
+                  AppColors.iosGreen.withValues(alpha: 0.1),
+                  AppColors.iosGreen.withValues(alpha: 0.2),
+                ]
+              : [
+                  AppColors.iosOrange.withValues(alpha: 0.1),
+                  AppColors.iosOrange.withValues(alpha: 0.2),
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -159,7 +165,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                   color: canRecover ? AppColors.iosGreen : AppColors.iosOrange,
                   size: 32,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.medium),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,25 +182,25 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                               : AppColors.iosOrange,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.tiny),
                       Text(
                         t.common.e2eeShardAvailableInfo(
                           available: totalShards,
                           required: threshold,
                         ),
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: FontSizeType.footnote.size,
                           color: canRecover
-                              ? Colors.green.shade700
-                              : Colors.orange.shade700,
+                              ? AppColors.iosGreen
+                              : AppColors.iosOrange,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.tiny),
                       Text(
                         t.main.e2eeSocialZeroTrustHint1,
                         style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade600,
+                          fontSize: FontSizeType.caption2.size,
+                          color: AppColors.iosGray,
                         ),
                       ),
                     ],
@@ -225,7 +231,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
               Row(
                 children: [
                   const CupertinoActivityIndicator(radius: 10),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.medium),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,14 +244,14 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                           ),
                         ),
                         if (_currentProxyName != null) ...[
-                          const SizedBox(height: 4),
+                          const SizedBox(height: AppSpacing.tiny),
                           Text(
                             t.common.e2eeContactingProxy(
                               name: _currentProxyName!,
                             ),
                             style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade600,
+                              fontSize: FontSizeType.footnote.size,
+                              color: AppColors.iosGray,
                             ),
                           ),
                         ],
@@ -254,19 +260,22 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.regular),
               LinearProgressIndicator(
                 value: progress.clamp(0.0, 1.0),
                 color: progressColor,
-                backgroundColor: Colors.grey.shade200,
+                backgroundColor: AppColors.iosGray5,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.small),
               Text(
                 t.main.e2eeRecoveryProgressLabel(
                   collected: _collectedCount,
                   total: threshold,
                 ),
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: FontSizeType.footnote.size,
+                  color: AppColors.iosGray,
+                ),
               ),
             ],
           ),
@@ -359,7 +368,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
         color: CupertinoColors.systemBackground.resolveFrom(context),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.lightTextPrimary.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -373,7 +382,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const CupertinoActivityIndicator(radius: 10),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppSpacing.small),
                     Text(t.main.e2eeRecovering),
                   ],
                 )
@@ -439,7 +448,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(t.main.e2eeKeyRestored),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSpacing.small),
                     Text(
                       t.main.e2eeUsedShards(count: _collectedCount),
                       style: TextStyle(
@@ -447,7 +456,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
                         color: AppColors.iosGray,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSpacing.small),
                     Text(
                       t.main.e2eeSocialZeroTrustHint3,
                       style: TextStyle(

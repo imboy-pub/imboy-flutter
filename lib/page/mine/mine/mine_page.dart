@@ -12,6 +12,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mine_page.g.dart';
@@ -53,7 +55,10 @@ class _MinePageState extends ConsumerState<MinePage> {
         // 核心功能宫格
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 4),
+            padding: const EdgeInsets.only(
+              top: AppSpacing.small,
+              bottom: AppSpacing.tiny,
+            ),
             child: _buildQuickActions(context),
           ),
         ),
@@ -61,7 +66,12 @@ class _MinePageState extends ConsumerState<MinePage> {
         // 功能组
         SliverToBoxAdapter(
           child: ImBoySettingsSection(
-            margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            margin: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.small,
+              AppSpacing.regular,
+              AppSpacing.none,
+            ),
             children: [
               ImBoySettingsTile(
                 title: Text(t.main.favorites),
@@ -94,7 +104,12 @@ class _MinePageState extends ConsumerState<MinePage> {
         // 设置组
         SliverToBoxAdapter(
           child: ImBoySettingsSection(
-            margin: const EdgeInsets.fromLTRB(16, 24, 16, 48),
+            margin: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.xLarge,
+              AppSpacing.regular,
+              AppSpacing.xxxLarge,
+            ),
             children: [
               ImBoySettingsTile(
                 title: Text(t.main.setting),
@@ -125,7 +140,7 @@ class _MinePageState extends ConsumerState<MinePage> {
         color: color,
         borderRadius: BorderRadius.circular(7.2),
       ),
-      child: Icon(icon, color: Colors.white, size: 19),
+      child: Icon(icon, color: AppColors.onPrimary, size: 19),
     );
   }
 
@@ -140,12 +155,20 @@ class _MinePageState extends ConsumerState<MinePage> {
     final isDark = brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.regular,
+        AppSpacing.regular,
+        AppSpacing.regular,
+        AppSpacing.small,
+      ),
       child: GestureDetector(
         onTap: () => context.push('/personal_info/profile'),
         behavior: HitTestBehavior.opaque,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: 18,
+          ),
           decoration: BoxDecoration(
             color: isDark
                 ? AppColors.darkSurfaceGroupedTertiary
@@ -172,8 +195,8 @@ class _MinePageState extends ConsumerState<MinePage> {
                     ? Center(
                         child: Text(
                           nickname.substring(0, 1).toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 28,
+                          style: TextStyle(
+                            fontSize: FontSizeType.extraLargeTitle.size,
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
                           ),
@@ -181,7 +204,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                       )
                     : null,
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.regular),
               // 信息
               Expanded(
                 child: Column(
@@ -189,16 +212,19 @@ class _MinePageState extends ConsumerState<MinePage> {
                   children: [
                     Text(
                       nickname,
-                      style: const TextStyle(
-                        fontSize: 22,
+                      style: TextStyle(
+                        fontSize: FontSizeType.title.size,
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.6,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.tiny),
                     Text(
                       'ID: ${user?.account ?? '-'}',
-                      style: TextStyle(fontSize: 14, color: AppColors.iosGray),
+                      style: TextStyle(
+                        fontSize: FontSizeType.normal.size,
+                        color: AppColors.iosGray,
+                      ),
                     ),
                   ],
                 ),
@@ -213,7 +239,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                   color: AppColors.iosGray,
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: AppSpacing.tiny),
               const Icon(
                 CupertinoIcons.chevron_right,
                 size: 14,

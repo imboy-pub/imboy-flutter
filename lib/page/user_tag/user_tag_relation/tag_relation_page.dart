@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -196,7 +197,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         Text(
           value,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: FontSizeType.medium.size,
             fontWeight: FontWeight.w600,
             color: Theme.of(context).colorScheme.onSurface,
           ),
@@ -204,7 +205,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: FontSizeType.small.size,
             color: Theme.of(
               context,
             ).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -386,8 +387,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                               t.common.saveTag(
                                 count: _currentTags.length.toString(),
                               ),
-                              style: const TextStyle(
-                                fontSize: 16,
+                              style: TextStyle(
+                                fontSize: FontSizeType.medium.size,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -460,7 +461,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
               Text(
                 t.chat.tagStatistics,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: FontSizeType.medium.size,
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),

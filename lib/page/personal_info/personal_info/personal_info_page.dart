@@ -11,6 +11,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/qrcode/qrcode_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/service/user_profile_service.dart';
@@ -56,8 +57,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 title: Text(t.account.nickname),
                 trailing: Text(
                   nickname.isEmpty ? t.common.notSet : nickname,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -75,8 +76,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                 title: Text(t.account.account),
                 trailing: Text(
                   account,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -86,8 +87,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   title: Text(t.account.loginEmail),
                   trailing: Text(
                     UserRepoLocal.to.current.email,
-                    style: const TextStyle(
-                      fontSize: 15,
+                    style: TextStyle(
+                      fontSize: FontSizeType.subheadline.size,
                       color: AppColors.iosGray,
                     ),
                   ),
@@ -169,8 +170,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                                 nickname.isNotEmpty
                                     ? nickname.substring(0, 1).toUpperCase()
                                     : '?',
-                                style: const TextStyle(
-                                  fontSize: 40,
+                                style: TextStyle(
+                                  fontSize: FontSizeType.extraLargeTitle.size,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.primary,
                                 ),
@@ -196,7 +197,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                       child: const Icon(
                         CupertinoIcons.camera_fill,
                         size: 14,
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                       ),
                     ),
                   ),
@@ -207,8 +208,8 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
           const SizedBox(height: 12),
           Text(
             nickname,
-            style: const TextStyle(
-              fontSize: 22,
+            style: TextStyle(
+              fontSize: FontSizeType.title.size,
               fontWeight: FontWeight.w600,
               letterSpacing: -0.5,
             ),
@@ -216,10 +217,10 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
           const SizedBox(height: 2),
           Text(
             'ID: $account',
-            style: const TextStyle(
-              fontSize: 14,
+            style: TextStyle(
+              fontSize: FontSizeType.normal.size,
               color: AppColors.iosGray,
-              fontFeatures: [FontFeature.tabularFigures()],
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
         ],
@@ -232,7 +233,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     await Navigator.of(context).push(
       PageRouteBuilder<void>(
         opaque: false,
-        barrierColor: Colors.black,
+        barrierColor: AppColors.darkBackground,
         pageBuilder: (_, animation, _) => FadeTransition(
           opacity: animation,
           child: _AvatarPreviewPage(
@@ -316,12 +317,16 @@ class _AvatarPreviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.darkBackground,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(CupertinoIcons.xmark, color: Colors.white, size: 22),
+          icon: const Icon(
+            CupertinoIcons.xmark,
+            color: AppColors.onPrimary,
+            size: 22,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

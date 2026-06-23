@@ -356,12 +356,12 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                       );
                     }
                   },
-                  child: const SizedBox(
+                  child: SizedBox(
                     height: 100,
                     child: Center(
                       child: Icon(
                         Icons.video_library,
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                         size: 40,
                       ),
                     ),

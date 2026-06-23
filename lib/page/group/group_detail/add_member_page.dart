@@ -17,6 +17,7 @@ import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 
 import 'add_member_provider.dart';
@@ -66,7 +67,10 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
     final isSelected = model.selected;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.tiny,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: AppRadius.borderRadiusMedium,
@@ -99,7 +103,10 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
               },
         borderRadius: AppRadius.borderRadiusMedium,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.small,
+          ),
           child: Row(
             children: [
               // 选择图标
@@ -129,10 +136,10 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                       ? Theme.of(
                           context,
                         ).colorScheme.outline.withValues(alpha: 0.6)
-                      : Colors.white,
+                      : AppColors.onPrimary,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.medium),
               // 头像
               Container(
                 decoration: BoxDecoration(
@@ -152,7 +159,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                 ),
                 child: Avatar(imgUri: model.avatar, width: 44, height: 44),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.medium),
               // 姓名和状态
               Expanded(
                 child: Column(
@@ -180,7 +187,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                       Text(
                         t.chat.alreadyMember,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: FontSizeType.small.size,
                           color: Theme.of(context).colorScheme.outline,
                         ),
                       ),
@@ -192,8 +199,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
               if (isSelected)
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                    horizontal: AppSpacing.small,
+                    vertical: AppSpacing.tiny,
                   ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primary,
@@ -202,7 +209,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                   child: Text(
                     t.main.selected,
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: FontSizeType.tiny.size,
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontWeight: FontWeight.w600,
                     ),
@@ -232,7 +239,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
         title: t.common.selectContacts,
         rightDMActions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: AppSpacing.regular),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               child: ElevatedButton(
@@ -261,8 +268,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                       ? Theme.of(context).colorScheme.onPrimary
                       : Theme.of(context).colorScheme.outline,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+                    horizontal: AppSpacing.regular,
+                    vertical: AppSpacing.small,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: AppRadius.borderRadiusLarge,
@@ -271,7 +278,10 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                 ),
                 child: Text(
                   '${t.common.buttonAccomplish}${state.selectsTips}',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: FontSizeType.normal.size,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -285,10 +295,10 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
               ? Container(
                   width: double.infinity,
                   margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+                    horizontal: AppSpacing.regular,
+                    vertical: AppSpacing.small,
                   ),
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(AppSpacing.medium),
                   decoration: BoxDecoration(
                     color: Theme.of(
                       context,
@@ -307,7 +317,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                         size: 16,
                         color: Theme.of(context).colorScheme.primary,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.small),
                       Text(
                         t.main.selectedCount(count: '${state.selects.length}'),
                         style: TextStyle(
@@ -323,7 +333,9 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
           // 联系人列表区域
           Expanded(
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
+              margin: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.regular,
+              ),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: AppRadius.borderRadiusRegular,
@@ -360,7 +372,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                               needRebuild: true,
                               ignoreDragCancel: true,
                               downTextStyle: TextStyle(
-                                fontSize: 12,
+                                fontSize: FontSizeType.small.size,
                                 color: Theme.of(context).colorScheme.onPrimary,
                               ),
                               downItemDecoration: BoxDecoration(

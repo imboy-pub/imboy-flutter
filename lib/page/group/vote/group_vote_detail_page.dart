@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_vote_service.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 群投票详情页
 class GroupVoteDetailPage extends ConsumerStatefulWidget {
@@ -249,14 +250,17 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
         children: [
           Text(
             _toText(_vote!['title']),
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: FontSizeType.extraLarge.size,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.small),
           if (_toText(_vote!['description']).isNotEmpty)
             Text(_toText(_vote!['description'])),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.small),
           Wrap(
-            spacing: 8,
+            spacing: AppSpacing.small,
             children: [
               Chip(
                 label: Text(
@@ -270,14 +274,14 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
           ...options.map(
             (option) => Card(
               margin: const EdgeInsets.only(bottom: AppSpacing.small),
               child: _buildOptionItem(option, isMultiple),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
           if (_voteStatus == 1)
             SizedBox(
               height: 44,
@@ -298,7 +302,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                       ),
               ),
             ),
-          if (_voteStatus == 1) const SizedBox(height: 12),
+          if (_voteStatus == 1) const SizedBox(height: AppSpacing.medium),
           if (_voteStatus == 1)
             Row(
               children: [
@@ -308,7 +312,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                     child: Text(context.t.groupVote.cancelMyVote),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.medium),
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _isSubmitting ? null : _closeVote,

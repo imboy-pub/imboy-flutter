@@ -57,7 +57,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.backup_outlined, size: 64, color: Colors.grey.shade300),
+            Icon(Icons.backup_outlined, size: 64, color: AppColors.iosGray4),
             const SizedBox(height: 16),
             Text(
               t.common.e2eeBackupNoRecords,
@@ -69,7 +69,10 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             const SizedBox(height: 8),
             Text(
               t.common.e2eeBackupNoRecordsHint,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                color: AppColors.iosGray2,
+              ),
             ),
           ],
         ),
@@ -223,7 +226,10 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
             ),
           ),
           Expanded(
-            child: Text(value.toString(), style: const TextStyle(fontSize: 13)),
+            child: Text(
+              value.toString(),
+              style: TextStyle(fontSize: FontSizeType.footnote.size),
+            ),
           ),
         ],
       ),

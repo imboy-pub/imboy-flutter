@@ -10,6 +10,8 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 阅后即焚徽章 — 带平滑进度弧动画
 ///
@@ -151,11 +153,11 @@ class _BurnBadgeState extends State<BurnBadge>
               ],
             ),
           ),
-          const SizedBox(width: 4),
+          AppSpacing.horizontalTiny,
           Text(
             text,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: FontSizeType.tiny.size,
               color: color,
               height: 1.0,
               fontFeatures: const [FontFeature.tabularFigures()],

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mine/change_password/change_password_provider.dart';
@@ -37,9 +38,9 @@ class ChangePasswordPage extends ConsumerWidget {
                     color: AppColors.getIosBlue(Theme.of(context).brightness),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.lock,
-                    color: Colors.white,
+                    color: AppColors.onPrimary,
                     size: 18,
                   ),
                 ),
@@ -57,7 +58,7 @@ class ChangePasswordPage extends ConsumerWidget {
                   child: Text(
                     t.common.enabled,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: FontSizeType.small.size,
                       fontWeight: FontWeight.w600,
                       color: AppColors.getIosBlue(Theme.of(context).brightness),
                     ),
@@ -170,7 +171,10 @@ class ChangePasswordPage extends ConsumerWidget {
         children: [
           SizedBox(
             width: 80,
-            child: Text(label, style: const TextStyle(fontSize: 17)),
+            child: Text(
+              label,
+              style: TextStyle(fontSize: FontSizeType.body.size),
+            ),
           ),
           Expanded(
             child: CupertinoTextField(
@@ -182,7 +186,7 @@ class ChangePasswordPage extends ConsumerWidget {
                 vertical: AppSpacing.small,
               ),
               decoration: null,
-              style: const TextStyle(fontSize: 17),
+              style: TextStyle(fontSize: FontSizeType.body.size),
             ),
           ),
           CupertinoButton(
@@ -218,7 +222,7 @@ class ChangePasswordPage extends ConsumerWidget {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -229,11 +233,11 @@ class ChangePasswordPage extends ConsumerWidget {
               ? () => ref.read(changeLoginPasswordProvider.notifier).submit()
               : null,
           child: state.isLoading
-              ? const CupertinoActivityIndicator(color: Colors.white)
+              ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   t.common.buttonSave,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  style: TextStyle(
+                    fontSize: FontSizeType.body.size,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -263,7 +267,10 @@ class _ValidationRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.iosGray,
+              ),
             ),
           ),
           Icon(
@@ -275,7 +282,7 @@ class _ValidationRow extends StatelessWidget {
           Text(
             text,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: FontSizeType.small.size,
               color: color,
               fontWeight: FontWeight.w500,
             ),

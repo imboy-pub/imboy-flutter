@@ -232,7 +232,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         label,
         style: TextStyle(
           color: color,
-          fontSize: 10,
+          fontSize: FontSizeType.tiny.size,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -264,7 +264,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           children: [
             // 头像
             Avatar(imgUri: member.avatar, width: 48, height: 48),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.small),
             // 昵称和签名
             Expanded(
               child: Column(
@@ -294,7 +294,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                     ],
                   ),
                   if (member.sign.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.tiny),
                     Text(
                       member.sign,
                       style: ThemeManager.instance.getTextStyle(

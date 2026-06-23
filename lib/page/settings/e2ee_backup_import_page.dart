@@ -67,15 +67,15 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         padding: const EdgeInsets.all(AppSpacing.regular),
         children: [
           _buildWarningCard(),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
           _buildFileSelector(),
           if (_backupInfo != null) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.regular),
             _buildBackupInfoCard(),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
           _buildPasswordSection(),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
           _buildImportButton(),
         ],
       ),
@@ -84,7 +84,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   Widget _buildWarningCard() {
     return Card(
-      color: Colors.orange.shade50,
+      color: AppColors.iosOrange.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
@@ -93,12 +93,12 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             Row(
               children: [
                 const Icon(Icons.info_outline, color: AppColors.iosOrange),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.small),
                 Text(
                   t.common.e2eeBackupImportGuide,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.orange.shade900,
+                    color: AppColors.iosOrange,
                   ),
                 ),
               ],
@@ -106,12 +106,18 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             const SizedBox(height: 8),
             Text(
               t.common.e2eeBackupImportReplaceKey,
-              style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                color: AppColors.iosOrange,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               t.common.e2eeBackupImportTrustedSource,
-              style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                color: AppColors.iosOrange,
+              ),
             ),
           ],
         ),
@@ -137,7 +143,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(AppSpacing.regular),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(color: AppColors.iosGray4),
                   borderRadius: AppRadius.borderRadiusSmall,
                 ),
                 child: Column(
@@ -159,7 +165,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                       style: TextStyle(
                         color: _selectedFile != null
                             ? AppColors.iosGreen
-                            : Colors.grey.shade600,
+                            : AppColors.iosGray,
                         fontSize: FontSizeType.small.size,
                       ),
                       textAlign: TextAlign.center,
@@ -190,9 +196,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 Expanded(
                   child: Text(
                     t.common.e2eeBackupInfoTitle,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade900,
+                      color: AppColors.iosBlue,
                     ),
                   ),
                 ),
@@ -240,10 +246,18 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             width: 80,
             child: Text(
               label,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              style: TextStyle(
+                color: AppColors.iosGray,
+                fontSize: FontSizeType.footnote.size,
+              ),
             ),
           ),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 13))),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(fontSize: FontSizeType.footnote.size),
+            ),
+          ),
         ],
       ),
     );

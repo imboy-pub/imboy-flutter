@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'send_to_provider.dart';
 
@@ -51,7 +52,8 @@ class _SendToPageState extends ConsumerState<SendToPage> {
           t.chat.forwardTo,
           style: TextStyle(
             color: colorScheme.primary,
-            fontSize: textTheme.titleMedium?.fontSize ?? 16,
+            fontSize:
+                textTheme.titleMedium?.fontSize ?? FontSizeType.medium.size,
           ),
         ),
         backgroundColor: colorScheme.surface,
@@ -66,7 +68,8 @@ class _SendToPageState extends ConsumerState<SendToPage> {
               t.common.buttonSend,
               style: TextStyle(
                 color: colorScheme.primary,
-                fontSize: textTheme.bodyMedium?.fontSize ?? 14,
+                fontSize:
+                    textTheme.bodyMedium?.fontSize ?? FontSizeType.normal.size,
               ),
             ),
           ),
@@ -85,7 +88,9 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                   hintText: t.common.search,
                   hintStyle: TextStyle(
                     color: colorScheme.onSurfaceVariant,
-                    fontSize: textTheme.bodyMedium?.fontSize ?? 14,
+                    fontSize:
+                        textTheme.bodyMedium?.fontSize ??
+                        FontSizeType.normal.size,
                   ),
                   prefixIcon: Icon(
                     Icons.search,
@@ -101,7 +106,9 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                 ),
                 style: TextStyle(
                   color: colorScheme.onSurface,
-                  fontSize: textTheme.bodyMedium?.fontSize ?? 14,
+                  fontSize:
+                      textTheme.bodyMedium?.fontSize ??
+                      FontSizeType.normal.size,
                 ),
                 onChanged: (query) {
                   ref.read(sendToProvider).search(query);
@@ -122,7 +129,9 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                         t.common.noContacts,
                         style: TextStyle(
                           color: colorScheme.onSurfaceVariant,
-                          fontSize: textTheme.bodyMedium?.fontSize ?? 14,
+                          fontSize:
+                              textTheme.bodyMedium?.fontSize ??
+                              FontSizeType.normal.size,
                         ),
                       ),
                     );
@@ -145,14 +154,18 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                           contact.title,
                           style: TextStyle(
                             color: colorScheme.onSurface,
-                            fontSize: textTheme.titleMedium?.fontSize ?? 16,
+                            fontSize:
+                                textTheme.titleMedium?.fontSize ??
+                                FontSizeType.medium.size,
                           ),
                         ),
                         subtitle: Text(
                           contact.subtitle,
                           style: TextStyle(
                             color: colorScheme.onSurfaceVariant,
-                            fontSize: textTheme.bodySmall?.fontSize ?? 12,
+                            fontSize:
+                                textTheme.bodySmall?.fontSize ??
+                                FontSizeType.small.size,
                           ),
                         ),
                         trailing: Icon(

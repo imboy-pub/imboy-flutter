@@ -12,6 +12,7 @@ import 'recently_registered_user_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 最近注册用户页面 - 像素级对齐 iOS 17 Premium 风格
 class RecentlyRegisteredUserPage extends ConsumerStatefulWidget {
@@ -115,7 +116,7 @@ class _RecentlyRegisteredUserPageState
                     ? AppColors.darkTextSecondary
                     : AppColors.lightTextSecondary,
                 height: 1.4,
-                fontSize: 13,
+                fontSize: FontSizeType.footnote.size,
               ),
             ),
           ),
@@ -155,7 +156,7 @@ class _RecentlyRegisteredUserPageState
               child: Text(
                 DateTimeHelper.lastTimeFmt(model.createdAt, pattern: 'MM-dd'),
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: FontSizeType.caption2.size,
                   fontWeight: FontWeight.w600,
                   color: AppColors.getIosBlue(brightness),
                 ),

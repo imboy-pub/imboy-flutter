@@ -15,6 +15,7 @@ import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'launch_chat_provider.dart';
@@ -55,7 +56,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
       children: [
         Container(
           height: _itemHeight.toDouble(),
-          color: isDark ? colorScheme.surface : Colors.white,
+          color: isDark ? colorScheme.surface : AppColors.lightSurface,
           child: InkWell(
             onTap: () {
               ref.read(launchChatProvider.notifier).toggleSelection(model);
@@ -80,7 +81,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                 ),
                 // 用户头像
                 Avatar(imgUri: model.avatar, width: 40, height: 40),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.small),
                 // 用户信息区域 - 使用优化后的主题样式
                 Expanded(
                   child: Container(
@@ -98,7 +99,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                     child: Text(
                       model.title,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: FontSizeType.medium.size,
                         color: colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
@@ -136,7 +137,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
               t.common.buttonCancel,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: FontSizeType.medium.size,
                 color: colorScheme.onSurface,
                 fontWeight: FontWeight.normal,
               ),
@@ -212,7 +213,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
               decoration: BoxDecoration(
                 color: isDark
                     ? colorScheme.surfaceContainerHighest
-                    : Colors.white,
+                    : AppColors.lightSurface,
                 borderRadius: AppRadius.borderRadiusMedium,
                 boxShadow: [
                   BoxShadow(
@@ -234,7 +235,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                     title: Text(
                       t.contact.selectAGroup,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: FontSizeType.medium.size,
                         color: colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
@@ -262,7 +263,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                     title: Text(
                       t.chat.createGroupF2f,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: FontSizeType.medium.size,
                         color: colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
@@ -283,7 +284,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
           // 联系人列表
           Expanded(
             child: Container(
-              color: isDark ? colorScheme.surface : Colors.white,
+              color: isDark ? colorScheme.surface : AppColors.lightSurface,
               child: SlidableAutoCloseBehavior(
                 child: Builder(
                   builder: (context) {
@@ -310,9 +311,9 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                             indexBarOptions: IndexBarOptions(
                               needRebuild: true,
                               ignoreDragCancel: true,
-                              downTextStyle: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
+                              downTextStyle: TextStyle(
+                                fontSize: FontSizeType.small.size,
+                                color: AppColors.onPrimary,
                                 fontWeight: FontWeight.w600,
                               ),
                               downItemDecoration: BoxDecoration(
@@ -341,9 +342,9 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                                   ),
                                 ],
                               ),
-                              indexHintTextStyle: const TextStyle(
-                                fontSize: 24,
-                                color: Colors.white,
+                              indexHintTextStyle: TextStyle(
+                                fontSize: FontSizeType.largeTitle.size,
+                                color: AppColors.onPrimary,
                                 fontWeight: FontWeight.w600,
                               ),
                               indexHintAlignment: Alignment.centerRight,

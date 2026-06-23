@@ -87,7 +87,10 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.purple.shade50, Colors.purple.shade100],
+          colors: [
+            AppColors.iosPurple.withValues(alpha: 0.1),
+            AppColors.iosPurple.withValues(alpha: 0.2),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -124,8 +127,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                         _canRecover
                             ? t.common.e2eeSocialEnoughShards
                             : t.main.e2eeSocialChooseProxy,
-                        style: const TextStyle(
-                          fontSize: 13,
+                        style: TextStyle(
+                          fontSize: FontSizeType.footnote.size,
                           color: AppColors.iosPurple,
                         ),
                       ),
@@ -200,14 +203,14 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: Colors.purple.shade100,
+              color: AppColors.iosPurple.withValues(alpha: 0.2),
               borderRadius: AppRadius.borderRadiusSmall,
             ),
             child: Center(
               child: Text(
                 '${shardIndex + 1}',
-                style: TextStyle(
-                  color: Colors.purple.shade700,
+                style: const TextStyle(
+                  color: AppColors.iosPurple,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -220,7 +223,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
               children: [
                 Text(
                   t.main.e2eeProxyUser(uid: proxyUid as Object),
-                  style: const TextStyle(fontSize: 13),
+                  style: TextStyle(fontSize: FontSizeType.footnote.size),
                 ),
                 Text(
                   t.chat.e2eeSocialStatus(status: status as Object),
@@ -334,8 +337,8 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                     Text(
                       description,
                       style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade600,
+                        fontSize: FontSizeType.footnote.size,
+                        color: AppColors.iosGray,
                       ),
                     ),
                   ],

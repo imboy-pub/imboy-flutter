@@ -1,4 +1,5 @@
 import 'package:imboy/component/ui/badge_widget.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -194,9 +195,9 @@ class _ChannelAvatar extends StatelessWidget {
     return BadgeWidget(
       content: Text(
         unreadCount > 99 ? '99+' : unreadCount.toString(),
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
-          fontSize: 10,
+          fontSize: FontSizeType.tiny.size,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -212,10 +213,10 @@ class _ChannelAvatar extends StatelessWidget {
       child: Center(
         child: Text(
           name.isNotEmpty ? name[0].toUpperCase() : '?',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.primary,
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: FontSizeType.large.size,
           ),
         ),
       ),

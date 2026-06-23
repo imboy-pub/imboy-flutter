@@ -1,4 +1,5 @@
 import 'package:azlistview/azlistview.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -117,7 +118,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                     ),
                     child: Text(
                       model.title,
-                      style: const TextStyle(fontSize: 14.0),
+                      style: TextStyle(fontSize: FontSizeType.normal.size),
                     ),
                   ),
                 ),
@@ -141,7 +142,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
       child: Text(
         tag,
         style: TextStyle(
-          fontSize: 14,
+          fontSize: FontSizeType.normal.size,
           color: isDark ? Colors.white : Colors.black87,
           fontWeight: FontWeight.bold,
         ),
@@ -238,8 +239,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               indexBarOptions: IndexBarOptions(
                 needRebuild: true,
                 ignoreDragCancel: true,
-                downTextStyle: const TextStyle(
-                  fontSize: 12,
+                downTextStyle: TextStyle(
+                  fontSize: FontSizeType.small.size,
                   color: Colors.white,
                 ),
                 downItemDecoration: const BoxDecoration(

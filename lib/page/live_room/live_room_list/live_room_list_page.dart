@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -182,7 +183,10 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
               const SizedBox(width: 2),
               Text(
                 '${room.viewerCount}',
-                style: TextStyle(color: secondaryColor, fontSize: 12),
+                style: TextStyle(
+                  color: secondaryColor,
+                  fontSize: FontSizeType.small.size,
+                ),
               ),
             ],
           );

@@ -154,8 +154,8 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                                   ),
                                   child: Text(
                                     tag,
-                                    style: const TextStyle(
-                                      fontSize: 12,
+                                    style: TextStyle(
+                                      fontSize: FontSizeType.small.size,
                                       color: AppColors.primary,
                                     ),
                                   ),
@@ -170,8 +170,8 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                     if (_currentTag.isEmpty)
                       Text(
                         t.common.addTag,
-                        style: const TextStyle(
-                          fontSize: 14,
+                        style: TextStyle(
+                          fontSize: FontSizeType.normal.size,
                           color: AppColors.iosGray,
                         ),
                       ),

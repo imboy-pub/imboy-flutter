@@ -8,6 +8,7 @@ import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'confirm_new_friend_provider.dart';
 
@@ -64,11 +65,11 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: AppSpacing.allRegular,
                 child: Text(
                   '"${widget.msg}"',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: FontSizeType.medium.size,
                     height: 1.4,
                     fontStyle: FontStyle.italic,
                     color: AppColors.iosGray,
@@ -168,7 +169,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
@@ -200,7 +201,10 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
           },
           child: Text(
             t.common.buttonAccomplish,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: FontSizeType.body.size,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),

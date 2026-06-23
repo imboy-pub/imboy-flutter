@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -96,9 +97,12 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 转账金额输入
-              const Text(
+              Text(
                 '转账金额',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: FontSizeType.subheadline.size,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -127,9 +131,12 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
               const SizedBox(height: 24),
 
               // 备注说明
-              const Text(
+              Text(
                 '转账备注',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: FontSizeType.subheadline.size,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -147,7 +154,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
               Text(
                 '钱包当前余额: ￥${balanceYuan.toStringAsFixed(2)}',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: FontSizeType.footnote.size,
                   color: isDark ? Colors.white54 : Colors.black45,
                 ),
               ),
@@ -166,9 +173,12 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                       borderRadius: AppRadius.borderRadiusMedium,
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     '确认转账',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: FontSizeType.medium.size,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

@@ -7,6 +7,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_task_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 群作业/任务页面
 class GroupTaskPage extends ConsumerStatefulWidget {
@@ -69,7 +70,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
               controller: titleController,
               decoration: InputDecoration(labelText: t.groupTask.taskTitle),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.regular),
             TextField(
               controller: descController,
               maxLines: 3,
@@ -146,9 +147,9 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
       child: Row(
         children: [
           _buildFilterChip(0, t.groupTask.all),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.small),
           _buildFilterChip(1, t.groupTask.pending),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.small),
           _buildFilterChip(2, t.groupTask.completed),
         ],
       ),
@@ -258,7 +259,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                     Text(
                       task['title'] as String? ?? '',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: FontSizeType.medium.size,
                         decoration: status == 1
                             ? TextDecoration.lineThrough
                             : null,
@@ -286,7 +287,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                           Text(
                             _formatDeadline(deadline),
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: FontSizeType.small.size,
                               color: _getDeadlineColor(context, deadline),
                             ),
                           ),

@@ -11,6 +11,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 class MorePage extends ConsumerStatefulWidget {
@@ -39,7 +40,7 @@ class _MorePageState extends ConsumerState<MorePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.large),
 
             // 信息设置卡片组
             _buildMenuGroup(context, [
@@ -52,7 +53,7 @@ class _MorePageState extends ConsumerState<MorePage> {
                 trailing: Text(
                   UserRepoLocal.to.current.genderTitle,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: FontSizeType.medium.size,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -68,7 +69,7 @@ class _MorePageState extends ConsumerState<MorePage> {
                 trailing: Text(
                   _formatRegion(UserRepoLocal.to.current.region),
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: FontSizeType.medium.size,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -90,7 +91,7 @@ class _MorePageState extends ConsumerState<MorePage> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: FontSizeType.medium.size,
                       color: UserRepoLocal.to.current.sign.isEmpty
                           ? colorScheme.outline.withValues(alpha: 0.5)
                           : colorScheme.onSurfaceVariant,
@@ -113,13 +114,15 @@ class _MorePageState extends ConsumerState<MorePage> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest
+            : AppColors.lightSurface,
         borderRadius: AppRadius.borderRadiusMedium,
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.05),
+                ? AppColors.lightTextPrimary.withValues(alpha: 0.2)
+                : AppColors.lightTextPrimary.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -177,18 +180,18 @@ class _MorePageState extends ConsumerState<MorePage> {
               ),
               child: Icon(icon, size: 20, color: iconColor),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.regular),
             Text(
               title,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: FontSizeType.medium.size,
                 fontWeight: FontWeight.w500,
                 color: colorScheme.onSurface,
               ),
             ),
             const Spacer(),
             trailing,
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.small),
             Icon(
               Icons.arrow_forward_ios,
               size: 16,

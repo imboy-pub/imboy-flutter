@@ -12,6 +12,8 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/page/search/search_chat_page.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'chat_setting_provider.dart';
 
@@ -254,19 +256,19 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                                   Theme.of(context).brightness,
                                 )
                               : Theme.of(context).colorScheme.onSurface,
-                          fontSize: 16,
+                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       if (subtitle != null) ...[
-                        const SizedBox(height: 4),
+                        AppSpacing.verticalTiny,
                         Text(
                           subtitle,
                           style: TextStyle(
                             color: Theme.of(
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.6),
-                            fontSize: 12,
+                            fontSize: FontSizeType.small.size,
                           ),
                         ),
                       ],
@@ -395,7 +397,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
               color: Theme.of(
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.8),
-              fontSize: 14,
+              fontSize: FontSizeType.normal.size,
             ),
           ),
         ),
@@ -521,7 +523,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           t.common.chatSettings,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 18,
+            fontSize: FontSizeType.large.size,
             fontWeight: FontWeight.w600,
           ),
         ),

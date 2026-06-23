@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 import 'dart:io';
 
 /// Temporary compatibility implementation for the identity module shell.
@@ -275,7 +276,7 @@ class PassportNotifier extends _$PassportNotifier {
             Text(
               t.common.buttonBack,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: FontSizeType.small.size,
                 color: c,
                 fontWeight: FontWeight.w500,
               ),
@@ -728,7 +729,10 @@ class PassportNotifier extends _$PassportNotifier {
           content: message is String
               ? Text(
                   message,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(
+                    color: AppColors.onPrimary,
+                    fontSize: FontSizeType.medium.size,
+                  ),
                 )
               : message as Widget,
           backgroundColor: AppColors.iosRed,

@@ -21,6 +21,8 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 
@@ -281,7 +283,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         color: color,
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Icon(icon, color: Colors.white, size: 20),
+      child: Icon(icon, color: AppColors.onPrimary, size: 20),
     );
   }
 
@@ -292,13 +294,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         Text(
           value,
           style: TextStyle(
-            fontSize: 15,
+            fontSize: FontSizeType.subheadline.size,
             color: Theme.of(context).brightness == Brightness.dark
                 ? AppColors.darkTextSecondary
                 : AppColors.lightTextSecondary,
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: AppSpacing.small),
         const CupertinoListTileChevron(),
       ],
     );
@@ -313,14 +315,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         Text(
           "${t.common.version} $appVsn",
           style: TextStyle(
-            fontSize: 15,
+            fontSize: FontSizeType.subheadline.size,
             color: isDark
                 ? AppColors.darkTextSecondary
                 : AppColors.lightTextSecondary,
           ),
         ),
         if (hasUpdate) ...[
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.small),
           Container(
             width: 8,
             height: 8,
@@ -330,7 +332,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             ),
           ),
         ],
-        const SizedBox(width: 8),
+        const SizedBox(width: AppSpacing.small),
         const CupertinoListTileChevron(),
       ],
     );
@@ -341,8 +343,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       child: DropdownButton<String>(
         value: _normalizeEnvValue(currentEnv),
         isDense: true,
-        style: const TextStyle(
-          fontSize: 14,
+        style: TextStyle(
+          fontSize: FontSizeType.normal.size,
           color: AppColors.iosRed,
           fontWeight: FontWeight.w600,
         ),

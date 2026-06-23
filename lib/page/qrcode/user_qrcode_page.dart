@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -60,8 +61,8 @@ class UserQrCodePage extends ConsumerWidget {
                         children: [
                           Text(
                             user.nickname,
-                            style: const TextStyle(
-                              fontSize: 18,
+                            style: TextStyle(
+                              fontSize: FontSizeType.large.size,
                               fontWeight: FontWeight.bold,
                               letterSpacing: -0.5,
                               color: Colors.black,
@@ -70,8 +71,8 @@ class UserQrCodePage extends ConsumerWidget {
                           if (user.region.isNotEmpty)
                             Text(
                               user.region,
-                              style: const TextStyle(
-                                fontSize: 13,
+                              style: TextStyle(
+                                fontSize: FontSizeType.footnote.size,
                                 color: AppColors.iosGray,
                               ),
                             ),
@@ -154,8 +155,8 @@ class UserQrCodePage extends ConsumerWidget {
                 const SizedBox(height: 24),
                 Text(
                   footerText,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: FontSizeType.normal.size,
                     color: AppColors.iosGray,
                     fontWeight: FontWeight.w500,
                   ),
@@ -218,8 +219,8 @@ class UserQrCodePage extends ConsumerWidget {
             const SizedBox(width: 8),
             Text(
               text,
-              style: const TextStyle(
-                fontSize: 15,
+              style: TextStyle(
+                fontSize: FontSizeType.subheadline.size,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primary,
               ),

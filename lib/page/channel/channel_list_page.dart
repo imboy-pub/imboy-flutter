@@ -1,4 +1,5 @@
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -73,7 +74,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
         title: Text(
           t.channel.title,
           style: TextStyle(
-            fontSize: 20,
+            fontSize: FontSizeType.extraLarge.size,
             fontWeight: FontWeight.w700,
             color: AppColors.getTextColor(brightness),
           ),
@@ -308,7 +309,7 @@ class _ChannelListItem extends StatelessWidget {
             child: Text(
               channel.name,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: FontSizeType.medium.size,
                 fontWeight: FontWeight.w600,
                 color: AppColors.getTextColor(brightness),
               ),
@@ -327,7 +328,7 @@ class _ChannelListItem extends StatelessWidget {
               child: Text(
                 _getRoleLabel(channel.userRole, t),
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: FontSizeType.tiny.size,
                   fontWeight: FontWeight.w600,
                   color: _getRoleColor(channel.userRole),
                 ),
@@ -353,7 +354,7 @@ class _ChannelListItem extends StatelessWidget {
             '${channel.subscriberCount} ${t.channel.subscribers}',
             style: TextStyle(
               color: AppColors.getTextColor(brightness, isSecondary: true),
-              fontSize: 12,
+              fontSize: FontSizeType.small.size,
             ),
           ),
           if (channel.tags != null && channel.tags!.isNotEmpty) ...[
@@ -363,7 +364,7 @@ class _ChannelListItem extends StatelessWidget {
                 channel.tags!.take(2).join(' · '),
                 style: TextStyle(
                   color: AppColors.getTextColor(brightness, isSecondary: true),
-                  fontSize: 12,
+                  fontSize: FontSizeType.small.size,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),

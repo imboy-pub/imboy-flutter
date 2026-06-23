@@ -11,6 +11,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 /// 单个导航项数据载体（不可变）
@@ -172,7 +173,7 @@ class _Badge extends StatelessWidget {
         textAlign: TextAlign.center,
         style: TextStyle(
           color: colorScheme.onError,
-          fontSize: 10,
+          fontSize: FontSizeType.tiny.size,
           fontWeight: FontWeight.w600,
           height: 1.2,
         ),

@@ -13,6 +13,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 part 'logout_account_page.g.dart';
 
@@ -134,9 +135,9 @@ class LogoutAccountPage extends ConsumerWidget {
                     color: AppColors.getIosBlue(brightness),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.cloud_download,
-                    color: Colors.white,
+                    color: AppColors.onPrimary,
                     size: 18,
                   ),
                 ),
@@ -190,7 +191,10 @@ class LogoutAccountPage extends ConsumerWidget {
               padding: const EdgeInsets.all(AppSpacing.regular),
               child: Text(
                 state.error!,
-                style: const TextStyle(color: AppColors.iosRed, fontSize: 13),
+                style: TextStyle(
+                  color: AppColors.iosRed,
+                  fontSize: FontSizeType.footnote.size,
+                ),
               ),
             ),
         ],
@@ -208,10 +212,10 @@ class LogoutAccountPage extends ConsumerWidget {
   ) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        16,
-        8,
-        16,
-        MediaQuery.of(context).padding.bottom + 16,
+        AppSpacing.regular,
+        AppSpacing.small,
+        AppSpacing.regular,
+        MediaQuery.of(context).padding.bottom + AppSpacing.regular,
       ),
       child: SizedBox(
         width: double.infinity,
@@ -219,7 +223,7 @@ class LogoutAccountPage extends ConsumerWidget {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.getIosRed(brightness),
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             disabledBackgroundColor: AppColors.getIosRed(
               brightness,
             ).withValues(alpha: 0.3),
@@ -237,11 +241,11 @@ class LogoutAccountPage extends ConsumerWidget {
                 }
               : null,
           child: state.isLoading
-              ? const CupertinoActivityIndicator(color: Colors.white)
+              ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   t.account.logoutAccount,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  style: TextStyle(
+                    fontSize: FontSizeType.body.size,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

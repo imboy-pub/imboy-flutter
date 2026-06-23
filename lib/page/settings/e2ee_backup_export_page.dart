@@ -51,18 +51,18 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         padding: const EdgeInsets.all(AppSpacing.regular),
         children: [
           _buildWarningCard(),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
           _buildPasswordSection(),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
           _buildConfirmPasswordSection(),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
           _buildNotesSection(),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
           _buildPasswordStrengthIndicator(),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
           _buildExportButton(),
           if (_generatedFilePath != null) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.regular),
             _buildShareButton(),
           ],
         ],
@@ -84,7 +84,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                   Icons.warning_amber_rounded,
                   color: AppColors.iosOrange,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.small),
                 Text(
                   t.common.e2eeImportantNote,
                   style: TextStyle(
@@ -94,7 +94,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.small),
             Text(
               t.common.e2eeBackupPwdCantRecover,
               style: TextStyle(
@@ -102,7 +102,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                 color: AppColors.iosOrange,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.tiny),
             Text(
               t.common.e2eeBackupStoreMultipleNote,
               style: TextStyle(
@@ -170,14 +170,14 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.small),
         LinearProgressIndicator(
           value: strength,
-          backgroundColor: Colors.grey.shade200,
+          backgroundColor: AppColors.iosGray5,
           color: _getStrengthColor(strength),
           minHeight: 8,
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppSpacing.tiny),
         Text(
           _getStrengthLabel(strength),
           style: TextStyle(
@@ -192,7 +192,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   Color _getStrengthColor(double strength) {
     if (strength < 0.3) return AppColors.iosRed;
     if (strength < 0.6) return AppColors.iosOrange;
-    if (strength < 0.8) return Colors.yellow.shade700;
+    if (strength < 0.8) return AppColors.iosYellow;
     return AppColors.iosGreen;
   }
 
@@ -217,8 +217,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       ),
       child: _isExporting
           ? const SizedBox(
-              height: 20,
-              width: 20,
+              height: AppSpacing.large,
+              width: AppSpacing.large,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
           : Text(t.common.e2eeBackupGenerateBtn),
@@ -240,7 +240,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                   color: AppColors.iosGreen,
                   size: 20,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.small),
                 Expanded(
                   child: Text(
                     t.common.e2eeBackupFileGenerated,
@@ -252,7 +252,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.small),
             Text(
               'File: ${_generatedFilePath?.split('/').last ?? ""}',
               style: TextStyle(
@@ -260,7 +260,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                 fontFamily: 'monospace',
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.medium),
             OutlinedButton.icon(
               onPressed: _handleShare,
               icon: const Icon(Icons.share),
@@ -342,7 +342,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.common.e2eeBackupExportSuccessBody),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.medium),
             Text(
               t.common.e2eeBackupImportantNoteColon,
               style: const TextStyle(fontWeight: FontWeight.bold),

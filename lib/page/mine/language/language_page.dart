@@ -261,9 +261,9 @@ class LanguagePage extends ConsumerWidget {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
-            disabledForegroundColor: Colors.white.withValues(alpha: 0.7),
+            disabledForegroundColor: AppColors.onPrimary.withValues(alpha: 0.7),
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),

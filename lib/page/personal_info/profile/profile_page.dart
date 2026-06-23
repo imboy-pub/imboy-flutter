@@ -13,6 +13,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/qrcode/qrcode_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'profile_provider.dart';
@@ -71,8 +72,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.nickname.isEmpty
                       ? t.common.notSet
                       : profileState.nickname,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -82,8 +83,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 title: Text(t.account.gender),
                 trailing: Text(
                   profileNotifier.getGenderText(profileState.gender),
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -95,8 +96,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.birthday.isEmpty
                       ? t.common.notSet
                       : profileState.birthday,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -106,8 +107,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 title: Text(t.account.region),
                 trailing: Text(
                   profileNotifier.formatRegion(profileState.region),
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -128,8 +129,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.email.isEmpty
                       ? t.common.notSet
                       : profileState.email,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -140,8 +141,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.mobile.isEmpty
                       ? t.common.notSet
                       : profileState.mobile,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -189,8 +190,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.profession.isEmpty
                       ? t.common.notSet
                       : profileState.profession,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -202,8 +203,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.school.isEmpty
                       ? t.common.notSet
                       : profileState.school,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -215,8 +216,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   profileState.interests.isEmpty
                       ? t.common.notSet
                       : profileState.interests,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     color: AppColors.iosGray,
                   ),
                 ),
@@ -306,7 +307,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+          color: isDark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurface,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -320,12 +323,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.black45,
+                          color: AppColors.lightTextPrimary.withValues(
+                            alpha: 0.45,
+                          ),
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: CupertinoActivityIndicator(
-                            color: Colors.white,
+                            color: AppColors.onPrimary,
                           ),
                         ),
                       ),
@@ -336,8 +341,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             const SizedBox(height: 16),
             Text(
               state.nickname.isEmpty ? t.common.nicknameNotSet : state.nickname,
-              style: const TextStyle(
-                fontSize: 22,
+              style: TextStyle(
+                fontSize: FontSizeType.title.size,
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.5,
               ),
@@ -345,7 +350,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             const SizedBox(height: 4),
             Text(
               'ID: ${UserRepoLocal.to.current.account}',
-              style: const TextStyle(fontSize: 14, color: AppColors.iosGray),
+              style: TextStyle(
+                fontSize: FontSizeType.normal.size,
+                color: AppColors.iosGray,
+              ),
             ),
             const SizedBox(height: 20),
             CupertinoButton(
@@ -356,7 +364,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               child: Text(
                 t.common.avatarEditAvatar,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: FontSizeType.normal.size,
                   fontWeight: FontWeight.w600,
                   color: AppColors.getIosBlue(brightness),
                 ),
@@ -404,7 +412,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     showDialog<void>(
       context: context,
       builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.transparent,
         child: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Avatar(
@@ -456,9 +464,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                     Text(
                       t.account.birthday,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 17,
+                        fontSize: FontSizeType.body.size,
                       ),
                     ),
                     CupertinoButton(

@@ -264,7 +264,10 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
           const SizedBox(height: 16),
           Text(
             t.common.momentsNoData,
-            style: const TextStyle(color: AppColors.iosGray, fontSize: 15),
+            style: TextStyle(
+              color: AppColors.iosGray,
+              fontSize: FontSizeType.subheadline.size,
+            ),
           ),
         ],
       ),
@@ -298,8 +301,8 @@ class MomentStaleBanner extends StatelessWidget {
           Expanded(
             child: Text(
               t.discovery.momentsFeedStale,
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
                 color: AppColors.iosOrange,
                 fontWeight: FontWeight.w500,
               ),
@@ -310,7 +313,10 @@ class MomentStaleBanner extends StatelessWidget {
             onPressed: onRetry,
             child: Text(
               t.common.buttonRetry,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -367,7 +373,7 @@ class _MomentCard extends StatelessWidget {
                       Text(
                         displayName,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.w600,
                           color: isDark
                               ? AppColors.darkTextPrimary
@@ -392,7 +398,10 @@ class _MomentCard extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(
                         parseModelString(item['content']),
-                        style: const TextStyle(fontSize: 15, height: 1.4),
+                        style: TextStyle(
+                          fontSize: FontSizeType.subheadline.size,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                   if (media.isNotEmpty)
@@ -406,8 +415,8 @@ class _MomentCard extends StatelessWidget {
                       children: [
                         Text(
                           parseModelString(item['created_at']),
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: TextStyle(
+                            fontSize: FontSizeType.small.size,
                             color: AppColors.iosGray,
                           ),
                         ),
@@ -620,9 +629,9 @@ class _MomentNotifyEntry extends ConsumerWidget {
                 ),
                 child: Text(
                   unread > 99 ? '99+' : '$unread',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 10,
+                    fontSize: FontSizeType.tiny.size,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

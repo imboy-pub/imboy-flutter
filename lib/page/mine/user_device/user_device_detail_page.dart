@@ -11,6 +11,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/helper/datetime.dart';
 
 import 'change_name_page.dart';
@@ -129,7 +130,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 18,
+                        fontSize: FontSizeType.large.size,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

@@ -17,6 +17,8 @@ import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 面对面建群确认页面 - 极致 iOS 17 Premium 风格
 class FaceToFaceConfirmPage extends ConsumerStatefulWidget {
@@ -138,27 +140,27 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       bottomWidget: _buildBottomButton(context, theme),
       child: Column(
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.large),
           _buildNumberDisplay(context, widget.code),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.medium),
           Text(
             t.common.createGroupF2fConfirmTips,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 15,
+            style: TextStyle(
+              fontSize: FontSizeType.subheadline.size,
               color: AppColors.iosGray,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
 
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            padding: const EdgeInsets.all(20),
+            margin: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+            padding: const EdgeInsets.all(AppSpacing.large),
             decoration: BoxDecoration(
               color: isDark
                   ? AppColors.darkSurfaceGroupedTertiary
-                  : Colors.white,
+                  : AppColors.lightSurface,
               borderRadius: BorderRadius.circular(20),
             ),
             child: AvatarList(
@@ -166,7 +168,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
               column: (MediaQuery.of(context).size.width - 72) ~/ 64,
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: AppSpacing.xxxLarge),
         ],
       ),
     );
@@ -187,8 +189,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
           alignment: Alignment.center,
           child: Text(
             char,
-            style: const TextStyle(
-              fontSize: 32,
+            style: TextStyle(
+              fontSize: FontSizeType.extraLargeTitle.size,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
@@ -201,9 +203,9 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
   Widget _buildBottomButton(BuildContext context, ThemeData theme) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        16,
-        8,
-        16,
+        AppSpacing.regular,
+        AppSpacing.small,
+        AppSpacing.regular,
         MediaQuery.of(context).padding.bottom + 16,
       ),
       child: SizedBox(
@@ -212,7 +214,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
@@ -252,11 +254,11 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                   }
                 },
           child: _isJoiningGroup
-              ? const CupertinoActivityIndicator(color: Colors.white)
+              ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   t.group.enterTheGroup,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  style: TextStyle(
+                    fontSize: FontSizeType.body.size,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

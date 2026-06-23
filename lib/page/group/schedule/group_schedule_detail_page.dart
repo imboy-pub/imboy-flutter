@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_schedule_service.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 群日程详情页
 class GroupScheduleDetailPage extends ConsumerStatefulWidget {
@@ -168,9 +169,12 @@ class _GroupScheduleDetailPageState
         children: [
           Text(
             _toText(schedule['title']),
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: FontSizeType.extraLarge.size,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.small),
           Chip(
             label: Text(
               status == 4
@@ -178,7 +182,7 @@ class _GroupScheduleDetailPageState
                   : context.t.groupSchedule.statusInProgress,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.medium),
           _InfoLine(label: context.t.groupSchedule.startTime, value: startTime),
           _InfoLine(label: context.t.groupSchedule.endTime, value: endTime),
           if (location.isNotEmpty)
@@ -188,18 +192,18 @@ class _GroupScheduleDetailPageState
               label: context.t.groupTask.taskDescription,
               value: description,
             ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.medium),
           _InfoLine(
             label: context.t.groupSchedule.participants,
             value: _toInt(_detail!['participant_count']).toString(),
           ),
           if (participants.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.small),
             Text(
               context.t.group.groupMembers,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.small),
             ...participants
                 .take(20)
                 .map(
@@ -215,7 +219,7 @@ class _GroupScheduleDetailPageState
                   ),
                 ),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
           if (status != 4)
             Row(
               children: [
@@ -225,7 +229,7 @@ class _GroupScheduleDetailPageState
                     child: Text(context.t.groupSchedule.confirmAttend),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.medium),
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _isSubmitting ? null : () => _confirm(false),
@@ -234,7 +238,7 @@ class _GroupScheduleDetailPageState
                 ),
               ],
             ),
-          if (status != 4) const SizedBox(height: 12),
+          if (status != 4) const SizedBox(height: AppSpacing.medium),
           if (status != 4)
             OutlinedButton(
               onPressed: _isSubmitting ? null : _cancelSchedule,

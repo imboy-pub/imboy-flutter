@@ -410,7 +410,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                         ),
                       ),
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: FontSizeType.body.size,
                         color: isDark ? Colors.white : Colors.black,
                         height: 1.4, // CJK行高
                       ),
@@ -745,8 +745,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               const SizedBox(height: 16),
               Text(
                 context.t.channel.settings,
-                style: const TextStyle(
-                  fontSize: 20,
+                style: TextStyle(
+                  fontSize: FontSizeType.extraLarge.size,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -957,8 +957,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   Expanded(
                     child: Text(
                       t.discovery.paidChannelLocked,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: FontSizeType.medium.size,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -968,7 +968,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               const SizedBox(height: 10),
               Text(
                 t.main.purchaseUnlockHint,
-                style: const TextStyle(fontSize: 14),
+                style: TextStyle(fontSize: FontSizeType.normal.size),
               ),
               // 价格显示：后端返回 price>0 时展示具体价格，否则不展示
               if (channel.hasPrice) ...[
@@ -986,8 +986,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                         currency: channel.currency,
                         amount: channel.priceYuan.toStringAsFixed(2),
                       ),
-                      style: const TextStyle(
-                        fontSize: 15,
+                      style: TextStyle(
+                        fontSize: FontSizeType.subheadline.size,
                         fontWeight: FontWeight.w700,
                         color: AppColors.primary,
                       ),
@@ -1217,8 +1217,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               const SizedBox(height: 12),
               Text(
                 t.main.myOrders,
-                style: const TextStyle(
-                  fontSize: 16,
+                style: TextStyle(
+                  fontSize: FontSizeType.medium.size,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -1411,7 +1411,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: FontSizeType.medium.size,
+          ),
         ),
         Text(
           label,
@@ -1579,8 +1582,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               padding: const EdgeInsets.all(16),
               child: Text(
                 channel.name,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: FontSizeType.large.size,
                   fontWeight: FontWeight.bold,
                 ),
               ),

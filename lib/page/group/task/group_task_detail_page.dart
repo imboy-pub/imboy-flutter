@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_task_service.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 群任务详情页
 class GroupTaskDetailPage extends ConsumerStatefulWidget {
@@ -136,9 +137,12 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
         children: [
           Text(
             _toText(_task!['title']),
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: FontSizeType.extraLarge.size,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.small),
           Chip(
             label: Text(
               isCompleted
@@ -146,7 +150,7 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
                   : context.t.groupTask.pending,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.medium),
           if (_toText(_task!['description']).isNotEmpty)
             _InfoLine(
               label: context.t.groupTask.taskDescription,
@@ -166,7 +170,7 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
             label: context.t.groupTask.pendingReview,
             value: _pendingReviewCount.toString(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
           if (!isCompleted)
             ElevatedButton(
               onPressed: _isSubmitting ? null : _submitTask,

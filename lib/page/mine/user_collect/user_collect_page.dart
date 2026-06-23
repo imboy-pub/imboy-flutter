@@ -18,6 +18,7 @@ import 'user_collect_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// UserCollect 页面 - 像素级对齐 iOS 17 Premium 风格
 class UserCollectPage extends ConsumerStatefulWidget {
@@ -202,7 +203,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     tag,
                     style: TextStyle(
                       color: AppColors.getIosBlue(Theme.of(context).brightness),
-                      fontSize: 11,
+                      fontSize: FontSizeType.caption2.size,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -440,7 +441,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
 
     final card = Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
         borderRadius: AppRadius.borderRadiusCell,
       ),
       child: Material(
@@ -484,7 +487,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                         t.chat.pinned,
                         style: TextStyle(
                           color: AppColors.getIosBlue(brightness),
-                          fontSize: 11,
+                          fontSize: FontSizeType.caption2.size,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -502,8 +505,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                         obj.source,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: TextStyle(
+                          fontSize: FontSizeType.small.size,
                           color: AppColors.iosGray,
                         ),
                       ),
@@ -513,8 +516,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                               obj.updatedAt > 0
                           ? DateTimeHelper.lastTimeFmt(obj.updatedAt)
                           : DateTimeHelper.lastTimeFmt(obj.createdAt),
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: TextStyle(
+                        fontSize: FontSizeType.small.size,
                         color: AppColors.iosGray,
                       ),
                     ),
@@ -542,7 +545,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             SlidableAction(
               onPressed: (_) => _togglePin(obj),
               backgroundColor: AppColors.getIosBlue(brightness),
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.onPrimary,
               icon: isPinned
                   ? CupertinoIcons.pin_slash_fill
                   : CupertinoIcons.pin_fill,
@@ -659,7 +662,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                     t.common.messageContent,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 14),
+                style: TextStyle(fontSize: FontSizeType.normal.size),
               ),
             ],
           ),
@@ -876,7 +879,10 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           const SizedBox(height: 16),
           Text(
             t.common.noFavoritesYet,
-            style: const TextStyle(color: AppColors.iosGray, fontSize: 15),
+            style: TextStyle(
+              color: AppColors.iosGray,
+              fontSize: FontSizeType.subheadline.size,
+            ),
           ),
         ],
       ),
@@ -966,8 +972,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 const SizedBox(width: 12),
                 Text(
                   t.main.type,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: FontSizeType.medium.size,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -985,8 +991,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                       label: Text(
                         e.value,
                         style: TextStyle(
-                          fontSize: 13,
-                          color: isSelected ? Colors.white : null,
+                          fontSize: FontSizeType.footnote.size,
+                          color: isSelected ? AppColors.onPrimary : null,
                         ),
                       ),
                       selected: isSelected,

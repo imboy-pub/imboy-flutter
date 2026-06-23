@@ -13,6 +13,7 @@ import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 选择好友页面
@@ -62,7 +63,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
         tag,
         style: TextStyle(
           color: Theme.of(context).colorScheme.onSurface,
-          fontSize: 12.0,
+          fontSize: FontSizeType.small.size,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -114,9 +115,9 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
       child: Text(
         susTag,
         textScaleFactor: 1.2,
-        style: const TextStyle(
+        style:  TextStyle(
           color: AppColors.lightTextSecondary,
-          fontSize: 12.0,
+          fontSize: FontSizeType.small.size,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -129,18 +130,19 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     final peer = widget.peer;
     final peerIsReceiver = widget.peerIsReceiver;
 
-    // 根据主题选择按钮文字颜色
+    // 根据主题选择按钮文字颜色：暗色用 iOS 绿、亮色用 iOS 蓝（语义色）
+    final brightness = Theme.of(context).brightness;
     final Color buttonTextColor = isDarkMode
-        ? const Color.fromRGBO(100, 200, 100, 1) // 暗色模式：绿色
-        : const Color.fromRGBO(33, 150, 243, 1); // 亮色模式：蓝色
+        ? AppColors.getIosGreen(brightness)
+        : AppColors.getIosBlue(brightness);
 
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.chat.sendTo),
         backgroundColor: isDarkMode
-            ? const Color.fromRGBO(80, 80, 80, 1)
-            : const Color.fromRGBO(240, 240, 240, 1),
+            ? AppColors.darkSurfaceGrouped
+            : AppColors.lightSurfaceGrouped,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         content: SizedBox(
           height: 164,
@@ -156,8 +158,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                             padding: const EdgeInsets.only(left: 10),
                             child: Text(
                               model.title,
-                              style: const TextStyle(
-                                fontSize: 16.0,
+                              style: TextStyle(
+                                fontSize: FontSizeType.medium.size,
                                 fontWeight: FontWeight.normal,
                               ),
                               maxLines: 6,
@@ -175,8 +177,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                             padding: const EdgeInsets.only(left: 10),
                             child: Text(
                               peer['title']!,
-                              style: const TextStyle(
-                                fontSize: 16.0,
+                              style: TextStyle(
+                                fontSize: FontSizeType.medium.size,
                                 fontWeight: FontWeight.normal,
                               ),
                               maxLines: 6,
@@ -263,7 +265,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                     ),
                     child: Text(
                       model.title,
-                      style: const TextStyle(fontSize: 14.0),
+                      style: TextStyle(fontSize: FontSizeType.normal.size),
                     ),
                   ),
                 ),
@@ -332,8 +334,9 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               indexBarOptions: IndexBarOptions(
                 needRebuild: true,
                 ignoreDragCancel: true,
-                downTextStyle: const TextStyle(
-                  fontSize: 12,
+                downTextStyle: TextStyle(
+                  fontSize: FontSizeType.small.size,
+                  // 索引条拖拽气泡文字：品牌蓝气泡上的白字，无对应语义 token，保留
                   color: Colors.white,
                 ),
                 downItemDecoration: BoxDecoration(

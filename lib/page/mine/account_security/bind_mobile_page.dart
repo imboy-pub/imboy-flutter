@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/phone_input.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mine/account_security/bind_mobile_provider.dart';
@@ -66,9 +67,9 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                     color: AppColors.getIosBlue(brightness),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.phone,
-                    color: Colors.white,
+                    color: AppColors.onPrimary,
                     size: 18,
                   ),
                 ),
@@ -88,7 +89,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                   child: Text(
                     hasBound ? t.main.bound : t.common.notBound,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: FontSizeType.small.size,
                       fontWeight: FontWeight.w600,
                       color: hasBound
                           ? AppColors.getIosBlue(brightness)
@@ -109,9 +110,12 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
               CupertinoListTile.notched(
                 title: Row(
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 80,
-                      child: Text('手机号', style: TextStyle(fontSize: 17)),
+                      child: Text(
+                        '手机号',
+                        style: TextStyle(fontSize: FontSizeType.body.size),
+                      ),
                     ),
                     Expanded(
                       child: PhoneInputWidget(
@@ -136,9 +140,12 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
               CupertinoListTile.notched(
                 title: Row(
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 80,
-                      child: Text('验证码', style: TextStyle(fontSize: 17)),
+                      child: Text(
+                        '验证码',
+                        style: TextStyle(fontSize: FontSizeType.body.size),
+                      ),
                     ),
                     Expanded(
                       child: CupertinoTextField(
@@ -156,7 +163,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                           vertical: AppSpacing.medium,
                         ),
                         decoration: null,
-                        style: const TextStyle(fontSize: 17),
+                        style: TextStyle(fontSize: FontSizeType.body.size),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -198,7 +205,10 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
             child: Text(
               t.common.verificationCodeSentToMobile,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.iosGray, fontSize: 13),
+              style: TextStyle(
+                color: AppColors.iosGray,
+                fontSize: FontSizeType.footnote.size,
+              ),
             ),
           ),
         ],
@@ -236,12 +246,15 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
           : null,
       minimumSize: Size(32, 32),
       child: state.isSendingCode
-          ? const CupertinoActivityIndicator(radius: 8, color: Colors.white)
+          ? CupertinoActivityIndicator(radius: 8, color: AppColors.onPrimary)
           : Text(
               state.seconds > 0
                   ? '${state.seconds}s'
                   : t.common.getVerificationCode,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                fontWeight: FontWeight.w600,
+              ),
             ),
     );
   }
@@ -266,7 +279,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -284,11 +297,11 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                 }
               : null,
           child: state.isSubmitting
-              ? const CupertinoActivityIndicator(color: Colors.white)
+              ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   hasBound ? t.common.confirmChange : t.common.bindNow,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  style: TextStyle(
+                    fontSize: FontSizeType.body.size,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -318,7 +331,10 @@ class _ValidationRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.iosGray,
+              ),
             ),
           ),
           Icon(
@@ -327,7 +343,10 @@ class _ValidationRow extends StatelessWidget {
             color: color,
           ),
           const SizedBox(width: 4),
-          Text(text, style: TextStyle(fontSize: 12, color: color)),
+          Text(
+            text,
+            style: TextStyle(fontSize: FontSizeType.small.size, color: color),
+          ),
         ],
       ),
     );

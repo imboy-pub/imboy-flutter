@@ -47,7 +47,7 @@ class E2EETransferPage extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
           _buildSectionHeader(t.common.e2eeTransferPendingSection),
           _buildPendingTransfersCard(context),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -278,8 +279,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
               borderRadius: BorderRadius.circular(10),
               child: Text(
                 t.common.getVerificationCode,
-                style: const TextStyle(
-                  fontSize: 13,
+                style: TextStyle(
+                  fontSize: FontSizeType.footnote.size,
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -350,8 +351,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
               borderRadius: BorderRadius.circular(10),
               child: Text(
                 t.passport.getVerifyCode,
-                style: const TextStyle(
-                  fontSize: 13,
+                style: TextStyle(
+                  fontSize: FontSizeType.footnote.size,
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
                 ),

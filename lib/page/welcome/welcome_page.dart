@@ -113,14 +113,14 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     const SizedBox(width: 8),
                     // P1-5: Hero 接力 Splash 36pt → Welcome 18pt 自然过渡
                     // Material(transparent) 防 Hero flight 期间失去 TextStyle 上下文
-                    const Hero(
+                    Hero(
                       tag: kBrandWordmarkHeroTag,
                       child: Material(
                         type: MaterialType.transparency,
                         child: Text(
                           'ImBoy',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: FontSizeType.large.size,
                             fontWeight: FontWeight.w700,
                             color: AppColors.primaryDark,
                             letterSpacing: 0.5,

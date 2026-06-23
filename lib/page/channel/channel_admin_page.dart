@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -358,7 +359,10 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
                   ),
                   child: Text(
                     t.channel.roleCreator,
-                    style: TextStyle(color: AppColors.primary, fontSize: 12),
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: FontSizeType.small.size,
+                    ),
                   ),
                 )
               : PopupMenuButton<String>(

@@ -461,10 +461,10 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   color: AppColors.primary,
                 ),
                 const SizedBox(width: 16),
-                const Text(
+                Text(
                   'ImBoy Web',
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: FontSizeType.extraLargeTitle.size,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -523,7 +523,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: FontSizeType.large.size,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
@@ -532,7 +532,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               Text(
                 desc,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: FontSizeType.normal.size,
                   color: AppColors.darkTextSecondary,
                 ),
               ),
@@ -577,9 +577,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 },
                 child: Text(
                   t.account.webSwitchToPassword,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.primary,
-                    fontSize: 14,
+                    fontSize: FontSizeType.normal.size,
                   ),
                 ),
               ),
@@ -595,9 +595,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 },
                 child: Text(
                   t.main.webSwitchToQR,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.primary,
-                    fontSize: 14,
+                    fontSize: FontSizeType.normal.size,
                   ),
                 ),
               ),
@@ -614,8 +614,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
       children: [
         Text(
           t.account.webQRLoginTitle,
-          style: const TextStyle(
-            fontSize: 24,
+          style: TextStyle(
+            fontSize: FontSizeType.largeTitle.size,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -623,8 +623,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         const SizedBox(height: 8),
         Text(
           t.account.webQRLoginHint,
-          style: const TextStyle(
-            fontSize: 14,
+          style: TextStyle(
+            fontSize: FontSizeType.normal.size,
             color: AppColors.darkTextSecondary,
           ),
         ),
@@ -664,8 +664,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             qrState.status == QRLoginStatus.scanned)
           Text(
             t.common.webQRExpiresIn(seconds: qrState.remainingSeconds),
-            style: const TextStyle(
-              fontSize: 12,
+            style: TextStyle(
+              fontSize: FontSizeType.small.size,
               color: AppColors.darkTextDisabled,
             ),
           ),
@@ -707,7 +707,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 Text(
                   t.discovery.webQRScanned,
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: FontSizeType.large.size,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),
@@ -733,7 +733,10 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               const SizedBox(height: 16),
               Text(
                 t.main.webQRLoggingIn,
-                style: const TextStyle(fontSize: 16, color: AppColors.primary),
+                style: TextStyle(
+                  fontSize: FontSizeType.medium.size,
+                  color: AppColors.primary,
+                ),
               ),
             ],
           ),
@@ -779,7 +782,10 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 const SizedBox(height: 8),
                 Text(
                   qrState.errorMessage ?? t.common.webQRLoginFailed,
-                  style: const TextStyle(fontSize: 14, color: AppColors.iosRed),
+                  style: TextStyle(
+                    fontSize: FontSizeType.normal.size,
+                    color: AppColors.iosRed,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -800,8 +806,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               const SizedBox(height: 16),
               Text(
                 t.common.webQRLoginSuccess,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: FontSizeType.large.size,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
                 ),
@@ -847,7 +853,10 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: AppColors.darkTextSecondary),
+            style: TextStyle(
+              fontSize: FontSizeType.small.size,
+              color: AppColors.darkTextSecondary,
+            ),
           ),
         ),
       ],
@@ -863,8 +872,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
       children: [
         Text(
           t.account.webPasswordLoginTitle,
-          style: const TextStyle(
-            fontSize: 24,
+          style: TextStyle(
+            fontSize: FontSizeType.largeTitle.size,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -929,9 +938,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 borderRadius: BorderRadius.circular(24),
               ),
             ),
-            textStyle: const TextStyle(
+            textStyle: TextStyle(
               color: AppColors.onPrimary,
-              fontSize: 16,
+              fontSize: FontSizeType.medium.size,
               fontWeight: FontWeight.w600,
             ),
             onPressed: () async {
@@ -968,7 +977,10 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           onPressed: () => context.push(AppRoutes.forgotPassword),
           child: Text(
             t.account.forgotPassword,
-            style: const TextStyle(color: AppColors.primary, fontSize: 14),
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: FontSizeType.normal.size,
+            ),
           ),
         ),
       ],

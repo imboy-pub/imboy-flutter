@@ -30,9 +30,9 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
       body: ListView(
         children: [
           _buildSettingsCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
           _buildProxySelectionCard(),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
           _buildCreateButton(),
         ],
       ),
@@ -54,7 +54,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.regular),
             _buildSlider(
               t.main.e2eeSocialTotalShards,
               _totalShards,
@@ -62,7 +62,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
               5,
               (value) => setState(() => _totalShards = value),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.regular),
             _buildSlider(
               t.main.e2eeSocialThreshold,
               _threshold,
@@ -70,7 +70,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
               _totalShards - 1,
               (value) => setState(() => _threshold = value),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.regular),
             Text(
               t.common.e2eeSocialShardStoredNote,
               style: TextStyle(
@@ -78,11 +78,11 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                 color: AppColors.iosGray,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.small),
             Text(
               t.main.e2eeSocialThresholdHint(count: _threshold),
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
                 color: CupertinoColors.activeBlue,
               ),
             ),
@@ -153,7 +153,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.small),
             Text(
               t.main.e2eeSocialProxyNeeded(count: _totalShards),
               style: TextStyle(
@@ -161,7 +161,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                 color: AppColors.iosGray,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.regular),
             if (_selectedProxies.isEmpty)
               Center(
                 child: Padding(
@@ -196,7 +196,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
           backgroundColor: AppColors.iosPurple,
           child: Text(
             (nickname as String).substring(0, 1).toUpperCase(),
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: AppColors.onPrimary),
           ),
         ),
         title: Text(nickname),
@@ -303,7 +303,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                     ),
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.small),
                   Text(
                     t.main.e2eeSocialShardSentViaWs,
                     style: TextStyle(
@@ -311,17 +311,17 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                       color: AppColors.iosGray,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.small),
                   Text(
                     t.common.e2eeSocialThresholdInfo(
                       count: result['threshold'] as int,
                     ),
-                    style: const TextStyle(
-                      fontSize: 13,
+                    style: TextStyle(
+                      fontSize: FontSizeType.footnote.size,
                       color: CupertinoColors.activeBlue,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.small),
                   Text(
                     t.main.e2eeSocialSentCount(
                       sent: sentCount,
@@ -332,7 +332,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
                       color: AppColors.iosGray,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.small),
                   Text(
                     t.common.e2eeSocialZeroTrustNote,
                     style: TextStyle(

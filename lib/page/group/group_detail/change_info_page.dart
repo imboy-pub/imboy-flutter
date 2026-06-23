@@ -10,6 +10,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart' show FontSizeType;
 
 import 'change_info_provider.dart';
 
@@ -101,7 +102,10 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                 child: Text(
                   widget.subtitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: colorScheme.outline),
+                  style: TextStyle(
+                    fontSize: FontSizeType.normal.size,
+                    color: colorScheme.outline,
+                  ),
                 ),
               ),
             Container(
@@ -110,7 +114,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                 vertical: AppSpacing.medium,
               ),
               decoration: BoxDecoration(
-                color: isDark ? colorScheme.surface : Colors.white,
+                color: isDark ? colorScheme.surface : AppColors.lightSurface,
                 borderRadius: AppRadius.borderRadiusMedium,
                 boxShadow: isDark
                     ? null
@@ -142,7 +146,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                           .toList();
                     },
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.medium),
                   Expanded(
                     child: TextField(
                       focusNode: _inputFocusNode,
@@ -151,7 +155,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                       maxLines: 1,
                       maxLength: 80,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: FontSizeType.medium.size,
                         color: colorScheme.onSurface,
                       ),
                       decoration: InputDecoration(

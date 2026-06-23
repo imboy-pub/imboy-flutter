@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/theme/default/font_types.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -426,7 +427,10 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                       _isPublic
                           ? t.channel.typePublicDesc
                           : t.channel.typePrivateDesc,
-                      style: TextStyle(fontSize: 13, color: AppColors.primary),
+                      style: TextStyle(
+                        fontSize: FontSizeType.footnote.size,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
                 ],

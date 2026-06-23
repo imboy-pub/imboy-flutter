@@ -15,6 +15,7 @@ import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import '../confirm_new_friend/confirm_new_friend_page.dart';
 import 'add_friend_page.dart';
@@ -128,7 +129,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                 .read(newFriendProvider.notifier)
                 .delete(model.from.toString(), model.to.toString()),
             backgroundColor: AppColors.getIosRed(brightness),
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             icon: CupertinoIcons.delete_solid,
             label: t.common.buttonDelete,
           ),
@@ -177,7 +178,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 10,
+          fontSize: FontSizeType.tiny.size,
           fontWeight: FontWeight.w600,
           color: color,
         ),
@@ -194,14 +195,17 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
     if (model.status == NewFriendStatus.added.index) {
       return Text(
         t.common.added,
-        style: const TextStyle(fontSize: 14, color: AppColors.iosGray),
+        style: TextStyle(
+          fontSize: FontSizeType.normal.size,
+          color: AppColors.iosGray,
+        ),
       );
     }
     if (model.status == NewFriendStatus.expired.index) {
       return Text(
         t.main.expired,
         style: TextStyle(
-          fontSize: 14,
+          fontSize: FontSizeType.normal.size,
           color: AppColors.getIosRed(brightness).withValues(alpha: 0.5),
         ),
       );
@@ -209,7 +213,10 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
     if (fromSelf) {
       return Text(
         t.common.awaitingVerification,
-        style: const TextStyle(fontSize: 14, color: AppColors.iosGray),
+        style: TextStyle(
+          fontSize: FontSizeType.normal.size,
+          color: AppColors.iosGray,
+        ),
       );
     }
 
@@ -234,10 +241,10 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
       ),
       child: Text(
         t.common.accept,
-        style: const TextStyle(
-          fontSize: 13,
+        style: TextStyle(
+          fontSize: FontSizeType.footnote.size,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
+          color: AppColors.onPrimary,
         ),
       ),
     );

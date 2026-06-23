@@ -19,6 +19,7 @@ import 'people_info_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 用户详情页面 - iOS 17 Premium 风格重构
 class PeopleInfoPage extends ConsumerStatefulWidget {
@@ -94,7 +95,7 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
               decoration: BoxDecoration(
                 color: isDark
                     ? AppColors.darkSurfaceGroupedTertiary
-                    : Colors.white,
+                    : AppColors.lightSurface,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: ContactCard(
@@ -248,13 +249,13 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.onPrimary,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    textStyle: const TextStyle(
-                      fontSize: 17,
+                    textStyle: TextStyle(
+                      fontSize: FontSizeType.body.size,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -364,8 +365,8 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
             Expanded(
               child: Text(
                 t.common.addedToDenylistTips,
-                style: const TextStyle(
-                  fontSize: 14,
+                style: TextStyle(
+                  fontSize: FontSizeType.normal.size,
                   fontWeight: FontWeight.w500,
                 ),
               ),

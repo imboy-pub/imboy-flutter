@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -57,7 +58,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             children: [
               Text(
                 t.account.rechargeAmountHint,
-                style: const TextStyle(fontSize: 13),
+                style: TextStyle(fontSize: FontSizeType.footnote.size),
               ),
               const SizedBox(height: 12),
               CupertinoTextField(
@@ -68,11 +69,14 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                 ],
-                prefix: const Padding(
+                prefix: Padding(
                   padding: EdgeInsets.only(left: 8),
                   child: Text(
                     '¥',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: FontSizeType.body.size,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 placeholder: t.account.rechargeAmountExample,
@@ -295,7 +299,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             Text(
               t.main.totalAssets,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: FontSizeType.normal.size,
                 color: Colors.white.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w500,
               ),
@@ -305,8 +309,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                 ? const CupertinoActivityIndicator(color: Colors.white)
                 : Text(
                     balance,
-                    style: const TextStyle(
-                      fontSize: 36,
+                    style: TextStyle(
+                      fontSize: FontSizeType.extraLargeTitle.size,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       letterSpacing: -1,
@@ -379,13 +383,16 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             const SizedBox(height: 8),
             Text(
               label,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             if (subtitle != null)
               Text(
                 subtitle,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: FontSizeType.caption2.size,
                   color: AppColors.iosGray,
                   fontWeight: FontWeight.w500,
                 ),
@@ -457,7 +464,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                 Text(
                   s['label'] as String,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: FontSizeType.small.size,
                     color: isDark
                         ? AppColors.darkTextPrimary
                         : AppColors.lightTextPrimary,
@@ -485,8 +492,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           padding: const EdgeInsets.fromLTRB(28, 24, 16, 8),
           child: Text(
             t.common.transactionHistory2.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 13,
+            style: TextStyle(
+              fontSize: FontSizeType.footnote.size,
               fontWeight: FontWeight.w600,
               color: AppColors.iosGray,
             ),
@@ -549,7 +556,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
       trailing: Text(
         amountText,
         style: TextStyle(
-          fontSize: 17,
+          fontSize: FontSizeType.body.size,
           fontWeight: FontWeight.bold,
           color: amountColor,
           letterSpacing: -0.5,

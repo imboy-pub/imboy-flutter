@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/page/mine/select_region/select_region_provider.dart';
 
 /// 选择地区页面 - 像素级对齐 iOS 17 Premium 风格
@@ -133,8 +134,8 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
               provider.selectedVal.isEmpty
                   ? t.common.all
                   : provider.selectedVal,
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
                 color: AppColors.iosGray,
                 fontWeight: FontWeight.w500,
               ),
@@ -174,7 +175,7 @@ class _SelectRegionPageState extends ConsumerState<SelectRegionPage> {
       title: Text(
         title,
         style: TextStyle(
-          fontSize: 17,
+          fontSize: FontSizeType.body.size,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
         ),
       ),

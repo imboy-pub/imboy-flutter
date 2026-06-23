@@ -9,6 +9,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'storage_space_provider.dart';
 
@@ -46,9 +47,9 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildStorageOverview(context, storageState, t),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xLarge),
             _buildAppUsageSection(context, storageState, t),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xLarge),
             _buildStorageDetailCards(context, storageState, t),
           ],
         ),
@@ -126,7 +127,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
               );
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
           Wrap(
             spacing: 16,
             runSpacing: 10,
@@ -165,7 +166,10 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
         const SizedBox(width: 6),
         Text(
           text,
-          style: const TextStyle(fontSize: 12, color: AppColors.iosGray),
+          style: TextStyle(
+            fontSize: FontSizeType.small.size,
+            color: AppColors.iosGray,
+          ),
         ),
       ],
     );
@@ -188,18 +192,21 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
         children: [
           Text(
             appName + t.main.usedSpace,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: FontSizeType.subheadline.size,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.small),
           Text(
             formatBytes(state.appAllBytes, num: 1000),
-            style: const TextStyle(
-              fontSize: 34,
+            style: TextStyle(
+              fontSize: FontSizeType.extraLargeTitle.size,
               fontWeight: FontWeight.w700,
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSpacing.tiny),
           Text(
             t.common.tipDeviceSpace(
               param1: state.totalDiskSpace > 0
@@ -208,7 +215,10 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
                   : '0',
               param2: formatBytes(state.totalDiskSpace, num: 1000),
             ),
-            style: const TextStyle(fontSize: 13, color: AppColors.iosGray),
+            style: TextStyle(
+              fontSize: FontSizeType.footnote.size,
+              color: AppColors.iosGray,
+            ),
           ),
         ],
       ),
@@ -244,15 +254,15 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
             },
             child: Text(
               t.main.clean,
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppColors.onPrimary,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.medium),
         _buildStorageCard(
           context,
           title: t.chat.userData,
@@ -261,7 +271,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           icon: Icons.folder,
           iconColor: AppColors.iosBlue,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.medium),
         _buildStorageCard(
           context,
           title: t.main.appSize,
@@ -301,14 +311,14 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
                   color: iconColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, color: Colors.white, size: 20),
+                child: Icon(icon, color: AppColors.onPrimary, size: 20),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.medium),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  style: TextStyle(
+                    fontSize: FontSizeType.body.size,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -316,15 +326,21 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
               ?action,
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.regular),
           Text(
             formatBytes(value, num: 1000),
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: FontSizeType.extraLargeTitle.size,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             description,
-            style: const TextStyle(fontSize: 13, color: AppColors.iosGray),
+            style: TextStyle(
+              fontSize: FontSizeType.footnote.size,
+              color: AppColors.iosGray,
+            ),
           ),
         ],
       ),

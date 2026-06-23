@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -219,7 +220,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                       child: Text(
                         'DEV',
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: FontSizeType.tiny.size,
                           fontWeight: FontWeight.w600,
                           color: Colors.white.withValues(alpha: 0.45),
                           letterSpacing: 1.0,
@@ -275,14 +276,14 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
   /// Wordmark "ImBoy"：Hero + fade-in + 向上滑入 8px。
   Widget _buildWordmark({required bool disableAnim}) {
-    const node = Hero(
+    final node = Hero(
       tag: kBrandWordmarkHeroTag,
       child: Material(
         type: MaterialType.transparency,
         child: Text(
           'ImBoy',
           style: TextStyle(
-            fontSize: 36,
+            fontSize: FontSizeType.extraLargeTitle.size,
             fontWeight: FontWeight.w700,
             color: Colors.white,
             letterSpacing: 0.5,
@@ -309,7 +310,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
     final node = Text(
       context.t.splash.slogan,
       style: TextStyle(
-        fontSize: 15,
+        fontSize: FontSizeType.subheadline.size,
         fontWeight: FontWeight.w500,
         color: Colors.white.withValues(alpha: 0.85),
         letterSpacing: 0.3,

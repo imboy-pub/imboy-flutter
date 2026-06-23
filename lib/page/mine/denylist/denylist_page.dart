@@ -98,7 +98,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
+                      color: AppColors.lightTextPrimary.withValues(alpha: 0.08),
                       blurRadius: 8,
                     ),
                   ],
@@ -245,12 +245,12 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            const Icon(CupertinoIcons.minus_circle, color: Colors.white),
+            const Icon(CupertinoIcons.minus_circle, color: AppColors.onPrimary),
             const SizedBox(width: 8),
             Text(
               t.common.buttonRemove,
               style: const TextStyle(
-                color: Colors.white,
+                color: AppColors.onPrimary,
                 fontWeight: FontWeight.w600,
               ),
             ),

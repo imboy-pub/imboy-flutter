@@ -6,6 +6,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import '../profile_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 隐私设置页面
 class PrivacySettingsPage extends ConsumerWidget {
@@ -142,24 +144,29 @@ class PrivacySettingsPage extends ConsumerWidget {
           child: Text(
             title,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: FontSizeType.normal.size,
               fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white70 : Colors.black54,
+              color: AppColors.getTextColor(
+                Theme.of(context).brightness,
+                isSecondary: true,
+              ),
             ),
           ),
         ),
 
         // 设置项容器
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+            color: isDark
+                ? AppColors.darkSurfaceGroupedTertiary
+                : AppColors.lightSurface,
             borderRadius: AppRadius.borderRadiusMedium,
             boxShadow: [
               BoxShadow(
                 color: isDark
-                    ? Colors.black.withValues(alpha: 0.2)
-                    : Colors.black.withValues(alpha: 0.03),
+                    ? AppColors.lightTextPrimary.withValues(alpha: 0.2)
+                    : AppColors.lightTextPrimary.withValues(alpha: 0.03),
                 blurRadius: 0.5,
                 offset: const Offset(0, 0.5),
               ),
@@ -200,10 +207,11 @@ class PrivacySettingsPage extends ConsumerWidget {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.medium,
+      ),
       child: Row(
         children: [
           Expanded(
@@ -213,23 +221,26 @@ class PrivacySettingsPage extends ConsumerWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: FontSizeType.medium.size,
                     fontWeight: FontWeight.w400,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: AppColors.getTextColor(Theme.of(context).brightness),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.tiny),
                 Text(
                   subtitle,
                   style: TextStyle(
-                    fontSize: 13,
-                    color: isDark ? Colors.white60 : Colors.black54,
+                    fontSize: FontSizeType.footnote.size,
+                    color: AppColors.getTextColor(
+                      Theme.of(context).brightness,
+                      isSecondary: true,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppSpacing.regular),
           Switch(
             value: value,
             onChanged: onChanged,
@@ -249,25 +260,26 @@ class PrivacySettingsPage extends ConsumerWidget {
     required Color iconColor,
     required VoidCallback onTap,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Material(
       color: AppColors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.medium,
+          ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(AppSpacing.small),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
                   borderRadius: AppRadius.borderRadiusSmall,
                 ),
                 child: Icon(icon, color: iconColor, size: 20),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.medium),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,17 +287,22 @@ class PrivacySettingsPage extends ConsumerWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: FontSizeType.medium.size,
                         fontWeight: FontWeight.w400,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: AppColors.getTextColor(
+                          Theme.of(context).brightness,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.tiny),
                     Text(
                       subtitle,
                       style: TextStyle(
-                        fontSize: 13,
-                        color: isDark ? Colors.white60 : Colors.black54,
+                        fontSize: FontSizeType.footnote.size,
+                        color: AppColors.getTextColor(
+                          Theme.of(context).brightness,
+                          isSecondary: true,
+                        ),
                       ),
                     ),
                   ],
@@ -293,7 +310,10 @@ class PrivacySettingsPage extends ConsumerWidget {
               ),
               Icon(
                 Icons.navigate_next,
-                color: isDark ? Colors.white54 : Colors.black54,
+                color: AppColors.getTextColor(
+                  Theme.of(context).brightness,
+                  isSecondary: true,
+                ),
                 size: 18,
               ),
             ],

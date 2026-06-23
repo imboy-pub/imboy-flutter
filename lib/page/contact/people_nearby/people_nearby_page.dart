@@ -101,7 +101,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                     state.peopleNearbyVisible
                         ? CupertinoIcons.location_slash_fill
                         : CupertinoIcons.location_fill,
-                    color: Colors.white,
+                    color: AppColors.onPrimary,
                     size: 18,
                   ),
                 ),
@@ -120,8 +120,8 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                         ),
                         child: Text(
                           '${state.peopleList.length}',
-                          style: const TextStyle(
-                            fontSize: 12,
+                          style: TextStyle(
+                            fontSize: FontSizeType.small.size,
                             fontWeight: FontWeight.bold,
                             color: AppColors.iosGray,
                           ),
@@ -194,7 +194,9 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.xLarge),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+          color: isDark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -225,8 +227,8 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
             const SizedBox(height: 16),
             Text(
               t.discovery.findNearbyPeople,
-              style: const TextStyle(
-                fontSize: 18,
+              style: TextStyle(
+                fontSize: FontSizeType.large.size,
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.5,
               ),
@@ -235,8 +237,8 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
             Text(
               t.common.nearbyPeopleTips,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
                 color: AppColors.iosGray,
                 height: 1.4,
               ),
@@ -274,7 +276,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
           Text(
             distance,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: FontSizeType.small.size,
               fontWeight: FontWeight.w500,
               color: AppColors.getIosBlue(brightness).withValues(alpha: 0.7),
             ),

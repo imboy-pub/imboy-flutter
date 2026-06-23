@@ -9,6 +9,8 @@ import 'package:imboy/component/ui/numeric_keypad.dart';
 import 'package:imboy/page/group/face_to_face/face_to_face_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 面对面建群页面 - 极致 iOS 17 Premium 风格
 class FaceToFacePage extends ConsumerStatefulWidget {
@@ -62,9 +64,14 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
         children: [
           // 提示卡片
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.large,
+              AppSpacing.regular,
+              AppSpacing.none,
+            ),
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.large),
               decoration: BoxDecoration(
                 color: isDark
                     ? AppColors.darkSurfaceGroupedTertiary
@@ -78,12 +85,12 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                     color: AppColors.getIosBlue(brightness),
                     size: 32,
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: AppSpacing.regular),
                   Expanded(
                     child: Text(
                       t.common.createGroupF2fTips,
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: TextStyle(
+                        fontSize: FontSizeType.normal.size,
                         height: 1.4,
                         color: AppColors.iosGray,
                         fontWeight: FontWeight.w500,
@@ -95,22 +102,24 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
             ),
           ),
 
-          const SizedBox(height: 48),
+          const SizedBox(height: AppSpacing.xxxLarge),
 
           // 数字输入区 - 极致质感
           _buildNumberBoxes(context, state, isDark, brightness),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xLarge),
 
           // 错误提示
           if (state.errorInfo.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xxLarge,
+              ),
               child: Text(
                 state.errorInfo,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.iosRed,
-                  fontSize: 14,
+                  fontSize: FontSizeType.normal.size,
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
@@ -140,7 +149,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
         return Container(
           width: boxSize,
           height: boxSize,
-          margin: const EdgeInsets.symmetric(horizontal: 8),
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
           decoration: BoxDecoration(
             color: hasValue
                 ? (isDark
@@ -165,8 +174,8 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
           child: hasValue
               ? Text(
                   state.resultData[index],
-                  style: const TextStyle(
-                    fontSize: 28,
+                  style: TextStyle(
+                    fontSize: FontSizeType.extraLargeTitle.size,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -1,
                   ),

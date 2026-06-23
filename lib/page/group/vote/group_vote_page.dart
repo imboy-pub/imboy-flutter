@@ -8,6 +8,7 @@ import 'package:imboy/service/group_vote_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 群投票页面
 class GroupVotePage extends ConsumerStatefulWidget {
@@ -61,7 +62,7 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
               controller: titleController,
               decoration: InputDecoration(labelText: t.groupVote.voteTitle),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.regular),
             TextField(
               controller: optionsController,
               maxLines: 3,
@@ -188,8 +189,8 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
                   Expanded(
                     child: Text(
                       vote['title'] as String? ?? '',
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: FontSizeType.medium.size,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -205,12 +206,15 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
                     ),
                     child: Text(
                       statusText,
-                      style: TextStyle(color: statusColor, fontSize: 12),
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: FontSizeType.small.size,
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.small),
               Text(
                 t.groupVote.participantCount(
                   count: vote['participant_count'] as Object? ?? 0,

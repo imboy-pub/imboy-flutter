@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -402,8 +403,8 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                       Expanded(
                         child: Text(
                           channelName,
-                          style: const TextStyle(
-                            fontSize: 15,
+                          style: TextStyle(
+                            fontSize: FontSizeType.subheadline.size,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

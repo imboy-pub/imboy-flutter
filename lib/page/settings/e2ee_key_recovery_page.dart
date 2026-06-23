@@ -45,8 +45,6 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       appBar: GlassAppBar(
         title: t.main.e2eeKeyRecoveryTitle,
@@ -85,7 +83,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       style: TextStyle(
                         fontSize: FontSizeType.normal.size,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white70 : Colors.black54,
+                        color: AppColors.iosGray,
                       ),
                     ),
                   ),
@@ -154,7 +152,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       style: TextStyle(
                         fontSize: FontSizeType.normal.size,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white70 : Colors.black54,
+                        color: AppColors.iosGray,
                       ),
                     ),
                   ),
@@ -194,12 +192,15 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue.shade50, Colors.blue.shade100],
+          colors: [
+            AppColors.iosBlue.withValues(alpha: 0.1),
+            AppColors.iosBlue.withValues(alpha: 0.2),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: AppRadius.borderRadiusMedium,
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(color: AppColors.iosBlue.withValues(alpha: 0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -226,8 +227,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       Text(
                         t.common.e2eeE2EEEnabled,
                         style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.blue.shade700,
+                          fontSize: FontSizeType.footnote.size,
+                          color: AppColors.iosBlue,
                         ),
                       ),
                     ],
@@ -245,7 +246,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   child: Text(
                     t.chat.e2eeActivated,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.onPrimary,
                       fontSize: FontSizeType.small.size,
                       fontWeight: FontWeight.bold,
                     ),
@@ -278,12 +279,15 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.orange.shade50, Colors.orange.shade100],
+          colors: [
+            AppColors.iosOrange.withValues(alpha: 0.1),
+            AppColors.iosOrange.withValues(alpha: 0.2),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: AppRadius.borderRadiusMedium,
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: AppColors.iosOrange.withValues(alpha: 0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -316,7 +320,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               label: Text(t.chat.e2eeGenerateNewKey),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.iosOrange,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.onPrimary,
                 minimumSize: const Size(160, 44),
               ),
             ),
@@ -337,13 +341,19 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             width: 80,
             child: Text(
               label,
-              style: const TextStyle(fontSize: 13, color: Colors.black54),
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                color: AppColors.iosGray,
+              ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -358,9 +368,11 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
         borderRadius: AppRadius.borderRadiusMedium,
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(color: AppColors.iosBlue.withValues(alpha: 0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -369,23 +381,32 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           children: [
             Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                Icon(Icons.info_outline, color: AppColors.iosBlue, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   t.common.e2eeAboutTitle,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: FontSizeType.subheadline.size,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            Text(t.common.e2eeInfoPoint1, style: const TextStyle(fontSize: 13)),
+            Text(
+              t.common.e2eeInfoPoint1,
+              style: TextStyle(fontSize: FontSizeType.footnote.size),
+            ),
             const SizedBox(height: 4),
-            Text(t.common.e2eeInfoPoint2, style: const TextStyle(fontSize: 13)),
+            Text(
+              t.common.e2eeInfoPoint2,
+              style: TextStyle(fontSize: FontSizeType.footnote.size),
+            ),
             const SizedBox(height: 4),
-            Text(t.common.e2eeInfoPoint3, style: const TextStyle(fontSize: 13)),
+            Text(
+              t.common.e2eeInfoPoint3,
+              style: TextStyle(fontSize: FontSizeType.footnote.size),
+            ),
           ],
         ),
       ),
@@ -413,13 +434,15 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+            color: isDark
+                ? AppColors.darkSurfaceGroupedTertiary
+                : AppColors.lightSurface,
             borderRadius: AppRadius.borderRadiusMedium,
             boxShadow: [
               BoxShadow(
                 color: isDark
-                    ? Colors.black.withValues(alpha: 0.2)
-                    : Colors.black.withValues(alpha: 0.03),
+                    ? AppColors.lightTextPrimary.withValues(alpha: 0.2)
+                    : AppColors.lightTextPrimary.withValues(alpha: 0.03),
                 blurRadius: 0.5,
                 offset: const Offset(0, 0.5),
               ),
@@ -459,17 +482,17 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                             ),
                             decoration: BoxDecoration(
                               color: status == t.chat.e2eeStatusAvailable
-                                  ? Colors.green.shade100
-                                  : Colors.grey.shade200,
+                                  ? AppColors.iosGreen.withValues(alpha: 0.2)
+                                  : AppColors.iosGray5,
                               borderRadius: AppRadius.borderRadiusSmall,
                             ),
                             child: Text(
                               status,
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: FontSizeType.caption2.size,
                                 color: status == t.chat.e2eeStatusAvailable
-                                    ? Colors.green.shade700
-                                    : Colors.grey.shade600,
+                                    ? AppColors.iosGreen
+                                    : AppColors.iosGray,
                               ),
                             ),
                           ),
@@ -479,8 +502,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       Text(
                         description,
                         style: TextStyle(
-                          fontSize: 13,
-                          color: isDark ? Colors.white60 : Colors.black54,
+                          fontSize: FontSizeType.footnote.size,
+                          color: AppColors.iosGray,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -494,17 +517,14 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                             size: 14,
                             color: index < securityLevel
                                 ? AppColors.iosYellow
-                                : Colors.grey.shade400,
+                                : AppColors.iosGray2,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.navigate_next,
-                  color: isDark ? Colors.white54 : Colors.black54,
-                ),
+                Icon(Icons.navigate_next, color: AppColors.iosGray),
               ],
             ),
           ),
@@ -532,7 +552,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+            color: isDark
+                ? AppColors.darkSurfaceGroupedTertiary
+                : AppColors.lightSurface,
             borderRadius: AppRadius.borderRadiusMedium,
             border: Border.all(color: iconColor.withValues(alpha: 0.3)),
           ),
@@ -565,17 +587,14 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                       Text(
                         description,
                         style: TextStyle(
-                          fontSize: 13,
-                          color: isDark ? Colors.white60 : Colors.black54,
+                          fontSize: FontSizeType.footnote.size,
+                          color: AppColors.iosGray,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.navigate_next,
-                  color: isDark ? Colors.white54 : Colors.black54,
-                ),
+                Icon(Icons.navigate_next, color: AppColors.iosGray),
               ],
             ),
           ),
@@ -826,7 +845,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
+                    color: AppColors.iosOrange.withValues(alpha: 0.1),
                     borderRadius: AppRadius.borderRadiusSmall,
                   ),
                   child: Column(

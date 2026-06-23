@@ -17,6 +17,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'contact_menu_decoration.dart';
 import 'contact_provider.dart';
@@ -149,9 +150,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               child: IconTheme(
                 data: IconThemeData(
                   color: isDark
-                      ? Colors.white
+                      ? AppColors.onPrimary
                       : (menuDecoration?.bgColor != null
-                            ? Colors.white
+                            ? AppColors.onPrimary
                             : AppColors.primary),
                   size: 24,
                 ),
@@ -169,7 +170,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                   color: _getOnlineStatusColor(context, model),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: isDark ? AppColors.darkSurface : Colors.white,
+                    color: isDark
+                        ? AppColors.darkSurface
+                        : AppColors.lightSurface,
                     width: 2,
                   ),
                 ),
@@ -179,15 +182,18 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       ),
       title: Text(
         model.title,
-        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+        style: TextStyle(
+          fontSize: FontSizeType.body.size,
+          fontWeight: FontWeight.w500,
+        ),
       ),
       subtitle: (!isSpecial && model.lastSeenAt != null)
           ? UserOnlineStatusWidget(
               isOnline: model.status == 'online',
               lastSeenTimestamp: model.lastSeenAt,
               hideOnlineStatus: false,
-              textStyle: const TextStyle(
-                fontSize: 13,
+              textStyle: TextStyle(
+                fontSize: FontSizeType.footnote.size,
                 color: AppColors.iosGray,
               ),
               indicatorSize: 0,
@@ -225,8 +231,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
           : AppColors.lightSurfaceGrouped,
       child: Text(
         tag,
-        style: const TextStyle(
-          fontSize: 13,
+        style: TextStyle(
+          fontSize: FontSizeType.footnote.size,
           fontWeight: FontWeight.w600,
           color: AppColors.iosGray,
         ),
@@ -315,9 +321,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                   ).withValues(alpha: 0.9),
                   shape: BoxShape.circle,
                 ),
-                indexHintTextStyle: const TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
+                indexHintTextStyle: TextStyle(
+                  fontSize: FontSizeType.largeTitle.size,
+                  color: AppColors.onPrimary,
                   fontWeight: FontWeight.w600,
                 ),
                 downItemDecoration: const BoxDecoration(
