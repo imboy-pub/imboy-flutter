@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -240,6 +241,7 @@ class _GroupAlbumPhotoDetailPageState
     final isLiked = _toBool(photo['is_liked']);
     final url = _resolvePhotoUrl(photo);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.regular),
       children: [
@@ -248,7 +250,9 @@ class _GroupAlbumPhotoDetailPageState
           child: ClipRRect(
             borderRadius: AppRadius.borderRadiusMedium,
             child: Container(
-              color: Colors.grey.shade100,
+              color: isDark
+                  ? AppColors.darkSurface
+                  : AppColors.lightSurfaceContainer,
               child: url.isNotEmpty
                   ? Image(
                       image: cachedImageProvider(url),
@@ -338,7 +342,9 @@ class _GroupAlbumPhotoDetailPageState
         vertical: 10,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppColors.darkSurface
+            : AppColors.lightSurfaceContainer,
         borderRadius: AppRadius.borderRadiusSmall,
       ),
       child: Row(

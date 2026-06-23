@@ -340,7 +340,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         content: Text(
           item.remindCount > 99 ? '99+' : '${item.remindCount}',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.onPrimary,
             fontSize: FontSizeType.tiny.size,
             fontWeight: FontWeight.bold,
             fontFeatures: [FontFeature.tabularFigures()],

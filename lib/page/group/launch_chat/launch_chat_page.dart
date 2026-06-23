@@ -219,7 +219,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                   BoxShadow(
                     color: isDark
                         ? colorScheme.shadow.withValues(alpha: 0.05)
-                        : Colors.black.withValues(alpha: 0.04),
+                        : AppColors.darkBackground.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -336,7 +336,9 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                                 borderRadius: AppRadius.borderRadiusSmall,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
+                                    color: AppColors.darkBackground.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),

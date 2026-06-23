@@ -196,7 +196,7 @@ class _ChannelAvatar extends StatelessWidget {
       content: Text(
         unreadCount > 99 ? '99+' : unreadCount.toString(),
         style: TextStyle(
-          color: Colors.white,
+          color: AppColors.onPrimary,
           fontSize: FontSizeType.tiny.size,
           fontWeight: FontWeight.w600,
         ),

@@ -576,6 +576,7 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
         height: widget.size,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
+          // 视频播放衬底，保留纯黑以贴合播放器视觉
           color: Colors.black,
         ),
         clipBehavior: Clip.antiAlias,
@@ -595,7 +596,7 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
             if (!_isPlaying)
               const Icon(
                 CupertinoIcons.play_circle_fill,
-                color: Colors.white,
+                color: AppColors.onPrimary,
                 size: 30,
               ),
           ],
@@ -630,7 +631,7 @@ class _MomentNotifyEntry extends ConsumerWidget {
                 child: Text(
                   unread > 99 ? '99+' : '$unread',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.onPrimary,
                     fontSize: FontSizeType.tiny.size,
                     fontWeight: FontWeight.bold,
                   ),

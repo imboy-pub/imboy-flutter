@@ -156,8 +156,8 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                       ? AppColors.primary.withValues(alpha: 0.2)
                       : AppColors.primary.withValues(alpha: 0.1))
                 : (isDark
-                      ? Colors.white.withValues(alpha: 0.05)
-                      : Colors.black.withValues(alpha: 0.03)),
+                      ? AppColors.iosGray.withValues(alpha: 0.05)
+                      : AppColors.darkBackground.withValues(alpha: 0.03)),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isActive

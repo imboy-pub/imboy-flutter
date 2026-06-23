@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -404,8 +405,17 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Container(color: Colors.grey.shade200),
-            if (isSelected) Container(color: Colors.black26),
+            // 缩略图加载前的中性占位底（图片网格衬底，保留中性灰语义）
+            Container(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.darkSurface
+                  : AppColors.lightSurfaceContainer,
+            ),
+            // 选中态压暗蒙层（叠在照片上，固定深色蒙层语义）
+            if (isSelected)
+              Container(
+                color: AppColors.darkBackground.withValues(alpha: 0.102),
+              ),
             if (url.isNotEmpty)
               Image(
                 image: cachedImageProvider(url),
@@ -423,7 +433,9 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                   isSelected
                       ? Icons.check_circle
                       : Icons.radio_button_unchecked,
-                  color: isSelected ? Colors.lightBlueAccent : Colors.white70,
+                  color: isSelected
+                      ? AppColors.iosSkyBlue
+                      : AppColors.onPrimary.withValues(alpha: 0.7),
                   size: 20,
                 ),
               ),
@@ -432,7 +444,8 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                 right: 2,
                 top: 2,
                 child: Material(
-                  color: Colors.black54,
+                  // 删除按钮叠在照片上，固定深色半透明底以保证可读
+                  color: AppColors.darkBackground.withValues(alpha: 0.54),
                   borderRadius: AppRadius.borderRadiusRegular,
                   child: InkWell(
                     key: Key('group_album_photo_delete_$index'),
@@ -443,7 +456,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                       child: Icon(
                         Icons.delete_outline,
                         size: 16,
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                       ),
                     ),
                   ),

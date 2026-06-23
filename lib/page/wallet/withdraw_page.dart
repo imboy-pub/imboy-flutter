@@ -99,9 +99,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   ),
                   borderRadius: AppRadius.borderRadiusLarge,
                   border: Border.all(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.1)
-                        : Colors.black.withValues(alpha: 0.05),
+                    color: AppColors.getIosSeparator(brightness),
                   ),
                 ),
                 child: Column(
@@ -260,7 +258,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   onPressed: () => _handleWithdraw(balanceYuan),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.iosRed,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: AppRadius.borderRadiusMedium,
                     ),

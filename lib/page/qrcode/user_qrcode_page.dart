@@ -65,6 +65,7 @@ class UserQrCodePage extends ConsumerWidget {
                               fontSize: FontSizeType.large.size,
                               fontWeight: FontWeight.bold,
                               letterSpacing: -0.5,
+                              // 意图：分享卡白底黑字固定外观，刻意不随主题切换
                               color: Colors.black,
                             ),
                           ),

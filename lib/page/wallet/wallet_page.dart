@@ -282,7 +282,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: AppColors.lightTextPrimary.withValues(alpha: 0.2),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -290,29 +290,29 @@ class _WalletPageState extends ConsumerState<WalletPage> {
         ),
         child: Column(
           children: [
-            const Icon(
+            Icon(
               CupertinoIcons.money_yen_circle_fill,
               size: 48,
-              color: Colors.white70,
+              color: AppColors.onPrimary.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 16),
             Text(
               t.main.totalAssets,
               style: TextStyle(
                 fontSize: FontSizeType.normal.size,
-                color: Colors.white.withValues(alpha: 0.7),
+                color: AppColors.onPrimary.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 8),
             state.isLoading
-                ? const CupertinoActivityIndicator(color: Colors.white)
+                ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
                 : Text(
                     balance,
                     style: TextStyle(
                       fontSize: FontSizeType.extraLargeTitle.size,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.onPrimary,
                       letterSpacing: -1,
                     ),
                   ),
@@ -374,7 +374,9 @@ class _WalletPageState extends ConsumerState<WalletPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+          color: isDark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurface,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(

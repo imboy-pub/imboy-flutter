@@ -53,7 +53,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
         ? (isDark
               ? AppColors.darkSurfaceGrouped
               : AppColors.lightSurfaceGrouped.withValues(alpha: 0.5))
-        : (isDark ? AppColors.darkSurface : Colors.white);
+        : (isDark ? AppColors.darkSurface : AppColors.lightSurface);
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -63,6 +63,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
       behavior: HitTestBehavior.opaque,
       child: Container(
         color: _isPressed
+            // 按压态半透明高光叠加：暗色用白、亮色用黑，属固定交互反馈
             ? (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05))
             : bgColor,
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -75,7 +76,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
               content: Text(
                 remindCounter > 99 ? '99+' : "$remindCounter",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.onPrimary,
                   fontSize: FontSizeType.caption2.size,
                   fontWeight: FontWeight.bold,
                   fontFeatures: [FontFeature.tabularFigures()],

@@ -246,7 +246,7 @@ class PassportNotifier extends _$PassportNotifier {
 
   /// 返回按钮组件
   Widget backButton({Color? color}) {
-    Color c = color ?? Colors.white;
+    Color c = color ?? AppColors.onPrimary;
     return InkWell(
       onTap: () {
         final context = navigatorKey.currentContext;
@@ -916,7 +916,7 @@ class PassportNotifier extends _$PassportNotifier {
     uiConfig.navHidden = false;
     uiConfig.navColor = AppColors.iosGreen.toARGB32();
     uiConfig.navText = " ";
-    uiConfig.navTextColor = Colors.white.toARGB32();
+    uiConfig.navTextColor = AppColors.onPrimary.toARGB32();
     uiConfig.navReturnImgPath = null;
 
     uiConfig.logoWidth = 100;
@@ -930,12 +930,12 @@ class PassportNotifier extends _$PassportNotifier {
     uiConfig.numberFieldHeight = 40;
     uiConfig.numFieldOffsetY = isiOS ? 20 : 180;
     uiConfig.numberVerticalLayoutItem = JVIOSLayoutItem.ItemLogo;
-    uiConfig.numberColor = Colors.black.toARGB32();
+    uiConfig.numberColor = AppColors.lightTextPrimary.toARGB32();
     uiConfig.numberSize = 18;
 
     uiConfig.sloganOffsetY = isiOS ? 20 : 160;
     uiConfig.sloganVerticalLayoutItem = JVIOSLayoutItem.ItemNumber;
-    uiConfig.sloganTextColor = Colors.black.toARGB32();
+    uiConfig.sloganTextColor = AppColors.lightTextPrimary.toARGB32();
     uiConfig.sloganTextSize = 15;
 
     uiConfig.logBtnWidth = 220;
@@ -944,8 +944,8 @@ class PassportNotifier extends _$PassportNotifier {
     uiConfig.logBtnVerticalLayoutItem = JVIOSLayoutItem.ItemSlogan;
     uiConfig.logBtnText = t.account.mobileQuickLogin;
     uiConfig.logBtnTextColor = isiOS
-        ? Colors.black.toARGB32()
-        : Colors.white.toARGB32();
+        ? AppColors.lightTextPrimary.toARGB32()
+        : AppColors.onPrimary.toARGB32();
     uiConfig.logBtnTextSize = 16;
     uiConfig.logBtnTextBold = true;
 
@@ -963,9 +963,9 @@ class PassportNotifier extends _$PassportNotifier {
     uiConfig.privacyVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
     uiConfig.clauseName = t.main.licenseAgreement;
     uiConfig.clauseUrl = licenseAgreementUrl(ext: 'html');
-    uiConfig.clauseBaseColor = Colors.black87.toARGB32();
+    uiConfig.clauseBaseColor = AppColors.lightTextSecondary.toARGB32();
 
-    uiConfig.clauseColor = Colors.black87.toARGB32();
+    uiConfig.clauseColor = AppColors.lightTextSecondary.toARGB32();
     uiConfig.privacyTextSize = 13;
     uiConfig.privacyItem = [
       JVPrivacy(

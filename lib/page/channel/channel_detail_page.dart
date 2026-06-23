@@ -389,7 +389,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                       border: Border.all(
                         color: isDark
                             ? AppColors.iosSeparatorDark
-                            : Colors.grey.withValues(alpha: 0.2),
+                            : AppColors.iosSeparator.withValues(alpha: 0.2),
                         width: 0.5,
                       ),
                     ),
@@ -411,7 +411,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                       ),
                       style: TextStyle(
                         fontSize: FontSizeType.body.size,
-                        color: isDark ? Colors.white : Colors.black,
+                        color: AppColors.getTextColor(
+                          Theme.of(context).brightness,
+                        ),
                         height: 1.4, // CJK行高
                       ),
                       maxLines: null, // 允许自动折行
@@ -737,7 +739,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: AppColors.getIosSeparator(
+                      Theme.of(context).brightness,
+                    ),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -944,7 +948,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: AppRadius.borderRadiusMedium,
-            border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: AppColors.iosYellow.withValues(alpha: 0.3),
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

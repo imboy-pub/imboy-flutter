@@ -214,16 +214,16 @@ class _PinCodeVerificationPageState
                                             param: widget.account,
                                           ),
                                           // 异步回调无 mounted 守卫：用固定 .size 避免
-                                          // context-after-await；彩底白字待onAccent语义token
+                                          // context-after-await；彩底前景用 onPrimary
                                           style: TextStyle(
-                                            color: Colors.white,
+                                            color: AppColors.onPrimary,
                                             fontSize:
                                                 FontSizeType.extraLarge.size,
                                           ),
                                         ),
                                         icon: const Icon(
                                           Icons.check_circle,
-                                          color: Colors.white,
+                                          color: AppColors.onPrimary,
                                         ),
                                       );
                                     } else {
@@ -231,9 +231,9 @@ class _PinCodeVerificationPageState
                                         Text(
                                           res,
                                           // 异步回调无 mounted 守卫：用固定 .size 避免
-                                          // context-after-await；彩底白字待onAccent语义token
+                                          // context-after-await；彩底前景用 onPrimary
                                           style: TextStyle(
-                                            color: Colors.white,
+                                            color: AppColors.onPrimary,
                                             fontSize:
                                                 FontSizeType.extraLarge.size,
                                           ),
@@ -352,9 +352,9 @@ class _PinCodeVerificationPageState
                                         Text(
                                           res,
                                           // 异步回调无 mounted 守卫：用固定 .size 避免
-                                          // context-after-await；彩底白字待onAccent语义token
+                                          // context-after-await；彩底前景用 onPrimary
                                           style: TextStyle(
-                                            color: Colors.white,
+                                            color: AppColors.onPrimary,
                                             fontSize:
                                                 FontSizeType.extraLarge.size,
                                           ),
@@ -365,7 +365,7 @@ class _PinCodeVerificationPageState
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
+                                  foregroundColor: AppColors.onPrimary,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: AppRadius.borderRadiusRegular,

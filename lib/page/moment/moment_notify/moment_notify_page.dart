@@ -267,7 +267,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
         color: AppColors.iosRed,
         child: Text(
           t.momentNotify.delete,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: AppColors.onPrimary),
         ),
       ),
       onDismissed: (_) => notifier.delete(id),

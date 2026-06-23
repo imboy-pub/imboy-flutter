@@ -117,7 +117,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
             pinned: true,
             expandedHeight: 280.0,
             backgroundColor: AppColors.iosRed,
-            iconTheme: const IconThemeData(color: Colors.white),
+            iconTheme: const IconThemeData(color: AppColors.onPrimary),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
@@ -150,7 +150,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                               style: TextStyle(
                                 fontSize: FontSizeType.tiny.size,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: AppColors.lightTextPrimary,
                               ),
                             ),
                           ),
@@ -169,7 +169,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                         Text(
                           (_myGrabbedAmount! / 100.0).toStringAsFixed(2),
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.onPrimary,
                             fontSize: FontSizeType.extraLargeTitle.size,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'monospace',
@@ -202,7 +202,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: isDark ? colorScheme.surface : Colors.white,
+              color: isDark ? colorScheme.surface : AppColors.lightSurface,
               child: Text(
                 _packet!.isFinished
                     ? '共 ${_packet!.amountYuan.toStringAsFixed(2)} 元，${_packet!.count} 个红包已抢光'
@@ -223,15 +223,20 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
 
               return Container(
                 decoration: BoxDecoration(
-                  color: isDark ? colorScheme.surface : Colors.white,
-                  border: const Border(
-                    bottom: BorderSide(color: Colors.black12, width: 0.5),
+                  color: isDark ? colorScheme.surface : AppColors.lightSurface,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppColors.getIosSeparator(
+                        Theme.of(context).brightness,
+                      ),
+                      width: 0.5,
+                    ),
                   ),
                 ),
                 child: ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: Colors.amber,
-                    child: Icon(Icons.person, color: Colors.white),
+                    child: Icon(Icons.person, color: AppColors.onPrimary),
                   ),
                   title: Row(
                     children: [
@@ -244,22 +249,22 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.orange.shade100,
+                            color: AppColors.iosOrange.withValues(alpha: 0.15),
                             borderRadius: AppRadius.borderRadiusTiny,
                           ),
                           child: Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.star,
                                 size: 12,
-                                color: Colors.orange.shade800,
+                                color: AppColors.iosOrange,
                               ),
                               const SizedBox(width: 2),
                               Text(
                                 '手气最佳',
                                 style: TextStyle(
                                   fontSize: FontSizeType.tiny.size,
-                                  color: Colors.orange.shade900,
+                                  color: AppColors.iosOrange,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

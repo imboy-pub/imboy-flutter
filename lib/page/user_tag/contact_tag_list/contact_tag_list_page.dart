@@ -114,14 +114,14 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
           SlidableAction(
             onPressed: (_) => _showRenameSheet(context, obj),
             backgroundColor: AppColors.iosGray,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             icon: CupertinoIcons.pencil,
             label: t.main.name,
           ),
           SlidableAction(
             onPressed: (_) => _confirmDelete(context, obj),
             backgroundColor: AppColors.getIosRed(brightness),
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.onPrimary,
             icon: CupertinoIcons.delete_solid,
             label: t.common.buttonDelete,
           ),

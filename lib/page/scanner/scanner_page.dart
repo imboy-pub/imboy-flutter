@@ -176,29 +176,35 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? AppColors.darkSurfaceGrouped
           : AppColors.lightSurfaceGrouped,
-      builder: (context) => InkWell(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.all(0.0),
-          height: double.infinity,
-          padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
-          alignment: Alignment.center,
-          color: Colors.white,
-          child: Center(
-            child: Text(
-              txt,
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: AppColors.lightTextPrimary,
-                fontSize: FontSizeType.largeTitle.size,
+      builder: (context) {
+        final brightness = Theme.of(context).brightness;
+        final isDark = brightness == Brightness.dark;
+        return InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(
+            width: double.infinity,
+            margin: const EdgeInsets.all(0.0),
+            height: double.infinity,
+            padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
+            alignment: Alignment.center,
+            color: isDark
+                ? AppColors.darkSurfaceGrouped
+                : AppColors.lightSurfaceGrouped,
+            child: Center(
+              child: Text(
+                txt,
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: AppColors.getTextColor(brightness),
+                  fontSize: FontSizeType.largeTitle.size,
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
       isScrollControlled: true,
       enableDrag: false,
     );
@@ -215,7 +221,8 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
       height: 320,
     );
     return Scaffold(
-      backgroundColor: Colors.black,
+      // 相机取景全屏背景，固定纯黑（与明暗主题无关）
+      backgroundColor: AppColors.darkBackground,
       body: Builder(
         builder: (context) {
           return Stack(
@@ -242,12 +249,13 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                 child: Container(
                   alignment: Alignment.bottomCenter,
                   height: 100,
-                  color: Colors.black.withValues(alpha: 0.4),
+                  // 相机控制条半透明蒙层，固定黑底
+                  color: AppColors.darkBackground.withValues(alpha: 0.4),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       IconButton(
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                         icon: ValueListenableBuilder(
                           valueListenable: controller,
                           builder: (context, MobileScannerState state, child) {
@@ -256,7 +264,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                                 : Icons.flash_off;
                             final color = state.torchState == TorchState.on
                                 ? AppColors.iosYellow
-                                : Colors.white.withValues(alpha: 0.5);
+                                : AppColors.onPrimary.withValues(alpha: 0.5);
                             return Icon(iconData, color: color);
                           },
                         ),
@@ -264,7 +272,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                         onPressed: () => controller.toggleTorch(),
                       ),
                       IconButton(
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                         icon: scannerState.isStarted
                             ? const Icon(Icons.stop)
                             : const Icon(Icons.play_arrow),
@@ -285,13 +293,15 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                           child: FittedBox(
                             child: Text(
                               t.account.scanQrCode,
-                              style: const TextStyle(color: Colors.white),
+                              style: const TextStyle(
+                                color: AppColors.onPrimary,
+                              ),
                             ),
                           ),
                         ),
                       ),
                       IconButton(
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                         icon: ValueListenableBuilder(
                           valueListenable: controller,
                           builder:
@@ -312,7 +322,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                         onPressed: () => controller.switchCamera(),
                       ),
                       IconButton(
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                         icon: const Icon(Icons.image),
                         iconSize: 32.0,
                         onPressed: () async {
@@ -377,7 +387,8 @@ class ScannerOverlay extends CustomPainter {
     final cutoutPath = Path()..addRect(scanWindow);
 
     final backgroundPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.5)
+      // 取景框外的全屏蒙层，固定黑底半透明（相机场景，与主题无关）
+      ..color = AppColors.darkBackground.withValues(alpha: 0.5)
       ..style = PaintingStyle.fill
       ..blendMode = BlendMode.dstOut;
 

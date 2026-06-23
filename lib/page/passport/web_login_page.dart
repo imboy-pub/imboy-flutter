@@ -466,7 +466,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   style: TextStyle(
                     fontSize: FontSizeType.extraLargeTitle.size,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppColors.darkTextPrimary,
                   ),
                 ),
               ],
@@ -525,7 +525,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 style: TextStyle(
                   fontSize: FontSizeType.large.size,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: AppColors.darkTextPrimary,
                 ),
               ),
               const SizedBox(height: 4),
@@ -617,7 +617,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           style: TextStyle(
             fontSize: FontSizeType.largeTitle.size,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AppColors.darkTextPrimary,
           ),
         ),
         const SizedBox(height: 8),
@@ -635,7 +635,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           height: 256,
           padding: const EdgeInsets.all(AppSpacing.regular),
           decoration: BoxDecoration(
-            color: Colors.white,
+            // QR 码白底：保持浅色以保证扫码识别（不随主题切换）
+            color: AppColors.lightSurface,
             borderRadius: BorderRadius.circular(16),
           ),
           child: _buildQRContent(qrState),
@@ -653,7 +654,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             label: Text(t.main.webQRRefresh),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.onPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
@@ -687,7 +688,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           data: 'imboy://qr_login/${qrState.qrData!}',
           version: QrVersions.auto,
           size: 224,
-          backgroundColor: Colors.white,
+          // QR 码白底：保持浅色以保证扫码识别（不随主题切换）
+          backgroundColor: AppColors.lightSurface,
           errorCorrectionLevel: QrErrorCorrectLevel.H,
         );
 
@@ -875,14 +877,14 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           style: TextStyle(
             fontSize: FontSizeType.largeTitle.size,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AppColors.darkTextPrimary,
           ),
         ),
         const SizedBox(height: 32),
         // 账号输入
         TextField(
           controller: _accountController,
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColors.darkTextPrimary),
           decoration: InputDecoration(
             hintText: t.account.webAccountHint,
             hintStyle: const TextStyle(color: AppColors.darkTextDisabled),
@@ -900,7 +902,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         TextField(
           controller: _passwordController,
           obscureText: passportState.loginPwdObscure,
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColors.darkTextPrimary),
           decoration: InputDecoration(
             hintText: t.account.webPasswordHint,
             hintStyle: const TextStyle(color: AppColors.darkTextDisabled),

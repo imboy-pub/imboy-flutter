@@ -88,6 +88,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
             child: Stack(
               children: [
                 Container(
+                  // 直播远端视频衬底固定黑色，与主题无关
                   color: Colors.black,
                   child: RTCVideoView(
                     _remoteRenderer,
@@ -104,6 +105,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                       vertical: AppSpacing.tiny,
                     ),
                     decoration: BoxDecoration(
+                      // 视频上方状态徽章半透明黑色蒙层，与主题无关
                       color: Colors.black54,
                       borderRadius: AppRadius.borderRadiusTiny,
                     ),
@@ -171,7 +173,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                     backgroundColor: state.stateStr == 'playing'
                         ? AppColors.getIosRed(Theme.of(context).brightness)
                         : AppColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.onPrimary,
                   ),
                 ),
               ],

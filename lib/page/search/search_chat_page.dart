@@ -266,7 +266,11 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       child: Center(
         child: Column(
           children: [
-            const Icon(CupertinoIcons.search, size: 60, color: Colors.black12),
+            const Icon(
+              CupertinoIcons.search,
+              size: 60,
+              color: AppColors.iosGray3,
+            ),
             const SizedBox(height: 16),
             Text(
               t.common.searchNoResults,

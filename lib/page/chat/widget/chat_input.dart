@@ -805,7 +805,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                         enabled: true,
                         backgroundColor: _themeColor('surface'),
                         buttonColor: _themeColor('primary'),
-                        buttonIconColor: Colors.white,
+                        buttonIconColor: AppColors.onPrimary,
                       ),
                       searchViewConfig: SearchViewConfig(
                         backgroundColor: _themeColor('surface'),
@@ -1023,7 +1023,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     minimumSize: Size(32, 32),
                     child: const Icon(
                       CupertinoIcons.arrow_up,
-                      color: Colors.white,
+                      color: AppColors.onPrimary,
                       size: 20,
                     ),
                   ),
@@ -1155,8 +1155,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: isDark
+                          // 暗色下输入框用半透明白高光叠加，提升与底图对比
                           ? Colors.white.withValues(alpha: 0.05)
-                          : Colors.white,
+                          : AppColors.lightSurface,
                       borderRadius: AppRadius.borderRadiusLarge,
                       border: Border.all(
                         color: AppColors.getIosSeparator(

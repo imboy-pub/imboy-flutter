@@ -116,7 +116,9 @@ class ChannelMessageItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha: 0.1),
+          color: AppColors.getIosSeparator(
+            Theme.of(context).brightness,
+          ).withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Text(
@@ -204,7 +206,10 @@ class ChannelMessageItem extends StatelessWidget {
                           message.authorName ?? '',
                           style: TextStyle(
                             fontSize: FontSizeType.small.size,
-                            color: Colors.grey[600],
+                            color: AppColors.getTextColor(
+                              Theme.of(context).brightness,
+                              isSecondary: true,
+                            ),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -272,14 +277,20 @@ class ChannelMessageItem extends StatelessWidget {
                         Icon(
                           Icons.remove_red_eye_outlined,
                           size: 12,
-                          color: Colors.grey[500],
+                          color: AppColors.getTextColor(
+                            Theme.of(context).brightness,
+                            isSecondary: true,
+                          ),
                         ),
                         const SizedBox(width: 2),
                         Text(
                           '${message.viewCount}',
                           style: TextStyle(
                             fontSize: FontSizeType.tiny.size,
-                            color: Colors.grey[500],
+                            color: AppColors.getTextColor(
+                              Theme.of(context).brightness,
+                              isSecondary: true,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -655,17 +666,23 @@ class ChannelMessageItem extends StatelessWidget {
               width: double.infinity,
               height: 180,
               decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.12),
+                color: AppColors.getIosSeparator(
+                  Theme.of(context).brightness,
+                ).withValues(alpha: 0.12),
                 borderRadius: AppRadius.borderRadiusSmall,
               ),
             ),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.black54,
+              color: AppColors.darkBackground.withValues(alpha: 0.54),
               borderRadius: AppRadius.borderRadiusXLarge,
             ),
-            child: const Icon(Icons.play_arrow, color: Colors.white, size: 32),
+            child: const Icon(
+              Icons.play_arrow,
+              color: AppColors.onPrimary,
+              size: 32,
+            ),
           ),
         ],
       ),
@@ -688,7 +705,9 @@ class ChannelMessageItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha: 0.1),
+          color: AppColors.getIosSeparator(
+            Theme.of(context).brightness,
+          ).withValues(alpha: 0.1),
           borderRadius: AppRadius.borderRadiusSmall,
         ),
         child: Row(

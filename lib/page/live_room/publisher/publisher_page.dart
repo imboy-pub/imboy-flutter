@@ -80,6 +80,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
             child: Stack(
               children: [
                 Container(
+                  // 直播本地预览视频衬底固定黑色，与主题无关
                   color: Colors.black,
                   child: RTCVideoView(
                     _localRenderer,
@@ -97,6 +98,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                       vertical: AppSpacing.tiny,
                     ),
                     decoration: BoxDecoration(
+                      // 视频上方状态徽章半透明黑色蒙层，与主题无关
                       color: Colors.black54,
                       borderRadius: AppRadius.borderRadiusTiny,
                     ),
@@ -120,6 +122,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                         vertical: AppSpacing.tiny,
                       ),
                       decoration: BoxDecoration(
+                        // 视频上方提示徽章半透明黑色蒙层，与主题无关
                         color: Colors.black54,
                         borderRadius: AppRadius.borderRadiusTiny,
                       ),
@@ -186,7 +189,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                     backgroundColor: state.stateStr == 'publishing'
                         ? AppColors.getIosRed(Theme.of(context).brightness)
                         : AppColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.onPrimary,
                   ),
                 ),
               ],

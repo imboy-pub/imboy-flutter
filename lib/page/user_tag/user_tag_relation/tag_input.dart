@@ -240,7 +240,7 @@ class _TagInputState extends State<TagInput> {
                   tag,
                   style: TextStyle(
                     color: isSelected
-                        ? Colors.white
+                        ? AppColors.onPrimary
                         : Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
@@ -254,7 +254,7 @@ class _TagInputState extends State<TagInput> {
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Colors.white.withValues(alpha: 0.2)
+                          ? AppColors.onPrimary.withValues(alpha: 0.2)
                           : AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: AppRadius.borderRadiusSmall,
                     ),
@@ -262,7 +262,9 @@ class _TagInputState extends State<TagInput> {
                       '$usageCount',
                       style: TextStyle(
                         fontSize: FontSizeType.tiny.size,
-                        color: isSelected ? Colors.white : AppColors.primary,
+                        color: isSelected
+                            ? AppColors.onPrimary
+                            : AppColors.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -270,7 +272,7 @@ class _TagInputState extends State<TagInput> {
                 ],
                 if (isSelected) ...[
                   const SizedBox(width: 4),
-                  Icon(Icons.close, size: 16, color: Colors.white),
+                  Icon(Icons.close, size: 16, color: AppColors.onPrimary),
                 ],
               ],
             ),

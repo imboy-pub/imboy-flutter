@@ -488,7 +488,7 @@ class _InviteContactPickerSheetState extends State<_InviteContactPickerSheet> {
             height: 4,
             margin: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: AppColors.getIosSeparator(Theme.of(context).brightness),
               borderRadius: BorderRadius.circular(2),
             ),
           ),

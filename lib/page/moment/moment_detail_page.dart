@@ -348,7 +348,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
         border: Border(
           bottom: BorderSide(
             color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.2),
@@ -562,7 +564,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         MediaQuery.of(context).padding.bottom + 8,
       ),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
         border: Border(
           top: BorderSide(
             color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.3),
@@ -608,7 +610,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? Colors.white.withValues(alpha: 0.05)
+                        ? AppColors.iosGray.withValues(alpha: 0.05)
                         : AppColors.lightSurfaceGrouped,
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -636,7 +638,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                 child: _sendingComment
                     ? const CupertinoActivityIndicator(
                         radius: 8,
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                       )
                     : Text(
                         t.chat.momentsSend,

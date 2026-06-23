@@ -343,7 +343,9 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                         width: 88,
                         height: 88,
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.35),
+                          color: AppColors.darkBackground.withValues(
+                            alpha: 0.35,
+                          ),
                           borderRadius: BorderRadius.circular(44),
                         ),
                         child: const Center(
@@ -367,7 +369,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                         child: const Icon(
                           Icons.edit,
                           size: 16,
-                          color: Colors.white,
+                          color: AppColors.onPrimary,
                         ),
                       ),
                     ),
@@ -481,7 +483,9 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.1),
+                color: AppColors.getIosSeparator(
+                  Theme.of(context).brightness,
+                ).withValues(alpha: 0.1),
                 borderRadius: AppRadius.borderRadiusSmall,
               ),
               child: Row(

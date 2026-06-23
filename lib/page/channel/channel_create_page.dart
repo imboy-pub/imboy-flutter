@@ -241,7 +241,9 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                         width: 88,
                         height: 88,
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.35),
+                          color: AppColors.darkBackground.withValues(
+                            alpha: 0.35,
+                          ),
                           borderRadius: BorderRadius.circular(44),
                         ),
                         child: const Center(
@@ -265,7 +267,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                         child: const Icon(
                           Icons.edit,
                           size: 16,
-                          color: Colors.white,
+                          color: AppColors.onPrimary,
                         ),
                       ),
                     ),
@@ -441,9 +443,12 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
             // 提示信息
             Text(
               t.channel.createTips,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.getTextColor(
+                  Theme.of(context).brightness,
+                  isSecondary: true,
+                ),
+              ),
             ),
 
             // 错误信息

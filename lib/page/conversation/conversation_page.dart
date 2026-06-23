@@ -271,7 +271,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                               );
                             },
                             backgroundColor: AppColors.getIosBlue(brightness),
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppColors.onPrimary,
                             label: model.unreadNum > 0
                                 ? t.chat.markRead
                                 : t.chat.markUnread,
@@ -287,7 +287,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                               );
                             },
                             backgroundColor: AppColors.iosOrange,
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppColors.onPrimary,
                             label: model.isPinned ? t.chat.unpin : t.chat.pin,
                             icon: model.isPinned
                                 ? CupertinoIcons.pin_slash_fill
@@ -298,7 +298,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                               await notifier.deleteConversationRemote(model);
                             },
                             backgroundColor: AppColors.getIosRed(brightness),
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppColors.onPrimary,
                             label: t.common.buttonDelete,
                             icon: CupertinoIcons.delete_solid,
                           ),

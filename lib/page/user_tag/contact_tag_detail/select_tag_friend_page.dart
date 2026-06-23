@@ -138,12 +138,14 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
       width: double.infinity,
       padding: const EdgeInsets.only(left: 16),
       alignment: Alignment.centerLeft,
-      color: isDark ? Colors.grey[800] : Colors.grey[200],
+      color: isDark ? AppColors.iosGray6 : AppColors.iosGray5,
       child: Text(
         tag,
         style: TextStyle(
           fontSize: FontSizeType.normal.size,
-          color: isDark ? Colors.white : Colors.black87,
+          color: AppColors.getTextColor(
+            isDark ? Brightness.dark : Brightness.light,
+          ),
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -241,7 +243,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                 ignoreDragCancel: true,
                 downTextStyle: TextStyle(
                   fontSize: FontSizeType.small.size,
-                  color: Colors.white,
+                  color: AppColors.onPrimary,
                 ),
                 downItemDecoration: const BoxDecoration(
                   shape: BoxShape.circle,

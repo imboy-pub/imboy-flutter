@@ -334,7 +334,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      color: isDark ? AppColors.chatWebSurfaceDarkest : Colors.white,
+      color: isDark ? AppColors.chatWebSurfaceDarkest : AppColors.lightSurface,
       child: Column(
         children: [
           // 搜索栏
@@ -380,7 +380,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               focusNode: _searchFocusNode,
               onChanged: _onSearchChanged,
               style: TextStyle(
-                color: isDark ? Colors.white : Colors.black,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
                 fontSize: FontSizeType.subheadline.size,
               ),
               decoration: InputDecoration(
@@ -392,7 +394,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   fontSize: FontSizeType.subheadline.size,
                 ),
                 filled: true,
-                fillColor: isDark ? AppColors.chatWebSurfaceDark : Colors.white,
+                fillColor: isDark
+                    ? AppColors.chatWebSurfaceDark
+                    : AppColors.lightSurface,
                 border: OutlineInputBorder(
                   borderRadius: AppRadius.borderRadiusSmall,
                   borderSide: BorderSide.none,
@@ -524,7 +528,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 title: Text(
                   search,
                   style: TextStyle(
-                    color: isDark ? Colors.white : Colors.black,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
                     fontSize: FontSizeType.subheadline.size,
                   ),
                 ),
@@ -669,7 +675,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     if (item.highlightText != null && item.highlightText!.isNotEmpty) {
       words[item.highlightText!.toLowerCase()] = HighlightedWord(
         textStyle: TextStyle(
-          color: isDark ? Colors.white : Colors.black,
+          color: isDark
+              ? AppColors.darkTextPrimary
+              : AppColors.lightTextPrimary,
           backgroundColor: AppColors.chatWebBrand.withAlpha(50),
           fontWeight: FontWeight.bold,
         ),
@@ -696,7 +704,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                     text: item.title,
                     words: words,
                     textStyle: TextStyle(
-                      color: isDark ? Colors.white : Colors.black,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
                       fontSize: FontSizeType.subheadline.size,
                       fontWeight: FontWeight.w500,
                     ),

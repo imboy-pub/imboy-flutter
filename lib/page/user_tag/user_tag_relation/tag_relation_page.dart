@@ -258,7 +258,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         titleWidget: Text(widget.title ?? t.common.editTags),
         backgroundColor: isDark
             ? Theme.of(context).colorScheme.surface
-            : Colors.white,
+            : AppColors.lightSurface,
         rightDMActions: [
           if (_hasChanges())
             TextButton(
@@ -306,13 +306,15 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                           ? Theme.of(
                               context,
                             ).colorScheme.surfaceContainerHighest
-                          : Colors.white,
+                          : AppColors.lightSurface,
                       borderRadius: AppRadius.borderRadiusMedium,
                       boxShadow: [
                         BoxShadow(
                           color: isDark
                               ? Colors.transparent
-                              : Colors.black.withValues(alpha: 0.04),
+                              : AppColors.darkBackground.withValues(
+                                  alpha: 0.04,
+                                ),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -345,7 +347,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                     decoration: BoxDecoration(
                       color: isDark
                           ? Theme.of(context).colorScheme.surface
-                          : Colors.white,
+                          : AppColors.lightSurface,
                       boxShadow: [
                         BoxShadow(
                           color: Theme.of(
@@ -375,7 +377,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
+                                      AppColors.onPrimary,
                                     ),
                                   ),
                                 ),
@@ -413,11 +415,11 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       decoration: BoxDecoration(
         color: isDark
             ? Theme.of(context).colorScheme.surfaceContainerHighest
-            : Colors.white,
+            : AppColors.lightSurface,
         gradient: isDark
             ? null
             : const LinearGradient(
-                colors: [AppColors.successBackground, Colors.white],
+                colors: [AppColors.successBackground, AppColors.lightSurface],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -434,7 +436,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
           BoxShadow(
             color: isDark
                 ? Colors.transparent
-                : Colors.black.withValues(alpha: 0.04),
+                : AppColors.darkBackground.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -453,7 +455,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                 ),
                 child: const Icon(
                   Icons.analytics_outlined,
-                  color: Colors.white,
+                  color: AppColors.onPrimary,
                   size: 20,
                 ),
               ),
@@ -508,13 +510,13 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       decoration: BoxDecoration(
         color: isDark
             ? Theme.of(context).colorScheme.surfaceContainerHighest
-            : Colors.white,
+            : AppColors.lightSurface,
         borderRadius: AppRadius.borderRadiusMedium,
         boxShadow: [
           BoxShadow(
             color: isDark
                 ? Colors.transparent
-                : Colors.black.withValues(alpha: 0.04),
+                : AppColors.darkBackground.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

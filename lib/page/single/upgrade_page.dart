@@ -551,12 +551,13 @@ class UpgradeCardState extends State<UpgradeCard> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Container(
         width: MediaQuery.of(context).size.width - 20,
         padding: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
           borderRadius: AppRadius.borderRadiusSmall,
         ),
         child: Column(

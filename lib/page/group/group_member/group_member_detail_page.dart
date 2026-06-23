@@ -407,7 +407,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.onPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: AppRadius.borderRadiusMedium,
           ),

@@ -536,7 +536,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: AppColors.getIosSeparator(Theme.of(context).brightness),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -587,7 +587,12 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                       _candidates.isEmpty
                           ? t.channel.noContactsToAdd
                           : t.common.noContacts,
-                      style: TextStyle(color: Colors.grey[500]),
+                      style: TextStyle(
+                        color: AppColors.getTextColor(
+                          Theme.of(context).brightness,
+                          isSecondary: true,
+                        ),
+                      ),
                     ),
                   )
                 : ListView.builder(

@@ -143,7 +143,7 @@ class QrLoginConfirmContent extends StatelessWidget {
             onPressed: onConfirm,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.onPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),

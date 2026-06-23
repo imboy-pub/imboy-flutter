@@ -41,7 +41,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
 
   bool get _isDark => Theme.of(context).brightness == Brightness.dark;
   Color get _inputFill =>
-      _isDark ? AppColors.darkSurfaceContainer : Colors.white;
+      _isDark ? AppColors.darkSurfaceContainer : AppColors.lightSurface;
   Color get _unselectedLabel =>
       _isDark ? AppColors.darkTextSecondary : AppColors.iosGray;
 
@@ -155,7 +155,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.onPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -211,7 +211,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
             color: _inputFill,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: _isDark ? AppColors.darkBorder : Colors.grey.shade200,
+              color: _isDark ? AppColors.darkBorder : AppColors.lightBorder,
             ),
           ),
           child: PhoneInputWidget(
@@ -234,7 +234,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.onPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

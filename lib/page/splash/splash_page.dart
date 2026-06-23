@@ -222,6 +222,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                         style: TextStyle(
                           fontSize: FontSizeType.tiny.size,
                           fontWeight: FontWeight.w600,
+                          // 固定品牌渐变底上的白色标记，与主题无关
                           color: Colors.white.withValues(alpha: 0.45),
                           letterSpacing: 1.0,
                         ),
@@ -285,6 +286,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
           style: TextStyle(
             fontSize: FontSizeType.extraLargeTitle.size,
             fontWeight: FontWeight.w700,
+            // 固定品牌渐变底上的白色文字，与主题无关
             color: Colors.white,
             letterSpacing: 0.5,
             height: 1.0,
@@ -312,6 +314,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
       style: TextStyle(
         fontSize: FontSizeType.subheadline.size,
         fontWeight: FontWeight.w500,
+        // 固定品牌渐变底上的白色文字，与主题无关
         color: Colors.white.withValues(alpha: 0.85),
         letterSpacing: 0.3,
       ),

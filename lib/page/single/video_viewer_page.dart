@@ -112,6 +112,7 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
           icon: Container(
             padding: const EdgeInsets.all(5),
             decoration: const BoxDecoration(
+              // 视频上方播放控件固定配色，不随主题切换
               color: Colors.white,
               shape: BoxShape.circle,
             ),
@@ -248,6 +249,7 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
     }
 
     return Material(
+      // 视频播放器全屏衬底固定黑色，与亮/暗主题无关
       color: Colors.black,
       child: Stack(fit: StackFit.expand, children: [buildVideo(context)]),
     );

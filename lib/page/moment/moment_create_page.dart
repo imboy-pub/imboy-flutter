@@ -14,6 +14,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
@@ -433,7 +434,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                     Container(
                       width: 96,
                       height: 96,
-                      color: Colors.black12,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.darkSurface
+                          : AppColors.lightSurfaceContainer,
                       child: previewUrl.isEmpty
                           ? const Icon(Icons.broken_image_outlined)
                           : Image(
@@ -446,7 +449,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                         child: Center(
                           child: Icon(
                             Icons.play_circle_fill,
-                            color: Colors.white,
+                            color: AppColors.onPrimary,
                             size: 28,
                           ),
                         ),
@@ -457,7 +460,10 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                       child: InkWell(
                         onTap: () => _removeMedia(index),
                         child: Container(
-                          color: Colors.black45,
+                          // 删除按钮叠在缩略图上，固定深色半透明底保证可读
+                          color: AppColors.darkBackground.withValues(
+                            alpha: 0.45,
+                          ),
                           child: const Icon(Icons.close, size: 16),
                         ),
                       ),

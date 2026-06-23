@@ -250,7 +250,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                               : context.t.welcome.next,
                           style: context.textStyle(
                             FontSizeType.large,
-                            color: Colors.white,
+                            color: AppColors.onPrimary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -301,6 +301,7 @@ class _LanguageSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final names = localeNames(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () => _showLanguageSelector(context),
       child: Container(
@@ -309,11 +310,12 @@ class _LanguageSelector extends StatelessWidget {
           vertical: AppSpacing.small,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
           borderRadius: AppRadius.borderRadiusMedium,
           border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
           boxShadow: [
             BoxShadow(
+              // 投影固定半透明黑色，符合 Material 阴影规范
               color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2),

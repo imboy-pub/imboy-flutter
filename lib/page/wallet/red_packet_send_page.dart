@@ -91,14 +91,13 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
   Widget build(BuildContext context) {
     final walletState = ref.watch(walletProvider);
     final balanceYuan = walletState.balance / 100.0;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(t.common.redPacketSend),
         elevation: 0,
         backgroundColor: AppColors.iosRed,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.onPrimary,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
@@ -236,7 +235,10 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                 '钱包当前余额: ￥${balanceYuan.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: FontSizeType.footnote.size,
-                  color: isDark ? Colors.white54 : Colors.black45,
+                  color: AppColors.getTextColor(
+                    Theme.of(context).brightness,
+                    isSecondary: true,
+                  ),
                 ),
               ),
               const SizedBox(height: 48),
@@ -249,7 +251,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                   onPressed: () => _handleSend(balanceYuan),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.iosRed,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: AppRadius.borderRadiusMedium,
                     ),

@@ -80,6 +80,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                       style: TextStyle(
                         fontSize: FontSizeType.large.size,
                         fontWeight: FontWeight.bold,
+                        // 意图：分享卡白底黑字固定外观，刻意不随主题切换
                         color: Colors.black,
                       ),
                     ),

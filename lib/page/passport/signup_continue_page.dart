@@ -284,10 +284,10 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                       context,
                                       Text(
                                         t.main.codeSentToParam(param: _account),
-                                        // 彩底恒定白字，AppColors 暂无 onAccent 语义色，保留待 token 决策
+                                        // 彩底恒定前景用 onPrimary
                                         style: context.textStyle(
                                           FontSizeType.medium,
-                                          color: Colors.white,
+                                          color: AppColors.onPrimary,
                                         ),
                                       ),
                                       backgroundColor: AppColors.primary,
@@ -305,7 +305,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                           ),
                                           style: context.textStyle(
                                             FontSizeType.medium,
-                                            color: Colors.white,
+                                            color: AppColors.onPrimary,
                                           ),
                                         ),
                                       );
@@ -316,7 +316,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                           res,
                                           style: context.textStyle(
                                             FontSizeType.medium,
-                                            color: Colors.white,
+                                            color: AppColors.onPrimary,
                                           ),
                                         ),
                                       );
@@ -354,7 +354,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                   t.common.tipSuccess,
                                   style: context.textStyle(
                                     FontSizeType.medium,
-                                    color: Colors.white,
+                                    color: AppColors.onPrimary,
                                   ),
                                 ),
                                 backgroundColor: AppColors.iosGreen,
@@ -369,7 +369,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                   res,
                                   style: context.textStyle(
                                     FontSizeType.medium,
-                                    color: Colors.white,
+                                    color: AppColors.onPrimary,
                                   ),
                                 ),
                               );
@@ -377,7 +377,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppColors.onPrimary,
                             minimumSize: const Size(double.infinity, 52),
                             shape: RoundedRectangleBorder(
                               borderRadius: AppRadius.borderRadiusRegular,
