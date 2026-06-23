@@ -107,7 +107,9 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
     }
 
     return Scaffold(
-      backgroundColor: isDark ? colorScheme.surface : const Color(0xFFF1F1F1),
+      backgroundColor: isDark
+          ? colorScheme.surface
+          : AppColors.lightSurfaceGrouped,
       body: CustomScrollView(
         slivers: [
           // 头部渐变区域

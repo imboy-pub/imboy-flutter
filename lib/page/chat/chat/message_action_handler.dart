@@ -4,6 +4,7 @@
 library;
 
 import 'dart:convert';
+import 'package:imboy/theme/default/app_colors.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -294,8 +295,8 @@ class MessageActionHandler {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? const Color.fromRGBO(80, 80, 80, 1)
-          : const Color.fromRGBO(240, 240, 240, 1),
+          ? AppColors.darkSurfaceGrouped
+          : AppColors.lightSurfaceGrouped,
       isScrollControlled: true,
       builder: (context) => Padding(
         padding: const EdgeInsets.only(top: AppSpacing.xLarge),
