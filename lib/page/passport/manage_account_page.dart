@@ -21,8 +21,9 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.lightSurface,
+      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
       body: SafeArea(
         child: Column(
           children: [
@@ -33,7 +34,9 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
               t.account.accountSecurityEnhance,
               style: context.textStyle(
                 FontSizeType.largeTitle,
-                color: AppColors.lightTextPrimary,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -46,7 +49,9 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 style: context
                     .textStyle(
                       FontSizeType.medium,
-                      color: AppColors.lightTextSecondary,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                     )
                     .copyWith(height: 1.5),
               ),
@@ -106,7 +111,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                   context.go('/sign_in');
                 },
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.onPrimary,
                   backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: AppRadius.borderRadiusRegular,
@@ -136,7 +141,9 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 t.chat.later,
                 style: context.textStyle(
                   FontSizeType.medium,
-                  color: AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -155,6 +162,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: AppSpacing.xLarge,
@@ -162,9 +170,13 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
       ),
       padding: const EdgeInsets.all(30),
       decoration: BoxDecoration(
-        color: AppColors.lightSurfaceContainer,
+        color: isDark
+            ? AppColors.darkSurfaceContainer
+            : AppColors.lightSurfaceContainer,
         borderRadius: AppRadius.borderRadiusLarge,
-        border: Border.all(color: AppColors.lightBorder),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -183,7 +195,9 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
             title,
             style: context.textStyle(
               FontSizeType.extraLarge,
-              color: AppColors.lightTextPrimary,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
@@ -195,7 +209,9 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
             style: context
                 .textStyle(
                   FontSizeType.normal,
-                  color: AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                 )
                 .copyWith(height: 1.5),
             maxLines: 3,

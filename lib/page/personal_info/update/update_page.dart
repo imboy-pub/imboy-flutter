@@ -252,9 +252,7 @@ class UpdatePage extends ConsumerWidget {
                 contentPadding: const EdgeInsets.all(16),
                 hintStyle: TextStyle(
                   fontSize: 16,
-                  color: isDark
-                      ? AppColors.iosGray3Dark
-                      : AppColors.iosGray3,
+                  color: isDark ? AppColors.iosGray3Dark : AppColors.iosGray3,
                 ),
                 filled: false,
                 border: InputBorder.none,

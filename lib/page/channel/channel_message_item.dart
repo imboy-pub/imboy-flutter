@@ -150,8 +150,8 @@ class ChannelMessageItem extends StatelessWidget {
         : null;
 
     final textColor = isSentByMe
-        ? Colors.white
-        : (isDark ? Colors.white : Colors.black);
+        ? AppColors.darkTextPrimary
+        : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
 
     // 消息本身的内容区
     final contentWidget = _buildMessageContent(context, textColor);
@@ -281,12 +281,22 @@ class ChannelMessageItem extends StatelessWidget {
                         const SizedBox(width: 8),
                       ],
                       // 反应
-                      GestureDetector(
-                        onTap: () => _showReactionPicker(context),
-                        child: Icon(
-                          Icons.thumb_up_outlined,
-                          size: 12,
-                          color: Colors.grey[500],
+                      Tooltip(
+                        message: t.channel.react,
+                        child: GestureDetector(
+                          onTap: () => _showReactionPicker(context),
+                          child: Semantics(
+                            button: true,
+                            label: t.channel.react,
+                            child: Icon(
+                              Icons.thumb_up_outlined,
+                              size: 12,
+                              color: AppColors.getTextColor(
+                                Theme.of(context).brightness,
+                                isSecondary: true,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       if (message.reactionSummary != null &&
@@ -298,6 +308,7 @@ class ChannelMessageItem extends StatelessWidget {
                       if (isManaged) ...[
                         const SizedBox(width: 8),
                         GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTapDown: (details) {
                             final renderBox =
                                 context.findRenderObject() as RenderBox?;
@@ -356,10 +367,23 @@ class ChannelMessageItem extends StatelessWidget {
                               });
                             }
                           },
-                          child: Icon(
-                            Icons.more_horiz,
-                            size: 14,
-                            color: Colors.grey[500],
+                          child: Semantics(
+                            button: true,
+                            label: t.channel.admin,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                minWidth: 44,
+                                minHeight: 44,
+                              ),
+                              child: Icon(
+                                Icons.more_horiz,
+                                size: 14,
+                                color: AppColors.getTextColor(
+                                  Theme.of(context).brightness,
+                                  isSecondary: true,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -728,7 +752,8 @@ class _ChannelAudioPlayer extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<_ChannelAudioPlayer> createState() => _ChannelAudioPlayerState();
+  ConsumerState<_ChannelAudioPlayer> createState() =>
+      _ChannelAudioPlayerState();
 }
 
 class _ChannelAudioPlayerState extends ConsumerState<_ChannelAudioPlayer> {
@@ -741,13 +766,15 @@ class _ChannelAudioPlayerState extends ConsumerState<_ChannelAudioPlayer> {
     final notifier = ref.read(voicePlaybackServiceProvider.notifier);
 
     // 同一个音频且正在播放，则暂停
-    if (playbackState.currentAudioPath == widget.uri && playbackState.isPlaying) {
+    if (playbackState.currentAudioPath == widget.uri &&
+        playbackState.isPlaying) {
       await notifier.pause();
       return;
     }
 
     // 同一个音频且处于暂停，则恢复
-    if (playbackState.currentAudioPath == widget.uri && playbackState.isPaused) {
+    if (playbackState.currentAudioPath == widget.uri &&
+        playbackState.isPaused) {
       await notifier.resume();
       return;
     }
@@ -799,7 +826,9 @@ class _ChannelAudioPlayerState extends ConsumerState<_ChannelAudioPlayer> {
                     ),
                   )
                 : Icon(
-                    isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                    isPlaying
+                        ? Icons.pause_circle_filled
+                        : Icons.play_circle_filled,
                     color: widget.textColor,
                     size: 20,
                   ),

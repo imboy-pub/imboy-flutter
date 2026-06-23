@@ -97,7 +97,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
       switch (result) {
         case MuteSuccess(:final muteUntilMs):
           setState(() {
-            _member!.muteUntilMs = muteUntilMs;
+            _member = _member!.copyWith(muteUntilMs: muteUntilMs);
             _anyChange = true;
           });
           EasyLoading.showSuccess(t.common.muteMemberSuccess);
@@ -131,7 +131,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
       switch (result) {
         case UnmuteSuccess():
           setState(() {
-            _member!.muteUntilMs = null;
+            _member = _member!.copyWith(clearMuteUntil: true);
             _anyChange = true;
           });
           EasyLoading.showSuccess(t.common.unmuteMemberSuccess);

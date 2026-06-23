@@ -98,10 +98,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               ),
               ImBoySettingsTile(
                 title: Text(t.contact.recommendToFriend),
-                leading: _buildIcon(
-                  Icons.share_outlined,
-                  AppColors.iosPurple,
-                ),
+                leading: _buildIcon(Icons.share_outlined, AppColors.iosPurple),
                 onTap: () =>
                     EasyLoading.showInfo(t.common.featureInDevelopment),
               ),

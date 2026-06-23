@@ -197,12 +197,19 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.info_outline, size: 20, color: AppColors.iosGray),
+                  const Icon(
+                    Icons.info_outline,
+                    size: 20,
+                    color: AppColors.iosGray,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       t.groupCategory.categoryDetailTip,
-                      style: const TextStyle(color: AppColors.iosGray, height: 1.5),
+                      style: const TextStyle(
+                        color: AppColors.iosGray,
+                        height: 1.5,
+                      ),
                     ),
                   ),
                 ],

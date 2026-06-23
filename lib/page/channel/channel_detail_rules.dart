@@ -90,5 +90,9 @@ String formatMessageTime(DateTime time, {DateTime? now}) {
   if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
   if (diff.inHours < 24) return '${diff.inHours}h ago';
   if (diff.inDays < 7) return '${diff.inDays}d ago';
-  return DateTimeHelper.dateTimeFmt(time, pattern: 'MM-dd HH:mm', relative: false);
+  return DateTimeHelper.dateTimeFmt(
+    time,
+    pattern: 'MM-dd HH:mm',
+    relative: false,
+  );
 }

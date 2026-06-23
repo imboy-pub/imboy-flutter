@@ -181,9 +181,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
             header: Text(t.common.feedbackHistory.toUpperCase()),
             children: state.itemList.isEmpty
                 ? [
-                    const Padding(
-                      padding: EdgeInsets.all(AppSpacing.xxLarge),
-                      child: Center(child: Text('No history')),
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xxLarge),
+                      child: Center(child: Text(t.common.noHistory)),
                     ),
                   ]
                 : state.itemList.asMap().entries.map((entry) {

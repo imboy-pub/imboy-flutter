@@ -447,7 +447,10 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         return Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.chatWallpaperBlueLightStart, AppColors.splashGradientStart],
+              colors: [
+                AppColors.chatWallpaperBlueLightStart,
+                AppColors.splashGradientStart,
+              ],
             ),
           ),
         );
@@ -455,7 +458,10 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         return Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.chatWallpaperPurpleLightStart, AppColors.chatWallpaperPurpleLightEnd],
+              colors: [
+                AppColors.chatWallpaperPurpleLightStart,
+                AppColors.chatWallpaperPurpleLightEnd,
+              ],
             ),
           ),
         );
@@ -474,7 +480,10 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         }
         return Container(
           color: Colors.grey[200],
-          child: const Icon(Icons.add_photo_alternate, color: AppColors.iosGray),
+          child: const Icon(
+            Icons.add_photo_alternate,
+            color: AppColors.iosGray,
+          ),
         );
       default:
         return Container(
@@ -606,21 +615,21 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
 
   /// 预定义颜色
   static const List<Color> _predefinedColors = [
-    Colors.red,
+    AppColors.iosRed,
     Colors.pink,
     Colors.purple,
     Colors.deepPurple,
     Colors.indigo,
-    Colors.blue,
+    AppColors.iosBlue,
     Colors.lightBlue,
     Colors.cyan,
     Colors.teal,
-    Colors.green,
+    AppColors.iosGreen,
     Colors.lightGreen,
     Colors.lime,
     Colors.yellow,
     Colors.amber,
-    Colors.orange,
+    AppColors.iosOrange,
     Colors.deepOrange,
     Colors.brown,
     Colors.grey,

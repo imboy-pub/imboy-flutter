@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
@@ -97,7 +98,7 @@ class _BurnBadgeState extends State<BurnBadge>
         context: context,
         color: color,
         fraction: null,
-        text: '阅后',
+        text: t.chat.burnReadBadge,
       );
     }
 

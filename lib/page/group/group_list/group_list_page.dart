@@ -168,7 +168,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                         fontWeight: selected
                             ? FontWeight.w600
                             : FontWeight.normal,
-                        color: selected ? Colors.white : null,
+                        color: selected ? AppColors.onPrimary : null,
                       ),
                     ),
                     selectedColor: AppColors.getIosBlue(brightness),

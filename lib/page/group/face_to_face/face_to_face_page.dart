@@ -30,7 +30,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
       title: t.chat.createGroupF2f,
       useLargeTitle: false,
       bottomWidget: Container(
-        color: isDark ? AppColors.darkSurface : Colors.white,
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
         child: NumericKeypad(
           controller: state.textEditingController,
           onChanged: (value) async {
@@ -68,7 +68,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
               decoration: BoxDecoration(
                 color: isDark
                     ? AppColors.darkSurfaceGroupedTertiary
-                    : Colors.white,
+                    : AppColors.lightSurface,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(

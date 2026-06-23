@@ -581,22 +581,28 @@ class UpgradeCardState extends State<UpgradeCard> {
             ),
 
             ///更新内容
-            Container(
-              width: MediaQuery.of(context).size.width - 40,
-              height: MediaQuery.of(context).size.height - 200,
-              margin: const EdgeInsets.all(8),
-              child: Scrollbar(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SelectableText.rich(
-                    TextSpan(
-                      text: widget.message.isEmpty
-                          ? t.common.noUpdateDescription
-                          : widget.message,
+            Flexible(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height - 200,
+                ),
+                child: Container(
+                  width: MediaQuery.of(context).size.width - 40,
+                  margin: const EdgeInsets.all(8),
+                  child: Scrollbar(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SelectableText.rich(
+                        TextSpan(
+                          text: widget.message.isEmpty
+                              ? t.common.noUpdateDescription
+                              : widget.message,
+                        ),
+                        textAlign: widget.message.isEmpty
+                            ? TextAlign.center
+                            : TextAlign.left,
+                      ),
                     ),
-                    textAlign: widget.message.isEmpty
-                        ? TextAlign.center
-                        : TextAlign.left,
                   ),
                 ),
               ),
@@ -642,7 +648,10 @@ class UpgradeCardState extends State<UpgradeCard> {
                       borderRadius: AppRadius.borderRadiusSmall,
                       child: LinearProgressIndicator(
                         value: widget.progress,
-                        backgroundColor: Colors.grey[200],
+                        backgroundColor:
+                            Theme.of(context).brightness == Brightness.dark
+                            ? AppColors.darkSurfaceContainer
+                            : AppColors.lightSurfaceContainer,
                         valueColor: const AlwaysStoppedAnimation(
                           AppColors.iosBlue,
                         ),

@@ -5,6 +5,7 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart' show IsTypingIndicator;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -89,7 +90,6 @@ class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
     if (!_isTyping) return const SizedBox.shrink();
 
     final themeNotifier = ref.watch(themeProvider.notifier);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -107,7 +107,10 @@ class _TypingIndicatorWidgetState extends ConsumerState<TypingIndicatorWidget> {
               borderRadius: AppRadius.borderRadiusRegular,
             ),
             child: IsTypingIndicator(
-              color: isDark ? Colors.white70 : Colors.black54,
+              color: AppColors.getTextColor(
+                Theme.of(context).brightness,
+                isSecondary: true,
+              ).withValues(alpha: 0.54),
               size: 6,
             ),
           ),

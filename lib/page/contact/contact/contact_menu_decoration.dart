@@ -22,7 +22,7 @@ ContactMenuDecoration? contactMenuDecorationOf(int peerId) {
   switch (peerId) {
     case kPeerIdMomentFeed:
       return const ContactMenuDecoration(
-        bgColor: Colors.deepOrange,
+        bgColor: AppColors.iosOrange,
         iconData: Center(
           child: Icon(Icons.dynamic_feed, size: 24, color: Colors.white),
         ),

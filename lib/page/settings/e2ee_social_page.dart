@@ -124,9 +124,9 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                         _canRecover
                             ? t.common.e2eeSocialEnoughShards
                             : t.main.e2eeSocialChooseProxy,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
-                          color: Colors.purple.shade700,
+                          color: AppColors.iosPurple,
                         ),
                       ),
                     ],

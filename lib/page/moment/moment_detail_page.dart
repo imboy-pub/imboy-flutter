@@ -270,11 +270,11 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildPostContent(context, post, isDark, brightness),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
             child: Text(
-              '评论',
-              style: TextStyle(
+              t.discovery.momentsComments,
+              style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: AppColors.iosGray,
@@ -449,7 +449,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       height: size,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.black12,
+        color: AppColors.iosGray.withValues(alpha: 0.1),
       ),
       clipBehavior: Clip.antiAlias,
       child: Image(image: cachedImageProvider(previewUrl), fit: BoxFit.cover),

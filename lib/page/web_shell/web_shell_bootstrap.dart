@@ -439,6 +439,7 @@ class _WebChatInputState extends ConsumerState<_WebChatInput> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final t = Translations.of(context);
     final canSend = !_sending && widget.currentUserId.isNotEmpty;
     return Container(
       padding: const EdgeInsets.all(12),
@@ -460,7 +461,7 @@ class _WebChatInputState extends ConsumerState<_WebChatInput> {
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _send(),
               decoration: InputDecoration(
-                hintText: 'Send message',
+                hintText: t.chat.sendMessage,
                 isDense: true,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),

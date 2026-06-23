@@ -256,7 +256,9 @@ class PassportNotifier extends _$PassportNotifier {
             // 栈中无更多页面时，回到首页避免 crash
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute<void>(builder: (_) => const BottomNavigationPage()),
+              MaterialPageRoute<void>(
+                builder: (_) => const BottomNavigationPage(),
+              ),
               (route) => false,
             );
           }

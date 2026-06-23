@@ -23,6 +23,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
 import 'package:xid/xid.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -338,7 +339,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           // 左侧 + 按钮
           IconButton(
             icon: const Icon(Icons.add, size: 28),
-            color: Colors.grey[600],
+            color: AppColors.getTextColor(
+              Theme.of(context).brightness,
+              isSecondary: true,
+            ),
             onPressed: isBusy ? null : () => _pickAndSendMedia(channel),
           ),
           // 语音/键盘 切换按钮
@@ -347,7 +351,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               _showVoiceInput ? Icons.keyboard_alt_outlined : Icons.mic_none,
               size: 28,
             ),
-            color: Colors.grey[600],
+            color: AppColors.getTextColor(
+              Theme.of(context).brightness,
+              isSecondary: true,
+            ),
             onPressed: isBusy
                 ? null
                 : () {
@@ -378,7 +385,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                     ),
                     decoration: BoxDecoration(
                       color: surface,
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: AppRadius.borderRadiusRegular,
                       border: Border.all(
                         color: isDark
                             ? AppColors.iosSeparatorDark
@@ -936,7 +943,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadius.borderRadiusMedium,
             border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
           ),
           child: Column(
@@ -1356,7 +1363,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
-          bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+          bottom: BorderSide(
+            color: AppColors.getIosSeparator(Theme.of(context).brightness),
+          ),
         ),
       ),
       child: Row(
@@ -1392,15 +1401,25 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     required String label,
     required String value,
   }) {
+    final secondaryColor = AppColors.getTextColor(
+      Theme.of(context).brightness,
+      isSecondary: true,
+    );
     return Column(
       children: [
-        Icon(icon, size: 20, color: Colors.grey[600]),
+        Icon(icon, size: 20, color: secondaryColor),
         const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: FontSizeType.caption2.size,
+            color: secondaryColor,
+          ),
+        ),
       ],
     );
   }
@@ -1436,12 +1455,18 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.grey.withValues(alpha: 0.2),
+            color: AppColors.getIosSeparator(Theme.of(context).brightness),
             borderRadius: AppRadius.borderRadiusMedium,
           ),
           child: Text(
             dateText,
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            style: TextStyle(
+              fontSize: FontSizeType.small.size,
+              color: AppColors.getTextColor(
+                Theme.of(context).brightness,
+                isSecondary: true,
+              ),
+            ),
           ),
         ),
       ),

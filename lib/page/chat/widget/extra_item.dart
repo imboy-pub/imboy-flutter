@@ -60,6 +60,7 @@ class ExtraItem extends StatelessWidget {
                       : AppColors.lightSurfaceGrouped,
                   borderRadius: AppRadius.borderRadiusLarge, // 更圆润的角
                   // 移除硬边框，使用极淡的内描边来增加精致感
+                  // 注：10% 白 / 5% 黑内描边，AppColors 无精确 overlay token（现有为 8%/12% 白），保留字面量
                   border: Border.all(
                     color: isDark
                         ? Colors.white.withValues(alpha: 0.1)
@@ -292,7 +293,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
             image: const Icon(
               Icons.swap_horiz,
               size: iconSize,
-              color: Colors.orange,
+              color: AppColors.iosOrange,
             ),
             onPressed: () async {
               FocusScope.of(context).requestFocus(FocusNode());

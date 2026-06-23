@@ -1071,3 +1071,15 @@ withdrawAmountError: 请输入不低于1元的金额
 withdrawAccountEmpty: 请输入提现账号
 withdrawMethod: 提现方式
 withdrawAccount: 提现账号
+noHistory: 暂无历史记录
+enterAmount: 请输入金额
+transferDefaultRemark: 转账给好友
+transferMinAmountError: 转账最低金额为 0.1 元
+redPacketCurrentLucky: "当前为：拼手气红包"
+redPacketCurrentNormal: "当前为：普通红包"
+redPacketSwitchToNormal: 改为普通红包
+redPacketSwitchToLucky: 改为拼手气红包
+timeNowShort: now
+timeDaysShort(count): "${count}d"
+timeHoursShort(count): "${count}h"
+timeMinutesShort(count): "${count}m"

@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 群相册页面
@@ -117,6 +118,11 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
             child: Text(t.common.cancel),
           ),
           TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.getIosRed(
+                Theme.of(context).brightness,
+              ),
+            ),
             onPressed: () => Navigator.pop(context, true),
             child: Text(t.common.confirm),
           ),

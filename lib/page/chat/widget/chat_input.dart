@@ -1017,7 +1017,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                   child: CupertinoButton(
                     key: const ValueKey('send_button'),
                     padding: EdgeInsets.zero,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: AppRadius.borderRadiusRegular,
                     color: AppColors.getIosBlue(brightness),
                     onPressed: _handleSendPressed,
                     minimumSize: Size(32, 32),
@@ -1157,7 +1157,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.05)
                           : Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadius.borderRadiusLarge,
                       border: Border.all(
                         color: AppColors.getIosSeparator(
                           Theme.of(context).brightness,

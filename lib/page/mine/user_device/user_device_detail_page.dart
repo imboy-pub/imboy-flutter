@@ -462,7 +462,11 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       return t.common.unknown;
     }
     final dt = DateTime.fromMillisecondsSinceEpoch(widget.model.lastActiveAt);
-    return DateTimeHelper.dateTimeFmt(dt, pattern: 'yyyy-MM-dd HH:mm:ss', relative: false);
+    return DateTimeHelper.dateTimeFmt(
+      dt,
+      pattern: 'yyyy-MM-dd HH:mm:ss',
+      relative: false,
+    );
   }
 
   /// 编辑设备名称

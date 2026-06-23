@@ -79,7 +79,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
       body: Stack(
         children: [
           const Positioned(top: -120, right: -60, child: BezierContainer()),
@@ -95,14 +95,18 @@ class _LoginPageState extends ConsumerState<LoginPage>
                   // TabBar 对齐 iOS 风格
                   Container(
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white10 : Colors.grey[100],
+                      color: isDark
+                          ? AppColors.darkSurfaceGrouped
+                          : AppColors.lightSurfaceGrouped,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     padding: const EdgeInsets.all(4),
                     child: TabBar(
                       controller: _tabController,
                       indicator: BoxDecoration(
-                        color: isDark ? Colors.white24 : Colors.white,
+                        color: isDark
+                            ? AppColors.darkSurfaceGroupedTertiary
+                            : AppColors.lightSurface,
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
@@ -241,7 +245,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
       children: [
         Container(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurfaceGroupedTertiary : AppColors.lightSurfaceGrouped,
+            color: isDark
+                ? AppColors.darkSurfaceGroupedTertiary
+                : AppColors.lightSurfaceGrouped,
             borderRadius: BorderRadius.circular(10),
           ),
           child: PhoneInputWidget(

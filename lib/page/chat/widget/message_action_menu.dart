@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
 /// Reaction 表情按钮的最小触达尺寸（pt）。
@@ -335,46 +336,49 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
           HapticFeedback.mediumImpact();
           onTap();
         },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: isDestructive
-                      ? destructiveColor.withValues(alpha: 0.1)
-                      : primaryColor.withValues(alpha: 0.1),
-                  borderRadius: AppRadius.borderRadiusMedium,
-                  border: Border.all(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
                     color: isDestructive
-                        ? destructiveColor.withValues(alpha: 0.2)
-                        : primaryColor.withValues(alpha: 0.2),
-                    width: 1,
+                        ? destructiveColor.withValues(alpha: 0.1)
+                        : primaryColor.withValues(alpha: 0.1),
+                    borderRadius: AppRadius.borderRadiusMedium,
+                    border: Border.all(
+                      color: isDestructive
+                          ? destructiveColor.withValues(alpha: 0.2)
+                          : primaryColor.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: isDestructive ? destructiveColor : primaryColor,
+                    size: 20,
                   ),
                 ),
-                child: Icon(
-                  icon,
-                  color: isDestructive ? destructiveColor : primaryColor,
-                  size: 20,
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: FontSizeType.caption2.size,
+                    color: isDestructive
+                        ? destructiveColor
+                        : Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: isDestructive
-                      ? destructiveColor
-                      : Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

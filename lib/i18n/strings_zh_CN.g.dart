@@ -1408,6 +1408,9 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '阅后即焚'
 	String get burnAfterReading => '阅后即焚';
 
+	/// zh-CN: '阅后'
+	String get burnReadBadge => '阅后';
+
 	/// zh-CN: '可视阈值已读'
 	String get visibleThresholdRead => '可视阈值已读';
 
@@ -4935,6 +4938,42 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '提现账号'
 	String get withdrawAccount => '提现账号';
+
+	/// zh-CN: '暂无历史记录'
+	String get noHistory => '暂无历史记录';
+
+	/// zh-CN: '请输入金额'
+	String get enterAmount => '请输入金额';
+
+	/// zh-CN: '转账给好友'
+	String get transferDefaultRemark => '转账给好友';
+
+	/// zh-CN: '转账最低金额为 0.1 元'
+	String get transferMinAmountError => '转账最低金额为 0.1 元';
+
+	/// zh-CN: '当前为：拼手气红包'
+	String get redPacketCurrentLucky => '当前为：拼手气红包';
+
+	/// zh-CN: '当前为：普通红包'
+	String get redPacketCurrentNormal => '当前为：普通红包';
+
+	/// zh-CN: '改为普通红包'
+	String get redPacketSwitchToNormal => '改为普通红包';
+
+	/// zh-CN: '改为拼手气红包'
+	String get redPacketSwitchToLucky => '改为拼手气红包';
+
+	/// zh-CN: 'now'
+	String get timeNowShort => 'now';
+
+	/// zh-CN: '${count}d'
+	String timeDaysShort({required Object count}) => '${count}d';
+
+	/// zh-CN: '${count}h'
+	String timeHoursShort({required Object count}) => '${count}h';
+
+	/// zh-CN: '${count}m'
+	String timeMinutesShort({required Object count}) => '${count}m';
 }
 
 // Path: complaint
@@ -7283,6 +7322,7 @@ extension on Translations {
 			'chat.voiceRecordResultEmpty' => '语音录制结果为空',
 			'chat.voiceFileInvalid' => '语音文件无效',
 			'chat.burnAfterReading' => '阅后即焚',
+			'chat.burnReadBadge' => '阅后',
 			'chat.visibleThresholdRead' => '可视阈值已读',
 			'chat.readThresholdDelay' => '已读阈值与延时',
 			'chat.goodReadability' => '可读性良好',
@@ -7355,9 +7395,9 @@ extension on Translations {
 			'chat.webQRStatusWaiting' => '打开 ImBoy 手机版 > 设置 > 扫一扫',
 			'chat.webQRStatusScanned' => '请在手机上点击"确认登录"',
 			'chat.webQRStatusVerifying' => '正在验证...',
-			'chat.webQRStatusExpired' => '请点击刷新重新扫码',
 			_ => null,
 		} ?? switch (path) {
+			'chat.webQRStatusExpired' => '请点击刷新重新扫码',
 			'chat.e2eeErrInvalidFormat' => '消息格式错误，加密失败',
 			'chat.e2eeSocialCreateTitle' => '创建恢复分片',
 			'chat.e2eeSocialCreateBtn' => '创建分片',
@@ -7869,9 +7909,9 @@ extension on Translations {
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => '验证码',
 			'common.feedbackContent' => '反馈内容',
-			'common.officialReply' => '官方回复',
 			_ => null,
 		} ?? switch (path) {
+			'common.officialReply' => '官方回复',
 			'common.setPasswordSecurityTips' => '为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。',
 			'common.locationHidden' => '已隐藏您的位置',
 			'common.locationVisible' => '已显示您的位置',
@@ -8383,9 +8423,9 @@ extension on Translations {
 			'common.e2eeSocialAddProxy' => '添加代理',
 			'common.e2eeSocialAddProxyHint' => '请添加代理联系人',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '请先添加 ${count} 个代理',
-			'common.e2eeSocialCreateSuccessTitle' => '分片创建成功',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialCreateSuccessTitle' => '分片创建成功',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '密钥已分割成 ${count} 个分片',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '需要 ${count} 个代理协助即可恢复密钥',
 			'common.e2eeSocialZeroTrustNote' => '零信任架构：服务端不保存任何分片',
@@ -8462,6 +8502,18 @@ extension on Translations {
 			'common.withdrawAccountEmpty' => '请输入提现账号',
 			'common.withdrawMethod' => '提现方式',
 			'common.withdrawAccount' => '提现账号',
+			'common.noHistory' => '暂无历史记录',
+			'common.enterAmount' => '请输入金额',
+			'common.transferDefaultRemark' => '转账给好友',
+			'common.transferMinAmountError' => '转账最低金额为 0.1 元',
+			'common.redPacketCurrentLucky' => '当前为：拼手气红包',
+			'common.redPacketCurrentNormal' => '当前为：普通红包',
+			'common.redPacketSwitchToNormal' => '改为普通红包',
+			'common.redPacketSwitchToLucky' => '改为拼手气红包',
+			'common.timeNowShort' => 'now',
+			'common.timeDaysShort' => ({required Object count}) => '${count}d',
+			'common.timeHoursShort' => ({required Object count}) => '${count}h',
+			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
 			'complaint.complaint' => '投诉',
 			'complaintReason.spam' => '垃圾信息',
 			'complaintReason.harassment' => '骚扰',
@@ -8885,6 +8937,8 @@ extension on Translations {
 			'main.secret' => '保密',
 			'main.takePhoto' => '拍照',
 			'main.publishing' => '发布中...',
+			_ => null,
+		} ?? switch (path) {
 			'main.deletingInProgressPleaseWait' => '正在删除中，请稍候...',
 			'main.testUser1' => '用户1',
 			'main.testUser2' => '用户2',
@@ -8898,8 +8952,6 @@ extension on Translations {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '当前长度：${param1} / ${param2}',
 			'main.fillIn' => '填入',
 			'main.msgProtectedByComplianceKey' => '消息受合规密钥保护',
-			_ => null,
-		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => '邀请人: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '被邀请人: ${uid}',
 			'main.mySentTab' => '我发出的',

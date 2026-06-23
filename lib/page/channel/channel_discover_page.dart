@@ -165,8 +165,8 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
                 ),
                 filled: true,
                 fillColor: Theme.of(context).brightness == Brightness.light
-                    ? Colors.grey[100]
-                    : Colors.grey[800],
+                    ? AppColors.lightSurfaceContainer
+                    : AppColors.darkSurfaceContainer,
               ),
               onChanged: (value) {
                 setState(() {});

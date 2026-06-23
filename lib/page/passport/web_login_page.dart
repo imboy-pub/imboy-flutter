@@ -706,7 +706,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                 const SizedBox(height: 16),
                 Text(
                   t.discovery.webQRScanned,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
@@ -741,16 +741,23 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
 
       case QRLoginStatus.expired:
         return Container(
-          color: AppColors.lightTextSecondary,
+          color: AppColors.lightSurfaceContainer,
           child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.qr_code_scanner, size: 64, color: Colors.grey[400]),
+                const Icon(
+                  Icons.qr_code_scanner,
+                  size: 64,
+                  color: AppColors.lightTextDisabled,
+                ),
                 const SizedBox(height: 8),
                 Text(
                   t.main.webQRExpired,
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: FontSizeType.medium.size,
+                    color: AppColors.lightTextDisabled,
+                  ),
                 ),
               ],
             ),
@@ -923,7 +930,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               ),
             ),
             textStyle: const TextStyle(
-              color: Colors.white,
+              color: AppColors.onPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),

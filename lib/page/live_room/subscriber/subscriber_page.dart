@@ -10,6 +10,7 @@ import 'package:imboy/page/live_room/subscriber/subscriber_provider.dart'
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 /// WHEP Subscriber 拉流页面
@@ -73,7 +74,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                   const SizedBox(width: 2),
                   Text(
                     '${widget.room!.viewerCount}',
-                    style: const TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: FontSizeType.small.size),
                   ),
                 ],
               ),
@@ -108,7 +109,10 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                     ),
                     child: Text(
                       state.stateStr,
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                      style: TextStyle(
+                        color: AppColors.onPrimary,
+                        fontSize: FontSizeType.small.size,
+                      ),
                     ),
                   ),
                 ),

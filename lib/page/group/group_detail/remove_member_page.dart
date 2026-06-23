@@ -187,47 +187,16 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
           const SizedBox(width: 10),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      color: Theme.of(context).colorScheme.surface,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Expanded(
-                            child: state.groupMemberList.isEmpty
-                                ? NoDataView(text: t.common.noData)
-                                : ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: state.groupMemberList.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                          GroupMemberModel model =
-                                              state.groupMemberList[index];
-                                          return _buildListItem(context, model);
-                                        },
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                  ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+      body: state.groupMemberList.isEmpty
+          ? NoDataView(text: t.common.noData)
+          : ListView.builder(
+              itemCount: state.groupMemberList.length,
+              itemBuilder: (BuildContext context, int index) {
+                GroupMemberModel model = state.groupMemberList[index];
+                return _buildListItem(context, model);
+              },
+              physics: const AlwaysScrollableScrollPhysics(),
             ),
-          ],
-        ),
-      ),
     );
   }
 }

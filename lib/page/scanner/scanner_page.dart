@@ -173,8 +173,8 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
     return showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? const Color.fromRGBO(80, 80, 80, 1)
-          : const Color.fromRGBO(240, 240, 240, 1),
+          ? AppColors.darkSurfaceGrouped
+          : AppColors.lightSurfaceGrouped,
       builder: (context) => InkWell(
         onTap: () {
           Navigator.pop(context);
@@ -206,7 +206,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
     final scannerState = ref.watch(scannerProvider);
 
     final scanWindow = Rect.fromCenter(
-      center: MediaQuery.of(context).size.center(Offset.zero),
+      center: MediaQuery.sizeOf(context).center(Offset.zero),
       width: 320,
       height: 320,
     );
@@ -218,16 +218,12 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 0, top: 20),
-                child: MaterialButton(
-                  minWidth: 20,
-                  height: 18,
+                child: IconButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  color: Theme.of(context).colorScheme.surface,
-                  textColor: Theme.of(context).colorScheme.onSurface,
-                  shape: const CircleBorder(),
-                  child: const Icon(Icons.arrow_left, size: 16),
+                  color: Theme.of(context).colorScheme.onSurface,
+                  icon: const Icon(Icons.arrow_back_ios),
                 ),
               ),
               MobileScanner(

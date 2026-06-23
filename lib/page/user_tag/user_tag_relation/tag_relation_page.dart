@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -160,17 +161,18 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
 
   /// 清空所有标签
   void _clearAllTags() {
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.common.tagClearAll),
         content: Text(t.common.tagClearAllConfirm),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(t.common.buttonCancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () {
               Navigator.of(context).pop();
               setState(() {
@@ -178,10 +180,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
               });
               HapticFeedback.lightImpact();
             },
-            child: Text(
-              t.common.buttonOk,
-              style: const TextStyle(color: Colors.redAccent),
-            ),
+            child: Text(t.common.buttonOk),
           ),
         ],
       ),
@@ -240,8 +239,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       ),
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        minimumSize: Size.zero,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        minimumSize: const Size(44, 44),
       ),
     );
   }

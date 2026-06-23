@@ -74,7 +74,7 @@ class ProfileCompletionWidget extends ConsumerWidget {
                     Container(
                       height: 8,
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.white10 : Colors.grey[200],
+                        color: isDark ? AppColors.iosGray4 : AppColors.iosGray5,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: FractionallySizedBox(
@@ -130,7 +130,8 @@ class ProfileCompletionWidget extends ConsumerWidget {
     dynamic profileNotifier,
     bool isDark,
   ) {
-    final List<dynamic> suggestions = profileNotifier.getCompletionSuggestions() as List<dynamic>;
+    final List<dynamic> suggestions =
+        profileNotifier.getCompletionSuggestions() as List<dynamic>;
     if (suggestions.isEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

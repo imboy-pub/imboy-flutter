@@ -186,7 +186,7 @@ class QuoteTipsWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark
               ? AppColors.darkSurface
-              : Colors.white,
+              : AppColors.lightSurface,
           border: Border(
             top: BorderSide(
               color: AppColors.getIosSeparator(
@@ -228,7 +228,7 @@ class QuoteTipsWidget extends StatelessWidget {
             CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: close,
-              minimumSize: Size(32, 32),
+              minimumSize: Size(44, 44),
               child: Icon(
                 CupertinoIcons.xmark_circle_fill,
                 size: 20,

@@ -72,7 +72,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
 
   Widget _buildWarningCard() {
     return Card(
-      color: Colors.orange.shade50,
+      color: AppColors.iosOrange.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
@@ -89,7 +89,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                   t.common.e2eeImportantNote,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.orange.shade900,
+                    color: AppColors.iosOrange,
                   ),
                 ),
               ],
@@ -97,12 +97,18 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             const SizedBox(height: 8),
             Text(
               t.common.e2eeBackupPwdCantRecover,
-              style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                color: AppColors.iosOrange,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               t.common.e2eeBackupStoreMultipleNote,
-              style: TextStyle(fontSize: 13, color: Colors.orange.shade900),
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                color: AppColors.iosOrange,
+              ),
             ),
           ],
         ),
@@ -221,7 +227,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
 
   Widget _buildShareButton() {
     return Card(
-      color: Colors.green.shade50,
+      color: AppColors.iosGreen.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(
@@ -240,7 +246,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
                     t.common.e2eeBackupFileGenerated,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.green.shade900,
+                      color: AppColors.iosGreen,
                     ),
                   ),
                 ),

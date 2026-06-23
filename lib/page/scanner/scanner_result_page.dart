@@ -8,6 +8,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class ScannerResultPage extends StatelessWidget {
   final String scanResult;
@@ -92,12 +93,15 @@ class ScannerResultPage extends StatelessWidget {
         height: double.infinity,
         padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
         alignment: Alignment.center,
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         child: Center(
           child: Text(
             scanResult,
             textAlign: TextAlign.left,
-            style: const TextStyle(color: Colors.black, fontSize: 24),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: FontSizeType.largeTitle.size,
+            ),
           ),
         ),
       ),
@@ -108,8 +112,8 @@ class ScannerResultPage extends StatelessWidget {
     return showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? const Color.fromRGBO(80, 80, 80, 1)
-          : const Color.fromRGBO(240, 240, 240, 1),
+          ? AppColors.darkSurfaceGrouped
+          : AppColors.lightSurfaceGrouped,
       builder: (context) => InkWell(
         onTap: () {
           Navigator.pop(context);
@@ -120,12 +124,15 @@ class ScannerResultPage extends StatelessWidget {
           height: double.infinity,
           padding: const EdgeInsets.fromLTRB(16, 28, 0, 10),
           alignment: Alignment.center,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           child: Center(
             child: Text(
               txt,
               textAlign: TextAlign.left,
-              style: const TextStyle(color: Colors.black, fontSize: 24),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: FontSizeType.largeTitle.size,
+              ),
             ),
           ),
         ),

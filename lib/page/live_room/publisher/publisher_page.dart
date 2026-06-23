@@ -9,6 +9,7 @@ import 'package:imboy/page/live_room/publisher/publisher_provider.dart'
     show publisherProvider;
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -101,7 +102,10 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                     ),
                     child: Text(
                       state.stateStr,
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                      style: TextStyle(
+                        color: AppColors.onPrimary,
+                        fontSize: FontSizeType.small.size,
+                      ),
                     ),
                   ),
                 ),
@@ -122,7 +126,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                       child: Text(
                         'Key: ${'*' * 8}',
                         style: const TextStyle(
-                          color: Colors.white70,
+                          color: AppColors.darkTextPrimary,
                           fontSize: 10,
                         ),
                       ),

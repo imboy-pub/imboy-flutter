@@ -201,6 +201,7 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
     final isRead = mention['is_read'] == 1;
 
     return ListTile(
+      key: ValueKey(mention['id']),
       leading: Stack(
         children: [
           Avatar(
@@ -255,13 +256,13 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
     if (diff.inDays > 7) {
       return '${dt.month}/${dt.day}';
     } else if (diff.inDays > 0) {
-      return '${diff.inDays}d';
+      return t.common.timeDaysShort(count: diff.inDays);
     } else if (diff.inHours > 0) {
-      return '${diff.inHours}h';
+      return t.common.timeHoursShort(count: diff.inHours);
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}m';
+      return t.common.timeMinutesShort(count: diff.inMinutes);
     } else {
-      return 'now';
+      return t.common.timeNowShort;
     }
   }
 }

@@ -17,14 +17,11 @@ class _RightButtonState extends State<RightButton> {
   final _addKey = GlobalKey();
 
   Future<void> _showAddMenu() async {
-    final renderBox =
-        _addKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox = _addKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
-    final overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
     final position = RelativeRect.fromRect(
-      renderBox.localToGlobal(Offset.zero, ancestor: overlay) &
-          renderBox.size,
+      renderBox.localToGlobal(Offset.zero, ancestor: overlay) & renderBox.size,
       Offset.zero & overlay.size,
     );
     await showMenu<void>(
@@ -32,8 +29,7 @@ class _RightButtonState extends State<RightButton> {
       position: position,
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      shadowColor:
-          Theme.of(context).colorScheme.shadow.withValues(alpha: 0.15),
+      shadowColor: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.15),
       elevation: 4,
       constraints: const BoxConstraints(maxWidth: 160),
       items: const [

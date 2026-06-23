@@ -6,6 +6,7 @@ import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 class WithdrawPage extends ConsumerStatefulWidget {
   const WithdrawPage({super.key});
@@ -64,12 +65,16 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
   Widget build(BuildContext context) {
     final walletState = ref.watch(walletProvider);
     final balanceYuan = walletState.balance / 100.0;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(title: Text(t.common.withdraw), elevation: 0),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.xLarge,
+        ),
         child: Form(
           key: _formKey,
           child: Column(
@@ -105,7 +110,10 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                       t.common.smallChange,
                       style: TextStyle(
                         fontSize: 14,
-                        color: isDark ? Colors.white60 : Colors.black54,
+                        color: AppColors.getTextColor(
+                          brightness,
+                          isSecondary: true,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),

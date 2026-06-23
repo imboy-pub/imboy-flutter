@@ -16,6 +16,7 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:octo_image/octo_image.dart';
 
 import 'moment_confirm_dialog.dart';
@@ -307,7 +308,6 @@ class MomentStaleBanner extends StatelessWidget {
           CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: onRetry,
-            minimumSize: Size(0, 0),
             child: Text(
               t.common.buttonRetry,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
@@ -446,23 +446,28 @@ class _MomentCard extends StatelessWidget {
     VoidCallback onTap,
   ) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: color),
-          if (count > 0)
-            Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: Text(
-                formatMomentCountLabel(count),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: color,
-                  fontWeight: FontWeight.w500,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: color),
+            if (count > 0)
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Text(
+                  formatMomentCountLabel(count),
+                  style: TextStyle(
+                    fontSize: FontSizeType.small.size,
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -417,7 +417,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       ),
       padding: const EdgeInsets.all(AppSpacing.large),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(

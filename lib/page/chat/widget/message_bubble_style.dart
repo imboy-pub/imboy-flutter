@@ -50,8 +50,8 @@ class MessageBubbleStyle {
     required bool isSentByMe,
     MessageGroupStatus? groupStatus,
   }) {
-    const baseRadius = Radius.circular(18.0);
-    const smallRadius = Radius.circular(4.0);
+    const baseRadius = Radius.circular(AppRadius.xLarge);
+    const smallRadius = Radius.circular(AppRadius.tiny);
 
     // 根据消息分组状态调整圆角
     if (groupStatus != null) {
@@ -110,25 +110,25 @@ class MessageBubbleStyle {
     required BuildContext context,
   }) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return TextStyle(
       fontSize: 16,
       fontWeight: FontWeight.w400,
       color: isSentByMe
-          ? Colors.white
-          : (isDark ? Colors.white : Colors.black87),
+          ? AppColors.sentMessageText
+          : AppColors.getTextColor(theme.brightness),
       height: 1.4,
     );
   }
 
   /// 获取时间戳样式
   static TextStyle getTimestampStyle(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return TextStyle(
       fontSize: 12,
-      color: isDark ? Colors.white54 : Colors.black54,
+      color: AppColors.getTextColor(
+        Theme.of(context).brightness,
+        isSecondary: true,
+      ).withValues(alpha: 0.54),
       fontWeight: FontWeight.w400,
     );
   }
@@ -141,18 +141,20 @@ class MessageBubbleStyle {
   }) {
     if (!isSentByMe) return AppColors.transparent;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+    final secondary = AppColors.getTextColor(brightness, isSecondary: true);
 
     switch (status) {
       case MessageStatus.sending:
-        return isDark ? Colors.white54 : Colors.black54;
+        return secondary.withValues(alpha: 0.54);
       case MessageStatus.delivered:
-        return isDark ? Colors.white70 : Colors.black87;
+        return secondary.withValues(alpha: isDark ? 0.70 : 0.87);
       case MessageStatus.read:
         // 已读指示走 iOS 系统绿（与品牌蓝区分），DESIGN.md 语义色
         return isDark ? AppColors.iosGreenDark : AppColors.iosGreen;
       default:
-        return isDark ? Colors.white54 : Colors.black54;
+        return secondary.withValues(alpha: 0.54);
     }
   }
 }

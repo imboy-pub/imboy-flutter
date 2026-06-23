@@ -22,8 +22,8 @@ class NetworkFailureGuidancePage extends ConsumerWidget {
             ListTile(
               title: Text(
                 t.error.suggestCheckNetwork,
-                style: const TextStyle(
-                  color: Colors.black,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 17.0,
                   fontWeight: FontWeight.w600,
                 ),

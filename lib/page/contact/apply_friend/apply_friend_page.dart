@@ -87,9 +87,12 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
               CupertinoListTile.notched(
                 title: Row(
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 80,
-                      child: Text('备注', style: TextStyle(fontSize: 17)),
+                      child: Text(
+                        t.contact.remark,
+                        style: TextStyle(fontSize: FontSizeType.body.size),
+                      ),
                     ),
                     Expanded(
                       child: CupertinoTextField(
@@ -98,7 +101,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                         maxLength: 80,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: null,
-                        style: const TextStyle(fontSize: 17),
+                        style: TextStyle(fontSize: FontSizeType.body.size),
                       ),
                     ),
                   ],

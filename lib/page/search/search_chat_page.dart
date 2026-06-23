@@ -147,7 +147,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
             _buildQuickFilterBar(context, state, brightness),
 
           // 结果列表
-          _buildSearchContent(state, brightness),
+          Expanded(child: _buildSearchContent(state, brightness)),
         ],
       ),
     );
@@ -226,10 +226,10 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       return _buildEmptyResults(state.currentQuery);
     }
 
-    return Column(
-      children: state.searchResults
-          .map((msg) => _buildResultItem(msg, state, b))
-          .toList(),
+    return ListView.builder(
+      itemCount: state.searchResults.length,
+      itemBuilder: (context, index) =>
+          _buildResultItem(state.searchResults[index], state, b),
     );
   }
 

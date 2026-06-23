@@ -21,24 +21,35 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 用户详情页面 - iOS 17 Premium 风格重构
-class PeopleInfoPage extends ConsumerWidget {
+class PeopleInfoPage extends ConsumerStatefulWidget {
   final String id;
   final String scene;
 
   const PeopleInfoPage({super.key, required this.id, required this.scene});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PeopleInfoPage> createState() => _PeopleInfoPageState();
+}
+
+class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
+  @override
+  void initState() {
+    super.initState();
+    // 初始化数据（仅注册一次，避免 build 内重复注册回调）
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(peopleInfoProvider.notifier).initData(widget.id, widget.scene);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final id = widget.id;
+    final scene = widget.scene;
     final state = ref.watch(peopleInfoProvider);
     bool isSelf = UserRepoLocal.to.currentUid == id;
     bool isBot = id == 'bot_qian_fan';
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-
-    // 初始化数据
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(peopleInfoProvider.notifier).initData(id, scene);
-    });
 
     return IosPageTemplate(
       title: '',
@@ -277,7 +288,7 @@ class PeopleInfoPage extends ConsumerWidget {
       context,
       CupertinoPageRoute<String?>(
         builder: (_) => ContactSettingTagPage(
-          peerId: id,
+          peerId: widget.id,
           peerAvatar: state.avatar,
           peerAccount: state.account,
           peerNickname: state.nickname,
@@ -307,7 +318,7 @@ class PeopleInfoPage extends ConsumerWidget {
       context,
       CupertinoPageRoute<void>(
         builder: (_) => ChatPage(
-          peerId: id,
+          peerId: widget.id,
           peerTitle: title,
           peerAvatar: state.avatar,
           peerSign: state.sign,
@@ -321,7 +332,7 @@ class PeopleInfoPage extends ConsumerWidget {
     openCallScreen(
       context,
       ContactModel.fromMap({
-        "id": id,
+        "id": widget.id,
         "nickname": state.nickname,
         "avatar": state.avatar,
         "sign": state.sign,

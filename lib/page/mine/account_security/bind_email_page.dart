@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mine/account_security/bind_email_provider.dart';
@@ -108,9 +109,12 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
               CupertinoListTile.notched(
                 title: Row(
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 80,
-                      child: Text('邮箱', style: TextStyle(fontSize: 17)),
+                      child: Text(
+                        t.account.email,
+                        style: TextStyle(fontSize: FontSizeType.body.size),
+                      ),
                     ),
                     Expanded(
                       child: CupertinoTextField(
@@ -124,7 +128,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                           vertical: AppSpacing.medium,
                         ),
                         decoration: null,
-                        style: const TextStyle(fontSize: 17),
+                        style: TextStyle(fontSize: FontSizeType.body.size),
                       ),
                     ),
                   ],
@@ -133,9 +137,12 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
               CupertinoListTile.notched(
                 title: Row(
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 80,
-                      child: Text('验证码', style: TextStyle(fontSize: 17)),
+                      child: Text(
+                        t.common.verificationCode,
+                        style: TextStyle(fontSize: FontSizeType.body.size),
+                      ),
                     ),
                     Expanded(
                       child: CupertinoTextField(
@@ -153,7 +160,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                           vertical: AppSpacing.medium,
                         ),
                         decoration: null,
-                        style: const TextStyle(fontSize: 17),
+                        style: TextStyle(fontSize: FontSizeType.body.size),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -232,7 +239,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
               }
             }
           : null,
-      minimumSize: Size(32, 32),
+      minimumSize: Size(44, 44),
       child: state.isSendingCode
           ? const CupertinoActivityIndicator(radius: 8, color: Colors.white)
           : Text(

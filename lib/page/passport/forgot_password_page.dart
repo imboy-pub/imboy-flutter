@@ -8,6 +8,7 @@ import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/bezier_container.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/page/passport/forgot_password_pin_code_page.dart';
 
 class ForgotPasswordPage extends ConsumerStatefulWidget {
@@ -190,7 +191,10 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
             },
             child: Text(
               t.common.nextStep,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(
+                color: AppColors.onPrimary,
+                fontSize: FontSizeType.large.size,
+              ),
             ),
           ),
         ),
@@ -265,7 +269,10 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
             },
             child: Text(
               t.common.nextStep,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(
+                color: AppColors.onPrimary,
+                fontSize: FontSizeType.large.size,
+              ),
             ),
           ),
         ),

@@ -8,6 +8,7 @@ import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'confirm_new_friend_provider.dart';
 
 /// 确认新好友页面 - 像素级对齐 iOS 17 Premium 风格
@@ -66,7 +67,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                 padding: const EdgeInsets.all(16),
                 child: Text(
                   '"${widget.msg}"',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     height: 1.4,
                     fontStyle: FontStyle.italic,
@@ -86,9 +87,12 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
               CupertinoListTile.notched(
                 title: Row(
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 80,
-                      child: Text('备注', style: TextStyle(fontSize: 17)),
+                      child: Text(
+                        t.contact.remark,
+                        style: TextStyle(fontSize: FontSizeType.body.size),
+                      ),
                     ),
                     Expanded(
                       child: CupertinoTextField(
@@ -97,7 +101,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                         maxLength: 80,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: null,
-                        style: const TextStyle(fontSize: 17),
+                        style: TextStyle(fontSize: FontSizeType.body.size),
                       ),
                     ),
                   ],
@@ -203,4 +207,3 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
     );
   }
 }
-

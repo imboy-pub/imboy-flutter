@@ -106,6 +106,8 @@ class UserQrCodePage extends ConsumerWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
+        // 意图：二维码分享卡始终为白底黑字（导出/分享为固定外观的图片），
+        // 分享二维码为固定外观（白底黑字），刻意不随明暗主题切换。
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [

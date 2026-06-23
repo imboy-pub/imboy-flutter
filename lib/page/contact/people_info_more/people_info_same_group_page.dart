@@ -77,67 +77,58 @@ class _PeopleInfoSameGroupPageState
         mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: SlidableAutoCloseBehavior(
-                  child: widget.groupList.isEmpty
-                      ? NoDataView(text: t.common.noData)
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: widget.groupList.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            GroupModel model = widget.groupList[index];
-                            return Column(
-                              children: [
-                                ListTile(
-                                  leading: SmartGroupAvatar(
-                                    avatar: model.avatar,
-                                    groupId: model.groupId.toString(),
-                                    avatarLoader: (groupId) async {
-                                      final avatarUrl = await _groupListService
-                                          .computeAvatar(groupId);
-                                      return avatarUrl.isNotEmpty
-                                          ? avatarUrl
-                                          : [];
-                                    },
+            child: SlidableAutoCloseBehavior(
+              child: widget.groupList.isEmpty
+                  ? NoDataView(text: t.common.noData)
+                  : ListView.builder(
+                      padding: const EdgeInsets.only(top: 10),
+                      itemCount: widget.groupList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        GroupModel model = widget.groupList[index];
+                        return Column(
+                          children: [
+                            ListTile(
+                              leading: SmartGroupAvatar(
+                                avatar: model.avatar,
+                                groupId: model.groupId.toString(),
+                                avatarLoader: (groupId) async {
+                                  final avatarUrl = await _groupListService
+                                      .computeAvatar(groupId);
+                                  return avatarUrl.isNotEmpty ? avatarUrl : [];
+                                },
+                              ),
+                              contentPadding: const EdgeInsets.only(
+                                left: 10,
+                                right: 10,
+                              ),
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      strEmpty(model.title)
+                                          ? model.computeTitle
+                                          : model.title,
+                                    ),
                                   ),
-                                  contentPadding: const EdgeInsets.only(
-                                    left: 10,
-                                    right: 10,
-                                  ),
-                                  title: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          strEmpty(model.title)
-                                              ? model.computeTitle
-                                              : model.title,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () => _navigateToChat(model),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: AppSpacing.medium,
-                                    right: AppSpacing.large,
-                                    bottom: 10,
-                                  ),
-                                  child: HorizontalLine(
-                                    height: isDark ? 0.5 : 1.0,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                          // 解决联系人数据量少的情况下无法刷新的问题
-                          // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-                          physics: const AlwaysScrollableScrollPhysics(),
-                        ),
-                ),
-              ),
+                                ],
+                              ),
+                              onTap: () => _navigateToChat(model),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: AppSpacing.medium,
+                                right: AppSpacing.large,
+                                bottom: 10,
+                              ),
+                              child: HorizontalLine(height: isDark ? 0.5 : 1.0),
+                            ),
+                          ],
+                        );
+                      },
+                      // 解决联系人数据量少的情况下无法刷新的问题
+                      // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+                      physics: const AlwaysScrollableScrollPhysics(),
+                    ),
             ),
           ),
           Padding(

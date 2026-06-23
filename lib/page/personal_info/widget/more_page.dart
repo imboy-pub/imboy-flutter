@@ -81,7 +81,7 @@ class _MorePageState extends ConsumerState<MorePage> {
                 icon: Icons.edit_outlined,
                 iconColor: AppColors.iosOrange,
                 title: t.account.signature,
-                trailing: Expanded(
+                trailing: Flexible(
                   child: Text(
                     UserRepoLocal.to.current.sign.isEmpty
                         ? t.common.notFilled

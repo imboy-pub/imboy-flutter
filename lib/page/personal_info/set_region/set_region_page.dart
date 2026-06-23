@@ -61,6 +61,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(setRegionProvider);
     final brightness = Theme.of(context).brightness;
+    final selectedPath = state.regionPath;
 
     return IosPageTemplate(
       title: widget.title,
@@ -149,9 +150,7 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
                 }
 
                 final hasChildren = children.isNotEmpty;
-                final isSelected = ref
-                    .read(setRegionProvider.notifier)
-                    .isRegionSelected(title);
+                final isSelected = selectedPath.contains(title);
 
                 return ImBoySettingsTile(
                   title: Text(

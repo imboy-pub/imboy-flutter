@@ -10,6 +10,7 @@ import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/bezier_container.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class SignupPage extends ConsumerStatefulWidget {
   const SignupPage({super.key});
@@ -246,7 +247,10 @@ class _SignupPageState extends ConsumerState<SignupPage>
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          textStyle: const TextStyle(color: Colors.white, fontSize: 18),
+          textStyle: TextStyle(
+            color: AppColors.onPrimary,
+            fontSize: FontSizeType.large.size,
+          ),
           onPressed: () async {
             final nickname = _nicknameController.text.trim();
             final email = _emailController.text.trim();
@@ -372,7 +376,10 @@ class _SignupPageState extends ConsumerState<SignupPage>
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          textStyle: const TextStyle(color: Colors.white, fontSize: 18),
+          textStyle: TextStyle(
+            color: AppColors.onPrimary,
+            fontSize: FontSizeType.large.size,
+          ),
           onPressed: () async {
             final nickname = _nicknameController.text.trim();
             if (nickname.isEmpty) {
@@ -425,7 +432,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
               child: Text(
                 "OR",
                 style: TextStyle(
-                  color: _isDark ? AppColors.darkTextSecondary : AppColors.iosGray,
+                  color: _isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.iosGray,
                 ),
               ),
             ),
@@ -435,25 +444,29 @@ class _SignupPageState extends ConsumerState<SignupPage>
           ],
         ),
         const SizedBox(height: 20),
-        InkWell(
-          onTap: () {
-            // Trigger JVerify or similar
-            notifier.snackBar(
-              "One-click login implementation pending JVerify setup",
-            );
-          },
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: _isDark ? AppColors.darkBorder : Colors.grey.shade300,
+        Semantics(
+          label: t.passport.oneKeyLogin,
+          button: true,
+          child: InkWell(
+            onTap: () {
+              // Trigger JVerify or similar
+              notifier.snackBar(
+                "One-click login implementation pending JVerify setup",
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: _isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                ),
               ),
-            ),
-            child: const Icon(
-              Icons.touch_app,
-              color: AppColors.primary,
-              size: 30,
+              child: const Icon(
+                Icons.touch_app,
+                color: AppColors.primary,
+                size: 30,
+              ),
             ),
           ),
         ),

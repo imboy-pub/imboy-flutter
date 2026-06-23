@@ -155,7 +155,9 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
             },
           );
 
-          await ref.read(chatProvider.notifier).addMessage(
+          await ref
+              .read(chatProvider.notifier)
+              .addMessage(
                 currentUid,
                 widget.groupId,
                 '', // Group Avatar

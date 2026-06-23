@@ -167,6 +167,7 @@ customImage: 自定义图片
 voiceRecordResultEmpty: 语音录制结果为空
 voiceFileInvalid: 语音文件无效
 burnAfterReading: 阅后即焚
+burnReadBadge: 阅后
 visibleThresholdRead: 可视阈值已读
 readThresholdDelay: 已读阈值与延时
 goodReadability: 可读性良好

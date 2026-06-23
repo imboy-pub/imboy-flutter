@@ -325,8 +325,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         padding: const EdgeInsets.all(4),
         borderSide: BorderSide(
           color: isSelected
-              ? (isDark ? AppColors.darkSurfaceGrouped : Colors.white)
-              : (isDark ? AppColors.darkSurface : Colors.white),
+              ? (isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurface)
+              : (isDark ? AppColors.darkSurface : AppColors.lightSurface),
           width: 1.5,
         ),
         top: 0,

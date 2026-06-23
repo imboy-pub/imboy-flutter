@@ -17,6 +17,7 @@ import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -161,12 +162,12 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
               showModalBottomSheet<void>(
                 context: context,
                 backgroundColor: isDark
-                    ? const Color.fromRGBO(80, 80, 80, 1)
-                    : const Color.fromRGBO(240, 240, 240, 1),
+                    ? AppColors.darkSurfaceGroupedTertiary
+                    : AppColors.lightSurfaceGrouped,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20.0),
-                    topRight: Radius.circular(20.0),
+                    topLeft: Radius.circular(AppRadius.large),
+                    topRight: Radius.circular(AppRadius.large),
                   ),
                 ),
                 builder: (context) => SizedBox(
@@ -188,8 +189,8 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                             showModalBottomSheet<void>(
                               context: context,
                               backgroundColor: isDark
-                                  ? const Color.fromRGBO(80, 80, 80, 1)
-                                  : const Color.fromRGBO(240, 240, 240, 1),
+                                  ? AppColors.darkSurfaceGroupedTertiary
+                                  : AppColors.lightSurfaceGrouped,
                               builder: (context) => UserTagSavePage(
                                 tag: widget.tag,
                                 scene: 'friend',

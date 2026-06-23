@@ -225,13 +225,21 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                 ),
                 Text(
                   t.chat.createdAtLabel(
-                    time: DateTimeHelper.dateTimeFmt(createdAt, pattern: "yyyy-MM-dd HH:mm", relative: false),
+                    time: DateTimeHelper.dateTimeFmt(
+                      createdAt,
+                      pattern: "yyyy-MM-dd HH:mm",
+                      relative: false,
+                    ),
                   ),
                 ),
                 if (expiresAt != null)
                   Text(
                     t.chat.expiredAtLabel(
-                      time: DateTimeHelper.dateTimeFmt(expiresAt, pattern: "yyyy-MM-dd HH:mm", relative: false),
+                      time: DateTimeHelper.dateTimeFmt(
+                        expiresAt,
+                        pattern: "yyyy-MM-dd HH:mm",
+                        relative: false,
+                      ),
                     ),
                   ),
                 // Internal IDs removed from UI display
@@ -417,7 +425,11 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                   ),
                   Text(
                     t.chat.createdAtLabel(
-                      time: DateTimeHelper.dateTimeFmt(createdAt, pattern: "yyyy-MM-dd HH:mm", relative: false),
+                      time: DateTimeHelper.dateTimeFmt(
+                        createdAt,
+                        pattern: "yyyy-MM-dd HH:mm",
+                        relative: false,
+                      ),
                     ),
                   ),
                   if (isPending) ...[

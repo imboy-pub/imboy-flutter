@@ -6,6 +6,7 @@ import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 class RedPacketSendPage extends ConsumerStatefulWidget {
   final String chatType; // 'C2C' (单聊) or 'C2G' (群聊)
@@ -99,7 +100,10 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.xLarge,
+        ),
         child: Form(
           key: _formKey,
           child: Column(
@@ -111,7 +115,9 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      _selectedType == 'random' ? '当前为：拼手气红包' : '当前为：普通红包',
+                      _selectedType == 'random'
+                          ? t.common.redPacketCurrentLucky
+                          : t.common.redPacketCurrentNormal,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -126,7 +132,9 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                         });
                       },
                       child: Text(
-                        _selectedType == 'random' ? '改为普通红包' : '改为拼手气红包',
+                        _selectedType == 'random'
+                            ? t.common.redPacketSwitchToNormal
+                            : t.common.redPacketSwitchToLucky,
                         style: TextStyle(color: AppColors.iosRed),
                       ),
                     ),

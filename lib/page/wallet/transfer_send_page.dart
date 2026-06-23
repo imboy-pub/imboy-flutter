@@ -6,6 +6,7 @@ import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 class TransferSendPage extends ConsumerStatefulWidget {
   final String toUid; // 好友 UID
@@ -33,7 +34,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
 
     final amountYuan = double.tryParse(_amountController.text) ?? 0.0;
     if (amountYuan < 0.1) {
-      EasyLoading.showError('转账最低金额为 0.1 元');
+      EasyLoading.showError(t.common.transferMinAmountError);
       return;
     }
     if (amountYuan > maxBalanceYuan) {
@@ -44,9 +45,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
     final amountCents = (amountYuan * 100).toInt();
     final remark = _remarkController.text.trim().isNotEmpty
         ? _remarkController.text.trim()
-        : t.common.transferSend.contains('Send')
-        ? 'Transfer to friend'
-        : '转账给好友';
+        : t.common.transferDefaultRemark;
 
     EasyLoading.show(status: t.common.loading);
     final transferId = await WalletApi().sendTransfer(
@@ -87,7 +86,10 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.xLarge,
+        ),
         child: Form(
           key: _formKey,
           child: Column(
@@ -113,11 +115,11 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return '请输入金额';
+                    return t.common.enterAmount;
                   }
                   final amount = double.tryParse(value);
                   if (amount == null || amount < 0.1) {
-                    return '转账最低金额为 0.1 元';
+                    return t.common.transferMinAmountError;
                   }
                   return null;
                 },
@@ -133,9 +135,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
               TextFormField(
                 controller: _remarkController,
                 decoration: InputDecoration(
-                  hintText: t.common.transferSend.contains('Send')
-                      ? 'Transfer to friend'
-                      : '转账给好友',
+                  hintText: t.common.transferDefaultRemark,
                   border: OutlineInputBorder(
                     borderRadius: AppRadius.borderRadiusMedium,
                   ),

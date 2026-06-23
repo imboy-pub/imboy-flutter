@@ -54,8 +54,8 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      // 输入框(TextField)被键盘遮挡解决方案
-      resizeToAvoidBottomInset: false,
+      // 输入框(TextField)被键盘遮挡解决方案：随键盘收缩避免遮挡
+      resizeToAvoidBottomInset: true,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
         leading: InkWell(
@@ -70,8 +70,8 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
       ),
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
-        height: 120,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Padding(
@@ -86,8 +86,8 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                   contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
                   filled: true,
                   fillColor: isDark
-                      ? const Color.fromRGBO(70, 70, 70, 1.0)
-                      : Colors.white70,
+                      ? AppColors.darkSurfaceGroupedTertiary
+                      : AppColors.lightSurface,
                   focusedBorder: OutlineInputBorder(
                     borderRadius: AppRadius.borderRadiusTiny,
                     borderSide: const BorderSide(width: 1.0),

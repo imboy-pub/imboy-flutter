@@ -147,7 +147,9 @@ class _MinePageState extends ConsumerState<MinePage> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white,
+            color: isDark
+                ? AppColors.darkSurfaceGroupedTertiary
+                : AppColors.lightSurface,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(

@@ -95,11 +95,11 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
       margin: const EdgeInsets.only(bottom: AppSpacing.small),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.blue.shade100,
+          backgroundColor: AppColors.primaryLight,
           child: Text(
             'v$backupVersion',
-            style: TextStyle(
-              color: Colors.blue.shade700,
+            style: const TextStyle(
+              color: AppColors.primary,
               fontWeight: FontWeight.bold,
             ),
           ),
