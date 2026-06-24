@@ -1,4 +1,4 @@
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -18,7 +18,7 @@ class ChannelOrderApi extends HttpClient {
       data: const <String, dynamic>{},
     );
     if (!resp.ok || resp.payload == null) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
       return null;
     }
     return ChannelOrderModel.fromJson(
@@ -40,7 +40,7 @@ class ChannelOrderApi extends HttpClient {
       data: {'order_no': orderNo, 'payment_method': paymentMethod},
     );
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
       return null;
     }
     if (resp.payload is Map) {
@@ -84,7 +84,7 @@ class ChannelOrderApi extends HttpClient {
       },
     );
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
       return false;
     }
     return true;

@@ -1,7 +1,7 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -258,15 +258,15 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
         ),
       ),
       confirmDismiss: (dir) async {
-        EasyLoading.show(status: t.common.loading);
+        AppLoading.show(status: t.common.loading);
         bool res = await ref
             .read(denylistProvider.notifier)
             .removeDenylist(model.deniedUid.toString());
-        EasyLoading.dismiss();
+        AppLoading.dismiss();
         if (res) {
-          EasyLoading.showSuccess(t.common.removedFromDenylist);
+          AppLoading.showSuccess(t.common.removedFromDenylist);
         } else {
-          EasyLoading.showError(t.common.tipFailed);
+          AppLoading.showError(t.common.tipFailed);
         }
         return res;
       },

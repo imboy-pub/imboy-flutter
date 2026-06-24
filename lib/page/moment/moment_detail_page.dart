@@ -4,7 +4,7 @@ import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoViewGalleryWithInitialPage;
@@ -160,7 +160,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final ok = await _api.deletePost(momentId);
     if (!mounted) return;
     if (!ok) {
-      EasyLoading.showError(t.common.momentsDeleteFailed);
+      AppLoading.showError(t.common.momentsDeleteFailed);
       return;
     }
     AppEventBus.fire(
@@ -200,7 +200,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     );
     if (added == null) {
       if (mounted) setState(() => _sendingComment = false);
-      EasyLoading.showError(t.common.momentsCommentFailed);
+      AppLoading.showError(t.common.momentsCommentFailed);
       return;
     }
     _commentController.clear();
@@ -227,7 +227,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final ok = await _api.deleteComment(widget.momentId, commentId);
     if (!mounted) return;
     if (!ok) {
-      EasyLoading.showError(t.common.momentsDeleteFailed);
+      AppLoading.showError(t.common.momentsDeleteFailed);
       return;
     }
     setState(() {

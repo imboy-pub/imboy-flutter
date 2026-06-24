@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/password.dart';
@@ -264,7 +264,7 @@ class SetPasswordPage extends ConsumerWidget {
                       .read(setPasswordProvider.notifier)
                       .setPassword();
                   if (res && context.mounted) {
-                    EasyLoading.showSuccess(t.common.confirmRecoverSuccess);
+                    AppLoading.showSuccess(t.common.confirmRecoverSuccess);
                     final user = UserRepoLocal.to.current;
                     final needGuide =
                         (user.email.isEmpty || user.mobile.isEmpty);

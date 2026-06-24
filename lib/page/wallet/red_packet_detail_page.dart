@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/wallet_api.dart';
@@ -65,11 +65,11 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
         });
       } else {
         setState(() => _isLoading = false);
-        EasyLoading.showError('获取红包详情失败');
+        AppLoading.showError('获取红包详情失败');
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      EasyLoading.showError('获取红包详情异常');
+      AppLoading.showError('获取红包详情异常');
     }
   }
 

@@ -3,7 +3,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -274,11 +274,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     final currentState = ref.read(userCollectProvider);
     final notifier = ref.read(userCollectProvider.notifier);
     if (ids.any((id) => currentState.removingIds.contains(id))) {
-      EasyLoading.showInfo(t.main.deletingInProgressPleaseWait);
+      AppLoading.showInfo(t.main.deletingInProgressPleaseWait);
       return;
     }
     try {
-      EasyLoading.show(status: t.common.loading);
+      AppLoading.show(status: t.common.loading);
       int successCount = 0;
       int failCount = 0;
       final updatedItems = <UserCollectModel>[];
@@ -300,26 +300,26 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           updatedItems.add(obj);
         }
       }
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
       if (failCount == 0) {
-        EasyLoading.showSuccess(t.common.deleteSuccess);
+        AppLoading.showSuccess(t.common.deleteSuccess);
       } else if (successCount > 0) {
-        EasyLoading.showInfo(
+        AppLoading.showInfo(
           t.common.partialDeleteSuccess(
             success: '$successCount',
             fail: '$failCount',
           ),
         );
       } else {
-        EasyLoading.showError(t.common.saveFailed);
+        AppLoading.showError(t.common.saveFailed);
       }
       notifier.updateState(
         currentState.copyWith(items: updatedItems.reversed.toList()),
       );
       _exitMultiSelect();
     } catch (_) {
-      EasyLoading.dismiss();
-      EasyLoading.showError(t.common.tipFailed);
+      AppLoading.dismiss();
+      AppLoading.showError(t.common.tipFailed);
     }
   }
 
@@ -352,12 +352,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             onPressed: () async {
               final input = tc.text.trim();
               if (input.isEmpty) {
-                EasyLoading.showInfo(t.contact.pleaseEnterTags);
+                AppLoading.showInfo(t.contact.pleaseEnterTags);
                 return;
               }
               Navigator.pop(context);
               try {
-                EasyLoading.show(status: t.common.loading);
+                AppLoading.show(status: t.common.loading);
                 final updatedItems = <UserCollectModel>[];
                 for (final obj in currentState.items) {
                   if (!_selectedIds.contains(obj.kindId.toString())) {
@@ -388,12 +388,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 notifier.updateState(
                   currentState.copyWith(items: updatedItems),
                 );
-                EasyLoading.dismiss();
-                EasyLoading.showSuccess(t.common.tipSuccess);
+                AppLoading.dismiss();
+                AppLoading.showSuccess(t.common.tipSuccess);
                 _exitMultiSelect();
               } catch (_) {
-                EasyLoading.dismiss();
-                EasyLoading.showError(t.common.tipFailed);
+                AppLoading.dismiss();
+                AppLoading.showError(t.common.tipFailed);
               }
             },
             child: Text(t.common.buttonConfirm),
@@ -709,9 +709,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 notifier.updateState(
                   currentState.copyWith(items: updatedItems),
                 );
-                EasyLoading.showSuccess(t.common.tipSuccess);
+                AppLoading.showSuccess(t.common.tipSuccess);
               } else {
-                EasyLoading.showError(t.common.tipFailed);
+                AppLoading.showError(t.common.tipFailed);
               }
             },
             child: Text(t.common.buttonDelete),

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -171,17 +171,17 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
               if (state.selects.isEmpty) {
                 return;
               }
-              EasyLoading.show(status: t.common.loading);
+              AppLoading.show(status: t.common.loading);
               int memberCount = state.selects.length;
               iPrint("selects $memberCount");
               bool res = await ref
                   .read(removeMemberProvider.notifier)
                   .removeMembers(widget.groupId);
-              EasyLoading.dismiss();
+              AppLoading.dismiss();
               if (res && context.mounted) {
                 context.pop(state.selects);
               } else {
-                EasyLoading.showError(t.common.tipFailed);
+                AppLoading.showError(t.common.tipFailed);
               }
             },
           ),

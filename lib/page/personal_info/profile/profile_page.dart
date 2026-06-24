@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
@@ -574,13 +574,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Future<void> _uploadAndSetBackground(String path) async {
-    EasyLoading.show(status: t.common.uploading);
+    AppLoading.show(status: t.common.uploading);
     if (await ref.read(profileProvider.notifier).uploadBackground(path)) {
-      EasyLoading.showSuccess(t.common.uploadSuccess);
+      AppLoading.showSuccess(t.common.uploadSuccess);
     } else {
-      EasyLoading.showError(t.common.uploadFailed);
+      AppLoading.showError(t.common.uploadFailed);
     }
-    EasyLoading.dismiss();
+    AppLoading.dismiss();
   }
 
   void _editProfession(BuildContext context) => _showTextEdit(
@@ -652,7 +652,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         ),
       );
     } catch (_) {
-      EasyLoading.showError(t.common.shareFailed);
+      AppLoading.showError(t.common.shareFailed);
     }
   }
 
@@ -691,7 +691,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   void _exportToClipboard(String content, String format) async {
     await Clipboard.setData(ClipboardData(text: content));
-    EasyLoading.showSuccess(
+    AppLoading.showSuccess(
       t.common.exportSuccessThenCopiedToClipboard(param: format),
     );
   }

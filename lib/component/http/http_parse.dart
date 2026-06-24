@@ -2,7 +2,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/error_code.dart';
 
@@ -54,12 +54,12 @@ IMBoyHttpResponse handleResponse(
       final retryAfter = response.headers.value('retry-after');
       final retrySeconds = int.tryParse(retryAfter ?? '');
       if (retrySeconds != null && retrySeconds > 0) {
-        EasyLoading.showError(
+        AppLoading.showError(
           t.common.throttleRetryAfter(seconds: '$retrySeconds'),
           duration: Duration(seconds: retrySeconds.clamp(2, 10)),
         );
       } else {
-        EasyLoading.showError(t.common.throttleWarning);
+        AppLoading.showError(t.common.throttleWarning);
       }
     }
     // 接口调用失败

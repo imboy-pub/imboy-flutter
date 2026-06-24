@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -30,7 +30,7 @@ class WebViewPageState extends State<WebViewPage> {
         NavigationDelegate(
           onProgress: (int progress) {
             if (widget.title.isEmpty) {
-              EasyLoading.showProgress(
+              AppLoading.showProgress(
                 progress / 100,
                 status: t.common.webpageLoading,
               );
@@ -44,7 +44,7 @@ class WebViewPageState extends State<WebViewPage> {
             }
           },
           onPageFinished: (String url) {
-            EasyLoading.dismiss();
+            AppLoading.dismiss();
             if (widget.title.isEmpty && widget._controller != null) {
               widget._controller!.getTitle().then((title) {
                 if (title != null) {
@@ -56,7 +56,7 @@ class WebViewPageState extends State<WebViewPage> {
             }
           },
           onWebResourceError: (WebResourceError error) {
-            EasyLoading.dismiss();
+            AppLoading.dismiss();
             if (widget.errorCallback != null) {
               String msg = "\n${widget.url}\n\nerror: \n${error.description}";
               widget.errorCallback!(msg);
@@ -84,7 +84,7 @@ class WebViewPageState extends State<WebViewPage> {
 
   @override
   void dispose() {
-    EasyLoading.dismiss();
+    AppLoading.dismiss();
     widget._controller!.removeJavaScriptChannel('imboyJSBridge');
     widget._controller!.clearLocalStorage();
     widget._controller = null;

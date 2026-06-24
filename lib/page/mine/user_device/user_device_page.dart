@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -307,18 +307,18 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
   }
 
   Future<void> _deleteDevice(UserDeviceModel model) async {
-    EasyLoading.show(status: t.common.loading);
+    AppLoading.show(status: t.common.loading);
     try {
       if (await ref
           .read(userDeviceProvider.notifier)
           .deleteDevice(model.deviceId)) {
-        EasyLoading.showSuccess(t.common.tipSuccess);
+        AppLoading.showSuccess(t.common.tipSuccess);
       } else {
-        EasyLoading.showError(t.common.tipFailed);
+        AppLoading.showError(t.common.tipFailed);
       }
     } catch (_) {
-      EasyLoading.dismiss();
-      EasyLoading.showError(t.common.tipFailed);
+      AppLoading.dismiss();
+      AppLoading.showError(t.common.tipFailed);
     }
   }
 
@@ -347,18 +347,18 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
   }
 
   Future<void> _forceOffline(UserDeviceModel model) async {
-    EasyLoading.show(status: t.common.loading);
+    AppLoading.show(status: t.common.loading);
     try {
       if (await ref
           .read(userDeviceProvider.notifier)
           .forceOffline(model.deviceId)) {
-        EasyLoading.showSuccess(t.common.forceOfflineCommandSent);
+        AppLoading.showSuccess(t.common.forceOfflineCommandSent);
       } else {
-        EasyLoading.showError(t.common.tipFailed);
+        AppLoading.showError(t.common.tipFailed);
       }
     } catch (_) {
-      EasyLoading.dismiss();
-      EasyLoading.showError(t.common.tipFailed);
+      AppLoading.dismiss();
+      AppLoading.showError(t.common.tipFailed);
     }
   }
 }

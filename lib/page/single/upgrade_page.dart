@@ -7,7 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -167,7 +167,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
       return true;
     }
     if (!(Platform.isAndroid || Platform.isIOS)) {
-      EasyLoading.show(status: t.common.permissionOnlySupportAndroidAndIos);
+      AppLoading.show(status: t.common.permissionOnlySupportAndroidAndIos);
       return false;
     }
     PermissionStatus status;
@@ -229,7 +229,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
         upgradeFromAppStore();
       }
     } else {
-      EasyLoading.showError(t.common.permissionAcquisitionFailed);
+      AppLoading.showError(t.common.permissionAcquisitionFailed);
     }
   }
 
@@ -272,7 +272,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   Future<void> upgradeFromAppStore() async {
     bool? isSuccess = await RUpgrade.upgradeFromAppStore(Env().iosAppId);
     if (isSuccess == false) {
-      EasyLoading.showError(t.common.iosAppIdUnknown(param: Env().iosAppId));
+      AppLoading.showError(t.common.iosAppIdUnknown(param: Env().iosAppId));
       return;
     }
     closeCallback();
@@ -303,7 +303,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
     try {
       final file = File(filePath);
       if (!await file.exists()) {
-        EasyLoading.showError(t.common.downloadFileNotFound);
+        AppLoading.showError(t.common.downloadFileNotFound);
         _retryDownload();
         return;
       }
@@ -356,7 +356,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
   void _retryDownload() {
     _hashRetryCount++;
     if (_hashRetryCount <= _maxHashRetry) {
-      EasyLoading.showError(
+      AppLoading.showError(
         t.common.downloadHashRetrying(
           retry: _hashRetryCount,
           max: _maxHashRetry,
@@ -364,7 +364,7 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
       );
       upgradeApk(widget.downLoadUrl);
     } else {
-      EasyLoading.showError(t.common.downloadHashFailed);
+      AppLoading.showError(t.common.downloadHashFailed);
       _hashRetryCount = 0;
     }
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/api/wallet_api.dart';
@@ -27,16 +27,16 @@ class _MessageTransferBuilderState
   Future<void> _handleAcceptTransfer(String transferId) async {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
-    EasyLoading.show(status: '正在收款...');
+    AppLoading.show(status: '正在收款...');
 
     final success = await WalletApi().acceptTransfer(transferId);
     if (success) {
-      EasyLoading.showSuccess('收款成功！');
+      AppLoading.showSuccess('收款成功！');
       ref.invalidate(walletProvider); // 刷新余额
       // 由于 WebSocket 会对账回显修改状态，在消息列表里该条消息会被重新触发状态构建
       setState(() => _isProcessing = false);
     } else {
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
       setState(() => _isProcessing = false);
     }
   }

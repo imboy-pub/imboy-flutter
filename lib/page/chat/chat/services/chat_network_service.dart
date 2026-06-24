@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xid/xid.dart';
@@ -338,7 +338,7 @@ class ChatNetworkService {
           e,
           stackTrace,
         );
-        EasyLoading.showToast(getE2EEErrorMessage(e));
+        AppLoading.showToast(getE2EEErrorMessage(e));
         if (obj.id.isNotEmpty) {
           await updateMessageStatus(obj.id, IMBoyMessageStatus.error);
         }
@@ -418,7 +418,7 @@ class ChatNetworkService {
             e,
             stackTrace,
           );
-          EasyLoading.showToast(getE2EEErrorMessage(e));
+          AppLoading.showToast(getE2EEErrorMessage(e));
           return false;
         }
       } else {

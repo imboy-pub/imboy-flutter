@@ -3,7 +3,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/avatar.dart' show Avatar;
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -291,7 +291,7 @@ class UserQrCodePage extends ConsumerWidget {
   ) async {
     final res = await RepaintBoundaryHelper().savePhoto(context, key, filename);
     if (res != null && ((res['isSuccess'] as bool?) ?? false)) {
-      EasyLoading.showSuccess(t.common.saveSuccess);
+      AppLoading.showSuccess(t.common.saveSuccess);
     }
   }
 }

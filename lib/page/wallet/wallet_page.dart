@@ -3,7 +3,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -97,7 +97,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
               final input = controller.text.trim();
               final yuan = double.tryParse(input);
               if (yuan == null || yuan < 1 || yuan > 10000) {
-                EasyLoading.showError(t.common.rechargeAmountError);
+                AppLoading.showError(t.common.rechargeAmountError);
                 return;
               }
               final amountFen = (yuan * 100).round();
@@ -175,24 +175,24 @@ class _WalletPageState extends ConsumerState<WalletPage> {
   /// 执行充值：创建订单 → 拉起支付（mock 即时入账 / 第三方唤起收银台）→ 轮询
   /// → 刷新余额。失败时按第三方唤起结果差异化提示。
   Future<void> _doRecharge(int amountFen, String method) async {
-    EasyLoading.show(status: t.main.payingDots);
+    AppLoading.show(status: t.main.payingDots);
     final ok = await ref
         .read(walletProvider.notifier)
         .recharge(amountFen, paymentMethod: method);
-    EasyLoading.dismiss();
+    AppLoading.dismiss();
     if (ok) {
-      EasyLoading.showSuccess(t.common.rechargeSuccess);
+      AppLoading.showSuccess(t.common.rechargeSuccess);
       return;
     }
     switch (ref.read(walletProvider).lastLaunchResult) {
       case PaymentLaunchResult.notConfigured:
-        EasyLoading.showToast(t.account.payMethodComingSoon);
+        AppLoading.showToast(t.account.payMethodComingSoon);
       case PaymentLaunchResult.cancelled:
-        EasyLoading.showToast(t.account.payCancelled);
+        AppLoading.showToast(t.account.payCancelled);
       case PaymentLaunchResult.failed:
       case PaymentLaunchResult.success:
       case null:
-        EasyLoading.showError(t.common.purchaseFailed);
+        AppLoading.showError(t.common.purchaseFailed);
     }
   }
 
@@ -455,7 +455,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           final s = services[i];
           return CupertinoButton(
             padding: EdgeInsets.zero,
-            onPressed: () => EasyLoading.showToast(t.common.comingSoon),
+            onPressed: () => AppLoading.showToast(t.common.comingSoon),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

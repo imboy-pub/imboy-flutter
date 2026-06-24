@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -209,12 +209,12 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                                   // 详情页面未打开，忽略
                                 }
 
-                                EasyLoading.showSuccess(t.common.tipSuccess);
+                                AppLoading.showSuccess(t.common.tipSuccess);
                                 if (context.mounted) {
                                   Navigator.of(context).pop();
                                 }
                               } else {
-                                EasyLoading.showError(t.common.tipFailed);
+                                AppLoading.showError(t.common.tipFailed);
                               }
                             }
                           } finally {

@@ -1,6 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/config/const.dart';
@@ -162,7 +162,7 @@ class UserApi extends HttpClient {
     if (resp.ok) {
       return true;
     }
-    EasyLoading.showError(resp.msg);
+    AppLoading.showError(resp.msg);
     return false;
   }
 
@@ -180,7 +180,7 @@ class UserApi extends HttpClient {
     if (resp.msg == 'have_set') {
       StorageService.to.remove(Keys.needSetPwd);
     }
-    EasyLoading.showError(resp.msg);
+    AppLoading.showError(resp.msg);
     return false;
   }
 
@@ -192,13 +192,13 @@ class UserApi extends HttpClient {
         iPrint(
           "> on UserApi/applyLogout failed: ${resp.msg}, code: ${resp.code}",
         );
-        EasyLoading.showError(resp.msg);
+        AppLoading.showError(resp.msg);
         return false;
       }
       return true;
     } on Object catch (e) {
       iPrint("> on UserApi/applyLogout error: $e");
-      EasyLoading.showError(t.common.logoutRequestFailedPleaseCheckNetwork);
+      AppLoading.showError(t.common.logoutRequestFailedPleaseCheckNetwork);
       return false;
     }
   }
@@ -219,13 +219,13 @@ class UserApi extends HttpClient {
       IMBoyHttpResponse resp = await get(API.userExportData);
       iPrint("> on UserApi/exportUserData resp: ${resp.payload.toString()}");
       if (!resp.ok) {
-        EasyLoading.showError(resp.msg);
+        AppLoading.showError(resp.msg);
         return null;
       }
       return resp.payload as Map<String, dynamic>?;
     } on Object catch (e) {
       iPrint("> on UserApi/exportUserData error: $e");
-      EasyLoading.showError(t.common.operationFailedAgainLater);
+      AppLoading.showError(t.common.operationFailedAgainLater);
       return null;
     }
   }

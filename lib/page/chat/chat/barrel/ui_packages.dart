@@ -9,7 +9,7 @@ export 'package:flutter/services.dart';
 
 // 状态管理
 export 'package:flutter_riverpod/flutter_riverpod.dart';
-export 'package:flutter_easyloading/flutter_easyloading.dart';
+export 'package:imboy/component/ui/app_loading.dart';
 
 // Flutter Chat UI (hide TimeAndStatus 和 CustomMessageBuilder 避免冲突)
 export 'package:flutter_chat_core/flutter_chat_core.dart'

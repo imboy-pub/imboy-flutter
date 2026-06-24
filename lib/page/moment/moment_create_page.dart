@@ -3,7 +3,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
 import 'package:imboy/page/moment/moment_friend_picker/moment_friend_picker_page.dart';
@@ -77,7 +77,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       // 注：media 不做自动恢复 —— 仅保留 URL 无法还原 type/cover，
       // 强行填充会让发布时校验误判。让用户重选即可。
     });
-    EasyLoading.showInfo(context.t.discovery.momentsDraftRestored);
+    AppLoading.showInfo(context.t.discovery.momentsDraftRestored);
   }
 
   Future<void> _saveFailedDraft(String content) async {
@@ -149,7 +149,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       }
     });
     if (url == null || url.isEmpty) {
-      EasyLoading.showError(context.t.common.momentsUploadFailed);
+      AppLoading.showError(context.t.common.momentsUploadFailed);
     }
   }
 
@@ -194,7 +194,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       }
     });
     if (url == null || url.isEmpty) {
-      EasyLoading.showError(context.t.common.momentsUploadFailed);
+      AppLoading.showError(context.t.common.momentsUploadFailed);
     }
   }
 
@@ -209,7 +209,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     if (_isSubmitting || _isUploading) return;
     final content = _contentController.text.trim();
     if (content.isEmpty && _media.isEmpty) {
-      EasyLoading.showInfo(context.t.common.momentsContentOrMediaRequired);
+      AppLoading.showInfo(context.t.common.momentsContentOrMediaRequired);
       return;
     }
 
@@ -225,7 +225,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
         momentMediaErrorMixed => t.chat.momentsMediaMixedImageAndVideo,
         _ => t.common.momentsPublishFailed,
       };
-      EasyLoading.showInfo(msg);
+      AppLoading.showInfo(msg);
       return;
     }
 
@@ -253,7 +253,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       // 发布失败 —— 持久化草稿避免用户白打字
       await _saveFailedDraft(content);
       if (!mounted) return;
-      EasyLoading.showError(context.t.common.momentsPublishFailed);
+      AppLoading.showError(context.t.common.momentsPublishFailed);
       return;
     }
 

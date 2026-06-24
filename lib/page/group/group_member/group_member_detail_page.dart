@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -70,7 +70,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        EasyLoading.showError(t.common.loadError);
+        AppLoading.showError(t.common.loadError);
       }
     }
   }
@@ -84,7 +84,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     final seconds = await _showDurationPicker();
     if (seconds == null || !mounted) return;
 
-    EasyLoading.show();
+    AppLoading.show();
     try {
       final result = await GroupMemberMuteService().mute(
         gid: widget.groupId,
@@ -92,7 +92,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
         durationSec: seconds,
       );
       if (!mounted) return;
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
 
       switch (result) {
         case MuteSuccess(:final muteUntilMs):
@@ -100,15 +100,15 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             _member = _member!.copyWith(muteUntilMs: muteUntilMs);
             _anyChange = true;
           });
-          EasyLoading.showSuccess(t.common.muteMemberSuccess);
+          AppLoading.showSuccess(t.common.muteMemberSuccess);
         case MuteValidationError():
-          EasyLoading.showError(t.common.muteMemberFailed);
+          AppLoading.showError(t.common.muteMemberFailed);
         case MuteApiFailure():
-          EasyLoading.showError(t.common.muteMemberFailed);
+          AppLoading.showError(t.common.muteMemberFailed);
       }
     } catch (e) {
-      EasyLoading.dismiss();
-      if (mounted) EasyLoading.showError(t.common.muteMemberFailed);
+      AppLoading.dismiss();
+      if (mounted) AppLoading.showError(t.common.muteMemberFailed);
     }
   }
 
@@ -119,14 +119,14 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     );
     if (confirmed != true || !mounted) return;
 
-    EasyLoading.show();
+    AppLoading.show();
     try {
       final result = await GroupMemberMuteService().unmute(
         gid: widget.groupId,
         userId: widget.userId,
       );
       if (!mounted) return;
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
 
       switch (result) {
         case UnmuteSuccess():
@@ -134,15 +134,15 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             _member = _member!.copyWith(clearMuteUntil: true);
             _anyChange = true;
           });
-          EasyLoading.showSuccess(t.common.unmuteMemberSuccess);
+          AppLoading.showSuccess(t.common.unmuteMemberSuccess);
         case UnmuteValidationError():
-          EasyLoading.showError(t.common.unmuteMemberFailed);
+          AppLoading.showError(t.common.unmuteMemberFailed);
         case UnmuteApiFailure():
-          EasyLoading.showError(t.common.unmuteMemberFailed);
+          AppLoading.showError(t.common.unmuteMemberFailed);
       }
     } catch (e) {
-      EasyLoading.dismiss();
-      if (mounted) EasyLoading.showError(t.common.unmuteMemberFailed);
+      AppLoading.dismiss();
+      if (mounted) AppLoading.showError(t.common.unmuteMemberFailed);
     }
   }
 

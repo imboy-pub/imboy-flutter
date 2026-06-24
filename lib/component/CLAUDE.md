@@ -90,7 +90,7 @@ if (response.ok) { print(response.payload); }
 | 包 | 用途 |
 |----|------|
 | `flutter_screenutil` | 屏幕适配 |
-| `flutter_easyloading` | Loading/Toast 提示 |
+| `AppLoading`(component/ui/app_loading.dart) | Loading/Toast 提示 |
 | `cached_network_image` | 图片缓存（勿直接用，走 `cachedImageProvider`） |
 | `image_picker` / `wechat_assets_picker` | 图片/资源选择 |
 | `video_compress` | 视频压缩 |

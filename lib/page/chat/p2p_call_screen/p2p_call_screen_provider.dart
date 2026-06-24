@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/enum.dart';
@@ -882,7 +882,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     Map<String, dynamic> turnCredential = await userApi.turnCredential();
     // 不在日志中输出 TURN 凭证（含 username/credential）
     if (turnCredential.isEmpty && from == 'openCallScreen') {
-      EasyLoading.showError(t.common.failedRequestPleaseCheckNetwork);
+      AppLoading.showError(t.common.failedRequestPleaseCheckNetwork);
       return null;
     } else if (turnCredential.isEmpty) {
       return null;

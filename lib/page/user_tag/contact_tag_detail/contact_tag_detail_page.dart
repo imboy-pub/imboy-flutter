@@ -1,7 +1,7 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/search.dart';
@@ -251,14 +251,14 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                         if (context.mounted) {
                                           Navigator.pop(context);
                                         }
-                                        EasyLoading.showSuccess(
+                                        AppLoading.showSuccess(
                                           t.common.tipSuccess,
                                         );
                                       } else {
                                         if (context.mounted) {
                                           Navigator.pop(context, false);
                                         }
-                                        EasyLoading.showError(
+                                        AppLoading.showError(
                                           t.common.tipFailed,
                                         );
                                       }
@@ -512,7 +512,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                         true,
                                                       );
                                                     }
-                                                    EasyLoading.showSuccess(
+                                                    AppLoading.showSuccess(
                                                       t.common.tipSuccess,
                                                     );
                                                   } else {
@@ -522,7 +522,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                                         false,
                                                       );
                                                     }
-                                                    EasyLoading.showError(
+                                                    AppLoading.showError(
                                                       t.common.tipFailed,
                                                     );
                                                   }

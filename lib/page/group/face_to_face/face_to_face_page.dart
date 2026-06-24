@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -38,9 +38,9 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
           onChanged: (value) async {
             notifier.updateResult(value);
             if (value.length == 4) {
-              EasyLoading.show();
+              AppLoading.show();
               Map<String, dynamic> res = await notifier.faceToFace(value);
-              EasyLoading.dismiss();
+              AppLoading.dismiss();
               notifier.updateErrorInfo(res['error'] as String? ?? '');
               String gid = res['gid'] as String? ?? '';
               if (gid.isNotEmpty && context.mounted) {

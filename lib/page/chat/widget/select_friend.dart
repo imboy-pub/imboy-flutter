@@ -2,7 +2,7 @@ import 'package:azlistview/azlistview.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lpinyin/lpinyin.dart';
 
@@ -301,7 +301,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               var connectivityResult = await Connectivity().checkConnectivity();
               if (connectivityResult.contains(ConnectivityResult.none)) {
                 String msg = t.common.tipConnectDesc;
-                EasyLoading.showInfo(' $msg');
+                AppLoading.showInfo(' $msg');
                 return;
               }
               List<ContactModel> contact = await ContactRepo().findFriend();

@@ -4,7 +4,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -260,7 +260,7 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
             // 使用当前语言环境（响应式更新）
             locale: _currentLocale.flutterLocale,
 
-            builder: EasyLoading.init(),
+            builder: AppLoading.init(),
             // 使用 Riverpod 主题系统（字体大小变化时会自动重建）
             theme: themeState.isDarkMode
                 ? ref.read(themeProvider.notifier).darkTheme

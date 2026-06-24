@@ -7,7 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:xid/xid.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:just_audio/just_audio.dart' as just_audio;
@@ -678,7 +678,7 @@ class ChatNotifier extends _$ChatNotifier {
     );
 
     if (path != null) {
-      EasyLoading.showToast(t.common.saveSuccess);
+      AppLoading.showToast(t.common.saveSuccess);
     }
   }
 

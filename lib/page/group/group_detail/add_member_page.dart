@@ -4,7 +4,7 @@ import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -245,13 +245,13 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
               child: ElevatedButton(
                 onPressed: state.selects.isNotEmpty
                     ? () async {
-                        EasyLoading.show(status: t.common.loading);
+                        AppLoading.show(status: t.common.loading);
                         int memberCount = state.selects.length;
                         iPrint("selects $memberCount");
                         bool res = await ref
                             .read(addMemberProvider.notifier)
                             .joinGroup(widget.groupId, state.selects);
-                        EasyLoading.dismiss();
+                        AppLoading.dismiss();
                         if (res && context.mounted) {
                           ref.read(addMemberProvider.notifier).resetData();
                           Navigator.of(context).pop();

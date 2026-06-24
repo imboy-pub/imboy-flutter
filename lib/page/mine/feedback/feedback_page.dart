@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
@@ -53,7 +53,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     if (_isSubmittingFeedback) return;
     BetterFeedback.of(context).show((UserFeedback feedback) async {
       if (feedback.text.isEmpty) {
-        EasyLoading.showError(t.common.feedbackContentRequired);
+        AppLoading.showError(t.common.feedbackContentRequired);
         return;
       }
       setState(() => _isSubmittingFeedback = true);
@@ -77,11 +77,11 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
               'screenshot': [uri],
             };
             if (await p.add(data)) {
-              EasyLoading.showSuccess(t.common.feedbackSuccessMsg);
+              AppLoading.showSuccess(t.common.feedbackSuccessMsg);
               _isInitialized = false;
               _initData();
             } else {
-              EasyLoading.showError(t.common.tipFailed);
+              AppLoading.showError(t.common.tipFailed);
             }
           },
           (_) {},
@@ -319,9 +319,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                   ref.read(feedbackPageProvider).itemList,
                 )..removeWhere((e) => e.feedbackId == model.feedbackId);
                 ref.read(feedbackPageProvider.notifier).setItemList(newList);
-                EasyLoading.showSuccess(t.common.tipSuccess);
+                AppLoading.showSuccess(t.common.tipSuccess);
               } else {
-                EasyLoading.showError(t.common.tipFailed);
+                AppLoading.showError(t.common.tipFailed);
               }
             },
             child: Text(t.common.buttonDelete),

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -101,7 +101,7 @@ class ApplyFriendNotifier extends _$ApplyFriendNotifier {
       "created_at": createdAt,
     };
 
-    EasyLoading.show(status: t.chat.sending);
+    AppLoading.show(status: t.chat.sending);
 
     try {
       IMBoyHttpResponse resp = await HttpClient.client.post(
@@ -124,14 +124,14 @@ class ApplyFriendNotifier extends _$ApplyFriendNotifier {
         };
 
         (NewFriendRepo()).save(saveData);
-        EasyLoading.showSuccess(t.main.sent);
+        AppLoading.showSuccess(t.main.sent);
         return true;
       } else {
-        EasyLoading.showError(t.common.networkFailureTryAgain);
+        AppLoading.showError(t.common.networkFailureTryAgain);
         return false;
       }
     } catch (e) {
-      EasyLoading.showError(t.common.networkFailureTryAgain);
+      AppLoading.showError(t.common.networkFailureTryAgain);
       return false;
     }
   }

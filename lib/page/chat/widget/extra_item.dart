@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,8 +41,7 @@ class ExtraItem extends StatelessWidget {
       color: AppColors.transparent,
       child: InkWell(
         onTap:
-            onPressed ??
-            () => EasyLoading.showToast(t.common.featureComingSoon),
+            onPressed ?? () => AppLoading.showToast(t.common.featureComingSoon),
         borderRadius: AppRadius.borderRadiusRegular,
         child: Container(
           width: width ?? 64,
@@ -199,7 +198,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
 
               if (result != null && context.mounted) {
                 if (result["image"] == null) {
-                  EasyLoading.showError(t.common.failedGetMapTryAgain);
+                  AppLoading.showError(t.common.failedGetMapTryAgain);
                   FocusScope.of(context).requestFocus(FocusNode());
                   return;
                 }

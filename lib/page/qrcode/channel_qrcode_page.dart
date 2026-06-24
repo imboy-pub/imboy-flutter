@@ -3,7 +3,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -305,7 +305,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
       "${channelId}_qrcode.png",
     );
     if (res != null && ((res['isSuccess'] as bool?) ?? false)) {
-      EasyLoading.showSuccess(t.common.saveSuccess);
+      AppLoading.showSuccess(t.common.saveSuccess);
     }
   }
 }

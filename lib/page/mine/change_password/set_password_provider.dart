@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -81,17 +81,17 @@ class SetPassword extends _$SetPassword {
   Future<bool> setPassword() async {
     String? error = passwordValidator(state.newPwd);
     if (error != null) {
-      EasyLoading.showError(error);
+      AppLoading.showError(error);
       return false;
     }
     if (strEmpty(state.newPwd)) {
-      EasyLoading.showError(
+      AppLoading.showError(
         t.common.errorRequired(param: t.account.newPassword),
       );
       return false;
     }
     if (state.retypePwd != state.newPwd) {
-      EasyLoading.showError(t.common.errorRetypePassword);
+      AppLoading.showError(t.common.errorRetypePassword);
       return false;
     }
 

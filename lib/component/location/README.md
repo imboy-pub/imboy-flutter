@@ -187,7 +187,7 @@ if (position == null) {
   // 3. 定位超时
   // 4. 其他系统错误
   
-  EasyLoading.showError('获取位置失败，请检查定位权限和设置');
+  AppLoading.showError('获取位置失败，请检查定位权限和设置');
   return;
 }
 ```

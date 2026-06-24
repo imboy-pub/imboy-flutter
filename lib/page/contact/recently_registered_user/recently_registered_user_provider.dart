@@ -1,6 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -62,7 +62,7 @@ class RecentlyRegisteredUserNotifier
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
       String msg = t.common.tipConnectDesc;
-      EasyLoading.showError(' $msg        ');
+      AppLoading.showError(' $msg        ');
       return [];
     }
 

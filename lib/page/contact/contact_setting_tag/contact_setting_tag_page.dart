@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -83,7 +83,7 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
                         widget.peerId,
                         trimmedText,
                       )) {
-                    EasyLoading.showSuccess(t.common.tipSuccess);
+                    AppLoading.showSuccess(t.common.tipSuccess);
                     widget.onRemarkChanged?.call(trimmedText);
                     if (context.mounted) Navigator.of(context).pop(trimmedText);
                   }

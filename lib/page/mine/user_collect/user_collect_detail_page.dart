@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
@@ -95,7 +95,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                       obj.info['payload']['text'] as String? ?? '';
                   if (txt.isNotEmpty) {
                     Clipboard.setData(ClipboardData(text: txt));
-                    EasyLoading.showToast(t.main.copied);
+                    AppLoading.showToast(t.main.copied);
                   }
                 },
                 iconColor: Theme.of(context).colorScheme.primary,
@@ -179,7 +179,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                     notifier.change(obj.kindId.toString());
                   });
                 } catch (e) {
-                  EasyLoading.showError(t.common.operationFailedAgainLater);
+                  AppLoading.showError(t.common.operationFailedAgainLater);
                 }
               },
               iconColor: Theme.of(context).colorScheme.secondary,

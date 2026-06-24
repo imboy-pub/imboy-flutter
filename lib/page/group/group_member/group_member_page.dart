@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -186,7 +186,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         setState(() {});
       }
     } catch (e) {
-      EasyLoading.showError(t.common.loadError);
+      AppLoading.showError(t.common.loadError);
     } finally {
       setState(() {
         _isLoading = false;

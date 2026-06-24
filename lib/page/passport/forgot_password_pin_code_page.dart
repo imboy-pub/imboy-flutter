@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -340,7 +340,7 @@ class _PinCodeVerificationPageState
                                     rePwd: state.retypePwd,
                                   );
                                   if (res == null) {
-                                    EasyLoading.showSuccess(
+                                    AppLoading.showSuccess(
                                       t.common.confirmRecoverSuccess,
                                     );
                                     if (!context.mounted) return;

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -250,7 +250,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
               bool res = await ref
                   .read(storageSpaceProvider.notifier)
                   .clearAllCache();
-              if (res) EasyLoading.showSuccess(t.common.tipSuccess);
+              if (res) AppLoading.showSuccess(t.common.tipSuccess);
             },
             child: Text(
               t.main.clean,

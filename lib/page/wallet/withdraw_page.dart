@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/wallet_api.dart';
@@ -34,18 +34,18 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
 
     final amountYuan = double.tryParse(_amountController.text) ?? 0.0;
     if (amountYuan < 1.0) {
-      EasyLoading.showError(t.common.withdrawAmountError);
+      AppLoading.showError(t.common.withdrawAmountError);
       return;
     }
     if (amountYuan > maxBalanceYuan) {
-      EasyLoading.showError(t.common.insufficientBalance);
+      AppLoading.showError(t.common.insufficientBalance);
       return;
     }
 
     final amountCents = (amountYuan * 100).toInt();
     final account = _accountController.text.trim();
 
-    EasyLoading.show(status: t.common.loading);
+    AppLoading.show(status: t.common.loading);
     final success = await WalletApi().withdraw(
       amount: amountCents,
       method: _selectedMethod,
@@ -53,12 +53,12 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
     );
 
     if (success) {
-      EasyLoading.showSuccess(t.common.withdrawSuccess);
+      AppLoading.showSuccess(t.common.withdrawSuccess);
       // 刷新钱包余额 / Refresh wallet state
       ref.invalidate(walletProvider);
       if (mounted) Navigator.pop(context);
     } else {
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
     }
   }
 

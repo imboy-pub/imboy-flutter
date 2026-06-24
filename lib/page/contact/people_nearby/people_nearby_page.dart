@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -136,7 +136,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                     _showVisibilityDialog(context, notifier);
                   } else {
                     notifier.makeMyselfUnVisible();
-                    EasyLoading.showSuccess(t.common.locationHidden);
+                    AppLoading.showSuccess(t.common.locationHidden);
                   }
                 },
               ),
@@ -350,7 +350,7 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
             onPressed: () {
               notifier.makeMyselfVisible();
               Navigator.pop(ctx);
-              EasyLoading.showSuccess(t.common.locationVisible);
+              AppLoading.showSuccess(t.common.locationVisible);
             },
             child: Text(t.common.buttonConfirm),
           ),

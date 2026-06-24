@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -99,8 +99,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               ImBoySettingsTile(
                 title: Text(t.contact.recommendToFriend),
                 leading: _buildIcon(Icons.share_outlined, AppColors.iosPurple),
-                onTap: () =>
-                    EasyLoading.showInfo(t.common.featureInDevelopment),
+                onTap: () => AppLoading.showInfo(t.common.featureInDevelopment),
               ),
             ],
           ),
@@ -157,7 +156,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
   }
 
   Future<void> _handleDenylistToggle(bool val) async {
-    EasyLoading.show(status: t.common.loading);
+    AppLoading.show(status: t.common.loading);
     final api = DenylistApi();
     final denylistRepo = UserDenylistRepo();
     bool res;
@@ -194,7 +193,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
       }
     }
 
-    EasyLoading.dismiss();
+    AppLoading.dismiss();
     if (res) {
       await ref
           .read(contactSettingProvider.notifier)
@@ -203,11 +202,11 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
             addToDenylist: val,
             peerData: {},
           );
-      EasyLoading.showSuccess(
+      AppLoading.showSuccess(
         val ? t.common.addedToDenylist : t.common.removedFromDenylist,
       );
     } else {
-      EasyLoading.showError(t.common.error);
+      AppLoading.showError(t.common.error);
     }
   }
 
@@ -229,14 +228,14 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
             isDestructiveAction: true,
             onPressed: () async {
               Navigator.pop(ctx);
-              EasyLoading.show(status: t.main.deleting);
+              AppLoading.show(status: t.main.deleting);
               if (await ref
                   .read(contactSettingProvider.notifier)
                   .deleteContact(widget.peerId)) {
-                EasyLoading.showSuccess(t.common.tipSuccess);
+                AppLoading.showSuccess(t.common.tipSuccess);
                 if (context.mounted) context.go('/bottom_navigation');
               } else {
-                EasyLoading.showError(t.common.error);
+                AppLoading.showError(t.common.error);
               }
             },
             child: Text(t.common.buttonConfirm),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/service/group_category_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -71,9 +71,9 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
 
       if (success) {
         setState(() => _categoryName = newName);
-        EasyLoading.showSuccess(t.groupCategory.categoryRenamed);
+        AppLoading.showSuccess(t.groupCategory.categoryRenamed);
       } else {
-        EasyLoading.showError(t.groupCategory.renameFailed);
+        AppLoading.showError(t.groupCategory.renameFailed);
       }
     }
   }
@@ -112,10 +112,10 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
       if (!mounted) return;
 
       if (success) {
-        EasyLoading.showSuccess(t.groupCategory.categoryDeleted);
+        AppLoading.showSuccess(t.groupCategory.categoryDeleted);
         Navigator.pop(context, true); // 告知父页面需要刷新
       } else {
-        EasyLoading.showError(t.groupCategory.deleteFailed);
+        AppLoading.showError(t.groupCategory.deleteFailed);
       }
     }
   }

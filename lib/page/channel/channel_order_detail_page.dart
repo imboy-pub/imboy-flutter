@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -203,7 +203,7 @@ class _OrderDetailBody extends ConsumerWidget {
         .refund(order.orderNo);
     if (!context.mounted) return;
     if (ok) {
-      EasyLoading.showSuccess(t.channel.refundSuccess);
+      AppLoading.showSuccess(t.channel.refundSuccess);
       ref.invalidate(channelOrderDetailProvider(order.orderNo));
       ref.invalidate(channelMyOrdersProvider);
     }

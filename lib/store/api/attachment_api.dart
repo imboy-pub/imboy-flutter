@@ -10,7 +10,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:mime/mime.dart';
 
 import 'package:imboy/component/http/http_client.dart';
@@ -466,10 +466,10 @@ class AttachmentApi {
       ),
       onSendProgress: (int sent, int total) {
         if (process && total > 0) {
-          EasyLoading.showProgress(sent / total, status: t.common.uploading);
+          AppLoading.showProgress(sent / total, status: t.common.uploading);
           if (sent == total) {
             Future<dynamic>.delayed(const Duration(milliseconds: 1500), () {
-              EasyLoading.dismiss();
+              AppLoading.dismiss();
             });
           }
         }
@@ -505,7 +505,7 @@ class AttachmentApi {
       }
     }
     if (process) {
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
     }
     throw Exception('PUT 直传 Garage 失败（已重试 $_putMaxAttempts 次）: $lastError');
   }

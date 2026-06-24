@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -216,9 +216,9 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                     tagName: obj.name,
                     scene: 'friend',
                   )) {
-                EasyLoading.showSuccess(t.common.tipSuccess);
+                AppLoading.showSuccess(t.common.tipSuccess);
               } else {
-                EasyLoading.showError(t.common.tipFailed);
+                AppLoading.showError(t.common.tipFailed);
               }
             },
             child: Text(t.common.buttonDelete),

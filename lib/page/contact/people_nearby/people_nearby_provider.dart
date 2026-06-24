@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -127,7 +127,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
 
       // 检查坐标是否有效（包括 "0.0", "0.0000000" 等无效坐标）
       if (!_isValidCoordinate(state.longitude, state.latitude)) {
-        EasyLoading.showInfo(
+        AppLoading.showInfo(
           "${t.common.failedGetLatLong}\n${t.common.notTurnedLocationService}\n${t.main.or} ${t.common.notAuthorizedLatLong}",
         );
         return;
@@ -175,7 +175,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
   Future<bool> makeMyselfVisible() async {
     // 检查坐标是否有效
     if (!_isValidCoordinate(state.longitude, state.latitude)) {
-      EasyLoading.showInfo(
+      AppLoading.showInfo(
         "${t.common.failedGetLatLong}\n${t.common.notTurnedLocationService}\n${t.main.or} ${t.common.notAuthorizedLatLong}",
       );
       return false;

@@ -1,4 +1,4 @@
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/error_code.dart';
@@ -47,7 +47,7 @@ class UserTagApi extends HttpClient {
       data: {"scene": scene, "tagId": tagId, "tagName": tagName},
     );
     if (resp.code == ErrorCode.ERROR) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok ? true : false;
   }
@@ -69,7 +69,7 @@ class UserTagApi extends HttpClient {
       data: {"scene": scene, "tag": tagName},
     );
     if (resp.code == ErrorCode.ERROR) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok ? (resp.payload['tagId'] as int) : 0;
   }

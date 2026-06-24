@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -51,11 +51,9 @@ class UserCollectApi extends HttpClient {
     );
     // 如果请求失败，显示详细错误信息
     if (!resp.ok) {
-      EasyLoading.showError(
-        resp.msg.isNotEmpty ? resp.msg : t.common.tipFailed,
-      );
+      AppLoading.showError(resp.msg.isNotEmpty ? resp.msg : t.common.tipFailed);
     }
-    EasyLoading.dismiss();
+    AppLoading.dismiss();
     return resp.ok ? true : false;
   }
 }

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -144,11 +144,11 @@ class LogoutAccountPage extends ConsumerWidget {
                 onTap: state.isLoading
                     ? null
                     : () async {
-                        EasyLoading.show(status: t.common.loading);
+                        AppLoading.show(status: t.common.loading);
                         final filePath = await ref
                             .read(logoutAccountProvider.notifier)
                             .exportUserData();
-                        EasyLoading.dismiss();
+                        AppLoading.dismiss();
                         if (filePath == null) return;
                         await SharePlus.instance.share(
                           ShareParams(

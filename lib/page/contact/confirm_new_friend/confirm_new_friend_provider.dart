@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -100,7 +100,7 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
       "payload": json.encode(payload),
     };
 
-    EasyLoading.show(status: t.chat.sending);
+    AppLoading.show(status: t.chat.sending);
 
     try {
       IMBoyHttpResponse resp = await HttpClient.client.post(
@@ -110,7 +110,7 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
       );
 
       if (resp.ok) {
-        EasyLoading.showSuccess(t.main.sent);
+        AppLoading.showSuccess(t.main.sent);
 
         // 修正好友申请状态
         await _receivedConfirmFriend({"from": to, "to": from});
@@ -127,11 +127,11 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
 
         return true;
       } else {
-        EasyLoading.showError(t.common.networkFailureTryAgain);
+        AppLoading.showError(t.common.networkFailureTryAgain);
         return false;
       }
     } catch (e) {
-      EasyLoading.showError(t.common.networkFailureTryAgain);
+      AppLoading.showError(t.common.networkFailureTryAgain);
       return false;
     }
   }

@@ -1,4 +1,4 @@
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -38,7 +38,7 @@ class LiveRoomApi extends HttpClient {
       data: {'title': title, 'cover': cover, 'tag_id': tagId, 'scene': scene},
     );
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
       return null;
     }
     return LiveRoomModel.fromJson(resp.payload as Map<String, dynamic>);
@@ -51,7 +51,7 @@ class LiveRoomApi extends HttpClient {
       data: {'room_id': roomId},
     );
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok;
   }
@@ -63,7 +63,7 @@ class LiveRoomApi extends HttpClient {
       data: {'room_id': roomId},
     );
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok;
   }

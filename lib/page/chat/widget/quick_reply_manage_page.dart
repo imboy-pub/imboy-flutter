@@ -8,7 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/chat_input_types.dart';
 import 'package:imboy/service/quick_reply_service.dart';
@@ -62,7 +62,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
 
   Future<void> _handleAdd() async {
     if (_replies.length >= QuickReplyService.maxEntries) {
-      EasyLoading.showToast(
+      AppLoading.showToast(
         t.chat.quickReplyMaxReached(
           max: QuickReplyService.maxEntries.toString(),
         ),
@@ -72,7 +72,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
     final text = await _promptText(title: t.common.quickReplyAddTitle);
     if (text == null || text.trim().isEmpty) return;
     if (_replies.contains(text.trim())) {
-      EasyLoading.showToast(t.chat.quickReplyDuplicate);
+      AppLoading.showToast(t.chat.quickReplyDuplicate);
       return;
     }
     await _service.add(_uid, text);
@@ -89,7 +89,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
     final trimmed = text.trim();
     if (trimmed.isEmpty || trimmed == original) return;
     if (_replies.any((r) => r == trimmed && r != original)) {
-      EasyLoading.showToast(t.chat.quickReplyDuplicate);
+      AppLoading.showToast(t.chat.quickReplyDuplicate);
       return;
     }
     await _service.updateAt(_uid, index, trimmed);

@@ -17,7 +17,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lpinyin/lpinyin.dart';
 
@@ -193,7 +193,7 @@ class _MomentFriendPickerPageState
     } on Exception {
       entry.loading = false;
       if (mounted) {
-        EasyLoading.showToast(t.momentFriendPicker.tagLoadFailed);
+        AppLoading.showToast(t.momentFriendPicker.tagLoadFailed);
         setState(() {});
       }
       return null;

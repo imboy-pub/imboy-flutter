@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/wallet_api.dart';
@@ -45,11 +45,11 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
 
     final amountYuan = double.tryParse(_amountController.text) ?? 0.0;
     if (amountYuan < 0.01) {
-      EasyLoading.showError(t.common.rechargeAmountError);
+      AppLoading.showError(t.common.rechargeAmountError);
       return;
     }
     if (amountYuan > maxBalanceYuan) {
-      EasyLoading.showError(t.common.insufficientBalance);
+      AppLoading.showError(t.common.insufficientBalance);
       return;
     }
 
@@ -59,7 +59,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
         ? _greetingController.text.trim()
         : t.common.greetingDefault;
 
-    EasyLoading.show(status: t.common.loading);
+    AppLoading.show(status: t.common.loading);
     final packetId = await WalletApi().sendRedPacket(
       amount: amountCents,
       count: count,
@@ -68,7 +68,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
     );
 
     if (packetId != null && packetId.isNotEmpty) {
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
       ref.invalidate(walletProvider); // 刷新余额
 
       // 将结果返回给上一个页面，在 ChatPage 触发 WebSocket 投递
@@ -83,7 +83,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
         });
       }
     } else {
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
     }
   }
 

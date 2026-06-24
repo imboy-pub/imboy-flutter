@@ -1,4 +1,4 @@
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/error_code.dart';
@@ -28,7 +28,7 @@ class GroupApi extends HttpClient {
       queryParameters: {"gid": gid},
     );
     if (resp.ok == false) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok ? resp.payload as Map<String, dynamic> : <String, dynamic>{};
   }
@@ -53,7 +53,7 @@ class GroupApi extends HttpClient {
       data: {'gid': gid, 'remark': remark},
     );
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok;
   }
@@ -61,7 +61,7 @@ class GroupApi extends HttpClient {
   Future<Map<String, dynamic>?> dissolve({required String gid}) async {
     IMBoyHttpResponse resp = await post(API.groupDissolve, data: {"gid": gid});
     if (resp.ok == false) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok ? resp.payload as Map<String, dynamic>? : null;
   }
@@ -81,7 +81,7 @@ class GroupApi extends HttpClient {
       },
     );
     if (resp.ok == false) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok ? resp.payload as Map<String, dynamic> : <String, dynamic>{};
   }
@@ -95,7 +95,7 @@ class GroupApi extends HttpClient {
       data: {"code": code, "gid": gid},
     );
     if (resp.ok == false) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok
         ? (resp.payload as Map<String, dynamic>)
@@ -119,7 +119,7 @@ class GroupApi extends HttpClient {
     data['gid'] = gid;
     IMBoyHttpResponse resp = await post(API.groupEdit, data: data);
     if (resp.code == ErrorCode.ERROR) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok ? true : false;
   }
@@ -130,7 +130,7 @@ class GroupApi extends HttpClient {
       data: {"scene": scene, "tag": tagName},
     );
     if (resp.code == ErrorCode.ERROR) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok ? resp.payload['tagId'] as int : 0;
   }

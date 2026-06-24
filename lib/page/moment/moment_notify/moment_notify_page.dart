@@ -9,7 +9,7 @@ library;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -91,7 +91,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
     ref.listen<MomentNotifyState>(momentNotifyProvider, (prev, next) {
       final msg = next.errorMessage;
       if (msg != null && msg.isNotEmpty && prev?.errorMessage != msg) {
-        EasyLoading.showToast(t.momentNotify.loadFailed);
+        AppLoading.showToast(t.momentNotify.loadFailed);
         ref.read(momentNotifyProvider.notifier).clearError();
       }
     });

@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -394,7 +394,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         await userRepo.changeSetting(newSetting);
         ref.invalidate(userRepoProvider);
       } else {
-        EasyLoading.showError(t.common.tipFailed);
+        AppLoading.showError(t.common.tipFailed);
       }
     } finally {
       if (mounted) setState(() => _isUpdatingAllowSearch = false);
@@ -404,16 +404,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   Future<void> _handleRefreshDeviceKey() async {
     setState(() => _isRefreshingKeys = true);
     try {
-      EasyLoading.showToast(t.account.refreshingDeviceKey);
+      AppLoading.showToast(t.account.refreshingDeviceKey);
       E2EEService.clearCache();
       await Future<void>.delayed(const Duration(milliseconds: 500));
       final currentUid = UserRepoLocal.to.currentUid;
       if (currentUid.isNotEmpty) {
         await E2EEService.getUserDevicePublicKeys(currentUid);
       }
-      EasyLoading.showSuccess(t.account.deviceKeyRefreshed);
+      AppLoading.showSuccess(t.account.deviceKeyRefreshed);
     } catch (e) {
-      EasyLoading.showError(t.common.tipFailed);
+      AppLoading.showError(t.common.tipFailed);
     } finally {
       if (mounted) setState(() => _isRefreshingKeys = false);
     }
@@ -453,16 +453,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           text: t.common.checkForUpdates,
           highlighted: true,
           onPressed: () async {
-            EasyLoading.show();
+            AppLoading.show();
             try {
               final info = await AppUpgradeService.to.manualCheck();
               if (info == null || !info.hasUpdate) {
-                EasyLoading.showInfo(t.common.nowNewVersion);
+                AppLoading.showInfo(t.common.nowNewVersion);
               }
             } catch (e) {
-              EasyLoading.showError(t.common.errorNetwork);
+              AppLoading.showError(t.common.errorNetwork);
             } finally {
-              EasyLoading.dismiss();
+              AppLoading.dismiss();
             }
           },
         ),

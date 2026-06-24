@@ -19,7 +19,7 @@ import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/payment_launcher.dart';
 import 'package:imboy/store/api/wallet_api.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
 import 'package:xid/xid.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -499,7 +499,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (bytes.isEmpty) return;
 
     setState(() => _isUploadingMedia = true);
-    EasyLoading.show(status: t.common.loading);
+    AppLoading.show(status: t.common.loading);
 
     try {
       final String mime = obj.mimeType;
@@ -531,20 +531,20 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             );
 
         if (success) {
-          EasyLoading.showSuccess(t.common.tipSuccess);
+          AppLoading.showSuccess(t.common.tipSuccess);
         } else {
-          EasyLoading.showError(t.channel.publishFailed);
+          AppLoading.showError(t.channel.publishFailed);
         }
       } else {
-        EasyLoading.showError(t.common.uploadFailed);
+        AppLoading.showError(t.common.uploadFailed);
       }
     } catch (e) {
-      EasyLoading.showError('发送语音失败: $e');
+      AppLoading.showError('发送语音失败: $e');
     } finally {
       if (mounted) {
         setState(() => _isUploadingMedia = false);
       }
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
     }
   }
 
@@ -1122,9 +1122,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   void _handleThirdPartyFailure(PaymentLaunchResult? result) {
     switch (result) {
       case PaymentLaunchResult.notConfigured:
-        EasyLoading.showToast(t.account.payMethodComingSoon);
+        AppLoading.showToast(t.account.payMethodComingSoon);
       case PaymentLaunchResult.cancelled:
-        EasyLoading.showToast(t.account.payCancelled);
+        AppLoading.showToast(t.account.payCancelled);
       case PaymentLaunchResult.failed:
       case PaymentLaunchResult.success:
       case null:

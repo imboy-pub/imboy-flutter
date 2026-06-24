@@ -108,8 +108,8 @@ UserRepoLocal.to.currentUid
 UserRepoLocal.to.currentUser
 
 // Toast
-EasyLoading.showToast('提示信息');
-EasyLoading.showSuccess('操作成功');
+AppLoading.showToast('提示信息');
+AppLoading.showSuccess('操作成功');
 
 // 刷新 Provider
 ref.read(myProvider.notifier).refresh();

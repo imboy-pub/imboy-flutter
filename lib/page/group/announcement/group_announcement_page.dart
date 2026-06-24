@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -44,7 +44,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
     ref.listen<GroupAnnouncementState>(provider, (prev, next) {
       final msg = next.errorMessage;
       if (msg != null && msg.isNotEmpty && prev?.errorMessage != msg) {
-        EasyLoading.showToast(t.common.groupAnnouncementLoadFailed);
+        AppLoading.showToast(t.common.groupAnnouncementLoadFailed);
         ref.read(provider.notifier).clearError();
       }
     });
@@ -337,12 +337,12 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                         expiredDateNotifier.value?.millisecondsSinceEpoch,
                   );
                   if (success) {
-                    EasyLoading.showToast(
+                    AppLoading.showToast(
                       t.common.groupAnnouncementPublishSuccess,
                     );
                     if (context.mounted) context.pop();
                   } else {
-                    EasyLoading.showToast(
+                    AppLoading.showToast(
                       t.common.groupAnnouncementPublishFailed,
                     );
                   }
@@ -378,10 +378,10 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                 announcement.id,
               );
               if (success) {
-                EasyLoading.showToast(t.common.groupAnnouncementDeleteSuccess);
+                AppLoading.showToast(t.common.groupAnnouncementDeleteSuccess);
                 if (context.mounted) context.pop();
               } else {
-                EasyLoading.showToast(t.common.groupAnnouncementDeleteFailed);
+                AppLoading.showToast(t.common.groupAnnouncementDeleteFailed);
               }
             },
             style: ElevatedButton.styleFrom(

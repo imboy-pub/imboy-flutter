@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/config/init.dart' show currentFontSize;
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -257,9 +257,9 @@ class FontSizePage extends ConsumerWidget {
                   await ref
                       .read(fontSizeProvider.notifier)
                       .applyFontSize(value);
-                  EasyLoading.showSuccess(t.common.fontSizeSettingUpdated);
+                  AppLoading.showSuccess(t.common.fontSizeSettingUpdated);
                 } catch (e) {
-                  EasyLoading.showError(t.common.settingFailedPleaseTryAgain);
+                  AppLoading.showError(t.common.settingFailedPleaseTryAgain);
                 }
               },
             ),

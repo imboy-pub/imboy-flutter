@@ -1,5 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/store/model/feedback_reply_model.dart';
 import 'package:imboy/store/api/feedback_api.dart';
@@ -53,9 +53,7 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      EasyLoading.showToast(
-        t.common.networkExceptionPlaseNeedNetworkToViewData,
-      );
+      AppLoading.showToast(t.common.networkExceptionPlaseNeedNetworkToViewData);
     }
     if (list.isNotEmpty) {
       return list;
@@ -113,9 +111,7 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      EasyLoading.showToast(
-        t.common.networkExceptionPlaseNeedNetworkToViewData,
-      );
+      AppLoading.showToast(t.common.networkExceptionPlaseNeedNetworkToViewData);
     }
     if (list.isNotEmpty) {
       return list;

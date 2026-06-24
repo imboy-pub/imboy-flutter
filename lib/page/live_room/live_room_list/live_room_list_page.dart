@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -87,13 +87,13 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
     if (confirmed != true || !mounted) return;
     final title = titleController.text.trim();
     if (title.isEmpty) {
-      EasyLoading.showToast(t.error.liveRoomTitleRequired);
+      AppLoading.showToast(t.error.liveRoomTitleRequired);
       return;
     }
 
-    EasyLoading.show(status: t.chat.liveRoomCreating);
+    AppLoading.show(status: t.chat.liveRoomCreating);
     final room = await _api.create(title: title);
-    EasyLoading.dismiss();
+    AppLoading.dismiss();
 
     if (!mounted) return;
     if (room == null) return; // create() 内部已显示错误

@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:audio_session/audio_session.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/services.dart'; // 添加触觉反馈
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:logger/logger.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -118,7 +118,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       try {
         var status = await Permission.microphone.request();
         if (status != PermissionStatus.granted) {
-          EasyLoading.showError(t.common.microphonePermissionNotObtained);
+          AppLoading.showError(t.common.microphonePermissionNotObtained);
           throw RecordingPermissionException(
             t.common.microphonePermissionNotObtained,
           );
@@ -128,7 +128,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         if (await Permission.storage.request().isDenied) {
           await Permission.storage.request();
           if ((await Permission.storage.status) != PermissionStatus.granted) {
-            EasyLoading.showError(t.common.storagePermissionNotObtained);
+            AppLoading.showError(t.common.storagePermissionNotObtained);
             throw RecordingPermissionException(
               t.common.storagePermissionNotObtained,
             );
@@ -230,7 +230,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
     }
 
     if (recordingDuration.inMilliseconds < 1000) {
-      EasyLoading.showToast(t.main.speakingTooShort);
+      AppLoading.showToast(t.main.speakingTooShort);
       isUp = true;
     }
 
@@ -291,16 +291,16 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   /// 处理语音转文字
   void _handleConvertToText(String path, Duration duration) {
     if (widget.onConvertToText == null) {
-      EasyLoading.showError("暂未配置转文字回调");
+      AppLoading.showError("暂未配置转文字回调");
       return;
     }
 
     // 1. 显示加载中
-    EasyLoading.show(status: '正在识别中...');
+    AppLoading.show(status: '正在识别中...');
 
     // 2. 模拟识别延迟（1.2秒，提供高级流畅动效感）
     Future.delayed(const Duration(milliseconds: 1200), () {
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
 
       if (!mounted) return;
 
@@ -600,14 +600,14 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         textShow = t.chat.chatHoldDownTalk;
       });
       if (recordingDuration.inMilliseconds < 1000) {
-        EasyLoading.showToast(t.main.speakingTooShort);
+        AppLoading.showToast(t.main.speakingTooShort);
       }
       recordingDuration = const Duration();
       waveform.clear();
     });
 
     // 显示提示
-    EasyLoading.showToast(t.common.recordingCancelled);
+    AppLoading.showToast(t.common.recordingCancelled);
   }
 
   /// 当切换到其他输入模式时调用

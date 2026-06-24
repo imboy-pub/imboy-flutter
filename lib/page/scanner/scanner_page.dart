@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -117,7 +117,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
     if (isUrl(barcodeStr) && isIMBoyQrcode) {
       IMBoyHttpResponse resp = await HttpClient.client.get(barcodeStr);
       if (!resp.ok) {
-        EasyLoading.showError(resp.msg);
+        AppLoading.showError(resp.msg);
         return;
       }
       Map<String, dynamic> payload = resp.payload as Map<String, dynamic>;

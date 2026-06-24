@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -51,7 +51,7 @@ class ScannerResultPage extends StatelessWidget {
                   onPressed: () {
                     // 已复制
                     Clipboard.setData(ClipboardData(text: scanResult));
-                    EasyLoading.showToast(t.main.copied);
+                    AppLoading.showToast(t.main.copied);
                   },
                   child: const Icon(Icons.copy_all),
                 ),

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar_list.dart' show AvatarList;
@@ -335,7 +335,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         } catch (_) {
                           if (mounted) {
                             setState(() => _noticeDisabled = prev);
-                            EasyLoading.showError(t.common.tipFailed);
+                            AppLoading.showError(t.common.tipFailed);
                           }
                         }
                       },
@@ -527,9 +527,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 await ref
                     .read(conversationProvider.notifier)
                     .conversationsList();
-                EasyLoading.showSuccess(t.common.tipSuccess);
+                AppLoading.showSuccess(t.common.tipSuccess);
               } else {
-                EasyLoading.showError(t.common.tipFailed);
+                AppLoading.showError(t.common.tipFailed);
               }
             },
           ),
@@ -560,7 +560,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   ? await GroupDetailService().dissolve(widget.groupId)
                   : await GroupDetailService().leave(widget.groupId);
               if (res) {
-                EasyLoading.showSuccess(t.common.tipSuccess);
+                AppLoading.showSuccess(t.common.tipSuccess);
                 nav.pop();
                 nav.pop();
               }
@@ -603,9 +603,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           targetId: widget.groupId,
           reason: val,
         )) {
-          EasyLoading.showSuccess(t.common.complaintSuccess);
+          AppLoading.showSuccess(t.common.complaintSuccess);
         } else {
-          EasyLoading.showError(t.common.complaintFailed);
+          AppLoading.showError(t.common.complaintFailed);
         }
       },
       child: Text(label),

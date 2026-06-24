@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:image/image.dart' as img;
 import 'package:xid/xid.dart';
 import 'package:mime/mime.dart';
@@ -77,7 +77,7 @@ class ChatAttachmentHandler {
   /// 安全拦截：如果用户被禁言，直接拦截消息创建与发送，并弹出 EasyLoading 提示 (C13)
   Future<bool> _sendMessage(Message message) async {
     if (isMutedCheck != null && isMutedCheck!()) {
-      EasyLoading.showError(t.chat.youAreMuted);
+      AppLoading.showError(t.chat.youAreMuted);
       return false;
     }
     return await onMessageCreated(message);
@@ -598,9 +598,9 @@ class ChatAttachmentHandler {
     );
     final res = await _sendMessage(message);
     if (res && context.mounted) {
-      EasyLoading.showSuccess(t.common.tipSuccess);
+      AppLoading.showSuccess(t.common.tipSuccess);
     } else if (context.mounted) {
-      EasyLoading.showError(t.common.tipFailed);
+      AppLoading.showError(t.common.tipFailed);
     }
   }
 

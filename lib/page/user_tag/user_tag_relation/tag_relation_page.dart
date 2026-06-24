@@ -4,7 +4,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -90,7 +90,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
       setState(() {
         _isLoading = false;
       });
-      EasyLoading.showError(t.common.loadingTagDataFailed);
+      AppLoading.showError(t.common.loadingTagDataFailed);
     }
   }
 
@@ -118,7 +118,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         _isSaving = true;
       });
 
-      EasyLoading.show(status: t.common.loading);
+      AppLoading.show(status: t.common.loading);
 
       final success = await ref
           .read(userTagRelationProvider.notifier)
@@ -130,22 +130,22 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
             tagIdByName: _tagIdByName,
           );
 
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
 
       if (success) {
-        EasyLoading.showSuccess(t.common.saveSuccess);
+        AppLoading.showSuccess(t.common.saveSuccess);
         // 触觉反馈
         HapticFeedback.lightImpact();
         if (mounted) {
           Navigator.of(context).pop(normalizeTagNames(_currentTags).join(','));
         }
       } else {
-        EasyLoading.showError(t.common.saveFailed);
+        AppLoading.showError(t.common.saveFailed);
       }
     } on Exception catch (e) {
       if (kDebugMode) debugPrint('_saveTags error: ${e.runtimeType}');
-      EasyLoading.dismiss();
-      EasyLoading.showError(t.common.saveFailed);
+      AppLoading.dismiss();
+      AppLoading.showError(t.common.saveFailed);
     } finally {
       setState(() {
         _isSaving = false;

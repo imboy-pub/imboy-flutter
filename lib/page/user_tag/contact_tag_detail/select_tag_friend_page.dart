@@ -3,7 +3,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/button.dart';
@@ -203,9 +203,9 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                   ref
                       .read(contactTagListProvider.notifier)
                       .updateTag(updatedTag);
-                  EasyLoading.showSuccess(t.common.tipSuccess);
+                  AppLoading.showSuccess(t.common.tipSuccess);
                 } else {
-                  EasyLoading.showError(t.common.tipFailed);
+                  AppLoading.showError(t.common.tipFailed);
                 }
               },
             ),

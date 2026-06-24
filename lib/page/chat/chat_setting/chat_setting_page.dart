@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/page/search/search_chat_page.dart';
@@ -156,7 +156,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                             Navigator.of(ctx).pop();
                             setState(() => _burnAfterMs = options[tempIndex]);
                             await _persistBurnSetting();
-                            EasyLoading.showToast(t.common.tipSuccess);
+                            AppLoading.showToast(t.common.tipSuccess);
                           },
                           child: Text(t.common.buttonConfirm),
                         ),
@@ -324,7 +324,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
   /// 获取当前加密模式（从会话选项或默认配置）
   EncryptionMode get _currentEncryptionMode {
     final modeStr = widget.options?['encryption_mode'] as String?;
-    return EncryptionModeExt.fromApiString(modeStr);
+    if (modeStr != null) return EncryptionModeExt.fromApiString(modeStr);
+    return EncryptionModeService
+        .current; // ponytail: fall back to global policy
   }
 
   /// 构建加密模式图标
@@ -363,7 +365,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         (v) async {
           setState(() => _muteEnabled = v);
           await _persistMuteSetting(v);
-          EasyLoading.showToast(v ? t.common.enabled : t.common.disabled);
+          AppLoading.showToast(v ? t.common.enabled : t.common.disabled);
         },
         icon: Icons.notifications_off_outlined,
         iconColor: Theme.of(context).colorScheme.primary,
@@ -375,7 +377,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         (v) async {
           setState(() => _burnEnabled = v);
           await _persistBurnSetting();
-          EasyLoading.showToast(v ? t.common.enabled : t.common.disabled);
+          AppLoading.showToast(v ? t.common.enabled : t.common.disabled);
         },
         icon: Icons.local_fire_department_outlined,
         iconColor: AppColors.getIosRed(Theme.of(context).brightness),
@@ -475,9 +477,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                     );
                     if (cid > 0) {
                       backDoRefresh = true;
-                      EasyLoading.showSuccess(t.common.tipSuccess);
+                      AppLoading.showSuccess(t.common.tipSuccess);
                     } else {
-                      EasyLoading.showError(t.common.tipFailed);
+                      AppLoading.showError(t.common.tipFailed);
                     }
                   },
                   style: ElevatedButton.styleFrom(

@@ -597,7 +597,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           errorType: error.errorType,
           message: error.message,
         )) {
-          EasyLoading.showToast(error.message);
+          AppLoading.showToast(error.message);
         }
       }, onError: (Object error) {});
 
@@ -622,7 +622,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         )) {
           return;
         }
-        EasyLoading.showToast(t.common.e2eePeerKeyChanged);
+        AppLoading.showToast(t.common.e2eePeerKeyChanged);
       }, onError: (Object error) {});
 
       // 监听禁言事件
@@ -967,22 +967,22 @@ class ChatPageState extends ConsumerState<ChatPage>
   Future<void> _onMessageRetry(String messageId) async {
     try {
       // 显示加载状态
-      EasyLoading.show(status: t.common.retryingSend);
+      AppLoading.show(status: t.common.retryingSend);
 
       final success = await ref
           .read(chatProvider.notifier)
           .retryMessage(messageId, _chatType);
 
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
 
       if (success) {
-        EasyLoading.showSuccess(t.common.retrySuccess);
+        AppLoading.showSuccess(t.common.retrySuccess);
       } else {
-        EasyLoading.showError(t.common.retryFailedPleaseCheckNetwork);
+        AppLoading.showError(t.common.retryFailedPleaseCheckNetwork);
       }
     } catch (e) {
-      EasyLoading.dismiss();
-      EasyLoading.showError('${t.common.retryAbnormal}: $e');
+      AppLoading.dismiss();
+      AppLoading.showError('${t.common.retryAbnormal}: $e');
     }
   }
 
@@ -1088,7 +1088,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         await _attachmentHandler.sendCollectMessage(context, result.info);
       } catch (e) {
         if (mounted) {
-          EasyLoading.showError(t.common.operationFailedAgainLater);
+          AppLoading.showError(t.common.operationFailedAgainLater);
         }
       }
     }
@@ -1280,7 +1280,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     switch (decision) {
       case SendDenyMuted():
-        EasyLoading.showInfo(t.common.mutedCannotSend);
+        AppLoading.showInfo(t.common.mutedCannotSend);
         return false;
       case SendDenyDebounced():
         iPrint('消息发送防抖触发：距离上次发送不足 ${_sendDebounceDuration.inMilliseconds}ms');
@@ -1334,7 +1334,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         case MentionResolveEmpty():
           break;
         case MentionResolveDeniedAll():
-          EasyLoading.showToast(t.mention.mentionAllDenied);
+          AppLoading.showToast(t.mention.mentionAllDenied);
           _currentMentionIds = [];
           return false;
       }
@@ -1436,7 +1436,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           final quoteText = (message.metadata?['quote_text'] ?? '') as String;
           if (quoteText.isNotEmpty) {
             Clipboard.setData(ClipboardData(text: quoteText));
-            EasyLoading.showToast(t.main.copied);
+            AppLoading.showToast(t.main.copied);
           }
         }
       },
@@ -1989,6 +1989,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       "peerTitle": widget.peerTitle,
       "peerSign": widget.peerSign,
       "conversationUk3": _conversationUk3,
+      "encryption_mode": EncryptionModeService.current.toApiString(),
     };
     final chatState = ref.read(chatProvider);
 
@@ -2136,12 +2137,12 @@ class ChatPageState extends ConsumerState<ChatPage>
   /// 旧私钥按 kid 归档（storage_secure C2 机制），历史密文不会因此丢失。
   Future<void> _refreshE2EEKeys() async {
     try {
-      EasyLoading.show(status: t.chat.e2eeRecreatingKey);
+      AppLoading.show(status: t.chat.e2eeRecreatingKey);
 
       // 1. 真正重新生成密钥对并上报新公钥到服务端
       final ok = await E2EEKeyService.regenerateAndReportDeviceKey();
       if (!ok) {
-        EasyLoading.showError(
+        AppLoading.showError(
           t.common.e2eeKeyRecreationFailed(error: 'report_failed'),
         );
         iPrint('E2EE: 密钥重建或上报失败');
@@ -2152,10 +2153,10 @@ class ChatPageState extends ConsumerState<ChatPage>
       E2EEService.clearCache();
       await StorageService.to.remove('e2ee_key_refresh_time');
 
-      EasyLoading.showSuccess(t.chat.e2eeKeyRecreated);
+      AppLoading.showSuccess(t.chat.e2eeKeyRecreated);
       iPrint('E2EE: 密钥已重新创建并上报');
     } on Exception catch (e) {
-      EasyLoading.showError(
+      AppLoading.showError(
         t.common.e2eeKeyRecreationFailed(error: e.toString()),
       );
       iPrint('E2EE: 密钥创建失败: $e');
@@ -2164,7 +2165,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   /// 重新登录
   void _relogin() {
-    EasyLoading.showToast(t.account.pleaseRelogin);
+    AppLoading.showToast(t.account.pleaseRelogin);
     // 跳转到首页（由路由守卫处理未登录重定向）
     context.go('/');
   }

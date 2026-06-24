@@ -3,7 +3,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -420,20 +420,20 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
 
   /// 下发"强制下线"S2C 指令
   Future<void> _forceOffline() async {
-    EasyLoading.show(status: t.common.loading);
+    AppLoading.show(status: t.common.loading);
     try {
       final ok = await ref
           .read(userDeviceProvider.notifier)
           .forceOffline(widget.model.deviceId);
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
       if (ok) {
-        EasyLoading.showSuccess(t.common.forceOfflineCommandSent);
+        AppLoading.showSuccess(t.common.forceOfflineCommandSent);
       } else {
-        EasyLoading.showError(t.common.tipFailed);
+        AppLoading.showError(t.common.tipFailed);
       }
     } catch (e) {
-      EasyLoading.dismiss();
-      EasyLoading.showError(t.common.tipFailed);
+      AppLoading.dismiss();
+      AppLoading.showError(t.common.tipFailed);
     }
   }
 
@@ -481,12 +481,12 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           value: widget.model.deviceName,
           field: 'input',
           callback: (newName) async {
-            EasyLoading.show(status: t.common.loading);
+            AppLoading.show(status: t.common.loading);
             try {
               final result = await ref
                   .read(userDeviceProvider.notifier)
                   .changeName(deviceId: widget.model.deviceId, name: newName);
-              EasyLoading.dismiss();
+              AppLoading.dismiss();
 
               final success = result['success'] as bool;
               if (success) {
@@ -497,12 +497,12 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
               } else {
                 // 显示具体错误消息
                 final errorMsg = result['errorMsg'] as String?;
-                EasyLoading.showError(errorMsg ?? t.common.tipFailed);
+                AppLoading.showError(errorMsg ?? t.common.tipFailed);
                 return false;
               }
             } catch (e) {
-              EasyLoading.dismiss();
-              EasyLoading.showError(t.common.tipFailed);
+              AppLoading.dismiss();
+              AppLoading.showError(t.common.tipFailed);
               return false;
             }
           },
@@ -537,22 +537,22 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
   Future<void> _deleteDevice(BuildContext context) async {
     Navigator.of(context).pop(); // 关闭对话框
 
-    EasyLoading.show(status: t.common.loading);
+    AppLoading.show(status: t.common.loading);
     try {
       bool res = await ref
           .read(userDeviceProvider.notifier)
           .deleteDevice(widget.model.deviceId);
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
 
       if (res && context.mounted) {
-        EasyLoading.showSuccess(t.common.tipSuccess);
+        AppLoading.showSuccess(t.common.tipSuccess);
         Navigator.of(context).pop(); // 返回设备列表页
       } else {
-        EasyLoading.showError(t.common.tipFailed);
+        AppLoading.showError(t.common.tipFailed);
       }
     } catch (e) {
-      EasyLoading.dismiss();
-      EasyLoading.showError(t.common.tipFailed);
+      AppLoading.dismiss();
+      AppLoading.showError(t.common.tipFailed);
     }
   }
 }

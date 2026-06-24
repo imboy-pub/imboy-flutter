@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/wallet_api.dart';
@@ -35,11 +35,11 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
 
     final amountYuan = double.tryParse(_amountController.text) ?? 0.0;
     if (amountYuan < 0.1) {
-      EasyLoading.showError(t.common.transferMinAmountError);
+      AppLoading.showError(t.common.transferMinAmountError);
       return;
     }
     if (amountYuan > maxBalanceYuan) {
-      EasyLoading.showError(t.common.insufficientBalance);
+      AppLoading.showError(t.common.insufficientBalance);
       return;
     }
 
@@ -48,7 +48,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
         ? _remarkController.text.trim()
         : t.common.transferDefaultRemark;
 
-    EasyLoading.show(status: t.common.loading);
+    AppLoading.show(status: t.common.loading);
     final transferId = await WalletApi().sendTransfer(
       receiverUid: widget.toUid,
       amount: amountCents,
@@ -56,7 +56,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
     );
 
     if (transferId != null && transferId.isNotEmpty) {
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
       ref.invalidate(walletProvider); // 刷新余额
 
       // 将结果返回给上一个页面，在 ChatPage 触发 WebSocket 投递
@@ -69,7 +69,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
         });
       }
     } else {
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
     }
   }
 

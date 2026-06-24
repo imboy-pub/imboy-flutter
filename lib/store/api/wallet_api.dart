@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -98,7 +98,7 @@ class WalletApi extends HttpClient {
     );
     if (kDebugMode) {}
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok;
   }
@@ -117,7 +117,7 @@ class WalletApi extends HttpClient {
       data: {'amount': amountFen, 'payment_method': paymentMethod},
     );
     if (!resp.ok || resp.payload == null) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
       return null;
     }
     return RechargeOrder.fromJson(
@@ -136,7 +136,7 @@ class WalletApi extends HttpClient {
       data: {'order_no': orderNo},
     );
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
       return null;
     }
     if (resp.payload is Map) {
@@ -179,7 +179,7 @@ class WalletApi extends HttpClient {
       },
     );
     if (!resp.ok || resp.payload == null) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
       return null;
     }
     return resp.payload['red_packet_id']?.toString();
@@ -193,7 +193,7 @@ class WalletApi extends HttpClient {
       data: {'red_packet_id': packetId},
     );
     if (!resp.ok || resp.payload == null) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
       return null;
     }
     return (resp.payload['grab_amount'] as num?)?.toInt();
@@ -222,7 +222,7 @@ class WalletApi extends HttpClient {
       data: {'receiver_uid': receiverUid, 'amount': amount, 'remark': remark},
     );
     if (!resp.ok || resp.payload == null) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
       return null;
     }
     return resp.payload['transfer_id']?.toString();
@@ -235,7 +235,7 @@ class WalletApi extends HttpClient {
       data: {'transfer_id': transferId},
     );
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok;
   }
@@ -251,7 +251,7 @@ class WalletApi extends HttpClient {
       data: {'amount': amount, 'payment_method': method, 'account': account},
     );
     if (!resp.ok) {
-      EasyLoading.showError(resp.msg);
+      AppLoading.showError(resp.msg);
     }
     return resp.ok;
   }

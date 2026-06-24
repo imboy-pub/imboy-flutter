@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/avatar_list.dart' show AvatarList;
 import 'package:imboy/page/group/face_to_face/face_to_face_provider.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -58,7 +58,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
 
   @override
   void dispose() {
-    EasyLoading.dismiss();
+    AppLoading.dismiss();
     ssMsg?.cancel();
     _localeSubscription?.cancel();
     NetworkMonitorService.to.removeNetworkChangeListener(_onNetworkChanged);
@@ -225,7 +225,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
               : () async {
                   setState(() => _isJoiningGroup = true);
                   try {
-                    EasyLoading.show(status: t.common.loading);
+                    AppLoading.show(status: t.common.loading);
                     final res = await ref
                         .read(faceToFaceProvider.notifier)
                         .faceToFaceSave(widget.gid, widget.code);
@@ -247,9 +247,9 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                       );
                     }
                   } catch (_) {
-                    EasyLoading.showError(t.common.tipFailed);
+                    AppLoading.showError(t.common.tipFailed);
                   } finally {
-                    EasyLoading.dismiss();
+                    AppLoading.dismiss();
                     if (mounted) setState(() => _isJoiningGroup = false);
                   }
                 },

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show showDialog, AlertDialog, TextButton;
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/service/websocket_events.dart';
@@ -708,7 +708,7 @@ class MessageS2CService {
       iPrint('[S2C] fire failed: $e');
     }
 
-    EasyLoading.showSuccess(t.common.confirmRecoverSuccess);
+    AppLoading.showSuccess(t.common.confirmRecoverSuccess);
     await UserRepoLocal.to.quitLogin();
 
     // 使用延迟确保 quitLogin 完全执行完毕
@@ -865,12 +865,12 @@ class MessageS2CService {
     // 同时用 EasyLoading 显示即时提示
     final minutes = event.remainingMinutes;
     if (minutes > 0) {
-      EasyLoading.showInfo(
+      AppLoading.showInfo(
         t.chat.youAreMutedWithTime(minutes: '$minutes'),
         duration: const Duration(seconds: 3),
       );
     } else {
-      EasyLoading.showInfo(
+      AppLoading.showInfo(
         t.chat.youAreMuted,
         duration: const Duration(seconds: 3),
       );
@@ -936,7 +936,7 @@ class MessageS2CService {
         );
         // 仅在有可读文案时展示轻量提示，避免骚扰
         if (durationText.isNotEmpty && adminNickname.isNotEmpty) {
-          EasyLoading.showInfo(
+          AppLoading.showInfo(
             '$adminNickname 禁言群成员 $durationText',
             duration: const Duration(seconds: 2),
           );
@@ -970,7 +970,7 @@ class MessageS2CService {
           ),
         );
         if (adminNickname.isNotEmpty) {
-          EasyLoading.showInfo(
+          AppLoading.showInfo(
             '$adminNickname 解除了群成员禁言',
             duration: const Duration(seconds: 2),
           );

@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
 import 'package:imboy/component/helper/func.dart';
@@ -342,7 +342,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     final String thumb =
                         obj.info['payload']['thumb']['uri'] as String? ?? '';
                     if (uri.isEmpty) {
-                      EasyLoading.showError(
+                      AppLoading.showError(
                         t
                             .common
                             .collectedVideoFormatIncorrectCannotFindVideoUri,
@@ -1082,12 +1082,12 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     if (kDebugMode) {}
 
     // 显示加载状态
-    EasyLoading.show(status: t.main.collecting);
+    AppLoading.show(status: t.main.collecting);
 
     bool res = await UserCollectApi().add(kind, msg.id, source, info);
 
     // 隐藏加载状态
-    EasyLoading.dismiss();
+    AppLoading.dismiss();
 
     if (kDebugMode) {}
 

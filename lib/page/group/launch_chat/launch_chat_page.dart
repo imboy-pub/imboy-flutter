@@ -1,7 +1,7 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -157,14 +157,14 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                       setState(() => _isCreatingGroup = true);
 
                       try {
-                        EasyLoading.show(status: t.common.loading);
+                        AppLoading.show(status: t.common.loading);
                         int memberCount = state.selects.length;
                         iPrint("state.selects $memberCount");
                         GroupModel? m = await ref
                             .read(launchChatProvider.notifier)
                             .groupAdd(state.selects);
                         if (m != null) {
-                          EasyLoading.dismiss();
+                          AppLoading.dismiss();
                           ref.read(launchChatProvider.notifier).resetData();
                           if (context.mounted) {
                             // 路由 /chat/:peerId 从 path param 读 peerId；
@@ -182,12 +182,12 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                             );
                           }
                         } else {
-                          EasyLoading.dismiss();
-                          EasyLoading.showError(t.common.tipFailed);
+                          AppLoading.dismiss();
+                          AppLoading.showError(t.common.tipFailed);
                         }
                       } catch (e) {
-                        EasyLoading.dismiss();
-                        EasyLoading.showError(t.common.tipFailed);
+                        AppLoading.dismiss();
+                        AppLoading.showError(t.common.tipFailed);
                         iPrint("groupAdd error: ${e.runtimeType}");
                       } finally {
                         // 恢复创建状态

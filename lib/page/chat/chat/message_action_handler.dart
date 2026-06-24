@@ -9,7 +9,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -70,7 +70,7 @@ class MessageActionHandler {
   /// 编辑消息
   Future<void> editMessage(Message message) async {
     if (isMutedCheck != null && isMutedCheck!()) {
-      EasyLoading.showError(t.chat.youAreMuted);
+      AppLoading.showError(t.chat.youAreMuted);
       return;
     }
     if (message is TextMessage) {
@@ -100,7 +100,7 @@ class MessageActionHandler {
     String emoji,
   ) async {
     if (isMutedCheck != null && isMutedCheck!()) {
-      EasyLoading.showError(t.chat.youAreMuted);
+      AppLoading.showError(t.chat.youAreMuted);
       return;
     }
     try {
@@ -218,7 +218,7 @@ class MessageActionHandler {
   /// 复制消息文本
   void copyMessageText(TextMessage msg) {
     Clipboard.setData(ClipboardData(text: msg.text));
-    EasyLoading.showToast(t.main.copied);
+    AppLoading.showToast(t.main.copied);
   }
 
   /// 保存消息内容
@@ -244,7 +244,7 @@ class MessageActionHandler {
     String tb = MessageRepo.getTableName(_chatType);
     final collectNotifier = UserCollectNotifier();
     bool res = await collectNotifier.add(tb: tb, msg: msg);
-    EasyLoading.showToast(
+    AppLoading.showToast(
       res ? t.main.collected : t.common.operationFailedAgainLater,
     );
   }
@@ -257,13 +257,13 @@ class MessageActionHandler {
       createdAtMs: createdAtMs,
       nowMs: DateTime.now().millisecondsSinceEpoch,
     )) {
-      EasyLoading.showError(t.common.revokeExpired);
+      AppLoading.showError(t.common.revokeExpired);
       return;
     }
 
     try {
       // 显示加载状态
-      EasyLoading.show(status: t.common.revoking);
+      AppLoading.show(status: t.common.revoking);
 
       iPrint('🔍 撤回消息: msgId=${msg.id}, type=$_chatType');
 
@@ -274,19 +274,19 @@ class MessageActionHandler {
       );
       iPrint('🔍 撤回消息发送结果: $result');
 
-      EasyLoading.dismiss();
+      AppLoading.dismiss();
 
       if (result) {
-        EasyLoading.showSuccess(t.common.revokeSuccess);
+        AppLoading.showSuccess(t.common.revokeSuccess);
         iPrint('🔍 撤回请求发送完成，等待服务端确认');
       } else {
-        EasyLoading.showError(
+        AppLoading.showError(
           '${t.common.revokeFailed}, ${t.common.pleaseCheckNetworkConnection}',
         );
       }
     } catch (e) {
-      EasyLoading.dismiss();
-      EasyLoading.showError(t.common.operationFailedAgainLater);
+      AppLoading.dismiss();
+      AppLoading.showError(t.common.operationFailedAgainLater);
     }
   }
 

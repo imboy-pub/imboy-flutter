@@ -13,7 +13,7 @@ library;
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -41,7 +41,7 @@ Future<bool> requestLocationPermission() async {
 
     if (!isEnabled) {
       // 权限已授予，但位置服务未开启
-      EasyLoading.showInfo(t.common.notTurnedLocationService);
+      AppLoading.showInfo(t.common.notTurnedLocationService);
       // 引导用户开启位置服务
       // openAppSettings(); // 可选：打开设置页面
       return false;
@@ -59,18 +59,18 @@ Future<bool> requestLocationPermission() async {
       if (kDebugMode) {}
 
       if (!isEnabled) {
-        EasyLoading.showInfo(t.common.notTurnedLocationService);
+        AppLoading.showInfo(t.common.notTurnedLocationService);
         return false;
       }
       return true;
     } else if (status == PermissionStatus.permanentlyDenied) {
       // 用户永久拒绝，提示去设置
-      EasyLoading.showInfo(t.common.noPermission);
+      AppLoading.showInfo(t.common.noPermission);
       // openAppSettings(); // 可选：引导用户打开设置
       return false;
     } else {
       // 用户拒绝
-      EasyLoading.showInfo(t.common.noPermission);
+      AppLoading.showInfo(t.common.noPermission);
       return false;
     }
   }
@@ -88,7 +88,7 @@ Future<bool> requestPhotoPermission() async {
     if (status.isGranted) {
       return true;
     } else {
-      EasyLoading.showInfo(t.common.noPermission);
+      AppLoading.showInfo(t.common.noPermission);
       return false;
     }
   }
@@ -98,12 +98,12 @@ Future<bool> requestPhotoPermission() async {
       return true;
     } else {
       // 权限被拒绝，提示用户
-      EasyLoading.showInfo(t.common.noPermission);
+      AppLoading.showInfo(t.common.noPermission);
       return false;
     }
   } on Exception {
     if (kDebugMode) {}
-    EasyLoading.showInfo(t.common.permissionAcquisitionFailed);
+    AppLoading.showInfo(t.common.permissionAcquisitionFailed);
     return false;
   }
 }
@@ -123,13 +123,13 @@ Future<bool> requestCameraPermission() async {
       if (status == PermissionStatus.granted) {
         return true;
       } else {
-        EasyLoading.showInfo(t.common.noPermission);
+        AppLoading.showInfo(t.common.noPermission);
         return false;
       }
     }
   } on Exception {
     if (kDebugMode) {}
-    EasyLoading.showInfo(t.common.permissionAcquisitionFailed);
+    AppLoading.showInfo(t.common.permissionAcquisitionFailed);
     return false;
   }
 }
