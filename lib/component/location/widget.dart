@@ -665,7 +665,9 @@ mixin _BLoCMixin on State<MapLocationPicker> {
   // poi流
   final poiStream = StreamController<List<AMapPosition>>();
   // 是否在我的位置
-  final _onMyLocation = StreamController<bool>();
+  // ponytail: broadcast 流——StreamBuilder 在 hot reload/重渲染时会重新订阅，
+  // 单订阅流会抛 "Stream has already been listened to"。
+  final _onMyLocation = StreamController<bool>.broadcast();
   @override
   void dispose() {
     poiStream.close();

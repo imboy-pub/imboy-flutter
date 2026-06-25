@@ -717,26 +717,3 @@ abstract class ChannelMessageType {
     return channelMsgType;
   }
 }
-
-/// 频道 S2C 动作常量
-///
-/// 用于频道相关的 S2C 消息的 `action` 字段
-abstract class ChannelS2CAction {
-  /// 频道消息推送
-  static const String channelMessage = 'channel_message';
-
-  /// 频道订阅通知
-  static const String channelSubscribed = 'channel_subscribed';
-
-  /// 频道取消订阅通知
-  static const String channelUnsubscribed = 'channel_unsubscribed';
-
-  /// 频道信息更新
-  static const String channelUpdated = 'channel_updated';
-
-  /// 频道删除通知
-  static const String channelDeleted = 'channel_deleted';
-
-  /// 频道新消息计数
-  static const String channelUnreadCount = 'channel_unread_count';
-}

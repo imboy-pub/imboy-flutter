@@ -8,7 +8,6 @@ import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 // 导出语言辅助工具，方便其他文件使用
 export 'locale_helper.dart';
@@ -446,34 +445,4 @@ String formatBytes(int size, {int fractionDigits = 2, int num = 1024}) {
   if (size <= 0) return '0 B';
   final multiple = (math.log(size) / math.log(num)).floor();
   return '${(size / math.pow(num, multiple)).toStringAsFixed(fractionDigits)} ${['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][multiple]}';
-}
-
-/// 获取本地主题配置
-/// 使用 ThemeManager 获取当前主题模式
-ThemeMode getLocalProfileAboutThemeModel({
-  bool isUserCache = true,
-  int themeType = 0,
-}) {
-  // 优先使用 ThemeManager 的状态
-  final themeManager = ThemeManager.instance;
-
-  if (isUserCache) {
-    // 从 ThemeManager 获取当前主题模式
-    if (themeManager.followSystemTheme) {
-      return ThemeMode.system;
-    }
-    return themeManager.isDarkMode ? ThemeMode.dark : ThemeMode.light;
-  }
-
-  // 使用传入的 themeType 参数（兼容旧代码）
-  iPrint("getLocalProfileAboutThemeModel $themeType");
-  if (themeType == 0) {
-    return ThemeMode.light;
-  } else if (themeType == 1) {
-    return ThemeMode.dark;
-  } else if (themeType == 2) {
-    return ThemeMode.system;
-  } else {
-    return ThemeMode.system;
-  }
 }

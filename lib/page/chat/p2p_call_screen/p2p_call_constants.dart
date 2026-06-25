@@ -42,13 +42,6 @@ class DataChannelConfig {
   static const String defaultLabel = 'fileTransfer';
 }
 
-/// TURN 服务器配置
-class TurnServerConfig {
-  /// 默认 TTL（秒）
-  /// 服务器凭证有效期
-  static const int defaultTtl = 86400; // 24 小时
-}
-
 /// UI 布局配置
 class CallUILayoutConfig {
   /// 本地视频初始 Y 坐标

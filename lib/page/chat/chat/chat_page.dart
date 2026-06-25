@@ -1829,6 +1829,11 @@ class ChatPageState extends ConsumerState<ChatPage>
                 index: index,
                 showStatus: false,
                 showTime: true,
+                // ponytail: message.source 是 Garage object_key（非 URL），
+                // 必须走 cachedImageProvider → IMBoyCachedImageProvider → viewUrl 授权；
+                // 否则 FlyerChatImageMessage 默认用 CachedNetworkImage 直传 object_key，
+                // cross_cache 无法识别 scheme → "Invalid source: cannot be processed"。
+                customImageProvider: cachedImageProvider(message.source),
               ),
             );
           },

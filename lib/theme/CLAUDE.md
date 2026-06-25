@@ -117,14 +117,13 @@ GetMaterialApp(
 
 ### `Color(0x` 收尾
 - **范围**：非 `theme/` 目录、非 `.g.dart` 生成物的源文件。
-- **原始**：7 处硬编码颜色（splash 3 / web_view 1 / shimmer_box 2 / tag 1；另有 1 处在注释中忽略）。
+- **原始**：6 处硬编码颜色（splash 3 / web_view 1 / shimmer_box 2；另有 1 处在注释中忽略）。tag.dart 已作为死文件删除。
 - **已消除 4 处**（值精确相等、零视觉变更、`dart analyze` 零 issue）：
   - `splash_page.dart`：`0x14FFFFFF`→`overlayLight`、`0x1FFFFFFF`→`overlayLightStrong`、渐变末端 `0x00FFFFFF`→`overlayWhiteTransparent`
   - `web_view.dart`：`0x00000000`→`transparent`（已补 import）
-- **剩 3 处待真机定夺**（现成别名值 ≠ 原值，属视觉变更，**勿当机械任务批量改**）：
+- **剩 2 处待真机定夺**（现成别名值 ≠ 原值，属视觉变更，**勿当机械任务批量改**）：
   - `component/ui/shimmer_box.dart:17` `baseColor = 0xFFE0E0E0`（vs 拟用 `shimmerBase` 0xFFEDEDED）
   - `component/ui/shimmer_box.dart:18` `highlightColor = 0xFFF5F5F5`（vs `shimmerHighlight` 0xFFF2F2F7）
-  - `component/ui/tag.dart:17` `backgroundColor = 0xfff8f8f8`（vs `tagBackground` 0xFFEDEDED）
   - 处理方案二选一：A 采纳别名向语义色收敛（真机暗/亮各扫一眼确认）；B 新增精确 token 保原值。
 
 ### 存量现状（本轮未动，仅记账）

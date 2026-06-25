@@ -196,7 +196,6 @@ dependencies:
   lpinyin: ^2.0.3                    # Chinese pinyin conversion
   intl: ^0.20.2                      # Internationalization utilities
   feedback: ^3.2.0                   # Feedback collection UI
-#characters: ^1.4.1                 # Character utilities (pinned by Flutter SDK)
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 🏗️ State Management & Navigation                                   │

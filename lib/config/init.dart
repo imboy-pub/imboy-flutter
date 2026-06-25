@@ -55,10 +55,6 @@ import 'routes.dart';
 
 IMBoyCacheManager cacheManager = IMBoyCacheManager();
 
-typedef VoidCallbackConfirm = void Function(bool isOk);
-
-enum ClickType { select, open }
-
 bool p2pCallScreenOn = false;
 
 var logger = Logger();

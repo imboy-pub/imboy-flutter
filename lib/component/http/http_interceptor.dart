@@ -19,6 +19,16 @@ bool isPublicStorageRequest(Uri requestUri, String publicBaseUrl) {
   return host.isNotEmpty && requestUri.host == host;
 }
 
+/// 请求是否为 S3 presigned URL（携带 SigV4 `X-Amz-Signature` 查询签名）。
+///
+/// presigned 自带签名鉴权，**禁止**再附加 App JWT：其 host 是 S3 API 端点
+/// （本地 LAN IP / 生产 endpoint），不等于 publicBaseUrl，[isPublicStorageRequest]
+/// 漏判 → 注入 authorization 头会被 nginx 误路由到 3900、Garage 当 SigV4 → 400。
+@visibleForTesting
+bool isPresignedRequest(Uri requestUri) {
+  return requestUri.queryParameters.containsKey('X-Amz-Signature');
+}
+
 class IMBoyInterceptor extends Interceptor {
   @override
   Future<void> onRequest(
@@ -31,7 +41,14 @@ class IMBoyInterceptor extends Interceptor {
 
     // 公开/预签名 Garage 资源不注入 App JWT（避免被 nginx 误判为 S3 API 请求
     // 而 400，且不向存储/CDN 泄露用户 token）。
-    if (!isPublicStorageRequest(options.uri, Env.publicBaseUrl)) {
+    //
+    // presigned 请求（带 X-Amz-Signature 查询签名）自带 SigV4 鉴权，其 host 是 S3 API
+    // 端点（本地 LAN IP / 生产 endpoint），**不等于** publicBaseUrl，故 isPublicStorageRequest
+    // 漏判 → 须按签名参数单独跳过。否则 authorization 头会让 nginx 把 presigned 请求
+    // 误路由到 S3 API(3900)，Garage 把 JWT 当 SigV4 → 400 错误体（聊天附件无法加载）。
+    final bool isPresigned = isPresignedRequest(options.uri);
+    if (!isPublicStorageRequest(options.uri, Env.publicBaseUrl) &&
+        !isPresigned) {
       String tk = await UserRepoLocal.to.accessToken;
       if (strNoEmpty(tk)) {
         options.headers[Keys.tokenKey] = tk;

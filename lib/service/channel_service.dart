@@ -967,20 +967,3 @@ class ChannelService {
     }
   }
 }
-
-/// 频道事件常量
-///
-/// 用于 EventBus 事件通知
-abstract class ChannelEvents {
-  /// 新消息事件
-  static const String newMessage = 'channel_new_message';
-
-  /// 订阅状态变更事件
-  static const String subscriptionChanged = 'channel_subscription_changed';
-
-  /// 未读计数变更事件
-  static const String unreadCountChanged = 'channel_unread_count_changed';
-
-  /// 频道信息更新事件
-  static const String channelUpdated = 'channel_info_updated';
-}

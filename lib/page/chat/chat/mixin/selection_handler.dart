@@ -10,9 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// 类型定义
-typedef StateSetter = void Function(VoidCallback fn);
-
 /// 选择器处理器 Mixin
 ///
 /// 提供文件、收藏、名片、位置等选择功能的简化接口
