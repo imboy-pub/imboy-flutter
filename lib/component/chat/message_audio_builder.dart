@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 
@@ -27,18 +26,15 @@ class VoiceMessageTypePlugin implements MessageTypePlugin {
 
   @override
   Widget build(MessageViewModel message, MessageRenderContext context) {
-    return Padding(
-      padding: MessageSpacing.bubblePaddingSymmetric,
-      child: AudioMessageBuilder(
-        type: context.type,
-        message: message,
-        user: context.user,
-        onPlayPause: context.onPlayPause,
-        isPlaying: context.isPlaying,
-        isPaused: context.isPaused,
-        currentPositionMs: context.currentPositionMs,
-        currentDurationMs: context.currentDurationMs,
-      ),
+    return AudioMessageBuilder(
+      type: context.type,
+      message: message,
+      user: context.user,
+      onPlayPause: context.onPlayPause,
+      isPlaying: context.isPlaying,
+      isPaused: context.isPaused,
+      currentPositionMs: context.currentPositionMs,
+      currentDurationMs: context.currentDurationMs,
     );
   }
 }

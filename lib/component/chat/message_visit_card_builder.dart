@@ -64,18 +64,18 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
         final bool userIsAuthor = widget.user.id == msg.authorId;
         final isDark = Theme.of(context).brightness == Brightness.dark;
 
-        // 使用与语音消息相同的背景色
-        Color bgColor, textColor, subTextColor;
+        // 统一背景色走 AppColors getChatBubbleBackground，对齐 DESIGN.md 第 9/10 章
+        final Color bgColor = AppColors.getChatBubbleBackground(
+          userIsAuthor,
+          false,
+          Theme.of(context).brightness,
+        );
+
+        Color textColor, subTextColor;
         if (userIsAuthor) {
-          bgColor = isDark
-              ? AppColors.darkSentMessageBackground
-              : AppColors.lightSentMessageBackground;
           textColor = Colors.white;
           subTextColor = Colors.white70;
         } else {
-          bgColor = isDark
-              ? AppColors.darkReceivedMessageBackground
-              : AppColors.lightSurfaceContainer;
           textColor = isDark
               ? AppColors.darkTextPrimary
               : AppColors.lightTextPrimary;
@@ -87,9 +87,10 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
         return Container(
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(
-              MessageSpacing.bubbleBorderRadius,
-            ),
+            borderRadius: MessageSpacing.getBubbleBorderRadius(userIsAuthor),
+            border: !userIsAuthor && !isDark
+                ? Border.all(color: AppColors.iosGray5, width: 0.5)
+                : null,
           ),
           child: Container(
             width: 240,

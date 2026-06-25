@@ -8,6 +8,8 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/component/chat/message_spacing.dart';
 
 /// 红包消息展现层 / Red Packet Message Builder
 class MessageRedPacketBuilder extends ConsumerWidget {
@@ -21,17 +23,21 @@ class MessageRedPacketBuilder extends ConsumerWidget {
     final greeting = metadata['greeting']?.toString() ?? '恭喜发财，大吉大利';
     final packetId = metadata['id']?.toString() ?? '';
 
+    final isSentByMe = message.authorId == UserRepoLocal.to.currentUid;
+    final borderRadius = MessageSpacing.getBubbleBorderRadius(isSentByMe);
+    const Color redPacketColor = AppColors.redPacketColor; // 柔和的专业红包红
+
     return Container(
       width: 240,
       decoration: BoxDecoration(
-        color: AppColors.iosRed,
-        borderRadius: AppRadius.borderRadiusMedium,
+        color: redPacketColor,
+        borderRadius: borderRadius,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _handleOpenRedPacket(context, ref, packetId),
-          borderRadius: AppRadius.borderRadiusMedium,
+          borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,

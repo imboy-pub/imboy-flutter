@@ -6,7 +6,6 @@ import 'package:imboy/component/chat/message_image_builder.dart';
 import 'package:imboy/component/chat/message_image_multi_builder.dart';
 import 'package:imboy/component/chat/message_location_builder.dart';
 import 'package:imboy/component/chat/message_quote_builder.dart';
-import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/chat/message_unsupported_builder.dart';
 import 'package:imboy/component/chat/message_video_builder.dart';
 import 'package:imboy/component/chat/message_visit_card_builder.dart';
@@ -116,9 +115,6 @@ class _VisitCardMessageTypePlugin implements MessageTypePlugin {
 
   @override
   Widget build(MessageViewModel message, MessageRenderContext context) {
-    return Padding(
-      padding: MessageSpacing.bubblePaddingSymmetric,
-      child: VisitCardMessageBuilder(message: message, user: context.user),
-    );
+    return VisitCardMessageBuilder(message: message, user: context.user);
   }
 }

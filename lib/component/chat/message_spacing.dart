@@ -122,22 +122,6 @@ class MessageSpacing {
     vertical: 2.0,
   );
 
-  /// 位置消息内边距（2 units）
-  static const double locationPadding = 8.0;
-
-  /// 位置消息标题内边距（2 units）
-  static const EdgeInsets locationTitlePadding = EdgeInsets.only(
-    left: locationPadding,
-    right: locationPadding,
-    top: locationPadding,
-  );
-
-  /// 位置消息地址内边距（2 units）
-  static const EdgeInsets locationAddressPadding = EdgeInsets.only(
-    left: locationPadding,
-    bottom: locationPadding,
-  );
-
   /// 未读提示外边距（2 units）
   static const double unreadIndicatorMargin = 8.0;
 

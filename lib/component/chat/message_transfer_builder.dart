@@ -5,9 +5,9 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/component/chat/message_spacing.dart';
 
 /// 转账消息展现层 / P2P Transfer Message Builder
 class MessageTransferBuilder extends ConsumerStatefulWidget {
@@ -53,6 +53,7 @@ class _MessageTransferBuilderState
         'pending'; // pending, accepted, refunded
 
     final isSender = widget.message.authorId == UserRepoLocal.to.currentUid;
+    final borderRadius = MessageSpacing.getBubbleBorderRadius(isSender);
 
     final isPending = status == 'pending';
     final isAccepted = status == 'accepted';
@@ -66,7 +67,7 @@ class _MessageTransferBuilderState
             : isRefunded
             ? Colors.grey.shade600
             : Colors.orange.shade800,
-        borderRadius: AppRadius.borderRadiusMedium,
+        borderRadius: borderRadius,
       ),
       child: Material(
         color: Colors.transparent,
@@ -76,7 +77,7 @@ class _MessageTransferBuilderState
               _handleAcceptTransfer(transferId);
             }
           },
-          borderRadius: AppRadius.borderRadiusMedium,
+          borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,

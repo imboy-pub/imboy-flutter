@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +9,8 @@ import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:imboy/component/ui/shimmer_box.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 视频消息构建器
 class MessageVideoBuilder extends StatelessWidget {
@@ -57,59 +61,109 @@ class MessageVideoBuilder extends StatelessWidget {
           );
         }
       },
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(
-              MessageSpacing.imageBorderRadius,
-            ),
-            child: OctoImage(
-              image: cachedImageProvider(thumbUrl),
-              width: displayWidth,
-              height: displayHeight,
-              fit: BoxFit.cover,
-              placeholderBuilder: (context) => ShimmerBox(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
-                child: Container(
-                  width: displayWidth,
-                  height: displayHeight,
-                  color: Colors.white,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(MessageSpacing.imageBorderRadius),
+        child: SizedBox(
+          width: displayWidth,
+          height: displayHeight,
+          child: Stack(
+            alignment: Alignment.center,
+            fit: StackFit.expand,
+            children: [
+              OctoImage(
+                image: cachedImageProvider(thumbUrl),
+                fit: BoxFit.cover,
+                placeholderBuilder: (context) => ShimmerBox(
+                  baseColor: AppColors.shimmerBase,
+                  highlightColor: AppColors.shimmerHighlight,
+                  child: Container(color: AppColors.mediaScrimWhite),
+                ),
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: AppColors.mediaScrimBlack.withValues(alpha: 0.26),
+                  child: const Icon(
+                    Icons.video_library,
+                    color: AppColors.mediaScrimWhite,
+                  ),
                 ),
               ),
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: displayWidth,
-                height: displayHeight,
-                color: Colors.black26,
-                child: const Icon(Icons.video_library, color: Colors.white),
+              // 底部阴影遮罩，确保时间标签清晰可见
+              if (metadata['duration_ms'] != null)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: 40,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          AppColors.mediaScrimBlack.withValues(alpha: 0.4),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              // 经典 iOS 玻璃态播放按钮
+              Center(
+                child: ClipOval(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                    child: Container(
+                      width: MessageSpacing.videoPlayButtonSize,
+                      height: MessageSpacing.videoPlayButtonSize,
+                      decoration: BoxDecoration(
+                        color: AppColors.mediaScrimWhite.withValues(
+                          alpha: 0.15,
+                        ),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.mediaScrimWhite.withValues(
+                            alpha: 0.3,
+                          ),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          CupertinoIcons.play_fill,
+                          color: AppColors.mediaScrimWhite,
+                          size: MessageSpacing.videoPlayButtonIconSize,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
+              if (metadata['duration_ms'] != null)
+                Positioned(
+                  right: 8,
+                  bottom: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.mediaScrimBlack.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      _formatDuration(metadata['duration_ms']),
+                      style: TextStyle(
+                        color: AppColors.mediaScrimWhite,
+                        fontSize: FontSizeType.tiny.size,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'SF Mono',
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.black26,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.play_arrow, color: Colors.white, size: 48),
-          ),
-          if (metadata['duration_ms'] != null)
-            Positioned(
-              right: 8,
-              bottom: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  _formatDuration(metadata['duration_ms']),
-                  style: const TextStyle(color: Colors.white, fontSize: 10),
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

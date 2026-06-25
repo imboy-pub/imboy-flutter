@@ -280,6 +280,33 @@ class AppColors {
         : darkReceivedMessageBackground;
   }
 
+  /// 接收方气泡在浅色主题下的细分隔线；发送方或暗色返回 null（无边框）。
+  static Border? getReceivedBubbleDivider(bool isSent, Brightness b) {
+    if (isSent || b == Brightness.dark) return null;
+    return Border.all(color: iosGray5, width: 0.5);
+  }
+
+  // === 聊天消息媒体与装饰色（2026-06-25 chat UI 优化 token 化） ===
+  // 集中管理 builder 内易硬编码的纯色基底，避免裸 Colors.white/Colors.black/Color(0x)。
+
+  /// 红包气泡柔和红
+  static const Color redPacketColor = Color(0xFFFA5151);
+
+  /// 媒体遮罩白：叠在视频/图片缩略图上的播放钮、时长标签、骨架屏底色等
+  static const Color mediaScrimWhite = Color(0xFFFFFFFF);
+
+  /// 媒体遮罩黑：视频底部渐变 scrim 与时长标签底色
+  static const Color mediaScrimBlack = Color(0xFF000000);
+
+  /// 错误占位浅底（≈ Colors.grey[200]）
+  static const Color placeholderSurfaceLight = Color(0xFFEEEEEE);
+
+  /// 错误占位深底（≈ Colors.grey[800]）
+  static const Color placeholderSurfaceDark = Color(0xFF424242);
+
+  /// 10% 白高光（≈ Colors.white10）
+  static const Color overlayWhite10 = Color(0x1AFFFFFF);
+
   static double getContrastRatio(Color c1, Color c2) {
     double l1 = _getLuminance(c1), l2 = _getLuminance(c2);
     return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05);

@@ -13,6 +13,8 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 class LocationMessageBuilder extends StatefulWidget {
@@ -21,7 +23,6 @@ class LocationMessageBuilder extends StatefulWidget {
   final Map<String, dynamic>? info;
 
   final void Function()? onPlay;
-  final double? width, height;
 
   const LocationMessageBuilder({
     super.key,
@@ -29,8 +30,6 @@ class LocationMessageBuilder extends StatefulWidget {
     this.message,
     this.info,
     this.onPlay,
-    this.width,
-    this.height,
   });
 
   @override
@@ -74,109 +73,152 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
     );
   }
 
+  void _showMapsSheet(BuildContext context, CustomMessage msg) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => Container(
+        color: Theme.of(context).colorScheme.surface,
+        child: availableMaps.isEmpty
+            ? Center(child: Text(t.common.notInstallAnyMapApp))
+            : SingleChildScrollView(
+                child: Wrap(
+                  children: availableMaps.map<Widget>((map) {
+                    return ListTile(
+                      onTap: () {
+                        final lat = double.tryParse(
+                          msg.metadata?['latitude']?.toString() ?? '',
+                        );
+                        final lng = double.tryParse(
+                          msg.metadata?['longitude']?.toString() ?? '',
+                        );
+                        if (lat == null || lng == null) return;
+                        map.showMarker(
+                          coords: Coords(lat, lng),
+                          title: msg.metadata?['title']?.toString() ?? '',
+                          description:
+                              msg.metadata?['description']?.toString() ?? '',
+                        );
+                      },
+                      title: Text(map.mapName),
+                      leading: SvgPicture.asset(
+                        map.icon,
+                        height: 30.0,
+                        width: 30.0,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+      ),
+    );
+  }
+
   Widget _buildMessageView(BuildContext context, CustomMessage msg) {
-    // bool userIsAuthor = user.id == message.author.id;
-    String thumb = msg.metadata?['thumb'] as String;
-    return SizedBox(
-      width: widget.width ?? MediaQuery.of(context).size.width * 0.618,
-      height: widget.height ?? 240,
-      // color: const Color(0xFFF5F5F8), // 优化：统一背景色，可根据需求调整
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isSentByMe = widget.user.id == msg.authorId;
+
+    final borderRadius = MessageSpacing.getBubbleBorderRadius(isSentByMe);
+    final backgroundColor = AppColors.getChatBubbleBackground(
+      isSentByMe,
+      false,
+      theme.brightness,
+    );
+
+    final titleColor = isSentByMe
+        ? AppColors.sentMessageText
+        : AppColors.getTextColor(theme.brightness);
+    final addressColor = isSentByMe
+        ? AppColors.sentMessageText.withValues(alpha: 0.7)
+        : AppColors.getTextColor(theme.brightness, isSecondary: true);
+
+    String thumb = msg.metadata?['thumb'] as String? ?? '';
+
+    return Container(
+      width: 240,
+      height: 200,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: borderRadius,
+        border: AppColors.getReceivedBubbleDivider(
+          isSentByMe,
+          theme.brightness,
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           InkWell(
-            onTap: () {
-              // 优化：支持选择地图APP打开位置
-              showModalBottomSheet<void>(
-                context: context,
-                builder: (context) => Container(
-                  color: Theme.of(context).colorScheme.surface,
-                  child: availableMaps.isEmpty
-                      ? Center(child: Text(t.common.notInstallAnyMapApp))
-                      : SingleChildScrollView(
-                          child: Wrap(
-                            children: availableMaps.map<Widget>((map) {
-                              return ListTile(
-                                onTap: () {
-                                  final lat = double.tryParse(
-                                    msg.metadata?['latitude']?.toString() ?? '',
-                                  );
-                                  final lng = double.tryParse(
-                                    msg.metadata?['longitude']?.toString() ??
-                                        '',
-                                  );
-                                  if (lat == null || lng == null) return;
-                                  map.showMarker(
-                                    coords: Coords(lat, lng),
-                                    title:
-                                        msg.metadata?['title']?.toString() ??
-                                        '',
-                                    description:
-                                        msg.metadata?['description']
-                                            ?.toString() ??
-                                        '',
-                                  );
-                                },
-                                title: Text(map.mapName),
-                                leading: SvgPicture.asset(
-                                  map.icon,
-                                  height: 30.0,
-                                  width: 30.0,
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                ),
-              );
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // 内容文本左对齐
-              children: [
-                // 使用统一间距 8dp
-                Padding(
-                  padding: MessageSpacing.locationTitlePadding,
-                  child: Text(
+            onTap: () => _showMapsSheet(context, msg),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 8.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
                     msg.metadata?['title']?.toString() ?? '',
-                    textAlign: TextAlign.left,
-                    // style: const TextStyle(
-                    //   color: Color.fromRGBO(44, 44, 44, 1.0),
-                    //   fontSize: 15.0,
-                    // ),
-                    maxLines: 4,
+                    style: TextStyle(
+                      color: titleColor,
+                      fontSize: FontSizeType.normal.size,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                // 使用统一间距 8dp
-                Padding(
-                  padding: MessageSpacing.locationAddressPadding,
-                  child: Text(
+                  const SizedBox(height: 2),
+                  Text(
                     msg.metadata?['address']?.toString() ?? '',
-                    textAlign: TextAlign.left,
-                    maxLines: 8,
+                    style: TextStyle(
+                      color: addressColor,
+                      fontSize: FontSizeType.caption2.size,
+                    ),
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Expanded(
-            flex: 2,
             child: InkWell(
               onTap: () async {
                 zoomInPhotoView(context, thumb);
               },
-              child: OctoImage(
-                width: MediaQuery.of(context).size.width,
-                fit: BoxFit.cover,
-                image: cachedImageProvider(
-                  thumb,
-                  w: MediaQuery.of(context).size.width,
-                ),
-                errorBuilder: (context, error, stacktrace) =>
-                    const Icon(Icons.error),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  OctoImage(
+                    fit: BoxFit.cover,
+                    image: cachedImageProvider(
+                      thumb,
+                      w: MediaQuery.of(context).size.width,
+                    ),
+                    errorBuilder: (context, error, stacktrace) => Container(
+                      color: isDark
+                          ? AppColors.placeholderSurfaceDark
+                          : AppColors.placeholderSurfaceLight,
+                      child: Icon(
+                        Icons.map,
+                        color: isDark
+                            ? AppColors.mediaScrimWhite.withValues(alpha: 0.3)
+                            : AppColors.mediaScrimBlack.withValues(alpha: 0.26),
+                        size: 36,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Icon(
+                      Icons.location_on,
+                      color: AppColors.getIosRed(theme.brightness),
+                      size: 32,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -196,7 +238,7 @@ class LocationMessageTypePlugin implements MessageTypePlugin {
   bool get isEnabled => true;
 
   @override
-  MessagePluginSurface get surface => MessagePluginSurface.bubble;
+  MessagePluginSurface get surface => MessagePluginSurface.standalone;
 
   @override
   String get type => MessageType.location;

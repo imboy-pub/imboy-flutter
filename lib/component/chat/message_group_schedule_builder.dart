@@ -3,9 +3,10 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/component/chat/message_spacing.dart';
 
 /// 群日程消息展现层 / Group Schedule Message Card Builder
 class MessageGroupScheduleBuilder extends StatelessWidget {
@@ -24,13 +25,16 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
 
+    final isSentByMe = message.authorId == UserRepoLocal.to.currentUid;
+    final borderRadius = MessageSpacing.getBubbleBorderRadius(isSentByMe);
+
     return Container(
       width: 250,
       decoration: BoxDecoration(
         color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
-        borderRadius: AppRadius.borderRadiusMedium,
+        borderRadius: borderRadius,
         border: Border.all(
-          color: isDark ? Colors.white10 : Colors.black12,
+          color: isDark ? AppColors.overlayWhite10 : AppColors.iosGray5,
           width: 0.5,
         ),
       ),
@@ -43,7 +47,7 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
               context.push('/group/$groupId/schedule/$encodedId');
             }
           },
-          borderRadius: AppRadius.borderRadiusMedium,
+          borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(

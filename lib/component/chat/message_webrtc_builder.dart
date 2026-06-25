@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
@@ -9,7 +10,9 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class WebRTCMessageBuilder extends StatelessWidget {
   const WebRTCMessageBuilder({
@@ -27,66 +30,38 @@ class WebRTCMessageBuilder extends StatelessWidget {
     String title,
     bool userIsAuthor,
   ) {
-    Widget row;
-    // 根据 messageType 判断是否为视频通话（仅支持 v2 规范）
+    final theme = Theme.of(context);
     final isVideo = messageType == MessageType.webrtcVideo;
 
-    if (userIsAuthor) {
-      row = Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 2, right: AppSpacing.tiny),
-            child: Text(
-              // '通话时长 10:48',
-              title,
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                // color: Theme.of(context).colorScheme.onPrimary,
-                color: Color.fromRGBO(34, 34, 34, 1.0),
-                fontSize: 14.0, // 使用固定字体大小
-              ),
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
+    // 发送气泡背景为品牌色，文字/图标统一白色；接收方用主题主文字色
+    final fgColor = userIsAuthor
+        ? AppColors.sentMessageText
+        : AppColors.getTextColor(theme.brightness);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Icon(
+          isVideo ? CupertinoIcons.videocam_fill : CupertinoIcons.phone_fill,
+          color: fgColor,
+          size: 18,
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            title,
+            style: TextStyle(
+              color: fgColor,
+              fontSize: FontSizeType.normal.size,
+              fontWeight: FontWeight.w500,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          // 根据类型显示不同图标
-          isVideo
-              ? const Icon(
-                  Icons.videocam,
-                  color: Color.fromRGBO(34, 34, 34, 1.0),
-                )
-              : const Icon(Icons.call, color: Color.fromRGBO(34, 34, 34, 1.0)),
-        ],
-      );
-    } else {
-      row = Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          // 根据类型显示不同图标
-          isVideo ? const Icon(Icons.videocam) : const Icon(Icons.call),
-          Padding(
-            padding: const EdgeInsets.only(top: 2, left: AppSpacing.tiny),
-            child: Text(
-              // '通话时长 10:48',
-              title,
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                // color: AppColors.primaryText,
-                fontSize: 15.0,
-              ),
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      );
-    }
-    return row;
+        ),
+      ],
+    );
   }
 
   @override
@@ -114,7 +89,6 @@ class WebRTCMessageBuilder extends StatelessWidget {
         isUtc: true,
       );
       callCuration = DateFormat('mm:ss.SSS').format(date);
-      // callCuration = DateFormat('mm:ss').format(date);
     }
     String title = '';
     if (state == 0) {
@@ -143,20 +117,8 @@ class WebRTCMessageBuilder extends StatelessWidget {
           : () async {
               ContactModel? peer = await ContactRepo().findByUid(peerId);
               if (!context.mounted) return;
-              // UserModel peer = UserModel(
-              //   uid: peerId,
-              //   account: c!.account,
-              //   nickname: c.nickname,
-              //   avatar: c.avatar,
-              // );
               if (peer != null) {
-                openCallScreen(
-                  context,
-                  peer,
-                  // session: s,
-                  {'media': media},
-                  caller: true,
-                );
+                openCallScreen(context, peer, {'media': media}, caller: true);
               }
             },
       child: Padding(

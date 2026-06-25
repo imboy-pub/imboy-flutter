@@ -16,6 +16,7 @@ import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoView, zoomInPhotoViewGalleryWithInitialPage;
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 单图消息构建器
 class MessageImageBuilder extends StatefulWidget {
@@ -70,8 +71,9 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
     final double displayHeight = _height > 0 ? _height : 200.0;
 
     // 限制最大宽度，避免图片过大
-    final double maxWidth = MediaQuery.of(context).size.width * 0.65;
-    final double maxHeight = MediaQuery.of(context).size.height * 0.5;
+    final screenSize = MediaQuery.of(context).size;
+    final double maxWidth = screenSize.width * 0.65;
+    final double maxHeight = screenSize.height * 0.5;
 
     double finalWidth = displayWidth;
     double finalHeight = displayHeight;
@@ -94,10 +96,20 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
     if (finalWidth < 120) finalWidth = 120;
     if (finalHeight < 120) finalHeight = 120;
 
+    final bool isSentByMe = widget.message.authorId == widget.user.id;
+    final theme = Theme.of(context);
+
     return GestureDetector(
       onTap: _previewImage,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(MessageSpacing.imageBorderRadius),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(MessageSpacing.imageBorderRadius),
+          border: AppColors.getReceivedBubbleDivider(
+            isSentByMe,
+            theme.brightness,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
         child: SizedBox(
           width: finalWidth,
           height: finalHeight,
@@ -116,8 +128,6 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
         child: const Icon(Icons.broken_image, size: 48),
       );
     }
-
-    // final thumbHash = metadata['thumbhash'];
 
     return OctoImage(
       image: cachedImageProvider(_imageUrl),
