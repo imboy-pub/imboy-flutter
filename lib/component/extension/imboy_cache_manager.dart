@@ -141,6 +141,31 @@ class IMBoyCacheManager {
               parsed.scheme != 'https')) {
         throw Exception('Security Block: Invalid URI scheme in getSingleFile');
       }
+      // 【审计修复 F-13】协议虽合法，再拒绝指向内网/云元数据/环回的 host，
+      // 防止消息 payload.uri 被构造成 SSRF-to-storage（下载任意字节到本地缓存）。
+      // 采用"拒绝内网"而非"域名白名单"：imboy 去中心化部署的资源节点不固定，
+      // 强白名单会误伤用户自建存储；而内网/元数据地址在任何部署下都不应被下载。
+      // 注：parsed 到此处不可能为 null（null 已在上方抛异常），hasScheme 已由
+      // 上方 scheme 校验间接保证为 http/https。
+      if (parsed.host.isNotEmpty) {
+        final host = parsed.host.toLowerCase();
+        final isInternal =
+            host == 'localhost' ||
+            host.startsWith('127.') ||
+            host.startsWith('10.') ||
+            host.startsWith('192.168.') ||
+            // 172.16.0.0/12 私网段
+            (_isPrivate172(host)) ||
+            host == '0.0.0.0' ||
+            host == '::1' ||
+            host == 'metadata.google.internal' || // GCP 元数据
+            host == '169.254.169.254'; // 云元数据链路本地地址
+        if (isInternal) {
+          throw Exception(
+            'Security Block: getSingleFile refused internal host: $host',
+          );
+        }
+      }
     }
 
     // 下载边界分流：
@@ -329,6 +354,16 @@ class IMBoyCacheManager {
 
   String _hashCode(String input) {
     return input.hashCode.toString();
+  }
+
+  /// 判断 IPv4 是否落在 172.16.0.0/12 私网段（172.16.x ~ 172.31.x）。
+  /// 用于 F-13 SSRF 加固的内网地址拒绝。
+  bool _isPrivate172(String host) {
+    if (!host.startsWith('172.')) return false;
+    final parts = host.split('.');
+    if (parts.length != 4) return false;
+    final second = int.tryParse(parts[1]);
+    return second != null && second >= 16 && second <= 31;
   }
 
   String? _getFileExtension(String path) {

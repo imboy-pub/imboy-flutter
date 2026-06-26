@@ -543,15 +543,16 @@ class E2EEService {
           if (kid.isNotEmpty) didToKid[did] = kid;
         }
 
-        // 🔧 修复：如果 API 返回空列表但有缓存（未过期），使用缓存
+        // 【审计修复 F-08】forceRefresh 命中空列表 = 服务端已吊销该用户所有公钥
+        // （如全部设备登出）。此时不应回落旧缓存，否则本地最长 30 分钟内仍会
+        // 用已吊销的公钥加密，违反最小权限原则。改为清除本地缓存。
+        // 注意：下方 catch 块的"API 异常回落缓存"（网络错误场景）保留，那是容错。
         if (didToPem.isEmpty && forceRefresh) {
-          final cached = _userKeyCacheByDevice[uid];
-          if (cached != null &&
-              cached.isNotEmpty &&
-              !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
-            iPrint('⚠️ [E2EE] API 返回空，使用缓存: uid=$uid, 设备数=${cached.length}');
-            return _userKeyResult(uid, cached);
-          }
+          _userKeyCacheByDevice.remove(uid);
+          _userKidCacheByDevice.remove(uid);
+          _userKeyCacheTimestamp.remove(uid);
+          iPrint('⚠️ [E2EE] API 返回空密钥列表，判定为已吊销，清除本地缓存: uid=$uid');
+          return _userKeyResult(uid, didToPem);
         }
 
         _userKeyCacheByDevice[uid] = didToPem;
@@ -628,15 +629,13 @@ class E2EEService {
           }
         }
 
-        // 🔧 修复：如果 API 返回空列表但有缓存（未过期），使用缓存
+        // 【审计修复 F-08】群密钥同单聊语义：forceRefresh 空列表 = 已吊销，清除缓存不回落
         if (didToPem.isEmpty && forceRefresh) {
-          final cached = _groupKeyCacheByDevice[gid];
-          if (cached != null &&
-              cached.isNotEmpty &&
-              !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
-            iPrint('⚠️ [E2EE] API 返回空，使用缓存: gid=$gid, 设备数=${cached.length}');
-            return _groupKeyResult(gid, cached);
-          }
+          _groupKeyCacheByDevice.remove(gid);
+          _groupKidCacheByDevice.remove(gid);
+          _groupKeyCacheTimestamp.remove(gid);
+          iPrint('⚠️ [E2EE] 群 API 返回空密钥列表，判定为已吊销，清除本地缓存: gid=$gid');
+          return _groupKeyResult(gid, didToPem);
         }
 
         _groupKeyCacheByDevice[gid] = didToPem;

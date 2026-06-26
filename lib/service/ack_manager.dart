@@ -282,20 +282,30 @@ class AckManager {
       overrideDeviceId: effectiveDeviceId,
     );
 
-    // 记录待确认的ACK
+    // 记录待确认的 ACK。
+    // 【审计修复 F-11】服务端重发同一条消息时，客户端会再次进入 sendAck。
+    // 旧实现无条件把 retryCount 重置为 0 并重建 Timer，导致重试计数永不清零、
+    // _maxRetries 形同虚设，形成 ACK 重试活锁。现保留已累计的 retryCount，
+    // 且仅在该 msgId 首次入队时调度重试 Timer（已存在则复用，不重建）。
+    final existing = _pendingAcks[msgId];
+    final preservedRetry = existing?.retryCount ?? 0;
     _pendingAcks[msgId] = _PendingAck(
       msgId: msgId,
       type: type,
       content: ackMsg,
       sendTime: DateTimeHelper.millisecond(),
-      retryCount: 0,
+      retryCount: preservedRetry,
     );
 
-    iPrint('📤 [ACK_MANAGER] 发送ACK: msgId=$msgId, type=$type, retryCount=0');
+    iPrint(
+      '📤 [ACK_MANAGER] 发送ACK: msgId=$msgId, type=$type, retryCount=$preservedRetry',
+    );
     _sendAckInternal(msgId);
 
-    // 设置重试定时器
-    _scheduleRetry(msgId);
+    // 仅首次入队时调度重试；已存在则复用其 Timer，避免重建致活锁。
+    if (existing == null) {
+      _scheduleRetry(msgId);
+    }
   }
 
   /// 生成 ACK 消息格式（唯一维护点）

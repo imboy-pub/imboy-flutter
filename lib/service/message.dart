@@ -1521,11 +1521,13 @@ class MessageService with EventSubscriptionManager {
       iPrint('❌ [E2EE] 解密失败: msgId=$msgId, error=$e');
 
       // 检查是否是密钥不匹配错误
+      // 【审计修复 F-04】收窄判定：只匹配 decryptE2EEMessage 抛出的精确异常
+      // 'No key found for device: $myDid'（见 e2ee_service.dart decryptE2EEMessage）。
+      // 此前用 contains('密钥')/contains('device') 会命中"生成 RSA 密钥对失败"
+      // "deviceId 为空"等所有含这些词的异常，误触发丢密文 + 弹不匹配对话框，
+      // 链式诱导用户走销毁密钥的恢复路径。其余异常统一走 decrypt_error 分支。
       final errorStr = e.toString().toLowerCase();
-      final isKeyMismatch =
-          errorStr.contains('no key found for device') ||
-          errorStr.contains('密钥') ||
-          errorStr.contains('device');
+      final isKeyMismatch = errorStr.contains('no key found for device');
 
       if (isKeyMismatch) {
         // 获取发送方 UID（消息来源），用于通知发送方刷新我们的公钥缓存

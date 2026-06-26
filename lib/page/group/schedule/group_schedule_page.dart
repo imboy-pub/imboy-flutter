@@ -143,9 +143,13 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
           final timeStr =
               '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')} ${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
 
+          // 【审计修复 F-14】client_msg_id 用于去重：服务端群广播若重新分配 id，
+          // 客户端靠此字段识别"这是我自己发的"，避免回推时重复显示卡片。
+          // local_origin 标记本地发起，与服务器回推的卡片在 type 层面区分。
+          final clientMsgId = Xid().toString();
           final message = CustomMessage(
             authorId: currentUid,
-            id: Xid().toString(),
+            id: clientMsgId,
             createdAt: DateTime.now(),
             metadata: {
               'msg_type': 'groupSchedule',
@@ -153,6 +157,8 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
               'group_id': widget.groupId,
               'title': titleController.text,
               'start_time': timeStr,
+              'local_origin': true,
+              'client_msg_id': clientMsgId,
             },
           );
 

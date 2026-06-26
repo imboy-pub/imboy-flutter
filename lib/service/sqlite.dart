@@ -44,6 +44,15 @@ class SqliteService {
 
   static Database? _db;
 
+  // SQLite 是否支持 UPDATE ... RETURNING（3.35+）。
+  // 运行时探测一次后缓存，供原子自增路径选择 RETURNING 或退化实现。
+  // sqflite_sqlcipher 内置的 SQLite 版本可能 < 3.35，故需探测而非假设。
+  bool? _supportsReturning;
+
+  /// 当前数据库引擎是否支持 RETURNING 子句。
+  /// 在 _onOpen 首次探测后返回缓存结果；探测前返回 false（保守）。
+  bool get supportsReturning => _supportsReturning ?? false;
+
   // 全局数据库锁，确保所有写操作串行执行
   final Lock _dbLock = Lock();
 
@@ -289,6 +298,10 @@ class SqliteService {
     await db.execute('PRAGMA synchronous = NORMAL');
     // 设置缓存大小为64MB，提升查询性能
     await db.execute('PRAGMA cache_size = -64000');
+    // 【审计修复 F-01/H1】busy_timeout：拿不到写锁时最多等待 5s 而非立刻抛
+    // SQLITE_BUSY。配合 _dbLock 串行化与 query 的 locked 重试，避免并发 S2C
+    // 包写同一会话时出现 "database is locked" 异常冒泡到 save()。
+    await db.execute('PRAGMA busy_timeout = 5000');
   }
 
   ///
@@ -365,6 +378,32 @@ class SqliteService {
         // WAL 失败不影响数据库使用，继续使用默认模式
         // 使用简洁的日志，避免显示完整错误堆栈
         iPrint('WAL mode not available, using default journal mode');
+      }
+    }
+
+    // 【审计修复 F-01】探测 SQLite 是否支持 UPDATE ... RETURNING（3.35+）。
+    // sqflite_sqlcipher 打包的 SQLite 版本不固定，RETURNING 不可用时
+    // 原子自增路径需退化为"事务内 SELECT + 原子 +? UPDATE"。
+    // 用一张临时表探测，避免污染业务表；探测结果缓存到 _supportsReturning。
+    if (_supportsReturning == null) {
+      try {
+        await db.execute(
+          'CREATE TEMP TABLE IF NOT EXISTS _imboy_returning_probe(id INTEGER)',
+        );
+        // 能成功执行 RETURNING 即说明支持；失败抛异常则不支持。
+        await db.rawQuery(
+          'INSERT INTO _imboy_returning_probe(id) VALUES (1) RETURNING id',
+        );
+        _supportsReturning = true;
+      } catch (_) {
+        _supportsReturning = false;
+        iPrint('SQLite RETURNING not supported, 原子自增将使用退化路径');
+      } finally {
+        try {
+          await db.execute('DROP TABLE IF EXISTS _imboy_returning_probe');
+        } catch (_) {
+          // 忽略清理失败
+        }
       }
     }
   }
