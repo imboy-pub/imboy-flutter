@@ -75,7 +75,12 @@ class CustomMessageBuilder extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: borderRadius,
-        // DESIGN.md §9.1 聊天气泡：iOS 气泡 **不带阴影**（与 message_bubble_style 一致）
+        // DESIGN.md §9.1 聊天气泡：iOS 气泡 **不带阴影**（与 message_bubble_style 一致）；
+        // 接收方亮色加 0.5pt iosGray5 发丝边框区分白底气泡，发送方/暗色无边框。
+        border: AppColors.getReceivedBubbleDivider(
+          isSentByMe,
+          theme.brightness,
+        ),
       ),
       padding: MessageSpacing.bubblePaddingSymmetric,
       child: child,

@@ -1685,7 +1685,14 @@ class ChatPageState extends ConsumerState<ChatPage>
       }),
       // timeFormat: DateFormat("y-MM-dd HH:mm"),
       timeFormat: RelativeDateFormat(),
-      theme: ChatThemeConfig.chatTheme,
+      // 暗色 + 字号缩放感知：静态 chatTheme 硬编码 isDark:false 且无缩放，
+      // 会让暗色聊天渲染亮色气泡、用户字号设置在聊天页失效。
+      // isDark 取已解析的 theme.brightness（含"跟随系统"），option 走 Riverpod 响应式刷新。
+      theme: ChatThemeConfig.getChatThemeFromOption(
+        ref.watch(themeProvider).fontSizeOption,
+        isDark: theme.brightness == Brightness.dark,
+        context: context,
+      ),
       builders: _buildMessageBuilders(context, chatState),
     );
   }

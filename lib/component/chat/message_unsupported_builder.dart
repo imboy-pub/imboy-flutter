@@ -4,6 +4,7 @@ import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 不支持的消息类型构建器
 ///
@@ -49,7 +50,7 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '不支持的消息类型',
+                  t.chat.unsupportedMessageType,
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(
