@@ -84,13 +84,13 @@ class NumericKeypad extends StatelessWidget {
             top: BorderSide(
               width: 0.5,
               color: isDark
-                  ? Colors.white12
+                  ? AppColors.overlayLightStrong
                   : colorScheme.outline.withValues(alpha: 0.1),
             ),
             right: BorderSide(
               width: 0.5,
               color: isDark
-                  ? Colors.white12
+                  ? AppColors.overlayLightStrong
                   : colorScheme.outline.withValues(alpha: 0.1),
             ),
           ),

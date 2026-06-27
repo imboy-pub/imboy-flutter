@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/theme_manager.dart';
 
 /// 语音录制动作状态
@@ -100,9 +101,9 @@ class CustomOverlay extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              const Text(
-                                '松开 取消发送',
-                                style: TextStyle(
+                              Text(
+                                t.chat.voiceReleaseCancelSend,
+                                style: const TextStyle(
                                   color: Colors.red,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -125,9 +126,9 @@ class CustomOverlay extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              const Text(
-                                '松开 转文字',
-                                style: TextStyle(
+                              Text(
+                                t.chat.releaseConvertToText,
+                                style: const TextStyle(
                                   color: Colors.amber,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -146,7 +147,7 @@ class CustomOverlay extends StatelessWidget {
                                   borderRadius: AppRadius.borderRadiusMedium,
                                 ),
                                 child: Text(
-                                  "正在识别中...",
+                                  t.common.voiceSttConverting,
                                   style: TextStyle(
                                     color: textColor.withValues(alpha: 0.7),
                                     fontSize: 13,
@@ -217,7 +218,7 @@ class CustomOverlay extends StatelessWidget {
               bottom: 160,
               child: _buildActionTarget(
                 icon: Icons.close,
-                label: '取消',
+                label: t.common.buttonCancel,
                 activeColor: errorColor,
                 isActive: actionState == VoiceActionState.cancel,
                 isDark: isDark,
@@ -230,7 +231,7 @@ class CustomOverlay extends StatelessWidget {
               bottom: 160,
               child: _buildActionTarget(
                 icon: Icons.translate,
-                label: '转文字',
+                label: t.chat.convertToText,
                 activeColor: Colors.amber, // 金黄色/琥珀色对齐转文字的温馨视觉
                 isActive: actionState == VoiceActionState.convert,
                 isDark: isDark,
@@ -242,10 +243,10 @@ class CustomOverlay extends StatelessWidget {
               bottom: 80,
               child: Text(
                 actionState == VoiceActionState.cancel
-                    ? '松开 取消'
+                    ? t.chat.voiceReleaseCancel
                     : (actionState == VoiceActionState.convert
-                          ? '松开 转文字'
-                          : '上滑 取消 / 转文字'),
+                          ? t.chat.releaseConvertToText
+                          : t.chat.voiceSlideHint),
                 style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 14,

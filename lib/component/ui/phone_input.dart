@@ -102,11 +102,11 @@ class _WebPhoneInputWidgetState extends State<_WebPhoneInputWidget> {
       hintText: widget.hintText ?? t.common.phoneInputHint,
       border: OutlineInputBorder(
         borderRadius: AppRadius.borderRadiusSmall,
-        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderSide: BorderSide(color: AppColors.iosSeparator),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: AppRadius.borderRadiusSmall,
-        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderSide: BorderSide(color: AppColors.iosSeparator),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: AppRadius.borderRadiusSmall,
@@ -124,7 +124,7 @@ class _WebPhoneInputWidgetState extends State<_WebPhoneInputWidget> {
         // 国家代码选择器
         Container(
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: AppColors.iosSeparator),
             borderRadius: AppRadius.borderRadiusSmall,
           ),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.medium),

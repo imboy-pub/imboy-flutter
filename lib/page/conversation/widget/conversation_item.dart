@@ -65,7 +65,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
       child: Container(
         color: _isPressed
             // 按压态半透明高光叠加：暗色用白、亮色用黑，属固定交互反馈
-            ? (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05))
+            ? (isDark ? AppColors.overlayWhite10 : AppColors.overlayBlack5)
             : bgColor,
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(

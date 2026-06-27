@@ -27,9 +27,8 @@ class GlassBottomNavigationBar extends StatelessWidget {
 
     // 背景色：亮色纯白，暗色 darkSurfaceGrouped，透明度 0.8
     final backgroundColor =
-        (isDark ? AppColors.darkSurfaceGrouped : Colors.white).withValues(
-          alpha: 0.8,
-        );
+        (isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurface)
+            .withValues(alpha: 0.8);
     final separatorColor = AppColors.getIosSeparator(
       theme.brightness,
     ).withValues(alpha: 0.5);

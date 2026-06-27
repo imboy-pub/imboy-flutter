@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/page/scanner/qr_login_confirm_rules.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -60,25 +61,26 @@ class QrLoginConfirmContent extends StatelessWidget {
 
   Widget _buildBody(BuildContext context) {
     return switch (state) {
-      QrLoginConfirmIdle() || QrLoginConfirmScanning() => _loading('正在连接...'),
+      QrLoginConfirmIdle() ||
+      QrLoginConfirmScanning() => _loading(t.passport.qrConnecting),
       QrLoginConfirmAwaitingConfirm(:final deviceInfo) => _awaiting(
         context,
         deviceInfo,
       ),
-      QrLoginConfirmConfirming() => _loading('正在登录...'),
+      QrLoginConfirmConfirming() => _loading(t.passport.qrLoginConfirming),
       QrLoginConfirmSuccess() => _success(),
       QrLoginConfirmExpired() => _terminal(
         icon: Icons.timer_off_outlined,
-        message: '二维码已过期，请重新扫码',
+        message: t.passport.qrCodeExpired,
       ),
       QrLoginConfirmAlreadyUsed() => _terminal(
         icon: Icons.error_outline,
-        message: '此二维码已使用',
+        message: t.passport.qrCodeUsed,
       ),
-      QrLoginConfirmCancelledByMe() => _info('已取消登录'),
+      QrLoginConfirmCancelledByMe() => _info(t.passport.qrLoginCancelledByMe),
       QrLoginConfirmCancelledByOther() => _terminal(
         icon: Icons.cancel_outlined,
-        message: '登录已取消',
+        message: t.passport.qrLoginCancelled,
       ),
       QrLoginConfirmFailed(:final errorMessage) => _terminal(
         icon: Icons.error_outline,
@@ -117,7 +119,7 @@ class QrLoginConfirmContent extends StatelessWidget {
         const Icon(Icons.computer_outlined, size: 80, color: AppColors.primary),
         AppSpacing.verticalXLarge,
         Text(
-          'Web 端登录确认',
+          t.passport.qrWebLoginTitle,
           style: context.textStyle(
             FontSizeType.title,
             fontWeight: FontWeight.w600,
@@ -125,7 +127,7 @@ class QrLoginConfirmContent extends StatelessWidget {
         ),
         AppSpacing.verticalSmall,
         Text(
-          '请确认是否在 Web 端登录此账号',
+          t.passport.qrWebLoginDesc,
           style: context.textStyle(
             FontSizeType.normal,
             color: AppColors.lightTextSecondary,
@@ -149,7 +151,7 @@ class QrLoginConfirmContent extends StatelessWidget {
               ),
             ),
             child: Text(
-              '确认登录',
+              t.passport.qrLoginAction,
               style: context.textStyle(
                 FontSizeType.medium,
                 fontWeight: FontWeight.w600,
@@ -164,7 +166,7 @@ class QrLoginConfirmContent extends StatelessWidget {
           child: TextButton(
             onPressed: onCancel,
             child: Text(
-              '取消',
+              t.common.buttonCancel,
               style: context.textStyle(
                 FontSizeType.medium,
                 color: AppColors.iosRed,
@@ -187,7 +189,7 @@ class QrLoginConfirmContent extends StatelessWidget {
         ),
         AppSpacing.verticalXLarge,
         Text(
-          '登录成功',
+          t.passport.qrLoginSuccess,
           style: TextStyle(
             fontSize: FontSizeType.large.size,
             fontWeight: FontWeight.w600,
@@ -220,7 +222,7 @@ class QrLoginConfirmContent extends StatelessWidget {
               ),
             ),
             child: Text(
-              '关闭',
+              t.common.buttonClose,
               style: TextStyle(fontSize: FontSizeType.medium.size),
             ),
           ),

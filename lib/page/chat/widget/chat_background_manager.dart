@@ -331,7 +331,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: AppRadius.borderRadiusMedium,
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.iosSeparator),
       ),
       child: ClipRRect(
         borderRadius: AppRadius.borderRadiusMedium,
@@ -399,7 +399,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
                   border: Border.all(
                     color: state.currentBackground == option
                         ? Theme.of(context).primaryColor
-                        : Colors.grey.withValues(alpha: 0.3),
+                        : AppColors.iosSeparator,
                     width: state.currentBackground == option ? 2 : 1,
                   ),
                 ),
@@ -412,7 +412,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(8),
                           ),
-                          color: Colors.grey.withValues(alpha: 0.1),
+                          color: AppColors.iosGray5.withValues(alpha: 0.5),
                         ),
                         child: _buildBackgroundPreviewThumbnail(option, state),
                       ),
@@ -473,7 +473,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         );
       case 'solid_color':
         return Container(
-          color: Colors.grey[300],
+          color: AppColors.iosGray4,
           child: const Icon(Icons.color_lens, color: AppColors.iosGray),
         );
       case 'custom_image':
@@ -485,7 +485,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
           }
         }
         return Container(
-          color: Colors.grey[200],
+          color: AppColors.iosGray5,
           child: const Icon(
             Icons.add_photo_alternate,
             color: AppColors.iosGray,
@@ -493,7 +493,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         );
       default:
         return Container(
-          color: Colors.grey[200],
+          color: AppColors.iosGray5,
           child: const Icon(Icons.wallpaper, color: AppColors.iosGray),
         );
     }
@@ -561,7 +561,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: state.customColor,
                 borderRadius: AppRadius.borderRadiusSmall,
-                border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                border: Border.all(color: AppColors.iosSeparator),
               ),
               child: Center(
                 child: Text(
@@ -606,9 +606,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: color,
                     borderRadius: AppRadius.borderRadiusTiny,
-                    border: Border.all(
-                      color: Colors.grey.withValues(alpha: 0.3),
-                    ),
+                    border: Border.all(color: AppColors.iosSeparator),
                   ),
                 ),
               );

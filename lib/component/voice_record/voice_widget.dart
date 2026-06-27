@@ -291,12 +291,12 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
   /// 处理语音转文字
   void _handleConvertToText(String path, Duration duration) {
     if (widget.onConvertToText == null) {
-      AppLoading.showError("暂未配置转文字回调");
+      AppLoading.showError(t.common.voiceSttNotConfigured);
       return;
     }
 
     // 1. 显示加载中
-    AppLoading.show(status: '正在识别中...');
+    AppLoading.show(status: t.common.voiceSttConverting);
 
     // 2. 模拟识别延迟（1.2秒，提供高级流畅动效感）
     Future.delayed(const Duration(milliseconds: 1200), () {
@@ -333,7 +333,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
             ),
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -348,11 +348,13 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '语音转文字预览',
+                        t.common.voiceSttPreviewTitle,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: FontSizeType.medium.size,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black87,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                       ),
                       IconButton(
@@ -367,11 +369,13 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                   Container(
                     decoration: BoxDecoration(
                       color: isDark
-                          ? const Color(0xFF2C2C2C)
-                          : const Color(0xFFF5F5F5),
+                          ? AppColors.darkSurfaceContainer
+                          : AppColors.lightSurfaceContainerLow,
                       borderRadius: AppRadius.borderRadiusMedium,
                       border: Border.all(
-                        color: isDark ? Colors.white10 : Colors.black12,
+                        color: isDark
+                            ? AppColors.iosSeparatorDark
+                            : AppColors.iosSeparator,
                         width: 0.5,
                       ),
                     ),
@@ -385,8 +389,10 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                       minLines: 2,
                       autofocus: true,
                       style: TextStyle(
-                        fontSize: 15,
-                        color: isDark ? Colors.white : Colors.black87,
+                        fontSize: FontSizeType.subheadline.size,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                       decoration: const InputDecoration(
                         border: InputBorder.none,
@@ -401,15 +407,17 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                         child: CupertinoButton(
                           padding: EdgeInsets.zero,
                           color: isDark
-                              ? const Color(0xFF333333)
-                              : const Color(0xFFEAEAEA),
+                              ? AppColors.darkSurfaceContainer
+                              : AppColors.lightSurfaceContainer,
                           borderRadius: AppRadius.borderRadiusMedium,
                           onPressed: () => Navigator.pop(context),
                           child: Text(
-                            '取消',
+                            t.common.buttonCancel,
                             style: TextStyle(
-                              color: isDark ? Colors.white70 : Colors.black54,
-                              fontSize: 15,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
+                              fontSize: FontSizeType.subheadline.size,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -428,11 +436,11 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                             }
                             Navigator.pop(context);
                           },
-                          child: const Text(
-                            '发送',
+                          child: Text(
+                            t.common.buttonSend,
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
+                              color: AppColors.onPrimary,
+                              fontSize: FontSizeType.subheadline.size,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -471,7 +479,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
         if (_actionState == VoiceActionState.cancel) {
           textShow = t.common.releaseFingerCancelSending;
         } else if (_actionState == VoiceActionState.convert) {
-          textShow = "松开 转文字";
+          textShow = t.chat.releaseConvertToText;
         } else {
           textShow = t.main.releaseEnd;
         }

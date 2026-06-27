@@ -86,7 +86,7 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
             borderRadius: BorderRadius.circular(8),
             color: Theme.of(context).brightness == Brightness.dark
                 ? AppColors.darkSurfaceContainer
-                : Colors.white,
+                : AppColors.lightSurface,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 200),
               child: ListView.builder(
@@ -129,8 +129,10 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final inputFill = isDark ? AppColors.darkSurfaceContainer : Colors.white;
-    final borderDefault = isDark ? AppColors.darkBorder : Colors.grey.shade200;
+    final inputFill = isDark
+        ? AppColors.darkSurfaceContainer
+        : AppColors.lightSurface;
+    final borderDefault = isDark ? AppColors.darkBorder : AppColors.iosGray5;
 
     return CompositedTransformTarget(
       link: _layerLink,

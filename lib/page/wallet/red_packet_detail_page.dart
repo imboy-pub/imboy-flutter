@@ -65,11 +65,11 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
         });
       } else {
         setState(() => _isLoading = false);
-        AppLoading.showError('获取红包详情失败');
+        AppLoading.showError(t.common.redPacketFetchFailed);
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      AppLoading.showError('获取红包详情异常');
+      AppLoading.showError(t.common.redPacketFetchError);
     }
   }
 
@@ -91,7 +91,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
           title: Text(t.common.redPacketDetail),
           backgroundColor: AppColors.iosRed,
         ),
-        body: const Center(child: Text('红包不存在或已被删除')),
+        body: Center(child: Text(t.common.redPacketNotFound)),
       );
     }
 
@@ -242,7 +242,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                   ),
                   title: Row(
                     children: [
-                      Text('用户: ${r.receiverUid}'),
+                      Text(t.common.redPacketReceiverLabel(uid: r.receiverUid)),
                       if (isBestLuck) ...[
                         AppSpacing.horizontalSmall,
                         Container(

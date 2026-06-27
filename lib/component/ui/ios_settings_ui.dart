@@ -34,8 +34,9 @@ class IosPageTemplate extends StatelessWidget {
         backgroundColor ??
         (isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurfaceGrouped);
 
-    final navBarColor = (isDark ? AppColors.darkSurfaceGrouped : Colors.white)
-        .withValues(alpha: 0.8);
+    final navBarColor =
+        (isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurface)
+            .withValues(alpha: 0.8);
 
     final navBar = CupertinoNavigationBar(
       middle: Text(
@@ -227,7 +228,9 @@ class ImBoySettingsTile extends StatelessWidget {
       onTap: onTap,
       backgroundColor:
           backgroundColor ??
-          (isDark ? AppColors.darkSurfaceGroupedTertiary : Colors.white),
+          (isDark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurface),
       padding:
           padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     );
@@ -271,7 +274,8 @@ class ImBoyListTile extends StatelessWidget {
       child: Container(
         height: height,
         color:
-            backgroundColor ?? (isDark ? AppColors.darkSurface : Colors.white),
+            backgroundColor ??
+            (isDark ? AppColors.darkSurface : AppColors.lightSurface),
         padding:
             padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(

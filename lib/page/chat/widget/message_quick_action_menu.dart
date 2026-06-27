@@ -101,7 +101,7 @@ class MessageQuickActionMenu {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: AppColors.iosGray5,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),

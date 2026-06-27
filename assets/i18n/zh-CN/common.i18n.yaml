@@ -747,6 +747,9 @@ settingFailedPleaseTryAgain: 设置失败，请重试
 partialDeleteSuccess: 部分删除成功：$success 成功，$fail 失败
 collectedVideoFormatIncorrectCannotFindVideoUri: 收藏的视频消息格式有误，找不到 video uri
 recordingCancelled: 录音已取消
+voiceSttPreviewTitle: 语音转文字预览
+voiceSttConverting: 正在识别中...
+voiceSttNotConfigured: 转文字功能暂未配置
 pullOfflineMessagesFailed: 拉取离线消息失败
 pullOfflineMessagesAbnormal: 拉取离线消息异常
 logoutRequestFailedPleaseCheckNetwork: 退出登录请求失败，请检查网络连接
@@ -1061,6 +1064,10 @@ redPacketDetail: 红包详情
 transferSend: 发起转账
 transferAccept: 确认收钱
 greetingDefault: 恭喜发财，大吉大利
+redPacketView: 查看红包
+redPacketBrand: IMBoy 红包
+redPacketDialogTitle: 送你一个红包
+redPacketDialogSubtitle: 大吉大利，恭喜发财
 grabAmountYuan(amount): "领到金额：$amount 元"
 transferAmountYuan(amount): "转账金额：$amount 元"
 insufficientBalance: 余额不足
@@ -1079,6 +1086,16 @@ redPacketCurrentLucky: "当前为：拼手气红包"
 redPacketCurrentNormal: "当前为：普通红包"
 redPacketSwitchToNormal: 改为普通红包
 redPacketSwitchToLucky: 改为拼手气红包
+transferReceiving: 正在收款...
+transferAccepted: 已收取
+transferRefunded: 已退回
+transferPending: 等待对方确认
+transferTapToReceive: 点击收款
+redPacketReceiverLabel(uid): 用户：$uid
+redPacketNotFound: 红包不存在或已被删除
+redPacketFetchFailed: 获取红包详情失败
+redPacketFetchError: 获取红包详情异常
+payReceiveSuccess: 收款成功！
 timeNowShort: now
 timeDaysShort(count): "${count}d"
 timeHoursShort(count): "${count}h"

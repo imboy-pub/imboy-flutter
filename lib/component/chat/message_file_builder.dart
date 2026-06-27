@@ -34,7 +34,7 @@ class MessageFileBuilder extends StatelessWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isSentByMe
-        ? Colors.white
+        ? AppColors.onPrimary
         : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
     final subTextColor = isSentByMe
         ? Colors.white.withValues(alpha: 0.7)
@@ -92,7 +92,7 @@ class MessageFileBuilder extends StatelessWidget {
               child: Icon(
                 CupertinoIcons.doc_fill,
                 color: isSentByMe
-                    ? Colors.white
+                    ? AppColors.onPrimary
                     : AppColors.getIosBlue(Theme.of(context).brightness),
                 size: 24,
               ),

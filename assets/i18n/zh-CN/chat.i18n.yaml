@@ -122,6 +122,11 @@ sendMessage: 发消息
 sendSeparatelyTo: 分别发送给
 sendTo: 发送给
 send: "@:common.buttonSend"
+releaseConvertToText: 松开 转文字
+voiceReleaseCancelSend: 松开 取消发送
+voiceReleaseCancel: 松开 取消
+voiceSlideHint: 上滑 取消 / 转文字
+convertToText: 转文字
 sender: 发送者
 sending: 正在发送...
 signatureInputHint: 签名输入提示

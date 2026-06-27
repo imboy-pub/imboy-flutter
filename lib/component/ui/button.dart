@@ -51,7 +51,7 @@ class RoundedElevatedButton extends StatelessWidget {
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    highlighted ? Colors.white : AppColors.primary,
+                    highlighted ? AppColors.onPrimary : AppColors.primary,
                   ),
                 ),
               )
@@ -80,7 +80,7 @@ class RoundedElevatedButton extends StatelessWidget {
   ButtonStyle _primaryButtonStyle(BuildContext context, Size? size) {
     return ElevatedButton.styleFrom(
       backgroundColor: AppColors.primary,
-      foregroundColor: Colors.white,
+      foregroundColor: AppColors.onPrimary,
       minimumSize: size ?? const Size(88, 48),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       shape: RoundedRectangleBorder(

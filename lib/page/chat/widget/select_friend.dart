@@ -337,8 +337,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                 ignoreDragCancel: true,
                 downTextStyle: context.textStyle(
                   FontSizeType.small,
-                  // 索引条拖拽气泡文字：品牌蓝气泡上的白字，无对应语义 token，保留
-                  color: Colors.white,
+                  color: AppColors.onPrimary,
                 ),
                 downItemDecoration: BoxDecoration(
                   shape: BoxShape.circle,

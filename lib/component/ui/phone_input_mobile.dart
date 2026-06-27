@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -30,7 +31,7 @@ class MobilePhoneInputWidget extends StatelessWidget {
       ),
       ignoreBlank: false,
       autoValidateMode: AutovalidateMode.disabled,
-      selectorTextStyle: const TextStyle(color: Colors.black),
+      selectorTextStyle: const TextStyle(color: AppColors.lightTextPrimary),
       initialValue: initialValue.isNotEmpty
           ? PhoneNumber(isoCode: 'CN', phoneNumber: initialValue)
           : PhoneNumber(isoCode: 'CN'),
@@ -40,7 +41,7 @@ class MobilePhoneInputWidget extends StatelessWidget {
             hintText: hintText ?? t.common.phoneInputHint,
             border: OutlineInputBorder(
               borderRadius: AppRadius.borderRadiusSmall,
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(color: AppColors.iosSeparator),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.regular,

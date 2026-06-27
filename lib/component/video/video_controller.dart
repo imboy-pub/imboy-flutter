@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:video_player/video_player.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -173,29 +174,29 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
         text = t.chat.fastForward(
           seconds: (_dragDelta.abs() / 100 * 10).round().toString(),
         );
-        color = Colors.blueAccent;
+        color = AppColors.iosBlue;
         break;
       case 'backward':
         icon = Icons.fast_rewind_rounded;
         text = t.main.fastRewind(
           seconds: (_dragDelta.abs() / 100 * 10).round().toString(),
         );
-        color = Colors.blueAccent;
+        color = AppColors.iosBlue;
         break;
       case 'volume_up':
         icon = Icons.volume_up_rounded;
         text = t.main.volumeUp;
-        color = Colors.greenAccent;
+        color = AppColors.iosGreen;
         break;
       case 'volume_down':
         icon = Icons.volume_down_rounded;
         text = t.main.volumeDown;
-        color = Colors.orangeAccent;
+        color = AppColors.iosOrange;
         break;
       default:
         icon = Icons.info_outline_rounded;
         text = '';
-        color = Colors.white;
+        color = AppColors.onPrimary; // on dark video overlay
     }
 
     return Positioned.fill(
@@ -228,8 +229,8 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                 Text(
                   text,
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
+                    color: AppColors.onPrimary, // on dark video overlay
+                    fontSize: FontSizeType.medium.size,
                     fontWeight: FontWeight.w500,
                     shadows: [
                       Shadow(
@@ -374,9 +375,10 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                             builder: (context, VideoPlayerValue value, child) {
                               return Text(
                                 _formatDuration(value.position),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
+                                style: TextStyle(
+                                  color: AppColors
+                                      .onPrimary, // on dark video overlay
+                                  fontSize: FontSizeType.small.size,
                                 ),
                               );
                             },
@@ -389,9 +391,10 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                             builder: (context, VideoPlayerValue value, child) {
                               return Text(
                                 _formatDuration(value.duration),
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
+                                style: TextStyle(
+                                  color: AppColors
+                                      .overlayWhite70, // on dark video overlay
+                                  fontSize: FontSizeType.small.size,
                                 ),
                               );
                             },

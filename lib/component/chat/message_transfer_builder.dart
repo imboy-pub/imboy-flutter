@@ -8,6 +8,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 转账消息展现层 / P2P Transfer Message Builder
 class MessageTransferBuilder extends ConsumerStatefulWidget {
@@ -27,11 +28,11 @@ class _MessageTransferBuilderState
   Future<void> _handleAcceptTransfer(String transferId) async {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
-    AppLoading.show(status: '正在收款...');
+    AppLoading.show(status: t.common.transferReceiving);
 
     final success = await WalletApi().acceptTransfer(transferId);
     if (success) {
-      AppLoading.showSuccess('收款成功！');
+      AppLoading.showSuccess(t.common.payReceiveSuccess);
       ref.invalidate(walletProvider); // 刷新余额
       // 由于 WebSocket 会对账回显修改状态，在消息列表里该条消息会被重新触发状态构建
       setState(() => _isProcessing = false);
@@ -114,12 +115,12 @@ class _MessageTransferBuilderState
                           const SizedBox(height: 2),
                           Text(
                             isAccepted
-                                ? '已收取'
+                                ? t.common.transferAccepted
                                 : isRefunded
-                                ? '已退回'
+                                ? t.common.transferRefunded
                                 : isSender
-                                ? '等待对方确认'
-                                : '点击收款',
+                                ? t.common.transferPending
+                                : t.common.transferTapToReceive,
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 11,

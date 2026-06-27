@@ -6,10 +6,12 @@ import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 红包消息展现层 / Red Packet Message Builder
 class MessageRedPacketBuilder extends ConsumerWidget {
@@ -20,7 +22,8 @@ class MessageRedPacketBuilder extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final metadata = message.metadata ?? {};
-    final greeting = metadata['greeting']?.toString() ?? '恭喜发财，大吉大利';
+    final greeting =
+        metadata['greeting']?.toString() ?? t.common.greetingDefault;
     final packetId = metadata['id']?.toString() ?? '';
 
     final isSentByMe = message.authorId == UserRepoLocal.to.currentUid;
@@ -65,10 +68,10 @@ class MessageRedPacketBuilder extends ConsumerWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
-                          const Text(
-                            '查看红包',
-                            style: TextStyle(
-                              color: Colors.white70,
+                          Text(
+                            t.common.redPacketView,
+                            style: const TextStyle(
+                              color: AppColors.overlayWhite70,
                               fontSize: 11,
                             ),
                           ),
@@ -78,9 +81,12 @@ class MessageRedPacketBuilder extends ConsumerWidget {
                   ],
                 ),
                 const Divider(color: Colors.white24, height: 16),
-                const Text(
-                  'IMBoy 红包',
-                  style: TextStyle(color: Colors.white70, fontSize: 10),
+                Text(
+                  t.common.redPacketBrand,
+                  style: TextStyle(
+                    color: AppColors.overlayWhite70,
+                    fontSize: FontSizeType.tiny.size,
+                  ),
                 ),
               ],
             ),
@@ -221,7 +227,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '送你一个红包',
+                      t.common.redPacketDialogTitle,
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.orange.shade100,
@@ -229,9 +235,12 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      '大吉大利，恭喜发财',
-                      style: TextStyle(fontSize: 14, color: Colors.white70),
+                    Text(
+                      t.common.redPacketDialogSubtitle,
+                      style: TextStyle(
+                        fontSize: FontSizeType.normal.size,
+                        color: AppColors.overlayWhite70,
+                      ),
                     ),
                   ],
                 ),

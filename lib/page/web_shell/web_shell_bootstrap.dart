@@ -255,8 +255,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
   ///
   /// 当前菜单项（按可见性条件）：
   /// - 复制（resolveCopyableText 非 null 时）— 真实写入 Clipboard
-  /// - 撤回（canShowRecallAction true 时，即自己发的 + 时间窗内）— TODO 调
-  ///   MessageActionHandler.revokeMessage（本切片仅占位 toast，下次切片接 handler）
+  /// - 撤回（canShowRecallAction true 时，即自己发的 + 时间窗内）— 已接 _revokeMessage
   /// - 取消
   ///
   /// 后续切片可扩展：转发 / 收藏 / 删除 / 引用回复。

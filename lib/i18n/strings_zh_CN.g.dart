@@ -1276,6 +1276,21 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '发送'
 	String get send => _root.common.buttonSend;
 
+	/// zh-CN: '松开 转文字'
+	String get releaseConvertToText => '松开 转文字';
+
+	/// zh-CN: '松开 取消发送'
+	String get voiceReleaseCancelSend => '松开 取消发送';
+
+	/// zh-CN: '松开 取消'
+	String get voiceReleaseCancel => '松开 取消';
+
+	/// zh-CN: '上滑 取消 / 转文字'
+	String get voiceSlideHint => '上滑 取消 / 转文字';
+
+	/// zh-CN: '转文字'
+	String get convertToText => '转文字';
+
 	/// zh-CN: '发送者'
 	String get sender => '发送者';
 
@@ -3970,6 +3985,15 @@ class Translations$common$zh_CN {
 	/// zh-CN: '录音已取消'
 	String get recordingCancelled => '录音已取消';
 
+	/// zh-CN: '语音转文字预览'
+	String get voiceSttPreviewTitle => '语音转文字预览';
+
+	/// zh-CN: '正在识别中...'
+	String get voiceSttConverting => '正在识别中...';
+
+	/// zh-CN: '转文字功能暂未配置'
+	String get voiceSttNotConfigured => '转文字功能暂未配置';
+
 	/// zh-CN: '拉取离线消息失败'
 	String get pullOfflineMessagesFailed => '拉取离线消息失败';
 
@@ -4909,6 +4933,18 @@ class Translations$common$zh_CN {
 	/// zh-CN: '恭喜发财，大吉大利'
 	String get greetingDefault => '恭喜发财，大吉大利';
 
+	/// zh-CN: '查看红包'
+	String get redPacketView => '查看红包';
+
+	/// zh-CN: 'IMBoy 红包'
+	String get redPacketBrand => 'IMBoy 红包';
+
+	/// zh-CN: '送你一个红包'
+	String get redPacketDialogTitle => '送你一个红包';
+
+	/// zh-CN: '大吉大利，恭喜发财'
+	String get redPacketDialogSubtitle => '大吉大利，恭喜发财';
+
 	/// zh-CN: '领到金额：$amount 元'
 	String grabAmountYuan({required Object amount}) => '领到金额：${amount} 元';
 
@@ -4962,6 +4998,36 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '改为拼手气红包'
 	String get redPacketSwitchToLucky => '改为拼手气红包';
+
+	/// zh-CN: '正在收款...'
+	String get transferReceiving => '正在收款...';
+
+	/// zh-CN: '已收取'
+	String get transferAccepted => '已收取';
+
+	/// zh-CN: '已退回'
+	String get transferRefunded => '已退回';
+
+	/// zh-CN: '等待对方确认'
+	String get transferPending => '等待对方确认';
+
+	/// zh-CN: '点击收款'
+	String get transferTapToReceive => '点击收款';
+
+	/// zh-CN: '用户：$uid'
+	String redPacketReceiverLabel({required Object uid}) => '用户：${uid}';
+
+	/// zh-CN: '红包不存在或已被删除'
+	String get redPacketNotFound => '红包不存在或已被删除';
+
+	/// zh-CN: '获取红包详情失败'
+	String get redPacketFetchFailed => '获取红包详情失败';
+
+	/// zh-CN: '获取红包详情异常'
+	String get redPacketFetchError => '获取红包详情异常';
+
+	/// zh-CN: '收款成功！'
+	String get payReceiveSuccess => '收款成功！';
 
 	/// zh-CN: 'now'
 	String get timeNowShort => 'now';
@@ -6825,6 +6891,36 @@ class Translations$passport$zh_CN {
 
 	/// zh-CN: '一键登录'
 	String get oneKeyLogin => '一键登录';
+
+	/// zh-CN: '二维码已过期，请重新扫码'
+	String get qrCodeExpired => '二维码已过期，请重新扫码';
+
+	/// zh-CN: '此二维码已使用'
+	String get qrCodeUsed => '此二维码已使用';
+
+	/// zh-CN: '登录已取消'
+	String get qrLoginCancelled => '登录已取消';
+
+	/// zh-CN: '正在登录...'
+	String get qrLoginConfirming => '正在登录...';
+
+	/// zh-CN: '已取消登录'
+	String get qrLoginCancelledByMe => '已取消登录';
+
+	/// zh-CN: '正在连接...'
+	String get qrConnecting => '正在连接...';
+
+	/// zh-CN: 'Web 端登录确认'
+	String get qrWebLoginTitle => 'Web 端登录确认';
+
+	/// zh-CN: '请确认是否在 Web 端登录此账号'
+	String get qrWebLoginDesc => '请确认是否在 Web 端登录此账号';
+
+	/// zh-CN: '确认登录'
+	String get qrLoginAction => '确认登录';
+
+	/// zh-CN: '登录成功'
+	String get qrLoginSuccess => '登录成功';
 }
 
 // Path: splash
@@ -7278,6 +7374,11 @@ extension on Translations {
 			'chat.sendSeparatelyTo' => '分别发送给',
 			'chat.sendTo' => '发送给',
 			'chat.send' => _root.common.buttonSend,
+			'chat.releaseConvertToText' => '松开 转文字',
+			'chat.voiceReleaseCancelSend' => '松开 取消发送',
+			'chat.voiceReleaseCancel' => '松开 取消',
+			'chat.voiceSlideHint' => '上滑 取消 / 转文字',
+			'chat.convertToText' => '转文字',
 			'chat.sender' => '发送者',
 			'chat.sending' => '正在发送...',
 			'chat.signatureInputHint' => '签名输入提示',
@@ -7390,13 +7491,13 @@ extension on Translations {
 			'chat.webFeatureMultiDeviceDesc' => '在手机和电脑之间无缝切换，消息实时同步',
 			'chat.webFeatureE2EE' => '端到端加密',
 			'chat.webFeatureE2EEDesc' => '所有消息都经过端到端加密，确保隐私安全',
+			_ => null,
+		} ?? switch (path) {
 			'chat.webFeatureFileTransfer' => '文件传输',
 			'chat.webFeatureFileTransferDesc' => '拖拽即可发送文件，支持各种格式',
 			'chat.webQRStatusWaiting' => '打开 ImBoy 手机版 > 设置 > 扫一扫',
 			'chat.webQRStatusScanned' => '请在手机上点击"确认登录"',
 			'chat.webQRStatusVerifying' => '正在验证...',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webQRStatusExpired' => '请点击刷新重新扫码',
 			'chat.e2eeErrInvalidFormat' => '消息格式错误，加密失败',
 			'chat.e2eeSocialCreateTitle' => '创建恢复分片',
@@ -7904,13 +8005,13 @@ extension on Translations {
 			'common.forceOfflineCommandSent' => '已发送下线指令',
 			'common.feedbackSlogan' => '您的建议是我们改进的动力',
 			'common.newFeedback' => '新建反馈',
+			_ => null,
+		} ?? switch (path) {
 			'common.feedbackHistory' => '反馈历史',
 			'common.confirmDelete' => '确认删除',
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => '验证码',
 			'common.feedbackContent' => '反馈内容',
-			_ => null,
-		} ?? switch (path) {
 			'common.officialReply' => '官方回复',
 			'common.setPasswordSecurityTips' => '为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。',
 			'common.locationHidden' => '已隐藏您的位置',
@@ -8177,6 +8278,9 @@ extension on Translations {
 			'common.partialDeleteSuccess' => ({required Object success, required Object fail}) => '部分删除成功：${success} 成功，${fail} 失败',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => '收藏的视频消息格式有误，找不到 video uri',
 			'common.recordingCancelled' => '录音已取消',
+			'common.voiceSttPreviewTitle' => '语音转文字预览',
+			'common.voiceSttConverting' => '正在识别中...',
+			'common.voiceSttNotConfigured' => '转文字功能暂未配置',
 			'common.pullOfflineMessagesFailed' => '拉取离线消息失败',
 			'common.pullOfflineMessagesAbnormal' => '拉取离线消息异常',
 			'common.logoutRequestFailedPleaseCheckNetwork' => '退出登录请求失败，请检查网络连接',
@@ -8415,6 +8519,8 @@ extension on Translations {
 			'common.e2eeBackupCreatedAtRow' => '创建时间',
 			'common.e2eeBackupFileSizeRow' => '文件大小',
 			'common.e2eeBackupNoteRow' => '备注',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupDeleteTitle' => '删除备份记录',
 			'common.e2eeBackupDeleteConfirm' => '确定要删除此备份记录吗？',
 			'common.e2eeBackupDeleteSuccess' => '备份记录已删除',
@@ -8423,8 +8529,6 @@ extension on Translations {
 			'common.e2eeSocialAddProxy' => '添加代理',
 			'common.e2eeSocialAddProxyHint' => '请添加代理联系人',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '请先添加 ${count} 个代理',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialCreateSuccessTitle' => '分片创建成功',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '密钥已分割成 ${count} 个分片',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '需要 ${count} 个代理协助即可恢复密钥',
@@ -8492,6 +8596,10 @@ extension on Translations {
 			'common.transferSend' => '发起转账',
 			'common.transferAccept' => '确认收钱',
 			'common.greetingDefault' => '恭喜发财，大吉大利',
+			'common.redPacketView' => '查看红包',
+			'common.redPacketBrand' => 'IMBoy 红包',
+			'common.redPacketDialogTitle' => '送你一个红包',
+			'common.redPacketDialogSubtitle' => '大吉大利，恭喜发财',
 			'common.grabAmountYuan' => ({required Object amount}) => '领到金额：${amount} 元',
 			'common.transferAmountYuan' => ({required Object amount}) => '转账金额：${amount} 元',
 			'common.insufficientBalance' => '余额不足',
@@ -8510,6 +8618,16 @@ extension on Translations {
 			'common.redPacketCurrentNormal' => '当前为：普通红包',
 			'common.redPacketSwitchToNormal' => '改为普通红包',
 			'common.redPacketSwitchToLucky' => '改为拼手气红包',
+			'common.transferReceiving' => '正在收款...',
+			'common.transferAccepted' => '已收取',
+			'common.transferRefunded' => '已退回',
+			'common.transferPending' => '等待对方确认',
+			'common.transferTapToReceive' => '点击收款',
+			'common.redPacketReceiverLabel' => ({required Object uid}) => '用户：${uid}',
+			'common.redPacketNotFound' => '红包不存在或已被删除',
+			'common.redPacketFetchFailed' => '获取红包详情失败',
+			'common.redPacketFetchError' => '获取红包详情异常',
+			'common.payReceiveSuccess' => '收款成功！',
 			'common.timeNowShort' => 'now',
 			'common.timeDaysShort' => ({required Object count}) => '${count}d',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
@@ -8915,6 +9033,8 @@ extension on Translations {
 			'main.thisIsTitleText' => '这是标题文本',
 			'main.thisIsAuxiliaryText' => '这是辅助说明文字',
 			'main.toBeCompleted' => '待完善',
+			_ => null,
+		} ?? switch (path) {
 			'main.availableCount' => '可选择',
 			'main.mostUsed' => '最常用',
 			'main.commentPlaceholder' => '评论...',
@@ -8937,8 +9057,6 @@ extension on Translations {
 			'main.secret' => '保密',
 			'main.takePhoto' => '拍照',
 			'main.publishing' => '发布中...',
-			_ => null,
-		} ?? switch (path) {
 			'main.deletingInProgressPleaseWait' => '正在删除中，请稍候...',
 			'main.testUser1' => '用户1',
 			'main.testUser2' => '用户2',
@@ -9082,6 +9200,16 @@ extension on Translations {
 			'passport.getVerifyCode' => '获取验证码',
 			'passport.hasAccount' => '已有账号？',
 			'passport.oneKeyLogin' => '一键登录',
+			'passport.qrCodeExpired' => '二维码已过期，请重新扫码',
+			'passport.qrCodeUsed' => '此二维码已使用',
+			'passport.qrLoginCancelled' => '登录已取消',
+			'passport.qrLoginConfirming' => '正在登录...',
+			'passport.qrLoginCancelledByMe' => '已取消登录',
+			'passport.qrConnecting' => '正在连接...',
+			'passport.qrWebLoginTitle' => 'Web 端登录确认',
+			'passport.qrWebLoginDesc' => '请确认是否在 Web 端登录此账号',
+			'passport.qrLoginAction' => '确认登录',
+			'passport.qrLoginSuccess' => '登录成功',
 			'splash.slogan' => '畅所欲言，自在沟通',
 			'welcome.step1Title' => '简单连接',
 			'welcome.step1Desc' => '体验无缝沟通的乐趣。 随时随地，畅所欲言。',

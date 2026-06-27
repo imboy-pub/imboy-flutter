@@ -182,7 +182,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: const Icon(
                       Icons.delete_outline,
-                      color: Colors.white,
+                      color: AppColors.onPrimary,
                     ),
                   ),
                   onDismissed: (_) => _handleDelete(index),

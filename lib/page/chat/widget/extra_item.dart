@@ -64,10 +64,10 @@ class ExtraItem extends StatelessWidget {
                       : AppColors.lightSurfaceGrouped,
                   borderRadius: AppRadius.borderRadiusLarge, // 更圆润的角
                   // 移除硬边框，使用极淡的内描边来增加精致感
-                  // 注：10% 白 / 5% 黑内描边，AppColors 无精确 overlay token（现有为 8%/12% 白），保留字面量
+                  // 注：5% 黑无对应 token 保留字面量；10% 白用 overlayWhite10
                   border: Border.all(
                     color: isDark
-                        ? Colors.white.withValues(alpha: 0.1)
+                        ? AppColors.overlayWhite10
                         : Colors.black.withValues(alpha: 0.05),
                     width: 0.5,
                   ),
@@ -77,7 +77,7 @@ class ExtraItem extends StatelessWidget {
                     data: IconThemeData(
                       //图标颜色：深色用白 / 浅色用次级文字色，保持工具属性不随主题色漂移
                       color: isDark
-                          ? Colors.white
+                          ? AppColors.darkTextPrimary
                           : AppColors.lightTextSecondary,
                       size: 26,
                     ),

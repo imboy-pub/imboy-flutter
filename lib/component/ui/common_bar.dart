@@ -78,8 +78,8 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     // Border color to "catch the light"
     final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.1)
-        : Colors.white.withValues(alpha: 0.5);
+        ? AppColors.overlayWhite10
+        : AppColors.overlayWhite50; // glass light-mode highlight
 
     // Text color
     final textColor = isDark

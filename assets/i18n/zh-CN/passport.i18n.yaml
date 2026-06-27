@@ -8,3 +8,13 @@ hintVerifyCode: 请输入验证码
 getVerifyCode: 获取验证码
 hasAccount: 已有账号？
 oneKeyLogin: 一键登录
+qrCodeExpired: 二维码已过期，请重新扫码
+qrCodeUsed: 此二维码已使用
+qrLoginCancelled: 登录已取消
+qrLoginConfirming: 正在登录...
+qrLoginCancelledByMe: 已取消登录
+qrConnecting: 正在连接...
+qrWebLoginTitle: Web 端登录确认
+qrWebLoginDesc: 请确认是否在 Web 端登录此账号
+qrLoginAction: 确认登录
+qrLoginSuccess: 登录成功

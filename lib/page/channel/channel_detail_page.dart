@@ -539,7 +539,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         AppLoading.showError(t.common.uploadFailed);
       }
     } catch (e) {
-      AppLoading.showError('发送语音失败: $e');
+      AppLoading.showError(t.common.voiceSendFailed);
     } finally {
       if (mounted) {
         setState(() => _isUploadingMedia = false);

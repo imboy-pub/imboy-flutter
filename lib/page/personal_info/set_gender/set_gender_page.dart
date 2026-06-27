@@ -51,7 +51,7 @@ class SetGenderPage extends ConsumerWidget {
               ),
               child: Icon(
                 option['icon'] as IconData,
-                color: Colors.white,
+                color: AppColors.onPrimary,
                 size: 18,
               ),
             ),

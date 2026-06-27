@@ -307,6 +307,15 @@ class AppColors {
   /// 10% 白高光（≈ Colors.white10）
   static const Color overlayWhite10 = Color(0x1AFFFFFF);
 
+  /// 50% 白叠层（= Colors.white.withValues(alpha:0.5)）玻璃效果高光边
+  static const Color overlayWhite50 = Color(0x80FFFFFF);
+
+  /// 70% 白叠层（= Colors.white70）视频/暗色叠层辅色
+  static const Color overlayWhite70 = Color(0xB3FFFFFF);
+
+  /// 5% 黑叠层（= Colors.black.withValues(alpha:0.05)）卡片悬浮底色
+  static const Color overlayBlack5 = Color(0x0D000000);
+
   static double getContrastRatio(Color c1, Color c2) {
     double l1 = _getLuminance(c1), l2 = _getLuminance(c2);
     return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05);
