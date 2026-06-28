@@ -190,6 +190,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     imageSource: UserRepoLocal.to.current.avatar,
   );
   late ConversationModel conversation; // 当前会话
+  bool _conversationInitialized = false;
   late User _peerUser; // 对方用户信息
   String? _editingMessageId; // 当前正在编辑的消息ID
   bool _burnEnabled = false;
@@ -237,14 +238,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   String get _chatType => MessageFlowType.normalize(widget.type);
 
   // 检查 conversation 是否已初始化
-  bool get _isConversationInitialized {
-    try {
-      final _ = conversation.uk3;
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
+  bool get _isConversationInitialized => _conversationInitialized;
 
   // 页面初始化
   @override
@@ -463,6 +457,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         );
 
     conversation = conversationResult;
+    _conversationInitialized = true;
 
     if (showConversation) {
       AppEventBus.fireData(conversation);

@@ -81,27 +81,22 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     String? kind = widget.isSelect ? currentState.recentUse : currentState.kind;
 
     try {
-      final list = await notifier.page(
-        page: 1,
-        size: currentState.size,
-        kind: kind,
-      );
-      if (mounted) {
-        notifier.updateState(
-          currentState.copyWith(
-            items: list,
-            page: list.isNotEmpty ? 2 : 1,
-            hasMore: list.length >= currentState.size,
-          ),
-        );
-      }
+      final results = await Future.wait([
+        notifier.page(page: 1, size: currentState.size, kind: kind),
+        notifier.tagItems(context),
+      ]);
       if (!mounted) return;
-      final tagItems = await notifier.tagItems(context);
-      if (mounted) {
-        final updatedState = ref.read(userCollectProvider);
-        notifier.updateState(updatedState.copyWith(tagItems: tagItems));
-      }
-    } catch (e) {
+      final list = results[0] as List<UserCollectModel>;
+      final tagItems = results[1] as List<Widget>;
+      notifier.updateState(
+        currentState.copyWith(
+          items: list,
+          page: list.isNotEmpty ? 2 : 1,
+          hasMore: list.length >= currentState.size,
+          tagItems: tagItems,
+        ),
+      );
+    } on Exception catch (_) {
       if (mounted) setState(() => _loadError = true);
     }
   }

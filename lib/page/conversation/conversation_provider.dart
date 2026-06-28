@@ -30,7 +30,7 @@ class ConversationState {
   final String connectDesc;
   final Map<String, int> conversationRemind;
 
-  const ConversationState({
+  ConversationState({
     this.isLoading = true,
     this.conversationMap = const {},
     this.connectDesc = '',
@@ -51,8 +51,15 @@ class ConversationState {
     );
   }
 
+  // Cached sorted list — recomputed only when conversationMap changes (via copyWith)
+  List<ConversationModel>? _cachedConversations;
+
   // Get sorted conversations list
   List<ConversationModel> get conversations {
+    return _cachedConversations ??= _buildSorted();
+  }
+
+  List<ConversationModel> _buildSorted() {
     final list = conversationMap.values.toList();
     list.sort((a, b) {
       if (a.isPinned != b.isPinned) {
@@ -91,7 +98,7 @@ class ConversationNotifier extends _$ConversationNotifier {
       _pendingUpdates.clear();
     });
 
-    return const ConversationState();
+    return ConversationState();
   }
 
   // Set loading state
