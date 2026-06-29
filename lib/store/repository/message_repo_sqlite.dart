@@ -232,17 +232,22 @@ class MessageRepo implements MessageRepository {
     String messageId,
     int status,
   ) async {
-    for (final tableType in ['C2C', 'C2G', 'C2S']) {
-      final tb = getTableName(tableType);
-      final repo = MessageRepo(tableName: tb);
-      final msg = await repo.find(messageId);
-      if (msg != null) {
-        await repo.update({'id': messageId, MessageRepo.status: status});
-        msg.status = status;
-        return true;
+    try {
+      final db = SqliteService.to;
+      for (final tableType in ['C2C', 'C2G', 'C2S']) {
+        final tb = getTableName(tableType);
+        final updated = await db.update(
+          tb,
+          {MessageRepo.status: status},
+          where: '${MessageRepo.id} = ?',
+          whereArgs: [messageId],
+        );
+        if (updated > 0) return true;
       }
+      return false;
+    } on Exception catch (_) {
+      return false;
     }
-    return false;
   }
 
   // 插入一条数据
@@ -1302,29 +1307,28 @@ class MessageRepo implements MessageRepository {
       final db = SqliteService.to;
       final List<MessageModel> allMessages = [];
 
-      // 从 msg_c2c 表查询
-      final c2cMessages = await _getMessagesFromTable(
-        db,
-        c2cTable,
-        conversationUk3: conversationUk3,
-        limit: limit,
-        offset: offset,
-        startTime: startTime,
-        endTime: endTime,
-      );
-      allMessages.addAll(c2cMessages);
-
-      // 从 msg_c2g 表查询
-      final c2gMessages = await _getMessagesFromTable(
-        db,
-        c2gTable,
-        conversationUk3: conversationUk3,
-        limit: limit,
-        offset: offset,
-        startTime: startTime,
-        endTime: endTime,
-      );
-      allMessages.addAll(c2gMessages);
+      final results = await Future.wait([
+        _getMessagesFromTable(
+          db,
+          c2cTable,
+          conversationUk3: conversationUk3,
+          limit: limit,
+          offset: offset,
+          startTime: startTime,
+          endTime: endTime,
+        ),
+        _getMessagesFromTable(
+          db,
+          c2gTable,
+          conversationUk3: conversationUk3,
+          limit: limit,
+          offset: offset,
+          startTime: startTime,
+          endTime: endTime,
+        ),
+      ]);
+      allMessages.addAll(results[0]);
+      allMessages.addAll(results[1]);
 
       // 按创建时间降序排序
       allMessages.sort((a, b) => b.createdAt.compareTo(a.createdAt));

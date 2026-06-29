@@ -92,7 +92,13 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
                   .reorderItems(oldIndex, newIndex),
               itemBuilder: (context, index) {
                 final obj = listState.items[index];
-                return _buildTagItem(context, index, obj, brightness);
+                return _buildTagItem(
+                  context,
+                  index,
+                  obj,
+                  brightness,
+                  listState.items.length,
+                );
               },
             ),
           ),
@@ -105,6 +111,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
     int index,
     UserTagModel obj,
     Brightness brightness,
+    int totalCount,
   ) {
     return Slidable(
       key: ValueKey(obj.tagId),
@@ -161,7 +168,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
               ],
             ),
           ),
-          if (index < ref.read(contactTagListProvider).items.length - 1)
+          if (index < totalCount - 1)
             Padding(
               padding: const EdgeInsets.only(left: 16),
               child: Divider(

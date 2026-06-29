@@ -11,6 +11,7 @@
 /// 3. 用户登出时调用 unregisterToken()
 library;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
 
@@ -43,6 +44,10 @@ class PushNotificationService {
   /// 是否已注册到后端
   bool _isRegistered = false;
   bool get isRegistered => _isRegistered;
+
+  StreamSubscription<String>? _tokenRefreshSub;
+  StreamSubscription<RemoteMessage>? _onMessageSub;
+  StreamSubscription<RemoteMessage>? _onMessageOpenedSub;
 
   /// FCM 是否初始化成功
   bool _fcmEnabled = false;
@@ -108,7 +113,7 @@ class PushNotificationService {
       iPrint('[Push] FCM token 获取成功: ${_pushToken != null}');
 
       // 监听 token 刷新
-      messaging.onTokenRefresh.listen((newToken) {
+      _tokenRefreshSub = messaging.onTokenRefresh.listen((newToken) {
         iPrint('[Push] Token 已刷新');
         _pushToken = newToken;
         if (UserRepoLocal.to.isLoggedIn) {
@@ -117,10 +122,14 @@ class PushNotificationService {
       });
 
       // 前台消息处理
-      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+      _onMessageSub = FirebaseMessaging.onMessage.listen(
+        _handleForegroundMessage,
+      );
 
       // 后台消息处理 (点击通知打开 app)
-      FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+      _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen(
+        _handleNotificationTap,
+      );
 
       _fcmEnabled = true;
     } catch (e) {
@@ -129,6 +138,12 @@ class PushNotificationService {
       iPrint('[Push] FCM 初始化跳过: $e');
       _fcmEnabled = false;
     }
+  }
+
+  void dispose() {
+    _tokenRefreshSub?.cancel();
+    _onMessageSub?.cancel();
+    _onMessageOpenedSub?.cancel();
   }
 
   /// 向后端注册推送 token
