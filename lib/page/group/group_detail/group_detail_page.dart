@@ -450,7 +450,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             memberList: state.memberList,
             width: 52,
             height: 52,
-            column: (MediaQuery.of(context).size.width - 72) ~/ 64,
+            column: (MediaQuery.sizeOf(context).width - 72) ~/ 64,
             onTapAvatar: (p) => context.push(
               '/people_info/${p.id}',
               extra: {'scene': 'group_member'},

@@ -244,8 +244,7 @@ class GroupMemberRepo {
       return model;
     } else {
       await update(gid, userId, json);
-      old = await findByUserId(gid, userId);
-      return old!;
+      return GroupMemberModel.fromJson(json);
     }
   }
 
