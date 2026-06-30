@@ -15,6 +15,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -99,18 +100,23 @@ class FlowApiClient {
     return h;
   }
 
+  /// 对密码做 MD5，与 Flutter app 行为一致（backend 存储 md5(plaintext)）
+  static String _md5(String s) => md5.convert(utf8.encode(s)).toString();
+
   Future<Map<String, dynamic>> login({
     required String account,
     required String password,
-    String type = 'mobile',
+    String? type,
   }) async {
-    _log('登录: $account');
+    // 自动推断 type：包含 @ 的是 email，否则默认 mobile
+    final loginType = type ?? (account.contains('@') ? 'email' : 'mobile');
+    _log('登录: $account (type=$loginType)');
     final resp = await _dio.post<dynamic>(
       '/v1/passport/login',
       data: {
         'account': account,
-        'pwd': password,
-        'type': type,
+        'pwd': _md5(password),
+        'type': loginType,
         'rsa_encrypt': '0',
       },
       options: Options(headers: _defaultHeaders()),
