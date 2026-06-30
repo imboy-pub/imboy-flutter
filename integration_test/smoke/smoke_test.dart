@@ -76,9 +76,9 @@ void main() {
       // 避免 setUp 中调用时 group 多测试场景下 Flutter 绑定重复初始化。
       app.main();
 
-      // 等待启动动画和路由初始化完成（单帧超时 5s 足够宽松）
-      await tester.pump(const Duration(seconds: 3));
-      await tester.pumpAndSettle();
+      // 等待启动动画和路由初始化完成；网络初始化最多 15s
+      await tester.pump(const Duration(seconds: 10));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(
         find.byType(Scaffold),
