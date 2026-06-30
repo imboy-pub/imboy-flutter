@@ -1,0 +1,25 @@
+appId: ${APP_ID}
+name: "退出登录"
+---
+- launchApp
+- tapOn:
+    id: "tab_mine"
+- scroll
+
+- runFlow:
+    when:
+      visible:
+        text: "退出登录"
+    commands:
+      - tapOn:
+          text: "退出登录"
+      - runFlow:
+          when:
+            visible:
+              text: "确认"
+          commands:
+            - tapOn:
+                text: "确认"
+      - assertVisible:
+          id: "login_phone_input"
+      - takeScreenshot: after_logout

@@ -1,0 +1,43 @@
+appId: ${APP_ID}
+name: "我的页面"
+---
+- launchApp
+- tapOn:
+    id: "tab_mine"
+- takeScreenshot: mine_page
+
+- runFlow:
+    when:
+      visible:
+        text: "设置"
+    commands:
+      - tapOn:
+          text: "设置"
+      - takeScreenshot: settings_page
+      - swipe:
+          direction: RIGHT
+          duration: 400
+          startPoint:
+            x: 5
+            y: 50
+          endPoint:
+            x: 95
+            y: 50
+
+- runFlow:
+    when:
+      visible:
+        text: "关于"
+    commands:
+      - tapOn:
+          text: "关于"
+      - takeScreenshot: about_page
+      - swipe:
+          direction: RIGHT
+          duration: 400
+          startPoint:
+            x: 5
+            y: 50
+          endPoint:
+            x: 95
+            y: 50

@@ -1,0 +1,6 @@
+appId: ${APP_ID}
+name: "（内部）已登录旁路"
+---
+# 已经在主界面，无需登录
+- assertVisible:
+    id: "tab_conversations"

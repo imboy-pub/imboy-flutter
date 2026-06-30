@@ -1,0 +1,30 @@
+appId: ${APP_ID}
+name: "（内部）频道内容验证"
+---
+- tapOn:
+    id: "tab_channel"
+- waitForAnimationsToEnd
+- takeScreenshot: channel_list
+
+# 订阅的频道（如果有）
+- runFlow:
+    when:
+      visible:
+        text: "订阅"
+    commands:
+      - takeScreenshot: channel_subscribed
+
+# 发现频道
+- runFlow:
+    when:
+      visible:
+        text: "发现"
+    commands:
+      - tapOn:
+          text: "发现"
+      - waitForAnimationsToEnd
+      - takeScreenshot: channel_discover
+      - pressKey: Back
+
+- tapOn:
+    id: "tab_conversations"

@@ -117,9 +117,10 @@ class FlowApiClient {
     );
     final body = _parse(resp);
     if (body['code'] == 0) {
-      _accessToken = body['data']?['token'] as String?;
-      _refreshToken = body['data']?['refreshtoken'] as String?;
-      _currentUid = '${body['data']?['uid'] ?? ''}';
+      final p = body['payload'] as Map<String, dynamic>?;
+      _accessToken = p?['token'] as String?;
+      _refreshToken = p?['refreshtoken'] as String?;
+      _currentUid = '${p?['uid'] ?? ''}';
       _log('登录成功: uid=$_currentUid');
     } else {
       _log('登录失败: ${body['msg']}');
@@ -136,8 +137,9 @@ class FlowApiClient {
     );
     final body = _parse(resp);
     if (body['code'] == 0) {
-      _accessToken = body['data']?['token'] as String?;
-      _refreshToken = body['data']?['refreshtoken'] as String?;
+      final p = body['payload'] as Map<String, dynamic>?;
+      _accessToken = p?['token'] as String?;
+      _refreshToken = p?['refreshtoken'] as String?;
     }
     return body;
   }
@@ -214,7 +216,7 @@ class FlowApiAssert {
     String field, {
     String? context,
   }) {
-    final data = resp['data'];
+    final data = resp['payload'];
     if (data is! Map || !data.containsKey(field)) {
       throw AssertionError('${context ?? 'API'} 响应缺少字段: $field');
     }

@@ -1,0 +1,22 @@
+appId: ${APP_ID}
+name: "会话列表 & 搜索"
+---
+- launchApp
+- tapOn:
+    id: "tab_conversations"
+- takeScreenshot: conversation_list
+
+- runFlow:
+    when:
+      visible:
+        id: "conversation_search_input"
+    commands:
+      - tapOn:
+          id: "conversation_search_input"
+      - inputText: "测试"
+      - takeScreenshot: conversation_search
+      - eraseText: 10
+      - hideKeyboard
+
+- scroll
+- takeScreenshot: conversation_scrolled

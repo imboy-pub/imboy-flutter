@@ -207,6 +207,8 @@ Future<WebSocket> _connect(String url, {String? token}) {
     'vsn': '0.8.0',
     'pkg': 'pub.imboy.app',
     'did': 'dart-test-ws-001',
+    // backend requires a recognized subprotocol; without it → HTTP 400
+    'sec-websocket-protocol': 'imboy-json',
   };
   if (token != null) headers['authorization'] = 'Bearer $token';
   return WebSocket.connect(url, headers: headers);

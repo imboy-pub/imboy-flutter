@@ -112,9 +112,10 @@ class ApiTestClient {
     );
     final body = _parse(resp);
     if (body['code'] == 0) {
-      _accessToken = body['data']?['token'] as String?;
-      _refreshToken = body['data']?['refreshtoken'] as String?;
-      _currentUid = '${body['data']?['uid'] ?? ''}';
+      final p = body['payload'] as Map<String, dynamic>?;
+      _accessToken = p?['token'] as String?;
+      _refreshToken = p?['refreshtoken'] as String?;
+      _currentUid = '${p?['uid'] ?? ''}';
       _log('登录成功: uid=$_currentUid');
     } else {
       _log('登录失败: ${body['msg']}');
@@ -131,8 +132,9 @@ class ApiTestClient {
     );
     final body = _parse(resp);
     if (body['code'] == 0) {
-      _accessToken = body['data']?['token'] as String?;
-      _refreshToken = body['data']?['refreshtoken'] as String?;
+      final p = body['payload'] as Map<String, dynamic>?;
+      _accessToken = p?['token'] as String?;
+      _refreshToken = p?['refreshtoken'] as String?;
     }
     return body;
   }
@@ -213,9 +215,12 @@ class ApiAssert {
     String field, {
     String? context,
   }) {
-    final data = resp['data'];
-    if (data is! Map || !data.containsKey(field)) {
-      throw AssertionError('${context ?? 'API'} 响应缺少字段: $field');
+    // ponytail: server envelope uses 'payload', not 'data'
+    final payload = resp['payload'];
+    if (payload is! Map || !payload.containsKey(field)) {
+      throw AssertionError(
+        '${context ?? 'API'} 响应缺少字段: $field (payload=$payload)',
+      );
     }
   }
 
@@ -225,7 +230,7 @@ class ApiAssert {
     String? context,
   }) {
     hasField(resp, field, context: context);
-    final value = (resp['data'] as Map)[field];
+    final value = (resp['payload'] as Map)[field];
     if (value == null || (value is String && value.isEmpty)) {
       throw AssertionError('${context ?? 'API'} 字段 $field 为空');
     }

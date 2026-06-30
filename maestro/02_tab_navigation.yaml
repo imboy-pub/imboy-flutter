@@ -1,0 +1,30 @@
+appId: ${APP_ID}
+name: "Tab 导航切换"
+---
+- launchApp
+- assertVisible:
+    id: "tab_conversations"
+
+- tapOn:
+    id: "tab_conversations"
+- takeScreenshot: tab_conversations
+
+- tapOn:
+    id: "tab_contacts"
+- takeScreenshot: tab_contacts
+
+- runFlow:
+    when:
+      visible:
+        id: "tab_channel"
+    commands:
+      - tapOn:
+          id: "tab_channel"
+      - takeScreenshot: tab_channel
+
+- tapOn:
+    id: "tab_mine"
+- takeScreenshot: tab_mine
+
+- tapOn:
+    id: "tab_conversations"

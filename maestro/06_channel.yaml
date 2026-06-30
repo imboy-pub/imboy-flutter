@@ -1,0 +1,15 @@
+appId: ${APP_ID}
+name: "频道页面"
+---
+- launchApp
+
+- runFlow:
+    when:
+      visible:
+        id: "tab_channel"
+    commands:
+      - tapOn:
+          id: "tab_channel"
+      - takeScreenshot: channel_list
+      - tapOn:
+          id: "tab_conversations"

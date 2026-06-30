@@ -1,0 +1,33 @@
+appId: ${APP_ID}
+name: "登录流程"
+---
+- stopApp
+- clearState
+- launchApp
+
+# 如已在主界面，跳过登录
+- runFlow:
+    when:
+      notVisible:
+        id: "login_phone_input"
+    commands:
+      - assertVisible:
+          id: "tab_conversations"
+
+- tapOn:
+    id: "login_phone_input"
+- eraseText: 30
+- inputText: "${PHONE}"
+
+- tapOn:
+    id: "login_password_input"
+- eraseText: 30
+- inputText: "${PASSWORD}"
+- hideKeyboard
+
+- tapOn:
+    id: "login_submit_button"
+
+- assertVisible:
+    id: "tab_conversations"
+- takeScreenshot: login_success

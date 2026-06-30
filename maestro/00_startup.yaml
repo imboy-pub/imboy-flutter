@@ -1,0 +1,6 @@
+appId: ${APP_ID}
+name: "冒烟 - App 启动验证"
+---
+- stopApp
+- launchApp
+- takeScreenshot: startup

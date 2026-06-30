@@ -132,10 +132,12 @@ void main() {
       }
       final resp = await client.get(
         '/api/v1/user/show',
-        queryParameters: {'uid': client.currentUid},
+        queryParameters: {
+          'id': client.currentUid,
+        }, // backend uses 'id', not 'uid'
       );
       ApiAssert.success(resp, context: '获取用户信息');
-      expect(resp['data'], isA<Map<String, dynamic>>());
+      expect(resp['payload'], isA<Map<String, dynamic>>());
     });
   });
 

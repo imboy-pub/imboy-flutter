@@ -1,0 +1,43 @@
+appId: ${APP_ID}
+name: "联系人页面"
+---
+- launchApp
+- tapOn:
+    id: "tab_contacts"
+- takeScreenshot: contacts_list
+
+- runFlow:
+    when:
+      visible:
+        text: "新朋友"
+    commands:
+      - tapOn:
+          text: "新朋友"
+      - takeScreenshot: new_friend_page
+      - swipe:
+          direction: RIGHT
+          duration: 400
+          startPoint:
+            x: 5
+            y: 50
+          endPoint:
+            x: 95
+            y: 50
+
+- runFlow:
+    when:
+      visible:
+        id: "add_friend_button"
+    commands:
+      - tapOn:
+          id: "add_friend_button"
+      - takeScreenshot: add_friend
+      - swipe:
+          direction: RIGHT
+          duration: 400
+          startPoint:
+            x: 5
+            y: 50
+          endPoint:
+            x: 95
+            y: 50
