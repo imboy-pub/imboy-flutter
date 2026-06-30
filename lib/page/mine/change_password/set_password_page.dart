@@ -260,6 +260,7 @@ class SetPasswordPage extends ConsumerWidget {
               child: RoundedElevatedButton(
                 text: t.common.buttonConfirm,
                 onPressed: () async {
+                  FocusScope.of(context).unfocus();
                   bool res = await ref
                       .read(setPasswordProvider.notifier)
                       .setPassword();

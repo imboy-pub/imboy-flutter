@@ -170,6 +170,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
           onPressed: _isSubmitting
               ? null
               : () async {
+                  FocusScope.of(context).unfocus();
                   setState(() => _isSubmitting = true);
                   try {
                     final nav = Navigator.of(context);

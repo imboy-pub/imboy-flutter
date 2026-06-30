@@ -30,6 +30,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
   final _descriptionController = TextEditingController();
   final _customIdController = TextEditingController();
   final _tagController = TextEditingController();
+  final _scrollController = ScrollController();
   MediaPickerCapability get _picker =>
       CapabilityLocator.I.get<MediaPickerCapability>();
   int _selectedType = 0;
@@ -46,12 +47,15 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
     _descriptionController.dispose();
     _customIdController.dispose();
     _tagController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   Future<void> _createChannel() async {
     if (!_formKey.currentState!.validate()) return;
     if (_isUploadingAvatar) return;
+
+    FocusScope.of(context).unfocus();
 
     final notifier = ref.read(createChannelProvider.notifier);
 
@@ -191,6 +195,33 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
     final t = context.t;
     final state = ref.watch(createChannelProvider);
 
+    ref.listen<CreateChannelState>(createChannelProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        // Dismiss keyboard first
+        FocusScope.of(context).unfocus();
+
+        // Show Snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: AppColors.iosRed,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+
+        // Scroll to the bottom to make sure the error container at the bottom is visible
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
+    });
+
     return Scaffold(
       appBar: GlassAppBar(
         title: t.channel.create,
@@ -213,6 +244,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
       body: Form(
         key: _formKey,
         child: ListView(
+          controller: _scrollController,
           padding: AppSpacing.allRegular,
           children: [
             Text(

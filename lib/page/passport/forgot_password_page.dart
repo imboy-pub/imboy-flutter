@@ -162,6 +162,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
               ),
             ),
             onPressed: () async {
+              FocusScope.of(context).unfocus();
               final email = _emailController.text;
               if (email.isEmpty) {
                 notifier.snackBar(
@@ -241,6 +242,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
               ),
             ),
             onPressed: () async {
+              FocusScope.of(context).unfocus();
               if (_fullMobile.isEmpty) {
                 notifier.snackBar(
                   t.common.errorEmptyDirectory(param: t.account.mobile),

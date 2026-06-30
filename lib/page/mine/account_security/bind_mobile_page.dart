@@ -288,6 +288,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
           ),
           onPressed: state.canSubmit
               ? () async {
+                  FocusScope.of(context).unfocus();
                   final error = await ref
                       .read(bindMobileProvider.notifier)
                       .submit();

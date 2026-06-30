@@ -255,7 +255,10 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () => _handleWithdraw(balanceYuan),
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    _handleWithdraw(balanceYuan);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.iosRed,
                     foregroundColor: AppColors.onPrimary,

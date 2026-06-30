@@ -326,6 +326,7 @@ class _PinCodeVerificationPageState
                               height: 52,
                               child: ElevatedButton(
                                 onPressed: () async {
+                                  FocusScope.of(context).unfocus();
                                   if (currentText.length != 6) {
                                     _pinController.triggerError();
                                     setState(() => hasError = true);

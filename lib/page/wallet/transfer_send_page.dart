@@ -167,7 +167,10 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: () => _handleSend(balanceYuan),
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    _handleSend(balanceYuan);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.iosRed,
                     foregroundColor: AppColors.onPrimary,

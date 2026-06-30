@@ -110,6 +110,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   Future<void> _saveChanges() async {
     if (!_formKey.currentState!.validate()) return;
 
+    FocusScope.of(context).unfocus();
+
     setState(() => _isSaving = true);
 
     try {

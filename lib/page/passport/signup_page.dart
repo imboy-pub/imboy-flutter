@@ -253,6 +253,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
             color: AppColors.onPrimary,
           ),
           onPressed: () async {
+            FocusScope.of(context).unfocus();
             final nickname = _nicknameController.text.trim();
             final email = _emailController.text.trim();
             final pwd = _passwordController.text;
@@ -382,6 +383,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
             color: AppColors.onPrimary,
           ),
           onPressed: () async {
+            FocusScope.of(context).unfocus();
             final nickname = _nicknameController.text.trim();
             if (nickname.isEmpty) {
               notifier.snackBar(t.common.nicknameEmptyError);

@@ -140,6 +140,7 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                   onPressed: _isSaving
                       ? null
                       : () async {
+                          FocusScope.of(context).unfocus();
                           String trimmedText = _textController.text.trim();
                           if (trimmedText.isEmpty) {
                             setState(() {

@@ -173,6 +173,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
             ),
           ),
           onPressed: () async {
+            FocusScope.of(context).unfocus();
             Map<String, dynamic> p2 =
                 json.decode(widget.payload) as Map<String, dynamic>;
             p2['to'] = {

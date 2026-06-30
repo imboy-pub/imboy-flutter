@@ -286,6 +286,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
           ),
           onPressed: state.canSubmit
               ? () async {
+                  FocusScope.of(context).unfocus();
                   final error = await ref
                       .read(bindEmailProvider.notifier)
                       .submit();

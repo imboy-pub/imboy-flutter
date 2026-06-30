@@ -198,6 +198,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
               text: t.common.buttonAccomplish,
               highlighted: state.valueChanged,
               onPressed: () async {
+                FocusScope.of(context).unfocus();
                 // 提前保存 context 引用
                 final navigator = Navigator.of(context);
                 GroupModel? g = await ref

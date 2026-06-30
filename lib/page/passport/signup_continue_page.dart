@@ -339,6 +339,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                         const SizedBox(height: 30),
                         ElevatedButton(
                           onPressed: () async {
+                            FocusScope.of(context).unfocus();
                             String? res = await notifier.confirmSignup(
                               accountType: _accountType,
                               account: _account,

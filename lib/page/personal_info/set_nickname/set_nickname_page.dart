@@ -37,6 +37,7 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
           padding: EdgeInsets.zero,
           onPressed: state.canSave && !state.isSaving
               ? () async {
+                  FocusScope.of(context).unfocus();
                   final success = await ref
                       .read(setNicknameProvider.notifier)
                       .saveNickname(ref);

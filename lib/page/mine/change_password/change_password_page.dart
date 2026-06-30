@@ -227,7 +227,10 @@ class ChangePasswordPage extends ConsumerWidget {
             ),
           ),
           onPressed: state.canSubmit
-              ? () => ref.read(changeLoginPasswordProvider.notifier).submit()
+              ? () {
+                  FocusScope.of(context).unfocus();
+                  ref.read(changeLoginPasswordProvider.notifier).submit();
+                }
               : null,
           child: state.isLoading
               ? CupertinoActivityIndicator(color: AppColors.onPrimary)

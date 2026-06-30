@@ -400,7 +400,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
       height: 50,
       child: ElevatedButton(
         key: const Key('login_submit_button'),
-        onPressed: onPressed,
+        onPressed: () {
+          FocusScope.of(context).unfocus();
+          onPressed();
+        },
         child: Text(t.account.login),
       ),
     );
