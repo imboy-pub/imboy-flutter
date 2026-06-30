@@ -35,10 +35,10 @@ class _AdminInfo {
 
   factory _AdminInfo.fromJson(Map<String, dynamic> json) {
     return _AdminInfo(
-      userId: json['user_id'] as String? ?? '',
-      nickname: json['nickname'] as String?,
-      avatar: json['avatar'] as String?,
-      role: json['role'] as int? ?? 0,
+      userId: parseModelString(json['user_id']),
+      nickname: parseModelNullableString(json['nickname']),
+      avatar: parseModelNullableString(json['avatar']),
+      role: parseModelInt(json['role']),
       addedAt: parseModelDateTime(json['created_at']),
     );
   }
@@ -600,9 +600,9 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                     itemCount: _filtered.length,
                     itemBuilder: (ctx, i) {
                       final c = _filtered[i];
-                      final avatar = c['avatar'] as String? ?? '';
-                      final nickname = c['nickname'] as String? ?? '';
-                      final account = c['account'] as String? ?? '';
+                      final avatar = parseModelString(c['avatar']);
+                      final nickname = parseModelString(c['nickname']);
+                      final account = parseModelString(c['account']);
                       return ListTile(
                         leading: Avatar(imgUri: avatar, width: 44, height: 44),
                         title: Text(nickname),

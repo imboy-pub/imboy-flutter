@@ -62,4 +62,28 @@ void main() {
 
     expect(find.text('管理员小李'), findsOneWidget);
   });
+
+  testWidgets(
+    '管理员数据类型异常时仍能正常渲染 / handles loose data types in admins without throwing TypeError',
+    (tester) async {
+      when(() => api.getAdmins(any())).thenAnswer(
+        (_) async => [
+          {
+            'user_id': 2002, // integer instead of string
+            'nickname': null, // null nickname
+            'role': '2', // string instead of int
+            'created_at': '2024-01-01T00:00:00Z', // ISO string
+          },
+        ],
+      );
+
+      await tester.pumpWidget(_buildTestApp(api));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('2002'),
+        findsOneWidget,
+      ); // Falls back to user_id string when nickname is null
+    },
+  );
 }

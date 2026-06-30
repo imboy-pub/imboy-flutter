@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
@@ -297,7 +298,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       }
       if (!mounted) return false;
       await Navigator.of(context).push(
-        MaterialPageRoute<dynamic>(builder: (_) => WebViewPage(url, title)),
+        CupertinoPageRoute<dynamic>(builder: (_) => WebViewPage(url, title)),
       );
       return true;
     } catch (_) {
@@ -377,7 +378,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
       if (type == _MediaPreviewType.video) {
         await Navigator.of(context).push(
-          MaterialPageRoute<dynamic>(
+          CupertinoPageRoute<dynamic>(
             builder: (_) => VideoViewerPage(url: url, thumb: url),
           ),
         );
@@ -385,7 +386,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       }
 
       await Navigator.of(context).push(
-        MaterialPageRoute<dynamic>(
+        CupertinoPageRoute<dynamic>(
           builder: (_) => GroupFileAudioPreviewPage(url: url, title: title),
         ),
       );

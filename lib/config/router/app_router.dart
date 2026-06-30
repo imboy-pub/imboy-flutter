@@ -118,56 +118,70 @@ GoRouter createAppRouter({
       GoRoute(
         path: AppRoutes.initial,
         name: 'splash',
-        builder: (context, state) => const SplashPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const SplashPage()),
       ),
       GoRoute(
         path: '/welcome',
         name: 'welcome',
-        builder: (context, state) => const WelcomePage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const WelcomePage()),
       ),
       GoRoute(
         path: AppRoutes.signIn,
         name: 'sign_in',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           // 大屏桌面/Web 环境使用 WebLoginPage
           final useSplitView = MediaQuery.sizeOf(context).width > 800;
-          if (useSplitView) {
-            return const WebLoginPage();
-          }
-          return const LoginPage();
+          return CupertinoPage(
+            key: state.pageKey,
+            child: useSplitView ? const WebLoginPage() : const LoginPage(),
+          );
         },
       ),
       GoRoute(
         path: AppRoutes.signUp,
         name: 'sign_up',
-        builder: (context, state) => const SignupPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const SignupPage()),
       ),
       GoRoute(
         path: '/sign_up/continue',
         name: 'sign_up_continue',
-        builder: (context, state) => const SignupContinuePage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const SignupContinuePage(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
         name: 'forgot_password',
-        builder: (context, state) => const ForgotPasswordPage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const ForgotPasswordPage(),
+        ),
       ),
       GoRoute(
         path: '/set_password',
         name: 'set_password',
-        builder: (context, state) => SetPasswordPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: SetPasswordPage()),
       ),
       GoRoute(
         path: '/manage_account',
         name: 'manage_account',
-        builder: (context, state) => const ManageAccountPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const ManageAccountPage()),
       ),
 
       // ==================== 主框架 ====================
       GoRoute(
         path: '/bottom_navigation',
         name: 'bottom_navigation',
-        builder: (context, state) => const BottomNavigationPage(),
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const BottomNavigationPage(),
+        ),
       ),
       // Web Shell 三栏壳（Phase 1.1.h.1+i）— Web 登录成功后跳转的入口
       // 内部按响应式断点决定：< 900px → 回退 BottomNavigationPage，>= 900px → 三栏
@@ -175,14 +189,16 @@ GoRouter createAppRouter({
       GoRoute(
         path: '/web_shell',
         name: 'web_shell',
-        builder: (context, state) => const WebShellBootstrap(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const WebShellBootstrap()),
       ),
 
       // ==================== 会话列表 ====================
       GoRoute(
         path: '/conversation',
         name: 'conversation',
-        builder: (context, state) => ConversationPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: ConversationPage()),
       ),
 
       // ==================== 朋友圈相关 ====================
@@ -285,7 +301,8 @@ GoRouter createAppRouter({
       GoRoute(
         path: '/contact',
         name: 'contact',
-        builder: (context, state) => const ContactPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const ContactPage()),
         routes: [
           GoRoute(
             path: '/people/:id',
@@ -465,7 +482,8 @@ GoRouter createAppRouter({
       GoRoute(
         path: '/live_room',
         name: 'live_room',
-        builder: (context, state) => const LiveRoomListPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const LiveRoomListPage()),
         routes: [
           GoRoute(
             path: '/publisher',

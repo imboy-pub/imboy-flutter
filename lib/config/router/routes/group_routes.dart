@@ -9,12 +9,14 @@ List<RouteBase> groupRoutes() => [
   GoRoute(
     path: '/group',
     name: 'group',
-    builder: (context, state) => const GroupListPage(),
+    pageBuilder: (context, state) =>
+        CupertinoPage(key: state.pageKey, child: const GroupListPage()),
     routes: [
       GoRoute(
         path: '/list',
         name: 'group_list',
-        builder: (context, state) => const GroupListPage(),
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const GroupListPage()),
       ),
       GoRoute(
         path: '/detail/:groupId',

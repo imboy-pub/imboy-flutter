@@ -461,7 +461,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   Future<void> _openQuickReplyManage() async {
     final currentDefaults = _defaultQuickReplies;
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(
+      CupertinoPageRoute<void>(
         builder: (_) => QuickReplyManagePage(defaults: currentDefaults),
       ),
     );

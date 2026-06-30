@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -126,7 +127,7 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute<dynamic>(
+          CupertinoPageRoute<dynamic>(
             builder: (_) => GroupCategoryDetailPage(
               categoryId: category['id'] as int,
               categoryName: category['name'] as String? ?? '',

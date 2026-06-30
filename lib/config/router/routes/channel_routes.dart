@@ -10,7 +10,8 @@ List<RouteBase> channelRoutes() => [
   GoRoute(
     path: '/channel',
     name: 'channel_list',
-    builder: (context, state) => const ChannelListPage(),
+    pageBuilder: (context, state) =>
+        CupertinoPage(key: state.pageKey, child: const ChannelListPage()),
     routes: [
       // 具体路径必须放在动态参数路由之前，否则 /discover 会被当作 channelId
       GoRoute(

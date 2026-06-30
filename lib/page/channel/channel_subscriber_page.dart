@@ -13,6 +13,7 @@ import 'package:imboy/page/channel/channel_admin_add_rules.dart'
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_invitation_rules.dart';
 import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -34,13 +35,11 @@ class SubscriberInfo {
 
   factory SubscriberInfo.fromJson(Map<String, dynamic> json) {
     return SubscriberInfo(
-      userId: json['user_id'] as String? ?? '',
-      nickname: json['nickname'] as String?,
-      avatar: json['avatar'] as String?,
-      subscribedAt: json['subscribed_at'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(json['subscribed_at'] as int)
-          : DateTime.now(),
-      isMuted: json['is_muted'] == true || json['is_muted'] == 1,
+      userId: parseModelString(json['user_id']),
+      nickname: parseModelNullableString(json['nickname']),
+      avatar: parseModelNullableString(json['avatar']),
+      subscribedAt: parseModelDateTime(json['subscribed_at']),
+      isMuted: parseModelBool(json['is_muted']),
     );
   }
 }
@@ -521,9 +520,9 @@ class _InviteContactPickerSheetState extends State<_InviteContactPickerSheet> {
                     itemCount: _filtered.length,
                     itemBuilder: (context, index) {
                       final c = _filtered[index];
-                      final nickname = (c['nickname'] as String? ?? '').trim();
-                      final account = (c['account'] as String? ?? '').trim();
-                      final avatar = c['avatar'] as String? ?? '';
+                      final nickname = parseModelString(c['nickname']).trim();
+                      final account = parseModelString(c['account']).trim();
+                      final avatar = parseModelString(c['avatar']);
                       final peerId = c['peer_id']?.toString() ?? '';
 
                       return ListTile(

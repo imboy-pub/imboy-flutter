@@ -3,6 +3,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
@@ -279,7 +280,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }) async {
     final initial = parseMomentUidList(controller.text);
     final result = await Navigator.of(context).push<List<String>>(
-      MaterialPageRoute<List<String>>(
+      CupertinoPageRoute<List<String>>(
         builder: (_) =>
             MomentFriendPickerPage(title: title, initialSelectedUids: initial),
       ),

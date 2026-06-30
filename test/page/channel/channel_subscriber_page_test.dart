@@ -59,4 +59,32 @@ void main() {
     expect(find.byType(ChannelSubscriberPage), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsNothing);
   });
+
+  testWidgets(
+    '有订阅者且包含各种非标准类型数据时仍能正常渲染 / renders subscribers successfully with loose JSON types',
+    (tester) async {
+      when(
+        () => api.getSubscribers(
+          channelId: any(named: 'channelId'),
+          cursor: any(named: 'cursor'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer(
+        (_) async => [
+          {
+            'user_id': 3003, // int instead of String
+            'nickname': null,
+            'subscribed_at':
+                '2024-01-01T12:00:00Z', // ISO-8601 string instead of int ms
+            'is_muted': 1, // int instead of bool
+          },
+        ],
+      );
+
+      await tester.pumpWidget(_buildTestApp(api));
+      await tester.pumpAndSettle();
+
+      expect(find.text('3003'), findsOneWidget);
+    },
+  );
 }

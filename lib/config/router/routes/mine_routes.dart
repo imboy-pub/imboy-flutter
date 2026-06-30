@@ -13,7 +13,8 @@ List<RouteBase> mineRoutes() => [
   GoRoute(
     path: AppRoutes.mine,
     name: 'mine',
-    builder: (context, state) => const MinePage(),
+    pageBuilder: (context, state) =>
+        CupertinoPage(key: state.pageKey, child: const MinePage()),
   ),
   GoRoute(
     path: '/mine/setting',
