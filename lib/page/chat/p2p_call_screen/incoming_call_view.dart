@@ -8,6 +8,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/call_tokens.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 全屏来电界面（FaceTime / iOS 风格）。
 ///
@@ -93,12 +94,14 @@ class _IncomingCallViewState extends State<IncomingCallView>
                     const SizedBox(height: 26),
                     Text(
                       widget.nickname,
-                      style: const TextStyle(
-                        color: CallTokens.white,
-                        fontSize: CallTokens.fs28,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
+                      style: context
+                          .textStyle(
+                            // fs28(28) 最近档位 extraLargeTitle(28)
+                            FontSizeType.extraLargeTitle,
+                            fontWeight: FontWeight.w600,
+                            color: CallTokens.white,
+                          )
+                          .copyWith(letterSpacing: 0.5),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -116,9 +119,10 @@ class _IncomingCallViewState extends State<IncomingCallView>
                           t.common.incomingCall(
                             param: _isVideo ? t.chat.video : t.main.audio,
                           ),
-                          style: const TextStyle(
+                          style: context.textStyle(
+                            // fs15(15) 精确匹配 subheadline(15)
+                            FontSizeType.subheadline,
                             color: CallTokens.white70,
-                            fontSize: CallTokens.fs15,
                           ),
                         ),
                       ],
@@ -257,9 +261,10 @@ class _IncomingCallViewState extends State<IncomingCallView>
           const SizedBox(height: 10),
           Text(
             label,
-            style: const TextStyle(
+            style: context.textStyle(
+              // fs13(13) 精确匹配 footnote(13)
+              FontSizeType.footnote,
               color: CallTokens.white70,
-              fontSize: CallTokens.fs13,
             ),
           ),
         ],

@@ -26,6 +26,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/call_tokens.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:xid/xid.dart';
 
 /// P2P 音视频通话页面
@@ -399,12 +400,14 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
             const SizedBox(height: 22),
             Text(
               widget.peer.nickname,
-              style: const TextStyle(
-                color: CallTokens.white,
-                fontSize: CallTokens.fs26,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
-              ),
+              style: context
+                  .textStyle(
+                    // fs26(26) 最近档位 largeTitle(24)，差值2pt
+                    FontSizeType.largeTitle,
+                    fontWeight: FontWeight.w600,
+                    color: CallTokens.white,
+                  )
+                  .copyWith(letterSpacing: 0.5),
             ),
             const SizedBox(height: 10),
             Row(
@@ -422,9 +425,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                   child: Text(
                     statusText,
                     key: ValueKey<String>(statusText),
-                    style: const TextStyle(
+                    style: context.textStyle(
+                      // fs15(15) 精确匹配 subheadline(15)
+                      FontSizeType.subheadline,
                       color: CallTokens.white70,
-                      fontSize: CallTokens.fs15,
                     ),
                   ),
                 ),
@@ -469,9 +473,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                 AppSpacing.horizontalSmall,
                 Text(
                   t.common.reconnecting,
-                  style: const TextStyle(
+                  style: context.textStyle(
+                    // fs13(13) 精确匹配 footnote(13)
+                    FontSizeType.footnote,
                     color: CallTokens.white,
-                    fontSize: CallTokens.fs13,
                   ),
                 ),
               ],
@@ -513,10 +518,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                   children: [
                     Text(
                       widget.peer.nickname,
-                      style: const TextStyle(
-                        color: CallTokens.white,
-                        fontSize: CallTokens.fs18,
+                      style: context.textStyle(
+                        // fs18(18) 精确匹配 large(18)
+                        FontSizeType.large,
                         fontWeight: FontWeight.w600,
+                        color: CallTokens.white,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -524,9 +530,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                       state.callDuration.isNotEmpty
                           ? state.callDuration
                           : t.common.calling,
-                      style: const TextStyle(
+                      style: context.textStyle(
+                        // fs13(13) 精确匹配 footnote(13)
+                        FontSizeType.footnote,
                         color: CallTokens.white70,
-                        fontSize: CallTokens.fs13,
                       ),
                     ),
                   ],
@@ -706,9 +713,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
             const SizedBox(height: 7),
             Text(
               label,
-              style: const TextStyle(
+              style: context.textStyle(
+                // fs12(12) 精确匹配 small(12)
+                FontSizeType.small,
                 color: CallTokens.white70,
-                fontSize: CallTokens.fs12,
               ),
             ),
           ],
@@ -871,9 +879,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                   AppSpacing.verticalSmall,
                   Text(
                     state.connected ? state.callDuration : t.common.calling,
-                    style: const TextStyle(
+                    style: context.textStyle(
+                      // fs11(11) 精确匹配 caption2(11)
+                      FontSizeType.caption2,
                       color: CallTokens.white70,
-                      fontSize: CallTokens.fs11,
                     ),
                   ),
                 ],

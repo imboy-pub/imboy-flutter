@@ -787,7 +787,11 @@ GoRouter createAppRouter({
           children: [
             const Icon(Icons.error_outline, size: 48, color: AppColors.iosRed),
             const SizedBox(height: 16),
-            const Text('Page not found', style: TextStyle(fontSize: 20)),
+            Text(
+              'Page not found',
+              // fontSize 20 最近档位 extraLarge(20)
+              style: context.textStyle(FontSizeType.extraLarge),
+            ),
             const SizedBox(height: 8),
             Text(
               state.uri.path,
