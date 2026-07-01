@@ -4,6 +4,7 @@ import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 不支持的消息类型构建器
@@ -51,8 +52,8 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
               children: [
                 Text(
                   t.chat.unsupportedMessageType,
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -61,13 +62,14 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
                 if (displayType.isNotEmpty && displayType != 'unknown')
                   Text(
                     '($displayType)',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.4),
-                      fontStyle: FontStyle.italic,
-                    ),
+                    style: context
+                        .textStyle(
+                          FontSizeType.tiny,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.4),
+                        )
+                        .copyWith(fontStyle: FontStyle.italic),
                   ),
               ],
             ),

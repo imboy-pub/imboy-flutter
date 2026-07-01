@@ -51,9 +51,9 @@ class WebRTCMessageBuilder extends StatelessWidget {
         Flexible(
           child: Text(
             title,
-            style: TextStyle(
+            style: context.textStyle(
+              FontSizeType.normal,
               color: fgColor,
-              fontSize: FontSizeType.normal.size,
               fontWeight: FontWeight.w500,
             ),
             maxLines: 1,

@@ -12,6 +12,7 @@ import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/plugins/registry/message_type_registry.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -173,7 +174,9 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
   );
 
   // DESIGN.md §3.4：中文正文行高 1.4（多行预览可读性）
-  final textStyle = TextStyle(fontSize: 14.0, color: txtColor, height: 1.4);
+  final textStyle = context
+      .textStyle(FontSizeType.normal, color: txtColor)
+      .copyWith(height: 1.4);
 
   // 【重构】WebSocket API v2.0: 优先使用 effective_msg_type（归一化后的类型）
   final effectiveMsgType =
@@ -225,16 +228,16 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
                 const SizedBox(width: 8),
                 Text(
                   "[${t.chat.file}] $sizeStr",
-                  style: TextStyle(color: txtColor, fontSize: 12.0),
+                  style: context.textStyle(FontSizeType.small, color: txtColor),
                 ),
               ],
             ),
             const SizedBox(height: 4),
             Text(
               msg.name,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.normal,
                 color: txtColor,
-                fontSize: 14.0,
                 fontWeight: FontWeight.w500,
               ),
               maxLines: 2,

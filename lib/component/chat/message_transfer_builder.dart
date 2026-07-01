@@ -5,6 +5,8 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
@@ -105,12 +107,13 @@ class _MessageTransferBuilderState
                         children: [
                           Text(
                             '￥${amountYuan.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'monospace',
-                            ),
+                            style: context
+                                .textStyle(
+                                  FontSizeType.large,
+                                  color: AppColors.onPrimary,
+                                  fontWeight: FontWeight.bold,
+                                )
+                                .copyWith(fontFamily: 'monospace'),
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -121,9 +124,9 @@ class _MessageTransferBuilderState
                                 : isSender
                                 ? t.common.transferPending
                                 : t.common.transferTapToReceive,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 11,
+                            style: context.textStyle(
+                              FontSizeType.caption2,
+                              color: AppColors.onPrimary.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -134,7 +137,10 @@ class _MessageTransferBuilderState
                 const Divider(color: Colors.white24, height: 16),
                 Text(
                   remark,
-                  style: const TextStyle(color: Colors.white70, fontSize: 11),
+                  style: context.textStyle(
+                    FontSizeType.caption2,
+                    color: AppColors.onPrimary.withValues(alpha: 0.7),
+                  ),
                 ),
               ],
             ),

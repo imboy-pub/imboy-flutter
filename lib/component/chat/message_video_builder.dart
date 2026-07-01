@@ -152,12 +152,13 @@ class MessageVideoBuilder extends StatelessWidget {
                     ),
                     child: Text(
                       _formatDuration(metadata['duration_ms']),
-                      style: TextStyle(
-                        color: AppColors.mediaScrimWhite,
-                        fontSize: FontSizeType.tiny.size,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'SF Mono',
-                      ),
+                      style: context
+                          .textStyle(
+                            FontSizeType.tiny,
+                            color: AppColors.mediaScrimWhite,
+                            fontWeight: FontWeight.w600,
+                          )
+                          .copyWith(fontFamily: 'SF Mono'),
                     ),
                   ),
                 ),

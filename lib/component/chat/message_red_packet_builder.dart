@@ -59,9 +59,9 @@ class MessageRedPacketBuilder extends ConsumerWidget {
                         children: [
                           Text(
                             greeting,
-                            style: const TextStyle(
+                            style: context.textStyle(
+                              FontSizeType.normal,
                               color: Colors.white,
-                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
                             maxLines: 1,
@@ -70,9 +70,9 @@ class MessageRedPacketBuilder extends ConsumerWidget {
                           const SizedBox(height: 2),
                           Text(
                             t.common.redPacketView,
-                            style: const TextStyle(
+                            style: context.textStyle(
+                              FontSizeType.caption2,
                               color: AppColors.overlayWhite70,
-                              fontSize: 11,
                             ),
                           ),
                         ],
@@ -83,9 +83,9 @@ class MessageRedPacketBuilder extends ConsumerWidget {
                 const Divider(color: Colors.white24, height: 16),
                 Text(
                   t.common.redPacketBrand,
-                  style: TextStyle(
+                  style: context.textStyle(
+                    FontSizeType.tiny,
                     color: AppColors.overlayWhite70,
-                    fontSize: FontSizeType.tiny.size,
                   ),
                 ),
               ],
@@ -228,8 +228,8 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                     const SizedBox(height: 12),
                     Text(
                       t.common.redPacketDialogTitle,
-                      style: TextStyle(
-                        fontSize: 16,
+                      style: context.textStyle(
+                        FontSizeType.medium,
                         color: Colors.orange.shade100,
                         fontWeight: FontWeight.bold,
                       ),
@@ -237,8 +237,8 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                     const SizedBox(height: 8),
                     Text(
                       t.common.redPacketDialogSubtitle,
-                      style: TextStyle(
-                        fontSize: FontSizeType.normal.size,
+                      style: context.textStyle(
+                        FontSizeType.normal,
                         color: AppColors.overlayWhite70,
                       ),
                     ),
@@ -271,11 +271,11 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                           ),
                         ],
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
                           '開',
-                          style: TextStyle(
-                            fontSize: 28,
+                          style: context.textStyle(
+                            FontSizeType.extraLargeTitle,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),

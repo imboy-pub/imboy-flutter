@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 
 import 'package:imboy/store/model/message_model.dart';
@@ -120,10 +121,10 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                           (msg.metadata?['title'] ??
                                   (msg.metadata?['account'] ?? ''))
                               as String,
-                          style: TextStyle(
+                          style: context.textStyle(
+                            FontSizeType.medium,
                             color: textColor,
                             fontWeight: FontWeight.w600,
-                            fontSize: 16,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -143,8 +144,8 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
                 ),
                 Text(
                   t.common.personalCard,
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     color: subTextColor,
                     fontWeight: FontWeight.w400,
                   ),

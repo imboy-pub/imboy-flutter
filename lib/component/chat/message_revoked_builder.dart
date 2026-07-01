@@ -10,6 +10,7 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart' show UserRepoLocal;
 
@@ -65,12 +66,13 @@ class RevokedMessageBuilder extends StatelessWidget {
               ),
               child: Text(
                 t.common.reEdit,
-                style: const TextStyle(
-                  height: 1.2,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                ),
+                style: context
+                    .textStyle(
+                      FontSizeType.small,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    )
+                    .copyWith(height: 1.2),
               ),
             ),
           )
@@ -119,11 +121,12 @@ class RevokedMessageBuilder extends StatelessWidget {
                     nickname == t.main.you
                         ? t.chat.messageWasWithdrawn
                         : t.chat.messageWasWithdrawnWithTitle(param: nickname),
-                    style: const TextStyle(
-                      color: AppColors.iosGray,
-                      fontSize: 13,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    style: context
+                        .textStyle(
+                          FontSizeType.footnote,
+                          color: AppColors.iosGray,
+                        )
+                        .copyWith(fontStyle: FontStyle.italic),
                     maxLines: 2,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,

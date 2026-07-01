@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 part 'message_scroll_provider.g.dart';
 
@@ -454,9 +455,10 @@ class ScrollToBottomButton extends ConsumerWidget {
                           child: Center(
                             child: Text(
                               unreadCount > 99 ? '99+' : '$unreadCount',
-                              style: const TextStyle(
+                              // fontSize 8 has no exact tier; nearest is tiny(10), -2px delta
+                              style: context.textStyle(
+                                FontSizeType.tiny,
                                 color: Colors.white,
-                                fontSize: 8,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
