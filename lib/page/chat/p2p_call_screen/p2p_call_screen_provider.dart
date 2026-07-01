@@ -118,6 +118,10 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   bool makingOffer = false;
   bool makingAnswer = false;
 
+  // 页面 dispose 期间置位：阻止仍在飞行中的信令回调继续操作正在被
+  // cleanUpP2P() 关闭的 PeerConnection（两者并发访问同一个 pc 有崩溃风险）。
+  bool _closing = false;
+
   MediaStream? _localStream;
   final List<RTCRtpSender> _senders = <RTCRtpSender>[];
   VideoSource _videoSource = VideoSource.camera;
@@ -180,6 +184,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     msgId = newMsgId;
     makingOffer = false;
     makingAnswer = false;
+    _closing = false;
     _callSeconds = 0;
   }
 
@@ -187,9 +192,14 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     iPrint("> rtc logic signalingConnect ${DateTime.now()}");
     makingOffer = false;
     makingAnswer = false;
+    _closing = false;
   }
 
   Future<void> onMessageP2P(WebRTCSession s, WebRTCSignalingModel msg) async {
+    if (_closing) {
+      iPrint('> rtc onMessageP2P: 正在关闭中，忽略信令 ${msg.webRtcType}');
+      return;
+    }
     iPrint("> rtc onMessageP2P ${msg.webRtcType}");
 
     // 安全校验：验证信令消息发送方是否为当前会话的合法对等端
@@ -727,6 +737,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }
 
   Future<void> cleanUpP2P() async {
+    // 先置位再做任何异步清理：阻止仍在飞行中的 onMessageP2P 继续读写
+    // 即将被关闭/dispose 的 PeerConnection。
+    _closing = true;
     try {
       await cleanSessions();
     } catch (e) {
