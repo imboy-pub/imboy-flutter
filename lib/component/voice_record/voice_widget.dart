@@ -349,8 +349,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                     children: [
                       Text(
                         t.common.voiceSttPreviewTitle,
-                        style: TextStyle(
-                          fontSize: FontSizeType.medium.size,
+                        style: context.textStyle(
+                          FontSizeType.medium,
                           fontWeight: FontWeight.bold,
                           color: isDark
                               ? AppColors.darkTextPrimary
@@ -388,8 +388,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                       maxLines: 5,
                       minLines: 2,
                       autofocus: true,
-                      style: TextStyle(
-                        fontSize: FontSizeType.subheadline.size,
+                      style: context.textStyle(
+                        FontSizeType.subheadline,
                         color: isDark
                             ? AppColors.darkTextPrimary
                             : AppColors.lightTextPrimary,
@@ -413,12 +413,12 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                           onPressed: () => Navigator.pop(context),
                           child: Text(
                             t.common.buttonCancel,
-                            style: TextStyle(
+                            style: context.textStyle(
+                              FontSizeType.subheadline,
+                              fontWeight: FontWeight.w600,
                               color: isDark
                                   ? AppColors.darkTextSecondary
                                   : AppColors.lightTextSecondary,
-                              fontSize: FontSizeType.subheadline.size,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -438,10 +438,10 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                           },
                           child: Text(
                             t.common.buttonSend,
-                            style: TextStyle(
-                              color: AppColors.onPrimary,
-                              fontSize: FontSizeType.subheadline.size,
+                            style: context.textStyle(
+                              FontSizeType.subheadline,
                               fontWeight: FontWeight.w600,
+                              color: AppColors.onPrimary,
                             ),
                           ),
                         ),

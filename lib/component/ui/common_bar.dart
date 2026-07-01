@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 毛玻璃效果的导航栏
 ///
@@ -119,8 +120,8 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
                         titleWidget ??
                         Text(
                           title ?? '',
-                          style: TextStyle(
-                            fontSize: 17,
+                          style: context.textStyle(
+                            FontSizeType.body,
                             fontWeight: FontWeight.w600,
                             color: textColor,
                           ),

@@ -71,16 +71,16 @@ class PasswordTextField extends StatelessWidget {
     final effectiveCursorColor = cursorColor ?? AppColors.primary;
     final effectiveStyle =
         style ??
-        TextStyle(
-          color: AppColors.lightTextPrimary,
-          fontSize: FontSizeType.medium.size,
+        context.textStyle(
+          FontSizeType.medium,
           fontWeight: FontWeight.w500,
+          color: AppColors.lightTextPrimary,
         );
     final effectiveHintStyle =
         hintStyle ??
-        TextStyle(
+        context.textStyle(
+          FontSizeType.medium,
           color: AppColors.lightTextSecondary,
-          fontSize: FontSizeType.medium.size,
         );
 
     return TextField(

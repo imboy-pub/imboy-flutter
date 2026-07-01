@@ -6,6 +6,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 联系人名片组件 - iOS 17 Premium 风格
 class ContactCard extends StatelessWidget {
@@ -76,11 +77,12 @@ class ContactCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         displayTitle,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -0.5,
-                        ),
+                        style: context
+                            .textStyle(
+                              FontSizeType.title,
+                              fontWeight: FontWeight.bold,
+                            )
+                            .copyWith(letterSpacing: -0.5),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -93,23 +95,23 @@ class ContactCard extends StatelessWidget {
                 if (strNoEmpty(subNickname))
                   Text(
                     "${t.account.nickname}: $subNickname",
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: context.textStyle(
+                      FontSizeType.normal,
                       color: AppColors.iosGray,
                     ),
                   ),
                 Text(
                   "ID: $account",
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: AppColors.iosGray,
                   ),
                 ),
                 if (strNoEmpty(region))
                   Text(
                     "${t.account.region}: $region",
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: context.textStyle(
+                      FontSizeType.normal,
                       color: AppColors.iosGray,
                     ),
                   ),

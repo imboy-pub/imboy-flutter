@@ -6,6 +6,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'amap_helper.dart';
 import 'package:imboy/i18n/strings.g.dart'; // 确保这个文件中没有使用 niku
 
@@ -362,9 +363,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                               controller:
                                                   _searchQueryController,
                                               onChanged: _onTextChanged,
-                                              style: const TextStyle(
+                                              style: context.textStyle(
+                                                FontSizeType.subheadline,
                                                 color: Colors.black87,
-                                                fontSize: 15,
                                               ),
                                               decoration: InputDecoration(
                                                 icon: const Icon(

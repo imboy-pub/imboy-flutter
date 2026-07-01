@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/theme/theme_manager.dart';
 
 /// 语音录制动作状态
 enum VoiceActionState {
@@ -103,10 +104,10 @@ class CustomOverlay extends StatelessWidget {
                               const SizedBox(height: 16),
                               Text(
                                 t.chat.voiceReleaseCancelSend,
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 16,
+                                style: context.textStyle(
+                                  FontSizeType.medium,
                                   fontWeight: FontWeight.w600,
+                                  color: errorColor,
                                 ),
                               ),
                             ] else if (actionState ==
@@ -128,10 +129,10 @@ class CustomOverlay extends StatelessWidget {
                               const SizedBox(height: 16),
                               Text(
                                 t.chat.releaseConvertToText,
-                                style: const TextStyle(
-                                  color: Colors.amber,
-                                  fontSize: 16,
+                                style: context.textStyle(
+                                  FontSizeType.medium,
                                   fontWeight: FontWeight.w600,
+                                  color: AppColors.iosYellow,
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -148,11 +149,12 @@ class CustomOverlay extends StatelessWidget {
                                 ),
                                 child: Text(
                                   t.common.voiceSttConverting,
-                                  style: TextStyle(
-                                    color: textColor.withValues(alpha: 0.7),
-                                    fontSize: 13,
-                                    fontStyle: FontStyle.italic,
-                                  ),
+                                  style: context
+                                      .textStyle(
+                                        FontSizeType.footnote,
+                                        color: textColor.withValues(alpha: 0.7),
+                                      )
+                                      .copyWith(fontStyle: FontStyle.italic),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -174,12 +176,13 @@ class CustomOverlay extends StatelessWidget {
                               const SizedBox(height: 12),
                               Text(
                                 durationText,
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'SF Mono',
-                                ),
+                                style: context
+                                    .textStyle(
+                                      FontSizeType.extraLarge,
+                                      fontWeight: FontWeight.w700,
+                                      color: textColor,
+                                    )
+                                    .copyWith(fontFamily: 'SF Mono'),
                               ),
                               const SizedBox(height: 8),
                               // 声波展示
@@ -217,6 +220,7 @@ class CustomOverlay extends StatelessWidget {
               left: 45,
               bottom: 160,
               child: _buildActionTarget(
+                context: context,
                 icon: Icons.close,
                 label: t.common.buttonCancel,
                 activeColor: errorColor,
@@ -230,9 +234,10 @@ class CustomOverlay extends StatelessWidget {
               right: 45,
               bottom: 160,
               child: _buildActionTarget(
+                context: context,
                 icon: Icons.translate,
                 label: t.chat.convertToText,
-                activeColor: Colors.amber, // 金黄色/琥珀色对齐转文字的温馨视觉
+                activeColor: AppColors.iosYellow, // 金黄色/琥珀色对齐转文字的温馨视觉
                 isActive: actionState == VoiceActionState.convert,
                 isDark: isDark,
               ),
@@ -247,10 +252,10 @@ class CustomOverlay extends StatelessWidget {
                     : (actionState == VoiceActionState.convert
                           ? t.chat.releaseConvertToText
                           : t.chat.voiceSlideHint),
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
+                style: context.textStyle(
+                  FontSizeType.normal,
                   fontWeight: FontWeight.w500,
+                  color: AppColors.onPrimary.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -261,6 +266,7 @@ class CustomOverlay extends StatelessWidget {
   }
 
   Widget _buildActionTarget({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required Color activeColor,
@@ -300,10 +306,12 @@ class CustomOverlay extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           label,
-          style: TextStyle(
-            color: isActive ? activeColor : Colors.white60,
-            fontSize: 12,
+          style: context.textStyle(
+            FontSizeType.small,
             fontWeight: isActive ? FontWeight.w700 : FontWeight.normal,
+            color: isActive
+                ? activeColor
+                : AppColors.onPrimary.withValues(alpha: 0.6),
           ),
         ),
       ],

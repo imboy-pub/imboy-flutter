@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 极简列表项 (Minimalist & Flat List Tile)
 ///
@@ -61,26 +62,28 @@ class FlatListTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DefaultTextStyle(
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.getTextColor(brightness),
-                      letterSpacing: -0.4,
-                    ),
+                    style: context
+                        .textStyle(
+                          FontSizeType.body,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.getTextColor(brightness),
+                        )
+                        .copyWith(letterSpacing: -0.4),
                     child: title,
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
                     DefaultTextStyle(
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.getTextColor(
-                          brightness,
-                          isSecondary: true,
-                        ),
-                        letterSpacing: -0.2,
-                      ),
+                      style: context
+                          .textStyle(
+                            FontSizeType.normal,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.getTextColor(
+                              brightness,
+                              isSecondary: true,
+                            ),
+                          )
+                          .copyWith(letterSpacing: -0.2),
                       child: subtitle!,
                     ),
                   ],

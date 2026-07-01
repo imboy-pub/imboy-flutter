@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/sound_manager.dart';
 
 class NumericKeypad extends StatelessWidget {
@@ -105,14 +106,19 @@ class NumericKeypad extends StatelessWidget {
               )
             : Text(
                 keyboardDataBean.value,
-                style: TextStyle(
-                  fontSize: 28,
-                  color: isDark ? Colors.white : colorScheme.onSurface,
-                  // DESIGN.md §3.3：禁止 w300/Thin；数字键盘改为 w400 Body 字重
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 2,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
+                style: context
+                    .textStyle(
+                      FontSizeType.extraLargeTitle,
+                      color: isDark
+                          ? AppColors.onPrimary
+                          : colorScheme.onSurface,
+                      // DESIGN.md §3.3：禁止 w300/Thin；数字键盘改为 w400 Body 字重
+                      fontWeight: FontWeight.w400,
+                    )
+                    .copyWith(
+                      letterSpacing: 2,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
               ),
       ),
     );

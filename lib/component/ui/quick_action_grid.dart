@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 极简高效宫格项
 class QuickActionItem {
@@ -83,12 +84,13 @@ class QuickActionGrid extends StatelessWidget {
               // 文字
               Text(
                 item.label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.getTextColor(brightness),
-                  letterSpacing: -0.2,
-                ),
+                style: context
+                    .textStyle(
+                      FontSizeType.small,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.getTextColor(brightness),
+                    )
+                    .copyWith(letterSpacing: -0.2),
                 textAlign: TextAlign.center,
               ),
             ],

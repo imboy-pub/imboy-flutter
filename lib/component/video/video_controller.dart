@@ -161,7 +161,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
     }
   }
 
-  Widget _buildGestureFeedback() {
+  Widget _buildGestureFeedback(BuildContext context) {
     if (!_showGestureFeedback) return const SizedBox.shrink();
 
     IconData icon;
@@ -228,20 +228,23 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                 const SizedBox(height: 12),
                 Text(
                   text,
-                  style: TextStyle(
-                    color: AppColors.onPrimary, // on dark video overlay
-                    fontSize: FontSizeType.medium.size,
-                    fontWeight: FontWeight.w500,
-                    shadows: [
-                      Shadow(
-                        color: const Color(
-                          0xCC000000,
-                        ), // Colors.black.withValues(alpha: 0.8)
-                        blurRadius: 4,
-                        offset: const Offset(1, 1),
+                  style: context
+                      .textStyle(
+                        FontSizeType.medium,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.onPrimary, // on dark video overlay
+                      )
+                      .copyWith(
+                        shadows: [
+                          Shadow(
+                            color: AppColors.mediaScrimBlack.withValues(
+                              alpha: 0.8,
+                            ),
+                            blurRadius: 4,
+                            offset: const Offset(1, 1),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
                 ),
               ],
             ),
@@ -375,10 +378,10 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                             builder: (context, VideoPlayerValue value, child) {
                               return Text(
                                 _formatDuration(value.position),
-                                style: TextStyle(
+                                style: context.textStyle(
+                                  FontSizeType.small,
                                   color: AppColors
                                       .onPrimary, // on dark video overlay
-                                  fontSize: FontSizeType.small.size,
                                 ),
                               );
                             },
@@ -391,10 +394,10 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                             builder: (context, VideoPlayerValue value, child) {
                               return Text(
                                 _formatDuration(value.duration),
-                                style: TextStyle(
+                                style: context.textStyle(
+                                  FontSizeType.small,
                                   color: AppColors
                                       .overlayWhite70, // on dark video overlay
-                                  fontSize: FontSizeType.small.size,
                                 ),
                               );
                             },
@@ -495,7 +498,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
             ),
 
           // 手势反馈
-          _buildGestureFeedback(),
+          _buildGestureFeedback(context),
         ],
       ),
     );

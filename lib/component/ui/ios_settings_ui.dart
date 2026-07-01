@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// iOS 风格页面模板
 /// 采用紧凑型设计，确保标题与动作按钮在同一行，最大化屏幕利用率
@@ -41,14 +42,15 @@ class IosPageTemplate extends StatelessWidget {
     final navBar = CupertinoNavigationBar(
       middle: Text(
         title,
-        style: TextStyle(
-          color: isDark
-              ? AppColors.darkTextPrimary
-              : AppColors.lightTextPrimary,
-          fontWeight: FontWeight.w600,
-          fontSize: 17,
-          letterSpacing: -0.4,
-        ),
+        style: context
+            .textStyle(
+              FontSizeType.body,
+              fontWeight: FontWeight.w600,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
+            )
+            .copyWith(letterSpacing: -0.4),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
@@ -123,14 +125,23 @@ class ImBoySettingsSection extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final headerStyle = TextStyle(
-      fontSize: 13,
-      fontWeight: FontWeight.w400,
-      color: isDark
-          ? AppColors.darkTextSecondary.withValues(alpha: 0.5)
-          : AppColors.lightTextSecondary.withValues(alpha: 0.5),
-      letterSpacing: -0.05,
-    );
+    final headerColor = isDark
+        ? AppColors.darkTextSecondary.withValues(alpha: 0.5)
+        : AppColors.lightTextSecondary.withValues(alpha: 0.5);
+    final headerStyle = context
+        .textStyle(
+          FontSizeType.footnote,
+          fontWeight: FontWeight.w400,
+          color: headerColor,
+        )
+        .copyWith(letterSpacing: -0.05);
+    final footerStyle = context
+        .textStyle(
+          FontSizeType.small,
+          fontWeight: FontWeight.w400,
+          color: headerColor,
+        )
+        .copyWith(letterSpacing: -0.05);
 
     return CupertinoListSection.insetGrouped(
       header: header is Text
@@ -147,9 +158,7 @@ class ImBoySettingsSection extends StatelessWidget {
               padding: const EdgeInsets.only(left: 4, top: 6),
               child: Text(
                 (footer as Text).data!,
-                style: headerStyle
-                    .copyWith(fontSize: 12)
-                    .merge((footer as Text).style),
+                style: footerStyle.merge((footer as Text).style),
               ),
             )
           : footer,
@@ -189,17 +198,20 @@ class ImBoySettingsTile extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final titleStyle = TextStyle(
-      fontSize: 17,
-      fontWeight: FontWeight.w400,
-      color: destructive
-          ? AppColors.getIosRed(theme.brightness)
-          : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-      letterSpacing: -0.4,
-    );
+    final titleStyle = context
+        .textStyle(
+          FontSizeType.body,
+          fontWeight: FontWeight.w400,
+          color: destructive
+              ? AppColors.getIosRed(theme.brightness)
+              : (isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary),
+        )
+        .copyWith(letterSpacing: -0.4);
 
-    final subtitleStyle = TextStyle(
-      fontSize: 15,
+    final subtitleStyle = context.textStyle(
+      FontSizeType.subheadline,
       color: isDark
           ? AppColors.darkTextSecondary.withValues(alpha: 0.6)
           : AppColors.lightTextSecondary.withValues(alpha: 0.6),
@@ -287,14 +299,15 @@ class ImBoyListTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DefaultTextStyle(
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      color: isDark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.lightTextPrimary,
-                      letterSpacing: -0.4,
-                    ),
+                    style: context
+                        .textStyle(
+                          FontSizeType.body,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
+                        )
+                        .copyWith(letterSpacing: -0.4),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     child: title,
@@ -302,17 +315,19 @@ class ImBoyListTile extends StatelessWidget {
                   if (subtitle != null) ...[
                     const SizedBox(height: 3),
                     DefaultTextStyle(
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: isDark
-                            ? AppColors.darkTextSecondary.withValues(alpha: 0.7)
-                            : AppColors.lightTextSecondary.withValues(
-                                alpha: 0.7,
-                              ),
-                        letterSpacing: -0.2,
-                        height: 1.2,
-                      ),
+                      style: context
+                          .textStyle(
+                            FontSizeType.normal,
+                            fontWeight: FontWeight.w400,
+                            color: isDark
+                                ? AppColors.darkTextSecondary.withValues(
+                                    alpha: 0.7,
+                                  )
+                                : AppColors.lightTextSecondary.withValues(
+                                    alpha: 0.7,
+                                  ),
+                          )
+                          .copyWith(letterSpacing: -0.2, height: 1.2),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       child: subtitle!,
