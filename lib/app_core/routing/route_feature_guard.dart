@@ -101,7 +101,12 @@ class RouteFeatureGuard {
     final appEntry = appEntryForPath(currentPath);
     if (appEntry != null) {
       final manifest = AppManifestService.manifest;
-      if (manifest != null && !manifest.hasAppEntry(appEntry)) {
+      // manifest 尚未加载完成时（冷启动竞态、首次安装离线等）保守拒绝，
+      // 而非放行：避免短暂时序窗口绕过后端下发的 app_entry 禁用策略。
+      // AppInitializer 已 await AppManifestService.refresh()，正常网络下
+      // 用户进入任何可路由页面前 manifest 均已就绪，此分支仅在离线/异常
+      // 场景触发。
+      if (manifest == null || !manifest.hasAppEntry(appEntry)) {
         return (
           redirect: '/bottom_navigation',
           reason: RouteBlockReason.appEntry,

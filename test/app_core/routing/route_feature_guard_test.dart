@@ -144,6 +144,22 @@ void main() {
       expect(result, isNull);
     });
 
+    test(
+      'blocks manifest-gated route when manifest is not yet loaded',
+      () async {
+        // 冷启动竞态/离线场景：manifest 尚未加载完成（null）时应保守拒绝，
+        // 而非放行绕过后端下发的 app_entry 禁用策略。
+        await AppManifestService.clear();
+
+        final result = RouteFeatureGuard.checkBlocked(
+          isLoggedIn: true,
+          currentPath: '/moment/feed',
+        );
+        expect(result, isNotNull);
+        expect(result!.reason, RouteBlockReason.appEntry);
+      },
+    );
+
     test('unguarded path passes regardless of manifest', () {
       AppManifestService.replaceForTest(<String, dynamic>{
         'features': <String, dynamic>{},
