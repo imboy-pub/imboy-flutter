@@ -358,6 +358,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                         ),
                       ),
                       IconButton(
+                        tooltip: t.common.buttonClose,
                         icon: const Icon(Icons.close),
                         onPressed: () => Navigator.pop(context),
                         padding: EdgeInsets.zero,

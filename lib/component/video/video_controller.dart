@@ -302,6 +302,9 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                   child: Row(
                     children: [
                       IconButton(
+                        tooltip: MaterialLocalizations.of(
+                          context,
+                        ).backButtonTooltip,
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
@@ -412,6 +415,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
+                            tooltip: t.main.fastRewind(seconds: '10'),
                             icon: const Icon(
                               Icons.replay_10,
                               color: Colors.white,
@@ -432,6 +436,9 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                             valueListenable: widget.controller,
                             builder: (context, VideoPlayerValue value, child) {
                               return IconButton(
+                                tooltip: value.isPlaying
+                                    ? t.chat.groupFileMediaPause
+                                    : t.main.play,
                                 icon: Icon(
                                   value.isPlaying
                                       ? Icons.pause
@@ -453,6 +460,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                           const SizedBox(width: 24),
 
                           IconButton(
+                            tooltip: t.chat.fastForward(seconds: '10'),
                             icon: const Icon(
                               Icons.forward_10,
                               color: Colors.white,

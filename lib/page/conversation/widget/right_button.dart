@@ -49,6 +49,7 @@ class _RightButtonState extends State<RightButton> {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
+          tooltip: t.common.search,
           onPressed: () => context.push('/message_search'),
           icon: Icon(
             Icons.search,
@@ -57,6 +58,7 @@ class _RightButtonState extends State<RightButton> {
         ),
         IconButton(
           key: _addKey,
+          tooltip: t.chat.initiateChat,
           onPressed: _showAddMenu,
           icon: Icon(
             Icons.add_circle_outline,

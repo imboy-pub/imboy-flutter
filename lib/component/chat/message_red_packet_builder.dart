@@ -291,6 +291,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                 top: 12,
                 right: 12,
                 child: IconButton(
+                  tooltip: t.common.buttonClose,
                   icon: const Icon(Icons.close, color: Colors.white60),
                   onPressed: () => Navigator.pop(context),
                 ),
