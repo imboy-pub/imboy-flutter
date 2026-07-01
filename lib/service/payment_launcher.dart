@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/config/payment_config.dart';
+import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/payment_gateway.dart';
 
 /// 第三方支付收银台唤起结果。
@@ -76,8 +77,9 @@ class PaymentLauncher {
         universalLink: _nullIfEmpty(PaymentConfig.alipayUniversalLink),
       );
       return parseAlipayResult(result);
-    } on Object catch (e) {
+    } on Object catch (e, s) {
       if (kDebugMode) debugPrint('[PaymentLauncher] alipay error: $e');
+      AppLogger.error('[PaymentLauncher] alipay launch failed', e, s);
       return PaymentLaunchResult.failed;
     }
   }
@@ -113,8 +115,9 @@ class PaymentLauncher {
         signType: fields.signType,
       );
       return parseWechatResult(errCode);
-    } on Object catch (e) {
+    } on Object catch (e, s) {
       if (kDebugMode) debugPrint('[PaymentLauncher] wechat error: $e');
+      AppLogger.error('[PaymentLauncher] wechat launch failed', e, s);
       return PaymentLaunchResult.failed;
     }
   }

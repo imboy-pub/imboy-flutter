@@ -245,7 +245,10 @@ class MessageRepo implements MessageRepository {
         if (updated > 0) return true;
       }
       return false;
-    } on Exception catch (_) {
+    } on Exception catch (e, s) {
+      func_helper.iPrint(
+        '[MessageRepo] updateStatusInAnyTable failed id=$messageId status=$status: $e\n$s',
+      );
       return false;
     }
   }

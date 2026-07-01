@@ -304,7 +304,10 @@ class GroupMemberRepo {
           .map((m) => m[GroupMemberRepo.groupId]?.toString() ?? '')
           .where((id) => id.isNotEmpty)
           .toList();
-    } catch (e) {
+    } catch (e, s) {
+      iPrint(
+        '[GroupMemberRepo] groupIdsByUserId failed userId=$userId: $e\n$s',
+      );
       return [];
     }
   }

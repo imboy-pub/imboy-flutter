@@ -322,7 +322,8 @@ class ContactRepo implements ContactRepository {
         try {
           await update(json, txn: txn);
           return await findByUid(uid, autoFetch: false, txn: txn);
-        } catch (e) {
+        } catch (e, s) {
+          iPrint('[ContactRepo] save/update failed uid=$uid: $e\n$s');
           return null;
         }
       } else {
@@ -330,7 +331,8 @@ class ContactRepo implements ContactRepository {
           ContactModel model = ContactModel.fromMap(json);
           await insert(model, txn: txn);
           return model;
-        } catch (e) {
+        } catch (e, s) {
+          iPrint('[ContactRepo] save/insert failed uid=$uid: $e\n$s');
           return null;
         }
       }

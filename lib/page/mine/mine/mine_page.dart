@@ -194,7 +194,8 @@ class _MinePageState extends ConsumerState<MinePage> {
                 child: !hasAvatar
                     ? Center(
                         child: Text(
-                          nickname.substring(0, 1).toUpperCase(),
+                          (nickname.isNotEmpty ? nickname.substring(0, 1) : '?')
+                              .toUpperCase(),
                           style: context.textStyle(
                             FontSizeType.extraLargeTitle,
                             fontWeight: FontWeight.bold,

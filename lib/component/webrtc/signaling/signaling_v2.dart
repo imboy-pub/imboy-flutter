@@ -4,6 +4,7 @@
 library;
 
 // ignore_for_file: constant_identifier_names
+import 'package:imboy/component/helper/func.dart';
 import 'signaling_models.dart';
 
 /// WebRTC 信令消息类型 v2.0
@@ -125,6 +126,9 @@ extension WebRTCSignalingTypeExtension on WebRTCSignalingType {
     try {
       return WebRTCSignalingType.values.firstWhere((e) => e.name == typeKey);
     } catch (_) {
+      iPrint(
+        '> rtc WARNING: unknown signaling type "$value" (typeKey=$typeKey)',
+      );
       return null;
     }
   }

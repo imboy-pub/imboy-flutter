@@ -1,4 +1,5 @@
 import 'http_exceptions.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/ntp.dart';
 
 class IMBoyHttpResponse {
@@ -22,7 +23,9 @@ class IMBoyHttpResponse {
         final serverTs = int.parse('${payload['sv_ts']}');
         NtpHelper.updateOffsetFromServer(serverTs);
       } catch (e) {
-        // 解析失败，忽略
+        // sv_ts 仅用于 NTP 时间偏移校正，解析失败不影响响应本身，
+        // 但仍记录一下便于排查持续的时钟漂移问题。
+        iPrint('[HttpResponse] parse sv_ts failed: $e');
       }
     }
   }
