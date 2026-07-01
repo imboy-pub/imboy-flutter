@@ -751,18 +751,20 @@ class PassportNotifier extends _$PassportNotifier {
     }
 
     try {
-      jverify = Jverify();
-      jverify!.addSDKSetupCallBackListener((JVSDKSetupEvent event) {
+      final jv = Jverify();
+      jv.addSDKSetupCallBackListener((JVSDKSetupEvent event) {
         iPrint("receive sdk setup call back event :${event.toMap()}");
       });
 
-      jverify!.setDebugMode(kDebugMode);
-      jverify!.setCollectionAuth(true);
-      jverify!.setup(appKey: Env().jiguangAppKey, channel: "devloper-default");
+      jv.setDebugMode(kDebugMode);
+      jv.setCollectionAuth(true);
+      jv.setup(appKey: Env().jiguangAppKey, channel: "devloper-default");
 
-      jverify!.addAuthPageEventListener((JVAuthPageEvent event) {
+      jv.addAuthPageEventListener((JVAuthPageEvent event) {
         if (kDebugMode) {}
       });
+      // 全部初始化步骤成功后才赋值给字段，避免半初始化对象被后续代码当作可用。
+      jverify = jv;
     } catch (e) {
       if (kDebugMode) {}
     }
@@ -889,12 +891,15 @@ class PassportNotifier extends _$PassportNotifier {
   /// 初始化极光认证 SDK 并设置 UI 配置
   Future<String?> loginAuth(bool isSms) async {
     // Web 平台不支持 JVerify 一键登录
-    if (kIsWeb || jverify == null) {
+    // 用局部变量捕获非空快照：避免函数内多个 await 之间 jverify 字段
+    // 被并发的 initPlatformState()/登出流程置空后再用 `!` 解包崩溃。
+    final jv = jverify;
+    if (kIsWeb || jv == null) {
       snackBar('Web 平台不支持一键登录功能');
       return null;
     }
 
-    Map<dynamic, dynamic> res = await jverify!.checkVerifyEnable();
+    Map<dynamic, dynamic> res = await jv.checkVerifyEnable();
     iPrint("checkVerifyEnable_res ${res.toString()}");
     bool result = res[fResultKey] as bool;
     if (result == false) {
@@ -978,7 +983,7 @@ class PassportNotifier extends _$PassportNotifier {
     ];
 
     /// 步骤 1：调用接口设置 UI
-    jverify!.setCustomAuthorizationView(
+    jv.setCustomAuthorizationView(
       true,
       uiConfig,
       landscapeConfig: uiConfig,
@@ -986,7 +991,7 @@ class PassportNotifier extends _$PassportNotifier {
     );
 
     /// 步骤 2：调用一键登录接口
-    jverify!.loginAuthSyncApi2(
+    jv.loginAuthSyncApi2(
       autoDismiss: true,
       enableSms: true,
       loginAuthcallback: (event) {

@@ -782,6 +782,13 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
             queued.data,
             priority: queued.priority,
           );
+          // sink.add 失败通常意味着 channel 已死（而非单条消息本身的问题），
+          // 继续发送其余消息大概率会重复失败。主动清理并调度重连，而不是
+          // 被动等待 onError/onDone（可能迟迟不触发，导致 _status 停留在
+          // connected 但实际发不出消息的"僵尸连接"，队列永久卡住）。
+          _cancelStream();
+          _updateStatus(SocketStatus.disconnected);
+          _scheduleReconnection();
           break;
         }
         if (_status != SocketStatus.connected) break;

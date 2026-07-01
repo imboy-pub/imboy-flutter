@@ -382,11 +382,18 @@ class ScrollToBottomButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(messageScrollManagerProvider);
+    // 只订阅本组件实际用到的两个字段，避免 scrollPosition 每帧变化
+    // 触发的全量 state 变更把这个按钮一起拖着重建。
+    final isAtBottom = ref.watch(
+      messageScrollManagerProvider.select((s) => s.isAtBottom),
+    );
+    final isScrolling = ref.watch(
+      messageScrollManagerProvider.select((s) => s.isScrolling),
+    );
     final manager = ref.read(messageScrollManagerProvider.notifier);
 
     // 如果在底部或没有新消息，不显示按钮
-    if (state.isAtBottom && unreadCount == 0) {
+    if (isAtBottom && unreadCount == 0) {
       return const SizedBox.shrink();
     }
 
@@ -394,7 +401,7 @@ class ScrollToBottomButton extends ConsumerWidget {
       right: 16,
       bottom: 16,
       child: AnimatedOpacity(
-        opacity: state.isScrolling ? 0.5 : 1.0,
+        opacity: isScrolling ? 0.5 : 1.0,
         duration: const Duration(milliseconds: 200),
         child: Container(
           decoration: BoxDecoration(

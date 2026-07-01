@@ -384,13 +384,18 @@ class AppInitializer {
     }
 
     // 2. 如果有正在进行的请求，等待其完成
-    if (_initConfigCompleter != null) {
+    final pendingCompleter = _initConfigCompleter;
+    if (pendingCompleter != null) {
       if (kDebugMode) debugPrint('🔧 initConfig: 等待进行中的请求');
-      return await _initConfigCompleter!.future;
+      return await pendingCompleter.future;
     }
 
     // 3. 创建新的 Completer 并开始请求
-    _initConfigCompleter = Completer<Map<String, dynamic>>();
+    // 立即捕获局部引用：clearInitConfigCache() 可能在本次调用进行中
+    // 被外部（如登出/切换环境）并发调用，把静态字段置空；下方一律用
+    // 局部变量 completer 而非重新解引用静态字段，避免 `!` 空值崩溃。
+    final completer = Completer<Map<String, dynamic>>();
+    _initConfigCompleter = completer;
     if (kDebugMode) debugPrint('🔧 initConfig: 开始获取配置');
 
     try {
@@ -430,7 +435,7 @@ class AppInitializer {
         final error = {
           "error": t.common.initConfigNetworkError(code: resp1.code.toString()),
         };
-        _initConfigCompleter!.complete(error);
+        completer.complete(error);
         return error;
       }
 
@@ -440,7 +445,7 @@ class AppInitializer {
       if (encrypted.isEmpty) {
         if (kDebugMode) debugPrint('❌ initConfig: ��密内容为空');
         final error = {"error": t.common.initConfigProtocolError};
-        _initConfigCompleter!.complete(error);
+        completer.complete(error);
         return error;
       }
 
@@ -460,7 +465,7 @@ class AppInitializer {
 
       if (payload.containsKey('error')) {
         if (kDebugMode) debugPrint('❌ initConfig: payload包含错误');
-        _initConfigCompleter!.complete(payload);
+        completer.complete(payload);
         return payload;
       }
 
@@ -516,7 +521,7 @@ class AppInitializer {
 
       // 4. 缓存结果并完成
       _initConfigCache = payload;
-      _initConfigCompleter!.complete(payload);
+      completer.complete(payload);
       return payload;
     } on Exception catch (e, stack) {
       // 记录真实异常以便诊断（如 macOS Keychain entitlement 缺失会抛 PlatformException）
@@ -530,13 +535,17 @@ class AppInitializer {
       }
       final error = {"error": t.common.initConfigFetchFailed};
       // 确保在异常情况下也清理 Completer
-      if (!_initConfigCompleter!.isCompleted) {
-        _initConfigCompleter!.complete(error);
+      if (!completer.isCompleted) {
+        completer.complete(error);
       }
       return error;
     } finally {
-      // 5. 清理 Completer
-      _initConfigCompleter = null;
+      // 5. 清理 Completer：仅当静态字段仍指向本次调用创建的实例时才清空，
+      // 避免覆盖并发场景下由外部竞态（clearInitConfigCache）产生的另一个
+      // in-flight completer。
+      if (identical(_initConfigCompleter, completer)) {
+        _initConfigCompleter = null;
+      }
     }
   }
 
