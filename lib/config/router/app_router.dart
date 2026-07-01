@@ -6,8 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/app_core/routing/route_feature_guard.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/routes.dart';
+import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -48,6 +50,33 @@ bool _isPublicPath(String currentPath) {
     AppRoutes.termsOfService,
   ];
   return publicPaths.any((path) => _matchesPublicPath(currentPath, path));
+}
+
+/// 深链接资源 URL host 白名单校验。
+///
+/// `/markdown`、`/video_viewer`、`/upgrade` 的 url/downLoadUrl 查询参数可被外部
+/// 深链接（universal link）或群消息内容任意构造，未经校验直接传给页面会被用于
+/// 渲染钓鱼内容或诱导下载恶意安装包。这里只信任：
+/// - Garage object_key（如 `u123/xxx.mp4`，由 [AssetsService.isObjectKey] 识别）；
+/// - host 命中当前环境后端域名（[Env().apiBaseUrl]）或公开资源域名
+///   （[Env.publicBaseUrl]）及其子域。
+/// 其余一律拒绝，调用方应回退为空字符串。
+bool isTrustedResourceUrl(String rawUrl) {
+  if (rawUrl.isEmpty) return false;
+  if (AssetsService.isObjectKey(rawUrl)) return true;
+
+  final uri = Uri.tryParse(rawUrl);
+  if (uri == null || uri.host.isEmpty) return false;
+  if (uri.scheme != 'http' && uri.scheme != 'https') return false;
+
+  final trustedHosts = <String>{
+    Uri.tryParse(Env().apiBaseUrl)?.host ?? '',
+    Uri.tryParse(Env.publicBaseUrl)?.host ?? '',
+  }..removeWhere((host) => host.isEmpty);
+
+  return trustedHosts.any(
+    (host) => uri.host == host || uri.host.endsWith('.$host'),
+  );
 }
 
 /// GoRouter 路由配置
@@ -392,7 +421,8 @@ GoRouter createAppRouter({
         name: 'markdown',
         pageBuilder: (context, state) {
           final title = state.uri.queryParameters['title'] ?? '';
-          final url = state.uri.queryParameters['url'] ?? '';
+          final rawUrl = state.uri.queryParameters['url'] ?? '';
+          final url = isTrustedResourceUrl(rawUrl) ? rawUrl : '';
           final selectable = state.uri.queryParameters['selectable'] == 'true';
           return CupertinoPage(
             key: state.pageKey,
@@ -404,8 +434,10 @@ GoRouter createAppRouter({
         path: '/video_viewer',
         name: 'video_viewer',
         pageBuilder: (context, state) {
-          final url = state.uri.queryParameters['url'] ?? '';
-          final thumb = state.uri.queryParameters['thumb'] ?? '';
+          final rawUrl = state.uri.queryParameters['url'] ?? '';
+          final rawThumb = state.uri.queryParameters['thumb'] ?? '';
+          final url = isTrustedResourceUrl(rawUrl) ? rawUrl : '';
+          final thumb = isTrustedResourceUrl(rawThumb) ? rawThumb : '';
           return CupertinoPage(
             key: state.pageKey,
             child: VideoViewerPage(url: url, thumb: thumb),
@@ -416,7 +448,10 @@ GoRouter createAppRouter({
         path: '/upgrade',
         name: 'upgrade',
         pageBuilder: (context, state) {
-          final downLoadUrl = state.uri.queryParameters['downLoadUrl'] ?? '';
+          final rawDownLoadUrl = state.uri.queryParameters['downLoadUrl'] ?? '';
+          final downLoadUrl = isTrustedResourceUrl(rawDownLoadUrl)
+              ? rawDownLoadUrl
+              : '';
           final message = state.uri.queryParameters['message'] ?? '';
           final version = state.uri.queryParameters['version'] ?? '';
           final isForce = state.uri.queryParameters['isForce'] == 'true';
