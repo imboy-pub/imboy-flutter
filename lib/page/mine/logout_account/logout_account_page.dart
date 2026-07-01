@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -11,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:imboy/store/api/user_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -237,7 +239,12 @@ class LogoutAccountPage extends ConsumerWidget {
                   final ok = await ref
                       .read(logoutAccountProvider.notifier)
                       .applyLogout();
-                  if (ok && context.mounted) Navigator.of(context).maybePop();
+                  if (!ok) return;
+                  // 账号已在服务端注销：必须级联清理本地残留（token/E2EE缓存/
+                  // SQLite连接），否则设备转手或冷启动后仍停留在已注销账号的
+                  // 会话状态，与常规登出（setting_page.dart）行为不一致。
+                  await UserRepoLocal.to.quitLogin();
+                  if (context.mounted) context.go('/welcome');
                 }
               : null,
           child: state.isLoading
