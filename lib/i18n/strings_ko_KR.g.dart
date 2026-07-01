@@ -598,6 +598,8 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get liveRoomCreateTitle => '라이브 룸 만들기';
 	@override String get liveRoomCreating => '생성 중...';
 	@override String get liveRoomWatch => '라이브 시청';
+	@override String get switchToVoiceInput => '음성 입력으로 전환';
+	@override String get switchToKeyboardInput => '키보드 입력으로 전환';
 }
 
 // Path: common
@@ -1674,6 +1676,14 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => '출금 계좌를 입력해주세요';
 	@override String get withdrawMethod => '출금 방식';
 	@override String get withdrawAccount => '출금 계좌';
+	@override String get showPassword => '비밀번호 표시';
+	@override String get hidePassword => '비밀번호 숨기기';
+	@override String get turnOnFlashlight => '손전등 켜기';
+	@override String get turnOffFlashlight => '손전등 끄기';
+	@override String get pauseScan => '스캔 일시 중지';
+	@override String get resumeScan => '스캔 재개';
+	@override String get enterFullscreen => '전체 화면으로 전환';
+	@override String get exitFullscreen => '전체 화면 종료';
 }
 
 // Path: complaint
@@ -2940,11 +2950,13 @@ extension on TranslationsKoKr {
 			'chat.liveRoomCreateTitle' => '라이브 룸 만들기',
 			'chat.liveRoomCreating' => '생성 중...',
 			'chat.liveRoomWatch' => '라이브 시청',
+			'chat.switchToVoiceInput' => '음성 입력으로 전환',
+			'chat.switchToKeyboardInput' => '키보드 입력으로 전환',
 			'common.about' => '정보',
-			'common.aboutApp' => '앱 정보',
-			'common.accept' => '수락',
 			_ => null,
 		} ?? switch (path) {
+			'common.aboutApp' => '앱 정보',
+			'common.accept' => '수락',
 			'common.acceptFriendRequest' => '친구 요청 수락',
 			'common.addFriend' => '친구 추가',
 			'common.addPhoneContact' => '연락처 추가',
@@ -3455,10 +3467,10 @@ extension on TranslationsKoKr {
 			'common.allowAddByQRDesc' => '다른 사용자가 QR코드를 스캔하여 친구 추가할 수 있습니다',
 			'common.statusSettings' => '상태 설정',
 			'common.showOnlineStatus' => '온라인 상태 표시',
-			'common.showOnlineStatusDesc' => '친구가 온라인 상태를 볼 수 있습니다',
-			'common.allowNearbyVisible' => '주변 사용자에게 표시',
 			_ => null,
 		} ?? switch (path) {
+			'common.showOnlineStatusDesc' => '친구가 온라인 상태를 볼 수 있습니다',
+			'common.allowNearbyVisible' => '주변 사용자에게 표시',
 			'common.dataSettings' => '데이터 설정',
 			'common.clearChatRecords' => '채팅 기록 삭제',
 			'common.clearChatRecordsDesc' => '모든 채팅 기록을 삭제합니다. 이 작업은 되돌릴 수 없습니다',
@@ -3969,10 +3981,10 @@ extension on TranslationsKoKr {
 			'common.downloadFileNotFound' => '다운로드 파일이 없습니다. 다시 시도해주세요',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '파일 검증 실패, 다시 다운로드하는 중 (${retry}/${max})',
 			'common.downloadHashFailed' => '파일 검증이 여러 번 실패했습니다. 네트워크를 확인하고 다시 시도해주세요',
-			'common.e2eeTransferToNewDevice' => '새 기기로 전송',
-			'common.e2eeTransferPendingSection' => '대기 중인 전송',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferToNewDevice' => '새 기기로 전송',
+			'common.e2eeTransferPendingSection' => '대기 중인 전송',
 			'common.e2eeTransferLoadFailed' => '불러오기 실패',
 			'common.e2eeTransferLoadFailedDesc' => '대기 중인 전송을 불러올 수 없습니다. 다시 시도해주세요',
 			'common.e2eeTransferNoPending' => '대기 중인 전송이 없습니다',
@@ -4013,6 +4025,14 @@ extension on TranslationsKoKr {
 			'common.withdrawAccountEmpty' => '출금 계좌를 입력해주세요',
 			'common.withdrawMethod' => '출금 방식',
 			'common.withdrawAccount' => '출금 계좌',
+			'common.showPassword' => '비밀번호 표시',
+			'common.hidePassword' => '비밀번호 숨기기',
+			'common.turnOnFlashlight' => '손전등 켜기',
+			'common.turnOffFlashlight' => '손전등 끄기',
+			'common.pauseScan' => '스캔 일시 중지',
+			'common.resumeScan' => '스캔 재개',
+			'common.enterFullscreen' => '전체 화면으로 전환',
+			'common.exitFullscreen' => '전체 화면 종료',
 			'complaint.complaint' => '신고',
 			'complaintReason.spam' => '스팸',
 			'complaintReason.harassment' => '괴롭힘',
@@ -4475,6 +4495,8 @@ extension on TranslationsKoKr {
 			'main.e2eeProxyUser' => ({required Object uid}) => '대리자: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '샤드 ${index} / ${total}',
 			'main.e2eeReloadShards' => '새로고침',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeRecovering' => '복구 중...',
 			'main.e2eeKeyRestored' => '키가 복구되었습니다',
 			'main.e2eeUsedShards' => ({required Object count}) => '대리자 샤드 ${count}개 사용됨',
@@ -4485,8 +4507,6 @@ extension on TranslationsKoKr {
 			'main.webQRLoggingIn' => '로그인 중...',
 			'main.webQRExpired' => 'QR 코드가 만료되었습니다',
 			'main.webQRRefresh' => 'QR 코드 새로고침',
-			_ => null,
-		} ?? switch (path) {
 			'main.webSwitchToQR' => 'QR 코드로 로그인',
 			'main.e2eeErrDefault' => '종단간 암호화 실패, 메시지가 전송되지 않았습니다',
 			'main.e2eeSocialTotalShards' => '전체 샤드 수',

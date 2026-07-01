@@ -598,6 +598,8 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get liveRoomCreateTitle => 'Créer un live';
 	@override String get liveRoomCreating => 'Création...';
 	@override String get liveRoomWatch => 'Regarder';
+	@override String get switchToVoiceInput => 'Passer à la saisie vocale';
+	@override String get switchToKeyboardInput => 'Passer à la saisie clavier';
 }
 
 // Path: common
@@ -1674,6 +1676,14 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'Compte de retrait requis';
 	@override String get withdrawMethod => 'Méthode de retrait';
 	@override String get withdrawAccount => 'Compte de retrait';
+	@override String get showPassword => 'Afficher le mot de passe';
+	@override String get hidePassword => 'Masquer le mot de passe';
+	@override String get turnOnFlashlight => 'Activer le flash';
+	@override String get turnOffFlashlight => 'Désactiver le flash';
+	@override String get pauseScan => 'Suspendre le scan';
+	@override String get resumeScan => 'Reprendre le scan';
+	@override String get enterFullscreen => 'Passer en plein écran';
+	@override String get exitFullscreen => 'Quitter le plein écran';
 }
 
 // Path: complaint
@@ -2940,11 +2950,13 @@ extension on TranslationsFrFr {
 			'chat.liveRoomCreateTitle' => 'Créer un live',
 			'chat.liveRoomCreating' => 'Création...',
 			'chat.liveRoomWatch' => 'Regarder',
+			'chat.switchToVoiceInput' => 'Passer à la saisie vocale',
+			'chat.switchToKeyboardInput' => 'Passer à la saisie clavier',
 			'common.about' => 'À propos',
-			'common.aboutApp' => 'À propos de l\'application',
-			'common.accept' => 'Accepter',
 			_ => null,
 		} ?? switch (path) {
+			'common.aboutApp' => 'À propos de l\'application',
+			'common.accept' => 'Accepter',
 			'common.acceptFriendRequest' => 'Accepter la demande d\'ami',
 			'common.addFriend' => 'Ajouter un ami',
 			'common.addPhoneContact' => 'Ajouter un contact téléphonique',
@@ -3455,10 +3467,10 @@ extension on TranslationsFrFr {
 			'common.allowAddByQRDesc' => 'D\'autres utilisateurs peuvent vous ajouter comme ami en scannant votre code QR.',
 			'common.statusSettings' => 'Paramètres de statut',
 			'common.showOnlineStatus' => 'Afficher le statut en ligne',
-			'common.showOnlineStatusDesc' => 'Les amis peuvent voir votre statut en ligne.',
-			'common.allowNearbyVisible' => 'Visible pour les personnes à proximité',
 			_ => null,
 		} ?? switch (path) {
+			'common.showOnlineStatusDesc' => 'Les amis peuvent voir votre statut en ligne.',
+			'common.allowNearbyVisible' => 'Visible pour les personnes à proximité',
 			'common.dataSettings' => 'Paramètres des données',
 			'common.clearChatRecords' => 'Effacer les enregistrements de conversation',
 			'common.clearChatRecordsDesc' => 'Effacer tous les enregistrements de conversation. Cette action est irréversible.',
@@ -3969,10 +3981,10 @@ extension on TranslationsFrFr {
 			'common.downloadFileNotFound' => 'Fichier téléchargé introuvable. Réessayez.',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Vérification échouée, retéléchargement (${retry}/${max})',
 			'common.downloadHashFailed' => 'Vérifications multiples échouées. Vérifiez le réseau.',
-			'common.e2eeTransferToNewDevice' => 'Vers le nouvel appareil',
-			'common.e2eeTransferPendingSection' => 'Transferts en attente',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferToNewDevice' => 'Vers le nouvel appareil',
+			'common.e2eeTransferPendingSection' => 'Transferts en attente',
 			'common.e2eeTransferLoadFailed' => 'Échec du chargement',
 			'common.e2eeTransferLoadFailedDesc' => 'Transferts en attente indisponibles. Réessayez.',
 			'common.e2eeTransferNoPending' => 'Aucun transfert en attente',
@@ -4013,6 +4025,14 @@ extension on TranslationsFrFr {
 			'common.withdrawAccountEmpty' => 'Compte de retrait requis',
 			'common.withdrawMethod' => 'Méthode de retrait',
 			'common.withdrawAccount' => 'Compte de retrait',
+			'common.showPassword' => 'Afficher le mot de passe',
+			'common.hidePassword' => 'Masquer le mot de passe',
+			'common.turnOnFlashlight' => 'Activer le flash',
+			'common.turnOffFlashlight' => 'Désactiver le flash',
+			'common.pauseScan' => 'Suspendre le scan',
+			'common.resumeScan' => 'Reprendre le scan',
+			'common.enterFullscreen' => 'Passer en plein écran',
+			'common.exitFullscreen' => 'Quitter le plein écran',
 			'complaint.complaint' => 'Plainte',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harcèlement',
@@ -4475,6 +4495,8 @@ extension on TranslationsFrFr {
 			'main.e2eeProxyUser' => ({required Object uid}) => 'Dépositaire : ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Fragment ${index} / ${total}',
 			'main.e2eeReloadShards' => 'Recharger',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeRecovering' => 'Restauration...',
 			'main.e2eeKeyRestored' => 'Clé restaurée',
 			'main.e2eeUsedShards' => ({required Object count}) => '${count} fragments utilisés',
@@ -4485,8 +4507,6 @@ extension on TranslationsFrFr {
 			'main.webQRLoggingIn' => 'Connexion...',
 			'main.webQRExpired' => 'QR code expiré',
 			'main.webQRRefresh' => 'Actualiser le QR code',
-			_ => null,
-		} ?? switch (path) {
 			'main.webSwitchToQR' => 'Connexion par QR code',
 			'main.e2eeErrDefault' => 'Échec E2EE, message non envoyé',
 			'main.e2eeSocialTotalShards' => 'Total de fragments',

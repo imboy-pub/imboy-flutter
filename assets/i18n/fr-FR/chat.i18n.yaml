@@ -274,3 +274,5 @@ e2eeRecoveryBannerText: Anciens messages chiffrés détectés. Restaurez la clé
 liveRoomCreateTitle: Créer un live
 liveRoomCreating: Création...
 liveRoomWatch: Regarder
+switchToVoiceInput: Passer à la saisie vocale
+switchToKeyboardInput: Passer à la saisie clavier

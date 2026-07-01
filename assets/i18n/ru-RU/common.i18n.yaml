@@ -1066,3 +1066,11 @@ withdrawAmountError: Введите сумму не менее 1 юаня
 withdrawAccountEmpty: Введите счёт для вывода
 withdrawMethod: Способ вывода
 withdrawAccount: Счёт для вывода
+showPassword: Показать пароль
+hidePassword: Скрыть пароль
+turnOnFlashlight: Включить фонарик
+turnOffFlashlight: Выключить фонарик
+pauseScan: Приостановить сканирование
+resumeScan: Возобновить сканирование
+enterFullscreen: Включить полноэкранный режим
+exitFullscreen: Выйти из полноэкранного режима

@@ -1728,6 +1728,12 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: '观看直播'
 	String get liveRoomWatch => '观看直播';
+
+	/// zh-CN: '切换到语音输入'
+	String get switchToVoiceInput => '切换到语音输入';
+
+	/// zh-CN: '切换到键盘输入'
+	String get switchToKeyboardInput => '切换到键盘输入';
 }
 
 // Path: common
@@ -5040,6 +5046,30 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '${count}m'
 	String timeMinutesShort({required Object count}) => '${count}m';
+
+	/// zh-CN: '显示密码'
+	String get showPassword => '显示密码';
+
+	/// zh-CN: '隐藏密码'
+	String get hidePassword => '隐藏密码';
+
+	/// zh-CN: '打开闪光灯'
+	String get turnOnFlashlight => '打开闪光灯';
+
+	/// zh-CN: '关闭闪光灯'
+	String get turnOffFlashlight => '关闭闪光灯';
+
+	/// zh-CN: '暂停扫描'
+	String get pauseScan => '暂停扫描';
+
+	/// zh-CN: '继续扫描'
+	String get resumeScan => '继续扫描';
+
+	/// zh-CN: '进入全屏'
+	String get enterFullscreen => '进入全屏';
+
+	/// zh-CN: '退出全屏'
+	String get exitFullscreen => '退出全屏';
 }
 
 // Path: complaint
@@ -7527,6 +7557,8 @@ extension on Translations {
 			'chat.liveRoomCreateTitle' => '创建直播间',
 			'chat.liveRoomCreating' => '创建中...',
 			'chat.liveRoomWatch' => '观看直播',
+			'chat.switchToVoiceInput' => '切换到语音输入',
+			'chat.switchToKeyboardInput' => '切换到键盘输入',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
@@ -8003,10 +8035,10 @@ extension on Translations {
 			'common.forceDeviceOfflineConfirm' => '将向该设备发送下线指令，确认继续？',
 			'common.confirmForceOffline' => '确认下线',
 			'common.forceOfflineCommandSent' => '已发送下线指令',
-			'common.feedbackSlogan' => '您的建议是我们改进的动力',
-			'common.newFeedback' => '新建反馈',
 			_ => null,
 		} ?? switch (path) {
+			'common.feedbackSlogan' => '您的建议是我们改进的动力',
+			'common.newFeedback' => '新建反馈',
 			'common.feedbackHistory' => '反馈历史',
 			'common.confirmDelete' => '确认删除',
 			'common.processing' => _root.common.loading,
@@ -8517,10 +8549,10 @@ extension on Translations {
 			'common.e2eeBackupDeviceIdLabel' => '设备 ID',
 			'common.e2eeBackupVersionNum' => '备份版本',
 			'common.e2eeBackupCreatedAtRow' => '创建时间',
-			'common.e2eeBackupFileSizeRow' => '文件大小',
-			'common.e2eeBackupNoteRow' => '备注',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupFileSizeRow' => '文件大小',
+			'common.e2eeBackupNoteRow' => '备注',
 			'common.e2eeBackupDeleteTitle' => '删除备份记录',
 			'common.e2eeBackupDeleteConfirm' => '确定要删除此备份记录吗？',
 			'common.e2eeBackupDeleteSuccess' => '备份记录已删除',
@@ -8632,6 +8664,14 @@ extension on Translations {
 			'common.timeDaysShort' => ({required Object count}) => '${count}d',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
 			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
+			'common.showPassword' => '显示密码',
+			'common.hidePassword' => '隐藏密码',
+			'common.turnOnFlashlight' => '打开闪光灯',
+			'common.turnOffFlashlight' => '关闭闪光灯',
+			'common.pauseScan' => '暂停扫描',
+			'common.resumeScan' => '继续扫描',
+			'common.enterFullscreen' => '进入全屏',
+			'common.exitFullscreen' => '退出全屏',
 			'complaint.complaint' => '投诉',
 			'complaintReason.spam' => '垃圾信息',
 			'complaintReason.harassment' => '骚扰',
@@ -9023,6 +9063,8 @@ extension on Translations {
 			'main.systemDefault' => '系统默认',
 			'main.custom' => '自定义',
 			'main.previewArea' => '预览区域',
+			_ => null,
+		} ?? switch (path) {
 			'main.simpleTexture' => '简约纹理',
 			'main.gradientBlue' => '渐变蓝',
 			'main.gradientPurple' => '渐变紫',
@@ -9033,8 +9075,6 @@ extension on Translations {
 			'main.thisIsTitleText' => '这是标题文本',
 			'main.thisIsAuxiliaryText' => '这是辅助说明文字',
 			'main.toBeCompleted' => '待完善',
-			_ => null,
-		} ?? switch (path) {
 			'main.availableCount' => '可选择',
 			'main.mostUsed' => '最常用',
 			'main.commentPlaceholder' => '评论...',

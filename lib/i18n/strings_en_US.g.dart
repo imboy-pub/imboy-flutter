@@ -598,6 +598,8 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get liveRoomCreating => 'Creating...';
 	@override String get liveRoomWatch => 'Watch Live';
 	@override String get sendMessage => 'Send Message';
+	@override String get switchToVoiceInput => 'Switch to voice input';
+	@override String get switchToKeyboardInput => 'Switch to keyboard input';
 }
 
 // Path: common
@@ -1674,6 +1676,14 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get insufficientBalanceTitle => 'Insufficient Balance';
 	@override String insufficientBalanceContent({required Object currency, required Object balance, required Object price}) => 'Current balance ${currency} ${balance}, requires ${currency} ${price}. Please top up first.';
 	@override String get goRecharge => 'Top Up';
+	@override String get showPassword => 'Show password';
+	@override String get hidePassword => 'Hide password';
+	@override String get turnOnFlashlight => 'Turn on flashlight';
+	@override String get turnOffFlashlight => 'Turn off flashlight';
+	@override String get pauseScan => 'Pause scanning';
+	@override String get resumeScan => 'Resume scanning';
+	@override String get enterFullscreen => 'Enter fullscreen';
+	@override String get exitFullscreen => 'Exit fullscreen';
 }
 
 // Path: complaint
@@ -2940,11 +2950,13 @@ extension on TranslationsEnUs {
 			'chat.liveRoomCreating' => 'Creating...',
 			'chat.liveRoomWatch' => 'Watch Live',
 			'chat.sendMessage' => 'Send Message',
+			'chat.switchToVoiceInput' => 'Switch to voice input',
+			'chat.switchToKeyboardInput' => 'Switch to keyboard input',
 			'common.about' => 'About',
-			'common.aboutApp' => 'About App',
-			'common.accept' => 'Accept',
 			_ => null,
 		} ?? switch (path) {
+			'common.aboutApp' => 'About App',
+			'common.accept' => 'Accept',
 			'common.acceptFriendRequest' => 'Accept friend request',
 			'common.addFriend' => 'Add friend',
 			'common.addPhoneContact' => 'Add phone contact',
@@ -3455,10 +3467,10 @@ extension on TranslationsEnUs {
 			'common.deleteAccountActionDesc' => 'Permanently delete account and all data, this action cannot be undone',
 			'common.chatHistoryCleared' => 'Chat history cleared',
 			'common.accountDeletionNotAvailable' => 'Account deletion feature is not available yet',
-			'common.chatDeleteMessage' => 'Delete message',
-			'common.chatCopy' => 'Copy',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatDeleteMessage' => 'Delete message',
+			'common.chatCopy' => 'Copy',
 			'common.chatSaveImage' => 'Save image',
 			'common.chatDeleteLocalOnly' => 'Delete local only',
 			'common.chatDownloadFile' => 'Download file',
@@ -3969,10 +3981,10 @@ extension on TranslationsEnUs {
 			'common.e2eeTransferLoadFailedDesc' => 'Unable to load pending transfers, please retry',
 			'common.e2eeTransferNoPending' => 'No pending transfers',
 			'common.e2eeTransferNoPendingDesc' => 'When a device sends you a key, it will appear here',
-			'common.e2eeSocialEnoughShards' => 'You have enough shards to recover your key',
-			'common.e2eeSocialMoreShards' => ({required Object count}) => '${count} more shards...',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialEnoughShards' => 'You have enough shards to recover your key',
+			'common.e2eeSocialMoreShards' => ({required Object count}) => '${count} more shards...',
 			'common.e2eeProxyLoadFriendsFailed' => 'Failed to load friend list, please retry',
 			'common.e2eeProxyNoPublicKey' => 'This contact has no available public key',
 			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'Failed to get public key for ${name}',
@@ -4013,6 +4025,14 @@ extension on TranslationsEnUs {
 			'common.insufficientBalanceTitle' => 'Insufficient Balance',
 			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => 'Current balance ${currency} ${balance}, requires ${currency} ${price}. Please top up first.',
 			'common.goRecharge' => 'Top Up',
+			'common.showPassword' => 'Show password',
+			'common.hidePassword' => 'Hide password',
+			'common.turnOnFlashlight' => 'Turn on flashlight',
+			'common.turnOffFlashlight' => 'Turn off flashlight',
+			'common.pauseScan' => 'Pause scanning',
+			'common.resumeScan' => 'Resume scanning',
+			'common.enterFullscreen' => 'Enter fullscreen',
+			'common.exitFullscreen' => 'Exit fullscreen',
 			'complaint.complaint' => 'Complaint',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harassment',
@@ -4475,6 +4495,8 @@ extension on TranslationsEnUs {
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Shard ${index} / ${total}',
 			'main.e2eeReloadShards' => 'Reload',
 			'main.e2eeRecovering' => 'Recovering...',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeKeyRestored' => 'Key has been successfully restored',
 			'main.e2eeUsedShards' => ({required Object count}) => 'Used ${count} proxy shards',
 			'main.e2eePreparing' => 'Preparing to recover...',
@@ -4485,8 +4507,6 @@ extension on TranslationsEnUs {
 			'main.webQRExpired' => 'QR code expired',
 			'main.webQRRefresh' => 'Refresh QR Code',
 			'main.webSwitchToQR' => 'Login with QR code',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrDefault' => 'End-to-end encryption failed, message not sent',
 			'main.e2eeSocialTotalShards' => 'Total shards',
 			'main.e2eeSocialThreshold' => 'Recovery threshold',

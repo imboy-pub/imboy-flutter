@@ -1065,3 +1065,11 @@ withdrawAmountError: 請輸入不低於1元的金額
 withdrawAccountEmpty: 請輸入提現賬號
 withdrawMethod: 提現方式
 withdrawAccount: 提現賬號
+showPassword: 顯示密碼
+hidePassword: 隱藏密碼
+turnOnFlashlight: 打開手電筒
+turnOffFlashlight: 關閉手電筒
+pauseScan: 暫停掃描
+resumeScan: 繼續掃描
+enterFullscreen: 進入全螢幕
+exitFullscreen: 退出全螢幕

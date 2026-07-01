@@ -274,3 +274,5 @@ e2eeRecoveryBannerText: 암호화된 이전 메시지가 감지되었습니다. 
 liveRoomCreateTitle: 라이브 룸 만들기
 liveRoomCreating: 생성 중...
 liveRoomWatch: 라이브 시청
+switchToVoiceInput: 음성 입력으로 전환
+switchToKeyboardInput: 키보드 입력으로 전환

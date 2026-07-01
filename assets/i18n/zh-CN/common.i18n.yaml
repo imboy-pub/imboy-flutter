@@ -1100,3 +1100,11 @@ timeNowShort: now
 timeDaysShort(count): "${count}d"
 timeHoursShort(count): "${count}h"
 timeMinutesShort(count): "${count}m"
+showPassword: 显示密码
+hidePassword: 隐藏密码
+turnOnFlashlight: 打开闪光灯
+turnOffFlashlight: 关闭闪光灯
+pauseScan: 暂停扫描
+resumeScan: 继续扫描
+enterFullscreen: 进入全屏
+exitFullscreen: 退出全屏

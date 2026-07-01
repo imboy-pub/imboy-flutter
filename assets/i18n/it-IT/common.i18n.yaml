@@ -1066,3 +1066,11 @@ withdrawAmountError: Importo minimo 1 yuan
 withdrawAccountEmpty: Conto di prelievo richiesto
 withdrawMethod: Metodo di prelievo
 withdrawAccount: Conto di prelievo
+showPassword: Mostra password
+hidePassword: Nascondi password
+turnOnFlashlight: Accendi il flash
+turnOffFlashlight: Spegni il flash
+pauseScan: Metti in pausa la scansione
+resumeScan: Riprendi la scansione
+enterFullscreen: Attiva schermo intero
+exitFullscreen: Esci da schermo intero

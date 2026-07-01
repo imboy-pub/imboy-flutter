@@ -1066,3 +1066,11 @@ notLoggedIn: Not logged in
 insufficientBalanceTitle: Insufficient Balance
 insufficientBalanceContent(balance, price, currency): "Current balance $currency $balance, requires $currency $price. Please top up first."
 goRecharge: Top Up
+showPassword: Show password
+hidePassword: Hide password
+turnOnFlashlight: Turn on flashlight
+turnOffFlashlight: Turn off flashlight
+pauseScan: Pause scanning
+resumeScan: Resume scanning
+enterFullscreen: Enter fullscreen
+exitFullscreen: Exit fullscreen

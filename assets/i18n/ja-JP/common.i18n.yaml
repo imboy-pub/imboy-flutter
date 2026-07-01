@@ -1066,3 +1066,11 @@ withdrawAmountError: 1元以上の金額を入力してください
 withdrawAccountEmpty: 出金先のアカウントを入力してください
 withdrawMethod: 出金方法
 withdrawAccount: 出金先アカウント
+showPassword: パスワードを表示
+hidePassword: パスワードを隠す
+turnOnFlashlight: ライトを点ける
+turnOffFlashlight: ライトを消す
+pauseScan: スキャンを一時停止
+resumeScan: スキャンを再開
+enterFullscreen: 全画面表示にする
+exitFullscreen: 全画面表示を終了

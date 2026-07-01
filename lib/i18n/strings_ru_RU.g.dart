@@ -598,6 +598,8 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get liveRoomCreateTitle => 'Создать трансляцию';
 	@override String get liveRoomCreating => 'Создание...';
 	@override String get liveRoomWatch => 'Смотреть трансляцию';
+	@override String get switchToVoiceInput => 'Переключиться на голосовой ввод';
+	@override String get switchToKeyboardInput => 'Переключиться на ввод с клавиатуры';
 }
 
 // Path: common
@@ -1674,6 +1676,14 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'Введите счёт для вывода';
 	@override String get withdrawMethod => 'Способ вывода';
 	@override String get withdrawAccount => 'Счёт для вывода';
+	@override String get showPassword => 'Показать пароль';
+	@override String get hidePassword => 'Скрыть пароль';
+	@override String get turnOnFlashlight => 'Включить фонарик';
+	@override String get turnOffFlashlight => 'Выключить фонарик';
+	@override String get pauseScan => 'Приостановить сканирование';
+	@override String get resumeScan => 'Возобновить сканирование';
+	@override String get enterFullscreen => 'Включить полноэкранный режим';
+	@override String get exitFullscreen => 'Выйти из полноэкранного режима';
 }
 
 // Path: complaint
@@ -2940,11 +2950,13 @@ extension on TranslationsRuRu {
 			'chat.liveRoomCreateTitle' => 'Создать трансляцию',
 			'chat.liveRoomCreating' => 'Создание...',
 			'chat.liveRoomWatch' => 'Смотреть трансляцию',
+			'chat.switchToVoiceInput' => 'Переключиться на голосовой ввод',
+			'chat.switchToKeyboardInput' => 'Переключиться на ввод с клавиатуры',
 			'common.about' => 'О приложении',
-			'common.aboutApp' => 'О приложении',
-			'common.accept' => 'Принять',
 			_ => null,
 		} ?? switch (path) {
+			'common.aboutApp' => 'О приложении',
+			'common.accept' => 'Принять',
 			'common.acceptFriendRequest' => 'Подтвердить запрос дружбы',
 			'common.addFriend' => 'Добавить друга',
 			'common.addPhoneContact' => 'Добавить контакт',
@@ -3455,10 +3467,10 @@ extension on TranslationsRuRu {
 			'common.allowAddByQRDesc' => 'Другие пользователи могут добавить вас в друзья, отсканировав ваш QR-код',
 			'common.statusSettings' => 'Настройки статуса',
 			'common.showOnlineStatus' => 'Показать онлайн-статус',
-			'common.showOnlineStatusDesc' => 'Друзья могут видеть ваш онлайн-статус',
-			'common.allowNearbyVisible' => 'Видимый для находящихся рядом',
 			_ => null,
 		} ?? switch (path) {
+			'common.showOnlineStatusDesc' => 'Друзья могут видеть ваш онлайн-статус',
+			'common.allowNearbyVisible' => 'Видимый для находящихся рядом',
 			'common.dataSettings' => 'Настройки данных',
 			'common.clearChatRecords' => 'Очистить записи чата',
 			'common.clearChatRecordsDesc' => 'Очистить все записи чата, это действие нельзя отменить',
@@ -3969,10 +3981,10 @@ extension on TranslationsRuRu {
 			'common.downloadFileNotFound' => 'Файл загрузки не найден, попробуйте ещё раз',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Ошибка проверки файла, перезагрузка (${retry}/${max})',
 			'common.downloadHashFailed' => 'Многократная ошибка проверки файла, проверьте сеть и попробуйте ещё раз',
-			'common.e2eeTransferToNewDevice' => 'Передать на новое устройство',
-			'common.e2eeTransferPendingSection' => 'Ожидающие передачи',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferToNewDevice' => 'Передать на новое устройство',
+			'common.e2eeTransferPendingSection' => 'Ожидающие передачи',
 			'common.e2eeTransferLoadFailed' => 'Не удалось загрузить',
 			'common.e2eeTransferLoadFailedDesc' => 'Не удалось загрузить ожидающие передачи, попробуйте ещё раз',
 			'common.e2eeTransferNoPending' => 'Нет ожидающих передач',
@@ -4013,6 +4025,14 @@ extension on TranslationsRuRu {
 			'common.withdrawAccountEmpty' => 'Введите счёт для вывода',
 			'common.withdrawMethod' => 'Способ вывода',
 			'common.withdrawAccount' => 'Счёт для вывода',
+			'common.showPassword' => 'Показать пароль',
+			'common.hidePassword' => 'Скрыть пароль',
+			'common.turnOnFlashlight' => 'Включить фонарик',
+			'common.turnOffFlashlight' => 'Выключить фонарик',
+			'common.pauseScan' => 'Приостановить сканирование',
+			'common.resumeScan' => 'Возобновить сканирование',
+			'common.enterFullscreen' => 'Включить полноэкранный режим',
+			'common.exitFullscreen' => 'Выйти из полноэкранного режима',
 			'complaint.complaint' => 'Жалоба',
 			'complaintReason.spam' => 'Спам',
 			'complaintReason.harassment' => 'Преследование',
@@ -4475,6 +4495,8 @@ extension on TranslationsRuRu {
 			'main.e2eeProxyUser' => ({required Object uid}) => 'Посредник: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Фрагмент ${index} / ${total}',
 			'main.e2eeReloadShards' => 'Обновить',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeRecovering' => 'Восстановление...',
 			'main.e2eeKeyRestored' => 'Ключ восстановлен',
 			'main.e2eeUsedShards' => ({required Object count}) => 'Использовано фрагментов посредников: ${count}',
@@ -4485,8 +4507,6 @@ extension on TranslationsRuRu {
 			'main.webQRLoggingIn' => 'Вход...',
 			'main.webQRExpired' => 'Срок действия QR-кода истёк',
 			'main.webQRRefresh' => 'Обновить QR-код',
-			_ => null,
-		} ?? switch (path) {
 			'main.webSwitchToQR' => 'Войти по QR-коду',
 			'main.e2eeErrDefault' => 'Ошибка сквозного шифрования, сообщение не отправлено',
 			'main.e2eeSocialTotalShards' => 'Всего фрагментов',

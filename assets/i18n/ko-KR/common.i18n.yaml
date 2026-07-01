@@ -1066,3 +1066,11 @@ withdrawAmountError: 1위안 이상의 금액을 입력해주세요
 withdrawAccountEmpty: 출금 계좌를 입력해주세요
 withdrawMethod: 출금 방식
 withdrawAccount: 출금 계좌
+showPassword: 비밀번호 표시
+hidePassword: 비밀번호 숨기기
+turnOnFlashlight: 손전등 켜기
+turnOffFlashlight: 손전등 끄기
+pauseScan: 스캔 일시 중지
+resumeScan: 스캔 재개
+enterFullscreen: 전체 화면으로 전환
+exitFullscreen: 전체 화면 종료

@@ -598,6 +598,8 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get liveRoomCreateTitle => 'Livestream erstellen';
 	@override String get liveRoomCreating => 'Wird erstellt...';
 	@override String get liveRoomWatch => 'Ansehen';
+	@override String get switchToVoiceInput => 'Zur Spracheingabe wechseln';
+	@override String get switchToKeyboardInput => 'Zur Tastatureingabe wechseln';
 }
 
 // Path: common
@@ -1674,6 +1676,14 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'Auszahlungskonto eingeben';
 	@override String get withdrawMethod => 'Auszahlungsmethode';
 	@override String get withdrawAccount => 'Auszahlungskonto';
+	@override String get showPassword => 'Passwort anzeigen';
+	@override String get hidePassword => 'Passwort ausblenden';
+	@override String get turnOnFlashlight => 'Taschenlampe einschalten';
+	@override String get turnOffFlashlight => 'Taschenlampe ausschalten';
+	@override String get pauseScan => 'Scan pausieren';
+	@override String get resumeScan => 'Scan fortsetzen';
+	@override String get enterFullscreen => 'Vollbild aktivieren';
+	@override String get exitFullscreen => 'Vollbild beenden';
 }
 
 // Path: complaint
@@ -2940,11 +2950,13 @@ extension on TranslationsDeDe {
 			'chat.liveRoomCreateTitle' => 'Livestream erstellen',
 			'chat.liveRoomCreating' => 'Wird erstellt...',
 			'chat.liveRoomWatch' => 'Ansehen',
+			'chat.switchToVoiceInput' => 'Zur Spracheingabe wechseln',
+			'chat.switchToKeyboardInput' => 'Zur Tastatureingabe wechseln',
 			'common.about' => 'Über',
-			'common.aboutApp' => 'Über die App',
-			'common.accept' => 'Akzeptieren',
 			_ => null,
 		} ?? switch (path) {
+			'common.aboutApp' => 'Über die App',
+			'common.accept' => 'Akzeptieren',
 			'common.acceptFriendRequest' => 'Freundschaftsanfrage bestätigen',
 			'common.addFriend' => 'Freund hinzufügen',
 			'common.addPhoneContact' => 'Telefonkontakt hinzufügen',
@@ -3455,10 +3467,10 @@ extension on TranslationsDeDe {
 			'common.allowAddByQRDesc' => 'Andere Benutzer können Sie durch Scannen Ihres QR-Codes als Freund hinzufügen',
 			'common.statusSettings' => 'Status-Einstellungen',
 			'common.showOnlineStatus' => 'Online-Status anzeigen',
-			'common.showOnlineStatusDesc' => 'Freunde können Ihren Online-Status sehen',
-			'common.allowNearbyVisible' => 'Für Personen in der Nähe sichtbar',
 			_ => null,
 		} ?? switch (path) {
+			'common.showOnlineStatusDesc' => 'Freunde können Ihren Online-Status sehen',
+			'common.allowNearbyVisible' => 'Für Personen in der Nähe sichtbar',
 			'common.dataSettings' => 'Daten-Einstellungen',
 			'common.clearChatRecords' => 'Chat-Verläufe löschen',
 			'common.clearChatRecordsDesc' => 'Alle Chat-Verläufe löschen, diese Aktion kann nicht rückgängig gemacht werden',
@@ -3969,10 +3981,10 @@ extension on TranslationsDeDe {
 			'common.downloadFileNotFound' => 'Download-Datei nicht vorhanden. Bitte erneut versuchen.',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Prüfung fehlgeschlagen, erneut laden (${retry}/${max})',
 			'common.downloadHashFailed' => 'Mehrfachprüfung fehlgeschlagen. Netzwerk prüfen.',
-			'common.e2eeTransferToNewDevice' => 'An neues Gerät',
-			'common.e2eeTransferPendingSection' => 'Ausstehende Übertragungen',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferToNewDevice' => 'An neues Gerät',
+			'common.e2eeTransferPendingSection' => 'Ausstehende Übertragungen',
 			'common.e2eeTransferLoadFailed' => 'Laden fehlgeschlagen',
 			'common.e2eeTransferLoadFailedDesc' => 'Ausstehende Übertragungen konnten nicht geladen werden. Bitte erneut versuchen.',
 			'common.e2eeTransferNoPending' => 'Keine ausstehenden Übertragungen',
@@ -4013,6 +4025,14 @@ extension on TranslationsDeDe {
 			'common.withdrawAccountEmpty' => 'Auszahlungskonto eingeben',
 			'common.withdrawMethod' => 'Auszahlungsmethode',
 			'common.withdrawAccount' => 'Auszahlungskonto',
+			'common.showPassword' => 'Passwort anzeigen',
+			'common.hidePassword' => 'Passwort ausblenden',
+			'common.turnOnFlashlight' => 'Taschenlampe einschalten',
+			'common.turnOffFlashlight' => 'Taschenlampe ausschalten',
+			'common.pauseScan' => 'Scan pausieren',
+			'common.resumeScan' => 'Scan fortsetzen',
+			'common.enterFullscreen' => 'Vollbild aktivieren',
+			'common.exitFullscreen' => 'Vollbild beenden',
 			'complaint.complaint' => 'Beschwerde',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Belästigung',
@@ -4475,6 +4495,8 @@ extension on TranslationsDeDe {
 			'main.e2eeProxyUser' => ({required Object uid}) => 'Treuhänder: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Fragment ${index} / ${total}',
 			'main.e2eeReloadShards' => 'Neu laden',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeRecovering' => 'Wird wiederhergestellt...',
 			'main.e2eeKeyRestored' => 'Schlüssel wiederhergestellt',
 			'main.e2eeUsedShards' => ({required Object count}) => '${count} Treuhänder-Fragmente verwendet',
@@ -4485,8 +4507,6 @@ extension on TranslationsDeDe {
 			'main.webQRLoggingIn' => 'Anmeldung...',
 			'main.webQRExpired' => 'QR-Code abgelaufen',
 			'main.webQRRefresh' => 'QR-Code aktualisieren',
-			_ => null,
-		} ?? switch (path) {
 			'main.webSwitchToQR' => 'Per QR-Code anmelden',
 			'main.e2eeErrDefault' => 'E2EE fehlgeschlagen, Nachricht nicht gesendet',
 			'main.e2eeSocialTotalShards' => 'Fragmente gesamt',

@@ -268,3 +268,5 @@ liveRoomCreateTitle: Create Live Room
 liveRoomCreating: Creating...
 liveRoomWatch: Watch Live
 sendMessage: Send Message
+switchToVoiceInput: Switch to voice input
+switchToKeyboardInput: Switch to keyboard input

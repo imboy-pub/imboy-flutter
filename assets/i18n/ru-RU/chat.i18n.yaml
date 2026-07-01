@@ -274,3 +274,5 @@ e2eeRecoveryBannerText: Обнаружены зашифрованные прош
 liveRoomCreateTitle: Создать трансляцию
 liveRoomCreating: Создание...
 liveRoomWatch: Смотреть трансляцию
+switchToVoiceInput: Переключиться на голосовой ввод
+switchToKeyboardInput: Переключиться на ввод с клавиатуры

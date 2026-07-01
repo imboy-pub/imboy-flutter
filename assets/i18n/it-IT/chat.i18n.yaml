@@ -274,3 +274,5 @@ e2eeRecoveryBannerText: Rilevati vecchi messaggi cifrati. Ripristina la chiave p
 liveRoomCreateTitle: Crea live
 liveRoomCreating: Creazione...
 liveRoomWatch: Guarda
+switchToVoiceInput: Passa all'input vocale
+switchToKeyboardInput: Passa all'input da tastiera

@@ -598,6 +598,8 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get liveRoomCreateTitle => '配信ルームを作成';
 	@override String get liveRoomCreating => '作成中...';
 	@override String get liveRoomWatch => '配信を見る';
+	@override String get switchToVoiceInput => '音声入力に切り替え';
+	@override String get switchToKeyboardInput => 'キーボード入力に切り替え';
 }
 
 // Path: common
@@ -1674,6 +1676,14 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => '出金先のアカウントを入力してください';
 	@override String get withdrawMethod => '出金方法';
 	@override String get withdrawAccount => '出金先アカウント';
+	@override String get showPassword => 'パスワードを表示';
+	@override String get hidePassword => 'パスワードを隠す';
+	@override String get turnOnFlashlight => 'ライトを点ける';
+	@override String get turnOffFlashlight => 'ライトを消す';
+	@override String get pauseScan => 'スキャンを一時停止';
+	@override String get resumeScan => 'スキャンを再開';
+	@override String get enterFullscreen => '全画面表示にする';
+	@override String get exitFullscreen => '全画面表示を終了';
 }
 
 // Path: complaint
@@ -2940,11 +2950,13 @@ extension on TranslationsJaJp {
 			'chat.liveRoomCreateTitle' => '配信ルームを作成',
 			'chat.liveRoomCreating' => '作成中...',
 			'chat.liveRoomWatch' => '配信を見る',
+			'chat.switchToVoiceInput' => '音声入力に切り替え',
+			'chat.switchToKeyboardInput' => 'キーボード入力に切り替え',
 			'common.about' => '概要',
-			'common.aboutApp' => 'このアプリについて',
-			'common.accept' => '承認',
 			_ => null,
 		} ?? switch (path) {
+			'common.aboutApp' => 'このアプリについて',
+			'common.accept' => '承認',
 			'common.acceptFriendRequest' => '友達リクエストを承認',
 			'common.addFriend' => '友達を追加',
 			'common.addPhoneContact' => '電話番号の連絡先を追加',
@@ -3455,10 +3467,10 @@ extension on TranslationsJaJp {
 			'common.allowAddByQRDesc' => '他のユーザーがあなたのQRコードをスキャンして友達として追加できます',
 			'common.statusSettings' => 'ステータス設定',
 			'common.showOnlineStatus' => 'オンラインステータスを表示',
-			'common.showOnlineStatusDesc' => '友達があなたのオンラインステータスを見ることができます',
-			'common.allowNearbyVisible' => '近くの人に表示',
 			_ => null,
 		} ?? switch (path) {
+			'common.showOnlineStatusDesc' => '友達があなたのオンラインステータスを見ることができます',
+			'common.allowNearbyVisible' => '近くの人に表示',
 			'common.dataSettings' => 'データ設定',
 			'common.clearChatRecords' => 'チャット履歴を消去',
 			'common.clearChatRecordsDesc' => 'すべてのチャット履歴を消去します。この操作は取り消せません',
@@ -3969,10 +3981,10 @@ extension on TranslationsJaJp {
 			'common.downloadFileNotFound' => 'ダウンロードファイルが存在しません。もう一度お試しください',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'ファイルの検証に失敗しました。再ダウンロード中 (${retry}/${max})',
 			'common.downloadHashFailed' => 'ファイルの検証が複数回失敗しました。ネットワークを確認して再度お試しください',
-			'common.e2eeTransferToNewDevice' => '新しいデバイスへ転送',
-			'common.e2eeTransferPendingSection' => '保留中の転送',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferToNewDevice' => '新しいデバイスへ転送',
+			'common.e2eeTransferPendingSection' => '保留中の転送',
 			'common.e2eeTransferLoadFailed' => '読み込みに失敗しました',
 			'common.e2eeTransferLoadFailedDesc' => '保留中の転送を読み込めません。もう一度お試しください',
 			'common.e2eeTransferNoPending' => '保留中の転送はありません',
@@ -4013,6 +4025,14 @@ extension on TranslationsJaJp {
 			'common.withdrawAccountEmpty' => '出金先のアカウントを入力してください',
 			'common.withdrawMethod' => '出金方法',
 			'common.withdrawAccount' => '出金先アカウント',
+			'common.showPassword' => 'パスワードを表示',
+			'common.hidePassword' => 'パスワードを隠す',
+			'common.turnOnFlashlight' => 'ライトを点ける',
+			'common.turnOffFlashlight' => 'ライトを消す',
+			'common.pauseScan' => 'スキャンを一時停止',
+			'common.resumeScan' => 'スキャンを再開',
+			'common.enterFullscreen' => '全画面表示にする',
+			'common.exitFullscreen' => '全画面表示を終了',
 			'complaint.complaint' => '通報',
 			'complaintReason.spam' => 'スパム',
 			'complaintReason.harassment' => 'ハラスメント',
@@ -4475,6 +4495,8 @@ extension on TranslationsJaJp {
 			'main.e2eeProxyUser' => ({required Object uid}) => '代理ユーザー: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'シャード ${index} / ${total}',
 			'main.e2eeReloadShards' => '再読み込み',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeRecovering' => '復元中...',
 			'main.e2eeKeyRestored' => 'キーを復元しました',
 			'main.e2eeUsedShards' => ({required Object count}) => '${count} 個の代理シャードを使用しました',
@@ -4485,8 +4507,6 @@ extension on TranslationsJaJp {
 			'main.webQRLoggingIn' => 'ログイン中...',
 			'main.webQRExpired' => 'QRコードの有効期限が切れました',
 			'main.webQRRefresh' => 'QRコードを更新',
-			_ => null,
-		} ?? switch (path) {
 			'main.webSwitchToQR' => 'QRコードでログイン',
 			'main.e2eeErrDefault' => 'エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした',
 			'main.e2eeSocialTotalShards' => 'シャードの合計数',

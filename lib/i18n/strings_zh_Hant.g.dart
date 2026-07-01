@@ -598,6 +598,8 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get liveRoomCreateTitle => '建立直播間';
 	@override String get liveRoomCreating => '建立中...';
 	@override String get liveRoomWatch => '觀看直播';
+	@override String get switchToVoiceInput => '切換到語音輸入';
+	@override String get switchToKeyboardInput => '切換到鍵盤輸入';
 }
 
 // Path: common
@@ -1674,6 +1676,14 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => '請輸入提現賬號';
 	@override String get withdrawMethod => '提現方式';
 	@override String get withdrawAccount => '提現賬號';
+	@override String get showPassword => '顯示密碼';
+	@override String get hidePassword => '隱藏密碼';
+	@override String get turnOnFlashlight => '打開手電筒';
+	@override String get turnOffFlashlight => '關閉手電筒';
+	@override String get pauseScan => '暫停掃描';
+	@override String get resumeScan => '繼續掃描';
+	@override String get enterFullscreen => '進入全螢幕';
+	@override String get exitFullscreen => '退出全螢幕';
 }
 
 // Path: complaint
@@ -2940,11 +2950,13 @@ extension on TranslationsZhHant {
 			'chat.liveRoomCreateTitle' => '建立直播間',
 			'chat.liveRoomCreating' => '建立中...',
 			'chat.liveRoomWatch' => '觀看直播',
+			'chat.switchToVoiceInput' => '切換到語音輸入',
+			'chat.switchToKeyboardInput' => '切換到鍵盤輸入',
 			'common.about' => '關於',
-			'common.aboutApp' => '關於應用',
-			'common.accept' => '接受',
 			_ => null,
 		} ?? switch (path) {
+			'common.aboutApp' => '關於應用',
+			'common.accept' => '接受',
 			'common.acceptFriendRequest' => '通過好友驗證',
 			'common.addFriend' => '新增朋友',
 			'common.addPhoneContact' => '新增手機聯絡人',
@@ -3455,10 +3467,10 @@ extension on TranslationsZhHant {
 			'common.allowAddByQRDesc' => '其他用家可以通過掃描您的二維碼新增您為好友',
 			'common.statusSettings' => '狀態設定',
 			'common.showOnlineStatus' => '顯示上線狀態',
-			'common.showOnlineStatusDesc' => '好友可以看到您的上線狀態',
-			'common.allowNearbyVisible' => '附近的人可見',
 			_ => null,
 		} ?? switch (path) {
+			'common.showOnlineStatusDesc' => '好友可以看到您的上線狀態',
+			'common.allowNearbyVisible' => '附近的人可見',
 			'common.dataSettings' => '資料設定',
 			'common.clearChatRecords' => '清除聊天記錄',
 			'common.clearChatRecordsDesc' => '清除所有聊天記錄，此操作不可恢復',
@@ -3969,10 +3981,10 @@ extension on TranslationsZhHant {
 			'common.downloadFileNotFound' => '下載檔案不存在，請重試',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '檔案校驗失敗，正在重新下載 (${retry}/${max})',
 			'common.downloadHashFailed' => '檔案多次校驗失敗，請檢查網路後重試',
-			'common.e2eeTransferToNewDevice' => '傳輸到新裝置',
-			'common.e2eeTransferPendingSection' => '待處理的傳輸',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferToNewDevice' => '傳輸到新裝置',
+			'common.e2eeTransferPendingSection' => '待處理的傳輸',
 			'common.e2eeTransferLoadFailed' => '載入失敗',
 			'common.e2eeTransferLoadFailedDesc' => '無法載入待處理的傳輸，請重試',
 			'common.e2eeTransferNoPending' => '暫無待處理的傳輸',
@@ -4013,6 +4025,14 @@ extension on TranslationsZhHant {
 			'common.withdrawAccountEmpty' => '請輸入提現賬號',
 			'common.withdrawMethod' => '提現方式',
 			'common.withdrawAccount' => '提現賬號',
+			'common.showPassword' => '顯示密碼',
+			'common.hidePassword' => '隱藏密碼',
+			'common.turnOnFlashlight' => '打開手電筒',
+			'common.turnOffFlashlight' => '關閉手電筒',
+			'common.pauseScan' => '暫停掃描',
+			'common.resumeScan' => '繼續掃描',
+			'common.enterFullscreen' => '進入全螢幕',
+			'common.exitFullscreen' => '退出全螢幕',
 			'complaint.complaint' => '投訴',
 			'complaintReason.spam' => '垃圾資訊',
 			'complaintReason.harassment' => '騷擾',
@@ -4475,6 +4495,8 @@ extension on TranslationsZhHant {
 			'main.e2eeProxyUser' => ({required Object uid}) => '代理使用者: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '分片 ${index} / ${total}',
 			'main.e2eeReloadShards' => '重新載入',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeRecovering' => '恢復中...',
 			'main.e2eeKeyRestored' => '金鑰已成功恢復',
 			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 個代理分片',
@@ -4485,8 +4507,6 @@ extension on TranslationsZhHant {
 			'main.webQRLoggingIn' => '登入中...',
 			'main.webQRExpired' => '二維碼已過期',
 			'main.webQRRefresh' => '重新整理二維碼',
-			_ => null,
-		} ?? switch (path) {
 			'main.webSwitchToQR' => '使用 QR 碼登入',
 			'main.e2eeErrDefault' => '端到端加密失敗，訊息未傳送',
 			'main.e2eeSocialTotalShards' => '總分片數',

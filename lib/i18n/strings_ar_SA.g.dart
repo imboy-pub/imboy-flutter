@@ -598,6 +598,8 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get liveRoomCreateTitle => 'إنشاء غرفة بث مباشر';
 	@override String get liveRoomCreating => 'جارٍ الإنشاء...';
 	@override String get liveRoomWatch => 'مشاهدة البث';
+	@override String get switchToVoiceInput => 'التبديل إلى الإدخال الصوتي';
+	@override String get switchToKeyboardInput => 'التبديل إلى إدخال لوحة المفاتيح';
 }
 
 // Path: common
@@ -1674,6 +1676,14 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'أدخل حساب السحب';
 	@override String get withdrawMethod => 'طريقة السحب';
 	@override String get withdrawAccount => 'حساب السحب';
+	@override String get showPassword => 'إظهار كلمة المرور';
+	@override String get hidePassword => 'إخفاء كلمة المرور';
+	@override String get turnOnFlashlight => 'تشغيل الفلاش';
+	@override String get turnOffFlashlight => 'إيقاف الفلاش';
+	@override String get pauseScan => 'إيقاف المسح مؤقتًا';
+	@override String get resumeScan => 'استئناف المسح';
+	@override String get enterFullscreen => 'الدخول لوضع ملء الشاشة';
+	@override String get exitFullscreen => 'الخروج من وضع ملء الشاشة';
 }
 
 // Path: complaint
@@ -2940,11 +2950,13 @@ extension on TranslationsArSa {
 			'chat.liveRoomCreateTitle' => 'إنشاء غرفة بث مباشر',
 			'chat.liveRoomCreating' => 'جارٍ الإنشاء...',
 			'chat.liveRoomWatch' => 'مشاهدة البث',
+			'chat.switchToVoiceInput' => 'التبديل إلى الإدخال الصوتي',
+			'chat.switchToKeyboardInput' => 'التبديل إلى إدخال لوحة المفاتيح',
 			'common.about' => 'حول',
-			'common.aboutApp' => 'حول التطبيق',
-			'common.accept' => 'قبول',
 			_ => null,
 		} ?? switch (path) {
+			'common.aboutApp' => 'حول التطبيق',
+			'common.accept' => 'قبول',
 			'common.acceptFriendRequest' => 'قبول طلب الصداقة',
 			'common.addFriend' => 'إضافة صديق',
 			'common.addPhoneContact' => 'إضافة جهة اتصال هاتف',
@@ -3455,10 +3467,10 @@ extension on TranslationsArSa {
 			'common.allowAddByQRDesc' => 'يمكن للمستخدمين الآخرين إضافتك كصديق من خلال مسح رمز QR الخاص بك',
 			'common.statusSettings' => 'إعدادات الحالة',
 			'common.showOnlineStatus' => 'عرض الحالة عبر الإنترنت',
-			'common.showOnlineStatusDesc' => 'يمكن للأصدقاء رؤية حالتك عبر الإنترنت',
-			'common.allowNearbyVisible' => 'مرئي للأشخاص القريبين',
 			_ => null,
 		} ?? switch (path) {
+			'common.showOnlineStatusDesc' => 'يمكن للأصدقاء رؤية حالتك عبر الإنترنت',
+			'common.allowNearbyVisible' => 'مرئي للأشخاص القريبين',
 			'common.dataSettings' => 'إعدادات البيانات',
 			'common.clearChatRecords' => 'مسح سجلات الدردشة',
 			'common.clearChatRecordsDesc' => 'مسح جميع سجلات الدردشة، هذا الإجراء لا يمكن التراجع عنه',
@@ -3969,10 +3981,10 @@ extension on TranslationsArSa {
 			'common.downloadFileNotFound' => 'ملف التنزيل غير موجود، أعد المحاولة',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'فشل التحقق من الملف، إعادة التنزيل (${retry}/${max})',
 			'common.downloadHashFailed' => 'فشل التحقق من الملف عدة مرات، تحقق من الشبكة وأعد المحاولة',
-			'common.e2eeTransferToNewDevice' => 'نقل إلى جهاز جديد',
-			'common.e2eeTransferPendingSection' => 'عمليات نقل معلّقة',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferToNewDevice' => 'نقل إلى جهاز جديد',
+			'common.e2eeTransferPendingSection' => 'عمليات نقل معلّقة',
 			'common.e2eeTransferLoadFailed' => 'تعذّر التحميل',
 			'common.e2eeTransferLoadFailedDesc' => 'تعذّر تحميل عمليات النقل المعلّقة، أعد المحاولة',
 			'common.e2eeTransferNoPending' => 'لا توجد عمليات نقل معلّقة',
@@ -4013,6 +4025,14 @@ extension on TranslationsArSa {
 			'common.withdrawAccountEmpty' => 'أدخل حساب السحب',
 			'common.withdrawMethod' => 'طريقة السحب',
 			'common.withdrawAccount' => 'حساب السحب',
+			'common.showPassword' => 'إظهار كلمة المرور',
+			'common.hidePassword' => 'إخفاء كلمة المرور',
+			'common.turnOnFlashlight' => 'تشغيل الفلاش',
+			'common.turnOffFlashlight' => 'إيقاف الفلاش',
+			'common.pauseScan' => 'إيقاف المسح مؤقتًا',
+			'common.resumeScan' => 'استئناف المسح',
+			'common.enterFullscreen' => 'الدخول لوضع ملء الشاشة',
+			'common.exitFullscreen' => 'الخروج من وضع ملء الشاشة',
 			'complaint.complaint' => 'شكوى',
 			'complaintReason.spam' => 'رسائل مزعجة',
 			'complaintReason.harassment' => 'مضايقة',
@@ -4475,6 +4495,8 @@ extension on TranslationsArSa {
 			'main.e2eeProxyUser' => ({required Object uid}) => 'الوكيل: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'شظية ${index} / ${total}',
 			'main.e2eeReloadShards' => 'إعادة التحميل',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeRecovering' => 'جارٍ الاستعادة...',
 			'main.e2eeKeyRestored' => 'تمت استعادة المفتاح',
 			'main.e2eeUsedShards' => ({required Object count}) => 'تم استخدام ${count} شظية وكلاء',
@@ -4485,8 +4507,6 @@ extension on TranslationsArSa {
 			'main.webQRLoggingIn' => 'جارٍ الدخول...',
 			'main.webQRExpired' => 'انتهت صلاحية رمز QR',
 			'main.webQRRefresh' => 'تحديث رمز QR',
-			_ => null,
-		} ?? switch (path) {
 			'main.webSwitchToQR' => 'الدخول برمز QR',
 			'main.e2eeErrDefault' => 'فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة',
 			'main.e2eeSocialTotalShards' => 'إجمالي الشظايا',

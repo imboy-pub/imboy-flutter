@@ -1066,3 +1066,11 @@ withdrawAmountError: Mindestens 1 Yuan eingeben
 withdrawAccountEmpty: Auszahlungskonto eingeben
 withdrawMethod: Auszahlungsmethode
 withdrawAccount: Auszahlungskonto
+showPassword: Passwort anzeigen
+hidePassword: Passwort ausblenden
+turnOnFlashlight: Taschenlampe einschalten
+turnOffFlashlight: Taschenlampe ausschalten
+pauseScan: Scan pausieren
+resumeScan: Scan fortsetzen
+enterFullscreen: Vollbild aktivieren
+exitFullscreen: Vollbild beenden

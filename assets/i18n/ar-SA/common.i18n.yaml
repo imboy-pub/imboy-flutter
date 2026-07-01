@@ -1066,3 +1066,11 @@ withdrawAmountError: أدخل مبلغاً لا يقل عن يوان واحد
 withdrawAccountEmpty: أدخل حساب السحب
 withdrawMethod: طريقة السحب
 withdrawAccount: حساب السحب
+showPassword: إظهار كلمة المرور
+hidePassword: إخفاء كلمة المرور
+turnOnFlashlight: تشغيل الفلاش
+turnOffFlashlight: إيقاف الفلاش
+pauseScan: إيقاف المسح مؤقتًا
+resumeScan: استئناف المسح
+enterFullscreen: الدخول لوضع ملء الشاشة
+exitFullscreen: الخروج من وضع ملء الشاشة

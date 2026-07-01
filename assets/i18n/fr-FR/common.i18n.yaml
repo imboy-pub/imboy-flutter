@@ -1066,3 +1066,11 @@ withdrawAmountError: Montant minimum 1 yuan
 withdrawAccountEmpty: Compte de retrait requis
 withdrawMethod: Méthode de retrait
 withdrawAccount: Compte de retrait
+showPassword: Afficher le mot de passe
+hidePassword: Masquer le mot de passe
+turnOnFlashlight: Activer le flash
+turnOffFlashlight: Désactiver le flash
+pauseScan: Suspendre le scan
+resumeScan: Reprendre le scan
+enterFullscreen: Passer en plein écran
+exitFullscreen: Quitter le plein écran
