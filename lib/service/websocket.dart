@@ -57,6 +57,9 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   // 网络与连接
   // 【修复 M2】maxRetries=999999 表示无限重试（与注释一致）
   final ExponentialBackoff _backoff = ExponentialBackoff(maxRetries: 999999);
+  // App 是否处于后台：后台期间暂停重连定时器，避免长期离线时按最大退避
+  // 间隔（最长2分钟）持续唤醒耗电；回到前台由 _onAppResumed 立即重试。
+  AppLifecycleState _lifecycleState = AppLifecycleState.resumed;
   final Set<String> _pendingMessages = <String>{}; // 等待确认的消息ID
   WebSocketChannel? _channel;
   bool _isFlushing = false;
@@ -194,8 +197,16 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// App 生命周期回调：检测前后台切换
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    _lifecycleState = state;
     if (state == AppLifecycleState.resumed) {
       _onAppResumed();
+    } else if (state == AppLifecycleState.paused) {
+      // 进入后台：取消已调度的重连定时器，避免按最大退避间隔持续唤醒耗电。
+      // 回到前台时 _onAppResumed 会立即重连（若仍处于 disconnected）。
+      if (_reconnectTimer != null) {
+        iPrint('> ws: App 进入后台，暂停重连定时器');
+        _cancelReconnectTimer();
+      }
     }
   }
 
@@ -912,6 +923,13 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       AppLogger.warning(
         'WebSocket 停止重试（已尝试 ${_backoff.attempts}/${_backoff.maxRetries} 次）',
       );
+      return;
+    }
+
+    if (_lifecycleState == AppLifecycleState.paused) {
+      // App 在后台：不调度新的重连定时器，等 _onAppResumed 回前台时立即重试，
+      // 避免长期离线时按最大退避间隔（最长2分钟）持续唤醒耗电。
+      iPrint('> ws: App 处于后台，跳过本次重连调度');
       return;
     }
 
