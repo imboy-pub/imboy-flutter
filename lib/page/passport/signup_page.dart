@@ -222,6 +222,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
             hintText: t.passport.hintPassword,
             prefixIcon: const Icon(Icons.lock, color: AppColors.primary),
             suffixIcon: IconButton(
+              tooltip: state.loginPwdObscure
+                  ? t.common.showPassword
+                  : t.common.hidePassword,
               icon: Icon(
                 state.loginPwdObscure ? Icons.visibility : Icons.visibility_off,
               ),
@@ -352,6 +355,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
             hintText: t.passport.hintPassword,
             prefixIcon: const Icon(Icons.lock, color: AppColors.primary),
             suffixIcon: IconButton(
+              tooltip: state.loginPwdObscure
+                  ? t.common.showPassword
+                  : t.common.hidePassword,
               icon: Icon(
                 state.loginPwdObscure ? Icons.visibility : Icons.visibility_off,
               ),

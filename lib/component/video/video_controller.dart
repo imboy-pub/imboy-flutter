@@ -310,6 +310,9 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                       ),
                       const Spacer(),
                       IconButton(
+                        tooltip: widget.isFullScreen
+                            ? t.common.exitFullscreen
+                            : t.common.enterFullscreen,
                         icon: Icon(
                           widget.isFullScreen
                               ? Icons.fullscreen_exit

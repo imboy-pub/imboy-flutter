@@ -911,6 +911,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               color: AppColors.darkTextDisabled,
             ),
             suffixIcon: IconButton(
+              tooltip: passportState.loginPwdObscure
+                  ? t.common.showPassword
+                  : t.common.hidePassword,
               icon: Icon(
                 passportState.loginPwdObscure
                     ? Icons.visibility

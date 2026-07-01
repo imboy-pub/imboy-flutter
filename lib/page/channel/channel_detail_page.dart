@@ -348,6 +348,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           ),
           // 语音/键盘 切换按钮
           IconButton(
+            tooltip: _showVoiceInput
+                ? context.t.chat.switchToKeyboardInput
+                : context.t.chat.switchToVoiceInput,
             icon: Icon(
               _showVoiceInput ? Icons.keyboard_alt_outlined : Icons.mic_none,
               size: 28,

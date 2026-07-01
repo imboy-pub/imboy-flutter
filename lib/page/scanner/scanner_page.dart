@@ -255,22 +255,25 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      IconButton(
-                        color: AppColors.onPrimary,
-                        icon: ValueListenableBuilder(
-                          valueListenable: controller,
-                          builder: (context, MobileScannerState state, child) {
-                            final iconData = state.torchState == TorchState.on
-                                ? Icons.flash_on
-                                : Icons.flash_off;
-                            final color = state.torchState == TorchState.on
-                                ? AppColors.iosYellow
-                                : AppColors.onPrimary.withValues(alpha: 0.5);
-                            return Icon(iconData, color: color);
-                          },
-                        ),
-                        iconSize: 32.0,
-                        onPressed: () => controller.toggleTorch(),
+                      ValueListenableBuilder(
+                        valueListenable: controller,
+                        builder: (context, MobileScannerState state, child) {
+                          final isTorchOn = state.torchState == TorchState.on;
+                          return IconButton(
+                            color: AppColors.onPrimary,
+                            icon: Icon(
+                              isTorchOn ? Icons.flash_on : Icons.flash_off,
+                              color: isTorchOn
+                                  ? AppColors.iosYellow
+                                  : AppColors.onPrimary.withValues(alpha: 0.5),
+                            ),
+                            iconSize: 32.0,
+                            tooltip: isTorchOn
+                                ? t.common.turnOffFlashlight
+                                : t.common.turnOnFlashlight,
+                            onPressed: () => controller.toggleTorch(),
+                          );
+                        },
                       ),
                       IconButton(
                         color: AppColors.onPrimary,
@@ -278,6 +281,9 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                             ? const Icon(Icons.stop)
                             : const Icon(Icons.play_arrow),
                         iconSize: 32.0,
+                        tooltip: scannerState.isStarted
+                            ? t.common.pauseScan
+                            : t.common.resumeScan,
                         onPressed: () {
                           scannerState.isStarted
                               ? controller.stop()
