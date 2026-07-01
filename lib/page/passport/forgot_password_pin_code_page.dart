@@ -207,18 +207,17 @@ class _PinCodeVerificationPageState
                                       widget.account,
                                       'forgot_pwd',
                                     );
+                                    if (!context.mounted) return;
                                     if (res == null) {
                                       notifier.snackBar(
                                         Text(
                                           t.main.codeSentToParam(
                                             param: widget.account,
                                           ),
-                                          // 异步回调无 mounted 守卫：用固定 .size 避免
-                                          // context-after-await；彩底前景用 onPrimary
-                                          style: TextStyle(
+                                          // 彩底前景用 onPrimary
+                                          style: context.textStyle(
+                                            FontSizeType.extraLarge,
                                             color: AppColors.onPrimary,
-                                            fontSize:
-                                                FontSizeType.extraLarge.size,
                                           ),
                                         ),
                                         icon: const Icon(
@@ -230,12 +229,10 @@ class _PinCodeVerificationPageState
                                       notifier.snackBar(
                                         Text(
                                           res,
-                                          // 异步回调无 mounted 守卫：用固定 .size 避免
-                                          // context-after-await；彩底前景用 onPrimary
-                                          style: TextStyle(
+                                          // 彩底前景用 onPrimary
+                                          style: context.textStyle(
+                                            FontSizeType.extraLarge,
                                             color: AppColors.onPrimary,
-                                            fontSize:
-                                                FontSizeType.extraLarge.size,
                                           ),
                                         ),
                                       );
@@ -352,12 +349,10 @@ class _PinCodeVerificationPageState
                                       notifier.snackBar(
                                         Text(
                                           res,
-                                          // 异步回调无 mounted 守卫：用固定 .size 避免
-                                          // context-after-await；彩底前景用 onPrimary
-                                          style: TextStyle(
+                                          // 彩底前景用 onPrimary
+                                          style: context.textStyle(
+                                            FontSizeType.extraLarge,
                                             color: AppColors.onPrimary,
-                                            fontSize:
-                                                FontSizeType.extraLarge.size,
                                           ),
                                         ),
                                       );

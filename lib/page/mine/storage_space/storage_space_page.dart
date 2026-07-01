@@ -133,14 +133,17 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
             runSpacing: 10,
             children: [
               _buildLegendItem(
+                context,
                 AppColors.primary,
                 '$appName: ${formatBytes(state.appAllBytes, num: 1000)}',
               ),
               _buildLegendItem(
+                context,
                 AppColors.iosOrange,
                 '${t.account.deviceUsedSpace}: ${formatBytes(state.usedDiskSpace, num: 1000)}',
               ),
               _buildLegendItem(
+                context,
                 AppColors.iosGray,
                 '${t.account.deviceAvailableSpace}: ${formatBytes(state.freeDiskSpace, num: 1000)}',
               ),
@@ -151,7 +154,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
     );
   }
 
-  Widget _buildLegendItem(Color color, String text) {
+  Widget _buildLegendItem(BuildContext context, Color color, String text) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -166,8 +169,8 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
         const SizedBox(width: 6),
         Text(
           text,
-          style: TextStyle(
-            fontSize: FontSizeType.small.size,
+          style: context.textStyle(
+            FontSizeType.small,
             color: AppColors.iosGray,
           ),
         ),

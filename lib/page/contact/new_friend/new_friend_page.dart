@@ -152,6 +152,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             ),
             if (fromSelf)
               _buildTag(
+                context,
                 t.contact.friendRequestSent,
                 AppColors.getIosBlue(brightness),
               ),
@@ -167,7 +168,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
     );
   }
 
-  Widget _buildTag(String label, Color color) {
+  Widget _buildTag(BuildContext context, String label, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       margin: const EdgeInsets.only(left: AppSpacing.small),
@@ -177,8 +178,8 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: FontSizeType.tiny.size,
+        style: context.textStyle(
+          FontSizeType.tiny,
           fontWeight: FontWeight.w600,
           color: color,
         ),

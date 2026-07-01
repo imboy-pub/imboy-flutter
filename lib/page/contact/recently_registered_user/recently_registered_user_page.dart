@@ -156,8 +156,8 @@ class _RecentlyRegisteredUserPageState
               ),
               child: Text(
                 DateTimeHelper.lastTimeFmt(model.createdAt, pattern: 'MM-dd'),
-                style: TextStyle(
-                  fontSize: FontSizeType.caption2.size,
+                style: context.textStyle(
+                  FontSizeType.caption2,
                   fontWeight: FontWeight.w600,
                   color: AppColors.getIosBlue(brightness),
                 ),

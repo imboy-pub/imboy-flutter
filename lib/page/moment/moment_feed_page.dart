@@ -424,6 +424,7 @@ class _MomentCard extends StatelessWidget {
                         ),
                         const Spacer(),
                         _buildInteractionButton(
+                          context,
                           CupertinoIcons.heart,
                           parseModelInt(stats['like_count']),
                           parseModelBool(item['liked'])
@@ -433,6 +434,7 @@ class _MomentCard extends StatelessWidget {
                         ),
                         AppSpacing.horizontalLarge,
                         _buildInteractionButton(
+                          context,
                           CupertinoIcons.chat_bubble,
                           parseModelInt(stats['comment_count']),
                           AppColors.iosGray,
@@ -451,6 +453,7 @@ class _MomentCard extends StatelessWidget {
   }
 
   Widget _buildInteractionButton(
+    BuildContext context,
     IconData icon,
     int count,
     Color color,
@@ -470,8 +473,8 @@ class _MomentCard extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 4),
                 child: Text(
                   formatMomentCountLabel(count),
-                  style: TextStyle(
-                    fontSize: FontSizeType.small.size,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     color: color,
                     fontWeight: FontWeight.w500,
                   ),
