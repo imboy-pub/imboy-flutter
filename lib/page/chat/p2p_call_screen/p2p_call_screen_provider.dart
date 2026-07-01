@@ -11,6 +11,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/api/user_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'p2p_call_screen_provider.g.dart';
@@ -220,11 +221,23 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         );
         webRTCSessions[sid] = s2;
 
-        if (s2.remoteCandidates.isNotEmpty) {
-          for (var candidate in s2.remoteCandidates) {
-            await s2.pc?.addCandidate(candidate);
-          }
-          s2.remoteCandidates.clear();
+        // Glare 仲裁（perfect negotiation 简化版）：双方几乎同时发起 offer 时，
+        // 按 uid 字典序固定一方为 polite（谦让）。impolite 方直接忽略冲突的
+        // 入向 offer，让自己的 offer 继续；polite 方回退本地 offer 后接受对方。
+        final offerCollision =
+            makingOffer ||
+            s2.pc?.signalingState ==
+                RTCSignalingState.RTCSignalingStateHaveLocalOffer;
+        final polite = _isPolitePeer(s2.peerId);
+        if (offerCollision && !polite) {
+          iPrint('> rtc offer collision: impolite peer ignores incoming offer');
+          return;
+        }
+        if (offerCollision && polite) {
+          iPrint('> rtc offer collision: polite peer rolls back local offer');
+          await s2.pc!.setLocalDescription(
+            RTCSessionDescription('', 'rollback'),
+          );
         }
 
         final sd2 = RTCSessionDescription(
@@ -232,6 +245,16 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
           sd['type'] as String,
         );
         await s2.pc!.setRemoteDescription(sd2);
+
+        // ICE candidate 必须在 remoteDescription 设置成功后再消费，
+        // 提前 addCandidate 可能被底层拒绝导致候选丢失。
+        if (s2.remoteCandidates.isNotEmpty) {
+          for (var candidate in s2.remoteCandidates) {
+            await s2.pc?.addCandidate(candidate);
+          }
+          s2.remoteCandidates.clear();
+        }
+
         await _createAnswer(s2, msg.msgId, media);
         break;
       case 'answer':
@@ -248,6 +271,15 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         await s2!.pc?.setRemoteDescription(
           RTCSessionDescription(sd['sdp'] as String, sd['type'] as String),
         );
+        // 主叫方在等待 answer 期间到达的 ICE candidate 会被 _receiveCandidate
+        // 缓冲进 remoteCandidates；remoteDescription 设置成功后必须在此消费，
+        // 否则会静默丢失，导致 NAT 穿透失败。
+        if (s2.remoteCandidates.isNotEmpty) {
+          for (var candidate in s2.remoteCandidates) {
+            await s2.pc?.addCandidate(candidate);
+          }
+          s2.remoteCandidates.clear();
+        }
         webRTCSessions[sid] = s2;
         onCallStateChange?.call(s2, WebRTCCallState.callStateConnected);
         break;
@@ -278,6 +310,13 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       default:
         break;
     }
+  }
+
+  /// Glare 仲裁角色判定：双方按 uid 字典序（与 [sessionId] 排序规则一致）
+  /// 各自独立算出同一结论，无需协商。uid 较大的一方为 polite（谦让）方。
+  bool _isPolitePeer(String peerId) {
+    final ids = [UserRepoLocal.to.currentUid, peerId]..sort();
+    return UserRepoLocal.to.currentUid == ids[1];
   }
 
   Future<void> _receiveCandidate(
@@ -416,7 +455,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     }
 
     final iceConf = await _getIceConf();
-    final pc = await createPeerConnection(iceConf!, _offerSdpConstraints);
+    final pc = await createPeerConnection(iceConf, _offerSdpConstraints);
 
     pc.onAddStream = (stream) async {
       iPrint('> rtc pc onAddStream: ${stream.id.toString()}');
@@ -874,18 +913,21 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     state = state.copyWith(floatX: x, floatY: y);
   }
 
-  Future<Map<String, dynamic>?> _getIceConf({
+  Future<Map<String, dynamic>> _getIceConf({
     String from = 'incomingCallScreen',
   }) async {
     // 使用 userApiProvider 调用 API
     final userApi = ref.read(userApiProvider);
     Map<String, dynamic> turnCredential = await userApi.turnCredential();
     // 不在日志中输出 TURN 凭证（含 username/credential）
-    if (turnCredential.isEmpty && from == 'openCallScreen') {
-      AppLoading.showError(t.common.failedRequestPleaseCheckNetwork);
-      return null;
-    } else if (turnCredential.isEmpty) {
-      return null;
+    if (turnCredential.isEmpty) {
+      // TURN 凭证获取失败时不再返回 null（会导致下游 `iceConf!` 强制解包崩溃），
+      // 回退到纯 STUN 配置：无法穿透对称 NAT 时通话仍可能失败，但至少不崩溃。
+      if (from == 'openCallScreen') {
+        AppLoading.showError(t.common.failedRequestPleaseCheckNetwork);
+      }
+      iPrint('> rtc _getIceConf: TURN 凭证获取失败，回退纯 STUN 配置');
+      return _stunOnlyIceConf();
     }
     // 解析 TURN URL 并生成 TCP 版本（用于防火墙/运营商封锁 UDP 时）
     final turnUrls = turnCredential['turn_urls'];
@@ -921,6 +963,21 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       // 使用所有可用传输方式，NAT 穿透困难时会自动使用 TURN relay
       'iceTransportPolicy': 'all',
       "rtcpMuxPolicy": "require",
+      'sdpSemantics': 'unified-plan',
+    };
+  }
+
+  /// TURN 凭证不可用时的降级配置：仅公共 STUN，无 relay 中继能力。
+  Map<String, dynamic> _stunOnlyIceConf() {
+    return {
+      'iceServers': [
+        {'urls': 'stun:stun.l.google.com:19302'},
+      ],
+      'iceCandidatePoolSize': 10,
+      'encodedInsertableStreams': false,
+      'bundlePolicy': 'balanced',
+      'iceTransportPolicy': 'all',
+      'rtcpMuxPolicy': 'require',
       'sdpSemantics': 'unified-plan',
     };
   }

@@ -86,7 +86,12 @@ Future<void> incomingCallScreen(
   ContactModel peer,
   Map<String, dynamic> option,
 ) async {
-  if (p2pCallScreenOn) return;
+  if (p2pCallScreenOn) {
+    // 本机已在通话/已有来电展示中：主动回 busy，避免对端毫无提示地
+    // 一直响铃到 60s 超时（双方几乎同时互相呼叫时的常见场景）。
+    await sendWebRTCMsg('busy', {}, msgId: msgId, to: peer.peerId.toString());
+    return;
+  }
   p2pCallScreenOn = true;
 
   final sid = sessionId(peer.peerId.toString());
