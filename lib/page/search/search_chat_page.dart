@@ -80,6 +80,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
         conversationUk3: widget.conversationUk3,
         page: 1,
         size: 50,
+        msgType: ref.read(searchProvider).selectedMessageType,
       );
       if (response == null) {
         notifier.setError(t.common.searchError);
@@ -215,7 +216,9 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
   }
 
   void _applyFilter(String type) {
-    ref.read(searchProvider.notifier).resetFilters(); // 简单示例
+    // 此前误调 resetFilters() 会把 selectedMessageType 重置回 'all'，
+    // 导致筛选 chip 只更新 UI 选中态但从未真正按类型过滤（见 fix 记录）。
+    ref.read(searchProvider.notifier).setMessageTypeFilter(type);
     performSearch(query: _searchC.text);
   }
 

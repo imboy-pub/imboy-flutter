@@ -250,6 +250,11 @@ class SearchNotifier extends _$SearchNotifier {
     state = state.resetFilters();
   }
 
+  /// 设置消息类型筛选（'all' | MessageType.text | MessageType.image 等）。
+  void setMessageTypeFilter(String type) {
+    state = state.copyWith(selectedMessageType: type);
+  }
+
   void cacheContact(String uid, ContactModel contact) {
     state = state.cacheContact(uid, contact);
   }

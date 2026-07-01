@@ -201,6 +201,9 @@ class FtsApi extends HttpClient {
     required String conversationUk3,
     int page = 1,
     int size = 20,
+    // 消息类型筛选（text/image/video 等，见 MessageType），'all' 或空表示不筛选。
+    // 后端 fts_handler.erl msg_type 参数已支持，见 imboy/src/api/fts_handler.erl。
+    String? msgType,
   }) async {
     if (keyword.trim().isEmpty || conversationUk3.isEmpty) {
       return MessageSearchResponse(items: [], total: 0);
@@ -211,6 +214,10 @@ class FtsApi extends HttpClient {
       'page': page,
       'size': size,
     };
+
+    if (msgType != null && msgType.isNotEmpty && msgType != 'all') {
+      queryParams['msg_type'] = msgType;
+    }
 
     // 后端不支持 conversation_uk3；解析出 type 和 conversation_id 做最大化过滤
     final parts = conversationUk3.split('_');
