@@ -235,10 +235,14 @@ class _MinePageState extends ConsumerState<MinePage> {
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => context.push('/qrcode/user'),
-                child: const Icon(
-                  CupertinoIcons.qrcode,
-                  size: 22,
-                  color: AppColors.iosGray,
+                child: Semantics(
+                  label: t.account.myQrcode,
+                  button: true,
+                  child: const Icon(
+                    CupertinoIcons.qrcode,
+                    size: 22,
+                    color: AppColors.iosGray,
+                  ),
                 ),
               ),
               const SizedBox(width: AppSpacing.tiny),
