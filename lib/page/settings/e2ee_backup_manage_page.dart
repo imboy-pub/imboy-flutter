@@ -42,6 +42,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
           IconButton(
             onPressed: _loadBackupHistory,
             icon: const Icon(Icons.refresh),
+            tooltip: t.groupList.refresh,
           ),
         ],
       ),
@@ -114,6 +115,7 @@ class _E2EEBackupManagePageState extends State<E2EEBackupManagePage> {
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline),
           onPressed: () => _showDeleteDialog(backup),
+          tooltip: t.common.buttonDelete,
         ),
         onTap: () => _showBackupDetailDialog(backup),
       ),

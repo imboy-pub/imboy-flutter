@@ -313,6 +313,7 @@ class _TagInputState extends State<TagInput> {
                   icon: const Icon(Icons.add_circle),
                   color: AppColors.primary,
                   onPressed: () => _addTag(_controller.text.trim()),
+                  tooltip: t.common.buttonAdd,
                 )
               : null,
         ),

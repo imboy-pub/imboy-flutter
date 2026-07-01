@@ -393,6 +393,7 @@ class _MomentCard extends StatelessWidget {
                           ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
+                          tooltip: t.common.buttonDelete,
                         ),
                     ],
                   ),

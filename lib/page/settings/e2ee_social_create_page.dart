@@ -209,6 +209,7 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
               _selectedProxies.removeAt(index);
             });
           },
+          tooltip: t.common.buttonRemove,
         ),
       ),
     );

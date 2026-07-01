@@ -60,6 +60,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: colorScheme.primary),
           onPressed: () => context.pop(),
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         ),
         rightDMActions: [
           TextButton(

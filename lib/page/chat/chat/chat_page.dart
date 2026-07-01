@@ -1472,6 +1472,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           Icons.more_horiz,
           color: themeNotifier.getThemeColor('textPrimary'),
         ),
+        tooltip: t.common.chatSettings,
       ),
     ];
     return PopScope(

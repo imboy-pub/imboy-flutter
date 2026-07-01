@@ -56,7 +56,11 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           tooltip: t.common.buttonBack,
         ),
         rightDMActions: [
-          IconButton(onPressed: _loadKeyInfo, icon: const Icon(Icons.refresh)),
+          IconButton(
+            onPressed: _loadKeyInfo,
+            icon: const Icon(Icons.refresh),
+            tooltip: t.groupList.refresh,
+          ),
         ],
       ),
       body: _isLoading

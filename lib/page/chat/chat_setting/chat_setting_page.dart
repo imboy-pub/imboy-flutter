@@ -520,6 +520,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           onPressed: () {
             Navigator.pop(context, backDoRefresh);
           },
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         ),
         titleWidget: Text(
           t.common.chatSettings,
