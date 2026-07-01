@@ -371,6 +371,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                   ? AppColors.chatWebSecondaryDark
                   : AppColors.chatWebSecondaryLight,
             ),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             onPressed: () => context.pop(),
           ),
 
@@ -415,6 +416,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                               : AppColors.chatWebSecondaryLight,
                           size: 18,
                         ),
+                        tooltip: t.common.clear,
                         onPressed: () {
                           _searchController.clear();
                           _onSearchChanged('');
@@ -543,6 +545,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                         : AppColors.chatWebSecondaryLight,
                     size: 18,
                   ),
+                  tooltip: t.main.fillIn,
                   onPressed: () {
                     _searchController.text = search;
                     _onSearchChanged(search);

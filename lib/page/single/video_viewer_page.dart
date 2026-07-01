@@ -187,6 +187,7 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
       return Scaffold(
         floatingActionButton: IconButton(
           icon: const Icon(Icons.close),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           onPressed: () => Navigator.of(context).pop(),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.startTop,

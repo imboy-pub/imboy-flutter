@@ -166,6 +166,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               color: Theme.of(context).colorScheme.onSurface,
               size: 20,
             ),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             onPressed: () => Navigator.of(context).pop(),
           ),
           // 搜索输入框
@@ -216,6 +217,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                             color: AppColors.textSecondary,
                             size: 18,
                           ),
+                          tooltip: t.common.clear,
                           onPressed: () {
                             _searchController.clear();
                             ref
@@ -540,6 +542,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                     color: AppColors.textSecondary,
                     size: 18,
                   ),
+                  tooltip: t.common.buttonDelete,
                   onPressed: () {
                     ref
                         .read(messageSearchProvider.notifier)

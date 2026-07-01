@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 class LoginHistoryInput extends StatefulWidget {
@@ -103,6 +104,7 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
                         size: 18,
                         color: AppColors.iosGray,
                       ),
+                      tooltip: t.common.buttonDelete,
                       onPressed: () {
                         widget.onDelete(item);
                         // Refresh overlay if needed, or close it
