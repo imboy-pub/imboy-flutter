@@ -62,19 +62,20 @@ class UserQrCodePage extends ConsumerWidget {
                         children: [
                           Text(
                             user.nickname,
-                            style: TextStyle(
-                              fontSize: FontSizeType.large.size,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -0.5,
-                              // 意图：分享卡白底黑字固定外观，刻意不随主题切换
-                              color: Colors.black,
-                            ),
+                            style: context
+                                .textStyle(
+                                  FontSizeType.large,
+                                  fontWeight: FontWeight.bold,
+                                  // 意图：分享卡白底黑字固定外观，刻意不随主题切换
+                                  color: AppColors.lightTextPrimary,
+                                )
+                                .copyWith(letterSpacing: -0.5),
                           ),
                           if (user.region.isNotEmpty)
                             Text(
                               user.region,
-                              style: TextStyle(
-                                fontSize: FontSizeType.footnote.size,
+                              style: context.textStyle(
+                                FontSizeType.footnote,
                                 color: AppColors.iosGray,
                               ),
                             ),
@@ -157,8 +158,8 @@ class UserQrCodePage extends ConsumerWidget {
                 AppSpacing.verticalXLarge,
                 Text(
                   footerText,
-                  style: TextStyle(
-                    fontSize: FontSizeType.normal.size,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     color: AppColors.iosGray,
                     fontWeight: FontWeight.w500,
                   ),

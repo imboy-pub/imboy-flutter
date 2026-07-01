@@ -65,6 +65,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
             RepaintBoundary(
               key: globalKey,
               child: _buildQrCard(
+                context,
                 isDark,
                 header: Column(
                   children: [
@@ -78,8 +79,8 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                     Text(
                       "${t.chat.groupChat}: ${widget.group.title.isEmpty ? widget.group.computeTitle : widget.group.title}",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: FontSizeType.large.size,
+                      style: context.textStyle(
+                        FontSizeType.large,
                         fontWeight: FontWeight.bold,
                         // 意图：分享卡白底黑字固定外观，刻意不随主题切换
                         color: Colors.black,
@@ -105,6 +106,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
   }
 
   Widget _buildQrCard(
+    BuildContext context,
     bool isDark, {
     required Widget header,
     required String qrcodeData,
@@ -162,8 +164,8 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                 Text(
                   footerText,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: FontSizeType.footnote.size,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
                     color: AppColors.iosGray,
                     fontWeight: FontWeight.w500,
                   ),

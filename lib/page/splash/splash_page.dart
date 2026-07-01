@@ -200,7 +200,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 children: [
                   _buildLogo(logoSize: logoSize, disableAnim: disableAnim),
                   const SizedBox(height: 28),
-                  _buildWordmark(disableAnim: disableAnim),
+                  _buildWordmark(context, disableAnim: disableAnim),
                   const SizedBox(height: 14),
                   _buildSlogan(context, disableAnim: disableAnim),
                 ],
@@ -277,21 +277,21 @@ class _SplashPageState extends ConsumerState<SplashPage>
   }
 
   /// Wordmark "ImBoy"：Hero + fade-in + 向上滑入 8px。
-  Widget _buildWordmark({required bool disableAnim}) {
+  Widget _buildWordmark(BuildContext context, {required bool disableAnim}) {
     final node = Hero(
       tag: kBrandWordmarkHeroTag,
       child: Material(
         type: MaterialType.transparency,
         child: Text(
           'ImBoy',
-          style: TextStyle(
-            fontSize: FontSizeType.extraLargeTitle.size,
-            fontWeight: FontWeight.w700,
-            // 固定品牌渐变底上的白色文字，与主题无关
-            color: Colors.white,
-            letterSpacing: 0.5,
-            height: 1.0,
-          ),
+          style: context
+              .textStyle(
+                FontSizeType.extraLargeTitle,
+                fontWeight: FontWeight.w700,
+                // 固定品牌渐变底上的白色文字，与主题无关
+                color: AppColors.onPrimary,
+              )
+              .copyWith(letterSpacing: 0.5, height: 1.0),
         ),
       ),
     );

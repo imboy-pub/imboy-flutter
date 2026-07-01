@@ -62,27 +62,37 @@ class QrLoginConfirmContent extends StatelessWidget {
   Widget _buildBody(BuildContext context) {
     return switch (state) {
       QrLoginConfirmIdle() ||
-      QrLoginConfirmScanning() => _loading(t.passport.qrConnecting),
+      QrLoginConfirmScanning() => _loading(context, t.passport.qrConnecting),
       QrLoginConfirmAwaitingConfirm(:final deviceInfo) => _awaiting(
         context,
         deviceInfo,
       ),
-      QrLoginConfirmConfirming() => _loading(t.passport.qrLoginConfirming),
-      QrLoginConfirmSuccess() => _success(),
+      QrLoginConfirmConfirming() => _loading(
+        context,
+        t.passport.qrLoginConfirming,
+      ),
+      QrLoginConfirmSuccess() => _success(context),
       QrLoginConfirmExpired() => _terminal(
+        context,
         icon: Icons.timer_off_outlined,
         message: t.passport.qrCodeExpired,
       ),
       QrLoginConfirmAlreadyUsed() => _terminal(
+        context,
         icon: Icons.error_outline,
         message: t.passport.qrCodeUsed,
       ),
-      QrLoginConfirmCancelledByMe() => _info(t.passport.qrLoginCancelledByMe),
+      QrLoginConfirmCancelledByMe() => _info(
+        context,
+        t.passport.qrLoginCancelledByMe,
+      ),
       QrLoginConfirmCancelledByOther() => _terminal(
+        context,
         icon: Icons.cancel_outlined,
         message: t.passport.qrLoginCancelled,
       ),
       QrLoginConfirmFailed(:final errorMessage) => _terminal(
+        context,
         icon: Icons.error_outline,
         message: errorMessage,
       ),
@@ -93,21 +103,21 @@ class QrLoginConfirmContent extends StatelessWidget {
   // 状态视图
   // -------------------------------------------------------------------------
 
-  Widget _loading(String hint) {
+  Widget _loading(BuildContext context, String hint) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         const CircularProgressIndicator(color: AppColors.primary),
         AppSpacing.verticalXLarge,
-        Text(hint, style: TextStyle(fontSize: FontSizeType.medium.size)),
+        Text(hint, style: context.textStyle(FontSizeType.medium)),
       ],
     );
   }
 
-  Widget _info(String text) {
+  Widget _info(BuildContext context, String text) {
     return Text(
       text,
-      style: TextStyle(fontSize: FontSizeType.medium.size),
+      style: context.textStyle(FontSizeType.medium),
       textAlign: TextAlign.center,
     );
   }
@@ -178,7 +188,7 @@ class QrLoginConfirmContent extends StatelessWidget {
     );
   }
 
-  Widget _success() {
+  Widget _success(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -190,8 +200,8 @@ class QrLoginConfirmContent extends StatelessWidget {
         AppSpacing.verticalXLarge,
         Text(
           t.passport.qrLoginSuccess,
-          style: TextStyle(
-            fontSize: FontSizeType.large.size,
+          style: context.textStyle(
+            FontSizeType.large,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -199,7 +209,11 @@ class QrLoginConfirmContent extends StatelessWidget {
     );
   }
 
-  Widget _terminal({required IconData icon, required String message}) {
+  Widget _terminal(
+    BuildContext context, {
+    required IconData icon,
+    required String message,
+  }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -207,7 +221,7 @@ class QrLoginConfirmContent extends StatelessWidget {
         AppSpacing.verticalXLarge,
         Text(
           message,
-          style: TextStyle(fontSize: FontSizeType.medium.size),
+          style: context.textStyle(FontSizeType.medium),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 40),
@@ -223,7 +237,7 @@ class QrLoginConfirmContent extends StatelessWidget {
             ),
             child: Text(
               t.common.buttonClose,
-              style: TextStyle(fontSize: FontSizeType.medium.size),
+              style: context.textStyle(FontSizeType.medium),
             ),
           ),
         ),

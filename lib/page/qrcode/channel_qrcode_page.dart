@@ -58,6 +58,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
             RepaintBoundary(
               key: globalKey,
               child: _buildQrCard(
+                context,
                 isDark,
                 header: Column(
                   children: [
@@ -85,8 +86,8 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
                           ? channelName
                           : t.channel.defaultName,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: FontSizeType.large.size,
+                      style: context.textStyle(
+                        FontSizeType.large,
                         fontWeight: FontWeight.bold,
                         // 意图：分享卡白底黑字固定外观，刻意不随主题切换
                         color: Colors.black,
@@ -112,6 +113,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
   }
 
   Widget _buildQrCard(
+    BuildContext context,
     bool isDark, {
     required Widget header,
     required String qrcodeData,
@@ -169,8 +171,8 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
                 Text(
                   footerText,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: FontSizeType.footnote.size,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
                     color: AppColors.iosGray,
                     fontWeight: FontWeight.w500,
                   ),

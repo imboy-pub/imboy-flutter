@@ -517,7 +517,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
           ImBoySettingsSection(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             children: state.transactions
-                .map((tx) => _buildTransactionTile(tx, isDark, b))
+                .map((tx) => _buildTransactionTile(context, tx, isDark, b))
                 .toList(),
           ),
       ],
@@ -525,6 +525,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
   }
 
   Widget _buildTransactionTile(
+    BuildContext context,
     WalletTransaction tx,
     bool isDark,
     Brightness b,
@@ -559,12 +560,13 @@ class _WalletPageState extends ConsumerState<WalletPage> {
       subtitle: Text(tx.createdAt),
       trailing: Text(
         amountText,
-        style: TextStyle(
-          fontSize: FontSizeType.body.size,
-          fontWeight: FontWeight.bold,
-          color: amountColor,
-          letterSpacing: -0.5,
-        ),
+        style: context
+            .textStyle(
+              FontSizeType.body,
+              fontWeight: FontWeight.bold,
+              color: amountColor,
+            )
+            .copyWith(letterSpacing: -0.5),
       ),
       backgroundColor: Colors.transparent,
     );

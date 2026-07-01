@@ -18,7 +18,7 @@ class E2EETransferPage extends StatelessWidget {
       appBar: AppBar(title: Text(t.main.e2eeTransferPageTitle)),
       body: ListView(
         children: [
-          _buildSectionHeader(t.common.e2eeTransferToNewDevice),
+          _buildSectionHeader(context, t.common.e2eeTransferToNewDevice),
           _buildTransferCard(
             context,
             icon: Icons.qr_code_scanner,
@@ -48,14 +48,14 @@ class E2EETransferPage extends StatelessWidget {
             },
           ),
           const SizedBox(height: AppSpacing.xLarge),
-          _buildSectionHeader(t.common.e2eeTransferPendingSection),
+          _buildSectionHeader(context, t.common.e2eeTransferPendingSection),
           _buildPendingTransfersCard(context),
         ],
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.regular,
@@ -65,8 +65,8 @@ class E2EETransferPage extends StatelessWidget {
       ),
       child: Text(
         title,
-        style: TextStyle(
-          fontSize: FontSizeType.normal.size,
+        style: context.textStyle(
+          FontSizeType.normal,
           fontWeight: FontWeight.w600,
           color: AppColors.iosGray,
         ),
