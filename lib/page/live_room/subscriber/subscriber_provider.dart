@@ -168,7 +168,16 @@ class SubscriberNotifier extends _$SubscriberNotifier {
   }
 
   Future<void> _cleanup(RTCVideoRenderer remoteRenderer) async {
-    remoteRenderer.srcObject = null;
+    // renderer 可能已在页面 dispose() 中提前释放；对已释放的 renderer 设置
+    // srcObject 会抛异常，若不捕获会导致下面 pc.close() 被跳过，造成 WHEP
+    // 拉流会话未正确关闭。
+    try {
+      remoteRenderer.srcObject = null;
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        debugPrint('[WHEP Subscriber] renderer 已释放，跳过 srcObject 清理: $e');
+      }
+    }
     await _pc?.close();
     _pc = null;
   }

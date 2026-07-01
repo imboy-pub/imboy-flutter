@@ -42,10 +42,17 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
   @override
   void dispose() {
     _serverController.dispose();
-    _remoteRenderer.srcObject = null;
-    _remoteRenderer.dispose();
-    // 离开页面时停止拉流
-    ref.read(subscriberProvider.notifier).stopSubscribe(_remoteRenderer);
+    // 先等 stopSubscribe 完成 pc.close()，再释放 renderer；旧顺序先 dispose
+    // renderer 会导致 stopSubscribe 内 _cleanup 对已释放 renderer 操作而跳过
+    // 后续清理，WHEP 拉流会话可能未正确关闭（建议真机验证）。
+    unawaited(
+      ref.read(subscriberProvider.notifier).stopSubscribe(_remoteRenderer).then(
+        (_) {
+          _remoteRenderer.srcObject = null;
+          _remoteRenderer.dispose();
+        },
+      ),
+    );
     super.dispose();
   }
 

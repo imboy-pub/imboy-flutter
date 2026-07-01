@@ -48,12 +48,20 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
   @override
   void dispose() {
     _serverController.dispose();
-    if (_localRenderer.textureId != null) {
-      _localRenderer.srcObject = null;
-      _localRenderer.dispose();
-    }
-    // 离开页面时停止推流
-    ref.read(publisherProvider.notifier).stopPublish(_localRenderer);
+    // 先等 stopPublish 完成 track.stop()/pc.close()，再释放 renderer；
+    // 旧顺序先 dispose renderer 会导致 stopPublish 内 _cleanup 对已释放
+    // renderer 操作而跳过后续清理，摄像头/麦克风指示灯可能延迟熄灭甚至
+    // 不熄灭（建议真机验证）。
+    unawaited(
+      ref.read(publisherProvider.notifier).stopPublish(_localRenderer).then((
+        _,
+      ) {
+        if (_localRenderer.textureId != null) {
+          _localRenderer.srcObject = null;
+          _localRenderer.dispose();
+        }
+      }),
+    );
     super.dispose();
   }
 

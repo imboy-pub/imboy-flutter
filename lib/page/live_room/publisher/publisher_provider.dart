@@ -200,7 +200,16 @@ class PublisherNotifier extends _$PublisherNotifier {
   }
 
   Future<void> _cleanup(RTCVideoRenderer localRenderer) async {
-    localRenderer.srcObject = null;
+    // renderer 可能已在页面 dispose() 中提前释放；对已释放的 renderer 设置
+    // srcObject 会抛异常，若不捕获会导致下面 track.stop()/pc.close() 被跳过，
+    // 造成摄像头/麦克风指示灯不熄灭。
+    try {
+      localRenderer.srcObject = null;
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        debugPrint('[WHIP Publisher] renderer 已释放，跳过 srcObject 清理: $e');
+      }
+    }
     _localStream?.getTracks().forEach((t) => t.stop());
     _localStream = null;
     await _pc?.close();
