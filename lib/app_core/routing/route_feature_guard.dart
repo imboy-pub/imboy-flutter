@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
@@ -9,6 +11,22 @@ import 'package:imboy/i18n/strings.g.dart';
 enum RouteBlockReason { featureFlag, appEntry }
 
 class RouteFeatureGuard {
+  static bool _manifestRetryInFlight = false;
+
+  /// manifest 为 null 时的自愈补偿：不能只拦截却不重试，否则离线冷启动后
+  /// 若 WebSocket 一直连不上（没有 manifest_updated 事件触发刷新），用户会
+  /// 永久卡在被拦截的路由上直到重启 App。这里在每次命中该分支时顺手补一次
+  /// 后台刷新尝试；用 _manifestRetryInFlight 避免用户连续导航时重复发起。
+  static void _retryManifestFetch() {
+    if (_manifestRetryInFlight) return;
+    _manifestRetryInFlight = true;
+    unawaited(
+      AppManifestService.refresh().whenComplete(
+        () => _manifestRetryInFlight = false,
+      ),
+    );
+  }
+
   static String? featureForPath(String path) {
     if (path == AppRoutes.momentFeed ||
         path == AppRoutes.momentCreate ||
@@ -107,6 +125,7 @@ class RouteFeatureGuard {
       // 用户进入任何可路由页面前 manifest 均已就绪，此分支仅在离线/异常
       // 场景触发。
       if (manifest == null || !manifest.hasAppEntry(appEntry)) {
+        if (manifest == null) _retryManifestFetch();
         return (
           redirect: '/bottom_navigation',
           reason: RouteBlockReason.appEntry,
