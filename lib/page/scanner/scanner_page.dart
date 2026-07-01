@@ -235,6 +235,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                   },
                   color: Theme.of(context).colorScheme.onSurface,
                   icon: const Icon(Icons.arrow_back_ios),
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 ),
               ),
               MobileScanner(
@@ -320,11 +321,13 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                         ),
                         iconSize: 32.0,
                         onPressed: () => controller.switchCamera(),
+                        tooltip: t.common.switchCamera,
                       ),
                       IconButton(
                         color: AppColors.onPrimary,
                         icon: const Icon(Icons.image),
                         iconSize: 32.0,
+                        tooltip: t.common.buttonSelectFromAlbum,
                         onPressed: () async {
                           ScaffoldMessengerState state = ScaffoldMessenger.of(
                             context,

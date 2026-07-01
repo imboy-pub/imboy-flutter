@@ -45,6 +45,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           icon: profileState.isLoading
               ? const CupertinoActivityIndicator(radius: 10)
               : const Icon(CupertinoIcons.refresh, size: 20),
+          tooltip: t.groupList.refresh,
         ),
         _buildMenuButton(context, profileState),
       ],

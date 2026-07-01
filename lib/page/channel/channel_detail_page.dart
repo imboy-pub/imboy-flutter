@@ -344,6 +344,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               isSecondary: true,
             ),
             onPressed: isBusy ? null : () => _pickAndSendMedia(channel),
+            tooltip: context.t.common.momentsAddMedia,
           ),
           // 语音/键盘 切换按钮
           IconButton(
@@ -456,6 +457,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                         color: AppColors.onPrimary,
                       ),
                       onPressed: () => _sendMessage(channel),
+                      tooltip: context.t.common.buttonSend,
                     )
                   : const SizedBox.shrink(),
             ),

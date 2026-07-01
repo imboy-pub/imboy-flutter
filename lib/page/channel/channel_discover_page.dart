@@ -151,6 +151,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
+                        tooltip: t.common.clear,
                         onPressed: () {
                           _searchController.clear();
                           setState(() {

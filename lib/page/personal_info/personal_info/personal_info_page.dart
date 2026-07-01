@@ -326,6 +326,7 @@ class _AvatarPreviewPage extends StatelessWidget {
             size: 22,
           ),
           onPressed: () => Navigator.of(context).pop(),
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
         ),
       ),
       body: Hero(

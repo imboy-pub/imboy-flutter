@@ -117,6 +117,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: _showCreateRoomDialog,
+            tooltip: t.chat.liveRoomCreateTitle,
           ),
         ],
       ),
