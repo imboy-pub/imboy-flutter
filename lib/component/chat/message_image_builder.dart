@@ -17,6 +17,7 @@ import 'package:imboy/component/image_gallery/image_gallery.dart'
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 单图消息构建器
 class MessageImageBuilder extends StatefulWidget {
@@ -146,7 +147,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
             const SizedBox(height: 8),
             Text(
               t.common.imageLoadFailed,
-              style: const TextStyle(fontSize: 12),
+              style: context.textStyle(FontSizeType.small),
             ),
           ],
         ),

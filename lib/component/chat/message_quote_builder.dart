@@ -5,6 +5,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 引用消息构建器 - iOS 17 Premium 风格重构
 class QuoteMessageBuilder extends StatelessWidget {
@@ -60,7 +61,9 @@ class QuoteMessageBuilder extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
           child: Text(
             text,
-            style: TextStyle(color: textColor, fontSize: 16, height: 1.3),
+            style: context
+                .textStyle(FontSizeType.medium, color: textColor)
+                .copyWith(height: 1.3),
           ),
         ),
         GestureDetector(
@@ -95,10 +98,10 @@ class QuoteMessageBuilder extends StatelessWidget {
                                     as String,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                style: context.textStyle(
+                                  FontSizeType.small,
                                   color: barColor,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 12,
                                 ),
                               ),
                             ),
@@ -107,9 +110,9 @@ class QuoteMessageBuilder extends StatelessWidget {
                               _formatQuoteTime(
                                 message.metadata?['quote_msg']?['createdAt'],
                               ),
-                              style: TextStyle(
+                              style: context.textStyle(
+                                FontSizeType.tiny,
                                 color: textColor.withValues(alpha: 0.5),
-                                fontSize: 10,
                               ),
                             ),
                           ],
@@ -166,9 +169,9 @@ class QuoteMessageBuilder extends StatelessWidget {
           Expanded(
             child: Text(
               t.common.quoteMessageNotAvailable,
-              style: TextStyle(
+              style: context.textStyle(
+                FontSizeType.small,
                 color: errorColor,
-                fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -183,7 +186,9 @@ class QuoteMessageBuilder extends StatelessWidget {
     Message quoteMsg,
     Color color,
   ) {
-    TextStyle style = TextStyle(color: color, fontSize: 13, height: 1.2);
+    TextStyle style = context
+        .textStyle(FontSizeType.footnote, color: color)
+        .copyWith(height: 1.2);
     if (quoteMsg is TextMessage) {
       return Text(
         quoteMsg.text,

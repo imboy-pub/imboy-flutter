@@ -16,6 +16,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class AudioMessageBuilder extends StatefulWidget {
   final String type;
@@ -331,8 +332,8 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
               Flexible(
                 child: Text(
                   '点击重试',
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: context.textStyle(
+                    FontSizeType.small,
                     color: colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 2,
@@ -571,12 +572,13 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
 
     return Text(
       durationText,
-      style: TextStyle(
-        color: textColor,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        fontFamily: 'SF Mono',
-      ),
+      style: context
+          .textStyle(
+            FontSizeType.small,
+            color: textColor,
+            fontWeight: FontWeight.w500,
+          )
+          .copyWith(fontFamily: 'SF Mono'),
     );
   }
 
@@ -706,17 +708,16 @@ class _SimpleWaveformPainter extends CustomPainter {
       double heightFactor;
       if (isActive) {
         // 利用 progress 加上水平索引偏置，形成非常自然的律动流光效果
-        heightFactor = 0.35 +
+        heightFactor =
+            0.35 +
             0.55 *
                 (0.5 * math.sin(progress * 2 * math.pi + i * 0.45) +
                     0.5 * math.cos(progress * 4 * math.pi - i * 0.2));
       } else {
         // 静止状态下的基础音浪特征
-        heightFactor = 0.2 +
-            0.45 *
-                (0.5 +
-                    0.5 *
-                        (i % 3 == 0 ? 1.0 : (i % 5 == 0 ? 0.8 : 0.3)));
+        heightFactor =
+            0.2 +
+            0.45 * (0.5 + 0.5 * (i % 3 == 0 ? 1.0 : (i % 5 == 0 ? 0.8 : 0.3)));
       }
 
       final waveHeight = size.height * heightFactor;
@@ -726,7 +727,9 @@ class _SimpleWaveformPainter extends CustomPainter {
       final x = i * waveWidth + waveWidth / 2;
       final currentProgressRatio = x / size.width;
 
-      final isHighlighted = isActive ? (currentProgressRatio <= progress) : false;
+      final isHighlighted = isActive
+          ? (currentProgressRatio <= progress)
+          : false;
 
       paint.color = isHighlighted ? color : inactiveColor;
 

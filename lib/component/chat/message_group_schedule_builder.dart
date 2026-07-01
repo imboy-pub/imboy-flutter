@@ -7,6 +7,7 @@ import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 群日程消息展现层 / Group Schedule Message Card Builder
 class MessageGroupScheduleBuilder extends StatelessWidget {
@@ -63,8 +64,8 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       t.groupSchedule.title,
-                      style: TextStyle(
-                        fontSize: 12,
+                      style: context.textStyle(
+                        FontSizeType.small,
                         color: isDark ? Colors.white60 : Colors.black54,
                         fontWeight: FontWeight.bold,
                       ),
@@ -74,8 +75,8 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: context.textStyle(
+                    FontSizeType.medium,
                     color: isDark ? Colors.white : Colors.black87,
                     fontWeight: FontWeight.bold,
                   ),
@@ -86,7 +87,10 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     '时间: $startTime',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: context.textStyle(
+                      FontSizeType.small,
+                      color: AppColors.iosGray,
+                    ),
                   ),
                 ],
                 const Divider(height: 20),
@@ -95,8 +99,8 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                   children: [
                     Text(
                       '查看详情并确认参加',
-                      style: TextStyle(
-                        fontSize: 11,
+                      style: context.textStyle(
+                        FontSizeType.caption2,
                         color: isDark ? Colors.white54 : Colors.black54,
                       ),
                     ),

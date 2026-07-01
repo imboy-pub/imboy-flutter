@@ -8,6 +8,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// @提及相关文本（简化版，避免依赖 slang 生成的字符串）
 class MentionStrings {
@@ -133,8 +134,8 @@ class MentionListWidget extends StatelessWidget {
                             candidate.isAllMention
                                 ? MentionStrings.mentionAll
                                 : candidate.displayName,
-                            style: TextStyle(
-                              fontSize: 15,
+                            style: context.textStyle(
+                              FontSizeType.subheadline,
                               fontWeight: candidate.isAllMention
                                   ? FontWeight.w600
                                   : FontWeight.normal,
@@ -156,8 +157,8 @@ class MentionListWidget extends StatelessWidget {
                             ),
                             child: Text(
                               candidate.roleText,
-                              style: TextStyle(
-                                fontSize: 10,
+                              style: context.textStyle(
+                                FontSizeType.tiny,
                                 color: candidate.roleTextColor(colorScheme),
                               ),
                             ),
@@ -168,8 +169,8 @@ class MentionListWidget extends StatelessWidget {
                     if (candidate.isAllMention)
                       Text(
                         MentionStrings.mentionAllHint,
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: context.textStyle(
+                          FontSizeType.small,
                           color: colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -185,8 +186,8 @@ class MentionListWidget extends StatelessWidget {
                 ),
                 child: Text(
                   '@',
-                  style: TextStyle(
-                    fontSize: 14,
+                  style: context.textStyle(
+                    FontSizeType.normal,
                     fontWeight: FontWeight.w600,
                     color: colorScheme.primary,
                   ),
@@ -246,8 +247,8 @@ class MentionListWidget extends StatelessWidget {
       child: Center(
         child: Text(
           name.isNotEmpty ? name[0].toUpperCase() : '?',
-          style: TextStyle(
-            fontSize: 18,
+          style: context.textStyle(
+            FontSizeType.large,
             fontWeight: FontWeight.w600,
             color: colorScheme.primary,
           ),
@@ -323,8 +324,8 @@ class MentionListPopup extends StatelessWidget {
                 children: [
                   Text(
                     MentionStrings.selectMention,
-                    style: TextStyle(
-                      fontSize: 14,
+                    style: context.textStyle(
+                      FontSizeType.normal,
                       fontWeight: FontWeight.w500,
                       color: colorScheme.onSurfaceVariant,
                     ),

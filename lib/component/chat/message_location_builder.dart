@@ -162,9 +162,9 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                 children: [
                   Text(
                     msg.metadata?['title']?.toString() ?? '',
-                    style: TextStyle(
+                    style: context.textStyle(
+                      FontSizeType.normal,
                       color: titleColor,
-                      fontSize: FontSizeType.normal.size,
                       fontWeight: FontWeight.w600,
                     ),
                     maxLines: 1,
@@ -173,9 +173,9 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                   const SizedBox(height: 2),
                   Text(
                     msg.metadata?['address']?.toString() ?? '',
-                    style: TextStyle(
+                    style: context.textStyle(
+                      FontSizeType.caption2,
                       color: addressColor,
-                      fontSize: FontSizeType.caption2.size,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

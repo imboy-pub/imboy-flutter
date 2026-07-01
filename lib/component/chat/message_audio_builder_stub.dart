@@ -8,6 +8,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// Web 平台占位符音频组件
 class AudioMessageBuilder extends StatefulWidget {
@@ -64,7 +65,7 @@ class _AudioMessageBuilderStubState extends State<AudioMessageBuilder> {
             const SizedBox(width: 12),
             Text(
               t.common.webAudioNotSupported,
-              style: const TextStyle(fontSize: 14),
+              style: context.textStyle(FontSizeType.normal),
             ),
           ],
         ),
