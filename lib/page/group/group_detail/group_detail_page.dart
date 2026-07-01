@@ -160,8 +160,13 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       useLargeTitle: false,
       child: Column(
         children: [
-          // 成员列表 Section
-          _buildMemberSection(state),
+          // 成员列表 Section：独立 ConsumerWidget，只 select
+          // memberCount/memberList，避免页面其他字段变化（如
+          // myGroupAlias/title）连带重建头像列表布局。
+          _GroupMemberSection(
+            groupId: widget.groupId,
+            onMemberRemoved: () => backDoRefresh = true,
+          ),
 
           // 基本设置 Section
           ImBoySettingsSection(
@@ -407,98 +412,6 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     );
   }
 
-  Widget _buildMemberSection(GroupDetailState state) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(
-        AppSpacing.regular,
-        AppSpacing.large,
-        AppSpacing.regular,
-        AppSpacing.small,
-      ),
-      padding: const EdgeInsets.all(AppSpacing.large),
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.darkSurfaceGroupedTertiary
-            : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                t.group.groupMembers,
-                style: context.textStyle(
-                  FontSizeType.body,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                '${state.memberCount}',
-                style: context.textStyle(
-                  FontSizeType.subheadline,
-                  color: AppColors.iosGray,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.regular),
-          AvatarList(
-            memberList: state.memberList,
-            width: 52,
-            height: 52,
-            column: (MediaQuery.sizeOf(context).width - 72) ~/ 64,
-            onTapAvatar: (p) => context.push(
-              '/people_info/${p.id}',
-              extra: {'scene': 'group_member'},
-            ),
-            onTapAdd: () => context.push(
-              '/group/add_member',
-              extra: {'groupId': widget.groupId},
-            ),
-            onTapRemove: () async {
-              final res = await context.push<List<GroupMemberModel>>(
-                '/group/remove_member',
-                extra: {'groupId': widget.groupId},
-              );
-              if (res != null) {
-                for (var gm in res) {
-                  ref
-                      .read(groupDetailProvider.notifier)
-                      .removeMember(gm.userId);
-                }
-                backDoRefresh = true;
-              }
-            },
-          ),
-          if (state.memberCount > 20) ...[
-            const SizedBox(height: AppSpacing.medium),
-            Center(
-              child: CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: Text(
-                  t.common.viewAllGroupMember,
-                  style: context.textStyle(
-                    FontSizeType.normal,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.getIosBlue(Theme.of(context).brightness),
-                  ),
-                ),
-                onPressed: () => context.push(
-                  '/group/member',
-                  extra: {'groupId': widget.groupId},
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
   void _confirmClearChat() {
     showCupertinoDialog<void>(
       context: context,
@@ -609,6 +522,115 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
         }
       },
       child: Text(label),
+    );
+  }
+}
+
+/// 群成员 Section：独立 ConsumerWidget，只 select memberCount/memberList，
+/// 避免 GroupDetailPage 其余字段变化（如 myGroupAlias/title）连带重建
+/// 头像列表布局。
+class _GroupMemberSection extends ConsumerWidget {
+  const _GroupMemberSection({
+    required this.groupId,
+    required this.onMemberRemoved,
+  });
+
+  final String groupId;
+  final VoidCallback onMemberRemoved;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final memberCount = ref.watch(
+      groupDetailProvider.select((s) => s.memberCount),
+    );
+    final memberList = ref.watch(
+      groupDetailProvider.select((s) => s.memberList),
+    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(
+        AppSpacing.regular,
+        AppSpacing.large,
+        AppSpacing.regular,
+        AppSpacing.small,
+      ),
+      padding: const EdgeInsets.all(AppSpacing.large),
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                t.group.groupMembers,
+                style: context.textStyle(
+                  FontSizeType.body,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                '$memberCount',
+                style: context.textStyle(
+                  FontSizeType.subheadline,
+                  color: AppColors.iosGray,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.regular),
+          AvatarList(
+            memberList: memberList,
+            width: 52,
+            height: 52,
+            column: (MediaQuery.sizeOf(context).width - 72) ~/ 64,
+            onTapAvatar: (p) => context.push(
+              '/people_info/${p.id}',
+              extra: {'scene': 'group_member'},
+            ),
+            onTapAdd: () =>
+                context.push('/group/add_member', extra: {'groupId': groupId}),
+            onTapRemove: () async {
+              final res = await context.push<List<GroupMemberModel>>(
+                '/group/remove_member',
+                extra: {'groupId': groupId},
+              );
+              if (res != null) {
+                for (var gm in res) {
+                  ref
+                      .read(groupDetailProvider.notifier)
+                      .removeMember(gm.userId);
+                }
+                onMemberRemoved();
+              }
+            },
+          ),
+          if (memberCount > 20) ...[
+            const SizedBox(height: AppSpacing.medium),
+            Center(
+              child: CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: Text(
+                  t.common.viewAllGroupMember,
+                  style: context.textStyle(
+                    FontSizeType.normal,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.getIosBlue(Theme.of(context).brightness),
+                  ),
+                ),
+                onPressed: () =>
+                    context.push('/group/member', extra: {'groupId': groupId}),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
