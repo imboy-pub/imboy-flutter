@@ -553,9 +553,18 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
       url,
     );
     if (!mounted || _videoController != null) return;
-    _videoController = VideoPlayerController.networkUrl(Uri.parse(resolved))
+    final controller = VideoPlayerController.networkUrl(Uri.parse(resolved));
+    _videoController = controller;
+    controller
       ..initialize().then((_) {
-        if (mounted) setState(() {});
+        // 可见性快速抖动（快速滑动）时，本次 initialize 完成前
+        // _videoController 字段可能已被后续的 pause/dispose 置换成 null
+        // 或新实例；只有仍是当前实例才继续操作，避免对已 dispose 的
+        // VideoPlayerController 触发 setState/play 而崩溃。
+        if (mounted && _videoController == controller) {
+          setState(() {});
+          controller.play();
+        }
       })
       ..setLooping(true)
       ..setVolume(0);
