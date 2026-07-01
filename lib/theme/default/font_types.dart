@@ -301,7 +301,11 @@ class FontScaleCalculator {
 
     // 如果提供了上下文，应用系统文本缩放
     if (context != null) {
-      final textScaler = MediaQuery.of(context).textScaler;
+      // 用 MediaQuery.textScalerOf 而非 MediaQuery.of(context).textScaler：
+      // 后者会让调用方订阅整个 MediaQuery（键盘弹出/旋转/亮度变化都会触发
+      // 重建），前者只依赖 textScaler 这一个字段，避免聊天消息列表等高频
+      // 重建场景下不必要的 rebuild。
+      final textScaler = MediaQuery.textScalerOf(context);
       scaledSize = textScaler.scale(scaledSize);
 
       // 再次应用边界检查，防止系统缩放导致过大或过小
@@ -358,7 +362,7 @@ class FontScaleCalculator {
 
   /// 获取推荐的字体大小选项（基于当前系统设置）
   static FontSizeOption getRecommendedOption(BuildContext context) {
-    final textScaler = MediaQuery.of(context).textScaler;
+    final textScaler = MediaQuery.textScalerOf(context);
     final systemScale = textScaler.scale(1.0);
 
     // 根据系统缩放推荐合适的选项
