@@ -66,11 +66,16 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   StreamSubscription<dynamic>? _wsSub;
   Timer? _reconnectTimer;
   Timer? _v2HeartbeatTimer;
+  Timer? _v1HeartbeatTimer;
+  Timer? _v1PongTimer;
   final Map<String, Timer> _confirmationTimers = {}; // H9: Map允许按messageId取消
   bool _initialized = false;
 
   // 配置参数
   static const _pingInterval = Duration(seconds: 60);
+  // v1 模式应用层心跳的 pong 超时：必须小于 _pingInterval，确保上一轮
+  // 心跳判活完成（收到 pong 或判定超时）后下一轮心跳才开始。
+  static const _v1PongTimeout = Duration(seconds: 20);
   bool _connecting = false;
 
   /// 当前 WebSocket framing 模式（由子协议协商决定）
@@ -215,9 +220,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     try {
       if (_framing == FramingMode.v2) {
         _sendV2Heartbeat();
+      } else {
+        // v1 模式：主动发送应用层心跳（详见 _sendV1Heartbeat），
+        // pong 超时会触发 _cancelStream + 重连，不再被动等待 onDone/onError。
+        _sendV1Heartbeat();
       }
-      // v1 模式：无法主动发探测包；pingInterval 超时后 onDone/onError 会
-      // 自动触发 _onClose/_onError 进而重连，此处无需额外操作。
     } catch (e) {
       iPrint('> ws: probe failed, connection likely dead: $e');
       _cancelStream();
@@ -357,14 +364,23 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         '(selected protocol: ${_selectedProtocol(_channel)})',
       );
 
-      // v2 模式下启动 IMBoy 层 heartbeat 定时器
+      // 心跳定时器：v2 走二进制帧，v1 走应用层文本 "ping"/"pong"
+      // （之前 v1 完全依赖 IOWebSocketChannel 底层 ping/pong，Web 平台
+      // 甚至没有该机制；现在两种模式都有主动探测 + 超时重连）。
       _v2HeartbeatTimer?.cancel();
       _v2HeartbeatTimer = null;
+      _v1HeartbeatTimer?.cancel();
+      _v1HeartbeatTimer = null;
       if (_framing == FramingMode.v2) {
         _v2PingSeq = 0;
         _v2HeartbeatTimer = Timer.periodic(
           _pingInterval,
           (_) => _sendV2Heartbeat(),
+        );
+      } else {
+        _v1HeartbeatTimer = Timer.periodic(
+          _pingInterval,
+          (_) => _sendV1Heartbeat(),
         );
       }
 
@@ -476,6 +492,34 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     } catch (e) {
       iPrint('> ws: v2 heartbeat 发送失败: $e');
     }
+  }
+
+  /// v1 模式应用层心跳：发送纯文本 "ping"，后端 websocket_handler.erl
+  /// 已原生支持（收到 "ping" 直接回 "pong"，无需改后端）。
+  /// 若上一轮 pong 一直未到（_v1PongTimer 仍在跑），说明连接早已死透，
+  /// 直接判定失败并重连，不再等待这一轮的探测结果。
+  void _sendV1Heartbeat() {
+    if (_framing == FramingMode.v2 || _channel == null) return;
+    if (_v1PongTimer != null) {
+      iPrint('> ws: v1 heartbeat 上一轮 pong 仍未到，判定连接已死');
+      _handleV1HeartbeatTimeout();
+      return;
+    }
+    try {
+      _channel!.sink.add('ping');
+      _v1PongTimer = Timer(_v1PongTimeout, _handleV1HeartbeatTimeout);
+    } catch (e) {
+      iPrint('> ws: v1 heartbeat 发送失败: $e');
+    }
+  }
+
+  void _handleV1HeartbeatTimeout() {
+    iPrint('> ws: v1 heartbeat pong 超时，判定连接已死，主动重连');
+    _v1PongTimer?.cancel();
+    _v1PongTimer = null;
+    _cancelStream();
+    _updateStatus(SocketStatus.disconnected);
+    _scheduleReconnection();
   }
 
   /// 处理收到的 v2 二进制帧（不抛出）
@@ -621,6 +665,16 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     // 快速空值检查
     if (message == null || (message is String && message.trim().isEmpty)) {
       return;
+    }
+
+    // v1 心跳 pong 快速路径：避免走 JSON 解析报错 + RAW_MESSAGE 事件噪音
+    if (message is String) {
+      final trimmed = message.trim();
+      if (trimmed == 'pong' || trimmed == 'PONG') {
+        _v1PongTimer?.cancel();
+        _v1PongTimer = null;
+        return;
+      }
     }
 
     try {
@@ -1121,6 +1175,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     _channel = null;
     _v2HeartbeatTimer?.cancel();
     _v2HeartbeatTimer = null;
+    _v1HeartbeatTimer?.cancel();
+    _v1HeartbeatTimer = null;
+    _v1PongTimer?.cancel();
+    _v1PongTimer = null;
     _framing = FramingMode.none;
     // 清理所有消息确认 Timer 及待确认消息 ID（两者生命周期绑定同一连接）
     for (final t in _confirmationTimers.values) {
