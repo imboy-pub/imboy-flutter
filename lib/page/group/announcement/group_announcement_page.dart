@@ -61,6 +61,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
           // 仅 admin / owner / vice_owner 可发布公告
           if (canManageAnnouncement(state.currentUserRole))
             IconButton(
+              tooltip: t.common.groupAnnouncementPublish,
               icon: Icon(Icons.add, color: Theme.of(context).iconTheme.color),
               onPressed: () => _showPublishDialog(context, notifier),
             ),
@@ -181,6 +182,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                 // 仅管理员可见删除按钮
                 if (canManage)
                   IconButton(
+                    tooltip: t.common.groupAnnouncementDelete,
                     icon: Icon(
                       Icons.delete_outline,
                       size: 20,

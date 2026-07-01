@@ -129,6 +129,7 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
       ),
       title: Text(tag['name'] as String? ?? ''),
       trailing: IconButton(
+        tooltip: t.groupTag.removeTitle,
         icon: const Icon(Icons.delete_outline),
         onPressed: () async {
           final confirm = await showDialog<bool>(

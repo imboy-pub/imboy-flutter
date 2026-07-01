@@ -230,6 +230,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         leading: IconButton(
+          tooltip: t.common.buttonCancel,
           icon: Icon(
             Icons.close,
             color: Theme.of(context).colorScheme.onSurface,

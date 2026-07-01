@@ -629,6 +629,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: IconButton(
+          tooltip: t.common.groupFileDeleteTitle,
           icon: const Icon(Icons.delete_outline),
           onPressed: () => _deleteFile(file),
         ),

@@ -114,6 +114,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                         Expanded(
                           flex: 1,
                           child: IconButton(
+                            tooltip: t.channel.viewProfile,
                             icon: Icon(
                               Icons.info_outline,
                               color: AppColors.primary,
