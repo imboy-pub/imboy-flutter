@@ -209,91 +209,100 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       ),
     ];
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      extendBody: true,
-      body: Row(
-        children: [
-          if (isTablet)
-            NavigationRail(
-              selectedIndex: bottomBarIndex,
-              onDestinationSelected: (index) {
-                ref.read(bottomNavigationProvider.notifier).changeIndex(index);
-                if (pageController.hasClients) {
-                  pageController.jumpToPage(index);
-                }
-              },
-              labelType: NavigationRailLabelType.all,
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerLow,
-              indicatorColor: AppColors.primary.withValues(alpha: 0.15),
-              selectedLabelTextStyle: context.textStyle(
-                FontSizeType.small,
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
-              ),
-              unselectedLabelTextStyle: context.textStyle(
-                FontSizeType.small,
-                color: Theme.of(
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        extendBody: true,
+        body: Row(
+          children: [
+            if (isTablet)
+              NavigationRail(
+                selectedIndex: bottomBarIndex,
+                onDestinationSelected: (index) {
+                  ref
+                      .read(bottomNavigationProvider.notifier)
+                      .changeIndex(index);
+                  if (pageController.hasClients) {
+                    pageController.jumpToPage(index);
+                  }
+                },
+                labelType: NavigationRailLabelType.all,
+                backgroundColor: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha: 0.5),
+                ).colorScheme.surfaceContainerLow,
+                indicatorColor: AppColors.primary.withValues(alpha: 0.15),
+                selectedLabelTextStyle: context.textStyle(
+                  FontSizeType.small,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+                unselectedLabelTextStyle: context.textStyle(
+                  FontSizeType.small,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+                destinations: navigationItems.map((item) {
+                  return NavigationRailDestination(
+                    icon: _buildNavigationIcon(
+                      item,
+                      false,
+                      labelFontSize,
+                      socketStatus,
+                    ),
+                    selectedIcon: _buildNavigationIcon(
+                      item,
+                      true,
+                      labelFontSize,
+                      socketStatus,
+                    ),
+                    label: Text(item.label),
+                  );
+                }).toList(),
               ),
-              destinations: navigationItems.map((item) {
-                return NavigationRailDestination(
-                  icon: _buildNavigationIcon(
-                    item,
-                    false,
-                    labelFontSize,
-                    socketStatus,
-                  ),
-                  selectedIcon: _buildNavigationIcon(
-                    item,
-                    true,
-                    labelFontSize,
-                    socketStatus,
-                  ),
-                  label: Text(item.label),
-                );
-              }).toList(),
+            Expanded(
+              child: PageView(
+                controller: pageController,
+                onPageChanged: (index) {
+                  ref
+                      .read(bottomNavigationProvider.notifier)
+                      .changeIndex(index);
+                },
+                physics: const NeverScrollableScrollPhysics(),
+                children: pageList,
+              ),
             ),
-          Expanded(
-            child: PageView(
-              controller: pageController,
-              onPageChanged: (index) {
-                ref.read(bottomNavigationProvider.notifier).changeIndex(index);
-              },
-              physics: const NeverScrollableScrollPhysics(),
-              children: pageList,
-            ),
-          ),
-        ],
+          ],
+        ),
+        bottomNavigationBar: isTablet
+            ? null
+            : GlassBottomNavigationBar(
+                currentIndex: bottomBarIndex,
+                onTap: (index) {
+                  ref
+                      .read(bottomNavigationProvider.notifier)
+                      .changeIndex(index);
+                  if (pageController.hasClients) {
+                    pageController.jumpToPage(index);
+                  }
+                },
+                items: navigationItems.map((item) {
+                  return GlassBottomBarItem(
+                    icon: item.icon,
+                    activeIcon: item.activeIcon,
+                    label: item.label,
+                    tabKey: item.tabKey,
+                    iconBuilder: (isSelected) => _buildNavigationIcon(
+                      item,
+                      isSelected,
+                      labelFontSize,
+                      socketStatus,
+                    ),
+                  );
+                }).toList(),
+              ),
       ),
-      bottomNavigationBar: isTablet
-          ? null
-          : GlassBottomNavigationBar(
-              currentIndex: bottomBarIndex,
-              onTap: (index) {
-                ref.read(bottomNavigationProvider.notifier).changeIndex(index);
-                if (pageController.hasClients) {
-                  pageController.jumpToPage(index);
-                }
-              },
-              items: navigationItems.map((item) {
-                return GlassBottomBarItem(
-                  icon: item.icon,
-                  activeIcon: item.activeIcon,
-                  label: item.label,
-                  tabKey: item.tabKey,
-                  iconBuilder: (isSelected) => _buildNavigationIcon(
-                    item,
-                    isSelected,
-                    labelFontSize,
-                    socketStatus,
-                  ),
-                );
-              }).toList(),
-            ),
     );
   }
 

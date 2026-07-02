@@ -17,6 +17,7 @@ import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_shadows.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -132,7 +133,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
     final isDark = brightness == Brightness.dark;
 
     return IosPageTemplate(
-      title: '',
+      title: t.chat.createGroupF2f,
       useLargeTitle: false,
       backgroundColor: isDark
           ? AppColors.darkSurfaceGrouped
@@ -140,9 +141,13 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       bottomWidget: _buildBottomButton(context, theme),
       child: Column(
         children: [
-          const SizedBox(height: AppSpacing.large),
-          _buildNumberDisplay(context, widget.code),
+          const SizedBox(height: AppSpacing.xLarge),
+          _buildCodeChip(context),
           const SizedBox(height: AppSpacing.medium),
+          _buildNumberDisplay(context, widget.code, isDark, brightness),
+          const SizedBox(height: AppSpacing.regular),
+          _buildLiveMemberCount(context, brightness),
+          const SizedBox(height: AppSpacing.large),
           Text(
             t.common.createGroupF2fConfirmTips,
             textAlign: TextAlign.center,
@@ -152,8 +157,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: AppSpacing.xLarge),
-
+          const SizedBox(height: AppSpacing.medium),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
             padding: const EdgeInsets.all(AppSpacing.large),
@@ -174,17 +178,54 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
     );
   }
 
-  Widget _buildNumberDisplay(BuildContext context, String code) {
+  Widget _buildCodeChip(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(CupertinoIcons.lock_fill, size: 12, color: AppColors.primary),
+          const SizedBox(width: 4),
+          Text(
+            '暗号',
+            style: context.textStyle(
+              FontSizeType.footnote,
+              color: AppColors.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNumberDisplay(
+    BuildContext context,
+    String code,
+    bool isDark,
+    Brightness brightness,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: code.split('').map((char) {
         return Container(
-          width: 56,
-          height: 56,
-          margin: const EdgeInsets.symmetric(horizontal: 6),
+          width: 64,
+          height: 72,
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            color: isDark
+                ? AppColors.primary.withValues(alpha: 0.15)
+                : AppColors.lightSurface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: AppShadows.cardForBrightness(brightness),
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.25),
+              width: 1.5,
+            ),
           ),
           alignment: Alignment.center,
           child: Text(
@@ -197,6 +238,25 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildLiveMemberCount(BuildContext context, Brightness brightness) {
+    final count = memberList.where((m) => m.id != -1).length;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const _LiveDot(),
+        const SizedBox(width: 6),
+        Text(
+          '$count 人即将进入群聊',
+          style: context.textStyle(
+            FontSizeType.footnote,
+            color: AppColors.getIosGreen(brightness),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 
@@ -266,4 +326,44 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       ),
     );
   }
+}
+
+class _LiveDot extends StatefulWidget {
+  const _LiveDot();
+
+  @override
+  State<_LiveDot> createState() => _LiveDotState();
+}
+
+class _LiveDotState extends State<_LiveDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FadeTransition(
+    opacity: CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    child: Container(
+      width: 8,
+      height: 8,
+      decoration: const BoxDecoration(
+        color: AppColors.iosGreen,
+        shape: BoxShape.circle,
+      ),
+    ),
+  );
 }

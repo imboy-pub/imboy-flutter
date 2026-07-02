@@ -10,7 +10,6 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -100,13 +99,6 @@ class MessageWebrtc {
         );
       }
     } else {
-      final msgModel = WebRTCSignalingModel(
-        msgId: data['id'] as String,
-        type: data['type'] as String,
-        from: data['from'] as String,
-        to: data['to'] as String,
-        payload: data['payload'] as Map<String, dynamic>,
-      );
       if (['WEBRTC_BUSY', 'WEBRTC_BYE'].contains(type)) {
         // 批量更新本地消息状态为结束/忙碌
         // Batch update local WebRTC message state
@@ -125,7 +117,11 @@ class MessageWebrtc {
         gTimer = null;
         p2pCallScreenOn = false;
       }
-      AppEventBus.fireData(msgModel);
+      // WRTC-00 修复：answer/candidate/ringing/busy/bye 必须 fire
+      // WebRTCSignalingEvent（通话页 page:245 订阅的类型），此前误发
+      // fireData（DataWrapperEvent）导致类型不匹配、信令进黑洞、主叫收不到
+      // answer → 无 remoteDescription → ICE 不启动 → relay permission=0。
+      AppEventBus.fire(WebRTCSignalingEvent(data: data));
     }
   }
 

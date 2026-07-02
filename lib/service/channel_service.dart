@@ -1,6 +1,4 @@
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'dart:convert';
-import 'package:imboy/service/websocket.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/events/common_events.dart'
@@ -19,7 +17,6 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:imboy/store/repository/channel_repo_sqlite.dart';
 import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// Channel 服务
 ///
@@ -183,52 +180,23 @@ class ChannelService {
     Map<String, dynamic>? payload,
   }) async {
     try {
-      // 迁移至 WebSocket v2 (C2CH)
-      final localId = -DateTime.now().millisecondsSinceEpoch;
-      final currentUid = int.tryParse(UserRepoLocal.to.currentUid) ?? 0;
-      final currentName = UserRepoLocal.to.currentUser?.nickname;
-      final currentAvatar = UserRepoLocal.to.currentUser?.avatar;
-
-      final msgData = {
-        'id': localId,
-        'channel_id': parseModelInt(channelId),
-        'author_id': currentUid,
-        'author_name': currentName,
-        'author_avatar': currentAvatar,
-        'content': content,
-        'msg_type': msgType,
-        'payload': payload,
-        'created_at': DateTime.now().millisecondsSinceEpoch,
-        'view_count': 0,
-        'is_pinned': false,
-      };
-
-      final pendingMsg = ChannelMessageModel.fromJson(msgData);
-
-      // 先落库本地（带负数ID表示等待服务端确认）
-      await _messageRepo.saveMessage(pendingMsg);
-
-      // 通过 WS 发送 C2CH 消息
-      final wsPayload = {
-        'id': localId.toString(),
-        'type': 'C2CH',
-        'to': channelId,
-        'payload': {
-          'msg_type': msgType,
-          'content': content,
-          ...(payload ?? {}),
-        },
-      };
-
-      WebSocketService.to.sendMessage(
-        jsonEncode(wsPayload),
-        localId.toString(),
+      final message = await _api.publishMessage(
+        channelId: channelId,
+        content: content,
+        msgType: msgType,
+        payload: payload,
       );
-
-      iPrint('ChannelService: 通过 WS 发送 C2CH 消息成功 - localId=$localId');
-      return pendingMsg;
+      if (message != null) {
+        try {
+          await _messageRepo.saveMessage(message);
+        } catch (e) {
+          // ponytail: API 成功为主；本地 FK 约束失败（channel 未缓存）只 log，不影响返回值
+          iPrint('ChannelService: 本地缓存频道消息失败（忽略）- $e');
+        }
+      }
+      return message;
     } catch (e) {
-      iPrint('ChannelService: 通过 WS 发送 C2CH 消息失败 - $e');
+      iPrint('ChannelService: 发布频道消息失败 - $e');
       return null;
     }
   }

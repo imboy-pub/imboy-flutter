@@ -5,7 +5,6 @@ import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/ui/numeric_keypad.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/api/group_api.dart';
-import 'package:imboy/i18n/strings.g.dart';
 
 part 'face_to_face_provider.g.dart';
 
@@ -101,15 +100,13 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
 
   /// 面对面建群
   Future<Map<String, dynamic>> faceToFace(String code) async {
-    // 获取位置
+    // 获取位置（失败时降级为 0.0, 0.0，不阻断流程）
     final hasLocation = await getLocation();
     if (!hasLocation) {
-      final error =
-          "${t.common.failedGetLatLong}，${t.common.notTurnedLocationService}，${t.main.or} ${t.common.notAuthorizedLatLong}";
-      return {'error': error};
+      state = state.copyWith(longitude: '0.0', latitude: '0.0');
     }
 
-    iPrint('[面对面建群] 开始请求, hasLocation=true');
+    iPrint('[面对面建群] 开始请求, hasLocation=$hasLocation');
 
     // 调用 API
     Map<String, dynamic> payload = await GroupApi().groupFace2face(
@@ -144,7 +141,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     iPrint('[面对面建群] 解析后成员数量: ${memberList2.length}');
 
     return {
-      'gid': payload['gid'] ?? '',
+      'gid': '${payload['gid'] ?? ''}',
       'memberList': memberList2,
       'error': '',
     };

@@ -42,7 +42,7 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
               Map<String, dynamic> res = await notifier.faceToFace(value);
               AppLoading.dismiss();
               notifier.updateErrorInfo(res['error'] as String? ?? '');
-              String gid = res['gid'] as String? ?? '';
+              String gid = '${res['gid'] ?? ''}';
               if (gid.isNotEmpty && context.mounted) {
                 context.push(
                   '/group/face_to_face_confirm',
@@ -80,10 +80,20 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    CupertinoIcons.group_solid,
-                    color: AppColors.getIosBlue(brightness),
-                    size: 32,
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: AppColors.getIosBlue(
+                        brightness,
+                      ).withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      CupertinoIcons.person_2_fill,
+                      color: AppColors.getIosBlue(brightness),
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: AppSpacing.regular),
                   Expanded(
