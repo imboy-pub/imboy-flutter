@@ -18,4 +18,5 @@ abstract interface class MediaPickerCapability {
   });
   Future<PickedMedia?> pickVideo(BuildContext context, {Duration? maxDuration});
   Future<PickedMedia?> pickSingle(BuildContext context, MediaType type);
+  Future<PickedMedia?> pickCamera(BuildContext context);
 }

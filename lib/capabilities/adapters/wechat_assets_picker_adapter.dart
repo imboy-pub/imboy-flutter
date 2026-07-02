@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
@@ -65,6 +66,13 @@ final class WechatAssetsPickerAdapter implements MediaPickerCapability {
       if (media != null) results.add(media);
     }
     return results;
+  }
+
+  @override
+  Future<PickedMedia?> pickCamera(BuildContext context) async {
+    final xfile = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (xfile == null) return null;
+    return PickedMedia(path: xfile.path, type: MediaType.image);
   }
 
   Future<PickedMedia?> _toPickedMedia(AssetEntity asset, MediaType type) async {

@@ -75,6 +75,7 @@ dependencies:
   # │ 📷 Media & Camera                                               │
   # └─────────────────────────────────────────────────────────────────┘
   wechat_assets_picker: ^10.1.1     # Asset picker for photos/videos (incl. camera)
+  image_picker: ^1.1.2               # Camera capture (pickImage source: camera)
   photo_view: ^0.15.0                # Interactive image viewer with zoom/pan
   photo_manager: ^3.9.0              # Media management (gallery access)
   video_compress: ^3.1.4             # Video compression before upload

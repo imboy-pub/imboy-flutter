@@ -384,7 +384,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           CupertinoActionSheetAction(
             onPressed: () async {
               Navigator.pop(context);
-              final file = await profileNotifier.pickImage(context);
+              final file = await profileNotifier.pickCamera(context);
               if (file != null) await profileNotifier.uploadAvatar(file);
             },
             child: Text(t.main.takePhoto),

@@ -318,6 +318,19 @@ class ProfileNotifier extends _$ProfileNotifier {
     return updateUserInfo(field, value);
   }
 
+  /// 相机拍照
+  Future<File?> pickCamera(BuildContext context) async {
+    try {
+      final media = await CapabilityLocator.I
+          .get<MediaPickerCapability>()
+          .pickCamera(context);
+      return media != null ? File(media.path) : null;
+    } catch (e) {
+      iPrint('拍照失败: ${e.runtimeType}');
+      return null;
+    }
+  }
+
   /// 选择图片
   Future<File?> pickImage(BuildContext context) async {
     try {
