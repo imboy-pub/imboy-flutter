@@ -85,6 +85,7 @@ class MentionNotifier extends Notifier<MentionState> {
         currentUid: currentUid,
       );
 
+      if (!ref.mounted) return;
       state = state.copyWith(
         candidates: ranked,
         currentUserRole: currentUserRole,
@@ -95,6 +96,7 @@ class MentionNotifier extends Notifier<MentionState> {
       );
     } on Exception catch (e) {
       iPrint('loadGroupMembers failed: ${e.runtimeType}');
+      if (!ref.mounted) return;
       state = state.copyWith(isLoading: false);
     }
   }

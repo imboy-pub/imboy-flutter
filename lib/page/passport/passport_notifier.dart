@@ -349,7 +349,7 @@ class PassportNotifier extends _$PassportNotifier {
   /// 处理登录结果状态（消除重复代码）
   String? _handleLoginStatus(int status) {
     if (status == 1) {
-      state = state.copyWith(error: '', loginPwd: '');
+      safeUpdateState((prev) => prev.copyWith(error: '', loginPwd: ''));
       return null;
     } else if (status == 2) {
       _showCancelLogoutDialog();

@@ -162,8 +162,13 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     _setupKeyboardListener();
 
     // 如果是群聊，加载群成员列表
+    // ProviderScope.containerOf 依赖 InheritedWidget 查找，initState 内部
+    // 尚未完成首次 build，需推迟到帧结束后再执行，否则触发
+    // "dependOnInheritedWidgetOfExactType called before initState completed"。
     if (widget.type == 'C2G') {
-      _loadGroupMembers();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadGroupMembers();
+      });
     }
   }
 
