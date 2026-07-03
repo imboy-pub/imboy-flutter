@@ -2,6 +2,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/group_member_columns.dart';
 import 'package:imboy/store/model/group_member_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
 class GroupMemberRepo {
@@ -175,21 +176,24 @@ class GroupMemberRepo {
     if (description != null) {
       data[GroupMemberRepo.description] = json[GroupMemberRepo.description];
     }
-    int? isJoin = json[GroupMemberRepo.isJoin] as int?;
+    // 服务端/WS 推送的 json 字段类型不保证（曾出现 bool 顶替 is_join 触发
+    // "type 'bool' is not a subtype of type 'int?'" 崩溃），一律走已有的
+    // 宽松解析器而非裸 `as int?` 强转。
+    int? isJoin = parseModelNullableInt(json[GroupMemberRepo.isJoin]);
     if (isJoin != null) {
-      data[GroupMemberRepo.isJoin] = json[GroupMemberRepo.isJoin];
+      data[GroupMemberRepo.isJoin] = isJoin;
     }
-    int? status = json[GroupMemberRepo.status] as int?;
+    int? status = parseModelNullableInt(json[GroupMemberRepo.status]);
     if (status != null) {
-      data[GroupMemberRepo.status] = json[GroupMemberRepo.status];
+      data[GroupMemberRepo.status] = status;
     }
 
-    int role = json[GroupMemberRepo.role] as int? ?? 0;
+    int role = parseModelInt(json[GroupMemberRepo.role]);
     if (role > 0) {
       data[GroupMemberRepo.role] = role;
     }
 
-    int updatedAt = json[GroupMemberRepo.updatedAt] as int? ?? 0;
+    int updatedAt = parseModelInt(json[GroupMemberRepo.updatedAt]);
     if (updatedAt > 0) {
       data[GroupMemberRepo.updatedAt] = updatedAt;
     }

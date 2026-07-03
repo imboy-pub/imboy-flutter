@@ -150,21 +150,24 @@ class ConversationRepo {
     //
     // 当调用方需要把"未读自增"与"消息插入"做成同一原子单元（避免重复投递时未读双计），
     // 应传 autoIncrement=false，并在确认消息是新行后再调用 incrementUnread()。
-    final unreadExpr = autoIncrement
-        ? '    ${ConversationRepo.unreadNum} = ${ConversationRepo.unreadNum} + ?, '
-              '    ${ConversationRepo.mentionUnread} = ${ConversationRepo.mentionUnread} + ? '
-        : '';
+    // 用列表拼接 SET 子句，避免 autoIncrement=false 时最后一项后遗留逗号
+    // （固定字符串拼接曾在 unreadExpr 为空时产出 "payload = ?, WHERE id = ?"
+    // 这种语法错误，见 imboyapp 真机日志 "near WHERE: syntax error"）。
+    final setClauses = <String>[
+      '${ConversationRepo.subtitle} = ?',
+      '${ConversationRepo.lastTime} = ?',
+      '${ConversationRepo.lastMsgId} = ?',
+      '${ConversationRepo.lastMsgStatus} = ?',
+      '${ConversationRepo.msgType} = ?',
+      '${ConversationRepo.isShow} = 1',
+      '${ConversationRepo.payload} = ?',
+      if (autoIncrement) ...[
+        '${ConversationRepo.unreadNum} = ${ConversationRepo.unreadNum} + ?',
+        '${ConversationRepo.mentionUnread} = ${ConversationRepo.mentionUnread} + ?',
+      ],
+    ];
     final sql =
-        'UPDATE ${ConversationRepo.tableName} '
-        'SET ${ConversationRepo.subtitle} = ?, '
-        '    ${ConversationRepo.lastTime} = ?, '
-        '    ${ConversationRepo.lastMsgId} = ?, '
-        '    ${ConversationRepo.lastMsgStatus} = ?, '
-        '    ${ConversationRepo.msgType} = ?, '
-        '    ${ConversationRepo.isShow} = 1, '
-        '    ${ConversationRepo.payload} = ?, '
-        '$unreadExpr'
-        'WHERE id = ?';
+        'UPDATE ${ConversationRepo.tableName} SET ${setClauses.join(', ')} WHERE id = ?';
     final args = <dynamic>[
       obj.subtitle,
       obj.lastTime,
