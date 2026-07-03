@@ -252,6 +252,7 @@ class WebStorageStub {
     try {
       return _storage.getItem(key);
     } catch (e) {
+      iPrint('WebStorageStub.getItem($key) failed: $e');
       return null;
     }
   }
@@ -260,7 +261,7 @@ class WebStorageStub {
     try {
       _storage.setItem(key, value);
     } catch (e) {
-      // 忽略存储错误
+      iPrint('WebStorageStub.setItem($key) failed: $e');
     }
   }
 
@@ -268,7 +269,7 @@ class WebStorageStub {
     try {
       _storage.removeItem(key);
     } catch (e) {
-      // 忽略错误
+      iPrint('WebStorageStub.removeItem($key) failed: $e');
     }
   }
 
@@ -276,7 +277,7 @@ class WebStorageStub {
     try {
       _storage.clear();
     } catch (e) {
-      // 忽略错误
+      iPrint('WebStorageStub.clear() failed: $e');
     }
   }
 }

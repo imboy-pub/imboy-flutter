@@ -148,7 +148,7 @@ class PersistentMessageQueue {
 
     final msg = QueuedMessage(id: id, data: data, priority: priority);
 
-    _priorityQueues[priority]!.addLast(msg);
+    _priorityQueues[priority.clamp(0, 2)]!.addLast(msg);
     _deduplicationSet.add(id);
     _save();
 
@@ -193,7 +193,7 @@ class PersistentMessageQueue {
           priority: newPriority,
           createdAt: msg.createdAt,
         );
-        _priorityQueues[newPriority]!.addLast(updatedMsg);
+        _priorityQueues[newPriority.clamp(0, 2)]!.addLast(updatedMsg);
         _save();
         iPrint('🔄 [QUEUE] 更新优先级: $id, $p -> $newPriority');
         return;

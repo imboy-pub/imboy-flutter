@@ -382,6 +382,7 @@ class E2EEShardMessageHandler {
 
       return decryptedShard;
     } catch (e) {
+      AppLogger.warning('[E2EE_SHARD] decrypt failed', e);
       return null;
     }
   }
@@ -450,6 +451,7 @@ class E2EEShardMessageHandler {
 
       return result;
     } catch (e) {
+      AppLogger.warning('[E2EE_SHARD] requestDecryptedShard failed', e);
       _decryptRequests.remove(shardId);
       return null;
     }
