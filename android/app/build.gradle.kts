@@ -75,14 +75,21 @@ android {
         }
     }
 
-    // 解决高德地图 SDK 重复类问题
+    // 解决高德地图 SDK 重复类问题，剔除 BouncyCastle 等依赖的签名文件防止 SecurityException
     packaging {
         jniLibs {
             pickFirsts.add("**/lib*.so")
         }
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            pickFirsts.add("META-INF/*")
+            excludes += "META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/*.SF"
+            excludes += "META-INF/*.DSA"
+            excludes += "META-INF/*.RSA"
+            excludes += "META-INF/*.EC"
+            excludes += "META-INF/NOTICE"
+            excludes += "META-INF/NOTICE.txt"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/LICENSE.txt"
         }
     }
 
