@@ -252,8 +252,6 @@ class API {
   static const e2eeTransferAccept = '/api/v1/e2ee/transfer/accept';
   static const e2eeTransferConfirm = '/api/v1/e2ee/transfer/confirm';
   static const e2eeTransferPending = '/api/v1/e2ee/transfer/pending';
-  static const e2eeBackupList = '/api/v1/e2ee/backup/list';
-  static const e2eeBackupDelete = '/api/v1/e2ee/backup/delete';
 
   // 推送通知
   static const pushRegister = '/api/v1/push/register';

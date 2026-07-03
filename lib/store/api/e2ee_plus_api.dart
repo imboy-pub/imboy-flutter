@@ -335,41 +335,4 @@ class E2EEPlusApi extends HttpClient {
     }
     return resp.payload as Map<String, dynamic>;
   }
-
-  // ================================================================
-  // 本地备份 API
-  // ================================================================
-
-  /// 获取当前用户的备份历史列表
-  ///
-  /// GET /api/v1/e2ee/backup/list
-  ///
-  /// 返回:
-  /// - list: 备份记录列表，每条包含 id, device_id, backup_version, key_checksum, file_size, user_notes, created_at
-  Future<List<Map<String, dynamic>>> listBackups() async {
-    IMBoyHttpResponse resp = await get(API.e2eeBackupList);
-    if (!resp.ok) return [];
-    final payload = resp.payload;
-    final list = payload['list'];
-    if (list is List) {
-      return list.map((e) => (e as Map).cast<String, dynamic>()).toList();
-    }
-    return [];
-  }
-
-  /// 删除备份记录
-  ///
-  /// POST /api/v1/e2ee/backup/delete
-  ///
-  /// 请求参数:
-  /// - backup_id: 备份 ID
-  ///
-  /// 返回 true 表示删除成功
-  Future<bool> deleteBackup(int backupId) async {
-    IMBoyHttpResponse resp = await post(
-      API.e2eeBackupDelete,
-      data: {'backup_id': backupId},
-    );
-    return resp.ok;
-  }
 }

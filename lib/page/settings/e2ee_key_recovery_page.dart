@@ -5,7 +5,6 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_export_page.dart';
 import 'package:imboy/page/settings/e2ee_backup_import_page.dart';
-import 'package:imboy/page/settings/e2ee_backup_manage_page.dart';
 import 'package:imboy/page/settings/e2ee_transfer_page.dart';
 import 'package:imboy/page/settings/e2ee_social_page.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
@@ -640,20 +639,6 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   context,
                   CupertinoPageRoute<dynamic>(
                     builder: (_) => const E2EEBackupImportPage(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.folder),
-              title: Text(t.common.e2eeBackupManage),
-              subtitle: Text(t.common.e2eeBackupManageDesc),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute<dynamic>(
-                    builder: (_) => const E2EEBackupManagePage(),
                   ),
                 );
               },

@@ -14,7 +14,6 @@ export '../../page/settings/e2ee_transfer_receive_page.dart';
 export '../../page/settings/e2ee_transfer_send_page.dart';
 export '../../page/settings/e2ee_backup_export_page.dart';
 export '../../page/settings/e2ee_backup_import_page.dart';
-export '../../page/settings/e2ee_backup_manage_page.dart';
 export '../../service/e2ee/e2ee_social_handler.dart';
 export '../../service/e2ee_local_backup_service.dart';
 export '../../service/e2ee/e2ee_transfer_handler.dart';
