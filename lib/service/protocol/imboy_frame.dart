@@ -196,6 +196,13 @@ class ImboyFrame {
     final flags = bd.getUint8(3);
     final type = bd.getUint8(4);
     final len = bd.getUint32(5, Endian.big);
+    // 版本守护断言（与后端 imboy_frame.erl / SDK imboy-frame.ts 对齐，
+    // 2026-07-02 起三端一致）：拒收 Ver≠2，防止未来 v3 帧被按 v2 语义
+    // 误解析。版本协商仍走 WebSocket 子协议字符串，帧内版本号只做
+    // 一致性校验。
+    if (ver != currentVersion) {
+      throw FormatException('unsupported version: $ver');
+    }
     if (len > maxPayload) {
       throw FormatException('frame too large: $len');
     }

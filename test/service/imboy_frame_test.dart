@@ -115,6 +115,11 @@ void main() {
       expect(() => ImboyFrame.tryDecode(buf), throwsA(isA<FormatException>()));
     });
 
+    test('unsupported version 抛异常（与后端 T14 拒收 Ver≠2 对齐）', () {
+      final buf = Uint8List.fromList([0x49, 0x42, 3, 0, 1, 0, 0, 0, 0]);
+      expect(() => ImboyFrame.tryDecode(buf), throwsA(isA<FormatException>()));
+    });
+
     test('frame too large 抛异常', () {
       final buf = Uint8List.fromList([
         0x49, 0x42, 2, 0, 0x20,
