@@ -650,7 +650,18 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           iPrint('> ws: v2 未知 frame type=0x${frame.type.toRadixString(16)}');
       }
     } on FormatException catch (e) {
-      iPrint('> ws: v2 帧解析失败（格式错误），忽略: $e');
+      // ponytail: 临时诊断日志，用于和服务端时间戳/字节比对 bad_magic 根因
+      // （见 imboy 后端 memory: WS 协议排障），确认根因后可删除。
+      final dumpLen = bytes.length < 32 ? bytes.length : 32;
+      final hex = bytes
+          .sublist(0, dumpLen)
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join(' ');
+      iPrint(
+        '> ws: v2 帧解析失败（格式错误），忽略: $e; '
+        'ts=${DateTime.now().millisecondsSinceEpoch}, '
+        'totalLen=${bytes.length}, first${dumpLen}Bytes=[$hex]',
+      );
     } catch (e, s) {
       iPrint('> ws: v2 帧处理异常: $e\n$s');
     }
