@@ -1,0 +1,50 @@
+appId: ${APP_ID}
+name: "发朋友圈"
+---
+# 回到桌面（关闭任何华为弹窗），再点图标启动
+- pressKey: HOME
+- waitForAnimationToEnd
+- tapOn:
+    text: "IMBoy"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+
+# 关闭 Maestro driver 安装成功对话框（Huawei 安全弹窗残留）
+- runFlow:
+    when:
+      visible:
+        id: "done_button"
+    commands:
+      - tapOn:
+          id: "done_button"
+      - waitForAnimationToEnd
+- tapOn:
+    id: "tab_contacts"
+- waitForAnimationToEnd
+- tapOn:
+    text: "朋友圈"
+- waitForAnimationToEnd
+- takeScreenshot: moments_feed
+
+# 点击右上角创建按钮（相机/撰写图标）
+- tapOn:
+    text: "发布"
+    optional: true
+- runFlow:
+    when:
+      notVisible:
+        text: "说点什么"
+    commands:
+      - tapOn:
+          point: "95%, 8%"
+
+- waitForAnimationToEnd
+- tapOn:
+    text: "说点什么"
+    optional: true
+- inputText: "Maestro 自动化测试朋友圈 [请忽略]"
+- tapOn:
+    text: "发布"
+- waitForAnimationToEnd
+- takeScreenshot: moments_posted

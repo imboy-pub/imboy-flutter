@@ -1,0 +1,60 @@
+appId: ${APP_ID}
+name: "发频道消息 + 管理频道"
+---
+# 回到桌面（关闭任何华为弹窗），再点图标启动
+- pressKey: HOME
+- waitForAnimationToEnd
+- tapOn:
+    text: "IMBoy"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+
+# 关闭 Maestro driver 安装成功对话框（Huawei 安全弹窗残留）
+- runFlow:
+    when:
+      visible:
+        id: "done_button"
+    commands:
+      - tapOn:
+          id: "done_button"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible:
+        id: "tab_channel"
+    commands:
+      - tapOn:
+          id: "tab_channel"
+      - waitForAnimationToEnd
+      - takeScreenshot: channel_list
+
+      # 进入第一个频道
+      - tapOn:
+          index: 0
+          id: ".*"
+      - waitForAnimationToEnd
+      - takeScreenshot: channel_inner
+
+      # 发消息
+      - runFlow:
+          when:
+            visible:
+              id: "chat_message_input"
+          commands:
+            - tapOn:
+                id: "chat_message_input"
+            - inputText: "频道测试消息 [Maestro]"
+            - tapOn:
+                id: "send_button"
+            - waitForAnimationToEnd
+            - takeScreenshot: channel_post_sent
+
+      # 管理：进入频道设置（右上角）
+      - tapOn:
+          point: "95%, 8%"
+          optional: true
+      - waitForAnimationToEnd
+      - takeScreenshot: channel_settings
+      - pressKey: BACK

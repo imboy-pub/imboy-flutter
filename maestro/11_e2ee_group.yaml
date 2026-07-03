@@ -1,0 +1,67 @@
+appId: ${APP_ID}
+name: "E2EE 群聊 — 进入群会话发消息"
+---
+# 回到桌面（关闭任何华为弹窗），再点图标启动
+- pressKey: HOME
+- waitForAnimationToEnd
+- tapOn:
+    text: "IMBoy"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+
+# 关闭 Maestro driver 安装成功对话框（Huawei 安全弹窗残留）
+- runFlow:
+    when:
+      visible:
+        id: "done_button"
+    commands:
+      - tapOn:
+          id: "done_button"
+      - waitForAnimationToEnd
+- tapOn:
+    id: "tab_conversations"
+- takeScreenshot: group_conv_list
+
+# 搜索群聊（用前缀 "群" 或中文）
+- runFlow:
+    when:
+      visible:
+        id: "conversation_search_input"
+    commands:
+      - tapOn:
+          id: "conversation_search_input"
+      - inputText: "群"
+      - waitForAnimationToEnd
+      - takeScreenshot: group_search_result
+
+# 若有群会话则进入第一个
+- runFlow:
+    when:
+      visible:
+        id: "conversation_search_input"
+    commands:
+      - tapOn:
+          index: 0
+          id: ".*"
+      - eraseText: 5
+      - hideKeyboard
+
+- runFlow:
+    when:
+      visible:
+        id: "chat_message_input"
+    commands:
+      - tapOn:
+          id: "chat_message_input"
+      - inputText: "E2EE 群聊测试 [Maestro]"
+      - tapOn:
+          id: "send_button"
+      - waitForAnimationToEnd
+      - takeScreenshot: e2ee_group_sent
+      - runFlow:
+          when:
+            visible:
+              id: "_e2ee"
+          commands:
+            - takeScreenshot: e2ee_group_encrypted

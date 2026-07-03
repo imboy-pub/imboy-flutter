@@ -1,0 +1,68 @@
+appId: ${APP_ID}
+name: "E2EE 单聊 — 发消息验证加密标记"
+---
+# 回到桌面（关闭任何华为弹窗），再点图标启动
+- pressKey: HOME
+- waitForAnimationToEnd
+- tapOn:
+    text: "IMBoy"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+
+# 关闭 Maestro driver 安装成功对话框（Huawei 安全弹窗残留）
+- runFlow:
+    when:
+      visible:
+        id: "done_button"
+    commands:
+      - tapOn:
+          id: "done_button"
+      - waitForAnimationToEnd
+- tapOn:
+    id: "tab_conversations"
+
+# 打开与好友的会话（找第一个或按关键字）
+- runFlow:
+    when:
+      visible:
+        id: "conversation_search_input"
+    commands:
+      - tapOn:
+          id: "conversation_search_input"
+      - inputText: "${FRIEND_ACCOUNT}"
+      - waitForAnimationToEnd
+      - tapOn:
+          index: 0
+          id: ".*"
+      - eraseText: 20
+      - hideKeyboard
+
+- runFlow:
+    when:
+      notVisible:
+        id: "chat_message_input"
+    commands:
+      - tapOn:
+          index: 0
+          id: ".*"
+
+- assertVisible:
+    id: "chat_message_input"
+- takeScreenshot: e2ee_c2c_opened
+
+- tapOn:
+    id: "chat_message_input"
+- inputText: "E2EE 单聊测试 [Maestro] ${RANDOM}"
+- tapOn:
+    id: "send_button"
+- waitForAnimationToEnd
+- takeScreenshot: e2ee_c2c_sent
+
+# 验证：若后端 E2EE 策略为 required，消息会带 _e2ee 标记
+- runFlow:
+    when:
+      visible:
+        id: "_e2ee"
+    commands:
+      - takeScreenshot: e2ee_c2c_encrypted

@@ -1,32 +1,61 @@
 appId: ${APP_ID}
 name: "登录流程"
 ---
-- stopApp
-- clearState
-- launchApp
+# 回到桌面（关闭任何华为弹窗），再点图标启动
+- pressKey: HOME
+- waitForAnimationToEnd
+- tapOn:
+    text: "IMBoy"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
 
-# 如已在主界面，跳过登录
+# 关闭 Maestro driver 安装成功对话框（Huawei 安全弹窗残留）
 - runFlow:
     when:
-      notVisible:
+      visible:
+        id: "done_button"
+    commands:
+      - tapOn:
+          id: "done_button"
+      - waitForAnimationToEnd
+
+# 欢迎页：点"跳过"进入登录页
+- runFlow:
+    when:
+      visible:
+        text: "跳过"
+    commands:
+      - tapOn:
+          text: "跳过"
+      - waitForAnimationToEnd
+
+# 已登录：直接截图确认
+- runFlow:
+    when:
+      visible:
+        id: "tab_conversations"
+    commands:
+      - takeScreenshot: already_logged_in
+
+# 未登录：执行登录流程
+- runFlow:
+    when:
+      visible:
         id: "login_phone_input"
     commands:
-      - assertVisible:
-          id: "tab_conversations"
-
-- tapOn:
-    id: "login_phone_input"
-- eraseText: 30
-- inputText: "${PHONE}"
-
-- tapOn:
-    id: "login_password_input"
-- eraseText: 30
-- inputText: "${PASSWORD}"
-- hideKeyboard
-
-- tapOn:
-    id: "login_submit_button"
+      - tapOn:
+          id: "login_phone_input"
+      - eraseText: 30
+      - inputText: "${PHONE}"
+      - tapOn:
+          id: "login_password_input"
+      - eraseText: 30
+      - inputText: "${PASSWORD}"
+      - hideKeyboard
+      - tapOn:
+          id: "login_submit_button"
+      - waitForAnimationToEnd
 
 - assertVisible:
     id: "tab_conversations"

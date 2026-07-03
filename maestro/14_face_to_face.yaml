@@ -1,0 +1,57 @@
+appId: ${APP_ID}
+name: "面对面添加好友 (建群入口)"
+---
+# 回到桌面（关闭任何华为弹窗），再点图标启动
+- pressKey: HOME
+- waitForAnimationToEnd
+- tapOn:
+    text: "IMBoy"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+
+# 关闭 Maestro driver 安装成功对话框（Huawei 安全弹窗残留）
+- runFlow:
+    when:
+      visible:
+        id: "done_button"
+    commands:
+      - tapOn:
+          id: "done_button"
+      - waitForAnimationToEnd
+- tapOn:
+    id: "tab_contacts"
+- waitForAnimationToEnd
+
+# 点击添加好友按钮
+- runFlow:
+    when:
+      visible:
+        id: "add_friend_button"
+    commands:
+      - tapOn:
+          id: "add_friend_button"
+      - waitForAnimationToEnd
+      - takeScreenshot: add_friend_page
+
+      # 面对面建群
+      - tapOn:
+          text: "面对面建群"
+      - waitForAnimationToEnd
+      - takeScreenshot: face_to_face_page
+      - pressKey: BACK
+
+      # 扫二维码
+      - tapOn:
+          id: "add_friend_button"
+      - waitForAnimationToEnd
+      - tapOn:
+          text: "扫一扫"
+          optional: true
+      - runFlow:
+          when:
+            visible:
+              text: "扫一扫"
+          commands:
+            - takeScreenshot: qr_scanner
+            - pressKey: BACK

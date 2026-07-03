@@ -1,2 +1,3 @@
 flows:
   - "0*.yaml"
+  - "1*.yaml"
