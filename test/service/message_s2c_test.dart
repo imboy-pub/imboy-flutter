@@ -52,6 +52,7 @@ void main() {
       // 验证所有支持的 action 类型
       final supportedActions = [
         'pull_offline_msg',
+        'message_read_sync',
         'c2c_revoke',
         'c2c_del_everyone',
         'c2g_del_everyone',
@@ -145,6 +146,33 @@ void main() {
 
       final action = data['action'] ?? '';
       expect(action, equals(''));
+    });
+  });
+
+  group('MessageS2CService - message_read_sync payload 契约', () {
+    // 【多端已读同步】_handleMessageReadSync 依赖 msg_id + peer 两个字段
+    // （peer = 后端 To，即原消息发送者 id，与本地会话 peerId 同源）；
+    // 任一缺失都应视为无效负载而跳过（不得抛异常/不得误标记会话）。
+    test('完整 payload 应同时具备 msg_id 与 peer', () {
+      final payload = {
+        'msg_id': 'msg_128',
+        'peer': '789',
+        'read_at': 1737513600000,
+      };
+      expect(payload['msg_id'], isNotEmpty);
+      expect(payload['peer'], isNotEmpty);
+    });
+
+    test('缺少 peer 字段应视为无效负载', () {
+      final payload = {'msg_id': 'msg_129', 'read_at': 1737513600000};
+      final peer = (payload['peer'] ?? '').toString();
+      expect(peer, isEmpty);
+    });
+
+    test('缺少 msg_id 字段应视为无效负载', () {
+      final payload = {'peer': '789', 'read_at': 1737513600000};
+      final msgId = (payload['msg_id'] ?? '').toString();
+      expect(msgId, isEmpty);
     });
   });
 

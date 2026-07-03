@@ -9,11 +9,12 @@ import 'package:imboy/service/websocket_events.dart';
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/page/group/group_list/group_list_service.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_provider.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/modules/channel_content/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/events/message_events.dart';
-import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -389,19 +390,26 @@ class MessageS2CService {
     Map<String, dynamic> payload,
   ) async {
     final syncMsgId = parseModelString(payload['msg_id']);
-    if (syncMsgId.isEmpty) {
+    // peer = 后端 To（原消息发送者的编码 id），与本地会话表的 peerId 同源
+    final peer = parseModelString(payload['peer']);
+    if (syncMsgId.isEmpty || peer.isEmpty) {
       return;
     }
-    iPrint('message_read_sync 同步其他设备已读 msgId=$syncMsgId');
-    AppEventBus.fire(
-      MessageStatusUpdateRequestedEvent(
-        messageId: syncMsgId,
-        messageType: 'C2C',
-        newStatus: IMBoyMessageStatus.seen,
-      ),
-    );
-    // 会话未读徽章的精确递减依赖消息状态变化后的既有渐进消除机制；
-    // 若真机回归发现徽章残留，需在 conversation provider 增加对该事件的联动
+    iPrint('message_read_sync 同步其他设备已读 msgId=$syncMsgId peer=$peer');
+    // 复用 chatProvider.markAsRead 而非只发 MessageStatusUpdateRequestedEvent：
+    // 后者只更新消息行状态，不递减会话未读数（unreadNum），会导致本设备
+    // 消息已读但未读徽章残留。syncToServer=false 避免再次上报已读回执，
+    // 否则会与服务端 message_read_sync 推送形成 ACK/回执循环。
+    try {
+      await _container.read(chatProvider.notifier).markAsRead(
+        MessageFlowType.c2c,
+        peer,
+        [syncMsgId],
+        syncToServer: false,
+      );
+    } on Object catch (e) {
+      iPrint('❌ [message_read_sync] markAsRead 失败: $e');
+    }
   }
 
   /// 处理 C2C 消息撤回
