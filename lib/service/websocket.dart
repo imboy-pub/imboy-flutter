@@ -650,21 +650,37 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           iPrint('> ws: v2 未知 frame type=0x${frame.type.toRadixString(16)}');
       }
     } on FormatException catch (e) {
-      // ponytail: 临时诊断日志，用于和服务端时间戳/字节比对 bad_magic 根因
-      // （见 imboy 后端 memory: WS 协议排障），确认根因后可删除。
-      final dumpLen = bytes.length < 32 ? bytes.length : 32;
-      final hex = bytes
-          .sublist(0, dumpLen)
-          .map((b) => b.toRadixString(16).padLeft(2, '0'))
-          .join(' ');
-      iPrint(
-        '> ws: v2 帧解析失败（格式错误），忽略: $e; '
-        'ts=${DateTime.now().millisecondsSinceEpoch}, '
-        'totalLen=${bytes.length}, first${dumpLen}Bytes=[$hex]',
-      );
+      // 服务端在 v2 连接上偶发以「裸 protobuf / JSON」旁路投递业务消息
+      // （无 IB 帧头，根因见后端 user_server:online → encode_delivery_frame
+      // 命中 {protobuf,_} 分支，State.framing 非 v2）。此处不丢弃，退回按
+      // 无封包的业务 payload 解析——与下方 msgC2C/S2C 分支同款逻辑，下游
+      // contentHash 去重保证重复投递安全。
+      if (_tryDecodeUnframedPayload(bytes)) return;
+      iPrint('> ws: v2 帧解析失败（格式错误且非 protobuf/JSON），忽略: $e');
     } catch (e, s) {
       iPrint('> ws: v2 帧处理异常: $e\n$s');
     }
+  }
+
+  /// 尝试把「无 v2 帧头」的字节按裸 protobuf / JSON 业务消息解析并分发。
+  /// 成功返回 true（已交给 _onMessage 走正常 S2C/C2C 管道），否则 false。
+  bool _tryDecodeUnframedPayload(Uint8List bytes) {
+    try {
+      final pbMap = ImboyPbCodec.tryDecode(bytes);
+      if (pbMap != null) {
+        _onMessage(jsonEncode(pbMap));
+        return true;
+      }
+      final text = utf8.decode(bytes, allowMalformed: false);
+      final trimmed = text.trimLeft();
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        _onMessage(text);
+        return true;
+      }
+    } on FormatException {
+      // 非合法 UTF-8/JSON，落到调用方的忽略分支
+    }
+    return false;
   }
 
   /// 处理接收到的消息（优化版：非阻塞立即分发）
