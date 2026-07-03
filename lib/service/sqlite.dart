@@ -301,7 +301,10 @@ class SqliteService {
     // 【审计修复 F-01/H1】busy_timeout：拿不到写锁时最多等待 5s 而非立刻抛
     // SQLITE_BUSY。配合 _dbLock 串行化与 query 的 locked 重试，避免并发 S2C
     // 包写同一会话时出现 "database is locked" 异常冒泡到 save()。
-    await db.execute('PRAGMA busy_timeout = 5000');
+    // 注意：PRAGMA busy_timeout 会返回当前值（一行），必须用 rawQuery 而非 execute，
+    // 否则 Android SQLCipher 在 WAL 模式下抛 "Queries can be performed using
+    // SQLiteDatabase query or rawQuery methods only."
+    await db.rawQuery('PRAGMA busy_timeout = 5000');
   }
 
   ///
