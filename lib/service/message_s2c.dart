@@ -13,6 +13,7 @@ import 'package:imboy/modules/channel_content/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/events/message_events.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -182,6 +183,9 @@ class MessageS2CService {
       switch (actionLower) {
         case 'pull_offline_msg':
           await _handlePullOfflineMsg(data, payloadMap);
+          break;
+        case 'message_read_sync':
+          await _handleMessageReadSync(payloadMap);
           break;
         case 'c2c_revoke':
           await _handleC2CRevoke(
@@ -372,6 +376,32 @@ class MessageS2CService {
     AppEventBus.fire(
       OfflineMessagesPullRequestedEvent(source: 'S2C', reason: '服务端通知拉取离线消息'),
     );
+  }
+
+  /// 处理已读状态同步（自己其他设备已读了某条 C2C 消息）
+  ///
+  /// Action: message_read_sync（ws-protocol-contract.md §9，2026-07-02 新增）
+  /// 触发时机：本账号任一设备发送已读回执并落库后，服务端推送给阅读者本人
+  /// payload: { msg_id, peer, read_at }
+  /// 处理逻辑：复用消息状态事件把该消息标记为 seen（DB 与 UI 由既有监听者处理）；
+  /// 本设备若正是阅读设备，消息已是 seen，事件幂等无副作用。
+  static Future<void> _handleMessageReadSync(
+    Map<String, dynamic> payload,
+  ) async {
+    final syncMsgId = parseModelString(payload['msg_id']);
+    if (syncMsgId.isEmpty) {
+      return;
+    }
+    iPrint('message_read_sync 同步其他设备已读 msgId=$syncMsgId');
+    AppEventBus.fire(
+      MessageStatusUpdateRequestedEvent(
+        messageId: syncMsgId,
+        messageType: 'C2C',
+        newStatus: IMBoyMessageStatus.seen,
+      ),
+    );
+    // 会话未读徽章的精确递减依赖消息状态变化后的既有渐进消除机制；
+    // 若真机回归发现徽章残留，需在 conversation provider 增加对该事件的联动
   }
 
   /// 处理 C2C 消息撤回

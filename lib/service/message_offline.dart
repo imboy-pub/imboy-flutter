@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -249,6 +250,11 @@ class MessageOfflineService {
 
         // 调用 /msg/offline 接口，携带游标参数实现增量拉取（D4 修复）
         final queryParams = <String, dynamic>{};
+        // 按设备送达（服务端 msg_delivery，ws-protocol-contract.md §9）：
+        // 携带 did 时 C2C/S2C 只返回本设备尚未确认的消息；与 CLIENT_ACK 的 did 同源
+        if (deviceId.isNotEmpty) {
+          queryParams['did'] = deviceId;
+        }
         if (localC2cLastMsgAt > 0) {
           queryParams['c2c_last_msg_at'] = localC2cLastMsgAt;
         }
@@ -509,7 +515,13 @@ class MessageOfflineService {
     try {
       final resp = await HttpClient.client.post(
         API.msgOfflineAck,
-        data: {'type': type, 'msg_ids': msgIds},
+        // 带 did 走服务端按设备送达标记（不再按 uid 删行），
+        // 修复双端登录时一端确认导致另一离线端永久丢消息
+        data: {
+          'type': type,
+          'msg_ids': msgIds,
+          if (deviceId.isNotEmpty) 'did': deviceId,
+        },
       );
       if (resp.code != 0) {
         iPrint('发送离线消息确认失败: ${resp.msg}');
