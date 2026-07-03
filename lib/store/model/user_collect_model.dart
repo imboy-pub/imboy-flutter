@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
@@ -33,25 +31,17 @@ class UserCollectModel {
   });
 
   factory UserCollectModel.fromJson(Map<String, dynamic> data) {
-    var info1 = data['info'] ?? <String, dynamic>{};
-    try {
-      if (info1 is String) {
-        info1 = json.decode(info1);
-      }
-    } catch (e) {
-      info1 = <String, dynamic>{};
-    }
-
     return UserCollectModel(
       userId: parseModelInt(data['user_id']),
       kind: parseModelInt(data['kind']),
       kindId: parseModelInt(data['kind_id']),
-      source: (data['source'] ?? '').toString(),
-      remark: (data['remark'] ?? '') as String,
-      tag: (data['tag'] ?? '') as String,
+      source: parseModelString(data['source']),
+      remark: parseModelString(data['remark']),
+      tag: parseModelString(data['tag']),
       updatedAt: DateTimeHelper.parseTimestamp(data['updated_at']),
       createdAt: DateTimeHelper.parseTimestamp(data['created_at']),
-      info: Map<String, dynamic>.from(info1 as Map<dynamic, dynamic>),
+      // parseModelJsonMap 容忍 String/Map/null，避免手写 json.decode 的静默 catch
+      info: parseModelJsonMap(data['info']) ?? <String, dynamic>{},
     );
   }
 

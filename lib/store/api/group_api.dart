@@ -132,7 +132,7 @@ class GroupApi extends HttpClient {
     if (resp.code == ErrorCode.ERROR) {
       AppLoading.showError(resp.msg);
     }
-    return resp.ok ? resp.payload['tagId'] as int : 0;
+    return resp.ok ? ((resp.payload['tagId'] as num?)?.toInt() ?? 0) : 0;
   }
 
   Future<Map<String, dynamic>?> pageRelation({
