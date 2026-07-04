@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -69,8 +72,23 @@ final class WechatAssetsPickerAdapter implements MediaPickerCapability {
   }
 
   @override
-  Future<PickedMedia?> pickCamera(BuildContext context) async {
-    final xfile = await ImagePicker().pickImage(source: ImageSource.camera);
+  Future<PickedMedia?> pickCamera(
+    BuildContext context, {
+    bool enableRecording = false,
+  }) async {
+    // ponytail: pickVideo/pickImage 分支即可覆盖拍照+录像，无需额外 SDK
+    // 桌面平台(macOS/Windows/Linux)无相机捕获委托，ImageSource.camera 会抛 StateError，降级为文件选择
+    final source =
+        (!kIsWeb &&
+            (Platform.isMacOS || Platform.isWindows || Platform.isLinux))
+        ? ImageSource.gallery
+        : ImageSource.camera;
+    if (enableRecording) {
+      final xfile = await ImagePicker().pickVideo(source: source);
+      if (xfile == null) return null;
+      return PickedMedia(path: xfile.path, type: MediaType.video);
+    }
+    final xfile = await ImagePicker().pickImage(source: source);
     if (xfile == null) return null;
     return PickedMedia(path: xfile.path, type: MediaType.image);
   }
