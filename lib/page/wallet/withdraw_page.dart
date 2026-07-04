@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
+import 'package:imboy/page/wallet/widget/wallet_form.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -67,40 +68,24 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
     final walletState = ref.watch(walletProvider);
     final balanceYuan = walletState.balance / 100.0;
     final brightness = Theme.of(context).brightness;
-    final isDark = brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.common.withdraw), elevation: 0),
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
+      appBar: AppBar(title: Text(t.common.withdraw)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.xLarge,
-        ),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 余额展示卡片
               Container(
                 width: double.infinity,
-                padding: AppSpacing.allXLarge,
+                padding: AppSpacing.allLarge,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: isDark
-                        ? [
-                            AppColors.darkSurfaceGrouped,
-                            AppColors.darkSurfaceGrouped,
-                          ]
-                        : [
-                            AppColors.lightSurfaceGrouped,
-                            AppColors.lightSurfaceGrouped,
-                          ],
-                  ),
-                  borderRadius: AppRadius.borderRadiusLarge,
-                  border: Border.all(
-                    color: AppColors.getIosSeparator(brightness),
-                  ),
+                  color: AppColors.getSurfaceColor(brightness),
+                  borderRadius: AppRadius.borderRadiusMedium,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +93,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                     Text(
                       t.common.smallChange,
                       style: context.textStyle(
-                        FontSizeType.normal,
+                        FontSizeType.footnote,
                         color: AppColors.getTextColor(
                           brightness,
                           isSecondary: true,
@@ -126,17 +111,43 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   ],
                 ),
               ),
-              AppSpacing.verticalXXLarge,
+              AppSpacing.verticalRegular,
+
+              // 提现金额（hero）
+              WalletAmountField(
+                controller: _amountController,
+                label: t.common.withdrawAmountLabel,
+                accent: AppColors.primary,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return t.common.withdrawAmountError;
+                  }
+                  final amount = double.tryParse(value);
+                  if (amount == null || amount < 1.0) {
+                    return t.common.withdrawAmountError;
+                  }
+                  return null;
+                },
+              ),
+              AppSpacing.verticalRegular,
 
               // 提现渠道选择
-              Text(
-                t.common.withdrawMethod,
-                style: context.textStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.tiny,
+                ),
+                child: Text(
+                  t.common.withdrawMethod,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: AppColors.getTextColor(
+                      brightness,
+                      isSecondary: true,
+                    ),
+                  ),
                 ),
               ),
-              AppSpacing.verticalMedium,
+              AppSpacing.verticalSmall,
               Row(
                 children: [
                   Expanded(
@@ -146,11 +157,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                         children: [
                           const Icon(Icons.payment, size: 20),
                           AppSpacing.horizontalSmall,
-                          Text(
-                            t.common.withdrawMethod.contains('Method')
-                                ? 'Alipay'
-                                : '支付宝',
-                          ),
+                          Text(t.common.withdrawAlipay),
                         ],
                       ),
                       selected: _selectedMethod == 'alipay',
@@ -169,11 +176,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                         children: [
                           const Icon(Icons.chat_bubble_outline, size: 20),
                           AppSpacing.horizontalSmall,
-                          Text(
-                            t.common.withdrawMethod.contains('Method')
-                                ? 'WeChat'
-                                : '微信',
-                          ),
+                          Text(t.common.withdrawWechat),
                         ],
                       ),
                       selected: _selectedMethod == 'wechat',
@@ -186,94 +189,35 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   ),
                 ],
               ),
-              AppSpacing.verticalXLarge,
+              AppSpacing.verticalRegular,
 
-              // 提现账号输入
-              Text(
-                t.common.withdrawAccount,
-                style: context.textStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              AppSpacing.verticalSmall,
-              TextFormField(
-                controller: _accountController,
-                decoration: InputDecoration(
-                  hintText: t.common.withdrawAccountEmpty,
-                  border: OutlineInputBorder(
-                    borderRadius: AppRadius.borderRadiusMedium,
+              // 提现账号
+              WalletFieldCard(
+                child: TextFormField(
+                  controller: _accountController,
+                  decoration: walletInputDecoration(
+                    hint: t.common.withdrawAccount,
                   ),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return t.common.withdrawAccountEmpty;
-                  }
-                  return null;
-                },
-              ),
-              AppSpacing.verticalXLarge,
-
-              // 提现金额输入
-              Text(
-                t.common.withdrawConfirm.contains('Confirm')
-                    ? 'Withdrawal Amount'
-                    : '提现金额',
-                style: context.textStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              AppSpacing.verticalSmall,
-              TextFormField(
-                controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  prefixText: '￥ ',
-                  hintText: '0.00',
-                  border: OutlineInputBorder(
-                    borderRadius: AppRadius.borderRadiusMedium,
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return t.common.withdrawAmountError;
-                  }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount < 1.0) {
-                    return t.common.withdrawAmountError;
-                  }
-                  return null;
-                },
-              ),
-              AppSpacing.verticalXXXLarge,
-
-              // 提现按钮
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    FocusScope.of(context).unfocus();
-                    _handleWithdraw(balanceYuan);
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return t.common.withdrawAccountEmpty;
+                    }
+                    return null;
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.iosRed,
-                    foregroundColor: AppColors.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadius.borderRadiusMedium,
-                    ),
-                  ),
-                  child: Text(
-                    t.common.withdrawConfirm,
-                    style: context.textStyle(
-                      FontSizeType.medium,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
+              ),
+              AppSpacing.verticalSmall,
+
+              WalletBalanceHint(balanceYuan: balanceYuan),
+              const SizedBox(height: 40),
+
+              WalletPrimaryButton(
+                label: t.common.withdrawConfirm,
+                color: AppColors.primary,
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  _handleWithdraw(balanceYuan);
+                },
               ),
             ],
           ),

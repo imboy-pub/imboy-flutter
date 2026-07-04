@@ -1078,6 +1078,9 @@ withdrawAmountError: 请输入不低于1元的金额
 withdrawAccountEmpty: 请输入提现账号
 withdrawMethod: 提现方式
 withdrawAccount: 提现账号
+withdrawAmountLabel: 提现金额
+withdrawAlipay: 支付宝
+withdrawWechat: 微信
 noHistory: 暂无历史记录
 enterAmount: 请输入金额
 transferDefaultRemark: 转账给好友
@@ -1086,6 +1089,20 @@ redPacketCurrentLucky: "当前为：拼手气红包"
 redPacketCurrentNormal: "当前为：普通红包"
 redPacketSwitchToNormal: 改为普通红包
 redPacketSwitchToLucky: 改为拼手气红包
+redPacketCount: 红包个数
+redPacketCountUnit: 个
+redPacketCountEmpty: 请输入红包个数
+redPacketCountMin: 红包个数需大于等于 1
+redPacketTotalAmount: 总金额
+redPacketSingleAmount: 单个金额
+redPacketGreetingLabel: 留言 / 祝福语
+redPacketStuffLucky: 塞钱发红包
+redPacketStuffNormal: 放入钱包发送
+amountMustPositive: 金额必须大于 0
+walletBalanceLabel(balance): "钱包余额 ￥$balance"
+transferAmountLabel: 转账金额
+transferRemarkLabel: 转账备注
+transferConfirm: 确认转账
 transferReceiving: 正在收款...
 transferAccepted: 已收取
 transferRefunded: 已退回

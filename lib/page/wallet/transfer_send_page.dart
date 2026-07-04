@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
+import 'package:imboy/page/wallet/widget/wallet_form.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 class TransferSendPage extends ConsumerStatefulWidget {
@@ -79,43 +78,22 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
     final balanceYuan = walletState.balance / 100.0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.common.transferSend),
-        elevation: 0,
-        backgroundColor: AppColors.iosRed,
-        foregroundColor: AppColors.onPrimary,
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
       ),
+      appBar: AppBar(title: Text(t.common.transferSend)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.xLarge,
-        ),
+        padding: const EdgeInsets.all(AppSpacing.regular),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 转账金额输入
-              Text(
-                '转账金额',
-                style: context.textStyle(
-                  FontSizeType.subheadline,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              AppSpacing.verticalSmall,
-              TextFormField(
+              // 金额 hero 卡片
+              WalletAmountField(
                 controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  prefixText: '￥ ',
-                  hintText: '0.00',
-                  border: OutlineInputBorder(
-                    borderRadius: AppRadius.borderRadiusMedium,
-                  ),
-                ),
+                label: t.common.transferAmountLabel,
+                accent: AppColors.primary,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return t.common.enterAmount;
@@ -127,65 +105,29 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                   return null;
                 },
               ),
-              AppSpacing.verticalXLarge,
+              AppSpacing.verticalRegular,
 
-              // 备注说明
-              Text(
-                '转账备注',
-                style: context.textStyle(
-                  FontSizeType.subheadline,
-                  fontWeight: FontWeight.bold,
+              // 备注
+              WalletFieldCard(
+                child: TextFormField(
+                  controller: _remarkController,
+                  decoration: walletInputDecoration(
+                    hint: t.common.transferRemarkLabel,
+                  ),
                 ),
               ),
               AppSpacing.verticalSmall,
-              TextFormField(
-                controller: _remarkController,
-                decoration: InputDecoration(
-                  hintText: t.common.transferDefaultRemark,
-                  border: OutlineInputBorder(
-                    borderRadius: AppRadius.borderRadiusMedium,
-                  ),
-                ),
-              ),
-              AppSpacing.verticalRegular,
 
-              // 钱包余额提示
-              Text(
-                '钱包当前余额: ￥${balanceYuan.toStringAsFixed(2)}',
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: AppColors.getTextColor(
-                    Theme.of(context).brightness,
-                    isSecondary: true,
-                  ),
-                ),
-              ),
-              AppSpacing.verticalXXXLarge,
+              WalletBalanceHint(balanceYuan: balanceYuan),
+              const SizedBox(height: 40),
 
-              // 确认按钮
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: () {
-                    FocusScope.of(context).unfocus();
-                    _handleSend(balanceYuan);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.iosRed,
-                    foregroundColor: AppColors.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadius.borderRadiusMedium,
-                    ),
-                  ),
-                  child: Text(
-                    '确认转账',
-                    style: context.textStyle(
-                      FontSizeType.medium,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              WalletPrimaryButton(
+                label: t.common.transferConfirm,
+                color: AppColors.primary,
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  _handleSend(balanceYuan);
+                },
               ),
             ],
           ),

@@ -4981,6 +4981,15 @@ class Translations$common$zh_CN {
 	/// zh-CN: '提现账号'
 	String get withdrawAccount => '提现账号';
 
+	/// zh-CN: '提现金额'
+	String get withdrawAmountLabel => '提现金额';
+
+	/// zh-CN: '支付宝'
+	String get withdrawAlipay => '支付宝';
+
+	/// zh-CN: '微信'
+	String get withdrawWechat => '微信';
+
 	/// zh-CN: '暂无历史记录'
 	String get noHistory => '暂无历史记录';
 
@@ -5004,6 +5013,48 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '改为拼手气红包'
 	String get redPacketSwitchToLucky => '改为拼手气红包';
+
+	/// zh-CN: '红包个数'
+	String get redPacketCount => '红包个数';
+
+	/// zh-CN: '个'
+	String get redPacketCountUnit => '个';
+
+	/// zh-CN: '请输入红包个数'
+	String get redPacketCountEmpty => '请输入红包个数';
+
+	/// zh-CN: '红包个数需大于等于 1'
+	String get redPacketCountMin => '红包个数需大于等于 1';
+
+	/// zh-CN: '总金额'
+	String get redPacketTotalAmount => '总金额';
+
+	/// zh-CN: '单个金额'
+	String get redPacketSingleAmount => '单个金额';
+
+	/// zh-CN: '留言 / 祝福语'
+	String get redPacketGreetingLabel => '留言 / 祝福语';
+
+	/// zh-CN: '塞钱发红包'
+	String get redPacketStuffLucky => '塞钱发红包';
+
+	/// zh-CN: '放入钱包发送'
+	String get redPacketStuffNormal => '放入钱包发送';
+
+	/// zh-CN: '金额必须大于 0'
+	String get amountMustPositive => '金额必须大于 0';
+
+	/// zh-CN: '钱包余额 ￥$balance'
+	String walletBalanceLabel({required Object balance}) => '钱包余额 ￥${balance}';
+
+	/// zh-CN: '转账金额'
+	String get transferAmountLabel => '转账金额';
+
+	/// zh-CN: '转账备注'
+	String get transferRemarkLabel => '转账备注';
+
+	/// zh-CN: '确认转账'
+	String get transferConfirm => '确认转账';
 
 	/// zh-CN: '正在收款...'
 	String get transferReceiving => '正在收款...';
@@ -8642,6 +8693,9 @@ extension on Translations {
 			'common.withdrawAccountEmpty' => '请输入提现账号',
 			'common.withdrawMethod' => '提现方式',
 			'common.withdrawAccount' => '提现账号',
+			'common.withdrawAmountLabel' => '提现金额',
+			'common.withdrawAlipay' => '支付宝',
+			'common.withdrawWechat' => '微信',
 			'common.noHistory' => '暂无历史记录',
 			'common.enterAmount' => '请输入金额',
 			'common.transferDefaultRemark' => '转账给好友',
@@ -8650,6 +8704,20 @@ extension on Translations {
 			'common.redPacketCurrentNormal' => '当前为：普通红包',
 			'common.redPacketSwitchToNormal' => '改为普通红包',
 			'common.redPacketSwitchToLucky' => '改为拼手气红包',
+			'common.redPacketCount' => '红包个数',
+			'common.redPacketCountUnit' => '个',
+			'common.redPacketCountEmpty' => '请输入红包个数',
+			'common.redPacketCountMin' => '红包个数需大于等于 1',
+			'common.redPacketTotalAmount' => '总金额',
+			'common.redPacketSingleAmount' => '单个金额',
+			'common.redPacketGreetingLabel' => '留言 / 祝福语',
+			'common.redPacketStuffLucky' => '塞钱发红包',
+			'common.redPacketStuffNormal' => '放入钱包发送',
+			'common.amountMustPositive' => '金额必须大于 0',
+			'common.walletBalanceLabel' => ({required Object balance}) => '钱包余额 ￥${balance}',
+			'common.transferAmountLabel' => '转账金额',
+			'common.transferRemarkLabel' => '转账备注',
+			'common.transferConfirm' => '确认转账',
 			'common.transferReceiving' => '正在收款...',
 			'common.transferAccepted' => '已收取',
 			'common.transferRefunded' => '已退回',
@@ -9046,6 +9114,8 @@ extension on Translations {
 			'main.webView' => '网页视图',
 			'main.you' => '你',
 			'main.yourFeel' => '这让你感觉如何?',
+			_ => null,
+		} ?? switch (path) {
 			'main.zhCn' => '简体中文',
 			'main.zhHant' => '繁体中文',
 			'main.bound' => '已绑定',
@@ -9063,8 +9133,6 @@ extension on Translations {
 			'main.systemDefault' => '系统默认',
 			'main.custom' => '自定义',
 			'main.previewArea' => '预览区域',
-			_ => null,
-		} ?? switch (path) {
 			'main.simpleTexture' => '简约纹理',
 			'main.gradientBlue' => '渐变蓝',
 			'main.gradientPurple' => '渐变紫',
