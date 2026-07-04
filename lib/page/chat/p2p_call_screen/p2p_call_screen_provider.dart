@@ -169,6 +169,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   @override
   P2pCallScreenState build() {
+    // provider 释放时统一取消所有定时器，避免定时器在 dispose 后写 state
+    // 抛 "Cannot use Ref after disposed"（cleanup 原仅在手动挂断路径调用）
+    ref.onDispose(cleanup);
     return const P2pCallScreenState();
   }
 
@@ -880,6 +883,11 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   void startCallTimer(void Function() onUpdate) {
     _callTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      // 同帧竞态兜底：provider 已释放则自行取消，不再写 state
+      if (!ref.mounted) {
+        timer.cancel();
+        return;
+      }
       _callSeconds++;
       state = state.copyWith(callDuration: formatCallDuration(_callSeconds));
       onUpdate();
