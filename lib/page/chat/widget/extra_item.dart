@@ -47,7 +47,7 @@ class ExtraItem extends StatelessWidget {
           width: width ?? 64,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.tiny,
-            vertical: AppSpacing.small,
+            vertical: AppSpacing.tiny,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -160,158 +160,164 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
     final t = context.t; // 获取翻译实例
     final colorScheme = Theme.of(context).colorScheme;
     const double iconSize = 28; // 调整图标大小
-    var items = [
-      // 第一页
-      _buildItemsGrid([
-        ExtraItem(
-          title: t.main.album,
-          image: const Icon(Icons.photo_library_outlined, size: iconSize),
-          onPressed: widget.handleImageSelection,
-        ),
-        ExtraItem(
-          title: t.main.camera,
-          image: const Icon(Icons.camera_alt_outlined, size: iconSize),
-          onPressed: () {
-            if (widget.handlePickerSelection != null) {
-              widget.handlePickerSelection!(context);
-            }
-          },
-        ),
-        ExtraItem(
-          title: t.groupSchedule.location,
-          image: const Icon(Icons.location_on_outlined, size: iconSize),
-          onPressed: () async {
-            if (!context.mounted) return;
+    final allItems = <ExtraItem>[
+      ExtraItem(
+        title: t.main.album,
+        image: const Icon(Icons.photo_library_outlined, size: iconSize),
+        onPressed: widget.handleImageSelection,
+      ),
+      ExtraItem(
+        title: t.main.camera,
+        image: const Icon(Icons.camera_alt_outlined, size: iconSize),
+        onPressed: () {
+          if (widget.handlePickerSelection != null) {
+            widget.handlePickerSelection!(context);
+          }
+        },
+      ),
+      ExtraItem(
+        title: t.groupSchedule.location,
+        image: const Icon(Icons.location_on_outlined, size: iconSize),
+        onPressed: () async {
+          if (!context.mounted) return;
 
-            AMapPosition? l = await LocationService().getCurrentPosition();
-            if (l != null && context.mounted) {
-              // 使用 go_router 进行导航
-              final result = await context.push<Map<String, dynamic>>(
-                '/map_location_picker',
-                extra: {
-                  "lat": double.parse(l.latLng.latitude.toString()),
-                  "lng": double.parse(l.latLng.longitude.toString()),
-                  "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
-                  "isMapImage": true,
-                },
-              );
+          AMapPosition? l = await LocationService().getCurrentPosition();
+          if (l != null && context.mounted) {
+            // 使用 go_router 进行导航
+            final result = await context.push<Map<String, dynamic>>(
+              '/map_location_picker',
+              extra: {
+                "lat": double.parse(l.latLng.latitude.toString()),
+                "lng": double.parse(l.latLng.longitude.toString()),
+                "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
+                "isMapImage": true,
+              },
+            );
 
-              if (result != null && context.mounted) {
-                if (result["image"] == null) {
-                  AppLoading.showError(t.common.failedGetMapTryAgain);
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  return;
-                }
-                if (widget.handleLocationSelection != null &&
-                    result["image"] != null) {
-                  widget.handleLocationSelection!(
-                    result["id"] as String,
-                    result["image"] as Uint8List,
-                    result["address"] as String,
-                    result["title"] as String,
-                    result["latitude"].toString(),
-                    result["longitude"].toString(),
-                  );
-                }
+            if (result != null && context.mounted) {
+              if (result["image"] == null) {
+                AppLoading.showError(t.common.failedGetMapTryAgain);
+                FocusScope.of(context).requestFocus(FocusNode());
+                return;
+              }
+              if (widget.handleLocationSelection != null &&
+                  result["image"] != null) {
+                widget.handleLocationSelection!(
+                  result["id"] as String,
+                  result["image"] as Uint8List,
+                  result["address"] as String,
+                  result["title"] as String,
+                  result["latitude"].toString(),
+                  result["longitude"].toString(),
+                );
               }
             }
+          }
+        },
+      ),
+      ExtraItem(
+        title: t.common.personalCard,
+        image: const Icon(Icons.person_outline, size: iconSize),
+        onPressed: widget.handleVisitCardSelection,
+      ),
+      if (widget.type != 'C2G')
+        ExtraItem(
+          title: t.common.voiceCall,
+          image: const Icon(Icons.phone_outlined, size: iconSize),
+          onPressed: () {
+            openCallScreen(
+              context,
+              ContactModel.fromMap({
+                "id": widget.options["to"],
+                "nickname": widget.options["title"],
+                "avatar": widget.options["avatar"],
+                "sign": widget.options["sign"],
+              }),
+              {'media': 'audio'},
+            );
           },
         ),
+      if (widget.type != 'C2G')
         ExtraItem(
-          title: t.common.personalCard,
-          image: const Icon(Icons.person_outline, size: iconSize),
-          onPressed: widget.handleVisitCardSelection,
+          title: t.common.videoCall,
+          image: const Icon(Icons.videocam_outlined, size: iconSize),
+          onPressed: () {
+            openCallScreen(
+              context,
+              ContactModel.fromMap({
+                "id": widget.options["to"],
+                "nickname": widget.options["title"],
+                "avatar": widget.options["avatar"],
+                "sign": widget.options["sign"],
+              }),
+              {'media': 'video'},
+            );
+          },
         ),
-        if (widget.type != 'C2G')
-          ExtraItem(
-            title: t.common.voiceCall,
-            image: const Icon(Icons.phone_outlined, size: iconSize),
-            onPressed: () {
-              openCallScreen(
-                context,
-                ContactModel.fromMap({
-                  "id": widget.options["to"],
-                  "nickname": widget.options["title"],
-                  "avatar": widget.options["avatar"],
-                  "sign": widget.options["sign"],
-                }),
-                {'media': 'audio'},
-              );
-            },
-          ),
-        if (widget.type != 'C2G')
-          ExtraItem(
-            title: t.common.videoCall,
-            image: const Icon(Icons.videocam_outlined, size: iconSize),
-            onPressed: () {
-              openCallScreen(
-                context,
-                ContactModel.fromMap({
-                  "id": widget.options["to"],
-                  "nickname": widget.options["title"],
-                  "avatar": widget.options["avatar"],
-                  "sign": widget.options["sign"],
-                }),
-                {'media': 'video'},
-              );
-            },
-          ),
+      ExtraItem(
+        title: t.main.favorites,
+        image: const Icon(Icons.collections_bookmark_outlined, size: iconSize),
+        onPressed: widget.handleCollectSelection,
+      ),
+      ExtraItem(
+        title: t.chat.file,
+        image: const Icon(Icons.insert_drive_file_outlined, size: iconSize),
+        onPressed: widget.handleFileSelection,
+      ),
+      ExtraItem(
+        title: t.common.expression,
+        image: const Icon(Icons.face_outlined, size: iconSize),
+        onPressed: widget.handleStickerSelection,
+      ),
+      ExtraItem(
+        title: t.common.redPacket,
+        image: const Icon(
+          Icons.redeem,
+          size: iconSize,
+          color: AppColors.iosRed,
+        ),
+        onPressed: () async {
+          FocusScope.of(context).requestFocus(FocusNode());
+          final result = await context.push<Map<String, dynamic>>(
+            '/red_packet_send',
+            extra: {'type': widget.type, 'to': widget.options['to']},
+          );
+          if (result != null && widget.handleRedPacketSelection != null) {
+            widget.handleRedPacketSelection!(result);
+          }
+        },
+      ),
+      if (widget.type != 'C2G')
         ExtraItem(
-          title: t.main.favorites,
+          title: t.common.transfer,
           image: const Icon(
-            Icons.collections_bookmark_outlined,
+            Icons.swap_horiz,
             size: iconSize,
-          ),
-          onPressed: widget.handleCollectSelection,
-        ),
-        ExtraItem(
-          title: t.chat.file,
-          image: const Icon(Icons.insert_drive_file_outlined, size: iconSize),
-          onPressed: widget.handleFileSelection,
-        ),
-        ExtraItem(
-          title: t.common.expression,
-          image: const Icon(Icons.face_outlined, size: iconSize),
-          onPressed: widget.handleStickerSelection,
-        ),
-        ExtraItem(
-          title: t.common.redPacket,
-          image: const Icon(
-            Icons.redeem,
-            size: iconSize,
-            color: AppColors.iosRed,
+            color: AppColors.iosOrange,
           ),
           onPressed: () async {
             FocusScope.of(context).requestFocus(FocusNode());
             final result = await context.push<Map<String, dynamic>>(
-              '/red_packet_send',
-              extra: {'type': widget.type, 'to': widget.options['to']},
+              '/transfer_send',
+              extra: {'to': widget.options['to']},
             );
-            if (result != null && widget.handleRedPacketSelection != null) {
-              widget.handleRedPacketSelection!(result);
+            if (result != null && widget.handleTransferSelection != null) {
+              widget.handleTransferSelection!(result);
             }
           },
         ),
-        if (widget.type != 'C2G')
-          ExtraItem(
-            title: t.common.transfer,
-            image: const Icon(
-              Icons.swap_horiz,
-              size: iconSize,
-              color: AppColors.iosOrange,
-            ),
-            onPressed: () async {
-              FocusScope.of(context).requestFocus(FocusNode());
-              final result = await context.push<Map<String, dynamic>>(
-                '/transfer_send',
-                extra: {'to': widget.options['to']},
-              );
-              if (result != null && widget.handleTransferSelection != null) {
-                widget.handleTransferSelection!(result);
-              }
-            },
+    ];
+
+    // 每页 8 个（2 行 × 4 列），超出自动分页，启用左右滑动 + 底部圆点
+    const int perPage = 8;
+    final items = <Widget>[
+      for (var i = 0; i < allItems.length; i += perPage)
+        _buildItemsGrid(
+          allItems.sublist(
+            i,
+            i + perPage > allItems.length ? allItems.length : i + perPage,
           ),
-      ]),
+        ),
     ];
 
     // 防止手势冲突，确保ExtraItems内部交互不会影响输入框
@@ -398,14 +404,19 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
   Widget _buildItemsGrid(List<ExtraItem> items) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: GridView.count(
-        crossAxisCount: 4, // 每行4个
-        childAspectRatio: 0.75, // 调整宽高比，给文字更多空间
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 12,
+      child: GridView.builder(
+        // 用固定 mainAxisExtent 而非 childAspectRatio：格高不随屏宽等比缩放，
+        // 避免窄屏(如 iPhone SE)下固定 56px 图标框把 Column 撑溢出
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4, // 每行4个
+          mainAxisExtent: 108, // 图标56 + 间距8 + 两行文字 + 内边距，留足余量
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 12,
+        ),
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        children: items,
+        itemCount: items.length,
+        itemBuilder: (_, i) => items[i],
       ),
     );
   }

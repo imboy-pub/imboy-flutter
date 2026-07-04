@@ -641,17 +641,22 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                         borderRadius: BorderRadius.circular(40),
                         border: Border.all(color: CallTokens.whiteA12),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (final w in island)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
+                      // 窄屏下按钮总宽可能超出岛宽(如视频通话 5 键)，
+                      // FittedBox 等比缩至可用宽度，避免右侧溢出且不裁剪
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (final w in island)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                ),
+                                child: w,
                               ),
-                              child: w,
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
