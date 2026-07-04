@@ -117,17 +117,22 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   }
 
   Future<void> _disposeRenderer() async {
+    // 每个 renderer 独立 try/catch：flutter_webrtc 原生 dispose 存在
+    // Surface.release NPE 竞态；若 local 抛异常不能连累 remote 被跳过而泄漏
+    await _disposeOneRenderer(localRenderer, 'local');
+    await _disposeOneRenderer(remoteRenderer, 'remote');
+  }
+
+  Future<void> _disposeOneRenderer(
+    RTCVideoRenderer renderer,
+    String tag,
+  ) async {
+    if (renderer.textureId == null) return;
     try {
-      if (localRenderer.textureId != null) {
-        localRenderer.srcObject = null;
-        await localRenderer.dispose();
-      }
-      if (remoteRenderer.textureId != null) {
-        remoteRenderer.srcObject = null;
-        await remoteRenderer.dispose();
-      }
+      renderer.srcObject = null;
+      await renderer.dispose();
     } catch (e, s) {
-      iPrint("disposeRenderer $e, $s");
+      iPrint("disposeRenderer[$tag] $e, $s");
     }
   }
 
