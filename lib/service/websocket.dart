@@ -722,8 +722,31 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
       final action = msg['action']?.toString() ?? '';
       final messageType = (msg['type']?.toString() ?? '').toUpperCase();
-      final messageId = msg['id']?.toString() ?? '';
+      var messageId = msg['id']?.toString() ?? '';
       msg['type'] = messageType;
+
+      // 服务端 ACK/错误帧偶发不把 msgId 放在 id 字段（无帧头降级 JSON），
+      // 跨常见字段名兜底提取，否则 CLIENT_ACK_ERROR 无法关联 → 确认超时重发死循环
+      if (messageId.isEmpty) {
+        for (final k in const [
+          'msg_id',
+          'msgId',
+          'ack_id',
+          'ackId',
+          'message_id',
+        ]) {
+          final v = msg[k]?.toString() ?? '';
+          if (v.isNotEmpty) {
+            messageId = v;
+            break;
+          }
+        }
+        // 仍为空且是 ACK 类响应：打印原始帧以定位服务端真实字段名
+        if (messageId.isEmpty &&
+            (action == 'CLIENT_ACK_ERROR' || action == 'CLIENT_ACK_CONFIRM')) {
+          iPrint('⚠️ [WS] $action 缺 msgId，原始帧: $message');
+        }
+      }
 
       // 合并日志：每条消息仅 1 次日志调用（避免 PrettyPrinter 重复格式化）
       iPrint('[WS] msg type=$messageType id=$messageId action=$action');
