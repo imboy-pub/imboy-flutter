@@ -195,6 +195,13 @@ class IMBoyCacheManager {
       downloadUrl = viewUri.toString();
       extSource = viewUri.path;
     }
+    // 验证真实下载域名：public 头像应为 s3.imboy.pub 直读；附件应为后端签发的
+    // presigned host（X-Amz-Signature）。若这里出现 pro.imboy.pub，即下载走了 API 域名。
+    _log(
+      '🌐 实际下载 URL: host=${Uri.tryParse(downloadUrl)?.host} '
+      'publicDirect=$publicDirect isObjKey=$isObjKey downloadUrl=$downloadUrl',
+    );
+
     List<int> bytes = [];
 
     // 尝试从缓存获取

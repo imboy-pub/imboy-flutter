@@ -36,21 +36,21 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🌐 Network & Web                                               │
   # └─────────────────────────────────────────────────────────────────┘
-  dio: ^5.9.2                      # HTTP client (updated: 5.9.1 → 5.9.2)
+  dio: ^5.10.0                     # HTTP client (updated: 5.9.2 → 5.10.0)
   dio_http2_adapter: ^2.7.0       # HTTP/2 support for improved performance
   web_socket_channel: ^3.0.3      # WebSocket support for real-time communication
   protobuf: ^6.0.0                # Protocol Buffers runtime for binary WS frames
   fixnum: ^1.1.0                  # 64-bit integer support (protobuf generated code)
-  connectivity_plus: ^7.1.1        # Network status monitoring (WiFi/Cellular)
-  webview_flutter: ^4.13.0         # WebView integration for in-app browsing
+  connectivity_plus: ^7.2.0        # Network status monitoring (WiFi/Cellular)
+  webview_flutter: ^4.14.0         # WebView integration for in-app browsing
   url_launcher: ^6.3.2              # URL handling for opening links in browser/apps
   mime: ^2.0.0                      # MIME type detection for file handling
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🌐 Web Platform Support                                         │
   # └─────────────────────────────────────────────────────────────────┘
-  sqflite_common: ^2.5.0            # sqflite 公共接口（Web 支持）
-  sqflite_common_ffi: ^2.4.0+2      # 桌面端 FFI 实现（Windows/Linux/macOS）
+  sqflite_common: ^2.5.11           # sqflite 公共接口（Web 支持）(updated: 2.5.0 → 2.5.11)
+  sqflite_common_ffi: ^2.4.2        # 桌面端 FFI 实现（Windows/Linux/macOS）(updated: 2.4.0+2 → 2.4.2)
   sqflite_common_ffi_web: ^1.1.1    # Web 平台 SQLite 实现（支持 sqlite3 3.x）
   web: ^1.1.0                       # 浏览器 API 封装（IndexedDB、Blob 等）
 
@@ -80,19 +80,19 @@ dependencies:
   photo_manager: ^3.9.0              # Media management (gallery access)
   video_compress: ^3.1.4             # Video compression before upload
   file_picker: ^11.0.0               # File picker
-  open_file: ^3.5.10                  # File opening with default apps
+  open_file: ^4.0.0                   # File opening with default apps (updated: 3.5.10 → 4.0.0)
   image: ^4.8.0                      # Image manipulation library
   video_player: ^2.11.1               # Video playback support
-  flutter_local_notifications: ^21.0.0 # Local notifications support
+  flutter_local_notifications: ^22.0.0 # Local notifications support (updated: 21.0.0 → 22.0.0)
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 🔊 Audio                                                       │
   # └─────────────────────────────────────────────────────────────────┘
   flutter_sound: ^9.30.0            # Audio recording/playback with macOS improvements
-  audio_session: ^0.2.2              # Audio session management for focus control
-  flutter_webrtc: ^1.4.1
+  audio_session: ^0.2.4              # Audio session management for focus control (updated: 0.2.2 → 0.2.4)
+  flutter_webrtc: ^1.5.2
   audio_waveforms: ^2.0.1             # Audio waveform visualization
-  just_audio: ^0.10.5                # Audio playback with gapless support
+  just_audio: ^0.10.6                # Audio playback with gapless support (updated: 0.10.5 → 0.10.6)
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 💬 Chat & Messaging                                             │
@@ -119,13 +119,13 @@ dependencies:
     git:
       url: https://gitee.com/imboy-tripartite-deps/azlistview.git
       ref: leeyi
-  easy_refresh: ^3.4.0               # Pull-to-refresh functionality
+  easy_refresh: ^3.5.1               # Pull-to-refresh functionality (updated: 3.4.0 → 3.5.1)
   flutter_slidable: ^4.0.3           # Slidable list items with actions
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 📍 Maps & Location                                               │
   # └─────────────────────────────────────────────────────────────────┘
-  geolocator: ^14.0.2                   # 跨平台定位服务（支持 macOS/Web）
+  geolocator: ^14.0.3                   # 跨平台定位服务（支持 macOS/Web）(updated: 14.0.2 → 14.0.3)
   amap_flutter_base_plus: ^3.1.0       # Amap (高德地图) base SDK
   amap_flutter_map_plus:               # Amap map integration
     git:
@@ -155,13 +155,13 @@ dependencies:
   crypto: ^3.0.6                    # Cryptographic hashing utilities
   convert: ^3.1.2                   # Data conversion utilities
   permission_handler: ^12.0.1       # Permission requests
-  path_provider: ^2.1.5              # File system path utilities
-  file_saver: ^0.3.1                  # File saving utilities
+  path_provider: ^2.1.6              # File system path utilities (updated: 2.1.5 → 2.1.6)
+  file_saver: ^0.4.0                  # File saving utilities (updated: 0.3.1 → 0.4.0)
   xid: ^1.2.1                        # Unique ID generation
   ntp: ^2.0.0                        # Network Time Protocol (time sync)
   equatable: ^2.0.7                  # Object equality comparisons
   synchronized: ^3.4.0               # Synchronization primitives
-  share_plus: ^13.0.0                # Sharing functionality
+  share_plus: ^13.2.0                # Sharing functionality (updated: 13.0.0 → 13.2.0)
   wakelock_plus: ^1.5.2              # Keep screen on during operations
   r_upgrade:                          # App upgrade utility
     path: plugin/r_upgrade
@@ -178,15 +178,15 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🔥 Firebase & Analytics                                          │
   # └─────────────────────────────────────────────────────────────────┘
-  firebase_core: ^4.7.0             # Firebase 核心 SDK
-  firebase_messaging: ^16.2.0        # Firebase 云消息推送 (FCM)
+  firebase_core: ^4.11.0            # Firebase 核心 SDK (updated: 4.7.0 → 4.11.0)
+  firebase_messaging: ^16.4.1        # Firebase 云消息推送 (FCM) (updated: 16.2.0 → 16.4.1)
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🛡️ Error Tracking & Monitoring                                    │
   # └─────────────────────────────────────────────────────────────────┘
-  sentry_flutter: ^9.16.0            # Sentry 错误追踪和性能监控
+  sentry_flutter: ^9.23.0            # Sentry 错误追踪和性能监控 (updated: 9.16.0 → 9.23.0)
 
-  envied: ^1.3.2                    # Environment variables management
+  envied: ^1.3.8                    # Environment variables management (updated: 1.3.2 → 1.3.8)
   pin_code_fields: ^9.3.0             # PIN code input fields
   intl_phone_number_input: ^0.7.5    # Phone number input with validation
   jverify: ^3.1.7                   # JVerification integration
@@ -203,29 +203,27 @@ dependencies:
   # └─────────────────────────────────────────────────────────────────┘
   # provider: ^6.1.5+1                # ⚠️ DEPRECATED: 已迁移到 Riverpod
   visibility_detector: ^0.4.0+2    # Widget visibility detection
-  slang: ^4.14.0                    # Internationalization code generation
-  slang_flutter: ^4.14.0             # Flutter slang integration
+  slang: ^4.18.0                    # Internationalization code generation (updated: 4.14.0 → 4.18.0)
+  slang_flutter: ^4.18.0             # Flutter slang integration (updated: 4.14.0 → 4.18.0)
   go_router: ^17.2.0                 # Declarative routing (go_router)
-  flutter_riverpod: ^3.3.1           # State management
-  riverpod_annotation: ^4.0.1       # Riverpod code generation (updated: 4.0.0 → 4.0.1)
+  flutter_riverpod: 3.3.1            # pin: riverpod 4.0.4 栈与传递依赖 mockito 5.7.0 的 analyzer 需求冲突，回退 4.0.3 栈
+  riverpod_annotation: 4.0.2         # pin: riverpod_generator 4.0.3 要求 annotation 4.0.2
   crop_your_image: ^2.0.0
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 💳 Payment SDKs (S4)                                             │
   # └─────────────────────────────────────────────────────────────────┘
-  fluwx: ^5.5.6                     # WeChat Pay / open SDK (微信支付收银台)
-  tobias: ^4.0.0                    # Alipay SDK (支付宝收银台)
+  fluwx: ^5.7.7                     # WeChat Pay / open SDK (微信支付收银台) (updated: 5.5.6 → 5.7.7)
+  tobias: ^5.3.4                    # Alipay SDK (支付宝收银台) (updated: 4.0.0 → 5.3.4)
 
 
 dependency_overrides:
   # ┌─ Analyzer Override ───────────────────────────────────────────────┐
-  # Force analyzer ^9.0.0 for riverpod_generator compatibility
+  # riverpod_generator 4.0.3 要求 analyzer ^9。锁 ^9（上个提交验证 working 的组合）。
+  # 4.0.4 要求 analyzer ^12，但其传递依赖 mockito 5.7.0 要求 analyzer ^13，
+  # mockito builder 在 analyzer 12 下编译失败（NamedArgument 在 9 之后删除、13 才恢复）。
   analyzer: ^9.0.0
-
-  # ┌─ dart_style Override ──────────────────────────────────────────────┐
-  # dart_style 3.1.5+ requires analyzer ^10.0.0, which conflicts with
-  # riverpod_generator's requirement of analyzer ^9.0.0.
-  # Pin to 3.1.3 which supports analyzer >=8.2.0 <10.0.0
+  # dart_style 3.1.3 兼容 analyzer ^9（>=8.2.0 <10.0.0）。
   dart_style: 3.1.3
 
   # ┌─ path_provider_foundation Override ────────────────────────────────┐
@@ -304,8 +302,8 @@ dev_dependencies:
 
   # ┌─ Code Generation ─────────────────────────────────────────────┐
   build_runner: ^2.12.2                # Code generation for Riverpod, slang, envied
-  riverpod_generator: ^4.0.2           # Riverpod annotation code generation (updated: 4.0.0+1 → 4.0.2)
-  envied_generator: ^1.3.2             # Environment variables code generation
+  riverpod_generator: 4.0.3            # pin: 4.0.4 传递依赖 mockito 5.7.0 (^13) 与自身 analyzer ^12 冲突，builder 无法编译
+  envied_generator: ^1.3.8             # Environment variables code generation (updated: 1.3.2 → 1.3.8)
 
   # ┌─ Code Quality & Linting ───────────────────────────────────────┐
   flutter_lints: ^6.0.0                # Official Flutter linting rules
@@ -313,7 +311,10 @@ dev_dependencies:
   # ┌─ Testing ─────────────────────────────────────────────────────┐
   test: any                            # Pure dart test runner (used by test/api/ without Flutter binding)
   mocktail: ^1.0.4                     # Mocking library for testing
-  mockito: ^5.4.6                      # Mockito mocking library
+  # mockito 已移除：5.7.0 要求 analyzer ^13，与 riverpod_generator 4.0.4 (^12) 冲突；
+  # mockito 跳过 analyzer 12 时代，无任何版本兼容 riverpod 代码生成链。
+  # 3 个 service 测试待迁移 mocktail（@GenerateMocks → when/verify）：
+  #   test/service/{ack_manager_enhanced,network_monitor_enhanced,websocket_heartbeat}_test.dart
   fake_async: ^1.3.2                   # Fake async for testing (direct dep for analyzer)
 
   # ┌─ Integration Testing ──────────────────────────────────────────┐

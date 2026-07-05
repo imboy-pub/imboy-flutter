@@ -128,7 +128,7 @@ void main() {
     testWidgets('isLoading=true → renders ShimmerList placeholder', (
       tester,
     ) async {
-      await _pumpConv(tester, state: const ConversationState());
+      await _pumpConv(tester, state: ConversationState());
 
       expect(find.byType(ShimmerList), findsOneWidget);
       expect(find.byType(NoDataView), findsNothing);
@@ -137,7 +137,7 @@ void main() {
 
     testWidgets('isLoading=false + empty → renders NoDataView '
         '"无会话消息"', (tester) async {
-      await _pumpConv(tester, state: const ConversationState(isLoading: false));
+      await _pumpConv(tester, state: ConversationState(isLoading: false));
 
       expect(find.byType(NoDataView), findsOneWidget);
       expect(find.text('无会话消息'), findsOneWidget);
@@ -166,7 +166,7 @@ void main() {
 
   group('ConversationPage AppBar', () {
     testWidgets('AppBar title 默认 "消息"（无连接描述）', (tester) async {
-      await _pumpConv(tester, state: const ConversationState(isLoading: false));
+      await _pumpConv(tester, state: ConversationState(isLoading: false));
 
       expect(find.text('消息'), findsOneWidget);
       await _unmount(tester);
@@ -176,7 +176,7 @@ void main() {
         '（title 不再拼接描述）', (tester) async {
       await _pumpConv(
         tester,
-        state: const ConversationState(isLoading: false, connectDesc: '(无网络)'),
+        state: ConversationState(isLoading: false, connectDesc: '(无网络)'),
       );
 
       // 源码 title 固定为 t.chat.titleMessage（"消息"），不再拼接 connectDesc；
@@ -187,7 +187,7 @@ void main() {
     });
 
     testWidgets('connectDesc 空 → NetworkFailureTips 不渲染', (tester) async {
-      await _pumpConv(tester, state: const ConversationState(isLoading: false));
+      await _pumpConv(tester, state: ConversationState(isLoading: false));
       expect(find.byType(NetworkFailureTips), findsNothing);
       await _unmount(tester);
     });

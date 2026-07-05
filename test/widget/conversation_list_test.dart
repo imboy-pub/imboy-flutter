@@ -121,7 +121,7 @@ void main() {
           const ConversationPage(),
           overrides: [
             _convOverride(
-              const ConversationState(conversationMap: {}, isLoading: false),
+              ConversationState(conversationMap: {}, isLoading: false),
             ),
           ],
         ),
@@ -141,7 +141,7 @@ void main() {
           const ConversationPage(),
           overrides: [
             _convOverride(
-              const ConversationState(conversationMap: {}, isLoading: false),
+              ConversationState(conversationMap: {}, isLoading: false),
             ),
           ],
         ),
@@ -162,7 +162,7 @@ void main() {
           const ConversationPage(),
           overrides: [
             _convOverride(
-              const ConversationState(conversationMap: {}, isLoading: true),
+              ConversationState(conversationMap: {}, isLoading: true),
             ),
           ],
         ),

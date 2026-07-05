@@ -83,14 +83,9 @@ Future<bool> requestPhotoPermission() async {
     throw UnsupportedError('requestPhotoPermission_stub 不应在 Web 平台调用');
   }
   if (Platform.isMacOS) {
-    // macOS 用 permission_handler
-    final status = await Permission.photos.request();
-    if (status.isGranted) {
-      return true;
-    } else {
-      AppLoading.showInfo(t.common.noPermission);
-      return false;
-    }
+    // macOS 沙盒 app：照片/文件访问由 entitlements 控制，picker 走 NSOpenPanel 不需运行时权限请求。
+    // permission_handler 12 无 macOS 实现（仅 android/ios/web/windows），直接放行让后续 picker 处理。
+    return true;
   }
   try {
     final PermissionState ps = await PhotoManager.requestPermissionExtend();
@@ -113,6 +108,11 @@ Future<bool> requestPhotoPermission() async {
 Future<bool> requestCameraPermission() async {
   if (kIsWeb) {
     throw UnsupportedError('requestCameraPermission_stub 不应在 Web 平台调用');
+  }
+  if (Platform.isMacOS) {
+    // macOS 相机访问由系统 TCC 控制，permission_handler 无 macOS 实现；
+    // 桌面 pickCamera 已降级为 gallery（见 adapter），此处直接放行。
+    return true;
   }
   try {
     var status = await Permission.camera.status;
