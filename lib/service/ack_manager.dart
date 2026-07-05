@@ -506,6 +506,19 @@ class AckManager {
     }
   }
 
+  /// ACK 被服务端判为无效（CLIENT_ACK_ERROR）时调用。
+  ///
+  /// 与 [ackConfirmed] 区分：停止重试该收据（无效收据重发也不会成功），
+  /// 但**不记为成功确认**（不写 RTT 成功指标），并以告警语义记录。
+  void ackRejected(String msgId, {String? reason}) {
+    _cancelTimer(msgId);
+    final removed = _pendingAcks.remove(msgId) != null;
+    iPrint(
+      '⚠️ [ACK_MANAGER] ACK 被服务端拒绝，停止重试: '
+      'msgId=$msgId reason=${reason ?? '未知'} removed=$removed',
+    );
+  }
+
   /// 获取待确认ACK数量
   int get pendingCount => _pendingAcks.length;
 

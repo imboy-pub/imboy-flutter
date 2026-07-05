@@ -757,7 +757,13 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         } else if (['S2C', 'C2S', 'C2C', 'C2G'].contains(messageType)) {
           _sendAckSafe(messageType, messageId);
         }
-        _handleMessageAck(action, messageId);
+        // #3: 出站消息的服务端确认走 type=*_SERVER_ACK（不是 action），
+        // 机制A 的 _pendingMessages 原本只由 action 结尾 _ACK 清除，导致每条
+        // 正常消息 5s 都误报"确认超时"。这里按 type 同步清除，消除误报。
+        if (messageType.endsWith('_SERVER_ACK')) {
+          _handleMessageConfirmation(messageId);
+        }
+        _handleMessageAck(action, messageId, reason: msg['reason']?.toString());
       }
 
       // 【优化】过滤 ACK 相关消息，避免转发到 MessageService
@@ -810,7 +816,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   }
 
   /// 统一处理消息确认（包含ACK和撤回确认）
-  void _handleMessageAck(String action, String messageId) {
+  void _handleMessageAck(String action, String messageId, {String? reason}) {
     if (action.endsWith('_ACK')) {
       _handleMessageConfirmation(messageId);
     }
@@ -832,11 +838,14 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       }
     }
 
-    // 【补充】处理CLIENT_ACK的确认消息，通知AckManager停止重试
+    // #4: CLIENT_ACK_ERROR 语义是「我方收据被服务端判无效」，不能当成功确认。
+    // 用 ackRejected（停重试但不记成功 RTT）替代 ackConfirmed，避免把失败当已确认。
     if (action == 'CLIENT_ACK_ERROR' && messageId.isNotEmpty) {
       try {
-        AckManager.to.ackConfirmed(messageId);
-        iPrint('⚠️ [WS] CLIENT_ACK_ERROR收到: msgId=$messageId（ACK处理失败）');
+        AckManager.to.ackRejected(messageId, reason: reason);
+        iPrint(
+          '⚠️ [WS] CLIENT_ACK_ERROR收到: msgId=$messageId（收据被拒 reason=$reason）',
+        );
       } catch (e) {
         iPrint('⚠️ [WS] AckManager处理失败: $e');
       }
