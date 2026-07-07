@@ -3,8 +3,9 @@
 // 契约（方案 B）：
 //   - 消息 id 为 Xid base32hex 字符串，二进制 0x03 ACK 帧（8 字节 uint64）
 //     装不下它；出站消息确认一律走 JSON *_SERVER_ACK（v2 连接包 MSG_S2C 帧）。
-//   - 收到 *_SERVER_ACK 必须：清机制A（_pendingMessages/_confirmationTimers）
-//     并 fire RemoveFromRetryQueueRequestedEvent 驱动机制B停重发。
+//   - *_SERVER_ACK 由下游 MessageService._receiveServerAck 走单一清除入口
+//     RemoveFromRetryQueueRequestedEvent（停重发 + DB status→sent）；
+//     websocket 层不做本地簿记（机制A已删除）。
 //   - WEBRTC_SERVER_ACK 是服务端回执，禁止落入 startsWith('WEBRTC_') 分支
 //     反向再发 CLIENT_ACK。
 //

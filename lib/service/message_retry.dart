@@ -108,11 +108,16 @@ class MessageRetry with EventSubscriptionManager {
     _retryQueue.clear();
   }
 
+  /// 扫描节拍：须接近 RetryPolicy.messageSendRetryIntervals 最小档（3s），
+  /// 否则名义退避 3s 实际最坏要等满一个节拍（原 30s 节拍即此问题）。
+  /// 5s 对 [3,5,10,20]s 各档的到期误差 ≤ 一个节拍，可接受。
+  static const Duration _scanTick = Duration(seconds: 5);
+
   /// 启动重试定时器（自适应：队列为空时自动停止以节省 CPU）
   /// Start retry timer (adaptive: auto-stops when queue is empty).
   void startRetryTimer() {
     _retryTimer?.cancel();
-    _retryTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+    _retryTimer = Timer.periodic(_scanTick, (_) {
       if (_retryQueue.isEmpty) {
         _retryTimer?.cancel();
         _retryTimer = null;
@@ -413,11 +418,16 @@ class MessageRetry with EventSubscriptionManager {
       // 闭环策略：重试提交后保留在队列中，等待 SERVER_ACK 或状态成功后移除
       iPrint('消息重试已提交，等待确认: ${info.messageId}');
 
-      // 更新UI状态
-      final updatedMsg = await repo.find(info.messageId);
-      if (updatedMsg != null) {
-        final updatedMessage = await updatedMsg.toTypeMessage();
-        AppEventBus.fireData([updatedMessage], 'List<Message>');
+      // 更新UI状态（隔离异常：发送已提交并计数，UI 刷新失败不得落入
+      // 外层 catch 再 count++ 一次，否则每次尝试烧双倍重试预算）
+      try {
+        final updatedMsg = await repo.find(info.messageId);
+        if (updatedMsg != null) {
+          final updatedMessage = await updatedMsg.toTypeMessage();
+          AppEventBus.fireData([updatedMessage], 'List<Message>');
+        }
+      } on Object catch (e) {
+        iPrint('⚠️ [RETRY] UI 刷新失败（不影响重试计数）: ${info.messageId}, $e');
       }
     } on Object catch (e) {
       iPrint('重试消息错误: ${info.messageId}, $e');
@@ -493,11 +503,15 @@ class MessageRetry with EventSubscriptionManager {
       }
       iPrint('手动重试已提交，等待确认: $messageId');
 
-      // 更新UI状态
-      final updatedMsg = await repo.find(messageId);
-      if (updatedMsg != null) {
-        final updatedMessage = await updatedMsg.toTypeMessage();
-        AppEventBus.fireData([updatedMessage], 'List<Message>');
+      // 更新UI状态（隔离异常：发送已提交，UI 刷新失败不应让本次重试判为失败）
+      try {
+        final updatedMsg = await repo.find(messageId);
+        if (updatedMsg != null) {
+          final updatedMessage = await updatedMsg.toTypeMessage();
+          AppEventBus.fireData([updatedMessage], 'List<Message>');
+        }
+      } on Object catch (e) {
+        iPrint('⚠️ [MANUAL_RETRY] UI 刷新失败（重试已提交）: $messageId, $e');
       }
 
       return true;
