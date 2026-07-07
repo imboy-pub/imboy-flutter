@@ -22,9 +22,7 @@ import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/config/init.dart' show AppInitializer, navigateToSignIn;
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
-import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
-import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -1005,27 +1003,9 @@ class MessageService with EventSubscriptionManager {
     );
   }
 
-  /// 发送已读回执
-  Future<void> sendReadReceipt(String chatType, String msgId) async {
-    if (msgId.isEmpty) return;
-
-    if (WebSocketService.to.framing == FramingMode.v2) {
-      final int? numericId = int.tryParse(msgId);
-      if (numericId != null) {
-        final bytes = ImboyFrame.encode(
-          type: FrameType.msgRead,
-          flags: 0,
-          payload: Uint8List(8)
-            ..buffer.asByteData().setUint64(0, numericId, Endian.big),
-        );
-        WebSocketService.to.sendDirect(bytes);
-        iPrint('📤 [READ_RECEIPT] 发送 v2 已读回执: msgId=$msgId');
-      }
-    } else {
-      // V1 协议下的已读回执发送（如果支持）
-      iPrint('📤 [READ_RECEIPT] V1 协议暂不支持发送已读回执: msgId=$msgId');
-    }
-  }
+  // 已读回执统一走 JSON action=message_read（chat_network_service 的
+  // buildReadReceiptItem，批量 payload.msg_ids）。曾有的 0x26 二进制版
+  // sendReadReceipt 因 int.tryParse(Xid) 恒失败从未发出且零调用者，已删除。
 
   /// 处理消息处理失败的情况
   /// Handle message processing failure
