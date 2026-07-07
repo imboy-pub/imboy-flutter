@@ -1055,19 +1055,10 @@ class MessageActions {
       final currentUid = UserRepoLocal.to.currentUid;
       final statusStr = status == TypingStatus.start ? 'start' : 'stop';
 
-      if (WebSocketService.to.framing == FramingMode.v2) {
-        final int? numericConvId = int.tryParse(toId);
-        if (numericConvId != null) {
-          final bytes = ImboyFrame.typing(
-            numericConvId,
-            status == TypingStatus.start,
-          );
-          WebSocketService.to.sendDirect(bytes);
-          iPrint('🔄 发送 v2 二进制输入状态: $statusStr, to=$toId');
-          return;
-        }
-      }
-
+      // 统一走 JSON action=message_input（后端 registry 路由 c2c_input 转发）。
+      // 曾有的 0x25 二进制分支：后端从无该帧类型路由（收到即回
+      // unsupported_frame_type ERROR 帧），toId 为数字 TSID 时必然抢跑，
+      // typing 在 v2 连接上从未生效，已删除。
       final inputMessage = {
         'id': Xid().toString(),
         'type': chatType,

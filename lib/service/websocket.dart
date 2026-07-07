@@ -1163,7 +1163,14 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       final data = jsonDecode(message);
       final type = data['type'] ?? 'UNKNOWN';
       final msgType = data['msg_type'] ?? 'unknown';
-      final encStatus = data['e2ee'] != null ? 'E2EE' : 'PLAIN';
+      // e2ee 字段可能是 ''/{}（明文占位，如 buildReadReceiptItem）——
+      // 曾按 != null 误标 E2EE，导致排障时把明文回执误判为密文
+      final e2eeField = data['e2ee'];
+      final bool hasE2ee =
+          e2eeField != null &&
+          e2eeField != '' &&
+          !(e2eeField is Map && e2eeField.isEmpty);
+      final encStatus = hasE2ee ? 'E2EE' : 'PLAIN';
       return '$type/$msgType/$encStatus';
     } catch (_) {
       return 'UNKNOWN';
