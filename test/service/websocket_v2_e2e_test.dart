@@ -180,12 +180,23 @@ void main() {
     //  - msg_id=0x0000000012345678 (uint64 BE)
     test('ack msgId=0x12345678 的固定字节可被 Dart 解开', () {
       final bytes = Uint8List.fromList([
-        0x49, 0x42,
+        0x49,
+        0x42,
         0x02,
         0x00,
         0x03,
-        0x00, 0x00, 0x00, 0x08,
-        0x00, 0x00, 0x00, 0x00, 0x12, 0x34, 0x56, 0x78,
+        0x00,
+        0x00,
+        0x00,
+        0x08,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x12,
+        0x34,
+        0x56,
+        0x78,
       ]);
       final r = ImboyFrame.tryDecode(bytes);
       expect(r, isNotNull);
@@ -271,10 +282,10 @@ void main() {
       WebSocketService.resetForTest();
     });
 
-    test('frame 层 ack 能以正确 msgId 字符串传入 AckManager.ackConfirmed', () {
-      // 关键：_handleV2Binary 对 FrameType.ack 会调用
-      //   AckManager.to.ackConfirmed(msgId.toString())
-      // 这里没有 message 在 AckManager 里登记，但调用本身不应抛。
+    test('frame 层 ack 帧被解码后仅日志忽略（不再触碰 AckManager）', () {
+      // 契约变更（方案B）：0x03 载荷是 uint64，装不下 Xid 字符串 id，
+      // 服务端也从不下发该帧；_handleV2Binary 对 FrameType.ack 仅日志，
+      // 确认一律走 JSON *_SERVER_ACK（见 websocket_server_ack_test.dart）。
       const msgId = 9876543210;
       final ackFrame = ImboyFrame.ack(msgId);
 
@@ -283,8 +294,9 @@ void main() {
       // 同时验证解出来的 msgId 与预期一致（和内部代码路径一致）
       final r = ImboyFrame.tryDecode(ackFrame);
       expect(r, isNotNull);
-      final extracted =
-          ByteData.sublistView(r!.frame.payload).getUint64(0, Endian.big);
+      final extracted = ByteData.sublistView(
+        r!.frame.payload,
+      ).getUint64(0, Endian.big);
       expect(extracted, msgId);
       expect(extracted.toString(), '9876543210');
     });

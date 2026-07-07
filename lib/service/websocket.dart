@@ -105,6 +105,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   @visibleForTesting
   void handleV2BinaryForTest(Uint8List bytes) => _handleV2Binary(bytes);
 
+  /// 【测试】注册机制A待确认消息（模拟 sendMessage 出站后的确认登记）
+  @visibleForTesting
+  void startMessageConfirmationForTest(String messageId) =>
+      _startMessageConfirmation(messageId);
+
   /// 【测试】重置单例（仅测试使用）
   @visibleForTesting
   static void resetForTest() {
@@ -560,16 +565,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           }
           break;
         case FrameType.ack:
+          // 【契约】0x03 ACK 帧载荷为定长 8 字节 uint64，装不下 Xid 字符串 id，
+          // 服务端也从不下发该帧；Xid 体系的确认一律走 JSON *_SERVER_ACK /
+          // CLIENT_ACK_CONFIRM（MSG_S2C 帧）。此处仅日志，禁止拿数字串去
+          // ackConfirmed——数字串与 Xid 永不相等，且会误清机制C。
           if (frame.payload.length >= 8) {
             final msgId = ByteData.sublistView(
               frame.payload,
             ).getUint64(0, Endian.big);
-            iPrint('✅ [WS] v2 frame ACK: msgId=$msgId');
-            try {
-              AckManager.to.ackConfirmed(msgId.toString());
-            } catch (e) {
-              iPrint('> ws: v2 ack 处理失败: $e');
-            }
+            iPrint('⚠️ [WS] v2 frame ACK(0x03) 收到意外帧, msgId=$msgId, 忽略');
           }
           break;
         case FrameType.nack:
@@ -752,16 +756,17 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       iPrint('[WS] msg type=$messageType id=$messageId action=$action');
 
       if (messageId.isNotEmpty) {
-        if (messageType.startsWith('WEBRTC_')) {
+        // WEBRTC_SERVER_ACK 是服务端回执，不能落入 startsWith('WEBRTC_')
+        // 分支反向再发 CLIENT_ACK（会形成无意义的确认回环）。
+        if (messageType.endsWith('_SERVER_ACK')) {
+          // #3: 出站消息的服务端确认走 type=*_SERVER_ACK（不是 action），
+          // 机制A 的 _pendingMessages 原本只由 action 结尾 _ACK 清除，导致每条
+          // 正常消息 5s 都误报"确认超时"。这里按 type 同步清除，消除误报。
+          _handleMessageConfirmation(messageId);
+        } else if (messageType.startsWith('WEBRTC_')) {
           _sendAckDirectSafe('WEBRTC', messageId);
         } else if (['S2C', 'C2S', 'C2C', 'C2G'].contains(messageType)) {
           _sendAckSafe(messageType, messageId);
-        }
-        // #3: 出站消息的服务端确认走 type=*_SERVER_ACK（不是 action），
-        // 机制A 的 _pendingMessages 原本只由 action 结尾 _ACK 清除，导致每条
-        // 正常消息 5s 都误报"确认超时"。这里按 type 同步清除，消除误报。
-        if (messageType.endsWith('_SERVER_ACK')) {
-          _handleMessageConfirmation(messageId);
         }
         _handleMessageAck(action, messageId, reason: msg['reason']?.toString());
       }

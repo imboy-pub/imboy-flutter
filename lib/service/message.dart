@@ -332,6 +332,12 @@ class MessageService with EventSubscriptionManager {
     final action = data['action']?.toString();
 
     // 【重构】所有 ACK 统一在 websocket.dart 中处理，此处不再发送
+    if (type == 'WEBRTC_SERVER_ACK') {
+      // webrtc 信令回执：机制A已在 websocket.dart 按 *_SERVER_ACK 清除；
+      // webrtc 信令无重试队列/DB sent 语义（本地通话行状态由
+      // changeLocalMsgState 管理），且 getMessageRepo 不认识该 type 会 throw。
+      return;
+    }
     if (type.startsWith('WEBRTC_')) {
       await webrtc.handleWebRTC(type, data);
     } else if (type.endsWith('_SERVER_ACK')) {
