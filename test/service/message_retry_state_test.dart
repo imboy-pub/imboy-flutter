@@ -264,6 +264,23 @@ void main() {
       expect(sendRequests.where((e) => e.messageId == id).length, 1);
     });
 
+    test('并发扫描互斥：同一到期消息只重投一次', () async {
+      const id = 'sm00000000000000t009';
+      await _insertMsg(id, status: IMBoyMessageStatus.sending);
+      retry.addToRetryQueue(id, 'C2C');
+      _makeDue(retry, id);
+
+      // 模拟网络恢复事件与定时 tick 并发触发：无互斥时两次扫描都会
+      // 在 lastRetryTime 更新前通过间隔检查 → 双发
+      await Future.wait([
+        retry.retryFailedMessages(),
+        retry.retryFailedMessages(),
+      ]);
+
+      expect(sendRequests.where((e) => e.messageId == id).length, 1);
+      expect(retry.getRetryInfo(id)!.retryCount, 1);
+    });
+
     test('B×D 去重：被状态机跟踪的消息不入离线队列', () async {
       const id = 'sm00000000000000t008';
       await _insertMsg(id, status: IMBoyMessageStatus.sending);

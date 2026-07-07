@@ -44,6 +44,10 @@ class MessageRetry with EventSubscriptionManager {
   /// Network online status.
   bool _isOnline = true;
 
+  /// 扫描互斥：网络恢复事件与定时 tick 可能并发触发 retryFailedMessages，
+  /// 两次扫描都在 lastRetryTime 更新前通过间隔检查会各重投一次（双发）。
+  bool _isScanning = false;
+
   /// 获取在线状态
   bool get isOnline => _isOnline;
 
@@ -152,11 +156,13 @@ class MessageRetry with EventSubscriptionManager {
       iPrint('🔍 [RETRY_SCAN] 开始扫描失败消息...');
 
       // 需要重试的消息状态：sending（发送中）、pendingRetry（待重试）和 error（错误）
-      final statusesToRetry = [
+      // repo.page 不按状态过滤，每表只查一次、单遍按状态集过滤
+      //（原实现按状态循环把同一批行查 3 遍）。
+      const statusesToRetry = {
         IMBoyMessageStatus.sending,
         IMBoyMessageStatus.pendingRetry,
         IMBoyMessageStatus.error,
-      ];
+      };
 
       // 获取所有消息表
       final tables = ['c2c', 'c2g', 'c2s'];
@@ -168,29 +174,27 @@ class MessageRetry with EventSubscriptionManager {
         try {
           final repo = getMessageRepo(table);
 
-          for (final status in statusesToRetry) {
-            // 查询该状态下最近的消息（限制最近100条）
-            final messages = await repo.page(page: 1, size: 100, kwd: '');
+          // 查询最近的消息（限制最近100条）
+          final messages = await repo.page(page: 1, size: 100, kwd: '');
 
-            // 过滤出需要重试的消息
-            final failedMessages = messages.where((msg) {
-              return msg.status == status &&
-                  msg.isAuthor == 1 && // 只重试自己发送的消息
-                  msg.id.isNotEmpty; // 确保 msgId 非空
-            }).toList();
+          // 过滤出需要重试的消息
+          final failedMessages = messages.where((msg) {
+            return statusesToRetry.contains(msg.status) &&
+                msg.isAuthor == 1 && // 只重试自己发送的消息
+                msg.id.isNotEmpty; // 确保 msgId 非空
+          }).toList();
 
-            for (final msg in failedMessages) {
-              totalFound++;
+          for (final msg in failedMessages) {
+            totalFound++;
 
-              // 检查消息是否已经在重试队列中
-              if (!_retryQueue.containsKey(msg.id)) {
-                // 添加到重试队列
-                addToRetryQueue(msg.id, table);
-                totalAdded++;
-                iPrint(
-                  '✅ [RETRY_SCAN] 添加失败消息到重试队列: msgId=${msg.id}, status=$status, table=$table',
-                );
-              }
+            // 检查消息是否已经在重试队列中
+            if (!_retryQueue.containsKey(msg.id)) {
+              // 添加到重试队列
+              addToRetryQueue(msg.id, table);
+              totalAdded++;
+              iPrint(
+                '✅ [RETRY_SCAN] 添加失败消息到重试队列: msgId=${msg.id}, status=${msg.status}, table=$table',
+              );
             }
           }
         } on Object catch (e) {
@@ -283,7 +287,17 @@ class MessageRetry with EventSubscriptionManager {
   /// Retry failed messages.
   Future<void> retryFailedMessages() async {
     if (!isOnline || _retryQueue.isEmpty) return;
+    // 重入互斥：见 _isScanning 声明处注释
+    if (_isScanning) return;
+    _isScanning = true;
+    try {
+      await _retryFailedMessagesLocked();
+    } finally {
+      _isScanning = false;
+    }
+  }
 
+  Future<void> _retryFailedMessagesLocked() async {
     final now = DateTimeHelper.millisecond();
 
     // 重试间隔：单一真值源 RetryPolicy（与 SDK sendWithAck 对齐）
