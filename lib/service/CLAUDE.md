@@ -7,14 +7,15 @@
 | 服务文件 | 职责 | 关键说明 |
 |---------|------|---------|
 | `event_bus.dart` | 事件总线（服务间解耦） | AppEventBus.fire() |
-| `websocket.dart` | WebSocket 连接管理 | 自动重连、心跳保活 |
+| `websocket.dart` | WebSocket 连接管理 | 自动重连、心跳保活；**不做出站确认簿记**（原机制A已删，确认/重发归 `message_retry.dart`） |
 | `message.dart` | 消息核心服务 | C2C/C2G/C2S/S2C |
 | `message_actions.dart` | 消息操作处理 | 撤回、阅后即焚 |
 | `message_s2c.dart` | 服务端→客户端消息 | - |
 | `message_offline.dart` | 离线消息拉取/批量插入 | - |
-| `message_retry.dart` | 消息重试（指数退避） | 3次上限 |
-| `message_webrtc.dart` | WebRTC 信令处理 | - |
-| `websocket_message_queue.dart` | WS 消息队列 | PersistentMessageQueue |
+| `message_retry.dart` | **出站消息确认状态机（唯一）**：5s 节拍按 `RetryPolicy` 退避重投，DB status 为真值 | 4次上限；单一清除入口 `RemoveFromRetryQueueRequestedEvent`（SERVER_ACK / action-ACK 均汇聚） |
+| `retry_policy.dart` | 客户端重试策略单一真值源 | 发消息 [3,5,10,20]s；ACK confirm [3,5,10,15]s |
+| `message_webrtc.dart` | WebRTC 信令处理 | 信令不入重试状态机（防 SDP 重放 glare） |
+| `websocket_message_queue.dart` | WS 离线队列 | 仅兜底**未被** MessageRetry 跟踪的报文（B×D 去重见 `shouldEnqueueOffline`） |
 | `sqlite.dart` | SQLite（v9, WAL, 64MB缓存） | synchronized并发控制 |
 | `cached_sqlite_service.dart` | SQLite 查询缓存 | - |
 | `migration_service.dart` | 数据库迁移（含快照备份） | upgrade/downgrade.sql |
