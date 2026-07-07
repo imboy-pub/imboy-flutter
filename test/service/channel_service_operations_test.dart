@@ -55,7 +55,10 @@ class _FakeChannelApi extends ChannelApi {
     this.myOrdersResult = const [],
     this.myInvitationsResult = const [],
     this.sentInvitationsResult = const [],
+    this.publishMessageResult,
   });
+
+  final ChannelMessageModel? Function()? publishMessageResult;
 
   final Map<String, ChannelModel> channelById;
   final bool subscribeResult;
@@ -175,7 +178,7 @@ class _FakeChannelApi extends ChannelApi {
     Map<String, dynamic>? payload,
   }) async {
     publishMessageCalls.add((channelId, content, msgType));
-    return null;
+    return publishMessageResult?.call();
   }
 
   @override
@@ -1040,11 +1043,41 @@ void main() {
 
   // ─── CH-8  publishMessage / getMessages / deleteChannel / markAsRead ────────
   //
-  // publishMessage 已迁移至 WebSocket v2 (C2CH)：构造本地 pending 消息
-  // （负时间戳作 ID 表示等待服务端确认）→ 落库 → 经 WS 发送 → 返回 pending；
-  // 不再调用 _api.publishMessage。以下契约据此校验。
-  group('CH-8 publishMessage (WS v2)', () {
-    test('返回本地 pending 消息（负 id）并落库', () async {
+  // publishMessage 现状走 REST API（12ee5931 曾把本组测试改成 WS v2/C2CH
+  // 契约，但后端至今无 C2CH 支持：无 0x28 帧路由、不回 C2CH_SERVER_ACK，
+  // 客户端实现也从未迁移——测试超前于现实导致长期红。按现实契约断言；
+  // WS 迁移落地时（后端先行）再改回负 id pending 契约。
+  group('CH-8 publishMessage (REST API 现状契约)', () {
+    ChannelMessageModel apiMsg() => ChannelMessageModel(
+      id: 9001,
+      channelId: 100,
+      content: 'hello',
+      msgType: 'channel_text',
+      createdAt: DateTime.fromMillisecondsSinceEpoch(1000),
+    );
+
+    test('API 成功 → 返回消息并落库缓存', () async {
+      final msgRepo = _FakeChannelMessageRepo();
+      final api = _FakeChannelApi(publishMessageResult: apiMsg);
+      final service = ChannelService.forTest(
+        api: api,
+        repo: _FakeChannelRepo(),
+        messageRepo: msgRepo,
+      );
+
+      final result = await service.publishMessage(
+        channelId: '100',
+        content: 'hello',
+        msgType: 'channel_text',
+      );
+
+      expect(result, isNotNull);
+      expect(result!.content, 'hello');
+      expect(api.publishMessageCalls, hasLength(1));
+      expect(msgRepo.savedMessages, hasLength(1));
+    });
+
+    test('API 返回 null → 返回 null 且不落库', () async {
       final msgRepo = _FakeChannelMessageRepo();
       final service = ChannelService.forTest(
         api: _FakeChannelApi(),
@@ -1058,34 +1091,14 @@ void main() {
         msgType: 'channel_text',
       );
 
-      expect(result, isNotNull);
-      expect(result!.id, lessThan(0), reason: '负时间戳作 pending 本地 ID');
-      expect(result.content, 'hello');
-      expect(msgRepo.savedMessages, hasLength(1));
-      expect(msgRepo.savedMessages.single.id, result.id);
+      expect(result, isNull);
+      expect(msgRepo.savedMessages, isEmpty);
     });
 
-    test('不调用 _api.publishMessage（已走 WS）', () async {
-      final api = _FakeChannelApi();
-      final service = ChannelService.forTest(
-        api: api,
-        repo: _FakeChannelRepo(),
-        messageRepo: _FakeChannelMessageRepo(),
-      );
-
-      await service.publishMessage(
-        channelId: '100',
-        content: 'hello',
-        msgType: 'channel_text',
-      );
-
-      expect(api.publishMessageCalls, isEmpty);
-    });
-
-    test('saveMessage 抛异常 → 返回 null，不崩溃', () async {
+    test('saveMessage 抛异常 → 仍返回 API 消息（本地缓存失败仅日志）', () async {
       final msgRepo = _FakeChannelMessageRepo()..throwOnSave = true;
       final service = ChannelService.forTest(
-        api: _FakeChannelApi(),
+        api: _FakeChannelApi(publishMessageResult: apiMsg),
         repo: _FakeChannelRepo(),
         messageRepo: msgRepo,
       );
@@ -1096,7 +1109,7 @@ void main() {
         msgType: 'channel_text',
       );
 
-      expect(result, isNull);
+      expect(result, isNotNull, reason: 'API 已成功，本地缓存失败不影响返回');
     });
   });
 
