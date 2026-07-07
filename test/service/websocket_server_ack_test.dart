@@ -94,13 +94,8 @@ void main() {
     WebSocketService.resetForTest();
   });
 
-  group('Xid 出站消息经 JSON *_SERVER_ACK 确认', () {
-    test('C2C_SERVER_ACK 清除机制A并 fire 机制B移除事件', () async {
-      svc.startMessageConfirmationForTest(xid);
-      expect(svc.getPendingMessages(), contains(xid));
-
-      final retryRemoved =
-          AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().first;
+  group('Xid 出站消息经 JSON *_SERVER_ACK 确认（机制A已删除）', () {
+    test('C2C_SERVER_ACK 转发下游且不触发反向 ACK', () async {
       final forwarded = AppEventBus.on<WebSocketMessageReceivedEvent>().first;
 
       svc.handleV2BinaryForTest(
@@ -112,25 +107,18 @@ void main() {
         }),
       );
 
-      // 机制A：待确认集合清空，不再有"消息确认超时"
-      expect(svc.getPendingMessages(), isNot(contains(xid)));
-
-      // 机制B：websocket 层已 fire 重试队列移除事件
-      final removeEvent = await retryRemoved.timeout(
-        const Duration(seconds: 1),
-      );
-      expect(removeEvent.messageId, xid);
-
-      // 下游：SERVER_ACK 继续转发给 MessageService
-      // （_receiveServerAck 负责 DB status→sent，属既有已验证路径）
+      // 下游：SERVER_ACK 转发给 MessageService（_receiveServerAck 走
+      // 单一清除入口 RemoveFromRetryQueueRequestedEvent + DB status→sent）
       final fwd = await forwarded.timeout(const Duration(seconds: 1));
       expect(fwd.type, 'C2C_SERVER_ACK');
       expect(fwd.data['id'], xid);
+
+      // 回执不得触发出站 ACK
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(fake.capturingSink.sent, isEmpty);
     });
 
-    test('WEBRTC_SERVER_ACK 清除机制A且不反向发送 CLIENT_ACK', () async {
-      svc.startMessageConfirmationForTest(xid);
-
+    test('WEBRTC_SERVER_ACK 不反向发送 CLIENT_ACK', () async {
       svc.handleV2BinaryForTest(
         _s2cFrame({
           'id': xid,
@@ -140,23 +128,32 @@ void main() {
         }),
       );
 
-      expect(svc.getPendingMessages(), isNot(contains(xid)));
-
       // 回执不得再触发 AckManager 出站（无论二进制 0x03 还是文本 CLIENT_ACK）
       await Future<void>.delayed(const Duration(milliseconds: 50));
       expect(fake.capturingSink.sent, isEmpty);
     });
 
-    test('入站 0x03 二进制 ACK 帧仅日志忽略（服务端从不下发）', () {
-      svc.startMessageConfirmationForTest(xid);
+    test('action-ACK 汇入单一清除入口（RemoveFromRetryQueueRequestedEvent）', () async {
+      final retryRemoved =
+          AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().first;
 
-      // 即便未来出现 0x03，uint64 数字串与 Xid 永不相等，
-      // 它不得清除任何确认状态
+      svc.handleV2BinaryForTest(
+        _s2cFrame({'id': xid, 'type': 'S2C', 'action': 'C2C_REVOKE_ACK'}),
+      );
+
+      final removeEvent = await retryRemoved.timeout(
+        const Duration(seconds: 1),
+      );
+      expect(removeEvent.messageId, xid);
+      expect(removeEvent.reason, 'ws_action_ack');
+    });
+
+    test('入站 0x03 二进制 ACK 帧仅日志忽略（服务端从不下发）', () {
+      // 0x03 载荷是 uint64，装不下 Xid；契约上确认一律走 JSON *_SERVER_ACK
       expect(
         () => svc.handleV2BinaryForTest(ImboyFrame.ack(9876543210)),
         returnsNormally,
       );
-      expect(svc.getPendingMessages(), contains(xid));
     });
   });
 }

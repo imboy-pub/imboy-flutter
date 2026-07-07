@@ -60,7 +60,6 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   // App 是否处于后台：后台期间暂停重连定时器，避免长期离线时按最大退避
   // 间隔（最长2分钟）持续唤醒耗电；回到前台由 _onAppResumed 立即重试。
   AppLifecycleState _lifecycleState = AppLifecycleState.resumed;
-  final Set<String> _pendingMessages = <String>{}; // 等待确认的消息ID
   WebSocketChannel? _channel;
   bool _isFlushing = false;
 
@@ -71,7 +70,6 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   Timer? _v2HeartbeatTimer;
   Timer? _v1HeartbeatTimer;
   Timer? _v1PongTimer;
-  final Map<String, Timer> _confirmationTimers = {}; // H9: Map允许按messageId取消
   bool _initialized = false;
 
   // 配置参数
@@ -104,11 +102,6 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// 【测试】暴露 v2 二进制帧处理
   @visibleForTesting
   void handleV2BinaryForTest(Uint8List bytes) => _handleV2Binary(bytes);
-
-  /// 【测试】注册机制A待确认消息（模拟 sendMessage 出站后的确认登记）
-  @visibleForTesting
-  void startMessageConfirmationForTest(String messageId) =>
-      _startMessageConfirmation(messageId);
 
   /// 【测试】重置单例（仅测试使用）
   @visibleForTesting
@@ -756,13 +749,13 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       iPrint('[WS] msg type=$messageType id=$messageId action=$action');
 
       if (messageId.isNotEmpty) {
-        // WEBRTC_SERVER_ACK 是服务端回执，不能落入 startsWith('WEBRTC_')
-        // 分支反向再发 CLIENT_ACK（会形成无意义的确认回环）。
+        // *_SERVER_ACK 是服务端对出站消息的回执：确认统一由下游
+        // MessageService._receiveServerAck 走单一清除入口
+        // RemoveFromRetryQueueRequestedEvent（停重发 + DB status→sent），
+        // 此处不做本地簿记；分支存在只为避免回执落入下方回 ACK 的分支
+        // （WEBRTC_SERVER_ACK 若中 startsWith('WEBRTC_') 会反向发 CLIENT_ACK）。
         if (messageType.endsWith('_SERVER_ACK')) {
-          // #3: 出站消息的服务端确认走 type=*_SERVER_ACK（不是 action），
-          // 机制A 的 _pendingMessages 原本只由 action 结尾 _ACK 清除，导致每条
-          // 正常消息 5s 都误报"确认超时"。这里按 type 同步清除，消除误报。
-          _handleMessageConfirmation(messageId);
+          // no-op：见上方注释
         } else if (messageType.startsWith('WEBRTC_')) {
           _sendAckDirectSafe('WEBRTC', messageId);
         } else if (['S2C', 'C2S', 'C2C', 'C2G'].contains(messageType)) {
@@ -822,15 +815,19 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 统一处理消息确认（包含ACK和撤回确认）
   void _handleMessageAck(String action, String messageId, {String? reason}) {
-    if (action.endsWith('_ACK')) {
-      _handleMessageConfirmation(messageId);
-    }
-
-    // 处理撤回消息的特殊确认
-    if (action.contains('REVOKE') &&
-        action.endsWith('_REVOKE_ACK') &&
+    // action-ACK（撤回/编辑/表情回应等无 *_SERVER_ACK 的操作确认）：
+    // 汇入出站确认状态机的单一清除入口（MessageRetry 停重发）。
+    // CLIENT_ACK_CONFIRM/ERROR 属机制C（入站收据），不在此列。
+    if (action.endsWith('_ACK') &&
+        action != 'CLIENT_ACK' &&
         messageId.isNotEmpty) {
-      _handleMessageConfirmation(messageId);
+      AppEventBus.fire(
+        RemoveFromRetryQueueRequestedEvent(
+          messageId: messageId,
+          messageType: 'UNKNOWN',
+          reason: 'ws_action_ack',
+        ),
+      );
     }
 
     // 【改进】处理CLIENT_ACK的确认消息，通知AckManager停止重试
@@ -1063,24 +1060,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
             : message;
         _channel?.sink.add(payload);
         _logMessageSent(message, messageId);
-
-        // 如果有消息ID，启动确认机制
-        if (messageId != null) {
-          bool isRevokeMessage = false;
-          try {
-            final messageData = jsonDecode(message);
-            final messageType = messageData['type']?.toString() ?? '';
-            isRevokeMessage = messageType.contains('REVOKE');
-          } catch (e) {
-            // 忽略解析错误
-          }
-
-          _startMessageConfirmation(
-            messageId,
-            isRevokeMessage: isRevokeMessage,
-          );
-        }
-
+        // 出站确认/重发由 MessageRetry 状态机负责（调用方 addToRetryQueue），
+        // 此处不再做本地待确认簿记。
         return true;
       } catch (e) {
         iPrint('> ws: 消息发送失败: $e');
@@ -1135,50 +1116,6 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     }
   }
 
-  /// 启动消息确认机制
-  void _startMessageConfirmation(
-    String messageId, {
-    bool isRevokeMessage = false,
-  }) {
-    // 设置超时确认（普通消息5秒，撤回消息10秒）
-    int timeoutSeconds = isRevokeMessage ? 10 : 5;
-
-    late final Timer timer;
-    timer = Timer(Duration(seconds: timeoutSeconds), () {
-      _confirmationTimers.remove(messageId);
-      if (_pendingMessages.remove(messageId)) {
-        final isConnected = _status == SocketStatus.connected;
-        iPrint('> ws: 消息确认超时: $messageId (连接正常: $isConnected)');
-        // 连接断开时才通知失败，连接正常可能是服务端延迟
-        if (!isConnected) {
-          _notifyMessageSendResult(messageId, false);
-        }
-      }
-    });
-    _confirmationTimers[messageId] = timer;
-
-    _pendingMessages.add(messageId);
-  }
-
-  /// 处理消息确认（当收到服务器ACK时调用）
-  void _handleMessageConfirmation(String messageId) {
-    // H9: ACK收到后取消对应的超时Timer，防止泄漏
-    _confirmationTimers.remove(messageId)?.cancel();
-    if (_pendingMessages.remove(messageId)) {
-      iPrint('> ws: 消息已确认: $messageId');
-      _notifyMessageSendResult(messageId, true);
-
-      // 通知消息重试队列移除（覆盖 action-ack 场景，形成发送闭环）
-      AppEventBus.fire(
-        RemoveFromRetryQueueRequestedEvent(
-          messageId: messageId,
-          messageType: 'UNKNOWN',
-          reason: 'ws_action_ack',
-        ),
-      );
-    }
-  }
-
   /// 安全记录消息发送日志（不泄露敏感信息）
   ///
   /// 在生产环境中只输出消息类型和大小，不输出完整内容
@@ -1210,16 +1147,6 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     } catch (_) {
       return 'UNKNOWN';
     }
-  }
-
-  /// 通知消息发送结果
-  void _notifyMessageSendResult(String messageId, bool success) {
-    // 通过事件总线通知消息发送结果
-    AppEventBus.fireData({
-      'type': 'MESSAGE_SEND_RESULT',
-      'messageId': messageId,
-      'success': success,
-    });
   }
 
   /// 消息发送前检查
@@ -1262,12 +1189,6 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     _v1PongTimer?.cancel();
     _v1PongTimer = null;
     _framing = FramingMode.none;
-    // 清理所有消息确认 Timer 及待确认消息 ID（两者生命周期绑定同一连接）
-    for (final t in _confirmationTimers.values) {
-      t.cancel();
-    }
-    _confirmationTimers.clear();
-    _pendingMessages.clear();
   }
 
   void _cancelReconnectTimer() {
@@ -1283,34 +1204,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// Get message queue size
   int getMessageQueueSize() => _messageQueue.messages.length;
 
-  /// 获取待确认消息数量
-  /// Get pending message count
-  int getPendingMessageCount() => _pendingMessages.length;
-
   /// 获取连接统计信息
   /// Get connection statistics
   Map<String, dynamic> getConnectionStats() {
     return {
       'status': _status.name,
       'message_queue_size': _messageQueue.messages.length,
-      'pending_messages': _pendingMessages.length,
       'connection_attempts': _backoff.attempts,
       'is_flushing': _isFlushing,
       'current_url': getWebSocketUrl(),
     };
-  }
-
-  /// 获取待确认消息列表（用于调试）
-  /// Get pending messages list (for debugging)
-  List<String> getPendingMessages() => List<String>.from(_pendingMessages);
-
-  /// 清理过期的待确认消息
-  /// Clean up expired pending messages
-  void cleanupExpiredPendingMessages() {
-    if (_pendingMessages.isNotEmpty) {
-      iPrint('> ws: 清理过期的待确认消息，当前数量: ${_pendingMessages.length}');
-      _pendingMessages.clear();
-      iPrint('> ws: 已清理所有待确认消息');
-    }
   }
 }
