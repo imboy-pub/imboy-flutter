@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
@@ -43,6 +43,12 @@ class SqliteService {
   static final SqliteService to = SqliteService._privateConstructor();
 
   static Database? _db;
+
+  /// 【测试】注入外部打开的 Database（如 sqflite_common_ffi 内存库）。
+  /// 生产路径 sqflite_sqlcipher 在宿主机测试环境无插件实现，
+  /// db getter 按 isOpen 复用注入句柄，绕过 _initDatabase。
+  @visibleForTesting
+  static void setDbForTest(Database? db) => _db = db;
 
   // SQLite 是否支持 UPDATE ... RETURNING（3.35+）。
   // 运行时探测一次后缓存，供原子自增路径选择 RETURNING 或退化实现。
