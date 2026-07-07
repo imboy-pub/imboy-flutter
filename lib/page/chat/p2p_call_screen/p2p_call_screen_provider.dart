@@ -950,33 +950,17 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       iPrint('> rtc _getIceConf: TURN 凭证获取失败，回退纯 STUN 配置');
       return _stunOnlyIceConf();
     }
-    // 解析 TURN URL 并生成 TCP 版本（用于防火墙/运营商封锁 UDP 时）
-    final turnUrls = turnCredential['turn_urls'];
-    String turnTcpUrl = '';
-    if (turnUrls is String && turnUrls.contains('udp')) {
-      turnTcpUrl = turnUrls.replaceAll('udp', 'tcp');
+    final iceServers = buildIceServers(turnCredential);
+    if (iceServers == null) {
+      // 凭证 map 非空但无有效 TURN URL（如后端未配 eturnal 返回空列表）：
+      // 空 urls 传给原生 IceServer.Builder 会抛 IllegalArgumentException，
+      // PeerConnection 建不起来且 session=null，连挂断 bye 都发不出。
+      iPrint('> rtc _getIceConf: TURN 凭证无有效 URL，回退纯 STUN 配置');
+      return _stunOnlyIceConf();
     }
 
     return {
-      'iceServers': [
-        // STUN 服务器
-        {'urls': turnCredential['stun_urls']},
-        // Google STUN 作为备用
-        {'urls': 'stun:stun.l.google.com:19302'},
-        // TURN UDP
-        {
-          'urls': turnUrls,
-          'username': turnCredential['username'],
-          'credential': turnCredential['credential'],
-        },
-        // TURN TCP（关键：用于 UDP 被封锁的场景）
-        if (turnTcpUrl.isNotEmpty)
-          {
-            'urls': turnTcpUrl,
-            'username': turnCredential['username'],
-            'credential': turnCredential['credential'],
-          },
-      ],
+      'iceServers': iceServers,
       // 关键修复：从 0 改为 10，确保 ICE 候选充分收集
       "iceCandidatePoolSize": 10,
       "encodedInsertableStreams": false,
@@ -986,6 +970,45 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       "rtcpMuxPolicy": "require",
       'sdpSemantics': 'unified-plan',
     };
+  }
+
+  /// 【纯函数】从 TURN 凭证组装 iceServers；过滤空 URL 条目。
+  /// 无有效 turn_urls 时返回 null（调用方降级 _stunOnlyIceConf）。
+  @visibleForTesting
+  static List<Map<String, dynamic>>? buildIceServers(
+    Map<String, dynamic> credential,
+  ) {
+    bool hasUrl(dynamic v) =>
+        (v is String && v.isNotEmpty) || (v is List && v.isNotEmpty);
+
+    final turnUrls = credential['turn_urls'];
+    if (!hasUrl(turnUrls)) return null;
+
+    // 解析 TURN URL 并生成 TCP 版本（用于防火墙/运营商封锁 UDP 时）
+    String turnTcpUrl = '';
+    if (turnUrls is String && turnUrls.contains('udp')) {
+      turnTcpUrl = turnUrls.replaceAll('udp', 'tcp');
+    }
+    final stunUrls = credential['stun_urls'];
+    return [
+      // STUN 服务器（后端未配置时跳过，避免空 urls 崩溃）
+      if (hasUrl(stunUrls)) {'urls': stunUrls},
+      // Google STUN 作为备用
+      {'urls': 'stun:stun.l.google.com:19302'},
+      // TURN UDP
+      {
+        'urls': turnUrls,
+        'username': credential['username'],
+        'credential': credential['credential'],
+      },
+      // TURN TCP（关键：用于 UDP 被封锁的场景）
+      if (turnTcpUrl.isNotEmpty)
+        {
+          'urls': turnTcpUrl,
+          'username': credential['username'],
+          'credential': credential['credential'],
+        },
+    ];
   }
 
   /// TURN 凭证不可用时的降级配置：仅公共 STUN，无 relay 中继能力。
