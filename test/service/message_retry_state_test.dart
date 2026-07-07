@@ -16,6 +16,7 @@ import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -261,6 +262,21 @@ void main() {
       );
       expect(retry.getRetryInfo(id), isNotNull);
       expect(sendRequests.where((e) => e.messageId == id).length, 1);
+    });
+
+    test('B×D 去重：被状态机跟踪的消息不入离线队列', () async {
+      const id = 'sm00000000000000t008';
+      await _insertMsg(id, status: IMBoyMessageStatus.sending);
+      final ws = WebSocketService.to;
+
+      // 未被跟踪 / 无 id：允许入离线队列（兜底）
+      expect(ws.shouldEnqueueOffline(id), isTrue);
+      expect(ws.shouldEnqueueOffline(null), isTrue);
+      expect(ws.shouldEnqueueOffline(''), isTrue);
+
+      // 已被状态机跟踪：跳过离线队列，重连后由状态机按退避重投
+      retry.addToRetryQueue(id, 'C2C');
+      expect(ws.shouldEnqueueOffline(id), isFalse);
     });
 
     test('手动重试幂等：已 sent 的消息拒绝重试', () async {

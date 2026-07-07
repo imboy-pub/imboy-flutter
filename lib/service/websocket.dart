@@ -10,6 +10,7 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:imboy/service/protocol/imboy_pb_codec.dart';
 import 'package:web_socket_channel/io.dart';
@@ -1070,13 +1071,31 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       }
     }
 
-    // 连接断开时，消息入队等待重连
-    iPrint('> ws: 连接断开，消息入队');
-    _enqueueMessage(message);
+    // 连接断开：仅未被重试状态机跟踪的消息入离线队列（B×D 去重，
+    // 否则重连时离线队列重放 + MessageRetry 重投 = 同一消息双发）
+    if (shouldEnqueueOffline(messageId)) {
+      iPrint('> ws: 连接断开，消息入队');
+      _enqueueMessage(message);
+    } else {
+      iPrint('> ws: 连接断开，消息由重试状态机跟踪，跳过离线队列: $messageId');
+    }
 
     // 尝试重新连接
     await openSocket(from: 'sendMessage');
     return false;
+  }
+
+  /// B×D 去重判定：已被 MessageRetry 状态机跟踪的消息不入离线队列
+  ///（断连/失败后由状态机按退避重投）；离线队列只兜底无跟踪的报文
+  ///（无 messageId 的 fire-and-forget、webrtc 信令等）。
+  @visibleForTesting
+  bool shouldEnqueueOffline(String? messageId) {
+    if (messageId == null || messageId.isEmpty) return true;
+    try {
+      return MessageRetry.instance.getRetryInfo(messageId) == null;
+    } on Object {
+      return true; // 判定失败时保守入队，宁可重复（服务端幂等）不可丢
+    }
   }
 
   /// 同步发送消息（用于 ACK 等需要立即发送的场景）
@@ -1107,8 +1126,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   Future<void> _handleSendFailure(String message, String? messageId) async {
     iPrint('> ws: 处理消息发送失败 (${messageId ?? 'unknown'})');
 
-    // 将消息加入重试队列
-    _enqueueMessage(message);
+    // 仅未被重试状态机跟踪的消息入离线队列（B×D 去重，见 shouldEnqueueOffline）
+    if (shouldEnqueueOffline(messageId)) {
+      _enqueueMessage(message);
+    }
 
     // 如果是网络问题，尝试重新连接
     if (_status != SocketStatus.connected) {
