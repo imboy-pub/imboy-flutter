@@ -651,8 +651,12 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
       page,
     );
     List<dynamic> poiList = [];
-    int status = response.data["status"] as int? ?? 0;
-    if (response.statusCode == 200 && status == 1) {
+    // 高德 v5/place/text 接口的 status 字段是字符串（"1"/"0"），跟
+    // v5/place/around（_search 用的那个）一样；这里此前按 int 强转，
+    // 每次关键字搜索必然抛 "type 'String' is not a subtype of type 'int?'"，
+    // 搜索框输入什么都没有结果返回。
+    String status = response.data["status"] as String? ?? '0';
+    if (response.statusCode == 200 && status == "1") {
       poiList = response.data["pois"] as List<dynamic>;
     }
     for (var e in poiList) {
