@@ -170,10 +170,14 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     }
   }
 
-  Future<void> _pickAvatar() async {
+  Future<void> _pickAvatar({bool useCamera = false}) async {
     Navigator.of(context).pop();
     try {
-      final media = await _picker.pickSingle(context, MediaType.image);
+      // 「拍照」此前和「从相册选择」调的是同一个 pickSingle(gallery)，从未
+      // 真正唤起相机；useCamera 时走 pickCamera（与头像编辑页同款修复）。
+      final media = useCamera
+          ? await _picker.pickCamera(context)
+          : await _picker.pickSingle(context, MediaType.image);
       if (media == null || !mounted) return;
 
       final file = File(media.path);
@@ -240,7 +244,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
             ListTile(
               leading: const Icon(Icons.camera_alt),
               title: Text(context.t.main.takePhoto),
-              onTap: () => _pickAvatar(),
+              onTap: () => _pickAvatar(useCamera: true),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),

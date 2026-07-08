@@ -74,8 +74,9 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 📷 Media & Camera                                               │
   # └─────────────────────────────────────────────────────────────────┘
-  wechat_assets_picker: ^10.1.1     # Asset picker for photos/videos (incl. camera)
-  image_picker: ^1.1.2               # Camera capture (pickImage source: camera)
+  wechat_assets_picker: ^10.1.1     # Asset picker for photos/videos (album)
+  wechat_camera_picker: ^4.5.0      # 原生相机取景界面（拍照/录像），全局唯一相机拍摄入口
+  image_picker: ^1.1.2               # 仅作桌面平台(macOS/Windows/Linux)兜底，见 wechat_assets_picker_adapter.dart
   photo_view: ^0.15.0                # Interactive image viewer with zoom/pan
   photo_manager: ^3.9.0              # Media management (gallery access)
   video_compress: ^3.1.4             # Video compression before upload
@@ -286,7 +287,6 @@ dependency_overrides:
   #audio_session: ^0.2.2
 #  just_audio: ^0.10.5
 #  intl: ^0.20.2
-#  camera: ^0.11.2 # dep by wechat_camera_picker
 
 #  scroll_to_index: // 打算弃用
 #    git:

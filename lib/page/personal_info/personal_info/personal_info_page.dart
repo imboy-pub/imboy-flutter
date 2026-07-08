@@ -259,7 +259,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.pop(ctx);
-              _getImage();
+              _getImage(useCamera: true);
             },
             child: Text(t.common.buttonTakingPictures),
           ),
@@ -280,8 +280,12 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     );
   }
 
-  Future<void> _getImage() async {
-    final media = await _picker.pickSingle(context, MediaType.image);
+  Future<void> _getImage({bool useCamera = false}) async {
+    // 「拍照」此前和「从相册选择」调的是同一个 pickSingle(gallery)，从未
+    // 真正唤起相机；useCamera 时走 pickCamera（与头像编辑页同款修复）。
+    final media = useCamera
+        ? await _picker.pickCamera(context)
+        : await _picker.pickSingle(context, MediaType.image);
     if (media != null) _cropImage(media.path);
   }
 

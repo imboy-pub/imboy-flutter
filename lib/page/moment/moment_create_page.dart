@@ -133,9 +133,13 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     return completer.future;
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage({bool useCamera = false}) async {
     if (_isUploading || _media.length >= momentMaxImageCount) return;
-    final media = await _picker.pickSingle(context, MediaType.image);
+    // 「拍照」此前和「从相册选择」调的是同一个 pickSingle(gallery)，从未
+    // 真正唤起相机；useCamera 时走 pickCamera（与头像编辑页同款修复）。
+    final media = useCamera
+        ? await _picker.pickCamera(context)
+        : await _picker.pickSingle(context, MediaType.image);
     if (media == null || !mounted) return;
 
     setState(() {
@@ -342,7 +346,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 title: Text(context.t.main.takePhoto),
                 onTap: () async {
                   Navigator.of(ctx).pop();
-                  await _pickImage();
+                  await _pickImage(useCamera: true);
                 },
               ),
               ListTile(

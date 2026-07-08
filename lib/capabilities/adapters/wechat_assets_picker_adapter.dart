@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 
@@ -76,21 +77,39 @@ final class WechatAssetsPickerAdapter implements MediaPickerCapability {
     BuildContext context, {
     bool enableRecording = false,
   }) async {
-    // ponytail: pickVideo/pickImage 分支即可覆盖拍照+录像，无需额外 SDK
-    // 桌面平台(macOS/Windows/Linux)无相机捕获委托，ImageSource.camera 会抛 StateError，降级为文件选择
-    final source =
-        (!kIsWeb &&
-            (Platform.isMacOS || Platform.isWindows || Platform.isLinux))
-        ? ImageSource.gallery
-        : ImageSource.camera;
-    if (enableRecording) {
-      final xfile = await ImagePicker().pickVideo(source: source);
+    // 全局统一走 wechat_camera_picker（原生相机取景界面），
+    // 不再用 image_picker 的系统相机快捷方式——两者此前是两套不同实现，
+    // 同一个「拍照」语义在不同页面表现不一致。
+    //
+    // 桌面平台(macOS/Windows/Linux)：wechat_camera_picker 依赖的 camera 插件
+    // 无相机捕获委托，保留 image_picker 的相册兜底（原有行为不变）。
+    if (!kIsWeb &&
+        (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
+      if (enableRecording) {
+        final xfile = await ImagePicker().pickVideo(
+          source: ImageSource.gallery,
+        );
+        if (xfile == null) return null;
+        return PickedMedia(path: xfile.path, type: MediaType.video);
+      }
+      final xfile = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (xfile == null) return null;
-      return PickedMedia(path: xfile.path, type: MediaType.video);
+      return PickedMedia(path: xfile.path, type: MediaType.image);
     }
-    final xfile = await ImagePicker().pickImage(source: source);
-    if (xfile == null) return null;
-    return PickedMedia(path: xfile.path, type: MediaType.image);
+
+    final entity = await CameraPicker.pickFromCamera(
+      context,
+      pickerConfig: CameraPickerConfig(
+        // 沿用契约既有语义：enableRecording=true 时只录像，不拍照
+        enableRecording: enableRecording,
+        onlyEnableRecording: enableRecording,
+      ),
+    );
+    if (entity == null) return null;
+    return _toPickedMedia(
+      entity,
+      enableRecording ? MediaType.video : MediaType.image,
+    );
   }
 
   Future<PickedMedia?> _toPickedMedia(AssetEntity asset, MediaType type) async {

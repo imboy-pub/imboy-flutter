@@ -7,7 +7,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:image/image.dart' as img;
@@ -236,16 +236,17 @@ class ChatAttachmentHandler {
       bool hasPermission = await requestCameraPermission();
       if (!hasPermission || !context.mounted) return;
 
-      final List<AssetEntity>? assets = await AssetPicker.pickAssets(
+      // 之前这里其实是 AssetPicker.pickAssets（相册选择器），从未真正唤起
+      // 相机——「相机」按钮点开的是相册。改用 wechat_camera_picker 的原生
+      // 取景界面，支持点按拍照/长按录像，返回的 AssetEntity 与下面
+      // uploadCameraAsset 的图片/视频双分支上传逻辑无缝对接，无需改动。
+      final AssetEntity? entity = await CameraPicker.pickFromCamera(
         context,
-        pickerConfig: const AssetPickerConfig(
-          maxAssets: 1,
-          requestType: RequestType.common,
-        ),
+        pickerConfig: const CameraPickerConfig(enableRecording: true),
       );
 
-      if (!context.mounted || assets == null || assets.isEmpty) return;
-      await uploadCameraAsset(context, assets.first);
+      if (!context.mounted || entity == null) return;
+      await uploadCameraAsset(context, entity);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
