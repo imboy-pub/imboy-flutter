@@ -2394,6 +2394,7 @@ class _Translations$passport$de_DE extends Translations$passport$zh_CN {
 
 	// Translations
 	@override String get retrievePassword => 'Passwort wiederherstellen';
+	@override String get loginHistoryToggle => 'Anmeldeverlauf anzeigen';
 	@override String get hintEmail => 'Bitte E-Mail eingeben';
 	@override String get hintMobile => 'Bitte Mobilfunknummer eingeben';
 	@override String get forgetPassword => 'Passwort vergessen?';
@@ -4592,6 +4593,7 @@ extension on TranslationsDeDe {
 			'momentNotify.delete' => 'Löschen',
 			'momentNotify.loadFailed' => 'Laden fehlgeschlagen. Bitte später erneut versuchen.',
 			'passport.retrievePassword' => 'Passwort wiederherstellen',
+			'passport.loginHistoryToggle' => 'Anmeldeverlauf anzeigen',
 			'passport.hintEmail' => 'Bitte E-Mail eingeben',
 			'passport.hintMobile' => 'Bitte Mobilfunknummer eingeben',
 			'passport.forgetPassword' => 'Passwort vergessen?',

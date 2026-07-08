@@ -1,5 +1,6 @@
 ---
 retrievePassword: パスワードを回復
+loginHistoryToggle: ログイン履歴を表示
 hintEmail: メールアドレスを入力してください
 hintMobile: 携帯電話番号を入力してください
 forgetPassword: パスワードをお忘れですか？

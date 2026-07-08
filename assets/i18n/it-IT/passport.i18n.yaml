@@ -1,5 +1,6 @@
 ---
 retrievePassword: Recupera password
+loginHistoryToggle: Mostra cronologia accessi
 hintEmail: Inserisci email
 hintMobile: Inserisci numero di telefono
 forgetPassword: Password dimenticata?

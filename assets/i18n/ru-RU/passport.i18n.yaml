@@ -1,5 +1,6 @@
 ---
 retrievePassword: Восстановить пароль
+loginHistoryToggle: Показать историю входа
 hintEmail: Введите эл. почту
 hintMobile: Введите номер мобильного
 forgetPassword: Забыли пароль?

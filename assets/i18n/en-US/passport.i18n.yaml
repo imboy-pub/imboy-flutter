@@ -1,4 +1,5 @@
 retrievePassword: Retrieve Password
+loginHistoryToggle: Show login history
 hintEmail: Please enter email
 hintMobile: Please enter mobile number
 forgetPassword: Forgot password?
