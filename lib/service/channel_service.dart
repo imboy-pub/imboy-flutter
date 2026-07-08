@@ -9,6 +9,7 @@ import 'package:imboy/service/events/common_events.dart'
         ChannelUnreadCountUpdatedEvent,
         ChannelUnreadSummarySyncEvent;
 import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/model/channel_comment_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_order_model.dart';
@@ -252,6 +253,19 @@ class ChannelService {
   Future<int> getUnreadCount(String channelId) async {
     final subscription = await _repo.getSubscription(channelId);
     return subscription?.unreadCount ?? 0;
+  }
+
+  /// 批量获取多个频道的未读数映射 {channelId: unreadCount}
+  /// 供列表页一次性合并未读徽标，避免逐个查询。
+  Future<Map<int, int>> getUnreadMap(List<int> channelIds) async {
+    final result = <int, int>{};
+    for (final id in channelIds) {
+      final sub = await _repo.getSubscription(id.toString());
+      if (sub != null && sub.unreadCount > 0) {
+        result[id] = sub.unreadCount;
+      }
+    }
+    return result;
   }
 
   /// 更新频道未读计数
@@ -932,6 +946,95 @@ class ChannelService {
       iPrint('ChannelService: 清理过期数据完成');
     } catch (e) {
       iPrint('ChannelService: 清理过期数据失败 - $e');
+    }
+  }
+
+  // ==================== 评论 ====================
+
+  /// 获取消息评论列表
+  Future<List<ChannelCommentModel>> getComments({
+    required String channelId,
+    required String messageId,
+    int cursor = 0,
+    int limit = 20,
+  }) async {
+    try {
+      return await _api.getComments(
+        channelId: channelId,
+        messageId: messageId,
+        cursor: cursor,
+        limit: limit,
+      );
+    } catch (e) {
+      iPrint('ChannelService: 获取评论失败 - $e');
+      return [];
+    }
+  }
+
+  /// 创建评论
+  Future<ChannelCommentModel?> createComment({
+    required String channelId,
+    required String messageId,
+    required String content,
+    int parentId = 0,
+  }) async {
+    try {
+      final comment = await _api.createComment(
+        channelId: channelId,
+        messageId: messageId,
+        content: content,
+        parentId: parentId,
+      );
+      iPrint('ChannelService: 创建评论${comment != null ? "成功" : "失败"}');
+      return comment;
+    } catch (e) {
+      iPrint('ChannelService: 创建评论失败 - $e');
+      return null;
+    }
+  }
+
+  /// 删除评论
+  Future<bool> deleteComment({
+    required String channelId,
+    required String commentId,
+  }) async {
+    try {
+      return await _api.deleteComment(
+        channelId: channelId,
+        commentId: commentId,
+      );
+    } catch (e) {
+      iPrint('ChannelService: 删除评论失败 - $e');
+      return false;
+    }
+  }
+
+  /// 点赞评论
+  Future<bool> likeComment({
+    required String channelId,
+    required String commentId,
+  }) async {
+    try {
+      return await _api.likeComment(channelId: channelId, commentId: commentId);
+    } catch (e) {
+      iPrint('ChannelService: 点赞评论失败 - $e');
+      return false;
+    }
+  }
+
+  /// 取消点赞评论
+  Future<bool> unlikeComment({
+    required String channelId,
+    required String commentId,
+  }) async {
+    try {
+      return await _api.unlikeComment(
+        channelId: channelId,
+        commentId: commentId,
+      );
+    } catch (e) {
+      iPrint('ChannelService: 取消点赞评论失败 - $e');
+      return false;
     }
   }
 }

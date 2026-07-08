@@ -109,6 +109,22 @@ List<RouteBase> channelRoutes() => [
               );
             },
           ),
+          // 频道消息评论页
+          GoRoute(
+            path: '/message/:messageId/comments',
+            name: 'channel_comments',
+            pageBuilder: (context, state) {
+              final channelId = state.pathParameters['channelId']!;
+              final messageId = state.pathParameters['messageId']!;
+              return CupertinoPage(
+                key: state.pageKey,
+                child: ChannelCommentPage(
+                  channelId: channelId,
+                  messageId: messageId,
+                ),
+              );
+            },
+          ),
         ],
       ),
     ],
