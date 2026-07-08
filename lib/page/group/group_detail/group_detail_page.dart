@@ -28,12 +28,23 @@ import 'package:synchronized/synchronized.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_role_rules.dart';
+import 'package:imboy/page/group/group_detail/widgets/group_app_grid.dart';
+import 'package:imboy/page/group/group_detail/widgets/group_info_card.dart';
+import 'package:imboy/page/group/widgets/group_dialogs.dart';
 import 'change_info_page.dart';
 import 'group_detail_provider.dart';
 import 'group_detail_service.dart';
 import 'group_notice_disabled_tile.dart';
 
-/// 群组详情页面 - iOS 17 Premium 风格重构
+/// 群组详情页面 - iOS 17 Premium 风格
+///
+/// 信息架构（自上而下，对标微信群设置 + QQ 群应用）：
+///   1. 群信息卡片（头像/群名/简介/成员数 → 编辑）
+///   2. 群成员横滑区（头像列表 + 添加/移除 + 查看全部）
+///   3. 群应用九宫格（公告/文件/相册/投票/日程/任务/标签/分类/二维码）
+///   4. 偏好设置（免打扰/群昵称/群备注/搜索）
+///   5. 危险操作（清空记录/投诉）
+///   6. 退出/解散按钮
 class GroupDetailPage extends ConsumerStatefulWidget {
   final String groupId;
   final String title;
@@ -114,6 +125,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       if (g != null) {
         notifier.setMemberCount(g.memberCount);
         notifier.setTitle(g.title);
+        // 补全群信息，供 GroupInfoCard 展示头像/简介
+        notifier.setGroup(g);
         if (connected && widget.memberCount != g.memberCount) {
           memberList = await service.listGroupMember(
             gid: widget.groupId,
@@ -150,6 +163,21 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     });
   }
 
+  /// 编辑群信息（群名/头像/简介）。
+  Future<void> _editGroupInfo(GroupModel? group) async {
+    if (group == null || !context.mounted) return;
+    await Navigator.push(
+      context,
+      CupertinoPageRoute<void>(
+        builder: (_) => ChangeInfoPage(
+          group: group,
+          title: t.group.groupName,
+          subtitle: t.common.pleaseEnterContent,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(groupDetailProvider);
@@ -160,104 +188,37 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       useLargeTitle: false,
       child: Column(
         children: [
-          // 成员列表 Section：独立 ConsumerWidget，只 select
-          // memberCount/memberList，避免页面其他字段变化（如
-          // myGroupAlias/title）连带重建头像列表布局。
+          // 1. 群信息卡片
+          GroupInfoCard(
+            group:
+                state.group ??
+                GroupModel(
+                  groupId: int.tryParse(widget.groupId) ?? 0,
+                  type: 2,
+                  joinLimit: 1,
+                  contentLimit: 1,
+                  userIdSum: 0,
+                  ownerUid: 0,
+                  creatorUid: 0,
+                  memberMax: 0,
+                  memberCount: state.memberCount,
+                  title: state.title,
+                  createdAt: 0,
+                ),
+            onTap: () async =>
+                _editGroupInfo(await GroupDetailService().find(widget.groupId)),
+          ),
+
+          // 2. 群成员横滑区
           _GroupMemberSection(
             groupId: widget.groupId,
             onMemberRemoved: () => backDoRefresh = true,
           ),
 
-          // 基本设置 Section
-          ImBoySettingsSection(
-            children: [
-              ImBoySettingsTile(
-                title: Text(t.group.groupName),
-                trailing: Text(
-                  state.title.isEmpty ? t.main.unnamed : state.title,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
-                onTap: () async {
-                  GroupModel? group = await GroupDetailService().find(
-                    widget.groupId,
-                  );
-                  if (group != null && context.mounted) {
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute<void>(
-                        builder: (_) => ChangeInfoPage(
-                          group: group,
-                          title: t.group.groupName,
-                          subtitle: t.common.pleaseEnterContent,
-                        ),
-                      ),
-                    );
-                  }
-                },
-              ),
-              ImBoySettingsTile(
-                title: Text(t.account.groupQrcode),
-                leading: const Icon(
-                  CupertinoIcons.qrcode,
-                  color: AppColors.iosGray,
-                  size: 20,
-                ),
-                onTap: () async {
-                  GroupModel? group = await GroupDetailService().find(
-                    widget.groupId,
-                  );
-                  if (group != null && context.mounted) {
-                    context.push('/qrcode/group', extra: {'group': group});
-                  }
-                },
-              ),
-              ImBoySettingsTile(
-                title: Text(t.common.groupAnnouncement),
-                onTap: () => context.push(
-                  '/group/announcement',
-                  extra: {'groupId': widget.groupId},
-                ),
-              ),
-              ImBoySettingsTile(
-                title: Text(t.chat.groupFile),
-                onTap: () => context.push('/group/${widget.groupId}/file'),
-              ),
-              ImBoySettingsTile(
-                title: Text(t.group.groupAlbum),
-                onTap: () => context.push('/group/${widget.groupId}/album'),
-              ),
-            ],
-          ),
+          // 3. 群应用九宫格
+          GroupAppGrid(items: _buildAppItems(state.group)),
 
-          // 搜索 Section
-          ImBoySettingsSection(
-            children: [
-              ImBoySettingsTile(
-                title: Text(t.common.searchChatContent),
-                leading: const Icon(
-                  CupertinoIcons.search,
-                  color: AppColors.iosBlue,
-                  size: 20,
-                ),
-                onTap: () => context.push(
-                  '/search_chat',
-                  extra: {
-                    'type': 'C2G',
-                    'peerId': widget.groupId,
-                    'peerTitle': widget.title,
-                    'peerAvatar': widget.options?['peerAvatar'],
-                    'peerSign': widget.options?['peerSign'],
-                    'conversationUk3': widget.options?['conversationUk3'],
-                  },
-                ),
-              ),
-            ],
-          ),
-
-          // 偏好设置 Section
+          // 4. 偏好设置 Section
           ImBoySettingsSection(
             children: [
               ImBoySettingsTile(
@@ -345,10 +306,29 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         }
                       },
               ),
+              ImBoySettingsTile(
+                title: Text(t.common.searchChatContent),
+                leading: const Icon(
+                  CupertinoIcons.search,
+                  color: AppColors.iosBlue,
+                  size: 20,
+                ),
+                onTap: () => context.push(
+                  '/search_chat',
+                  extra: {
+                    'type': 'C2G',
+                    'peerId': widget.groupId,
+                    'peerTitle': widget.title,
+                    'peerAvatar': widget.options?['peerAvatar'],
+                    'peerSign': widget.options?['peerSign'],
+                    'conversationUk3': widget.options?['conversationUk3'],
+                  },
+                ),
+              ),
             ],
           ),
 
-          // 聊天操作 Section
+          // 5. 危险操作 Section
           ImBoySettingsSection(
             children: [
               ImBoySettingsTile(
@@ -356,12 +336,6 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 destructive: true,
                 onTap: () => _confirmClearChat(),
               ),
-            ],
-          ),
-
-          // 投诉 Section
-          ImBoySettingsSection(
-            children: [
               ImBoySettingsTile(
                 title: Text(t.complaint.complaint),
                 onTap: () => _showComplaintDialog(context),
@@ -369,7 +343,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             ],
           ),
 
-          // 退出/解散按钮
+          // 6. 退出/解散按钮
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.regular,
@@ -410,6 +384,73 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
         ],
       ),
     );
+  }
+
+  /// 构建群应用九宫格入口。每项跳转对应协作子页面路由。
+  List<GroupAppItem> _buildAppItems(GroupModel? group) {
+    final gid = widget.groupId;
+    return [
+      GroupAppItem(
+        icon: CupertinoIcons.speaker_2_fill,
+        label: t.common.groupAnnouncement,
+        color: AppColors.iosOrange,
+        onTap: () =>
+            context.push('/group/announcement', extra: {'groupId': gid}),
+      ),
+      GroupAppItem(
+        icon: CupertinoIcons.folder_fill,
+        label: t.chat.groupFile,
+        color: AppColors.iosBlue,
+        onTap: () => context.push('/group/$gid/file'),
+      ),
+      GroupAppItem(
+        icon: CupertinoIcons.photo_fill,
+        label: t.group.groupAlbum,
+        color: AppColors.iosGreen,
+        onTap: () => context.push('/group/$gid/album'),
+      ),
+      GroupAppItem(
+        icon: CupertinoIcons.chart_bar_square_fill,
+        label: t.groupVote.title,
+        color: AppColors.iosPurple,
+        onTap: () => context.push('/group/$gid/vote'),
+      ),
+      GroupAppItem(
+        icon: CupertinoIcons.calendar,
+        label: t.groupSchedule.title,
+        color: AppColors.iosRed,
+        onTap: () => context.push('/group/$gid/schedule'),
+      ),
+      GroupAppItem(
+        icon: CupertinoIcons.checkmark_seal_fill,
+        label: t.groupTask.title,
+        color: AppColors.iosTeal,
+        onTap: () => context.push('/group/$gid/task'),
+      ),
+      GroupAppItem(
+        icon: CupertinoIcons.tag_fill,
+        label: t.groupTag.title,
+        color: AppColors.iosSkyBlue,
+        onTap: () => context.push('/group/$gid/tag'),
+      ),
+      GroupAppItem(
+        icon: CupertinoIcons.folder_open,
+        label: t.groupCategory.title,
+        color: AppColors.iosYellow,
+        onTap: () => context.push('/group/category'),
+      ),
+      GroupAppItem(
+        icon: CupertinoIcons.qrcode,
+        label: t.account.groupQrcode,
+        color: AppColors.iosGray,
+        onTap: () async {
+          final g = group ?? await GroupDetailService().find(gid);
+          if (g != null && mounted) {
+            context.push('/qrcode/group', extra: {'group': g});
+          }
+        },
+      ),
+    ];
   }
 
   void _confirmClearChat() {
@@ -485,44 +526,44 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   }
 
   void _showComplaintDialog(BuildContext context) {
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        title: Text(t.complaint.complaint),
-        actions: [
-          _action(ctx, 'spam', t.complaintReason.spam),
-          _action(ctx, 'harassment', t.complaintReason.harassment),
-          _action(ctx, 'inappropriate', t.complaintReason.inappropriate),
-          _action(ctx, 'other', t.complaintReason.other),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text(t.common.buttonCancel),
-          onPressed: () => Navigator.pop(ctx),
+    GroupDialogs.actionSheet(
+      context,
+      title: t.complaint.complaint,
+      actions: [
+        (
+          label: t.complaintReason.spam,
+          destructive: false,
+          onPressed: () => _submitComplaint('spam'),
         ),
-      ),
+        (
+          label: t.complaintReason.harassment,
+          destructive: false,
+          onPressed: () => _submitComplaint('harassment'),
+        ),
+        (
+          label: t.complaintReason.inappropriate,
+          destructive: false,
+          onPressed: () => _submitComplaint('inappropriate'),
+        ),
+        (
+          label: t.complaintReason.other,
+          destructive: false,
+          onPressed: () => _submitComplaint('other'),
+        ),
+      ],
     );
   }
 
-  CupertinoActionSheetAction _action(
-    BuildContext ctx,
-    String val,
-    String label,
-  ) {
-    return CupertinoActionSheetAction(
-      onPressed: () async {
-        Navigator.pop(ctx);
-        if (await ReportApi().create(
-          targetType: 'group',
-          targetId: widget.groupId,
-          reason: val,
-        )) {
-          AppLoading.showSuccess(t.common.complaintSuccess);
-        } else {
-          AppLoading.showError(t.common.complaintFailed);
-        }
-      },
-      child: Text(label),
-    );
+  Future<void> _submitComplaint(String reason) async {
+    if (await ReportApi().create(
+      targetType: 'group',
+      targetId: widget.groupId,
+      reason: reason,
+    )) {
+      AppLoading.showSuccess(t.common.complaintSuccess);
+    } else {
+      AppLoading.showError(t.common.complaintFailed);
+    }
   }
 }
 
@@ -551,7 +592,7 @@ class _GroupMemberSection extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(
         AppSpacing.regular,
-        AppSpacing.large,
+        AppSpacing.small,
         AppSpacing.regular,
         AppSpacing.small,
       ),
