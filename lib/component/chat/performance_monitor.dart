@@ -6,6 +6,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 聊天性能监控工具（增强版）
 /// 用于监控聊天界面的渲染性能和内存使用
@@ -333,9 +334,9 @@ class _PerformanceMonitorPanelState extends State<PerformanceMonitorPanel> {
               const SizedBox(width: 8),
               Text(
                 'FPS: ${fps.toStringAsFixed(1)}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
+                  fontSize: FontSizeType.small.size,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -344,11 +345,17 @@ class _PerformanceMonitorPanelState extends State<PerformanceMonitorPanel> {
           const SizedBox(height: 4),
           Text(
             '构建: ${report['avg_build_time_ms'].toStringAsFixed(2)}ms',
-            style: const TextStyle(color: Colors.white70, fontSize: 10),
+            style: TextStyle(
+              color: AppColors.overlayWhite70,
+              fontSize: FontSizeType.tiny.size,
+            ),
           ),
           Text(
             '内存: ${report['memory_stats']['memory_usage_mb'].toStringAsFixed(1)}MB',
-            style: const TextStyle(color: Colors.white70, fontSize: 10),
+            style: TextStyle(
+              color: AppColors.overlayWhite70,
+              fontSize: FontSizeType.tiny.size,
+            ),
           ),
         ],
       ),
