@@ -181,17 +181,14 @@ class SearchNotifier extends _$SearchNotifier {
 
   @override
   SearchDataState build() {
-    _loadSearchHistory();
-    return const SearchDataState();
+    return SearchDataState(searchHistory: _readSearchHistory());
   }
 
-  void _loadSearchHistory() {
+  List<String> _readSearchHistory() {
     try {
-      final history =
-          StorageService.to.getStringList(_chatSearchHistoryKey) ?? [];
-      state = state.copyWith(searchHistory: history);
+      return StorageService.to.getStringList(_chatSearchHistoryKey) ?? [];
     } on Exception {
-      state = state.copyWith(searchHistory: []);
+      return [];
     }
   }
 
