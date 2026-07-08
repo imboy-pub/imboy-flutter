@@ -5,8 +5,11 @@ import 'package:amap_flutter_map_plus/amap_flutter_map_plus.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'amap_helper.dart';
 import 'package:imboy/i18n/strings.g.dart'; // 确保这个文件中没有使用 niku
 
@@ -54,7 +57,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       DraggableScrollableController();
   FocusNode focusNode = FocusNode();
   final _iconSize = 50.0;
-  double _fabHeightSend = 40.0;
   double _fabHeight = 16.0;
   bool _isKeyword = false;
   bool _animate = false;
@@ -82,7 +84,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                 (_kMaxChildSize - _kMinChildSize))
             .clamp(0.0, 1.0);
     setState(() {
-      _fabHeightSend = pos * range * .5 + 30;
       _fabHeight = pos * range * .5 + 16;
     });
   }
@@ -206,6 +207,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                       right: 16.0,
                       bottom: _fabHeight,
                       child: FloatingActionButton(
+                        backgroundColor: AppColors.getSurfaceColor(
+                          Theme.of(context).brightness,
+                        ),
                         onPressed: _showMyLocation,
                         child: StreamBuilder<bool>(
                           stream: _onMyLocation.stream,
@@ -213,76 +217,52 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                           builder: (context, snapshot) {
                             return Icon(
                               Icons.gps_fixed,
-                              size: 32,
+                              size: 26,
                               color: snapshot.data!
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).colorScheme.onSurface
-                                        .withValues(alpha: 0.54),
+                                  ? AppColors.primary
+                                  : AppColors.iosGray,
                             );
                           },
                         ),
                       ),
                     ),
+                    // 顶部悬浮头部：毛玻璃质感圆形按钮承载返回/发送，替代此前
+                    // 直接浮在地图上的裸图标，兼具层次感与「浮在任意地图配色
+                    // 之上都清晰可辨」的对比度；固定贴顶（SafeArea），不再随
+                    // 底部滑动面板的拖拽偏移量联动
                     Positioned(
-                      left: 16.0,
-                      top: _fabHeightSend,
-                      child: InkWell(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                          size: 40,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 16.0,
-                      top: _fabHeightSend,
-                      child: SizedBox(
-                        width: 60,
-                        child: TextButton(
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all<Color>(
-                              Theme.of(context).colorScheme.primary,
-                            ),
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      child: SafeArea(
+                        bottom: false,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.regular,
+                            vertical: AppSpacing.small,
                           ),
-                          child: Text(
-                            t.common.buttonSend,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          onPressed: () async {
-                            Map<String, dynamic>? map;
-                            if (_sendMsg != null) {
-                              map = {
-                                "id": _sendMsg!.id,
-                                "image": null,
-                                "address": _sendMsg!.address,
-                                "title": _sendMsg!.name,
-                                "latitude": _sendMsg!.latLng.latitude,
-                                "longitude": _sendMsg!.latLng.longitude,
-                                "adCode": _sendMsg!.adCode,
-                              };
-                            }
-                            if (widget.isMapImage && _sendMsg != null) {
-                              final marker = Marker(
-                                anchor: const Offset(0.5, 1),
-                                position: LatLng(
-                                  _sendMsg!.latLng.latitude,
-                                  _sendMsg!.latLng.longitude,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Semantics(
+                                button: true,
+                                label: MaterialLocalizations.of(
+                                  context,
+                                ).backButtonTooltip,
+                                child: _frostedIconButton(
+                                  onTap: () => Navigator.of(context).pop(),
+                                  icon: Icon(
+                                    Icons.arrow_back_ios_new,
+                                    size: 18,
+                                    color: AppColors.getIosBlue(
+                                      Theme.of(context).brightness,
+                                    ),
+                                  ),
                                 ),
-                              );
-                              setState(() {
-                                _markers[marker.id] = marker;
-                              });
-                              Future<dynamic>.delayed(
-                                const Duration(milliseconds: 500),
-                                () => takeSnapshotReturn(map!),
-                              );
-                            }
-                          },
+                              ),
+                              _sendButton(context),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -302,8 +282,10 @@ class _MapLocationPickerState extends State<MapLocationPicker>
             snap: true,
             snapSizes: const [_kMinChildSize, _kMaxChildSize],
             builder: (context, scrollController) {
+              final brightness = Theme.of(context).brightness;
               return ClipRRect(
-                borderRadius: AppRadius.borderRadiusSmall,
+                // 顶部圆角：这是贴底部的面板，只有上边缘该圆角，四角全圆是错误语义
+                borderRadius: AppRadius.bottomSheet,
                 child: ColoredBox(
                   color: Theme.of(context).colorScheme.surface,
                   child: StreamBuilder<List<AMapPosition>>(
@@ -316,19 +298,38 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                           onLoad: _handleLoadMore,
                           child: Column(
                             children: [
+                              // 拖拽把手：提示面板可上下拖动，此前完全没有可视化提示
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Center(
+                                  child: Container(
+                                    width: 36,
+                                    height: 5,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.getIosSeparator(
+                                        brightness,
+                                      ),
+                                      borderRadius: AppRadius.borderRadiusTiny,
+                                    ),
+                                  ),
+                                ),
+                              ),
                               Container(
+                                // 之前只有 top:10，下边完全没有间距，搜索栏和下面
+                                // 的 POI 列表贴在一起；补 bottom 让它和列表分开
                                 margin: const EdgeInsets.only(
                                   left: 10,
                                   right: 10,
                                   top: 10,
+                                  bottom: AppSpacing.small,
                                 ),
                                 alignment: Alignment.center,
                                 height: 39,
                                 decoration: BoxDecoration(
-                                  color: Colors.black12.withAlpha(10),
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(15.0),
+                                  color: AppColors.getSurfaceGrouped(
+                                    brightness,
                                   ),
+                                  borderRadius: AppRadius.borderRadiusRegular,
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -353,29 +354,29 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                           padding: const EdgeInsets.only(
                                             left: 10,
                                           ),
-                                          child: Theme(
-                                            data: Theme.of(context).copyWith(
-                                              primaryColor: Colors.black,
+                                          child: TextField(
+                                            focusNode: focusNode,
+                                            keyboardType: TextInputType.text,
+                                            controller: _searchQueryController,
+                                            onChanged: _onTextChanged,
+                                            cursorColor: AppColors.primary,
+                                            style: context.textStyle(
+                                              FontSizeType.subheadline,
+                                              color: AppColors.getTextColor(
+                                                brightness,
+                                              ),
                                             ),
-                                            child: TextField(
-                                              focusNode: focusNode,
-                                              keyboardType: TextInputType.text,
-                                              controller:
-                                                  _searchQueryController,
-                                              onChanged: _onTextChanged,
-                                              style: context.textStyle(
-                                                FontSizeType.subheadline,
-                                                color: Colors.black87,
-                                              ),
-                                              decoration: InputDecoration(
-                                                icon: const Icon(
-                                                  Icons.search,
-                                                  size: 20,
+                                            decoration: InputDecoration(
+                                              icon: Icon(
+                                                Icons.search,
+                                                size: 20,
+                                                color: AppColors.getTextColor(
+                                                  brightness,
+                                                  isSecondary: true,
                                                 ),
-                                                border: InputBorder.none,
-                                                hintText:
-                                                    t.common.searchLocation,
                                               ),
+                                              border: InputBorder.none,
+                                              hintText: t.common.searchLocation,
                                             ),
                                           ),
                                         ),
@@ -406,6 +407,11 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                             child: Center(
                                               child: Text(
                                                 t.common.buttonCancel,
+                                                style: TextStyle(
+                                                  color: AppColors.getIosBlue(
+                                                    brightness,
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -426,6 +432,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                     if (distance.isNotEmpty) {
                                       distance = "${distance}m | ";
                                     }
+                                    final isSelected = _seLindex == index;
                                     return GestureDetector(
                                       onTap: () {
                                         setState(() {
@@ -436,19 +443,26 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                           );
                                         });
                                       },
-                                      child: ListTile(
-                                        title: Text(data[index].name),
-                                        subtitle: Text(
-                                          "$distance${data[index].address}",
-                                        ),
-                                        trailing: _seLindex == index
-                                            ? Icon(
-                                                Icons.check,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.onPrimary,
+                                      child: Container(
+                                        // 选中态背景高亮：此前只有末尾一个对号，
+                                        // 整行没有任何「已选中」的视觉反馈
+                                        color: isSelected
+                                            ? AppColors.primary.withValues(
+                                                alpha: 0.08,
                                               )
-                                            : const SizedBox.shrink(),
+                                            : Colors.transparent,
+                                        child: ListTile(
+                                          title: Text(data[index].name),
+                                          subtitle: Text(
+                                            "$distance${data[index].address}",
+                                          ),
+                                          trailing: isSelected
+                                              ? Icon(
+                                                  Icons.check,
+                                                  color: AppColors.primary,
+                                                )
+                                              : const SizedBox.shrink(),
+                                        ),
                                       ),
                                     );
                                   },
@@ -460,9 +474,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                       }
                       return Center(
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation(
-                            Theme.of(context).colorScheme.onPrimary,
-                          ),
+                          // 之前用 onPrimary（配合主色背景才有效）画在普通 surface
+                          // 背景上，浅色主题下近乎不可见
+                          valueColor: AlwaysStoppedAnimation(AppColors.primary),
                         ),
                       );
                     },
@@ -476,14 +490,116 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     );
   }
 
+  /// 44×44 命中区域的圆形毛玻璃按钮：满足最小触达区，且用中性 surface 底色
+  /// + 阴影而非直接透明，保证浮在任意地图配色上都有稳定对比度
+  Widget _frostedIconButton({
+    required VoidCallback onTap,
+    required Widget icon,
+  }) {
+    final surface = AppColors.getSurfaceColor(Theme.of(context).brightness);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: SizedBox(
+        width: 44,
+        height: 44,
+        child: Center(
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: surface.withValues(alpha: 0.9),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).shadowColor.withValues(alpha: 0.12),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Center(child: icon),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 发送按钮：未选中 POI 时用置灰样式表达「暂不可用」而非看起来和平时一样，
+  /// 但仍可点击——点击时走 _handleSend 的空值兜底提示，而不是变成真正禁用
+  /// 拿不到任何反馈
+  Widget _sendButton(BuildContext context) {
+    final enabled = _sendMsg != null;
+    return Material(
+      color: enabled ? AppColors.primary : AppColors.iosGray3,
+      elevation: enabled ? 2 : 0,
+      shadowColor: Theme.of(context).shadowColor.withValues(alpha: 0.2),
+      borderRadius: AppRadius.borderRadiusRegular,
+      child: InkWell(
+        borderRadius: AppRadius.borderRadiusRegular,
+        onTap: _handleSend,
+        child: Container(
+          constraints: const BoxConstraints(minWidth: 64, minHeight: 44),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+          alignment: Alignment.center,
+          child: Text(
+            t.common.buttonSend,
+            style: TextStyle(
+              color: enabled ? AppColors.onPrimary : AppColors.iosGray,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleSend() async {
+    // POI 搜索尚未返回结果时点发送：给出反馈而不是静默无反应
+    if (_sendMsg == null) {
+      AppLoading.showToast(t.common.selectLocationFailed);
+      return;
+    }
+    final map = <String, dynamic>{
+      "id": _sendMsg!.id,
+      "image": null,
+      "address": _sendMsg!.address,
+      "title": _sendMsg!.name,
+      "latitude": _sendMsg!.latLng.latitude,
+      "longitude": _sendMsg!.latLng.longitude,
+      "adCode": _sendMsg!.adCode,
+    };
+    if (!widget.isMapImage) {
+      // 不需要地图截图：直接返回结果，无需等待 takeSnapshot
+      Navigator.pop(context, map);
+      return;
+    }
+    final marker = Marker(
+      anchor: const Offset(0.5, 1),
+      position: LatLng(_sendMsg!.latLng.latitude, _sendMsg!.latLng.longitude),
+    );
+    setState(() {
+      _markers[marker.id] = marker;
+    });
+    Future<dynamic>.delayed(
+      const Duration(milliseconds: 500),
+      () => takeSnapshotReturn(map),
+    );
+  }
+
   Future<void> takeSnapshotReturn(Map<String, dynamic> map) async {
+    if (!mounted) return;
     try {
       Uint8List? imageBytes = await _controller?.takeSnapshot();
       map["image"] = imageBytes;
+    } catch (e) {
+      // 截图失败：仍返回 map（image 缺省为 null），调用方已按
+      // result["image"] == null 走「获取地图失败，请重试」提示分支，
+      // 不再让用户卡在选点页无任何反馈。
+    }
+    if (mounted) {
       // ignore: use_build_context_synchronously
       Navigator.pop(context, map);
-    } catch (e) {
-      //
     }
   }
 
@@ -496,8 +612,9 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       _currentZoom = cameraPosition.zoom;
     }
     if (_moveByUser) {
-      //如果是用户移动
+      //如果是用户移动，地图中心已偏离「我的位置」，FAB 视觉状态同步置灰
       poiInfoList = [];
+      _onMyLocation.add(false);
       _search(cameraPosition.target);
     }
     _moveByUser = true;
@@ -513,6 +630,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
 
   Future<void> _showMyLocation() async {
     _changeCameraPosition(widget.latLng!); //我的位置
+    _onMyLocation.add(true);
     if (!_isKeyword) {
       //如果不在文字搜索中
       _search(widget.latLng!);
@@ -545,6 +663,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     _animate = false;
     _isKeyword = false;
     _seLindex = 0;
+    _searchQueryController.clear();
     focusNode.unfocus();
     _sheetController.animateTo(
       _kMinChildSize,
