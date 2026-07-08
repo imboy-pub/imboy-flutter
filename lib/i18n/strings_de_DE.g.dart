@@ -1818,6 +1818,10 @@ class _Translations$discovery$de_DE extends Translations$discovery$zh_CN {
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} und ${count} weiteren gefällt das';
 	@override String get momentPartialVisible => 'Teilweise';
 	@override String get momentContentPlaceholder => 'Woran denkst du...';
+	@override String get momentShowFull => 'Vollständig anzeigen';
+	@override String get momentExpand => 'Ausklappen';
+	@override String get momentCollapse => 'Einklappen';
+	@override String get momentReportComment => 'Kommentar melden';
 	@override String get momentsDraftKeepTitle => 'Entwurf behalten?';
 	@override String get momentsDraftKeepMessage => 'Beim nächsten Mal weiterbearbeiten';
 	@override String get momentsDraftDiscard => 'Verwerfen';
@@ -4154,6 +4158,10 @@ extension on TranslationsDeDe {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} und ${count} weiteren gefällt das',
 			'discovery.momentPartialVisible' => 'Teilweise',
 			'discovery.momentContentPlaceholder' => 'Woran denkst du...',
+			'discovery.momentShowFull' => 'Vollständig anzeigen',
+			'discovery.momentExpand' => 'Ausklappen',
+			'discovery.momentCollapse' => 'Einklappen',
+			'discovery.momentReportComment' => 'Kommentar melden',
 			'discovery.momentsDraftKeepTitle' => 'Entwurf behalten?',
 			'discovery.momentsDraftKeepMessage' => 'Beim nächsten Mal weiterbearbeiten',
 			'discovery.momentsDraftDiscard' => 'Verwerfen',
@@ -4514,12 +4522,12 @@ extension on TranslationsDeDe {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Aktuelle Länge: ${param1} / ${param2}',
 			'main.fillIn' => 'Ausfüllen',
 			'main.msgProtectedByComplianceKey' => 'Nachricht durch Compliance-Schlüssel geschützt',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'Eingeladen von: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Eingeladener: ${uid}',
 			'main.mySentTab' => 'Gesendet',
 			'main.reject' => 'Ablehnen',
-			_ => null,
-		} ?? switch (path) {
 			'main.myOrders' => 'Bestellungen',
 			'main.purchaseUnlockHint' => 'Nach Kauf werden Verlauf und neue Nachrichten freigeschaltet.',
 			'main.payingDots' => 'Zahlung...',

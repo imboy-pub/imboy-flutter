@@ -1818,6 +1818,10 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} 等${count}人讚了';
 	@override String get momentPartialVisible => '部分可見';
 	@override String get momentContentPlaceholder => '這一刻的想法...';
+	@override String get momentShowFull => '全文';
+	@override String get momentExpand => '展開';
+	@override String get momentCollapse => '收起';
+	@override String get momentReportComment => '舉報評論';
 	@override String get momentsDraftKeepTitle => '保留草稿？';
 	@override String get momentsDraftKeepMessage => '保留後下次進入可繼續編輯';
 	@override String get momentsDraftDiscard => '不保留';
@@ -4154,6 +4158,10 @@ extension on TranslationsZhHant {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人讚了',
 			'discovery.momentPartialVisible' => '部分可見',
 			'discovery.momentContentPlaceholder' => '這一刻的想法...',
+			'discovery.momentShowFull' => '全文',
+			'discovery.momentExpand' => '展開',
+			'discovery.momentCollapse' => '收起',
+			'discovery.momentReportComment' => '舉報評論',
 			'discovery.momentsDraftKeepTitle' => '保留草稿？',
 			'discovery.momentsDraftKeepMessage' => '保留後下次進入可繼續編輯',
 			'discovery.momentsDraftDiscard' => '不保留',
@@ -4514,12 +4522,12 @@ extension on TranslationsZhHant {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '目前長度：${param1} / ${param2}',
 			'main.fillIn' => '填入',
 			'main.msgProtectedByComplianceKey' => '訊息受合規金鑰保護',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => '邀請人: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '被邀請人: ${uid}',
 			'main.mySentTab' => '我發出的',
 			'main.reject' => '拒絕',
-			_ => null,
-		} ?? switch (path) {
 			'main.myOrders' => '我的訂單',
 			'main.purchaseUnlockHint' => '購買後可解鎖頻道歷史訊息與後續更新內容。',
 			'main.payingDots' => '支付中...',

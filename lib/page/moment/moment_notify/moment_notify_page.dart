@@ -217,7 +217,14 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
 
         return ListTile(
           onTap: () => _onItemTap(context, item, notifier),
-          leading: Avatar(imgUri: avatarUrl, width: 44, height: 44),
+          leading: Avatar(
+            imgUri: avatarUrl,
+            width: 44,
+            height: 44,
+            onTap: () => context.push(
+              '/contact/people/${item.fromUid}?scene=contact_page',
+            ),
+          ),
           title: Row(
             children: [
               Expanded(

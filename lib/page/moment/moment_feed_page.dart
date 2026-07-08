@@ -99,7 +99,13 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     await _fetchFirstPage();
   }
 
-  Future<void> _refresh() async => await _fetchFirstPage();
+  Future<void> _refresh() async {
+    final ok = await _fetchFirstPage();
+    // 下拉刷新失败时：若已有数据（非首屏），toast 提示而非突兀 banner
+    if (!ok && mounted && _items.isNotEmpty) {
+      AppLoading.showError(t.common.loadError);
+    }
+  }
 
   /// 滚动到列表顶部，等下一帧确保新数据已布局。
   void _scrollToTop() {
@@ -113,7 +119,8 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     });
   }
 
-  Future<void> _fetchFirstPage() async {
+  /// 返回 true 表示拉取成功，false 表示失败（用于下拉刷新反馈）。
+  Future<bool> _fetchFirstPage() async {
     List<Map<String, dynamic>>? remoteEnriched;
     String? nextCursor;
     bool? hasMore;
@@ -125,7 +132,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     } on Exception {
       remoteEnriched = null;
     }
-    if (!mounted) return;
+    if (!mounted) return false;
     final snapshot = pickFeedSnapshot(remote: remoteEnriched, cached: _items);
     setState(() {
       _items = snapshot.items;
@@ -136,6 +143,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
       }
       _isLoading = false;
     });
+    return !snapshot.isStale;
   }
 
   Future<void> _loadMore() async {
@@ -470,7 +478,18 @@ class _MomentCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Avatar(imgUri: authorAvatar, width: 42, height: 42),
+            Avatar(
+              imgUri: authorAvatar,
+              width: 42,
+              height: 42,
+              // Hero 共享元素：feed→详情头像平滑过渡
+              heroTag: 'moment_avatar_${parseModelString(item['id'])}',
+              // 点作者头像跳资料页（对齐微信）
+              onTap: () => context.push(
+                '/contact/people/${parseModelString(item['author_uid'])}'
+                '?scene=contact_page',
+              ),
+            ),
             AppSpacing.horizontalMedium,
             Expanded(
               child: Column(
@@ -519,11 +538,9 @@ class _MomentCard extends StatelessWidget {
                   if (parseModelString(item['content']).isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        parseModelString(item['content']),
-                        style: context
-                            .textStyle(FontSizeType.subheadline)
-                            .copyWith(height: 1.45),
+                      child: _MomentContent(
+                        content: parseModelString(item['content']),
+                        onViewFull: onTap,
                       ),
                     ),
                   if (media.isNotEmpty)
@@ -538,15 +555,11 @@ class _MomentCard extends StatelessWidget {
                       totalCount: likeCount,
                       onTap: onTap,
                     ),
-                  // 底部时间行（相对时间）
+                  // 底部时间行（相对时间，定时刷新避免"刚刚"假死）
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      momentRelativeTime(parseModelString(item['created_at'])),
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: AppColors.iosGray,
-                      ),
+                    child: _RelativeTimeText(
+                      createdAt: parseModelString(item['created_at']),
                     ),
                   ),
                 ],
@@ -555,6 +568,114 @@ class _MomentCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Feed 卡片正文：超长文本默认折叠（6 行），「全文」展开/「收起」折叠。
+///
+/// 替代原先无限制 Text——长文会把卡片撑成几屏高，破坏列表浏览。
+/// 短文（<140 字）不显示展开按钮。
+class _MomentContent extends StatefulWidget {
+  final String content;
+  final VoidCallback? onViewFull;
+
+  const _MomentContent({required this.content, this.onViewFull});
+
+  @override
+  State<_MomentContent> createState() => _MomentContentState();
+}
+
+class _MomentContentState extends State<_MomentContent> {
+  bool _expanded = false;
+
+  /// 约 6 行的字符阈值，超过则显示「全文」。
+  bool get _isLong => widget.content.length > 140;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.content,
+          maxLines: _expanded ? null : 6,
+          overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+          style: context
+              .textStyle(FontSizeType.subheadline)
+              .copyWith(height: 1.45),
+        ),
+        if (_isLong)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: GestureDetector(
+              onTap: () => setState(() => _expanded = !_expanded),
+              child: Text(
+                _expanded
+                    ? t.discovery.momentCollapse
+                    : t.discovery.momentShowFull,
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  color: AppColors.wechatBlue,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// 时间戳定时刷新：解决停留时"刚刚"假死问题。
+///
+/// 最近 1 小时内每 60 秒重建一次（"刚刚"→"N分钟前"过渡自然）；
+/// 超过 1 小时变化慢，不启用 Timer，避免无效开销。
+/// 列表滚动回收时 dispose 自动取消 Timer。
+class _RelativeTimeText extends StatefulWidget {
+  final String createdAt;
+
+  const _RelativeTimeText({required this.createdAt});
+
+  @override
+  State<_RelativeTimeText> createState() => _RelativeTimeTextState();
+}
+
+class _RelativeTimeTextState extends State<_RelativeTimeText> {
+  Timer? _timer;
+  int _tick = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _maybeStartTimer();
+  }
+
+  void _maybeStartTimer() {
+    final dt = DateTime.tryParse(widget.createdAt.trim());
+    if (dt == null) return;
+    final diffMin = DateTime.now().difference(dt.toLocal()).inMinutes;
+    // 只在最近 1 小时内启用定时刷新
+    if (diffMin < 60) {
+      _timer = Timer.periodic(const Duration(seconds: 60), (_) {
+        if (mounted) setState(() => _tick++);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // _tick 引用确保 Timer 触发时重建
+    assert(_tick >= 0);
+    return Text(
+      momentRelativeTime(widget.createdAt),
+      style: context.textStyle(FontSizeType.small, color: AppColors.iosGray),
     );
   }
 }

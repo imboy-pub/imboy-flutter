@@ -457,6 +457,26 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                         .textStyle(FontSizeType.body)
                         .copyWith(height: 1.5),
                   ),
+                  // 字数统计：接近上限变色提示
+                  ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: _contentController,
+                    builder: (context, value, _) {
+                      final len = value.text.length;
+                      final warn = len > 4500;
+                      return Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '$len/5000',
+                          style: context.textStyle(
+                            FontSizeType.caption2,
+                            color: warn
+                                ? AppColors.iosOrange
+                                : AppColors.iosGray3,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                   AppSpacing.verticalMedium,
                   _buildMediaGrid(t),
                 ],

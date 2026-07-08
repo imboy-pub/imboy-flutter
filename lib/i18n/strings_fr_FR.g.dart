@@ -1818,6 +1818,10 @@ class _Translations$discovery$fr_FR extends Translations$discovery$zh_CN {
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} et ${count} autres aiment ça';
 	@override String get momentPartialVisible => 'Partiel';
 	@override String get momentContentPlaceholder => 'À quoi pensez-vous...';
+	@override String get momentShowFull => 'Voir tout';
+	@override String get momentExpand => 'Développer';
+	@override String get momentCollapse => 'Réduire';
+	@override String get momentReportComment => 'Signaler le commentaire';
 	@override String get momentsDraftKeepTitle => 'Conserver le brouillon ?';
 	@override String get momentsDraftKeepMessage => 'Vous pourrez continuer la prochaine fois';
 	@override String get momentsDraftDiscard => 'Ne pas conserver';
@@ -4154,6 +4158,10 @@ extension on TranslationsFrFr {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} et ${count} autres aiment ça',
 			'discovery.momentPartialVisible' => 'Partiel',
 			'discovery.momentContentPlaceholder' => 'À quoi pensez-vous...',
+			'discovery.momentShowFull' => 'Voir tout',
+			'discovery.momentExpand' => 'Développer',
+			'discovery.momentCollapse' => 'Réduire',
+			'discovery.momentReportComment' => 'Signaler le commentaire',
 			'discovery.momentsDraftKeepTitle' => 'Conserver le brouillon ?',
 			'discovery.momentsDraftKeepMessage' => 'Vous pourrez continuer la prochaine fois',
 			'discovery.momentsDraftDiscard' => 'Ne pas conserver',
@@ -4514,12 +4522,12 @@ extension on TranslationsFrFr {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Longueur actuelle : ${param1} / ${param2}',
 			'main.fillIn' => 'Remplir',
 			'main.msgProtectedByComplianceKey' => 'Message protégé par clé de conformité',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'Invité par : ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Invité : ${uid}',
 			'main.mySentTab' => 'Envoyées',
 			'main.reject' => 'Refuser',
-			_ => null,
-		} ?? switch (path) {
 			'main.myOrders' => 'Commandes',
 			'main.purchaseUnlockHint' => 'Après achat, accédez à l\'historique et aux nouveautés du canal.',
 			'main.payingDots' => 'Paiement...',

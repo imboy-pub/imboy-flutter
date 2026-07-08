@@ -1818,6 +1818,10 @@ class _Translations$discovery$it_IT extends Translations$discovery$zh_CN {
 	@override String momentAndOthersLiked({required Object names, required Object count}) => 'A ${names} e altri ${count} piace';
 	@override String get momentPartialVisible => 'Parziale';
 	@override String get momentContentPlaceholder => 'A cosa stai pensando...';
+	@override String get momentShowFull => 'Mostra tutto';
+	@override String get momentExpand => 'Espandi';
+	@override String get momentCollapse => 'Comprimi';
+	@override String get momentReportComment => 'Segnala commento';
 	@override String get momentsDraftKeepTitle => 'Conservare la bozza?';
 	@override String get momentsDraftKeepMessage => 'Potrai continuare la prossima volta';
 	@override String get momentsDraftDiscard => 'Non conservare';
@@ -4154,6 +4158,10 @@ extension on TranslationsItIt {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => 'A ${names} e altri ${count} piace',
 			'discovery.momentPartialVisible' => 'Parziale',
 			'discovery.momentContentPlaceholder' => 'A cosa stai pensando...',
+			'discovery.momentShowFull' => 'Mostra tutto',
+			'discovery.momentExpand' => 'Espandi',
+			'discovery.momentCollapse' => 'Comprimi',
+			'discovery.momentReportComment' => 'Segnala commento',
 			'discovery.momentsDraftKeepTitle' => 'Conservare la bozza?',
 			'discovery.momentsDraftKeepMessage' => 'Potrai continuare la prossima volta',
 			'discovery.momentsDraftDiscard' => 'Non conservare',
@@ -4514,12 +4522,12 @@ extension on TranslationsItIt {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Lunghezza attuale: ${param1} / ${param2}',
 			'main.fillIn' => 'Compila',
 			'main.msgProtectedByComplianceKey' => 'Messaggio protetto da chiave di conformità',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'Invitato da: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Invitato: ${uid}',
 			'main.mySentTab' => 'Inviati',
 			'main.reject' => 'Rifiuta',
-			_ => null,
-		} ?? switch (path) {
 			'main.myOrders' => 'Ordini',
 			'main.purchaseUnlockHint' => 'Dopo l\'acquisto, accedi allo storico e agli aggiornamenti del canale.',
 			'main.payingDots' => 'Pagamento...',

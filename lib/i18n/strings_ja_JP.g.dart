@@ -1818,6 +1818,10 @@ class _Translations$discovery$ja_JP extends Translations$discovery$zh_CN {
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} 他${count}人がいいねしました';
 	@override String get momentPartialVisible => '一部公開';
 	@override String get momentContentPlaceholder => '今の思い...';
+	@override String get momentShowFull => 'すべて表示';
+	@override String get momentExpand => '展開';
+	@override String get momentCollapse => '折りたたむ';
+	@override String get momentReportComment => 'コメントを通報';
 	@override String get momentsDraftKeepTitle => '下書きを保存しますか？';
 	@override String get momentsDraftKeepMessage => '保存すれば次回編集を再開できます';
 	@override String get momentsDraftDiscard => '破棄';
@@ -4154,6 +4158,10 @@ extension on TranslationsJaJp {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 他${count}人がいいねしました',
 			'discovery.momentPartialVisible' => '一部公開',
 			'discovery.momentContentPlaceholder' => '今の思い...',
+			'discovery.momentShowFull' => 'すべて表示',
+			'discovery.momentExpand' => '展開',
+			'discovery.momentCollapse' => '折りたたむ',
+			'discovery.momentReportComment' => 'コメントを通報',
 			'discovery.momentsDraftKeepTitle' => '下書きを保存しますか？',
 			'discovery.momentsDraftKeepMessage' => '保存すれば次回編集を再開できます',
 			'discovery.momentsDraftDiscard' => '破棄',
@@ -4514,12 +4522,12 @@ extension on TranslationsJaJp {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '現在の長さ：${param1} / ${param2}',
 			'main.fillIn' => '入力',
 			'main.msgProtectedByComplianceKey' => 'メッセージはコンプライアンスキーで保護されています',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => '招待者: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '招待先: ${uid}',
 			'main.mySentTab' => '送信',
 			'main.reject' => '辞退',
-			_ => null,
-		} ?? switch (path) {
 			'main.myOrders' => '注文履歴',
 			'main.purchaseUnlockHint' => '購入すると、チャンネルの過去のメッセージと今後の更新を閲覧できます。',
 			'main.payingDots' => '決済中...',

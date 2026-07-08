@@ -1818,6 +1818,10 @@ class _Translations$discovery$en_US extends Translations$discovery$zh_CN {
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} and ${count} others liked this';
 	@override String get momentPartialVisible => 'Partial';
 	@override String get momentContentPlaceholder => 'What\'s on your mind...';
+	@override String get momentShowFull => 'Show full';
+	@override String get momentExpand => 'Expand';
+	@override String get momentCollapse => 'Collapse';
+	@override String get momentReportComment => 'Report comment';
 	@override String get momentsDraftKeepTitle => 'Keep draft?';
 	@override String get momentsDraftKeepMessage => 'You can continue editing next time';
 	@override String get momentsDraftDiscard => 'Discard';
@@ -4154,6 +4158,10 @@ extension on TranslationsEnUs {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} and ${count} others liked this',
 			'discovery.momentPartialVisible' => 'Partial',
 			'discovery.momentContentPlaceholder' => 'What\'s on your mind...',
+			'discovery.momentShowFull' => 'Show full',
+			'discovery.momentExpand' => 'Expand',
+			'discovery.momentCollapse' => 'Collapse',
+			'discovery.momentReportComment' => 'Report comment',
 			'discovery.momentsDraftKeepTitle' => 'Keep draft?',
 			'discovery.momentsDraftKeepMessage' => 'You can continue editing next time',
 			'discovery.momentsDraftDiscard' => 'Discard',
@@ -4514,12 +4522,12 @@ extension on TranslationsEnUs {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Current length: ${param1} / ${param2}',
 			'main.fillIn' => 'Fill In',
 			'main.msgProtectedByComplianceKey' => 'Message protected by compliance key',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'Inviter: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Invitee: ${uid}',
 			'main.mySentTab' => 'Sent',
 			'main.reject' => 'Reject',
-			_ => null,
-		} ?? switch (path) {
 			'main.myOrders' => 'My Orders',
 			'main.purchaseUnlockHint' => 'Purchase to unlock channel history and future updates.',
 			'main.payingDots' => 'Paying...',

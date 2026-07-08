@@ -1818,6 +1818,10 @@ class _Translations$discovery$ar_SA extends Translations$discovery$zh_CN {
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} و${count} آخرون أعجبوا';
 	@override String get momentPartialVisible => 'جزئي';
 	@override String get momentContentPlaceholder => 'بماذا تفكر...';
+	@override String get momentShowFull => 'عرض الكل';
+	@override String get momentExpand => 'توسيع';
+	@override String get momentCollapse => 'طي';
+	@override String get momentReportComment => 'إبلاغ عن التعليق';
 	@override String get momentsDraftKeepTitle => 'حفظ المسودة؟';
 	@override String get momentsDraftKeepMessage => 'يمكنك المتابعة في المرة القادمة';
 	@override String get momentsDraftDiscard => 'عدم الحفظ';
@@ -4154,6 +4158,10 @@ extension on TranslationsArSa {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} و${count} آخرون أعجبوا',
 			'discovery.momentPartialVisible' => 'جزئي',
 			'discovery.momentContentPlaceholder' => 'بماذا تفكر...',
+			'discovery.momentShowFull' => 'عرض الكل',
+			'discovery.momentExpand' => 'توسيع',
+			'discovery.momentCollapse' => 'طي',
+			'discovery.momentReportComment' => 'إبلاغ عن التعليق',
 			'discovery.momentsDraftKeepTitle' => 'حفظ المسودة؟',
 			'discovery.momentsDraftKeepMessage' => 'يمكنك المتابعة في المرة القادمة',
 			'discovery.momentsDraftDiscard' => 'عدم الحفظ',
@@ -4514,12 +4522,12 @@ extension on TranslationsArSa {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'الطول الحالي: ${param1} / ${param2}',
 			'main.fillIn' => 'ملء',
 			'main.msgProtectedByComplianceKey' => 'الرسائل محمية بمفتاح الامتثال',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'الداعي: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'المدعو: ${uid}',
 			'main.mySentTab' => 'المُرسلة',
 			'main.reject' => 'رفض',
-			_ => null,
-		} ?? switch (path) {
 			'main.myOrders' => 'طلباتي',
 			'main.purchaseUnlockHint' => 'بعد الشراء يُفتح سجل رسائل القناة والتحديثات القادمة.',
 			'main.payingDots' => 'جارٍ الدفع...',

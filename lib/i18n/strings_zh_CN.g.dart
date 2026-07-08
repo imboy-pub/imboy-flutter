@@ -5452,6 +5452,18 @@ class Translations$discovery$zh_CN {
 	/// zh-CN: '这一刻的想法...'
 	String get momentContentPlaceholder => '这一刻的想法...';
 
+	/// zh-CN: '全文'
+	String get momentShowFull => '全文';
+
+	/// zh-CN: '展开'
+	String get momentExpand => '展开';
+
+	/// zh-CN: '收起'
+	String get momentCollapse => '收起';
+
+	/// zh-CN: '举报评论'
+	String get momentReportComment => '举报评论';
+
 	/// zh-CN: '保留草稿？'
 	String get momentsDraftKeepTitle => '保留草稿？';
 
@@ -8907,6 +8919,10 @@ extension on Translations {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人赞了',
 			'discovery.momentPartialVisible' => '部分可见',
 			'discovery.momentContentPlaceholder' => '这一刻的想法...',
+			'discovery.momentShowFull' => '全文',
+			'discovery.momentExpand' => '展开',
+			'discovery.momentCollapse' => '收起',
+			'discovery.momentReportComment' => '举报评论',
 			'discovery.momentsDraftKeepTitle' => '保留草稿？',
 			'discovery.momentsDraftKeepMessage' => '保留后下次进入可继续编辑',
 			'discovery.momentsDraftDiscard' => '不保留',
@@ -9179,12 +9195,12 @@ extension on Translations {
 			'main.sentByOthers' => '他人发送的',
 			'main.setParam' => ({required Object param}) => '设置${param}',
 			'main.setting' => '设置',
+			_ => null,
+		} ?? switch (path) {
 			'main.siginQ' => '已经有账号了？',
 			'main.signInWith' => ({required Object param}) => '用${param}登录',
 			'main.source' => '来源',
 			'main.speakingTooShort' => '说话时间太短',
-			_ => null,
-		} ?? switch (path) {
 			'main.speed' => '速度',
 			'main.star' => _root.main.markStar,
 			'main.stillNeeded' => '还需',

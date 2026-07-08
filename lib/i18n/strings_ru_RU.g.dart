@@ -1818,6 +1818,10 @@ class _Translations$discovery$ru_RU extends Translations$discovery$zh_CN {
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} и еще ${count} оценили это';
 	@override String get momentPartialVisible => 'Частично';
 	@override String get momentContentPlaceholder => 'О чём вы думаете...';
+	@override String get momentShowFull => 'Показать полностью';
+	@override String get momentExpand => 'Развернуть';
+	@override String get momentCollapse => 'Свернуть';
+	@override String get momentReportComment => 'Пожаловаться на комментарий';
 	@override String get momentsDraftKeepTitle => 'Сохранить черновик?';
 	@override String get momentsDraftKeepMessage => 'Сможете продолжить в следующий раз';
 	@override String get momentsDraftDiscard => 'Не сохранять';
@@ -4154,6 +4158,10 @@ extension on TranslationsRuRu {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} и еще ${count} оценили это',
 			'discovery.momentPartialVisible' => 'Частично',
 			'discovery.momentContentPlaceholder' => 'О чём вы думаете...',
+			'discovery.momentShowFull' => 'Показать полностью',
+			'discovery.momentExpand' => 'Развернуть',
+			'discovery.momentCollapse' => 'Свернуть',
+			'discovery.momentReportComment' => 'Пожаловаться на комментарий',
 			'discovery.momentsDraftKeepTitle' => 'Сохранить черновик?',
 			'discovery.momentsDraftKeepMessage' => 'Сможете продолжить в следующий раз',
 			'discovery.momentsDraftDiscard' => 'Не сохранять',
@@ -4514,12 +4522,12 @@ extension on TranslationsRuRu {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Текущая длина: ${param1} / ${param2}',
 			'main.fillIn' => 'Заполнить',
 			'main.msgProtectedByComplianceKey' => 'Сообщения защищены ключом соответствия',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'Пригласивший: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Приглашённый: ${uid}',
 			'main.mySentTab' => 'Отправленные',
 			'main.reject' => 'Отклонить',
-			_ => null,
-		} ?? switch (path) {
 			'main.myOrders' => 'Мои заказы',
 			'main.purchaseUnlockHint' => 'После покупки откроется история сообщений канала и новые публикации.',
 			'main.payingDots' => 'Оплата...',

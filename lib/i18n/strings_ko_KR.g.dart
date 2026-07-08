@@ -1818,6 +1818,10 @@ class _Translations$discovery$ko_KR extends Translations$discovery$zh_CN {
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} 외 ${count}명이 좋아합니다';
 	@override String get momentPartialVisible => '일부 공개';
 	@override String get momentContentPlaceholder => '지금 이 순간의 생각...';
+	@override String get momentShowFull => '전체 보기';
+	@override String get momentExpand => '펼치기';
+	@override String get momentCollapse => '접기';
+	@override String get momentReportComment => '댓글 신고';
 	@override String get momentsDraftKeepTitle => '초안을 보관하시겠습니까?';
 	@override String get momentsDraftKeepMessage => '보관하면 다음에 이어서 편집할 수 있습니다';
 	@override String get momentsDraftDiscard => '버리기';
@@ -4154,6 +4158,10 @@ extension on TranslationsKoKr {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 외 ${count}명이 좋아합니다',
 			'discovery.momentPartialVisible' => '일부 공개',
 			'discovery.momentContentPlaceholder' => '지금 이 순간의 생각...',
+			'discovery.momentShowFull' => '전체 보기',
+			'discovery.momentExpand' => '펼치기',
+			'discovery.momentCollapse' => '접기',
+			'discovery.momentReportComment' => '댓글 신고',
 			'discovery.momentsDraftKeepTitle' => '초안을 보관하시겠습니까?',
 			'discovery.momentsDraftKeepMessage' => '보관하면 다음에 이어서 편집할 수 있습니다',
 			'discovery.momentsDraftDiscard' => '버리기',
@@ -4514,12 +4522,12 @@ extension on TranslationsKoKr {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '현재 길이: ${param1} / ${param2}',
 			'main.fillIn' => '입력',
 			'main.msgProtectedByComplianceKey' => '메시지는 규정 준수 키로 보호됩니다',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => '초대자: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '초대받은 사람: ${uid}',
 			'main.mySentTab' => '보낸 초대',
 			'main.reject' => '거절',
-			_ => null,
-		} ?? switch (path) {
 			'main.myOrders' => '내 주문',
 			'main.purchaseUnlockHint' => '구매 시 채널의 과거 메시지와 향후 업데이트를 볼 수 있습니다.',
 			'main.payingDots' => '결제 중...',

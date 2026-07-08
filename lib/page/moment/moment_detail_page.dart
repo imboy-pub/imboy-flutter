@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/shimmer_box.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoViewGalleryWithInitialPage;
 import 'package:imboy/component/ui/avatar.dart';
@@ -273,6 +274,40 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     });
   }
 
+  /// 评论长按菜单：复制文字 / 删除（本人或作者可见）。
+  void _showCommentActionSheet(Map<String, dynamic> comment, bool canDelete) {
+    final content = parseModelString(comment['content']);
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          if (content.isNotEmpty)
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Clipboard.setData(ClipboardData(text: content));
+                AppLoading.showSuccess(t.common.chatCopy);
+              },
+              child: Text(t.common.buttonCopy),
+            ),
+          if (canDelete)
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _deleteComment(parseModelString(comment['id']));
+              },
+              child: Text(t.discovery.momentActionDelete),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: Text(t.discovery.momentActionCancel),
+        ),
+      ),
+    );
+  }
+
   void _showPostActionSheet(BuildContext context, bool canDeletePost) {
     final post = _moment;
     final liked = post != null && parseModelBool(post['liked']);
@@ -510,7 +545,16 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         children: [
           Row(
             children: [
-              Avatar(imgUri: authorAvatar, width: 46, height: 46),
+              Avatar(
+                imgUri: authorAvatar,
+                width: 46,
+                height: 46,
+                heroTag: 'moment_avatar_${parseModelString(post['id'])}',
+                onTap: () => context.push(
+                  '/contact/people/${parseModelString(post['author_uid'])}'
+                  '?scene=contact_page',
+                ),
+              ),
               AppSpacing.horizontalMedium,
               Expanded(
                 child: Column(
@@ -539,7 +583,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
           if (content.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 12),
-              child: Text(
+              child: SelectableText(
                 content,
                 style: context
                     .textStyle(FontSizeType.medium)
@@ -701,6 +745,10 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
 
     return InkWell(
       onTap: userId != currentUid ? () => _startReplyTo(comment) : null,
+      onLongPress: () => _showCommentActionSheet(
+        comment,
+        canDeleteComment(comment, _moment!, currentUid: currentUid),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
@@ -758,15 +806,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   ) {
     final trimmedReply = replyToName == '?' ? '' : replyToName;
     if (trimmedReply.isEmpty) {
-      return Text(
+      return SelectableText(
         content,
         style: context
             .textStyle(FontSizeType.subheadline)
             .copyWith(height: 1.35),
       );
     }
-    return RichText(
-      text: TextSpan(
+    return SelectableText.rich(
+      TextSpan(
         style: context
             .textStyle(FontSizeType.subheadline)
             .copyWith(height: 1.35),
@@ -855,6 +903,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       child: TextField(
                         controller: _commentController,
                         focusNode: _commentFocusNode,
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: (_) => _addComment(),
                         decoration: InputDecoration(
                           hintText: t.discovery.momentsWriteComment,
                           border: InputBorder.none,
