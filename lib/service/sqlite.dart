@@ -11,6 +11,7 @@ import 'package:synchronized/synchronized.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/service/embedded_schema_scripts.dart';
 import 'package:imboy/service/cached_sqlite_service.dart';
 import 'package:imboy/service/db_encryption_key_service.dart';
 import 'package:imboy/service/migration_service.dart';
@@ -68,6 +69,11 @@ class SqliteService {
   // 查询缓存服务
   final CachedSqliteService _cacheService = CachedSqliteService();
 
+  // _initDatabase() 失败时的冷却截止时间。避免同一持续性错误（如资源缺失、
+  // 密钥服务异常）在短时间内被每一次 db 访问反复重试，刷屏日志。
+  DateTime? _initRetryAfter;
+  static const _initFailureCooldown = Duration(seconds: 5);
+
   /// 获取数据库连接实例
   /// Get the database connection instance
   Future<Database?> get db async {
@@ -77,12 +83,23 @@ class SqliteService {
     // 判断并自动重开。
     final cached = _db;
     if (cached != null && cached.isOpen) return cached;
+
+    // 上次初始化刚失败且仍在冷却期内，直接返回 null，不再重试
+    final retryAfter = _initRetryAfter;
+    if (retryAfter != null && DateTime.now().isBefore(retryAfter)) {
+      return null;
+    }
+
     return await _initLock.synchronized(() async {
       // 双重检查：可能已被其它等待者重开
       final c = _db;
       if (c != null && c.isOpen) return c;
-      _db = await _initDatabase();
-      return _db;
+      final result = await _initDatabase();
+      _db = result;
+      _initRetryAfter = result == null
+          ? DateTime.now().add(_initFailureCooldown)
+          : null;
+      return result;
     });
   }
 
@@ -325,10 +342,8 @@ class SqliteService {
     // 然后执行 v10+ 的增量迁移脚本（ALTER TABLE 等）。
     // 非加密平台从 example10.db 模板复制（含初始 schema），此处无需额外操作。
     if (isEncryptionSupported) {
-      // 1. 从 assets/example10.db 读取 schema
-      final schemaSql = await rootBundle.loadString(
-        'assets/migrations/baseline_schema.sql',
-      );
+      // 1. 使用内嵌 DDL 常量（不再依赖 rootBundle 加载 assets，见 embedded_schema_scripts.dart 顶部说明）
+      final schemaSql = kBaselineSchemaSql;
 
       // 按分号分割并逐条执行（过滤空行和注释）
       final statements = schemaSql

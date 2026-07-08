@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/services.dart';
+import 'package:imboy/service/embedded_schema_scripts.dart';
 import 'package:imboy/service/migration_script.dart';
 import 'package:imboy/service/migration_script_planner.dart';
 import 'package:logger/logger.dart';
@@ -61,12 +61,6 @@ class MigrationResult {
 class MigrationService {
   static final Logger _logger = Logger();
 
-  /// 升级脚本路径
-  static const String _upgradeScriptPath = 'assets/migrations/upgrade.sql';
-
-  /// 降级脚本路径
-  static const String _downgradeScriptPath = 'assets/migrations/downgrade.sql';
-
   // 单例
   static final MigrationService to = MigrationService._privateConstructor();
 
@@ -99,8 +93,8 @@ class MigrationService {
     _logger.i('Initializing MigrationService...');
 
     try {
-      _upgradeScripts = await _loadMigrationScripts(_upgradeScriptPath);
-      _downgradeScripts = await _loadMigrationScripts(_downgradeScriptPath);
+      _upgradeScripts = _parseMigrationScripts(kUpgradeScriptSql);
+      _downgradeScripts = _parseMigrationScripts(kDowngradeScriptSql);
 
       _logger.i('MigrationService initialized');
       _logger.i('Loaded ${_upgradeScripts!.length} upgrade scripts');
@@ -282,19 +276,6 @@ class MigrationService {
     } catch (e) {
       _logger.e('Error during integrity check: $e');
       return false;
-    }
-  }
-
-  /// 加载迁移脚本文件
-  Future<Map<int, MigrationScript>> _loadMigrationScripts(
-    String scriptPath,
-  ) async {
-    try {
-      final content = await rootBundle.loadString(scriptPath);
-      return _parseMigrationScripts(content);
-    } catch (e) {
-      _logger.w('Failed to load migration scripts from $scriptPath: $e');
-      return {}; // 返回空映射，允许没有迁移脚本的情况
     }
   }
 
