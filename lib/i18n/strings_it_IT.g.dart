@@ -1268,6 +1268,13 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get momentsDeleteFailed => 'Eliminazione fallita. Riprova più tardi.';
 	@override String get momentsReportSubmitted => 'Segnalazione inviata';
 	@override String get momentsReportFailed => 'Segnalazione fallita. Riprova più tardi.';
+	@override String get momentReportReasonSpam => 'Spam o pubblicità';
+	@override String get momentReportReasonHarassment => 'Molestie';
+	@override String get momentReportReasonPorn => 'Pornografia';
+	@override String get momentReportReasonFraud => 'Frode o truffa';
+	@override String get momentReportReasonInfringement => 'Violazione del copyright';
+	@override String get momentReportReasonOther => 'Altro';
+	@override String get momentReportReasonPrompt => 'Seleziona un motivo';
 	@override String get momentsLoadMoreComments => 'Carica altri commenti';
 	@override String get momentsUploadFailed => 'Caricamento media fallito. Riprova più tardi.';
 	@override String get transactionHistory => 'Cronologia transazioni';
@@ -1800,6 +1807,21 @@ class _Translations$discovery$it_IT extends Translations$discovery$zh_CN {
 	@override String get momentsDenyUidsLabel => 'UID esclusi (separati da virgola)';
 	@override String get momentsDraftRestored => 'Bozza precedente ripristinata';
 	@override String get momentsFeedStale => 'Errore di rete, mostra contenuti in cache';
+	@override String get momentActionLike => 'Mi piace';
+	@override String get momentActionCancelLike => 'Annulla';
+	@override String get momentActionComment => 'Commenta';
+	@override String get momentActionDelete => 'Elimina';
+	@override String get momentActionReport => 'Segnala';
+	@override String get momentActionCancel => 'Annulla';
+	@override String momentViewAllComments({required Object count}) => 'Vedi tutti i ${count} commenti';
+	@override String momentLikedBy({required Object names}) => 'A ${names} piace';
+	@override String momentAndOthersLiked({required Object names, required Object count}) => 'A ${names} e altri ${count} piace';
+	@override String get momentPartialVisible => 'Parziale';
+	@override String get momentContentPlaceholder => 'A cosa stai pensando...';
+	@override String get momentsDraftKeepTitle => 'Conservare la bozza?';
+	@override String get momentsDraftKeepMessage => 'Potrai continuare la prossima volta';
+	@override String get momentsDraftDiscard => 'Non conservare';
+	@override String get momentsDraftKeep => 'Conserva';
 	@override String get discover => 'Scopri';
 	@override String get shake => 'Scuoti';
 	@override String get openChannel => 'Apri canale';
@@ -3616,6 +3638,13 @@ extension on TranslationsItIt {
 			'common.momentsDeleteFailed' => 'Eliminazione fallita. Riprova più tardi.',
 			'common.momentsReportSubmitted' => 'Segnalazione inviata',
 			'common.momentsReportFailed' => 'Segnalazione fallita. Riprova più tardi.',
+			'common.momentReportReasonSpam' => 'Spam o pubblicità',
+			'common.momentReportReasonHarassment' => 'Molestie',
+			'common.momentReportReasonPorn' => 'Pornografia',
+			'common.momentReportReasonFraud' => 'Frode o truffa',
+			'common.momentReportReasonInfringement' => 'Violazione del copyright',
+			'common.momentReportReasonOther' => 'Altro',
+			'common.momentReportReasonPrompt' => 'Seleziona un motivo',
 			'common.momentsLoadMoreComments' => 'Carica altri commenti',
 			'common.momentsUploadFailed' => 'Caricamento media fallito. Riprova più tardi.',
 			'common.transactionHistory' => 'Cronologia transazioni',
@@ -3975,6 +4004,8 @@ extension on TranslationsItIt {
 			'common.initConfigProtocolError' => 'Protocollo server errato',
 			'common.initConfigFetchFailed' => 'Configurazione non disponibile. Controlla la rete.',
 			'common.attachmentGetFileFailed' => 'File non disponibile. Riprova o scegli dalla galleria.',
+			_ => null,
+		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => 'File non disponibile (compatibilità Android 9)',
 			'common.attachmentGetImageDataFailed' => 'Dati immagine non disponibili. Riprova.',
 			'common.attachmentGetOriginalImageFailed' => 'Immagine originale non disponibile',
@@ -3982,8 +4013,6 @@ extension on TranslationsItIt {
 			'common.downloadFileNotFound' => 'File scaricato inesistente. Riprova.',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Verifica fallita, riscaricamento (${retry}/${max})',
 			'common.downloadHashFailed' => 'Verifiche multiple fallite. Controlla la rete.',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferToNewDevice' => 'Al nuovo dispositivo',
 			'common.e2eeTransferPendingSection' => 'Trasferimenti in sospeso',
 			'common.e2eeTransferLoadFailed' => 'Caricamento fallito',
@@ -4114,6 +4143,21 @@ extension on TranslationsItIt {
 			'discovery.momentsDenyUidsLabel' => 'UID esclusi (separati da virgola)',
 			'discovery.momentsDraftRestored' => 'Bozza precedente ripristinata',
 			'discovery.momentsFeedStale' => 'Errore di rete, mostra contenuti in cache',
+			'discovery.momentActionLike' => 'Mi piace',
+			'discovery.momentActionCancelLike' => 'Annulla',
+			'discovery.momentActionComment' => 'Commenta',
+			'discovery.momentActionDelete' => 'Elimina',
+			'discovery.momentActionReport' => 'Segnala',
+			'discovery.momentActionCancel' => 'Annulla',
+			'discovery.momentViewAllComments' => ({required Object count}) => 'Vedi tutti i ${count} commenti',
+			'discovery.momentLikedBy' => ({required Object names}) => 'A ${names} piace',
+			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => 'A ${names} e altri ${count} piace',
+			'discovery.momentPartialVisible' => 'Parziale',
+			'discovery.momentContentPlaceholder' => 'A cosa stai pensando...',
+			'discovery.momentsDraftKeepTitle' => 'Conservare la bozza?',
+			'discovery.momentsDraftKeepMessage' => 'Potrai continuare la prossima volta',
+			'discovery.momentsDraftDiscard' => 'Non conservare',
+			'discovery.momentsDraftKeep' => 'Conserva',
 			'discovery.discover' => 'Scopri',
 			'discovery.shake' => 'Scuoti',
 			'discovery.openChannel' => 'Apri canale',
@@ -4474,6 +4518,8 @@ extension on TranslationsItIt {
 			'main.inviteeLabel' => ({required Object uid}) => 'Invitato: ${uid}',
 			'main.mySentTab' => 'Inviati',
 			'main.reject' => 'Rifiuta',
+			_ => null,
+		} ?? switch (path) {
 			'main.myOrders' => 'Ordini',
 			'main.purchaseUnlockHint' => 'Dopo l\'acquisto, accedi allo storico e agli aggiornamenti del canale.',
 			'main.payingDots' => 'Pagamento...',
@@ -4496,8 +4542,6 @@ extension on TranslationsItIt {
 			'main.e2eeProxyUser' => ({required Object uid}) => 'Garante: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Frammento ${index} / ${total}',
 			'main.e2eeReloadShards' => 'Ricarica',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeRecovering' => 'Ripristino...',
 			'main.e2eeKeyRestored' => 'Chiave ripristinata',
 			'main.e2eeUsedShards' => ({required Object count}) => '${count} frammenti usati',

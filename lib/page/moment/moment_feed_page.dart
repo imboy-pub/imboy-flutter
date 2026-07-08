@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -31,7 +33,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
 
-/// 朋友圈页面 - iOS 17 Premium 风格重构
+/// 朋友圈页面 - 对标微信朋友圈体验重构
 class MomentFeedPage extends StatefulWidget {
   const MomentFeedPage({super.key, this.facade});
 
@@ -49,6 +51,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   String? _cursor;
   bool _isLoading = true;
   bool _isLoadingMore = false;
+  bool _loadMoreError = false;
   bool _hasMore = true;
   bool _isStale = false;
 
@@ -59,7 +62,13 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     super.initState();
     _scrollController.addListener(_onScroll);
     _momentSub = AppEventBus.on<MomentTimelineChangedEvent>().listen((event) {
-      if (shouldRefreshFeedOnEvent(event.action)) _refresh();
+      if (shouldRefreshFeedOnEvent(event.action)) {
+        // 发布新帖后刷新并滚到顶部（让用户立刻看到自己刚发的帖）
+        final isNewPost = event.action == 'moment_new';
+        _refresh().then((_) {
+          if (isNewPost && mounted) _scrollToTop();
+        });
+      }
     });
     _loadInitial();
   }
@@ -92,6 +101,18 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
 
   Future<void> _refresh() async => await _fetchFirstPage();
 
+  /// 滚动到列表顶部，等下一帧确保新数据已布局。
+  void _scrollToTop() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
   Future<void> _fetchFirstPage() async {
     List<Map<String, dynamic>>? remoteEnriched;
     String? nextCursor;
@@ -119,7 +140,10 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
 
   Future<void> _loadMore() async {
     if (_cursor == null || _cursor!.isEmpty || _isLoadingMore) return;
-    setState(() => _isLoadingMore = true);
+    setState(() {
+      _isLoadingMore = true;
+      _loadMoreError = false;
+    });
     try {
       final page = await _api.getFeedPage(cursor: _cursor, limit: 20);
       if (!mounted) return;
@@ -131,7 +155,13 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
         _isLoadingMore = false;
       });
     } catch (_) {
-      if (mounted) setState(() => _isLoadingMore = false);
+      // 失败时标记错误，列表末尾渲染"加载失败，点击重试"
+      if (mounted) {
+        setState(() {
+          _isLoadingMore = false;
+          _loadMoreError = true;
+        });
+      }
     }
   }
 
@@ -139,6 +169,8 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     final momentId = parseModelString(moment['id']);
     if (momentId.isEmpty) return;
     final liked = parseModelBool(moment['liked']);
+    // 点赞/取消点赞轻触感反馈
+    HapticFeedback.lightImpact();
     final oldItems = _items;
     setState(() {
       _items = _items
@@ -191,6 +223,56 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     }
   }
 
+  /// 弹出卡片操作菜单（赞 / 评论 / 删除）。
+  void _showActionSheet(
+    BuildContext context,
+    Map<String, dynamic> item,
+    bool canDelete,
+  ) {
+    HapticFeedback.selectionClick();
+    final liked = parseModelBool(item['liked']);
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _toggleLike(item);
+            },
+            child: Text(
+              liked
+                  ? t.discovery.momentActionCancelLike
+                  : t.discovery.momentActionLike,
+            ),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.push(
+                '${AppRoutes.momentRoot}/${parseModelString(item['id'])}',
+              );
+            },
+            child: Text(t.discovery.momentActionComment),
+          ),
+          if (canDelete)
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _deleteMoment(item);
+              },
+              child: Text(t.discovery.momentActionDelete),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: Text(t.discovery.momentActionCancel),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -217,38 +299,60 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
           SliverFillRemaining(child: _buildEmptyState())
         else
           SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              if (index >= _items.length) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: CupertinoActivityIndicator()),
-                );
-              }
-              final item = _items[index];
-              final currentUid = currentUidOrEmpty();
-              final canDelete = canDeleteMoment(item, currentUid);
-              return Column(
-                children: [
-                  _MomentCard(
-                    item: item,
-                    canDelete: canDelete,
-                    onTap: () => context.push(
-                      '${AppRoutes.momentRoot}/${parseModelString(item['id'])}',
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index >= _items.length) {
+                  // 触底加载区：失败时显示重试，否则转圈
+                  if (_loadMoreError) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: CupertinoButton(
+                          onPressed: _loadMore,
+                          child: Text(
+                            t.common.loadError,
+                            style: context.textStyle(
+                              FontSizeType.footnote,
+                              color: AppColors.iosGray,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Center(child: CupertinoActivityIndicator()),
+                  );
+                }
+                final item = _items[index];
+                final currentUid = currentUidOrEmpty();
+                final canDelete = canDeleteMoment(item, currentUid);
+                return Column(
+                  children: [
+                    _MomentCard(
+                      item: item,
+                      canDelete: canDelete,
+                      onTap: () => context.push(
+                        '${AppRoutes.momentRoot}/${parseModelString(item['id'])}',
+                      ),
+                      onActionTap: () =>
+                          _showActionSheet(context, item, canDelete),
                     ),
-                    onLikeTap: () => _toggleLike(item),
-                    onDeleteTap: canDelete ? () => _deleteMoment(item) : null,
-                  ),
-                  Divider(
-                    height: 0.5,
-                    indent: 16,
-                    endIndent: 16,
-                    color: AppColors.getIosSeparator(
-                      theme.brightness,
-                    ).withValues(alpha: 0.3),
-                  ),
-                ],
-              );
-            }, childCount: _items.length + (_isLoadingMore ? 1 : 0)),
+                    Divider(
+                      height: 0.5,
+                      indent: 16,
+                      endIndent: 16,
+                      color: AppColors.getIosSeparator(
+                        theme.brightness,
+                      ).withValues(alpha: 0.3),
+                    ),
+                  ],
+                );
+              },
+              childCount:
+                  _items.length + ((_isLoadingMore || _loadMoreError) ? 1 : 0),
+            ),
           ),
       ],
     );
@@ -328,18 +432,18 @@ class MomentStaleBanner extends StatelessWidget {
   }
 }
 
+/// 朋友圈动态卡片（微信式重构）。
 class _MomentCard extends StatelessWidget {
   final Map<String, dynamic> item;
   final bool canDelete;
   final VoidCallback onTap;
-  final VoidCallback onLikeTap;
-  final VoidCallback? onDeleteTap;
+  final VoidCallback onActionTap;
+
   const _MomentCard({
     required this.item,
     required this.canDelete,
     required this.onTap,
-    required this.onLikeTap,
-    this.onDeleteTap,
+    required this.onActionTap,
   });
 
   @override
@@ -356,55 +460,70 @@ class _MomentCard extends StatelessWidget {
     final media = normalizeMedia(item['media']);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final likeCount = parseModelInt(stats['like_count']);
+    final likers = parseRecentLikers(item);
 
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Avatar(imgUri: authorAvatar, width: 44, height: 44),
+            Avatar(imgUri: authorAvatar, width: 42, height: 42),
             AppSpacing.horizontalMedium,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // 作者名 + 右上角操作入口
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        displayName,
-                        style: context.textStyle(
-                          FontSizeType.medium,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? AppColors.darkTextPrimary
-                              : AppColors.wechatBlue,
+                      Flexible(
+                        child: Text(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textStyle(
+                            FontSizeType.medium,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.wechatBlue,
+                          ),
                         ),
                       ),
-                      if (canDelete && onDeleteTap != null)
-                        IconButton(
-                          onPressed: onDeleteTap,
-                          icon: const Icon(
-                            CupertinoIcons.delete,
-                            size: 16,
-                            color: AppColors.iosGray,
+                      // 右上角•••操作入口，命中区 44×44
+                      Semantics(
+                        button: true,
+                        label: t.discovery.momentActionComment,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: onActionTap,
+                          child: const SizedBox(
+                            width: 44,
+                            height: 44,
+                            child: Center(
+                              child: Icon(
+                                CupertinoIcons.ellipsis,
+                                size: 18,
+                                color: AppColors.iosGray,
+                              ),
+                            ),
                           ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          tooltip: t.common.buttonDelete,
                         ),
+                      ),
                     ],
                   ),
                   if (parseModelString(item['content']).isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                      padding: const EdgeInsets.only(top: 8),
                       child: Text(
                         parseModelString(item['content']),
                         style: context
                             .textStyle(FontSizeType.subheadline)
-                            .copyWith(height: 1.4),
+                            .copyWith(height: 1.45),
                       ),
                     ),
                   if (media.isNotEmpty)
@@ -412,36 +531,22 @@ class _MomentCard extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 10),
                       child: _MomentMediaPreview(media: media),
                     ),
+                  // 点赞人行（微信核心社交反馈）
+                  if (likeCount > 0 || likers.isNotEmpty)
+                    _MomentLikersRow(
+                      likers: likers,
+                      totalCount: likeCount,
+                      onTap: onTap,
+                    ),
+                  // 底部时间行（相对时间）
                   Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Row(
-                      children: [
-                        Text(
-                          parseModelString(item['created_at']),
-                          style: context.textStyle(
-                            FontSizeType.small,
-                            color: AppColors.iosGray,
-                          ),
-                        ),
-                        const Spacer(),
-                        _buildInteractionButton(
-                          context,
-                          CupertinoIcons.heart,
-                          parseModelInt(stats['like_count']),
-                          parseModelBool(item['liked'])
-                              ? AppColors.iosRed
-                              : AppColors.iosGray,
-                          onLikeTap,
-                        ),
-                        AppSpacing.horizontalLarge,
-                        _buildInteractionButton(
-                          context,
-                          CupertinoIcons.chat_bubble,
-                          parseModelInt(stats['comment_count']),
-                          AppColors.iosGray,
-                          onTap,
-                        ),
-                      ],
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      momentRelativeTime(parseModelString(item['created_at'])),
+                      style: context.textStyle(
+                        FontSizeType.small,
+                        color: AppColors.iosGray,
+                      ),
                     ),
                   ),
                 ],
@@ -452,36 +557,122 @@ class _MomentCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildInteractionButton(
-    BuildContext context,
-    IconData icon,
-    int count,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 18, color: color),
-            if (count > 0)
-              Padding(
-                padding: const EdgeInsets.only(left: 4),
+/// 点赞心形：点赞数增加时做一次弹跳动画（1.0→1.3→1.0）。
+class _AnimatedHeart extends StatefulWidget {
+  final int count;
+  const _AnimatedHeart({required this.count});
+
+  @override
+  State<_AnimatedHeart> createState() => _AnimatedHeartState();
+}
+
+class _AnimatedHeartState extends State<_AnimatedHeart>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+  int _prevCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _prevCount = widget.count;
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+    );
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.0,
+          end: 1.3,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.3,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 50,
+      ),
+    ]).animate(_controller);
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedHeart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.count > _prevCount) {
+      _controller.forward(from: 0);
+    }
+    _prevCount = widget.count;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scale,
+      child: const Icon(
+        CupertinoIcons.heart_fill,
+        size: 14,
+        color: AppColors.wechatBlue,
+      ),
+    );
+  }
+}
+
+/// 点赞人行：左侧心形图标 + 「张三、李四 等 N 人赞了」。
+class _MomentLikersRow extends StatelessWidget {
+  final List<Map<String, dynamic>> likers;
+  final int totalCount;
+  final VoidCallback onTap;
+
+  const _MomentLikersRow({
+    required this.likers,
+    required this.totalCount,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final label = buildLikersLabel(likers, totalCount, translations: context.t);
+    if (label.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.darkSurfaceGroupedTertiary
+                : AppColors.lightSurfaceGrouped,
+            borderRadius: AppRadius.borderRadiusSmall,
+          ),
+          child: Row(
+            children: [
+              _AnimatedHeart(count: totalCount),
+              const SizedBox(width: 6),
+              Expanded(
                 child: Text(
-                  formatMomentCountLabel(count),
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: context.textStyle(
-                    FontSizeType.small,
-                    color: color,
-                    fontWeight: FontWeight.w500,
+                    FontSizeType.footnote,
+                    color: AppColors.wechatBlue,
                   ),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -500,18 +691,26 @@ class _MomentMediaPreview extends StatelessWidget {
         .toList();
     if (media.length == 1) {
       final isVideo = parseModelString(media.first['type']) == 'video';
+      // 单图按真实宽高比展示，视频仍走固定尺寸 cell
+      if (!isVideo) {
+        return _SingleImagePreview(
+          item: media.first,
+          imageUrls: imageUrls,
+          imageIndex: 0,
+        );
+      }
       return _MomentMediaCell(
         item: media.first,
         size: 200,
-        imageUrls: isVideo ? const [] : imageUrls,
+        imageUrls: const [],
         imageIndex: 0,
       );
     }
     int imgIdx = 0;
     final cellSize = (MediaQuery.of(context).size.width - 100) / 3;
     return Wrap(
-      spacing: 6,
-      runSpacing: 6,
+      spacing: AppSpacing.small,
+      runSpacing: AppSpacing.small,
       children: media.map((item) {
         final isVideo = parseModelString(item['type']) == 'video';
         final idx = isVideo ? 0 : imgIdx++;
@@ -522,6 +721,129 @@ class _MomentMediaPreview extends StatelessWidget {
           imageIndex: idx,
         );
       }).toList(),
+    );
+  }
+}
+
+/// 单图按真实宽高比展示（对齐微信/小红书）。
+class _SingleImagePreview extends StatefulWidget {
+  final Map<String, dynamic> item;
+  final List<String> imageUrls;
+  final int imageIndex;
+
+  const _SingleImagePreview({
+    required this.item,
+    required this.imageUrls,
+    required this.imageIndex,
+  });
+
+  @override
+  State<_SingleImagePreview> createState() => _SingleImagePreviewState();
+}
+
+class _SingleImagePreviewState extends State<_SingleImagePreview> {
+  double? _aspectRatio;
+  ImageStream? _imageStream;
+  late ImageStreamListener _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    final url = pickMediaPreviewUrl(widget.item);
+    if (url.isEmpty) return;
+    final provider = cachedImageProvider(url);
+    _listener = ImageStreamListener((info, _) {
+      if (!mounted) return;
+      final img = info.image;
+      final w = img.width.toDouble();
+      final h = img.height.toDouble();
+      if (h > 0 && mounted) {
+        setState(() => _aspectRatio = w / h);
+      }
+    });
+    _imageStream = provider.resolve(createLocalImageConfiguration(context));
+    _imageStream!.addListener(_listener);
+  }
+
+  @override
+  void dispose() {
+    _imageStream?.removeListener(_listener);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final url = pickMediaPreviewUrl(widget.item);
+    final cardWidth = MediaQuery.of(context).size.width - 16 * 2 - 42 - 12;
+    final maxHeight = MediaQuery.of(context).size.width * 0.6;
+    final aspect = _aspectRatio ?? 4 / 3;
+    var displayWidth = cardWidth;
+    var displayHeight = displayWidth / aspect;
+    if (displayHeight > maxHeight) {
+      displayHeight = maxHeight;
+      displayWidth = displayHeight * aspect;
+    }
+
+    return GestureDetector(
+      onTap: widget.imageUrls.isNotEmpty
+          ? () => zoomInPhotoViewGalleryWithInitialPage(
+              context,
+              widget.imageUrls,
+              widget.imageIndex,
+            )
+          : null,
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusMedium,
+        child: Container(
+          width: displayWidth,
+          height: displayHeight,
+          color: AppColors.iosGray.withValues(alpha: 0.1),
+          child: OctoImage(
+            image: cachedImageProvider(url),
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 视频角标：半透明黑底圆角小徽章。
+class _VideoBadge extends StatelessWidget {
+  final String? text;
+  final IconData? icon;
+  final double iconSize;
+
+  const _VideoBadge({this.text, this.icon, this.iconSize = 12});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.darkBackground.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null)
+            Icon(icon, size: iconSize, color: AppColors.onPrimary),
+          if (icon != null && text != null) const SizedBox(width: 3),
+          if (text != null)
+            Text(
+              text!,
+              style: context
+                  .textStyle(
+                    FontSizeType.tiny,
+                    color: AppColors.onPrimary,
+                    fontWeight: FontWeight.w500,
+                  )
+                  .copyWith(height: 1.2),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -552,7 +874,6 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
 
   Future<void> _initVideoController(String url) async {
     if (_videoController != null) return;
-    // object_key 经后端换取短时 presigned URL；legacy 完整 URL 走旧授权。
     final String resolved = await AssetUrlResolver.instance.resolveForDisplay(
       url,
     );
@@ -561,10 +882,6 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
     _videoController = controller;
     controller
       ..initialize().then((_) {
-        // 可见性快速抖动（快速滑动）时，本次 initialize 完成前
-        // _videoController 字段可能已被后续的 pause/dispose 置换成 null
-        // 或新实例；只有仍是当前实例才继续操作，避免对已 dispose 的
-        // VideoPlayerController 触发 setState/play 而崩溃。
         if (mounted && _videoController == controller) {
           setState(() {});
           controller.play();
@@ -572,6 +889,17 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
       })
       ..setLooping(true)
       ..setVolume(0);
+  }
+
+  /// 点击视频：未播放时手动播放（移动网络兜底）。
+  Future<void> _onVideoTap() async {
+    if (_isPlaying) return;
+    setState(() => _isPlaying = true);
+    await _initVideoController(parseModelString(widget.item['url']));
+    if (mounted) {
+      _videoController?.play();
+      setState(() {});
+    }
   }
 
   @override
@@ -591,7 +919,7 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
           width: widget.size,
           height: widget.size,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: AppRadius.borderRadiusMedium,
             color: AppColors.iosGray.withValues(alpha: 0.1),
           ),
           clipBehavior: Clip.antiAlias,
@@ -605,11 +933,16 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
     }
     return VisibilityDetector(
       key: Key('video_${widget.item['url']}'),
-      onVisibilityChanged: (info) {
+      onVisibilityChanged: (info) async {
         if (info.visibleFraction > 0.8) {
-          _initVideoController(parseModelString(widget.item['url']));
-          _videoController?.play();
-          setState(() => _isPlaying = true);
+          // 移动网络下不自动播放（省流量），WiFi 才自动播放
+          final unmetered = await isUnmeteredNetwork();
+          if (!mounted) return;
+          if (unmetered) {
+            _initVideoController(parseModelString(widget.item['url']));
+            _videoController?.play();
+            setState(() => _isPlaying = true);
+          }
         } else if (info.visibleFraction < 0.2) {
           _videoController?.pause();
           _videoController?.dispose();
@@ -617,35 +950,57 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
           setState(() => _isPlaying = false);
         }
       },
-      child: Container(
-        width: widget.size,
-        height: widget.size,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          // 视频播放衬底，保留纯黑以贴合播放器视觉
-          color: Colors.black,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            if (_videoController?.value.isInitialized ?? false)
-              AspectRatio(
-                aspectRatio: _videoController!.value.aspectRatio,
-                child: VideoPlayer(_videoController!),
-              )
-            else
-              OctoImage(
-                image: cachedImageProvider(previewUrl),
-                fit: BoxFit.cover,
+      child: GestureDetector(
+        // 点击兜底播放（移动网络未自动播放时，用户主动点击可播放）
+        onTap: _onVideoTap,
+        child: Container(
+          width: widget.size,
+          height: widget.size,
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.borderRadiusMedium,
+            // 视频播放衬底，保留纯黑以贴合播放器视觉
+            color: AppColors.darkBackground,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (_videoController?.value.isInitialized ?? false)
+                AspectRatio(
+                  aspectRatio: _videoController!.value.aspectRatio,
+                  child: VideoPlayer(_videoController!),
+                )
+              else
+                OctoImage(
+                  image: cachedImageProvider(previewUrl),
+                  fit: BoxFit.cover,
+                ),
+              if (!_isPlaying)
+                const Icon(
+                  CupertinoIcons.play_circle_fill,
+                  color: AppColors.onPrimary,
+                  size: 30,
+                ),
+              // 左上角静音指示
+              Positioned(
+                left: 6,
+                top: 6,
+                child: const _VideoBadge(
+                  icon: CupertinoIcons.speaker_slash_fill,
+                  iconSize: 11,
+                ),
               ),
-            if (!_isPlaying)
-              const Icon(
-                CupertinoIcons.play_circle_fill,
-                color: AppColors.onPrimary,
-                size: 30,
-              ),
-          ],
+              // 右下角时长徽章
+              if (mediaDurationMs(widget.item) > 0)
+                Positioned(
+                  right: 6,
+                  bottom: 6,
+                  child: _VideoBadge(
+                    text: formatVideoDuration(mediaDurationMs(widget.item)),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -657,34 +1012,42 @@ class _MomentNotifyEntry extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final unread = ref.watch(momentNotifyProvider.select((s) => s.unreadCount));
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      onPressed: () => context.push('/moment_notify'),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          const Icon(CupertinoIcons.bell, size: 22),
-          if (unread > 0)
-            Positioned(
-              right: -4,
-              top: -4,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.iosRed,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  unread > 99 ? '99+' : '$unread',
-                  style: context.textStyle(
-                    FontSizeType.tiny,
-                    color: AppColors.onPrimary,
-                    fontWeight: FontWeight.bold,
+    return Semantics(
+      button: true,
+      label: t.momentNotify.title,
+      hint: unread > 0 ? '$unread' : null,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => context.push('/moment_notify'),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const Icon(CupertinoIcons.bell, size: 22),
+            if (unread > 0)
+              Positioned(
+                right: -4,
+                top: -4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.iosRed,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    unread > 99 ? '99+' : '$unread',
+                    style: context.textStyle(
+                      FontSizeType.tiny,
+                      color: AppColors.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

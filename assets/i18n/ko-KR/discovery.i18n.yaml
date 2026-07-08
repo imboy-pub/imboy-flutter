@@ -25,6 +25,21 @@ momentsVisibilityExclude: 특정 친구 제외
 momentsDenyUidsLabel: 제외할 UID 목록 (쉼표로 구분)
 momentsDraftRestored: 마지막 저장된 임시글이 복원되었습니다
 momentsFeedStale: 네트워크 오류로 캐시된 내용을 표시합니다
+momentActionLike: "좋아요"
+momentActionCancelLike: "취소"
+momentActionComment: "댓글"
+momentActionDelete: "삭제"
+momentActionReport: "신고"
+momentActionCancel: "취소"
+momentViewAllComments(count): "댓글 ${count}개 모두 보기"
+momentLikedBy(names): "${names}님이 좋아합니다"
+momentAndOthersLiked(names,count): "${names} 외 ${count}명이 좋아합니다"
+momentPartialVisible: "일부 공개"
+momentContentPlaceholder: "지금 이 순간의 생각..."
+momentsDraftKeepTitle: "초안을 보관하시겠습니까?"
+momentsDraftKeepMessage: "보관하면 다음에 이어서 편집할 수 있습니다"
+momentsDraftDiscard: "버리기"
+momentsDraftKeep: "보관"
 discover: 발견
 shake: 흔들기
 openChannel: 채널 열기

@@ -1268,6 +1268,13 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get momentsDeleteFailed => '削除に失敗しました。後でもう一度お試しください';
 	@override String get momentsReportSubmitted => '通報を送信しました';
 	@override String get momentsReportFailed => '通報に失敗しました。後でもう一度お試しください';
+	@override String get momentReportReasonSpam => 'スパム・広告';
+	@override String get momentReportReasonHarassment => '嫌がらせ';
+	@override String get momentReportReasonPorn => 'わいせつ';
+	@override String get momentReportReasonFraud => '詐欺';
+	@override String get momentReportReasonInfringement => '著作権侵害';
+	@override String get momentReportReasonOther => 'その他';
+	@override String get momentReportReasonPrompt => '理由を選択';
 	@override String get momentsLoadMoreComments => 'コメントをさらに読み込む';
 	@override String get momentsUploadFailed => 'メディアのアップロードに失敗しました。後でもう一度お試しください';
 	@override String get transactionHistory => '取引履歴';
@@ -1800,6 +1807,21 @@ class _Translations$discovery$ja_JP extends Translations$discovery$zh_CN {
 	@override String get momentsDenyUidsLabel => '除外対象 UID リスト（カンマ区切り）';
 	@override String get momentsDraftRestored => '前回の未送信下書きを復元しました';
 	@override String get momentsFeedStale => '通信エラーのため、キャッシュの内容を表示しています';
+	@override String get momentActionLike => 'いいね';
+	@override String get momentActionCancelLike => '取り消す';
+	@override String get momentActionComment => 'コメント';
+	@override String get momentActionDelete => '削除';
+	@override String get momentActionReport => '通報';
+	@override String get momentActionCancel => 'キャンセル';
+	@override String momentViewAllComments({required Object count}) => 'すべてのコメント（${count}）を見る';
+	@override String momentLikedBy({required Object names}) => '${names}がいいねしました';
+	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} 他${count}人がいいねしました';
+	@override String get momentPartialVisible => '一部公開';
+	@override String get momentContentPlaceholder => '今の思い...';
+	@override String get momentsDraftKeepTitle => '下書きを保存しますか？';
+	@override String get momentsDraftKeepMessage => '保存すれば次回編集を再開できます';
+	@override String get momentsDraftDiscard => '破棄';
+	@override String get momentsDraftKeep => '保存';
 	@override String get discover => '発見';
 	@override String get shake => 'シェイク';
 	@override String get openChannel => 'チャンネルを開く';
@@ -3616,6 +3638,13 @@ extension on TranslationsJaJp {
 			'common.momentsDeleteFailed' => '削除に失敗しました。後でもう一度お試しください',
 			'common.momentsReportSubmitted' => '通報を送信しました',
 			'common.momentsReportFailed' => '通報に失敗しました。後でもう一度お試しください',
+			'common.momentReportReasonSpam' => 'スパム・広告',
+			'common.momentReportReasonHarassment' => '嫌がらせ',
+			'common.momentReportReasonPorn' => 'わいせつ',
+			'common.momentReportReasonFraud' => '詐欺',
+			'common.momentReportReasonInfringement' => '著作権侵害',
+			'common.momentReportReasonOther' => 'その他',
+			'common.momentReportReasonPrompt' => '理由を選択',
 			'common.momentsLoadMoreComments' => 'コメントをさらに読み込む',
 			'common.momentsUploadFailed' => 'メディアのアップロードに失敗しました。後でもう一度お試しください',
 			'common.transactionHistory' => '取引履歴',
@@ -3975,6 +4004,8 @@ extension on TranslationsJaJp {
 			'common.initConfigProtocolError' => 'サーバープロトコルに誤りがあります',
 			'common.initConfigFetchFailed' => '設定の取得に失敗しました。ネットワーク接続を確認してください',
 			'common.attachmentGetFileFailed' => 'ファイルを取得できません。もう一度お試しいただくか、アルバムから選択してください',
+			_ => null,
+		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => 'ファイルの取得に失敗しました。Android 9では互換性の問題がある可能性があります',
 			'common.attachmentGetImageDataFailed' => '画像データを取得できません。もう一度お試しください',
 			'common.attachmentGetOriginalImageFailed' => '元の画像データを取得できません',
@@ -3982,8 +4013,6 @@ extension on TranslationsJaJp {
 			'common.downloadFileNotFound' => 'ダウンロードファイルが存在しません。もう一度お試しください',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'ファイルの検証に失敗しました。再ダウンロード中 (${retry}/${max})',
 			'common.downloadHashFailed' => 'ファイルの検証が複数回失敗しました。ネットワークを確認して再度お試しください',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferToNewDevice' => '新しいデバイスへ転送',
 			'common.e2eeTransferPendingSection' => '保留中の転送',
 			'common.e2eeTransferLoadFailed' => '読み込みに失敗しました',
@@ -4114,6 +4143,21 @@ extension on TranslationsJaJp {
 			'discovery.momentsDenyUidsLabel' => '除外対象 UID リスト（カンマ区切り）',
 			'discovery.momentsDraftRestored' => '前回の未送信下書きを復元しました',
 			'discovery.momentsFeedStale' => '通信エラーのため、キャッシュの内容を表示しています',
+			'discovery.momentActionLike' => 'いいね',
+			'discovery.momentActionCancelLike' => '取り消す',
+			'discovery.momentActionComment' => 'コメント',
+			'discovery.momentActionDelete' => '削除',
+			'discovery.momentActionReport' => '通報',
+			'discovery.momentActionCancel' => 'キャンセル',
+			'discovery.momentViewAllComments' => ({required Object count}) => 'すべてのコメント（${count}）を見る',
+			'discovery.momentLikedBy' => ({required Object names}) => '${names}がいいねしました',
+			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 他${count}人がいいねしました',
+			'discovery.momentPartialVisible' => '一部公開',
+			'discovery.momentContentPlaceholder' => '今の思い...',
+			'discovery.momentsDraftKeepTitle' => '下書きを保存しますか？',
+			'discovery.momentsDraftKeepMessage' => '保存すれば次回編集を再開できます',
+			'discovery.momentsDraftDiscard' => '破棄',
+			'discovery.momentsDraftKeep' => '保存',
 			'discovery.discover' => '発見',
 			'discovery.shake' => 'シェイク',
 			'discovery.openChannel' => 'チャンネルを開く',
@@ -4474,6 +4518,8 @@ extension on TranslationsJaJp {
 			'main.inviteeLabel' => ({required Object uid}) => '招待先: ${uid}',
 			'main.mySentTab' => '送信',
 			'main.reject' => '辞退',
+			_ => null,
+		} ?? switch (path) {
 			'main.myOrders' => '注文履歴',
 			'main.purchaseUnlockHint' => '購入すると、チャンネルの過去のメッセージと今後の更新を閲覧できます。',
 			'main.payingDots' => '決済中...',
@@ -4496,8 +4542,6 @@ extension on TranslationsJaJp {
 			'main.e2eeProxyUser' => ({required Object uid}) => '代理ユーザー: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'シャード ${index} / ${total}',
 			'main.e2eeReloadShards' => '再読み込み',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeRecovering' => '復元中...',
 			'main.e2eeKeyRestored' => 'キーを復元しました',
 			'main.e2eeUsedShards' => ({required Object count}) => '${count} 個の代理シャードを使用しました',

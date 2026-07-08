@@ -1268,6 +1268,13 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get momentsDeleteFailed => 'تعذّر الحذف، حاول لاحقاً';
 	@override String get momentsReportSubmitted => 'تم إرسال الإبلاغ';
 	@override String get momentsReportFailed => 'تعذّر الإبلاغ، حاول لاحقاً';
+	@override String get momentReportReasonSpam => 'مزعج أو إعلانات';
+	@override String get momentReportReasonHarassment => 'مضايقة';
+	@override String get momentReportReasonPorn => 'محتوى إباحي';
+	@override String get momentReportReasonFraud => 'احتيال';
+	@override String get momentReportReasonInfringement => 'انتهاك حقوق النشر';
+	@override String get momentReportReasonOther => 'أخرى';
+	@override String get momentReportReasonPrompt => 'اختر السبب';
 	@override String get momentsLoadMoreComments => 'المزيد من التعليقات';
 	@override String get momentsUploadFailed => 'تعذّر رفع الوسائط، حاول لاحقاً';
 	@override String get transactionHistory => 'سجل المعاملات';
@@ -1800,6 +1807,21 @@ class _Translations$discovery$ar_SA extends Translations$discovery$zh_CN {
 	@override String get momentsDenyUidsLabel => 'قائمة UID المخفي عنهم (مفصولة بفواصل)';
 	@override String get momentsDraftRestored => 'تمت استعادة المسودة الأخيرة';
 	@override String get momentsFeedStale => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً';
+	@override String get momentActionLike => 'إعجاب';
+	@override String get momentActionCancelLike => 'إلغاء';
+	@override String get momentActionComment => 'تعليق';
+	@override String get momentActionDelete => 'حذف';
+	@override String get momentActionReport => 'إبلاغ';
+	@override String get momentActionCancel => 'إلغاء';
+	@override String momentViewAllComments({required Object count}) => 'عرض كل التعليقات (${count})';
+	@override String momentLikedBy({required Object names}) => 'أعجب ${names}';
+	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} و${count} آخرون أعجبوا';
+	@override String get momentPartialVisible => 'جزئي';
+	@override String get momentContentPlaceholder => 'بماذا تفكر...';
+	@override String get momentsDraftKeepTitle => 'حفظ المسودة؟';
+	@override String get momentsDraftKeepMessage => 'يمكنك المتابعة في المرة القادمة';
+	@override String get momentsDraftDiscard => 'عدم الحفظ';
+	@override String get momentsDraftKeep => 'حفظ';
 	@override String get discover => 'اكتشاف';
 	@override String get shake => 'هز';
 	@override String get openChannel => 'فتح القناة';
@@ -3616,6 +3638,13 @@ extension on TranslationsArSa {
 			'common.momentsDeleteFailed' => 'تعذّر الحذف، حاول لاحقاً',
 			'common.momentsReportSubmitted' => 'تم إرسال الإبلاغ',
 			'common.momentsReportFailed' => 'تعذّر الإبلاغ، حاول لاحقاً',
+			'common.momentReportReasonSpam' => 'مزعج أو إعلانات',
+			'common.momentReportReasonHarassment' => 'مضايقة',
+			'common.momentReportReasonPorn' => 'محتوى إباحي',
+			'common.momentReportReasonFraud' => 'احتيال',
+			'common.momentReportReasonInfringement' => 'انتهاك حقوق النشر',
+			'common.momentReportReasonOther' => 'أخرى',
+			'common.momentReportReasonPrompt' => 'اختر السبب',
 			'common.momentsLoadMoreComments' => 'المزيد من التعليقات',
 			'common.momentsUploadFailed' => 'تعذّر رفع الوسائط، حاول لاحقاً',
 			'common.transactionHistory' => 'سجل المعاملات',
@@ -3975,6 +4004,8 @@ extension on TranslationsArSa {
 			'common.initConfigProtocolError' => 'خطأ في بروتوكول استجابة الخادم',
 			'common.initConfigFetchFailed' => 'تعذّر تحميل الإعدادات، تحقق من الشبكة',
 			'common.attachmentGetFileFailed' => 'تعذّر الحصول على الملف، أعد المحاولة أو اختر من المعرض',
+			_ => null,
+		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => 'فشل الحصول على الملف، قد تكون مشكلة توافق مع Android 9',
 			'common.attachmentGetImageDataFailed' => 'تعذّر الحصول على بيانات الصورة، أعد المحاولة',
 			'common.attachmentGetOriginalImageFailed' => 'تعذّر الحصول على الصورة الأصلية',
@@ -3982,8 +4013,6 @@ extension on TranslationsArSa {
 			'common.downloadFileNotFound' => 'ملف التنزيل غير موجود، أعد المحاولة',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'فشل التحقق من الملف، إعادة التنزيل (${retry}/${max})',
 			'common.downloadHashFailed' => 'فشل التحقق من الملف عدة مرات، تحقق من الشبكة وأعد المحاولة',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferToNewDevice' => 'نقل إلى جهاز جديد',
 			'common.e2eeTransferPendingSection' => 'عمليات نقل معلّقة',
 			'common.e2eeTransferLoadFailed' => 'تعذّر التحميل',
@@ -4114,6 +4143,21 @@ extension on TranslationsArSa {
 			'discovery.momentsDenyUidsLabel' => 'قائمة UID المخفي عنهم (مفصولة بفواصل)',
 			'discovery.momentsDraftRestored' => 'تمت استعادة المسودة الأخيرة',
 			'discovery.momentsFeedStale' => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً',
+			'discovery.momentActionLike' => 'إعجاب',
+			'discovery.momentActionCancelLike' => 'إلغاء',
+			'discovery.momentActionComment' => 'تعليق',
+			'discovery.momentActionDelete' => 'حذف',
+			'discovery.momentActionReport' => 'إبلاغ',
+			'discovery.momentActionCancel' => 'إلغاء',
+			'discovery.momentViewAllComments' => ({required Object count}) => 'عرض كل التعليقات (${count})',
+			'discovery.momentLikedBy' => ({required Object names}) => 'أعجب ${names}',
+			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} و${count} آخرون أعجبوا',
+			'discovery.momentPartialVisible' => 'جزئي',
+			'discovery.momentContentPlaceholder' => 'بماذا تفكر...',
+			'discovery.momentsDraftKeepTitle' => 'حفظ المسودة؟',
+			'discovery.momentsDraftKeepMessage' => 'يمكنك المتابعة في المرة القادمة',
+			'discovery.momentsDraftDiscard' => 'عدم الحفظ',
+			'discovery.momentsDraftKeep' => 'حفظ',
 			'discovery.discover' => 'اكتشاف',
 			'discovery.shake' => 'هز',
 			'discovery.openChannel' => 'فتح القناة',
@@ -4474,6 +4518,8 @@ extension on TranslationsArSa {
 			'main.inviteeLabel' => ({required Object uid}) => 'المدعو: ${uid}',
 			'main.mySentTab' => 'المُرسلة',
 			'main.reject' => 'رفض',
+			_ => null,
+		} ?? switch (path) {
 			'main.myOrders' => 'طلباتي',
 			'main.purchaseUnlockHint' => 'بعد الشراء يُفتح سجل رسائل القناة والتحديثات القادمة.',
 			'main.payingDots' => 'جارٍ الدفع...',
@@ -4496,8 +4542,6 @@ extension on TranslationsArSa {
 			'main.e2eeProxyUser' => ({required Object uid}) => 'الوكيل: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'شظية ${index} / ${total}',
 			'main.e2eeReloadShards' => 'إعادة التحميل',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeRecovering' => 'جارٍ الاستعادة...',
 			'main.e2eeKeyRestored' => 'تمت استعادة المفتاح',
 			'main.e2eeUsedShards' => ({required Object count}) => 'تم استخدام ${count} شظية وكلاء',

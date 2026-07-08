@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,7 +10,6 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
 import 'package:imboy/page/moment/moment_friend_picker/moment_friend_picker_page.dart';
-import 'package:imboy/page/moment/moment_interactions.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/storage.dart';
@@ -17,11 +18,13 @@ import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:video_compress/video_compress.dart';
 
+import 'moment_interactions.dart';
+
+/// 朋友圈发布页 - 沉浸式重构（对标微信朋友圈发布体验）
 class MomentCreatePage extends StatefulWidget {
   const MomentCreatePage({super.key});
 
@@ -45,13 +48,11 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   bool _isUploading = false;
   bool _isSubmitting = false;
 
-  /// 失败草稿 storage key。逻辑抽在 [momentFailedDraftKey]（可单测）。
   String get _draftKey => momentFailedDraftKey(UserRepoLocal.to.currentUid);
 
   @override
   void initState() {
     super.initState();
-    // 首帧后尝试恢复上次发布失败残留的草稿
     WidgetsBinding.instance.addPostFrameCallback((_) => _tryRestoreDraft());
   }
 
@@ -75,8 +76,6 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       _visibility = draft.visibility;
       _allowUidsController.text = draft.allowUids.join(',');
       _denyUidsController.text = draft.denyUids.join(',');
-      // 注：media 不做自动恢复 —— 仅保留 URL 无法还原 type/cover，
-      // 强行填充会让发布时校验误判。让用户重选即可。
     });
     AppLoading.showInfo(context.t.discovery.momentsDraftRestored);
   }
@@ -109,6 +108,47 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     await StorageService.to.remove(key);
   }
 
+  bool get _hasUnsavedContent =>
+      _contentController.text.trim().isNotEmpty || _media.isNotEmpty;
+
+  Future<void> _confirmExit(bool didPop) async {
+    if (didPop) return;
+    if (!_hasUnsavedContent) {
+      Navigator.of(context).pop();
+      return;
+    }
+    final keep = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(context.t.discovery.momentsDraftKeepTitle),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(context.t.discovery.momentsDraftKeepMessage),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(ctx).pop(null),
+            child: Text(context.t.discovery.momentActionCancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(context.t.discovery.momentsDraftDiscard),
+          ),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(context.t.discovery.momentsDraftKeep),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || keep == null) return;
+    if (keep) {
+      await _saveFailedDraft(_contentController.text.trim());
+    }
+    if (mounted) Navigator.of(context).pop();
+  }
+
   Future<String?> _uploadFile(String prefix, File file) async {
     final completer = Completer<String?>();
     await AttachmentApi.uploadFileViaPresignCompat(
@@ -135,8 +175,6 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
 
   Future<void> _pickImage({bool useCamera = false}) async {
     if (_isUploading || _media.length >= momentMaxImageCount) return;
-    // 「拍照」此前和「从相册选择」调的是同一个 pickSingle(gallery)，从未
-    // 真正唤起相机；useCamera 时走 pickCamera（与头像编辑页同款修复）。
     final media = useCamera
         ? await _picker.pickCamera(context)
         : await _picker.pickSingle(context, MediaType.image);
@@ -158,9 +196,13 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     }
   }
 
-  Future<void> _pickVideo() async {
+  Future<void> _pickVideo({bool useCamera = false}) async {
     if (_isUploading || _media.length >= momentMaxImageCount) return;
-    final media = await _picker.pickSingle(context, MediaType.video);
+    // 修复：拍摄视频此前误调 pickSingle(gallery)，从未真正唤起相机。
+    // useCamera 时走 pickCamera(enableRecording: true) 唤起原生相机录像。
+    final media = useCamera
+        ? await _picker.pickCamera(context, enableRecording: true)
+        : await _picker.pickSingle(context, MediaType.video);
     if (media == null || !mounted) return;
 
     setState(() {
@@ -218,9 +260,6 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       return;
     }
 
-    // 发布前媒体校验：9 图上限 / 1 视频上限 / 图视频互斥。
-    // 即使 _pickImage/_pickVideo 已做前置限制，这里仍再校一次防御
-    // 旧载荷 / 手改 state 绕过。
     final validation = validateMediaSelection(_media);
     if (!validation.ok) {
       final t = context.t;
@@ -255,14 +294,12 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       _isSubmitting = false;
     });
     if (created == null) {
-      // 发布失败 —— 持久化草稿避免用户白打字
       await _saveFailedDraft(content);
       if (!mounted) return;
       AppLoading.showError(context.t.common.momentsPublishFailed);
       return;
     }
 
-    // 发布成功，清除残留草稿
     await _clearDraft();
     if (!mounted) return;
     final momentId = parseModelString(created['id']);
@@ -276,8 +313,6 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     Navigator.of(context).pop(true);
   }
 
-  /// 弹出好友选择器并把结果写回指定 controller。
-  /// 结果为 null 视为取消，不清空已有值。
   Future<void> _pickUids({
     required TextEditingController controller,
     required String title,
@@ -295,256 +330,442 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     });
   }
 
-  Widget _buildUidPickerField({
-    required TextEditingController controller,
-    required String labelText,
-    required String placeholder,
-    required String pickerTitle,
-  }) {
-    final selectedCount = parseMomentUidList(controller.text).length;
-    return InkWell(
-      onTap: () => _pickUids(controller: controller, title: pickerTitle),
-      borderRadius: AppRadius.borderRadiusTiny,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: const OutlineInputBorder(),
-          suffixIcon: const Icon(Icons.chevron_right),
-        ),
-        child: Text(
-          selectedCount == 0
-              ? placeholder
-              : context.t.momentFriendPicker.selectedCount(
-                  count: selectedCount,
-                ),
-          style: selectedCount == 0
-              ? TextStyle(color: Theme.of(context).hintColor)
-              : null,
+  void _showMediaPicker() {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _pickImage();
+            },
+            child: Text(context.t.main.selectFromAlbum),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _pickImage(useCamera: true);
+            },
+            child: Text(context.t.main.takePhoto),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _pickVideo();
+            },
+            child: Text(context.t.chat.momentsSelectVideo),
+          ),
+          // 修复：拍摄视频真正唤起相机录像（pickCamera enableRecording）
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _pickVideo(useCamera: true);
+            },
+            child: Text(context.t.chat.momentsRecordVideo),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: Text(context.t.discovery.momentActionCancel),
         ),
       ),
     );
   }
 
-  void _showPicker() {
-    showModalBottomSheet<void>(
+  void _showVisibilityPicker() {
+    final t = context.t;
+    final options = <(int, String)>[
+      (momentVisibilityPublic, t.discovery.momentsVisibilityPublic),
+      (momentVisibilityFriends, t.contact.momentsVisibilityFriends),
+      (momentVisibilityPrivate, t.chat.momentsVisibilityPrivate),
+      (momentVisibilityAllowList, t.discovery.momentsVisibilityPartial),
+      (momentVisibilityDenyList, t.discovery.momentsVisibilityExclude),
+    ];
+    showCupertinoModalPopup<void>(
       context: context,
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.photo_library_outlined),
-                title: Text(context.t.main.selectFromAlbum),
-                onTap: () async {
+      builder: (ctx) => CupertinoActionSheet(
+        actions: options
+            .map(
+              (o) => CupertinoActionSheetAction(
+                onPressed: () {
                   Navigator.of(ctx).pop();
-                  await _pickImage();
+                  setState(() => _visibility = o.$1);
                 },
+                child: Text(o.$2),
               ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt_outlined),
-                title: Text(context.t.main.takePhoto),
-                onTap: () async {
-                  Navigator.of(ctx).pop();
-                  await _pickImage(useCamera: true);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.video_library_outlined),
-                title: Text(context.t.chat.momentsSelectVideo),
-                onTap: () async {
-                  Navigator.of(ctx).pop();
-                  await _pickVideo();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.videocam_outlined),
-                title: Text(context.t.chat.momentsRecordVideo),
-                onTap: () async {
-                  Navigator.of(ctx).pop();
-                  await _pickVideo();
-                },
-              ),
-            ],
-          ),
-        );
-      },
+            )
+            .toList(),
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: Text(t.discovery.momentActionCancel),
+        ),
+      ),
     );
   }
+
+  String get _visibilityLabel => momentVisibilityLabel(_visibility, context.t);
 
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.chat.momentsSend),
-        actions: [
-          TextButton(
-            onPressed: _isSubmitting || _isUploading ? null : _submit,
-            child: _isSubmitting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(t.common.confirm),
-          ),
-        ],
+    return PopScope(
+      canPop: !_hasUnsavedContent,
+      onPopInvokedWithResult: (didPop, _) => _confirmExit(didPop),
+      child: Scaffold(
+        appBar: CupertinoNavigationBar(
+          middle: Text(t.chat.momentsSend),
+          trailing: _isSubmitting
+              ? const Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: CupertinoActivityIndicator(radius: 10),
+                )
+              : CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: _isUploading ? null : _submit,
+                  child: Text(
+                    t.common.confirm,
+                    style: context.textStyle(
+                      FontSizeType.body,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                children: [
+                  TextField(
+                    controller: _contentController,
+                    autofocus: true,
+                    maxLines: 8,
+                    minLines: 4,
+                    maxLength: 5000,
+                    decoration: InputDecoration(
+                      hintText: t.discovery.momentContentPlaceholder,
+                      hintStyle: context.textStyle(
+                        FontSizeType.body,
+                        color: AppColors.iosGray3,
+                      ),
+                      border: InputBorder.none,
+                      counterText: '',
+                    ),
+                    style: context
+                        .textStyle(FontSizeType.body)
+                        .copyWith(height: 1.5),
+                  ),
+                  AppSpacing.verticalMedium,
+                  _buildMediaGrid(t),
+                ],
+              ),
+            ),
+            _buildToolbar(t),
+          ],
+        ),
       ),
-      body: ListView(
-        padding: AppSpacing.allRegular,
+    );
+  }
+
+  Widget _buildMediaGrid(Translations t) {
+    final cellSize = (MediaQuery.of(context).size.width - 40 - 16) / 3;
+    final showAdd = _media.length < momentMaxImageCount && !_isUploading;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        ...List.generate(_media.length, (index) {
+          final media = _media[index];
+          final type = parseModelString(media['type']);
+          final previewUrl = pickMediaPreviewUrl(media);
+          return _MediaThumb(
+            size: cellSize,
+            isVideo: type == 'video',
+            previewUrl: previewUrl,
+            onRemove: () => _removeMedia(index),
+          );
+        }),
+        if (_isUploading) _MediaUploadingPlaceholder(size: cellSize),
+        if (showAdd) _MediaAddButton(size: cellSize, onTap: _showMediaPicker),
+      ],
+    );
+  }
+
+  Widget _buildToolbar(Translations t) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.getIosSeparator(
+              Theme.of(context).brightness,
+            ).withValues(alpha: 0.3),
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            _ToolbarItem(
+              icon: CupertinoIcons.lock_fill,
+              label: t.discovery.momentsVisibility,
+              value: _visibilityLabel,
+              onTap: _showVisibilityPicker,
+            ),
+            if (momentVisibilityRequiresAllowUids(_visibility))
+              _buildUidRow(
+                controller: _allowUidsController,
+                title: t.momentFriendPicker.titleAllow,
+              ),
+            if (momentVisibilityRequiresDenyUids(_visibility))
+              _buildUidRow(
+                controller: _denyUidsController,
+                title: t.momentFriendPicker.titleDeny,
+              ),
+            _ToolbarSwitch(
+              icon: CupertinoIcons.chat_bubble_fill,
+              label: t.common.momentsAllowComment,
+              value: _allowComment,
+              onChanged: (v) => setState(() => _allowComment = v),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUidRow({
+    required TextEditingController controller,
+    required String title,
+  }) {
+    final count = parseMomentUidList(controller.text).length;
+    return _ToolbarItem(
+      icon: CupertinoIcons.person_2_fill,
+      label: title,
+      value: count > 0
+          ? context.t.momentFriendPicker.selectedCount(count: count)
+          : null,
+      onTap: () => _pickUids(controller: controller, title: title),
+    );
+  }
+}
+
+class _MediaThumb extends StatelessWidget {
+  final double size;
+  final bool isVideo;
+  final String previewUrl;
+  final VoidCallback onRemove;
+
+  const _MediaThumb({
+    required this.size,
+    required this.isVideo,
+    required this.previewUrl,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.borderRadiusMedium,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.darkSurfaceContainer
+                : AppColors.lightSurfaceContainer,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: previewUrl.isEmpty
+              ? const Icon(Icons.broken_image_outlined)
+              : Image(
+                  image: cachedImageProvider(previewUrl),
+                  fit: BoxFit.cover,
+                ),
+        ),
+        if (isVideo)
+          const Positioned.fill(
+            child: Center(
+              child: Icon(
+                CupertinoIcons.play_circle_fill,
+                color: AppColors.onPrimary,
+                size: 26,
+              ),
+            ),
+          ),
+        Positioned(
+          right: 0,
+          top: 0,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onRemove,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: AppColors.darkBackground.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(AppRadius.tiny),
+                ),
+              ),
+              child: const Icon(
+                CupertinoIcons.xmark,
+                size: 14,
+                color: AppColors.onPrimary,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MediaUploadingPlaceholder extends StatelessWidget {
+  final double size;
+  const _MediaUploadingPlaceholder({required this.size});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        borderRadius: AppRadius.borderRadiusMedium,
+        color: AppColors.iosGray.withValues(alpha: 0.12),
+      ),
+      child: const Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+    );
+  }
+}
+
+class _MediaAddButton extends StatelessWidget {
+  final double size;
+  final VoidCallback onTap;
+  const _MediaAddButton({required this.size, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: AppRadius.borderRadiusMedium,
+          color: AppColors.iosGray.withValues(alpha: 0.12),
+        ),
+        child: const Center(
+          child: Icon(CupertinoIcons.add, size: 30, color: AppColors.iosGray),
+        ),
+      ),
+    );
+  }
+}
+
+class _ToolbarItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? value;
+  final VoidCallback onTap;
+
+  const _ToolbarItem({
+    required this.icon,
+    required this.label,
+    this.value,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: AppColors.wechatBlue),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: context.textStyle(
+                  FontSizeType.normal,
+                  fontWeight: FontWeight.w500,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                ),
+              ),
+            ),
+            if (value != null)
+              Text(
+                value!,
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  color: AppColors.iosGray,
+                ),
+              ),
+            const SizedBox(width: 6),
+            const Icon(
+              CupertinoIcons.chevron_right,
+              size: 16,
+              color: AppColors.iosGray3,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ToolbarSwitch extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _ToolbarSwitch({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
         children: [
-          TextField(
-            controller: _contentController,
-            maxLines: 6,
-            maxLength: 5000,
-            decoration: InputDecoration(
-              hintText: t.common.momentsContentHint,
-              border: const OutlineInputBorder(),
+          Icon(icon, size: 18, color: AppColors.wechatBlue),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: context.textStyle(
+                FontSizeType.normal,
+                fontWeight: FontWeight.w500,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
+              ),
             ),
           ),
-          AppSpacing.verticalMedium,
-          Row(
-            children: [
-              FilledButton.tonalIcon(
-                onPressed:
-                    (_isUploading || _media.length >= momentMaxImageCount)
-                    ? null
-                    : _showPicker,
-                icon: const Icon(Icons.add_photo_alternate_outlined),
-                label: Text(
-                  '${t.common.momentsAddMedia} (${_media.length}/$momentMaxImageCount)',
-                ),
-              ),
-              if (_isUploading) ...[
-                AppSpacing.horizontalMedium,
-                const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ],
-            ],
-          ),
-          if (_media.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: List.generate(_media.length, (index) {
-                final media = _media[index];
-                final type = parseModelString(media['type']);
-                final previewUrl = pickMediaPreviewUrl(media);
-                return Stack(
-                  children: [
-                    Container(
-                      width: 96,
-                      height: 96,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? AppColors.darkSurface
-                          : AppColors.lightSurfaceContainer,
-                      child: previewUrl.isEmpty
-                          ? const Icon(Icons.broken_image_outlined)
-                          : Image(
-                              image: cachedImageProvider(previewUrl),
-                              fit: BoxFit.cover,
-                            ),
-                    ),
-                    if (type == 'video')
-                      const Positioned.fill(
-                        child: Center(
-                          child: Icon(
-                            Icons.play_circle_fill,
-                            color: AppColors.onPrimary,
-                            size: 28,
-                          ),
-                        ),
-                      ),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: InkWell(
-                        onTap: () => _removeMedia(index),
-                        child: Container(
-                          // 删除按钮叠在缩略图上，固定深色半透明底保证可读
-                          color: AppColors.darkBackground.withValues(
-                            alpha: 0.45,
-                          ),
-                          child: const Icon(Icons.close, size: 16),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }),
-            ),
-          ],
-          AppSpacing.verticalLarge,
-          DropdownButtonFormField<int>(
-            key: ValueKey<int>(_visibility),
-            initialValue: _visibility,
-            decoration: InputDecoration(
-              labelText: context.t.discovery.momentsVisibility,
-              border: const OutlineInputBorder(),
-            ),
-            items: [
-              DropdownMenuItem(
-                value: momentVisibilityPublic,
-                child: Text(context.t.discovery.momentsVisibilityPublic),
-              ),
-              DropdownMenuItem(
-                value: momentVisibilityFriends,
-                child: Text(context.t.contact.momentsVisibilityFriends),
-              ),
-              DropdownMenuItem(
-                value: momentVisibilityPrivate,
-                child: Text(context.t.chat.momentsVisibilityPrivate),
-              ),
-              DropdownMenuItem(
-                value: momentVisibilityAllowList,
-                child: Text(context.t.discovery.momentsVisibilityPartial),
-              ),
-              DropdownMenuItem(
-                value: momentVisibilityDenyList,
-                child: Text(context.t.discovery.momentsVisibilityExclude),
-              ),
-            ],
-            onChanged: (value) {
-              if (value == null) return;
-              setState(() {
-                _visibility = value;
-              });
-            },
-          ),
-          if (momentVisibilityRequiresAllowUids(_visibility)) ...[
-            AppSpacing.verticalMedium,
-            _buildUidPickerField(
-              controller: _allowUidsController,
-              labelText: t.common.momentsAllowUidsLabel,
-              placeholder: t.momentFriendPicker.titleAllow,
-              pickerTitle: t.momentFriendPicker.titleAllow,
-            ),
-          ],
-          if (momentVisibilityRequiresDenyUids(_visibility)) ...[
-            AppSpacing.verticalMedium,
-            _buildUidPickerField(
-              controller: _denyUidsController,
-              labelText: t.discovery.momentsDenyUidsLabel,
-              placeholder: t.momentFriendPicker.titleDeny,
-              pickerTitle: t.momentFriendPicker.titleDeny,
-            ),
-          ],
-          AppSpacing.verticalMedium,
-          SwitchListTile(
-            value: _allowComment,
-            onChanged: (value) {
-              setState(() {
-                _allowComment = value;
-              });
-            },
-            title: Text(context.t.common.momentsAllowComment),
-            contentPadding: EdgeInsets.zero,
-          ),
+          CupertinoSwitch(value: value, onChanged: onChanged),
         ],
       ),
     );

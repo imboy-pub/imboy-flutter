@@ -1268,6 +1268,13 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get momentsDeleteFailed => 'Löschen fehlgeschlagen. Bitte später erneut versuchen.';
 	@override String get momentsReportSubmitted => 'Meldung gesendet';
 	@override String get momentsReportFailed => 'Meldung fehlgeschlagen. Bitte später erneut versuchen.';
+	@override String get momentReportReasonSpam => 'Spam oder Werbung';
+	@override String get momentReportReasonHarassment => 'Belästigung';
+	@override String get momentReportReasonPorn => 'Pornografie';
+	@override String get momentReportReasonFraud => 'Betrug';
+	@override String get momentReportReasonInfringement => 'Urheberrechtsverletzung';
+	@override String get momentReportReasonOther => 'Sonstiges';
+	@override String get momentReportReasonPrompt => 'Grund auswählen';
 	@override String get momentsLoadMoreComments => 'Weitere Kommentare laden';
 	@override String get momentsUploadFailed => 'Medien-Upload fehlgeschlagen. Bitte später erneut versuchen.';
 	@override String get transactionHistory => 'Transaktionshistorie';
@@ -1800,6 +1807,21 @@ class _Translations$discovery$de_DE extends Translations$discovery$zh_CN {
 	@override String get momentsDenyUidsLabel => 'Ausgeschlossen UIDs (kommagetrennt)';
 	@override String get momentsDraftRestored => 'Letzter Entwurf wiederhergestellt';
 	@override String get momentsFeedStale => 'Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt';
+	@override String get momentActionLike => 'Gefällt mir';
+	@override String get momentActionCancelLike => 'Wegnehmen';
+	@override String get momentActionComment => 'Kommentieren';
+	@override String get momentActionDelete => 'Löschen';
+	@override String get momentActionReport => 'Melden';
+	@override String get momentActionCancel => 'Abbrechen';
+	@override String momentViewAllComments({required Object count}) => 'Alle ${count} Kommentare ansehen';
+	@override String momentLikedBy({required Object names}) => '${names} gefällt das';
+	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} und ${count} weiteren gefällt das';
+	@override String get momentPartialVisible => 'Teilweise';
+	@override String get momentContentPlaceholder => 'Woran denkst du...';
+	@override String get momentsDraftKeepTitle => 'Entwurf behalten?';
+	@override String get momentsDraftKeepMessage => 'Beim nächsten Mal weiterbearbeiten';
+	@override String get momentsDraftDiscard => 'Verwerfen';
+	@override String get momentsDraftKeep => 'Behalten';
 	@override String get discover => 'Entdecken';
 	@override String get shake => 'Schütteln';
 	@override String get openChannel => 'Kanal öffnen';
@@ -3616,6 +3638,13 @@ extension on TranslationsDeDe {
 			'common.momentsDeleteFailed' => 'Löschen fehlgeschlagen. Bitte später erneut versuchen.',
 			'common.momentsReportSubmitted' => 'Meldung gesendet',
 			'common.momentsReportFailed' => 'Meldung fehlgeschlagen. Bitte später erneut versuchen.',
+			'common.momentReportReasonSpam' => 'Spam oder Werbung',
+			'common.momentReportReasonHarassment' => 'Belästigung',
+			'common.momentReportReasonPorn' => 'Pornografie',
+			'common.momentReportReasonFraud' => 'Betrug',
+			'common.momentReportReasonInfringement' => 'Urheberrechtsverletzung',
+			'common.momentReportReasonOther' => 'Sonstiges',
+			'common.momentReportReasonPrompt' => 'Grund auswählen',
 			'common.momentsLoadMoreComments' => 'Weitere Kommentare laden',
 			'common.momentsUploadFailed' => 'Medien-Upload fehlgeschlagen. Bitte später erneut versuchen.',
 			'common.transactionHistory' => 'Transaktionshistorie',
@@ -3975,6 +4004,8 @@ extension on TranslationsDeDe {
 			'common.initConfigProtocolError' => 'Server-Protokoll fehlerhaft',
 			'common.initConfigFetchFailed' => 'Konfiguration konnte nicht geladen werden. Netzwerk prüfen.',
 			'common.attachmentGetFileFailed' => 'Datei nicht verfügbar. Erneut versuchen oder aus Album wählen.',
+			_ => null,
+		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => 'Datei nicht verfügbar (Android 9-Kompatibilität)',
 			'common.attachmentGetImageDataFailed' => 'Bilddaten nicht verfügbar. Bitte erneut versuchen.',
 			'common.attachmentGetOriginalImageFailed' => 'Originalbild nicht verfügbar',
@@ -3982,8 +4013,6 @@ extension on TranslationsDeDe {
 			'common.downloadFileNotFound' => 'Download-Datei nicht vorhanden. Bitte erneut versuchen.',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Prüfung fehlgeschlagen, erneut laden (${retry}/${max})',
 			'common.downloadHashFailed' => 'Mehrfachprüfung fehlgeschlagen. Netzwerk prüfen.',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferToNewDevice' => 'An neues Gerät',
 			'common.e2eeTransferPendingSection' => 'Ausstehende Übertragungen',
 			'common.e2eeTransferLoadFailed' => 'Laden fehlgeschlagen',
@@ -4114,6 +4143,21 @@ extension on TranslationsDeDe {
 			'discovery.momentsDenyUidsLabel' => 'Ausgeschlossen UIDs (kommagetrennt)',
 			'discovery.momentsDraftRestored' => 'Letzter Entwurf wiederhergestellt',
 			'discovery.momentsFeedStale' => 'Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt',
+			'discovery.momentActionLike' => 'Gefällt mir',
+			'discovery.momentActionCancelLike' => 'Wegnehmen',
+			'discovery.momentActionComment' => 'Kommentieren',
+			'discovery.momentActionDelete' => 'Löschen',
+			'discovery.momentActionReport' => 'Melden',
+			'discovery.momentActionCancel' => 'Abbrechen',
+			'discovery.momentViewAllComments' => ({required Object count}) => 'Alle ${count} Kommentare ansehen',
+			'discovery.momentLikedBy' => ({required Object names}) => '${names} gefällt das',
+			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} und ${count} weiteren gefällt das',
+			'discovery.momentPartialVisible' => 'Teilweise',
+			'discovery.momentContentPlaceholder' => 'Woran denkst du...',
+			'discovery.momentsDraftKeepTitle' => 'Entwurf behalten?',
+			'discovery.momentsDraftKeepMessage' => 'Beim nächsten Mal weiterbearbeiten',
+			'discovery.momentsDraftDiscard' => 'Verwerfen',
+			'discovery.momentsDraftKeep' => 'Behalten',
 			'discovery.discover' => 'Entdecken',
 			'discovery.shake' => 'Schütteln',
 			'discovery.openChannel' => 'Kanal öffnen',
@@ -4474,6 +4518,8 @@ extension on TranslationsDeDe {
 			'main.inviteeLabel' => ({required Object uid}) => 'Eingeladener: ${uid}',
 			'main.mySentTab' => 'Gesendet',
 			'main.reject' => 'Ablehnen',
+			_ => null,
+		} ?? switch (path) {
 			'main.myOrders' => 'Bestellungen',
 			'main.purchaseUnlockHint' => 'Nach Kauf werden Verlauf und neue Nachrichten freigeschaltet.',
 			'main.payingDots' => 'Zahlung...',
@@ -4496,8 +4542,6 @@ extension on TranslationsDeDe {
 			'main.e2eeProxyUser' => ({required Object uid}) => 'Treuhänder: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Fragment ${index} / ${total}',
 			'main.e2eeReloadShards' => 'Neu laden',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeRecovering' => 'Wird wiederhergestellt...',
 			'main.e2eeKeyRestored' => 'Schlüssel wiederhergestellt',
 			'main.e2eeUsedShards' => ({required Object count}) => '${count} Treuhänder-Fragmente verwendet',

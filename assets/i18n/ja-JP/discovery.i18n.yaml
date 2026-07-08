@@ -25,6 +25,21 @@ momentsVisibilityExclude: 一部の友達を除外
 momentsDenyUidsLabel: 除外対象 UID リスト（カンマ区切り）
 momentsDraftRestored: 前回の未送信下書きを復元しました
 momentsFeedStale: 通信エラーのため、キャッシュの内容を表示しています
+momentActionLike: "いいね"
+momentActionCancelLike: "取り消す"
+momentActionComment: "コメント"
+momentActionDelete: "削除"
+momentActionReport: "通報"
+momentActionCancel: "キャンセル"
+momentViewAllComments(count): "すべてのコメント（${count}）を見る"
+momentLikedBy(names): "${names}がいいねしました"
+momentAndOthersLiked(names,count): "${names} 他${count}人がいいねしました"
+momentPartialVisible: "一部公開"
+momentContentPlaceholder: "今の思い..."
+momentsDraftKeepTitle: "下書きを保存しますか？"
+momentsDraftKeepMessage: "保存すれば次回編集を再開できます"
+momentsDraftDiscard: "破棄"
+momentsDraftKeep: "保存"
 discover: 発見
 shake: シェイク
 openChannel: チャンネルを開く

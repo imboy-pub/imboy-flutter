@@ -25,6 +25,21 @@ momentsVisibilityExclude: Скрыть от...
 momentsDenyUidsLabel: Скрыть от UID (через запятую)
 momentsDraftRestored: Восстановлен черновик
 momentsFeedStale: Сетевая ошибка, показан кэш
+momentActionLike: "Нравится"
+momentActionCancelLike: "Отменить"
+momentActionComment: "Комментарий"
+momentActionDelete: "Удалить"
+momentActionReport: "Пожаловаться"
+momentActionCancel: "Отмена"
+momentViewAllComments(count): "Все комментарии (${count})"
+momentLikedBy(names): "${names} оценили это"
+momentAndOthersLiked(names,count): "${names} и еще ${count} оценили это"
+momentPartialVisible: "Частично"
+momentContentPlaceholder: "О чём вы думаете..."
+momentsDraftKeepTitle: "Сохранить черновик?"
+momentsDraftKeepMessage: "Сможете продолжить в следующий раз"
+momentsDraftDiscard: "Не сохранять"
+momentsDraftKeep: "Сохранить"
 discover: Обзор
 shake: Встряхнуть
 openChannel: Открыть канал

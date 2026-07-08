@@ -1259,6 +1259,13 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get momentsDeleteFailed => 'Delete failed, please try again';
 	@override String get momentsReportSubmitted => 'Report submitted';
 	@override String get momentsReportFailed => 'Report failed, please try again';
+	@override String get momentReportReasonSpam => 'Spam or ads';
+	@override String get momentReportReasonHarassment => 'Harassment';
+	@override String get momentReportReasonPorn => 'Pornography';
+	@override String get momentReportReasonFraud => 'Fraud or scam';
+	@override String get momentReportReasonInfringement => 'Copyright infringement';
+	@override String get momentReportReasonOther => 'Other';
+	@override String get momentReportReasonPrompt => 'Select a reason';
 	@override String get momentsLoadMoreComments => 'Load more comments';
 	@override String get momentsUploadFailed => 'Media upload failed, please try again';
 	@override String get transactionHistory => 'Transaction History';
@@ -1800,6 +1807,21 @@ class _Translations$discovery$en_US extends Translations$discovery$zh_CN {
 	@override String get momentsDenyUidsLabel => 'Hidden from these UIDs (comma-separated)';
 	@override String get momentsDraftRestored => 'Restored your last unsent draft';
 	@override String get momentsFeedStale => 'Network error — showing cached content';
+	@override String get momentActionLike => 'Like';
+	@override String get momentActionCancelLike => 'Unlike';
+	@override String get momentActionComment => 'Comment';
+	@override String get momentActionDelete => 'Delete';
+	@override String get momentActionReport => 'Report';
+	@override String get momentActionCancel => 'Cancel';
+	@override String momentViewAllComments({required Object count}) => 'View all ${count} comments';
+	@override String momentLikedBy({required Object names}) => '${names} liked this';
+	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} and ${count} others liked this';
+	@override String get momentPartialVisible => 'Partial';
+	@override String get momentContentPlaceholder => 'What\'s on your mind...';
+	@override String get momentsDraftKeepTitle => 'Keep draft?';
+	@override String get momentsDraftKeepMessage => 'You can continue editing next time';
+	@override String get momentsDraftDiscard => 'Discard';
+	@override String get momentsDraftKeep => 'Keep';
 	@override String get discover => 'Discover';
 	@override String get shake => 'Shake';
 	@override String get openChannel => 'Open Channel';
@@ -3607,6 +3629,13 @@ extension on TranslationsEnUs {
 			'common.momentsDeleteFailed' => 'Delete failed, please try again',
 			'common.momentsReportSubmitted' => 'Report submitted',
 			'common.momentsReportFailed' => 'Report failed, please try again',
+			'common.momentReportReasonSpam' => 'Spam or ads',
+			'common.momentReportReasonHarassment' => 'Harassment',
+			'common.momentReportReasonPorn' => 'Pornography',
+			'common.momentReportReasonFraud' => 'Fraud or scam',
+			'common.momentReportReasonInfringement' => 'Copyright infringement',
+			'common.momentReportReasonOther' => 'Other',
+			'common.momentReportReasonPrompt' => 'Select a reason',
 			'common.momentsLoadMoreComments' => 'Load more comments',
 			'common.momentsUploadFailed' => 'Media upload failed, please try again',
 			'common.transactionHistory' => 'Transaction History',
@@ -3975,6 +4004,8 @@ extension on TranslationsEnUs {
 			'common.saveFailedRetry' => 'Save failed, please try again',
 			'common.downloadFileNotFound' => 'Download file not found, please retry',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})',
+			_ => null,
+		} ?? switch (path) {
 			'common.downloadHashFailed' => 'File verification failed repeatedly, please check your network and retry',
 			'common.e2eeTransferToNewDevice' => 'Transfer to New Device',
 			'common.e2eeTransferPendingSection' => 'Pending Transfers',
@@ -3982,8 +4013,6 @@ extension on TranslationsEnUs {
 			'common.e2eeTransferLoadFailedDesc' => 'Unable to load pending transfers, please retry',
 			'common.e2eeTransferNoPending' => 'No pending transfers',
 			'common.e2eeTransferNoPendingDesc' => 'When a device sends you a key, it will appear here',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialEnoughShards' => 'You have enough shards to recover your key',
 			'common.e2eeSocialMoreShards' => ({required Object count}) => '${count} more shards...',
 			'common.e2eeProxyLoadFriendsFailed' => 'Failed to load friend list, please retry',
@@ -4114,6 +4143,21 @@ extension on TranslationsEnUs {
 			'discovery.momentsDenyUidsLabel' => 'Hidden from these UIDs (comma-separated)',
 			'discovery.momentsDraftRestored' => 'Restored your last unsent draft',
 			'discovery.momentsFeedStale' => 'Network error — showing cached content',
+			'discovery.momentActionLike' => 'Like',
+			'discovery.momentActionCancelLike' => 'Unlike',
+			'discovery.momentActionComment' => 'Comment',
+			'discovery.momentActionDelete' => 'Delete',
+			'discovery.momentActionReport' => 'Report',
+			'discovery.momentActionCancel' => 'Cancel',
+			'discovery.momentViewAllComments' => ({required Object count}) => 'View all ${count} comments',
+			'discovery.momentLikedBy' => ({required Object names}) => '${names} liked this',
+			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} and ${count} others liked this',
+			'discovery.momentPartialVisible' => 'Partial',
+			'discovery.momentContentPlaceholder' => 'What\'s on your mind...',
+			'discovery.momentsDraftKeepTitle' => 'Keep draft?',
+			'discovery.momentsDraftKeepMessage' => 'You can continue editing next time',
+			'discovery.momentsDraftDiscard' => 'Discard',
+			'discovery.momentsDraftKeep' => 'Keep',
 			'discovery.discover' => 'Discover',
 			'discovery.shake' => 'Shake',
 			'discovery.openChannel' => 'Open Channel',
@@ -4474,6 +4518,8 @@ extension on TranslationsEnUs {
 			'main.inviteeLabel' => ({required Object uid}) => 'Invitee: ${uid}',
 			'main.mySentTab' => 'Sent',
 			'main.reject' => 'Reject',
+			_ => null,
+		} ?? switch (path) {
 			'main.myOrders' => 'My Orders',
 			'main.purchaseUnlockHint' => 'Purchase to unlock channel history and future updates.',
 			'main.payingDots' => 'Paying...',
@@ -4496,8 +4542,6 @@ extension on TranslationsEnUs {
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Shard ${index} / ${total}',
 			'main.e2eeReloadShards' => 'Reload',
 			'main.e2eeRecovering' => 'Recovering...',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeKeyRestored' => 'Key has been successfully restored',
 			'main.e2eeUsedShards' => ({required Object count}) => 'Used ${count} proxy shards',
 			'main.e2eePreparing' => 'Preparing to recover...',

@@ -127,6 +127,10 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
     MomentNotifyState state,
     MomentNotifyNotifier notifier,
   ) {
+    // 首次加载：居中转圈（替代空白）
+    if (state.items.isEmpty && state.isLoading) {
+      return const Center(child: CupertinoActivityIndicator(radius: 14));
+    }
     if (state.items.isEmpty && !state.isLoading) {
       return RefreshIndicator(
         onRefresh: notifier.refresh,
@@ -181,7 +185,7 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
           if (index >= state.items.length) {
             return const Padding(
               padding: EdgeInsets.all(AppSpacing.regular),
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: CupertinoActivityIndicator()),
             );
           }
           final item = state.items[index];
@@ -206,8 +210,9 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
         final actionText = item.action == 'moment_like'
             ? t.momentNotify.actionLike
             : t.momentNotify.actionComment;
+        // toLocal() 修复时区：超 2 天时 DateFormat 用 DateTime 自带时区
         final timeText = DateTimeHelper.dateTimeFmt(
-          DateTime.fromMillisecondsSinceEpoch(item.createdAt),
+          DateTime.fromMillisecondsSinceEpoch(item.createdAt).toLocal(),
         );
 
         return ListTile(

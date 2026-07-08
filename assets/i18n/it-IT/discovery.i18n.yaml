@@ -25,6 +25,21 @@ momentsVisibilityExclude: Eccezioni
 momentsDenyUidsLabel: UID esclusi (separati da virgola)
 momentsDraftRestored: Bozza precedente ripristinata
 momentsFeedStale: Errore di rete, mostra contenuti in cache
+momentActionLike: "Mi piace"
+momentActionCancelLike: "Annulla"
+momentActionComment: "Commenta"
+momentActionDelete: "Elimina"
+momentActionReport: "Segnala"
+momentActionCancel: "Annulla"
+momentViewAllComments(count): "Vedi tutti i ${count} commenti"
+momentLikedBy(names): "A ${names} piace"
+momentAndOthersLiked(names,count): "A ${names} e altri ${count} piace"
+momentPartialVisible: "Parziale"
+momentContentPlaceholder: "A cosa stai pensando..."
+momentsDraftKeepTitle: "Conservare la bozza?"
+momentsDraftKeepMessage: "Potrai continuare la prossima volta"
+momentsDraftDiscard: "Non conservare"
+momentsDraftKeep: "Conserva"
 discover: Scopri
 shake: Scuoti
 openChannel: Apri canale

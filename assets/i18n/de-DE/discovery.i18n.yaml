@@ -25,6 +25,21 @@ momentsVisibilityExclude: Ausnahmen
 momentsDenyUidsLabel: Ausgeschlossen UIDs (kommagetrennt)
 momentsDraftRestored: Letzter Entwurf wiederhergestellt
 momentsFeedStale: Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt
+momentActionLike: "Gefällt mir"
+momentActionCancelLike: "Wegnehmen"
+momentActionComment: "Kommentieren"
+momentActionDelete: "Löschen"
+momentActionReport: "Melden"
+momentActionCancel: "Abbrechen"
+momentViewAllComments(count): "Alle ${count} Kommentare ansehen"
+momentLikedBy(names): "${names} gefällt das"
+momentAndOthersLiked(names,count): "${names} und ${count} weiteren gefällt das"
+momentPartialVisible: "Teilweise"
+momentContentPlaceholder: "Woran denkst du..."
+momentsDraftKeepTitle: "Entwurf behalten?"
+momentsDraftKeepMessage: "Beim nächsten Mal weiterbearbeiten"
+momentsDraftDiscard: "Verwerfen"
+momentsDraftKeep: "Behalten"
 discover: Entdecken
 shake: Schütteln
 openChannel: Kanal öffnen

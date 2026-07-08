@@ -25,6 +25,21 @@ momentsVisibilityExclude: Exceptions
 momentsDenyUidsLabel: UIDs exclus (séparés par virgule)
 momentsDraftRestored: Brouillon précédent restauré
 momentsFeedStale: Erreur réseau, affichage du cache
+momentActionLike: "J'aime"
+momentActionCancelLike: "Annuler"
+momentActionComment: "Commenter"
+momentActionDelete: "Supprimer"
+momentActionReport: "Signaler"
+momentActionCancel: "Annuler"
+momentViewAllComments(count): "Voir les ${count} commentaires"
+momentLikedBy(names): "${names} aiment ça"
+momentAndOthersLiked(names,count): "${names} et ${count} autres aiment ça"
+momentPartialVisible: "Partiel"
+momentContentPlaceholder: "À quoi pensez-vous..."
+momentsDraftKeepTitle: "Conserver le brouillon ?"
+momentsDraftKeepMessage: "Vous pourrez continuer la prochaine fois"
+momentsDraftDiscard: "Ne pas conserver"
+momentsDraftKeep: "Conserver"
 discover: Découvrir
 shake: Secouer
 openChannel: Ouvrir le canal

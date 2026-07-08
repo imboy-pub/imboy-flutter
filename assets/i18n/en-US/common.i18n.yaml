@@ -648,6 +648,13 @@ momentsCommentFailed: "Comment failed, please try again"
 momentsDeleteFailed: "Delete failed, please try again"
 momentsReportSubmitted: Report submitted
 momentsReportFailed: "Report failed, please try again"
+momentReportReasonSpam: "Spam or ads"
+momentReportReasonHarassment: "Harassment"
+momentReportReasonPorn: "Pornography"
+momentReportReasonFraud: "Fraud or scam"
+momentReportReasonInfringement: "Copyright infringement"
+momentReportReasonOther: "Other"
+momentReportReasonPrompt: "Select a reason"
 momentsLoadMoreComments: Load more comments
 momentsUploadFailed: "Media upload failed, please try again"
 transactionHistory: Transaction History

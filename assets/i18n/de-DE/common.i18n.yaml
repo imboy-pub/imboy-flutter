@@ -658,6 +658,13 @@ momentsCommentFailed: Kommentar fehlgeschlagen. Bitte später erneut versuchen.
 momentsDeleteFailed: Löschen fehlgeschlagen. Bitte später erneut versuchen.
 momentsReportSubmitted: Meldung gesendet
 momentsReportFailed: Meldung fehlgeschlagen. Bitte später erneut versuchen.
+momentReportReasonSpam: "Spam oder Werbung"
+momentReportReasonHarassment: "Belästigung"
+momentReportReasonPorn: "Pornografie"
+momentReportReasonFraud: "Betrug"
+momentReportReasonInfringement: "Urheberrechtsverletzung"
+momentReportReasonOther: "Sonstiges"
+momentReportReasonPrompt: "Grund auswählen"
 momentsLoadMoreComments: Weitere Kommentare laden
 momentsUploadFailed: Medien-Upload fehlgeschlagen. Bitte später erneut versuchen.
 transactionHistory: Transaktionshistorie
