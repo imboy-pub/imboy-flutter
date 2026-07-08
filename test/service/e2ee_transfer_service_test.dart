@@ -1,10 +1,14 @@
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/service/e2ee_transfer_service.dart';
+import 'package:imboy/service/rsa.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('E2EETransferService', () {
     group('generateQRCodeData', () {
       test('should generate valid JSON string', () {
@@ -225,6 +229,100 @@ void main() {
         expect(jsonString, contains('device_id'));
         expect(jsonString, contains('device-123'));
       });
+    });
+
+    group('encryptKeyBundle real RSA round-trip (device A -> device B)', () {
+      // 此前 encryptKeyBundle/_decryptAndSaveKey 从未被真实 RSA 密钥对
+      // 验证过完整往返——之前的测试因为"需要有效公钥"直接跳过了加密，
+      // 只测了 JSON 序列化本身。用真实密钥走一遍暴露出协议不匹配：
+      // encryptKeyBundle 把 JSON 又 base64 包了一层才交给 RSA 加密，
+      // 而接收端 _decryptAndSaveKey 解密后直接 json.decode（未先
+      // base64.decode），导致设备间密钥传输解密 100% 抛
+      // FormatException，多设备场景从未真正跑通过。
+      const storageChannel = MethodChannel(
+        'plugins.it_nomads.com/flutter_secure_storage',
+      );
+      final store = <String, String?>{};
+
+      setUpAll(() async {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(storageChannel, (call) async {
+              switch (call.method) {
+                case 'write':
+                  final key = call.arguments['key'] as String;
+                  final value = call.arguments['value'] as String?;
+                  store[key] = value;
+                  return null;
+                case 'read':
+                  final key = call.arguments['key'] as String;
+                  return store[key];
+                case 'delete':
+                  final key = call.arguments['key'] as String;
+                  store.remove(key);
+                  return null;
+                case 'deleteAll':
+                  store.clear();
+                  return null;
+                default:
+                  return null;
+              }
+            });
+      });
+
+      tearDownAll(() async {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(storageChannel, null);
+      });
+
+      setUp(() {
+        store.clear();
+        RSAService.resetForTest();
+      });
+
+      test(
+        'ciphertext produced by encryptKeyBundle must be decryptable back to the '
+        'original key bundle using the recipient private key (mirrors '
+        'E2EETransferService._decryptAndSaveKey since it is private)',
+        () async {
+          // Arrange：设备 B 生成真实 RSA 密钥对（通过 mock 安全存储）
+          final deviceBPublicKeyPem = await RSAService.publicKey();
+          final deviceBPrivateKey = await RSAService.privateKeyObject();
+
+          final keyBundle = {
+            'private_key': 'device_a_private_key_pem_placeholder',
+            'public_key': 'device_a_public_key_pem_placeholder',
+            'device_id': 'device_a',
+            'key_id': 'key_v1',
+          };
+
+          // Act：设备 A 用设备 B 的公钥加密密钥包
+          final encryptedBundle = await E2EETransferService.encryptKeyBundle(
+            keyBundle,
+            deviceBPublicKeyPem,
+          );
+
+          // 设备 B 侧解密（复刻 _decryptAndSaveKey 的步骤，因其为私有方法）
+          final encryptedData = base64.decode(encryptedBundle);
+          final decryptedData = RSAService.rsaDecrypt(
+            deviceBPrivateKey,
+            encryptedData,
+          );
+          final decoded =
+              json.decode(utf8.decode(decryptedData)) as Map<String, dynamic>;
+
+          // Assert：完整往返，字段逐一保真
+          expect(decoded['device_id'], equals('device_a'));
+          expect(decoded['key_id'], equals('key_v1'));
+          expect(
+            decoded['private_key'],
+            equals('device_a_private_key_pem_placeholder'),
+          );
+          expect(
+            decoded['public_key'],
+            equals('device_a_public_key_pem_placeholder'),
+          );
+        },
+      );
     });
 
     group('API methods (mock scenarios)', () {

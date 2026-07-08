@@ -541,16 +541,22 @@ class E2EEService {
           if (kid.isNotEmpty) didToKid[did] = kid;
         }
 
-        // 【审计修复 F-08】forceRefresh 命中空列表 = 服务端已吊销该用户所有公钥
-        // （如全部设备登出）。此时不应回落旧缓存，否则本地最长 30 分钟内仍会
-        // 用已吊销的公钥加密，违反最小权限原则。改为清除本地缓存。
-        // 注意：下方 catch 块的"API 异常回落缓存"（网络错误场景）保留，那是容错。
+        // 【F-08 复核回退】forceRefresh 命中空列表时的处理：保留"带 TTL 门槛的
+        // 抗抖动回退"，而非"空即吊销"。理由（对齐 docs/audit VERIFIED 版 BUG-07 裁决）：
+        // 后端目前无法用显式 revoked 标志区分"空=临时 API 故障"与"空=真吊销"，
+        // 在此前提下，若直接判定吊销会牺牲可用性（API 抖动时本端无法加密发出）。
+        // 故仅在本地缓存未过期（30min TTL）时回退旧缓存抗抖；缓存已过期则自然失效。
+        // 彻底解决需后端提供 revoked 显式标志（超出客户端范围），届时再切回"即时吊销"。
         if (didToPem.isEmpty && forceRefresh) {
-          _userKeyCacheByDevice.remove(uid);
-          _userKidCacheByDevice.remove(uid);
-          _userKeyCacheTimestamp.remove(uid);
-          iPrint('⚠️ [E2EE] API 返回空密钥列表，判定为已吊销，清除本地缓存: uid=$uid');
-          return _userKeyResult(uid, didToPem);
+          final cached = _userKeyCacheByDevice[uid];
+          if (cached != null &&
+              cached.isNotEmpty &&
+              !_isCacheExpired(_userKeyCacheTimestamp, uid)) {
+            iPrint(
+              '⚠️ [E2EE] API 返回空，使用未过期缓存（抗抖动）: uid=$uid, 设备数=${cached.length}',
+            );
+            return _userKeyResult(uid, cached);
+          }
         }
 
         _userKeyCacheByDevice[uid] = didToPem;
@@ -627,13 +633,18 @@ class E2EEService {
           }
         }
 
-        // 【审计修复 F-08】群密钥同单聊语义：forceRefresh 空列表 = 已吊销，清除缓存不回落
+        // 【F-08 复核回退】群密钥同单聊语义：保留带 TTL 门槛的抗抖动回退
+        // （对齐 VERIFIED 版 BUG-07：后端无 revoked 显式标志前，抗抖动优先于即时吊销）。
         if (didToPem.isEmpty && forceRefresh) {
-          _groupKeyCacheByDevice.remove(gid);
-          _groupKidCacheByDevice.remove(gid);
-          _groupKeyCacheTimestamp.remove(gid);
-          iPrint('⚠️ [E2EE] 群 API 返回空密钥列表，判定为已吊销，清除本地缓存: gid=$gid');
-          return _groupKeyResult(gid, didToPem);
+          final cached = _groupKeyCacheByDevice[gid];
+          if (cached != null &&
+              cached.isNotEmpty &&
+              !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
+            iPrint(
+              '⚠️ [E2EE] 群 API 返回空，使用未过期缓存（抗抖动）: gid=$gid, 设备数=${cached.length}',
+            );
+            return _groupKeyResult(gid, cached);
+          }
         }
 
         _groupKeyCacheByDevice[gid] = didToPem;

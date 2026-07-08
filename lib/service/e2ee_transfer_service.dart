@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage_secure.dart';
@@ -157,15 +158,26 @@ class E2EETransferService {
     try {
       // 1. 序列化为 JSON
       final jsonString = json.encode(keyBundle);
-      final plaintext = base64.encode(utf8.encode(jsonString));
 
-      // 2. 使用 RSA 服务加密
-      final encrypted = await RSAService.rsaEncryptWithPointyCastleAsync(
-        plaintext,
-        publicKeyPem,
+      // 2. 使用分块 RSA-OAEP 加密（与 _decryptAndSaveKey 的 rsaDecrypt 对称）。
+      //
+      // 此前用 rsaEncryptWithPointyCastleAsync（单 block，无分块，供密码等
+      // 短文本场景使用）+ 多包一层 base64，导致两个独立 bug：
+      // 1) 真实密钥包（含 RSA 私钥 PEM，通常 >1KB）远超 OAEP-SHA256
+      //    单块上限（2048 位密钥约 190 字节），加密直接抛
+      //    "message too long"；
+      // 2) 即使明文够短，encrypt 侧多包的 base64 层在 decrypt 侧
+      //    （_decryptAndSaveKey 只 base64.decode 一次+json.decode）
+      //    未被识别，解密结果是 base64 字符串而非 JSON，
+      //    json.decode 必抛 FormatException。
+      // 两者共同导致多设备密钥传输的加密-解密往返此前从未真正跑通过。
+      final publicKey = RSAService.parsePublicKeyFromPem(publicKeyPem);
+      final encrypted = RSAService.rsaEncrypt(
+        publicKey,
+        Uint8List.fromList(utf8.encode(jsonString)),
       );
 
-      return encrypted;
+      return base64.encode(encrypted);
     } catch (e) {
       throw Exception('加密密钥包失败: $e');
     }

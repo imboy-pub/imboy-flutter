@@ -467,8 +467,16 @@ class E2EELocalBackupService {
       ..setUint16(0, E2EECryptoService.authTagLength);
     header.add(tagLenData.buffer.asUint8List());
 
-    // Reserved (6 bytes)
-    final reserved = Uint8List(6);
+    // Reserved (10 bytes)
+    //
+    // 此前是 6 bytes，导致头部实际只有 28 字节，但 importBackup/
+    // _extractCiphertext/testPassword 等全部按文档标注的"32 bytes 头部"
+    // 硬编码 offset=32 读取 salt/iv/authTag/ciphertext——4 字节的结构性
+    // 错位导致 salt/iv/authTag 全部读到错误的字节、密文边界也偏移 4 字节，
+    // export→import 往返 100% 必现 GCM 认证失败（真库/真机往返测试实测
+    // 复现，非概率性 heuristic 误判，是确定性 bug）。改为 10 bytes 使头部
+    // 实际长度凑够 32 字节，与其余代码的假设对齐。
+    final reserved = Uint8List(10);
     header.add(reserved);
 
     return header.toBytes();
