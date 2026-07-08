@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -85,53 +86,61 @@ class _AppGridCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: item.onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // 图标圆角方块（对标 QQ 群应用），红点叠在右上角
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: item.color.withValues(alpha: isDark ? 0.22 : 0.12),
-                  borderRadius: BorderRadius.circular(13),
+    return Semantics(
+      button: true,
+      label: item.label,
+      hint: item.badge ? '有新动态' : null,
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          item.onTap();
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 图标圆角方块（对标 QQ 群应用），红点叠在右上角
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: item.color.withValues(alpha: isDark ? 0.22 : 0.12),
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                  child: Icon(item.icon, size: 24, color: item.color),
                 ),
-                child: Icon(item.icon, size: 24, color: item.color),
-              ),
-              if (item.badge)
-                Positioned(
-                  right: -2,
-                  top: -2,
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: const BoxDecoration(
-                      color: AppColors.iosRed,
-                      shape: BoxShape.circle,
+                if (item.badge)
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: Container(
+                      width: 9,
+                      height: 9,
+                      decoration: const BoxDecoration(
+                        color: AppColors.iosRed,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.tiny),
-          Text(
-            item.label,
-            style: context.textStyle(
-              FontSizeType.footnote,
-              color: isDark
-                  ? AppColors.darkTextPrimary
-                  : AppColors.lightTextPrimary,
+              ],
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+            const SizedBox(height: AppSpacing.tiny),
+            Text(
+              item.label,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }

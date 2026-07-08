@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -139,40 +140,45 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
 
   Widget _buildFilterTabs() {
     final t = context.t;
-    return Container(
+    return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.regular,
         vertical: AppSpacing.small,
       ),
-      child: Row(
-        children: [
-          _buildFilterChip(0, t.groupTask.all),
-          const SizedBox(width: AppSpacing.small),
-          _buildFilterChip(1, t.groupTask.pending),
-          const SizedBox(width: AppSpacing.small),
-          _buildFilterChip(2, t.groupTask.completed),
-        ],
+      child: SizedBox(
+        width: double.infinity,
+        child: CupertinoSlidingSegmentedControl<int>(
+          groupValue: _currentFilter,
+          thumbColor: AppColors.getIosBlue(Theme.of(context).brightness),
+          padding: const EdgeInsets.all(3),
+          children: {
+            0: _segmentLabel(t.groupTask.all, _currentFilter == 0),
+            1: _segmentLabel(t.groupTask.pending, _currentFilter == 1),
+            2: _segmentLabel(t.groupTask.completed, _currentFilter == 2),
+          },
+          onValueChanged: (v) {
+            if (v != null && v != _currentFilter) {
+              setState(() => _currentFilter = v);
+              _loadTasks();
+            }
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildFilterChip(int index, String label) {
-    final isSelected = _currentFilter == index;
-    final chipKey = index == 0
-        ? const Key('filter_tab_all')
-        : index == 1
-        ? const Key('filter_tab_todo')
-        : const Key('filter_tab_done');
-    return FilterChip(
-      key: chipKey,
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
-        if (!isSelected) {
-          setState(() => _currentFilter = index);
-          _loadTasks();
-        }
-      },
+  /// 分段控件标签
+  Widget _segmentLabel(String text, bool selected) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Text(
+        text,
+        style: context.textStyle(
+          FontSizeType.footnote,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+          color: selected ? AppColors.onPrimary : AppColors.iosGray,
+        ),
+      ),
     );
   }
 

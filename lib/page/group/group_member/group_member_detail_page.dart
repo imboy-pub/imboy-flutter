@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -296,7 +297,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
           ),
           AppSpacing.verticalRegular,
 
-          // ── 管理员操作区 ──
+          // ── 管理员操作区（底部 ActionSheet 聚合） ──
           if (canMute) ...[
             if (isMuted)
               _buildActionButton(
@@ -307,9 +308,18 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             else
               _buildActionButton(
                 label: t.chat.muteMember,
-                color: AppColors.iosRed,
+                color: AppColors.iosOrange,
                 onTap: _onMuteTap,
               ),
+            AppSpacing.verticalRegular,
+            // 更多管理操作（设管理员 / 移出群聊）
+            _buildActionButton(
+              // TODO(i18n): t.common.moreActions
+              label: '更多操作',
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+              isDestructive: false,
+              onTap: () => _showManageSheet(member),
+            ),
           ],
         ],
       ),
@@ -401,21 +411,110 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     required String label,
     required Color color,
     required VoidCallback onTap,
+    bool isDestructive = false,
   }) {
     return SizedBox(
       width: double.infinity,
       height: 48,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: AppColors.onPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: AppRadius.borderRadiusMedium,
-          ),
+      child: isDestructive
+          ? OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: color,
+                side: BorderSide(color: color.withValues(alpha: 0.3)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppRadius.borderRadiusMedium,
+                ),
+              ),
+              onPressed: onTap,
+              child: Text(label),
+            )
+          : ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color,
+                foregroundColor: AppColors.onPrimary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppRadius.borderRadiusMedium,
+                ),
+              ),
+              onPressed: onTap,
+              child: Text(label),
+            ),
+    );
+  }
+
+  /// 更多管理操作（底部 ActionSheet）
+  void _showManageSheet(GroupMemberModel member) {
+    final currentUid = UserRepoLocal.to.currentUid;
+    final isOwner = _myRole == 4;
+    final isTargetSelf = member.userId.toString() == currentUid;
+
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          // 设为/取消管理员（仅群主可操作，且不能操作自己）
+          if (isOwner && !isTargetSelf)
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.pop(ctx);
+                // TODO: 接入 role 变更 API（GroupMemberApi().role）
+                AppLoading.showError(t.common.tipFailed);
+              },
+              child: Text(
+                member.role == 3 ? t.common.removeAdmin : t.group.setAdmin,
+              ),
+            ),
+          // 移出群聊（仅管理员/群主，不能操作自己/群主）
+          if (canMuteGroupMember(
+                currentUserId: currentUid,
+                currentRole: _myRole,
+                targetUserId: member.userId.toString(),
+                targetRole: member.role,
+              ) &&
+              !isTargetSelf &&
+              member.role != 4)
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.pop(ctx);
+                _confirmKickMember(member);
+              },
+              child: Text(t.common.removeMember),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(t.common.buttonCancel),
         ),
-        onPressed: onTap,
-        child: Text(label),
       ),
     );
+  }
+
+  /// 确认移出群聊
+  Future<void> _confirmKickMember(GroupMemberModel member) async {
+    final confirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.common.removeMember),
+        // TODO(i18n): t.group.removeMemberConfirm(name: ...)
+        content: Text('确定要将「${member.nickname}」移出群聊吗？'),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t.common.buttonConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    // TODO: 接入 kick API（GroupMemberApi().kick），成功后 pop(true) 通知列表刷新
+    AppLoading.showError(t.common.tipFailed);
   }
 }

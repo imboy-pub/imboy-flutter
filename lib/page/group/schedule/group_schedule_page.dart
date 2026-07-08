@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -74,11 +75,9 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
                     icon: const Icon(Icons.calendar_today),
                     label: Text(t.groupSchedule.selectDate),
                     onPressed: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                      final date = await _pickCupertinoDate(
+                        context,
+                        initial: selectedDate,
                       );
                       if (date != null) {
                         selectedDate = date;
@@ -91,9 +90,9 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
                     icon: const Icon(Icons.access_time),
                     label: Text(t.groupSchedule.selectTime),
                     onPressed: () async {
-                      final time = await showTimePicker(
-                        context: context,
-                        initialTime: selectedTime,
+                      final time = await _pickCupertinoTime(
+                        context,
+                        initial: selectedTime,
                       );
                       if (time != null) {
                         selectedTime = time;
@@ -177,6 +176,88 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
         }
       }
     }
+  }
+
+  /// iOS 风格日期选择器（底部滚轮），替代 Material showDatePicker。
+  Future<DateTime?> _pickCupertinoDate(
+    BuildContext context, {
+    required DateTime initial,
+  }) async {
+    DateTime temp = initial;
+    return showCupertinoModalPopup<DateTime>(
+      context: context,
+      builder: (ctx) => Container(
+        height: 280,
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CupertinoButton(
+                  child: Text(t.common.cancel),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+                CupertinoButton(
+                  child: Text(t.common.confirm),
+                  onPressed: () => Navigator.pop(ctx, temp),
+                ),
+              ],
+            ),
+            Expanded(
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.date,
+                initialDateTime: initial,
+                minimumDate: DateTime.now(),
+                maximumDate: DateTime.now().add(const Duration(days: 365)),
+                onDateTimeChanged: (d) => temp = d,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// iOS 风格时间选择器（底部滚轮），替代 Material showTimePicker。
+  Future<TimeOfDay?> _pickCupertinoTime(
+    BuildContext context, {
+    required TimeOfDay initial,
+  }) async {
+    DateTime temp = DateTime(2026, 1, 1, initial.hour, initial.minute);
+    final result = await showCupertinoModalPopup<DateTime>(
+      context: context,
+      builder: (ctx) => Container(
+        height: 280,
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CupertinoButton(
+                  child: Text(t.common.cancel),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+                CupertinoButton(
+                  child: Text(t.common.confirm),
+                  onPressed: () => Navigator.pop(ctx, temp),
+                ),
+              ],
+            ),
+            Expanded(
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.time,
+                initialDateTime: temp,
+                onDateTimeChanged: (d) => temp = d,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result == null) return null;
+    return TimeOfDay(hour: result.hour, minute: result.minute);
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,11 @@ import 'group_member_mute_util.dart';
 import 'mute_remaining_badge.dart';
 
 /// 群成员列表页面
+///
+/// 体验优化：
+/// - 顶部搜索栏（按昵称/群昵称即时过滤）
+/// - 角色筛选分段控件（全部 / 群主 / 管理员 / 普通）
+/// - 列表项统一 iOS 视觉
 class GroupMemberPage extends ConsumerStatefulWidget {
   final String groupId;
 
@@ -44,6 +50,12 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   bool _hasMore = true;
   bool _isLoading = false;
   int _myRole = 1;
+
+  /// 搜索关键字（即时过滤）
+  String _keyword = '';
+
+  /// 角色筛选：0=全部 4=群主 3=管理员 1=普通成员
+  int _roleFilter = 0;
 
   StreamSubscription<dynamic>? _localeSubscription;
   // slice-9c：群成员禁言/解禁 S2C 事件订阅
@@ -67,7 +79,6 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         if (!mounted) return;
         if (event.gid.toString() != widget.groupId) return;
         if (event.userId.isEmpty) return;
-        // 找到对应成员，原地更新 muteUntilMs 后触发重建
         final idx = _memberList.indexWhere(
           (m) => m.userId.toString() == event.userId,
         );
@@ -95,7 +106,6 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           (m) => m.userId.toString() == event.userId,
         );
         if (idx == -1) return;
-        // BUG-11：不可变更新，解禁置空 muteUntilMs
         setState(() {
           _memberList = applyMemberMuteUpdate(_memberList, event.userId, null);
         });
@@ -203,6 +213,29 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
     await _loadData();
   }
 
+  /// 本地过滤（搜索关键字 + 角色筛选）
+  List<GroupMemberModel> get _filteredList {
+    var list = _memberList;
+    // 角色筛选
+    if (_roleFilter != 0) {
+      if (_roleFilter == 1) {
+        // 普通成员：role <= 2（成员+嘉宾）
+        list = list.where((m) => m.role <= 2).toList();
+      } else {
+        list = list.where((m) => m.role == _roleFilter).toList();
+      }
+    }
+    // 关键字搜索
+    final kw = _keyword.trim().toLowerCase();
+    if (kw.isNotEmpty) {
+      list = list.where((m) {
+        return m.nickname.toLowerCase().contains(kw) ||
+            m.alias.toLowerCase().contains(kw);
+      }).toList();
+    }
+    return list;
+  }
+
   /// 构建角色标签
   Widget _buildRoleBadge(int role) {
     String label;
@@ -264,7 +297,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           children: [
             // 头像
             Avatar(imgUri: member.avatar, width: 48, height: 48),
-            const SizedBox(width: AppSpacing.small),
+            const SizedBox(width: AppSpacing.medium),
             // 昵称和签名
             Expanded(
               child: Column(
@@ -276,7 +309,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                         child: Text(
                           member.alias.isEmpty ? member.nickname : member.alias,
                           style: ThemeManager.instance.getTextStyle(
-                            FontSizeType.medium,
+                            FontSizeType.body,
                             fontWeight: FontWeight.w500,
                             color: colorScheme.onSurface,
                           ),
@@ -286,7 +319,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                       ),
                       if (isGroupAdmin(member.role))
                         _buildRoleBadge(member.role),
-                      // F2：禁言剩余时间徽章（slice-1 muteUntilMs + slice-2 label）
+                      // 禁言剩余时间徽章
                       MuteRemainingBadge(
                         muteUntilMs: member.muteUntilMs,
                         nowMs: DateTime.now().millisecondsSinceEpoch,
@@ -310,9 +343,9 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
             ),
             // 箭头
             Icon(
-              Icons.chevron_right_rounded,
-              size: 20,
-              color: colorScheme.onSurface.withValues(alpha: 0.4),
+              CupertinoIcons.chevron_right,
+              size: 14,
+              color: colorScheme.onSurface.withValues(alpha: 0.3),
             ),
           ],
         ),
@@ -324,6 +357,8 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final brightness = theme.brightness;
+    final filtered = _filteredList;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -331,36 +366,102 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         automaticallyImplyLeading: true,
         title: '${t.group.groupMembers} (${_memberList.length})',
       ),
-      body: _isLoading && _memberList.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : _memberList.isEmpty
-          ? NoDataView(text: t.common.noData)
-          : EasyRefresh(
-              controller: _refreshController,
-              onRefresh: () async {
-                await _loadData(refresh: true);
-              },
-              onLoad: _hasMore ? _loadMore : null,
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: _memberList.length,
-                itemBuilder: (context, index) {
-                  final member = _memberList[index];
-                  return Column(
-                    children: [
-                      _buildListItem(context, member),
-                      if (index < _memberList.length - 1)
-                        Divider(
-                          height: 1,
-                          indent: 76,
-                          endIndent: 16,
-                          color: colorScheme.outline.withValues(alpha: 0.1),
-                        ),
-                    ],
-                  );
+      body: Column(
+        children: [
+          // 搜索栏
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              AppSpacing.small,
+            ),
+            child: CupertinoSearchTextField(
+              placeholder: t.common.search,
+              onChanged: (v) => setState(() => _keyword = v),
+            ),
+          ),
+          // 角色筛选分段控件
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.regular,
+            ).copyWith(bottom: AppSpacing.small),
+            child: SizedBox(
+              width: double.infinity,
+              child: CupertinoSlidingSegmentedControl<int>(
+                groupValue: _roleFilter,
+                thumbColor: AppColors.getIosBlue(brightness),
+                padding: const EdgeInsets.all(3),
+                children: {
+                  0: _segmentLabel(t.groupList.attrAll, _roleFilter == 0),
+                  4: _segmentLabel(t.group.groupOwner, _roleFilter == 4),
+                  3: _segmentLabel(t.group.groupAdmin, _roleFilter == 3),
+                  // TODO(i18n): t.group.memberOrdinary
+                  1: _segmentLabel('成员', _roleFilter == 1),
+                },
+                onValueChanged: (v) {
+                  if (v != null) setState(() => _roleFilter = v);
                 },
               ),
             ),
+          ),
+          // 列表
+          Expanded(
+            child: _isLoading && _memberList.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : _memberList.isEmpty
+                ? NoDataView(text: t.common.noData)
+                : filtered.isEmpty
+                ? NoDataView(
+                    text: t.common.searchNoResults,
+                    icon: CupertinoIcons.search,
+                  )
+                : EasyRefresh(
+                    controller: _refreshController,
+                    onRefresh: () async {
+                      await _loadData(refresh: true);
+                    },
+                    onLoad: _hasMore ? _loadMore : null,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        final member = filtered[index];
+                        return Column(
+                          children: [
+                            _buildListItem(context, member),
+                            if (index < filtered.length - 1)
+                              Divider(
+                                height: 1,
+                                indent: 76,
+                                endIndent: 16,
+                                color: colorScheme.outline.withValues(
+                                  alpha: 0.1,
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 分段控件标签
+  Widget _segmentLabel(String text, bool selected) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Text(
+        text,
+        style: context.textStyle(
+          FontSizeType.caption2,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+          color: selected ? AppColors.onPrimary : AppColors.iosGray,
+        ),
+      ),
     );
   }
 }

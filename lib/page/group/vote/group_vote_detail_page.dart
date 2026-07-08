@@ -1,9 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_vote_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -172,43 +175,119 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     }
   }
 
-  Widget _buildOptionItem(Map<String, dynamic> option, bool multiple) {
+  Widget _buildOptionItem(
+    Map<String, dynamic> option,
+    bool multiple, {
+    required int totalVotes,
+  }) {
     final optionId = _optionId(option);
     final selected = _selectedOptionIds.contains(optionId);
     final canEdit = _voteStatus == 1;
     final voteCount = _toInt(option['vote_count']);
+    final percent = totalVotes > 0 ? (voteCount / totalVotes) : 0.0;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = selected
+        ? AppColors.getIosBlue(Theme.of(context).brightness)
+        : AppColors.iosGray;
 
-    if (multiple) {
-      return CheckboxListTile(
-        value: selected,
-        onChanged: canEdit
-            ? (value) {
-                setState(() {
-                  if (value == true) {
-                    _selectedOptionIds.add(optionId);
-                  } else {
-                    _selectedOptionIds.remove(optionId);
-                  }
-                });
-              }
-            : null,
-        title: Text(_toText(option['option_text'])),
-        subtitle: Text(context.t.groupVote.totalVotes(count: voteCount)),
-      );
-    }
-
-    return CheckboxListTile(
-      value: selected,
-      onChanged: canEdit
-          ? (value) {
-              if (value != true) return;
+    return GestureDetector(
+      onTap: canEdit
+          ? () {
               setState(() {
-                _selectedOptionIds = {optionId};
+                if (multiple) {
+                  if (selected) {
+                    _selectedOptionIds.remove(optionId);
+                  } else {
+                    _selectedOptionIds.add(optionId);
+                  }
+                } else {
+                  _selectedOptionIds = {optionId};
+                }
               });
             }
           : null,
-      title: Text(_toText(option['option_text'])),
-      subtitle: Text(context.t.groupVote.totalVotes(count: voteCount)),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: AppSpacing.small),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurface,
+          borderRadius: AppRadius.borderRadiusRegular,
+          border: Border.all(
+            color: selected
+                ? accent.withValues(alpha: 0.5)
+                : AppColors.iosGray5.withValues(alpha: isDark ? 0.2 : 1),
+            width: selected ? 1.5 : 0.5,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 选项文本 + 勾选标记 + 票数百分比
+            Row(
+              children: [
+                Icon(
+                  selected
+                      ? (multiple
+                            ? CupertinoIcons.checkmark_square_fill
+                            : CupertinoIcons.checkmark_alt_circle_fill)
+                      : (multiple
+                            ? CupertinoIcons.square
+                            : CupertinoIcons.circle),
+                  color: accent,
+                  size: 22,
+                ),
+                const SizedBox(width: AppSpacing.small),
+                Expanded(
+                  child: Text(
+                    _toText(option['option_text']),
+                    style: context.textStyle(
+                      FontSizeType.body,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.small),
+                Text(
+                  '${(percent * 100).toInt()}%',
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    fontWeight: FontWeight.w600,
+                    color: accent,
+                  ),
+                ),
+              ],
+            ),
+            // 进度条
+            const SizedBox(height: AppSpacing.small),
+            ClipRRect(
+              borderRadius: AppRadius.borderRadiusTiny,
+              child: LinearProgressIndicator(
+                value: percent,
+                minHeight: 6,
+                backgroundColor: accent.withValues(alpha: 0.12),
+                valueColor: AlwaysStoppedAnimation<Color>(accent),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.tiny),
+            // 票数文案
+            Text(
+              context.t.groupVote.totalVotes(count: voteCount),
+              style: context.textStyle(
+                FontSizeType.caption2,
+                color: AppColors.iosGray,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -276,10 +355,8 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
           ),
           const SizedBox(height: AppSpacing.regular),
           ...options.map(
-            (option) => Card(
-              margin: const EdgeInsets.only(bottom: AppSpacing.small),
-              child: _buildOptionItem(option, isMultiple),
-            ),
+            (option) =>
+                _buildOptionItem(option, isMultiple, totalVotes: totalVotes),
           ),
           const SizedBox(height: AppSpacing.regular),
           if (_voteStatus == 1)
