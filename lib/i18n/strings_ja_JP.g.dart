@@ -2394,6 +2394,7 @@ class _Translations$passport$ja_JP extends Translations$passport$zh_CN {
 
 	// Translations
 	@override String get retrievePassword => 'パスワードを回復';
+	@override String get loginHistoryToggle => 'ログイン履歴を表示';
 	@override String get hintEmail => 'メールアドレスを入力してください';
 	@override String get hintMobile => '携帯電話番号を入力してください';
 	@override String get forgetPassword => 'パスワードをお忘れですか？';
@@ -4592,6 +4593,7 @@ extension on TranslationsJaJp {
 			'momentNotify.delete' => '削除',
 			'momentNotify.loadFailed' => '読み込みに失敗しました。後でもう一度お試しください',
 			'passport.retrievePassword' => 'パスワードを回復',
+			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',
 			'passport.forgetPassword' => 'パスワードをお忘れですか？',

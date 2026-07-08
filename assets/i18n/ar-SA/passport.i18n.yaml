@@ -1,5 +1,6 @@
 ---
 retrievePassword: استعادة كلمة المرور
+loginHistoryToggle: إظهار سجل تسجيل الدخول
 hintEmail: أدخل بريدك الإلكتروني
 hintMobile: أدخل رقم هاتفك
 forgetPassword: نسيت كلمة المرور؟

@@ -1,5 +1,6 @@
 ---
 retrievePassword: 비밀번호 찾기
+loginHistoryToggle: 로그인 기록 펼치기
 hintEmail: 이메일을 입력해 주세요
 hintMobile: 휴대폰 번호를 입력해 주세요
 forgetPassword: 비밀번호를 잊으셨나요?

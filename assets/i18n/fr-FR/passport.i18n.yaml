@@ -1,5 +1,6 @@
 ---
 retrievePassword: Récupérer le mot de passe
+loginHistoryToggle: Afficher l'historique de connexion
 hintEmail: Veuillez entrer votre adresse e-mail
 hintMobile: Veuillez entrer votre numéro de téléphone
 forgetPassword: Mot de passe oublié ?

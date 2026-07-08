@@ -2394,6 +2394,7 @@ class _Translations$passport$ar_SA extends Translations$passport$zh_CN {
 
 	// Translations
 	@override String get retrievePassword => 'استعادة كلمة المرور';
+	@override String get loginHistoryToggle => 'إظهار سجل تسجيل الدخول';
 	@override String get hintEmail => 'أدخل بريدك الإلكتروني';
 	@override String get hintMobile => 'أدخل رقم هاتفك';
 	@override String get forgetPassword => 'نسيت كلمة المرور؟';
@@ -4592,6 +4593,7 @@ extension on TranslationsArSa {
 			'momentNotify.delete' => 'حذف',
 			'momentNotify.loadFailed' => 'تعذّر التحميل، حاول لاحقاً',
 			'passport.retrievePassword' => 'استعادة كلمة المرور',
+			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',
 			'passport.forgetPassword' => 'نسيت كلمة المرور؟',

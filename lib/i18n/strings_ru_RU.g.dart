@@ -2394,6 +2394,7 @@ class _Translations$passport$ru_RU extends Translations$passport$zh_CN {
 
 	// Translations
 	@override String get retrievePassword => 'Восстановить пароль';
+	@override String get loginHistoryToggle => 'Показать историю входа';
 	@override String get hintEmail => 'Введите эл. почту';
 	@override String get hintMobile => 'Введите номер мобильного';
 	@override String get forgetPassword => 'Забыли пароль?';
@@ -4592,6 +4593,7 @@ extension on TranslationsRuRu {
 			'momentNotify.delete' => 'Удалить',
 			'momentNotify.loadFailed' => 'Не удалось загрузить, попробуйте позже',
 			'passport.retrievePassword' => 'Восстановить пароль',
+			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',
 			'passport.forgetPassword' => 'Забыли пароль?',

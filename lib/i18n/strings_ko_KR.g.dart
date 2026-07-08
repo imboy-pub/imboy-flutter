@@ -2394,6 +2394,7 @@ class _Translations$passport$ko_KR extends Translations$passport$zh_CN {
 
 	// Translations
 	@override String get retrievePassword => '비밀번호 찾기';
+	@override String get loginHistoryToggle => '로그인 기록 펼치기';
 	@override String get hintEmail => '이메일을 입력해 주세요';
 	@override String get hintMobile => '휴대폰 번호를 입력해 주세요';
 	@override String get forgetPassword => '비밀번호를 잊으셨나요?';
@@ -4592,6 +4593,7 @@ extension on TranslationsKoKr {
 			'momentNotify.delete' => '삭제',
 			'momentNotify.loadFailed' => '불러오기 실패, 나중에 다시 시도해주세요',
 			'passport.retrievePassword' => '비밀번호 찾기',
+			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',
 			'passport.forgetPassword' => '비밀번호를 잊으셨나요?',

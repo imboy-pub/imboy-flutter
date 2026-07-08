@@ -2394,6 +2394,7 @@ class Translations$passport$zh_Hant extends Translations$passport$zh_CN {
 
 	// Translations
 	@override String get retrievePassword => '找回密碼';
+	@override String get loginHistoryToggle => '展開歷史登入記錄';
 	@override String get hintEmail => '請輸入郵箱';
 	@override String get hintMobile => '請輸入手機號碼';
 	@override String get forgetPassword => '忘記密碼？';
@@ -4592,6 +4593,7 @@ extension on TranslationsZhHant {
 			'momentNotify.delete' => '刪除',
 			'momentNotify.loadFailed' => '載入失敗，請稍後重試',
 			'passport.retrievePassword' => '找回密碼',
+			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',
 			'passport.forgetPassword' => '忘記密碼？',

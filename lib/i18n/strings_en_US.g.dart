@@ -2394,6 +2394,7 @@ class _Translations$passport$en_US extends Translations$passport$zh_CN {
 
 	// Translations
 	@override String get retrievePassword => 'Retrieve Password';
+	@override String get loginHistoryToggle => 'Show login history';
 	@override String get hintEmail => 'Please enter email';
 	@override String get hintMobile => 'Please enter mobile number';
 	@override String get forgetPassword => 'Forgot password?';
@@ -4592,6 +4593,7 @@ extension on TranslationsEnUs {
 			'momentNotify.delete' => 'Delete',
 			'momentNotify.loadFailed' => 'Load failed, please retry',
 			'passport.retrievePassword' => 'Retrieve Password',
+			'passport.loginHistoryToggle' => 'Show login history',
 			'passport.hintEmail' => 'Please enter email',
 			'passport.hintMobile' => 'Please enter mobile number',
 			'passport.forgetPassword' => 'Forgot password?',
