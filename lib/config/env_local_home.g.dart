@@ -402,7 +402,7 @@ final class _Env {
 
   static const String jiguangAppKey = '6455334942815947cdbcbfed';
 
-  static const String wsUrl = 'ws://192.168.2.19:9800/ws';
+  static const String wsUrl = 'ws://192.168.2.19:9800/api/v1/ws';
 
   static const String openaiApiKey = '';
 
