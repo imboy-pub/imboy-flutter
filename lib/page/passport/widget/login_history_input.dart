@@ -151,6 +151,7 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
               (widget.historyList.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.arrow_drop_down),
+                      tooltip: t.passport.loginHistoryToggle,
                       onPressed: _toggleOverlay,
                     )
                   : null),

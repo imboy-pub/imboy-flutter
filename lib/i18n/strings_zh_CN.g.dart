@@ -6895,6 +6895,9 @@ class Translations$passport$zh_CN {
 	/// zh-CN: '找回密码'
 	String get retrievePassword => '找回密码';
 
+	/// zh-CN: '展开历史登录记录'
+	String get loginHistoryToggle => '展开历史登录记录';
+
 	/// zh-CN: '请输入邮箱'
 	String get hintEmail => '请输入邮箱';
 
@@ -9231,6 +9234,7 @@ extension on Translations {
 			'momentNotify.delete' => '删除',
 			'momentNotify.loadFailed' => '加载失败，请稍后重试',
 			'passport.retrievePassword' => '找回密码',
+			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',
 			'passport.forgetPassword' => '忘记密码？',

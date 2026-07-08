@@ -147,37 +147,41 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
     // DESIGN.md §1 双蓝策略：Nav 文字/图标按钮用 iOS 系统蓝 #007AFF，
     // 品牌蓝 #2474E5 保留给 Tab 选中 / 主按钮 / 发送气泡等识别位置。
     final navBlue = AppColors.getIosBlue(Theme.of(context).brightness);
-    return GestureDetector(
-      // HitTestBehavior.opaque + 44×44 SizedBox：命中区域撑到 iOS HIG/WCAG
-      // 2.5.5 要求的最小 44×44pt，视觉上仍保持 36×36 的圆角背景不变。
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        final nav = Navigator.of(context);
-        // 帧末执行 pop：避开导航同步重入窗口（_flushHistoryUpdates 期间
-        // _debugLocked=true）。canPop() 不检测该锁，若在重入窗口里同步 pop
-        // 会触发 '!_debugLocked' 断言，且该断言一旦抛出会中断 history flush，
-        // 让导航栈短暂卡死、后续 pop 连锁失败。postFrame 把 pop 推到当前
-        // 同步栈之外，绕开重入锁（_debugLocked 是同步锁，不跨帧）。
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          if (!nav.mounted) return;
-          for (int i = 0; i < popTime && nav.canPop(); i++) {
-            nav.pop();
-          }
-        });
-      },
-      child: SizedBox(
-        width: 44,
-        height: 44,
-        child: Center(
-          child: Container(
-            width: 36,
-            height: 36,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: navBlue.withValues(alpha: 0.1),
-              borderRadius: AppRadius.borderRadiusCell,
+    return Semantics(
+      button: true,
+      label: MaterialLocalizations.of(context).backButtonTooltip,
+      child: GestureDetector(
+        // HitTestBehavior.opaque + 44×44 SizedBox：命中区域撑到 iOS HIG/WCAG
+        // 2.5.5 要求的最小 44×44pt，视觉上仍保持 36×36 的圆角背景不变。
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          final nav = Navigator.of(context);
+          // 帧末执行 pop：避开导航同步重入窗口（_flushHistoryUpdates 期间
+          // _debugLocked=true）。canPop() 不检测该锁，若在重入窗口里同步 pop
+          // 会触发 '!_debugLocked' 断言，且该断言一旦抛出会中断 history flush，
+          // 让导航栈短暂卡死、后续 pop 连锁失败。postFrame 把 pop 推到当前
+          // 同步栈之外，绕开重入锁（_debugLocked 是同步锁，不跨帧）。
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            if (!nav.mounted) return;
+            for (int i = 0; i < popTime && nav.canPop(); i++) {
+              nav.pop();
+            }
+          });
+        },
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Center(
+            child: Container(
+              width: 36,
+              height: 36,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: navBlue.withValues(alpha: 0.1),
+                borderRadius: AppRadius.borderRadiusCell,
+              ),
+              child: Icon(Icons.arrow_back_ios_new, color: navBlue, size: 16),
             ),
-            child: Icon(Icons.arrow_back_ios_new, color: navBlue, size: 16),
           ),
         ),
       ),
