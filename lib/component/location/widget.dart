@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -57,8 +60,9 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   int page = 1;
   int _seLindex = 0;
   final _searchQueryController = TextEditingController();
-  // 静态地图预览当前居中的坐标（默认=设备当前定位，选中 POI/点「我的位置」时更新）
+  // 地图当前居中的坐标（默认=设备当前定位，拖动地图/选中 POI/点「我的位置」时更新）
   LatLng _currentCenterCoordinate = const LatLng(39.909187, 116.397451);
+  late final WebViewController _webViewController;
   void _onSheetExtentChanged() {
     if (!mounted || !_sheetController.isAttached) return;
     final screenH = MediaQuery.of(context).size.height;
@@ -107,8 +111,96 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
         );
       }
     });
+    _initWebViewMap();
     // 不再有原生地图 onMapCreated 回调来触发首次搜索，这里直接调
     _search(widget.latLng!);
+  }
+
+  // 用高德官方 JS 地图 API（webapi.amap.com/maps）通过 WebView 渲染，
+  // 而不是原生 amap_flutter_map_plus——JS API 是高德官方给 Web/WebView
+  // 场景设计的产品，天然支持拖拽/缩放，坐标系跟 POI 搜索一致（GCJ-02），
+  // webview_flutter 在 iOS/Android/macOS 上都有实现，不用再区分平台。
+  //
+  // ⚠️ 需要 AMap 控制台单独申请一个「Web端(JS API)」类型的 Key（跟现在
+  // aMapWebKey 用的「Web服务」Key 是两种不同类型，高德会分别校验），
+  // 并在控制台给这个 Key 配置安全密钥(JSCode)+域名白名单。这里暂时复用
+  // aMapWebKey 占位，真机验证时如果地图加载失败/控制台报 key 无效，
+  // 去 AMap 控制台建一个 JS API Key 换掉。
+  void _initWebViewMap() {
+    _webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.transparent)
+      ..addJavaScriptChannel(
+        'FlutterBridge',
+        onMessageReceived: _onWebViewMessage,
+      )
+      ..loadHtmlString(_buildMapHtml(widget.latLng!));
+  }
+
+  void _onWebViewMessage(JavaScriptMessage message) {
+    if (!mounted) return;
+    try {
+      final payload = jsonDecode(message.message) as Map<String, dynamic>;
+      final type = payload['type'] as String?;
+      final data = payload['data'] as Map<String, dynamic>?;
+      if (type == 'moveend' && data != null) {
+        final lat = (data['lat'] as num).toDouble();
+        final lng = (data['lng'] as num).toDouble();
+        setState(() {
+          _currentCenterCoordinate = LatLng(lat, lng);
+        });
+        _onMyLocation.add(false);
+        poiInfoList = [];
+        _search(_currentCenterCoordinate);
+      }
+    } catch (e) {
+      // JS 桥消息解析失败不影响地图本身可用性，忽略即可
+    }
+  }
+
+  String _buildMapHtml(LatLng center) {
+    final jsKey = Env().aMapWebKey;
+    return '''
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>html,body,#map{width:100%;height:100%;margin:0;padding:0;}</style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://webapi.amap.com/maps?v=2.0&key=$jsKey"></script>
+<script>
+  var map = new AMap.Map('map', {
+    zoom: 16,
+    center: [${center.longitude}, ${center.latitude}],
+    resizeEnable: true
+  });
+  var marker = new AMap.Marker({
+    position: [${center.longitude}, ${center.latitude}],
+    map: map
+  });
+  function bridgeSend(type, data) {
+    if (window.FlutterBridge) {
+      window.FlutterBridge.postMessage(JSON.stringify({type: type, data: data}));
+    }
+  }
+  map.on('dragend', function () {
+    var c = map.getCenter();
+    marker.setPosition(c);
+    bridgeSend('moveend', {lat: c.lat, lng: c.lng});
+  });
+  // 供 Flutter 端程序化移动地图中心（我的位置 / 点击 POI 列表项）
+  window.setMapCenter = function (lat, lng) {
+    var pos = [lng, lat];
+    map.setCenter(pos);
+    marker.setPosition(pos);
+  };
+</script>
+</body>
+</html>
+''';
   }
 
   @override
@@ -125,43 +217,11 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
               Flexible(
                 child: Stack(
                   children: [
-                    // 高德官方静态地图 Web 服务 API：纯 HTTP 图片请求，全平台
-                    // 可用（不再需要区分 iOS/Android/桌面），marker 直接烤在
-                    // 图里，坐标系跟 POI 搜索一致（都是 GCJ-02）。
-                    // 代价：不能拖动地图本身，换位置靠下面搜索/列表。
+                    // 高德官方 JS 地图 API，WebView 渲染：真正可拖拽/缩放，
+                    // 跟 POI 搜索同一套 GCJ-02 坐标系，iOS/Android/macOS
+                    // 都有 webview_flutter 实现，不用再区分平台。
                     Positioned.fill(
-                      child: Image.network(
-                        AMapApi.staticMapUrl(
-                          latitude: _currentCenterCoordinate.latitude,
-                          longitude: _currentCenterCoordinate.longitude,
-                        ),
-                        key: ValueKey(_currentCenterCoordinate),
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, progress) =>
-                            progress == null
-                            ? child
-                            : Container(
-                                color: AppColors.getSurfaceGrouped(
-                                  Theme.of(context).brightness,
-                                ),
-                                alignment: Alignment.center,
-                                child: const CircularProgressIndicator(),
-                              ),
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: AppColors.getSurfaceGrouped(
-                            Theme.of(context).brightness,
-                          ),
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.map_outlined,
-                            size: 40,
-                            color: AppColors.getTextColor(
-                              Theme.of(context).brightness,
-                              isSecondary: true,
-                            ),
-                          ),
-                        ),
-                      ),
+                      child: WebViewWidget(controller: _webViewController),
                     ),
                     Positioned(
                       right: 16.0,
@@ -402,6 +462,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                                               data[index].latLng;
                                         });
                                         _onMyLocation.add(false);
+                                        _panMapTo(data[index].latLng);
                                       },
                                       child: Container(
                                         // 选中态背景高亮：此前只有末尾一个对号，
@@ -555,6 +616,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
 
   Future<void> _showMyLocation() async {
     _recenterTo(widget.latLng!); // 我的位置
+    _panMapTo(widget.latLng!);
     _onMyLocation.add(true);
     if (!_isKeyword) {
       //如果不在文字搜索中
@@ -562,11 +624,19 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     }
   }
 
-  /// 更新静态地图预览居中的坐标（不再有可拖动的交互式地图相机）
+  /// 更新地图中心坐标状态（供 FAB 高亮/预览等 UI 使用）
   void _recenterTo(LatLng target) {
     setState(() {
       _currentCenterCoordinate = target;
     });
+  }
+
+  /// 程序化移动 JS 地图中心（我的位置 / 点击 POI 列表项），
+  /// 对应 HTML 里挂在 window 上的 setMapCenter
+  void _panMapTo(LatLng target) {
+    _webViewController.runJavaScript(
+      'window.setMapCenter && window.setMapCenter(${target.latitude}, ${target.longitude});',
+    );
   }
 
   void _cancel() {
