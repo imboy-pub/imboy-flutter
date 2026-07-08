@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
 import 'package:amap_flutter_map_plus/amap_flutter_map_plus.dart';
@@ -131,46 +134,59 @@ class _MapLocationPickerState extends State<MapLocationPicker>
         );
       }
     });
+    if (!_mapSupported) {
+      // 不支持原生地图的平台没有 onMapCreated 回调来触发首次搜索，
+      // 这里直接补一次，否则 POI 列表会一直空着
+      _search(widget.latLng!);
+    }
   }
+
+  // 高德地图原生插件只支持 iOS/Android，macOS/Windows/Linux/Web 上
+  // AMapWidget 没有平台实现，onMapCreated 永远不会触发（_controller 一直为
+  // null）。这些平台走占位视图 + 直接触发 POI 搜索，搜索本身是纯 HTTP 调用
+  // （AMapApi.getAmapPoi/getMapByKeyword），跟地图渲染无关，不受影响。
+  bool get _mapSupported => !kIsWeb && (Platform.isIOS || Platform.isAndroid);
 
   @override
   Widget build(BuildContext context) {
-    final AMapWidget amap = AMapWidget(
-      privacyStatement: const AMapPrivacyStatement(
-        hasContains: true,
-        hasShow: true,
-        hasAgree: true,
-      ),
-      apiKey: AMapApiKey(
-        iosKey: Env().aMapIosKey,
-        androidKey: Env().aMapAndroidKey,
-      ),
-      initialCameraPosition: _kInitialPosition,
-      mapType: MapType.normal,
-      buildingsEnabled: true,
-      // 是否显示3D建筑物
-      compassEnabled: false,
-      // 是否指南针
-      labelsEnabled: true,
-      // 是否显示底图文字
-      scaleEnabled: true,
-      // 比例尺是否显示
-      touchPoiEnabled: true,
-      rotateGesturesEnabled: true,
-      scrollGesturesEnabled: true,
-      tiltGesturesEnabled: true,
-      zoomGesturesEnabled: true,
-      onMapCreated: onMapCreated,
-      customStyleOptions: customStyleOptions,
-      myLocationStyleOptions: myLocationStyleOptions,
-      onLocationChanged: _onLocationChanged,
-      onCameraMove: _onCameraMove,
-      onCameraMoveEnd: _onCameraMoveEnd,
-      onTap: _onMapTap,
-      onLongPress: _onMapLongPress,
-      onPoiTouched: _onMapPoiTouched,
-      markers: Set<Marker>.of(_markers.values),
-    );
+    final AMapWidget? amap = _mapSupported
+        ? AMapWidget(
+            privacyStatement: const AMapPrivacyStatement(
+              hasContains: true,
+              hasShow: true,
+              hasAgree: true,
+            ),
+            apiKey: AMapApiKey(
+              iosKey: Env().aMapIosKey,
+              androidKey: Env().aMapAndroidKey,
+            ),
+            initialCameraPosition: _kInitialPosition,
+            mapType: MapType.normal,
+            buildingsEnabled: true,
+            // 是否显示3D建筑物
+            compassEnabled: false,
+            // 是否指南针
+            labelsEnabled: true,
+            // 是否显示底图文字
+            scaleEnabled: true,
+            // 比例尺是否显示
+            touchPoiEnabled: true,
+            rotateGesturesEnabled: true,
+            scrollGesturesEnabled: true,
+            tiltGesturesEnabled: true,
+            zoomGesturesEnabled: true,
+            onMapCreated: onMapCreated,
+            customStyleOptions: customStyleOptions,
+            myLocationStyleOptions: myLocationStyleOptions,
+            onLocationChanged: _onLocationChanged,
+            onCameraMove: _onCameraMove,
+            onCameraMoveEnd: _onCameraMoveEnd,
+            onTap: _onMapTap,
+            onLongPress: _onMapLongPress,
+            onPoiTouched: _onMapPoiTouched,
+            markers: Set<Marker>.of(_markers.values),
+          )
+        : null;
     final widthMax = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -183,7 +199,7 @@ class _MapLocationPickerState extends State<MapLocationPicker>
               Flexible(
                 child: Stack(
                   children: [
-                    amap,
+                    amap ?? _unsupportedMapPlaceholder(context),
                     Center(
                       child: AnimatedBuilder(
                         animation: _tween,
@@ -486,6 +502,47 @@ class _MapLocationPickerState extends State<MapLocationPicker>
             },
           ),
         ],
+      ),
+    );
+  }
+
+  /// macOS/Windows/Linux/Web 上没有原生地图可渲染时的占位视图。
+  /// 仍然显示当前坐标，搜索/选点/发送流程不受影响，只是看不到可视化地图。
+  Widget _unsupportedMapPlaceholder(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return Container(
+      color: AppColors.getSurfaceGrouped(brightness),
+      alignment: Alignment.center,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xLarge),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.map_outlined,
+              size: 40,
+              color: AppColors.getTextColor(brightness, isSecondary: true),
+            ),
+            const SizedBox(height: AppSpacing.small),
+            Text(
+              '${widget.latLng!.latitude.toStringAsFixed(6)}, '
+              '${widget.latLng!.longitude.toStringAsFixed(6)}',
+              style: context.textStyle(
+                FontSizeType.subheadline,
+                color: AppColors.getTextColor(brightness),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.tiny),
+            Text(
+              '当前平台不支持地图预览，可在下方列表搜索并选择位置',
+              textAlign: TextAlign.center,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: AppColors.getTextColor(brightness, isSecondary: true),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
