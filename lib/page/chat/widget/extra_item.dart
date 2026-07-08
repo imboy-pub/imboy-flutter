@@ -181,8 +181,17 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
         onPressed: () async {
           if (!context.mounted) return;
 
+          // 定位（尤其是高德失败降级到 geolocator 时）可能要等几秒，
+          // 之前点击后界面毫无反应，像按钮坏了；先给一个 loading 反馈。
+          AppLoading.show(status: t.common.loading);
           AMapPosition? l = await LocationService().getCurrentPosition();
-          if (l != null && context.mounted) {
+          await AppLoading.dismiss();
+          if (!context.mounted) return;
+          if (l == null) {
+            AppLoading.showError(t.common.failedGetMapTryAgain);
+            return;
+          }
+          if (context.mounted) {
             // 使用 go_router 进行导航
             final result = await context.push<Map<String, dynamic>>(
               '/map_location_picker',

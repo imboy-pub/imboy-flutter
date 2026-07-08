@@ -130,8 +130,15 @@ class AMapHelper {
 
   // 初始化
   AMapLocationOption locationOption = AMapLocationOption(
-    // 是否需要地址信息，默认true
-    needAddress: true,
+    // 是否需要地址信息：关闭。开启时 SDK 会额外发起逆地理编码请求，
+    // 当前 AMap Key 的逆地理权限/签名配置有误，稳定返回
+    // errorCode=3 INVALID_USER_SCODE，导致整次定位被判失败，
+    // 拖累「地点」按钮降级到 geolocator 重新走一次完整定位（慢，
+    // 感觉像点了半天没反应）。getCurrentPosition() 的三个调用方
+    // （extra_item.dart / people_nearby_provider.dart /
+    // face_to_face_provider.dart）都只用经纬度，从不读 .address，
+    // 关掉即可让高德直接返回原始坐标，不再打这趟必挂的逆地理请求。
+    needAddress: false,
     // 逆地理信息语言类型
     geoLanguage: GeoLanguage.ZH,
     // 是否单次定位 默认值：false
