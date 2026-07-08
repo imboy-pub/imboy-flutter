@@ -127,11 +127,10 @@ dependencies:
   # 📍 Maps & Location                                               │
   # └─────────────────────────────────────────────────────────────────┘
   geolocator: ^14.0.3                   # 跨平台定位服务（支持 macOS/Web）(updated: 14.0.2 → 14.0.3)
-  amap_flutter_base_plus: ^3.1.0       # Amap (高德地图) base SDK
-  amap_flutter_map_plus:               # Amap map integration
-    git:
-      url: https://github.com/leeyisoft/amap_flutter_map_plus.git
-      ref: main
+  amap_flutter_base_plus: ^3.1.0       # Amap (高德地图) base SDK（LatLng 等基础类型，选点页仍用）
+  # amap_flutter_map_plus 已移除：交互式地图 widget 换成官方静态地图 Web
+  # 服务 API（AMapApi.staticMapUrl，纯 HTTP，全平台可用），不再需要原生
+  # 地图渲染插件（此前 iOS/Android 之外的平台完全用不了）。
   amap_flutter_location_plus:
     path: plugin/amap_flutter_location_plus       # Amap location services
 #    git:

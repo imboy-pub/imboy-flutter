@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
 import 'package:amap_flutter_location_plus/amap_flutter_location_plus.dart';
@@ -285,6 +286,48 @@ class AMapApi {
       "https://restapi.amap.com/v5/place/text",
       queryParameters: queryParameters,
     );
+  }
+
+  /// 静态地图 URL——官方 Web 服务 API 产品（非逆向抓瓦片），返回一张带 marker
+  /// 的 PNG 预览图。跟 aMapWebKey 是同一个 Key，跟 getAmapPoi 坐标系
+  /// （GCJ-02）天然对齐，且是纯 HTTP 请求，全平台可用。
+  /// https://lbs.amap.com/api/webservice/guide/api/staticmaps
+  static String staticMapUrl({
+    required double latitude,
+    required double longitude,
+    int zoom = 16,
+    int width = 750,
+    int height = 400,
+    int scale = 2,
+  }) {
+    final loc = '$longitude,$latitude';
+    return Uri.https('restapi.amap.com', '/v3/staticmap', {
+      'location': loc,
+      'zoom': zoom.toString(),
+      'size': '$width*$height',
+      'scale': scale.toString(),
+      'markers': 'mid,,A:$loc',
+      'key': Env().aMapWebKey,
+    }).toString();
+  }
+
+  /// 拉取静态地图图片二进制，用于"发送位置"内嵌预览图场景
+  /// （原来靠 AMapController.takeSnapshot() 截图交互式地图，现在直接用
+  /// 官方静态地图接口生成，不再需要等地图渲染/加 marker 再截屏）
+  static Future<Uint8List?> fetchStaticMapBytes({
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final resp = await Dio().get<List<int>>(
+        staticMapUrl(latitude: latitude, longitude: longitude),
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final data = resp.data;
+      return data == null ? null : Uint8List.fromList(data);
+    } catch (_) {
+      return null;
+    }
   }
 }
 

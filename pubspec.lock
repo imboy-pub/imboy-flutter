@@ -32,15 +32,6 @@ packages:
       relative: true
     source: path
     version: "3.1.2"
-  amap_flutter_map_plus:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: main
-      resolved-ref: "818f7e4549ee585c6ac9a42422c563feb46fb926"
-      url: "https://github.com/leeyisoft/amap_flutter_map_plus.git"
-    source: git
-    version: "3.1.1"
   analyzer:
     dependency: "direct overridden"
     description:

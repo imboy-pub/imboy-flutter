@@ -1,13 +1,8 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/services.dart';
 import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
-import 'package:amap_flutter_map_plus/amap_flutter_map_plus.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:imboy/config/env.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -50,34 +45,20 @@ class MapLocationPicker extends StatefulWidget {
   }
 }
 
-class _MapLocationPickerState extends State<MapLocationPicker>
-    with SingleTickerProviderStateMixin, _BLoCMixin, _AnimationMixin {
-  double _currentZoom = 15.0;
-  AMapController? _controller;
+class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   static const _kMinChildSize = 0.4;
   static const _kMaxChildSize = 0.7;
   final DraggableScrollableController _sheetController =
       DraggableScrollableController();
   FocusNode focusNode = FocusNode();
-  final _iconSize = 50.0;
   double _fabHeight = 16.0;
   bool _isKeyword = false;
   bool _animate = false;
   int page = 1;
   int _seLindex = 0;
-  bool _moveByUser = true;
   final _searchQueryController = TextEditingController();
-  CustomStyleOptions customStyleOptions = CustomStyleOptions(false);
-  //小蓝点
-  MyLocationStyleOptions myLocationStyleOptions = MyLocationStyleOptions(false);
-  // 当前地图中心点
+  // 静态地图预览当前居中的坐标（默认=设备当前定位，选中 POI/点「我的位置」时更新）
   LatLng _currentCenterCoordinate = const LatLng(39.909187, 116.397451);
-  CameraPosition _kInitialPosition = const CameraPosition(
-    target: LatLng(39.909187, 116.397451),
-    zoom: 15.0,
-    tilt: 30,
-    bearing: 0,
-  );
   void _onSheetExtentChanged() {
     if (!mounted || !_sheetController.isAttached) return;
     final screenH = MediaQuery.of(context).size.height;
@@ -104,19 +85,11 @@ class _MapLocationPickerState extends State<MapLocationPicker>
   List<AMapPosition> poiInfoList = [];
   String searchType =
       "010000|020000|030000|040000|050000|060000|070000|080000|090000|100000|110000|120201|120300|140000|150400|190600|190301";
-  final Map<String, Marker> _markers = <String, Marker>{};
   AMapPosition? _sendMsg;
   @override
   void initState() {
     super.initState();
-    // debugPrint("widget.latLng ${widget.latLng}");
     _currentCenterCoordinate = widget.latLng!;
-    _kInitialPosition = CameraPosition(
-      target: widget.latLng!,
-      zoom: _currentZoom,
-      tilt: 30,
-      bearing: 0,
-    );
     _sheetController.addListener(_onSheetExtentChanged);
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
@@ -134,59 +107,12 @@ class _MapLocationPickerState extends State<MapLocationPicker>
         );
       }
     });
-    if (!_mapSupported) {
-      // 不支持原生地图的平台没有 onMapCreated 回调来触发首次搜索，
-      // 这里直接补一次，否则 POI 列表会一直空着
-      _search(widget.latLng!);
-    }
+    // 不再有原生地图 onMapCreated 回调来触发首次搜索，这里直接调
+    _search(widget.latLng!);
   }
-
-  // 高德地图原生插件只支持 iOS/Android，macOS/Windows/Linux/Web 上
-  // AMapWidget 没有平台实现，onMapCreated 永远不会触发（_controller 一直为
-  // null）。这些平台走占位视图 + 直接触发 POI 搜索，搜索本身是纯 HTTP 调用
-  // （AMapApi.getAmapPoi/getMapByKeyword），跟地图渲染无关，不受影响。
-  bool get _mapSupported => !kIsWeb && (Platform.isIOS || Platform.isAndroid);
 
   @override
   Widget build(BuildContext context) {
-    final AMapWidget? amap = _mapSupported
-        ? AMapWidget(
-            privacyStatement: const AMapPrivacyStatement(
-              hasContains: true,
-              hasShow: true,
-              hasAgree: true,
-            ),
-            apiKey: AMapApiKey(
-              iosKey: Env().aMapIosKey,
-              androidKey: Env().aMapAndroidKey,
-            ),
-            initialCameraPosition: _kInitialPosition,
-            mapType: MapType.normal,
-            buildingsEnabled: true,
-            // 是否显示3D建筑物
-            compassEnabled: false,
-            // 是否指南针
-            labelsEnabled: true,
-            // 是否显示底图文字
-            scaleEnabled: true,
-            // 比例尺是否显示
-            touchPoiEnabled: true,
-            rotateGesturesEnabled: true,
-            scrollGesturesEnabled: true,
-            tiltGesturesEnabled: true,
-            zoomGesturesEnabled: true,
-            onMapCreated: onMapCreated,
-            customStyleOptions: customStyleOptions,
-            myLocationStyleOptions: myLocationStyleOptions,
-            onLocationChanged: _onLocationChanged,
-            onCameraMove: _onCameraMove,
-            onCameraMoveEnd: _onCameraMoveEnd,
-            onTap: _onMapTap,
-            onLongPress: _onMapLongPress,
-            onPoiTouched: _onMapPoiTouched,
-            markers: Set<Marker>.of(_markers.values),
-          )
-        : null;
     final widthMax = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -199,23 +125,41 @@ class _MapLocationPickerState extends State<MapLocationPicker>
               Flexible(
                 child: Stack(
                   children: [
-                    amap ?? _unsupportedMapPlaceholder(context),
-                    Center(
-                      child: AnimatedBuilder(
-                        animation: _tween,
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(
-                              _tween.value.dx,
-                              _tween.value.dy - _iconSize / 2,
+                    // 高德官方静态地图 Web 服务 API：纯 HTTP 图片请求，全平台
+                    // 可用（不再需要区分 iOS/Android/桌面），marker 直接烤在
+                    // 图里，坐标系跟 POI 搜索一致（都是 GCJ-02）。
+                    // 代价：不能拖动地图本身，换位置靠下面搜索/列表。
+                    Positioned.fill(
+                      child: Image.network(
+                        AMapApi.staticMapUrl(
+                          latitude: _currentCenterCoordinate.latitude,
+                          longitude: _currentCenterCoordinate.longitude,
+                        ),
+                        key: ValueKey(_currentCenterCoordinate),
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, progress) =>
+                            progress == null
+                            ? child
+                            : Container(
+                                color: AppColors.getSurfaceGrouped(
+                                  Theme.of(context).brightness,
+                                ),
+                                alignment: Alignment.center,
+                                child: const CircularProgressIndicator(),
+                              ),
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: AppColors.getSurfaceGrouped(
+                            Theme.of(context).brightness,
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.map_outlined,
+                            size: 40,
+                            color: AppColors.getTextColor(
+                              Theme.of(context).brightness,
+                              isSecondary: true,
                             ),
-                            child: child,
-                          );
-                        },
-                        child: Icon(
-                          Icons.location_on,
-                          size: 40,
-                          color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
                       ),
                     ),
@@ -454,10 +398,10 @@ class _MapLocationPickerState extends State<MapLocationPicker>
                                         setState(() {
                                           _seLindex = index;
                                           _sendMsg = data[index];
-                                          _changeCameraPosition(
-                                            data[index].latLng,
-                                          );
+                                          _currentCenterCoordinate =
+                                              data[index].latLng;
                                         });
+                                        _onMyLocation.add(false);
                                       },
                                       child: Container(
                                         // 选中态背景高亮：此前只有末尾一个对号，
@@ -502,47 +446,6 @@ class _MapLocationPickerState extends State<MapLocationPicker>
             },
           ),
         ],
-      ),
-    );
-  }
-
-  /// macOS/Windows/Linux/Web 上没有原生地图可渲染时的占位视图。
-  /// 仍然显示当前坐标，搜索/选点/发送流程不受影响，只是看不到可视化地图。
-  Widget _unsupportedMapPlaceholder(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    return Container(
-      color: AppColors.getSurfaceGrouped(brightness),
-      alignment: Alignment.center,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xLarge),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.map_outlined,
-              size: 40,
-              color: AppColors.getTextColor(brightness, isSecondary: true),
-            ),
-            const SizedBox(height: AppSpacing.small),
-            Text(
-              '${widget.latLng!.latitude.toStringAsFixed(6)}, '
-              '${widget.latLng!.longitude.toStringAsFixed(6)}',
-              style: context.textStyle(
-                FontSizeType.subheadline,
-                color: AppColors.getTextColor(brightness),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.tiny),
-            Text(
-              '当前平台不支持地图预览，可在下方列表搜索并选择位置',
-              textAlign: TextAlign.center,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: AppColors.getTextColor(brightness, isSecondary: true),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -627,66 +530,31 @@ class _MapLocationPickerState extends State<MapLocationPicker>
       "adCode": _sendMsg!.adCode,
     };
     if (!widget.isMapImage) {
-      // 不需要地图截图：直接返回结果，无需等待 takeSnapshot
+      // 不需要地图截图：直接返回结果
       Navigator.pop(context, map);
       return;
     }
-    final marker = Marker(
-      anchor: const Offset(0.5, 1),
-      position: LatLng(_sendMsg!.latLng.latitude, _sendMsg!.latLng.longitude),
-    );
-    setState(() {
-      _markers[marker.id] = marker;
-    });
-    Future<dynamic>.delayed(
-      const Duration(milliseconds: 500),
-      () => takeSnapshotReturn(map),
-    );
+    await takeSnapshotReturn(map);
   }
 
+  /// 内嵌地图预览图：直接拉官方静态地图图片二进制，marker 已经烤在图里，
+  /// 不再需要（也不再可能）等交互式地图渲染完 marker 再截屏
   Future<void> takeSnapshotReturn(Map<String, dynamic> map) async {
     if (!mounted) return;
-    try {
-      Uint8List? imageBytes = await _controller?.takeSnapshot();
-      map["image"] = imageBytes;
-    } catch (e) {
-      // 截图失败：仍返回 map（image 缺省为 null），调用方已按
-      // result["image"] == null 走「获取地图失败，请重试」提示分支，
-      // 不再让用户卡在选点页无任何反馈。
-    }
+    final bytes = await AMapApi.fetchStaticMapBytes(
+      latitude: _sendMsg!.latLng.latitude,
+      longitude: _sendMsg!.latLng.longitude,
+    );
+    // bytes 可能为 null（网络失败）：调用方已按 result["image"] == null
+    // 走「获取地图失败，请重试」提示分支，不再让用户卡在选点页无任何反馈。
+    map["image"] = bytes;
     if (mounted) {
-      // ignore: use_build_context_synchronously
       Navigator.pop(context, map);
     }
   }
 
-  void _onCameraMove(CameraPosition cameraPosition) {
-    //这里需要保证放大缩小的时候中心点位置不变
-  }
-
-  void _onCameraMoveEnd(CameraPosition cameraPosition) {
-    if (_currentZoom != cameraPosition.zoom) {
-      _currentZoom = cameraPosition.zoom;
-    }
-    if (_moveByUser) {
-      //如果是用户移动，地图中心已偏离「我的位置」，FAB 视觉状态同步置灰
-      poiInfoList = [];
-      _onMyLocation.add(false);
-      _search(cameraPosition.target);
-    }
-    _moveByUser = true;
-  }
-
-  void _onMapPoiTouched(AMapPoi poi) {}
-
-  void _onLocationChanged(AMapLocation location) {}
-
-  void _onMapTap(LatLng latLng) {}
-
-  void _onMapLongPress(LatLng latLng) {}
-
   Future<void> _showMyLocation() async {
-    _changeCameraPosition(widget.latLng!); //我的位置
+    _recenterTo(widget.latLng!); // 我的位置
     _onMyLocation.add(true);
     if (!_isKeyword) {
       //如果不在文字搜索中
@@ -694,26 +562,11 @@ class _MapLocationPickerState extends State<MapLocationPicker>
     }
   }
 
-  void onMapCreated(AMapController controller) {
+  /// 更新静态地图预览居中的坐标（不再有可拖动的交互式地图相机）
+  void _recenterTo(LatLng target) {
     setState(() {
-      _controller = controller;
-      _search(widget.latLng!);
+      _currentCenterCoordinate = target;
     });
-  }
-
-  void _changeCameraPosition(LatLng target) {
-    _moveByUser = false;
-    _controller?.moveCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: target,
-          zoom: _currentZoom,
-          tilt: 30,
-          bearing: 0,
-        ),
-      ),
-      animated: true,
-    );
   }
 
   void _cancel() {
@@ -849,30 +702,6 @@ mixin _BLoCMixin on State<MapLocationPicker> {
   void dispose() {
     poiStream.close();
     _onMyLocation.close();
-    super.dispose();
-  }
-}
-
-mixin _AnimationMixin on SingleTickerProviderStateMixin<MapLocationPicker> {
-  // 动画相关
-  late AnimationController _jumpController;
-  late Animation<Offset> _tween;
-  @override
-  void initState() {
-    super.initState();
-    _jumpController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _tween = Tween(begin: const Offset(0, 0), end: const Offset(0, -15))
-        .animate(
-          CurvedAnimation(parent: _jumpController, curve: Curves.easeInOut),
-        );
-  }
-
-  @override
-  void dispose() {
-    _jumpController.dispose();
     super.dispose();
   }
 }
