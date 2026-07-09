@@ -1268,6 +1268,13 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get momentsDeleteFailed => '刪除失敗，請稍後重試';
 	@override String get momentsReportSubmitted => '舉報已提交';
 	@override String get momentsReportFailed => '舉報失敗，請稍後重試';
+	@override String get momentReportReasonSpam => '垃圾廣告';
+	@override String get momentReportReasonHarassment => '騷擾霸凌';
+	@override String get momentReportReasonPorn => '色情低俗';
+	@override String get momentReportReasonFraud => '欺詐詐騙';
+	@override String get momentReportReasonInfringement => '侵權抄襲';
+	@override String get momentReportReasonOther => '其他';
+	@override String get momentReportReasonPrompt => '請選擇舉報原因';
 	@override String get momentsLoadMoreComments => '載入更多評論';
 	@override String get momentsUploadFailed => '媒體上傳失敗，請稍後重試';
 	@override String get transactionHistory => '交易記錄';
@@ -1800,6 +1807,25 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String get momentsDenyUidsLabel => '不給誰看 UID 列表（逗號分隔）';
 	@override String get momentsDraftRestored => '已恢復上次未傳送的草稿';
 	@override String get momentsFeedStale => '網路異常，顯示的是快取內容';
+	@override String get momentActionLike => '讚';
+	@override String get momentActionCancelLike => '取消';
+	@override String get momentActionComment => '評論';
+	@override String get momentActionDelete => '刪除';
+	@override String get momentActionReport => '舉報';
+	@override String get momentActionCancel => '取消';
+	@override String momentViewAllComments({required Object count}) => '查看全部 ${count} 條評論';
+	@override String momentLikedBy({required Object names}) => '${names} 讚了';
+	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} 等${count}人讚了';
+	@override String get momentPartialVisible => '部分可見';
+	@override String get momentContentPlaceholder => '這一刻的想法...';
+	@override String get momentShowFull => '全文';
+	@override String get momentExpand => '展開';
+	@override String get momentCollapse => '收起';
+	@override String get momentReportComment => '舉報評論';
+	@override String get momentsDraftKeepTitle => '保留草稿？';
+	@override String get momentsDraftKeepMessage => '保留後下次進入可繼續編輯';
+	@override String get momentsDraftDiscard => '不保留';
+	@override String get momentsDraftKeep => '保留';
 	@override String get discover => '發現';
 	@override String get shake => '搖一搖';
 	@override String get openChannel => '開啟頻道';
@@ -3616,6 +3642,13 @@ extension on TranslationsZhHant {
 			'common.momentsDeleteFailed' => '刪除失敗，請稍後重試',
 			'common.momentsReportSubmitted' => '舉報已提交',
 			'common.momentsReportFailed' => '舉報失敗，請稍後重試',
+			'common.momentReportReasonSpam' => '垃圾廣告',
+			'common.momentReportReasonHarassment' => '騷擾霸凌',
+			'common.momentReportReasonPorn' => '色情低俗',
+			'common.momentReportReasonFraud' => '欺詐詐騙',
+			'common.momentReportReasonInfringement' => '侵權抄襲',
+			'common.momentReportReasonOther' => '其他',
+			'common.momentReportReasonPrompt' => '請選擇舉報原因',
 			'common.momentsLoadMoreComments' => '載入更多評論',
 			'common.momentsUploadFailed' => '媒體上傳失敗，請稍後重試',
 			'common.transactionHistory' => '交易記錄',
@@ -3975,6 +4008,8 @@ extension on TranslationsZhHant {
 			'common.initConfigProtocolError' => '服務故障協議有誤',
 			'common.initConfigFetchFailed' => '配置獲取失敗，請檢查網路連線',
 			'common.attachmentGetFileFailed' => '無法獲取檔案，請重試或使用相簿選擇',
+			_ => null,
+		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => '檔案獲取失敗，Android 9 可能存在相容性問題',
 			'common.attachmentGetImageDataFailed' => '無法獲取圖片資料，請重試',
 			'common.attachmentGetOriginalImageFailed' => '無法獲取原始圖片資料',
@@ -3982,8 +4017,6 @@ extension on TranslationsZhHant {
 			'common.downloadFileNotFound' => '下載檔案不存在，請重試',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '檔案校驗失敗，正在重新下載 (${retry}/${max})',
 			'common.downloadHashFailed' => '檔案多次校驗失敗，請檢查網路後重試',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferToNewDevice' => '傳輸到新裝置',
 			'common.e2eeTransferPendingSection' => '待處理的傳輸',
 			'common.e2eeTransferLoadFailed' => '載入失敗',
@@ -4114,6 +4147,25 @@ extension on TranslationsZhHant {
 			'discovery.momentsDenyUidsLabel' => '不給誰看 UID 列表（逗號分隔）',
 			'discovery.momentsDraftRestored' => '已恢復上次未傳送的草稿',
 			'discovery.momentsFeedStale' => '網路異常，顯示的是快取內容',
+			'discovery.momentActionLike' => '讚',
+			'discovery.momentActionCancelLike' => '取消',
+			'discovery.momentActionComment' => '評論',
+			'discovery.momentActionDelete' => '刪除',
+			'discovery.momentActionReport' => '舉報',
+			'discovery.momentActionCancel' => '取消',
+			'discovery.momentViewAllComments' => ({required Object count}) => '查看全部 ${count} 條評論',
+			'discovery.momentLikedBy' => ({required Object names}) => '${names} 讚了',
+			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人讚了',
+			'discovery.momentPartialVisible' => '部分可見',
+			'discovery.momentContentPlaceholder' => '這一刻的想法...',
+			'discovery.momentShowFull' => '全文',
+			'discovery.momentExpand' => '展開',
+			'discovery.momentCollapse' => '收起',
+			'discovery.momentReportComment' => '舉報評論',
+			'discovery.momentsDraftKeepTitle' => '保留草稿？',
+			'discovery.momentsDraftKeepMessage' => '保留後下次進入可繼續編輯',
+			'discovery.momentsDraftDiscard' => '不保留',
+			'discovery.momentsDraftKeep' => '保留',
 			'discovery.discover' => '發現',
 			'discovery.shake' => '搖一搖',
 			'discovery.openChannel' => '開啟頻道',
@@ -4470,6 +4522,8 @@ extension on TranslationsZhHant {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '目前長度：${param1} / ${param2}',
 			'main.fillIn' => '填入',
 			'main.msgProtectedByComplianceKey' => '訊息受合規金鑰保護',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => '邀請人: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '被邀請人: ${uid}',
 			'main.mySentTab' => '我發出的',
@@ -4496,8 +4550,6 @@ extension on TranslationsZhHant {
 			'main.e2eeProxyUser' => ({required Object uid}) => '代理使用者: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '分片 ${index} / ${total}',
 			'main.e2eeReloadShards' => '重新載入',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeRecovering' => '恢復中...',
 			'main.e2eeKeyRestored' => '金鑰已成功恢復',
 			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 個代理分片',

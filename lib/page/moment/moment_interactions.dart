@@ -1,3 +1,5 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
@@ -721,4 +723,85 @@ MomentReplyTarget buildReplyTarget(Map<String, dynamic> comment) {
     uid: uid,
   );
   return MomentReplyTarget(uid: uid, name: name);
+}
+
+/// 从 media item 安全解析视频时长（毫秒）。
+int mediaDurationMs(Map<String, dynamic> media) {
+  final raw = media['duration_ms'];
+  if (raw is int) return raw < 0 ? 0 : raw;
+  if (raw is num) return raw.toInt().clamp(0, 1 << 31);
+  if (raw is String) return int.tryParse(raw) ?? 0;
+  return 0;
+}
+
+/// 把毫秒时长格式化为 `M:SS` / `H:MM:SS`。
+String formatVideoDuration(int ms) {
+  if (ms <= 0) return '0:00';
+  final totalSec = ms ~/ 1000;
+  final h = totalSec ~/ 3600;
+  final m = (totalSec % 3600) ~/ 60;
+  final s = totalSec % 60;
+  if (h > 0) {
+    return '$h:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+  return '$m:${s.toString().padLeft(2, '0')}';
+}
+
+/// 把 RFC3339 格式的 created_at 转成相对时间显示。解析失败回退到原始字符串。
+String momentRelativeTime(String createdAt) {
+  final trimmed = createdAt.trim();
+  if (trimmed.isEmpty) return '';
+  final dt = DateTime.tryParse(trimmed);
+  if (dt == null) return trimmed;
+  return DateTimeHelper.dateTimeFmt(dt);
+}
+
+/// 从 moment payload 安全提取 `recent_likers` 列表。
+List<Map<String, dynamic>> parseRecentLikers(Map<String, dynamic> moment) {
+  final raw = moment['recent_likers'];
+  if (raw is! List) return const [];
+  return raw
+      .whereType<Map<String, dynamic>>()
+      .map((item) => Map<String, dynamic>.from(item))
+      .toList(growable: false);
+}
+
+String _likerDisplayName(Map<String, dynamic> liker) {
+  return resolveMomentDisplayName(
+    remark: parseModelString(liker['remark']),
+    nickname: parseModelString(liker['nickname']),
+    uid: parseModelString(liker['uid']),
+  );
+}
+
+/// 构建朋友圈点赞人文案（对齐微信规则）。
+String buildLikersLabel(
+  List<Map<String, dynamic>> likers,
+  int totalCount, {
+  Translations? translations,
+}) {
+  if (totalCount <= 0 && likers.isEmpty) return '';
+  final effectiveTotal = totalCount > 0 ? totalCount : likers.length;
+  final names = likers.map(_likerDisplayName).where((n) => n != '?').toList();
+  final namesJoined = names.join('、');
+  final tr = translations ?? t;
+  if (names.length >= effectiveTotal) {
+    return tr.discovery.momentLikedBy(names: namesJoined);
+  }
+  return tr.discovery.momentAndOthersLiked(
+    names: namesJoined,
+    count: effectiveTotal.toString(),
+  );
+}
+
+/// 当前是否处于不限流量的网络（WiFi / 以太网）。失败保守返回 false。
+Future<bool> isUnmeteredNetwork() async {
+  try {
+    final results = await Connectivity().checkConnectivity();
+    return results.any(
+      (r) => r == ConnectivityResult.wifi || r == ConnectivityResult.ethernet,
+    );
+  } on Exception {
+    return false;
+  }
 }

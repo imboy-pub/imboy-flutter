@@ -24,6 +24,25 @@ momentsVisibilityExclude: 不给谁看
 momentsDenyUidsLabel: 不给谁看 UID 列表（逗号分隔）
 momentsDraftRestored: 已恢复上次未发送的草稿
 momentsFeedStale: 网络异常，显示的是缓存内容
+momentActionLike: "赞"
+momentActionCancelLike: "取消"
+momentActionComment: "评论"
+momentActionDelete: "删除"
+momentActionReport: "举报"
+momentActionCancel: "取消"
+momentViewAllComments(count): "查看全部 ${count} 条评论"
+momentLikedBy(names): "${names} 赞了"
+momentAndOthersLiked(names,count): "${names} 等${count}人赞了"
+momentPartialVisible: "部分可见"
+momentContentPlaceholder: "这一刻的想法..."
+momentShowFull: "全文"
+momentExpand: "展开"
+momentCollapse: "收起"
+momentReportComment: "举报评论"
+momentsDraftKeepTitle: "保留草稿？"
+momentsDraftKeepMessage: "保留后下次进入可继续编辑"
+momentsDraftDiscard: "不保留"
+momentsDraftKeep: "保留"
 discover: 发现
 shake: 摇一摇
 openChannel: 打开频道

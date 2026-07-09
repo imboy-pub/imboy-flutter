@@ -24,6 +24,25 @@ momentsVisibilityExclude: Exclude
 momentsDenyUidsLabel: Hidden from these UIDs (comma-separated)
 momentsDraftRestored: Restored your last unsent draft
 momentsFeedStale: Network error — showing cached content
+momentActionLike: "Like"
+momentActionCancelLike: "Unlike"
+momentActionComment: "Comment"
+momentActionDelete: "Delete"
+momentActionReport: "Report"
+momentActionCancel: "Cancel"
+momentViewAllComments(count): "View all ${count} comments"
+momentLikedBy(names): "${names} liked this"
+momentAndOthersLiked(names,count): "${names} and ${count} others liked this"
+momentPartialVisible: "Partial"
+momentContentPlaceholder: "What's on your mind..."
+momentShowFull: "Show full"
+momentExpand: "Expand"
+momentCollapse: "Collapse"
+momentReportComment: "Report comment"
+momentsDraftKeepTitle: "Keep draft?"
+momentsDraftKeepMessage: "You can continue editing next time"
+momentsDraftDiscard: "Discard"
+momentsDraftKeep: "Keep"
 discover: Discover
 shake: Shake
 openChannel: Open Channel

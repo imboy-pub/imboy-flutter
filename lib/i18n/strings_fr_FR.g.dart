@@ -1268,6 +1268,13 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get momentsDeleteFailed => 'Échec de la suppression. Réessayez plus tard.';
 	@override String get momentsReportSubmitted => 'Signalement envoyé';
 	@override String get momentsReportFailed => 'Échec du signalement. Réessayez plus tard.';
+	@override String get momentReportReasonSpam => 'Spam ou publicité';
+	@override String get momentReportReasonHarassment => 'Harcèlement';
+	@override String get momentReportReasonPorn => 'Contenu pornographique';
+	@override String get momentReportReasonFraud => 'Fraude ou arnaque';
+	@override String get momentReportReasonInfringement => 'Violation de droits';
+	@override String get momentReportReasonOther => 'Autre';
+	@override String get momentReportReasonPrompt => 'Sélectionner un motif';
 	@override String get momentsLoadMoreComments => 'Charger plus de commentaires';
 	@override String get momentsUploadFailed => 'Échec de l\'envoi du média. Réessayez plus tard.';
 	@override String get transactionHistory => 'Historique des transactions';
@@ -1800,6 +1807,25 @@ class _Translations$discovery$fr_FR extends Translations$discovery$zh_CN {
 	@override String get momentsDenyUidsLabel => 'UIDs exclus (séparés par virgule)';
 	@override String get momentsDraftRestored => 'Brouillon précédent restauré';
 	@override String get momentsFeedStale => 'Erreur réseau, affichage du cache';
+	@override String get momentActionLike => 'J\'aime';
+	@override String get momentActionCancelLike => 'Annuler';
+	@override String get momentActionComment => 'Commenter';
+	@override String get momentActionDelete => 'Supprimer';
+	@override String get momentActionReport => 'Signaler';
+	@override String get momentActionCancel => 'Annuler';
+	@override String momentViewAllComments({required Object count}) => 'Voir les ${count} commentaires';
+	@override String momentLikedBy({required Object names}) => '${names} aiment ça';
+	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} et ${count} autres aiment ça';
+	@override String get momentPartialVisible => 'Partiel';
+	@override String get momentContentPlaceholder => 'À quoi pensez-vous...';
+	@override String get momentShowFull => 'Voir tout';
+	@override String get momentExpand => 'Développer';
+	@override String get momentCollapse => 'Réduire';
+	@override String get momentReportComment => 'Signaler le commentaire';
+	@override String get momentsDraftKeepTitle => 'Conserver le brouillon ?';
+	@override String get momentsDraftKeepMessage => 'Vous pourrez continuer la prochaine fois';
+	@override String get momentsDraftDiscard => 'Ne pas conserver';
+	@override String get momentsDraftKeep => 'Conserver';
 	@override String get discover => 'Découvrir';
 	@override String get shake => 'Secouer';
 	@override String get openChannel => 'Ouvrir le canal';
@@ -3616,6 +3642,13 @@ extension on TranslationsFrFr {
 			'common.momentsDeleteFailed' => 'Échec de la suppression. Réessayez plus tard.',
 			'common.momentsReportSubmitted' => 'Signalement envoyé',
 			'common.momentsReportFailed' => 'Échec du signalement. Réessayez plus tard.',
+			'common.momentReportReasonSpam' => 'Spam ou publicité',
+			'common.momentReportReasonHarassment' => 'Harcèlement',
+			'common.momentReportReasonPorn' => 'Contenu pornographique',
+			'common.momentReportReasonFraud' => 'Fraude ou arnaque',
+			'common.momentReportReasonInfringement' => 'Violation de droits',
+			'common.momentReportReasonOther' => 'Autre',
+			'common.momentReportReasonPrompt' => 'Sélectionner un motif',
 			'common.momentsLoadMoreComments' => 'Charger plus de commentaires',
 			'common.momentsUploadFailed' => 'Échec de l\'envoi du média. Réessayez plus tard.',
 			'common.transactionHistory' => 'Historique des transactions',
@@ -3975,6 +4008,8 @@ extension on TranslationsFrFr {
 			'common.initConfigProtocolError' => 'Protocole serveur erroné',
 			'common.initConfigFetchFailed' => 'Configuration indisponible. Vérifiez le réseau.',
 			'common.attachmentGetFileFailed' => 'Fichier indisponible. Réessayez ou choisissez depuis l\'album.',
+			_ => null,
+		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => 'Fichier indisponible (compatibilité Android 9)',
 			'common.attachmentGetImageDataFailed' => 'Données d\'image indisponibles. Réessayez.',
 			'common.attachmentGetOriginalImageFailed' => 'Image originale indisponible',
@@ -3982,8 +4017,6 @@ extension on TranslationsFrFr {
 			'common.downloadFileNotFound' => 'Fichier téléchargé introuvable. Réessayez.',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Vérification échouée, retéléchargement (${retry}/${max})',
 			'common.downloadHashFailed' => 'Vérifications multiples échouées. Vérifiez le réseau.',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferToNewDevice' => 'Vers le nouvel appareil',
 			'common.e2eeTransferPendingSection' => 'Transferts en attente',
 			'common.e2eeTransferLoadFailed' => 'Échec du chargement',
@@ -4114,6 +4147,25 @@ extension on TranslationsFrFr {
 			'discovery.momentsDenyUidsLabel' => 'UIDs exclus (séparés par virgule)',
 			'discovery.momentsDraftRestored' => 'Brouillon précédent restauré',
 			'discovery.momentsFeedStale' => 'Erreur réseau, affichage du cache',
+			'discovery.momentActionLike' => 'J\'aime',
+			'discovery.momentActionCancelLike' => 'Annuler',
+			'discovery.momentActionComment' => 'Commenter',
+			'discovery.momentActionDelete' => 'Supprimer',
+			'discovery.momentActionReport' => 'Signaler',
+			'discovery.momentActionCancel' => 'Annuler',
+			'discovery.momentViewAllComments' => ({required Object count}) => 'Voir les ${count} commentaires',
+			'discovery.momentLikedBy' => ({required Object names}) => '${names} aiment ça',
+			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} et ${count} autres aiment ça',
+			'discovery.momentPartialVisible' => 'Partiel',
+			'discovery.momentContentPlaceholder' => 'À quoi pensez-vous...',
+			'discovery.momentShowFull' => 'Voir tout',
+			'discovery.momentExpand' => 'Développer',
+			'discovery.momentCollapse' => 'Réduire',
+			'discovery.momentReportComment' => 'Signaler le commentaire',
+			'discovery.momentsDraftKeepTitle' => 'Conserver le brouillon ?',
+			'discovery.momentsDraftKeepMessage' => 'Vous pourrez continuer la prochaine fois',
+			'discovery.momentsDraftDiscard' => 'Ne pas conserver',
+			'discovery.momentsDraftKeep' => 'Conserver',
 			'discovery.discover' => 'Découvrir',
 			'discovery.shake' => 'Secouer',
 			'discovery.openChannel' => 'Ouvrir le canal',
@@ -4470,6 +4522,8 @@ extension on TranslationsFrFr {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Longueur actuelle : ${param1} / ${param2}',
 			'main.fillIn' => 'Remplir',
 			'main.msgProtectedByComplianceKey' => 'Message protégé par clé de conformité',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'Invité par : ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Invité : ${uid}',
 			'main.mySentTab' => 'Envoyées',
@@ -4496,8 +4550,6 @@ extension on TranslationsFrFr {
 			'main.e2eeProxyUser' => ({required Object uid}) => 'Dépositaire : ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Fragment ${index} / ${total}',
 			'main.e2eeReloadShards' => 'Recharger',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeRecovering' => 'Restauration...',
 			'main.e2eeKeyRestored' => 'Clé restaurée',
 			'main.e2eeUsedShards' => ({required Object count}) => '${count} fragments utilisés',

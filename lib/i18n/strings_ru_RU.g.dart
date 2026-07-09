@@ -1268,6 +1268,13 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get momentsDeleteFailed => 'Не удалось удалить, попробуйте позже';
 	@override String get momentsReportSubmitted => 'Жалоба отправлена';
 	@override String get momentsReportFailed => 'Не удалось отправить жалобу, попробуйте позже';
+	@override String get momentReportReasonSpam => 'Спам или реклама';
+	@override String get momentReportReasonHarassment => 'Домогательства';
+	@override String get momentReportReasonPorn => 'Порнография';
+	@override String get momentReportReasonFraud => 'Мошенничество';
+	@override String get momentReportReasonInfringement => 'Нарушение авторских прав';
+	@override String get momentReportReasonOther => 'Другое';
+	@override String get momentReportReasonPrompt => 'Выберите причину';
 	@override String get momentsLoadMoreComments => 'Ещё комментарии';
 	@override String get momentsUploadFailed => 'Не удалось загрузить медиа, попробуйте позже';
 	@override String get transactionHistory => 'История транзакций';
@@ -1800,6 +1807,25 @@ class _Translations$discovery$ru_RU extends Translations$discovery$zh_CN {
 	@override String get momentsDenyUidsLabel => 'Скрыть от UID (через запятую)';
 	@override String get momentsDraftRestored => 'Восстановлен черновик';
 	@override String get momentsFeedStale => 'Сетевая ошибка, показан кэш';
+	@override String get momentActionLike => 'Нравится';
+	@override String get momentActionCancelLike => 'Отменить';
+	@override String get momentActionComment => 'Комментарий';
+	@override String get momentActionDelete => 'Удалить';
+	@override String get momentActionReport => 'Пожаловаться';
+	@override String get momentActionCancel => 'Отмена';
+	@override String momentViewAllComments({required Object count}) => 'Все комментарии (${count})';
+	@override String momentLikedBy({required Object names}) => '${names} оценили это';
+	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} и еще ${count} оценили это';
+	@override String get momentPartialVisible => 'Частично';
+	@override String get momentContentPlaceholder => 'О чём вы думаете...';
+	@override String get momentShowFull => 'Показать полностью';
+	@override String get momentExpand => 'Развернуть';
+	@override String get momentCollapse => 'Свернуть';
+	@override String get momentReportComment => 'Пожаловаться на комментарий';
+	@override String get momentsDraftKeepTitle => 'Сохранить черновик?';
+	@override String get momentsDraftKeepMessage => 'Сможете продолжить в следующий раз';
+	@override String get momentsDraftDiscard => 'Не сохранять';
+	@override String get momentsDraftKeep => 'Сохранить';
 	@override String get discover => 'Обзор';
 	@override String get shake => 'Встряхнуть';
 	@override String get openChannel => 'Открыть канал';
@@ -3616,6 +3642,13 @@ extension on TranslationsRuRu {
 			'common.momentsDeleteFailed' => 'Не удалось удалить, попробуйте позже',
 			'common.momentsReportSubmitted' => 'Жалоба отправлена',
 			'common.momentsReportFailed' => 'Не удалось отправить жалобу, попробуйте позже',
+			'common.momentReportReasonSpam' => 'Спам или реклама',
+			'common.momentReportReasonHarassment' => 'Домогательства',
+			'common.momentReportReasonPorn' => 'Порнография',
+			'common.momentReportReasonFraud' => 'Мошенничество',
+			'common.momentReportReasonInfringement' => 'Нарушение авторских прав',
+			'common.momentReportReasonOther' => 'Другое',
+			'common.momentReportReasonPrompt' => 'Выберите причину',
 			'common.momentsLoadMoreComments' => 'Ещё комментарии',
 			'common.momentsUploadFailed' => 'Не удалось загрузить медиа, попробуйте позже',
 			'common.transactionHistory' => 'История транзакций',
@@ -3975,6 +4008,8 @@ extension on TranslationsRuRu {
 			'common.initConfigProtocolError' => 'Ошибка протокола ответа сервера',
 			'common.initConfigFetchFailed' => 'Не удалось загрузить настройки, проверьте сеть',
 			'common.attachmentGetFileFailed' => 'Не удалось получить файл, попробуйте ещё раз или выберите из галереи',
+			_ => null,
+		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => 'Ошибка получения файла, возможна проблема совместимости с Android 9',
 			'common.attachmentGetImageDataFailed' => 'Не удалось получить данные изображения, попробуйте ещё раз',
 			'common.attachmentGetOriginalImageFailed' => 'Не удалось получить оригинал изображения',
@@ -3982,8 +4017,6 @@ extension on TranslationsRuRu {
 			'common.downloadFileNotFound' => 'Файл загрузки не найден, попробуйте ещё раз',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Ошибка проверки файла, перезагрузка (${retry}/${max})',
 			'common.downloadHashFailed' => 'Многократная ошибка проверки файла, проверьте сеть и попробуйте ещё раз',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferToNewDevice' => 'Передать на новое устройство',
 			'common.e2eeTransferPendingSection' => 'Ожидающие передачи',
 			'common.e2eeTransferLoadFailed' => 'Не удалось загрузить',
@@ -4114,6 +4147,25 @@ extension on TranslationsRuRu {
 			'discovery.momentsDenyUidsLabel' => 'Скрыть от UID (через запятую)',
 			'discovery.momentsDraftRestored' => 'Восстановлен черновик',
 			'discovery.momentsFeedStale' => 'Сетевая ошибка, показан кэш',
+			'discovery.momentActionLike' => 'Нравится',
+			'discovery.momentActionCancelLike' => 'Отменить',
+			'discovery.momentActionComment' => 'Комментарий',
+			'discovery.momentActionDelete' => 'Удалить',
+			'discovery.momentActionReport' => 'Пожаловаться',
+			'discovery.momentActionCancel' => 'Отмена',
+			'discovery.momentViewAllComments' => ({required Object count}) => 'Все комментарии (${count})',
+			'discovery.momentLikedBy' => ({required Object names}) => '${names} оценили это',
+			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} и еще ${count} оценили это',
+			'discovery.momentPartialVisible' => 'Частично',
+			'discovery.momentContentPlaceholder' => 'О чём вы думаете...',
+			'discovery.momentShowFull' => 'Показать полностью',
+			'discovery.momentExpand' => 'Развернуть',
+			'discovery.momentCollapse' => 'Свернуть',
+			'discovery.momentReportComment' => 'Пожаловаться на комментарий',
+			'discovery.momentsDraftKeepTitle' => 'Сохранить черновик?',
+			'discovery.momentsDraftKeepMessage' => 'Сможете продолжить в следующий раз',
+			'discovery.momentsDraftDiscard' => 'Не сохранять',
+			'discovery.momentsDraftKeep' => 'Сохранить',
 			'discovery.discover' => 'Обзор',
 			'discovery.shake' => 'Встряхнуть',
 			'discovery.openChannel' => 'Открыть канал',
@@ -4470,6 +4522,8 @@ extension on TranslationsRuRu {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Текущая длина: ${param1} / ${param2}',
 			'main.fillIn' => 'Заполнить',
 			'main.msgProtectedByComplianceKey' => 'Сообщения защищены ключом соответствия',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'Пригласивший: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Приглашённый: ${uid}',
 			'main.mySentTab' => 'Отправленные',
@@ -4496,8 +4550,6 @@ extension on TranslationsRuRu {
 			'main.e2eeProxyUser' => ({required Object uid}) => 'Посредник: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Фрагмент ${index} / ${total}',
 			'main.e2eeReloadShards' => 'Обновить',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeRecovering' => 'Восстановление...',
 			'main.e2eeKeyRestored' => 'Ключ восстановлен',
 			'main.e2eeUsedShards' => ({required Object count}) => 'Использовано фрагментов посредников: ${count}',

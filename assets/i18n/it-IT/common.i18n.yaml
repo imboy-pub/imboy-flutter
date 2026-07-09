@@ -658,6 +658,13 @@ momentsCommentFailed: Commento fallito. Riprova più tardi.
 momentsDeleteFailed: Eliminazione fallita. Riprova più tardi.
 momentsReportSubmitted: Segnalazione inviata
 momentsReportFailed: Segnalazione fallita. Riprova più tardi.
+momentReportReasonSpam: "Spam o pubblicità"
+momentReportReasonHarassment: "Molestie"
+momentReportReasonPorn: "Pornografia"
+momentReportReasonFraud: "Frode o truffa"
+momentReportReasonInfringement: "Violazione del copyright"
+momentReportReasonOther: "Altro"
+momentReportReasonPrompt: "Seleziona un motivo"
 momentsLoadMoreComments: Carica altri commenti
 momentsUploadFailed: Caricamento media fallito. Riprova più tardi.
 transactionHistory: Cronologia transazioni

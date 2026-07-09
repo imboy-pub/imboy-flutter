@@ -657,6 +657,13 @@ momentsCommentFailed: 評論失敗，請稍後重試
 momentsDeleteFailed: 刪除失敗，請稍後重試
 momentsReportSubmitted: 舉報已提交
 momentsReportFailed: 舉報失敗，請稍後重試
+momentReportReasonSpam: "垃圾廣告"
+momentReportReasonHarassment: "騷擾霸凌"
+momentReportReasonPorn: "色情低俗"
+momentReportReasonFraud: "欺詐詐騙"
+momentReportReasonInfringement: "侵權抄襲"
+momentReportReasonOther: "其他"
+momentReportReasonPrompt: "請選擇舉報原因"
 momentsLoadMoreComments: 載入更多評論
 momentsUploadFailed: 媒體上傳失敗，請稍後重試
 transactionHistory: 交易記錄

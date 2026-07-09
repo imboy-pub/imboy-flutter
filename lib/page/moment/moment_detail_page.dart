@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/shimmer_box.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoViewGalleryWithInitialPage;
 import 'package:imboy/component/ui/avatar.dart';
@@ -16,12 +19,13 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'moment_confirm_dialog.dart';
 import 'moment_interactions.dart';
 import 'moment_utils.dart';
 
-/// 朋友圈详情页面 - 极致 iOS 17 Premium 风格重构
+/// 朋友圈详情页面 - 对标微信朋友圈体验重构
 class MomentDetailPage extends StatefulWidget {
   final String momentId;
 
@@ -35,6 +39,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   final MomentFacade _api = MomentFacade.instance;
   final TextEditingController _commentController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _commentFocusNode = FocusNode();
 
   static const int _commentsPageSize = 20;
 
@@ -43,8 +48,10 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   String? _commentsCursor;
   bool _commentsHasMore = false;
   bool _loading = true;
+  bool _loadError = false;
   bool _sendingComment = false;
   bool _loadingMoreComments = false;
+  bool _loadMoreCommentsError = false;
 
   String _replyToUid = '';
   String _replyToName = '';
@@ -70,36 +77,50 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   void dispose() {
     _momentSub?.cancel();
     _commentController.dispose();
+    _commentFocusNode.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
   Future<void> _loadAll() async {
     if (!mounted) return;
-    setState(() => _loading = true);
-    final results = await Future.wait([
-      _api.getPost(widget.momentId),
-      _api.listComments(widget.momentId, limit: _commentsPageSize),
-    ]);
-    if (!mounted) return;
-
-    final rawPost = results[0] as Map<String, dynamic>?;
-    final page = results[1] as dynamic;
-    final rawComments = page.list as List<Map<String, dynamic>>;
-
-    final enrichedPost = rawPost != null
-        ? await enrichPostWithAuthor(rawPost)
-        : null;
-    final enrichedComments = await enrichCommentsWithUser(rawComments);
-    if (!mounted) return;
-
     setState(() {
-      _moment = enrichedPost;
-      _comments = enrichedComments;
-      _commentsCursor = page.nextCursor as String?;
-      _commentsHasMore = page.hasMore as bool;
-      _loading = false;
+      _loading = true;
+      _loadError = false;
     });
+    try {
+      final results = await Future.wait([
+        _api.getPost(widget.momentId),
+        _api.listComments(widget.momentId, limit: _commentsPageSize),
+      ]);
+      if (!mounted) return;
+
+      final rawPost = results[0] as Map<String, dynamic>?;
+      final page = results[1] as dynamic;
+      final rawComments = page.list as List<Map<String, dynamic>>;
+
+      final enrichedPost = rawPost != null
+          ? await enrichPostWithAuthor(rawPost)
+          : null;
+      final enrichedComments = await enrichCommentsWithUser(rawComments);
+      if (!mounted) return;
+
+      setState(() {
+        _moment = enrichedPost;
+        _comments = enrichedComments;
+        _commentsCursor = page.nextCursor as String?;
+        _commentsHasMore = page.hasMore as bool;
+        _loading = false;
+      });
+    } catch (_) {
+      // 网络异常时必须解除 _loading，否则永久转圈无法恢复
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _loadError = true;
+        });
+      }
+    }
   }
 
   Future<void> _loadMoreComments() async {
@@ -111,20 +132,32 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       return;
     }
     final cursor = _commentsCursor!;
-    setState(() => _loadingMoreComments = true);
-    final page = await _api.listComments(
-      widget.momentId,
-      cursor: cursor,
-      limit: _commentsPageSize,
-    );
-    if (!mounted) return;
-    final enriched = await enrichCommentsWithUser(page.list);
     setState(() {
-      _comments = appendCommentsPage(_comments, enriched);
-      _commentsCursor = page.nextCursor;
-      _commentsHasMore = page.hasMore;
-      _loadingMoreComments = false;
+      _loadingMoreComments = true;
+      _loadMoreCommentsError = false;
     });
+    try {
+      final page = await _api.listComments(
+        widget.momentId,
+        cursor: cursor,
+        limit: _commentsPageSize,
+      );
+      if (!mounted) return;
+      final enriched = await enrichCommentsWithUser(page.list);
+      setState(() {
+        _comments = appendCommentsPage(_comments, enriched);
+        _commentsCursor = page.nextCursor;
+        _commentsHasMore = page.hasMore;
+        _loadingMoreComments = false;
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _loadingMoreComments = false;
+          _loadMoreCommentsError = true;
+        });
+      }
+    }
   }
 
   Future<void> _toggleLike() async {
@@ -133,6 +166,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final momentId = parseModelString(post['id']);
     if (momentId.isEmpty) return;
     final liked = parseModelBool(post['liked']);
+    HapticFeedback.lightImpact();
     final oldMoment = post;
     setState(() => _moment = applyOptimisticLikeToggle(post));
     try {
@@ -179,6 +213,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     setState(() {
       _replyToUid = target.uid;
       _replyToName = target.name;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _commentFocusNode.requestFocus();
     });
   }
 
@@ -237,14 +274,180 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     });
   }
 
+  /// 评论长按菜单：复制文字 / 删除（本人或作者可见）。
+  void _showCommentActionSheet(Map<String, dynamic> comment, bool canDelete) {
+    final content = parseModelString(comment['content']);
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          if (content.isNotEmpty)
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Clipboard.setData(ClipboardData(text: content));
+                AppLoading.showSuccess(t.common.chatCopy);
+              },
+              child: Text(t.common.buttonCopy),
+            ),
+          if (canDelete)
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _deleteComment(parseModelString(comment['id']));
+              },
+              child: Text(t.discovery.momentActionDelete),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: Text(t.discovery.momentActionCancel),
+        ),
+      ),
+    );
+  }
+
+  void _showPostActionSheet(BuildContext context, bool canDeletePost) {
+    final post = _moment;
+    final liked = post != null && parseModelBool(post['liked']);
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _toggleLike();
+            },
+            child: Text(
+              liked
+                  ? t.discovery.momentActionCancelLike
+                  : t.discovery.momentActionLike,
+            ),
+          ),
+          if (canDeletePost)
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _deleteMoment();
+              },
+              child: Text(t.discovery.momentActionDelete),
+            )
+          else
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _showReportSheet();
+              },
+              child: Text(t.discovery.momentActionReport),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: Text(t.discovery.momentActionCancel),
+        ),
+      ),
+    );
+  }
+
+  void _showReportSheet() {
+    final post = _moment;
+    if (post == null) return;
+    final momentId = parseModelString(post['id']);
+    final options = <(String, String)>[
+      ('spam', t.common.momentReportReasonSpam),
+      ('harassment', t.common.momentReportReasonHarassment),
+      ('porn', t.common.momentReportReasonPorn),
+      ('fraud', t.common.momentReportReasonFraud),
+      ('infringement', t.common.momentReportReasonInfringement),
+      ('other', t.common.momentReportReasonOther),
+    ];
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        title: Text(t.common.momentReportReasonPrompt),
+        actions: options
+            .map(
+              (o) => CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  _submitReport(momentId, o.$1);
+                },
+                child: Text(o.$2),
+              ),
+            )
+            .toList(),
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: Text(t.discovery.momentActionCancel),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _submitReport(String momentId, String reason) async {
+    final ok = await _api.reportPost(momentId, reason: reason);
+    if (!mounted) return;
+    if (ok) {
+      AppLoading.showSuccess(t.common.momentsReportSubmitted);
+    } else {
+      AppLoading.showError(t.common.momentsReportFailed);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final post = _moment;
     if (_loading) {
-      return const Scaffold(body: Center(child: CupertinoActivityIndicator()));
+      return Scaffold(
+        appBar: CupertinoNavigationBar(middle: Text(t.discovery.moments)),
+        body: const _DetailSkeleton(),
+      );
+    }
+    if (_loadError && post == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                CupertinoIcons.wifi_exclamationmark,
+                size: 48,
+                color: AppColors.iosGray.withValues(alpha: 0.4),
+              ),
+              AppSpacing.verticalMedium,
+              Text(
+                t.common.loadError,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
+                  color: AppColors.iosGray,
+                ),
+              ),
+              AppSpacing.verticalMedium,
+              CupertinoButton.filled(
+                onPressed: _loadAll,
+                child: Text(t.common.buttonRetry),
+              ),
+            ],
+          ),
+        ),
+      );
     }
     if (post == null) {
-      return Scaffold(body: Center(child: Text(t.common.momentsNotFound)));
+      return Scaffold(
+        body: Center(
+          child: Text(
+            t.common.momentsNotFound,
+            style: context.textStyle(
+              FontSizeType.subheadline,
+              color: AppColors.iosGray,
+            ),
+          ),
+        ),
+      );
     }
 
     final brightness = Theme.of(context).brightness;
@@ -256,68 +459,54 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       title: t.discovery.moments,
       useLargeTitle: false,
       actions: [
-        if (canDeletePost)
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: _deleteMoment,
-            child: const Icon(CupertinoIcons.delete, size: 20),
-          )
-        else
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: () {},
-            child: const Icon(CupertinoIcons.flag, size: 20),
-          ),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => _showPostActionSheet(context, canDeletePost),
+          child: const Icon(CupertinoIcons.ellipsis_circle, size: 22),
+        ),
       ],
       bottomWidget: _buildCommentInput(context, isDark, brightness),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildPostContent(context, post, isDark, brightness),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text(
-              t.discovery.momentsComments,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                fontWeight: FontWeight.w600,
-                color: AppColors.iosGray,
-              ),
-            ),
-          ),
+          const SizedBox(height: 8),
           if (_comments.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
               child: Center(
-                child: Text(
-                  t.common.momentsNoComments,
-                  style: const TextStyle(color: AppColors.iosGray),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      CupertinoIcons.chat_bubble,
+                      size: 44,
+                      color: AppColors.iosGray.withValues(alpha: 0.3),
+                    ),
+                    AppSpacing.verticalSmall,
+                    Text(
+                      t.common.momentsNoComments,
+                      style: context.textStyle(
+                        FontSizeType.subheadline,
+                        color: AppColors.iosGray,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
           else
-            ImBoySettingsSection(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              children: _comments
-                  .map(
-                    (c) => _buildCommentItem(
-                      context,
-                      c,
-                      isDark,
-                      currentUid,
-                      brightness,
-                    ),
-                  )
-                  .toList(),
-            ),
-          if (_commentsHasMore)
+            _buildCommentsBlock(context, isDark, currentUid, brightness),
+          if (_commentsHasMore || _loadMoreCommentsError)
             Center(
               child: CupertinoButton(
-                onPressed: _loadMoreComments,
+                onPressed: _loadingMoreComments ? null : _loadMoreComments,
                 child: _loadingMoreComments
                     ? const CupertinoActivityIndicator(radius: 8)
                     : Text(
-                        t.common.momentsLoadMoreComments,
+                        _loadMoreCommentsError
+                            ? t.common.buttonRetry
+                            : t.common.momentsLoadMoreComments,
                         style: context.textStyle(FontSizeType.normal),
                       ),
               ),
@@ -342,10 +531,11 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     );
     final content = parseModelString(post['content']);
     final media = normalizeMedia(post['media']);
-    final liked = parseModelBool(post['liked']);
     final stats = post['stats'] is Map
         ? Map<String, dynamic>.from(post['stats'] as Map)
         : const <String, dynamic>{};
+    final likers = parseRecentLikers(post);
+    final likeCount = parseModelInt(stats['like_count']);
 
     return Container(
       width: double.infinity,
@@ -366,21 +556,38 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         children: [
           Row(
             children: [
-              Avatar(imgUri: authorAvatar, width: 48, height: 48),
+              Avatar(
+                imgUri: authorAvatar,
+                width: 46,
+                height: 46,
+                heroTag: 'moment_avatar_${parseModelString(post['id'])}',
+                onTap: () => context.push(
+                  '/contact/people/${parseModelString(post['author_uid'])}'
+                  '?scene=contact_page',
+                ),
+              ),
               AppSpacing.horizontalMedium,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      displayName,
-                      style: context.textStyle(
-                        FontSizeType.body,
-                        fontWeight: FontWeight.w600,
+                    // 点作者名跳资料页（与头像一致）
+                    GestureDetector(
+                      onTap: () => context.push(
+                        '/contact/people/${parseModelString(post['author_uid'])}'
+                        '?scene=contact_page',
+                      ),
+                      child: Text(
+                        displayName,
+                        style: context.textStyle(
+                          FontSizeType.body,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.wechatBlue,
+                        ),
                       ),
                     ),
                     Text(
-                      parseModelString(post['created_at']),
+                      momentRelativeTime(parseModelString(post['created_at'])),
                       style: context.textStyle(
                         FontSizeType.footnote,
                         color: AppColors.iosGray,
@@ -393,39 +600,27 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
           ),
           if (content.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Text(
+              padding: const EdgeInsets.only(top: 12),
+              child: SelectableText(
                 content,
                 style: context
                     .textStyle(FontSizeType.medium)
-                    .copyWith(height: 1.4),
+                    .copyWith(height: 1.45),
               ),
             ),
           if (media.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 16),
+              padding: const EdgeInsets.only(top: 12),
               child: _buildMediaGrid(context, media),
             ),
-          AppSpacing.verticalLarge,
-          Row(
-            children: [
-              _buildInteraction(
-                CupertinoIcons.heart,
-                liked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
-                formatMomentCountLabel(parseModelInt(stats['like_count'])),
-                liked ? AppColors.iosRed : AppColors.iosGray,
-                _toggleLike,
+          if (likeCount > 0 || likers.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: _MomentDetailLikersRow(
+                likers: likers,
+                totalCount: likeCount,
               ),
-              AppSpacing.horizontalXLarge,
-              _buildInteraction(
-                CupertinoIcons.chat_bubble,
-                CupertinoIcons.chat_bubble,
-                formatMomentCountLabel(parseModelInt(stats['comment_count'])),
-                AppColors.iosGray,
-                () => FocusScope.of(context).requestFocus(),
-              ),
-            ],
-          ),
+            ),
         ],
       ),
     );
@@ -442,18 +637,20 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         .toList();
     if (media.length == 1) {
       final isVideo = parseModelString(media.first['type']) == 'video';
-      return _buildMediaItem(
-        media.first,
-        240,
-        isVideo ? const [] : imageUrls,
-        0,
-      );
+      if (!isVideo) {
+        return _DetailSingleImage(
+          item: media.first,
+          imageUrls: imageUrls,
+          imageIndex: 0,
+        );
+      }
+      return _buildMediaItem(media.first, 240, const [], 0);
     }
     int imgIdx = 0;
     final cellSize = (MediaQuery.of(context).size.width - 64) / 3;
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: AppSpacing.small,
+      runSpacing: AppSpacing.small,
       children: media.map((m) {
         final isVideo = parseModelString(m['type']) == 'video';
         final idx = isVideo ? 0 : imgIdx++;
@@ -474,15 +671,50 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     int imageIndex,
   ) {
     final previewUrl = pickMediaPreviewUrl(item);
+    final isVideo = parseModelString(item['type']) == 'video';
+    final durationMs = mediaDurationMs(item);
+    final imageChild = Image(
+      image: cachedImageProvider(previewUrl),
+      fit: BoxFit.cover,
+      // 加载中灰底占位（替代空白）
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(color: AppColors.iosGray.withValues(alpha: 0.08));
+      },
+      // 加载失败：居中破损图标（替代空白）
+      errorBuilder: (_, _, _) => Center(
+        child: Icon(CupertinoIcons.photo, size: 28, color: AppColors.iosGray3),
+      ),
+    );
     final child = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.borderRadiusMedium,
         color: AppColors.iosGray.withValues(alpha: 0.1),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Image(image: cachedImageProvider(previewUrl), fit: BoxFit.cover),
+      child: isVideo
+          ? Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned.fill(child: imageChild),
+                const Icon(
+                  CupertinoIcons.play_circle_fill,
+                  color: AppColors.onPrimary,
+                  size: 30,
+                ),
+                if (durationMs > 0)
+                  Positioned(
+                    right: 6,
+                    bottom: 6,
+                    child: _DetailVideoBadge(
+                      text: formatVideoDuration(durationMs),
+                    ),
+                  ),
+              ],
+            )
+          : imageChild,
     );
     if (imageUrls.isEmpty) return child;
     return GestureDetector(
@@ -492,28 +724,26 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     );
   }
 
-  Widget _buildInteraction(
-    IconData icon,
-    IconData activeIcon,
-    String label,
-    Color color,
-    VoidCallback onTap,
+  Widget _buildCommentsBlock(
+    BuildContext context,
+    bool isDark,
+    String currentUid,
+    Brightness brightness,
   ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Icon(label == '0' ? icon : activeIcon, size: 20, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: context.textStyle(
-              FontSizeType.normal,
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurfaceGrouped,
+        borderRadius: AppRadius.borderRadiusMedium,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _comments
+            .map((c) => _buildCommentItem(context, c, isDark, currentUid))
+            .toList(),
       ),
     );
   }
@@ -523,7 +753,6 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     Map<String, dynamic> comment,
     bool isDark,
     String currentUid,
-    Brightness brightness,
   ) {
     final userId = parseModelString(comment['user_id']);
     final displayName = resolveMomentDisplayName(
@@ -540,44 +769,101 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
             nickname: parseModelString(comment['reply_to_nickname']),
             uid: replyToUid,
           );
-    final subtitleText = composeReplyDisplay(
-      content: content,
-      replyToName: replyToName == '?' ? '' : replyToName,
-      prefix: t.chat.momentsReplyPrefix,
-      separator: t.chat.momentsReplySeparator,
-    );
 
-    return ImBoyListTile(
+    return InkWell(
       onTap: userId != currentUid ? () => _startReplyTo(comment) : null,
-      leading: Avatar(
-        imgUri: parseModelString(comment['user_avatar']),
-        width: 36,
-        height: 36,
+      onLongPress: () => _showCommentActionSheet(
+        comment,
+        canDeleteComment(comment, _moment!, currentUid: currentUid),
       ),
-      title: Text(
-        displayName,
-        style: context.textStyle(
-          FontSizeType.subheadline,
-          fontWeight: FontWeight.w600,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Avatar(
+              imgUri: parseModelString(comment['user_avatar']),
+              width: 32,
+              height: 32,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 点评论人名跳资料页
+                  GestureDetector(
+                    onTap: () => context.push(
+                      '/contact/people/$userId?scene=contact_page',
+                    ),
+                    child: Text(
+                      displayName,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.wechatBlue,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  _buildCommentBody(context, content, replyToName),
+                ],
+              ),
+            ),
+            if (canDeleteComment(comment, _moment!, currentUid: currentUid))
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _deleteComment(parseModelString(comment['id'])),
+                child: const SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: Center(
+                    child: Icon(
+                      CupertinoIcons.delete,
+                      size: 15,
+                      color: AppColors.iosGray,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
-      subtitle: Text(
-        subtitleText,
-        style: context.textStyle(FontSizeType.normal).copyWith(height: 1.3),
+    );
+  }
+
+  Widget _buildCommentBody(
+    BuildContext context,
+    String content,
+    String replyToName,
+  ) {
+    final trimmedReply = replyToName == '?' ? '' : replyToName;
+    if (trimmedReply.isEmpty) {
+      return SelectableText(
+        content,
+        style: context
+            .textStyle(FontSizeType.subheadline)
+            .copyWith(height: 1.35),
+      );
+    }
+    return SelectableText.rich(
+      TextSpan(
+        style: context
+            .textStyle(FontSizeType.subheadline)
+            .copyWith(height: 1.35),
+        children: [
+          TextSpan(
+            text:
+                '${t.chat.momentsReplyPrefix}$trimmedReply'
+                '${t.chat.momentsReplySeparator}',
+            style: context.textStyle(
+              FontSizeType.subheadline,
+              color: AppColors.wechatBlue,
+            ),
+          ),
+          TextSpan(text: content),
+        ],
       ),
-      trailing: canDeleteComment(comment, _moment!, currentUid: currentUid)
-          ? CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: const Icon(
-                CupertinoIcons.delete,
-                size: 16,
-                color: AppColors.iosGray,
-              ),
-              onPressed: () => _deleteComment(parseModelString(comment['id'])),
-            )
-          : null,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      backgroundColor: Colors.transparent,
     );
   }
 
@@ -598,87 +884,457 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         border: Border(
           top: BorderSide(
             color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.3),
-            width: 0.33,
+            width: 0.5,
           ),
         ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (_replyToUid.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.chat.momentsReplyingTo.replaceAll(
-                        '{name}',
-                        _replyToName,
-                      ),
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: AppColors.iosGray,
+          // 回复条 AnimatedSize：出现/消失高度平滑过渡
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: _replyToUid.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            t.chat.momentsReplyingTo.replaceAll(
+                              '{name}',
+                              _replyToName,
+                            ),
+                            style: context.textStyle(
+                              FontSizeType.small,
+                              color: AppColors.iosGray,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: _cancelReply,
+                          child: const Icon(
+                            CupertinoIcons.xmark_circle_fill,
+                            size: 16,
+                            color: AppColors.iosGray,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.iosGray.withValues(alpha: 0.05)
+                          : AppColors.lightSurfaceGrouped,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: TextField(
+                        controller: _commentController,
+                        focusNode: _commentFocusNode,
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: (_) => _addComment(),
+                        decoration: InputDecoration(
+                          hintText: t.discovery.momentsWriteComment,
+                          border: InputBorder.none,
+                          isDense: true,
+                          hintStyle: context.textStyle(
+                            FontSizeType.subheadline,
+                            color: AppColors.iosGray,
+                          ),
+                        ),
+                        style: context.textStyle(FontSizeType.subheadline),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: _cancelReply,
-                    child: const Icon(
-                      CupertinoIcons.xmark_circle_fill,
-                      size: 16,
-                      color: AppColors.iosGray,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.iosGray.withValues(alpha: 0.05)
-                        : AppColors.lightSurfaceGrouped,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: TextField(
-                    controller: _commentController,
-                    decoration: InputDecoration(
-                      hintText: t.discovery.momentsWriteComment,
-                      border: InputBorder.none,
-                      isDense: true,
-                      hintStyle: context.textStyle(
-                        FontSizeType.subheadline,
-                        color: AppColors.iosGray,
-                      ),
-                    ),
-                    style: context.textStyle(FontSizeType.subheadline),
                   ),
                 ),
+                AppSpacing.horizontalSmall,
+                ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: _commentController,
+                  builder: (context, value, _) {
+                    final canSend =
+                        value.text.trim().isNotEmpty && !_sendingComment;
+                    return CupertinoButton(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      color: AppColors.getIosBlue(brightness),
+                      borderRadius: BorderRadius.circular(20),
+                      onPressed: canSend ? _addComment : null,
+                      child: _sendingComment
+                          ? const CupertinoActivityIndicator(
+                              radius: 8,
+                              color: AppColors.onPrimary,
+                            )
+                          : Text(
+                              t.chat.momentsSend,
+                              style: context.textStyle(
+                                FontSizeType.normal,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 详情页点赞人横排。
+class _MomentDetailLikersRow extends StatelessWidget {
+  final List<Map<String, dynamic>> likers;
+  final int totalCount;
+
+  const _MomentDetailLikersRow({
+    required this.likers,
+    required this.totalCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final label = buildLikersLabel(likers, totalCount, translations: context.t);
+    if (label.isEmpty) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurfaceGrouped,
+        borderRadius: AppRadius.borderRadiusMedium,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _AnimatedHeart(count: totalCount, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: AppColors.wechatBlue,
               ),
-              AppSpacing.horizontalSmall,
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                color: AppColors.getIosBlue(brightness),
-                borderRadius: BorderRadius.circular(20),
-                onPressed: _sendingComment ? null : _addComment,
-                child: _sendingComment
-                    ? const CupertinoActivityIndicator(
-                        radius: 8,
-                        color: AppColors.onPrimary,
-                      )
-                    : Text(
-                        t.chat.momentsSend,
-                        style: context.textStyle(
-                          FontSizeType.normal,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 详情页点赞心形：点赞数增加时弹跳（带 size 参数）。
+class _AnimatedHeart extends StatefulWidget {
+  final int count;
+  final double size;
+  const _AnimatedHeart({required this.count, required this.size});
+
+  @override
+  State<_AnimatedHeart> createState() => _AnimatedHeartState();
+}
+
+class _AnimatedHeartState extends State<_AnimatedHeart>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+  int _prevCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _prevCount = widget.count;
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+    );
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.0,
+          end: 1.3,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.3,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 50,
+      ),
+    ]).animate(_controller);
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedHeart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.count > _prevCount) {
+      _controller.forward(from: 0);
+    }
+    _prevCount = widget.count;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scale,
+      child: Icon(
+        CupertinoIcons.heart_fill,
+        size: widget.size,
+        color: AppColors.wechatBlue,
+      ),
+    );
+  }
+}
+
+/// 详情页视频时长角标。
+class _DetailVideoBadge extends StatelessWidget {
+  final String text;
+  const _DetailVideoBadge({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.darkBackground.withValues(alpha: 0.5),
+        borderRadius: AppRadius.borderRadiusTiny,
+      ),
+      child: Text(
+        text,
+        style: context
+            .textStyle(
+              FontSizeType.tiny,
+              color: AppColors.onPrimary,
+              fontWeight: FontWeight.w500,
+            )
+            .copyWith(height: 1.2),
+      ),
+    );
+  }
+}
+
+/// 详情页单图按真实宽高比展示。
+class _DetailSingleImage extends StatefulWidget {
+  final Map<String, dynamic> item;
+  final List<String> imageUrls;
+  final int imageIndex;
+
+  const _DetailSingleImage({
+    required this.item,
+    required this.imageUrls,
+    required this.imageIndex,
+  });
+
+  @override
+  State<_DetailSingleImage> createState() => _DetailSingleImageState();
+}
+
+class _DetailSingleImageState extends State<_DetailSingleImage> {
+  double? _aspectRatio;
+  ImageStream? _imageStream;
+  late ImageStreamListener _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    final url = pickMediaPreviewUrl(widget.item);
+    if (url.isEmpty) return;
+    final provider = cachedImageProvider(url);
+    _listener = ImageStreamListener((info, _) {
+      if (!mounted) return;
+      final img = info.image;
+      final w = img.width.toDouble();
+      final h = img.height.toDouble();
+      if (h > 0 && mounted) {
+        setState(() => _aspectRatio = w / h);
+      }
+    });
+    _imageStream = provider.resolve(createLocalImageConfiguration(context));
+    _imageStream!.addListener(_listener);
+  }
+
+  @override
+  void dispose() {
+    _imageStream?.removeListener(_listener);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final url = pickMediaPreviewUrl(widget.item);
+    final availWidth = MediaQuery.of(context).size.width - 24 * 2;
+    final maxHeight = MediaQuery.of(context).size.width * 0.7;
+    final aspect = _aspectRatio ?? 4 / 3;
+    var displayWidth = availWidth;
+    var displayHeight = displayWidth / aspect;
+    if (displayHeight > maxHeight) {
+      displayHeight = maxHeight;
+      displayWidth = displayHeight * aspect;
+    }
+
+    return GestureDetector(
+      onTap: widget.imageUrls.isNotEmpty
+          ? () => zoomInPhotoViewGalleryWithInitialPage(
+              context,
+              widget.imageUrls,
+              widget.imageIndex,
+            )
+          : null,
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusMedium,
+        child: Container(
+          width: displayWidth,
+          height: displayHeight,
+          color: AppColors.iosGray.withValues(alpha: 0.1),
+          child: Image(
+            image: cachedImageProvider(url),
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                color: AppColors.iosGray.withValues(alpha: 0.08),
+              );
+            },
+            errorBuilder: (_, _, _) => Center(
+              child: Icon(
+                CupertinoIcons.photo,
+                size: 28,
+                color: AppColors.iosGray3,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 详情页加载骨架屏。
+class _DetailSkeleton extends StatelessWidget {
+  const _DetailSkeleton();
+
+  Widget _bar(double width, double height) => Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: AppColors.mediaScrimWhite,
+      borderRadius: AppRadius.borderRadiusTiny,
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final base = colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
+    final highlight = colorScheme.surfaceContainerHighest.withValues(
+      alpha: 0.2,
+    );
+    final screenW = MediaQuery.of(context).size.width;
+
+    return ShimmerBox(
+      baseColor: base,
+      highlightColor: highlight,
+      child: ListView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: AppSpacing.allLarge,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: const BoxDecoration(
+                  color: AppColors.mediaScrimWhite,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _bar(120, 14),
+                    const SizedBox(height: 8),
+                    _bar(70, 11),
+                  ],
+                ),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          _bar(screenW * 0.9, 14),
+          const SizedBox(height: 10),
+          _bar(screenW * 0.75, 14),
+          const SizedBox(height: 10),
+          _bar(screenW * 0.5, 14),
+          const SizedBox(height: 20),
+          Container(
+            width: double.infinity,
+            height: screenW * 0.45,
+            decoration: BoxDecoration(
+              color: AppColors.mediaScrimWhite,
+              borderRadius: AppRadius.borderRadiusMedium,
+            ),
+          ),
+          const SizedBox(height: 28),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.mediaScrimWhite,
+              borderRadius: AppRadius.borderRadiusMedium,
+            ),
+            child: Column(
+              children: List.generate(3, (i) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: const BoxDecoration(
+                          color: AppColors.iosGray,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _bar(90, 12),
+                            const SizedBox(height: 6),
+                            _bar(screenW * 0.6, 13),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
           ),
         ],
       ),

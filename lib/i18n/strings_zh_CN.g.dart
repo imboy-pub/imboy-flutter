@@ -3736,6 +3736,27 @@ class Translations$common$zh_CN {
 	/// zh-CN: '举报失败，请稍后重试'
 	String get momentsReportFailed => '举报失败，请稍后重试';
 
+	/// zh-CN: '垃圾广告'
+	String get momentReportReasonSpam => '垃圾广告';
+
+	/// zh-CN: '骚扰霸凌'
+	String get momentReportReasonHarassment => '骚扰霸凌';
+
+	/// zh-CN: '色情低俗'
+	String get momentReportReasonPorn => '色情低俗';
+
+	/// zh-CN: '欺诈诈骗'
+	String get momentReportReasonFraud => '欺诈诈骗';
+
+	/// zh-CN: '侵权抄袭'
+	String get momentReportReasonInfringement => '侵权抄袭';
+
+	/// zh-CN: '其他'
+	String get momentReportReasonOther => '其他';
+
+	/// zh-CN: '请选择举报原因'
+	String get momentReportReasonPrompt => '请选择举报原因';
+
 	/// zh-CN: '加载更多评论'
 	String get momentsLoadMoreComments => '加载更多评论';
 
@@ -5397,6 +5418,63 @@ class Translations$discovery$zh_CN {
 
 	/// zh-CN: '网络异常，显示的是缓存内容'
 	String get momentsFeedStale => '网络异常，显示的是缓存内容';
+
+	/// zh-CN: '赞'
+	String get momentActionLike => '赞';
+
+	/// zh-CN: '取消'
+	String get momentActionCancelLike => '取消';
+
+	/// zh-CN: '评论'
+	String get momentActionComment => '评论';
+
+	/// zh-CN: '删除'
+	String get momentActionDelete => '删除';
+
+	/// zh-CN: '举报'
+	String get momentActionReport => '举报';
+
+	/// zh-CN: '取消'
+	String get momentActionCancel => '取消';
+
+	/// zh-CN: '查看全部 ${count} 条评论'
+	String momentViewAllComments({required Object count}) => '查看全部 ${count} 条评论';
+
+	/// zh-CN: '${names} 赞了'
+	String momentLikedBy({required Object names}) => '${names} 赞了';
+
+	/// zh-CN: '${names} 等${count}人赞了'
+	String momentAndOthersLiked({required Object names, required Object count}) => '${names} 等${count}人赞了';
+
+	/// zh-CN: '部分可见'
+	String get momentPartialVisible => '部分可见';
+
+	/// zh-CN: '这一刻的想法...'
+	String get momentContentPlaceholder => '这一刻的想法...';
+
+	/// zh-CN: '全文'
+	String get momentShowFull => '全文';
+
+	/// zh-CN: '展开'
+	String get momentExpand => '展开';
+
+	/// zh-CN: '收起'
+	String get momentCollapse => '收起';
+
+	/// zh-CN: '举报评论'
+	String get momentReportComment => '举报评论';
+
+	/// zh-CN: '保留草稿？'
+	String get momentsDraftKeepTitle => '保留草稿？';
+
+	/// zh-CN: '保留后下次进入可继续编辑'
+	String get momentsDraftKeepMessage => '保留后下次进入可继续编辑';
+
+	/// zh-CN: '不保留'
+	String get momentsDraftDiscard => '不保留';
+
+	/// zh-CN: '保留'
+	String get momentsDraftKeep => '保留';
 
 	/// zh-CN: '发现'
 	String get discover => '发现';
@@ -8279,6 +8357,13 @@ extension on Translations {
 			'common.momentsDeleteFailed' => '删除失败，请稍后重试',
 			'common.momentsReportSubmitted' => '举报已提交',
 			'common.momentsReportFailed' => '举报失败，请稍后重试',
+			'common.momentReportReasonSpam' => '垃圾广告',
+			'common.momentReportReasonHarassment' => '骚扰霸凌',
+			'common.momentReportReasonPorn' => '色情低俗',
+			'common.momentReportReasonFraud' => '欺诈诈骗',
+			'common.momentReportReasonInfringement' => '侵权抄袭',
+			'common.momentReportReasonOther' => '其他',
+			'common.momentReportReasonPrompt' => '请选择举报原因',
 			'common.momentsLoadMoreComments' => '加载更多评论',
 			'common.momentsUploadFailed' => '媒体上传失败，请稍后重试',
 			'common.transactionHistory' => '交易记录',
@@ -8596,6 +8681,8 @@ extension on Translations {
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 密钥已成功恢复！',
 			'common.e2eeBackupImportSuccessNote' => '注意：旧消息可能无法访问，这是 E2EE 的正常行为',
 			'common.e2eeBackupNoRecords' => '暂无备份记录',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupNoRecordsHint' => '导出备份后将在此显示历史记录',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => '设备 ${id}',
 			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => '创建于 ${time}',
@@ -8603,8 +8690,6 @@ extension on Translations {
 			'common.e2eeBackupDeviceIdLabel' => '设备 ID',
 			'common.e2eeBackupVersionNum' => '备份版本',
 			'common.e2eeBackupCreatedAtRow' => '创建时间',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileSizeRow' => '文件大小',
 			'common.e2eeBackupNoteRow' => '备注',
 			'common.e2eeBackupDeleteTitle' => '删除备份记录',
@@ -8823,6 +8908,25 @@ extension on Translations {
 			'discovery.momentsDenyUidsLabel' => '不给谁看 UID 列表（逗号分隔）',
 			'discovery.momentsDraftRestored' => '已恢复上次未发送的草稿',
 			'discovery.momentsFeedStale' => '网络异常，显示的是缓存内容',
+			'discovery.momentActionLike' => '赞',
+			'discovery.momentActionCancelLike' => '取消',
+			'discovery.momentActionComment' => '评论',
+			'discovery.momentActionDelete' => '删除',
+			'discovery.momentActionReport' => '举报',
+			'discovery.momentActionCancel' => '取消',
+			'discovery.momentViewAllComments' => ({required Object count}) => '查看全部 ${count} 条评论',
+			'discovery.momentLikedBy' => ({required Object names}) => '${names} 赞了',
+			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人赞了',
+			'discovery.momentPartialVisible' => '部分可见',
+			'discovery.momentContentPlaceholder' => '这一刻的想法...',
+			'discovery.momentShowFull' => '全文',
+			'discovery.momentExpand' => '展开',
+			'discovery.momentCollapse' => '收起',
+			'discovery.momentReportComment' => '举报评论',
+			'discovery.momentsDraftKeepTitle' => '保留草稿？',
+			'discovery.momentsDraftKeepMessage' => '保留后下次进入可继续编辑',
+			'discovery.momentsDraftDiscard' => '不保留',
+			'discovery.momentsDraftKeep' => '保留',
 			'discovery.discover' => '发现',
 			'discovery.shake' => '摇一摇',
 			'discovery.openChannel' => '打开频道',
@@ -9091,6 +9195,8 @@ extension on Translations {
 			'main.sentByOthers' => '他人发送的',
 			'main.setParam' => ({required Object param}) => '设置${param}',
 			'main.setting' => '设置',
+			_ => null,
+		} ?? switch (path) {
 			'main.siginQ' => '已经有账号了？',
 			'main.signInWith' => ({required Object param}) => '用${param}登录',
 			'main.source' => '来源',
@@ -9117,8 +9223,6 @@ extension on Translations {
 			'main.webView' => '网页视图',
 			'main.you' => '你',
 			'main.yourFeel' => '这让你感觉如何?',
-			_ => null,
-		} ?? switch (path) {
 			'main.zhCn' => '简体中文',
 			'main.zhHant' => '繁体中文',
 			'main.bound' => '已绑定',

@@ -658,6 +658,13 @@ momentsCommentFailed: 댓글 작성 실패, 나중에 다시 시도해주세요
 momentsDeleteFailed: 삭제 실패, 나중에 다시 시도해주세요
 momentsReportSubmitted: 신고가 접수되었습니다
 momentsReportFailed: 신고 실패, 나중에 다시 시도해주세요
+momentReportReasonSpam: "스팸·광고"
+momentReportReasonHarassment: "괴롭힘"
+momentReportReasonPorn: "음란물"
+momentReportReasonFraud: "사기"
+momentReportReasonInfringement: "저작권 침해"
+momentReportReasonOther: "기타"
+momentReportReasonPrompt: "사유 선택"
 momentsLoadMoreComments: 댓글 더 보기
 momentsUploadFailed: 미디어 업로드 실패, 나중에 다시 시도해주세요
 transactionHistory: 거래 내역

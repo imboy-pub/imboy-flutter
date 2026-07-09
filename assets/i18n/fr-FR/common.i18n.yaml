@@ -658,6 +658,13 @@ momentsCommentFailed: Échec du commentaire. Réessayez plus tard.
 momentsDeleteFailed: Échec de la suppression. Réessayez plus tard.
 momentsReportSubmitted: Signalement envoyé
 momentsReportFailed: Échec du signalement. Réessayez plus tard.
+momentReportReasonSpam: "Spam ou publicité"
+momentReportReasonHarassment: "Harcèlement"
+momentReportReasonPorn: "Contenu pornographique"
+momentReportReasonFraud: "Fraude ou arnaque"
+momentReportReasonInfringement: "Violation de droits"
+momentReportReasonOther: "Autre"
+momentReportReasonPrompt: "Sélectionner un motif"
 momentsLoadMoreComments: Charger plus de commentaires
 momentsUploadFailed: Échec de l'envoi du média. Réessayez plus tard.
 transactionHistory: Historique des transactions

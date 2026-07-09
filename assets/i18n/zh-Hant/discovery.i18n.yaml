@@ -24,6 +24,25 @@ momentsVisibilityExclude: 不給誰看
 momentsDenyUidsLabel: 不給誰看 UID 列表（逗號分隔）
 momentsDraftRestored: 已恢復上次未傳送的草稿
 momentsFeedStale: 網路異常，顯示的是快取內容
+momentActionLike: "讚"
+momentActionCancelLike: "取消"
+momentActionComment: "評論"
+momentActionDelete: "刪除"
+momentActionReport: "舉報"
+momentActionCancel: "取消"
+momentViewAllComments(count): "查看全部 ${count} 條評論"
+momentLikedBy(names): "${names} 讚了"
+momentAndOthersLiked(names,count): "${names} 等${count}人讚了"
+momentPartialVisible: "部分可見"
+momentContentPlaceholder: "這一刻的想法..."
+momentShowFull: "全文"
+momentExpand: "展開"
+momentCollapse: "收起"
+momentReportComment: "舉報評論"
+momentsDraftKeepTitle: "保留草稿？"
+momentsDraftKeepMessage: "保留後下次進入可繼續編輯"
+momentsDraftDiscard: "不保留"
+momentsDraftKeep: "保留"
 discover: 發現
 shake: 搖一搖
 openChannel: 開啟頻道

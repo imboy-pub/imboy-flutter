@@ -25,6 +25,25 @@ momentsVisibilityExclude: إخفاء عن...
 momentsDenyUidsLabel: قائمة UID المخفي عنهم (مفصولة بفواصل)
 momentsDraftRestored: تمت استعادة المسودة الأخيرة
 momentsFeedStale: خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً
+momentActionLike: "إعجاب"
+momentActionCancelLike: "إلغاء"
+momentActionComment: "تعليق"
+momentActionDelete: "حذف"
+momentActionReport: "إبلاغ"
+momentActionCancel: "إلغاء"
+momentViewAllComments(count): "عرض كل التعليقات (${count})"
+momentLikedBy(names): "أعجب ${names}"
+momentAndOthersLiked(names,count): "${names} و${count} آخرون أعجبوا"
+momentPartialVisible: "جزئي"
+momentContentPlaceholder: "بماذا تفكر..."
+momentShowFull: "عرض الكل"
+momentExpand: "توسيع"
+momentCollapse: "طي"
+momentReportComment: "إبلاغ عن التعليق"
+momentsDraftKeepTitle: "حفظ المسودة؟"
+momentsDraftKeepMessage: "يمكنك المتابعة في المرة القادمة"
+momentsDraftDiscard: "عدم الحفظ"
+momentsDraftKeep: "حفظ"
 discover: اكتشاف
 shake: هز
 openChannel: فتح القناة

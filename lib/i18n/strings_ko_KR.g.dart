@@ -1268,6 +1268,13 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get momentsDeleteFailed => '삭제 실패, 나중에 다시 시도해주세요';
 	@override String get momentsReportSubmitted => '신고가 접수되었습니다';
 	@override String get momentsReportFailed => '신고 실패, 나중에 다시 시도해주세요';
+	@override String get momentReportReasonSpam => '스팸·광고';
+	@override String get momentReportReasonHarassment => '괴롭힘';
+	@override String get momentReportReasonPorn => '음란물';
+	@override String get momentReportReasonFraud => '사기';
+	@override String get momentReportReasonInfringement => '저작권 침해';
+	@override String get momentReportReasonOther => '기타';
+	@override String get momentReportReasonPrompt => '사유 선택';
 	@override String get momentsLoadMoreComments => '댓글 더 보기';
 	@override String get momentsUploadFailed => '미디어 업로드 실패, 나중에 다시 시도해주세요';
 	@override String get transactionHistory => '거래 내역';
@@ -1800,6 +1807,25 @@ class _Translations$discovery$ko_KR extends Translations$discovery$zh_CN {
 	@override String get momentsDenyUidsLabel => '제외할 UID 목록 (쉼표로 구분)';
 	@override String get momentsDraftRestored => '마지막 저장된 임시글이 복원되었습니다';
 	@override String get momentsFeedStale => '네트워크 오류로 캐시된 내용을 표시합니다';
+	@override String get momentActionLike => '좋아요';
+	@override String get momentActionCancelLike => '취소';
+	@override String get momentActionComment => '댓글';
+	@override String get momentActionDelete => '삭제';
+	@override String get momentActionReport => '신고';
+	@override String get momentActionCancel => '취소';
+	@override String momentViewAllComments({required Object count}) => '댓글 ${count}개 모두 보기';
+	@override String momentLikedBy({required Object names}) => '${names}님이 좋아합니다';
+	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} 외 ${count}명이 좋아합니다';
+	@override String get momentPartialVisible => '일부 공개';
+	@override String get momentContentPlaceholder => '지금 이 순간의 생각...';
+	@override String get momentShowFull => '전체 보기';
+	@override String get momentExpand => '펼치기';
+	@override String get momentCollapse => '접기';
+	@override String get momentReportComment => '댓글 신고';
+	@override String get momentsDraftKeepTitle => '초안을 보관하시겠습니까?';
+	@override String get momentsDraftKeepMessage => '보관하면 다음에 이어서 편집할 수 있습니다';
+	@override String get momentsDraftDiscard => '버리기';
+	@override String get momentsDraftKeep => '보관';
 	@override String get discover => '발견';
 	@override String get shake => '흔들기';
 	@override String get openChannel => '채널 열기';
@@ -3616,6 +3642,13 @@ extension on TranslationsKoKr {
 			'common.momentsDeleteFailed' => '삭제 실패, 나중에 다시 시도해주세요',
 			'common.momentsReportSubmitted' => '신고가 접수되었습니다',
 			'common.momentsReportFailed' => '신고 실패, 나중에 다시 시도해주세요',
+			'common.momentReportReasonSpam' => '스팸·광고',
+			'common.momentReportReasonHarassment' => '괴롭힘',
+			'common.momentReportReasonPorn' => '음란물',
+			'common.momentReportReasonFraud' => '사기',
+			'common.momentReportReasonInfringement' => '저작권 침해',
+			'common.momentReportReasonOther' => '기타',
+			'common.momentReportReasonPrompt' => '사유 선택',
 			'common.momentsLoadMoreComments' => '댓글 더 보기',
 			'common.momentsUploadFailed' => '미디어 업로드 실패, 나중에 다시 시도해주세요',
 			'common.transactionHistory' => '거래 내역',
@@ -3975,6 +4008,8 @@ extension on TranslationsKoKr {
 			'common.initConfigProtocolError' => '서버 응답 프로토콜 오류',
 			'common.initConfigFetchFailed' => '설정 불러오기 실패, 네트워크 연결을 확인해주세요',
 			'common.attachmentGetFileFailed' => '파일을 가져올 수 없습니다. 다시 시도하거나 앨범에서 선택하세요',
+			_ => null,
+		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => '파일 가져오기 실패, Android 9 호환성 문제일 수 있습니다',
 			'common.attachmentGetImageDataFailed' => '이미지 데이터를 가져올 수 없습니다. 다시 시도해주세요',
 			'common.attachmentGetOriginalImageFailed' => '원본 이미지 데이터를 가져올 수 없습니다',
@@ -3982,8 +4017,6 @@ extension on TranslationsKoKr {
 			'common.downloadFileNotFound' => '다운로드 파일이 없습니다. 다시 시도해주세요',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '파일 검증 실패, 다시 다운로드하는 중 (${retry}/${max})',
 			'common.downloadHashFailed' => '파일 검증이 여러 번 실패했습니다. 네트워크를 확인하고 다시 시도해주세요',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferToNewDevice' => '새 기기로 전송',
 			'common.e2eeTransferPendingSection' => '대기 중인 전송',
 			'common.e2eeTransferLoadFailed' => '불러오기 실패',
@@ -4114,6 +4147,25 @@ extension on TranslationsKoKr {
 			'discovery.momentsDenyUidsLabel' => '제외할 UID 목록 (쉼표로 구분)',
 			'discovery.momentsDraftRestored' => '마지막 저장된 임시글이 복원되었습니다',
 			'discovery.momentsFeedStale' => '네트워크 오류로 캐시된 내용을 표시합니다',
+			'discovery.momentActionLike' => '좋아요',
+			'discovery.momentActionCancelLike' => '취소',
+			'discovery.momentActionComment' => '댓글',
+			'discovery.momentActionDelete' => '삭제',
+			'discovery.momentActionReport' => '신고',
+			'discovery.momentActionCancel' => '취소',
+			'discovery.momentViewAllComments' => ({required Object count}) => '댓글 ${count}개 모두 보기',
+			'discovery.momentLikedBy' => ({required Object names}) => '${names}님이 좋아합니다',
+			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 외 ${count}명이 좋아합니다',
+			'discovery.momentPartialVisible' => '일부 공개',
+			'discovery.momentContentPlaceholder' => '지금 이 순간의 생각...',
+			'discovery.momentShowFull' => '전체 보기',
+			'discovery.momentExpand' => '펼치기',
+			'discovery.momentCollapse' => '접기',
+			'discovery.momentReportComment' => '댓글 신고',
+			'discovery.momentsDraftKeepTitle' => '초안을 보관하시겠습니까?',
+			'discovery.momentsDraftKeepMessage' => '보관하면 다음에 이어서 편집할 수 있습니다',
+			'discovery.momentsDraftDiscard' => '버리기',
+			'discovery.momentsDraftKeep' => '보관',
 			'discovery.discover' => '발견',
 			'discovery.shake' => '흔들기',
 			'discovery.openChannel' => '채널 열기',
@@ -4470,6 +4522,8 @@ extension on TranslationsKoKr {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '현재 길이: ${param1} / ${param2}',
 			'main.fillIn' => '입력',
 			'main.msgProtectedByComplianceKey' => '메시지는 규정 준수 키로 보호됩니다',
+			_ => null,
+		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => '초대자: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '초대받은 사람: ${uid}',
 			'main.mySentTab' => '보낸 초대',
@@ -4496,8 +4550,6 @@ extension on TranslationsKoKr {
 			'main.e2eeProxyUser' => ({required Object uid}) => '대리자: ${uid}',
 			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '샤드 ${index} / ${total}',
 			'main.e2eeReloadShards' => '새로고침',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeRecovering' => '복구 중...',
 			'main.e2eeKeyRestored' => '키가 복구되었습니다',
 			'main.e2eeUsedShards' => ({required Object count}) => '대리자 샤드 ${count}개 사용됨',

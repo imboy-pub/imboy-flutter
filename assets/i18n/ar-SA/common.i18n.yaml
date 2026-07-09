@@ -658,6 +658,13 @@ momentsCommentFailed: تعذّر إضافة التعليق، حاول لاحقا
 momentsDeleteFailed: تعذّر الحذف، حاول لاحقاً
 momentsReportSubmitted: تم إرسال الإبلاغ
 momentsReportFailed: تعذّر الإبلاغ، حاول لاحقاً
+momentReportReasonSpam: "مزعج أو إعلانات"
+momentReportReasonHarassment: "مضايقة"
+momentReportReasonPorn: "محتوى إباحي"
+momentReportReasonFraud: "احتيال"
+momentReportReasonInfringement: "انتهاك حقوق النشر"
+momentReportReasonOther: "أخرى"
+momentReportReasonPrompt: "اختر السبب"
 momentsLoadMoreComments: المزيد من التعليقات
 momentsUploadFailed: تعذّر رفع الوسائط، حاول لاحقاً
 transactionHistory: سجل المعاملات
