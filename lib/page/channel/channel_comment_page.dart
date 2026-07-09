@@ -39,23 +39,39 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   final ScrollController _scrollController = ScrollController();
   final ChannelService _service = ChannelService.to;
 
+  static const int _pageSize = 20;
+
   List<ChannelCommentModel> _comments = [];
   bool _isLoading = false;
   bool _isSending = false;
+  // 分页：此前只拉首页(cursor=0,limit=20)且无加载更多，>20 条评论被静默截断。
+  bool _hasMore = false;
+  bool _isLoadingMore = false;
   int _replyToCommentId = 0;
   String _replyToName = '';
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _loadComments();
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _inputController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    // 评论按时间升序、最新在底部，滚动接近底部时加载下一页
+    if (pos.maxScrollExtent - pos.pixels <= 200) {
+      _loadMoreComments();
+    }
   }
 
   Future<void> _loadComments() async {
@@ -64,16 +80,43 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
       final comments = await _service.getComments(
         channelId: widget.channelId,
         messageId: widget.messageId,
+        cursor: 0,
+        limit: _pageSize,
       );
       if (mounted) {
         setState(() {
           _comments = comments;
+          _hasMore = comments.length >= _pageSize;
           _isLoading = false;
         });
       }
     } catch (e) {
       iPrint('评论加载失败: $e');
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loadMoreComments() async {
+    if (_isLoadingMore || !_hasMore || _isLoading) return;
+    _isLoadingMore = true;
+    try {
+      // offset 型游标：以已加载条数为下一页起点
+      final more = await _service.getComments(
+        channelId: widget.channelId,
+        messageId: widget.messageId,
+        cursor: _comments.length,
+        limit: _pageSize,
+      );
+      if (mounted) {
+        setState(() {
+          _comments = [..._comments, ...more];
+          _hasMore = more.length >= _pageSize;
+        });
+      }
+    } catch (e) {
+      iPrint('评论加载更多失败: $e');
+    } finally {
+      _isLoadingMore = false;
     }
   }
 
