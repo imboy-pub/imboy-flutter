@@ -490,7 +490,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 
   Widget _buildMediaGrid(Translations t) {
-    final cellSize = (MediaQuery.of(context).size.width - 40 - 16) / 3;
+    final cellSize = (MediaQuery.sizeOf(context).width - 40 - 16) / 3;
     final showAdd = _media.length < momentMaxImageCount && !_isUploading;
     return Wrap(
       spacing: 8,

@@ -51,6 +51,8 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   String? _cursor;
   bool _isLoading = true;
   bool _isLoadingMore = false;
+  // 点赞防抖：正在请求中的动态 id（避免快速双击 like/unlike 乱序）
+  final Set<String> _likingMomentIds = {};
   bool _loadMoreError = false;
   bool _hasMore = true;
   bool _isStale = false;
@@ -162,7 +164,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
         _hasMore = page.hasMore;
         _isLoadingMore = false;
       });
-    } catch (_) {
+    } on Exception catch (_) {
       // 失败时标记错误，列表末尾渲染"加载失败，点击重试"
       if (mounted) {
         setState(() {
@@ -176,10 +178,14 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
   Future<void> _toggleLike(Map<String, dynamic> moment) async {
     final momentId = parseModelString(moment['id']);
     if (momentId.isEmpty) return;
+    // 防抖：同一条动态点赞请求 in-flight 期间忽略重复点击，避免快速双击
+    // 发出 like/unlike 两个乱序请求导致本地与服务端最终状态不一致。
+    if (_likingMomentIds.contains(momentId)) return;
     final liked = parseModelBool(moment['liked']);
     // 点赞/取消点赞轻触感反馈
     HapticFeedback.lightImpact();
     final oldItems = _items;
+    _likingMomentIds.add(momentId);
     setState(() {
       _items = _items
           .map(
@@ -194,8 +200,10 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
           ? await _api.unlikePost(momentId)
           : await _api.likePost(momentId);
       if (!ok && mounted) setState(() => _items = oldItems);
-    } catch (_) {
+    } on Exception catch (_) {
       if (mounted) setState(() => _items = oldItems);
+    } finally {
+      _likingMomentIds.remove(momentId);
     }
   }
 
@@ -226,7 +234,7 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
         setState(() => _items = oldItems);
         AppLoading.showError(t.common.momentsDeleteFailed);
       }
-    } catch (_) {
+    } on Exception catch (_) {
       if (mounted) setState(() => _items = oldItems);
     }
   }
@@ -569,7 +577,9 @@ class _MomentCard extends StatelessWidget {
                       // 右上角•••操作入口，命中区 44×44
                       Semantics(
                         button: true,
-                        label: t.discovery.momentActionComment,
+                        // 该按钮弹出「赞/评论/删除」整套 Action Sheet，
+                        // 标签应为"更多操作"，此前误标成"评论"误导读屏用户。
+                        label: t.discovery.momentActionMore,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: onActionTap,
@@ -896,7 +906,7 @@ class _MomentMediaPreview extends StatelessWidget {
       );
     }
     int imgIdx = 0;
-    final cellSize = (MediaQuery.of(context).size.width - 100) / 3;
+    final cellSize = (MediaQuery.sizeOf(context).width - 100) / 3;
     return Wrap(
       spacing: AppSpacing.small,
       runSpacing: AppSpacing.small,
@@ -963,8 +973,8 @@ class _SingleImagePreviewState extends State<_SingleImagePreview> {
   @override
   Widget build(BuildContext context) {
     final url = pickMediaPreviewUrl(widget.item);
-    final cardWidth = MediaQuery.of(context).size.width - 16 * 2 - 42 - 12;
-    final maxHeight = MediaQuery.of(context).size.width * 0.6;
+    final cardWidth = MediaQuery.sizeOf(context).width - 16 * 2 - 42 - 12;
+    final maxHeight = MediaQuery.sizeOf(context).width * 0.6;
     final aspect = _aspectRatio ?? 4 / 3;
     var displayWidth = cardWidth;
     var displayHeight = displayWidth / aspect;

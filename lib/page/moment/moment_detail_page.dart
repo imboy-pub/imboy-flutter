@@ -49,6 +49,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   bool _commentsHasMore = false;
   bool _loading = true;
   bool _loadError = false;
+  // 点赞防抖：请求 in-flight 标志（避免快速双击 like/unlike 乱序）
+  bool _isLiking = false;
   bool _sendingComment = false;
   bool _loadingMoreComments = false;
   bool _loadMoreCommentsError = false;
@@ -112,7 +114,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         _commentsHasMore = page.hasMore as bool;
         _loading = false;
       });
-    } catch (_) {
+    } on Exception catch (_) {
       // 网络异常时必须解除 _loading，否则永久转圈无法恢复
       if (mounted) {
         setState(() {
@@ -150,7 +152,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         _commentsHasMore = page.hasMore;
         _loadingMoreComments = false;
       });
-    } catch (_) {
+    } on Exception catch (_) {
       if (mounted) {
         setState(() {
           _loadingMoreComments = false;
@@ -163,19 +165,25 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
   Future<void> _toggleLike() async {
     final post = _moment;
     if (post == null) return;
+    // 防抖：点赞请求 in-flight 期间忽略重复点击，避免快速双击 like/unlike
+    // 乱序导致本地与服务端最终状态不一致。
+    if (_isLiking) return;
     final momentId = parseModelString(post['id']);
     if (momentId.isEmpty) return;
     final liked = parseModelBool(post['liked']);
     HapticFeedback.lightImpact();
     final oldMoment = post;
+    _isLiking = true;
     setState(() => _moment = applyOptimisticLikeToggle(post));
     try {
       final ok = liked
           ? await _api.unlikePost(momentId)
           : await _api.likePost(momentId);
       if (!ok && mounted) setState(() => _moment = oldMoment);
-    } catch (_) {
+    } on Exception catch (_) {
       if (mounted) setState(() => _moment = oldMoment);
+    } finally {
+      _isLiking = false;
     }
   }
 
@@ -647,7 +655,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       return _buildMediaItem(media.first, 240, const [], 0);
     }
     int imgIdx = 0;
-    final cellSize = (MediaQuery.of(context).size.width - 64) / 3;
+    final cellSize = (MediaQuery.sizeOf(context).width - 64) / 3;
     return Wrap(
       spacing: AppSpacing.small,
       runSpacing: AppSpacing.small,
@@ -1183,8 +1191,8 @@ class _DetailSingleImageState extends State<_DetailSingleImage> {
   @override
   Widget build(BuildContext context) {
     final url = pickMediaPreviewUrl(widget.item);
-    final availWidth = MediaQuery.of(context).size.width - 24 * 2;
-    final maxHeight = MediaQuery.of(context).size.width * 0.7;
+    final availWidth = MediaQuery.sizeOf(context).width - 24 * 2;
+    final maxHeight = MediaQuery.sizeOf(context).width * 0.7;
     final aspect = _aspectRatio ?? 4 / 3;
     var displayWidth = availWidth;
     var displayHeight = displayWidth / aspect;
@@ -1250,7 +1258,7 @@ class _DetailSkeleton extends StatelessWidget {
     final highlight = colorScheme.surfaceContainerHighest.withValues(
       alpha: 0.2,
     );
-    final screenW = MediaQuery.of(context).size.width;
+    final screenW = MediaQuery.sizeOf(context).width;
 
     return ShimmerBox(
       baseColor: base,

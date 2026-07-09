@@ -27,6 +27,7 @@ momentsFeedStale: 网络异常，显示的是缓存内容
 momentActionLike: "赞"
 momentActionCancelLike: "取消"
 momentActionComment: "评论"
+momentActionMore: "更多操作"
 momentActionDelete: "删除"
 momentActionReport: "举报"
 momentActionCancel: "取消"

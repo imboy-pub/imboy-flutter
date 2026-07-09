@@ -5476,6 +5476,9 @@ class Translations$discovery$zh_CN {
 	/// zh-CN: '评论'
 	String get momentActionComment => '评论';
 
+	/// zh-CN: '更多操作'
+	String get momentActionMore => '更多操作';
+
 	/// zh-CN: '删除'
 	String get momentActionDelete => '删除';
 
@@ -8975,6 +8978,7 @@ extension on Translations {
 			'discovery.momentActionLike' => '赞',
 			'discovery.momentActionCancelLike' => '取消',
 			'discovery.momentActionComment' => '评论',
+			'discovery.momentActionMore' => '更多操作',
 			'discovery.momentActionDelete' => '删除',
 			'discovery.momentActionReport' => '举报',
 			'discovery.momentActionCancel' => '取消',
@@ -9242,9 +9246,9 @@ extension on Translations {
 			'main.pleaseInputParam' => ({required Object param}) => '请输入${param}',
 			'main.pleaseSelect' => '请选择',
 			'main.quickFilters' => '快速筛选',
-			'main.quote' => '引用',
 			_ => null,
 		} ?? switch (path) {
+			'main.quote' => '引用',
 			'main.recentlyUsed' => '最近使用',
 			'main.releaseEnd' => '松开结束',
 			'main.remainingChars' => ({required Object param}) => '还可输入 ${param} 个字符',
