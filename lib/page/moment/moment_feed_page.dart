@@ -371,10 +371,10 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            CupertinoIcons.photo_on_rectangle,
+          // 缓慢呼吸缩放，让空状态不那么"死"
+          const _BreathingIcon(
+            icon: CupertinoIcons.photo_on_rectangle,
             size: 60,
-            color: AppColors.iosGray.withValues(alpha: 0.3),
           ),
           AppSpacing.verticalRegular,
           Text(
@@ -435,6 +435,52 @@ class MomentStaleBanner extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 呼吸缩放图标：3 秒循环 1.0↔1.05，用于空状态让画面不"死"。
+class _BreathingIcon extends StatefulWidget {
+  final IconData icon;
+  final double size;
+
+  const _BreathingIcon({required this.icon, required this.size});
+
+  @override
+  State<_BreathingIcon> createState() => _BreathingIconState();
+}
+
+class _BreathingIconState extends State<_BreathingIcon>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: Tween(
+        begin: 1.0,
+        end: 1.05,
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut)),
+      child: Icon(
+        widget.icon,
+        size: widget.size,
+        color: AppColors.iosGray.withValues(alpha: 0.3),
       ),
     );
   }

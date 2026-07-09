@@ -475,12 +475,23 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
               child: Center(
-                child: Text(
-                  t.common.momentsNoComments,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      CupertinoIcons.chat_bubble,
+                      size: 44,
+                      color: AppColors.iosGray.withValues(alpha: 0.3),
+                    ),
+                    AppSpacing.verticalSmall,
+                    Text(
+                      t.common.momentsNoComments,
+                      style: context.textStyle(
+                        FontSizeType.subheadline,
+                        color: AppColors.iosGray,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
@@ -665,6 +676,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final imageChild = Image(
       image: cachedImageProvider(previewUrl),
       fit: BoxFit.cover,
+      // 加载中灰底占位（替代空白）
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(color: AppColors.iosGray.withValues(alpha: 0.08));
+      },
+      // 加载失败：居中破损图标（替代空白）
+      errorBuilder: (_, _, _) => Center(
+        child: Icon(CupertinoIcons.photo, size: 28, color: AppColors.iosGray3),
+      ),
     );
     final child = Container(
       width: size,
@@ -871,34 +891,41 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (_replyToUid.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.chat.momentsReplyingTo.replaceAll(
-                        '{name}',
-                        _replyToName,
-                      ),
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: AppColors.iosGray,
-                      ),
+          // 回复条 AnimatedSize：出现/消失高度平滑过渡
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: _replyToUid.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            t.chat.momentsReplyingTo.replaceAll(
+                              '{name}',
+                              _replyToName,
+                            ),
+                            style: context.textStyle(
+                              FontSizeType.small,
+                              color: AppColors.iosGray,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: _cancelReply,
+                          child: const Icon(
+                            CupertinoIcons.xmark_circle_fill,
+                            size: 16,
+                            color: AppColors.iosGray,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: _cancelReply,
-                    child: const Icon(
-                      CupertinoIcons.xmark_circle_fill,
-                      size: 16,
-                      color: AppColors.iosGray,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                  )
+                : const SizedBox.shrink(),
+          ),
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1183,7 +1210,19 @@ class _DetailSingleImageState extends State<_DetailSingleImage> {
           child: Image(
             image: cachedImageProvider(url),
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                color: AppColors.iosGray.withValues(alpha: 0.08),
+              );
+            },
+            errorBuilder: (_, _, _) => Center(
+              child: Icon(
+                CupertinoIcons.photo,
+                size: 28,
+                color: AppColors.iosGray3,
+              ),
+            ),
           ),
         ),
       ),
