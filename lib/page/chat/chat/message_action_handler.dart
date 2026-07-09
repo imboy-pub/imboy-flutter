@@ -227,7 +227,7 @@ class MessageActionHandler {
       await ref
           .read(chatProvider.notifier)
           .saveFile(
-            msg.metadata!['md5'] as String,
+            (msg.metadata!['file_hash256'] ?? msg.metadata!['md5']) as String,
             msg.metadata!['uri'] as String,
           );
     } else if (msg is ImageMessage) {

@@ -209,7 +209,7 @@ class ChatAttachmentHandler {
         status: MessageStatus.sending,
         metadata: _withBurnMetadata({
           'peer_id': peerId,
-          'md5': meta['md5'].toString(),
+          'file_hash256': meta['file_hash256'].toString(),
         }),
       );
       await _sendMessage(message);
@@ -315,7 +315,7 @@ class ChatAttachmentHandler {
       source: meta['object_key'] as String,
       metadata: _withBurnMetadata({
         'peer_id': peerId,
-        'md5': meta['md5'].toString(),
+        'file_hash256': meta['file_hash256'].toString(),
       }),
     );
     await _sendMessage(message);
@@ -341,7 +341,7 @@ class ChatAttachmentHandler {
       height: video.height.toDouble(),
       metadata: _withBurnMetadata({
         'peer_id': peerId,
-        'md5': video.md5,
+        'file_hash256': video.fileHash256,
         'thumb': thumb,
         if (video.duration != null)
           'duration_ms': (video.duration! * 1000).round(),
@@ -421,7 +421,7 @@ class ChatAttachmentHandler {
       height: video.height.toDouble(),
       metadata: _withBurnMetadata({
         'peer_id': peerId,
-        'md5': video.md5,
+        'file_hash256': video.fileHash256,
         'thumb': thumb,
         if (video.duration != null)
           'duration_ms': (video.duration! * 1000).round(),
@@ -464,7 +464,7 @@ class ChatAttachmentHandler {
         waveform: obj.waveform,
         metadata: _withBurnMetadata({
           'peer_id': peerId,
-          'md5': meta['md5'].toString(),
+          'file_hash256': meta['file_hash256'].toString(),
           'mime_type': obj.mimeType,
         }),
       );
@@ -510,7 +510,7 @@ class ChatAttachmentHandler {
             'longitude': longitude,
             'thumb': imgUrl,
             'size': resp['data']['size'],
-            'md5': resp['data']['md5'].toString(),
+            'file_hash256': resp['data']['file_hash256'].toString(),
           }),
         );
         await _sendMessage(message);

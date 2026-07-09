@@ -46,7 +46,7 @@ void main() {
   }
 
   EntityImage buildThumb() => EntityImage(
-    md5: 'thumb-md5',
+    fileHash256: 'thumb-md5',
     name: 't.jpg',
     uri: 'u1/file_1_a/t.jpg',
     size: 100,
@@ -55,7 +55,7 @@ void main() {
   );
 
   EntityVideo buildVideo() => EntityVideo(
-    md5: 'video-md5',
+    fileHash256: 'video-md5',
     name: 'v.mp4',
     uri: 'u1/file_2_b/v.mp4',
     size: 2048,
@@ -96,7 +96,7 @@ void main() {
 
         final Map<String, dynamic>? md = vm.metadata;
         expect(md?['peer_id'], peerId);
-        expect(md?['md5'], 'video-md5');
+        expect(md?['file_hash256'], 'video-md5');
         expect(md?['thumb'], thumb.toJson());
         expect(md?['duration_ms'], (12.0 * 1000).round());
       },
@@ -139,7 +139,7 @@ void main() {
       final VideoMessage vm = captured.single as VideoMessage;
       expect(vm.source, video.uri);
       expect(vm.source.contains('http'), isFalse);
-      expect(vm.metadata?['md5'], 'video-md5');
+      expect(vm.metadata?['file_hash256'], 'video-md5');
     });
   });
 
@@ -153,7 +153,7 @@ void main() {
       final Map<String, dynamic> meta = <String, dynamic>{
         'object_key': 'u1/file_3_c/p.jpg',
         'size': 4096,
-        'md5': 'image-md5',
+        'file_hash256': 'image-md5',
         'width': 800,
         'height': 600,
       };
@@ -172,7 +172,7 @@ void main() {
       expect(im.height, 600.0);
       expect(im.text, 'photo.jpg');
       expect(im.metadata?['peer_id'], peerId);
-      expect(im.metadata?['md5'], 'image-md5');
+      expect(im.metadata?['file_hash256'], 'image-md5');
     });
   });
 }

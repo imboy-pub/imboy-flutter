@@ -162,10 +162,11 @@ class AttachmentApi {
     }
 
     // 4. confirm 落库（JWT，走 HttpClient；可注入）
-    final String md5sum = md5.convert(bytes).toString();
+    // 文件完整性哈希：SHA-256（后端字段 file_hash256，仅作完整性参考）
+    final String fileHash256 = sha256.convert(bytes).toString();
     final Map<String, dynamic> confirmBody = <String, dynamic>{
       'object_key': objectKey,
-      'md5': md5sum,
+      'file_hash256': fileHash256,
       'mime_type': mime,
       'size': bytes.length,
       'scope': scope,
@@ -271,7 +272,7 @@ class AttachmentApi {
       'data': <String, dynamic>{
         'url': meta['object_key'],
         'size': meta['size'],
-        'md5': meta['md5'],
+        'file_hash256': meta['file_hash256'],
       },
     };
   }
@@ -296,7 +297,7 @@ class AttachmentApi {
     return <String, dynamic>{
       'object_key': objectKey,
       'size': bytes.length,
-      'md5': md5.convert(bytes).toString(),
+      'file_hash256': sha256.convert(bytes).toString(),
     };
   }
 
@@ -332,7 +333,7 @@ class AttachmentApi {
     return <String, dynamic>{
       'object_key': objectKey,
       'size': bytes.length,
-      'md5': md5.convert(bytes).toString(),
+      'file_hash256': sha256.convert(bytes).toString(),
       'width': entity.width,
       'height': entity.height,
     };
@@ -402,7 +403,7 @@ class AttachmentApi {
     );
 
     final EntityImage thumb = EntityImage(
-      md5: thumbMeta['md5'] as String,
+      fileHash256: thumbMeta['file_hash256'] as String,
       name: thumbName,
       uri: thumbMeta['object_key'] as String,
       size: thumbMeta['size'] as int,
@@ -410,7 +411,7 @@ class AttachmentApi {
       height: height,
     );
     final EntityVideo video = EntityVideo(
-      md5: md5.convert(videoBytes).toString(),
+      fileHash256: sha256.convert(videoBytes).toString(),
       name: videoName,
       uri: videoObjKey,
       size: info.filesize,

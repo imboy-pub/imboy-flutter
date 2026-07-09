@@ -194,7 +194,8 @@ class ChatNetworkService {
         "size": message.size,
         "uri": message.source,
         "mime_type": message.mimeType,
-        "md5": message.metadata?['md5'],
+        "file_hash256":
+            message.metadata?["file_hash256"] ?? message.metadata?["md5"],
       };
       _cleanAndAddMetadata(payload, metadata);
     } else if (message is VideoMessage) {

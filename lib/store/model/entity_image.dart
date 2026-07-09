@@ -1,11 +1,11 @@
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 class EntityImage {
-  final String md5, name, uri;
+  final String fileHash256, name, uri;
   final int width, height, size;
 
   EntityImage({
-    required this.md5,
+    required this.fileHash256,
     required this.name,
     required this.uri,
     this.size = 0,
@@ -15,7 +15,8 @@ class EntityImage {
 
   factory EntityImage.fromJson(Map<String, dynamic> json) {
     return EntityImage(
-      md5: parseModelString(json["md5"]),
+      // 双读兼容：新数据 file_hash256(SHA-256)，旧数据 md5
+      fileHash256: parseModelString(json["file_hash256"] ?? json["md5"]),
       name: parseModelString(json["name"]),
       uri: parseModelString(json["uri"]),
       size: parseModelInt(json["size"]),
@@ -26,7 +27,7 @@ class EntityImage {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data["md5"] = md5;
+    data["file_hash256"] = fileHash256;
     data["name"] = name;
     data["uri"] = uri;
     data["size"] = size;

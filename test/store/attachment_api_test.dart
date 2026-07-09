@@ -66,13 +66,13 @@ void main() {
       final resp = AttachmentApi.compatResp(<String, dynamic>{
         'object_key': 'u1/file_1_a/x.png',
         'size': 2048,
-        'md5': 'abc123',
+        'file_hash256': 'abc123',
       });
       expect(resp['status'], 'ok');
       final data = resp['data'] as Map<String, dynamic>;
       expect(data['url'], 'u1/file_1_a/x.png');
       expect(data['size'], 2048);
-      expect(data['md5'], 'abc123');
+      expect(data['file_hash256'], 'abc123');
     });
   });
 }
