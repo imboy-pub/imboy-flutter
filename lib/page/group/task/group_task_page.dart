@@ -33,6 +33,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   }
 
   Future<void> _loadTasks() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     int? status;
@@ -261,7 +262,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                         groupId: widget.groupId,
                         taskId: submitTaskId,
                       );
-                      _loadTasks();
+                      if (mounted) _loadTasks();
                     },
               child: Icon(
                 isDone

@@ -197,10 +197,15 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       }
     } catch (e) {
       AppLoading.showError(t.common.loadError);
+      // 分页失败回滚页码，否则被跳过的那一页成员永久丢失（下次 _loadMore
+      // 直接跳到再下一页），直到手动下拉刷新才自愈。
+      if (_currentPage > 1) _currentPage--;
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

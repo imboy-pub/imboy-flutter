@@ -135,7 +135,9 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () async {
-            notifier.setLoading(true);
+            // 不在外层手动 setLoading(true)：initData 内部已用 try/finally
+            // 统一管理 loading，外层再置一次且无 finally 兜底，一旦 selfHeal
+            // 抛出非 Exception 错误就永久卡在加载态。交给 initData 管理。
             await AppInitializer.triggerGroupMembershipSelfHeal(
               force: true,
               source: 'group_list_refresh',

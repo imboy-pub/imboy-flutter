@@ -534,6 +534,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 AppLoading.showSuccess(t.common.tipSuccess);
                 nav.pop();
                 nav.pop();
+              } else {
+                // 失败必须给反馈+关弹窗，否则用户点确认后界面像卡死
+                AppLoading.showError(t.common.tipFailed);
+                nav.pop();
               }
             },
           ),

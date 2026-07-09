@@ -209,7 +209,15 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.date,
                 initialDateTime: initial,
-                minimumDate: DateTime.now(),
+                // minimumDate 必须 <= initialDateTime，否则 CupertinoDatePicker
+                // 断言崩溃。initial 是弹窗前捕获的时间戳，这里若用 DateTime.now()
+                // 会取到"更晚的现在">initial → 点开选日期必现断言失败。改用今日
+                // 零点（恒 <= initial，同时仍限制不能选过去）。
+                minimumDate: DateTime(
+                  DateTime.now().year,
+                  DateTime.now().month,
+                  DateTime.now().day,
+                ),
                 maximumDate: DateTime.now().add(const Duration(days: 365)),
                 onDateTimeChanged: (d) => temp = d,
               ),
