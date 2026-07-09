@@ -7,13 +7,16 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:wechat_camera_picker/wechat_camera_picker.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart'
+    show AssetEntity, AssetType;
 import 'package:file_picker/file_picker.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:image/image.dart' as img;
 import 'package:xid/xid.dart';
 import 'package:mime/mime.dart';
 
+import 'package:imboy/capabilities/capability_locator.dart';
+import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
@@ -236,14 +239,13 @@ class ChatAttachmentHandler {
       bool hasPermission = await requestCameraPermission();
       if (!hasPermission || !context.mounted) return;
 
-      // 之前这里其实是 AssetPicker.pickAssets（相册选择器），从未真正唤起
-      // 相机——「相机」按钮点开的是相册。改用 wechat_camera_picker 的原生
-      // 取景界面，支持点按拍照/长按录像，返回的 AssetEntity 与下面
+      // 相机拍摄统一走全局 MediaPickerCapability.pickCameraDual（双模：
+      // 点按拍照 / 长按录像），不再在此直调 CameraPicker——全局唯一相机入口，
+      // 与 moment/channel/profile 等复用同一实现。返回 AssetEntity 与下面
       // uploadCameraAsset 的图片/视频双分支上传逻辑无缝对接，无需改动。
-      final AssetEntity? entity = await CameraPicker.pickFromCamera(
-        context,
-        pickerConfig: const CameraPickerConfig(enableRecording: true),
-      );
+      final AssetEntity? entity = await CapabilityLocator.I
+          .get<MediaPickerCapability>()
+          .pickCameraDual(context);
 
       if (!context.mounted || entity == null) return;
       await uploadCameraAsset(context, entity);

@@ -112,6 +112,27 @@ final class WechatAssetsPickerAdapter implements MediaPickerCapability {
     );
   }
 
+  @override
+  Future<AssetEntity?> pickCameraDual(BuildContext context) async {
+    // 桌面平台(macOS/Windows/Linux)无相机捕获委托：兜底走相册单选，
+    // 与 pickCamera 桌面分支保持一致（原有行为不变）。
+    if (!kIsWeb &&
+        (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
+      final assets = await AssetPicker.pickAssets(
+        context,
+        pickerConfig: const AssetPickerConfig(maxAssets: 1),
+      );
+      return (assets == null || assets.isEmpty) ? null : assets.first;
+    }
+
+    // 移动端：原生取景界面，点按拍照 / 长按录像（双模——不设
+    // onlyEnableRecording，故拍照与录像共存于同一界面）。
+    return CameraPicker.pickFromCamera(
+      context,
+      pickerConfig: const CameraPickerConfig(enableRecording: true),
+    );
+  }
+
   Future<PickedMedia?> _toPickedMedia(AssetEntity asset, MediaType type) async {
     final file = await asset.originFile;
     if (file == null) return null;
