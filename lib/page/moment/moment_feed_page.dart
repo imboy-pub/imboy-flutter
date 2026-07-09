@@ -500,16 +500,23 @@ class _MomentCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Flexible(
-                        child: Text(
-                          displayName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textStyle(
-                            FontSizeType.medium,
-                            fontWeight: FontWeight.w600,
-                            color: isDark
-                                ? AppColors.darkTextPrimary
-                                : AppColors.wechatBlue,
+                        // 点作者名跳资料页（对齐微信，与头像一致）
+                        child: GestureDetector(
+                          onTap: () => context.push(
+                            '/contact/people/${parseModelString(item['author_uid'])}'
+                            '?scene=contact_page',
+                          ),
+                          child: Text(
+                            displayName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textStyle(
+                              FontSizeType.medium,
+                              fontWeight: FontWeight.w600,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.wechatBlue,
+                            ),
                           ),
                         ),
                       ),
@@ -597,14 +604,23 @@ class _MomentContentState extends State<_MomentContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.content,
-          maxLines: _expanded ? null : 6,
-          overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
-          style: context
-              .textStyle(FontSizeType.subheadline)
-              .copyWith(height: 1.45),
-        ),
+        // 展开后用 SelectableText（可复制），折叠态用 Text（避免手势冲突）
+        if (_expanded)
+          SelectableText(
+            widget.content,
+            style: context
+                .textStyle(FontSizeType.subheadline)
+                .copyWith(height: 1.45),
+          )
+        else
+          Text(
+            widget.content,
+            maxLines: 6,
+            overflow: TextOverflow.ellipsis,
+            style: context
+                .textStyle(FontSizeType.subheadline)
+                .copyWith(height: 1.45),
+          ),
         if (_isLong)
           Padding(
             padding: const EdgeInsets.only(top: 4),

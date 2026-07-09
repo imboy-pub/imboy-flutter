@@ -560,12 +560,19 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      displayName,
-                      style: context.textStyle(
-                        FontSizeType.body,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.wechatBlue,
+                    // 点作者名跳资料页（与头像一致）
+                    GestureDetector(
+                      onTap: () => context.push(
+                        '/contact/people/${parseModelString(post['author_uid'])}'
+                        '?scene=contact_page',
+                      ),
+                      child: Text(
+                        displayName,
+                        style: context.textStyle(
+                          FontSizeType.body,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.wechatBlue,
+                        ),
                       ),
                     ),
                     Text(
@@ -764,12 +771,18 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    displayName,
-                    style: context.textStyle(
-                      FontSizeType.footnote,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.wechatBlue,
+                  // 点评论人名跳资料页
+                  GestureDetector(
+                    onTap: () => context.push(
+                      '/contact/people/$userId?scene=contact_page',
+                    ),
+                    child: Text(
+                      displayName,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.wechatBlue,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 2),
