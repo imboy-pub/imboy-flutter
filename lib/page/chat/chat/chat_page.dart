@@ -1069,12 +1069,11 @@ class ChatPageState extends ConsumerState<ChatPage>
       'sign': widget.peerSign,
     };
 
-    // 打开收藏页面（选择模式）
-    final result = await Navigator.push<UserCollectModel>(
-      context,
-      CupertinoPageRoute<UserCollectModel>(
-        builder: (context) => UserCollectPage(isSelect: true, peer: peer),
-      ),
+    // 打开收藏页面（选择模式）——统一走 go_router，勿用裸 Navigator.push
+    // （裸 push 在被污染的 Navigator 上会触发 !_debugLocked 断言）
+    final result = await context.push<UserCollectModel>(
+      '/favorites',
+      extra: {'isSelect': true, 'peer': peer},
     );
 
     // 如果用户选择了收藏消息，发送它
@@ -2006,7 +2005,9 @@ class ChatPageState extends ConsumerState<ChatPage>
       // 群组聊天 - 跳转到群组详情页
       // 注意：注册路由是 `/group/detail/:groupId`（顺序不能颠倒为 /group/{id}/detail）
       context
-          .push<GroupDetailPage>(
+          // pop 结果是 bool/Map，泛型不能写成页面类，否则 go_router completer
+          // 用 bool 完成时抛 'bool is not a subtype of GroupDetailPage?'
+          .push<Object?>(
             '/group/detail/${widget.peerId}',
             extra: {
               'groupId': widget.peerId,
@@ -2019,7 +2020,9 @@ class ChatPageState extends ConsumerState<ChatPage>
     } else {
       // 单人聊天 - 跳转到聊天设置页
       context
-          .push<ChatSettingPage>(
+          // pop 结果是 bool/Map，泛型不能写成页面类，否则 go_router completer
+          // 用 bool 完成时抛 'bool is not a subtype of ChatSettingPage?'
+          .push<Object?>(
             '/chat_setting/${widget.peerId}',
             extra: {
               'peerId': widget.peerId,

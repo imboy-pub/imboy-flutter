@@ -49,15 +49,21 @@ class GroupNoticeDisabledTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = onChanged != null;
-    return ListTile(
-      enabled: enabled,
-      title: Text(label),
-      trailing: Switch.adaptive(
-        value: value,
-        onChanged: enabled ? onChanged : null,
+    // 放进 ImBoySettingsSection（带背景色的 DecoratedBox）时，Material 版 ListTile
+    // 会因找不到自身 Material 祖先而触发 _debugCheckBackgroundIsHidden 断言；
+    // 按 Flutter 官方提示，给它套一层透明 Material 即可。
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        enabled: enabled,
+        title: Text(label),
+        trailing: Switch.adaptive(
+          value: value,
+          onChanged: enabled ? onChanged : null,
+        ),
+        // 整行可点：点击非 Switch 区域也能触发切换（满足 44pt 触达）
+        onTap: enabled ? () => onChanged!(!value) : null,
       ),
-      // 整行可点：点击非 Switch 区域也能触发切换（满足 44pt 触达）
-      onTap: enabled ? () => onChanged!(!value) : null,
     );
   }
 }

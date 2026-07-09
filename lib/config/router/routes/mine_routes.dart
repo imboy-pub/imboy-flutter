@@ -75,8 +75,18 @@ List<RouteBase> mineRoutes() => [
   GoRoute(
     path: '/favorites',
     name: 'favorites',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const UserCollectPage()),
+    pageBuilder: (context, state) {
+      // 选择模式（从聊天「收藏」附件项进入）需要 isSelect + peer；
+      // 无 extra 的普通入口回退到默认（isSelect=false, peer={}）
+      final extra = state.extra as Map<String, dynamic>?;
+      return CupertinoPage(
+        key: state.pageKey,
+        child: UserCollectPage(
+          isSelect: extra?['isSelect'] as bool? ?? false,
+          peer: (extra?['peer'] as Map?)?.cast<String, String>() ?? const {},
+        ),
+      );
+    },
   ),
   GoRoute(
     path: '/denylist',

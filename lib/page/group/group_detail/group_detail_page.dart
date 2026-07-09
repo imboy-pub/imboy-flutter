@@ -25,12 +25,12 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:synchronized/synchronized.dart';
 
-import 'package:imboy/config/enum.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_role_rules.dart';
 import 'package:imboy/page/group/group_detail/widgets/group_app_grid.dart';
 import 'package:imboy/page/group/group_detail/widgets/group_info_card.dart';
 import 'package:imboy/page/group/widgets/group_dialogs.dart';
+import 'package:imboy/page/personal_info/update/update_page.dart';
 import 'change_info_page.dart';
 import 'group_detail_provider.dart';
 import 'group_detail_service.dart';
@@ -232,24 +232,30 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     color: AppColors.iosGray,
                   ),
                 ),
+                // 复用通用文本编辑页 UpdatePage（callback 内落库）。
+                // 原先推送的 /group/remark 是未注册路由，点击必抛 no-routes。
                 onTap: () async {
-                  final result = await context.push<String>(
-                    '/group/remark',
-                    extra: {
-                      'groupInfoType': GroupInfoType.cardName,
-                      'text': state.myGroupAlias ?? '',
-                      'groupId': widget.groupId,
-                    },
+                  await Navigator.push(
+                    context,
+                    CupertinoPageRoute<void>(
+                      builder: (_) => UpdatePage(
+                        title: t.group.groupAlias,
+                        value: state.myGroupAlias ?? '',
+                        field: 'input',
+                        maxLength: 56,
+                        callback: (val) async {
+                          final ok = await GroupDetailService()
+                              .updateMyGroupAlias(widget.groupId, val);
+                          if (ok) {
+                            ref
+                                .read(groupDetailProvider.notifier)
+                                .setMyGroupAlias(val);
+                          }
+                          return ok;
+                        },
+                      ),
+                    ),
                   );
-                  if (result != null) {
-                    await GroupDetailService().updateMyGroupAlias(
-                      widget.groupId,
-                      result,
-                    );
-                    ref
-                        .read(groupDetailProvider.notifier)
-                        .setMyGroupAlias(result);
-                  }
                 },
               ),
               ImBoySettingsTile(
@@ -263,24 +269,31 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     color: AppColors.iosGray,
                   ),
                 ),
+                // 同上：/group/remark 未注册，改用 UpdatePage。
                 onTap: () async {
-                  final result = await context.push<String>(
-                    '/group/remark',
-                    extra: {
-                      'groupInfoType': GroupInfoType.remark,
-                      'text': state.groupRemark ?? '',
-                      'groupId': widget.groupId,
-                    },
+                  await Navigator.push(
+                    context,
+                    CupertinoPageRoute<void>(
+                      builder: (_) => UpdatePage(
+                        title: t.contact.remark,
+                        value: state.groupRemark ?? '',
+                        field: 'input',
+                        maxLength: 56,
+                        callback: (val) async {
+                          final ok = await GroupApi().updateRemark(
+                            gid: widget.groupId,
+                            remark: val,
+                          );
+                          if (ok) {
+                            ref
+                                .read(groupDetailProvider.notifier)
+                                .setGroupRemark(val);
+                          }
+                          return ok;
+                        },
+                      ),
+                    ),
                   );
-                  if (result != null &&
-                      await GroupApi().updateRemark(
-                        gid: widget.groupId,
-                        remark: result,
-                      )) {
-                    ref
-                        .read(groupDetailProvider.notifier)
-                        .setGroupRemark(result);
-                  }
                 },
               ),
               GroupNoticeDisabledTile(
