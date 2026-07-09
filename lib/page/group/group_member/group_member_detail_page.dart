@@ -246,12 +246,20 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(t.main.memberDetail),
-          leading: IconButton(
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+        appBar: CupertinoNavigationBar(
+          middle: Text(t.main.memberDetail),
+          border: Border(
+            bottom: BorderSide(
+              color: AppColors.getIosSeparator(
+                Theme.of(context).brightness,
+              ).withValues(alpha: 0.4),
+              width: 0.33,
+            ),
+          ),
+          leading: CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: () => context.pop(_anyChange),
+            child: const Icon(CupertinoIcons.back, size: 22),
           ),
         ),
         body: _isLoading

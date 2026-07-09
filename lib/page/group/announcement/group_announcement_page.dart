@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart'
     show FontSizeType, BuildContextThemeAccess;
 import 'package:imboy/page/group/announcement/group_announcement_provider.dart';
+import 'package:imboy/page/group/widgets/group_dialogs.dart';
 // canManageAnnouncement re-exported from group_announcement_provider.dart
 
 class GroupAnnouncementPage extends ConsumerStatefulWidget {
@@ -262,7 +264,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
     );
   }
 
-  // 显示发布公告对话框
+  // 显示发布公告对话框（Cupertino 风格）
   void _showPublishDialog(
     BuildContext context,
     GroupAnnouncementNotifier notifier,
@@ -270,30 +272,63 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
     final contentController = TextEditingController();
     final expiredDateNotifier = ValueNotifier<DateTime?>(null);
 
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (ctx, setState) => CupertinoAlertDialog(
           title: Text(t.common.groupAnnouncementPublish),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              const SizedBox(height: AppSpacing.small),
+              CupertinoTextField(
                 controller: contentController,
                 maxLines: 5,
-                decoration: InputDecoration(
-                  hintText: t.common.pleaseEnterAnnouncementContent,
-                  border: const OutlineInputBorder(),
+                placeholder: t.common.pleaseEnterAnnouncementContent,
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.iosGray3),
+                  borderRadius: AppRadius.borderRadiusTiny,
                 ),
               ),
               const SizedBox(height: AppSpacing.regular),
-              InkWell(
+              GestureDetector(
                 onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                  // Cupertino 日期选择器
+                  DateTime temp = DateTime.now();
+                  final date = await showCupertinoModalPopup<DateTime>(
+                    context: ctx,
+                    builder: (sheetCtx) => Container(
+                      height: 280,
+                      color: Theme.of(ctx).scaffoldBackgroundColor,
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CupertinoButton(
+                                child: Text(t.common.buttonCancel),
+                                onPressed: () => Navigator.pop(sheetCtx),
+                              ),
+                              CupertinoButton(
+                                child: Text(t.common.buttonConfirm),
+                                onPressed: () => Navigator.pop(sheetCtx, temp),
+                              ),
+                            ],
+                          ),
+                          Expanded(
+                            child: CupertinoDatePicker(
+                              mode: CupertinoDatePickerMode.date,
+                              initialDateTime: DateTime.now(),
+                              minimumDate: DateTime.now(),
+                              maximumDate: DateTime.now().add(
+                                const Duration(days: 365),
+                              ),
+                              onDateTimeChanged: (d) => temp = d,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                   if (date != null) {
                     expiredDateNotifier.value = date;
@@ -301,21 +336,29 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                 },
                 child: ValueListenableBuilder<DateTime?>(
                   valueListenable: expiredDateNotifier,
-                  builder: (context, expiredDate, child) {
+                  builder: (_, expiredDate, _) {
                     return Container(
                       padding: const EdgeInsets.all(AppSpacing.medium),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.iosGray),
+                        border: Border.all(color: AppColors.iosGray3),
                         borderRadius: AppRadius.borderRadiusTiny,
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.event, size: 20),
+                          const Icon(
+                            CupertinoIcons.calendar,
+                            size: 20,
+                            color: AppColors.iosGray,
+                          ),
                           const SizedBox(width: AppSpacing.small),
                           Text(
                             expiredDate != null
                                 ? '${expiredDate.year}-${expiredDate.month.toString().padLeft(2, '0')}-${expiredDate.day.toString().padLeft(2, '0')}'
                                 : t.common.selectExpirationDateOptional,
+                            style: context.textStyle(
+                              FontSizeType.subheadline,
+                              color: AppColors.iosGray,
+                            ),
                           ),
                         ],
                       ),
@@ -326,11 +369,12 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => context.pop(),
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(ctx),
               child: Text(t.common.buttonCancel),
             ),
-            ElevatedButton(
+            CupertinoDialogAction(
+              isDefaultAction: true,
               onPressed: () async {
                 if (contentController.text.trim().isNotEmpty) {
                   final success = await notifier.publishAnnouncement(
@@ -342,7 +386,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     AppLoading.showToast(
                       t.common.groupAnnouncementPublishSuccess,
                     );
-                    if (context.mounted) context.pop();
+                    if (ctx.mounted) Navigator.pop(ctx);
                   } else {
                     AppLoading.showToast(
                       t.common.groupAnnouncementPublishFailed,
@@ -358,44 +402,25 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
     );
   }
 
-  // 显示删除确认对话框
+  // 显示删除确认对话框（Cupertino 风格）
   void _showDeleteDialog(
     BuildContext context,
     AnnouncementModel announcement,
     GroupAnnouncementNotifier notifier,
-  ) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.common.confirmDelete),
-        content: Text(t.common.groupAnnouncementDeleteConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => context.pop(),
-            child: Text(t.common.buttonCancel),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final success = await notifier.deleteAnnouncement(
-                announcement.id,
-              );
-              if (success) {
-                AppLoading.showToast(t.common.groupAnnouncementDeleteSuccess);
-                if (context.mounted) context.pop();
-              } else {
-                AppLoading.showToast(t.common.groupAnnouncementDeleteFailed);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.getIosRed(
-                Theme.of(context).brightness,
-              ),
-              foregroundColor: AppColors.onPrimary,
-            ),
-            child: Text(t.common.groupAnnouncementDelete),
-          ),
-        ],
-      ),
+  ) async {
+    final confirmed = await GroupDialogs.confirm(
+      context,
+      title: t.common.confirmDelete,
+      content: t.common.groupAnnouncementDeleteConfirm,
+      confirmText: t.common.groupAnnouncementDelete,
+      destructive: true,
     );
+    if (!confirmed || !context.mounted) return;
+    final success = await notifier.deleteAnnouncement(announcement.id);
+    if (success) {
+      AppLoading.showToast(t.common.groupAnnouncementDeleteSuccess);
+    } else {
+      AppLoading.showToast(t.common.groupAnnouncementDeleteFailed);
+    }
   }
 }

@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_task_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -208,105 +209,136 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   }
 
   Widget _buildTaskItem(Map<String, dynamic> task) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final status = task['status'] ?? 0;
-    // deadline 可能来自 API（int 时间戳秒）或本地测试数据（String / null），统一安全转换
-    // deadline may be int (unix seconds from API) or String/null in local data — cast safely
+    final isDone = status == 1;
     final deadline = task['deadline'] is int ? task['deadline'] as int : null;
     final taskId = _resolveTaskRouteId(task);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-        vertical: AppSpacing.small,
-      ),
-      child: InkWell(
-        onTap: () async {
-          if (taskId.isEmpty) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(t.groupTask.taskIdMissing)));
-            return;
-          }
-          final encodedId = Uri.encodeComponent(taskId);
-          await context.push('/group/${widget.groupId}/task/$encodedId');
-          if (mounted) {
-            _loadTasks();
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.regular),
-          child: Row(
-            children: [
-              Checkbox(
-                value: status == 1,
-                onChanged: (value) async {
-                  if (value == true) {
-                    final submitTaskId = _resolveTaskSubmitId(task);
-                    if (submitTaskId.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(t.groupTask.taskIdMissingSubmit),
-                        ),
-                      );
-                      return;
-                    }
-                    await GroupTaskService.to.submitTask(
-                      groupId: widget.groupId,
-                      taskId: submitTaskId,
-                    );
-                    _loadTasks();
-                  }
-                },
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      task['title'] as String? ?? '',
-                      style: context
-                          .textStyle(FontSizeType.medium)
-                          .copyWith(
-                            decoration: status == 1
-                                ? TextDecoration.lineThrough
-                                : null,
+    return GestureDetector(
+      onTap: () async {
+        if (taskId.isEmpty) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(t.groupTask.taskIdMissing)));
+          return;
+        }
+        final encodedId = Uri.encodeComponent(taskId);
+        await context.push('/group/${widget.groupId}/task/$encodedId');
+        if (mounted) {
+          _loadTasks();
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.small,
+        ),
+        padding: const EdgeInsets.all(AppSpacing.regular),
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurface,
+          borderRadius: AppRadius.borderRadiusRegular,
+        ),
+        child: Row(
+          children: [
+            // 完成状态勾选（iOS 风格）
+            GestureDetector(
+              onTap: isDone
+                  ? null
+                  : () async {
+                      final submitTaskId = _resolveTaskSubmitId(task);
+                      if (submitTaskId.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(t.groupTask.taskIdMissingSubmit),
                           ),
-                    ),
-                    if (task['description'] != null) ...[
-                      AppSpacing.verticalTiny,
-                      Text(
-                        task['description'] as String,
-                        style: Theme.of(context).textTheme.bodySmall,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                        );
+                        return;
+                      }
+                      await GroupTaskService.to.submitTask(
+                        groupId: widget.groupId,
+                        taskId: submitTaskId,
+                      );
+                      _loadTasks();
+                    },
+              child: Icon(
+                isDone
+                    ? CupertinoIcons.checkmark_seal_fill
+                    : CupertinoIcons.checkmark_seal,
+                size: 26,
+                color: isDone
+                    ? AppColors.getIosGreen(Theme.of(context).brightness)
+                    : AppColors.iosGray3,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.medium),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    task['title'] as String? ?? '',
+                    style: context
+                        .textStyle(
+                          FontSizeType.body,
+                          fontWeight: FontWeight.w600,
+                          color: isDone
+                              ? AppColors.iosGray
+                              : (isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary),
+                        )
+                        .copyWith(
+                          decoration: isDone
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (task['description'] != null) ...[
+                    const SizedBox(height: AppSpacing.tiny),
+                    Text(
+                      task['description'] as String,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
+                        color: AppColors.iosGray,
                       ),
-                    ],
-                    if (deadline != null) ...[
-                      AppSpacing.verticalTiny,
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.schedule,
-                            size: 14,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  if (deadline != null) ...[
+                    const SizedBox(height: AppSpacing.tiny),
+                    Row(
+                      children: [
+                        Icon(
+                          CupertinoIcons.clock,
+                          size: 14,
+                          color: _getDeadlineColor(context, deadline),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _formatDeadline(deadline),
+                          style: context.textStyle(
+                            FontSizeType.caption2,
                             color: _getDeadlineColor(context, deadline),
                           ),
-                          AppSpacing.horizontalTiny,
-                          Text(
-                            _formatDeadline(deadline),
-                            style: context.textStyle(
-                              FontSizeType.small,
-                              color: _getDeadlineColor(context, deadline),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ],
-                ),
+                ],
               ),
-              const Icon(Icons.chevron_right),
-            ],
-          ),
+            ),
+            const Icon(
+              CupertinoIcons.chevron_right,
+              size: 14,
+              color: AppColors.iosGray3,
+            ),
+          ],
         ),
       ),
     );

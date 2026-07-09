@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -51,35 +53,34 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
     final titleController = TextEditingController();
     final optionsController = TextEditingController();
 
-    final result = await showDialog<bool>(
+    final result = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.groupVote.createVote),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            const SizedBox(height: AppSpacing.small),
+            CupertinoTextField(
               controller: titleController,
-              decoration: InputDecoration(labelText: t.groupVote.voteTitle),
+              placeholder: t.groupVote.voteTitle,
             ),
             const SizedBox(height: AppSpacing.regular),
-            TextField(
+            CupertinoTextField(
               controller: optionsController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: t.groupVote.voteOptions,
-                hintText: t.groupVote.eachOptionPerLine,
-              ),
+              maxLines: 4,
+              placeholder: t.groupVote.eachOptionPerLine,
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.common.confirm),
           ),
         ],
@@ -114,10 +115,10 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
         title: t.groupVote.title,
         automaticallyImplyLeading: true,
         rightDMActions: [
-          IconButton(
-            icon: const Icon(Icons.add),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: _createVote,
-            tooltip: t.groupVote.createVote,
+            child: const Icon(CupertinoIcons.add, size: 22),
           ),
         ],
       ),
@@ -140,6 +141,7 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
     return RefreshIndicator(
       onRefresh: () => _loadVotes(refresh: true),
       child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
         itemCount: _votes.length,
         itemBuilder: (context, index) {
           final vote = _votes[index];
@@ -150,79 +152,118 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
   }
 
   Widget _buildVoteItem(Map<String, dynamic> vote) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final status = vote['status'] ?? 0;
-    final statusText = status == 1
+    final isActive = status == 1;
+    final statusText = isActive
         ? t.groupVote.statusInProgress
         : t.groupVote.voteEnded;
-    final statusColor = status == 1
+    final statusColor = isActive
         ? AppColors.getIosGreen(Theme.of(context).brightness)
-        : Theme.of(context).colorScheme.onSurfaceVariant;
+        : AppColors.iosGray;
     final voteId = _resolveVoteId(vote);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-        vertical: AppSpacing.small,
-      ),
-      child: InkWell(
-        onTap: () async {
-          if (voteId.isEmpty) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(t.groupVote.voteIdMissing)));
-            return;
-          }
-          await context.push(
-            '/group/${widget.groupId}/vote/${Uri.encodeComponent(voteId)}',
-          );
-          if (mounted) {
-            _loadVotes(refresh: true);
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.regular),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      vote['title'] as String? ?? '',
-                      style: context.textStyle(
-                        FontSizeType.medium,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+    return GestureDetector(
+      onTap: () async {
+        if (voteId.isEmpty) {
+          AppLoading.showToast(t.groupVote.voteIdMissing);
+          return;
+        }
+        await context.push(
+          '/group/${widget.groupId}/vote/${Uri.encodeComponent(voteId)}',
+        );
+        if (mounted) {
+          _loadVotes(refresh: true);
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.small,
+        ),
+        padding: const EdgeInsets.all(AppSpacing.regular),
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurface,
+          borderRadius: AppRadius.borderRadiusRegular,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // 投票图标
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.iosPurple.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.small,
-                      vertical: AppSpacing.tiny,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.1),
-                      borderRadius: AppRadius.borderRadiusMedium,
-                    ),
-                    child: Text(
-                      statusText,
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: statusColor,
-                      ),
-                    ),
+                  child: const Icon(
+                    CupertinoIcons.chart_bar_square_fill,
+                    size: 20,
+                    color: AppColors.iosPurple,
                   ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.small),
-              Text(
-                t.groupVote.participantCount(
-                  count: vote['participant_count'] as Object? ?? 0,
                 ),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
+                const SizedBox(width: AppSpacing.medium),
+                Expanded(
+                  child: Text(
+                    vote['title'] as String? ?? '',
+                    style: context.textStyle(
+                      FontSizeType.body,
+                      fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.medium),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.small,
+                    vertical: AppSpacing.tiny,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.1),
+                    borderRadius: AppRadius.borderRadiusTiny,
+                  ),
+                  child: Text(
+                    statusText,
+                    style: context.textStyle(
+                      FontSizeType.caption2,
+                      color: statusColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  t.groupVote.participantCount(
+                    count: vote['participant_count'] as Object? ?? 0,
+                  ),
+                  style: context.textStyle(
+                    FontSizeType.caption2,
+                    color: AppColors.iosGray,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.tiny),
+                const Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 14,
+                  color: AppColors.iosGray3,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -1,13 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/page/group/widgets/group_dialogs.dart';
 
 /// 群相册页面
 class GroupAlbumPage extends ConsumerStatefulWidget {
@@ -51,26 +53,29 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
 
   Future<void> _createAlbum() async {
     final controller = TextEditingController();
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.chat.groupAlbumCreateTitle),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: t.group.groupAlbumNameHint,
-            border: OutlineInputBorder(),
-            isDense: true,
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AppSpacing.small),
+            CupertinoTextField(
+              controller: controller,
+              autofocus: true,
+              placeholder: t.group.groupAlbumNameHint,
+            ),
+          ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.common.confirm),
           ),
         ],
@@ -89,12 +94,8 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     if (!mounted) return;
 
     final success = created != null;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success ? t.chat.groupAlbumCreated : t.common.groupAlbumCreateFailed,
-        ),
-      ),
+    AppLoading.showToast(
+      success ? t.chat.groupAlbumCreated : t.common.groupAlbumCreateFailed,
     );
     if (success) {
       await _loadAlbums();
@@ -107,40 +108,18 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final albumName =
         (album['album_name'] ?? album['name'])?.toString() ?? albumId;
 
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.common.groupAlbumDeleteTitle),
-        content: Text(t.common.groupAlbumDeleteConfirm(name: albumName)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(t.common.cancel),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.getIosRed(
-                Theme.of(context).brightness,
-              ),
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(t.common.confirm),
-          ),
-        ],
-      ),
+    final confirm = await GroupDialogs.confirm(
+      context,
+      title: t.common.groupAlbumDeleteTitle,
+      content: t.common.groupAlbumDeleteConfirm(name: albumName),
+      destructive: true,
     );
 
-    if (confirm != true) return;
+    if (!confirm) return;
     final success = await GroupAlbumService.to.deleteAlbum(albumId);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? t.common.groupAlbumDeleted
-              : t.common.groupAlbumDeleteFailed,
-        ),
-      ),
+    AppLoading.showToast(
+      success ? t.common.groupAlbumDeleted : t.common.groupAlbumDeleteFailed,
     );
     if (success) {
       await _loadAlbums();
@@ -153,26 +132,29 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final currentName =
         (album['album_name'] ?? album['name'])?.toString().trim() ?? '';
     final controller = TextEditingController(text: currentName);
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.group.groupAlbumRenameTitle),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: t.group.groupAlbumNameHint,
-            border: OutlineInputBorder(),
-            isDense: true,
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AppSpacing.small),
+            CupertinoTextField(
+              controller: controller,
+              autofocus: true,
+              placeholder: t.group.groupAlbumNameHint,
+            ),
+          ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.common.confirm),
           ),
         ],
@@ -188,12 +170,8 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
       albumName: nextName,
     );
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success ? t.group.groupAlbumRenamed : t.common.groupAlbumRenameFailed,
-        ),
-      ),
+    AppLoading.showToast(
+      success ? t.group.groupAlbumRenamed : t.common.groupAlbumRenameFailed,
     );
     if (success) {
       await _loadAlbums();

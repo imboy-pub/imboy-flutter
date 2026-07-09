@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -6,6 +7,7 @@ import 'package:imboy/service/group_category_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/page/group/widgets/group_dialogs.dart';
 
 /// 群分组详情页面
 class GroupCategoryDetailPage extends StatefulWidget {
@@ -32,26 +34,33 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
     _categoryName = widget.categoryName;
   }
 
-  /// 弹出重命名 Dialog
+  /// 弹出重命名 Dialog（Cupertino 风格）
   Future<void> _renameCategory() async {
     final controller = TextEditingController(text: _categoryName);
     final t = context.t;
-    final result = await showDialog<bool>(
+    final result = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.groupCategory.renameCategory),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(hintText: t.groupCategory.categoryName),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AppSpacing.small),
+            CupertinoTextField(
+              controller: controller,
+              autofocus: true,
+              placeholder: t.groupCategory.categoryName,
+            ),
+          ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.common.confirm),
           ),
         ],
@@ -78,33 +87,17 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
     }
   }
 
-  /// 弹出删除确认 Dialog
+  /// 弹出删除确认 Dialog（Cupertino 风格）
   Future<void> _deleteCategory() async {
     final t = context.t;
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.groupCategory.deleteCategory),
-        content: Text(t.groupCategory.deleteCategoryConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(t.common.cancel),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.getIosRed(
-                Theme.of(context).brightness,
-              ),
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(t.common.confirm),
-          ),
-        ],
-      ),
+    final confirmed = await GroupDialogs.confirm(
+      context,
+      title: t.groupCategory.deleteCategory,
+      content: t.groupCategory.deleteCategoryConfirm,
+      destructive: true,
     );
 
-    if (result == true) {
+    if (confirmed) {
       final success = await GroupCategoryService.to.deleteCategory(
         widget.categoryId,
       );
@@ -120,44 +113,32 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
     }
   }
 
-  /// 显示更多操作菜单
+  /// 显示更多操作菜单（Cupertino ActionSheet）
   void _showMoreMenu() {
     final t = context.t;
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.edit_outlined),
-              title: Text(t.groupCategory.renameCategory),
-              onTap: () {
-                Navigator.pop(context);
-                _renameCategory();
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.delete_outline,
-                color: AppColors.getIosRed(Theme.of(context).brightness),
-              ),
-              title: Text(
-                t.groupCategory.deleteCategory,
-                style: TextStyle(
-                  color: AppColors.getIosRed(Theme.of(context).brightness),
-                ),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                _deleteCategory();
-              },
-            ),
-            AppSpacing.verticalSmall,
-          ],
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _renameCategory();
+            },
+            child: Text(t.groupCategory.renameCategory),
+          ),
+          CupertinoActionSheetAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(ctx);
+              _deleteCategory();
+            },
+            child: Text(t.groupCategory.deleteCategory),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(t.common.buttonCancel),
         ),
       ),
     );
@@ -172,10 +153,10 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
         title: _categoryName,
         automaticallyImplyLeading: true,
         rightDMActions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: _showMoreMenu,
-            tooltip: t.common.moreInfo,
+            child: const Icon(CupertinoIcons.ellipsis, size: 22),
           ),
         ],
       ),

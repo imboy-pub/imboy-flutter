@@ -1,9 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/service/group_tag_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/widgets/group_dialogs.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 群标签页面
 class GroupTagPage extends ConsumerStatefulWidget {
@@ -41,22 +46,29 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
 
   Future<void> _addTag() async {
     final controller = TextEditingController();
-    final result = await showDialog<bool>(
+    final result = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.groupTag.addTag),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(hintText: t.groupTag.tagName),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AppSpacing.small),
+            CupertinoTextField(
+              controller: controller,
+              autofocus: true,
+              placeholder: t.groupTag.tagName,
+            ),
+          ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.common.confirm),
           ),
         ],
@@ -83,10 +95,10 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
         title: t.groupTag.title,
         automaticallyImplyLeading: true,
         rightDMActions: [
-          IconButton(
-            icon: const Icon(Icons.add),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: _addTag,
-            tooltip: t.groupTag.addTag,
+            child: const Icon(CupertinoIcons.add, size: 22),
           ),
         ],
       ),
@@ -116,56 +128,70 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
   }
 
   Widget _buildTagItem(Map<String, dynamic> tag) {
-    return ListTile(
-      leading: Container(
-        width: 24,
-        height: 24,
-        decoration: BoxDecoration(
-          color: Color(
-            int.tryParse(tag['color'] as String? ?? '0xFF2196F3') ?? 0xFF2196F3,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.getIosSeparator(
+              Theme.of(context).brightness,
+            ).withValues(alpha: 0.3),
+            width: 0.33,
           ),
-          shape: BoxShape.circle,
         ),
       ),
-      title: Text(tag['name'] as String? ?? ''),
-      trailing: IconButton(
-        tooltip: t.groupTag.removeTitle,
-        icon: const Icon(Icons.delete_outline),
-        onPressed: () async {
-          final confirm = await showDialog<bool>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text(t.groupTag.removeTitle),
-              content: Text(t.groupTag.removeConfirm),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: Text(t.common.cancel),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: Text(t.common.confirm),
-                ),
-              ],
-            ),
-          );
-
-          if (confirm == true) {
-            final tagName =
-                tag['name']?.toString() ?? tag['tag_name']?.toString() ?? '';
-            if (tagName.isEmpty) {
-              return;
-            }
-            final success = await _service.removeTag(
-              groupId: widget.groupId,
-              tagName: tagName,
+      child: CupertinoListTile(
+        leading: Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            // 标签颜色来自服务端数据，动态解析
+            color: _parseTagColor(tag['color'] as String?),
+            shape: BoxShape.circle,
+          ),
+        ),
+        title: Text(
+          tag['name'] as String? ?? '',
+          style: context.textStyle(FontSizeType.body),
+        ),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () async {
+            final confirm = await GroupDialogs.confirm(
+              context,
+              title: t.groupTag.removeTitle,
+              content: t.groupTag.removeConfirm,
+              confirmText: t.common.confirm,
+              destructive: true,
             );
-            if (success && mounted) {
-              _loadTags();
+            if (confirm) {
+              final tagName =
+                  tag['name']?.toString() ?? tag['tag_name']?.toString() ?? '';
+              if (tagName.isEmpty) return;
+              final success = await _service.removeTag(
+                groupId: widget.groupId,
+                tagName: tagName,
+              );
+              if (success && mounted) {
+                _loadTags();
+              }
             }
-          }
-        },
+          },
+          child: Icon(
+            CupertinoIcons.delete,
+            size: 20,
+            color: AppColors.getIosRed(Theme.of(context).brightness),
+          ),
+        ),
       ),
     );
+  }
+
+  /// 解析标签颜色（服务端返回），兜底用 iosBlue。
+  Color _parseTagColor(String? hex) {
+    if (hex == null || hex.isEmpty) return AppColors.iosBlue;
+    final parsed = int.tryParse(hex);
+    return parsed != null ? Color(parsed) : AppColors.iosBlue;
   }
 }

@@ -4,10 +4,12 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/widgets/group_dialogs.dart';
 import 'package:imboy/page/single/video_viewer_page.dart';
 import 'package:imboy/service/group_file_service.dart';
 import 'package:mime/mime.dart';
@@ -204,35 +206,20 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     if (fileId.isEmpty) return;
     final fileName = (file['file_name'] ?? file['name'])?.toString() ?? fileId;
 
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.common.groupFileDeleteTitle),
-        content: Text(t.common.groupFileDeleteConfirm(name: fileName)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(t.common.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(t.common.confirm),
-          ),
-        ],
-      ),
+    final confirm = await GroupDialogs.confirm(
+      context,
+      title: t.common.groupFileDeleteTitle,
+      content: t.common.groupFileDeleteConfirm(name: fileName),
+      destructive: true,
     );
 
-    if (confirm != true) return;
+    if (!confirm) return;
     final success = await GroupFileService.to.deleteFile(fileId);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? t.common.groupFileDeleteSuccess
-              : t.common.groupFileDeleteFailed,
-        ),
-      ),
+    AppLoading.showToast(
+      success
+          ? t.common.groupFileDeleteSuccess
+          : t.common.groupFileDeleteFailed,
     );
     if (success) {
       await _refreshAll();

@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_schedule_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -269,10 +270,10 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
         title: t.groupSchedule.title,
         automaticallyImplyLeading: true,
         rightDMActions: [
-          IconButton(
-            icon: const Icon(Icons.add),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: _createSchedule,
-            tooltip: t.groupSchedule.createSchedule,
+            child: const Icon(CupertinoIcons.add, size: 22),
           ),
         ],
       ),
@@ -295,6 +296,7 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
     return RefreshIndicator(
       onRefresh: _loadSchedules,
       child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
         itemCount: _schedules.length,
         itemBuilder: (context, index) {
           final schedule = _schedules[index];
@@ -305,91 +307,136 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
   }
 
   Widget _buildScheduleItem(Map<String, dynamic> schedule) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final startTime = _toInt(schedule['start_time'] ?? schedule['start_at']);
     final dt = DateTime.fromMillisecondsSinceEpoch(startTime * 1000);
     final scheduleId = _resolveScheduleRouteId(schedule);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-        vertical: AppSpacing.small,
-      ),
-      child: InkWell(
-        onTap: () async {
-          if (scheduleId.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(t.groupSchedule.scheduleIdMissing)),
-            );
-            return;
-          }
-          final encodedId = Uri.encodeComponent(scheduleId);
-          await context.push('/group/${widget.groupId}/schedule/$encodedId');
-          if (mounted) {
-            _loadSchedules();
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.regular),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: AppRadius.borderRadiusSmall,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '${dt.day}',
-                      style: context.textStyle(
-                        FontSizeType.extraLarge,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      _getMonthName(dt.month),
-                      style: context.textStyle(FontSizeType.small),
-                    ),
-                  ],
-                ),
+    return GestureDetector(
+      onTap: () async {
+        if (scheduleId.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(t.groupSchedule.scheduleIdMissing)),
+          );
+          return;
+        }
+        final encodedId = Uri.encodeComponent(scheduleId);
+        await context.push('/group/${widget.groupId}/schedule/$encodedId');
+        if (mounted) {
+          _loadSchedules();
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.small,
+        ),
+        padding: const EdgeInsets.all(AppSpacing.regular),
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurface,
+          borderRadius: AppRadius.borderRadiusRegular,
+        ),
+        child: Row(
+          children: [
+            // 日期块（iOS 风格圆角方块）
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: AppColors.iosRed.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
               ),
-              const SizedBox(width: AppSpacing.regular),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      schedule['title'] as String? ?? '',
-                      style: context.textStyle(
-                        FontSizeType.medium,
-                        fontWeight: FontWeight.bold,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${dt.day}',
+                    style: context.textStyle(
+                      FontSizeType.large,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.iosRed,
+                    ),
+                  ),
+                  Text(
+                    _getMonthName(dt.month),
+                    style: context.textStyle(
+                      FontSizeType.caption2,
+                      color: AppColors.iosRed,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.regular),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    schedule['title'] as String? ?? '',
+                    style: context.textStyle(
+                      FontSizeType.body,
+                      fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: AppSpacing.tiny),
+                  Row(
+                    children: [
+                      const Icon(
+                        CupertinoIcons.clock,
+                        size: 14,
+                        color: AppColors.iosGray,
                       ),
-                    ),
-                    AppSpacing.verticalTiny,
-                    Text(
-                      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    if (schedule['location'] != null) ...[
-                      AppSpacing.verticalTiny,
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on, size: 14),
-                          Text(
-                            schedule['location'] as String,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
+                      const SizedBox(width: 4),
+                      Text(
+                        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
+                        style: context.textStyle(
+                          FontSizeType.footnote,
+                          color: AppColors.iosGray,
+                        ),
                       ),
                     ],
+                  ),
+                  if (schedule['location'] != null) ...[
+                    const SizedBox(height: AppSpacing.tiny),
+                    Row(
+                      children: [
+                        const Icon(
+                          CupertinoIcons.location_solid,
+                          size: 14,
+                          color: AppColors.iosGray,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            schedule['location'] as String,
+                            style: context.textStyle(
+                              FontSizeType.footnote,
+                              color: AppColors.iosGray,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const Icon(
+              CupertinoIcons.chevron_right,
+              size: 14,
+              color: AppColors.iosGray3,
+            ),
+          ],
         ),
       ),
     );
