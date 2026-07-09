@@ -555,13 +555,22 @@ class _MomentCard extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 10),
                       child: _MomentMediaPreview(media: media),
                     ),
-                  // 点赞人行（微信核心社交反馈）
-                  if (likeCount > 0 || likers.isNotEmpty)
-                    _MomentLikersRow(
-                      likers: likers,
-                      totalCount: likeCount,
-                      onTap: onTap,
-                    ),
+                  // 点赞人行（微信核心社交反馈）— AnimatedSize 让出现/消失高度平滑过渡
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOut,
+                    alignment: Alignment.topCenter,
+                    child: (likeCount > 0 || likers.isNotEmpty)
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: _MomentLikersRow(
+                              likers: likers,
+                              totalCount: likeCount,
+                              onTap: onTap,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
                   // 底部时间行（相对时间，定时刷新避免"刚刚"假死）
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
@@ -781,35 +790,32 @@ class _MomentLikersRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = buildLikersLabel(likers, totalCount, translations: context.t);
     if (label.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? AppColors.darkSurfaceGroupedTertiary
-                : AppColors.lightSurfaceGrouped,
-            borderRadius: AppRadius.borderRadiusSmall,
-          ),
-          child: Row(
-            children: [
-              _AnimatedHeart(count: totalCount),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    color: AppColors.wechatBlue,
-                  ),
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurfaceGrouped,
+          borderRadius: AppRadius.borderRadiusMedium,
+        ),
+        child: Row(
+          children: [
+            _AnimatedHeart(count: totalCount),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  color: AppColors.wechatBlue,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -960,7 +966,7 @@ class _VideoBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
         color: AppColors.darkBackground.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: AppRadius.borderRadiusTiny,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

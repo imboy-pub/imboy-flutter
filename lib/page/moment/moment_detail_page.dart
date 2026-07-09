@@ -1091,7 +1091,7 @@ class _DetailVideoBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
         color: AppColors.darkBackground.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: AppRadius.borderRadiusTiny,
       ),
       child: Text(
         text,
