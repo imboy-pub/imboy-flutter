@@ -169,6 +169,10 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
         }
       },
       process: true,
+      // scope='moment'：发帖前上传时 momentId 未生成，scope_ref 留空，
+      // 后端 create_post 成功后按 object_key 回填 scope_ref=momentId。
+      // 此前默认 private 导致除作者外查看动态图片/视频全 403 碎图。
+      scope: 'moment',
     );
     return completer.future;
   }
