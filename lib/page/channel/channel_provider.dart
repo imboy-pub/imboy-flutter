@@ -334,6 +334,10 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   StreamSubscription<ChannelNewMessageEvent>? _channelNewMessageSub;
   StreamSubscription<ChannelMessageDeletedEvent>? _channelMessageDeletedSub;
   StreamSubscription<ChannelStateChangedEvent>? _channelStateChangedSub;
+  // 消息分页 in-flight 互斥：state.isLoading 只在 loadChannel 置位，
+  // loadMessages/loadMoreMessages 从不置位，故不能用它做并发守卫（会形同
+  // 虚设导致快速滚动重复拉取/重复插入）。用独立私有标志。
+  bool _isLoadingMore = false;
 
   @override
   ChannelDetailState build() {
@@ -427,12 +431,17 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
 
   /// 加载更多消息
   Future<void> loadMoreMessages() async {
-    if (_channelId == null || state.isLoading || !state.hasMore) return;
+    if (_channelId == null || _isLoadingMore || !state.hasMore) return;
 
     final lastMessage = state.messages.isNotEmpty ? state.messages.last : null;
     final cursor = lastMessage?.createdAt.millisecondsSinceEpoch;
 
-    await loadMessages(_channelId!, cursor: cursor);
+    _isLoadingMore = true;
+    try {
+      await loadMessages(_channelId!, cursor: cursor);
+    } finally {
+      _isLoadingMore = false;
+    }
   }
 
   /// 发布消息

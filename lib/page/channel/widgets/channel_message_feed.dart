@@ -138,6 +138,10 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
               final showDate = _shouldShowDate(state.messages, index);
 
               return Column(
+                // 稳定 Key：发消息头插、置顶/删除会重排列表，缺 Key 时 Flutter
+                // 按位置复用 State，会把 ChannelMessageItem 的 _liked/_expanded
+                // 错配到滑入该位置的另一条消息（状态张冠李戴 + 误发反应 API）。
+                key: ValueKey(message.id),
                 children: [
                   if (showDate) _buildDateDivider(message, t),
                   ChannelMessageItem(

@@ -15,6 +15,10 @@ class ChannelCommentModel {
   final int replyToUid;
   final String replyToName;
   final int likeCount;
+
+  /// 当前用户是否已点赞。后端暂未返回该字段时默认 false（初始一律未赞，
+  /// 首次点击才 like），彻底正确需后端在 getComments 返回 is_liked。
+  final bool isLiked;
   final DateTime createdAt;
 
   ChannelCommentModel({
@@ -29,8 +33,27 @@ class ChannelCommentModel {
     this.replyToUid = 0,
     this.replyToName = '',
     this.likeCount = 0,
+    this.isLiked = false,
     required this.createdAt,
   });
+
+  ChannelCommentModel copyWith({int? likeCount, bool? isLiked}) {
+    return ChannelCommentModel(
+      id: id,
+      channelId: channelId,
+      messageId: messageId,
+      userId: userId,
+      userName: userName,
+      userAvatar: userAvatar,
+      content: content,
+      parentId: parentId,
+      replyToUid: replyToUid,
+      replyToName: replyToName,
+      likeCount: likeCount ?? this.likeCount,
+      isLiked: isLiked ?? this.isLiked,
+      createdAt: createdAt,
+    );
+  }
 
   factory ChannelCommentModel.fromJson(Map<String, dynamic> json) {
     return ChannelCommentModel(
@@ -45,6 +68,7 @@ class ChannelCommentModel {
       replyToUid: parseModelInt(json['reply_to_uid']),
       replyToName: parseModelString(json['reply_to_name']),
       likeCount: parseModelInt(json['like_count']),
+      isLiked: json['is_liked'] == true,
       createdAt: parseModelDateTime(json['created_at']),
     );
   }

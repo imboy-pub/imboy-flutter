@@ -133,27 +133,30 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
 
   Future<void> _toggleLike(ChannelCommentModel comment) async {
     HapticFeedback.lightImpact();
-    final success = await _service.likeComment(
-      channelId: widget.channelId,
-      commentId: comment.id.toString(),
-    );
+    // 真 toggle：按当前 isLiked 分流 like/unlike，计数 ±1。
+    // 此前永远调 likeComment 且 likeCount 只增不减、unlikeComment 从未被
+    // 调用，导致连点计数持续偏离、且用户无法取消自己的赞。
+    final bool willLike = !comment.isLiked;
+    final commentId = comment.id.toString();
+    final success = willLike
+        ? await _service.likeComment(
+            channelId: widget.channelId,
+            commentId: commentId,
+          )
+        : await _service.unlikeComment(
+            channelId: widget.channelId,
+            commentId: commentId,
+          );
     if (success && mounted) {
       setState(() {
         final idx = _comments.indexWhere((c) => c.id == comment.id);
         if (idx >= 0) {
-          _comments[idx] = ChannelCommentModel(
-            id: comment.id,
-            channelId: comment.channelId,
-            messageId: comment.messageId,
-            userId: comment.userId,
-            userName: comment.userName,
-            userAvatar: comment.userAvatar,
-            content: comment.content,
-            parentId: comment.parentId,
-            replyToUid: comment.replyToUid,
-            replyToName: comment.replyToName,
-            likeCount: comment.likeCount + 1,
-            createdAt: comment.createdAt,
+          final int nextCount = willLike
+              ? _comments[idx].likeCount + 1
+              : (_comments[idx].likeCount - 1).clamp(0, 1 << 31);
+          _comments[idx] = _comments[idx].copyWith(
+            isLiked: willLike,
+            likeCount: nextCount,
           );
         }
       });
@@ -342,7 +345,10 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
                     AppSpacing.horizontalSmall,
                     // 点赞
                     _actionChip(
-                      icon: Icons.favorite_border,
+                      // 图标随 isLiked 切换实心/描边，让 toggle 状态可见
+                      icon: comment.isLiked
+                          ? Icons.favorite
+                          : Icons.favorite_border,
                       label: comment.likeCount > 0
                           ? '${comment.likeCount}'
                           : context.t.channel.like,

@@ -60,16 +60,17 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
         .read(channelDetailProvider.notifier)
         .publishMessage(content: content, msgType: ChannelMessageType.text);
 
+    // await 之后必须查 mounted：用户发送后立刻返回上一页(dispose)时，
+    // 成功分支若不检查会 setState after dispose 崩溃（失败分支已有保护）。
+    if (!mounted) return;
     if (success) {
       _messageController.clear();
       setState(() {});
       return;
     }
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.channel.publishFailed)));
-    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.t.channel.publishFailed)));
   }
 
   /// 语音录制完成
@@ -78,6 +79,9 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     final t = context.t;
     final Uint8List bytes = await obj.file.readAsBytes();
     if (bytes.isEmpty) return;
+    // await(readAsBytes) 之后查 mounted，避免录音完立刻返回页面时
+    // setState after dispose（finally 里的 setState 已有 mounted 保护）。
+    if (!mounted) return;
 
     setState(() => _isUploadingMedia = true);
     AppLoading.show(status: t.common.loading);

@@ -74,11 +74,11 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   }
 
   bool _isAlreadyLiked() {
-    final summary = widget.message.reactionSummary;
-    if (summary == null) return false;
-    final count = summary[ChannelReactionType.like] ?? 0;
-    // 无法精确判断当前用户是否点过赞，用乐观计数判断（有 like 反应视为可能已赞）
-    return count > 0;
+    // 后端 reactionSummary 只有「总计数」，没有「当前用户是否已反应」字段，
+    // 故无法在初始化时判定我点没点过。此前用 count>0 猜测是错的：任何被
+    // 别人点过赞的消息都会误显示为「我已赞」，用户点赞反而走 remove → 点不了赞。
+    // 修法：初始一律 false，首次点击才 add；彻底正确需后端补「我的反应」字段。
+    return false;
   }
 
   Future<void> _addReaction(String reactionType) async {
