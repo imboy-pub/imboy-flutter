@@ -491,10 +491,12 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   String _relativeTime(DateTime dt) {
     final diff = DateTime.now().difference(dt);
     if (diff.inMinutes < 1) return context.t.common.justNow;
-    if (diff.inMinutes < 60)
+    if (diff.inMinutes < 60) {
       return '${diff.inMinutes} ${context.t.common.minutesAgo}';
-    if (diff.inHours < 24)
+    }
+    if (diff.inHours < 24) {
       return '${diff.inHours} ${context.t.common.hoursAgo}';
+    }
     if (diff.inDays < 7) return '${diff.inDays} ${context.t.channel.daysAgo}';
     return '${dt.month}-${dt.day.toString().padLeft(2, '0')}';
   }

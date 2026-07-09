@@ -423,6 +423,79 @@ class AttachmentApi {
     return <String, dynamic>{'thumb': thumb, 'video': video};
   }
 
+  /// File 版视频上传（压缩+缩略图+上传三件套），供频道发布等已持有 File
+  /// 与元数据（时长/宽高）、无 AssetEntity 的场景使用。
+  ///
+  /// 与 [uploadVideoViaPresign]（AssetEntity 版）流程一致，差异：
+  ///   - 直接接收 [file]（不经 entity.file 再取一次）；
+  ///   - width/height/durationMs 由调用方传入，不再从 entity 反推；
+  ///   - 返回扁平 `{video_uri, size, thumb_uri}`，失败返回 null（调用方
+  ///     以 `result == null` 判失败，不抛异常）。
+  static Future<Map<String, dynamic>?> uploadVideoFileViaPresign(
+    File file, {
+    required int durationMs,
+    required int width,
+    required int height,
+    String scope = 'private',
+    String? scopeRef,
+  }) async {
+    try {
+      final String path = file.path;
+
+      // 1. 缩略图 → presign
+      final File thumbnailFile = await VideoCompress.getFileThumbnail(
+        path,
+        quality: 68,
+        position: -1,
+      );
+      final Uint8List thumbBytes = await thumbnailFile.readAsBytes();
+      final String thumbName = '${Xid().toString()}.jpg';
+      final thumbMeta = await uploadBytesViaPresignMeta(
+        thumbBytes,
+        thumbName,
+        'image/jpeg',
+        process: false,
+        scope: scope,
+        scopeRef: scopeRef,
+      );
+
+      // 2. 压缩视频 → presign
+      final MediaInfo? info = await VideoCompress.compressVideo(
+        path,
+        quality: VideoQuality.Res640x480Quality,
+        deleteOrigin: false,
+      );
+      if (info?.file == null) {
+        await VideoCompress.deleteAllCache();
+        return null;
+      }
+      final File videoFile = info!.file!;
+      final Uint8List videoBytes = await videoFile.readAsBytes();
+      final String videoName = '${Xid().toString()}.mp4';
+      final String videoObjKey = await uploadViaPresign(
+        videoBytes,
+        videoName,
+        'video/mp4',
+        scope: scope,
+        scopeRef: scopeRef,
+      );
+
+      await VideoCompress.deleteAllCache();
+      return <String, dynamic>{
+        'video_uri': videoObjKey,
+        'thumb_uri': thumbMeta['object_key'] as String,
+        'size': info.filesize ?? videoBytes.length,
+        'duration': durationMs,
+        'width': width,
+        'height': height,
+      };
+    } on Object catch (e) {
+      debugPrint('[attachment_api] uploadVideoFileViaPresign error: $e');
+      await VideoCompress.deleteAllCache();
+      return null;
+    }
+  }
+
   /// 裸 Dio PUT 直传到 Garage presigned URL（不经 HttpClient，不注 JWT；指数退避重试）。
   ///
   /// 签名仅含 host（Content-Type 为查询参数、payload 为 UNSIGNED-PAYLOAD），

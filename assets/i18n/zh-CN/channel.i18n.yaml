@@ -151,3 +151,14 @@ refundApply: 申请退款
 refundConfirmTitle: 确认退款
 refundConfirmMessage: 确定要对该订单申请退款吗？退款后将取消订阅。
 refundSuccess: 退款申请已提交
+# 频道评论功能（a43d242f 合并补全：UI 引用了 key 但源文件此前漏加翻译）
+comment: 评论
+noComments: 暂无评论
+writeComment: 写评论...
+reply: 回复
+replyTo: 回复
+like: 点赞
+commentFailed: 评论失败
+deleteComment: 删除评论
+deleteCommentConfirm: 确定删除这条评论吗？
+commentDeleteNoPermission: 无权删除该评论

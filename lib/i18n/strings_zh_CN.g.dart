@@ -894,6 +894,36 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '退款申请已提交'
 	String get refundSuccess => '退款申请已提交';
+
+	/// zh-CN: '评论'
+	String get comment => '评论';
+
+	/// zh-CN: '暂无评论'
+	String get noComments => '暂无评论';
+
+	/// zh-CN: '写评论...'
+	String get writeComment => '写评论...';
+
+	/// zh-CN: '回复'
+	String get reply => '回复';
+
+	/// zh-CN: '回复'
+	String get replyTo => '回复';
+
+	/// zh-CN: '点赞'
+	String get like => '点赞';
+
+	/// zh-CN: '评论失败'
+	String get commentFailed => '评论失败';
+
+	/// zh-CN: '删除评论'
+	String get deleteComment => '删除评论';
+
+	/// zh-CN: '确定删除这条评论吗？'
+	String get deleteCommentConfirm => '确定删除这条评论吗？';
+
+	/// zh-CN: '无权删除该评论'
+	String get commentDeleteNoPermission => '无权删除该评论';
 }
 
 // Path: chat
@@ -5142,6 +5172,24 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '退出全屏'
 	String get exitFullscreen => '退出全屏';
+
+	/// zh-CN: '我'
+	String get me => '我';
+
+	/// zh-CN: '刚刚'
+	String get justNow => '刚刚';
+
+	/// zh-CN: '分钟前'
+	String get minutesAgo => '分钟前';
+
+	/// zh-CN: '小时前'
+	String get hoursAgo => '小时前';
+
+	/// zh-CN: '收起'
+	String get collapse => '收起';
+
+	/// zh-CN: '展开'
+	String get expandFull => '展开';
 }
 
 // Path: complaint
@@ -7412,6 +7460,16 @@ extension on Translations {
 			'channel.refundConfirmTitle' => '确认退款',
 			'channel.refundConfirmMessage' => '确定要对该订单申请退款吗？退款后将取消订阅。',
 			'channel.refundSuccess' => '退款申请已提交',
+			'channel.comment' => '评论',
+			'channel.noComments' => '暂无评论',
+			'channel.writeComment' => '写评论...',
+			'channel.reply' => '回复',
+			'channel.replyTo' => '回复',
+			'channel.like' => '点赞',
+			'channel.commentFailed' => '评论失败',
+			'channel.deleteComment' => '删除评论',
+			'channel.deleteCommentConfirm' => '确定删除这条评论吗？',
+			'channel.commentDeleteNoPermission' => '无权删除该评论',
 			'chat.bankCard' => '银行卡',
 			'chat.cards' => '张',
 			'chat.jdShopping' => '京东购物',
@@ -7643,6 +7701,8 @@ extension on Translations {
 			'chat.e2eeStatusAvailable' => '可用',
 			'chat.e2eeGenerateNewKey' => '生成新密钥',
 			'chat.e2eeGenerateNewKeyDesc' => '生成新的 E2EE 密钥对（旧消息将无法解密）',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeActivated' => '已激活',
 			'chat.e2eeCreatedAtLabel' => '创建时间',
 			'chat.e2eeGeneratingKey' => '正在生成密钥，请稍候...',
@@ -7653,8 +7713,6 @@ extension on Translations {
 			'chat.webFeatureMultiDeviceDesc' => '在手机和电脑之间无缝切换，消息实时同步',
 			'chat.webFeatureE2EE' => '端到端加密',
 			'chat.webFeatureE2EEDesc' => '所有消息都经过端到端加密，确保隐私安全',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureFileTransfer' => '文件传输',
 			'chat.webFeatureFileTransferDesc' => '拖拽即可发送文件，支持各种格式',
 			'chat.webQRStatusWaiting' => '打开 ImBoy 手机版 > 设置 > 扫一扫',
@@ -8157,6 +8215,8 @@ extension on Translations {
 			'common.verificationCodeSentToMobile' => '验证码将发送至该手机，请在有效期内完成验证',
 			'common.pleaseEnterCorrectEmailAddress' => '请输入正确的邮箱地址',
 			'common.pleaseEnter6DigitVerificationCode' => '请输入 6 位验证码',
+			_ => null,
+		} ?? switch (path) {
 			'common.verificationCodeSent' => '验证码已发送',
 			'common.sendFailed' => '发送失败',
 			'common.noChangeNeeded' => '无需修改',
@@ -8167,8 +8227,6 @@ extension on Translations {
 			'common.forceDeviceOfflineConfirm' => '将向该设备发送下线指令，确认继续？',
 			'common.confirmForceOffline' => '确认下线',
 			'common.forceOfflineCommandSent' => '已发送下线指令',
-			_ => null,
-		} ?? switch (path) {
 			'common.feedbackSlogan' => '您的建议是我们改进的动力',
 			'common.newFeedback' => '新建反馈',
 			'common.feedbackHistory' => '反馈历史',
@@ -8671,6 +8729,8 @@ extension on Translations {
 			'common.e2eeBackupVersionLabel' => '版本号',
 			'common.e2eeBackupAlgorithmLabel' => '算法',
 			'common.e2eeBackupFileSizeLabel' => '文件大小',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ 文件格式有效',
 			'common.e2eeBackupImportPwdHint' => '请输入备份时设置的密码',
 			'common.e2eeBackupImportBtn' => '导入密钥',
@@ -8681,8 +8741,6 @@ extension on Translations {
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 密钥已成功恢复！',
 			'common.e2eeBackupImportSuccessNote' => '注意：旧消息可能无法访问，这是 E2EE 的正常行为',
 			'common.e2eeBackupNoRecords' => '暂无备份记录',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupNoRecordsHint' => '导出备份后将在此显示历史记录',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => '设备 ${id}',
 			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => '创建于 ${time}',
@@ -8828,6 +8886,12 @@ extension on Translations {
 			'common.resumeScan' => '继续扫描',
 			'common.enterFullscreen' => '进入全屏',
 			'common.exitFullscreen' => '退出全屏',
+			'common.me' => '我',
+			'common.justNow' => '刚刚',
+			'common.minutesAgo' => '分钟前',
+			'common.hoursAgo' => '小时前',
+			'common.collapse' => '收起',
+			'common.expandFull' => '展开',
 			'complaint.complaint' => '投诉',
 			'complaintReason.spam' => '垃圾信息',
 			'complaintReason.harassment' => '骚扰',
@@ -9179,6 +9243,8 @@ extension on Translations {
 			'main.pleaseSelect' => '请选择',
 			'main.quickFilters' => '快速筛选',
 			'main.quote' => '引用',
+			_ => null,
+		} ?? switch (path) {
 			'main.recentlyUsed' => '最近使用',
 			'main.releaseEnd' => '松开结束',
 			'main.remainingChars' => ({required Object param}) => '还可输入 ${param} 个字符',
@@ -9195,8 +9261,6 @@ extension on Translations {
 			'main.sentByOthers' => '他人发送的',
 			'main.setParam' => ({required Object param}) => '设置${param}',
 			'main.setting' => '设置',
-			_ => null,
-		} ?? switch (path) {
 			'main.siginQ' => '已经有账号了？',
 			'main.signInWith' => ({required Object param}) => '用${param}登录',
 			'main.source' => '来源',

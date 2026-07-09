@@ -1132,3 +1132,10 @@ pauseScan: 暂停扫描
 resumeScan: 继续扫描
 enterFullscreen: 进入全屏
 exitFullscreen: 退出全屏
+# 频道评论/消息项通用文案（a43d242f 合并补全）
+me: 我
+justNow: 刚刚
+minutesAgo: 分钟前
+hoursAgo: 小时前
+collapse: 收起
+expandFull: 展开
