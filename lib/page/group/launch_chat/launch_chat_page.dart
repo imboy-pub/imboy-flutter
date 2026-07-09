@@ -116,11 +116,25 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
     );
   }
 
-  /// 已选成员预览条（横滑头像，点击移除）
+  /// 已选成员预览条（横滑头像，点击移除）；空状态保留占位避免布局跳动
   Widget _buildSelectedPreview() {
     final state = ref.watch(launchChatProvider);
     final selects = state.selects;
-    if (selects.isEmpty) return const SizedBox.shrink();
+    if (selects.isEmpty) {
+      return SizedBox(
+        height: 40,
+        child: Center(
+          child: Text(
+            // TODO(i18n): t.chat.noSelectedMember
+            '点击联系人添加为群成员',
+            style: context.textStyle(
+              FontSizeType.footnote,
+              color: AppColors.iosGray,
+            ),
+          ),
+        ),
+      );
+    }
 
     return Container(
       height: 92,
@@ -182,7 +196,8 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
             child: RoundedElevatedButton(
               text: '${t.common.buttonAccomplish}${state.selectsTips}',
               highlighted: state.selects.isNotEmpty && !_isCreatingGroup,
-              onPressed: _isCreatingGroup
+              // 未选成员或创建中时真正禁用，避免空列表进入建群异常分支
+              onPressed: (state.selects.isEmpty || _isCreatingGroup)
                   ? null
                   : () async {
                       // 防抖：设置创建状态

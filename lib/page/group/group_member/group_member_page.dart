@@ -412,10 +412,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                 : _memberList.isEmpty
                 ? NoDataView(text: t.common.noData)
                 : filtered.isEmpty
-                ? NoDataView(
-                    text: t.common.searchNoResults,
-                    icon: CupertinoIcons.search,
-                  )
+                ? _buildFilteredEmpty()
                 : EasyRefresh(
                     controller: _refreshController,
                     onRefresh: () async {
@@ -462,6 +459,28 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           color: selected ? AppColors.onPrimary : AppColors.iosGray,
         ),
       ),
+    );
+  }
+
+  /// 筛选后无结果时的空状态（区分搜索无结果 vs 该角色无成员）
+  Widget _buildFilteredEmpty() {
+    // 有搜索关键字 → 搜索无结果；有角色筛选 → 该角色暂无成员
+    if (_keyword.trim().isNotEmpty) {
+      return NoDataView(
+        text: t.common.searchNoResults,
+        icon: CupertinoIcons.search,
+      );
+    }
+    // 纯角色筛选无结果
+    final roleName = switch (_roleFilter) {
+      4 => t.group.groupOwner,
+      3 => t.group.groupAdmin,
+      _ => t.common.noData,
+    };
+    return NoDataView(
+      // TODO(i18n): 补充 t.group.noMemberInRole(key: roleName)
+      text: '暂无$roleName',
+      icon: CupertinoIcons.person_2,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
@@ -145,6 +146,10 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
         ),
       ],
       slivers: [
+        // iOS 原生下拉刷新（与右上角刷新按钮互补）
+        CupertinoSliverRefreshControl(
+          onRefresh: () => initData(onRefresh: true),
+        ),
         // 搜索框（即时过滤，修复原先 onSubmitted 空实现）
         SliverToBoxAdapter(
           child: Padding(
@@ -156,6 +161,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
             ),
             child: CupertinoSearchTextField(
               placeholder: t.common.search,
+              suffixMode: OverlayVisibilityMode.always,
               onChanged: (v) => setState(() => _keyword = v),
             ),
           ),
@@ -224,16 +230,22 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                 return Column(
                   children: [
                     ImBoyListTile(
-                      onTap: () => context.push(
-                        '/chat/${model.groupId}',
-                        extra: {
-                          'title': model.title,
-                          'avatar': model.avatar,
-                          'type': 'C2G',
-                          'options': {'memberCount': model.memberCount},
-                        },
-                      ),
-                      onLongPress: () => _showItemActions(context, model),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        context.push(
+                          '/chat/${model.groupId}',
+                          extra: {
+                            'title': model.title,
+                            'avatar': model.avatar,
+                            'type': 'C2G',
+                            'options': {'memberCount': model.memberCount},
+                          },
+                        );
+                      },
+                      onLongPress: () {
+                        HapticFeedback.heavyImpact();
+                        _showItemActions(context, model);
+                      },
                       leading: SmartGroupAvatar(
                         avatar: model.avatar,
                         groupId: model.groupId.toString(),

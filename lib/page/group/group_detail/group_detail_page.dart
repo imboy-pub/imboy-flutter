@@ -343,17 +343,19 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             ],
           ),
 
-          // 6. 退出/解散按钮
+          // 6. 退出/解散按钮（与危险操作区留白隔离，强调最高危操作）
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.regular,
-              vertical: AppSpacing.xxLarge,
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.xxxLarge,
+              AppSpacing.regular,
+              AppSpacing.xxLarge,
             ),
             child: SizedBox(
               width: double.infinity,
-              height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
                   backgroundColor: AppColors.getIosRed(
                     brightness,
                   ).withValues(alpha: 0.1),
@@ -377,6 +379,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     FontSizeType.body,
                     fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
