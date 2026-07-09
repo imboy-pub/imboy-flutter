@@ -39,6 +39,29 @@ class ChannelMessageRepo {
     Transaction? txn,
   }) async {
     final map = message.toMap();
+    // channel_message.channel_id 有 FK → channel(id)。频道未缓存时直接插入会抛
+    // FOREIGN KEY constraint failed(787)。这类属于「未订阅/未缓存频道」的消息，
+    // 本地无需缓存（打开该频道时会从服务端加载），静默跳过即可，避免 ⛔ 噪声。
+    final cid = map[channelId];
+    final parent = txn != null
+        ? await txn.query(
+            'channel',
+            columns: ['id'],
+            where: 'id = ?',
+            whereArgs: [cid],
+            limit: 1,
+          )
+        : await _db.query(
+            'channel',
+            columns: ['id'],
+            where: 'id = ?',
+            whereArgs: [cid],
+            limit: 1,
+          );
+    if (parent.isEmpty) {
+      iPrint('ChannelMessageRepo: 跳过未缓存频道消息 channel=$cid msg=${message.id}');
+      return;
+    }
     if (txn != null) {
       await txn.insert(
         tableName,
