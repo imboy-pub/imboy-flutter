@@ -17,6 +17,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import '../chat_provider.dart';
 import '../../widget/chat_input.dart';
+import 'package:imboy/page/chat/chat/agent_task_ephemeral_state_notifier.dart';
 
 /// 聊天事件订阅管理器
 ///
@@ -75,6 +76,7 @@ class ChatEventSubscriptionManager {
   StreamSubscription<DataWrapperEvent<dynamic>>? _ssMsg;
   StreamSubscription<DataWrapperEvent<dynamic>>? _ssMsgState;
   StreamSubscription<DataWrapperEvent<dynamic>>? _ssStreamDelta;
+  StreamSubscription<DataWrapperEvent<dynamic>>? _ssAgentTask;
   StreamSubscription<ReEditMessageEvent>? _ssReEdit;
   StreamSubscription<AppErrorEvent>? _ssAppError;
 
@@ -82,12 +84,16 @@ class ChatEventSubscriptionManager {
   /// 按 index 存储：天然去重（同 index 覆盖）+ 乱序容错（拼接前按 index 排序）。
   final Map<String, Map<int, String>> _streamChunks = {};
 
+  /// 本会话已收到 ephemeral 进度的 agent 任务 id（会话销毁时清理，防全局 notifier 泄漏）。
+  final Set<String> _agentTaskIds = {};
+
   /// 设置所有事件监听器
   void setupEventListeners({required VoidCallback onMountedStateChanged}) {
     try {
       _setupChatExtendListener();
       _setupMessageListener();
       _setupStreamDeltaListener();
+      _setupAgentTaskListener();
       _setupMessageStateListener(onMountedStateChanged);
       _setupReEditListener();
       _setupAppErrorListener(onMountedStateChanged);
@@ -243,6 +249,46 @@ class ChatEventSubscriptionManager {
   ///
   /// ⚠️ 全程无 await：同一 event loop 内串行原子处理，避免同 streamId 多帧因 await
   /// 让步交错导致丢字/错序/状态回退（insertMessage 内部同步且有 isDisposed 保护）。
+  /// Phase 4 T4.2：agent 任务 ephemeral 进度帧 → 实时进度条状态（不落库）。
+  /// 归属判定同 stream_delta：帧 type 须与当前会话一致，C2C 还需 from==peerId。
+  void _setupAgentTaskListener() {
+    _ssAgentTask = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) {
+      if (event.dataType != 'agent_task') {
+        return;
+      }
+      final data = event.data;
+      if (data is! Map) {
+        return;
+      }
+      final frameType = data['type']?.toString() ?? '';
+      if (frameType != chatType) {
+        return;
+      }
+      final from = data['from']?.toString() ?? '';
+      if (chatType == 'C2C' && from != peerId) {
+        return;
+      }
+      final payload = data['payload'];
+      if (payload is! Map) {
+        return;
+      }
+      final taskId = payload['task_id']?.toString() ?? '';
+      if (taskId.isEmpty) {
+        return;
+      }
+      try {
+        widgetRef
+            .read(agentTaskEphemeralNotifierProvider.notifier)
+            .update(
+              taskId,
+              status: payload['status']?.toString() ?? '',
+              text: payload['text']?.toString() ?? '',
+            );
+        _agentTaskIds.add(taskId);
+      } catch (_) {}
+    });
+  }
+
   void _setupStreamDeltaListener() {
     _ssStreamDelta = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((
       event,
@@ -453,6 +499,7 @@ class ChatEventSubscriptionManager {
     _ssMsg?.cancel();
     _ssMsgState?.cancel();
     _ssStreamDelta?.cancel();
+    _ssAgentTask?.cancel();
     _ssReEdit?.cancel();
     _ssAppError?.cancel();
     // 清理本会话未完成（未定稿）的流式状态，防全局 notifier state 泄漏。
@@ -464,5 +511,13 @@ class ChatEventSubscriptionManager {
       }
     } catch (_) {}
     _streamChunks.clear();
+    // 清理本会话 agent 任务 ephemeral 进度，防全局 notifier state 泄漏。
+    try {
+      final n = widgetRef.read(agentTaskEphemeralNotifierProvider.notifier);
+      for (final id in _agentTaskIds) {
+        n.remove(id);
+      }
+    } catch (_) {}
+    _agentTaskIds.clear();
   }
 }

@@ -337,6 +337,12 @@ class MessageService with EventSubscriptionManager {
       AppEventBus.fireData(data, 'stream_delta');
       return;
     }
+    // Phase 4 T4.2：agent_task 过渡态帧同样最入口短路（ephemeral：不落库、不进会话/未读簿记），
+    // 走独立事件通道交聊天页渲染实时进度条。终态走 durable text 消息(payload.agent_task 卡片)。
+    if (msgType == 'agent_task') {
+      AppEventBus.fireData(data, 'agent_task');
+      return;
+    }
 
     // 【重构】所有 ACK 统一在 websocket.dart 中处理，此处不再发送
     if (type == 'WEBRTC_SERVER_ACK') {

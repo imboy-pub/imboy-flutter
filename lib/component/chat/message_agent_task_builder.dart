@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/store/api/agent_task_api.dart';
+import 'package:imboy/page/chat/chat/agent_task_ephemeral_state_notifier.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -27,6 +28,21 @@ class MessageAgentTaskBuilder extends ConsumerStatefulWidget {
 class _MessageAgentTaskBuilderState
     extends ConsumerState<MessageAgentTaskBuilder> {
   bool _isProcessing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // durable 卡片到达 → 清掉该 task 的 ephemeral 进度条（定稿取代过渡态）
+    final task = widget.message.metadata?['agent_task'] as Map?;
+    final taskId = task?['task_id']?.toString() ?? '';
+    if (taskId.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref.read(agentTaskEphemeralNotifierProvider.notifier).remove(taskId);
+        }
+      });
+    }
+  }
 
   Future<void> _decide(String taskId, {required bool approve}) async {
     if (_isProcessing || taskId.isEmpty) return;

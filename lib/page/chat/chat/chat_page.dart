@@ -42,6 +42,7 @@ import 'package:imboy/modules/messaging/domain/message_status.dart'
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
 import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
 import 'package:imboy/component/chat/message_agent_task_builder.dart';
+import 'package:imboy/component/chat/agent_task_progress_banner.dart';
 import 'package:imboy/component/chat/mention_provider.dart'
     show mentionNotifierProvider;
 import 'package:imboy/component/chat/mention_text_reducer.dart'
@@ -1536,6 +1537,8 @@ class ChatPageState extends ConsumerState<ChatPage>
             chatState.connected
                 ? const SizedBox.shrink()
                 : NetworkFailureTips(),
+            // Phase 4 T4.2：agent 任务实时进度条（ephemeral；空则收起）
+            const AgentTaskProgressBanner(),
             Expanded(
               child: GestureDetector(
                 onTap: () {
