@@ -8,6 +8,8 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/api/denylist_api.dart';
+import 'package:imboy/store/api/report_api.dart';
+import 'package:imboy/page/group/widgets/group_dialogs.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
@@ -122,6 +124,14 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                   onChanged: (val) => _showDenylistConfirmation(context, val),
                 ),
               ),
+              ImBoySettingsTile(
+                title: Text(t.complaint.complaint),
+                leading: _buildIcon(
+                  Icons.flag_outlined,
+                  AppColors.getIosRed(brightness),
+                ),
+                onTap: () => _showReportDialog(context),
+              ),
             ],
           ),
 
@@ -235,6 +245,48 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
       );
     } else {
       AppLoading.showError(t.common.error);
+    }
+  }
+
+  /// 举报用户：复用 complaintReason 枚举与 ReportApi（targetType='user'）。
+  void _showReportDialog(BuildContext context) {
+    GroupDialogs.actionSheet(
+      context,
+      title: t.complaint.complaint,
+      actions: [
+        (
+          label: t.complaintReason.spam,
+          destructive: false,
+          onPressed: () => _submitReport('spam'),
+        ),
+        (
+          label: t.complaintReason.harassment,
+          destructive: false,
+          onPressed: () => _submitReport('harassment'),
+        ),
+        (
+          label: t.complaintReason.inappropriate,
+          destructive: false,
+          onPressed: () => _submitReport('inappropriate'),
+        ),
+        (
+          label: t.complaintReason.other,
+          destructive: false,
+          onPressed: () => _submitReport('other'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _submitReport(String reason) async {
+    if (await ReportApi().create(
+      targetType: 'user',
+      targetId: widget.peerId,
+      reason: reason,
+    )) {
+      AppLoading.showSuccess(t.common.complaintSuccess);
+    } else {
+      AppLoading.showError(t.common.complaintFailed);
     }
   }
 

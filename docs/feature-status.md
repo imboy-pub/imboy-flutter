@@ -99,7 +99,7 @@ The following features have complete frontend implementations but **backend APIs
 | 功能 | 前端 | 后端 API | Feature Flag | 前端入口（隐藏中） | 解除所需后端接口 |
 |------|------|---------|-------------|---------|--------------|
 | **钱包 `wallet`** | ✅ 完整（472 行，含充值/流水/分页） | ❌ 未实现 | 🔒 `_localDisabledKeys` | 我的页面宫格「钱包」按钮 | `GET /v1/wallet/balance`<br>`GET /v1/wallet/transactions`<br>`POST /v1/wallet/topup` |
-| **直播间 `liveRoom`** | ✅ 完整（推流/订阅/列表，WHIP 协议） | ❌ 未实现 | 🔒 `_localDisabledKeys` | 无主入口（需新增） | WHIP 服务器 + 直播列表 API |
+| **直播间 `liveRoom`** | ✅ 完整（推流/订阅/列表，WHIP 协议） | ⚠️ 元数据 API ✅ 已实现（handler/logic/ds/repo/router/迁移齐全）；缺 WHIP/WHEP 媒体服务器 | 🔒 `_localDisabledKeys` | 无主入口（需新增） | WHIP/WHEP 媒体服务器（部署件，非应用代码）+ 前端入口 + 移出 `_localDisabledKeys` |
 
 ---
 

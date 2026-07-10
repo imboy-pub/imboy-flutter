@@ -4,6 +4,9 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/page/group/widgets/group_dialogs.dart';
+import 'package:imboy/store/api/report_api.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -304,6 +307,17 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                   isDestructive: true,
                 ),
               ] else ...[
+                // 接收者：举报此条消息（合规入口）
+                _buildActionButton(
+                  context: context,
+                  icon: Icons.flag_outlined,
+                  label: t.complaint.complaint,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    _showReportDialog(context);
+                  },
+                  isDestructive: true,
+                ),
                 // 接收者：仅可删除自己看到的消息
                 _buildActionButton(
                   context: context,
@@ -387,6 +401,54 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
         ),
       ),
     );
+  }
+
+  /// 举报此条消息：后端 report 仅支持 moment/group/channel/user 四类，
+  /// 无 message 类型，故举报对象为消息发送者（targetType='user'），
+  /// 并在 description 携带被举报消息 id 供审核定位。
+  void _showReportDialog(BuildContext context) {
+    final t = context.t;
+    GroupDialogs.actionSheet(
+      context,
+      title: t.complaint.complaint,
+      actions: [
+        (
+          label: t.complaintReason.spam,
+          destructive: false,
+          onPressed: () => _submitReport('spam'),
+        ),
+        (
+          label: t.complaintReason.harassment,
+          destructive: false,
+          onPressed: () => _submitReport('harassment'),
+        ),
+        (
+          label: t.complaintReason.inappropriate,
+          destructive: false,
+          onPressed: () => _submitReport('inappropriate'),
+        ),
+        (
+          label: t.complaintReason.other,
+          destructive: false,
+          onPressed: () => _submitReport('other'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _submitReport(String reason) async {
+    final ok = await ReportApi().create(
+      targetType: 'user',
+      targetId: widget.message.authorId,
+      reason: reason,
+      description: 'message_id:${widget.message.id}',
+    );
+    if (ok) {
+      AppLoading.showSuccess(t.common.complaintSuccess);
+    } else {
+      AppLoading.showError(t.common.complaintFailed);
+    }
+    widget.onClose?.call();
   }
 
   /// 显示删除确认对话框

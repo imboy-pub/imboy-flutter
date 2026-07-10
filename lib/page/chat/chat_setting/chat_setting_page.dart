@@ -9,6 +9,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/page/chat/widget/chat_background_manager.dart';
 import 'package:imboy/page/search/search_chat_page.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -419,6 +420,19 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                 peerSign: widget.options?['peerSign'] as String? ?? '',
                 conversationUk3: widget.options?['conversationUk3'] as String,
               ),
+            ),
+          );
+        },
+      ),
+      _buildSettingTile(
+        title: t.common.chatSettingBackground,
+        icon: Icons.wallpaper_outlined,
+        isFirst: true,
+        onTap: () {
+          Navigator.push(
+            context,
+            CupertinoPageRoute<void>(
+              builder: (_) => const ChatBackgroundSettingsPage(),
             ),
           );
         },
