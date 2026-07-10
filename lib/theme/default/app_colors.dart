@@ -210,10 +210,18 @@ class AppColors {
       b == Brightness.dark ? iosRedDark : iosRed;
   static Color getIosGreen(Brightness b) =>
       b == Brightness.dark ? iosGreenDark : iosGreen;
+  static Color getIosOrange(Brightness b) =>
+      b == Brightness.dark ? iosOrangeDark : iosOrange;
+  static Color getIosPurple(Brightness b) =>
+      b == Brightness.dark ? iosPurpleDark : iosPurple;
   static Color getIosSeparator(Brightness b) =>
       b == Brightness.dark ? iosSeparatorDark : iosSeparator;
 
   static Color get textSecondary => lightTextSecondary;
+
+  /// Brightness 感知的次要文字色。供后续迁移使用，不影响现有 [textSecondary] 行为。
+  static Color getTextSecondary(Brightness b) =>
+      b == Brightness.dark ? darkTextSecondary : lightTextSecondary;
 
   static Color getTextColor(Brightness b, {bool isSecondary = false}) {
     if (b == Brightness.dark) {

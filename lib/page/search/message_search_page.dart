@@ -439,6 +439,10 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       return _buildSearchHistory(context, state, t);
     }
 
+    if (state.errorMessage.isNotEmpty && !state.isLoading) {
+      return _buildErrorView(context, state, t);
+    }
+
     if (state.searchResults.isEmpty && !state.isLoading) {
       return _buildEmptyView(context, state, t);
     }
@@ -574,6 +578,23 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       description: '"${state.currentQuery}"',
       icon: Icons.search_off,
       iconSize: 64,
+    );
+  }
+
+  /// 构建搜索出错视图（区别于"无结果"，可点击重试）
+  Widget _buildErrorView(
+    BuildContext context,
+    MessageSearchState state,
+    Translations t,
+  ) {
+    return NoDataView(
+      text: t.common.searchError,
+      description: state.errorMessage,
+      icon: Icons.error_outline,
+      iconSize: 64,
+      onTop: () => ref
+          .read(messageSearchProvider.notifier)
+          .performSearch(query: state.currentQuery),
     );
   }
 

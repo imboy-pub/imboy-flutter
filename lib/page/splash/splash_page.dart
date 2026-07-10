@@ -1,13 +1,14 @@
 import 'dart:math' as math;
 import 'package:imboy/theme/default/font_types.dart';
 
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/web_shell/web_shell_breakpoint.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -137,15 +138,27 @@ class _SplashPageState extends ConsumerState<SplashPage>
   }
 
   Future<void> _checkAuth() async {
-    final bool isLoggedIn = UserRepoLocal.to.isLoggedIn;
-    final Duration hold = isLoggedIn
-        ? kSplashMinHoldReturning
-        : kSplashMinHoldNew;
-    await Future<void>.delayed(hold);
-    if (!mounted) return;
-    if (isLoggedIn) {
-      context.go('/bottom_navigation');
-    } else {
+    try {
+      final bool isLoggedIn = UserRepoLocal.to.isLoggedIn;
+      final Duration hold = isLoggedIn
+          ? kSplashMinHoldReturning
+          : kSplashMinHoldNew;
+      await Future<void>.delayed(hold);
+      if (!mounted) return;
+      if (!isLoggedIn) {
+        context.go('/welcome');
+        return;
+      }
+      // 宽屏/桌面/Web 走三栏壳（内部按 resolveShellLayout 再降级到 mobile），
+      // 窄屏直达底部导航，避免 web_shell 首帧闪烁
+      final width = MediaQuery.sizeOf(context).width;
+      final layout = resolveShellLayout(width);
+      context.go(
+        layout == WebShellLayout.mobile ? '/bottom_navigation' : '/web_shell',
+      );
+    } on Exception catch (e) {
+      debugPrint('[SplashPage] _checkAuth failed: $e');
+      if (!mounted) return;
       context.go('/welcome');
     }
   }

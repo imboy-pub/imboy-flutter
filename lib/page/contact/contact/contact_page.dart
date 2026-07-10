@@ -22,6 +22,19 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'contact_menu_decoration.dart';
 import 'contact_provider.dart';
 
+/// 联系人点击是否应派发到 Web Shell 右栏：仅当当前页面挂载于 `/web_shell`
+/// 路由下时，[webShellProvider] 才有消费者（[WebShellPage] 三栏布局会
+/// `ref.watch` 它）。挂载于 `/bottom_navigation` 等其它宿主时该 provider
+/// 无人消费，派发 selection 会导致点击后"什么都不发生"，必须走 Mobile
+/// push 兜底。
+bool _isWebShellHosted(BuildContext context) {
+  try {
+    return GoRouterState.of(context).matchedLocation.startsWith('/web_shell');
+  } on GoError {
+    return false;
+  }
+}
+
 /// 联系人列表页面 - iOS 17 Premium 风格
 class ContactPage extends ConsumerStatefulWidget {
   const ContactPage({super.key});
@@ -72,7 +85,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         context.push('/contact/tags');
         return;
     }
-    final useSplitView = MediaQuery.sizeOf(context).width > 800;
+    final useSplitView =
+        _isWebShellHosted(context) && MediaQuery.sizeOf(context).width > 800;
     if (useSplitView) {
       ref
           .read(webShellProvider.notifier)
@@ -84,7 +98,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   void _handleContactLongPress(ContactModel model) {
     if (!model.isMenuEntry) {
-      final useSplitView = MediaQuery.sizeOf(context).width > 800;
+      final useSplitView =
+          _isWebShellHosted(context) && MediaQuery.sizeOf(context).width > 800;
       final action = resolveConversationTap(
         useSplitView: useSplitView,
         peerId: model.peerId.toString(),

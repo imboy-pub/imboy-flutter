@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -47,6 +48,9 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
         ? _remarkController.text.trim()
         : t.common.transferDefaultRemark;
 
+    final confirmed = await _confirmTransfer(amountYuan, remark);
+    if (!confirmed || !mounted) return;
+
     AppLoading.show(status: t.common.loading);
     final transferId = await WalletApi().sendTransfer(
       receiverUid: widget.toUid,
@@ -68,8 +72,48 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
         });
       }
     } else {
-      AppLoading.dismiss();
+      AppLoading.showError(t.common.operationFailedAgainLater);
     }
+  }
+
+  /// 转账二次确认：展示金额 + 收款方 + 备注摘要，用户确认后才发起请求。
+  Future<bool> _confirmTransfer(double amountYuan, String remark) async {
+    return await showCupertinoDialog<bool>(
+          context: context,
+          builder: (ctx) => CupertinoAlertDialog(
+            title: Text(t.common.transferConfirm),
+            content: Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.small),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.common.transferAmountYuan(
+                      amount: amountYuan.toStringAsFixed(2),
+                    ),
+                  ),
+                  AppSpacing.verticalTiny,
+                  Text(t.common.redPacketReceiverLabel(uid: widget.toUid)),
+                  AppSpacing.verticalTiny,
+                  Text('${t.common.transferRemarkLabel}：$remark'),
+                ],
+              ),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(t.common.buttonCancel),
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(t.common.transferConfirm),
+              ),
+            ],
+          ),
+        ) ??
+        false;
   }
 
   @override

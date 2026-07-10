@@ -1,10 +1,15 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/group_role_rules.dart' show isGroupAdmin;
 import 'package:imboy/service/group_vote_service.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -33,10 +38,35 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
   bool _isLoading = true;
   bool _isSubmitting = false;
 
+  /// 当前登录用户在本群的角色（0 = 未加载 / 不在群），安全默认无管理权限。
+  int _currentUserRole = 0;
+
   @override
   void initState() {
     super.initState();
     _loadVoteDetail();
+    unawaited(_loadCurrentRole());
+  }
+
+  /// 异步加载当前用户在本群的角色（SR-4：结束投票需按角色收窄）。
+  /// 失败时静默回退，保持 0（安全默认：无管理权限）。
+  Future<void> _loadCurrentRole() async {
+    try {
+      final uid = UserRepoLocal.to.currentUid;
+      final member = await GroupMemberRepo().findByUserId(widget.groupId, uid);
+      if (mounted && member != null) {
+        setState(() => _currentUserRole = member.role);
+      }
+    } catch (_) {
+      // 静默失败：保持 _currentUserRole=0，UI 不显示管理操作
+    }
+  }
+
+  /// SR-4：结束投票仅发起人 / 管理员 / 群主可见可点。
+  bool get _canCloseVote {
+    if (isGroupAdmin(_currentUserRole)) return true;
+    final creatorId = _toText(_vote?['creator_id']);
+    return creatorId.isNotEmpty && creatorId == UserRepoLocal.to.currentUid;
   }
 
   int _toInt(dynamic value) {
@@ -389,13 +419,16 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                     child: Text(context.t.groupVote.cancelMyVote),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.medium),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _isSubmitting ? null : _closeVote,
-                    child: Text(context.t.groupVote.voteEnded),
+                // SR-4：结束投票仅发起人 / 管理员 / 群主可见（隐藏而非报错）
+                if (_canCloseVote) ...[
+                  const SizedBox(width: AppSpacing.medium),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _isSubmitting ? null : _closeVote,
+                      child: Text(context.t.groupVote.voteEnded),
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
         ],

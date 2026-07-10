@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/group_detail/remove_member_provider.dart';
 import 'package:imboy/page/group/group_member/group_member_mute_rules.dart';
 import 'package:imboy/page/group/group_member/mute_duration_rules.dart';
 import 'package:imboy/page/group/group_member/mute_remaining_badge.dart';
 import 'package:imboy/service/group_member_mute_service.dart';
+import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -466,8 +468,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             CupertinoActionSheetAction(
               onPressed: () {
                 Navigator.pop(ctx);
-                // TODO: 接入 role 变更 API（GroupMemberApi().role）
-                AppLoading.showError(t.common.tipFailed);
+                _confirmToggleAdmin(member);
               },
               child: Text(
                 member.role == 3 ? t.common.removeAdmin : t.group.setAdmin,
@@ -499,14 +500,80 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     );
   }
 
+  /// 确认设为/取消管理员（role: 1 成员  3 管理员）
+  Future<void> _confirmToggleAdmin(GroupMemberModel member) async {
+    final isCurrentlyAdmin = member.role == 3;
+    final newRole = isCurrentlyAdmin ? 1 : 3;
+
+    final confirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(isCurrentlyAdmin ? t.common.removeAdmin : t.group.setAdmin),
+        content: Text(
+          isCurrentlyAdmin
+              ? t.common.removeAdminConfirm
+              : t.common.setAdminConfirm,
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t.common.buttonConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    AppLoading.show();
+    try {
+      final ok = await GroupMemberApi().updateRole(
+        gid: widget.groupId,
+        userId: member.userId.toString(),
+        role: newRole,
+      );
+      if (!mounted) return;
+      AppLoading.dismiss();
+
+      if (ok) {
+        setState(() {
+          _member = _member!.copyWith(role: newRole);
+          _anyChange = true;
+        });
+        AppLoading.showSuccess(
+          isCurrentlyAdmin
+              ? t.common.removeAdminSuccess
+              : t.common.setAdminSuccess,
+        );
+      } else {
+        AppLoading.showError(
+          isCurrentlyAdmin
+              ? t.common.removeAdminFailed
+              : t.common.setAdminFailed,
+        );
+      }
+    } on Exception {
+      AppLoading.dismiss();
+      if (mounted) {
+        AppLoading.showError(
+          isCurrentlyAdmin
+              ? t.common.removeAdminFailed
+              : t.common.setAdminFailed,
+        );
+      }
+    }
+  }
+
   /// 确认移出群聊
   Future<void> _confirmKickMember(GroupMemberModel member) async {
     final confirmed = await showCupertinoDialog<bool>(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.common.removeMember),
-        // TODO(i18n): t.group.removeMemberConfirm(name: ...)
-        content: Text('确定要将「${member.nickname}」移出群聊吗？'),
+        content: Text(t.common.kickMemberConfirm),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(ctx, false),
@@ -522,7 +589,24 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     );
     if (confirmed != true || !mounted) return;
 
-    // TODO: 接入 kick API（GroupMemberApi().kick），成功后 pop(true) 通知列表刷新
-    AppLoading.showError(t.common.tipFailed);
+    AppLoading.show();
+    try {
+      final ok = await RemoveMemberService().leaveGroup(widget.groupId, [
+        member.userId.toString(),
+      ]);
+      if (!mounted) return;
+      AppLoading.dismiss();
+
+      if (ok) {
+        _anyChange = true;
+        AppLoading.showSuccess(t.common.kickMemberSuccess);
+        if (mounted) context.pop(true);
+      } else {
+        AppLoading.showError(t.common.kickMemberFailed);
+      }
+    } on Exception {
+      AppLoading.dismiss();
+      if (mounted) AppLoading.showError(t.common.kickMemberFailed);
+    }
   }
 }

@@ -236,6 +236,27 @@ class LogoutAccountPage extends ConsumerWidget {
           ),
           onPressed: agreed && !state.isLoading
               ? () async {
+                  // 注销不可逆：删除按钮前必须二次确认，勿绕过。
+                  final confirmed = await showCupertinoDialog<bool>(
+                    context: context,
+                    builder: (dialogContext) => CupertinoAlertDialog(
+                      title: Text(t.account.logoutAccount),
+                      content: Text(t.common.privacyLogoutAccountConfirm),
+                      actions: [
+                        CupertinoDialogAction(
+                          onPressed: () => Navigator.pop(dialogContext, false),
+                          child: Text(t.common.buttonCancel),
+                        ),
+                        CupertinoDialogAction(
+                          isDestructiveAction: true,
+                          onPressed: () => Navigator.pop(dialogContext, true),
+                          child: Text(t.account.logoutAccount),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed != true || !context.mounted) return;
+
                   final ok = await ref
                       .read(logoutAccountProvider.notifier)
                       .applyLogout();

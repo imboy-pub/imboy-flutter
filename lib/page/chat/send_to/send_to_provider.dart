@@ -12,15 +12,35 @@ import 'package:imboy/service/message_type_constants.dart';
 
 import 'package:imboy/service/events/events.dart';
 
-/// 发送消息逻辑控制器
-class SendToLogic {
-  List<ConversationModel> _conversations = [];
-  List<ConversationModel> _searchResults = [];
-  final List<ConversationModel> _selectedContacts = [];
+/// 发送给 页面状态
+class SendToState {
+  final List<ConversationModel> conversations;
+  final List<ConversationModel> searchResults;
+  final List<ConversationModel> selectedContacts;
 
-  List<ConversationModel> get conversations => _conversations;
-  List<ConversationModel> get searchResults => _searchResults;
-  List<ConversationModel> get selectedContacts => List.from(_selectedContacts);
+  const SendToState({
+    this.conversations = const [],
+    this.searchResults = const [],
+    this.selectedContacts = const [],
+  });
+
+  SendToState copyWith({
+    List<ConversationModel>? conversations,
+    List<ConversationModel>? searchResults,
+    List<ConversationModel>? selectedContacts,
+  }) {
+    return SendToState(
+      conversations: conversations ?? this.conversations,
+      searchResults: searchResults ?? this.searchResults,
+      selectedContacts: selectedContacts ?? this.selectedContacts,
+    );
+  }
+}
+
+/// 发送消息逻辑控制器
+class SendToNotifier extends Notifier<SendToState> {
+  @override
+  SendToState build() => const SendToState();
 
   String _normalizeConversationType(String? type) {
     return MessageFlowType.normalize(type);
@@ -28,8 +48,11 @@ class SendToLogic {
 
   /// 最近聊天
   Future<void> conversationsList() async {
-    _conversations = await (ConversationRepo()).list(limit: 100);
-    _searchResults = List.from(_conversations);
+    final conversations = await (ConversationRepo()).list(limit: 100);
+    state = state.copyWith(
+      conversations: conversations,
+      searchResults: List.from(conversations),
+    );
   }
 
   /// 发送消息
@@ -74,34 +97,50 @@ class SendToLogic {
       );
 
       return true;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('[send_to_provider] block error: $e');
     }
     return false;
   }
 
+  /// 转发给所有已选联系人，返回失败数量
+  Future<int> sendToSelected(Message msg) async {
+    final targets = state.selectedContacts;
+    var failCount = 0;
+    for (final contact in targets) {
+      final ok = await sendMsg(contact, msg);
+      if (!ok) failCount++;
+    }
+    return failCount;
+  }
+
   /// 搜索
   void search(String query) {
-    if (query.isEmpty) {
-      _searchResults = List.from(_conversations);
-    } else {
-      _searchResults = _conversations.where((contact) {
-        return contact.title.toLowerCase().contains(query.toLowerCase());
-      }).toList();
-    }
+    final results = query.isEmpty
+        ? List<ConversationModel>.from(state.conversations)
+        : state.conversations
+              .where(
+                (contact) =>
+                    contact.title.toLowerCase().contains(query.toLowerCase()),
+              )
+              .toList();
+    state = state.copyWith(searchResults: results);
   }
 
   /// 切换联系人选择
   void toggleContactSelection(ConversationModel contact) {
-    if (_selectedContacts.any((element) => element.id == contact.id)) {
-      _selectedContacts.removeWhere((element) => element.id == contact.id);
+    final selected = List<ConversationModel>.from(state.selectedContacts);
+    final exists = selected.any((element) => element.id == contact.id);
+    if (exists) {
+      selected.removeWhere((element) => element.id == contact.id);
     } else {
-      _selectedContacts.add(contact);
+      selected.add(contact);
     }
+    state = state.copyWith(selectedContacts: selected);
   }
 }
 
 /// 发送消息 Provider
-final sendToProvider = Provider<SendToLogic>((ref) {
-  return SendToLogic();
-});
+final sendToProvider = NotifierProvider<SendToNotifier, SendToState>(
+  SendToNotifier.new,
+);

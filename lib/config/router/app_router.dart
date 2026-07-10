@@ -11,6 +11,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/service/user_profile_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -643,7 +644,8 @@ GoRouter createAppRouter({
                 child: SetRegionPage(
                   title: title.isNotEmpty ? title : t.common.setRegion,
                   currentValue: currentValue,
-                  onSave: (val) async => true,
+                  onSave: (val) =>
+                      UserProfileService.updateField('region', val),
                 ),
               );
             },
@@ -655,6 +657,9 @@ GoRouter createAppRouter({
               final title = state.uri.queryParameters['title'] ?? '';
               final value = state.uri.queryParameters['value'] ?? '';
               final field = state.uri.queryParameters['field'] ?? 'input';
+              // 目标后端字段名（如 sign/profession/school），与 [field]
+              // （UpdatePage 的控件类型 input/text/gender）是两个不同概念。
+              final apiField = state.uri.queryParameters['apiField'] ?? '';
               final maxLength =
                   int.tryParse(
                     state.uri.queryParameters['maxLength'] ?? '56',
@@ -668,7 +673,9 @@ GoRouter createAppRouter({
                   value: value,
                   field: field,
                   maxLength: maxLength,
-                  callback: (val) async => true,
+                  callback: apiField.isEmpty
+                      ? (val) async => false
+                      : (val) => UserProfileService.updateField(apiField, val),
                 ),
               );
             },

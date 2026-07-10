@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -28,9 +29,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      final logic = ref.read(sendToProvider);
-      await logic.conversationsList();
-      setState(() {}); // 触发重建以更新 UI
+      await ref.read(sendToProvider.notifier).conversationsList();
     });
   }
 
@@ -112,7 +111,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                       FontSizeType.normal.size,
                 ),
                 onChanged: (query) {
-                  ref.read(sendToProvider).search(query);
+                  ref.read(sendToProvider.notifier).search(query);
                 },
               ),
             ),
@@ -120,9 +119,9 @@ class _SendToPageState extends ConsumerState<SendToPage> {
             Expanded(
               child: Consumer(
                 builder: (context, ref, child) {
-                  final logic = ref.watch(sendToProvider);
-                  final searchResults = logic.searchResults;
-                  final selectedContacts = logic.selectedContacts;
+                  final state = ref.watch(sendToProvider);
+                  final searchResults = state.searchResults;
+                  final selectedContacts = state.selectedContacts;
 
                   if (searchResults.isEmpty) {
                     return Center(
@@ -179,7 +178,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                         ),
                         onTap: () {
                           ref
-                              .read(sendToProvider)
+                              .read(sendToProvider.notifier)
                               .toggleContactSelection(contact);
                         },
                       );
@@ -195,13 +194,27 @@ class _SendToPageState extends ConsumerState<SendToPage> {
   }
 
   // 发送消息
-  void _send() {
-    final logic = ref.read(sendToProvider);
-    final selectedContacts = logic.selectedContacts;
-
-    for (final contact in selectedContacts) {
-      logic.sendMsg(contact, widget.msg);
+  Future<void> _send() async {
+    final selectedContacts = ref.read(sendToProvider).selectedContacts;
+    if (selectedContacts.isEmpty) {
+      context.pop();
+      return;
     }
+
+    final notifier = ref.read(sendToProvider.notifier);
+    final failCount = await notifier.sendToSelected(widget.msg);
+    if (!mounted) return;
+
+    if (failCount > 0) {
+      // 存在转发失败，留在当前页提示用户，避免静默丢消息
+      final failedMsg = failCount == selectedContacts.length
+          ? t.common.sendFailed
+          : '${t.common.sendFailed} ($failCount/${selectedContacts.length})';
+      AppLoading.showError(failedMsg);
+      return;
+    }
+
+    AppLoading.showSuccess(t.common.success);
     context.pop();
   }
 }

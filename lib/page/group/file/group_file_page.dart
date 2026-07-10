@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -9,9 +11,12 @@ import 'package:imboy/component/web_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/group_role_rules.dart' show isGroupAdmin;
 import 'package:imboy/page/group/widgets/group_dialogs.dart';
 import 'package:imboy/page/single/video_viewer_page.dart';
 import 'package:imboy/service/group_file_service.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
 
 import 'group_file_audio_preview_page.dart';
@@ -56,10 +61,35 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   String _selectedCategory = '';
   String _keyword = '';
 
+  /// 当前登录用户在本群的角色（0 = 未加载 / 不在群），安全默认无管理权限。
+  int _currentUserRole = 0;
+
   @override
   void initState() {
     super.initState();
     _loadInitialData();
+    unawaited(_loadCurrentRole());
+  }
+
+  /// 异步加载当前用户在本群的角色（SR-4：删除他人文件需按角色收窄）。
+  /// 失败时静默回退，保持 0（安全默认：无管理权限）。
+  Future<void> _loadCurrentRole() async {
+    try {
+      final uid = UserRepoLocal.to.currentUid;
+      final member = await GroupMemberRepo().findByUserId(widget.groupId, uid);
+      if (mounted && member != null) {
+        setState(() => _currentUserRole = member.role);
+      }
+    } catch (_) {
+      // 静默失败：保持 _currentUserRole=0，UI 不显示管理操作
+    }
+  }
+
+  /// SR-4：删除文件仅上传者本人 / 管理员 / 群主可见可点。
+  bool _canDeleteFile(Map<String, dynamic> file) {
+    if (isGroupAdmin(_currentUserRole)) return true;
+    final uploaderId = file['uploader_id']?.toString().trim() ?? '';
+    return uploaderId.isNotEmpty && uploaderId == UserRepoLocal.to.currentUid;
   }
 
   @override
@@ -615,11 +645,14 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        trailing: IconButton(
-          tooltip: t.common.groupFileDeleteTitle,
-          icon: const Icon(Icons.delete_outline),
-          onPressed: () => _deleteFile(file),
-        ),
+        // SR-4：删除仅上传者本人 / 管理员 / 群主可见（隐藏而非报错）
+        trailing: _canDeleteFile(file)
+            ? IconButton(
+                tooltip: t.common.groupFileDeleteTitle,
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () => _deleteFile(file),
+              )
+            : null,
       ),
     );
   }

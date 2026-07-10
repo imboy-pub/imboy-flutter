@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,6 +61,9 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
         ? _greetingController.text.trim()
         : t.common.greetingDefault;
 
+    final confirmed = await _confirmSend(amountYuan, count);
+    if (!confirmed || !mounted) return;
+
     AppLoading.show(status: t.common.loading);
     final packetId = await WalletApi().sendRedPacket(
       amount: amountCents,
@@ -84,8 +88,52 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
         });
       }
     } else {
-      AppLoading.dismiss();
+      AppLoading.showError(t.common.operationFailedAgainLater);
     }
+  }
+
+  /// 发红包二次确认：展示金额（+群聊个数 / 单聊收款方）摘要，用户确认后才发起请求。
+  Future<bool> _confirmSend(double amountYuan, int count) async {
+    final amountLabel = _isLucky
+        ? t.common.redPacketTotalAmount
+        : t.common.redPacketSingleAmount;
+    return await showCupertinoDialog<bool>(
+          context: context,
+          builder: (ctx) => CupertinoAlertDialog(
+            title: Text(t.common.redPacketSend),
+            content: Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.small),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('$amountLabel：￥${amountYuan.toStringAsFixed(2)}'),
+                  if (_isGroup) ...[
+                    AppSpacing.verticalTiny,
+                    Text(
+                      '${t.common.redPacketCount}：$count${t.common.redPacketCountUnit}',
+                    ),
+                  ] else ...[
+                    AppSpacing.verticalTiny,
+                    Text(t.common.redPacketReceiverLabel(uid: widget.toUid)),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(t.common.buttonCancel),
+              ),
+              CupertinoDialogAction(
+                isDestructiveAction: true,
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(t.common.buttonConfirm),
+              ),
+            ],
+          ),
+        ) ??
+        false;
   }
 
   @override

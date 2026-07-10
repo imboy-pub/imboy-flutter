@@ -36,6 +36,19 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'conversation_provider.dart';
 import 'widget/conversation_item.dart';
 
+/// 会话点击是否应派发到 Web Shell 右栏：仅当当前页面挂载于 `/web_shell`
+/// 路由下时，[webShellProvider] 才有消费者（[WebShellPage] 三栏布局会
+/// `ref.watch` 它）。挂载于 `/bottom_navigation` 等其它宿主时该 provider
+/// 无人消费，派发 [WebSelectChat] 会导致点击后"什么都不发生"，必须走
+/// Mobile push 兜底。
+bool _isWebShellHosted(BuildContext context) {
+  try {
+    return GoRouterState.of(context).matchedLocation.startsWith('/web_shell');
+  } on GoError {
+    return false;
+  }
+}
+
 /// 会话列表页面 - iOS 17 Premium 风格
 class ConversationPage extends ConsumerStatefulWidget {
   const ConversationPage({super.key});
@@ -308,6 +321,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                         model: model,
                         onTap: () {
                           final useSplitView =
+                              _isWebShellHosted(context) &&
                               MediaQuery.sizeOf(context).width > 800;
                           final action = resolveConversationTap(
                             useSplitView: useSplitView,

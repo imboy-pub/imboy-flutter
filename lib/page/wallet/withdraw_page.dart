@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,6 +46,12 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
 
     final amountCents = (amountYuan * 100).toInt();
     final account = _accountController.text.trim();
+    final methodLabel = _selectedMethod == 'alipay'
+        ? t.common.withdrawAlipay
+        : t.common.withdrawWechat;
+
+    final confirmed = await _confirmWithdraw(amountYuan, methodLabel, account);
+    if (!confirmed || !mounted) return;
 
     AppLoading.show(status: t.common.loading);
     final success = await WalletApi().withdraw(
@@ -59,8 +66,50 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
       ref.invalidate(walletProvider);
       if (mounted) Navigator.pop(context);
     } else {
-      AppLoading.dismiss();
+      AppLoading.showError(t.common.operationFailedAgainLater);
     }
+  }
+
+  /// 提现二次确认：展示金额 + 渠道 + 账号摘要，用户确认后才发起请求。
+  Future<bool> _confirmWithdraw(
+    double amountYuan,
+    String methodLabel,
+    String account,
+  ) async {
+    return await showCupertinoDialog<bool>(
+          context: context,
+          builder: (ctx) => CupertinoAlertDialog(
+            title: Text(t.common.withdrawConfirm),
+            content: Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.small),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${t.common.withdrawAmountLabel}：￥${amountYuan.toStringAsFixed(2)}',
+                  ),
+                  AppSpacing.verticalTiny,
+                  Text('${t.common.withdrawMethod}：$methodLabel'),
+                  AppSpacing.verticalTiny,
+                  Text('${t.common.withdrawAccount}：$account'),
+                ],
+              ),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(t.common.buttonCancel),
+              ),
+              CupertinoDialogAction(
+                isDestructiveAction: true,
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(t.common.withdrawConfirm),
+              ),
+            ],
+          ),
+        ) ??
+        false;
   }
 
   @override
@@ -213,7 +262,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
 
               WalletPrimaryButton(
                 label: t.common.withdrawConfirm,
-                color: AppColors.primary,
+                color: AppColors.getIosRed(brightness),
                 onPressed: () {
                   FocusScope.of(context).unfocus();
                   _handleWithdraw(balanceYuan);

@@ -70,7 +70,15 @@ class ContactSettingNotifier extends _$ContactSettingNotifier {
   /// - 自动清理重试队列
   /// - 删除消息和会话记录
   Future<bool> deleteContact(String uid) async {
-    // 先查询会话
+    // API 先行：服务端删除成功后才清理本地数据。
+    // 否则网络失败时本地聊天记录已被删除、联系人却还在，
+    // 造成"删除失败但聊天记录不可逆丢失"的数据丢失。
+    bool res = await (ContactApi()).deleteContact(uid);
+    if (!res) {
+      return false;
+    }
+
+    // 查询会话并删除本地记录
     ConversationModel? model = await ConversationRepo().findByPeerId(
       'C2C',
       uid,
@@ -88,14 +96,9 @@ class ContactSettingNotifier extends _$ContactSettingNotifier {
 
     // 删除其他关联数据
     await NewFriendRepo().deleteByUid(uid);
+    await ContactRepo().deleteByUid(uid);
 
-    // 调用 API 删除联系人
-    bool res = await (ContactApi()).deleteContact(uid);
-    if (res) {
-      await ContactRepo().deleteByUid(uid);
-    }
-
-    return res;
+    return true;
   }
 
   /// 更新备注

@@ -39,23 +39,30 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
             notifier.updateResult(value);
             if (value.length == 4) {
               AppLoading.show();
-              Map<String, dynamic> res = await notifier.faceToFace(value);
-              AppLoading.dismiss();
-              notifier.updateErrorInfo(res['error'] as String? ?? '');
-              String gid = '${res['gid'] ?? ''}';
-              if (gid.isNotEmpty && context.mounted) {
-                context.push(
-                  '/group/face_to_face_confirm',
-                  extra: {
-                    'code': value,
-                    'gid': gid,
-                    'memberList': res['memberList'] ?? <dynamic>[],
-                  },
-                );
+              // 网络异常时 faceToFace 可能抛出，用 try/finally 保证 loading
+              // 遮罩一定被 dismiss，避免异常路径下遮罩永久卡死须强退。
+              try {
+                Map<String, dynamic> res = await notifier.faceToFace(value);
+                notifier.updateErrorInfo(res['error'] as String? ?? '');
+                String gid = '${res['gid'] ?? ''}';
+                if (gid.isNotEmpty && context.mounted) {
+                  context.push(
+                    '/group/face_to_face_confirm',
+                    extra: {
+                      'code': value,
+                      'gid': gid,
+                      'memberList': res['memberList'] ?? <dynamic>[],
+                    },
+                  );
+                }
+                Timer(const Duration(seconds: 3), () {
+                  notifier.clearInput();
+                });
+              } on Exception {
+                notifier.updateErrorInfo(t.common.tipFailed);
+              } finally {
+                AppLoading.dismiss();
               }
-              Timer(const Duration(seconds: 3), () {
-                notifier.clearInput();
-              });
             }
           },
         ),

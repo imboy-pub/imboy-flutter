@@ -8,6 +8,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -230,6 +231,9 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       );
     }
     if (state.currentQuery.isEmpty) return _buildHistoryList(state, b);
+    if (state.errorMessage.isNotEmpty) {
+      return _buildErrorResults(state.errorMessage, state.currentQuery);
+    }
     if (state.searchResults.isEmpty) {
       return _buildEmptyResults(state.currentQuery);
     }
@@ -261,6 +265,20 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
             ),
           )
           .toList(),
+    );
+  }
+
+  /// 构建搜索出错视图（区别于"无结果"，可点击重试）
+  Widget _buildErrorResults(String errorMessage, String query) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 100),
+      child: NoDataView(
+        text: t.common.searchError,
+        description: errorMessage,
+        icon: Icons.error_outline,
+        iconSize: 64,
+        onTop: () => performSearch(query: query),
+      ),
     );
   }
 
