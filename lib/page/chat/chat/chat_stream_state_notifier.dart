@@ -34,6 +34,12 @@ class ChatStreamStateNotifier extends Notifier<Map<String, StreamState>> {
       state.entries.where((e) => e.value is! StreamStateCompleted),
     );
   }
+
+  /// 移除单个流式状态（定稿替换/会话销毁时调用，防全局 state Map 泄漏）
+  void remove(String messageId) {
+    if (!state.containsKey(messageId)) return;
+    state = {...state}..remove(messageId);
+  }
 }
 
 /// 全局文本流消息状态 Provider

@@ -759,7 +759,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           // no-op：见上方注释
         } else if (messageType.startsWith('WEBRTC_')) {
           _sendAckDirectSafe('WEBRTC', messageId);
-        } else if (['S2C', 'C2S', 'C2C', 'C2G'].contains(messageType)) {
+        } else if (['S2C', 'C2S', 'C2C', 'C2G'].contains(messageType) &&
+            msg['msg_type'] != 'stream_delta') {
+          // stream_delta 是 AI 流式 ephemeral 帧（后端不追踪 ACK），
+          // 每帧回 ACK 纯浪费网络 + DB 空操作，排除。
           _sendAckSafe(messageType, messageId);
         }
         _handleMessageAck(action, messageId, reason: msg['reason']?.toString());

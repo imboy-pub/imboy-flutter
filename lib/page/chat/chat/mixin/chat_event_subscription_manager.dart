@@ -78,9 +78,9 @@ class ChatEventSubscriptionManager {
   StreamSubscription<ReEditMessageEvent>? _ssReEdit;
   StreamSubscription<AppErrorEvent>? _ssAppError;
 
-  /// AI 流式回复的累积全文（stream_id -> 已累积文本）。
-  /// stream_delta 只带增量，ChatStreamStateNotifier 需要累积全文。
-  final Map<String, String> _streamAccum = {};
+  /// AI 流式回复的增量分片（stream_id -> {index -> delta}）。
+  /// 按 index 存储：天然去重（同 index 覆盖）+ 乱序容错（拼接前按 index 排序）。
+  final Map<String, Map<int, String>> _streamChunks = {};
 
   /// 设置所有事件监听器
   void setupEventListeners({required VoidCallback onMountedStateChanged}) {
@@ -217,6 +217,11 @@ class ChatEventSubscriptionManager {
           final old = cs?.messages[i];
           if (old is TextStreamMessage) {
             await cs?.updateMessage(old, msg);
+            // 定稿替换后清理流式状态，防本地 chunks + 全局 notifier state 泄漏
+            _streamChunks.remove(msg.id);
+            widgetRef
+                .read(chatStreamStateNotifierProvider.notifier)
+                .remove(msg.id);
           }
         }
         // 为节省内存，5秒后从 msgIds 移出 msg.id
@@ -232,13 +237,16 @@ class ChatEventSubscriptionManager {
 
   /// 监听 AI 流式增量帧（stream_delta），驱动逐字气泡（复活流式渲染死基础设施）
   ///
-  /// 首帧插入 TextStreamMessage 占位并 startStream；后续累积增量 updateStream，
+  /// 首帧插入 TextStreamMessage 占位并 startStream；后续按 index 累积增量 updateStream，
   /// FlyerChatTextStreamMessage 自行 diff 出增量做淡入；is_end 切完成态。
   /// 定稿由后端权威 text 帧经 _setupMessageListener 原地替换（见该方法 else 分支）。
+  ///
+  /// ⚠️ 全程无 await：同一 event loop 内串行原子处理，避免同 streamId 多帧因 await
+  /// 让步交错导致丢字/错序/状态回退（insertMessage 内部同步且有 isDisposed 保护）。
   void _setupStreamDeltaListener() {
     _ssStreamDelta = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((
       event,
-    ) async {
+    ) {
       if (event.dataType != 'stream_delta') {
         return;
       }
@@ -248,6 +256,9 @@ class ChatEventSubscriptionManager {
       }
       final payload = data['payload'];
       if (payload is! Map) {
+        iPrint(
+          '[chat_event_subscription_manager] stream_delta payload 非 Map，丢弃',
+        );
         return;
       }
       final streamId =
@@ -255,9 +266,14 @@ class ChatEventSubscriptionManager {
       if (streamId.isEmpty) {
         return;
       }
-      // 归属当前会话：帧 from 必须是本会话对端（agent uid / bot 标识）
+      // 归属判定：帧 type 须与当前会话一致；C2C 还需 from==peerId(对端 uid)；
+      // C2S(bot) 会话 uk3 不依赖 peerId(from 是 bot 字面标识)，同 chatType 即归属。
+      final frameType = data['type']?.toString() ?? '';
+      if (frameType != chatType) {
+        return;
+      }
       final from = data['from']?.toString() ?? '';
-      if (from != peerId) {
+      if (chatType == 'C2C' && from != peerId) {
         return;
       }
       try {
@@ -270,13 +286,19 @@ class ChatEventSubscriptionManager {
         );
         final delta = payload['delta']?.toString() ?? '';
         final isEnd = payload['is_end'] == true;
+        final indexRaw = payload['index'];
+        final index = indexRaw is int ? indexRaw : 0;
 
-        // 首帧：插入 TextStreamMessage 占位 + startStream
-        final exists = cs.messages.any((m) => m.id == streamId);
-        if (!exists) {
-          final createdAt = DateTime.fromMillisecondsSinceEpoch(
-            (data['created_at'] ?? DateTimeHelper.millisecond()) as int,
-          );
+        // 按 index 存增量（去重/乱序容错）；chunks 空 = 该 stream 首帧
+        final chunks = _streamChunks.putIfAbsent(
+          streamId,
+          () => <int, String>{},
+        );
+        if (chunks.isEmpty && !cs.messages.any((m) => m.id == streamId)) {
+          final createdRaw = data['created_at'];
+          final createdAt = createdRaw is int
+              ? DateTime.fromMillisecondsSinceEpoch(createdRaw)
+              : DateTime.now();
           final streamMsg = TextStreamMessage(
             id: streamId,
             authorId: from,
@@ -284,24 +306,34 @@ class ChatEventSubscriptionManager {
             createdAt: createdAt,
             metadata: {'conversation_uk3': conversationUk3},
           );
-          await cs.insertMessage(streamMsg, index: cs.messages.length);
+          // 不 await：insertMessage 内部同步，保持本回调原子性
+          cs.insertMessage(streamMsg, index: cs.messages.length);
           notifier.startStream(streamId);
         }
 
-        // 累积增量并更新流式状态（widget 自行 diff 出增量做淡入）
-        final acc = (_streamAccum[streamId] ?? '') + delta;
-        _streamAccum[streamId] = acc;
+        chunks[index] = delta;
+        // 按 index 升序拼接累积全文（widget 自行 diff 出增量做淡入）
+        final acc = _joinChunks(chunks);
         notifier.updateStream(streamId, acc);
 
-        // 结束帧：切完成态；累积缓存可释放（定稿权威文本走 text 帧覆盖）
+        // 结束帧：切完成态（定稿权威文本走 text 帧覆盖 + 清理，见 _setupMessageListener）
         if (isEnd) {
           notifier.completeStream(streamId, acc);
-          _streamAccum.remove(streamId);
         }
       } catch (e) {
         iPrint('[chat_event_subscription_manager] stream_delta error: $e');
       }
     }, onError: (Object error) {});
+  }
+
+  /// 按 index 升序拼接 delta 分片为累积全文
+  String _joinChunks(Map<int, String> chunks) {
+    final keys = chunks.keys.toList()..sort();
+    final buf = StringBuffer();
+    for (final k in keys) {
+      buf.write(chunks[k]);
+    }
+    return buf.toString();
   }
 
   /// 监听消息状态更新事件
@@ -423,6 +455,14 @@ class ChatEventSubscriptionManager {
     _ssStreamDelta?.cancel();
     _ssReEdit?.cancel();
     _ssAppError?.cancel();
-    _streamAccum.clear();
+    // 清理本会话未完成（未定稿）的流式状态，防全局 notifier state 泄漏。
+    // try 兜住：dispose 时页面可能已 unmount，widgetRef.read 可能抛。
+    try {
+      final notifier = widgetRef.read(chatStreamStateNotifierProvider.notifier);
+      for (final id in _streamChunks.keys) {
+        notifier.remove(id);
+      }
+    } catch (_) {}
+    _streamChunks.clear();
   }
 }
