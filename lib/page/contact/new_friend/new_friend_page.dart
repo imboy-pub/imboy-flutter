@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -12,6 +13,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
+import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -80,8 +82,21 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             ),
             child: CupertinoSearchTextField(
               placeholder: t.account.hintLoginAccount,
-              onSubmitted: (v) =>
-                  ref.read(newFriendProvider.notifier).userSearch(kwd: v),
+              onSubmitted: (v) async {
+                final results = await ref
+                    .read(newFriendProvider.notifier)
+                    .userSearch(kwd: v);
+                if (!context.mounted) return;
+                if (results.isEmpty) {
+                  AppLoading.showInfo(t.common.searchNoResults);
+                  return;
+                }
+                final model = results.first as PeopleModel;
+                context.push(
+                  '/people_info/${model.id}',
+                  extra: {'scene': 'user_search'},
+                );
+              },
             ),
           ),
         ),

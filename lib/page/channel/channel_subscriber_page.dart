@@ -65,8 +65,14 @@ class ChannelSubscriberPage extends ConsumerStatefulWidget {
 
 class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
   late final ChannelApi _api = ref.read(channelApiProvider);
+  final ScrollController _scrollController = ScrollController();
+
+  // ponytail: cursor 为已加载条数（offset 型），与 channel_comment_page 的分页写法一致。
+  static const int _pageSize = 30;
+
   List<SubscriberInfo> _subscribers = [];
   bool _isLoading = true;
+  bool _isLoadingMore = false;
   String? _error;
   String? _searchKeyword;
   bool _hasMore = true;
@@ -74,7 +80,23 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _loadSubscribers();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    if (pos.maxScrollExtent - pos.pixels <= 200) {
+      _loadMoreSubscribers();
+    }
   }
 
   Future<void> _loadSubscribers({bool refresh = false}) async {
@@ -91,13 +113,17 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     });
 
     try {
-      final result = await _api.getSubscribers(channelId: widget.channelId);
+      final result = await _api.getSubscribers(
+        channelId: widget.channelId,
+        cursor: 0,
+        limit: _pageSize,
+      );
 
       if (mounted) {
         setState(() {
           _subscribers = result.map((e) => SubscriberInfo.fromJson(e)).toList();
           _isLoading = false;
-          _hasMore = false; // 简化处理，暂不分页
+          _hasMore = result.length >= _pageSize;
         });
       }
     } catch (e) {
@@ -107,6 +133,31 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _loadMoreSubscribers() async {
+    if (_isLoadingMore || !_hasMore || _isLoading) return;
+    _isLoadingMore = true;
+    try {
+      final more = await _api.getSubscribers(
+        channelId: widget.channelId,
+        cursor: _subscribers.length,
+        limit: _pageSize,
+      );
+      if (mounted) {
+        setState(() {
+          _subscribers = [
+            ..._subscribers,
+            ...more.map((e) => SubscriberInfo.fromJson(e)),
+          ];
+          _hasMore = more.length >= _pageSize;
+        });
+      }
+    } catch (e) {
+      // load-more 失败静默保留现有列表，用户滚动可重试；首屏错误已由 _error 呈现。
+    } finally {
+      _isLoadingMore = false;
     }
   }
 
@@ -325,6 +376,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     return RefreshIndicator(
       onRefresh: () => _loadSubscribers(refresh: true),
       child: ListView.builder(
+        controller: _scrollController,
         itemCount: _subscribers.length + (_hasMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == _subscribers.length) {

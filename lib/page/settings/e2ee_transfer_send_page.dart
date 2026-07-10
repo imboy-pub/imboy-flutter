@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/service/e2ee_transfer_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/e2ee_service.dart';
@@ -124,22 +125,18 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.chat.e2eeTransferSendTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.common.buttonBack,
-        ),
-      ),
-      body: _buildBody(),
+    return IosPageTemplate(
+      title: t.chat.e2eeTransferSendTitle,
+      child: _buildBody(),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CupertinoActivityIndicator());
+      return const Padding(
+        padding: EdgeInsets.only(top: 120),
+        child: Center(child: CupertinoActivityIndicator()),
+      );
     }
 
     if (_errorMessage != null) {
@@ -149,10 +146,10 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
+              Icon(
+                CupertinoIcons.exclamationmark_circle,
                 size: 64,
-                color: AppColors.iosRed,
+                color: AppColors.getIosRed(Theme.of(context).brightness),
               ),
               const SizedBox(height: AppSpacing.regular),
               Text(_errorMessage!, textAlign: TextAlign.center),
@@ -189,7 +186,7 @@ class _E2EETransferSendPageState extends State<E2EETransferSendPage> {
       child: Column(
         children: [
           const Icon(
-            Icons.qr_code_2,
+            CupertinoIcons.qrcode,
             size: 48,
             color: CupertinoColors.activeBlue,
           ),

@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
@@ -54,30 +56,25 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.common.e2eeBackupImportTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.common.buttonBack,
-        ),
-      ),
-      body: ListView(
+    return IosPageTemplate(
+      title: t.common.e2eeBackupImportTitle,
+      child: Padding(
         padding: const EdgeInsets.all(AppSpacing.regular),
-        children: [
-          _buildWarningCard(),
-          const SizedBox(height: AppSpacing.xLarge),
-          _buildFileSelector(),
-          if (_backupInfo != null) ...[
-            const SizedBox(height: AppSpacing.regular),
-            _buildBackupInfoCard(),
+        child: Column(
+          children: [
+            _buildWarningCard(),
+            const SizedBox(height: AppSpacing.xLarge),
+            _buildFileSelector(),
+            if (_backupInfo != null) ...[
+              const SizedBox(height: AppSpacing.regular),
+              _buildBackupInfoCard(),
+            ],
+            const SizedBox(height: AppSpacing.xLarge),
+            _buildPasswordSection(),
+            const SizedBox(height: AppSpacing.xLarge),
+            _buildImportButton(),
           ],
-          const SizedBox(height: AppSpacing.xLarge),
-          _buildPasswordSection(),
-          const SizedBox(height: AppSpacing.xLarge),
-          _buildImportButton(),
-        ],
+        ),
       ),
     );
   }
@@ -92,7 +89,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.info_outline, color: AppColors.iosOrange),
+                const Icon(CupertinoIcons.info, color: AppColors.iosOrange),
                 const SizedBox(width: AppSpacing.small),
                 Text(
                   t.common.e2eeBackupImportGuide,
@@ -150,8 +147,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                   children: [
                     Icon(
                       _selectedFile != null
-                          ? Icons.check_circle
-                          : Icons.cloud_upload_outlined,
+                          ? CupertinoIcons.checkmark_circle_fill
+                          : CupertinoIcons.cloud_upload,
                       color: _selectedFile != null
                           ? AppColors.iosGreen
                           : AppColors.iosGray,
@@ -191,7 +188,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.info_outline, color: AppColors.iosBlue),
+                const Icon(CupertinoIcons.info, color: AppColors.iosBlue),
                 AppSpacing.horizontalSmall,
                 Expanded(
                   child: Text(
@@ -203,7 +200,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                   ),
                 ),
                 const Icon(
-                  Icons.check_circle,
+                  CupertinoIcons.checkmark_circle_fill,
                   color: AppColors.iosGreen,
                   size: 20,
                 ),
@@ -267,7 +264,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       decoration: InputDecoration(
         labelText: t.common.e2eeBackupPwdLabel,
         hintText: t.common.e2eeBackupImportPwdHint,
-        prefixIcon: const Icon(Icons.lock),
+        prefixIcon: const Icon(CupertinoIcons.lock_fill),
         border: const OutlineInputBorder(),
         suffixIcon: _isImporting
             ? const SizedBox(
@@ -371,15 +368,16 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   }
 
   void _showSuccessDialog(Map<String, dynamic> result) {
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.common.e2eeBackupImportSuccessTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            AppSpacing.verticalSmall,
             Text(t.common.e2eeBackupImportSuccessBody),
             AppSpacing.verticalMedium,
             Text(
@@ -398,7 +396,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
@@ -420,7 +419,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppColors.iosRed,
+        backgroundColor: AppColors.getIosRed(Theme.of(context).brightness),
         duration: const Duration(seconds: 3),
       ),
     );

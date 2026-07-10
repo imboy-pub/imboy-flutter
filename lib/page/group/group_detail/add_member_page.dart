@@ -41,23 +41,27 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
 
   Future<void> loadData() async {
     final notifier = ref.read(addMemberProvider.notifier);
+    notifier.setLoading(true);
+    try {
+      // 加载群成员列表
+      List<GroupMemberModel> list = await (GroupMemberRepo()).page(
+        limit: 2000,
+        where: "${GroupMemberRepo.groupId} = ?",
+        whereArgs: [widget.groupId],
+      );
 
-    // 加载群成员列表
-    List<GroupMemberModel> list = await (GroupMemberRepo()).page(
-      limit: 2000,
-      where: "${GroupMemberRepo.groupId} = ?",
-      whereArgs: [widget.groupId],
-    );
+      notifier.setGroupMemberList(list);
 
-    notifier.setGroupMemberList(list);
-
-    // 加载联系人列表
-    final contactState = ref.read(contactProvider);
-    if (contactState.contactList.isEmpty) {
-      await ref.read(contactProvider.notifier).loadData();
+      // 加载联系人列表
+      final contactState = ref.read(contactProvider);
+      if (contactState.contactList.isEmpty) {
+        await ref.read(contactProvider.notifier).loadData();
+      }
+      final contacts = ref.read(contactProvider).contactList;
+      notifier.handleContactList(contacts);
+    } finally {
+      notifier.setLoading(false);
     }
-    final contacts = ref.read(contactProvider).contactList;
-    notifier.handleContactList(contacts);
   }
 
   Widget _buildListItem(BuildContext context, ContactModel model) {
@@ -349,7 +353,9 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
               child: SlidableAutoCloseBehavior(
                 child: Builder(
                   builder: (context) {
-                    return state.contactItems.isEmpty
+                    return state.isLoading
+                        ? const Center(child: CupertinoActivityIndicator())
+                        : state.contactItems.isEmpty
                         ? NoDataView(text: t.common.noData)
                         : AzListView(
                             data: state.contactItems,

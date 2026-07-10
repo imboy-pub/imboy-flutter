@@ -51,7 +51,7 @@ class P2pCallScreenPage extends ConsumerStatefulWidget {
 }
 
 class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   String msgId = '';
   String media = 'video';
   StreamSubscription<dynamic>? subscription;
@@ -70,6 +70,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   // 连接态头像“呼吸光环”动画
   late final AnimationController _pulse;
 
+  // 入场淡入（FaceTime 进场观感），FadeTransition 复用同一 Animation 免每帧重建。
+  late final AnimationController _entrance;
+  late final Animation<double> _entranceOpacity;
+  bool _entranceStarted = false;
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +83,14 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     )..repeat(reverse: true);
+    _entrance = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    );
+    _entranceOpacity = CurvedAnimation(
+      parent: _entrance,
+      curve: Curves.easeOut,
+    );
     msgId = widget.option['msgId'] as String? ?? Xid().toString();
     _initData();
   }
@@ -93,6 +106,15 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     } else if (!reduceMotion && !_pulse.isAnimating) {
       _pulse.repeat(reverse: true);
     }
+    if (!_entranceStarted) {
+      _entranceStarted = true;
+      // Reduce Motion 时瞬时呈现，不做淡入。
+      if (reduceMotion) {
+        _entrance.value = 1;
+      } else {
+        _entrance.forward();
+      }
+    }
   }
 
   @override
@@ -106,6 +128,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     msgId = '';
     subscription?.cancel();
     _pulse.dispose();
+    _entrance.dispose();
 
     // 先调用父类 dispose
     super.dispose();
@@ -285,7 +308,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
   void _connectedAfter() {
     final notifier = _notifier;
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
     notifier.stopAnswerTimer();
     notifier.updateConnected(true, width: size.width);
     MessagingFacade.instance.changeLocalMsgState(
@@ -361,7 +384,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
   /// 连接态 / 音频的中部信息：呼吸光环头像 + 昵称 + 状态文案。
   Widget _buildConnectingInfo(P2pCallScreenState state) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
     final String statusText = state.stateTips.isNotEmpty
         ? state.stateTips
         : (state.connected ? state.callDuration : t.common.calling);
@@ -745,49 +768,57 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     return Positioned(
       right: state.localX,
       top: state.localY,
-      child: GestureDetector(
-        // 点小窗交换主次画面（FaceTime 同款：点自己的小窗 → 自己上大屏）
-        onTap: () {
-          HapticFeedback.selectionClick();
-          if (mounted) setState(() => switchRenderer = !switchRenderer);
-        },
-        onPanUpdate: (details) {
-          notifier.updateLocalPosition(
-            state.localX + details.delta.dx,
-            state.localY + details.delta.dy,
-          );
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: Container(
-            width: localWidth,
-            height: localHeight,
-            decoration: BoxDecoration(
-              color: CallTokens.black,
-              border: Border.all(color: CallTokens.white30, width: 1.0),
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: const [
-                BoxShadow(color: CallTokens.black54, blurRadius: 10),
-              ],
-            ),
-            child: state.cameraOff
-                ? const ColoredBox(
-                    color: CallTokens.bg1A1A1A,
-                    child: Center(
-                      child: Icon(
-                        Icons.videocam_off,
-                        color: CallTokens.white38,
-                        size: 28,
+      child: Semantics(
+        button: true,
+        toggled: !switchRenderer,
+        label: switchRenderer
+            ? t.common.enterFullscreen
+            : t.common.exitFullscreen,
+        child: GestureDetector(
+          // 点小窗交换主次画面（FaceTime 同款：点自己的小窗 → 自己上大屏）
+          onTap: () {
+            HapticFeedback.selectionClick();
+            if (mounted) setState(() => switchRenderer = !switchRenderer);
+          },
+          onPanUpdate: (details) {
+            notifier.updateLocalPosition(
+              state.localX + details.delta.dx,
+              state.localY + details.delta.dy,
+            );
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              width: localWidth,
+              height: localHeight,
+              decoration: BoxDecoration(
+                color: CallTokens.black,
+                border: Border.all(color: CallTokens.white30, width: 1.0),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: const [
+                  BoxShadow(color: CallTokens.black54, blurRadius: 10),
+                ],
+              ),
+              child: state.cameraOff
+                  ? const ColoredBox(
+                      color: CallTokens.bg1A1A1A,
+                      child: Center(
+                        child: Icon(
+                          Icons.videocam_off,
+                          color: CallTokens.white38,
+                          size: 28,
+                        ),
                       ),
+                    )
+                  : RTCVideoView(
+                      switchRenderer ? localRenderer : remoteRenderer,
+                      objectFit:
+                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                      // ponytail: 前置自视图镜像; 显示本地渲染器时才镜像。
+                      // 切后置摄像头的去镜像暂未跟踪 facing, 真机批次再补。
+                      mirror: switchRenderer,
                     ),
-                  )
-                : RTCVideoView(
-                    switchRenderer ? localRenderer : remoteRenderer,
-                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                    // ponytail: 前置自视图镜像; 显示本地渲染器时才镜像。
-                    // 切后置摄像头的去镜像暂未跟踪 facing, 真机批次再补。
-                    mirror: switchRenderer,
-                  ),
+            ),
           ),
         ),
       ),
@@ -795,15 +826,19 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   }
 
   /// 接通后的远端视频（铺满，点屏切换控件显隐）。
-  Widget _buildRemoteVideo() {
+  Widget _buildRemoteVideo(P2pCallScreenState state) {
     return Positioned.fill(
-      child: GestureDetector(
-        onTap: () => _notifier.toggleShowTool(),
-        child: RTCVideoView(
-          switchRenderer ? remoteRenderer : localRenderer,
-          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-          // ponytail: 铺满显示本地渲染器(已切换)时镜像前置自视图。
-          mirror: !switchRenderer,
+      child: Semantics(
+        button: true,
+        label: state.showTool ? t.common.collapse : t.common.expandFull,
+        child: GestureDetector(
+          onTap: () => _notifier.toggleShowTool(),
+          child: RTCVideoView(
+            switchRenderer ? remoteRenderer : localRenderer,
+            objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+            // ponytail: 铺满显示本地渲染器(已切换)时镜像前置自视图。
+            mirror: !switchRenderer,
+          ),
         ),
       ),
     );
@@ -837,7 +872,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                         onTap: () {
                           HapticFeedback.selectionClick();
                           // 用 MediaQuery 算出右上角初始位（小窗宽 ~108）。
-                          final size = MediaQuery.of(context).size;
+                          final size = MediaQuery.sizeOf(context);
                           _notifier.enterFloating(size.width - 118, 70);
                         },
                         child: const SizedBox(
@@ -908,61 +943,70 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           curve: Curves.easeOutCubic,
           left: state.floatX,
           top: state.floatY,
-          child: GestureDetector(
-            onTap: () => _notifier.toggleMinimized(),
-            onPanUpdate: (d) {
-              if (_floatAnim != Duration.zero && mounted) {
-                setState(() => _floatAnim = Duration.zero);
-              }
-              final size = MediaQuery.of(context).size;
-              final nx = (state.floatX + d.delta.dx).clamp(0.0, size.width - w);
-              final ny = (state.floatY + d.delta.dy).clamp(
-                0.0,
-                size.height - h,
-              );
-              _notifier.updateFloatPosition(nx, ny);
-            },
-            onPanEnd: (_) {
-              // 松手吸附到最近的左/右边缘（FaceTime PiP 同款）。
-              final size = MediaQuery.of(context).size;
-              final snappedX = snapFloatingLeft(
-                currentLeft: state.floatX,
-                windowWidth: w,
-                screenWidth: size.width,
-              );
-              if (mounted) {
-                setState(() => _floatAnim = const Duration(milliseconds: 250));
-              }
-              _notifier.updateFloatPosition(snappedX, state.floatY);
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Container(
-                width: w,
-                height: h,
-                decoration: BoxDecoration(
-                  color: CallTokens.black,
-                  border: Border.all(color: CallTokens.white24, width: 1),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: const [
-                    BoxShadow(color: CallTokens.black54, blurRadius: 14),
-                  ],
-                ),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    inner,
-                    // 右上角放大提示
-                    const Positioned(
-                      top: 4,
-                      right: 4,
-                      child: Icon(
-                        Icons.fullscreen,
-                        color: CallTokens.white70,
-                        size: 18,
+          child: Semantics(
+            button: true,
+            label: t.common.expandFull,
+            child: GestureDetector(
+              onTap: () => _notifier.toggleMinimized(),
+              onPanUpdate: (d) {
+                if (_floatAnim != Duration.zero && mounted) {
+                  setState(() => _floatAnim = Duration.zero);
+                }
+                final size = MediaQuery.sizeOf(context);
+                final nx = (state.floatX + d.delta.dx).clamp(
+                  0.0,
+                  size.width - w,
+                );
+                final ny = (state.floatY + d.delta.dy).clamp(
+                  0.0,
+                  size.height - h,
+                );
+                _notifier.updateFloatPosition(nx, ny);
+              },
+              onPanEnd: (_) {
+                // 松手吸附到最近的左/右边缘（FaceTime PiP 同款）。
+                final size = MediaQuery.sizeOf(context);
+                final snappedX = snapFloatingLeft(
+                  currentLeft: state.floatX,
+                  windowWidth: w,
+                  screenWidth: size.width,
+                );
+                if (mounted) {
+                  setState(
+                    () => _floatAnim = const Duration(milliseconds: 250),
+                  );
+                }
+                _notifier.updateFloatPosition(snappedX, state.floatY);
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  width: w,
+                  height: h,
+                  decoration: BoxDecoration(
+                    color: CallTokens.black,
+                    border: Border.all(color: CallTokens.white24, width: 1),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: const [
+                      BoxShadow(color: CallTokens.black54, blurRadius: 14),
+                    ],
+                  ),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      inner,
+                      // 右上角放大提示
+                      const Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Icon(
+                          Icons.fullscreen,
+                          color: CallTokens.white70,
+                          size: 18,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -996,7 +1040,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
         children: [
           // 1. 背景层
           if (hasRemoteVideo)
-            _buildRemoteVideo()
+            _buildRemoteVideo(state)
           else
             _buildGradientBackground(),
 
@@ -1022,15 +1066,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       ),
     );
 
-    // 入场淡入（FaceTime 进场观感）；Reduce Motion 时瞬时呈现。
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0, end: 1),
-      duration: MediaQuery.of(context).disableAnimations
-          ? Duration.zero
-          : const Duration(milliseconds: 260),
-      curve: Curves.easeOut,
-      builder: (_, value, child) => Opacity(opacity: value, child: child),
-      child: scaffold,
-    );
+    // 入场淡入（FaceTime 进场观感）；Reduce Motion 时瞬时呈现（见 didChangeDependencies）。
+    return FadeTransition(opacity: _entranceOpacity, child: scaffold);
   }
 }

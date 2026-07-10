@@ -9,6 +9,7 @@ import 'package:video_player/video_player.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/video/video_controller.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -32,6 +33,7 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
   bool get isControllerPlaying => _controller?.value.isPlaying ?? false;
   late bool hasLoaded = false;
   bool _isFullScreen = false;
+  Object? _error;
 
   @override
   void initState() {
@@ -55,12 +57,17 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
   }
 
   Future<void> initializePlayer() async {
-    File? tmpF = await IMBoyCacheManager().getSingleFile(
-      widget.url,
-      validateImageData: false, // 视频文件不验证图片格式
-    );
+    if (mounted) {
+      setState(() {
+        _error = null;
+      });
+    }
     if (kDebugMode) debugPrint("chat_video_initializePlayer");
     try {
+      File tmpF = await IMBoyCacheManager().getSingleFile(
+        widget.url,
+        validateImageData: false, // 视频文件不验证图片格式
+      );
       _controller = VideoPlayerController.file(tmpF);
       await _controller?.initialize();
       if (mounted) {
@@ -72,6 +79,11 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
       _controller?.setLooping(true);
     } on Exception catch (e) {
       if (kDebugMode) debugPrint("video init error: ${e.runtimeType}");
+      if (mounted) {
+        setState(() {
+          _error = e;
+        });
+      }
     }
   }
 
@@ -234,16 +246,22 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
               },
             ),
             Positioned.fill(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    AppSpacing.verticalSmall,
-                    Text("${t.common.loading}..."),
-                  ],
-                ),
-              ),
+              child: _error != null
+                  ? NoDataView(
+                      text: t.common.loadError,
+                      icon: Icons.error_outline,
+                      onTop: initializePlayer,
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const CircularProgressIndicator(),
+                          AppSpacing.verticalSmall,
+                          Text("${t.common.loading}..."),
+                        ],
+                      ),
+                    ),
             ),
           ],
         ),

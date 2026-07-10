@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/service/group_category_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/category/group_category_detail_page.dart';
@@ -18,6 +19,7 @@ class GroupCategoryPage extends ConsumerStatefulWidget {
 class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
   List<Map<String, dynamic>> _categories = [];
   bool _isLoading = true;
+  Object? _error;
 
   @override
   void initState() {
@@ -26,13 +28,25 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
   }
 
   Future<void> _loadCategories() async {
-    setState(() => _isLoading = true);
-    final categories = await GroupCategoryService.to.getCategories();
-    if (mounted) {
-      setState(() {
-        _categories = categories;
-        _isLoading = false;
-      });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final categories = await GroupCategoryService.to.getCategories();
+      if (mounted) {
+        setState(() {
+          _categories = categories;
+          _isLoading = false;
+        });
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e;
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -64,8 +78,11 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
       final success = await GroupCategoryService.to.createCategory(
         name: controller.text,
       );
-      if (success != null && mounted) {
+      if (!mounted) return;
+      if (success != null) {
         _loadCategories();
+      } else {
+        AppLoading.showError(t.common.tipFailed);
       }
     }
   }
@@ -91,25 +108,21 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_categories.isEmpty) {
-      return NoDataView(
-        text: t.groupCategory.noCategory,
-        onTop: _loadCategories,
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadCategories,
-      child: ListView.builder(
-        itemCount: _categories.length,
-        itemBuilder: (context, index) {
-          final category = _categories[index];
-          return _buildCategoryItem(category);
-        },
+    return AsyncStateView(
+      isLoading: _isLoading,
+      error: _error,
+      isEmpty: _categories.isEmpty,
+      onRetry: _loadCategories,
+      emptyText: t.groupCategory.noCategory,
+      child: RefreshIndicator(
+        onRefresh: _loadCategories,
+        child: ListView.builder(
+          itemCount: _categories.length,
+          itemBuilder: (context, index) {
+            final category = _categories[index];
+            return _buildCategoryItem(category);
+          },
+        ),
       ),
     );
   }

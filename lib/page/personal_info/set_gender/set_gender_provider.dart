@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import '../personal_info/personal_info_provider.dart';
 
@@ -80,12 +82,14 @@ class SetGenderNotifier extends _$SetGenderNotifier {
         return true;
       } else {
         await _handleSaveError('', '');
+        AppLoading.showError(t.common.genderUpdateFailed);
         return false;
       }
     } catch (e) {
       iPrint('设置性别失败: $e');
       // 网络异常回滚并提示
       await _revertToOriginal();
+      AppLoading.showError(t.common.genderUpdateFailed);
       return false;
     } finally {
       // 清理 pending 与保存状态

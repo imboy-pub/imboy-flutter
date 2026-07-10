@@ -163,9 +163,14 @@ class LaunchChatNotifier extends _$LaunchChatNotifier {
 
   /// 加载联系人列表
   Future<void> loadContacts() async {
-    final service = LaunchChatService();
-    final contacts = await service.listFriend();
-    handleList(contacts);
+    setLoading(true);
+    try {
+      final service = LaunchChatService();
+      final contacts = await service.listFriend();
+      handleList(contacts);
+    } finally {
+      setLoading(false);
+    }
   }
 }
 

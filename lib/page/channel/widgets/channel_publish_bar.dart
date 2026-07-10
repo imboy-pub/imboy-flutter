@@ -8,6 +8,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -17,6 +18,13 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
 
 import '../channel_provider.dart';
+
+/// 单个媒体上传结果：待发布消息的三要素。
+typedef _ChannelMediaUpload = ({
+  String msgType,
+  String content,
+  Map<String, dynamic> payload,
+});
 
 /// 频道发布输入栏
 ///
@@ -33,12 +41,23 @@ class ChannelPublishBar extends ConsumerStatefulWidget {
 }
 
 class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
+  /// 频道媒体单批并发上限。
+  /// ponytail: 固定 3，避免大文件同批打满带宽；需要更细粒度限流时再升级为信号量池。
+  static const int _uploadConcurrency = 3;
+
   final TextEditingController _messageController = TextEditingController();
   bool _isUploadingMedia = false;
   bool _showVoiceInput = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _restoreDraft());
+  }
+
+  @override
   void dispose() {
+    _persistDraftOnExit();
     _messageController.dispose();
     super.dispose();
   }
@@ -46,6 +65,34 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   /// 外部触发聚焦
   void focus() {
     if (widget.focusNode.canRequestFocus) widget.focusNode.requestFocus();
+  }
+
+  /// 频道草稿存储 key，按 channelId 隔离；频道未加载时返回空串，调用方据此跳过读写。
+  String get _draftKey {
+    final channelId = ref.read(channelDetailProvider).channel?.id;
+    return channelId == null ? '' : 'channel_draft_$channelId';
+  }
+
+  /// 恢复上次未发送的草稿文本（复用朋友圈 StorageService 草稿模式）。
+  void _restoreDraft() {
+    final key = _draftKey;
+    if (key.isEmpty || !mounted) return;
+    final draft = StorageService.to.getString(key);
+    if (draft.isEmpty) return;
+    setState(() => _messageController.text = draft);
+    AppLoading.showInfo(context.t.discovery.momentsDraftRestored);
+  }
+
+  /// 退出前把未发送文本落盘；已清空则顺带清掉旧草稿，避免残留。
+  void _persistDraftOnExit() {
+    final key = _draftKey;
+    if (key.isEmpty) return;
+    final content = _messageController.text.trim();
+    if (content.isEmpty) {
+      unawaited(StorageService.to.remove(key));
+      return;
+    }
+    unawaited(StorageService.to.setString(key, content));
   }
 
   /// 发送文本消息
@@ -66,6 +113,8 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     if (success) {
       _messageController.clear();
       setState(() {});
+      final key = _draftKey;
+      if (key.isNotEmpty) unawaited(StorageService.to.remove(key));
       return;
     }
     ScaffoldMessenger.of(
@@ -128,7 +177,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     }
   }
 
-  /// 选择并发送媒体文件
+  /// 选择并发送媒体文件（并行上传，分批限流，保留逐项 payload 组装）
   Future<void> _pickAndSendMedia() async {
     if (ref.read(channelDetailProvider).isPublishing || _isUploadingMedia) {
       return;
@@ -148,82 +197,111 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       if (mounted) setState(() => _isUploadingMedia = false);
       return;
     }
+    if (!mounted) return;
+    final t = context.t;
 
     try {
-      for (final asset in assets) {
-        final file = await asset.file;
-        if (file == null) continue;
+      final total = assets.length;
+      var done = 0;
+      AppLoading.showProgress(0, status: '${t.common.uploading} 0/$total');
 
-        String msgType = ChannelMessageType.file;
-        String uploadPrefix = 'files';
-        Map<String, dynamic> payload = {
-          'name': asset.title ?? file.path.split('/').last,
-          'size': await file.length(),
-        };
-
-        if (asset.type == AssetType.image) {
-          msgType = ChannelMessageType.image;
-          uploadPrefix = 'img';
-        } else if (asset.type == AssetType.video) {
-          msgType = ChannelMessageType.video;
-        }
-
-        if (msgType == ChannelMessageType.video) {
-          // 视频走统一上传方法（压缩+缩略图+上传三件套）
-          final result = await AttachmentApi.uploadVideoFileViaPresign(
-            file,
-            durationMs: (asset.duration * 1000).toInt(),
-            width: asset.width,
-            height: asset.height,
-            scope: 'channel',
-          );
-          if (!mounted) return;
-          if (result == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.t.common.uploadFailed)),
+      // 分批并发上传（每批 _uploadConcurrency 个），批内并行、批间串行限流。
+      final uploads = <_ChannelMediaUpload?>[];
+      for (var i = 0; i < assets.length; i += _uploadConcurrency) {
+        final batch = assets.skip(i).take(_uploadConcurrency);
+        final batchResults = await Future.wait(
+          batch.map((asset) async {
+            final result = await _uploadSingleAsset(asset);
+            done++;
+            AppLoading.showProgress(
+              done / total,
+              status: '${t.common.uploading} $done/$total',
             );
-            continue;
-          }
-          payload['uri'] = result['video_uri'];
-          payload['size'] = result['size'];
-          payload['duration'] = asset.duration;
-          payload['thumb'] = {'uri': result['thumb_uri']};
-        } else {
-          // 图片/文件仍走单文件上传
-          final uploadedUri = await _uploadChannelFile(
-            file,
-            prefix: uploadPrefix,
-          );
-          if (!mounted) return;
-          if (uploadedUri == null || uploadedUri.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.t.common.uploadFailed)),
-            );
-            continue;
-          }
-          payload['uri'] = uploadedUri;
+            return result;
+          }),
+        );
+        uploads.addAll(batchResults);
+      }
+      AppLoading.dismiss();
+      if (!mounted) return;
+
+      // 全部上传完成后按原顺序依次发布，失败项汇总一条提示。
+      var successCount = 0;
+      var failCount = 0;
+      for (final upload in uploads) {
+        if (upload == null) {
+          failCount++;
+          continue;
         }
-
-        final fileName = asset.title ?? file.path.split('/').last;
-        final content = fileName.trim().isEmpty ? '[media]' : fileName;
-
         final success = await ref
             .read(channelDetailProvider.notifier)
             .publishMessage(
-              content: content,
-              msgType: msgType,
-              payload: payload,
+              content: upload.content,
+              msgType: upload.msgType,
+              payload: upload.payload,
             );
+        if (!mounted) return;
+        success ? successCount++ : failCount++;
+      }
 
-        if (!success && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.t.channel.publishFailed)),
-          );
-        }
+      if (failCount > 0 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${t.common.success} $successCount，${t.common.failed} $failCount',
+            ),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isUploadingMedia = false);
     }
+  }
+
+  /// 上传单个已选资源，返回待发布的消息素材；失败（含文件读取失败）返回
+  /// null，由调用方计入失败计数并在汇总提示中体现。
+  Future<_ChannelMediaUpload?> _uploadSingleAsset(AssetEntity asset) async {
+    final file = await asset.file;
+    if (file == null) return null;
+
+    String msgType = ChannelMessageType.file;
+    String uploadPrefix = 'files';
+    final payload = <String, dynamic>{
+      'name': asset.title ?? file.path.split('/').last,
+      'size': await file.length(),
+    };
+
+    if (asset.type == AssetType.image) {
+      msgType = ChannelMessageType.image;
+      uploadPrefix = 'img';
+    } else if (asset.type == AssetType.video) {
+      msgType = ChannelMessageType.video;
+    }
+
+    if (msgType == ChannelMessageType.video) {
+      // 视频走统一上传方法（压缩+缩略图+上传三件套）
+      final result = await AttachmentApi.uploadVideoFileViaPresign(
+        file,
+        durationMs: (asset.duration * 1000).toInt(),
+        width: asset.width,
+        height: asset.height,
+        scope: 'channel',
+      );
+      if (result == null) return null;
+      payload['uri'] = result['video_uri'];
+      payload['size'] = result['size'];
+      payload['duration'] = asset.duration;
+      payload['thumb'] = {'uri': result['thumb_uri']};
+    } else {
+      // 图片/文件仍走单文件上传
+      final uploadedUri = await _uploadChannelFile(file, prefix: uploadPrefix);
+      if (uploadedUri == null || uploadedUri.isEmpty) return null;
+      payload['uri'] = uploadedUri;
+    }
+
+    final fileName = asset.title ?? file.path.split('/').last;
+    final content = fileName.trim().isEmpty ? '[media]' : fileName;
+    return (msgType: msgType, content: content, payload: payload);
   }
 
   Future<String?> _uploadChannelFile(

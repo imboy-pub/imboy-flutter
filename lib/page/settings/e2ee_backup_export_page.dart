@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -38,34 +40,29 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.common.e2eeBackupExportTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.common.buttonBack,
-        ),
-      ),
-      body: ListView(
+    return IosPageTemplate(
+      title: t.common.e2eeBackupExportTitle,
+      child: Padding(
         padding: const EdgeInsets.all(AppSpacing.regular),
-        children: [
-          _buildWarningCard(),
-          const SizedBox(height: AppSpacing.xLarge),
-          _buildPasswordSection(),
-          const SizedBox(height: AppSpacing.regular),
-          _buildConfirmPasswordSection(),
-          const SizedBox(height: AppSpacing.regular),
-          _buildNotesSection(),
-          const SizedBox(height: AppSpacing.xLarge),
-          _buildPasswordStrengthIndicator(),
-          const SizedBox(height: AppSpacing.xLarge),
-          _buildExportButton(),
-          if (_generatedFilePath != null) ...[
+        child: Column(
+          children: [
+            _buildWarningCard(),
+            const SizedBox(height: AppSpacing.xLarge),
+            _buildPasswordSection(),
             const SizedBox(height: AppSpacing.regular),
-            _buildShareButton(),
+            _buildConfirmPasswordSection(),
+            const SizedBox(height: AppSpacing.regular),
+            _buildNotesSection(),
+            const SizedBox(height: AppSpacing.xLarge),
+            _buildPasswordStrengthIndicator(),
+            const SizedBox(height: AppSpacing.xLarge),
+            _buildExportButton(),
+            if (_generatedFilePath != null) ...[
+              const SizedBox(height: AppSpacing.regular),
+              _buildShareButton(),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -81,7 +78,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             Row(
               children: [
                 const Icon(
-                  Icons.warning_amber_rounded,
+                  CupertinoIcons.exclamationmark_triangle_fill,
                   color: AppColors.iosOrange,
                 ),
                 const SizedBox(width: AppSpacing.small),
@@ -123,7 +120,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       decoration: InputDecoration(
         labelText: t.common.e2eeBackupPwdLabel,
         hintText: t.common.e2eeBackupPwdHint,
-        prefixIcon: const Icon(Icons.lock_outline),
+        prefixIcon: const Icon(CupertinoIcons.lock),
         border: const OutlineInputBorder(),
       ),
       onChanged: (_) => setState(() {}),
@@ -137,7 +134,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       decoration: InputDecoration(
         labelText: t.common.e2eeBackupConfirmPwdLabel,
         hintText: t.common.e2eeBackupConfirmPwdHint,
-        prefixIcon: const Icon(Icons.lock),
+        prefixIcon: const Icon(CupertinoIcons.lock_fill),
         border: const OutlineInputBorder(),
       ),
     );
@@ -149,7 +146,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       decoration: InputDecoration(
         labelText: t.common.e2eeBackupNoteLabel,
         hintText: t.common.e2eeBackupNoteHint,
-        prefixIcon: const Icon(Icons.note),
+        prefixIcon: const Icon(CupertinoIcons.doc_text),
         border: const OutlineInputBorder(),
       ),
       maxLines: 2,
@@ -236,7 +233,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             Row(
               children: [
                 const Icon(
-                  Icons.check_circle,
+                  CupertinoIcons.checkmark_circle_fill,
                   color: AppColors.iosGreen,
                   size: 20,
                 ),
@@ -262,7 +259,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             const SizedBox(height: AppSpacing.medium),
             OutlinedButton.icon(
               onPressed: _handleShare,
-              icon: const Icon(Icons.share),
+              icon: const Icon(CupertinoIcons.share),
               label: Text(t.common.e2eeBackupShareBtn),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 48),
@@ -331,15 +328,16 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   }
 
   void _showSuccessDialog() {
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.common.e2eeBackupExportSuccessTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            AppSpacing.verticalSmall,
             Text(t.common.e2eeBackupExportSuccessBody),
             const SizedBox(height: AppSpacing.medium),
             Text(
@@ -352,7 +350,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () => Navigator.of(context).pop(),
             child: Text(t.main.gotIt),
           ),
@@ -365,7 +364,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppColors.iosRed,
+        backgroundColor: AppColors.getIosRed(Theme.of(context).brightness),
         duration: const Duration(seconds: 3),
       ),
     );

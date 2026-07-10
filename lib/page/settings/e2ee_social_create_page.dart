@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_social_service.dart';
 import 'package:imboy/page/settings/e2ee_proxy_selector_page.dart';
@@ -25,10 +26,11 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(t.chat.e2eeSocialCreateTitle)),
-      body: ListView(
+    return IosPageTemplate(
+      title: t.chat.e2eeSocialCreateTitle,
+      child: Column(
         children: [
+          AppSpacing.verticalRegular,
           _buildSettingsCard(),
           const SizedBox(height: AppSpacing.regular),
           _buildProxySelectionCard(),
@@ -202,8 +204,8 @@ class _E2EESocialCreatePageState extends State<E2EESocialCreatePage> {
         title: Text(nickname),
         subtitle: Text('UID: $uid'),
         trailing: IconButton(
-          icon: const Icon(Icons.remove_circle),
-          color: AppColors.iosRed,
+          icon: const Icon(CupertinoIcons.minus_circle_fill),
+          color: AppColors.getIosRed(Theme.of(context).brightness),
           onPressed: () {
             setState(() {
               _selectedProxies.removeAt(index);

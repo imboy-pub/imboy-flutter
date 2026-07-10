@@ -43,16 +43,20 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
   Future<void> initData() async {
     final notifier = ref.read(removeMemberProvider.notifier);
     final currentUid = UserRepoLocal.to.currentUid;
+    notifier.setLoading(true);
+    try {
+      List<GroupMemberModel> list = await (GroupMemberRepo()).page(
+        limit: 2000,
+        where: "${GroupMemberRepo.groupId} = ?",
+        whereArgs: [widget.groupId],
+      );
 
-    List<GroupMemberModel> list = await (GroupMemberRepo()).page(
-      limit: 2000,
-      where: "${GroupMemberRepo.groupId} = ?",
-      whereArgs: [widget.groupId],
-    );
+      notifier.setGroupMemberList(list, currentUid);
 
-    notifier.setGroupMemberList(list, currentUid);
-
-    iPrint("remove_member_page/loadData ${widget.groupId} ${list.length}");
+      iPrint("remove_member_page/loadData ${widget.groupId} ${list.length}");
+    } finally {
+      notifier.setLoading(false);
+    }
   }
 
   Widget _buildListItem(BuildContext context, GroupMemberModel model) {
@@ -189,7 +193,9 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
           const SizedBox(width: 10),
         ],
       ),
-      body: state.groupMemberList.isEmpty
+      body: state.isLoading
+          ? const Center(child: CupertinoActivityIndicator())
+          : state.groupMemberList.isEmpty
           ? NoDataView(text: t.common.noData)
           : ListView.builder(
               itemCount: state.groupMemberList.length,

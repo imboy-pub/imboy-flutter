@@ -83,13 +83,16 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.lightSurface, AppColors.primaryLight],
+            colors: isDark
+                ? const [AppColors.darkSurface, AppColors.darkSurfaceContainer]
+                : const [AppColors.lightSurface, AppColors.primaryLight],
           ),
         ),
         child: SafeArea(
@@ -202,24 +205,31 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                 child: Column(
                   children: [
                     // Indicator
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(_pages(context).length, (index) {
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.tiny,
-                          ),
-                          width: _currentPage == index ? 24 : 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            borderRadius: AppRadius.borderRadiusTiny,
-                            color: _currentPage == index
-                                ? AppColors.primary
-                                : AppColors.slateMuted,
-                          ),
-                        );
-                      }),
+                    Semantics(
+                      label: '${_currentPage + 1}/${_pages(context).length}',
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(_pages(context).length, (
+                          index,
+                        ) {
+                          return ExcludeSemantics(
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.tiny,
+                              ),
+                              width: _currentPage == index ? 24 : 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                borderRadius: AppRadius.borderRadiusTiny,
+                                color: _currentPage == index
+                                    ? AppColors.primary
+                                    : AppColors.slateMuted,
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
                     ),
                     AppSpacing.verticalXXLarge,
                     // Button
@@ -260,18 +270,27 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     AppSpacing.verticalRegular,
                     // Skip Link
                     if (_currentPage < _pages(context).length - 1)
-                      GestureDetector(
-                        onTap: () {
-                          context.go('/sign_in');
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(AppSpacing.small),
-                          child: Text(
-                            context.t.welcome.skip,
-                            style: context.textStyle(
-                              FontSizeType.normal,
-                              color: AppColors.slateText,
-                              fontWeight: FontWeight.w600,
+                      Semantics(
+                        button: true,
+                        label: context.t.welcome.skip,
+                        child: GestureDetector(
+                          onTap: () {
+                            context.go('/sign_in');
+                          },
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              minWidth: 44,
+                              minHeight: 44,
+                            ),
+                            child: Center(
+                              child: Text(
+                                context.t.welcome.skip,
+                                style: context.textStyle(
+                                  FontSizeType.normal,
+                                  color: AppColors.slateText,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -303,46 +322,58 @@ class _LanguageSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final names = localeNames(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return GestureDetector(
-      onTap: () => _showLanguageSelector(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.medium,
-          vertical: AppSpacing.small,
-        ),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-          borderRadius: AppRadius.borderRadiusMedium,
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
-          boxShadow: [
-            BoxShadow(
-              // 投影固定半透明黑色，符合 Material 阴影规范
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+    final currentName = names[currentLocale] ?? currentLocale.languageCode;
+    return Semantics(
+      button: true,
+      label: context.t.common.selectLanguage,
+      value: currentName,
+      child: GestureDetector(
+        onTap: () => _showLanguageSelector(context),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.medium,
+              vertical: AppSpacing.small,
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.language, size: 18, color: AppColors.primary),
-            AppSpacing.horizontalSmall,
-            Text(
-              names[currentLocale] ?? currentLocale.languageCode,
-              style: context.textStyle(
-                FontSizeType.normal,
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              borderRadius: AppRadius.borderRadiusMedium,
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.2),
               ),
+              boxShadow: const [
+                BoxShadow(
+                  // 投影固定半透明黑色，符合 Material 阴影规范
+                  color: AppColors.overlayBlack5,
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
-            AppSpacing.horizontalTiny,
-            const Icon(
-              Icons.keyboard_arrow_down,
-              size: 18,
-              color: AppColors.primary,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.language, size: 18, color: AppColors.primary),
+                AppSpacing.horizontalSmall,
+                Text(
+                  currentName,
+                  style: context.textStyle(
+                    FontSizeType.normal,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                AppSpacing.horizontalTiny,
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 18,
+                  color: AppColors.primary,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -378,7 +409,7 @@ class _LanguageSelector extends StatelessWidget {
                 size: 18,
                 color: locale == currentLocale
                     ? AppColors.primary
-                    : Colors.transparent,
+                    : AppColors.transparent,
               ),
               AppSpacing.horizontalMedium,
               Expanded(

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -41,8 +42,10 @@ class _SetNicknamePageState extends ConsumerState<SetNicknamePage> {
                   final success = await ref
                       .read(setNicknameProvider.notifier)
                       .saveNickname(ref);
-                  if (success && context.mounted) {
-                    Navigator.of(context).pop(true);
+                  if (success) {
+                    if (context.mounted) Navigator.of(context).pop(true);
+                  } else {
+                    AppLoading.showError(t.common.nicknameUpdateFailed);
                   }
                 }
               : null,

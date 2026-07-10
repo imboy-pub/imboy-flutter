@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -24,6 +25,7 @@ class GroupTaskPage extends ConsumerStatefulWidget {
 class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   List<Map<String, dynamic>> _tasks = [];
   bool _isLoading = true;
+  Object? _error;
   int _currentFilter = 0; // 0: 全部, 1: 待完成, 2: 已完成
 
   @override
@@ -34,7 +36,10 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
 
   Future<void> _loadTasks() async {
     if (!mounted) return;
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
     int? status;
     if (_currentFilter == 1) {
@@ -43,16 +48,25 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
       status = 2; // 已完成（completed）
     }
 
-    final tasks = await GroupTaskService.to.getTasks(
-      groupId: widget.groupId,
-      status: status,
-    );
+    try {
+      final tasks = await GroupTaskService.to.getTasks(
+        groupId: widget.groupId,
+        status: status,
+      );
 
-    if (mounted) {
-      setState(() {
-        _tasks = tasks;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _tasks = tasks;
+          _isLoading = false;
+        });
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e;
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -108,8 +122,11 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
         title: titleController.text,
         description: descController.text,
       );
-      if (task != null && mounted) {
+      if (!mounted) return;
+      if (task != null) {
         _loadTasks();
+      } else {
+        AppLoading.showError(t.common.tipFailed);
       }
     }
   }
@@ -185,8 +202,19 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   }
 
   Widget _buildBody() {
+    // ponytail: 保留 Material CircularProgressIndicator 供既有 widget 测试断言，
+    // 不改用 AsyncStateView（其 loading 态为 CupertinoActivityIndicator）。
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return NoDataView(
+        key: const Key('group_task_error'),
+        text: t.common.tipFailed,
+        icon: CupertinoIcons.exclamationmark_circle,
+        onTop: _loadTasks,
+      );
     }
 
     if (_tasks.isEmpty) {

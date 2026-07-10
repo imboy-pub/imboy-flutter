@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -42,7 +42,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
     final currentEmail = UserRepoLocal.to.current.email;
     final hasBound = currentEmail.isNotEmpty;
     final asyncState = ref.watch(bindEmailProvider);
-    final brightness = Theme.of(context).brightness;
+    final brightness = MediaQuery.platformBrightnessOf(context);
 
     return IosPageTemplate(
       title: hasBound ? t.account.changeEmail : t.account.bindEmail,
@@ -224,7 +224,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
         horizontal: AppSpacing.medium,
         vertical: 0,
       ),
-      color: AppColors.getIosBlue(Theme.of(context).brightness),
+      color: AppColors.getIosBlue(MediaQuery.platformBrightnessOf(context)),
       disabledColor: AppColors.iosGray.withValues(alpha: 0.3),
       borderRadius: BorderRadius.circular(16),
       onPressed: canSend
@@ -233,12 +233,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                   .read(bindEmailProvider.notifier)
                   .sendCode();
               if (error != null && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(error),
-                    backgroundColor: AppColors.iosRed,
-                  ),
-                );
+                AppLoading.showError(error);
               }
             }
           : null,
@@ -274,23 +269,20 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
       child: SizedBox(
         width: double.infinity,
         height: 50,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
+        child: CupertinoButton(
+          padding: EdgeInsets.zero,
+          color: AppColors.primary,
+          disabledColor: AppColors.primary.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(14),
           onPressed: state.canSubmit
               ? () async {
                   FocusScope.of(context).unfocus();
                   final error = await ref
                       .read(bindEmailProvider.notifier)
                       .submit();
-                  if (error == null && context.mounted) {
+                  if (error != null && context.mounted) {
+                    AppLoading.showError(error);
+                  } else if (context.mounted) {
                     Navigator.of(context).pop();
                   }
                 }
@@ -302,6 +294,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
                   style: context.textStyle(
                     FontSizeType.body,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.onPrimary,
                   ),
                 ),
         ),

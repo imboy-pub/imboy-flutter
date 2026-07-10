@@ -60,6 +60,13 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
     ref.read(peopleNearbyProvider.notifier).peopleNearby();
   }
 
+  /// 标准下拉刷新入口（CupertinoSliverRefreshControl），
+  /// 与指南针点击共用同一份拉取逻辑，等待请求完成后指示器才收起。
+  Future<void> _onPullRefresh() {
+    _rotateCompass();
+    return ref.read(peopleNearbyProvider.notifier).peopleNearby();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(peopleNearbyProvider);
@@ -72,6 +79,9 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
       useLargeTitle: false,
       actions: const [],
       slivers: [
+        // iOS 原生下拉刷新（与指南针点击刷新互补）
+        CupertinoSliverRefreshControl(onRefresh: _onPullRefresh),
+
         // 搜索区域 Section - 增强视觉重感
         SliverToBoxAdapter(
           child: _buildSearchHeader(context, isDark, brightness),
@@ -200,7 +210,9 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              color: Theme.of(
+                context,
+              ).colorScheme.shadow.withValues(alpha: isDark ? 0.2 : 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -209,17 +221,21 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
         child: Column(
           children: [
             // 点击大指南针即可刷新下方"附近的人"列表（旋转动画反馈）
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _refreshNearby,
-              child: AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) => Transform.rotate(
-                  angle: _animationController.value * 6.28318,
-                  child: const Icon(
-                    CupertinoIcons.compass,
-                    color: AppColors.primary,
-                    size: 80,
+            Semantics(
+              button: true,
+              label: t.discovery.findNearbyPeople,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _refreshNearby,
+                child: AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) => Transform.rotate(
+                    angle: _animationController.value * 6.28318,
+                    child: const Icon(
+                      CupertinoIcons.compass,
+                      color: AppColors.primary,
+                      size: 80,
+                    ),
                   ),
                 ),
               ),
@@ -290,42 +306,46 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
   Widget _buildEmptyState(BuildContext context) {
     // 空状态指南针同样可点击 + 旋转动画：点它即重新搜索附近的人。
     return Center(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _refreshNearby,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) => Transform.rotate(
-                angle: _animationController.value * 6.28318,
-                child: const Icon(
-                  CupertinoIcons.compass,
-                  color: AppColors.iosGray3,
-                  size: 64,
+      child: Semantics(
+        button: true,
+        label: t.discovery.findNearbyPeople,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _refreshNearby,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) => Transform.rotate(
+                  angle: _animationController.value * 6.28318,
+                  child: const Icon(
+                    CupertinoIcons.compass,
+                    color: AppColors.iosGray3,
+                    size: 64,
+                  ),
                 ),
               ),
-            ),
-            AppSpacing.verticalMedium,
-            Text(
-              t.common.noNearbyPeople,
-              style: context.textStyle(
-                FontSizeType.subheadline,
-                fontWeight: FontWeight.w600,
-                color: AppColors.iosGray,
+              AppSpacing.verticalMedium,
+              Text(
+                t.common.noNearbyPeople,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.iosGray,
+                ),
               ),
-            ),
-            AppSpacing.verticalTiny,
-            Text(
-              t.common.clickSearchButtonToFind,
-              textAlign: TextAlign.center,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: AppColors.iosGray3,
+              AppSpacing.verticalTiny,
+              Text(
+                t.common.clickSearchButtonToFind,
+                textAlign: TextAlign.center,
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  color: AppColors.iosGray3,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

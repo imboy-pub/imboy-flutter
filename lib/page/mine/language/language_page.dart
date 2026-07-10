@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/font_types.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/storage.dart';
@@ -51,32 +50,20 @@ class LanguageModel {
 
 /// Language 模块的状态
 class LanguageState {
-  final bool valueChanged;
   final AppLocale currentLocale;
-  final AppLocale? selectedLocale;
-  final String? selectedLocaleId;
   final List<LanguageModel> languageList;
 
   const LanguageState({
-    this.valueChanged = false,
     this.currentLocale = AppLocale.zhCn,
-    this.selectedLocale,
-    this.selectedLocaleId,
     this.languageList = const [],
   });
 
   LanguageState copyWith({
-    bool? valueChanged,
     AppLocale? currentLocale,
-    AppLocale? selectedLocale,
-    String? selectedLocaleId,
     List<LanguageModel>? languageList,
   }) {
     return LanguageState(
-      valueChanged: valueChanged ?? this.valueChanged,
       currentLocale: currentLocale ?? this.currentLocale,
-      selectedLocale: selectedLocale ?? this.selectedLocale,
-      selectedLocaleId: selectedLocaleId ?? this.selectedLocaleId,
       languageList: languageList ?? this.languageList,
     );
   }
@@ -99,17 +86,8 @@ class LanguageNotifier extends _$LanguageNotifier {
       } catch (_) {}
     }
 
-    String? selectedLocaleId;
-    try {
-      selectedLocaleId = localeIdMap.entries
-          .firstWhere((entry) => entry.value == currentLocale)
-          .key;
-    } catch (_) {}
-
     return LanguageState(
       currentLocale: currentLocale,
-      selectedLocale: currentLocale,
-      selectedLocaleId: selectedLocaleId,
       languageList: _buildLanguageList(),
     );
   }
@@ -184,21 +162,7 @@ class LanguageNotifier extends _$LanguageNotifier {
     if (locale == null) return;
     await StorageService.to.setString(Keys.currentLanguageCode, locale.name);
     await LocaleSettings.setLocale(locale);
-    state = state.copyWith(
-      currentLocale: locale,
-      selectedLocale: locale,
-      valueChanged: false,
-    );
-  }
-
-  void updateSelectedLanguage(String langId) {
-    final locale = localeIdMap[langId];
-    if (locale == null) return;
-    state = state.copyWith(
-      selectedLocale: locale,
-      selectedLocaleId: langId,
-      valueChanged: locale != state.currentLocale,
-    );
+    state = state.copyWith(currentLocale: locale);
   }
 }
 
@@ -215,74 +179,23 @@ class LanguagePage extends ConsumerWidget {
     return IosPageTemplate(
       title: t.common.languageSetting,
       useLargeTitle: false,
-      bottomWidget: _buildSaveButton(context, ref, state, t),
       child: ImBoySettingsSection(
         header: Text(t.common.selectLanguage.toUpperCase()),
         children: [
           for (var item in state.languageList)
             ImBoySettingsTile(
               title: Text(item.title),
-              trailing: state.selectedLocale == localeIdMap[item.id]
+              trailing: state.currentLocale == localeIdMap[item.id]
                   ? Icon(
                       CupertinoIcons.check_mark,
                       size: 18,
                       color: AppColors.getIosBlue(brightness),
                     )
                   : const SizedBox.shrink(),
-              onTap: () => ref
-                  .read(languageProvider.notifier)
-                  .updateSelectedLanguage(item.id),
+              onTap: () =>
+                  ref.read(languageProvider.notifier).changeLanguage(item.id),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSaveButton(
-    BuildContext context,
-    WidgetRef ref,
-    LanguageState state,
-    Translations t,
-  ) {
-    final canSave = state.valueChanged && state.selectedLocaleId != null;
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        8,
-        16,
-        MediaQuery.of(context).padding.bottom + 16,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
-            disabledForegroundColor: AppColors.onPrimary.withValues(alpha: 0.7),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            textStyle: context.textStyle(
-              FontSizeType.body,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          onPressed: canSave
-              ? () async {
-                  await ref
-                      .read(languageProvider.notifier)
-                      .changeLanguage(state.selectedLocaleId!);
-                  if (context.mounted) Navigator.of(context).maybePop();
-                }
-              : null,
-          child: Text(t.common.buttonSave),
-        ),
       ),
     );
   }

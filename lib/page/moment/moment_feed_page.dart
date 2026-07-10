@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoViewGalleryWithInitialPage;
@@ -239,6 +240,22 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     }
   }
 
+  /// 系统分享面板分享动态文字内容（对齐 profile_page._shareProfile 的用法）。
+  Future<void> _shareMoment(Map<String, dynamic> item) async {
+    final displayName = resolveMomentDisplayName(
+      remark: parseModelString(item['author_remark']),
+      nickname: parseModelString(item['author_nickname']),
+      uid: parseModelString(item['author_uid']),
+    );
+    final content = parseModelString(item['content']);
+    final text = content.isEmpty ? displayName : '$displayName: $content';
+    try {
+      await SharePlus.instance.share(ShareParams(text: text));
+    } on Exception {
+      if (mounted) AppLoading.showError(t.common.shareFailed);
+    }
+  }
+
   /// 弹出卡片操作菜单（赞 / 评论 / 删除）。
   void _showActionSheet(
     BuildContext context,
@@ -270,6 +287,17 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
               );
             },
             child: Text(t.discovery.momentActionComment),
+          ),
+          // 分享（系统分享面板）。应用内"转发到聊天"需要一个真实的
+          // flutter_chat_core Message 实例（见 send_to_page.dart 路由层
+          // `extra?['msg'] as Message`），动态是纯 REST Map，与聊天消息领域
+          // 模型无关，凭空构造会有崩溃风险，故此处只接系统分享，不臆造入口。
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _shareMoment(item);
+            },
+            child: Text(t.common.share),
           ),
           if (canDelete)
             CupertinoActionSheetAction(
@@ -525,7 +553,9 @@ class _MomentCard extends StatelessWidget {
     final likeCount = parseModelInt(stats['like_count']);
     final likers = parseRecentLikers(item);
 
-    return InkWell(
+    // DESIGN.md §13.2：卡片点击态用 GestureDetector，禁用 Material Ripple
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
@@ -846,7 +876,9 @@ class _MomentLikersRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = buildLikersLabel(likers, totalCount, translations: context.t);
     if (label.isEmpty) return const SizedBox.shrink();
-    return InkWell(
+    // DESIGN.md §13.2：点赞行用 GestureDetector，禁用 Material Ripple
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),

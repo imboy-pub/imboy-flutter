@@ -75,12 +75,14 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
+    final headerRed = AppColors.getIosRed(brightness);
 
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(backgroundColor: AppColors.iosRed, elevation: 0),
+        appBar: AppBar(backgroundColor: headerRed, elevation: 0),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -89,7 +91,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
       return Scaffold(
         appBar: AppBar(
           title: Text(t.common.redPacketDetail),
-          backgroundColor: AppColors.iosRed,
+          backgroundColor: headerRed,
         ),
         body: Center(child: Text(t.common.redPacketNotFound)),
       );
@@ -117,13 +119,13 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
           SliverAppBar(
             pinned: true,
             expandedHeight: 280.0,
-            backgroundColor: AppColors.iosRed,
+            backgroundColor: headerRed,
             iconTheme: const IconThemeData(color: AppColors.onPrimary),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.iosRed, Color(0xFFE55D5D)],
+                    colors: [headerRed, headerRed.withValues(alpha: 0.82)],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
@@ -143,7 +145,9 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.yellow.shade700,
+                              color: isDark
+                                  ? AppColors.iosYellowDark
+                                  : AppColors.iosYellow,
                               borderRadius: AppRadius.borderRadiusTiny,
                             ),
                             child: Text(
@@ -217,79 +221,102 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
             ),
           ),
 
-          // 领取记录列表
-          SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final r = _receivers[index];
-              final isBestLuck = r.receiverUid == bestLuckUid;
-
-              return Container(
-                decoration: BoxDecoration(
-                  color: isDark ? colorScheme.surface : AppColors.lightSurface,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: AppColors.getIosSeparator(
-                        Theme.of(context).brightness,
-                      ),
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                child: ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.amber,
-                    child: Icon(Icons.person, color: AppColors.onPrimary),
-                  ),
-                  title: Row(
-                    children: [
-                      Text(t.common.redPacketReceiverLabel(uid: r.receiverUid)),
-                      if (isBestLuck) ...[
-                        AppSpacing.horizontalSmall,
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.iosOrange.withValues(alpha: 0.15),
-                            borderRadius: AppRadius.borderRadiusTiny,
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.star,
-                                size: 12,
-                                color: AppColors.iosOrange,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                '手气最佳',
-                                style: context.textStyle(
-                                  FontSizeType.tiny,
-                                  color: AppColors.iosOrange,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  subtitle: Text(
-                    '${r.receivedAt.hour.toString().padLeft(2, '0')}:${r.receivedAt.minute.toString().padLeft(2, '0')}',
-                  ),
-                  trailing: Text(
-                    '￥${r.amountYuan.toStringAsFixed(2)} 元',
+          // 领取记录列表；无人领取时展示空态提示，避免留白无提示
+          if (_receivers.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Center(
+                  child: Text(
+                    t.common.noData,
                     style: context.textStyle(
-                      FontSizeType.medium,
-                      fontWeight: FontWeight.bold,
+                      FontSizeType.normal,
+                      color: AppColors.iosGray,
                     ),
                   ),
                 ),
-              );
-            }, childCount: _receivers.length),
-          ),
+              ),
+            )
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final r = _receivers[index];
+                final isBestLuck = r.receiverUid == bestLuckUid;
+
+                return Container(
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? colorScheme.surface
+                        : AppColors.lightSurface,
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.getIosSeparator(brightness),
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: AppColors.getIosOrange(brightness),
+                      child: const Icon(
+                        Icons.person,
+                        color: AppColors.onPrimary,
+                      ),
+                    ),
+                    title: Row(
+                      children: [
+                        Text(
+                          t.common.redPacketReceiverLabel(uid: r.receiverUid),
+                        ),
+                        if (isBestLuck) ...[
+                          AppSpacing.horizontalSmall,
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.getIosOrange(
+                                brightness,
+                              ).withValues(alpha: 0.15),
+                              borderRadius: AppRadius.borderRadiusTiny,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: AppColors.getIosOrange(brightness),
+                                ),
+                                const SizedBox(width: 2),
+                                Text(
+                                  '手气最佳',
+                                  style: context.textStyle(
+                                    FontSizeType.tiny,
+                                    color: AppColors.getIosOrange(brightness),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    subtitle: Text(
+                      '${r.receivedAt.hour.toString().padLeft(2, '0')}:${r.receivedAt.minute.toString().padLeft(2, '0')}',
+                    ),
+                    trailing: Text(
+                      '￥${r.amountYuan.toStringAsFixed(2)} 元',
+                      style: context.textStyle(
+                        FontSizeType.medium,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+              }, childCount: _receivers.length),
+            ),
         ],
       ),
     );

@@ -145,7 +145,7 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
       appBar: AppBar(
         title: Text(t.chat.e2eeTransferReceiveTitle),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(CupertinoIcons.back),
           onPressed: () => Navigator.of(context).pop(),
           tooltip: t.common.buttonBack,
         ),
@@ -179,12 +179,16 @@ class _E2EETransferReceivePageState extends State<E2EETransferReceivePage> {
           children: [
             if (_isSuccess)
               const Icon(
-                Icons.check_circle,
+                CupertinoIcons.checkmark_circle_fill,
                 size: 64,
                 color: AppColors.iosGreen,
               )
             else if (_isFailed)
-              const Icon(Icons.error, size: 64, color: AppColors.iosRed)
+              Icon(
+                CupertinoIcons.xmark_circle_fill,
+                size: 64,
+                color: AppColors.getIosRed(Theme.of(context).brightness),
+              )
             else
               const SizedBox(
                 width: 64,

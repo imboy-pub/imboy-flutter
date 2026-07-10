@@ -9,6 +9,8 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:permission_handler/permission_handler.dart'
+    show openAppSettings;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -35,6 +37,9 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
     with SingleTickerProviderStateMixin {
   late MobileScannerController controller;
   bool _isControllerInitialized = false;
+  // 相机启动失败的可见反馈状态：区分权限被拒 vs 其他初始化失败
+  bool _startFailed = false;
+  bool _permissionDenied = false;
 
   StreamSubscription<dynamic>? _localeSubscription;
 
@@ -68,11 +73,70 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
       if (mounted) {
         setState(() {
           _isControllerInitialized = true;
+          _startFailed = false;
+          _permissionDenied = false;
+        });
+      }
+    } on MobileScannerException catch (e) {
+      if (kDebugMode) debugPrint('Failed to start scanner: ${e.errorCode}');
+      if (mounted) {
+        setState(() {
+          _startFailed = true;
+          _permissionDenied =
+              e.errorCode == MobileScannerErrorCode.permissionDenied;
         });
       }
     } on Exception catch (e) {
       if (kDebugMode) debugPrint('Failed to start scanner: ${e.runtimeType}');
+      if (mounted) {
+        setState(() {
+          _startFailed = true;
+          _permissionDenied = false;
+        });
+      }
     }
+  }
+
+  /// 相机初始化失败时的可见引导：权限被拒 → 去设置开启；其他失败 → 重试
+  Widget _buildStartErrorView(BuildContext context) {
+    final t = context.t;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              CupertinoIcons.exclamationmark_triangle,
+              size: 44,
+              color: AppColors.onPrimary.withValues(alpha: 0.7),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _permissionDenied
+                  ? t.common.noPermission
+                  : t.common.permissionAcquisitionFailed,
+              textAlign: TextAlign.center,
+              style: context.textStyle(
+                FontSizeType.medium,
+                color: AppColors.onPrimary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            CupertinoButton(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(8),
+              onPressed: _permissionDenied
+                  ? () => openAppSettings()
+                  : _startScanner,
+              child: Text(
+                _permissionDenied ? t.main.setting : t.common.buttonRetry,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -227,156 +291,163 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         builder: (context) {
           return Stack(
             children: [
+              if (_startFailed) _buildStartErrorView(context),
+              if (!_startFailed) ...[
+                MobileScanner(
+                  fit: BoxFit.contain,
+                  scanWindow: scanWindow,
+                  controller: controller,
+                  onDetect: onDetect,
+                ),
+                CustomPaint(painter: ScannerOverlay(scanWindow)),
+              ],
               Padding(
                 padding: const EdgeInsets.only(left: 0, top: 20),
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  color: Theme.of(context).colorScheme.onSurface,
-                  icon: const Icon(Icons.arrow_back_ios),
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                child: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => Navigator.pop(context),
+                  child: const Icon(
+                    CupertinoIcons.back,
+                    color: AppColors.onPrimary,
+                    size: 28,
+                  ),
                 ),
               ),
-              MobileScanner(
-                fit: BoxFit.contain,
-                scanWindow: scanWindow,
-                controller: controller,
-                onDetect: onDetect,
-              ),
-              CustomPaint(painter: ScannerOverlay(scanWindow)),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
+              if (!_startFailed)
+                Align(
                   alignment: Alignment.bottomCenter,
-                  height: 100,
-                  // 相机控制条半透明蒙层，固定黑底
-                  color: AppColors.darkBackground.withValues(alpha: 0.4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ValueListenableBuilder(
-                        valueListenable: controller,
-                        builder: (context, MobileScannerState state, child) {
-                          final isTorchOn = state.torchState == TorchState.on;
-                          return IconButton(
-                            color: AppColors.onPrimary,
-                            icon: Icon(
-                              isTorchOn ? Icons.flash_on : Icons.flash_off,
-                              color: isTorchOn
-                                  ? AppColors.iosYellow
-                                  : AppColors.onPrimary.withValues(alpha: 0.5),
-                            ),
-                            iconSize: 32.0,
-                            tooltip: isTorchOn
-                                ? t.common.turnOffFlashlight
-                                : t.common.turnOnFlashlight,
-                            onPressed: () => controller.toggleTorch(),
-                          );
-                        },
-                      ),
-                      IconButton(
-                        color: AppColors.onPrimary,
-                        icon: scannerState.isStarted
-                            ? const Icon(Icons.stop)
-                            : const Icon(Icons.play_arrow),
-                        iconSize: 32.0,
-                        tooltip: scannerState.isStarted
-                            ? t.common.pauseScan
-                            : t.common.resumeScan,
-                        onPressed: () {
-                          scannerState.isStarted
-                              ? controller.stop()
-                              : controller.start();
-                          ref
-                              .read(scannerProvider.notifier)
-                              .toggleScanning(!scannerState.isStarted);
-                        },
-                      ),
-                      Center(
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width - 200,
-                          height: 20,
-                          child: FittedBox(
-                            child: Text(
-                              t.account.scanQrCode,
-                              style: const TextStyle(
-                                color: AppColors.onPrimary,
+                  child: Container(
+                    alignment: Alignment.bottomCenter,
+                    height: 100,
+                    // 相机控制条半透明蒙层，固定黑底
+                    color: AppColors.darkBackground.withValues(alpha: 0.4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ValueListenableBuilder(
+                          valueListenable: controller,
+                          builder: (context, MobileScannerState state, child) {
+                            final isTorchOn = state.torchState == TorchState.on;
+                            return IconButton(
+                              color: AppColors.onPrimary,
+                              icon: Icon(
+                                isTorchOn ? Icons.flash_on : Icons.flash_off,
+                                color: isTorchOn
+                                    ? AppColors.iosYellow
+                                    : AppColors.onPrimary.withValues(
+                                        alpha: 0.5,
+                                      ),
+                              ),
+                              iconSize: 32.0,
+                              tooltip: isTorchOn
+                                  ? t.common.turnOffFlashlight
+                                  : t.common.turnOnFlashlight,
+                              onPressed: () => controller.toggleTorch(),
+                            );
+                          },
+                        ),
+                        IconButton(
+                          color: AppColors.onPrimary,
+                          icon: scannerState.isStarted
+                              ? const Icon(Icons.stop)
+                              : const Icon(Icons.play_arrow),
+                          iconSize: 32.0,
+                          tooltip: scannerState.isStarted
+                              ? t.common.pauseScan
+                              : t.common.resumeScan,
+                          onPressed: () {
+                            scannerState.isStarted
+                                ? controller.stop()
+                                : controller.start();
+                            ref
+                                .read(scannerProvider.notifier)
+                                .toggleScanning(!scannerState.isStarted);
+                          },
+                        ),
+                        Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width - 200,
+                            height: 20,
+                            child: FittedBox(
+                              child: Text(
+                                t.account.scanQrCode,
+                                style: const TextStyle(
+                                  color: AppColors.onPrimary,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      IconButton(
-                        color: AppColors.onPrimary,
-                        icon: ValueListenableBuilder(
-                          valueListenable: controller,
-                          builder:
-                              (
-                                context,
-                                MobileScannerState cameraFacing,
-                                child,
-                              ) {
-                                final iconData =
-                                    cameraFacing.cameraDirection ==
-                                        CameraFacing.front
-                                    ? Icons.camera_front
-                                    : Icons.camera_rear;
-                                return Icon(iconData);
-                              },
+                        IconButton(
+                          color: AppColors.onPrimary,
+                          icon: ValueListenableBuilder(
+                            valueListenable: controller,
+                            builder:
+                                (
+                                  context,
+                                  MobileScannerState cameraFacing,
+                                  child,
+                                ) {
+                                  final iconData =
+                                      cameraFacing.cameraDirection ==
+                                          CameraFacing.front
+                                      ? Icons.camera_front
+                                      : Icons.camera_rear;
+                                  return Icon(iconData);
+                                },
+                          ),
+                          iconSize: 32.0,
+                          onPressed: () => controller.switchCamera(),
+                          tooltip: t.common.switchCamera,
                         ),
-                        iconSize: 32.0,
-                        onPressed: () => controller.switchCamera(),
-                        tooltip: t.common.switchCamera,
-                      ),
-                      IconButton(
-                        color: AppColors.onPrimary,
-                        icon: const Icon(Icons.image),
-                        iconSize: 32.0,
-                        tooltip: t.common.buttonSelectFromAlbum,
-                        onPressed: () async {
-                          ScaffoldMessengerState state = ScaffoldMessenger.of(
-                            context,
-                          );
-                          if (!scannerState.isStarted) {
-                            controller.start();
-                          }
-                          final media = await CapabilityLocator.I
-                              .get<MediaPickerCapability>()
-                              .pickSingle(context, MediaType.image);
-                          if (media == null) return;
-                          if (!mounted) return;
-                          BarcodeCapture? res = await controller.analyzeImage(
-                            media.path,
-                          );
-                          if (kDebugMode) {}
-                          if (!context.mounted) return;
-                          if (res == null) {
-                            state.showSnackBar(
-                              SnackBar(
-                                content: Text(t.common.noBarcodeFound),
-                                backgroundColor: AppColors.getIosRed(
-                                  Theme.of(context).brightness,
-                                ),
-                              ),
+                        IconButton(
+                          color: AppColors.onPrimary,
+                          icon: const Icon(Icons.image),
+                          iconSize: 32.0,
+                          tooltip: t.common.buttonSelectFromAlbum,
+                          onPressed: () async {
+                            ScaffoldMessengerState state = ScaffoldMessenger.of(
+                              context,
                             );
-                          } else {
-                            state.showSnackBar(
-                              SnackBar(
-                                content: Text(t.main.barcodeFound),
-                                backgroundColor: AppColors.getIosGreen(
-                                  Theme.of(context).brightness,
-                                ),
-                              ),
+                            if (!scannerState.isStarted) {
+                              controller.start();
+                            }
+                            final media = await CapabilityLocator.I
+                                .get<MediaPickerCapability>()
+                                .pickSingle(context, MediaType.image);
+                            if (media == null) return;
+                            if (!mounted) return;
+                            BarcodeCapture? res = await controller.analyzeImage(
+                              media.path,
                             );
-                            onDetect(res);
-                          }
-                        },
-                      ),
-                    ],
+                            if (kDebugMode) {}
+                            if (!context.mounted) return;
+                            if (res == null) {
+                              state.showSnackBar(
+                                SnackBar(
+                                  content: Text(t.common.noBarcodeFound),
+                                  backgroundColor: AppColors.getIosRed(
+                                    Theme.of(context).brightness,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              state.showSnackBar(
+                                SnackBar(
+                                  content: Text(t.main.barcodeFound),
+                                  backgroundColor: AppColors.getIosGreen(
+                                    Theme.of(context).brightness,
+                                  ),
+                                ),
+                              );
+                              onDetect(res);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
             ],
           );
         },

@@ -242,10 +242,14 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
 
   /// 加载初始数据
   Future<void> loadData() async {
-    state = state.copyWith(page: 1);
-    var list = await page(page: state.page, size: state.size, kwd: state.kwd);
-    if (list.isNotEmpty) {
-      state = state.copyWith(items: list, page: state.page + 1);
+    state = state.copyWith(page: 1, isLoading: true);
+    try {
+      var list = await page(page: state.page, size: state.size, kwd: state.kwd);
+      if (list.isNotEmpty) {
+        state = state.copyWith(items: list, page: state.page + 1);
+      }
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 

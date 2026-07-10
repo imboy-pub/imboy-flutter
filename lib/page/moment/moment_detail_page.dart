@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/shimmer_box.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoViewGalleryWithInitialPage;
 import 'package:imboy/component/ui/avatar.dart';
@@ -334,6 +335,18 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                   : t.discovery.momentActionLike,
             ),
           ),
+          // 分享（系统分享面板，走 share_plus，参考 profile_page 既有用法）。
+          // 注：应用内"转发到聊天"依赖 lib/page/chat/send_to/SendToPage(msg: Message)，
+          // 要求一个真实的 flutter_chat_core Message 实例；朋友圈动态是纯 REST Map，
+          // 与聊天消息领域模型无关，构造一个"假消息"塞进去超出本次改动范围，
+          // 故此处仅接系统分享，不臆造转发到聊天入口。
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _shareMoment();
+            },
+            child: Text(t.common.share),
+          ),
           if (canDeletePost)
             CupertinoActionSheetAction(
               isDestructiveAction: true,
@@ -359,6 +372,24 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         ),
       ),
     );
+  }
+
+  /// 系统分享面板分享动态文字内容（对齐 profile_page._shareProfile 的用法）。
+  Future<void> _shareMoment() async {
+    final post = _moment;
+    if (post == null) return;
+    final displayName = resolveMomentDisplayName(
+      remark: parseModelString(post['author_remark']),
+      nickname: parseModelString(post['author_nickname']),
+      uid: parseModelString(post['author_uid']),
+    );
+    final content = parseModelString(post['content']);
+    final text = content.isEmpty ? displayName : '$displayName: $content';
+    try {
+      await SharePlus.instance.share(ShareParams(text: text));
+    } on Exception {
+      if (mounted) AppLoading.showError(t.common.shareFailed);
+    }
   }
 
   void _showReportSheet() {
@@ -474,13 +505,16 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         ),
       ],
       bottomWidget: _buildCommentInput(context, isDark, brightness),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildPostContent(context, post, isDark, brightness),
-          const SizedBox(height: 8),
-          if (_comments.isEmpty)
-            Padding(
+      slivers: [
+        // 下拉刷新：详情页此前无刷新入口，改用 sliver 模式补齐
+        CupertinoSliverRefreshControl(onRefresh: _loadAll),
+        SliverToBoxAdapter(
+          child: _buildPostContent(context, post, isDark, brightness),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 8)),
+        if (_comments.isEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
               child: Center(
                 child: Column(
@@ -502,11 +536,28 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                   ],
                 ),
               ),
-            )
-          else
-            _buildCommentsBlock(context, isDark, currentUid, brightness),
-          if (_commentsHasMore || _loadMoreCommentsError)
-            Center(
+            ),
+          )
+        else
+          // ListView.builder 的 sliver 等价物：SliverList 按需惰性构建评论项，
+          // 避免 Column+.map() 一次性构建整页评论（评论可分页累积到很长）。
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _buildCommentItem(
+                  context,
+                  _comments[index],
+                  isDark,
+                  currentUid,
+                ),
+                childCount: _comments.length,
+              ),
+            ),
+          ),
+        if (_commentsHasMore || _loadMoreCommentsError)
+          SliverToBoxAdapter(
+            child: Center(
               child: CupertinoButton(
                 onPressed: _loadingMoreComments ? null : _loadMoreComments,
                 child: _loadingMoreComments
@@ -519,9 +570,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                       ),
               ),
             ),
-          const SizedBox(height: 40),
-        ],
-      ),
+          ),
+        const SliverToBoxAdapter(child: SizedBox(height: 40)),
+      ],
     );
   }
 
@@ -732,30 +783,12 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     );
   }
 
-  Widget _buildCommentsBlock(
-    BuildContext context,
-    bool isDark,
-    String currentUid,
-    Brightness brightness,
-  ) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.darkSurfaceGroupedTertiary
-            : AppColors.lightSurfaceGrouped,
-        borderRadius: AppRadius.borderRadiusMedium,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _comments
-            .map((c) => _buildCommentItem(context, c, isDark, currentUid))
-            .toList(),
-      ),
-    );
-  }
-
+  /// 单条评论卡片。
+  ///
+  /// 原实现是外层一个共享圆角容器包住整段 `Column`（评论多时须一次性
+  /// 构建全部子节点）。改用 SliverList 惰性构建后，共享容器无法再包裹
+  /// 动态子节点，故改为每条评论各自一张小卡片（bento 式分组），
+  /// 视觉上仍保持圆角分组观感。
   Widget _buildCommentItem(
     BuildContext context,
     Map<String, dynamic> comment,
@@ -778,14 +811,22 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
             uid: replyToUid,
           );
 
-    return InkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: userId != currentUid ? () => _startReplyTo(comment) : null,
       onLongPress: () => _showCommentActionSheet(
         comment,
         canDeleteComment(comment, _moment!, currentUid: currentUid),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.darkSurfaceGroupedTertiary
+              : AppColors.lightSurfaceGrouped,
+          borderRadius: AppRadius.borderRadiusMedium,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

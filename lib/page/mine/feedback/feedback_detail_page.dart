@@ -4,7 +4,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/store/model/feedback_reply_model.dart';
 import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -40,16 +40,15 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
   Future<void> _initData() async {
     if (_isInitialized) return;
     _isInitialized = true;
+    await _loadReplies();
+  }
 
+  /// 加载回复列表（走 provider.loadReplyData，统一维护 isLoading/error）
+  Future<void> _loadReplies() async {
     page = 1;
-    final list = await ref
+    await ref
         .read(feedbackPageProvider.notifier)
-        .pageReply(widget.model.feedbackId, page: page, size: size);
-    if (list.isNotEmpty) {
-      page = page + 1;
-    }
-    // 更新状态中的回复列表
-    ref.read(feedbackPageProvider.notifier).setPageReplyList(list);
+        .loadReplyData(widget.model.feedbackId, page: page, size: size);
   }
 
   @override
@@ -132,9 +131,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(
+                          color: _getFeedbackStatusColor(
                             context,
-                            widget.model.statusDesc,
+                            widget.model.status,
                           ).withAlpha(51),
                           borderRadius: AppRadius.borderRadiusSmall,
                         ),
@@ -143,9 +142,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                           style: context.textStyle(
                             FontSizeType.normal,
                             fontWeight: FontWeight.w500,
-                            color: _getStatusColor(
+                            color: _getFeedbackStatusColor(
                               context,
-                              widget.model.statusDesc,
+                              widget.model.status,
                             ),
                           ),
                         ),
@@ -349,27 +348,30 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   ),
                   AppSpacing.verticalRegular,
 
-                  // 回复列表
+                  // 回复列表：加载 / 错误(可重试) / 空 / 数据 四态收敛为三态组件
                   Container(
                     constraints: BoxConstraints(
+                      minHeight: 120,
                       maxHeight: MediaQuery.of(context).size.height * 0.4,
                     ),
-                    child: state.pageReplyList.isEmpty
-                        ? SizedBox(
-                            height: 120,
-                            child: NoDataView(text: t.common.noReply),
-                          )
-                        : ListView.separated(
-                            shrinkWrap: true,
-                            itemCount: state.pageReplyList.length,
-                            separatorBuilder: (context, index) =>
-                                AppSpacing.verticalMedium,
-                            itemBuilder: (BuildContext context, int index) {
-                              FeedbackReplyModel replyModel =
-                                  state.pageReplyList[index];
-                              return _buildReplyItem(context, replyModel);
-                            },
-                          ),
+                    child: AsyncStateView(
+                      isLoading: state.isLoading,
+                      error: state.error,
+                      isEmpty: state.pageReplyList.isEmpty,
+                      onRetry: _loadReplies,
+                      emptyText: t.common.noReply,
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: state.pageReplyList.length,
+                        separatorBuilder: (context, index) =>
+                            AppSpacing.verticalMedium,
+                        itemBuilder: (BuildContext context, int index) {
+                          FeedbackReplyModel replyModel =
+                              state.pageReplyList[index];
+                          return _buildReplyItem(context, replyModel);
+                        },
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -424,9 +426,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(
+                  color: _getReplyStatusColor(
                     context,
-                    replyModel.statusDesc,
+                    replyModel.status,
                   ).withAlpha(51),
                   borderRadius: AppRadius.borderRadiusSmall,
                 ),
@@ -435,7 +437,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   style: context.textStyle(
                     FontSizeType.small,
                     fontWeight: FontWeight.w500,
-                    color: _getStatusColor(context, replyModel.statusDesc),
+                    color: _getReplyStatusColor(context, replyModel.status),
                   ),
                 ),
               ),
@@ -467,16 +469,32 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
     );
   }
 
-  /// 获取状态颜色
-  Color _getStatusColor(BuildContext context, String status) {
-    final colorScheme = Theme.of(context).colorScheme;
-    if (status == t.main.processed) {
-      return AppColors.iosGreen;
-    } else if (status == t.common.loading) {
-      return AppColors.iosOrange;
-    } else if (status == t.common.submitted) {
-      return colorScheme.primary;
+  /// 按 [FeedbackModel] 状态码取色，勿与本地化后的 statusDesc 文案比较
+  /// （多语言下文案会变化，字符串比较必然落 default 失效）。
+  /// 状态码语义见 [FeedbackModel.statusDesc]：1 待回复 2 已回复 3 已完结
+  Color _getFeedbackStatusColor(BuildContext context, int status) {
+    final brightness = Theme.of(context).brightness;
+    switch (status) {
+      case 3:
+        return AppColors.getIosGreen(brightness);
+      case 1:
+        return AppColors.getIosOrange(brightness);
+      default:
+        return Theme.of(context).colorScheme.primary;
     }
-    return colorScheme.onSurface;
+  }
+
+  /// 按 [FeedbackReplyModel] 状态码取色。
+  /// 状态码语义见 [FeedbackReplyModel.statusDesc]：-1 删除 0 禁用 1 启用
+  Color _getReplyStatusColor(BuildContext context, int status) {
+    final brightness = Theme.of(context).brightness;
+    switch (status) {
+      case -1:
+        return AppColors.getIosRed(brightness);
+      case 0:
+        return AppColors.getIosOrange(brightness);
+      default:
+        return Theme.of(context).colorScheme.primary;
+    }
   }
 }

@@ -210,22 +210,18 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                           onPressed: () async {
                             Navigator.of(context).pop();
                             // 显示删除确认
-                            await showDialog<bool>(
+                            await showCupertinoDialog<bool>(
                               context: context,
-                              builder: (context) => AlertDialog(
-                                contentPadding: const EdgeInsets.fromLTRB(
-                                  AppSpacing.large,
-                                  AppSpacing.large,
-                                  AppSpacing.large,
-                                  0,
-                                ),
+                              builder: (context) => CupertinoAlertDialog(
+                                title: Text(t.common.confirmDelete),
                                 content: Text(t.common.deleteTagTips),
                                 actions: [
-                                  TextButton(
+                                  CupertinoDialogAction(
                                     onPressed: () => Navigator.pop(context),
                                     child: Text(t.common.buttonCancel),
                                   ),
-                                  TextButton(
+                                  CupertinoDialogAction(
+                                    isDestructiveAction: true,
                                     onPressed: () async {
                                       const String scene = 'friend';
                                       bool res = await ref
@@ -263,7 +259,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                         );
                                       }
                                     },
-                                    child: Text(t.common.buttonConfirm),
+                                    child: Text(t.common.buttonDelete),
                                   ),
                                 ],
                               ),
@@ -406,157 +402,122 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                   flex: 1,
                                   backgroundColor: AppColors.iosRed,
                                   onPressed: (_) async {
-                                    await showDialog<bool>(
+                                    await showCupertinoDialog<bool>(
                                       context: context,
-                                      builder: (context) => SizedBox(
-                                        width: MediaQuery.of(
-                                          context,
-                                        ).size.width,
-                                        height: 102,
-                                        child: Column(
-                                          children: [
-                                            Center(
-                                              child: TextButton(
-                                                onPressed: () async {
-                                                  const String scene = 'friend';
-                                                  bool res = await ref
-                                                      .read(
-                                                        contactTagDetailProvider
-                                                            .notifier,
-                                                      )
-                                                      .removeRelation(
-                                                        tagId: widget.tag.tagId,
-                                                        tagName:
-                                                            widget.tag.name,
-                                                        objectId: model.peerId
-                                                            .toString(),
-                                                        scene: scene,
-                                                      );
-                                                  if (res) {
-                                                    await ref
-                                                        .read(
-                                                          contactTagListProvider
-                                                              .notifier,
-                                                        )
-                                                        .replaceTagSubtitle(
-                                                          tag: widget.tag,
-                                                          oldName: model.title,
-                                                          newName: '',
-                                                        );
-
-                                                    final newContactList =
-                                                        List<ContactModel>.from(
-                                                          detailState
-                                                              .contactList,
-                                                        );
-                                                    final index1 =
-                                                        newContactList
-                                                            .indexWhere(
-                                                              (e) =>
-                                                                  e.peerId ==
-                                                                  model.peerId,
-                                                            );
-                                                    if (index1 > -1) {
-                                                      newContactList.removeAt(
-                                                        index1,
-                                                      );
-                                                    }
-                                                    ref
-                                                        .read(
-                                                          contactTagDetailProvider
-                                                              .notifier,
-                                                        )
-                                                        .handleList(
-                                                          newContactList,
-                                                        );
-
-                                                    // DONE(2026-04-04): 更新 refererTime
-                                                    ref
-                                                        .read(
-                                                          contactTagDetailProvider
-                                                              .notifier,
-                                                        )
-                                                        .decrementRefererTime();
-                                                    final currentRefererTime = ref
-                                                        .read(
-                                                          contactTagDetailProvider,
-                                                        )
-                                                        .refererTime;
-
-                                                    // 更新标签列表中的标签
-                                                    UserTagModel
-                                                    updatedTag = UserTagModel(
-                                                      userId: widget.tag.userId,
-                                                      tagId: widget.tag.tagId,
-                                                      scene: widget.tag.scene,
-                                                      name: widget.tag.name,
-                                                      subtitle:
-                                                          '${widget.tag.subtitle.replaceFirst('${model.title},', '')},',
-                                                      refererTime:
-                                                          currentRefererTime,
-                                                      updatedAt:
-                                                          widget.tag.updatedAt,
-                                                      createdAt:
-                                                          widget.tag.createdAt,
-                                                    );
-                                                    ref
-                                                        .read(
-                                                          contactTagListProvider
-                                                              .notifier,
-                                                        )
-                                                        .updateTag(updatedTag);
-
-                                                    if (context.mounted) {
-                                                      Navigator.pop(
-                                                        context,
-                                                        true,
-                                                      );
-                                                    }
-                                                    AppLoading.showSuccess(
-                                                      t.common.tipSuccess,
-                                                    );
-                                                  } else {
-                                                    if (context.mounted) {
-                                                      Navigator.pop(
-                                                        context,
-                                                        false,
-                                                      );
-                                                    }
-                                                    AppLoading.showError(
-                                                      t.common.tipFailed,
-                                                    );
-                                                  }
-                                                },
-                                                child: Text(
-                                                  t.common.removeContactFromTag,
-                                                  textAlign: TextAlign.center,
-                                                  style: context.textStyle(
-                                                    FontSizeType.medium,
-                                                    color: AppColors.iosRed,
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            const HorizontalLine(height: 6),
-                                            Center(
-                                              child: TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(context),
-                                                child: Text(
-                                                  t.common.buttonCancel,
-                                                  textAlign: TextAlign.center,
-                                                  style: context.textStyle(
-                                                    FontSizeType.medium,
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                      builder: (context) => CupertinoAlertDialog(
+                                        title: Text(
+                                          t.common.removeContactFromTag,
                                         ),
+                                        actions: [
+                                          CupertinoDialogAction(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: Text(t.common.buttonCancel),
+                                          ),
+                                          CupertinoDialogAction(
+                                            isDestructiveAction: true,
+                                            onPressed: () async {
+                                              const String scene = 'friend';
+                                              bool res = await ref
+                                                  .read(
+                                                    contactTagDetailProvider
+                                                        .notifier,
+                                                  )
+                                                  .removeRelation(
+                                                    tagId: widget.tag.tagId,
+                                                    tagName: widget.tag.name,
+                                                    objectId: model.peerId
+                                                        .toString(),
+                                                    scene: scene,
+                                                  );
+                                              if (res) {
+                                                await ref
+                                                    .read(
+                                                      contactTagListProvider
+                                                          .notifier,
+                                                    )
+                                                    .replaceTagSubtitle(
+                                                      tag: widget.tag,
+                                                      oldName: model.title,
+                                                      newName: '',
+                                                    );
+
+                                                final newContactList =
+                                                    List<ContactModel>.from(
+                                                      detailState.contactList,
+                                                    );
+                                                final index1 = newContactList
+                                                    .indexWhere(
+                                                      (e) =>
+                                                          e.peerId ==
+                                                          model.peerId,
+                                                    );
+                                                if (index1 > -1) {
+                                                  newContactList.removeAt(
+                                                    index1,
+                                                  );
+                                                }
+                                                ref
+                                                    .read(
+                                                      contactTagDetailProvider
+                                                          .notifier,
+                                                    )
+                                                    .handleList(newContactList);
+
+                                                // DONE(2026-04-04): 更新 refererTime
+                                                ref
+                                                    .read(
+                                                      contactTagDetailProvider
+                                                          .notifier,
+                                                    )
+                                                    .decrementRefererTime();
+                                                final currentRefererTime = ref
+                                                    .read(
+                                                      contactTagDetailProvider,
+                                                    )
+                                                    .refererTime;
+
+                                                // 更新标签列表中的标签
+                                                UserTagModel
+                                                updatedTag = UserTagModel(
+                                                  userId: widget.tag.userId,
+                                                  tagId: widget.tag.tagId,
+                                                  scene: widget.tag.scene,
+                                                  name: widget.tag.name,
+                                                  subtitle:
+                                                      '${widget.tag.subtitle.replaceFirst('${model.title},', '')},',
+                                                  refererTime:
+                                                      currentRefererTime,
+                                                  updatedAt:
+                                                      widget.tag.updatedAt,
+                                                  createdAt:
+                                                      widget.tag.createdAt,
+                                                );
+                                                ref
+                                                    .read(
+                                                      contactTagListProvider
+                                                          .notifier,
+                                                    )
+                                                    .updateTag(updatedTag);
+
+                                                if (context.mounted) {
+                                                  Navigator.pop(context, true);
+                                                }
+                                                AppLoading.showSuccess(
+                                                  t.common.tipSuccess,
+                                                );
+                                              } else {
+                                                if (context.mounted) {
+                                                  Navigator.pop(context, false);
+                                                }
+                                                AppLoading.showError(
+                                                  t.common.tipFailed,
+                                                );
+                                              }
+                                            },
+                                            child: Text(t.common.buttonDelete),
+                                          ),
+                                        ],
                                       ),
                                     );
                                   },

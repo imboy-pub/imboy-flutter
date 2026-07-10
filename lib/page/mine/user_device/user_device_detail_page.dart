@@ -343,6 +343,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
 
   /// 构建删除按钮
   Widget _buildDeleteButton(BuildContext context) {
+    final errorColor = AppColors.getIosRed(Theme.of(context).brightness);
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -350,14 +351,14 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
         icon: const Icon(Icons.delete_outline),
         label: Text(t.common.deleteThisDevice),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.lightError.withValues(alpha: 0.1),
-          foregroundColor: AppColors.lightError,
+          backgroundColor: errorColor.withValues(alpha: 0.1),
+          foregroundColor: errorColor,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: AppRadius.borderRadiusMedium,
             side: BorderSide(
-              color: AppColors.lightError.withValues(alpha: 0.3),
+              color: errorColor.withValues(alpha: 0.3),
               width: 0.5,
             ),
           ),

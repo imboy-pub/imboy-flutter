@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/api/user_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'bind_email_page.dart';
 import 'bind_mobile_page.dart';
@@ -51,6 +53,11 @@ class AccountSecurityPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentEmail = UserRepoLocal.to.current.email;
+    final currentMobile = UserRepoLocal.to.current.mobile;
+    final hasBoundEmail = currentEmail.isNotEmpty;
+    final hasBoundMobile = currentMobile.isNotEmpty;
+
     return IosPageTemplate(
       title: t.account.accountSecurity,
       child: ImBoySettingsSection(
@@ -58,6 +65,9 @@ class AccountSecurityPage extends ConsumerWidget {
         children: [
           ImBoySettingsTile(
             title: Text(t.account.bindEmail),
+            subtitle: Text(
+              hasBoundEmail ? _maskEmail(currentEmail) : t.common.notBound,
+            ),
             onTap: () {
               Navigator.of(context).push(
                 CupertinoPageRoute<dynamic>(
@@ -68,6 +78,9 @@ class AccountSecurityPage extends ConsumerWidget {
           ),
           ImBoySettingsTile(
             title: Text(t.account.bindMobile),
+            subtitle: Text(
+              hasBoundMobile ? hiddenPhone(currentMobile) : t.common.notBound,
+            ),
             onTap: () {
               Navigator.of(context).push(
                 CupertinoPageRoute<dynamic>(
@@ -80,4 +93,14 @@ class AccountSecurityPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+String _maskEmail(String email) {
+  final v = email.trim();
+  final at = v.indexOf('@');
+  if (at <= 1) return v;
+  final name = v.substring(0, at);
+  final domain = v.substring(at);
+  if (name.length <= 2) return '${name[0]}*$domain';
+  return '${name.substring(0, 2)}***$domain';
 }

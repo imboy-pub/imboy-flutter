@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -125,10 +126,10 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
     }
 
     // 显示加载状态
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+      builder: (context) => const Center(child: CupertinoActivityIndicator()),
     );
 
     try {
@@ -212,7 +213,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
       appBar: AppBar(
         title: Text(t.main.e2eeProxySelectTitle),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(CupertinoIcons.back),
           onPressed: () => Navigator.of(context).pop(),
           tooltip: t.common.buttonBack,
         ),
@@ -240,7 +241,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CupertinoActivityIndicator())
           : _contacts.isEmpty
           ? _buildEmptyView()
           : Column(
@@ -271,7 +272,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
     return NoDataView(
       text: t.common.e2eeProxyNoFriends,
       description: t.common.e2eeProxyNoFriendsHint,
-      icon: Icons.people_outline,
+      icon: CupertinoIcons.person_2,
       iconSize: 64,
     );
   }
@@ -302,7 +303,9 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
       child: Row(
         children: [
           Icon(
-            canConfirm ? Icons.check_circle : Icons.info_outline,
+            canConfirm
+                ? CupertinoIcons.checkmark_circle_fill
+                : CupertinoIcons.info,
             color: canConfirm ? AppColors.iosGreen : AppColors.iosBlue,
             size: 24,
           ),
@@ -418,7 +421,7 @@ class _E2EEProxySelectorPageState extends ConsumerState<E2EEProxySelectorPage> {
                 ),
                 child: isSelected
                     ? const Icon(
-                        Icons.check,
+                        CupertinoIcons.check_mark,
                         color: AppColors.onPrimary,
                         size: 16,
                       )

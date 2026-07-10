@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,6 +48,9 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   // 分页：此前只拉首页(cursor=0,limit=20)且无加载更多，>20 条评论被静默截断。
   bool _hasMore = false;
   bool _isLoadingMore = false;
+  // 三态渲染：首屏加载失败与「评论为空」此前共用同一 NoDataView 空态文案，
+  // 用户网络异常时会被误导为"真的没有评论"。加载失败单独态 + 可重试。
+  String? _loadError;
   int _replyToCommentId = 0;
   String _replyToName = '';
 
@@ -75,7 +79,10 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   }
 
   Future<void> _loadComments() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
     try {
       final comments = await _service.getComments(
         channelId: widget.channelId,
@@ -90,9 +97,14 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } on Exception catch (e) {
       iPrint('评论加载失败: $e');
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _loadError = '${e.runtimeType}';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -113,7 +125,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
           _hasMore = more.length >= _pageSize;
         });
       }
-    } catch (e) {
+    } on Exception catch (e) {
       iPrint('评论加载更多失败: $e');
     } finally {
       _isLoadingMore = false;
@@ -212,19 +224,19 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
       AppLoading.showToast(context.t.channel.commentDeleteNoPermission);
       return;
     }
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(context.t.channel.deleteComment),
         content: Text(context.t.channel.deleteCommentConfirm),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(context.t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
             child: Text(context.t.common.confirm),
           ),
         ],
@@ -260,6 +272,13 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   Widget _buildCommentList(bool isDark) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+    if (_loadError != null) {
+      return NoDataView(
+        icon: Icons.cloud_off_outlined,
+        text: context.t.common.loadError,
+        onTop: _loadComments,
+      );
     }
     if (_comments.isEmpty) {
       return NoDataView(

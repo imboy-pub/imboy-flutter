@@ -70,7 +70,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
       appBar: AppBar(
         title: Text(t.main.e2eeSocialManageTitle),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(CupertinoIcons.back),
           onPressed: () => Navigator.of(context).pop(),
           tooltip: t.common.buttonBack,
         ),
@@ -153,7 +153,7 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
     return NoDataView(
       text: message,
       description: t.chat.e2eeSocialCreateFirst,
-      icon: Icons.folder_open,
+      icon: CupertinoIcons.folder_open,
       iconSize: 64,
     );
   }
@@ -268,7 +268,11 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
           children: [
             Row(
               children: [
-                const Icon(Icons.person, size: 20, color: AppColors.iosPurple),
+                const Icon(
+                  CupertinoIcons.person_fill,
+                  size: 20,
+                  color: AppColors.iosPurple,
+                ),
                 AppSpacing.horizontalSmall,
                 Expanded(
                   child: Text(
@@ -295,7 +299,9 @@ class _E2EESocialManagePageState extends State<E2EESocialManagePage>
             Row(
               children: [
                 Icon(
-                  status == 'active' ? Icons.check_circle : Icons.history,
+                  status == 'active'
+                      ? CupertinoIcons.checkmark_circle_fill
+                      : CupertinoIcons.clock,
                   size: 16,
                   color: status == 'active'
                       ? AppColors.iosGreen

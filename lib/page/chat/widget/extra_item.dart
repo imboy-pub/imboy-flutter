@@ -161,6 +161,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
     final colorScheme = Theme.of(context).colorScheme;
     const double iconSize = 28; // 调整图标大小
     final allItems = <ExtraItem>[
+      // —— 媒体（最常用，置顶）——
       ExtraItem(
         title: t.main.album,
         image: const Icon(Icons.photo_library_outlined, size: iconSize),
@@ -225,6 +226,21 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
         },
       ),
       ExtraItem(
+        title: t.chat.file,
+        image: const Icon(Icons.insert_drive_file_outlined, size: iconSize),
+        onPressed: widget.handleFileSelection,
+      ),
+      ExtraItem(
+        title: t.common.expression,
+        image: const Icon(Icons.face_outlined, size: iconSize),
+        onPressed: widget.handleStickerSelection,
+      ),
+      ExtraItem(
+        title: t.main.favorites,
+        image: const Icon(Icons.collections_bookmark_outlined, size: iconSize),
+        onPressed: widget.handleCollectSelection,
+      ),
+      ExtraItem(
         title: t.common.personalCard,
         image: const Icon(Icons.person_outline, size: iconSize),
         onPressed: widget.handleVisitCardSelection,
@@ -263,21 +279,27 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
             );
           },
         ),
-      ExtraItem(
-        title: t.main.favorites,
-        image: const Icon(Icons.collections_bookmark_outlined, size: iconSize),
-        onPressed: widget.handleCollectSelection,
-      ),
-      ExtraItem(
-        title: t.chat.file,
-        image: const Icon(Icons.insert_drive_file_outlined, size: iconSize),
-        onPressed: widget.handleFileSelection,
-      ),
-      ExtraItem(
-        title: t.common.expression,
-        image: const Icon(Icons.face_outlined, size: iconSize),
-        onPressed: widget.handleStickerSelection,
-      ),
+      // —— 群协作（仅群聊 C2G）——
+      if (widget.type == 'C2G')
+        ExtraItem(
+          title: t.groupVote.title,
+          image: const Icon(Icons.poll_outlined, size: iconSize),
+          onPressed: () => context.push('/group/${widget.options['to']}/vote'),
+        ),
+      if (widget.type == 'C2G')
+        ExtraItem(
+          title: t.groupSchedule.title,
+          image: const Icon(Icons.event_outlined, size: iconSize),
+          onPressed: () =>
+              context.push('/group/${widget.options['to']}/schedule'),
+        ),
+      if (widget.type == 'C2G')
+        ExtraItem(
+          title: t.groupTask.title,
+          image: const Icon(Icons.checklist_outlined, size: iconSize),
+          onPressed: () => context.push('/group/${widget.options['to']}/task'),
+        ),
+      // —— 资金 ——
       ExtraItem(
         title: t.common.redPacket,
         image: const Icon(

@@ -4,6 +4,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -25,14 +26,23 @@ class UserDevicePage extends ConsumerStatefulWidget {
 }
 
 class _UserDevicePageState extends ConsumerState<UserDevicePage> {
+  Object? _error;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final notifier = ref.read(userDeviceProvider.notifier);
-      notifier.setCurrentDeviceId(deviceId);
-      notifier.loadDevices(page: 1, size: 1000);
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  Future<void> _load() async {
+    setState(() => _error = null);
+    final notifier = ref.read(userDeviceProvider.notifier);
+    notifier.setCurrentDeviceId(deviceId);
+    try {
+      await notifier.loadDevices(page: 1, size: 1000);
+    } on Exception catch (e) {
+      if (mounted) setState(() => _error = e);
+    }
   }
 
   @override
@@ -57,15 +67,14 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           ),
         ),
 
-        // 设备列表 Section
-        if (deviceState.isLoading)
-          const SliverFillRemaining(
-            child: Center(child: CupertinoActivityIndicator()),
-          )
-        else if (deviceState.deviceList.isEmpty)
-          SliverFillRemaining(child: _buildEmptyState(context))
-        else
-          SliverToBoxAdapter(
+        // 设备列表 Section：加载 / 错误(可重试) / 空 / 数据 四态收敛为三态组件
+        SliverFillRemaining(
+          child: AsyncStateView(
+            isLoading: deviceState.isLoading,
+            error: _error,
+            isEmpty: deviceState.deviceList.isEmpty,
+            onRetry: _load,
+            emptyIcon: CupertinoIcons.device_phone_portrait,
             child: ImBoySettingsSection(
               header: Text(t.account.loginDeviceManagement.toUpperCase()),
               children: deviceState.deviceList.asMap().entries.map((entry) {
@@ -78,6 +87,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
               }).toList(),
             ),
           ),
+        ),
       ],
     );
   }
@@ -111,29 +121,6 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                         : AppColors.lightTextSecondary,
                   )
                   .copyWith(height: 1.4),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            CupertinoIcons.device_phone_portrait,
-            size: 60,
-            color: AppColors.iosGray.withValues(alpha: 0.3),
-          ),
-          AppSpacing.verticalRegular,
-          Text(
-            t.common.noData,
-            style: context.textStyle(
-              FontSizeType.subheadline,
-              color: AppColors.iosGray,
             ),
           ),
         ],

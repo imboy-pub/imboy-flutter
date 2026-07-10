@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -24,12 +25,21 @@ class DenylistPage extends ConsumerStatefulWidget {
 }
 
 class _DenylistPageState extends ConsumerState<DenylistPage> {
+  Object? _error;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(denylistProvider.notifier).loadData(page: 1, size: 1000);
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  Future<void> _load() async {
+    setState(() => _error = null);
+    try {
+      await ref.read(denylistProvider.notifier).loadData(page: 1, size: 1000);
+    } on Exception catch (e) {
+      if (mounted) setState(() => _error = e);
+    }
   }
 
   @override
@@ -54,11 +64,15 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
           ),
         ),
 
-        // 列表 Section
-        if (denylistState.items.isEmpty)
-          SliverFillRemaining(child: _buildEmptyState(context))
-        else
-          SliverFillRemaining(
+        // 列表 Section：加载 / 错误(可重试) / 空 / 数据 四态收敛为三态组件
+        SliverFillRemaining(
+          child: AsyncStateView(
+            isLoading: denylistState.isLoading && denylistState.items.isEmpty,
+            error: _error,
+            isEmpty: denylistState.items.isEmpty,
+            onRetry: _load,
+            emptyText: t.contact.denylistEmpty,
+            emptyIcon: CupertinoIcons.slash_circle,
             child: AzListView(
               data: denylistState.items,
               itemCount: denylistState.items.length,
@@ -106,6 +120,7 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
               ),
             ),
           ),
+        ),
       ],
     );
   }
@@ -153,29 +168,6 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
                       .copyWith(height: 1.4),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            CupertinoIcons.slash_circle,
-            size: 60,
-            color: AppColors.iosGray.withValues(alpha: 0.3),
-          ),
-          AppSpacing.verticalRegular,
-          Text(
-            t.contact.denylistEmpty,
-            style: context.textStyle(
-              FontSizeType.subheadline,
-              color: AppColors.iosGray,
             ),
           ),
         ],

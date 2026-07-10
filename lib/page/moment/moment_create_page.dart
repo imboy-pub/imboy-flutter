@@ -21,6 +21,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:video_compress/video_compress.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'moment_interactions.dart';
 
@@ -66,10 +67,17 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
 
   void _tryRestoreDraft() {
     final key = _draftKey;
-    if (key.isEmpty) return;
+    if (key.isEmpty) {
+      _restoreLastVisibility();
+      return;
+    }
     final raw = StorageService.getMap(key);
     final draft = restoreMomentDraft(raw);
-    if (draft == null) return;
+    if (draft == null) {
+      // 无发布失败草稿可恢复时，退化为「记住上次可见性」（P1-1）。
+      _restoreLastVisibility();
+      return;
+    }
     if (!mounted) return;
     setState(() {
       _contentController.text = draft.content;
@@ -78,6 +86,46 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       _denyUidsController.text = draft.denyUids.join(',');
     });
     AppLoading.showInfo(context.t.discovery.momentsDraftRestored);
+  }
+
+  /// 记住上次发布使用的可见性 storage key（账号隔离，与 `_draftKey` 同构）。
+  String get _lastVisibilityKey {
+    final uid = UserRepoLocal.to.currentUid.trim();
+    if (uid.isEmpty) return '';
+    return 'moment_last_visibility_$uid';
+  }
+
+  /// P1-1：再次进入发布页时默认带出上次可见性设置（无草稿时才生效）。
+  void _restoreLastVisibility() {
+    final key = _lastVisibilityKey;
+    if (key.isEmpty) return;
+    final raw = StorageService.getMap(key);
+    if (raw.isEmpty) return;
+    final rawVisibility = raw['visibility'];
+    if (rawVisibility is! int) return;
+    if (!mounted) return;
+    setState(() {
+      _visibility = parseMomentVisibility({'visibility': rawVisibility});
+      final allow = raw['allow_uids'];
+      if (allow is List) {
+        _allowUidsController.text = allow.whereType<String>().join(',');
+      }
+      final deny = raw['deny_uids'];
+      if (deny is List) {
+        _denyUidsController.text = deny.whereType<String>().join(',');
+      }
+    });
+  }
+
+  /// 持久化本次确认的可见性设置，供下次进入发布页默认带出。
+  Future<void> _saveLastVisibility(MomentVisibilityResult result) async {
+    final key = _lastVisibilityKey;
+    if (key.isEmpty) return;
+    await StorageService.setMap(key, <String, dynamic>{
+      'visibility': result.visibility,
+      'allow_uids': result.allowUids,
+      'deny_uids': result.denyUids,
+    });
   }
 
   Future<void> _saveFailedDraft(String content) async {
@@ -212,41 +260,95 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     setState(() {
       _isUploading = true;
     });
-    final file = File(media.path);
+    final uploaded = await _uploadVideoFile(File(media.path));
+    if (!mounted) return;
+    setState(() {
+      _isUploading = false;
+      if (uploaded != null) _media.add(uploaded);
+    });
+    if (uploaded == null) {
+      AppLoading.showError(context.t.common.momentsUploadFailed);
+    }
+  }
+
+  /// 相册多选网格（P0-2）：图/视频混选一次批量传，替代原 4 项 ActionSheet
+  /// 里「从相册选图」+「选择视频」两个单选入口。
+  ///
+  /// `SpecialPickerType.wechatMoment` 是 wechat_assets_picker 自带的朋友圈
+  /// 模式：选择器内部已强制「多图 或 单视频」互斥，与 [validateMediaSelection]
+  /// 的规则一致（后者仍作为提交前的最终防线保留，覆盖跨批次叠加的场景）。
+  Future<void> _pickMediaFromAlbum() async {
+    if (_isUploading || _media.length >= momentMaxImageCount) return;
+    // 剩余可选额度而非固定 momentMaxImageCount：避免多轮选择后总数超限。
+    final remaining = momentMaxImageCount - _media.length;
+    final assets = await AssetPicker.pickAssets(
+      context,
+      pickerConfig: AssetPickerConfig(
+        maxAssets: remaining,
+        requestType: RequestType.common,
+        specialPickerType: SpecialPickerType.wechatMoment,
+      ),
+    );
+    if (assets == null || assets.isEmpty || !mounted) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+    final uploaded = await Future.wait(assets.map(_uploadAsset));
+    if (!mounted) return;
+    final succeeded = uploaded.whereType<Map<String, dynamic>>().toList(
+      growable: false,
+    );
+    setState(() {
+      _isUploading = false;
+      _media.addAll(succeeded);
+    });
+    if (succeeded.length < uploaded.length) {
+      AppLoading.showError(context.t.common.momentsUploadFailed);
+    }
+  }
+
+  /// 单个选中资源的上传路由：图片走 `_uploadFile`，视频走 `_uploadVideoFile`。
+  /// 失败返回 null，调用方用 `whereType` 过滤，不阻塞其余成功项。
+  Future<Map<String, dynamic>?> _uploadAsset(AssetEntity asset) async {
+    final file = await asset.file;
+    if (file == null) return null;
+    if (asset.type == AssetType.video) {
+      return _uploadVideoFile(file);
+    }
+    final url = await _uploadFile('img', file);
+    if (url == null || url.isEmpty) return null;
+    return <String, dynamic>{'type': 'image', 'url': url};
+  }
+
+  /// 视频上传三件套（原视频/缩略图/时长逻辑，从 `_pickVideo` 抽出复用）。
+  Future<Map<String, dynamic>?> _uploadVideoFile(File file) async {
     final url = await _uploadFile('video', file);
+    if (url == null || url.isEmpty) return null;
 
     String coverUrl = '';
     int durationMs = 0;
     try {
       final thumb = await VideoCompress.getFileThumbnail(
-        media.path,
+        file.path,
         quality: 60,
         position: -1,
       );
       final uploadedCover = await _uploadFile('img', thumb);
       coverUrl = uploadedCover ?? '';
-      final mediaInfo = await VideoCompress.getMediaInfo(media.path);
+      final mediaInfo = await VideoCompress.getMediaInfo(file.path);
       durationMs = (mediaInfo.duration ?? 0).toInt();
     } on Exception {
       coverUrl = '';
       durationMs = 0;
     }
 
-    if (!mounted) return;
-    setState(() {
-      _isUploading = false;
-      if (url != null && url.isNotEmpty) {
-        _media.add(<String, dynamic>{
-          'type': 'video',
-          'url': url,
-          'cover_url': coverUrl,
-          'duration_ms': durationMs,
-        });
-      }
-    });
-    if (url == null || url.isEmpty) {
-      AppLoading.showError(context.t.common.momentsUploadFailed);
-    }
+    return <String, dynamic>{
+      'type': 'video',
+      'url': url,
+      'cover_url': coverUrl,
+      'duration_ms': durationMs,
+    };
   }
 
   void _removeMedia(int index) {
@@ -317,23 +419,8 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     Navigator.of(context).pop(true);
   }
 
-  Future<void> _pickUids({
-    required TextEditingController controller,
-    required String title,
-  }) async {
-    final initial = parseMomentUidList(controller.text);
-    final result = await Navigator.of(context).push<List<String>>(
-      CupertinoPageRoute<List<String>>(
-        builder: (_) =>
-            MomentFriendPickerPage(title: title, initialSelectedUids: initial),
-      ),
-    );
-    if (!mounted || result == null) return;
-    setState(() {
-      controller.text = result.join(',');
-    });
-  }
-
+  /// P0-2：相册项改为统一多选网格（`_pickMediaFromAlbum`），一次选中即批量
+  /// 并行上传；拍照/拍视频入口保留（原相机链路不变，只是从 4 项收到 3 项）。
   void _showMediaPicker() {
     showCupertinoModalPopup<void>(
       context: context,
@@ -342,7 +429,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(ctx).pop();
-              _pickImage();
+              _pickMediaFromAlbum();
             },
             child: Text(context.t.main.selectFromAlbum),
           ),
@@ -352,13 +439,6 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               _pickImage(useCamera: true);
             },
             child: Text(context.t.main.takePhoto),
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _pickVideo();
-            },
-            child: Text(context.t.chat.momentsSelectVideo),
           ),
           // 修复：拍摄视频真正唤起相机录像（pickCamera enableRecording）
           CupertinoActionSheetAction(
@@ -377,38 +457,42 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     );
   }
 
-  void _showVisibilityPicker() {
-    final t = context.t;
-    final options = <(int, String)>[
-      (momentVisibilityPublic, t.discovery.momentsVisibilityPublic),
-      (momentVisibilityFriends, t.contact.momentsVisibilityFriends),
-      (momentVisibilityPrivate, t.chat.momentsVisibilityPrivate),
-      (momentVisibilityAllowList, t.discovery.momentsVisibilityPartial),
-      (momentVisibilityDenyList, t.discovery.momentsVisibilityExclude),
-    ];
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (ctx) => CupertinoActionSheet(
-        actions: options
-            .map(
-              (o) => CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  setState(() => _visibility = o.$1);
-                },
-                child: Text(o.$2),
-              ),
-            )
-            .toList(),
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(ctx).pop(),
-          child: Text(t.discovery.momentActionCancel),
+  /// P1-1：可见性 + 允许/排除名单单页化，一次跳转完成（替代原
+  /// ActionSheet + 二级好友选择页两次跳转）。确认后记住本次设置。
+  Future<void> _pickVisibility() async {
+    final result = await Navigator.of(context).push<MomentVisibilityResult>(
+      CupertinoPageRoute<MomentVisibilityResult>(
+        builder: (_) => MomentFriendPickerPage(
+          initialVisibility: _visibility,
+          initialAllowUids: parseMomentUidList(_allowUidsController.text),
+          initialDenyUids: parseMomentUidList(_denyUidsController.text),
         ),
       ),
     );
+    if (!mounted || result == null) return;
+    setState(() {
+      _visibility = result.visibility;
+      _allowUidsController.text = result.allowUids.join(',');
+      _denyUidsController.text = result.denyUids.join(',');
+    });
+    await _saveLastVisibility(result);
   }
 
-  String get _visibilityLabel => momentVisibilityLabel(_visibility, context.t);
+  /// 可见性摘要文案：基础标签 + 命中名单模式时附加已选人数。
+  String _visibilitySummary(Translations t) {
+    final base = momentVisibilityLabel(_visibility, t);
+    if (momentVisibilityRequiresAllowUids(_visibility)) {
+      final count = parseMomentUidList(_allowUidsController.text).length;
+      if (count <= 0) return base;
+      return '$base · ${t.momentFriendPicker.selectedCount(count: count)}';
+    }
+    if (momentVisibilityRequiresDenyUids(_visibility)) {
+      final count = parseMomentUidList(_denyUidsController.text).length;
+      if (count <= 0) return base;
+      return '$base · ${t.momentFriendPicker.selectedCount(count: count)}';
+    }
+    return base;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -539,19 +623,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             _ToolbarItem(
               icon: CupertinoIcons.lock_fill,
               label: t.discovery.momentsVisibility,
-              value: _visibilityLabel,
-              onTap: _showVisibilityPicker,
+              value: _visibilitySummary(t),
+              onTap: _pickVisibility,
             ),
-            if (momentVisibilityRequiresAllowUids(_visibility))
-              _buildUidRow(
-                controller: _allowUidsController,
-                title: t.momentFriendPicker.titleAllow,
-              ),
-            if (momentVisibilityRequiresDenyUids(_visibility))
-              _buildUidRow(
-                controller: _denyUidsController,
-                title: t.momentFriendPicker.titleDeny,
-              ),
             _ToolbarSwitch(
               icon: CupertinoIcons.chat_bubble_fill,
               label: t.common.momentsAllowComment,
@@ -561,21 +635,6 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildUidRow({
-    required TextEditingController controller,
-    required String title,
-  }) {
-    final count = parseMomentUidList(controller.text).length;
-    return _ToolbarItem(
-      icon: CupertinoIcons.person_2_fill,
-      label: title,
-      value: count > 0
-          ? context.t.momentFriendPicker.selectedCount(count: count)
-          : null,
-      onTap: () => _pickUids(controller: controller, title: title),
     );
   }
 }

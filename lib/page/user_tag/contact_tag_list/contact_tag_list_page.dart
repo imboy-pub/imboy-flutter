@@ -80,7 +80,11 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
         ),
 
         // 标签列表
-        if (listState.items.isEmpty)
+        if (listState.isLoading)
+          const SliverFillRemaining(
+            child: Center(child: CupertinoActivityIndicator()),
+          )
+        else if (listState.items.isEmpty)
           SliverFillRemaining(child: NoDataView(text: t.common.noData))
         else
           SliverPadding(

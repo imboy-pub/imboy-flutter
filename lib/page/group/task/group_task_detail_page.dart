@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_task_service.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -28,6 +28,7 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
   int _pendingReviewCount = 0;
   bool _isLoading = true;
   bool _isSubmitting = false;
+  Object? _error;
 
   @override
   void initState() {
@@ -47,30 +48,41 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
   }
 
   Future<void> _loadDetail() async {
-    setState(() => _isLoading = true);
-
-    final task = await GroupTaskService.to.getTask(
-      groupId: widget.groupId,
-      taskId: widget.taskId,
-    );
-
-    int pendingCount = 0;
-    if (task != null) {
-      final taskRouteId = _toText(task['task_id']).isNotEmpty
-          ? _toText(task['task_id'])
-          : widget.taskId;
-      final pending = await GroupTaskService.to.getPendingReview(
-        taskId: taskRouteId,
-      );
-      pendingCount = pending.length;
-    }
-
-    if (!mounted) return;
     setState(() {
-      _task = task;
-      _pendingReviewCount = pendingCount;
-      _isLoading = false;
+      _isLoading = true;
+      _error = null;
     });
+
+    try {
+      final task = await GroupTaskService.to.getTask(
+        groupId: widget.groupId,
+        taskId: widget.taskId,
+      );
+
+      int pendingCount = 0;
+      if (task != null) {
+        final taskRouteId = _toText(task['task_id']).isNotEmpty
+            ? _toText(task['task_id'])
+            : widget.taskId;
+        final pending = await GroupTaskService.to.getPendingReview(
+          taskId: taskRouteId,
+        );
+        pendingCount = pending.length;
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _task = task;
+        _pendingReviewCount = pendingCount;
+        _isLoading = false;
+      });
+    } on Exception catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _isLoading = false;
+      });
+    }
   }
 
   String _formatDeadline(dynamic raw) {
@@ -119,14 +131,17 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return AsyncStateView(
+      isLoading: _isLoading,
+      error: _error,
+      isEmpty: _task == null,
+      onRetry: _loadDetail,
+      emptyText: context.t.groupTask.noTask,
+      child: _task == null ? const SizedBox.shrink() : _buildDetailContent(),
+    );
+  }
 
-    if (_task == null) {
-      return NoDataView(text: context.t.groupTask.noTask, onTop: _loadDetail);
-    }
-
+  Widget _buildDetailContent() {
     final status = _toInt(_task!['status']);
     final isCompleted = status == 1 || status == 3;
 

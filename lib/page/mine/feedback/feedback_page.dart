@@ -7,6 +7,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image/image.dart' as img;
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/store/api/attachment_api.dart' show AttachmentApi;
@@ -42,10 +43,14 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   Future<void> _initData() async {
     if (_isInitialized) return;
     _isInitialized = true;
-    final list = await ref
+    await _loadFeedbackList();
+  }
+
+  /// 加载反馈列表（走 provider.loadData，统一维护 isLoading/error）
+  Future<void> _loadFeedbackList() async {
+    await ref
         .read(feedbackPageProvider.notifier)
-        .page(page: page, size: size);
-    ref.read(feedbackPageProvider.notifier).setItemList(list);
+        .loadData(page: page, size: size);
     page = page + 1;
   }
 
@@ -78,8 +83,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
             };
             if (await p.add(data)) {
               AppLoading.showSuccess(t.common.feedbackSuccessMsg);
-              _isInitialized = false;
-              _initData();
+              await _loadFeedbackList();
             } else {
               AppLoading.showError(t.common.tipFailed);
             }
@@ -176,25 +180,26 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           ),
         ),
 
-        // 历史列表 Section
-        SliverToBoxAdapter(
-          child: ImBoySettingsSection(
-            header: Text(t.common.feedbackHistory.toUpperCase()),
-            children: state.itemList.isEmpty
-                ? [
-                    Padding(
-                      padding: const EdgeInsets.all(AppSpacing.xxLarge),
-                      child: Center(child: Text(t.common.noHistory)),
-                    ),
-                  ]
-                : state.itemList.asMap().entries.map((entry) {
-                    return _buildSlidableItem(
-                      context,
-                      entry.value,
-                      entry.key,
-                      brightness,
-                    );
-                  }).toList(),
+        // 历史列表 Section：加载 / 错误(可重试) / 空 / 数据 四态收敛为三态组件
+        SliverFillRemaining(
+          child: AsyncStateView(
+            isLoading: state.isLoading,
+            error: state.error,
+            isEmpty: state.itemList.isEmpty,
+            onRetry: _loadFeedbackList,
+            emptyText: t.common.noHistory,
+            emptyIcon: CupertinoIcons.envelope,
+            child: ImBoySettingsSection(
+              header: Text(t.common.feedbackHistory.toUpperCase()),
+              children: state.itemList.asMap().entries.map((entry) {
+                return _buildSlidableItem(
+                  context,
+                  entry.value,
+                  entry.key,
+                  brightness,
+                );
+              }).toList(),
+            ),
           ),
         ),
       ],
@@ -256,7 +261,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
               model.statusDesc,
               style: context.textStyle(
                 FontSizeType.small,
-                color: _getStatusColor(model.statusDesc),
+                color: _getStatusColor(model.status, brightness),
               ),
             ),
           ],
@@ -286,14 +291,17 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     );
   }
 
-  Color _getStatusColor(String status) {
+  /// 按后端状态码取色，避免与本地化后的 [FeedbackModel.statusDesc] 文案比较
+  /// （多语言下文案会变化，字符串比较必然落 default 失效）。
+  /// 状态码语义见 [FeedbackModel.statusDesc]：1 待回复 2 已回复 3 已完结
+  Color _getStatusColor(int status, Brightness brightness) {
     switch (status) {
-      case '已处理':
-        return AppColors.iosGreen;
-      case '处理中':
-        return AppColors.iosOrange;
+      case 3:
+        return AppColors.getIosGreen(brightness);
+      case 1:
+        return AppColors.getIosOrange(brightness);
       default:
-        return AppColors.iosBlue;
+        return AppColors.getIosBlue(brightness);
     }
   }
 

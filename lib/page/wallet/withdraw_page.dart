@@ -70,6 +70,35 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
     }
   }
 
+  // 支付宝邮箱格式（简化 RFC5322 校验，与常见前端实践一致）
+  static final RegExp _emailPattern = RegExp(r'^[\w.+-]+@[\w-]+\.[\w.-]+$');
+
+  // 中国大陆手机号格式：1 开头 11 位数字，第二位 3-9
+  static final RegExp _phonePattern = RegExp(r'^1[3-9]\d{9}$');
+
+  // 微信号格式：6-20 位，字母开头，允许字母/数字/下划线/短横线
+  static final RegExp _wechatPattern = RegExp(r'^[a-zA-Z][a-zA-Z0-9_-]{5,19}$');
+
+  /// 按所选提现渠道校验收款账号格式：
+  /// 支付宝 = 邮箱或手机号；微信 = 微信号规则。
+  String? _validateAccount(String? value) {
+    final account = value?.trim() ?? '';
+    if (account.isEmpty) {
+      return t.common.withdrawAccountEmpty;
+    }
+    if (_selectedMethod == 'alipay') {
+      if (!_emailPattern.hasMatch(account) &&
+          !_phonePattern.hasMatch(account)) {
+        return '请输入正确的支付宝邮箱或手机号';
+      }
+    } else {
+      if (!_wechatPattern.hasMatch(account)) {
+        return '请输入正确的微信号（6-20位，字母开头）';
+      }
+    }
+    return null;
+  }
+
   /// 提现二次确认：展示金额 + 渠道 + 账号摘要，用户确认后才发起请求。
   Future<bool> _confirmWithdraw(
     double amountYuan,
@@ -245,19 +274,34 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                 child: TextFormField(
                   controller: _accountController,
                   decoration: walletInputDecoration(
-                    hint: t.common.withdrawAccount,
+                    hint: _selectedMethod == 'alipay'
+                        ? '${t.common.withdrawAccount}（邮箱或手机号）'
+                        : '${t.common.withdrawAccount}（微信号）',
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return t.common.withdrawAccountEmpty;
-                    }
-                    return null;
-                  },
+                  validator: _validateAccount,
                 ),
               ),
               AppSpacing.verticalSmall,
 
               WalletBalanceHint(balanceYuan: balanceYuan),
+              AppSpacing.verticalTiny,
+              // 手续费与到账时效说明：后端暂无手续费/时效字段，展示静态提示
+              // ponytail: static hint, wire to real fee/ETA once wallet API returns them
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.tiny,
+                ),
+                child: Text(
+                  '免手续费，预计 T+1 到账（以实际到账时间为准）',
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: AppColors.getTextColor(
+                      brightness,
+                      isSecondary: true,
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 40),
 
               WalletPrimaryButton(

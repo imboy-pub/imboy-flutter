@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -31,6 +32,7 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
   final FocusNode inputFocusNode = FocusNode();
   final TextEditingController textController = TextEditingController();
   bool valueChanged = false;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -54,6 +56,30 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
     super.dispose();
   }
 
+  /// 提交新值：防止回调等待期间重复提交，失败时提示错误。
+  Future<void> _submit(String value) async {
+    if (widget.field != 'input') return;
+    final trimmedText = value.trim();
+    if (trimmedText.isEmpty) {
+      setState(() => valueChanged = false);
+      return;
+    }
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+    try {
+      // 注：成功/失败的提示由 callback 自行通过 AppLoading 处理；这里仅兜底捕获
+      // callback 内部未处理的异常，避免页面卡死且无任何反馈。
+      final res = await widget.callback(trimmedText);
+      if (res && mounted) {
+        Navigator.of(context).pop();
+      }
+    } on Exception {
+      if (mounted) AppLoading.showError(t.common.tipFailed);
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,21 +94,10 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
             RoundedElevatedButton(
               text: t.common.buttonAccomplish,
               highlighted: valueChanged,
-              onPressed: () async {
-                if (widget.field == "input") {
-                  String trimmedText = textController.text.trim();
-                  if (trimmedText == '') {
-                    setState(() {
-                      valueChanged = false;
-                    });
-                  } else {
-                    bool res = await widget.callback(trimmedText);
-                    if (res && context.mounted) {
-                      Navigator.of(context).pop();
-                    }
-                  }
-                }
-              },
+              isLoading: _isSubmitting,
+              onPressed: _isSubmitting
+                  ? null
+                  : () => _submit(textController.text),
             ),
           ],
         ),
@@ -128,19 +143,8 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
           ),
           border: InputBorder.none,
         ),
-        readOnly: false,
-        onFieldSubmitted: (val) async {
-          if (val == '') {
-            setState(() {
-              valueChanged = false;
-            });
-          } else {
-            bool res = await widget.callback(val);
-            if (res && context.mounted) {
-              Navigator.of(context).pop();
-            }
-          }
-        },
+        readOnly: _isSubmitting,
+        onFieldSubmitted: _submit,
         onSaved: (value) {},
         validator: (value) {
           return null;

@@ -8,7 +8,8 @@
 library;
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
+    show Scaffold, Divider, RefreshIndicator, Theme;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/moment/moment_notify/moment_notify_provider.dart';
 import 'package:imboy/page/moment/moment_notify/moment_notify_state.dart';
@@ -43,6 +45,12 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
   /// 避免 FutureBuilder 误入 waiting 态闪骨架。
   /// 单向惰性填充，不做失效策略（通知中心本身容量有限）。
   final Map<String, Future<ContactModel?>> _contactFutureCache = {};
+
+  /// 最近一次 refresh/loadMore 失败且列表仍为空时置真，用于渲染"错误态"区别
+  /// 于"空列表"态。errorMessage 在 provider 侧被 toast 消费后立即清空
+  /// （既有约定，对齐 group_announcement），故此处用本地状态承接持久标记；
+  /// 一旦拿到数据（items 非空）即复位。
+  bool _lastLoadFailed = false;
 
   @override
   void initState() {
@@ -92,7 +100,12 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
       final msg = next.errorMessage;
       if (msg != null && msg.isNotEmpty && prev?.errorMessage != msg) {
         AppLoading.showToast(t.momentNotify.loadFailed);
+        if (next.items.isEmpty && !_lastLoadFailed) {
+          setState(() => _lastLoadFailed = true);
+        }
         ref.read(momentNotifyProvider.notifier).clearError();
+      } else if (next.items.isNotEmpty && _lastLoadFailed) {
+        setState(() => _lastLoadFailed = false);
       }
     });
 
@@ -106,15 +119,16 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
         title: t.momentNotify.title,
         rightDMActions: [
           if (state.unreadCount > 0)
-            TextButton(
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               onPressed: notifier.markAllRead,
               child: Text(t.momentNotify.markAllRead),
             ),
           if (state.items.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              tooltip: t.momentNotify.clearAll,
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               onPressed: () => _confirmClearAll(context, notifier),
+              child: const Icon(CupertinoIcons.delete, size: 20),
             ),
         ],
       ),
@@ -137,37 +151,20 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            const SizedBox(height: 160),
-            Center(
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.notifications_none,
-                    size: 64,
-                    color: AppColors.iosGray,
+            const SizedBox(height: 120),
+            // 错误态与空列表态区分：加载失败用感叹号图标 + 可点重试，
+            // 真空态用铃铛静音图标 + 标题/提示两行文案。
+            _lastLoadFailed
+                ? NoDataView(
+                    text: t.momentNotify.loadFailed,
+                    icon: CupertinoIcons.wifi_exclamationmark,
+                    onTop: notifier.refresh,
+                  )
+                : NoDataView(
+                    text: t.momentNotify.emptyTitle,
+                    description: t.momentNotify.emptyHint,
+                    icon: CupertinoIcons.bell_slash,
                   ),
-                  AppSpacing.verticalMedium,
-                  Text(
-                    t.momentNotify.emptyTitle,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 6),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.xxLarge,
-                    ),
-                    child: Text(
-                      t.momentNotify.emptyHint,
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: AppColors.iosGray,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       );
@@ -179,8 +176,14 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         itemCount: state.items.length + (state.hasMore ? 1 : 0),
-        separatorBuilder: (_, _) =>
-            const Divider(height: 1, indent: 72, endIndent: 16),
+        separatorBuilder: (_, _) => Divider(
+          height: 0.5,
+          indent: 72,
+          endIndent: 16,
+          color: AppColors.getIosSeparator(
+            Theme.of(context).brightness,
+          ).withValues(alpha: 0.3),
+        ),
         itemBuilder: (context, index) {
           if (index >= state.items.length) {
             return const Padding(
@@ -215,49 +218,74 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
           DateTime.fromMillisecondsSinceEpoch(item.createdAt).toLocal(),
         );
 
-        return ListTile(
+        // DESIGN.md §13.2：卡片点击态用 GestureDetector，禁用 Material Ripple
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () => _onItemTap(context, item, notifier),
-          leading: Avatar(
-            imgUri: avatarUrl,
-            width: 44,
-            height: 44,
-            onTap: () => context.push(
-              '/contact/people/${item.fromUid}?scene=contact_page',
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.large,
+              vertical: AppSpacing.regular,
             ),
-          ),
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  nickname,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-              if (!item.isRead)
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppColors.iosRed,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-            ],
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(actionText, maxLines: 2, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 2),
-                Text(
-                  timeText,
-                  // DESIGN.md §3.4：时间戳数字等宽对齐
-                  style: context
-                      .textStyle(FontSizeType.small, color: AppColors.iosGray)
-                      .copyWith(fontFeatures: [FontFeature.tabularFigures()]),
+                Avatar(
+                  imgUri: avatarUrl,
+                  width: 44,
+                  height: 44,
+                  onTap: () => context.push(
+                    '/contact/people/${item.fromUid}?scene=contact_page',
+                  ),
+                ),
+                AppSpacing.horizontalMedium,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              nickname,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          if (!item.isRead)
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: AppColors.iosRed,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        actionText,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        timeText,
+                        // DESIGN.md §3.4：时间戳数字等宽对齐
+                        style: context
+                            .textStyle(
+                              FontSizeType.small,
+                              color: AppColors.iosGray,
+                            )
+                            .copyWith(
+                              fontFeatures: [FontFeature.tabularFigures()],
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

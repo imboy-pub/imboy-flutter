@@ -43,6 +43,10 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   bool _isInitialized = false;
 
   StreamSubscription<dynamic>? _localeSubscription;
+  // ponytail: 置顶目前仅存本地 SharedPreferences，换机/重装会丢失。
+  // 后端 user_collect_repo.erl 无 pinned/top 字段、UserCollectApi 无置顶接口
+  // （对比 conversation_api.dart 的 pin/unpin/pinnedList 是另一功能，会话置顶）。
+  // 若后续需要跨设备同步，需先在后端加字段+接口，再把下面两个方法改走网络。
   final Set<String> _pinnedIds = {};
   static const String _kPinnedPrefsKey = 'user_collect_pinned_ids';
   bool _multiSelect = false;

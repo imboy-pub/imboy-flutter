@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/service/group_tag_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/widgets/group_dialogs.dart';
@@ -24,6 +25,7 @@ class GroupTagPage extends ConsumerStatefulWidget {
 class _GroupTagPageState extends ConsumerState<GroupTagPage> {
   List<Map<String, dynamic>> _tags = [];
   bool _isLoading = true;
+  Object? _error;
 
   GroupTagService get _service => widget.service ?? GroupTagService.to;
 
@@ -34,13 +36,25 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
   }
 
   Future<void> _loadTags() async {
-    setState(() => _isLoading = true);
-    final tags = await _service.getGroupTags(widget.groupId);
-    if (mounted) {
-      setState(() {
-        _tags = tags;
-        _isLoading = false;
-      });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final tags = await _service.getGroupTags(widget.groupId);
+      if (mounted) {
+        setState(() {
+          _tags = tags;
+          _isLoading = false;
+        });
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e;
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -80,8 +94,11 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
         groupId: widget.groupId,
         name: controller.text,
       );
-      if (success && mounted) {
+      if (!mounted) return;
+      if (success) {
         _loadTags();
+      } else {
+        AppLoading.showError(t.common.tipFailed);
       }
     }
   }
@@ -107,22 +124,21 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_tags.isEmpty) {
-      return NoDataView(text: t.groupTag.noTag, onTop: _loadTags);
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadTags,
-      child: ListView.builder(
-        itemCount: _tags.length,
-        itemBuilder: (context, index) {
-          final tag = _tags[index];
-          return _buildTagItem(tag);
-        },
+    return AsyncStateView(
+      isLoading: _isLoading,
+      error: _error,
+      isEmpty: _tags.isEmpty,
+      onRetry: _loadTags,
+      emptyText: t.groupTag.noTag,
+      child: RefreshIndicator(
+        onRefresh: _loadTags,
+        child: ListView.builder(
+          itemCount: _tags.length,
+          itemBuilder: (context, index) {
+            final tag = _tags[index];
+            return _buildTagItem(tag);
+          },
+        ),
       ),
     );
   }
@@ -173,8 +189,11 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
                 groupId: widget.groupId,
                 tagName: tagName,
               );
-              if (success && mounted) {
+              if (!mounted) return;
+              if (success) {
                 _loadTags();
+              } else {
+                AppLoading.showError(t.common.tipFailed);
               }
             }
           },

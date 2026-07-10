@@ -1,14 +1,18 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/mention_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 /// @提及列表页面
@@ -25,9 +29,11 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
   List<Map<String, dynamic>> _mentions = [];
   int _unreadCount = 0;
   bool _isLoading = true;
+  bool _isLoadingMore = false;
   int _page = 1;
   bool _hasMore = true;
   StreamSubscription<dynamic>? _mentionSub;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -38,12 +44,46 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
       _loadMentions(refresh: true);
       _loadUnreadCount();
     });
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _mentionSub?.cancel();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  // 触底加载更多：滚动监听回调，非 build 期触发，避免 "setState during build" 崩溃风险
+  void _onScroll() {
+    if (!_hasMore || _isLoading || _isLoadingMore) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      _loadMoreMentions();
+    }
+  }
+
+  Future<void> _loadMoreMentions() async {
+    if (!_hasMore || _isLoadingMore) return;
+    setState(() => _isLoadingMore = true);
+
+    final nextPage = _page + 1;
+    final result = await MentionService.to.getMentions(
+      page: nextPage,
+      size: 20,
+      groupId: widget.groupId,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _page = nextPage;
+      if (result != null) {
+        final items = result['items'] as List? ?? [];
+        _mentions.addAll(items.cast<Map<String, dynamic>>());
+        _hasMore = items.length >= 20;
+      }
+      _isLoadingMore = false;
+    });
   }
 
   Future<void> _loadMentions({bool refresh = false}) async {
@@ -143,26 +183,31 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: isDark
+          ? AppColors.darkSurfaceGrouped
+          : AppColors.lightSurfaceGrouped,
       appBar: GlassAppBar(
         title: t.mention.title,
         automaticallyImplyLeading: true,
         rightDMActions: [
           if (_unreadCount > 0)
-            TextButton(
+            CupertinoButton(
+              padding: EdgeInsets.zero,
               onPressed: _markAllAsRead,
               child: Text(t.mention.allRead),
             ),
         ],
       ),
-      body: _buildBody(),
+      body: _buildBody(isDark),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(bool isDark) {
     if (_isLoading && _mentions.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
 
     if (_mentions.isEmpty) {
@@ -175,73 +220,104 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
     return RefreshIndicator(
       onRefresh: () => _loadMentions(refresh: true),
       child: ListView.builder(
-        itemCount: _mentions.length + (_hasMore ? 1 : 0),
+        controller: _scrollController,
+        itemCount: _mentions.length + (_isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == _mentions.length) {
-            if (!_isLoading) {
-              _page++;
-              _loadMentions();
-            }
             return const Center(
               child: Padding(
                 padding: EdgeInsets.all(AppSpacing.regular),
-                child: CircularProgressIndicator(),
+                child: CupertinoActivityIndicator(),
               ),
             );
           }
 
           final mention = _mentions[index];
-          return _buildMentionItem(mention);
+          return _buildMentionItem(
+            mention,
+            isDark,
+            isLast: index == _mentions.length - 1,
+          );
         },
       ),
     );
   }
 
-  Widget _buildMentionItem(Map<String, dynamic> mention) {
+  Widget _buildMentionItem(
+    Map<String, dynamic> mention,
+    bool isDark, {
+    required bool isLast,
+  }) {
     final isRead = mention['is_read'] == 1;
 
-    return ListTile(
+    return Column(
       key: ValueKey(mention['id']),
-      leading: Stack(
-        children: [
-          Avatar(
-            imgUri: mention['avatar'] as String? ?? '',
-            width: 48,
-            height: 48,
-          ),
-          if (!isRead)
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.error,
-                  shape: BoxShape.circle,
-                ),
+      children: [
+        ImBoyListTile(
+          onTap: () async {
+            await _openMention(mention, isRead);
+          },
+          leading: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Avatar(
+                imgUri: mention['avatar'] as String? ?? '',
+                width: 48,
+                height: 48,
               ),
+              if (!isRead)
+                Positioned(
+                  right: -1,
+                  top: -1,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: AppColors.getIosRed(Theme.of(context).brightness),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isDark
+                            ? AppColors.darkSurface
+                            : AppColors.lightSurface,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          title: Text(
+            mention['nickname'] as String? ?? '',
+            style: TextStyle(
+              fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
             ),
-        ],
-      ),
-      title: Text(
-        mention['nickname'] as String? ?? '',
-        style: TextStyle(
-          fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+          ),
+          subtitle: Text(
+            mention['content'] as String? ?? '',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: Text(
+            _formatTime(mention['created_at']),
+            style: context.textStyle(
+              FontSizeType.small,
+              color: AppColors.getTextColor(
+                Theme.of(context).brightness,
+              ).withValues(alpha: 0.5),
+            ),
+          ),
         ),
-      ),
-      subtitle: Text(
-        mention['content'] as String? ?? '',
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: Text(
-        _formatTime(mention['created_at']),
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-      onTap: () async {
-        await _openMention(mention, isRead);
-      },
+        if (!isLast)
+          Padding(
+            padding: const EdgeInsets.only(left: 78),
+            child: Divider(
+              height: 0.33,
+              color: AppColors.getIosSeparator(
+                Theme.of(context).brightness,
+              ).withValues(alpha: 0.4),
+            ),
+          ),
+      ],
     );
   }
 

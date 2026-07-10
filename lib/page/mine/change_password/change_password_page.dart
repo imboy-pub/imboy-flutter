@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -77,6 +78,7 @@ class ChangePasswordPage extends ConsumerWidget {
             children: [
               _buildPasswordField(
                 context: context,
+                t: t,
                 label: t.account.oldPassword,
                 hint: t.account.enterOldPassword,
                 obscure: state.existingObscure,
@@ -89,6 +91,7 @@ class ChangePasswordPage extends ConsumerWidget {
               ),
               _buildPasswordField(
                 context: context,
+                t: t,
                 label: t.account.newPassword,
                 hint: t.account.enterNewPassword,
                 obscure: state.newObscure,
@@ -101,6 +104,7 @@ class ChangePasswordPage extends ConsumerWidget {
               ),
               _buildPasswordField(
                 context: context,
+                t: t,
                 label: t.common.confirmNewPassword,
                 hint: t.account.enterNewPasswordAgain,
                 obscure: state.confirmObscure,
@@ -160,6 +164,7 @@ class ChangePasswordPage extends ConsumerWidget {
 
   Widget _buildPasswordField({
     required BuildContext context,
+    required Translations t,
     required String label,
     required String hint,
     required bool obscure,
@@ -167,33 +172,47 @@ class ChangePasswordPage extends ConsumerWidget {
     required ValueChanged<String> onChanged,
   }) {
     return CupertinoListTile.notched(
-      title: Row(
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 80,
-            child: Text(label, style: context.textStyle(FontSizeType.body)),
-          ),
-          Expanded(
-            child: CupertinoTextField(
-              placeholder: hint,
-              obscureText: obscure,
-              onChanged: onChanged,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.medium,
-                vertical: AppSpacing.small,
-              ),
-              decoration: null,
-              style: context.textStyle(FontSizeType.body),
-            ),
-          ),
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: onToggle,
-            child: Icon(
-              obscure ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
-              size: 20,
+          Text(
+            label,
+            style: context.textStyle(
+              FontSizeType.footnote,
               color: AppColors.iosGray,
             ),
+          ),
+          AppSpacing.verticalTiny,
+          Row(
+            children: [
+              Expanded(
+                child: CupertinoTextField(
+                  placeholder: hint,
+                  obscureText: obscure,
+                  onChanged: onChanged,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 0,
+                    vertical: AppSpacing.small,
+                  ),
+                  decoration: null,
+                  style: context.textStyle(FontSizeType.body),
+                ),
+              ),
+              Semantics(
+                button: true,
+                label: obscure ? t.common.showPassword : t.common.hidePassword,
+                child: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(44, 44),
+                  onPressed: onToggle,
+                  child: Icon(
+                    obscure ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
+                    size: 20,
+                    color: AppColors.iosGray,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -227,9 +246,17 @@ class ChangePasswordPage extends ConsumerWidget {
             ),
           ),
           onPressed: state.canSubmit
-              ? () {
+              ? () async {
                   FocusScope.of(context).unfocus();
-                  ref.read(changeLoginPasswordProvider.notifier).submit();
+                  try {
+                    await ref
+                        .read(changeLoginPasswordProvider.notifier)
+                        .submit();
+                  } on Exception catch (_) {
+                    if (context.mounted) {
+                      AppLoading.showError(t.common.operationFailed);
+                    }
+                  }
                 }
               : null,
           child: state.isLoading

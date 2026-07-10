@@ -206,7 +206,10 @@ class SetNicknameNotifier extends _$SetNicknameNotifier {
       await _revertToOriginal(ref);
       return false;
     } finally {
-      state = currentState.copyWith(isSaving: false);
+      // 用最新 state（可能已被 _updateState/_revertToOriginal 更新）收尾，
+      // 而非保存前捕获的 currentState 快照——否则会用过期数据覆盖刚写入的
+      // 成功态/回滚态，导致失败回滚形同虚设（真 bug）。
+      state = state.copyWith(isSaving: false);
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -22,12 +23,21 @@ class StorageSpacePage extends ConsumerStatefulWidget {
 }
 
 class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
+  Object? _error;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(storageSpaceProvider.notifier).initData();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  Future<void> _load() async {
+    setState(() => _error = null);
+    try {
+      await ref.read(storageSpaceProvider.notifier).initData();
+    } on Exception catch (e) {
+      if (mounted) setState(() => _error = e);
+    }
   }
 
   @override
@@ -38,20 +48,27 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
     return IosPageTemplate(
       title: t.main.storageSpace,
       useLargeTitle: false,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.medium,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildStorageOverview(context, storageState, t),
-            const SizedBox(height: AppSpacing.xLarge),
-            _buildAppUsageSection(context, storageState, t),
-            const SizedBox(height: AppSpacing.xLarge),
-            _buildStorageDetailCards(context, storageState, t),
-          ],
+      child: AsyncStateView(
+        isLoading: storageState.isLoading && storageState.totalDiskSpace == 0,
+        error: _error,
+        isEmpty: storageState.totalDiskSpace == 0,
+        onRetry: _load,
+        emptyIcon: Icons.storage,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.medium,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildStorageOverview(context, storageState, t),
+              const SizedBox(height: AppSpacing.xLarge),
+              _buildAppUsageSection(context, storageState, t),
+              const SizedBox(height: AppSpacing.xLarge),
+              _buildStorageDetailCards(context, storageState, t),
+            ],
+          ),
         ),
       ),
     );

@@ -36,6 +36,7 @@ class ConfirmNewFriendPage extends ConsumerStatefulWidget {
 
 class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
   final TextEditingController _remarkC = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -172,38 +173,50 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
               borderRadius: BorderRadius.circular(14),
             ),
           ),
-          onPressed: () async {
-            FocusScope.of(context).unfocus();
-            Map<String, dynamic> p2 =
-                json.decode(widget.payload) as Map<String, dynamic>;
-            p2['to'] = {
-              "remark": _remarkC.text,
-              "account": UserRepoLocal.to.current.account,
-              "nickname": UserRepoLocal.to.current.nickname,
-              "avatar": UserRepoLocal.to.current.avatar,
-              "sign": UserRepoLocal.to.current.sign,
-              "gender": UserRepoLocal.to.current.gender,
-              "role": providerState.role,
-              "donotlookhim": providerState.donotlookhim,
-              "donotlethimlook": providerState.donotlethimlook,
-              "tag": providerState.peerTag.isEmpty
-                  ? ''
-                  : "${providerState.peerTag},",
-            };
-            if (await ref
-                    .read(confirmNewFriendProvider.notifier)
-                    .confirm(from: widget.from, to: widget.to, payload: p2) &&
-                context.mounted) {
-              Navigator.of(context).pop();
-            }
-          },
-          child: Text(
-            t.common.buttonAccomplish,
-            style: context.textStyle(
-              FontSizeType.body,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          onPressed: _isSubmitting
+              ? null
+              : () async {
+                  FocusScope.of(context).unfocus();
+                  setState(() => _isSubmitting = true);
+                  Map<String, dynamic> p2 =
+                      json.decode(widget.payload) as Map<String, dynamic>;
+                  p2['to'] = {
+                    "remark": _remarkC.text,
+                    "account": UserRepoLocal.to.current.account,
+                    "nickname": UserRepoLocal.to.current.nickname,
+                    "avatar": UserRepoLocal.to.current.avatar,
+                    "sign": UserRepoLocal.to.current.sign,
+                    "gender": UserRepoLocal.to.current.gender,
+                    "role": providerState.role,
+                    "donotlookhim": providerState.donotlookhim,
+                    "donotlethimlook": providerState.donotlethimlook,
+                    "tag": providerState.peerTag.isEmpty
+                        ? ''
+                        : "${providerState.peerTag},",
+                  };
+                  final ok = await ref
+                      .read(confirmNewFriendProvider.notifier)
+                      .confirm(from: widget.from, to: widget.to, payload: p2);
+                  if (!context.mounted) return;
+                  if (ok) {
+                    Navigator.of(context).pop();
+                    return;
+                  }
+                  setState(() => _isSubmitting = false);
+                },
+          child: _isSubmitting
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CupertinoActivityIndicator(color: AppColors.onPrimary),
+                )
+              : Text(
+                  t.common.buttonAccomplish,
+                  style: context.textStyle(
+                    FontSizeType.body,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );

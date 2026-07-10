@@ -100,10 +100,15 @@ class RecentlyRegisteredUserNotifier
 
   /// 初始化数据
   Future<void> initData() async {
-    final list = await page(page: 1, size: state.size, kwd: state.kwd);
+    state = state.copyWith(isLoading: true);
+    try {
+      final list = await page(page: 1, size: state.size, kwd: state.kwd);
 
-    if (list.isNotEmpty) {
-      state = state.copyWith(peopleList: list, page: 2);
+      if (list.isNotEmpty) {
+        state = state.copyWith(peopleList: list, page: 2);
+      }
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
   }
 

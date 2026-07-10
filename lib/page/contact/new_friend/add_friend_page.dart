@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/page/contact/people_nearby/people_nearby_page.dart';
 import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_page.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:imboy/page/qrcode/qrcode_page.dart';
+import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -112,9 +115,16 @@ class AddFriendPage extends ConsumerWidget {
                 final results = await ref
                     .read(newFriendProvider.notifier)
                     .userSearch(kwd: v);
-                if (context.mounted && results.isNotEmpty) {
-                  // 处理搜索结果跳转或显示逻辑
+                if (!context.mounted) return;
+                if (results.isEmpty) {
+                  AppLoading.showInfo(t.common.searchNoResults);
+                  return;
                 }
+                final model = results.first as PeopleModel;
+                context.push(
+                  '/people_info/${model.id}',
+                  extra: {'scene': 'user_search'},
+                );
               },
             ),
             AppSpacing.verticalRegular,

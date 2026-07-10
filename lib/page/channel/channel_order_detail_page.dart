@@ -11,7 +11,8 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
-import 'channel_order_list_page.dart' show channelMyOrdersProvider;
+import 'channel_order_list_page.dart'
+    show channelMyOrdersProvider, channelCurrencySymbol;
 import 'channel_order_status_ui.dart';
 import 'channel_purchase_provider.dart' show channelOrderApiProvider;
 
@@ -121,7 +122,8 @@ class _OrderDetailBody extends ConsumerWidget {
               _row(
                 context,
                 t.channel.orderAmount,
-                '¥${order.amount.toStringAsFixed(2)}',
+                '${channelCurrencySymbol(order.currency)}'
+                '${order.amount.toStringAsFixed(2)}',
               ),
               _statusRow(context, t, statusLabel, statusColor),
               _row(

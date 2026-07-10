@@ -245,7 +245,9 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
           Expanded(
             child: Container(
               color: isDark ? colorScheme.surface : AppColors.lightSurface,
-              child: state.items.isEmpty
+              child: state.isLoading
+                  ? const Center(child: CupertinoActivityIndicator())
+                  : state.items.isEmpty
                   ? NoDataView(text: t.common.noData)
                   : AzListView(
                       data: state.items,

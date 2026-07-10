@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/phone_input.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -235,16 +236,11 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                   .read(bindMobileProvider.notifier)
                   .sendCode();
               if (error != null && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(error),
-                    backgroundColor: AppColors.iosRed,
-                  ),
-                );
+                AppLoading.showError(error);
               }
             }
           : null,
-      minimumSize: Size(32, 32),
+      minimumSize: Size(44, 44),
       child: state.isSendingCode
           ? CupertinoActivityIndicator(radius: 8, color: AppColors.onPrimary)
           : Text(
@@ -276,23 +272,20 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
       child: SizedBox(
         width: double.infinity,
         height: 50,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
+        child: CupertinoButton(
+          padding: EdgeInsets.zero,
+          color: AppColors.primary,
+          disabledColor: AppColors.primary.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(14),
           onPressed: state.canSubmit
               ? () async {
                   FocusScope.of(context).unfocus();
                   final error = await ref
                       .read(bindMobileProvider.notifier)
                       .submit();
-                  if (error == null && context.mounted) {
+                  if (error != null && context.mounted) {
+                    AppLoading.showError(error);
+                  } else if (context.mounted) {
                     Navigator.of(context).pop();
                   }
                 }
@@ -304,6 +297,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                   style: context.textStyle(
                     FontSizeType.body,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.onPrimary,
                   ),
                 ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_transfer_send_page.dart';
 import 'package:imboy/page/settings/e2ee_transfer_receive_page.dart';
@@ -14,14 +15,14 @@ class E2EETransferPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(t.main.e2eeTransferPageTitle)),
-      body: ListView(
+    return IosPageTemplate(
+      title: t.main.e2eeTransferPageTitle,
+      child: Column(
         children: [
           _buildSectionHeader(context, t.common.e2eeTransferToNewDevice),
           _buildTransferCard(
             context,
-            icon: Icons.qr_code_scanner,
+            icon: CupertinoIcons.qrcode_viewfinder,
             title: t.chat.e2eeTransferSendTitle,
             description: t.chat.e2eeTransferSendDesc,
             onTap: () {
@@ -35,7 +36,7 @@ class E2EETransferPage extends StatelessWidget {
           ),
           _buildTransferCard(
             context,
-            icon: Icons.qr_code_2,
+            icon: CupertinoIcons.qrcode,
             title: t.account.e2eeTransferFromOldDevice,
             description: t.chat.e2eeTransferReceiveDesc,
             onTap: () {

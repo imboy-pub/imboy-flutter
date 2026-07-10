@@ -5,7 +5,9 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 // Markdown 页面的状态提供者
 final markdownContentProvider = Provider.family<String, String>((ref, url) {
@@ -36,6 +38,7 @@ class MarkdownPage extends ConsumerStatefulWidget {
 class _MarkdownPageState extends ConsumerState<MarkdownPage> {
   String _content = "";
   bool _isLoading = true;
+  Object? _error;
 
   @override
   void initState() {
@@ -44,6 +47,10 @@ class _MarkdownPageState extends ConsumerState<MarkdownPage> {
   }
 
   Future<void> initData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
       File tmpF = await IMBoyCacheManager().getSingleFile(
         widget.url,
@@ -56,9 +63,10 @@ class _MarkdownPageState extends ConsumerState<MarkdownPage> {
           _isLoading = false;
         });
       }
-    } on Exception {
+    } on Exception catch (e) {
       if (mounted) {
         setState(() {
+          _error = e;
           _isLoading = false;
         });
       }
@@ -77,9 +85,14 @@ class _MarkdownPageState extends ConsumerState<MarkdownPage> {
       ),
       body: Container(
         color: Theme.of(context).colorScheme.surface,
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Markdown(data: _content, selectable: widget.selectable),
+        child: AsyncStateView(
+          isLoading: _isLoading,
+          isEmpty: false,
+          error: _error,
+          errorText: t.common.loadError,
+          onRetry: initData,
+          child: Markdown(data: _content, selectable: widget.selectable),
+        ),
       ),
     );
   }

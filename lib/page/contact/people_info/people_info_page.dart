@@ -58,24 +58,28 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
       actions: isSelf || isBot
           ? null
           : [
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: const Icon(CupertinoIcons.ellipsis, size: 22),
-                onPressed: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<void>(
-                    builder: (_) => ContactSettingPage(
-                      peerId: id,
-                      peerAvatar: '',
-                      peerAccount: '',
-                      peerNickname: '',
-                      peerGender: 0,
-                      peerTitle: '',
-                      peerSign: '',
-                      peerRegion: '',
-                      peerSource: '',
-                      peerRemark: '',
-                      peerTag: '',
+              Semantics(
+                button: true,
+                label: t.common.contactSetting,
+                child: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  child: const Icon(CupertinoIcons.ellipsis, size: 22),
+                  onPressed: () => Navigator.push(
+                    context,
+                    CupertinoPageRoute<void>(
+                      builder: (_) => ContactSettingPage(
+                        peerId: id,
+                        peerAvatar: '',
+                        peerAccount: '',
+                        peerNickname: '',
+                        peerGender: 0,
+                        peerTitle: '',
+                        peerSign: '',
+                        peerRegion: '',
+                        peerSource: '',
+                        peerRemark: '',
+                        peerTag: '',
+                      ),
                     ),
                   ),
                 ),
@@ -154,9 +158,9 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                               : state.tag,
                         )
                       : null,
-                  leading: const Icon(
+                  leading: Icon(
                     CupertinoIcons.tag_fill,
-                    color: AppColors.iosBlue,
+                    color: AppColors.getIosBlue(brightness),
                     size: 20,
                   ),
                   onTap: () => _editTags(context, ref, state),
@@ -202,9 +206,9 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                 if (!isSelf)
                   ImBoySettingsTile(
                     title: Text(t.common.messageCall),
-                    leading: const Icon(
+                    leading: Icon(
                       CupertinoIcons.chat_bubble_fill,
-                      color: AppColors.iosBlue,
+                      color: AppColors.getIosBlue(brightness),
                       size: 20,
                     ),
                     onTap: () => _goToChat(context, state),
@@ -212,18 +216,18 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                 if (state.isFriend == 1 && !isSelf) ...[
                   ImBoySettingsTile(
                     title: Text(t.common.voiceCall),
-                    leading: const Icon(
+                    leading: Icon(
                       CupertinoIcons.phone_fill,
-                      color: AppColors.iosGreen,
+                      color: AppColors.getIosGreen(brightness),
                       size: 20,
                     ),
                     onTap: () => _startCall(context, state, 'audio'),
                   ),
                   ImBoySettingsTile(
                     title: Text(t.common.videoCall),
-                    leading: const Icon(
+                    leading: Icon(
                       CupertinoIcons.videocam_fill,
-                      color: AppColors.iosGreen,
+                      color: AppColors.getIosGreen(brightness),
                       size: 20,
                     ),
                     onTap: () => _startCall(context, state, 'video'),
@@ -246,19 +250,11 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
               child: SizedBox(
                 width: double.infinity,
                 height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.onPrimary,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    textStyle: context.textStyle(
-                      FontSizeType.body,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                child: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  color: AppColors.primary,
+                  disabledColor: AppColors.primary,
+                  borderRadius: BorderRadius.circular(14),
                   onPressed: () => Navigator.push(
                     context,
                     CupertinoPageRoute<void>(
@@ -271,7 +267,14 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                       ),
                     ),
                   ),
-                  child: Text(t.common.addToContacts),
+                  child: Text(
+                    t.common.addToContacts,
+                    style: context.textStyle(
+                      FontSizeType.body,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onPrimary,
+                    ),
+                  ),
                 ),
               ),
             ),

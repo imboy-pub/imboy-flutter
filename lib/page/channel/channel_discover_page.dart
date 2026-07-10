@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,6 +34,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   bool _isSearching = false;
   bool _hasSearched = false;
   bool _isLoadingRecommended = true;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -42,6 +45,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   @override
   void dispose() {
     _searchController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
@@ -99,6 +103,16 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     }
   }
 
+  /// 输入防抖：300ms 内无新输入才触发搜索，避免每次按键都发请求
+  void _onSearchChanged(String value) {
+    setState(() {});
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(
+      const Duration(milliseconds: 300),
+      () => _search(value),
+    );
+  }
+
   Future<void> _search(String keyword) async {
     if (keyword.trim().isEmpty) {
       setState(() {
@@ -153,6 +167,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
                         icon: const Icon(Icons.clear),
                         tooltip: t.common.clear,
                         onPressed: () {
+                          _debounceTimer?.cancel();
                           _searchController.clear();
                           setState(() {
                             _searchResults = [];
@@ -170,10 +185,11 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
                     ? AppColors.lightSurfaceContainer
                     : AppColors.darkSurfaceContainer,
               ),
-              onChanged: (value) {
-                setState(() {});
+              onChanged: _onSearchChanged,
+              onSubmitted: (value) {
+                _debounceTimer?.cancel();
+                _search(value);
               },
-              onSubmitted: _search,
               textInputAction: TextInputAction.search,
             ),
           ),

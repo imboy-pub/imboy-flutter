@@ -11,6 +11,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/widget/user_online_status_widget.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart';
 import 'package:imboy/page/conversation/conversation_tap_dispatcher.dart';
 import 'package:imboy/page/web_shell/web_shell.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -54,6 +55,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(contactProvider.notifier).loadData();
+      ref.read(newFriendRemindProvider.notifier).countReminders();
     });
   }
 
@@ -126,6 +128,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     BuildContext context,
     ContactModel model, {
     Color? defHeaderBgColor,
+    int newFriendUnreadCount = 0,
   }) {
     final isSpecial = model.isMenuEntry;
     final menuDecoration = isSpecial
@@ -133,6 +136,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         : null;
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
+    final showNewFriendDot =
+        model.peerId == kPeerIdNewFriend && newFriendUnreadCount > 0;
 
     return ImBoyListTile(
       onTap: () => _handleContactTap(model),
@@ -189,6 +194,25 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                         ? AppColors.darkSurface
                         : AppColors.lightSurface,
                     width: 2,
+                  ),
+                ),
+              ),
+            ),
+          if (showNewFriendDot)
+            Positioned(
+              top: -1,
+              right: -1,
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: AppColors.iosRed,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.darkSurface
+                        : AppColors.lightSurface,
+                    width: 1.5,
                   ),
                 ),
               ),
@@ -259,6 +283,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(contactProvider);
     final brightness = Theme.of(context).brightness;
+    final newFriendUnreadCount = ref.watch(newFriendRemindProvider).length;
 
     return IosPageTemplate(
       title: t.common.titleContact,
@@ -306,7 +331,11 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                 final model = state.contactList[index];
                 return Column(
                   children: [
-                    _buildChatItem(context, model),
+                    _buildChatItem(
+                      context,
+                      model,
+                      newFriendUnreadCount: newFriendUnreadCount,
+                    ),
                     if (index < state.contactList.length - 1 &&
                         state.contactList[index].getSuspensionTag() ==
                             state.contactList[index + 1].getSuspensionTag())

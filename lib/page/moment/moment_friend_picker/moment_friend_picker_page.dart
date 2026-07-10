@@ -1,12 +1,14 @@
-/// 朋友圈好友选择器页面（Slice B-2）。
+/// 朋友圈可见性 + 好友选择器单页（P1-1：可见性单页化）。
 ///
-/// - 顶部：按标签联动区（横滑 Chip；标签 uids 懒加载）
-/// - 中部：好友列表（拼音排序 + Checkbox）
+/// - 顶部：可见性五选一（公开/仅好友/仅自己/部分可见/不给谁看）
+/// - 命中「部分可见」/「不给谁看」时，同页展开：
+///   - 按标签联动区（横滑 Chip；标签 uids 懒加载）
+///   - 好友列表（拼音排序 + Checkbox）
 /// - 底部：确定按钮（展示已选人数）
 ///
 /// 返回值语义：Navigator.pop
 ///   - null → 取消
-///   - `List<String>` (可能为空) → 用户确认后的结果
+///   - [MomentVisibilityResult] → 用户确认后的可见性 + 允许/排除名单
 ///
 /// 决策逻辑委托 `friend_picker_rules.dart` 纯函数，本 widget 只做：
 ///   数据加载 + UI 渲染 + 状态持有。
@@ -25,12 +27,26 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/moment/moment_friend_picker/friend_picker_rules.dart';
+import 'package:imboy/page/moment/moment_interactions.dart';
 import 'package:imboy/store/api/user_tag_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+
+/// 单页确认后的结果：可见性 code + 允许/排除名单。
+class MomentVisibilityResult {
+  const MomentVisibilityResult({
+    required this.visibility,
+    required this.allowUids,
+    required this.denyUids,
+  });
+
+  final int visibility;
+  final List<String> allowUids;
+  final List<String> denyUids;
+}
 
 /// 朋友圈选择器一次性拉取的标签数量上限。
 ///
@@ -60,14 +76,22 @@ class MomentFriendPickerPage extends ConsumerStatefulWidget {
   const MomentFriendPickerPage({
     super.key,
     this.title,
-    this.initialSelectedUids = const <String>[],
+    this.initialVisibility = momentVisibilityFriends,
+    this.initialAllowUids = const <String>[],
+    this.initialDenyUids = const <String>[],
   });
 
   /// 页面标题（为空时用 `momentFriendPicker.title`）。
   final String? title;
 
-  /// 调用方传入的初始选中 uid 列表。
-  final List<String> initialSelectedUids;
+  /// 调用方传入的初始可见性。
+  final int initialVisibility;
+
+  /// 调用方传入的初始「部分可见」白名单。
+  final List<String> initialAllowUids;
+
+  /// 调用方传入的初始「不给谁看」黑名单。
+  final List<String> initialDenyUids;
 
   @override
   ConsumerState<MomentFriendPickerPage> createState() =>
@@ -76,8 +100,34 @@ class MomentFriendPickerPage extends ConsumerStatefulWidget {
 
 class _MomentFriendPickerPageState
     extends ConsumerState<MomentFriendPickerPage> {
-  /// 已选中的 uid 集合（权威状态）。
-  Set<String> _picked = <String>{};
+  /// 当前选中的可见性。
+  late int _visibility;
+
+  /// 「部分可见」白名单选中集合（权威状态）。
+  Set<String> _allowPicked = <String>{};
+
+  /// 「不给谁看」黑名单选中集合（权威状态）。
+  Set<String> _denyPicked = <String>{};
+
+  /// 当前可见性下生效的选中集合（部分可见/不给谁看之外为空集）。
+  Set<String> get _activePicked {
+    if (momentVisibilityRequiresAllowUids(_visibility)) return _allowPicked;
+    if (momentVisibilityRequiresDenyUids(_visibility)) return _denyPicked;
+    return const <String>{};
+  }
+
+  set _activePicked(Set<String> next) {
+    if (momentVisibilityRequiresAllowUids(_visibility)) {
+      _allowPicked = next;
+    } else if (momentVisibilityRequiresDenyUids(_visibility)) {
+      _denyPicked = next;
+    }
+  }
+
+  /// 当前可见性是否需要展开好友名单区。
+  bool get _needsFriendList =>
+      momentVisibilityRequiresAllowUids(_visibility) ||
+      momentVisibilityRequiresDenyUids(_visibility);
 
   /// 好友原始列表（从本地 Repo 加载）。
   List<ContactModel> _friends = const [];
@@ -97,8 +147,13 @@ class _MomentFriendPickerPageState
   @override
   void initState() {
     super.initState();
-    _picked = {
-      for (final uid in widget.initialSelectedUids)
+    _visibility = widget.initialVisibility;
+    _allowPicked = {
+      for (final uid in widget.initialAllowUids)
+        if (uid.trim().isNotEmpty) uid.trim(),
+    };
+    _denyPicked = {
+      for (final uid in widget.initialDenyUids)
         if (uid.trim().isNotEmpty) uid.trim(),
     };
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -203,18 +258,22 @@ class _MomentFriendPickerPageState
   Future<void> _onTagTap(_PickerTagEntry entry) async {
     final uids = await _ensureTagUids(entry);
     if (uids == null || uids.isEmpty) return;
-    final currentState = resolveTagSelectionState(_picked, uids);
+    final currentState = resolveTagSelectionState(_activePicked, uids);
     // all → 取消全选；否则（none / partial）→ 全选
     final select = currentState != TagSelectionState.all;
     setState(() {
-      _picked = applyTagToggle(_picked, uids, select: select);
+      _activePicked = applyTagToggle(_activePicked, uids, select: select);
     });
   }
 
   void _onFriendToggle(ContactModel c) {
     setState(() {
-      _picked = togglePickedUid(_picked, c.peerId.toString());
+      _activePicked = togglePickedUid(_activePicked, c.peerId.toString());
     });
+  }
+
+  void _onVisibilitySelected(int code) {
+    setState(() => _visibility = code);
   }
 
   void _onSearchChanged(String kwd) {
@@ -236,8 +295,12 @@ class _MomentFriendPickerPageState
   }
 
   void _onConfirm() {
-    final payload = sortUidsForPayload(_picked);
-    Navigator.of(context).pop(payload);
+    final result = MomentVisibilityResult(
+      visibility: _visibility,
+      allowUids: sortUidsForPayload(_allowPicked),
+      denyUids: sortUidsForPayload(_denyPicked),
+    );
+    Navigator.of(context).pop(result);
   }
 
   void _onCancel() {
@@ -246,8 +309,8 @@ class _MomentFriendPickerPageState
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.title ?? t.momentFriendPicker.title;
-    final count = _picked.length;
+    final title = widget.title ?? t.discovery.momentsVisibility;
+    final count = _activePicked.length;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -274,12 +337,61 @@ class _MomentFriendPickerPageState
       ),
       body: Column(
         children: [
-          _buildSearchBar(),
-          _buildTagsRow(),
+          _buildVisibilitySection(),
           const Divider(height: 1),
-          Expanded(child: _buildFriendList()),
-          _buildSelectedBar(count),
+          if (_needsFriendList) ...[
+            _buildSearchBar(),
+            _buildTagsRow(),
+            const Divider(height: 1),
+            Expanded(child: _buildFriendList()),
+            _buildSelectedBar(count),
+          ] else
+            const Spacer(),
         ],
+      ),
+    );
+  }
+
+  /// 可见性五选一（单页化核心：不再单独跳转 ActionSheet）。
+  Widget _buildVisibilitySection() {
+    final options = <(int, String)>[
+      (momentVisibilityPublic, t.discovery.momentsVisibilityPublic),
+      (momentVisibilityFriends, t.contact.momentsVisibilityFriends),
+      (momentVisibilityPrivate, t.chat.momentsVisibilityPrivate),
+      (momentVisibilityAllowList, t.discovery.momentsVisibilityPartial),
+      (momentVisibilityDenyList, t.discovery.momentsVisibilityExclude),
+    ];
+    return Column(
+      children: options
+          .map((o) => _buildVisibilityRow(code: o.$1, label: o.$2))
+          .toList(),
+    );
+  }
+
+  Widget _buildVisibilityRow({required int code, required String label}) {
+    final selected = _visibility == code;
+    return InkWell(
+      onTap: () => _onVisibilitySelected(code),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(
+              selected
+                  ? CupertinoIcons.checkmark_circle_fill
+                  : CupertinoIcons.circle,
+              size: 20,
+              color: selected ? AppColors.primary : AppColors.iosGray3,
+            ),
+            AppSpacing.horizontalMedium,
+            Expanded(
+              child: Text(
+                label,
+                style: context.textStyle(FontSizeType.subheadline),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -324,7 +436,7 @@ class _MomentFriendPickerPageState
     final uids = entry.uids;
     final state = uids == null
         ? TagSelectionState.none
-        : resolveTagSelectionState(_picked, uids);
+        : resolveTagSelectionState(_activePicked, uids);
     final theme = Theme.of(context);
     final selected = state == TagSelectionState.all;
     final partial = state == TagSelectionState.partial;
@@ -424,7 +536,7 @@ class _MomentFriendPickerPageState
 
   Widget _buildFriendRow(ContactModel c) {
     final uid = c.peerId.toString();
-    final checked = _picked.contains(uid);
+    final checked = _activePicked.contains(uid);
     return InkWell(
       onTap: () => _onFriendToggle(c),
       child: Container(

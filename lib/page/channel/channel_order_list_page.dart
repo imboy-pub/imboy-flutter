@@ -14,6 +14,18 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'channel_order_status_ui.dart';
 import 'channel_purchase_provider.dart' show channelOrderApiProvider;
 
+/// 订单币种符号映射（ISO 4217 → 展示符号）。
+/// 未收录的币种回退为「代码+空格」（如 `KRW 12.00`），不臆造符号。
+String channelCurrencySymbol(String currency) => switch (currency) {
+  'CNY' => '¥',
+  'USD' => r'$',
+  'EUR' => '€',
+  'GBP' => '£',
+  'JPY' => '¥',
+  'HKD' => r'HK$',
+  _ => '$currency ',
+};
+
 /// 付费频道「我的订单」数据源。
 ///
 /// 复用 [channelOrderApiProvider]（与购买编排同一注入点，便于测试覆盖）。
@@ -154,7 +166,8 @@ class _OrderTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '¥${order.amount.toStringAsFixed(2)}',
+                  '${channelCurrencySymbol(order.currency)}'
+                  '${order.amount.toStringAsFixed(2)}',
                   style: context.textStyle(
                     FontSizeType.subheadline,
                     fontWeight: FontWeight.w700,

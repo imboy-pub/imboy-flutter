@@ -97,29 +97,36 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   Future<void> initData() async {
     final notifier = ref.read(groupDetailProvider.notifier);
     final service = GroupDetailService();
-    var connectivityResult = await Connectivity().checkConnectivity();
-    bool connected = !connectivityResult.contains(ConnectivityResult.none);
+    notifier.setLoading(true);
+    bool connected = false;
+    List<PeopleModel> memberList = [];
+    try {
+      var connectivityResult = await Connectivity().checkConnectivity();
+      connected = !connectivityResult.contains(ConnectivityResult.none);
 
-    notifier.setTitle(widget.title);
-    notifier.setMemberCount(widget.memberCount);
+      notifier.setTitle(widget.title);
+      notifier.setMemberCount(widget.memberCount);
 
-    List<PeopleModel> memberList = await service.listGroupMember(
-      gid: widget.groupId,
-      sync: false,
-      limit: 18,
-    );
-    memberList.add(PeopleModel(id: -1, account: 'add'));
-    int role = await service.role(
-      gid: widget.groupId,
-      userId: UserRepoLocal.to.currentUid,
-    );
-    bool isAdmin = isGroupAdmin(role);
-    notifier.setRoleInfo(role, isAdmin);
-    if (isAdmin) memberList.add(PeopleModel(id: -2, account: 'remove'));
-    notifier.setMemberList(memberList);
+      memberList = await service.listGroupMember(
+        gid: widget.groupId,
+        sync: false,
+        limit: 18,
+      );
+      memberList.add(PeopleModel(id: -1, account: 'add'));
+      int role = await service.role(
+        gid: widget.groupId,
+        userId: UserRepoLocal.to.currentUid,
+      );
+      bool isAdmin = isGroupAdmin(role);
+      notifier.setRoleInfo(role, isAdmin);
+      if (isAdmin) memberList.add(PeopleModel(id: -2, account: 'remove'));
+      notifier.setMemberList(memberList);
 
-    GroupMemberModel? m = await service.getMyGroupMemberInfo(widget.groupId);
-    if (m != null) notifier.setMyGroupAlias(m.alias);
+      GroupMemberModel? m = await service.getMyGroupMemberInfo(widget.groupId);
+      if (m != null) notifier.setMyGroupAlias(m.alias);
+    } finally {
+      notifier.setLoading(false);
+    }
 
     service.detail(gid: widget.groupId, sync: connected).then((g) async {
       if (g != null) {
@@ -186,220 +193,223 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     return IosPageTemplate(
       title: state.title.isEmpty ? t.chat.chatMessage : state.title,
       useLargeTitle: false,
-      child: Column(
-        children: [
-          // 1. 群信息卡片
-          GroupInfoCard(
-            group:
-                state.group ??
-                GroupModel(
-                  groupId: int.tryParse(widget.groupId) ?? 0,
-                  type: 2,
-                  joinLimit: 1,
-                  contentLimit: 1,
-                  userIdSum: 0,
-                  ownerUid: 0,
-                  creatorUid: 0,
-                  memberMax: 0,
-                  memberCount: state.memberCount,
-                  title: state.title,
-                  createdAt: 0,
-                ),
-            onTap: () async =>
-                _editGroupInfo(await GroupDetailService().find(widget.groupId)),
-          ),
-
-          // 2. 群成员横滑区
-          _GroupMemberSection(
-            groupId: widget.groupId,
-            onMemberRemoved: () => backDoRefresh = true,
-          ),
-
-          // 3. 群应用九宫格
-          GroupAppGrid(items: _buildAppItems(state.group)),
-
-          // 4. 偏好设置 Section
-          ImBoySettingsSection(
-            children: [
-              ImBoySettingsTile(
-                title: Text(t.group.groupAlias),
-                trailing: Text(
-                  strEmpty(state.myGroupAlias)
-                      ? UserRepoLocal.to.current.nickname
-                      : state.myGroupAlias!,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
+      child: state.isLoading && state.group == null
+          ? const Center(child: CupertinoActivityIndicator())
+          : Column(
+              children: [
+                // 1. 群信息卡片
+                GroupInfoCard(
+                  group:
+                      state.group ??
+                      GroupModel(
+                        groupId: int.tryParse(widget.groupId) ?? 0,
+                        type: 2,
+                        joinLimit: 1,
+                        contentLimit: 1,
+                        userIdSum: 0,
+                        ownerUid: 0,
+                        creatorUid: 0,
+                        memberMax: 0,
+                        memberCount: state.memberCount,
+                        title: state.title,
+                        createdAt: 0,
+                      ),
+                  onTap: () async => _editGroupInfo(
+                    await GroupDetailService().find(widget.groupId),
                   ),
                 ),
-                // 复用通用文本编辑页 UpdatePage（callback 内落库）。
-                // 原先推送的 /group/remark 是未注册路由，点击必抛 no-routes。
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    CupertinoPageRoute<void>(
-                      builder: (_) => UpdatePage(
-                        title: t.group.groupAlias,
-                        value: state.myGroupAlias ?? '',
-                        field: 'input',
-                        maxLength: 56,
-                        callback: (val) async {
-                          final ok = await GroupDetailService()
-                              .updateMyGroupAlias(widget.groupId, val);
-                          if (ok) {
-                            ref
-                                .read(groupDetailProvider.notifier)
-                                .setMyGroupAlias(val);
-                          }
-                          return ok;
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
-              ImBoySettingsTile(
-                title: Text(t.contact.remark),
-                trailing: Text(
-                  strEmpty(state.groupRemark)
-                      ? state.group?.title ?? ''
-                      : state.groupRemark!,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
+
+                // 2. 群成员横滑区
+                _GroupMemberSection(
+                  groupId: widget.groupId,
+                  onMemberRemoved: () => backDoRefresh = true,
                 ),
-                // 同上：/group/remark 未注册，改用 UpdatePage。
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    CupertinoPageRoute<void>(
-                      builder: (_) => UpdatePage(
-                        title: t.contact.remark,
-                        value: state.groupRemark ?? '',
-                        field: 'input',
-                        maxLength: 56,
-                        callback: (val) async {
-                          final ok = await GroupApi().updateRemark(
-                            gid: widget.groupId,
-                            remark: val,
-                          );
-                          if (ok) {
-                            ref
-                                .read(groupDetailProvider.notifier)
-                                .setGroupRemark(val);
-                          }
-                          return ok;
-                        },
+
+                // 3. 群应用九宫格
+                GroupAppGrid(items: _buildAppItems(state.group)),
+
+                // 4. 偏好设置 Section
+                ImBoySettingsSection(
+                  children: [
+                    ImBoySettingsTile(
+                      title: Text(t.group.groupAlias),
+                      trailing: Text(
+                        strEmpty(state.myGroupAlias)
+                            ? UserRepoLocal.to.current.nickname
+                            : state.myGroupAlias!,
+                        style: context.textStyle(
+                          FontSizeType.subheadline,
+                          color: AppColors.iosGray,
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-              GroupNoticeDisabledTile(
-                label: t.common.muteNotifications,
-                value: _noticeDisabled,
-                onChanged: _gidInt <= 0
-                    ? null
-                    : (v) async {
-                        final prev = _noticeDisabled;
-                        setState(() => _noticeDisabled = v);
-                        try {
-                          await setNoticeDisabled(
-                            _gidInt,
-                            v,
-                            writeBool: (k, val) async =>
-                                StorageService.to.setBool(k, val),
-                          );
-                        } catch (_) {
-                          if (mounted) {
-                            setState(() => _noticeDisabled = prev);
-                            AppLoading.showError(t.common.tipFailed);
-                          }
-                        }
+                      // 复用通用文本编辑页 UpdatePage（callback 内落库）。
+                      // 原先推送的 /group/remark 是未注册路由，点击必抛 no-routes。
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          CupertinoPageRoute<void>(
+                            builder: (_) => UpdatePage(
+                              title: t.group.groupAlias,
+                              value: state.myGroupAlias ?? '',
+                              field: 'input',
+                              maxLength: 56,
+                              callback: (val) async {
+                                final ok = await GroupDetailService()
+                                    .updateMyGroupAlias(widget.groupId, val);
+                                if (ok) {
+                                  ref
+                                      .read(groupDetailProvider.notifier)
+                                      .setMyGroupAlias(val);
+                                }
+                                return ok;
+                              },
+                            ),
+                          ),
+                        );
                       },
-              ),
-              ImBoySettingsTile(
-                title: Text(t.common.searchChatContent),
-                leading: const Icon(
-                  CupertinoIcons.search,
-                  color: AppColors.iosBlue,
-                  size: 20,
+                    ),
+                    ImBoySettingsTile(
+                      title: Text(t.contact.remark),
+                      trailing: Text(
+                        strEmpty(state.groupRemark)
+                            ? state.group?.title ?? ''
+                            : state.groupRemark!,
+                        style: context.textStyle(
+                          FontSizeType.subheadline,
+                          color: AppColors.iosGray,
+                        ),
+                      ),
+                      // 同上：/group/remark 未注册，改用 UpdatePage。
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          CupertinoPageRoute<void>(
+                            builder: (_) => UpdatePage(
+                              title: t.contact.remark,
+                              value: state.groupRemark ?? '',
+                              field: 'input',
+                              maxLength: 56,
+                              callback: (val) async {
+                                final ok = await GroupApi().updateRemark(
+                                  gid: widget.groupId,
+                                  remark: val,
+                                );
+                                if (ok) {
+                                  ref
+                                      .read(groupDetailProvider.notifier)
+                                      .setGroupRemark(val);
+                                }
+                                return ok;
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    GroupNoticeDisabledTile(
+                      label: t.common.muteNotifications,
+                      value: _noticeDisabled,
+                      onChanged: _gidInt <= 0
+                          ? null
+                          : (v) async {
+                              final prev = _noticeDisabled;
+                              setState(() => _noticeDisabled = v);
+                              try {
+                                await setNoticeDisabled(
+                                  _gidInt,
+                                  v,
+                                  writeBool: (k, val) async =>
+                                      StorageService.to.setBool(k, val),
+                                );
+                              } catch (_) {
+                                if (mounted) {
+                                  setState(() => _noticeDisabled = prev);
+                                  AppLoading.showError(t.common.tipFailed);
+                                }
+                              }
+                            },
+                    ),
+                    ImBoySettingsTile(
+                      title: Text(t.common.searchChatContent),
+                      leading: const Icon(
+                        CupertinoIcons.search,
+                        color: AppColors.iosBlue,
+                        size: 20,
+                      ),
+                      onTap: () => context.push(
+                        '/search_chat',
+                        extra: {
+                          'type': 'C2G',
+                          'peerId': widget.groupId,
+                          'peerTitle': widget.title,
+                          'peerAvatar': widget.options?['peerAvatar'],
+                          'peerSign': widget.options?['peerSign'],
+                          'conversationUk3': widget.options?['conversationUk3'],
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                onTap: () => context.push(
-                  '/search_chat',
-                  extra: {
-                    'type': 'C2G',
-                    'peerId': widget.groupId,
-                    'peerTitle': widget.title,
-                    'peerAvatar': widget.options?['peerAvatar'],
-                    'peerSign': widget.options?['peerSign'],
-                    'conversationUk3': widget.options?['conversationUk3'],
-                  },
+
+                // 5. 危险操作 Section
+                ImBoySettingsSection(
+                  children: [
+                    ImBoySettingsTile(
+                      title: Text(t.common.clearChatRecord),
+                      destructive: true,
+                      onTap: () => _confirmClearChat(),
+                    ),
+                    ImBoySettingsTile(
+                      title: Text(t.complaint.complaint),
+                      onTap: () => _showComplaintDialog(context),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
 
-          // 5. 危险操作 Section
-          ImBoySettingsSection(
-            children: [
-              ImBoySettingsTile(
-                title: Text(t.common.clearChatRecord),
-                destructive: true,
-                onTap: () => _confirmClearChat(),
-              ),
-              ImBoySettingsTile(
-                title: Text(t.complaint.complaint),
-                onTap: () => _showComplaintDialog(context),
-              ),
-            ],
-          ),
-
-          // 6. 退出/解散按钮（与危险操作区留白隔离，强调最高危操作）
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.regular,
-              AppSpacing.xxxLarge,
-              AppSpacing.regular,
-              AppSpacing.xxLarge,
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                  backgroundColor: AppColors.getIosRed(
-                    brightness,
-                  ).withValues(alpha: 0.1),
-                  foregroundColor: AppColors.getIosRed(brightness),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    side: BorderSide(
-                      color: AppColors.getIosRed(
-                        brightness,
-                      ).withValues(alpha: 0.2),
+                // 6. 退出/解散按钮（与危险操作区留白隔离，强调最高危操作）
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.regular,
+                    AppSpacing.xxxLarge,
+                    AppSpacing.regular,
+                    AppSpacing.xxLarge,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        backgroundColor: AppColors.getIosRed(
+                          brightness,
+                        ).withValues(alpha: 0.1),
+                        foregroundColor: AppColors.getIosRed(brightness),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          side: BorderSide(
+                            color: AppColors.getIosRed(
+                              brightness,
+                            ).withValues(alpha: 0.2),
+                          ),
+                        ),
+                      ),
+                      onPressed: () => _confirmExitGroup(state),
+                      child: Text(
+                        isGroupOwner(state.role)
+                            ? t.group.groupDissolve
+                            : t.group.groupLeave,
+                        style: context.textStyle(
+                          FontSizeType.body,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                 ),
-                onPressed: () => _confirmExitGroup(state),
-                child: Text(
-                  isGroupOwner(state.role)
-                      ? t.group.groupDissolve
-                      : t.group.groupLeave,
-                  style: context.textStyle(
-                    FontSizeType.body,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/material.dart';
@@ -385,7 +387,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             onPressed: () async {
               Navigator.pop(context);
               final file = await profileNotifier.pickCamera(context);
-              if (file != null) await profileNotifier.uploadAvatar(file);
+              if (file != null) await _uploadAvatar(file);
             },
             child: Text(t.main.takePhoto),
           ),
@@ -393,7 +395,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             onPressed: () async {
               Navigator.pop(context);
               final file = await profileNotifier.pickImage(context);
-              if (file != null) await profileNotifier.uploadAvatar(file);
+              if (file != null) await _uploadAvatar(file);
             },
             child: Text(t.main.selectFromAlbum),
           ),
@@ -409,12 +411,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   void _previewAvatar(BuildContext context, String avatarUrl) {
     if (avatarUrl.isEmpty) return;
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: AppColors.transparent,
-        child: GestureDetector(
-          onTap: () => Navigator.pop(context),
+      barrierDismissible: true,
+      builder: (context) => GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Container(
+          alignment: Alignment.center,
+          color: AppColors.transparent,
           child: Avatar(
             imgUri: avatarUrl,
             width: MediaQuery.of(context).size.width * 0.8,
@@ -475,13 +479,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         Navigator.pop(ctx);
                         final birthdayStr =
                             "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
-                        await ref.read(profileProvider.notifier).changeInfo({
-                          "field": "birthday",
-                          "value": birthdayStr,
-                        });
-                        final payload = UserRepoLocal.to.current.toMap();
-                        payload['birthday'] = birthdayStr;
-                        UserRepoLocal.to.changeInfo(payload);
+                        final success = await ref
+                            .read(profileProvider.notifier)
+                            .changeInfo({
+                              "field": "birthday",
+                              "value": birthdayStr,
+                            });
+                        if (success) {
+                          final payload = UserRepoLocal.to.current.toMap();
+                          payload['birthday'] = birthdayStr;
+                          UserRepoLocal.to.changeInfo(payload);
+                        } else {
+                          AppLoading.showError(t.common.saveFailed);
+                        }
                       },
                       child: Text(
                         t.common.confirm,
@@ -534,13 +544,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Navigator.pop(ctx);
               final newSign = controller.text.trim();
               if (newSign == currentSign) return;
-              await ref.read(profileProvider.notifier).changeInfo({
-                "field": "sign",
-                "value": newSign,
-              });
-              final payload = UserRepoLocal.to.current.toMap();
-              payload['sign'] = newSign;
-              UserRepoLocal.to.changeInfo(payload);
+              final success = await ref
+                  .read(profileProvider.notifier)
+                  .changeInfo({"field": "sign", "value": newSign});
+              if (success) {
+                final payload = UserRepoLocal.to.current.toMap();
+                payload['sign'] = newSign;
+                UserRepoLocal.to.changeInfo(payload);
+              } else {
+                AppLoading.showError(t.common.saveFailed);
+              }
             },
             child: Text(t.common.confirm),
           ),
@@ -572,6 +585,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _uploadAvatar(File file) async {
+    AppLoading.show(status: t.common.uploading);
+    if (await ref.read(profileProvider.notifier).uploadAvatar(file)) {
+      AppLoading.showSuccess(t.common.uploadSuccess);
+    } else {
+      AppLoading.showError(t.common.uploadFailed);
+    }
+    AppLoading.dismiss();
   }
 
   Future<void> _uploadAndSetBackground(String path) async {
@@ -628,13 +651,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Navigator.pop(ctx);
               final val = controller.text.trim();
               if (val == current) return;
-              await ref.read(profileProvider.notifier).changeInfo({
-                "field": field,
-                "value": val,
-              });
-              final payload = UserRepoLocal.to.current.toMap();
-              payload[field] = val;
-              UserRepoLocal.to.changeInfo(payload);
+              final success = await ref
+                  .read(profileProvider.notifier)
+                  .changeInfo({"field": field, "value": val});
+              if (success) {
+                final payload = UserRepoLocal.to.current.toMap();
+                payload[field] = val;
+                UserRepoLocal.to.changeInfo(payload);
+              } else {
+                AppLoading.showError(t.common.saveFailed);
+              }
             },
             child: Text(t.common.confirm),
           ),

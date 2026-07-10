@@ -666,7 +666,7 @@ class UpgradeCardState extends State<UpgradeCard> {
 
             ///按钮列表
             SizedBox(
-              height: 40,
+              height: 44,
               child: Row(
                 children: <Widget>[
                   Visibility(
@@ -686,9 +686,11 @@ class UpgradeCardState extends State<UpgradeCard> {
                     ),
                   ),
                   Container(
-                    height: 40,
+                    height: 44,
                     width: 0.5,
-                    color: AppColors.lightDivider,
+                    color: isDark
+                        ? AppColors.darkDivider
+                        : AppColors.lightDivider,
                   ),
                   Visibility(
                     visible: widget.positiveBtn.isNotEmpty,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_schedule_service.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -28,6 +28,7 @@ class _GroupScheduleDetailPageState
   Map<String, dynamic>? _detail;
   bool _isLoading = true;
   bool _isSubmitting = false;
+  Object? _error;
 
   @override
   void initState() {
@@ -55,16 +56,27 @@ class _GroupScheduleDetailPageState
   }
 
   Future<void> _loadDetail() async {
-    setState(() => _isLoading = true);
-    final detail = await GroupScheduleService.to.getSchedule(
-      groupId: widget.groupId,
-      scheduleId: widget.scheduleId,
-    );
-    if (!mounted) return;
     setState(() {
-      _detail = detail;
-      _isLoading = false;
+      _isLoading = true;
+      _error = null;
     });
+    try {
+      final detail = await GroupScheduleService.to.getSchedule(
+        groupId: widget.groupId,
+        scheduleId: widget.scheduleId,
+      );
+      if (!mounted) return;
+      setState(() {
+        _detail = detail;
+        _isLoading = false;
+      });
+    } on Exception catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _confirm(bool confirm) async {
@@ -135,17 +147,17 @@ class _GroupScheduleDetailPageState
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return AsyncStateView(
+      isLoading: _isLoading,
+      error: _error,
+      isEmpty: _detail == null,
+      onRetry: _loadDetail,
+      emptyText: context.t.groupSchedule.noSchedule,
+      child: _detail == null ? const SizedBox.shrink() : _buildDetailContent(),
+    );
+  }
 
-    if (_detail == null) {
-      return NoDataView(
-        text: context.t.groupSchedule.noSchedule,
-        onTop: _loadDetail,
-      );
-    }
-
+  Widget _buildDetailContent() {
     final scheduleRaw = _detail!['schedule'];
     final schedule = scheduleRaw is Map<String, dynamic>
         ? Map<String, dynamic>.from(scheduleRaw)

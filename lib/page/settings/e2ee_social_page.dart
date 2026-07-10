@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_social_create_page.dart';
 import 'package:imboy/page/settings/e2ee_social_recover_page.dart';
@@ -56,24 +57,20 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.main.e2eeSocialTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-          tooltip: t.common.buttonBack,
-        ),
-      ),
-      body: _isLoading
-          ? const Center(child: CupertinoActivityIndicator())
-          : ListView(
+    return IosPageTemplate(
+      title: t.main.e2eeSocialTitle,
+      child: _isLoading
+          ? const Padding(
+              padding: EdgeInsets.only(top: 120),
+              child: Center(child: CupertinoActivityIndicator()),
+            )
+          : Column(
               children: [
+                AppSpacing.verticalRegular,
                 _buildStatusCard(),
                 AppSpacing.verticalXLarge,
                 if (_shards.isNotEmpty) _buildExistingShardsCard(),
                 _buildActionCards(),
-                const SizedBox(height: 40),
               ],
             ),
     );
@@ -103,7 +100,9 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
             Row(
               children: [
                 Icon(
-                  _canRecover ? Icons.check_circle : Icons.info_outline,
+                  _canRecover
+                      ? CupertinoIcons.checkmark_circle_fill
+                      : CupertinoIcons.info,
                   color: _canRecover ? AppColors.iosGreen : AppColors.iosPurple,
                   size: 32,
                 ),
@@ -157,7 +156,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
             Row(
               children: [
                 const Icon(
-                  Icons.folder_open,
+                  CupertinoIcons.folder_open,
                   color: AppColors.iosPurple,
                   size: 20,
                 ),
@@ -246,7 +245,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
     return Column(
       children: [
         _buildActionCard(
-          icon: Icons.create,
+          icon: CupertinoIcons.pencil,
           title: t.chat.e2eeSocialCreateShardsTitle,
           description: t.chat.e2eeSocialCreateShardsDesc,
           color: AppColors.iosBlue,
@@ -262,7 +261,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
         AppSpacing.verticalMedium,
         if (_canRecover)
           _buildActionCard(
-            icon: Icons.restore,
+            icon: CupertinoIcons.arrow_counterclockwise,
             title: t.main.e2eeSocialRecoverKeyTitle,
             description: t.main.e2eeSocialRecoverKeyDesc,
             color: AppColors.iosGreen,
@@ -277,7 +276,7 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
           ),
         AppSpacing.verticalMedium,
         _buildActionCard(
-          icon: Icons.manage_accounts,
+          icon: CupertinoIcons.gear_alt_fill,
           title: t.main.e2eeSocialManageShardsTitle,
           description: t.main.e2eeSocialManageShardsDesc,
           color: AppColors.iosOrange,
@@ -344,7 +343,10 @@ class _E2EESocialPageState extends State<E2EESocialPage> {
                   ],
                 ),
               ),
-              const Icon(Icons.navigate_next, color: AppColors.iosGray),
+              const Icon(
+                CupertinoIcons.chevron_forward,
+                color: AppColors.iosGray,
+              ),
             ],
           ),
         ),

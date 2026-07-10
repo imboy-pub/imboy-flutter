@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -26,13 +27,26 @@ class PeopleInfoMorePage extends ConsumerStatefulWidget {
 }
 
 class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
+  bool _hasError = false;
+
   @override
   void initState() {
     super.initState();
     // 初始化数据
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(peopleInfoMoreProvider.notifier).initData(widget.id);
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  /// 加载数据；请求失败时提示用户并展示可重试的错误态，避免静默失败。
+  Future<void> _loadData() async {
+    if (mounted) setState(() => _hasError = false);
+    try {
+      await ref.read(peopleInfoMoreProvider.notifier).initData(widget.id);
+    } on Exception catch (e) {
+      iPrint('PeopleInfoMorePage._loadData failed: $e');
+      if (!mounted) return;
+      setState(() => _hasError = true);
+      AppLoading.showError(t.common.loadError);
+    }
   }
 
   /// 构建信息卡片
@@ -273,6 +287,41 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
     );
   }
 
+  /// 构建请求失败错误态，提供重试入口（替代此前的静默失败）
+  Widget _buildErrorState(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxLarge),
+      child: Column(
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 40,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          AppSpacing.verticalRegular,
+          Text(
+            t.common.loadError,
+            style: context.textStyle(
+              FontSizeType.medium,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          AppSpacing.verticalRegular,
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.large,
+              vertical: AppSpacing.small,
+            ),
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: AppRadius.borderRadiusRegular,
+            onPressed: _loadData,
+            child: Text(t.common.buttonRetry),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -289,6 +338,11 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
       body: Consumer(
         builder: (context, ref, _) {
           final state = ref.watch(peopleInfoMoreProvider);
+
+          // 请求失败：展示错误态 + 重试入口，不再静默无提示
+          if (_hasError) {
+            return SingleChildScrollView(child: _buildErrorState(context));
+          }
 
           // 检查是否有任何信息可显示
           bool hasSignature = strNoEmpty(state.sign);

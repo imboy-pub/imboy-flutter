@@ -161,7 +161,9 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
             Row(
               children: [
                 Icon(
-                  canRecover ? Icons.check_circle : Icons.info_outline,
+                  canRecover
+                      ? CupertinoIcons.checkmark_circle_fill
+                      : CupertinoIcons.info,
                   color: canRecover ? AppColors.iosGreen : AppColors.iosOrange,
                   size: 32,
                 ),
@@ -308,15 +310,15 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
     switch (status) {
       case 'active':
         statusColor = AppColors.iosGreen;
-        statusIcon = Icons.check_circle;
+        statusIcon = CupertinoIcons.checkmark_circle_fill;
         break;
       case 'pending':
         statusColor = AppColors.iosOrange;
-        statusIcon = Icons.pending;
+        statusIcon = CupertinoIcons.time;
         break;
       default:
         statusColor = AppColors.iosGray;
-        statusIcon = Icons.help_outline;
+        statusIcon = CupertinoIcons.question_circle;
     }
 
     return Card(
@@ -353,7 +355,7 @@ class _E2EESocialRecoverPageState extends State<E2EESocialRecoverPage> {
       child: NoDataView(
         text: t.common.e2eeNoRecoveryShards,
         description: t.main.e2eeSocialZeroTrustHint2,
-        icon: Icons.info_outline,
+        icon: CupertinoIcons.info,
         iconSize: 64,
         onTop: _loadShards,
         retryLabel: t.main.e2eeReloadShards,

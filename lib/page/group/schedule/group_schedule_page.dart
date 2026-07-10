@@ -6,8 +6,9 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:xid/xid.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_schedule_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -28,6 +29,7 @@ class GroupSchedulePage extends ConsumerStatefulWidget {
 class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
   List<Map<String, dynamic>> _schedules = [];
   bool _isLoading = true;
+  Object? _error;
 
   @override
   void initState() {
@@ -36,17 +38,29 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
   }
 
   Future<void> _loadSchedules() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
-    final schedules = await GroupScheduleService.to.getSchedules(
-      groupId: widget.groupId,
-    );
+    try {
+      final schedules = await GroupScheduleService.to.getSchedules(
+        groupId: widget.groupId,
+      );
 
-    if (mounted) {
-      setState(() {
-        _schedules = schedules;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _schedules = schedules;
+          _isLoading = false;
+        });
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e;
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -134,7 +148,10 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
         title: titleController.text,
         startTime: startTime,
       );
-      if (schedule != null && mounted) {
+      if (!mounted) return;
+      if (schedule == null) {
+        AppLoading.showError(t.common.tipFailed);
+      } else {
         _loadSchedules();
 
         // 自动向群内分发一条交互式群日程卡片消息
@@ -290,26 +307,22 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_schedules.isEmpty) {
-      return NoDataView(
-        text: t.groupSchedule.noSchedule,
-        onTop: _loadSchedules,
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadSchedules,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-        itemCount: _schedules.length,
-        itemBuilder: (context, index) {
-          final schedule = _schedules[index];
-          return _buildScheduleItem(schedule);
-        },
+    return AsyncStateView(
+      isLoading: _isLoading,
+      error: _error,
+      isEmpty: _schedules.isEmpty,
+      onRetry: _loadSchedules,
+      emptyText: t.groupSchedule.noSchedule,
+      child: RefreshIndicator(
+        onRefresh: _loadSchedules,
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
+          itemCount: _schedules.length,
+          itemBuilder: (context, index) {
+            final schedule = _schedules[index];
+            return _buildScheduleItem(schedule);
+          },
+        ),
       ),
     );
   }

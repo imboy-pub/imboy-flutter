@@ -119,7 +119,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                 trailing: CupertinoSwitch(
                   value: state.isInDenylist,
                   activeTrackColor: AppColors.getIosRed(brightness),
-                  onChanged: (val) => _handleDenylistToggle(val),
+                  onChanged: (val) => _showDenylistConfirmation(context, val),
                 ),
               ),
             ],
@@ -152,6 +152,34 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(icon, color: color, size: 20),
+    );
+  }
+
+  void _showDenylistConfirmation(BuildContext context, bool val) {
+    showCupertinoDialog<void>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: val ? Text(t.common.addToDenylist) : null,
+        content: Text(
+          val
+              ? t.common.addedToDenylistTips
+              : t.common.confirmRemoveFromDenylist,
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(ctx);
+              _handleDenylistToggle(val);
+            },
+            child: Text(t.common.buttonConfirm),
+          ),
+        ],
+      ),
     );
   }
 

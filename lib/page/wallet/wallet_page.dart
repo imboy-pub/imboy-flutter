@@ -222,38 +222,54 @@ class _WalletPageState extends ConsumerState<WalletPage> {
       backgroundColor: isDark
           ? AppColors.darkSurfaceGrouped
           : AppColors.lightSurfaceGrouped,
-      child: Column(
-        children: [
-          // 余额卡片 - 采用 Premium 悬浮质感
-          _buildBalanceCard(
-            context,
-            walletState,
-            balanceText,
-            isDark,
-            brightness,
+      slivers: [
+        // 下拉刷新余额 + 流水首页
+        CupertinoSliverRefreshControl(
+          onRefresh: () => Future.wait([
+            ref.read(walletProvider.notifier).loadBalance(),
+            ref.read(walletProvider.notifier).loadTransactions(),
+          ]),
+        ),
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
+              // 余额卡片 - 采用 Premium 悬浮质感
+              _buildBalanceCard(
+                context,
+                walletState,
+                balanceText,
+                isDark,
+                brightness,
+              ),
+
+              // 核心功能区
+              _buildActionGrid(
+                context,
+                walletState,
+                balanceText,
+                isDark,
+                brightness,
+              ),
+
+              // 服务推荐 Section
+              ImBoySettingsSection(
+                header: Text(t.main.tencentService.toUpperCase()),
+                children: [_buildServiceGrid(context, isDark, brightness)],
+              ),
+
+              // 交易流水 Section
+              _buildTransactionSection(
+                context,
+                walletState,
+                isDark,
+                brightness,
+              ),
+
+              const SizedBox(height: 40),
+            ],
           ),
-
-          // 核心功能区
-          _buildActionGrid(
-            context,
-            walletState,
-            balanceText,
-            isDark,
-            brightness,
-          ),
-
-          // 服务推荐 Section
-          ImBoySettingsSection(
-            header: Text(t.main.tencentService.toUpperCase()),
-            children: [_buildServiceGrid(context, isDark, brightness)],
-          ),
-
-          // 交易流水 Section
-          _buildTransactionSection(context, walletState, isDark, brightness),
-
-          const SizedBox(height: 40),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -341,6 +357,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             t.chat.receivePayment,
             AppColors.iosPurple,
             isDark,
+            // ponytail: 功能页尚未落地，明确禁用态替代死按钮
+            comingSoon: true,
           ),
           AppSpacing.horizontalMedium,
           _buildActionItem(
@@ -358,6 +376,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             t.chat.bankCard,
             AppColors.iosBlue,
             isDark,
+            // ponytail: 功能页尚未落地，明确禁用态替代死按钮
+            comingSoon: true,
           ),
         ],
       ),
@@ -371,7 +391,9 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     Color color,
     bool isDark, {
     String? subtitle,
+    bool comingSoon = false,
   }) {
+    final displayColor = comingSoon ? AppColors.iosGray : color;
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -383,13 +405,14 @@ class _WalletPageState extends ConsumerState<WalletPage> {
         ),
         child: Column(
           children: [
-            Icon(icon, size: 28, color: color),
+            Icon(icon, size: 28, color: displayColor),
             AppSpacing.verticalSmall,
             Text(
               label,
               style: context.textStyle(
                 FontSizeType.footnote,
                 fontWeight: FontWeight.w600,
+                color: comingSoon ? AppColors.iosGray : null,
               ),
             ),
             if (subtitle != null)
@@ -399,6 +422,17 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                   FontSizeType.caption2,
                   color: AppColors.iosGray,
                   fontWeight: FontWeight.w500,
+                ),
+              ),
+            if (comingSoon)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  t.common.comingSoon,
+                  style: context.textStyle(
+                    FontSizeType.caption2,
+                    color: AppColors.iosGray,
+                  ),
                 ),
               ),
           ],

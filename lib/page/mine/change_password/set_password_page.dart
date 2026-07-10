@@ -261,28 +261,36 @@ class SetPasswordPage extends ConsumerWidget {
                 text: t.common.buttonConfirm,
                 onPressed: () async {
                   FocusScope.of(context).unfocus();
-                  bool res = await ref
-                      .read(setPasswordProvider.notifier)
-                      .setPassword();
-                  if (res && context.mounted) {
-                    AppLoading.showSuccess(t.common.confirmRecoverSuccess);
-                    final user = UserRepoLocal.to.current;
-                    final needGuide =
-                        (user.email.isEmpty || user.mobile.isEmpty);
-                    if (needGuide) {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        CupertinoPageRoute<dynamic>(
-                          builder: (context) => const ManageAccountPage(),
-                        ),
-                        (route) => false,
-                      );
-                    } else {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        CupertinoPageRoute<dynamic>(
-                          builder: (context) => const BottomNavigationPage(),
-                        ),
-                        (route) => false,
-                      );
+                  try {
+                    bool res = await ref
+                        .read(setPasswordProvider.notifier)
+                        .setPassword();
+                    if (res && context.mounted) {
+                      AppLoading.showSuccess(t.common.confirmRecoverSuccess);
+                      final user = UserRepoLocal.to.current;
+                      final needGuide =
+                          (user.email.isEmpty || user.mobile.isEmpty);
+                      if (needGuide) {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          CupertinoPageRoute<dynamic>(
+                            builder: (context) => const ManageAccountPage(),
+                          ),
+                          (route) => false,
+                        );
+                      } else {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          CupertinoPageRoute<dynamic>(
+                            builder: (context) => const BottomNavigationPage(),
+                          ),
+                          (route) => false,
+                        );
+                      }
+                    }
+                    // res == false 时 setPassword() 内部已通过
+                    // AppLoading.showError 提示具体失败原因，此处无需重复提示。
+                  } on Exception catch (_) {
+                    if (context.mounted) {
+                      AppLoading.showError(t.common.operationFailed);
                     }
                   }
                 },
