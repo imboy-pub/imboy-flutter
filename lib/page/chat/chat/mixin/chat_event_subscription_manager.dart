@@ -74,14 +74,20 @@ class ChatEventSubscriptionManager {
   StreamSubscription<ChatExtendEvent>? _ssMsgExt;
   StreamSubscription<DataWrapperEvent<dynamic>>? _ssMsg;
   StreamSubscription<DataWrapperEvent<dynamic>>? _ssMsgState;
+  StreamSubscription<DataWrapperEvent<dynamic>>? _ssStreamDelta;
   StreamSubscription<ReEditMessageEvent>? _ssReEdit;
   StreamSubscription<AppErrorEvent>? _ssAppError;
+
+  /// AI 流式回复的累积全文（stream_id -> 已累积文本）。
+  /// stream_delta 只带增量，ChatStreamStateNotifier 需要累积全文。
+  final Map<String, String> _streamAccum = {};
 
   /// 设置所有事件监听器
   void setupEventListeners({required VoidCallback onMountedStateChanged}) {
     try {
       _setupChatExtendListener();
       _setupMessageListener();
+      _setupStreamDeltaListener();
       _setupMessageStateListener(onMountedStateChanged);
       _setupReEditListener();
       _setupAppErrorListener(onMountedStateChanged);
@@ -203,6 +209,15 @@ class ChatEventSubscriptionManager {
           if (msg is ImageMessage) {
             // 图片画廊已迁移至 Riverpod，由 ChatProvider 处理
           }
+        } else {
+          // 同 id 已存在——若是 AI 流式占位气泡（TextStreamMessage），
+          // 用后端权威定稿（走 QoS 可靠投递的 text 帧）替换，修正流式
+          // ephemeral 帧可能的丢字缺失；其他重复消息保持原"跳过"语义。
+          final cs = widgetRef.read(chatProvider.notifier).chatService;
+          final old = cs?.messages[i];
+          if (old is TextStreamMessage) {
+            await cs?.updateMessage(old, msg);
+          }
         }
         // 为节省内存，5秒后从 msgIds 移出 msg.id
         Future<dynamic>.delayed(
@@ -211,6 +226,80 @@ class ChatEventSubscriptionManager {
         );
       } catch (e) {
         iPrint('[chat_event_subscription_manager] remove error: $e');
+      }
+    }, onError: (Object error) {});
+  }
+
+  /// 监听 AI 流式增量帧（stream_delta），驱动逐字气泡（复活流式渲染死基础设施）
+  ///
+  /// 首帧插入 TextStreamMessage 占位并 startStream；后续累积增量 updateStream，
+  /// FlyerChatTextStreamMessage 自行 diff 出增量做淡入；is_end 切完成态。
+  /// 定稿由后端权威 text 帧经 _setupMessageListener 原地替换（见该方法 else 分支）。
+  void _setupStreamDeltaListener() {
+    _ssStreamDelta = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((
+      event,
+    ) async {
+      if (event.dataType != 'stream_delta') {
+        return;
+      }
+      final data = event.data;
+      if (data is! Map) {
+        return;
+      }
+      final payload = data['payload'];
+      if (payload is! Map) {
+        return;
+      }
+      final streamId =
+          payload['stream_id']?.toString() ?? data['id']?.toString() ?? '';
+      if (streamId.isEmpty) {
+        return;
+      }
+      // 归属当前会话：帧 from 必须是本会话对端（agent uid / bot 标识）
+      final from = data['from']?.toString() ?? '';
+      if (from != peerId) {
+        return;
+      }
+      try {
+        final cs = widgetRef.read(chatProvider.notifier).chatService;
+        if (cs == null) {
+          return;
+        }
+        final notifier = widgetRef.read(
+          chatStreamStateNotifierProvider.notifier,
+        );
+        final delta = payload['delta']?.toString() ?? '';
+        final isEnd = payload['is_end'] == true;
+
+        // 首帧：插入 TextStreamMessage 占位 + startStream
+        final exists = cs.messages.any((m) => m.id == streamId);
+        if (!exists) {
+          final createdAt = DateTime.fromMillisecondsSinceEpoch(
+            (data['created_at'] ?? DateTimeHelper.millisecond()) as int,
+          );
+          final streamMsg = TextStreamMessage(
+            id: streamId,
+            authorId: from,
+            streamId: streamId,
+            createdAt: createdAt,
+            metadata: {'conversation_uk3': conversationUk3},
+          );
+          await cs.insertMessage(streamMsg, index: cs.messages.length);
+          notifier.startStream(streamId);
+        }
+
+        // 累积增量并更新流式状态（widget 自行 diff 出增量做淡入）
+        final acc = (_streamAccum[streamId] ?? '') + delta;
+        _streamAccum[streamId] = acc;
+        notifier.updateStream(streamId, acc);
+
+        // 结束帧：切完成态；累积缓存可释放（定稿权威文本走 text 帧覆盖）
+        if (isEnd) {
+          notifier.completeStream(streamId, acc);
+          _streamAccum.remove(streamId);
+        }
+      } catch (e) {
+        iPrint('[chat_event_subscription_manager] stream_delta error: $e');
       }
     }, onError: (Object error) {});
   }
@@ -331,7 +420,9 @@ class ChatEventSubscriptionManager {
     _ssMsgExt?.cancel();
     _ssMsg?.cancel();
     _ssMsgState?.cancel();
+    _ssStreamDelta?.cancel();
     _ssReEdit?.cancel();
     _ssAppError?.cancel();
+    _streamAccum.clear();
   }
 }

@@ -329,6 +329,15 @@ class MessageService with EventSubscriptionManager {
     // WebSocket API v2.0: 从顶层读取 action 字段（用于 S2C 消息）
     final action = data['action']?.toString();
 
+    // AI 流式增量：stream_delta 帧共享同一 id（供前端按 stream_id 聚合），
+    // 必须在此最入口短路——绕过 _receiveMessage 内按 id 的去重（否则后续帧被判重丢弃）。
+    // 走独立事件通道交聊天页流式渲染，ephemeral：不落库、不进会话/未读簿记。
+    final msgType = data['msg_type']?.toString() ?? '';
+    if (msgType == 'stream_delta') {
+      AppEventBus.fireData(data, 'stream_delta');
+      return;
+    }
+
     // 【重构】所有 ACK 统一在 websocket.dart 中处理，此处不再发送
     if (type == 'WEBRTC_SERVER_ACK') {
       // webrtc 信令回执：机制A已在 websocket.dart 按 *_SERVER_ACK 清除；
