@@ -22,6 +22,7 @@ import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'bottom_navigation_provider.dart';
@@ -156,8 +157,9 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
     final mediaQuery = MediaQuery.of(context);
     final width = mediaQuery.size.width;
-    // 600px - 900px 为 tablet 模式（使用 NavigationRail）
-    final isTablet = width >= 600 && width < 900;
+    // mobile(600px) - wide(900px) 为 tablet 模式（使用 NavigationRail）
+    final isTablet =
+        width >= AppBreakpoints.mobile && width < AppBreakpoints.wide;
 
     if (rawBottomBarIndex != bottomBarIndex) {
       Future.microtask(() {

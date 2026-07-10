@@ -8,7 +8,11 @@
 /// - 显式枚举三档，断点固定（900 / 1200），不引入连续插值
 /// - 入参为 BuildContext 派生的 width 值，由调用方负责取值（保持纯函数无副作用）
 /// - 边界值采用左闭右开分段：900.0 走 twoColumn，1200.0 走 threeColumn
+///
+/// 断点数值来自 [AppBreakpoints]（唯一断点来源），本文件不再自行定义字面量。
 library;
+
+import 'package:imboy/theme/default/app_breakpoints.dart';
 
 /// Web Shell 布局类型枚举。
 ///
@@ -33,7 +37,7 @@ enum WebShellLayout {
 ///
 /// 调用方负责传入合法宽度（>= 0）；负数会被归入 mobile 分支（安全默认）。
 WebShellLayout resolveShellLayout(double width) {
-  if (width < 900) return WebShellLayout.mobile;
-  if (width < 1200) return WebShellLayout.twoColumn;
+  if (width < AppBreakpoints.wide) return WebShellLayout.mobile;
+  if (width < AppBreakpoints.ultraWide) return WebShellLayout.twoColumn;
   return WebShellLayout.threeColumn;
 }

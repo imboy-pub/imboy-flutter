@@ -16,6 +16,7 @@ import 'package:imboy/page/conversation/conversation_tap_dispatcher.dart';
 import 'package:imboy/page/web_shell/web_shell.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -88,7 +89,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         return;
     }
     final useSplitView =
-        _isWebShellHosted(context) && MediaQuery.sizeOf(context).width > 800;
+        _isWebShellHosted(context) &&
+        AppBreakpoints.isWide(MediaQuery.sizeOf(context).width);
     if (useSplitView) {
       ref
           .read(webShellProvider.notifier)
@@ -101,7 +103,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   void _handleContactLongPress(ContactModel model) {
     if (!model.isMenuEntry) {
       final useSplitView =
-          _isWebShellHosted(context) && MediaQuery.sizeOf(context).width > 800;
+          _isWebShellHosted(context) &&
+          AppBreakpoints.isWide(MediaQuery.sizeOf(context).width);
       final action = resolveConversationTap(
         useSplitView: useSplitView,
         peerId: model.peerId.toString(),

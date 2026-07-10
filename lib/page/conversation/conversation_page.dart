@@ -29,6 +29,7 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
+import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -322,7 +323,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                         onTap: () {
                           final useSplitView =
                               _isWebShellHosted(context) &&
-                              MediaQuery.sizeOf(context).width > 800;
+                              AppBreakpoints.isWide(
+                                MediaQuery.sizeOf(context).width,
+                              );
                           final action = resolveConversationTap(
                             useSplitView: useSplitView,
                             peerId: model.peerId.toString(),

@@ -13,6 +13,7 @@ import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/service/user_profile_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -161,8 +162,10 @@ GoRouter createAppRouter({
         path: AppRoutes.signIn,
         name: 'sign_in',
         pageBuilder: (context, state) {
-          // 大屏桌面/Web 环境使用 WebLoginPage
-          final useSplitView = MediaQuery.sizeOf(context).width > 800;
+          // 大屏桌面/Web 环境使用 WebLoginPage（阈值与 AppBreakpoints.wide 对齐）
+          final useSplitView = AppBreakpoints.isWide(
+            MediaQuery.sizeOf(context).width,
+          );
           return CupertinoPage(
             key: state.pageKey,
             child: useSplitView ? const WebLoginPage() : const LoginPage(),

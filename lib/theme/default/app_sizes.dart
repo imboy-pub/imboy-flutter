@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import 'app_breakpoints.dart';
+
 /// 应用组件尺寸 Design Tokens
 ///
 /// 定义应用中所有固定组件尺寸，确保界面一致性和可预测性。
@@ -421,9 +423,9 @@ class AppSizes {
   }) {
     final width = MediaQuery.of(context).size.width;
 
-    if (width < 600) {
+    if (width < AppBreakpoints.mobile) {
       return small;
-    } else if (width < 900) {
+    } else if (width < AppBreakpoints.wide) {
       return medium ?? small * 1.2;
     } else {
       return large ?? small * 1.4;

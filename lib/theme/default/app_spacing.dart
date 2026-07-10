@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import 'app_breakpoints.dart';
+
 /// 应用间距 Design Tokens
 ///
 /// 定义应用中所有间距值，使用 4px 基数系统。
@@ -276,9 +278,9 @@ class AppSpacing {
     double large = 32.0,
   }) {
     final width = MediaQuery.of(context).size.width;
-    if (width < 600) {
+    if (width < AppBreakpoints.mobile) {
       return small;
-    } else if (width < 900) {
+    } else if (width < AppBreakpoints.wide) {
       return medium;
     } else {
       return large;
