@@ -41,6 +41,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	// Translations
 	late final Translations$account$zh_CN account = Translations$account$zh_CN.internal(_root);
+	late final Translations$agentTask$zh_CN agentTask = Translations$agentTask$zh_CN.internal(_root);
 	late final Translations$channel$zh_CN channel = Translations$channel$zh_CN.internal(_root);
 	late final Translations$chat$zh_CN chat = Translations$chat$zh_CN.internal(_root);
 	late final Translations$common$zh_CN common = Translations$common$zh_CN.internal(_root);
@@ -441,6 +442,45 @@ class Translations$account$zh_CN {
 
 	/// zh-CN: '请重新登录'
 	String get pleaseRelogin => '请重新登录';
+}
+
+// Path: agentTask
+class Translations$agentTask$zh_CN {
+	Translations$agentTask$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: 'AI 任务'
+	String get title => 'AI 任务';
+
+	/// zh-CN: '执行中'
+	String get working => '执行中';
+
+	/// zh-CN: '已提交'
+	String get submitted => '已提交';
+
+	/// zh-CN: '进行中'
+	String get progress => '进行中';
+
+	/// zh-CN: '已完成'
+	String get completed => '已完成';
+
+	/// zh-CN: '执行失败'
+	String get failed => '执行失败';
+
+	/// zh-CN: '已取消'
+	String get cancelled => '已取消';
+
+	/// zh-CN: '待审批'
+	String get awaitingApproval => '待审批';
+
+	/// zh-CN: '批准'
+	String get approve => '批准';
+
+	/// zh-CN: '拒绝'
+	String get reject => '拒绝';
 }
 
 // Path: channel
@@ -7315,6 +7355,16 @@ extension on Translations {
 			'account.webPasswordHint' => '请输入密码',
 			'account.e2eeTransferFromOldDevice' => '从旧设备接收密钥',
 			'account.pleaseRelogin' => '请重新登录',
+			'agentTask.title' => 'AI 任务',
+			'agentTask.working' => '执行中',
+			'agentTask.submitted' => '已提交',
+			'agentTask.progress' => '进行中',
+			'agentTask.completed' => '已完成',
+			'agentTask.failed' => '执行失败',
+			'agentTask.cancelled' => '已取消',
+			'agentTask.awaitingApproval' => '待审批',
+			'agentTask.approve' => '批准',
+			'agentTask.reject' => '拒绝',
 			'channel.title' => '频道',
 			'channel.loading' => '加载中...',
 			'channel.subscribed' => '已订阅',
@@ -7694,6 +7744,8 @@ extension on Translations {
 			'chat.myReceivedTab' => '我收到的',
 			'chat.orderStatusLabel' => ({required Object status}) => '状态: ${status}',
 			'chat.orderCreatedAtLabel' => ({required Object time}) => '创建时间: ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支付时间: ${time}',
 			'chat.orderStatusPending' => '待支付',
 			'chat.orderStatusPaid' => '已支付',
@@ -7704,8 +7756,6 @@ extension on Translations {
 			'chat.e2eeStatusAvailable' => '可用',
 			'chat.e2eeGenerateNewKey' => '生成新密钥',
 			'chat.e2eeGenerateNewKeyDesc' => '生成新的 E2EE 密钥对（旧消息将无法解密）',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeActivated' => '已激活',
 			'chat.e2eeCreatedAtLabel' => '创建时间',
 			'chat.e2eeGeneratingKey' => '正在生成密钥，请稍候...',
@@ -8208,6 +8258,8 @@ extension on Translations {
 			'common.confirmRemove' => '确认移出',
 			'common.confirmRemoveFromDenylist' => '确认将此用户移出黑名单？',
 			'common.buttonRemove' => '移出',
+			_ => null,
+		} ?? switch (path) {
 			'common.removedFromDenylist' => '已移出黑名单',
 			'common.newEmailAddress' => '新邮箱地址',
 			'common.emailAddress' => '邮箱地址',
@@ -8218,8 +8270,6 @@ extension on Translations {
 			'common.verificationCodeSentToMobile' => '验证码将发送至该手机，请在有效期内完成验证',
 			'common.pleaseEnterCorrectEmailAddress' => '请输入正确的邮箱地址',
 			'common.pleaseEnter6DigitVerificationCode' => '请输入 6 位验证码',
-			_ => null,
-		} ?? switch (path) {
 			'common.verificationCodeSent' => '验证码已发送',
 			'common.sendFailed' => '发送失败',
 			'common.noChangeNeeded' => '无需修改',
@@ -8722,6 +8772,8 @@ extension on Translations {
 			'common.e2eeBackupKeepSafe' => '• 请妥善保管备份文件和密码',
 			'common.e2eeBackupStoreMultipleLoc' => '• 建议将文件存储到多个安全位置',
 			'common.e2eeBackupPwdCantRecoverNote' => '• 密码无法找回，请务必牢记',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupImportTitle' => '导入 E2EE 备份',
 			'common.e2eeBackupImportGuide' => '导入说明',
 			'common.e2eeBackupImportReplaceKey' => '• 导入后，当前的 E2EE 密钥将被替换',
@@ -8732,8 +8784,6 @@ extension on Translations {
 			'common.e2eeBackupVersionLabel' => '版本号',
 			'common.e2eeBackupAlgorithmLabel' => '算法',
 			'common.e2eeBackupFileSizeLabel' => '文件大小',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ 文件格式有效',
 			'common.e2eeBackupImportPwdHint' => '请输入备份时设置的密码',
 			'common.e2eeBackupImportBtn' => '导入密钥',
@@ -9236,6 +9286,8 @@ extension on Translations {
 			'main.myFavorites' => '我的收藏',
 			'main.myLive' => '我的直播',
 			'main.name' => '名称',
+			_ => null,
+		} ?? switch (path) {
 			'main.numUnit' => ({required Object param}) => '${param}个',
 			'main.openInBrowser' => '在浏览器中打开',
 			'main.or' => '或者',
@@ -9246,8 +9298,6 @@ extension on Translations {
 			'main.pleaseInputParam' => ({required Object param}) => '请输入${param}',
 			'main.pleaseSelect' => '请选择',
 			'main.quickFilters' => '快速筛选',
-			_ => null,
-		} ?? switch (path) {
 			'main.quote' => '引用',
 			'main.recentlyUsed' => '最近使用',
 			'main.releaseEnd' => '松开结束',

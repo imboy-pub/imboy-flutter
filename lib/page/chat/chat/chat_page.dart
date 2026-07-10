@@ -41,6 +41,7 @@ import 'package:imboy/modules/messaging/domain/message_status.dart'
 
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
 import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
+import 'package:imboy/component/chat/message_agent_task_builder.dart';
 import 'package:imboy/component/chat/mention_provider.dart'
     show mentionNotifierProvider;
 import 'package:imboy/component/chat/mention_text_reducer.dart'
@@ -1857,6 +1858,10 @@ class ChatPageState extends ConsumerState<ChatPage>
             required bool isSentByMe,
             MessageGroupStatus? groupStatus,
           }) {
+            // Phase 4 T4.2：agent_task 群消息渲染为可观测/审批卡片（payload.agent_task 元数据）
+            if (message.metadata?['agent_task'] != null) {
+              return MessageAgentTaskBuilder(message: message);
+            }
             // C1 Z 路径：用群当前活跃成员名集合对消息文本做降级投影。
             // 被 @ 用户已退群 → `~~@已退群成员~~`（GptMarkdown 渲染删除线）。
             final activeNames = ref

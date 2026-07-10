@@ -1,0 +1,10 @@
+title: AI 任务
+working: 执行中
+submitted: 已提交
+progress: 进行中
+completed: 已完成
+failed: 执行失败
+cancelled: 已取消
+awaitingApproval: 待审批
+approve: 批准
+reject: 拒绝

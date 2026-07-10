@@ -216,6 +216,10 @@ class API {
   static const groupTaskSubmit = '/api/v1/group/task/submit';
   static const groupTaskReview = '/api/v1/group/task/review';
 
+  // Phase 4 T4.2：群内 agent 任务审批端点
+  static const agentTaskApprove = '/api/v1/agent_task/approve';
+  static const agentTaskReject = '/api/v1/agent_task/reject';
+
   // 群投票
   static const groupVoteCreate = '/api/v1/group/vote/create';
   static const groupVoteUpdate = '/api/v1/group/vote/update';
