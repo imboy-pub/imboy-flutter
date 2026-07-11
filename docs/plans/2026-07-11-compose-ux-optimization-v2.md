@@ -60,8 +60,9 @@
 
 ### 🔴 批次 A｜真 bug + 纯前端极低成本（本轮先做，收益最大）
 
-#### A-1 修复 `chat_input` 键盘 observer 泄漏（🐞真 bug，最高优先）
-- **问题**：`build()` 每帧调 `_setupKeyboardListener()`，每次 new 一个 `ChatKeyboardObserver` 注册且从不 remove，键盘每开合一次全部历史 observer 各触发一次 `setState` → 长群聊输入区越用越卡。
+#### A-1 修复 `chat_input` 键盘 observer 泄漏（🐞真 bug，最高优先）— ✅ 已修复（2026-07-11 核实）
+> **现状**：代码已闭环——`_setupKeyboardListener()` 仅在 `initState`（`chat_input.dart:170`）调一次；observer 存入 `_keyboardObserver` 字段、`addObserver` 仅在 `:291` 执行一次；`dispose`（`:557`）已 `removeObserver`；`build()` 内无重复注册。仅回归测试未补（`ChatInput` 依赖重，widget 测试脚手架成本高，暂不做；已预埋 `keyboardObserverAddCount` 计数器备用）。
+- **问题（历史）**：`build()` 每帧调 `_setupKeyboardListener()`，每次 new 一个 `ChatKeyboardObserver` 注册且从不 remove，键盘每开合一次全部历史 observer 各触发一次 `setState` → 长群聊输入区越用越卡。
 - **落地**：
   1. 从 `build()`（`chat_input.dart:1043`）移除 `_setupKeyboardListener()` 调用。
   2. `_setupKeyboardListener()` 里的 `addObserver` 保留在 `initState` 一次性执行；把 observer 实例存成字段。
