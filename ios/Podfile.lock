@@ -1,11 +1,6 @@
 PODS:
-  - AMap3DMap (11.2.000):
-    - AMapFoundation (>= 1.9.0)
   - amap_flutter_location_plus (0.0.1):
     - AMapLocation
-    - Flutter
-  - amap_flutter_map_plus (0.0.1):
-    - AMap3DMap
     - Flutter
   - AMapFoundation (1.9.0)
   - AMapLocation (2.12.0):
@@ -13,6 +8,8 @@ PODS:
   - audio_session (0.0.1):
     - Flutter
   - audio_waveforms (0.0.1):
+    - Flutter
+  - camera_avfoundation (0.0.1):
     - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
@@ -191,6 +188,8 @@ PODS:
   - SDWebImage (5.21.7):
     - SDWebImage/Core (= 5.21.7)
   - SDWebImage/Core (5.21.7)
+  - sensors_plus (0.0.1):
+    - Flutter
   - Sentry/HybridSDK (8.58.3)
   - sentry_flutter (9.23.0):
     - Flutter
@@ -233,9 +232,9 @@ PODS:
 
 DEPENDENCIES:
   - amap_flutter_location_plus (from `.symlinks/plugins/amap_flutter_location_plus/ios`)
-  - amap_flutter_map_plus (from `.symlinks/plugins/amap_flutter_map_plus/ios`)
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - audio_waveforms (from `.symlinks/plugins/audio_waveforms/ios`)
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - emoji_picker_flutter (from `.symlinks/plugins/emoji_picker_flutter/ios`)
@@ -265,6 +264,7 @@ DEPENDENCIES:
   - PhoneNumberKit (~> 3.8.0)
   - photo_manager (from `.symlinks/plugins/photo_manager/darwin`)
   - r_upgrade (from `.symlinks/plugins/r_upgrade/ios`)
+  - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -278,7 +278,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
-    - AMap3DMap
     - AMapFoundation
     - AMapLocation
     - DKImagePickerController
@@ -307,12 +306,12 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   amap_flutter_location_plus:
     :path: ".symlinks/plugins/amap_flutter_location_plus/ios"
-  amap_flutter_map_plus:
-    :path: ".symlinks/plugins/amap_flutter_map_plus/ios"
   audio_session:
     :path: ".symlinks/plugins/audio_session/ios"
   audio_waveforms:
     :path: ".symlinks/plugins/audio_waveforms/ios"
+  camera_avfoundation:
+    :path: ".symlinks/plugins/camera_avfoundation/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   device_info_plus:
@@ -367,6 +366,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/photo_manager/darwin"
   r_upgrade:
     :path: ".symlinks/plugins/r_upgrade/ios"
+  sensors_plus:
+    :path: ".symlinks/plugins/sensors_plus/ios"
   sentry_flutter:
     :path: ".symlinks/plugins/sentry_flutter/ios"
   share_plus:
@@ -389,13 +390,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
-  AMap3DMap: 940c6f6ce6ff3089c5c2211b0dfb51ef43262fe8
   amap_flutter_location_plus: 787dda5882c30817bcf666b201eced344869c15a
-  amap_flutter_map_plus: 1df734b018cc8f3b4f7af6e611248fa61a268c6c
   AMapFoundation: 5f01fcabd1e591967e52178d2d96dac843396285
   AMapLocation: 51549dc73f5bfa8806c33857ad2079fa6215bb49
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   audio_waveforms: a6dde7fe7c0ea05f06ffbdb0f7c1b2b2ba6cedcf
+  camera_avfoundation: 968a9a5323c79a99c166ad9d7866bfd2047b5a9b
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
@@ -440,6 +440,7 @@ SPEC CHECKSUMS:
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   r_upgrade: 5c37115e210f79501aa194b0146f7c1866c39e8c
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
+  sensors_plus: b70a93b69dafdabd26ce4ac3f4d0529ab9acc4ca
   Sentry: 108fdbb76299c4189af12246bf0308c09c278922
   sentry_flutter: 71ea6a9abf9ed0408d66289fa510013522e7956e
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
