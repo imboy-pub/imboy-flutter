@@ -81,7 +81,13 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       _gidInt,
       readBool: StorageService.to.getBool,
     );
-    unawaited(initData());
+    // initData 首步即 notifier.setLoading(true) 修改 provider，若在 initState 同步
+    // 阶段（widget 树构建中）调用会触发 Riverpod "Tried to modify a provider while
+    // the widget tree was building" 错误 → 加载中断、isLoading 卡在 true、group 永久
+    // null → 群详情页永久 loading 转圈。延迟到首帧渲染后再启动加载。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(initData());
+    });
     _localeSubscription = LocaleSettings.getLocaleStream().listen(
       (_) => mounted ? setState(() {}) : null,
     );
