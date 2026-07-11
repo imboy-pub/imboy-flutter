@@ -226,7 +226,13 @@ class AttachmentApi {
         scopeRef: scopeRef,
       );
       await callback(compatResp(meta), meta['object_key'] as String);
-    } on Object catch (e) {
+    } on Object catch (e, s) {
+      // 上传失败此前静默吞异常，导致线上（尤其真机直传）无法定位根因。
+      // 打印 scope + 具体异常 + 前三行栈，覆盖文件读取/presign/PUT garage 各步。
+      debugPrint('[upload][presignCompat] FAIL scope=$scope err=$e');
+      debugPrint(
+        '[upload][presignCompat] stack=${s.toString().split('\n').take(3).join(' | ')}',
+      );
       errorCallback(e);
     }
   }
@@ -531,13 +537,14 @@ class AttachmentApi {
         receiveTimeout: const Duration(milliseconds: 30000),
       ),
     );
+    // 直接用 Uint8List body（非 Stream）：Dio/dart:io 自动设正确 Content-Length，
+    // 跨平台一致且 sendTimeout 生效。此前用 Stream<List<int>> body 在 Android 上
+    // dart:io HttpClient 会发 chunked transfer-encoding（忽略手动 content-length），
+    // 而 Garage/S3 presigned PUT 要求 Content-Length → 真机直传 hang/被拒（mac 正常）。
     await dio.put<dynamic>(
       putUrl,
-      data: Stream<List<int>>.fromIterable(<List<int>>[bytes]),
-      options: Options(
-        contentType: mime,
-        headers: <String, dynamic>{Headers.contentLengthHeader: bytes.length},
-      ),
+      data: bytes,
+      options: Options(contentType: mime),
       onSendProgress: (int sent, int total) {
         if (process && total > 0) {
           AppLoading.showProgress(sent / total, status: t.common.uploading);
