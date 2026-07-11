@@ -195,6 +195,18 @@ Android MRD AL00（adb `XWE6R19916004085`）✅ ｜ iPhone 16e（`00008140-000E3
 - ⚠️ 首条自发 test 动态图 broken_image：该条图片 URL 已失效（errorBuilder 正常，非 bug）。
 - 0 新 bug，0 需修复。
 
+### 🔴 P0 — 朋友圈拍照/所有 presign 直传上传失败（2026-07-11 真机复现，根因=后端 endpoint）
+- **现象**：朋友圈发布页拍照 → 预览确认后 toast「媒体上传失败，请稍后重试」，媒体网格无缩略图。
+- **复现链路**：`_pickImage(useCamera)`→拍照拿到文件(media≠null)→`_uploadFile('img')`→`uploadViaPresign`。logcat 证据：`presign` 请求 **成功**（`handleResponse .../attachment/presign : true`），之后无 confirm 日志 → 失败在 **PUT garage 直传**（裸 Dio，3 次重试全失败）。
+- **根因（后端读写 endpoint 不对称）**：
+  - 读 `view_url`/`public_url_for_key` 用 `public_base_url=https://s3.imboy.pub`（客户端可达）✅
+  - 写 `elib_oss:presign_put_for_key`→`endpoint()` 用 `garage.endpoint`，生产 `IMBOY_GARAGE_ENDPOINT=http://garage:3900`（docker 内网服务名，见 `deploy/.env.example`）→ 客户端拿到的 `put_url` host 无法解析/连接，且 S3 签名 host 绑死内网地址（即便客户端改公网 PUT 也签名失配 403）❌
+  - 影响面：所有 presign 直传（头像/聊天图/channel 封面/moment），非 moment 独有；此前"聊天 image 待真机"从未真机跑通。
+- **修复决策（用户拍板：仅改生产 env，由用户亲自执行）**：生产 `IMBOY_GARAGE_ENDPOINT` 改为 `https://s3.imboy.pub`。
+  - **前置检查（关键）**：生产 nginx `s3.imboy.pub` server 块必须放行 **PUT/HEAD/DELETE/GET** 全部方法 proxy_pass 到 garage:3900，且**不改写 Host header**（否则 S3 签名 host 失配 403）。
+  - 改后重建 imboy 容器使 env 生效，真机复验拍照上传。
+- **客户端次要缺陷（可诊断性，待后续）**：`moment_create_page.dart:233` `_uploadFile` errorCallback 静默吞 PUT 异常，无 `debugPrint`，线上无法排查。本轮未改（用户选仅改 env）。
+
 ## 六、结论
 - 规模：22 模块 / ~140 可测页 / 124 路由 / 34 API 模块 ~234 端点 / 11 开关（仅 live_room 关）。
 - 文档需修正：feature-status.md 关于 wallet 硬关闭已过时。

@@ -34,3 +34,9 @@
 - **⚠️ 存疑**：首条自发 test 动态图 `broken_image`（该条数据的图片 URL 已失效，errorBuilder 正常降级，非渲染 bug）。
 - **下轮目标**：模块 #2 联系人 contact 全套。
 
+### 轮 1b — 2026-07-11 — 🔴 用户报告：朋友圈拍照上传失败（已定位根因）
+- **真机复现**：拍照→预览确认→toast「媒体上传失败」。
+- **根因**：后端读写 endpoint 不对称——presign PUT 用 `IMBOY_GARAGE_ENDPOINT=http://garage:3900`（docker 内网），客户端 put_url 不可达+签名 host 绑死内网。详见 checklist P0 发现区。
+- **处置**：涉及生产配置+对外，停下问人。用户拍板「仅改生产 env→https://s3.imboy.pub，由用户亲自执行」。我不碰生产配置，仅存档诊断+给操作指引。0 代码改动。
+- **待办**：①用户改生产 env+确认 nginx 放行 PUT/HEAD/DELETE；②客户端 `_uploadFile` 静默吞异常可诊断性缺陷待后续修。
+
