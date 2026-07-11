@@ -1,16 +1,16 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/line.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/group/group_select/group_select_provider.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_spacing.dart';
 
 class GroupSelectPage extends ConsumerStatefulWidget {
   const GroupSelectPage({super.key});
@@ -66,26 +66,22 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
                 ConversationModel model = state.items[index];
                 return Column(
                   children: [
-                    ListTile(
+                    ImBoyListTile(
                       leading: SmartGroupAvatar(
                         avatar: model.avatar,
                         groupId: model.peerId.toString(),
                         avatarLoader: computeAvatar,
+                        size: 48,
                       ),
-                      contentPadding: const EdgeInsets.only(
-                        left: 10,
-                        right: 10,
+                      title: Text(
+                        strEmpty(model.title)
+                            ? model.computeTitle
+                            : model.title,
                       ),
-                      title: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              strEmpty(model.title)
-                                  ? model.computeTitle
-                                  : model.title,
-                            ),
-                          ),
-                        ],
+                      trailing: const Icon(
+                        CupertinoIcons.chevron_right,
+                        size: 14,
+                        color: AppColors.iosGray3,
                       ),
                       onTap: () {
                         context.push(
@@ -101,14 +97,16 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
                         );
                       },
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: AppSpacing.medium,
-                        right: AppSpacing.large,
-                        bottom: 10,
+                    if (index < state.items.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 76),
+                        child: Divider(
+                          height: 0.33,
+                          color: AppColors.getIosSeparator(
+                            Theme.of(context).brightness,
+                          ).withValues(alpha: 0.3),
+                        ),
                       ),
-                      child: HorizontalLine(height: isDark ? 0.5 : 1.0),
-                    ),
                   ],
                 );
               },
