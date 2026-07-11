@@ -10,7 +10,7 @@
 | 1 | 朋友圈 moment（流/详情/发布/可见性/通知） | DONE | 6 功能点验证，0 新 bug，红框修复(eb71ea2c)真机复验通过；1 存疑(单条图 URL 失效) |
 | 2 | 联系人 contact 全套（列表/加好友/资料/附近/设置） | DONE | 核心三页~20功能点全✅，0 bug；附近人/新朋友/最近注册入口存在(阶段0/1API已覆盖)未深入 |
 | 3 | 我的/设置 mine（21 项设置） | DONE | 主页9项+设置页完整~22功能点全✅，0 bug；账号安全/收藏/存储/设备子页入口存在(含邮箱敏感操作)未深入实改 |
-| 4 | 群协作 group（列表/成员/文件/相册/投票/日程/任务） | DOING | 群列表+群聊页✅；🔴群详情页加载卡死(阻塞成员/文件/相册/投票/日程/任务全部深度功能)，待专门排查 |
+| 4 | 群协作 group（列表/成员/文件/相册/投票/日程/任务） | DOING | 群列表+群聊页✅；🔴群详情页加载卡死已修(7c1dd353,Riverpod modify-while-building)待真机复验；成员/文件/相册/投票/日程/任务深度功能待详情页修复复验后测 |
 | 5 | 频道 channel（列表/发现/详情/管理/订单/退款/付费墙） | TODO | |
 | 6 | 个人资料 personal_info（字段编辑/隐私 5 开关） | TODO | |
 | 7 | 用户标签 user_tag（列表/详情/选好友/新建/关系） | TODO | |
@@ -43,6 +43,12 @@
   - 影响：阻塞群成员管理/公告/文件/相册/投票/日程/任务全部深度功能验证。
   - ⚠️ 待坐实：仅测 my3 群，是否全群普遍 vs 该群数据/网络问题需进一步确认；未修（成本+需读 provider load/API 多文件+真机验证）。
 - **下轮目标**：优先专门排查群详情页卡死 bug（读 group_detail_provider load 逻辑 + 换群复现）；或推进 #5 channel。
+
+### 轮 5 — 2026-07-12 — 群详情页卡死 bug 已修
+- **纠正轮4根因误判**：轮4 猜"catch 无兜底"错——`initData` 用 try/**finally**，finally 必复位 isLoading。真根因经 logcat 坐实：`initState` 用 `unawaited(initData())` 同步调用，`initData` 首步 `setLoading(true)`(在 try 外) 在 widget 树构建中修改 provider → Riverpod 报 `Tried to modify a provider while the widget tree was building` → 加载中断，isLoading 卡 true + group 永久 null → 永久转圈。
+- **修复（commit 7c1dd353）**：`initState` 改用 `WidgetsBinding.addPostFrameCallback` 延迟到首帧后启动 initData(+mounted 守卫)。dart analyze 零 error。
+- **⚠️ 待真机复验**：384MB debug apk 在该弱设备 pm install 卡（轮1b 已知环境限制），未装上修复包复验。修复有 logcat 铁证+标准 Flutter 模式，逻辑确定。
+- **下轮目标**：环境允许时装修复包复验群详情页→测群成员/文件/相册/投票/日程/任务深度功能；或推进 #5 channel。
 
 ## 逐轮记录
 

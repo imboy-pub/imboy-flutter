@@ -217,7 +217,7 @@ Android MRD AL00（adb `XWE6R19916004085`）✅ ｜ iPhone 16e（`00008140-000E3
 
 ### 轮 4（2026-07-12）群协作 group — 🔴 1 bug（详情页卡死）
 - 群列表页 ✅（建群/搜索/分类 tab 全部·我加入·我管理·我创建/群列表）、群聊页 ✅（@提及/输入栏/聊天设置入口）。
-- 🔴 **群详情页(GroupDetailPage)加载卡死**：群聊页→聊天设置→GroupDetailPage 一直转圈 >15s 无内容。根因方向：`group_detail_page.dart:196` `state.isLoading && state.group == null` 永久成立，`groupDetailProvider` 加载群详情未完成/失败无错误兜底。阻塞成员/公告/文件/相册/投票/日程/任务全部深度功能。⚠️ 仅测 my3 群，普遍性与完整根因待坐实，本轮未修（成本+多文件）。
+- 🔴→✅ **群详情页(GroupDetailPage)加载卡死【已修 7c1dd353】**：群聊页→聊天设置→GroupDetailPage 一直转圈 >15s 无内容。真根因(轮5 logcat 坐实，修正轮4猜测)：`initState` 用 `unawaited(initData())` 同步调用，`initData` 首步 `setLoading(true)` 在 widget 树构建中修改 provider → Riverpod `Tried to modify a provider while the widget tree was building` → 加载中断，isLoading 卡 true+group 永久 null → 永久转圈。修复：`initState` 改用 `WidgetsBinding.addPostFrameCallback` 延迟到首帧后。dart analyze 零 error。⚠️ 真机复验受阻于 debug apk 过大(轮1b 环境限制)，待复验。阻塞的群成员/文件/相册/投票/日程/任务深度功能待复验后测。
 
 ## 六、结论
 - 规模：22 模块 / ~140 可测页 / 124 路由 / 34 API 模块 ~234 端点 / 11 开关（仅 live_room 关）。
