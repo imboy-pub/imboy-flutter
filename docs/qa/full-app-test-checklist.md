@@ -219,6 +219,10 @@ Android MRD AL00（adb `XWE6R19916004085`）✅ ｜ iPhone 16e（`00008140-000E3
 - 群列表页 ✅（建群/搜索/分类 tab 全部·我加入·我管理·我创建/群列表）、群聊页 ✅（@提及/输入栏/聊天设置入口）。
 - 🔴→✅ **群详情页(GroupDetailPage)加载卡死【已修 7c1dd353】**：群聊页→聊天设置→GroupDetailPage 一直转圈 >15s 无内容。真根因(轮5 logcat 坐实，修正轮4猜测)：`initState` 用 `unawaited(initData())` 同步调用，`initData` 首步 `setLoading(true)` 在 widget 树构建中修改 provider → Riverpod `Tried to modify a provider while the widget tree was building` → 加载中断，isLoading 卡 true+group 永久 null → 永久转圈。修复：`initState` 改用 `WidgetsBinding.addPostFrameCallback` 延迟到首帧后。dart analyze 零 error。⚠️ 真机复验受阻于 debug apk 过大(轮1b 环境限制)，待复验。阻塞的群成员/文件/相册/投票/日程/任务深度功能待复验后测。
 
+### 轮 6（2026-07-12）频道 channel — 0 bug
+- 列表页 ✅（我的订单/频道邀请/搜索频道/创建频道/已订阅·管理中 tab）、详情页 ✅（发布/设置/菜单/频道信息/统计订阅者·消息·阅读·互动/内容流点赞评论分享/发布栏）、设置菜单 ✅（编辑频道/管理管理员/管理订阅者/删除频道）。~18 功能点全通过，0 bug。
+- 未深入：付费墙/退款/订单详情/发现搜索页深度（入口存在）。
+
 ## 六、结论
 - 规模：22 模块 / ~140 可测页 / 124 路由 / 34 API 模块 ~234 端点 / 11 开关（仅 live_room 关）。
 - 文档需修正：feature-status.md 关于 wallet 硬关闭已过时。
