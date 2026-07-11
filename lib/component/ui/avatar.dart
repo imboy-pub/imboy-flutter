@@ -146,8 +146,16 @@ class Avatar extends StatelessWidget {
           onTap ??
           (imgUri.isNotEmpty ? () => zoomInPhotoView(context, imgUri) : null),
       borderRadius: BorderRadius.circular(radius),
+      // ponytail: 用 Wrap 而非 Column —— Wrap 空间不足时静默换行/裁剪，
+      // 不会像 RenderFlex 那样在紧/松有界高度下抛 "RenderFlex OVERFLOWING"
+      // 条纹。Avatar 会被塞进各种约束（含横向已选条、窄窗成员网格），
+      // 必须容忍高度不足；此处不能用 Flexible（AvatarList 处于
+      // SingleChildScrollView 无界高度中，Flex 子级会触发断言）。
       child: Wrap(
-        verticalDirection: VerticalDirection.down,
+        alignment: WrapAlignment.center,
+        runAlignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runSpacing: 4,
         children: [
           avatarContent,
           if (title != null) SizedBox(width: w, child: title!),

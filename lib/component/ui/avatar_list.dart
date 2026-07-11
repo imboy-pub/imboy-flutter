@@ -39,6 +39,63 @@ class AvatarList extends StatelessWidget {
   final int? titleMaxLines;
   final int column;
 
+  Widget _buildItem(BuildContext context, PeopleModel member) {
+    if (member.account == 'last') {
+      return _RoundedDottedBorder(
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          child: SizedBox(height: height ?? 56, width: width ?? 56),
+        ),
+      );
+    } else if (member.account == 'add') {
+      return InkWell(
+        onTap: onTapAdd,
+        child: _RoundedDottedBorder(
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            child: SizedBox(
+              height: (height ?? 56) - 4,
+              width: (width ?? 56) - 4,
+              child: const Icon(Icons.add),
+            ),
+          ),
+        ),
+      );
+    } else if (member.account == 'remove') {
+      return InkWell(
+        onTap: onTapRemove,
+        child: _RoundedDottedBorder(
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            child: SizedBox(
+              height: (height ?? 56) - 4,
+              width: (width ?? 56) - 4,
+              child: const Icon(Icons.remove),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Avatar(
+        imgUri: member.avatar,
+        height: height ?? 56,
+        width: width ?? 56,
+        onTap: onTapAvatar == null
+            ? null
+            : () {
+                onTapAvatar!(member);
+              },
+        title: Text(
+          member.nickname,
+          style: titleStyle,
+          maxLines: titleMaxLines ?? 3,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -47,74 +104,16 @@ class AvatarList extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (int j = i; j < i + column && j < memberList.length; j++)
-                if (memberList[j].account == 'last')
-                  _RoundedDottedBorder(
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.all(Radius.circular(12)),
-                      child: SizedBox(height: height ?? 56, width: width ?? 56),
-                    ),
-                  )
-                else if (memberList[j].account == 'add')
-                  InkWell(
-                    onTap: onTapAdd,
+              for (int j = i; j < i + column; j++)
+                if (j < memberList.length)
+                  Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: _RoundedDottedBorder(
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(12),
-                          ),
-                          child: SizedBox(
-                            height: (height ?? 56) - 4,
-                            width: (width ?? 56) - 4,
-                            child: const Icon(Icons.add),
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                else if (memberList[j].account == 'remove')
-                  InkWell(
-                    onTap: onTapRemove,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: _RoundedDottedBorder(
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(12),
-                          ),
-                          child: SizedBox(
-                            height: (height ?? 56) - 4,
-                            width: (width ?? 56) - 4,
-                            child: const Icon(Icons.remove),
-                          ),
-                        ),
-                      ),
+                      padding: const EdgeInsets.only(right: 10, bottom: 10),
+                      child: _buildItem(context, memberList[j]),
                     ),
                   )
                 else
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 10, bottom: 10),
-                      child: Avatar(
-                        imgUri: memberList[j].avatar,
-                        height: height ?? 56,
-                        width: width ?? 56,
-                        onTap: onTapAvatar == null
-                            ? null
-                            : () {
-                                onTapAvatar!(memberList[j]);
-                              },
-                        title: Text(
-                          memberList[j].nickname,
-                          style: titleStyle,
-                          maxLines: titleMaxLines ?? 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ),
+                  const Expanded(child: SizedBox.shrink()),
             ],
           ),
       ],
