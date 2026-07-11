@@ -980,9 +980,6 @@ class _SingleImagePreviewState extends State<_SingleImagePreview> {
   @override
   void initState() {
     super.initState();
-    final url = pickMediaPreviewUrl(widget.item);
-    if (url.isEmpty) return;
-    final provider = cachedImageProvider(url);
     _listener = ImageStreamListener((info, _) {
       if (!mounted) return;
       final img = info.image;
@@ -992,8 +989,24 @@ class _SingleImagePreviewState extends State<_SingleImagePreview> {
         setState(() => _aspectRatio = w / h);
       }
     });
-    _imageStream = provider.resolve(createLocalImageConfiguration(context));
-    _imageStream!.addListener(_listener);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 图片流解析依赖 MediaQuery(devicePixelRatio/size)，必须在 didChangeDependencies
+    // 而非 initState —— 否则 createLocalImageConfiguration 会在 initState 完成前访问
+    // InheritedWidget，触发 dependOnInheritedWidgetOfExactType 断言（朋友圈图片渲染成红框）。
+    final url = pickMediaPreviewUrl(widget.item);
+    if (url.isEmpty) return;
+    final provider = cachedImageProvider(url);
+    final newStream = provider.resolve(createLocalImageConfiguration(context));
+    // 仅当流 key 变化时重挂监听，避免重复监听/泄漏。
+    if (newStream.key != _imageStream?.key) {
+      _imageStream?.removeListener(_listener);
+      _imageStream = newStream;
+      _imageStream!.addListener(_listener);
+    }
   }
 
   @override
