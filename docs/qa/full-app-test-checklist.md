@@ -109,8 +109,8 @@ TOTAL 112 / PASS 48 / SKIP 58 / FAIL 6。首轮曾报 24 FAIL 为假阳性（并
 | P0 | contact_api | 4 | ✅ 新增 |
 | P0 | msg+WS | WS | ✅ ws_api_test |
 | P1 | e2ee_plus_api | 13 | ❌ |
-| P1 | wallet_api | 12 | ❌（sandbox 可测） |
-| P1 | moment_api | 11 | ❌ |
+| P1 | wallet_api | 12 | ✅ 新增(balance 分/元一致性、流水结构；写端点隔离不测) |
+| P1 | moment_api | 11 | ✅ 新增(feed 游标分页信封、动态 id) |
 | P1 | group_task/album_api | 9/9 | ❌ |
 | P1 | user_tag/group_vote/group_member_api | 8/8/8 | ❌ |
 | P1 | user_device/group_schedule_api | 7/7 | ❌ |
