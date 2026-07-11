@@ -4,16 +4,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/chat/composer_field.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/upload/batch_upload_controller.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
 
@@ -200,58 +200,102 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     if (!mounted) return;
     final t = context.t;
 
-    try {
-      final total = assets.length;
-      var done = 0;
-      AppLoading.showProgress(0, status: '${t.common.uploading} 0/$total');
+    // 逐项上传控制器：批内并行、批间串行限流（_uploadConcurrency），失败项保留
+    // 为可重试态而非整批作废。已发布项记入 publishedIdx，避免重试后重复发布。
+    final controller = BatchUploadController<_ChannelMediaUpload>(
+      uploader: _uploadSingleAsset,
+      concurrency: _uploadConcurrency,
+    );
+    void onProgress() {
+      final total = controller.length;
+      if (total == 0) return;
+      final finished = controller.items
+          .where((i) => i.isDone || i.isFailed)
+          .length;
+      AppLoading.showProgress(
+        finished / total,
+        status: '${t.common.uploading} $finished/$total',
+      );
+    }
 
-      // 分批并发上传（每批 _uploadConcurrency 个），批内并行、批间串行限流。
-      final uploads = <_ChannelMediaUpload?>[];
-      for (var i = 0; i < assets.length; i += _uploadConcurrency) {
-        final batch = assets.skip(i).take(_uploadConcurrency);
-        final batchResults = await Future.wait(
-          batch.map((asset) async {
-            final result = await _uploadSingleAsset(asset);
-            done++;
-            AppLoading.showProgress(
-              done / total,
-              status: '${t.common.uploading} $done/$total',
-            );
-            return result;
-          }),
-        );
-        uploads.addAll(batchResults);
-      }
-      AppLoading.dismiss();
-      if (!mounted) return;
+    controller.addListener(onProgress);
+    final publishedIdx = <int>{};
 
-      // 全部上传完成后按原顺序依次发布，失败项汇总一条提示。
-      var successCount = 0;
-      var failCount = 0;
-      for (final upload in uploads) {
-        if (upload == null) {
-          failCount++;
-          continue;
-        }
-        final success = await ref
+    Future<void> publishDone() async {
+      final items = controller.items;
+      for (var i = 0; i < items.length; i++) {
+        final item = items[i];
+        if (!item.isDone || publishedIdx.contains(i)) continue;
+        final ok = await ref
             .read(channelDetailProvider.notifier)
             .publishMessage(
-              content: upload.content,
-              msgType: upload.msgType,
-              payload: upload.payload,
+              content: item.result!.content,
+              msgType: item.result!.msgType,
+              payload: item.result!.payload,
             );
         if (!mounted) return;
-        success ? successCount++ : failCount++;
+        if (ok) publishedIdx.add(i);
       }
+    }
 
-      if (failCount > 0 && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${t.common.success} $successCount，${t.common.failed} $failCount',
-            ),
-          ),
-        );
+    try {
+      AppLoading.showProgress(
+        0,
+        status: '${t.common.uploading} 0/${assets.length}',
+      );
+      await controller.addAndUpload(assets);
+      AppLoading.dismiss();
+      controller.removeListener(onProgress);
+      if (!mounted) return;
+
+      await publishDone();
+      if (!mounted) return;
+
+      final failedCount = controller.items.where((i) => i.isFailed).length;
+      if (failedCount > 0) {
+        _showUploadFailedSnackBar(failedCount, controller, publishDone);
+      }
+    } finally {
+      controller.removeListener(onProgress);
+      if (mounted) setState(() => _isUploadingMedia = false);
+    }
+  }
+
+  /// 弹出「N 项上传失败 + 重试」SnackBar；重试走同一 [controller] 管道，成功项
+  /// 经 [publishDone] 补发布，剩余失败继续重新弹出重试入口。
+  void _showUploadFailedSnackBar(
+    int failedCount,
+    BatchUploadController<_ChannelMediaUpload> controller,
+    Future<void> Function() publishDone,
+  ) {
+    if (!mounted) return;
+    final t = context.t;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(t.common.uploadPartialFailed(count: failedCount)),
+        action: SnackBarAction(
+          label: t.common.buttonRetry,
+          onPressed: () =>
+              unawaited(_retryFailedMedia(controller, publishDone)),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _retryFailedMedia(
+    BatchUploadController<_ChannelMediaUpload> controller,
+    Future<void> Function() publishDone,
+  ) async {
+    if (_isUploadingMedia) return;
+    setState(() => _isUploadingMedia = true);
+    try {
+      await controller.retryFailed();
+      if (!mounted) return;
+      await publishDone();
+      if (!mounted) return;
+      final failedCount = controller.items.where((i) => i.isFailed).length;
+      if (failedCount > 0) {
+        _showUploadFailedSnackBar(failedCount, controller, publishDone);
       }
     } finally {
       if (mounted) setState(() => _isUploadingMedia = false);
@@ -338,7 +382,6 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     final surfaceGrouped = isDark
         ? AppColors.darkBackground
         : AppColors.lightSurfaceGrouped;
-    final surface = isDark ? AppColors.darkSurface : AppColors.lightSurface;
     final separator = isDark
         ? AppColors.iosTertiaryLabel
         : AppColors.iosSeparator;
@@ -401,49 +444,21 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
                     height: 44,
                     margin: EdgeInsets.zero,
                   )
-                : Container(
-                    margin: const EdgeInsets.only(bottom: 2),
-                    constraints: const BoxConstraints(
-                      minHeight: 44,
-                      maxHeight: 120,
-                    ),
-                    decoration: BoxDecoration(
-                      color: surface,
-                      borderRadius: AppRadius.borderRadiusRegular,
-                      border: Border.all(
-                        color: isDark
-                            ? AppColors.iosSeparatorDark
-                            : AppColors.iosSeparator.withValues(alpha: 0.2),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: TextField(
-                      controller: _messageController,
-                      focusNode: widget.focusNode,
-                      enabled: !isBusy,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: context.t.channel.writeMessage,
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                      ),
-                      style: context
-                          .textStyle(
-                            FontSizeType.body,
-                            color: AppColors.getTextColor(
-                              Theme.of(context).brightness,
-                            ),
-                          )
-                          .copyWith(height: 1.4),
-                      maxLines: null,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) {
-                        if (!isBusy) _sendMessage();
-                      },
-                    ),
+                : ComposerField(
+                    controller: _messageController,
+                    focusNode: widget.focusNode,
+                    enabled: !isBusy,
+                    hintText: context.t.channel.writeMessage,
+                    // 上限放宽但在折叠阈值(消费侧 channel_message_item:397
+                    // content.length > 280)处变警示色，提示作者"超过将被折叠"。
+                    maxLength: 2000,
+                    warnThreshold: 280,
+                    maxLines: 6,
+                    textInputAction: TextInputAction.send,
+                    onChanged: (_) => setState(() {}),
+                    onSubmitted: () {
+                      if (!isBusy) _sendMessage();
+                    },
                   ),
           ),
           if (!_showVoiceInput) ...[

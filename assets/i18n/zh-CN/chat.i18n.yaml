@@ -33,6 +33,9 @@ chatStatusDeliveredDesc: 消息已送达
 chatStatusSeenDesc: 消息已读
 createGroupF2f: 面对面建群
 displayProfile: 显示你的资料
+extraPanelMedia: 媒体
+extraPanelCollab: 群协作
+extraPanelFunds: 资金
 file: 文件
 fileMessage: "[文件]"
 fileSize: 文件大小

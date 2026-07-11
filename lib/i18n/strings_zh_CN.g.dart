@@ -1079,6 +1079,15 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '显示你的资料'
 	String get displayProfile => '显示你的资料';
 
+	/// zh-CN: '媒体'
+	String get extraPanelMedia => '媒体';
+
+	/// zh-CN: '群协作'
+	String get extraPanelCollab => '群协作';
+
+	/// zh-CN: '资金'
+	String get extraPanelFunds => '资金';
+
 	/// zh-CN: '文件'
 	String get file => '文件';
 
@@ -3832,6 +3841,12 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '媒体上传失败，请稍后重试'
 	String get momentsUploadFailed => '媒体上传失败，请稍后重试';
+
+	/// zh-CN: '有媒体上传失败，请重试或移除后再发布'
+	String get momentsHasFailedUploads => '有媒体上传失败，请重试或移除后再发布';
+
+	/// zh-CN: '$count 项上传失败'
+	String uploadPartialFailed({required Object count}) => '${count} 项上传失败';
 
 	/// zh-CN: '交易记录'
 	String get transactionHistory => '交易记录';
@@ -7012,6 +7027,9 @@ class Translations$mention$zh_CN {
 
 	/// zh-CN: '消息定位信息缺失，无法跳转'
 	String get navInfoMissing => '消息定位信息缺失，无法跳转';
+
+	/// zh-CN: '@提及成员'
+	String get pickButtonTooltip => '@提及成员';
 }
 
 // Path: momentFriendPicker
@@ -7558,6 +7576,9 @@ extension on Translations {
 			'chat.chatStatusSeenDesc' => '消息已读',
 			'chat.createGroupF2f' => '面对面建群',
 			'chat.displayProfile' => '显示你的资料',
+			'chat.extraPanelMedia' => '媒体',
+			'chat.extraPanelCollab' => '群协作',
+			'chat.extraPanelFunds' => '资金',
 			'chat.file' => '文件',
 			'chat.fileMessage' => '[文件]',
 			'chat.fileSize' => '文件大小',
@@ -7741,11 +7762,11 @@ extension on Translations {
 			'chat.profileProgress' => ({required Object percent}) => '${percent}% 完成',
 			'chat.createdAtLabel' => ({required Object time}) => '创建时间: ${time}',
 			'chat.expiredAtLabel' => ({required Object time}) => '过期时间: ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'chat.myReceivedTab' => '我收到的',
 			'chat.orderStatusLabel' => ({required Object status}) => '状态: ${status}',
 			'chat.orderCreatedAtLabel' => ({required Object time}) => '创建时间: ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支付时间: ${time}',
 			'chat.orderStatusPending' => '待支付',
 			'chat.orderStatusPaid' => '已支付',
@@ -8255,11 +8276,11 @@ extension on Translations {
 			'common.whatYourFeedback' => '你的反馈是什么?',
 			'common.yesterday' => '昨天',
 			'common.yourContactInformation' => '你的联系方式',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmRemove' => '确认移出',
 			'common.confirmRemoveFromDenylist' => '确认将此用户移出黑名单？',
 			'common.buttonRemove' => '移出',
-			_ => null,
-		} ?? switch (path) {
 			'common.removedFromDenylist' => '已移出黑名单',
 			'common.newEmailAddress' => '新邮箱地址',
 			'common.emailAddress' => '邮箱地址',
@@ -8477,6 +8498,8 @@ extension on Translations {
 			'common.momentReportReasonPrompt' => '请选择举报原因',
 			'common.momentsLoadMoreComments' => '加载更多评论',
 			'common.momentsUploadFailed' => '媒体上传失败，请稍后重试',
+			'common.momentsHasFailedUploads' => '有媒体上传失败，请重试或移除后再发布',
+			'common.uploadPartialFailed' => ({required Object count}) => '${count} 项上传失败',
 			'common.transactionHistory' => '交易记录',
 			'common.paymentPasswordSetSuccess' => '支付密码设置成功',
 			'common.paymentPasswordSetFailed' => '支付密码设置失败',
@@ -8767,13 +8790,13 @@ extension on Translations {
 			'common.e2eeBackupErrExportFailed' => '导出失败，请重试',
 			'common.e2eeBackupErrShareFailed' => '分享失败，请重试',
 			'common.e2eeBackupExportSuccessTitle' => '备份导出成功',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupExportSuccessBody' => '您的 E2EE 密钥备份已成功生成。',
 			'common.e2eeBackupImportantNoteColon' => '重要提示：',
 			'common.e2eeBackupKeepSafe' => '• 请妥善保管备份文件和密码',
 			'common.e2eeBackupStoreMultipleLoc' => '• 建议将文件存储到多个安全位置',
 			'common.e2eeBackupPwdCantRecoverNote' => '• 密码无法找回，请务必牢记',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupImportTitle' => '导入 E2EE 备份',
 			'common.e2eeBackupImportGuide' => '导入说明',
 			'common.e2eeBackupImportReplaceKey' => '• 导入后，当前的 E2EE 密钥将被替换',
@@ -9281,13 +9304,13 @@ extension on Translations {
 			'main.markStarDesc' => '收藏此消息',
 			'main.markTodo' => '待办',
 			'main.markTodoDesc' => '标记为待办事项',
+			_ => null,
+		} ?? switch (path) {
 			'main.multiSelect' => '多选',
 			'main.multiSelectMode' => '多选模式',
 			'main.myFavorites' => '我的收藏',
 			'main.myLive' => '我的直播',
 			'main.name' => '名称',
-			_ => null,
-		} ?? switch (path) {
 			'main.numUnit' => ({required Object param}) => '${param}个',
 			'main.openInBrowser' => '在浏览器中打开',
 			'main.or' => '或者',
@@ -9499,6 +9522,7 @@ extension on Translations {
 			'mention.mentionCount' => ({required Object count}) => '${count} 条新提及',
 			'mention.mentionAllDenied' => '仅管理员可以 @所有人',
 			'mention.navInfoMissing' => '消息定位信息缺失，无法跳转',
+			'mention.pickButtonTooltip' => '@提及成员',
 			'momentFriendPicker.title' => '选择好友',
 			'momentFriendPicker.titleAllow' => '指定可见',
 			'momentFriendPicker.titleDeny' => '不给谁看',

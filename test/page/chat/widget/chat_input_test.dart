@@ -51,6 +51,32 @@ Future<void> _pump(
   await tester.pump();
 }
 
+/// 按聊天类型渲染非禁言态输入行（用于验证工具区按钮可见性）。
+/// 默认 text 模式不构建 emoji 面板；C2G 的群成员加载错误被 provider 吞掉，
+/// 因此单次 pump 即可安全断言同步渲染的工具按钮。
+Future<void> _pumpType(WidgetTester tester, String type) async {
+  final composerHeight = ValueNotifier<double>(52);
+  addTearDown(composerHeight.dispose);
+
+  await tester.pumpWidget(
+    ProviderScope(
+      child: TranslationProvider(
+        child: MaterialApp(
+          home: Scaffold(
+            body: ChatInput(
+              type: type,
+              peerId: 'peer_1',
+              onSendPressed: (text) async => true,
+              composerHeight: composerHeight,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pump();
+}
+
 Future<void> _unmount(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pumpAndSettle();
@@ -159,6 +185,43 @@ void main() {
       expect(find.byType(TextField), findsNothing);
       // 不渲染 hintText "Type a message"
       expect(find.text('Type a message'), findsNothing);
+
+      await _unmount(tester);
+    });
+  });
+
+  group('ChatInput @提及按钮可见性（仅 C2G）', () {
+    final mentionButton = find.byKey(const Key('chat_mention_button'));
+
+    testWidgets('type=C2G → 显示 @提及按钮（at 图标）', (tester) async {
+      await _pumpType(tester, 'C2G');
+
+      expect(mentionButton, findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.at), findsOneWidget);
+
+      await _unmount(tester);
+    });
+
+    testWidgets('type=C2C → 不显示 @提及按钮', (tester) async {
+      await _pumpType(tester, 'C2C');
+
+      expect(mentionButton, findsNothing);
+      expect(find.byIcon(CupertinoIcons.at), findsNothing);
+
+      await _unmount(tester);
+    });
+
+    testWidgets('type=C2G 点击 @提及按钮 → 输入框插入 @ 触发提及', (tester) async {
+      await _pumpType(tester, 'C2G');
+
+      await tester.tap(mentionButton);
+      await tester.pump();
+
+      // showMentionPicker 在光标处插入 '@'
+      final field = tester.widget<TextField>(
+        find.byKey(const Key('chat_message_input')),
+      );
+      expect(field.controller?.text, '@');
 
       await _unmount(tester);
     });

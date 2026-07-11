@@ -16,7 +16,14 @@ import 'package:imboy/theme/default/font_types.dart';
 class GroupTaskPage extends ConsumerStatefulWidget {
   final String groupId;
 
-  const GroupTaskPage({super.key, required this.groupId});
+  /// 从聊天 + 面板"任务"直达时为 true：进入后自动弹出创建表单（≤2 步）
+  final bool autoCreate;
+
+  const GroupTaskPage({
+    super.key,
+    required this.groupId,
+    this.autoCreate = false,
+  });
 
   @override
   ConsumerState<GroupTaskPage> createState() => _GroupTaskPageState();
@@ -32,6 +39,11 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   void initState() {
     super.initState();
     _loadTasks();
+    if (widget.autoCreate) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _createTask();
+      });
+    }
   }
 
   Future<void> _loadTasks() async {

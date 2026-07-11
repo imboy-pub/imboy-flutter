@@ -6,7 +6,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/component/chat/composer_field.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/upload/batch_upload_controller.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
 import 'package:imboy/page/moment/moment_friend_picker/moment_friend_picker_page.dart';
@@ -42,23 +44,40 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   final TextEditingController _allowUidsController = TextEditingController();
   final TextEditingController _denyUidsController = TextEditingController();
 
-  final List<Map<String, dynamic>> _media = [];
+  /// 逐项上传状态：相册批量选中的每张各自流转 pending→uploading→done/failed，
+  /// 失败项单独重试不影响其余成功项；相机即拍即传成功后 addCompleted 追加。
+  /// concurrency=momentMaxImageCount(9) 等价于原 Future.wait 全并行（朋友圈上限）。
+  late final BatchUploadController<Map<String, dynamic>> _uploads =
+      BatchUploadController<Map<String, dynamic>>(
+        uploader: _uploadAsset,
+        concurrency: momentMaxImageCount,
+      );
 
   int _visibility = momentVisibilityFriends;
   bool _allowComment = true;
-  bool _isUploading = false;
+  bool _cameraUploading = false;
   bool _isSubmitting = false;
+
+  /// 相机即拍上传中 或 相册批量上传中，任一进行时禁用发布/继续选择。
+  bool get _busy => _cameraUploading || _uploads.isBusy;
 
   String get _draftKey => momentFailedDraftKey(UserRepoLocal.to.currentUid);
 
   @override
   void initState() {
     super.initState();
+    _uploads.addListener(_onUploadsChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _tryRestoreDraft());
+  }
+
+  void _onUploadsChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _uploads.removeListener(_onUploadsChanged);
+    _uploads.dispose();
     _contentController.dispose();
     _allowUidsController.dispose();
     _denyUidsController.dispose();
@@ -131,7 +150,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   Future<void> _saveFailedDraft(String content) async {
     final key = _draftKey;
     if (key.isEmpty) return;
-    final mediaUrls = _media
+    final mediaUrls = _uploads.results
         .map((m) => parseModelString(m['url']))
         .where((u) => u.isNotEmpty)
         .toList(growable: false);
@@ -157,7 +176,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 
   bool get _hasUnsavedContent =>
-      _contentController.text.trim().isNotEmpty || _media.isNotEmpty;
+      _contentController.text.trim().isNotEmpty || _uploads.length > 0;
 
   Future<void> _confirmExit(bool didPop) async {
     if (didPop) return;
@@ -226,30 +245,25 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 
   Future<void> _pickImage({bool useCamera = false}) async {
-    if (_isUploading || _media.length >= momentMaxImageCount) return;
+    if (_busy || _uploads.length >= momentMaxImageCount) return;
     final media = useCamera
         ? await _picker.pickCamera(context)
         : await _picker.pickSingle(context, MediaType.image);
     if (media == null || !mounted) return;
 
-    setState(() {
-      _isUploading = true;
-    });
+    setState(() => _cameraUploading = true);
     final url = await _uploadFile('img', File(media.path));
     if (!mounted) return;
-    setState(() {
-      _isUploading = false;
-      if (url != null && url.isNotEmpty) {
-        _media.add(<String, dynamic>{'type': 'image', 'url': url});
-      }
-    });
-    if (url == null || url.isEmpty) {
+    setState(() => _cameraUploading = false);
+    if (url != null && url.isNotEmpty) {
+      _uploads.addCompleted(<String, dynamic>{'type': 'image', 'url': url});
+    } else {
       AppLoading.showError(context.t.common.momentsUploadFailed);
     }
   }
 
   Future<void> _pickVideo({bool useCamera = false}) async {
-    if (_isUploading || _media.length >= momentMaxImageCount) return;
+    if (_busy || _uploads.length >= momentMaxImageCount) return;
     // 修复：拍摄视频此前误调 pickSingle(gallery)，从未真正唤起相机。
     // useCamera 时走 pickCamera(enableRecording: true) 唤起原生相机录像。
     final media = useCamera
@@ -257,16 +271,13 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
         : await _picker.pickSingle(context, MediaType.video);
     if (media == null || !mounted) return;
 
-    setState(() {
-      _isUploading = true;
-    });
+    setState(() => _cameraUploading = true);
     final uploaded = await _uploadVideoFile(File(media.path));
     if (!mounted) return;
-    setState(() {
-      _isUploading = false;
-      if (uploaded != null) _media.add(uploaded);
-    });
-    if (uploaded == null) {
+    setState(() => _cameraUploading = false);
+    if (uploaded != null) {
+      _uploads.addCompleted(uploaded);
+    } else {
       AppLoading.showError(context.t.common.momentsUploadFailed);
     }
   }
@@ -278,9 +289,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   /// 模式：选择器内部已强制「多图 或 单视频」互斥，与 [validateMediaSelection]
   /// 的规则一致（后者仍作为提交前的最终防线保留，覆盖跨批次叠加的场景）。
   Future<void> _pickMediaFromAlbum() async {
-    if (_isUploading || _media.length >= momentMaxImageCount) return;
+    if (_busy || _uploads.length >= momentMaxImageCount) return;
     // 剩余可选额度而非固定 momentMaxImageCount：避免多轮选择后总数超限。
-    final remaining = momentMaxImageCount - _media.length;
+    final remaining = momentMaxImageCount - _uploads.length;
     final assets = await AssetPicker.pickAssets(
       context,
       pickerConfig: AssetPickerConfig(
@@ -291,19 +302,11 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     );
     if (assets == null || assets.isEmpty || !mounted) return;
 
-    setState(() {
-      _isUploading = true;
-    });
-    final uploaded = await Future.wait(assets.map(_uploadAsset));
+    // 逐张占位入网格 + 并行上传（controller 内部 Future.wait）；失败项保留
+    // 为可重试态，成功项不受影响。逐项状态经 listener 驱动网格刷新。
+    await _uploads.addAndUpload(assets);
     if (!mounted) return;
-    final succeeded = uploaded.whereType<Map<String, dynamic>>().toList(
-      growable: false,
-    );
-    setState(() {
-      _isUploading = false;
-      _media.addAll(succeeded);
-    });
-    if (succeeded.length < uploaded.length) {
+    if (_uploads.hasFailed) {
       AppLoading.showError(context.t.common.momentsUploadFailed);
     }
   }
@@ -351,22 +354,26 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     };
   }
 
-  void _removeMedia(int index) {
-    if (index < 0 || index >= _media.length) return;
-    setState(() {
-      _media.removeAt(index);
-    });
-  }
+  void _removeMedia(int index) => _uploads.removeAt(index);
+
+  /// 复用失败项的 AssetEntity 单独重传，不影响其余成功项。
+  void _retryUpload(int index) => unawaited(_uploads.retry(index));
 
   Future<void> _submit() async {
-    if (_isSubmitting || _isUploading) return;
+    if (_isSubmitting || _busy) return;
     final content = _contentController.text.trim();
-    if (content.isEmpty && _media.isEmpty) {
+    final media = _uploads.results;
+    // 有上传失败的媒体时先拦下，避免静默丢图：用户需重试或移除后再发布。
+    if (_uploads.hasFailed) {
+      AppLoading.showInfo(context.t.common.momentsHasFailedUploads);
+      return;
+    }
+    if (content.isEmpty && media.isEmpty) {
       AppLoading.showInfo(context.t.common.momentsContentOrMediaRequired);
       return;
     }
 
-    final validation = validateMediaSelection(_media);
+    final validation = validateMediaSelection(media);
     if (!validation.ok) {
       final t = context.t;
       final msg = switch (validation.error) {
@@ -384,7 +391,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     });
     final created = await _api.createPost(
       content: content,
-      media: _media,
+      media: media,
       visibility: _visibility,
       allowComment: _allowComment,
       allowUids: momentVisibilityRequiresAllowUids(_visibility)
@@ -457,13 +464,62 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     );
   }
 
-  /// P1-1：可见性 + 允许/排除名单单页化，一次跳转完成（替代原
-  /// ActionSheet + 二级好友选择页两次跳转）。确认后记住本次设置。
-  Future<void> _pickVisibility() async {
+  /// 可见性选择：三种无名单态（公开/仅好友/仅自己）原地 ActionSheet 选中即定，
+  /// 不跳页、不拉好友(SQLite)/标签(网络)；仅「部分可见/不给谁看」才跳好友名单页。
+  void _pickVisibility() {
+    final t = context.t;
+    final options = <(int, String)>[
+      (momentVisibilityPublic, t.discovery.momentsVisibilityPublic),
+      (momentVisibilityFriends, t.contact.momentsVisibilityFriends),
+      (momentVisibilityPrivate, t.chat.momentsVisibilityPrivate),
+      (momentVisibilityAllowList, t.discovery.momentsVisibilityPartial),
+      (momentVisibilityDenyList, t.discovery.momentsVisibilityExclude),
+    ];
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        actions: [
+          for (final o in options)
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _onVisibilityOptionTap(o.$1);
+              },
+              child: Text(o.$2),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: Text(t.discovery.momentActionCancel),
+        ),
+      ),
+    );
+  }
+
+  /// 无名单态原地更新并记忆；名单两态才跳好友名单页。
+  void _onVisibilityOptionTap(int visibility) {
+    if (momentVisibilityNeedsFriendList(visibility)) {
+      unawaited(_pushFriendPicker(visibility));
+      return;
+    }
+    setState(() => _visibility = visibility);
+    unawaited(
+      _saveLastVisibility(
+        MomentVisibilityResult(
+          visibility: visibility,
+          allowUids: parseMomentUidList(_allowUidsController.text),
+          denyUids: parseMomentUidList(_denyUidsController.text),
+        ),
+      ),
+    );
+  }
+
+  /// 「部分可见/不给谁看」跳好友名单页做多选；确认后回填并记住本次设置。
+  Future<void> _pushFriendPicker(int visibility) async {
     final result = await Navigator.of(context).push<MomentVisibilityResult>(
       CupertinoPageRoute<MomentVisibilityResult>(
         builder: (_) => MomentFriendPickerPage(
-          initialVisibility: _visibility,
+          initialVisibility: visibility,
           initialAllowUids: parseMomentUidList(_allowUidsController.text),
           initialDenyUids: parseMomentUidList(_denyUidsController.text),
         ),
@@ -510,7 +566,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 )
               : CupertinoButton(
                   padding: EdgeInsets.zero,
-                  onPressed: _isUploading ? null : _submit,
+                  onPressed: _busy ? null : _submit,
                   child: Text(
                     t.common.confirm,
                     style: context.textStyle(
@@ -526,44 +582,14 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                 children: [
-                  TextField(
+                  ComposerField(
                     controller: _contentController,
                     autofocus: true,
-                    maxLines: 8,
                     minLines: 4,
+                    maxLines: 8,
                     maxLength: 5000,
-                    decoration: InputDecoration(
-                      hintText: t.discovery.momentContentPlaceholder,
-                      hintStyle: context.textStyle(
-                        FontSizeType.body,
-                        color: AppColors.iosGray3,
-                      ),
-                      border: InputBorder.none,
-                      counterText: '',
-                    ),
-                    style: context
-                        .textStyle(FontSizeType.body)
-                        .copyWith(height: 1.5),
-                  ),
-                  // 字数统计：接近上限变色提示
-                  ValueListenableBuilder<TextEditingValue>(
-                    valueListenable: _contentController,
-                    builder: (context, value, _) {
-                      final len = value.text.length;
-                      final warn = len > 4500;
-                      return Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          '$len/5000',
-                          style: context.textStyle(
-                            FontSizeType.caption2,
-                            color: warn
-                                ? AppColors.iosOrange
-                                : AppColors.iosGray3,
-                          ),
-                        ),
-                      );
-                    },
+                    warnThreshold: 4500,
+                    hintText: t.discovery.momentContentPlaceholder,
                   ),
                   AppSpacing.verticalMedium,
                   _buildMediaGrid(t),
@@ -579,23 +605,22 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
 
   Widget _buildMediaGrid(Translations t) {
     final cellSize = (MediaQuery.sizeOf(context).width - 40 - 16) / 3;
-    final showAdd = _media.length < momentMaxImageCount && !_isUploading;
+    final items = _uploads.items;
+    final showAdd = items.length < momentMaxImageCount && !_busy;
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
-        ...List.generate(_media.length, (index) {
-          final media = _media[index];
-          final type = parseModelString(media['type']);
-          final previewUrl = pickMediaPreviewUrl(media);
+        ...List.generate(items.length, (index) {
+          final item = items[index];
           return _MediaThumb(
             size: cellSize,
-            isVideo: type == 'video',
-            previewUrl: previewUrl,
+            item: item,
             onRemove: () => _removeMedia(index),
+            onRetry: item.canRetry ? () => _retryUpload(index) : null,
           );
         }),
-        if (_isUploading) _MediaUploadingPlaceholder(size: cellSize),
+        if (_cameraUploading) _MediaUploadingPlaceholder(size: cellSize),
         if (showAdd) _MediaAddButton(size: cellSize, onTap: _showMediaPicker),
       ],
     );
@@ -639,21 +664,29 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 }
 
+/// 单个媒体缩略图，按逐项上传状态渲染：
+/// - done：网络预览图（视频叠播放角标）
+/// - uploading/pending：本地资源缩略图 + 转圈遮罩
+/// - failed：本地资源缩略图 + 「重试」角标（点击复用 AssetEntity 重传）
 class _MediaThumb extends StatelessWidget {
   final double size;
-  final bool isVideo;
-  final String previewUrl;
+  final UploadItem<Map<String, dynamic>> item;
   final VoidCallback onRemove;
+  final VoidCallback? onRetry;
 
   const _MediaThumb({
     required this.size,
-    required this.isVideo,
-    required this.previewUrl,
+    required this.item,
     required this.onRemove,
+    this.onRetry,
   });
 
   @override
   Widget build(BuildContext context) {
+    final result = item.result;
+    final previewUrl = result == null ? '' : pickMediaPreviewUrl(result);
+    final isVideo =
+        result != null && parseModelString(result['type']) == 'video';
     return Stack(
       children: [
         Container(
@@ -666,20 +699,47 @@ class _MediaThumb extends StatelessWidget {
                 : AppColors.lightSurfaceContainer,
           ),
           clipBehavior: Clip.antiAlias,
-          child: previewUrl.isEmpty
-              ? const Icon(Icons.broken_image_outlined)
-              : Image(
-                  image: cachedImageProvider(previewUrl),
-                  fit: BoxFit.cover,
-                ),
+          child: _buildImage(previewUrl),
         ),
-        if (isVideo)
+        if (isVideo && item.isDone)
           const Positioned.fill(
             child: Center(
               child: Icon(
                 CupertinoIcons.play_circle_fill,
                 color: AppColors.onPrimary,
                 size: 26,
+              ),
+            ),
+          ),
+        if (item.isUploading || item.isPending)
+          const Positioned.fill(
+            child: _ThumbOverlay(
+              child: CupertinoActivityIndicator(color: AppColors.onPrimary),
+            ),
+          ),
+        if (item.isFailed)
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onRetry,
+              child: _ThumbOverlay(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      CupertinoIcons.arrow_clockwise,
+                      size: 22,
+                      color: AppColors.onPrimary,
+                    ),
+                    Text(
+                      context.t.common.buttonRetry,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
+                        color: AppColors.onPrimary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -706,6 +766,35 @@ class _MediaThumb extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildImage(String previewUrl) {
+    if (previewUrl.isNotEmpty) {
+      return Image(image: cachedImageProvider(previewUrl), fit: BoxFit.cover);
+    }
+    final asset = item.asset;
+    if (asset != null) {
+      // 上传中/失败时用本地资源缩略图占位（无需网络授权）。
+      return Image(
+        image: AssetEntityImageProvider(asset, isOriginal: false),
+        fit: BoxFit.cover,
+      );
+    }
+    return const Icon(Icons.broken_image_outlined);
+  }
+}
+
+/// 缩略图上的半透明深色遮罩，居中承载转圈或重试角标。
+class _ThumbOverlay extends StatelessWidget {
+  final Widget child;
+  const _ThumbOverlay({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: AppColors.darkBackground.withValues(alpha: 0.45),
+      child: Center(child: child),
     );
   }
 }

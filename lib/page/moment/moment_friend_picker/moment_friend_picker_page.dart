@@ -125,9 +125,7 @@ class _MomentFriendPickerPageState
   }
 
   /// 当前可见性是否需要展开好友名单区。
-  bool get _needsFriendList =>
-      momentVisibilityRequiresAllowUids(_visibility) ||
-      momentVisibilityRequiresDenyUids(_visibility);
+  bool get _needsFriendList => momentVisibilityNeedsFriendList(_visibility);
 
   /// 好友原始列表（从本地 Repo 加载）。
   List<ContactModel> _friends = const [];
@@ -140,6 +138,9 @@ class _MomentFriendPickerPageState
 
   bool _loadingFriends = true;
   bool _loadingTags = true;
+
+  /// 是否已发起过好友+标签加载（名单模式首次进入时才置位，避免重复拉取）。
+  bool _friendListRequested = false;
 
   /// 搜索关键词（本地过滤，不走 API）。
   String _keyword = '';
@@ -156,10 +157,18 @@ class _MomentFriendPickerPageState
       for (final uid in widget.initialDenyUids)
         if (uid.trim().isNotEmpty) uid.trim(),
     };
+    // 仅名单模式（部分可见/不给谁看）才拉好友+标签；简单态进入时不触发网络。
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadFriends();
-      _loadTags();
+      if (_needsFriendList) _ensureFriendListLoaded();
     });
+  }
+
+  /// 名单模式首次进入时才拉好友(本地)+标签(网络)，避免简单态误触发。
+  void _ensureFriendListLoaded() {
+    if (_friendListRequested) return;
+    _friendListRequested = true;
+    _loadFriends();
+    _loadTags();
   }
 
   Future<void> _loadFriends() async {
@@ -274,6 +283,8 @@ class _MomentFriendPickerPageState
 
   void _onVisibilitySelected(int code) {
     setState(() => _visibility = code);
+    // 页内切换到名单模式时惰性加载（若尚未加载），避免停在空列表。
+    if (momentVisibilityNeedsFriendList(code)) _ensureFriendListLoaded();
   }
 
   void _onSearchChanged(String kwd) {

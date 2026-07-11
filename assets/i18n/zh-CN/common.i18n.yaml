@@ -671,6 +671,8 @@ momentReportReasonOther: "其他"
 momentReportReasonPrompt: "请选择举报原因"
 momentsLoadMoreComments: 加载更多评论
 momentsUploadFailed: 媒体上传失败，请稍后重试
+momentsHasFailedUploads: 有媒体上传失败，请重试或移除后再发布
+uploadPartialFailed(count): $count 项上传失败
 transactionHistory: 交易记录
 paymentPasswordSetSuccess: 支付密码设置成功
 paymentPasswordSetFailed: 支付密码设置失败

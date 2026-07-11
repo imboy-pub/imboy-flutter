@@ -22,6 +22,14 @@ bool momentVisibilityRequiresAllowUids(int visibility) =>
 bool momentVisibilityRequiresDenyUids(int visibility) =>
     visibility == momentVisibilityDenyList;
 
+/// 当前可见性是否需要跳转好友名单页做多选（部分可见 / 不给谁看）。
+///
+/// 公开 / 仅好友 / 仅自己 三种无名单态：发布页原地 ActionSheet 选中即定，
+/// 不跳页、不拉好友(SQLite)、不拉标签(网络)。仅名单两态才需要好友多选。
+bool momentVisibilityNeedsFriendList(int visibility) =>
+    momentVisibilityRequiresAllowUids(visibility) ||
+    momentVisibilityRequiresDenyUids(visibility);
+
 /// 从 moment payload 读取 `visibility` 并做类型/范围守卫。
 ///
 /// - 数值或字符串数字都能解析（后端/缓存/旧版本载荷可能混用）

@@ -169,7 +169,6 @@ dependencies:
     git:
       url: https://github.com/leeyisoft/IcStorageSpace.git
       ref: leeyi
-  carousel_slider_plus: ^7.1.1      # Carousel slider component
   flutter_rating_bar: ^4.0.1          # Rating bar component
 
   # ┌─────────────────────────────────────────────────────────────────┐

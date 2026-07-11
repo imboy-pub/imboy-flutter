@@ -138,6 +138,14 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   double _keyboardHeight = 0; // 当前键盘高度
   bool _isTransitioningToTextFromPanel = false; // 是否正在从面板切换回文本（用于丝滑动画）
 
+  /// 键盘监听 observer：与 State 生命周期绑定，仅在 initState 注册一次，
+  /// dispose 时 removeObserver，避免"每帧重复注册"导致的泄漏与重建风暴。
+  late final ChatKeyboardObserver _keyboardObserver;
+
+  /// 仅供测试：记录 addObserver 被调用的次数。修复后无论 rebuild 多少次都应为 1。
+  @visibleForTesting
+  int keyboardObserverAddCount = 0;
+
   ThemeNotifier get _themeNotifier =>
       ProviderScope.containerOf(context).read(themeProvider.notifier);
   Color _themeColor(String key) => _themeNotifier.getThemeColor(key);
@@ -278,10 +286,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       }
     });
 
-    // 监听后续的键盘变化
-    WidgetsBinding.instance.addObserver(
-      ChatKeyboardObserver(_updateComposerHeightByKeyboard),
-    );
+    // 监听后续的键盘变化：observer 与 State 生命周期绑定，仅注册一次
+    _keyboardObserver = ChatKeyboardObserver(_updateComposerHeightByKeyboard);
+    WidgetsBinding.instance.addObserver(_keyboardObserver);
+    keyboardObserverAddCount++;
   }
 
   /// 处理键盘快捷键
@@ -546,6 +554,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   @override
   void dispose() {
     _debounceTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(_keyboardObserver);
     _inputFocusNode.dispose();
     _keyboardListenerFocusNode.dispose();
     _textController.dispose();
@@ -676,10 +685,14 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       // 在光标位置插入 @ 符号
       final text = _textController.text;
       final selection = _textController.selection;
-      final newText = text.replaceRange(selection.start, selection.end, '@');
+      // 未聚焦过输入框时 selection 为 -1（无效），此时在文本末尾追加，
+      // 避免 replaceRange(-1, ...) 抛 RangeError。
+      final start = selection.start < 0 ? text.length : selection.start;
+      final end = selection.end < 0 ? text.length : selection.end;
+      final newText = text.replaceRange(start, end, '@');
       _textController.value = TextEditingValue(
         text: newText,
-        selection: TextSelection.collapsed(offset: selection.start + 1),
+        selection: TextSelection.collapsed(offset: start + 1),
       );
       // 触发 @提及 检测
       _handleMentionDetection();
@@ -944,6 +957,27 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     );
   }
 
+  /// 构建 @提及按钮（仅群聊 C2G 显示）：点击复用 showMentionPicker()
+  /// 在光标处插入 @ 并唤起成员选择列表，避免大群里手动敲 @ 不易发现。
+  Widget _buildMentionButton() {
+    // 仅群聊显示，与 @提及仅群聊生效的语义一致
+    if (widget.type != 'C2G') return const SizedBox.shrink();
+    return Tooltip(
+      message: t.mention.pickButtonTooltip,
+      child: CupertinoButton(
+        key: const Key('chat_mention_button'),
+        padding: EdgeInsets.zero,
+        onPressed: showMentionPicker,
+        minimumSize: const Size(44, 44),
+        child: const Icon(
+          CupertinoIcons.at,
+          size: 28,
+          color: AppColors.iosGray,
+        ),
+      ),
+    );
+  }
+
   /// 构建表情按钮
   Widget _buildEmojiButton() {
     return ValueListenableBuilder<InputType>(
@@ -1039,9 +1073,6 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // 每次构建时都设置键盘监听器，确保能及时响应键盘变化
-    _setupKeyboardListener();
-
     final view = View.of(context);
     final bottomInset = view.viewInsets.bottom / view.devicePixelRatio;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -1198,6 +1229,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                     },
                   ),
                 ),
+
+                // @提及按钮（仅群聊显示）
+                _buildMentionButton(),
 
                 // 表情按钮
                 _buildEmojiButton(),

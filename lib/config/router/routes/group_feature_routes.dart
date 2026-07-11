@@ -107,9 +107,10 @@ List<RouteBase> groupFeatureRoutes() => [
     name: 'group_vote',
     pageBuilder: (context, state) {
       final groupId = state.pathParameters['groupId'] ?? '';
+      final autoCreate = state.uri.queryParameters['create'] == '1';
       return CupertinoPage(
         key: state.pageKey,
-        child: GroupVotePage(groupId: groupId),
+        child: GroupVotePage(groupId: groupId, autoCreate: autoCreate),
       );
     },
   ),
@@ -131,9 +132,10 @@ List<RouteBase> groupFeatureRoutes() => [
     name: 'group_schedule',
     pageBuilder: (context, state) {
       final groupId = state.pathParameters['groupId'] ?? '';
+      final autoCreate = state.uri.queryParameters['create'] == '1';
       return CupertinoPage(
         key: state.pageKey,
-        child: GroupSchedulePage(groupId: groupId),
+        child: GroupSchedulePage(groupId: groupId, autoCreate: autoCreate),
       );
     },
   ),
@@ -166,9 +168,10 @@ List<RouteBase> groupFeatureRoutes() => [
     name: 'group_task',
     pageBuilder: (context, state) {
       final groupId = state.pathParameters['groupId'] ?? '';
+      final autoCreate = state.uri.queryParameters['create'] == '1';
       return CupertinoPage(
         key: state.pageKey,
-        child: GroupTaskPage(groupId: groupId),
+        child: GroupTaskPage(groupId: groupId, autoCreate: autoCreate),
       );
     },
   ),

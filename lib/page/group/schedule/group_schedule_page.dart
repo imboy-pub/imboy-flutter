@@ -20,7 +20,14 @@ import 'package:imboy/theme/default/font_types.dart';
 class GroupSchedulePage extends ConsumerStatefulWidget {
   final String groupId;
 
-  const GroupSchedulePage({super.key, required this.groupId});
+  /// 从聊天 + 面板"日程"直达时为 true：进入后自动弹出创建表单（≤2 步）
+  final bool autoCreate;
+
+  const GroupSchedulePage({
+    super.key,
+    required this.groupId,
+    this.autoCreate = false,
+  });
 
   @override
   ConsumerState<GroupSchedulePage> createState() => _GroupSchedulePageState();
@@ -35,6 +42,11 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
   void initState() {
     super.initState();
     _loadSchedules();
+    if (widget.autoCreate) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _createSchedule();
+      });
+    }
   }
 
   Future<void> _loadSchedules() async {

@@ -9,3 +9,4 @@ viewContext: 查看上下文
 mentionCount: $count 条新提及
 mentionAllDenied: "仅管理员可以 @所有人"
 navInfoMissing: 消息定位信息缺失，无法跳转
+pickButtonTooltip: "@提及成员"

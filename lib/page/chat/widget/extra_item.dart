@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -152,16 +151,15 @@ class ExtraItems extends ConsumerStatefulWidget {
 }
 
 class _ExtraItemsState extends ConsumerState<ExtraItems> {
-  int _current = 0;
-  final CarouselSliderController _controller = CarouselSliderController();
-
   @override
   Widget build(BuildContext context) {
     final t = context.t; // 获取翻译实例
     final colorScheme = Theme.of(context).colorScheme;
     const double iconSize = 28; // 调整图标大小
-    final allItems = <ExtraItem>[
-      // —— 媒体（最常用，置顶）——
+    final isC2G = widget.type == 'C2G';
+
+    // —— 媒体（最常用，置顶）——
+    final mediaItems = <ExtraItem>[
       ExtraItem(
         title: t.main.album,
         image: const Icon(Icons.photo_library_outlined, size: iconSize),
@@ -279,27 +277,35 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
             );
           },
         ),
-      // —— 群协作（仅群聊 C2G）——
-      if (widget.type == 'C2G')
+    ];
+
+    // —— 群协作（仅群聊 C2G，直达创建表单）——
+    final collabItems = <ExtraItem>[
+      if (isC2G)
         ExtraItem(
           title: t.groupVote.title,
           image: const Icon(Icons.poll_outlined, size: iconSize),
-          onPressed: () => context.push('/group/${widget.options['to']}/vote'),
+          onPressed: () =>
+              context.push('/group/${widget.options['to']}/vote?create=1'),
         ),
-      if (widget.type == 'C2G')
+      if (isC2G)
         ExtraItem(
           title: t.groupSchedule.title,
           image: const Icon(Icons.event_outlined, size: iconSize),
           onPressed: () =>
-              context.push('/group/${widget.options['to']}/schedule'),
+              context.push('/group/${widget.options['to']}/schedule?create=1'),
         ),
-      if (widget.type == 'C2G')
+      if (isC2G)
         ExtraItem(
           title: t.groupTask.title,
           image: const Icon(Icons.checklist_outlined, size: iconSize),
-          onPressed: () => context.push('/group/${widget.options['to']}/task'),
+          onPressed: () =>
+              context.push('/group/${widget.options['to']}/task?create=1'),
         ),
-      // —— 资金 ——
+    ];
+
+    // —— 资金 ——
+    final fundItems = <ExtraItem>[
       ExtraItem(
         title: t.common.redPacket,
         image: const Icon(
@@ -339,16 +345,14 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
         ),
     ];
 
-    // 每页 8 个（2 行 × 4 列），超出自动分页，启用左右滑动 + 底部圆点
-    const int perPage = 8;
-    final items = <Widget>[
-      for (var i = 0; i < allItems.length; i += perPage)
-        _buildItemsGrid(
-          allItems.sublist(
-            i,
-            i + perPage > allItems.length ? allItems.length : i + perPage,
-          ),
-        ),
+    // 按语义分区渲染（媒体 / 群协作(仅C2G) / 资金），每段一个轻量标题条。
+    // ponytail: 竖向滚动 + 分区替代原横向分页——面板高度受键盘高度限制（约
+    // 270px），11 项无法一屏铺满；分区让"群协作"紧随媒体、不再被翻页藏到第二屏。
+    final sections = <({String title, List<ExtraItem> items})>[
+      (title: t.chat.extraPanelMedia, items: mediaItems),
+      if (collabItems.isNotEmpty)
+        (title: t.chat.extraPanelCollab, items: collabItems),
+      (title: t.chat.extraPanelFunds, items: fundItems),
     ];
 
     // 防止手势冲突，确保ExtraItems内部交互不会影响输入框
@@ -380,57 +384,45 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
               ),
             ),
             Expanded(
-              child: items.length > 1
-                  ? CarouselSlider(
-                      controller: _controller,
-                      options: CarouselOptions(
-                        height: double.infinity,
-                        viewportFraction: 1.0,
-                        aspectRatio: 1.0,
-                        scrollDirection: Axis.horizontal,
-                        enableInfiniteScroll: false,
-                        initialPage: 0,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            _current = index;
-                          });
-                        },
-                      ),
-                      items: items,
-                    )
-                  : items.first,
-            ),
-            // 页面指示器
-            if (items.length > 1)
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: items.asMap().entries.map((entry) {
-                    return GestureDetector(
-                      onTap: () => _controller.animateToPage(entry.key),
-                      child: Container(
-                        width: 8.0,
-                        height: 8.0,
-                        margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _current == entry.key
-                              ? colorScheme.primary
-                              : colorScheme.outline.withValues(alpha: 0.3),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
+              child: ListView(
+                padding: const EdgeInsets.only(bottom: AppSpacing.regular),
+                children: [
+                  for (final section in sections) ...[
+                    _sectionHeader(context, section.title),
+                    _buildItemsGrid(section.items),
+                  ],
+                ],
               ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  /// 构建网格布局的项目
+  /// 轻量分区标题条：走 Token（字号/间距/次级文字色），禁硬编码
+  Widget _sectionHeader(BuildContext context, String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.large,
+        AppSpacing.small,
+        AppSpacing.large,
+        AppSpacing.tiny,
+      ),
+      child: Text(
+        title,
+        style: context.textStyle(
+          FontSizeType.caption2,
+          fontWeight: FontWeight.w600,
+          color: isDark
+              ? AppColors.darkTextSecondary
+              : AppColors.lightTextSecondary,
+        ),
+      ),
+    );
+  }
+
   /// 构建网格布局的项目
   Widget _buildItemsGrid(List<ExtraItem> items) {
     return Padding(

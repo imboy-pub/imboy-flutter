@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/chat/composer_field.dart';
 import 'package:imboy/component/helper/func.dart'
     show cachedImageProvider, iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
@@ -516,26 +517,13 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: ComposerField(
                   controller: _inputController,
-                  decoration: InputDecoration(
-                    hintText: t.channel.writeComment,
-                    border: OutlineInputBorder(
-                      borderRadius: AppRadius.borderRadiusRegular,
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: AppColors.getIosSeparator(
-                      Theme.of(context).brightness,
-                    ).withValues(alpha: 0.08),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                  ),
-                  maxLines: null,
+                  hintText: t.channel.writeComment,
+                  maxLength: 500,
+                  maxLines: 4,
                   textInputAction: TextInputAction.send,
-                  onSubmitted: (_) => _sendComment(),
+                  onSubmitted: _sendComment,
                 ),
               ),
               AppSpacing.horizontalSmall,

@@ -16,7 +16,14 @@ import 'package:imboy/theme/default/font_types.dart';
 class GroupVotePage extends ConsumerStatefulWidget {
   final String groupId;
 
-  const GroupVotePage({super.key, required this.groupId});
+  /// 从聊天 + 面板"投票"直达时为 true：进入后自动弹出创建表单（≤2 步）
+  final bool autoCreate;
+
+  const GroupVotePage({
+    super.key,
+    required this.groupId,
+    this.autoCreate = false,
+  });
 
   @override
   ConsumerState<GroupVotePage> createState() => _GroupVotePageState();
@@ -30,6 +37,11 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
   void initState() {
     super.initState();
     _loadVotes();
+    if (widget.autoCreate) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _createVote();
+      });
+    }
   }
 
   Future<void> _loadVotes({bool refresh = false}) async {
