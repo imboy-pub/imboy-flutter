@@ -207,6 +207,10 @@ Android MRD AL00（adb `XWE6R19916004085`）✅ ｜ iPhone 16e（`00008140-000E3
 - **修复（commit f9d4af7e）**：`_rawDioPut` 改 `data: bytes`（Uint8List）→ Dio 自动设正确 Content-Length、跨平台一致、sendTimeout 生效；`uploadFileViaPresignCompat` catch 加 `debugPrint` 修复静默吞异常。dart analyze 零 error。
 - **⚠️ 待真机最终验证**：384MB debug apk 在该弱设备 pm install dexopt 卡死 + arm64 精简构建撞 Gradle 网络失败，本轮未能装上修复包复验。修复逻辑有据，待环境允许时真机复跑拍照上传确认。
 
+### 轮 2（2026-07-12）联系人 contact — 0 bug
+- 列表页 ✅（搜索/加好友/搜索框/5 特殊入口/AZ 索引/好友分组列表）、资料页 ✅（发消息/语音/视频通话/备注标签/更多信息/在线状态）、联系人设置 ✅（备注标签/推荐/黑名单开关/投诉/删除）。~20 功能点全通过，0 bug。
+- 未深入：找附近的人/新的朋友/最近注册入口（阶段 0/1 API 已覆盖），留待后续。
+
 ## 六、结论
 - 规模：22 模块 / ~140 可测页 / 124 路由 / 34 API 模块 ~234 端点 / 11 开关（仅 live_room 关）。
 - 文档需修正：feature-status.md 关于 wallet 硬关闭已过时。
