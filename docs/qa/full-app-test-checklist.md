@@ -108,16 +108,27 @@ TOTAL 112 / PASS 48 / SKIP 58 / FAIL 6。首轮曾报 24 FAIL 为假阳性（并
 | P0 | conversation_api | 6 | ✅ |
 | P0 | contact_api | 4 | ✅ 新增 |
 | P0 | msg+WS | WS | ✅ ws_api_test |
-| P1 | e2ee_plus_api | 13 | ❌ |
+| P1 | e2ee_plus_api | 13 | ✅ 新增(transfer/social 读端点满绿 10/0) |
 | P1 | wallet_api | 12 | ✅ 新增(balance 分/元一致性、流水结构；写端点隔离不测) |
 | P1 | moment_api | 11 | ✅ 新增(feed 游标分页信封、动态 id) |
-| P1 | group_task/album_api | 9/9 | ❌ |
-| P1 | user_tag/group_vote/group_member_api | 8/8/8 | ❌ |
-| P1 | user_device/group_schedule_api | 7/7 | ❌ |
-| P2 | group_category/e2ee/live_room_api | 6/6/6 | ❌ |
-| P2 | mention/group_tag/group_file/feedback/channel_order_api | 5×5 | ❌ |
-| P2 | user_collect/location/denylist/app_version_api | 4/3/3/3 | ❌ |
-| P2 | push/fts/report/agent_task | 2/2/1/1 | ❌ |
+| P1 | group_task/album_api | 9/9 | ✅ 新增(list/detail 读端点+自举 gid，写端点仅探活) |
+| P1 | user_tag/group_vote/group_member_api | 8/8/8 | ✅ 新增 |
+| P1 | user_device/group_schedule_api | 7/7 | ✅ 新增(device_id TSID 结构层真验证) |
+| P2 | group_category/e2ee_api | 6/6 | ✅ 新增(category list 满绿；e2ee user_keys/status) |
+| P2 | live_room_api | 6 | ⏸️ flag 硬关闭，需开 flag |
+| P2 | mention/group_tag/group_file/feedback/channel_order_api | 5×5 | ✅ 新增 |
+| P2 | user_collect/location/denylist/app_version_api | 4/3/3/3 | ✅ 新增 |
+| P2 | push/fts/report/agent_task | 2/2/1/1 | ⏳ 端点少、价值低，暂缓 |
+
+### 阶段 2 多 agent 契约测试发现（2026-07-11，19 模块并行）
+
+新增 19 个契约测试模块（69 pass / 25 honest-skip / 0 fail），暴露的真实契约特征：
+
+1. **端点前缀不统一（需前端小心）**：`group/task`、`group/vote` 走 `/api/v1/group/task|vote/*`（有 `group/` 中缀），但 `group_schedule` 走 `/api/v1/group_schedule/*`（下划线连写、无中缀）；device kick 用连字符 `kick-others`（非下划线）；denylist 挂在 `/api/v1/friend/denylist/*` 而非 user 域。
+2. **mention 是 POST 不是 GET**：`mention/list|unread|suggest` 均 POST。
+3. **app_version/check 字段名**：实测 `{updatable: bool, upgrade_type: 'none'|...}`，非 `{vsn/url/force}`。
+4. **⚠️ 金额表示跨模块不一致**：`wallet` 用「分(int)」+ `balance_yuan(double)`；但 `channel_order.amount` 用 `parseModelDouble` 解析为「元(double)」。同一 App 内资金字段单位不统一，前端换算/展示需按模块区分，建议后端统一或前端文档化。
+5. **CI 注意**：`passport/login` 有限流（~10/min/IP），13+ 个契约文件各自 setUpAll 登录连跑会触发 `rate_limit_exceeded` 致后续退化为未登录 skip。CI 建议共享 token 或分批错峰（当前逐文件验证均真实登录成功）。
 
 ### 数据结构合理性校验规则（每个 fromJson 一组）
 - [ ] TSID：JSON integer，走 `safeParseBigIntJson`→string，>2^53 无精度丢失
