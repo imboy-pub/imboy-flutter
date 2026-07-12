@@ -119,6 +119,13 @@
 - **⚠️ 真机端到端上传未干净复现**：release 混淆包(armeabi-v7a 临时 debug 签名)的图片组件缩略图渲染异常(空白格)+MCP 相机/相册交互不稳+debugPrint 日志不稳，未能干净复现"上传成功缩略图"。此为**测试环境限制非修复问题**——后端根因 eval 铁证已修。建议用**非混淆 debug 包**或手动验证上传完整闭环。
 - **客户端 bytes 修复(f9d4af7e)**：逻辑有据(Android chunked)已提交，但因后端 presign 先前 500、本次环境限制，未获真机端到端确证。
 
+### 轮 16 — 2026-07-12 — 朋友圈发布图片体验诊断(交接新会话)
+- 用户反馈「整个发布图片流程不顺畅体验差」。代码审视定位:问题集中在**相机拍照路径**(`_pickImage`),相册路径(`_pickMediaFromAlbum`走 BatchUploadController)设计良好。
+- 相机路径体验问题:①上传中显示纯转圈占位(`_MediaUploadingPlaceholder`)看不到拍的照片;②失败只 toast「上传失败」照片丢失无法重试;③`await _uploadFile` 串行 `_busy` 全禁用;④done 缩略图用网络图(presign viewUrl)重载慢/可能 broken_image。根因:`addCompleted` 给相机用 asset=null,不参与重试无本地缩略图。
+- 根本改善:BatchUploadController 支持 File 输入,相机拍照统一逐项机制(本地缩略图+进度+失败重试),与相册一致。中等重构(改 UploadItem/_MediaThumb/_pickImage)。
+- ⚠️ 装包定论:设备 armeabi-v7a(32位);debug 包 323MB dexopt 卡死;**可行装法=release+临时 debug 签名(build.gradle 109 行 getByName debug)+`--target-platform android-arm`,169MB pm install Success**;但 release 混淆致图片组件/日志异常。新会话建议换能装 debug 包的环境/更好真机。
+- 关键文件:`lib/page/moment/moment_create_page.dart` `lib/component/upload/batch_upload_controller.dart`。
+
 ## 逐轮记录
 
 ### 轮 1 — 2026-07-11 — 朋友圈 moment
