@@ -1040,6 +1040,9 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get videoCall => 'Video call';
 	@override String get viewAllGroupMember => 'View all group members';
 	@override String get voiceCall => 'Voice call';
+	@override String get groupCall => 'Group call';
+	@override String get callDisconnected => 'Call disconnected';
+	@override String get connecting => 'Connecting…';
 	@override String get voiceInputNotImplemented => 'Voice input feature not implemented';
 	@override String get waitingDownload => 'Waiting for download';
 	@override String get waitingPeerAccept => 'Waiting for the other party to accept invite...';
@@ -3412,6 +3415,9 @@ extension on TranslationsEnUs {
 			'common.videoCall' => 'Video call',
 			'common.viewAllGroupMember' => 'View all group members',
 			'common.voiceCall' => 'Voice call',
+			'common.groupCall' => 'Group call',
+			'common.callDisconnected' => 'Call disconnected',
+			'common.connecting' => 'Connecting…',
 			'common.voiceInputNotImplemented' => 'Voice input feature not implemented',
 			'common.waitingDownload' => 'Waiting for download',
 			'common.waitingPeerAccept' => 'Waiting for the other party to accept invite...',
@@ -3491,11 +3497,11 @@ extension on TranslationsEnUs {
 			'common.clearChatRecords' => 'Clear chat records',
 			'common.clearChatRecordsDesc' => 'Clear all chat records, this action cannot be undone',
 			'common.deleteAccountAction' => 'Delete account',
+			_ => null,
+		} ?? switch (path) {
 			'common.deleteAccountActionDesc' => 'Permanently delete account and all data, this action cannot be undone',
 			'common.chatHistoryCleared' => 'Chat history cleared',
 			'common.accountDeletionNotAvailable' => 'Account deletion feature is not available yet',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteMessage' => 'Delete message',
 			'common.chatCopy' => 'Copy',
 			'common.chatSaveImage' => 'Save image',
@@ -4005,11 +4011,11 @@ extension on TranslationsEnUs {
 			'common.attachmentGetFileFailedAndroid9' => 'File retrieval failed — Android 9 compatibility issue may apply',
 			'common.attachmentGetImageDataFailed' => 'Unable to get image data, please retry',
 			'common.attachmentGetOriginalImageFailed' => 'Unable to get original image data',
+			_ => null,
+		} ?? switch (path) {
 			'common.saveFailedRetry' => 'Save failed, please try again',
 			'common.downloadFileNotFound' => 'Download file not found, please retry',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})',
-			_ => null,
-		} ?? switch (path) {
 			'common.downloadHashFailed' => 'File verification failed repeatedly, please check your network and retry',
 			'common.e2eeTransferToNewDevice' => 'Transfer to New Device',
 			'common.e2eeTransferPendingSection' => 'Pending Transfers',
@@ -4519,11 +4525,11 @@ extension on TranslationsEnUs {
 			'main.user' => 'User',
 			'main.recommended' => 'Recommended',
 			'main.larger' => 'Larger',
+			_ => null,
+		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Current length: ${param1} / ${param2}',
 			'main.fillIn' => 'Fill In',
 			'main.msgProtectedByComplianceKey' => 'Message protected by compliance key',
-			_ => null,
-		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'Inviter: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Invitee: ${uid}',
 			'main.mySentTab' => 'Sent',

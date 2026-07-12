@@ -439,6 +439,9 @@ version: Версия
 videoCall: Видеозвонок
 viewAllGroupMember: Просмотреть всех участников группы
 voiceCall: Голосовой звонок
+groupCall: Групповой звонок
+callDisconnected: Звонок прерван
+connecting: Подключение…
 voiceInputNotImplemented: Функция голосового ввода не реализована
 waitingDownload: Ожидание загрузки
 waitingPeerAccept: Ожидание принятия приглашения собеседником...

@@ -1049,6 +1049,9 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get videoCall => 'مكالمة فيديو';
 	@override String get viewAllGroupMember => 'عرض جميع أعضاء المجموعة';
 	@override String get voiceCall => 'مكالمة صوتية';
+	@override String get groupCall => 'مكالمة جماعية';
+	@override String get callDisconnected => 'انقطعت المكالمة';
+	@override String get connecting => 'جارٍ الاتصال…';
 	@override String get voiceInputNotImplemented => 'ميزة الإدخال الصوتي غير متاحة بعد';
 	@override String get waitingDownload => 'في انتظار التنزيل';
 	@override String get waitingPeerAccept => 'في انتظار قبول الطرف الآخر...';
@@ -3421,6 +3424,9 @@ extension on TranslationsArSa {
 			'common.videoCall' => 'مكالمة فيديو',
 			'common.viewAllGroupMember' => 'عرض جميع أعضاء المجموعة',
 			'common.voiceCall' => 'مكالمة صوتية',
+			'common.groupCall' => 'مكالمة جماعية',
+			'common.callDisconnected' => 'انقطعت المكالمة',
+			'common.connecting' => 'جارٍ الاتصال…',
 			'common.voiceInputNotImplemented' => 'ميزة الإدخال الصوتي غير متاحة بعد',
 			'common.waitingDownload' => 'في انتظار التنزيل',
 			'common.waitingPeerAccept' => 'في انتظار قبول الطرف الآخر...',
@@ -3491,11 +3497,11 @@ extension on TranslationsArSa {
 			'common.allowAddByPhone' => 'السماح بالإضافة عبر رقم الهاتف',
 			'common.allowAddByPhoneDesc' => 'يمكن للمستخدمين الآخرين إضافتك كصديق من خلال رقم هاتفك',
 			'common.allowAddByQR' => 'السماح بالإضافة عبر رمز QR',
+			_ => null,
+		} ?? switch (path) {
 			'common.allowAddByQRDesc' => 'يمكن للمستخدمين الآخرين إضافتك كصديق من خلال مسح رمز QR الخاص بك',
 			'common.statusSettings' => 'إعدادات الحالة',
 			'common.showOnlineStatus' => 'عرض الحالة عبر الإنترنت',
-			_ => null,
-		} ?? switch (path) {
 			'common.showOnlineStatusDesc' => 'يمكن للأصدقاء رؤية حالتك عبر الإنترنت',
 			'common.allowNearbyVisible' => 'مرئي للأشخاص القريبين',
 			'common.dataSettings' => 'إعدادات البيانات',
@@ -4005,11 +4011,11 @@ extension on TranslationsArSa {
 			'common.passwordEncryptFailed' => 'تعذّر تشفير كلمة المرور',
 			'common.initConfigTimeout' => 'انتهت مهلة تحميل الإعدادات: تحقق من الشبكة أو حالة الخادم',
 			'common.initConfigNetworkError' => ({required Object code}) => 'عطل شبكة أو عطل خادم (HTTP ${code})',
+			_ => null,
+		} ?? switch (path) {
 			'common.initConfigProtocolError' => 'خطأ في بروتوكول استجابة الخادم',
 			'common.initConfigFetchFailed' => 'تعذّر تحميل الإعدادات، تحقق من الشبكة',
 			'common.attachmentGetFileFailed' => 'تعذّر الحصول على الملف، أعد المحاولة أو اختر من المعرض',
-			_ => null,
-		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => 'فشل الحصول على الملف، قد تكون مشكلة توافق مع Android 9',
 			'common.attachmentGetImageDataFailed' => 'تعذّر الحصول على بيانات الصورة، أعد المحاولة',
 			'common.attachmentGetOriginalImageFailed' => 'تعذّر الحصول على الصورة الأصلية',
@@ -4519,11 +4525,11 @@ extension on TranslationsArSa {
 			'main.user' => 'مستخدم',
 			'main.recommended' => 'مُوصى به',
 			'main.larger' => 'أكبر',
+			_ => null,
+		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'الطول الحالي: ${param1} / ${param2}',
 			'main.fillIn' => 'ملء',
 			'main.msgProtectedByComplianceKey' => 'الرسائل محمية بمفتاح الامتثال',
-			_ => null,
-		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'الداعي: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'المدعو: ${uid}',
 			'main.mySentTab' => 'المُرسلة',

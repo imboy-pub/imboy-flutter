@@ -439,6 +439,9 @@ version: バージョン
 videoCall: ビデオ通話
 viewAllGroupMember: すべてのグループメンバーを表示
 voiceCall: 音声通話
+groupCall: グループ通話
+callDisconnected: 通話が切断されました
+connecting: 接続中…
 voiceInputNotImplemented: 音声入力機能は未実装です
 waitingDownload: ダウンロード待ち
 waitingPeerAccept: 相手の承認を待っています...

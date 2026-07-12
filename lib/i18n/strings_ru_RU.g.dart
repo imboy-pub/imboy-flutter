@@ -1049,6 +1049,9 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get videoCall => 'Видеозвонок';
 	@override String get viewAllGroupMember => 'Просмотреть всех участников группы';
 	@override String get voiceCall => 'Голосовой звонок';
+	@override String get groupCall => 'Групповой звонок';
+	@override String get callDisconnected => 'Звонок прерван';
+	@override String get connecting => 'Подключение…';
 	@override String get voiceInputNotImplemented => 'Функция голосового ввода не реализована';
 	@override String get waitingDownload => 'Ожидание загрузки';
 	@override String get waitingPeerAccept => 'Ожидание принятия приглашения собеседником...';
@@ -3421,6 +3424,9 @@ extension on TranslationsRuRu {
 			'common.videoCall' => 'Видеозвонок',
 			'common.viewAllGroupMember' => 'Просмотреть всех участников группы',
 			'common.voiceCall' => 'Голосовой звонок',
+			'common.groupCall' => 'Групповой звонок',
+			'common.callDisconnected' => 'Звонок прерван',
+			'common.connecting' => 'Подключение…',
 			'common.voiceInputNotImplemented' => 'Функция голосового ввода не реализована',
 			'common.waitingDownload' => 'Ожидание загрузки',
 			'common.waitingPeerAccept' => 'Ожидание принятия приглашения собеседником...',
@@ -3491,11 +3497,11 @@ extension on TranslationsRuRu {
 			'common.allowAddByPhone' => 'Разрешить добавление по мобильному',
 			'common.allowAddByPhoneDesc' => 'Другие пользователи могут добавить вас в друзья по вашему номеру мобильного телефона',
 			'common.allowAddByQR' => 'Разрешить добавление по QR-коду',
+			_ => null,
+		} ?? switch (path) {
 			'common.allowAddByQRDesc' => 'Другие пользователи могут добавить вас в друзья, отсканировав ваш QR-код',
 			'common.statusSettings' => 'Настройки статуса',
 			'common.showOnlineStatus' => 'Показать онлайн-статус',
-			_ => null,
-		} ?? switch (path) {
 			'common.showOnlineStatusDesc' => 'Друзья могут видеть ваш онлайн-статус',
 			'common.allowNearbyVisible' => 'Видимый для находящихся рядом',
 			'common.dataSettings' => 'Настройки данных',
@@ -4005,11 +4011,11 @@ extension on TranslationsRuRu {
 			'common.passwordEncryptFailed' => 'Не удалось зашифровать пароль',
 			'common.initConfigTimeout' => 'Тайм-аут загрузки настроек: проверьте сеть или состояние сервера',
 			'common.initConfigNetworkError' => ({required Object code}) => 'Сетевой сбой или сбой сервера (HTTP ${code})',
+			_ => null,
+		} ?? switch (path) {
 			'common.initConfigProtocolError' => 'Ошибка протокола ответа сервера',
 			'common.initConfigFetchFailed' => 'Не удалось загрузить настройки, проверьте сеть',
 			'common.attachmentGetFileFailed' => 'Не удалось получить файл, попробуйте ещё раз или выберите из галереи',
-			_ => null,
-		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => 'Ошибка получения файла, возможна проблема совместимости с Android 9',
 			'common.attachmentGetImageDataFailed' => 'Не удалось получить данные изображения, попробуйте ещё раз',
 			'common.attachmentGetOriginalImageFailed' => 'Не удалось получить оригинал изображения',
@@ -4519,11 +4525,11 @@ extension on TranslationsRuRu {
 			'main.user' => 'Пользователь',
 			'main.recommended' => 'Рекомендуется',
 			'main.larger' => 'Больше',
+			_ => null,
+		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Текущая длина: ${param1} / ${param2}',
 			'main.fillIn' => 'Заполнить',
 			'main.msgProtectedByComplianceKey' => 'Сообщения защищены ключом соответствия',
-			_ => null,
-		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'Пригласивший: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Приглашённый: ${uid}',
 			'main.mySentTab' => 'Отправленные',

@@ -230,6 +230,9 @@ class API {
   static const groupVoteList = '/api/v1/group/vote/list';
   static const groupVoteMyVote = '/api/v1/group/vote/my_vote';
 
+  // 音视频房间（LiveKit SFU）
+  static const rtcRoomJoin = '/api/v1/rtc/room/join';
+
   // E2EE
   static const e2eeUserKeys = '/api/v1/e2ee/user_keys';
   static const e2eeGroupMemberKeys = '/api/v1/e2ee/group_member_keys';

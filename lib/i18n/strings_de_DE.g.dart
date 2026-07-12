@@ -1049,6 +1049,9 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get videoCall => 'Videoanruf';
 	@override String get viewAllGroupMember => 'Alle Gruppenmitglieder anzeigen';
 	@override String get voiceCall => 'Sprachanruf';
+	@override String get groupCall => 'Gruppenanruf';
+	@override String get callDisconnected => 'Anruf getrennt';
+	@override String get connecting => 'Verbinden…';
 	@override String get voiceInputNotImplemented => 'Spracheingabe-Funktion noch nicht implementiert';
 	@override String get waitingDownload => 'Warten auf Download';
 	@override String get waitingPeerAccept => 'Warten auf Annahme durch den Gesprächspartner...';
@@ -3421,6 +3424,9 @@ extension on TranslationsDeDe {
 			'common.videoCall' => 'Videoanruf',
 			'common.viewAllGroupMember' => 'Alle Gruppenmitglieder anzeigen',
 			'common.voiceCall' => 'Sprachanruf',
+			'common.groupCall' => 'Gruppenanruf',
+			'common.callDisconnected' => 'Anruf getrennt',
+			'common.connecting' => 'Verbinden…',
 			'common.voiceInputNotImplemented' => 'Spracheingabe-Funktion noch nicht implementiert',
 			'common.waitingDownload' => 'Warten auf Download',
 			'common.waitingPeerAccept' => 'Warten auf Annahme durch den Gesprächspartner...',
@@ -3491,11 +3497,11 @@ extension on TranslationsDeDe {
 			'common.allowAddByPhone' => 'Über Mobilfunknummer hinzufügen erlauben',
 			'common.allowAddByPhoneDesc' => 'Andere Benutzer können Sie über Ihre Mobilfunknummer als Freund hinzufügen',
 			'common.allowAddByQR' => 'Über QR-Code hinzufügen erlauben',
+			_ => null,
+		} ?? switch (path) {
 			'common.allowAddByQRDesc' => 'Andere Benutzer können Sie durch Scannen Ihres QR-Codes als Freund hinzufügen',
 			'common.statusSettings' => 'Status-Einstellungen',
 			'common.showOnlineStatus' => 'Online-Status anzeigen',
-			_ => null,
-		} ?? switch (path) {
 			'common.showOnlineStatusDesc' => 'Freunde können Ihren Online-Status sehen',
 			'common.allowNearbyVisible' => 'Für Personen in der Nähe sichtbar',
 			'common.dataSettings' => 'Daten-Einstellungen',
@@ -4005,11 +4011,11 @@ extension on TranslationsDeDe {
 			'common.passwordEncryptFailed' => 'Passwort-Verschlüsselung fehlgeschlagen',
 			'common.initConfigTimeout' => 'Zeitüberschreitung: Netzwerk oder Server prüfen',
 			'common.initConfigNetworkError' => ({required Object code}) => 'Netzwerk- oder Serverfehler (HTTP ${code})',
+			_ => null,
+		} ?? switch (path) {
 			'common.initConfigProtocolError' => 'Server-Protokoll fehlerhaft',
 			'common.initConfigFetchFailed' => 'Konfiguration konnte nicht geladen werden. Netzwerk prüfen.',
 			'common.attachmentGetFileFailed' => 'Datei nicht verfügbar. Erneut versuchen oder aus Album wählen.',
-			_ => null,
-		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => 'Datei nicht verfügbar (Android 9-Kompatibilität)',
 			'common.attachmentGetImageDataFailed' => 'Bilddaten nicht verfügbar. Bitte erneut versuchen.',
 			'common.attachmentGetOriginalImageFailed' => 'Originalbild nicht verfügbar',
@@ -4519,11 +4525,11 @@ extension on TranslationsDeDe {
 			'main.user' => 'Benutzer',
 			'main.recommended' => 'Empfohlen',
 			'main.larger' => 'Größer',
+			_ => null,
+		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Aktuelle Länge: ${param1} / ${param2}',
 			'main.fillIn' => 'Ausfüllen',
 			'main.msgProtectedByComplianceKey' => 'Nachricht durch Compliance-Schlüssel geschützt',
-			_ => null,
-		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => 'Eingeladen von: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Eingeladener: ${uid}',
 			'main.mySentTab' => 'Gesendet',

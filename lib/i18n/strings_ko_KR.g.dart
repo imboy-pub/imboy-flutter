@@ -1049,6 +1049,9 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get videoCall => '비디오 통화';
 	@override String get viewAllGroupMember => '모든 그룹 구성원 보기';
 	@override String get voiceCall => '음성 통화';
+	@override String get groupCall => '그룹 통화';
+	@override String get callDisconnected => '통화가 끊어졌습니다';
+	@override String get connecting => '연결 중…';
 	@override String get voiceInputNotImplemented => '음성 입력 기능이 아직 구현되지 않음';
 	@override String get waitingDownload => '다운로드 대기 중';
 	@override String get waitingPeerAccept => '상대방의 수락을 기다리는 중...';
@@ -3421,6 +3424,9 @@ extension on TranslationsKoKr {
 			'common.videoCall' => '비디오 통화',
 			'common.viewAllGroupMember' => '모든 그룹 구성원 보기',
 			'common.voiceCall' => '음성 통화',
+			'common.groupCall' => '그룹 통화',
+			'common.callDisconnected' => '통화가 끊어졌습니다',
+			'common.connecting' => '연결 중…',
 			'common.voiceInputNotImplemented' => '음성 입력 기능이 아직 구현되지 않음',
 			'common.waitingDownload' => '다운로드 대기 중',
 			'common.waitingPeerAccept' => '상대방의 수락을 기다리는 중...',
@@ -3491,11 +3497,11 @@ extension on TranslationsKoKr {
 			'common.allowAddByPhone' => '휴대폰 번호로 추가 허용',
 			'common.allowAddByPhoneDesc' => '다른 사용자가 휴대폰 번호로 친구 추가할 수 있습니다',
 			'common.allowAddByQR' => 'QR코드로 추가 허용',
+			_ => null,
+		} ?? switch (path) {
 			'common.allowAddByQRDesc' => '다른 사용자가 QR코드를 스캔하여 친구 추가할 수 있습니다',
 			'common.statusSettings' => '상태 설정',
 			'common.showOnlineStatus' => '온라인 상태 표시',
-			_ => null,
-		} ?? switch (path) {
 			'common.showOnlineStatusDesc' => '친구가 온라인 상태를 볼 수 있습니다',
 			'common.allowNearbyVisible' => '주변 사용자에게 표시',
 			'common.dataSettings' => '데이터 설정',
@@ -4005,11 +4011,11 @@ extension on TranslationsKoKr {
 			'common.passwordEncryptFailed' => '비밀번호 암호화 실패',
 			'common.initConfigTimeout' => '설정 불러오기 시간 초과: 네트워크 연결 또는 서버 상태를 확인해주세요',
 			'common.initConfigNetworkError' => ({required Object code}) => '네트워크 또는 서버 오류 (HTTP ${code})',
+			_ => null,
+		} ?? switch (path) {
 			'common.initConfigProtocolError' => '서버 응답 프로토콜 오류',
 			'common.initConfigFetchFailed' => '설정 불러오기 실패, 네트워크 연결을 확인해주세요',
 			'common.attachmentGetFileFailed' => '파일을 가져올 수 없습니다. 다시 시도하거나 앨범에서 선택하세요',
-			_ => null,
-		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => '파일 가져오기 실패, Android 9 호환성 문제일 수 있습니다',
 			'common.attachmentGetImageDataFailed' => '이미지 데이터를 가져올 수 없습니다. 다시 시도해주세요',
 			'common.attachmentGetOriginalImageFailed' => '원본 이미지 데이터를 가져올 수 없습니다',
@@ -4519,11 +4525,11 @@ extension on TranslationsKoKr {
 			'main.user' => '사용자',
 			'main.recommended' => '추천',
 			'main.larger' => '더 크게',
+			_ => null,
+		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '현재 길이: ${param1} / ${param2}',
 			'main.fillIn' => '입력',
 			'main.msgProtectedByComplianceKey' => '메시지는 규정 준수 키로 보호됩니다',
-			_ => null,
-		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => '초대자: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '초대받은 사람: ${uid}',
 			'main.mySentTab' => '보낸 초대',

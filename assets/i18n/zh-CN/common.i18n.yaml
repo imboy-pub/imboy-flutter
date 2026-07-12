@@ -443,6 +443,9 @@ version: 版本
 videoCall: 视频通话
 viewAllGroupMember: 查看全部群成员
 voiceCall: 语音通话
+groupCall: 群通话
+callDisconnected: 通话已断开
+connecting: 连接中…
 voiceInputNotImplemented: 语音输入功能暂无实现
 waitingDownload: 等待下载
 waitingPeerAccept: 等待对方接受邀请...

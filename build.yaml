@@ -96,6 +96,8 @@ targets:
           # Channel 模块
           - lib/page/channel/channel_provider.dart
           - lib/page/chat/chat/chat_provider.dart
+          # RTC 群通话（LiveKit SFU）
+          - lib/page/chat/rtc_room/rtc_room_provider.dart
           # Personal Info 模块
           - lib/page/personal_info/update/update_provider.dart
           - lib/page/personal_info/set_gender/set_gender_provider.dart

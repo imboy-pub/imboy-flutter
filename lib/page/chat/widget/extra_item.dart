@@ -8,6 +8,9 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/webrtc/func.dart';
+import 'package:imboy/config/init.dart' show deviceId;
+import 'package:imboy/page/chat/rtc_room/rtc_room_page.dart';
+import 'package:imboy/store/api/rtc_room_api.dart';
 
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -151,6 +154,34 @@ class ExtraItems extends ConsumerStatefulWidget {
 }
 
 class _ExtraItemsState extends ConsumerState<ExtraItems> {
+  /// 群通话：join 拿到 LiveKit 入场券后进群通话页
+  Future<void> _joinGroupCall(BuildContext context) async {
+    final gid = '${widget.options['to'] ?? ''}';
+    if (gid.isEmpty) return;
+    AppLoading.show(status: context.t.common.loading);
+    final res = await RtcRoomApi().joinRoom(
+      kind: 'group',
+      targetId: gid,
+      did: deviceId,
+    );
+    await AppLoading.dismiss();
+    if (!context.mounted) return;
+    if (res == null) {
+      AppLoading.showError(context.t.common.operationFailedAgainLater);
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => RtcRoomPage(
+          wsUrl: res['wsUrl'] ?? '',
+          token: res['token'] ?? '',
+          roomName: res['roomName'] ?? '',
+          title: '${widget.options['title'] ?? ''}',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t; // 获取翻译实例
@@ -281,6 +312,12 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
 
     // —— 群协作（仅群聊 C2G，直达创建表单）——
     final collabItems = <ExtraItem>[
+      if (isC2G)
+        ExtraItem(
+          title: t.common.groupCall,
+          image: const Icon(Icons.video_call_outlined, size: iconSize),
+          onPressed: () => _joinGroupCall(context),
+        ),
       if (isC2G)
         ExtraItem(
           title: t.groupVote.title,

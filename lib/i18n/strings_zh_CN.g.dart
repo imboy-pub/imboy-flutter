@@ -3158,6 +3158,15 @@ class Translations$common$zh_CN {
 	/// zh-CN: '语音通话'
 	String get voiceCall => '语音通话';
 
+	/// zh-CN: '群通话'
+	String get groupCall => '群通话';
+
+	/// zh-CN: '通话已断开'
+	String get callDisconnected => '通话已断开';
+
+	/// zh-CN: '连接中…'
+	String get connecting => '连接中…';
+
 	/// zh-CN: '语音输入功能暂无实现'
 	String get voiceInputNotImplemented => '语音输入功能暂无实现';
 
@@ -8268,16 +8277,19 @@ extension on Translations {
 			'common.videoCall' => '视频通话',
 			'common.viewAllGroupMember' => '查看全部群成员',
 			'common.voiceCall' => '语音通话',
+			'common.groupCall' => '群通话',
+			'common.callDisconnected' => '通话已断开',
+			'common.connecting' => '连接中…',
 			'common.voiceInputNotImplemented' => '语音输入功能暂无实现',
 			'common.waitingDownload' => '等待下载',
 			'common.waitingPeerAccept' => '等待对方接受邀请...',
 			'common.warning' => '警告:',
 			'common.webpageLoading' => '网页加载中...',
+			_ => null,
+		} ?? switch (path) {
 			'common.whatYourFeedback' => '你的反馈是什么?',
 			'common.yesterday' => '昨天',
 			'common.yourContactInformation' => '你的联系方式',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirmRemove' => '确认移出',
 			'common.confirmRemoveFromDenylist' => '确认将此用户移出黑名单？',
 			'common.buttonRemove' => '移出',
@@ -8787,11 +8799,11 @@ extension on Translations {
 			'common.e2eeBackupShareContent' => '这是我的 Imboy E2EE 密钥备份文件，请妥善保管，切勿泄露给他人。',
 			'common.e2eeBackupErrPwdMismatch' => '两次输入的密码不一致',
 			'common.e2eeBackupErrNoKeyData' => '无法获取密钥数据',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupErrExportFailed' => '导出失败，请重试',
 			'common.e2eeBackupErrShareFailed' => '分享失败，请重试',
 			'common.e2eeBackupExportSuccessTitle' => '备份导出成功',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupExportSuccessBody' => '您的 E2EE 密钥备份已成功生成。',
 			'common.e2eeBackupImportantNoteColon' => '重要提示：',
 			'common.e2eeBackupKeepSafe' => '• 请妥善保管备份文件和密码',
@@ -9301,11 +9313,11 @@ extension on Translations {
 			'main.markImportant' => '重要',
 			'main.markImportantDesc' => '标记为重要消息',
 			'main.markStar' => '收藏',
+			_ => null,
+		} ?? switch (path) {
 			'main.markStarDesc' => '收藏此消息',
 			'main.markTodo' => '待办',
 			'main.markTodoDesc' => '标记为待办事项',
-			_ => null,
-		} ?? switch (path) {
 			'main.multiSelect' => '多选',
 			'main.multiSelectMode' => '多选模式',
 			'main.myFavorites' => '我的收藏',

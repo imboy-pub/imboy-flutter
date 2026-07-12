@@ -22,6 +22,7 @@ import flutter_webrtc
 import geolocator_apple
 import ic_storage_space
 import just_audio
+import livekit_client
 import mobile_scanner
 import open_file_mac
 import package_info_plus
@@ -55,6 +56,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   GeolocatorPlugin.register(with: registry.registrar(forPlugin: "GeolocatorPlugin"))
   IcStorageSpacePlugin.register(with: registry.registrar(forPlugin: "IcStorageSpacePlugin"))
   JustAudioPlugin.register(with: registry.registrar(forPlugin: "JustAudioPlugin"))
+  LiveKitPlugin.register(with: registry.registrar(forPlugin: "LiveKitPlugin"))
   MobileScannerPlugin.register(with: registry.registrar(forPlugin: "MobileScannerPlugin"))
   OpenFilePlugin.register(with: registry.registrar(forPlugin: "OpenFilePlugin"))
   FPPPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))

@@ -439,6 +439,9 @@ version: Versione
 videoCall: Videochiamata
 viewAllGroupMember: Vedi tutti i membri del gruppo
 voiceCall: Chiamata vocale
+groupCall: Chiamata di gruppo
+callDisconnected: Chiamata disconnessa
+connecting: Connessione…
 voiceInputNotImplemented: Funzione input vocale non ancora implementata
 waitingDownload: In attesa di download
 waitingPeerAccept: In attesa che l'altra parte accetti l'invito...

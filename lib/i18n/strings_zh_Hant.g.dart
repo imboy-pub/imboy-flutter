@@ -1049,6 +1049,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get videoCall => '影片通話';
 	@override String get viewAllGroupMember => '檢視全部群組成員';
 	@override String get voiceCall => '語音通話';
+	@override String get groupCall => '群通話';
+	@override String get callDisconnected => '通話已斷開';
+	@override String get connecting => '連接中…';
 	@override String get voiceInputNotImplemented => '語音輸入功能暫無實現';
 	@override String get waitingDownload => '等待下載';
 	@override String get waitingPeerAccept => '等待對方接受邀請...';
@@ -3421,6 +3424,9 @@ extension on TranslationsZhHant {
 			'common.videoCall' => '影片通話',
 			'common.viewAllGroupMember' => '檢視全部群組成員',
 			'common.voiceCall' => '語音通話',
+			'common.groupCall' => '群通話',
+			'common.callDisconnected' => '通話已斷開',
+			'common.connecting' => '連接中…',
 			'common.voiceInputNotImplemented' => '語音輸入功能暫無實現',
 			'common.waitingDownload' => '等待下載',
 			'common.waitingPeerAccept' => '等待對方接受邀請...',
@@ -3491,11 +3497,11 @@ extension on TranslationsZhHant {
 			'common.allowAddByPhone' => '允許通過手機號新增',
 			'common.allowAddByPhoneDesc' => '其他用家可以通過您的手機號新增您為好友',
 			'common.allowAddByQR' => '允許通過二維碼新增',
+			_ => null,
+		} ?? switch (path) {
 			'common.allowAddByQRDesc' => '其他用家可以通過掃描您的二維碼新增您為好友',
 			'common.statusSettings' => '狀態設定',
 			'common.showOnlineStatus' => '顯示上線狀態',
-			_ => null,
-		} ?? switch (path) {
 			'common.showOnlineStatusDesc' => '好友可以看到您的上線狀態',
 			'common.allowNearbyVisible' => '附近的人可見',
 			'common.dataSettings' => '資料設定',
@@ -4005,11 +4011,11 @@ extension on TranslationsZhHant {
 			'common.passwordEncryptFailed' => '密碼加密失敗',
 			'common.initConfigTimeout' => '配置獲取超時: 請檢查網路連線或服務端狀態',
 			'common.initConfigNetworkError' => ({required Object code}) => '網路故障或服務故障 (HTTP ${code})',
+			_ => null,
+		} ?? switch (path) {
 			'common.initConfigProtocolError' => '服務故障協議有誤',
 			'common.initConfigFetchFailed' => '配置獲取失敗，請檢查網路連線',
 			'common.attachmentGetFileFailed' => '無法獲取檔案，請重試或使用相簿選擇',
-			_ => null,
-		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => '檔案獲取失敗，Android 9 可能存在相容性問題',
 			'common.attachmentGetImageDataFailed' => '無法獲取圖片資料，請重試',
 			'common.attachmentGetOriginalImageFailed' => '無法獲取原始圖片資料',
@@ -4519,11 +4525,11 @@ extension on TranslationsZhHant {
 			'main.user' => '用家',
 			'main.recommended' => '推薦',
 			'main.larger' => '更大',
+			_ => null,
+		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '目前長度：${param1} / ${param2}',
 			'main.fillIn' => '填入',
 			'main.msgProtectedByComplianceKey' => '訊息受合規金鑰保護',
-			_ => null,
-		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => '邀請人: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '被邀請人: ${uid}',
 			'main.mySentTab' => '我發出的',

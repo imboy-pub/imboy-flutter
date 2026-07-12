@@ -439,6 +439,9 @@ version: الإصدار
 videoCall: مكالمة فيديو
 viewAllGroupMember: عرض جميع أعضاء المجموعة
 voiceCall: مكالمة صوتية
+groupCall: مكالمة جماعية
+callDisconnected: انقطعت المكالمة
+connecting: جارٍ الاتصال…
 voiceInputNotImplemented: ميزة الإدخال الصوتي غير متاحة بعد
 waitingDownload: في انتظار التنزيل
 waitingPeerAccept: في انتظار قبول الطرف الآخر...

@@ -429,6 +429,9 @@ version: Version
 videoCall: Video call
 viewAllGroupMember: View all group members
 voiceCall: Voice call
+groupCall: Group call
+callDisconnected: Call disconnected
+connecting: Connecting…
 voiceInputNotImplemented: Voice input feature not implemented
 waitingDownload: Waiting for download
 waitingPeerAccept: Waiting for the other party to accept invite...

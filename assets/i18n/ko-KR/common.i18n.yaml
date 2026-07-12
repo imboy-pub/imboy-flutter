@@ -439,6 +439,9 @@ version: 버전
 videoCall: 비디오 통화
 viewAllGroupMember: 모든 그룹 구성원 보기
 voiceCall: 음성 통화
+groupCall: 그룹 통화
+callDisconnected: 통화가 끊어졌습니다
+connecting: 연결 중…
 voiceInputNotImplemented: 음성 입력 기능이 아직 구현되지 않음
 waitingDownload: 다운로드 대기 중
 waitingPeerAccept: 상대방의 수락을 기다리는 중...

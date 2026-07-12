@@ -1049,6 +1049,9 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get videoCall => 'ビデオ通話';
 	@override String get viewAllGroupMember => 'すべてのグループメンバーを表示';
 	@override String get voiceCall => '音声通話';
+	@override String get groupCall => 'グループ通話';
+	@override String get callDisconnected => '通話が切断されました';
+	@override String get connecting => '接続中…';
 	@override String get voiceInputNotImplemented => '音声入力機能は未実装です';
 	@override String get waitingDownload => 'ダウンロード待ち';
 	@override String get waitingPeerAccept => '相手の承認を待っています...';
@@ -3421,6 +3424,9 @@ extension on TranslationsJaJp {
 			'common.videoCall' => 'ビデオ通話',
 			'common.viewAllGroupMember' => 'すべてのグループメンバーを表示',
 			'common.voiceCall' => '音声通話',
+			'common.groupCall' => 'グループ通話',
+			'common.callDisconnected' => '通話が切断されました',
+			'common.connecting' => '接続中…',
 			'common.voiceInputNotImplemented' => '音声入力機能は未実装です',
 			'common.waitingDownload' => 'ダウンロード待ち',
 			'common.waitingPeerAccept' => '相手の承認を待っています...',
@@ -3491,11 +3497,11 @@ extension on TranslationsJaJp {
 			'common.allowAddByPhone' => '電話番号で追加を許可',
 			'common.allowAddByPhoneDesc' => '他のユーザーがあなたの電話番号で友達として追加できます',
 			'common.allowAddByQR' => 'QRコードで追加を許可',
+			_ => null,
+		} ?? switch (path) {
 			'common.allowAddByQRDesc' => '他のユーザーがあなたのQRコードをスキャンして友達として追加できます',
 			'common.statusSettings' => 'ステータス設定',
 			'common.showOnlineStatus' => 'オンラインステータスを表示',
-			_ => null,
-		} ?? switch (path) {
 			'common.showOnlineStatusDesc' => '友達があなたのオンラインステータスを見ることができます',
 			'common.allowNearbyVisible' => '近くの人に表示',
 			'common.dataSettings' => 'データ設定',
@@ -4005,11 +4011,11 @@ extension on TranslationsJaJp {
 			'common.passwordEncryptFailed' => 'パスワードの暗号化に失敗しました',
 			'common.initConfigTimeout' => '設定の取得がタイムアウトしました：ネットワーク接続またはサーバーの状態を確認してください',
 			'common.initConfigNetworkError' => ({required Object code}) => 'ネットワークまたはサーバーの障害です (HTTP ${code})',
+			_ => null,
+		} ?? switch (path) {
 			'common.initConfigProtocolError' => 'サーバープロトコルに誤りがあります',
 			'common.initConfigFetchFailed' => '設定の取得に失敗しました。ネットワーク接続を確認してください',
 			'common.attachmentGetFileFailed' => 'ファイルを取得できません。もう一度お試しいただくか、アルバムから選択してください',
-			_ => null,
-		} ?? switch (path) {
 			'common.attachmentGetFileFailedAndroid9' => 'ファイルの取得に失敗しました。Android 9では互換性の問題がある可能性があります',
 			'common.attachmentGetImageDataFailed' => '画像データを取得できません。もう一度お試しください',
 			'common.attachmentGetOriginalImageFailed' => '元の画像データを取得できません',
@@ -4519,11 +4525,11 @@ extension on TranslationsJaJp {
 			'main.user' => 'ユーザー',
 			'main.recommended' => '推奨',
 			'main.larger' => 'より大きい',
+			_ => null,
+		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '現在の長さ：${param1} / ${param2}',
 			'main.fillIn' => '入力',
 			'main.msgProtectedByComplianceKey' => 'メッセージはコンプライアンスキーで保護されています',
-			_ => null,
-		} ?? switch (path) {
 			'main.inviterLabel' => ({required Object uid}) => '招待者: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '招待先: ${uid}',
 			'main.mySentTab' => '送信',

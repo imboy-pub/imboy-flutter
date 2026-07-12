@@ -438,6 +438,9 @@ version: 版本
 videoCall: 影片通話
 viewAllGroupMember: 檢視全部群組成員
 voiceCall: 語音通話
+groupCall: 群通話
+callDisconnected: 通話已斷開
+connecting: 連接中…
 voiceInputNotImplemented: 語音輸入功能暫無實現
 waitingDownload: 等待下載
 waitingPeerAccept: 等待對方接受邀請...
