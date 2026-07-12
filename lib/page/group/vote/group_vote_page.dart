@@ -105,15 +105,24 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
           .where((s) => s.trim().isNotEmpty)
           .toList();
 
-      if (options.length >= 2) {
-        final vote = await GroupVoteService.to.createVote(
-          groupId: widget.groupId,
-          title: titleController.text,
-          options: options,
+      // 修复静默失败：选项不足与创建失败此前均无任何提示，用户点确认后
+      // 弹窗关闭、列表无变化，完全无从得知原因（真机 QA 坐实）。
+      if (options.length < 2) {
+        if (mounted) AppLoading.showInfo(t.groupVote.eachOptionPerLine);
+        return;
+      }
+      final vote = await GroupVoteService.to.createVote(
+        groupId: widget.groupId,
+        title: titleController.text,
+        options: options,
+      );
+      if (!mounted) return;
+      if (vote != null) {
+        _loadVotes(refresh: true);
+      } else {
+        AppLoading.showError(
+          t.common.networkErrorWithAction(param: t.groupVote.createVote),
         );
-        if (vote != null && mounted) {
-          _loadVotes(refresh: true);
-        }
       }
     }
   }
