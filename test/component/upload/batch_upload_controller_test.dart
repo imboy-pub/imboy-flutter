@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/upload/batch_upload_controller.dart';
@@ -105,8 +106,9 @@ void main() {
       );
       final seen = <UploadItemStatus>[];
       controller.addListener(() {
-        if (controller.items.isNotEmpty)
+        if (controller.items.isNotEmpty) {
           seen.add(controller.items.first.status);
+        }
       });
 
       // Act
@@ -128,17 +130,71 @@ void main() {
       expect(seen.last, UploadItemStatus.done);
     });
 
-    test('addCompleted appends a done, non-retryable item', () {
+    test('addFileAndUpload success: item done with local file kept', () async {
       final controller = BatchUploadController<String>(
         uploader: (a) async => null,
+        fileUploader: (file, isVideo) async => 'file_${file.path}_$isVideo',
       );
 
-      controller.addCompleted('camera_url');
+      await controller.addFileAndUpload(File('p.jpg'));
 
-      expect(controller.items.single.isDone, isTrue);
-      expect(controller.items.single.canRetry, isFalse);
-      expect(controller.results, ['camera_url']);
+      final item = controller.items.single;
+      expect(item.isDone, isTrue);
+      expect(item.file?.path, 'p.jpg');
+      expect(controller.results, ['file_p.jpg_false']);
     });
+
+    test('addFileAndUpload passes isVideo through to fileUploader', () async {
+      final controller = BatchUploadController<String>(
+        uploader: (a) async => null,
+        fileUploader: (file, isVideo) async => isVideo ? 'video' : 'image',
+      );
+
+      await controller.addFileAndUpload(File('v.mp4'), isVideo: true);
+
+      expect(controller.items.single.isVideoFile, isTrue);
+      expect(controller.results, ['video']);
+    });
+
+    test(
+      'failed file item is retryable and retry re-invokes fileUploader',
+      () async {
+        var fail = true;
+        final controller = BatchUploadController<String>(
+          uploader: (a) async => null,
+          fileUploader: (file, isVideo) async => fail ? null : 'ok',
+        );
+        await controller.addFileAndUpload(File('p.jpg'));
+        expect(controller.items.single.isFailed, isTrue);
+        expect(controller.items.single.canRetry, isTrue);
+
+        fail = false;
+        await controller.retry(0);
+
+        expect(controller.items.single.isDone, isTrue);
+        expect(controller.results, ['ok']);
+      },
+    );
+
+    test(
+      'retryFailed covers failed file items alongside asset items',
+      () async {
+        var fail = true;
+        final controller = BatchUploadController<String>(
+          uploader: (a) async => fail ? null : 'url_${a.id}',
+          fileUploader: (file, isVideo) async => fail ? null : 'file_ok',
+        );
+        await controller.addAndUpload([_asset('a')]);
+        await controller.addFileAndUpload(File('p.jpg'));
+        expect(controller.items.where((i) => i.isFailed).length, 2);
+
+        fail = false;
+        await controller.retryFailed();
+
+        expect(controller.hasFailed, isFalse);
+        expect(controller.results, ['url_a', 'file_ok']);
+      },
+    );
 
     test('removeAt drops the item from results', () async {
       final controller = BatchUploadController<String>(

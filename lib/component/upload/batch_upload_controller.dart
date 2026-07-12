@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
@@ -7,21 +9,30 @@ enum UploadItemStatus { pending, uploading, done, failed }
 /// 单项批量上传状态：稳定 id + 状态 + 原始资源（供失败重试复用）+ 成功结果 payload。
 ///
 /// [id] 稳定不变，由控制器自增分配，用于在列表增删（[BatchUploadController.removeAt]）
-/// 后仍能把异步上传结果回写到正确的项，规避「按数组下标回写」的错位竞态。
+/// 后仍能把异步上传结果回写到正确的项，规避「按下标回写」的错位竞态。
 ///
-/// [asset] 可空：相册批量选中的项一律带 [AssetEntity]（失败可重传）；相机即拍
-/// 等无 AssetEntity 的项以 null 追加为已完成态，不参与重试。
+/// 原始资源二选一：相册批量选中的项带 [asset]；相机即拍即传的项带 [file]
+/// （[isVideoFile] 区分拍照/录像）。两者都保留在项上，失败可重传、UI 可渲染
+/// 本地缩略图，不再有「无源不可重试」的孤儿项。
 @immutable
 class UploadItem<T> {
   const UploadItem({
     required this.id,
     this.asset,
+    this.file,
+    this.isVideoFile = false,
     this.status = UploadItemStatus.pending,
     this.result,
   });
 
   final int id;
   final AssetEntity? asset;
+  final File? file;
+
+  /// 仅 [file] 项有意义：true 表示录像文件（上传走视频管道，UI 无法直接
+  /// Image.file 预览）。
+  final bool isVideoFile;
+
   final UploadItemStatus status;
   final T? result;
 
@@ -30,15 +41,24 @@ class UploadItem<T> {
   bool get isDone => status == UploadItemStatus.done;
   bool get isFailed => status == UploadItemStatus.failed;
 
-  /// 仅带原始 AssetEntity 的失败项可重试。
-  bool get canRetry => isFailed && asset != null;
+  /// 带原始资源（AssetEntity 或 File）的失败项可重试。
+  bool get canRetry => isFailed && (asset != null || file != null);
 
-  UploadItem<T> _to(UploadItemStatus status, {T? result}) =>
-      UploadItem<T>(id: id, asset: asset, status: status, result: result);
+  UploadItem<T> _to(UploadItemStatus status, {T? result}) => UploadItem<T>(
+    id: id,
+    asset: asset,
+    file: file,
+    isVideoFile: isVideoFile,
+    status: status,
+    result: result,
+  );
 }
 
 /// 上传函数：成功返回结果 payload，失败返回 null（含文件读取失败）。
 typedef AssetUploader<T> = Future<T?> Function(AssetEntity asset);
+
+/// File 项上传函数（相机即拍即传）：isVideo 区分拍照/录像管道。
+typedef FileUploader<T> = Future<T?> Function(File file, bool isVideo);
 
 /// 批量逐项上传控制器。
 ///
@@ -52,10 +72,17 @@ typedef AssetUploader<T> = Future<T?> Function(AssetEntity asset);
 ///
 /// 朋友圈与频道两处批量上传复用同一控制器（DRY）。
 class BatchUploadController<T> extends ChangeNotifier {
-  BatchUploadController({required this.uploader, this.concurrency = 3})
-    : assert(concurrency > 0);
+  BatchUploadController({
+    required this.uploader,
+    this.fileUploader,
+    this.concurrency = 3,
+  }) : assert(concurrency > 0);
 
   final AssetUploader<T> uploader;
+
+  /// 仅使用 [addFileAndUpload]（相机路径）时必须提供。
+  final FileUploader<T>? fileUploader;
+
   final int concurrency;
 
   final List<UploadItem<T>> _items = [];
@@ -86,16 +113,14 @@ class BatchUploadController<T> extends ChangeNotifier {
     await _runBatches(ids);
   }
 
-  /// 追加一个已完成项（如相机即拍即传成功后回填），不参与重试。
-  void addCompleted(T result) {
-    _items.add(
-      UploadItem<T>(
-        id: _nextId++,
-        status: UploadItemStatus.done,
-        result: result,
-      ),
-    );
+  /// 追加一个相机即拍的 File 项并立即上传：与相册项同样走逐项状态机，
+  /// 上传中有本地缩略图、失败保留可重试，不再即拍即丢。
+  Future<void> addFileAndUpload(File file, {bool isVideo = false}) async {
+    assert(fileUploader != null, 'addFileAndUpload requires fileUploader');
+    final id = _nextId++;
+    _items.add(UploadItem<T>(id: id, file: file, isVideoFile: isVideo));
     notifyListeners();
+    await _uploadById(id);
   }
 
   /// 移除指定项（用户手动删除网格缩略图）。上传进行中删除是安全的：其余项按 id
@@ -131,10 +156,21 @@ class BatchUploadController<T> extends ChangeNotifier {
   }
 
   Future<void> _uploadById(int id) async {
-    final asset = _itemById(id)?.asset;
-    if (asset == null) return;
+    final item = _itemById(id);
+    if (item == null) return;
+    final Future<T?> Function() run;
+    if (item.asset != null) {
+      run = () => uploader(item.asset!);
+    } else if (item.file != null && fileUploader != null) {
+      run = () => fileUploader!(item.file!, item.isVideoFile);
+    } else {
+      // 误用防线（release 下 assert 被剥离）：无可用上传管道的项显式置
+      // failed，避免静默卡在 pending 转圈且不可重试。
+      _setById(id, (item) => item._to(UploadItemStatus.failed));
+      return;
+    }
     _setById(id, (item) => item._to(UploadItemStatus.uploading));
-    final result = await uploader(asset);
+    final result = await run();
     _setById(
       id,
       (item) => result == null

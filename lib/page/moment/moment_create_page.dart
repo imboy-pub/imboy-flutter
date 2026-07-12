@@ -44,22 +44,23 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   final TextEditingController _allowUidsController = TextEditingController();
   final TextEditingController _denyUidsController = TextEditingController();
 
-  /// 逐项上传状态：相册批量选中的每张各自流转 pending→uploading→done/failed，
-  /// 失败项单独重试不影响其余成功项；相机即拍即传成功后 addCompleted 追加。
-  /// concurrency=momentMaxImageCount(9) 等价于原 Future.wait 全并行（朋友圈上限）。
+  /// 逐项上传状态：相册批量选中与相机即拍的每项各自流转
+  /// pending→uploading→done/failed，本地缩略图即时可见，失败项单独重试
+  /// 不影响其余成功项。concurrency=momentMaxImageCount(9) 等价于原
+  /// Future.wait 全并行（朋友圈上限）。
   late final BatchUploadController<Map<String, dynamic>> _uploads =
       BatchUploadController<Map<String, dynamic>>(
         uploader: _uploadAsset,
+        fileUploader: _uploadCapturedFile,
         concurrency: momentMaxImageCount,
       );
 
   int _visibility = momentVisibilityFriends;
   bool _allowComment = true;
-  bool _cameraUploading = false;
   bool _isSubmitting = false;
 
-  /// 相机即拍上传中 或 相册批量上传中，任一进行时禁用发布/继续选择。
-  bool get _busy => _cameraUploading || _uploads.isBusy;
+  /// 上传进行中仅禁用发布（防止半图发帖）；继续追加媒体不受影响。
+  bool get _busy => _uploads.isBusy;
 
   String get _draftKey => momentFailedDraftKey(UserRepoLocal.to.currentUid);
 
@@ -244,26 +245,24 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     return completer.future;
   }
 
+  /// 相机即拍与相册项统一走逐项机制：入网格即见本地缩略图 + 上传进度，
+  /// 失败留在网格可单独重试，不再「转圈占位 + 失败即丢照片」。
   Future<void> _pickImage({bool useCamera = false}) async {
-    if (_busy || _uploads.length >= momentMaxImageCount) return;
+    if (_uploads.length >= momentMaxImageCount) return;
     final media = useCamera
         ? await _picker.pickCamera(context)
         : await _picker.pickSingle(context, MediaType.image);
     if (media == null || !mounted) return;
 
-    setState(() => _cameraUploading = true);
-    final url = await _uploadFile('img', File(media.path));
+    await _uploads.addFileAndUpload(File(media.path));
     if (!mounted) return;
-    setState(() => _cameraUploading = false);
-    if (url != null && url.isNotEmpty) {
-      _uploads.addCompleted(<String, dynamic>{'type': 'image', 'url': url});
-    } else {
+    if (_uploads.hasFailed) {
       AppLoading.showError(context.t.common.momentsUploadFailed);
     }
   }
 
   Future<void> _pickVideo({bool useCamera = false}) async {
-    if (_busy || _uploads.length >= momentMaxImageCount) return;
+    if (_uploads.length >= momentMaxImageCount) return;
     // 修复：拍摄视频此前误调 pickSingle(gallery)，从未真正唤起相机。
     // useCamera 时走 pickCamera(enableRecording: true) 唤起原生相机录像。
     final media = useCamera
@@ -271,13 +270,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
         : await _picker.pickSingle(context, MediaType.video);
     if (media == null || !mounted) return;
 
-    setState(() => _cameraUploading = true);
-    final uploaded = await _uploadVideoFile(File(media.path));
+    await _uploads.addFileAndUpload(File(media.path), isVideo: true);
     if (!mounted) return;
-    setState(() => _cameraUploading = false);
-    if (uploaded != null) {
-      _uploads.addCompleted(uploaded);
-    } else {
+    if (_uploads.hasFailed) {
       AppLoading.showError(context.t.common.momentsUploadFailed);
     }
   }
@@ -289,7 +284,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   /// 模式：选择器内部已强制「多图 或 单视频」互斥，与 [validateMediaSelection]
   /// 的规则一致（后者仍作为提交前的最终防线保留，覆盖跨批次叠加的场景）。
   Future<void> _pickMediaFromAlbum() async {
-    if (_busy || _uploads.length >= momentMaxImageCount) return;
+    if (_uploads.length >= momentMaxImageCount) return;
     // 剩余可选额度而非固定 momentMaxImageCount：避免多轮选择后总数超限。
     final remaining = momentMaxImageCount - _uploads.length;
     final assets = await AssetPicker.pickAssets(
@@ -309,6 +304,20 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     if (_uploads.hasFailed) {
       AppLoading.showError(context.t.common.momentsUploadFailed);
     }
+  }
+
+  /// 相机即拍 File 项的上传路由（BatchUploadController.fileUploader）：
+  /// 录像走视频三件套，拍照走图片直传。失败返回 null，项留网格可重试。
+  Future<Map<String, dynamic>?> _uploadCapturedFile(
+    File file,
+    bool isVideo,
+  ) async {
+    if (isVideo) {
+      return _uploadVideoFile(file);
+    }
+    final url = await _uploadFile('img', file);
+    if (url == null || url.isEmpty) return null;
+    return <String, dynamic>{'type': 'image', 'url': url};
   }
 
   /// 单个选中资源的上传路由：图片走 `_uploadFile`，视频走 `_uploadVideoFile`。
@@ -606,7 +615,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   Widget _buildMediaGrid(Translations t) {
     final cellSize = (MediaQuery.sizeOf(context).width - 40 - 16) / 3;
     final items = _uploads.items;
-    final showAdd = items.length < momentMaxImageCount && !_busy;
+    final showAdd = items.length < momentMaxImageCount;
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -620,7 +629,6 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
             onRetry: item.canRetry ? () => _retryUpload(index) : null,
           );
         }),
-        if (_cameraUploading) _MediaUploadingPlaceholder(size: cellSize),
         if (showAdd) _MediaAddButton(size: cellSize, onTap: _showMediaPicker),
       ],
     );
@@ -664,10 +672,10 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 }
 
-/// 单个媒体缩略图，按逐项上传状态渲染：
-/// - done：网络预览图（视频叠播放角标）
-/// - uploading/pending：本地资源缩略图 + 转圈遮罩
-/// - failed：本地资源缩略图 + 「重试」角标（点击复用 AssetEntity 重传）
+/// 单个媒体缩略图，按逐项上传状态渲染（本地缩略图优先，见 `_buildImage`）：
+/// - done：本地缩略图（视频叠播放角标；录像文件回退网络封面）
+/// - uploading/pending：本地缩略图 + 转圈遮罩
+/// - failed：本地缩略图 + 「重试」角标（点击复用 AssetEntity/File 重传）
 class _MediaThumb extends StatelessWidget {
   final double size;
   final UploadItem<Map<String, dynamic>> item;
@@ -699,7 +707,7 @@ class _MediaThumb extends StatelessWidget {
                 : AppColors.lightSurfaceContainer,
           ),
           clipBehavior: Clip.antiAlias,
-          child: _buildImage(previewUrl),
+          child: _buildImage(context, previewUrl),
         ),
         if (isVideo && item.isDone)
           const Positioned.fill(
@@ -769,16 +777,37 @@ class _MediaThumb extends StatelessWidget {
     );
   }
 
-  Widget _buildImage(String previewUrl) {
-    if (previewUrl.isNotEmpty) {
-      return Image(image: cachedImageProvider(previewUrl), fit: BoxFit.cover);
-    }
+  /// 本地源优先：相册项用 AssetEntity 缩略图、相机照片用 Image.file——
+  /// 全程即时可见且 done 后免网络重载；仅无本地图的场景（录像文件无法
+  /// Image.file 预览）才回退网络封面/图标占位。
+  Widget _buildImage(BuildContext context, String previewUrl) {
     final asset = item.asset;
     if (asset != null) {
-      // 上传中/失败时用本地资源缩略图占位（无需网络授权）。
       return Image(
         image: AssetEntityImageProvider(asset, isOriginal: false),
         fit: BoxFit.cover,
+      );
+    }
+    final file = item.file;
+    if (file != null && !item.isVideoFile) {
+      // cacheWidth 按 cell 物理像素解码，避免相机原图全尺寸驻留内存。
+      return Image.file(
+        file,
+        fit: BoxFit.cover,
+        cacheWidth: (size * MediaQuery.devicePixelRatioOf(context)).round(),
+      );
+    }
+    if (previewUrl.isNotEmpty) {
+      return Image(image: cachedImageProvider(previewUrl), fit: BoxFit.cover);
+    }
+    if (item.isVideoFile) {
+      // 录像上传中/失败：无本地缩略图，用视频图标占位。
+      return const Center(
+        child: Icon(
+          CupertinoIcons.videocam_fill,
+          size: 30,
+          color: AppColors.iosGray,
+        ),
       );
     }
     return const Icon(Icons.broken_image_outlined);
@@ -795,29 +824,6 @@ class _ThumbOverlay extends StatelessWidget {
     return ColoredBox(
       color: AppColors.darkBackground.withValues(alpha: 0.45),
       child: Center(child: child),
-    );
-  }
-}
-
-class _MediaUploadingPlaceholder extends StatelessWidget {
-  final double size;
-  const _MediaUploadingPlaceholder({required this.size});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        borderRadius: AppRadius.borderRadiusMedium,
-        color: AppColors.iosGray.withValues(alpha: 0.12),
-      ),
-      child: const Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      ),
     );
   }
 }
