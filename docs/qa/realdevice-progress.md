@@ -126,6 +126,15 @@
 - ⚠️ 装包定论:设备 armeabi-v7a(32位);debug 包 323MB dexopt 卡死;**可行装法=release+临时 debug 签名(build.gradle 109 行 getByName debug)+`--target-platform android-arm`,169MB pm install Success**;但 release 混淆致图片组件/日志异常。新会话建议换能装 debug 包的环境/更好真机。
 - 关键文件:`lib/page/moment/moment_create_page.dart` `lib/component/upload/batch_upload_controller.dart`。
 
+### 轮 17 — 2026-07-12 — 🎉朋友圈相机路径重构+真机端到端全通 + 群深度复验揪出 2 个生产后端崩溃
+- **主任务完成（imboyapp 21b05ebb）**：相机拍照/录像统一 BatchUploadController 逐项机制（File 输入+本地缩略图+失败可重试+上传中可追加）；审查修 2 处（Image.file cacheWidth 限内存、fileUploader 缺失显式置 failed）。单测 12 全绿。
+- **✅ 朋友圈上传端到端真机复验通过**（release armeabi-v7a 包，签名临时改 debug 后已还原）：拍照→本地缩略图即时显示→上传→发布→feed 服务端 URL 渲染 ✅；相册 2 图批量→发布→渲染 ✅。后端 scope_segment 修复（轮15）+ 客户端 bytes 修复（f9d4af7e）全链路确证。本轮 R8 包 AssetEntityImageProvider/相册选择器渲染均正常（轮15 空白格未复现）。
+- **✅ 群详情九宫格深度复验**：详情页（7c1dd353 稳定）+ 群文件/相册/投票/日程/作业五子页 + 成员资料/资料设置页全部正常加载。禁言/踢人/设管理员需群主账号（当前 IMBoy 非群主，入口不可见符合权限设计）留待专项。
+- **🔴 揪出 2 个生产后端崩溃（imboy 19908910 已修未部署）**：①创建投票必崩——insert_options_batch 漏 id 列（NOT NULL 无默认→23502），且 handler 错误兜底 ec_cnv:to_binary(epgsql元组) 二次崩；②群文件列表全挂——order_by 传裸 binary 违反 build_select 合同 case_clause 崩，客户端"暂无群文件"实为假空态。生产 crash.log 铁证（时间与真机操作逐秒对上）。回归测试补齐（此前测试 mock 掉 build_select 是漏网原因），71 EUnit 绿。⚠️ 生产孤儿数据：vote.5xwUV8SNr3N1sCt（主表已插、选项插失败）。
+- **🔴 客户端配套修复（imboyapp 58c3fb7b）**：创建投票静默失败（选项<2 丢弃输入无提示、service 失败无 toast）→ 补用户反馈；真机复验 toast 铁证两分支均触发。
+- **✅ 自动化测试补齐（imboyapp b6fb9be3）**：mention/qrcode/settings 三个零覆盖模块 +54 用例全绿，lib/page 22 模块全部有测试。发现 1 个 lib 真 bug 未修：`e2ee_social_service.dart:252` splitSecret 对 BigInt jsonEncode 必抛（100% 坏死，社交恢复纯函数路径）。
+- **待办**：后端修复生产热部署（须用户授权）；群主账号成员管理专项；e2ee_social_service BigInt bug。
+
 ## 逐轮记录
 
 ### 轮 1 — 2026-07-11 — 朋友圈 moment
