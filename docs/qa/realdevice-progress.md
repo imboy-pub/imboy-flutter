@@ -112,6 +112,13 @@
 - **🔴 拍照上传暴露后端真根因(诊断日志 f9d4af7e 生效)**：logcat `[upload][presignCompat] FAIL scope=moment err=presign 失败: code=500`。后端 crash.log 铁证:`function_clause elib_oss:scope_segment(<<"moment">>,undefined)`。根因:`can_upload` 支持 public/private/c2c/group/**channel/moment** 7 scope,但 `elib_oss:scope_segment/2` 只有前 4 个,**缺 channel+moment 子句** → presign 生成 object_key 崩溃 500。**影响朋友圈+频道所有上传**。⚠️客户端 bytes 修复根本没机会生效(presign 先 500)。此为**后端 imboy 仓 bug**,待用户决定是否修+部署生产。
 - **下轮目标**：后端修复 scope_segment(加 channel+moment 子句,段名与 authorize 一致)→部署→复验朋友圈/频道上传全链路。
 
+### 轮 15 — 2026-07-12 — ✅后端上传根因已修复并部署生产验证
+- **后端修复提交**（imboy 仓 ad31075c）：`elib_oss:scope_segment/2` 补 channel/moment 子句 + 回归 EUnit。make app 编译通过。
+- **生产部署（热加载，用户授权 106.53.76.53）**：备份原 beam(.bak) → scp 覆盖 release 磁盘 beam → `code:purge+load_file` 热加载。**eval 铁证**：生产节点 `build_object_key(1,<<"moment">>,undefined,...)` 返回 `u1/moment/20260712/file_.../a.jpg` 不再崩溃。内存热加载生效 + 磁盘 beam 已覆盖(重启当前 release 保持修复) + 源码已提交(下次部署新版本含)。
+- **presign 500 根因已消除**：朋友圈(scope=moment)/频道(scope=channel)上传的后端崩溃已修复。
+- **⚠️ 真机端到端上传未干净复现**：release 混淆包(armeabi-v7a 临时 debug 签名)的图片组件缩略图渲染异常(空白格)+MCP 相机/相册交互不稳+debugPrint 日志不稳，未能干净复现"上传成功缩略图"。此为**测试环境限制非修复问题**——后端根因 eval 铁证已修。建议用**非混淆 debug 包**或手动验证上传完整闭环。
+- **客户端 bytes 修复(f9d4af7e)**：逻辑有据(Android chunked)已提交，但因后端 presign 先前 500、本次环境限制，未获真机端到端确证。
+
 ## 逐轮记录
 
 ### 轮 1 — 2026-07-11 — 朋友圈 moment
