@@ -1604,6 +1604,17 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeBackupDeleteTitle => '백업 기록 삭제';
 	@override String get e2eeBackupDeleteConfirm => '이 백업 기록을 삭제하시겠습니까?';
 	@override String get e2eeBackupDeleteSuccess => '백업 기록이 삭제되었습니다';
+	@override String get e2eeBackupCloudUploadBtn => '클라우드에 백업';
+	@override String e2eeBackupCloudUploadSuccess({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})';
+	@override String get e2eeBackupErrCloudUploadFailed => '클라우드 백업 실패, 다시 시도하세요';
+	@override String get e2eeBackupCloudRestoreTitle => '클라우드 백업에서 복원';
+	@override String e2eeBackupCloudRestoreHint({required Object version}) => '클라우드 백업 감지됨 (버전 ${version})';
+	@override String get e2eeBackupCloudRestoreBtn => '클라우드에서 복원';
+	@override String get e2eeBackupCloudRestoreConfirmNote => '복원하면 이 기기의 현재 E2EE 키를 덮어씁니다';
+	@override String get e2eeBackupCloudPwdHint => '백업 암호를 입력하세요';
+	@override String get e2eeBackupErrNoCloudBackup => '클라우드 백업이 없습니다';
+	@override String get e2eeBackupErrCloudPwd => '암호가 틀렸거나 백업이 손상되었습니다';
+	@override String get e2eeBackupErrCloudRestoreFailed => '클라우드 복원 실패, 다시 시도하세요';
 	@override String get e2eeSocialShardSettings => '샤드 설정';
 	@override String get e2eeSocialShardStoredNote => '안내: 샤드는 대리자 기기에 저장되며 서버에는 어떤 샤드도 저장되지 않습니다';
 	@override String get e2eeSocialAddProxy => '대리자 추가';
@@ -3981,6 +3992,17 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupDeleteTitle' => '백업 기록 삭제',
 			'common.e2eeBackupDeleteConfirm' => '이 백업 기록을 삭제하시겠습니까?',
 			'common.e2eeBackupDeleteSuccess' => '백업 기록이 삭제되었습니다',
+			'common.e2eeBackupCloudUploadBtn' => '클라우드에 백업',
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})',
+			'common.e2eeBackupErrCloudUploadFailed' => '클라우드 백업 실패, 다시 시도하세요',
+			'common.e2eeBackupCloudRestoreTitle' => '클라우드 백업에서 복원',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '클라우드 백업 감지됨 (버전 ${version})',
+			'common.e2eeBackupCloudRestoreBtn' => '클라우드에서 복원',
+			'common.e2eeBackupCloudRestoreConfirmNote' => '복원하면 이 기기의 현재 E2EE 키를 덮어씁니다',
+			'common.e2eeBackupCloudPwdHint' => '백업 암호를 입력하세요',
+			'common.e2eeBackupErrNoCloudBackup' => '클라우드 백업이 없습니다',
+			'common.e2eeBackupErrCloudPwd' => '암호가 틀렸거나 백업이 손상되었습니다',
+			'common.e2eeBackupErrCloudRestoreFailed' => '클라우드 복원 실패, 다시 시도하세요',
 			'common.e2eeSocialShardSettings' => '샤드 설정',
 			'common.e2eeSocialShardStoredNote' => '안내: 샤드는 대리자 기기에 저장되며 서버에는 어떤 샤드도 저장되지 않습니다',
 			'common.e2eeSocialAddProxy' => '대리자 추가',
@@ -4000,6 +4022,8 @@ extension on TranslationsKoKr {
 			'common.e2eeTransferErrCreateFailed' => '전송 세션 생성 실패, 다시 시도해주세요',
 			'common.e2eeTransferCreateSessionBtn' => '전송 세션 만들기',
 			'common.e2eeTransferSessionCreated' => '전송 세션이 생성되었습니다',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => '올바른 사용자 ID를 입력해주세요',
 			'common.e2eeTransferSuccess' => '전송 완료!',
 			'common.e2eeTransferFailed' => '전송 실패, 다시 시도해주세요',
@@ -4011,8 +4035,6 @@ extension on TranslationsKoKr {
 			'common.passwordEncryptFailed' => '비밀번호 암호화 실패',
 			'common.initConfigTimeout' => '설정 불러오기 시간 초과: 네트워크 연결 또는 서버 상태를 확인해주세요',
 			'common.initConfigNetworkError' => ({required Object code}) => '네트워크 또는 서버 오류 (HTTP ${code})',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigProtocolError' => '서버 응답 프로토콜 오류',
 			'common.initConfigFetchFailed' => '설정 불러오기 실패, 네트워크 연결을 확인해주세요',
 			'common.attachmentGetFileFailed' => '파일을 가져올 수 없습니다. 다시 시도하거나 앨범에서 선택하세요',
@@ -4514,6 +4536,8 @@ extension on TranslationsKoKr {
 			'main.pleaseTryAgain' => '다시 시도해 주세요',
 			'main.secret' => '비공개',
 			'main.takePhoto' => '사진 촬영',
+			_ => null,
+		} ?? switch (path) {
 			'main.publishing' => '게시 중...',
 			'main.deletingInProgressPleaseWait' => '삭제 중입니다. 잠시 기다려 주세요...',
 			'main.testUser1' => '사용자 1',
@@ -4525,8 +4549,6 @@ extension on TranslationsKoKr {
 			'main.user' => '사용자',
 			'main.recommended' => '추천',
 			'main.larger' => '더 크게',
-			_ => null,
-		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '현재 길이: ${param1} / ${param2}',
 			'main.fillIn' => '입력',
 			'main.msgProtectedByComplianceKey' => '메시지는 규정 준수 키로 보호됩니다',

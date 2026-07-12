@@ -1604,6 +1604,17 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeBackupDeleteTitle => 'Backup löschen';
 	@override String get e2eeBackupDeleteConfirm => 'Dieses Backup wirklich löschen?';
 	@override String get e2eeBackupDeleteSuccess => 'Backup gelöscht';
+	@override String get e2eeBackupCloudUploadBtn => 'In die Cloud sichern';
+	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'In der Cloud gesichert (Version ${version})';
+	@override String get e2eeBackupErrCloudUploadFailed => 'Cloud-Backup fehlgeschlagen, bitte erneut versuchen';
+	@override String get e2eeBackupCloudRestoreTitle => 'Aus Cloud-Backup wiederherstellen';
+	@override String e2eeBackupCloudRestoreHint({required Object version}) => 'Cloud-Backup erkannt (Version ${version})';
+	@override String get e2eeBackupCloudRestoreBtn => 'Aus der Cloud wiederherstellen';
+	@override String get e2eeBackupCloudRestoreConfirmNote => 'Die Wiederherstellung überschreibt die aktuellen E2EE-Schlüssel auf diesem Gerät';
+	@override String get e2eeBackupCloudPwdHint => 'Backup-Passphrase eingeben';
+	@override String get e2eeBackupErrNoCloudBackup => 'Kein Cloud-Backup vorhanden';
+	@override String get e2eeBackupErrCloudPwd => 'Falsche Passphrase oder beschädigtes Backup';
+	@override String get e2eeBackupErrCloudRestoreFailed => 'Cloud-Wiederherstellung fehlgeschlagen, bitte erneut versuchen';
 	@override String get e2eeSocialShardSettings => 'Fragment-Einstellungen';
 	@override String get e2eeSocialShardStoredNote => 'Fragmente werden bei Treuhändern gespeichert, Server speichert nichts';
 	@override String get e2eeSocialAddProxy => 'Treuhänder hinzufügen';
@@ -3981,6 +3992,17 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupDeleteTitle' => 'Backup löschen',
 			'common.e2eeBackupDeleteConfirm' => 'Dieses Backup wirklich löschen?',
 			'common.e2eeBackupDeleteSuccess' => 'Backup gelöscht',
+			'common.e2eeBackupCloudUploadBtn' => 'In die Cloud sichern',
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'In der Cloud gesichert (Version ${version})',
+			'common.e2eeBackupErrCloudUploadFailed' => 'Cloud-Backup fehlgeschlagen, bitte erneut versuchen',
+			'common.e2eeBackupCloudRestoreTitle' => 'Aus Cloud-Backup wiederherstellen',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Cloud-Backup erkannt (Version ${version})',
+			'common.e2eeBackupCloudRestoreBtn' => 'Aus der Cloud wiederherstellen',
+			'common.e2eeBackupCloudRestoreConfirmNote' => 'Die Wiederherstellung überschreibt die aktuellen E2EE-Schlüssel auf diesem Gerät',
+			'common.e2eeBackupCloudPwdHint' => 'Backup-Passphrase eingeben',
+			'common.e2eeBackupErrNoCloudBackup' => 'Kein Cloud-Backup vorhanden',
+			'common.e2eeBackupErrCloudPwd' => 'Falsche Passphrase oder beschädigtes Backup',
+			'common.e2eeBackupErrCloudRestoreFailed' => 'Cloud-Wiederherstellung fehlgeschlagen, bitte erneut versuchen',
 			'common.e2eeSocialShardSettings' => 'Fragment-Einstellungen',
 			'common.e2eeSocialShardStoredNote' => 'Fragmente werden bei Treuhändern gespeichert, Server speichert nichts',
 			'common.e2eeSocialAddProxy' => 'Treuhänder hinzufügen',
@@ -4000,6 +4022,8 @@ extension on TranslationsDeDe {
 			'common.e2eeTransferErrCreateFailed' => 'Sitzung konnte nicht erstellt werden. Bitte erneut versuchen.',
 			'common.e2eeTransferCreateSessionBtn' => 'Sitzung erstellen',
 			'common.e2eeTransferSessionCreated' => 'Sitzung erstellt',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => 'Gültige Benutzer-ID eingeben',
 			'common.e2eeTransferSuccess' => 'Erfolgreich!',
 			'common.e2eeTransferFailed' => 'Übertragung fehlgeschlagen. Bitte erneut versuchen.',
@@ -4011,8 +4035,6 @@ extension on TranslationsDeDe {
 			'common.passwordEncryptFailed' => 'Passwort-Verschlüsselung fehlgeschlagen',
 			'common.initConfigTimeout' => 'Zeitüberschreitung: Netzwerk oder Server prüfen',
 			'common.initConfigNetworkError' => ({required Object code}) => 'Netzwerk- oder Serverfehler (HTTP ${code})',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigProtocolError' => 'Server-Protokoll fehlerhaft',
 			'common.initConfigFetchFailed' => 'Konfiguration konnte nicht geladen werden. Netzwerk prüfen.',
 			'common.attachmentGetFileFailed' => 'Datei nicht verfügbar. Erneut versuchen oder aus Album wählen.',
@@ -4514,6 +4536,8 @@ extension on TranslationsDeDe {
 			'main.pleaseTryAgain' => 'Bitte versuchen Sie es erneut',
 			'main.secret' => 'Geheim',
 			'main.takePhoto' => 'Foto aufnehmen',
+			_ => null,
+		} ?? switch (path) {
 			'main.publishing' => 'Wird veröffentlicht...',
 			'main.deletingInProgressPleaseWait' => 'Wird gelöscht, bitte warten...',
 			'main.testUser1' => 'Benutzer 1',
@@ -4525,8 +4549,6 @@ extension on TranslationsDeDe {
 			'main.user' => 'Benutzer',
 			'main.recommended' => 'Empfohlen',
 			'main.larger' => 'Größer',
-			_ => null,
-		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Aktuelle Länge: ${param1} / ${param2}',
 			'main.fillIn' => 'Ausfüllen',
 			'main.msgProtectedByComplianceKey' => 'Nachricht durch Compliance-Schlüssel geschützt',

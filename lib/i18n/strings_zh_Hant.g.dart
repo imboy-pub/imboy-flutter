@@ -1604,6 +1604,17 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupDeleteTitle => '刪除備份記錄';
 	@override String get e2eeBackupDeleteConfirm => '確定要刪除此備份記錄嗎？';
 	@override String get e2eeBackupDeleteSuccess => '備份記錄已刪除';
+	@override String get e2eeBackupCloudUploadBtn => '備份到雲端';
+	@override String e2eeBackupCloudUploadSuccess({required Object version}) => '已備份到雲端（版本 ${version}）';
+	@override String get e2eeBackupErrCloudUploadFailed => '雲端備份失敗，請重試';
+	@override String get e2eeBackupCloudRestoreTitle => '從雲端備份恢復';
+	@override String e2eeBackupCloudRestoreHint({required Object version}) => '偵測到雲端備份（版本 ${version}）';
+	@override String get e2eeBackupCloudRestoreBtn => '從雲端恢復';
+	@override String get e2eeBackupCloudRestoreConfirmNote => '恢復後將覆蓋本裝置目前的 E2EE 金鑰';
+	@override String get e2eeBackupCloudPwdHint => '請輸入備份口令';
+	@override String get e2eeBackupErrNoCloudBackup => '雲端暫無備份';
+	@override String get e2eeBackupErrCloudPwd => '口令錯誤或備份損壞';
+	@override String get e2eeBackupErrCloudRestoreFailed => '雲端恢復失敗，請重試';
 	@override String get e2eeSocialShardSettings => '分片設定';
 	@override String get e2eeSocialShardStoredNote => '說明：分片將儲存在代理裝置上，服務端不儲存任何分片';
 	@override String get e2eeSocialAddProxy => '新增代理';
@@ -3981,6 +3992,17 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupDeleteTitle' => '刪除備份記錄',
 			'common.e2eeBackupDeleteConfirm' => '確定要刪除此備份記錄嗎？',
 			'common.e2eeBackupDeleteSuccess' => '備份記錄已刪除',
+			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
+			'common.e2eeBackupErrCloudUploadFailed' => '雲端備份失敗，請重試',
+			'common.e2eeBackupCloudRestoreTitle' => '從雲端備份恢復',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '偵測到雲端備份（版本 ${version}）',
+			'common.e2eeBackupCloudRestoreBtn' => '從雲端恢復',
+			'common.e2eeBackupCloudRestoreConfirmNote' => '恢復後將覆蓋本裝置目前的 E2EE 金鑰',
+			'common.e2eeBackupCloudPwdHint' => '請輸入備份口令',
+			'common.e2eeBackupErrNoCloudBackup' => '雲端暫無備份',
+			'common.e2eeBackupErrCloudPwd' => '口令錯誤或備份損壞',
+			'common.e2eeBackupErrCloudRestoreFailed' => '雲端恢復失敗，請重試',
 			'common.e2eeSocialShardSettings' => '分片設定',
 			'common.e2eeSocialShardStoredNote' => '說明：分片將儲存在代理裝置上，服務端不儲存任何分片',
 			'common.e2eeSocialAddProxy' => '新增代理',
@@ -4000,6 +4022,8 @@ extension on TranslationsZhHant {
 			'common.e2eeTransferErrCreateFailed' => '建立傳輸會話失敗，請重試',
 			'common.e2eeTransferCreateSessionBtn' => '建立傳輸會話',
 			'common.e2eeTransferSessionCreated' => '傳輸會話已建立',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => '請輸入有效的使用者 ID',
 			'common.e2eeTransferSuccess' => '傳輸成功！',
 			'common.e2eeTransferFailed' => '傳輸失敗，請重試',
@@ -4011,8 +4035,6 @@ extension on TranslationsZhHant {
 			'common.passwordEncryptFailed' => '密碼加密失敗',
 			'common.initConfigTimeout' => '配置獲取超時: 請檢查網路連線或服務端狀態',
 			'common.initConfigNetworkError' => ({required Object code}) => '網路故障或服務故障 (HTTP ${code})',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigProtocolError' => '服務故障協議有誤',
 			'common.initConfigFetchFailed' => '配置獲取失敗，請檢查網路連線',
 			'common.attachmentGetFileFailed' => '無法獲取檔案，請重試或使用相簿選擇',
@@ -4514,6 +4536,8 @@ extension on TranslationsZhHant {
 			'main.pleaseTryAgain' => '請重試',
 			'main.secret' => '保密',
 			'main.takePhoto' => '拍照',
+			_ => null,
+		} ?? switch (path) {
 			'main.publishing' => '發布中...',
 			'main.deletingInProgressPleaseWait' => '正在刪除中，請稍候...',
 			'main.testUser1' => '用家 1',
@@ -4525,8 +4549,6 @@ extension on TranslationsZhHant {
 			'main.user' => '用家',
 			'main.recommended' => '推薦',
 			'main.larger' => '更大',
-			_ => null,
-		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '目前長度：${param1} / ${param2}',
 			'main.fillIn' => '填入',
 			'main.msgProtectedByComplianceKey' => '訊息受合規金鑰保護',

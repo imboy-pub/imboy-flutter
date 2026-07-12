@@ -994,6 +994,17 @@ e2eeBackupNoteRow: Заметка
 e2eeBackupDeleteTitle: Удалить запись о копии
 e2eeBackupDeleteConfirm: Удалить эту запись о копии?
 e2eeBackupDeleteSuccess: Запись удалена
+e2eeBackupCloudUploadBtn: Сохранить в облако
+e2eeBackupCloudUploadSuccess(version): Сохранено в облаке (версия $version)
+e2eeBackupErrCloudUploadFailed: Не удалось создать облачную копию, повторите попытку
+e2eeBackupCloudRestoreTitle: Восстановить из облачной копии
+e2eeBackupCloudRestoreHint(version): Обнаружена облачная копия (версия $version)
+e2eeBackupCloudRestoreBtn: Восстановить из облака
+e2eeBackupCloudRestoreConfirmNote: Восстановление заменит текущие ключи E2EE на этом устройстве
+e2eeBackupCloudPwdHint: Введите парольную фразу резервной копии
+e2eeBackupErrNoCloudBackup: Облачная копия отсутствует
+e2eeBackupErrCloudPwd: Неверная парольная фраза или копия повреждена
+e2eeBackupErrCloudRestoreFailed: Не удалось восстановить из облака, повторите попытку
 e2eeSocialShardSettings: Настройки фрагментов
 e2eeSocialShardStoredNote: Фрагменты хранятся на устройствах посредников, сервер не хранит ни одного
 e2eeSocialAddProxy: Добавить посредника

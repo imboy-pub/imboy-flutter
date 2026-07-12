@@ -988,6 +988,17 @@ e2eeBackupNoteRow: Note
 e2eeBackupDeleteTitle: Delete backup record
 e2eeBackupDeleteConfirm: Are you sure you want to delete this backup record?
 e2eeBackupDeleteSuccess: Backup record deleted
+e2eeBackupCloudUploadBtn: Back up to cloud
+e2eeBackupCloudUploadSuccess(version): Backed up to cloud (version $version)
+e2eeBackupErrCloudUploadFailed: Cloud backup failed, please retry
+e2eeBackupCloudRestoreTitle: Restore from cloud backup
+e2eeBackupCloudRestoreHint(version): Cloud backup detected (version $version)
+e2eeBackupCloudRestoreBtn: Restore from cloud
+e2eeBackupCloudRestoreConfirmNote: Restoring will overwrite the current E2EE keys on this device
+e2eeBackupCloudPwdHint: Enter your backup passphrase
+e2eeBackupErrNoCloudBackup: No cloud backup found
+e2eeBackupErrCloudPwd: Wrong passphrase or corrupted backup
+e2eeBackupErrCloudRestoreFailed: Cloud restore failed, please retry
 e2eeSocialShardSettings: Shard settings
 e2eeSocialShardStoredNote: Shards will be stored on proxy devices; the server stores nothing
 e2eeSocialAddProxy: Add proxy

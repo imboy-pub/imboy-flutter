@@ -1598,6 +1598,17 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeBackupDeleteTitle => 'Delete backup record';
 	@override String get e2eeBackupDeleteConfirm => 'Are you sure you want to delete this backup record?';
 	@override String get e2eeBackupDeleteSuccess => 'Backup record deleted';
+	@override String get e2eeBackupCloudUploadBtn => 'Back up to cloud';
+	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Backed up to cloud (version ${version})';
+	@override String get e2eeBackupErrCloudUploadFailed => 'Cloud backup failed, please retry';
+	@override String get e2eeBackupCloudRestoreTitle => 'Restore from cloud backup';
+	@override String e2eeBackupCloudRestoreHint({required Object version}) => 'Cloud backup detected (version ${version})';
+	@override String get e2eeBackupCloudRestoreBtn => 'Restore from cloud';
+	@override String get e2eeBackupCloudRestoreConfirmNote => 'Restoring will overwrite the current E2EE keys on this device';
+	@override String get e2eeBackupCloudPwdHint => 'Enter your backup passphrase';
+	@override String get e2eeBackupErrNoCloudBackup => 'No cloud backup found';
+	@override String get e2eeBackupErrCloudPwd => 'Wrong passphrase or corrupted backup';
+	@override String get e2eeBackupErrCloudRestoreFailed => 'Cloud restore failed, please retry';
 	@override String get e2eeSocialShardSettings => 'Shard settings';
 	@override String get e2eeSocialShardStoredNote => 'Shards will be stored on proxy devices; the server stores nothing';
 	@override String get e2eeSocialAddProxy => 'Add proxy';
@@ -3975,6 +3986,17 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupDeleteTitle' => 'Delete backup record',
 			'common.e2eeBackupDeleteConfirm' => 'Are you sure you want to delete this backup record?',
 			'common.e2eeBackupDeleteSuccess' => 'Backup record deleted',
+			'common.e2eeBackupCloudUploadBtn' => 'Back up to cloud',
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backed up to cloud (version ${version})',
+			'common.e2eeBackupErrCloudUploadFailed' => 'Cloud backup failed, please retry',
+			'common.e2eeBackupCloudRestoreTitle' => 'Restore from cloud backup',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Cloud backup detected (version ${version})',
+			'common.e2eeBackupCloudRestoreBtn' => 'Restore from cloud',
+			'common.e2eeBackupCloudRestoreConfirmNote' => 'Restoring will overwrite the current E2EE keys on this device',
+			'common.e2eeBackupCloudPwdHint' => 'Enter your backup passphrase',
+			'common.e2eeBackupErrNoCloudBackup' => 'No cloud backup found',
+			'common.e2eeBackupErrCloudPwd' => 'Wrong passphrase or corrupted backup',
+			'common.e2eeBackupErrCloudRestoreFailed' => 'Cloud restore failed, please retry',
 			'common.e2eeSocialShardSettings' => 'Shard settings',
 			'common.e2eeSocialShardStoredNote' => 'Shards will be stored on proxy devices; the server stores nothing',
 			'common.e2eeSocialAddProxy' => 'Add proxy',
@@ -4000,6 +4022,8 @@ extension on TranslationsEnUs {
 			'common.e2eeTransferProcessingMsg' => 'Processing...',
 			'common.e2eeTransferSuccessTitle' => 'Transfer successful',
 			'common.e2eeTransferSuccessBody' => 'Key has been successfully transferred to this device',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferScanError' => ({required Object error}) => 'Scan error: ${error}',
 			'common.e2eeTransferErrNoDeviceId' => 'Unable to get device ID',
 			'common.passwordEncryptFailed' => 'Password encryption failed',
@@ -4011,8 +4035,6 @@ extension on TranslationsEnUs {
 			'common.attachmentGetFileFailedAndroid9' => 'File retrieval failed — Android 9 compatibility issue may apply',
 			'common.attachmentGetImageDataFailed' => 'Unable to get image data, please retry',
 			'common.attachmentGetOriginalImageFailed' => 'Unable to get original image data',
-			_ => null,
-		} ?? switch (path) {
 			'common.saveFailedRetry' => 'Save failed, please try again',
 			'common.downloadFileNotFound' => 'Download file not found, please retry',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})',
@@ -4514,6 +4536,8 @@ extension on TranslationsEnUs {
 			'main.pleaseTryAgain' => 'Please try again',
 			'main.secret' => 'Secret',
 			'main.takePhoto' => 'Take Photo',
+			_ => null,
+		} ?? switch (path) {
 			'main.publishing' => 'Publishing...',
 			'main.deletingInProgressPleaseWait' => 'Deleting in progress, please wait...',
 			'main.testUser1' => 'User 1',
@@ -4525,8 +4549,6 @@ extension on TranslationsEnUs {
 			'main.user' => 'User',
 			'main.recommended' => 'Recommended',
 			'main.larger' => 'Larger',
-			_ => null,
-		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Current length: ${param1} / ${param2}',
 			'main.fillIn' => 'Fill In',
 			'main.msgProtectedByComplianceKey' => 'Message protected by compliance key',

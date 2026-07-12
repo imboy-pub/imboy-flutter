@@ -994,6 +994,17 @@ e2eeBackupNoteRow: メモ
 e2eeBackupDeleteTitle: バックアップ履歴を削除
 e2eeBackupDeleteConfirm: このバックアップ履歴を削除しますか？
 e2eeBackupDeleteSuccess: バックアップ履歴を削除しました
+e2eeBackupCloudUploadBtn: クラウドにバックアップ
+e2eeBackupCloudUploadSuccess(version): クラウドにバックアップしました（バージョン $version）
+e2eeBackupErrCloudUploadFailed: クラウドバックアップに失敗しました。再試行してください
+e2eeBackupCloudRestoreTitle: クラウドバックアップから復元
+e2eeBackupCloudRestoreHint(version): クラウドバックアップを検出しました（バージョン $version）
+e2eeBackupCloudRestoreBtn: クラウドから復元
+e2eeBackupCloudRestoreConfirmNote: 復元すると、この端末の現在の E2EE 鍵が上書きされます
+e2eeBackupCloudPwdHint: バックアップのパスフレーズを入力してください
+e2eeBackupErrNoCloudBackup: クラウドバックアップがありません
+e2eeBackupErrCloudPwd: パスフレーズが間違っているか、バックアップが破損しています
+e2eeBackupErrCloudRestoreFailed: クラウドからの復元に失敗しました。再試行してください
 e2eeSocialShardSettings: シャード設定
 e2eeSocialShardStoredNote: 説明：シャードは代理デバイスに保存され、サーバーには一切保存されません
 e2eeSocialAddProxy: 代理者を追加

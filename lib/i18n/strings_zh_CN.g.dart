@@ -4838,6 +4838,39 @@ class Translations$common$zh_CN {
 	/// zh-CN: '备份记录已删除'
 	String get e2eeBackupDeleteSuccess => '备份记录已删除';
 
+	/// zh-CN: '备份到云端'
+	String get e2eeBackupCloudUploadBtn => '备份到云端';
+
+	/// zh-CN: '已备份到云端（版本 $version）'
+	String e2eeBackupCloudUploadSuccess({required Object version}) => '已备份到云端（版本 ${version}）';
+
+	/// zh-CN: '云端备份失败，请重试'
+	String get e2eeBackupErrCloudUploadFailed => '云端备份失败，请重试';
+
+	/// zh-CN: '从云端备份恢复'
+	String get e2eeBackupCloudRestoreTitle => '从云端备份恢复';
+
+	/// zh-CN: '检测到云端备份（版本 $version）'
+	String e2eeBackupCloudRestoreHint({required Object version}) => '检测到云端备份（版本 ${version}）';
+
+	/// zh-CN: '从云端恢复'
+	String get e2eeBackupCloudRestoreBtn => '从云端恢复';
+
+	/// zh-CN: '恢复后将覆盖本设备当前的 E2EE 密钥'
+	String get e2eeBackupCloudRestoreConfirmNote => '恢复后将覆盖本设备当前的 E2EE 密钥';
+
+	/// zh-CN: '请输入备份口令'
+	String get e2eeBackupCloudPwdHint => '请输入备份口令';
+
+	/// zh-CN: '云端暂无备份'
+	String get e2eeBackupErrNoCloudBackup => '云端暂无备份';
+
+	/// zh-CN: '口令错误或备份损坏'
+	String get e2eeBackupErrCloudPwd => '口令错误或备份损坏';
+
+	/// zh-CN: '云端恢复失败，请重试'
+	String get e2eeBackupErrCloudRestoreFailed => '云端恢复失败，请重试';
+
 	/// zh-CN: '分片设置'
 	String get e2eeSocialShardSettings => '分片设置';
 
@@ -8841,6 +8874,17 @@ extension on Translations {
 			'common.e2eeBackupDeleteTitle' => '删除备份记录',
 			'common.e2eeBackupDeleteConfirm' => '确定要删除此备份记录吗？',
 			'common.e2eeBackupDeleteSuccess' => '备份记录已删除',
+			'common.e2eeBackupCloudUploadBtn' => '备份到云端',
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已备份到云端（版本 ${version}）',
+			'common.e2eeBackupErrCloudUploadFailed' => '云端备份失败，请重试',
+			'common.e2eeBackupCloudRestoreTitle' => '从云端备份恢复',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '检测到云端备份（版本 ${version}）',
+			'common.e2eeBackupCloudRestoreBtn' => '从云端恢复',
+			'common.e2eeBackupCloudRestoreConfirmNote' => '恢复后将覆盖本设备当前的 E2EE 密钥',
+			'common.e2eeBackupCloudPwdHint' => '请输入备份口令',
+			'common.e2eeBackupErrNoCloudBackup' => '云端暂无备份',
+			'common.e2eeBackupErrCloudPwd' => '口令错误或备份损坏',
+			'common.e2eeBackupErrCloudRestoreFailed' => '云端恢复失败，请重试',
 			'common.e2eeSocialShardSettings' => '分片设置',
 			'common.e2eeSocialShardStoredNote' => '说明：分片将存储在代理设备上，服务端不保存任何分片',
 			'common.e2eeSocialAddProxy' => '添加代理',
@@ -9302,6 +9346,8 @@ extension on Translations {
 			'main.licenseAgreement' => '《软件许可及服务协议》',
 			'main.liveBroadcast' => '直播',
 			'main.liveRoomListView' => '直播间列表视图',
+			_ => null,
+		} ?? switch (path) {
 			'main.publisherPage' => '推流页面',
 			'main.subscriber' => '订阅者',
 			'main.loggingOut' => '正在退出登录...',
@@ -9313,8 +9359,6 @@ extension on Translations {
 			'main.markImportant' => '重要',
 			'main.markImportantDesc' => '标记为重要消息',
 			'main.markStar' => '收藏',
-			_ => null,
-		} ?? switch (path) {
 			'main.markStarDesc' => '收藏此消息',
 			'main.markTodo' => '待办',
 			'main.markTodoDesc' => '标记为待办事项',

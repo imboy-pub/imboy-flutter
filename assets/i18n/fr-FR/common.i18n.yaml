@@ -994,6 +994,17 @@ e2eeBackupNoteRow: Note
 e2eeBackupDeleteTitle: Supprimer la sauvegarde
 e2eeBackupDeleteConfirm: Supprimer cette sauvegarde ?
 e2eeBackupDeleteSuccess: Sauvegarde supprimée
+e2eeBackupCloudUploadBtn: Sauvegarder dans le cloud
+e2eeBackupCloudUploadSuccess(version): Sauvegardé dans le cloud (version $version)
+e2eeBackupErrCloudUploadFailed: Échec de la sauvegarde cloud, veuillez réessayer
+e2eeBackupCloudRestoreTitle: Restaurer depuis la sauvegarde cloud
+e2eeBackupCloudRestoreHint(version): Sauvegarde cloud détectée (version $version)
+e2eeBackupCloudRestoreBtn: Restaurer depuis le cloud
+e2eeBackupCloudRestoreConfirmNote: La restauration remplacera les clés E2EE actuelles de cet appareil
+e2eeBackupCloudPwdHint: Saisissez la phrase secrète de sauvegarde
+e2eeBackupErrNoCloudBackup: Aucune sauvegarde cloud
+e2eeBackupErrCloudPwd: Phrase secrète incorrecte ou sauvegarde corrompue
+e2eeBackupErrCloudRestoreFailed: Échec de la restauration cloud, veuillez réessayer
 e2eeSocialShardSettings: Paramètres des fragments
 e2eeSocialShardStoredNote: Les fragments sont stockés chez les dépositaires, le serveur n'en conserve aucun
 e2eeSocialAddProxy: Ajouter un dépositaire

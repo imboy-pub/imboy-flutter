@@ -65,6 +65,38 @@ class E2EELocalBackupService {
     required String keyId,
     String? userNotes,
   }) async {
+    final backupFile = await packBackupBytes(
+      password: password,
+      privateKey: privateKey,
+      publicKey: publicKey,
+      deviceId: deviceId,
+      keyId: keyId,
+      userNotes: userNotes,
+    );
+
+    // 保存到临时目录
+    final tempDir = await getTemporaryDirectory();
+    final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
+    final fileName = 'imboy_e2ee_backup_$timestamp.enc';
+    final filePath = '${tempDir.path}/$fileName';
+    final file = File(filePath);
+    await file.writeAsBytes(backupFile);
+
+    return filePath;
+  }
+
+  /// 打包加密备份为字节（不落盘）
+  ///
+  /// 本地文件备份与服务端云备份（E2EEServerBackupService）共用的
+  /// 加密核与二进制格式：[头 32] + [salt 16] + [iv 12] + [authTag 16] + [密文]。
+  static Future<Uint8List> packBackupBytes({
+    required String password,
+    required String privateKey,
+    required String publicKey,
+    required String deviceId,
+    required String keyId,
+    String? userNotes,
+  }) async {
     // 1. 验证密码强度
     _validatePassword(password);
 
@@ -103,24 +135,14 @@ class E2EELocalBackupService {
       iv,
     );
 
-    // 7. 构建备份文件
-    final backupFile = await _buildBackupFile(
+    // 7. 构建备份文件字节
+    return _buildBackupFile(
       salt: salt,
       iv: iv,
       authTag: encryptedResult['authTag']!,
       ciphertext: encryptedResult['ciphertext']!,
       userNotes: userNotes,
     );
-
-    // 8. 保存到临时目录
-    final tempDir = await getTemporaryDirectory();
-    final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-    final fileName = 'imboy_e2ee_backup_$timestamp.enc';
-    final filePath = '${tempDir.path}/$fileName';
-    final file = File(filePath);
-    await file.writeAsBytes(backupFile);
-
-    return filePath;
   }
 
   // ================================================================
@@ -202,6 +224,17 @@ class E2EELocalBackupService {
     }
 
     final fileBytes = await file.readAsBytes();
+    return unpackBackupBytes(bytes: fileBytes, password: password);
+  }
+
+  /// 解包加密备份字节（importBackup 与云备份恢复共用）
+  ///
+  /// @throws ArgumentError 密码错误（GCM 认证失败）/ 格式无效 / 校验和不匹配
+  static Future<Map<String, dynamic>> unpackBackupBytes({
+    required Uint8List bytes,
+    required String password,
+  }) async {
+    final fileBytes = bytes;
 
     // 2. 解析文件头
     final header = _parseFileHeader(fileBytes);

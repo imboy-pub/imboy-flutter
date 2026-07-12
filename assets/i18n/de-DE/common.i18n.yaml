@@ -994,6 +994,17 @@ e2eeBackupNoteRow: Notiz
 e2eeBackupDeleteTitle: Backup löschen
 e2eeBackupDeleteConfirm: Dieses Backup wirklich löschen?
 e2eeBackupDeleteSuccess: Backup gelöscht
+e2eeBackupCloudUploadBtn: In die Cloud sichern
+e2eeBackupCloudUploadSuccess(version): In der Cloud gesichert (Version $version)
+e2eeBackupErrCloudUploadFailed: Cloud-Backup fehlgeschlagen, bitte erneut versuchen
+e2eeBackupCloudRestoreTitle: Aus Cloud-Backup wiederherstellen
+e2eeBackupCloudRestoreHint(version): Cloud-Backup erkannt (Version $version)
+e2eeBackupCloudRestoreBtn: Aus der Cloud wiederherstellen
+e2eeBackupCloudRestoreConfirmNote: Die Wiederherstellung überschreibt die aktuellen E2EE-Schlüssel auf diesem Gerät
+e2eeBackupCloudPwdHint: Backup-Passphrase eingeben
+e2eeBackupErrNoCloudBackup: Kein Cloud-Backup vorhanden
+e2eeBackupErrCloudPwd: Falsche Passphrase oder beschädigtes Backup
+e2eeBackupErrCloudRestoreFailed: Cloud-Wiederherstellung fehlgeschlagen, bitte erneut versuchen
 e2eeSocialShardSettings: Fragment-Einstellungen
 e2eeSocialShardStoredNote: Fragmente werden bei Treuhändern gespeichert, Server speichert nichts
 e2eeSocialAddProxy: Treuhänder hinzufügen

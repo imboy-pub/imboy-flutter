@@ -1004,6 +1004,17 @@ e2eeBackupNoteRow: 备注
 e2eeBackupDeleteTitle: 删除备份记录
 e2eeBackupDeleteConfirm: 确定要删除此备份记录吗？
 e2eeBackupDeleteSuccess: 备份记录已删除
+e2eeBackupCloudUploadBtn: 备份到云端
+e2eeBackupCloudUploadSuccess(version): 已备份到云端（版本 $version）
+e2eeBackupErrCloudUploadFailed: 云端备份失败，请重试
+e2eeBackupCloudRestoreTitle: 从云端备份恢复
+e2eeBackupCloudRestoreHint(version): 检测到云端备份（版本 $version）
+e2eeBackupCloudRestoreBtn: 从云端恢复
+e2eeBackupCloudRestoreConfirmNote: 恢复后将覆盖本设备当前的 E2EE 密钥
+e2eeBackupCloudPwdHint: 请输入备份口令
+e2eeBackupErrNoCloudBackup: 云端暂无备份
+e2eeBackupErrCloudPwd: 口令错误或备份损坏
+e2eeBackupErrCloudRestoreFailed: 云端恢复失败，请重试
 e2eeSocialShardSettings: 分片设置
 e2eeSocialShardStoredNote: 说明：分片将存储在代理设备上，服务端不保存任何分片
 e2eeSocialAddProxy: 添加代理

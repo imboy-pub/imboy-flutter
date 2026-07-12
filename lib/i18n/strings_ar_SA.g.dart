@@ -1604,6 +1604,17 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeBackupDeleteTitle => 'حذف سجل النسخة';
 	@override String get e2eeBackupDeleteConfirm => 'حذف سجل النسخة هذا؟';
 	@override String get e2eeBackupDeleteSuccess => 'تم حذف السجل';
+	@override String get e2eeBackupCloudUploadBtn => 'النسخ الاحتياطي إلى السحابة';
+	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})';
+	@override String get e2eeBackupErrCloudUploadFailed => 'فشل النسخ السحابي، يرجى المحاولة مرة أخرى';
+	@override String get e2eeBackupCloudRestoreTitle => 'الاستعادة من النسخة السحابية';
+	@override String e2eeBackupCloudRestoreHint({required Object version}) => 'تم العثور على نسخة سحابية (الإصدار ${version})';
+	@override String get e2eeBackupCloudRestoreBtn => 'الاستعادة من السحابة';
+	@override String get e2eeBackupCloudRestoreConfirmNote => 'ستؤدي الاستعادة إلى استبدال مفاتيح E2EE الحالية على هذا الجهاز';
+	@override String get e2eeBackupCloudPwdHint => 'أدخل عبارة مرور النسخة الاحتياطية';
+	@override String get e2eeBackupErrNoCloudBackup => 'لا توجد نسخة سحابية';
+	@override String get e2eeBackupErrCloudPwd => 'عبارة المرور خاطئة أو النسخة تالفة';
+	@override String get e2eeBackupErrCloudRestoreFailed => 'فشلت الاستعادة من السحابة، يرجى المحاولة مرة أخرى';
 	@override String get e2eeSocialShardSettings => 'إعدادات الشظايا';
 	@override String get e2eeSocialShardStoredNote => 'تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية';
 	@override String get e2eeSocialAddProxy => 'إضافة وكيل';
@@ -3981,6 +3992,17 @@ extension on TranslationsArSa {
 			'common.e2eeBackupDeleteTitle' => 'حذف سجل النسخة',
 			'common.e2eeBackupDeleteConfirm' => 'حذف سجل النسخة هذا؟',
 			'common.e2eeBackupDeleteSuccess' => 'تم حذف السجل',
+			'common.e2eeBackupCloudUploadBtn' => 'النسخ الاحتياطي إلى السحابة',
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})',
+			'common.e2eeBackupErrCloudUploadFailed' => 'فشل النسخ السحابي، يرجى المحاولة مرة أخرى',
+			'common.e2eeBackupCloudRestoreTitle' => 'الاستعادة من النسخة السحابية',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'تم العثور على نسخة سحابية (الإصدار ${version})',
+			'common.e2eeBackupCloudRestoreBtn' => 'الاستعادة من السحابة',
+			'common.e2eeBackupCloudRestoreConfirmNote' => 'ستؤدي الاستعادة إلى استبدال مفاتيح E2EE الحالية على هذا الجهاز',
+			'common.e2eeBackupCloudPwdHint' => 'أدخل عبارة مرور النسخة الاحتياطية',
+			'common.e2eeBackupErrNoCloudBackup' => 'لا توجد نسخة سحابية',
+			'common.e2eeBackupErrCloudPwd' => 'عبارة المرور خاطئة أو النسخة تالفة',
+			'common.e2eeBackupErrCloudRestoreFailed' => 'فشلت الاستعادة من السحابة، يرجى المحاولة مرة أخرى',
 			'common.e2eeSocialShardSettings' => 'إعدادات الشظايا',
 			'common.e2eeSocialShardStoredNote' => 'تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية',
 			'common.e2eeSocialAddProxy' => 'إضافة وكيل',
@@ -4000,6 +4022,8 @@ extension on TranslationsArSa {
 			'common.e2eeTransferErrCreateFailed' => 'تعذّر إنشاء جلسة النقل، أعد المحاولة',
 			'common.e2eeTransferCreateSessionBtn' => 'إنشاء جلسة نقل',
 			'common.e2eeTransferSessionCreated' => 'تم إنشاء جلسة النقل',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => 'أدخل معرّف مستخدم صالحاً',
 			'common.e2eeTransferSuccess' => 'تم النقل!',
 			'common.e2eeTransferFailed' => 'تعذّر النقل، أعد المحاولة',
@@ -4011,8 +4035,6 @@ extension on TranslationsArSa {
 			'common.passwordEncryptFailed' => 'تعذّر تشفير كلمة المرور',
 			'common.initConfigTimeout' => 'انتهت مهلة تحميل الإعدادات: تحقق من الشبكة أو حالة الخادم',
 			'common.initConfigNetworkError' => ({required Object code}) => 'عطل شبكة أو عطل خادم (HTTP ${code})',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigProtocolError' => 'خطأ في بروتوكول استجابة الخادم',
 			'common.initConfigFetchFailed' => 'تعذّر تحميل الإعدادات، تحقق من الشبكة',
 			'common.attachmentGetFileFailed' => 'تعذّر الحصول على الملف، أعد المحاولة أو اختر من المعرض',
@@ -4514,6 +4536,8 @@ extension on TranslationsArSa {
 			'main.pleaseTryAgain' => 'يرجى المحاولة مرة أخرى',
 			'main.secret' => 'سري',
 			'main.takePhoto' => 'التقاط صورة',
+			_ => null,
+		} ?? switch (path) {
 			'main.publishing' => 'جارٍ النشر...',
 			'main.deletingInProgressPleaseWait' => 'جارٍ الحذف، يرجى الانتظار...',
 			'main.testUser1' => 'مستخدم1',
@@ -4525,8 +4549,6 @@ extension on TranslationsArSa {
 			'main.user' => 'مستخدم',
 			'main.recommended' => 'مُوصى به',
 			'main.larger' => 'أكبر',
-			_ => null,
-		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'الطول الحالي: ${param1} / ${param2}',
 			'main.fillIn' => 'ملء',
 			'main.msgProtectedByComplianceKey' => 'الرسائل محمية بمفتاح الامتثال',

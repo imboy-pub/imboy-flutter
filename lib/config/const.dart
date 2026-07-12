@@ -243,6 +243,12 @@ class API {
   // 合规密钥（三层加密架构）
   static const e2eeComplianceKey = '/api/v1/e2ee/compliance_key';
 
+  // E2EE 服务端加密密钥备份（4S 模式，P0-B B3）
+  static const e2eeBackupPut = '/api/v1/e2ee/backup/put';
+  static const e2eeBackupGet = '/api/v1/e2ee/backup/get';
+  static const e2eeBackupInfo = '/api/v1/e2ee/backup/info';
+  static const e2eeBackupDelete = '/api/v1/e2ee/backup/delete';
+
   // E2EE+ 社交恢复
   static const e2eeSocialContacts = '/api/v1/e2ee/social/contacts';
   static const e2eeSocialContactsAdd = '/api/v1/e2ee/social/contacts/add';

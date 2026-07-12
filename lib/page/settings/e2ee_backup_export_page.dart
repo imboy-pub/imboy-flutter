@@ -6,6 +6,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
+import 'package:imboy/service/e2ee_server_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 
 /// E2EE 备份导出页面
@@ -28,6 +29,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   final _confirmPasswordController = TextEditingController();
   final _notesController = TextEditingController();
   bool _isExporting = false;
+  bool _isCloudUploading = false;
   String? _generatedFilePath;
 
   @override
@@ -57,6 +59,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             _buildPasswordStrengthIndicator(),
             const SizedBox(height: AppSpacing.xLarge),
             _buildExportButton(),
+            const SizedBox(height: AppSpacing.regular),
+            _buildCloudUploadButton(),
             if (_generatedFilePath != null) ...[
               const SizedBox(height: AppSpacing.regular),
               _buildShareButton(),
@@ -222,6 +226,29 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     );
   }
 
+  Widget _buildCloudUploadButton() {
+    final isEnabled =
+        _passwordController.text.isNotEmpty &&
+        _confirmPasswordController.text.isNotEmpty &&
+        !_isExporting &&
+        !_isCloudUploading;
+
+    return OutlinedButton.icon(
+      onPressed: isEnabled ? _handleCloudUpload : null,
+      icon: _isCloudUploading
+          ? const SizedBox(
+              height: AppSpacing.large,
+              width: AppSpacing.large,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(CupertinoIcons.cloud_upload),
+      label: Text(t.common.e2eeBackupCloudUploadBtn),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(double.infinity, 48),
+      ),
+    );
+  }
+
   Widget _buildShareButton() {
     return Card(
       color: AppColors.iosGreen.withValues(alpha: 0.1),
@@ -283,35 +310,90 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     try {
       setState(() => _isExporting = true);
 
-      final privateKey = await StorageSecureService.to.getPrivateKey();
-      final publicKey = await StorageSecureService.to.getPublicKey();
-      final deviceId = await StorageSecureService.to.getDeviceId();
-      final keyId = await StorageSecureService.to.getKeyId();
-
-      if (privateKey == null || publicKey == null) {
-        _showError(t.common.e2eeBackupErrNoKeyData);
+      final keys = await _readKeys();
+      if (keys == null) {
+        if (mounted) _showError(t.common.e2eeBackupErrNoKeyData);
         return;
       }
 
       final filePath = await E2EELocalBackupService.exportBackup(
         password: password,
-        privateKey: privateKey,
-        publicKey: publicKey,
-        deviceId: deviceId ?? 'unknown',
-        keyId: keyId ?? 'unknown',
+        privateKey: keys.privateKey,
+        publicKey: keys.publicKey,
+        deviceId: keys.deviceId,
+        keyId: keys.keyId,
         userNotes: _notesController.text,
       );
 
-      setState(() {
-        _generatedFilePath = filePath;
-        _isExporting = false;
-      });
-
+      if (!mounted) return;
+      setState(() => _generatedFilePath = filePath);
       _showSuccessDialog();
     } on Exception {
-      setState(() => _isExporting = false);
-      _showError(t.common.e2eeBackupErrExportFailed);
+      if (mounted) _showError(t.common.e2eeBackupErrExportFailed);
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
     }
+  }
+
+  /// 备份到云端：复用同一密码输入与密钥读取，服务内部已对
+  /// 版本冲突自动重试一次，此处失败即提示。
+  Future<void> _handleCloudUpload() async {
+    final password = _passwordController.text;
+
+    if (password != _confirmPasswordController.text) {
+      _showError(t.common.e2eeBackupErrPwdMismatch);
+      return;
+    }
+
+    try {
+      setState(() => _isCloudUploading = true);
+
+      final keys = await _readKeys();
+      if (keys == null) {
+        if (mounted) _showError(t.common.e2eeBackupErrNoKeyData);
+        return;
+      }
+
+      final result = await E2EEServerBackupService.upload(
+        password: password,
+        privateKey: keys.privateKey,
+        publicKey: keys.publicKey,
+        deviceId: keys.deviceId,
+        keyId: keys.keyId,
+      );
+
+      if (!mounted) return;
+      if (result.ok) {
+        _showSuccess(
+          t.common.e2eeBackupCloudUploadSuccess(version: result.backupVersion),
+        );
+      } else {
+        _showError(t.common.e2eeBackupErrCloudUploadFailed);
+      }
+    } on Exception {
+      if (mounted) _showError(t.common.e2eeBackupErrCloudUploadFailed);
+    } finally {
+      if (mounted) setState(() => _isCloudUploading = false);
+    }
+  }
+
+  /// 从安全存储读取密钥四元组；私钥/公钥缺失返回 null
+  Future<
+    ({String privateKey, String publicKey, String deviceId, String keyId})?
+  >
+  _readKeys() async {
+    final privateKey = await StorageSecureService.to.getPrivateKey();
+    final publicKey = await StorageSecureService.to.getPublicKey();
+    final deviceId = await StorageSecureService.to.getDeviceId();
+    final keyId = await StorageSecureService.to.getKeyId();
+
+    if (privateKey == null || publicKey == null) return null;
+    return (
+      privateKey: privateKey,
+      publicKey: publicKey,
+      deviceId: deviceId ?? 'unknown',
+      keyId: keyId ?? 'unknown',
+    );
   }
 
   Future<void> _handleShare() async {
@@ -356,6 +438,16 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             child: Text(t.main.gotIt),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.getIosGreen(Theme.of(context).brightness),
+        duration: const Duration(seconds: 3),
       ),
     );
   }

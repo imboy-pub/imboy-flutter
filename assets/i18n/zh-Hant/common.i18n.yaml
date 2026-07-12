@@ -993,6 +993,17 @@ e2eeBackupNoteRow: 備註
 e2eeBackupDeleteTitle: 刪除備份記錄
 e2eeBackupDeleteConfirm: 確定要刪除此備份記錄嗎？
 e2eeBackupDeleteSuccess: 備份記錄已刪除
+e2eeBackupCloudUploadBtn: 備份到雲端
+e2eeBackupCloudUploadSuccess(version): 已備份到雲端（版本 $version）
+e2eeBackupErrCloudUploadFailed: 雲端備份失敗，請重試
+e2eeBackupCloudRestoreTitle: 從雲端備份恢復
+e2eeBackupCloudRestoreHint(version): 偵測到雲端備份（版本 $version）
+e2eeBackupCloudRestoreBtn: 從雲端恢復
+e2eeBackupCloudRestoreConfirmNote: 恢復後將覆蓋本裝置目前的 E2EE 金鑰
+e2eeBackupCloudPwdHint: 請輸入備份口令
+e2eeBackupErrNoCloudBackup: 雲端暫無備份
+e2eeBackupErrCloudPwd: 口令錯誤或備份損壞
+e2eeBackupErrCloudRestoreFailed: 雲端恢復失敗，請重試
 e2eeSocialShardSettings: 分片設定
 e2eeSocialShardStoredNote: 說明：分片將儲存在代理裝置上，服務端不儲存任何分片
 e2eeSocialAddProxy: 新增代理

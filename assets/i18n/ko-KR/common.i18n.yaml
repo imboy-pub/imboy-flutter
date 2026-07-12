@@ -994,6 +994,17 @@ e2eeBackupNoteRow: 메모
 e2eeBackupDeleteTitle: 백업 기록 삭제
 e2eeBackupDeleteConfirm: 이 백업 기록을 삭제하시겠습니까?
 e2eeBackupDeleteSuccess: 백업 기록이 삭제되었습니다
+e2eeBackupCloudUploadBtn: 클라우드에 백업
+e2eeBackupCloudUploadSuccess(version): 클라우드에 백업했습니다 (버전 $version)
+e2eeBackupErrCloudUploadFailed: 클라우드 백업 실패, 다시 시도하세요
+e2eeBackupCloudRestoreTitle: 클라우드 백업에서 복원
+e2eeBackupCloudRestoreHint(version): 클라우드 백업 감지됨 (버전 $version)
+e2eeBackupCloudRestoreBtn: 클라우드에서 복원
+e2eeBackupCloudRestoreConfirmNote: 복원하면 이 기기의 현재 E2EE 키를 덮어씁니다
+e2eeBackupCloudPwdHint: 백업 암호를 입력하세요
+e2eeBackupErrNoCloudBackup: 클라우드 백업이 없습니다
+e2eeBackupErrCloudPwd: 암호가 틀렸거나 백업이 손상되었습니다
+e2eeBackupErrCloudRestoreFailed: 클라우드 복원 실패, 다시 시도하세요
 e2eeSocialShardSettings: 샤드 설정
 e2eeSocialShardStoredNote: '안내: 샤드는 대리자 기기에 저장되며 서버에는 어떤 샤드도 저장되지 않습니다'
 e2eeSocialAddProxy: 대리자 추가

@@ -1604,6 +1604,17 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeBackupDeleteTitle => 'Удалить запись о копии';
 	@override String get e2eeBackupDeleteConfirm => 'Удалить эту запись о копии?';
 	@override String get e2eeBackupDeleteSuccess => 'Запись удалена';
+	@override String get e2eeBackupCloudUploadBtn => 'Сохранить в облако';
+	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Сохранено в облаке (версия ${version})';
+	@override String get e2eeBackupErrCloudUploadFailed => 'Не удалось создать облачную копию, повторите попытку';
+	@override String get e2eeBackupCloudRestoreTitle => 'Восстановить из облачной копии';
+	@override String e2eeBackupCloudRestoreHint({required Object version}) => 'Обнаружена облачная копия (версия ${version})';
+	@override String get e2eeBackupCloudRestoreBtn => 'Восстановить из облака';
+	@override String get e2eeBackupCloudRestoreConfirmNote => 'Восстановление заменит текущие ключи E2EE на этом устройстве';
+	@override String get e2eeBackupCloudPwdHint => 'Введите парольную фразу резервной копии';
+	@override String get e2eeBackupErrNoCloudBackup => 'Облачная копия отсутствует';
+	@override String get e2eeBackupErrCloudPwd => 'Неверная парольная фраза или копия повреждена';
+	@override String get e2eeBackupErrCloudRestoreFailed => 'Не удалось восстановить из облака, повторите попытку';
 	@override String get e2eeSocialShardSettings => 'Настройки фрагментов';
 	@override String get e2eeSocialShardStoredNote => 'Фрагменты хранятся на устройствах посредников, сервер не хранит ни одного';
 	@override String get e2eeSocialAddProxy => 'Добавить посредника';
@@ -3981,6 +3992,17 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupDeleteTitle' => 'Удалить запись о копии',
 			'common.e2eeBackupDeleteConfirm' => 'Удалить эту запись о копии?',
 			'common.e2eeBackupDeleteSuccess' => 'Запись удалена',
+			'common.e2eeBackupCloudUploadBtn' => 'Сохранить в облако',
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Сохранено в облаке (версия ${version})',
+			'common.e2eeBackupErrCloudUploadFailed' => 'Не удалось создать облачную копию, повторите попытку',
+			'common.e2eeBackupCloudRestoreTitle' => 'Восстановить из облачной копии',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Обнаружена облачная копия (версия ${version})',
+			'common.e2eeBackupCloudRestoreBtn' => 'Восстановить из облака',
+			'common.e2eeBackupCloudRestoreConfirmNote' => 'Восстановление заменит текущие ключи E2EE на этом устройстве',
+			'common.e2eeBackupCloudPwdHint' => 'Введите парольную фразу резервной копии',
+			'common.e2eeBackupErrNoCloudBackup' => 'Облачная копия отсутствует',
+			'common.e2eeBackupErrCloudPwd' => 'Неверная парольная фраза или копия повреждена',
+			'common.e2eeBackupErrCloudRestoreFailed' => 'Не удалось восстановить из облака, повторите попытку',
 			'common.e2eeSocialShardSettings' => 'Настройки фрагментов',
 			'common.e2eeSocialShardStoredNote' => 'Фрагменты хранятся на устройствах посредников, сервер не хранит ни одного',
 			'common.e2eeSocialAddProxy' => 'Добавить посредника',
@@ -4000,6 +4022,8 @@ extension on TranslationsRuRu {
 			'common.e2eeTransferErrCreateFailed' => 'Не удалось создать сеанс передачи, попробуйте ещё раз',
 			'common.e2eeTransferCreateSessionBtn' => 'Создать сеанс передачи',
 			'common.e2eeTransferSessionCreated' => 'Сеанс передачи создан',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => 'Введите корректный ID пользователя',
 			'common.e2eeTransferSuccess' => 'Передача завершена!',
 			'common.e2eeTransferFailed' => 'Не удалось передать, попробуйте ещё раз',
@@ -4011,8 +4035,6 @@ extension on TranslationsRuRu {
 			'common.passwordEncryptFailed' => 'Не удалось зашифровать пароль',
 			'common.initConfigTimeout' => 'Тайм-аут загрузки настроек: проверьте сеть или состояние сервера',
 			'common.initConfigNetworkError' => ({required Object code}) => 'Сетевой сбой или сбой сервера (HTTP ${code})',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigProtocolError' => 'Ошибка протокола ответа сервера',
 			'common.initConfigFetchFailed' => 'Не удалось загрузить настройки, проверьте сеть',
 			'common.attachmentGetFileFailed' => 'Не удалось получить файл, попробуйте ещё раз или выберите из галереи',
@@ -4514,6 +4536,8 @@ extension on TranslationsRuRu {
 			'main.pleaseTryAgain' => 'Пожалуйста, попробуйте снова',
 			'main.secret' => 'Конфиденциально',
 			'main.takePhoto' => 'Сделать фото',
+			_ => null,
+		} ?? switch (path) {
 			'main.publishing' => 'Публикация...',
 			'main.deletingInProgressPleaseWait' => 'Удаление в процессе, пожалуйста, подождите...',
 			'main.testUser1' => 'Пользователь1',
@@ -4525,8 +4549,6 @@ extension on TranslationsRuRu {
 			'main.user' => 'Пользователь',
 			'main.recommended' => 'Рекомендуется',
 			'main.larger' => 'Больше',
-			_ => null,
-		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Текущая длина: ${param1} / ${param2}',
 			'main.fillIn' => 'Заполнить',
 			'main.msgProtectedByComplianceKey' => 'Сообщения защищены ключом соответствия',

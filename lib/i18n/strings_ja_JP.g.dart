@@ -1604,6 +1604,17 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeBackupDeleteTitle => 'バックアップ履歴を削除';
 	@override String get e2eeBackupDeleteConfirm => 'このバックアップ履歴を削除しますか？';
 	@override String get e2eeBackupDeleteSuccess => 'バックアップ履歴を削除しました';
+	@override String get e2eeBackupCloudUploadBtn => 'クラウドにバックアップ';
+	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）';
+	@override String get e2eeBackupErrCloudUploadFailed => 'クラウドバックアップに失敗しました。再試行してください';
+	@override String get e2eeBackupCloudRestoreTitle => 'クラウドバックアップから復元';
+	@override String e2eeBackupCloudRestoreHint({required Object version}) => 'クラウドバックアップを検出しました（バージョン ${version}）';
+	@override String get e2eeBackupCloudRestoreBtn => 'クラウドから復元';
+	@override String get e2eeBackupCloudRestoreConfirmNote => '復元すると、この端末の現在の E2EE 鍵が上書きされます';
+	@override String get e2eeBackupCloudPwdHint => 'バックアップのパスフレーズを入力してください';
+	@override String get e2eeBackupErrNoCloudBackup => 'クラウドバックアップがありません';
+	@override String get e2eeBackupErrCloudPwd => 'パスフレーズが間違っているか、バックアップが破損しています';
+	@override String get e2eeBackupErrCloudRestoreFailed => 'クラウドからの復元に失敗しました。再試行してください';
 	@override String get e2eeSocialShardSettings => 'シャード設定';
 	@override String get e2eeSocialShardStoredNote => '説明：シャードは代理デバイスに保存され、サーバーには一切保存されません';
 	@override String get e2eeSocialAddProxy => '代理者を追加';
@@ -3981,6 +3992,17 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupDeleteTitle' => 'バックアップ履歴を削除',
 			'common.e2eeBackupDeleteConfirm' => 'このバックアップ履歴を削除しますか？',
 			'common.e2eeBackupDeleteSuccess' => 'バックアップ履歴を削除しました',
+			'common.e2eeBackupCloudUploadBtn' => 'クラウドにバックアップ',
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）',
+			'common.e2eeBackupErrCloudUploadFailed' => 'クラウドバックアップに失敗しました。再試行してください',
+			'common.e2eeBackupCloudRestoreTitle' => 'クラウドバックアップから復元',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'クラウドバックアップを検出しました（バージョン ${version}）',
+			'common.e2eeBackupCloudRestoreBtn' => 'クラウドから復元',
+			'common.e2eeBackupCloudRestoreConfirmNote' => '復元すると、この端末の現在の E2EE 鍵が上書きされます',
+			'common.e2eeBackupCloudPwdHint' => 'バックアップのパスフレーズを入力してください',
+			'common.e2eeBackupErrNoCloudBackup' => 'クラウドバックアップがありません',
+			'common.e2eeBackupErrCloudPwd' => 'パスフレーズが間違っているか、バックアップが破損しています',
+			'common.e2eeBackupErrCloudRestoreFailed' => 'クラウドからの復元に失敗しました。再試行してください',
 			'common.e2eeSocialShardSettings' => 'シャード設定',
 			'common.e2eeSocialShardStoredNote' => '説明：シャードは代理デバイスに保存され、サーバーには一切保存されません',
 			'common.e2eeSocialAddProxy' => '代理者を追加',
@@ -4000,6 +4022,8 @@ extension on TranslationsJaJp {
 			'common.e2eeTransferErrCreateFailed' => '転送セッションの作成に失敗しました。もう一度お試しください',
 			'common.e2eeTransferCreateSessionBtn' => '転送セッションを作成',
 			'common.e2eeTransferSessionCreated' => '転送セッションを作成しました',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => '有効なユーザーIDを入力してください',
 			'common.e2eeTransferSuccess' => '転送に成功しました！',
 			'common.e2eeTransferFailed' => '転送に失敗しました。もう一度お試しください',
@@ -4011,8 +4035,6 @@ extension on TranslationsJaJp {
 			'common.passwordEncryptFailed' => 'パスワードの暗号化に失敗しました',
 			'common.initConfigTimeout' => '設定の取得がタイムアウトしました：ネットワーク接続またはサーバーの状態を確認してください',
 			'common.initConfigNetworkError' => ({required Object code}) => 'ネットワークまたはサーバーの障害です (HTTP ${code})',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigProtocolError' => 'サーバープロトコルに誤りがあります',
 			'common.initConfigFetchFailed' => '設定の取得に失敗しました。ネットワーク接続を確認してください',
 			'common.attachmentGetFileFailed' => 'ファイルを取得できません。もう一度お試しいただくか、アルバムから選択してください',
@@ -4514,6 +4536,8 @@ extension on TranslationsJaJp {
 			'main.pleaseTryAgain' => 'もう一度お試しください',
 			'main.secret' => '秘密',
 			'main.takePhoto' => '写真を撮る',
+			_ => null,
+		} ?? switch (path) {
 			'main.publishing' => '公開中...',
 			'main.deletingInProgressPleaseWait' => '削除中です。お待ちください...',
 			'main.testUser1' => 'ユーザー1',
@@ -4525,8 +4549,6 @@ extension on TranslationsJaJp {
 			'main.user' => 'ユーザー',
 			'main.recommended' => '推奨',
 			'main.larger' => 'より大きい',
-			_ => null,
-		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => '現在の長さ：${param1} / ${param2}',
 			'main.fillIn' => '入力',
 			'main.msgProtectedByComplianceKey' => 'メッセージはコンプライアンスキーで保護されています',

@@ -994,6 +994,17 @@ e2eeBackupNoteRow: ملاحظة
 e2eeBackupDeleteTitle: حذف سجل النسخة
 e2eeBackupDeleteConfirm: حذف سجل النسخة هذا؟
 e2eeBackupDeleteSuccess: تم حذف السجل
+e2eeBackupCloudUploadBtn: النسخ الاحتياطي إلى السحابة
+e2eeBackupCloudUploadSuccess(version): تم النسخ إلى السحابة (الإصدار $version)
+e2eeBackupErrCloudUploadFailed: فشل النسخ السحابي، يرجى المحاولة مرة أخرى
+e2eeBackupCloudRestoreTitle: الاستعادة من النسخة السحابية
+e2eeBackupCloudRestoreHint(version): تم العثور على نسخة سحابية (الإصدار $version)
+e2eeBackupCloudRestoreBtn: الاستعادة من السحابة
+e2eeBackupCloudRestoreConfirmNote: ستؤدي الاستعادة إلى استبدال مفاتيح E2EE الحالية على هذا الجهاز
+e2eeBackupCloudPwdHint: أدخل عبارة مرور النسخة الاحتياطية
+e2eeBackupErrNoCloudBackup: لا توجد نسخة سحابية
+e2eeBackupErrCloudPwd: عبارة المرور خاطئة أو النسخة تالفة
+e2eeBackupErrCloudRestoreFailed: فشلت الاستعادة من السحابة، يرجى المحاولة مرة أخرى
 e2eeSocialShardSettings: إعدادات الشظايا
 e2eeSocialShardStoredNote: تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية
 e2eeSocialAddProxy: إضافة وكيل

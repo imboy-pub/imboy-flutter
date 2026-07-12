@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -6,7 +7,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
+import 'package:imboy/service/e2ee_server_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/store/api/e2ee_backup_api.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -31,13 +34,17 @@ class E2EEBackupImportPage extends StatefulWidget {
 
 class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   final _passwordController = TextEditingController();
+  final _cloudPasswordController = TextEditingController();
   bool _isImporting = false;
+  bool _isCloudRestoring = false;
   File? _selectedFile;
   Map<String, dynamic>? _backupInfo;
+  E2EEBackupInfo? _cloudInfo;
 
   @override
   void initState() {
     super.initState();
+    unawaited(_probeCloudBackup());
     if (widget.initialFilePath != null) {
       _selectedFile = File(widget.initialFilePath!);
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -51,6 +58,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   @override
   void dispose() {
     _passwordController.dispose();
+    _cloudPasswordController.dispose();
     super.dispose();
   }
 
@@ -63,6 +71,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         child: Column(
           children: [
             _buildWarningCard(),
+            if (_cloudInfo?.hasBackup == true) ...[
+              const SizedBox(height: AppSpacing.regular),
+              _buildCloudRestoreCard(),
+            ],
             const SizedBox(height: AppSpacing.xLarge),
             _buildFileSelector(),
             if (_backupInfo != null) ...[
@@ -114,6 +126,62 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               style: context.textStyle(
                 FontSizeType.footnote,
                 color: AppColors.iosOrange,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCloudRestoreCard() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.regular),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  CupertinoIcons.cloud_download,
+                  color: AppColors.iosBlue,
+                ),
+                AppSpacing.horizontalSmall,
+                Expanded(
+                  child: Text(
+                    t.common.e2eeBackupCloudRestoreTitle,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.iosBlue,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            AppSpacing.verticalSmall,
+            Text(
+              t.common.e2eeBackupCloudRestoreHint(
+                version: _cloudInfo?.backupVersion ?? 0,
+              ),
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            AppSpacing.verticalMedium,
+            OutlinedButton.icon(
+              onPressed: _isCloudRestoring ? null : _promptCloudRestore,
+              icon: _isCloudRestoring
+                  ? const SizedBox(
+                      height: AppSpacing.large,
+                      width: AppSpacing.large,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(CupertinoIcons.cloud_download),
+              label: Text(t.common.e2eeBackupCloudRestoreBtn),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
               ),
             ),
           ],
@@ -349,22 +417,96 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         password: password,
       );
 
-      await StorageSecureService.to.savePrivateKey(
-        result['private_key'] as String,
-      );
-      await StorageSecureService.to.savePublicKey(
-        result['public_key'] as String,
-      );
-      await StorageSecureService.to.setDeviceId(result['device_id'] as String);
-      await StorageSecureService.to.setKeyId(result['key_id'] as String);
-
-      setState(() => _isImporting = false);
-
-      _showSuccessDialog(result);
+      await _applyRestoredKeys(result);
     } on Exception {
-      setState(() => _isImporting = false);
-      _showError(t.common.e2eeBackupErrImportFailed);
+      if (mounted) _showError(t.common.e2eeBackupErrImportFailed);
+    } finally {
+      if (mounted) setState(() => _isImporting = false);
     }
+  }
+
+  /// 云端备份存在性探测（决定是否显示"从云端恢复"入口）
+  Future<void> _probeCloudBackup() async {
+    try {
+      final info = await E2EEBackupApi().info();
+      if (!mounted) return;
+      setState(() => _cloudInfo = info);
+    } on Exception {
+      // 探测失败按无云端备份处理，不打扰用户
+    }
+  }
+
+  /// 弹出口令输入确认框（恢复会覆盖本地密钥，需显式确认）
+  Future<void> _promptCloudRestore() async {
+    _cloudPasswordController.clear();
+    final password = await showCupertinoDialog<String>(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(t.common.e2eeBackupCloudRestoreTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppSpacing.verticalSmall,
+            Text(t.common.e2eeBackupCloudRestoreConfirmNote),
+            AppSpacing.verticalSmall,
+            CupertinoTextField(
+              controller: _cloudPasswordController,
+              obscureText: true,
+              autofocus: true,
+              placeholder: t.common.e2eeBackupCloudPwdHint,
+            ),
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () =>
+                Navigator.of(context).pop(_cloudPasswordController.text),
+            child: Text(t.common.e2eeBackupCloudRestoreBtn),
+          ),
+        ],
+      ),
+    );
+
+    if (password == null || password.isEmpty || !mounted) return;
+    await _handleCloudRestore(password);
+  }
+
+  Future<void> _handleCloudRestore(String password) async {
+    try {
+      setState(() => _isCloudRestoring = true);
+
+      final result = await E2EEServerBackupService.restore(password: password);
+
+      await _applyRestoredKeys(result);
+    } on StateError {
+      if (mounted) _showError(t.common.e2eeBackupErrNoCloudBackup);
+    } on ArgumentError {
+      if (mounted) _showError(t.common.e2eeBackupErrCloudPwd);
+    } on Exception {
+      if (mounted) _showError(t.common.e2eeBackupErrCloudRestoreFailed);
+    } finally {
+      if (mounted) setState(() => _isCloudRestoring = false);
+    }
+  }
+
+  /// 恢复成功后的统一后处理：保存密钥四元组到安全存储 + 成功弹窗。
+  /// 文件导入与云端恢复两条路径共用。
+  Future<void> _applyRestoredKeys(Map<String, dynamic> result) async {
+    await StorageSecureService.to.savePrivateKey(
+      result['private_key'] as String,
+    );
+    await StorageSecureService.to.savePublicKey(result['public_key'] as String);
+    await StorageSecureService.to.setDeviceId(result['device_id'] as String);
+    await StorageSecureService.to.setKeyId(result['key_id'] as String);
+
+    if (!mounted) return;
+    _showSuccessDialog(result);
   }
 
   void _showSuccessDialog(Map<String, dynamic> result) {

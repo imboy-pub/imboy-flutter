@@ -1604,6 +1604,17 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeBackupDeleteTitle => 'Elimina backup';
 	@override String get e2eeBackupDeleteConfirm => 'Eliminare questo backup ?';
 	@override String get e2eeBackupDeleteSuccess => 'Backup eliminato';
+	@override String get e2eeBackupCloudUploadBtn => 'Backup su cloud';
+	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Backup su cloud completato (versione ${version})';
+	@override String get e2eeBackupErrCloudUploadFailed => 'Backup su cloud non riuscito, riprova';
+	@override String get e2eeBackupCloudRestoreTitle => 'Ripristina dal backup cloud';
+	@override String e2eeBackupCloudRestoreHint({required Object version}) => 'Backup cloud rilevato (versione ${version})';
+	@override String get e2eeBackupCloudRestoreBtn => 'Ripristina dal cloud';
+	@override String get e2eeBackupCloudRestoreConfirmNote => 'Il ripristino sovrascriverà le chiavi E2EE attuali di questo dispositivo';
+	@override String get e2eeBackupCloudPwdHint => 'Inserisci la passphrase di backup';
+	@override String get e2eeBackupErrNoCloudBackup => 'Nessun backup cloud';
+	@override String get e2eeBackupErrCloudPwd => 'Passphrase errata o backup danneggiato';
+	@override String get e2eeBackupErrCloudRestoreFailed => 'Ripristino cloud non riuscito, riprova';
 	@override String get e2eeSocialShardSettings => 'Impostazioni frammenti';
 	@override String get e2eeSocialShardStoredNote => 'I frammenti sono conservati dai garanti, il server non ne trattiene alcuno';
 	@override String get e2eeSocialAddProxy => 'Aggiungi garante';
@@ -3981,6 +3992,17 @@ extension on TranslationsItIt {
 			'common.e2eeBackupDeleteTitle' => 'Elimina backup',
 			'common.e2eeBackupDeleteConfirm' => 'Eliminare questo backup ?',
 			'common.e2eeBackupDeleteSuccess' => 'Backup eliminato',
+			'common.e2eeBackupCloudUploadBtn' => 'Backup su cloud',
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backup su cloud completato (versione ${version})',
+			'common.e2eeBackupErrCloudUploadFailed' => 'Backup su cloud non riuscito, riprova',
+			'common.e2eeBackupCloudRestoreTitle' => 'Ripristina dal backup cloud',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Backup cloud rilevato (versione ${version})',
+			'common.e2eeBackupCloudRestoreBtn' => 'Ripristina dal cloud',
+			'common.e2eeBackupCloudRestoreConfirmNote' => 'Il ripristino sovrascriverà le chiavi E2EE attuali di questo dispositivo',
+			'common.e2eeBackupCloudPwdHint' => 'Inserisci la passphrase di backup',
+			'common.e2eeBackupErrNoCloudBackup' => 'Nessun backup cloud',
+			'common.e2eeBackupErrCloudPwd' => 'Passphrase errata o backup danneggiato',
+			'common.e2eeBackupErrCloudRestoreFailed' => 'Ripristino cloud non riuscito, riprova',
 			'common.e2eeSocialShardSettings' => 'Impostazioni frammenti',
 			'common.e2eeSocialShardStoredNote' => 'I frammenti sono conservati dai garanti, il server non ne trattiene alcuno',
 			'common.e2eeSocialAddProxy' => 'Aggiungi garante',
@@ -4000,6 +4022,8 @@ extension on TranslationsItIt {
 			'common.e2eeTransferErrCreateFailed' => 'Creazione sessione fallita. Riprova.',
 			'common.e2eeTransferCreateSessionBtn' => 'Crea sessione',
 			'common.e2eeTransferSessionCreated' => 'Sessione creata',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => 'ID utente valido richiesto',
 			'common.e2eeTransferSuccess' => 'Successo !',
 			'common.e2eeTransferFailed' => 'Trasferimento fallito. Riprova.',
@@ -4011,8 +4035,6 @@ extension on TranslationsItIt {
 			'common.passwordEncryptFailed' => 'Cifratura password fallita',
 			'common.initConfigTimeout' => 'Timeout: controlla la rete o il server',
 			'common.initConfigNetworkError' => ({required Object code}) => 'Errore di rete o server (HTTP ${code})',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigProtocolError' => 'Protocollo server errato',
 			'common.initConfigFetchFailed' => 'Configurazione non disponibile. Controlla la rete.',
 			'common.attachmentGetFileFailed' => 'File non disponibile. Riprova o scegli dalla galleria.',
@@ -4514,6 +4536,8 @@ extension on TranslationsItIt {
 			'main.pleaseTryAgain' => 'Riprova',
 			'main.secret' => 'Segreto',
 			'main.takePhoto' => 'Scatta foto',
+			_ => null,
+		} ?? switch (path) {
 			'main.publishing' => 'Pubblicazione...',
 			'main.deletingInProgressPleaseWait' => 'Eliminazione in corso, attendere...',
 			'main.testUser1' => 'Utente 1',
@@ -4525,8 +4549,6 @@ extension on TranslationsItIt {
 			'main.user' => 'Utente',
 			'main.recommended' => 'Consigliato',
 			'main.larger' => 'Più grande',
-			_ => null,
-		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Lunghezza attuale: ${param1} / ${param2}',
 			'main.fillIn' => 'Compila',
 			'main.msgProtectedByComplianceKey' => 'Messaggio protetto da chiave di conformità',

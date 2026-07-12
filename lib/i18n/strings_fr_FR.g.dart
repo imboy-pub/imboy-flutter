@@ -1604,6 +1604,17 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeBackupDeleteTitle => 'Supprimer la sauvegarde';
 	@override String get e2eeBackupDeleteConfirm => 'Supprimer cette sauvegarde ?';
 	@override String get e2eeBackupDeleteSuccess => 'Sauvegarde supprimée';
+	@override String get e2eeBackupCloudUploadBtn => 'Sauvegarder dans le cloud';
+	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Sauvegardé dans le cloud (version ${version})';
+	@override String get e2eeBackupErrCloudUploadFailed => 'Échec de la sauvegarde cloud, veuillez réessayer';
+	@override String get e2eeBackupCloudRestoreTitle => 'Restaurer depuis la sauvegarde cloud';
+	@override String e2eeBackupCloudRestoreHint({required Object version}) => 'Sauvegarde cloud détectée (version ${version})';
+	@override String get e2eeBackupCloudRestoreBtn => 'Restaurer depuis le cloud';
+	@override String get e2eeBackupCloudRestoreConfirmNote => 'La restauration remplacera les clés E2EE actuelles de cet appareil';
+	@override String get e2eeBackupCloudPwdHint => 'Saisissez la phrase secrète de sauvegarde';
+	@override String get e2eeBackupErrNoCloudBackup => 'Aucune sauvegarde cloud';
+	@override String get e2eeBackupErrCloudPwd => 'Phrase secrète incorrecte ou sauvegarde corrompue';
+	@override String get e2eeBackupErrCloudRestoreFailed => 'Échec de la restauration cloud, veuillez réessayer';
 	@override String get e2eeSocialShardSettings => 'Paramètres des fragments';
 	@override String get e2eeSocialShardStoredNote => 'Les fragments sont stockés chez les dépositaires, le serveur n\'en conserve aucun';
 	@override String get e2eeSocialAddProxy => 'Ajouter un dépositaire';
@@ -3981,6 +3992,17 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupDeleteTitle' => 'Supprimer la sauvegarde',
 			'common.e2eeBackupDeleteConfirm' => 'Supprimer cette sauvegarde ?',
 			'common.e2eeBackupDeleteSuccess' => 'Sauvegarde supprimée',
+			'common.e2eeBackupCloudUploadBtn' => 'Sauvegarder dans le cloud',
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Sauvegardé dans le cloud (version ${version})',
+			'common.e2eeBackupErrCloudUploadFailed' => 'Échec de la sauvegarde cloud, veuillez réessayer',
+			'common.e2eeBackupCloudRestoreTitle' => 'Restaurer depuis la sauvegarde cloud',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Sauvegarde cloud détectée (version ${version})',
+			'common.e2eeBackupCloudRestoreBtn' => 'Restaurer depuis le cloud',
+			'common.e2eeBackupCloudRestoreConfirmNote' => 'La restauration remplacera les clés E2EE actuelles de cet appareil',
+			'common.e2eeBackupCloudPwdHint' => 'Saisissez la phrase secrète de sauvegarde',
+			'common.e2eeBackupErrNoCloudBackup' => 'Aucune sauvegarde cloud',
+			'common.e2eeBackupErrCloudPwd' => 'Phrase secrète incorrecte ou sauvegarde corrompue',
+			'common.e2eeBackupErrCloudRestoreFailed' => 'Échec de la restauration cloud, veuillez réessayer',
 			'common.e2eeSocialShardSettings' => 'Paramètres des fragments',
 			'common.e2eeSocialShardStoredNote' => 'Les fragments sont stockés chez les dépositaires, le serveur n\'en conserve aucun',
 			'common.e2eeSocialAddProxy' => 'Ajouter un dépositaire',
@@ -4000,6 +4022,8 @@ extension on TranslationsFrFr {
 			'common.e2eeTransferErrCreateFailed' => 'Échec de la création de session. Réessayez.',
 			'common.e2eeTransferCreateSessionBtn' => 'Créer une session',
 			'common.e2eeTransferSessionCreated' => 'Session créée',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => 'ID utilisateur valide requis',
 			'common.e2eeTransferSuccess' => 'Succès !',
 			'common.e2eeTransferFailed' => 'Échec du transfert. Réessayez.',
@@ -4011,8 +4035,6 @@ extension on TranslationsFrFr {
 			'common.passwordEncryptFailed' => 'Échec du chiffrement du mot de passe',
 			'common.initConfigTimeout' => 'Délai dépassé : vérifiez le réseau ou le serveur',
 			'common.initConfigNetworkError' => ({required Object code}) => 'Erreur réseau ou serveur (HTTP ${code})',
-			_ => null,
-		} ?? switch (path) {
 			'common.initConfigProtocolError' => 'Protocole serveur erroné',
 			'common.initConfigFetchFailed' => 'Configuration indisponible. Vérifiez le réseau.',
 			'common.attachmentGetFileFailed' => 'Fichier indisponible. Réessayez ou choisissez depuis l\'album.',
@@ -4514,6 +4536,8 @@ extension on TranslationsFrFr {
 			'main.pleaseTryAgain' => 'Réessayez.',
 			'main.secret' => 'Confidentiel',
 			'main.takePhoto' => 'Prendre une photo',
+			_ => null,
+		} ?? switch (path) {
 			'main.publishing' => 'Publication en cours...',
 			'main.deletingInProgressPleaseWait' => 'Suppression en cours. Veuillez patienter...',
 			'main.testUser1' => 'Utilisateur 1',
@@ -4525,8 +4549,6 @@ extension on TranslationsFrFr {
 			'main.user' => 'Utilisateur',
 			'main.recommended' => 'Recommandé',
 			'main.larger' => 'Plus grand',
-			_ => null,
-		} ?? switch (path) {
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Longueur actuelle : ${param1} / ${param2}',
 			'main.fillIn' => 'Remplir',
 			'main.msgProtectedByComplianceKey' => 'Message protégé par clé de conformité',

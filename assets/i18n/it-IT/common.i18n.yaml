@@ -994,6 +994,17 @@ e2eeBackupNoteRow: Nota
 e2eeBackupDeleteTitle: Elimina backup
 e2eeBackupDeleteConfirm: Eliminare questo backup ?
 e2eeBackupDeleteSuccess: Backup eliminato
+e2eeBackupCloudUploadBtn: Backup su cloud
+e2eeBackupCloudUploadSuccess(version): Backup su cloud completato (versione $version)
+e2eeBackupErrCloudUploadFailed: Backup su cloud non riuscito, riprova
+e2eeBackupCloudRestoreTitle: Ripristina dal backup cloud
+e2eeBackupCloudRestoreHint(version): Backup cloud rilevato (versione $version)
+e2eeBackupCloudRestoreBtn: Ripristina dal cloud
+e2eeBackupCloudRestoreConfirmNote: Il ripristino sovrascriverà le chiavi E2EE attuali di questo dispositivo
+e2eeBackupCloudPwdHint: Inserisci la passphrase di backup
+e2eeBackupErrNoCloudBackup: Nessun backup cloud
+e2eeBackupErrCloudPwd: Passphrase errata o backup danneggiato
+e2eeBackupErrCloudRestoreFailed: Ripristino cloud non riuscito, riprova
 e2eeSocialShardSettings: Impostazioni frammenti
 e2eeSocialShardStoredNote: I frammenti sono conservati dai garanti, il server non ne trattiene alcuno
 e2eeSocialAddProxy: Aggiungi garante
