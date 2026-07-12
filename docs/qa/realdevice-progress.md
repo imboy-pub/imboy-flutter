@@ -135,6 +135,11 @@
 - **✅ 自动化测试补齐（imboyapp b6fb9be3）**：mention/qrcode/settings 三个零覆盖模块 +54 用例全绿，lib/page 22 模块全部有测试。发现 1 个 lib 真 bug 未修：`e2ee_social_service.dart:252` splitSecret 对 BigInt jsonEncode 必抛（100% 坏死，社交恢复纯函数路径）。
 - **待办**：后端修复生产热部署（须用户授权）；群主账号成员管理专项；e2ee_social_service BigInt bug。
 
+### 轮 18 — 2026-07-12 — 🎉生产蓝绿部署+群投票全链路真机复验闭环
+- **生产部署（用户授权）**：imboy main@468e0bed 蓝绿 blue(07110840)→green(07120944:9801)，迁移 OK、nginx 已切、旧节点停但目录保留可回滚；imboyadmin main@18b589c 上线 prodadm.imboy.pub（旧版 .bak-07120944）。
+- **真机 UI 复验（群投票，修复后）**：列表出两条（eval 验证票 + 崩溃期孤儿「QA vote」）✅；详情页 yes/no 选项完整渲染 ✅；投票 cast 成功（yes 100% 共1票，按钮变更新投票）✅。群投票 list/create/detail/cast 全链路生产闭环。
+- **孤儿行 UI 坐实**：「QA vote」（vote.5xwUV8SNr3N1sCt，无选项）在列表可见可点，属坏数据，待授权清理。
+
 ## 逐轮记录
 
 ### 轮 1 — 2026-07-11 — 朋友圈 moment
