@@ -106,6 +106,12 @@
 - **两个已修 bug 待真机复验**(受此环境阻塞)：群详情卡死 7c1dd353、拍照上传 f9d4af7e。二者均有确证(logcat 铁证/后端全排除)+标准修复,代码层确定。
 - **建议**：① 后续真机复验改用 **release apk**(R8 优化后 dex 小,dexopt 快)或**换性能更好的真机**；② 停用 20 分钟 cron(全部模块已推进,继续会重复)——CronDelete job 9151ae47；③ 深度子页二轮测试(编辑弹窗校验/实操流程/付费墙/通话/E2EE恢复)另起专项。
 
+### 轮 14 — 2026-07-12 — 🎉装包突破 + 群详情复验通过 + 后端真根因
+- **装包突破**：设备是 **armeabi-v7a(32位)**(getprop 确认,不支持arm64→之前arm64包loadLibrary崩溃)。用 `--release --target-platform android-arm` + 临时改 build.gradle debug 签名(-r 覆盖不丢登录,已还原) → **169MB release 包 pm install Success 且正常启动**(dexopt 未卡,登录态保留)。突破多轮装包瓶颈。
+- **✅ 群详情页卡死修复(7c1dd353)真机复验通过**：进 GroupDetailPage 正常加载完整内容(群名/3成员/**九宫格全出**:群公告/文件/相册/投票/日程/作业/标签/分组/二维码)，不再转圈。被阻塞的 group 深度功能全部可访问。
+- **🔴 拍照上传暴露后端真根因(诊断日志 f9d4af7e 生效)**：logcat `[upload][presignCompat] FAIL scope=moment err=presign 失败: code=500`。后端 crash.log 铁证:`function_clause elib_oss:scope_segment(<<"moment">>,undefined)`。根因:`can_upload` 支持 public/private/c2c/group/**channel/moment** 7 scope,但 `elib_oss:scope_segment/2` 只有前 4 个,**缺 channel+moment 子句** → presign 生成 object_key 崩溃 500。**影响朋友圈+频道所有上传**。⚠️客户端 bytes 修复根本没机会生效(presign 先 500)。此为**后端 imboy 仓 bug**,待用户决定是否修+部署生产。
+- **下轮目标**：后端修复 scope_segment(加 channel+moment 子句,段名与 authorize 一致)→部署→复验朋友圈/频道上传全链路。
+
 ## 逐轮记录
 
 ### 轮 1 — 2026-07-11 — 朋友圈 moment
