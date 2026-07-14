@@ -354,6 +354,10 @@ flutter:
 
   # ┌─ Assets & Resources ────────────────────────────────────────────┐
   assets:
+    # 离线文档（更新日志/FAQ/隐私政策；gitee raw 匿名 404 不可依赖）
+    - docs/changelog.md
+    - docs/FAQ.md
+    - docs/privacy-policy.md
     - assets/example10.db                  # 示例数据库
     - assets/data/region.json              # 地区数据
     - assets/images/                       # 通用图片资源

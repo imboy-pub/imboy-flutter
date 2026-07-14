@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -52,11 +53,18 @@ class _MarkdownPageState extends ConsumerState<MarkdownPage> {
       _error = null;
     });
     try {
-      File tmpF = await IMBoyCacheManager().getSingleFile(
-        widget.url,
-        validateImageData: false, // Markdown 文件不验证图片格式
-      );
-      String content = await tmpF.readAsString();
+      // asset:// 前缀走离线打包文档（设置页更新日志/FAQ/隐私政策——外部
+      // gitee raw 匿名访问 404，不可作为运行时依赖）。
+      final String content;
+      if (widget.url.startsWith('asset://')) {
+        content = await rootBundle.loadString(widget.url.substring(8));
+      } else {
+        File tmpF = await IMBoyCacheManager().getSingleFile(
+          widget.url,
+          validateImageData: false, // Markdown 文件不验证图片格式
+        );
+        content = await tmpF.readAsString();
+      }
       if (mounted) {
         setState(() {
           _content = content;

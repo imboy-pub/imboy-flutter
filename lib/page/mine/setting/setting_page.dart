@@ -197,16 +197,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 leading: _buildIcon(Icons.update, AppColors.iosGreen),
                 onTap: () => _openMarkdown(
                   t.common.updateLog,
-                  "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/changelog.md",
+                  "asset://docs/changelog.md",
                 ),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.helpDocument),
                 leading: _buildIcon(Icons.help_outline, AppColors.iosBlue),
-                onTap: () => _openMarkdown(
-                  t.common.helpDocument,
-                  "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/FAQ.md",
-                ),
+                onTap: () =>
+                    _openMarkdown(t.common.helpDocument, "asset://docs/FAQ.md"),
               ),
               ImBoySettingsTile(
                 title: Text(t.main.privacyPolicy),
@@ -216,7 +214,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 ),
                 onTap: () => _openMarkdown(
                   t.main.privacyPolicy,
-                  "https://gitee.com/imboy-pub/imboy-flutter/raw/main/doc/privacy-policy.md",
+                  "asset://docs/privacy-policy.md",
                 ),
               ),
               ImBoySettingsTile(
