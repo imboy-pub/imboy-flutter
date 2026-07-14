@@ -72,6 +72,21 @@ class GroupApi extends HttpClient {
     return resp.ok;
   }
 
+  /// 开启群级 E2EE（仅群主，后端契约 0→1 单向，P0-B B4）
+  Future<bool> setE2eeMode({required String gid}) async {
+    IMBoyHttpResponse resp = await post(
+      API.groupSetE2eeMode,
+      data: {'gid': gid, 'e2ee_mode': 1},
+    );
+    if (!resp.ok) {
+      AppLoading.showError(resp.msg);
+      return false;
+    }
+    // 本地旗标立即升位；其他成员经 group_e2ee_mode S2C 广播 / 群详情同步
+    await GroupSessionService.to.setGroupE2EEMode(gid, 1);
+    return true;
+  }
+
   Future<Map<String, dynamic>?> dissolve({required String gid}) async {
     IMBoyHttpResponse resp = await post(API.groupDissolve, data: {"gid": gid});
     if (resp.ok == false) {

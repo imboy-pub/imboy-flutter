@@ -41,3 +41,5 @@ groupAlbumPhotoMyLike: 내 좋아요
 groupAlbumPhotoIdLabel: 이미지 ID
 e2eeKeyManagement: E2EE 키 관리
 e2eeKeyManagementSubtitle: 종단간 암호화 키를 백업, 복구 및 관리합니다
+e2eeTitle: 종단간 암호화
+e2eeEnableConfirm: 활성화하면 그룹 메시지가 종단간 암호화되어 구성원의 기기에서만 복호화할 수 있습니다. 이 작업은 되돌릴 수 없습니다. 활성화하시겠습니까?

@@ -40,3 +40,5 @@ groupAlbumPhotoMyLike: 我的點贊
 groupAlbumPhotoIdLabel: 圖片ID
 e2eeKeyManagement: E2EE 金鑰管理
 e2eeKeyManagementSubtitle: 備份、恢復和管理端到端加密金鑰
+e2eeTitle: 端對端加密
+e2eeEnableConfirm: 開啟後，本群訊息將端對端加密，僅群成員裝置可解密。此操作不可撤銷，確定開啟？

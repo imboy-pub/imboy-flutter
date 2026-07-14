@@ -106,6 +106,7 @@ class API {
   static const groupMemberUnmute = '/api/v1/group_member/unmute';
   static const groupTransfer = '/api/v1/group/transfer';
   static const groupRemark = '/api/v1/group/remark';
+  static const groupSetE2eeMode = '/api/v1/group/set_e2ee_mode';
 
   static const userShow = '/api/v1/user/show';
   static const turnCredential = '/api/v1/user/credential';

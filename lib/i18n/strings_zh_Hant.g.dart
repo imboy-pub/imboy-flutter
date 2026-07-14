@@ -1917,6 +1917,8 @@ class Translations$group$zh_Hant extends Translations$group$zh_CN {
 	@override String get groupAlbumPhotoIdLabel => '圖片ID';
 	@override String get e2eeKeyManagement => 'E2EE 金鑰管理';
 	@override String get e2eeKeyManagementSubtitle => '備份、恢復和管理端到端加密金鑰';
+	@override String get e2eeTitle => '端對端加密';
+	@override String get e2eeEnableConfirm => '開啟後，本群訊息將端對端加密，僅群成員裝置可解密。此操作不可撤銷，確定開啟？';
 }
 
 // Path: groupCategory
@@ -4253,6 +4255,8 @@ extension on TranslationsZhHant {
 			'group.groupAlbumPhotoIdLabel' => '圖片ID',
 			'group.e2eeKeyManagement' => 'E2EE 金鑰管理',
 			'group.e2eeKeyManagementSubtitle' => '備份、恢復和管理端到端加密金鑰',
+			'group.e2eeTitle' => '端對端加密',
+			'group.e2eeEnableConfirm' => '開啟後，本群訊息將端對端加密，僅群成員裝置可解密。此操作不可撤銷，確定開啟？',
 			'groupCategory.title' => '群分組',
 			'groupCategory.createCategory' => '建立分組',
 			'groupCategory.categoryName' => '分組名稱',
@@ -4534,10 +4538,10 @@ extension on TranslationsZhHant {
 			'main.volumeDown' => '音量減少',
 			'main.fastRewind' => ({required Object seconds}) => '快退 ${seconds}秒',
 			'main.pleaseTryAgain' => '請重試',
-			'main.secret' => '保密',
-			'main.takePhoto' => '拍照',
 			_ => null,
 		} ?? switch (path) {
+			'main.secret' => '保密',
+			'main.takePhoto' => '拍照',
 			'main.publishing' => '發布中...',
 			'main.deletingInProgressPleaseWait' => '正在刪除中，請稍候...',
 			'main.testUser1' => '用家 1',

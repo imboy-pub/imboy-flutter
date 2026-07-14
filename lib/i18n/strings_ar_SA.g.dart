@@ -1917,6 +1917,8 @@ class _Translations$group$ar_SA extends Translations$group$zh_CN {
 	@override String get groupAlbumPhotoIdLabel => 'معرّف الصورة';
 	@override String get e2eeKeyManagement => 'إدارة مفاتيح E2EE';
 	@override String get e2eeKeyManagementSubtitle => 'نسخ احتياطي واستعادة وإدارة مفاتيح التشفير من طرف إلى طرف';
+	@override String get e2eeTitle => 'التشفير من طرف إلى طرف';
+	@override String get e2eeEnableConfirm => 'بعد التفعيل، سيتم تشفير رسائل المجموعة من طرف إلى طرف ولن تُقرأ إلا على أجهزة الأعضاء. لا يمكن التراجع عن هذا الإجراء. هل تريد التفعيل؟';
 }
 
 // Path: groupCategory
@@ -4253,6 +4255,8 @@ extension on TranslationsArSa {
 			'group.groupAlbumPhotoIdLabel' => 'معرّف الصورة',
 			'group.e2eeKeyManagement' => 'إدارة مفاتيح E2EE',
 			'group.e2eeKeyManagementSubtitle' => 'نسخ احتياطي واستعادة وإدارة مفاتيح التشفير من طرف إلى طرف',
+			'group.e2eeTitle' => 'التشفير من طرف إلى طرف',
+			'group.e2eeEnableConfirm' => 'بعد التفعيل، سيتم تشفير رسائل المجموعة من طرف إلى طرف ولن تُقرأ إلا على أجهزة الأعضاء. لا يمكن التراجع عن هذا الإجراء. هل تريد التفعيل؟',
 			'groupCategory.title' => 'مجلدات المجموعات',
 			'groupCategory.createCategory' => 'إنشاء مجلد',
 			'groupCategory.categoryName' => 'اسم المجلد',
@@ -4534,10 +4538,10 @@ extension on TranslationsArSa {
 			'main.volumeDown' => 'خفض الصوت',
 			'main.fastRewind' => ({required Object seconds}) => 'ترجيع سريع ${seconds} ثانية',
 			'main.pleaseTryAgain' => 'يرجى المحاولة مرة أخرى',
-			'main.secret' => 'سري',
-			'main.takePhoto' => 'التقاط صورة',
 			_ => null,
 		} ?? switch (path) {
+			'main.secret' => 'سري',
+			'main.takePhoto' => 'التقاط صورة',
 			'main.publishing' => 'جارٍ النشر...',
 			'main.deletingInProgressPleaseWait' => 'جارٍ الحذف، يرجى الانتظار...',
 			'main.testUser1' => 'مستخدم1',

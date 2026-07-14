@@ -5818,6 +5818,12 @@ class Translations$group$zh_CN {
 
 	/// zh-CN: '备份、恢复和管理端到端加密密钥'
 	String get e2eeKeyManagementSubtitle => '备份、恢复和管理端到端加密密钥';
+
+	/// zh-CN: '端到端加密'
+	String get e2eeTitle => '端到端加密';
+
+	/// zh-CN: '开启后，本群消息将端到端加密，仅群成员设备可解密。此操作不可撤销，确定开启？'
+	String get e2eeEnableConfirm => '开启后，本群消息将端到端加密，仅群成员设备可解密。此操作不可撤销，确定开启？';
 }
 
 // Path: groupCategory
@@ -9183,6 +9189,8 @@ extension on Translations {
 			'group.groupAlbumPhotoIdLabel' => '图片ID',
 			'group.e2eeKeyManagement' => 'E2EE 密钥管理',
 			'group.e2eeKeyManagementSubtitle' => '备份、恢复和管理端到端加密密钥',
+			'group.e2eeTitle' => '端到端加密',
+			'group.e2eeEnableConfirm' => '开启后，本群消息将端到端加密，仅群成员设备可解密。此操作不可撤销，确定开启？',
 			'groupCategory.title' => '群分组',
 			'groupCategory.createCategory' => '创建分组',
 			'groupCategory.categoryName' => '分组名称',
@@ -9344,10 +9352,10 @@ extension on Translations {
 			'main.lastSeenWeeksAgo' => ({required Object param}) => '${param}周前',
 			'main.lastSeenExactTime' => ({required Object param}) => '上次在线 ${param}',
 			'main.licenseAgreement' => '《软件许可及服务协议》',
-			'main.liveBroadcast' => '直播',
-			'main.liveRoomListView' => '直播间列表视图',
 			_ => null,
 		} ?? switch (path) {
+			'main.liveBroadcast' => '直播',
+			'main.liveRoomListView' => '直播间列表视图',
 			'main.publisherPage' => '推流页面',
 			'main.subscriber' => '订阅者',
 			'main.loggingOut' => '正在退出登录...',

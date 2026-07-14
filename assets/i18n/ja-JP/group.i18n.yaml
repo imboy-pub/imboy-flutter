@@ -41,3 +41,5 @@ groupAlbumPhotoMyLike: 自分のいいね
 groupAlbumPhotoIdLabel: 画像ID
 e2eeKeyManagement: E2EEキー管理
 e2eeKeyManagementSubtitle: エンドツーエンド暗号キーのバックアップ、復元、管理
+e2eeTitle: エンドツーエンド暗号化
+e2eeEnableConfirm: 有効にすると、グループのメッセージはエンドツーエンドで暗号化され、メンバーの端末でのみ復号できます。この操作は取り消せません。有効にしますか？

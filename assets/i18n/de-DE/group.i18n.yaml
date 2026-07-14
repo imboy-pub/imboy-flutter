@@ -41,3 +41,5 @@ groupAlbumPhotoMyLike: Mein Like
 groupAlbumPhotoIdLabel: Bild-ID
 e2eeKeyManagement: E2EE-Schlüsselverwaltung
 e2eeKeyManagementSubtitle: E2EE-Schlüssel sichern, wiederherstellen und verwalten
+e2eeTitle: Ende-zu-Ende-Verschlüsselung
+e2eeEnableConfirm: "Nach der Aktivierung werden Gruppennachrichten Ende-zu-Ende verschlüsselt und sind nur auf den Geräten der Mitglieder lesbar. Dies kann nicht rückgängig gemacht werden. Aktivieren?"

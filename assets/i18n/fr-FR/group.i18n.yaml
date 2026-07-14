@@ -41,3 +41,5 @@ groupAlbumPhotoMyLike: Mon J'aime
 groupAlbumPhotoIdLabel: ID d'image
 e2eeKeyManagement: Gestion des clés E2EE
 e2eeKeyManagementSubtitle: Sauvegarder, restaurer et gérer les clés E2EE
+e2eeTitle: Chiffrement de bout en bout
+e2eeEnableConfirm: "Une fois activé, les messages du groupe seront chiffrés de bout en bout et lisibles uniquement sur les appareils des membres. Cette action est irréversible. Activer ?"

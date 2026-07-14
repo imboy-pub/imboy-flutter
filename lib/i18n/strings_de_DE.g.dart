@@ -1917,6 +1917,8 @@ class _Translations$group$de_DE extends Translations$group$zh_CN {
 	@override String get groupAlbumPhotoIdLabel => 'Bild-ID';
 	@override String get e2eeKeyManagement => 'E2EE-Schlüsselverwaltung';
 	@override String get e2eeKeyManagementSubtitle => 'E2EE-Schlüssel sichern, wiederherstellen und verwalten';
+	@override String get e2eeTitle => 'Ende-zu-Ende-Verschlüsselung';
+	@override String get e2eeEnableConfirm => 'Nach der Aktivierung werden Gruppennachrichten Ende-zu-Ende verschlüsselt und sind nur auf den Geräten der Mitglieder lesbar. Dies kann nicht rückgängig gemacht werden. Aktivieren?';
 }
 
 // Path: groupCategory
@@ -4253,6 +4255,8 @@ extension on TranslationsDeDe {
 			'group.groupAlbumPhotoIdLabel' => 'Bild-ID',
 			'group.e2eeKeyManagement' => 'E2EE-Schlüsselverwaltung',
 			'group.e2eeKeyManagementSubtitle' => 'E2EE-Schlüssel sichern, wiederherstellen und verwalten',
+			'group.e2eeTitle' => 'Ende-zu-Ende-Verschlüsselung',
+			'group.e2eeEnableConfirm' => 'Nach der Aktivierung werden Gruppennachrichten Ende-zu-Ende verschlüsselt und sind nur auf den Geräten der Mitglieder lesbar. Dies kann nicht rückgängig gemacht werden. Aktivieren?',
 			'groupCategory.title' => 'Gruppenkategorien',
 			'groupCategory.createCategory' => 'Kategorie erstellen',
 			'groupCategory.categoryName' => 'Kategorie-Name',
@@ -4534,10 +4538,10 @@ extension on TranslationsDeDe {
 			'main.volumeDown' => 'Lautstärke verringern',
 			'main.fastRewind' => ({required Object seconds}) => 'Schnell zurück ${seconds} Sekunden',
 			'main.pleaseTryAgain' => 'Bitte versuchen Sie es erneut',
-			'main.secret' => 'Geheim',
-			'main.takePhoto' => 'Foto aufnehmen',
 			_ => null,
 		} ?? switch (path) {
+			'main.secret' => 'Geheim',
+			'main.takePhoto' => 'Foto aufnehmen',
 			'main.publishing' => 'Wird veröffentlicht...',
 			'main.deletingInProgressPleaseWait' => 'Wird gelöscht, bitte warten...',
 			'main.testUser1' => 'Benutzer 1',

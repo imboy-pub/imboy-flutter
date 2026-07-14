@@ -1917,6 +1917,8 @@ class _Translations$group$ja_JP extends Translations$group$zh_CN {
 	@override String get groupAlbumPhotoIdLabel => '画像ID';
 	@override String get e2eeKeyManagement => 'E2EEキー管理';
 	@override String get e2eeKeyManagementSubtitle => 'エンドツーエンド暗号キーのバックアップ、復元、管理';
+	@override String get e2eeTitle => 'エンドツーエンド暗号化';
+	@override String get e2eeEnableConfirm => '有効にすると、グループのメッセージはエンドツーエンドで暗号化され、メンバーの端末でのみ復号できます。この操作は取り消せません。有効にしますか？';
 }
 
 // Path: groupCategory
@@ -4253,6 +4255,8 @@ extension on TranslationsJaJp {
 			'group.groupAlbumPhotoIdLabel' => '画像ID',
 			'group.e2eeKeyManagement' => 'E2EEキー管理',
 			'group.e2eeKeyManagementSubtitle' => 'エンドツーエンド暗号キーのバックアップ、復元、管理',
+			'group.e2eeTitle' => 'エンドツーエンド暗号化',
+			'group.e2eeEnableConfirm' => '有効にすると、グループのメッセージはエンドツーエンドで暗号化され、メンバーの端末でのみ復号できます。この操作は取り消せません。有効にしますか？',
 			'groupCategory.title' => 'グループカテゴリ',
 			'groupCategory.createCategory' => 'カテゴリを作成',
 			'groupCategory.categoryName' => 'カテゴリ名',
@@ -4534,10 +4538,10 @@ extension on TranslationsJaJp {
 			'main.volumeDown' => '音量を下げる',
 			'main.fastRewind' => ({required Object seconds}) => '巻き戻し ${seconds}秒',
 			'main.pleaseTryAgain' => 'もう一度お試しください',
-			'main.secret' => '秘密',
-			'main.takePhoto' => '写真を撮る',
 			_ => null,
 		} ?? switch (path) {
+			'main.secret' => '秘密',
+			'main.takePhoto' => '写真を撮る',
 			'main.publishing' => '公開中...',
 			'main.deletingInProgressPleaseWait' => '削除中です。お待ちください...',
 			'main.testUser1' => 'ユーザー1',

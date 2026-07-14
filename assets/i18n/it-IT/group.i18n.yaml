@@ -41,3 +41,5 @@ groupAlbumPhotoMyLike: Il mio Mi piace
 groupAlbumPhotoIdLabel: ID immagine
 e2eeKeyManagement: Gestione chiavi E2EE
 e2eeKeyManagementSubtitle: Backup, ripristino e gestione chiavi E2EE
+e2eeTitle: Crittografia end-to-end
+e2eeEnableConfirm: "Una volta attivata, i messaggi del gruppo saranno crittografati end-to-end e leggibili solo sui dispositivi dei membri. L'operazione è irreversibile. Attivare?"

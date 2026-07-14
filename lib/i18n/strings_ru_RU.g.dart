@@ -1917,6 +1917,8 @@ class _Translations$group$ru_RU extends Translations$group$zh_CN {
 	@override String get groupAlbumPhotoIdLabel => 'ID фото';
 	@override String get e2eeKeyManagement => 'Управление ключами E2EE';
 	@override String get e2eeKeyManagementSubtitle => 'Резервное копирование, восстановление и управление ключами сквозного шифрования';
+	@override String get e2eeTitle => 'Сквозное шифрование';
+	@override String get e2eeEnableConfirm => 'После включения сообщения группы будут защищены сквозным шифрованием и доступны только на устройствах участников. Это действие необратимо. Включить?';
 }
 
 // Path: groupCategory
@@ -4253,6 +4255,8 @@ extension on TranslationsRuRu {
 			'group.groupAlbumPhotoIdLabel' => 'ID фото',
 			'group.e2eeKeyManagement' => 'Управление ключами E2EE',
 			'group.e2eeKeyManagementSubtitle' => 'Резервное копирование, восстановление и управление ключами сквозного шифрования',
+			'group.e2eeTitle' => 'Сквозное шифрование',
+			'group.e2eeEnableConfirm' => 'После включения сообщения группы будут защищены сквозным шифрованием и доступны только на устройствах участников. Это действие необратимо. Включить?',
 			'groupCategory.title' => 'Папки групп',
 			'groupCategory.createCategory' => 'Создать папку',
 			'groupCategory.categoryName' => 'Название папки',
@@ -4534,10 +4538,10 @@ extension on TranslationsRuRu {
 			'main.volumeDown' => 'Уменьшить громкость',
 			'main.fastRewind' => ({required Object seconds}) => 'Быстрая перемотка назад ${seconds} сек',
 			'main.pleaseTryAgain' => 'Пожалуйста, попробуйте снова',
-			'main.secret' => 'Конфиденциально',
-			'main.takePhoto' => 'Сделать фото',
 			_ => null,
 		} ?? switch (path) {
+			'main.secret' => 'Конфиденциально',
+			'main.takePhoto' => 'Сделать фото',
 			'main.publishing' => 'Публикация...',
 			'main.deletingInProgressPleaseWait' => 'Удаление в процессе, пожалуйста, подождите...',
 			'main.testUser1' => 'Пользователь1',

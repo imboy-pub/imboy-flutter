@@ -1917,6 +1917,8 @@ class _Translations$group$ko_KR extends Translations$group$zh_CN {
 	@override String get groupAlbumPhotoIdLabel => '이미지 ID';
 	@override String get e2eeKeyManagement => 'E2EE 키 관리';
 	@override String get e2eeKeyManagementSubtitle => '종단간 암호화 키를 백업, 복구 및 관리합니다';
+	@override String get e2eeTitle => '종단간 암호화';
+	@override String get e2eeEnableConfirm => '활성화하면 그룹 메시지가 종단간 암호화되어 구성원의 기기에서만 복호화할 수 있습니다. 이 작업은 되돌릴 수 없습니다. 활성화하시겠습니까?';
 }
 
 // Path: groupCategory
@@ -4253,6 +4255,8 @@ extension on TranslationsKoKr {
 			'group.groupAlbumPhotoIdLabel' => '이미지 ID',
 			'group.e2eeKeyManagement' => 'E2EE 키 관리',
 			'group.e2eeKeyManagementSubtitle' => '종단간 암호화 키를 백업, 복구 및 관리합니다',
+			'group.e2eeTitle' => '종단간 암호화',
+			'group.e2eeEnableConfirm' => '활성화하면 그룹 메시지가 종단간 암호화되어 구성원의 기기에서만 복호화할 수 있습니다. 이 작업은 되돌릴 수 없습니다. 활성화하시겠습니까?',
 			'groupCategory.title' => '그룹 폴더',
 			'groupCategory.createCategory' => '폴더 만들기',
 			'groupCategory.categoryName' => '폴더 이름',
@@ -4534,10 +4538,10 @@ extension on TranslationsKoKr {
 			'main.volumeDown' => '볼륨 낮추기',
 			'main.fastRewind' => ({required Object seconds}) => '${seconds}초 되감기',
 			'main.pleaseTryAgain' => '다시 시도해 주세요',
-			'main.secret' => '비공개',
-			'main.takePhoto' => '사진 촬영',
 			_ => null,
 		} ?? switch (path) {
+			'main.secret' => '비공개',
+			'main.takePhoto' => '사진 촬영',
 			'main.publishing' => '게시 중...',
 			'main.deletingInProgressPleaseWait' => '삭제 중입니다. 잠시 기다려 주세요...',
 			'main.testUser1' => '사용자 1',

@@ -1917,6 +1917,8 @@ class _Translations$group$en_US extends Translations$group$zh_CN {
 	@override String get groupAlbumPhotoIdLabel => 'Photo ID';
 	@override String get e2eeKeyManagement => 'E2EE Key Management';
 	@override String get e2eeKeyManagementSubtitle => 'Backup, restore and manage end-to-end encryption keys';
+	@override String get e2eeTitle => 'End-to-End Encryption';
+	@override String get e2eeEnableConfirm => 'Once enabled, group messages will be end-to-end encrypted and only readable on members\' devices. This cannot be undone. Enable?';
 }
 
 // Path: groupCategory
@@ -4253,6 +4255,8 @@ extension on TranslationsEnUs {
 			'group.groupAlbumPhotoIdLabel' => 'Photo ID',
 			'group.e2eeKeyManagement' => 'E2EE Key Management',
 			'group.e2eeKeyManagementSubtitle' => 'Backup, restore and manage end-to-end encryption keys',
+			'group.e2eeTitle' => 'End-to-End Encryption',
+			'group.e2eeEnableConfirm' => 'Once enabled, group messages will be end-to-end encrypted and only readable on members\' devices. This cannot be undone. Enable?',
 			'groupCategory.title' => 'Group Categories',
 			'groupCategory.createCategory' => 'Create Category',
 			'groupCategory.categoryName' => 'Category Name',
@@ -4534,10 +4538,10 @@ extension on TranslationsEnUs {
 			'main.volumeDown' => 'Volume Down',
 			'main.fastRewind' => ({required Object seconds}) => 'Fast Rewind ${seconds}',
 			'main.pleaseTryAgain' => 'Please try again',
-			'main.secret' => 'Secret',
-			'main.takePhoto' => 'Take Photo',
 			_ => null,
 		} ?? switch (path) {
+			'main.secret' => 'Secret',
+			'main.takePhoto' => 'Take Photo',
 			'main.publishing' => 'Publishing...',
 			'main.deletingInProgressPleaseWait' => 'Deleting in progress, please wait...',
 			'main.testUser1' => 'User 1',

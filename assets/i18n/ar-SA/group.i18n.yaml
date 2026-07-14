@@ -41,3 +41,5 @@ groupAlbumPhotoMyLike: إعجابي
 groupAlbumPhotoIdLabel: معرّف الصورة
 e2eeKeyManagement: إدارة مفاتيح E2EE
 e2eeKeyManagementSubtitle: نسخ احتياطي واستعادة وإدارة مفاتيح التشفير من طرف إلى طرف
+e2eeTitle: التشفير من طرف إلى طرف
+e2eeEnableConfirm: بعد التفعيل، سيتم تشفير رسائل المجموعة من طرف إلى طرف ولن تُقرأ إلا على أجهزة الأعضاء. لا يمكن التراجع عن هذا الإجراء. هل تريد التفعيل؟

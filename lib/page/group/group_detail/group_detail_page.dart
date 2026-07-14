@@ -12,6 +12,7 @@ import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/group_notice_config.dart';
+import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/api/group_api.dart';
@@ -71,6 +72,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   StreamSubscription<dynamic>? ssMsgExt;
   StreamSubscription<dynamic>? _localeSubscription;
   bool _noticeDisabled = false;
+  bool _groupE2ee = false;
 
   int get _gidInt => int.tryParse(widget.groupId) ?? 0;
 
@@ -130,6 +132,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
 
       GroupMemberModel? m = await service.getMyGroupMemberInfo(widget.groupId);
       if (m != null) notifier.setMyGroupAlias(m.alias);
+      _groupE2ee = await GroupSessionService.to.isGroupE2EE(widget.groupId);
     } finally {
       notifier.setLoading(false);
     }
@@ -149,6 +152,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           if (memberList.length > 18) memberList = memberList.sublist(0, 18);
           notifier.setMemberList(memberList);
         }
+        // 群详情同步会更新本地 E2EE 旗标（group_api.detail），此处回读刷新开关
+        _groupE2ee = await GroupSessionService.to.isGroupE2EE(widget.groupId);
         if (mounted) setState(() {});
       }
     });
@@ -335,6 +340,19 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                               }
                             },
                     ),
+                    // 群级 E2EE：仅群主可开，0→1 单向不可撤销；成员只读展示状态
+                    GroupNoticeDisabledTile(
+                      label: t.group.e2eeTitle,
+                      value: _groupE2ee,
+                      onChanged:
+                          _groupE2ee ||
+                              !isGroupOwner(state.role) ||
+                              _gidInt <= 0
+                          ? null
+                          : (v) {
+                              if (v) _confirmEnableE2ee();
+                            },
+                    ),
                     ImBoySettingsTile(
                       title: Text(t.common.searchChatContent),
                       leading: const Icon(
@@ -484,6 +502,34 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
         },
       ),
     ];
+  }
+
+  void _confirmEnableE2ee() {
+    showCupertinoDialog<void>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.group.e2eeTitle),
+        content: Text(t.group.e2eeEnableConfirm),
+        actions: [
+          CupertinoDialogAction(
+            child: Text(t.common.buttonCancel),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: Text(t.common.buttonConfirm),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final ok = await GroupApi().setE2eeMode(gid: widget.groupId);
+              if (ok && mounted) {
+                setState(() => _groupE2ee = true);
+                AppLoading.showSuccess(t.common.tipSuccess);
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void _confirmClearChat() {
