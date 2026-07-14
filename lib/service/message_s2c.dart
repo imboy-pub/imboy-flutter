@@ -39,6 +39,7 @@ import 'package:imboy/service/group_member_mute_s2c.dart';
 import 'package:imboy/service/group_edit_s2c.dart';
 import 'package:imboy/service/group_member_role_s2c.dart';
 import 'package:imboy/service/group_notice_s2c.dart';
+import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/model/group_member_columns.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
@@ -211,13 +212,28 @@ class MessageS2CService {
           // 暂不处理
           break;
         case 'group_member_join':
+          // P0-B B4：成员集合变化，下次发送 rotate 群会话
+          GroupSessionService.to.markGroupStale(
+            payloadMap['gid']?.toString() ?? '',
+          );
           await _handleGroupMemberJoin(data, payloadMap);
           break;
         case 'group_dissolve':
           await _handleGroupDissolve(payloadMap);
           break;
         case 'group_member_leave':
+          // P0-B B4：成员离群，rotate 保证前向保密
+          GroupSessionService.to.markGroupStale(
+            payloadMap['gid']?.toString() ?? '',
+          );
           await _handleGroupMemberLeave(data, payloadMap);
+          break;
+        case 'group_e2ee_mode':
+          // P0-B B4：群主开启群级 E2EE 的广播 {gid, e2ee_mode}
+          await GroupSessionService.to.setGroupE2EEMode(
+            payloadMap['gid']?.toString() ?? '',
+            parseModelInt(payloadMap['e2ee_mode']),
+          );
           break;
         case 'group_member_alias':
           // 暂不处理

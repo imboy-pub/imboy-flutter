@@ -22,6 +22,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/identity/domain/value/user_id.dart' as ddd;
 import 'package:imboy/modules/messaging/domain/message.dart' as ddd;
 import 'package:imboy/modules/messaging/domain/message_status.dart' as ddd;
+import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/modules/messaging/domain/value/message_id.dart' as ddd;
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
@@ -103,6 +104,10 @@ class MessageActions {
           break;
         case 'message_input':
           await _handleInputAction(data);
+          break;
+        case 'e2ee_room_key':
+          // P0-B B4：Megolm 群会话密钥分发（不渲染、不落聊天库）
+          await GroupSessionService.to.handleRoomKeyMessage(data);
           break;
         default:
           iPrint('⚠️ [handleActionMessage] 未知的action类型: $action');

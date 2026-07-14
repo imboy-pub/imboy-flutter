@@ -217,6 +217,8 @@ dependencies:
   # └─────────────────────────────────────────────────────────────────┘
   fluwx: ^5.7.7                     # WeChat Pay / open SDK (微信支付收银台) (updated: 5.5.6 → 5.7.7)
   tobias: ^5.3.4                    # Alipay SDK (支付宝收银台) (updated: 4.0.0 → 5.3.4)
+  flutter_vodozemac: ^0.5.0
+  vodozemac: ^0.5.0
 
 
 dependency_overrides:

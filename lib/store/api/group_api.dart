@@ -3,6 +3,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/component/http/http_response.dart';
 
 class GroupApi extends HttpClient {
@@ -30,7 +31,20 @@ class GroupApi extends HttpClient {
     if (resp.ok == false) {
       AppLoading.showError(resp.msg);
     }
-    return resp.ok ? resp.payload as Map<String, dynamic> : <String, dynamic>{};
+    if (!resp.ok) return <String, dynamic>{};
+    final payload = resp.payload as Map<String, dynamic>;
+    // P0-B B4：群详情携带 e2ee_mode（后端 SELECT *），此处同步本地旗标——
+    // 覆盖开关广播之后才入群、没收到 group_e2ee_mode S2C 的成员
+    final e2eeMode =
+        payload['e2ee_mode'] ??
+        (payload['group'] is Map ? payload['group']['e2ee_mode'] : null);
+    if (e2eeMode != null) {
+      await GroupSessionService.to.setGroupE2EEMode(
+        gid,
+        int.tryParse(e2eeMode.toString()) ?? 0,
+      );
+    }
+    return payload;
   }
 
   /// 获取群备注（仅自己可见）

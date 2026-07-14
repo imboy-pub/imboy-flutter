@@ -18,6 +18,7 @@ import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
@@ -510,9 +511,35 @@ class ChatNetworkService {
     required String action,
     List<String> removeKeys = const [],
   }) async {
+    // P0-B B4：群级 E2EE 开启的群强制加密（独立于全局策略与本地开关，
+    // 服务端 fail-closed 门会拒明文），且走 Megolm 群会话套件
+    final bool groupMegolm =
+        chatType == 'C2G' && await GroupSessionService.to.isGroupE2EE(toId);
     final bool needEncrypt =
-        action.isEmpty && E2EEService.shouldEncryptOutgoingPayload(chatType);
+        action.isEmpty &&
+        (groupMegolm || E2EEService.shouldEncryptOutgoingPayload(chatType));
     if (!needEncrypt) return null;
+
+    if (groupMegolm) {
+      final plaintextPayload = Map<String, dynamic>.from(plaintextMap);
+      for (final key in removeKeys) {
+        plaintextPayload.remove(key);
+      }
+      final enc = await GroupSessionService.to.encryptGroupMessage(
+        gid: toId,
+        plaintext: jsonEncode(plaintextPayload),
+      );
+      return {
+        'e2ee': {
+          'e2ee': true,
+          'e2ee_ver': 2,
+          'e2ee_suite': kMegolmSuite,
+          'gid': toId,
+          'session_id': enc.sessionId,
+        },
+        'payload': enc.ciphertext,
+      };
+    }
 
     final deviceKeys = await (chatType == 'C2G'
         ? E2EEService.getGroupDevicePublicKeys(toId)

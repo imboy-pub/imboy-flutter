@@ -137,6 +137,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.6"
+  build_cli_annotations:
+    dependency: transitive
+    description:
+      name: build_cli_annotations
+      sha256: e563c2e01de8974566a1998410d3f6f03521788160a02503b0b1f1a46c7b3d95
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   build_config:
     dependency: transitive
     description:
@@ -797,6 +805,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.1"
+  flutter_rust_bridge:
+    dependency: transitive
+    description:
+      name: flutter_rust_bridge
+      sha256: "37ef40bc6f863652e865f0b2563ea07f0d3c58d8efad803cc01933a4b2ee067e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.11.1"
   flutter_screenutil:
     dependency: "direct main"
     description:
@@ -906,6 +922,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_vodozemac:
+    dependency: "direct main"
+    description:
+      name: flutter_vodozemac
+      sha256: ef4c3580a7f2fe8eebb7602c6cba593a42b4a5e5466c372a022f77ccc14914a5
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -2549,6 +2573,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "15.2.0"
+  vodozemac:
+    dependency: "direct main"
+    description:
+      name: vodozemac
+      sha256: bbe7dd31d7f623e2aeedb92e4b71a8b519e6109ce1e2911b5a220f6752b65cda
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   wakelock_plus:
     dependency: "direct main"
     description:

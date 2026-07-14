@@ -9,6 +9,7 @@ import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/service/compliance_key_service.dart';
 
@@ -305,6 +306,15 @@ class E2EEService {
     required Map<String, dynamic> e2ee,
     String? aad,
   }) async {
+    // P0-B B4：Megolm 群会话套件按 e2ee_suite 委托 GroupSessionService
+    if (e2ee['e2ee_suite']?.toString() == kMegolmSuite) {
+      return GroupSessionService.to.decryptGroupMessage(
+        gid: e2ee['gid']?.toString() ?? '',
+        sessionId: e2ee['session_id']?.toString() ?? '',
+        ciphertext: ciphertext,
+      );
+    }
+
     // 1. 解析 ciphertext（格式：base64(nonce).base64(ciphertext)）
     final parts = ciphertext.split('.');
     if (parts.length != 2) {
