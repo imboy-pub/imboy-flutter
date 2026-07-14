@@ -40,6 +40,7 @@ import 'package:imboy/page/chat/chat/providers/chat_audio_handler.dart';
 // 技术债清理 (#14): 统一 ChatState 来源，避免与 chat_state.dart 双份定义
 import 'package:imboy/page/chat/chat/chat_state.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
+import 'package:imboy/service/storage.dart';
 export 'package:imboy/page/chat/chat/chat_state.dart' show ChatState;
 
 part 'chat_provider.g.dart';
@@ -67,6 +68,13 @@ class ChatNotifier extends _$ChatNotifier {
   final ChatNetworkService _networkService = const ChatNetworkService();
   final ChatBurnService _burnService = const ChatBurnService();
   final ChatArchiveService _archiveService = const ChatArchiveService();
+
+  /// conv_seq 正向增量同步单会话在途标记，防重入（P1-2）
+  bool _historySyncing = false;
+
+  /// 单次进会话最多正向同步的页数（每页 50 条），有界避免大会话首开卡顿；
+  /// 未追平的靠持久化游标下次进会话继续。
+  static const int _historyMaxPagesPerOpen = 6;
 
   // SharedPreferences keys
   static const String _spPendingReadReceiptsKey =
@@ -245,6 +253,9 @@ class ChatNotifier extends _$ChatNotifier {
         hasMoreMessage: true,
         currentConversationId: obj.uk3,
       );
+
+      // P1-2：进会话后台正向同步服务端归档历史入 SQLite（不阻塞首屏渲染）
+      unawaited(syncHistoryBackfill(obj));
 
       if (isDifferentConversation) {
         _chatService?.setMessages([]);
@@ -971,48 +982,48 @@ class ChatNotifier extends _$ChatNotifier {
     }
   }
 
-  Future<List<Map<String, dynamic>>> loadHistory({
-    required String chatType,
-    required String peerId,
-    int limit = 50,
-  }) async {
-    if (!state.historyHasMore) {
-      iPrint('loadHistory: 没有更多历史消息');
-      return [];
-    }
-    if (state.isLoading) {
-      iPrint('loadHistory: 正在加载中，跳过');
-      return [];
-    }
+  /// conv_seq 正向增量同步：把服务端归档历史落本地 SQLite（P1-2）。
+  ///
+  /// 进会话时后台 fire-and-forget 调用，填补离线拉取（msg_c2c/c2g 是 ACK 后
+  /// 即清的临时投递队列）覆盖不到的永久历史缺口（如新装机、离线超保留期）。
+  /// 游标按会话持久化于 StorageService，重复进会话只增量拉新，不重复全量。
+  /// 落库后既有 SQLite 分页（loadMoreMessages）自然渲染，无需另建渲染路径。
+  Future<void> syncHistoryBackfill(ConversationModel obj) async {
+    if (_historySyncing) return;
+    final String chatType = obj.type.toLowerCase();
+    if (chatType != 'c2c' && chatType != 'c2g') return;
 
-    state = state.copyWith(isLoading: true);
+    _historySyncing = true;
+    final String cursorKey = 'msg_history_seq_${obj.uk3}';
     try {
-      final result = await _archiveService.loadHistory(
-        chatType: chatType,
-        peerId: peerId,
-        lastHistorySeq: state.lastHistorySeq,
-        updateHistoryState: ({required int nextSeq, required bool hasMore}) {
-          state = state.copyWith(
-            isLoading: false,
-            lastHistorySeq: nextSeq,
-            historyHasMore: hasMore,
-          );
-        },
-        limit: limit,
-      );
-      if (state.isLoading) {
-        state = state.copyWith(isLoading: false);
+      final String peerId = obj.peerId.toString();
+      int seq = StorageService.to.getInt(cursorKey) ?? 0;
+      bool anyFetched = false;
+      int pages = 0;
+      while (pages < _historyMaxPagesPerOpen) {
+        final page = await _archiveService.fetchAndPersistHistoryPage(
+          chatType: chatType,
+          peerId: peerId,
+          afterSeq: seq,
+          limit: 50,
+        );
+        pages++;
+        if (page.fetched > 0) anyFetched = true;
+        if (page.nextSeq > seq) {
+          seq = page.nextSeq;
+          await StorageService.to.setInt(cursorKey, seq);
+        }
+        if (!page.hasMore) break;
       }
-      return result;
+      // 有回填则重置本地分页游标位，让上滑能读到新落库的更老消息
+      if (anyFetched) {
+        state = state.copyWith(hasMoreMessage: true);
+      }
     } catch (e) {
-      iPrint('loadHistory error: $e');
-      state = state.copyWith(isLoading: false);
-      return [];
+      iPrint('syncHistoryBackfill error: $e');
+    } finally {
+      _historySyncing = false;
     }
-  }
-
-  void resetHistoryCursor() {
-    state = state.copyWith(lastHistorySeq: 0, historyHasMore: true);
   }
 
   Future<void> scrollToMessage(String chatType, String messageId) async {

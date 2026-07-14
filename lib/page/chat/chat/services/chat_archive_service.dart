@@ -204,52 +204,57 @@ class ChatArchiveService {
     return newItems;
   }
 
-  // ===== 服务端历史消息 =====
+  // ===== 服务端归档历史（conv_seq 正向增量同步）=====
 
-  /// 从服务端 msg_store 拉取归档历史消息（conv_seq 游标分页）
-  Future<List<Map<String, dynamic>>> loadHistory({
+  /// 拉取一页归档历史并落 SQLite（P1-2 conv_seq 正向增量同步）
+  ///
+  /// 归档 payload 与离线队列消息形状高度一致，复用已验证的
+  /// [MessageRepo.batchInsertOfflineMessages]（内含 id 去重），仅做形状适配，
+  /// 不发送 ACK（归档消息不在投递队列里）。
+  /// 返回本页拉取条数、下一游标、是否还有更多。
+  Future<({int fetched, int nextSeq, bool hasMore})>
+  fetchAndPersistHistoryPage({
     required String chatType,
     required String peerId,
-    required int lastHistorySeq,
-    required void Function({required int nextSeq, required bool hasMore})
-    updateHistoryState,
+    required int afterSeq,
     int limit = 50,
   }) async {
-    try {
-      final result = await MsgApi().history(
-        chatType: chatType.toLowerCase(),
-        peerId: peerId,
-        afterSeq: lastHistorySeq,
-        limit: limit,
-      );
-
-      if (result == null) {
-        iPrint('loadHistory: 请求失败或 msg_archive_enabled=false');
-        updateHistoryState(nextSeq: lastHistorySeq, hasMore: false);
-        return [];
-      }
-
-      final messages =
-          (result['messages'] as List?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((m) => Map<String, dynamic>.from(m))
-              .toList(growable: false) ??
-          const [];
-
-      final int nextSeq =
-          (result['next_seq'] as num?)?.toInt() ?? lastHistorySeq;
-      final bool hasMore = (result['has_more'] as bool?) ?? false;
-
-      updateHistoryState(nextSeq: nextSeq, hasMore: hasMore);
-
-      iPrint(
-        'loadHistory: 拉到 ${messages.length} 条，nextSeq=$nextSeq, hasMore=$hasMore',
-      );
-      return messages;
-    } catch (e) {
-      iPrint('loadHistory error: $e');
-      return [];
+    final result = await MsgApi().history(
+      chatType: chatType.toLowerCase(),
+      peerId: peerId,
+      afterSeq: afterSeq,
+      limit: limit,
+    );
+    if (result == null) {
+      return (fetched: 0, nextSeq: afterSeq, hasMore: false);
     }
+
+    final rows =
+        (result['messages'] as List?)
+            ?.whereType<Map<String, dynamic>>()
+            .map((m) => Map<String, dynamic>.from(m))
+            .toList(growable: false) ??
+        const <Map<String, dynamic>>[];
+    final int nextSeq = (result['next_seq'] as num?)?.toInt() ?? afterSeq;
+    final bool hasMore = (result['has_more'] as bool?) ?? false;
+
+    if (rows.isEmpty) {
+      return (fetched: 0, nextSeq: nextSeq, hasMore: hasMore);
+    }
+
+    // c2c/c2g 落不同表，按 type 分组插入
+    final byType = <String, List<Map<String, dynamic>>>{};
+    for (final row in rows) {
+      final shaped = archiveRowToOfflineShape(row);
+      (byType[shaped['type'] as String] ??= []).add(shaped);
+    }
+    for (final entry in byType.entries) {
+      await MessageRepo(
+        tableName: MessageRepo.getTableName(entry.key),
+      ).batchInsertOfflineMessages(entry.value);
+    }
+
+    return (fetched: rows.length, nextSeq: nextSeq, hasMore: hasMore);
   }
 
   // ===== 撤回后更新会话 =====
@@ -300,4 +305,27 @@ class ChatArchiveService {
       iPrint('更新会话信息失败: $e');
     }
   }
+}
+
+/// 归档历史行 → [MessageRepo.batchInsertOfflineMessages] 期望形状（P1-2）
+///
+/// 后端 encode_history_msg 已把 from_id/to_id → from/to，chat_type 为
+/// 'c2c'/'c2g'。此处只补两点：① chat_type → type（C2C/C2G）；② C2G 行的
+/// to 为 null，用 group_id 兜底作群会话键。其余（msg_type/e2ee/payload/
+/// created_at 等）原样透传。纯函数，供单测覆盖字段映射正确性。
+Map<String, dynamic> archiveRowToOfflineShape(Map<String, dynamic> row) {
+  final chatType = (row['chat_type'] ?? '').toString().toLowerCase();
+  final type = chatType == 'c2g' ? 'C2G' : 'C2C';
+  final out = Map<String, dynamic>.from(row);
+  out['type'] = type;
+  if (type == 'C2G') {
+    final to = out['to'];
+    if (to == null || to.toString().isEmpty) {
+      final gid = row['group_id'];
+      if (gid != null) {
+        out['to'] = gid;
+      }
+    }
+  }
+  return out;
 }
