@@ -15,9 +15,10 @@
 
 ## 模块定位 / Module Scope
 
-`lib/modules/security_privacy/` 是**安全隐私限界上下文**：端到端加密（E2EE）密钥、社交恢复、本地备份/导入导出、设备间转移、健康检查。当前为**纯 seam**——仅 `public.dart` 收敛对外入口，re-export 遗留 E2EE 设置页面与一组 E2EE 服务，**尚未抽取 DDD 领域层**。
+`lib/modules/security_privacy/` 是**安全隐私限界上下文**：端到端加密（E2EE）密钥、口令/恢复密钥加密的云/本地备份（与 Matrix 4S 等价，密钥找回唯一路径）、健康检查。当前为**纯 seam**——仅 `public.dart` 收敛对外入口，re-export E2EE 设置页面与一组 E2EE 服务，**尚未抽取 DDD 领域层**。
+（自研社交恢复 Shamir 分片、设备间 RSA 中转传输已下线，2026-07-14。）
 
-`lib/modules/security_privacy/` is the **security & privacy bounded context**: E2EE keys, social recovery, local backup/export-import, device transfer, health check. Currently a **pure seam** — `public.dart` only; no DDD domain layer extracted yet.
+`lib/modules/security_privacy/` is the **security & privacy bounded context**: E2EE keys, password/recovery-key encrypted cloud/local backup (Matrix 4S-equivalent, the sole key-recovery path), health check. Currently a **pure seam** — `public.dart` only; no DDD domain layer extracted yet. (Self-hosted Shamir social recovery + RSA device transfer removed 2026-07-14.)
 
 ---
 
@@ -25,7 +26,7 @@
 
 | 层 / Layer | 文件 | 职责 |
 |---|---|---|
-| **presentation/service（seam）** | `public.dart` | 收敛 E2EE 入口：e2ee_key_recovery / proxy_selector / social_* / transfer_* / backup_* 页面 + `e2ee_crypto_service` / `e2ee_key_service` / `e2ee_service` / `e2ee_social_service` / `e2ee_transfer_service` / `e2ee_local_backup_service` / `e2ee_health_check_service` 等服务 |
+| **presentation/service（seam）** | `public.dart` | 收敛 E2EE 入口：e2ee_key_recovery / backup_* 页面 + `e2ee_crypto_service`（含 generateRecoveryKey）/ `e2ee_key_service` / `e2ee_service` / `e2ee_local_backup_service` / `e2ee_health_check_service` 等服务 |
 
 > **现状**：遗留代码之上的稳定 seam，`domain/` 暂未抽取。E2EE 为安全敏感域，任何领域抽取须经安全评审 + 严格回归。上层经 `public.dart` 导入，**勿深链内部**。
 
