@@ -310,6 +310,28 @@ class E2EECryptoService {
     return random.nextBytes(ivLength);
   }
 
+  /// 生成高熵恢复密钥（Matrix 4S 风格的第二把钥匙）。
+  ///
+  /// 用途：作为云/文件备份的凭据替代"可能被遗忘的口令"——用户保存这串随机码
+  /// （截图/密码管理器/打印），即可在忘记口令时解密备份。20 字节安全随机
+  /// （160 bit，PBKDF2-310k 之上再无暴力空间），分 8 组 5 位大写十六进制便于
+  /// 人工誊抄。返回串（含连字符）即备份凭据本身，恢复时逐字符原样输入。
+  static String generateRecoveryKey() {
+    final random = FortunaRandom();
+    final seed = Uint8List(32);
+    final secure = Random.secure();
+    for (int i = 0; i < seed.length; i++) {
+      seed[i] = secure.nextInt(256);
+    }
+    random.seed(KeyParameter(seed));
+    final hex = toHex(random.nextBytes(20)).toUpperCase(); // 40 hex chars
+    final groups = <String>[];
+    for (var i = 0; i < hex.length; i += 5) {
+      groups.add(hex.substring(i, i + 5));
+    }
+    return groups.join('-'); // 形如 A1B2C-3D4E5-...（8 组）
+  }
+
   // ================================================================
   // 辅助函数
   // ================================================================

@@ -947,6 +947,10 @@ e2eeDecryptActionRemindLater: 稍后提醒我
 e2eeBackupExportTitle: 导出 E2EE 备份
 e2eeBackupPwdCantRecover: • 备份密码无法找回，请务必牢记！
 e2eeBackupStoreMultipleNote: • 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）
+e2eeUseRecoveryKey: 生成恢复密钥（忘记口令的备用凭据）
+e2eeRecoveryKeyTitle: 恢复密钥
+e2eeRecoveryKeySaveNote: 请立即保存这串恢复密钥（截图或存入密码管理器）。忘记口令时，它是解密备份的唯一凭据；一旦丢失，备份将永久无法恢复。
+e2eeRecoveryKeyCopied: 恢复密钥已复制
 e2eeBackupPwdLabel: "备份密码 *"
 e2eeBackupPwdHint: 至少 12 位，包含大小写字母、数字和特殊符号
 e2eeBackupConfirmPwdLabel: "确认密码 *"

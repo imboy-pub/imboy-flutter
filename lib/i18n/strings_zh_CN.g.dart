@@ -4667,6 +4667,18 @@ class Translations$common$zh_CN {
 	/// zh-CN: '• 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）'
 	String get e2eeBackupStoreMultipleNote => '• 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）';
 
+	/// zh-CN: '生成恢复密钥（忘记口令的备用凭据）'
+	String get e2eeUseRecoveryKey => '生成恢复密钥（忘记口令的备用凭据）';
+
+	/// zh-CN: '恢复密钥'
+	String get e2eeRecoveryKeyTitle => '恢复密钥';
+
+	/// zh-CN: '请立即保存这串恢复密钥（截图或存入密码管理器）。忘记口令时，它是解密备份的唯一凭据；一旦丢失，备份将永久无法恢复。'
+	String get e2eeRecoveryKeySaveNote => '请立即保存这串恢复密钥（截图或存入密码管理器）。忘记口令时，它是解密备份的唯一凭据；一旦丢失，备份将永久无法恢复。';
+
+	/// zh-CN: '恢复密钥已复制'
+	String get e2eeRecoveryKeyCopied => '恢复密钥已复制';
+
 	/// zh-CN: '备份密码 *'
 	String get e2eeBackupPwdLabel => '备份密码 *';
 
@@ -8821,6 +8833,10 @@ extension on Translations {
 			'common.e2eeBackupExportTitle' => '导出 E2EE 备份',
 			'common.e2eeBackupPwdCantRecover' => '• 备份密码无法找回，请务必牢记！',
 			'common.e2eeBackupStoreMultipleNote' => '• 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）',
+			'common.e2eeUseRecoveryKey' => '生成恢复密钥（忘记口令的备用凭据）',
+			'common.e2eeRecoveryKeyTitle' => '恢复密钥',
+			'common.e2eeRecoveryKeySaveNote' => '请立即保存这串恢复密钥（截图或存入密码管理器）。忘记口令时，它是解密备份的唯一凭据；一旦丢失，备份将永久无法恢复。',
+			'common.e2eeRecoveryKeyCopied' => '恢复密钥已复制',
 			'common.e2eeBackupPwdLabel' => '备份密码 *',
 			'common.e2eeBackupPwdHint' => '至少 12 位，包含大小写字母、数字和特殊符号',
 			'common.e2eeBackupConfirmPwdLabel' => '确认密码 *',
@@ -8834,12 +8850,12 @@ extension on Translations {
 			'common.e2eeBackupPwdVeryStrong' => '非常强 - 安全',
 			'common.e2eeBackupGenerateBtn' => '生成备份文件',
 			'common.e2eeBackupFileGenerated' => '备份文件已生成！',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupShareBtn' => '通过邮件/云盘分享',
 			'common.e2eeBackupShareContent' => '这是我的 Imboy E2EE 密钥备份文件，请妥善保管，切勿泄露给他人。',
 			'common.e2eeBackupErrPwdMismatch' => '两次输入的密码不一致',
 			'common.e2eeBackupErrNoKeyData' => '无法获取密钥数据',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupErrExportFailed' => '导出失败，请重试',
 			'common.e2eeBackupErrShareFailed' => '分享失败，请重试',
 			'common.e2eeBackupExportSuccessTitle' => '备份导出成功',
@@ -9348,12 +9364,12 @@ extension on Translations {
 			'main.keepSecret' => '保密',
 			'main.lastActiveTime' => '最近活跃时间',
 			'main.lastSeenHide' => '隐藏在线状态',
+			_ => null,
+		} ?? switch (path) {
 			'main.lastSeenNever' => '从未上线',
 			'main.lastSeenWeeksAgo' => ({required Object param}) => '${param}周前',
 			'main.lastSeenExactTime' => ({required Object param}) => '上次在线 ${param}',
 			'main.licenseAgreement' => '《软件许可及服务协议》',
-			_ => null,
-		} ?? switch (path) {
 			'main.liveBroadcast' => '直播',
 			'main.liveRoomListView' => '直播间列表视图',
 			'main.publisherPage' => '推流页面',

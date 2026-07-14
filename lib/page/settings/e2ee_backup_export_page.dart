@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/service/e2ee_crypto_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -53,6 +56,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             _buildPasswordSection(),
             const SizedBox(height: AppSpacing.regular),
             _buildConfirmPasswordSection(),
+            const SizedBox(height: AppSpacing.small),
+            _buildRecoveryKeyButton(),
             const SizedBox(height: AppSpacing.regular),
             _buildNotesSection(),
             const SizedBox(height: AppSpacing.xLarge),
@@ -140,6 +145,66 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         hintText: t.common.e2eeBackupConfirmPwdHint,
         prefixIcon: const Icon(CupertinoIcons.lock_fill),
         border: const OutlineInputBorder(),
+      ),
+    );
+  }
+
+  /// 生成恢复密钥：填入口令/确认字段，并弹窗展示供用户保存（Matrix 4S 第二把钥匙）。
+  Widget _buildRecoveryKeyButton() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton.icon(
+        icon: const Icon(CupertinoIcons.wand_stars, size: 18),
+        label: Text(t.common.e2eeUseRecoveryKey),
+        onPressed: _generateRecoveryKey,
+      ),
+    );
+  }
+
+  void _generateRecoveryKey() {
+    final key = E2EECryptoService.generateRecoveryKey();
+    _passwordController.text = key;
+    _confirmPasswordController.text = key;
+    setState(() {});
+    showCupertinoDialog<void>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.common.e2eeRecoveryKeyTitle),
+        content: Column(
+          children: [
+            const SizedBox(height: AppSpacing.small),
+            SelectableText(
+              key,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.small),
+            Text(
+              t.common.e2eeRecoveryKeySaveNote,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: AppColors.iosOrange,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: key));
+              if (ctx.mounted) Navigator.pop(ctx);
+              AppLoading.showSuccess(t.common.e2eeRecoveryKeyCopied);
+            },
+            child: Text(t.common.buttonCopy),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t.common.buttonConfirm),
+          ),
+        ],
       ),
     );
   }
