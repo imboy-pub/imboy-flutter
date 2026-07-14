@@ -5,8 +5,6 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_export_page.dart';
 import 'package:imboy/page/settings/e2ee_backup_import_page.dart';
-import 'package:imboy/page/settings/e2ee_transfer_page.dart';
-import 'package:imboy/page/settings/e2ee_social_page.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -87,49 +85,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   ),
                 ),
 
-                // 方法 A: 设备间传输（已实现）
-                _buildRecoveryMethodCard(
-                  context,
-                  title: t.account.e2eeDeviceTransfer,
-                  description: t.account.e2eeDeviceTransferDesc,
-                  securityLevel: 3,
-                  icon: CupertinoIcons.device_laptop,
-                  iconColor: AppColors.iosBlue,
-                  status: t.chat.e2eeStatusAvailable,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute<dynamic>(
-                        builder: (_) => const E2EETransferPage(),
-                      ),
-                    );
-                  },
-                ),
-
-                AppSpacing.verticalMedium,
-
-                // 方法 B: 社交恢复（已实现）
-                _buildRecoveryMethodCard(
-                  context,
-                  title: t.main.e2eeSocialRecovery,
-                  description: t.main.e2eeSocialRecoveryDesc,
-                  securityLevel: 2,
-                  icon: CupertinoIcons.person_2,
-                  iconColor: AppColors.iosPurple,
-                  status: t.chat.e2eeStatusAvailable,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute<dynamic>(
-                        builder: (_) => const E2EESocialPage(),
-                      ),
-                    );
-                  },
-                ),
-
-                AppSpacing.verticalMedium,
-
-                // 方法 C: 本地备份（已实现）
+                // 密钥找回统一走口令/恢复密钥加密的云备份（4S 等价机制）。
+                // 换机历史恢复 = 新设备导入云备份；已弃用自研设备转移/社交恢复。
                 _buildRecoveryMethodCard(
                   context,
                   title: t.common.e2eeLocalBackup,

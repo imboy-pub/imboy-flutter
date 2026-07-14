@@ -149,52 +149,6 @@ List<RouteBase> mineRoutes() => [
         CupertinoPage(key: state.pageKey, child: const E2EEKeyRecoveryPage()),
   ),
   GoRoute(
-    path: '/e2ee_transfer',
-    name: 'e2ee_transfer',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const E2EETransferPage()),
-  ),
-  GoRoute(
-    path: '/e2ee_social',
-    name: 'e2ee_social',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const E2EESocialPage()),
-  ),
-  GoRoute(
-    path: '/e2ee_social_create',
-    name: 'e2ee_social_create',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const E2EESocialCreatePage()),
-  ),
-  GoRoute(
-    path: '/e2ee_social_recover',
-    name: 'e2ee_social_recover',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const E2EESocialRecoverPage()),
-  ),
-  GoRoute(
-    path: '/e2ee_social_manage',
-    name: 'e2ee_social_manage',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const E2EESocialManagePage()),
-  ),
-  GoRoute(
-    path: '/e2ee_proxy_selector',
-    name: 'e2ee_proxy_selector',
-    pageBuilder: (context, state) {
-      final extra = state.extra as Map<String, dynamic>? ?? {};
-      final selectedUids = extra['selectedUids'] as List<String>? ?? [];
-      final requiredCount = extra['requiredCount'] as int? ?? 3;
-      return CupertinoPage(
-        key: state.pageKey,
-        child: E2EEProxySelectorPage(
-          selectedUids: selectedUids,
-          requiredCount: requiredCount,
-        ),
-      );
-    },
-  ),
-  GoRoute(
     path: '/e2ee_backup_export',
     name: 'e2ee_backup_export',
     pageBuilder: (context, state) =>
@@ -209,24 +163,6 @@ List<RouteBase> mineRoutes() => [
       return CupertinoPage(
         key: state.pageKey,
         child: E2EEBackupImportPage(initialFilePath: initialFilePath),
-      );
-    },
-  ),
-  GoRoute(
-    path: '/e2ee_transfer_send',
-    name: 'e2ee_transfer_send',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const E2EETransferSendPage()),
-  ),
-  GoRoute(
-    path: '/e2ee_transfer_receive',
-    name: 'e2ee_transfer_receive',
-    pageBuilder: (context, state) {
-      final extra = state.extra as Map<String, dynamic>? ?? {};
-      final sessionId = extra['sessionId'] as String?;
-      return CupertinoPage(
-        key: state.pageKey,
-        child: E2EETransferReceivePage(sessionId: sessionId),
       );
     },
   ),

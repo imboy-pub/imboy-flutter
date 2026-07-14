@@ -5,6 +5,8 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/init.dart' show deviceId;
+import 'package:imboy/service/compliance_key_service.dart'
+    show ComplianceKeyInfo;
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/storage_secure.dart';
@@ -209,6 +211,7 @@ void main() {
       await GroupSessionService.to.handleRoomKeyMessage({
         'from': 'attacker_uid',
         'to': gid,
+        'type': 'C2G',
         'payload': payload,
       });
 
@@ -226,6 +229,205 @@ void main() {
         ciphertext: ct,
       );
       expect(plain, '攻击者也能合法分发 key，但只能解密不能改策略');
+    });
+  });
+
+  group('C2C 单聊 Megolm（发送路径全量新方案）', () {
+    test(
+      'buildRoomKeyPayload 无 gid → C2C 形态（scope=c2c）+ extraKeys 追加',
+      () async {
+        final keyInfo = await _setupDeviceKey();
+        final did = keyInfo['device_id'] as String;
+        final kid = keyInfo['key_id'] as String;
+        final pem = keyInfo['public_key'] as String;
+
+        final rnd = Random.secure();
+        final exported = base64
+            .encode(List<int>.generate(165, (_) => rnd.nextInt(256)))
+            .replaceAll('=', '');
+
+        final compliance = GroupSessionService.complianceEntryFor(
+          exportedKey: exported,
+          key: ComplianceKeyInfo(
+            keyId: 'ck_v1',
+            publicKey: pem, // 用设备公钥充当合规公钥，便于用配对私钥验证往返
+            fetchedAt: DateTime.now(),
+          ),
+        );
+        final payload = GroupSessionService.buildRoomKeyPayload(
+          sessionId: 'sess_c2c',
+          exportedKey: exported,
+          didToPem: {did: pem},
+          didToKid: {did: kid},
+          extraKeys: [compliance],
+        );
+
+        expect(payload.containsKey('gid'), isFalse);
+        expect(payload['scope'], 'c2c');
+        expect((payload['keys'] as List).length, 2);
+
+        // 合规条目可用合规私钥解包出同一 session key（审计侧可导入解密）
+        final auditEntry = GroupSessionService.pickMyKeyEntry(
+          payload['keys'] as List,
+          'compliance-audit',
+        );
+        expect(auditEntry, isNotNull);
+        expect(auditEntry!['kid'], 'ck_v1');
+        final privateKeyPem = await StorageSecureService.to.getPrivateKeyByKid(
+          kid,
+        );
+        final restored = GroupSessionService.unwrapSessionKey(
+          ek: auditEntry['ek'] as String,
+          privateKeyPem: privateKeyPem!,
+        );
+        expect(restored, exported);
+      },
+    );
+
+    test(
+      'C2C room key → handleRoomKeyMessage → decryptC2CMessage 全链路往返',
+      () async {
+        final hasLib = Directory(_spikeLibDir).existsSync();
+        if (!hasLib) {
+          markTestSkipped('spike 动态库缺失：$_spikeLibDir');
+          return;
+        }
+        await _ensureVod();
+
+        final keyInfo = await _setupDeviceKey();
+        final did = keyInfo['device_id'] as String;
+        final kid = keyInfo['key_id'] as String;
+        final pem = keyInfo['public_key'] as String;
+        deviceId = did;
+
+        // 发送端（对端 uid=peer_1）：建二人会话，encrypt 前导出
+        final outbound = vod.GroupSession();
+        final sessionId = outbound.sessionId;
+        final exported = outbound.toInbound().exportAt(0)!;
+        final payload = GroupSessionService.buildRoomKeyPayload(
+          sessionId: sessionId,
+          exportedKey: exported,
+          didToPem: {did: pem},
+          didToKid: {did: kid},
+        );
+
+        // 接收端：C2C 消息 data['to'] 是本端 uid，严禁被当作会话域
+        await GroupSessionService.to.handleRoomKeyMessage({
+          'from': 'peer_1',
+          'to': 'my_uid_should_not_be_scope',
+          'type': 'C2C',
+          'payload': payload,
+        });
+
+        final ct = outbound.encrypt('单聊 Megolm 消息');
+        final plain = await GroupSessionService.to.decryptC2CMessage(
+          sessionId: sessionId,
+          ciphertext: ct,
+        );
+        expect(plain, '单聊 Megolm 消息');
+
+        // 域隔离：同 sessionId 的群域查不到（未污染群存储命名空间）
+        await expectLater(
+          GroupSessionService.to.decryptGroupMessage(
+            gid: 'my_uid_should_not_be_scope',
+            sessionId: sessionId,
+            ciphertext: ct,
+          ),
+          throwsA(anything),
+        );
+      },
+    );
+
+    // 安全回归（发现1 HIGH）：域混淆注入必须被拒——攻击者以 type=C2G,to=群A
+    // 发送，但 payload.gid=群B，不得写入群 B 的 Megolm 命名空间。
+    test('域混淆：type/to 与 payload.gid 不一致的群 room key 被丢弃', () async {
+      final hasLib = Directory(_spikeLibDir).existsSync();
+      if (!hasLib) {
+        markTestSkipped('spike 动态库缺失：$_spikeLibDir');
+        return;
+      }
+      await _ensureVod();
+
+      final keyInfo = await _setupDeviceKey();
+      final did = keyInfo['device_id'] as String;
+      final kid = keyInfo['key_id'] as String;
+      final pem = keyInfo['public_key'] as String;
+      deviceId = did;
+
+      const victimGid = 'g_victim_B';
+      final outbound = vod.GroupSession();
+      final sessionId = outbound.sessionId;
+      final exported = outbound.toInbound().exportAt(0)!;
+      // payload 声明目标群 B，但传输层 to=群 A（攻击者有权限的群）
+      final payload = GroupSessionService.buildRoomKeyPayload(
+        gid: victimGid,
+        sessionId: sessionId,
+        exportedKey: exported,
+        didToPem: {did: pem},
+        didToKid: {did: kid},
+      );
+
+      await GroupSessionService.to.handleRoomKeyMessage({
+        'from': 'attacker_uid',
+        'to': 'g_attacker_A', // ≠ payload.gid
+        'type': 'C2G',
+        'payload': payload,
+      });
+
+      // 断言：群 B 命名空间未被写入伪造 session（解密应失败）
+      final ct = outbound.encrypt('注入的伪造消息');
+      await expectLater(
+        GroupSessionService.to.decryptGroupMessage(
+          gid: victimGid,
+          sessionId: sessionId,
+          ciphertext: ct,
+        ),
+        throwsA(anything),
+        reason: '域不匹配的 room key 不得写入声明群的存储命名空间',
+      );
+    });
+
+    // C2C key 若从 C2G 通道到达（通道混淆）必须被拒
+    test('通道混淆：scope=c2c 的 room key 从 C2G 通道到达被丢弃', () async {
+      final hasLib = Directory(_spikeLibDir).existsSync();
+      if (!hasLib) {
+        markTestSkipped('spike 动态库缺失：$_spikeLibDir');
+        return;
+      }
+      await _ensureVod();
+
+      final keyInfo = await _setupDeviceKey();
+      final did = keyInfo['device_id'] as String;
+      final kid = keyInfo['key_id'] as String;
+      final pem = keyInfo['public_key'] as String;
+      deviceId = did;
+
+      final outbound = vod.GroupSession();
+      final sessionId = outbound.sessionId;
+      final exported = outbound.toInbound().exportAt(0)!;
+      final payload = GroupSessionService.buildRoomKeyPayload(
+        sessionId: sessionId, // 无 gid → scope=c2c
+        exportedKey: exported,
+        didToPem: {did: pem},
+        didToKid: {did: kid},
+      );
+
+      await GroupSessionService.to.handleRoomKeyMessage({
+        'from': 'attacker_uid',
+        'to': 'some_group',
+        'type': 'C2G', // c2c payload 走群通道 → 拒
+        'payload': payload,
+      });
+
+      final ct = outbound.encrypt('通道混淆消息');
+      await expectLater(
+        GroupSessionService.to.decryptC2CMessage(
+          sessionId: sessionId,
+          ciphertext: ct,
+        ),
+        throwsA(anything),
+        reason: 'c2c room key 只能从 C2C 通道到达',
+      );
     });
   });
 }

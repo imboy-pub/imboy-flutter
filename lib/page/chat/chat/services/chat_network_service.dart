@@ -512,7 +512,7 @@ class ChatNetworkService {
     List<String> removeKeys = const [],
   }) async {
     // P0-B B4：群级 E2EE 开启的群强制加密（独立于全局策略与本地开关，
-    // 服务端 fail-closed 门会拒明文），且走 Megolm 群会话套件
+    // 服务端 fail-closed 门会拒明文）
     final bool groupMegolm =
         chatType == 'C2G' && await GroupSessionService.to.isGroupE2EE(toId);
     final bool needEncrypt =
@@ -520,14 +520,18 @@ class ChatNetworkService {
         (groupMegolm || E2EEService.shouldEncryptOutgoingPayload(chatType));
     if (!needEncrypt) return null;
 
-    if (groupMegolm) {
-      final plaintextPayload = Map<String, dynamic>.from(plaintextMap);
-      for (final key in removeKeys) {
-        plaintextPayload.remove(key);
-      }
+    // 发送路径全量 Megolm（vodozemac）：C2G 群会话、C2C 二人会话。
+    // 自研 RSA+AES 套件（e2ee_ver 1）仅保留解密兼容历史密文，不再产生新密文。
+    final plaintextPayload = Map<String, dynamic>.from(plaintextMap);
+    for (final key in removeKeys) {
+      plaintextPayload.remove(key);
+    }
+    final plaintext = jsonEncode(plaintextPayload);
+
+    if (chatType == 'C2G') {
       final enc = await GroupSessionService.to.encryptGroupMessage(
         gid: toId,
-        plaintext: jsonEncode(plaintextPayload),
+        plaintext: plaintext,
       );
       return {
         'e2ee': {
@@ -541,42 +545,19 @@ class ChatNetworkService {
       };
     }
 
-    final deviceKeys = await (chatType == 'C2G'
-        ? E2EEService.getGroupDevicePublicKeys(toId)
-        : E2EEService.getUserDevicePublicKeys(toId));
-    final didToPem = deviceKeys['didToPem'] ?? {};
-    if (didToPem.isEmpty) {
-      throw Exception('no_recipient_keys');
-    }
-    // 零信任契约：kid 取后端返回的 key_id（device_id→key_id 映射）；
-    // 缺失时回退 device_id 兼容旧数据，避免发送中断。
-    final didToKid = deviceKeys['didToKid'] ?? {};
-
-    final recipients = <RecipientDevice>[];
-    for (final entry in didToPem.entries) {
-      recipients.add(
-        RecipientDevice(
-          deviceId: entry.key,
-          keyId: didToKid[entry.key] ?? entry.key,
-          publicKey: entry.value,
-        ),
-      );
-    }
-
-    final plaintextPayload = Map<String, dynamic>.from(plaintextMap);
-    for (final key in removeKeys) {
-      plaintextPayload.remove(key);
-    }
-    final plaintext = jsonEncode(plaintextPayload);
-
-    final result = await E2EEService.buildE2EEData(
+    final enc = await GroupSessionService.to.encryptC2CMessage(
+      peerUid: toId,
       plaintext: plaintext,
-      recipients: recipients,
     );
-
     return {
-      'e2ee': result['e2ee'] as Map<String, dynamic>,
-      'payload': result['ciphertext'] as String,
+      'e2ee': {
+        'e2ee': true,
+        'e2ee_ver': 2,
+        'e2ee_suite': kMegolmSuite,
+        'scope': GroupSessionService.c2cScope,
+        'session_id': enc.sessionId,
+      },
+      'payload': enc.ciphertext,
     };
   }
 

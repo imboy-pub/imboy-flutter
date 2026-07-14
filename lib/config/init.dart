@@ -615,11 +615,6 @@ class AppInitializer {
     // ChatLogic 已迁移到 Riverpod，不再需要手动注册
     // serviceContainer.put(ChatLogic()); // 1
 
-    // 初始化 E2EE 分片消息处理器（零信任架构）
-    // 必须在 WebSocket 服务初始化之前初始化，以便监听消息
-    E2EEShardMessageHandler.to.init();
-    iPrint('✅ [INIT] E2EE分片消息处理器已初始化');
-
     // 初始化 E2EE 健康检查与自愈服务（支持增量通知拉取与设备权威状态对账）
     E2EEHealthCheckService.to.init();
     iPrint('✅ [INIT] E2EE健康检查与自愈服务已初始化');

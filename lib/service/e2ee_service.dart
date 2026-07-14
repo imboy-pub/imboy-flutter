@@ -306,11 +306,20 @@ class E2EEService {
     required Map<String, dynamic> e2ee,
     String? aad,
   }) async {
-    // P0-B B4：Megolm 群会话套件按 e2ee_suite 委托 GroupSessionService
+    // Megolm 套件按 e2ee_suite 委托 GroupSessionService：
+    // 带 gid → 群会话；无 gid（scope='c2c'）→ 单聊二人会话
     if (e2ee['e2ee_suite']?.toString() == kMegolmSuite) {
-      return GroupSessionService.to.decryptGroupMessage(
-        gid: e2ee['gid']?.toString() ?? '',
-        sessionId: e2ee['session_id']?.toString() ?? '',
+      final gid = e2ee['gid']?.toString() ?? '';
+      final sessionId = e2ee['session_id']?.toString() ?? '';
+      if (gid.isNotEmpty) {
+        return GroupSessionService.to.decryptGroupMessage(
+          gid: gid,
+          sessionId: sessionId,
+          ciphertext: ciphertext,
+        );
+      }
+      return GroupSessionService.to.decryptC2CMessage(
+        sessionId: sessionId,
         ciphertext: ciphertext,
       );
     }

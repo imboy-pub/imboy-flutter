@@ -250,23 +250,6 @@ class API {
   static const e2eeBackupInfo = '/api/v1/e2ee/backup/info';
   static const e2eeBackupDelete = '/api/v1/e2ee/backup/delete';
 
-  // E2EE+ 社交恢复
-  static const e2eeSocialContacts = '/api/v1/e2ee/social/contacts';
-  static const e2eeSocialContactsAdd = '/api/v1/e2ee/social/contacts/add';
-  static const e2eeSocialContactsRemove = '/api/v1/e2ee/social/contacts/remove';
-  static const e2eeSocialCreateShards = '/api/v1/e2ee/social/create_shards';
-  static const e2eeSocialShards = '/api/v1/e2ee/social/shards';
-  static const e2eeSocialProxyShards = '/api/v1/e2ee/social/proxy_shards';
-  static const e2eeSocialDecryptShard = '/api/v1/e2ee/social/decrypt_shard';
-  static const e2eeSocialRecover = '/api/v1/e2ee/social/recover';
-
-  // E2EE+ 设备间传输
-  static const e2eeTransferCreate = '/api/v1/e2ee/transfer/create';
-  static const e2eeTransferInfo = '/api/v1/e2ee/transfer/info';
-  static const e2eeTransferAccept = '/api/v1/e2ee/transfer/accept';
-  static const e2eeTransferConfirm = '/api/v1/e2ee/transfer/confirm';
-  static const e2eeTransferPending = '/api/v1/e2ee/transfer/pending';
-
   // 推送通知
   static const pushRegister = '/api/v1/push/register';
   static const pushUnregister = '/api/v1/push/unregister';
