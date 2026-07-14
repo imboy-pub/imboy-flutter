@@ -140,6 +140,19 @@
 - **真机 UI 复验（群投票，修复后）**：列表出两条（eval 验证票 + 崩溃期孤儿「QA vote」）✅；详情页 yes/no 选项完整渲染 ✅；投票 cast 成功（yes 100% 共1票，按钮变更新投票）✅。群投票 list/create/detail/cast 全链路生产闭环。
 - **孤儿行 UI 坐实**：「QA vote」（vote.5xwUV8SNr3N1sCt，无选项）在列表可见可点，属坏数据，待授权清理。
 
+### 轮 19 — 2026-07-14 — 🎉四专项深度真机 QA（agent 驱动，35 项）+ 4 个"从未工作过"的功能级坏死修复
+- **专项①单聊主体（9 项）**：文本/表情/相册图/语音(长按2.5s)/引用/删除/画廊/历史分页/+面板(实发位置) 全 PASS；相册无视频 BLOCKED。长按菜单全项编目（表情回应行+引用/复制/转发/收藏/编辑/撤回/删除）。
+- **专项②群写操作（117@imboy.pub，IMBoy 群主）**：群文本/群公告/群标签/群分组/群二维码/群相册上传/群日程 PASS；**群主视角无禁言/设管理员入口**（成员区仅+邀请/−移出——产品缺口待立项）。
+- **专项③频道（8 项）**：发布文本/带图、设置四项、订单、邀请、搜索、无付费墙项 7 PASS；🔴点赞/评论失效 FAIL。
+- **专项④mine（10 项）**：收藏/存储/设备/账号安全(只读)/语言实改复原/深色实改复原/字体实改复原/E2EE三恢复子页 PASS；钱包子页多为"敬请期待"；🔴三静态文档页全挂。
+- **🔴 已修 4 个功能级坏死（生产日志铁证，全部"自上线从未成功过"）**：
+  - imboy `59aedd4d`：①群文件上传（read_part 单 part headers 当 parts 列表→function_clause；改流式 read_all_parts）②群作业创建（整数 task_id vs varchar(40)+is_binary 契约→invalid_param；改 elib_id:gen）。34 EUnit 绿。
+  - imboy `ca166260`：③频道评论（tsid 注册表漏 channel_comment）——全量对账再揪 7 个同款潜伏雷（group建群/red_packet/transfer_order/channel_price/admin_op_log/plugin_audit_log/red_packet_receive）一并补注册。
+  - imboyapp `43d3964e`：④设置页三文档（gitee raw 404+旧路径 doc/）改 assets 离线加载+回归测试。
+- **🔴 已收窄待修（HIGH，需 debug 包动态定位）**：C2C 撤回/编辑——后端成功执行（msg_c2c 有 revoke_ack 投递行铁证）但发起方气泡不更新；编辑首次"变新消息"=_editingMessageId 发送时丢失。链路逐环静态审计均正确，断点在发起方 ack 接收环节。
+- **其余待办**：频道点赞失效（无后端日志，疑客户端未发请求）、频道发布后不自动刷新、关于页泄漏内部工程文档、钱包腾讯服务模板残留、地点首次闪退、设备在线文案矛盾、群公告"有效期至:刚刚"。⚠️ 生产未部署本轮 3 笔后端修复。
+- **教训（第三次验证）**：mock 掉协议边界的测试抓不住契约错误（read_part mock 塞列表/build_select mock/task insert mock 三案同型）；tsid 标签遗漏系第二次发生，建议 CI 加对账门禁。
+
 ## 逐轮记录
 
 ### 轮 1 — 2026-07-11 — 朋友圈 moment
