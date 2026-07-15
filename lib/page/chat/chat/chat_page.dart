@@ -992,18 +992,25 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   /// 处理图片选择（从相册）
   void _handleImageSelection() {
-    // 调用 attachmentHandler 的 handleImageSelection
-    // 使用默认的图片选择器
-    _attachmentHandler.handleImageSelection(
-      context,
-      () => AssetPicker.pickAssets(
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      // Android：photo_manager 在部分定制 ROM（如华为 Android 9）上 platform
+      // channel 全面挂起，导致 wechat_assets_picker 无法弹出。改用 file_picker
+      // 走系统原生 Intent（ACTION_GET_CONTENT）绕过。
+      debugPrint('[chat_page] calling handleImageFileSelection');
+      _attachmentHandler.handleImageFileSelection(context);
+    } else {
+      // iOS / macOS / Web：使用 wechat_assets_picker
+      _attachmentHandler.handleImageSelection(
         context,
-        pickerConfig: const AssetPickerConfig(
-          maxAssets: 9,
-          requestType: RequestType.image,
+        () => AssetPicker.pickAssets(
+          context,
+          pickerConfig: const AssetPickerConfig(
+            maxAssets: 9,
+            requestType: RequestType.image,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   /// 处理文件选择

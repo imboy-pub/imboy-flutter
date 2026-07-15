@@ -350,20 +350,111 @@ class ChatAttachmentHandler {
     await _sendMessage(message);
   }
 
+  /// 通过 FilePicker 选择图片并上传（Android fallback 方案）。
+  ///
+  /// 在部分定制 ROM（如华为 Android 9）上，photo_manager 的所有 platform
+  /// channel 调用都挂起，导致 wechat_assets_picker 的选择器无法弹出。
+  /// 此方法用 file_picker（走 Android 原生 Intent ACTION_GET_CONTENT）
+  /// 完全绕过 photo_manager。
+  Future<void> handleImageFileSelection(BuildContext context) async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.image,
+        allowMultiple: true,
+      );
+      if (result == null || result.files.isEmpty) return;
+      if (!context.mounted) return;
+
+      for (final file in result.files) {
+        await _uploadImagePlatformFile(context, file);
+      }
+    } catch (e) {
+      debugPrint('[attachment_handler] handleImageFileSelection error: $e');
+    }
+  }
+
+  /// 上传 FilePicker 选中的图片文件
+  Future<void> _uploadImagePlatformFile(
+    BuildContext context,
+    PlatformFile file,
+  ) async {
+    try {
+      // 获取图片字节
+      Uint8List? bytes = file.bytes;
+      if (bytes == null && file.path != null) {
+        bytes = await File(file.path!).readAsBytes();
+      }
+      if (bytes == null || bytes.isEmpty) {
+        debugPrint('[attachment_handler] image bytes is null: ${file.name}');
+        return;
+      }
+
+      // 解析图片尺寸
+      int width = 0;
+      int height = 0;
+      try {
+        final decoded = img.decodeImage(bytes);
+        if (decoded != null) {
+          width = decoded.width;
+          height = decoded.height;
+        }
+      } catch (e) {
+        debugPrint('[attachment_handler] decodeImage error: $e');
+      }
+
+      final fileName = file.name.isNotEmpty ? file.name : '${Xid()}.jpg';
+      final ext = fileName.contains('.')
+          ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
+          : 'jpg';
+      final mime = 'image/$ext';
+
+      final s = _uploadScope;
+      final meta = await AttachmentApi.uploadBytesViaPresignMeta(
+        bytes,
+        '${Xid()}.$ext',
+        mime,
+        scope: s.scope,
+        scopeRef: s.scopeRef,
+      );
+
+      final message = ImageMessage(
+        authorId: _currentUser.id,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(
+          DateTimeHelper.millisecond(),
+          isUtc: true,
+        ),
+        id: Xid().toString(),
+        text: fileName,
+        height: height * 1.0,
+        width: width * 1.0,
+        size: meta['size'] as int?,
+        source: meta['object_key'] as String,
+        metadata: _withBurnMetadata({
+          'peer_id': peerId,
+          'file_hash256': meta['file_hash256'].toString(),
+        }),
+      );
+      await _sendMessage(message);
+    } on Object catch (e) {
+      debugPrint('[attachment_handler] _uploadImagePlatformFile error: $e');
+    }
+  }
+
   /// 处理图片选择
   Future<void> handleImageSelection(
     BuildContext context,
     Future<List<AssetEntity>?> Function() onSelect,
   ) async {
-    bool hasPermission = await requestPhotoPermission();
-    if (!hasPermission) return;
-
-    final result = await onSelect();
-    if (!context.mounted) return;
-    if (result != null) {
-      for (var entity in result) {
-        await uploadSelectedAsset(context, entity);
+    try {
+      final result = await onSelect();
+      if (!context.mounted) return;
+      if (result != null) {
+        for (var entity in result) {
+          await uploadSelectedAsset(context, entity);
+        }
       }
+    } on StateError catch (e) {
+      debugPrint('[chat] handleImageSelection: permission error: $e');
     }
   }
 

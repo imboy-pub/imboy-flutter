@@ -118,3 +118,6 @@ erl_crash.dump
 # Slang i18n analyze outputs (regenerated on demand)
 assets/i18n/_missing_translations.yaml
 assets/i18n/_unused_translations.yaml
+
+# mobile-mcp 真机走查截图（临时产物，勿入库）
+.test-screenshots/

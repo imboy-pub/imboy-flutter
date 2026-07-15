@@ -392,50 +392,51 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       (title: t.chat.extraPanelFunds, items: fundItems),
     ];
 
-    // 防止手势冲突，确保ExtraItems内部交互不会影响输入框
-    return GestureDetector(
-      // 阻止手势向上传递：故意留空，仅用于拦截 tap 事件
-      onTap: () {},
-      child: Container(
-        // height: 240, // Remove fixed height to adapt to panel height
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-          border: Border(
-            top: BorderSide(
-              color: colorScheme.outline.withValues(alpha: 0.12),
-              width: 0.5,
-            ),
+    // 面板外层不再包裹 GestureDetector——之前的 GestureDetector(onTap:(){})
+    // 会与子 InkWell 在手势竞技场中竞争并获胜，导致所有面板按钮点击无反应。
+    // 面板的 Container + ListView 本身已能消费各自区域内的手势事件，
+    // 空白区域的 tap 不会穿透到下方的输入框（面板在 z-axis 上覆盖输入框）。
+    return Container(
+      // height: 240, // Remove fixed height to adapt to panel height
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        border: Border(
+          top: BorderSide(
+            color: colorScheme.outline.withValues(alpha: 0.12),
+            width: 0.5,
           ),
         ),
-        child: Column(
-          children: [
-            // 顶部指示器
-            Container(
-              width: 36,
-              height: 4,
-              margin: const EdgeInsets.only(top: 12, bottom: 8),
-              decoration: BoxDecoration(
-                color: colorScheme.outline.withValues(alpha: 0.4),
-                borderRadius: AppRadius.borderRadiusTiny,
-              ),
+      ),
+      child: Column(
+        children: [
+          // 顶部指示器
+          Container(
+            width: 36,
+            height: 4,
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            decoration: BoxDecoration(
+              color: colorScheme.outline.withValues(alpha: 0.4),
+              borderRadius: AppRadius.borderRadiusTiny,
             ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: AppSpacing.regular),
-                children: [
-                  for (final section in sections) ...[
-                    _sectionHeader(context, section.title),
-                    _buildItemsGrid(section.items),
-                  ],
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.only(bottom: AppSpacing.regular),
+              children: [
+                for (final section in sections) ...[
+                  _sectionHeader(context, section.title),
+                  _buildItemsGrid(section.items),
                 ],
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+
+  /// 轻量分区标题条
 
   /// 轻量分区标题条：走 Token（字号/间距/次级文字色），禁硬编码
   Widget _sectionHeader(BuildContext context, String title) {

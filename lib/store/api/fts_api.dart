@@ -5,6 +5,19 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
+/// 后端 ERR_FEATURE_DISABLED 错误码（见 imboy/include/error_code.hrl:225）。
+/// 当 E2EE 模式为 secure_e2ee/required 时，后端策略强制关闭 message_search。
+const _kErrFeatureDisabled = 5190;
+
+/// 搜索功能被策略禁用时抛出（如当前加密模式不支持服务端搜索）。
+/// UI 层应捕获此异常显示"功能未启用"而非笼统的"搜索失败"。
+class FtsFeatureDisabledException implements Exception {
+  final String message;
+  FtsFeatureDisabledException([this.message = '当前加密模式不支持消息搜索']);
+  @override
+  String toString() => 'FtsFeatureDisabledException: $message';
+}
+
 /// FTS (Full-Text Search) API 提供者的 Riverpod Provider
 /// 提供对 FtsApi 单例的访问
 final ftsApiProvider = Provider<FtsApi>((ref) {
@@ -176,6 +189,9 @@ class FtsApi extends HttpClient {
       );
 
       if (!resp.ok) {
+        if (resp.code == _kErrFeatureDisabled) {
+          throw FtsFeatureDisabledException();
+        }
         return null;
       }
 
@@ -185,6 +201,8 @@ class FtsApi extends HttpClient {
       }
 
       return null;
+    } on FtsFeatureDisabledException {
+      rethrow;
     } on Exception {
       return null;
     }
@@ -239,6 +257,9 @@ class FtsApi extends HttpClient {
       );
 
       if (!resp.ok) {
+        if (resp.code == _kErrFeatureDisabled) {
+          throw FtsFeatureDisabledException();
+        }
         return null;
       }
 
@@ -248,6 +269,8 @@ class FtsApi extends HttpClient {
       }
 
       return null;
+    } on FtsFeatureDisabledException {
+      rethrow;
     } on Exception {
       return null;
     }

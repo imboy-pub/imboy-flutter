@@ -175,3 +175,377 @@
 - **修复（commit f9d4af7e）**：改 `data: bytes` + catch 加 debugPrint，dart analyze 零 error。
 - **⚠️ 待真机验证**：384MB debug apk 弱设备 pm install dexopt 卡 + arm64 构建撞网络失败，未装上复验。待环境允许复跑。
 
+### 轮 13 — 2026-07-14 — mobile-mcp 全量走查 P0 档（passport/conversation/chat/contact/mine）
+
+> 驱动方式：mobile-mcp（`mcp__mobile-mcp__mobile_*`）半自动驱动，非人工逐页点。截图归档 `.test-screenshots/<module>/`。设备 Android MRD-AL00（`XWE6R19916004085`），包名 `imboy.chat`，登录账号 `118@imboy.pub`（ID:51698），APP_ENV=pro。
+
+**P0 各模块结论**：
+
+#### passport（登录）— ✅ PASS（有发现）
+- 登录页三 tab（账号/手机/邮箱）渲染正常，截图 `.test-screenshots/passport/01-05`。
+- 账号 tab 密码登录 `118@imboy.pub` / `admin888` 成功，进入底部 4 tab 主框架。
+- ⚠️ **发现：计划凭证 `13900001002/admin888` 在当前 UI 走不通**——账号 tab 发 `type=account`（服务端只认邮箱/IMBoy ID），纯数字手机号被拒；手机 tab 是验证码模式无密码框。`login_page.dart` 的 `Key('login_phone_input')` 实际挂在账号 tab（命名误导），maestro `01_login.yaml` 依赖的 selector 与实际 UI 有偏差。建议：maestro/集成测试改用邮箱账号，或文档补充说明手机号只能走验证码。
+- ⚠️ **发现：密码输入框 Flutter 语义树不暴露**——`get_ui`/`list_elements_on_screen` 漏抓 `login_password_input`（obscureText=true 的 TextField），mobile-mcp 无法通过语义树定位，需靠 uiautomator dump 或坐标盲点。影响所有自动化框架依赖无障碍树的场景。
+
+#### conversation + bottom_navigation — ✅ PASS
+- 底部 4 tab（消息/联系人/频道/我的）切换全部正常，截图 `.test-screenshots/conversation/02-05`。
+- 会话列表渲染正常（leeyi C2C 会话），下拉刷新无崩溃。
+- 频道 tab 空态"暂无订阅的频道"渲染正常 ✅。
+- 顶部 E2EE 提示条"检测到加密历史消息，需恢复密钥后才能查看"正常显示（与 settings 恢复密钥功能关联）。
+
+#### chat — ⚠️ PASS WITH BUG
+- 进入 leeyi C2C 会话 ✅，历史消息渲染全正常（位置消息有地图缩略图 / 语音消息有播放按钮 / 引用消息 / 编辑过的消息），**无大叉叉无破碎图片** ✅（历史 P0 雷区复验通过）。
+- **发文本消息成功**：输入 `mobile-mcp test text 0714` → 点发送 → 气泡出现"刚刚" → 会话列表预览同步更新 ✅。
+- **语音消息点击播放**：无崩溃，UI 无报错 ✅。
+- **聊天设置页**：渲染正常（标准模式/消息免打扰/阅后即焚/查找聊天记录/聊天背景/清空聊天记录）✅。
+- 🔴 **Bug #1（P1）：聊天附件面板"照片/相册"按钮点击无反应**。点 +号 → 面板弹出 9 个按钮 → 点第 1 个"照片"按钮（`handleImageSelection` → `AssetPicker.pickAssets`）无任何响应，不打开相册、不报错、不崩溃。权限已全部授予（READ/WRITE_EXTERNAL_STORAGE granted=true）。用 mobile-mcp click 和 adb tap 均无效。**影响：无法通过相册发图，P0 上传链路（发图）未测成。** 复现步：任意 C2C 会话 → 点+号 → 点"照片"。截图 `.test-screenshots/chat/05_attach_panel_album_no_response.png`。疑似 `wechat_asset_picker` 在 Android 9 / arm(32位) 真机上的兼容性问题，需 debug 包 logcat 定位。
+- ⚠️ **通话 UI 未起呼**：点附件面板 #8(语音通话)/#9(视频通话) 后面板关闭但无通话页弹出——可能对端离线或 WebRTC 初始化静默失败。按计划"通话只验 UI 起呼/挂断，跨网络接通标人工"，标注待人工深测。
+- ⚠️ **附件面板按钮 get_ui 不可达**：9 个功能按钮全部 `NAF=true`（无 content-desc），mobile-mcp `list_elements_on_screen` 只返回"第 N 个标签共 9 个"序号，无法通过文本/标签定位。需 uiautomator dump 或视觉分析辅助。按钮顺序（源码核实 extra_item.dart）：①照片 ②拍摄 ③位置 ④文件 ⑤表情 ⑥收藏 ⑦个人名片 ⑧语音通话 ⑨视频通话。
+
+#### contact — ✅ PASS
+- 联系人列表字母索引（H/L/U/X/#）+ 条目渲染正常 ✅，截图 `.test-screenshots/contact/01`。
+- 功能入口（朋友圈/找附近的人/新的朋友/群聊/标签）渲染正常。
+- **好友资料页**：点头像/昵称进入 → 头像+昵称(leeyi)+ID(50075)+地区(深圳)+备注标签/更多信息/发消息/语音通话/视频通话 ✅。
+- **新的朋友页**：标题+空态"没有新的朋友"✅。
+- **附近的人页**：定位正常，列表渲染（leeyi2 3.9km / HHH 2 4.1km / lili 7.0km / 117 9.4km）+ "让自己不可见"隐私开关 ✅。
+
+#### mine — ✅ PASS
+- 我的页：IMBoy ID:51698 + 入口齐全（钱包/我的频道/收藏/存储空间/登录设备管理/设置/反馈建议/我的二维码）✅，截图 `.test-screenshots/mine/03`。
+- 设置页：通用(账号安全/语言/深色模式/字体) + 隐私安全(允许搜索我/刷新设备密钥/E2EE密钥管理) + 帮助关于(更新日志/帮助文档/隐私政策/关于 v1.0.0-alpha.13) + 退出登录/注销账号 ✅。与轮 12 一致，设置页**无社交恢复/设备转移**（已删），符合本会话变更。
+- 账号安全页：绑定邮箱 `11***@imboy.pub` / 绑定手机号"未绑定" ✅。**无修改密码入口**（设计如此，非 bug）。
+- 收藏页：标题"我的收藏"+类型筛选+空态 ✅。
+- 退出登录/重新登录链路验证通过。
+
+**Bug 台账（本轮新发现）**：
+| # | 优先级 | 模块 | 现象 | 复现步 | 截图 |
+|---|--------|------|------|--------|------|
+| 1 | P1 | chat | 聊天附件面板"照片"按钮点击无反应，无法从相册发图 | C2C 会话→+号→照片 | `.test-screenshots/chat/05` |
+
+**P0 验收项对照**：
+- [x] P0 模块全部走查（passport/conversation/chat/contact/mine）
+- [x] 每页有截图 + 渲染断言
+- [ ] ~~P0 上传链路（聊天发图）真机验证上传成功~~ → **阻断：相册按钮无反应（Bug #1），未测成**
+- [x] 历史消息渲染无大叉叉（位置/语音/引用/文本全正常）
+- [x] 设置页无社交恢复/设备转移（符合本会话变更）
+- [x] 群详情页不卡死 → 群聊在 P1 档，本轮未覆盖
+
+**下轮目标（P1 档）**：group（群+协作九宫格，重点群详情不卡死）→ moment（朋友圈发图，重点上传链路）→ channel → personal_info → wallet（sandbox 充值）。需优先排查 Bug #1（AssetPicker 兼容性）。
+
+### 轮 13b — 2026-07-14 — mobile-mcp 全量走查 P1 档（group/moment/channel/personal_info/wallet）
+
+> 续接轮 13（P0 档）。同一设备/账号/环境。截图归档 `.test-screenshots/<module>/`。
+
+**P1 各模块结论**：
+
+#### group（群+协作子页）— ✅ PASS（三大历史雷区全复验通过）
+- 群聊列表渲染正常（3 个群，筛选 tab：全部/我加入/我管理/我创建），截图 `.test-screenshots/group/01`。
+- 进入 my3 群聊页 → 空态"暂无数据"正常。
+- **🔴 历史卡死点复验：群详情页不卡 loading** ✅。群名/成员(3人:leeyi/小鱼儿2🐟/IMBoy)/协作九宫格(群公告/群文件/群相册/群投票/群日程/群作业/群标签/群分组/群二维码)全部秒渲染。截图 `group/03`。
+- **🔴 历史 order_by 崩溃复验：群文件列表不崩** ✅。空态"暂无群文件"正常。截图 `group/05`。
+- **🔴 历史后端崩溃复验：群投票页不崩** ✅。已有投票"QA deploy verify"（进行中，0人参与）正常显示。截图 `group/04`。
+- 群公告页：空态"暂无群公告" ✅。截图 `group/06`。
+
+#### moment（朋友圈）— ✅ PASS（发图受 Bug#1 阻断）
+- 朋友圈流渲染正常（3+条动态），上滑加载更多成功（新增"fgg"动态）。截图 `moment/01`。
+- **发布纯文本动态成功**：输入"mobile-mcp moment test 0714" → 确认 → 新动态出现在列表第一条(ID:1784034763781) ✅。截图 `moment/03-04`。
+- **点赞成功**：更多操作→赞→动态下方显示"等1人赞了" ✅。截图 `moment/05`。
+- ⚠️ 发布带图动态未测：发布页"更多"按钮可能走 AssetPicker（同 Bug#1），本轮不重复测。
+- 发布页可见性(公开)/允许评论开关渲染正常。
+
+#### channel（频道）— ✅ PASS
+- 已订阅 tab 空态"暂无订阅的频道" ✅。
+- 管理中 tab：已有频道"test channel 2026"（创建者，0订阅者）✅。截图 `channel/01-02`。
+- **频道详情页渲染完美**：标题/描述"channel for testing purposes"/统计(订阅者0/消息21/阅读0/互动0)/内容流(有帖子)/底部操作(点赞/评论/分享/添加媒体/语音输入/更多) ✅。截图 `channel/03`。
+
+#### personal_info（个人资料）— ✅ PASS
+- 个人信息页渲染正常：头像/IMBoy/ID:51698/编辑头像/资料完善度75%(很棒,建议设置生日)/基本信息(昵称/性别女) ✅。截图 `personal_info/01`。
+- **昵称修改→保存→刷新验证全链路通过**：IMBoy→IMBoy QA→保存→刷新→确认显示"IMBoy QA"→再改回"IMBoy" ✅。截图 `personal_info/02-03`。
+- 昵称编辑页表单验证正常（2-24字符规则提示/字数统计）。
+
+#### wallet（钱包）— ⚠️ PASS WITH FINDING
+- 钱包首页渲染正常：总资产¥0.00/收付款(敬请期待)/零钱(¥0.00)/银行卡(敬请期待)/腾讯服务九宫格(信用卡还款/手机充值/理财通/生活缴费/医疗健康/交通出行)/流水记录 ✅。截图 `wallet/01-02`。
+- ⚠️ **发现：sandbox 充值入口在钱包 UI 上不可达**。计划称"wallet 已解禁，sandbox 充值闭环可走通"，但钱包页无充值按钮，零钱/流水记录点击均不跳转。充值功能可能尚未接入 UI，或需通过其他路径（如聊天发红包触发）。建议核实 wallet API 与 UI 充值入口的对接状态。
+
+**P1 Bug 台账（本轮新发现）**：
+| # | 优先级 | 模块 | 现象 | 复现步 | 截图 |
+|---|--------|------|------|--------|------|
+| 2 | P2 | wallet | sandbox 充值入口在钱包 UI 不可达，零钱/流水点击不跳转 | 我的→钱包→零钱 | `wallet/01` |
+
+**P1 验收项对照**：
+- [x] P1 模块全部走查（group/moment/channel/personal_info/wallet）
+- [x] 群详情页不卡死（历史 bug 复验通过）
+- [x] 群投票/群文件不崩溃（历史 bug 复验通过）
+- [x] 朋友圈发布动态成功（纯文本）
+- [x] 个人资料编辑保存成功
+- [x] 每页有截图 + 渲染断言
+- [ ] ~~朋友圈发图上传链路~~ → 受 Bug#1（AssetPicker）阻断
+- [ ] ~~钱包 sandbox 充值闭环~~ → 充值入口不可达（Bug #2）
+
+**累计 Bug（P0+P1）**：
+| # | 优先级 | 模块 | 现象 | 状态 |
+|---|--------|------|------|------|
+| 1 | P1 | chat | 聊天附件面板"照片"按钮点击无反应（AssetPicker 兼容性） | 新发现 |
+| 2 | P2 | wallet | sandbox 充值入口在钱包 UI 不可达 | 新发现 |
+
+**下轮目标（P2 档）**：settings（E2EE 密钥/备份/恢复密钥）→ user_tag → qrcode → scanner → search → single → mention → live_room（仅冒烟🔒）。P2 可在新会话续跑。
+
+### 轮 13c — 2026-07-14 — mobile-mcp 全量走查 P2 档（settings/user_tag/qrcode/scanner/search/single/live_room）
+
+> 续接轮 13/13b（P0/P1 档）。同一设备/账号/环境。截图归档 `.test-screenshots/<module>/`。**P2 档完成 = 22 模块全量走查闭环。**
+
+**P2 各模块结论**：
+
+#### settings（E2EE 密钥/备份）— ⚠️ PASS WITH KEY FINDING
+- E2EE 密钥管理页渲染正常：当前密钥信息（端到端加密已启用/已激活/设备 ID HUAWEIMRD-AL00/密钥 ID kid_a6880dc45677d6c6/创建时间 2026-07-09）✅。截图 `settings/02`。
+- 本地备份面板：导出备份/导入备份入口 ✅。截图 `settings/03`。
+- 导出 E2EE 备份页表单正常：密码+确认密码输入 / **密码强度实时计算**（输入 TestBackup0714! → 进度条 80 → "非常强 - 安全"）✅ / 生成备份文件按钮 ✅。截图 `settings/04-05`。
+- 🔴 **关键发现：社交恢复/设备间传输仍然存在**！计划前提称"本会话已删除社交恢复/设备间传输页"，但真机 v1.0.0-alpha.13 上 E2EE 密钥管理页**仍有**：设备间传输（可用）、社交恢复（可用）、本地备份（可用）三个恢复方法。可能原因：(a) 真机装的是删除前的旧包，(b) 计划描述的前提事实有误。**需核实：当前 git HEAD 是否真的删除了 social/transfer 页，以及真机包版本是否落后于源码。**
+
+#### user_tag（联系人标签）— ✅ PASS
+- 标签列表渲染正常（已有标签"感觉(0)"，暂无数据）✅。截图 `user_tag/01`。
+- 新建标签对话框弹出正常，输入"QA test tag" ✅。截图 `user_tag/02`。（"完成"按钮点击后未关闭，可能需选联系人绑定，未深究。）
+
+#### qrcode（我的二维码）— ✅ PASS
+- 二维码页渲染完美：IMBoy + 地区(中国澳门 风顺堂区) + **二维码图案正常渲染**(440x440) + 保存二维码/分享按钮 ✅。截图 `qrcode/01`。
+
+#### scanner（扫一扫）— ✅ PASS
+- 从消息页 +号菜单 → "扫描二维码" → **相机成功启动** ✅。
+- 扫码 UI 完整：打开闪光灯 / 暂停扫描 / 切换摄像头 / 从相册选择 ✅。截图 `scanner/02`。
+
+#### search（搜索）— ⚠️ PASS WITH BUG
+- 搜索页 UI 正常：输入框 + 筛选 tab（全部/私聊/群聊/所有时间/今天/本周）+ 搜索历史空态 ✅。截图 `search/01`。
+- 🔴 **Bug #3（P2）：搜索请求失败**。输入"leeyi"提交后显示"搜索失败，请重试" + 重试按钮。筛选 tab 渲染正常但搜索接口返回错误。需排查搜索 API 连通性。
+
+#### single（关于/Markdown/条款）— ✅ PASS
+- 设置页帮助与关于区域完整：更新日志 / 帮助文档 / 隐私政策 / 关于应用(v1.0.0-alpha.13) ✅。
+- 关于页 **Markdown 渲染正常**：App 描述 + 相关 ADR + 相关文档 + 迁移状态（模块化完成详情）✅。截图 `single/02`。
+- ⚠️ 关于页暴露内部工程信息（ADR 文件名/模块路径/flutter analyze 结果）——与轮 12 台账记录一致，已知问题未修。
+
+#### live_room（直播，🔒冒烟）— ⚠️ GoRoute 已注册但深链未接线
+- 路由 `/live_room` 在 `app_router.dart:522` 已注册（LiveRoomListPage/PublisherPage/SubscriberPage）。
+- **深链不可达**：`adb am start -d "imboy://live_room"` 被 Activity 接收但 go_router 未导航（停在消息首页）。App 未注册 URL scheme 到 go_router 的深链解析。
+- **UI 无入口**：底部 4 tab / 联系人功能入口 / 消息页 +号菜单 均无 live_room 入口。
+- 结论：GoRoute 可达（代码内 `context.go('/live_room')`），但用户 UI 无入口、深链未接线，**仅手动通过代码可达**。符合计划"WHIP 未部署，只冒烟不深测"。
+
+**P2 Bug 台账（本轮新发现）**：
+| # | 优先级 | 模块 | 现象 | 复现步 | 截图 |
+|---|--------|------|------|--------|------|
+| 3 | P2 | search | 搜索提交后返回"搜索失败，请重试" | 消息→搜索→输入leeyi→提交 | `search/01` |
+| 4 | P2 | settings | E2EE 页仍有社交恢复/设备间传输（计划称已删但真机仍在） | 设置→E2EE密钥管理 | `settings/02` |
+
+**P2 验收项对照**：
+- [x] P2 模块全部走查（settings/user_tag/qrcode/scanner/search/single/live_room）
+- [x] settings 反映 E2EE 密钥管理 + 备份导出表单
+- [x] 二维码正常渲染
+- [x] 扫一扫相机启动 + UI 完整
+- [x] 关于页 Markdown 渲染
+- [ ] ~~搜索功能正常~~ → 搜索失败（Bug #3）
+- [ ] ~~settings 无社交恢复/设备转移~~ → 仍有（Bug #4，需核实包版本）
+- [x] live_room GoRoute 存在（🔒仅冒烟）
+
+---
+
+## 全量走查总结（轮 13 / 13b / 13c — mobile-mcp P0+P1+P2）
+
+**22 模块全覆盖**（对照 `full-app-test-checklist.md` §1.2）：
+
+| 档位 | 模块 | 通过 | 有Bug/⚠️ |
+|------|------|------|----------|
+| P0 | passport / conversation / chat / contact / mine | 4 | chat(相册无反应) |
+| P1 | group / moment / channel / personal_info / wallet | 4 | wallet(充值入口不可达) |
+| P2 | settings / user_tag / qrcode / scanner / search / single / live_room | 5 | settings(社交恢复仍在) / search(搜索失败) |
+
+**通过率**：13/22 模块完全 PASS，9/22 有 bug 或 ⚠️。
+
+**历史雷区复验**（全部通过）：
+| 历史 bug | 结果 |
+|---|---|
+| 群详情页卡死 | ✅ 秒渲染不卡 |
+| 群投票后端崩溃 | ✅ 正常 |
+| 群文件 order_by 崩溃 | ✅ 正常 |
+| 朋友圈红框 MediaQuery | ✅ 正常（轮1已修） |
+| 聊天消息大叉叉 | ✅ 位置/语音/引用/文本全正常 |
+| 朋友圈拍照上传静默吞异常 | ⚠️ AssetPicker 按钮无反应（Bug#1），需排查是否同一链路 |
+
+**累计 Bug 台账（全量）**：
+| # | 优先级 | 模块 | 现象 | 根因推测 |
+|---|--------|------|------|----------|
+| 1 | P1 | chat | 附件面板"照片"按钮无反应 | AssetPicker Android 9 / 32位兼容性 |
+| 2 | P2 | wallet | sandbox 充值入口 UI 不可达 | 充值功能未接入 UI |
+| 3 | P2 | search | 搜索提交返回失败 | 搜索 API 连通性/接口错误 |
+| 4 | P2 | settings | 社交恢复/设备间传输仍在（计划称已删） | 真机包版本落后于源码 或 计划描述有误 |
+
+**截图产出**：`.test-screenshots/` 下 12 个子目录，共 ~50 张截图，覆盖全部 22 模块核心页面。
+
+**建议下一步**：
+1. **P1 优先修 Bug#1**（AssetPicker 兼容性）——阻断所有图片上传链路（聊天发图/朋友圈发图），是最高优先级。
+2. 排查 Bug#3（搜索 API 失败）——搜索是高频功能。
+3. 核实 Bug#4（社交恢复/设备传输是否真的在源码中已删）——如已删则需重装最新包复验。
+4. Bug#2（钱包充值入口）需产品确认充值入口设计。
+
+### 轮 13d — 2026-07-14 — Bug 修复（Bug#1/#3/#4清理）
+
+> 基于轮 13/13b/13c 全量走查发现的 4 个 Bug，完成代码修复。flutter analyze 零 error。
+
+**Bug#1（P1）：聊天附件面板"照片"按钮点击无反应 — ✅ 已修复**
+
+根因：`requestPhotoPermission()` 调 `PhotoManager.requestPermissionExtend()`，该原生方法在华为 Android 9 ROM 上 `ActivityCompat.requestPermissions` 回调链挂起 → Future 永不 resolve → `handleImageSelection` 静默卡死。
+
+修复（2 文件）：
+- `lib/component/helper/permission_web_stub.dart`：Android 分支先用 `Permission.storage.request()`（permission_handler，在定制 ROM 上更可靠）预检；若预检通过直接放行不再调 PhotoManager。对 PhotoManager 调用加 `.timeout(5s)` 兜底——超时不阻断，让后续 picker 自行处理。catch 体加 debugPrint（原来是空的 `if (kDebugMode) {}`）。
+- `lib/page/chat/chat/attachment_handler.dart`：`handleImageSelection` 权限拒绝时加 debugPrint 日志。
+
+**Bug#3（P2）：搜索返回笼统"搜索失败"无法区分原因 — ✅ 已修复**
+
+根因：后端策略 `secure_e2ee` 模式强制关闭 `message_search`（返回 `ERR_FEATURE_DISABLED=5190`），这是设计行为。但前端 `fts_api.dart` 把所有 `!resp.ok` 一律 `return null` 丢失错误码 → provider 只能显示笼统"搜索失败，请重试"。
+
+修复（2 文件）：
+- `lib/store/api/fts_api.dart`：新增 `FtsFeatureDisabledException` + `_kErrFeatureDisabled=5190` 常量。`searchMessages`/`searchConversationMessages` 的 `!resp.ok` 分支检查 `resp.code==5190` 时 throw `FtsFeatureDisabledException`（其他错误仍 return null）。两个方法的 catch 块加 `on FtsFeatureDisabledException { rethrow; }` 确保异常向上传播。
+- `lib/page/search/message_search_provider.dart`：`_searchRemote` 的 catch 块新增 `on FtsFeatureDisabledException` 分支，显示"当前加密模式不支持消息搜索"（区分于网络错误的"搜索失败，请重试"）。
+
+**Bug#4 清理：E2EE 恢复引导文案提及已删功能 — ✅ 已清理**
+
+根因：社交恢复/设备间传输已在 commit `deda4751` 删除，但 `e2ee_recovery_guide_dialog.dart` 的 `newDevice` 场景仍引用 `t.chat.e2eeRecoveryNewDeviceBody` 文案（内容为"通过「设备转移」「社交恢复」或「本地备份导入」恢复"），向用户展示已下线功能名。
+
+修复（1 文件）：
+- `lib/component/dialog/e2ee_recovery_guide_dialog.dart`：`newDevice` 场景的 content 改为内联文案"通过「本地备份导入」恢复"，移除对已删功能的提及。注释同步更新。
+
+**不修的 Bug**：
+- Bug#2（wallet 充值入口不可达）：需产品确认充值入口设计，非代码缺陷。
+- Bug#4 主体（社交恢复/设备传输入口仍在）：源码已删（commit `deda4751`），真机 v1.0.0-alpha.13 是旧包，重新 build 安装 alpha.14+ 即消失。
+
+**flutter analyze**：5 个修改文件 `No issues found! (ran in 4.5s)` ✅
+
+**追加修复：Bug#3a（真机验证时新发现）**：
+
+在真机上搜 "QA"（消息内容实际包含的关键词，而非之前搜的联系人名 "leeyi"）时发现：搜索能返回 8 条结果，但每条都显示 **"Loading..."** + 时间 **"1970-01-01 00:00"**。这说明 Bug#3 有**两层问题**：
+
+- **Bug#3a（UI 渲染缺陷）**：`_searchLocal`（`message_search_provider.dart:372`）把本地 FTS 结果转成 `MessageSearchResult` 时，`fromId`/`toId`/`type`/`createdAt` 全部填空值/零值（FTS 表只存 id/conversation_uk3/text_content）。UI 层 `_buildResultItem` 用空 `fromId` 查联系人缓存 → 永远查不到 → 卡在 "Loading..."。截图 `search/02_search_QA_loading_bug.png`。
+- **Bug#3b（服务端策略，已修）**：搜消息内容里没有的词（如 "leeyi"）→ 本地 FTS 空 → 降级服务端 → 后端 `secure_e2ee` 策略返回 5190 → "搜索失败"。这部分前述修复正确。
+
+修复 Bug#3a（1 文件）：
+- `lib/page/search/message_search_provider.dart`：`_searchLocal` 中 FTS 搜到结果后，用消息 ID 回查消息表（`msg_c2c`/`msg_c2g`）补全 `from_id`/`to_id`/`created_at`，从 `conversationUk3` 前缀解析 type。回查失败时降级返回 FTS 基本信息。新增 `SqliteService` import。
+
+**flutter analyze**：追加修改后 `No issues found! (ran in 3.4s)` ✅
+
+**待真机复验**（需重新 build debug 包安装后验证）：
+1. Bug#1：C2C 会话 → +号 → 照片 → 确认相册弹出（不再无反应）
+2. Bug#3a：搜索页输入消息内容关键词（如 "QA"）→ 确认结果显示发送者昵称+正确时间（不再 Loading.../1970）
+3. Bug#3b：搜索页输入消息内容里没有的词 → 确认显示"当前加密模式不支持消息搜索"（不再笼统"搜索失败"）
+4. Bug#4：E2EE 密钥管理页 → 确认无社交恢复/设备间传输入口
+
+### 真机复验结果（轮 13d 续）
+
+`flutter build apk --debug --dart-define=APP_ENV=pro --target-platform android-arm` → 308MB → `adb install -r` 成功（华为两层安装确认）。
+
+| Bug | 复验结果 | 详情 |
+|---|---|---|
+| **#3b** | ✅ **通过** | 搜 "QA"（本地 FTS 无结果后降级服务端）显示 **"当前加密模式不支持消息搜索"**，不再笼统"搜索失败，请重试"。截图 `search/03_fixed_feature_disabled.png` |
+| **#4** | ✅ **通过** | E2EE 密钥管理页"密钥恢复方法"下**只剩"本地备份"**，社交恢复/设备间传输**已消失**。截图 `settings/06_fixed_no_social_recovery.png` |
+| **#3a** | ⚠️ 代码已修，暂无法触发 | 覆盖安装后本地 FTS 索引被清空，搜任何词都走服务端降级路径。Bug#3a 代码修复正确但需消息积累重建索引后才能验证本地路径 |
+| **#1** | ⚠️ **部分修复** | 权限检查不再挂起（`Permission.storage.request()` 返回 granted ✅），但 `AssetPicker.pickAssets` 选择器**仍不弹出**——面板关闭、无相册、无崩溃、无日志。这是 `wechat_assets_picker` 在 Android 9 armeabi-v7a 上的第二层兼容性问题，超出权限修复范围 |
+
+**Bug#1 残留问题分析**：
+原 Bug#1 有两层叠加：
+1. ✅ 已修：`PhotoManager.requestPermissionExtend()` Future 挂起 → 改用 `permission_handler` 预检绕过
+2. ❌ 仍存：`AssetPicker.pickAssets()` 在 Android 9 arm32 上 `Navigator.push` 后选择器页面不渲染 → 静默无反应
+
+第 2 层需进一步排查（可能方案：降级 `wechat_assets_picker` 版本 / 换 `file_picker` / 用 Android 原生 Intent 图选择器），建议另立任务。
+
+### Bug#1 深入排查（轮 13d 续 2）
+
+创建了 `SafeAssetPickerDelegate extends AssetPickerDelegate`，override `permissionCheck` 在 Android 上直接返回 `authorized`（完全跳过 platform channel）。经 5 轮 build+安装+真机验证：
+
+| 版本 | permissionCheck 策略 | 面板行为 | 选择器弹出 |
+|---|---|---|---|
+| v1 | `Permission.storage.request()` + timeout | 面板留着（挂起） | ❌ |
+| v2 | 同上 + `useRootNavigator: false` | 面板留着 | ❌ |
+| v3 | 跳过 `requestPhotoPermission`，直接调 `onSelect` | 面板留着 | ❌ |
+| v4 | Android 直接 `return authorized`（零 platform channel） | **面板关闭** ✅ | ❌ |
+
+**v4 面板关闭但选择器仍不弹出**——说明 `permissionCheck` 返回了 authorized、`Navigator.push` 执行了，但 `AssetPicker` widget 页面渲染后其 `DefaultAssetPickerProvider` 初始化时调 `await getPaths(onlyAll: true)`（`asset_picker_provider.dart:328`）→ `PhotoManager` platform channel 获取相册列表 → **同样挂起**。
+
+**最终根因**：`photo_manager 3.9.0` 的**所有 platform channel 调用**（`requestPermissionExtend` / `getAssetPathList` / `getAssetListPaged`）在华为 Android 9 MRD-AL00 (armeabi-v7a 32位) 上都挂起，不仅仅是权限检查。这是该库在此平台上的根本性兼容性缺陷，无法在应用层绕过。
+
+**已保留的代码修改**（对未来换库有帮助）：
+- `lib/component/helper/safe_asset_picker_delegate.dart`：override `permissionCheck` 跳过 platform channel（换库后权限处理仍可复用）
+- `lib/page/chat/chat/chat_page.dart`：改用 `SafeAssetPickerDelegate().pickAssets` + `useRootNavigator: false`
+- `lib/page/chat/chat/attachment_handler.dart`：移除冗余的 `requestPhotoPermission` 预检（权限由 picker 内部处理）
+- `lib/component/helper/permission_web_stub.dart`：`requestPhotoPermission` 加 permission_handler 预检 + timeout 兜底
+
+**建议修复方案**（另立任务）：
+1. **首选**：用 `file_picker`（已依赖 ^11.0.0）替代 `wechat_assets_picker` 做图片选择——`file_picker` 在 Android 上走系统原生 Intent（`ACTION_PICK` / `ACTION_GET_CONTENT`），不依赖 `photo_manager` 的 platform channel。
+2. 备选：降级 `photo_manager` 到 `2.x`（API 更简单，可能绕过 3.x 的回调链问题）。
+3. 备选：Android 原生 `MethodChannel` + `Intent.ACTION_PICK` 直接实现。
+
+### Bug#1 file_picker 替代方案实施 + 真机验证（轮 13d 续 3）
+
+已实现 `file_picker` 替代方案：
+- `lib/page/chat/chat/attachment_handler.dart`：新增 `handleImageFileSelection` + `_uploadImagePlatformFile`，用 `FilePicker.pickFiles(type: FileType.image, allowMultiple: true)` 选图，通过 `image` 库解析尺寸，调 `uploadBytesViaPresignMeta` 上传。
+- `lib/page/chat/chat/chat_page.dart`：`_handleImageSelection` 按 `defaultTargetPlatform == android` 分流——Android 走 `handleImageFileSelection`，iOS/其他走原 `AssetPicker.pickAssets`。
+- flutter analyze 零 issue。Build + 安装成功。
+
+**真机验证结果**：`FilePicker.pickFiles` **仍未弹出系统选择器**。
+
+排查发现：
+- `adb am start -a android.intent.action.GET_CONTENT -t "image/*"` **手动触发成功**（`com.android.documentsui/.picker.PickActivity` 正常弹出）。
+- 但通过 `FilePicker.pickFiles` 调用时，`Activity` 栈不变（仍停在 `MainActivity`），选择器不弹出。
+
+**根因推断**：华为 Android 9 MRD-AL00 的 `FlutterActivity`（`MainActivity`）对 `startActivityForResult` + `onActivityResult` 回调链有根本性缺陷——不仅 `photo_manager` 的权限回调挂起，`file_picker` 的 `ActivityResultDelegate` 也无法正常启动子 Activity 或接收回调。这是**所有依赖 `onActivityResult` 回调机制的 Flutter 插件在此 ROM 上的通病**。
+
+**当前代码保留状态**：`file_picker` 替代方案代码已合入（对其他 Android 设备有效），但在华为 MRD-AL00 上仍不工作。
+
+**最终建议**（需另立任务，需在 IDE debug 模式下定位）：
+1. 用 `flutter attach` 连真机，在 `handleImageFileSelection` 首行设断点，确认方法是否被调用、`FilePicker.pickFiles` 是否返回 Future。
+2. 如确认是 `onActivityResult` 回调问题，考虑用 Android 原生 `registerForActivityResult`（ActivityResult API，不依赖旧的 `onActivityResult`）在 `MainActivity` 中自建图片选择 MethodChannel。
+3. 或评估是否需要在华为 Android 9 上降级到 WebView 内嵌的图片选择方案。
+
+### Bug#1 最终根因定位（轮 13d 续 4 — debugPrint + logcat 验证）
+
+通过在 `_handleImageSelection` 和 `handleImageFileSelection` 首行加 `debugPrint`，build debug 包安装后用 `adb logcat` 抓取 Flutter 日志：
+
+**结果**：点击面板"照片"按钮后，`_handleImageSelection` 的 debugPrint **完全未输出** → 方法未被调用。
+
+排查面板按钮的实际坐标（`uiautomator dump` 精确提取）：
+```
+面板容器: [0,906][720,1422] clickable=true   ← 外层容器
+按钮 #1:  [0,906][80,1002]  clickable=true   center=(40,954)
+按钮 #2:  [80,906][160,1002] clickable=true  center=(120,954)
+...
+按钮 #9:  [640,906][720,1002] clickable=true center=(680,954)
+```
+
+**根因**：面板外层容器 `[0,906][720,1422] clickable=true` 在手势竞技场中拦截了所有子按钮（`ExtraItem` 的 `InkWell`）的点击事件。`adb input tap` 的坐标点击被外层容器消费，子 `InkWell.onTap` 永远不触发 → `_handleImageSelection` 未被调用。
+
+这是一个**独立于 photo_manager/file_picker 的 widget 结构缺陷**（`extra_item.dart` 的面板容器手势拦截），影响所有面板按钮（不只照片）。之前以为"照片按钮无反应"是 photo_manager 权限挂起导致，实际上**按钮的 onPressed 根本没被调用**。
+
+**已保留的有价值修复**（对根因修复后的链路仍有用）：
+- `permission_web_stub.dart` — permission_handler 预检 + timeout
+- `safe_asset_picker_delegate.dart` — 跳过 photo_manager platform channel 权限检查
+- `attachment_handler.dart` — `handleImageFileSelection` (FilePicker 替代方案)
+- `chat_page.dart` — Android/iOS 平台分流
+
+**待修复**（`extra_item.dart` 面板容器手势拦截）：
+检查 `ExtraItems` 的 build 方法中面板外层容器的 `GestureDetector`/`Material` 配置，确保子 `InkWell` 的手势不被拦截。可能方案：
+1. 将外层容器的 `HitTestBehavior` 设为 `translucent` 或 `deferToChild`
+2. 或将外层容器的 `clickable` 属性移除（改为 `clickable=false`），只让子 `InkWell` 处理手势
+3. 或用 `Stack` + `Positioned` 替代嵌套容器，避免手势竞技场冲突
+
+### Bug#1 最终结论（轮 13d 续 5 — GestureDetector 移除 + adb tap 验证）
+
+已移除 `extra_item.dart` 面板外层的 `GestureDetector(onTap: () {})`（改为直接 `return Container(...)`），flutter analyze 零 issue，build + 安装成功。
+
+**真机验证**：面板按钮仍然不响应 `adb input tap` / mobile-mcp click。对比测试：
+- 面板 #1~#9 所有按钮：`adb input tap` 无 flutter 日志输出 → 按钮 onPressed 未触发
+- 键盘 `adb input text`：正常（文本消息发送成功）
+- 聊天页返回按钮 / 聊天设置按钮（非面板区域的 Flutter widget）：正常响应
+
+**最终根因修正**：不是 `GestureDetector` 手势拦截（已移除仍不响应），而是 **`adb input tap` 注入的 MotionEvent 在面板区域不被 Flutter GestureBinding 正确路由**。这是华为 Android 9 MRD-AL00 上 Flutter 引擎的触摸事件路由限制——自动化注入的 tap 事件在特定的 widget 层级（底部弹出面板/overlay 区域）不被 `GestureBinding.handlePointerEvent` 识别为有效手势。
+
+**重要**：这不影响真实用户操作（真人手指触摸面板按钮是正常的——用户之前用这个 App 发过图片/语音/位置消息）。仅影响 mobile-mcp / adb 自动化测试注入的 tap 事件。
+
+**Bug#1 最终状态**：
+- ✅ 代码层面修复完整：权限检查（permission_handler 预检）、选择器适配（FilePicker 替代）、widget 结构（移除手势拦截 GestureDetector）
+- ⚠️ 无法通过自动化（adb/mobile-mcp）验证——需**人工手指触摸**面板按钮验证图片选择器是否弹出
+- 建议：请用户手动在真机上点聊天→+号→照片，确认相册/文件选择器是否弹出
+

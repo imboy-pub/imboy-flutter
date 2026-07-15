@@ -7,6 +7,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_fts_repo.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 
 part 'message_search_provider.g.dart';
@@ -326,6 +327,12 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
           errorMessage: '搜索失败，请重试',
         );
       }
+    } on FtsFeatureDisabledException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        isSearching: false,
+        errorMessage: e.message,
+      );
     } on Exception {
       state = state.copyWith(
         isLoading: false,
@@ -362,17 +369,55 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
 
       if (ftsResults.isEmpty) return null;
 
-      // 转换为 MessageSearchResult
-      final items = ftsResults.map((fts) {
-        return MessageSearchResult(
-          id: fts.id,
-          content: fts.snippet,
-          fromId: '',
-          toId: '',
-          type: '',
-          createdAt: 0,
-        );
-      }).toList();
+      // FTS 表只存 (id, conversation_uk3, text_content)，缺少 from/to/created_at。
+      // 需要回查消息表补全元数据，否则 UI 会显示 "Loading..." 和 "1970-01-01"。
+      final db = SqliteService.to;
+      final items = <MessageSearchResult>[];
+
+      for (final fts in ftsResults) {
+        // 从 conversationUk3 前缀推断消息表和类型
+        final uk3 = fts.conversationUk3;
+        final isC2G = uk3.startsWith('C2G_');
+        final msgType = isC2G ? 'C2G' : 'C2C';
+        final tableName = isC2G ? 'msg_c2g' : 'msg_c2c';
+
+        try {
+          final rows = await db.rawQuery(
+            'SELECT from_id, to_id, created_at FROM $tableName WHERE id = ? LIMIT 1',
+            [fts.id],
+          );
+          if (rows.isNotEmpty) {
+            final row = rows.first;
+            items.add(
+              MessageSearchResult(
+                id: fts.id,
+                content: fts.snippet,
+                fromId: '${row['from_id'] ?? ''}',
+                toId: '${row['to_id'] ?? ''}',
+                type: msgType,
+                createdAt: (row['created_at'] as num?)?.toInt() ?? 0,
+              ),
+            );
+          } else {
+            // FTS 索引里有但消息表里没有（可能已删除），跳过
+            continue;
+          }
+        } catch (e) {
+          // 回查失败时仍返回 FTS 基本信息（至少 snippet 可用）
+          items.add(
+            MessageSearchResult(
+              id: fts.id,
+              content: fts.snippet,
+              fromId: '',
+              toId: '',
+              type: msgType,
+              createdAt: 0,
+            ),
+          );
+        }
+      }
+
+      if (items.isEmpty) return null;
 
       return MessageSearchResponse(items: items, total: items.length);
     } on Exception {

@@ -78,6 +78,12 @@ Future<bool> requestLocationPermission() async {
 
 /// 申请照片/存储权限
 /// 授予权限返回true, 否则返回false
+///
+/// 注意：photo_manager 的 requestPermissionExtend 在部分定制 ROM（如华为
+/// Android 9）上可能因 ActivityCompat.requestPermissions 回调链挂起而
+/// 永不 resolve，导致整个方法静默卡死。此处先用 permission_handler 做
+/// 预检（其权限链在定制 ROM 上更可靠），再对 photo_manager 的调用加超时
+/// 兜底——超时不阻断，让后续 picker 自行处理。
 Future<bool> requestPhotoPermission() async {
   if (kIsWeb) {
     throw UnsupportedError('requestPhotoPermission_stub 不应在 Web 平台调用');
@@ -87,8 +93,43 @@ Future<bool> requestPhotoPermission() async {
     // permission_handler 12 无 macOS 实现（仅 android/ios/web/windows），直接放行让后续 picker 处理。
     return true;
   }
+
+  // Android：先用 permission_handler 预检存储权限（在定制 ROM 上更可靠）
+  if (Platform.isAndroid) {
+    try {
+      final storageStatus = await Permission.storage.request();
+      if (storageStatus.isGranted || storageStatus.isLimited) {
+        // 存储权限已通过 permission_handler 授予，直接放行。
+        // 不再调 PhotoManager.requestPermissionExtend——它的原生回调链
+        // 在部分 ROM 上会挂起，permission_handler 已足够保证权限就绪。
+        return true;
+      }
+      // permission_handler 未授权，提示用户
+      debugPrint(
+        '[perm] storage permission denied by permission_handler: $storageStatus',
+      );
+      AppLoading.showInfo(t.common.noPermission);
+      return false;
+    } on Exception catch (e) {
+      debugPrint('[perm] permission_handler storage request failed: $e');
+      // 降级到 photo_manager 路径（见下方）
+    }
+  }
+
   try {
-    final PermissionState ps = await PhotoManager.requestPermissionExtend();
+    // 对 photo_manager 的调用加超时，防止回调链挂起导致永久静默
+    final PermissionState ps = await PhotoManager.requestPermissionExtend()
+        .timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            debugPrint(
+              '[perm] PhotoManager.requestPermissionExtend timed out, '
+              'allowing picker to proceed',
+            );
+            // 超时时不阻断——picker 自身会再做权限检查
+            return PermissionState.authorized;
+          },
+        );
     if (ps == PermissionState.authorized || ps == PermissionState.limited) {
       return true;
     } else {
@@ -96,8 +137,8 @@ Future<bool> requestPhotoPermission() async {
       AppLoading.showInfo(t.common.noPermission);
       return false;
     }
-  } on Exception {
-    if (kDebugMode) {}
+  } on Exception catch (e) {
+    debugPrint('[perm] requestPhotoPermission exception: $e');
     AppLoading.showInfo(t.common.permissionAcquisitionFailed);
     return false;
   }

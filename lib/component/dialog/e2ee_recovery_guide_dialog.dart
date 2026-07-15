@@ -13,7 +13,7 @@ const String kE2eeNewDeviceGuidePendingKey = 'e2ee_new_device_guide_pending';
 ///
 /// 与一次性的 [kE2eeNewDeviceGuidePendingKey] 不同：本标记在换设备 / 重装
 /// 新生成密钥时置 `true`，在会话列表常驻横幅中提示，直到用户**完成密钥恢复**
-/// （社交恢复 / 设备转移成功）或主动关闭横幅后才清除。
+/// （本地备份导入成功）或主动关闭横幅后才清除。
 const String kE2eeRecoveryNeededKey = 'e2ee_recovery_needed';
 
 /// E2EE 密钥恢复引导场景 / E2EE key-recovery guidance scenes.
@@ -25,12 +25,10 @@ enum E2EERecoveryScene { newDevice, decryptFailed }
 /// 弹出统一的 E2EE 密钥恢复引导对话框 / Show the unified key-recovery guide.
 ///
 /// 两个场景复用同一入口（DRY），统一引导用户前往 `/e2ee_key_recovery` 恢复中心，
-/// 接通既有的「设备转移 / 社交恢复 / 本地备份导入」能力，消除"撞到 [加密消息]
-/// 却无引导"的死胡同。
+/// 通过本地备份导入恢复密钥，消除"撞到 [加密消息] 却无引导"的死胡同。
 ///
 /// Reuses one entry point for both scenes and routes the user to the existing
-/// recovery hub (`/e2ee_key_recovery`), wiring up device-transfer / social
-/// recovery / local-backup import.
+/// recovery hub (`/e2ee_key_recovery`), wiring up local-backup import.
 Future<void> showE2EERecoveryGuide(
   BuildContext context, {
   required E2EERecoveryScene scene,
@@ -38,7 +36,11 @@ Future<void> showE2EERecoveryGuide(
   final (String title, String content) = switch (scene) {
     E2EERecoveryScene.newDevice => (
       t.chat.e2eeRecoveryNewDeviceTitle,
-      t.chat.e2eeRecoveryNewDeviceBody,
+      // 社交恢复/设备间传输已下线（commit deda4751），此处使用内联文案
+      // 仅引导用户通过本地备份恢复密钥。
+      '为保护消息安全，本设备已生成新的端到端加密密钥。\n\n'
+          '历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。'
+          '你可以通过「本地备份导入」恢复。',
     ),
     E2EERecoveryScene.decryptFailed => (
       t.chat.e2eeRecoveryDecryptFailedTitle,
