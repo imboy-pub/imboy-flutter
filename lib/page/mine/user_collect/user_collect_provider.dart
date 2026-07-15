@@ -1152,8 +1152,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
   Future<List<Widget>> tagItems(BuildContext context) async {
     String scene = 'collect';
     List<Widget> widgetList = [];
-    // 获取最近标签
-    final repository = UserTagRelationNotifier();
+    // 通过 Riverpod provider 获取 notifier（不能直接 new，否则 state 访问会崩溃）
+    final repository = ref.read(userTagRelationProvider.notifier);
     List<String> items = await repository.getRecentTagItems(scene);
 
     for (String tag in items) {

@@ -79,6 +79,7 @@ dependencies:
   image_picker: ^1.1.2               # 仅作桌面平台(macOS/Windows/Linux)兜底，见 wechat_assets_picker_adapter.dart
   photo_view: ^0.15.0                # Interactive image viewer with zoom/pan
   photo_manager: ^3.9.0              # Media management (gallery access)
+  carousel_slider_plus: ^7.1.2       # 聊天附件面板左右滑动分页
   video_compress: ^3.1.4             # Video compression before upload
   file_picker: ^11.0.0               # File picker
   open_file: ^4.0.0                   # File opening with default apps (updated: 3.5.10 → 4.0.0)

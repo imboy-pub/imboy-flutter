@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -154,6 +155,10 @@ class ExtraItems extends ConsumerStatefulWidget {
 }
 
 class _ExtraItemsState extends ConsumerState<ExtraItems> {
+  /// 当前分页索引（CarouselSlider 圆点指示器）
+  int _current = 0;
+  final CarouselSliderController _controller = CarouselSliderController();
+
   /// 群通话：join 拿到 LiveKit 入场券后进群通话页
   Future<void> _joinGroupCall(BuildContext context) async {
     final gid = '${widget.options['to'] ?? ''}';
@@ -382,22 +387,20 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
         ),
     ];
 
-    // 按语义分区渲染（媒体 / 群协作(仅C2G) / 资金），每段一个轻量标题条。
-    // ponytail: 竖向滚动 + 分区替代原横向分页——面板高度受键盘高度限制（约
-    // 270px），11 项无法一屏铺满；分区让"群协作"紧随媒体、不再被翻页藏到第二屏。
-    final sections = <({String title, List<ExtraItem> items})>[
-      (title: t.chat.extraPanelMedia, items: mediaItems),
-      if (collabItems.isNotEmpty)
-        (title: t.chat.extraPanelCollab, items: collabItems),
-      (title: t.chat.extraPanelFunds, items: fundItems),
+    // 合并所有按钮，每页 8 个（2 行 × 4 列），超出自动分页，启用左右滑动 + 底部圆点
+    final allItems = [...mediaItems, ...collabItems, ...fundItems];
+    const int perPage = 8;
+    final pages = <Widget>[
+      for (var i = 0; i < allItems.length; i += perPage)
+        _buildItemsGrid(
+          allItems.sublist(
+            i,
+            i + perPage > allItems.length ? allItems.length : i + perPage,
+          ),
+        ),
     ];
 
-    // 面板外层不再包裹 GestureDetector——之前的 GestureDetector(onTap:(){})
-    // 会与子 InkWell 在手势竞技场中竞争并获胜，导致所有面板按钮点击无反应。
-    // 面板的 Container + ListView 本身已能消费各自区域内的手势事件，
-    // 空白区域的 tap 不会穿透到下方的输入框（面板在 z-axis 上覆盖输入框）。
     return Container(
-      // height: 240, // Remove fixed height to adapt to panel height
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -410,7 +413,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       ),
       child: Column(
         children: [
-          // 顶部指示器
+          // 顶部拖拽指示器
           Container(
             width: 36,
             height: 4,
@@ -421,42 +424,51 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
             ),
           ),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.only(bottom: AppSpacing.regular),
-              children: [
-                for (final section in sections) ...[
-                  _sectionHeader(context, section.title),
-                  _buildItemsGrid(section.items),
-                ],
-              ],
-            ),
+            child: pages.length > 1
+                ? CarouselSlider(
+                    controller: _controller,
+                    options: CarouselOptions(
+                      height: double.infinity,
+                      viewportFraction: 1.0,
+                      aspectRatio: 1.0,
+                      scrollDirection: Axis.horizontal,
+                      enableInfiniteScroll: false,
+                      initialPage: 0,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _current = index;
+                        });
+                      },
+                    ),
+                    items: pages,
+                  )
+                : pages.first,
           ),
+          // 页面指示器（圆点）
+          if (pages.length > 1)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: pages.asMap().entries.map((entry) {
+                  return GestureDetector(
+                    onTap: () => _controller.animateToPage(entry.key),
+                    child: Container(
+                      width: 8.0,
+                      height: 8.0,
+                      margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _current == entry.key
+                            ? colorScheme.primary
+                            : colorScheme.outline.withValues(alpha: 0.3),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
         ],
-      ),
-    );
-  }
-
-  /// 轻量分区标题条
-
-  /// 轻量分区标题条：走 Token（字号/间距/次级文字色），禁硬编码
-  Widget _sectionHeader(BuildContext context, String title) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.large,
-        AppSpacing.small,
-        AppSpacing.large,
-        AppSpacing.tiny,
-      ),
-      child: Text(
-        title,
-        style: context.textStyle(
-          FontSizeType.caption2,
-          fontWeight: FontWeight.w600,
-          color: isDark
-              ? AppColors.darkTextSecondary
-              : AppColors.lightTextSecondary,
-        ),
       ),
     );
   }

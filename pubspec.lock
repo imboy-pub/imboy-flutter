@@ -225,6 +225,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.5+4"
+  carousel_slider_plus:
+    dependency: "direct main"
+    description:
+      name: carousel_slider_plus
+      sha256: "2f4e574371f9d164603feb2214c5cbb337c6c704b05d44d85457fe9a07ccccbb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.1.2"
   characters:
     dependency: transitive
     description:
