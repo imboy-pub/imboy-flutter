@@ -55,6 +55,8 @@ PODS:
     - FlutterMacOS
   - flutter_sound (0.0.1):
     - FlutterMacOS
+  - flutter_vodozemac (0.0.1):
+    - FlutterMacOS
   - flutter_webrtc (1.4.0):
     - FlutterMacOS
     - WebRTC-SDK (= 144.7559.09)
@@ -98,6 +100,10 @@ PODS:
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
+  - livekit_client (2.9.0-dev.0):
+    - flutter_webrtc
+    - FlutterMacOS
+    - WebRTC-SDK (= 144.7559.09)
   - mobile_scanner (7.0.0):
     - Flutter
     - FlutterMacOS
@@ -168,11 +174,13 @@ DEPENDENCIES:
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - flutter_secure_storage_darwin (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
   - flutter_sound (from `Flutter/ephemeral/.symlinks/plugins/flutter_sound/macos`)
+  - flutter_vodozemac (from `Flutter/ephemeral/.symlinks/plugins/flutter_vodozemac/macos`)
   - flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - geolocator_apple (from `Flutter/ephemeral/.symlinks/plugins/geolocator_apple/darwin`)
   - ic_storage_space (from `Flutter/ephemeral/.symlinks/plugins/ic_storage_space/macos`)
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/darwin`)
+  - livekit_client (from `Flutter/ephemeral/.symlinks/plugins/livekit_client/macos`)
   - mobile_scanner (from `Flutter/ephemeral/.symlinks/plugins/mobile_scanner/darwin`)
   - open_file_mac (from `Flutter/ephemeral/.symlinks/plugins/open_file_mac/macos`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
@@ -233,6 +241,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_darwin/darwin
   flutter_sound:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_sound/macos
+  flutter_vodozemac:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_vodozemac/macos
   flutter_webrtc:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos
   FlutterMacOS:
@@ -243,6 +253,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/ic_storage_space/macos
   just_audio:
     :path: Flutter/ephemeral/.symlinks/plugins/just_audio/darwin
+  livekit_client:
+    :path: Flutter/ephemeral/.symlinks/plugins/livekit_client/macos
   mobile_scanner:
     :path: Flutter/ephemeral/.symlinks/plugins/mobile_scanner/darwin
   open_file_mac:
@@ -291,6 +303,7 @@ SPEC CHECKSUMS:
   flutter_local_notifications: 1fc7ffb10a83d6a2eeeeddb152d43f1944b0aad0
   flutter_secure_storage_darwin: acdb3f316ed05a3e68f856e0353b133eec373a23
   flutter_sound: 21e7dbf1f4cb57f294d985a32e46e89bc910ad02
+  flutter_vodozemac: fd2ea9cb3e2a37beaac883a369811fbfe042fc53
   flutter_webrtc: fec3dc9284a1f6d21ec2caa91c90bb4c1824eb04
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   FMDB: 728731dd336af3936ce00f91d9d8495f5718a0e6
@@ -299,6 +312,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: 766ace00c6b10d8148408f329d10c4f051931850
   ic_storage_space: e207731aed98a6126d5712cc63c4bcc6e04d6d1d
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
+  livekit_client: 7cfa33c2667eda086fdb194ceeaeb7ed268ca319
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   open_file_mac: 76f06c8597551249bdb5e8fd8827a98eae0f4585

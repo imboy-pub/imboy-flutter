@@ -58,11 +58,15 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
 
     return GestureDetector(
       onTap: widget.onTap,
-      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapDown: (_) {
+        HapticFeedback.selectionClick();
+        setState(() => _isPressed = true);
+      },
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
       behavior: HitTestBehavior.opaque,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
         color: _isPressed
             // 按压态半透明高光叠加：暗色用白、亮色用黑，属固定交互反馈
             ? (isDark ? AppColors.overlayWhite10 : AppColors.overlayBlack5)

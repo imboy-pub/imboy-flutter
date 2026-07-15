@@ -161,9 +161,9 @@ class _MinePageState extends ConsumerState<MinePage> {
         AppSpacing.regular,
         AppSpacing.small,
       ),
-      child: GestureDetector(
-        onTap: () => context.push('/personal_info/profile'),
-        behavior: HitTestBehavior.opaque,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => context.push('/personal_info/profile'),
         child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.regular,

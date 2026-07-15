@@ -344,7 +344,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
                 fontSize: FontSizeType.large.size,
                 fontWeight: FontWeight.w500,
                 // 背景预览图上的半透明黑标题文字，无对应语义 token，保留
-                color: Colors.black54,
+                color: AppColors.overlayWhite70,
               ),
             ),
           ),

@@ -68,8 +68,8 @@ class ComponentThemeManager {
     return InputDecorationTheme(
       filled: true,
       fillColor: isDark
-          ? const Color(0xFF2C2C2E)
-          : const Color(0xFFE5E5EA).withValues(alpha: 0.5),
+          ? AppColors.darkSurfaceGroupedTertiary
+          : AppColors.lightBorder.withValues(alpha: 0.5),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),

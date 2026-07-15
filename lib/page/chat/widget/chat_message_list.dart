@@ -60,8 +60,7 @@ class ChatMessageList extends StatelessWidget {
       controller: scrollController,
       reverse: true,
       scrollCacheExtent: const ScrollCacheExtent.pixels(500.0),
-      // 添加 itemExtent 帮助 ListView 预计算滚动位置
-      itemExtent: _estimatedItemExtent,
+      // 移除定高 itemExtent 以支持自适应内容高度，避免滚动跳动
       physics: const BouncingScrollPhysics(),
       itemCount: messages.length,
       itemBuilder: (context, index) {

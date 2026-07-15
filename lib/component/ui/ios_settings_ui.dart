@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -237,7 +238,12 @@ class ImBoySettingsTile extends StatelessWidget {
       leading: leading,
       trailing:
           trailing ?? (onTap != null ? const CupertinoListTileChevron() : null),
-      onTap: onTap,
+      onTap: onTap != null
+          ? () {
+              HapticFeedback.lightImpact();
+              onTap!();
+            }
+          : null,
       backgroundColor:
           backgroundColor ??
           (isDark

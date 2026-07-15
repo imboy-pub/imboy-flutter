@@ -85,13 +85,18 @@ class AppTheme {
         thickness: 0.33,
         space: 1,
       ),
+      cupertinoOverrideTheme: CupertinoThemeData(
+        primaryColor: AppColors.primary,
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: AppColors.lightBackground,
+      ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
           TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
           TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+          TargetPlatform.linux: ZoomPageTransitionsBuilder(),
         },
       ),
     );
@@ -128,13 +133,18 @@ class AppTheme {
         thickness: 0.33,
         space: 1,
       ),
+      cupertinoOverrideTheme: CupertinoThemeData(
+        primaryColor: AppColors.primary,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: AppColors.darkBackground,
+      ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
           TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
           TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+          TargetPlatform.linux: ZoomPageTransitionsBuilder(),
         },
       ),
     );

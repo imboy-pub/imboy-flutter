@@ -182,7 +182,8 @@ class AppColors {
 
   // ============ 聊天壁纸渐变色 ============
   static const Color chatWallpaperBlueLightStart = Color(0xFF64B5F6);
-  // chatWallpaperBlueLightEnd → splashGradientStart (0xFF42A5F5)
+  static const Color chatWallpaperBlueLightEnd =
+      splashGradientStart; // 0xFF42A5F5
   static const Color chatWallpaperPurpleLightStart = Color(0xFFBA68C8);
   static const Color chatWallpaperPurpleLightEnd = Color(0xFFAB47BC);
 
@@ -196,6 +197,16 @@ class AppColors {
   static const Color iosTertiaryLabel = Color(0xFF545458);
   static const Color lightNearBlack = Color(0xFF1A1A1A);
   static const Color neutralGray = Color(0xFF999999);
+
+  // 新增语义色 (UI/UX 修复)
+  static const Color socialShardBackground = Color(
+    0xFFE1BEE7,
+  ); // Colors.purple.shade100
+  static const Color socialShardForeground = Color(
+    0xFF7B1FA2,
+  ); // Colors.purple.shade700
+  static const Color momentLinkColor = Color(0xFF576B95);
+  static const Color iconDisabled = Color(0xFFC5C5C5);
 
   // ============ 透明度变体 ============
   static Color get primaryAlpha10 => primary.withValues(alpha: 0.1);

@@ -193,18 +193,28 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         ),
       ],
       slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: () async {
+            // TODO: Add refresh logic
+            await Future.delayed(const Duration(milliseconds: 1000));
+          },
+        ),
         // 搜索框 - 嵌入 List 顶部
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.regular,
-              AppSpacing.medium,
+              AppSpacing.small,
               AppSpacing.regular,
               AppSpacing.medium,
             ),
             child: CupertinoSearchTextField(
               key: const Key('conversation_search_input'),
               placeholder: t.common.search,
+              backgroundColor: AppColors.getSurfaceGrouped(
+                brightness,
+                isOLEDMode: true,
+              ),
             ),
           ),
         ),
@@ -368,7 +378,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                         height: 0.5,
                         color: AppColors.getIosSeparator(
                           brightness,
-                        ).withValues(alpha: 0.5),
+                        ).withValues(alpha: 0.3),
                       ),
                     ),
                   ],
