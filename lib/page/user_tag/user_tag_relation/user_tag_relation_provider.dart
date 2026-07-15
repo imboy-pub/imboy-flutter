@@ -236,6 +236,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
   Future<Map<String, dynamic>> _loadTagStatistics(
     String scene, {
     List<String> ensureTags = const [],
+    bool updateState = true,
   }) async {
     try {
       final items = <Map<String, dynamic>>[
@@ -276,7 +277,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
         'total_tags': tagList.length,
         'most_used': tagList.isNotEmpty ? tagList.first : '',
       };
-      updateTagStatistics(statistics);
+      if (updateState) updateTagStatistics(statistics);
       return statistics;
     } on Exception catch (e) {
       if (kDebugMode) debugPrint('getTagStatistics error: ${e.runtimeType}');
@@ -287,7 +288,7 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
         'total_tags': 0,
         'most_used': '',
       };
-      updateTagStatistics(emptyStatistics);
+      if (updateState) updateTagStatistics(emptyStatistics);
       return emptyStatistics;
     }
   }
@@ -297,7 +298,13 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
     String scene, {
     List<String> ensureTags = const [],
   }) async {
-    final statistics = await _loadTagStatistics(scene, ensureTags: ensureTags);
+    // updateState: false — 此方法常被其他 provider 跨域调用（如 UserCollectNotifier），
+    // 此时 UserTagRelationNotifier 可能已 unmount，写 state 会抛 UnmountedRefException。
+    final statistics = await _loadTagStatistics(
+      scene,
+      ensureTags: ensureTags,
+      updateState: false,
+    );
     return List<String>.from(
       (statistics['tags'] ?? const <dynamic>[]) as Iterable<dynamic>,
     );

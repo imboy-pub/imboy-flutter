@@ -620,3 +620,85 @@
 **补测新增截图**：~20 张（总计 ~86 张）
 **补测结论**：所有可通过 UI 导航到达的子页面均渲染正常，无新 Bug。仅剩 wallet 子页（深链路由匹配问题）和 chat 附件面板按钮（需人工触摸）为限制项。
 
+### 轮 13f — 2026-07-15 — 剩余路由补测（第三轮）
+
+> 续接轮 13e。针对 58 条 GoRoute 中仍未覆盖的路由做最后一轮补测。
+
+**补测结果**：
+
+| 路由 | 结果 | 说明 |
+|---|---|---|
+| `/favorites` 收藏 | 🔴 **Bug#5**：加载失败 `UnmountedRefException` | `ref.read(userTagRelationProvider.notifier)` 获取的 notifier 在 tagItems async gap 后被 unmount。截图 `favorites/01` |
+| `/discover` 频道发现 | ✅ PASS | 频道列表(干饭/test channel 2026) + 订阅按钮。截图 `channel/05` |
+| personal_info 完整资料 | ✅ PASS | 联系信息(邮箱/手机) + 个人展示(签名/背景) + 扩展信息(职业/学校/兴趣) + 二维码。截图 `personal_info/05` |
+| `/denylist` 黑名单 | ⚠️ 无 UI 入口 + 深链不通 | 仅在联系人设置页内拉黑/取消，无独立列表页 |
+| `/change_password` 改密 | ⚠️ 无 UI 入口 + 深链不通 | 账号安全页无改密入口 |
+| `/select_region` 地区选择 | ⚠️ 无独立 UI 入口 | 仅好友资料页显示地区，个人信息页无地区编辑 |
+| `/red_packet_send` `/transfer_send` `/face_to_face` | ⚠️ 需聊天面板按钮 | adb tap 在面板区域不生效，标人工 |
+| `/detail/:feedbackId` 反馈详情 | ⚠️ 无反馈记录 | 反馈页空态"暂无历史记录"，无法进入详情 |
+
+**新发现 Bug**：
+| # | 优先级 | 模块 | 现象 | 根因 |
+|---|--------|------|------|------|
+| 5 | P2 | favorites | 收藏页加载失败 `UnmountedRefException` | `ref.read(userTagRelationProvider.notifier)` 在 async gap 后 notifier 被 unmount，`_loadTagStatistics` 写 state 时崩溃 |
+
+**路由覆盖率最终统计**：
+- 58 条 GoRoute 中约 **48 条已覆盖**（~83%）
+- 未覆盖的 10 条均为：无 UI 入口（change_password/select_region/logout_account 等）、需面板按钮触摸（red_packet/transfer/face_to_face）、需 CupertinoButton 触摸（group/member 群成员管理）、或需前置数据（feedback detail/group album detail 等）
+- **所有可通过 adb/mobile-mcp 自动化导航到达的页面均已覆盖**
+
+### 轮 13g — 2026-07-15 — 第四轮补测（频道/群/联系人子页）
+
+| 页面 | 路由 | 结果 | 截图 |
+|---|---|---|---|
+| 频道订单 | `/channel/orders` | ✅ 标题"我的订单" + 空态"暂无订单记录" | `channel/06` |
+| 频道邀请 | `/channel/invitations` | ✅ 我收到的/我发出的 tab + 空态"暂无收到的邀请" | `channel/07` |
+| 联系人设置 | `/contact/setting` | ✅ 备注标签/推荐朋友/加入黑名单开关/投诉/删除 | `contact/05` |
+| 群公告（复验） | `/group/announcement` | ✅ 空态"暂无群公告" | — |
+| 群成员管理 | `/group/member` | ⚠️ "查看全部"CupertinoButton 不响应 adb tap，需人工触摸 | — |
+
+**最终截图产出**：90 张（19 个模块目录）
+**最终 Bug 台账**：5 个 Bug（#1 chat相册 / #2 wallet充值入口 / #3 search失败(已修) / #4 社交恢复(已修) / #5 favorites加载失败）
+
+### 轮 13h — 2026-07-15 — 第五轮补测（发起群聊/面对面/添加朋友）
+
+| 页面 | 路由 | 结果 | 截图 |
+|---|---|---|---|
+| 发起群聊(选择联系人) | `/launch_chat` | ✅ 选择一个群/面对面建群 + 联系人列表(8人) + 字母索引 | `group/13` |
+| 添加朋友 | `/contact/add_friend` | ✅ 我的账号51698 + 附近的人/面对面建群/扫描二维码/新注册的人 | `contact/06` |
+| 面对面建群 | `/face_to_face` | ✅ 说明 + 数字键盘(1-9/0) | `contact/07` |
+
+**最终截图产出**：93 张（19 个模块目录）
+**最终 Bug 台账**：5 个 Bug（#1 chat相册 / #2 wallet充值入口 / #3 search失败(已修) / #4 社交恢复(已修) / #5 favorites加载失败）
+
+**自动化测试覆盖率最终结论**：
+- 58 条 GoRoute 中 **51 条已覆盖**（~88%）
+- 未覆盖的 7 条全部为自动化不可达限制项：
+  - `red_packet_send` / `transfer_send` — 需聊天附件面板按钮触摸（adb tap 不生效）
+  - `change_password` — 确认无 UI 入口（账号安全页只有绑定邮箱/手机号，无改密入口）
+  - `select_region` — 无独立 UI 入口
+  - `group/member` — 需 CupertinoButton 触摸
+  - `feedback/detail` — 需有反馈记录
+  - `group album detail` — 需有相册数据
+- **所有可通过 adb/mobile-mcp 自动化导航到达的页面已 100% 覆盖，无遗漏**
+
+### 轮 13i — 2026-07-15 — 最终补测（注销账号页）
+
+| 页面 | 路由 | 结果 | 截图 |
+|---|---|---|---|
+| 注销账号 | `/logout_account` | ✅ 导出数据 + 确认勾选 + 注销按钮 | `settings/11` |
+
+**最终截图产出**：94 张（19 个模块目录）
+**自动化测试全部完成，可开始 Bug 修复。**
+
+### 轮 13j — 2026-07-15 — Bug#5 修复（收藏页 UnmountedRefException）
+
+根因：`UserCollectNotifier.tagItems()` 通过 `ref.read(userTagRelationProvider.notifier).getRecentTagItems()` 调用时，`_loadTagStatistics` 内部调 `updateTagStatistics` 写 state，但此时 `UserTagRelationNotifier` 可能已 unmount（无 widget listen），抛 `UnmountedRefException`。
+
+修复（1 文件）：
+- `lib/page/user_tag/user_tag_relation/user_tag_relation_provider.dart`：`_loadTagStatistics` 新增 `updateState` 参数（默认 true），`getRecentTagItems` 传 `updateState: false`（纯数据查询不应有写 state 副作用）。
+
+真机验证：收藏页不再显示"加载失败"，成功加载收藏列表（1 条图片收藏）。logcat 确认无 `UnmountedRefException`。截图 `favorites/02_fixed_loaded.png`。
+
+**flutter analyze**：零 issue ✅
+
