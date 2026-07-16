@@ -112,9 +112,9 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
           rethrow;
         }
       } on Exception catch (e) {
-        // 404 错误不需要重试
+        // 404/401/403 无法通过重试解决，直接降级占位（不重试、不暴露异常）
         if (_isNotFoundError(e)) {
-          _log('❌ 图片资源不存在 (404)');
+          _log('❌ 图片资源不可显示 (404/401/403)');
           throw ImageNotFoundException();
         }
 
@@ -179,13 +179,18 @@ class IMBoyCachedImageProvider extends ImageProvider<IMBoyCachedImageProvider> {
   @override
   String toString() => 'IMBoyCachedImageProvider(${url.hashCode})';
 
-  /// 检测是否为 404 或资源不存在错误
+  /// 检测是否为资源不可显示错误（404 不存在 / 401 未授权 / 403 禁止）。
+  /// 这些都无法通过重试解决，应直接降级为占位图，而非 rethrow 把
+  /// DioException 文本暴露到 UI（收藏图快照 URL 未走 presign 时会返回 401）。
   bool _isNotFoundError(Exception e) {
     if (e is DioException) {
-      return e.response?.statusCode == 404;
+      final code = e.response?.statusCode;
+      return code == 404 || code == 401 || code == 403;
     }
-    // 检查异常消息中是否包含 404 或 not found
     final msg = e.toString().toLowerCase();
-    return msg.contains('404') || msg.contains('not found');
+    return msg.contains('404') ||
+        msg.contains('401') ||
+        msg.contains('403') ||
+        msg.contains('not found');
   }
 }

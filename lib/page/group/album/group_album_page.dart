@@ -294,7 +294,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         if (_isUploadingPhoto) const LinearProgressIndicator(minHeight: 2),
         Expanded(
           child: _albums.isEmpty
-              ? NoDataView(text: t.common.groupAlbumNoAlbum, onTop: _loadAlbums)
+              ? NoDataView(text: t.common.groupAlbumNoAlbum)
               : RefreshIndicator(
                   onRefresh: _loadAlbums,
                   child: ListView.builder(

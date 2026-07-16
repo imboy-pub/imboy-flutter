@@ -42,7 +42,7 @@ class ChatInput extends StatefulWidget {
     this.sendButtonVisibilityMode = SendButtonVisibilityMode.editing,
     this.handleSafeArea = true,
     this.backgroundColor,
-    this.hintText = 'Type a message',
+    this.hintText,
     this.keyboardAppearance,
     this.autocorrect = true,
     this.autofocus = false,
@@ -863,7 +863,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             textInputAction: widget.textInputAction,
             contentInsertionConfiguration: widget.contentInsertionConfiguration,
             decoration: InputDecoration(
-              hintText: widget.hintText,
+              hintText: widget.hintText ?? t.chat.messageInputHint,
               hintStyle: TextStyle(
                 color: _themeColor('textSecondary'),
                 fontSize: _themeFontSize(FontSizeType.medium),

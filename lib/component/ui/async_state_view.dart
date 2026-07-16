@@ -47,10 +47,12 @@ class AsyncStateView extends StatelessWidget {
       );
     }
     if (isEmpty) {
+      // 空态仅展示引导文案，不显示"重试"（重试语义仅属 error 态，
+      // 避免"暂无数据 + 重试"这种空态/失败态混淆）。
       return NoDataView(
         text: emptyText ?? t.common.noData,
         icon: emptyIcon,
-        onTop: onRetry,
+        onTop: null,
       );
     }
     return child;

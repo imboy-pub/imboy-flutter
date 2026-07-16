@@ -152,7 +152,8 @@ class UserOnlineTimeHelper {
     } else if (difference.inDays == 1) {
       return '${t.common.yesterday} ${DateFormat('HH:mm').format(dateTime)}';
     } else if (difference.inDays < 7) {
-      return DateFormat('EEEE HH:mm').format(dateTime);
+      // 数字格式，避免 EEEE 星期名落回 en_US 显示英文
+      return DateFormat('MM-dd HH:mm').format(dateTime);
     } else {
       return DateFormat('yyyy/MM/dd HH:mm').format(dateTime);
     }

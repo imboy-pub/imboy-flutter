@@ -1021,7 +1021,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get tipConnectDesc => 'Нет сети';
 	@override String tipConnectDescWithParen({required Object param}) => '(${param})';
 	@override String tipDeleteContact({required Object param}) => 'Удалить контакт "${param}" и удалить историю чата с этим контактом';
-	@override String tipDeviceSpace({required Object param1, required Object param2}) => 'Занимает ${param1}‰ памяти устройства (${param2})';
+	@override String tipDeviceSpace({required Object param1, required Object param2}) => 'Занимает ${param1}% памяти устройства (${param2})';
 	@override String get tipDraft => 'Черновик';
 	@override String get tipEmptyChatPlaceholder => 'Здесь пока нет сообщений';
 	@override String get tipFailed => 'Операция не удалась!';
@@ -3409,7 +3409,7 @@ extension on TranslationsRuRu {
 			'common.tipConnectDesc' => 'Нет сети',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => 'Удалить контакт "${param}" и удалить историю чата с этим контактом',
-			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'Занимает ${param1}‰ памяти устройства (${param2})',
+			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'Занимает ${param1}% памяти устройства (${param2})',
 			'common.tipDraft' => 'Черновик',
 			'common.tipEmptyChatPlaceholder' => 'Здесь пока нет сообщений',
 			'common.tipFailed' => 'Операция не удалась!',

@@ -977,6 +977,9 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '银行卡'
 	String get bankCard => '银行卡';
 
+	/// zh-CN: '说点什么...'
+	String get messageInputHint => '说点什么...';
+
 	/// zh-CN: '张'
 	String get cards => '张';
 
@@ -3074,8 +3077,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '将联系人"$param"删除，同时删除与该联系人的聊天记录'
 	String tipDeleteContact({required Object param}) => '将联系人"${param}"删除，同时删除与该联系人的聊天记录';
 
-	/// zh-CN: '占设备 $param1‰ 存储空间($param2)'
-	String tipDeviceSpace({required Object param1, required Object param2}) => '占设备 ${param1}‰ 存储空间(${param2})';
+	/// zh-CN: '占设备 $param1% 存储空间($param2)'
+	String tipDeviceSpace({required Object param1, required Object param2}) => '占设备 ${param1}% 存储空间(${param2})';
 
 	/// zh-CN: '草稿'
 	String get tipDraft => '草稿';
@@ -4144,6 +4147,9 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '该用户还没有设置个人签名等详细信息'
 	String get noDetailedInfo => '该用户还没有设置个人签名等详细信息';
+
+	/// zh-CN: '暂无新注册用户'
+	String get noNewRegisteredUsersTitle => '暂无新注册用户';
 
 	/// zh-CN: '当前没有新注册的用户 请稍后再来查看'
 	String get noNewRegisteredUsers => '当前没有新注册的用户 请稍后再来查看';
@@ -7602,6 +7608,7 @@ extension on Translations {
 			'channel.deleteCommentConfirm' => '确定删除这条评论吗？',
 			'channel.commentDeleteNoPermission' => '无权删除该评论',
 			'chat.bankCard' => '银行卡',
+			'chat.messageInputHint' => '说点什么...',
 			'chat.cards' => '张',
 			'chat.jdShopping' => '京东购物',
 			'chat.receivePayment' => '收付款',
@@ -7821,9 +7828,9 @@ extension on Translations {
 			'chat.profileCompleted' => '资料已完善！',
 			'chat.profileProgress' => ({required Object percent}) => '${percent}% 完成',
 			'chat.createdAtLabel' => ({required Object time}) => '创建时间: ${time}',
-			'chat.expiredAtLabel' => ({required Object time}) => '过期时间: ${time}',
 			_ => null,
 		} ?? switch (path) {
+			'chat.expiredAtLabel' => ({required Object time}) => '过期时间: ${time}',
 			'chat.myReceivedTab' => '我收到的',
 			'chat.orderStatusLabel' => ({required Object status}) => '状态: ${status}',
 			'chat.orderCreatedAtLabel' => ({required Object time}) => '创建时间: ${time}',
@@ -8300,7 +8307,7 @@ extension on Translations {
 			'common.tipConnectDesc' => '无网络',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => '将联系人"${param}"删除，同时删除与该联系人的聊天记录',
-			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '占设备 ${param1}‰ 存储空间(${param2})',
+			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '占设备 ${param1}% 存储空间(${param2})',
 			'common.tipDraft' => '草稿',
 			'common.tipEmptyChatPlaceholder' => '这里还没有消息',
 			'common.tipFailed' => '操作失败！',
@@ -8335,9 +8342,9 @@ extension on Translations {
 			'common.waitingDownload' => '等待下载',
 			'common.waitingPeerAccept' => '等待对方接受邀请...',
 			'common.warning' => '警告:',
-			'common.webpageLoading' => '网页加载中...',
 			_ => null,
 		} ?? switch (path) {
+			'common.webpageLoading' => '网页加载中...',
 			'common.whatYourFeedback' => '你的反馈是什么?',
 			'common.yesterday' => '昨天',
 			'common.yourContactInformation' => '你的联系方式',
@@ -8659,6 +8666,7 @@ extension on Translations {
 			'common.quickReplyOkThanks' => '好的，谢谢',
 			'common.tagInspiration' => '灵感',
 			'common.noDetailedInfo' => '该用户还没有设置个人签名等详细信息',
+			'common.noNewRegisteredUsersTitle' => '暂无新注册用户',
 			'common.noNewRegisteredUsers' => '当前没有新注册的用户 请稍后再来查看',
 			'common.newRegisteredUsersTip' => '这里显示最近注册的用户，你可以主动添加他们为好友',
 			'common.notificationFriendRequest' => '好友请求',
@@ -8848,10 +8856,10 @@ extension on Translations {
 			'common.e2eeBackupPwdMedium' => '中等 - 建议增加长度或复杂度',
 			'common.e2eeBackupPwdStrong' => '强 - 可以使用',
 			'common.e2eeBackupPwdVeryStrong' => '非常强 - 安全',
-			'common.e2eeBackupGenerateBtn' => '生成备份文件',
-			'common.e2eeBackupFileGenerated' => '备份文件已生成！',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupGenerateBtn' => '生成备份文件',
+			'common.e2eeBackupFileGenerated' => '备份文件已生成！',
 			'common.e2eeBackupShareBtn' => '通过邮件/云盘分享',
 			'common.e2eeBackupShareContent' => '这是我的 Imboy E2EE 密钥备份文件，请妥善保管，切勿泄露给他人。',
 			'common.e2eeBackupErrPwdMismatch' => '两次输入的密码不一致',
@@ -9362,10 +9370,10 @@ extension on Translations {
 			'main.itIt' => '意大利语（意大利）',
 			'main.jaJp' => '日语（日本）',
 			'main.keepSecret' => '保密',
-			'main.lastActiveTime' => '最近活跃时间',
-			'main.lastSeenHide' => '隐藏在线状态',
 			_ => null,
 		} ?? switch (path) {
+			'main.lastActiveTime' => '最近活跃时间',
+			'main.lastSeenHide' => '隐藏在线状态',
 			'main.lastSeenNever' => '从未上线',
 			'main.lastSeenWeeksAgo' => ({required Object param}) => '${param}周前',
 			'main.lastSeenExactTime' => ({required Object param}) => '上次在线 ${param}',

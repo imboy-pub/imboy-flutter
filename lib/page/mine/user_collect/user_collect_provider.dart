@@ -221,6 +221,18 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   height: 120,
                   fit: BoxFit.cover,
                   image: cachedImageProvider(uri, w: screenWidth),
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: screenWidth * 0.5,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      borderRadius: AppRadius.borderRadiusLarge,
+                    ),
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      color: AppColors.primary.withValues(alpha: 0.5),
+                    ),
+                  ),
                 )
               : InkWell(
                   onTap: () async {
@@ -231,6 +243,18 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     width: screenWidth - 20,
                     fit: BoxFit.cover,
                     image: cachedImageProvider(uri, w: screenWidth),
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: screenWidth - 20,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        borderRadius: AppRadius.borderRadiusLarge,
+                      ),
+                      child: Icon(
+                        Icons.broken_image_outlined,
+                        color: AppColors.primary.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ),
                 ),
           Padding(

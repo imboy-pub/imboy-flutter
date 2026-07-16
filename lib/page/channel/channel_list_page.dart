@@ -188,11 +188,14 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     }
 
     if (state.channels.isEmpty) {
+      // 已订阅空态提供"发现频道"跳转入口（引导语可点击）
       return NoDataView(
         icon: Icons.campaign_outlined,
         text: isSubscribed
             ? context.t.channel.noSubscribedChannels
             : context.t.channel.noManagedChannels,
+        onTop: isSubscribed ? () => context.push('/channel/discover') : null,
+        retryLabel: isSubscribed ? context.t.channel.discover : null,
       );
     }
 

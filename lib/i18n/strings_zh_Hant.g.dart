@@ -1021,7 +1021,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get tipConnectDesc => '無網路';
 	@override String tipConnectDescWithParen({required Object param}) => '（${param}）';
 	@override String tipDeleteContact({required Object param}) => '將聯絡人「${param}」刪除，同時刪除與該聯絡人的聊天記錄';
-	@override String tipDeviceSpace({required Object param1, required Object param2}) => '佔設備 ${param1}‰ 儲存空間（${param2}）';
+	@override String tipDeviceSpace({required Object param1, required Object param2}) => '佔設備 ${param1}% 儲存空間（${param2}）';
 	@override String get tipDraft => '草稿';
 	@override String get tipEmptyChatPlaceholder => '這裡還沒有訊息';
 	@override String get tipFailed => '操作失敗！';
@@ -3409,7 +3409,7 @@ extension on TranslationsZhHant {
 			'common.tipConnectDesc' => '無網路',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '（${param}）',
 			'common.tipDeleteContact' => ({required Object param}) => '將聯絡人「${param}」刪除，同時刪除與該聯絡人的聊天記錄',
-			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '佔設備 ${param1}‰ 儲存空間（${param2}）',
+			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '佔設備 ${param1}% 儲存空間（${param2}）',
 			'common.tipDraft' => '草稿',
 			'common.tipEmptyChatPlaceholder' => '這裡還沒有訊息',
 			'common.tipFailed' => '操作失敗！',

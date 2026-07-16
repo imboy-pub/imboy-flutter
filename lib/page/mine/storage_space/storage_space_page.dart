@@ -230,8 +230,8 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           Text(
             t.common.tipDeviceSpace(
               param1: state.totalDiskSpace > 0
-                  ? ((state.appAllBytes / state.totalDiskSpace) * 1000)
-                        .toStringAsFixed(3)
+                  ? ((state.appAllBytes / state.totalDiskSpace) * 100)
+                        .toStringAsFixed(1)
                   : '0',
               param2: formatBytes(state.totalDiskSpace, num: 1000),
             ),

@@ -153,10 +153,8 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
     }
 
     if (_votes.isEmpty) {
-      return NoDataView(
-        text: t.groupVote.noVote,
-        onTop: () => _loadVotes(refresh: true),
-      );
+      // 空态仅引导，不显示"重试"（避免空态/失败态混淆）
+      return NoDataView(text: t.groupVote.noVote);
     }
 
     return RefreshIndicator(
@@ -269,7 +267,10 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
                 const Spacer(),
                 Text(
                   t.groupVote.participantCount(
-                    count: vote['participant_count'] as Object? ?? 0,
+                    // 列表项可能只返回 total_votes，兜底避免恒显示 0
+                    count:
+                        (vote['participant_count'] ?? vote['total_votes'] ?? 0)
+                            as Object,
                   ),
                   style: context.textStyle(
                     FontSizeType.caption2,

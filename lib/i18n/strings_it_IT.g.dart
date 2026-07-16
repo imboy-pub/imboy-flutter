@@ -1021,7 +1021,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get tipConnectDesc => 'Nessuna rete';
 	@override String tipConnectDescWithParen({required Object param}) => '(${param})';
 	@override String tipDeleteContact({required Object param}) => 'Elimina il contatto "${param}", contemporaneamente elimina la cronologia chat con questo contatto';
-	@override String tipDeviceSpace({required Object param1, required Object param2}) => 'Occupa ${param1}‰ dello spazio del dispositivo (${param2})';
+	@override String tipDeviceSpace({required Object param1, required Object param2}) => 'Occupa ${param1}% dello spazio del dispositivo (${param2})';
 	@override String get tipDraft => 'Bozza';
 	@override String get tipEmptyChatPlaceholder => 'Ancora nessun messaggio qui';
 	@override String get tipFailed => 'Operazione non riuscita!';
@@ -3409,7 +3409,7 @@ extension on TranslationsItIt {
 			'common.tipConnectDesc' => 'Nessuna rete',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => 'Elimina il contatto "${param}", contemporaneamente elimina la cronologia chat con questo contatto',
-			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'Occupa ${param1}‰ dello spazio del dispositivo (${param2})',
+			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'Occupa ${param1}% dello spazio del dispositivo (${param2})',
 			'common.tipDraft' => 'Bozza',
 			'common.tipEmptyChatPlaceholder' => 'Ancora nessun messaggio qui',
 			'common.tipFailed' => 'Operazione non riuscita!',

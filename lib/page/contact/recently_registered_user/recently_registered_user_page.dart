@@ -176,7 +176,7 @@ class _RecentlyRegisteredUserPageState
 
   Widget _buildEmptyState(BuildContext context) {
     return NoDataView(
-      text: t.common.noNewFriendRequests,
+      text: t.common.noNewRegisteredUsersTitle,
       description: t.common.noNewRegisteredUsers,
       icon: CupertinoIcons.person_2,
     );

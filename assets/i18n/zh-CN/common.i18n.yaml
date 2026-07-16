@@ -415,7 +415,7 @@ timeYesterday: 昨天
 tipConnectDesc: 无网络
 tipConnectDescWithParen: ($param)
 tipDeleteContact: 将联系人"$param"删除，同时删除与该联系人的聊天记录
-tipDeviceSpace: 占设备 $param1‰ 存储空间($param2)
+tipDeviceSpace: 占设备 $param1% 存储空间($param2)
 tipDraft: 草稿
 tipEmptyChatPlaceholder: 这里还没有消息
 tipFailed: 操作失败！
@@ -772,6 +772,7 @@ quickReplyOk: 好的
 quickReplyOkThanks: 好的，谢谢
 tagInspiration: 灵感
 noDetailedInfo: 该用户还没有设置个人签名等详细信息
+noNewRegisteredUsersTitle: 暂无新注册用户
 noNewRegisteredUsers: "当前没有新注册的用户
 请稍后再来查看"
 newRegisteredUsersTip: 这里显示最近注册的用户，你可以主动添加他们为好友

@@ -1021,7 +1021,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get tipConnectDesc => 'لا يوجد اتصال بالشبكة';
 	@override String tipConnectDescWithParen({required Object param}) => '(${param})';
 	@override String tipDeleteContact({required Object param}) => 'حذف جهة الاتصال "${param}"، وحذف سجل الدردشة مع جهة الاتصال هذه في نفس الوقت';
-	@override String tipDeviceSpace({required Object param1, required Object param2}) => 'تحتل ${param1}‰ من مساحة تخزين الجهاز (${param2})';
+	@override String tipDeviceSpace({required Object param1, required Object param2}) => 'تحتل ${param1}% من مساحة تخزين الجهاز (${param2})';
 	@override String get tipDraft => 'مسودة';
 	@override String get tipEmptyChatPlaceholder => 'لا توجد رسائل هنا بعد';
 	@override String get tipFailed => 'فشلت العملية!';
@@ -3409,7 +3409,7 @@ extension on TranslationsArSa {
 			'common.tipConnectDesc' => 'لا يوجد اتصال بالشبكة',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => 'حذف جهة الاتصال "${param}"، وحذف سجل الدردشة مع جهة الاتصال هذه في نفس الوقت',
-			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'تحتل ${param1}‰ من مساحة تخزين الجهاز (${param2})',
+			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'تحتل ${param1}% من مساحة تخزين الجهاز (${param2})',
 			'common.tipDraft' => 'مسودة',
 			'common.tipEmptyChatPlaceholder' => 'لا توجد رسائل هنا بعد',
 			'common.tipFailed' => 'فشلت العملية!',

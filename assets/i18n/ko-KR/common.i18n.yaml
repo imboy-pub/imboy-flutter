@@ -411,7 +411,7 @@ timeYesterday: 어제
 tipConnectDesc: 네트워크 없음
 tipConnectDescWithParen: "($param)"
 tipDeleteContact: 연락처 "$param"을(를) 삭제하고 해당 연락처의 채팅 기록도 삭제합니다
-tipDeviceSpace: 기기 공간 $param1‰ 사용($param2)
+tipDeviceSpace: 기기 공간 $param1% 사용($param2)
 tipDraft: 임시 저장
 tipEmptyChatPlaceholder: 아직 메시지가 없습니다
 tipFailed: 작업 실패!

@@ -1021,7 +1021,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get tipConnectDesc => '네트워크 없음';
 	@override String tipConnectDescWithParen({required Object param}) => '(${param})';
 	@override String tipDeleteContact({required Object param}) => '연락처 "${param}"을(를) 삭제하고 해당 연락처의 채팅 기록도 삭제합니다';
-	@override String tipDeviceSpace({required Object param1, required Object param2}) => '기기 공간 ${param1}‰ 사용(${param2})';
+	@override String tipDeviceSpace({required Object param1, required Object param2}) => '기기 공간 ${param1}% 사용(${param2})';
 	@override String get tipDraft => '임시 저장';
 	@override String get tipEmptyChatPlaceholder => '아직 메시지가 없습니다';
 	@override String get tipFailed => '작업 실패!';
@@ -3409,7 +3409,7 @@ extension on TranslationsKoKr {
 			'common.tipConnectDesc' => '네트워크 없음',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => '연락처 "${param}"을(를) 삭제하고 해당 연락처의 채팅 기록도 삭제합니다',
-			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '기기 공간 ${param1}‰ 사용(${param2})',
+			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '기기 공간 ${param1}% 사용(${param2})',
 			'common.tipDraft' => '임시 저장',
 			'common.tipEmptyChatPlaceholder' => '아직 메시지가 없습니다',
 			'common.tipFailed' => '작업 실패!',

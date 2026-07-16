@@ -604,7 +604,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
             const SizedBox(height: 120),
-            NoDataView(text: _emptyText(), onTop: _refreshAll),
+            NoDataView(text: _emptyText()),
           ],
         ),
       );

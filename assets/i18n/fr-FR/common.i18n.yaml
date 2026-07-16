@@ -411,7 +411,7 @@ timeYesterday: Hier
 tipConnectDesc: Pas de réseau
 tipConnectDescWithParen: "($param)"
 tipDeleteContact: Supprimer le contact "$param" et supprimer simultanément l'historique de conversation avec ce contact.
-tipDeviceSpace: Occupe $param1‰ de l'espace de stockage de l'appareil ($param2).
+tipDeviceSpace: Occupe $param1% de l'espace de stockage de l'appareil ($param2).
 tipDraft: Brouillon
 tipEmptyChatPlaceholder: Aucun message ici pour le moment.
 tipFailed: Opération échouée !

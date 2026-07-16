@@ -1021,7 +1021,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get tipConnectDesc => 'ネットワークなし';
 	@override String tipConnectDescWithParen({required Object param}) => '(${param})';
 	@override String tipDeleteContact({required Object param}) => '連絡先「${param}」を削除し、同時にその連絡先とのチャット履歴を削除します';
-	@override String tipDeviceSpace({required Object param1, required Object param2}) => 'デバイスの${param1}‰ストレージ容量を占めています(${param2})';
+	@override String tipDeviceSpace({required Object param1, required Object param2}) => 'デバイスの${param1}%ストレージ容量を占めています(${param2})';
 	@override String get tipDraft => '下書き';
 	@override String get tipEmptyChatPlaceholder => 'ここにはまだメッセージがありません';
 	@override String get tipFailed => '操作に失敗しました！';
@@ -3409,7 +3409,7 @@ extension on TranslationsJaJp {
 			'common.tipConnectDesc' => 'ネットワークなし',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => '連絡先「${param}」を削除し、同時にその連絡先とのチャット履歴を削除します',
-			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'デバイスの${param1}‰ストレージ容量を占めています(${param2})',
+			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => 'デバイスの${param1}%ストレージ容量を占めています(${param2})',
 			'common.tipDraft' => '下書き',
 			'common.tipEmptyChatPlaceholder' => 'ここにはまだメッセージがありません',
 			'common.tipFailed' => '操作に失敗しました！',

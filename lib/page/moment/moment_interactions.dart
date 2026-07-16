@@ -760,7 +760,15 @@ String momentRelativeTime(String createdAt) {
   final trimmed = createdAt.trim();
   if (trimmed.isEmpty) return '';
   final dt = DateTime.tryParse(trimmed);
-  if (dt == null) return trimmed;
+  if (dt == null) {
+    // 后端可能返回裸毫秒 epoch（如 "1784034763781"），tryParse 返回 null，
+    // 此时按毫秒时间戳解析，避免把原始数字串直接显示到 UI。
+    final ms = int.tryParse(trimmed);
+    if (ms == null) return trimmed;
+    return DateTimeHelper.dateTimeFmt(
+      DateTimeHelper.millisecondToDateTime(ms, isUtc: true),
+    );
+  }
   return DateTimeHelper.dateTimeFmt(dt);
 }
 

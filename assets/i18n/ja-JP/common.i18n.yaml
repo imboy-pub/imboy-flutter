@@ -411,7 +411,7 @@ timeYesterday: 昨日
 tipConnectDesc: ネットワークなし
 tipConnectDescWithParen: "($param)"
 tipDeleteContact: 連絡先「$param」を削除し、同時にその連絡先とのチャット履歴を削除します
-tipDeviceSpace: デバイスの$param1‰ストレージ容量を占めています($param2)
+tipDeviceSpace: デバイスの$param1%ストレージ容量を占めています($param2)
 tipDraft: 下書き
 tipEmptyChatPlaceholder: ここにはまだメッセージがありません
 tipFailed: 操作に失敗しました！

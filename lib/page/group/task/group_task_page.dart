@@ -230,10 +230,10 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     }
 
     if (_tasks.isEmpty) {
+      // 空态仅引导，不显示"重试"（避免空态/失败态混淆）
       return NoDataView(
         key: const Key('group_task_empty'),
         text: t.groupTask.noTask,
-        onTop: _loadTasks,
       );
     }
 

@@ -411,7 +411,7 @@ timeYesterday: Gestern
 tipConnectDesc: Kein Netzwerk
 tipConnectDescWithParen: "($param)"
 tipDeleteContact: Kontakt "$param" löschen, gleichzeitig den Chat-Verlauf mit diesem Kontakt löschen
-tipDeviceSpace: Belegt $param1‰ des Gerätespeichers($param2)
+tipDeviceSpace: Belegt $param1% des Gerätespeichers($param2)
 tipDraft: Entwurf
 tipEmptyChatPlaceholder: Hier noch keine Nachrichten
 tipFailed: Operation fehlgeschlagen!

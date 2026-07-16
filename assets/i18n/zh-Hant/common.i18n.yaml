@@ -410,7 +410,7 @@ timeYesterday: 昨天
 tipConnectDesc: 無網路
 tipConnectDescWithParen: （$param）
 tipDeleteContact: 將聯絡人「$param」刪除，同時刪除與該聯絡人的聊天記錄
-tipDeviceSpace: 佔設備 $param1‰ 儲存空間（$param2）
+tipDeviceSpace: 佔設備 $param1% 儲存空間（$param2）
 tipDraft: 草稿
 tipEmptyChatPlaceholder: 這裡還沒有訊息
 tipFailed: 操作失敗！

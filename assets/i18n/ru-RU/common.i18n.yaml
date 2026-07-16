@@ -411,7 +411,7 @@ timeYesterday: Вчера
 tipConnectDesc: Нет сети
 tipConnectDescWithParen: "($param)"
 tipDeleteContact: Удалить контакт "$param" и удалить историю чата с этим контактом
-tipDeviceSpace: Занимает $param1‰ памяти устройства ($param2)
+tipDeviceSpace: Занимает $param1% памяти устройства ($param2)
 tipDraft: Черновик
 tipEmptyChatPlaceholder: Здесь пока нет сообщений
 tipFailed: Операция не удалась!

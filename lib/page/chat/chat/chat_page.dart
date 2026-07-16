@@ -1684,11 +1684,13 @@ class ChatPageState extends ConsumerState<ChatPage>
       decoration: ref
           .read(chatBackgroundManagerProvider.notifier)
           .getCurrentBackgroundDecoration(),
-      resolveUser: (id) => Future.value(switch (id) {
-        'me' => currentUser,
-        'recipient' => _peerUser,
-        _ => null,
-      }),
+      // authorId 是真实数字 uid（自己=currentUser.id，对方=widget.peerId），
+      // 不是 'me'/'recipient' 字面量；按真实 id 比对才能解析出头像 URL。
+      resolveUser: (id) => Future.value(
+        id == currentUser.id
+            ? currentUser
+            : (id == widget.peerId ? _peerUser : null),
+      ),
       // timeFormat: DateFormat("y-MM-dd HH:mm"),
       timeFormat: RelativeDateFormat(),
       // 暗色 + 字号缩放感知：静态 chatTheme 硬编码 isDark:false 且无缩放，

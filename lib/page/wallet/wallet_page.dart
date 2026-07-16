@@ -251,12 +251,6 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                 brightness,
               ),
 
-              // 服务推荐 Section
-              ImBoySettingsSection(
-                header: Text(t.main.tencentService.toUpperCase()),
-                children: [_buildServiceGrid(context, isDark, brightness)],
-              ),
-
               // 交易流水 Section
               _buildTransactionSection(
                 context,
@@ -437,82 +431,6 @@ class _WalletPageState extends ConsumerState<WalletPage> {
               ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildServiceGrid(BuildContext context, bool isDark, Brightness b) {
-    final services = [
-      {
-        'icon': CupertinoIcons.creditcard_fill,
-        'label': t.common.creditCardRepayment,
-        'color': AppColors.iosGreen,
-      },
-      {
-        'icon': CupertinoIcons.phone_fill,
-        'label': t.account.mobileRecharge,
-        'color': AppColors.iosSkyBlue,
-      },
-      {
-        'icon': CupertinoIcons.briefcase_fill,
-        'label': t.group.financialManagement,
-        'color': AppColors.iosOrange,
-      },
-      {
-        'icon': CupertinoIcons.bolt_fill,
-        'label': t.main.lifePayment,
-        'color': AppColors.iosYellow,
-      },
-      {
-        'icon': CupertinoIcons.heart_fill,
-        'label': t.main.medicalHealth,
-        'color': AppColors.iosPink,
-      },
-      {
-        'icon': CupertinoIcons.car_fill,
-        'label': t.main.traffic,
-        'color': AppColors.iosBlue,
-      },
-    ];
-
-    return Container(
-      padding: AppSpacing.allSmall,
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          childAspectRatio: 1.1,
-        ),
-        itemCount: services.length,
-        itemBuilder: (context, i) {
-          final s = services[i];
-          return CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: () => AppLoading.showToast(t.common.comingSoon),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  s['icon'] as IconData,
-                  size: 26,
-                  color: s['color'] as Color,
-                ),
-                AppSpacing.verticalSmall,
-                Text(
-                  s['label'] as String,
-                  style: context.textStyle(
-                    FontSizeType.small,
-                    color: isDark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.lightTextPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }
