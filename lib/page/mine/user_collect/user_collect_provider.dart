@@ -30,8 +30,22 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
+import 'package:imboy/service/assets.dart' show AssetsService;
 
 part 'user_collect_provider.g.dart';
+
+/// 归一化历史收藏的附件 uri：
+/// 新收藏的 source 已是 Garage object_key（走 presign 授权）；历史收藏
+/// 快照的是完整 URL（go-fastdfs 时代），对 Garage 资源必 401。若该 URL
+/// 的 path 是 object_key 形态（`u<uid>/...`），提取 path 交给授权链复活；
+/// 否则原样返回（渲染侧已优雅降级占位）。
+String normalizeCollectUri(String uri) {
+  if (uri.isEmpty || !uri.contains('://')) return uri;
+  final u = Uri.tryParse(uri);
+  if (u == null) return uri;
+  final path = u.path.startsWith('/') ? u.path.substring(1) : u.path;
+  return AssetsService.isObjectKey(path) ? path : uri;
+}
 
 /// UserCollect Notifier
 /// 处理收藏相关的业务逻辑
@@ -211,7 +225,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         ],
       );
     } else if (obj.kind == 2) {
-      String uri = obj.info['payload']['uri'] as String? ?? '';
+      String uri = normalizeCollectUri(
+        obj.info['payload']['uri'] as String? ?? '',
+      );
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
