@@ -1088,7 +1088,11 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
     if (_inputType.value == InputType.emoji ||
         _inputType.value == InputType.extra) {
-      panelHeight = targetPanelHeight;
+      // extra 面板内容高约 304dp(2行×108+指示器)，矮键盘机型上若面板高
+      // 锁死为键盘高会裁掉第二行的文字标签，故给下限。
+      panelHeight = _inputType.value == InputType.extra
+          ? max(targetPanelHeight, 316)
+          : targetPanelHeight;
     } else if (_inputType.value == InputType.text) {
       if (_isTransitioningToTextFromPanel) {
         panelHeight = max(targetPanelHeight, bottomInset);

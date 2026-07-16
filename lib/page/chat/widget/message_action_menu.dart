@@ -155,7 +155,9 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               ),
               child: Container(
                 alignment: Alignment.center,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
+                // horizontal:4 时 6×(44+8)=312 > 窄屏可用宽(~296)，右溢出11px；
+                // 收窄到 2 → 6×48=288，保住 44pt 触达区且不溢出。
+                margin: const EdgeInsets.symmetric(horizontal: 2),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   padding: AppSpacing.allSmall,

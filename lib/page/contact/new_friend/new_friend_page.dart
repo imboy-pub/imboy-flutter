@@ -83,19 +83,29 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
             child: CupertinoSearchTextField(
               placeholder: t.account.hintLoginAccount,
               onSubmitted: (v) async {
-                final results = await ref
-                    .read(newFriendProvider.notifier)
-                    .userSearch(kwd: v);
-                if (!context.mounted) return;
-                if (results.isEmpty) {
-                  AppLoading.showInfo(t.common.searchNoResults);
-                  return;
+                if (v.trim().isEmpty) return;
+                // fire-and-forget async 回调必须自带 try/catch：
+                // 搜索链路任何异常若被框架吞掉，UI 将毫无反馈。
+                AppLoading.show();
+                try {
+                  final results = await ref
+                      .read(newFriendProvider.notifier)
+                      .userSearch(kwd: v);
+                  AppLoading.dismiss();
+                  if (!context.mounted) return;
+                  if (results.isEmpty) {
+                    AppLoading.showInfo(t.common.searchNoResults);
+                    return;
+                  }
+                  final model = results.first as PeopleModel;
+                  context.push(
+                    '/people_info/${model.id}',
+                    extra: {'scene': 'user_search'},
+                  );
+                } on Exception {
+                  AppLoading.dismiss();
+                  AppLoading.showError(t.common.errorNetwork);
                 }
-                final model = results.first as PeopleModel;
-                context.push(
-                  '/people_info/${model.id}',
-                  extra: {'scene': 'user_search'},
-                );
               },
             ),
           ),

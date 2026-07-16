@@ -112,19 +112,29 @@ class AddFriendPage extends ConsumerWidget {
             CupertinoSearchTextField(
               placeholder: t.account.hintLoginAccount,
               onSubmitted: (v) async {
-                final results = await ref
-                    .read(newFriendProvider.notifier)
-                    .userSearch(kwd: v);
-                if (!context.mounted) return;
-                if (results.isEmpty) {
-                  AppLoading.showInfo(t.common.searchNoResults);
-                  return;
+                if (v.trim().isEmpty) return;
+                // 同 new_friend_page：async 回调自带 try/catch + loading，
+                // 避免异常被吞导致搜索无任何反馈。
+                AppLoading.show();
+                try {
+                  final results = await ref
+                      .read(newFriendProvider.notifier)
+                      .userSearch(kwd: v);
+                  AppLoading.dismiss();
+                  if (!context.mounted) return;
+                  if (results.isEmpty) {
+                    AppLoading.showInfo(t.common.searchNoResults);
+                    return;
+                  }
+                  final model = results.first as PeopleModel;
+                  context.push(
+                    '/people_info/${model.id}',
+                    extra: {'scene': 'user_search'},
+                  );
+                } on Exception {
+                  AppLoading.dismiss();
+                  AppLoading.showError(t.common.errorNetwork);
                 }
-                final model = results.first as PeopleModel;
-                context.push(
-                  '/people_info/${model.id}',
-                  extra: {'scene': 'user_search'},
-                );
               },
             ),
             AppSpacing.verticalRegular,

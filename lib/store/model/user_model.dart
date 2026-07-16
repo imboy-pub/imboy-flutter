@@ -44,7 +44,11 @@ class UserSettingModel {
     // 注意：不要使用 ?? true 作为默认值，这会导致用户关闭开关后被自动打开
     // 使用显式解析，支持 bool/int/string 并且避免运行时类型异常
     return UserSettingModel(
-      allowSearch: parseModelBool(json['allow_search']),
+      // allow_search 后端值域 1=开 2=关（非 0/1 bool）：
+      // parseModelBool 的 `num != 0` 会把 2(关) 误解析为 true(开)（QA#18）
+      allowSearch: json['allow_search'] is num
+          ? json['allow_search'] == 1
+          : parseModelBool(json['allow_search']),
       peopleNearbyVisible: parseModelBool(json['people_nearby_visible']),
       chatState: parseModelString(json['chat_state'], defaultValue: 'hide'),
       fontSize: parseModelString(json['font_size'], defaultValue: 'normal'),

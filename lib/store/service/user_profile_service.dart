@@ -39,6 +39,13 @@ class UserProfileService {
     final readCur = readCurrent ?? () => UserRepoLocal.to.current.toMap();
     final save = saveLocal ?? (p) => UserRepoLocal.to.changeInfo(p);
 
+    // allow_search 后端权威值域为 int 1|2（user_agg:validate_allow_search），
+    // bool 直传会被后端拒绝导致写入无效——这曾造成设置页与隐私页
+    // 两处同义开关状态长期矛盾（QA#18）。
+    if (field == 'allow_search' && value is bool) {
+      value = value ? 1 : 2;
+    }
+
     final resp = await put({'field': field, 'value': value});
     if (!resp.ok) return false;
 

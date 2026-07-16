@@ -32,7 +32,11 @@ final allowSearchProvider = Provider<bool>((ref) {
   if (settingData.isNotEmpty) {
     try {
       final settingMap = jsonDecode(settingData) as Map<String, dynamic>;
-      return (settingMap['allow_search'] ?? true) as bool;
+      // 兼容两种历史编码：bool 与后端权威 int(1=开 2=关)
+      final v = settingMap['allow_search'];
+      if (v is bool) return v;
+      if (v is int) return v == 1;
+      return true;
     } on Exception {
       return true;
     }
