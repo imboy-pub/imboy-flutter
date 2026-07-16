@@ -1999,6 +1999,8 @@ class ChatPageState extends ConsumerState<ChatPage>
               onVisibleRead: _onVisibleRead,
               isRemoved: isRemoved,
               groupStatus: groupStatus,
+              peerId: widget.peerId,
+              peerAvatar: widget.peerAvatar,
               child: child,
             );
           },

@@ -3,13 +3,13 @@ import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart'
     show ChatMessage, Username;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:imboy/component/chat/performance_monitor.dart';
+import 'package:imboy/component/ui/avatar.dart' as imboy_ui;
 import 'package:imboy/page/chat/widget/burn_badge.dart';
 import 'package:imboy/modules/messaging/domain/policy/message_bubble_rules.dart';
 import 'package:imboy/modules/messaging/domain/policy/burn_read_at_rules.dart';
@@ -40,6 +40,8 @@ class ChatMessageItem extends ConsumerWidget {
     required this.onVisibleRead,
     this.isRemoved,
     this.groupStatus,
+    this.peerId = '',
+    this.peerAvatar = '',
   });
 
   final Message message;
@@ -60,6 +62,10 @@ class ChatMessageItem extends ConsumerWidget {
   final Future<void> Function(Message message) onVisibleRead;
   final bool? isRemoved;
   final MessageGroupStatus? groupStatus;
+
+  /// c2c 对方 uid/头像（object_key）。群消息 authorId ≠ peerId 时回退占位。
+  final String peerId;
+  final String peerAvatar;
 
   bool _isBurnMessage(Message msg) {
     final meta = msg.metadata;
@@ -110,12 +116,17 @@ class ChatMessageItem extends ConsumerWidget {
 
     Widget? avatar;
     if (shouldShowAvatar) {
+      // flutter_chat_ui.Avatar 直接裸加载 imageSource，无法处理项目的
+      // avatar object_key（需 presign 授权）；改用项目 Avatar（内置授权链）。
+      final avatarUri = isCurrentUser
+          ? UserRepoLocal.to.current.avatar
+          : (message.authorId == peerId ? peerAvatar : '');
       avatar = Padding(
         padding: EdgeInsets.only(
           left: isCurrentUser ? 8 : 0,
           right: isCurrentUser ? 0 : 8,
         ),
-        child: flutter_chat_ui.Avatar(userId: message.authorId, size: 40),
+        child: imboy_ui.Avatar(imgUri: avatarUri, width: 40, height: 40),
       );
     } else if (!isSystemMessage) {
       avatar = const SizedBox(width: 40);
