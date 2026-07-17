@@ -102,45 +102,40 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                     : AppColors.lightSurface,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: ContactCard(
-                id: id,
-                remark: state.remark,
-                nickname: state.nickname,
-                account: state.account,
-                avatar: state.avatar,
-                gender: state.gender,
-                region: state.region,
-                heroTag: 'avatar_$id',
-                padding: const EdgeInsets.all(AppSpacing.large),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ContactCard(
+                    id: id,
+                    remark: state.remark,
+                    nickname: state.nickname,
+                    account: state.account,
+                    avatar: state.avatar,
+                    gender: state.gender,
+                    region: state.region,
+                    heroTag: 'avatar_$id',
+                    padding: const EdgeInsets.all(AppSpacing.large),
+                  ),
+                  // 在线状态并入信息卡（原独占 Section 合并，提升信息密度）
+                  if (!isSelf && !isBot)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.large,
+                        0,
+                        AppSpacing.large,
+                        AppSpacing.medium,
+                      ),
+                      child: UserOnlineStatusDetailWidget(
+                        isOnline: state.status == 'online',
+                        lastSeenTimestamp: state.lastSeenAt,
+                        hideOnlineStatus: false,
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
         ),
-
-        // 在线状态 Section
-        if (!isSelf && !isBot)
-          SliverToBoxAdapter(
-            child: ImBoySettingsSection(
-              margin: const EdgeInsets.fromLTRB(
-                AppSpacing.regular,
-                AppSpacing.small,
-                AppSpacing.regular,
-                0,
-              ),
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.tiny,
-                  ),
-                  child: UserOnlineStatusDetailWidget(
-                    isOnline: state.status == 'online',
-                    lastSeenTimestamp: state.lastSeenAt,
-                    hideOnlineStatus: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
 
         // 标签设置 Section
         if (!isSelf && !isBot)

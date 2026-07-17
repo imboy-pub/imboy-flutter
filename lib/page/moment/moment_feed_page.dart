@@ -1155,7 +1155,9 @@ class _SingleImagePreviewState extends State<_SingleImagePreview> {
   Widget build(BuildContext context) {
     final url = pickMediaPreviewUrl(widget.item);
     final cardWidth = MediaQuery.sizeOf(context).width - 16 * 2 - 42 - 12;
-    final maxHeight = MediaQuery.sizeOf(context).width * 0.6;
+    // 时间线单图高度上限：收紧至屏宽 0.5，避免竖图占屏过高影响滚动效率
+    // （详情页 moment_detail_page 用 0.7 保留大图，不受此约束）
+    final maxHeight = MediaQuery.sizeOf(context).width * 0.5;
     final aspect = _aspectRatio ?? 4 / 3;
     var displayWidth = cardWidth;
     var displayHeight = displayWidth / aspect;

@@ -73,14 +73,7 @@ class _MinePageState extends ConsumerState<MinePage> {
               AppSpacing.none,
             ),
             children: [
-              ImBoySettingsTile(
-                title: Text(t.main.favorites),
-                leading: _buildIcon(
-                  CupertinoIcons.star_fill,
-                  AppColors.iosYellow,
-                ),
-                onTap: () => context.push('/favorites'),
-              ),
+              // 「收藏」已由顶部圆形快捷入口提供，此处移除重复项
               ImBoySettingsTile(
                 title: Text(t.main.storageSpace),
                 leading: _buildIcon(
