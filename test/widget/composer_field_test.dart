@@ -28,21 +28,19 @@ void main() {
       ),
     );
 
-    // 阈值内：非警示色
+    // 阈值内：计数隐藏（消除常驻 "0/N" 噪音，精修后仅接近阈值才出现）
     await tester.enterText(find.byType(TextField), 'abc');
     await tester.pump();
-    Text counter = tester.widget<Text>(
-      find.byKey(const Key('composer_counter')),
-    );
-    expect(counter.data, '3/10');
-    expect(counter.style?.color, isNot(AppColors.iosOrange));
+    expect(find.byKey(const Key('composer_counter')), findsNothing);
 
-    // Act：超过阈值
+    // Act：达到/超过阈值
     await tester.enterText(find.byType(TextField), 'abcdefgh');
     await tester.pump();
 
-    // Assert：计数变警示色
-    counter = tester.widget<Text>(find.byKey(const Key('composer_counter')));
+    // Assert：计数出现且变警示色
+    final counter = tester.widget<Text>(
+      find.byKey(const Key('composer_counter')),
+    );
     expect(counter.data, '8/10');
     expect(counter.style?.color, AppColors.iosOrange);
   });
@@ -79,9 +77,9 @@ void main() {
     await tester.tap(find.byType(TextField));
     await tester.pumpAndSettle();
 
-    // Assert：品牌蓝高亮 + 加粗描边
+    // Assert：品牌蓝高亮 + 加粗描边（精修后 1.5）
     expect(borderOf().top.color, AppColors.primary);
-    expect(borderOf().top.width, 1.2);
+    expect(borderOf().top.width, 1.5);
   });
 
   testWidgets('光标无效(-1) 时插入表情不崩溃且追加到末尾', (tester) async {

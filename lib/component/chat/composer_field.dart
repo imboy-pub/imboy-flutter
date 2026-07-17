@@ -140,92 +140,108 @@ class ComposerFieldState extends State<ComposerField> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final fillColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
-    // 聚焦态：品牌蓝高亮描边；失焦态：静态 iosSeparator 死灰。
     final isFocused = _focusNode.hasFocus;
+    // 聚焦微交互：失焦用略凹陷的分组灰底，聚焦提亮到 surface（清爽、有"激活"感）。
+    final restFill = isDark
+        ? AppColors.darkBackground
+        : AppColors.lightSurfaceGrouped;
+    final focusFill = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final fillColor = isFocused ? focusFill : restFill;
+    // 聚焦态：品牌蓝高亮描边(1.5)；失焦态：近乎无边框（凹陷底色已界定边界）。
     final borderColor = isFocused
         ? AppColors.primary
         : AppColors.getIosSeparator(
             Theme.of(context).brightness,
-          ).withValues(alpha: 0.2);
-    final borderWidth = isFocused ? 1.2 : 0.5;
+          ).withValues(alpha: 0.15);
+    final borderWidth = isFocused ? 1.5 : 0.5;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        AnimatedContainer(
+        // 发送态：enabled=false(发布/上传中)时柔和变暗，与可编辑态区分。
+        AnimatedOpacity(
           duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOut,
-          decoration: BoxDecoration(
-            color: fillColor,
-            borderRadius: AppRadius.borderRadiusRegular,
-            border: Border.all(color: borderColor, width: borderWidth),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: TextField(
-                  key: const Key('composer_text_field'),
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  enabled: widget.enabled,
-                  autofocus: widget.autofocus,
-                  minLines: widget.minLines,
-                  maxLines: widget.maxLines,
-                  maxLength: widget.maxLength,
-                  textInputAction: widget.textInputAction,
-                  onTap: () {
-                    if (_emojiOpen) setState(() => _emojiOpen = false);
-                  },
-                  onChanged: widget.onChanged,
-                  onSubmitted: (_) => widget.onSubmitted?.call(),
-                  decoration: InputDecoration(
-                    hintText: widget.hintText,
-                    hintStyle: context.textStyle(
-                      FontSizeType.body,
+          opacity: widget.enabled ? 1.0 : 0.5,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+            decoration: BoxDecoration(
+              color: fillColor,
+              borderRadius: AppRadius.borderRadiusRegular,
+              border: Border.all(color: borderColor, width: borderWidth),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: TextField(
+                    key: const Key('composer_text_field'),
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    enabled: widget.enabled,
+                    autofocus: widget.autofocus,
+                    minLines: widget.minLines,
+                    maxLines: widget.maxLines,
+                    maxLength: widget.maxLength,
+                    textInputAction: widget.textInputAction,
+                    onTap: () {
+                      if (_emojiOpen) setState(() => _emojiOpen = false);
+                    },
+                    onChanged: widget.onChanged,
+                    onSubmitted: (_) => widget.onSubmitted?.call(),
+                    decoration: InputDecoration(
+                      hintText: widget.hintText,
+                      hintStyle: context.textStyle(
+                        FontSizeType.body,
+                        color: AppColors.iosGray,
+                      ),
+                      border: InputBorder.none,
+                      counterText: '', // 计数由下方自绘，隐藏内置
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.medium,
+                        vertical: AppSpacing.medium,
+                      ),
+                    ),
+                    style: context
+                        .textStyle(
+                          FontSizeType.body,
+                          color: AppColors.getTextColor(
+                            Theme.of(context).brightness,
+                          ),
+                        )
+                        .copyWith(height: 1.45),
+                  ),
+                ),
+                if (widget.showEmojiButton)
+                  IconButton(
+                    key: const Key('composer_emoji_button'),
+                    // ≥44pt 触达
+                    constraints: const BoxConstraints(
+                      minWidth: 44,
+                      minHeight: 44,
+                    ),
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).moreButtonTooltip,
+                    onPressed: widget.enabled ? _toggleEmoji : null,
+                    icon: Icon(
+                      _emojiOpen
+                          ? Icons.keyboard_outlined
+                          : Icons.emoji_emotions_outlined,
+                      size: 24,
                       color: AppColors.iosGray,
                     ),
-                    border: InputBorder.none,
-                    counterText: '', // 计数由下方自绘，隐藏内置
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.medium,
-                      vertical: AppSpacing.medium,
-                    ),
                   ),
-                  style: context
-                      .textStyle(
-                        FontSizeType.body,
-                        color: AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                        ),
-                      )
-                      .copyWith(height: 1.45),
-                ),
-              ),
-              if (widget.showEmojiButton)
-                IconButton(
-                  key: const Key('composer_emoji_button'),
-                  // ≥44pt 触达
-                  constraints: const BoxConstraints(
-                    minWidth: 44,
-                    minHeight: 44,
-                  ),
-                  tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
-                  onPressed: widget.enabled ? _toggleEmoji : null,
-                  icon: Icon(
-                    _emojiOpen
-                        ? Icons.keyboard_outlined
-                        : Icons.emoji_emotions_outlined,
-                    size: 24,
-                    color: AppColors.iosGray,
-                  ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
-        if (widget.showCounter) _buildCounter(context),
+        // 字数提示仅在接近阈值时出现，消除常驻 "0/2000" 噪音；
+        // 频道 warnThreshold=280(折叠区)一到即显并提示"超过将折叠"。
+        if (widget.showCounter &&
+            _controller.text.characters.length >= _warnThreshold)
+          _buildCounter(context),
         if (_emojiOpen) _buildEmojiPanel(fillColor),
       ],
     );
