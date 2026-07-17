@@ -78,6 +78,15 @@ addImage: 添加图片
 titleOptional: 标题（选填）
 coverLabel: 封面
 coverSet: 已设为封面
+# 撰写页 markdown 格式工具条（D2）
+formatBold: 加粗
+formatItalic: 斜体
+formatStrikethrough: 删除线
+formatHeading: 标题
+formatList: 列表
+formatQuote: 引用
+formatLink: 链接
+linkTextPlaceholder: 链接文字
 pinMessage: 置顶消息
 unpinMessage: 取消置顶
 pinMessageNotImplemented: 置顶功能即将上线

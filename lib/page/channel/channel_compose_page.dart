@@ -11,6 +11,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/upload/batch_upload_controller.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/widgets/channel_markdown.dart';
+import 'package:imboy/page/channel/widgets/markdown_format.dart';
 import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/storage.dart';
@@ -53,6 +54,13 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
+
+  /// 正文焦点：绑定 TextField，用于「格式工具条」随焦点显示 + 插入后回焦。
+  final FocusNode _contentFocusNode = FocusNode();
+
+  /// 正文当前是否获焦——决定格式工具条是否显示（获焦时浮在键盘上方）。
+  bool _contentFocused = false;
+
   final List<AssetEntity> _images = [];
 
   /// 用户显式标记的封面图；null 时默认取第一张（见 [_effectiveCover]）。
@@ -67,15 +75,24 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   @override
   void initState() {
     super.initState();
+    _contentFocusNode.addListener(_onContentFocusChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _restoreDraft());
   }
 
   @override
   void dispose() {
     _persistDraftOnExit();
+    _contentFocusNode.removeListener(_onContentFocusChanged);
+    _contentFocusNode.dispose();
     _titleController.dispose();
     _contentController.dispose();
     super.dispose();
+  }
+
+  void _onContentFocusChanged() {
+    if (!mounted) return;
+    final focused = _contentFocusNode.hasFocus;
+    if (focused != _contentFocused) setState(() => _contentFocused = focused);
   }
 
   String get _draftKey => 'channel_compose_draft_${widget.channelId}';
@@ -330,51 +347,84 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
         ],
       ),
       body: SafeArea(
-        child: ListView(
-          padding: AppSpacing.allRegular,
+        child: Column(
           children: [
-            TextField(
-              controller: _titleController,
-              enabled: !_isPublishing,
-              maxLength: _maxTitleLength,
-              maxLines: 1,
-              textInputAction: TextInputAction.next,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                hintText: t.channel.titleOptional,
-                border: InputBorder.none,
-                counterText: '',
-              ),
-              style: context.textStyle(
-                FontSizeType.title,
-                fontWeight: FontWeight.w600,
+            Expanded(
+              child: ListView(
+                padding: AppSpacing.allRegular,
+                children: [
+                  TextField(
+                    controller: _titleController,
+                    enabled: !_isPublishing,
+                    maxLength: _maxTitleLength,
+                    maxLines: 1,
+                    textInputAction: TextInputAction.next,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: t.channel.titleOptional,
+                      border: InputBorder.none,
+                      counterText: '',
+                    ),
+                    style: context.textStyle(
+                      FontSizeType.title,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Divider(
+                    height: 1,
+                    color: AppColors.getIosSeparator(
+                      Theme.of(context).brightness,
+                    ),
+                  ),
+                  AppSpacing.verticalSmall,
+                  _buildContentField(t),
+                  AppSpacing.verticalRegular,
+                  _buildImageGrid(),
+                ],
               ),
             ),
-            Divider(
-              height: 1,
-              color: AppColors.getIosSeparator(Theme.of(context).brightness),
-            ),
-            AppSpacing.verticalSmall,
-            TextField(
-              controller: _contentController,
-              enabled: !_isPublishing,
-              maxLength: 2000,
-              maxLines: null,
-              minLines: 5,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.newline,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                hintText: t.channel.writeMessage,
-                border: InputBorder.none,
+            // 格式工具条：正文获焦时浮在键盘上方，只插入 markdown 文本。
+            if (_contentFocused && !_isPublishing)
+              _MarkdownToolbar(
+                controller: _contentController,
+                focusNode: _contentFocusNode,
               ),
-              style: TextStyle(fontSize: FontSizeType.body.size, height: 1.5),
-            ),
-            AppSpacing.verticalRegular,
-            _buildImageGrid(),
           ],
         ),
       ),
+    );
+  }
+
+  /// 正文输入框：token 化视觉——聚焦时边框转品牌蓝（原先无边框死灰），
+  /// FontSizeType.body + 1.5 行高（随字号设置缩放），圆角框内边距。
+  Widget _buildContentField(Translations t) {
+    final brightness = Theme.of(context).brightness;
+    final separator = AppColors.getIosSeparator(brightness);
+    final secondary = AppColors.getTextColor(brightness, isSecondary: true);
+    return TextField(
+      controller: _contentController,
+      focusNode: _contentFocusNode,
+      enabled: !_isPublishing,
+      maxLength: 2000,
+      maxLines: null,
+      minLines: 6,
+      keyboardType: TextInputType.multiline,
+      textInputAction: TextInputAction.newline,
+      onChanged: (_) => setState(() {}),
+      decoration: InputDecoration(
+        hintText: t.channel.writeMessage,
+        hintStyle: context.textStyle(FontSizeType.body, color: secondary),
+        contentPadding: AppSpacing.allMedium,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppRadius.borderRadiusSmall,
+          borderSide: BorderSide(color: separator),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.borderRadiusSmall,
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+      ),
+      style: context.textStyle(FontSizeType.body).copyWith(height: 1.5),
     );
   }
 
@@ -589,6 +639,100 @@ class _ComposePreviewSheet extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// 正文「格式工具条」：一排 markdown 语法快捷按钮（加粗/斜体/删除线/标题/
+/// 列表/引用/链接）。每个按钮读 controller 的 text+selection，走 [markdown_format]
+/// 的纯函数插入语法后写回，并回焦正文（键盘不收起）。只插入文本，不改 payload。
+class _MarkdownToolbar extends StatelessWidget {
+  const _MarkdownToolbar({required this.controller, required this.focusNode});
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+
+  void _apply(MarkdownEdit Function(String, TextSelection) edit) {
+    final v = controller.value;
+    final r = edit(v.text, v.selection);
+    controller.value = TextEditingValue(text: r.text, selection: r.selection);
+    // 回焦：工具条按钮点击后保持正文获焦，避免键盘收起 / 工具条闪隐。
+    focusNode.requestFocus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    final brightness = Theme.of(context).brightness;
+    final iconColor = AppColors.getTextColor(brightness);
+    // (图标, 无障碍标签, 动作)。标题直接插 h2（## ），列表/引用同理走行级前缀。
+    // ponytail: 标题不做 h1→h2→h3 循环，直接 h2；需要多级再加。
+    final buttons = <(IconData, String, VoidCallback)>[
+      (
+        Icons.format_bold,
+        t.channel.formatBold,
+        () => _apply((x, s) => applyInlineWrap(x, s, '**')),
+      ),
+      (
+        Icons.format_italic,
+        t.channel.formatItalic,
+        () => _apply((x, s) => applyInlineWrap(x, s, '*')),
+      ),
+      (
+        Icons.format_strikethrough,
+        t.channel.formatStrikethrough,
+        () => _apply((x, s) => applyInlineWrap(x, s, '~~')),
+      ),
+      (
+        Icons.title,
+        t.channel.formatHeading,
+        () => _apply((x, s) => applyLinePrefix(x, s, '## ')),
+      ),
+      (
+        Icons.format_list_bulleted,
+        t.channel.formatList,
+        () => _apply((x, s) => applyLinePrefix(x, s, '- ')),
+      ),
+      (
+        Icons.format_quote,
+        t.channel.formatQuote,
+        () => _apply((x, s) => applyLinePrefix(x, s, '> ')),
+      ),
+      (
+        Icons.link,
+        t.channel.formatLink,
+        () => _apply(
+          (x, s) => applyLink(
+            x,
+            s,
+            linkTextPlaceholder: t.channel.linkTextPlaceholder,
+          ),
+        ),
+      ),
+    ];
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.getSurfaceColor(brightness),
+        border: Border(
+          top: BorderSide(color: AppColors.getIosSeparator(brightness)),
+        ),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: AppSpacing.symmetricSmall,
+        child: Row(
+          children: [
+            for (final (icon, label, onTap) in buttons)
+              IconButton(
+                onPressed: onTap,
+                icon: Icon(icon, size: 22, color: iconColor),
+                tooltip: label,
+                // ≥44×44 命中区（DESIGN.md 最小触达）。
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

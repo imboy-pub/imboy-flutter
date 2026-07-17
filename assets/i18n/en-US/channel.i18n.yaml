@@ -79,6 +79,15 @@ addImage: Add Image
 titleOptional: Title (optional)
 coverLabel: Cover
 coverSet: Set as cover
+# Compose page markdown format toolbar (D2)
+formatBold: Bold
+formatItalic: Italic
+formatStrikethrough: Strikethrough
+formatHeading: Heading
+formatList: List
+formatQuote: Quote
+formatLink: Link
+linkTextPlaceholder: link text
 pinMessage: Pin Message
 unpinMessage: Unpin Message
 pinMessageNotImplemented: Pin feature coming soon

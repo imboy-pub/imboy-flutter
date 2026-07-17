@@ -274,6 +274,14 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get titleOptional => 'Title (optional)';
 	@override String get coverLabel => 'Cover';
 	@override String get coverSet => 'Set as cover';
+	@override String get formatBold => 'Bold';
+	@override String get formatItalic => 'Italic';
+	@override String get formatStrikethrough => 'Strikethrough';
+	@override String get formatHeading => 'Heading';
+	@override String get formatList => 'List';
+	@override String get formatQuote => 'Quote';
+	@override String get formatLink => 'Link';
+	@override String get linkTextPlaceholder => 'link text';
 	@override String get pinMessage => 'Pin Message';
 	@override String get unpinMessage => 'Unpin Message';
 	@override String get pinMessageNotImplemented => 'Pin feature coming soon';
@@ -2687,6 +2695,14 @@ extension on TranslationsEnUs {
 			'channel.titleOptional' => 'Title (optional)',
 			'channel.coverLabel' => 'Cover',
 			'channel.coverSet' => 'Set as cover',
+			'channel.formatBold' => 'Bold',
+			'channel.formatItalic' => 'Italic',
+			'channel.formatStrikethrough' => 'Strikethrough',
+			'channel.formatHeading' => 'Heading',
+			'channel.formatList' => 'List',
+			'channel.formatQuote' => 'Quote',
+			'channel.formatLink' => 'Link',
+			'channel.linkTextPlaceholder' => 'link text',
 			'channel.pinMessage' => 'Pin Message',
 			'channel.unpinMessage' => 'Unpin Message',
 			'channel.pinMessageNotImplemented' => 'Pin feature coming soon',
@@ -2997,6 +3013,8 @@ extension on TranslationsEnUs {
 			'chat.e2eeSocialStatus' => ({required Object status}) => 'Status: ${status}',
 			'chat.e2eeSocialCreateShardsTitle' => 'Create Recovery Shards',
 			'chat.e2eeSocialCreateShardsDesc' => 'Split key into shards stored on proxy devices (server holds nothing)',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Please select at least ${count} proxies',
 			'chat.e2eeRecreatingKey' => 'Recreating key...',
 			'chat.e2eeKeyRecreated' => 'Key recreated successfully',
@@ -3005,8 +3023,6 @@ extension on TranslationsEnUs {
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Cannot decrypt this message',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'This message was encrypted with another device\'s key.\n\nIf you switched devices or reinstalled the app, recover your encryption key to view history messages.',
 			'chat.e2eeRecoveryLater' => 'Later',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeRecoveryGoRecover' => 'Recover',
 			'chat.e2eeRecoveryBannerText' => 'Encrypted history messages detected — recover your key to view them. Tap to recover.',
 			'chat.liveRoomCreateTitle' => 'Create Live Room',
@@ -3511,6 +3527,8 @@ extension on TranslationsEnUs {
 			'common.groupAnnouncementDeleteSuccess' => 'Announcement deleted',
 			'common.privacyClearChatHistory' => 'Clear chat history',
 			'common.privacyClearChatHistoryConfirm' => 'Are you sure you want to clear all chat history? This action cannot be undone.',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyLogoutAccountConfirm' => 'Are you sure you want to delete your account? This action will permanently delete your account and all data, and cannot be undone.',
 			'common.privacySettings' => 'Privacy settings',
 			'common.searchSettings' => 'Search settings',
@@ -3519,8 +3537,6 @@ extension on TranslationsEnUs {
 			'common.allowAddByPhone' => 'Allow add by phone',
 			'common.allowAddByPhoneDesc' => 'Other users can add you as a friend through your phone number',
 			'common.allowAddByQR' => 'Allow add by QR code',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowAddByQRDesc' => 'Other users can add you as a friend by scanning your QR code',
 			'common.statusSettings' => 'Status settings',
 			'common.showOnlineStatus' => 'Show online status',
@@ -4025,6 +4041,8 @@ extension on TranslationsEnUs {
 			'common.e2eeSocialCreateSuccessTitle' => 'Shards created successfully',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Key has been split into ${count} shards',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Need ${count} proxies to recover key',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialZeroTrustNote' => 'Zero-trust architecture: the server stores no shards',
 			'common.e2eeSocialNoShards' => 'You have not created any recovery shards yet',
 			'common.e2eeSocialNoProxyShards' => 'No proxy shards',
@@ -4033,8 +4051,6 @@ extension on TranslationsEnUs {
 			'common.e2eeTransferErrInitFailed' => 'Initialization failed, please try again',
 			'common.e2eeTransferErrNoRecipientKey' => 'Recipient has no available public key',
 			'common.e2eeTransferErrKeyNotFound' => 'Key not found',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferErrCreateFailed' => 'Failed to create transfer session, please try again',
 			'common.e2eeTransferCreateSessionBtn' => 'Create transfer session',
 			'common.e2eeTransferSessionCreated' => 'Transfer session created',
@@ -4539,6 +4555,8 @@ extension on TranslationsEnUs {
 			'main.toBeCompleted' => 'To be completed',
 			'main.availableCount' => 'Available',
 			'main.mostUsed' => 'Most Used',
+			_ => null,
+		} ?? switch (path) {
 			'main.commentPlaceholder' => 'Comment...',
 			'main.delayMsLabel' => 'Delay in ms (>=100)',
 			'main.processed' => 'Processed',
@@ -4547,8 +4565,6 @@ extension on TranslationsEnUs {
 			'main.hobbiesAndInterests' => 'Hobbies & Interests',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
-			_ => null,
-		} ?? switch (path) {
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'Manage visibility of personal info',
 			'main.exportToLocal' => 'Export profile to local',

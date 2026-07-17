@@ -722,6 +722,30 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '已设为封面'
 	String get coverSet => '已设为封面';
 
+	/// zh-CN: '加粗'
+	String get formatBold => '加粗';
+
+	/// zh-CN: '斜体'
+	String get formatItalic => '斜体';
+
+	/// zh-CN: '删除线'
+	String get formatStrikethrough => '删除线';
+
+	/// zh-CN: '标题'
+	String get formatHeading => '标题';
+
+	/// zh-CN: '列表'
+	String get formatList => '列表';
+
+	/// zh-CN: '引用'
+	String get formatQuote => '引用';
+
+	/// zh-CN: '链接'
+	String get formatLink => '链接';
+
+	/// zh-CN: '链接文字'
+	String get linkTextPlaceholder => '链接文字';
+
 	/// zh-CN: '置顶消息'
 	String get pinMessage => '置顶消息';
 
@@ -7574,6 +7598,14 @@ extension on Translations {
 			'channel.titleOptional' => '标题（选填）',
 			'channel.coverLabel' => '封面',
 			'channel.coverSet' => '已设为封面',
+			'channel.formatBold' => '加粗',
+			'channel.formatItalic' => '斜体',
+			'channel.formatStrikethrough' => '删除线',
+			'channel.formatHeading' => '标题',
+			'channel.formatList' => '列表',
+			'channel.formatQuote' => '引用',
+			'channel.formatLink' => '链接',
+			'channel.linkTextPlaceholder' => '链接文字',
 			'channel.pinMessage' => '置顶消息',
 			'channel.unpinMessage' => '取消置顶',
 			'channel.pinMessageNotImplemented' => '置顶功能即将上线',
@@ -7868,6 +7900,8 @@ extension on Translations {
 			'chat.exportProfile' => '导出资料',
 			'chat.setSignature' => '设置个性签名',
 			'chat.setAvatar' => '设置头像',
+			_ => null,
+		} ?? switch (path) {
 			'chat.fastForward' => ({required Object seconds}) => '快进 ${seconds}秒',
 			'chat.messageId' => '消息ID',
 			'chat.chatType' => '聊天类型',
@@ -7876,8 +7910,6 @@ extension on Translations {
 			'chat.deletingMessage' => '正在删除...',
 			'chat.deletingLocalMessage' => '正在删除本地消息...',
 			'chat.quickReplyReceived' => '收到',
-			_ => null,
-		} ?? switch (path) {
 			'chat.quickReplyThanks' => '谢谢',
 			'chat.quickReplyWait' => '稍等',
 			'chat.messageMute' => _root.chat.chatSettingMute,
@@ -8382,6 +8414,8 @@ extension on Translations {
 			'common.uploadSuccess' => '上传成功',
 			'common.uploadFailed' => '上传失败',
 			'common.userDataTips' => '包含APP运行时必要的文件，以及聊天消息、好友关系等所有记录数据。',
+			_ => null,
+		} ?? switch (path) {
 			'common.userDisabledOrDeleted' => '用户被禁用或已删除',
 			'common.userNotExist' => '用户不存在',
 			'common.userOnlineStatusWidget' => '用户在线状态组件',
@@ -8390,8 +8424,6 @@ extension on Translations {
 			'common.verificationMessageSentByPeerIs' => ({required Object param}) => '对方发来的验证消息为：${param}',
 			'common.version' => '版本',
 			'common.videoCall' => '视频通话',
-			_ => null,
-		} ?? switch (path) {
 			'common.viewAllGroupMember' => '查看全部群成员',
 			'common.voiceCall' => '语音通话',
 			'common.groupCall' => '群通话',
@@ -8896,6 +8928,8 @@ extension on Translations {
 			'common.e2eeDecryptActionRelogin' => '重新登录',
 			'common.e2eeDecryptActionRemindLater' => '稍后提醒我',
 			'common.e2eeBackupExportTitle' => '导出 E2EE 备份',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecover' => '• 备份密码无法找回，请务必牢记！',
 			'common.e2eeBackupStoreMultipleNote' => '• 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）',
 			'common.e2eeUseRecoveryKey' => '生成恢复密钥（忘记口令的备用凭据）',
@@ -8904,8 +8938,6 @@ extension on Translations {
 			'common.e2eeRecoveryKeyCopied' => '恢复密钥已复制',
 			'common.e2eeBackupPwdLabel' => '备份密码 *',
 			'common.e2eeBackupPwdHint' => '至少 12 位，包含大小写字母、数字和特殊符号',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupConfirmPwdLabel' => '确认密码 *',
 			'common.e2eeBackupConfirmPwdHint' => '再次输入密码',
 			'common.e2eeBackupNoteLabel' => '备注（可选）',
@@ -9410,6 +9442,8 @@ extension on Translations {
 			'main.completed' => '已完结',
 			'main.copied' => '已复制',
 			'main.darkModel' => '深色模式',
+			_ => null,
+		} ?? switch (path) {
 			'main.deDd' => '德语（德国）',
 			'main.disable' => '禁用',
 			'main.earlier' => '更早',
@@ -9418,8 +9452,6 @@ extension on Translations {
 			'main.enable' => '启用',
 			'main.example' => '例:',
 			'main.expired' => '已过期',
-			_ => null,
-		} ?? switch (path) {
 			'main.extraItem' => '额外项目',
 			'main.faceToFaceLogic' => '面对面建群逻辑',
 			'main.favorites' => '收藏',

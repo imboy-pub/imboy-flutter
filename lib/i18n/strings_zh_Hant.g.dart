@@ -274,6 +274,14 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get titleOptional => '標題（選填）';
 	@override String get coverLabel => '封面';
 	@override String get coverSet => '已設為封面';
+	@override String get formatBold => '粗體';
+	@override String get formatItalic => '斜體';
+	@override String get formatStrikethrough => '刪除線';
+	@override String get formatHeading => '標題';
+	@override String get formatList => '列表';
+	@override String get formatQuote => '引用';
+	@override String get formatLink => '連結';
+	@override String get linkTextPlaceholder => '連結文字';
 	@override String get pinMessage => '置頂訊息';
 	@override String get unpinMessage => '取消置頂';
 	@override String get pinMessageNotImplemented => '置頂功能即將上線';
@@ -2687,6 +2695,14 @@ extension on TranslationsZhHant {
 			'channel.titleOptional' => '標題（選填）',
 			'channel.coverLabel' => '封面',
 			'channel.coverSet' => '已設為封面',
+			'channel.formatBold' => '粗體',
+			'channel.formatItalic' => '斜體',
+			'channel.formatStrikethrough' => '刪除線',
+			'channel.formatHeading' => '標題',
+			'channel.formatList' => '列表',
+			'channel.formatQuote' => '引用',
+			'channel.formatLink' => '連結',
+			'channel.linkTextPlaceholder' => '連結文字',
 			'channel.pinMessage' => '置頂訊息',
 			'channel.unpinMessage' => '取消置頂',
 			'channel.pinMessageNotImplemented' => '置頂功能即將上線',
@@ -2997,6 +3013,8 @@ extension on TranslationsZhHant {
 			'chat.e2eeTransferReceiveDesc' => '掃描舊裝置二維碼接收金鑰',
 			'chat.e2eeSocialStatus' => ({required Object status}) => '狀態: ${status}',
 			'chat.e2eeSocialCreateShardsTitle' => '建立恢復分片',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeSocialCreateShardsDesc' => '將金鑰分割成多個分片，儲存到代理裝置（服務端不儲存）',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '請選擇至少 ${count} 個代理',
 			'chat.e2eeRecreatingKey' => '正在重新建立金鑰...',
@@ -3005,8 +3023,6 @@ extension on TranslationsZhHant {
 			'chat.e2eeRecoveryNewDeviceBody' => '為保護訊息安全，本裝置已生成新的端對端加密金鑰。\n\n歷史訊息使用舊裝置的金鑰加密，需先恢復金鑰才能檢視。你可以透過「裝置轉移」「社交恢復」或「本地備份匯入」恢復。',
 			'chat.e2eeRecoveryDecryptFailedTitle' => '無法解密此訊息',
 			'chat.e2eeRecoveryDecryptFailedBody' => '此訊息由其他裝置的金鑰加密。\n\n若你更換了裝置或重新安裝了應用，請恢復加密金鑰後再檢視歷史訊息。',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeRecoveryLater' => '稍後',
 			'chat.e2eeRecoveryGoRecover' => '去恢復',
 			'chat.e2eeRecoveryBannerText' => '檢測到加密歷史訊息，需恢復金鑰後才能檢視，點選前往恢復',
@@ -3511,6 +3527,8 @@ extension on TranslationsZhHant {
 			'common.groupAnnouncementPublish' => '發布公告',
 			'common.pleaseEnterAnnouncementContent' => '請輸入公告內容',
 			'common.selectExpirationDateOptional' => '選擇有效期（可選）',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementDeleteConfirm' => '確定要刪除這則公告嗎？',
 			'common.groupAnnouncementDelete' => '刪除',
 			'common.groupAnnouncementLoadFailed' => '公告載入失敗，請稍後重試',
@@ -3519,8 +3537,6 @@ extension on TranslationsZhHant {
 			'common.groupAnnouncementDeleteFailed' => '公告刪除失敗',
 			'common.groupAnnouncementDeleteSuccess' => '公告已刪除',
 			'common.privacyClearChatHistory' => '清除聊天記錄',
-			_ => null,
-		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => '確定要清除所有聊天記錄嗎？此操作不可恢復。',
 			'common.privacyLogoutAccountConfirm' => '確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。',
 			'common.privacySettings' => '隱私設定',
@@ -4025,6 +4041,8 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrCloudRestoreFailed' => '雲端恢復失敗，請重試',
 			'common.e2eeSocialShardSettings' => '分片設定',
 			'common.e2eeSocialShardStoredNote' => '說明：分片將儲存在代理裝置上，服務端不儲存任何分片',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialAddProxy' => '新增代理',
 			'common.e2eeSocialAddProxyHint' => '請新增代理聯絡人',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '請先新增 ${count} 個代理',
@@ -4033,8 +4051,6 @@ extension on TranslationsZhHant {
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '需要 ${count} 個代理協助即可恢復金鑰',
 			'common.e2eeSocialZeroTrustNote' => '零信任架構：服務端不儲存任何分片',
 			'common.e2eeSocialNoShards' => '您還沒有建立任何恢復分片',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialNoProxyShards' => '沒有代理分片',
 			'common.e2eeSocialKeyVersionLabel' => '金鑰版本',
 			'common.e2eeTransferErrNoKey' => '請先生成金鑰對',
@@ -4539,6 +4555,8 @@ extension on TranslationsZhHant {
 			'main.toBeCompleted' => '待完善',
 			'main.availableCount' => '可選擇',
 			'main.mostUsed' => '最常用',
+			_ => null,
+		} ?? switch (path) {
 			'main.commentPlaceholder' => '評論...',
 			'main.delayMsLabel' => '延時毫秒 (>=100)',
 			'main.processed' => '已處理',
@@ -4547,8 +4565,6 @@ extension on TranslationsZhHant {
 			'main.hobbiesAndInterests' => '興趣愛好',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
-			_ => null,
-		} ?? switch (path) {
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => '管理個人資訊的可見性',
 			'main.exportToLocal' => '匯出個人資料到本地',

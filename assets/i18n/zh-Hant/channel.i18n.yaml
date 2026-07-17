@@ -76,6 +76,15 @@ addImage: 新增圖片
 titleOptional: 標題（選填）
 coverLabel: 封面
 coverSet: 已設為封面
+# 撰寫頁 markdown 格式工具條（D2）
+formatBold: 粗體
+formatItalic: 斜體
+formatStrikethrough: 刪除線
+formatHeading: 標題
+formatList: 列表
+formatQuote: 引用
+formatLink: 連結
+linkTextPlaceholder: 連結文字
 pinMessage: 置頂訊息
 unpinMessage: 取消置頂
 pinMessageNotImplemented: 置頂功能即將上線
