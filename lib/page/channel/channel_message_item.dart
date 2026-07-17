@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -183,10 +185,18 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       // onTap，手势竞技场中内层胜出，故此处只在卡片空白区触发；audio 保持原地播放。
       onTap: message.msgType == ChannelMessageType.audio
           ? null
-          : () => context.push(
-              '/channel/${widget.channelId}/article/${message.id}',
-              extra: message,
-            ),
+          : () {
+              // 进入沉浸阅读页时上报阅读量（修复频道"阅读"恒为 0）
+              unawaited(
+                ref
+                    .read(channelServiceProvider)
+                    .recordMessageView(widget.channelId, message.id.toString()),
+              );
+              context.push(
+                '/channel/${widget.channelId}/article/${message.id}',
+                extra: message,
+              );
+            },
       onDoubleTap: _onDoubleTap,
       child: Stack(
         children: [
@@ -772,21 +782,25 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     required VoidCallback onTap,
     VoidCallback? onLongPress,
   }) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      onLongPress: onLongPress,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-        child: Row(
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: context.textStyle(FontSizeType.caption2, color: color),
-            ),
-          ],
+    // InkWell 提供点按涟漪/高亮反馈（此前为无反馈的 GestureDetector）
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        borderRadius: AppRadius.borderRadiusSmall,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          child: Row(
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: context.textStyle(FontSizeType.caption2, color: color),
+              ),
+            ],
+          ),
         ),
       ),
     );

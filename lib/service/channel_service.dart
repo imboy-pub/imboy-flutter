@@ -397,6 +397,23 @@ class ChannelService {
     }
   }
 
+  /// 记录消息阅读量（累加频道统计 total_views）。
+  ///
+  /// 前端此前定义了上报端点却从未调用，导致频道"阅读"恒为 0。
+  /// 进入沉浸阅读页时 fire-and-forget 上报；失败静默，不阻塞阅读。
+  /// 需后端 `POST /api/v1/channel/:cid/message/:mid/view` 端点已部署。
+  Future<bool> recordMessageView(String channelId, String messageId) async {
+    try {
+      return await _api.recordMessageView(
+        channelId: channelId,
+        messageId: messageId,
+      );
+    } catch (e) {
+      iPrint('ChannelService: 记录阅读失败 - $e');
+      return false;
+    }
+  }
+
   /// 设置消息置顶状态。
   Future<bool> setMessagePinned(
     String channelId,
