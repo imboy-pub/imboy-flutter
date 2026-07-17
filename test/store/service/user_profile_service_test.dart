@@ -60,7 +60,8 @@ void main() {
 
       expect(ok, isTrue);
       expect(savedPayload!['setting'], isA<Map<String, dynamic>>());
-      expect((savedPayload!['setting'] as Map)['allow_search'], false);
+      // QA#18: allow_search 后端权威值域 1|2，service 将 bool false 归一为 2 落缓存
+      expect((savedPayload!['setting'] as Map)['allow_search'], 2);
       // 顶层不应混入该字段
       expect(savedPayload!.containsKey('allow_search'), isFalse);
     });

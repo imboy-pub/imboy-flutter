@@ -64,9 +64,17 @@ class UserSettingModel {
         json['visibility_read_delay_ms'],
         defaultValue: 400,
       ),
-      showOnlineStatus: parseModelBool(json['show_online_status']),
-      allowAddByPhone: parseModelBool(json['allow_add_by_phone']),
-      allowAddByQR: parseModelBool(json['allow_add_by_qr']),
+      // 三个开关后端语义=缺省允许(true)；仅缺 key 时取默认，
+      // 已存 false 仍解析为 false（不违反上方"勿 ?? true"警示）
+      showOnlineStatus: parseModelBool(
+        json['show_online_status'],
+        defaultValue: true,
+      ),
+      allowAddByPhone: parseModelBool(
+        json['allow_add_by_phone'],
+        defaultValue: true,
+      ),
+      allowAddByQR: parseModelBool(json['allow_add_by_qr'], defaultValue: true),
     );
   }
 
