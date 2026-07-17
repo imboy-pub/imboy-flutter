@@ -174,6 +174,14 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     );
 
     return GestureDetector(
+      // 卡片级单击 → 沉浸式全屏阅读页（内容类消息）。图片/展开全文有各自内层
+      // onTap，手势竞技场中内层胜出，故此处只在卡片空白区触发；audio 保持原地播放。
+      onTap: message.msgType == ChannelMessageType.audio
+          ? null
+          : () => context.push(
+              '/channel/${widget.channelId}/article/${message.id}',
+              extra: message,
+            ),
       onDoubleTap: _onDoubleTap,
       child: Stack(
         children: [

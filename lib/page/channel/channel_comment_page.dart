@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/chat/composer_field.dart';
-import 'package:imboy/component/helper/func.dart'
-    show cachedImageProvider, iPrint;
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/channel/widgets/channel_comment_tile.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/store/model/channel_comment_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -261,20 +261,19 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(title: Text('${t.channel.comment} (${_comments.length})')),
       body: Column(
         children: [
-          Expanded(child: _buildCommentList(isDark)),
+          Expanded(child: _buildCommentList()),
           _buildInputBar(),
         ],
       ),
     );
   }
 
-  Widget _buildCommentList(bool isDark) {
+  Widget _buildCommentList() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -297,175 +296,15 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
         controller: _scrollController,
         padding: AppSpacing.allSmall,
         itemCount: _comments.length,
-        itemBuilder: (context, index) =>
-            _buildCommentItem(_comments[index], isDark),
-      ),
-    );
-  }
-
-  Widget _buildCommentItem(ChannelCommentModel comment, bool isDark) {
-    final currentUid = int.tryParse(UserRepoLocal.to.currentUid) ?? 0;
-    final isMine = comment.userId == currentUid;
-    final hasAvatar = comment.userAvatar.isNotEmpty;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.small),
-      padding: AppSpacing.allSmall,
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: AppRadius.borderRadiusSmall,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-            backgroundImage: hasAvatar
-                ? cachedImageProvider(comment.userAvatar, w: 64)
-                : null,
-            child: !hasAvatar
-                ? Text(
-                    comment.userName.isNotEmpty
-                        ? comment.userName[0].toUpperCase()
-                        : '?',
-                    style: context.textStyle(FontSizeType.normal),
-                  )
-                : null,
-          ),
-          AppSpacing.horizontalSmall,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      comment.userName,
-                      style: context.textStyle(
-                        FontSizeType.subheadline,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (isMine) ...[
-                      AppSpacing.horizontalTiny,
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        child: Text(
-                          context.t.common.me,
-                          style: context.textStyle(
-                            FontSizeType.tiny,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                AppSpacing.verticalTiny,
-                // 回复引用
-                if (comment.replyToName.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    child: Text(
-                      '@${comment.replyToName}',
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                Text(
-                  comment.content,
-                  style: context
-                      .textStyle(FontSizeType.body)
-                      .copyWith(height: 1.4),
-                ),
-                AppSpacing.verticalSmall,
-                // 操作行
-                Row(
-                  children: [
-                    Text(
-                      _relativeTime(comment.createdAt),
-                      style: context.textStyle(
-                        FontSizeType.caption2,
-                        color: AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                          isSecondary: true,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    // 回复
-                    _actionChip(
-                      icon: Icons.reply,
-                      label: context.t.channel.reply,
-                      onTap: () => _startReply(comment),
-                    ),
-                    AppSpacing.horizontalSmall,
-                    // 点赞
-                    _actionChip(
-                      // 图标随 isLiked 切换实心/描边，让 toggle 状态可见
-                      icon: comment.isLiked
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      label: comment.likeCount > 0
-                          ? '${comment.likeCount}'
-                          : context.t.channel.like,
-                      onTap: () => _toggleLike(comment),
-                    ),
-                    if (isMine) ...[
-                      AppSpacing.horizontalSmall,
-                      _actionChip(
-                        icon: Icons.delete_outline,
-                        label: '',
-                        onTap: () => _deleteComment(comment),
-                        color: AppColors.iosRed,
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _actionChip({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    Color? color,
-  }) {
-    final c =
-        color ??
-        AppColors.getTextColor(Theme.of(context).brightness, isSecondary: true);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Row(
-          children: [
-            Icon(icon, size: 14, color: c),
-            if (label.isNotEmpty) ...[
-              const SizedBox(width: 2),
-              Text(
-                label,
-                style: context.textStyle(FontSizeType.caption2, color: c),
-              ),
-            ],
-          ],
-        ),
+        itemBuilder: (context, index) {
+          final comment = _comments[index];
+          return ChannelCommentTile(
+            comment: comment,
+            onReply: () => _startReply(comment),
+            onToggleLike: () => _toggleLike(comment),
+            onDelete: () => _deleteComment(comment),
+          );
+        },
       ),
     );
   }
@@ -547,18 +386,5 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
         ],
       ),
     );
-  }
-
-  String _relativeTime(DateTime dt) {
-    final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return context.t.common.justNow;
-    if (diff.inMinutes < 60) {
-      return '${diff.inMinutes} ${context.t.common.minutesAgo}';
-    }
-    if (diff.inHours < 24) {
-      return '${diff.inHours} ${context.t.common.hoursAgo}';
-    }
-    if (diff.inDays < 7) return '${diff.inDays} ${context.t.channel.daysAgo}';
-    return '${dt.month}-${dt.day.toString().padLeft(2, '0')}';
   }
 }

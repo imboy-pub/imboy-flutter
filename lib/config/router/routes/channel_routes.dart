@@ -2,6 +2,7 @@ library;
 
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import '../barrel/pages_barrel.dart';
 
@@ -116,6 +117,22 @@ List<RouteBase> channelRoutes() => [
                 child: ChannelSubscriberPage(
                   channelId: channelId,
                   canInvite: canInvite,
+                ),
+              );
+            },
+          ),
+          // 频道沉浸式全屏阅读页（订阅号消费模型）
+          GoRoute(
+            path: '/article/:messageId',
+            name: 'channel_article',
+            pageBuilder: (context, state) {
+              final channelId = state.pathParameters['channelId']!;
+              final extra = state.extra;
+              return CupertinoPage(
+                key: state.pageKey,
+                child: ChannelArticlePage(
+                  channelId: channelId,
+                  message: extra is ChannelMessageModel ? extra : null,
                 ),
               );
             },
