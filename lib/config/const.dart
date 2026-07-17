@@ -4,6 +4,9 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 
 String qrcodeDataSuffix = "s=app_qrcode";
 
+/// 对外 Web 基础域名（分享链接等），与 API 域名无关
+const webBaseUrl = 'https://imboy.pub';
+
 /// 仅在 debug 构建中开启 Dio 日志记录，避免 release 构建泄露 token/密码到系统日志
 const recordLog = kDebugMode;
 

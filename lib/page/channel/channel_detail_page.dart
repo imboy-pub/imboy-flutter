@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -140,16 +141,6 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (channel == null) return [];
 
     return [
-      if (channel.canPublish)
-        IconButton(
-          icon: const Icon(Icons.campaign_outlined),
-          onPressed: () {
-            if (_publishFocusNode.canRequestFocus) {
-              _publishFocusNode.requestFocus();
-            }
-          },
-          tooltip: context.t.main.publish,
-        ),
       if (channel.isManaged)
         IconButton(
           icon: const Icon(Icons.settings_outlined),
@@ -606,7 +597,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   void _shareChannel(ChannelModel? channel) {
     if (channel == null) return;
     final t = context.t;
-    final shareLink = 'https://imboy.pub/channel/${channel.id}';
+    final shareLink = '$webBaseUrl/channel/${channel.id}';
 
     showModalBottomSheet<void>(
       context: context,

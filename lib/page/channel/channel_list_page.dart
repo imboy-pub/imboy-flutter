@@ -81,24 +81,6 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
           ),
         ),
         actions: [
-          if (AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder))
-            IconButton(
-              icon: const Icon(Icons.receipt_long_outlined),
-              onPressed: () {
-                context.push('/channel/orders');
-              },
-              tooltip: t.channel.myOrders,
-              color: AppColors.getTextColor(brightness),
-            ),
-          if (AppFeatureRegistry.isEnabled(FeatureKeys.channelInvitation))
-            IconButton(
-              icon: const Icon(Icons.mark_email_unread_outlined),
-              onPressed: () {
-                context.push('/channel/invitations');
-              },
-              tooltip: t.common.channelInvitations,
-              color: AppColors.getTextColor(brightness),
-            ),
           if (AppFeatureRegistry.isEnabled(FeatureKeys.channelDiscover))
             IconButton(
               icon: const Icon(Icons.search),
@@ -116,6 +98,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
             tooltip: t.channel.create,
             color: AppColors.getTextColor(brightness),
           ),
+          ..._buildOverflowMenu(t, brightness),
           AppSpacing.horizontalSmall,
         ],
       ),
@@ -153,6 +136,39 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
         ],
       ),
     );
+  }
+
+  /// 「订单/邀请」低频入口收进 more_vert 溢出菜单；flag 全关时不渲染。
+  List<Widget> _buildOverflowMenu(Translations t, Brightness brightness) {
+    final items = <PopupMenuItem<String>>[
+      if (AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder))
+        PopupMenuItem(
+          value: '/channel/orders',
+          child: ListTile(
+            leading: const Icon(Icons.receipt_long_outlined),
+            title: Text(t.channel.myOrders),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      if (AppFeatureRegistry.isEnabled(FeatureKeys.channelInvitation))
+        PopupMenuItem(
+          value: '/channel/invitations',
+          child: ListTile(
+            leading: const Icon(Icons.mark_email_unread_outlined),
+            title: Text(t.common.channelInvitations),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+    ];
+    if (items.isEmpty) return const [];
+    return [
+      PopupMenuButton<String>(
+        icon: const Icon(Icons.more_vert),
+        iconColor: AppColors.getTextColor(brightness),
+        onSelected: (route) => context.push(route),
+        itemBuilder: (context) => items,
+      ),
+    ];
   }
 
   Widget _buildChannelList(

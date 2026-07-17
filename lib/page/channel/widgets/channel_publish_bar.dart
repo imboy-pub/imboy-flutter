@@ -31,7 +31,7 @@ typedef _ChannelMediaUpload = ({
 /// 从详情页 [_buildMessageInput] + [_sendMessage] + 媒体/语音上传逻辑抽出。
 /// 独立 StatefulWidget，通过 Provider 编排发布行为，详情页只负责挂载。
 class ChannelPublishBar extends ConsumerStatefulWidget {
-  /// 请求聚焦输入框（由父层 AppBar 按钮触发）
+  /// 输入框焦点（父层持有，用于键盘/语音切换管理）
   final FocusNode focusNode;
 
   const ChannelPublishBar({super.key, required this.focusNode});
@@ -60,11 +60,6 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     _persistDraftOnExit();
     _messageController.dispose();
     super.dispose();
-  }
-
-  /// 外部触发聚焦
-  void focus() {
-    if (widget.focusNode.canRequestFocus) widget.focusNode.requestFocus();
   }
 
   /// 频道草稿存储 key，按 channelId 隔离；频道未加载时返回空串，调用方据此跳过读写。
@@ -115,6 +110,8 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       setState(() {});
       final key = _draftKey;
       if (key.isNotEmpty) unawaited(StorageService.to.remove(key));
+      unawaited(HapticFeedback.lightImpact());
+      AppLoading.showSuccess(context.t.common.tipSuccess);
       return;
     }
     ScaffoldMessenger.of(
@@ -254,6 +251,9 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       final failedCount = controller.items.where((i) => i.isFailed).length;
       if (failedCount > 0) {
         _showUploadFailedSnackBar(failedCount, controller, publishDone);
+      } else if (publishedIdx.isNotEmpty) {
+        unawaited(HapticFeedback.lightImpact());
+        AppLoading.showSuccess(t.common.tipSuccess);
       }
     } finally {
       controller.removeListener(onProgress);
