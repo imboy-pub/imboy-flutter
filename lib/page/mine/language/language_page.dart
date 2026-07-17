@@ -93,66 +93,68 @@ class LanguageNotifier extends _$LanguageNotifier {
   }
 
   List<LanguageModel> _buildLanguageList() {
+    // title 刻意硬编码为各语言的 endonym（自称），不走 i18n：语言名应恒显
+    // 自身语言，外语用户才能在列表里认出自己的语言（QA#22）。
     return [
       LanguageModel(
         id: "zh_CN",
         languageCode: "zh",
         regionCode: "CN",
-        title: t.main.zhCn,
+        title: '简体中文',
       ),
       LanguageModel(
         id: "zh_TW",
         languageCode: "zh",
         regionCode: "TW",
-        title: t.main.zhHant,
+        title: '繁體中文',
       ),
       LanguageModel(
         id: "ru_RU",
         languageCode: "ru",
         regionCode: "RU",
-        title: t.main.ruRu,
+        title: 'Русский',
       ),
       LanguageModel(
         id: "en_US",
         languageCode: "en",
         regionCode: "US",
-        title: t.main.enUs,
+        title: 'English',
       ),
       LanguageModel(
         id: "fr_FR",
         languageCode: "fr",
         regionCode: "FR",
-        title: t.main.frFr,
+        title: 'Français',
       ),
       LanguageModel(
         id: "de_DE",
         languageCode: "de",
         regionCode: "DE",
-        title: t.main.deDd,
+        title: 'Deutsch',
       ),
       LanguageModel(
         id: "ja_JP",
         languageCode: "ja",
         regionCode: "JP",
-        title: t.main.jaJp,
+        title: '日本語',
       ),
       LanguageModel(
         id: "ko_KR",
         languageCode: "ko",
         regionCode: "KR",
-        title: t.common.koKr,
+        title: '한국어',
       ),
       LanguageModel(
         id: "ar_SA",
         languageCode: "ar",
         regionCode: "SA",
-        title: t.main.arSa,
+        title: 'العربية',
       ),
       LanguageModel(
         id: "it_IT",
         languageCode: "it",
         regionCode: "IT",
-        title: t.main.itIt,
+        title: 'Italiano',
       ),
     ];
   }

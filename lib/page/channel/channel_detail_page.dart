@@ -294,7 +294,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             child: ChannelMessageFeed(
               channelId: channelId,
               isManaged: state.channel?.isManaged ?? false,
-              scrollController: _scrollController,
+              // 不共用外层 CustomScrollView 的 controller：同一 ScrollController
+              // attach 两个 ScrollPosition 会让 .position getter 抛异常，_onScroll
+              // 崩溃→loadMore 永不触发+只渲染1条。feed 自建独立 controller（QA#24）
               onReactionChanged: () => _loadStats(channelId),
               onRefresh: () async {
                 await ref

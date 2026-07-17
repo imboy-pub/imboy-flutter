@@ -24,6 +24,16 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
   final _remarkController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // 进页拉真实余额，否则 walletProvider.build() 默认 0 会让有钱用户
+    // 被 _handleSend 的余额守卫误判"余额不足"、任何金额都发不出（QA#25）。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(walletProvider.notifier).loadBalance();
+    });
+  }
+
+  @override
   void dispose() {
     _amountController.dispose();
     _remarkController.dispose();

@@ -130,10 +130,15 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
     final state = ref.watch(searchProvider);
     final brightness = Theme.of(context).brightness;
 
-    return IosPageTemplate(
-      title: t.common.searchChatContent,
-      useLargeTitle: false,
-      child: Column(
+    // 不能用 IosPageTemplate：它内部强制 SingleChildScrollView(无界高度)，
+    // 而本页 Column 含 Expanded → RenderFlex unbounded height 异常导致整页
+    // 白屏(无搜索框/无列表)。改用 Scaffold 给 Column 有界高度（QA#20）。
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(t.common.searchChatContent),
+        centerTitle: true,
+      ),
+      body: Column(
         children: [
           // 搜索栏
           Padding(

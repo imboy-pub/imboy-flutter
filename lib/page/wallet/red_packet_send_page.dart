@@ -35,6 +35,15 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
   bool get _isLucky => _selectedType == 'random';
 
   @override
+  void initState() {
+    super.initState();
+    // 进页拉真实余额，否则默认 0 会误判"余额不足"（QA#25，同转账页）
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(walletProvider.notifier).loadBalance();
+    });
+  }
+
+  @override
   void dispose() {
     _amountController.dispose();
     _countController.dispose();

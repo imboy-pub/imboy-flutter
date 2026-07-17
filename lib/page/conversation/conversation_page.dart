@@ -9,6 +9,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -304,11 +305,23 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                                 : CupertinoIcons.chat_bubble_fill,
                           ),
                           SlidableAction(
-                            onPressed: (_) async {
-                              await notifier.setConversationPinned(
+                            onPressed: (ctx) async {
+                              // 补反馈：原来忽略返回值、成功失败都无提示（QA#30）
+                              final willPin = !model.isPinned;
+                              final ok = await notifier.setConversationPinned(
                                 model,
-                                !model.isPinned,
+                                willPin,
                               );
+                              if (!ctx.mounted) return;
+                              if (ok) {
+                                AppLoading.showToast(
+                                  willPin
+                                      ? t.common.chatSettingPinnedSuccess
+                                      : t.common.chatSettingUnpinnedSuccess,
+                                );
+                              } else {
+                                AppLoading.showError(t.common.errorNetwork);
+                              }
                             },
                             backgroundColor: AppColors.iosOrange,
                             foregroundColor: AppColors.onPrimary,
