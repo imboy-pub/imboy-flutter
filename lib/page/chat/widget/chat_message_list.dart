@@ -51,9 +51,6 @@ class ChatMessageList extends StatelessWidget {
   final String? targetMsgId;
   final Key? targetMessageKey;
 
-  // 估算的消息项高度，用于 ListView 滚动优化
-  static const double _estimatedItemExtent = 80.0;
-
   @override
   Widget build(BuildContext context) {
     return ListView.builder(

@@ -197,7 +197,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         CupertinoSliverRefreshControl(
           onRefresh: () async {
             // TODO: Add refresh logic
-            await Future.delayed(const Duration(milliseconds: 1000));
+            await Future<void>.delayed(const Duration(milliseconds: 1000));
           },
         ),
         // 搜索框 - 嵌入 List 顶部
