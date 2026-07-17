@@ -28,6 +28,7 @@ class ChannelMessageRepo {
   static const String isPinned = 'is_pinned';
   static const String viewCount = 'view_count';
   static const String reactionSummary = 'reaction_summary';
+  static const String myReactions = 'my_reactions';
 
   final SqliteService _db = SqliteService.to;
 

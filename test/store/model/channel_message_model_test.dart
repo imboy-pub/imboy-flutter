@@ -150,10 +150,7 @@ void main() {
         'content': 'x',
         'created_at': secTs,
       });
-      expect(
-        model.createdAt.millisecondsSinceEpoch,
-        secTs * 1000,
-      );
+      expect(model.createdAt.millisecondsSinceEpoch, secTs * 1000);
     });
 
     test('字符串数字兼容（parseModelInt）', () {
@@ -306,10 +303,7 @@ void main() {
 
     test('未知类型 + payload[text] >50 字符 → 截断', () {
       final longText = 'Z' * 60;
-      final msg = _msg(
-        msgType: 'channel_unknown',
-        payload: {'text': longText},
-      );
+      final msg = _msg(msgType: 'channel_unknown', payload: {'text': longText});
       expect(msg.contentPreview, '${'Z' * 50}...');
     });
 
@@ -375,6 +369,59 @@ void main() {
     test('hashCode — 等于 id.hashCode', () {
       final msg = _msg(id: 42);
       expect(msg.hashCode, 42.hashCode);
+    });
+  });
+
+  // ── CM-5  my_reactions（我已添加的反应）──────────────────────────────────
+  group('CM-5 my_reactions 解析与持久化', () {
+    test('fromJson — 服务端 List 直接映射', () {
+      final model = ChannelMessageModel.fromJson({
+        'id': 1,
+        'channel_id': 10,
+        'content': 'x',
+        'msg_type': 'channel_text',
+        'created_at': 1_750_000_000_000,
+        'my_reactions': ['like', 'heart'],
+      });
+      expect(model.myReactions, ['like', 'heart']);
+    });
+
+    test('fromJson — 缺省为空列表', () {
+      final model = ChannelMessageModel.fromJson({
+        'id': 1,
+        'channel_id': 10,
+        'content': 'x',
+        'msg_type': 'channel_text',
+        'created_at': 1_750_000_000_000,
+      });
+      expect(model.myReactions, isEmpty);
+    });
+
+    test('toMap/fromMap — SQLite JSON 文本往返', () {
+      final model = ChannelMessageModel(
+        id: 2,
+        channelId: 10,
+        content: 'x',
+        msgType: 'channel_text',
+        createdAt: DateTime.utc(2025, 1, 1),
+        myReactions: const ['like'],
+      );
+      final map = model.toMap();
+      expect(map['my_reactions'], jsonEncode(['like']));
+      final restored = ChannelMessageModel.fromMap(map);
+      expect(restored.myReactions, ['like']);
+    });
+
+    test('fromMap — 非法 JSON 字符串降级为空列表', () {
+      final model = ChannelMessageModel.fromMap({
+        'id': 3,
+        'channel_id': 10,
+        'content': 'x',
+        'msg_type': 'channel_text',
+        'created_at': 1_750_000_000_000,
+        'my_reactions': 'not-json',
+      });
+      expect(model.myReactions, isEmpty);
     });
   });
 }

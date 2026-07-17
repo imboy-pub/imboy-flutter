@@ -317,6 +317,7 @@ CREATE TABLE channel_message (
     is_pinned INTEGER DEFAULT 0,
     view_count INTEGER DEFAULT 0,
     reaction_summary TEXT,
+    my_reactions TEXT,
     FOREIGN KEY (channel_id) REFERENCES channel(id) ON DELETE CASCADE
 );
 CREATE INDEX idx_channel_msg_channel_id ON channel_message(channel_id);

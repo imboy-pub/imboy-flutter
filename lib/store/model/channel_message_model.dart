@@ -22,6 +22,10 @@ class ChannelMessageModel {
   final int viewCount;
   final Map<String, int>? reactionSummary;
 
+  /// 当前用户对该消息已添加的反应类型列表（如 ["like"]），缺省为空。
+  /// 由后端消息列表随行返回（my_reactions），本地 SQLite 同步持久化。
+  final List<String> myReactions;
+
   ChannelMessageModel({
     required this.id,
     required this.channelId,
@@ -35,11 +39,13 @@ class ChannelMessageModel {
     this.isPinned = false,
     this.viewCount = 0,
     this.reactionSummary,
+    this.myReactions = const [],
   });
 
   factory ChannelMessageModel.fromJson(Map<String, dynamic> json) {
     final payloadData = _parsePayload(json['payload']);
     final reactions = _parseReactionSummary(json['reaction_summary']);
+    final myReactions = _parseMyReactions(json['my_reactions']);
 
     return ChannelMessageModel(
       id: parseModelInt(json['id']),
@@ -54,6 +60,7 @@ class ChannelMessageModel {
       isPinned: parseModelBool(json['is_pinned']),
       viewCount: parseModelInt(json['view_count']),
       reactionSummary: reactions,
+      myReactions: myReactions,
     );
   }
 
@@ -73,6 +80,7 @@ class ChannelMessageModel {
       'reaction_summary': reactionSummary != null
           ? jsonEncode(reactionSummary)
           : null,
+      'my_reactions': jsonEncode(myReactions),
     };
   }
 
@@ -80,6 +88,7 @@ class ChannelMessageModel {
   factory ChannelMessageModel.fromMap(Map<String, dynamic> map) {
     final payloadData = _parsePayload(map['payload']);
     final reactions = _parseReactionSummary(map['reaction_summary']);
+    final myReactions = _parseMyReactions(map['my_reactions']);
 
     return ChannelMessageModel(
       id: parseModelInt(map['id']),
@@ -94,6 +103,7 @@ class ChannelMessageModel {
       isPinned: parseModelBool(map['is_pinned']),
       viewCount: parseModelInt(map['view_count']),
       reactionSummary: reactions,
+      myReactions: myReactions,
     );
   }
 
@@ -125,6 +135,27 @@ class ChannelMessageModel {
     return null;
   }
 
+  /// 解析 my_reactions：接受 List（服务端 JSON）或 String（SQLite JSON 文本）
+  static List<String> _parseMyReactions(dynamic value) {
+    if (value == null) return const [];
+
+    dynamic source = value;
+    if (source is String) {
+      if (source.isEmpty) return const [];
+      try {
+        source = jsonDecode(source);
+      } catch (_) {
+        return const [];
+      }
+    }
+
+    if (source is List) {
+      return source.map((e) => e.toString()).toList();
+    }
+
+    return const [];
+  }
+
   /// 转换为 SQLite Map
   Map<String, dynamic> toMap() {
     return {
@@ -142,6 +173,7 @@ class ChannelMessageModel {
       'reaction_summary': reactionSummary != null
           ? jsonEncode(reactionSummary)
           : null,
+      'my_reactions': jsonEncode(myReactions),
     };
   }
 
@@ -188,6 +220,7 @@ class ChannelMessageModel {
     bool? isPinned,
     int? viewCount,
     Map<String, int>? reactionSummary,
+    List<String>? myReactions,
   }) {
     return ChannelMessageModel(
       id: id ?? this.id,
@@ -202,6 +235,7 @@ class ChannelMessageModel {
       isPinned: isPinned ?? this.isPinned,
       viewCount: viewCount ?? this.viewCount,
       reactionSummary: reactionSummary ?? this.reactionSummary,
+      myReactions: myReactions ?? this.myReactions,
     );
   }
 

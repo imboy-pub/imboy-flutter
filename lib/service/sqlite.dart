@@ -32,12 +32,13 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 ///
 /// 注意：数据迁移、备份恢复功能由 MigrationService 提供
 class SqliteService {
+  // v23: channel_message.my_reactions（当前用户已添加的反应类型，修复「我已赞」状态丢失）
   // v22: user_collect.kind_id INTEGER→TEXT（String Xid 被归零致收藏坏死 QA#31）
   // v21: 修复 moment_notify 唯一索引 NULL 语义（COALESCE(comment_id, '')）
   // v20: Slice A-1 新增 moment_notify 表（朋友圈通知中心）
   // v19: 群成员禁言 group_member.mute_until
   // v18: C7-α-1 本地 DND 免打扰 conversation.is_muted
-  static const _dbVersion = 22;
+  static const _dbVersion = 23;
 
   // 单例构造
   SqliteService._privateConstructor();
