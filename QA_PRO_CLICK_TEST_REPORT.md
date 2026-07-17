@@ -196,6 +196,19 @@
 
 ✅ 正常: 群消息发送本体成功(渲染/头像/"刚刚"→"3分钟前"时间)、C2G_SERVER_ACK 0.2s达、重试队列正确移除。
 
+## 第四批修复 (2026-07-17, d0fd2ab2)
+
+| # | 修复 | 关键点 |
+|---|------|--------|
+| 29 | ✅ 订阅按钮防重入(_subscribeActionBusy守卫) | 根因=双击在dialog route push完成前二次进入 |
+| 28 | ✅ 频道头像 errorBuilder 占位 | channel_header_bar.dart 裸 Image 无错误回退 |
+| 31 | ✅ 三重修复+v22迁移 | kind_id INTEGER→TEXT(String Xid曾被归零);save try/catch;静态in-flight锁;清kind_id=0脏行;真正抛错点是txn.insert分支(已加replace) |
+| 32 | ✅ CAS原子写 | 根因非映射断裂:_markPendingRetryStatus的TOCTOU把ACK的sent(11)覆盖回pendingRetry(12),仅C2G因自扇出独占事务改变写序而中招;修复=WHERE status=sending条件写。⚠️agent同时定位撤回/编辑UI不更新悬案同源(自扇出save→整行update覆盖),留待复现验证 |
+| 23 | ✅ FontSizeOption.localizedName | 枚举硬编码中文,新增6个i18n key |
+| 27 | ✅ 点赞病句降级 | names全解析失败时"等1人赞了"→"1人赞了"(新key momentLikesCountOnly) |
+
+待修池剩余: #20查找空壳/#24频道分页/#25转账零反馈/#22语言endonym/#30置顶反馈/#19待产品/#21缩略图/#26清理确认。
+
 ## 遗留根治 (2026-07-16 第二轮)
 
 - **#12 后端根治**: imboy `02ada397` — group_vote_repo 列表SQL子查询 `COUNT(DISTINCT user_id)` 聚合 participant_count(无N+1,distinct=真参与人数语义)。⚠️生效需部署 pro 后端。
