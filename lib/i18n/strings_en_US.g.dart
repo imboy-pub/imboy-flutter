@@ -271,6 +271,9 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get publish => 'Publish';
 	@override String get preview => 'Preview';
 	@override String get addImage => 'Add Image';
+	@override String get titleOptional => 'Title (optional)';
+	@override String get coverLabel => 'Cover';
+	@override String get coverSet => 'Set as cover';
 	@override String get pinMessage => 'Pin Message';
 	@override String get unpinMessage => 'Unpin Message';
 	@override String get pinMessageNotImplemented => 'Pin feature coming soon';
@@ -2681,6 +2684,9 @@ extension on TranslationsEnUs {
 			'channel.publish' => 'Publish',
 			'channel.preview' => 'Preview',
 			'channel.addImage' => 'Add Image',
+			'channel.titleOptional' => 'Title (optional)',
+			'channel.coverLabel' => 'Cover',
+			'channel.coverSet' => 'Set as cover',
 			'channel.pinMessage' => 'Pin Message',
 			'channel.unpinMessage' => 'Unpin Message',
 			'channel.pinMessageNotImplemented' => 'Pin feature coming soon',
@@ -2999,11 +3005,11 @@ extension on TranslationsEnUs {
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Cannot decrypt this message',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'This message was encrypted with another device\'s key.\n\nIf you switched devices or reinstalled the app, recover your encryption key to view history messages.',
 			'chat.e2eeRecoveryLater' => 'Later',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeRecoveryGoRecover' => 'Recover',
 			'chat.e2eeRecoveryBannerText' => 'Encrypted history messages detected — recover your key to view them. Tap to recover.',
 			'chat.liveRoomCreateTitle' => 'Create Live Room',
-			_ => null,
-		} ?? switch (path) {
 			'chat.liveRoomCreating' => 'Creating...',
 			'chat.liveRoomWatch' => 'Watch Live',
 			'chat.sendMessage' => 'Send Message',
@@ -3513,11 +3519,11 @@ extension on TranslationsEnUs {
 			'common.allowAddByPhone' => 'Allow add by phone',
 			'common.allowAddByPhoneDesc' => 'Other users can add you as a friend through your phone number',
 			'common.allowAddByQR' => 'Allow add by QR code',
+			_ => null,
+		} ?? switch (path) {
 			'common.allowAddByQRDesc' => 'Other users can add you as a friend by scanning your QR code',
 			'common.statusSettings' => 'Status settings',
 			'common.showOnlineStatus' => 'Show online status',
-			_ => null,
-		} ?? switch (path) {
 			'common.showOnlineStatusDesc' => 'Friends can see your online status',
 			'common.allowNearbyVisible' => 'Visible to nearby people',
 			'common.dataSettings' => 'Data settings',
@@ -4027,11 +4033,11 @@ extension on TranslationsEnUs {
 			'common.e2eeTransferErrInitFailed' => 'Initialization failed, please try again',
 			'common.e2eeTransferErrNoRecipientKey' => 'Recipient has no available public key',
 			'common.e2eeTransferErrKeyNotFound' => 'Key not found',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferErrCreateFailed' => 'Failed to create transfer session, please try again',
 			'common.e2eeTransferCreateSessionBtn' => 'Create transfer session',
 			'common.e2eeTransferSessionCreated' => 'Transfer session created',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => 'Please enter a valid user ID',
 			'common.e2eeTransferSuccess' => 'Transfer successful!',
 			'common.e2eeTransferFailed' => 'Transfer failed, please try again',
@@ -4541,11 +4547,11 @@ extension on TranslationsEnUs {
 			'main.hobbiesAndInterests' => 'Hobbies & Interests',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
+			_ => null,
+		} ?? switch (path) {
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'Manage visibility of personal info',
 			'main.exportToLocal' => 'Export profile to local',
-			_ => null,
-		} ?? switch (path) {
 			'main.exportAsText' => 'Export as text format',
 			'main.selectFromAlbum' => 'Select from Album',
 			'main.volumeUp' => 'Volume Up',

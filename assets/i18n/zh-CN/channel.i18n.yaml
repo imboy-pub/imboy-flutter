@@ -75,6 +75,9 @@ writeArticle: 撰写图文
 publish: 发布
 preview: 预览
 addImage: 添加图片
+titleOptional: 标题（选填）
+coverLabel: 封面
+coverSet: 已设为封面
 pinMessage: 置顶消息
 unpinMessage: 取消置顶
 pinMessageNotImplemented: 置顶功能即将上线

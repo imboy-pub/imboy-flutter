@@ -80,6 +80,30 @@ void main() {
     expect(find.text(truncated), findsNothing);
   });
 
+  testWidgets('imageText：payload.title 作顶部标题、content 作正文', (tester) async {
+    final msg = ChannelMessageModel(
+      id: 9001,
+      channelId: 1001,
+      authorId: 2002,
+      authorName: '频道作者',
+      content: '完整正文内容段落',
+      msgType: ChannelMessageType.imageText,
+      payload: const {'title': '文章大标题', 'images': <dynamic>[]},
+      createdAt: DateTime(2024, 1, 1),
+      viewCount: 1,
+    );
+    await tester.pumpWidget(_buildTestApp(service, msg));
+    await tester.pumpAndSettle();
+
+    // 顶部标题取 payload.title
+    expect(find.text('文章大标题'), findsOneWidget);
+    // content 完整作正文（SelectableText），不被切首行
+    final bodyFinder = find.byWidgetPredicate(
+      (w) => w is SelectableText && w.data == '完整正文内容段落',
+    );
+    expect(bodyFinder, findsOneWidget);
+  });
+
   testWidgets('无评论时展示空态占位 / shows empty placeholder when no comments', (
     tester,
   ) async {

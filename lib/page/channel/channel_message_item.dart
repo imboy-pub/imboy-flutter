@@ -399,20 +399,30 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     );
   }
 
-  /// 图文消息（订阅号封面卡）：标题（首行加粗）+ 摘要（后续行截断）+ 图片九宫格预览。
+  /// 图文消息（订阅号封面卡）：标题 + 摘要 + 封面大图卡 / 图片九宫格预览。
   ///
-  /// 不再内联展开全文——完整正文交给 B1 阅读页（卡片 onTap）。首行视为标题，
-  /// 其余为摘要；无换行时整段作标题（截断）。images 为空退化为纯标题/摘要。
+  /// 标题优先取 `payload['title']`（新版显式标题）；缺省时退化为「首行=标题、其余=
+  /// 摘要」旧约定（向后兼容旧消息）。有 title 时 content 即纯正文，整体作摘要。
+  /// 有 `payload['cover']` 时用大图封面卡（更接近订阅号大图卡），否则九宫格。
+  /// 不再内联展开全文——完整正文交给 B1 阅读页（卡片 onTap）。
   Widget _buildImageTextContent(Color textColor, Color secondaryColor) {
     final content = widget.message.content.trim();
     final images = _imageTextItems();
-    final newlineIdx = content.indexOf('\n');
-    final title = newlineIdx >= 0
-        ? content.substring(0, newlineIdx).trim()
-        : content;
-    final summary = newlineIdx >= 0
-        ? content.substring(newlineIdx + 1).trim()
-        : '';
+    final explicitTitle = _payloadString('title');
+    final cover = _payloadString('cover');
+
+    final String title;
+    final String summary;
+    if (explicitTitle.isNotEmpty) {
+      title = explicitTitle;
+      summary = content;
+    } else {
+      final newlineIdx = content.indexOf('\n');
+      title = newlineIdx >= 0
+          ? content.substring(0, newlineIdx).trim()
+          : content;
+      summary = newlineIdx >= 0 ? content.substring(newlineIdx + 1).trim() : '';
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,11 +450,35 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
             ),
           ),
         ],
-        if (images.isNotEmpty) ...[
+        if (cover.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          _buildCoverCard(cover),
+        ] else if (images.isNotEmpty) ...[
           const SizedBox(height: 8),
           _buildImageTextGrid(images),
         ],
       ],
+    );
+  }
+
+  /// payload 字符串字段安全读取（trim；缺失/null 返回空串）。
+  String _payloadString(String key) {
+    final v = widget.message.payload?[key];
+    return v == null ? '' : v.toString().trim();
+  }
+
+  /// 订阅号大图封面卡：16:9 封面大图。点击落到卡片级 onTap（进 B1 阅读页），
+  /// 故此处不自设手势，与大图卡「点开读全文」的交互一致。
+  Widget _buildCoverCard(String cover) {
+    return ClipRRect(
+      borderRadius: AppRadius.borderRadiusSmall,
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Image(
+          image: cachedImageProvider(cover, w: 800),
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 

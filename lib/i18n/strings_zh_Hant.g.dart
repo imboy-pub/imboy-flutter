@@ -271,6 +271,9 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get publish => '發布';
 	@override String get preview => '預覽';
 	@override String get addImage => '新增圖片';
+	@override String get titleOptional => '標題（選填）';
+	@override String get coverLabel => '封面';
+	@override String get coverSet => '已設為封面';
 	@override String get pinMessage => '置頂訊息';
 	@override String get unpinMessage => '取消置頂';
 	@override String get pinMessageNotImplemented => '置頂功能即將上線';
@@ -2681,6 +2684,9 @@ extension on TranslationsZhHant {
 			'channel.publish' => '發布',
 			'channel.preview' => '預覽',
 			'channel.addImage' => '新增圖片',
+			'channel.titleOptional' => '標題（選填）',
+			'channel.coverLabel' => '封面',
+			'channel.coverSet' => '已設為封面',
 			'channel.pinMessage' => '置頂訊息',
 			'channel.unpinMessage' => '取消置頂',
 			'channel.pinMessageNotImplemented' => '置頂功能即將上線',
@@ -2999,11 +3005,11 @@ extension on TranslationsZhHant {
 			'chat.e2eeRecoveryNewDeviceBody' => '為保護訊息安全，本裝置已生成新的端對端加密金鑰。\n\n歷史訊息使用舊裝置的金鑰加密，需先恢復金鑰才能檢視。你可以透過「裝置轉移」「社交恢復」或「本地備份匯入」恢復。',
 			'chat.e2eeRecoveryDecryptFailedTitle' => '無法解密此訊息',
 			'chat.e2eeRecoveryDecryptFailedBody' => '此訊息由其他裝置的金鑰加密。\n\n若你更換了裝置或重新安裝了應用，請恢復加密金鑰後再檢視歷史訊息。',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeRecoveryLater' => '稍後',
 			'chat.e2eeRecoveryGoRecover' => '去恢復',
 			'chat.e2eeRecoveryBannerText' => '檢測到加密歷史訊息，需恢復金鑰後才能檢視，點選前往恢復',
-			_ => null,
-		} ?? switch (path) {
 			'chat.liveRoomCreateTitle' => '建立直播間',
 			'chat.liveRoomCreating' => '建立中...',
 			'chat.liveRoomWatch' => '觀看直播',
@@ -3513,11 +3519,11 @@ extension on TranslationsZhHant {
 			'common.groupAnnouncementDeleteFailed' => '公告刪除失敗',
 			'common.groupAnnouncementDeleteSuccess' => '公告已刪除',
 			'common.privacyClearChatHistory' => '清除聊天記錄',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistoryConfirm' => '確定要清除所有聊天記錄嗎？此操作不可恢復。',
 			'common.privacyLogoutAccountConfirm' => '確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。',
 			'common.privacySettings' => '隱私設定',
-			_ => null,
-		} ?? switch (path) {
 			'common.searchSettings' => '搜尋設定',
 			'common.allowSearchByAccount' => '允許通過帳號搜尋',
 			'common.allowSearchByAccountDesc' => '其他用家可以通過您的帳號找到您',
@@ -4027,11 +4033,11 @@ extension on TranslationsZhHant {
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '需要 ${count} 個代理協助即可恢復金鑰',
 			'common.e2eeSocialZeroTrustNote' => '零信任架構：服務端不儲存任何分片',
 			'common.e2eeSocialNoShards' => '您還沒有建立任何恢復分片',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialNoProxyShards' => '沒有代理分片',
 			'common.e2eeSocialKeyVersionLabel' => '金鑰版本',
 			'common.e2eeTransferErrNoKey' => '請先生成金鑰對',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferErrInitFailed' => '初始化失敗，請重試',
 			'common.e2eeTransferErrNoRecipientKey' => '接收方沒有可用的公鑰',
 			'common.e2eeTransferErrKeyNotFound' => '金鑰未找到',
@@ -4541,11 +4547,11 @@ extension on TranslationsZhHant {
 			'main.hobbiesAndInterests' => '興趣愛好',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
+			_ => null,
+		} ?? switch (path) {
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => '管理個人資訊的可見性',
 			'main.exportToLocal' => '匯出個人資料到本地',
-			_ => null,
-		} ?? switch (path) {
 			'main.exportAsText' => 'Export as text format',
 			'main.selectFromAlbum' => '從相簿選擇',
 			'main.volumeUp' => '音量增加',

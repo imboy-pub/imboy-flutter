@@ -80,6 +80,58 @@ void main() {
     expect(find.byType(Image), findsNWidgets(2));
   });
 
+  testWidgets('imageText：payload.title 优先于「首行=标题」旧约定', (tester) async {
+    const payloadTitle = '显式标题字段';
+    // content 首行是另一段文本；有 title 时 content 整体作正文/摘要，不再切首行。
+    const content = '这是首行文本\n这是正文段落';
+    await tester.pumpWidget(
+      _wrap(
+        _message(
+          content: content,
+          msgType: ChannelMessageType.imageText,
+          payload: {
+            'title': payloadTitle,
+            'images': [
+              {'uri': 'a/def_avatar.png'},
+            ],
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    // 标题取 payload.title
+    expect(find.text(payloadTitle), findsOneWidget);
+    // 首行不被单独当标题（无 data 恰为「这是首行文本」的独立 Text）
+    expect(find.text('这是首行文本'), findsNothing);
+    // content 整体作摘要
+    expect(find.text(content), findsOneWidget);
+  });
+
+  testWidgets('imageText：payload.cover 存在时用大图封面卡（不出九宫格）', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        _message(
+          content: '标题一行\n正文',
+          msgType: ChannelMessageType.imageText,
+          payload: {
+            'cover': 'cover_big/def_avatar.png',
+            'images': [
+              {'uri': 'a/def_avatar.png'},
+              {'uri': 'b/def_avatar.png'},
+            ],
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    // 大图封面卡 = 单张封面 Image，九宫格被替代（作者头像走文字占位，不计入）
+    expect(find.byType(Image), findsNWidgets(1));
+    // 无 title 时仍沿用首行=标题旧约定
+    expect(find.text('标题一行'), findsOneWidget);
+  });
+
   testWidgets('text 长文：摘要截断 + 阅读全文提示（不内联全文）', (tester) async {
     final content = '一段很长的频道正文内容。' * 20; // 远超 120 字符阈值
     await tester.pumpWidget(

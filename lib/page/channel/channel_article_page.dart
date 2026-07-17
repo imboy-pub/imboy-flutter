@@ -478,18 +478,28 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
 
   /// 正文 + 媒体（完整不折叠）。
   Widget _buildBody() {
-    final message = widget.message!;
     final textColor = AppColors.getTextColor(Theme.of(context).brightness);
-    final hasText = message.content.trim().isNotEmpty;
+    final (title, body) = _titleAndBody();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (hasText)
+          if (title.isNotEmpty) ...[
+            Text(
+              title,
+              style: context.textStyle(
+                FontSizeType.title,
+                color: textColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            AppSpacing.verticalSmall,
+          ],
+          if (body.isNotEmpty)
             SelectableText(
-              message.content,
+              body,
               style: TextStyle(
                 fontSize: FontSizeType.body.size,
                 height: 1.5,
@@ -502,12 +512,38 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     );
   }
 
+  /// 顶部标题区 + 正文拆分。
+  /// imageText：优先 payload['title']（此时 content 即纯正文）；无则退化「首行=标题、
+  /// 其余=正文」旧约定。非 imageText：无标题，content 整体作正文（向后兼容）。
+  (String, String) _titleAndBody() {
+    final message = widget.message!;
+    final content = message.content;
+    final isImageText =
+        message.msgType == ChannelMessageType.imageText ||
+        message.msgType == 'imageText';
+    if (!isImageText) return ('', content);
+    final explicit = _payloadString('title');
+    if (explicit.isNotEmpty) return (explicit, content);
+    final trimmed = content.trim();
+    final idx = trimmed.indexOf('\n');
+    if (idx < 0) return (trimmed, '');
+    return (
+      trimmed.substring(0, idx).trim(),
+      trimmed.substring(idx + 1).trim(),
+    );
+  }
+
+  String _payloadString(String key) {
+    final v = widget.message!.payload?[key];
+    return v == null ? '' : v.toString().trim();
+  }
+
   Widget _buildMedia() {
     final message = widget.message!;
     switch (message.msgType) {
       case ChannelMessageType.imageText:
       case 'imageText':
-        return _buildImageGrid();
+        return _buildImageTextMedia();
       case ChannelMessageType.image:
       case 'image':
         return _buildSingleImage();
@@ -529,8 +565,46 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
         .toList(growable: false);
   }
 
-  Widget _buildImageGrid() {
+  /// imageText 媒体区：有封面则顶部展示封面大图 + 其余图九宫格（封面不重复入格）；
+  /// 无封面则九宫格全量。
+  Widget _buildImageTextMedia() {
+    final cover = _payloadString('cover');
     final images = _imageTextItems();
+    final gridImages = cover.isEmpty
+        ? images
+        : images
+              .where((e) => e['uri'].toString() != cover)
+              .toList(growable: false);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (cover.isNotEmpty) _buildCover(cover),
+        if (gridImages.isNotEmpty) _buildImageGrid(gridImages),
+      ],
+    );
+  }
+
+  /// 阅读页顶部封面大图（16:9）。
+  Widget _buildCover(String cover) {
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.small),
+      child: GestureDetector(
+        onTap: () => zoomInPhotoView(context, cover),
+        child: ClipRRect(
+          borderRadius: AppRadius.borderRadiusSmall,
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Image(
+              image: cachedImageProvider(cover, w: 800),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageGrid(List<Map<String, dynamic>> images) {
     if (images.isEmpty) return const SizedBox.shrink();
     final uris = [for (final e in images) e['uri'].toString()];
     return Padding(

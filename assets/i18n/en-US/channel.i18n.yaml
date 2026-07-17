@@ -76,6 +76,9 @@ writeArticle: Write Post
 publish: Publish
 preview: Preview
 addImage: Add Image
+titleOptional: Title (optional)
+coverLabel: Cover
+coverSet: Set as cover
 pinMessage: Pin Message
 unpinMessage: Unpin Message
 pinMessageNotImplemented: Pin feature coming soon

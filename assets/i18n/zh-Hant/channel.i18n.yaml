@@ -73,6 +73,9 @@ writeArticle: 撰寫圖文
 publish: 發布
 preview: 預覽
 addImage: 新增圖片
+titleOptional: 標題（選填）
+coverLabel: 封面
+coverSet: 已設為封面
 pinMessage: 置頂訊息
 unpinMessage: 取消置頂
 pinMessageNotImplemented: 置頂功能即將上線

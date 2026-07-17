@@ -713,6 +713,15 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '添加图片'
 	String get addImage => '添加图片';
 
+	/// zh-CN: '标题（选填）'
+	String get titleOptional => '标题（选填）';
+
+	/// zh-CN: '封面'
+	String get coverLabel => '封面';
+
+	/// zh-CN: '已设为封面'
+	String get coverSet => '已设为封面';
+
 	/// zh-CN: '置顶消息'
 	String get pinMessage => '置顶消息';
 
@@ -7562,6 +7571,9 @@ extension on Translations {
 			'channel.publish' => '发布',
 			'channel.preview' => '预览',
 			'channel.addImage' => '添加图片',
+			'channel.titleOptional' => '标题（选填）',
+			'channel.coverLabel' => '封面',
+			'channel.coverSet' => '已设为封面',
 			'channel.pinMessage' => '置顶消息',
 			'channel.unpinMessage' => '取消置顶',
 			'channel.pinMessageNotImplemented' => '置顶功能即将上线',
@@ -7864,11 +7876,11 @@ extension on Translations {
 			'chat.deletingMessage' => '正在删除...',
 			'chat.deletingLocalMessage' => '正在删除本地消息...',
 			'chat.quickReplyReceived' => '收到',
+			_ => null,
+		} ?? switch (path) {
 			'chat.quickReplyThanks' => '谢谢',
 			'chat.quickReplyWait' => '稍等',
 			'chat.messageMute' => _root.chat.chatSettingMute,
-			_ => null,
-		} ?? switch (path) {
 			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} 个群聊',
 			'chat.groupAlbumCreateTitle' => '新建群相册',
 			'chat.groupAlbumCreated' => '相册已创建',
@@ -8378,11 +8390,11 @@ extension on Translations {
 			'common.verificationMessageSentByPeerIs' => ({required Object param}) => '对方发来的验证消息为：${param}',
 			'common.version' => '版本',
 			'common.videoCall' => '视频通话',
+			_ => null,
+		} ?? switch (path) {
 			'common.viewAllGroupMember' => '查看全部群成员',
 			'common.voiceCall' => '语音通话',
 			'common.groupCall' => '群通话',
-			_ => null,
-		} ?? switch (path) {
 			'common.callDisconnected' => '通话已断开',
 			'common.connecting' => '连接中…',
 			'common.voiceInputNotImplemented' => '语音输入功能暂无实现',
@@ -8892,11 +8904,11 @@ extension on Translations {
 			'common.e2eeRecoveryKeyCopied' => '恢复密钥已复制',
 			'common.e2eeBackupPwdLabel' => '备份密码 *',
 			'common.e2eeBackupPwdHint' => '至少 12 位，包含大小写字母、数字和特殊符号',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupConfirmPwdLabel' => '确认密码 *',
 			'common.e2eeBackupConfirmPwdHint' => '再次输入密码',
 			'common.e2eeBackupNoteLabel' => '备注（可选）',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupNoteHint' => '例如：主手机备份 - 2026年1月',
 			'common.e2eeBackupPwdStrengthLabel' => '密码强度',
 			'common.e2eeBackupPwdWeak' => '弱 - 建议增加复杂度',
@@ -9406,11 +9418,11 @@ extension on Translations {
 			'main.enable' => '启用',
 			'main.example' => '例:',
 			'main.expired' => '已过期',
+			_ => null,
+		} ?? switch (path) {
 			'main.extraItem' => '额外项目',
 			'main.faceToFaceLogic' => '面对面建群逻辑',
 			'main.favorites' => '收藏',
-			_ => null,
-		} ?? switch (path) {
 			'main.female' => '女',
 			'main.followSystem' => '跟随系统',
 			'main.frFr' => '法语（法国）',

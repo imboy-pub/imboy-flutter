@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -46,9 +47,21 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   /// ponytail: 固定 3，避免大图同批打满带宽；需细粒度限流再升级为信号量池。
   static const int _uploadConcurrency = 3;
 
+  /// 标题字数上限（订阅号式短标题）。
+  static const int _maxTitleLength = 60;
+
+  final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final List<AssetEntity> _images = [];
+
+  /// 用户显式标记的封面图；null 时默认取第一张（见 [_effectiveCover]）。
+  /// 用对象引用而非下标追踪，避免删图后下标错位。
+  AssetEntity? _coverAsset;
   bool _isPublishing = false;
+
+  /// 生效封面：用户已选则用之，否则退化为第一张（无图则 null）。
+  AssetEntity? get _effectiveCover =>
+      _coverAsset ?? (_images.isNotEmpty ? _images.first : null);
 
   @override
   void initState() {
@@ -59,6 +72,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   @override
   void dispose() {
     _persistDraftOnExit();
+    _titleController.dispose();
     _contentController.dispose();
     super.dispose();
   }
@@ -66,24 +80,45 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   String get _draftKey => 'channel_compose_draft_${widget.channelId}';
 
   bool get _hasContent =>
-      _contentController.text.trim().isNotEmpty || _images.isNotEmpty;
+      _titleController.text.trim().isNotEmpty ||
+      _contentController.text.trim().isNotEmpty ||
+      _images.isNotEmpty;
 
-  // ---- 草稿（仅正文，图片为本地资源不落盘）----
+  // ---- 草稿（标题 + 正文 + 封面索引，图片本地资源不落盘）----
 
   void _restoreDraft() {
     if (!mounted) return;
-    final draft = StorageService.to.getString(_draftKey);
-    if (draft.isEmpty) return;
-    setState(() => _contentController.text = draft);
+    final raw = StorageService.to.getString(_draftKey);
+    if (raw.isEmpty) return;
+    // 新版草稿为 JSON；兼容旧版「仅正文」纯文本草稿。
+    // ponytail: coverIndex 不还原——图片未持久化，重开需重选图，还原索引无意义。
+    try {
+      final data = jsonDecode(raw) as Map<String, dynamic>;
+      setState(() {
+        _titleController.text = (data['title'] as String?) ?? '';
+        _contentController.text = (data['body'] as String?) ?? '';
+      });
+    } on FormatException {
+      setState(() => _contentController.text = raw);
+    }
   }
 
   void _persistDraftOnExit() {
-    final content = _contentController.text.trim();
-    if (content.isEmpty) {
+    final title = _titleController.text.trim();
+    final body = _contentController.text.trim();
+    if (title.isEmpty && body.isEmpty) {
       unawaited(StorageService.to.remove(_draftKey));
       return;
     }
-    unawaited(StorageService.to.setString(_draftKey, content));
+    // ponytail: 图片本地路径不持久化（重启后 File 可能失效），草稿只存文字类字段
+    // + 封面在当前已选图中的索引占位（重开撰写页图片需重选）。不做多草稿箱（二期可选）。
+    final coverIndex = _coverAsset == null ? -1 : _images.indexOf(_coverAsset!);
+    unawaited(
+      StorageService.to.setString(
+        _draftKey,
+        jsonEncode({'title': title, 'body': body, 'coverIndex': coverIndex}),
+      ),
+    );
   }
 
   // ---- 选图 / 删图 ----
@@ -146,12 +181,21 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
       // 上传失败：保留已选图供用户重试（再次点发布），不落库半成品。
       if (images == null) return;
 
+      final title = _titleController.text.trim();
+      final coverUri = _resolveCoverUri(images);
+      // 向后兼容：title/cover 仅在非空时写入，旧渲染路径（无这两字段）不受影响。
+      final payload = <String, dynamic>{
+        'images': images,
+        if (title.isNotEmpty) 'title': title,
+        'cover': ?coverUri,
+      };
+
       final ok = await ref
           .read(channelDetailProvider.notifier)
           .publishMessage(
             content: _contentController.text.trim(),
             msgType: ChannelMessageType.imageText,
-            payload: {'images': images},
+            payload: payload,
           );
       if (!mounted) return;
       if (ok) {
@@ -212,10 +256,19 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     ];
   }
 
+  /// 封面 uri：默认第一张，用户显式标记则用之；无图返回 null。
+  /// [images] 已上传结果，顺序与 [_images] 一致，故按下标取封面 uri。
+  String? _resolveCoverUri(List<Map<String, dynamic>> images) {
+    if (images.isEmpty) return null;
+    final cover = _coverAsset;
+    final idx = cover == null ? 0 : _images.indexOf(cover);
+    final safeIdx = (idx >= 0 && idx < images.length) ? idx : 0;
+    return images[safeIdx]['uri']?.toString();
+  }
+
   // ---- 预览 ----
 
   void _showPreview() {
-    final content = _contentController.text.trim();
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -223,8 +276,27 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (ctx) => _ComposePreviewSheet(content: content, images: _images),
+      builder: (ctx) => _ComposePreviewSheet(
+        title: _titleController.text.trim(),
+        content: _contentController.text.trim(),
+        images: List<AssetEntity>.from(_images),
+        cover: _effectiveCover,
+      ),
     );
+  }
+
+  void _setCover(AssetEntity asset) {
+    HapticFeedback.selectionClick();
+    setState(() => _coverAsset = asset);
+    AppLoading.showToast(context.t.channel.coverSet);
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      final removed = _images.removeAt(index);
+      // 移除的正是显式封面 → 清空标记，回退默认第一张。
+      if (identical(removed, _coverAsset)) _coverAsset = null;
+    });
   }
 
   // ---- 构建 ----
@@ -260,6 +332,28 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
         child: ListView(
           padding: AppSpacing.allRegular,
           children: [
+            TextField(
+              controller: _titleController,
+              enabled: !_isPublishing,
+              maxLength: _maxTitleLength,
+              maxLines: 1,
+              textInputAction: TextInputAction.next,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                hintText: t.channel.titleOptional,
+                border: InputBorder.none,
+                counterText: '',
+              ),
+              style: context.textStyle(
+                FontSizeType.title,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Divider(
+              height: 1,
+              color: AppColors.getIosSeparator(Theme.of(context).brightness),
+            ),
+            AppSpacing.verticalSmall,
             TextField(
               controller: _contentController,
               enabled: !_isPublishing,
@@ -310,39 +404,61 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   }
 
   Widget _buildImageTile(AssetEntity asset, int index, double size) {
-    return Stack(
-      children: [
-        ClipRRect(
-          borderRadius: AppRadius.borderRadiusSmall,
-          child: Image(
-            image: AssetEntityImageProvider(asset, isOriginal: false),
-            width: size,
-            height: size,
-            fit: BoxFit.cover,
+    final isCover = identical(asset, _effectiveCover);
+    // 长按标记封面（订阅号大图卡取此图作封面）。
+    return GestureDetector(
+      onLongPress: _isPublishing ? null : () => _setCover(asset),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: AppRadius.borderRadiusSmall,
+            child: Image(
+              image: AssetEntityImageProvider(asset, isOriginal: false),
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        Positioned(
-          top: 2,
-          right: 2,
-          child: GestureDetector(
-            onTap: _isPublishing
-                ? null
-                : () => setState(() => _images.removeAt(index)),
-            child: Container(
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: AppColors.mediaScrimBlack.withValues(alpha: 0.54),
-                shape: BoxShape.circle,
+          if (isCover)
+            Positioned(
+              left: 2,
+              bottom: 2,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.85),
+                  borderRadius: AppRadius.borderRadiusSmall,
+                ),
+                child: Text(
+                  context.t.channel.coverLabel,
+                  style: context.textStyle(
+                    FontSizeType.tiny,
+                    color: AppColors.mediaScrimWhite,
+                  ),
+                ),
               ),
-              child: Icon(
-                Icons.close,
-                size: 16,
-                color: AppColors.mediaScrimWhite,
+            ),
+          Positioned(
+            top: 2,
+            right: 2,
+            child: GestureDetector(
+              onTap: _isPublishing ? null : () => _removeImage(index),
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: AppColors.mediaScrimBlack.withValues(alpha: 0.54),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.close,
+                  size: 16,
+                  color: AppColors.mediaScrimWhite,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -366,15 +482,25 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   }
 }
 
-/// 发布前预览：复用 feed 图文渲染（正文 + 本地图九宫格），所见即所得。
+/// 发布前预览：仿阅读页布局的所见即所得——标题 + 封面大图/九宫格 + 完整正文，
+/// 让作者发布前看到进 feed 与阅读页大概长啥样。
 ///
 /// ponytail: 图片尚未上传，预览直接用 AssetEntityImage 渲染本地资源，
 /// 不复用 feed 的 cachedImageProvider（那走远程 object_key）。
 class _ComposePreviewSheet extends StatelessWidget {
+  final String title;
   final String content;
   final List<AssetEntity> images;
 
-  const _ComposePreviewSheet({required this.content, required this.images});
+  /// 生效封面（用户标记或默认第一张）；有封面时预览用大图卡样式。
+  final AssetEntity? cover;
+
+  const _ComposePreviewSheet({
+    required this.title,
+    required this.content,
+    required this.images,
+    required this.cover,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -398,6 +524,20 @@ class _ComposePreviewSheet extends StatelessWidget {
             ),
           ),
           AppSpacing.verticalRegular,
+          if (title.isNotEmpty) ...[
+            Text(
+              title,
+              style: context.textStyle(
+                FontSizeType.title,
+                color: textColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            AppSpacing.verticalSmall,
+          ],
+          // 有封面 → 顶部封面大图（对齐阅读页/大图卡）；否则九宫格。
+          if (cover != null) _buildCover(context),
+          if (cover != null && content.isNotEmpty) AppSpacing.verticalRegular,
           if (content.isNotEmpty)
             Text(
               content,
@@ -407,10 +547,24 @@ class _ComposePreviewSheet extends StatelessWidget {
                 color: textColor,
               ),
             ),
-          if (content.isNotEmpty && images.isNotEmpty)
+          if (cover == null && images.isNotEmpty) ...[
             AppSpacing.verticalRegular,
-          if (images.isNotEmpty) _buildPreviewGrid(context),
+            _buildPreviewGrid(context),
+          ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildCover(BuildContext context) {
+    return ClipRRect(
+      borderRadius: AppRadius.borderRadiusSmall,
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Image(
+          image: AssetEntityImageProvider(cover!, isOriginal: false),
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
