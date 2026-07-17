@@ -60,6 +60,30 @@ void main() {
     expect(find.byType(EmojiPicker), findsOneWidget);
   });
 
+  testWidgets('聚焦时边框变品牌蓝、失焦复原', (tester) async {
+    // Arrange：内建 focusNode 场景
+    await tester.pumpWidget(_wrap(const ComposerField(maxLength: 100)));
+
+    Border borderOf() {
+      final container = tester.widget<AnimatedContainer>(
+        find.byType(AnimatedContainer),
+      );
+      return (container.decoration! as BoxDecoration).border! as Border;
+    }
+
+    // 失焦态：非品牌蓝、细描边
+    expect(borderOf().top.color, isNot(AppColors.primary));
+    expect(borderOf().top.width, 0.5);
+
+    // Act：聚焦输入框
+    await tester.tap(find.byType(TextField));
+    await tester.pumpAndSettle();
+
+    // Assert：品牌蓝高亮 + 加粗描边
+    expect(borderOf().top.color, AppColors.primary);
+    expect(borderOf().top.width, 1.2);
+  });
+
   testWidgets('光标无效(-1) 时插入表情不崩溃且追加到末尾', (tester) async {
     // Arrange：文本已存在但从未聚焦，selection 为 -1（无效）
     final controller = TextEditingController(text: 'hi');

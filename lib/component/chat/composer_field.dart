@@ -2,6 +2,7 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 /// 共享富输入组件 / Shared rich composer field.
@@ -80,11 +81,14 @@ class ComposerFieldState extends State<ComposerField> {
     _focusNode = widget.focusNode ?? FocusNode();
     _ownsFocusNode = widget.focusNode == null;
     _controller.addListener(_onControllerChanged);
+    // 聚焦态高亮边框：监听内建/外部 focusNode 均兼容（只用引用不问归属）。
+    _focusNode.addListener(_onFocusChanged);
   }
 
   @override
   void dispose() {
     _controller.removeListener(_onControllerChanged);
+    _focusNode.removeListener(_onFocusChanged);
     if (_ownsController) _controller.dispose();
     if (_ownsFocusNode) _focusNode.dispose();
     super.dispose();
@@ -92,6 +96,11 @@ class ComposerFieldState extends State<ComposerField> {
 
   /// 计数依赖 controller，字符变化即刷新计数颜色。
   void _onControllerChanged() {
+    if (mounted) setState(() {});
+  }
+
+  /// 焦点变化即刷新边框高亮态。
+  void _onFocusChanged() {
     if (mounted) setState(() {});
   }
 
@@ -132,19 +141,26 @@ class ComposerFieldState extends State<ComposerField> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final fillColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
-    final borderColor = AppColors.getIosSeparator(
-      Theme.of(context).brightness,
-    ).withValues(alpha: 0.2);
+    // 聚焦态：品牌蓝高亮描边；失焦态：静态 iosSeparator 死灰。
+    final isFocused = _focusNode.hasFocus;
+    final borderColor = isFocused
+        ? AppColors.primary
+        : AppColors.getIosSeparator(
+            Theme.of(context).brightness,
+          ).withValues(alpha: 0.2);
+    final borderWidth = isFocused ? 1.2 : 0.5;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
           decoration: BoxDecoration(
             color: fillColor,
             borderRadius: AppRadius.borderRadiusRegular,
-            border: Border.all(color: borderColor, width: 0.5),
+            border: Border.all(color: borderColor, width: borderWidth),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -174,8 +190,8 @@ class ComposerFieldState extends State<ComposerField> {
                     border: InputBorder.none,
                     counterText: '', // 计数由下方自绘，隐藏内置
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
+                      horizontal: AppSpacing.medium,
+                      vertical: AppSpacing.medium,
                     ),
                   ),
                   style: context
@@ -185,7 +201,7 @@ class ComposerFieldState extends State<ComposerField> {
                           Theme.of(context).brightness,
                         ),
                       )
-                      .copyWith(height: 1.4),
+                      .copyWith(height: 1.45),
                 ),
               ),
               if (widget.showEmojiButton)
@@ -219,7 +235,10 @@ class ComposerFieldState extends State<ComposerField> {
     final len = _controller.text.characters.length;
     final warn = len > _warnThreshold;
     return Padding(
-      padding: const EdgeInsets.only(top: 4, right: 4),
+      padding: const EdgeInsets.only(
+        top: AppSpacing.tiny,
+        right: AppSpacing.tiny,
+      ),
       child: Align(
         alignment: Alignment.centerRight,
         child: Text(
