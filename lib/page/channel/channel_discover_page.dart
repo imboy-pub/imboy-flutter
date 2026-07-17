@@ -94,7 +94,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
         });
       }
     } catch (e) {
-      iPrint('加载推荐频道失败: ${e.runtimeType}');
+      iPrint('加载推荐频道失败: $e');
       if (mounted) {
         setState(() {
           _isLoadingRecommended = false;

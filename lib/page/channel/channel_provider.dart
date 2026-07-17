@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
+import 'package:imboy/i18n/strings.g.dart' show t;
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/channel_model.dart';
@@ -192,8 +194,9 @@ class ChannelListNotifier extends _$ChannelListNotifier {
         ChannelService.to.syncUnreadSummary(trigger: 'channel_list_load'),
       );
     } catch (e) {
+      iPrint('loadSubscribedChannels failed: $e');
       if (!ref.mounted) return;
-      state = ChannelListState(isLoading: false, error: '${e.runtimeType}');
+      state = ChannelListState(isLoading: false, error: t.common.loadError);
     }
   }
 
@@ -217,8 +220,9 @@ class ChannelListNotifier extends _$ChannelListNotifier {
         cursor: result.nextCursor,
       );
     } catch (e) {
+      iPrint('loadMoreSubscribedChannels failed: $e');
       if (!ref.mounted) return;
-      state = state.copyWith(isLoading: false, error: '${e.runtimeType}');
+      state = state.copyWith(isLoading: false, error: t.common.loadError);
     }
   }
 
@@ -236,8 +240,9 @@ class ChannelListNotifier extends _$ChannelListNotifier {
         cursor: null,
       );
     } catch (e) {
+      iPrint('loadManagedChannels failed: $e');
       if (!ref.mounted) return;
-      state = ChannelListState(isLoading: false, error: '${e.runtimeType}');
+      state = ChannelListState(isLoading: false, error: t.common.loadError);
     }
   }
 
@@ -387,12 +392,16 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
         await loadMessages(effectiveChannelId);
       } else {
         _channelId = null;
-        state = state.copyWith(isLoading: false, error: '频道不存在');
+        state = state.copyWith(
+          isLoading: false,
+          error: t.channel.channelNotFound,
+        );
       }
     } catch (e) {
+      iPrint('loadChannel failed: $e');
       _channelId = null;
       if (!ref.mounted) return;
-      state = state.copyWith(isLoading: false, error: '${e.runtimeType}');
+      state = state.copyWith(isLoading: false, error: t.common.loadError);
     }
   }
 
@@ -424,8 +433,9 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
         );
       }
     } catch (e) {
+      iPrint('loadMessages failed: $e');
       if (!ref.mounted) return;
-      state = state.copyWith(error: '${e.runtimeType}');
+      state = state.copyWith(error: t.common.loadError);
     }
   }
 
@@ -486,11 +496,18 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
         );
         return true;
       }
-      state = state.copyWith(isPublishing: false, error: '发布失败');
+      state = state.copyWith(
+        isPublishing: false,
+        error: t.channel.publishFailed,
+      );
       return false;
     } catch (e) {
+      iPrint('publishMessage failed: $e');
       if (ref.mounted) {
-        state = state.copyWith(isPublishing: false, error: '${e.runtimeType}');
+        state = state.copyWith(
+          isPublishing: false,
+          error: t.channel.publishFailed,
+        );
       }
       return false;
     }
@@ -565,7 +582,10 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
         }
         break;
       case 'channel_deleted':
-        state = state.copyWith(clearChannel: true, error: '频道已删除');
+        state = state.copyWith(
+          clearChannel: true,
+          error: t.channel.channelDeleted,
+        );
         break;
       default:
         break;
@@ -662,12 +682,19 @@ class CreateChannelNotifier extends _$CreateChannelNotifier {
         state = CreateChannelState(isCreating: false, createdChannel: channel);
         return channel;
       } else {
-        state = CreateChannelState(isCreating: false, error: '创建失败');
+        state = CreateChannelState(
+          isCreating: false,
+          error: t.common.operationFailedAgainLater,
+        );
         return null;
       }
     } catch (e) {
+      iPrint('createChannel failed: $e');
       if (!ref.mounted) return null;
-      state = CreateChannelState(isCreating: false, error: '${e.runtimeType}');
+      state = CreateChannelState(
+        isCreating: false,
+        error: t.common.operationFailedAgainLater,
+      );
       return null;
     }
   }

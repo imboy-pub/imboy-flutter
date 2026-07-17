@@ -261,6 +261,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get deleteChannelDesc => '刪除後將無法復原';
 	@override String get deleteChannelConfirm => '確定要刪除該頻道嗎？此操作不可恢復。';
 	@override String get deleteChannelNotImplemented => '刪除頻道功能即將上線';
+	@override String get channelNotFound => '頻道不存在';
 	@override String get channelDeleted => '頻道已刪除';
 	@override String get deleteChannelFailed => '刪除頻道失敗';
 	@override String get writeMessage => '發布訊息...';
@@ -2669,6 +2670,7 @@ extension on TranslationsZhHant {
 			'channel.deleteChannelDesc' => '刪除後將無法復原',
 			'channel.deleteChannelConfirm' => '確定要刪除該頻道嗎？此操作不可恢復。',
 			'channel.deleteChannelNotImplemented' => '刪除頻道功能即將上線',
+			'channel.channelNotFound' => '頻道不存在',
 			'channel.channelDeleted' => '頻道已刪除',
 			'channel.deleteChannelFailed' => '刪除頻道失敗',
 			'channel.writeMessage' => '發布訊息...',
@@ -2999,9 +3001,9 @@ extension on TranslationsZhHant {
 			'chat.e2eeRecoveryGoRecover' => '去恢復',
 			'chat.e2eeRecoveryBannerText' => '檢測到加密歷史訊息，需恢復金鑰後才能檢視，點選前往恢復',
 			'chat.liveRoomCreateTitle' => '建立直播間',
-			'chat.liveRoomCreating' => '建立中...',
 			_ => null,
 		} ?? switch (path) {
+			'chat.liveRoomCreating' => '建立中...',
 			'chat.liveRoomWatch' => '觀看直播',
 			'chat.switchToVoiceInput' => '切換到語音輸入',
 			'chat.switchToKeyboardInput' => '切換到鍵盤輸入',
@@ -3513,9 +3515,9 @@ extension on TranslationsZhHant {
 			'common.privacyLogoutAccountConfirm' => '確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。',
 			'common.privacySettings' => '隱私設定',
 			'common.searchSettings' => '搜尋設定',
-			'common.allowSearchByAccount' => '允許通過帳號搜尋',
 			_ => null,
 		} ?? switch (path) {
+			'common.allowSearchByAccount' => '允許通過帳號搜尋',
 			'common.allowSearchByAccountDesc' => '其他用家可以通過您的帳號找到您',
 			'common.allowAddByPhone' => '允許通過手機號新增',
 			'common.allowAddByPhoneDesc' => '其他用家可以通過您的手機號新增您為好友',
@@ -4027,9 +4029,9 @@ extension on TranslationsZhHant {
 			'common.e2eeSocialKeyVersionLabel' => '金鑰版本',
 			'common.e2eeTransferErrNoKey' => '請先生成金鑰對',
 			'common.e2eeTransferErrInitFailed' => '初始化失敗，請重試',
-			'common.e2eeTransferErrNoRecipientKey' => '接收方沒有可用的公鑰',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferErrNoRecipientKey' => '接收方沒有可用的公鑰',
 			'common.e2eeTransferErrKeyNotFound' => '金鑰未找到',
 			'common.e2eeTransferErrCreateFailed' => '建立傳輸會話失敗，請重試',
 			'common.e2eeTransferCreateSessionBtn' => '建立傳輸會話',
@@ -4541,9 +4543,9 @@ extension on TranslationsZhHant {
 			'main.manageVisibility' => '管理個人資訊的可見性',
 			'main.exportToLocal' => '匯出個人資料到本地',
 			'main.exportAsText' => 'Export as text format',
-			'main.selectFromAlbum' => '從相簿選擇',
 			_ => null,
 		} ?? switch (path) {
+			'main.selectFromAlbum' => '從相簿選擇',
 			'main.volumeUp' => '音量增加',
 			'main.volumeDown' => '音量減少',
 			'main.fastRewind' => ({required Object seconds}) => '快退 ${seconds}秒',

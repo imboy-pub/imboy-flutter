@@ -66,6 +66,7 @@ deleteChannel: 删除频道
 deleteChannelDesc: 删除后将无法恢复
 deleteChannelConfirm: 确定要删除该频道吗？此操作不可恢复。
 deleteChannelNotImplemented: 删除频道功能即将上线
+channelNotFound: 频道不存在
 channelDeleted: 频道已删除
 deleteChannelFailed: 删除频道失败
 writeMessage: 发布消息...

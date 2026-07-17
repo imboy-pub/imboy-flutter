@@ -261,6 +261,7 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get deleteChannelDesc => 'This action cannot be undone';
 	@override String get deleteChannelConfirm => 'Are you sure you want to delete this channel? This cannot be undone.';
 	@override String get deleteChannelNotImplemented => 'Delete channel coming soon';
+	@override String get channelNotFound => 'Channel not found';
 	@override String get channelDeleted => 'Channel deleted';
 	@override String get deleteChannelFailed => 'Failed to delete channel';
 	@override String get writeMessage => 'Write a message...';
@@ -2669,6 +2670,7 @@ extension on TranslationsEnUs {
 			'channel.deleteChannelDesc' => 'This action cannot be undone',
 			'channel.deleteChannelConfirm' => 'Are you sure you want to delete this channel? This cannot be undone.',
 			'channel.deleteChannelNotImplemented' => 'Delete channel coming soon',
+			'channel.channelNotFound' => 'Channel not found',
 			'channel.channelDeleted' => 'Channel deleted',
 			'channel.deleteChannelFailed' => 'Failed to delete channel',
 			'channel.writeMessage' => 'Write a message...',
@@ -2999,9 +3001,9 @@ extension on TranslationsEnUs {
 			'chat.e2eeRecoveryBannerText' => 'Encrypted history messages detected — recover your key to view them. Tap to recover.',
 			'chat.liveRoomCreateTitle' => 'Create Live Room',
 			'chat.liveRoomCreating' => 'Creating...',
-			'chat.liveRoomWatch' => 'Watch Live',
 			_ => null,
 		} ?? switch (path) {
+			'chat.liveRoomWatch' => 'Watch Live',
 			'chat.sendMessage' => 'Send Message',
 			'chat.switchToVoiceInput' => 'Switch to voice input',
 			'chat.switchToKeyboardInput' => 'Switch to keyboard input',
@@ -3513,9 +3515,9 @@ extension on TranslationsEnUs {
 			'common.statusSettings' => 'Status settings',
 			'common.showOnlineStatus' => 'Show online status',
 			'common.showOnlineStatusDesc' => 'Friends can see your online status',
-			'common.allowNearbyVisible' => 'Visible to nearby people',
 			_ => null,
 		} ?? switch (path) {
+			'common.allowNearbyVisible' => 'Visible to nearby people',
 			'common.dataSettings' => 'Data settings',
 			'common.clearChatRecords' => 'Clear chat records',
 			'common.clearChatRecordsDesc' => 'Clear all chat records, this action cannot be undone',
@@ -4027,9 +4029,9 @@ extension on TranslationsEnUs {
 			'common.e2eeTransferCreateSessionBtn' => 'Create transfer session',
 			'common.e2eeTransferSessionCreated' => 'Transfer session created',
 			'common.e2eeTransferUidEmptyError' => 'Please enter a valid user ID',
-			'common.e2eeTransferSuccess' => 'Transfer successful!',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferSuccess' => 'Transfer successful!',
 			'common.e2eeTransferFailed' => 'Transfer failed, please try again',
 			'common.e2eeTransferProcessingMsg' => 'Processing...',
 			'common.e2eeTransferSuccessTitle' => 'Transfer successful',
@@ -4541,9 +4543,9 @@ extension on TranslationsEnUs {
 			'main.manageVisibility' => 'Manage visibility of personal info',
 			'main.exportToLocal' => 'Export profile to local',
 			'main.exportAsText' => 'Export as text format',
-			'main.selectFromAlbum' => 'Select from Album',
 			_ => null,
 		} ?? switch (path) {
+			'main.selectFromAlbum' => 'Select from Album',
 			'main.volumeUp' => 'Volume Up',
 			'main.volumeDown' => 'Volume Down',
 			'main.fastRewind' => ({required Object seconds}) => 'Fast Rewind ${seconds}',

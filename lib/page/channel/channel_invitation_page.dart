@@ -4,6 +4,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -70,10 +71,13 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
         _error = null;
       });
     } catch (e) {
+      iPrint('加载频道邀请失败: $e');
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _error = '${e.runtimeType}';
+        // 用全局 t（非 context.t）：initState 首帧同步抛错时
+        // 依赖 InheritedWidget 的 context.t 会触发框架断言
+        _error = t.common.loadError;
       });
     }
   }

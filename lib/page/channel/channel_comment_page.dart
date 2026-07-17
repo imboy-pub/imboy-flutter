@@ -38,6 +38,7 @@ class ChannelCommentPage extends ConsumerStatefulWidget {
 
 class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   final TextEditingController _inputController = TextEditingController();
+  final FocusNode _inputFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final ChannelService _service = ChannelService.to;
 
@@ -66,6 +67,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _inputController.dispose();
+    _inputFocusNode.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -102,7 +104,8 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
       iPrint('评论加载失败: $e');
       if (mounted) {
         setState(() {
-          _loadError = '${e.runtimeType}';
+          // 全局 t：避免 initState 首帧同步抛错时 context.t 触发框架断言
+          _loadError = t.common.loadError;
           _isLoading = false;
         });
       }
@@ -177,7 +180,8 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
       _replyToCommentId = comment.id;
       _replyToName = comment.userName;
     });
-    FocusScope.of(context).requestFocus();
+    // 直接聚焦输入框节点；此前 requestFocus() 未传 node，键盘不会弹出
+    _inputFocusNode.requestFocus();
   }
 
   void _cancelReply() {
@@ -519,6 +523,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
               Expanded(
                 child: ComposerField(
                   controller: _inputController,
+                  focusNode: _inputFocusNode,
                   hintText: t.channel.writeComment,
                   maxLength: 500,
                   maxLines: 4,

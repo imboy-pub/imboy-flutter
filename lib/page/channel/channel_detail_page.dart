@@ -190,6 +190,25 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           ),
         ),
       );
+      // 与齿轮设置 sheet 对齐：创建者在 more_vert 菜单同样可删除频道（M10）
+      if (channel.userRole.isCreator) {
+        items.add(
+          PopupMenuItem(
+            value: 'delete_channel',
+            child: ListTile(
+              leading: const Icon(
+                Icons.delete_outline,
+                color: AppColors.iosRed,
+              ),
+              title: Text(
+                t.channel.deleteChannel,
+                style: const TextStyle(color: AppColors.iosRed),
+              ),
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+        );
+      }
     } else if (channel.isSubscribed) {
       items.add(
         PopupMenuItem(
@@ -491,6 +510,12 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         await ref.read(channelDetailProvider.notifier).loadChannel(channelId);
         _statsRequestedChannelId = null;
         await _loadStats(channelId);
+        // 与订阅成功/发现页退订保持对称的成功反馈（M9）
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(t.common.tipSuccess)));
+        }
       }
     } else {
       // 未订阅 → 订阅
@@ -563,6 +588,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         break;
       case 'manage_admins':
         context.push('/channel/$channelId/admins');
+        break;
+      case 'delete_channel':
+        if (channel != null) _showDeleteChannelDialog(channel);
         break;
       case 'manage_subscribers':
         final invitationEnabled = AppFeatureRegistry.isEnabled(

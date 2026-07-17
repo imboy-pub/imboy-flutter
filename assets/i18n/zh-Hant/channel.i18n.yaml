@@ -63,6 +63,7 @@ deleteChannel: 刪除頻道
 deleteChannelDesc: 刪除後將無法復原
 deleteChannelConfirm: 確定要刪除該頻道嗎？此操作不可恢復。
 deleteChannelNotImplemented: 刪除頻道功能即將上線
+channelNotFound: 頻道不存在
 channelDeleted: 頻道已刪除
 deleteChannelFailed: 刪除頻道失敗
 writeMessage: 發布訊息...

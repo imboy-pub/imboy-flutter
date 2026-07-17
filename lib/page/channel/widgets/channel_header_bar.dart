@@ -163,14 +163,16 @@ class ChannelHeaderBar extends StatelessWidget {
                       ),
               ),
             ),
-          // 统计栏
-          if (stats != null)
-            Padding(
-              padding: const EdgeInsets.only(
-                left: AppSpacing.regular,
-                right: AppSpacing.regular,
-                bottom: AppSpacing.regular,
-              ),
+          // 统计栏：stats 未就绪时渲染等高透明占位，数据到达后原地填充，
+          // 避免条件插入把下方消息流往下顶（首屏闪跳）
+          Padding(
+            padding: const EdgeInsets.only(
+              left: AppSpacing.regular,
+              right: AppSpacing.regular,
+              bottom: AppSpacing.regular,
+            ),
+            child: Opacity(
+              opacity: stats == null ? 0 : 1,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -178,29 +180,30 @@ class ChannelHeaderBar extends StatelessWidget {
                     context,
                     icon: Icons.people_outline,
                     label: t.channel.subscribers,
-                    value: _formatNumber(stats!.subscriberCount),
+                    value: _formatNumber(stats?.subscriberCount ?? 0),
                   ),
                   _buildStatItem(
                     context,
                     icon: Icons.article_outlined,
                     label: t.channel.messages,
-                    value: _formatNumber(stats!.totalMessages),
+                    value: _formatNumber(stats?.totalMessages ?? 0),
                   ),
                   _buildStatItem(
                     context,
                     icon: Icons.remove_red_eye_outlined,
                     label: t.channel.views,
-                    value: _formatNumber(stats!.totalViews),
+                    value: _formatNumber(stats?.totalViews ?? 0),
                   ),
                   _buildStatItem(
                     context,
                     icon: Icons.thumb_up_outlined,
                     label: t.channel.reactions,
-                    value: _formatNumber(stats!.totalReactions),
+                    value: _formatNumber(stats?.totalReactions ?? 0),
                   ),
                 ],
               ),
             ),
+          ),
         ],
       ),
     );

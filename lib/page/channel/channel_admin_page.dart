@@ -4,6 +4,7 @@ import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -81,9 +82,11 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
         });
       }
     } catch (e) {
+      iPrint('加载管理员列表失败: $e');
       if (mounted) {
         setState(() {
-          _error = '${e.runtimeType}';
+          // 全局 t：避免 initState 首帧同步抛错时 context.t 触发框架断言
+          _error = t.common.loadError;
           _isLoading = false;
         });
       }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -55,6 +56,9 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     with SingleTickerProviderStateMixin {
   bool _expanded = false;
   bool _liked = false;
+  // 点赞本地增量：add 成功 +1 / remove 成功 -1，叠加在 reactionSummary 汇总上，
+  // 让底栏计数即时反映操作（后端消息列表不会随点赞实时刷新）。
+  int _likeDelta = 0;
   // 双击点赞浮层动画
   late AnimationController _likeAnimController;
 
@@ -66,6 +70,19 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       duration: const Duration(milliseconds: 600),
     );
     _liked = _isAlreadyLiked();
+  }
+
+  @override
+  void didUpdateWidget(covariant ChannelMessageItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 父层刷新消息（reactionSummary 已含最新计数）后清零本地增量，避免双计。
+    if (!mapEquals(
+      oldWidget.message.reactionSummary,
+      widget.message.reactionSummary,
+    )) {
+      _likeDelta = 0;
+      _liked = _isAlreadyLiked();
+    }
   }
 
   @override
@@ -89,7 +106,10 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     );
     if (success && mounted) {
       if (reactionType == ChannelReactionType.like) {
-        setState(() => _liked = true);
+        setState(() {
+          _liked = true;
+          _likeDelta += 1;
+        });
       }
       widget.onReactionChanged?.call();
     }
@@ -104,7 +124,10 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     );
     if (success && mounted) {
       if (reactionType == ChannelReactionType.like) {
-        setState(() => _liked = false);
+        setState(() {
+          _liked = false;
+          _likeDelta -= 1;
+        });
       }
       widget.onReactionChanged?.call();
     }
@@ -126,54 +149,6 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       _likeAnimController.forward(from: 0.0);
       _addReaction(ChannelReactionType.like);
     }
-  }
-
-  void _showReactionPicker() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) => Container(
-        padding: AppSpacing.allRegular,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              context.t.channel.selectReaction,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            AppSpacing.verticalRegular,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildReactionButton(ChannelReactionType.like, '👍'),
-                _buildReactionButton(ChannelReactionType.heart, '❤️'),
-                _buildReactionButton(ChannelReactionType.fire, '🔥'),
-                _buildReactionButton(ChannelReactionType.thumbsUp, '👏'),
-                _buildReactionButton(ChannelReactionType.bookmark, '📌'),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildReactionButton(String type, String emoji) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-        _addReaction(type);
-      },
-      child: Container(
-        padding: AppSpacing.allMedium,
-        decoration: BoxDecoration(
-          color: AppColors.getIosSeparator(
-            Theme.of(context).brightness,
-          ).withValues(alpha: 0.08),
-          shape: BoxShape.circle,
-        ),
-        child: Text(emoji, style: const TextStyle(fontSize: 28)),
-      ),
-    );
   }
 
   @override
@@ -679,11 +654,12 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     final t = context.t;
     final message = widget.message;
 
-    // 反应总数
+    // 反应总数（服务端汇总 + 本地点赞增量，且不为负）
     int totalReactions = 0;
     if (message.reactionSummary != null) {
       totalReactions = message.reactionSummary!.values.fold(0, (a, b) => a + b);
     }
+    totalReactions = (totalReactions + _likeDelta).clamp(0, 1 << 31);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 6, 14, 8),
@@ -697,7 +673,6 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                 : t.channel.like,
             color: _liked ? AppColors.primary : secondaryColor,
             onTap: _toggleLike,
-            onLongPress: _showReactionPicker,
           ),
           AppSpacing.horizontalRegular,
           // 评论 —— 跳转评论页

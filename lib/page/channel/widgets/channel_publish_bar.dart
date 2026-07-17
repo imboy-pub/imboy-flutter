@@ -75,8 +75,8 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     if (key.isEmpty || !mounted) return;
     final draft = StorageService.to.getString(key);
     if (draft.isEmpty) return;
+    // 静默恢复草稿，不弹 toast 打扰（文本回填本身即反馈）
     setState(() => _messageController.text = draft);
-    AppLoading.showInfo(context.t.discovery.momentsDraftRestored);
   }
 
   /// 退出前把未发送文本落盘；已清空则顺带清掉旧草稿，避免残留。
@@ -118,8 +118,8 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       setState(() {});
       final key = _draftKey;
       if (key.isNotEmpty) unawaited(StorageService.to.remove(key));
+      // 仅震动反馈：消息进流即确认，连发场景不再弹成功 toast
       unawaited(HapticFeedback.lightImpact());
-      AppLoading.showSuccess(context.t.common.tipSuccess);
       return;
     }
     ScaffoldMessenger.of(
