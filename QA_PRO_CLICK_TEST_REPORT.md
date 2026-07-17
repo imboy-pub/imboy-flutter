@@ -180,6 +180,14 @@
 
 ✅ 正常: 会话左滑菜单存在且完整(标记未读/置顶/删除);崩溃后 force-stop 重启恢复正常(数据无损)。
 
+## 第九轮遍历 (2026-07-17 loop第6轮: 消息收藏链路)
+
+| # | 页面 | 级别 | 现象 | 根因方向 |
+|---|------|------|------|----------|
+| 31 | 长按消息→收藏 | 🔴高 | **收藏文本消息永远静默失败**。logcat 铁证: (a) SQLite `UNIQUE constraint failed: user_collect.user_id, kind_id` 且 args 显示 **kind_id=0**——String消息ID(Xid d9ccvah8poo3moh1i0u0,info里有正确id)被int解析失败回退0,违反"MessageModel.id禁int解析"项目红线; (b) DatabaseException 为 PlatformDispatcher **uncaught**,无失败toast用户零感知; (c) `user_collect/add` API 被重复请求2次(防重入缺失,同#29模式)。首条kind_id=0记录占位后所有后续收藏全部静默失败——收藏列表永远只有1条(旧图) | user_collect_repo_sqlite.dart:113 insert;收藏add链路kind_id取值处int转换;加try/catch+失败提示+防重入 |
+
+复现: 长按任意文本消息→收藏→无任何提示→收藏列表无新条目(下拉刷新亦无)。
+
 ## 遗留根治 (2026-07-16 第二轮)
 
 - **#12 后端根治**: imboy `02ada397` — group_vote_repo 列表SQL子查询 `COUNT(DISTINCT user_id)` 聚合 participant_count(无N+1,distinct=真参与人数语义)。⚠️生效需部署 pro 后端。
