@@ -551,6 +551,7 @@ class _MomentCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final likeCount = parseModelInt(stats['like_count']);
+    final commentCount = parseModelInt(stats['comment_count']);
     final likers = parseRecentLikers(item);
 
     // DESIGN.md §13.2：卡片点击态用 GestureDetector，禁用 Material Ripple
@@ -646,12 +647,14 @@ class _MomentCard extends StatelessWidget {
                     duration: const Duration(milliseconds: 220),
                     curve: Curves.easeOut,
                     alignment: Alignment.topCenter,
-                    child: (likeCount > 0 || likers.isNotEmpty)
+                    child:
+                        (likeCount > 0 || likers.isNotEmpty || commentCount > 0)
                         ? Padding(
                             padding: const EdgeInsets.only(top: 10),
                             child: _MomentLikersRow(
                               likers: likers,
                               totalCount: likeCount,
+                              commentCount: commentCount,
                               onTap: onTap,
                             ),
                           )
@@ -860,22 +863,27 @@ class _AnimatedHeartState extends State<_AnimatedHeart>
   }
 }
 
-/// 点赞人行：左侧心形图标 + 「张三、李四 等 N 人赞了」。
+/// 点赞人行：左侧心形图标 + 「张三、李四 等 N 人赞了」；
+/// 同一灰底气泡内外显评论数（chat_bubble 图标 + 数字），点击进详情。
 class _MomentLikersRow extends StatelessWidget {
   final List<Map<String, dynamic>> likers;
   final int totalCount;
+  final int commentCount;
   final VoidCallback onTap;
 
   const _MomentLikersRow({
     required this.likers,
     required this.totalCount,
+    this.commentCount = 0,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final label = buildLikersLabel(likers, totalCount, translations: context.t);
-    if (label.isEmpty) return const SizedBox.shrink();
+    final hasLikes = label.isNotEmpty;
+    final hasComments = commentCount > 0;
+    if (!hasLikes && !hasComments) return const SizedBox.shrink();
     // DESIGN.md §13.2：点赞行用 GestureDetector，禁用 Material Ripple
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -888,21 +896,46 @@ class _MomentLikersRow extends StatelessWidget {
               : AppColors.lightSurfaceGrouped,
           borderRadius: AppRadius.borderRadiusMedium,
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _AnimatedHeart(count: totalCount),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: AppColors.wechatBlue,
-                ),
+            if (hasLikes)
+              Row(
+                children: [
+                  _AnimatedHeart(count: totalCount),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
+                        color: AppColors.wechatBlue,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
+            if (hasLikes && hasComments) AppSpacing.verticalTiny,
+            if (hasComments)
+              Row(
+                children: [
+                  const Icon(
+                    CupertinoIcons.chat_bubble,
+                    size: 14,
+                    color: AppColors.wechatBlue,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '$commentCount',
+                    style: context.textStyle(
+                      FontSizeType.footnote,
+                      color: AppColors.wechatBlue,
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
@@ -922,7 +955,7 @@ class _MomentMediaPreview extends StatelessWidget {
         .toList();
     if (media.length == 1) {
       final isVideo = parseModelString(media.first['type']) == 'video';
-      // 单图按真实宽高比展示，视频仍走固定尺寸 cell
+      // 单图按真实宽高比展示
       if (!isVideo) {
         return _SingleImagePreview(
           item: media.first,
@@ -930,28 +963,53 @@ class _MomentMediaPreview extends StatelessWidget {
           imageIndex: 0,
         );
       }
-      return _MomentMediaCell(
-        item: media.first,
-        size: 200,
-        imageUrls: const [],
-        imageIndex: 0,
+      // 单视频按宽高比 letterbox（无元数据退化 16:9），不再裁成正方形
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final videoSize = momentVideoDisplaySize(
+            maxWidth: constraints.maxWidth,
+            aspectRatio: mediaAspectRatio(media.first),
+          );
+          return _MomentMediaCell(
+            item: media.first,
+            size: videoSize.width,
+            height: videoSize.height,
+            imageUrls: const [],
+            imageIndex: 0,
+          );
+        },
       );
     }
-    int imgIdx = 0;
-    final cellSize = (MediaQuery.sizeOf(context).width - 100) / 3;
-    return Wrap(
-      spacing: AppSpacing.small,
-      runSpacing: AppSpacing.small,
-      children: media.map((item) {
-        final isVideo = parseModelString(item['type']) == 'video';
-        final idx = isVideo ? 0 : imgIdx++;
-        return _MomentMediaCell(
-          item: item,
-          size: cellSize,
-          imageUrls: isVideo ? const [] : imageUrls,
-          imageIndex: idx,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final layout = momentGridLayout(
+          count: media.length,
+          maxWidth: constraints.maxWidth,
+          spacing: AppSpacing.small,
         );
-      }).toList(),
+        // 限定行宽以实现 4 图 2×2（微信标准）；其余仍三列自然流式
+        final rowWidth =
+            layout.cellSize * layout.columns +
+            AppSpacing.small * (layout.columns - 1);
+        int imgIdx = 0;
+        return SizedBox(
+          width: rowWidth,
+          child: Wrap(
+            spacing: AppSpacing.small,
+            runSpacing: AppSpacing.small,
+            children: media.map((item) {
+              final isVideo = parseModelString(item['type']) == 'video';
+              final idx = isVideo ? 0 : imgIdx++;
+              return _MomentMediaCell(
+                item: item,
+                size: layout.cellSize,
+                imageUrls: isVideo ? const [] : imageUrls,
+                imageIndex: idx,
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 }
@@ -1095,11 +1153,15 @@ class _VideoBadge extends StatelessWidget {
 class _MomentMediaCell extends StatefulWidget {
   final Map<String, dynamic> item;
   final double size;
+
+  /// 单视频 letterbox 场景传入高度；为 null 时为正方形（网格 cell）。
+  final double? height;
   final List<String> imageUrls;
   final int imageIndex;
   const _MomentMediaCell({
     required this.item,
     required this.size,
+    this.height,
     this.imageUrls = const [],
     this.imageIndex = 0,
   });
@@ -1161,7 +1223,7 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
             : null,
         child: Container(
           width: widget.size,
-          height: widget.size,
+          height: widget.height ?? widget.size,
           decoration: BoxDecoration(
             borderRadius: AppRadius.borderRadiusMedium,
             color: AppColors.iosGray.withValues(alpha: 0.1),
@@ -1199,7 +1261,7 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
         onTap: _onVideoTap,
         child: Container(
           width: widget.size,
-          height: widget.size,
+          height: widget.height ?? widget.size,
           decoration: BoxDecoration(
             borderRadius: AppRadius.borderRadiusMedium,
             // 视频播放衬底，保留纯黑以贴合播放器视觉

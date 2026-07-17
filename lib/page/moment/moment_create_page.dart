@@ -26,6 +26,7 @@ import 'package:video_compress/video_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'moment_interactions.dart';
+import 'moment_utils.dart';
 
 /// 朋友圈发布页 - 沉浸式重构（对标微信朋友圈发布体验）
 class MomentCreatePage extends StatefulWidget {
@@ -613,24 +614,34 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 
   Widget _buildMediaGrid(Translations t) {
-    final cellSize = (MediaQuery.sizeOf(context).width - 40 - 16) / 3;
     final items = _uploads.items;
     final showAdd = items.length < momentMaxImageCount;
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        ...List.generate(items.length, (index) {
-          final item = items[index];
-          return _MediaThumb(
-            size: cellSize,
-            item: item,
-            onRemove: () => _removeMedia(index),
-            onRetry: item.canRetry ? () => _retryUpload(index) : null,
-          );
-        }),
-        if (showAdd) _MediaAddButton(size: cellSize, onTap: _showMediaPicker),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 复用统一的 cell 尺寸计算；拾取网格（含"+添加"格）始终三列流式排布
+        final layout = momentGridLayout(
+          count: items.length + (showAdd ? 1 : 0),
+          maxWidth: constraints.maxWidth,
+          spacing: AppSpacing.small,
+        );
+        return Wrap(
+          spacing: AppSpacing.small,
+          runSpacing: AppSpacing.small,
+          children: [
+            ...List.generate(items.length, (index) {
+              final item = items[index];
+              return _MediaThumb(
+                size: layout.cellSize,
+                item: item,
+                onRemove: () => _removeMedia(index),
+                onRetry: item.canRetry ? () => _retryUpload(index) : null,
+              );
+            }),
+            if (showAdd)
+              _MediaAddButton(size: layout.cellSize, onTap: _showMediaPicker),
+          ],
+        );
+      },
     );
   }
 

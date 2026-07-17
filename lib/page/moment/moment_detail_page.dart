@@ -703,23 +703,53 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
           imageIndex: 0,
         );
       }
-      return _buildMediaItem(media.first, 240, const [], 0);
+      // 单视频按宽高比 letterbox（无元数据退化 16:9），与 feed 对齐
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final videoSize = momentVideoDisplaySize(
+            maxWidth: constraints.maxWidth,
+            aspectRatio: mediaAspectRatio(media.first),
+          );
+          return _buildMediaItem(
+            media.first,
+            videoSize.width,
+            const [],
+            0,
+            height: videoSize.height,
+          );
+        },
+      );
     }
-    int imgIdx = 0;
-    final cellSize = (MediaQuery.sizeOf(context).width - 64) / 3;
-    return Wrap(
-      spacing: AppSpacing.small,
-      runSpacing: AppSpacing.small,
-      children: media.map((m) {
-        final isVideo = parseModelString(m['type']) == 'video';
-        final idx = isVideo ? 0 : imgIdx++;
-        return _buildMediaItem(
-          m,
-          cellSize,
-          isVideo ? const [] : imageUrls,
-          idx,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final layout = momentGridLayout(
+          count: media.length,
+          maxWidth: constraints.maxWidth,
+          spacing: AppSpacing.small,
         );
-      }).toList(),
+        // 限定行宽以实现 4 图 2×2（微信标准）；其余仍三列自然流式
+        final rowWidth =
+            layout.cellSize * layout.columns +
+            AppSpacing.small * (layout.columns - 1);
+        int imgIdx = 0;
+        return SizedBox(
+          width: rowWidth,
+          child: Wrap(
+            spacing: AppSpacing.small,
+            runSpacing: AppSpacing.small,
+            children: media.map((m) {
+              final isVideo = parseModelString(m['type']) == 'video';
+              final idx = isVideo ? 0 : imgIdx++;
+              return _buildMediaItem(
+                m,
+                layout.cellSize,
+                isVideo ? const [] : imageUrls,
+                idx,
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 
@@ -727,8 +757,10 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     Map<String, dynamic> item,
     double size,
     List<String> imageUrls,
-    int imageIndex,
-  ) {
+    int imageIndex, {
+    // 单视频 letterbox 场景传入高度；为 null 时为正方形（网格 cell）
+    double? height,
+  }) {
     final previewUrl = pickMediaPreviewUrl(item);
     final isVideo = parseModelString(item['type']) == 'video';
     final durationMs = mediaDurationMs(item);
@@ -747,7 +779,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     );
     final child = Container(
       width: size,
-      height: size,
+      height: height ?? size,
       decoration: BoxDecoration(
         borderRadius: AppRadius.borderRadiusMedium,
         color: AppColors.iosGray.withValues(alpha: 0.1),
