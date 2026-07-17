@@ -50,6 +50,10 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   bool _isUploadingMedia = false;
   bool _showVoiceInput = false;
 
+  /// build 时缓存的草稿 key：dispose 阶段 ref 已失效不能 read，
+  /// 故在 build（channel 加载后会重建）时把 key 存下来，退出落盘时用它。
+  String _cachedDraftKey = '';
+
   @override
   void initState() {
     super.initState();
@@ -80,8 +84,9 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   }
 
   /// 退出前把未发送文本落盘；已清空则顺带清掉旧草稿，避免残留。
+  /// dispose 阶段 ref 已失效，用 build 时缓存的 [_cachedDraftKey]，勿 read provider。
   void _persistDraftOnExit() {
-    final key = _draftKey;
+    final key = _cachedDraftKey;
     if (key.isEmpty) return;
     final content = _messageController.text.trim();
     if (content.isEmpty) {
@@ -402,12 +407,16 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     final isBusy = state.isPublishing || _isUploadingMedia;
     final hasText = _messageController.text.isNotEmpty;
 
+    // 缓存草稿 key 供 dispose 使用（此处 ref 有效，channel 加载后会重建刷新）
+    final channelId = state.channel?.id;
+    _cachedDraftKey = channelId == null ? '' : 'channel_draft_$channelId';
+
     return Container(
       padding: EdgeInsets.only(
-        left: 8,
-        right: 8,
-        top: 8,
-        bottom: MediaQuery.of(context).padding.bottom + 8,
+        left: AppSpacing.tiny,
+        right: AppSpacing.tiny,
+        top: AppSpacing.small,
+        bottom: MediaQuery.of(context).padding.bottom + AppSpacing.small,
       ),
       decoration: BoxDecoration(
         color: surfaceGrouped,
@@ -416,15 +425,18 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          // 三个前导图标统一 26pt/紧凑内边距，视觉不拥挤
           IconButton(
             icon: const Icon(Icons.article_outlined, size: 26),
             color: secondaryText,
+            visualDensity: VisualDensity.compact,
             onPressed: isBusy ? null : _openCompose,
             tooltip: context.t.channel.writeArticle,
           ),
           IconButton(
-            icon: const Icon(Icons.add, size: 28),
+            icon: const Icon(Icons.add_circle_outline, size: 26),
             color: secondaryText,
+            visualDensity: VisualDensity.compact,
             onPressed: isBusy ? null : _pickAndSendMedia,
             tooltip: context.t.common.momentsAddMedia,
           ),
@@ -434,9 +446,10 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
                 : context.t.chat.switchToVoiceInput,
             icon: Icon(
               _showVoiceInput ? Icons.keyboard_alt_outlined : Icons.mic_none,
-              size: 28,
+              size: 26,
             ),
             color: secondaryText,
+            visualDensity: VisualDensity.compact,
             onPressed: isBusy
                 ? null
                 : () {
@@ -477,34 +490,50 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
           ),
           if (!_showVoiceInput) ...[
             AppSpacing.horizontalSmall,
-            Container(
-              margin: const EdgeInsets.only(bottom: 6),
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: hasText ? AppColors.primary : Colors.transparent,
-                shape: BoxShape.circle,
+            // 发送按钮：36pt 圆形视觉 + ≥44 命中区；有文字/发送中才显示，
+            // 用 AnimatedScale 从 0 弹出，切换更顺滑（精细化）。
+            AnimatedScale(
+              scale: (hasText || isBusy) ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutBack,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 6),
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: isBusy
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.onPrimary,
+                          ),
+                        )
+                      : IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 44,
+                          ),
+                          icon: const Icon(
+                            Icons.arrow_upward_rounded,
+                            size: 22,
+                            color: AppColors.onPrimary,
+                          ),
+                          onPressed: hasText ? _sendMessage : null,
+                          tooltip: context.t.common.buttonSend,
+                        ),
+                ),
               ),
-              child: isBusy
-                  ? const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.onPrimary,
-                      ),
-                    )
-                  : hasText
-                  ? IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(
-                        Icons.arrow_upward,
-                        size: 20,
-                        color: AppColors.onPrimary,
-                      ),
-                      onPressed: _sendMessage,
-                      tooltip: context.t.common.buttonSend,
-                    )
-                  : const SizedBox.shrink(),
             ),
           ],
         ],
