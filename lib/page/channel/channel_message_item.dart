@@ -54,8 +54,12 @@ class ChannelMessageItem extends ConsumerStatefulWidget {
 
 class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     with SingleTickerProviderStateMixin {
-  bool _expanded = false;
   bool _liked = false;
+  // 订阅号预览卡折叠阈值：超限则截断为摘要，点进 B1 阅读页看全文。
+  static const int _textSummaryMaxChars = 120;
+  static const int _textSummaryMaxLines = 3;
+  static const int _imageTextSummaryMaxLines = 3;
+  static const double _authorAvatarSize = 20.0;
   // 点赞本地增量：add 成功 +1 / remove 成功 -1，叠加在 reactionSummary 汇总上，
   // 让底栏计数即时反映操作（后端消息列表不会随点赞实时刷新）。
   int _likeDelta = 0;
@@ -205,7 +209,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTopBar(context, secondaryColor),
+                _buildMetaBar(context, secondaryColor),
                 _buildContentArea(textColor, secondaryColor, isText),
                 _buildBottomBar(context, textColor, secondaryColor),
               ],
@@ -240,103 +244,87 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     );
   }
 
-  /// 顶栏：作者信息 + 时间 + 阅读量
-  Widget _buildTopBar(BuildContext context, Color secondaryColor) {
+  /// 轻元数据行：紧凑署名（小头像 + 作者名）+ 相对时间 + 阅读量 + more 菜单。
+  ///
+  /// 频道身份已在详情页头部（ChannelHeaderBar）展示一次，卡片不再重复大头像 +
+  /// 频道名（收敛信息流视觉噪音，M2）；多管理员频道靠小头像 + 名字区分作者。
+  Widget _buildMetaBar(BuildContext context, Color secondaryColor) {
     final message = widget.message;
-    final t = context.t;
-
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
+      padding: const EdgeInsets.fromLTRB(14, 12, 6, 6),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-            backgroundImage:
-                message.authorAvatar != null && message.authorAvatar!.isNotEmpty
-                ? cachedImageProvider(message.authorAvatar!, w: 48)
-                : null,
-            child:
-                (message.authorAvatar == null || message.authorAvatar!.isEmpty)
-                ? Text(
-                    message.authorName != null && message.authorName!.isNotEmpty
-                        ? message.authorName![0].toUpperCase()
-                        : '?',
-                    style: context.textStyle(FontSizeType.small),
-                  )
-                : null,
-          ),
+          _buildAuthorAvatar(_authorAvatarSize),
           AppSpacing.horizontalSmall,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        message.authorName ?? '',
-                        style: context.textStyle(
-                          FontSizeType.subheadline,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (widget.isManaged) ...[
-                      AppSpacing.horizontalTiny,
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        child: Text(
-                          t.channel.admin,
-                          style: context.textStyle(
-                            FontSizeType.tiny,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                Text(
-                  _relativeTime(message.createdAt),
-                  style: context.textStyle(
-                    FontSizeType.caption2,
-                    color: secondaryColor,
-                  ),
-                ),
-              ],
+          Flexible(
+            child: Text(
+              message.authorName ?? '',
+              style: context.textStyle(
+                FontSizeType.subheadline,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          // 阅读量
-          if (message.viewCount > 0)
-            Row(
-              children: [
-                Icon(
-                  Icons.remove_red_eye_outlined,
-                  size: 13,
-                  color: secondaryColor,
-                ),
-                const SizedBox(width: 2),
-                Text(
-                  _formatCount(message.viewCount),
-                  style: context.textStyle(
-                    FontSizeType.caption2,
-                    color: secondaryColor,
-                  ),
-                ),
-              ],
+          AppSpacing.horizontalTiny,
+          Text(
+            _relativeTime(message.createdAt),
+            style: context.textStyle(
+              FontSizeType.caption2,
+              color: secondaryColor,
             ),
+          ),
+          const Spacer(),
+          if (message.viewCount > 0) ...[
+            Icon(
+              Icons.remove_red_eye_outlined,
+              size: 13,
+              color: secondaryColor,
+            ),
+            const SizedBox(width: 2),
+            Text(
+              _formatCount(message.viewCount),
+              style: context.textStyle(
+                FontSizeType.caption2,
+                color: secondaryColor,
+              ),
+            ),
+          ],
+          // more 菜单：管理者见置顶/删除，普通用户见复制/分享
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => widget.isManaged
+                ? _showManageMenu(context)
+                : _showMoreMenu(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              child: Icon(Icons.more_horiz, size: 18, color: secondaryColor),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAuthorAvatar(double size) {
+    final message = widget.message;
+    final hasAvatar =
+        message.authorAvatar != null && message.authorAvatar!.isNotEmpty;
+    return CircleAvatar(
+      radius: size / 2,
+      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+      backgroundImage: hasAvatar
+          ? cachedImageProvider(message.authorAvatar!, w: 48)
+          : null,
+      child: hasAvatar
+          ? null
+          : Text(
+              (message.authorName != null && message.authorName!.isNotEmpty)
+                  ? message.authorName![0].toUpperCase()
+                  : '?',
+              style: context.textStyle(FontSizeType.tiny),
+            ),
     );
   }
 
@@ -378,37 +366,32 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
 
   Widget _buildTextContent(Color textColor, Color secondaryColor) {
     final content = widget.message.content;
-    final shouldCollapse =
-        content.length > 280 || '\n'.allMatches(content).length >= 6;
-    final displayText = (!_expanded && shouldCollapse)
-        ? '${content.substring(0, content.length > 280 ? 280 : content.length).trim()}…'
-        : content;
+    // 订阅号预览：短文直显；长文截断为摘要 + 「全文」提示，点卡片进 B1 阅读页看全文
+    // （不再就地展开——就地展开是聊天思维，订阅号是点进阅读）。
+    final isLong =
+        content.length > _textSummaryMaxChars ||
+        '\n'.allMatches(content).length >= _textSummaryMaxLines;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SelectableText(
-          displayText,
-          style: TextStyle(
-            fontSize: FontSizeType.body.size,
-            height: 1.5,
-            color: textColor,
-          ),
+        Text(
+          content,
+          maxLines: isLong ? _textSummaryMaxLines : null,
+          overflow: isLong ? TextOverflow.ellipsis : TextOverflow.clip,
+          style: context
+              .textStyle(FontSizeType.body, color: textColor)
+              .copyWith(height: 1.5),
         ),
-        if (shouldCollapse)
-          GestureDetector(
-            onTap: () => setState(() => _expanded = !_expanded),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                _expanded
-                    ? context.t.common.collapse
-                    : context.t.common.expandFull,
-                style: context.textStyle(
-                  FontSizeType.subheadline,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w500,
-                ),
+        if (isLong)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              context.t.channel.readFull,
+              style: context.textStyle(
+                FontSizeType.subheadline,
+                color: AppColors.primary,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -416,15 +399,47 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     );
   }
 
-  /// 图文消息（公众号式）：正文（复用折叠逻辑）+ 图片九宫格。
-  /// images 为空退化为纯文字。
+  /// 图文消息（订阅号封面卡）：标题（首行加粗）+ 摘要（后续行截断）+ 图片九宫格预览。
+  ///
+  /// 不再内联展开全文——完整正文交给 B1 阅读页（卡片 onTap）。首行视为标题，
+  /// 其余为摘要；无换行时整段作标题（截断）。images 为空退化为纯标题/摘要。
   Widget _buildImageTextContent(Color textColor, Color secondaryColor) {
+    final content = widget.message.content.trim();
     final images = _imageTextItems();
-    final hasContent = widget.message.content.trim().isNotEmpty;
+    final newlineIdx = content.indexOf('\n');
+    final title = newlineIdx >= 0
+        ? content.substring(0, newlineIdx).trim()
+        : content;
+    final summary = newlineIdx >= 0
+        ? content.substring(newlineIdx + 1).trim()
+        : '';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (hasContent) _buildTextContent(textColor, secondaryColor),
+        if (title.isNotEmpty)
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.textStyle(
+              FontSizeType.body,
+              color: textColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        if (summary.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(
+            summary,
+            maxLines: _imageTextSummaryMaxLines,
+            overflow: TextOverflow.ellipsis,
+            style: context.textStyle(
+              FontSizeType.subheadline,
+              color: secondaryColor,
+            ),
+          ),
+        ],
         if (images.isNotEmpty) ...[
           const SizedBox(height: 8),
           _buildImageTextGrid(images),
@@ -683,14 +698,15 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
             onTap: _toggleLike,
           ),
           AppSpacing.horizontalRegular,
-          // 评论 —— 跳转评论页
+          // 评论 —— 直达 B1 阅读页（评论区随正文一并承载），不再走独立评论页
           _buildActionButton(
             icon: Icons.chat_bubble_outline,
             label: t.channel.comment,
             color: secondaryColor,
             onTap: () {
               context.push(
-                '/channel/${widget.channelId}/message/${widget.message.id}/comments',
+                '/channel/${widget.channelId}/article/${widget.message.id}',
+                extra: widget.message,
               );
             },
           ),
@@ -702,26 +718,6 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
             color: secondaryColor,
             onTap: () => _shareMessage(),
           ),
-          const Spacer(),
-          // 管理者菜单 / 更多
-          if (widget.isManaged)
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _showManageMenu(context),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                child: Icon(Icons.more_horiz, size: 18, color: secondaryColor),
-              ),
-            )
-          else
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _showMoreMenu(context),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                child: Icon(Icons.more_horiz, size: 18, color: secondaryColor),
-              ),
-            ),
         ],
       ),
     );

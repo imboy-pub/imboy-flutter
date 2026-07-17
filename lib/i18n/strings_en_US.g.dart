@@ -213,6 +213,7 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get subscribers => 'subscribers';
 	@override String get pinned => 'Pinned';
 	@override String get view => 'View';
+	@override String get readFull => 'Read full';
 	@override String get subscribe => 'Subscribe';
 	@override String get subscribeSuccess => 'Subscribed successfully';
 	@override String get subscribeFailed => 'Failed to subscribe';
@@ -2622,6 +2623,7 @@ extension on TranslationsEnUs {
 			'channel.subscribers' => 'subscribers',
 			'channel.pinned' => 'Pinned',
 			'channel.view' => 'View',
+			'channel.readFull' => 'Read full',
 			'channel.subscribe' => 'Subscribe',
 			'channel.subscribeSuccess' => 'Subscribed successfully',
 			'channel.subscribeFailed' => 'Failed to subscribe',
@@ -3000,9 +3002,9 @@ extension on TranslationsEnUs {
 			'chat.e2eeRecoveryGoRecover' => 'Recover',
 			'chat.e2eeRecoveryBannerText' => 'Encrypted history messages detected — recover your key to view them. Tap to recover.',
 			'chat.liveRoomCreateTitle' => 'Create Live Room',
-			'chat.liveRoomCreating' => 'Creating...',
 			_ => null,
 		} ?? switch (path) {
+			'chat.liveRoomCreating' => 'Creating...',
 			'chat.liveRoomWatch' => 'Watch Live',
 			'chat.sendMessage' => 'Send Message',
 			'chat.switchToVoiceInput' => 'Switch to voice input',
@@ -3514,9 +3516,9 @@ extension on TranslationsEnUs {
 			'common.allowAddByQRDesc' => 'Other users can add you as a friend by scanning your QR code',
 			'common.statusSettings' => 'Status settings',
 			'common.showOnlineStatus' => 'Show online status',
-			'common.showOnlineStatusDesc' => 'Friends can see your online status',
 			_ => null,
 		} ?? switch (path) {
+			'common.showOnlineStatusDesc' => 'Friends can see your online status',
 			'common.allowNearbyVisible' => 'Visible to nearby people',
 			'common.dataSettings' => 'Data settings',
 			'common.clearChatRecords' => 'Clear chat records',
@@ -4028,9 +4030,9 @@ extension on TranslationsEnUs {
 			'common.e2eeTransferErrCreateFailed' => 'Failed to create transfer session, please try again',
 			'common.e2eeTransferCreateSessionBtn' => 'Create transfer session',
 			'common.e2eeTransferSessionCreated' => 'Transfer session created',
-			'common.e2eeTransferUidEmptyError' => 'Please enter a valid user ID',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeTransferUidEmptyError' => 'Please enter a valid user ID',
 			'common.e2eeTransferSuccess' => 'Transfer successful!',
 			'common.e2eeTransferFailed' => 'Transfer failed, please try again',
 			'common.e2eeTransferProcessingMsg' => 'Processing...',
@@ -4542,9 +4544,9 @@ extension on TranslationsEnUs {
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'Manage visibility of personal info',
 			'main.exportToLocal' => 'Export profile to local',
-			'main.exportAsText' => 'Export as text format',
 			_ => null,
 		} ?? switch (path) {
+			'main.exportAsText' => 'Export as text format',
 			'main.selectFromAlbum' => 'Select from Album',
 			'main.volumeUp' => 'Volume Up',
 			'main.volumeDown' => 'Volume Down',

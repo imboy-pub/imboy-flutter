@@ -953,6 +953,9 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '评论'
 	String get comment => '评论';
 
+	/// zh-CN: '阅读全文'
+	String get readFull => '阅读全文';
+
 	/// zh-CN: '暂无评论'
 	String get noComments => '暂无评论';
 
@@ -7639,6 +7642,7 @@ extension on Translations {
 			'channel.refundConfirmMessage' => '确定要对该订单申请退款吗？退款后将取消订阅。',
 			'channel.refundSuccess' => '退款申请已提交',
 			'channel.comment' => '评论',
+			'channel.readFull' => '阅读全文',
 			'channel.noComments' => '暂无评论',
 			'channel.writeComment' => '写评论...',
 			'channel.reply' => '回复',
@@ -7863,9 +7867,9 @@ extension on Translations {
 			'chat.quickReplyThanks' => '谢谢',
 			'chat.quickReplyWait' => '稍等',
 			'chat.messageMute' => _root.chat.chatSettingMute,
-			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} 个群聊',
 			_ => null,
 		} ?? switch (path) {
+			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} 个群聊',
 			'chat.groupAlbumCreateTitle' => '新建群相册',
 			'chat.groupAlbumCreated' => '相册已创建',
 			'chat.profileCompleted' => '资料已完善！',
@@ -8377,9 +8381,9 @@ extension on Translations {
 			'common.viewAllGroupMember' => '查看全部群成员',
 			'common.voiceCall' => '语音通话',
 			'common.groupCall' => '群通话',
-			'common.callDisconnected' => '通话已断开',
 			_ => null,
 		} ?? switch (path) {
+			'common.callDisconnected' => '通话已断开',
 			'common.connecting' => '连接中…',
 			'common.voiceInputNotImplemented' => '语音输入功能暂无实现',
 			'common.waitingDownload' => '等待下载',
@@ -8891,9 +8895,9 @@ extension on Translations {
 			'common.e2eeBackupConfirmPwdLabel' => '确认密码 *',
 			'common.e2eeBackupConfirmPwdHint' => '再次输入密码',
 			'common.e2eeBackupNoteLabel' => '备注（可选）',
-			'common.e2eeBackupNoteHint' => '例如：主手机备份 - 2026年1月',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupNoteHint' => '例如：主手机备份 - 2026年1月',
 			'common.e2eeBackupPwdStrengthLabel' => '密码强度',
 			'common.e2eeBackupPwdWeak' => '弱 - 建议增加复杂度',
 			'common.e2eeBackupPwdMedium' => '中等 - 建议增加长度或复杂度',
@@ -9405,9 +9409,9 @@ extension on Translations {
 			'main.extraItem' => '额外项目',
 			'main.faceToFaceLogic' => '面对面建群逻辑',
 			'main.favorites' => '收藏',
-			'main.female' => '女',
 			_ => null,
 		} ?? switch (path) {
+			'main.female' => '女',
 			'main.followSystem' => '跟随系统',
 			'main.frFr' => '法语（法国）',
 			'main.from' => '来自',
