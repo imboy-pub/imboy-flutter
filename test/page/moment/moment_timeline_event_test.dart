@@ -11,16 +11,19 @@ void main() {
   const viewing = 'm_viewing';
 
   group('shouldRefreshDetailOnEvent', () {
-    test('moment_deleted on the currently viewed post → false (page pops itself)', () {
-      expect(
-        shouldRefreshDetailOnEvent(
-          action: 'moment_deleted',
-          eventMomentId: viewing,
-          viewingMomentId: viewing,
-        ),
-        isFalse,
-      );
-    });
+    test(
+      'moment_deleted on the currently viewed post → false (page pops itself)',
+      () {
+        expect(
+          shouldRefreshDetailOnEvent(
+            action: 'moment_deleted',
+            eventMomentId: viewing,
+            viewingMomentId: viewing,
+          ),
+          isFalse,
+        );
+      },
+    );
 
     test('moment_deleted on some other post → false', () {
       expect(
@@ -66,16 +69,19 @@ void main() {
       );
     });
 
-    test('broadcast event (empty eventMomentId) → true (global refresh signal)', () {
-      expect(
-        shouldRefreshDetailOnEvent(
-          action: 'moment_updated',
-          eventMomentId: '',
-          viewingMomentId: viewing,
-        ),
-        isTrue,
-      );
-    });
+    test(
+      'broadcast event (empty eventMomentId) → true (global refresh signal)',
+      () {
+        expect(
+          shouldRefreshDetailOnEvent(
+            action: 'moment_updated',
+            eventMomentId: '',
+            viewingMomentId: viewing,
+          ),
+          isTrue,
+        );
+      },
+    );
 
     test('empty viewing id is always false (defensive)', () {
       expect(
@@ -88,16 +94,33 @@ void main() {
       );
     });
 
-    test('unknown action on the viewed post → true (fail-open for forward compat)', () {
-      expect(
-        shouldRefreshDetailOnEvent(
-          action: 'some_future_action',
-          eventMomentId: viewing,
-          viewingMomentId: viewing,
-        ),
-        isTrue,
-      );
-    });
+    test(
+      'moment_comment_changed → false (detail already updated optimistically)',
+      () {
+        expect(
+          shouldRefreshDetailOnEvent(
+            action: momentActionCommentChanged,
+            eventMomentId: viewing,
+            viewingMomentId: viewing,
+          ),
+          isFalse,
+        );
+      },
+    );
+
+    test(
+      'unknown action on the viewed post → true (fail-open for forward compat)',
+      () {
+        expect(
+          shouldRefreshDetailOnEvent(
+            action: 'some_future_action',
+            eventMomentId: viewing,
+            viewingMomentId: viewing,
+          ),
+          isTrue,
+        );
+      },
+    );
   });
 
   group('shouldRefreshFeedOnEvent', () {
@@ -112,6 +135,13 @@ void main() {
     test('moment_updated → true', () {
       expect(shouldRefreshFeedOnEvent('moment_updated'), isTrue);
     });
+
+    test(
+      'moment_comment_changed → true (feed pulls fresh comments_preview)',
+      () {
+        expect(shouldRefreshFeedOnEvent(momentActionCommentChanged), isTrue);
+      },
+    );
 
     test('empty action → false (defensive, no broadcast-all semantics)', () {
       expect(shouldRefreshFeedOnEvent(''), isFalse);

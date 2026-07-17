@@ -260,6 +260,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       final post = _moment;
       if (post != null) _moment = applyCommentCountDelta(post, 1);
     });
+    // 通知 feed 刷新以带回最新 comments_preview；详情页自身忽略该 action
+    // （见 shouldRefreshDetailOnEvent），不会触发白刷。
+    AppEventBus.fire(
+      MomentTimelineChangedEvent(
+        action: momentActionCommentChanged,
+        momentId: widget.momentId,
+        payload: const <String, dynamic>{},
+      ),
+    );
   }
 
   Future<void> _deleteComment(String commentId) async {
@@ -281,6 +290,14 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       final post = _moment;
       if (post != null) _moment = applyCommentCountDelta(post, -1);
     });
+    // 同 _addComment：让 feed 拉回最新 comments_preview
+    AppEventBus.fire(
+      MomentTimelineChangedEvent(
+        action: momentActionCommentChanged,
+        momentId: widget.momentId,
+        payload: const <String, dynamic>{},
+      ),
+    );
   }
 
   /// 评论长按菜单：复制文字 / 删除（本人或作者可见）。

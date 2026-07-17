@@ -553,6 +553,7 @@ class _MomentCard extends StatelessWidget {
     final likeCount = parseModelInt(stats['like_count']);
     final commentCount = parseModelInt(stats['comment_count']);
     final likers = parseRecentLikers(item);
+    final commentsPreview = parseCommentsPreview(item);
 
     // DESIGN.md §13.2：卡片点击态用 GestureDetector，禁用 Material Ripple
     return GestureDetector(
@@ -648,13 +649,17 @@ class _MomentCard extends StatelessWidget {
                     curve: Curves.easeOut,
                     alignment: Alignment.topCenter,
                     child:
-                        (likeCount > 0 || likers.isNotEmpty || commentCount > 0)
+                        (likeCount > 0 ||
+                            likers.isNotEmpty ||
+                            commentCount > 0 ||
+                            commentsPreview.isNotEmpty)
                         ? Padding(
                             padding: const EdgeInsets.only(top: 10),
                             child: _MomentLikersRow(
                               likers: likers,
                               totalCount: likeCount,
                               commentCount: commentCount,
+                              comments: commentsPreview,
                               onTap: onTap,
                             ),
                           )
@@ -864,17 +869,21 @@ class _AnimatedHeartState extends State<_AnimatedHeart>
 }
 
 /// 点赞人行：左侧心形图标 + 「张三、李四 等 N 人赞了」；
-/// 同一灰底气泡内外显评论数（chat_bubble 图标 + 数字），点击进详情。
+/// 同一灰底气泡内内联评论预览（微信式 `昵称: 内容` / `甲 回复 @乙：内容`，
+/// 最多 3 条）；预览未覆盖全部评论时外显评论数行充当「查看全部」入口。
+/// 点击任意区域进详情。
 class _MomentLikersRow extends StatelessWidget {
   final List<Map<String, dynamic>> likers;
   final int totalCount;
   final int commentCount;
+  final List<Map<String, dynamic>> comments;
   final VoidCallback onTap;
 
   const _MomentLikersRow({
     required this.likers,
     required this.totalCount,
     this.commentCount = 0,
+    this.comments = const [],
     required this.onTap,
   });
 
@@ -882,8 +891,13 @@ class _MomentLikersRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = buildLikersLabel(likers, totalCount, translations: context.t);
     final hasLikes = label.isNotEmpty;
-    final hasComments = commentCount > 0;
-    if (!hasLikes && !hasComments) return const SizedBox.shrink();
+    final hasPreview = comments.isNotEmpty;
+    // 预览已覆盖全部评论时，计数行是冗余信息，隐藏；未覆盖时保留作
+    // 「查看全部 N 条」入口（点击整卡进详情）。
+    final showCountRow = commentCount > comments.length;
+    if (!hasLikes && !hasPreview && !showCountRow) {
+      return const SizedBox.shrink();
+    }
     // DESIGN.md §13.2：点赞行用 GestureDetector，禁用 Material Ripple
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -917,8 +931,12 @@ class _MomentLikersRow extends StatelessWidget {
                   ),
                 ],
               ),
-            if (hasLikes && hasComments) AppSpacing.verticalTiny,
-            if (hasComments)
+            if (hasLikes && (hasPreview || showCountRow))
+              AppSpacing.verticalTiny,
+            if (hasPreview)
+              ...comments.map((c) => _buildCommentLine(context, c)),
+            if (hasPreview && showCountRow) AppSpacing.verticalTiny,
+            if (showCountRow)
               Row(
                 children: [
                   const Icon(
@@ -938,6 +956,51 @@ class _MomentLikersRow extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 单条评论预览行：蓝色名字段 + 分隔符 + 正文色内容，最多 2 行省略。
+  Widget _buildCommentLine(BuildContext context, Map<String, dynamic> comment) {
+    final displayName = resolveMomentDisplayName(
+      remark: parseModelString(comment['user_remark']),
+      nickname: parseModelString(comment['user_nickname']),
+      uid: parseModelString(comment['user_id']),
+    );
+    final replyToUid = extractCommentReplyTarget(comment);
+    final replyToName = replyToUid.isEmpty
+        ? ''
+        : resolveMomentDisplayName(
+            remark: parseModelString(comment['reply_to_remark']),
+            nickname: parseModelString(comment['reply_to_nickname']),
+            uid: replyToUid,
+          );
+    final nameSegment = buildCommentPreviewNameSegment(
+      displayName: displayName,
+      replyToName: replyToName,
+      prefix: t.chat.momentsReplyPrefix,
+    );
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Text.rich(
+        TextSpan(
+          style: context
+              .textStyle(FontSizeType.footnote)
+              .copyWith(height: 1.35),
+          children: [
+            TextSpan(
+              text: '$nameSegment${t.chat.momentsReplySeparator}',
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: AppColors.wechatBlue,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            TextSpan(text: parseModelString(comment['content'])),
+          ],
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

@@ -104,8 +104,10 @@ class QuickReplyService {
     final current = await load(uid);
     if (current.isEmpty) return;
     if (oldIndex < 0 || oldIndex >= current.length) return;
-    // onReorderItem already provides the final insertion index; clamp only.
+    // 调用方透传 Flutter ReorderableListView 原始参数：
+    // forward 移动时 newIndex 是"移除前"的插入位，须减 1（Flutter 惯例）
     int adjusted = newIndex;
+    if (adjusted > oldIndex) adjusted -= 1;
     if (adjusted < 0) adjusted = 0;
     if (adjusted > current.length - 1) adjusted = current.length - 1;
     if (adjusted == oldIndex) return; // no-op

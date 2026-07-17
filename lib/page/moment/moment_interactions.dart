@@ -108,12 +108,18 @@ const String momentActionNew = 'moment_new';
 const String momentActionDeleted = 'moment_deleted';
 const String momentActionUpdated = 'moment_updated';
 
+/// 评论新增/删除（由详情页发出）。feed 需要刷新以带回最新的
+/// `comments_preview` 内联评论预览；详情页自身已乐观更新，忽略该事件。
+const String momentActionCommentChanged = 'moment_comment_changed';
+
 /// 详情页是否应在收到该 timeline 事件时重新拉取。
 ///
 /// 规则：
 /// - `moment_deleted`：永远 false。若删的是当前页，`_deleteMoment()` 已
 ///   主动 pop；若删的是别的页面，详情页不关心。
 /// - `moment_new`：永远 false（别处发新帖与当前详情无关，避免白刷）。
+/// - `moment_comment_changed`：永远 false（该事件由详情页评论操作自身发出，
+///   本地已乐观更新，重拉会造成白刷/丢失输入态）。
 /// - 其它 action（包括未来扩展）：
 ///     · eventMomentId 匹配 viewing → true
 ///     · eventMomentId 为空（广播信号）且 viewing 非空 → true
@@ -127,19 +133,22 @@ bool shouldRefreshDetailOnEvent({
   if (viewingMomentId.isEmpty) return false;
   if (action == momentActionDeleted) return false;
   if (action == momentActionNew) return false;
+  if (action == momentActionCommentChanged) return false;
   if (eventMomentId.isEmpty) return true;
   return eventMomentId == viewingMomentId;
 }
 
 /// Feed 页是否应在收到该 timeline 事件时重新拉取第一页。
 ///
-/// 对已知的 moment_new / moment_deleted / moment_updated 返回 true；
+/// 对已知的 moment_new / moment_deleted / moment_updated /
+/// moment_comment_changed 返回 true（评论变化需带回最新 comments_preview）；
 /// 空 action 防御返回 false，避免未来误定义空 action 无差别刷新。
 bool shouldRefreshFeedOnEvent(String action) {
   if (action.isEmpty) return false;
   return action == momentActionNew ||
       action == momentActionDeleted ||
-      action == momentActionUpdated;
+      action == momentActionUpdated ||
+      action == momentActionCommentChanged;
 }
 
 /// 提取评论的 `reply_to_uid` 字段，并 trim + 类型守卫。
@@ -770,6 +779,36 @@ String momentRelativeTime(String createdAt) {
     );
   }
   return DateTimeHelper.dateTimeFmt(dt);
+}
+
+/// 从 moment payload 安全提取 `comments_preview` 列表（feed 内联评论预览）。
+///
+/// 后端每帖最多返回 3 条（帖内时间正序），字段含 id / user_id /
+/// user_nickname / content / reply_to_uid / reply_to_nickname。
+/// 非 List / 脏条目防御性过滤。
+List<Map<String, dynamic>> parseCommentsPreview(Map<String, dynamic> moment) {
+  final raw = moment['comments_preview'];
+  if (raw is! List) return const [];
+  return raw
+      .whereType<Map<String, dynamic>>()
+      .map((item) => Map<String, dynamic>.from(item))
+      .toList(growable: false);
+}
+
+/// 组装 feed 内联评论预览行的名字段（蓝色部分，不含分隔符）。
+///
+/// - 普通评论 → `甲`
+/// - 回复评论 → `甲 {prefix}乙`（prefix 复用 detail 页
+///   `t.chat.momentsReplyPrefix`，zh-CN 为 "回复 @"）
+/// - [replyToName] 为空/纯空白/占位符 '?' → 按普通评论处理
+String buildCommentPreviewNameSegment({
+  required String displayName,
+  required String replyToName,
+  required String prefix,
+}) {
+  final trimmed = replyToName.trim();
+  if (trimmed.isEmpty || trimmed == '?') return displayName;
+  return '$displayName $prefix$trimmed';
 }
 
 /// 从 moment payload 安全提取 `recent_likers` 列表。
