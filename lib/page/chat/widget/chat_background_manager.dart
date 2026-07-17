@@ -53,16 +53,16 @@ class ChatBackgroundState {
 class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
   @override
   ChatBackgroundState build() {
-    _loadSettings();
-    return const ChatBackgroundState();
+    // 直接返回持久化状态；先赋 state 再 return 会被返回值覆盖，
+    // 导致重启后背景设置永远回落默认值
+    return _loadSettings();
   }
 
   /// 预定义的背景选项
+  /// （pattern_1/2/3 已移除：其引用的 assets/images/chat_backgrounds/ 资源
+  /// 从未随包发布，选中即空白背景，QA #21）
   static const List<String> backgroundOptions = [
     'default',
-    'pattern_1',
-    'pattern_2',
-    'pattern_3',
     'gradient_1',
     'gradient_2',
     'solid_color',
@@ -72,9 +72,6 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
   /// 背景名称映射
   static Map<String, String> get backgroundNames => {
     'default': t.common.defaultBackground,
-    'pattern_1': t.chat.geometricPattern,
-    'pattern_2': t.main.simpleTexture,
-    'pattern_3': t.chat.ripplePattern,
     'gradient_1': t.main.gradientBlue,
     'gradient_2': t.main.gradientPurple,
     'solid_color': t.common.solidColorBackground,
@@ -82,7 +79,7 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
   };
 
   /// 加载设置
-  void _loadSettings() {
+  ChatBackgroundState _loadSettings() {
     final currentBackground = StorageService.to.getString('chat_background');
     // 使用字符串存储 double 值
     final opacityStr = StorageService.to.getString('chat_background_opacity');
@@ -95,8 +92,9 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
       'chat_custom_image_path',
     );
 
-    state = ChatBackgroundState(
-      currentBackground: currentBackground.isNotEmpty
+    return ChatBackgroundState(
+      // 已下架的历史存量值（如 pattern_1/2/3）归一为 default
+      currentBackground: backgroundOptions.contains(currentBackground)
           ? currentBackground
           : 'default',
       backgroundOpacity: backgroundOpacity,
@@ -169,36 +167,6 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
     final currentState = state;
 
     switch (currentState.currentBackground) {
-      case 'pattern_1':
-        return BoxDecoration(
-          color: surfaceColor,
-          image: DecorationImage(
-            image: AssetImage('assets/images/chat_backgrounds/pattern_1.png'),
-            repeat: ImageRepeat.repeat,
-            opacity: currentState.backgroundOpacity,
-          ),
-        );
-
-      case 'pattern_2':
-        return BoxDecoration(
-          color: surfaceColor,
-          image: DecorationImage(
-            image: AssetImage('assets/images/chat_backgrounds/pattern_2.png'),
-            repeat: ImageRepeat.repeat,
-            opacity: currentState.backgroundOpacity,
-          ),
-        );
-
-      case 'pattern_3':
-        return BoxDecoration(
-          color: surfaceColor,
-          image: DecorationImage(
-            image: AssetImage('assets/images/chat_backgrounds/pattern_3.png'),
-            repeat: ImageRepeat.repeat,
-            opacity: currentState.backgroundOpacity,
-          ),
-        );
-
       case 'gradient_1':
         return BoxDecoration(
           gradient: LinearGradient(

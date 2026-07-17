@@ -8,7 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    show ProviderScope, ProviderSubscription;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/component/chat/mention_list_widget.dart';
@@ -129,6 +130,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   /// 是否已加载群成员
   bool _membersLoaded = false;
 
+  /// mentionNotifierProvider 是 autoDispose：必须持有订阅使其存活，
+  /// 否则 loadGroupMembers 加载完 state 即被销毁，输入 @ 时拿到空候选（#33）
+  ProviderSubscription<MentionState>? _mentionSubscription;
+
   final double iconSize = 40; // 图标大小
   final double _softKeyHeight = 270; // 软键盘默认高度
 
@@ -186,6 +191,11 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
     // 使用 ProviderScope.containerOf 获取 ProviderContainer
     final container = ProviderScope.containerOf(context);
+    // 先建立订阅再加载，防止 autoDispose 在加载完成后立即销毁 state
+    _mentionSubscription ??= container.listen(
+      mentionNotifierProvider,
+      (_, _) {},
+    );
     await container
         .read(mentionNotifierProvider.notifier)
         .loadGroupMembers(widget.peerId);
@@ -578,6 +588,8 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         // Provider 可能未初始化，忽略
       }
     }
+    _mentionSubscription?.close();
+    _mentionSubscription = null;
 
     super.dispose();
   }

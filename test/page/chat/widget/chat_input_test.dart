@@ -111,7 +111,8 @@ void main() {
       expect(widget.peerId, 'peer_1');
       expect(widget.isMuted, false);
       expect(widget.muteMessage, isNull);
-      expect(widget.hintText, 'Type a message');
+      // hintText 构造默认 null，渲染期兜底 t.chat.messageInputHint（chat_input.dart:875）
+      expect(widget.hintText, isNull);
       expect(widget.autocorrect, true);
       expect(widget.autofocus, false);
       expect(widget.maxLines, 6);
