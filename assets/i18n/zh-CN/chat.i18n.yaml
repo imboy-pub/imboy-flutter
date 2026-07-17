@@ -274,7 +274,7 @@ e2eeRecoveryDecryptFailedTitle: 无法解密此消息
 e2eeRecoveryDecryptFailedBody: "此消息由其他设备的密钥加密。\n\n若你更换了设备或重新安装了应用，请恢复加密密钥后再查看历史消息。"
 e2eeRecoveryLater: 稍后
 e2eeRecoveryGoRecover: 去恢复
-e2eeRecoveryBannerText: 检测到加密历史消息，需恢复密钥后才能查看，点击前往恢复
+e2eeRecoveryBannerText: 部分加密聊天记录暂时无法显示，恢复密钥后即可查看，点此恢复
 liveRoomCreateTitle: 创建直播间
 liveRoomCreating: 创建中...
 liveRoomWatch: 观看直播

@@ -76,6 +76,7 @@ publish: 发布
 preview: 预览
 addImage: 添加图片
 titleOptional: 标题（选填）
+articleBodyHint: 写点什么…支持加粗、斜体、标题、列表等格式
 coverLabel: 封面
 coverSet: 已设为封面
 # 撰写页 markdown 格式工具条（D2）

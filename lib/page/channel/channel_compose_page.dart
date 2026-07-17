@@ -412,7 +412,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
       textInputAction: TextInputAction.newline,
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
-        hintText: t.channel.writeMessage,
+        hintText: t.channel.articleBodyHint,
         hintStyle: context.textStyle(FontSizeType.body, color: secondary),
         contentPadding: AppSpacing.allMedium,
         enabledBorder: OutlineInputBorder(

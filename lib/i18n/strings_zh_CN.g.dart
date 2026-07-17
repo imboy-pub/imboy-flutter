@@ -716,6 +716,9 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '标题（选填）'
 	String get titleOptional => '标题（选填）';
 
+	/// zh-CN: '写点什么…支持加粗、斜体、标题、列表等格式'
+	String get articleBodyHint => '写点什么…支持加粗、斜体、标题、列表等格式';
+
 	/// zh-CN: '封面'
 	String get coverLabel => '封面';
 
@@ -1850,8 +1853,8 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '去恢复'
 	String get e2eeRecoveryGoRecover => '去恢复';
 
-	/// zh-CN: '检测到加密历史消息，需恢复密钥后才能查看，点击前往恢复'
-	String get e2eeRecoveryBannerText => '检测到加密历史消息，需恢复密钥后才能查看，点击前往恢复';
+	/// zh-CN: '部分加密聊天记录暂时无法显示，恢复密钥后即可查看，点此恢复'
+	String get e2eeRecoveryBannerText => '部分加密聊天记录暂时无法显示，恢复密钥后即可查看，点此恢复';
 
 	/// zh-CN: '创建直播间'
 	String get liveRoomCreateTitle => '创建直播间';
@@ -7614,6 +7617,7 @@ extension on Translations {
 			'channel.preview' => '预览',
 			'channel.addImage' => '添加图片',
 			'channel.titleOptional' => '标题（选填）',
+			'channel.articleBodyHint' => '写点什么…支持加粗、斜体、标题、列表等格式',
 			'channel.coverLabel' => '封面',
 			'channel.coverSet' => '已设为封面',
 			'channel.formatBold' => '加粗',
@@ -7917,9 +7921,9 @@ extension on Translations {
 			'chat.pleaseEnterSignature' => '请输入个性签名',
 			'chat.exportProfile' => '导出资料',
 			'chat.setSignature' => '设置个性签名',
-			'chat.setAvatar' => '设置头像',
 			_ => null,
 		} ?? switch (path) {
+			'chat.setAvatar' => '设置头像',
 			'chat.fastForward' => ({required Object seconds}) => '快进 ${seconds}秒',
 			'chat.messageId' => '消息ID',
 			'chat.chatType' => '聊天类型',
@@ -7991,7 +7995,7 @@ extension on Translations {
 			'chat.e2eeRecoveryDecryptFailedBody' => '此消息由其他设备的密钥加密。\n\n若你更换了设备或重新安装了应用，请恢复加密密钥后再查看历史消息。',
 			'chat.e2eeRecoveryLater' => '稍后',
 			'chat.e2eeRecoveryGoRecover' => '去恢复',
-			'chat.e2eeRecoveryBannerText' => '检测到加密历史消息，需恢复密钥后才能查看，点击前往恢复',
+			'chat.e2eeRecoveryBannerText' => '部分加密聊天记录暂时无法显示，恢复密钥后即可查看，点此恢复',
 			'chat.liveRoomCreateTitle' => '创建直播间',
 			'chat.liveRoomCreating' => '创建中...',
 			'chat.liveRoomWatch' => '观看直播',
@@ -8431,9 +8435,9 @@ extension on Translations {
 			'common.uploading' => '上传中',
 			'common.uploadSuccess' => '上传成功',
 			'common.uploadFailed' => '上传失败',
-			'common.userDataTips' => '包含APP运行时必要的文件，以及聊天消息、好友关系等所有记录数据。',
 			_ => null,
 		} ?? switch (path) {
+			'common.userDataTips' => '包含APP运行时必要的文件，以及聊天消息、好友关系等所有记录数据。',
 			'common.userDisabledOrDeleted' => '用户被禁用或已删除',
 			'common.userNotExist' => '用户不存在',
 			'common.userOnlineStatusWidget' => '用户在线状态组件',
@@ -8945,9 +8949,9 @@ extension on Translations {
 			'common.e2eeDecryptActionRecreateKey' => '重新创建密钥（推荐）',
 			'common.e2eeDecryptActionRelogin' => '重新登录',
 			'common.e2eeDecryptActionRemindLater' => '稍后提醒我',
-			'common.e2eeBackupExportTitle' => '导出 E2EE 备份',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupExportTitle' => '导出 E2EE 备份',
 			'common.e2eeBackupPwdCantRecover' => '• 备份密码无法找回，请务必牢记！',
 			'common.e2eeBackupStoreMultipleNote' => '• 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）',
 			'common.e2eeUseRecoveryKey' => '生成恢复密钥（忘记口令的备用凭据）',
@@ -9459,9 +9463,9 @@ extension on Translations {
 			'main.changeNameView' => '修改名称视图',
 			'main.changeParam' => ({required Object param}) => '修改${param}',
 			'main.chooseFromAlbum' => '从相册选择',
-			'main.clean' => '清理',
 			_ => null,
 		} ?? switch (path) {
+			'main.clean' => '清理',
 			'main.codeSentToParam' => ({required Object param}) => '验证码已发送到${param}',
 			'main.codeSentToType' => ({required Object param}) => '验证码已发送到${param}',
 			'main.collected' => '已收藏',
