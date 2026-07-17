@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -41,6 +42,9 @@ class IosPageTemplate extends StatelessWidget {
             .withValues(alpha: 0.8);
 
     final navBar = CupertinoNavigationBar(
+      // 返回键统一为样式A（GlassBackButton）；tab 根页 canPop=false → 不显示
+      automaticallyImplyLeading: false,
+      leading: Navigator.of(context).canPop() ? const GlassBackButton() : null,
       middle: Text(
         title,
         style: context

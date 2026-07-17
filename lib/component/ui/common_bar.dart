@@ -143,7 +143,24 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildDefaultLeading(BuildContext context) {
+  Widget _buildDefaultLeading(BuildContext context) =>
+      GlassBackButton(popTime: popTime);
+}
+
+/// 统一的"样式A"返回键：36×36 圆角方块蓝底 + 深蓝箭头，44×44 命中区。
+///
+/// 从 [GlassAppBar] 默认 leading 抽出，供 GlassAppBar 与 iOS 设置风格页面
+/// （IosPageTemplate）共用，消除返回键跨页样式不一致（部分页此前为 Cupertino
+/// 默认纯箭头无背景）。
+class GlassBackButton extends StatelessWidget {
+  const GlassBackButton({super.key, this.popTime = 1})
+    : assert(popTime >= 1 && popTime <= 10, 'popTime must be 1-10');
+
+  /// 点击返回的层数，默认 1。
+  final int popTime;
+
+  @override
+  Widget build(BuildContext context) {
     // DESIGN.md §1 双蓝策略：Nav 文字/图标按钮用 iOS 系统蓝 #007AFF，
     // 品牌蓝 #2474E5 保留给 Tab 选中 / 主按钮 / 发送气泡等识别位置。
     final navBlue = AppColors.getIosBlue(Theme.of(context).brightness);
