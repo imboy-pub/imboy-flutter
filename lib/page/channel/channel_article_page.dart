@@ -13,6 +13,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/channel/widgets/channel_comment_tile.dart';
+import 'package:imboy/page/channel/widgets/channel_markdown.dart';
 import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/channel_comment_model.dart';
@@ -498,14 +499,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
             AppSpacing.verticalSmall,
           ],
           if (body.isNotEmpty)
-            SelectableText(
-              body,
-              style: TextStyle(
-                fontSize: FontSizeType.body.size,
-                height: 1.5,
-                color: textColor,
-              ),
-            ),
+            channelMarkdownBody(context, body, selectable: true),
           _buildMedia(),
         ],
       ),

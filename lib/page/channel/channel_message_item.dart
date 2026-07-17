@@ -19,6 +19,7 @@ import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 
 import 'channel_detail_rules.dart';
+import 'package:imboy/page/channel/widgets/channel_markdown.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
@@ -365,7 +366,9 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   }
 
   Widget _buildTextContent(Color textColor, Color secondaryColor) {
-    final content = widget.message.content;
+    // feed 卡摘要保持纯文本预览：先剥掉 markdown 语法噪音（`**` `#` `>` 等），
+    // 富渲染在 B1 阅读页，卡上只做去噪截断。
+    final content = stripMarkdown(widget.message.content);
     // 订阅号预览：短文直显；长文截断为摘要 + 「全文」提示，点卡片进 B1 阅读页看全文
     // （不再就地展开——就地展开是聊天思维，订阅号是点进阅读）。
     final isLong =
@@ -411,18 +414,23 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     final explicitTitle = _payloadString('title');
     final cover = _payloadString('cover');
 
-    final String title;
-    final String summary;
+    final String rawTitle;
+    final String rawSummary;
     if (explicitTitle.isNotEmpty) {
-      title = explicitTitle;
-      summary = content;
+      rawTitle = explicitTitle;
+      rawSummary = content;
     } else {
       final newlineIdx = content.indexOf('\n');
-      title = newlineIdx >= 0
+      rawTitle = newlineIdx >= 0
           ? content.substring(0, newlineIdx).trim()
           : content;
-      summary = newlineIdx >= 0 ? content.substring(newlineIdx + 1).trim() : '';
+      rawSummary = newlineIdx >= 0
+          ? content.substring(newlineIdx + 1).trim()
+          : '';
     }
+    // feed 卡摘要保持纯文本：剥离 markdown 语法噪音（富渲染在 B1 阅读页）。
+    final title = stripMarkdown(rawTitle);
+    final summary = stripMarkdown(rawSummary);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

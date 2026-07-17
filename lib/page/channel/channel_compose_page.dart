@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/upload/batch_upload_controller.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/channel/widgets/channel_markdown.dart';
 import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/storage.dart';
@@ -538,15 +539,7 @@ class _ComposePreviewSheet extends StatelessWidget {
           // 有封面 → 顶部封面大图（对齐阅读页/大图卡）；否则九宫格。
           if (cover != null) _buildCover(context),
           if (cover != null && content.isNotEmpty) AppSpacing.verticalRegular,
-          if (content.isNotEmpty)
-            Text(
-              content,
-              style: TextStyle(
-                fontSize: FontSizeType.body.size,
-                height: 1.5,
-                color: textColor,
-              ),
-            ),
+          if (content.isNotEmpty) channelMarkdownBody(context, content),
           if (cover == null && images.isNotEmpty) ...[
             AppSpacing.verticalRegular,
             _buildPreviewGrid(context),

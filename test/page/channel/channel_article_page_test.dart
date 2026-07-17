@@ -69,11 +69,10 @@ void main() {
     await tester.pumpWidget(_buildTestApp(service, _fakeMessage()));
     await tester.pumpAndSettle();
 
-    // 正文完整出现在 SelectableText 中（未被截断为 280 + 省略号）
-    final bodyFinder = find.byWidgetPredicate(
-      (w) => w is SelectableText && w.data == _longContent,
-    );
-    expect(bodyFinder, findsOneWidget);
+    // 正文改用 markdown 渲染（channelMarkdownBody）：拆成多 widget，
+    // 用 textContaining 校验完整正文落地（未被截断为 280 + 省略号）。
+    // 纯文本是合法 markdown，单段渲染故整段可匹配。
+    expect(find.textContaining(_longContent), findsWidgets);
 
     // 未出现折叠省略号截断的正文
     final truncated = '${_longContent.substring(0, 280).trim()}…';
@@ -95,13 +94,10 @@ void main() {
     await tester.pumpWidget(_buildTestApp(service, msg));
     await tester.pumpAndSettle();
 
-    // 顶部标题取 payload.title
+    // 顶部标题取 payload.title（仍是普通 Text heading，非 markdown）
     expect(find.text('文章大标题'), findsOneWidget);
-    // content 完整作正文（SelectableText），不被切首行
-    final bodyFinder = find.byWidgetPredicate(
-      (w) => w is SelectableText && w.data == '完整正文内容段落',
-    );
-    expect(bodyFinder, findsOneWidget);
+    // content 完整作正文（markdown 渲染），不被切首行
+    expect(find.textContaining('完整正文内容段落'), findsWidgets);
   });
 
   testWidgets('无评论时展示空态占位 / shows empty placeholder when no comments', (
