@@ -4,6 +4,7 @@ library;
 
 export '../../page/channel/channel_admin_page.dart';
 export '../../page/channel/channel_comment_page.dart';
+export '../../page/channel/channel_compose_page.dart';
 export '../../page/channel/channel_create_page.dart';
 export '../../page/channel/channel_detail_page.dart';
 export '../../page/channel/channel_discover_page.dart';

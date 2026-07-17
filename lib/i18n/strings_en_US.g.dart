@@ -265,6 +265,10 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get deleteChannelFailed => 'Failed to delete channel';
 	@override String get writeMessage => 'Write a message...';
 	@override String get publishFailed => 'Failed to publish';
+	@override String get writeArticle => 'Write Post';
+	@override String get publish => 'Publish';
+	@override String get preview => 'Preview';
+	@override String get addImage => 'Add Image';
 	@override String get pinMessage => 'Pin Message';
 	@override String get unpinMessage => 'Unpin Message';
 	@override String get pinMessageNotImplemented => 'Pin feature coming soon';
@@ -2669,6 +2673,10 @@ extension on TranslationsEnUs {
 			'channel.deleteChannelFailed' => 'Failed to delete channel',
 			'channel.writeMessage' => 'Write a message...',
 			'channel.publishFailed' => 'Failed to publish',
+			'channel.writeArticle' => 'Write Post',
+			'channel.publish' => 'Publish',
+			'channel.preview' => 'Preview',
+			'channel.addImage' => 'Add Image',
 			'channel.pinMessage' => 'Pin Message',
 			'channel.unpinMessage' => 'Unpin Message',
 			'channel.pinMessageNotImplemented' => 'Pin feature coming soon',
@@ -2992,12 +3000,12 @@ extension on TranslationsEnUs {
 			'chat.liveRoomCreateTitle' => 'Create Live Room',
 			'chat.liveRoomCreating' => 'Creating...',
 			'chat.liveRoomWatch' => 'Watch Live',
+			_ => null,
+		} ?? switch (path) {
 			'chat.sendMessage' => 'Send Message',
 			'chat.switchToVoiceInput' => 'Switch to voice input',
 			'chat.switchToKeyboardInput' => 'Switch to keyboard input',
 			'common.about' => 'About',
-			_ => null,
-		} ?? switch (path) {
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
 			'common.acceptFriendRequest' => 'Accept friend request',
@@ -3506,12 +3514,12 @@ extension on TranslationsEnUs {
 			'common.showOnlineStatus' => 'Show online status',
 			'common.showOnlineStatusDesc' => 'Friends can see your online status',
 			'common.allowNearbyVisible' => 'Visible to nearby people',
+			_ => null,
+		} ?? switch (path) {
 			'common.dataSettings' => 'Data settings',
 			'common.clearChatRecords' => 'Clear chat records',
 			'common.clearChatRecordsDesc' => 'Clear all chat records, this action cannot be undone',
 			'common.deleteAccountAction' => 'Delete account',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteAccountActionDesc' => 'Permanently delete account and all data, this action cannot be undone',
 			'common.chatHistoryCleared' => 'Chat history cleared',
 			'common.accountDeletionNotAvailable' => 'Account deletion feature is not available yet',
@@ -4020,12 +4028,12 @@ extension on TranslationsEnUs {
 			'common.e2eeTransferSessionCreated' => 'Transfer session created',
 			'common.e2eeTransferUidEmptyError' => 'Please enter a valid user ID',
 			'common.e2eeTransferSuccess' => 'Transfer successful!',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferFailed' => 'Transfer failed, please try again',
 			'common.e2eeTransferProcessingMsg' => 'Processing...',
 			'common.e2eeTransferSuccessTitle' => 'Transfer successful',
 			'common.e2eeTransferSuccessBody' => 'Key has been successfully transferred to this device',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferScanError' => ({required Object error}) => 'Scan error: ${error}',
 			'common.e2eeTransferErrNoDeviceId' => 'Unable to get device ID',
 			'common.passwordEncryptFailed' => 'Password encryption failed',
@@ -4534,12 +4542,12 @@ extension on TranslationsEnUs {
 			'main.exportToLocal' => 'Export profile to local',
 			'main.exportAsText' => 'Export as text format',
 			'main.selectFromAlbum' => 'Select from Album',
+			_ => null,
+		} ?? switch (path) {
 			'main.volumeUp' => 'Volume Up',
 			'main.volumeDown' => 'Volume Down',
 			'main.fastRewind' => ({required Object seconds}) => 'Fast Rewind ${seconds}',
 			'main.pleaseTryAgain' => 'Please try again',
-			_ => null,
-		} ?? switch (path) {
 			'main.secret' => 'Secret',
 			'main.takePhoto' => 'Take Photo',
 			'main.publishing' => 'Publishing...',

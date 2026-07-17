@@ -675,6 +675,9 @@ abstract class ChannelMessageType {
   /// 频道文件消息
   static const String file = 'channel_file';
 
+  /// 频道图文消息（公众号式：正文 + 图片九宫格，一次发布一条）
+  static const String imageText = 'channel_imageText';
+
   /// 频道链接消息
   static const String link = 'channel_link';
 
@@ -688,6 +691,7 @@ abstract class ChannelMessageType {
     video,
     audio,
     file,
+    imageText,
     link,
     location,
   ];

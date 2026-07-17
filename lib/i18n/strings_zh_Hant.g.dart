@@ -265,6 +265,10 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get deleteChannelFailed => '刪除頻道失敗';
 	@override String get writeMessage => '發布訊息...';
 	@override String get publishFailed => '發布失敗';
+	@override String get writeArticle => '撰寫圖文';
+	@override String get publish => '發布';
+	@override String get preview => '預覽';
+	@override String get addImage => '新增圖片';
 	@override String get pinMessage => '置頂訊息';
 	@override String get unpinMessage => '取消置頂';
 	@override String get pinMessageNotImplemented => '置頂功能即將上線';
@@ -2669,6 +2673,10 @@ extension on TranslationsZhHant {
 			'channel.deleteChannelFailed' => '刪除頻道失敗',
 			'channel.writeMessage' => '發布訊息...',
 			'channel.publishFailed' => '發布失敗',
+			'channel.writeArticle' => '撰寫圖文',
+			'channel.publish' => '發布',
+			'channel.preview' => '預覽',
+			'channel.addImage' => '新增圖片',
 			'channel.pinMessage' => '置頂訊息',
 			'channel.unpinMessage' => '取消置頂',
 			'channel.pinMessageNotImplemented' => '置頂功能即將上線',
@@ -2992,12 +3000,12 @@ extension on TranslationsZhHant {
 			'chat.e2eeRecoveryBannerText' => '檢測到加密歷史訊息，需恢復金鑰後才能檢視，點選前往恢復',
 			'chat.liveRoomCreateTitle' => '建立直播間',
 			'chat.liveRoomCreating' => '建立中...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.liveRoomWatch' => '觀看直播',
 			'chat.switchToVoiceInput' => '切換到語音輸入',
 			'chat.switchToKeyboardInput' => '切換到鍵盤輸入',
 			'common.about' => '關於',
-			_ => null,
-		} ?? switch (path) {
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '接受',
 			'common.acceptFriendRequest' => '通過好友驗證',
@@ -3506,12 +3514,12 @@ extension on TranslationsZhHant {
 			'common.privacySettings' => '隱私設定',
 			'common.searchSettings' => '搜尋設定',
 			'common.allowSearchByAccount' => '允許通過帳號搜尋',
+			_ => null,
+		} ?? switch (path) {
 			'common.allowSearchByAccountDesc' => '其他用家可以通過您的帳號找到您',
 			'common.allowAddByPhone' => '允許通過手機號新增',
 			'common.allowAddByPhoneDesc' => '其他用家可以通過您的手機號新增您為好友',
 			'common.allowAddByQR' => '允許通過二維碼新增',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowAddByQRDesc' => '其他用家可以通過掃描您的二維碼新增您為好友',
 			'common.statusSettings' => '狀態設定',
 			'common.showOnlineStatus' => '顯示上線狀態',
@@ -4020,12 +4028,12 @@ extension on TranslationsZhHant {
 			'common.e2eeTransferErrNoKey' => '請先生成金鑰對',
 			'common.e2eeTransferErrInitFailed' => '初始化失敗，請重試',
 			'common.e2eeTransferErrNoRecipientKey' => '接收方沒有可用的公鑰',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeTransferErrKeyNotFound' => '金鑰未找到',
 			'common.e2eeTransferErrCreateFailed' => '建立傳輸會話失敗，請重試',
 			'common.e2eeTransferCreateSessionBtn' => '建立傳輸會話',
 			'common.e2eeTransferSessionCreated' => '傳輸會話已建立',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => '請輸入有效的使用者 ID',
 			'common.e2eeTransferSuccess' => '傳輸成功！',
 			'common.e2eeTransferFailed' => '傳輸失敗，請重試',
@@ -4534,12 +4542,12 @@ extension on TranslationsZhHant {
 			'main.exportToLocal' => '匯出個人資料到本地',
 			'main.exportAsText' => 'Export as text format',
 			'main.selectFromAlbum' => '從相簿選擇',
+			_ => null,
+		} ?? switch (path) {
 			'main.volumeUp' => '音量增加',
 			'main.volumeDown' => '音量減少',
 			'main.fastRewind' => ({required Object seconds}) => '快退 ${seconds}秒',
 			'main.pleaseTryAgain' => '請重試',
-			_ => null,
-		} ?? switch (path) {
 			'main.secret' => '保密',
 			'main.takePhoto' => '拍照',
 			'main.publishing' => '發布中...',

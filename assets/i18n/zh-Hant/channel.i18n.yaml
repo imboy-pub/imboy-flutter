@@ -67,6 +67,10 @@ channelDeleted: 頻道已刪除
 deleteChannelFailed: 刪除頻道失敗
 writeMessage: 發布訊息...
 publishFailed: 發布失敗
+writeArticle: 撰寫圖文
+publish: 發布
+preview: 預覽
+addImage: 新增圖片
 pinMessage: 置頂訊息
 unpinMessage: 取消置頂
 pinMessageNotImplemented: 置頂功能即將上線

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/chat/composer_field.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/upload/batch_upload_controller.dart';
@@ -88,6 +89,13 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       return;
     }
     unawaited(StorageService.to.setString(key, content));
+  }
+
+  /// 打开「撰写图文」页（公众号式多图+正文，作为单条 imageText 发布）。
+  void _openCompose() {
+    final channelId = ref.read(channelDetailProvider).channel?.id;
+    if (channelId == null) return;
+    context.push('/channel/$channelId/compose');
   }
 
   /// 发送文本消息
@@ -408,6 +416,12 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          IconButton(
+            icon: const Icon(Icons.article_outlined, size: 26),
+            color: secondaryText,
+            onPressed: isBusy ? null : _openCompose,
+            tooltip: context.t.channel.writeArticle,
+          ),
           IconButton(
             icon: const Icon(Icons.add, size: 28),
             color: secondaryText,

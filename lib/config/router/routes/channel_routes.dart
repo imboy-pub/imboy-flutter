@@ -83,6 +83,17 @@ List<RouteBase> channelRoutes() => [
             },
           ),
           GoRoute(
+            path: '/compose',
+            name: 'channel_compose',
+            pageBuilder: (context, state) {
+              final channelId = state.pathParameters['channelId']!;
+              return CupertinoPage(
+                key: state.pageKey,
+                child: ChannelComposePage(channelId: channelId),
+              );
+            },
+          ),
+          GoRoute(
             path: '/admins',
             name: 'channel_admins',
             pageBuilder: (context, state) {

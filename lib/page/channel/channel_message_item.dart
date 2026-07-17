@@ -12,6 +12,7 @@ import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
+import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
@@ -371,6 +372,9 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   ) {
     final message = widget.message;
     switch (message.msgType) {
+      case ChannelMessageType.imageText:
+      case 'imageText':
+        return _buildImageTextContent(textColor, secondaryColor);
       case ChannelMessageType.image:
       case 'image':
         return _buildImageContent(textColor);
@@ -426,6 +430,69 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
             ),
           ),
       ],
+    );
+  }
+
+  /// 图文消息（公众号式）：正文（复用折叠逻辑）+ 图片九宫格。
+  /// images 为空退化为纯文字。
+  Widget _buildImageTextContent(Color textColor, Color secondaryColor) {
+    final images = _imageTextItems();
+    final hasContent = widget.message.content.trim().isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (hasContent) _buildTextContent(textColor, secondaryColor),
+        if (images.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          _buildImageTextGrid(images),
+        ],
+      ],
+    );
+  }
+
+  /// 解析 payload['images'] → 有效 uri 列表（含宽高元数据的 map 列表）。
+  List<Map<String, dynamic>> _imageTextItems() {
+    final raw = widget.message.payload?['images'];
+    if (raw is! List) return const [];
+    return raw
+        .whereType<Map<dynamic, dynamic>>()
+        .map((e) => Map<String, dynamic>.from(e))
+        .where((e) => (e['uri']?.toString() ?? '').isNotEmpty)
+        .toList(growable: false);
+  }
+
+  Widget _buildImageTextGrid(List<Map<String, dynamic>> images) {
+    final uris = [for (final e in images) e['uri'].toString()];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const spacing = 4.0;
+        final layout = momentGridLayout(
+          count: images.length,
+          maxWidth: constraints.maxWidth,
+          spacing: spacing,
+        );
+        final cell = layout.cellSize;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (var i = 0; i < uris.length; i++)
+              GestureDetector(
+                onTap: () =>
+                    zoomInPhotoViewGalleryWithInitialPage(context, uris, i),
+                child: ClipRRect(
+                  borderRadius: AppRadius.borderRadiusSmall,
+                  child: Image(
+                    image: cachedImageProvider(uris[i], w: 400),
+                    width: cell,
+                    height: cell,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 

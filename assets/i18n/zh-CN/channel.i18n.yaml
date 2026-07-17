@@ -70,6 +70,10 @@ channelDeleted: 频道已删除
 deleteChannelFailed: 删除频道失败
 writeMessage: 发布消息...
 publishFailed: 发布失败
+writeArticle: 撰写图文
+publish: 发布
+preview: 预览
+addImage: 添加图片
 pinMessage: 置顶消息
 unpinMessage: 取消置顶
 pinMessageNotImplemented: 置顶功能即将上线

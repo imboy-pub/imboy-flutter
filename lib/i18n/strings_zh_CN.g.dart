@@ -698,6 +698,18 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '发布失败'
 	String get publishFailed => '发布失败';
 
+	/// zh-CN: '撰写图文'
+	String get writeArticle => '撰写图文';
+
+	/// zh-CN: '发布'
+	String get publish => '发布';
+
+	/// zh-CN: '预览'
+	String get preview => '预览';
+
+	/// zh-CN: '添加图片'
+	String get addImage => '添加图片';
+
 	/// zh-CN: '置顶消息'
 	String get pinMessage => '置顶消息';
 
@@ -7539,6 +7551,10 @@ extension on Translations {
 			'channel.deleteChannelFailed' => '删除频道失败',
 			'channel.writeMessage' => '发布消息...',
 			'channel.publishFailed' => '发布失败',
+			'channel.writeArticle' => '撰写图文',
+			'channel.publish' => '发布',
+			'channel.preview' => '预览',
+			'channel.addImage' => '添加图片',
 			'channel.pinMessage' => '置顶消息',
 			'channel.unpinMessage' => '取消置顶',
 			'channel.pinMessageNotImplemented' => '置顶功能即将上线',
@@ -7845,12 +7861,12 @@ extension on Translations {
 			'chat.messageMute' => _root.chat.chatSettingMute,
 			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} 个群聊',
 			'chat.groupAlbumCreateTitle' => '新建群相册',
+			_ => null,
+		} ?? switch (path) {
 			'chat.groupAlbumCreated' => '相册已创建',
 			'chat.profileCompleted' => '资料已完善！',
 			'chat.profileProgress' => ({required Object percent}) => '${percent}% 完成',
 			'chat.createdAtLabel' => ({required Object time}) => '创建时间: ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'chat.expiredAtLabel' => ({required Object time}) => '过期时间: ${time}',
 			'chat.myReceivedTab' => '我收到的',
 			'chat.orderStatusLabel' => ({required Object status}) => '状态: ${status}',
@@ -8359,12 +8375,12 @@ extension on Translations {
 			'common.groupCall' => '群通话',
 			'common.callDisconnected' => '通话已断开',
 			'common.connecting' => '连接中…',
+			_ => null,
+		} ?? switch (path) {
 			'common.voiceInputNotImplemented' => '语音输入功能暂无实现',
 			'common.waitingDownload' => '等待下载',
 			'common.waitingPeerAccept' => '等待对方接受邀请...',
 			'common.warning' => '警告:',
-			_ => null,
-		} ?? switch (path) {
 			'common.webpageLoading' => '网页加载中...',
 			'common.whatYourFeedback' => '你的反馈是什么?',
 			'common.yesterday' => '昨天',
@@ -8873,12 +8889,12 @@ extension on Translations {
 			'common.e2eeBackupNoteLabel' => '备注（可选）',
 			'common.e2eeBackupNoteHint' => '例如：主手机备份 - 2026年1月',
 			'common.e2eeBackupPwdStrengthLabel' => '密码强度',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdWeak' => '弱 - 建议增加复杂度',
 			'common.e2eeBackupPwdMedium' => '中等 - 建议增加长度或复杂度',
 			'common.e2eeBackupPwdStrong' => '强 - 可以使用',
 			'common.e2eeBackupPwdVeryStrong' => '非常强 - 安全',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupGenerateBtn' => '生成备份文件',
 			'common.e2eeBackupFileGenerated' => '备份文件已生成！',
 			'common.e2eeBackupShareBtn' => '通过邮件/云盘分享',
@@ -9387,12 +9403,12 @@ extension on Translations {
 			'main.favorites' => '收藏',
 			'main.female' => '女',
 			'main.followSystem' => '跟随系统',
+			_ => null,
+		} ?? switch (path) {
 			'main.frFr' => '法语（法国）',
 			'main.from' => '来自',
 			'main.goClean' => '前往清理',
 			'main.good' => '很棒',
-			_ => null,
-		} ?? switch (path) {
 			'main.hangup' => '挂断',
 			'main.haveSet' => '已设置',
 			'main.httpParse' => 'HTTP解析',

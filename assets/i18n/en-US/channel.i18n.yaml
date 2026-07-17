@@ -70,6 +70,10 @@ channelDeleted: Channel deleted
 deleteChannelFailed: Failed to delete channel
 writeMessage: Write a message...
 publishFailed: Failed to publish
+writeArticle: Write Post
+publish: Publish
+preview: Preview
+addImage: Add Image
 pinMessage: Pin Message
 unpinMessage: Unpin Message
 pinMessageNotImplemented: Pin feature coming soon
