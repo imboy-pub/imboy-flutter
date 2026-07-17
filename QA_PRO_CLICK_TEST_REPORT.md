@@ -196,6 +196,18 @@
 
 ✅ 正常: 群消息发送本体成功(渲染/头像/"刚刚"→"3分钟前"时间)、C2G_SERVER_ACK 0.2s达、重试队列正确移除。
 
+## 第五批修复 (2026-07-17, ec39832a)
+
+| # | 修复 | 根因(agent定位比表象更深) |
+|---|------|------|
+| 20 | ✅ 查找聊天内容改Scaffold | 页面已实现,IosPageTemplate的SingleChildScrollView内塞Expanded→unbounded height崩溃致整页白屏 |
+| 24 | ✅ 删外部scrollController传参 | 分页逻辑本正确;同一ScrollController内外双attach→.position抛异常_onScroll崩→loadMore永不触发+只渲1条 |
+| 25 | ✅ 转账/红包页initState补loadBalance | "余额不足"toast本就存在(瞬时错过);真bug=从不加载余额致maxBalance恒0,**有钱用户任何金额都发不出** |
+| 30 | ✅ 置顶SlidableAction补toast | 忽略返回值成功失败全无反馈 |
+| 22 | ✅ 语言名硬编码endonym | 语言自称不随UI语言变(简体中文/English/日本語...) |
+
+待修池剩余: #33 @提及无选择器(功能待建)/#19隐私孤岛开关(待产品)/#21背景缩略图(低)/#26清理确认(判定为by-design不改)。可修缺陷已基本清零。
+
 ## 第十一轮遍历 (2026-07-17 loop第8轮: 群聊输入交互)
 
 | # | 页面 | 级别 | 现象 | 根因方向 |
