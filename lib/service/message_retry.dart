@@ -266,10 +266,15 @@ class MessageRetry with EventSubscriptionManager {
           s == IMBoyMessageStatus.pendingRetry) {
         return;
       }
-      await repo.update({
-        'id': messageId,
-        'status': IMBoyMessageStatus.pendingRetry,
-      });
+      // CAS 原子写：仅当仍是 sending 才降级为 pendingRetry。
+      // 上面 find→判定→写 存在 await 挂起点（TOCTOU）：C2G 自扇出的
+      // 独占事务会把 SERVER_ACK 的 sent(11) 写推后，本方法的陈旧写
+      // 曾把 11 覆盖回 12 → 群消息状态永卡"发送中"时钟（QA#32）。
+      await repo.updateWithConditions(
+        {'status': IMBoyMessageStatus.pendingRetry},
+        where: 'id = ? AND status = ?',
+        whereArgs: [messageId, IMBoyMessageStatus.sending],
+      );
     } on Object catch (e) {
       iPrint('⚠️ [RETRY_QUEUE] 置 pendingRetry 失败: $messageId, $e');
     }

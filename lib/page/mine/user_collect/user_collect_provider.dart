@@ -1011,8 +1011,21 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     return res;
   }
 
+  /// 按消息 id 的 in-flight 去重：调用方每次 new UserCollectNotifier，
+  /// 实例锁无效，须静态锁。曾因双触发把 user_collect/add 请求发两次（QA#31）。
+  static final Set<String> _addInFlight = {};
+
   /// 添加收藏
   Future<bool> add({required String tb, required Message msg}) async {
+    if (!_addInFlight.add(msg.id)) return false;
+    try {
+      return await _doAdd(tb: tb, msg: msg);
+    } finally {
+      _addInFlight.remove(msg.id);
+    }
+  }
+
+  Future<bool> _doAdd({required String tb, required Message msg}) async {
     if (kDebugMode) debugPrint("userCollectLogic/add 类型: ${msg.runtimeType}");
 
     int kind = getCollectKind(msg);
@@ -1132,15 +1145,23 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     if (kDebugMode) {}
 
     if (res) {
-      await UserCollectRepo().save({
-        UserCollectRepo.createdAt: DateTimeHelper.millisecond(),
-        UserCollectRepo.userId: UserRepoLocal.to.currentUid,
-        UserCollectRepo.kind: kind,
-        UserCollectRepo.kindId: msg.id,
-        UserCollectRepo.source: source,
-        UserCollectRepo.info: info,
-      });
-      if (kDebugMode) debugPrint("userCollectLogic/add 本地保存成功");
+      // 本地缓存失败不应让整个收藏 uncaught（服务端已成功，
+      // 列表刷新可从服务端拉回）——曾因 UNIQUE 冲突静默炸掉（QA#31）
+      try {
+        await UserCollectRepo().save({
+          UserCollectRepo.createdAt: DateTimeHelper.millisecond(),
+          UserCollectRepo.userId: UserRepoLocal.to.currentUid,
+          UserCollectRepo.kind: kind,
+          UserCollectRepo.kindId: msg.id,
+          UserCollectRepo.source: source,
+          UserCollectRepo.info: info,
+        });
+        if (kDebugMode) debugPrint("userCollectLogic/add 本地保存成功");
+      } on Exception catch (e) {
+        if (kDebugMode) {
+          debugPrint("userCollectLogic/add 本地保存失败: ${e.runtimeType}");
+        }
+      }
     } else {
       if (kDebugMode) debugPrint("userCollectLogic/add 服务端保存失败");
     }

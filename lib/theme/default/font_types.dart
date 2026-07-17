@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/i18n/strings.g.dart' show t;
 import 'package:imboy/theme/theme_manager.dart' show ThemeManager;
 // 统一对外导出 ThemeManager，方便其它文件只引入 font_types.dart 即可使用 ThemeManager
 export 'package:imboy/theme/theme_manager.dart' show ThemeManager;
@@ -135,11 +136,21 @@ enum FontSizeOption {
   /// 缩放比例
   final double scale;
 
-  /// 显示名称（用于UI显示）
+  /// 显示名称（中文兜底；UI 显示请用 [localizedName]，QA#23）
   final String displayName;
 
   /// 字符串值（用于存储和兼容性）
   final String value;
+
+  /// 本地化显示名（跟随当前 locale）
+  String get localizedName => switch (this) {
+    FontSizeOption.small => t.common.fontSizeOptionSmall,
+    FontSizeOption.normal => t.common.fontSizeOptionNormal,
+    FontSizeOption.medium => t.common.fontSizeOptionMedium,
+    FontSizeOption.large => t.common.fontSizeOptionLarge,
+    FontSizeOption.extraLarge => t.common.fontSizeOptionExtraLarge,
+    FontSizeOption.huge => t.common.fontSizeOptionHuge,
+  };
 
   /// 获取所有可用的字体大小选项
   static List<FontSizeOption> get allOptions => FontSizeOption.values;

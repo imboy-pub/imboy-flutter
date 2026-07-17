@@ -1160,3 +1160,9 @@ minutesAgo: 分钟前
 hoursAgo: 小时前
 collapse: 收起
 expandFull: 展开
+fontSizeOptionSmall: 小
+fontSizeOptionNormal: 标准
+fontSizeOptionMedium: 中
+fontSizeOptionLarge: 大
+fontSizeOptionExtraLarge: 特大
+fontSizeOptionHuge: 超大

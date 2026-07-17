@@ -303,7 +303,7 @@ class FontSizePage extends ConsumerWidget {
       children: [
         Text(
           t.common.currentFontScale(
-            param1: state.previewOption.displayName,
+            param1: state.previewOption.localizedName,
             param2: ((state.previewOption.scale * 100).toInt()).toString(),
           ),
           style: context.textStyle(

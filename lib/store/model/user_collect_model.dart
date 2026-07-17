@@ -6,7 +6,10 @@ class UserCollectModel {
 
   // Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
   int kind;
-  int kindId;
+
+  // kind_id 是被收藏资源的 id（消息 id 为 String Xid base32hex），
+  // 曾是 int 导致 parseModelInt 把 Xid 静默归零（QA#31，v22 迁移改 TEXT）
+  String kindId;
   String source;
   String remark;
 
@@ -34,7 +37,7 @@ class UserCollectModel {
     return UserCollectModel(
       userId: parseModelInt(data['user_id']),
       kind: parseModelInt(data['kind']),
-      kindId: parseModelInt(data['kind_id']),
+      kindId: parseModelString(data['kind_id']),
       source: parseModelString(data['source']),
       remark: parseModelString(data['remark']),
       tag: parseModelString(data['tag']),

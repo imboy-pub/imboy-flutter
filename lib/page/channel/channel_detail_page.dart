@@ -452,7 +452,22 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   // ---- 订阅/退订（头部按钮入口）----
 
+  /// 防重入：快速双击"已订阅"会在首个 dialog route push 完成前二次进入，
+  /// 叠出两层 AlertDialog → Duplicate GlobalKey(_OverlayEntryWidgetState)
+  /// → 整页红屏（QA#29）。
+  bool _subscribeActionBusy = false;
+
   Future<void> _handleSubscribeAction(ChannelModel channel) async {
+    if (_subscribeActionBusy) return;
+    _subscribeActionBusy = true;
+    try {
+      await _doSubscribeAction(channel);
+    } finally {
+      _subscribeActionBusy = false;
+    }
+  }
+
+  Future<void> _doSubscribeAction(ChannelModel channel) async {
     final t = context.t;
     final channelId = _resolveChannelId(channel);
 

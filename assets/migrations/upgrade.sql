@@ -1268,3 +1268,48 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_moment_notify_dedup
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 21;
+
+-- ============================================================
+-- VERSION: 22
+-- DESC: user_collect.kind_id INTEGER → TEXT（QA#31）
+--       消息 id 是 String Xid（base32hex），INTEGER 列使
+--       parseModelInt 把 Xid 静默归零为 0：首条 kind_id=0 记录
+--       占位后，所有后续收藏均触发 UNIQUE(user_id,kind_id) 冲突
+--       且异常未捕获（收藏功能实质坏死、用户零感知）。
+--       重建表为 TEXT 列，并清除历史 kind_id=0/'0' 脏行
+--       （本地缓存，可从服务端重拉）。
+-- ============================================================
+
+CREATE TABLE user_collect_new (
+    auto_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    kind INTEGER NOT NULL DEFAULT 0,
+    kind_id TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT '',
+    remark TEXT NOT NULL DEFAULT '',
+    tag TEXT NOT NULL DEFAULT '',
+    updated_at INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL DEFAULT 0,
+    info TEXT DEFAULT '',
+    CONSTRAINT i_Uid_KindId UNIQUE (user_id, kind_id)
+);
+
+INSERT INTO user_collect_new (
+    auto_id, user_id, kind, kind_id, source, remark, tag,
+    updated_at, created_at, info
+)
+SELECT auto_id, user_id, kind, CAST(kind_id AS TEXT), source, remark, tag,
+    updated_at, created_at, info
+FROM user_collect
+WHERE CAST(kind_id AS TEXT) NOT IN ('0', '');
+
+DROP TABLE user_collect;
+ALTER TABLE user_collect_new RENAME TO user_collect;
+
+CREATE INDEX i_Source ON user_collect (source);
+CREATE INDEX idx_user_collect_user_id_kind ON user_collect (user_id, kind);
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 22;

@@ -222,6 +222,13 @@ class ChannelHeaderBar extends StatelessWidget {
               fit: BoxFit.cover,
               width: 56,
               height: 56,
+              // 加载失败降级占位，避免默认红叉方框（QA#28）
+              errorBuilder: (context, error, stackTrace) => Center(
+                child: Icon(
+                  Icons.broken_image_outlined,
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                ),
+              ),
             )
           : Center(
               child: Text(

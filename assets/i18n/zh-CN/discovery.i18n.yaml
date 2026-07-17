@@ -49,3 +49,4 @@ shake: 摇一摇
 openChannel: 打开频道
 paidChannelLocked: 付费频道内容已锁定
 webQRScanned: 已扫描
+momentLikesCountOnly(count): "${count}人赞了"

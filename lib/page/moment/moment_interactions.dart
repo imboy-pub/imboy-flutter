@@ -804,6 +804,11 @@ String buildLikersLabel(
   if (names.length >= effectiveTotal) {
     return tr.discovery.momentLikedBy(names: namesJoined);
   }
+  // 昵称一个都没解析出来时，"$names 等N人赞了"会渲染成病句
+  // " 等1人赞了"（QA#27），降级为纯计数文案。
+  if (names.isEmpty) {
+    return tr.discovery.momentLikesCountOnly(count: effectiveTotal.toString());
+  }
   return tr.discovery.momentAndOthersLiked(
     names: namesJoined,
     count: effectiveTotal.toString(),

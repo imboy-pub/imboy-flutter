@@ -67,7 +67,8 @@ CREATE TABLE user_collect (
     auto_id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL,
     kind INTEGER NOT NULL DEFAULT 0,
-    kind_id INTEGER NOT NULL DEFAULT 0,
+    -- kind_id 是 String Xid（消息id等），必须 TEXT（QA#31，v22 迁移）
+    kind_id TEXT NOT NULL DEFAULT '',
     source TEXT NOT NULL DEFAULT '',
     remark TEXT NOT NULL DEFAULT '',
     tag TEXT NOT NULL DEFAULT '',

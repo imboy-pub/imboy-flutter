@@ -5305,6 +5305,24 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '展开'
 	String get expandFull => '展开';
+
+	/// zh-CN: '小'
+	String get fontSizeOptionSmall => '小';
+
+	/// zh-CN: '标准'
+	String get fontSizeOptionNormal => '标准';
+
+	/// zh-CN: '中'
+	String get fontSizeOptionMedium => '中';
+
+	/// zh-CN: '大'
+	String get fontSizeOptionLarge => '大';
+
+	/// zh-CN: '特大'
+	String get fontSizeOptionExtraLarge => '特大';
+
+	/// zh-CN: '超大'
+	String get fontSizeOptionHuge => '超大';
 }
 
 // Path: complaint
@@ -5656,6 +5674,9 @@ class Translations$discovery$zh_CN {
 
 	/// zh-CN: '已扫描'
 	String get webQRScanned => '已扫描';
+
+	/// zh-CN: '${count}人赞了'
+	String momentLikesCountOnly({required Object count}) => '${count}人赞了';
 }
 
 // Path: error
@@ -9054,6 +9075,12 @@ extension on Translations {
 			'common.hoursAgo' => '小时前',
 			'common.collapse' => '收起',
 			'common.expandFull' => '展开',
+			'common.fontSizeOptionSmall' => '小',
+			'common.fontSizeOptionNormal' => '标准',
+			'common.fontSizeOptionMedium' => '中',
+			'common.fontSizeOptionLarge' => '大',
+			'common.fontSizeOptionExtraLarge' => '特大',
+			'common.fontSizeOptionHuge' => '超大',
 			'complaint.complaint' => '投诉',
 			'complaintReason.spam' => '垃圾信息',
 			'complaintReason.harassment' => '骚扰',
@@ -9159,6 +9186,7 @@ extension on Translations {
 			'discovery.openChannel' => '打开频道',
 			'discovery.paidChannelLocked' => '付费频道内容已锁定',
 			'discovery.webQRScanned' => '已扫描',
+			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}人赞了',
 			'error.restartRequired' => '需要重启应用',
 			'error.networkFailureGuidance' => '网络失败指引',
 			'error.pleaseCheckNetwork' => '请检查你的网络设置。',
@@ -9363,6 +9391,8 @@ extension on Translations {
 			'main.from' => '来自',
 			'main.goClean' => '前往清理',
 			'main.good' => '很棒',
+			_ => null,
+		} ?? switch (path) {
 			'main.hangup' => '挂断',
 			'main.haveSet' => '已设置',
 			'main.httpParse' => 'HTTP解析',
@@ -9370,8 +9400,6 @@ extension on Translations {
 			'main.itIt' => '意大利语（意大利）',
 			'main.jaJp' => '日语（日本）',
 			'main.keepSecret' => '保密',
-			_ => null,
-		} ?? switch (path) {
 			'main.lastActiveTime' => '最近活跃时间',
 			'main.lastSeenHide' => '隐藏在线状态',
 			'main.lastSeenNever' => '从未上线',

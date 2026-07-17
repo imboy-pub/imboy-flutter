@@ -109,9 +109,16 @@ class UserCollectRepo {
       UserCollectRepo.info: jsonEncode(obj.info),
     };
 
+    // replace：兼容遗留 kind_id 脏行/重复收藏，避免 UNIQUE 冲突抛
+    // uncaught DatabaseException（QA#31）
     if (txn != null) {
-      await txn.insert(UserCollectRepo.tableName, insert);
+      await txn.insert(
+        UserCollectRepo.tableName,
+        insert,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     } else {
+      // SqliteService.insert 内部已固定 ConflictAlgorithm.replace
       await _db.insert(UserCollectRepo.tableName, insert);
     }
     return obj;

@@ -145,7 +145,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 title: Text(t.common.fontSettings),
                 leading: _buildIcon(Icons.text_fields, AppColors.iosGreen),
                 trailing: _buildValueTrailing(
-                  themeState.fontSizeOption.displayName,
+                  themeState.fontSizeOption.localizedName,
                 ),
                 onTap: () => context.push('/font_size'),
               ),
