@@ -27,6 +27,7 @@ import 'package:octo_image/octo_image.dart';
 
 import 'moment_confirm_dialog.dart';
 import 'moment_interactions.dart';
+import 'moment_meta_view.dart';
 import 'moment_notify/moment_notify_provider.dart';
 import 'moment_utils.dart';
 import 'package:video_player/video_player.dart';
@@ -642,6 +643,20 @@ class _MomentCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: _MomentMediaPreview(media: media),
+                    ),
+                  // 位置地标 + @提醒摘要（有才显示，均为轻量纯展示 token 化）
+                  if (normalizeMomentLocation(item['location']) != null ||
+                      momentAtNames(item).isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Wrap(
+                        spacing: 12,
+                        runSpacing: 4,
+                        children: [
+                          MomentLocationLabel(rawLocation: item['location']),
+                          MomentAtSummary(item: item),
+                        ],
+                      ),
                     ),
                   // 点赞人行（微信核心社交反馈）— AnimatedSize 让出现/消失高度平滑过渡
                   AnimatedSize(

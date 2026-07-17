@@ -5728,6 +5728,24 @@ class Translations$discovery$zh_CN {
 
 	/// zh-CN: '${count}人赞了'
 	String momentLikesCountOnly({required Object count}) => '${count}人赞了';
+
+	/// zh-CN: '所在位置'
+	String get momentLocation => '所在位置';
+
+	/// zh-CN: '不显示位置'
+	String get momentLocationNone => '不显示位置';
+
+	/// zh-CN: '提醒谁看'
+	String get momentAtWho => '提醒谁看';
+
+	/// zh-CN: '提醒了 ${name}'
+	String momentAtReminded({required Object name}) => '提醒了 ${name}';
+
+	/// zh-CN: '提醒了 ${name} 等${count}人'
+	String momentAtRemindedMore({required Object name, required Object count}) => '提醒了 ${name} 等${count}人';
+
+	/// zh-CN: '${count}人'
+	String momentAtCount({required Object count}) => '${count}人';
 }
 
 // Path: error
@@ -9255,6 +9273,12 @@ extension on Translations {
 			'discovery.paidChannelLocked' => '付费频道内容已锁定',
 			'discovery.webQRScanned' => '已扫描',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}人赞了',
+			'discovery.momentLocation' => '所在位置',
+			'discovery.momentLocationNone' => '不显示位置',
+			'discovery.momentAtWho' => '提醒谁看',
+			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name}',
+			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人',
+			'discovery.momentAtCount' => ({required Object count}) => '${count}人',
 			'error.restartRequired' => '需要重启应用',
 			'error.networkFailureGuidance' => '网络失败指引',
 			'error.pleaseCheckNetwork' => '请检查你的网络设置。',
@@ -9436,14 +9460,14 @@ extension on Translations {
 			'main.changeParam' => ({required Object param}) => '修改${param}',
 			'main.chooseFromAlbum' => '从相册选择',
 			'main.clean' => '清理',
+			_ => null,
+		} ?? switch (path) {
 			'main.codeSentToParam' => ({required Object param}) => '验证码已发送到${param}',
 			'main.codeSentToType' => ({required Object param}) => '验证码已发送到${param}',
 			'main.collected' => '已收藏',
 			'main.completed' => '已完结',
 			'main.copied' => '已复制',
 			'main.darkModel' => '深色模式',
-			_ => null,
-		} ?? switch (path) {
 			'main.deDd' => '德语（德国）',
 			'main.disable' => '禁用',
 			'main.earlier' => '更早',

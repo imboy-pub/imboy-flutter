@@ -48,3 +48,9 @@ shake: Shake
 openChannel: Open Channel
 paidChannelLocked: Paid Channel Content Locked
 webQRScanned: Scanned
+momentLocation: Location
+momentLocationNone: Do not show location
+momentAtWho: Remind who
+momentAtReminded(name): "Reminded ${name}"
+momentAtRemindedMore(name, count): "Reminded ${name} and ${count} others"
+momentAtCount(count): "${count} people"

@@ -1862,6 +1862,12 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String get openChannel => '開啟頻道';
 	@override String get paidChannelLocked => '付費頻道內容已鎖定';
 	@override String get webQRScanned => '已掃描';
+	@override String get momentLocation => '所在位置';
+	@override String get momentLocationNone => '不顯示位置';
+	@override String get momentAtWho => '提醒誰看';
+	@override String momentAtReminded({required Object name}) => '提醒了 ${name}';
+	@override String momentAtRemindedMore({required Object name, required Object count}) => '提醒了 ${name} 等${count}人';
+	@override String momentAtCount({required Object count}) => '${count}人';
 }
 
 // Path: error
@@ -4235,6 +4241,12 @@ extension on TranslationsZhHant {
 			'discovery.openChannel' => '開啟頻道',
 			'discovery.paidChannelLocked' => '付費頻道內容已鎖定',
 			'discovery.webQRScanned' => '已掃描',
+			'discovery.momentLocation' => '所在位置',
+			'discovery.momentLocationNone' => '不顯示位置',
+			'discovery.momentAtWho' => '提醒誰看',
+			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name}',
+			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人',
+			'discovery.momentAtCount' => ({required Object count}) => '${count}人',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.networkFailureGuidance' => '網路故障排查指引',
 			'error.pleaseCheckNetwork' => '請檢查您的網路設定。',
@@ -4549,14 +4561,14 @@ extension on TranslationsZhHant {
 			'main.copiedToClipboard' => '已複製到剪貼板',
 			'main.copiedLink' => '已複製連結',
 			'main.destroyTime' => '銷毀時間',
+			_ => null,
+		} ?? switch (path) {
 			'main.previewEffect' => '預覽效果',
 			'main.thisIsTitleText' => '這是標題文字',
 			'main.thisIsAuxiliaryText' => '這是輔助說明文字',
 			'main.toBeCompleted' => '待完善',
 			'main.availableCount' => '可選擇',
 			'main.mostUsed' => '最常用',
-			_ => null,
-		} ?? switch (path) {
 			'main.commentPlaceholder' => '評論...',
 			'main.delayMsLabel' => '延時毫秒 (>=100)',
 			'main.processed' => '已處理',

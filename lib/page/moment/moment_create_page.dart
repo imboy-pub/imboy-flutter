@@ -6,11 +6,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/chat/composer_field.dart';
+import 'package:imboy/component/location/amap_helper.dart';
+import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/upload/batch_upload_controller.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
+import 'package:imboy/page/moment/moment_friend_picker/moment_at_picker_page.dart';
 import 'package:imboy/page/moment/moment_friend_picker/moment_friend_picker_page.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -59,6 +63,15 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   int _visibility = momentVisibilityFriends;
   bool _allowComment = true;
   bool _isSubmitting = false;
+
+  /// 所在位置（E1 形状 `{name,lng,lat,address?}`）；null = 不显示位置。
+  Map<String, dynamic>? _location;
+
+  /// @提醒的好友 uid（有序，供 payload）。
+  List<String> _atUids = const [];
+
+  /// @提醒 uid → 展示名，仅供工具栏摘要同步渲染（不入 payload）。
+  Map<String, String> _atNames = const {};
 
   /// 上传进行中仅禁用发布（防止半图发帖）；继续追加媒体不受影响。
   bool get _busy => _uploads.isBusy;
@@ -150,6 +163,8 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 
   Future<void> _saveFailedDraft(String content) async {
+    // ponytail: 位置/@提醒不入草稿——二者是「此刻此地」的即时上下文，
+    // 隔次恢复语义弱且易过期，草稿只保文字/媒体/可见性即可。
     final key = _draftKey;
     if (key.isEmpty) return;
     final mediaUrls = _uploads.results
@@ -410,6 +425,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       denyUids: momentVisibilityRequiresDenyUids(_visibility)
           ? parseMomentUidList(_denyUidsController.text)
           : const [],
+      // 空则不传（api 层再判空）；@提醒 uid 有序透传。
+      location: _location,
+      atUids: _atUids,
     );
 
     if (!mounted) return;
@@ -544,6 +562,101 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     await _saveLastVisibility(result);
   }
 
+  /// 「所在位置」：已选时先问重选/清除，否则直接取当前定位 → 打开选址页。
+  /// 选址复用聊天同款 MapLocationPicker（`/map_location_picker`），moment 不需要
+  /// 地图截图故 isMapImage=false；选址返回 `{title,latitude,longitude,address,...}`
+  /// 映射为 E1 形状 `{name,lng,lat,address?}`。
+  /// ponytail: 不自造 POI 选择器，直接复用现成选址页。
+  Future<void> _pickLocation() async {
+    if (_location != null) {
+      final action = await showCupertinoModalPopup<String>(
+        context: context,
+        builder: (ctx) => CupertinoActionSheet(
+          actions: [
+            CupertinoActionSheetAction(
+              onPressed: () => Navigator.of(ctx).pop('reselect'),
+              child: Text(context.t.discovery.momentLocation),
+            ),
+            CupertinoActionSheetAction(
+              isDestructiveAction: true,
+              onPressed: () => Navigator.of(ctx).pop('clear'),
+              child: Text(context.t.discovery.momentLocationNone),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(context.t.discovery.momentActionCancel),
+          ),
+        ),
+      );
+      if (!mounted) return;
+      if (action == 'clear') {
+        setState(() => _location = null);
+        return;
+      }
+      if (action != 'reselect') return;
+    }
+
+    AppLoading.show(status: context.t.common.loading);
+    final AMapPosition? l = await LocationService().getCurrentPosition();
+    await AppLoading.dismiss();
+    if (!mounted) return;
+    if (l == null) {
+      AppLoading.showError(context.t.common.failedGetMapTryAgain);
+      return;
+    }
+    final result = await context.push<Map<String, dynamic>>(
+      '/map_location_picker',
+      extra: {
+        'lat': l.latLng.latitude,
+        'lng': l.latLng.longitude,
+        'citycode': AMapApi.getCityNameByGaoDe(l.adCode),
+        'isMapImage': false,
+      },
+    );
+    if (!mounted || result == null) return;
+    final name = parseModelString(result['title']);
+    if (name.isEmpty) return;
+    setState(() {
+      _location = <String, dynamic>{
+        'name': name,
+        'lng': result['longitude'],
+        'lat': result['latitude'],
+        'address': parseModelString(result['address']),
+      };
+    });
+  }
+
+  /// 「提醒谁看」：跳纯好友多选页，返回 uid→展示名映射（空 = 清除）。
+  Future<void> _pickAtFriends() async {
+    final result = await Navigator.of(context).push<Map<String, String>>(
+      CupertinoPageRoute<Map<String, String>>(
+        builder: (_) => MomentAtPickerPage(initialUids: _atUids),
+      ),
+    );
+    if (!mounted || result == null) return;
+    setState(() {
+      _atUids = result.keys.toList(growable: false);
+      _atNames = result;
+    });
+  }
+
+  /// 位置工具栏摘要：已选地名，否则「不显示位置」。
+  String _locationSummary(Translations t) {
+    final loc = _location;
+    if (loc == null) return t.discovery.momentLocationNone;
+    final name = parseModelString(loc['name']);
+    return name.isEmpty ? t.discovery.momentLocationNone : name;
+  }
+
+  /// @提醒工具栏摘要：≤2 人列名字，>2 人显示「N人」，无则 null（只显标签）。
+  String? _atSummary(Translations t) {
+    if (_atUids.isEmpty) return null;
+    final names = _atUids.map((u) => _atNames[u] ?? u).toList(growable: false);
+    if (names.length <= 2) return names.join('、');
+    return t.discovery.momentAtCount(count: names.length);
+  }
+
   /// 可见性摘要文案：基础标签 + 命中名单模式时附加已选人数。
   String _visibilitySummary(Translations t) {
     final base = momentVisibilityLabel(_visibility, t);
@@ -669,6 +782,18 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
               label: t.discovery.momentsVisibility,
               value: _visibilitySummary(t),
               onTap: _pickVisibility,
+            ),
+            _ToolbarItem(
+              icon: CupertinoIcons.location_solid,
+              label: t.discovery.momentLocation,
+              value: _locationSummary(t),
+              onTap: _pickLocation,
+            ),
+            _ToolbarItem(
+              icon: CupertinoIcons.at,
+              label: t.discovery.momentAtWho,
+              value: _atSummary(t),
+              onTap: _pickAtFriends,
             ),
             _ToolbarSwitch(
               icon: CupertinoIcons.chat_bubble_fill,

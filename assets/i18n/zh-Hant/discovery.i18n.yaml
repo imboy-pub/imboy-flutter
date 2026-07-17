@@ -48,3 +48,9 @@ shake: 搖一搖
 openChannel: 開啟頻道
 paidChannelLocked: 付費頻道內容已鎖定
 webQRScanned: 已掃描
+momentLocation: 所在位置
+momentLocationNone: 不顯示位置
+momentAtWho: 提醒誰看
+momentAtReminded(name): "提醒了 ${name}"
+momentAtRemindedMore(name, count): "提醒了 ${name} 等${count}人"
+momentAtCount(count): "${count}人"

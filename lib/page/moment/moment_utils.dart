@@ -107,19 +107,46 @@ Future<List<Map<String, dynamic>>> enrichItemsWithAuthor(
 
   final enriched = <Map<String, dynamic>>[];
   for (final item in items) {
-    final uid = parseModelString(item['author_uid']);
-    if (uid.isEmpty) {
-      enriched.add(item);
-      continue;
-    }
-    final info = await lookup(uid);
     final copy = Map<String, dynamic>.from(item);
-    copy['author_nickname'] = info['nickname'] ?? '';
-    copy['author_remark'] = info['remark'] ?? '';
-    copy['author_avatar'] = info['avatar'] ?? '';
+    final uid = parseModelString(item['author_uid']);
+    if (uid.isNotEmpty) {
+      final info = await lookup(uid);
+      copy['author_nickname'] = info['nickname'] ?? '';
+      copy['author_remark'] = info['remark'] ?? '';
+      copy['author_avatar'] = info['avatar'] ?? '';
+    }
+    // @提醒昵称解析：复用同一 contact 缓存，将展示名(remark>nickname>uid)
+    // 写入 at_names 供展示层同步读取，避免每张卡片各自 IO 造成滚动抖动。
+    final atUids = normalizeMomentAtUids(item['at_uids']);
+    if (atUids.isNotEmpty) {
+      final names = <String>[];
+      for (final atUid in atUids) {
+        final info = await lookup(atUid);
+        final remark = info['remark'] ?? '';
+        final nickname = info['nickname'] ?? '';
+        names.add(
+          remark.isNotEmpty ? remark : (nickname.isNotEmpty ? nickname : atUid),
+        );
+      }
+      copy['at_names'] = names;
+    }
     enriched.add(copy);
   }
   return enriched;
+}
+
+/// 提取动态 @提醒的展示名列表：优先用 [enrichItemsWithAuthor] 阶段解析写入的
+/// `at_names`（remark>nickname>uid），缺失时回退裸 uid 列表（未 enrich 的场景）。
+List<String> momentAtNames(Map<String, dynamic> item) {
+  final raw = item['at_names'];
+  if (raw is List) {
+    final names = raw
+        .map((e) => parseModelString(e))
+        .where((s) => s.isNotEmpty)
+        .toList(growable: false);
+    if (names.isNotEmpty) return names;
+  }
+  return normalizeMomentAtUids(item['at_uids']);
 }
 
 /// 为单个动态（帖子）填充作者信息。

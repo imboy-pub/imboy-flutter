@@ -1862,6 +1862,12 @@ class _Translations$discovery$en_US extends Translations$discovery$zh_CN {
 	@override String get openChannel => 'Open Channel';
 	@override String get paidChannelLocked => 'Paid Channel Content Locked';
 	@override String get webQRScanned => 'Scanned';
+	@override String get momentLocation => 'Location';
+	@override String get momentLocationNone => 'Do not show location';
+	@override String get momentAtWho => 'Remind who';
+	@override String momentAtReminded({required Object name}) => 'Reminded ${name}';
+	@override String momentAtRemindedMore({required Object name, required Object count}) => 'Reminded ${name} and ${count} others';
+	@override String momentAtCount({required Object count}) => '${count} people';
 }
 
 // Path: error
@@ -4235,6 +4241,12 @@ extension on TranslationsEnUs {
 			'discovery.openChannel' => 'Open Channel',
 			'discovery.paidChannelLocked' => 'Paid Channel Content Locked',
 			'discovery.webQRScanned' => 'Scanned',
+			'discovery.momentLocation' => 'Location',
+			'discovery.momentLocationNone' => 'Do not show location',
+			'discovery.momentAtWho' => 'Remind who',
+			'discovery.momentAtReminded' => ({required Object name}) => 'Reminded ${name}',
+			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'Reminded ${name} and ${count} others',
+			'discovery.momentAtCount' => ({required Object count}) => '${count} people',
 			'error.restartRequired' => 'Restart Required',
 			'error.networkFailureGuidance' => 'Network troubleshooting guide',
 			'error.pleaseCheckNetwork' => 'Please check your network settings.',
@@ -4549,14 +4561,14 @@ extension on TranslationsEnUs {
 			'main.copiedToClipboard' => 'Copied to clipboard',
 			'main.copiedLink' => 'Copied link',
 			'main.destroyTime' => 'Destroy Time',
+			_ => null,
+		} ?? switch (path) {
 			'main.previewEffect' => 'Preview Effect',
 			'main.thisIsTitleText' => 'This is title text',
 			'main.thisIsAuxiliaryText' => 'This is auxiliary text',
 			'main.toBeCompleted' => 'To be completed',
 			'main.availableCount' => 'Available',
 			'main.mostUsed' => 'Most Used',
-			_ => null,
-		} ?? switch (path) {
 			'main.commentPlaceholder' => 'Comment...',
 			'main.delayMsLabel' => 'Delay in ms (>=100)',
 			'main.processed' => 'Processed',

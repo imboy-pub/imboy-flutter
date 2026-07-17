@@ -24,6 +24,7 @@ import 'package:imboy/theme/default/font_types.dart';
 
 import 'moment_confirm_dialog.dart';
 import 'moment_interactions.dart';
+import 'moment_meta_view.dart';
 import 'moment_utils.dart';
 
 /// 朋友圈详情页面 - 对标微信朋友圈体验重构
@@ -688,6 +689,20 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
             Padding(
               padding: const EdgeInsets.only(top: 12),
               child: _buildMediaGrid(context, media),
+            ),
+          // 位置地标 + @提醒摘要（有才显示，与 feed 卡共用展示组件）
+          if (normalizeMomentLocation(post['location']) != null ||
+              momentAtNames(post).isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 4,
+                children: [
+                  MomentLocationLabel(rawLocation: post['location']),
+                  MomentAtSummary(item: post),
+                ],
+              ),
             ),
           if (likeCount > 0 || likers.isNotEmpty)
             Padding(
