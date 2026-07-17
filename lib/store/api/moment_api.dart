@@ -23,6 +23,8 @@ class MomentApi extends HttpClient {
     bool allowComment = true,
     List<String> allowUids = const [],
     List<String> denyUids = const [],
+    Map<String, dynamic>? location,
+    List<String> atUids = const [],
   }) async {
     final body = <String, dynamic>{
       'content': content,
@@ -35,6 +37,12 @@ class MomentApi extends HttpClient {
     }
     if (denyUids.isNotEmpty) {
       body['deny_uids'] = denyUids;
+    }
+    if (location != null && location.isNotEmpty) {
+      body['location'] = location;
+    }
+    if (atUids.isNotEmpty) {
+      body['at_uids'] = atUids;
     }
 
     final resp = await post(API.momentCreate, data: body);

@@ -11,6 +11,28 @@ List<Map<String, dynamic>> normalizeMedia(dynamic rawMedia) {
       .toList(growable: false);
 }
 
+/// 归一化动态的所在位置字段：无位置(null/非 Map)返回 null，否则复制为
+/// `Map<String, dynamic>`（防外部别名污染）。后端形状 `{name,lng,lat,address?}`，
+/// 旧帖无该字段时安全返回 null（向后兼容）。
+Map<String, dynamic>? normalizeMomentLocation(dynamic rawLocation) {
+  if (rawLocation is! Map) return null;
+  final copy = Map<String, dynamic>.from(rawLocation);
+  // name 为展示必备项，缺失即视为无有效位置
+  final name = parseModelString(copy['name']);
+  if (name.isEmpty) return null;
+  return copy;
+}
+
+/// 归一化 @提醒的 uid 列表：非 List 返回 const []，逐项转 String（TSID 以
+/// integer 传输），空串过滤。旧帖无该字段时安全返回空列表（向后兼容）。
+List<String> normalizeMomentAtUids(dynamic rawAtUids) {
+  if (rawAtUids is! List) return const [];
+  return rawAtUids
+      .map((e) => parseModelString(e))
+      .where((s) => s.isNotEmpty)
+      .toList(growable: false);
+}
+
 /// 朋友圈媒体九宫格布局（微信标准形态）：
 /// - 1 张：单列（单图/单视频由调用方按宽高比大图展示）
 /// - 4 张：2×2 排列

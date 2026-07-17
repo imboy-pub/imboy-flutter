@@ -16,6 +16,8 @@ class MomentFacade {
     bool allowComment = true,
     List<String> allowUids = const [],
     List<String> denyUids = const [],
+    Map<String, dynamic>? location,
+    List<String> atUids = const [],
   }) => _api.createPost(
     content: content,
     media: media,
@@ -23,6 +25,8 @@ class MomentFacade {
     allowComment: allowComment,
     allowUids: allowUids,
     denyUids: denyUids,
+    location: location,
+    atUids: atUids,
   );
 
   Future<Map<String, dynamic>?> getPost(String momentId) =>
