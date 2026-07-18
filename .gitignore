@@ -121,3 +121,6 @@ assets/i18n/_unused_translations.yaml
 
 # mobile-mcp 真机走查截图（临时产物，勿入库）
 .test-screenshots/
+
+# ECC agent 工具产物
+.artifacts/
