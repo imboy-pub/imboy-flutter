@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_vodozemac/flutter_vodozemac.dart' as fvod;
@@ -92,38 +93,33 @@ class OlmSessionService {
     );
     if (existing != null && existing.isNotEmpty) {
       final bytes = base64.decode(base64.normalize(existing));
-      // Olm pickle key 推荐 32 字节
+      // Olm pickle key 固定 32 字节
       if (bytes.length == 32) return Uint8List.fromList(bytes);
     }
-    final newKey = Uint8List.fromList(
-      List<int>.generate(
-        32,
-        (_) => DateTime.now().microsecondsSinceEpoch & 0xFF,
-      ),
-    );
-    // 注：生产应使用 Random.secure()；此处复用 storage_secure 已有的 CSPRNG 工具更佳。
-    // 暂用 FortunaRandom 补强：
-    final strong = _secureBytes(32);
-    final combined = Uint8List(32);
-    for (int i = 0; i < 32; i++) {
-      combined[i] = newKey[i] ^ strong[i];
-    }
+    // CSPRNG 生成 32 字节主钥（ADR 07 §2：Olm pickle key 是 Critical 级 secret，
+    // 必须密码学随机；禁止时间戳/计数器等可预测源，否则 pickle 静态加密可被预测破解 T5）。
+    final key = _secureBytes(32);
     await StorageSecureService.to.write(
       key: _pickleKeyStorageKey,
-      value: base64.encode(combined),
+      value: base64.encode(key),
     );
-    return combined;
+    return key;
   }
 
-  /// 仅 fallback：用 CSPRNG 生成字节（Random.secure 走平台原生）
+  /// CSPRNG 生成 [length] 字节。`Random.secure()` 走平台原生熵源
+  /// （iOS SecRandomCopyBytes / Android SecureRandom / 桌面 OS RNG），与
+  /// db_encryption_key_service / e2ee_service 同一随机源。
   Uint8List _secureBytes(int length) {
-    final rnd = DateTime.now().millisecondsSinceEpoch;
-    final out = Uint8List(length);
-    for (int i = 0; i < length; i++) {
-      out[i] = (rnd >> (i % 32)) & 0xFF;
-    }
-    return out;
+    final rnd = Random.secure();
+    return Uint8List.fromList(
+      List<int>.generate(length, (_) => rnd.nextInt(256)),
+    );
   }
+
+  /// 测试挂钩：暴露 CSPRNG 字节生成，供守护测试验证熵源
+  /// （olm_pickle_key_csprng_test，映射 ADR 08 T5）。
+  @visibleForTesting
+  Uint8List debugSecureBytes(int length) => _secureBytes(length);
 
   // ===== Account（长期身份）管理 =====
 
