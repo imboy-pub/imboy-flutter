@@ -253,6 +253,13 @@ class API {
   static const e2eeBackupInfo = '/api/v1/e2ee/backup/info';
   static const e2eeBackupDelete = '/api/v1/e2ee/backup/delete';
 
+  // Olm（X3DH + Double Ratchet）单聊 E2EE
+  static const olmReportIdentity = '/api/v1/e2ee/olm/identity';
+  static const olmReportPrekeys = '/api/v1/e2ee/olm/prekeys';
+  static const olmReportFallback = '/api/v1/e2ee/olm/fallback_key';
+  static const olmGetIdentity = '/api/v1/e2ee/olm/get_identity';
+  static const olmClaimKey = '/api/v1/e2ee/olm/claim';
+
   // 推送通知
   static const pushRegister = '/api/v1/push/register';
   static const pushUnregister = '/api/v1/push/unregister';

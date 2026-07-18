@@ -24,6 +24,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/encrypter.dart';
+import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart'
@@ -1080,6 +1081,22 @@ class PassportNotifier extends _$PassportNotifier {
       if (!result.ok) {
         if (kDebugMode) {}
         return;
+      }
+
+      // Olm（X3DH + Double Ratchet）单聊 E2EE 身份键上报（fire-and-forget）。
+      // 失败不阻塞登录：下次启动或发消息时会重试 prekey 补传。
+      // 仅在 useOlmForC2C 灰度开启前的能力预建：确保服务端已有本设备 Olm 身份，
+      // 一旦对端用 Olm 加密消息发来，本端能解密。
+      try {
+        final dinfo2 = await DeviceExt.to.detail;
+        await OlmSessionService.to.publishIdentityAndPrekeys(
+          deviceType: (dinfo2?['cos'] ?? 'unknown') as String,
+        );
+      } catch (olmErr) {
+        // 静默：Olm 是增强能力，失败不降级主流程
+        iPrint(
+          '[olm] publishIdentityAndPrekeys failed (non-blocking): $olmErr',
+        );
       }
 
       // 仅当"本次新生成密钥"且"账号已存在其他活跃设备"时，
