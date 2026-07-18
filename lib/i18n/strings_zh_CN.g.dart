@@ -6887,8 +6887,8 @@ class Translations$main$zh_CN {
 	/// zh-CN: '填入'
 	String get fillIn => '填入';
 
-	/// zh-CN: '消息受合规密钥保护'
-	String get msgProtectedByComplianceKey => '消息受合规密钥保护';
+	/// zh-CN: '消息受合规密钥保护（仅审计方离线私钥可解密，服务端无解密能力）'
+	String get msgProtectedByComplianceKey => '消息受合规密钥保护（仅审计方离线私钥可解密，服务端无解密能力）';
 
 	/// zh-CN: '邀请人: $uid'
 	String inviterLabel({required Object uid}) => '邀请人: ${uid}';
@@ -9637,7 +9637,7 @@ extension on Translations {
 			'main.larger' => '更大',
 			'main.currentLength' => ({required Object param1, required Object param2}) => '当前长度：${param1} / ${param2}',
 			'main.fillIn' => '填入',
-			'main.msgProtectedByComplianceKey' => '消息受合规密钥保护',
+			'main.msgProtectedByComplianceKey' => '消息受合规密钥保护（仅审计方离线私钥可解密，服务端无解密能力）',
 			'main.inviterLabel' => ({required Object uid}) => '邀请人: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '被邀请人: ${uid}',
 			'main.mySentTab' => '我发出的',

@@ -2301,7 +2301,7 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get larger => 'Larger';
 	@override String currentLength({required Object param1, required Object param2}) => 'Current length: ${param1} / ${param2}';
 	@override String get fillIn => 'Fill In';
-	@override String get msgProtectedByComplianceKey => 'Message protected by compliance key';
+	@override String get msgProtectedByComplianceKey => 'Message protected by compliance key (only the auditor offline private key can decrypt; server has no decryption capability)';
 	@override String inviterLabel({required Object uid}) => 'Inviter: ${uid}';
 	@override String inviteeLabel({required Object uid}) => 'Invitee: ${uid}';
 	@override String get mySentTab => 'Sent';
@@ -4601,7 +4601,7 @@ extension on TranslationsEnUs {
 			'main.larger' => 'Larger',
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Current length: ${param1} / ${param2}',
 			'main.fillIn' => 'Fill In',
-			'main.msgProtectedByComplianceKey' => 'Message protected by compliance key',
+			'main.msgProtectedByComplianceKey' => 'Message protected by compliance key (only the auditor offline private key can decrypt; server has no decryption capability)',
 			'main.inviterLabel' => ({required Object uid}) => 'Inviter: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Invitee: ${uid}',
 			'main.mySentTab' => 'Sent',

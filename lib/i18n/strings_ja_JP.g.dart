@@ -2278,7 +2278,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get larger => 'より大きい';
 	@override String currentLength({required Object param1, required Object param2}) => '現在の長さ：${param1} / ${param2}';
 	@override String get fillIn => '入力';
-	@override String get msgProtectedByComplianceKey => 'メッセージはコンプライアンスキーで保護されています';
+	@override String get msgProtectedByComplianceKey => 'メッセージはコンプライアンスキーで保護されています（監査担当者のオフライン秘密鍵のみが復号可能、サーバーに復号能力はありません）';
 	@override String inviterLabel({required Object uid}) => '招待者: ${uid}';
 	@override String inviteeLabel({required Object uid}) => '招待先: ${uid}';
 	@override String get mySentTab => '送信';
@@ -4555,7 +4555,7 @@ extension on TranslationsJaJp {
 			'main.larger' => 'より大きい',
 			'main.currentLength' => ({required Object param1, required Object param2}) => '現在の長さ：${param1} / ${param2}',
 			'main.fillIn' => '入力',
-			'main.msgProtectedByComplianceKey' => 'メッセージはコンプライアンスキーで保護されています',
+			'main.msgProtectedByComplianceKey' => 'メッセージはコンプライアンスキーで保護されています（監査担当者のオフライン秘密鍵のみが復号可能、サーバーに復号能力はありません）',
 			'main.inviterLabel' => ({required Object uid}) => '招待者: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '招待先: ${uid}',
 			'main.mySentTab' => '送信',
