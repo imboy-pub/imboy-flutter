@@ -147,9 +147,10 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       state = state.copyWith(deviceList: list, isLoading: false);
       return list;
     } on Exception {
+      // 不再吞异常返回空列表(会让页面误显"无设备"而非"加载失败")。
+      // 复位 isLoading 后向上抛,由 UserDevicePage 的 AsyncStateView 展示错误+重试。
       state = state.copyWith(isLoading: false);
-      if (kDebugMode) {}
-      return [];
+      rethrow;
     }
   }
 
