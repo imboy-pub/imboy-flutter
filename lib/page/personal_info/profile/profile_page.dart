@@ -12,6 +12,7 @@ import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/qrcode/qrcode_page.dart';
@@ -309,7 +310,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Container(
-        padding: AppSpacing.allXLarge,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: isDark
               ? AppColors.darkSurfaceGroupedTertiary
@@ -318,62 +319,148 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         ),
         child: Column(
           children: [
-            GestureDetector(
-              onTap: () => _previewAvatar(context, state.avatar),
-              child: Stack(
+            _buildCover(context, state),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Column(
                 children: [
-                  Avatar(imgUri: state.avatar, width: 100, height: 100),
-                  if (state.isUploading)
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.lightTextPrimary.withValues(
-                            alpha: 0.45,
-                          ),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: Center(
-                          child: CupertinoActivityIndicator(
-                            color: AppColors.onPrimary,
-                          ),
-                        ),
+                  Text(
+                    'ID: ${UserRepoLocal.to.current.account}',
+                    style: context.textStyle(
+                      FontSizeType.normal,
+                      color: AppColors.iosGray,
+                    ),
+                  ),
+                  AppSpacing.verticalLarge,
+                  CupertinoButton(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 8,
+                    ),
+                    color: AppColors.getIosBlue(
+                      brightness,
+                    ).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    onPressed: () => _editAvatar(context, notifier),
+                    child: Text(
+                      t.common.avatarEditAvatar,
+                      style: context.textStyle(
+                        FontSizeType.normal,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.getIosBlue(brightness),
                       ),
                     ),
+                  ),
                 ],
-              ),
-            ),
-            AppSpacing.verticalRegular,
-            Text(
-              state.nickname.isEmpty ? t.common.nicknameNotSet : state.nickname,
-              style: context
-                  .textStyle(FontSizeType.title, fontWeight: FontWeight.bold)
-                  .copyWith(letterSpacing: -0.5),
-            ),
-            AppSpacing.verticalTiny,
-            Text(
-              'ID: ${UserRepoLocal.to.current.account}',
-              style: context.textStyle(
-                FontSizeType.normal,
-                color: AppColors.iosGray,
-              ),
-            ),
-            AppSpacing.verticalLarge,
-            CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              color: AppColors.getIosBlue(brightness).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-              onPressed: () => _editAvatar(context, notifier),
-              child: Text(
-                t.common.avatarEditAvatar,
-                style: context.textStyle(
-                  FontSizeType.normal,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.getIosBlue(brightness),
-                ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 个人资料封面：背景图 cover + 左下头像/昵称叠加。
+  /// background 为 scope=public 的 object_key，经 cachedImageProvider 授权渲染；
+  /// 为空时用品牌渐变占位。右上角相机图标编辑背景（复用 _editBackground）。
+  Widget _buildCover(BuildContext context, ProfileState state) {
+    return SizedBox(
+      height: 160,
+      width: double.infinity,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // 背景图或渐变占位
+          if (state.background.isNotEmpty)
+            Image(
+              image: cachedImageProvider(state.background, w: 800),
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => const _CoverPlaceholder(),
+            )
+          else
+            const _CoverPlaceholder(),
+          // 底部暗渐变遮罩，保证白色文字可读
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.center,
+                end: Alignment.bottomCenter,
+                colors: [Colors.transparent, Colors.black54],
+              ),
+            ),
+          ),
+          // 右上角编辑背景入口
+          Positioned(
+            top: 10,
+            right: 10,
+            child: GestureDetector(
+              onTap: () => _editBackground(context),
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.mediaScrimBlack.withValues(alpha: 0.35),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.camera,
+                  size: 18,
+                  color: AppColors.onPrimary,
+                ),
+              ),
+            ),
+          ),
+          // 左下角头像 + 昵称
+          Positioned(
+            left: 16,
+            bottom: 12,
+            right: 16,
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => _previewAvatar(context, state.avatar),
+                  child: Stack(
+                    children: [
+                      Avatar(imgUri: state.avatar, width: 64, height: 64),
+                      if (state.isUploading)
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.lightTextPrimary.withValues(
+                                alpha: 0.45,
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: const Center(
+                              child: CupertinoActivityIndicator(
+                                color: AppColors.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    state.nickname.isEmpty
+                        ? t.common.nicknameNotSet
+                        : state.nickname,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context
+                        .textStyle(
+                          FontSizeType.title,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.onPrimary,
+                        )
+                        .copyWith(letterSpacing: -0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -720,6 +807,24 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     await Clipboard.setData(ClipboardData(text: content));
     AppLoading.showSuccess(
       t.common.exportSuccessThenCopiedToClipboard(param: format),
+    );
+  }
+}
+
+/// 无背景图时的封面占位：品牌蓝渐变。
+class _CoverPlaceholder extends StatelessWidget {
+  const _CoverPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primary, AppColors.primaryDark],
+        ),
+      ),
     );
   }
 }

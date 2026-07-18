@@ -103,6 +103,9 @@ class UserModel {
   String email;
   String mobile;
   String avatar;
+
+  /// 个人资料封面背景图 object_key（scope=public，与 avatar 同机制）。
+  String background;
   int gender;
   String region;
   int? role;
@@ -122,6 +125,7 @@ class UserModel {
     this.mobile = '',
     this.nickname = '',
     this.avatar = '',
+    this.background = '',
     this.gender = 0,
     this.region = "",
     this.role,
@@ -153,6 +157,7 @@ class UserModel {
       mobile: parseModelString(json['mobile']),
       nickname: parseModelString(json['nickname']),
       avatar: parseModelString(json['avatar']),
+      background: parseModelString(json['background']),
       role: roleValue == null ? null : parseModelInt(roleValue),
       gender: parseModelInt(json['gender']),
       region: parseModelString(json['region']),
@@ -172,6 +177,7 @@ class UserModel {
     data["email"] = email;
     data["mobile"] = mobile;
     data["avatar"] = avatar;
+    data["background"] = background;
     data["account"] = account;
     data["role"] = role;
     data["gender"] = gender;

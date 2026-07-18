@@ -19,6 +19,7 @@ part 'profile_provider.g.dart';
 class ProfileState {
   final UserModel userModel;
   final String avatar;
+  final String background;
   final String nickname;
   final int gender;
   final String region;
@@ -51,6 +52,7 @@ class ProfileState {
   ProfileState({
     UserModel? userModel,
     this.avatar = '',
+    this.background = '',
     this.nickname = '',
     this.gender = 0,
     this.region = '',
@@ -76,6 +78,7 @@ class ProfileState {
   ProfileState copyWith({
     UserModel? userModel,
     String? avatar,
+    String? background,
     String? nickname,
     int? gender,
     String? region,
@@ -100,6 +103,7 @@ class ProfileState {
     return ProfileState(
       userModel: userModel ?? this.userModel,
       avatar: avatar ?? this.avatar,
+      background: background ?? this.background,
       nickname: nickname ?? this.nickname,
       gender: gender ?? this.gender,
       region: region ?? this.region,
@@ -135,6 +139,7 @@ class ProfileNotifier extends _$ProfileNotifier {
     final initialState = ProfileState(
       userModel: user,
       avatar: user.avatar,
+      background: user.background,
       nickname: user.nickname,
       gender: user.gender,
       birthday: user.birthday,
@@ -161,6 +166,7 @@ class ProfileNotifier extends _$ProfileNotifier {
     state = ProfileState(
       userModel: user,
       avatar: user.avatar,
+      background: user.background,
       nickname: user.nickname,
       gender: user.gender,
       birthday: user.birthday,
@@ -230,6 +236,9 @@ class ProfileNotifier extends _$ProfileNotifier {
         switch (field) {
           case 'avatar':
             state = state.copyWith(avatar: value as String?);
+            break;
+          case 'background':
+            state = state.copyWith(background: value as String?);
             break;
           case 'nickname':
             state = state.copyWith(nickname: value as String?);
@@ -423,6 +432,10 @@ class ProfileNotifier extends _$ProfileNotifier {
           completer.complete(false);
         },
         process: true,
+        // 背景图为公共资源（scope=public），url 为 object_key（方案 B），
+        // 与 avatar 同机制：他人查看资料页时经 AssetsService.viewUrl 授权渲染。
+        // 若走 private 桶，他人侧 presign 无法授权（仅 owner 可）。
+        scope: 'public',
       );
 
       // 等待上传完成
