@@ -11,7 +11,7 @@
 /// | 私钥永不落 DB | T3 | private_key_encrypted DROP | 后端 migration，已落地 |
 /// | Per-message PFS (Olm DR) | T5 | olm_pfs_old_session_cannot_decrypt | skip: B.1 真机/vodozemac 运行时 |
 /// | Post-Compromise Security | T5 | olm_pcs_recovery | skip: B.1 真机 |
-/// | AEAD (AES-256-GCM) | T4 | aes_gcm_tamper_fails | skip: B.5 |
+/// | AEAD (AES-256-GCM) | T4 | aes_gcm_tamper_fails | 本文件 ✅ (B.5) |
 /// | Ed25519 身份键签名 | T2,T4 | device_identity_signature_verify | skip: B.3 |
 /// | Safety Number | T2,T8 | e2ee_safety_number | skip: B.3 (ADR06) |
 /// | Signed Capabilities | T2 | capability_signature_forgery_fails | capability_negotiator_test ✅ |
@@ -27,9 +27,14 @@
 /// | **[B.2.1 新增] Registry 路由完整性/无 fallback** | T2 | registry_routing_completeness | 本文件 ✅ |
 library;
 
+import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
+import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/olm_session_service.dart';
 
 void main() {
@@ -88,6 +93,61 @@ void main() {
     });
   });
 
+  // ===== T4 — AEAD (AES-256-GCM) 篡改检测（B.5，ADR 08 §4 aes_gcm_tamper_fails）=====
+  // v1 RSA 套件与 Olm/Megolm 底层均以 AES-256-GCM 保护 payload；GCM tag 保证任何
+  // 密文/密钥/AAD 篡改都导致解密失败（不返回明文）。这是 T4（Network MITM）的核心防御。
+  group('aes_gcm_tamper_fails (T4)', () {
+    Uint8List key32() => Uint8List.fromList(
+      List<int>.generate(32, (_) => Random.secure().nextInt(256)),
+    );
+    final plain = Uint8List.fromList(utf8.encode('hello e2ee 秘密消息'));
+
+    test('正常往返：解密还原明文', () {
+      final key = key32();
+      final enc = EncrypterService.aesGcmEncryptBytes(plain, key);
+      final dec = EncrypterService.aesGcmDecryptBytes(
+        enc['iv']!,
+        enc['ct']!,
+        key,
+      );
+      expect(dec, equals(plain));
+    });
+
+    test('篡改密文 1 bit → 解密抛异常（tag 校验失败）', () {
+      final key = key32();
+      final enc = EncrypterService.aesGcmEncryptBytes(plain, key);
+      final ct = base64.decode(enc['ct']!);
+      ct[0] = ct[0] ^ 0x01; // 翻转 1 bit
+      final tampered = base64.encode(ct);
+      expect(
+        () => EncrypterService.aesGcmDecryptBytes(enc['iv']!, tampered, key),
+        throwsA(anything),
+      );
+    });
+
+    test('错误密钥 → 解密抛异常', () {
+      final enc = EncrypterService.aesGcmEncryptBytes(plain, key32());
+      expect(
+        () => EncrypterService.aesGcmDecryptBytes(
+          enc['iv']!,
+          enc['ct']!,
+          key32(),
+        ),
+        throwsA(anything),
+      );
+    });
+
+    test('AAD 不匹配 → 解密抛异常（绑定完整性）', () {
+      final key = key32();
+      final aad = Uint8List.fromList(utf8.encode('bind-context'));
+      final enc = EncrypterService.aesGcmEncryptBytes(plain, key, aad: aad);
+      expect(
+        () => EncrypterService.aesGcmDecryptBytes(enc['iv']!, enc['ct']!, key),
+        throwsA(anything),
+      );
+    });
+  });
+
   // ===== ADR 08 §4 其余客户端防御点占位（实现后转真实断言）=====
   group('pending threat guards (skeleton)', () {
     test(
@@ -96,7 +156,6 @@ void main() {
       skip: 'B.1 真机/vodozemac 运行时',
     );
     test('olm_pcs_recovery (T5)', () {}, skip: 'B.1 真机');
-    test('aes_gcm_tamper_fails (T4)', () {}, skip: 'B.5');
     test('device_identity_signature_verify (T2,T4)', () {}, skip: 'B.3');
     test('e2ee_safety_number (T2,T8)', () {}, skip: 'B.3 (ADR06)');
     test('capability_shrink_triggers_tofu_alert (T2)', () {}, skip: 'B.2 发送侧');
