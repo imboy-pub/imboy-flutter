@@ -7,11 +7,11 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/e2ee_settings.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
-import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/encryption_mode.dart';
-import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/service/compliance_key_service.dart';
+import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
+import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 
 /// Temporary compatibility service for the security_privacy module shell.
 /// New upper-layer imports should prefer
@@ -306,92 +306,20 @@ class E2EEService {
     required Map<String, dynamic> e2ee,
     String? aad,
   }) async {
-    // Megolm 套件按 e2ee_suite 委托 GroupSessionService：
-    // 带 gid → 群会话；无 gid（scope='c2c'）→ 单聊二人会话
-    if (e2ee['e2ee_suite']?.toString() == kMegolmSuite) {
-      final gid = e2ee['gid']?.toString() ?? '';
-      final sessionId = e2ee['session_id']?.toString() ?? '';
-      if (gid.isNotEmpty) {
-        return GroupSessionService.to.decryptGroupMessage(
-          gid: gid,
-          sessionId: sessionId,
-          ciphertext: ciphertext,
-        );
-      }
-      return GroupSessionService.to.decryptC2CMessage(
-        sessionId: sessionId,
-        ciphertext: ciphertext,
-      );
-    }
-
-    // 1. 解析 ciphertext（格式：base64(nonce).base64(ciphertext)）
-    final parts = ciphertext.split('.');
-    if (parts.length != 2) {
-      // DEBUG: 记录 ciphertext 长度/分段数以便定位投递路径上 payload 被破坏的位置；
-      // 不打印密文内容本身，避免敏感数据进日志。
-      iPrint(
-        '[E2EE_DEBUG] ciphertext_len=${ciphertext.length} parts_count=${parts.length}',
-      );
-      throw Exception(
-        'Invalid ciphertext format: expected "base64(nonce).base64(ciphertext)"',
-      );
-    }
-
-    final nonceBase64 = parts[0];
-    final ct = parts[1];
-
-    // 2. 验证 nonce（可选：与 e2ee 元数据中的 nonce 比对）
-    final e2eeNonce = e2ee['nonce']?.toString();
-    if (e2eeNonce != null && e2eeNonce.isNotEmpty && e2eeNonce != nonceBase64) {
-      // nonce 不匹配可能是数据篡改或格式错误
-      throw Exception('Nonce mismatch between ciphertext and e2ee metadata');
-    }
-
-    // 3. 找到当前设备的密钥
-    final myDid = deviceId;
-    final keys = e2ee['keys'] as List?;
-    if (keys == null || keys.isEmpty) {
-      throw Exception('No encryption keys found in e2ee metadata');
-    }
-
-    final myKey = keys
-        .whereType<Map<String, dynamic>>()
-        .map((x) => x.cast<String, dynamic>())
-        .firstWhere(
-          (k) => k['did'] == myDid,
-          orElse: () => throw Exception('No key found for device: $myDid'),
-        );
-
-    // 4. 解密 AES 密钥
-    final ekB64 = myKey['ek']?.toString() ?? '';
-    if (ekB64.isEmpty) {
-      throw Exception('Missing encrypted key (ek) in e2ee metadata');
-    }
-
-    final encKeyBytes = base64.decode(base64.normalize(ekB64));
-    final kid = myKey['kid']?.toString() ?? '';
-    final privateKeyPem = await StorageSecureService.to.getPrivateKeyByKid(kid);
-    if (privateKeyPem == null || privateKeyPem.isEmpty) {
-      throw Exception('私钥不存在 (kid: $kid)');
-    }
-    final privateKeyObj = RSAService.parsePrivateKeyFromPem(privateKeyPem);
-    final aesKey = RSAService.rsaDecrypt(
-      privateKeyObj,
-      Uint8List.fromList(encKeyBytes),
-    );
-
-    // 5. 解密消息
-    // 使用 nonceBase64 作为 IV（与加密时一致）
-    final plainBytes = aad != null && aad.isNotEmpty
-        ? EncrypterService.aesGcmDecryptBytes(
-            nonceBase64,
-            ct,
-            aesKey,
-            aad: Uint8List.fromList(utf8.encode(aad)),
-          )
-        : EncrypterService.aesGcmDecryptBytes(nonceBase64, ct, aesKey);
-
-    return utf8.decode(plainBytes);
+    // ADR 02 §4：业务层不做 if/else 套件路由，统一走 Protocol Registry。
+    // fromMetadata 兼容 v1 字符串（OLM.V1/MEGOLM.V1/RSA-OAEP-256+AES-256-GCM）
+    // 与 v2 三元组（protocol/version）。未知套件抛 FormatException，由调用方
+    // decryptIncomingPayload 捕获兜底 _e2ee_failed（不静默 fallback，§4.3）。
+    //
+    // aad 经 metadata 瞬态键透传：ADR 02 §2.1 冻结的 decrypt 接口无 aad 参数，
+    // 仅 RsaLegacyProtocol 读取 metadata['aad']；Olm/Megolm 忽略。
+    E2eeBootstrap.ensureRegistered();
+    final metadata = (aad != null && aad.isNotEmpty)
+        ? <String, dynamic>{...e2ee, 'aad': aad}
+        : e2ee;
+    return E2eeProtocolRegistry.resolve(
+      metadata,
+    ).decrypt(ciphertext: ciphertext, metadata: metadata);
   }
 
   /// 解密接收到的消息 payload

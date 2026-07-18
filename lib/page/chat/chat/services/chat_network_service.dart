@@ -561,6 +561,19 @@ class ChatNetworkService {
     };
   }
 
+  /// 是否对 C2C 单聊启用 Olm（X3DH + Double Ratchet）套件。
+  ///
+  /// 灰度策略（线 B.4）：
+  /// - 默认 `false`：新消息继续走 Megolm（与历史一致），保证不丢消息；
+  /// - Olm 解密路径已就绪（`E2EEService.decryptE2EEMessage` 按 `e2ee_suite=OLM.V1`
+  ///   路由到 `OlmSessionService`），可解密对端 Olm 客户端发来的消息；
+  /// - 真机验证 Olm X3DH 多设备协商稳定后，按会话/用户/版本灰度翻此开关。
+  ///
+  /// 多设备注意：Olm 是 per-device 会话，完整启用需对对端每个设备分别 claim+encrypt，
+  /// 与 Megolm「一次加密所有设备」语义不同。启用前需扩展 encryptC2CMessage 以支持
+  /// 多设备 fan-out（线 B.4 收尾工作）。
+  static const bool useOlmForC2C = false;
+
   /// 生成 E2EE 加密失败的用户友好错误消息
   String getE2EEErrorMessage(dynamic error) {
     final String errorStr = error.toString().toLowerCase();
