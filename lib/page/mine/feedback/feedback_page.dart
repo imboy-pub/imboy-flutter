@@ -63,7 +63,13 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
       }
       setState(() => _isSubmittingFeedback = true);
       try {
-        img.Image image = img.decodeImage(feedback.screenshot)!;
+        // 截图字节可能无法解码：强解包会抛异常且本方法只有 try/finally
+        // 无 catch，会静默逃逸让用户得不到任何反馈。显式空判并明确报错。
+        final img.Image? image = img.decodeImage(feedback.screenshot);
+        if (image == null) {
+          AppLoading.showError(t.common.operationFailedAgainLater);
+          return;
+        }
         final result = img.encodeJpg(image, quality: 70);
         await AttachmentApi.uploadBytesViaPresignCompat(
           "feedback",

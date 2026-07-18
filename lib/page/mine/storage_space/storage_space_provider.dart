@@ -92,16 +92,33 @@ class StorageSpaceNotifier extends _$StorageSpaceNotifier {
 
   /// 清理所有缓存
   Future<bool> clearAllCache() async {
-    bool res = await IcStorageSpace.clearAllCache();
-    if (res) {
-      await storageStats();
-      try {
-        await cacheManager.emptyCache();
-      } on Exception {
-        // Ignore error
+    // 并发保护：清理进行中忽略重复调用，避免快速重复点击叠加执行。
+    if (state.isLoading) return false;
+    state = state.copyWith(isLoading: true);
+    try {
+      bool res = await IcStorageSpace.clearAllCache();
+      if (res) {
+        try {
+          await cacheManager.emptyCache();
+        } on Exception {
+          // Ignore error
+        }
+        // 清理后磁盘空间也变了，需重新拉取 free/total/used，
+        // 否则页面剩余空间停留在 initData 时的陈旧值。
+        final freeDiskSpace = await IcStorageSpace.getFreeDiskSpaceInBytes;
+        final totalDiskSpace = await IcStorageSpace.getTotalDiskSpaceInBytes;
+        final usedDiskSpace = await IcStorageSpace.getUsedDiskSpaceInBytes;
+        state = state.copyWith(
+          freeDiskSpace: freeDiskSpace,
+          totalDiskSpace: totalDiskSpace,
+          usedDiskSpace: usedDiskSpace,
+        );
+        await storageStats();
       }
+      return res;
+    } finally {
+      state = state.copyWith(isLoading: false);
     }
-    return res;
   }
 
   /// 获取存储统计信息

@@ -49,7 +49,11 @@ class DenylistNotifier extends _$DenylistNotifier {
 
     for (int i = 0; i < list.length; i++) {
       String pinyin = PinyinHelper.getPinyinE(list[i].title);
-      String tag = pinyin.substring(0, 1).toUpperCase();
+      // pinyin 为空（title 空/纯空白/纯符号）时 substring(0,1) 会抛 RangeError，
+      // 归入 "#" 分组避免整个黑名单列表构建崩溃。
+      String tag = pinyin.isNotEmpty
+          ? pinyin.substring(0, 1).toUpperCase()
+          : "#";
       list[i].namePinyin = pinyin;
       if (RegExp("[A-Z]").hasMatch(tag)) {
         list[i].nameIndex = tag;

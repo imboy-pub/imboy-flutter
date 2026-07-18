@@ -22,6 +22,17 @@ class DarkModelState {
       selectIndex: selectIndex ?? this.selectIndex,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DarkModelState &&
+          runtimeType == other.runtimeType &&
+          switchValue == other.switchValue &&
+          selectIndex == other.selectIndex;
+
+  @override
+  int get hashCode => Object.hash(switchValue, selectIndex);
 }
 
 @riverpod

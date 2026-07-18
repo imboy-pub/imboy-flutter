@@ -254,7 +254,7 @@ class SetPasswordPage extends ConsumerWidget {
             // 确认按钮
             Container(
               padding: EdgeInsets.only(
-                bottom: bottomPadding != 20 ? 20 : bottomPadding,
+                bottom: bottomPadding > 0 ? bottomPadding : 20,
               ),
               width: double.infinity,
               child: RoundedElevatedButton(

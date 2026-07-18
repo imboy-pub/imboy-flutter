@@ -76,6 +76,13 @@ class FontSizeNotifier extends _$FontSizeNotifier {
         sliderValue: index.toDouble(),
       );
     } on Exception {
+      // 应用失败：回滚预览到当前真实生效档位，避免滑块/预览停留在
+      // 未生效的新档位、误导用户以为已保存成功。
+      final revertIndex = options.indexOf(state.currentOption);
+      state = state.copyWith(
+        previewOption: state.currentOption,
+        sliderValue: revertIndex.toDouble(),
+      );
       rethrow;
     }
   }

@@ -194,6 +194,13 @@ class UserCollectNotifier extends _$UserCollectNotifier {
 
   /// 显示分类标签
   /// scene page | detail
+  /// 安全获取收藏项 payload：缺失或类型不符时返回空 map，
+  /// 避免历史脏数据（缺 payload 键）导致 null['xxx'] 崩溃整条列表 item。
+  Map<String, dynamic> _payload(UserCollectModel obj) {
+    final Object? p = obj.info['payload'];
+    return p is Map<String, dynamic> ? p : const <String, dynamic>{};
+  }
+
   Widget buildItemBody(
     BuildContext context,
     UserCollectModel obj,
@@ -213,7 +220,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           Expanded(
             child: Text(
               obj.info['text'] as String? ??
-                  (obj.info['payload']['text'] as String? ?? ''),
+                  (_payload(obj)['text'] as String? ?? ''),
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -225,9 +232,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         ],
       );
     } else if (obj.kind == 2) {
-      String uri = normalizeCollectUri(
-        obj.info['payload']['uri'] as String? ?? '',
-      );
+      String uri = normalizeCollectUri(_payload(obj)['uri'] as String? ?? '');
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -278,7 +283,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
             child: Row(
               children: [
                 Text(
-                  formatBytes(obj.info['payload']['size'] as int? ?? 0),
+                  formatBytes(_payload(obj)['size'] as int? ?? 0),
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -288,7 +293,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  " ${obj.info['payload']['width']}X${obj.info['payload']['height']}",
+                  " ${_payload(obj)['width']}X${_payload(obj)['height']}",
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -303,7 +308,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         ],
       );
     } else if (obj.kind == 3) {
-      int durationMS = obj.info['payload']['duration_ms'] as int? ?? 0;
+      int durationMS = _payload(obj)['duration_ms'] as int? ?? 0;
       // row > expand > column > text 换行有效
       body = scene == 'page'
           ? Row(
@@ -361,7 +366,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
               },
             );
     } else if (obj.kind == 4) {
-      String uri = obj.info['payload']['thumb']['uri'] as String? ?? '';
+      String uri =
+          (_payload(obj)['thumb'] as Map? ?? const {})['uri'] as String? ?? '';
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -378,9 +384,13 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 child: InkWell(
                   onTap: () {
                     final String uri =
-                        obj.info['payload']['video']['uri'] as String? ?? '';
+                        (_payload(obj)['video'] as Map? ?? const {})['uri']
+                            as String? ??
+                        '';
                     final String thumb =
-                        obj.info['payload']['thumb']['uri'] as String? ?? '';
+                        (_payload(obj)['thumb'] as Map? ?? const {})['uri']
+                            as String? ??
+                        '';
                     if (uri.isEmpty) {
                       AppLoading.showError(
                         t
@@ -417,7 +427,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
               children: [
                 Text(
                   formatBytes(
-                    obj.info['payload']['video']['size'] as int? ?? 0,
+                    (_payload(obj)['video'] as Map? ?? const {})['size']
+                            as int? ??
+                        0,
                   ),
                   style: TextStyle(
                     color: Theme.of(
@@ -428,7 +440,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  " ${obj.info['payload']['video']['width']}X${obj.info['payload']['video']['height']}",
+                  " ${(_payload(obj)['video'] as Map? ?? const {})['width']}X${(_payload(obj)['video'] as Map? ?? const {})['height']}",
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -443,7 +455,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         ],
       );
     } else if (obj.kind == 5) {
-      String mimeType = (obj.info['payload']['mimeType'] ?? '')
+      String mimeType = (_payload(obj)['mimeType'] ?? '')
           .toString()
           .toLowerCase();
       body = scene == 'page'
@@ -454,7 +466,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   children: [
                     Flexible(
                       child: Text(
-                        obj.info['payload']['name'] as String? ?? '',
+                        _payload(obj)['name'] as String? ?? '',
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           color: Theme.of(context).colorScheme.onSurface,
@@ -468,7 +480,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 Row(
                   children: [
                     Text(
-                      "$mimeType  ${formatBytes(obj.info['payload']['size'] as int? ?? 0)}",
+                      "$mimeType  ${formatBytes(_payload(obj)['size'] as int? ?? 0)}",
                       style: TextStyle(
                         color: Theme.of(
                           context,
@@ -488,7 +500,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   children: [
                     Flexible(
                       child: Text(
-                        obj.info['payload']['name'] as String? ?? '',
+                        _payload(obj)['name'] as String? ?? '',
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           color: Theme.of(context).colorScheme.onSurface,
@@ -506,7 +518,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
-                        "${t.chat.fileSize}: ${formatBytes(obj.info['payload']['size'] as int? ?? 0)}",
+                        "${t.chat.fileSize}: ${formatBytes(_payload(obj)['size'] as int? ?? 0)}",
                         style: TextStyle(
                           color: Theme.of(
                             context,
@@ -536,8 +548,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
               ],
             );
     } else if (obj.kind == 6) {
-      String title = obj.info['payload']['title'] as String? ?? '';
-      String address = obj.info['payload']['address'] as String? ?? '';
+      String title = _payload(obj)['title'] as String? ?? '';
+      String address = _payload(obj)['address'] as String? ?? '';
 
       body = scene == 'page'
           ? Row(
@@ -635,8 +647,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
             );
     } else if (obj.kind == 7) {
       // 个人名片
-      String nickname = obj.info['payload']['nickname'] as String? ?? '';
-      String avatar = obj.info['payload']['avatar'] as String? ?? '';
+      String nickname = _payload(obj)['nickname'] as String? ?? '';
+      String avatar = _payload(obj)['avatar'] as String? ?? '';
       body = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -68,9 +70,13 @@ class BindEmailState {
 class BindEmailNotifier extends _$BindEmailNotifier {
   final TextEditingController emailCtl = TextEditingController();
   final TextEditingController codeCtl = TextEditingController();
+  Timer? _countdownTimer;
 
   @override
   BindEmailState build() {
+    // 页面离开、notifier 被 autoDispose 时取消倒计时，
+    // 避免 Timer 回调在已销毁的 notifier 上写 state 抛未捕获异常。
+    ref.onDispose(() => _countdownTimer?.cancel());
     return const BindEmailState();
   }
 
@@ -128,10 +134,9 @@ class BindEmailNotifier extends _$BindEmailNotifier {
   }
 
   void startCountdown() {
+    _countdownTimer?.cancel();
     state = state.copyWith(seconds: 60);
-    Future.doWhile(() async {
-      await Future<dynamic>.delayed(const Duration(seconds: 1));
-      if (state.seconds <= 0) return false;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final newSeconds = state.seconds - 1;
       state = state.copyWith(seconds: newSeconds);
 
@@ -146,7 +151,7 @@ class BindEmailNotifier extends _$BindEmailNotifier {
           !state.isSubmitting;
       state = state.copyWith(canSendCode: canSendCode);
 
-      return state.seconds > 0;
+      if (newSeconds <= 0) timer.cancel();
     });
   }
 

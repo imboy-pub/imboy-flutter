@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/modules/identity/public.dart';
@@ -73,9 +75,13 @@ class BindMobileState {
 class BindMobileNotifier extends _$BindMobileNotifier {
   final TextEditingController mobileCtl = TextEditingController();
   final TextEditingController codeCtl = TextEditingController();
+  Timer? _countdownTimer;
 
   @override
   BindMobileState build() {
+    // 页面离开、notifier 被 autoDispose 时取消倒计时，
+    // 避免 Timer 回调在已销毁的 notifier 上写 state 抛未捕获异常。
+    ref.onDispose(() => _countdownTimer?.cancel());
     return const BindMobileState();
   }
 
@@ -129,10 +135,9 @@ class BindMobileNotifier extends _$BindMobileNotifier {
   }
 
   void startCountdown() {
+    _countdownTimer?.cancel();
     state = state.copyWith(seconds: 60);
-    Future.doWhile(() async {
-      await Future<dynamic>.delayed(const Duration(seconds: 1));
-      if (state.seconds <= 0) return false;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       final newSeconds = state.seconds - 1;
       state = state.copyWith(seconds: newSeconds);
 
@@ -147,7 +152,7 @@ class BindMobileNotifier extends _$BindMobileNotifier {
           !state.isSubmitting;
       state = state.copyWith(canSendCode: canSendCode);
 
-      return state.seconds > 0;
+      if (newSeconds <= 0) timer.cancel();
     });
   }
 
