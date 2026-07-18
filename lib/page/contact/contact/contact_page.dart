@@ -326,7 +326,12 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             child: NoDataView(text: t.common.noContacts),
           )
         else
+          // AzListView 自带滚动，用默认 hasScrollBody:true 会把它当成嵌套滚动主体，
+          // 导致悬浮吸顶头挂到未完成布局的 relayout 边界上，滚动/触摸时抛
+          // "Cannot hit test a render box with no size" 刷屏。改为 false，
+          // 让 AzListView 以固定盒子布局并独立滚动。
           SliverFillRemaining(
+            hasScrollBody: false,
             child: AzListView(
               data: state.contactList,
               itemCount: state.contactList.length,
