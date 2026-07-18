@@ -20,7 +20,7 @@
 | 7 | Safety Number | T2,T8 | — | ❌ 客户端 SN 算法未实现（ADR 06 客户端流程未落地，本轮不做 Flutter） |
 | 8 | Signed Capabilities | T2 | `app test/service/e2ee/capability_negotiator_test.dart`（cap_sig_tampered_rejected） | ✅ |
 | 9 | 本地降级告警 | T2 | — | ❌ B.2 发送侧未做（`useOlmForC2C=false`） |
-| 10 | OTK 原子 claim | T7 | `be test/logic/olm_identity_logic_tests.erl` + `be scripts/verify_device_api_sql.sh`（claim UPDATE 审计语义，B.3.2） | ⚠️ 单次 claim 语义已测；100 并发 SKIP LOCKED 未压测 |
+| 10 | OTK 原子 claim | T7 | `be test/logic/olm_identity_logic_tests.erl` + `be scripts/verify_device_api_sql.sh`（claim UPDATE 审计语义 + **B.5 新增**：100 并发抢 50 OTK，SKIP LOCKED 唯一性压测） | ✅ 单次语义 + 并发唯一性（恰好 50 成功/无重复/每 key 唯一 claimer）均已测 |
 | 11 | room key 域一致性 | T7 | `be test/logic/group_e2ee_logic_tests.erl`（后端已落地） | ✅ |
 | 12 | 消息重放/乱序 | T7 | 应用层 `msg_id` `ON CONFLICT DO NOTHING` 去重（已存在） | ⚠️ msg_id 去重已存在；ADR 05 message counter 未定义/未测 |
 | 13 | KDF 可迁移（PBKDF2→Argon2id） | T6 | `be test/logic/e2ee_backup_logic_tests.erl`（PBKDF2 往返） | ⚠️ PBKDF2 已测；argon2id 迁移未实现（ADR 09-R5 本轮保留 PBKDF2） |
@@ -28,7 +28,7 @@
 | 15 | Device identity 版本单调 | T9 | — | ❌ 客户端 `highest_seen_identity_signed_at` 比对未实现 |
 | 16 | Megolm session rotate 单调 | T9 | — | ❌ 需 vodozemac 运行时/真机 |
 
-**小计**：✅ 6 · ⚠️ 4 · ❌ 6。
+**小计**：✅ 7 · ⚠️ 3 · ❌ 6。
 
 ---
 
@@ -66,7 +66,7 @@
 | 需 vodozemac 原生运行时/真机（headless 不可模拟 Olm/Megolm ratchet） | §4.3/4/16 PFS/PCS/Megolm rotate | 真机集成（需设备，本轮排除） |
 | 客户端流程未实现（Safety Number / rollback 比对 / 降级告警） | §4.7/9/15 | B.2 发送侧 + ADR 06 客户端流程（未改 Flutter，本轮不做） |
 | 功能本轮不实现（argon2id 迁移） | §4.13 | ADR 09-R5 保留 PBKDF2，未来 revisit |
-| 并发压测未做（100 并发 claim） | §4.10 | 可后续加并发集成脚本 |
+| ~~并发压测未做（100 并发 claim）~~ | ~~§4.10~~ | ✅ B.5 已补：`be scripts/verify_device_api_sql.sh` 断言4 |
 
 ---
 
