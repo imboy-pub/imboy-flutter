@@ -28,6 +28,11 @@ class E2EEService {
   static final Map<String, Map<String, String>> _userKidCacheByDevice = {};
   static final Map<String, Map<String, String>> _groupKidCacheByDevice = {};
 
+  /// 群缓存：gid → (did → 该设备所属成员 uid)。
+  /// room-key-over-Olm（ADR 13）发送侧据此解析对端 uid 建 Olm 会话；
+  /// C2C 场景 did→uid 恒等于对端 uid，无需缓存（_userKeyResult 内联生成）。
+  static final Map<String, Map<String, String>> _groupUidCacheByDevice = {};
+
   /// 缓存条目的存入时间戳（毫秒），用于 TTL 过期检查
   static final Map<String, int> _userKeyCacheTimestamp = {};
   static final Map<String, int> _groupKeyCacheTimestamp = {};
@@ -51,6 +56,8 @@ class E2EEService {
     return {
       'didToPem': didToPem,
       'didToKid': _userKidCacheByDevice[uid] ?? const <String, String>{},
+      // C2C：分发列表内所有设备均属对端 uid，did→uid 恒等映射
+      'didToUid': {for (final did in didToPem.keys) did: uid},
     };
   }
 
@@ -62,6 +69,8 @@ class E2EEService {
     return {
       'didToPem': didToPem,
       'didToKid': _groupKidCacheByDevice[gid] ?? const <String, String>{},
+      // C2G：did→成员 uid（room-key-over-Olm 发送侧解析对端 uid 用）
+      'didToUid': _groupUidCacheByDevice[gid] ?? const <String, String>{},
     };
   }
 
@@ -566,7 +575,9 @@ class E2EEService {
         final members = await E2EEApi().groupMemberKeys(gid: gid);
         final didToPem = <String, String>{};
         final didToKid = <String, String>{};
+        final didToUid = <String, String>{};
         for (final m in members) {
+          final memberUid = m['uid']?.toString() ?? '';
           final devices = m['devices'];
           if (devices is! List) continue;
           for (final d in devices.whereType<Map<String, dynamic>>()) {
@@ -577,6 +588,7 @@ class E2EEService {
             didToPem[did] = pem;
             final kid = row['key_id']?.toString() ?? '';
             if (kid.isNotEmpty) didToKid[did] = kid;
+            if (memberUid.isNotEmpty) didToUid[did] = memberUid;
           }
         }
 
@@ -596,6 +608,7 @@ class E2EEService {
 
         _groupKeyCacheByDevice[gid] = didToPem;
         _groupKidCacheByDevice[gid] = didToKid;
+        _groupUidCacheByDevice[gid] = didToUid;
         _groupKeyCacheTimestamp[gid] = DateTime.now().millisecondsSinceEpoch;
         return _groupKeyResult(gid, didToPem);
       } catch (e) {

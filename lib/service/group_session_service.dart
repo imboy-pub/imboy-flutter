@@ -12,6 +12,7 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
@@ -19,6 +20,17 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// Megolm 会话套件标识（e2ee 元数据 e2ee_suite 字段，区分既有 RSA+AES 套件）
 const String kMegolmSuite = 'MEGOLM.V1';
+
+/// ADR 13 room-key-over-Olm：Olm 包裹结果（填 keys[].olm 子对象的 type/body）。
+typedef OlmWrapped = ({int type, String body});
+
+/// 发送侧 Olm 包裹回调：对接收设备 [peerDeviceId] 用 Olm 会话包裹 [exportedKey]。
+/// 返回 null = 该设备不可 Olm（无身份 / 建会话失败）→ 仅 RSA 回退（ADR 13 §4）。
+///
+/// peerDeviceId → uid/session 的解析由回调实现方（OlmSessionService）负责，本类型
+/// 不引入用户身份映射——crypto payload builder 与 identity/session lookup 解耦。
+typedef OlmWrapFn =
+    Future<OlmWrapped?> Function(String peerDeviceId, String exportedKey);
 
 /// E2EE 会话服务（vodozemac Megolm，C2G 群聊 + C2C 单聊统一走此套件）
 ///
@@ -161,6 +173,7 @@ class GroupSessionService {
           target: target,
           didToPem: didToPem,
           didToKid: deviceKeys['didToKid'] ?? const <String, String>{},
+          didToUid: deviceKeys['didToUid'] ?? const <String, String>{},
           didSet: didSet,
         );
         _outbound[scopeKey] = outbound;
@@ -177,6 +190,7 @@ class GroupSessionService {
     required String target,
     required Map<String, String> didToPem,
     required Map<String, String> didToKid,
+    required Map<String, String> didToUid,
     required Set<String> didSet,
   }) async {
     final session = vod.GroupSession();
@@ -197,6 +211,22 @@ class GroupSessionService {
       didToPem: didToPem,
       didToKid: didToKid,
       extraKeys: compliance == null ? const [] : [compliance],
+    );
+    // ADR 13 双包：给可 Olm 的接收设备追加 olm 子对象（RSA ek 保留）。
+    // did→uid 由分发列表解析（C2C 兜底为对端 target），委托 OlmSessionService 建会话。
+    await attachOlmWraps(
+      keys: payload['keys'] as List,
+      exportedKey: exported,
+      senderDeviceId: deviceId,
+      olmWrap: (String did, String exportedKey) async {
+        final uid = didToUid[did] ?? (isGroup ? '' : target);
+        if (uid.isEmpty) return null;
+        return OlmSessionService.to.wrapRoomKey(
+          peerUid: uid,
+          peerDeviceId: did,
+          exportedKey: exportedKey,
+        );
+      },
     );
     _sendRoomKeyMessage(isGroup ? 'C2G' : 'C2C', target, payload);
     iPrint(
@@ -294,18 +324,14 @@ class GroupSessionService {
       final entry = pickMyKeyEntry(keys, deviceId);
       if (entry == null) return; // 本设备不在分发列表
 
-      final kid = entry['kid']?.toString() ?? '';
-      final privateKeyPem = await StorageSecureService.to.getPrivateKeyByKid(
-        kid,
+      // 接收状态机（ADR 13 §4）：优先 Olm 解包（olm 子对象），回退 RSA（ek）。
+      // Olm 认证失败 → 拒绝、不降级 RSA（防 downgrade attack）；
+      // 会话不可用 / 缺 sid / 无 olm → RSA 回退。
+      final exported = await _unwrapEntry(
+        entry,
+        senderUid: data['from']?.toString() ?? '',
       );
-      if (privateKeyPem == null || privateKeyPem.isEmpty) {
-        AppLogger.error('[group_session] room key 私钥不存在 kid=$kid');
-        return;
-      }
-      final exported = unwrapSessionKey(
-        ek: entry['ek']?.toString() ?? '',
-        privateKeyPem: privateKeyPem,
-      );
+      if (exported == null) return;
 
       await ensureInitialized();
       final inbound = vod.InboundGroupSession.import(exported);
@@ -332,6 +358,83 @@ class GroupSessionService {
       AppLogger.error('[group_session] handleRoomKeyMessage error', e, s);
     }
   }
+
+  /// 接收侧解包单个 key 条目（ADR 13 §4 状态机 + T-13-08 边界）：
+  /// 1. `olm` 存在且字段完整（sid/body 非空、type 为 int、senderUid 非空）→ 试 Olm 解包：
+  ///    - 成功 → 返回 exportedKey；
+  ///    - [OlmAuthenticationException]（认证失败）→ 返回 null（拒绝，**不降级** RSA）；
+  ///    - 其它异常（会话不可用）→ 落到 RSA 回退。
+  /// 2. 无 olm / 缺 sid / type 非 int / senderUid 空 / Olm 会话不可用 → RSA 解包 `ek`。
+  /// 返回 null = 无法解包或被拒绝（调用方丢弃该 room key）。
+  Future<String?> _unwrapEntry(
+    Map<String, dynamic> entry, {
+    required String senderUid,
+  }) async {
+    final olm = entry['olm'];
+    if (olm is Map) {
+      final sid = olm['sid']?.toString() ?? '';
+      final body = olm['body']?.toString() ?? '';
+      final type = olm['type'];
+      if (sid.isNotEmpty &&
+          body.isNotEmpty &&
+          senderUid.isNotEmpty &&
+          type is int) {
+        try {
+          return await (debugOlmUnwrap ?? _defaultOlmUnwrap)(
+            senderUid,
+            sid,
+            type,
+            body,
+          );
+        } on OlmAuthenticationException catch (e) {
+          // ciphertext invalid / auth failure → 拒绝，禁止降级 RSA（防 downgrade）
+          AppLogger.error('[group_session] room key Olm 认证失败，拒绝该条目', e);
+          return null;
+        } on Object catch (e) {
+          // 会话不可用 / 建会话失败 → 回退 RSA
+          iPrint('[group_session] Olm 解包不可用，回退 RSA: $e');
+        }
+      }
+      // sid 缺失/空 / type 非 int / senderUid 空 → 回退 RSA（T-13-08）
+    }
+
+    // RSA 回退路径（与旧客户端一致）
+    final kid = entry['kid']?.toString() ?? '';
+    final ek = entry['ek']?.toString() ?? '';
+    if (ek.isEmpty) return null;
+    final privateKeyPem = await StorageSecureService.to.getPrivateKeyByKid(kid);
+    if (privateKeyPem == null || privateKeyPem.isEmpty) {
+      AppLogger.error('[group_session] room key 私钥不存在 kid=$kid');
+      return null;
+    }
+    return unwrapSessionKey(ek: ek, privateKeyPem: privateKeyPem);
+  }
+
+  /// 默认 Olm 解包器：委托 OlmSessionService（生产路径）。
+  /// 测试用 [debugOlmUnwrap] 覆盖以免依赖真 vodozemac / 网络 claim。
+  Future<String> _defaultOlmUnwrap(
+    String senderUid,
+    String sid,
+    int type,
+    String body,
+  ) => OlmSessionService.to.decryptC2CMessage(
+    peerUid: senderUid,
+    peerDeviceId: sid,
+    messageType: type,
+    ciphertext: body,
+  );
+
+  /// 测试注入：接收侧 Olm 解包器（返回 exportedKey 或抛 OlmAuthenticationException）。
+  @visibleForTesting
+  Future<String> Function(String senderUid, String sid, int type, String body)?
+  debugOlmUnwrap;
+
+  /// 测试专用：暴露接收侧解包状态机（保持 [_unwrapEntry] 私有语义）。
+  @visibleForTesting
+  Future<String?> debugUnwrapEntry(
+    Map<String, dynamic> entry, {
+    required String senderUid,
+  }) => _unwrapEntry(entry, senderUid: senderUid);
 
   /// 解密 Megolm 群消息（E2EEService.decryptE2EEMessage 按 e2ee_suite 委托过来）
   Future<String> decryptGroupMessage({
@@ -416,6 +519,41 @@ class GroupSessionService {
       'alg': kMegolmSuite,
       'keys': keys,
     };
+  }
+
+  /// ADR 13 §3.1 发送侧双包后处理：给每个可 Olm 的接收设备条目**追加** olm
+  /// 子对象 `{v,type,sid,body}`，RSA `ek` 保留不变（双包灰度期）。
+  /// - 逐条目调 [olmWrap]（注入，纯函数可测）；返回 null（对端无 Olm 身份/建会话
+  ///   失败）→ 该条目仅 RSA 回退，不阻断分发（ADR 13 §4）。
+  /// - `compliance-audit` 条目跳过（合规侧无 Olm 会话，恒 RSA，ADR 13 §3.3）。
+  /// - [senderDeviceId] 填 olm.sid（发送方 deviceId），供接收侧定位 Olm 入站会话。
+  @visibleForTesting
+  static Future<void> attachOlmWraps({
+    required List<dynamic> keys,
+    required String exportedKey,
+    required String senderDeviceId,
+    required OlmWrapFn olmWrap,
+  }) async {
+    if (senderDeviceId.isEmpty) return; // 无本设备 id 无法填 sid → 全部仅 RSA
+    for (final k in keys) {
+      if (k is! Map) continue;
+      final did = k['did']?.toString() ?? '';
+      if (did.isEmpty || did == 'compliance-audit') continue;
+      OlmWrapped? wrapped;
+      try {
+        wrapped = await olmWrap(did, exportedKey);
+      } on Object catch (e) {
+        AppLogger.error('[group_session] olmWrap 异常，该 did 仅 RSA: $did', e);
+        continue;
+      }
+      if (wrapped == null) continue; // 对端不可 Olm → 仅 RSA
+      k['olm'] = <String, dynamic>{
+        'v': kOlmSuite,
+        'type': wrapped.type,
+        'sid': senderDeviceId,
+        'body': wrapped.body,
+      };
+    }
   }
 
   /// 组装合规审计密钥条目（纯函数，供 _complianceKeyEntry 与单测复用）

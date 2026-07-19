@@ -48,6 +48,20 @@ const String _sessionPicklePrefix = 'olm_session_';
 /// - 单聊（C2C）新版默认走 Olm（本服务），获得 per-message PFS；
 /// - `e2ee_suite` 字段路由：`OLM.V1` → 本服务，`MEGOLM.V1` → GroupSessionService，
 ///   `RSA-OAEP-256+AES-256-GCM` → 旧 E2EEService。
+
+/// Olm 密文认证失败（MAC 校验失败 / ciphertext 无效）。
+///
+/// 语义上区别于「会话不可用」（无 session / 身份查不到 / prekey 建会话失败）：
+/// - 会话不可用 → 调用方可安全回退到其它包裹通道（如 room key 的 RSA `ek`）；
+/// - **认证失败 → 调用方必须拒绝，禁止降级**——密文已到解密阶段却校验失败，
+///   意味着被篡改或遭 downgrade 注入，降级会打开 downgrade attack surface（ADR 13 §4）。
+class OlmAuthenticationException implements Exception {
+  OlmAuthenticationException(this.message);
+  final String message;
+  @override
+  String toString() => 'OlmAuthenticationException: $message';
+}
+
 class OlmSessionService {
   static final OlmSessionService _instance = OlmSessionService._internal();
   static OlmSessionService get to => _instance;
@@ -294,6 +308,30 @@ class OlmSessionService {
     });
   }
 
+  /// room key 分发专用：用与对端设备的 Olm 会话包裹 [exportedKey]（Megolm
+  /// 导出的 room key），返回 `(type, body)` 供 ADR 13 §3.1 双包线格式的 `olm`
+  /// 子对象填充（`sid` 由调用方以本设备 id 填）。
+  ///
+  /// 失败（对端无 Olm 身份 / claim OTK 失败 / 建会话异常）返回 `null`——语义为
+  /// 「该设备不可 Olm，调用方仅写 RSA `ek` 回退」，不阻断整体分发（ADR 13 §4）。
+  Future<({int type, String body})?> wrapRoomKey({
+    required String peerUid,
+    required String peerDeviceId,
+    required String exportedKey,
+  }) async {
+    try {
+      final r = await encryptC2CMessage(
+        peerUid: peerUid,
+        peerDeviceId: peerDeviceId,
+        plaintext: exportedKey,
+      );
+      return (type: r.messageType, body: r.ciphertext);
+    } on Object catch (e) {
+      iPrint('[olm] wrapRoomKey 回退 RSA（$peerUid:$peerDeviceId）: $e');
+      return null;
+    }
+  }
+
   /// X3DH 协商：claim 对端 prekey + 用本端身份建出站 Session。
   Future<vod.Session> _establishOutboundSession(
     String peerUid,
@@ -337,15 +375,24 @@ class OlmSessionService {
       if (messageType == 0) {
         // pre-key message：首次接收，建入站 Session
         // createInboundSession 内部完成 X3DH 并返回 (Session, plaintext)
+        // _lookupPeerIdentityKey 失败（身份取不到）保持普通异常 → 会话不可用可回退。
         final theirIdentity = await _lookupPeerIdentityKey(
           peerUid,
           peerDeviceId,
         );
-        final result = account.createInboundSession(
-          theirIdentityKey: vod.Curve25519PublicKey.fromBase64(theirIdentity),
-          preKeyMessageBase64: ciphertext,
-        );
-        session = result.session;
+        late final dynamic result;
+        try {
+          result = account.createInboundSession(
+            theirIdentityKey: vod.Curve25519PublicKey.fromBase64(theirIdentity),
+            preKeyMessageBase64: ciphertext,
+          );
+        } on Object catch (e) {
+          // 身份已取到、仍无法从 prekey 密文建会话 → 密文无效/被篡改，拒绝降级
+          throw OlmAuthenticationException(
+            'createInboundSession 失败（prekey 密文无效）: $e',
+          );
+        }
+        session = result.session as vod.Session;
         await _persistSession(peerUid, peerDeviceId, session);
         // 入站会话建立后，本端可能需补传 OTK
         unawaited(
@@ -354,19 +401,26 @@ class OlmSessionService {
             await _persistAccount(pickleKey);
           }),
         );
-        return result.plaintext;
+        return result.plaintext as String;
       }
 
       // normal message
       if (session == null) {
+        // 无入站会话 → 会话不可用，可回退（非认证失败）
         throw Exception(
           'olm normal message but no inbound session: $peerUid:$peerDeviceId',
         );
       }
-      final plaintext = session.decrypt(
-        messageType: messageType,
-        ciphertext: ciphertext,
-      );
+      final String plaintext;
+      try {
+        plaintext = session.decrypt(
+          messageType: messageType,
+          ciphertext: ciphertext,
+        );
+      } on Object catch (e) {
+        // 会话存在但解密认证失败 → MAC 校验失败/密文无效，拒绝降级
+        throw OlmAuthenticationException('olm decrypt 认证失败: $e');
+      }
       await _persistSession(peerUid, peerDeviceId, session);
       return plaintext;
     });
