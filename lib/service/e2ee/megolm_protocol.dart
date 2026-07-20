@@ -48,10 +48,13 @@ class MegolmProtocol implements E2eeSessionProtocol {
       peerUid: peerUid,
       plaintext: plaintext,
     );
-    return E2eeCiphertext(res.ciphertext, _meta(res.sessionId));
+    return E2eeCiphertext(
+      res.ciphertext,
+      _meta(res.sessionId, scope: context.scope),
+    );
   }
 
-  Map<String, dynamic> _meta(String sessionId, {String? gid}) {
+  Map<String, dynamic> _meta(String sessionId, {String? gid, String? scope}) {
     final m = <String, dynamic>{
       'protocol': suite.protocol,
       'version': suite.version,
@@ -59,6 +62,7 @@ class MegolmProtocol implements E2eeSessionProtocol {
       'session_id': sessionId,
     };
     if (gid != null && gid.isNotEmpty) m['gid'] = gid;
+    if (scope != null && scope.isNotEmpty) m['scope'] = scope;
     return m;
   }
 

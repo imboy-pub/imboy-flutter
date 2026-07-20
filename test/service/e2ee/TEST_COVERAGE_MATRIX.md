@@ -51,11 +51,11 @@
 | §2 `megolm`/`olm` active，`mls` reserved（未注册，version=0） | `app test/service/e2ee/e2ee_protocol_test.dart`（mls 占位）+ registry all() | ✅ |
 | §3 metadata v1 legacy 解析（3 种历史字符串） | `app test/service/e2ee/e2ee_protocol_test.dart`（fromMetadata 兼容矩阵） | ✅ |
 | §3 metadata v2 三元组优先于 v1（双写读取） | `app test/service/e2ee/e2ee_protocol_test.dart`（v2 优先于 v1） | ✅ |
-| §3 双写期发送同写 v1+v2 字段 | — | ⚠️ fromMetadata 双向已测；adapter encrypt 双写需 vodozemac，headless 未测 |
+| §3 双写期发送同写 v1+v2 字段 | `app test/service/e2ee/e2ee_outbound_router_test.dart` | ✅ 发送信封构造已从原生 encrypt 抽离，headless 断言 v1+v2 字段与协议私有字段同存 |
 | §6 未知套件 → FormatException/legacy 兜底 | `app test/service/e2ee/e2ee_protocol_test.dart` + `e2ee_bootstrap_test.dart` | ✅ |
 | §4 服务端协议无关透传 | `be scripts/check_server_zero_crypto.sh` + 现有 e2ee 透传测试 | ✅ |
 
-**小计**：✅ 8 · ⚠️ 1 · ❌ 0。
+**小计**：✅ 9 · ⚠️ 0 · ❌ 0。
 
 ---
 
@@ -73,8 +73,8 @@
 ## 5. 实现与 ADR 一致性观察（不擅自修改，仅记录）
 
 1. **§4.11 room key 域一致性 / §4.6 Ed25519 签名**：后端已具备验签机制（`e2ee_trust_logic` 用 `crypto:verify(eddsa)`），但 **客户端对设备列表 `identity_signature` 的验签（ADR 03 §8.2 步骤 1）尚未实现**——属 Flutter 消费侧，本轮不改 Flutter，标为 ⚠️/❌。
-2. **§3 双写期（ADR 05 §4）**：`ProtocolSuite.fromMetadata` 读取侧双向兼容已测；写入侧双写（adapter encrypt 同写 v1+v2）依赖 vodozemac 运行时，headless 无法断言字段同存，需真机或将 metadata 构造逻辑从 encrypt 中剥离（属重构，本轮不做）。
-3. 以上均为**覆盖缺口**，非实现与 ADR 冲突；未发现需修改架构的不一致。
+2. **§3 双写期（ADR 05 §4）**：`ProtocolSuite.fromMetadata` 读取侧双向兼容已测；写入侧已由 `E2eeOutboundRouter` 统一构造 v1+v2 信封，不依赖 vodozemac 即可在 headless 测试断言字段同存。
+3. 其余标注项均为**覆盖缺口**，非实现与 ADR 冲突；未发现需修改架构的不一致。
 
 ---
 

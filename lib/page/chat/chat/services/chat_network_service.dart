@@ -13,6 +13,9 @@ import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
+import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
+import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -528,50 +531,34 @@ class ChatNetworkService {
     }
     final plaintext = jsonEncode(plaintextPayload);
 
-    if (chatType == 'C2G') {
-      final enc = await GroupSessionService.to.encryptGroupMessage(
-        gid: toId,
-        plaintext: plaintext,
-      );
-      return {
-        'e2ee': {
-          'e2ee': true,
-          'e2ee_ver': 2,
-          'e2ee_suite': kMegolmSuite,
-          'gid': toId,
-          'session_id': enc.sessionId,
-        },
-        'payload': enc.ciphertext,
-      };
-    }
-
-    final enc = await GroupSessionService.to.encryptC2CMessage(
-      peerUid: toId,
+    // 行为不变重构：当前仍统一选 Megolm，但加密调用与
+    // 双写 metadata 均收口到 Registry 发送路由。后续部署就绪后，
+    // Capability Negotiation 需按设备 fan-out，再把每份选中的 suite
+    // 和 recipient 传入该路由。
+    E2eeBootstrap.ensureRegistered();
+    final context = chatType == 'C2G'
+        ? E2eeContext(gid: toId, scope: 'c2g')
+        : E2eeContext(peerUid: toId, scope: GroupSessionService.c2cScope);
+    final encrypted = await E2eeOutboundRouter.encrypt(
+      suite: ProtocolSuite.megolm,
       plaintext: plaintext,
+      recipients: const [],
+      context: context,
     );
-    return {
-      'e2ee': {
-        'e2ee': true,
-        'e2ee_ver': 2,
-        'e2ee_suite': kMegolmSuite,
-        'scope': GroupSessionService.c2cScope,
-        'session_id': enc.sessionId,
-      },
-      'payload': enc.ciphertext,
-    };
+    return {'e2ee': encrypted.metadata, 'payload': encrypted.ciphertext};
   }
 
   /// 是否对 C2C 单聊启用 Olm（X3DH + Double Ratchet）套件。
   ///
-  /// 灰度策略（线 B.4）：
-  /// - 默认 `false`：新消息继续走 Megolm（与历史一致），保证不丢消息；
-  /// - Olm 解密路径已就绪（`E2EEService.decryptE2EEMessage` 按 `e2ee_suite=OLM.V1`
-  ///   路由到 `OlmSessionService`），可解密对端 Olm 客户端发来的消息；
-  /// - 真机验证 Olm X3DH 多设备协商稳定后，按会话/用户/版本灰度翻此开关。
+  /// 部署门控状态（B.2 发送侧）：
+  /// - 默认 `false`：新消息继续走 Megolm（与历史一致）；
+  /// - Olm 解密已经过 Protocol Registry 就绪；
+  /// - 当前发送选择器在后端未部署前不读取此常量，不得把
+  ///   claim 404 后的 Megolm 发送冒充 Olm PASS。
   ///
   /// 多设备注意：Olm 是 per-device 会话，完整启用需对对端每个设备分别 claim+encrypt，
-  /// 与 Megolm「一次加密所有设备」语义不同。启用前需扩展 encryptC2CMessage 以支持
-  /// 多设备 fan-out（线 B.4 收尾工作）。
+  /// 与 Megolm「一次加密所有设备」语义不同。启用前还需接入
+  /// Signed Capabilities、逐设备 claim 与 fan-out。
   static const bool useOlmForC2C = false;
 
   /// 生成 E2EE 加密失败的用户友好错误消息
