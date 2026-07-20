@@ -519,9 +519,15 @@ class GroupSessionService {
 
   // ===== 纯函数（可独立单测，不依赖原生库）=====
 
-  /// 组装 room key 分发 payload：导出 key 逐设备 RSA-OAEP-256 包裹。
+  /// 组装 room key 分发 payload（v3 Olm-only）。
   /// [gid] 非空 → 群 payload；空/null → C2C payload（带 scope='c2c'）。
-  /// [extraKeys] 追加条目（如合规审计包裹），不参与设备集合比较。
+  /// [extraKeys] 追加条目（如合规审计 RSA 包裹，ADR 18），不参与设备集合比较。
+  ///
+  /// E2EE-011 Olm-only：设备条目不再生成 RSA `ek`；olm 子对象由 [attachOlmWraps]
+  /// 追加。无 Olm 身份设备最终无 olm 无 ek → 接收侧 v3 跳过（不回退 RSA）。
+  ///
+  /// ponytail: [exportedKey]/[didToPem] 参数暂保留以稳定签名（仅 didToPem.keys
+  /// 用作设备集合来源）；更广的签名瘦身与 RSA 套件清理随后续 pass 一并做。
   static Map<String, dynamic> buildRoomKeyPayload({
     String? gid,
     required String sessionId,
@@ -531,16 +537,8 @@ class GroupSessionService {
     List<Map<String, dynamic>> extraKeys = const [],
   }) {
     final keys = <Map<String, dynamic>>[];
-    for (final entry in didToPem.entries) {
-      keys.add({
-        'did': entry.key,
-        'kid': didToKid[entry.key] ?? entry.key,
-        'wrap_alg': 'RSA-OAEP-256',
-        'ek': wrapSessionKey(
-          exportedKey: exportedKey,
-          publicKeyPem: entry.value,
-        ),
-      });
+    for (final did in didToPem.keys) {
+      keys.add({'did': did, 'kid': didToKid[did] ?? did});
     }
     keys.addAll(extraKeys);
     return {

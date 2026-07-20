@@ -68,17 +68,17 @@ void main() {
 
   group('room key 包裹/解包（纯 Dart，不依赖原生库）', () {
     test(
-      'buildRoomKeyPayload → pickMyKeyEntry → unwrapSessionKey 逐字节往返',
+      'buildRoomKeyPayload v3：设备条目 Olm-only（无 RSA ek）+ meta_version=3',
       () async {
         final keyInfo = await _setupDeviceKey();
         final did = keyInfo['device_id'] as String;
         final kid = keyInfo['key_id'] as String;
         final pem = keyInfo['public_key'] as String;
 
-        // 模拟导出的 Megolm session key：~165 字节随机、unpadded base64
         final rnd = Random.secure();
-        final keyBytes = List<int>.generate(165, (_) => rnd.nextInt(256));
-        final exported = base64.encode(keyBytes).replaceAll('=', '');
+        final exported = base64
+            .encode(List<int>.generate(165, (_) => rnd.nextInt(256)))
+            .replaceAll('=', '');
 
         final payload = GroupSessionService.buildRoomKeyPayload(
           gid: 'g100',
@@ -89,6 +89,7 @@ void main() {
         );
 
         expect(payload['msg_type'], 'e2ee_room_key');
+        expect(payload['meta_version'], 3);
         expect(payload['gid'], 'g100');
         expect(payload['session_id'], 'sess_abc');
         expect((payload['keys'] as List).length, 2);
@@ -96,18 +97,36 @@ void main() {
         final entry = GroupSessionService.pickMyKeyEntry(
           payload['keys'] as List,
           did,
+        )!;
+        expect(entry['kid'], kid);
+        expect(entry.containsKey('ek'), isFalse, reason: 'v3 设备条目不含 RSA ek');
+        expect(
+          entry.containsKey('olm'),
+          isFalse,
+          reason: 'olm 由 attachOlmWraps 追加，build 阶段无',
         );
-        expect(entry, isNotNull);
-        expect(entry!['kid'], kid);
-        expect(entry['wrap_alg'], 'RSA-OAEP-256');
+      },
+    );
 
+    test(
+      'wrapSessionKey → unwrapSessionKey 逐字节往返（RSA 原语，供合规/历史 decrypt-only）',
+      () async {
+        final keyInfo = await _setupDeviceKey();
+        final kid = keyInfo['key_id'] as String;
+        final pem = keyInfo['public_key'] as String;
+        final rnd = Random.secure();
+        final exported = base64
+            .encode(List<int>.generate(165, (_) => rnd.nextInt(256)))
+            .replaceAll('=', '');
+        final ek = GroupSessionService.wrapSessionKey(
+          exportedKey: exported,
+          publicKeyPem: pem,
+        );
         final privateKeyPem = await StorageSecureService.to.getPrivateKeyByKid(
           kid,
         );
-        expect(privateKeyPem, isNotNull);
-
         final restored = GroupSessionService.unwrapSessionKey(
-          ek: entry['ek'] as String,
+          ek: ek,
           privateKeyPem: privateKeyPem!,
         );
         expect(restored, exported, reason: '解包后必须与导出 key 逐字节一致（unpadded）');
@@ -126,7 +145,7 @@ void main() {
   group('Megolm 全链路（需要 spike 动态库，缺失自动 skip）', () {
     final hasLib = Directory(_spikeLibDir).existsSync();
 
-    test('建群会话 → 导出 → RSA 包裹分发 → 解包 → import → 加解密往返', () async {
+    test('建群会话 → 导出 → 包裹 → 解包 → import → 加解密往返', () async {
       if (!hasLib) {
         markTestSkipped('spike 动态库缺失：$_spikeLibDir（cargo build --release 后可跑）');
         return;
@@ -134,7 +153,6 @@ void main() {
       await _ensureVod();
 
       final keyInfo = await _setupDeviceKey();
-      final did = keyInfo['device_id'] as String;
       final kid = keyInfo['key_id'] as String;
       final pem = keyInfo['public_key'] as String;
 
@@ -144,24 +162,16 @@ void main() {
       final exported = outbound.toInbound().exportAt(0);
       expect(exported, isNotNull);
 
-      final payload = GroupSessionService.buildRoomKeyPayload(
-        gid: 'g200',
-        sessionId: sessionId,
-        exportedKey: exported!,
-        didToPem: {did: pem},
-        didToKid: {did: kid},
-      );
-
-      // 接收端：解包 → import → 解密
-      final entry = GroupSessionService.pickMyKeyEntry(
-        payload['keys'] as List,
-        did,
-      )!;
+      // 接收端：解包 → import → 解密（以 RSA 原语往返模拟 Olm 分发得到同一 exported）
       final privateKeyPem = await StorageSecureService.to.getPrivateKeyByKid(
         kid,
       );
+      final ek = GroupSessionService.wrapSessionKey(
+        exportedKey: exported!,
+        publicKeyPem: pem,
+      );
       final restored = GroupSessionService.unwrapSessionKey(
-        ek: entry['ek'] as String,
+        ek: ek,
         privateKeyPem: privateKeyPem!,
       );
 
@@ -498,17 +508,17 @@ void main() {
       final noOlm = keys.firstWhere((k) => k['did'] == 'no_olm_did');
       final audit = keys.firstWhere((k) => k['did'] == 'compliance-audit');
 
-      // T-13-01：Olm-capable 条目双包（ek + olm{v,type,sid,body}）
-      expect(mine['ek'], isNotNull);
+      // T-13-01：Olm-capable 条目 Olm-only（olm{v,type,sid,body}，无 RSA ek）
+      expect(mine.containsKey('ek'), isFalse, reason: 'v3 Olm-only：无 RSA ek');
       final olm = mine['olm'] as Map;
       expect(olm['v'], 'OLM.V1');
       expect(olm['type'], 0);
       expect(olm['sid'], 'my_device_A');
       expect(olm['body'], 'OLM_CT[$did]');
-      // T-13-05：对端无 Olm 身份 → 仅 ek，无 olm
-      expect(noOlm['ek'], isNotNull);
+      // T-13-05：对端无 Olm 身份 → 无 olm 无 ek（接收侧 v3 跳过，不回退 RSA）
       expect(noOlm.containsKey('olm'), isFalse);
-      // T-13-07：合规审计条目恒 RSA，无 olm
+      expect(noOlm.containsKey('ek'), isFalse, reason: '无 Olm 设备不再有 RSA ek 兜底');
+      // T-13-07：合规审计条目恒 RSA（ADR 18，非降级回退），无 olm
       expect(audit['wrap_alg'], 'RSA-OAEP-256');
       expect(audit.containsKey('olm'), isFalse);
     });
