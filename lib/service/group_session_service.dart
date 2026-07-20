@@ -324,12 +324,16 @@ class GroupSessionService {
       final entry = pickMyKeyEntry(keys, deviceId);
       if (entry == null) return; // 本设备不在分发列表
 
-      // 接收状态机（ADR 13 §4）：优先 Olm 解包（olm 子对象），回退 RSA（ek）。
-      // Olm 认证失败 → 拒绝、不降级 RSA（防 downgrade attack）；
-      // 会话不可用 / 缺 sid / 无 olm → RSA 回退。
+      // 接收状态机（ADR 13 §4 + E2EE-011）：v3（meta_version>=3）Olm-only，
+      // 任何 Olm 失败（缺 sid / 伪造 sid / 认证失败 / 会话不可用 / 无 olm）一律拒绝，
+      // 绝不回退 RSA（防 downgrade）。仅明确 legacy meta 版本走 RSA decrypt-only 读历史。
+      final metaVersion = payload['meta_version'];
+      final olmRequired =
+          metaVersion is int && metaVersion >= roomKeyMetaVersionV3;
       final exported = await _unwrapEntry(
         entry,
         senderUid: data['from']?.toString() ?? '',
+        olmRequired: olmRequired,
       );
       if (exported == null) return;
 
@@ -359,26 +363,37 @@ class GroupSessionService {
     }
   }
 
-  /// 接收侧解包单个 key 条目（ADR 13 §4 状态机 + T-13-08 边界）：
-  /// 1. `olm` 存在且字段完整（sid/body 非空、type 为 int、senderUid 非空）→ 试 Olm 解包：
-  ///    - 成功 → 返回 exportedKey；
-  ///    - [OlmAuthenticationException]（认证失败）→ 返回 null（拒绝，**不降级** RSA）；
-  ///    - 其它异常（会话不可用）→ 落到 RSA 回退。
-  /// 2. 无 olm / 缺 sid / type 非 int / senderUid 空 / Olm 会话不可用 → RSA 解包 `ek`。
+  /// room-key 版本标记：v3 = Olm-only（单聊 Olm / 群 Megolm room-key 经 Olm 分发）。
+  /// meta_version 缺失或 < 3 视为 legacy（历史 RSA+AES 密文，仅 decrypt-only）。
+  static const int roomKeyMetaVersionV3 = 3;
+
+  /// 接收侧解包单个 key 条目（E2EE-011 Olm-only 状态机）。
+  ///
+  /// [olmRequired]（v3/Strict，meta_version>=3）：**只解 Olm，任何失败即拒绝，
+  /// 绝不回退 RSA**（防 downgrade attack）。以下全部返回 null（拒绝，RSA 调用为 0）：
+  /// 无 olm 子对象（删除 olm / 无 Olm 身份设备被跳过）、olm 字段不全（缺 sid /
+  /// 伪造结构）、Olm 认证失败、Olm 会话不可用。
+  ///
+  /// ![olmRequired]（明确 legacy meta 版本）：仅供读历史密文 decrypt-only：
+  /// olm 有效 → 试 Olm（认证失败仍拒绝，不降级）；olm 不全 / 无 olm → RSA 解包 `ek`。
+  ///
   /// 返回 null = 无法解包或被拒绝（调用方丢弃该 room key）。
   Future<String?> _unwrapEntry(
     Map<String, dynamic> entry, {
     required String senderUid,
+    required bool olmRequired,
   }) async {
     final olm = entry['olm'];
     if (olm is Map) {
       final sid = olm['sid']?.toString() ?? '';
       final body = olm['body']?.toString() ?? '';
       final type = olm['type'];
-      if (sid.isNotEmpty &&
+      final olmFieldsValid =
+          sid.isNotEmpty &&
           body.isNotEmpty &&
           senderUid.isNotEmpty &&
-          type is int) {
+          type is int;
+      if (olmFieldsValid) {
         try {
           return await (debugOlmUnwrap ?? _defaultOlmUnwrap)(
             senderUid,
@@ -387,18 +402,33 @@ class GroupSessionService {
             body,
           );
         } on OlmAuthenticationException catch (e) {
-          // ciphertext invalid / auth failure → 拒绝，禁止降级 RSA（防 downgrade）
+          // 认证失败 → 拒绝，禁止降级 RSA（防 downgrade）。v3/legacy 一致。
           AppLogger.error('[group_session] room key Olm 认证失败，拒绝该条目', e);
           return null;
         } on Object catch (e) {
-          // 会话不可用 / 建会话失败 → 回退 RSA
-          iPrint('[group_session] Olm 解包不可用，回退 RSA: $e');
+          if (olmRequired) {
+            // v3 Olm-only：会话不可用等任何失败一律拒绝，不回退 RSA。
+            AppLogger.error(
+              '[group_session] v3 room key Olm 解包失败，拒绝（不回退 RSA）',
+              e,
+            );
+            return null;
+          }
+          iPrint('[group_session] legacy room key Olm 不可用，回退 RSA: $e');
         }
+      } else if (olmRequired) {
+        // v3 声明 Olm 但字段不全（缺 sid / 伪造结构）→ 拒绝，不回退 RSA。
+        AppLogger.error('[group_session] v3 room key olm 字段不全，拒绝');
+        return null;
       }
-      // sid 缺失/空 / type 非 int / senderUid 空 → 回退 RSA（T-13-08）
+      // legacy 且 olm 字段不全 → 落 RSA 回退（历史兼容）。
+    } else if (olmRequired) {
+      // v3 但无 olm 子对象（删除 olm 攻击 / 无 Olm 身份设备被跳过）→ 拒绝，不回退 RSA。
+      AppLogger.error('[group_session] v3 room key 缺 olm 子对象，拒绝（不回退 RSA）');
+      return null;
     }
 
-    // RSA 回退路径（与旧客户端一致）
+    // 仅 legacy（!olmRequired）到达此处：RSA decrypt-only（读历史密文）。
     final kid = entry['kid']?.toString() ?? '';
     final ek = entry['ek']?.toString() ?? '';
     if (ek.isEmpty) return null;
@@ -430,11 +460,13 @@ class GroupSessionService {
   debugOlmUnwrap;
 
   /// 测试专用：暴露接收侧解包状态机（保持 [_unwrapEntry] 私有语义）。
+  /// [olmRequired] 默认 true（v3 Strict）；传 false 测明确 legacy decrypt-only。
   @visibleForTesting
   Future<String?> debugUnwrapEntry(
     Map<String, dynamic> entry, {
     required String senderUid,
-  }) => _unwrapEntry(entry, senderUid: senderUid);
+    bool olmRequired = true,
+  }) => _unwrapEntry(entry, senderUid: senderUid, olmRequired: olmRequired);
 
   /// 解密 Megolm 群消息（E2EEService.decryptE2EEMessage 按 e2ee_suite 委托过来）
   Future<String> decryptGroupMessage({
@@ -513,6 +545,8 @@ class GroupSessionService {
     keys.addAll(extraKeys);
     return {
       'msg_type': roomKeyAction,
+      // E2EE-011：标记 v3 → 接收侧 Olm-only、任何失败拒绝、不回退 RSA。
+      'meta_version': roomKeyMetaVersionV3,
       if (gid != null && gid.isNotEmpty) 'gid': gid,
       if (gid == null || gid.isEmpty) 'scope': c2cScope,
       'session_id': sessionId,

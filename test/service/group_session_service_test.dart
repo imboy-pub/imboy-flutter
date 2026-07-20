@@ -206,6 +206,16 @@ void main() {
         didToPem: {did: pem},
         didToKid: {did: kid},
       );
+      // E2EE-011：room-key v3 Olm-only。注入 olm 子对象 + 收端 Olm 解包器
+      // （返回真实 exported 供 import）；不再依赖 RSA ek 传输。
+      GroupSessionService.to.debugOlmUnwrap = (a, b, c, d) async => exported;
+      addTearDown(() => GroupSessionService.to.debugOlmUnwrap = null);
+      await GroupSessionService.attachOlmWraps(
+        keys: payload['keys'] as List,
+        exportedKey: exported,
+        senderDeviceId: 'sender_dev',
+        olmWrap: (dd, ek) async => (type: 0, body: 'OLM_CT'),
+      );
 
       // 旗标处理前为 false
       expect(await GroupSessionService.to.isGroupE2EE(gid), isFalse);
@@ -311,6 +321,15 @@ void main() {
           exportedKey: exported,
           didToPem: {did: pem},
           didToKid: {did: kid},
+        );
+        // E2EE-011：C2C room-key v3 Olm-only。注入 olm + 收端 Olm 解包器。
+        GroupSessionService.to.debugOlmUnwrap = (a, b, c, d) async => exported;
+        addTearDown(() => GroupSessionService.to.debugOlmUnwrap = null);
+        await GroupSessionService.attachOlmWraps(
+          keys: payload['keys'] as List,
+          exportedKey: exported,
+          senderDeviceId: 'sender_dev',
+          olmWrap: (dd, ek) async => (type: 0, body: 'OLM_CT'),
         );
 
         // 接收端：C2C 消息 data['to'] 是本端 uid，严禁被当作会话域
@@ -539,14 +558,38 @@ void main() {
       expect(r, 'EXPORTED_VIA_OLM');
     });
 
-    test('T-13-08 olm 缺 sid → 回退 RSA，不尝试 Olm', () async {
+    // E2EE-011：T-13-08 拆为「v3 Strict 拒绝」+「明确 legacy decrypt-only」两组。
+    // v3（olmRequired=true，默认）下 5 类降级攻击的 RSA unwrap 调用次数必须为 0。
+    test('E2EE-011 v3：删除 olm 子对象 → 拒绝，不回退 RSA（保留 ek 也不 RSA）', () async {
       final keyInfo = await _setupDeviceKey();
       final did = keyInfo['device_id'] as String;
       final kid = keyInfo['key_id'] as String;
       final pem = keyInfo['public_key'] as String;
-      final exported = randomExported();
       final ek = GroupSessionService.wrapSessionKey(
-        exportedKey: exported,
+        exportedKey: randomExported(),
+        publicKeyPem: pem,
+      );
+      // olm 被服务端剥离，只留 RSA ek（下游诱导 RSA 回退）。
+      final entry = {
+        'did': did,
+        'kid': kid,
+        'wrap_alg': 'RSA-OAEP-256',
+        'ek': ek,
+      };
+      final r = await GroupSessionService.to.debugUnwrapEntry(
+        entry,
+        senderUid: 'peer',
+      );
+      expect(r, isNull, reason: 'v3 删除 olm 必须拒绝，即使 ek 可用也不 RSA');
+    });
+
+    test('E2EE-011 v3：olm 缺 sid → 拒绝，不尝试 Olm、不回退 RSA', () async {
+      final keyInfo = await _setupDeviceKey();
+      final did = keyInfo['device_id'] as String;
+      final kid = keyInfo['key_id'] as String;
+      final pem = keyInfo['public_key'] as String;
+      final ek = GroupSessionService.wrapSessionKey(
+        exportedKey: randomExported(),
         publicKeyPem: pem,
       );
       var olmCalled = false;
@@ -567,8 +610,88 @@ void main() {
         senderUid: 'peer',
       );
       expect(olmCalled, isFalse, reason: '缺 sid 不应尝试 Olm');
-      expect(r, exported, reason: '缺 sid 回退 RSA 得到正确 exportedKey');
+      expect(r, isNull, reason: 'v3 缺 sid 拒绝，不回退 RSA');
     });
+
+    test('E2EE-011 v3：olm 伪造 sid（Olm 认证失败）→ 拒绝，不回退 RSA', () async {
+      final keyInfo = await _setupDeviceKey();
+      final did = keyInfo['device_id'] as String;
+      final kid = keyInfo['key_id'] as String;
+      final pem = keyInfo['public_key'] as String;
+      final ek = GroupSessionService.wrapSessionKey(
+        exportedKey: randomExported(),
+        publicKeyPem: pem,
+      );
+      GroupSessionService.to.debugOlmUnwrap = (a, b, c, d) async =>
+          throw OlmAuthenticationException('forged sid');
+      addTearDown(() => GroupSessionService.to.debugOlmUnwrap = null);
+      final entry = {
+        'did': did,
+        'kid': kid,
+        'wrap_alg': 'RSA-OAEP-256',
+        'ek': ek,
+        'olm': {'v': 'OLM.V1', 'type': 1, 'sid': 'forged', 'body': 'CT'},
+      };
+      final r = await GroupSessionService.to.debugUnwrapEntry(
+        entry,
+        senderUid: 'peer',
+      );
+      expect(r, isNull, reason: 'v3 伪造 sid 认证失败拒绝，不回退 RSA');
+    });
+
+    test('E2EE-011 v3：Olm 会话不可用（普通异常）→ 拒绝，不回退 RSA', () async {
+      final keyInfo = await _setupDeviceKey();
+      final did = keyInfo['device_id'] as String;
+      final kid = keyInfo['key_id'] as String;
+      final pem = keyInfo['public_key'] as String;
+      final ek = GroupSessionService.wrapSessionKey(
+        exportedKey: randomExported(),
+        publicKeyPem: pem,
+      );
+      GroupSessionService.to.debugOlmUnwrap = (a, b, c, d) async =>
+          throw Exception('no session');
+      addTearDown(() => GroupSessionService.to.debugOlmUnwrap = null);
+      final entry = {
+        'did': did,
+        'kid': kid,
+        'wrap_alg': 'RSA-OAEP-256',
+        'ek': ek,
+        'olm': {'v': 'OLM.V1', 'type': 0, 'sid': 'sender', 'body': 'CT'},
+      };
+      final r = await GroupSessionService.to.debugUnwrapEntry(
+        entry,
+        senderUid: 'peer',
+      );
+      expect(r, isNull, reason: 'v3 会话不可用拒绝，不回退 RSA');
+    });
+
+    test(
+      'E2EE-011 legacy decrypt-only：明确 legacy 版本 olm 缺 sid → RSA 读历史',
+      () async {
+        final keyInfo = await _setupDeviceKey();
+        final did = keyInfo['device_id'] as String;
+        final kid = keyInfo['key_id'] as String;
+        final pem = keyInfo['public_key'] as String;
+        final exported = randomExported();
+        final ek = GroupSessionService.wrapSessionKey(
+          exportedKey: exported,
+          publicKeyPem: pem,
+        );
+        final entry = {
+          'did': did,
+          'kid': kid,
+          'wrap_alg': 'RSA-OAEP-256',
+          'ek': ek,
+          'olm': {'v': 'OLM.V1', 'type': 0, 'body': 'CT'}, // 缺 sid
+        };
+        final r = await GroupSessionService.to.debugUnwrapEntry(
+          entry,
+          senderUid: 'peer',
+          olmRequired: false,
+        );
+        expect(r, exported, reason: 'legacy decrypt-only 缺 sid 回退 RSA 读历史密文');
+      },
+    );
 
     test('Olm 认证失败 → 拒绝，不降级 RSA（防 downgrade）', () async {
       final keyInfo = await _setupDeviceKey();
@@ -595,33 +718,6 @@ void main() {
         senderUid: 'peer',
       );
       expect(r, isNull, reason: 'auth 失败必须拒绝，即使 ek 可用也不降级');
-    });
-
-    test('Olm 会话不可用（普通异常）→ 回退 RSA', () async {
-      final keyInfo = await _setupDeviceKey();
-      final did = keyInfo['device_id'] as String;
-      final kid = keyInfo['key_id'] as String;
-      final pem = keyInfo['public_key'] as String;
-      final exported = randomExported();
-      final ek = GroupSessionService.wrapSessionKey(
-        exportedKey: exported,
-        publicKeyPem: pem,
-      );
-      GroupSessionService.to.debugOlmUnwrap = (a, b, c, d) async =>
-          throw Exception('no session');
-      addTearDown(() => GroupSessionService.to.debugOlmUnwrap = null);
-      final entry = {
-        'did': did,
-        'kid': kid,
-        'wrap_alg': 'RSA-OAEP-256',
-        'ek': ek,
-        'olm': {'v': 'OLM.V1', 'type': 0, 'sid': 'sender', 'body': 'CT'},
-      };
-      final r = await GroupSessionService.to.debugUnwrapEntry(
-        entry,
-        senderUid: 'peer',
-      );
-      expect(r, exported, reason: '会话不可用应回退 RSA');
     });
   });
 }
