@@ -25,6 +25,38 @@ import 'e2ee_crypto_service.dart';
 /// @since 2026-01-31
 class E2EELocalBackupService {
   // ================================================================
+  // 边界常量（E2EE-016：文件/KDF/字段上限，防 OOM / DoS / 崩溃）
+  // ================================================================
+
+  /// 备份文件字节上限（64 MiB）。在 readAsBytes / 解密 / 大分配前拒绝，防 OOM。
+  static const int maxBackupBytes = 64 * 1024 * 1024;
+
+  /// 最小合法字节数：头 32 + salt 16 + iv 12 + tag 16 + 至少 1 字节密文 = 77。
+  /// 小于此值时固定字段切片会 RangeError 崩溃，须在切片前确定性拒绝。
+  static const int minBackupBytes = 32 + 16 + 12 + 16 + 1;
+
+  /// PBKDF2 迭代数合法区间。头部迭代数来自文件（攻击者可控），
+  /// 越界值（如 2^32-1）会让 KDF 挂死 → 在派生前拒绝。
+  static const int minKdfIterations = 1;
+  static const int maxKdfIterations = 1000000;
+
+  /// 用户备注字节上限（64 KiB）。
+  static const int maxNotesBytes = 64 * 1024;
+
+  /// notes_length 在 32 字节文件头内的偏移（uint32，大端，位于原 reserved 区起始）。
+  static const int _notesLengthHeaderOffset = 22;
+
+  /// 文件字节数边界校验：过大防 OOM，过小防固定字段切片 RangeError 崩溃。
+  static void _ensureSizeBounds(int length) {
+    if (length > maxBackupBytes) {
+      throw ArgumentError('备份文件过大（上限 $maxBackupBytes 字节）');
+    }
+    if (length < minBackupBytes) {
+      throw ArgumentError('文件格式无效：文件过小');
+    }
+  }
+
+  // ================================================================
   // 导出备份
   // ================================================================
 
@@ -164,6 +196,7 @@ class E2EELocalBackupService {
         return false;
       }
 
+      _ensureSizeBounds(await file.length());
       final fileBytes = await file.readAsBytes();
       final header = _parseFileHeader(fileBytes);
 
@@ -223,6 +256,7 @@ class E2EELocalBackupService {
       throw ArgumentError('备份文件不存在: $filePath');
     }
 
+    _ensureSizeBounds(await file.length()); // 在 readAsBytes 前拒绝超大文件，防 OOM
     final fileBytes = await file.readAsBytes();
     return unpackBackupBytes(bytes: fileBytes, password: password);
   }
@@ -235,6 +269,9 @@ class E2EELocalBackupService {
     required String password,
   }) async {
     final fileBytes = bytes;
+
+    // 1. 边界校验（防 OOM / 短文件切片 RangeError 崩溃）：先于任何派生/大分配
+    _ensureSizeBounds(fileBytes.length);
 
     // 2. 解析文件头
     final header = _parseFileHeader(fileBytes);
@@ -265,7 +302,11 @@ class E2EELocalBackupService {
     // 文件格式: [头 32] + [salt 16] + [iv 12] + [authTag 16] + [密文] + [备注长度 4]? + [备注内容]?
     // 如果有备注，文件最后 4 字节是备注长度，然后是备注内容
     // 如果没有备注，所有剩余字节都是密文
-    final ciphertext = _extractCiphertext(fileBytes, offset);
+    final ciphertext = _extractCiphertext(
+      fileBytes,
+      offset,
+      header['notes_length']!,
+    );
 
     // 5. 派生密钥
     final derivedKey = await E2EECryptoService.deriveKey(
@@ -351,6 +392,7 @@ class E2EELocalBackupService {
       throw ArgumentError('备份文件不存在: $filePath');
     }
 
+    _ensureSizeBounds(await file.length());
     final fileBytes = await file.readAsBytes();
     final header = _parseFileHeader(fileBytes);
 
@@ -438,36 +480,28 @@ class E2EELocalBackupService {
     required Uint8List ciphertext,
     String? userNotes,
   }) async {
-    final output = BytesBuilder();
-
-    // 1. 写入文件头（32 bytes）
-    output.add(_buildFileHeader());
-
-    // 2. 写入 Salt
-    output.add(salt);
-
-    // 3. 写入 IV
-    output.add(iv);
-
-    // 4. 写入 Auth Tag
-    output.add(authTag);
-
-    // 5. 写入密文
-    output.add(ciphertext);
-
-    // 6. 写入用户备注（可选）
-    if (userNotes != null && userNotes.isNotEmpty) {
-      final notesBytes = utf8.encode(userNotes);
-      final notesLength = ByteData(4)..setUint32(0, notesBytes.length);
-      output.add(notesLength.buffer.asUint8List());
-      output.add(notesBytes);
+    // 备注字节：长度写入固定文件头（reserved 区），内容附于文件末尾。
+    // 不再用「尾部 4 字节长度 + 启发式猜测」——那对某些密文会误判密文/备注边界。
+    final notesBytes = (userNotes != null && userNotes.isNotEmpty)
+        ? Uint8List.fromList(utf8.encode(userNotes))
+        : Uint8List(0);
+    if (notesBytes.length > maxNotesBytes) {
+      throw ArgumentError('备注过长（上限 $maxNotesBytes 字节）');
     }
 
+    final output = BytesBuilder();
+    output.add(_buildFileHeader(notesBytes.length)); // 头（32 bytes，含 notes 长度）
+    output.add(salt);
+    output.add(iv);
+    output.add(authTag);
+    output.add(ciphertext);
+    output.add(notesBytes); // 末尾即备注，长度由头部权威给出（确定性边界）
     return output.toBytes();
   }
 
-  /// 构建文件头（32 bytes）
-  static Uint8List _buildFileHeader() {
+  /// 构建文件头（32 bytes）。[notesLength] 写入 reserved 区，
+  /// 使 reader 能确定性定位密文/备注边界（取代旧的尾部长度启发式猜测）。
+  static Uint8List _buildFileHeader(int notesLength) {
     final header = BytesBuilder();
 
     // Magic Number (8 bytes): "IMBOYBKP"
@@ -500,17 +534,17 @@ class E2EELocalBackupService {
       ..setUint16(0, E2EECryptoService.authTagLength);
     header.add(tagLenData.buffer.asUint8List());
 
-    // Reserved (10 bytes)
+    // Notes Length (4 bytes, offset 22)：备注字节长度，reader 据此确定性
+    // 定位密文/备注边界。头部固定 32 字节的约定见下方 reserved。
+    final notesLenData = ByteData(4)..setUint32(0, notesLength);
+    header.add(notesLenData.buffer.asUint8List());
+
+    // Reserved (6 bytes)
     //
-    // 此前是 6 bytes，导致头部实际只有 28 字节，但 importBackup/
-    // _extractCiphertext/testPassword 等全部按文档标注的"32 bytes 头部"
-    // 硬编码 offset=32 读取 salt/iv/authTag/ciphertext——4 字节的结构性
-    // 错位导致 salt/iv/authTag 全部读到错误的字节、密文边界也偏移 4 字节，
-    // export→import 往返 100% 必现 GCM 认证失败（真库/真机往返测试实测
-    // 复现，非概率性 heuristic 误判，是确定性 bug）。改为 10 bytes 使头部
-    // 实际长度凑够 32 字节，与其余代码的假设对齐。
-    final reserved = Uint8List(10);
-    header.add(reserved);
+    // 头部固定 32 字节：magic8 + ver2 + algo2 + iter4 + saltLen2 + ivLen2
+    // + tagLen2 (=22) + notesLen4 (=26) + reserved6 (=32)。importBackup/
+    // _extractCiphertext/testPassword 均按 offset=32 读取后续字段，须凑齐 32。
+    header.add(Uint8List(6));
 
     return header.toBytes();
   }
@@ -530,81 +564,40 @@ class E2EELocalBackupService {
       throw ArgumentError('不是有效的 Imboy 备份文件（Magic Number 错误）');
     }
 
+    // 迭代数来自文件（攻击者可控）：越界值会让 PBKDF2 挂死 → 派生前拒绝
+    final iterations = byteData.getUint32(12);
+    if (iterations < minKdfIterations || iterations > maxKdfIterations) {
+      throw ArgumentError('非法的 KDF 迭代数: $iterations');
+    }
+
     return {
       'version': byteData.getUint16(8),
       'algorithm': byteData.getUint16(10),
-      'iterations': byteData.getUint32(12),
+      'iterations': iterations,
       'salt_length': byteData.getUint16(16),
       'iv_length': byteData.getUint16(18),
       'tag_length': byteData.getUint16(20),
+      'notes_length': byteData.getUint32(_notesLengthHeaderOffset),
     };
   }
 
-  /// 提取密文数据（正确处理可选的用户备注）
+  /// 提取密文数据。备注长度由文件头 notes_length 权威给出，
+  /// 确定性定位密文/备注边界（取代旧的尾部长度启发式猜测）。
   static Uint8List _extractCiphertext(
     Uint8List fileBytes,
     int dataStartOffset,
+    int notesLength,
   ) {
-    // 文件格式: [头 32] + [salt 16] + [iv 12] + [authTag 16] + [密文] + ([备注长度 4] + [备注内容])?
-    // dataStartOffset 是密文的起始位置 (32 + 16 + 12 + 16 = 76)
-
-    final remainingBytes = fileBytes.length - dataStartOffset;
-
-    // 尝试检测是否有用户备注
-    // 备注格式: [4 bytes 长度] + [内容]
-    // 但我们不能直接判断最后 4 字节是否是长度，因为密文可能有任何值
-
-    // 策略：先假设没有备注，尝试解密
-    // 如果解密失败，可能是因为最后 4 字节被误当作密文了
-    // 但这里我们无法尝试解密，所以需要另一个方法
-
-    // 更好的策略：检查文件是否明显包含备注
-    // 如果文件末尾有一个合理的长度值，尝试读取备注
-    if (remainingBytes > 8) {
-      // 至少需要 4 字节长度 + 一些内容
-      try {
-        // 检查最后 4 字节作为长度是否合理
-        final potentialLengthBytes = fileBytes.sublist(fileBytes.length - 4);
-        final lengthData = ByteData.sublistView(potentialLengthBytes);
-        final potentialNotesLength = lengthData.getUint32(0);
-
-        // 长度必须 > 0 且 < 剩余字节数（至少留 4 字节给长度字段本身）
-        final minHeaderSize = 32 + 16 + 12 + 16; // 76
-        final maxNotesLength = fileBytes.length - minHeaderSize - 4;
-
-        if (potentialNotesLength > 0 &&
-            potentialNotesLength <= maxNotesLength) {
-          // 可能的备注位置
-          final notesStart = fileBytes.length - 4 - potentialNotesLength;
-
-          // 备注必须从合理的偏移开始（至少在所有固定字段之后）
-          if (notesStart >= dataStartOffset) {
-            // 尝试验证备注内容：应该是可打印的 UTF-8 字符串
-            final potentialNotes = fileBytes.sublist(
-              notesStart,
-              fileBytes.length - 4,
-            );
-            try {
-              final notesString = utf8.decode(potentialNotes);
-              // 如果是有效的 UTF-8 且包含可打印字符，认为确实是备注
-              if (notesString.isNotEmpty &&
-                  notesString.runes.every(
-                    (r) => r >= 32 && r < 127 || r >= 0x4E00 && r <= 0x9FFF,
-                  )) {
-                // 有备注，返回密文（去掉备注和长度字段）
-                return fileBytes.sublist(dataStartOffset, notesStart);
-              }
-            } catch (e) {
-              // 不是有效的 UTF-8，所以不是备注
-            }
-          }
-        }
-      } catch (e) {
-        // 解析失败，当作没有备注处理
-      }
+    // 布局: [头 32] + [salt 16] + [iv 12] + [authTag 16] + [密文] + [备注 notesLength]
+    // dataStartOffset = 密文起始 (32 + 16 + 12 + 16 = 76)
+    if (notesLength < 0 || notesLength > maxNotesBytes) {
+      throw ArgumentError('非法的备注长度: $notesLength');
     }
-
-    // 没有备注或无法确定，返回所有剩余字节作为密文
-    return fileBytes.sublist(dataStartOffset);
+    final ciphertextEnd = fileBytes.length - notesLength;
+    // 密文至少 1 字节；备注不能越界吃进固定字段区
+    if (ciphertextEnd <= dataStartOffset) {
+      throw ArgumentError('文件格式无效：密文/备注边界越界');
+    }
+    return fileBytes.sublist(dataStartOffset, ciphertextEnd);
   }
 }

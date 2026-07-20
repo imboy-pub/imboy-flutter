@@ -502,7 +502,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       result['private_key'] as String,
     );
     await StorageSecureService.to.savePublicKey(result['public_key'] as String);
-    await StorageSecureService.to.setDeviceId(result['device_id'] as String);
+    // E2EE-016 req3：备份内的 device_id 仅作归档元数据展示（见成功弹窗），
+    // 不得覆盖当前物理设备 DID——否则本机会冒充备份来源设备，
+    // 破坏 E2EE-013「加密写入绑定已认证设备」的授权边界。故此处不再 setDeviceId。
     await StorageSecureService.to.setKeyId(result['key_id'] as String);
 
     if (!mounted) return;
