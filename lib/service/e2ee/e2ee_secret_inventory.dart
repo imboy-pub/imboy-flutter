@@ -64,6 +64,11 @@ class E2eeSecretInventory {
 
   /// 秘密键前缀清单（新增 E2EE 存储键必须落在这些前缀之下，
   /// 否则 logout 清理与本清单测试都覆盖不到）。
+  ///
+  /// 有意排除：`RSAService` 的 `public_key`/`private_key`（`Keys.publicKey/privateKey`）
+  /// 是**设备级登录密码传输密钥**（仅对登录/改密时的明文密码做一次性 RSA 加密，
+  /// 服务端持对应公钥），非账号级 E2EE 身份秘密；不随账号切换轮换，故不清理。
+  /// `secure_token*`（JWT）由 SecureTokenStorageService 负责，亦不在此清单。
   static const List<String> secretKeyPrefixes = [
     'e2ee_', // RSA 身份/历史/分片/DID/kid + backup/recovery 元数据
     'olm_', // Olm account pickle / pickle key / session pickles

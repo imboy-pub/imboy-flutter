@@ -47,11 +47,18 @@ class SqliteService {
 
   static Database? _db;
 
+  /// 打开中句柄所属的 uid（DB 文件按 `${env}_${uid}.db` 命名）。
+  /// 用于跨账号隔离：uid 漂移时强制关旧重开，防复用旧账号加密库（E2EE-015 纵深防御）。
+  static String _openUid = '';
+
   /// 【测试】注入外部打开的 Database（如 sqflite_common_ffi 内存库）。
   /// 生产路径 sqflite_sqlcipher 在宿主机测试环境无插件实现，
   /// db getter 按 isOpen 复用注入句柄，绕过 _initDatabase。
   @visibleForTesting
-  static void setDbForTest(Database? db) => _db = db;
+  static void setDbForTest(Database? db) {
+    _db = db;
+    _openUid = UserRepoLocal.to.currentUid;
+  }
 
   // SQLite 是否支持 UPDATE ... RETURNING（3.35+）。
   // 运行时探测一次后缓存，供原子自增路径选择 RETURNING 或退化实现。
@@ -83,8 +90,15 @@ class SqliteService {
     // 之外关闭底层 Database（见 migration_service._restoreFromSnapshot）却未重置
     // _db，旧逻辑会派发已关闭句柄导致 database_closed 刷屏。此处改为按 isOpen
     // 判断并自动重开。
+    // 跨账号隔离：仅当 uid 与打开句柄一致时才复用；漂移则关旧句柄后重开，
+    // 防 logout 未 close（如 purge 失败旁路）导致新账号写进旧账号加密库。
+    final currentUid = UserRepoLocal.to.currentUid;
     final cached = _db;
-    if (cached != null && cached.isOpen) return cached;
+    if (cached != null && cached.isOpen && _openUid == currentUid)
+      return cached;
+    if (cached != null && _openUid != currentUid) {
+      await close();
+    }
 
     // 上次初始化刚失败且仍在冷却期内，直接返回 null，不再重试
     final retryAfter = _initRetryAfter;
@@ -95,9 +109,10 @@ class SqliteService {
     return await _initLock.synchronized(() async {
       // 双重检查：可能已被其它等待者重开
       final c = _db;
-      if (c != null && c.isOpen) return c;
+      if (c != null && c.isOpen && _openUid == currentUid) return c;
       final result = await _initDatabase();
       _db = result;
+      _openUid = result == null ? '' : currentUid;
       _initRetryAfter = result == null
           ? DateTime.now().add(_initFailureCooldown)
           : null;
@@ -111,6 +126,7 @@ class SqliteService {
     if (_db != null) {
       await _db!.close();
       _db = null;
+      _openUid = '';
     }
   }
 

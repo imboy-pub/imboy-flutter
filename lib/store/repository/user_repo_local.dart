@@ -249,7 +249,11 @@ class UserRepoLocal {
 
       iPrint("> quitLogin: Purging E2EE secret inventory");
       // E2EE-015：logout 必须清空全部秘密（RSA/Olm/Megolm/SQLCipher key/
-      // compliance 缓存/临时备份文件）。失败置位标记，阻止切入另一账号。
+      // compliance 缓存/临时备份文件）。失败置位标记，由 loginAfter 闸门补救。
+      // ⚠️ purge 失败**不得**中断下面的物理资源收尾（token/WS/DB close）——
+      // 否则旧账号 SQLCipher 句柄仍打开，换号后 SqliteService 会按 isOpen 复用
+      // 旧库句柄致跨账号数据串号（安全审查 CRITICAL）。
+      var purgeFailed = false;
       try {
         await E2eeSecretInventory.production().purgeAll();
         await StorageService.to.remove(Keys.e2eePurgePending);
@@ -257,7 +261,7 @@ class UserRepoLocal {
       } on Object catch (e, s) {
         AppLogger.error('[user_repo_local] e2ee secret purge failed', e, s);
         await StorageService.to.setBool(Keys.e2eePurgePending, true);
-        return false;
+        purgeFailed = true;
       }
 
       iPrint("> quitLogin: Clearing secure tokens");
@@ -272,6 +276,8 @@ class UserRepoLocal {
       await WebSocketService.to.closeSocket(permanent: true);
       iPrint("> quitLogin: Closing database");
       SqliteService.to.close();
+      // purge 失败时返回 false（logout 不算完整成功），但物理资源已强制收尾。
+      if (purgeFailed) return false;
       iPrint("> quitLogin: Logout process completed successfully");
       return true;
     } on Object {
