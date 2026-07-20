@@ -137,6 +137,11 @@ class StorageSecureService {
     wOptions: wOptions,
   );
 
+  /// Decrypts and returns all keys with associated values.
+  ///
+  /// Can throw a [PlatformException].
+  Future<Map<String, String>> readAll() => _self.readAll();
+
   // ==========================================
   // E2EE 密钥相关便捷方法
   // E2EE Key Related Convenience Methods

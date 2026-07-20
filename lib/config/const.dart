@@ -31,6 +31,8 @@ class Keys {
 
   static const String currentUid = "current_uid";
   static const String currentUser = "current_user";
+  // E2EE-015：logout 秘密清理失败标记；置位期间禁止建立新账号会话
+  static const String e2eePurgePending = "e2ee_purge_pending";
   static const String currentLang = 'user_current_lang';
 
   static const String account = "account";

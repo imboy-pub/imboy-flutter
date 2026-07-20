@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
@@ -174,6 +174,13 @@ class UserRepoLocal {
   }
 
   Future<bool> loginAfter(String account, Map<String, dynamic> payload) async {
+    // E2EE-015：上次 logout 秘密清理未完成时先补救；
+    // 补救仍失败则抛异常，拒绝建立新账号会话（fail-closed）。
+    if (StorageService.to.getBool(Keys.e2eePurgePending) ?? false) {
+      await E2eeSecretInventory.production().purgeAll();
+      await StorageService.to.remove(Keys.e2eePurgePending);
+    }
+
     // 验证必需字段
     validateLoginPayload(payload);
 
@@ -240,13 +247,17 @@ class UserRepoLocal {
       await StorageService.to.remove(Keys.uploadKey);
       await StorageService.to.remove(Keys.uploadScene);
 
-      iPrint("> quitLogin: Clearing E2EE cache");
-      // 清理E2EE设备密钥缓存，确保重新登录后获取最新密钥
+      iPrint("> quitLogin: Purging E2EE secret inventory");
+      // E2EE-015：logout 必须清空全部秘密（RSA/Olm/Megolm/SQLCipher key/
+      // compliance 缓存/临时备份文件）。失败置位标记，阻止切入另一账号。
       try {
-        E2EEService.clearCache();
-        iPrint("> quitLogin: E2EE cache cleared");
+        await E2eeSecretInventory.production().purgeAll();
+        await StorageService.to.remove(Keys.e2eePurgePending);
+        iPrint("> quitLogin: E2EE secrets purged");
       } on Object catch (e, s) {
-        AppLogger.error('[user_repo_local] clearCache error', e, s);
+        AppLogger.error('[user_repo_local] e2ee secret purge failed', e, s);
+        await StorageService.to.setBool(Keys.e2eePurgePending, true);
+        return false;
       }
 
       iPrint("> quitLogin: Clearing secure tokens");

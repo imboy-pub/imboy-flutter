@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/service/e2ee/e2ee_protocol.dart'
+    show E2eeDecryptException;
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/rsa.dart';
@@ -324,10 +326,10 @@ void main() {
           e2ee: e2ee,
         ),
         throwsA(
-          isA<Exception>().having(
-            (e) => e.toString(),
-            'message',
-            contains('Invalid ciphertext format'),
+          isA<E2eeDecryptException>().having(
+            (e) => e.reason,
+            'reason',
+            'invalid_ciphertext_format',
           ),
         ),
       );
@@ -356,10 +358,10 @@ void main() {
           e2ee: e2ee,
         ),
         throwsA(
-          isA<Exception>().having(
-            (e) => e.toString(),
-            'message',
-            contains('No key found for device'),
+          isA<E2eeDecryptException>().having(
+            (e) => e.reason,
+            'reason',
+            'no_device_key',
           ),
         ),
       );

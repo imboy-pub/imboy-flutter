@@ -74,6 +74,15 @@ class GroupSessionService {
   /// 每会话域一把发送锁：串行化 encrypt，避免 rotate 竞态（被踢成员前向保密缺口）
   final Map<String, Lock> _sendLocks = {};
 
+  /// 清除内存中的 Megolm 会话状态（logout 时由 E2eeSecretInventory 调用；
+  /// 落地的 inbound pickles 由 secure storage 前缀清理负责）。
+  void clearMemory() {
+    _outbound.clear();
+    _inbound.clear();
+    _staleGids.clear();
+    _sendLocks.clear();
+  }
+
   /// 懒加载 vodozemac 原生库（失败可重试）
   Future<void> ensureInitialized() async {
     if (_vodReady) return;
