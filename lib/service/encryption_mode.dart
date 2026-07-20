@@ -6,6 +6,7 @@
 /// - strict_e2ee: 仅接收方公钥加密（现有 E2EE 逻辑）
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -127,8 +128,19 @@ class EncryptionModeService {
     } catch (e) {
       // 策略加载失败时，保留上次成功的模式而非静默降级为明文
       // 如果从未成功初始化过，保持 plaintext 但标记为未初始化，
-      // 后续发送消息时应检查 _initialized 状态
+      // 发送路径经 PolicyGate.requireReadyForSend 检查 _initialized：
+      // 未初始化对 C2C/C2G 一律 fail-closed 拒发（ADR 14 §S1.1）。
       // _initialized 保持 false，强制下次重新加载
     }
+  }
+
+  /// 测试专用：直接设置策略状态（fail-closed 门测试用）。
+  @visibleForTesting
+  static void debugSet({
+    required EncryptionMode mode,
+    required bool initialized,
+  }) {
+    _current = mode;
+    _initialized = initialized;
   }
 }

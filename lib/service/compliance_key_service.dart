@@ -69,8 +69,12 @@ class ComplianceKeyService {
       return _cached;
     } catch (e) {
       iPrint('[ComplianceKey] 获取失败: $e');
-      // 如果有缓存（即使过期），降级返回
-      return _cached;
+      // fail-closed（CB-10）：绝不返回 stale/过期缓存降级。
+      // 仅在缓存仍在有效期内时复用；否则返回 null，由 PolicyGate 拒发。
+      if (_cached != null && !_cached!.isExpired) {
+        return _cached;
+      }
+      return null;
     }
   }
 

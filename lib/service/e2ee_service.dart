@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/service/e2ee_settings.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/encryption_mode.dart';
@@ -12,6 +11,7 @@ import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
+import 'package:imboy/service/e2ee/policy_gate.dart';
 
 /// Temporary compatibility service for the security_privacy module shell.
 /// New upper-layer imports should prefer
@@ -129,33 +129,16 @@ class E2EEService {
     iPrint('E2EE: 已清除所有公钥缓存');
   }
 
-  /// 检查是否需要对消息进行端到端加密
+  /// 检查是否需要对消息进行端到端加密（经 [PolicyGate] 决策）。
   ///
-  /// WebSocket API v2.0: msg_type/action 在顶层，不在 payload 内
+  /// WebSocket API v2.0: msg_type/action 在顶层，不在 payload 内。
+  /// action 操作消息由调用方拦截；此处只按后端 policy 判定 C2C/C2G。
   ///
-  /// ## 加密条件（全部满足）
-  /// 1. E2EE功能已启用（通过[E2EESettings.isEnabled]检查）
-  /// 2. 消息类型为 C2C 或 C2G
-  /// 3. 非action操作消息（action消息不加密）
+  /// fail-closed（ADR 14 §S1.1 / CB-01/02）：策略未初始化时对 C2C/C2G 抛
+  /// [E2eeSecurityException]，绝不静默以 plaintext 默认继续发送。
   static bool shouldEncryptOutgoingPayload(String chatType) {
-    // 1. 检查后端策略：如果策略要求加密，强制加密
-    final policyMode = EncryptionModeService.current;
-    if (policyMode.requiresEncryption) {
-      // 策略要求加密，只对 C2C/C2G 消息生效
-      if (chatType != 'C2C' && chatType != 'C2G') return false;
-      return true;
-    }
-
-    // 2. 策略为 plaintext 时，检查用户本地 E2EE 开关
-    if (!E2EESettings.isEnabled()) {
-      return false;
-    }
-
-    // 只对 C2C 和 C2G 消息加密
-    if (chatType != 'C2C' && chatType != 'C2G') return false;
-
-    // action 检查由调用方完成
-    return true;
+    final decision = PolicyGate.requireReadyForSend(chatType);
+    return decision is EncryptRequired;
   }
 
   /// 构建 E2EE 数据（v2.0 格式）
@@ -251,28 +234,26 @@ class E2EEService {
       });
     }
 
-    // 6b. compliance_e2ee 模式：额外用合规公钥包装 AES 密钥
+    // 6b. compliance_e2ee 模式：必须额外用合规公钥包装 AES 密钥。
+    // fail-closed（CB-09/10）：合规密钥缺失/过期一律抛 E2eeSecurityException，
+    // 绝不静默降级为仅设备加密或复用 stale cache——否则整条消息漏加审计接收方
+    // 却被当作发送成功。异常向上传播由发送路径拒发。
     final policyMode = EncryptionModeService.current;
     if (policyMode == EncryptionMode.complianceE2ee) {
-      try {
-        final complianceKey = await ComplianceKeyService.instance
-            .getComplianceKey();
-        if (complianceKey != null) {
-          final wrappedCompliance = await _wrapAESKey(
-            aesKey: aesKey,
-            publicKeyPem: complianceKey.publicKey,
-          );
-          keys.add({
-            'did': 'compliance-audit',
-            'kid': complianceKey.keyId,
-            'wrap_alg': 'RSA-OAEP-256',
-            'ek': base64.encode(wrappedCompliance),
-          });
-          iPrint('E2EE: 已添加合规密钥包装 keyId=${complianceKey.keyId}');
-        }
-      } catch (e) {
-        iPrint('E2EE: 合规密钥包装失败（降级为仅设备加密）: $e');
-      }
+      final complianceKey = PolicyGate.requireComplianceKey(
+        await ComplianceKeyService.instance.getComplianceKey(),
+      );
+      final wrappedCompliance = await _wrapAESKey(
+        aesKey: aesKey,
+        publicKeyPem: complianceKey.publicKey,
+      );
+      keys.add({
+        'did': 'compliance-audit',
+        'kid': complianceKey.keyId,
+        'wrap_alg': 'RSA-OAEP-256',
+        'ek': base64.encode(wrappedCompliance),
+      });
+      iPrint('E2EE: 已添加合规密钥包装 keyId=${complianceKey.keyId}');
     }
 
     // 7. 返回 e2ee 元数据和密文（分离）
