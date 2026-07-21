@@ -94,8 +94,9 @@ class SqliteService {
     // 防 logout 未 close（如 purge 失败旁路）导致新账号写进旧账号加密库。
     final currentUid = UserRepoLocal.to.currentUid;
     final cached = _db;
-    if (cached != null && cached.isOpen && _openUid == currentUid)
+    if (cached != null && cached.isOpen && _openUid == currentUid) {
       return cached;
+    }
     if (cached != null && _openUid != currentUid) {
       await close();
     }
