@@ -22,6 +22,9 @@ const Set<String> kTrustMethods = {
   'device_destroyed',
 };
 
+/// 合法信任态（后端状态机三态）。
+const Set<String> kTrustStates = {'unverified', 'verified', 'revoked'};
+
 /// 合法状态转换白名单（后端 `valid_transition/2`，§3.2）。键格式 `from>to`。
 const Set<String> _validTransitions = {
   'unverified>verified',
@@ -140,6 +143,9 @@ class TrustChangedEvent {
     final issuedAt = _requireInt(payload, 'issued_at');
     if (!kTrustMethods.contains(method)) {
       throw FormatException('e2ee_trust_changed: unknown method "$method"');
+    }
+    if (!kTrustStates.contains(toState)) {
+      throw FormatException('e2ee_trust_changed: unknown to_state "$toState"');
     }
     return TrustChangedEvent(
       actorUid: actorUid,

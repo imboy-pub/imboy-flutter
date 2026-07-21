@@ -72,6 +72,40 @@ void main() {
       expect(fields.canonicalBytes, throwsArgumentError);
     });
 
+    test('rejects newline in target_device_id (canonical injectivity)', () {
+      final fields = const TrustEventCanonicalFields(
+        actorDeviceGeneration: 1,
+        actorUid: 100,
+        eventId: '3b1e0c4a-5f2d-4a1b-9c3e-7d8f0a1b2c3d',
+        expiresAt: 1700000060000,
+        fromState: 'unverified',
+        issuedAt: 1700000000000,
+        targetDeviceId: 'dev\ntarget_ed25519=x',
+        targetEd25519: 'ZWQtYg==',
+        targetIdentityVersion: 1,
+        targetUid: 200,
+        toState: 'verified',
+      );
+      expect(fields.canonicalBytes, throwsArgumentError);
+    });
+
+    test('rejects newline in target_ed25519 (canonical injectivity)', () {
+      final fields = const TrustEventCanonicalFields(
+        actorDeviceGeneration: 1,
+        actorUid: 100,
+        eventId: '3b1e0c4a-5f2d-4a1b-9c3e-7d8f0a1b2c3d',
+        expiresAt: 1700000060000,
+        fromState: 'unverified',
+        issuedAt: 1700000000000,
+        targetDeviceId: 'phone-b',
+        targetEd25519: 'AAAA\ntarget_ed25519=BBBB',
+        targetIdentityVersion: 1,
+        targetUid: 200,
+        toState: 'verified',
+      );
+      expect(fields.canonicalBytes, throwsArgumentError);
+    });
+
     test('rejects event_id longer than 64 chars', () {
       final fields = TrustEventCanonicalFields(
         actorDeviceGeneration: 1,

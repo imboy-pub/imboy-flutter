@@ -25,6 +25,17 @@ import 'dart:typed_data';
 /// canonical 结构的 `\n` / `=`，是防注入的边界校验。
 final RegExp _eventIdPattern = RegExp(r'^[0-9a-f-]{1,64}$');
 
+/// fail-closed 拒收含 `\n`/`\r` 的 canonical 字段值（破坏单射，见 [canonicalBytes]）。
+void _rejectNewline(String name, String value) {
+  if (value.contains('\n') || value.contains('\r')) {
+    throw ArgumentError.value(
+      value,
+      name,
+      'must not contain newline (breaks canonical)',
+    );
+  }
+}
+
 /// Ed25519 签名器：入参为 canonical UTF-8 字节，返回 64 字节原始签名。
 /// 生产实现由 vodozemac `Account.sign` 在调用点注入（wire slice 接线）。
 typedef Ed25519Signer = List<int> Function(List<int> message);
@@ -90,6 +101,13 @@ class TrustEventCanonicalFields {
         'must match [0-9a-f-]{1,64} (ADR 16 §3.3.1)',
       );
     }
+    // canonical 唯一分隔符是 \n；相邻自由文本字段（target_device_id/target_ed25519）
+    // 值内含 \n/\r 会使编码非单射（同一签名可对应多组字段拆分→信任伪造）。fail-closed
+    // 拒收。from/to_state 一并守卫（后端亦拒）。event_id 已由上方 hex 正则排除换行。
+    _rejectNewline('targetDeviceId', targetDeviceId);
+    _rejectNewline('targetEd25519', targetEd25519);
+    _rejectNewline('fromState', fromState);
+    _rejectNewline('toState', toState);
     // ASCII 字典序，末字段无尾随换行。顺序须与后端 canonical_payload/1 完全一致。
     final payload =
         'actor_device_generation=$actorDeviceGeneration\n'

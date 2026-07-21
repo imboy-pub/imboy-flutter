@@ -171,6 +171,11 @@ void main() {
       expect(() => TrustChangedEvent.fromBroadcast(p), throwsFormatException);
     });
 
+    test('throws FormatException on unknown to_state (enum guard)', () {
+      final p = validPayload()..['to_state'] = 'compromised';
+      expect(() => TrustChangedEvent.fromBroadcast(p), throwsFormatException);
+    });
+
     test('throws FormatException on empty string field', () {
       final p = validPayload()..['target_device_id'] = '';
       expect(() => TrustChangedEvent.fromBroadcast(p), throwsFormatException);
