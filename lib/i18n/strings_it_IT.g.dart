@@ -40,6 +40,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 
 	// Translations
 	@override late final _Translations$account$it_IT account = _Translations$account$it_IT._(_root);
+	@override late final _Translations$agent$it_IT agent = _Translations$agent$it_IT._(_root);
 	@override late final _Translations$channel$it_IT channel = _Translations$channel$it_IT._(_root);
 	@override late final _Translations$chat$it_IT chat = _Translations$chat$it_IT._(_root);
 	@override late final _Translations$common$it_IT common = _Translations$common$it_IT._(_root);
@@ -187,6 +188,25 @@ class _Translations$account$it_IT extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'Password';
 	@override String get e2eeTransferFromOldDevice => 'Dal vecchio dispositivo';
 	@override String get pleaseRelogin => 'Riaccedi';
+}
+
+// Path: agent
+class _Translations$agent$it_IT extends Translations$agent$zh_CN {
+	_Translations$agent$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get plazaTitle => 'Assistenti IA';
+	@override String get transparencyBanner => 'Tutti i membri qui sono assistenti IA, chiaramente identificati. Nelle chat crittografate ci sono solo persone reali.';
+	@override String get searchHint => 'Cerca assistenti';
+	@override String get emptyTitle => 'Nessun assistente IA al momento. Torna più tardi.';
+	@override String get searchEmpty => 'Nessun assistente corrispondente';
+	@override String get sendMessage => 'Messaggio';
+	@override String get badgeAi => 'IA';
+	@override String get badgeOfficial => 'Ufficiale';
+	@override String get badgeAiA11y => 'Assistente IA';
+	@override String get badgeOfficialA11y => 'Account ufficiale';
 }
 
 // Path: channel
@@ -2600,6 +2620,16 @@ extension on TranslationsItIt {
 			'account.webPasswordHint' => 'Password',
 			'account.e2eeTransferFromOldDevice' => 'Dal vecchio dispositivo',
 			'account.pleaseRelogin' => 'Riaccedi',
+			'agent.plazaTitle' => 'Assistenti IA',
+			'agent.transparencyBanner' => 'Tutti i membri qui sono assistenti IA, chiaramente identificati. Nelle chat crittografate ci sono solo persone reali.',
+			'agent.searchHint' => 'Cerca assistenti',
+			'agent.emptyTitle' => 'Nessun assistente IA al momento. Torna più tardi.',
+			'agent.searchEmpty' => 'Nessun assistente corrispondente',
+			'agent.sendMessage' => 'Messaggio',
+			'agent.badgeAi' => 'IA',
+			'agent.badgeOfficial' => 'Ufficiale',
+			'agent.badgeAiA11y' => 'Assistente IA',
+			'agent.badgeOfficialA11y' => 'Account ufficiale',
 			'channel.title' => 'Canali',
 			'channel.loading' => 'Caricamento...',
 			'channel.subscribed' => 'Iscritto',
@@ -2986,6 +3016,8 @@ extension on TranslationsItIt {
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Nuovo dispositivo rilevato',
 			'chat.e2eeRecoveryNewDeviceBody' => 'Per proteggere i messaggi, su questo dispositivo è stata generata una nuova chiave E2EE.\n\nI messaggi precedenti, cifrati con la chiave del vecchio dispositivo, richiedono prima un ripristino. Ripristina tramite « Trasferimento », « Recupero sociale » o « Backup locale ».',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Messaggio indecifrabile',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Questo messaggio è cifrato con la chiave di un altro dispositivo.\n\nSe hai cambiato dispositivo o reinstallato l\'app, ripristina la chiave per leggere i vecchi messaggi.',
 			'chat.e2eeRecoveryLater' => 'Più tardi',
 			'chat.e2eeRecoveryGoRecover' => 'Ripristina',
@@ -2996,8 +3028,6 @@ extension on TranslationsItIt {
 			'chat.switchToVoiceInput' => 'Passa all\'input vocale',
 			'chat.switchToKeyboardInput' => 'Passa all\'input da tastiera',
 			'common.about' => 'Informazioni',
-			_ => null,
-		} ?? switch (path) {
 			'common.aboutApp' => 'Informazioni sull\'app',
 			'common.accept' => 'Accetta',
 			'common.acceptFriendRequest' => 'Approva la richiesta di amicizia',
@@ -3500,6 +3530,8 @@ extension on TranslationsItIt {
 			'common.groupAnnouncementPublishSuccess' => 'Annuncio pubblicato',
 			'common.groupAnnouncementDeleteFailed' => 'Eliminazione annuncio fallita',
 			'common.groupAnnouncementDeleteSuccess' => 'Annuncio eliminato',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistory' => 'Cancella cronologia delle chat',
 			'common.privacyClearChatHistoryConfirm' => 'Sei sicuro di voler cancellare tutta la cronologia delle chat? Questa azione non può essere annullata.',
 			'common.privacyLogoutAccountConfirm' => 'Sei sicuro di voler disattivare l\'account? Questa azione eliminerà permanentemente il tuo account e tutti i dati e non può essere annullata.',
@@ -3510,8 +3542,6 @@ extension on TranslationsItIt {
 			'common.allowAddByPhone' => 'Consenti aggiunta per numero di telefono',
 			'common.allowAddByPhoneDesc' => 'Altri utenti possono aggiungerti come amico tramite il tuo numero di telefono',
 			'common.allowAddByQR' => 'Consenti aggiunta per codice QR',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowAddByQRDesc' => 'Altri utenti possono aggiungerti come amico scansionando il tuo codice QR',
 			'common.statusSettings' => 'Impostazioni stato',
 			'common.showOnlineStatus' => 'Mostra stato online',
@@ -4014,6 +4044,8 @@ extension on TranslationsItIt {
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Chiave divisa in ${count} frammenti',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} garanti sufficienti per il ripristino',
 			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust: il server non conserva frammenti',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialNoShards' => 'Nessun frammento creato',
 			'common.e2eeSocialNoProxyShards' => 'Nessun frammento garante',
 			'common.e2eeSocialKeyVersionLabel' => 'Versione chiave',
@@ -4024,8 +4056,6 @@ extension on TranslationsItIt {
 			'common.e2eeTransferErrCreateFailed' => 'Creazione sessione fallita. Riprova.',
 			'common.e2eeTransferCreateSessionBtn' => 'Crea sessione',
 			'common.e2eeTransferSessionCreated' => 'Sessione creata',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => 'ID utente valido richiesto',
 			'common.e2eeTransferSuccess' => 'Successo !',
 			'common.e2eeTransferFailed' => 'Trasferimento fallito. Riprova.',
@@ -4528,6 +4558,8 @@ extension on TranslationsItIt {
 			'main.school' => 'Scuola',
 			'main.hobbiesAndInterests' => 'Hobby & Interessi',
 			'main.interests' => 'Interests',
+			_ => null,
+		} ?? switch (path) {
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'Gestisci visibilità delle info personali',
@@ -4538,8 +4570,6 @@ extension on TranslationsItIt {
 			'main.volumeDown' => 'Volume giù',
 			'main.fastRewind' => ({required Object seconds}) => 'Indietro veloce ${seconds} secondi',
 			'main.pleaseTryAgain' => 'Riprova',
-			_ => null,
-		} ?? switch (path) {
 			'main.secret' => 'Segreto',
 			'main.takePhoto' => 'Scatta foto',
 			'main.publishing' => 'Pubblicazione...',

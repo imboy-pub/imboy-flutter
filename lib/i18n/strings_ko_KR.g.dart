@@ -40,6 +40,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 
 	// Translations
 	@override late final _Translations$account$ko_KR account = _Translations$account$ko_KR._(_root);
+	@override late final _Translations$agent$ko_KR agent = _Translations$agent$ko_KR._(_root);
 	@override late final _Translations$channel$ko_KR channel = _Translations$channel$ko_KR._(_root);
 	@override late final _Translations$chat$ko_KR chat = _Translations$chat$ko_KR._(_root);
 	@override late final _Translations$common$ko_KR common = _Translations$common$ko_KR._(_root);
@@ -187,6 +188,25 @@ class _Translations$account$ko_KR extends Translations$account$zh_CN {
 	@override String get webPasswordHint => '비밀번호를 입력하세요';
 	@override String get e2eeTransferFromOldDevice => '이전 기기에서 키 받기';
 	@override String get pleaseRelogin => '다시 로그인해주세요';
+}
+
+// Path: agent
+class _Translations$agent$ko_KR extends Translations$agent$zh_CN {
+	_Translations$agent$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get plazaTitle => 'AI 어시스턴트 광장';
+	@override String get transparencyBanner => '여기 있는 구성원은 모두 AI 어시스턴트이며 신원이 명확히 표시됩니다. 암호화 채팅에는 실제 사람만 있습니다.';
+	@override String get searchHint => '어시스턴트 검색';
+	@override String get emptyTitle => '아직 AI 어시스턴트가 없습니다. 나중에 다시 확인해 주세요.';
+	@override String get searchEmpty => '일치하는 어시스턴트가 없습니다';
+	@override String get sendMessage => '메시지 보내기';
+	@override String get badgeAi => 'AI';
+	@override String get badgeOfficial => '공식';
+	@override String get badgeAiA11y => 'AI 어시스턴트';
+	@override String get badgeOfficialA11y => '공식 계정';
 }
 
 // Path: channel
@@ -2600,6 +2620,16 @@ extension on TranslationsKoKr {
 			'account.webPasswordHint' => '비밀번호를 입력하세요',
 			'account.e2eeTransferFromOldDevice' => '이전 기기에서 키 받기',
 			'account.pleaseRelogin' => '다시 로그인해주세요',
+			'agent.plazaTitle' => 'AI 어시스턴트 광장',
+			'agent.transparencyBanner' => '여기 있는 구성원은 모두 AI 어시스턴트이며 신원이 명확히 표시됩니다. 암호화 채팅에는 실제 사람만 있습니다.',
+			'agent.searchHint' => '어시스턴트 검색',
+			'agent.emptyTitle' => '아직 AI 어시스턴트가 없습니다. 나중에 다시 확인해 주세요.',
+			'agent.searchEmpty' => '일치하는 어시스턴트가 없습니다',
+			'agent.sendMessage' => '메시지 보내기',
+			'agent.badgeAi' => 'AI',
+			'agent.badgeOfficial' => '공식',
+			'agent.badgeAiA11y' => 'AI 어시스턴트',
+			'agent.badgeOfficialA11y' => '공식 계정',
 			'channel.title' => '채널',
 			'channel.loading' => '로딩 중...',
 			'channel.subscribed' => '구독 중',
@@ -2986,6 +3016,8 @@ extension on TranslationsKoKr {
 			'chat.e2eeRecoveryNewDeviceTitle' => '새 기기 로그인 감지',
 			'chat.e2eeRecoveryNewDeviceBody' => '메시지 보안을 위해 이 기기에 새 종단간 암호화 키가 생성되었습니다.\n\n이전 메시지는 이전 기기의 키로 암호화되어 있어 먼저 키를 복구해야 볼 수 있습니다. "기기 전송", "소셜 복구" 또는 "로컬 백업 가져오기"로 복구할 수 있습니다.',
 			'chat.e2eeRecoveryDecryptFailedTitle' => '이 메시지를 복호화할 수 없습니다',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedBody' => '이 메시지는 다른 기기의 키로 암호화되었습니다.\n\n기기를 교체했거나 앱을 다시 설치했다면, 암호화 키를 복구한 후 이전 메시지를 확인하세요.',
 			'chat.e2eeRecoveryLater' => '나중에',
 			'chat.e2eeRecoveryGoRecover' => '복구하러 가기',
@@ -2996,8 +3028,6 @@ extension on TranslationsKoKr {
 			'chat.switchToVoiceInput' => '음성 입력으로 전환',
 			'chat.switchToKeyboardInput' => '키보드 입력으로 전환',
 			'common.about' => '정보',
-			_ => null,
-		} ?? switch (path) {
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
 			'common.acceptFriendRequest' => '친구 요청 수락',
@@ -3500,6 +3530,8 @@ extension on TranslationsKoKr {
 			'common.groupAnnouncementPublishSuccess' => '공지가 게시되었습니다',
 			'common.groupAnnouncementDeleteFailed' => '공지 삭제 실패',
 			'common.groupAnnouncementDeleteSuccess' => '공지가 삭제되었습니다',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistory' => '채팅 기록 삭제',
 			'common.privacyClearChatHistoryConfirm' => '모든 채팅 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
 			'common.privacyLogoutAccountConfirm' => '계정을 탈퇴할까요? 계정과 모든 데이터가 영구 삭제되며 되돌릴 수 없습니다.',
@@ -3510,8 +3542,6 @@ extension on TranslationsKoKr {
 			'common.allowAddByPhone' => '휴대폰 번호로 추가 허용',
 			'common.allowAddByPhoneDesc' => '다른 사용자가 휴대폰 번호로 친구 추가할 수 있습니다',
 			'common.allowAddByQR' => 'QR코드로 추가 허용',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowAddByQRDesc' => '다른 사용자가 QR코드를 스캔하여 친구 추가할 수 있습니다',
 			'common.statusSettings' => '상태 설정',
 			'common.showOnlineStatus' => '온라인 상태 표시',
@@ -4014,6 +4044,8 @@ extension on TranslationsKoKr {
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다',
 			'common.e2eeSocialZeroTrustNote' => '제로 트러스트 구조: 서버는 어떤 샤드도 저장하지 않습니다',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialNoShards' => '생성한 복구 샤드가 없습니다',
 			'common.e2eeSocialNoProxyShards' => '대리자 샤드가 없습니다',
 			'common.e2eeSocialKeyVersionLabel' => '키 버전',
@@ -4024,8 +4056,6 @@ extension on TranslationsKoKr {
 			'common.e2eeTransferErrCreateFailed' => '전송 세션 생성 실패, 다시 시도해주세요',
 			'common.e2eeTransferCreateSessionBtn' => '전송 세션 만들기',
 			'common.e2eeTransferSessionCreated' => '전송 세션이 생성되었습니다',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => '올바른 사용자 ID를 입력해주세요',
 			'common.e2eeTransferSuccess' => '전송 완료!',
 			'common.e2eeTransferFailed' => '전송 실패, 다시 시도해주세요',
@@ -4528,6 +4558,8 @@ extension on TranslationsKoKr {
 			'main.school' => '학교',
 			'main.hobbiesAndInterests' => '취미 및 관심사',
 			'main.interests' => 'Interests',
+			_ => null,
+		} ?? switch (path) {
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => '개인정보 표시 관리',
@@ -4538,8 +4570,6 @@ extension on TranslationsKoKr {
 			'main.volumeDown' => '볼륨 낮추기',
 			'main.fastRewind' => ({required Object seconds}) => '${seconds}초 되감기',
 			'main.pleaseTryAgain' => '다시 시도해 주세요',
-			_ => null,
-		} ?? switch (path) {
 			'main.secret' => '비공개',
 			'main.takePhoto' => '사진 촬영',
 			'main.publishing' => '게시 중...',

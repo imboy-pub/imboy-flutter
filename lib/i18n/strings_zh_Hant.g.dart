@@ -40,6 +40,7 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 
 	// Translations
 	@override late final Translations$account$zh_Hant account = Translations$account$zh_Hant.internal(_root);
+	@override late final Translations$agent$zh_Hant agent = Translations$agent$zh_Hant.internal(_root);
 	@override late final Translations$channel$zh_Hant channel = Translations$channel$zh_Hant.internal(_root);
 	@override late final Translations$chat$zh_Hant chat = Translations$chat$zh_Hant.internal(_root);
 	@override late final Translations$common$zh_Hant common = Translations$common$zh_Hant.internal(_root);
@@ -187,6 +188,25 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get webPasswordHint => '請輸入密碼';
 	@override String get e2eeTransferFromOldDevice => '從舊裝置接收金鑰';
 	@override String get pleaseRelogin => '請重新登入';
+}
+
+// Path: agent
+class Translations$agent$zh_Hant extends Translations$agent$zh_CN {
+	Translations$agent$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get plazaTitle => 'AI 助手廣場';
+	@override String get transparencyBanner => '這裡的成員都是 AI 助手，身分會明確標註；加密聊天裡，只有真人。';
+	@override String get searchHint => '搜尋助手';
+	@override String get emptyTitle => '暫無 AI 助手，稍後再來看看';
+	@override String get searchEmpty => '無符合的助手';
+	@override String get sendMessage => '傳訊息';
+	@override String get badgeAi => 'AI';
+	@override String get badgeOfficial => '官方';
+	@override String get badgeAiA11y => 'AI 助手';
+	@override String get badgeOfficialA11y => '官方帳號';
 }
 
 // Path: channel
@@ -2623,6 +2643,16 @@ extension on TranslationsZhHant {
 			'account.webPasswordHint' => '請輸入密碼',
 			'account.e2eeTransferFromOldDevice' => '從舊裝置接收金鑰',
 			'account.pleaseRelogin' => '請重新登入',
+			'agent.plazaTitle' => 'AI 助手廣場',
+			'agent.transparencyBanner' => '這裡的成員都是 AI 助手，身分會明確標註；加密聊天裡，只有真人。',
+			'agent.searchHint' => '搜尋助手',
+			'agent.emptyTitle' => '暫無 AI 助手，稍後再來看看',
+			'agent.searchEmpty' => '無符合的助手',
+			'agent.sendMessage' => '傳訊息',
+			'agent.badgeAi' => 'AI',
+			'agent.badgeOfficial' => '官方',
+			'agent.badgeAiA11y' => 'AI 助手',
+			'agent.badgeOfficialA11y' => '官方帳號',
 			'channel.title' => '頻道',
 			'channel.loading' => '載入中...',
 			'channel.subscribed' => '已訂閱',
@@ -3009,6 +3039,8 @@ extension on TranslationsZhHant {
 			'chat.e2eeSocialCreateTitle' => '建立恢復分片',
 			'chat.e2eeSocialCreateBtn' => '建立分片',
 			'chat.e2eeSocialCreateFailTitle' => '建立失敗',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeSocialCreateFailBody' => '建立分片失敗，請重試',
 			'chat.e2eeSocialCreateFirst' => '建立分片後才能看到內容',
 			'chat.e2eeSocialUsedAtLabel' => '使用時間',
@@ -3019,8 +3051,6 @@ extension on TranslationsZhHant {
 			'chat.e2eeTransferReceiveDesc' => '掃描舊裝置二維碼接收金鑰',
 			'chat.e2eeSocialStatus' => ({required Object status}) => '狀態: ${status}',
 			'chat.e2eeSocialCreateShardsTitle' => '建立恢復分片',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeSocialCreateShardsDesc' => '將金鑰分割成多個分片，儲存到代理裝置（服務端不儲存）',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '請選擇至少 ${count} 個代理',
 			'chat.e2eeRecreatingKey' => '正在重新建立金鑰...',
@@ -3523,6 +3553,8 @@ extension on TranslationsZhHant {
 			'common.locationHidden' => '已隱藏您的位置',
 			'common.locationVisible' => '已顯示您的位置',
 			'common.noNearbyPeople' => '暫無附近的人',
+			_ => null,
+		} ?? switch (path) {
 			'common.clickSearchButtonToFind' => '點擊上方的搜尋按鈕搜尋附近的人',
 			'common.operationSuccess' => _root.common.success,
 			'common.operationFailed' => _root.common.error,
@@ -3533,8 +3565,6 @@ extension on TranslationsZhHant {
 			'common.groupAnnouncementPublish' => '發布公告',
 			'common.pleaseEnterAnnouncementContent' => '請輸入公告內容',
 			'common.selectExpirationDateOptional' => '選擇有效期（可選）',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementDeleteConfirm' => '確定要刪除這則公告嗎？',
 			'common.groupAnnouncementDelete' => '刪除',
 			'common.groupAnnouncementLoadFailed' => '公告載入失敗，請稍後重試',
@@ -4037,6 +4067,8 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
 			'common.e2eeBackupErrCloudUploadFailed' => '雲端備份失敗，請重試',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCloudRestoreTitle' => '從雲端備份恢復',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '偵測到雲端備份（版本 ${version}）',
 			'common.e2eeBackupCloudRestoreBtn' => '從雲端恢復',
@@ -4047,8 +4079,6 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrCloudRestoreFailed' => '雲端恢復失敗，請重試',
 			'common.e2eeSocialShardSettings' => '分片設定',
 			'common.e2eeSocialShardStoredNote' => '說明：分片將儲存在代理裝置上，服務端不儲存任何分片',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialAddProxy' => '新增代理',
 			'common.e2eeSocialAddProxyHint' => '請新增代理聯絡人',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '請先新增 ${count} 個代理',
@@ -4551,6 +4581,8 @@ extension on TranslationsZhHant {
 			'main.privacyPolicy' => '隱私政策',
 			'main.termsOfService' => '服務條款',
 			'main.saving' => _root.common.loading,
+			_ => null,
+		} ?? switch (path) {
 			'main.topStories' => '看一看',
 			'main.systemDefault' => '系統預設',
 			'main.custom' => '自訂',
@@ -4561,8 +4593,6 @@ extension on TranslationsZhHant {
 			'main.copiedToClipboard' => '已複製到剪貼板',
 			'main.copiedLink' => '已複製連結',
 			'main.destroyTime' => '銷毀時間',
-			_ => null,
-		} ?? switch (path) {
 			'main.previewEffect' => '預覽效果',
 			'main.thisIsTitleText' => '這是標題文字',
 			'main.thisIsAuxiliaryText' => '這是輔助說明文字',

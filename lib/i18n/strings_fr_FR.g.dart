@@ -40,6 +40,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 
 	// Translations
 	@override late final _Translations$account$fr_FR account = _Translations$account$fr_FR._(_root);
+	@override late final _Translations$agent$fr_FR agent = _Translations$agent$fr_FR._(_root);
 	@override late final _Translations$channel$fr_FR channel = _Translations$channel$fr_FR._(_root);
 	@override late final _Translations$chat$fr_FR chat = _Translations$chat$fr_FR._(_root);
 	@override late final _Translations$common$fr_FR common = _Translations$common$fr_FR._(_root);
@@ -187,6 +188,25 @@ class _Translations$account$fr_FR extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'Mot de passe';
 	@override String get e2eeTransferFromOldDevice => 'Depuis l\'ancien appareil';
 	@override String get pleaseRelogin => 'Reconnectez-vous';
+}
+
+// Path: agent
+class _Translations$agent$fr_FR extends Translations$agent$zh_CN {
+	_Translations$agent$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get plazaTitle => 'Assistants IA';
+	@override String get transparencyBanner => 'Tous les membres ici sont des assistants IA, clairement identifiés. Dans les discussions chiffrées, il n\'y a que de vraies personnes.';
+	@override String get searchHint => 'Rechercher un assistant';
+	@override String get emptyTitle => 'Aucun assistant IA pour le moment. Revenez plus tard.';
+	@override String get searchEmpty => 'Aucun assistant correspondant';
+	@override String get sendMessage => 'Message';
+	@override String get badgeAi => 'IA';
+	@override String get badgeOfficial => 'Officiel';
+	@override String get badgeAiA11y => 'Assistant IA';
+	@override String get badgeOfficialA11y => 'Compte officiel';
 }
 
 // Path: channel
@@ -2600,6 +2620,16 @@ extension on TranslationsFrFr {
 			'account.webPasswordHint' => 'Mot de passe',
 			'account.e2eeTransferFromOldDevice' => 'Depuis l\'ancien appareil',
 			'account.pleaseRelogin' => 'Reconnectez-vous',
+			'agent.plazaTitle' => 'Assistants IA',
+			'agent.transparencyBanner' => 'Tous les membres ici sont des assistants IA, clairement identifiés. Dans les discussions chiffrées, il n\'y a que de vraies personnes.',
+			'agent.searchHint' => 'Rechercher un assistant',
+			'agent.emptyTitle' => 'Aucun assistant IA pour le moment. Revenez plus tard.',
+			'agent.searchEmpty' => 'Aucun assistant correspondant',
+			'agent.sendMessage' => 'Message',
+			'agent.badgeAi' => 'IA',
+			'agent.badgeOfficial' => 'Officiel',
+			'agent.badgeAiA11y' => 'Assistant IA',
+			'agent.badgeOfficialA11y' => 'Compte officiel',
 			'channel.title' => 'Canaux',
 			'channel.loading' => 'Chargement...',
 			'channel.subscribed' => 'Abonné',
@@ -2986,6 +3016,8 @@ extension on TranslationsFrFr {
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Nouvel appareil détecté',
 			'chat.e2eeRecoveryNewDeviceBody' => 'Pour protéger vos messages, une nouvelle clé E2EE a été générée sur cet appareil.\n\nLes anciens messages, chiffrés avec la clé de l\'ancien appareil, nécessitent d\'abord une restauration. Restaurez via « Transfert », « Récupération sociale » ou « Sauvegarde locale ».',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Message indéchiffrable',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Ce message est chiffré avec la clé d\'un autre appareil.\n\nSi vous avez changé d\'appareil ou réinstallé l\'app, restaurez la clé pour lire les anciens messages.',
 			'chat.e2eeRecoveryLater' => 'Plus tard',
 			'chat.e2eeRecoveryGoRecover' => 'Restaurer',
@@ -2996,8 +3028,6 @@ extension on TranslationsFrFr {
 			'chat.switchToVoiceInput' => 'Passer à la saisie vocale',
 			'chat.switchToKeyboardInput' => 'Passer à la saisie clavier',
 			'common.about' => 'À propos',
-			_ => null,
-		} ?? switch (path) {
 			'common.aboutApp' => 'À propos de l\'application',
 			'common.accept' => 'Accepter',
 			'common.acceptFriendRequest' => 'Accepter la demande d\'ami',
@@ -3500,6 +3530,8 @@ extension on TranslationsFrFr {
 			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
 			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
 			'common.groupAnnouncementDeleteSuccess' => 'Annonce supprimée',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistory' => 'Effacer l\'historique de conversation',
 			'common.privacyClearChatHistoryConfirm' => 'Confirmer l\'effacement de tout l\'historique de conversation ? Cette action est irréversible.',
 			'common.privacyLogoutAccountConfirm' => 'Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée.',
@@ -3510,8 +3542,6 @@ extension on TranslationsFrFr {
 			'common.allowAddByPhone' => 'Autoriser l\'ajout par téléphone',
 			'common.allowAddByPhoneDesc' => 'D\'autres utilisateurs peuvent vous ajouter comme ami via votre numéro de téléphone.',
 			'common.allowAddByQR' => 'Autoriser l\'ajout par code QR',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowAddByQRDesc' => 'D\'autres utilisateurs peuvent vous ajouter comme ami en scannant votre code QR.',
 			'common.statusSettings' => 'Paramètres de statut',
 			'common.showOnlineStatus' => 'Afficher le statut en ligne',
@@ -4014,6 +4044,8 @@ extension on TranslationsFrFr {
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Clé divisée en ${count} fragments',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} dépositaires suffisent pour restaurer',
 			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust : le serveur ne conserve aucun fragment',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialNoShards' => 'Aucun fragment créé',
 			'common.e2eeSocialNoProxyShards' => 'Aucun fragment dépositaire',
 			'common.e2eeSocialKeyVersionLabel' => 'Version de clé',
@@ -4024,8 +4056,6 @@ extension on TranslationsFrFr {
 			'common.e2eeTransferErrCreateFailed' => 'Échec de la création de session. Réessayez.',
 			'common.e2eeTransferCreateSessionBtn' => 'Créer une session',
 			'common.e2eeTransferSessionCreated' => 'Session créée',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => 'ID utilisateur valide requis',
 			'common.e2eeTransferSuccess' => 'Succès !',
 			'common.e2eeTransferFailed' => 'Échec du transfert. Réessayez.',
@@ -4528,6 +4558,8 @@ extension on TranslationsFrFr {
 			'main.school' => 'École',
 			'main.hobbiesAndInterests' => 'Loisirs et intérêts',
 			'main.interests' => 'Interests',
+			_ => null,
+		} ?? switch (path) {
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'Gérer la visibilité des informations personnelles',
@@ -4538,8 +4570,6 @@ extension on TranslationsFrFr {
 			'main.volumeDown' => 'Baisser le volume',
 			'main.fastRewind' => ({required Object seconds}) => 'Retour rapide de ${seconds} secondes',
 			'main.pleaseTryAgain' => 'Réessayez.',
-			_ => null,
-		} ?? switch (path) {
 			'main.secret' => 'Confidentiel',
 			'main.takePhoto' => 'Prendre une photo',
 			'main.publishing' => 'Publication en cours...',

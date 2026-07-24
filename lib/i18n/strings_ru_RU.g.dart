@@ -40,6 +40,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 
 	// Translations
 	@override late final _Translations$account$ru_RU account = _Translations$account$ru_RU._(_root);
+	@override late final _Translations$agent$ru_RU agent = _Translations$agent$ru_RU._(_root);
 	@override late final _Translations$channel$ru_RU channel = _Translations$channel$ru_RU._(_root);
 	@override late final _Translations$chat$ru_RU chat = _Translations$chat$ru_RU._(_root);
 	@override late final _Translations$common$ru_RU common = _Translations$common$ru_RU._(_root);
@@ -187,6 +188,25 @@ class _Translations$account$ru_RU extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'Введите пароль';
 	@override String get e2eeTransferFromOldDevice => 'Получить ключ со старого устройства';
 	@override String get pleaseRelogin => 'Войдите заново';
+}
+
+// Path: agent
+class _Translations$agent$ru_RU extends Translations$agent$zh_CN {
+	_Translations$agent$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get plazaTitle => 'ИИ-ассистенты';
+	@override String get transparencyBanner => 'Все участники здесь — ИИ-ассистенты с чётко обозначенным статусом. В зашифрованных чатах — только настоящие люди.';
+	@override String get searchHint => 'Поиск ассистентов';
+	@override String get emptyTitle => 'Пока нет ИИ-ассистентов. Загляните позже.';
+	@override String get searchEmpty => 'Нет подходящих ассистентов';
+	@override String get sendMessage => 'Написать';
+	@override String get badgeAi => 'ИИ';
+	@override String get badgeOfficial => 'Официальный';
+	@override String get badgeAiA11y => 'ИИ-ассистент';
+	@override String get badgeOfficialA11y => 'Официальный аккаунт';
 }
 
 // Path: channel
@@ -2600,6 +2620,16 @@ extension on TranslationsRuRu {
 			'account.webPasswordHint' => 'Введите пароль',
 			'account.e2eeTransferFromOldDevice' => 'Получить ключ со старого устройства',
 			'account.pleaseRelogin' => 'Войдите заново',
+			'agent.plazaTitle' => 'ИИ-ассистенты',
+			'agent.transparencyBanner' => 'Все участники здесь — ИИ-ассистенты с чётко обозначенным статусом. В зашифрованных чатах — только настоящие люди.',
+			'agent.searchHint' => 'Поиск ассистентов',
+			'agent.emptyTitle' => 'Пока нет ИИ-ассистентов. Загляните позже.',
+			'agent.searchEmpty' => 'Нет подходящих ассистентов',
+			'agent.sendMessage' => 'Написать',
+			'agent.badgeAi' => 'ИИ',
+			'agent.badgeOfficial' => 'Официальный',
+			'agent.badgeAiA11y' => 'ИИ-ассистент',
+			'agent.badgeOfficialA11y' => 'Официальный аккаунт',
 			'channel.title' => 'Каналы',
 			'channel.loading' => 'Загрузка...',
 			'channel.subscribed' => 'Подписан',
@@ -2986,6 +3016,8 @@ extension on TranslationsRuRu {
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Обнаружен вход с нового устройства',
 			'chat.e2eeRecoveryNewDeviceBody' => 'Для защиты сообщений на этом устройстве создан новый ключ сквозного шифрования.\n\nПрошлые сообщения зашифрованы ключом старого устройства — сначала восстановите ключ, чтобы их прочитать. Восстановить можно через «Передачу устройств», «Социальное восстановление» или импорт локальной копии.',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Не удалось расшифровать сообщение',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Это сообщение зашифровано ключом другого устройства.\n\nЕсли вы сменили устройство или переустановили приложение, восстановите ключ шифрования, чтобы прочитать прошлые сообщения.',
 			'chat.e2eeRecoveryLater' => 'Позже',
 			'chat.e2eeRecoveryGoRecover' => 'Восстановить',
@@ -2996,8 +3028,6 @@ extension on TranslationsRuRu {
 			'chat.switchToVoiceInput' => 'Переключиться на голосовой ввод',
 			'chat.switchToKeyboardInput' => 'Переключиться на ввод с клавиатуры',
 			'common.about' => 'О приложении',
-			_ => null,
-		} ?? switch (path) {
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
 			'common.acceptFriendRequest' => 'Подтвердить запрос дружбы',
@@ -3500,6 +3530,8 @@ extension on TranslationsRuRu {
 			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
 			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
 			'common.groupAnnouncementDeleteSuccess' => 'Объявление удалено',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistory' => 'Очистить историю чата',
 			'common.privacyClearChatHistoryConfirm' => 'Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.',
 			'common.privacyLogoutAccountConfirm' => 'Удалить аккаунт? Это действие окончательно удалит аккаунт и все данные. Его нельзя отменить.',
@@ -3510,8 +3542,6 @@ extension on TranslationsRuRu {
 			'common.allowAddByPhone' => 'Разрешить добавление по мобильному',
 			'common.allowAddByPhoneDesc' => 'Другие пользователи могут добавить вас в друзья по вашему номеру мобильного телефона',
 			'common.allowAddByQR' => 'Разрешить добавление по QR-коду',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowAddByQRDesc' => 'Другие пользователи могут добавить вас в друзья, отсканировав ваш QR-код',
 			'common.statusSettings' => 'Настройки статуса',
 			'common.showOnlineStatus' => 'Показать онлайн-статус',
@@ -4014,6 +4044,8 @@ extension on TranslationsRuRu {
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Ключ разделён на ${count} фрагментов',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Для восстановления хватит ${count} посредников',
 			'common.e2eeSocialZeroTrustNote' => 'Архитектура нулевого доверия: сервер не хранит фрагменты',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialNoShards' => 'Вы ещё не создали фрагменты восстановления',
 			'common.e2eeSocialNoProxyShards' => 'Нет фрагментов посредников',
 			'common.e2eeSocialKeyVersionLabel' => 'Версия ключа',
@@ -4024,8 +4056,6 @@ extension on TranslationsRuRu {
 			'common.e2eeTransferErrCreateFailed' => 'Не удалось создать сеанс передачи, попробуйте ещё раз',
 			'common.e2eeTransferCreateSessionBtn' => 'Создать сеанс передачи',
 			'common.e2eeTransferSessionCreated' => 'Сеанс передачи создан',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => 'Введите корректный ID пользователя',
 			'common.e2eeTransferSuccess' => 'Передача завершена!',
 			'common.e2eeTransferFailed' => 'Не удалось передать, попробуйте ещё раз',
@@ -4528,6 +4558,8 @@ extension on TranslationsRuRu {
 			'main.school' => 'Школа',
 			'main.hobbiesAndInterests' => 'Хобби и интересы',
 			'main.interests' => 'Interests',
+			_ => null,
+		} ?? switch (path) {
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'Управление видимостью личной информации',
@@ -4538,8 +4570,6 @@ extension on TranslationsRuRu {
 			'main.volumeDown' => 'Уменьшить громкость',
 			'main.fastRewind' => ({required Object seconds}) => 'Быстрая перемотка назад ${seconds} сек',
 			'main.pleaseTryAgain' => 'Пожалуйста, попробуйте снова',
-			_ => null,
-		} ?? switch (path) {
 			'main.secret' => 'Конфиденциально',
 			'main.takePhoto' => 'Сделать фото',
 			'main.publishing' => 'Публикация...',

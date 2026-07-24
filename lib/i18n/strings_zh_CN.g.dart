@@ -41,6 +41,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	// Translations
 	late final Translations$account$zh_CN account = Translations$account$zh_CN.internal(_root);
+	late final Translations$agent$zh_CN agent = Translations$agent$zh_CN.internal(_root);
 	late final Translations$agentTask$zh_CN agentTask = Translations$agentTask$zh_CN.internal(_root);
 	late final Translations$channel$zh_CN channel = Translations$channel$zh_CN.internal(_root);
 	late final Translations$chat$zh_CN chat = Translations$chat$zh_CN.internal(_root);
@@ -442,6 +443,45 @@ class Translations$account$zh_CN {
 
 	/// zh-CN: '请重新登录'
 	String get pleaseRelogin => '请重新登录';
+}
+
+// Path: agent
+class Translations$agent$zh_CN {
+	Translations$agent$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: 'AI 助手广场'
+	String get plazaTitle => 'AI 助手广场';
+
+	/// zh-CN: '这里的成员都是 AI 助手，身份会明确标注；加密聊天里，只有真人。'
+	String get transparencyBanner => '这里的成员都是 AI 助手，身份会明确标注；加密聊天里，只有真人。';
+
+	/// zh-CN: '搜索助手'
+	String get searchHint => '搜索助手';
+
+	/// zh-CN: '暂无 AI 助手，稍后再来看看'
+	String get emptyTitle => '暂无 AI 助手，稍后再来看看';
+
+	/// zh-CN: '无匹配的助手'
+	String get searchEmpty => '无匹配的助手';
+
+	/// zh-CN: '发消息'
+	String get sendMessage => '发消息';
+
+	/// zh-CN: 'AI'
+	String get badgeAi => 'AI';
+
+	/// zh-CN: '官方'
+	String get badgeOfficial => '官方';
+
+	/// zh-CN: 'AI 助手'
+	String get badgeAiA11y => 'AI 助手';
+
+	/// zh-CN: '官方账号'
+	String get badgeOfficialA11y => '官方账号';
 }
 
 // Path: agentTask
@@ -6887,8 +6927,8 @@ class Translations$main$zh_CN {
 	/// zh-CN: '填入'
 	String get fillIn => '填入';
 
-	/// zh-CN: '消息受合规密钥保护（仅审计方离线私钥可解密，服务端无解密能力）'
-	String get msgProtectedByComplianceKey => '消息受合规密钥保护（仅审计方离线私钥可解密，服务端无解密能力）';
+	/// zh-CN: '消息受合规密钥保护'
+	String get msgProtectedByComplianceKey => '消息受合规密钥保护';
 
 	/// zh-CN: '邀请人: $uid'
 	String inviterLabel({required Object uid}) => '邀请人: ${uid}';
@@ -7532,6 +7572,16 @@ extension on Translations {
 			'account.webPasswordHint' => '请输入密码',
 			'account.e2eeTransferFromOldDevice' => '从旧设备接收密钥',
 			'account.pleaseRelogin' => '请重新登录',
+			'agent.plazaTitle' => 'AI 助手广场',
+			'agent.transparencyBanner' => '这里的成员都是 AI 助手，身份会明确标注；加密聊天里，只有真人。',
+			'agent.searchHint' => '搜索助手',
+			'agent.emptyTitle' => '暂无 AI 助手，稍后再来看看',
+			'agent.searchEmpty' => '无匹配的助手',
+			'agent.sendMessage' => '发消息',
+			'agent.badgeAi' => 'AI',
+			'agent.badgeOfficial' => '官方',
+			'agent.badgeAiA11y' => 'AI 助手',
+			'agent.badgeOfficialA11y' => '官方账号',
 			'agentTask.title' => 'AI 任务',
 			'agentTask.working' => '执行中',
 			'agentTask.submitted' => '已提交',
@@ -7911,6 +7961,8 @@ extension on Translations {
 			'chat.momentsVisibilityPrivate' => '仅自己',
 			'chat.momentsMediaTooManyImages' => '最多只能选择 9 张图片',
 			'chat.momentsMediaTooManyVideos' => '最多只能选择 1 个视频',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsMediaMixedImageAndVideo' => '图片和视频不能同时发布',
 			'chat.momentsReplyPrefix' => '回复 @',
 			'chat.momentsReplySeparator' => '：',
@@ -7921,8 +7973,6 @@ extension on Translations {
 			'chat.pleaseEnterSignature' => '请输入个性签名',
 			'chat.exportProfile' => '导出资料',
 			'chat.setSignature' => '设置个性签名',
-			_ => null,
-		} ?? switch (path) {
 			'chat.setAvatar' => '设置头像',
 			'chat.fastForward' => ({required Object seconds}) => '快进 ${seconds}秒',
 			'chat.messageId' => '消息ID',
@@ -8425,6 +8475,8 @@ extension on Translations {
 			'common.tipGreeting' => '欢迎使用',
 			'common.tipProvidersTitleFirst' => '或用以下账号登录',
 			'common.tipSuccess' => '操作成功！',
+			_ => null,
+		} ?? switch (path) {
 			'common.tipTips' => '小贴士',
 			'common.titleContact' => '联系人',
 			'common.today' => '今天',
@@ -8435,8 +8487,6 @@ extension on Translations {
 			'common.uploading' => '上传中',
 			'common.uploadSuccess' => '上传成功',
 			'common.uploadFailed' => '上传失败',
-			_ => null,
-		} ?? switch (path) {
 			'common.userDataTips' => '包含APP运行时必要的文件，以及聊天消息、好友关系等所有记录数据。',
 			'common.userDisabledOrDeleted' => '用户被禁用或已删除',
 			'common.userNotExist' => '用户不存在',
@@ -8939,6 +8989,8 @@ extension on Translations {
 			'common.webQRTokenInvalid' => '登录令牌无效',
 			'common.e2eeErrNoRecipientKey' => '无法获取对方设备密钥，消息未发送',
 			'common.e2eeDecryptFailed' => '消息无法解密',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeDecryptFailedReasons' => '此消息无法解密，可能原因是：',
 			'common.e2eeDecryptReasonOtherDevice' => '• 您在其他设备上登录',
 			'common.e2eeDecryptReasonKeyExpired' => '• 设备密钥已过期',
@@ -8949,8 +9001,6 @@ extension on Translations {
 			'common.e2eeDecryptActionRecreateKey' => '重新创建密钥（推荐）',
 			'common.e2eeDecryptActionRelogin' => '重新登录',
 			'common.e2eeDecryptActionRemindLater' => '稍后提醒我',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupExportTitle' => '导出 E2EE 备份',
 			'common.e2eeBackupPwdCantRecover' => '• 备份密码无法找回，请务必牢记！',
 			'common.e2eeBackupStoreMultipleNote' => '• 建议将备份文件存储到多个安全位置（邮件、云盘、U盘）',
@@ -9453,6 +9503,8 @@ extension on Translations {
 			'main.album' => '照片',
 			'main.appSize' => '应用大小',
 			'main.arSa' => '阿拉伯语（沙特阿拉伯）',
+			_ => null,
+		} ?? switch (path) {
 			'main.audio' => '音频',
 			'main.barcodeFound' => '找到条形码！',
 			'main.botQianFan' => '千帆机器人',
@@ -9463,8 +9515,6 @@ extension on Translations {
 			'main.changeNameView' => '修改名称视图',
 			'main.changeParam' => ({required Object param}) => '修改${param}',
 			'main.chooseFromAlbum' => '从相册选择',
-			_ => null,
-		} ?? switch (path) {
 			'main.clean' => '清理',
 			'main.codeSentToParam' => ({required Object param}) => '验证码已发送到${param}',
 			'main.codeSentToType' => ({required Object param}) => '验证码已发送到${param}',
@@ -9637,7 +9687,7 @@ extension on Translations {
 			'main.larger' => '更大',
 			'main.currentLength' => ({required Object param1, required Object param2}) => '当前长度：${param1} / ${param2}',
 			'main.fillIn' => '填入',
-			'main.msgProtectedByComplianceKey' => '消息受合规密钥保护（仅审计方离线私钥可解密，服务端无解密能力）',
+			'main.msgProtectedByComplianceKey' => '消息受合规密钥保护',
 			'main.inviterLabel' => ({required Object uid}) => '邀请人: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '被邀请人: ${uid}',
 			'main.mySentTab' => '我发出的',

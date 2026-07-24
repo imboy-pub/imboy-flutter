@@ -15,6 +15,9 @@ class PeopleModel {
   String remark;
   int createdAt;
 
+  /// 账号类型：0=真人 1=AI 助手 2=官方机器人（服务端只读投影，见 BotBadge）
+  int accountType;
+
   PeopleModel({
     required this.id, // userId or other
     this.distance = -1,
@@ -28,6 +31,7 @@ class PeopleModel {
     this.isFriend,
     this.remark = '',
     this.createdAt = 0,
+    this.accountType = 0,
   });
 
   factory PeopleModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +48,7 @@ class PeopleModel {
       isFriend: parseModelBool(json['is_friend']),
       remark: parseModelString(json['remark']),
       createdAt: DateTimeHelper.parseTimestamp(json['friend_created_at']),
+      accountType: parseModelInt(json['account_type']),
     );
   }
 
@@ -61,6 +66,7 @@ class PeopleModel {
     data['is_friend'] = isFriend;
     data['remark'] = remark;
     data['created_at'] = createdAt;
+    data['account_type'] = accountType;
     return data;
   }
 

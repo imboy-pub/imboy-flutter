@@ -40,6 +40,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 
 	// Translations
 	@override late final _Translations$account$ja_JP account = _Translations$account$ja_JP._(_root);
+	@override late final _Translations$agent$ja_JP agent = _Translations$agent$ja_JP._(_root);
 	@override late final _Translations$channel$ja_JP channel = _Translations$channel$ja_JP._(_root);
 	@override late final _Translations$chat$ja_JP chat = _Translations$chat$ja_JP._(_root);
 	@override late final _Translations$common$ja_JP common = _Translations$common$ja_JP._(_root);
@@ -187,6 +188,25 @@ class _Translations$account$ja_JP extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'パスワードを入力';
 	@override String get e2eeTransferFromOldDevice => '古いデバイスからキーを受信';
 	@override String get pleaseRelogin => '再度ログインしてください';
+}
+
+// Path: agent
+class _Translations$agent$ja_JP extends Translations$agent$zh_CN {
+	_Translations$agent$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get plazaTitle => 'AI アシスタント広場';
+	@override String get transparencyBanner => 'ここにいるのはすべて AI アシスタントで、身元は明確に表示されます。暗号化チャットには本物の人間しかいません。';
+	@override String get searchHint => 'アシスタントを検索';
+	@override String get emptyTitle => 'AI アシスタントはまだありません。後でまた確認してください。';
+	@override String get searchEmpty => '一致するアシスタントがありません';
+	@override String get sendMessage => 'メッセージ';
+	@override String get badgeAi => 'AI';
+	@override String get badgeOfficial => '公式';
+	@override String get badgeAiA11y => 'AI アシスタント';
+	@override String get badgeOfficialA11y => '公式アカウント';
 }
 
 // Path: channel
@@ -2278,7 +2298,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get larger => 'より大きい';
 	@override String currentLength({required Object param1, required Object param2}) => '現在の長さ：${param1} / ${param2}';
 	@override String get fillIn => '入力';
-	@override String get msgProtectedByComplianceKey => 'メッセージはコンプライアンスキーで保護されています（監査担当者のオフライン秘密鍵のみが復号可能、サーバーに復号能力はありません）';
+	@override String get msgProtectedByComplianceKey => 'メッセージはコンプライアンスキーで保護されています';
 	@override String inviterLabel({required Object uid}) => '招待者: ${uid}';
 	@override String inviteeLabel({required Object uid}) => '招待先: ${uid}';
 	@override String get mySentTab => '送信';
@@ -2600,6 +2620,16 @@ extension on TranslationsJaJp {
 			'account.webPasswordHint' => 'パスワードを入力',
 			'account.e2eeTransferFromOldDevice' => '古いデバイスからキーを受信',
 			'account.pleaseRelogin' => '再度ログインしてください',
+			'agent.plazaTitle' => 'AI アシスタント広場',
+			'agent.transparencyBanner' => 'ここにいるのはすべて AI アシスタントで、身元は明確に表示されます。暗号化チャットには本物の人間しかいません。',
+			'agent.searchHint' => 'アシスタントを検索',
+			'agent.emptyTitle' => 'AI アシスタントはまだありません。後でまた確認してください。',
+			'agent.searchEmpty' => '一致するアシスタントがありません',
+			'agent.sendMessage' => 'メッセージ',
+			'agent.badgeAi' => 'AI',
+			'agent.badgeOfficial' => '公式',
+			'agent.badgeAiA11y' => 'AI アシスタント',
+			'agent.badgeOfficialA11y' => '公式アカウント',
 			'channel.title' => 'チャンネル',
 			'channel.loading' => '読み込み中...',
 			'channel.subscribed' => '購読済み',
@@ -2986,6 +3016,8 @@ extension on TranslationsJaJp {
 			'chat.e2eeRecoveryNewDeviceTitle' => '新しいデバイスのログインを検出しました',
 			'chat.e2eeRecoveryNewDeviceBody' => 'メッセージの安全性を保つため、このデバイスで新しいエンドツーエンド暗号キーを生成しました。\n\n過去のメッセージは旧デバイスのキーで暗号化されているため、閲覧にはキーの復元が必要です。「デバイス転送」「ソーシャルリカバリ」「ローカルバックアップの読み込み」で復元できます。',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'このメッセージを復号できません',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedBody' => 'このメッセージは別のデバイスのキーで暗号化されています。\n\nデバイスを変更したりアプリを再インストールした場合は、暗号キーを復元してから過去のメッセージを閲覧してください。',
 			'chat.e2eeRecoveryLater' => '後で',
 			'chat.e2eeRecoveryGoRecover' => '復元へ',
@@ -2996,8 +3028,6 @@ extension on TranslationsJaJp {
 			'chat.switchToVoiceInput' => '音声入力に切り替え',
 			'chat.switchToKeyboardInput' => 'キーボード入力に切り替え',
 			'common.about' => '概要',
-			_ => null,
-		} ?? switch (path) {
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
 			'common.acceptFriendRequest' => '友達リクエストを承認',
@@ -3500,6 +3530,8 @@ extension on TranslationsJaJp {
 			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
 			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
 			'common.groupAnnouncementDeleteSuccess' => 'お知らせを削除しました',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistory' => 'チャット履歴を消去',
 			'common.privacyClearChatHistoryConfirm' => 'すべてのチャット履歴を消去してもよろしいですか？この操作は取り消せません。',
 			'common.privacyLogoutAccountConfirm' => 'アカウントを削除してもよろしいですか？この操作によりアカウントとすべてのデータが永久に削除され、復元することはできません。',
@@ -3510,8 +3542,6 @@ extension on TranslationsJaJp {
 			'common.allowAddByPhone' => '電話番号で追加を許可',
 			'common.allowAddByPhoneDesc' => '他のユーザーがあなたの電話番号で友達として追加できます',
 			'common.allowAddByQR' => 'QRコードで追加を許可',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowAddByQRDesc' => '他のユーザーがあなたのQRコードをスキャンして友達として追加できます',
 			'common.statusSettings' => 'ステータス設定',
 			'common.showOnlineStatus' => 'オンラインステータスを表示',
@@ -4014,6 +4044,8 @@ extension on TranslationsJaJp {
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'キーを ${count} 個のシャードに分割しました',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} 人の代理者の協力でキーを復元できます',
 			'common.e2eeSocialZeroTrustNote' => 'ゼロトラスト構成：サーバーにはシャードを一切保存しません',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialNoShards' => '復元シャードをまだ作成していません',
 			'common.e2eeSocialNoProxyShards' => '代理シャードはありません',
 			'common.e2eeSocialKeyVersionLabel' => 'キーのバージョン',
@@ -4024,8 +4056,6 @@ extension on TranslationsJaJp {
 			'common.e2eeTransferErrCreateFailed' => '転送セッションの作成に失敗しました。もう一度お試しください',
 			'common.e2eeTransferCreateSessionBtn' => '転送セッションを作成',
 			'common.e2eeTransferSessionCreated' => '転送セッションを作成しました',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => '有効なユーザーIDを入力してください',
 			'common.e2eeTransferSuccess' => '転送に成功しました！',
 			'common.e2eeTransferFailed' => '転送に失敗しました。もう一度お試しください',
@@ -4528,6 +4558,8 @@ extension on TranslationsJaJp {
 			'main.school' => '学校',
 			'main.hobbiesAndInterests' => '趣味と興味',
 			'main.interests' => 'Interests',
+			_ => null,
+		} ?? switch (path) {
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => '個人情報の表示設定を管理',
@@ -4538,8 +4570,6 @@ extension on TranslationsJaJp {
 			'main.volumeDown' => '音量を下げる',
 			'main.fastRewind' => ({required Object seconds}) => '巻き戻し ${seconds}秒',
 			'main.pleaseTryAgain' => 'もう一度お試しください',
-			_ => null,
-		} ?? switch (path) {
 			'main.secret' => '秘密',
 			'main.takePhoto' => '写真を撮る',
 			'main.publishing' => '公開中...',
@@ -4555,7 +4585,7 @@ extension on TranslationsJaJp {
 			'main.larger' => 'より大きい',
 			'main.currentLength' => ({required Object param1, required Object param2}) => '現在の長さ：${param1} / ${param2}',
 			'main.fillIn' => '入力',
-			'main.msgProtectedByComplianceKey' => 'メッセージはコンプライアンスキーで保護されています（監査担当者のオフライン秘密鍵のみが復号可能、サーバーに復号能力はありません）',
+			'main.msgProtectedByComplianceKey' => 'メッセージはコンプライアンスキーで保護されています',
 			'main.inviterLabel' => ({required Object uid}) => '招待者: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '招待先: ${uid}',
 			'main.mySentTab' => '送信',

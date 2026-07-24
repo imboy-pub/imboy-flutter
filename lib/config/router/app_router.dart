@@ -391,6 +391,14 @@ GoRouter createAppRouter({
             ),
           ),
           GoRoute(
+            path: '/assistant_plaza',
+            name: 'assistant_plaza',
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: const AssistantPlazaPage(),
+            ),
+          ),
+          GoRoute(
             path: '/people_info_more/:id',
             name: 'people_info_more',
             pageBuilder: (context, state) {

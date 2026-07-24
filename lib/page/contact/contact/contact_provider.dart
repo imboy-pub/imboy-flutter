@@ -16,6 +16,7 @@ const int kPeerIdPeopleNearby = -1;
 const int kPeerIdNewFriend = -2;
 const int kPeerIdGroup = -3;
 const int kPeerIdTag = -4;
+const int kPeerIdAssistantPlaza = -6;
 
 // 联系人状态类
 class ContactState {
@@ -120,6 +121,12 @@ class ContactNotifier extends _$ContactNotifier {
     }
 
     topItems.addAll([
+      // AI 助手广场（透明 AI 冷启动入口）
+      ContactModel(
+        peerId: kPeerIdAssistantPlaza,
+        nickname: t.agent.plazaTitle,
+        nameIndex: '↑',
+      ),
       ContactModel(
         peerId: kPeerIdNewFriend,
         nickname: t.contact.newFriend,

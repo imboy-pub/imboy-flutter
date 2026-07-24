@@ -226,6 +226,9 @@ class API {
   static const agentTaskApprove = '/api/v1/agent_task/approve';
   static const agentTaskReject = '/api/v1/agent_task/reject';
 
+  // AI 助手广场（透明 AI 冷启动 M3）
+  static const agentList = '/api/v1/agent/list';
+
   // 群投票
   static const groupVoteCreate = '/api/v1/group/vote/create';
   static const groupVoteUpdate = '/api/v1/group/vote/update';

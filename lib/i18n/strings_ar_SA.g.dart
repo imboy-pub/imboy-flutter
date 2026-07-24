@@ -40,6 +40,7 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 
 	// Translations
 	@override late final _Translations$account$ar_SA account = _Translations$account$ar_SA._(_root);
+	@override late final _Translations$agent$ar_SA agent = _Translations$agent$ar_SA._(_root);
 	@override late final _Translations$channel$ar_SA channel = _Translations$channel$ar_SA._(_root);
 	@override late final _Translations$chat$ar_SA chat = _Translations$chat$ar_SA._(_root);
 	@override late final _Translations$common$ar_SA common = _Translations$common$ar_SA._(_root);
@@ -187,6 +188,25 @@ class _Translations$account$ar_SA extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'أدخل كلمة المرور';
 	@override String get e2eeTransferFromOldDevice => 'استقبال المفتاح من الجهاز القديم';
 	@override String get pleaseRelogin => 'سجّل الدخول مجدداً';
+}
+
+// Path: agent
+class _Translations$agent$ar_SA extends Translations$agent$zh_CN {
+	_Translations$agent$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get plazaTitle => 'مساعدو الذكاء الاصطناعي';
+	@override String get transparencyBanner => 'جميع الأعضاء هنا مساعدو ذكاء اصطناعي، وهويتهم موضحة بوضوح. في المحادثات المشفّرة لا يوجد سوى أشخاص حقيقيين.';
+	@override String get searchHint => 'البحث عن مساعد';
+	@override String get emptyTitle => 'لا يوجد مساعدون حاليًا. عد لاحقًا.';
+	@override String get searchEmpty => 'لا يوجد مساعدون مطابقون';
+	@override String get sendMessage => 'مراسلة';
+	@override String get badgeAi => 'ذكاء اصطناعي';
+	@override String get badgeOfficial => 'رسمي';
+	@override String get badgeAiA11y => 'مساعد ذكاء اصطناعي';
+	@override String get badgeOfficialA11y => 'حساب رسمي';
 }
 
 // Path: channel
@@ -2600,6 +2620,16 @@ extension on TranslationsArSa {
 			'account.webPasswordHint' => 'أدخل كلمة المرور',
 			'account.e2eeTransferFromOldDevice' => 'استقبال المفتاح من الجهاز القديم',
 			'account.pleaseRelogin' => 'سجّل الدخول مجدداً',
+			'agent.plazaTitle' => 'مساعدو الذكاء الاصطناعي',
+			'agent.transparencyBanner' => 'جميع الأعضاء هنا مساعدو ذكاء اصطناعي، وهويتهم موضحة بوضوح. في المحادثات المشفّرة لا يوجد سوى أشخاص حقيقيين.',
+			'agent.searchHint' => 'البحث عن مساعد',
+			'agent.emptyTitle' => 'لا يوجد مساعدون حاليًا. عد لاحقًا.',
+			'agent.searchEmpty' => 'لا يوجد مساعدون مطابقون',
+			'agent.sendMessage' => 'مراسلة',
+			'agent.badgeAi' => 'ذكاء اصطناعي',
+			'agent.badgeOfficial' => 'رسمي',
+			'agent.badgeAiA11y' => 'مساعد ذكاء اصطناعي',
+			'agent.badgeOfficialA11y' => 'حساب رسمي',
 			'channel.title' => 'القنوات',
 			'channel.loading' => 'جاري التحميل...',
 			'channel.subscribed' => 'مشترك',
@@ -2986,6 +3016,8 @@ extension on TranslationsArSa {
 			'chat.e2eeRecoveryNewDeviceTitle' => 'تم رصد دخول من جهاز جديد',
 			'chat.e2eeRecoveryNewDeviceBody' => 'لحماية الرسائل، أنشأ هذا الجهاز مفتاح تشفير من طرف إلى طرف جديد.\n\nالرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ويجب استعادة المفتاح أولاً لعرضها. يمكنك الاستعادة عبر «نقل الأجهزة» أو «الاستعادة الاجتماعية» أو استيراد نسخة محلية.',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'تعذّر فك تشفير هذه الرسالة',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedBody' => 'هذه الرسالة مشفّرة بمفتاح جهاز آخر.\n\nإذا غيّرت الجهاز أو أعدت تثبيت التطبيق، فاستعد مفتاح التشفير لعرض الرسائل السابقة.',
 			'chat.e2eeRecoveryLater' => 'لاحقاً',
 			'chat.e2eeRecoveryGoRecover' => 'استعادة',
@@ -2996,8 +3028,6 @@ extension on TranslationsArSa {
 			'chat.switchToVoiceInput' => 'التبديل إلى الإدخال الصوتي',
 			'chat.switchToKeyboardInput' => 'التبديل إلى إدخال لوحة المفاتيح',
 			'common.about' => 'حول',
-			_ => null,
-		} ?? switch (path) {
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
 			'common.acceptFriendRequest' => 'قبول طلب الصداقة',
@@ -3500,6 +3530,8 @@ extension on TranslationsArSa {
 			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
 			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
 			'common.groupAnnouncementDeleteSuccess' => 'تم حذف الإعلان',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacyClearChatHistory' => 'مسح سجل الدردشة',
 			'common.privacyClearChatHistoryConfirm' => 'هل أنت متأكد من مسح جميع سجلات الدردشة؟ هذا الإجراء لا يمكن التراجع عنه.',
 			'common.privacyLogoutAccountConfirm' => 'هل أنت متأكد من إلغاء الحساب؟ سيتم حذف حسابك وجميع بياناتك بشكل دائم، ولا يمكن التراجع عن هذا الإجراء.',
@@ -3510,8 +3542,6 @@ extension on TranslationsArSa {
 			'common.allowAddByPhone' => 'السماح بالإضافة عبر رقم الهاتف',
 			'common.allowAddByPhoneDesc' => 'يمكن للمستخدمين الآخرين إضافتك كصديق من خلال رقم هاتفك',
 			'common.allowAddByQR' => 'السماح بالإضافة عبر رمز QR',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowAddByQRDesc' => 'يمكن للمستخدمين الآخرين إضافتك كصديق من خلال مسح رمز QR الخاص بك',
 			'common.statusSettings' => 'إعدادات الحالة',
 			'common.showOnlineStatus' => 'عرض الحالة عبر الإنترنت',
@@ -4014,6 +4044,8 @@ extension on TranslationsArSa {
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'يكفي ${count} وكيل للاستعادة',
 			'common.e2eeSocialZeroTrustNote' => 'بنية الثقة الصفرية: لا يحفظ الخادم أي شظية',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeSocialNoShards' => 'لم تنشئ أي شظايا استعادة بعد',
 			'common.e2eeSocialNoProxyShards' => 'لا توجد شظايا وكلاء',
 			'common.e2eeSocialKeyVersionLabel' => 'إصدار المفتاح',
@@ -4024,8 +4056,6 @@ extension on TranslationsArSa {
 			'common.e2eeTransferErrCreateFailed' => 'تعذّر إنشاء جلسة النقل، أعد المحاولة',
 			'common.e2eeTransferCreateSessionBtn' => 'إنشاء جلسة نقل',
 			'common.e2eeTransferSessionCreated' => 'تم إنشاء جلسة النقل',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeTransferUidEmptyError' => 'أدخل معرّف مستخدم صالحاً',
 			'common.e2eeTransferSuccess' => 'تم النقل!',
 			'common.e2eeTransferFailed' => 'تعذّر النقل، أعد المحاولة',
@@ -4528,6 +4558,8 @@ extension on TranslationsArSa {
 			'main.school' => 'المدرسة',
 			'main.hobbiesAndInterests' => 'الهوايات والاهتمامات',
 			'main.interests' => 'Interests',
+			_ => null,
+		} ?? switch (path) {
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'إدارة رؤية المعلومات الشخصية',
@@ -4538,8 +4570,6 @@ extension on TranslationsArSa {
 			'main.volumeDown' => 'خفض الصوت',
 			'main.fastRewind' => ({required Object seconds}) => 'ترجيع سريع ${seconds} ثانية',
 			'main.pleaseTryAgain' => 'يرجى المحاولة مرة أخرى',
-			_ => null,
-		} ?? switch (path) {
 			'main.secret' => 'سري',
 			'main.takePhoto' => 'التقاط صورة',
 			'main.publishing' => 'جارٍ النشر...',

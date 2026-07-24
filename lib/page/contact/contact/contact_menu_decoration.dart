@@ -53,6 +53,11 @@ ContactMenuDecoration? contactMenuDecorationOf(int peerId) {
         bgColor: AppColors.iosBlue,
         iconData: Icon(Icons.local_offer, size: 24, color: AppColors.onPrimary),
       );
+    case kPeerIdAssistantPlaza:
+      return const ContactMenuDecoration(
+        bgColor: AppColors.tertiary,
+        iconData: Icon(Icons.smart_toy, size: 24, color: AppColors.onPrimary),
+      );
     default:
       return null;
   }

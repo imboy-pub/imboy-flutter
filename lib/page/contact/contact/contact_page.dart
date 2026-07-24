@@ -78,6 +78,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       case kPeerIdPeopleNearby:
         context.push('/contact/people_nearby');
         return;
+      case kPeerIdAssistantPlaza:
+        context.push('/contact/assistant_plaza');
+        return;
       case kPeerIdNewFriend:
         context.push('/contact/new_friend');
         return;

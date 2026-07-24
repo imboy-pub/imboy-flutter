@@ -40,6 +40,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 
 	// Translations
 	@override late final _Translations$account$en_US account = _Translations$account$en_US._(_root);
+	@override late final _Translations$agent$en_US agent = _Translations$agent$en_US._(_root);
 	@override late final _Translations$channel$en_US channel = _Translations$channel$en_US._(_root);
 	@override late final _Translations$chat$en_US chat = _Translations$chat$en_US._(_root);
 	@override late final _Translations$common$en_US common = _Translations$common$en_US._(_root);
@@ -187,6 +188,25 @@ class _Translations$account$en_US extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'Enter password';
 	@override String get e2eeTransferFromOldDevice => 'Receive Key from Old Device';
 	@override String get pleaseRelogin => 'Please log in again';
+}
+
+// Path: agent
+class _Translations$agent$en_US extends Translations$agent$zh_CN {
+	_Translations$agent$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get plazaTitle => 'AI Assistants';
+	@override String get transparencyBanner => 'Everyone here is an AI assistant, clearly labeled as such. In encrypted chats, there are only real people.';
+	@override String get searchHint => 'Search assistants';
+	@override String get emptyTitle => 'No AI assistants yet. Check back later.';
+	@override String get searchEmpty => 'No matching assistants';
+	@override String get sendMessage => 'Message';
+	@override String get badgeAi => 'AI';
+	@override String get badgeOfficial => 'Official';
+	@override String get badgeAiA11y => 'AI assistant';
+	@override String get badgeOfficialA11y => 'Official account';
 }
 
 // Path: channel
@@ -2301,7 +2321,7 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get larger => 'Larger';
 	@override String currentLength({required Object param1, required Object param2}) => 'Current length: ${param1} / ${param2}';
 	@override String get fillIn => 'Fill In';
-	@override String get msgProtectedByComplianceKey => 'Message protected by compliance key (only the auditor offline private key can decrypt; server has no decryption capability)';
+	@override String get msgProtectedByComplianceKey => 'Message protected by compliance key';
 	@override String inviterLabel({required Object uid}) => 'Inviter: ${uid}';
 	@override String inviteeLabel({required Object uid}) => 'Invitee: ${uid}';
 	@override String get mySentTab => 'Sent';
@@ -2623,6 +2643,16 @@ extension on TranslationsEnUs {
 			'account.webPasswordHint' => 'Enter password',
 			'account.e2eeTransferFromOldDevice' => 'Receive Key from Old Device',
 			'account.pleaseRelogin' => 'Please log in again',
+			'agent.plazaTitle' => 'AI Assistants',
+			'agent.transparencyBanner' => 'Everyone here is an AI assistant, clearly labeled as such. In encrypted chats, there are only real people.',
+			'agent.searchHint' => 'Search assistants',
+			'agent.emptyTitle' => 'No AI assistants yet. Check back later.',
+			'agent.searchEmpty' => 'No matching assistants',
+			'agent.sendMessage' => 'Message',
+			'agent.badgeAi' => 'AI',
+			'agent.badgeOfficial' => 'Official',
+			'agent.badgeAiA11y' => 'AI assistant',
+			'agent.badgeOfficialA11y' => 'Official account',
 			'channel.title' => 'Channels',
 			'channel.loading' => 'Loading...',
 			'channel.subscribed' => 'Subscribed',
@@ -3009,6 +3039,8 @@ extension on TranslationsEnUs {
 			'chat.e2eeSocialCreateBtn' => 'Create shards',
 			'chat.e2eeSocialCreateFailTitle' => 'Creation failed',
 			'chat.e2eeSocialCreateFailBody' => 'Failed to create shards, please try again',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeSocialCreateFirst' => 'Create shards to see content here',
 			'chat.e2eeSocialUsedAtLabel' => 'Used at',
 			'chat.e2eeTransferSendTitle' => 'Send key to new device',
@@ -3019,8 +3051,6 @@ extension on TranslationsEnUs {
 			'chat.e2eeSocialStatus' => ({required Object status}) => 'Status: ${status}',
 			'chat.e2eeSocialCreateShardsTitle' => 'Create Recovery Shards',
 			'chat.e2eeSocialCreateShardsDesc' => 'Split key into shards stored on proxy devices (server holds nothing)',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Please select at least ${count} proxies',
 			'chat.e2eeRecreatingKey' => 'Recreating key...',
 			'chat.e2eeKeyRecreated' => 'Key recreated successfully',
@@ -3523,6 +3553,8 @@ extension on TranslationsEnUs {
 			'common.mobileUpdatedToParam' => ({required Object param}) => 'Mobile number updated to ${param}',
 			'common.groupAnnouncementPublish' => 'Publish announcement',
 			'common.pleaseEnterAnnouncementContent' => 'Please enter announcement content',
+			_ => null,
+		} ?? switch (path) {
 			'common.selectExpirationDateOptional' => 'Select expiration date (optional)',
 			'common.groupAnnouncementDeleteConfirm' => 'Are you sure you want to delete this announcement?',
 			'common.groupAnnouncementDelete' => 'Delete',
@@ -3533,8 +3565,6 @@ extension on TranslationsEnUs {
 			'common.groupAnnouncementDeleteSuccess' => 'Announcement deleted',
 			'common.privacyClearChatHistory' => 'Clear chat history',
 			'common.privacyClearChatHistoryConfirm' => 'Are you sure you want to clear all chat history? This action cannot be undone.',
-			_ => null,
-		} ?? switch (path) {
 			'common.privacyLogoutAccountConfirm' => 'Are you sure you want to delete your account? This action will permanently delete your account and all data, and cannot be undone.',
 			'common.privacySettings' => 'Privacy settings',
 			'common.searchSettings' => 'Search settings',
@@ -4037,6 +4067,8 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupCloudRestoreConfirmNote' => 'Restoring will overwrite the current E2EE keys on this device',
 			'common.e2eeBackupCloudPwdHint' => 'Enter your backup passphrase',
 			'common.e2eeBackupErrNoCloudBackup' => 'No cloud backup found',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupErrCloudPwd' => 'Wrong passphrase or corrupted backup',
 			'common.e2eeBackupErrCloudRestoreFailed' => 'Cloud restore failed, please retry',
 			'common.e2eeSocialShardSettings' => 'Shard settings',
@@ -4047,8 +4079,6 @@ extension on TranslationsEnUs {
 			'common.e2eeSocialCreateSuccessTitle' => 'Shards created successfully',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Key has been split into ${count} shards',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Need ${count} proxies to recover key',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialZeroTrustNote' => 'Zero-trust architecture: the server stores no shards',
 			'common.e2eeSocialNoShards' => 'You have not created any recovery shards yet',
 			'common.e2eeSocialNoProxyShards' => 'No proxy shards',
@@ -4551,6 +4581,8 @@ extension on TranslationsEnUs {
 			'main.privacyPolicy' => 'Privacy Policy',
 			'main.termsOfService' => 'Terms of Service',
 			'main.saving' => _root.common.loading,
+			_ => null,
+		} ?? switch (path) {
 			'main.topStories' => 'Top Stories',
 			'main.systemDefault' => 'System Default',
 			'main.custom' => 'Custom',
@@ -4561,8 +4593,6 @@ extension on TranslationsEnUs {
 			'main.copiedToClipboard' => 'Copied to clipboard',
 			'main.copiedLink' => 'Copied link',
 			'main.destroyTime' => 'Destroy Time',
-			_ => null,
-		} ?? switch (path) {
 			'main.previewEffect' => 'Preview Effect',
 			'main.thisIsTitleText' => 'This is title text',
 			'main.thisIsAuxiliaryText' => 'This is auxiliary text',
@@ -4601,7 +4631,7 @@ extension on TranslationsEnUs {
 			'main.larger' => 'Larger',
 			'main.currentLength' => ({required Object param1, required Object param2}) => 'Current length: ${param1} / ${param2}',
 			'main.fillIn' => 'Fill In',
-			'main.msgProtectedByComplianceKey' => 'Message protected by compliance key (only the auditor offline private key can decrypt; server has no decryption capability)',
+			'main.msgProtectedByComplianceKey' => 'Message protected by compliance key',
 			'main.inviterLabel' => ({required Object uid}) => 'Inviter: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Invitee: ${uid}',
 			'main.mySentTab' => 'Sent',
