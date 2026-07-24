@@ -115,6 +115,7 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                     region: state.region,
                     heroTag: 'avatar_$id',
                     padding: const EdgeInsets.all(AppSpacing.large),
+                    accountType: state.accountType,
                   ),
                   // 在线状态并入信息卡（原独占 Section 合并，提升信息密度）
                   if (!isSelf && !isBot)

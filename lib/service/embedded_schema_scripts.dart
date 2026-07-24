@@ -1706,6 +1706,21 @@ ALTER TABLE channel_message ADD COLUMN my_reactions TEXT;
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 23;
+
+-- ============================================================
+-- VERSION: 24
+-- DESC: contact 新增 account_type 列（0=真人 1=AI 助手 2=官方
+--       机器人）。透明 AI 徽章数据源：好友同步/资料 payload 随行
+--       返回 account_type，本地持久化供会话列表/聊天标题/资料页
+--       BotBadge 渲染。服务端只读投影，客户端无写入路径。
+-- ============================================================
+
+ALTER TABLE contact ADD COLUMN account_type INTEGER NOT NULL DEFAULT 0;
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 24;
 """;
 
 /// 与 assets/migrations/downgrade.sql 内容保持同步（同上）。

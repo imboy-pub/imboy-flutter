@@ -21,6 +21,9 @@ class PeopleInfoState {
   final String status;
   final int lastSeenAt;
 
+  /// 账号类型 0=真人 1=AI 2=官方（透明 AI 徽章数据源）
+  final int accountType;
+
   const PeopleInfoState({
     this.nickname = '',
     this.avatar = '',
@@ -36,6 +39,7 @@ class PeopleInfoState {
     this.isFrom = 0,
     this.status = '',
     this.lastSeenAt = 0,
+    this.accountType = 0,
   });
 
   PeopleInfoState copyWith({
@@ -53,6 +57,7 @@ class PeopleInfoState {
     int? isFrom,
     String? status,
     int? lastSeenAt,
+    int? accountType,
   }) {
     return PeopleInfoState(
       nickname: nickname ?? this.nickname,
@@ -69,6 +74,7 @@ class PeopleInfoState {
       isFrom: isFrom ?? this.isFrom,
       status: status ?? this.status,
       lastSeenAt: lastSeenAt ?? this.lastSeenAt,
+      accountType: accountType ?? this.accountType,
     );
   }
 }
@@ -101,6 +107,7 @@ class PeopleInfoNotifier extends _$PeopleInfoNotifier {
         isFrom: ct.isFrom,
         status: ct.status ?? '',
         lastSeenAt: ct.lastSeenAt ?? 0,
+        accountType: ct.accountType,
       );
     }
 

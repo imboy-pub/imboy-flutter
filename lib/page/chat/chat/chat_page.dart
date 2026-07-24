@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:imboy/component/ui/bot_badge.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/gestures.dart';
@@ -154,6 +156,9 @@ class ChatPageState extends ConsumerState<ChatPage>
     (i) => i,
   ).asBroadcastStream();
   bool _showAppBar = true; // 控制顶部导航栏显示/隐藏
+
+  /// C2C 对端账号类型（0=真人 1=AI 2=官方），透明 AI 徽章数据源
+  int _peerAccountType = 0;
   String newGroupName = ""; // 新群组名称
   int get maxAssetsCount => 9; // 最大可选资源数量
   List<AssetEntity> assets = <AssetEntity>[]; // 选择的资源列表
@@ -249,6 +254,15 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     // 保存 ChatNotifier 引用，用于在 dispose 中安全访问
     _chatNotifier = ref.read(chatProvider.notifier);
+
+    // 透明 AI 徽章：C2C 查本地 contact 拿对端 account_type（不触网）
+    if (widget.type == 'C2C') {
+      ContactRepo().findByUid(widget.peerId, autoFetch: false).then((ct) {
+        if (mounted && ct != null && ct.accountType != _peerAccountType) {
+          setState(() => _peerAccountType = ct.accountType);
+        }
+      });
+    }
 
     // 立即初始化控制器（必须在 build 方法第一次调用前完成）
     _initializeControllers();
@@ -1522,15 +1536,31 @@ class ChatPageState extends ConsumerState<ChatPage>
                       const SizedBox(width: 10),
                     ],
                     Expanded(
-                      child: Text(
-                        newGroupName.isEmpty ? widget.peerTitle : newGroupName,
-                        style: TextStyle(
-                          color: themeNotifier.getThemeColor('textPrimary'),
-                          fontSize: themeNotifier.getFontSize(
-                            FontSizeType.title,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              newGroupName.isEmpty
+                                  ? widget.peerTitle
+                                  : newGroupName,
+                              style: TextStyle(
+                                color: themeNotifier.getThemeColor(
+                                  'textPrimary',
+                                ),
+                                fontSize: themeNotifier.getFontSize(
+                                  FontSizeType.title,
+                                ),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                        overflow: TextOverflow.ellipsis,
+                          // 昵称先 ellipsis，徽章不压缩（透明 AI 披露）
+                          if (_peerAccountType > 0) ...[
+                            AppSpacing.horizontalTiny,
+                            BotBadge(accountType: _peerAccountType),
+                          ],
+                        ],
                       ),
                     ),
                   ],

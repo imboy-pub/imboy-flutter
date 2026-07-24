@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/bot_badge.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -20,6 +21,9 @@ class ContactCard extends StatelessWidget {
   final String? heroTag;
   final EdgeInsets? padding;
 
+  /// 账号类型 0=真人（不显徽章）1=AI 2=官方（透明 AI 披露）
+  final int accountType;
+
   const ContactCard({
     super.key,
     required this.id,
@@ -31,6 +35,7 @@ class ContactCard extends StatelessWidget {
     this.remark = '',
     this.heroTag,
     this.padding,
+    this.accountType = 0,
   });
 
   @override
@@ -89,6 +94,10 @@ class ContactCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     genderIcon(gender),
+                    if (accountType > 0) ...[
+                      AppSpacing.horizontalTiny,
+                      BotBadge(accountType: accountType),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 4),

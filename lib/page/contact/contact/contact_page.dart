@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/bot_badge.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -225,12 +226,26 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             ),
         ],
       ),
-      title: Text(
-        model.title,
-        style: context.textStyle(
-          FontSizeType.body,
-          fontWeight: FontWeight.w500,
-        ),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              model.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.textStyle(
+                FontSizeType.body,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          // 昵称先 ellipsis，徽章不压缩（透明 AI 披露）
+          if (model.accountType > 0) ...[
+            AppSpacing.horizontalTiny,
+            BotBadge(accountType: model.accountType),
+          ],
+        ],
       ),
       subtitle: (!isSpecial && model.lastSeenAt != null)
           ? UserOnlineStatusWidget(

@@ -57,6 +57,7 @@ class ContactModel extends ISuspensionBean {
     // isFrom 好友关系发起人
     this.isFrom = 0,
     this.categoryId = 0,
+    this.accountType = 0,
     //
     this.nameIndex = "",
     this.namePinyin,
@@ -89,6 +90,9 @@ class ContactModel extends ISuspensionBean {
   // isFrom 好友关系发起人
   int isFrom;
   int categoryId;
+
+  // 账号类型 0=真人 1=AI 助手 2=官方机器人（服务端只读投影）
+  final int accountType;
 
   String nameIndex;
   String? namePinyin;
@@ -166,6 +170,7 @@ class ContactModel extends ISuspensionBean {
       isFriend: parseModelInt(json[ContactRepo.isFriend]),
       categoryId: parseModelInt(json[ContactRepo.categoryId]),
       isFrom: isFrom,
+      accountType: parseModelInt(json[ContactRepo.accountType]),
     );
   }
 
@@ -186,6 +191,7 @@ class ContactModel extends ISuspensionBean {
     ContactRepo.isFriend: isFriend,
     ContactRepo.isFrom: isFrom,
     ContactRepo.categoryId: categoryId,
+    ContactRepo.accountType: accountType,
     //
     'firstLetter': firstLetter,
     'nameIndex': nameIndex,

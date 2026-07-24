@@ -195,6 +195,8 @@ class ContactNotifier extends _$ContactNotifier {
       ContactRepo.tag: data[ContactRepo.tag] ?? '',
       ContactRepo.isFrom: 1,
       ContactRepo.isFriend: 1,
+      if (data.containsKey(ContactRepo.accountType))
+        ContactRepo.accountType: data[ContactRepo.accountType],
     };
     final newList = List<ContactModel>.from(state.contactList);
     newList.add(ContactModel.fromMap(json));

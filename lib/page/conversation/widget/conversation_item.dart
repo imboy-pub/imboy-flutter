@@ -1,4 +1,6 @@
 import 'package:imboy/component/ui/badge_widget.dart';
+import 'package:imboy/component/ui/bot_badge.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
@@ -33,6 +35,28 @@ class ConversationItem extends ConsumerStatefulWidget {
 
 class _ConversationItemState extends ConsumerState<ConversationItem> {
   bool _isPressed = false;
+
+  /// 对端账号类型（0=真人 1=AI 2=官方），透明 AI 徽章数据源
+  int _peerAccountType = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPeerAccountType();
+  }
+
+  // ponytail: 每 tile 一次本地 contact 单行索引查询（不触网，服务层有查询缓存）；
+  // 列表滚动性能有压力时改为 ConversationRepo JOIN contact 随行返回
+  Future<void> _loadPeerAccountType() async {
+    if (widget.model.type != 'C2C') return;
+    final ct = await ContactRepo().findByUid(
+      widget.model.peerId.toString(),
+      autoFetch: false,
+    );
+    if (mounted && ct != null && ct.accountType != _peerAccountType) {
+      setState(() => _peerAccountType = ct.accountType);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,19 +201,31 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
               ? currentModel.computeTitle
               : currentModel.peerId.toString());
 
-    return Text(
-      displayTitle,
-      style: context
-          .textStyle(
-            FontSizeType.body,
-            fontWeight: FontWeight.w600,
-            color: isDark
-                ? AppColors.darkTextPrimary
-                : AppColors.lightTextPrimary,
-          )
-          .copyWith(letterSpacing: -0.4),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: Text(
+            displayTitle,
+            style: context
+                .textStyle(
+                  FontSizeType.body,
+                  fontWeight: FontWeight.w600,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                )
+                .copyWith(letterSpacing: -0.4),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        // 昵称先 ellipsis，徽章不压缩（透明 AI 披露）
+        if (_peerAccountType > 0) ...[
+          AppSpacing.horizontalTiny,
+          BotBadge(accountType: _peerAccountType),
+        ],
+      ],
     );
   }
 

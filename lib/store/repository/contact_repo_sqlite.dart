@@ -32,6 +32,9 @@ class ContactRepo implements ContactRepository {
   //isFrom 好友关系发起人 1 是  0 否
   static String isFrom = 'is_from';
 
+  // 账号类型 0=真人 1=AI 助手 2=官方机器人（服务端只读投影，v24 迁移）
+  static String accountType = 'account_type';
+
   // 公共列名列表
   static final List<String> defaultColumns = [
     ContactRepo.peerId,
@@ -48,6 +51,7 @@ class ContactRepo implements ContactRepository {
     ContactRepo.isFriend,
     ContactRepo.isFrom,
     ContactRepo.categoryId,
+    ContactRepo.accountType,
   ];
 
   final SqliteService _db = SqliteService.to;
@@ -112,6 +116,7 @@ class ContactRepo implements ContactRepository {
       ContactRepo.isFriend: obj.isFriend,
       ContactRepo.isFrom: obj.isFrom,
       ContactRepo.categoryId: obj.categoryId,
+      ContactRepo.accountType: obj.accountType,
     };
     if (txn != null) {
       // [#19] 与非事务路径 `_db.insert` 对齐：必须传 ConflictAlgorithm.replace。
@@ -278,6 +283,10 @@ class ContactRepo implements ContactRepository {
     if (json.containsKey(ContactRepo.categoryId)) {
       var categoryId = json[ContactRepo.categoryId] ?? 0;
       data[ContactRepo.categoryId] = int.tryParse('$categoryId') ?? 0;
+    }
+    if (json.containsKey(ContactRepo.accountType)) {
+      var accountType = json[ContactRepo.accountType] ?? 0;
+      data[ContactRepo.accountType] = int.tryParse('$accountType') ?? 0;
     }
     // debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(peerId)) {
