@@ -1,3 +1,4 @@
+<!-- ⚠️ 本文档被 Flutter asset 打包（pubspec.yaml assets + setting_page.dart asset://docs/changelog.md 引用），禁止移动/改名 -->
 # 0.7.0
 * 重构主题系统：实现完整的Material 3主题管理，支持动态字体缩放、OLED优化和护眼模式
 * 优化消息架构：重构聊天模块采用Mixin模式，新增消息状态管理、性能监控和音视频处理优化

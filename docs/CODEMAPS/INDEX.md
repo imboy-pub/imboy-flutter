@@ -248,7 +248,7 @@ A: 模块内部按 domain → entity → service → repository 组织，暴露 
 |-----------|---------|---------|
 | **CLAUDE.md** | `./` | 项目契约、双语规范、WebSocket API v2.0 |
 | **DESIGN.md** | `./` | UI/UX 设计规范、颜色令牌、排版系统 |
-| **功能状态清单** | `./docs/feature-status.md` | Feature Flag 矩阵、前后端实现状态、待解除条件 |
+| **功能状态清单** | `./docs/reference/feature-status.md` | Feature Flag 矩阵、前后端实现状态、待解除条件 |
 | **服务层文档** | `./lib/service/CLAUDE.md` | WebSocket、消息、数据库、加密 |
 | **页面层文档** | `./lib/page/CLAUDE.md` | 页面模块概览、路由说明 |
 | **组件层文档** | `./lib/component/CLAUDE.md` | 可复用组件、工具函数 |

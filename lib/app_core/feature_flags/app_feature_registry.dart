@@ -17,7 +17,7 @@ class AppFeatureRegistry {
 
   /// 本地硬关闭集合 — 优先级高于远程 snapshot，后端返回 true 也无效。
   /// 解除：后端 API 就绪后删除对应 key，功能代码无需恢复。
-  /// 详见 docs/feature-status.md § 待后端支持（前端隐藏）
+  /// 详见 docs/reference/feature-status.md § 待后端支持（前端隐藏）
   static const Set<String> _localDisabledKeys = {
     // 钱包已解禁：后端 /api/v1/wallet/{balance,transactions,recharge/*} 已实现并通过测试，
     // 沙箱(mock)模式可走通充值闭环；真实支付 SDK(fluwx/tobias/flutter_stripe)待接入。

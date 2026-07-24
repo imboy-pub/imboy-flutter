@@ -1,3 +1,4 @@
+<!-- ⚠️ 本文档被 Flutter asset 打包（pubspec.yaml assets + setting_page.dart asset://docs/FAQ.md 引用），禁止移动/改名 -->
 # IMBoy 常见问题
 
 本文档保留给设置页“帮助文档”入口使用，只放和 IMBoy 直接相关的常见问题，不再堆放零散外链和个人排障笔记。

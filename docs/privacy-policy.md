@@ -1,3 +1,4 @@
+<!-- ⚠️ 本文档被 Flutter asset 打包（pubspec.yaml assets + setting_page.dart asset://docs/privacy-policy.md 引用），禁止移动/改名 -->
 # IMBoy 隐私政策
 
 **最后更新：2026-04-05**
