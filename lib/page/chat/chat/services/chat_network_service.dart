@@ -16,6 +16,7 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
+import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -317,9 +318,26 @@ class ChatNetworkService {
     Map<String, dynamic>? e2ee;
     dynamic finalPayload;
 
-    final bool needEncrypt =
-        action.isEmpty &&
-        E2EEService.shouldEncryptOutgoingPayload(obj.type ?? 'C2C');
+    final bool needEncrypt;
+    try {
+      needEncrypt =
+          action.isEmpty &&
+          E2EEService.shouldEncryptOutgoingPayload(obj.type ?? 'C2C');
+    } on E2eeSecurityException catch (e) {
+      // 策略门 fail-closed 拒发。旧行为：异常直接向上穿透，
+      // _addMessage 一个裸 catch 吞掉 → 用户点了发送什么都没发生（消息连
+      // UI 列表都进不去），且 _pageMessages 会因此整页加载失败。
+      // 现在：给可见反馈并返回 false，消息保持 sending 留在库里。
+      //
+      // 安全语义：这里刻意**不**调用 updateMessageStatus(error)。error 状态会
+      // 亮出手动重试入口，而 MessageRetry 直接重发库里的原始（明文）报文、
+      // 不再经过本策略门——把拒发消息推到那条路径等于绕开 fail-closed。
+      // 保持 sending 则由 _pageMessages 在重开会话时重新走本函数（经门）发送，
+      // 策略恢复后自然补发。
+      iPrint('🚫 [E2EE] 策略门拒发: msgId=${obj.id}, reason=${e.reason}');
+      AppLoading.showToast(getE2EEErrorMessage(e));
+      return false;
+    }
 
     if (needEncrypt) {
       try {
@@ -395,9 +413,17 @@ class ChatNetworkService {
     if (originalPayload is Map<String, dynamic>) {
       final payload = Map<String, dynamic>.from(originalPayload);
 
-      final bool needEncrypt =
-          msgAction.isEmpty &&
-          E2EEService.shouldEncryptOutgoingPayload(chatType);
+      final bool needEncrypt;
+      try {
+        needEncrypt =
+            msgAction.isEmpty &&
+            E2EEService.shouldEncryptOutgoingPayload(chatType);
+      } on E2eeSecurityException catch (e) {
+        // 同 sendWsMsg：fail-closed 拒发 + 可见反馈，绝不落到明文分支。
+        iPrint('🚫 [E2EE] 策略门拒发: msgId=${msg['id']}, reason=${e.reason}');
+        AppLoading.showToast(getE2EEErrorMessage(e));
+        return false;
+      }
 
       if (needEncrypt) {
         try {
@@ -565,6 +591,14 @@ class ChatNetworkService {
   String getE2EEErrorMessage(dynamic error) {
     final String errorStr = error.toString().toLowerCase();
 
+    if (errorStr.contains('policy_not_initialized')) {
+      // 真因就是 policy 端点拉不到（网络/后端不可达）；这条文案给出了最关键的
+      // 事实——"消息未发送"，避免用户以为已经发出去了。
+      // ponytail: 复用既有 i18n 键而非新增专用键——i18n 文件本轮由并发任务占用。
+      // 升级：加 e2eeErrPolicyNotReady（"安全策略未就绪，消息未发送，请稍后重试"），
+      // 把"能做什么"也说清楚。
+      return t.error.e2eeErrNetwork;
+    }
     if (errorStr.contains('no_recipient_keys') ||
         errorStr.contains('设备密钥') ||
         errorStr.contains('device.*key')) {

@@ -52,13 +52,22 @@ class PolicyGate {
   /// - strict/compliance：[EncryptRequired]。
   /// - plaintext（已确认）+ 本地 optional 关闭：[PlaintextAllowed]。
   ///
-  /// ponytail: 未初始化即拒发——极端下（plaintext 部署且 policy 端点不可达）
-  /// 会阻断聊天发送；升级路径见 S2 PolicyGate 正式化（policy-ready 重试 + UX 门）。
+  /// ponytail: 未初始化即拒发是**正确的安全默认**，不得改成 fail-open。
+  /// 已消除的无谓阻断：拉取失败现在走 [EncryptionModeService.refresh] 的有界
+  /// 退避重试（本函数被拒时按需触发），不再是"启动拉一次失败 = 本进程永久
+  /// 发不出消息"；发送路径捕获本异常后给用户可见 toast，且**不**把消息标记为
+  /// error（error 会暴露手动重试入口，而 MessageRetry 重发库里的原始报文、
+  /// 不再经本门 = 绕过 fail-closed），消息保持 sending 由重开会话经本门重发。
+  /// 上限：仍需用户再点一次发送；剩余升级路径见 S2（网络恢复事件驱动重拉 +
+  /// 显式"安全策略未就绪"UX 门）。
   static SendPolicyDecision requireReadyForSend(String chatType) {
     final isChat = chatType == 'C2C' || chatType == 'C2G';
     if (!isChat) return const PlaintextAllowed();
 
     if (!EncryptionModeService.isInitialized) {
+      // 拿不到 policy 就不发。触发一次带退避的后台重拉，但**不**改变本次
+      // 决策——重拉是为了让下一次尝试有机会通过，不是为了放行这一次。
+      EncryptionModeService.requestRefreshIfStale();
       throw const E2eeSecurityException('policy_not_initialized');
     }
 
