@@ -187,6 +187,6 @@ Container(
 ## 外部依赖
 `dynamic_color ^1.7.0` · `flutter/material.dart` · `shared_preferences`（持久化）
 
-**设计规范**：[README#uiux-minimal-rules](../../README.md#uiux-minimal-rules) · [DESIGN_TOKEN_MIGRATION_GUIDE.md](../../DESIGN_TOKEN_MIGRATION_GUIDE.md)
+**设计规范**：[README#uiux-minimal-rules](../../README.md#uiux-minimal-rules)
 
-**相关文档**：[根目录](../../CLAUDE.md) · [组件层](../component/CLAUDE.md) · [页面层](../page/CLAUDE.md) · [配置](../config/CLAUDE.md)
+**相关文档**：[根目录](../../CLAUDE.md) · [组件层](../component/CLAUDE.md) · [页面层](../page/CLAUDE.md)

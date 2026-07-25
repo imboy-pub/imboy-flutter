@@ -2,7 +2,7 @@
 
 > 创建：2026-07-16。三条提示词按顺序用：①生成批次计划（跑一次）→ ②批次实施（每批一个新会话，重复贴同一条）→ ③真机走查（每 2-3 批做一次）。
 > 全部零填空。②③自动定位"下一个未完成批次"，不需要改任何数字。
-> 前置事实：全量审计已完成（`docs/plans/2026-07-10-fullapp-uiux-audit-v2.md`），前两批已提交 `51bdb1b9` + `b60f44c5`，本轮只做剩余项，**不要重新审计**。
+> 前置事实：全量审计已完成（`docs/archive/plans/2026-07-10-fullapp-uiux-audit-v2.md`），前两批已提交 `51bdb1b9` + `b60f44c5`，本轮只做剩余项，**不要重新审计**。
 
 ---
 
@@ -14,7 +14,7 @@ cd ~/project/imboy.pub/imboyapp（确认在 git 仓库内）。
 任务：汇总以下三处的全部遗留交互问题，生成第三轮实施批次计划，写入
 docs/plans/2026-07-16-ux-round3-batches.md。只读代码不改代码，不 commit。
 
-来源一：docs/plans/2026-07-10-fullapp-uiux-audit-v2.md 的 §0.0 中
+来源一：docs/archive/plans/2026-07-10-fullapp-uiux-audit-v2.md 的 §0.0 中
 「⏳ 仍待后续」全部条目，逐条展开为可实施项：
 - B7 跨端：AppBreakpoints 统一 / hover / 右键菜单 / 快捷键接线
 - SR-6/7：IconHitButton（44pt+label）全局组件 + 触达/a11y 全站迁移

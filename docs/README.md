@@ -2,13 +2,13 @@
 
 > **用途**：任何新的 AI 对话或新协作者，读这一页即可快速理解 imboyapp 全貌、关键约束与当前进展，然后开始工作。
 > 这是**通用入口文档**（稳定知识为主），不是某次会话的流水账。正式使用说明见根级 `README.md`。
-> **最后更新**：2026-06-14
+> **最后更新**：2026-07-25
 
 ---
 
 ## 0. 先记住三条硬约束（最易踩坑）
 
-1. **`~/project/imboy.pub/` 不是 git 仓库**（伪 monorepo 工作区）。真实仓库：`imboyapp/`（本仓，Flutter 端）、`imboy/`（Erlang 后端）、`imboy-admin-frontend/`（React 后台）。写文件前先确认在 `imboyapp/` 内。
+1. **`~/project/imboy.pub/` 不是 git 仓库**（伪 monorepo 工作区）。真实仓库：`imboyapp/`（本仓，Flutter 端）、`imboy/`（Erlang 后端）、`imboyadmin/`（React 后台）。写文件前先确认在 `imboyapp/` 内。
 2. **保留区禁改**：`ios/*`、`macos/*`、`plugin/r_upgrade`、`erlang.mk`。
 3. **调试用真机**：项目规则禁止用模拟器做功能验证（媒体/相机功能模拟器无法覆盖）。
 
@@ -23,7 +23,7 @@ imboyapp 是 **imboy 开箱即用 IM 平台**的 Flutter 移动客户端（iOS/A
 | 框架 | Flutter / Dart SDK `^3.8.0` |
 | 状态管理 | Riverpod（100% 迁移，0 GetX） |
 | 路由 | go_router |
-| 本地库 | SQLite（sqflite，schema **v21**） |
+| 本地库 | SQLite（sqflite，schema **v24**，以 `lib/service/sqlite.dart` 为准） |
 | 网络 | Dio + WebSocket + WebRTC |
 | i18n | slang（默认 zh-CN，10 语言） |
 | 架构 | MVVM + Repository；DDD 模块化 |
@@ -84,13 +84,12 @@ flutter pub run build_runner build   # 生成 Provider/JSON 序列化等
 
 ## 5. 当前进展里程碑（2026-06）
 
-- ✅ **依赖瘦身完成**：移除 14 个三方包（详见 `docs/dependency-reduction-tasks.md` T01–T17），自研 `ShimmerBox`/`BadgeWidget`、迁移 `crop_your_image v2` + `wechat_assets_picker`。
+- ✅ **依赖瘦身完成**：移除 14 个三方包，自研 `ShimmerBox`/`BadgeWidget`、迁移 `crop_your_image v2` + `wechat_assets_picker`。
 - ✅ **能力契约层落地**（`lib/capabilities/`）+ **领域边界门禁转强制**（CI 阻断领域层泄漏技术依赖）。
 - ✅ 质量基线：`dart analyze lib` = 0 issues；领域边界门禁 = 0 违反。
 - ⏳ **待办**：
   - T16/T17 媒体功能（头像裁剪 + 9 处媒体选择点）**真机回归未完成**（模拟器无相机，拍照/录像路径需真机）。
   - T18（长期）：`flutter pub outdated` 监测依赖升级闸门。
-  - `channel_message_item.dart`：690 行未提交 WIP，待正式纳入需单独排期。
 
 ---
 
@@ -111,7 +110,27 @@ flutter pub run build_runner build   # 生成 Provider/JSON 序列化等
 | 路径 | 说明 |
 |------|------|
 | `CLAUDE.md` / `DESIGN.md` | 架构总览 / UI 规范（必读） |
-| `docs/dependency-reduction-tasks.md` | 依赖瘦身任务进度表（T01–T18） |
 | `lib/capabilities/` | 能力契约层（contracts / adapters / locator） |
 | `scripts/check_boundaries.dart` | 领域纯洁边界门禁（CI 强制） |
 | `.github/workflows/ci.yml` | CI 流水线（含边界门禁 step） |
+
+---
+
+## 8. docs/ 目录导航
+
+| 目录 | 内容 |
+|------|------|
+| `codemaps/` | 代码地图（架构/依赖/数据流；2026-06-18 生成，部分条目已标时效） |
+| `qa/` | 测试宪章（`testing-charter.md`）、全量测试清单 |
+| `reference/` | 功能状态清单（`feature-status.md`） |
+| `adr/` | 架构决策记录 |
+| `plans/` | 进行中的计划（日期前缀） |
+| `archive/` | 已完成计划、一次性 QA/审计报告（只进不出） |
+
+根级文档：`changelog.md`（更新日志）、`FAQ.md`、`privacy-policy.md`、`data-safety-declaration.md`（后三个被 app asset 打包，**禁止改名**，见 `pubspec.yaml`）。
+
+### 文档维护规则
+
+- **命名**：稳定文档用小写 kebab-case（`module-map.md`）；`adr/`、`plans/`、`archive/` 内保留日期前缀；asset 打包文件不改名。
+- **一次性产物**（审计报告、QA 台账、已完成计划）完成后 `git mv` 入 `archive/`，不留在活目录。
+- 新增长期文档先考虑能否并入现有文档；本索引只放稳定入口。

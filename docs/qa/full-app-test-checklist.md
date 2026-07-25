@@ -187,7 +187,7 @@ Android MRD AL00（adb `XWE6R19916004085`）✅ ｜ iPhone 16e（`00008140-000E3
 
 ---
 
-## 五B、真机逐页复验发现区（loop 累积，见 realdevice-progress.md）
+## 五B、真机逐页复验发现区（loop 累积，见 ../archive/qa/realdevice-progress.md）
 
 ### 轮 1（2026-07-11）朋友圈 moment
 - ✅ **红框修复真机复验通过**：eb71ea2c（`_SingleImagePreviewState` 图片流解析从 `initState` 移到 `didChangeDependencies`）在真机确认生效——图片区不再触发 `dependOnInheritedWidgetOfExactType<MediaQuery>` 断言崩溃，正常降级为占位/broken_image。此前真机装的是 7/10 旧包故看到红框，本轮重建重装后消失。

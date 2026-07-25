@@ -144,7 +144,7 @@
 3. 更新 pubspec.yaml，运行 flutter pub get
 4. 重新生成代码 dart run build_runner build
 5. 运行完整测试 flutter test
-6. 更新本 INDEX.md 元数据
+6. 更新本 index.md 元数据
 ```
 
 ---

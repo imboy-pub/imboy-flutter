@@ -1,4 +1,4 @@
-<!-- Generated: 2026-06-18 | Files: 773 lib/ + 204 test/ | See also: INDEX.md, architecture.md, frontend.md -->
+<!-- Generated: 2026-06-18 | Files: 773 lib/ + 204 test/ | See also: index.md, architecture.md, frontend.md -->
 
 # CODEMAPS Overview / 总览
 
@@ -12,7 +12,7 @@
 
 | 文件 / File | 内容 / Content |
 |---|---|
-| [INDEX.md](./INDEX.md) | 全包索引、快速导航 / Full package index, quick navigation |
+| [index.md](./index.md) | 全包索引、快速导航 / Full package index, quick navigation |
 | [architecture.md](./architecture.md) | 技术栈、数据流、模块映射、DDD 模块 / Stack, data flow, module map, DDD |
 | [frontend.md](./frontend.md) | 页面树、组件库、ChatPage Mixin、路由配置 / Page tree, component lib, routing |
 | [backend.md](./backend.md) | API 端点映射、Store/Repo 结构 / API endpoint map, Store/Repo structure |
@@ -456,4 +456,4 @@ test/
 
 **更新者 / Updated by:** Claude Code  
 **更新周期 / Update Cycle:** 6 weeks (major), 2 weeks (minor)  
-**同步检查点 / Sync Checkpoints:** [INDEX.md](./INDEX.md) 元数据 ✓ | [architecture.md](./architecture.md) 技术栈 ✓ | [frontend.md](./frontend.md) 页面树 ✓
+**同步检查点 / Sync Checkpoints:** [index.md](./index.md) 元数据 ✓ | [architecture.md](./architecture.md) 技术栈 ✓ | [frontend.md](./frontend.md) 页面树 ✓

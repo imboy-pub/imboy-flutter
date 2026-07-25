@@ -80,8 +80,8 @@ integration_test/  真机集成测试
 ## 继续阅读
 
 - [项目约定与架构](./CLAUDE.md)
-- [代码地图](./docs/CODEMAPS/INDEX.md)
-- [模块地图](./docs/module_map.md)
+- [代码地图](./docs/codemaps/index.md)
+- [模块地图](./docs/module-map.md)
 - [自动化测试](./maestro/README.md)
 
 ## 许可证

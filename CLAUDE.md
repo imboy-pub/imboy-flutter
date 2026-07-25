@@ -2,7 +2,7 @@
 
 # ImBoy App - 架构文档 / Architecture Document
 
-> 最后更新 / Last updated：2026-06-13 CST | Flutter 客户端
+> 最后更新 / Last updated：2026-07-25 CST | Flutter 客户端
 
 ---
 
@@ -36,7 +36,7 @@
 | 框架 | Flutter / Dart 3.8+ |
 | 状态管理 | Riverpod（100% 迁移完成，0 GetX） |
 | 路由 | go_router |
-| 本地数据库 | SQLite (sqflite 2.4+)，当前 schema v21 |
+| 本地数据库 | SQLite (sqflite 2.4+)，当前 schema v24 |
 | 网络 | Dio 5.9 |
 | 实时通讯 | WebSocket + WebRTC |
 | 国际化 | slang ^4.11.2，默认语言 zh-CN |
@@ -91,7 +91,7 @@ scripts/           # 构建/测试脚本
 
 ### SQLite 版本
 
-当前 `_dbVersion = 21`；v21 migration 修复 `moment_notify` dedup 索引（`COALESCE(comment_id, '')`）。
+当前 `_dbVersion = 24`（以 `lib/service/sqlite.dart` 为准）。历史：v21 修复 `moment_notify` dedup 索引（`COALESCE(comment_id, '')`）。
 
 ---
 
@@ -186,7 +186,7 @@ lib/i18n/                ← 生成物目录（slang output_directory），勿�
 - Widget 测试用 `ProviderScope` 包裹组件。
 - 单元测试直接测业务逻辑，不依赖 UI 层。
 - 纯函数契约测试 + SQLite ffi in-memory 测试优先。
-- 当前基线（2026-06-22）：`dart analyze lib` **No issues found!**（零 error / 零 warning / 零 info）。历史轨迹：353 →（2026-06-11）约 60 →（2026-06-22）0。本轮清理：删除 2 个孤儿页（`e2ee_dev_test_page.dart` / `web_conversation_page.dart`，均零实例化死代码）+ 修复 8 项残留告警（mine_routes `dynamic→String` 显式转换 ×4、withdraw_page `if` 补花括号 ×2、chat_provider 冗余 import、e2ee_shard_message_handler 未用 import）。**仍以 `dart analyze lib` 实跑为准**，勿凭此条断言——基线会随新代码漂移。
+- 基线：`dart analyze lib` 应保持 **零 issues**（error / warning / info）。**以实跑为准**，勿凭本文档断言——基线会随新代码漂移。
 
 ---
 

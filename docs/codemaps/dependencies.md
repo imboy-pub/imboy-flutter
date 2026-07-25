@@ -2,6 +2,9 @@
 
 # 依赖管理 | Dependency Management
 
+> ⚠️ **2026-07-25 核对**：GetX 迁移已 100% 完成（`lib/` 零 `package:get/` 导入）、`dart analyze lib` 零 issues。本文件为 2026-06-18 生成快照，文中 GetX 遗留 / analyze 警告等条目已过时；事实以代码实跑为准。
+
+
 **最后更新 / Last Updated:** 2026-06-18 CST
 
 ---
@@ -266,8 +269,8 @@ flutter pub audit
 | 文档 | 位置 |
 |------|------|
 | 项目 CLAUDE.md | `./CLAUDE.md` § 技术栈 |
-| 架构文档 | `./docs/CODEMAPS/architecture.md` |
-| 数据库架构 | `./docs/CODEMAPS/data.md` |
+| 架构文档 | `./docs/codemaps/architecture.md` |
+| 数据库架构 | `./docs/codemaps/data.md` |
 
 ---
 

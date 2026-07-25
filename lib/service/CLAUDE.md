@@ -158,4 +158,4 @@ await ref.read(voicePlaybackServiceProvider.notifier).play(path: 'audio.mp3', me
 | pointycastle | ^4.0.0 | 加密 |
 | logger | ^2.6.2 | 日志 |
 
-**相关文档**：[数据层](../store/CLAUDE.md) · [页面层](../page/CLAUDE.md) · [配置](../config/CLAUDE.md)
+**相关文档**：[数据层](../store/CLAUDE.md) · [页面层](../page/CLAUDE.md)
