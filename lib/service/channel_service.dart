@@ -191,7 +191,12 @@ class ChannelService {
         try {
           await _messageRepo.saveMessage(message);
         } catch (e) {
-          // ponytail: API 成功为主；本地 FK 约束失败（channel 未缓存）只 log，不影响返回值
+          // ponytail: API 成功为主；本地 FK 约束失败（channel 未缓存）只 log，不影响返回值。
+          // 上限：这条消息不进本地库，而 getMessages 是"本地非空即直接返回"，
+          // 所以本地已有其它消息时，刚发出的这条要等下次 syncMessages 才补齐。
+          // 升级触发：频道消息改为真正的本地优先（离线可读 / 发件箱语义）时，
+          // 改成先 upsert channel 行再存消息（或 FK 失败后回填 channel 缓存重试），
+          // 不能继续吞。
           iPrint('ChannelService: 本地缓存频道消息失败（忽略）- $e');
         }
       }

@@ -170,6 +170,12 @@ class _OrderDetailBody extends ConsumerWidget {
       : order.channelName!;
 
   // ponytail: DateTime.toString() 取日期段即可，无需引入 intl。
+  // 上限：格式固定 YYYY-MM-DD，且按 DateTime 自带时区渲染——后端若把时间字段
+  // 从毫秒时间戳改成带 Z 的 ISO 串，parseModelDateTime 会走 DateTime.parse 得到
+  // isUtc=true，toString() 显示 UTC 日期，凌晨的支付/退款时间会差一天。
+  // 升级触发：需要展示到时分（订单详情比列表更可能要求精确到支付时刻）、或
+  // 上线非中国区时，引 intl 的 DateFormat 并先 .toLocal()；与
+  // channel_order_list_page 的同款 ponytail 一并改。
   String _date(DateTime? d) => d == null ? '-' : d.toString().split(' ').first;
 
   String _payLabel(String method, Translations t) => switch (method) {

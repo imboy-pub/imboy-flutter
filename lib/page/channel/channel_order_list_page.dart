@@ -203,6 +203,12 @@ class _OrderTile extends StatelessWidget {
 
   String _subtitle(Translations t) {
     // ponytail: DateTime.toString() 取日期段即可，无需引入 intl。
+    // 上限：格式固定 YYYY-MM-DD，且按 DateTime 自带时区渲染——后端若把
+    // created_at 从毫秒时间戳改成带 Z 的 ISO 串，parseModelDateTime 会走
+    // DateTime.parse 得到 isUtc=true，toString() 显示 UTC 日期，凌晨下的单会
+    // 差一天。
+    // 升级触发：需要展示到时分、或上线非中国区（日期格式随 locale 变，如
+    // MM/DD/YYYY）时，引 intl 的 DateFormat 并先 .toLocal()。
     final created = order.createdAt.toString().split(' ').first;
     final end = order.subscriptionEndAt;
     if (end == null) return created;

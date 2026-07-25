@@ -1878,6 +1878,13 @@ class ChatPageState extends ConsumerState<ChatPage>
                 // 必须走 cachedImageProvider → IMBoyCachedImageProvider → viewUrl 授权；
                 // 否则 FlyerChatImageMessage 默认用 CachedNetworkImage 直传 object_key，
                 // cross_cache 无法识别 scheme → "Invalid source: cannot be processed"。
+                // 上限：每个渲染附件的第三方 widget 都得单独注入 provider，漏一
+                // 处就是一个大叉叉（历史上 flyer_chat 的 Avatar、audio/video
+                // message 都栽过）。
+                // 无升级路径（设计约束，非延期）：只要附件存在 Garage、
+                // message.source 存的是 object_key、访问需 AssetsService.viewUrl
+                // 授权（见根 CLAUDE.md「附件 URL 必须经授权」），任何 widget 的
+                // 默认网络加载就都不可用。换掉 flyer_chat 也仍要注入授权 provider。
                 customImageProvider: cachedImageProvider(message.source),
               ),
             );

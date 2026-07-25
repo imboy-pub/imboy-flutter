@@ -10,6 +10,11 @@ import 'package:flutter_easyloading/flutter_easyloading.dart' as el;
 /// 未来若要替换底层实现（自研 overlay 或换库），只改本文件，调用点零改动。
 ///
 /// ponytail: 薄 facade，零抽象接口——单一实现不套 interface（YAGNI）。
+/// 上限——全静态方法 + 方法签名直接沿用 EasyLoading 的形状（status/duration
+/// 语义也是它的），所以换实现时"只改本文件"要看新实现能否照单接住这套语义；
+/// 另外静态方法不可注入，widget 测试里没法替换成无 UI 的假实现。
+/// 升级触发——真的需要两个实现同时存在时才抽 interface：典型是测试要 fake 掉
+/// loading（当前 499 处调用在测试中都会真的走 EasyLoading），或按平台分叉 UI。
 class AppLoading {
   const AppLoading._();
 

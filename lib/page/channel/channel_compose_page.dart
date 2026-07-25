@@ -110,6 +110,10 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     if (raw.isEmpty) return;
     // 新版草稿为 JSON；兼容旧版「仅正文」纯文本草稿。
     // ponytail: coverIndex 不还原——图片未持久化，重开需重选图，还原索引无意义。
+    // 上限：草稿里的 coverIndex 是只写不读的死字段，封面选择不跨重开保留。
+    // 升级触发：图片本身开始持久化（草稿改存 AssetEntity.id 或已上传的
+    // object_key，见 _persistDraftOnExit 的 ponytail）时，coverIndex 才有还原
+    // 意义，届时一并还原并校验索引是否越界。
     try {
       final data = jsonDecode(raw) as Map<String, dynamic>;
       setState(() {
@@ -538,6 +542,11 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
 ///
 /// ponytail: 图片尚未上传，预览直接用 AssetEntityImage 渲染本地资源，
 /// 不复用 feed 的 cachedImageProvider（那走远程 object_key）。
+/// 上限——预览只保证"布局像"，不保证"像素像"：服务端可能对上传图做压缩/裁剪，
+/// 预览看到的是原图。
+/// 无升级路径（设计约束，非延期）：预览这一刻按定义发生在上传之前，此时只有
+/// 本地 AssetEntity、没有 object_key，cachedImageProvider 无从取 URL。把预览
+/// 挪到上传之后才能复用远程链路，但那与"发布前预览"的语义矛盾。
 class _ComposePreviewSheet extends StatelessWidget {
   final String title;
   final String content;

@@ -216,6 +216,10 @@ class ApiAssert {
     String? context,
   }) {
     // ponytail: server envelope uses 'payload', not 'data'
+    // 上限：只能断言 payload 下的一层直接字段。嵌套路径（payload.list[0].x）
+    // 和非 envelope 响应（裸数组 / 文件流）都用不了，调用方只能自己手写取值。
+    // 升级触发：后端 envelope 变更（改名或加版本化外层），或测试开始需要断言
+    // 嵌套路径时，改成传取值路径（如 'payload.list.0.x'）而不是写死 'payload'。
     final payload = resp['payload'];
     if (payload is! Map || !payload.containsKey(field)) {
       throw AssertionError(

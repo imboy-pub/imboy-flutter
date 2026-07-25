@@ -106,6 +106,11 @@ Widget _markdownImage(Uri uri, String? title, String? alt) {
     return Image(image: cachedImageProvider(uri.toString(), w: 600));
   }
   // ponytail: 非 http 图片（相对路径/asset）不是本批重点，直接跳过不渲染。
+  // 上限：`![](/path)` 这类写法静默变空白，作者与读者都看不到任何"图片无法
+  // 显示"的提示，排查全靠猜。
+  // 升级触发：后端开始在频道正文里下发裸 Garage object_key 或站内相对路径
+  // （即正文图片不再总是完整 http URL）时，这里须把 key 交给
+  // cachedImageProvider 解析；在那之前至少先渲染 alt 占位而不是 shrink。
   return const SizedBox.shrink();
 }
 

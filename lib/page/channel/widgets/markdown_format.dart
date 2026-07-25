@@ -47,6 +47,10 @@ MarkdownEdit applyInlineWrap(String text, TextSelection sel, String marker) {
 /// 作用于光标所在行行首插入 [prefix]，选区两端整体右移 [prefix] 长度。
 ///
 /// ponytail: 不检测/去重已有前缀，直接插入——重复点会叠加前缀，撰写场景可接受。
+/// 上限——连点 N 次得到 `### ### 正文`，渲染层级/列表结构与预期不符，且工具条
+/// 没有取消入口（只能手删字符）。
+/// 升级触发——工具条引入 toggle 语义（同本文件顶部 ponytail），或出现误触叠加
+/// 的用户反馈时，插入前用 `RegExp(r'^(#{1,6} |- |> )')` 匹配行首做替换/移除。
 MarkdownEdit applyLinePrefix(String text, TextSelection sel, String prefix) {
   final (:start, :end) = _range(text, sel);
   // 光标所在行行首：从光标前一位往回找最近换行，其后即行首（无换行则为 0）。

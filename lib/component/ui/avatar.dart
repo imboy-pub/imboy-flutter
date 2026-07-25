@@ -151,6 +151,11 @@ class Avatar extends StatelessWidget {
       // 条纹。Avatar 会被塞进各种约束（含横向已选条、窄窗成员网格），
       // 必须容忍高度不足；此处不能用 Flexible（AvatarList 处于
       // SingleChildScrollView 无界高度中，Flex 子级会触发断言）。
+      // 上限：空间不足时 title 会被静默换行/裁剪，没有溢出警示——出问题时是
+      // "名字看不全"而不是报错，调用方得自己给够高度。
+      // 无升级路径（设计约束，非延期）：Avatar 是被任意父级复用的叶子组件，
+      // 无法预知传入约束；Column/Flexible 任一选择都会在"无界高度"和"紧约束"
+      // 两端中的一端断言或抛溢出条纹，Wrap 是两端都安全的唯一容器。
       child: Wrap(
         alignment: WrapAlignment.center,
         runAlignment: WrapAlignment.center,

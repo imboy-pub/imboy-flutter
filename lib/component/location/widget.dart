@@ -771,6 +771,11 @@ mixin _BLoCMixin on State<MapLocationPicker> {
   // 是否在我的位置
   // ponytail: broadcast 流——StreamBuilder 在 hot reload/重渲染时会重新订阅，
   // 单订阅流会抛 "Stream has already been listened to"。
+  // 上限：broadcast 不缓存最后一个值，新订阅者在下一次 add 之前拿不到当前态，
+  // 所以 StreamBuilder 必须自带 initialData。
+  // 无升级路径（设计约束，非延期）：重订阅是 StreamBuilder 的框架行为，只要
+  // 用它消费，broadcast 就是硬性要求。改用 ValueNotifier / 状态管理能绕开，
+  // 但那是把这块换掉重写，不是这条注释的升级路径。
   final _onMyLocation = StreamController<bool>.broadcast();
   @override
   void dispose() {

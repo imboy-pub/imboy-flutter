@@ -165,6 +165,11 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   Future<void> _saveFailedDraft(String content) async {
     // ponytail: 位置/@提醒不入草稿——二者是「此刻此地」的即时上下文，
     // 隔次恢复语义弱且易过期，草稿只保文字/媒体/可见性即可。
+    // 上限：发布失败后恢复草稿，用户已选的位置与 @提醒会静默丢失（UI 无任何
+    // 提示），必须重选一次；@ 列表长时这个重来成本不小。
+    // 升级触发：草稿从「发布失败兜底」升级为「主动存草稿箱 / 跨会话续写」时，
+    // 位置与 @列表须一并入草稿——位置带 savedAt 做过期判定（超过阈值提示重选
+    // 而不是直接沿用旧坐标）。
     final key = _draftKey;
     if (key.isEmpty) return;
     final mediaUrls = _uploads.results
@@ -567,6 +572,11 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   /// 地图截图故 isMapImage=false；选址返回 `{title,latitude,longitude,address,...}`
   /// 映射为 E1 形状 `{name,lng,lat,address?}`。
   /// ponytail: 不自造 POI 选择器，直接复用现成选址页。
+  /// 上限——MapLocationPicker 是按聊天场景做的（带地图截图开关、返回形状要在
+  /// 这里映射成 E1 形状），moment 特有的定位需求只能靠给它加参数开关表达；
+  /// 它的改动会同时影响聊天发位置。
+  /// 升级触发——moment 的选址需求与聊天分叉到参数开关表达不了时（典型是隐私
+  /// 粒度：只发城市/区不发精确门牌），才拆出独立 POI 选择器。
   Future<void> _pickLocation() async {
     if (_location != null) {
       final action = await showCupertinoModalPopup<String>(

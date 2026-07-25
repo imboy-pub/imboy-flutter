@@ -69,6 +69,12 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
   final ScrollController _scrollController = ScrollController();
 
   // ponytail: cursor 为已加载条数（offset 型），与 channel_comment_page 的分页写法一致。
+  // 上限：只在服务端返回顺序稳定、且翻页期间集合不变时才正确。翻页过程中有人
+  // 订阅/被移除，offset 就会漂移——新增导致某条重复出现，移除导致漏掉一条；
+  // 也不支持跳页。
+  // 升级触发：订阅者规模到万级（翻页轮次多，撞上变更的概率接近 1），或涨粉/
+  // 清粉活动期出现可见的重复/漏项时，改走 keyset 分页（传上一页末条的
+  // id / subscribed_at），需后端 /channel/{id}/subscribers 先支持该入参。
   static const int _pageSize = 30;
 
   List<SubscriberInfo> _subscribers = [];

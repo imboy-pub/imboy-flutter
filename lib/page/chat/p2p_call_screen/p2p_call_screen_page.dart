@@ -837,6 +837,13 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
             switchRenderer ? remoteRenderer : localRenderer,
             objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
             // ponytail: 铺满显示本地渲染器(已切换)时镜像前置自视图。
+            // 上限：mirror 只按 switchRenderer 推断"铺满的是不是本地渲染器"，
+            // 不看摄像头 facing。切后置（工具条的 switchCamera 已上线）后本地
+            // 画面仍被镜像，画面里的文字/场景左右反。
+            // 升级触发：p2p_call_screen_provider.switchCamera 开始记录当前
+            // facing 并暴露到 P2pCallScreenState 后，改成
+            // `mirror: !switchRenderer && state.isFrontCamera`，与上面小窗
+            // (_build 小窗那处 ponytail) 一并改。
             mirror: !switchRenderer,
           ),
         ),

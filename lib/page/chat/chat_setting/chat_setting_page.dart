@@ -326,8 +326,13 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
   EncryptionMode get _currentEncryptionMode {
     final modeStr = widget.options?['encryption_mode'] as String?;
     if (modeStr != null) return EncryptionModeExt.fromApiString(modeStr);
-    return EncryptionModeService
-        .current; // ponytail: fall back to global policy
+    // ponytail: 会话 options 没带 encryption_mode 时回退到全局 policy。
+    // 上限：此时显示的是"这个部署的策略"而非"这个会话的真实模式"；且
+    // EncryptionModeService 未初始化（policy 接口没拉到）时 _current 默认
+    // plaintext，会把实际已加密的会话显示成明文——宁可误报明文也不误报加密。
+    // 升级触发：后端支持按会话/按群覆盖加密模式，或需要区分"未知/加载中"态
+    // （避免未初始化时直接展示 plaintext）时，改为拉会话级 policy 并加载中态。
+    return EncryptionModeService.current; // fall back to global policy
   }
 
   /// 构建加密模式图标

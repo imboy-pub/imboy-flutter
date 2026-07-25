@@ -216,6 +216,11 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   Widget _buildBody() {
     // ponytail: 保留 Material CircularProgressIndicator 供既有 widget 测试断言，
     // 不改用 AsyncStateView（其 loading 态为 CupertinoActivityIndicator）。
+    // 上限：本页 loading 观感与全站 Cupertino 风格不一致，且是测试断言绑死了
+    // 实现——这条债的持有者其实是测试，不是页面。
+    // 升级触发：test/widget/group_task_page_test.dart:197 的断言从
+    // find.byType(CircularProgressIndicator) 改成按 Key/AsyncStateView 查找后，
+    // 本页即可直接切 AsyncStateView，本注释一并删。
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
