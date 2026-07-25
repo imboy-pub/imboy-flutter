@@ -1713,6 +1713,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get goToRecharge => 'اشحن الرصيد';
 	@override String get withdrawSuccess => 'تم السحب';
 	@override String get withdrawConfirm => 'تأكيد السحب';
+	@override String get withdrawFeeNotice => 'تُحدَّد الرسوم ووقت الوصول وفقاً للتسوية الفعلية';
 	@override String get withdrawAmountError => 'أدخل مبلغاً لا يقل عن يوان واحد';
 	@override String get withdrawAccountEmpty => 'أدخل حساب السحب';
 	@override String get withdrawMethod => 'طريقة السحب';
@@ -4115,6 +4116,7 @@ extension on TranslationsArSa {
 			'common.goToRecharge' => 'اشحن الرصيد',
 			'common.withdrawSuccess' => 'تم السحب',
 			'common.withdrawConfirm' => 'تأكيد السحب',
+			'common.withdrawFeeNotice' => 'تُحدَّد الرسوم ووقت الوصول وفقاً للتسوية الفعلية',
 			'common.withdrawAmountError' => 'أدخل مبلغاً لا يقل عن يوان واحد',
 			'common.withdrawAccountEmpty' => 'أدخل حساب السحب',
 			'common.withdrawMethod' => 'طريقة السحب',
@@ -4557,9 +4559,9 @@ extension on TranslationsArSa {
 			'main.export' => 'تصدير',
 			'main.school' => 'المدرسة',
 			'main.hobbiesAndInterests' => 'الهوايات والاهتمامات',
-			'main.interests' => 'Interests',
 			_ => null,
 		} ?? switch (path) {
+			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'إدارة رؤية المعلومات الشخصية',

@@ -1713,6 +1713,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get goToRecharge => 'Ricarica';
 	@override String get withdrawSuccess => 'Prelievo riuscito';
 	@override String get withdrawConfirm => 'Conferma prelievo';
+	@override String get withdrawFeeNotice => 'Commissioni e tempi di accredito dipendono dal regolamento effettivo';
 	@override String get withdrawAmountError => 'Importo minimo 1 yuan';
 	@override String get withdrawAccountEmpty => 'Conto di prelievo richiesto';
 	@override String get withdrawMethod => 'Metodo di prelievo';
@@ -4115,6 +4116,7 @@ extension on TranslationsItIt {
 			'common.goToRecharge' => 'Ricarica',
 			'common.withdrawSuccess' => 'Prelievo riuscito',
 			'common.withdrawConfirm' => 'Conferma prelievo',
+			'common.withdrawFeeNotice' => 'Commissioni e tempi di accredito dipendono dal regolamento effettivo',
 			'common.withdrawAmountError' => 'Importo minimo 1 yuan',
 			'common.withdrawAccountEmpty' => 'Conto di prelievo richiesto',
 			'common.withdrawMethod' => 'Metodo di prelievo',
@@ -4557,9 +4559,9 @@ extension on TranslationsItIt {
 			'main.export' => 'Esporta',
 			'main.school' => 'Scuola',
 			'main.hobbiesAndInterests' => 'Hobby & Interessi',
-			'main.interests' => 'Interests',
 			_ => null,
 		} ?? switch (path) {
+			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'Gestisci visibilità delle info personali',

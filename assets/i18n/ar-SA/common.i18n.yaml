@@ -1083,6 +1083,7 @@ insufficientBalance: رصيد غير كافٍ
 goToRecharge: اشحن الرصيد
 withdrawSuccess: تم السحب
 withdrawConfirm: تأكيد السحب
+withdrawFeeNotice: تُحدَّد الرسوم ووقت الوصول وفقاً للتسوية الفعلية
 withdrawAmountError: أدخل مبلغاً لا يقل عن يوان واحد
 withdrawAccountEmpty: أدخل حساب السحب
 withdrawMethod: طريقة السحب

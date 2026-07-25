@@ -1730,6 +1730,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get goToRecharge => '去充值';
 	@override String get withdrawSuccess => '提現成功';
 	@override String get withdrawConfirm => '確認提現';
+	@override String get withdrawFeeNotice => '手續費與到帳時間以實際結算為準';
 	@override String get withdrawAmountError => '請輸入不低於1元的金額';
 	@override String get withdrawAccountEmpty => '請輸入提現賬號';
 	@override String get withdrawMethod => '提現方式';
@@ -4155,6 +4156,7 @@ extension on TranslationsZhHant {
 			'common.goToRecharge' => '去充值',
 			'common.withdrawSuccess' => '提現成功',
 			'common.withdrawConfirm' => '確認提現',
+			'common.withdrawFeeNotice' => '手續費與到帳時間以實際結算為準',
 			'common.withdrawAmountError' => '請輸入不低於1元的金額',
 			'common.withdrawAccountEmpty' => '請輸入提現賬號',
 			'common.withdrawMethod' => '提現方式',
@@ -4580,9 +4582,9 @@ extension on TranslationsZhHant {
 			'main.publish' => '發布',
 			'main.privacyPolicy' => '隱私政策',
 			'main.termsOfService' => '服務條款',
-			'main.saving' => _root.common.loading,
 			_ => null,
 		} ?? switch (path) {
+			'main.saving' => _root.common.loading,
 			'main.topStories' => '看一看',
 			'main.systemDefault' => '系統預設',
 			'main.custom' => '自訂',

@@ -1083,6 +1083,7 @@ insufficientBalance: Solde insuffisant
 goToRecharge: Recharger
 withdrawSuccess: Retrait effectué
 withdrawConfirm: Confirmer le retrait
+withdrawFeeNotice: Les frais et le délai de réception dépendent du règlement effectif
 withdrawAmountError: Montant minimum 1 yuan
 withdrawAccountEmpty: Compte de retrait requis
 withdrawMethod: Méthode de retrait

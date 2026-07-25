@@ -285,14 +285,15 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
 
               WalletBalanceHint(balanceYuan: balanceYuan),
               AppSpacing.verticalTiny,
-              // 手续费与到账时效说明：后端暂无手续费/时效字段，展示静态提示
-              // ponytail: static hint, wire to real fee/ETA once wallet API returns them
+              // 手续费与到账时效：后端 /wallet/withdraw 只返回 balance /
+              // balance_yuan / reference_no，无费率与时效字段，故不做任何具体承诺。
+              // ponytail: neutral notice; show real fee/ETA once the API returns them
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.tiny,
                 ),
                 child: Text(
-                  '免手续费，预计 T+1 到账（以实际到账时间为准）',
+                  t.common.withdrawFeeNotice,
                   style: context.textStyle(
                     FontSizeType.footnote,
                     color: AppColors.getTextColor(

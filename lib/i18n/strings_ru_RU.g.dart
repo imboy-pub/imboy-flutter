@@ -1713,6 +1713,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get goToRecharge => 'Пополнить счёт';
 	@override String get withdrawSuccess => 'Вывод выполнен';
 	@override String get withdrawConfirm => 'Подтвердить вывод';
+	@override String get withdrawFeeNotice => 'Комиссия и срок зачисления определяются фактическим расчётом';
 	@override String get withdrawAmountError => 'Введите сумму не менее 1 юаня';
 	@override String get withdrawAccountEmpty => 'Введите счёт для вывода';
 	@override String get withdrawMethod => 'Способ вывода';
@@ -4115,6 +4116,7 @@ extension on TranslationsRuRu {
 			'common.goToRecharge' => 'Пополнить счёт',
 			'common.withdrawSuccess' => 'Вывод выполнен',
 			'common.withdrawConfirm' => 'Подтвердить вывод',
+			'common.withdrawFeeNotice' => 'Комиссия и срок зачисления определяются фактическим расчётом',
 			'common.withdrawAmountError' => 'Введите сумму не менее 1 юаня',
 			'common.withdrawAccountEmpty' => 'Введите счёт для вывода',
 			'common.withdrawMethod' => 'Способ вывода',
@@ -4557,9 +4559,9 @@ extension on TranslationsRuRu {
 			'main.export' => 'Экспорт',
 			'main.school' => 'Школа',
 			'main.hobbiesAndInterests' => 'Хобби и интересы',
-			'main.interests' => 'Interests',
 			_ => null,
 		} ?? switch (path) {
+			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'Управление видимостью личной информации',

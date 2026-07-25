@@ -1083,6 +1083,7 @@ insufficientBalance: Недостаточно средств
 goToRecharge: Пополнить счёт
 withdrawSuccess: Вывод выполнен
 withdrawConfirm: Подтвердить вывод
+withdrawFeeNotice: Комиссия и срок зачисления определяются фактическим расчётом
 withdrawAmountError: Введите сумму не менее 1 юаня
 withdrawAccountEmpty: Введите счёт для вывода
 withdrawMethod: Способ вывода

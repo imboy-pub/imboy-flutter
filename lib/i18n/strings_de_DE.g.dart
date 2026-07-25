@@ -1713,6 +1713,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get goToRecharge => 'Aufladen';
 	@override String get withdrawSuccess => 'Auszahlung erfolgreich';
 	@override String get withdrawConfirm => 'Auszahlung bestätigen';
+	@override String get withdrawFeeNotice => 'Gebühren und Gutschriftsdauer richten sich nach der tatsächlichen Abrechnung';
 	@override String get withdrawAmountError => 'Mindestens 1 Yuan eingeben';
 	@override String get withdrawAccountEmpty => 'Auszahlungskonto eingeben';
 	@override String get withdrawMethod => 'Auszahlungsmethode';
@@ -4115,6 +4116,7 @@ extension on TranslationsDeDe {
 			'common.goToRecharge' => 'Aufladen',
 			'common.withdrawSuccess' => 'Auszahlung erfolgreich',
 			'common.withdrawConfirm' => 'Auszahlung bestätigen',
+			'common.withdrawFeeNotice' => 'Gebühren und Gutschriftsdauer richten sich nach der tatsächlichen Abrechnung',
 			'common.withdrawAmountError' => 'Mindestens 1 Yuan eingeben',
 			'common.withdrawAccountEmpty' => 'Auszahlungskonto eingeben',
 			'common.withdrawMethod' => 'Auszahlungsmethode',
@@ -4557,9 +4559,9 @@ extension on TranslationsDeDe {
 			'main.export' => 'Exportieren',
 			'main.school' => 'Schule',
 			'main.hobbiesAndInterests' => 'Hobbys & Interessen',
-			'main.interests' => 'Interests',
 			_ => null,
 		} ?? switch (path) {
+			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => 'Sichtbarkeit persönlicher Informationen verwalten',

@@ -1083,6 +1083,7 @@ insufficientBalance: 残高不足
 goToRecharge: チャージへ
 withdrawSuccess: 出金しました
 withdrawConfirm: 出金を確認
+withdrawFeeNotice: 手数料と着金時間は実際の決済に準じます
 withdrawAmountError: 1元以上の金額を入力してください
 withdrawAccountEmpty: 出金先のアカウントを入力してください
 withdrawMethod: 出金方法

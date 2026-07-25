@@ -1077,6 +1077,7 @@ insufficientBalance: Insufficient Balance
 goToRecharge: Recharge
 withdrawSuccess: Withdrawal Successful
 withdrawConfirm: Confirm Withdrawal
+withdrawFeeNotice: Fees and arrival time are subject to actual settlement
 withdrawAmountError: Amount must be at least 1 CNY
 withdrawAccountEmpty: Please enter your withdrawal account
 withdrawMethod: Withdrawal Method

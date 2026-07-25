@@ -1724,6 +1724,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get goToRecharge => 'Recharge';
 	@override String get withdrawSuccess => 'Withdrawal Successful';
 	@override String get withdrawConfirm => 'Confirm Withdrawal';
+	@override String get withdrawFeeNotice => 'Fees and arrival time are subject to actual settlement';
 	@override String get withdrawAmountError => 'Amount must be at least 1 CNY';
 	@override String get withdrawAccountEmpty => 'Please enter your withdrawal account';
 	@override String get withdrawMethod => 'Withdrawal Method';
@@ -4149,6 +4150,7 @@ extension on TranslationsEnUs {
 			'common.goToRecharge' => 'Recharge',
 			'common.withdrawSuccess' => 'Withdrawal Successful',
 			'common.withdrawConfirm' => 'Confirm Withdrawal',
+			'common.withdrawFeeNotice' => 'Fees and arrival time are subject to actual settlement',
 			'common.withdrawAmountError' => 'Amount must be at least 1 CNY',
 			'common.withdrawAccountEmpty' => 'Please enter your withdrawal account',
 			'common.withdrawMethod' => 'Withdrawal Method',
@@ -4580,9 +4582,9 @@ extension on TranslationsEnUs {
 			'main.publish' => 'Publish',
 			'main.privacyPolicy' => 'Privacy Policy',
 			'main.termsOfService' => 'Terms of Service',
-			'main.saving' => _root.common.loading,
 			_ => null,
 		} ?? switch (path) {
+			'main.saving' => _root.common.loading,
 			'main.topStories' => 'Top Stories',
 			'main.systemDefault' => 'System Default',
 			'main.custom' => 'Custom',

@@ -1713,6 +1713,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get goToRecharge => 'チャージへ';
 	@override String get withdrawSuccess => '出金しました';
 	@override String get withdrawConfirm => '出金を確認';
+	@override String get withdrawFeeNotice => '手数料と着金時間は実際の決済に準じます';
 	@override String get withdrawAmountError => '1元以上の金額を入力してください';
 	@override String get withdrawAccountEmpty => '出金先のアカウントを入力してください';
 	@override String get withdrawMethod => '出金方法';
@@ -4115,6 +4116,7 @@ extension on TranslationsJaJp {
 			'common.goToRecharge' => 'チャージへ',
 			'common.withdrawSuccess' => '出金しました',
 			'common.withdrawConfirm' => '出金を確認',
+			'common.withdrawFeeNotice' => '手数料と着金時間は実際の決済に準じます',
 			'common.withdrawAmountError' => '1元以上の金額を入力してください',
 			'common.withdrawAccountEmpty' => '出金先のアカウントを入力してください',
 			'common.withdrawMethod' => '出金方法',
@@ -4557,9 +4559,9 @@ extension on TranslationsJaJp {
 			'main.export' => 'エクスポート',
 			'main.school' => '学校',
 			'main.hobbiesAndInterests' => '趣味と興味',
-			'main.interests' => 'Interests',
 			_ => null,
 		} ?? switch (path) {
+			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => '個人情報の表示設定を管理',

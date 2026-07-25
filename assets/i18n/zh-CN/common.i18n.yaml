@@ -1102,6 +1102,7 @@ insufficientBalance: 余额不足
 goToRecharge: 去充值
 withdrawSuccess: 提现成功
 withdrawConfirm: 确认提现
+withdrawFeeNotice: 手续费与到账时间以实际结算为准
 withdrawAmountError: 请输入不低于1元的金额
 withdrawAccountEmpty: 请输入提现账号
 withdrawMethod: 提现方式

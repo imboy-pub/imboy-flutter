@@ -1083,6 +1083,7 @@ insufficientBalance: Guthaben unzureichend
 goToRecharge: Aufladen
 withdrawSuccess: Auszahlung erfolgreich
 withdrawConfirm: Auszahlung bestätigen
+withdrawFeeNotice: Gebühren und Gutschriftsdauer richten sich nach der tatsächlichen Abrechnung
 withdrawAmountError: Mindestens 1 Yuan eingeben
 withdrawAccountEmpty: Auszahlungskonto eingeben
 withdrawMethod: Auszahlungsmethode

@@ -5229,6 +5229,9 @@ class Translations$common$zh_CN {
 	/// zh-CN: '确认提现'
 	String get withdrawConfirm => '确认提现';
 
+	/// zh-CN: '手续费与到账时间以实际结算为准'
+	String get withdrawFeeNotice => '手续费与到账时间以实际结算为准';
+
 	/// zh-CN: '请输入不低于1元的金额'
 	String get withdrawAmountError => '请输入不低于1元的金额';
 
@@ -9158,6 +9161,7 @@ extension on Translations {
 			'common.goToRecharge' => '去充值',
 			'common.withdrawSuccess' => '提现成功',
 			'common.withdrawConfirm' => '确认提现',
+			'common.withdrawFeeNotice' => '手续费与到账时间以实际结算为准',
 			'common.withdrawAmountError' => '请输入不低于1元的金额',
 			'common.withdrawAccountEmpty' => '请输入提现账号',
 			'common.withdrawMethod' => '提现方式',
@@ -9502,9 +9506,9 @@ extension on Translations {
 			'main.totalAssets' => '总资产',
 			'main.album' => '照片',
 			'main.appSize' => '应用大小',
-			'main.arSa' => '阿拉伯语（沙特阿拉伯）',
 			_ => null,
 		} ?? switch (path) {
+			'main.arSa' => '阿拉伯语（沙特阿拉伯）',
 			'main.audio' => '音频',
 			'main.barcodeFound' => '找到条形码！',
 			'main.botQianFan' => '千帆机器人',

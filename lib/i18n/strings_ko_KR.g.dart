@@ -1713,6 +1713,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get goToRecharge => '충전하러 가기';
 	@override String get withdrawSuccess => '출금 완료';
 	@override String get withdrawConfirm => '출금 확인';
+	@override String get withdrawFeeNotice => '수수료와 입금 시간은 실제 정산에 따릅니다';
 	@override String get withdrawAmountError => '1위안 이상의 금액을 입력해주세요';
 	@override String get withdrawAccountEmpty => '출금 계좌를 입력해주세요';
 	@override String get withdrawMethod => '출금 방식';
@@ -4115,6 +4116,7 @@ extension on TranslationsKoKr {
 			'common.goToRecharge' => '충전하러 가기',
 			'common.withdrawSuccess' => '출금 완료',
 			'common.withdrawConfirm' => '출금 확인',
+			'common.withdrawFeeNotice' => '수수료와 입금 시간은 실제 정산에 따릅니다',
 			'common.withdrawAmountError' => '1위안 이상의 금액을 입력해주세요',
 			'common.withdrawAccountEmpty' => '출금 계좌를 입력해주세요',
 			'common.withdrawMethod' => '출금 방식',
@@ -4557,9 +4559,9 @@ extension on TranslationsKoKr {
 			'main.export' => '내보내기',
 			'main.school' => '학교',
 			'main.hobbiesAndInterests' => '취미 및 관심사',
-			'main.interests' => 'Interests',
 			_ => null,
 		} ?? switch (path) {
+			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',
 			'main.manageVisibility' => '개인정보 표시 관리',
