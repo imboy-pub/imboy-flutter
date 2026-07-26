@@ -9,6 +9,8 @@ import 'package:vodozemac/vodozemac.dart' as vod;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/olm_api.dart';
 
@@ -81,6 +83,19 @@ class OlmSessionService {
 
   /// Account 操作串行锁（identity 上报、OTK 补传等）
   final Lock _accountLock = Lock();
+
+  /// S2.3: 事务性密码存储（SQLCipher DB）。懒加载，DB 不可用时回退 SecureStorage。
+  CryptoStore? _cryptoStore;
+
+  /// 获取 CryptoStore 实例（懒初始化）。DB 不可用返回 null。
+  Future<CryptoStore?> get cryptoStore async {
+    if (_cryptoStore != null) return _cryptoStore;
+    final db = await SqliteService.to.db;
+    if (db == null) return null;
+    _cryptoStore = CryptoStore(db);
+    await _cryptoStore!.ensureSchema();
+    return _cryptoStore;
+  }
 
   // ===== 原生库懒加载（与 GroupSessionService 同模式）=====
 
@@ -246,8 +261,22 @@ class OlmSessionService {
     final cached = _sessions[key];
     if (cached != null) return cached;
     final pickleKey = await _pickleKey();
-    final stored = await StorageSecureService.to.read(key: key);
+
+    // S2.3: 优先从 CryptoStore（SQLCipher 事务存储）读取
+    String? stored;
+    final store = await cryptoStore;
+    if (store != null) {
+      stored = await store.loadSession(
+        peerUid: peerUid,
+        peerDeviceId: peerDeviceId,
+      );
+    }
+    // 回退：迁移期 SecureStorage 中可能仍有旧 pickle
+    if (stored == null || stored.isEmpty) {
+      stored = await StorageSecureService.to.read(key: key);
+    }
     if (stored == null || stored.isEmpty) return null;
+
     try {
       final session = vod.Session.fromPickleEncrypted(
         pickle: stored,
@@ -272,6 +301,17 @@ class OlmSessionService {
   ) async {
     final pickleKey = await _pickleKey();
     final pickle = session.toPickleEncrypted(pickleKey);
+
+    // S2.3: 主路径写 CryptoStore（SQLCipher 事务存储）
+    final store = await cryptoStore;
+    if (store != null) {
+      await store.persistSession(
+        peerUid: peerUid,
+        peerDeviceId: peerDeviceId,
+        pickle: pickle,
+      );
+    }
+    // 迁移期双写 SecureStorage（后续版本移除）
     await StorageSecureService.to.write(
       key: _sessionKey(peerUid, peerDeviceId),
       value: pickle,
