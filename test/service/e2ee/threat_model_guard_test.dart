@@ -20,7 +20,7 @@
 /// | room key 域一致性 | T7 | c2g_room_key_relayed_opaque | 后端 EUnit，已落地 |
 /// | 消息重放/乱序 | T7 | message_replay_rejected | 本文件 ✅ (S2.3 dedupe) |
 /// | KDF 可迁移 | T6 | backup_kdf_version_migration | 本文件 ✅ (S7) |
-/// | Trust State 审计 | T2,T8 | device_trust_state_change_audit_log | skip: B.3 |
+/// | Trust State 审计 | T2,T8 | device_trust_state_change_audit_log | 本文件 ✅ (S8) |
 /// | Device identity 版本单调 | T9 | device_identity_rollback_rejected | 本文件 ✅ (S3 TOFU) |
 /// | Megolm session rotate 单调 | T9 | megolm_old_session_rejected | 本文件 ✅ (P0-2) |
 /// | **[B.2.1 新增] Olm pickle key CSPRNG** | T5 | olm_pickle_key_csprng | 本文件 ✅ |
@@ -35,6 +35,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:imboy/service/e2ee/capability_guard.dart';
+import 'package:imboy/service/e2ee/crypto_audit_log.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
@@ -412,7 +413,67 @@ void main() {
     });
   });
 
-  // ===== 仍需真机/未实现的守护（保持 skip）=====
+  // ===== T2,T8 — Trust State 变更审计日志（S8 CryptoAuditLog 已落地）=====
+  group('device_trust_state_change_audit_log (T2,T8)', () {
+    late Database db;
+    late CryptoAuditLog auditLog;
+
+    setUpAll(sqfliteFfiInit);
+    setUp(() async {
+      db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+      auditLog = CryptoAuditLog(db);
+      await auditLog.ensureSchema();
+    });
+    tearDown(() async => db.close());
+
+    test('trust state 变更被记录且哈希链可验证', () async {
+      await auditLog.append(
+        AuditEventType.identityPinned,
+        peerUid: '100',
+        peerDeviceId: 'dev-1',
+        detail: 'tofu first use',
+      );
+      await auditLog.append(
+        AuditEventType.trustStateVerified,
+        peerUid: '100',
+        peerDeviceId: 'dev-1',
+        detail: 'method=safetyNumber',
+      );
+      await auditLog.append(
+        AuditEventType.identityChanged,
+        peerUid: '100',
+        peerDeviceId: 'dev-1',
+        detail: 'fp changed',
+      );
+
+      final events = await auditLog.recent(limit: 100);
+      expect(events.length, equals(3));
+      expect(
+        events.map((e) => e.eventType).toList(),
+        equals([
+          AuditEventType.identityPinned,
+          AuditEventType.trustStateVerified,
+          AuditEventType.identityChanged,
+        ]),
+      );
+      // 审计员可独立校验完整性
+      expect(await auditLog.verifyChain(), isTrue);
+    });
+
+    test('篡改审计日志被检测（防抵赖）', () async {
+      await auditLog.append(AuditEventType.identityPinned, peerUid: '1');
+      await auditLog.append(AuditEventType.trustStateVerified, peerUid: '1');
+      await auditLog.append(AuditEventType.identityChanged, peerUid: '1');
+
+      // 攻击者试图抹除中间的"trust 验证"记录
+      await db.rawDelete('DELETE FROM crypto_audit_log WHERE seq = 2');
+
+      // 链连续性被破坏（seq 跳跃 + prev_hash 失配）→ 检测到
+      expect(await auditLog.verifyChain(), isFalse);
+    });
+  });
+
+  // ===== 仍需真机的守护（保持 skip）=====
   group('pending threat guards (awaiting runtime)', () {
     test(
       'olm_pfs_old_session_cannot_decrypt (T5)',
@@ -420,10 +481,5 @@ void main() {
       skip: 'B.1 真机/vodozemac 运行时',
     );
     test('olm_pcs_recovery (T5)', () {}, skip: 'B.1 真机');
-    test(
-      'device_trust_state_change_audit_log (T2,T8)',
-      () {},
-      skip: 'B.3 审计日志 UI 未实现',
-    );
   });
 }
