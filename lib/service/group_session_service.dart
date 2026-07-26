@@ -56,6 +56,13 @@ class GroupSessionService {
   /// room key 分发列表条目上限（成员×设备的合理倍数，防超大列表 CPU/内存 DoS）
   static const int _maxRoomKeyEntries = 4096;
 
+  /// P0-2: Megolm outbound session 最大加密消息数（超过则强制 rotate）
+  /// Signal 协议建议 100 条/会话；此处取 100 对齐行业实践。
+  static const int _maxMessagesPerSession = 100;
+
+  /// P0-2: Megolm outbound session 最大存活时间（7 天，超过则强制 rotate）
+  static const int _maxSessionAgeMs = 7 * 24 * 60 * 60 * 1000;
+
   static bool _vodReady = false;
   static Future<void>? _initFuture;
 
@@ -174,7 +181,14 @@ class GroupSessionService {
       final didSet = didToPem.keys.toSet();
 
       var outbound = _outbound[scopeKey];
-      if (outbound == null || !setEquals(outbound.dids, didSet)) {
+      // P0-2: 设备集合变化 OR 消息数/时间超限 → rotate
+      final needsRotate =
+          outbound == null ||
+          !setEquals(outbound.dids, didSet) ||
+          outbound.messageCount >= _maxMessagesPerSession ||
+          (DateTime.now().millisecondsSinceEpoch - outbound.createdAt) >=
+              _maxSessionAgeMs;
+      if (needsRotate) {
         // ponytail: 任何成员/设备集合变化都整体 rotate + 全量重分发；
         // 若 key 消息量成为负担，可对"仅新增设备"改为 exportAt(当前 index) 定向补发
         outbound = await _rotateAndDistribute(
@@ -187,10 +201,9 @@ class GroupSessionService {
         );
         _outbound[scopeKey] = outbound;
       }
-      return (
-        sessionId: outbound.sessionId,
-        ciphertext: outbound.session.encrypt(plaintext),
-      );
+      final ciphertext = outbound.session.encrypt(plaintext);
+      outbound.messageCount++;
+      return (sessionId: outbound.sessionId, ciphertext: ciphertext);
     });
   }
 
@@ -642,8 +655,16 @@ class GroupSessionService {
 }
 
 class _OutboundGroupSession {
-  _OutboundGroupSession(this.session, this.sessionId, this.dids);
+  _OutboundGroupSession(this.session, this.sessionId, this.dids)
+    : createdAt = DateTime.now().millisecondsSinceEpoch,
+      messageCount = 0;
   final vod.GroupSession session;
   final String sessionId;
   final Set<String> dids;
+
+  /// P0-2: 创建时间戳（毫秒），用于 max_age 轮转判断
+  final int createdAt;
+
+  /// P0-2: 已加密消息计数，用于 max_messages 轮转判断
+  int messageCount;
 }
