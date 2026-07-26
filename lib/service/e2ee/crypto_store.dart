@@ -13,11 +13,12 @@ import 'package:sqflite_sqlcipher/sqflite.dart';
 
 /// 密码学状态事务存储。
 ///
-/// 四张表：
+/// 五张表：
 /// - `crypto_olm_session`: per-peer Olm session pickle（ratchet 状态）
 /// - `crypto_outbox`: 已加密待发送的消息（崩溃恢复重发）
 /// - `crypto_inbox_dedupe`: 已处理入站消息 ID（防重复 ratchet advance）
 /// - `crypto_identity_pin`: TOFU identity fingerprint 固定（S3）
+/// - `crypto_capability_hwm`: 协商协议等级高水位（S6 降级检测）
 class CryptoStore {
   CryptoStore(this._db);
 
@@ -59,6 +60,16 @@ class CryptoStore {
         peer_device_id TEXT NOT NULL,
         fingerprint    TEXT NOT NULL,
         pinned_at      INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000),
+        PRIMARY KEY (peer_uid, peer_device_id)
+      )
+    ''');
+
+    await _db.execute('''
+      CREATE TABLE IF NOT EXISTS crypto_capability_hwm (
+        peer_uid       TEXT NOT NULL,
+        peer_device_id TEXT NOT NULL,
+        protocol       TEXT NOT NULL,
+        updated_at     INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000),
         PRIMARY KEY (peer_uid, peer_device_id)
       )
     ''');
@@ -252,5 +263,36 @@ class CryptoStore {
     );
     if (rows.isEmpty) return null;
     return rows.first['fingerprint'] as String?;
+  }
+
+  // ─── Capability HWM（S6: 降级检测）────────────────────────────────────────────
+
+  /// 记录对端设备协商协议高水位（UPSERT）。
+  Future<void> persistCapabilityHwm({
+    required String peerUid,
+    required String peerDeviceId,
+    required String protocol,
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await _db.rawInsert(
+      '''INSERT INTO crypto_capability_hwm (peer_uid, peer_device_id, protocol, updated_at)
+         VALUES (?, ?, ?, ?)
+         ON CONFLICT(peer_uid, peer_device_id)
+         DO UPDATE SET protocol = excluded.protocol, updated_at = excluded.updated_at''',
+      [peerUid, peerDeviceId, protocol, now],
+    );
+  }
+
+  /// 加载对端设备历史最高协商协议。无记录返回 null。
+  Future<String?> loadCapabilityHwm({
+    required String peerUid,
+    required String peerDeviceId,
+  }) async {
+    final rows = await _db.rawQuery(
+      'SELECT protocol FROM crypto_capability_hwm WHERE peer_uid = ? AND peer_device_id = ?',
+      [peerUid, peerDeviceId],
+    );
+    if (rows.isEmpty) return null;
+    return rows.first['protocol'] as String?;
   }
 }
