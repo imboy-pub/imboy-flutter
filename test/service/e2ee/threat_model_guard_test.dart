@@ -19,7 +19,7 @@
 /// | OTK 原子 claim | T7 | otk_concurrent_claim_uniqueness | 后端 EUnit，已落地(B.3) |
 /// | room key 域一致性 | T7 | c2g_room_key_relayed_opaque | 后端 EUnit，已落地 |
 /// | 消息重放/乱序 | T7 | message_replay_rejected | 本文件 ✅ (S2.3 dedupe) |
-/// | KDF 可迁移 | T6 | backup_kdf_version_migration | skip: B.5 |
+/// | KDF 可迁移 | T6 | backup_kdf_version_migration | 本文件 ✅ (S7) |
 /// | Trust State 审计 | T2,T8 | device_trust_state_change_audit_log | skip: B.3 |
 /// | Device identity 版本单调 | T9 | device_identity_rollback_rejected | 本文件 ✅ (S3 TOFU) |
 /// | Megolm session rotate 单调 | T9 | megolm_old_session_rejected | 本文件 ✅ (P0-2) |
@@ -39,6 +39,7 @@ import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/identity_verifier.dart';
+import 'package:imboy/service/e2ee/kdf_version.dart';
 import 'package:imboy/service/e2ee/safety_number.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/olm_session_service.dart';
@@ -377,6 +378,40 @@ void main() {
     });
   });
 
+  // ===== T6 — KDF 版本化迁移（S7 KdfVersion 已落地）=====
+  // 守护安全不变量：KDF 必须可迁移、降级必须被拒绝、未知版本必须 fail-closed。
+  // （派生正确性由 kdf_version_test.dart 覆盖；此处只守护安全属性，保持快速。）
+  group('backup_kdf_version_migration (T6)', () {
+    test('落后版本被识别为需迁移', () {
+      expect(KdfVersion.needsMigration(0), isTrue);
+      expect(KdfVersion.needsMigration(KdfVersion.latest), isFalse);
+    });
+
+    test('降级被拒绝（from > to）→ KdfDowngradeException', () {
+      expect(
+        () => KdfVersion.migrate(
+          fromVersion: 5,
+          password: 'x',
+          salt: Uint8List(16),
+          toVersion: 1,
+        ),
+        throwsA(isA<KdfDowngradeException>()),
+      );
+    });
+
+    test('未知目标版本 → UnsupportedKdfVersionException（fail-closed）', () {
+      expect(
+        () => KdfVersion.migrate(
+          fromVersion: 0,
+          password: 'x',
+          salt: Uint8List(16),
+          toVersion: 99,
+        ),
+        throwsA(isA<UnsupportedKdfVersionException>()),
+      );
+    });
+  });
+
   // ===== 仍需真机/未实现的守护（保持 skip）=====
   group('pending threat guards (awaiting runtime)', () {
     test(
@@ -385,7 +420,6 @@ void main() {
       skip: 'B.1 真机/vodozemac 运行时',
     );
     test('olm_pcs_recovery (T5)', () {}, skip: 'B.1 真机');
-    test('backup_kdf_version_migration (T6)', () {}, skip: 'B.5 备份 KDF 未实现');
     test(
       'device_trust_state_change_audit_log (T2,T8)',
       () {},
