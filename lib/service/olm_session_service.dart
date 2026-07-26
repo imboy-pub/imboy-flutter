@@ -64,6 +64,16 @@ class OlmAuthenticationException implements Exception {
   String toString() => 'OlmAuthenticationException: $message';
 }
 
+/// S2.3: 入站消息重复投递（dedupe 命中）。
+///
+/// 调用方应捕获此异常并静默跳过（消息已处理过），不视为错误。
+class DuplicateMessageException implements Exception {
+  DuplicateMessageException(this.messageId);
+  final String messageId;
+  @override
+  String toString() => 'DuplicateMessageException: $messageId';
+}
+
 class OlmSessionService {
   static final OlmSessionService _instance = OlmSessionService._internal();
   static OlmSessionService get to => _instance;
@@ -324,11 +334,16 @@ class OlmSessionService {
   /// 加密一条单聊消息（C2C）。
   /// 首次对某对端设备：claim prekey → createOutboundSession → encrypt(type=0 prekey message)。
   /// 后续：直接 session.encrypt（type=1 normal）。
+  ///
+  /// S2.3: 当 [outboxId] + [outboxPayload] 非空且 CryptoStore 可用时，
+  /// ratchet advance 与 outbox 写入在同一 SQLite 事务内完成（崩溃安全）。
   Future<({String sessionId, int messageType, String ciphertext})>
   encryptC2CMessage({
     required String peerUid,
     required String peerDeviceId,
     required String plaintext,
+    String? outboxId,
+    String? outboxPayload,
   }) async {
     await ensureInitialized();
     final lockKey = '$peerUid:$peerDeviceId';
@@ -339,7 +354,29 @@ class OlmSessionService {
           await _loadSession(peerUid, peerDeviceId) ??
           await _establishOutboundSession(peerUid, peerDeviceId);
       final result = session.encrypt(plaintext);
-      await _persistSession(peerUid, peerDeviceId, session);
+
+      // S2.3: 原子 ratchet + outbox（CryptoStore 可用时）
+      final store = await cryptoStore;
+      if (store != null && outboxId != null && outboxPayload != null) {
+        final pickleKey = await _pickleKey();
+        final pickle = session.toPickleEncrypted(pickleKey);
+        await store.persistSessionWithOutbox(
+          peerUid: peerUid,
+          peerDeviceId: peerDeviceId,
+          pickle: pickle,
+          outboxId: outboxId,
+          payload: outboxPayload,
+        );
+        // 迁移期双写 SecureStorage
+        await StorageSecureService.to.write(
+          key: _sessionKey(peerUid, peerDeviceId),
+          value: pickle,
+        );
+        _sessions[_sessionKey(peerUid, peerDeviceId)] = session;
+      } else {
+        await _persistSession(peerUid, peerDeviceId, session);
+      }
+
       return (
         sessionId: session.sessionId,
         messageType: result.messageType,
@@ -399,23 +436,33 @@ class OlmSessionService {
   /// 解密一条单聊消息（C2C）。
   /// 首次收到某对端的消息（messageType=0 prekey）：createInboundSession。
   /// 后续（messageType=1）：直接 session.decrypt。
+  ///
+  /// S2.3: 当 [messageId] 非空且 CryptoStore 可用时，dedupe 检查与 ratchet
+  /// advance 在同一 SQLite 事务内完成——重复投递不会推进 ratchet。
   Future<String> decryptC2CMessage({
     required String peerUid,
     required String peerDeviceId,
     required int messageType,
     required String ciphertext,
+    String? messageId,
   }) async {
     await ensureInitialized();
     final lockKey = '$peerUid:$peerDeviceId';
     final lock = _sessionLocks.putIfAbsent(lockKey, () => Lock());
     return lock.synchronized(() async {
+      // S2.3: 快速 dedupe 前置检查（避免无谓解密开销）
+      if (messageId != null) {
+        final store = await cryptoStore;
+        if (store != null && await store.isDuplicate(messageId)) {
+          throw DuplicateMessageException(messageId);
+        }
+      }
+
       final account = await _loadOrCreateAccount();
       var session = await _loadSession(peerUid, peerDeviceId);
 
       if (messageType == 0) {
         // pre-key message：首次接收，建入站 Session
-        // createInboundSession 内部完成 X3DH 并返回 (Session, plaintext)
-        // _lookupPeerIdentityKey 失败（身份取不到）保持普通异常 → 会话不可用可回退。
         final theirIdentity = await _lookupPeerIdentityKey(
           peerUid,
           peerDeviceId,
@@ -427,13 +474,17 @@ class OlmSessionService {
             preKeyMessageBase64: ciphertext,
           );
         } on Object catch (e) {
-          // 身份已取到、仍无法从 prekey 密文建会话 → 密文无效/被篡改，拒绝降级
           throw OlmAuthenticationException(
             'createInboundSession 失败（prekey 密文无效）: $e',
           );
         }
         session = result.session as vod.Session;
-        await _persistSession(peerUid, peerDeviceId, session);
+        await _persistSessionWithDedupe(
+          peerUid,
+          peerDeviceId,
+          session,
+          messageId,
+        );
         // 入站会话建立后，本端可能需补传 OTK
         unawaited(
           _refillOneTimeKeys(account).then((_) async {
@@ -446,7 +497,6 @@ class OlmSessionService {
 
       // normal message
       if (session == null) {
-        // 无入站会话 → 会话不可用，可回退（非认证失败）
         throw Exception(
           'olm normal message but no inbound session: $peerUid:$peerDeviceId',
         );
@@ -458,12 +508,48 @@ class OlmSessionService {
           ciphertext: ciphertext,
         );
       } on Object catch (e) {
-        // 会话存在但解密认证失败 → MAC 校验失败/密文无效，拒绝降级
         throw OlmAuthenticationException('olm decrypt 认证失败: $e');
       }
-      await _persistSession(peerUid, peerDeviceId, session);
+      await _persistSessionWithDedupe(
+        peerUid,
+        peerDeviceId,
+        session,
+        messageId,
+      );
       return plaintext;
     });
+  }
+
+  /// S2.3: 接收侧原子持久化——dedupe + ratchet advance 同事务。
+  /// [messageId] 为 null 时退化为普通 _persistSession。
+  Future<void> _persistSessionWithDedupe(
+    String peerUid,
+    String peerDeviceId,
+    vod.Session session,
+    String? messageId,
+  ) async {
+    final store = await cryptoStore;
+    if (store != null && messageId != null) {
+      final pickleKey = await _pickleKey();
+      final pickle = session.toPickleEncrypted(pickleKey);
+      final accepted = await store.dedupeAndPersistSession(
+        messageId: messageId,
+        peerUid: peerUid,
+        peerDeviceId: peerDeviceId,
+        pickle: pickle,
+      );
+      if (!accepted) {
+        throw DuplicateMessageException(messageId);
+      }
+      // 迁移期双写 SecureStorage
+      await StorageSecureService.to.write(
+        key: _sessionKey(peerUid, peerDeviceId),
+        value: pickle,
+      );
+      _sessions[_sessionKey(peerUid, peerDeviceId)] = session;
+    } else {
+      await _persistSession(peerUid, peerDeviceId, session);
+    }
   }
 
   /// 查询对端 curve25519 身份键（createInboundSession 需要）
