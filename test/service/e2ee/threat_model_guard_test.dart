@@ -9,8 +9,8 @@
 /// |---|---|---|---|
 /// | 服务端零密码学 | T1,T3 | grep elib_cipher decrypt | 后端 CI(Erlang)，非本文件 |
 /// | 私钥永不落 DB | T3 | private_key_encrypted DROP | 后端 migration，已落地 |
-/// | Per-message PFS (Olm DR) | T5 | olm_pfs_old_session_cannot_decrypt | skip: B.1 真机/vodozemac 运行时 |
-/// | Post-Compromise Security | T5 | olm_pcs_recovery | skip: B.1 真机 |
+/// | Per-message PFS (Olm DR) | T5 | olm_pfs_old_session_cannot_decrypt | olm_ratchet_pfs_pcs_test ✅ (S9) |
+/// | Post-Compromise Security | T5 | olm_pcs_recovery | olm_ratchet_pfs_pcs_test ✅ (S9) |
 /// | AEAD (AES-256-GCM) | T4 | aes_gcm_tamper_fails | 本文件 ✅ (B.5) |
 /// | Ed25519 身份键签名 | T2,T4 | device_identity_signature_verify | 本文件 ✅ (P0-1) |
 /// | Safety Number | T2,T8 | e2ee_safety_number | 本文件 ✅ (S4) |
@@ -473,13 +473,7 @@ void main() {
     });
   });
 
-  // ===== 仍需真机的守护（保持 skip）=====
-  group('pending threat guards (awaiting runtime)', () {
-    test(
-      'olm_pfs_old_session_cannot_decrypt (T5)',
-      () {},
-      skip: 'B.1 真机/vodozemac 运行时',
-    );
-    test('olm_pcs_recovery (T5)', () {}, skip: 'B.1 真机');
-  });
+  // ===== T5 PFS/PCS 已提升为真实守护测试（S9）=====
+  // 见 test/service/e2ee/olm_ratchet_pfs_pcs_test.dart
+  // vodozemac FFI 在 flutter test 宿主运行时即可驱动 Olm 会话，无需真机。
 }
