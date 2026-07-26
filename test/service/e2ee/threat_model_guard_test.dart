@@ -15,7 +15,7 @@
 /// | Ed25519 身份键签名 | T2,T4 | device_identity_signature_verify | 本文件 ✅ (P0-1) |
 /// | Safety Number | T2,T8 | e2ee_safety_number | 本文件 ✅ (S4) |
 /// | Signed Capabilities | T2 | capability_signature_forgery_fails | capability_negotiator_test ✅ |
-/// | 本地降级告警 | T2 | capability_shrink_triggers_tofu_alert | skip: B.2 发送侧 |
+/// | 本地降级告警 | T2 | capability_shrink_triggers_tofu_alert | 本文件 ✅ (S6) |
 /// | OTK 原子 claim | T7 | otk_concurrent_claim_uniqueness | 后端 EUnit，已落地(B.3) |
 /// | room key 域一致性 | T7 | c2g_room_key_relayed_opaque | 后端 EUnit，已落地 |
 /// | 消息重放/乱序 | T7 | message_replay_rejected | 本文件 ✅ (S2.3 dedupe) |
@@ -34,6 +34,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:imboy/service/e2ee/capability_guard.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
@@ -342,6 +343,40 @@ void main() {
     });
   });
 
+  // ===== T2 — Capability 降级告警（S6 CapabilityGuard 已落地）=====
+  group('capability_shrink_triggers_tofu_alert (T2)', () {
+    late Database db;
+    late CryptoStore store;
+
+    setUpAll(sqfliteFfiInit);
+    setUp(() async {
+      db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+      store = CryptoStore(db);
+      await store.ensureSchema();
+    });
+    tearDown(() async => db.close());
+
+    test('对端能力从 olm 缩减到 rsa-oaep → 抛 CapabilityDowngradeException', () async {
+      final guard = CapabilityGuard(store);
+      // 历史最高：olm
+      await guard.recordHighWaterMark(
+        peerUid: '600',
+        peerDeviceId: 'dev-1',
+        protocol: 'olm',
+      );
+
+      // 攻击者伪造低能力 → 协商结果降级
+      expect(
+        () => guard.enforceNoDowngrade(
+          peerUid: '600',
+          peerDeviceId: 'dev-1',
+          negotiatedProtocol: 'rsa-oaep',
+        ),
+        throwsA(isA<CapabilityDowngradeException>()),
+      );
+    });
+  });
+
   // ===== 仍需真机/未实现的守护（保持 skip）=====
   group('pending threat guards (awaiting runtime)', () {
     test(
@@ -350,11 +385,6 @@ void main() {
       skip: 'B.1 真机/vodozemac 运行时',
     );
     test('olm_pcs_recovery (T5)', () {}, skip: 'B.1 真机');
-    test(
-      'capability_shrink_triggers_tofu_alert (T2)',
-      () {},
-      skip: 'B.2 发送侧 capability 协商未实现',
-    );
     test('backup_kdf_version_migration (T6)', () {}, skip: 'B.5 备份 KDF 未实现');
     test(
       'device_trust_state_change_audit_log (T2,T8)',
