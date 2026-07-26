@@ -499,6 +499,11 @@ class E2EEService {
         ...protocolMetadata,
         'protocol': outerHeader['protocol'],
         'version': outerHeader['protocol_version'],
+        // S2.3c: 透传 message_id 供 OlmProtocol dedupe
+        'message_id':
+            outerHeader['message_id']?.toString() ??
+            payload['id']?.toString() ??
+            '',
       };
       final ciphertextStr = utf8.decode(base64Url.decode(ciphertextB64));
       innerFrameB64 = await E2eeProtocolRegistry.resolve(

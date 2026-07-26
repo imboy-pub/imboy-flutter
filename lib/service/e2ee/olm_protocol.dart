@@ -91,15 +91,22 @@ class OlmProtocol implements E2eeSessionProtocol {
     }
     final messageType =
         int.tryParse(metadata['message_type']?.toString() ?? '1') ?? 1;
+    // S2.3c: 透传 message_id 供 CryptoStore dedupe
+    final messageId = metadata['message_id']?.toString();
     try {
       return await OlmSessionService.to.decryptC2CMessage(
         peerUid: peerUid,
         peerDeviceId: peerDeviceId,
         messageType: messageType,
         ciphertext: ciphertext,
+        messageId: (messageId != null && messageId.isNotEmpty)
+            ? messageId
+            : null,
       );
     } on E2eeDecryptException {
       rethrow;
+    } on DuplicateMessageException {
+      rethrow; // S2.3: 重复投递信号，调用方静默跳过
     } catch (_) {
       throw const E2eeDecryptException('decrypt_error');
     }
