@@ -240,12 +240,30 @@ class E2EEMeta extends $pb.GeneratedMessage {
     $core.String? suite,
     $core.List<$core.int>? nonce,
     $core.Iterable<E2EEDeviceKey>? keys,
+    $core.String? protocol,
+    $core.int? protocolVersion,
+    $core.String? peerUid,
+    $core.String? peerDeviceId,
+    $core.int? messageType,
+    $core.String? sessionId,
+    $core.int? messageIndex,
+    $core.String? groupId,
+    $core.int? metaVersion,
   }) {
     final result = create();
     if (ver != null) result.ver = ver;
     if (suite != null) result.suite = suite;
     if (nonce != null) result.nonce = nonce;
     if (keys != null) result.keys.addAll(keys);
+    if (protocol != null) result.protocol = protocol;
+    if (protocolVersion != null) result.protocolVersion = protocolVersion;
+    if (peerUid != null) result.peerUid = peerUid;
+    if (peerDeviceId != null) result.peerDeviceId = peerDeviceId;
+    if (messageType != null) result.messageType = messageType;
+    if (sessionId != null) result.sessionId = sessionId;
+    if (messageIndex != null) result.messageIndex = messageIndex;
+    if (groupId != null) result.groupId = groupId;
+    if (metaVersion != null) result.metaVersion = metaVersion;
     return result;
   }
 
@@ -268,6 +286,15 @@ class E2EEMeta extends $pb.GeneratedMessage {
         3, _omitFieldNames ? '' : 'nonce', $pb.PbFieldType.OY)
     ..pPM<E2EEDeviceKey>(4, _omitFieldNames ? '' : 'keys',
         subBuilder: E2EEDeviceKey.create)
+    ..aOS(5, _omitFieldNames ? '' : 'protocol')
+    ..aI(6, _omitFieldNames ? '' : 'protocolVersion')
+    ..aOS(7, _omitFieldNames ? '' : 'peerUid')
+    ..aOS(8, _omitFieldNames ? '' : 'peerDeviceId')
+    ..aI(9, _omitFieldNames ? '' : 'messageType')
+    ..aOS(10, _omitFieldNames ? '' : 'sessionId')
+    ..aI(11, _omitFieldNames ? '' : 'messageIndex')
+    ..aOS(12, _omitFieldNames ? '' : 'groupId')
+    ..aI(13, _omitFieldNames ? '' : 'metaVersion')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -298,7 +325,7 @@ class E2EEMeta extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearVer() => $_clearField(1);
 
-  /// Cipher suite identifier, e.g. "RSA-OAEP-256+AES-256-GCM"
+  /// Cipher suite identifier, e.g. "RSA-OAEP-256+AES-256-GCM", "OLM.V1", "MEGOLM.V1"
   @$pb.TagNumber(2)
   $core.String get suite => $_getSZ(1);
   @$pb.TagNumber(2)
@@ -309,6 +336,7 @@ class E2EEMeta extends $pb.GeneratedMessage {
   void clearSuite() => $_clearField(2);
 
   /// Nonce/IV for the symmetric cipher (base64-encoded in JSON, raw bytes here)
+  /// Used by RSA-OAEP suite only.
   @$pb.TagNumber(3)
   $core.List<$core.int> get nonce => $_getN(2);
   @$pb.TagNumber(3)
@@ -318,9 +346,99 @@ class E2EEMeta extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   void clearNonce() => $_clearField(3);
 
-  /// Per-device encrypted symmetric keys
+  /// Per-device encrypted symmetric keys (RSA-OAEP suite only)
   @$pb.TagNumber(4)
   $pb.PbList<E2EEDeviceKey> get keys => $_getList(3);
+
+  /// Protocol identifier for v2 routing: "olm", "megolm", "rsa-oaep"
+  @$pb.TagNumber(5)
+  $core.String get protocol => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set protocol($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasProtocol() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearProtocol() => $_clearField(5);
+
+  /// Protocol version (e.g. 1 for OLM.V1)
+  @$pb.TagNumber(6)
+  $core.int get protocolVersion => $_getIZ(5);
+  @$pb.TagNumber(6)
+  set protocolVersion($core.int value) => $_setSignedInt32(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasProtocolVersion() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearProtocolVersion() => $_clearField(6);
+
+  /// Sender's UID (receiver uses this to locate the Olm session peer)
+  @$pb.TagNumber(7)
+  $core.String get peerUid => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set peerUid($core.String value) => $_setString(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasPeerUid() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearPeerUid() => $_clearField(7);
+
+  /// Sender's device ID
+  @$pb.TagNumber(8)
+  $core.String get peerDeviceId => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set peerDeviceId($core.String value) => $_setString(7, value);
+  @$pb.TagNumber(8)
+  $core.bool hasPeerDeviceId() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearPeerDeviceId() => $_clearField(8);
+
+  /// Olm message type: 0 = prekey message, 1 = normal message
+  @$pb.TagNumber(9)
+  $core.int get messageType => $_getIZ(8);
+  @$pb.TagNumber(9)
+  set messageType($core.int value) => $_setSignedInt32(8, value);
+  @$pb.TagNumber(9)
+  $core.bool hasMessageType() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearMessageType() => $_clearField(9);
+
+  /// Session identifier (Olm session ID or Megolm session ID)
+  @$pb.TagNumber(10)
+  $core.String get sessionId => $_getSZ(9);
+  @$pb.TagNumber(10)
+  set sessionId($core.String value) => $_setString(9, value);
+  @$pb.TagNumber(10)
+  $core.bool hasSessionId() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearSessionId() => $_clearField(10);
+
+  /// Megolm ratchet message index
+  @$pb.TagNumber(11)
+  $core.int get messageIndex => $_getIZ(10);
+  @$pb.TagNumber(11)
+  set messageIndex($core.int value) => $_setSignedInt32(10, value);
+  @$pb.TagNumber(11)
+  $core.bool hasMessageIndex() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearMessageIndex() => $_clearField(11);
+
+  /// Group identifier (for C2G messages)
+  @$pb.TagNumber(12)
+  $core.String get groupId => $_getSZ(11);
+  @$pb.TagNumber(12)
+  set groupId($core.String value) => $_setString(11, value);
+  @$pb.TagNumber(12)
+  $core.bool hasGroupId() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearGroupId() => $_clearField(12);
+
+  /// Meta version: 1 = legacy RSA, 2 = v2 routing, 3 = protected frame
+  @$pb.TagNumber(13)
+  $core.int get metaVersion => $_getIZ(12);
+  @$pb.TagNumber(13)
+  set metaVersion($core.int value) => $_setSignedInt32(12, value);
+  @$pb.TagNumber(13)
+  $core.bool hasMetaVersion() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearMetaVersion() => $_clearField(13);
 }
 
 /// Per-device wrapped key for E2EE

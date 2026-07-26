@@ -150,7 +150,7 @@ class ImboyPbCodec {
   }
 
   static Map<String, dynamic> _e2eeMetaToMap(E2EEMeta e2ee) {
-    return {
+    final map = <String, dynamic>{
       'ver': e2ee.ver,
       'suite': e2ee.suite,
       'nonce': base64Encode(e2ee.nonce),
@@ -165,5 +165,26 @@ class ImboyPbCodec {
           )
           .toList(),
     };
+
+    // v2 routing fields (Olm/Megolm)
+    if (e2ee.protocol.isNotEmpty) map['protocol'] = e2ee.protocol;
+    if (e2ee.protocolVersion != 0) map['version'] = e2ee.protocolVersion;
+
+    // Olm suite
+    if (e2ee.peerUid.isNotEmpty) map['peer_uid'] = e2ee.peerUid;
+    if (e2ee.peerDeviceId.isNotEmpty) {
+      map['peer_device_id'] = e2ee.peerDeviceId;
+    }
+    if (e2ee.messageType != 0) map['message_type'] = e2ee.messageType;
+    if (e2ee.sessionId.isNotEmpty) map['session_id'] = e2ee.sessionId;
+
+    // Megolm suite
+    if (e2ee.messageIndex != 0) map['message_index'] = e2ee.messageIndex;
+    if (e2ee.groupId.isNotEmpty) map['group_id'] = e2ee.groupId;
+
+    // v3 Protected Frame
+    if (e2ee.metaVersion != 0) map['meta_version'] = e2ee.metaVersion;
+
+    return map;
   }
 }
