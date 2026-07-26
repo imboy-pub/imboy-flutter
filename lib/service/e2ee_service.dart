@@ -12,6 +12,7 @@ import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
+import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 
 /// Temporary compatibility service for the security_privacy module shell.
 /// New upper-layer imports should prefer
@@ -350,6 +351,11 @@ class E2EEService {
       return _decryptFailedPayload(payload, reason: 'invalid_e2ee');
     }
 
+    // S2.1 / ADR 15: Protected Frame v3 路径
+    if (e2eeData['meta_version'] == 3) {
+      return _decryptV3Payload(payload, e2eeData);
+    }
+
     final e = e2ee.cast<String, dynamic>();
 
     final keys = e['keys'];
@@ -423,6 +429,120 @@ class E2EEService {
     } catch (e) {
       return _decryptFailedPayload(payload, reason: 'decrypt_error');
     }
+  }
+
+  /// ADR 15 §4 接收侧 v3 解密路径。
+  ///
+  /// 流程：
+  /// 1. 资源边界验证（PF3-08，密码学前拒绝）
+  /// 2. 外层信封验证（header_hash + CBOR strict parse）
+  /// 3. 协议解密（Olm/Megolm/MLS）
+  /// 4. inner_frame CBOR 解码
+  /// 5. inner/outer header 比对（PF3-03 跨上下文复制检测）
+  /// 6. 返回 verified payload
+  static Future<Map<String, dynamic>> _decryptV3Payload(
+    Map<String, dynamic> payload,
+    Map<String, dynamic> envelope,
+  ) async {
+    // 1. 资源边界（PF3-08）
+    try {
+      ProtectedFrameV3.validateEnvelopeBounds(envelope);
+    } on FrameBoundsException catch (e) {
+      return _decryptFailedPayload(payload, reason: 'bounds_${e.message}');
+    }
+
+    // 2. 外层信封验证
+    final verification = ProtectedFrameV3.verifyOuterEnvelope(envelope);
+    if (!verification.isValid) {
+      return _decryptFailedPayload(
+        payload,
+        reason: 'envelope_${verification.reason}',
+      );
+    }
+    final outerHeader = verification.decodedHeader!;
+
+    // 3. 协议解密
+    final ciphertextB64 = envelope['ciphertext'];
+    if (ciphertextB64 is! String || ciphertextB64.isEmpty) {
+      return _decryptFailedPayload(payload, reason: 'missing_ciphertext');
+    }
+    final protocolMetadata = envelope['protocol_metadata'];
+    if (protocolMetadata is! Map<String, dynamic>) {
+      return _decryptFailedPayload(
+        payload,
+        reason: 'missing_protocol_metadata',
+      );
+    }
+
+    String innerFrameB64;
+    try {
+      // 协议路由：从 protocol_metadata 中解析 suite
+      final metadata = <String, dynamic>{
+        ...protocolMetadata,
+        'protocol': outerHeader['protocol'],
+        'version': outerHeader['protocol_version'],
+      };
+      final ciphertextStr = utf8.decode(base64Url.decode(ciphertextB64));
+      innerFrameB64 = await E2eeProtocolRegistry.resolve(
+        metadata,
+      ).decrypt(ciphertext: ciphertextStr, metadata: metadata);
+    } catch (_) {
+      return _decryptFailedPayload(payload, reason: 'decrypt_error');
+    }
+
+    // 4. inner_frame CBOR 解码
+    Map<String, dynamic> innerFrame;
+    try {
+      final innerBytes = Uint8List.fromList(base64Url.decode(innerFrameB64));
+      final decoded = CanonicalCbor.decode(innerBytes, strict: true);
+      if (decoded is! Map<String, dynamic>) {
+        return _decryptFailedPayload(payload, reason: 'inner_frame_not_map');
+      }
+      innerFrame = decoded;
+    } catch (_) {
+      return _decryptFailedPayload(payload, reason: 'inner_frame_cbor_invalid');
+    }
+
+    // 5. inner/outer header 比对（PF3-03）
+    final innerHeaderRaw = innerFrame['protected_header'];
+    if (innerHeaderRaw is! Map<String, dynamic>) {
+      return _decryptFailedPayload(payload, reason: 'inner_header_missing');
+    }
+    final outerCtx = FrameContext.fromHeader(outerHeader);
+    final innerCtx = FrameContext.fromHeader(innerHeaderRaw);
+    final mismatch = ProtectedFrameV3.compareHeaders(
+      outerContext: outerCtx,
+      innerContext: innerCtx,
+    );
+    if (mismatch != null) {
+      return _decryptFailedPayload(
+        payload,
+        reason: 'header_mismatch_$mismatch',
+      );
+    }
+
+    // 6. 返回 verified payload
+    final innerPayload = innerFrame['payload'];
+    if (innerPayload is! Map<String, dynamic>) {
+      return _decryptFailedPayload(payload, reason: 'inner_payload_invalid');
+    }
+
+    final plain = Map<String, dynamic>.from(innerPayload);
+
+    // 保留服务端注入的可信字段
+    if (payload.containsKey('sender_did')) {
+      plain['sender_did'] = payload['sender_did'];
+    }
+    if (payload.containsKey('sender_dtype')) {
+      plain['sender_dtype'] = payload['sender_dtype'];
+    }
+    if (payload.containsKey('client_send_ts')) {
+      plain['client_send_ts'] = payload['client_send_ts'];
+    }
+    // 标记已通过 v3 验证
+    plain['_e2ee_v3_verified'] = true;
+
+    return plain;
   }
 
   static Map<String, dynamic> _decryptFailedPayload(
