@@ -10,6 +10,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:imboy/service/e2ee/identity_verifier.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/olm_api.dart';
@@ -424,11 +425,28 @@ class OlmSessionService {
     final theirCurve25519 = identity['curve25519_key'] as String;
     final oneTimeKey = claim['key_base64'] as String;
 
+    // P0-1: 验证 identity key 签名（防服务端/MITM 替换公钥）
+    _verifyIdentitySignature(identity, peerUid, peerDeviceId);
+
     final session = account.createOutboundSession(
       identityKey: vod.Curve25519PublicKey.fromBase64(theirCurve25519),
       oneTimeKey: vod.Curve25519PublicKey.fromBase64(oneTimeKey),
     );
     return session;
+  }
+
+  /// P0-1: 验证对端 identity key 的 Ed25519 自签名。
+  /// 委托 [verifyIdentitySignature]（独立可测试），失败抛 OlmAuthenticationException。
+  void _verifyIdentitySignature(
+    Map<String, dynamic> identity,
+    String peerUid,
+    String peerDeviceId,
+  ) {
+    try {
+      verifyIdentitySignature(identity, context: '$peerUid:$peerDeviceId');
+    } on IdentityVerificationException catch (e) {
+      throw OlmAuthenticationException(e.message);
+    }
   }
 
   // ===== 解密（入站，X3DH 接收 + DR 解密）=====
@@ -561,6 +579,8 @@ class OlmSessionService {
       uid: peerUid,
       deviceId: peerDeviceId,
     );
+    // P0-1: 入站路径同样验证 identity 签名（防 MITM 替换公钥）
+    _verifyIdentitySignature(identity, peerUid, peerDeviceId);
     return identity['curve25519_key'] as String;
   }
 
