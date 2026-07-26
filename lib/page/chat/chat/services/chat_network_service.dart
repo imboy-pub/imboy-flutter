@@ -10,9 +10,11 @@ import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/modules/messaging/public.dart';
-import 'package:imboy/modules/security_privacy/public.dart';
+import 'package:imboy/modules/security_privacy/public.dart'
+    hide RecipientDevice;
 import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
@@ -557,10 +559,12 @@ class ChatNetworkService {
     }
     final plaintext = jsonEncode(plaintextPayload);
 
-    // 行为不变重构：当前仍统一选 Megolm，但加密调用与
-    // 双写 metadata 均收口到 Registry 发送路由。后续部署就绪后，
-    // Capability Negotiation 需按设备 fan-out，再把每份选中的 suite
-    // 和 recipient 传入该路由。
+    // S2.2: C2C per-device Olm fan-out（ADR 15 Protected Frame v3）
+    if (chatType == 'C2C' && useOlmForC2C) {
+      return _encryptC2COlmFanOut(toId, plaintext, action);
+    }
+
+    // 默认路径：Megolm（C2G 群 + C2C 未启用 Olm 时）
     E2eeBootstrap.ensureRegistered();
     final context = chatType == 'C2G'
         ? E2eeContext(gid: toId, scope: 'c2g')
@@ -572,6 +576,81 @@ class ChatNetworkService {
       context: context,
     );
     return {'e2ee': encrypted.metadata, 'payload': encrypted.ciphertext};
+  }
+
+  /// S2.2: C2C per-device Olm fan-out。
+  ///
+  /// 对对端每个设备分别建立/复用 Olm 会话，加密完整 inner_frame（PFv3），
+  /// 产出 `fan_out: "per_device"` 格式的信封 map。
+  Future<Map<String, dynamic>> _encryptC2COlmFanOut(
+    String toId,
+    String plaintext,
+    String action,
+  ) async {
+    E2eeBootstrap.ensureRegistered();
+
+    // 获取对端所有设备公钥
+    final keyResult = await E2EEService.getUserDevicePublicKeys(toId);
+    final didToPem = keyResult['didToPem'] ?? {};
+    final didToKid = keyResult['didToKid'] ?? {};
+
+    if (didToPem.isEmpty) {
+      throw E2eeDecryptException('no_recipient_keys');
+    }
+
+    final myUid = UserRepoLocal.to.currentUid;
+    final myDid = deviceId;
+    final msgId = Xid().toString();
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    // 逐设备加密
+    final devices = <String, dynamic>{};
+    for (final entry in didToPem.entries) {
+      final peerDid = entry.key;
+      final peerPubKey = entry.value;
+      final peerKid = didToKid[peerDid] ?? peerDid;
+
+      final recipient = RecipientDevice(
+        deviceId: peerDid,
+        keyId: peerKid,
+        publicKey: peerPubKey,
+      );
+
+      final encrypted = await E2eeOutboundRouter.encryptV3(
+        suite: ProtocolSuite.olm,
+        plaintext: plaintext,
+        recipients: [recipient],
+        context: E2eeContext(
+          peerUid: toId,
+          peerDeviceId: peerDid,
+          scope: 'c2c',
+        ),
+        messageId: msgId,
+        senderUid: myUid,
+        senderDid: myDid,
+        destination: toId,
+        messageType: 'text',
+        action: action.isEmpty ? 'message' : action,
+        sessionRef: '', // OlmProtocol 内部填充 session_id
+        createdAtMs: now,
+      );
+
+      // encrypted.metadata 是 v3 外层信封（不含 meta_version，由外层统一标注）
+      final envelope = Map<String, dynamic>.from(encrypted.metadata);
+      envelope.remove('meta_version'); // 避免重复
+      devices[peerDid] = envelope;
+    }
+
+    return {
+      'e2ee': {
+        'meta_version': 3,
+        'protocol': 'olm',
+        'version': 1,
+        'fan_out': 'per_device',
+        'devices': devices,
+      },
+      'payload': '',
+    };
   }
 
   /// 是否对 C2C 单聊启用 Olm（X3DH + Double Ratchet）套件。

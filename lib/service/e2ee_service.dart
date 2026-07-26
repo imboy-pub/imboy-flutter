@@ -353,6 +353,24 @@ class E2EEService {
 
     // S2.1 / ADR 15: Protected Frame v3 路径
     if (e2eeData['meta_version'] == 3) {
+      // S2.2: per-device fan-out — 每个设备有独立信封
+      if (e2eeData['fan_out'] == 'per_device') {
+        final devices = e2eeData['devices'];
+        if (devices is! Map<String, dynamic>) {
+          return _decryptFailedPayload(
+            payload,
+            reason: 'fan_out_missing_devices',
+          );
+        }
+        final myDid = deviceId;
+        final myEnvelope = devices[myDid];
+        if (myEnvelope is! Map<String, dynamic>) {
+          return _decryptFailedPayload(payload, reason: 'no_device_envelope');
+        }
+        // 将 per-device 信封提升为标准 v3 信封格式
+        final envelope = <String, dynamic>{'meta_version': 3, ...myEnvelope};
+        return _decryptV3Payload(payload, envelope);
+      }
       return _decryptV3Payload(payload, e2eeData);
     }
 
