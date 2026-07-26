@@ -1,0 +1,60 @@
+appId: ${APP_ID}
+name: "会话页快捷入口"
+tags:
+  - smoke
+  - read-only
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_conversations"
+
+# 右上角“发起群聊”按钮打开快捷菜单
+- tapOn:
+    text: "发起群聊"
+- assertVisible:
+    text: "添加朋友"
+- assertVisible:
+    text: "新注册的人"
+- assertVisible:
+    text: "我的二维码"
+- assertVisible:
+    text: "扫描二维码"
+- takeScreenshot: conversation_quick_actions
+
+# 最近注册用户（只查看，不添加好友）
+- tapOn:
+    text: "新注册的人"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "新注册的人"
+- takeScreenshot: recently_registered_users
+- back
+
+# 我的二维码（只查看）
+- tapOn:
+    text: "发起群聊"
+- tapOn:
+    text: "我的二维码"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "保存二维码"
+- assertVisible:
+    text: "分享"
+- takeScreenshot: quick_action_qrcode
+- back
+
+# 添加好友页入口（不搜索、不发送申请）
+- tapOn:
+    text: "发起群聊"
+- tapOn:
+    text: "添加朋友"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "面对面建群"
+- assertVisible:
+    text: "扫描二维码"
+- assertVisible:
+    text: "新注册的人"
+- takeScreenshot: add_friend_entry_points
+- back

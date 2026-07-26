@@ -1,0 +1,75 @@
+appId: ${APP_ID}
+name: "存储与登录设备详情"
+tags:
+  - smoke
+  - read-only
+  - sensitive-preview
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_mine"
+
+# 存储空间：只查看占用，不清理缓存
+- scrollUntilVisible:
+    element:
+      text: "存储空间"
+    direction: DOWN
+- tapOn:
+    text: "存储空间"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "存储空间"
+- runFlow:
+    when:
+      visible:
+        text: "设备已使用空间.*"
+    commands:
+      - assertVisible:
+          text: "设备可用空间.*"
+      - scrollUntilVisible:
+          element:
+            text: "用户数据"
+          direction: DOWN
+      - assertVisible:
+          text: "应用大小"
+      - takeScreenshot: storage_breakdown_read_only
+- takeScreenshot: storage_space_read_only
+- back
+
+# 登录设备：只查看列表；不下线、删除或重命名设备
+- scrollUntilVisible:
+    element:
+      text: "登录设备管理"
+    direction: DOWN
+- tapOn:
+    text: "登录设备管理"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "登录设备管理"
+- assertVisible:
+    text: "你的帐号在以下设备中登录过.*"
+- takeScreenshot: login_device_list_read_only
+
+# 接口成功并显示当前设备时，再进入详情检查
+- runFlow:
+    when:
+      visible:
+        text: "当前设备"
+    commands:
+      - tapOn:
+          text: "当前设备"
+          index: 0
+      - waitForAnimationToEnd
+      - assertVisible:
+          text: "设备详情"
+      - assertVisible:
+          text: "设备名称"
+      - assertVisible:
+          text: "设备类型"
+      - assertVisible:
+          text: "最近活跃时间"
+      - takeScreenshot: current_device_detail_read_only
+      - back
+- back
+

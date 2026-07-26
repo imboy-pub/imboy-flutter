@@ -1,0 +1,38 @@
+appId: ${APP_ID}
+name: "反馈编辑器预览"
+tags:
+  - smoke
+  - read-only
+  - form-preview
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_mine"
+- scrollUntilVisible:
+    element:
+      text: "反馈建议"
+    direction: DOWN
+- tapOn:
+    text: "反馈建议"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "新建反馈"
+
+# 打开编辑器后只检查输入区，不填写、不提交
+- tapOn:
+    text: "新建反馈"
+- extendedWaitUntil:
+    visible:
+      text: "敬请留下您宝贵的意见和建议："
+    timeout: 10000
+- assertVisible:
+    text: "提交"
+- takeScreenshot: feedback_editor_read_only
+- back
+- extendedWaitUntil:
+    visible:
+      text: "您的建议是我们改进的动力"
+    timeout: 10000
+- back
+

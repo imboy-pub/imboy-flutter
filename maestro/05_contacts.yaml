@@ -9,10 +9,10 @@ name: "联系人页面"
 - runFlow:
     when:
       visible:
-        text: "新朋友"
+        text: "新的朋友"
     commands:
       - tapOn:
-          text: "新朋友"
+          text: "新的朋友"
       - takeScreenshot: new_friend_page
       - swipe:
           direction: RIGHT

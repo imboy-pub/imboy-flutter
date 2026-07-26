@@ -20,6 +20,17 @@ name: "退出登录"
           commands:
             - tapOn:
                 text: "确认"
-      - assertVisible:
-          id: "login_phone_input"
+
+      # 退出后回到欢迎页；跳过引导进入登录页
+      - runFlow:
+          when:
+            visible:
+              text: "跳过"
+          commands:
+            - tapOn:
+                text: "跳过"
+      - extendedWaitUntil:
+          visible:
+            id: "login_phone_input"
+          timeout: 10000
       - takeScreenshot: after_logout

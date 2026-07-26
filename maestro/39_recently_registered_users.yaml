@@ -1,0 +1,35 @@
+appId: ${APP_ID}
+name: "最近注册用户列表"
+tags:
+  - smoke
+  - read-only
+  - directory-preview
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_contacts"
+- extendedWaitUntil:
+    visible:
+      id: "add_friend_button"
+    timeout: 15000
+- tapOn:
+    id: "add_friend_button"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "添加朋友"
+
+# 只查看公开目录，不进入用户资料或发起好友申请
+- tapOn:
+    text: "新注册的人"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "这里显示最近注册的用户，你可以主动添加他们为好友"
+    timeout: 15000
+- assertVisible:
+    text: "新注册的人"
+- takeScreenshot: recently_registered_users_read_only
+- back
+- back
+

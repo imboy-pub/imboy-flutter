@@ -1,0 +1,49 @@
+appId: ${APP_ID}
+name: "收藏搜索与类型筛选"
+tags:
+  - smoke
+  - read-only
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_mine"
+- tapOn:
+    text: "收藏"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "我的收藏"
+    timeout: 15000
+- assertVisible:
+    text: "搜索"
+- assertVisible:
+    text: "类型"
+
+# 搜索只读取收藏列表；清空关键字后恢复原列表
+- tapOn:
+    text: "搜索"
+- inputText: "Maestro"
+- hideKeyboard
+- waitForAnimationToEnd
+- takeScreenshot: favorites_search_read_only
+- tapOn:
+    text: "Maestro"
+    index: 0
+- eraseText: 30
+- hideKeyboard
+
+# 展开类型筛选但不切换类别
+- tapOn:
+    text: "类型"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "最近使用"
+- assertVisible:
+    text: "文本"
+- assertVisible:
+    text: "图片"
+- assertVisible:
+    text: "全部"
+- takeScreenshot: favorites_type_filters
+- back

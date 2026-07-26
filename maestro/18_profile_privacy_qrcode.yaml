@@ -1,0 +1,57 @@
+appId: ${APP_ID}
+name: "个人资料、隐私与二维码"
+tags:
+  - smoke
+  - read-only
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_mine"
+- tapOn:
+    text: "ID: .*"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "个人信息"
+
+# 我的二维码：只检查展示，不保存或分享
+- scrollUntilVisible:
+    element:
+      text: "我的二维码"
+    direction: DOWN
+- tapOn:
+    text: "我的二维码"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "保存二维码"
+- assertVisible:
+    text: "分享"
+- assertVisible:
+    text: "扫一扫上面的二维码图案，加我为朋友"
+- takeScreenshot: profile_qrcode
+- back
+
+# 隐私设置：只读取当前状态，不切换开关
+- scrollUntilVisible:
+    element:
+      text: "隐私设置"
+    direction: DOWN
+- tapOn:
+    text: "隐私设置"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "允许通过账号搜索"
+- assertVisible:
+    text: "允许通过手机号添加"
+- assertVisible:
+    text: "允许通过二维码添加"
+- scrollUntilVisible:
+    element:
+      text: "显示在线状态"
+    direction: DOWN
+- assertVisible:
+    text: "附近的人可见"
+- takeScreenshot: privacy_settings_read_only
+- back
+- back
+

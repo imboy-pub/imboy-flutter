@@ -1,0 +1,79 @@
+appId: ${APP_ID}
+name: "个人资料编辑页预览"
+tags:
+  - smoke
+  - read-only
+  - sensitive-preview
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_mine"
+- tapOn:
+    text: "ID: .*"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "个人信息"
+
+# 昵称：只检查规则与当前值，不输入或保存
+- tapOn:
+    text: "昵称"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "设置昵称"
+- assertVisible:
+    text: ".*昵称长度为2-24个字符.*"
+- hideKeyboard
+- takeScreenshot: nickname_form_read_only
+- back
+
+# 更多资料入口
+- tapOn:
+    text: "更多信息"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "性别"
+- assertVisible:
+    text: "地区"
+- assertVisible:
+    text: "个性签名"
+- takeScreenshot: more_personal_info
+
+# 性别：只查看选项，不切换
+- tapOn:
+    text: "性别"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "男"
+- assertVisible:
+    text: "女"
+- assertVisible:
+    text: "保密"
+- takeScreenshot: gender_options_read_only
+- back
+
+# 地区：只查看当前地区和搜索入口，不选择
+- tapOn:
+    text: "地区"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "按地区名称搜索"
+- assertVisible:
+    text: "已选地区"
+- takeScreenshot: region_form_read_only
+- back
+
+# 个性签名：只查看当前值，不输入或完成
+- tapOn:
+    text: "个性签名"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "个性签名"
+- assertVisible:
+    text: "完成"
+- hideKeyboard
+- takeScreenshot: signature_form_read_only
+- back
+- back
+- back
+

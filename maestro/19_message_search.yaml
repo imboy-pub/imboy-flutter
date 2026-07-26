@@ -1,0 +1,44 @@
+appId: ${APP_ID}
+name: "全局消息搜索"
+tags:
+  - smoke
+  - read-only
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_conversations"
+
+# 顶部搜索按钮与会话列表搜索框同名，工具栏按钮排在语义树首位
+- tapOn:
+    text: "搜索"
+    index: 0
+- waitForAnimationToEnd
+- assertVisible:
+    text: "输入关键词搜索消息"
+
+- runFlow:
+    when:
+      visible:
+        text: "暂无搜索历史"
+    commands:
+      - takeScreenshot: message_search_empty_history
+
+# 搜索只读取消息索引；不打开结果、不发送消息
+- tapOn:
+    text: "输入关键词搜索消息"
+- inputText: "Maestro"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      text: "私聊"
+    timeout: 10000
+- assertVisible:
+    text: "群聊"
+- assertVisible:
+    text: "所有时间"
+- assertVisible:
+    text: "今天"
+- takeScreenshot: message_search_filters
+- back
+

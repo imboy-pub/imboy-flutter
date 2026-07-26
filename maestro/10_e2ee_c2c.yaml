@@ -1,13 +1,8 @@
 appId: ${APP_ID}
 name: "E2EE 单聊 — 发消息验证加密标记"
 ---
-# 回到桌面（关闭任何华为弹窗），再点图标启动
-- pressKey: HOME
-- waitForAnimationToEnd
-- tapOn:
-    text: "IMBoy"
-- waitForAnimationToEnd
-- waitForAnimationToEnd
+# 直接启动 app（不依赖桌面图标，兼容华为桌面）
+- launchApp
 - waitForAnimationToEnd
 
 # 关闭 Maestro driver 安装成功对话框（Huawei 安全弹窗残留）

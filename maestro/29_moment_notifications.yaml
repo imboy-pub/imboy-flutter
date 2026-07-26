@@ -1,0 +1,41 @@
+appId: ${APP_ID}
+name: "朋友圈消息通知"
+tags:
+  - smoke
+  - read-only
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_contacts"
+- extendedWaitUntil:
+    visible:
+      text: "朋友圈"
+    timeout: 15000
+- tapOn:
+    text: "朋友圈"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "朋友圈"
+
+# 通知页只查看，不点通知（避免标记已读），不清空或左滑删除
+- tapOn:
+    text: "消息通知"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "消息通知"
+- extendedWaitUntil:
+    visible:
+      text: "(暂无新消息|赞了你的朋友圈|评论了你|加载失败.*)"
+    timeout: 15000
+- runFlow:
+    when:
+      visible:
+        text: "暂无新消息"
+    commands:
+      - assertVisible:
+          text: "好友点赞或评论你的朋友圈后，会出现在这里"
+- takeScreenshot: moment_notifications_read_only
+- back
+- back
+

@@ -1,0 +1,56 @@
+appId: ${APP_ID}
+name: "频道列表与发现"
+tags:
+  - smoke
+  - read-only
+  - feature-flag
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+# 频道由功能开关控制；入口不存在时整条流程跳过
+- runFlow:
+    when:
+      visible:
+        id: "tab_channel"
+    commands:
+      - tapOn:
+          id: "tab_channel"
+      - extendedWaitUntil:
+          visible:
+            text: "已订阅"
+          timeout: 15000
+      - assertVisible:
+          text: "管理中"
+      - takeScreenshot: channel_tabs
+
+      # 切换到管理列表，再回到订阅列表
+      - tapOn:
+          text: "管理中"
+      - waitForAnimationToEnd
+      - takeScreenshot: managed_channels
+      - tapOn:
+          text: "已订阅"
+
+      # 发现频道由独立功能开关控制
+      - runFlow:
+          when:
+            visible:
+              text: "搜索频道"
+          commands:
+            - tapOn:
+                text: "搜索频道"
+            - waitForAnimationToEnd
+            - assertVisible:
+                text: "发现频道"
+            - assertVisible:
+                text: "搜索频道名称或ID"
+            - tapOn:
+                text: "搜索频道名称或ID"
+            - inputText: "Maestro"
+            - hideKeyboard
+            - takeScreenshot: channel_discovery_search
+            - back
+
+      - tapOn:
+          id: "tab_conversations"
+

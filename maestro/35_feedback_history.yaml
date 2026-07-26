@@ -1,0 +1,32 @@
+appId: ${APP_ID}
+name: "反馈入口与历史状态"
+tags:
+  - smoke
+  - read-only
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_mine"
+- scrollUntilVisible:
+    element:
+      text: "反馈建议"
+    direction: DOWN
+- tapOn:
+    text: "反馈建议"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "反馈建议"
+- assertVisible:
+    text: "您的建议是我们改进的动力"
+- assertVisible:
+    text: "新建反馈"
+
+# 兼容历史列表、空态和网络错误三种状态；不打开编辑器或提交反馈
+- extendedWaitUntil:
+    visible:
+      text: "(反馈历史|暂无历史记录|操作失败，请稍后重试)"
+    timeout: 15000
+- takeScreenshot: feedback_history_read_only
+- back
+

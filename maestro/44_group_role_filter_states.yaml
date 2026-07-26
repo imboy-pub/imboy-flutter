@@ -1,0 +1,41 @@
+appId: ${APP_ID}
+name: "群聊角色筛选交互"
+tags:
+  - smoke
+  - read-only
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_contacts"
+- scrollUntilVisible:
+    element:
+      text: "群聊"
+    direction: DOWN
+- tapOn:
+    text: "群聊"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "我加入"
+    timeout: 15000
+
+# 依次切换角色视图，只刷新群列表，不进入群聊或群设置
+- tapOn:
+    text: "我加入"
+- waitForAnimationToEnd
+- takeScreenshot: groups_joined_filter
+- tapOn:
+    text: "我管理"
+- waitForAnimationToEnd
+- takeScreenshot: groups_managed_filter
+- tapOn:
+    text: "我创建"
+- waitForAnimationToEnd
+- takeScreenshot: groups_created_filter
+- tapOn:
+    text: "全部"
+- waitForAnimationToEnd
+- takeScreenshot: group_role_filter_restored
+- back
+

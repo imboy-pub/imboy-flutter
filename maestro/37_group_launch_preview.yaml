@@ -1,0 +1,40 @@
+appId: ${APP_ID}
+name: "发起群聊与群选择预览"
+tags:
+  - smoke
+  - read-only
+  - sensitive-preview
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_conversations"
+
+# 打开发起聊天菜单，再进入联系人选择；不勾选联系人
+- tapOn:
+    text: "发起群聊"
+- assertVisible:
+    text: "添加朋友"
+- tapOn:
+    text: "发起群聊"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "选择联系人"
+- assertVisible:
+    text: "选择一个群"
+- assertVisible:
+    text: "面对面建群"
+- assertVisible:
+    text: "点击联系人添加为群成员"
+- takeScreenshot: group_launch_disabled_preview
+
+# 群选择页只查看列表，不打开群聊
+- tapOn:
+    text: "选择一个群"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "选择群聊"
+- takeScreenshot: group_select_read_only
+- back
+- back
+

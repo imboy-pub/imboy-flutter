@@ -1,0 +1,39 @@
+appId: ${APP_ID}
+name: "钱包概览"
+tags:
+  - smoke
+  - read-only
+  - financial-preview
+  - feature-flag
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_mine"
+
+# 钱包由功能开关控制；只读取余额与流水，不充值、提现或转账
+- runFlow:
+    when:
+      visible:
+        text: "钱包"
+    commands:
+      - tapOn:
+          text: "钱包"
+      - waitForAnimationToEnd
+      - extendedWaitUntil:
+          visible:
+            text: "总资产"
+          timeout: 15000
+      - assertVisible:
+          text: "收付款"
+      - assertVisible:
+          text: "零钱"
+      - assertVisible:
+          text: "银行卡"
+      - scrollUntilVisible:
+          element:
+            text: "流水记录"
+          direction: DOWN
+      - takeScreenshot: wallet_overview_read_only
+      - back
+

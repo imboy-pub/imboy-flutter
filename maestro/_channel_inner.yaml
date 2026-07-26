@@ -3,7 +3,7 @@ name: "（内部）频道内容验证"
 ---
 - tapOn:
     id: "tab_channel"
-- waitForAnimationsToEnd
+- waitForAnimationToEnd
 - takeScreenshot: channel_list
 
 # 订阅的频道（如果有）
@@ -18,11 +18,13 @@ name: "（内部）频道内容验证"
 - runFlow:
     when:
       visible:
-        text: "发现"
+        text: "搜索频道"
     commands:
       - tapOn:
-          text: "发现"
-      - waitForAnimationsToEnd
+          text: "搜索频道"
+      - waitForAnimationToEnd
+      - assertVisible:
+          text: "发现频道"
       - takeScreenshot: channel_discover
       - pressKey: Back
 

@@ -13,31 +13,17 @@ name: "我的页面"
     commands:
       - tapOn:
           text: "设置"
+      - waitForAnimationToEnd
       - takeScreenshot: settings_page
-      - swipe:
-          direction: RIGHT
-          duration: 400
-          startPoint:
-            x: 5
-            y: 50
-          endPoint:
-            x: 95
-            y: 50
 
-- runFlow:
-    when:
-      visible:
-        text: "关于"
-    commands:
+      # 关于入口位于设置页底部
+      - scrollUntilVisible:
+          element:
+            text: "关于应用"
+          direction: DOWN
       - tapOn:
-          text: "关于"
+          text: "关于应用"
+      - waitForAnimationToEnd
       - takeScreenshot: about_page
-      - swipe:
-          direction: RIGHT
-          duration: 400
-          startPoint:
-            x: 5
-            y: 50
-          endPoint:
-            x: 95
-            y: 50
+      - back
+      - back

@@ -1,3 +1,58 @@
 flows:
   - "0*.yaml"
   - "1*.yaml"
+  - "2*.yaml"
+  - "3*.yaml"
+  - "4*.yaml"
+
+# Maestro 默认不保证目录内 Flow 的执行顺序。
+# 登录必须先于业务流程，退出登录必须放在最后。
+executionOrder:
+  continueOnFailure: true
+  flowsOrder:
+    - 00_startup
+    - 01_login
+    - 02_tab_navigation
+    - 03_conversation
+    - 04_send_message
+    - 05_contacts
+    - 06_channel
+    - 07_profile
+    - 10_e2ee_c2c
+    - 11_e2ee_group
+    - 12_moments_post
+    - 13_channel_post
+    - 14_face_to_face
+    - 15_mine_navigation
+    - 16_settings_navigation
+    - 17_contact_discovery
+    - 18_profile_privacy_qrcode
+    - 19_message_search
+    - 20_e2ee_local_backup
+    - 21_channel_discovery
+    - 22_chat_settings
+    - 23_conversation_quick_actions
+    - 24_wallet_overview
+    - 25_account_security_forms
+    - 26_storage_device_details
+    - 27_favorites_search_filter
+    - 28_group_list_search
+    - 29_moment_notifications
+    - 30_contact_tag_search
+    - 31_logout_account_preview
+    - 32_personal_info_forms
+    - 33_appearance_options
+    - 34_friend_search_forms
+    - 35_feedback_history
+    - 36_assistant_plaza_search
+    - 37_group_launch_preview
+    - 38_channel_auxiliary_lists
+    - 39_recently_registered_users
+    - 40_device_rename_form
+    - 41_feedback_editor_preview
+    - 42_channel_create_form
+    - 43_message_search_filter_states
+    - 44_group_role_filter_states
+    - 45_favorites_type_filter_states
+    - 46_new_friend_request_states
+    - 08_logout

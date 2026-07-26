@@ -1,0 +1,55 @@
+appId: ${APP_ID}
+name: "当前设备名称表单"
+tags:
+  - smoke
+  - read-only
+  - sensitive-preview
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_mine"
+- scrollUntilVisible:
+    element:
+      text: "登录设备管理"
+    direction: DOWN
+- tapOn:
+    text: "登录设备管理"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "登录设备管理"
+    timeout: 15000
+
+# 接口返回当前设备时才进入表单；不修改名称、不点击完成
+- runFlow:
+    when:
+      visible:
+        text: "当前设备"
+    commands:
+      - tapOn:
+          text: "当前设备"
+          index: 0
+      - waitForAnimationToEnd
+      - assertVisible:
+          text: "设备详情"
+      - tapOn:
+          text: "设备名称"
+      - waitForAnimationToEnd
+      - assertVisible:
+          text: "设置设备名称"
+      - assertVisible:
+          text: "完成"
+      - takeScreenshot: current_device_rename_form_read_only
+      - hideKeyboard
+      - back
+      - back
+
+- runFlow:
+    when:
+      visible:
+        text: "登录设备管理"
+    commands:
+      - takeScreenshot: current_device_unavailable
+      - back
+
