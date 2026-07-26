@@ -13,10 +13,11 @@ import 'package:sqflite_sqlcipher/sqflite.dart';
 
 /// 密码学状态事务存储。
 ///
-/// 三张表：
+/// 四张表：
 /// - `crypto_olm_session`: per-peer Olm session pickle（ratchet 状态）
 /// - `crypto_outbox`: 已加密待发送的消息（崩溃恢复重发）
 /// - `crypto_inbox_dedupe`: 已处理入站消息 ID（防重复 ratchet advance）
+/// - `crypto_identity_pin`: TOFU identity fingerprint 固定（S3）
 class CryptoStore {
   CryptoStore(this._db);
 
@@ -49,6 +50,16 @@ class CryptoStore {
       CREATE TABLE IF NOT EXISTS crypto_inbox_dedupe (
         message_id   TEXT PRIMARY KEY,
         processed_at INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000)
+      )
+    ''');
+
+    await _db.execute('''
+      CREATE TABLE IF NOT EXISTS crypto_identity_pin (
+        peer_uid       TEXT NOT NULL,
+        peer_device_id TEXT NOT NULL,
+        fingerprint    TEXT NOT NULL,
+        pinned_at      INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000),
+        PRIMARY KEY (peer_uid, peer_device_id)
       )
     ''');
   }
@@ -208,5 +219,38 @@ class CryptoStore {
         [cutoff],
       );
     }
+  }
+
+  // ─── Identity Pin（S3: TOFU）─────────────────────────────────────────────────
+
+  /// 固定对端设备 identity fingerprint（Trust On First Use）。
+  ///
+  /// 首次通信时写入；后续通信比对。用户确认换机后可覆盖（UPSERT）。
+  Future<void> pinIdentity({
+    required String peerUid,
+    required String peerDeviceId,
+    required String fingerprint,
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await _db.rawInsert(
+      '''INSERT INTO crypto_identity_pin (peer_uid, peer_device_id, fingerprint, pinned_at)
+         VALUES (?, ?, ?, ?)
+         ON CONFLICT(peer_uid, peer_device_id)
+         DO UPDATE SET fingerprint = excluded.fingerprint, pinned_at = excluded.pinned_at''',
+      [peerUid, peerDeviceId, fingerprint, now],
+    );
+  }
+
+  /// 加载已固定的 fingerprint。未固定过的对端返回 null。
+  Future<String?> loadPinnedFingerprint({
+    required String peerUid,
+    required String peerDeviceId,
+  }) async {
+    final rows = await _db.rawQuery(
+      'SELECT fingerprint FROM crypto_identity_pin WHERE peer_uid = ? AND peer_device_id = ?',
+      [peerUid, peerDeviceId],
+    );
+    if (rows.isEmpty) return null;
+    return rows.first['fingerprint'] as String?;
   }
 }

@@ -37,7 +37,7 @@ void main() {
       // 不抛即通过
     });
 
-    test('三张表存在', () async {
+    test('四张表存在', () async {
       final tables = await db.rawQuery(
         "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'crypto_%'",
       );
@@ -48,6 +48,7 @@ void main() {
           'crypto_olm_session',
           'crypto_outbox',
           'crypto_inbox_dedupe',
+          'crypto_identity_pin',
         ]),
       );
     });
@@ -280,6 +281,84 @@ void main() {
       );
       // outbox 也未写入
       expect(await store.getOutboxEntry('msg-fail'), isNull);
+    });
+  });
+
+  group('S3: TOFU identity pin', () {
+    test('pinIdentity + loadPinnedFingerprint 往返', () async {
+      await store.pinIdentity(
+        peerUid: '500',
+        peerDeviceId: 'dev-1',
+        fingerprint: 'sha256:abc123',
+      );
+
+      final fp = await store.loadPinnedFingerprint(
+        peerUid: '500',
+        peerDeviceId: 'dev-1',
+      );
+      expect(fp, equals('sha256:abc123'));
+    });
+
+    test('loadPinnedFingerprint 未知对端返回 null', () async {
+      final fp = await store.loadPinnedFingerprint(
+        peerUid: '999',
+        peerDeviceId: 'dev-unknown',
+      );
+      expect(fp, isNull);
+    });
+
+    test('pinIdentity UPSERT 覆盖旧 fingerprint（用户确认换机）', () async {
+      await store.pinIdentity(
+        peerUid: '500',
+        peerDeviceId: 'dev-1',
+        fingerprint: 'sha256:old',
+      );
+      await store.pinIdentity(
+        peerUid: '500',
+        peerDeviceId: 'dev-1',
+        fingerprint: 'sha256:new',
+      );
+
+      final fp = await store.loadPinnedFingerprint(
+        peerUid: '500',
+        peerDeviceId: 'dev-1',
+      );
+      expect(fp, equals('sha256:new'));
+    });
+
+    test('不同设备独立 pin', () async {
+      await store.pinIdentity(
+        peerUid: '500',
+        peerDeviceId: 'dev-A',
+        fingerprint: 'fp-A',
+      );
+      await store.pinIdentity(
+        peerUid: '500',
+        peerDeviceId: 'dev-B',
+        fingerprint: 'fp-B',
+      );
+
+      expect(
+        await store.loadPinnedFingerprint(
+          peerUid: '500',
+          peerDeviceId: 'dev-A',
+        ),
+        equals('fp-A'),
+      );
+      expect(
+        await store.loadPinnedFingerprint(
+          peerUid: '500',
+          peerDeviceId: 'dev-B',
+        ),
+        equals('fp-B'),
+      );
+    });
+
+    test('crypto_identity_pin 表存在', () async {
+      final tables = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name = 'crypto_identity_pin'",
+      );
+      expect(tables.length, equals(1));
     });
   });
 }

@@ -75,6 +75,26 @@ class DuplicateMessageException implements Exception {
   String toString() => 'DuplicateMessageException: $messageId';
 }
 
+/// S3: 对端 identity key 发生变化（TOFU 比对失败）。
+///
+/// 可能原因：对端换机/重装、或 MITM 攻击。UI 层应提示用户确认。
+class IdentityChangedException implements Exception {
+  IdentityChangedException({
+    required this.peerUid,
+    required this.peerDeviceId,
+    required this.oldFingerprint,
+    required this.newFingerprint,
+  });
+  final String peerUid;
+  final String peerDeviceId;
+  final String oldFingerprint;
+  final String newFingerprint;
+  @override
+  String toString() =>
+      'IdentityChangedException: $peerUid:$peerDeviceId '
+      'old=${oldFingerprint.substring(0, 8)}… new=${newFingerprint.substring(0, 8)}…';
+}
+
 class OlmSessionService {
   static final OlmSessionService _instance = OlmSessionService._internal();
   static OlmSessionService get to => _instance;
@@ -428,6 +448,9 @@ class OlmSessionService {
     // P0-1: 验证 identity key 签名（防服务端/MITM 替换公钥）
     _verifyIdentitySignature(identity, peerUid, peerDeviceId);
 
+    // S3 TOFU: 首次固定 fingerprint，后续比对（变化 → fail-closed）
+    await _enforceTofu(peerUid, peerDeviceId, theirCurve25519);
+
     final session = account.createOutboundSession(
       identityKey: vod.Curve25519PublicKey.fromBase64(theirCurve25519),
       oneTimeKey: vod.Curve25519PublicKey.fromBase64(oneTimeKey),
@@ -447,6 +470,45 @@ class OlmSessionService {
     } on IdentityVerificationException catch (e) {
       throw OlmAuthenticationException(e.message);
     }
+  }
+
+  /// S3 TOFU: 比对 identity fingerprint，首次固定，变化则 fail-closed。
+  ///
+  /// [curve25519Base64] 为对端 identity curve25519 公钥（已通过 Ed25519 签名验证）。
+  /// CryptoStore 不可用时跳过（降级为无 TOFU，不阻塞通信）。
+  Future<void> _enforceTofu(
+    String peerUid,
+    String peerDeviceId,
+    String curve25519Base64,
+  ) async {
+    final store = await cryptoStore;
+    if (store == null) return; // 降级：无持久化则跳过 TOFU
+
+    final pinned = await store.loadPinnedFingerprint(
+      peerUid: peerUid,
+      peerDeviceId: peerDeviceId,
+    );
+
+    if (pinned == null) {
+      // Trust On First Use：首次通信，固定 fingerprint
+      await store.pinIdentity(
+        peerUid: peerUid,
+        peerDeviceId: peerDeviceId,
+        fingerprint: curve25519Base64,
+      );
+      return;
+    }
+
+    if (pinned != curve25519Base64) {
+      // Identity 变化：可能是换机、也可能是 MITM → fail-closed
+      throw IdentityChangedException(
+        peerUid: peerUid,
+        peerDeviceId: peerDeviceId,
+        oldFingerprint: pinned,
+        newFingerprint: curve25519Base64,
+      );
+    }
+    // 匹配：正常通过
   }
 
   // ===== 解密（入站，X3DH 接收 + DR 解密）=====
@@ -581,7 +643,10 @@ class OlmSessionService {
     );
     // P0-1: 入站路径同样验证 identity 签名（防 MITM 替换公钥）
     _verifyIdentitySignature(identity, peerUid, peerDeviceId);
-    return identity['curve25519_key'] as String;
+    final curve25519 = identity['curve25519_key'] as String;
+    // S3 TOFU: 入站同样执行 fingerprint 比对
+    await _enforceTofu(peerUid, peerDeviceId, curve25519);
+    return curve25519;
   }
 
   // ===== 清理 =====
