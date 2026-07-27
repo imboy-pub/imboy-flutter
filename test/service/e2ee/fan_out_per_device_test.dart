@@ -77,7 +77,7 @@ void main() {
       destination: '200',
       messageType: 'text',
       action: 'message',
-      sessionRef: 'sess-fan',
+      sessionRef: 'test-session',
       createdAtMs: 1753500000000,
     );
     final envelope = Map<String, dynamic>.from(result.metadata);

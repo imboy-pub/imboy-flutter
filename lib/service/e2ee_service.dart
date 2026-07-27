@@ -488,6 +488,19 @@ class E2EEService {
     }
     final outerHeader = verification.decodedHeader!;
 
+    // 2.5 纵向上下文绑定验证 (E2EE-012 / ADR 15 §3.3)
+    final contextMismatch = _validateContextBinding(
+      payload,
+      outerHeader,
+      envelope,
+    );
+    if (contextMismatch != null) {
+      return _decryptFailedPayload(
+        payload,
+        reason: 'context_mismatch_$contextMismatch',
+      );
+    }
+
     // 3. 协议解密
     final ciphertextB64 = envelope['ciphertext'];
     if (ciphertextB64 is! String || ciphertextB64.isEmpty) {
@@ -575,6 +588,90 @@ class E2EEService {
     plain['_e2ee_v3_verified'] = true;
 
     return plain;
+  }
+
+  /// 纵向上下文绑定校验 (E2EE-012 / ADR 15 §3.3)
+  ///
+  /// 比对外部传输层字段（payload）与经 SHA-256(canonical CBOR) 认证的受保护头部（outerHeader）。
+  /// 任何不一致将返回不一致的字段名称作为错误原由；全部一致则返回 null。
+  static String? _validateContextBinding(
+    Map<String, dynamic> payload,
+    Map<String, dynamic> outerHeader,
+    Map<String, dynamic> envelope,
+  ) {
+    // 1. message_id
+    final payloadId = payload['id']?.toString() ?? '';
+    final headerId = outerHeader['message_id']?.toString() ?? '';
+    if (payloadId.isNotEmpty && payloadId != headerId) {
+      return 'id';
+    }
+
+    // 2. sender_uid
+    final payloadFrom = payload['from']?.toString() ?? '';
+    final headerFrom = outerHeader['sender_uid']?.toString() ?? '';
+    if (payloadFrom.isNotEmpty && payloadFrom != headerFrom) {
+      return 'from';
+    }
+
+    // 3. scope
+    final payloadType = payload['type']?.toString() ?? '';
+    final headerScope = outerHeader['scope']?.toString() ?? '';
+    if (payloadType.isNotEmpty) {
+      if (payloadType == 'C2C' && headerScope != 'c2c') {
+        return 'type';
+      }
+      if (payloadType == 'C2G' && headerScope != 'group') {
+        return 'type';
+      }
+    }
+
+    // 4. destination & conversation_id
+    final payloadTo = payload['to']?.toString() ?? '';
+    final headerDest = outerHeader['destination']?.toString() ?? '';
+    final headerConvId = outerHeader['conversation_id']?.toString() ?? '';
+    if (payloadTo.isNotEmpty) {
+      if (payloadType == 'C2C') {
+        if (payloadTo != headerDest) {
+          return 'to';
+        }
+      } else if (payloadType == 'C2G') {
+        if (payloadTo != headerConvId || payloadTo != headerDest) {
+          return 'to';
+        }
+      }
+    }
+
+    // 4.5 gid 校验 (C2G 辅助)
+    final payloadGid = payload['gid']?.toString() ?? '';
+    if (payloadGid.isNotEmpty && payloadGid != headerConvId) {
+      return 'gid';
+    }
+
+    // 5. message_type
+    final payloadMsgType = payload['msg_type']?.toString() ?? '';
+    final headerMsgType = outerHeader['message_type']?.toString() ?? '';
+    if (payloadMsgType.isNotEmpty && payloadMsgType != headerMsgType) {
+      return 'msg_type';
+    }
+
+    // 6. sender_did
+    final payloadDid = payload['sender_did']?.toString() ?? '';
+    final headerDid = outerHeader['sender_did']?.toString() ?? '';
+    if (payloadDid.isNotEmpty && payloadDid != headerDid) {
+      return 'sender_did';
+    }
+
+    // 7. session_id (session_ref)
+    final protoMeta = envelope['protocol_metadata'];
+    if (protoMeta is Map) {
+      final payloadSessionId = protoMeta['session_id']?.toString() ?? '';
+      final headerSessionRef = outerHeader['session_ref']?.toString() ?? '';
+      if (payloadSessionId.isNotEmpty && payloadSessionId != headerSessionRef) {
+        return 'session_id';
+      }
+    }
+
+    return null; // 全部比对通过，上下文一致
   }
 
   static Map<String, dynamic> _decryptFailedPayload(

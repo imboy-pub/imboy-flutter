@@ -73,7 +73,7 @@ void main() {
         destination: '200',
         messageType: 'text',
         action: 'message',
-        sessionRef: 'sess-xyz',
+        sessionRef: 'test-session',
         epochOrCounter: 1,
         createdAtMs: 1753500000000,
       );
@@ -155,6 +155,97 @@ void main() {
       final result = await E2EEService.decryptIncomingPayload(payload: plain);
       expect(result['body'], equals('plaintext'));
       expect(result['_e2ee_failed'], isNot(true));
+    });
+
+    group('E2EE-012 Context Binding Guard (Systematic Tampering)', () {
+      test('篡改 transport id -> 拒绝', () async {
+        final incoming = await encryptAndWrap();
+        incoming['id'] = 'forged-id';
+
+        final decrypted = await E2EEService.decryptIncomingPayload(
+          payload: incoming,
+        );
+        expect(decrypted['_e2ee_failed'], isTrue);
+        expect(decrypted['_e2ee_reason'], equals('context_mismatch_id'));
+      });
+
+      test('篡改 transport from -> 拒绝', () async {
+        final incoming = await encryptAndWrap();
+        incoming['from'] = '999';
+
+        final decrypted = await E2EEService.decryptIncomingPayload(
+          payload: incoming,
+        );
+        expect(decrypted['_e2ee_failed'], isTrue);
+        expect(decrypted['_e2ee_reason'], equals('context_mismatch_from'));
+      });
+
+      test('篡改 transport to -> 拒绝', () async {
+        final incoming = await encryptAndWrap();
+        incoming['to'] = '999';
+
+        final decrypted = await E2EEService.decryptIncomingPayload(
+          payload: incoming,
+        );
+        expect(decrypted['_e2ee_failed'], isTrue);
+        expect(decrypted['_e2ee_reason'], equals('context_mismatch_to'));
+      });
+
+      test('篡改 transport type -> 拒绝', () async {
+        final incoming = await encryptAndWrap();
+        incoming['type'] = 'C2G'; // 导致 scope(c2c) 与 type(C2G) 冲突
+
+        final decrypted = await E2EEService.decryptIncomingPayload(
+          payload: incoming,
+        );
+        expect(decrypted['_e2ee_failed'], isTrue);
+        expect(decrypted['_e2ee_reason'], equals('context_mismatch_type'));
+      });
+
+      test('篡改 transport msg_type -> 拒绝', () async {
+        final incoming = await encryptAndWrap();
+        incoming['msg_type'] = 'image';
+
+        final decrypted = await E2EEService.decryptIncomingPayload(
+          payload: incoming,
+        );
+        expect(decrypted['_e2ee_failed'], isTrue);
+        expect(decrypted['_e2ee_reason'], equals('context_mismatch_msg_type'));
+      });
+
+      test('篡改 transport sender_did -> 拒绝', () async {
+        final incoming = await encryptAndWrap();
+        incoming['sender_did'] = 'forged-device';
+
+        final decrypted = await E2EEService.decryptIncomingPayload(
+          payload: incoming,
+        );
+        expect(decrypted['_e2ee_failed'], isTrue);
+        expect(
+          decrypted['_e2ee_reason'],
+          equals('context_mismatch_sender_did'),
+        );
+      });
+
+      test('篡改 transport session_id -> 拒绝', () async {
+        final incoming = await encryptAndWrap();
+        final e2ee = Map<String, dynamic>.from(incoming['e2ee'] as Map);
+        final meta = Map<String, dynamic>.from(
+          e2ee['protocol_metadata'] as Map,
+        );
+        meta['session_id'] = 'forged-session';
+        e2ee['protocol_metadata'] = meta;
+        incoming['e2ee'] = e2ee;
+
+        final decrypted = await E2EEService.decryptIncomingPayload(
+          payload: incoming,
+        );
+        expect(decrypted['_e2ee_failed'], isTrue);
+        expect(
+          decrypted['_e2ee_reason'],
+          equals('context_mismatch_session_id'),
+        );
+      });
     });
   });
 }
