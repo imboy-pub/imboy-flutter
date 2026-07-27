@@ -118,6 +118,12 @@ class OlmSessionService {
   /// S2.3: 事务性密码存储（SQLCipher DB）。懒加载，DB 不可用时回退 SecureStorage。
   CryptoStore? _cryptoStore;
 
+  /// 测试专用：清除缓存的 CryptoStore 和 sessions，防止单测之间因全局 singleton 共享关闭的数据库连接而导致 database_closed 错误。
+  void resetForTest() {
+    _cryptoStore = null;
+    _sessions.clear();
+  }
+
   /// 获取 CryptoStore 实例（懒初始化）。DB 不可用返回 null。
   Future<CryptoStore?> get cryptoStore async {
     if (_cryptoStore != null) return _cryptoStore;

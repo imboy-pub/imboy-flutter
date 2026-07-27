@@ -361,4 +361,47 @@ void main() {
       expect(tables.length, equals(1));
     });
   });
+
+  group('S2.5: Replay, Counter and Epoch Sequence tracking', () {
+    test('getLastSequence returns 0 by default', () async {
+      expect(await store.getLastSequence('sess-unknown'), equals(0));
+    });
+
+    test(
+      'updateLastSequence inserts and getLastSequence returns updated value',
+      () async {
+        await store.updateLastSequence('sess-100', 5);
+        expect(await store.getLastSequence('sess-100'), equals(5));
+
+        // UPSERT (ON CONFLICT) works and updates existing sequence
+        await store.updateLastSequence('sess-100', 10);
+        expect(await store.getLastSequence('sess-100'), equals(10));
+      },
+    );
+
+    test(
+      'checkAndUpdateSequence transactional updates and rollbacks',
+      () async {
+        // 1. Initial insert passes
+        final success1 = await store.checkAndUpdateSequence('sess-200', 5);
+        expect(success1, isTrue);
+        expect(await store.getLastSequence('sess-200'), equals(5));
+
+        // 2. Higher sequence passes
+        final success2 = await store.checkAndUpdateSequence('sess-200', 10);
+        expect(success2, isTrue);
+        expect(await store.getLastSequence('sess-200'), equals(10));
+
+        // 3. Lower sequence fails and rolls back (keeps 10)
+        final success3 = await store.checkAndUpdateSequence('sess-200', 3);
+        expect(success3, isFalse);
+        expect(await store.getLastSequence('sess-200'), equals(10));
+
+        // 4. Duplicate sequence fails and rolls back (keeps 10)
+        final success4 = await store.checkAndUpdateSequence('sess-200', 10);
+        expect(success4, isFalse);
+        expect(await store.getLastSequence('sess-200'), equals(10));
+      },
+    );
+  });
 }

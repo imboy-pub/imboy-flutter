@@ -80,6 +80,7 @@ void main() {
 
       // 模拟 WebSocket 接收到的消息格式
       return {
+        'id': 'msg-001',
         'type': 'C2C',
         'from': '100',
         'to': '200',

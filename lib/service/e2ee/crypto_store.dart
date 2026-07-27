@@ -73,6 +73,70 @@ class CryptoStore {
         PRIMARY KEY (peer_uid, peer_device_id)
       )
     ''');
+
+    await _db.execute('''
+      CREATE TABLE IF NOT EXISTS crypto_session_sequence (
+        session_id    TEXT PRIMARY KEY,
+        last_sequence INTEGER NOT NULL,
+        updated_at    INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000)
+      )
+    ''');
+  }
+
+  // ─── Replay, Counter and Epoch Sequence tracking ───────────────────────────
+
+  /// 获取 Session 的最新已处理序列号（防重放与乱序）。
+  Future<int> getLastSequence(String sessionId) async {
+    final List<Map<String, dynamic>> results = await _db.rawQuery(
+      'SELECT last_sequence FROM crypto_session_sequence WHERE session_id = ?',
+      [sessionId],
+    );
+    if (results.isEmpty) return 0;
+    return results.first['last_sequence'] as int? ?? 0;
+  }
+
+  /// 更新 Session 的最新已处理序列号。
+  Future<void> updateLastSequence(String sessionId, int sequence) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await _db.rawInsert(
+      '''INSERT INTO crypto_session_sequence (session_id, last_sequence, updated_at)
+         VALUES (?, ?, ?)
+         ON CONFLICT(session_id)
+         DO UPDATE SET last_sequence = excluded.last_sequence, updated_at = excluded.updated_at''',
+      [sessionId, sequence, now],
+    );
+  }
+
+  /// 严格事务单向自增：在同一个 SQLite 事务中读取并更新序列号，返回 true 表示合法且已更新，返回 false 表示重放/失败。
+  ///
+  /// 这可以彻底防范高并发 WebSocket 连接下的 TOCTOU（先读后写）竞态条件。
+  Future<bool> checkAndUpdateSequence(String sessionId, int sequence) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    try {
+      return await _db.transaction((txn) async {
+        final List<Map<String, dynamic>> results = await txn.rawQuery(
+          'SELECT last_sequence FROM crypto_session_sequence WHERE session_id = ?',
+          [sessionId],
+        );
+        final lastSeq = results.isEmpty
+            ? 0
+            : (results.first['last_sequence'] as int? ?? 0);
+        if (sequence <= lastSeq) {
+          return false; // 拒绝：重放或旧序列
+        }
+
+        await txn.rawInsert(
+          '''INSERT INTO crypto_session_sequence (session_id, last_sequence, updated_at)
+             VALUES (?, ?, ?)
+             ON CONFLICT(session_id)
+             DO UPDATE SET last_sequence = excluded.last_sequence, updated_at = excluded.updated_at''',
+          [sessionId, sequence, now],
+        );
+        return true; // 校验成功且原子持久化
+      });
+    } catch (_) {
+      return false;
+    }
   }
 
   // ─── Olm Session ───────────────────────────────────────────────────────────

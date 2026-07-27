@@ -99,10 +99,12 @@ void main() {
       );
 
       final incoming = {
+        'id': 'msg-fan-001',
         'type': 'C2C',
         'from': '100',
         'to': '200',
         'msg_type': 'text',
+        'sender_did': 'sender-dev',
         'e2ee': {
           'meta_version': 3,
           'protocol': 'olm',

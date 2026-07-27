@@ -12,6 +12,7 @@ import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
+import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 
 /// Temporary compatibility service for the security_privacy module shell.
@@ -501,6 +502,19 @@ class E2EEService {
       );
     }
 
+    // 2.6 防重放与序列号验证 (E2EE-025 / ADR 15 & 16)
+    final sessionRef = outerHeader['session_ref']?.toString() ?? '';
+    final seq = outerHeader['epoch_or_counter'] as int? ?? 0;
+    if (sessionRef.isNotEmpty) {
+      final store = await OlmSessionService.to.cryptoStore;
+      if (store != null) {
+        final success = await store.checkAndUpdateSequence(sessionRef, seq);
+        if (!success) {
+          return _decryptFailedPayload(payload, reason: 'replay_detected');
+        }
+      }
+    }
+
     // 3. 协议解密
     final ciphertextB64 = envelope['ciphertext'];
     if (ciphertextB64 is! String || ciphertextB64.isEmpty) {
@@ -602,62 +616,67 @@ class E2EEService {
     // 1. message_id
     final payloadId = payload['id']?.toString() ?? '';
     final headerId = outerHeader['message_id']?.toString() ?? '';
-    if (payloadId.isNotEmpty && payloadId != headerId) {
+    if (payloadId != headerId) {
       return 'id';
     }
 
     // 2. sender_uid
     final payloadFrom = payload['from']?.toString() ?? '';
     final headerFrom = outerHeader['sender_uid']?.toString() ?? '';
-    if (payloadFrom.isNotEmpty && payloadFrom != headerFrom) {
+    if (payloadFrom != headerFrom) {
       return 'from';
     }
 
     // 3. scope
     final payloadType = payload['type']?.toString() ?? '';
     final headerScope = outerHeader['scope']?.toString() ?? '';
-    if (payloadType.isNotEmpty) {
-      if (payloadType == 'C2C' && headerScope != 'c2c') {
+    if (payloadType == 'C2C') {
+      if (headerScope != 'c2c') {
         return 'type';
       }
-      if (payloadType == 'C2G' && headerScope != 'group') {
+    } else if (payloadType == 'C2G') {
+      if (headerScope != 'group') {
         return 'type';
       }
+    } else {
+      return 'type';
     }
 
     // 4. destination & conversation_id
     final payloadTo = payload['to']?.toString() ?? '';
     final headerDest = outerHeader['destination']?.toString() ?? '';
     final headerConvId = outerHeader['conversation_id']?.toString() ?? '';
-    if (payloadTo.isNotEmpty) {
-      if (payloadType == 'C2C') {
-        if (payloadTo != headerDest) {
-          return 'to';
-        }
-      } else if (payloadType == 'C2G') {
-        if (payloadTo != headerConvId || payloadTo != headerDest) {
-          return 'to';
-        }
+    if (payloadType == 'C2C') {
+      if (payloadTo != headerDest) {
+        return 'to';
       }
+    } else if (payloadType == 'C2G') {
+      if (payloadTo != headerConvId || payloadTo != headerDest) {
+        return 'to';
+      }
+    } else {
+      return 'to';
     }
 
     // 4.5 gid 校验 (C2G 辅助)
-    final payloadGid = payload['gid']?.toString() ?? '';
-    if (payloadGid.isNotEmpty && payloadGid != headerConvId) {
-      return 'gid';
+    if (payloadType == 'C2G') {
+      final payloadGid = payload['gid']?.toString() ?? '';
+      if (payloadGid != headerConvId) {
+        return 'gid';
+      }
     }
 
     // 5. message_type
     final payloadMsgType = payload['msg_type']?.toString() ?? '';
     final headerMsgType = outerHeader['message_type']?.toString() ?? '';
-    if (payloadMsgType.isNotEmpty && payloadMsgType != headerMsgType) {
+    if (payloadMsgType != headerMsgType) {
       return 'msg_type';
     }
 
     // 6. sender_did
     final payloadDid = payload['sender_did']?.toString() ?? '';
     final headerDid = outerHeader['sender_did']?.toString() ?? '';
-    if (payloadDid.isNotEmpty && payloadDid != headerDid) {
+    if (payloadDid != headerDid) {
       return 'sender_did';
     }
 
@@ -666,9 +685,11 @@ class E2EEService {
     if (protoMeta is Map) {
       final payloadSessionId = protoMeta['session_id']?.toString() ?? '';
       final headerSessionRef = outerHeader['session_ref']?.toString() ?? '';
-      if (payloadSessionId.isNotEmpty && payloadSessionId != headerSessionRef) {
+      if (payloadSessionId != headerSessionRef) {
         return 'session_id';
       }
+    } else {
+      return 'session_id';
     }
 
     return null; // 全部比对通过，上下文一致
