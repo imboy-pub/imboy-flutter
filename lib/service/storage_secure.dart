@@ -34,7 +34,9 @@ class StorageSecureService {
       StorageSecureService._internal();
 
   // FlutterSecureStorage 实例
-  final FlutterSecureStorage _self = const FlutterSecureStorage();
+  final FlutterSecureStorage _self = const FlutterSecureStorage(
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
 
   /// 获取单例实例（推荐使用）
   /// Get singleton instance (recommended)

@@ -9,14 +9,8 @@ library;
 
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:imboy/service/network_monitor.dart';
-
-// Mock 类
-@GenerateMocks([])
-class MockConnectivity extends Mock implements Connectivity {}
 
 void main() {
   // 初始化 Flutter Test Binding

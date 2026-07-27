@@ -45,3 +45,17 @@ commit-msg:
           echo "   type: feat|fix|refactor|docs|test|chore|perf|ci|style|build|revert" >&2
           exit 1
         fi
+
+# pre-push 门控：合并到 main 前的最后一道防线
+#   - dart-analyze-full: 总是跑，快（~10s），零依赖
+#   - api-contract-tests: 后端可达时跑 Tier 1 契约测试；不可达/未配置凭证时优雅跳过
+# 紧急跳过：IMBOY_SKIP_PRE_PUSH=1 git push ...
+pre-push:
+  parallel: false
+  commands:
+    dart-analyze-full:
+      tags: quality
+      run: dart analyze lib --no-fatal-warnings
+    api-contract-tests:
+      tags: test
+      run: bash scripts/pre_push_gate.sh

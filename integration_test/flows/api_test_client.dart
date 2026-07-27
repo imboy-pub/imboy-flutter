@@ -112,7 +112,7 @@ class FlowApiClient {
     final loginType = type ?? (account.contains('@') ? 'email' : 'mobile');
     _log('登录: $account (type=$loginType)');
     final resp = await _dio.post<dynamic>(
-      '/v1/passport/login',
+      '/api/v1/passport/login',
       data: {
         'account': account,
         'pwd': _md5(password),
@@ -138,7 +138,7 @@ class FlowApiClient {
     final h = _defaultHeaders();
     if (_refreshToken != null) h['imboy-refreshtoken'] = _refreshToken!;
     final resp = await _dio.post<dynamic>(
-      '/v1/refreshtoken',
+      '/api/v1/refreshtoken',
       options: Options(headers: h),
     );
     final body = _parse(resp);

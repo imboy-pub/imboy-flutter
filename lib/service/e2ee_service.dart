@@ -87,6 +87,15 @@ class E2EEService {
     Map<String, String> didToPem,
   ) {
     _groupKeyCacheByDevice[gid] = didToPem;
+    _groupKeyCacheTimestamp[gid] = DateTime.now().millisecondsSinceEpoch;
+    _groupKidCacheByDevice[gid] = Map.fromIterable(
+      didToPem.keys,
+      value: (k) => 'kid_$k',
+    );
+    _groupUidCacheByDevice[gid] = Map.fromIterable(
+      didToPem.keys,
+      value: (k) => 'uid_$k',
+    );
   }
 
   static void clearKeyCacheForTest() {

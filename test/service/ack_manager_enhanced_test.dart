@@ -9,13 +9,7 @@ library;
 
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
 import 'package:imboy/service/ack_manager.dart';
-
-// Mock 类
-@GenerateMocks([])
-class MockTimer extends Mock implements Timer {}
 
 void main() {
   group('AckManager 增强测试', () {

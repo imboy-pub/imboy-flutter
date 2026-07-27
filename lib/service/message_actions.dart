@@ -431,7 +431,9 @@ class MessageActions {
       },
     };
 
-    iPrint('🔄 发送撤回确认ACK (v2.0): ${json.encode(ackMessage)}');
+    iPrint(
+      '🔄 发送撤回确认ACK (v2.0): msgId=${data['id']}, action=message_revoke_ack, original_msg_id=$originalMsgId',
+    );
     AppEventBus.fire(
       WebSocketMessageSendRequestEvent(
         message: json.encode(ackMessage),
@@ -578,7 +580,9 @@ class MessageActions {
       },
     };
 
-    iPrint('🔄 发送编辑确认ACK (v2.0): ${json.encode(ackMessage)}');
+    iPrint(
+      '🔄 发送编辑确认ACK (v2.0): msgId=${data['id']}, action=message_edit_ack, original_msg_id=$originalMsgId',
+    );
     AppEventBus.fire(
       WebSocketMessageSendRequestEvent(
         message: json.encode(ackMessage),
@@ -607,7 +611,7 @@ class MessageActions {
           payload['edited_at'] ?? DateTimeHelper.millisecond();
       newPayload['is_edited'] = true;
 
-      iPrint('🔄 处理对方编辑消息: msgId=${msg.id}, newContent=$newContent');
+      iPrint('🔄 处理对方编辑消息: msgId=${msg.id}');
 
       // 更新数据库
       final updateResult = await repo.update({
@@ -621,7 +625,7 @@ class MessageActions {
       // 重新获取更新后的消息
       final updatedMsg = await repo.find(msg.id.toString());
       if (updatedMsg != null) {
-        iPrint('🔄 重新获取更新后的消息成功: ${updatedMsg.toJson()}');
+        iPrint('🔄 重新获取更新后的消息成功: msgId=${updatedMsg.id}');
 
         final updatedMessage = await updatedMsg.toTypeMessage();
         iPrint('🔄 触发编辑消息更新事件: msgId=${updatedMsg.id}');
@@ -646,9 +650,7 @@ class MessageActions {
     String newContent,
   ) async {
     try {
-      iPrint(
-        '更新会话编辑状态: msgId=${msg.id}, type=${msg.type}, newContent=$newContent',
-      );
+      iPrint('更新会话编辑状态: msgId=${msg.id}, type=${msg.type}');
 
       // 确定对话的peerId
       String peerId;
@@ -843,7 +845,9 @@ class MessageActions {
         'payload': {'original_msg_id': messageId},
       };
 
-      iPrint('🔄 发送撤回消息请求 (v2.0): ${json.encode(revokeMessage)}');
+      iPrint(
+        '🔄 发送撤回消息请求 (v2.0): msgId=${revokeMessage['id']}, action=message_revoke, original_msg_id=$messageId',
+      );
 
       // 先添加到重试队列（确保消息会被重试）
       _messageRetry.addToRetryQueue(
@@ -904,7 +908,9 @@ class MessageActions {
         'payload': {'original_msg_id': messageId, 'content': newContent},
       };
 
-      iPrint('🔄 发送编辑消息请求 (v2.0): ${json.encode(editMessage)}');
+      iPrint(
+        '🔄 发送编辑消息请求 (v2.0): msgId=${editMessage['id']}, action=message_edit, original_msg_id=$messageId',
+      );
 
       // 先添加到重试队列（确保消息会被重试）
       _messageRetry.addToRetryQueue(editMessage['id'].toString(), messageType);
@@ -1153,7 +1159,7 @@ class MessageActions {
       // 重新获取更新后的消息
       final updatedMsg = await repo.find(originalMsg.id.toString());
       if (updatedMsg != null) {
-        iPrint('🔄 重新获取更新后的消息成功: ${updatedMsg.toJson()}');
+        iPrint('🔄 重新获取更新后的消息成功: msgId=${updatedMsg.id}');
 
         final updatedMessage = await updatedMsg.toTypeMessage();
         iPrint('🔄 触发撤回消息更新事件: msgId=${updatedMsg.id}');

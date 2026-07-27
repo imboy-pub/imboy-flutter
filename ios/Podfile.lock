@@ -146,7 +146,7 @@ PODS:
     - Flutter
   - integration_test (0.0.1):
     - Flutter
-  - JCore (5.4.2)
+  - JCore (5.5.0)
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -437,7 +437,7 @@ SPEC CHECKSUMS:
   ic_storage_space: d2c12892dec7eabbf6757df81e72539a16aa7dc6
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
-  JCore: 3483b83da976d2dbfe882c377c9d33577cf2e0f1
+  JCore: 38810b2235642507e9632ceb5bb66805042909bb
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: e26fc139307b3d80e30d01479656f4b9632f083f
   jverify: 756c7d4d358faa9fdc46e86b66aedcb1a410561a

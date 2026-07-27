@@ -9,13 +9,6 @@ library;
 
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-
-// Mock 类（在实际使用时需要生成）
-@GenerateMocks([])
-class MockWebSocketChannel extends Mock implements WebSocketChannel {}
 
 void main() {
   group('WebSocket 心跳机制测试', () {

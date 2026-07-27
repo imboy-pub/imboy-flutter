@@ -17,6 +17,7 @@ import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/service/e2ee/policy_gate.dart';
 
 /// Megolm 会话套件标识（e2ee 元数据 e2ee_suite 字段，区分既有 RSA+AES 套件）
 const String kMegolmSuite = 'MEGOLM.V1';
@@ -259,18 +260,20 @@ class GroupSessionService {
   }
 
   /// compliance_e2ee 模式：room key 额外用合规公钥包裹一份（审计侧可导入解密）；
-  /// 获取失败降级为仅设备分发——与既有 RSA 套件 buildE2EEData 的行为一致。
+  /// 获取失败、过期或为 null 都必须 fail-closed 抛异常阻断发送，决不降级（ADR 14 §S1.1 / CB-09/10）。
   Future<Map<String, dynamic>?> _complianceKeyEntry(String exportedKey) async {
     if (EncryptionModeService.current != EncryptionMode.complianceE2ee) {
       return null;
     }
     try {
       final ck = await ComplianceKeyService.instance.getComplianceKey();
-      if (ck == null) return null;
-      return complianceEntryFor(exportedKey: exportedKey, key: ck);
+      final verifiedKey = PolicyGate.requireComplianceKey(ck);
+      return complianceEntryFor(exportedKey: exportedKey, key: verifiedKey);
+    } on E2eeSecurityException {
+      rethrow;
     } on Object catch (e) {
-      iPrint('[group_session] 合规密钥包装失败（降级为仅设备分发）: $e');
-      return null;
+      iPrint('[group_session] 获取合规密钥发生未预期异常: $e');
+      throw const E2eeSecurityException('compliance_key_unavailable');
     }
   }
 
@@ -581,6 +584,8 @@ class GroupSessionService {
   ///   失败）→ 该条目仅 RSA 回退，不阻断分发（ADR 13 §4）。
   /// - `compliance-audit` 条目跳过（合规侧无 Olm 会话，恒 RSA，ADR 13 §3.3）。
   /// - [senderDeviceId] 填 olm.sid（发送方 deviceId），供接收侧定位 Olm 入站会话。
+  /// - **严格模式和合规模式下（ADR 14 §S1.1 / HOTFIX-03）**：包装必须 100% 成功，
+  ///   任何包装失败或缺失、以及无 senderDeviceId，均直接 fail-closed 抛异常，绝不静默跳过、省略或仅 RSA 降级。
   @visibleForTesting
   static Future<void> attachOlmWraps({
     required List<dynamic> keys,
@@ -588,7 +593,13 @@ class GroupSessionService {
     required String senderDeviceId,
     required OlmWrapFn olmWrap,
   }) async {
-    if (senderDeviceId.isEmpty) return; // 无本设备 id 无法填 sid → 全部仅 RSA
+    final bool strict = EncryptionModeService.current.requiresEncryption;
+    if (senderDeviceId.isEmpty) {
+      if (strict) {
+        throw const E2eeSecurityException('sender_device_id_missing');
+      }
+      return; // 无本设备 id 无法填 sid → 全部仅 RSA
+    }
     for (final k in keys) {
       if (k is! Map) continue;
       final did = k['did']?.toString() ?? '';
@@ -598,9 +609,19 @@ class GroupSessionService {
         wrapped = await olmWrap(did, exportedKey);
       } on Object catch (e) {
         AppLogger.error('[group_session] olmWrap 异常，该 did 仅 RSA: $did', e);
+        if (strict) {
+          throw E2eeSecurityException('olm_wrap_failed: $e');
+        }
         continue;
       }
-      if (wrapped == null) continue; // 对端不可 Olm → 仅 RSA
+      if (wrapped == null) {
+        if (strict) {
+          throw const E2eeSecurityException(
+            'olm_wrap_failed: empty wrapped key',
+          );
+        }
+        continue; // 对端不可 Olm → 仅 RSA
+      }
       k['olm'] = <String, dynamic>{
         'v': kOlmSuite,
         'type': wrapped.type,

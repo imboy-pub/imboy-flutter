@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:envied/envied.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/storage_secure.dart';
 
@@ -103,14 +102,26 @@ abstract interface class Env implements EnvField {
     return _normalizeWsUrl(cachedWsUrl);
   }
 
-  @EnviedField(defaultValue: '')
-  static String? apiPublicKey = StorageService.to.getString(Keys.apiPublicKey);
+  static String? _apiPublicKeyOverride;
+  static String? get apiPublicKey =>
+      _apiPublicKeyOverride ?? StorageService.to.getString(Keys.apiPublicKey);
 
-  @EnviedField(defaultValue: '')
-  static String uploadUrl = StorageService.to.getString(Keys.uploadUrl);
+  @visibleForTesting
+  static set apiPublicKey(String? value) => _apiPublicKeyOverride = value;
 
-  @EnviedField(defaultValue: '')
-  static String? uploadScene = StorageService.to.getString(Keys.uploadScene);
+  static String? _uploadUrlOverride;
+  static String get uploadUrl =>
+      _uploadUrlOverride ?? StorageService.to.getString(Keys.uploadUrl);
+
+  @visibleForTesting
+  static set uploadUrl(String? value) => _uploadUrlOverride = value;
+
+  static String? _uploadSceneOverride;
+  static String? get uploadScene =>
+      _uploadSceneOverride ?? StorageService.to.getString(Keys.uploadScene);
+
+  @visibleForTesting
+  static set uploadScene(String? value) => _uploadSceneOverride = value;
 
   /// 公开资源直读基址默认值（Garage 公开读桶 / CDN，见 resource-access-control.md §9）。
   static const String _publicBaseUrlDefault = 'https://s3.imboy.pub';

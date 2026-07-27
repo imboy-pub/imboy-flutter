@@ -92,7 +92,7 @@ class IosPageTemplate extends StatelessWidget {
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
         ),
-        slivers: slivers!,
+        slivers: slivers!.whereType<Widget>().toList(),
       );
     }
     return SingleChildScrollView(
@@ -101,7 +101,7 @@ class IosPageTemplate extends StatelessWidget {
       ),
       child: Column(
         children: [
-          ?child,
+          if (child != null) child!,
           // 如果没有 bottomWidget，给底部留点呼吸空间
           if (bottomWidget == null) const SizedBox(height: 40),
         ],

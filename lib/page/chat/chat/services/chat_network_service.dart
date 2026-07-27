@@ -398,10 +398,13 @@ class ChatNetworkService {
 
   /// 直接发送消息（不经过数据库），含 E2EE 加密
   Future<bool> sendMessage(Map<String, dynamic> msg) async {
-    iPrint('ChatNetworkService.sendMessage: ${json.encode(msg)}');
-
     final String chatType = msg['type']?.toString() ?? '';
     final String msgAction = msg['action']?.toString() ?? '';
+    final String? msgId = msg['id']?.toString();
+    iPrint(
+      'ChatNetworkService.sendMessage: msgId=$msgId, type=$chatType, action=$msgAction',
+    );
+
     final dynamic originalPayload = msg['payload'];
 
     if (!msg.containsKey('msg_type') &&
@@ -470,7 +473,6 @@ class ChatNetworkService {
       ),
     );
 
-    final String? msgId = msg['id']?.toString();
     if (msgId != null && msgId.isNotEmpty) {
       final String type = msg['type']?.toString() ?? 'C2C';
       MessageRetry.instance.addToRetryQueue(msgId, type);

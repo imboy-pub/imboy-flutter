@@ -6,12 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/init.dart' show deviceId;
 import 'package:imboy/service/compliance_key_service.dart'
-    show ComplianceKeyInfo;
+    show ComplianceKeyInfo, ComplianceKeyService;
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/olm_session_service.dart'
     show OlmAuthenticationException;
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/e2ee/policy_gate.dart';
+import 'package:imboy/service/encryption_mode.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
 /// 生成本设备真实 E2EE 密钥对（生产同款入口，范式同 e2ee_service_test.dart）
@@ -729,5 +732,188 @@ void main() {
       );
       expect(r, isNull, reason: 'auth 失败必须拒绝，即使 ek 可用也不降级');
     });
+  });
+
+  group('Compliance E2EE Fail-Closed (HOTFIX-02)', () {
+    test(
+      'compliance_e2ee 模式：合规公钥获取失败/缺失 → fail-closed 强退并抛 E2eeSecurityException',
+      () async {
+        await _ensureVod();
+
+        // 1. 设置加密模式为 compliance_e2ee
+        EncryptionModeService.debugSet(
+          mode: EncryptionMode.complianceE2ee,
+          initialized: true,
+        );
+        addTearDown(() {
+          EncryptionModeService.debugSet(
+            mode: EncryptionMode.plaintext,
+            initialized: false,
+          );
+        });
+
+        // 2. 清除合规公钥缓存，且不注入任何合规公钥模拟，从而模拟获取失败/缺失
+        ComplianceKeyService.instance.clearCache();
+
+        // 3. 准备基本发送要素并注入本地公钥缓存，绕过 API 接口
+        final keyInfo = await _setupDeviceKey();
+        final did = keyInfo['device_id'] as String;
+        final kid = keyInfo['key_id'] as String;
+        final pem = keyInfo['public_key'] as String;
+        deviceId = did;
+
+        E2EEService.setGroupDeviceKeyCacheForTest('g_compliance_fail_closed', {
+          did: pem,
+        });
+        addTearDown(() => E2EEService.clearKeyCacheForTest());
+
+        // 4. 调用加密流程，应该直接 fail-closed 抛出 E2eeSecurityException，不退回明文或设备加密
+        expect(
+          () async {
+            await GroupSessionService.to.encryptGroupMessage(
+              gid: 'g_compliance_fail_closed',
+              plaintext: 'secret message',
+            );
+          },
+          throwsA(
+            isA<E2eeSecurityException>().having(
+              (e) => e.reason,
+              'reason',
+              'compliance_key_unavailable',
+            ),
+          ),
+        );
+      },
+    );
+  });
+
+  group('Strict Olm-Wrap Fail-Closed (HOTFIX-03)', () {
+    test(
+      'strictE2ee 模式：senderDeviceId 为空 → 抛 E2eeSecurityException(sender_device_id_missing)',
+      () async {
+        EncryptionModeService.debugSet(
+          mode: EncryptionMode.strictE2ee,
+          initialized: true,
+        );
+        addTearDown(() {
+          EncryptionModeService.debugSet(
+            mode: EncryptionMode.plaintext,
+            initialized: false,
+          );
+        });
+
+        final payload = GroupSessionService.buildRoomKeyPayload(
+          gid: 'g_strict_fail',
+          sessionId: 'sess_strict',
+          exportedKey: 'AAAA',
+          didToPem: {'did1': 'pem1'},
+          didToKid: {'did1': 'kid1'},
+        );
+
+        expect(
+          () async {
+            await GroupSessionService.attachOlmWraps(
+              keys: payload['keys'] as List,
+              exportedKey: 'AAAA',
+              senderDeviceId: '',
+              olmWrap: (did, key) async => null,
+            );
+          },
+          throwsA(
+            isA<E2eeSecurityException>().having(
+              (e) => e.reason,
+              'reason',
+              'sender_device_id_missing',
+            ),
+          ),
+        );
+      },
+    );
+
+    test(
+      'strictE2ee 模式：olmWrap 异常 → 抛 E2eeSecurityException(olm_wrap_failed)',
+      () async {
+        EncryptionModeService.debugSet(
+          mode: EncryptionMode.strictE2ee,
+          initialized: true,
+        );
+        addTearDown(() {
+          EncryptionModeService.debugSet(
+            mode: EncryptionMode.plaintext,
+            initialized: false,
+          );
+        });
+
+        final payload = GroupSessionService.buildRoomKeyPayload(
+          gid: 'g_strict_fail2',
+          sessionId: 'sess_strict2',
+          exportedKey: 'AAAA',
+          didToPem: {'did1': 'pem1'},
+          didToKid: {'did1': 'kid1'},
+        );
+
+        expect(
+          () async {
+            await GroupSessionService.attachOlmWraps(
+              keys: payload['keys'] as List,
+              exportedKey: 'AAAA',
+              senderDeviceId: 'my_device_id',
+              olmWrap: (did, key) async {
+                throw Exception('wrap error');
+              },
+            );
+          },
+          throwsA(
+            isA<E2eeSecurityException>().having(
+              (e) => e.reason,
+              'reason',
+              startsWith('olm_wrap_failed'),
+            ),
+          ),
+        );
+      },
+    );
+
+    test(
+      'strictE2ee 模式：olmWrap 返回 null → 抛 E2eeSecurityException(olm_wrap_failed)',
+      () async {
+        EncryptionModeService.debugSet(
+          mode: EncryptionMode.strictE2ee,
+          initialized: true,
+        );
+        addTearDown(() {
+          EncryptionModeService.debugSet(
+            mode: EncryptionMode.plaintext,
+            initialized: false,
+          );
+        });
+
+        final payload = GroupSessionService.buildRoomKeyPayload(
+          gid: 'g_strict_fail3',
+          sessionId: 'sess_strict3',
+          exportedKey: 'AAAA',
+          didToPem: {'did1': 'pem1'},
+          didToKid: {'did1': 'kid1'},
+        );
+
+        expect(
+          () async {
+            await GroupSessionService.attachOlmWraps(
+              keys: payload['keys'] as List,
+              exportedKey: 'AAAA',
+              senderDeviceId: 'my_device_id',
+              olmWrap: (did, key) async => null,
+            );
+          },
+          throwsA(
+            isA<E2eeSecurityException>().having(
+              (e) => e.reason,
+              'reason',
+              startsWith('olm_wrap_failed'),
+            ),
+          ),
+        );
+      },
+    );
   });
 }
