@@ -13,6 +13,8 @@
 /// 本文件不擅定编码。
 library;
 
+import 'package:imboy/service/e2ee/device_manifest.dart';
+
 /// 对端设备能力声明（ADR 04 §3）。
 class PeerCapability {
   const PeerCapability({
@@ -127,6 +129,59 @@ class CapabilityNegotiator {
       } on CapVerificationFailed {
         plan[device.deviceId] = DeviceNegotiation(
           device.deviceId,
+          NegotiationOutcome.unsupported,
+          null,
+        );
+      }
+    }
+    return plan;
+  }
+
+  /// 严格模式协商：对具有 DeviceManifest（内嵌已签署 capabilities）的单设备协商。
+  ///
+  /// 首步强制对 [manifest] 的 `device_signature` 进行 Ed25519 签名验证。
+  /// 校验失败直接 Fail-Closed 抛出 [CapVerificationFailed] 异常。
+  /// 校验通过则取 `myProtocols` 与 `manifest.capabilities` 的交集，按 [securityRank]
+  /// Fallback 链选出并返回最高共同支持套件；无交集返回 `null`（NO_COMMON_SUITE）。
+  static String? negotiateWithManifest(
+    Set<String> myProtocols,
+    DeviceManifest manifest,
+  ) {
+    if (!manifest.verifyDeviceSignature()) {
+      throw CapVerificationFailed(manifest.deviceId);
+    }
+    for (final suite in securityRank) {
+      if (myProtocols.contains(suite) &&
+          manifest.capabilities.contains(suite)) {
+        return suite;
+      }
+    }
+    return null; // 双方无任何共同安全套件
+  }
+
+  /// 严格模式协商：多物理设备 Signed Capabilities 协商扇出。
+  ///
+  /// 遍历对端每一个活跃设备的 `DeviceManifest`，通过 [negotiateWithManifest] 严格进行
+  /// 签名校验和套件协商。签名异常或不合规的设备将被安全地标记为 [NegotiationOutcome.unsupported]
+  /// 从而在消息扇出中被排除，其余合法设备不被中断。
+  static Map<String, DeviceNegotiation> negotiatePeerWithManifests(
+    Set<String> myProtocols,
+    List<DeviceManifest> manifests,
+  ) {
+    final plan = <String, DeviceNegotiation>{};
+    for (final m in manifests) {
+      try {
+        final suite = negotiateWithManifest(myProtocols, m);
+        plan[m.deviceId] = suite == null
+            ? DeviceNegotiation(
+                m.deviceId,
+                NegotiationOutcome.noCommonSuite,
+                null,
+              )
+            : DeviceNegotiation(m.deviceId, NegotiationOutcome.ok, suite);
+      } on CapVerificationFailed {
+        plan[m.deviceId] = DeviceNegotiation(
+          m.deviceId,
           NegotiationOutcome.unsupported,
           null,
         );
