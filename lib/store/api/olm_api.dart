@@ -87,16 +87,32 @@ class OlmApi extends HttpClient {
     return <String, dynamic>{};
   }
 
-  /// 统计某设备剩余 one-time keys 数量（低水位补传）
-  Future<int> countPrekeys({required String deviceId}) async {
-    // 后端 list_identity 不含 count；复用 get_identity 不合适。
-    // 临时实现：客户端本地跟踪已发布 OTK 数量（markKeysAsPublished 后 oneTimeKeys 清空）。
-    // 准确的服务端计数需后端补 count 端点（线 B.3 已留接口位）。
-    // 此处返回高水位假定，触发实际 refill 由 _refillOneTimeKeys 内部判断。
-    return _otkHighWaterAssumption;
+  /// E2EE-062：`GET /api/v1/e2ee/olm/prekey_count` 的响应解析。
+  ///
+  /// **`null` 表示「未知」，不是 0。** 0 是「该补传了」的有效信号；把查询失败
+  /// 也报成 0 会让真正的池见底与网络/服务端故障无法区分，并据此对池执行一次
+  /// 全量替换——在未知状态上做破坏性动作。后端同样拒绝把错误降级为 0
+  /// （imboy `evidence/E2EE-062-prekey-count-endpoint.md` §1.3）。
+  @visibleForTesting
+  static int? parseCountPayload(dynamic payload) {
+    if (payload is! Map) return null;
+    final count = payload['count'];
+    if (count is! num) return null;
+    final n = count.toInt();
+    // 负数不是合法余量；服务端不会返回，收到即视为未知而非「空池」——
+    // 当成 0 会触发一次全量替换。
+    return n < 0 ? null : n;
   }
 
-  static const int _otkHighWaterAssumption = 0;
+  /// 查询**本设备**剩余 one-time key 数量（低水位补传的信号来源）。
+  ///
+  /// 不接受 device_id 入参：服务端只认 token 里的设备（否则该端点就成了
+  /// 「探测谁的池快空了」的接口）。返回 `null` = 未知，调用方不得当 0 处理。
+  Future<int?> countPrekeys() async {
+    final IMBoyHttpResponse resp = await get(API.olmPrekeyCount);
+    if (!resp.ok) return null;
+    return parseCountPayload(resp.payload);
+  }
 
   /// E2EE-062：claim 请求体构造。
   ///

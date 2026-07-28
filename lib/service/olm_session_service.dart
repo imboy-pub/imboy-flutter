@@ -12,6 +12,7 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/identity_verifier.dart';
 import 'package:imboy/service/e2ee/olm_claim_request_id.dart';
+import 'package:imboy/service/e2ee/otk_refill_policy.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/olm_api.dart';
@@ -263,8 +264,8 @@ class OlmSessionService {
         signature: signature,
       );
 
-      // 生成并上报首批 one-time keys
-      await _refillOneTimeKeys(account);
+      // 生成并上报首批 one-time keys（首次注册：池必然为空，直接铺满）
+      await _refillOneTimeKeys(account, seed: true);
 
       // 生成并上报 fallback key
       account.generateFallbackKey();
@@ -283,12 +284,21 @@ class OlmSessionService {
   }
 
   /// OTK 池低水位补传：剩余 < _otkLowWaterMark 时补到 _otkTargetCount。
-  Future<int> _refillOneTimeKeys(vod.Account account) async {
-    // 查询剩余（服务端计数，确保多端一致）
-    final remaining = await OlmApi().countPrekeys(deviceId: deviceId);
-    if (remaining >= _otkLowWaterMark) return 0;
-
-    final need = _otkTargetCount - remaining;
+  ///
+  /// [seed] 为首次注册：此时池必然为空，不必也不该依赖查询——否则一次查询
+  /// 失败就会让新设备永远没有 OTK。
+  Future<int> _refillOneTimeKeys(
+    vod.Account account, {
+    bool seed = false,
+  }) async {
+    // 查询剩余（服务端计数，确保多端一致）。null = 未知，**不是** 0。
+    final remaining = seed ? null : await OlmApi().countPrekeys();
+    final need = otkRefillCount(
+      remaining: remaining,
+      lowWaterMark: _otkLowWaterMark,
+      targetCount: _otkTargetCount,
+      seed: seed,
+    );
     if (need <= 0) return 0;
     account.generateOneTimeKeys(need);
     final otkMap = account.oneTimeKeys;
@@ -302,7 +312,9 @@ class OlmSessionService {
       keys: keys,
     );
     account.markKeysAsPublished();
-    iPrint('[olm] OTK refill: remaining=$remaining uploaded=$uploaded');
+    iPrint(
+      '[olm] OTK refill: remaining=${remaining ?? "unknown"} uploaded=$uploaded',
+    );
     return uploaded;
   }
 

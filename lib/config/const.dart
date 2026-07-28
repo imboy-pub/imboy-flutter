@@ -264,6 +264,7 @@ class API {
   static const olmReportFallback = '/api/v1/e2ee/olm/fallback_key';
   static const olmGetIdentity = '/api/v1/e2ee/olm/get_identity';
   static const olmClaimKey = '/api/v1/e2ee/olm/claim';
+  static const olmPrekeyCount = '/api/v1/e2ee/olm/prekey_count';
 
   // 推送通知
   static const pushRegister = '/api/v1/push/register';
