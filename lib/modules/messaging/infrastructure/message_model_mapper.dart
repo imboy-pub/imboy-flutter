@@ -27,6 +27,58 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 /// repositories), removing the `model → repository` layering violation. Method
 /// body is a verbatim relocation — zero behavior change.
 extension MessageModelMapper on MessageModel {
+  /// 把持久化行还原成 `decryptInboundV3` 期望的**入站帧**形状。
+  ///
+  /// PFv3 的 context binding（ADR 15 §3.3）逐项比对帧顶层字段与受认证的
+  /// `protected_header`：`id` / `from` / `type` / `to` / `msg_type` /
+  /// `sender_did` / `session_id`。少任何一项都会判失配 —— 这是 fail-closed
+  /// 设计，不是缺陷：帧字段就是被绑定的那份「服务端声明」。
+  ///
+  /// `sender_did` 在迁移 v25 之前落库的旧行为 null，此处**不补空串**：
+  /// 让它如实失配，运维据 `context_mismatch_sender_did` 可区分「旧行」
+  /// 与「真篡改」。补空串会把两者混成同一种失败。
+  Map<String, dynamic> _toInboundFrame() {
+    return <String, dynamic>{
+      'id': id,
+      'type': type ?? 'C2C',
+      'from': fromId,
+      'to': toId,
+      'msg_type': msgType ?? '',
+      'e2ee': e2ee,
+      'payload': payload,
+      if (senderDid != null) 'sender_did': senderDid,
+    };
+  }
+
+  /// v1/v2 回落解密（旧消息仍需可读）。
+  ///
+  /// 返回解密后的明文 map；失败时返回 `{_e2ee_failed: true, _e2ee_reason: ...}`。
+  /// 失败对象里**不含密文、不含密钥**——只有稳定的失败分类（ADR 15 §5：
+  /// 不向上层暴露 oracle 细节）。
+  Future<Map<String, dynamic>> _decryptLegacyPayload() async {
+    try {
+      final decryptedJson = await E2EEService.decryptE2EEMessage(
+        ciphertext: payload as String,
+        e2ee: e2ee!,
+      );
+      final decoded = jsonDecode(decryptedJson);
+      if (decoded is! Map<String, dynamic>) {
+        throw FormatException(
+          'Expected JSON object, got ${decoded.runtimeType}',
+        );
+      }
+      iPrint('✅ toTypeMessage: E2EE 解密成功，id=$id');
+      return decoded;
+    } on Object catch (e) {
+      iPrint('⚠️ toTypeMessage: E2EE 解密失败，id=$id, error=$e');
+      return <String, dynamic>{
+        '_e2ee_failed': true,
+        '_e2ee_reason': 'decrypt_failed',
+        '_e2ee_error': e.toString(),
+      };
+    }
+  }
+
   Future<Message> toTypeMessage() async {
     // WebSocket API v2.0: payload 可能是 Map 或 String（E2EE 场景）
     Map<String, dynamic> payloadData;
@@ -34,38 +86,58 @@ extension MessageModelMapper on MessageModel {
     if (payload is String) {
       // payload 是加密的 JSON 字符串（E2EE 消息）
       if (e2ee != null && e2ee!.isNotEmpty) {
-        // 尝试解密 E2EE 消息
-        try {
-          final ciphertext = payload;
-          final decryptedJson = await E2EEService.decryptE2EEMessage(
-            ciphertext: ciphertext as String,
-            e2ee: e2ee!,
-          );
-          final decoded = jsonDecode(decryptedJson);
-          if (decoded is! Map<String, dynamic>) {
-            throw FormatException(
-              'Expected JSON object, got ${decoded.runtimeType}',
+        // A2-b：PFv3 分流必须在 v1/v2 之前。
+        //
+        // v3 的密文在 `e2ee.devices[<did>].ciphertext` 内，**外层 payload 恒为空串**；
+        // 直接把外层 payload 当 ciphertext 传给 decryptE2EEMessage 是传错了输入，
+        // 任何协议都解不出明文（实证见
+        // test/service/e2ee/decrypt_on_read_v3_gap_test.dart）。
+        //
+        // decryptInboundV3 返回 null 表示「不是 v3」，继续走下面的 v1/v2 路径；
+        // 与实时路径 message.dart::_handleE2EEMessage 同一分流范式与同一返回形状。
+        final v3Result = await E2EEService.decryptInboundV3(
+          data: _toInboundFrame(),
+        );
+        if (v3Result != null) {
+          if (v3Result['_e2ee_failed'] == true) {
+            // fail-closed：不回落 v1/v2、不暴露密文，只给出稳定的失败分类
+            iPrint(
+              '⚠️ toTypeMessage: v3 解密失败，id=$id, reason=${v3Result['_e2ee_reason']}',
+            );
+            return TextMessage(
+              authorId: fromId.toString(),
+              createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
+              id: id.toString(),
+              text: '[加密消息]',
+              status: MessageStatus.error,
+              metadata: {
+                'conversation_uk3': conversationUk3,
+                'peer_id': toId,
+                'msg_type': msgType ?? 'custom',
+                '_e2ee_failed': true,
+                '_e2ee_reason': v3Result['_e2ee_reason'],
+              },
             );
           }
-          payloadData = decoded;
-          iPrint('✅ toTypeMessage: E2EE 解密成功，id=$id');
-        } catch (e) {
-          iPrint('⚠️ toTypeMessage: E2EE 解密失败，id=$id, error=$e');
-          return TextMessage(
-            authorId: fromId.toString(),
-            createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
-            id: id.toString(),
-            text: '[加密消息]',
-            status: MessageStatus.error,
-            metadata: {
-              'conversation_uk3': conversationUk3,
-              'peer_id': toId,
-              'msg_type': msgType ?? 'custom',
-              '_e2ee_failed': true,
-              '_e2ee_reason': 'decrypt_failed',
-              '_e2ee_error': e.toString(),
-            },
-          );
+          payloadData = v3Result;
+          iPrint('✅ toTypeMessage: v3 解密成功，id=$id');
+        } else {
+          payloadData = await _decryptLegacyPayload();
+          if (payloadData.containsKey('_e2ee_failed')) {
+            return TextMessage(
+              authorId: fromId.toString(),
+              createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
+              id: id.toString(),
+              text: '[加密消息]',
+              status: MessageStatus.error,
+              metadata: {
+                'conversation_uk3': conversationUk3,
+                'peer_id': toId,
+                'msg_type': msgType ?? 'custom',
+                ...payloadData,
+              },
+            );
+          }
         }
       } else {
         // payload 是 String 但没有 e2ee 元数据，尝试 JSON 解析

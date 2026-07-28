@@ -1343,3 +1343,23 @@ ALTER TABLE contact ADD COLUMN account_type INTEGER NOT NULL DEFAULT 0;
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 24;
+
+-- ============================================================
+-- VERSION: 25
+-- DESC: msg_c2c 新增 sender_did 列（发送方设备 ID）。
+--       服务端在 WebSocket 认证态注入信封顶层，客户端不可伪造。
+--       PFv3 接收侧 context binding 第 6 项（ADR 15 §3.3）拿它与受认证的
+--       protected_header.sender_did 硬比对。实时路径在内存帧里就有，
+--       离线（decrypt-on-read）路径必须持久化，否则重连拉取的 v3 消息
+--       永久判 context_mismatch_sender_did 不可读。
+--       可空：迁移前落库的旧行保持 NULL，如实失配（fail-closed），
+--       不得回填空串——空串会把「没提供」与「设备 ID 是空串」混为一谈。
+--       仅 msg_c2c：C2G 当前走 Megolm v2（非 PFv3），不需要该列。
+-- ============================================================
+
+ALTER TABLE msg_c2c ADD COLUMN sender_did TEXT;
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 25;

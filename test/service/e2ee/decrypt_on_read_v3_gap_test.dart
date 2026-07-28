@@ -21,12 +21,17 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee_service.dart' hide RecipientDevice;
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/model/message_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const String _senderUid = '100';
 const String _senderDid = 'dev-sender-01';
@@ -79,7 +84,21 @@ void main() {
 
   late Database db;
 
-  setUpAll(sqfliteFfiInit);
+  setUpAll(() async {
+    sqfliteFfiInit();
+    // toTypeMessage() 会读 UserRepoLocal.to.current*；currentUid 设成发送方 uid，
+    // 使富化分支走「自己发的」，避开 ContactRepo 取数（测试库无 contact 表）。
+    // 这与真实多设备场景一致：我的另一台设备发出，本机收到 fan-out 副本。
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
+    await StorageService.to.setString(Keys.currentUid, _senderUid);
+    await StorageService.to.setString(
+      Keys.currentUser,
+      '{"uid": "$_senderUid", "nickname": "测试用户", "account": "", '
+      '"email": "", "mobile": "", "avatar": "", "role": null, '
+      '"gender": 0, "region": "", "sign": "", "setting": {}}',
+    );
+  });
 
   setUp(() async {
     databaseFactory = databaseFactoryFfi;
@@ -214,30 +233,128 @@ void main() {
     });
   });
 
-  // 结构守护：把「toTypeMessage 未为 v3 接线」这一事实钉在源码上。
-  // 接线完成后本组必须同步改写（届时断言应反转为「必须调用 decryptInboundV3」）。
+  // ===================================================================
+  // A2-b 接线后的验收（2026-07-28）
+  // ===================================================================
+  //
+  // ⚠️ 断言语义变更说明（不得删用例，故在此声明废止理由）：
+  // 下面「结构级」一组的断言在 A2-b 接线前钉的是「mapper **没有** v3 分流」。
+  // 该事实已由本轮接线废止（依据：`22-claude-code-execution-state.md` §1.1
+  // 队列第 2 项明确要求「接线完成后同步反转结构守护断言并补正向可用性用例」）。
+  // 因此断言被**反转重写**，用例本身保留。
+
+  group('decrypt-on-read v3 正向可用性（生产入口 toTypeMessage）', () {
+    // 生产链路：MessageOfflineService._processOfflineMessages
+    //   → MessageRepo.batchInsertOfflineMessages（密文原样落库 + sender_did 落列）
+    //   → 读取时 MessageModelMapper.toTypeMessage()（本用例的被测入口）
+    //
+    // 这是**正向可用性**用例：断言「生产发送路径产出的 v3 行能被读出明文」。
+    // 一个拒绝所有消息的实现在这里拿零分。
+    test('v3 离线行经 toTypeMessage 能读出明文', () async {
+      final row = await buildV3Row();
+
+      final model = MessageModel(
+        'offline-v3-001',
+        autoId: 1,
+        type: 'C2C',
+        status: IMBoyMessageStatus.delivered,
+        fromId: int.parse(_senderUid),
+        toId: int.parse(_myUid),
+        payload: row['payload'],
+        isAuthor: 0,
+        conversationUk3: 'C2C_${_senderUid}_$_myUid',
+        createdAt: 1753500000000,
+        msgType: 'text',
+        action: 'message',
+        e2ee: row['e2ee'] as Map<String, dynamic>,
+        senderDid: _senderDid,
+      );
+
+      final message = await model.toTypeMessage();
+      final metadata = message.metadata ?? const <String, dynamic>{};
+
+      expect(
+        metadata['_e2ee_failed'],
+        isNot(true),
+        reason:
+            'v3 离线行必须能解出明文；失败原因: ${metadata['_e2ee_reason']}。'
+            '注意对照组（decryptInboundV3 直调）若同时红，说明是 harness 缺陷',
+      );
+      expect(
+        metadata['body'],
+        equals(body),
+        reason: '明文内容必须逐字还原（与实时路径 _handleE2EEMessage 返回 v3Result 同形状）',
+      );
+      expect(message.metadata?['msg_type'], equals('text'));
+    });
+
+    // 负向：sender_did 缺失（迁移 v25 之前落库的旧行）必须 fail-closed，
+    // 不得放行、不得伪造。与后端「空值不伪造」同一原则。
+    test('缺 sender_did 的旧行必须 fail-closed 且不得暴露密文', () async {
+      final row = await buildV3Row();
+
+      final model = MessageModel(
+        'offline-v3-001',
+        autoId: 2,
+        type: 'C2C',
+        status: IMBoyMessageStatus.delivered,
+        fromId: int.parse(_senderUid),
+        toId: int.parse(_myUid),
+        payload: row['payload'],
+        isAuthor: 0,
+        conversationUk3: 'C2C_${_senderUid}_$_myUid',
+        createdAt: 1753500000000,
+        msgType: 'text',
+        action: 'message',
+        e2ee: row['e2ee'] as Map<String, dynamic>,
+        // senderDid 缺失
+      );
+
+      final message = await model.toTypeMessage();
+      final metadata = message.metadata ?? const <String, dynamic>{};
+
+      expect(
+        metadata['_e2ee_failed'],
+        isTrue,
+        reason: '缺 context binding #6 必须拒收',
+      );
+      expect(
+        metadata['_e2ee_reason'],
+        equals('context_mismatch_sender_did'),
+        reason: '失败分类必须精确，便于运维区分「旧行」与「真篡改」',
+      );
+      // 密文与内容密钥不得出现在任何面向 UI / 日志的字段里
+      final rendered = metadata.toString();
+      final devices =
+          (row['e2ee'] as Map<String, dynamic>)['devices']
+              as Map<String, dynamic>;
+      final realCiphertext =
+          (devices[deviceId] as Map<String, dynamic>)['ciphertext'] as String;
+      expect(
+        rendered.contains(realCiphertext),
+        isFalse,
+        reason: '失败路径不得把密文回灌进 UI metadata',
+      );
+    });
+  });
+
+  // 结构守护（断言已按 A2-b 反转，见上方废止声明）：
+  // 把「toTypeMessage **已经** 为 v3 接线」这一事实钉在源码上，防止回退。
   group('decrypt-on-read 路径接线状态（结构级）', () {
     const mapperPath =
         'lib/modules/messaging/infrastructure/message_model_mapper.dart';
 
-    test('toTypeMessage 目前只有 decryptE2EEMessage 一个解密入口', () {
+    test('toTypeMessage 必须先经 decryptInboundV3 分流，再回落 v1/v2', () {
       final source = File(mapperPath).readAsStringSync();
+      expect(
+        source.contains('E2EEService.decryptInboundV3'),
+        isTrue,
+        reason: 'v3 分流入口消失 = A2-b 接线被回退，离线 v3 消息重新不可读',
+      );
       expect(
         source.contains('E2EEService.decryptE2EEMessage'),
         isTrue,
-        reason: '解密入口消失，本守护需重写',
-      );
-      expect(
-        source.contains('decryptInboundV3'),
-        isFalse,
-        reason:
-            'decrypt-on-read 已接线 v3 —— 这是好事，'
-            '但本组断言必须反转，并把正向可用性用例补进来',
-      );
-      expect(
-        source.contains('meta_version'),
-        isFalse,
-        reason: '出现 meta_version 分流 —— 同上，需反转断言',
+        reason: 'v1/v2 回落路径不得被删除（旧消息仍需可读）',
       );
     });
   });

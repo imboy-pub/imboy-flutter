@@ -206,6 +206,17 @@ class MessageModel {
   String? action; // 仅 S2C 消息有值
   Map<String, dynamic>? e2ee; // 仅 C2C/C2G 加密时有值
 
+  /// 发送方设备 ID —— 服务端在 WebSocket 认证态注入的信封顶层字段，客户端不可伪造。
+  ///
+  /// PFv3 接收侧 context binding 第 6 项（ADR 15 §3.3）拿它与受认证的
+  /// `protected_header.sender_did` 硬比对。实时路径在内存帧里就有；
+  /// **离线（decrypt-on-read）路径必须持久化**，否则重连拉取的 v3 消息
+  /// 永久判 `context_mismatch_sender_did` 不可读。
+  ///
+  /// 迁移 v25 之前落库的旧行为 null —— 此时**不得伪造空串**，
+  /// 让 context binding 如实失配（fail-closed）。
+  String? senderDid;
+
   // payload 类型改为 dynamic，支持 Map 或 String（加密后的 JSON 字符串）
   dynamic payload;
   int createdAt; // 消息创建时间 毫秒时间戳
@@ -236,6 +247,7 @@ class MessageModel {
     this.msgType,
     this.action,
     this.e2ee,
+    this.senderDid,
   });
 
   factory MessageModel.fromJson(Map<String, dynamic> data) {
@@ -307,6 +319,7 @@ class MessageModel {
       msgType: msgType,
       action: action,
       e2ee: e2eeData,
+      senderDid: parseModelNullableString(data[MessageColumns.senderDid]),
     );
   }
 
@@ -339,6 +352,12 @@ class MessageModel {
       // C2C/C2G/C2S: 写入 e2ee（必须是 Map 类型，不能是 JSON 字符串）
       if (e2ee != null && e2ee!.isNotEmpty) {
         data['e2ee'] = e2ee; // ✅ 修复：直接使用 Map，不要 json.encode()
+      }
+      // A2-b：null 时不写该键 —— 空串会让 context binding 把「没提供」
+      // 误判成「设备 ID 是空串」，两者失败语义不同
+      final senderDidValue = senderDid;
+      if (senderDidValue != null && senderDidValue.isNotEmpty) {
+        data[MessageColumns.senderDid] = senderDidValue;
       }
     } else {
       // S2C: 写入 msg_type 和 action（非空检查）

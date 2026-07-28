@@ -15,6 +15,7 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
+import 'package:imboy/store/model/message_columns.dart';
 import 'package:imboy/store/repository/message_fts_repo.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -947,6 +948,17 @@ class MessageRepo implements MessageRepository {
             MessageRepo.action: action, // ✅ 修复：所有类型都写入 action
             MessageRepo.e2ee: e2ee != null ? json.encode(e2ee) : '',
           };
+
+          // A2-b：服务端在信封顶层注入的发送方设备 ID（认证态，客户端不可伪造）。
+          // PFv3 接收侧 context binding 第 6 项要用；离线行读取时才解密
+          // （decrypt-on-read），此刻不存 = v3 消息永久不可读。
+          // 缺失时**不写空串**：让 context binding 如实失配（fail-closed），
+          // 运维据 context_mismatch_sender_did 可区分「旧行」与「真篡改」。
+          // 仅 C2C：C2G 当前走 Megolm v2（非 PFv3），msg_c2g 表无该列。
+          final senderDid = msgData[MessageColumns.senderDid]?.toString() ?? '';
+          if (type == 'C2C' && senderDid.isNotEmpty) {
+            insertData[MessageColumns.senderDid] = senderDid;
+          }
 
           await txn.insert(tableName, insertData);
 

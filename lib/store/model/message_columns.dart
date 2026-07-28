@@ -34,4 +34,9 @@ class MessageColumns {
   static const String msgType = 'msg_type';
   static const String action = 'action'; // S2C 消息指令
   static const String e2ee = 'e2ee'; // 端到端加密信息（JSON 字符串）
+
+  // A2-b（v25）：发送方设备 ID。服务端认证态注入，客户端不可伪造。
+  // PFv3 接收侧 context binding 第 6 项（ADR 15 §3.3）比对用；
+  // 离线 decrypt-on-read 路径必须持久化，否则 v3 消息永久不可读。
+  static const String senderDid = 'sender_did';
 }
