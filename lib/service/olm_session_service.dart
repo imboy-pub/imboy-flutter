@@ -127,6 +127,13 @@ class OlmSessionService {
   /// 内存中的 Account（长期身份，懒加载自 pickle）
   vod.Account? _account;
 
+  /// 当前缓存的 Account 是否是**本次加载中新建**的（而非从 pickle 载入）。
+  ///
+  /// 用途见 [publishIdentityAndPrekeys]：只有新建账号才能断定「服务端一把 OTK 都
+  /// 没有」，才该无条件铺满；从 pickle 载入的账号必须走低水位判断，否则**每次登录
+  /// 都会全量替换一次 OTK 池**（`report_one_time_keys` 是先删后插）。
+  bool _accountCreatedThisLoad = false;
+
   /// 内存中的 Session 缓存：`$peerUid:$peerDeviceId` → Session
   final Map<String, vod.Session> _sessions = {};
 
@@ -143,6 +150,15 @@ class OlmSessionService {
   void resetForTest() {
     _cryptoStore = null;
     _sessions.clear();
+  }
+
+  /// 测试专用：只清 Account 缓存，使下次 `_loadOrCreateAccount` 走 pickle 载入
+  /// 路径（`_accountCreatedThisLoad` 因而为 false）。
+  /// 刻意不并入 `resetForTest`——那会改变既有测试依赖的缓存行为。
+  @visibleForTesting
+  void debugResetAccountCache() {
+    _account = null;
+    _accountCreatedThisLoad = false;
   }
 
   /// 获取 CryptoStore 实例（懒初始化）。DB 不可用返回 null。
@@ -224,6 +240,7 @@ class OlmSessionService {
           pickle: stored,
           pickleKey: pickleKey,
         );
+        _accountCreatedThisLoad = false;
         return _account!;
       } catch (e, s) {
         AppLogger.error('[olm] account unpickle failed, regenerating', e, s);
@@ -232,6 +249,7 @@ class OlmSessionService {
     }
     // 首次生成
     _account = vod.Account();
+    _accountCreatedThisLoad = true;
     await _persistAccount(pickleKey);
     return _account!;
   }
@@ -247,8 +265,12 @@ class OlmSessionService {
   }
 
   /// 上报设备 Olm 身份键 + 首批 prekey 到服务端（登录/换设备后调用）。
-  Future<void> publishIdentityAndPrekeys({String? deviceType}) async {
+  Future<void> publishIdentityAndPrekeys({
+    String? deviceType,
+    @visibleForTesting OlmApi? api,
+  }) async {
     await ensureInitialized();
+    final olm = api ?? OlmApi();
     await _accountLock.synchronized(() async {
       final account = await _loadOrCreateAccount();
       final identityKeys = account.identityKeys;
@@ -258,7 +280,7 @@ class OlmSessionService {
       final signature = account.sign(curve25519).toBase64();
 
       // 上报身份键
-      await OlmApi().reportIdentity(
+      await olm.reportIdentity(
         deviceId: deviceId,
         deviceType: deviceType ?? 'unknown',
         ed25519Key: ed25519,
@@ -266,8 +288,16 @@ class OlmSessionService {
         signature: signature,
       );
 
-      // 生成并上报首批 one-time keys（首次注册：池必然为空，直接铺满）
-      await _refillOneTimeKeys(account, seed: true);
+      // ⚠️ 本函数**每次登录都会被调用**（passport_notifier + olm_protocol），
+      // 不只是首次注册。只有**本次加载中新建**的账号才能断定服务端一把 OTK 都没有、
+      // 才该无条件铺满；从 pickle 载入的账号必须走低水位判断，否则每次登录都会
+      // 全量替换一次 OTK 池（`report_one_time_keys` 先删后插），
+      // 正是 evidence/E2EE-062-client-refill-wiring.md §1.1 指认为有害的那种 churn。
+      await _refillOneTimeKeys(
+        account,
+        seed: _accountCreatedThisLoad,
+        api: olm,
+      );
 
       // 生成并上报 fallback key
       account.generateFallbackKey();
@@ -286,7 +316,7 @@ class OlmSessionService {
           keyId: entry.key,
           keyBase64: fbKeyB64,
         );
-        await OlmApi().reportFallbackKey(
+        await olm.reportFallbackKey(
           deviceId: deviceId,
           keyId: entry.key,
           keyBase64: fbKeyB64,
@@ -300,14 +330,18 @@ class OlmSessionService {
 
   /// OTK 池低水位补传：剩余 < _otkLowWaterMark 时补到 _otkTargetCount。
   ///
-  /// [seed] 为首次注册：此时池必然为空，不必也不该依赖查询——否则一次查询
-  /// 失败就会让新设备永远没有 OTK。
+  /// [seed] 表示**账号是本次加载中新建的**：此时服务端一把 OTK 都没有，
+  /// 不必也不该依赖查询——否则一次查询失败就会让新设备永远没有 OTK。
+  /// ⚠️ 它**不等于**「调用方是注册流程」：`publishIdentityAndPrekeys` 每次登录
+  /// 都会跑，若在那里恒传 true，健康的池会被每次登录全量替换一次。
   Future<int> _refillOneTimeKeys(
     vod.Account account, {
     bool seed = false,
+    OlmApi? api,
   }) async {
+    final olm = api ?? OlmApi();
     // 查询剩余（服务端计数，确保多端一致）。null = 未知，**不是** 0。
-    final remaining = seed ? null : await OlmApi().countPrekeys();
+    final remaining = seed ? null : await olm.countPrekeys();
     final need = otkRefillCount(
       remaining: remaining,
       lowWaterMark: _otkLowWaterMark,
@@ -322,10 +356,7 @@ class OlmSessionService {
       keys.add({'key_id': entry.key, 'key_base64': entry.value.toBase64()});
     }
     if (keys.isEmpty) return 0;
-    final uploaded = await OlmApi().reportPrekeys(
-      deviceId: deviceId,
-      keys: keys,
-    );
+    final uploaded = await olm.reportPrekeys(deviceId: deviceId, keys: keys);
     account.markKeysAsPublished();
     iPrint(
       '[olm] OTK refill: remaining=${remaining ?? "unknown"} uploaded=$uploaded',
