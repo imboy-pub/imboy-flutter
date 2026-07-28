@@ -98,15 +98,40 @@ class OlmApi extends HttpClient {
 
   static const int _otkHighWaterAssumption = 0;
 
+  /// E2EE-062：claim 请求体构造。
+  ///
+  /// 单独抽出是为了让「`request_id` 究竟有没有进请求体」可被直接验收——
+  /// 这是服务端幂等租约能否在生产流量上生效的唯一开关，靠读源码断言不算实证。
+  @visibleForTesting
+  static Map<String, dynamic> buildClaimBody({
+    required String targetUid,
+    required String deviceId,
+    required String requestId,
+  }) {
+    return <String, dynamic>{
+      'target_uid': targetUid,
+      'device_id': deviceId,
+      if (requestId.isNotEmpty) 'request_id': requestId,
+    };
+  }
+
   /// 领取对端一个 prekey（X3DH）。
+  ///
+  /// [requestId] 为幂等键（见 `OlmClaimRequestId`）：同一次建会话尝试的重投
+  /// 带同一个 id，服务端只消费一条 one-time prekey。留空即旧语义（逐次消费）。
   /// 返回 `{'type': 'one_time'|'fallback', 'key_id', 'key_base64', 'identity': {...}}`
   Future<Map<String, dynamic>> claimKey({
     required String targetUid,
     required String deviceId,
+    String requestId = '',
   }) async {
     final IMBoyHttpResponse resp = await post(
       API.olmClaimKey,
-      data: {'target_uid': targetUid, 'device_id': deviceId},
+      data: buildClaimBody(
+        targetUid: targetUid,
+        deviceId: deviceId,
+        requestId: requestId,
+      ),
     );
     if (!resp.ok) {
       throw Exception('olm claim_key failed: ${resp.msg}');

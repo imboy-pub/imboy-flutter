@@ -11,6 +11,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/identity_verifier.dart';
+import 'package:imboy/service/e2ee/olm_claim_request_id.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/olm_api.dart';
@@ -513,10 +514,14 @@ class OlmSessionService {
     String peerDeviceId,
   ) async {
     final account = await _loadOrCreateAccount();
+    // E2EE-062：幂等键。同一次建会话尝试的重投（MessageRetry 退避重发会重新
+    // 进入本方法）带同一个 id，服务端只消费一条 OTK；成功后丢弃换新。
+    final requestId = OlmClaimRequestId.issue(peerUid, peerDeviceId);
     // claim：服务端返回 one_time（优先）或 fallback + 对端 identity
     final claim = await OlmApi().claimKey(
       targetUid: peerUid,
       deviceId: peerDeviceId,
+      requestId: requestId,
     );
     final identity = claim['identity'] as Map<String, dynamic>;
     final theirCurve25519 = identity['curve25519_key'] as String;
@@ -532,6 +537,10 @@ class OlmSessionService {
       identityKey: vod.Curve25519PublicKey.fromBase64(theirCurve25519),
       oneTimeKey: vod.Curve25519PublicKey.fromBase64(oneTimeKey),
     );
+    // 这条 OTK 已经变成一条活会话；后续任何**新的**建会话都应消费新 OTK。
+    // 在此处（而非持久化成功后）丢弃是有意的安全方向：宁可多消费一条，
+    // 也不能让两条不同的会话共用同一条 one-time prekey。
+    OlmClaimRequestId.complete(peerUid, peerDeviceId);
     return session;
   }
 
