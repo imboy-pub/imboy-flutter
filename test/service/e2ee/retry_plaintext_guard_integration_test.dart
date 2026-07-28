@@ -164,6 +164,9 @@ void main() {
   Iterable<WebSocketMessageSendRequestEvent> sentOf(String id) =>
       sendRequests.where((e) => e.messageId == id);
 
+  Future<int?> statusOf(String id) async =>
+      (await MessageRepo(tableName: MessageRepo.c2cTable).find(id))?.status;
+
   group('重发路径明文闸门（真 SQLite + 真事件总线）', () {
     test('对照组：部署本就明文 → 明文行必须照常重投', () async {
       EncryptionModeService.debugSet(
@@ -228,6 +231,53 @@ void main() {
         reason:
             '一律不发会让所有重发失效、消息永久卡住，'
             '却在"不泄漏明文"指标上恒得满分',
+      );
+    });
+
+    // ===== 闸门与 CAS 的先后顺序（E2EE-062 残留 1）=====
+    //
+    // 闸门若排在 CAS 之后，被拦下的行每个扫描周期都会被写库翻成 `sending`：
+    // 用户永远看到「发送中」而不是「失败」，DB 写入无上限，且因为随后即出队，
+    // retryCount 被丢弃，**永远到不了放弃上限**。
+    // 拦下 = 这一轮什么都不该发生，包括不该动库。
+
+    test('对照组：允许重投的行，状态必须被 CAS 翻成 sending', () async {
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.plaintext,
+        initialized: true,
+      );
+      const id = 'gd0000000000000pt05';
+      await _insertMsg(id, status: IMBoyMessageStatus.error);
+
+      await driveRetry(id);
+
+      expect(sentOf(id).length, 1);
+      expect(
+        await statusOf(id),
+        IMBoyMessageStatus.sending,
+        reason:
+            '对照组红 = CAS 根本没生效，'
+            '此时"被拦下时状态不变"的绿也说明不了任何事',
+      );
+    });
+
+    test('被拦下时不得改动 DB 状态（闸门必须排在 CAS 之前）', () async {
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.strictE2ee,
+        initialized: true,
+      );
+      const id = 'gd0000000000000pt06';
+      await _insertMsg(id, status: IMBoyMessageStatus.error);
+
+      await driveRetry(id);
+
+      expect(sentOf(id), isEmpty);
+      expect(
+        await statusOf(id),
+        IMBoyMessageStatus.error,
+        reason:
+            '闸门排在 CAS 之后会把 error 翻成 sending：'
+            '用户永远看到「发送中」，且永远到不了放弃上限',
       );
     });
 

@@ -398,6 +398,27 @@ class MessageRetry with EventSubscriptionManager {
     try {
       final repo = getMessageRepo(info.type);
 
+      // E2EE-062：明文闸门。本路径**不经过** encryptPayload 与 PolicyGate，
+      // 直接把库里的 payload 原样发出。加密失败（OTK 耗尽 / 被限流）的行此时
+      // 是明文且 e2ee 为空，却仍在重试状态集里（error/sending/pendingRetry）——
+      // 不拦就等于把发送侧的 fail-closed 整条旁路掉。
+      //
+      // 闸门必须排在 **CAS 之前**：拦下意味着这一轮什么都不该发生，包括不该动库。
+      // 排在 CAS 之后的话，被拦的行每个扫描周期都会被翻成 `sending`，
+      // 用户永远看到「发送中」而不是「失败」，DB 写入无上限；且随后即出队，
+      // retryCount 被丢弃，**永远到不了放弃上限**。
+      final msg = await repo.find(info.messageId);
+      if (msg == null) {
+        iPrint('⚠️ [RETRY] 消息被删除，取消重试: ${info.messageId}');
+        _retryQueue.remove(info.messageId);
+        return;
+      }
+      if (await _isPlaintextRetryBlocked(msg)) {
+        iPrint('🚫 [RETRY] 未加密消息不得重发，已拦下: ${info.messageId}');
+        _retryQueue.remove(info.messageId);
+        return;
+      }
+
       // 使用 CAS (Compare-And-Set) 防止并发状态覆盖：
       // 仅允许 error/sending 状态进入重试发送路径。
       final updatedRows = await repo.updateWithConditions(
@@ -430,25 +451,8 @@ class MessageRetry with EventSubscriptionManager {
       info.lastRetryTime = DateTimeHelper.millisecond();
       iPrint('重试发送消息: ${info.messageId}, 第${info.retryCount}次重试');
 
-      // 重新读取消息数据（构造完整的消息对象）
-      final msg = await repo.find(info.messageId);
-      if (msg == null) {
-        iPrint('⚠️ [RETRY] 消息被删除，取消重试: ${info.messageId}');
-        _retryQueue.remove(info.messageId);
-        return;
-      }
-
-      // E2EE-062：明文闸门。本路径**不经过** encryptPayload 与 PolicyGate，
-      // 直接把库里的 payload 原样发出。加密失败（OTK 耗尽 / 被限流）的行此时
-      // 是明文且 e2ee 为空，却仍在重试状态集里（error/sending/pendingRetry）——
-      // 不拦就等于把发送侧的 fail-closed 整条旁路掉。
-      if (await _isPlaintextRetryBlocked(msg)) {
-        iPrint('🚫 [RETRY] 未加密消息不得重发，已拦下: ${info.messageId}');
-        _retryQueue.remove(info.messageId);
-        return;
-      }
-
-      // 构造消息数据（从数据库读取）
+      // 构造消息数据（msg 已在 CAS 之前读到；CAS 只改 status，
+      // 而下方 messageData 不含 status，故复用安全、不必重读）
       // WebSocket API v2.0: msg_type、action、e2ee 字段提升到顶层
       final messageData = {
         'id': msg.id,
