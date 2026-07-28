@@ -10,12 +10,14 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:imboy/service/e2ee/fallback_key_signature.dart';
 import 'package:imboy/service/e2ee/identity_verifier.dart';
 import 'package:imboy/service/e2ee/olm_claim_request_id.dart';
 import 'package:imboy/service/e2ee/otk_refill_policy.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/olm_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// Olm 套件标识（e2ee 元数据 e2ee_suite 字段，区分 RSA/Megolm）
 const String kOlmSuite = 'OLM.V1';
@@ -272,10 +274,23 @@ class OlmSessionService {
       final fbKey = account.fallbackKey;
       if (fbKey.isNotEmpty) {
         final entry = fbKey.entries.first;
+        final fbKeyB64 = entry.value.toBase64();
+        // E2EE-062：用本设备 ed25519 身份键为 fallback key 签名。
+        // 服务端据此确认这把 key 确实出自该设备——仅持有被盗 token 的攻击者
+        // 拿不到 identity 私钥，因而无法给该设备塞入自己控制的 fallback prekey。
+        // canonical 必须与服务端 `fallback_canonical/4` 逐字节一致（golden vector
+        // 双侧钉死），否则验签必失败 → 该设备发布不了 fallback key。
+        final fbCanonical = fallbackKeyCanonical(
+          userId: UserRepoLocal.to.currentUid,
+          deviceId: deviceId,
+          keyId: entry.key,
+          keyBase64: fbKeyB64,
+        );
         await OlmApi().reportFallbackKey(
           deviceId: deviceId,
           keyId: entry.key,
-          keyBase64: entry.value.toBase64(),
+          keyBase64: fbKeyB64,
+          signature: account.sign(fbCanonical).toBase64(),
         );
       }
       account.markKeysAsPublished();

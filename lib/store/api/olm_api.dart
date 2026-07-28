@@ -57,14 +57,43 @@ class OlmApi extends HttpClient {
   }
 
   /// 上报 fallback key（每设备覆盖式 1 条）
+  /// E2EE-062：fallback 上报请求体构造。
+  ///
+  /// 单独抽出是为了让「签名究竟有没有进请求体」可被直接验收——
+  /// 这是服务端验签能否在生产流量上生效的唯一开关。
+  @visibleForTesting
+  static Map<String, dynamic> buildFallbackBody({
+    required String deviceId,
+    required String keyId,
+    required String keyBase64,
+    required String signature,
+  }) {
+    return <String, dynamic>{
+      'device_id': deviceId,
+      'key_id': keyId,
+      'key_base64': keyBase64,
+      if (signature.isNotEmpty) 'signature': signature,
+    };
+  }
+
+  /// 上报 fallback key。
+  ///
+  /// [signature] 为设备 ed25519 身份键对 `fallbackKeyCanonical` 的签名（base64）。
+  /// 留空即旧语义（服务端接受但计入 `olm_fallback_unsigned_total`）。
   Future<bool> reportFallbackKey({
     required String deviceId,
     required String keyId,
     required String keyBase64,
+    String signature = '',
   }) async {
     final IMBoyHttpResponse resp = await post(
       API.olmReportFallback,
-      data: {'device_id': deviceId, 'key_id': keyId, 'key_base64': keyBase64},
+      data: buildFallbackBody(
+        deviceId: deviceId,
+        keyId: keyId,
+        keyBase64: keyBase64,
+        signature: signature,
+      ),
     );
     return resp.ok;
   }
