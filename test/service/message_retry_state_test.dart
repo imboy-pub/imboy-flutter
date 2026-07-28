@@ -12,6 +12,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
@@ -142,6 +143,19 @@ void main() {
   });
 
   setUp(() {
+    // E2EE-062：本文件的被测对象是**重试状态机**，其前置条件是「这些消息本来就
+    // 允许以明文重发」。该前提此前是隐式的——`EncryptionModeService` 未初始化时
+    // `PolicyGate.requireReadyForSend` 对 C2C 抛异常，而重试路径从不查询策略，
+    // 于是无论部署是不是 E2EE，明文行都会被原样重发。
+    //
+    // `MessageRetry._isPlaintextRetryBlocked` 补上该查询后（见
+    // `evidence/E2EE-062-retry-plaintext-guard.md`），前提必须显式声明，
+    // 否则这些用例实际测的是「策略未就绪 → 一律拦下」，与其标题不符。
+    // 断言本身一字未改。
+    EncryptionModeService.debugSet(
+      mode: EncryptionMode.plaintext,
+      initialized: true,
+    );
     retry.clearRetryQueue();
     sendRequests.clear();
   });

@@ -3,8 +3,11 @@ import 'dart:convert';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/e2ee/retry_plaintext_guard.dart';
+import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
+import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -362,6 +365,30 @@ class MessageRetry with EventSubscriptionManager {
     }
   }
 
+  /// E2EE-062：判定该行是否属于「该加密却是明文」，必须拦下不得重发。
+  ///
+  /// 判据与发送路径 `ChatNetworkService.encryptPayload` **同源**：
+  /// 群级 E2EE 强制（P0-B B4，独立于全局策略）或 PolicyGate 要求加密。
+  /// 判据本身取不到时（策略未就绪会抛 [E2eeSecurityException]）一律按
+  /// **需要加密**处理——未知即拦，不得 fail-open。
+  Future<bool> _isPlaintextRetryBlocked(MessageModel msg) async {
+    final chatType = msg.type ?? 'C2C';
+    bool encryptionRequired;
+    try {
+      final groupMegolm =
+          chatType == 'C2G' &&
+          await GroupSessionService.to.isGroupE2EE(msg.toId.toString());
+      encryptionRequired =
+          groupMegolm || E2EEService.shouldEncryptOutgoingPayload(chatType);
+    } on Object {
+      encryptionRequired = true;
+    }
+    return shouldBlockPlaintextRetry(
+      encryptionRequired: encryptionRequired,
+      e2ee: msg.e2ee,
+    );
+  }
+
   /// 重试单个消息
   /// Retry single message.
   ///
@@ -407,6 +434,16 @@ class MessageRetry with EventSubscriptionManager {
       final msg = await repo.find(info.messageId);
       if (msg == null) {
         iPrint('⚠️ [RETRY] 消息被删除，取消重试: ${info.messageId}');
+        _retryQueue.remove(info.messageId);
+        return;
+      }
+
+      // E2EE-062：明文闸门。本路径**不经过** encryptPayload 与 PolicyGate，
+      // 直接把库里的 payload 原样发出。加密失败（OTK 耗尽 / 被限流）的行此时
+      // 是明文且 e2ee 为空，却仍在重试状态集里（error/sending/pendingRetry）——
+      // 不拦就等于把发送侧的 fail-closed 整条旁路掉。
+      if (await _isPlaintextRetryBlocked(msg)) {
+        iPrint('🚫 [RETRY] 未加密消息不得重发，已拦下: ${info.messageId}');
         _retryQueue.remove(info.messageId);
         return;
       }
