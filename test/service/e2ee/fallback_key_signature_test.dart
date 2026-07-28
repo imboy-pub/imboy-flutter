@@ -86,15 +86,31 @@ void main() {
       expect(body['signature'], 'c2ln', reason: '签名不进请求体 = 服务端上一刀的验签在生产上等于零');
     });
 
-    test('正向可用性：签名为空时不得写入该键（旧语义零破坏）', () {
-      final body = OlmApi.buildFallbackBody(
-        deviceId: 'dev-A',
-        keyId: 'k1',
-        keyBase64: 'b1',
-        signature: '',
+    // ⚠️ 本用例的断言已被**重写**（原断言：「签名为空时不得写入该键（旧语义零破坏）」）。
+    //
+    // 废止理由：写下原断言时客户端**还不会签名**，"允许空签名"是为旧语义兼容留的口子。
+    // 此后两刀分别接上了注册路径与周期轮换路径的签名，
+    // **本端两个 `reportFallbackKey` 调用点现在都必然带签名**
+    // （`olm_session_service.dart` 的 registerDevice 与 maybeRotateFallbackKey）。
+    // 于是"空签名"只可能来自**新增调用点漏签**——而静默上传一把未签名的
+    // fallback key，正好把服务端验签那一刀整个绕过去。
+    //
+    // 出处：`imboy/docs/guides/e2ee/v2/evidence/E2EE-062-client-fallback-signature.md` §5.2
+    // 明确记载「本刀没有加任何机制阻止『新增一个不签名的调用点』」——本次即补该机制。
+    // 用例未删除，改为钉死 fail-closed 行为。
+    test('签名为空必须拒绝构造请求体（fail-closed）', () {
+      expect(
+        () => OlmApi.buildFallbackBody(
+          deviceId: 'dev-A',
+          keyId: 'k1',
+          keyBase64: 'b1',
+          signature: '',
+        ),
+        throwsArgumentError,
+        reason:
+            '静默上传未签名的 fallback key = 绕过服务端验签那一刀；'
+            '本端两个调用点都能签名，空签名只可能是新增调用点漏签',
       );
-      expect(body.containsKey('signature'), isFalse);
-      expect(body['device_id'], 'dev-A');
     });
   });
 }

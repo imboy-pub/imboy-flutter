@@ -68,11 +68,22 @@ class OlmApi extends HttpClient {
     required String keyBase64,
     required String signature,
   }) {
+    if (signature.isEmpty) {
+      // fail-closed：本端两个调用点（registerDevice / maybeRotateFallbackKey）
+      // 都必然能签名，空签名只可能来自**新增调用点漏签**。
+      // 静默上传一把未签名的 fallback key，正好把服务端验签那一刀整个绕过去
+      // ——服务端为兼容旧客户端仍会接受未签名上传（两阶段推进的第一阶段）。
+      throw ArgumentError.value(
+        signature,
+        'signature',
+        'fallback key must be signed by the device identity key',
+      );
+    }
     return <String, dynamic>{
       'device_id': deviceId,
       'key_id': keyId,
       'key_base64': keyBase64,
-      if (signature.isNotEmpty) 'signature': signature,
+      'signature': signature,
     };
   }
 
@@ -80,11 +91,14 @@ class OlmApi extends HttpClient {
   ///
   /// [signature] 为设备 ed25519 身份键对 `fallbackKeyCanonical` 的签名（base64）。
   /// 留空即旧语义（服务端接受但计入 `olm_fallback_unsigned_total`）。
+  /// ⚠️ [signature] **无默认值**：本会话已两次踩到「参数默认值与调用点现实不符」
+  /// 这一类缺陷（另一处是 `_refillOneTimeKeys` 的 `seed`）。
+  /// 安全相关参数一律强制调用方显式决定，漏签在**编译期**即不可表达。
   Future<bool> reportFallbackKey({
     required String deviceId,
     required String keyId,
     required String keyBase64,
-    String signature = '',
+    required String signature,
   }) async {
     final IMBoyHttpResponse resp = await post(
       API.olmReportFallback,
