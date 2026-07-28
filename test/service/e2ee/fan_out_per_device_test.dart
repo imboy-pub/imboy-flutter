@@ -7,6 +7,8 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/config/init.dart' as app_init;
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
@@ -46,20 +48,41 @@ class _IdentityProtocol implements E2eeSessionProtocol {
 }
 
 void main() {
-  setUp(() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // E2EE-027: encryptV3 提交 immutable outbox 后才交出可发送信封，
+  // 故生产加密路径需要可用的事务存储（真实 SQLite ffi in-memory）。
+  late Database db;
+
+  setUpAll(sqfliteFfiInit);
+
+  // 逐用例独立 DB：crypto_session_sequence 是跨消息单调状态，
+  // 共享 DB 会让用例结果依赖执行顺序。
+  setUp(() async {
+    databaseFactory = databaseFactoryFfi;
+    db = await databaseFactory.openDatabase(inMemoryDatabasePath);
+    SqliteService.setDbForTest(db);
     E2eeProtocolRegistry.resetForTest();
     E2eeProtocolRegistry.register(_IdentityProtocol());
     // 设置本设备 ID（fan-out 接收侧用它选择信封）
     app_init.deviceId = 'my-device-001';
   });
 
-  tearDown(E2eeProtocolRegistry.resetForTest);
+  tearDown(() async {
+    E2eeProtocolRegistry.resetForTest();
+    SqliteService.setDbForTest(null);
+    await db.close();
+  });
 
   /// 为指定设备生成一个 v3 信封（不含 meta_version，由外层统一标注）
+  /// [epochOrCounter] 必须 >= 1：接收侧 E2EE-025 序列检查要求严格递增，
+  /// 首条 0 会被判 replay。生产发送侧目前恒传 0 且 session_ref 为空
+  /// （检查被整段跳过）——该缺陷记录在 evidence/E2EE-027-followup.md §3。
   Future<Map<String, dynamic>> buildEnvelopeForDevice(
     String peerDid,
-    String plaintext,
-  ) async {
+    String plaintext, {
+    int epochOrCounter = 1,
+  }) async {
     final result = await E2eeOutboundRouter.encryptV3(
       suite: ProtocolSuite.olm,
       plaintext: plaintext,
@@ -78,6 +101,7 @@ void main() {
       messageType: 'text',
       action: 'message',
       sessionRef: 'test-session',
+      epochOrCounter: epochOrCounter,
       createdAtMs: 1753500000000,
     );
     final envelope = Map<String, dynamic>.from(result.metadata);

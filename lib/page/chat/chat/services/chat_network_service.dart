@@ -21,6 +21,7 @@ import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -348,6 +349,10 @@ class ChatNetworkService {
           toId: obj.toId.toString(),
           plaintextMap: obj.payload as Map<String, dynamic>,
           action: action,
+          // 必须与下方外层 msg 的 'id' / 'msg_type' 同源，否则接收侧
+          // context binding 比对失败，整条消息不可读。
+          messageId: obj.id,
+          messageType: msgType,
           removeKeys: ['client_send_ts'],
         );
         if (encrypted != null) {
@@ -438,6 +443,9 @@ class ChatNetworkService {
             toId: toUid,
             plaintextMap: payload,
             action: msgAction,
+            // 同源于外层 msg，见 encryptPayload 文档注释
+            messageId: msg['id']?.toString() ?? '',
+            messageType: msg['msg_type']?.toString() ?? '',
             removeKeys: ['msg_type'],
           );
           if (encrypted != null) {
@@ -537,11 +545,24 @@ class ChatNetworkService {
   /// E2EE 加密 payload
   /// 返回加密后的 {e2ee, payload}，或 null 表示不需要加密
   /// 失败时抛出异常，调用方负责处理
+  /// [messageId] / [messageType] 必须是**外层 WS 消息实际使用的**值。
+  ///
+  /// 二者会进入 PFv3 的 `protected_header`，接收侧
+  /// `E2eeService._validateContextBinding` 第 1、5 项会拿它们与外层
+  /// `payload['id']` / `payload['msg_type']` 做**精确相等**比对，不等即整条拒收。
+  ///
+  /// 历史事故（E2EE-012/024 复核）：`_encryptC2COlmFanOut` 曾在内部
+  /// `Xid().toString()` 自造 id、并把 `messageType` 硬编码为 `'text'`，
+  /// 与外层消息完全脱节 → 每条 C2C v3 消息都被判 `context_mismatch_id`，
+  /// 非文本消息再多命中 `context_mismatch_msg_type`。
+  /// 改为 `required` 入参后，漏传在**编译期**即不可表达。
   Future<Map<String, dynamic>?> encryptPayload({
     required String chatType,
     required String toId,
     required Map<String, dynamic> plaintextMap,
     required String action,
+    required String messageId,
+    required String messageType,
     List<String> removeKeys = const [],
   }) async {
     // P0-B B4：群级 E2EE 开启的群强制加密（独立于全局策略与本地开关，
@@ -561,16 +582,20 @@ class ChatNetworkService {
     }
     final plaintext = jsonEncode(plaintextPayload);
 
-    // S2.2: C2C per-device Olm fan-out（ADR 15 Protected Frame v3）
-    if (chatType == 'C2C' && useOlmForC2C) {
-      return _encryptC2COlmFanOut(toId, plaintext, action);
+    // E2EE-029: C2C defaults to per-device Olm fan-out（ADR 15 Protected Frame v3）
+    if (chatType == 'C2C') {
+      return _encryptC2COlmFanOut(
+        toId,
+        plaintext,
+        action,
+        messageId: messageId,
+        messageType: messageType,
+      );
     }
 
-    // 默认路径：Megolm（C2G 群 + C2C 未启用 Olm 时）
+    // 默认路径：Megolm（C2G 群聊；C2C 已全部走 Olm fan-out）
     E2eeBootstrap.ensureRegistered();
-    final context = chatType == 'C2G'
-        ? E2eeContext(gid: toId, scope: 'c2g')
-        : E2eeContext(peerUid: toId, scope: GroupSessionService.c2cScope);
+    final context = E2eeContext(gid: toId, scope: 'c2g');
     final encrypted = await E2eeOutboundRouter.encrypt(
       suite: ProtocolSuite.megolm,
       plaintext: plaintext,
@@ -587,8 +612,10 @@ class ChatNetworkService {
   Future<Map<String, dynamic>> _encryptC2COlmFanOut(
     String toId,
     String plaintext,
-    String action,
-  ) async {
+    String action, {
+    required String messageId,
+    required String messageType,
+  }) async {
     E2eeBootstrap.ensureRegistered();
 
     // 获取对端所有设备公钥
@@ -602,7 +629,6 @@ class ChatNetworkService {
 
     final myUid = UserRepoLocal.to.currentUid;
     final myDid = deviceId;
-    final msgId = Xid().toString();
     final now = DateTime.now().millisecondsSinceEpoch;
 
     // 逐设备加密
@@ -618,6 +644,17 @@ class ChatNetworkService {
         publicKey: peerPubKey,
       );
 
+      // E2EE-025：session_ref 必须是**真实**的 Olm 会话标识，且必须在构造
+      // protected_header 之前取得——header 要先进 inner_frame 才能被加密，
+      // 而 OlmProtocol.encrypt 直到返回才带出 session_id（循环依赖）。
+      // 接收侧 `_validateContextBinding` §7 硬比对
+      // `protocol_metadata.session_id == protected_header.session_ref`，
+      // 这里若留空，整条消息会被判 context_mismatch_session_id 而不可读。
+      final sessionRef = await OlmSessionService.to.ensureSessionId(
+        toId,
+        peerDid,
+      );
+
       final encrypted = await E2eeOutboundRouter.encryptV3(
         suite: ProtocolSuite.olm,
         plaintext: plaintext,
@@ -627,13 +664,13 @@ class ChatNetworkService {
           peerDeviceId: peerDid,
           scope: 'c2c',
         ),
-        messageId: msgId,
+        messageId: messageId,
         senderUid: myUid,
         senderDid: myDid,
         destination: toId,
-        messageType: 'text',
+        messageType: messageType,
         action: action.isEmpty ? 'message' : action,
-        sessionRef: '', // OlmProtocol 内部填充 session_id
+        sessionRef: sessionRef,
         createdAtMs: now,
       );
 
@@ -658,7 +695,7 @@ class ChatNetworkService {
   /// 是否对 C2C 单聊启用 Olm（X3DH + Double Ratchet）套件。
   ///
   /// 部署门控状态（B.2 发送侧）：
-  /// - 默认 `false`：新消息继续走 Megolm（与历史一致）；
+  /// - 默认 `true`：新消息走 Olm per-device fan-out（PFv3）；
   /// - Olm 解密已经过 Protocol Registry 就绪；
   /// - 当前发送选择器在后端未部署前不读取此常量，不得把
   ///   claim 404 后的 Megolm 发送冒充 Olm PASS。
@@ -666,7 +703,7 @@ class ChatNetworkService {
   /// 多设备注意：Olm 是 per-device 会话，完整启用需对对端每个设备分别 claim+encrypt，
   /// 与 Megolm「一次加密所有设备」语义不同。启用前还需接入
   /// Signed Capabilities、逐设备 claim 与 fan-out。
-  static const bool useOlmForC2C = false;
+  static const bool useOlmForC2C = true;
 
   /// 生成 E2EE 加密失败的用户友好错误消息
   String getE2EEErrorMessage(dynamic error) {

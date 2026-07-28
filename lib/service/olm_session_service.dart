@@ -42,7 +42,10 @@ const String _sessionPicklePrefix = 'olm_session_';
 /// - 每设备持 1 个 vodozemac `Account`（长期 Ed25519 + Curve25519 身份键）；
 /// - 每个 `(peerUid, peerDeviceId)` 持 1 个 outbound/inbound 共用的 `Session`
 ///   （Double Ratchet 双向 ratchet，per-message 前向保密）；
-/// - 私钥经 pickle 加密落 `FlutterSecureStorage`（与设备 RSA 私钥同级保护）；
+/// - Account 私钥经 pickle 加密落 `FlutterSecureStorage`（与设备 RSA 私钥同级保护），
+///   pickle 主钥同样在 Keychain/Keystore；
+/// - Session（ratchet 状态）只落事务性 `CryptoStore`（SQLCipher），单一权威副本——
+///   见 [OlmStateCommitException]；
 /// - prekey（one-time / fallback）经服务端发布/claim，服务端只存公钥侧；
 /// - 服务端消息管线对 Olm 密文视作不透明 map 透传（与 Megolm 同路径）。
 ///
@@ -63,6 +66,20 @@ class OlmAuthenticationException implements Exception {
   final String message;
   @override
   String toString() => 'OlmAuthenticationException: $message';
+}
+
+/// E2EE-030: 密码学状态无法**原子持久化**（事务性 CryptoStore 不可用）。
+///
+/// ADR 14 §4.2 不变量 7：密码学状态更新要么与消息状态同时提交，要么全部回滚；
+/// 不得出现「密文已发送但 ratchet 状态未持久化」的可重复密钥状态。因此
+/// CryptoStore 不可用时必须 fail-closed 拒绝加/解密，**不得**退化成只写
+/// FlutterSecureStorage——那样一次 DB 不可用窗口 + 进程重启就会让 ratchet
+/// 回滚到旧状态并重用已消费的 message key（PFS 失效）。
+class OlmStateCommitException implements Exception {
+  OlmStateCommitException(this.message);
+  final String message;
+  @override
+  String toString() => 'OlmStateCommitException: $message';
 }
 
 /// S2.3: 入站消息重复投递（dedupe 命中）。
@@ -293,24 +310,50 @@ class OlmSessionService {
   String _sessionKey(String peerUid, String peerDeviceId) =>
       '$_sessionPicklePrefix$peerUid:$peerDeviceId';
 
+  /// E2EE-030: 取事务存储；不可用时驱逐内存会话副本并 fail-closed。
+  ///
+  /// 驱逐是必需的：`session.encrypt/decrypt` 会就地推进内存中的 ratchet，若此时
+  /// 无法持久化又保留内存副本，就会出现「内存已推进、磁盘未推进」的分叉——进程
+  /// 重启后回滚到磁盘状态，重用已消费的 message key（ADR 14 §4.2 不变量 6/7）。
+  Future<CryptoStore> _requireStore(String peerUid, String peerDeviceId) async {
+    final store = await cryptoStore;
+    if (store == null) {
+      _sessions.remove(_sessionKey(peerUid, peerDeviceId));
+      throw OlmStateCommitException(
+        'crypto store unavailable; refusing to advance ratchet for '
+        '$peerUid:$peerDeviceId',
+      );
+    }
+    return store;
+  }
+
   Future<vod.Session?> _loadSession(String peerUid, String peerDeviceId) async {
     final key = _sessionKey(peerUid, peerDeviceId);
     final cached = _sessions[key];
     if (cached != null) return cached;
     final pickleKey = await _pickleKey();
 
-    // S2.3: 优先从 CryptoStore（SQLCipher 事务存储）读取
-    String? stored;
-    final store = await cryptoStore;
-    if (store != null) {
-      stored = await store.loadSession(
-        peerUid: peerUid,
-        peerDeviceId: peerDeviceId,
-      );
-    }
-    // 回退：迁移期 SecureStorage 中可能仍有旧 pickle
+    // E2EE-030: 事务存储（SQLCipher）是 ratchet 状态的唯一权威副本
+    final store = await _requireStore(peerUid, peerDeviceId);
+    var stored = await store.loadSession(
+      peerUid: peerUid,
+      peerDeviceId: peerDeviceId,
+    );
+
+    // 升级路径：旧版本把同一份 pickle 双写在 SecureStorage。此处一次性导入并
+    // **立即删除** legacy 副本——两份状态长期并存时，任一侧漏写都会在重启后被
+    // 另一侧的陈旧值覆盖，造成 ratchet 回滚与 message key 重用。
     if (stored == null || stored.isEmpty) {
-      stored = await StorageSecureService.to.read(key: key);
+      final legacy = await StorageSecureService.to.read(key: key);
+      if (legacy != null && legacy.isNotEmpty) {
+        await store.persistSession(
+          peerUid: peerUid,
+          peerDeviceId: peerDeviceId,
+          pickle: legacy,
+        );
+        await StorageSecureService.to.delete(key: key);
+        stored = legacy;
+      }
     }
     if (stored == null || stored.isEmpty) return null;
 
@@ -331,29 +374,63 @@ class OlmSessionService {
     }
   }
 
+  /// E2EE-030: 只写事务存储；不可提交则 fail-closed（不再双写 SecureStorage）。
   Future<void> _persistSession(
     String peerUid,
     String peerDeviceId,
     vod.Session session,
   ) async {
+    final store = await _requireStore(peerUid, peerDeviceId);
     final pickleKey = await _pickleKey();
-    final pickle = session.toPickleEncrypted(pickleKey);
-
-    // S2.3: 主路径写 CryptoStore（SQLCipher 事务存储）
-    final store = await cryptoStore;
-    if (store != null) {
-      await store.persistSession(
-        peerUid: peerUid,
-        peerDeviceId: peerDeviceId,
-        pickle: pickle,
-      );
-    }
-    // 迁移期双写 SecureStorage（后续版本移除）
-    await StorageSecureService.to.write(
-      key: _sessionKey(peerUid, peerDeviceId),
-      value: pickle,
+    await store.persistSession(
+      peerUid: peerUid,
+      peerDeviceId: peerDeviceId,
+      pickle: session.toPickleEncrypted(pickleKey),
     );
     _sessions[_sessionKey(peerUid, peerDeviceId)] = session;
+  }
+
+  // ===== 会话标识（PFv3 protected_header.session_ref）=====
+
+  /// 取得与 [peerUid]/[peerDeviceId] 的 Olm 会话标识（必要时先完成 X3DH 协商）。
+  ///
+  /// **为什么需要它（E2EE-025）**：PFv3 的 `protected_header.session_ref` 是
+  /// `ProtectedFrameV3.buildProtectedHeader` 的**入参**，而 header 又要先进
+  /// inner_frame 才能被 `protocol.encrypt` 加密——于是 session id 必须在加密
+  /// **之前**就已知。但 `encryptC2CMessage` 的 session 是在其内部
+  /// load-or-establish 出来的，返回值才带 sessionId，形成循环依赖。
+  /// `E2eeSessionProtocol` 接口被 ADR 02 §10 冻结，无法加方法取该值，
+  /// 故在本服务上单独暴露一个查询入口（方案 A）。
+  ///
+  /// 与 [encryptC2CMessage] 共用同一把 per-device 锁与同一套
+  /// load-or-establish 逻辑，因此本方法返回后再调 encrypt，**绝大多数情况下**
+  /// 拿到的是同一个 session。
+  ///
+  /// ⚠️ 已知竞态：两次调用之间若会话被替换（例如并发触发重新协商），
+  /// header 里的 `session_ref` 会与实际加密所用 session 不一致。后果是接收侧
+  /// `_validateContextBinding` 判 `context_mismatch_session_id` 并**拒收该条
+  /// 消息**——方向 fail-closed，不产生可被利用的绑定弱化。
+  ///
+  /// ⚠️ 副作用：对某设备**首次**发消息时，claim prekey 的网络请求会发生在
+  /// 本方法内（而非 encrypt 内），时序比改动前提前一步。
+  Future<String> ensureSessionId(String peerUid, String peerDeviceId) async {
+    await ensureInitialized();
+    final lockKey = '$peerUid:$peerDeviceId';
+    final lock = _sessionLocks.putIfAbsent(lockKey, () => Lock());
+    return lock.synchronized(() async {
+      final loaded = await _loadSession(peerUid, peerDeviceId);
+      if (loaded != null) return loaded.sessionId;
+
+      // 新建会话必须**立即持久化**：`_establishOutboundSession` 只返回 session，
+      // 既不写 `_sessions` 缓存也不落库（持久化由其调用方负责）。若这里不落，
+      // 随后的 `encryptC2CMessage` 会再走一次 `_establishOutboundSession`，
+      // 结果是：① 再 claim 一个对端 OTK（无谓消耗，助长 OTK 耗尽）；
+      // ② 拿到**另一个** session id，与已写进 header 的 `session_ref` 必然不符，
+      // 每条首发消息都会被接收侧判 `context_mismatch_session_id`。
+      final session = await _establishOutboundSession(peerUid, peerDeviceId);
+      await _persistSession(peerUid, peerDeviceId, session);
+      return session.sessionId;
+    });
   }
 
   // ===== 加密（出站，X3DH 协商 + DR 加密）=====
@@ -382,22 +459,16 @@ class OlmSessionService {
           await _establishOutboundSession(peerUid, peerDeviceId);
       final result = session.encrypt(plaintext);
 
-      // S2.3: 原子 ratchet + outbox（CryptoStore 可用时）
-      final store = await cryptoStore;
-      if (store != null && outboxId != null && outboxPayload != null) {
+      // S2.3: 原子 ratchet + outbox
+      if (outboxId != null && outboxPayload != null) {
+        final store = await _requireStore(peerUid, peerDeviceId);
         final pickleKey = await _pickleKey();
-        final pickle = session.toPickleEncrypted(pickleKey);
         await store.persistSessionWithOutbox(
           peerUid: peerUid,
           peerDeviceId: peerDeviceId,
-          pickle: pickle,
+          pickle: session.toPickleEncrypted(pickleKey),
           outboxId: outboxId,
           payload: outboxPayload,
-        );
-        // 迁移期双写 SecureStorage
-        await StorageSecureService.to.write(
-          key: _sessionKey(peerUid, peerDeviceId),
-          value: pickle,
         );
         _sessions[_sessionKey(peerUid, peerDeviceId)] = session;
       } else {
@@ -614,24 +685,18 @@ class OlmSessionService {
     vod.Session session,
     String? messageId,
   ) async {
-    final store = await cryptoStore;
-    if (store != null && messageId != null) {
+    if (messageId != null) {
+      final store = await _requireStore(peerUid, peerDeviceId);
       final pickleKey = await _pickleKey();
-      final pickle = session.toPickleEncrypted(pickleKey);
       final accepted = await store.dedupeAndPersistSession(
         messageId: messageId,
         peerUid: peerUid,
         peerDeviceId: peerDeviceId,
-        pickle: pickle,
+        pickle: session.toPickleEncrypted(pickleKey),
       );
       if (!accepted) {
         throw DuplicateMessageException(messageId);
       }
-      // 迁移期双写 SecureStorage
-      await StorageSecureService.to.write(
-        key: _sessionKey(peerUid, peerDeviceId),
-        value: pickle,
-      );
       _sessions[_sessionKey(peerUid, peerDeviceId)] = session;
     } else {
       await _persistSession(peerUid, peerDeviceId, session);
@@ -662,10 +727,14 @@ class OlmSessionService {
     _sessions.clear();
     _sessionLocks.clear();
     _account = null;
+    // E2EE-030: ratchet 状态只在事务存储中，`olm_` 前缀擦除覆盖不到，须显式清。
+    // DB 不可用时不阻断登出——SQLCipher 主钥同时被销毁，残留行不可读。
+    final store = await cryptoStore;
+    await store?.deleteAllSessions();
     await StorageSecureService.to.delete(key: _accountPickleStorageKey);
     await StorageSecureService.to.delete(key: _pickleKeyStorageKey);
-    // 注：session pickles 是 keyed by peerUid，全量清理需遍历存储，
-    // 由调用方 StorageSecureService 全量 wipe 兜底。
+    // 升级前版本遗留的 `olm_session_*` 明面副本由 E2eeSecretInventory 的
+    // `olm_` 前缀全量 wipe 兜底。
     iPrint('[olm] all state cleared');
   }
 }

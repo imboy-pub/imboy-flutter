@@ -27,10 +27,10 @@ void main() {
       expect('RSA-OAEP-256+AES-256-GCM', isNot(equals(kMegolmSuite)));
     });
 
-    test('useOlmForC2C 灰度开关默认 false（不破坏现有 Megolm 单聊）', () {
-      // 线 B.4 灰度策略：默认继续走 Megolm，Olm 仅作能力预建 + 解密路径就绪。
-      // 真机验证 X3DH 多设备协商稳定后，按会话/版本翻此开关。
-      expect(ChatNetworkService.useOlmForC2C, isFalse);
+    test('useOlmForC2C 灰度开关默认 true（C2C 默认走 Olm per-device fan-out）', () {
+      // E2EE-029: C2C 新消息默认走 Olm per-device fan-out（PFv3）
+      // Megolm 仅保留 C2G 群聊路径；RSA 仅保留 legacy decrypt-only
+      expect(ChatNetworkService.useOlmForC2C, isTrue);
     });
   });
 

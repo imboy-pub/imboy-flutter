@@ -9,6 +9,7 @@ import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/service/compliance_key_service.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
@@ -502,17 +503,24 @@ class E2EEService {
       );
     }
 
-    // 2.6 防重放与序列号验证 (E2EE-025 / ADR 15 & 16)
-    final sessionRef = outerHeader['session_ref']?.toString() ?? '';
-    final seq = outerHeader['epoch_or_counter'] as int? ?? 0;
-    if (sessionRef.isNotEmpty) {
-      final store = await OlmSessionService.to.cryptoStore;
-      if (store != null) {
-        final success = await store.checkAndUpdateSequence(sessionRef, seq);
-        if (!success) {
-          return _decryptFailedPayload(payload, reason: 'replay_detected');
-        }
-      }
+    // 2.6 序列号验证 (E2EE-025 / 提案 25 选项 C，已人工签字)
+    //
+    // `epoch_or_counter` **仅 MLS 使用**（承载 epoch）。Olm/Megolm 恒填 0，
+    // 接收侧不对其做序列检查——理由（提案 25 §1.3 / §4）：
+    //   1. `message_id` 位于**受认证**的 protected_header 内，改它会破坏
+    //      header_hash / inner 比对，因此 `message_id` dedupe（ADR 15 §7.1，
+    //      下方透传给 OlmProtocol → crypto_inbox_dedupe）已是密码学绑定的
+    //      幂等保证；
+    //   2. Olm Double Ratchet 的 message key 用后即毁，重放同一密文必然解密失败。
+    // 在此之上再叠一套应用层计数器属重复机制，且其可用性风险（离线批量投递与
+    // WS 重连乱序是 IMBoy 常态，严格单调必然误杀）高于其安全收益。
+    //
+    // ⚠️ 引入 MLS 时（E2EE-04x）**不得**直接复用 CryptoStore.checkAndUpdateSequence：
+    // 它是严格单调，而 ADR 15 §7.2（修订后仅适用于 MLS）要求的是 IPsec 式
+    // 滑动窗口（high-water mark + bitmap + resync），见提案 25 §3 选项 B。
+    final protocol = outerHeader['protocol']?.toString() ?? '';
+    if (protocol == 'mls') {
+      return _decryptFailedPayload(payload, reason: 'mls_not_implemented');
     }
 
     // 3. 协议解密
@@ -545,7 +553,19 @@ class E2EEService {
       innerFrameB64 = await E2eeProtocolRegistry.resolve(
         metadata,
       ).decrypt(ciphertext: ciphertextStr, metadata: metadata);
+    } on DuplicateMessageException {
+      // ADR 15 §7.1：重复密文幂等返回，ratchet 未重复推进。
+      // 与"解密失败"语义不同——上层据此静默跳过，不应向用户报错。
+      return _decryptFailedPayload(payload, reason: 'duplicate_message');
+    } on OlmStateCommitException {
+      // E2EE-030：本地事务存储不可用导致的 fail-closed，密文本身没问题，
+      // 属**可重试**故障；压成 decrypt_error 会让上层当作永久失败。
+      return _decryptFailedPayload(payload, reason: 'crypto_store_unavailable');
+    } on CryptoStoreUnavailableException {
+      // E2EE-025 §5.2：同上，来自 CryptoStore 自身的存储故障。
+      return _decryptFailedPayload(payload, reason: 'crypto_store_unavailable');
     } catch (_) {
+      // 其余一律归为稳定、无秘密的通用分类（ADR 15 §5：不上送 oracle 细节）
       return _decryptFailedPayload(payload, reason: 'decrypt_error');
     }
 

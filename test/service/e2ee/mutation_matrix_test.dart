@@ -5,6 +5,8 @@ library;
 
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee_service.dart' hide RecipientDevice;
@@ -43,12 +45,29 @@ class _IdentityProtocol implements E2eeSessionProtocol {
 }
 
 void main() {
-  setUpAll(() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // E2EE-027: encryptV3 提交 immutable outbox 后才交出可发送信封，
+  // 故生产加密路径需要可用的事务存储（真实 SQLite ffi in-memory）。
+  late Database db;
+
+  setUpAll(sqfliteFfiInit);
+
+  // 逐用例独立 DB：crypto_session_sequence 是跨消息单调状态，
+  // 共享 DB 会让用例结果依赖执行顺序。
+  setUp(() async {
+    databaseFactory = databaseFactoryFfi;
+    db = await databaseFactory.openDatabase(inMemoryDatabasePath);
+    SqliteService.setDbForTest(db);
     E2eeProtocolRegistry.resetForTest();
     E2eeProtocolRegistry.register(_IdentityProtocol());
   });
 
-  tearDownAll(E2eeProtocolRegistry.resetForTest);
+  tearDown(() async {
+    E2eeProtocolRegistry.resetForTest();
+    SqliteService.setDbForTest(null);
+    await db.close();
+  });
 
   group('E2EE-024 Mutation Matrix Tests', () {
     const originalPayload = {

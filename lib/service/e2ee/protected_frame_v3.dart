@@ -459,7 +459,23 @@ class ProtectedFrameV3 {
   static const int maxHeaderBytes = 8 * 1024;
 
   /// 构造 protected_header map（ADR 15 §3.1，字段冻结）
+  ///
+  /// [ctx.sessionRef] 必须非空：ADR 15 §3.1 把 `session_ref` 定义为
+  /// `text, 1..256 字节`。这条守卫放在**构造处**而不是各调用点——E2EE-025
+  /// 的事故正是某个调用点传了空串（`chat_network_service.dart` 曾写
+  /// `sessionRef: ''` 并注释「OlmProtocol 内部填充」，而该填充并不存在），
+  /// 导致接收侧 `_validateContextBinding` 判 `context_mismatch_session_id`，
+  /// 整条 C2C v3 消息不可读，且**发送侧毫无察觉**。
+  /// 在此 fail-closed，任何新调用点漏传都会立刻炸而不是静默产出废密文。
   static Map<String, dynamic> buildProtectedHeader(FrameContext ctx) {
+    if (ctx.sessionRef.isEmpty) {
+      throw ArgumentError.value(
+        ctx.sessionRef,
+        'sessionRef',
+        'ADR 15 §3.1: session_ref 必须为 1..256 字节的非空文本；'
+            '空串会让接收侧 context binding 比对失败，消息永久不可读',
+      );
+    }
     return {
       'v': 3,
       'message_id': ctx.messageId,

@@ -1,6 +1,21 @@
-/// E2EE-025 — Replay, Counter and Epoch Sequence Validation Tests.
+/// E2EE-025 — Replay / Counter / Epoch 语义测试（**选项 C 定案后已重写**）。
 ///
-/// Ref: 22-claude-code-execution-state.md (E2EE-025)
+/// Ref: `22-claude-code-execution-state.md` (E2EE-025)、
+///      `25-proposal-replay-counter-semantics.md` §3 选项 C（2026-07-28 人工签字）
+///
+/// ⚠️ 本文件原先断言「重复/较小的 `epoch_or_counter` → `replay_detected`」。
+/// 该语义已被选项 C **明确废止**，原因不是"为了变绿"，而是：
+///   1. 生产发送侧 counter 恒 0，严格单调会让首条合法消息即被误判 replay
+///      （提案 §1.2 的 P2）——旧断言之所以能过，是测试**手工**递增了 counter，
+///      生产从来不会；
+///   2. 离线批量投递与 WS 重连乱序是 IMBoy 常态，严格单调必然误杀真实消息
+///      （提案 §1.2 的 P3）；
+///   3. 重放防护职责改由 `message_id` dedupe（位于**受认证**的
+///      protected_header 内，ADR 15 §7.1）+ Olm ratchet「message key 用后即毁」
+///      承担，二者在生产上均已接线生效。
+///
+/// 因此本文件现在守护的是**选项 C 的正确语义**：Olm/Megolm 不做序列检查，
+/// 且 counter 乱序不得导致拒收；同时保留原有的正向与会话隔离用例。
 library;
 
 import 'dart:convert';
@@ -138,39 +153,44 @@ void main() {
       expect(r3['_e2ee_failed'], isNot(true));
     });
 
+    // 选项 C：重复的 epoch_or_counter 不再是拒收理由。
+    // 旧断言（replay_detected）与生产实况冲突——生产 counter 恒 0，
+    // 按旧语义**每一条**消息都会重复，等于全线不可读。
     test(
-      'negative path: duplicate sequence number causes replay_detected rejection',
+      'option C: duplicate sequence number must NOT be rejected as replay',
       () async {
         final m1 = await buildEnvelope(1, 'sess-2');
-        final m1Duplicate = await buildEnvelope(1, 'sess-2');
+        final m1SameSeq = await buildEnvelope(1, 'sess-2');
 
-        // First delivery passes
         final r1 = await E2EEService.decryptIncomingPayload(payload: m1);
         expect(r1['_e2ee_failed'], isNot(true));
 
-        // Replay delivery fails closed
-        final r2 = await E2EEService.decryptIncomingPayload(
-          payload: m1Duplicate,
+        final r2 = await E2EEService.decryptIncomingPayload(payload: m1SameSeq);
+        expect(
+          r2['_e2ee_reason'],
+          isNot(equals('replay_detected')),
+          reason: 'Olm/Megolm 不做序列检查；重放防护归 message_id dedupe + ratchet',
         );
-        expect(r2['_e2ee_failed'], isTrue);
-        expect(r2['_e2ee_reason'], equals('replay_detected'));
       },
     );
 
+    // 选项 C：较小的 epoch_or_counter 是合法的乱序投递，必须可读。
     test(
-      'negative path: lower sequence number causes replay_detected rejection',
+      'option C: lower sequence number is legitimate out-of-order, must be readable',
       () async {
         final mHigh = await buildEnvelope(10, 'sess-3');
         final mLow = await buildEnvelope(5, 'sess-3');
 
-        // Higher sequence (seq = 10) passes first
         final r1 = await E2EEService.decryptIncomingPayload(payload: mHigh);
         expect(r1['_e2ee_failed'], isNot(true));
 
-        // Lower sequence (seq = 5) gets rejected as a delayed/replayed message
         final r2 = await E2EEService.decryptIncomingPayload(payload: mLow);
-        expect(r2['_e2ee_failed'], isTrue);
-        expect(r2['_e2ee_reason'], equals('replay_detected'));
+        expect(r2['_e2ee_reason'], isNot(equals('replay_detected')));
+        expect(
+          r2['_e2ee_failed'],
+          isNot(true),
+          reason: '离线批量与 WS 重连乱序是常态，严格单调会误杀真实消息（提案 §1.2 P3）',
+        );
       },
     );
 

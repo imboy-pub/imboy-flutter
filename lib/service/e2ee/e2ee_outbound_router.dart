@@ -8,10 +8,24 @@
 library;
 
 import 'dart:convert';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'dart:typed_data';
 
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
+
+/// E2EE-027: 出站 immutable 密文无法提交到事务存储。
+///
+/// ADR 14 §8「CryptoStore 提交失败」→ 消息保留"未发送"。抛出此异常意味着
+/// **调用方不得发送**：密文没有落到 outbox，崩溃后既无投递也无重发依据，
+/// 而用户界面会显示"已发送"。
+class E2eeOutboxCommitException implements Exception {
+  const E2eeOutboxCommitException(this.message);
+  final String message;
+  @override
+  String toString() => 'E2eeOutboxCommitException: $message';
+}
 
 class E2eeOutboundRouter {
   const E2eeOutboundRouter._();
@@ -149,6 +163,21 @@ class E2eeOutboundRouter {
       ciphertext: ciphertextBytes,
       protocolMetadata: protocolMetadata,
     );
+
+    // E2EE-027: 加密后先把 immutable 密文落 outbox，**再**允许调用方发送
+    // （ADR 20 §S2.3）。fail-closed：无法提交就抛错，不返回可发送信封——否则
+    // 崩溃后消息既未投递也无重发依据，用户却看到"已发送"（ADR 14 §8）。
+    //
+    // 写入错误一律向上传播，不得 catch 后照常返回（静默吞错即 fail-open）。
+    final db = await SqliteService.to.db;
+    if (db == null) {
+      throw const E2eeOutboxCommitException(
+        'crypto store unavailable; refusing to hand out sendable ciphertext',
+      );
+    }
+    final store = CryptoStore(db);
+    await store.ensureSchema();
+    await store.insertOutbox(id: messageId, payload: jsonEncode(envelope));
 
     // v3: ciphertext 在 envelope 内，外层 E2eeCiphertext.ciphertext 为空
     return E2eeCiphertext('', envelope);

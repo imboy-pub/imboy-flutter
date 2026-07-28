@@ -11,6 +11,19 @@ library;
 
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
+/// 事务存储自身不可用（DB 故障/锁超时/schema 缺失）。
+///
+/// 与"校验未通过"严格区分：方向上两者都 fail-closed，但**分类必须准确**——
+/// 把存储事故报成 `replay_detected` 会让运维把 DB 故障误判为重放攻击
+/// （提案 25 §5.2）。服务层将其归类为 `crypto_store_unavailable`，
+/// 语义同 [OlmStateCommitException]：可重试，非永久失败。
+class CryptoStoreUnavailableException implements Exception {
+  const CryptoStoreUnavailableException(this.message);
+  final String message;
+  @override
+  String toString() => 'CryptoStoreUnavailableException: $message';
+}
+
 /// 密码学状态事务存储。
 ///
 /// 五张表：
@@ -107,9 +120,19 @@ class CryptoStore {
     );
   }
 
-  /// 严格事务单向自增：在同一个 SQLite 事务中读取并更新序列号，返回 true 表示合法且已更新，返回 false 表示重放/失败。
+  /// 严格事务单向自增：在同一个 SQLite 事务中读取并更新序列号，
+  /// 返回 true 表示合法且已更新，返回 false 表示重放。
   ///
   /// 这可以彻底防范高并发 WebSocket 连接下的 TOCTOU（先读后写）竞态条件。
+  ///
+  /// ⚠️ **当前无生产调用方**（E2EE-025 选项 C，已人工签字）：Olm/Megolm 的
+  /// 重放防护由 `message_id` dedupe + ratchet 语义承担，接收侧不做序列检查。
+  /// 保留本原语是给 MLS 用的，但 **MLS 不得直接复用**——本实现是**严格单调**，
+  /// 而 ADR 15 §7.2（修订后仅适用于 MLS）要求 IPsec 式**滑动窗口**
+  /// （high-water mark + bitmap + resync）。严格单调会误杀离线批量与乱序投递。
+  ///
+  /// 存储故障不再伪装成重放：抛 [CryptoStoreUnavailableException]，
+  /// 由调用方归类为 `crypto_store_unavailable`（提案 25 §5.2 / ADR 15 §7.1）。
   Future<bool> checkAndUpdateSequence(String sessionId, int sequence) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     try {
@@ -134,8 +157,10 @@ class CryptoStore {
         );
         return true; // 校验成功且原子持久化
       });
-    } catch (_) {
-      return false;
+    } on Object catch (e) {
+      // 方向仍是 fail-closed（不放行），但**分类必须准确**：把 DB 故障报成
+      // `replay_detected` 会让运维把存储事故误判为攻击（提案 25 §5.2）。
+      throw CryptoStoreUnavailableException('sequence check failed: $e');
     }
   }
 
@@ -170,6 +195,14 @@ class CryptoStore {
     return rows.first['pickle'] as String?;
   }
 
+  /// 清除全部 Olm session（登出/换号）。
+  ///
+  /// E2EE-030 起 ratchet 状态只存在于本表（不再双写 SecureStorage），
+  /// 故 [E2eeSecretInventory] 的 `olm_` 前缀擦除不再覆盖它，登出必须走这里。
+  Future<void> deleteAllSessions() async {
+    await _db.rawDelete('DELETE FROM crypto_olm_session');
+  }
+
   // ─── Outbox（发送侧）────────────────────────────────────────────────────────
 
   /// 原子操作：ratchet advance（session persist）+ outbox 写入。
@@ -198,6 +231,26 @@ class CryptoStore {
         [outboxId, payload, now],
       );
     });
+  }
+
+  /// 独立 outbox 写入（不关联 session，PFv3 信封在 [E2eeOutboundRouter] 层提交）。
+  ///
+  /// 崩溃恢复：加密后先写 immutable outbox，提交成功才允许发送。
+  ///
+  /// ⚠️ 读侧尚未接线：`pendingOutbox`/`confirmOutbox` 目前在 `lib/` 下无生产
+  /// 调用者，重发仍由 `message_retry.dart` 走业务重发（会重新 encrypt）。
+  /// "重发复用已提交密文"是 E2EE-027 的残留项，见 evidence/E2EE-027-followup.md。
+  Future<void> insertOutbox({
+    required String id,
+    required String payload,
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await _db.rawInsert(
+      '''INSERT INTO crypto_outbox (id, payload, status, created_at)
+         VALUES (?, ?, 'pending', ?)
+         ON CONFLICT(id) DO UPDATE SET payload = excluded.payload''',
+      [id, payload, now],
+    );
   }
 
   /// 确认 outbox 条目已发送。

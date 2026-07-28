@@ -403,5 +403,25 @@ void main() {
         expect(await store.getLastSequence('sess-200'), equals(10));
       },
     );
+
+    // E2EE-025 / 提案 25 §5.2：存储故障不得伪装成重放。
+    // 方向上两者都 fail-closed，但分类必须准确——把 DB 事故报成
+    // replay_detected 会让运维把存储故障误判为攻击。
+    test(
+      'checkAndUpdateSequence 在存储不可用时抛 CryptoStoreUnavailableException 而非返回 false',
+      () async {
+        final brokenDb = await databaseFactoryFfi.openDatabase(
+          inMemoryDatabasePath,
+        );
+        final brokenStore = CryptoStore(brokenDb);
+        await brokenStore.ensureSchema();
+        await brokenDb.close(); // 制造真实的存储不可用
+
+        expect(
+          () => brokenStore.checkAndUpdateSequence('sess-broken', 1),
+          throwsA(isA<CryptoStoreUnavailableException>()),
+        );
+      },
+    );
   });
 }
