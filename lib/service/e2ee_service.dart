@@ -349,6 +349,30 @@ class E2EEService {
   /// ```
   ///
   /// 返回解密后的 payload，如果解密失败则返回包含 `_e2ee_failed` 标记的 payload
+  /// 接收侧 PFv3 分流入口 —— **生产 WS 路径的 v3 唯一进入点**。
+  ///
+  /// 返回 `null` 表示「这不是 v3 信封，调用方继续走既有 v1/v2 路径」。
+  ///
+  /// 为什么需要它（见 evidence/E2EE-v3-receive-path-not-wired.md）：
+  /// 生产 `message.dart::_handleE2EEMessage` 走的是 `decryptE2EEMessage`，
+  /// 它支持 v1/v2 但**不认识 v3**；而 `decryptIncomingPayload` 支持 v1/v3
+  /// 却不支持 v2（扁平 Olm/Megolm 元数据会撞 `invalid_keys`）。
+  /// 两条路各支持一半，导致 PFv3 接收侧长期未接线：
+  /// v3 消息因外层 payload 恒为空串，在 `_receiveMessage` 就被静默丢弃。
+  ///
+  /// 本函数是**纯函数**（无 DB / 事件 / provider 副作用），
+  /// 使解密路径可以脱离 `_receiveMessage` 的副作用链单独验收——
+  /// 此前所有 PFv3 验收都因为那条链太重而退到内部方法上测，
+  /// 结果测了一条生产不走的路。
+  static Future<Map<String, dynamic>?> decryptInboundV3({
+    required Map<String, dynamic> data,
+  }) async {
+    final e2ee = data['e2ee'];
+    if (e2ee is! Map) return null;
+    if (e2ee['meta_version'] != 3) return null;
+    return decryptIncomingPayload(payload: data);
+  }
+
   static Future<Map<String, dynamic>> decryptIncomingPayload({
     required Map<String, dynamic> payload,
   }) async {

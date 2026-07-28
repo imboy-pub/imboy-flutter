@@ -496,8 +496,13 @@ class MessageService with EventSubscriptionManager {
     // v2.0: E2EE 解密处理（复用前面解析的 e2ee 变量）
     // 检查是否有 e2ee 字段（表示消息已加密）
     if (e2ee != null && e2ee.isNotEmpty) {
-      // E2EE 加密消息：payload 应该是密文字符串
-      if (payloadRaw is! String || payloadRaw.isEmpty) {
+      // E2EE 加密消息：v1/v2 的 payload 是密文字符串；
+      // v3（PFv3）的密文在 e2ee.devices[<did>].ciphertext 内，外层 payload
+      // **恒为空串**，因此不能按 v1/v2 的形状把它当作格式错误丢弃——
+      // 此前正是这个 early return 让每条 v3 消息被静默丢弃（连
+      // _e2ee_failed 占位都不产生，UI 上消息凭空消失）。
+      final isV3 = e2ee['meta_version'] == 3;
+      if (!isV3 && (payloadRaw is! String || payloadRaw.isEmpty)) {
         iPrint('❌ [E2EE] E2EE 消息的 payload 应该是密文字符串: msgId=$msgId');
         return;
       }
@@ -1426,6 +1431,26 @@ class MessageService with EventSubscriptionManager {
       data['msg_type'],
       defaultValue: 'text',
     );
+
+    // 0. PFv3 分流（必须在 v1/v2 的密文形状检查之前）：
+    //    v3 的密文在 e2ee.devices 内，外层 payload 为空串。
+    //    decryptInboundV3 返回 null 表示不是 v3，继续走下面的 v1/v2 路径。
+    final v3Result = await E2EEService.decryptInboundV3(data: data);
+    if (v3Result != null) {
+      if (v3Result['_e2ee_failed'] == true) {
+        iPrint(
+          '❌ [E2EE] v3 解密失败: msgId=$msgId, reason=${v3Result['_e2ee_reason']}',
+        );
+        return {
+          'msg_type': originalMsgType,
+          'text': '[消息解密失败]',
+          '_e2ee_failed': true,
+          '_e2ee_reason': v3Result['_e2ee_reason'],
+        };
+      }
+      iPrint('✅ [E2EE] v3 解密成功: msgId=$msgId');
+      return v3Result;
+    }
 
     // 1. 获取密文字符串
     final ciphertext = data['payload']?.toString();
