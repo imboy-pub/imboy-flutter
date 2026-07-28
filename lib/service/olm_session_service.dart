@@ -11,6 +11,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/fallback_key_signature.dart';
+import 'package:imboy/service/e2ee/fallback_rotation_policy.dart';
 import 'package:imboy/service/e2ee/identity_verifier.dart';
 import 'package:imboy/service/e2ee/olm_claim_request_id.dart';
 import 'package:imboy/service/e2ee/otk_refill_policy.dart';
@@ -36,6 +37,11 @@ const String _pickleKeyStorageKey = 'olm_pickle_key';
 
 /// Account pickle 存储键（每设备一份长期身份）
 const String _accountPickleStorageKey = 'olm_account_pickle';
+
+/// fallback key 上次轮换时刻（epoch ms）的存储键。
+/// 与 account pickle 同放 SecureStorage：它不是秘密，但属于同一份 Olm 状态，
+/// 分散到两处存储只会让"状态在哪"变成需要记忆的事。
+const String _lastFallbackRotationKey = 'olm_fallback_rotated_at';
 
 /// Session pickle 存储键前缀：`olm_session_<peerUid>:<peerDeviceId>`
 const String _sessionPicklePrefix = 'olm_session_';
@@ -322,6 +328,7 @@ class OlmSessionService {
           keyBase64: fbKeyB64,
           signature: account.sign(fbCanonical).toBase64(),
         );
+        await _recordFallbackRotation();
       }
       account.markKeysAsPublished();
       await _persistAccount(await _pickleKey());
@@ -362,6 +369,68 @@ class OlmSessionService {
       '[olm] OTK refill: remaining=${remaining ?? "unknown"} uploaded=$uploaded',
     );
     return uploaded;
+  }
+
+  Future<void> _recordFallbackRotation() async {
+    await StorageSecureService.to.write(
+      key: _lastFallbackRotationKey,
+      value: DateTime.now().millisecondsSinceEpoch.toString(),
+    );
+  }
+
+  Future<int?> _readLastFallbackRotation() async {
+    final raw = await StorageSecureService.to.read(
+      key: _lastFallbackRotationKey,
+    );
+    if (raw == null || raw.isEmpty) return null;
+    return int.tryParse(raw);
+  }
+
+  /// E2EE-062：fallback prekey 的**周期轮换**。
+  ///
+  /// 触发点刻意挂在入站建会话之后（与 OTK 补传同一处），而不是登录或定时器：
+  /// **"长期不登录"正是本缺口的成因**，把轮换绑在登录上等于没修；
+  /// 定时器则要引入新的调度基建与生命周期管理，是更大的面。
+  /// 入站建会话对活跃用户天然会发生，够用且零新基建。
+  ///
+  /// ⚠️ **不调用 `forgetFallbackKey()`**：轮换后旧私钥被 vodozemac 保留，
+  /// 正是"在途 pre-key 消息仍可解密"的机制（已实证）。过早遗忘会丢消息，
+  /// 而其确切语义尚未特征化——留作独立一刀，见 evidence 残留。
+  ///
+  /// 返回是否确实轮换了（供测试与日志）。
+  @visibleForTesting
+  Future<bool> maybeRotateFallbackKey({OlmApi? api}) async {
+    final account = await _loadOrCreateAccount();
+    final lastMs = await _readLastFallbackRotation();
+    final due = shouldRotateFallbackKey(
+      lastRotatedAtMs: lastMs,
+      nowMs: DateTime.now().millisecondsSinceEpoch,
+    );
+    if (!due) return false;
+
+    final olm = api ?? OlmApi();
+    account.generateFallbackKey();
+    final fbKey = account.fallbackKey;
+    if (fbKey.isEmpty) return false;
+    final entry = fbKey.entries.first;
+    final fbKeyB64 = entry.value.toBase64();
+    final canonical = fallbackKeyCanonical(
+      userId: UserRepoLocal.to.currentUid,
+      deviceId: deviceId,
+      keyId: entry.key,
+      keyBase64: fbKeyB64,
+    );
+    await olm.reportFallbackKey(
+      deviceId: deviceId,
+      keyId: entry.key,
+      keyBase64: fbKeyB64,
+      signature: account.sign(canonical).toBase64(),
+    );
+    account.markKeysAsPublished();
+    await _recordFallbackRotation();
+    await _persistAccount(await _pickleKey());
+    iPrint('[olm] fallback key rotated');
+    return true;
   }
 
   // ===== Session（每对端 DR 会话）管理 =====
@@ -711,10 +780,14 @@ class OlmSessionService {
         );
         // 入站会话建立后，本端可能需补传 OTK
         unawaited(
-          _refillOneTimeKeys(account).then((_) async {
-            final pickleKey = await _pickleKey();
-            await _persistAccount(pickleKey);
-          }),
+          _refillOneTimeKeys(account)
+              // E2EE-062：顺带做 fallback key 的周期轮换。挂在这里是因为
+              // "长期不登录"正是缺口成因，绑登录等于没修。
+              .then((_) => maybeRotateFallbackKey())
+              .then((_) async {
+                final pickleKey = await _pickleKey();
+                await _persistAccount(pickleKey);
+              }),
         );
         return result.plaintext as String;
       }
