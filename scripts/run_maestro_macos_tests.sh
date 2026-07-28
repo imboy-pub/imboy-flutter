@@ -67,7 +67,12 @@ FLOWS=(
   "maestro/44_group_role_filter_states.yaml"
   "maestro/45_favorites_type_filter_states.yaml"
   "maestro/46_new_friend_request_states.yaml"
+  "maestro/47_people_nearby_read_only.yaml"
+  "maestro/48_scanner_entry_read_only.yaml"
   "maestro/08_logout.yaml"
+  "maestro/49_auth_entry_forms.yaml"
+  "maestro/50_login_method_validation.yaml"
+  "maestro/51_account_binding_validation.yaml"
 )
 
 PASS_COUNT=0

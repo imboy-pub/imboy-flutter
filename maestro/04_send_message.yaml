@@ -1,7 +1,8 @@
 appId: ${APP_ID}
 name: "发送文字消息"
+onFlowStart:
+  - runFlow: 01_login.yaml
 ---
-- launchApp
 - tapOn:
     id: "tab_conversations"
 

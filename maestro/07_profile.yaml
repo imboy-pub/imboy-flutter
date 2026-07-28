@@ -1,8 +1,11 @@
 appId: ${APP_ID}
 name: "我的页面"
+onFlowStart:
+  - runFlow: 01_login.yaml
 ---
-- launchApp
 - tapOn:
+    id: "tab_mine"
+- assertVisible:
     id: "tab_mine"
 - takeScreenshot: mine_page
 

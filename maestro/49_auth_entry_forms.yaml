@@ -1,0 +1,73 @@
+appId: ${APP_ID}
+name: "未登录认证入口与表单预览"
+tags:
+  - auth-preview
+  - local-state-reset
+onFlowStart:
+  # 仅清理本机登录态，避免依赖前序 Flow；不删除服务端数据。
+  - clearState
+  - launchApp
+  - waitForAnimationToEnd
+---
+# 首次安装可能先显示三页欢迎引导。
+- runFlow:
+    when:
+      visible:
+        text: "跳过"
+    commands:
+      - tapOn:
+          text: "跳过"
+      - waitForAnimationToEnd
+
+- assertVisible:
+    id: "login_phone_input"
+- assertVisible:
+    id: "login_password_input"
+- assertVisible:
+    id: "login_submit_button"
+- assertVisible:
+    text: "忘记密码？"
+- assertVisible:
+    text: "注册"
+- takeScreenshot: login_entry_forms
+
+# 找回密码：只检查邮箱/手机号入口和空表单，不发送验证码。
+- tapOn:
+    text: "忘记密码？"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "找回密码"
+- assertVisible:
+    text: "邮箱"
+- assertVisible:
+    text: "手机"
+- assertVisible:
+    text: "请输入邮箱"
+- assertVisible:
+    text: "下一步"
+- tapOn:
+    text: "手机"
+- assertVisible:
+    text: "请输入手机号"
+- takeScreenshot: forgot_password_forms
+- back
+
+# 注册：只预览邮箱/手机号字段，不填资料、不请求验证码。
+- tapOn:
+    text: "注册"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "注册"
+- assertVisible:
+    text: "请输入昵称"
+- assertVisible:
+    text: "请输入邮箱"
+- assertVisible:
+    text: "请输入密码"
+- assertVisible:
+    text: "下一步"
+- tapOn:
+    text: "手机"
+- assertVisible:
+    text: "请输入手机号"
+- takeScreenshot: signup_forms

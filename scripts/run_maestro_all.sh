@@ -68,7 +68,12 @@ FLOWS=(
   "44_group_role_filter_states.yaml|群聊角色筛选交互"
   "45_favorites_type_filter_states.yaml|收藏类型筛选交互"
   "46_new_friend_request_states.yaml|新好友申请状态"
+  "47_people_nearby_read_only.yaml|附近的人页面只读验收"
+  "48_scanner_entry_read_only.yaml|扫描二维码页面只读验收"
   "08_logout.yaml|退出登录"
+  "49_auth_entry_forms.yaml|未登录认证入口与表单预览"
+  "50_login_method_validation.yaml|登录方式切换与空表单校验"
+  "51_account_binding_validation.yaml|账号绑定表单本地校验"
 )
 
 TOTAL=${#FLOWS[@]}

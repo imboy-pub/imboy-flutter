@@ -1,8 +1,11 @@
 appId: ${APP_ID}
 name: "联系人页面"
+onFlowStart:
+  - runFlow: 01_login.yaml
 ---
-- launchApp
 - tapOn:
+    id: "tab_contacts"
+- assertVisible:
     id: "tab_contacts"
 - takeScreenshot: contacts_list
 

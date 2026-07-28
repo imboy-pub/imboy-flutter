@@ -1,0 +1,48 @@
+appId: ${APP_ID}
+name: "附近的人页面只读验收"
+tags:
+  - smoke
+  - read-only
+  - permission-preview
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_contacts"
+- extendedWaitUntil:
+    visible:
+      text: "新的朋友"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: "附近的人"
+    direction: DOWN
+- tapOn:
+    text: "附近的人"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "附近的人"
+
+# 首次运行可能出现系统定位授权；只处理授权弹窗，不切换页面内的可见性设置。
+- runFlow:
+    when:
+      visible:
+        text: "允许.*"
+    commands:
+      - tapOn:
+          text: "允许.*"
+- runFlow:
+    when:
+      visible:
+        text: "Allow.*"
+    commands:
+      - tapOn:
+          text: "Allow.*"
+
+# 后端无附近用户、定位不可用或正常列表都属于可验收状态。
+- extendedWaitUntil:
+    visible:
+      text: "(暂无附近的人|点击上方的搜索按钮查找附近的人|附近的人)"
+    timeout: 15000
+- takeScreenshot: people_nearby_read_only
+- back

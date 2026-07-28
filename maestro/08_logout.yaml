@@ -1,7 +1,8 @@
 appId: ${APP_ID}
 name: "退出登录"
+onFlowStart:
+  - runFlow: 01_login.yaml
 ---
-- launchApp
 - tapOn:
     id: "tab_mine"
 - scroll

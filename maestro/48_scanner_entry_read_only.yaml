@@ -1,0 +1,45 @@
+appId: ${APP_ID}
+name: "扫描二维码页面只读验收"
+tags:
+  - smoke
+  - read-only
+  - permission-preview
+onFlowStart:
+  - runFlow: 01_login.yaml
+---
+- tapOn:
+    id: "tab_contacts"
+- extendedWaitUntil:
+    visible:
+      id: "add_friend_button"
+    timeout: 15000
+- tapOn:
+    id: "add_friend_button"
+- waitForAnimationToEnd
+- tapOn:
+    text: "扫描二维码"
+- waitForAnimationToEnd
+
+# 首次运行可能出现系统相机授权；不扫描、不打开外部链接。
+- runFlow:
+    when:
+      visible:
+        text: "允许.*"
+    commands:
+      - tapOn:
+          text: "允许.*"
+- runFlow:
+    when:
+      visible:
+        text: "Allow.*"
+    commands:
+      - tapOn:
+          text: "Allow.*"
+
+- extendedWaitUntil:
+    visible:
+      text: "扫描二维码"
+    timeout: 15000
+- takeScreenshot: scanner_entry_read_only
+- back
+- back

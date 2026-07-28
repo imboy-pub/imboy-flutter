@@ -1,7 +1,8 @@
 appId: ${APP_ID}
 name: "Tab 导航切换"
+onFlowStart:
+  - runFlow: 01_login.yaml
 ---
-- launchApp
 - assertVisible:
     id: "tab_conversations"
 
@@ -10,6 +11,8 @@ name: "Tab 导航切换"
 - takeScreenshot: tab_conversations
 
 - tapOn:
+    id: "tab_contacts"
+- assertVisible:
     id: "tab_contacts"
 - takeScreenshot: tab_contacts
 
@@ -20,9 +23,13 @@ name: "Tab 导航切换"
     commands:
       - tapOn:
           id: "tab_channel"
+      - assertVisible:
+          id: "tab_channel"
       - takeScreenshot: tab_channel
 
 - tapOn:
+    id: "tab_mine"
+- assertVisible:
     id: "tab_mine"
 - takeScreenshot: tab_mine
 

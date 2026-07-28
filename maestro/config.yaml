@@ -55,4 +55,9 @@ executionOrder:
     - 44_group_role_filter_states
     - 45_favorites_type_filter_states
     - 46_new_friend_request_states
+    - 47_people_nearby_read_only
+    - 48_scanner_entry_read_only
     - 08_logout
+    - 49_auth_entry_forms
+    - 50_login_method_validation
+    - 51_account_binding_validation

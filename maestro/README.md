@@ -54,7 +54,7 @@ Claude Code 通过 `mcp__mobile__*` 工具操作：
 
 ## 方案 B — Maestro YAML flows
 
-**声明式 YAML 脚本，46 个 Flow 覆盖启动、登录、消息、联系人、频道、我的页、设置、隐私、二维码、E2EE 备份与钱包。**
+**声明式 YAML 脚本，51 个 Flow 覆盖启动、登录方式切换、认证表单、账号绑定校验、消息、联系人、附近的人、二维码、频道、我的页、设置、隐私、E2EE 备份与钱包。**
 
 ### 安装
 
@@ -143,6 +143,11 @@ Maestro driver bundle ID（`dev.mobile.maestro-driver-ios`）被 mobile.dev 公�
 | `44_group_role_filter_states.yaml` | 群聊角色筛选交互 |
 | `45_favorites_type_filter_states.yaml` | 收藏类型筛选交互 |
 | `46_new_friend_request_states.yaml` | 新好友申请空态与处理状态 |
+| `47_people_nearby_read_only.yaml` | 附近的人页面与定位授权后只读状态 |
+| `48_scanner_entry_read_only.yaml` | 扫描二维码页面与相机授权后只读状态 |
+| `49_auth_entry_forms.yaml` | 未登录登录、找回密码、注册表单预览（清理本机登录态） |
+| `50_login_method_validation.yaml` | 账号、手机、邮箱登录方式切换与空表单校验（清理本机登录态） |
+| `51_account_binding_validation.yaml` | 绑定邮箱与手机号非法输入的本地校验（不请求验证码） |
 
 截图产物自动保存在 `.maestro/tests/<timestamp>/`。
 
@@ -156,6 +161,14 @@ maestro test --config maestro/config.yaml --include-tags=read-only maestro/ \
   -e PHONE=test_account \
   -e PASSWORD=test_password \
   -e FRIEND_ACCOUNT=test_friend_account
+```
+
+`49_auth_entry_forms.yaml` 和 `50_login_method_validation.yaml` 带有 `local-state-reset` 标签，会清理本机登录态，未包含在 `read-only` 流程中；如需单独验证认证入口，请在测试账号环境执行：
+
+```bash
+maestro test --config maestro/config.yaml maestro/49_auth_entry_forms.yaml \
+  maestro/50_login_method_validation.yaml \
+  -e APP_ID=your.app.id
 ```
 
 ---

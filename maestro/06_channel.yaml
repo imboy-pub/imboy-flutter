@@ -1,14 +1,16 @@
 appId: ${APP_ID}
 name: "频道页面"
+onFlowStart:
+  - runFlow: 01_login.yaml
 ---
-- launchApp
-
 - runFlow:
     when:
       visible:
         id: "tab_channel"
     commands:
       - tapOn:
+          id: "tab_channel"
+      - assertVisible:
           id: "tab_channel"
       - takeScreenshot: channel_list
       - tapOn:

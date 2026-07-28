@@ -1,8 +1,11 @@
 appId: ${APP_ID}
 name: "会话列表 & 搜索"
+onFlowStart:
+  - runFlow: 01_login.yaml
 ---
-- launchApp
 - tapOn:
+    id: "tab_conversations"
+- assertVisible:
     id: "tab_conversations"
 - takeScreenshot: conversation_list
 
