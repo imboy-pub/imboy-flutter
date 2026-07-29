@@ -41,7 +41,7 @@ final class DenylistNotifierProvider
   }
 }
 
-String _$denylistNotifierHash() => r'7a1ba8d43ce4cb796d56b23622c0fe89ff076c00';
+String _$denylistNotifierHash() => r'85e5bfeb02116bb689fdb3d62791406cfc2887e1';
 
 abstract class _$DenylistNotifier extends $Notifier<DenylistState> {
   DenylistState build();

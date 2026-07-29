@@ -9,13 +9,11 @@ part of 'chat_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// 消息处理服务 Provider
-/// 提供消息发送、删除、收藏等操作
 
 @ProviderFor(messageHandlingService)
 final messageHandlingServiceProvider = MessageHandlingServiceProvider._();
 
 /// 消息处理服务 Provider
-/// 提供消息发送、删除、收藏等操作
 
 final class MessageHandlingServiceProvider
     extends
@@ -26,7 +24,6 @@ final class MessageHandlingServiceProvider
         >
     with $Provider<MessageHandlingService> {
   /// 消息处理服务 Provider
-  /// 提供消息发送、删除、收藏等操作
   MessageHandlingServiceProvider._()
     : super(
         from: null,
@@ -65,20 +62,14 @@ String _$messageHandlingServiceHash() =>
     r'f23ee30a6eda631f8b0e388a249fd341a24247a3';
 
 /// 聊天 Provider（Riverpod Notifier 实现）
-///
-/// 这是聊天模块的核心状态管理类，使用 Riverpod 的 Notifier 模式
 
 @ProviderFor(ChatNotifier)
 final chatProvider = ChatNotifierProvider._();
 
 /// 聊天 Provider（Riverpod Notifier 实现）
-///
-/// 这是聊天模块的核心状态管理类，使用 Riverpod 的 Notifier 模式
 final class ChatNotifierProvider
     extends $NotifierProvider<ChatNotifier, ChatState> {
   /// 聊天 Provider（Riverpod Notifier 实现）
-  ///
-  /// 这是聊天模块的核心状态管理类，使用 Riverpod 的 Notifier 模式
   ChatNotifierProvider._()
     : super(
         from: null,
@@ -106,11 +97,9 @@ final class ChatNotifierProvider
   }
 }
 
-String _$chatNotifierHash() => r'18a0423bc151677e511eea1fcdb595497fcba124';
+String _$chatNotifierHash() => r'6987af2fa23748422bc8ee463cf48af5b5354915';
 
 /// 聊天 Provider（Riverpod Notifier 实现）
-///
-/// 这是聊天模块的核心状态管理类，使用 Riverpod 的 Notifier 模式
 
 abstract class _$ChatNotifier extends $Notifier<ChatState> {
   ChatState build();

@@ -42,7 +42,7 @@ final class ConversationNotifierProvider
 }
 
 String _$conversationNotifierHash() =>
-    r'fe0ff3f31de5c7120c1d1544dd0728a72865ffc2';
+    r'be12b9735475fa5d616439ab09a23b187745c089';
 
 abstract class _$ConversationNotifier extends $Notifier<ConversationState> {
   ConversationState build();

@@ -44,7 +44,7 @@ final class SetGenderNotifierProvider
   }
 }
 
-String _$setGenderNotifierHash() => r'45c6ea0dc4e622e43933910375bd93d71e01cce7';
+String _$setGenderNotifierHash() => r'f008bda2f7be90e54299e2a94f21acf6601d0aa7';
 
 /// 设置性别 Provider
 
