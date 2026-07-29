@@ -634,15 +634,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         case FrameType.msgC2C:
         case FrameType.msgC2G:
         case FrameType.msgC2S:
-          // 业务消息：先尝试 protobuf 解码，失败则 JSON 回退
-          final pbMap = ImboyPbCodec.tryDecode(frame.payload);
-          if (pbMap != null) {
-            // Protobuf decoded successfully → re-encode as JSON for downstream
-            _onMessage(jsonEncode(pbMap));
-          } else {
-            final text = utf8.decode(frame.payload, allowMalformed: true);
-            _onMessage(text);
-          }
+          _dispatchFramePayload(frame.payload);
           break;
         default:
           iPrint('> ws: v2 未知 frame type=0x${frame.type.toRadixString(16)}');
@@ -660,10 +652,33 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     }
   }
 
+  /// v2 帧载荷分发：payload 可能是 protobuf，也可能是 JSON 原文——
+  /// 后端对 protobuf schema 装不下的消息（E2EE 超纲信封、CLIENT_ACK_ERROR
+  /// 这类带 in_reply_to/reason 的控制帧）会退回 JSON 载荷。
+  /// 以首字节 `{` 判定 JSON 优先，避免 protobuf 解码器把 JSON 字节误判成
+  /// 一条字段全为默认值的空消息。
+  void _dispatchFramePayload(Uint8List payload) {
+    if (payload.isNotEmpty && payload.first == 0x7B /* '{' */ ) {
+      _onMessage(utf8.decode(payload, allowMalformed: true));
+      return;
+    }
+    final pbMap = ImboyPbCodec.tryDecode(payload);
+    if (pbMap != null) {
+      // Protobuf decoded successfully → re-encode as JSON for downstream
+      _onMessage(jsonEncode(pbMap));
+    } else {
+      _onMessage(utf8.decode(payload, allowMalformed: true));
+    }
+  }
+
   /// 尝试把「无 v2 帧头」的字节按裸 protobuf / JSON 业务消息解析并分发。
   /// 成功返回 true（已交给 _onMessage 走正常 S2C/C2C 管道），否则 false。
   bool _tryDecodeUnframedPayload(Uint8List bytes) {
     try {
+      if (bytes.isNotEmpty && bytes.first == 0x7B /* '{' */ ) {
+        _onMessage(utf8.decode(bytes, allowMalformed: true));
+        return true;
+      }
       final pbMap = ImboyPbCodec.tryDecode(bytes);
       if (pbMap != null) {
         _onMessage(jsonEncode(pbMap));
