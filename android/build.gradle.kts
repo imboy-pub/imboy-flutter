@@ -24,6 +24,22 @@ allprojects {
     }
 }
 
+// Patrol E2E：AGP 的 consistent resolution 会把 androidx.test 对齐到传递依赖里的
+// 1.2.0，而 PatrolJUnitRunner 覆写的 shouldWaitForActivitiesToComplete() 在 1.2.0
+// 中尚不存在 → :patrol:compileDebugJavaWithJavac 报"方法不会覆盖超类型的方法"。
+// force 比 strictly 优先级更高，是唯一能压过自动对齐的手段。
+// ponytail: 只 force 这两个 androidx.test 构件，不做全量版本治理。
+// 上限：将来 patrol 升级要求更高的 runner 时，这里的 1.5.2 会反过来把它压低，
+// 症状同样是 NoSuchMethodError / 覆写失败——升级 patrol 后先来这里同步版本。
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            force("androidx.test:runner:1.5.2")
+            force("androidx.test:monitor:1.6.1")
+        }
+    }
+}
+
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
 rootProject.layout.buildDirectory.value(newBuildDir)
 

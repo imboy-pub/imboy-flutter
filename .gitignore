@@ -126,3 +126,6 @@ assets/i18n/_unused_translations.yaml
 # ECC agent 工具产物
 .artifacts/
 .codex
+
+# Patrol 生成物：patrol_cli 每次运行重新生成的测试入口
+patrol_test/

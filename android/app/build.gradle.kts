@@ -42,6 +42,10 @@ android {
         versionName = flutter.versionName
         minSdkVersion(24)
 
+        // Patrol E2E：instrumentation runner + 测试间清数据（保证用例隔离）
+        testInstrumentationRunner = "pl.leancode.patrol.PatrolJUnitRunner"
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
+
         // 添加多Dex支持
         multiDexEnabled = true
         resourceConfigurations += listOf("en", "zh-rCN")
@@ -93,6 +97,11 @@ android {
         }
     }
 
+    // Patrol E2E：用 AndroidX Test Orchestrator 跑，每个 Dart 测试独立进程
+    testOptions {
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
+    }
+
     buildTypes {
         debug {
             isDebuggable = true
@@ -132,6 +141,15 @@ flutter {
 }
 
 dependencies {
+    // Patrol E2E：测试编排器（配合 testOptions.execution）
+    androidTestUtil("androidx.test:orchestrator:1.5.1")
+
+    // 显式抬高 androidx.test，否则 AGP 的 consistent resolution 会把 runner 对齐到
+    // 传递依赖里的 1.2.0，而 PatrolJUnitRunner 覆写的 shouldWaitForActivitiesToComplete()
+    // 在 1.2.0 中尚不存在 → :patrol:compileDebugJavaWithJavac 编译失败。
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:monitor:1.6.1")
+
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.databinding:viewbinding:8.2.2")

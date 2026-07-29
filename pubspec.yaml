@@ -327,6 +327,9 @@ dev_dependencies:
   # ┌─ Integration Testing ──────────────────────────────────────────┐
   integration_test:
     sdk: flutter
+  # Patrol：integration_test 的超集，补齐原生权限/通知/WebView 交互。
+  # 现有 integration_test 用例与 Key 可直接沿用。Android 已接入，iOS 待 ios/* 解禁。
+  patrol: ^4.8.0
 
   # ┌─ AI Testing Framework ────────────────────────────────────────────┐
   # 🤖 AI 驱动测试框架 - MVP 精简版
@@ -366,3 +369,13 @@ flutter:
     - assets/migrations/upgrade.sql        # 升级迁移脚本
     - assets/migrations/downgrade.sql      # 降级迁移脚本
     - assets/migrations/baseline_schema.sql # 基线建表 DDL（从 example10.db 导出）
+
+# ┌─────────────────────────────────────────────────────────────────┐
+# │ 🤖 Patrol E2E 配置                                                │
+# └─────────────────────────────────────────────────────────────────┘
+# Android 已接入；iOS 需新建 ios/RunnerUITests/ 并改 ios/Podfile 与
+# project.pbxproj，而 ios/* 是禁改保留区，故暂不配置 ios 段。
+patrol:
+  app_name: IMBoy
+  android:
+    package_name: imboy.chat
