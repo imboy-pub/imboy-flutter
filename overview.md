@@ -16,7 +16,7 @@
 |------|--------|------|
 | iOS | ✅ 真机生产可用 | `ios/` 为保留区，`SUPPORTED_PLATFORMS = iphoneos`（仅真机） |
 | Android | ✅ 真机生产可用 | Kotlin / Gradle 构建链完整 |
-| macOS | ✅ 可用 | macOS Desktop，用于 Maestro 测试 |
+| macOS | ✅ 可用 | macOS Desktop，integration_test 无设备兜底 |
 | Web | ⚠ 部分支持 | `sqflite_common_ffi_web` + `sqlite3.wasm`，非发布目标 |
 
 **单一 Dart 代码库覆盖四端**，加密 SQLite（SQLCipher）与 E2EE 在四端共用。
@@ -147,15 +147,19 @@ flutter test integration_test/all_tests.dart \
 
 ### 方案对比矩阵
 
-| 维度 | A · mobile-mcp | B · Maestro YAML | C · flutter test ★ |
-|------|---------------|------------------|---------------------|
-| 目标平台 | iOS 模拟器（≤18.x） | macOS / iOS 模拟器 / Android 真机 | **所有平台真机** |
-| 当前状态 | ⚠ 受限（amap slice） | ✓ macOS 可用，⚠ iOS 真机受阻 | ✅ 生产可用 |
-| 依赖 | Claude Code MCP 配置 | `brew install maestro` | Flutter SDK 自带 |
-| Driver 签名 | 不需要 | ⚠ bundle ID 被 mobile.dev 占用 | **app 自身证书** |
-| 维护成本 | 低（AI 操控） | 低（声明式 YAML） | 中（Dart 代码） |
-| 覆盖广度 | 9 个 MCP 工具 | 15 个 flow | 15+ 个测试文件 |
-| 推荐场景 | 本地快速验证 | macOS 路径覆盖 | **CI 合并门控** |
+| 维度 | A · mobile-mcp | C · flutter test ★ | D · Patrol（待接入） |
+|------|---------------|---------------------|---------------------|
+| 目标平台 | Android 真机（iOS 受阻） | **所有平台真机 + macOS** | Android 真机（iOS 撞保留区） |
+| 当前状态 | ✅ 可用 | ✅ 生产可用 | 📋 待接入 |
+| 依赖 | Claude Code MCP 配置 | Flutter SDK 自带 | `patrol` + androidTest 配置 |
+| Driver 签名 | 不需要 | **app 自身证书** | app 自身证书 |
+| 元素定位 | 视觉/语义推断（概率性） | `Key` 直接可用 | `Key` 直接可用 + 原生控件 |
+| 原生弹窗 | ✅ | ❌ 碰不到 | ✅ 权限/通知/WebView |
+| 推荐场景 | 探索、故障复现 | **CI 合并门控** | **主 E2E（原生场景）** |
+
+> ~~B · Maestro YAML~~ 已于 2026-07-29 删除：Flutter 的 `Key()` 不接入 accessibility bridge，
+> Maestro 只认 `Semantics(identifier:)`，而本仓 83 个字面量 `Key` / 0 个 `Semantics(identifier:)`
+> ——那 51 个 flow 从设计上就找不到元素。
 
 ### 推荐执行路径
 
@@ -194,37 +198,19 @@ open -a Simulator
 # 然后通过 Claude Code 的 mcp__mobile__* 工具操控
 ```
 
-#### 场景 3：不接真机时 → 方案 B（macOS）
+#### 场景 3：不接真机时 → macOS 桌面
 
 ```bash
 cd imboyapp
-flutter run -d macos --dart-define=APP_ENV=pro &
-
-# 等 app 启动后
-maestro test maestro/01_login.yaml \
-  -e APP_ID=pub.imboy.macos \
-  -e PHONE=+8613800138000 \
-  -e PASSWORD=yourpwd
+flutter test integration_test/smoke/smoke_test.dart -d macos \
+  --dart-define=APP_ENV=pro \
+  --dart-define=API_BASE_URL=https://pro.imboy.pub \
+  --dart-define=TEST_PHONE=账号 \
+  --dart-define=TEST_PASSWORD=密码
 ```
 
-### Maestro Flow 索引（15 个）
+> macOS 需显式传 `API_BASE_URL`。实测 2026-07-29：31s 通过。
 
-| Flow | 内容 |
-|------|------|
-| `00_startup.yaml` | App 启动冒烟 |
-| `01_login.yaml` | 登录（phone + password） |
-| `02_tab_navigation.yaml` | 4 个 Tab 切换 |
-| `03_conversation.yaml` | 会话列表 + 搜索 |
-| `04_send_message.yaml` | 打开会话 + 发送消息 |
-| `05_contacts.yaml` | 联系人 + 新好友入口 |
-| `06_channel.yaml` | 频道（feature flag 按需跳过） |
-| `07_profile.yaml` | 我的页面 + 设置 |
-| `08_logout.yaml` | 退出登录 |
-| `10_e2ee_c2c.yaml` | C2C 端到端加密 |
-| `11_e2ee_group.yaml` | 群端到端加密 |
-| `12_moments_post.yaml` | 朋友圈发布 |
-| `13_channel_post.yaml` | 频道发布 |
-| `14_face_to_face.yaml` | 面对面加好友 |
 
 ---
 
@@ -274,7 +260,7 @@ maestro test maestro/01_login.yaml \
 | `path_provider_foundation` 2.6.0 FFI 崩溃 | macOS 启动崩溃 | pin `<2.6.0`，待 Flutter 稳定 code_assets |
 | win32 5.x 栈锁定（file_picker 等） | Windows 构建受限 | 待 file_picker 迁移 win32 6.x 后统一解锁 |
 | iOS 模拟器 amap 无 arm64 slice | iOS 26+ 不可用 | 用 iOS ≤18.x 模拟器，或转方案 C |
-| Maestro driver bundle ID 被占用 | iOS 真机 Maestro 受阻 | 升级 Maestro Cloud 或改用方案 C |
+| Patrol iOS 接入需改 `ios/*` | iOS E2E 阻塞 | 先落地 Android；待保留区解禁再接 iOS |
 
 ### 7.2 行动建议
 
@@ -313,9 +299,10 @@ flutter test integration_test/smoke/smoke_test.dart \
 # === Tier 3（真机全量）===
 flutter test integration_test/all_tests.dart -d <device_id> --dart-define=APP_ENV=pro
 
-# === Maestro（macOS）===
-flutter run -d macos --dart-define=APP_ENV=pro &
-maestro test maestro/01_login.yaml -e APP_ID=pub.imboy.macos -e PHONE=... -e PASSWORD=...
+# === macOS 桌面（无真机兜底）===
+flutter test integration_test/smoke/smoke_test.dart -d macos \
+  --dart-define=APP_ENV=pro --dart-define=API_BASE_URL=https://pro.imboy.pub \
+  --dart-define=TEST_PHONE=... --dart-define=TEST_PASSWORD=...
 
 # === 代码质量 ===
 dart analyze lib                        # 当前基线：No issues found!
@@ -453,20 +440,20 @@ mockito **仍保留**在 `pubspec.yaml` 的 `dependency_overrides`（pin 5.6.4�
 | 设备 | 华为 MRD-AL00 / Android 9 (API 28) |
 | ABI | `armeabi-v7a`（32 位 ARM） |
 | 设备 ID | `XWE6R19916004085` |
-| 测试账号 | `118@imboy.pub` / `admin888`（生产 uid=4） |
+| 测试账号 | `118@imboy.pub`（生产 uid=4），密码见 `scripts/test.env`，**勿写入文档** |
 | 生产 API | `https://pro.imboy.pub`（标准路径 `/api/v1/xxx`） |
 
-### 11.2 两条真机测试路径对比
+### 11.2 真机测试路径
 
-| 维度 | `flutter test integration_test/` | `maestro test` |
-|------|----------------------------------|----------------|
-| APK 构建 | 每个测试重新 build + install（~30s+40s） | **不构建、不安装**，只操作已装 app |
-| 测试方式 | Dart 代码驱动（`app.main()` + `find.byType`） | YAML 模拟真人点击/输入 |
-| 真机依赖 | 需 `--dart-define` 传 API/账号 | 需 driver 与设备 UiAutomator2 连接 |
-| 适用场景 | CI 合并门控、逻辑验证 | 开发期真机回归、UI 流程验证 |
-| 单测试耗时 | ~2-3min | ~10-30s |
+| 维度 | `flutter test integration_test/` | Patrol（待接入） |
+|------|----------------------------------|------------------|
+| APK 构建 | 每个测试重新 build + install（~30s+40s） | 同左（同为进程内） |
+| 测试方式 | Dart 代码驱动（`app.main()` + `find.byType`） | 同左 + 原生 automator |
+| 原生弹窗 | ❌ | ✅ 权限/通知/WebView |
+| 适用场景 | CI 合并门控、逻辑验证 | 主 E2E，覆盖原生场景 |
+| 单测试耗时 | ~2-3min | ~2-3min |
 
-**结论**：用户不在手机边、不想反复装包时，**Maestro 是正确选择**（不重装 APK）。
+> 原「不重装 APK 所以 Maestro 更快」的结论已随 Maestro 删除作废——那条路径在本仓从未真正生效。
 
 ### 11.3 已修复的真实 Bug
 
@@ -476,17 +463,11 @@ mockito **仍保留**在 `pubspec.yaml` 的 `dependency_overrides`（pin 5.6.4�
 - 修复：`integration_test/flows/api_test_client.dart` 2 处 + `smoke_test.dart` 1 处 → `/api/v1/...`
 - 验证：用标准 `API_BASE_URL=https://pro.imboy.pub` 跑 smoke，**All tests passed!**（40s）
 
-**Bug 2 — Maestro 6 个 flow 桌面图标点击失败**（华为桌面不显示 "IMBoy" 文本）
-- 症状：`tapOn: text: "IMBoy"` 找不到元素 → Element not found
-- 修复：统一改为 `launchApp`（直接启动已装 app）
-- 涉及：`01_login` `10_e2ee_c2c` `11_e2ee_group` `12_moments_post` `13_channel_post` `14_face_to_face`
+~~**Bug 2 — Maestro 6 个 flow 桌面图标点击失败**~~ —— 随 Maestro 方案删除，不再适用。
 
-### 11.4 Maestro 在华为 Android 9 的坑（经验沉淀）
+### 11.4 华为 Android 9 真机连接的坑（对 Patrol / mobile-mcp 仍适用）
 
-1. **UiAutomator2 gRPC 连接不稳**：首次 `maestro test` 成功（89s），但后续出现 `io.grpc.StatusRuntimeException: UNAVAILABLE / tcp:52228 closed`（设备端 driver 服务起不来）。
-   - 诱因：手动 `pkill maestro` 残留进程占设备、或 `adb kill-server` 后设备端 adbd 未恢复。
-   - **教训**：跑 Maestro 前确保无残留 maestro 进程；遇到 gRPC 错误先 `adb reconnect device` + 清理 `uiautomator` 进程，不要硬跑。
-2. **`adb reconnect` 后设备消失**：`adb kill-server` + `adb reconnect device` 时序不当，可能使设备从 USB 总线彻底掉线（`system_profiler` 也检测不到）。
+1. **`adb reconnect` 后设备消失**：`adb kill-server` + `adb reconnect device` 时序不当，可能使设备从 USB 总线彻底掉线（`system_profiler` 也检测不到）。
    - **教训**：优先 `adb kill-server → adb start-server → adb devices` 等待枚举，慎用 `adb reconnect device`。
 3. **USB 物理连接脆弱**：华为 Android 9 锁屏 / 线松动会导致 adb 断连，需人工重新插拔与授权。自动化测试前务必确认 `adb devices` 在线。
 
@@ -496,23 +477,23 @@ mockito **仍保留**在 `pubspec.yaml` 的 `dependency_overrides`（pin 5.6.4�
 # 确认设备在线（必须第一步）
 adb devices -l
 
-# 单跑一个 Maestro flow（已装 app，不重装）
-maestro test maestro/00_startup.yaml -e APP_ID=imboy.chat \
-  -e PHONE=118@imboy.pub -e PASSWORD=admin888 -e FRIEND_ACCOUNT=108@imboy.pub
+# 装上待测构建
+flutter build apk --debug --dart-define=APP_ENV=pro
+adb install -r build/app/outputs/flutter-apk/app-debug.apk
 
-# 批量跑（脚本，跳过失败继续）
-bash scripts/run_maestro_all.sh
+# 手动拉起（验证 app 本身是否正常）
+adb shell am start -n imboy.chat/.MainActivity
 
-# 残留进程清理（Maestro 卡住时）
-pkill -f "run_maestro_all.sh"; pkill -f "maestro/cli"
-adb shell "pkill -f uiautomator"
+# 抓崩溃
+adb logcat -d | grep -E "FATAL|AndroidRuntime"
 
 # 真机 smoke（flutter test 路径）
+source scripts/test.env          # 凭据只从这里来，不写进文档/命令行
 flutter test integration_test/smoke/smoke_test.dart \
   -d XWE6R19916004085 \
   --dart-define=API_BASE_URL=https://pro.imboy.pub \
-  --dart-define=TEST_PHONE=118@imboy.pub \
-  --dart-define=TEST_PASSWORD=admin888
+  --dart-define=TEST_PHONE="$TEST_PHONE" \
+  --dart-define=TEST_PASSWORD="$TEST_PASSWORD"
 ```
 
 ### 11.6 当前进度
@@ -521,12 +502,13 @@ flutter test integration_test/smoke/smoke_test.dart \
 |------|------|
 | smoke 测试（flutter test） | ✅ 通过（证明 app 本身无崩溃） |
 | Bug 1 FlowApiClient 路径 | ✅ 已修复并验证 |
-| Bug 2 Maestro 桌面图标 | ✅ 已修复（6 flow → launchApp） |
-| Maestro 全量 14 flow | ⏸ **设备 USB 断连，暂停** |
+| ~~Bug 2 Maestro 桌面图标~~ | ❌ 2026-07-29 方案整体删除 |
+| Patrol Android 接入 | 📋 待执行 |
 | pre-push 门控 / mockito 迁移 | ✅ 已完成 |
 
 ---
 **Mobile App Builder**：WorkBuddy
 **产出日期**：2026-07-24 ~ 07-25
 **项目合规**：遵循 AGENTS.md / DESIGN.md 规范，平台保留区未触碰
-**本次新增**：pre-push 门控 + mockito 迁移 + Android 真机测试实战（2 个 Bug 修复 + Maestro 经验沉淀）
+**本次新增**：pre-push 门控 + mockito 迁移 + Android 真机测试实战（2 个 Bug 修复）
+**2026-07-29 更新**：Maestro 方案整体删除，E2E 收敛为 integration_test（现役）+ Patrol（待接入）+ mobile-mcp（探索）

@@ -83,7 +83,7 @@
 - **守**:Q1 Q4 Q5 Q6 — 两个真实账号,A 发 B 收,验证收齐/顺序/未读/已读、离线→上线补历史、换设备→历史恢复、真机渲染导航
 - **守的事故**:多端投递、离线同步、E2EE 换机、可用性——单端永远测不出
 - **现状**:已有 `integration_test/chat/support/dual_test_helper.dart` + `account_identity` 脚手架 → **方向正确,应做成验收中枢**(详见 §4)
-- **落地路径**(据 CLAUDE.md 已探明):方案 C(flutter test 真机,推荐) + 方案 B(macOS Maestro,无设备兜底)
+- **落地路径**(2026-07-29 更新):integration_test 真机(现役) → Patrol Android(主 E2E,待接入);macOS 桌面作无设备兜底。~~方案 B Maestro~~ 已删除(Flutter Key 不接无障碍层)
 
 ### L5 · 非功能层(周期性 · 稳定性与性能)
 - **守**:Q3 Q7 — 大历史滚动性能、连接混沌测试(发送中杀连接)、畸形帧 fuzz

@@ -55,7 +55,7 @@
 
 ## 二、现有自动化覆盖
 
-三层：Tier1 API 契约（`test/api/`，无设备可 CI）· Tier2 冒烟门控（`integration_test/smoke/`，真机）· Tier3 UI 流程（`integration_test/`，真机）· 路由冒烟（`test/smoke/`，124 路由）· Maestro（14 flow）。
+三层：Tier1 API 契约（`test/api/`，无设备可 CI）· Tier2 冒烟门控（`integration_test/smoke/`，真机）· Tier3 UI 流程（`integration_test/`，真机）· 路由冒烟（`test/smoke/`，124 路由）。~~Maestro~~ 已于 2026-07-29 删除。
 
 深度用例仅覆盖 ~5 核心域：登录注册改密、C2C+群聊+会话、频道 CRUD+发布、好友管理、E2EE 收发。
 无深度用例：mine 设置、E2EE 备份/社交恢复/传输、wallet、group 协作、moment 详情/评论/通知、personal_info 编辑、user_tag、qrcode、scanner、search、mention、live_room、single。
@@ -169,12 +169,13 @@ TOTAL 112 / PASS 48 / SKIP 58 / FAIL 6。首轮曾报 24 FAIL 为假阳性（并
 ## 五、自动化执行方案
 
 ### 环境（2026-07-11 实测）
-Android MRD AL00（adb `XWE6R19916004085`）✅ ｜ iPhone 16e（`00008140-000E30561E32801C`）✅ ｜ macOS ✅ ｜ maestro ✅
+Android MRD AL00（adb `XWE6R19916004085`）✅ ｜ iPhone 16e（`00008140-000E30561E32801C`）✅ ｜ macOS ✅
 本机网段 192.168.2.39；真机 Tier3 用 `--dart-define=API_BASE_URL_OVERRIDE=http://192.168.2.39:9800 --dart-define=WS_URL_OVERRIDE=ws://192.168.2.39:9800/api/v1/ws`
 
 ### 路径
 - **C — flutter integration_test（真机）**：深度功能主力（P0/P1），可断言/深链
-- **B — Maestro YAML**：冒烟+跨页导航广度（P2）
+- **Patrol（待接入）**：原生权限/通知/WebView 场景，Android 优先
+- ~~B — Maestro YAML~~：2026-07-29 删除（Flutter `Key` 不接无障碍层，flow 从未真正生效）
 - **A — mobile-mcp**：探索式临时验证
 - 路由冒烟：回归护栏（无头有天花板）
 

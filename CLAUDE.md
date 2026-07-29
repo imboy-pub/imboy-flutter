@@ -192,20 +192,27 @@ lib/i18n/                ← 生成物目录（slang output_directory），勿�
 
 ## 自动化 E2E 测试
 
-> 详见 [maestro/README.md](./maestro/README.md) 和 [integration_test/README.md](./integration_test/README.md)
+> 详见 [integration_test/README.md](./integration_test/README.md)
 
-### 三条可用路径
+### 方案定位（2026-07-29 决策）
 
-| 方案 | 工具 | 目标 | 当前状态 |
-|------|------|------|---------|
-| **A — mobile-mcp** | Claude Code MCP 工具 | iOS 模拟器 | ⚠️ 受阻（见注1） |
-| **B — Maestro YAML** | Maestro CLI | macOS Desktop | ✅ 可用 |
-| **C — flutter test** | Flutter integration_test | 真机（iPhone 16e） | ✅ 推荐 |
+| 方案 | 工具 | 定位 | 状态 |
+|------|------|------|------|
+| **integration_test** | Flutter 官方 | 底座，进程内、`Key` 可直接用 | ✅ 现役 |
+| **Patrol** | LeanCode | 主 E2E 框架，补原生权限/通知/WebView | 📋 待接入（Android 优先） |
+| **mobile-mcp** | Claude Code MCP | 探索验证、故障复现、AI 辅助 | ✅ 可用（Android） |
+| ~~Maestro YAML~~ | — | — | ❌ 已删除，见下 |
 
-**注1 — iOS 模拟器受阻原因**：`ios/Runner.xcodeproj` 的 `SUPPORTED_PLATFORMS = iphoneos`（仅真机），
-模拟器不在目标列表。`ios/*` 是保留区禁止修改。
-Maestro 真机受阻原因：driver bundle ID `dev.mobile.maestro-driver-ios` 被 mobile.dev 公司占用，
-需 Maestro Cloud 才能在任意 Team 下使用。
+**为什么删 Maestro**：Flutter 的 `Key()` **不接入 accessibility bridge**，Maestro 在 Flutter 上
+只能看见 `Semantics(identifier:)`（[官方文档](https://docs.maestro.dev/get-started/supported-platform/flutter)）。
+本仓有 83 个字面量 `Key('...')`、**0 个 `Semantics(identifier:)`**，那 51 个 flow 用 `id: xxx` 匹配
+`Key('xxx')` 从设计上就永远找不到元素——不是坏了，是从来没工作过。要复活得给全项目补一套无障碍标识体系。
+
+**注1 — iOS 受阻**：`ios/Runner.xcodeproj` 的 `SUPPORTED_PLATFORMS = iphoneos`（仅真机），
+模拟器不在目标列表；`ios/*` 是保留区禁止修改。
+这同样卡住 Patrol 的 iOS 接入——Patrol 需要新建 `ios/RunnerUITests/`、改 `ios/Podfile` 与
+`ios/Runner.xcodeproj/project.pbxproj`。**Android 侧不受影响**（只需 `android/app/src/androidTest/`
++ `android/app/build.gradle`），所以先落地 Android。
 
 ### 推荐流程（方案 C，真机）
 
@@ -227,16 +234,29 @@ flutter test integration_test/all_tests.dart \
   --dart-define=TEST_PASSWORD=密码
 ```
 
-### macOS + Maestro（方案 B，无需真机）
+### macOS 桌面（无需真机）
+
+同一套 integration_test，`-d macos` 即可；macOS 上需显式传 `API_BASE_URL`：
 
 ```bash
-cd imboyapp
-# 后台启动 macOS app
-flutter run -d macos --dart-define=APP_ENV=pro &
-
-# 等 app 启动后运行 Maestro flow
-maestro test maestro/01_login.yaml \
-  -e APP_ID=pub.imboy.macos \
-  -e PHONE=+86手机号 \
-  -e PASSWORD=密码
+flutter test integration_test/smoke/smoke_test.dart -d macos \
+  --dart-define=APP_ENV=pro \
+  --dart-define=API_BASE_URL=https://pro.imboy.pub \
+  --dart-define=TEST_PHONE=账号 \
+  --dart-define=TEST_PASSWORD=密码
 ```
+
+> 实测（2026-07-29）：macOS 冒烟 31s 通过。Keychain `-34018 entitlement` 报错是 macOS 桌面固有，不影响断言。
+
+### Patrol 接入路线（待执行）
+
+Patrol 是 integration_test 的**超集**——现有 24 个测试文件与 83 个 `Key` 可直接沿用，
+额外获得原生权限弹窗、通知、WebView、生物识别的操作能力。
+
+1. 加 `patrol` 依赖 + `android/app/src/androidTest/.../MainActivityTest.java` + `android/app/build.gradle`
+2. 迁 smoke 用例，验证华为 EMUI 权限弹窗可被处理
+3. 可选接 [`patrol_mcp`](https://pub.dev/packages/patrol_mcp)：让 AI 驱动 Patrol 会话，产物仍是可提交、可重放的 Dart 测试
+4. iOS 待 `ios/*` 保留区解禁后再接
+
+**分工原则**：AI（mobile-mcp / patrol_mcp）负责探索、生成、诊断；
+**发版门禁只认可提交、可重复执行的 Dart 测试**——agent 的概率性操作不作为唯一回归依据。
