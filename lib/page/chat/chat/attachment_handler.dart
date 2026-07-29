@@ -415,6 +415,8 @@ class ChatAttachmentHandler {
           scope: s.scope,
           scopeRef: s.scopeRef,
           videoSeal: seal,
+          // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
+          thumbSeal: _sealFor(messageId, 'video_thumb'),
         );
         await handleVideoUpload(resp, messageId: messageId, seal: seal);
       } on Object catch (e) {
@@ -644,6 +646,8 @@ class ChatAttachmentHandler {
           scope: s.scope,
           scopeRef: s.scopeRef,
           videoSeal: seal,
+          // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
+          thumbSeal: _sealFor(messageId, 'video_thumb'),
         );
         await handleSelectedVideoUpload(resp, messageId: messageId, seal: seal);
       } on Object catch (e) {

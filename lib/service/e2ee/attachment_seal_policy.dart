@@ -60,6 +60,17 @@ class AttachmentSealPolicy {
   static bool carriesContentKey(Object? payload) =>
       payload is Map && payload[descriptorPayloadKey] != null;
 
+  /// E2EE-061 Slice 7：主体与缩略图**必须同生同灭**。
+  ///
+  /// 设计 §3.3：缩略图是独立对象，只封装本体而让缩略图明文 = **预览即泄漏**，
+  /// 拿到缩略图就看得到画面内容，ATT-04 在缩略图上直接失败。
+  /// 那种状态比两个都明文更坏——它看起来像"已加密"。
+  ///
+  /// 返回 false 时调用方应**两个都不封装**（退回今天已知的明文行为），
+  /// 而不是让其中一个裸奔。
+  static bool sealTogether(Object? main, Object? thumb) =>
+      (main == null) == (thumb == null);
+
   /// [payloadWillBeEncrypted] 由调用方传入
   /// （聊天侧即 `E2EEService.shouldEncryptOutgoingPayload(chatType)`）。
   /// 刻意**不在本模块内**去查——保持纯函数、可直接验收，

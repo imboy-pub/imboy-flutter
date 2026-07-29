@@ -16,6 +16,7 @@ import 'package:mime/mime.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/e2ee/attachment_descriptor.dart';
 import 'package:imboy/service/e2ee/attachment_encryptor.dart';
+import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
@@ -65,6 +66,10 @@ class AttachmentSealRequest {
 
   /// 分块大小。默认取已拍板的 1 MiB。
   final int chunkSize;
+
+  /// E2EE-061 Slice 7：**先封装好的缩略图** descriptor，随本次封装挂进主 descriptor。
+  /// 由调用方按「先传缩略图、再传本体」的顺序填入。
+  AttachmentDescriptor? thumbDescriptor;
 
   /// 上传完成后由 [AttachmentApi.uploadViaPresign] 回填。
   /// ⚠️ 它含 **content key**：必须随 PFv3 加密 payload 发送，
@@ -220,6 +225,7 @@ class AttachmentApi {
         contentKey: AttachmentEncryptor.randomContentKey(),
         baseNonce: AttachmentEncryptor.randomBaseNonce(),
         chunkSize: seal.chunkSize,
+        thumb: seal.thumbDescriptor,
       );
       seal.descriptor = sealed.descriptor;
     }
@@ -451,14 +457,26 @@ class AttachmentApi {
   /// 仅用于聊天视频（S5）：缩略图与视频分别 presign 直传，返回
   /// `{thumb: EntityImage, video: EntityVideo}`（uri 均为 object_key），
   /// 下游 handleVideoUpload 无需改。
-  /// [videoSeal] 只封装**视频本体**；缩略图按切片计划仍是明文（Slice 7）。
-  /// ⚠️ 设计 §3.3：缩略图不加密 = 预览即泄漏，ATT-04 在缩略图上不成立。
+  /// [videoSeal] 封装视频本体，[thumbSeal]（Slice 7）封装缩略图。
+  ///
+  /// ⚠️ 设计 §3.3：缩略图是独立对象，**不加密 = 预览即泄漏**——拿到缩略图
+  /// 就看得到画面内容，ATT-04 在缩略图上直接失败。因此两者要么一起封装，
+  /// 要么一起明文；**只封装本体是自欺**。
+  /// 故：只传其一时按 fail-safe 处理——见函数体内的一致性闸门。
   static Future<Map<String, dynamic>> uploadVideoViaPresign(
     AssetEntity entity, {
     String scope = 'private',
     String? scopeRef,
     AttachmentSealRequest? videoSeal,
+    AttachmentSealRequest? thumbSeal,
   }) async {
+    // 一致性闸门（判据在 AttachmentSealPolicy，不在这里各写一份 if）：
+    // 只有一个时**两个都不封装**，退回今天已知的明文行为，
+    // 而不是交付一个「本体加密、预览裸奔」的假象。
+    if (!AttachmentSealPolicy.sealTogether(videoSeal, thumbSeal)) {
+      videoSeal = null;
+      thumbSeal = null;
+    }
     final File? file = await entity.file;
     if (file == null) {
       throw Exception('uploadVideoViaPresign: 无法获取视频文件');
@@ -490,7 +508,11 @@ class AttachmentApi {
       process: false,
       scope: scope,
       scopeRef: scopeRef,
+      seal: thumbSeal,
     );
+    // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
+    // （接收侧由 AttachmentOpenRegistry 一并登记两个 object_key）。
+    videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
 
     // 2. 压缩视频 → presign
     final MediaInfo? info = await VideoCompress.compressVideo(

@@ -67,6 +67,10 @@ class AttachmentEncryptor {
   ///
   /// [bindingHash] 是 PFv3 protected header 的 SHA-256——**ATT-01 的锚点**：
   /// 密文块被搬到另一条消息下时 AAD 必然失配。
+  /// [thumb]（E2EE-061 Slice 7）：**已封装好的缩略图** descriptor，挂进本 descriptor。
+  /// 设计 §3.3：缩略图是独立对象，不加密 = 预览即泄漏，ATT-04 在缩略图上直接失败。
+  /// 它必须有**独立的 content_key / base_nonce**——由
+  /// [AttachmentDescriptor] 的构造校验强制，这里不重复判断。
   static SealedAttachment seal({
     required Uint8List plaintext,
     required Uint8List bindingHash,
@@ -77,6 +81,7 @@ class AttachmentEncryptor {
     required Uint8List contentKey,
     required Uint8List baseNonce,
     int chunkSize = defaultChunkSize,
+    AttachmentDescriptor? thumb,
   }) {
     final chunkCount = AttachmentDescriptor.expectedChunkCount(
       plaintext.length,
@@ -117,6 +122,7 @@ class AttachmentEncryptor {
       plainSha256: Uint8List.fromList(sha256.convert(plaintext).bytes),
       mime: mime,
       name: name,
+      thumb: thumb,
     );
 
     return SealedAttachment(out.toBytes(), descriptor);
