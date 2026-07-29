@@ -4,6 +4,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/assets.dart' show AssetsService;
+import 'package:imboy/service/e2ee/attachment_open_registry.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -182,6 +183,18 @@ extension MessageModelMapper on MessageModel {
         },
       );
     }
+
+    // E2EE-061 Slice 6：payload 此刻已是**明文**，若带 attachment_descriptor
+    // 就把「object_key → 开封材料」登记给下载漏斗。
+    // 放在这里而不是各 message builder：这是消息转换的**唯一**入口，
+    // 而下载侧有 9 个调用点（见 AttachmentOpenRegistry 文件头）。
+    AttachmentOpenRegistry.registerFromMessage(
+      payload: payloadData,
+      messageId: id.toString(),
+      chatType: type ?? 'C2C',
+      fromUid: fromId.toString(),
+      toUid: toId.toString(),
+    );
 
     // WebSocket API v2.0: msgType 必须在顶层（不再兼容从 payload 读取）
     final currentMsgType = msgType;

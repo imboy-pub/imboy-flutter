@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
+import 'package:imboy/service/e2ee/attachment_open_registry.dart';
+import 'package:imboy/service/e2ee/attachment_opener.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
@@ -224,10 +226,18 @@ class IMBoyCacheManager {
       } catch (e) {
         // 缓存失败，尝试下载
         try {
-          final downloaded = await _crossCache.downloadAndSave(
+          final rawDownloaded = await _crossCache.downloadAndSave(
             downloadUrl,
             headers: headers,
           );
+
+          // E2EE-061 Slice 6：开封必须排在**验证与落盘之前**——
+          // 密文过不了图片魔数校验（会被当成"损坏"反复重下），
+          // 缓存里也必须是明文（下次命中走的是不再开封的那条路）。
+          // 没登记过 spec 的对象原样返回 = 今天的明文行为。
+          final Uint8List downloaded = isObjKey
+              ? AttachmentOpenRegistry.materialize(url, rawDownloaded)
+              : rawDownloaded;
 
           // 调试：输出下载状态
           _log(
@@ -273,6 +283,17 @@ class IMBoyCacheManager {
           // 下载成功，跳出循环
           break;
         } catch (downloadError) {
+          // E2EE-061：开封失败**绝不重试**——重下同一个对象不会变好，
+          // 而重试会把 3 次下载 + 清缓存全走一遍。密文也不得留在缓存里。
+          if (downloadError is AttachmentOpenException) {
+            _log('❌ 附件开封失败，不重试: ${downloadError.message}');
+            try {
+              await _crossCache.delete(downloadUrl);
+            } on Object catch (_) {
+              // best-effort：删不掉也不该盖住开封失败这个真因
+            }
+            rethrow;
+          }
           // 404 错误不需要重试
           if (_isNotFoundError(downloadError)) {
             _log('❌ 资源不存在 (404): $url');
