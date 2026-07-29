@@ -18,6 +18,7 @@ import 'package:mime/mime.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/service/e2ee/attachment_binding.dart';
+import 'package:imboy/service/e2ee/attachment_conversation_ref.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/store/api/attachment_api.dart';
@@ -167,19 +168,11 @@ class ChatAttachmentHandler {
 
   /// 构造单聊 conv_key：`c2c:<minUid>:<maxUid>`，按整数归一化顺序。
   ///
-  /// 用 [BigInt] 解析：TSID 为 64 位整数，超过 Web（dart2js）53 位 int 精度；
-  /// BigInt 在所有平台精确，避免大 TSID 排序错乱致 conv_key 与后端不匹配。
-  /// 非数字时回退字符串序，保证确定性。
-  static String _c2cConvKey(String a, String b) {
-    final BigInt? ai = BigInt.tryParse(a);
-    final BigInt? bi = BigInt.tryParse(b);
-    final bool aFirst = (ai != null && bi != null)
-        ? ai <= bi
-        : a.compareTo(b) <= 0;
-    final String minUid = aFirst ? a : b;
-    final String maxUid = aFirst ? b : a;
-    return 'c2c:$minUid:$maxUid';
-  }
+  /// ⚠️ 实现下沉到 [AttachmentConversationRef.c2cKey]（**全项目唯一一份**）：
+  /// 接收侧要用同一套规则重算绑定值，两份实现哪怕只在排序回退上分歧，
+  /// 都会变成「上传 scope 与绑定值对不上」的隐性错配。
+  static String _c2cConvKey(String a, String b) =>
+      AttachmentConversationRef.c2cKey(a, b);
 
   /// 添加阅后即焚元数据
   Map<String, dynamic> _withBurnMetadata(Map<String, dynamic> base) {
