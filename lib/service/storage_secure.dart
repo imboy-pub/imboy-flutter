@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// 安全存储服务 - 基于 FlutterSecureStorage
@@ -42,6 +44,30 @@ class StorageSecureService {
   /// Get singleton instance (recommended)
   static StorageSecureService get to => _instance;
 
+  // ==========================================
+  // 旧 accessibility 条目兼容（Apple Keychain）
+  // Legacy accessibility migration (Apple Keychain)
+  // ==========================================
+  //
+  // 历史上本服务用 `const FlutterSecureStorage()`，条目以插件默认的
+  // `whenUnlocked` 落 Keychain；改为 `first_unlock` 后，所有查询都带上
+  // kSecAttrAccessible，不再匹配旧条目，但 kSecAttrAccessible 不属于
+  // Keychain 主键，于是：
+  //   - read/readAll 看不见旧条目（E2EE 私钥等"凭空消失"）
+  //   - write 判定 key 不存在 → SecItemAdd → errSecDuplicateItem(-25299)
+  // 这里在读写两侧各做一次搬迁，把旧条目迁到当前 accessibility 下。
+  static const int _errSecDuplicateItem = -25299;
+  static const IOSOptions _legacyIOptions = IOSOptions(
+    accessibility: KeychainAccessibility.unlocked,
+  );
+  static const MacOsOptions _legacyMOptions = MacOsOptions(
+    accessibility: KeychainAccessibility.unlocked,
+  );
+
+  static bool get _isApple =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+
   /// 私有构造函数
   /// Private constructor
   StorageSecureService._internal();
@@ -69,16 +95,41 @@ class StorageSecureService {
     MacOsOptions? mOptions,
     WindowsOptions? wOptions,
   }) async {
-    return _self.write(
-      key: key,
-      value: value,
-      iOptions: iOptions,
-      aOptions: aOptions,
-      lOptions: lOptions,
-      webOptions: webOptions,
-      mOptions: mOptions,
-      wOptions: wOptions,
-    );
+    try {
+      return await _self.write(
+        key: key,
+        value: value,
+        iOptions: iOptions,
+        aOptions: aOptions,
+        lOptions: lOptions,
+        webOptions: webOptions,
+        mOptions: mOptions,
+        wOptions: wOptions,
+      );
+    } on PlatformException catch (e) {
+      if (e.details != _errSecDuplicateItem) rethrow;
+      // 同名旧条目（旧 accessibility）挡住了 SecItemAdd。插件的 delete 会跨
+      // accessibility / synchronizable 变体清除，删掉后重写即可。
+      await _self.delete(
+        key: key,
+        iOptions: iOptions,
+        aOptions: aOptions,
+        lOptions: lOptions,
+        webOptions: webOptions,
+        mOptions: mOptions,
+        wOptions: wOptions,
+      );
+      return await _self.write(
+        key: key,
+        value: value,
+        iOptions: iOptions,
+        aOptions: aOptions,
+        lOptions: lOptions,
+        webOptions: webOptions,
+        mOptions: mOptions,
+        wOptions: wOptions,
+      );
+    }
   }
 
   /// Decrypts and returns the value for the given [key] or null if [key] is not in the storage.
@@ -99,15 +150,37 @@ class StorageSecureService {
     WebOptions? webOptions,
     MacOsOptions? mOptions,
     WindowsOptions? wOptions,
-  }) => _self.read(
-    key: key,
-    iOptions: iOptions,
-    aOptions: aOptions,
-    lOptions: lOptions,
-    webOptions: webOptions,
-    mOptions: mOptions,
-    wOptions: wOptions,
-  );
+  }) async {
+    final value = await _self.read(
+      key: key,
+      iOptions: iOptions,
+      aOptions: aOptions,
+      lOptions: lOptions,
+      webOptions: webOptions,
+      mOptions: mOptions,
+      wOptions: wOptions,
+    );
+    if (value != null || !_isApple) return value;
+
+    // 读不到时回落查旧 accessibility 条目；命中就顺手搬迁到当前 accessibility。
+    final legacy = await _self.read(
+      key: key,
+      iOptions: _legacyIOptions,
+      mOptions: _legacyMOptions,
+    );
+    if (legacy == null) return null;
+    await write(
+      key: key,
+      value: legacy,
+      iOptions: iOptions,
+      aOptions: aOptions,
+      lOptions: lOptions,
+      webOptions: webOptions,
+      mOptions: mOptions,
+      wOptions: wOptions,
+    );
+    return legacy;
+  }
 
   /// Deletes associated value for the given [key].
   ///
@@ -142,7 +215,18 @@ class StorageSecureService {
   /// Decrypts and returns all keys with associated values.
   ///
   /// Can throw a [PlatformException].
-  Future<Map<String, String>> readAll() => _self.readAll();
+  ///
+  /// 合并旧 accessibility 条目：E2EE 清除流程用 readAll 枚举待删密钥，
+  /// 漏掉旧条目会导致"已清除"的密钥仍留在设备上。
+  Future<Map<String, String>> readAll() async {
+    final current = await _self.readAll();
+    if (!_isApple) return current;
+    final legacy = await _self.readAll(
+      iOptions: _legacyIOptions,
+      mOptions: _legacyMOptions,
+    );
+    return {...legacy, ...current};
+  }
 
   // ==========================================
   // E2EE 密钥相关便捷方法
