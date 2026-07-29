@@ -71,6 +71,14 @@ class AttachmentSealRequest {
   /// 绝不可写日志、绝不可进未加密字段。
   AttachmentDescriptor? descriptor;
 
+  /// 上传完成后回填：**实际上报给服务端的** `file_hash256`（加密时是密文哈希）。
+  ///
+  /// 消息体里的 `file_hash256` 必须与服务端 `attachment.file_hash256` **同值**——
+  /// 收藏引用计数 (`user_collect.attach_file_hash256`) 与孤儿清理都按该值 JOIN。
+  /// 封装后服务端存的是密文哈希，消息体若继续带明文哈希，这两条链会一起断
+  /// （最坏情况：对象被判定无人引用而清理掉）。明文哈希只留在 descriptor 内。
+  String? uploadedFileHash256;
+
   AttachmentSealRequest({
     required this.bindingHash,
     required this.attachmentId,
@@ -230,6 +238,7 @@ class AttachmentApi {
     // 永不到达服务端——否则服务端仍可与已知文件库比对，内容加密的收益被抵消大半。
     final String fileHash256 =
         sealed?.ciphertextSha256Hex ?? sha256.convert(bytes).toString();
+    seal?.uploadedFileHash256 = fileHash256;
     final Map<String, dynamic> confirmBody = <String, dynamic>{
       'object_key': objectKey,
       'file_hash256': fileHash256,
@@ -306,6 +315,9 @@ class AttachmentApi {
   }
 
   /// presign 兼容版字节上传（drop-in 替换旧 [uploadBytes]，签名一致）。
+  ///
+  /// [seal] 非 null 时上传密文；回调 resp 的 `data.file_hash256` 随之变成密文哈希，
+  /// descriptor 由调用方从 [AttachmentSealRequest.descriptor] 取。
   static Future<void> uploadBytesViaPresignCompat(
     String prefix,
     Uint8List file,
@@ -315,6 +327,7 @@ class AttachmentApi {
     bool process = true,
     String scope = 'private',
     String? scopeRef,
+    AttachmentSealRequest? seal,
   }) async {
     try {
       String ext = path.contains('.')
@@ -331,6 +344,7 @@ class AttachmentApi {
         process: process,
         scope: scope,
         scopeRef: scopeRef,
+        seal: seal,
       );
       await callback(compatResp(meta), meta['object_key'] as String);
     } on Object catch (e) {
@@ -352,6 +366,10 @@ class AttachmentApi {
   }
 
   /// 原始字节经 presign 直传，返回 `{object_key, size, md5}`（voice/file 复用）。
+  ///
+  /// [seal] 非 null 时上传密文，且返回的 `file_hash256` 是**服务端实际持有的**
+  /// 密文哈希（见 [AttachmentSealRequest.uploadedFileHash256]）；
+  /// `size` 始终是**明文**大小——它进的是加密 payload，给 UI 显示用。
   static Future<Map<String, dynamic>> uploadBytesViaPresignMeta(
     Uint8List bytes,
     String fileName,
@@ -359,6 +377,13 @@ class AttachmentApi {
     bool process = true,
     String scope = 'private',
     String? scopeRef,
+    AttachmentSealRequest? seal,
+    // 与 [uploadViaPresign] 同一组注入 seam：默认 null 走真实实现。
+    // 这里透传是为了让「meta 里的 file_hash256 与服务端同值」这条不变量
+    // 能在不触网的前提下被验收。
+    PresignFn? presignFn,
+    PutFn? putFn,
+    ConfirmFn? confirmFn,
   }) async {
     final String objectKey = await uploadViaPresign(
       bytes,
@@ -367,11 +392,16 @@ class AttachmentApi {
       process: process,
       scope: scope,
       scopeRef: scopeRef,
+      seal: seal,
+      presignFn: presignFn,
+      putFn: putFn,
+      confirmFn: confirmFn,
     );
     return <String, dynamic>{
       'object_key': objectKey,
       'size': bytes.length,
-      'file_hash256': sha256.convert(bytes).toString(),
+      'file_hash256':
+          seal?.uploadedFileHash256 ?? sha256.convert(bytes).toString(),
     };
   }
 
@@ -384,6 +414,7 @@ class AttachmentApi {
     bool process = true,
     String scope = 'private',
     String? scopeRef,
+    AttachmentSealRequest? seal,
   }) async {
     final Uint8List? bytes = await entity.originBytes;
     if (bytes == null || bytes.isEmpty) {
@@ -403,11 +434,13 @@ class AttachmentApi {
       process: process,
       scope: scope,
       scopeRef: scopeRef,
+      seal: seal,
     );
     return <String, dynamic>{
       'object_key': objectKey,
       'size': bytes.length,
-      'file_hash256': sha256.convert(bytes).toString(),
+      'file_hash256':
+          seal?.uploadedFileHash256 ?? sha256.convert(bytes).toString(),
       'width': entity.width,
       'height': entity.height,
     };
@@ -418,10 +451,13 @@ class AttachmentApi {
   /// 仅用于聊天视频（S5）：缩略图与视频分别 presign 直传，返回
   /// `{thumb: EntityImage, video: EntityVideo}`（uri 均为 object_key），
   /// 下游 handleVideoUpload 无需改。
+  /// [videoSeal] 只封装**视频本体**；缩略图按切片计划仍是明文（Slice 7）。
+  /// ⚠️ 设计 §3.3：缩略图不加密 = 预览即泄漏，ATT-04 在缩略图上不成立。
   static Future<Map<String, dynamic>> uploadVideoViaPresign(
     AssetEntity entity, {
     String scope = 'private',
     String? scopeRef,
+    AttachmentSealRequest? videoSeal,
   }) async {
     final File? file = await entity.file;
     if (file == null) {
@@ -474,6 +510,7 @@ class AttachmentApi {
       'video/mp4',
       scope: scope,
       scopeRef: scopeRef,
+      seal: videoSeal,
     );
 
     final EntityImage thumb = EntityImage(
@@ -485,7 +522,10 @@ class AttachmentApi {
       height: height,
     );
     final EntityVideo video = EntityVideo(
-      fileHash256: sha256.convert(videoBytes).toString(),
+      // 与服务端 attachment.file_hash256 同值：封装时是密文哈希
+      fileHash256:
+          videoSeal?.uploadedFileHash256 ??
+          sha256.convert(videoBytes).toString(),
       name: videoName,
       uri: videoObjKey,
       size: info.filesize,

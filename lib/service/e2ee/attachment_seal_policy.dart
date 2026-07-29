@@ -43,6 +43,23 @@ final class SealSkipped extends SealDecision {
 }
 
 class AttachmentSealPolicy {
+  /// descriptor 在消息 payload / metadata 里的字段名。**单一真值源**：
+  /// 发送侧写入、明文闸门检测、将来 Slice 6 的读取侧都用这一个常量。
+  static const String descriptorPayloadKey = 'attachment_descriptor';
+
+  /// 这份 payload 是否带着 **content key**（即含 descriptor）。
+  ///
+  /// ⚠️ 用途是**明文出网闸门**：只要带着它，就绝不能以未加密形式发出去。
+  /// 封装判定发生在上传时（[decide]），而消息真正出网可能在几秒甚至几小时后
+  /// （重发状态机）；两个时刻之间策略可能已经翻成明文。这个谓词让
+  /// 出网侧能在最后一刻自己拦一次，而不是信任上传时的判定还成立。
+  ///
+  /// 入参刻意是 [Object]：库里读出的 payload 常是 `Map<dynamic, dynamic>`
+  /// （JSON 解码产物），要求 `Map<String, dynamic>` 会让调用点各写一次强转，
+  /// 而**强转失败时静默当成「不带钥匙」正是这道闸门最怕的失效方式**。
+  static bool carriesContentKey(Object? payload) =>
+      payload is Map && payload[descriptorPayloadKey] != null;
+
   /// [payloadWillBeEncrypted] 由调用方传入
   /// （聊天侧即 `E2EEService.shouldEncryptOutgoingPayload(chatType)`）。
   /// 刻意**不在本模块内**去查——保持纯函数、可直接验收，

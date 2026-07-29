@@ -95,4 +95,42 @@ void main() {
       );
     });
   });
+
+  /// E2EE-061：带 **content key** 的行（payload 含 `attachment_descriptor`）。
+  ///
+  /// 封装判定发生在**上传那一刻**，而这条行可能在几小时后才被重发。
+  /// 中间策略若翻成明文，`encryptionRequired` 就是 false，旧判据会放行——
+  /// 于是能解开整个附件的钥匙明文出网，**比明文附件本身更糟**。
+  group('shouldBlockPlaintextRetry：content key 维度（E2EE-061）', () {
+    test('⚠️ 即便策略说「不需加密」，带 content key 的明文行也必须拦下', () {
+      expect(
+        shouldBlockPlaintextRetry(
+          encryptionRequired: false,
+          e2ee: null,
+          carriesContentKey: true,
+        ),
+        isTrue,
+        reason: '策略翻成明文不构成「可以把附件密钥明文发出去」的理由',
+      );
+    });
+
+    test('正向可用性：带 content key 但已加密的行照常重发', () {
+      expect(
+        shouldBlockPlaintextRetry(
+          encryptionRequired: true,
+          e2ee: <String, dynamic>{'meta_version': 3, 'protocol': 'olm'},
+          carriesContentKey: true,
+        ),
+        isFalse,
+        reason: '恒拦下会让加密附件永远重发不出去，却在泄漏指标上满分',
+      );
+    });
+
+    test('默认 false：旧调用形状行为不变', () {
+      expect(
+        shouldBlockPlaintextRetry(encryptionRequired: false, e2ee: null),
+        isFalse,
+      );
+    });
+  });
 }

@@ -17,6 +17,9 @@ import 'package:mime/mime.dart';
 
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
+import 'package:imboy/service/e2ee/attachment_binding.dart';
+import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
+import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
@@ -34,6 +37,22 @@ import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart
 /// 附件上传回调
 typedef AttachmentUploadedCallback = Future<bool> Function(Message message);
 
+/// E2EE-061 附件封装的**分阶段开关**，默认 `false`。
+///
+/// ⚠️⚠️ **打开它之前必须先有 Slice 6（下载侧解密 + 完整性门）。**
+/// 今天的读取链路（`cachedImageProvider` / `IMBoyCacheManager.getSingleFile`）
+/// 直接把对象字节交给渲染器，**没有任何一处会调用
+/// [AttachmentEncryptor.open]**。此时开启封装的后果不是「更安全」，而是
+/// E2EE 会话里**所有新附件对谁都打不开**——包括发送者自己。
+///
+/// 消息侧不会丢：descriptor 随加密 payload 落库，Slice 6 上线后旧密文仍可解。
+/// 但那扇窗口期内用户看到的是坏图。故按裁决规则选 fail-closed 的那个默认值。
+///
+/// 翻开时只改这一行；`ChatAttachmentHandler.sealRollout` 会跟着变。
+// ponytail: 单个 const 而非 feature flag 服务——它只会翻一次，翻的条件是
+// Slice 6 合入，不需要远端下发也不需要按用户灰度。
+const bool kAttachmentSealRolloutEnabled = false;
+
 /// 附件处理器
 ///
 /// 封装所有附件相关的上传和选择逻辑
@@ -48,6 +67,7 @@ class ChatAttachmentHandler {
     this.burnAfterMs = 0,
     this.currentUserOverride,
     this.isMutedCheck,
+    this.sealRollout = kAttachmentSealRolloutEnabled,
   });
 
   /// 对方 ID
@@ -76,6 +96,10 @@ class ChatAttachmentHandler {
   /// 测试注入 fake 以脱离 StorageService 单例（`current` 在无数据时抛 StateError）。
   @visibleForTesting
   final User? currentUserOverride;
+
+  /// 是否已进入 E2EE-061 附件封装的推出阶段，默认 [kAttachmentSealRolloutEnabled]。
+  /// 关闭时上传路径逐字节维持今天的明文行为。
+  final bool sealRollout;
 
   /// 安全拦截：如果用户被禁言，直接拦截消息创建与发送，并弹出 EasyLoading 提示 (C13)
   Future<bool> _sendMessage(Message message) async {
@@ -167,6 +191,102 @@ class ChatAttachmentHandler {
     };
   }
 
+  // ───────────────────────────────────────────────────────────────────────────
+  // E2EE-061 Slice 4：附件封装接线（本类内**唯一**入口）
+  // ───────────────────────────────────────────────────────────────────────────
+
+  /// 绑定值（方案甲）用的 `conversation_id`。
+  ///
+  /// ⚠️⚠️ **不能用 [conversationUk3]**：群会话的 uk3 是
+  /// `C2G_<本机uid>_<gid>`（见 [ConversationUk3Generator]），**逐用户不同**——
+  /// 拿它算绑定值，除发送者外没有任何人能算出同一个 AAD，群附件对所有收件人
+  /// 直接不可读。这里复用上传 scope 的 `scope_ref`：C2C 是
+  /// `c2c:<min>:<max>`（整数归一化，两端一致），C2G 是 group_id（两端一致）。
+  ///
+  /// 非聊天面（scope=private，scopeRef 为 null）返回空串 → 闸门判 missingBinding
+  /// → 不封装（fail-closed）。
+  @visibleForTesting
+  String get sealConversationId => _uploadScope.scopeRef ?? '';
+
+  /// 纯函数：这次上传要不要封装、封装用什么绑定值。
+  ///
+  /// 抽成静态纯函数是为了让判定可被穷举验收——上传本身依赖文件 IO 与静态
+  /// [AttachmentApi]，进不了单测。
+  @visibleForTesting
+  static AttachmentSealRequest? buildSealRequest({
+    required bool rolloutEnabled,
+    required bool payloadWillBeEncrypted,
+    required String messageId,
+    required String conversationId,
+    required String senderUid,
+    required String attachmentId,
+  }) {
+    if (!rolloutEnabled) return null;
+    final decision = AttachmentSealPolicy.decide(
+      payloadWillBeEncrypted: payloadWillBeEncrypted,
+      messageId: messageId,
+      conversationId: conversationId,
+      senderUid: senderUid,
+    );
+    if (decision is! SealApproved) return null;
+    return AttachmentSealRequest(
+      bindingHash: AttachmentBinding.compute(
+        messageId: messageId,
+        conversationId: conversationId,
+        senderUid: senderUid,
+      ),
+      attachmentId: attachmentId,
+    );
+  }
+
+  /// 取「这条消息的 payload 会不会被加密」——必须与真正决定加密的那一处
+  /// **同一个判据**：`ChatNetworkService.sendWsMsg` 用的就是
+  /// `E2EEService.shouldEncryptOutgoingPayload(type)`。
+  ///
+  /// ⚠️ 刻意**不**把 `encryptPayload` 里那个 `groupMegolm` 条件并进来：
+  /// `sendWsMsg` 在 `shouldEncryptOutgoingPayload` 为假时**根本不会调用**
+  /// `encryptPayload`，直接走明文分支。跟着 `groupMegolm` 判「会加密」会让
+  /// 群附件在 payload 实际明文出网时被封装，**content key 明文出网**——
+  /// 比今天的明文附件更糟。判据必须抄发送路径实际用的那个，不是它内部
+  /// 那个更宽的。
+  ///
+  /// PolicyGate 拿不到策略时抛 [E2eeSecurityException]：拿不准 → 不封装，
+  /// 退回今天已知的明文行为（这条消息随后会被 `sendWsMsg` 的同一道门拒发）。
+  bool get _payloadWillBeEncrypted {
+    try {
+      return E2EEService.shouldEncryptOutgoingPayload(type);
+    } on Object {
+      return false;
+    }
+  }
+
+  AttachmentSealRequest? _sealFor(String messageId, String attachmentId) =>
+      buildSealRequest(
+        rolloutEnabled: sealRollout,
+        payloadWillBeEncrypted: _payloadWillBeEncrypted,
+        messageId: messageId,
+        conversationId: sealConversationId,
+        senderUid: _currentUser.id,
+        attachmentId: attachmentId,
+      );
+
+  /// 把 descriptor 放进消息 metadata —— 它会被 `getMsgFromTMsg`
+  /// 原样并入 payload，从而随 PFv3 一起加密。
+  ///
+  /// ⚠️ descriptor 含 content key。只有 [_sealFor] 判定通过时它才存在，
+  /// 而那个判定的前提正是「payload 会被加密」。
+  Map<String, dynamic> _withDescriptor(
+    Map<String, dynamic> base,
+    AttachmentSealRequest? seal,
+  ) {
+    final descriptor = seal?.descriptor;
+    if (descriptor == null) return base;
+    return <String, dynamic>{
+      ...base,
+      AttachmentSealPolicy.descriptorPayloadKey: descriptor.toMap(),
+    };
+  }
+
   /// 处理文件选择
   Future<void> handleFileSelection(BuildContext context) async {
     final result = await FilePicker.pickFiles(type: FileType.any);
@@ -188,15 +308,19 @@ class ChatAttachmentHandler {
       final Uint8List bytes = await File(path).readAsBytes();
       final String mime = lookupMimeType(path) ?? 'application/octet-stream';
       final s = _uploadScope;
+      // message_id 必须在上传**之前**生成：它是绑定值（方案甲）的输入。
+      final String messageId = Xid().toString();
+      final seal = _sealFor(messageId, 'file');
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         file.name,
         mime,
         scope: s.scope,
         scopeRef: s.scopeRef,
+        seal: seal,
       );
       final message = FileMessage(
-        id: Xid().toString(),
+        id: messageId,
         authorId: _currentUser.id,
         createdAt: DateTime.fromMillisecondsSinceEpoch(
           DateTimeHelper.millisecond(),
@@ -207,10 +331,12 @@ class ChatAttachmentHandler {
         size: file.size,
         source: meta['object_key'] as String,
         status: MessageStatus.sending,
-        metadata: _withBurnMetadata({
-          'peer_id': peerId,
-          'file_hash256': meta['file_hash256'].toString(),
-        }),
+        metadata: _withBurnMetadata(
+          _withDescriptor({
+            'peer_id': peerId,
+            'file_hash256': meta['file_hash256'].toString(),
+          }, seal),
+        ),
       );
       await _sendMessage(message);
     } on Object catch (e) {
@@ -268,12 +394,20 @@ class ChatAttachmentHandler {
     if (entity.type == AssetType.image) {
       try {
         final s = _uploadScope;
+        final String messageId = Xid().toString();
+        final seal = _sealFor(messageId, 'image');
         final meta = await AttachmentApi.uploadImageEntityViaPresign(
           entity,
           scope: s.scope,
           scopeRef: s.scopeRef,
+          seal: seal,
         );
-        await handleImageUploadPresign(meta, entity);
+        await handleImageUploadPresign(
+          meta,
+          entity,
+          messageId: messageId,
+          seal: seal,
+        );
       } on Object catch (e) {
         debugPrint('[attachment_handler] handleImageUploadPresign error: $e');
       }
@@ -281,12 +415,15 @@ class ChatAttachmentHandler {
       // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
       try {
         final s = _uploadScope;
+        final String messageId = Xid().toString();
+        final seal = _sealFor(messageId, 'video');
         final resp = await AttachmentApi.uploadVideoViaPresign(
           entity,
           scope: s.scope,
           scopeRef: s.scopeRef,
+          videoSeal: seal,
         );
-        await handleVideoUpload(resp);
+        await handleVideoUpload(resp, messageId: messageId, seal: seal);
       } on Object catch (e) {
         debugPrint('[attachment_handler] handleVideoUpload error: $e');
       }
@@ -296,33 +433,44 @@ class ChatAttachmentHandler {
   }
 
   /// 处理图片上传（S3 presign：source 存 object_key，渲染经 cachedImageProvider 异步解析）
+  ///
+  /// [messageId] 由上传前生成并透传（绑定值的输入）；为 null 时退回自生成，
+  /// 保留既有调用形状。
   Future<void> handleImageUploadPresign(
     Map<String, dynamic> meta,
-    AssetEntity entity,
-  ) async {
+    AssetEntity entity, {
+    String? messageId,
+    AttachmentSealRequest? seal,
+  }) async {
     final message = ImageMessage(
       authorId: _currentUser.id,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
         DateTimeHelper.millisecond(),
         isUtc: true,
       ),
-      id: Xid().toString(),
+      id: messageId ?? Xid().toString(),
       text: await entity.titleAsync,
       height: entity.height * 1.0,
       width: entity.width * 1.0,
       size: meta['size'] as int?,
       // Garage 不支持 nginx 式 width 缩放，source 直接存 object_key（不拼 &width）
       source: meta['object_key'] as String,
-      metadata: _withBurnMetadata({
-        'peer_id': peerId,
-        'file_hash256': meta['file_hash256'].toString(),
-      }),
+      metadata: _withBurnMetadata(
+        _withDescriptor({
+          'peer_id': peerId,
+          'file_hash256': meta['file_hash256'].toString(),
+        }, seal),
+      ),
     );
     await _sendMessage(message);
   }
 
   /// 处理视频上传
-  Future<void> handleVideoUpload(Map<String, dynamic> resp) async {
+  Future<void> handleVideoUpload(
+    Map<String, dynamic> resp, {
+    String? messageId,
+    AttachmentSealRequest? seal,
+  }) async {
     final thumb = (resp['thumb'] as EntityImage).toJson();
     final video = resp['video'] as EntityVideo;
 
@@ -332,20 +480,23 @@ class ChatAttachmentHandler {
         DateTimeHelper.millisecond(),
         isUtc: true,
       ),
-      id: Xid().toString(),
+      id: messageId ?? Xid().toString(),
       source: video.uri,
       text: video.name,
       name: video.name,
       size: video.size ?? 0,
       width: video.width.toDouble(),
       height: video.height.toDouble(),
-      metadata: _withBurnMetadata({
-        'peer_id': peerId,
-        'file_hash256': video.fileHash256,
-        'thumb': thumb,
-        if (video.duration != null)
-          'duration_ms': (video.duration! * 1000).round(),
-      }),
+      // ⚠️ thumb 仍是明文对象（Slice 7）：视频本体加密不掩盖缩略图泄漏预览。
+      metadata: _withBurnMetadata(
+        _withDescriptor({
+          'peer_id': peerId,
+          'file_hash256': video.fileHash256,
+          'thumb': thumb,
+          if (video.duration != null)
+            'duration_ms': (video.duration! * 1000).round(),
+        }, seal),
+      ),
     );
     await _sendMessage(message);
   }
@@ -409,12 +560,15 @@ class ChatAttachmentHandler {
       final mime = 'image/$ext';
 
       final s = _uploadScope;
+      final String messageId = Xid().toString();
+      final seal = _sealFor(messageId, 'image');
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         '${Xid()}.$ext',
         mime,
         scope: s.scope,
         scopeRef: s.scopeRef,
+        seal: seal,
       );
 
       final message = ImageMessage(
@@ -423,16 +577,18 @@ class ChatAttachmentHandler {
           DateTimeHelper.millisecond(),
           isUtc: true,
         ),
-        id: Xid().toString(),
+        id: messageId,
         text: fileName,
         height: height * 1.0,
         width: width * 1.0,
         size: meta['size'] as int?,
         source: meta['object_key'] as String,
-        metadata: _withBurnMetadata({
-          'peer_id': peerId,
-          'file_hash256': meta['file_hash256'].toString(),
-        }),
+        metadata: _withBurnMetadata(
+          _withDescriptor({
+            'peer_id': peerId,
+            'file_hash256': meta['file_hash256'].toString(),
+          }, seal),
+        ),
       );
       await _sendMessage(message);
     } on Object catch (e) {
@@ -467,12 +623,20 @@ class ChatAttachmentHandler {
     if (entity.type == AssetType.image) {
       try {
         final s = _uploadScope;
+        final String messageId = Xid().toString();
+        final seal = _sealFor(messageId, 'image');
         final meta = await AttachmentApi.uploadImageEntityViaPresign(
           entity,
           scope: s.scope,
           scopeRef: s.scopeRef,
+          seal: seal,
         );
-        await handleImageUploadPresign(meta, entity);
+        await handleImageUploadPresign(
+          meta,
+          entity,
+          messageId: messageId,
+          seal: seal,
+        );
       } on Object catch (e) {
         debugPrint('[attachment_handler] handleImageUploadPresign error: $e');
       }
@@ -480,12 +644,15 @@ class ChatAttachmentHandler {
       // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
       try {
         final s = _uploadScope;
+        final String messageId = Xid().toString();
+        final seal = _sealFor(messageId, 'video');
         final resp = await AttachmentApi.uploadVideoViaPresign(
           entity,
           scope: s.scope,
           scopeRef: s.scopeRef,
+          videoSeal: seal,
         );
-        await handleSelectedVideoUpload(resp);
+        await handleSelectedVideoUpload(resp, messageId: messageId, seal: seal);
       } on Object catch (e) {
         debugPrint('[attachment_handler] handleSelectedVideoUpload error: $e');
       }
@@ -493,7 +660,11 @@ class ChatAttachmentHandler {
   }
 
   /// 处理选择的视频上传
-  Future<void> handleSelectedVideoUpload(Map<String, dynamic> resp) async {
+  Future<void> handleSelectedVideoUpload(
+    Map<String, dynamic> resp, {
+    String? messageId,
+    AttachmentSealRequest? seal,
+  }) async {
     final thumb = (resp['thumb'] as EntityImage).toJson();
     final video = resp['video'] as EntityVideo;
 
@@ -503,20 +674,23 @@ class ChatAttachmentHandler {
         DateTimeHelper.millisecond(),
         isUtc: true,
       ),
-      id: Xid().toString(),
+      id: messageId ?? Xid().toString(),
       source: video.uri,
       text: video.name,
       name: video.name,
       size: video.size ?? 0,
       width: video.width.toDouble(),
       height: video.height.toDouble(),
-      metadata: _withBurnMetadata({
-        'peer_id': peerId,
-        'file_hash256': video.fileHash256,
-        'thumb': thumb,
-        if (video.duration != null)
-          'duration_ms': (video.duration! * 1000).round(),
-      }),
+      // ⚠️ thumb 仍是明文对象（Slice 7）
+      metadata: _withBurnMetadata(
+        _withDescriptor({
+          'peer_id': peerId,
+          'file_hash256': video.fileHash256,
+          'thumb': thumb,
+          if (video.duration != null)
+            'duration_ms': (video.duration! * 1000).round(),
+        }, seal),
+      ),
     );
     await _sendMessage(message);
   }
@@ -533,6 +707,8 @@ class ChatAttachmentHandler {
       final String ext = mime.contains('/') ? mime.split('/').last : 'mp3';
       final String name = '${Xid().toString()}.$ext';
       final s = _uploadScope;
+      final String messageId = Xid().toString();
+      final seal = _sealFor(messageId, 'voice');
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         name,
@@ -540,6 +716,7 @@ class ChatAttachmentHandler {
         process: false,
         scope: s.scope,
         scopeRef: s.scopeRef,
+        seal: seal,
       );
       final message = AudioMessage(
         authorId: _currentUser.id,
@@ -547,17 +724,20 @@ class ChatAttachmentHandler {
           DateTimeHelper.millisecond(),
           isUtc: true,
         ),
-        id: Xid().toString(),
+        id: messageId,
         source: meta['object_key'] as String,
         text: '',
         size: bytes.length,
         duration: obj.duration,
         waveform: obj.waveform,
-        metadata: _withBurnMetadata({
-          'peer_id': peerId,
-          'file_hash256': meta['file_hash256'].toString(),
-          'mime_type': obj.mimeType,
-        }),
+        // ⚠️ waveform 仍随消息发送、未加密时是明文（设计 §3.3 点名的旁路之一）
+        metadata: _withBurnMetadata(
+          _withDescriptor({
+            'peer_id': peerId,
+            'file_hash256': meta['file_hash256'].toString(),
+            'mime_type': obj.mimeType,
+          }, seal),
+        ),
       );
       await obj.file.delete(recursive: true);
       await _sendMessage(message);
@@ -580,6 +760,8 @@ class ChatAttachmentHandler {
     final image = img.decodeImage(imageBytes)!;
     final result = img.encodeJpg(image, quality: 65);
     final s = _uploadScope;
+    final String messageId = Xid().toString();
+    final seal = _sealFor(messageId, 'location_thumb');
     await AttachmentApi.uploadBytesViaPresignCompat(
       "location",
       result,
@@ -591,18 +773,22 @@ class ChatAttachmentHandler {
             DateTimeHelper.millisecond(),
             isUtc: true,
           ),
-          id: Xid().toString(),
-          metadata: _withBurnMetadata({
-            'msg_type': 'location',
-            'peer_id': peerId,
-            'title': title,
-            'address': address,
-            'latitude': latitude,
-            'longitude': longitude,
-            'thumb': imgUrl,
-            'size': resp['data']['size'],
-            'file_hash256': resp['data']['file_hash256'].toString(),
-          }),
+          id: messageId,
+          // ⚠️ 经纬度本身在 payload 里：加密会话下随 payload 加密，
+          // 非加密会话下明文——与地图快照是否封装无关。
+          metadata: _withBurnMetadata(
+            _withDescriptor({
+              'msg_type': 'location',
+              'peer_id': peerId,
+              'title': title,
+              'address': address,
+              'latitude': latitude,
+              'longitude': longitude,
+              'thumb': imgUrl,
+              'size': resp['data']['size'],
+              'file_hash256': resp['data']['file_hash256'].toString(),
+            }, seal),
+          ),
         );
         await _sendMessage(message);
       },
@@ -610,6 +796,7 @@ class ChatAttachmentHandler {
       process: false,
       scope: s.scope,
       scopeRef: s.scopeRef,
+      seal: seal,
     );
   }
 

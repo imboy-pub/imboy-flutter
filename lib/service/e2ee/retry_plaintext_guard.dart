@@ -29,11 +29,21 @@ library;
 /// [encryptionRequired] 由调用方用与发送路径**同一个**判据算出
 /// （`E2EEService.shouldEncryptOutgoingPayload` / 群级 E2EE 开关）。
 /// [e2ee] 是库中该行的 e2ee 元数据；空 = 这条行是明文。
+///
+/// [carriesContentKey]（E2EE-061）：该行 payload 是否带着附件的 **content key**
+/// （`attachment_descriptor`）。为真时**不看** [encryptionRequired] 就拦——
+/// 封装判定发生在上传那一刻，而这条行可能在几小时后才被重发；
+/// 中间策略翻成明文，`encryptionRequired` 就是 false，旧判据会放行，
+/// 于是解开附件的钥匙明文出网。**明文出网的钥匙比明文附件更糟**，
+/// 这一条不接受任何「策略说可以」的理由。
 bool shouldBlockPlaintextRetry({
   required bool encryptionRequired,
   required Map<String, dynamic>? e2ee,
+  bool carriesContentKey = false,
 }) {
-  if (!encryptionRequired) return false;
   // 空 map 不构成「已加密」：加密成功必然写入 meta_version / protocol 等字段。
-  return e2ee == null || e2ee.isEmpty;
+  final bool isPlaintextRow = e2ee == null || e2ee.isEmpty;
+  if (carriesContentKey && isPlaintextRow) return true;
+  if (!encryptionRequired) return false;
+  return isPlaintextRow;
 }

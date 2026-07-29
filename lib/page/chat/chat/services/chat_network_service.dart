@@ -15,6 +15,7 @@ import 'package:imboy/modules/security_privacy/public.dart'
 import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
@@ -375,6 +376,14 @@ class ChatNetworkService {
         return false;
       }
     } else {
+      // E2EE-061：descriptor 里躺着 content key。封装判定发生在**上传时**，
+      // 到这里可能已经过了几秒——策略若在这中间翻成明文，照发就等于把
+      // 解开附件的钥匙明文送出去，比明文附件本身更糟。故最后一刻再拦一次。
+      if (AttachmentSealPolicy.carriesContentKey(payloadWithTs)) {
+        iPrint('🚫 [E2EE] 带 content key 的 payload 不得明文发送: msgId=${obj.id}');
+        AppLoading.showToast(getE2EEErrorMessage('policy_not_initialized'));
+        return false;
+      }
       finalPayload = payloadWithTs;
     }
 

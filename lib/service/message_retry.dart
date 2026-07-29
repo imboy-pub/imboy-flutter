@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee/retry_plaintext_guard.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/events/events.dart';
@@ -386,6 +387,8 @@ class MessageRetry with EventSubscriptionManager {
     return shouldBlockPlaintextRetry(
       encryptionRequired: encryptionRequired,
       e2ee: msg.e2ee,
+      // E2EE-061：带 content key 的行，无论策略怎么说都不得明文重发
+      carriesContentKey: AttachmentSealPolicy.carriesContentKey(msg.payload),
     );
   }
 
