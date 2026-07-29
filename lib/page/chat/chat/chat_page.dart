@@ -522,11 +522,19 @@ class ChatPageState extends ConsumerState<ChatPage>
     }
   }
 
-  Future<void> _applySecureFlag() async {
+  /// 防截屏（FLAG_SECURE）只有 Android 侧有原生实现（MainActivity.kt），
+  /// 其它平台直接跳过：否则 MissingPluginException 会从未 await 的 Future
+  /// 逃逸成 PlatformDispatcher 未捕获异常（try/catch 拦不住）。
+  Future<void> _applySecureFlag({bool? enabled}) async {
+    if (defaultTargetPlatform != TargetPlatform.android) return;
     try {
-      await _secureChannel.invokeMethod(_burnEnabled ? 'enable' : 'disable');
-    } catch (e) {
-      iPrint('[chat_page] invokeMethod error: $e');
+      await _secureChannel.invokeMethod(
+        (enabled ?? _burnEnabled) ? 'enable' : 'disable',
+      );
+    } on PlatformException catch (e) {
+      iPrint('[chat_page] secure flag error: $e');
+    } on MissingPluginException catch (e) {
+      iPrint('[chat_page] secure flag unsupported: $e');
     }
   }
 
@@ -808,11 +816,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     performanceMonitor.cleanupInvisibleMessages();
 
     // Riverpod Provider 会自动处理资源释放
-    try {
-      _secureChannel.invokeMethod('disable');
-    } catch (e) {
-      iPrint('[chat_page] invokeMethod error: $e');
-    }
+    unawaited(_applySecureFlag(enabled: false));
 
     super.dispose();
   }
