@@ -34,6 +34,11 @@ class AttachmentDescriptor {
   /// 明文大小上限，对齐 `AttachmentApi.maxUploadBytes`（不另立一套数字）。
   static const int maxPlainSize = AttachmentApi.maxUploadBytes;
 
+  /// SHA-256 摘要长度。**不再借用 [AttachmentChunkCodec] 的绑定值长度常量**——
+  /// 二者恰好都是 32 字节，但语义无关（一个是明文哈希，一个是 AAD 绑定值），
+  /// 借用会让将来任一方改长度时另一方被无声带偏。
+  static const int sha256Length = 32;
+
   final String attachmentId;
   final String objectKey;
   final Uint8List contentKey;
@@ -105,9 +110,9 @@ class AttachmentDescriptor {
         '实际 ${d.baseNonce.length}',
       );
     }
-    if (d.plainSha256.length != AttachmentChunkCodec.headerHashLength) {
+    if (d.plainSha256.length != sha256Length) {
       reject(
-        'plain_sha256 必须 ${AttachmentChunkCodec.headerHashLength} 字节，'
+        'plain_sha256 必须 $sha256Length 字节，'
         '实际 ${d.plainSha256.length}',
       );
     }

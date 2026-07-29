@@ -20,7 +20,7 @@ Uint8List _bytes(int fill, int len) =>
 
 final Uint8List _key = _bytes(0x11, 32);
 final Uint8List _baseNonce = _bytes(0x22, 12);
-final Uint8List _headerHash = _bytes(0x33, 32);
+final Uint8List _bindingHash = _bytes(0x33, 32);
 const String _attachmentId = 'att-0001';
 
 Uint8List _plain(String s) => Uint8List.fromList(utf8.encode(s));
@@ -150,7 +150,7 @@ void main() {
         plaintext: pt,
         contentKey: _key,
         baseNonce: _baseNonce,
-        headerHash: _headerHash,
+        bindingHash: _bindingHash,
         attachmentId: _attachmentId,
         chunkIndex: idx,
         chunkCount: count,
@@ -159,7 +159,7 @@ void main() {
         sealed: sealed,
         contentKey: _key,
         baseNonce: _baseNonce,
-        headerHash: _headerHash,
+        bindingHash: _bindingHash,
         attachmentId: _attachmentId,
         chunkIndex: idx,
         chunkCount: count,
@@ -188,7 +188,7 @@ void main() {
         plaintext: pt,
         contentKey: _key,
         baseNonce: _baseNonce,
-        headerHash: _headerHash,
+        bindingHash: _bindingHash,
         attachmentId: _attachmentId,
         chunkIndex: 0,
         chunkCount: 1,
@@ -218,7 +218,7 @@ void main() {
         plaintext: _plain('chunk-zero'),
         contentKey: _key,
         baseNonce: _baseNonce,
-        headerHash: _headerHash,
+        bindingHash: _bindingHash,
         attachmentId: _attachmentId,
         chunkIndex: 0,
         chunkCount: count,
@@ -226,7 +226,7 @@ void main() {
     });
 
     Uint8List open({
-      Uint8List? headerHash,
+      Uint8List? bindingHash,
       String? attachmentId,
       Uint8List? contentKey,
       Uint8List? baseNonce,
@@ -238,7 +238,7 @@ void main() {
         sealed: blob ?? sealed0,
         contentKey: contentKey ?? _key,
         baseNonce: baseNonce ?? _baseNonce,
-        headerHash: headerHash ?? _headerHash,
+        bindingHash: bindingHash ?? _bindingHash,
         attachmentId: attachmentId ?? _attachmentId,
         chunkIndex: idx,
         chunkCount: cnt,
@@ -250,9 +250,9 @@ void main() {
     });
 
     test('ATT-01 header_hash 变 → 拒收（密文块搬到另一条消息下打不开）', () {
-      final other = Uint8List.fromList(_headerHash)..[0] ^= 0x01;
+      final other = Uint8List.fromList(_bindingHash)..[0] ^= 0x01;
       expect(
-        () => open(headerHash: other),
+        () => open(bindingHash: other),
         throwsA(isA<AttachmentChunkException>()),
       );
     });
@@ -308,7 +308,7 @@ void main() {
         plaintext: _plain('AAAA'),
         contentKey: _key,
         baseNonce: _baseNonce,
-        headerHash: _headerHash,
+        bindingHash: _bindingHash,
         attachmentId: _attachmentId,
         chunkIndex: 0,
         chunkCount: 2,
@@ -317,7 +317,7 @@ void main() {
         plaintext: _plain('BBBB'),
         contentKey: _key,
         baseNonce: _baseNonce,
-        headerHash: _headerHash,
+        bindingHash: _bindingHash,
         attachmentId: _attachmentId,
         chunkIndex: 1,
         chunkCount: 2,
@@ -339,13 +339,13 @@ void main() {
     test('字段边界不可平移：拆分点不同的两组输入产出不同 AAD', () {
       // 字节拼接实现下，("ab","c") 与 ("a","bc") 会拼出同一串。
       final a = AttachmentChunkCodec.buildAad(
-        headerHash: _headerHash,
+        bindingHash: _bindingHash,
         attachmentId: 'ab',
         chunkIndex: 0,
         chunkCount: 1,
       );
       final b = AttachmentChunkCodec.buildAad(
-        headerHash: _headerHash,
+        bindingHash: _bindingHash,
         attachmentId: 'a',
         chunkIndex: 0,
         chunkCount: 1,
@@ -355,7 +355,7 @@ void main() {
 
     test('确定性：同输入恒产出同一串字节', () {
       Uint8List build() => AttachmentChunkCodec.buildAad(
-        headerHash: _headerHash,
+        bindingHash: _bindingHash,
         attachmentId: _attachmentId,
         chunkIndex: 2,
         chunkCount: 5,
@@ -365,7 +365,7 @@ void main() {
 
     test('含域分隔串（防本 AAD 结构被复用到别的上下文）', () {
       final aad = AttachmentChunkCodec.buildAad(
-        headerHash: _headerHash,
+        bindingHash: _bindingHash,
         attachmentId: _attachmentId,
         chunkIndex: 0,
         chunkCount: 1,
@@ -389,7 +389,7 @@ void main() {
           plaintext: _plain('x'),
           contentKey: _bytes(0x11, 16),
           baseNonce: _baseNonce,
-          headerHash: _headerHash,
+          bindingHash: _bindingHash,
           attachmentId: _attachmentId,
           chunkIndex: 0,
           chunkCount: 1,
@@ -401,7 +401,7 @@ void main() {
           sealed: _bytes(0, 32),
           contentKey: _bytes(0x11, 16),
           baseNonce: _baseNonce,
-          headerHash: _headerHash,
+          bindingHash: _bindingHash,
           attachmentId: _attachmentId,
           chunkIndex: 0,
           chunkCount: 1,
@@ -413,7 +413,7 @@ void main() {
     test('header_hash 不是 32 字节 → 拒绝', () {
       expectRejected(
         () => AttachmentChunkCodec.buildAad(
-          headerHash: _bytes(0x33, 31),
+          bindingHash: _bytes(0x33, 31),
           attachmentId: _attachmentId,
           chunkIndex: 0,
           chunkCount: 1,
@@ -425,7 +425,7 @@ void main() {
     test('attachment_id 为空 → 拒绝', () {
       expectRejected(
         () => AttachmentChunkCodec.buildAad(
-          headerHash: _headerHash,
+          bindingHash: _bindingHash,
           attachmentId: '',
           chunkIndex: 0,
           chunkCount: 1,
@@ -437,7 +437,7 @@ void main() {
     test('chunk_count < 1 → 拒绝', () {
       expectRejected(
         () => AttachmentChunkCodec.buildAad(
-          headerHash: _headerHash,
+          bindingHash: _bindingHash,
           attachmentId: _attachmentId,
           chunkIndex: 0,
           chunkCount: 0,
@@ -449,7 +449,7 @@ void main() {
     test('chunk_index >= chunk_count → 拒绝', () {
       expectRejected(
         () => AttachmentChunkCodec.buildAad(
-          headerHash: _headerHash,
+          bindingHash: _bindingHash,
           attachmentId: _attachmentId,
           chunkIndex: 3,
           chunkCount: 3,
@@ -464,7 +464,7 @@ void main() {
           sealed: _bytes(0, 15),
           contentKey: _key,
           baseNonce: _baseNonce,
-          headerHash: _headerHash,
+          bindingHash: _bindingHash,
           attachmentId: _attachmentId,
           chunkIndex: 0,
           chunkCount: 1,

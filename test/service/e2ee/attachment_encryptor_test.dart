@@ -23,7 +23,7 @@ final Uint8List _hh = _bytes(0x33, 32);
 SealedAttachment seal(Uint8List pt, {int chunkSize = 32, Uint8List? hh}) =>
     AttachmentEncryptor.seal(
       plaintext: pt,
-      headerHash: hh ?? _hh,
+      bindingHash: hh ?? _hh,
       attachmentId: 'att-0001',
       objectKey: 'u1/abc.bin',
       mime: 'application/octet-stream',
@@ -65,7 +65,7 @@ void main() {
           AttachmentEncryptor.open(
             ciphertext: s.ciphertext,
             descriptor: s.descriptor,
-            headerHash: _hh,
+            bindingHash: _hh,
           ),
           equals(_plain(n)),
           reason: '$n 字节往返失败',
@@ -81,7 +81,7 @@ void main() {
         AttachmentEncryptor.open(
           ciphertext: s.ciphertext,
           descriptor: s.descriptor,
-          headerHash: _hh,
+          bindingHash: _hh,
         ),
         equals(pt),
       );
@@ -132,7 +132,7 @@ void main() {
       final a = seal(pt);
       final b = AttachmentEncryptor.seal(
         plaintext: pt,
-        headerHash: _hh,
+        bindingHash: _hh,
         attachmentId: 'att-0001',
         objectKey: 'u1/abc.bin',
         mime: 'application/octet-stream',
@@ -153,7 +153,7 @@ void main() {
         AttachmentEncryptor.open(
           ciphertext: ct ?? s.ciphertext,
           descriptor: d ?? s.descriptor,
-          headerHash: hh ?? _hh,
+          bindingHash: hh ?? _hh,
         );
 
     test('参数全对 → 通过（本组正向锚点）', () {
@@ -248,7 +248,7 @@ void main() {
         AttachmentEncryptor.open(
           ciphertext: e.ciphertext,
           descriptor: e.descriptor,
-          headerHash: _hh,
+          bindingHash: _hh,
         ),
         isEmpty,
       );
@@ -256,7 +256,7 @@ void main() {
         () => AttachmentEncryptor.open(
           ciphertext: Uint8List.fromList(e.ciphertext)..[0] ^= 0x01,
           descriptor: e.descriptor,
-          headerHash: _hh,
+          bindingHash: _hh,
         ),
         throwsA(isA<AttachmentSealException>()),
       );

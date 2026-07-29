@@ -49,7 +49,7 @@ class AttachmentChunkCodec {
   static const int tagLength = 16;
 
   /// header_hash 长度：SHA-256
-  static const int headerHashLength = 32;
+  static const int bindingLength = 32;
 
   /// 分块数上限。来自 nonce 派生只在末 4 字节叠加计数器——
   /// 超过 uint32 会让不同 index 派生出同一 nonce，**同 key 下 nonce 复用会直接
@@ -95,20 +95,20 @@ class AttachmentChunkCodec {
   /// 构造本块 AAD（canonical CBOR，确定性编码）。
   ///
   /// 绑定四项 + 域分隔串：
-  /// - [headerHash]：PFv3 protected header 的 SHA-256 —— **ATT-01**，
+  /// - [bindingHash]：PFv3 protected header 的 SHA-256 —— **ATT-01**，
   ///   密文块被搬到另一条消息下必然失配；
   /// - [attachmentId]：同一条消息内多个附件之间不可互换；
   /// - [chunkIndex]：**块重排**必然失配；
   /// - [chunkCount]：**块截断**必然失配（少几块 ⇒ 声明的总数对不上）。
   static Uint8List buildAad({
-    required Uint8List headerHash,
+    required Uint8List bindingHash,
     required String attachmentId,
     required int chunkIndex,
     required int chunkCount,
   }) {
-    if (headerHash.length != headerHashLength) {
+    if (bindingHash.length != bindingLength) {
       throw AttachmentChunkException(
-        'header_hash 必须为 $headerHashLength 字节，实际 ${headerHash.length}',
+        'binding 必须为 $bindingLength 字节，实际 ${bindingHash.length}',
       );
     }
     if (attachmentId.isEmpty) {
@@ -127,7 +127,7 @@ class AttachmentChunkCodec {
 
     return CanonicalCbor.encode({
       'ctx': aadContext,
-      'header_hash': headerHash,
+      'binding': bindingHash,
       'attachment_id': attachmentId,
       'chunk_index': chunkIndex,
       'chunk_count': chunkCount,
@@ -145,7 +145,7 @@ class AttachmentChunkCodec {
     required Uint8List plaintext,
     required Uint8List contentKey,
     required Uint8List baseNonce,
-    required Uint8List headerHash,
+    required Uint8List bindingHash,
     required String attachmentId,
     required int chunkIndex,
     required int chunkCount,
@@ -153,7 +153,7 @@ class AttachmentChunkCodec {
     _requireKey(contentKey);
     final nonce = deriveNonce(baseNonce, chunkIndex);
     final aad = buildAad(
-      headerHash: headerHash,
+      bindingHash: bindingHash,
       attachmentId: attachmentId,
       chunkIndex: chunkIndex,
       chunkCount: chunkCount,
@@ -175,7 +175,7 @@ class AttachmentChunkCodec {
     required Uint8List sealed,
     required Uint8List contentKey,
     required Uint8List baseNonce,
-    required Uint8List headerHash,
+    required Uint8List bindingHash,
     required String attachmentId,
     required int chunkIndex,
     required int chunkCount,
@@ -188,7 +188,7 @@ class AttachmentChunkCodec {
     }
     final nonce = deriveNonce(baseNonce, chunkIndex);
     final aad = buildAad(
-      headerHash: headerHash,
+      bindingHash: bindingHash,
       attachmentId: attachmentId,
       chunkIndex: chunkIndex,
       chunkCount: chunkCount,

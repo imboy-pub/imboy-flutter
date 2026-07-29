@@ -65,11 +65,11 @@ class AttachmentEncryptor {
 
   /// 封装整个附件。
   ///
-  /// [headerHash] 是 PFv3 protected header 的 SHA-256——**ATT-01 的锚点**：
+  /// [bindingHash] 是 PFv3 protected header 的 SHA-256——**ATT-01 的锚点**：
   /// 密文块被搬到另一条消息下时 AAD 必然失配。
   static SealedAttachment seal({
     required Uint8List plaintext,
-    required Uint8List headerHash,
+    required Uint8List bindingHash,
     required String attachmentId,
     required String objectKey,
     required String mime,
@@ -97,7 +97,7 @@ class AttachmentEncryptor {
           plaintext: Uint8List.fromList(slice),
           contentKey: contentKey,
           baseNonce: baseNonce,
-          headerHash: headerHash,
+          bindingHash: bindingHash,
           attachmentId: attachmentId,
           chunkIndex: i,
           chunkCount: chunkCount,
@@ -128,7 +128,7 @@ class AttachmentEncryptor {
   static Uint8List open({
     required Uint8List ciphertext,
     required AttachmentDescriptor descriptor,
-    required Uint8List headerHash,
+    required Uint8List bindingHash,
   }) {
     final d = descriptor;
     final sealedChunkLen = d.chunkSize + AttachmentChunkCodec.tagLength;
@@ -163,7 +163,7 @@ class AttachmentEncryptor {
           ),
           contentKey: d.contentKey,
           baseNonce: d.baseNonce,
-          headerHash: headerHash,
+          bindingHash: bindingHash,
           attachmentId: d.attachmentId,
           chunkIndex: i,
           chunkCount: d.chunkCount,
