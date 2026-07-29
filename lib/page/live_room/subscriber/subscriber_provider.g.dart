@@ -45,7 +45,7 @@ final class SubscriberNotifierProvider
 }
 
 String _$subscriberNotifierHash() =>
-    r'66f18944369cc1b7008784d3ab633523637186fd';
+    r'8f26bdf90e42b848330e7722508e02f48a0840ec';
 
 /// Subscriber Provider - 管理 WHEP 拉流状态和 PeerConnection
 

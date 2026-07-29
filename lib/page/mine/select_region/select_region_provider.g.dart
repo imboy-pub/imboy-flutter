@@ -45,7 +45,7 @@ final class SelectRegionNotifierProvider
 }
 
 String _$selectRegionNotifierHash() =>
-    r'5ab843cf964c045349087fb663bb7373902dd7ff';
+    r'eb80b79cc95009d4f65d976aa403d554e851e8d0';
 
 /// 选择地区 Provider
 

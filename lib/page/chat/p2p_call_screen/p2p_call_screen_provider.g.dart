@@ -45,7 +45,7 @@ final class P2pCallScreenNotifierProvider
 }
 
 String _$p2pCallScreenNotifierHash() =>
-    r'766baea6ddcdd0a89887bdf84604640fbc3eab27';
+    r'4b86b45edc7ef1c5ef29e3444d4b60e6740dcc02';
 
 /// P2P Call Screen Provider
 

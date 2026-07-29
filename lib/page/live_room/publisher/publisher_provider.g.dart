@@ -44,7 +44,7 @@ final class PublisherNotifierProvider
   }
 }
 
-String _$publisherNotifierHash() => r'6d78dcef362654dc222006c7683ad591e95d1b50';
+String _$publisherNotifierHash() => r'ca22d6384b8ffa2fc7bf58d4d732919fbb5f6f96';
 
 /// Publisher Provider - 管理 WHIP 推流状态和 PeerConnection
 

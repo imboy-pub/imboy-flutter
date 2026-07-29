@@ -50,7 +50,7 @@ final class ThemeModeNotifierProvider
   }
 }
 
-String _$themeModeNotifierHash() => r'eeedb110ba8066ed5d12363c9cdf4d5b20ede5e0';
+String _$themeModeNotifierHash() => r'8d56177fdc386d6b157a16223561a3790fbefed8';
 
 /// ThemeMode Provider - 用于 MaterialApp.themeMode
 ///
@@ -116,7 +116,7 @@ final class ThemeNotifierProvider
   }
 }
 
-String _$themeNotifierHash() => r'ed4c8983a70883aeb39a87402537d88dcb7b01d5';
+String _$themeNotifierHash() => r'f4aed992b45f17498b6dc08fe81939fd3c4bb52c';
 
 /// 主题管理器 Provider
 ///
