@@ -322,10 +322,14 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         ),
         AppSpacing.horizontalSmall,
       ],
-      slivers: [
-        // 搜索框
-        SliverToBoxAdapter(
-          child: Padding(
+      // AzListView 自带滚动 + IndexBar，塞进 CustomScrollView 的 SliverFillRemaining
+      // 会同轴嵌套两层滚动体：hasScrollBody:true 时吸顶头挂到未完成布局的 relayout
+      // 边界上抛 "Cannot hit test a render box with no size"；改 false 又给了子节点
+      // 无界高度，AzListView 内部 Stack 布局失败 → sliver geometry 为 null 崩在
+      // layoutChildSequence。这里改成搜索框固定 + AzListView 独占剩余高度，不再嵌套。
+      body: Column(
+        children: [
+          Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.regular,
               AppSpacing.medium,
@@ -334,77 +338,68 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             ),
             child: CupertinoSearchTextField(placeholder: t.common.search),
           ),
-        ),
-
-        if (state.isLoading)
-          const SliverFillRemaining(child: ShimmerList())
-        else if (state.contactList.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: NoDataView(text: t.common.noContacts),
-          )
-        else
-          // AzListView 自带滚动，用默认 hasScrollBody:true 会把它当成嵌套滚动主体，
-          // 导致悬浮吸顶头挂到未完成布局的 relayout 边界上，滚动/触摸时抛
-          // "Cannot hit test a render box with no size" 刷屏。改为 false，
-          // 让 AzListView 以固定盒子布局并独立滚动。
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: AzListView(
-              data: state.contactList,
-              itemCount: state.contactList.length,
-              itemBuilder: (context, index) {
-                final model = state.contactList[index];
-                return Column(
-                  children: [
-                    _buildChatItem(
-                      context,
-                      model,
-                      newFriendUnreadCount: newFriendUnreadCount,
-                    ),
-                    if (index < state.contactList.length - 1 &&
-                        state.contactList[index].getSuspensionTag() ==
-                            state.contactList[index + 1].getSuspensionTag())
-                      Padding(
-                        padding: const EdgeInsets.only(left: 72),
-                        child: Divider(
-                          height: 0.5,
-                          color: AppColors.getIosSeparator(
-                            brightness,
-                          ).withValues(alpha: 0.5),
-                        ),
+          if (state.isLoading)
+            const Expanded(child: ShimmerList())
+          else if (state.contactList.isEmpty)
+            Expanded(child: NoDataView(text: t.common.noContacts))
+          else
+            Expanded(
+              child: AzListView(
+                data: state.contactList,
+                itemCount: state.contactList.length,
+                itemBuilder: (context, index) {
+                  final model = state.contactList[index];
+                  return Column(
+                    children: [
+                      _buildChatItem(
+                        context,
+                        model,
+                        newFriendUnreadCount: newFriendUnreadCount,
                       ),
-                  ],
-                );
-              },
-              susItemBuilder: (context, index) {
-                final tag = state.contactList[index].getSuspensionTag();
-                if (tag == '↑') return const SizedBox.shrink();
-                return _buildSusItem(context, tag);
-              },
-              indexBarData: ['↑', ...state.indexBarData],
-              indexBarOptions: IndexBarOptions(
-                needRebuild: true,
-                indexHintDecoration: BoxDecoration(
-                  color: AppColors.getIosBlue(
-                    brightness,
-                  ).withValues(alpha: 0.9),
-                  shape: BoxShape.circle,
+                      if (index < state.contactList.length - 1 &&
+                          state.contactList[index].getSuspensionTag() ==
+                              state.contactList[index + 1].getSuspensionTag())
+                        Padding(
+                          padding: const EdgeInsets.only(left: 72),
+                          child: Divider(
+                            height: 0.5,
+                            color: AppColors.getIosSeparator(
+                              brightness,
+                            ).withValues(alpha: 0.5),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+                susItemBuilder: (context, index) {
+                  final tag = state.contactList[index].getSuspensionTag();
+                  if (tag == '↑') return const SizedBox.shrink();
+                  return _buildSusItem(context, tag);
+                },
+                indexBarData: ['↑', ...state.indexBarData],
+                indexBarOptions: IndexBarOptions(
+                  needRebuild: true,
+                  indexHintDecoration: BoxDecoration(
+                    color: AppColors.getIosBlue(
+                      brightness,
+                    ).withValues(alpha: 0.9),
+                    shape: BoxShape.circle,
+                  ),
+                  indexHintTextStyle: context.textStyle(
+                    FontSizeType.largeTitle,
+                    color: AppColors.onPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  downItemDecoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.primary,
+                  ),
+                  indexHintOffset: const Offset(-20, 0),
                 ),
-                indexHintTextStyle: context.textStyle(
-                  FontSizeType.largeTitle,
-                  color: AppColors.onPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-                downItemDecoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary,
-                ),
-                indexHintOffset: const Offset(-20, 0),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }

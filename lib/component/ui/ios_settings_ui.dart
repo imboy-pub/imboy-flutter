@@ -13,6 +13,7 @@ class IosPageTemplate extends StatelessWidget {
     required this.title,
     this.child,
     this.slivers,
+    this.body,
     this.actions,
     this.useLargeTitle = false, // 默认改为紧凑模式
     this.backgroundColor,
@@ -22,6 +23,10 @@ class IosPageTemplate extends StatelessWidget {
   final String title;
   final Widget? child;
   final List<Widget>? slivers;
+
+  /// 页面自带滚动体（如 AzListView）时用这个：模板不再包任何滚动容器，
+  /// 避免同轴嵌套两层可滚动区域导致的 sliver 布局/命中测试崩溃。
+  final Widget? body;
   final List<Widget>? actions;
   final bool useLargeTitle;
   final Color? backgroundColor;
@@ -87,6 +92,9 @@ class IosPageTemplate extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context, Color bgColor) {
+    if (body != null) {
+      return body!;
+    }
     if (slivers != null) {
       return CustomScrollView(
         physics: const BouncingScrollPhysics(
@@ -101,7 +109,7 @@ class IosPageTemplate extends StatelessWidget {
       ),
       child: Column(
         children: [
-          if (child != null) child!,
+          ?child,
           // 如果没有 bottomWidget，给底部留点呼吸空间
           if (bottomWidget == null) const SizedBox(height: 40),
         ],
