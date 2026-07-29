@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/e2ee/attachment_open_registry.dart';
+import 'package:imboy/service/e2ee/attachment_temp_hygiene.dart';
 import 'package:imboy/service/e2ee/attachment_opener.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,6 +29,9 @@ class IMBoyCacheManager {
 
   final CrossCache _crossCache;
   final Lock _fileLock = Lock();
+
+  /// 残留临时明文只在每个进程内清扫一次（见 [AttachmentTempHygiene]）。
+  bool _sweptStaleTempFiles = false;
 
   factory IMBoyCacheManager() {
     return _instance;
@@ -324,6 +328,17 @@ class IMBoyCacheManager {
       final directory = Directory('${tempDir.path}/imboy_cache');
       if (!await directory.exists()) {
         await directory.create(recursive: true);
+      }
+
+      // E2EE-061 Slice 8（ATT-05）：清掉上次被 kill / 磁盘满留下的 `.tmp` 残留。
+      // Slice 6 之后这些残留是**解密后的明文碎片**，没人引用也没人删。
+      // 每进程一次、在文件锁内做：不影响热路径，也不会与本次写入打架。
+      if (!_sweptStaleTempFiles) {
+        _sweptStaleTempFiles = true;
+        final int removed = await AttachmentTempHygiene.sweep(directory);
+        if (removed > 0) {
+          _log('🧹 清理残留临时明文 $removed 个');
+        }
       }
 
       final ext = _getFileExtension(extSource) ?? 'cache';
