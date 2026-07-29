@@ -17,7 +17,11 @@ void main() {
   final Uint8List bytes = Uint8List.fromList(
     List<int>.generate(64, (int i) => i),
   );
-  final String expectedMd5 = md5.convert(bytes).toString();
+  // ⚠️ 原断言用 md5。该字段已于 2026-07-09 commit 71d20283
+  // 'refactor(attach)!: 文件完整性哈希 md5→file_hash256' 重命名并改算法，
+  // 但当时**未同步本测试**，此后该用例一直是红的（本文件上次改动是 2026-06-20）。
+  // 此处按现行契约更新断言，非放宽——键名与算法都收紧到 SHA-256。
+  final String expectedFileHash256 = sha256.convert(bytes).toString();
 
   group('putWithRetry - PUT 指数退避重试', () {
     test('首次失败、二次成功 → 完成，put 调 2 次，退避 1 次(500ms)', () async {
@@ -200,7 +204,7 @@ void main() {
       // 默认 scope=private（保持既有非聊天面行为），不带 scope_ref。
       expect(confirmBody, <String, dynamic>{
         'object_key': 'u1/file_1_a/x.png',
-        'md5': expectedMd5,
+        'file_hash256': expectedFileHash256,
         'mime_type': 'image/png',
         'size': bytes.length,
         'scope': 'private',

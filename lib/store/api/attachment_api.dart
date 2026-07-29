@@ -14,6 +14,8 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:mime/mime.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/service/e2ee/attachment_descriptor.dart';
+import 'package:imboy/service/e2ee/attachment_encryptor.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
@@ -47,6 +49,42 @@ typedef SinglePutFn =
 
 /// 退避延时注入 seam（默认真实 [Future.delayed]，测试可注入零延时避免真实等待）。
 typedef DelayFn = Future<void> Function(Duration d);
+
+/// E2EE-061 Slice 4：附件加密上传的输入与产物承载。
+///
+/// 为什么用一个可变承载而不是改 [AttachmentApi.uploadViaPresign] 的返回类型：
+/// 该函数有 5 个调用入口，改返回类型会让它们全部跟着改，而其中多数在本刀内
+/// **还不需要**加密。用承载对象把「要不要加密」与「谁需要 descriptor」解耦，
+/// 未接线的入口一行不用动。
+class AttachmentSealRequest {
+  /// AAD 绑定值（方案甲，见 [AttachmentBinding]）。32 字节。
+  final Uint8List bindingHash;
+
+  /// 本附件的标识，进 AAD；同一条消息内多个附件不可互换。
+  final String attachmentId;
+
+  /// 分块大小。默认取已拍板的 1 MiB。
+  final int chunkSize;
+
+  /// 上传完成后由 [AttachmentApi.uploadViaPresign] 回填。
+  /// ⚠️ 它含 **content key**：必须随 PFv3 加密 payload 发送，
+  /// 绝不可写日志、绝不可进未加密字段。
+  AttachmentDescriptor? descriptor;
+
+  AttachmentSealRequest({
+    required this.bindingHash,
+    required this.attachmentId,
+    this.chunkSize = AttachmentEncryptor.defaultChunkSize,
+  }) {
+    if (attachmentId.isEmpty) {
+      throw ArgumentError.value(
+        attachmentId,
+        'attachmentId',
+        '不得为空：空值会让同一消息内多个附件共用同一 AAD',
+      );
+    }
+  }
+}
 
 class AttachmentApi {
   /// 单文件直传上限：100MB。
@@ -119,6 +157,12 @@ class AttachmentApi {
     PresignFn? presignFn,
     PutFn? putFn,
     ConfirmFn? confirmFn,
+
+    /// 非 null 时上传**密文**：明文经 [AttachmentEncryptor.seal] 分块 AEAD 后直传，
+    /// confirm 上报的是**密文**哈希与大小（拍板 ①：明文哈希永不到达服务端），
+    /// 并带上 `cipher` 判别位（后端迁移 000050）。
+    /// 为 null 时行为**逐字节不变**——这是本刀零风险接线的前提。
+    AttachmentSealRequest? seal,
   }) async {
     // 1. 前置校验（系统边界，快速失败）
     final String? validationError = validateUpload(bytes.length, mime);
@@ -154,21 +198,45 @@ class AttachmentApi {
       throw Exception('presign 响应缺少 put_url/object_key');
     }
 
+    // 2.5 E2EE-061：按需封装。**必须在 presign 之后**——descriptor 要带 object_key。
+    // MIME 按拍板保持真实值（不隐藏），因此 presign 契约无需任何改动。
+    SealedAttachment? sealed;
+    if (seal != null) {
+      sealed = AttachmentEncryptor.seal(
+        plaintext: bytes,
+        bindingHash: seal.bindingHash,
+        attachmentId: seal.attachmentId,
+        objectKey: objectKey,
+        mime: mime,
+        name: fileName,
+        contentKey: AttachmentEncryptor.randomContentKey(),
+        baseNonce: AttachmentEncryptor.randomBaseNonce(),
+        chunkSize: seal.chunkSize,
+      );
+      seal.descriptor = sealed.descriptor;
+    }
+    // 实际上传的字节：加密时是密文，否则是原明文
+    final Uint8List bodyBytes = sealed?.ciphertext ?? bytes;
+
     // 3. PUT 直传 Garage（裸 Dio，不注 JWT；指数退避重试；可注入）
     if (putFn != null) {
-      await putFn(putUrl, bytes, mime, process);
+      await putFn(putUrl, bodyBytes, mime, process);
     } else {
-      await _putToGarage(putUrl, bytes, mime, process: process);
+      await _putToGarage(putUrl, bodyBytes, mime, process: process);
     }
 
     // 4. confirm 落库（JWT，走 HttpClient；可注入）
-    // 文件完整性哈希：SHA-256（后端字段 file_hash256，仅作完整性参考）
-    final String fileHash256 = sha256.convert(bytes).toString();
+    // ⚠️ 拍板 ①：加密上传只上报**密文**哈希。明文 SHA-256 只进加密的 descriptor，
+    // 永不到达服务端——否则服务端仍可与已知文件库比对，内容加密的收益被抵消大半。
+    final String fileHash256 =
+        sealed?.ciphertextSha256Hex ?? sha256.convert(bytes).toString();
     final Map<String, dynamic> confirmBody = <String, dynamic>{
       'object_key': objectKey,
       'file_hash256': fileHash256,
       'mime_type': mime,
-      'size': bytes.length,
+      // 密文大小 ≠ 明文大小；明文大小只在 descriptor 内
+      'size': bodyBytes.length,
+      if (sealed != null) 'cipher': AttachmentDescriptor.supportedCipher,
       'scope': scope,
       if (scopeRef != null && scopeRef.isNotEmpty) 'scope_ref': scopeRef,
     };
