@@ -107,6 +107,11 @@ TEST_PHONE="${IMBOY_TEST_PHONE:-${TEST_PHONE:-}}"
 TEST_PASSWORD="${IMBOY_TEST_PASSWORD:-${TEST_PASSWORD:-}}"
 TEST_SEARCH_KEYWORD="${IMBOY_TEST_SEARCH_KEYWORD:-${TEST_SEARCH_KEYWORD:-}}"
 APP_ENV="${IMBOY_APP_ENV:-${APP_ENV:-local_office}}"
+# App 自身的地址来自 envied 编译期 baked 的 .env.<APP_ENV>（生成物 lib/config/env_*.g.dart
+# 已提交，改 .env 不跑 build_runner 不生效）。--dart-define=API_BASE_URL 只喂测试客户端，
+# 覆盖 App 必须用 EnvLocalOffice/EnvLocalHome 里的 *_OVERRIDE 键（见 lib/config/env_local_office.dart）。
+API_BASE_URL_OVERRIDE="${IMBOY_API_BASE_URL_OVERRIDE:-$API_BASE_URL}"
+WS_URL_OVERRIDE="${IMBOY_WS_URL_OVERRIDE:-ws${API_BASE_URL#http}/api/v1/ws}"
 
 timestamp() { date '+%Y-%m-%dT%H:%M:%S%z'; }
 
@@ -275,6 +280,8 @@ if [[ "$MODE" != "quick" && "$RUN_INTEGRATION" == "1" ]]; then
     FLOW_DEFINES=(
       "--dart-define=APP_ENV=$APP_ENV"
       "--dart-define=API_BASE_URL=$API_BASE_URL"
+      "--dart-define=API_BASE_URL_OVERRIDE=$API_BASE_URL_OVERRIDE"
+      "--dart-define=WS_URL_OVERRIDE=$WS_URL_OVERRIDE"
       "--dart-define=TEST_PHONE=$TEST_PHONE"
       "--dart-define=TEST_PASSWORD=$TEST_PASSWORD"
       "--dart-define=TEST_SEARCH_KEYWORD=$TEST_SEARCH_KEYWORD"
@@ -304,6 +311,8 @@ if [[ "$MODE" != "quick" && "$RUN_PATROL" == "1" ]]; then
     PATROL_DEFINES=(
       "--dart-define=APP_ENV=$APP_ENV"
       "--dart-define=API_BASE_URL=$API_BASE_URL"
+      "--dart-define=API_BASE_URL_OVERRIDE=$API_BASE_URL_OVERRIDE"
+      "--dart-define=WS_URL_OVERRIDE=$WS_URL_OVERRIDE"
       "--dart-define=TEST_PHONE=$TEST_PHONE"
       "--dart-define=TEST_PASSWORD=$TEST_PASSWORD"
     )
