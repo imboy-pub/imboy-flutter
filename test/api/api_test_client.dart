@@ -13,6 +13,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:dio/dio.dart';
 
 // ──────────────────────────────────────────────
@@ -94,6 +95,8 @@ class ApiTestClient {
     return h;
   }
 
+  static String _md5(String s) => crypto.md5.convert(utf8.encode(s)).toString();
+
   Future<Map<String, dynamic>> login({
     required String account,
     required String password,
@@ -104,7 +107,10 @@ class ApiTestClient {
       '/api/v1/passport/login',
       data: {
         'account': account,
-        'pwd': password,
+        // 与真实客户端（passport_notifier）和 integration_test/flows 一致：
+        // 上送 md5(明文)，服务端存的是 elib_password:generate(md5(明文))。
+        // 此前这里发裸明文，导致本套件永远登不进 App 创建的真实账号。
+        'pwd': _md5(password),
         'type': type,
         'rsa_encrypt': '0',
       },
