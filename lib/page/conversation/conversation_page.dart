@@ -66,9 +66,20 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
   StreamSubscription<dynamic>? _localeSubscription;
   StreamSubscription<dynamic>? _connectivitySubscription;
   StreamSubscription<dynamic>? _websocketStatusSubscription;
+  StreamSubscription<dynamic>? _authoritySyncSub;
 
   /// 是否需在列表顶部常驻显示 E2EE 密钥恢复横幅（换设备/重装后未完成恢复）。
   bool _e2eeRecoveryNeeded = false;
+
+  /// 会话搜索控制器与当前 query（已 trim + 小写）。空串表示未过滤。
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _searchQuery = '';
+
+  void _onSearchChanged(String value) {
+    final q = value.trim().toLowerCase();
+    if (q == _searchQuery) return;
+    setState(() => _searchQuery = q);
+  }
 
   @override
   void initState() {
@@ -98,6 +109,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     _localeSubscription?.cancel();
     _connectivitySubscription?.cancel();
     _websocketStatusSubscription?.cancel();
+    _authoritySyncSub?.cancel();
+    _searchCtrl.dispose();
     super.dispose();
   }
 
@@ -135,6 +148,17 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
             ),
           );
         });
+
+    // 下拉刷新等服务端权威拉取失败时给出可见反馈（仅 pull_to_refresh 触发，
+    // page_init / websocket_connected 的失败不弹 toast，避免应用启动期噪音）。
+    _authoritySyncSub = AppEventBus.on<ConversationAuthoritySyncEvent>().listen(
+      (event) {
+        if (!mounted) return;
+        if (!event.success && event.trigger == 'pull_to_refresh') {
+          AppLoading.showError(t.common.errorNetwork);
+        }
+      },
+    );
 
     ssMsg = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) async {
       if (!mounted) return;
@@ -185,6 +209,18 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     final t = context.t;
     final brightness = Theme.of(context).brightness;
 
+    // 本地过滤已加载会话（标题 + 预览文本）；不触网、不另造数据源。
+    final all = state.conversations;
+    final filtered = _searchQuery.isEmpty
+        ? all
+        : all
+              .where(
+                (c) =>
+                    c.title.toLowerCase().contains(_searchQuery) ||
+                    c.subtitle.toLowerCase().contains(_searchQuery),
+              )
+              .toList();
+
     return IosPageTemplate(
       title: t.chat.titleMessage,
       actions: [
@@ -195,10 +231,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
       ],
       slivers: [
         CupertinoSliverRefreshControl(
-          onRefresh: () async {
-            // TODO: Add refresh logic
-            await Future<void>.delayed(const Duration(milliseconds: 1000));
-          },
+          onRefresh: () => notifier.syncAuthoritativeConversationList(
+            trigger: 'pull_to_refresh',
+          ),
         ),
         // 搜索框 - 嵌入 List 顶部
         SliverToBoxAdapter(
@@ -211,6 +246,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
             ),
             child: CupertinoSearchTextField(
               key: const Key('conversation_search_input'),
+              controller: _searchCtrl,
+              onChanged: _onSearchChanged,
               placeholder: t.common.search,
               backgroundColor: AppColors.getSurfaceGrouped(
                 brightness,
@@ -240,17 +277,22 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
 
         if (state.isLoading)
           const SliverFillRemaining(child: ShimmerList())
-        else if (state.conversations.isEmpty)
+        else if (all.isEmpty)
           SliverFillRemaining(
             hasScrollBody: false,
             child: NoDataView(text: t.common.noConversationMessages),
+          )
+        else if (filtered.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: NoDataView(text: t.common.searchNoResults),
           )
         else
           SliverPadding(
             padding: const EdgeInsets.only(bottom: AppSpacing.large),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                final model = state.conversations[index];
+                final model = filtered[index];
                 return Column(
                   children: [
                     Slidable(
@@ -396,7 +438,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                     ),
                   ],
                 );
-              }, childCount: state.conversations.length),
+              }, childCount: filtered.length),
             ),
           ),
       ],

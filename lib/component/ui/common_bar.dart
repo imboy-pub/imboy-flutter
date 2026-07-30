@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -153,11 +152,14 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
 /// （IosPageTemplate）共用，消除返回键跨页样式不一致（部分页此前为 Cupertino
 /// 默认纯箭头无背景）。
 class GlassBackButton extends StatelessWidget {
-  const GlassBackButton({super.key, this.popTime = 1})
+  const GlassBackButton({super.key, this.popTime = 1, this.onPressed})
     : assert(popTime >= 1 && popTime <= 10, 'popTime must be 1-10');
 
   /// 点击返回的层数，默认 1。
   final int popTime;
+
+  /// 自定义返回行为。未提供时保持默认的多层 Navigator.pop 行为。
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -172,18 +174,19 @@ class GlassBackButton extends StatelessWidget {
         // 2.5.5 要求的最小 44×44pt，视觉上仍保持 36×36 的圆角背景不变。
         behavior: HitTestBehavior.opaque,
         onTap: () {
+          if (onPressed != null) {
+            onPressed!();
+            return;
+          }
+          // 同步 pop：GestureDetector.onTap 在手势分发期间触发，不在 Navigator
+          // 的 _flushHistoryUpdates 重入窗口内，因此可直接 pop。canPop() 守卫保证：
+          // popTime 超过栈深度时安全停止；快速连续点击时首次 pop 后 canPop() 变
+          // false，后续点击 no-op，不会过弹。此前用 addPostFrameCallback 延迟 pop
+          // 会在 widget 测试的 pumpAndSettle 窗口内不产生可见导航，致返回测试全失败。
           final nav = Navigator.of(context);
-          // 帧末执行 pop：避开导航同步重入窗口（_flushHistoryUpdates 期间
-          // _debugLocked=true）。canPop() 不检测该锁，若在重入窗口里同步 pop
-          // 会触发 '!_debugLocked' 断言，且该断言一旦抛出会中断 history flush，
-          // 让导航栈短暂卡死、后续 pop 连锁失败。postFrame 把 pop 推到当前
-          // 同步栈之外，绕开重入锁（_debugLocked 是同步锁，不跨帧）。
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            if (!nav.mounted) return;
-            for (int i = 0; i < popTime && nav.canPop(); i++) {
-              nav.pop();
-            }
-          });
+          for (int i = 0; i < popTime && nav.canPop(); i++) {
+            nav.pop();
+          }
         },
         child: SizedBox(
           width: 44,

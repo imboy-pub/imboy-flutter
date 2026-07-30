@@ -620,6 +620,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get liveRoomWatch => 'Смотреть трансляцию';
 	@override String get switchToVoiceInput => 'Переключиться на голосовой ввод';
 	@override String get switchToKeyboardInput => 'Переключиться на ввод с клавиатуры';
+	@override String get extraItems => 'Дополнительно';
 }
 
 // Path: common
@@ -1726,6 +1727,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get resumeScan => 'Возобновить сканирование';
 	@override String get enterFullscreen => 'Включить полноэкранный режим';
 	@override String get exitFullscreen => 'Выйти из полноэкранного режима';
+	@override String get developer => 'Разработчик';
 }
 
 // Path: complaint
@@ -3028,6 +3030,7 @@ extension on TranslationsRuRu {
 			'chat.liveRoomWatch' => 'Смотреть трансляцию',
 			'chat.switchToVoiceInput' => 'Переключиться на голосовой ввод',
 			'chat.switchToKeyboardInput' => 'Переключиться на ввод с клавиатуры',
+			'chat.extraItems' => 'Дополнительно',
 			'common.about' => 'О приложении',
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
@@ -3530,9 +3533,9 @@ extension on TranslationsRuRu {
 			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
 			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
 			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
-			'common.groupAnnouncementDeleteSuccess' => 'Объявление удалено',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteSuccess' => 'Объявление удалено',
 			'common.privacyClearChatHistory' => 'Очистить историю чата',
 			'common.privacyClearChatHistoryConfirm' => 'Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.',
 			'common.privacyLogoutAccountConfirm' => 'Удалить аккаунт? Это действие окончательно удалит аккаунт и все данные. Его нельзя отменить.',
@@ -4044,9 +4047,9 @@ extension on TranslationsRuRu {
 			'common.e2eeSocialCreateSuccessTitle' => 'Фрагменты созданы',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Ключ разделён на ${count} фрагментов',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Для восстановления хватит ${count} посредников',
-			'common.e2eeSocialZeroTrustNote' => 'Архитектура нулевого доверия: сервер не хранит фрагменты',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialZeroTrustNote' => 'Архитектура нулевого доверия: сервер не хранит фрагменты',
 			'common.e2eeSocialNoShards' => 'Вы ещё не создали фрагменты восстановления',
 			'common.e2eeSocialNoProxyShards' => 'Нет фрагментов посредников',
 			'common.e2eeSocialKeyVersionLabel' => 'Версия ключа',
@@ -4129,6 +4132,7 @@ extension on TranslationsRuRu {
 			'common.resumeScan' => 'Возобновить сканирование',
 			'common.enterFullscreen' => 'Включить полноэкранный режим',
 			'common.exitFullscreen' => 'Выйти из полноэкранного режима',
+			'common.developer' => 'Разработчик',
 			'complaint.complaint' => 'Жалоба',
 			'complaintReason.spam' => 'Спам',
 			'complaintReason.harassment' => 'Преследование',
@@ -4557,10 +4561,10 @@ extension on TranslationsRuRu {
 			'main.delayMsLabel' => 'Задержка в мс (>=100)',
 			'main.processed' => 'Обработано',
 			'main.export' => 'Экспорт',
-			'main.school' => 'Школа',
-			'main.hobbiesAndInterests' => 'Хобби и интересы',
 			_ => null,
 		} ?? switch (path) {
+			'main.school' => 'Школа',
+			'main.hobbiesAndInterests' => 'Хобби и интересы',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',

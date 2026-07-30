@@ -620,6 +620,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get liveRoomWatch => 'مشاهدة البث';
 	@override String get switchToVoiceInput => 'التبديل إلى الإدخال الصوتي';
 	@override String get switchToKeyboardInput => 'التبديل إلى إدخال لوحة المفاتيح';
+	@override String get extraItems => 'إضافات';
 }
 
 // Path: common
@@ -1726,6 +1727,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get resumeScan => 'استئناف المسح';
 	@override String get enterFullscreen => 'الدخول لوضع ملء الشاشة';
 	@override String get exitFullscreen => 'الخروج من وضع ملء الشاشة';
+	@override String get developer => 'مطوّر';
 }
 
 // Path: complaint
@@ -3028,6 +3030,7 @@ extension on TranslationsArSa {
 			'chat.liveRoomWatch' => 'مشاهدة البث',
 			'chat.switchToVoiceInput' => 'التبديل إلى الإدخال الصوتي',
 			'chat.switchToKeyboardInput' => 'التبديل إلى إدخال لوحة المفاتيح',
+			'chat.extraItems' => 'إضافات',
 			'common.about' => 'حول',
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
@@ -3530,9 +3533,9 @@ extension on TranslationsArSa {
 			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
 			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
 			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
-			'common.groupAnnouncementDeleteSuccess' => 'تم حذف الإعلان',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteSuccess' => 'تم حذف الإعلان',
 			'common.privacyClearChatHistory' => 'مسح سجل الدردشة',
 			'common.privacyClearChatHistoryConfirm' => 'هل أنت متأكد من مسح جميع سجلات الدردشة؟ هذا الإجراء لا يمكن التراجع عنه.',
 			'common.privacyLogoutAccountConfirm' => 'هل أنت متأكد من إلغاء الحساب؟ سيتم حذف حسابك وجميع بياناتك بشكل دائم، ولا يمكن التراجع عن هذا الإجراء.',
@@ -4044,9 +4047,9 @@ extension on TranslationsArSa {
 			'common.e2eeSocialCreateSuccessTitle' => 'تم إنشاء الشظايا',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'يكفي ${count} وكيل للاستعادة',
-			'common.e2eeSocialZeroTrustNote' => 'بنية الثقة الصفرية: لا يحفظ الخادم أي شظية',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialZeroTrustNote' => 'بنية الثقة الصفرية: لا يحفظ الخادم أي شظية',
 			'common.e2eeSocialNoShards' => 'لم تنشئ أي شظايا استعادة بعد',
 			'common.e2eeSocialNoProxyShards' => 'لا توجد شظايا وكلاء',
 			'common.e2eeSocialKeyVersionLabel' => 'إصدار المفتاح',
@@ -4129,6 +4132,7 @@ extension on TranslationsArSa {
 			'common.resumeScan' => 'استئناف المسح',
 			'common.enterFullscreen' => 'الدخول لوضع ملء الشاشة',
 			'common.exitFullscreen' => 'الخروج من وضع ملء الشاشة',
+			'common.developer' => 'مطوّر',
 			'complaint.complaint' => 'شكوى',
 			'complaintReason.spam' => 'رسائل مزعجة',
 			'complaintReason.harassment' => 'مضايقة',
@@ -4557,10 +4561,10 @@ extension on TranslationsArSa {
 			'main.delayMsLabel' => 'تأخير بالمللي ثانية (>=100)',
 			'main.processed' => 'تمت المعالجة',
 			'main.export' => 'تصدير',
-			'main.school' => 'المدرسة',
-			'main.hobbiesAndInterests' => 'الهوايات والاهتمامات',
 			_ => null,
 		} ?? switch (path) {
+			'main.school' => 'المدرسة',
+			'main.hobbiesAndInterests' => 'الهوايات والاهتمامات',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',

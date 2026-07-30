@@ -78,6 +78,22 @@ class _FakeConversationNotifier extends ConversationNotifier {
 dynamic _convOverride(ConversationState s) =>
     conversationProvider.overrideWith(() => _FakeConversationNotifier(s));
 
+/// 记录 syncAuthoritativeConversationList 调用次数，用于下拉刷新 wiring 断言。
+/// 覆写为空实现，避免触碰 DB/网络。
+class _RecordingConversationNotifier extends ConversationNotifier {
+  _RecordingConversationNotifier(this._initial);
+  final ConversationState _initial;
+  int syncCalls = 0;
+  @override
+  ConversationState build() => _initial;
+  @override
+  Future<void> syncAuthoritativeConversationList({
+    String trigger = 'manual',
+  }) async {
+    syncCalls++;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // 固定测试数据 / Fixed test data
 // ---------------------------------------------------------------------------
@@ -354,6 +370,118 @@ void main() {
 
       // 操作面板中的"删除"图标应出现
       expect(find.byIcon(CupertinoIcons.delete_solid), findsWidgets);
+    });
+  });
+
+  group('ConversationPage —— 搜索过滤 / Search filtering', () {
+    testWidgets('输入 query 仅显示匹配标题或预览的会话；清空恢复', (tester) async {
+      final list = [
+        _makeConversation(id: 1, title: 'Alice', subtitle: 'hello'),
+        _makeConversation(id: 2, title: 'Bob', subtitle: 'hi there'),
+        _makeConversation(id: 3, title: 'Alice Smith', subtitle: 'yo'),
+      ];
+      await tester.pumpWidget(
+        _buildTestApp(
+          const ConversationPage(),
+          overrides: [
+            _convOverride(
+              ConversationState(
+                conversationMap: _toMap(list),
+                isLoading: false,
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Alice'), findsWidgets);
+      expect(find.text('Bob'), findsWidgets);
+
+      // 输入 alice：Bob 被过滤，Alice / Alice Smith 保留
+      await tester.enterText(
+        find.byKey(const Key('conversation_search_input')),
+        'alice',
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Bob'), findsNothing);
+      expect(find.text('Alice'), findsWidgets);
+
+      // 清空恢复全量
+      await tester.enterText(
+        find.byKey(const Key('conversation_search_input')),
+        '',
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Bob'), findsWidgets);
+    });
+
+    testWidgets('无匹配结果显示"无搜索结果"，不显示加载失败', (tester) async {
+      final list = [
+        _makeConversation(id: 1, title: 'Alice', subtitle: 'hello'),
+      ];
+      await tester.pumpWidget(
+        _buildTestApp(
+          const ConversationPage(),
+          overrides: [
+            _convOverride(
+              ConversationState(
+                conversationMap: _toMap(list),
+                isLoading: false,
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('conversation_search_input')),
+        'zzz',
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('无搜索结果'), findsOneWidget);
+    });
+  });
+
+  group('ConversationPage —— 下拉刷新 / Pull to refresh', () {
+    testWidgets('下拉刷新调用 syncAuthoritativeConversationList 至少一次', (
+      tester,
+    ) async {
+      final list = [
+        _makeConversation(
+          id: 1,
+          title: 'Alice',
+          subtitle: 'hello',
+          lastTime: 1_700_000_001,
+        ),
+        _makeConversation(
+          id: 2,
+          title: 'Bob',
+          subtitle: 'hi',
+          lastTime: 1_700_000_000,
+        ),
+      ];
+      final notifier = _RecordingConversationNotifier(
+        ConversationState(conversationMap: _toMap(list), isLoading: false),
+      );
+      await tester.pumpWidget(
+        _buildTestApp(
+          const ConversationPage(),
+          overrides: [conversationProvider.overrideWith(() => notifier)],
+        ),
+      );
+      await tester.pumpAndSettle();
+      final syncBefore = notifier.syncCalls;
+
+      // 从顶部向下拉，触发 CupertinoSliverRefreshControl
+      await tester.fling(
+        find.byType(CustomScrollView),
+        const Offset(0, 300),
+        1000,
+      );
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      expect(notifier.syncCalls, greaterThan(syncBefore));
     });
   });
 }

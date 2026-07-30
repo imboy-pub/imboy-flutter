@@ -1910,6 +1910,9 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: '切换到键盘输入'
 	String get switchToKeyboardInput => '切换到键盘输入';
+
+	/// zh-CN: '附加项'
+	String get extraItems => '附加项';
 }
 
 // Path: common
@@ -5420,6 +5423,9 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '超大'
 	String get fontSizeOptionHuge => '超大';
+
+	/// zh-CN: '开发者'
+	String get developer => '开发者';
 }
 
 // Path: complaint
@@ -8054,6 +8060,7 @@ extension on Translations {
 			'chat.liveRoomWatch' => '观看直播',
 			'chat.switchToVoiceInput' => '切换到语音输入',
 			'chat.switchToKeyboardInput' => '切换到键盘输入',
+			'chat.extraItems' => '附加项',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
@@ -8477,9 +8484,9 @@ extension on Translations {
 			'common.tipFailed' => '操作失败！',
 			'common.tipGreeting' => '欢迎使用',
 			'common.tipProvidersTitleFirst' => '或用以下账号登录',
-			'common.tipSuccess' => '操作成功！',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipSuccess' => '操作成功！',
 			'common.tipTips' => '小贴士',
 			'common.titleContact' => '联系人',
 			'common.today' => '今天',
@@ -8991,9 +8998,9 @@ extension on Translations {
 			'common.webQRGenerateFailed' => '生成二维码失败',
 			'common.webQRTokenInvalid' => '登录令牌无效',
 			'common.e2eeErrNoRecipientKey' => '无法获取对方设备密钥，消息未发送',
-			'common.e2eeDecryptFailed' => '消息无法解密',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeDecryptFailed' => '消息无法解密',
 			'common.e2eeDecryptFailedReasons' => '此消息无法解密，可能原因是：',
 			'common.e2eeDecryptReasonOtherDevice' => '• 您在其他设备上登录',
 			'common.e2eeDecryptReasonKeyExpired' => '• 设备密钥已过期',
@@ -9225,6 +9232,7 @@ extension on Translations {
 			'common.fontSizeOptionLarge' => '大',
 			'common.fontSizeOptionExtraLarge' => '特大',
 			'common.fontSizeOptionHuge' => '超大',
+			'common.developer' => '开发者',
 			'complaint.complaint' => '投诉',
 			'complaintReason.spam' => '垃圾信息',
 			'complaintReason.harassment' => '骚扰',
@@ -9504,10 +9512,10 @@ extension on Translations {
 			'main.tencentService' => '腾讯服务',
 			'main.traffic' => '交通出行',
 			'main.totalAssets' => '总资产',
-			'main.album' => '照片',
-			'main.appSize' => '应用大小',
 			_ => null,
 		} ?? switch (path) {
+			'main.album' => '照片',
+			'main.appSize' => '应用大小',
 			'main.arSa' => '阿拉伯语（沙特阿拉伯）',
 			'main.audio' => '音频',
 			'main.barcodeFound' => '找到条形码！',

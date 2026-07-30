@@ -620,6 +620,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get liveRoomWatch => '라이브 시청';
 	@override String get switchToVoiceInput => '음성 입력으로 전환';
 	@override String get switchToKeyboardInput => '키보드 입력으로 전환';
+	@override String get extraItems => '추가 항목';
 }
 
 // Path: common
@@ -1726,6 +1727,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get resumeScan => '스캔 재개';
 	@override String get enterFullscreen => '전체 화면으로 전환';
 	@override String get exitFullscreen => '전체 화면 종료';
+	@override String get developer => '개발자';
 }
 
 // Path: complaint
@@ -3028,6 +3030,7 @@ extension on TranslationsKoKr {
 			'chat.liveRoomWatch' => '라이브 시청',
 			'chat.switchToVoiceInput' => '음성 입력으로 전환',
 			'chat.switchToKeyboardInput' => '키보드 입력으로 전환',
+			'chat.extraItems' => '추가 항목',
 			'common.about' => '정보',
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
@@ -3530,9 +3533,9 @@ extension on TranslationsKoKr {
 			'common.groupAnnouncementPublishFailed' => '공지 게시 실패',
 			'common.groupAnnouncementPublishSuccess' => '공지가 게시되었습니다',
 			'common.groupAnnouncementDeleteFailed' => '공지 삭제 실패',
-			'common.groupAnnouncementDeleteSuccess' => '공지가 삭제되었습니다',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteSuccess' => '공지가 삭제되었습니다',
 			'common.privacyClearChatHistory' => '채팅 기록 삭제',
 			'common.privacyClearChatHistoryConfirm' => '모든 채팅 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
 			'common.privacyLogoutAccountConfirm' => '계정을 탈퇴할까요? 계정과 모든 데이터가 영구 삭제되며 되돌릴 수 없습니다.',
@@ -4044,9 +4047,9 @@ extension on TranslationsKoKr {
 			'common.e2eeSocialCreateSuccessTitle' => '샤드 생성 완료',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다',
-			'common.e2eeSocialZeroTrustNote' => '제로 트러스트 구조: 서버는 어떤 샤드도 저장하지 않습니다',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialZeroTrustNote' => '제로 트러스트 구조: 서버는 어떤 샤드도 저장하지 않습니다',
 			'common.e2eeSocialNoShards' => '생성한 복구 샤드가 없습니다',
 			'common.e2eeSocialNoProxyShards' => '대리자 샤드가 없습니다',
 			'common.e2eeSocialKeyVersionLabel' => '키 버전',
@@ -4129,6 +4132,7 @@ extension on TranslationsKoKr {
 			'common.resumeScan' => '스캔 재개',
 			'common.enterFullscreen' => '전체 화면으로 전환',
 			'common.exitFullscreen' => '전체 화면 종료',
+			'common.developer' => '개발자',
 			'complaint.complaint' => '신고',
 			'complaintReason.spam' => '스팸',
 			'complaintReason.harassment' => '괴롭힘',
@@ -4557,10 +4561,10 @@ extension on TranslationsKoKr {
 			'main.delayMsLabel' => '지연 시간(ms) (>=100)',
 			'main.processed' => '처리됨',
 			'main.export' => '내보내기',
-			'main.school' => '학교',
-			'main.hobbiesAndInterests' => '취미 및 관심사',
 			_ => null,
 		} ?? switch (path) {
+			'main.school' => '학교',
+			'main.hobbiesAndInterests' => '취미 및 관심사',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',

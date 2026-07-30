@@ -269,8 +269,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
             Expanded(
               child: TextField(
                 controller: _mobileCodeController,
-                decoration: const InputDecoration(
-                  hintText: 'Code',
+                decoration: InputDecoration(
+                  hintText: t.passport.hintVerifyCode,
                   prefixIcon: Icon(CupertinoIcons.shield, size: 20),
                 ),
               ),
@@ -341,8 +341,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
             Expanded(
               child: TextField(
                 controller: _emailCodeController,
-                decoration: const InputDecoration(
-                  hintText: 'Code',
+                decoration: InputDecoration(
+                  hintText: t.passport.hintVerifyCode,
                   prefixIcon: Icon(CupertinoIcons.shield, size: 20),
                 ),
               ),

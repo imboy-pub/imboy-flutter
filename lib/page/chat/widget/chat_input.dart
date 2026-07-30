@@ -33,6 +33,7 @@ class ChatInput extends StatefulWidget {
     required this.peerId,
     required this.onSendPressed,
     required this.composerHeight,
+    this.onInputLayerExpandedChanged,
     this.isAttachmentUploading,
     this.onAttachmentPressed,
     this.onTextChanged,
@@ -85,6 +86,11 @@ class ChatInput extends StatefulWidget {
   final int? minLines; // 最小行数
   final int? maxLength; // 最大输入长度
   final ValueNotifier<double> composerHeight; // 外部传递的输入区高度notifier（用于丝滑动画）
+  /// 通知外层当前输入层是否展开（键盘、表情或附加面板）。
+  ///
+  /// 该状态不能由 ChatPage 通过输入区总高度推断，因为 iOS 安全区会
+  /// 让收起状态仍然包含 bottom padding。
+  final ValueChanged<bool>? onInputLayerExpandedChanged;
   final ContentInsertionConfiguration? contentInsertionConfiguration; // 内容插入配置
   /// @提及变更回调
   final void Function(List<String> mentionIds)? onMentionsChanged;
@@ -142,6 +148,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   double _keyboardHeight = 0; // 当前键盘高度
   bool _isTransitioningToTextFromPanel = false; // 是否正在从面板切换回文本（用于丝滑动画）
+  bool? _lastInputLayerExpanded;
 
   /// 键盘监听 observer：与 State 生命周期绑定，仅在 initState 注册一次，
   /// dispose 时 removeObserver，避免"每帧重复注册"导致的泄漏与重建风暴。
@@ -257,6 +264,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   void _initFocusListener() {
     _inputFocusNode.addListener(() {
       _isFocused.value = _inputFocusNode.hasFocus;
+      _notifyInputLayerExpanded(_isInputLayerExpanded());
       if (_inputFocusNode.hasFocus) {
         updateState(InputType.text);
       }
@@ -335,6 +343,30 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
     // 触发重绘，以便 build 方法中重新计算 panelHeight
     setState(() {});
+    _notifyInputLayerExpanded(_isInputLayerExpanded());
+  }
+
+  bool _isInputLayerExpanded() {
+    if (_inputType.value == InputType.emoji ||
+        _inputType.value == InputType.extra) {
+      return true;
+    }
+    if (_inputType.value == InputType.voice) {
+      return false;
+    }
+    final viewInsets = MediaQuery.maybeOf(context)?.viewInsets.bottom ?? 0;
+    // FocusNode 在系统收起键盘后可能仍保持 focus；返回行为应以真实
+    // keyboard metrics 为准，否则 ChatPage 会继续拦截路由返回。
+    return viewInsets > 0;
+  }
+
+  void _notifyInputLayerExpanded(bool expanded) {
+    if (_lastInputLayerExpanded == expanded) return;
+    _lastInputLayerExpanded = expanded;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _lastInputLayerExpanded != expanded) return;
+      widget.onInputLayerExpandedChanged?.call(expanded);
+    });
   }
 
   /// 初始化@提及监听器
@@ -674,6 +706,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     FocusScope.of(context).unfocus();
     _inputType.value = InputType.text;
     _emojiShowing.value = false;
+    _notifyInputLayerExpanded(false);
   }
 
   /// 对外提供unfocus方法，用于收起输入框和面板
@@ -775,7 +808,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       builder: (context, inputType, _) {
         if (inputType == InputType.extra) {
           // 扩展功能面板
-          return widget.extraWidget ?? const Center(child: Text("Extra Items"));
+          return widget.extraWidget ?? Center(child: Text(t.chat.extraItems));
         } else if (inputType == InputType.emoji) {
           final columns = MediaQuery.of(context).size.width ~/ (fontSize + 10);
           return ValueListenableBuilder<bool>(
@@ -1061,19 +1094,36 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             return ScaleTransition(scale: animation, child: child);
           },
           child: sendButtonVisible
-              ? Padding(
-                  padding: const EdgeInsets.only(left: 4, bottom: 6),
-                  child: CupertinoButton(
+              ? Semantics(
+                  button: true,
+                  label: t.chat.send,
+                  child: GestureDetector(
+                    // 44x44 透明外层命中区：保持 32x32 蓝色药丸视觉不变，
+                    // 命中区域撑到 iOS HIG/WCAG 2.5.5 最小触达尺寸。
                     key: const ValueKey('send_button'),
-                    padding: EdgeInsets.zero,
-                    borderRadius: AppRadius.borderRadiusRegular,
-                    color: AppColors.getIosBlue(brightness),
-                    onPressed: _handleSendPressed,
-                    minimumSize: Size(32, 32),
-                    child: const Icon(
-                      CupertinoIcons.arrow_up,
-                      color: AppColors.onPrimary,
-                      size: 20,
+                    behavior: HitTestBehavior.opaque,
+                    onTap: _handleSendPressed,
+                    child: SizedBox(
+                      width: 44,
+                      height: 44,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4, bottom: 6),
+                          child: CupertinoButton(
+                            key: const ValueKey('send_button_inner'),
+                            padding: EdgeInsets.zero,
+                            borderRadius: AppRadius.borderRadiusRegular,
+                            color: AppColors.getIosBlue(brightness),
+                            onPressed: _handleSendPressed,
+                            minimumSize: const Size(32, 32),
+                            child: const Icon(
+                              CupertinoIcons.arrow_up,
+                              color: AppColors.onPrimary,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 )
@@ -1117,6 +1167,8 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     } else {
       panelHeight = 0;
     }
+
+    _notifyInputLayerExpanded(_isInputLayerExpanded());
 
     // 禁言状态：显示禁言提示条替代输入区
     if (widget.isMuted) {

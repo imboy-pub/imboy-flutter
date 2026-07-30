@@ -1096,3 +1096,4 @@ pauseScan: スキャンを一時停止
 resumeScan: スキャンを再開
 enterFullscreen: 全画面表示にする
 exitFullscreen: 全画面表示を終了
+developer: 開発者

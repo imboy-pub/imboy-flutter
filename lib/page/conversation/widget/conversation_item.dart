@@ -45,8 +45,12 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
     _loadPeerAccountType();
   }
 
-  // ponytail: 每 tile 一次本地 contact 单行索引查询（不触网，服务层有查询缓存）；
-  // 列表滚动性能有压力时改为 ConversationRepo JOIN contact 随行返回
+  // ponytail: 每 tile 一次本地 contact 单行索引查询（autoFetch:false，不触网，
+  // 服务层有查询缓存）；列表滚动性能有压力时改为 ConversationRepo JOIN contact
+  // 随行返回。
+  // 2026-07-30 UI/UX Sprint Task 6 复核结论：确认为已登记可接受技术债，本次延期。
+  // 理由：单行索引查询有界且不触网，当前列表规模下无明显瓶颈；批量收敛需先注入
+  // repository 边界（无现成 seam），超出本 Sprint 范围。升级路径见上一行。
   Future<void> _loadPeerAccountType() async {
     if (widget.model.type != 'C2C') return;
     final ct = await ContactRepo().findByUid(

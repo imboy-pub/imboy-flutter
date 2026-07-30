@@ -25,6 +25,34 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'contact_menu_decoration.dart';
 import 'contact_provider.dart';
 
+/// 过滤联系人（标题包含 query，大小写不敏感）。query 空返回全量。纯函数，便于单测。
+List<ContactModel> filteredContacts(List<ContactModel> all, String query) {
+  if (query.isEmpty) return all;
+  final q = query.toLowerCase();
+  return all.where((m) => m.title.toLowerCase().contains(q)).toList();
+}
+
+/// 由过滤结果派生索引栏标签，避免"索引栏有字母但列表无对应项"。
+/// query 空时沿用 ['↑', ...原始 indexBarData]；非空时只保留过滤结果中出现的标签。
+List<String> filteredIndexBar(
+  List<ContactModel> filtered,
+  Set<String> stateIndexBarData,
+  String query,
+) {
+  if (query.isEmpty) return ['↑', ...stateIndexBarData];
+  final tags = <String>{};
+  var hasUp = false;
+  for (final m in filtered) {
+    final tg = m.getSuspensionTag();
+    if (tg == '↑') {
+      hasUp = true;
+    } else if (tg.isNotEmpty) {
+      tags.add(tg);
+    }
+  }
+  return [if (hasUp) '↑', ...tags.toList()..sort()];
+}
+
 /// 联系人点击是否应派发到 Web Shell 右栏：仅当当前页面挂载于 `/web_shell`
 /// 路由下时，[webShellProvider] 才有消费者（[WebShellPage] 三栏布局会
 /// `ref.watch` 它）。挂载于 `/bottom_navigation` 等其它宿主时该 provider
@@ -49,6 +77,16 @@ class ContactPage extends ConsumerStatefulWidget {
 class _ContactPageState extends ConsumerState<ContactPage> {
   StreamSubscription<dynamic>? _localeSubscription;
 
+  /// 联系人搜索控制器与当前 query（已 trim + 小写）。空串表示未过滤。
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _searchQuery = '';
+
+  void _onSearchChanged(String value) {
+    final q = value.trim().toLowerCase();
+    if (q == _searchQuery) return;
+    setState(() => _searchQuery = q);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +102,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   @override
   void dispose() {
     _localeSubscription?.cancel();
+    _searchCtrl.dispose();
     super.dispose();
   }
 
@@ -306,19 +345,37 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     final brightness = Theme.of(context).brightness;
     final newFriendUnreadCount = ref.watch(newFriendRemindProvider).length;
 
+    // 本地过滤已加载联系人（标题）；不触网。indexBarData 随过滤结果同步派生，
+    // 避免索引栏出现"有字母但列表无对应项"的不一致。
+    final all = state.contactList;
+    final filtered = filteredContacts(all, _searchQuery);
+    final barData = filteredIndexBar(
+      filtered,
+      state.indexBarData,
+      _searchQuery,
+    );
+
     return IosPageTemplate(
       title: t.common.titleContact,
       actions: [
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.tag, size: 22),
-          onPressed: () => context.pushNamed('user_tag_list'),
+        Semantics(
+          label: t.contact.tags,
+          button: true,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: const Icon(CupertinoIcons.tag, size: 22),
+            onPressed: () => context.pushNamed('user_tag_list'),
+          ),
         ),
-        CupertinoButton(
-          key: const Key('add_friend_button'),
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.person_add, size: 22),
-          onPressed: () => context.push('/contact/add_friend'),
+        Semantics(
+          label: t.common.addFriend,
+          button: true,
+          child: CupertinoButton(
+            key: const Key('add_friend_button'),
+            padding: EdgeInsets.zero,
+            child: const Icon(CupertinoIcons.person_add, size: 22),
+            onPressed: () => context.push('/contact/add_friend'),
+          ),
         ),
         AppSpacing.horizontalSmall,
       ],
@@ -336,19 +393,26 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               AppSpacing.regular,
               AppSpacing.small,
             ),
-            child: CupertinoSearchTextField(placeholder: t.common.search),
+            child: CupertinoSearchTextField(
+              key: const Key('contact_search_input'),
+              controller: _searchCtrl,
+              onChanged: _onSearchChanged,
+              placeholder: t.common.search,
+            ),
           ),
           if (state.isLoading)
             const Expanded(child: ShimmerList())
-          else if (state.contactList.isEmpty)
+          else if (all.isEmpty)
             Expanded(child: NoDataView(text: t.common.noContacts))
+          else if (filtered.isEmpty)
+            Expanded(child: NoDataView(text: t.common.searchNoResults))
           else
             Expanded(
               child: AzListView(
-                data: state.contactList,
-                itemCount: state.contactList.length,
+                data: filtered,
+                itemCount: filtered.length,
                 itemBuilder: (context, index) {
-                  final model = state.contactList[index];
+                  final model = filtered[index];
                   return Column(
                     children: [
                       _buildChatItem(
@@ -356,9 +420,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                         model,
                         newFriendUnreadCount: newFriendUnreadCount,
                       ),
-                      if (index < state.contactList.length - 1 &&
-                          state.contactList[index].getSuspensionTag() ==
-                              state.contactList[index + 1].getSuspensionTag())
+                      if (index < filtered.length - 1 &&
+                          filtered[index].getSuspensionTag() ==
+                              filtered[index + 1].getSuspensionTag())
                         Padding(
                           padding: const EdgeInsets.only(left: 72),
                           child: Divider(
@@ -372,11 +436,11 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                   );
                 },
                 susItemBuilder: (context, index) {
-                  final tag = state.contactList[index].getSuspensionTag();
+                  final tag = filtered[index].getSuspensionTag();
                   if (tag == '↑') return const SizedBox.shrink();
                   return _buildSusItem(context, tag);
                 },
-                indexBarData: ['↑', ...state.indexBarData],
+                indexBarData: barData,
                 indexBarOptions: IndexBarOptions(
                   needRebuild: true,
                   indexHintDecoration: BoxDecoration(

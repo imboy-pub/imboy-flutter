@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
@@ -223,6 +224,126 @@ void main() {
         find.byKey(const Key('chat_message_input')),
       );
       expect(field.controller?.text, '@');
+
+      await _unmount(tester);
+    });
+  });
+
+  testWidgets('输入层状态只跟随键盘 metrics，不受 iOS 安全区高度影响', (tester) async {
+    final composerHeight = ValueNotifier<double>(52);
+    addTearDown(composerHeight.dispose);
+    final states = <bool>[];
+
+    Widget frame({required double viewInsetsBottom}) {
+      return ProviderScope(
+        child: TranslationProvider(
+          child: MaterialApp(
+            home: Scaffold(
+              body: MediaQuery(
+                data: MediaQueryData(
+                  padding: const EdgeInsets.only(bottom: 34),
+                  viewInsets: EdgeInsets.only(bottom: viewInsetsBottom),
+                ),
+                child: ChatInput(
+                  type: 'C2C',
+                  peerId: 'peer_1',
+                  onSendPressed: (text) async => true,
+                  composerHeight: composerHeight,
+                  onInputLayerExpandedChanged: states.add,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    await tester.pumpWidget(frame(viewInsetsBottom: 0));
+
+    await tester.pump();
+    expect(states.last, isFalse);
+
+    await tester.tap(find.byKey(const Key('chat_message_input')));
+    await tester.pump();
+    expect(states.last, isFalse, reason: 'focus 保持不等于键盘仍可见');
+
+    await tester.pumpWidget(frame(viewInsetsBottom: 320));
+    await tester.pump();
+    expect(states.last, isTrue);
+
+    // 模拟系统收起键盘但 FocusNode 仍保持 focus。
+    await tester.pumpWidget(frame(viewInsetsBottom: 0));
+    await tester.pump();
+    expect(states.last, isFalse);
+
+    tester.state<ChatInputState>(find.byType(ChatInput)).hideAllPanel();
+    await tester.pump();
+    expect(states.last, isFalse);
+
+    await _unmount(tester);
+  });
+
+  group('ChatInput 发送按钮触达区域与语义 / Send button hit target & semantics', () {
+    testWidgets('发送按钮可点击区域 ≥ 44x44，且声明 button 语义 + label', (tester) async {
+      await _pumpType(tester, 'C2C');
+
+      // 输入文本使发送按钮可见（默认 sendButtonVisibilityMode = editing）
+      await tester.tap(find.byKey(const Key('chat_message_input')));
+      await tester.pump();
+      await tester.enterText(find.byKey(const Key('chat_message_input')), 'hi');
+      // _handleTextControllerChange 有 300ms 防抖 Timer；发送按钮外层 AnimatedSwitcher
+      // 还有 300ms ScaleTransition。依次 pump 过二者，使尺寸稳定到真实命中区。
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pump(const Duration(milliseconds: 350));
+
+      final sendButton = find.byKey(const ValueKey('send_button'));
+      expect(sendButton, findsOneWidget);
+      final rect = tester.getRect(sendButton);
+      expect(rect.width, greaterThanOrEqualTo(44));
+      expect(rect.height, greaterThanOrEqualTo(44));
+
+      final sem = tester.getSemantics(sendButton);
+      expect(sem.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(sem.label, '发送'); // t.chat.send = 发送
+
+      await _unmount(tester);
+    });
+
+    testWidgets('点击发送按钮只触发一次 onSendPressed（外层命中区与内层按钮不双发）', (tester) async {
+      var sendCalls = 0;
+      final composerHeight = ValueNotifier<double>(52);
+      addTearDown(composerHeight.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp(
+              home: Scaffold(
+                body: ChatInput(
+                  type: 'C2C',
+                  peerId: 'peer_1',
+                  onSendPressed: (text) async {
+                    sendCalls++;
+                    return true;
+                  },
+                  composerHeight: composerHeight,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('chat_message_input')));
+      await tester.pump();
+      await tester.enterText(find.byKey(const Key('chat_message_input')), 'hi');
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pump(const Duration(milliseconds: 350));
+
+      await tester.tap(find.byKey(const ValueKey('send_button')));
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // 嵌套 GestureDetector + CupertinoButton 经手势竞技场应只单发
+      expect(sendCalls, 1);
 
       await _unmount(tester);
     });

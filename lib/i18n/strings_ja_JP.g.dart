@@ -620,6 +620,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get liveRoomWatch => '配信を見る';
 	@override String get switchToVoiceInput => '音声入力に切り替え';
 	@override String get switchToKeyboardInput => 'キーボード入力に切り替え';
+	@override String get extraItems => '追加項目';
 }
 
 // Path: common
@@ -1726,6 +1727,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get resumeScan => 'スキャンを再開';
 	@override String get enterFullscreen => '全画面表示にする';
 	@override String get exitFullscreen => '全画面表示を終了';
+	@override String get developer => '開発者';
 }
 
 // Path: complaint
@@ -3028,6 +3030,7 @@ extension on TranslationsJaJp {
 			'chat.liveRoomWatch' => '配信を見る',
 			'chat.switchToVoiceInput' => '音声入力に切り替え',
 			'chat.switchToKeyboardInput' => 'キーボード入力に切り替え',
+			'chat.extraItems' => '追加項目',
 			'common.about' => '概要',
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
@@ -3530,9 +3533,9 @@ extension on TranslationsJaJp {
 			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
 			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
 			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
-			'common.groupAnnouncementDeleteSuccess' => 'お知らせを削除しました',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteSuccess' => 'お知らせを削除しました',
 			'common.privacyClearChatHistory' => 'チャット履歴を消去',
 			'common.privacyClearChatHistoryConfirm' => 'すべてのチャット履歴を消去してもよろしいですか？この操作は取り消せません。',
 			'common.privacyLogoutAccountConfirm' => 'アカウントを削除してもよろしいですか？この操作によりアカウントとすべてのデータが永久に削除され、復元することはできません。',
@@ -4044,9 +4047,9 @@ extension on TranslationsJaJp {
 			'common.e2eeSocialCreateSuccessTitle' => 'シャードを作成しました',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'キーを ${count} 個のシャードに分割しました',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} 人の代理者の協力でキーを復元できます',
-			'common.e2eeSocialZeroTrustNote' => 'ゼロトラスト構成：サーバーにはシャードを一切保存しません',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialZeroTrustNote' => 'ゼロトラスト構成：サーバーにはシャードを一切保存しません',
 			'common.e2eeSocialNoShards' => '復元シャードをまだ作成していません',
 			'common.e2eeSocialNoProxyShards' => '代理シャードはありません',
 			'common.e2eeSocialKeyVersionLabel' => 'キーのバージョン',
@@ -4129,6 +4132,7 @@ extension on TranslationsJaJp {
 			'common.resumeScan' => 'スキャンを再開',
 			'common.enterFullscreen' => '全画面表示にする',
 			'common.exitFullscreen' => '全画面表示を終了',
+			'common.developer' => '開発者',
 			'complaint.complaint' => '通報',
 			'complaintReason.spam' => 'スパム',
 			'complaintReason.harassment' => 'ハラスメント',
@@ -4557,10 +4561,10 @@ extension on TranslationsJaJp {
 			'main.delayMsLabel' => '遅延ミリ秒 (>=100)',
 			'main.processed' => '処理済み',
 			'main.export' => 'エクスポート',
-			'main.school' => '学校',
-			'main.hobbiesAndInterests' => '趣味と興味',
 			_ => null,
 		} ?? switch (path) {
+			'main.school' => '学校',
+			'main.hobbiesAndInterests' => '趣味と興味',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',

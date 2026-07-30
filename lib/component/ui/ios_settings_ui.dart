@@ -54,8 +54,8 @@ class IosPageTemplate extends StatelessWidget {
         title,
         style: context
             .textStyle(
-              FontSizeType.body,
-              fontWeight: FontWeight.w600,
+              useLargeTitle ? FontSizeType.largeTitle : FontSizeType.body,
+              fontWeight: useLargeTitle ? FontWeight.w700 : FontWeight.w600,
               color: isDark
                   ? AppColors.darkTextPrimary
                   : AppColors.lightTextPrimary,

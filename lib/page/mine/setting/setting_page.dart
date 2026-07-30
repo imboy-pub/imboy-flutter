@@ -235,7 +235,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         if (currentEnv != 'pro')
           SliverToBoxAdapter(
             child: ImBoySettingsSection(
-              header: const Text('DEVELOPER'),
+              header: Text(t.common.developer),
               children: [
                 ImBoySettingsTile(
                   title: Text(t.common.switchEnvironment),

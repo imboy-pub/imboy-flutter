@@ -637,6 +637,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get liveRoomWatch => '觀看直播';
 	@override String get switchToVoiceInput => '切換到語音輸入';
 	@override String get switchToKeyboardInput => '切換到鍵盤輸入';
+	@override String get extraItems => '附加項';
 }
 
 // Path: common
@@ -1743,6 +1744,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get resumeScan => '繼續掃描';
 	@override String get enterFullscreen => '進入全螢幕';
 	@override String get exitFullscreen => '退出全螢幕';
+	@override String get developer => '開發者';
 }
 
 // Path: complaint
@@ -3068,6 +3070,7 @@ extension on TranslationsZhHant {
 			'chat.liveRoomWatch' => '觀看直播',
 			'chat.switchToVoiceInput' => '切換到語音輸入',
 			'chat.switchToKeyboardInput' => '切換到鍵盤輸入',
+			'chat.extraItems' => '附加項',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '接受',
@@ -3553,9 +3556,9 @@ extension on TranslationsZhHant {
 			'common.setPasswordSecurityTips' => '為了提升帳號安全，同時防止因無法獲取驗證碼導致無法登入，請設定登入密碼。',
 			'common.locationHidden' => '已隱藏您的位置',
 			'common.locationVisible' => '已顯示您的位置',
-			'common.noNearbyPeople' => '暫無附近的人',
 			_ => null,
 		} ?? switch (path) {
+			'common.noNearbyPeople' => '暫無附近的人',
 			'common.clickSearchButtonToFind' => '點擊上方的搜尋按鈕搜尋附近的人',
 			'common.operationSuccess' => _root.common.success,
 			'common.operationFailed' => _root.common.error,
@@ -4067,9 +4070,9 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupDeleteSuccess' => '備份記錄已刪除',
 			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
-			'common.e2eeBackupErrCloudUploadFailed' => '雲端備份失敗，請重試',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupErrCloudUploadFailed' => '雲端備份失敗，請重試',
 			'common.e2eeBackupCloudRestoreTitle' => '從雲端備份恢復',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '偵測到雲端備份（版本 ${version}）',
 			'common.e2eeBackupCloudRestoreBtn' => '從雲端恢復',
@@ -4169,6 +4172,7 @@ extension on TranslationsZhHant {
 			'common.resumeScan' => '繼續掃描',
 			'common.enterFullscreen' => '進入全螢幕',
 			'common.exitFullscreen' => '退出全螢幕',
+			'common.developer' => '開發者',
 			'complaint.complaint' => '投訴',
 			'complaintReason.spam' => '垃圾資訊',
 			'complaintReason.harassment' => '騷擾',
@@ -4580,10 +4584,10 @@ extension on TranslationsZhHant {
 			'main.deleting' => '刪除中...',
 			'main.current' => '目前',
 			'main.publish' => '發布',
-			'main.privacyPolicy' => '隱私政策',
-			'main.termsOfService' => '服務條款',
 			_ => null,
 		} ?? switch (path) {
+			'main.privacyPolicy' => '隱私政策',
+			'main.termsOfService' => '服務條款',
 			'main.saving' => _root.common.loading,
 			'main.topStories' => '看一看',
 			'main.systemDefault' => '系統預設',

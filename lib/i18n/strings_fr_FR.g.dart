@@ -620,6 +620,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get liveRoomWatch => 'Regarder';
 	@override String get switchToVoiceInput => 'Passer à la saisie vocale';
 	@override String get switchToKeyboardInput => 'Passer à la saisie clavier';
+	@override String get extraItems => 'Suppléments';
 }
 
 // Path: common
@@ -1726,6 +1727,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get resumeScan => 'Reprendre le scan';
 	@override String get enterFullscreen => 'Passer en plein écran';
 	@override String get exitFullscreen => 'Quitter le plein écran';
+	@override String get developer => 'Développeur';
 }
 
 // Path: complaint
@@ -3028,6 +3030,7 @@ extension on TranslationsFrFr {
 			'chat.liveRoomWatch' => 'Regarder',
 			'chat.switchToVoiceInput' => 'Passer à la saisie vocale',
 			'chat.switchToKeyboardInput' => 'Passer à la saisie clavier',
+			'chat.extraItems' => 'Suppléments',
 			'common.about' => 'À propos',
 			'common.aboutApp' => 'À propos de l\'application',
 			'common.accept' => 'Accepter',
@@ -3530,9 +3533,9 @@ extension on TranslationsFrFr {
 			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
 			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
 			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
-			'common.groupAnnouncementDeleteSuccess' => 'Annonce supprimée',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteSuccess' => 'Annonce supprimée',
 			'common.privacyClearChatHistory' => 'Effacer l\'historique de conversation',
 			'common.privacyClearChatHistoryConfirm' => 'Confirmer l\'effacement de tout l\'historique de conversation ? Cette action est irréversible.',
 			'common.privacyLogoutAccountConfirm' => 'Confirmer la suppression du compte ? Cette action supprimera définitivement votre compte et toutes vos données, et ne peut pas être annulée.',
@@ -4044,9 +4047,9 @@ extension on TranslationsFrFr {
 			'common.e2eeSocialCreateSuccessTitle' => 'Fragments créés',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Clé divisée en ${count} fragments',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} dépositaires suffisent pour restaurer',
-			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust : le serveur ne conserve aucun fragment',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust : le serveur ne conserve aucun fragment',
 			'common.e2eeSocialNoShards' => 'Aucun fragment créé',
 			'common.e2eeSocialNoProxyShards' => 'Aucun fragment dépositaire',
 			'common.e2eeSocialKeyVersionLabel' => 'Version de clé',
@@ -4129,6 +4132,7 @@ extension on TranslationsFrFr {
 			'common.resumeScan' => 'Reprendre le scan',
 			'common.enterFullscreen' => 'Passer en plein écran',
 			'common.exitFullscreen' => 'Quitter le plein écran',
+			'common.developer' => 'Développeur',
 			'complaint.complaint' => 'Plainte',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harcèlement',
@@ -4557,10 +4561,10 @@ extension on TranslationsFrFr {
 			'main.delayMsLabel' => 'Délai en ms (>=100)',
 			'main.processed' => 'Traité',
 			'main.export' => 'Exporter',
-			'main.school' => 'École',
-			'main.hobbiesAndInterests' => 'Loisirs et intérêts',
 			_ => null,
 		} ?? switch (path) {
+			'main.school' => 'École',
+			'main.hobbiesAndInterests' => 'Loisirs et intérêts',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',

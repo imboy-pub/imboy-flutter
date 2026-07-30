@@ -620,6 +620,7 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get liveRoomWatch => 'Guarda';
 	@override String get switchToVoiceInput => 'Passa all\'input vocale';
 	@override String get switchToKeyboardInput => 'Passa all\'input da tastiera';
+	@override String get extraItems => 'Extra';
 }
 
 // Path: common
@@ -1726,6 +1727,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get resumeScan => 'Riprendi la scansione';
 	@override String get enterFullscreen => 'Attiva schermo intero';
 	@override String get exitFullscreen => 'Esci da schermo intero';
+	@override String get developer => 'Sviluppatore';
 }
 
 // Path: complaint
@@ -3028,6 +3030,7 @@ extension on TranslationsItIt {
 			'chat.liveRoomWatch' => 'Guarda',
 			'chat.switchToVoiceInput' => 'Passa all\'input vocale',
 			'chat.switchToKeyboardInput' => 'Passa all\'input da tastiera',
+			'chat.extraItems' => 'Extra',
 			'common.about' => 'Informazioni',
 			'common.aboutApp' => 'Informazioni sull\'app',
 			'common.accept' => 'Accetta',
@@ -3530,9 +3533,9 @@ extension on TranslationsItIt {
 			'common.groupAnnouncementPublishFailed' => 'Pubblicazione annuncio fallita',
 			'common.groupAnnouncementPublishSuccess' => 'Annuncio pubblicato',
 			'common.groupAnnouncementDeleteFailed' => 'Eliminazione annuncio fallita',
-			'common.groupAnnouncementDeleteSuccess' => 'Annuncio eliminato',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteSuccess' => 'Annuncio eliminato',
 			'common.privacyClearChatHistory' => 'Cancella cronologia delle chat',
 			'common.privacyClearChatHistoryConfirm' => 'Sei sicuro di voler cancellare tutta la cronologia delle chat? Questa azione non può essere annullata.',
 			'common.privacyLogoutAccountConfirm' => 'Sei sicuro di voler disattivare l\'account? Questa azione eliminerà permanentemente il tuo account e tutti i dati e non può essere annullata.',
@@ -4044,9 +4047,9 @@ extension on TranslationsItIt {
 			'common.e2eeSocialCreateSuccessTitle' => 'Frammenti creati',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Chiave divisa in ${count} frammenti',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} garanti sufficienti per il ripristino',
-			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust: il server non conserva frammenti',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust: il server non conserva frammenti',
 			'common.e2eeSocialNoShards' => 'Nessun frammento creato',
 			'common.e2eeSocialNoProxyShards' => 'Nessun frammento garante',
 			'common.e2eeSocialKeyVersionLabel' => 'Versione chiave',
@@ -4129,6 +4132,7 @@ extension on TranslationsItIt {
 			'common.resumeScan' => 'Riprendi la scansione',
 			'common.enterFullscreen' => 'Attiva schermo intero',
 			'common.exitFullscreen' => 'Esci da schermo intero',
+			'common.developer' => 'Sviluppatore',
 			'complaint.complaint' => 'Reclamo',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Molestie',
@@ -4557,10 +4561,10 @@ extension on TranslationsItIt {
 			'main.delayMsLabel' => 'Ritardo in ms (>=100)',
 			'main.processed' => 'Elaborato',
 			'main.export' => 'Esporta',
-			'main.school' => 'Scuola',
-			'main.hobbiesAndInterests' => 'Hobby & Interessi',
 			_ => null,
 		} ?? switch (path) {
+			'main.school' => 'Scuola',
+			'main.hobbiesAndInterests' => 'Hobby & Interessi',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
 			'main.pleaseEnterInterests' => 'Please enter interests',

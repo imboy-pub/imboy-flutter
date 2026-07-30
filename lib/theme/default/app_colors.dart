@@ -97,7 +97,8 @@ class AppColors {
   // ============ 聊天相关颜色 ============
   static const Color lightSentMessageBackground = primary;
   static const Color lightReceivedMessageBackground = Color(0xFFFFFFFF);
-  static const Color darkSentMessageBackground = Color(0xFF42A5F5);
+  // 对齐 DESIGN.md 暗色品牌蓝 #3D8BF0（原 #42A5F5 为漂移值）
+  static const Color darkSentMessageBackground = Color(0xFF3D8BF0);
   static const Color darkReceivedMessageBackground = Color(0xFF2A2A2A);
   static const Color sentMessageText = Colors.white;
   static const Color lightReceivedMessageText = Color(0xFF000000);

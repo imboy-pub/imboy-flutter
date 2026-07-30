@@ -637,6 +637,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get sendMessage => 'Send Message';
 	@override String get switchToVoiceInput => 'Switch to voice input';
 	@override String get switchToKeyboardInput => 'Switch to keyboard input';
+	@override String get extraItems => 'Extras';
 }
 
 // Path: common
@@ -1743,6 +1744,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get resumeScan => 'Resume scanning';
 	@override String get enterFullscreen => 'Enter fullscreen';
 	@override String get exitFullscreen => 'Exit fullscreen';
+	@override String get developer => 'Developer';
 }
 
 // Path: complaint
@@ -3068,6 +3070,7 @@ extension on TranslationsEnUs {
 			'chat.sendMessage' => 'Send Message',
 			'chat.switchToVoiceInput' => 'Switch to voice input',
 			'chat.switchToKeyboardInput' => 'Switch to keyboard input',
+			'chat.extraItems' => 'Extras',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -3553,9 +3556,9 @@ extension on TranslationsEnUs {
 			'common.bindSuccess' => 'Bound successfully',
 			'common.mobileUpdatedToParam' => ({required Object param}) => 'Mobile number updated to ${param}',
 			'common.groupAnnouncementPublish' => 'Publish announcement',
-			'common.pleaseEnterAnnouncementContent' => 'Please enter announcement content',
 			_ => null,
 		} ?? switch (path) {
+			'common.pleaseEnterAnnouncementContent' => 'Please enter announcement content',
 			'common.selectExpirationDateOptional' => 'Select expiration date (optional)',
 			'common.groupAnnouncementDeleteConfirm' => 'Are you sure you want to delete this announcement?',
 			'common.groupAnnouncementDelete' => 'Delete',
@@ -4067,9 +4070,9 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupCloudRestoreBtn' => 'Restore from cloud',
 			'common.e2eeBackupCloudRestoreConfirmNote' => 'Restoring will overwrite the current E2EE keys on this device',
 			'common.e2eeBackupCloudPwdHint' => 'Enter your backup passphrase',
-			'common.e2eeBackupErrNoCloudBackup' => 'No cloud backup found',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupErrNoCloudBackup' => 'No cloud backup found',
 			'common.e2eeBackupErrCloudPwd' => 'Wrong passphrase or corrupted backup',
 			'common.e2eeBackupErrCloudRestoreFailed' => 'Cloud restore failed, please retry',
 			'common.e2eeSocialShardSettings' => 'Shard settings',
@@ -4169,6 +4172,7 @@ extension on TranslationsEnUs {
 			'common.resumeScan' => 'Resume scanning',
 			'common.enterFullscreen' => 'Enter fullscreen',
 			'common.exitFullscreen' => 'Exit fullscreen',
+			'common.developer' => 'Developer',
 			'complaint.complaint' => 'Complaint',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harassment',
@@ -4580,10 +4584,10 @@ extension on TranslationsEnUs {
 			'main.deleting' => 'Deleting...',
 			'main.current' => 'Current',
 			'main.publish' => 'Publish',
-			'main.privacyPolicy' => 'Privacy Policy',
-			'main.termsOfService' => 'Terms of Service',
 			_ => null,
 		} ?? switch (path) {
+			'main.privacyPolicy' => 'Privacy Policy',
+			'main.termsOfService' => 'Terms of Service',
 			'main.saving' => _root.common.loading,
 			'main.topStories' => 'Top Stories',
 			'main.systemDefault' => 'System Default',

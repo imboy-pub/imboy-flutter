@@ -51,46 +51,51 @@ class GlassBottomNavigationBar extends StatelessWidget {
 
               return Expanded(
                 key: item.tabKey,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => onTap(index),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // 图标
-                      SizedBox(
-                        height: 28,
-                        child: item.iconBuilder != null
-                            ? item.iconBuilder!(isSelected)
-                            : Icon(
-                                isSelected
-                                    ? (item.activeIcon ?? item.icon)
-                                    : item.icon,
+                // 不设 label：标签 Text 已提供，避免双标签重复读屏。
+                child: Semantics(
+                  button: true,
+                  selected: isSelected,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => onTap(index),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // 图标
+                        SizedBox(
+                          height: 28,
+                          child: item.iconBuilder != null
+                              ? item.iconBuilder!(isSelected)
+                              : Icon(
+                                  isSelected
+                                      ? (item.activeIcon ?? item.icon)
+                                      : item.icon,
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : AppColors.iosGray,
+                                  size: 26,
+                                ),
+                        ),
+                        const SizedBox(height: 1),
+                        // 标签
+                        Text(
+                          item.label,
+                          style: context
+                              .textStyle(
+                                FontSizeType.tiny,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
                                 color: isSelected
                                     ? AppColors.primary
                                     : AppColors.iosGray,
-                                size: 26,
-                              ),
-                      ),
-                      const SizedBox(height: 1),
-                      // 标签
-                      Text(
-                        item.label,
-                        style: context
-                            .textStyle(
-                              FontSizeType.tiny,
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : AppColors.iosGray,
-                            )
-                            .copyWith(height: 1.2, letterSpacing: -0.2),
-                        maxLines: 1,
-                        overflow: TextOverflow.clip,
-                      ),
-                    ],
+                              )
+                              .copyWith(height: 1.2, letterSpacing: -0.2),
+                          maxLines: 1,
+                          overflow: TextOverflow.clip,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

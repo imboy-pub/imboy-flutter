@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
@@ -66,8 +67,9 @@ void main() {
       expect(find.text('我的'), findsOneWidget);
     });
 
-    testWidgets('currentIndex=0 → 第 1 个 icon 用 activeIcon (chat_bubble)',
-        (tester) async {
+    testWidgets('currentIndex=0 → 第 1 个 icon 用 activeIcon (chat_bubble)', (
+      tester,
+    ) async {
       await _pump(
         tester,
         currentIndex: 0,
@@ -113,8 +115,9 @@ void main() {
       expect(find.byIcon(Icons.people_alt), findsOneWidget);
     });
 
-    testWidgets('item without activeIcon → currentIndex 选中时仍用 icon',
-        (tester) async {
+    testWidgets('item without activeIcon → currentIndex 选中时仍用 icon', (
+      tester,
+    ) async {
       await _pump(
         tester,
         currentIndex: 0,
@@ -127,8 +130,9 @@ void main() {
   });
 
   group('GlassBottomNavigationBar selected text style', () {
-    testWidgets('selected label color = AppColors.primary, w600',
-        (tester) async {
+    testWidgets('selected label color = AppColors.primary, w600', (
+      tester,
+    ) async {
       await _pump(
         tester,
         currentIndex: 0,
@@ -144,8 +148,9 @@ void main() {
       expect(selectedLabel.style?.fontSize, 10);
     });
 
-    testWidgets('unselected label color = onSurface.withAlpha(0.5), w500',
-        (tester) async {
+    testWidgets('unselected label color = onSurface.withAlpha(0.5), w500', (
+      tester,
+    ) async {
       await _pump(
         tester,
         currentIndex: 0,
@@ -263,6 +268,28 @@ void main() {
       );
 
       expect(capturedSelected, isFalse);
+    });
+  });
+
+  group('GlassBottomNavigationBar semantics', () {
+    testWidgets('每个 tab 声明 button 语义 + label；选中项为 selected', (tester) async {
+      await _pump(
+        tester,
+        currentIndex: 0,
+        items: [
+          _item('消息', Icons.chat_bubble_outline),
+          _item('我的', Icons.person_outline),
+        ],
+      );
+
+      final semSelected = tester.getSemantics(find.text('消息'));
+      expect(semSelected.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(semSelected.label, '消息');
+      expect(semSelected.hasFlag(SemanticsFlag.isSelected), isTrue);
+
+      final semUnselected = tester.getSemantics(find.text('我的'));
+      expect(semUnselected.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(semUnselected.hasFlag(SemanticsFlag.isSelected), isFalse);
     });
   });
 }
