@@ -2,9 +2,11 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/page/group/album/group_album_page.dart';
 import 'package:imboy/service/group_album_service.dart';
 import 'package:imboy/store/api/group_album_api.dart';
@@ -132,8 +134,15 @@ class _FakeFilePicker extends FilePickerPlatform {
 }
 
 Widget _buildTestApp() {
-  return const ProviderScope(
-    child: MaterialApp(home: GroupAlbumPage(groupId: 'g1')),
+  // 页面用 AppLoading.showToast 反馈成功/失败（不是 SnackBar），
+  // 未挂 builder 时 EasyLoading 会断言 'overlayEntry != null'。
+  // 走项目 facade AppLoading.init()，不直接 import flutter_easyloading
+  // （边界门禁只允许 app_loading.dart 依赖该库）。
+  return ProviderScope(
+    child: MaterialApp(
+      home: const GroupAlbumPage(groupId: 'g1'),
+      builder: AppLoading.init(),
+    ),
   );
 }
 
@@ -173,8 +182,11 @@ void main() {
     }
   });
 
-  tearDown(() {
+  tearDown(() async {
     GroupAlbumService.instanceForTest = null;
+    // 取消 EasyLoading toast 的自动关闭计时器，否则 widget 树 dispose 后
+    // 仍有 pending timer，测试框架会报错。
+    await AppLoading.dismiss(animation: false);
   });
 
   testWidgets('create album success shows snackbar and refresh', (
@@ -195,17 +207,21 @@ void main() {
 
     await tester.enterText(
       find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.byType(TextField),
+        of: find.byType(CupertinoAlertDialog),
+        matching: find.byType(CupertinoTextField),
       ),
       '研发资料',
     );
     final actionButtons = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoDialogAction),
     );
     await tester.tap(actionButtons.last);
-    await tester.pumpAndSettle();
+    // 不用 pumpAndSettle：AppLoading.showToast 会挂一个 2s 自动关闭计时器，
+    // pumpAndSettle 会因该 pending timer 抛错。手动推进到 toast 可见即可，
+    // 计时器由 tearDown 的 dismiss 清理。
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(fakeService.createCalls.length, 1);
     expect(fakeService.createCalls.single.groupId, 'g1');
@@ -230,17 +246,21 @@ void main() {
 
     await tester.enterText(
       find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.byType(TextField),
+        of: find.byType(CupertinoAlertDialog),
+        matching: find.byType(CupertinoTextField),
       ),
       '失败相册',
     );
     final actionButtons = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoDialogAction),
     );
     await tester.tap(actionButtons.last);
-    await tester.pumpAndSettle();
+    // 不用 pumpAndSettle：AppLoading.showToast 会挂一个 2s 自动关闭计时器，
+    // pumpAndSettle 会因该 pending timer 抛错。手动推进到 toast 可见即可，
+    // 计时器由 tearDown 的 dismiss 清理。
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(fakeService.createCalls.length, 1);
     expect(find.text('创建失败，请稍后重试'), findsOneWidget);
@@ -354,17 +374,21 @@ void main() {
 
     await tester.enterText(
       find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.byType(TextField),
+        of: find.byType(CupertinoAlertDialog),
+        matching: find.byType(CupertinoTextField),
       ),
       '新相册名',
     );
     final actionButtons = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoDialogAction),
     );
     await tester.tap(actionButtons.last);
-    await tester.pumpAndSettle();
+    // 不用 pumpAndSettle：AppLoading.showToast 会挂一个 2s 自动关闭计时器，
+    // pumpAndSettle 会因该 pending timer 抛错。手动推进到 toast 可见即可，
+    // 计时器由 tearDown 的 dismiss 清理。
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(fakeService.renameCalls.length, 1);
     expect(fakeService.renameCalls.single.albumId, 'a-real');
@@ -391,17 +415,21 @@ void main() {
 
     await tester.enterText(
       find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.byType(TextField),
+        of: find.byType(CupertinoAlertDialog),
+        matching: find.byType(CupertinoTextField),
       ),
       '新相册名',
     );
     final actionButtons = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoDialogAction),
     );
     await tester.tap(actionButtons.last);
-    await tester.pumpAndSettle();
+    // 不用 pumpAndSettle：AppLoading.showToast 会挂一个 2s 自动关闭计时器，
+    // pumpAndSettle 会因该 pending timer 抛错。手动推进到 toast 可见即可，
+    // 计时器由 tearDown 的 dismiss 清理。
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(fakeService.renameCalls.length, 1);
     expect(find.text('更新失败，请稍后重试'), findsOneWidget);
