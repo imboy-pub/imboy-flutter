@@ -9,6 +9,7 @@
 //   flutter test test/widget/friend_list_page_test.dart
 
 import 'package:azlistview/azlistview.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,6 +69,19 @@ Widget _buildTestApp(Widget home, {List<dynamic> overrides = const []}) {
   );
 }
 
+/// 固定一个真机尺寸的视口。
+///
+/// AzListView 内部是 Stack + 悬浮 IndexBar，对约束敏感；默认 800x600 的
+/// 测试画布下会走到「无限宽」分支抛 BoxConstraints forces an infinite width。
+void _useIphoneViewport(WidgetTester tester) {
+  tester.view.devicePixelRatio = 1.0;
+  tester.view.physicalSize = const Size(390, 844);
+  addTearDown(() {
+    tester.view.resetDevicePixelRatio();
+    tester.view.resetPhysicalSize();
+  });
+}
+
 // ---------------------------------------------------------------------------
 // 测试用例 / Test cases
 // ---------------------------------------------------------------------------
@@ -77,13 +91,16 @@ void main() {
     testWidgets('空好友列表时显示无数据视图 / shows NoDataView when contacts is empty', (
       tester,
     ) async {
+      _useIphoneViewport(tester);
       // 直接注入空列表状态，不触发网络请求
       await tester.pumpWidget(
         _buildTestApp(
           const ContactPage(),
           overrides: [
-            contactProvider.overrideWithValue(
-              const ContactState(contactList: [], isLoading: false),
+            contactProvider.overrideWith(
+              () => _StateOverrideNotifier(
+                const ContactState(contactList: [], isLoading: false),
+              ),
             ),
           ],
         ),
@@ -97,12 +114,15 @@ void main() {
     testWidgets('空好友列表时不渲染任何联系人标题 / no contact text when list is empty', (
       tester,
     ) async {
+      _useIphoneViewport(tester);
       await tester.pumpWidget(
         _buildTestApp(
           const ContactPage(),
           overrides: [
-            contactProvider.overrideWithValue(
-              const ContactState(contactList: [], isLoading: false),
+            contactProvider.overrideWith(
+              () => _StateOverrideNotifier(
+                const ContactState(contactList: [], isLoading: false),
+              ),
             ),
           ],
         ),
@@ -119,12 +139,15 @@ void main() {
     testWidgets('isLoading=true 时显示 ShimmerList / shows shimmer when loading', (
       tester,
     ) async {
+      _useIphoneViewport(tester);
       await tester.pumpWidget(
         _buildTestApp(
           const ContactPage(),
           overrides: [
-            contactProvider.overrideWithValue(
-              const ContactState(contactList: [], isLoading: true),
+            contactProvider.overrideWith(
+              () => _StateOverrideNotifier(
+                const ContactState(contactList: [], isLoading: true),
+              ),
             ),
           ],
         ),
@@ -141,17 +164,20 @@ void main() {
     testWidgets('有好友数据时渲染 AzListView / renders AzListView with contacts', (
       tester,
     ) async {
+      _useIphoneViewport(tester);
       final contacts = _buildFakeContacts();
 
       await tester.pumpWidget(
         _buildTestApp(
           const ContactPage(),
           overrides: [
-            contactProvider.overrideWithValue(
-              ContactState(
-                contactList: contacts,
-                isLoading: false,
-                indexBarData: const {'A', 'B', '#'},
+            contactProvider.overrideWith(
+              () => _StateOverrideNotifier(
+                ContactState(
+                  contactList: contacts,
+                  isLoading: false,
+                  indexBarData: const {'A', 'B', '#'},
+                ),
               ),
             ),
           ],
@@ -165,17 +191,20 @@ void main() {
     });
 
     testWidgets('多个好友时所有名字均可见 / all contact names are visible', (tester) async {
+      _useIphoneViewport(tester);
       final contacts = _buildFakeContacts();
 
       await tester.pumpWidget(
         _buildTestApp(
           const ContactPage(),
           overrides: [
-            contactProvider.overrideWithValue(
-              ContactState(
-                contactList: contacts,
-                isLoading: false,
-                indexBarData: const {'A', 'B', '#'},
+            contactProvider.overrideWith(
+              () => _StateOverrideNotifier(
+                ContactState(
+                  contactList: contacts,
+                  isLoading: false,
+                  indexBarData: const {'A', 'B', '#'},
+                ),
               ),
             ),
           ],
@@ -194,6 +223,7 @@ void main() {
     testWidgets('顶部功能入口项（新的好友等）在联系人列表中可见 / special entries visible', (
       tester,
     ) async {
+      _useIphoneViewport(tester);
       // 注入包含功能入口项的联系人列表（模拟真实 provider 行为）
       final newFriendEntry = ContactModel(
         peerId: kPeerIdNewFriend,
@@ -210,10 +240,12 @@ void main() {
         _buildTestApp(
           const ContactPage(),
           overrides: [
-            contactProvider.overrideWithValue(
-              ContactState(
-                contactList: [newFriendEntry, groupEntry],
-                isLoading: false,
+            contactProvider.overrideWith(
+              () => _StateOverrideNotifier(
+                ContactState(
+                  contactList: [newFriendEntry, groupEntry],
+                  isLoading: false,
+                ),
               ),
             ),
           ],
@@ -229,20 +261,26 @@ void main() {
 
   group('ContactPage —— 搜索框 / Search bar', () {
     testWidgets('页面顶部有搜索输入框 / search bar exists at page top', (tester) async {
+      _useIphoneViewport(tester);
       await tester.pumpWidget(
         _buildTestApp(
           const ContactPage(),
           overrides: [
-            contactProvider.overrideWithValue(
-              const ContactState(contactList: [], isLoading: false),
+            contactProvider.overrideWith(
+              () => _StateOverrideNotifier(
+                const ContactState(contactList: [], isLoading: false),
+              ),
             ),
           ],
         ),
       );
       await tester.pump();
 
-      // CupertinoSearchTextField 应该存在
-      expect(find.byType(TextField), findsAtLeastNWidgets(1));
+      // 搜索框是 CupertinoSearchTextField，内部是 CupertinoTextField，
+      // 不是 Material 的 TextField —— 旧断言找 TextField 永远是 0。
+      expect(find.byType(TextField), findsNothing);
+      expect(find.byType(CupertinoSearchTextField), findsOneWidget);
+      expect(find.byKey(const Key('contact_search_input')), findsOneWidget);
     });
   });
 
@@ -250,20 +288,46 @@ void main() {
     testWidgets('顶部 AppBar 包含"添加好友"图标按钮 / AppBar has person_add button', (
       tester,
     ) async {
+      _useIphoneViewport(tester);
       await tester.pumpWidget(
         _buildTestApp(
           const ContactPage(),
           overrides: [
-            contactProvider.overrideWithValue(
-              const ContactState(contactList: [], isLoading: false),
+            contactProvider.overrideWith(
+              () => _StateOverrideNotifier(
+                const ContactState(contactList: [], isLoading: false),
+              ),
             ),
           ],
         ),
       );
       await tester.pumpAndSettle();
 
-      // person_add 图标来自 AppBar actions 入口
-      expect(find.byIcon(Icons.person_add), findsWidgets);
+      // 页面是 Cupertino 风格：图标是 CupertinoIcons.person_add，
+      // 不是 Material 的 Icons.person_add。
+      expect(find.byIcon(Icons.person_add), findsNothing);
+      expect(find.byIcon(CupertinoIcons.person_add), findsOneWidget);
+      expect(find.byKey(const Key('add_friend_button')), findsOneWidget);
     });
   });
+}
+
+/// 注入指定 ContactState 的 fake notifier。
+///
+/// 不能用 `overrideWithValue`：contactProvider 是 NotifierProvider，
+/// overrideWithValue 装的是 _SyncValueProviderElement，页面里任何
+/// `ref.read(contactProvider.notifier)` 都会在类型转换处炸
+/// （'_SyncValueProviderElement<ContactState>' is not a subtype of
+/// '$ClassProviderElement<ContactNotifier, ...>'）。
+/// 必须 overrideWith(() => 子类) 才有真正的 notifier 实例。
+class _StateOverrideNotifier extends ContactNotifier {
+  _StateOverrideNotifier(this._initial);
+  final ContactState _initial;
+
+  @override
+  ContactState build() => _initial;
+
+  /// ContactPage.initState 会调 loadData()，不覆盖会走真实网络/DB。
+  @override
+  Future<void> loadData() async {}
 }

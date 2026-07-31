@@ -320,20 +320,29 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   Widget _buildSusItem(BuildContext context, String tag) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      height: 32,
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
-      alignment: Alignment.centerLeft,
-      color: isDark
-          ? AppColors.darkSurfaceGrouped
-          : AppColors.lightSurfaceGrouped,
-      child: Text(
-        tag,
-        style: context.textStyle(
-          FontSizeType.footnote,
-          fontWeight: FontWeight.w600,
-          color: AppColors.iosGray,
+    // width 必须按约束决定，不能写死 double.infinity。
+    //
+    // AzListView 把吸顶头同时用在两处：列表内联项（宽度有界）和悬浮头
+    // （Stack 的 positioned child，某些布局路径下不给横向锚点 → 宽度无界）。
+    // 无界时 double.infinity 会直接触发
+    // "BoxConstraints forces an infinite width" 断言，整页布局崩掉。
+    // 有界时仍撑满，视觉不变。
+    return LayoutBuilder(
+      builder: (context, constraints) => Container(
+        height: 32,
+        width: constraints.hasBoundedWidth ? double.infinity : null,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+        alignment: Alignment.centerLeft,
+        color: isDark
+            ? AppColors.darkSurfaceGrouped
+            : AppColors.lightSurfaceGrouped,
+        child: Text(
+          tag,
+          style: context.textStyle(
+            FontSizeType.footnote,
+            fontWeight: FontWeight.w600,
+            color: AppColors.iosGray,
+          ),
         ),
       ),
     );
