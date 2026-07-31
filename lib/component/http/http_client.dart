@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 
 // ignore: implementation_imports
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/material.dart';
 
 import 'package:imboy/config/const.dart';
@@ -145,6 +145,13 @@ class HttpClient {
       );
     }
 
+    // Http2Adapter 自己管 socket，绕开了 dart:io 的 HttpOverrides——也就是说
+    // flutter test 的内置 mock 拦不住它，任何调 API 的测试都会真的打到线上。
+    // 这个注入点让测试把出口换掉，约定同 SqliteService.setDbForTest。
+    if (adapterForTest != null) {
+      _dio.httpClientAdapter = adapterForTest!;
+    }
+
     if (conf?.proxy?.isNotEmpty ?? false) {
       setProxy(conf!.proxy!);
     }
@@ -166,6 +173,13 @@ class HttpClient {
       ),
     );
   }
+
+  /// 测试专用：替换所有 HttpClient 实例的出口，避免测试打到真实服务器。
+  ///
+  /// 设置后对**之后构造**的实例生效（各 API 类都在自己的构造里建 Dio）。
+  /// 用完在 tearDown 里置回 null。
+  @visibleForTesting
+  static HttpClientAdapter? adapterForTest;
 
   /// 防止并发 Token 刷新：多个请求共享同一次刷新结果
   static Completer<String>? _tokenRefreshCompleter;
