@@ -15,6 +15,9 @@ class RightButton extends StatefulWidget {
   State<RightButton> createState() => _RightButtonState();
 }
 
+/// 导航栏图标尺寸，与 contact_page / group_list 的 action 图标对齐。
+const double _navIconSize = 22;
+
 class _RightButtonState extends State<RightButton> {
   final _addKey = GlobalKey();
 
@@ -48,11 +51,16 @@ class _RightButtonState extends State<RightButton> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // 用 CupertinoIcons 而不是 Icons：Material 图标笔画明显更重，
+        // 摆在导航栏上显得又粗又脏。DESIGN.md 7.1 规定 iOS 侧用 SF Symbols
+        // （即 CupertinoIcons），仓里其他导航栏按钮也都是 CupertinoIcons + 22pt
+        // （contact_page 的 person_add、group_list 的 refresh）。
         IconButton(
           tooltip: t.common.search,
           onPressed: () => context.push('/message_search'),
           icon: Icon(
-            Icons.search,
+            CupertinoIcons.search,
+            size: _navIconSize,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
@@ -61,7 +69,8 @@ class _RightButtonState extends State<RightButton> {
           tooltip: t.chat.initiateChat,
           onPressed: _showAddMenu,
           icon: Icon(
-            Icons.add_circle_outline,
+            CupertinoIcons.plus_circle,
+            size: _navIconSize,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
@@ -80,7 +89,7 @@ class RightButtonList extends StatelessWidget {
       children: [
         _buildMenuItem(
           context,
-          icon: Icons.chat_bubble_outline,
+          icon: CupertinoIcons.chat_bubble,
           title: t.chat.initiateChat,
           onTap: () {
             Navigator.of(context).pop();
@@ -90,7 +99,7 @@ class RightButtonList extends StatelessWidget {
         _buildDivider(),
         _buildMenuItem(
           context,
-          icon: Icons.person_add_alt_1,
+          icon: CupertinoIcons.person_add,
           title: t.common.addFriend,
           onTap: () {
             Navigator.of(context).pop();
@@ -100,7 +109,7 @@ class RightButtonList extends StatelessWidget {
         _buildDivider(),
         _buildMenuItem(
           context,
-          icon: Icons.person,
+          icon: CupertinoIcons.person,
           title: t.account.newlyRegisteredPeople,
           onTap: () {
             Navigator.of(context).pop();
@@ -110,7 +119,7 @@ class RightButtonList extends StatelessWidget {
         _buildDivider(),
         _buildMenuItem(
           context,
-          icon: Icons.qr_code_2,
+          icon: CupertinoIcons.qrcode,
           title: t.account.myQrcode,
           onTap: () {
             Navigator.of(context).pop();
@@ -120,7 +129,7 @@ class RightButtonList extends StatelessWidget {
         _buildDivider(),
         _buildMenuItem(
           context,
-          icon: Icons.qr_code_scanner_outlined,
+          icon: CupertinoIcons.qrcode_viewfinder,
           title: t.account.scanQrCode,
           onTap: () {
             Navigator.of(context).pop();

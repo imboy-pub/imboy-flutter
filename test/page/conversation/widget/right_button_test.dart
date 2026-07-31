@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/conversation/widget/right_button.dart';
@@ -18,8 +19,8 @@ void main() {
 
       expect(find.byType(RightButton), findsOneWidget);
       expect(find.byType(IconButton), findsNWidgets(2));
-      expect(find.byIcon(Icons.search), findsOneWidget);
-      expect(find.byIcon(Icons.add_circle_outline), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.search), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.plus_circle), findsOneWidget);
     });
 
     testWidgets('深色主题下渲染不崩溃', (tester) async {
@@ -36,6 +37,32 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.byType(IconButton), findsNWidgets(2));
+    });
+  });
+
+  group('导航栏图标风格', () {
+    testWidgets('用 CupertinoIcons，不混 Material 图标', (tester) async {
+      await tester.pumpWidget(host(const RightButton()));
+      await tester.pump();
+
+      // Material 图标笔画明显更重，摆在导航栏上又粗又脏；DESIGN.md 7.1
+      // 规定 iOS 侧用 SF Symbols（CupertinoIcons）。
+      for (final icon in tester.widgetList<Icon>(find.byType(Icon))) {
+        expect(
+          icon.icon?.fontFamily,
+          'CupertinoIcons',
+          reason: '${icon.icon} 不是 CupertinoIcons，和其他导航栏按钮不是一套',
+        );
+      }
+    });
+
+    testWidgets('尺寸与其他页导航栏按钮一致（22pt）', (tester) async {
+      await tester.pumpWidget(host(const RightButton()));
+      await tester.pump();
+
+      for (final icon in tester.widgetList<Icon>(find.byType(Icon))) {
+        expect(icon.size, 22, reason: 'IconButton 默认 24，比其他页大一圈');
+      }
     });
   });
 }
