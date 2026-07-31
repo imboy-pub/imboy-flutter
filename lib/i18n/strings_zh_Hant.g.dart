@@ -216,6 +216,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
+	@override String get composeLeaveImagesLost => '已選圖片不會保存，確定離開？';
 	@override String get title => '頻道';
 	@override String get loading => '載入中...';
 	@override String get subscribed => '已訂閱';
@@ -2657,6 +2658,7 @@ extension on TranslationsZhHant {
 			'agent.badgeOfficial' => '官方',
 			'agent.badgeAiA11y' => 'AI 助手',
 			'agent.badgeOfficialA11y' => '官方帳號',
+			'channel.composeLeaveImagesLost' => '已選圖片不會保存，確定離開？',
 			'channel.title' => '頻道',
 			'channel.loading' => '載入中...',
 			'channel.subscribed' => '已訂閱',
@@ -3042,9 +3044,9 @@ extension on TranslationsZhHant {
 			'chat.e2eeErrInvalidFormat' => '訊息格式錯誤，加密失敗',
 			'chat.e2eeSocialCreateTitle' => '建立恢復分片',
 			'chat.e2eeSocialCreateBtn' => '建立分片',
-			'chat.e2eeSocialCreateFailTitle' => '建立失敗',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialCreateFailTitle' => '建立失敗',
 			'chat.e2eeSocialCreateFailBody' => '建立分片失敗，請重試',
 			'chat.e2eeSocialCreateFirst' => '建立分片後才能看到內容',
 			'chat.e2eeSocialUsedAtLabel' => '使用時間',
@@ -3556,9 +3558,9 @@ extension on TranslationsZhHant {
 			'common.feedbackContent' => '回饋內容',
 			'common.officialReply' => '官方回覆',
 			'common.setPasswordSecurityTips' => '為了提升帳號安全，同時防止因無法獲取驗證碼導致無法登入，請設定登入密碼。',
-			'common.locationHidden' => '已隱藏您的位置',
 			_ => null,
 		} ?? switch (path) {
+			'common.locationHidden' => '已隱藏您的位置',
 			'common.locationVisible' => '已顯示您的位置',
 			'common.noNearbyPeople' => '暫無附近的人',
 			'common.clickSearchButtonToFind' => '點擊上方的搜尋按鈕搜尋附近的人',
@@ -4070,9 +4072,9 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupDeleteTitle' => '刪除備份記錄',
 			'common.e2eeBackupDeleteConfirm' => '確定要刪除此備份記錄嗎？',
 			'common.e2eeBackupDeleteSuccess' => '備份記錄已刪除',
-			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
 			'common.e2eeBackupErrCloudUploadFailed' => '雲端備份失敗，請重試',
 			'common.e2eeBackupCloudRestoreTitle' => '從雲端備份恢復',
@@ -4584,9 +4586,9 @@ extension on TranslationsZhHant {
 			'main.lengthCheck' => '長度檢查',
 			'main.bugReport' => '錯誤報告',
 			'main.deleting' => '刪除中...',
-			'main.current' => '目前',
 			_ => null,
 		} ?? switch (path) {
+			'main.current' => '目前',
 			'main.publish' => '發布',
 			'main.privacyPolicy' => '隱私政策',
 			'main.termsOfService' => '服務條款',

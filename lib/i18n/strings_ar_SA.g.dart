@@ -216,6 +216,7 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
+	@override String get composeLeaveImagesLost => 'لن يتم حفظ الصور المحددة. هل تريد المغادرة؟';
 	@override String get title => 'القنوات';
 	@override String get loading => 'جاري التحميل...';
 	@override String get subscribed => 'مشترك';
@@ -2634,6 +2635,7 @@ extension on TranslationsArSa {
 			'agent.badgeOfficial' => 'رسمي',
 			'agent.badgeAiA11y' => 'مساعد ذكاء اصطناعي',
 			'agent.badgeOfficialA11y' => 'حساب رسمي',
+			'channel.composeLeaveImagesLost' => 'لن يتم حفظ الصور المحددة. هل تريد المغادرة؟',
 			'channel.title' => 'القنوات',
 			'channel.loading' => 'جاري التحميل...',
 			'channel.subscribed' => 'مشترك',
@@ -3019,9 +3021,9 @@ extension on TranslationsArSa {
 			'chat.e2eeKeyRecreated' => 'تمت إعادة إنشاء المفتاح',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'تم رصد دخول من جهاز جديد',
 			'chat.e2eeRecoveryNewDeviceBody' => 'لحماية الرسائل، أنشأ هذا الجهاز مفتاح تشفير من طرف إلى طرف جديد.\n\nالرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ويجب استعادة المفتاح أولاً لعرضها. يمكنك الاستعادة عبر «نقل الأجهزة» أو «الاستعادة الاجتماعية» أو استيراد نسخة محلية.',
-			'chat.e2eeRecoveryDecryptFailedTitle' => 'تعذّر فك تشفير هذه الرسالة',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeRecoveryDecryptFailedTitle' => 'تعذّر فك تشفير هذه الرسالة',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'هذه الرسالة مشفّرة بمفتاح جهاز آخر.\n\nإذا غيّرت الجهاز أو أعدت تثبيت التطبيق، فاستعد مفتاح التشفير لعرض الرسائل السابقة.',
 			'chat.e2eeRecoveryLater' => 'لاحقاً',
 			'chat.e2eeRecoveryGoRecover' => 'استعادة',
@@ -3533,9 +3535,9 @@ extension on TranslationsArSa {
 			'common.groupAnnouncementDelete' => 'حذف',
 			'common.groupAnnouncementLoadFailed' => 'تعذّر تحميل الإعلان، حاول لاحقاً',
 			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
-			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
 			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
 			'common.groupAnnouncementDeleteSuccess' => 'تم حذف الإعلان',
 			'common.privacyClearChatHistory' => 'مسح سجل الدردشة',
@@ -4047,9 +4049,9 @@ extension on TranslationsArSa {
 			'common.e2eeSocialAddProxyHint' => 'أضف جهات اتصال كوكلاء',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'أضف ${count} وكلاء آخرين',
 			'common.e2eeSocialCreateSuccessTitle' => 'تم إنشاء الشظايا',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'يكفي ${count} وكيل للاستعادة',
 			'common.e2eeSocialZeroTrustNote' => 'بنية الثقة الصفرية: لا يحفظ الخادم أي شظية',
 			'common.e2eeSocialNoShards' => 'لم تنشئ أي شظايا استعادة بعد',
@@ -4561,9 +4563,9 @@ extension on TranslationsArSa {
 			'main.mostUsed' => 'الأكثر استخداماً',
 			'main.commentPlaceholder' => 'تعليق...',
 			'main.delayMsLabel' => 'تأخير بالمللي ثانية (>=100)',
-			'main.processed' => 'تمت المعالجة',
 			_ => null,
 		} ?? switch (path) {
+			'main.processed' => 'تمت المعالجة',
 			'main.export' => 'تصدير',
 			'main.school' => 'المدرسة',
 			'main.hobbiesAndInterests' => 'الهوايات والاهتمامات',

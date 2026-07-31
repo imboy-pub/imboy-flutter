@@ -216,6 +216,7 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
+	@override String get composeLeaveImagesLost => '選択した画像は保存されません。移動しますか？';
 	@override String get title => 'チャンネル';
 	@override String get loading => '読み込み中...';
 	@override String get subscribed => '購読済み';
@@ -2634,6 +2635,7 @@ extension on TranslationsJaJp {
 			'agent.badgeOfficial' => '公式',
 			'agent.badgeAiA11y' => 'AI アシスタント',
 			'agent.badgeOfficialA11y' => '公式アカウント',
+			'channel.composeLeaveImagesLost' => '選択した画像は保存されません。移動しますか？',
 			'channel.title' => 'チャンネル',
 			'channel.loading' => '読み込み中...',
 			'channel.subscribed' => '購読済み',
@@ -3019,9 +3021,9 @@ extension on TranslationsJaJp {
 			'chat.e2eeKeyRecreated' => 'キーを再作成しました',
 			'chat.e2eeRecoveryNewDeviceTitle' => '新しいデバイスのログインを検出しました',
 			'chat.e2eeRecoveryNewDeviceBody' => 'メッセージの安全性を保つため、このデバイスで新しいエンドツーエンド暗号キーを生成しました。\n\n過去のメッセージは旧デバイスのキーで暗号化されているため、閲覧にはキーの復元が必要です。「デバイス転送」「ソーシャルリカバリ」「ローカルバックアップの読み込み」で復元できます。',
-			'chat.e2eeRecoveryDecryptFailedTitle' => 'このメッセージを復号できません',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeRecoveryDecryptFailedTitle' => 'このメッセージを復号できません',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'このメッセージは別のデバイスのキーで暗号化されています。\n\nデバイスを変更したりアプリを再インストールした場合は、暗号キーを復元してから過去のメッセージを閲覧してください。',
 			'chat.e2eeRecoveryLater' => '後で',
 			'chat.e2eeRecoveryGoRecover' => '復元へ',
@@ -3533,9 +3535,9 @@ extension on TranslationsJaJp {
 			'common.groupAnnouncementDelete' => '削除',
 			'common.groupAnnouncementLoadFailed' => 'お知らせの読み込みに失敗しました。後でもう一度お試しください',
 			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
-			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
 			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
 			'common.groupAnnouncementDeleteSuccess' => 'お知らせを削除しました',
 			'common.privacyClearChatHistory' => 'チャット履歴を消去',
@@ -4047,9 +4049,9 @@ extension on TranslationsJaJp {
 			'common.e2eeSocialAddProxyHint' => '代理者の連絡先を追加してください',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '先に ${count} 人の代理者を追加してください',
 			'common.e2eeSocialCreateSuccessTitle' => 'シャードを作成しました',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'キーを ${count} 個のシャードに分割しました',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'キーを ${count} 個のシャードに分割しました',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} 人の代理者の協力でキーを復元できます',
 			'common.e2eeSocialZeroTrustNote' => 'ゼロトラスト構成：サーバーにはシャードを一切保存しません',
 			'common.e2eeSocialNoShards' => '復元シャードをまだ作成していません',
@@ -4561,9 +4563,9 @@ extension on TranslationsJaJp {
 			'main.mostUsed' => '最も使用',
 			'main.commentPlaceholder' => 'コメント...',
 			'main.delayMsLabel' => '遅延ミリ秒 (>=100)',
-			'main.processed' => '処理済み',
 			_ => null,
 		} ?? switch (path) {
+			'main.processed' => '処理済み',
 			'main.export' => 'エクスポート',
 			'main.school' => '学校',
 			'main.hobbiesAndInterests' => '趣味と興味',

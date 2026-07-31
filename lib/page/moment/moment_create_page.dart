@@ -276,7 +276,11 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   /// 相机即拍与相册项统一走逐项机制：入网格即见本地缩略图 + 上传进度，
   /// 失败留在网格可单独重试，不再「转圈占位 + 失败即丢照片」。
   Future<void> _pickImage({bool useCamera = false}) async {
-    if (_uploads.length >= momentMaxImageCount) return;
+    // 满额不再静默 return：用户连点"+"没任何反应，会以为按钮坏了。
+    if (_uploads.length >= momentMaxImageCount) {
+      AppLoading.showInfo(context.t.chat.momentsMediaTooManyImages);
+      return;
+    }
     final media = useCamera
         ? await _picker.pickCamera(context)
         : await _picker.pickSingle(context, MediaType.image);
@@ -290,7 +294,11 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   }
 
   Future<void> _pickVideo({bool useCamera = false}) async {
-    if (_uploads.length >= momentMaxImageCount) return;
+    // 满额不再静默 return：用户连点"+"没任何反应，会以为按钮坏了。
+    if (_uploads.length >= momentMaxImageCount) {
+      AppLoading.showInfo(context.t.chat.momentsMediaTooManyImages);
+      return;
+    }
     // 修复：拍摄视频此前误调 pickSingle(gallery)，从未真正唤起相机。
     // useCamera 时走 pickCamera(enableRecording: true) 唤起原生相机录像。
     final media = useCamera
@@ -312,7 +320,11 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   /// 模式：选择器内部已强制「多图 或 单视频」互斥，与 [validateMediaSelection]
   /// 的规则一致（后者仍作为提交前的最终防线保留，覆盖跨批次叠加的场景）。
   Future<void> _pickMediaFromAlbum() async {
-    if (_uploads.length >= momentMaxImageCount) return;
+    // 满额不再静默 return：用户连点"+"没任何反应，会以为按钮坏了。
+    if (_uploads.length >= momentMaxImageCount) {
+      AppLoading.showInfo(context.t.chat.momentsMediaTooManyImages);
+      return;
+    }
     // 剩余可选额度而非固定 momentMaxImageCount：避免多轮选择后总数超限。
     final remaining = momentMaxImageCount - _uploads.length;
     final assets = await AssetPicker.pickAssets(

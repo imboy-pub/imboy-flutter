@@ -531,6 +531,9 @@ class Translations$channel$zh_CN {
 
 	// Translations
 
+	/// zh-CN: '已选图片不会保存，确定离开？'
+	String get composeLeaveImagesLost => '已选图片不会保存，确定离开？';
+
 	/// zh-CN: '频道'
 	String get title => '频道';
 
@@ -7604,6 +7607,7 @@ extension on Translations {
 			'agentTask.awaitingApproval' => '待审批',
 			'agentTask.approve' => '批准',
 			'agentTask.reject' => '拒绝',
+			'channel.composeLeaveImagesLost' => '已选图片不会保存，确定离开？',
 			'channel.title' => '频道',
 			'channel.loading' => '加载中...',
 			'channel.subscribed' => '已订阅',
@@ -7972,9 +7976,9 @@ extension on Translations {
 			'chat.momentsRecordVideo' => '拍摄视频',
 			'chat.momentsVisibilityPrivate' => '仅自己',
 			'chat.momentsMediaTooManyImages' => '最多只能选择 9 张图片',
-			'chat.momentsMediaTooManyVideos' => '最多只能选择 1 个视频',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyVideos' => '最多只能选择 1 个视频',
 			'chat.momentsMediaMixedImageAndVideo' => '图片和视频不能同时发布',
 			'chat.momentsReplyPrefix' => '回复 @',
 			'chat.momentsReplySeparator' => '：',
@@ -8486,9 +8490,9 @@ extension on Translations {
 			'common.tipDraft' => '草稿',
 			'common.tipEmptyChatPlaceholder' => '这里还没有消息',
 			'common.tipFailed' => '操作失败！',
-			'common.tipGreeting' => '欢迎使用',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipGreeting' => '欢迎使用',
 			'common.tipProvidersTitleFirst' => '或用以下账号登录',
 			'common.tipSuccess' => '操作成功！',
 			'common.tipTips' => '小贴士',
@@ -9000,9 +9004,9 @@ extension on Translations {
 			'common.webQRStatusSuccess' => '正在跳转...',
 			'common.webLoginEmptyError' => '请输入账号和密码',
 			'common.webQRGenerateFailed' => '生成二维码失败',
-			'common.webQRTokenInvalid' => '登录令牌无效',
 			_ => null,
 		} ?? switch (path) {
+			'common.webQRTokenInvalid' => '登录令牌无效',
 			'common.e2eeErrNoRecipientKey' => '无法获取对方设备密钥，消息未发送',
 			'common.e2eeDecryptFailed' => '消息无法解密',
 			'common.e2eeDecryptFailedReasons' => '此消息无法解密，可能原因是：',
@@ -9514,9 +9518,9 @@ extension on Translations {
 			'main.medicalHealth' => '医疗健康',
 			'main.meituanDelivery' => '美团外卖',
 			'main.tencentService' => '腾讯服务',
-			'main.traffic' => '交通出行',
 			_ => null,
 		} ?? switch (path) {
+			'main.traffic' => '交通出行',
 			'main.totalAssets' => '总资产',
 			'main.album' => '照片',
 			'main.appSize' => '应用大小',

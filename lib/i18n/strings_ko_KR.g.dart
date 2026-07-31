@@ -216,6 +216,7 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
+	@override String get composeLeaveImagesLost => '선택한 이미지는 저장되지 않습니다. 나가시겠습니까?';
 	@override String get title => '채널';
 	@override String get loading => '로딩 중...';
 	@override String get subscribed => '구독 중';
@@ -2634,6 +2635,7 @@ extension on TranslationsKoKr {
 			'agent.badgeOfficial' => '공식',
 			'agent.badgeAiA11y' => 'AI 어시스턴트',
 			'agent.badgeOfficialA11y' => '공식 계정',
+			'channel.composeLeaveImagesLost' => '선택한 이미지는 저장되지 않습니다. 나가시겠습니까?',
 			'channel.title' => '채널',
 			'channel.loading' => '로딩 중...',
 			'channel.subscribed' => '구독 중',
@@ -3019,9 +3021,9 @@ extension on TranslationsKoKr {
 			'chat.e2eeKeyRecreated' => '키가 다시 만들어졌습니다',
 			'chat.e2eeRecoveryNewDeviceTitle' => '새 기기 로그인 감지',
 			'chat.e2eeRecoveryNewDeviceBody' => '메시지 보안을 위해 이 기기에 새 종단간 암호화 키가 생성되었습니다.\n\n이전 메시지는 이전 기기의 키로 암호화되어 있어 먼저 키를 복구해야 볼 수 있습니다. "기기 전송", "소셜 복구" 또는 "로컬 백업 가져오기"로 복구할 수 있습니다.',
-			'chat.e2eeRecoveryDecryptFailedTitle' => '이 메시지를 복호화할 수 없습니다',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeRecoveryDecryptFailedTitle' => '이 메시지를 복호화할 수 없습니다',
 			'chat.e2eeRecoveryDecryptFailedBody' => '이 메시지는 다른 기기의 키로 암호화되었습니다.\n\n기기를 교체했거나 앱을 다시 설치했다면, 암호화 키를 복구한 후 이전 메시지를 확인하세요.',
 			'chat.e2eeRecoveryLater' => '나중에',
 			'chat.e2eeRecoveryGoRecover' => '복구하러 가기',
@@ -3533,9 +3535,9 @@ extension on TranslationsKoKr {
 			'common.groupAnnouncementDelete' => '삭제',
 			'common.groupAnnouncementLoadFailed' => '공지를 불러오지 못했습니다. 나중에 다시 시도해주세요',
 			'common.groupAnnouncementPublishFailed' => '공지 게시 실패',
-			'common.groupAnnouncementPublishSuccess' => '공지가 게시되었습니다',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishSuccess' => '공지가 게시되었습니다',
 			'common.groupAnnouncementDeleteFailed' => '공지 삭제 실패',
 			'common.groupAnnouncementDeleteSuccess' => '공지가 삭제되었습니다',
 			'common.privacyClearChatHistory' => '채팅 기록 삭제',
@@ -4047,9 +4049,9 @@ extension on TranslationsKoKr {
 			'common.e2eeSocialAddProxyHint' => '대리자 연락처를 추가해주세요',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '대리자를 ${count}명 더 추가해주세요',
 			'common.e2eeSocialCreateSuccessTitle' => '샤드 생성 완료',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다',
 			'common.e2eeSocialZeroTrustNote' => '제로 트러스트 구조: 서버는 어떤 샤드도 저장하지 않습니다',
 			'common.e2eeSocialNoShards' => '생성한 복구 샤드가 없습니다',
@@ -4561,9 +4563,9 @@ extension on TranslationsKoKr {
 			'main.mostUsed' => '가장 많이 사용',
 			'main.commentPlaceholder' => '댓글...',
 			'main.delayMsLabel' => '지연 시간(ms) (>=100)',
-			'main.processed' => '처리됨',
 			_ => null,
 		} ?? switch (path) {
+			'main.processed' => '처리됨',
 			'main.export' => '내보내기',
 			'main.school' => '학교',
 			'main.hobbiesAndInterests' => '취미 및 관심사',

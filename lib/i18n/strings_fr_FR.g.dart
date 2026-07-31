@@ -216,6 +216,7 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
+	@override String get composeLeaveImagesLost => 'Les images sélectionnées ne seront pas enregistrées. Quitter quand même ?';
 	@override String get title => 'Canaux';
 	@override String get loading => 'Chargement...';
 	@override String get subscribed => 'Abonné';
@@ -2634,6 +2635,7 @@ extension on TranslationsFrFr {
 			'agent.badgeOfficial' => 'Officiel',
 			'agent.badgeAiA11y' => 'Assistant IA',
 			'agent.badgeOfficialA11y' => 'Compte officiel',
+			'channel.composeLeaveImagesLost' => 'Les images sélectionnées ne seront pas enregistrées. Quitter quand même ?',
 			'channel.title' => 'Canaux',
 			'channel.loading' => 'Chargement...',
 			'channel.subscribed' => 'Abonné',
@@ -3019,9 +3021,9 @@ extension on TranslationsFrFr {
 			'chat.e2eeKeyRecreated' => 'Clé recréée',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Nouvel appareil détecté',
 			'chat.e2eeRecoveryNewDeviceBody' => 'Pour protéger vos messages, une nouvelle clé E2EE a été générée sur cet appareil.\n\nLes anciens messages, chiffrés avec la clé de l\'ancien appareil, nécessitent d\'abord une restauration. Restaurez via « Transfert », « Récupération sociale » ou « Sauvegarde locale ».',
-			'chat.e2eeRecoveryDecryptFailedTitle' => 'Message indéchiffrable',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeRecoveryDecryptFailedTitle' => 'Message indéchiffrable',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Ce message est chiffré avec la clé d\'un autre appareil.\n\nSi vous avez changé d\'appareil ou réinstallé l\'app, restaurez la clé pour lire les anciens messages.',
 			'chat.e2eeRecoveryLater' => 'Plus tard',
 			'chat.e2eeRecoveryGoRecover' => 'Restaurer',
@@ -3533,9 +3535,9 @@ extension on TranslationsFrFr {
 			'common.groupAnnouncementDelete' => 'Supprimer',
 			'common.groupAnnouncementLoadFailed' => 'Chargement de l\'annonce impossible. Réessayez plus tard.',
 			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
-			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
 			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
 			'common.groupAnnouncementDeleteSuccess' => 'Annonce supprimée',
 			'common.privacyClearChatHistory' => 'Effacer l\'historique de conversation',
@@ -4047,9 +4049,9 @@ extension on TranslationsFrFr {
 			'common.e2eeSocialAddProxyHint' => 'Ajoutez un dépositaire',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Ajoutez d\'abord ${count} dépositaires',
 			'common.e2eeSocialCreateSuccessTitle' => 'Fragments créés',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Clé divisée en ${count} fragments',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Clé divisée en ${count} fragments',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} dépositaires suffisent pour restaurer',
 			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust : le serveur ne conserve aucun fragment',
 			'common.e2eeSocialNoShards' => 'Aucun fragment créé',
@@ -4561,9 +4563,9 @@ extension on TranslationsFrFr {
 			'main.mostUsed' => 'Les plus utilisés',
 			'main.commentPlaceholder' => 'Commentaire...',
 			'main.delayMsLabel' => 'Délai en ms (>=100)',
-			'main.processed' => 'Traité',
 			_ => null,
 		} ?? switch (path) {
+			'main.processed' => 'Traité',
 			'main.export' => 'Exporter',
 			'main.school' => 'École',
 			'main.hobbiesAndInterests' => 'Loisirs et intérêts',

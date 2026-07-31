@@ -216,6 +216,7 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	final TranslationsItIt _root; // ignore: unused_field
 
 	// Translations
+	@override String get composeLeaveImagesLost => 'Le immagini selezionate non verranno salvate. Uscire comunque?';
 	@override String get title => 'Canali';
 	@override String get loading => 'Caricamento...';
 	@override String get subscribed => 'Iscritto';
@@ -2634,6 +2635,7 @@ extension on TranslationsItIt {
 			'agent.badgeOfficial' => 'Ufficiale',
 			'agent.badgeAiA11y' => 'Assistente IA',
 			'agent.badgeOfficialA11y' => 'Account ufficiale',
+			'channel.composeLeaveImagesLost' => 'Le immagini selezionate non verranno salvate. Uscire comunque?',
 			'channel.title' => 'Canali',
 			'channel.loading' => 'Caricamento...',
 			'channel.subscribed' => 'Iscritto',
@@ -3019,9 +3021,9 @@ extension on TranslationsItIt {
 			'chat.e2eeKeyRecreated' => 'Chiave ricreata',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Nuovo dispositivo rilevato',
 			'chat.e2eeRecoveryNewDeviceBody' => 'Per proteggere i messaggi, su questo dispositivo è stata generata una nuova chiave E2EE.\n\nI messaggi precedenti, cifrati con la chiave del vecchio dispositivo, richiedono prima un ripristino. Ripristina tramite « Trasferimento », « Recupero sociale » o « Backup locale ».',
-			'chat.e2eeRecoveryDecryptFailedTitle' => 'Messaggio indecifrabile',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeRecoveryDecryptFailedTitle' => 'Messaggio indecifrabile',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Questo messaggio è cifrato con la chiave di un altro dispositivo.\n\nSe hai cambiato dispositivo o reinstallato l\'app, ripristina la chiave per leggere i vecchi messaggi.',
 			'chat.e2eeRecoveryLater' => 'Più tardi',
 			'chat.e2eeRecoveryGoRecover' => 'Ripristina',
@@ -3533,9 +3535,9 @@ extension on TranslationsItIt {
 			'common.groupAnnouncementDelete' => 'Elimina',
 			'common.groupAnnouncementLoadFailed' => 'Caricamento annuncio fallito. Riprova più tardi.',
 			'common.groupAnnouncementPublishFailed' => 'Pubblicazione annuncio fallita',
-			'common.groupAnnouncementPublishSuccess' => 'Annuncio pubblicato',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishSuccess' => 'Annuncio pubblicato',
 			'common.groupAnnouncementDeleteFailed' => 'Eliminazione annuncio fallita',
 			'common.groupAnnouncementDeleteSuccess' => 'Annuncio eliminato',
 			'common.privacyClearChatHistory' => 'Cancella cronologia delle chat',
@@ -4047,9 +4049,9 @@ extension on TranslationsItIt {
 			'common.e2eeSocialAddProxyHint' => 'Aggiungi un garante',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Aggiungi prima ${count} garanti',
 			'common.e2eeSocialCreateSuccessTitle' => 'Frammenti creati',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Chiave divisa in ${count} frammenti',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Chiave divisa in ${count} frammenti',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} garanti sufficienti per il ripristino',
 			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust: il server non conserva frammenti',
 			'common.e2eeSocialNoShards' => 'Nessun frammento creato',
@@ -4561,9 +4563,9 @@ extension on TranslationsItIt {
 			'main.mostUsed' => 'Più usati',
 			'main.commentPlaceholder' => 'Commento...',
 			'main.delayMsLabel' => 'Ritardo in ms (>=100)',
-			'main.processed' => 'Elaborato',
 			_ => null,
 		} ?? switch (path) {
+			'main.processed' => 'Elaborato',
 			'main.export' => 'Esporta',
 			'main.school' => 'Scuola',
 			'main.hobbiesAndInterests' => 'Hobby & Interessi',

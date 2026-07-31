@@ -216,6 +216,7 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get composeLeaveImagesLost => 'Selected images will not be saved. Leave anyway?';
 	@override String get title => 'Channels';
 	@override String get loading => 'Loading...';
 	@override String get subscribed => 'Subscribed';
@@ -2657,6 +2658,7 @@ extension on TranslationsEnUs {
 			'agent.badgeOfficial' => 'Official',
 			'agent.badgeAiA11y' => 'AI assistant',
 			'agent.badgeOfficialA11y' => 'Official account',
+			'channel.composeLeaveImagesLost' => 'Selected images will not be saved. Leave anyway?',
 			'channel.title' => 'Channels',
 			'channel.loading' => 'Loading...',
 			'channel.subscribed' => 'Subscribed',
@@ -3042,9 +3044,9 @@ extension on TranslationsEnUs {
 			'chat.e2eeSocialCreateTitle' => 'Create recovery shards',
 			'chat.e2eeSocialCreateBtn' => 'Create shards',
 			'chat.e2eeSocialCreateFailTitle' => 'Creation failed',
-			'chat.e2eeSocialCreateFailBody' => 'Failed to create shards, please try again',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialCreateFailBody' => 'Failed to create shards, please try again',
 			'chat.e2eeSocialCreateFirst' => 'Create shards to see content here',
 			'chat.e2eeSocialUsedAtLabel' => 'Used at',
 			'chat.e2eeTransferSendTitle' => 'Send key to new device',
@@ -3556,9 +3558,9 @@ extension on TranslationsEnUs {
 			'common.featureInDevelopment' => 'Feature under development...',
 			'common.addedToDenylist' => 'Added to blocklist',
 			'common.bindSuccess' => 'Bound successfully',
-			'common.mobileUpdatedToParam' => ({required Object param}) => 'Mobile number updated to ${param}',
 			_ => null,
 		} ?? switch (path) {
+			'common.mobileUpdatedToParam' => ({required Object param}) => 'Mobile number updated to ${param}',
 			'common.groupAnnouncementPublish' => 'Publish announcement',
 			'common.pleaseEnterAnnouncementContent' => 'Please enter announcement content',
 			'common.selectExpirationDateOptional' => 'Select expiration date (optional)',
@@ -4070,9 +4072,9 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupCloudRestoreTitle' => 'Restore from cloud backup',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Cloud backup detected (version ${version})',
 			'common.e2eeBackupCloudRestoreBtn' => 'Restore from cloud',
-			'common.e2eeBackupCloudRestoreConfirmNote' => 'Restoring will overwrite the current E2EE keys on this device',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupCloudRestoreConfirmNote' => 'Restoring will overwrite the current E2EE keys on this device',
 			'common.e2eeBackupCloudPwdHint' => 'Enter your backup passphrase',
 			'common.e2eeBackupErrNoCloudBackup' => 'No cloud backup found',
 			'common.e2eeBackupErrCloudPwd' => 'Wrong passphrase or corrupted backup',
@@ -4584,9 +4586,9 @@ extension on TranslationsEnUs {
 			'main.lengthCheck' => 'Length check',
 			'main.bugReport' => 'Bug report',
 			'main.deleting' => 'Deleting...',
-			'main.current' => 'Current',
 			_ => null,
 		} ?? switch (path) {
+			'main.current' => 'Current',
 			'main.publish' => 'Publish',
 			'main.privacyPolicy' => 'Privacy Policy',
 			'main.termsOfService' => 'Terms of Service',

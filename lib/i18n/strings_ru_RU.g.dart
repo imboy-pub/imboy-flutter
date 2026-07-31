@@ -216,6 +216,7 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
+	@override String get composeLeaveImagesLost => 'Выбранные изображения не будут сохранены. Всё равно выйти?';
 	@override String get title => 'Каналы';
 	@override String get loading => 'Загрузка...';
 	@override String get subscribed => 'Подписан';
@@ -2634,6 +2635,7 @@ extension on TranslationsRuRu {
 			'agent.badgeOfficial' => 'Официальный',
 			'agent.badgeAiA11y' => 'ИИ-ассистент',
 			'agent.badgeOfficialA11y' => 'Официальный аккаунт',
+			'channel.composeLeaveImagesLost' => 'Выбранные изображения не будут сохранены. Всё равно выйти?',
 			'channel.title' => 'Каналы',
 			'channel.loading' => 'Загрузка...',
 			'channel.subscribed' => 'Подписан',
@@ -3019,9 +3021,9 @@ extension on TranslationsRuRu {
 			'chat.e2eeKeyRecreated' => 'Ключ создан заново',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Обнаружен вход с нового устройства',
 			'chat.e2eeRecoveryNewDeviceBody' => 'Для защиты сообщений на этом устройстве создан новый ключ сквозного шифрования.\n\nПрошлые сообщения зашифрованы ключом старого устройства — сначала восстановите ключ, чтобы их прочитать. Восстановить можно через «Передачу устройств», «Социальное восстановление» или импорт локальной копии.',
-			'chat.e2eeRecoveryDecryptFailedTitle' => 'Не удалось расшифровать сообщение',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeRecoveryDecryptFailedTitle' => 'Не удалось расшифровать сообщение',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Это сообщение зашифровано ключом другого устройства.\n\nЕсли вы сменили устройство или переустановили приложение, восстановите ключ шифрования, чтобы прочитать прошлые сообщения.',
 			'chat.e2eeRecoveryLater' => 'Позже',
 			'chat.e2eeRecoveryGoRecover' => 'Восстановить',
@@ -3533,9 +3535,9 @@ extension on TranslationsRuRu {
 			'common.groupAnnouncementDelete' => 'Удалить',
 			'common.groupAnnouncementLoadFailed' => 'Не удалось загрузить объявление, попробуйте позже',
 			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
-			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
 			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
 			'common.groupAnnouncementDeleteSuccess' => 'Объявление удалено',
 			'common.privacyClearChatHistory' => 'Очистить историю чата',
@@ -4047,9 +4049,9 @@ extension on TranslationsRuRu {
 			'common.e2eeSocialAddProxyHint' => 'Добавьте контакты-посредники',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Добавьте ещё ${count} посредников',
 			'common.e2eeSocialCreateSuccessTitle' => 'Фрагменты созданы',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Ключ разделён на ${count} фрагментов',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Ключ разделён на ${count} фрагментов',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Для восстановления хватит ${count} посредников',
 			'common.e2eeSocialZeroTrustNote' => 'Архитектура нулевого доверия: сервер не хранит фрагменты',
 			'common.e2eeSocialNoShards' => 'Вы ещё не создали фрагменты восстановления',
@@ -4561,9 +4563,9 @@ extension on TranslationsRuRu {
 			'main.mostUsed' => 'Наиболее используемые',
 			'main.commentPlaceholder' => 'Комментарий...',
 			'main.delayMsLabel' => 'Задержка в мс (>=100)',
-			'main.processed' => 'Обработано',
 			_ => null,
 		} ?? switch (path) {
+			'main.processed' => 'Обработано',
 			'main.export' => 'Экспорт',
 			'main.school' => 'Школа',
 			'main.hobbiesAndInterests' => 'Хобби и интересы',

@@ -52,6 +52,12 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   /// 标题字数上限（订阅号式短标题）。
   static const int _maxTitleLength = 60;
 
+  /// 标题字数到此阈值才显示计数器：平时不占视觉，快满时才提醒。
+  static const int _titleCounterThreshold = _maxTitleLength - 15;
+
+  /// 正文上限。原先是散在 build 里的魔法数 2000，与标题常量不对称。
+  static const int _maxBodyLength = 2000;
+
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
 
@@ -337,75 +343,115 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     final t = context.t;
     final canPublish = _hasContent && !_isPublishing;
 
-    return Scaffold(
-      appBar: GlassAppBar(
-        title: t.channel.writeArticle,
-        automaticallyImplyLeading: true,
-        rightDMActions: [
-          if (_hasContent)
+    return PopScope(
+      // 只在会真丢东西时拦：标题/正文 dispose 时自动存草稿，图片不持久化
+      // （见 _persistDraftOnExit 的 ponytail），选了图直接返回就白选了。
+      canPop: _images.isEmpty || _isPublishing,
+      onPopInvokedWithResult: (didPop, _) => _confirmLeave(didPop),
+      child: Scaffold(
+        appBar: GlassAppBar(
+          title: t.channel.writeArticle,
+          automaticallyImplyLeading: true,
+          rightDMActions: [
+            // 常驻但按内容启停：原先 `if (_hasContent)` 会让按钮凭空出现，
+            // 打第一个字时整条 AppBar 跳一下。
             TextButton(
-              onPressed: _isPublishing ? null : _showPreview,
+              onPressed: (_hasContent && !_isPublishing) ? _showPreview : null,
               child: Text(t.channel.preview),
             ),
-          TextButton(
-            onPressed: canPublish ? _publish : null,
-            child: _isPublishing
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(t.channel.publish),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: AppSpacing.allRegular,
-                children: [
-                  TextField(
-                    controller: _titleController,
-                    enabled: !_isPublishing,
-                    maxLength: _maxTitleLength,
-                    maxLines: 1,
-                    textInputAction: TextInputAction.next,
-                    onChanged: (_) => setState(() {}),
-                    decoration: InputDecoration(
-                      hintText: t.channel.titleOptional,
-                      border: InputBorder.none,
-                      counterText: '',
-                    ),
-                    style: context.textStyle(
-                      FontSizeType.title,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Divider(
-                    height: 1,
-                    color: AppColors.getIosSeparator(
-                      Theme.of(context).brightness,
-                    ),
-                  ),
-                  AppSpacing.verticalSmall,
-                  _buildContentField(t),
-                  AppSpacing.verticalRegular,
-                  _buildImageGrid(),
-                ],
-              ),
+            TextButton(
+              onPressed: canPublish ? _publish : null,
+              child: _isPublishing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(t.channel.publish),
             ),
-            // 格式工具条：正文获焦时浮在键盘上方，只插入 markdown 文本。
-            if (_contentFocused && !_isPublishing)
-              _MarkdownToolbar(
-                controller: _contentController,
-                focusNode: _contentFocusNode,
-              ),
           ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: AppSpacing.allRegular,
+                  children: [
+                    TextField(
+                      controller: _titleController,
+                      enabled: !_isPublishing,
+                      maxLength: _maxTitleLength,
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        hintText: t.channel.titleOptional,
+                        border: InputBorder.none,
+                        // 不再 counterText:''。标题有 60 字硬上限，藏掉计数后
+                        // 打满就静默吞键，用户以为键盘坏了。快到上限才显示，
+                        // 平时不占视觉（对标公众号"标题还可输入 N 字"）。
+                        counterText:
+                            _titleController.text.characters.length >=
+                                _titleCounterThreshold
+                            ? null
+                            : '',
+                      ),
+                      style: context.textStyle(
+                        FontSizeType.title,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Divider(
+                      height: 1,
+                      color: AppColors.getIosSeparator(
+                        Theme.of(context).brightness,
+                      ),
+                    ),
+                    AppSpacing.verticalSmall,
+                    _buildContentField(t),
+                    AppSpacing.verticalRegular,
+                    _buildImageGrid(),
+                  ],
+                ),
+              ),
+              // 格式工具条：正文获焦时浮在键盘上方，只插入 markdown 文本。
+              if (_contentFocused && !_isPublishing)
+                _MarkdownToolbar(
+                  controller: _contentController,
+                  focusNode: _contentFocusNode,
+                ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  /// 返回前确认：已选图片不会随草稿保存，直接退出等于白选。
+  Future<void> _confirmLeave(bool didPop) async {
+    if (didPop) return;
+    final t = context.t;
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: Text(t.channel.composeLeaveImagesLost),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(
+              t.common.confirm,
+              style: const TextStyle(color: AppColors.iosRed),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (leave == true && mounted) Navigator.of(context).pop();
   }
 
   /// 正文输入框：token 化视觉——聚焦时边框转品牌蓝（原先无边框死灰），
@@ -418,7 +464,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
       controller: _contentController,
       focusNode: _contentFocusNode,
       enabled: !_isPublishing,
-      maxLength: 2000,
+      maxLength: _maxBodyLength,
       maxLines: null,
       minLines: 6,
       keyboardType: TextInputType.multiline,
