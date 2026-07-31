@@ -980,22 +980,29 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     return ValueListenableBuilder<InputType>(
       valueListenable: _inputType,
       builder: (context, inputType, _) {
-        return CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () {
-            if (inputType == InputType.voice) {
-              updateState(InputType.text);
-            } else {
-              updateState(InputType.voice);
-            }
-          },
-          minimumSize: Size(44, 44),
-          child: Icon(
-            inputType != InputType.voice
-                ? CupertinoIcons.mic
-                : CupertinoIcons.keyboard,
-            size: 28,
-            color: AppColors.iosGray,
+        // 这是个切换按钮，标签必须跟随当前态描述"按下去会发生什么"，
+        // 否则读屏用户听到的是静态名词，不知道现在按下是切语音还是切键盘。
+        final isVoice = inputType == InputType.voice;
+        return Semantics(
+          button: true,
+          label: isVoice
+              ? t.chat.switchToKeyboardInput
+              : t.chat.switchToVoiceInput,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {
+              if (isVoice) {
+                updateState(InputType.text);
+              } else {
+                updateState(InputType.voice);
+              }
+            },
+            minimumSize: Size(44, 44),
+            child: Icon(
+              isVoice ? CupertinoIcons.keyboard : CupertinoIcons.mic,
+              size: 28,
+              color: AppColors.iosGray,
+            ),
           ),
         );
       },
@@ -1028,20 +1035,22 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     return ValueListenableBuilder<InputType>(
       valueListenable: _inputType,
       builder: (context, inputType, _) {
-        return CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () {
-            updateState(
-              inputType != InputType.emoji ? InputType.emoji : InputType.text,
-            );
-          },
-          minimumSize: Size(44, 44),
-          child: Icon(
-            inputType != InputType.emoji
-                ? CupertinoIcons.smiley
-                : CupertinoIcons.keyboard,
-            size: 28,
-            color: AppColors.iosGray,
+        // 同 _buildLeftButton：切换按钮的标签跟随当前态
+        final isEmoji = inputType == InputType.emoji;
+        return Semantics(
+          button: true,
+          label: isEmoji ? t.chat.switchToKeyboardInput : t.common.expression,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {
+              updateState(isEmoji ? InputType.text : InputType.emoji);
+            },
+            minimumSize: Size(44, 44),
+            child: Icon(
+              isEmoji ? CupertinoIcons.keyboard : CupertinoIcons.smiley,
+              size: 28,
+              color: AppColors.iosGray,
+            ),
           ),
         );
       },
@@ -1060,21 +1069,25 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           },
           child: sendButtonVisible
               ? const SizedBox.shrink(key: ValueKey('empty_extra'))
-              : CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  key: const ValueKey('extra_button'),
-                  onPressed: () {
-                    updateState(
-                      _inputType.value != InputType.extra
-                          ? InputType.extra
-                          : InputType.text,
-                    );
-                  },
-                  minimumSize: Size(44, 44),
-                  child: Icon(
-                    CupertinoIcons.plus_circle,
-                    size: 28,
-                    color: AppColors.iosGray,
+              : Semantics(
+                  button: true,
+                  label: t.chat.extraItems,
+                  child: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    key: const ValueKey('extra_button'),
+                    onPressed: () {
+                      updateState(
+                        _inputType.value != InputType.extra
+                            ? InputType.extra
+                            : InputType.text,
+                      );
+                    },
+                    minimumSize: Size(44, 44),
+                    child: Icon(
+                      CupertinoIcons.plus_circle,
+                      size: 28,
+                      color: AppColors.iosGray,
+                    ),
                   ),
                 ),
         );

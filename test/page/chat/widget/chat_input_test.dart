@@ -348,4 +348,82 @@ void main() {
       await _unmount(tester);
     });
   });
+
+  group('ChatInput 输入区图标按钮语义 / Composer icon button semantics', () {
+    /// 断言语义树里存在带该 label 的 button 节点。
+    ///
+    /// 不用 `find.ancestor(..., find.byType(Semantics)).first`：CupertinoButton
+    /// 内部自带一层 `Semantics(button: true)`（label 为空）会先被命中，
+    /// 测不到外层标签。bySemanticsLabel 直接查整棵语义树，测的是读屏用户
+    /// 真正能听到的东西。
+    void expectSemanticButton(WidgetTester tester, String label) {
+      final finder = find.bySemanticsLabel(label);
+      expect(finder, findsWidgets, reason: '语义树里找不到 label="$label" 的节点');
+      expect(
+        tester.getSemantics(finder.first).hasFlag(SemanticsFlag.isButton),
+        isTrue,
+        reason: '"$label" 未声明 button 语义',
+      );
+    }
+
+    testWidgets('语音/键盘切换按钮：标签随当前态变化，不是静态名词', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _pumpType(tester, 'C2C');
+
+      // 初始文本态 → 图标是麦克风，按下去是"切换到语音输入"
+      expectSemanticButton(tester, t.chat.switchToVoiceInput);
+      expect(find.bySemanticsLabel(t.chat.switchToKeyboardInput), findsNothing);
+
+      await tester.tap(find.byIcon(CupertinoIcons.mic));
+      await tester.pump(const Duration(milliseconds: 350));
+
+      // 语音态 → 图标变键盘，标签必须跟着变成"切换到键盘输入"
+      expectSemanticButton(tester, t.chat.switchToKeyboardInput);
+
+      handle.dispose();
+      await _unmount(tester);
+    });
+
+    testWidgets('表情按钮声明 button 语义 + label', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _pumpType(tester, 'C2C');
+
+      expectSemanticButton(tester, t.common.expression);
+
+      handle.dispose();
+      await _unmount(tester);
+    });
+
+    testWidgets('更多（附加项）按钮声明 button 语义 + label', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _pumpType(tester, 'C2C');
+
+      expectSemanticButton(tester, t.chat.extraItems);
+
+      handle.dispose();
+      await _unmount(tester);
+    });
+
+    testWidgets('三个图标按钮命中区均 ≥ 44x44', (tester) async {
+      await _pumpType(tester, 'C2C');
+
+      for (final icon in [
+        CupertinoIcons.mic,
+        CupertinoIcons.smiley,
+        CupertinoIcons.plus_circle,
+      ]) {
+        final button = find
+            .ancestor(
+              of: find.byIcon(icon),
+              matching: find.byType(CupertinoButton),
+            )
+            .first;
+        final rect = tester.getRect(button);
+        expect(rect.width, greaterThanOrEqualTo(44), reason: '$icon 宽度不足');
+        expect(rect.height, greaterThanOrEqualTo(44), reason: '$icon 高度不足');
+      }
+
+      await _unmount(tester);
+    });
+  });
 }
