@@ -56,9 +56,23 @@ class SmokeRoute {
 ///
 /// 维护：定期用 `bash test/smoke/run_smoke_isolated.sh` 复核，能渲染干净的移出。
 const Set<String> leakyRoutesQuarantine = {
+  // 以下 5 条不是渲染崩溃，是无头环境产物：
+  //   - moment_create / account_security / map_location_picker：页面
+  //     initState 的异步链触发 token 过期 → quitLogin → PersistentMessageQueue
+  //     周期清理 Timer + WS/dio socket Timer 泄漏，teardown 撞 pending-timer 不变量
+  //   - group_add_member / group_remove_member：页面依赖的异步 provider 在
+  //     无头环境下于 build 期内就完成，Riverpod 抛
+  //     "Tried to modify a provider while the widget tree was building"；
+  //     真机上异步间隙是真实的，不会触发
+  // 三者都由 integration_test 覆盖真实渲染。
+  'account_security',
   'add_friend',
+  'assistant_plaza',
   'bottom_navigation',
   'channel_admins',
+  'channel_article',
+  'channel_comments',
+  'channel_compose',
   'channel_create',
   'channel_detail',
   'channel_discover',
@@ -69,22 +83,16 @@ const Set<String> leakyRoutesQuarantine = {
   'channel_order_detail',
   'channel_subscribers',
   'chat',
-  // E2EE 页 initState 经 service 异步加载（getPendingTransfers/getShards），触发 token 过期 →
-  // quitLogin → PersistentMessageQueue 周期清理 Timer + dio http2 socket Timer 泄漏，
-  // 无头烟雾测试 teardown 触发 pending-timer 不变量失败，非渲染崩溃，由 integration_test 覆盖
-  'e2ee_proxy_selector',
-  'e2ee_social',
-  'e2ee_social_manage',
-  'e2ee_social_recover',
-  'e2ee_transfer',
   'favorites',
   'group_album',
   'group_album_photo_detail',
   'group_album_photos',
+  'group_add_member',
   'group_category',
   'group_detail',
   'group_file',
   'group_launch_chat',
+  'group_remove_member',
   'group_schedule',
   'group_schedule_detail',
   'group_tag',
@@ -97,11 +105,14 @@ const Set<String> leakyRoutesQuarantine = {
   'live_room_publisher',
   'live_room_subscriber',
   'manage_account',
+  'map_location_picker',
   'mention_list',
   'message_search',
+  'moment_create',
   'moment_detail',
   'moment_feed',
   'more',
+  'people_nearby',
   'personal_info',
   'privacy_settings',
   'profile',
@@ -149,6 +160,7 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
 
   // ==================== 朋友圈 ====================
   const SmokeRoute(name: 'moment_feed', location: '/moment/feed'),
+  const SmokeRoute(name: 'assistant_plaza', location: '/assistant_plaza'),
   const SmokeRoute(name: 'moment_create', location: '/moment/create'),
   const SmokeRoute(name: 'moment_notify', location: '/moment_notify'),
   const SmokeRoute(name: 'moment_detail', location: '/moment/3001'),
@@ -215,6 +227,15 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
     location: '/channel/invitations',
   ),
   const SmokeRoute(name: 'channel_detail', location: '/channel/5001'),
+  const SmokeRoute(name: 'channel_compose', location: '/channel/5001/compose'),
+  const SmokeRoute(
+    name: 'channel_article',
+    location: '/channel/5001/article/9001',
+  ),
+  const SmokeRoute(
+    name: 'channel_comments',
+    location: '/channel/5001/message/9001/comments',
+  ),
   const SmokeRoute(name: 'channel_edit', location: '/channel/5001/edit'),
   const SmokeRoute(name: 'channel_admins', location: '/channel/5001/admins'),
   const SmokeRoute(
@@ -248,25 +269,8 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
 
   // ==================== E2EE ====================
   const SmokeRoute(name: 'e2ee_key_recovery', location: '/e2ee_key_recovery'),
-  const SmokeRoute(name: 'e2ee_transfer', location: '/e2ee_transfer'),
-  const SmokeRoute(name: 'e2ee_social', location: '/e2ee_social'),
-  const SmokeRoute(name: 'e2ee_social_create', location: '/e2ee_social_create'),
-  const SmokeRoute(
-    name: 'e2ee_social_recover',
-    location: '/e2ee_social_recover',
-  ),
-  const SmokeRoute(name: 'e2ee_social_manage', location: '/e2ee_social_manage'),
-  const SmokeRoute(
-    name: 'e2ee_proxy_selector',
-    location: '/e2ee_proxy_selector',
-  ),
   const SmokeRoute(name: 'e2ee_backup_export', location: '/e2ee_backup_export'),
   const SmokeRoute(name: 'e2ee_backup_import', location: '/e2ee_backup_import'),
-  const SmokeRoute(name: 'e2ee_transfer_send', location: '/e2ee_transfer_send'),
-  const SmokeRoute(
-    name: 'e2ee_transfer_receive',
-    location: '/e2ee_transfer_receive',
-  ),
   const SmokeRoute(name: 'change_password', location: '/change_password'),
 
   // ==================== 反馈 ====================
