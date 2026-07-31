@@ -326,10 +326,16 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
       title: t.discovery.moments,
       actions: [
         const _MomentNotifyEntry(),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => context.push(AppRoutes.momentCreate),
-          child: const Icon(CupertinoIcons.camera, size: 22),
+        // 纯图标按钮，CupertinoButton 无 tooltip 参数，须显式 Semantics
+        // 才有读屏标签（与同文件 _MomentNotifyEntry 写法一致）。
+        Semantics(
+          button: true,
+          label: t.main.publish,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () => context.push(AppRoutes.momentCreate),
+            child: const Icon(CupertinoIcons.camera, size: 22),
+          ),
         ),
       ],
       slivers: [

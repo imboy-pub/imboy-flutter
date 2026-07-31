@@ -136,10 +136,15 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
         title: t.groupVote.title,
         automaticallyImplyLeading: true,
         rightDMActions: [
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: _createVote,
-            child: const Icon(CupertinoIcons.add, size: 22),
+          // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
+          Semantics(
+            button: true,
+            label: t.groupVote.createVote,
+            child: CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: _createVote,
+              child: const Icon(CupertinoIcons.add, size: 22),
+            ),
           ),
         ],
       ),

@@ -516,10 +516,15 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       title: t.discovery.moments,
       useLargeTitle: false,
       actions: [
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => _showPostActionSheet(context, canDeletePost),
-          child: const Icon(CupertinoIcons.ellipsis_circle, size: 22),
+        // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
+        Semantics(
+          button: true,
+          label: t.discovery.momentActionMore,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () => _showPostActionSheet(context, canDeletePost),
+            child: const Icon(CupertinoIcons.ellipsis_circle, size: 22),
+          ),
         ),
       ],
       bottomWidget: _buildCommentInput(context, isDark, brightness),

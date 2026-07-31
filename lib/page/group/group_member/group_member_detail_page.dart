@@ -258,10 +258,15 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
               width: 0.33,
             ),
           ),
-          leading: CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: () => context.pop(_anyChange),
-            child: const Icon(CupertinoIcons.back, size: 22),
+          // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
+          leading: Semantics(
+            button: true,
+            label: t.common.buttonBack,
+            child: CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => context.pop(_anyChange),
+              child: const Icon(CupertinoIcons.back, size: 22),
+            ),
           ),
         ),
         body: _isLoading

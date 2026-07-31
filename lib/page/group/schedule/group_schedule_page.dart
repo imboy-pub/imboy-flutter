@@ -307,10 +307,15 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
         title: t.groupSchedule.title,
         automaticallyImplyLeading: true,
         rightDMActions: [
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: _createSchedule,
-            child: const Icon(CupertinoIcons.add, size: 22),
+          // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
+          Semantics(
+            button: true,
+            label: t.groupSchedule.createSchedule,
+            child: CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: _createSchedule,
+              child: const Icon(CupertinoIcons.add, size: 22),
+            ),
           ),
         ],
       ),

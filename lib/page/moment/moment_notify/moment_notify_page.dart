@@ -125,10 +125,16 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
               child: Text(t.momentNotify.markAllRead),
             ),
           if (state.items.isNotEmpty)
-            CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              onPressed: () => _confirmClearAll(context, notifier),
-              child: const Icon(CupertinoIcons.delete, size: 20),
+            // 图标是垃圾桶但行为是「清空全部」，读屏标签必须按行为写，
+            // 否则用户以为只删一条。CupertinoButton 无 tooltip 参数。
+            Semantics(
+              button: true,
+              label: t.momentNotify.clearAll,
+              child: CupertinoButton(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                onPressed: () => _confirmClearAll(context, notifier),
+                child: const Icon(CupertinoIcons.delete, size: 20),
+              ),
             ),
         ],
       ),

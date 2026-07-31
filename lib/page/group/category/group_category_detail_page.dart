@@ -153,10 +153,17 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
         title: _categoryName,
         automaticallyImplyLeading: true,
         rightDMActions: [
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: _showMoreMenu,
-            child: const Icon(CupertinoIcons.ellipsis, size: 22),
+          // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
+          // 文案跨用 discovery 域的「更多操作」：全 App 通用且已有 10 语言，
+          // 避免为一个标签新增一套翻译。
+          Semantics(
+            button: true,
+            label: t.discovery.momentActionMore,
+            child: CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: _showMoreMenu,
+              child: const Icon(CupertinoIcons.ellipsis, size: 22),
+            ),
           ),
         ],
       ),
