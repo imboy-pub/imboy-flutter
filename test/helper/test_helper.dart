@@ -59,7 +59,8 @@ class ConversationTestHelper {
     } else if (conv.msgType == 'location') {
       // 位置消息：从 payload 中提取位置标签和地址
       final locationLabel = (conv.payload?['location_label'] ?? '') as String;
-      final locationAddress = (conv.payload?['location_address'] ?? '') as String;
+      final locationAddress =
+          (conv.payload?['location_address'] ?? '') as String;
       if (locationLabel.isNotEmpty || locationAddress.isNotEmpty) {
         str = '[位置]';
         if (locationLabel.isNotEmpty) {

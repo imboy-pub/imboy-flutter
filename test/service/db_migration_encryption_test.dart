@@ -79,15 +79,13 @@ void main() {
       final uid = 'test_user_migration';
 
       if (isEncryptionSupported) {
-        final password =
-            await DbEncryptionKeyService.getOrCreateKey(uid);
+        final password = await DbEncryptionKeyService.getOrCreateKey(uid);
 
         expect(password.length, 64);
         expect(RegExp(r'^[0-9a-f]{64}$').hasMatch(password), isTrue);
 
         // Same key on retry (idempotent)
-        final password2 =
-            await DbEncryptionKeyService.getOrCreateKey(uid);
+        final password2 = await DbEncryptionKeyService.getOrCreateKey(uid);
         expect(password2, password);
       }
     });
@@ -212,10 +210,7 @@ void main() {
 
       // Verify the file's modification time
       final stat = await backupFile.stat();
-      expect(
-        DateTime.now().difference(stat.modified).inDays >= 7,
-        isTrue,
-      );
+      expect(DateTime.now().difference(stat.modified).inDays >= 7, isTrue);
     });
 
     test('recent backup file is preserved within 7 days', () async {
@@ -229,10 +224,7 @@ void main() {
 
       // Verify the file's modification time is recent
       final stat = await backupFile.stat();
-      expect(
-        DateTime.now().difference(stat.modified).inDays < 7,
-        isTrue,
-      );
+      expect(DateTime.now().difference(stat.modified).inDays < 7, isTrue);
     });
 
     test('cleanup handles non-existent backup file gracefully', () async {

@@ -41,7 +41,6 @@ void main() {
       // 编译器会报错: No named parameter with the name 'userId'
       // 这是期望的行为，确保类型安全
     });
-
   });
 
   group('flutter_chat_ui.Avatar 组件测试', () {
@@ -50,10 +49,7 @@ void main() {
       // 它会通过 UserCache 自动查找用户信息和头像
 
       // 创建 Avatar 实例
-      const avatar = flutter_chat_ui.Avatar(
-        userId: 'user123',
-        size: 40,
-      );
+      const avatar = flutter_chat_ui.Avatar(userId: 'user123', size: 40);
 
       // 验证参数正确设置
       expect(avatar.userId, 'user123');
@@ -85,10 +81,7 @@ void main() {
       const messageAuthorId = 'user123';
 
       // 正确的用法：使用 flutter_chat_ui 前缀
-      const avatar = flutter_chat_ui.Avatar(
-        userId: messageAuthorId,
-        size: 40,
-      );
+      const avatar = flutter_chat_ui.Avatar(userId: messageAuthorId, size: 40);
 
       expect(avatar.userId, messageAuthorId);
     });
@@ -104,20 +97,14 @@ void main() {
       const avatarUrl = 'https://example.com/avatar.jpg';
 
       // 模拟 User 对象（在 MessageModel.toTypeMessage 中创建）
-      final user = User(
-        id: userId,
-        imageSource: avatarUrl,
-      );
+      final user = User(id: userId, imageSource: avatarUrl);
 
       // 验证 User 对象包含正确的头像信息
       expect(user.id, userId);
       expect(user.imageSource, avatarUrl);
 
       // flutter_chat_ui.Avatar 会使用这个 user.imageSource 显示头像
-      const avatar = flutter_chat_ui.Avatar(
-        userId: userId,
-        size: 40,
-      );
+      const avatar = flutter_chat_ui.Avatar(userId: userId, size: 40);
 
       expect(avatar.userId, userId);
     });
@@ -168,10 +155,7 @@ void main() {
       const authorId = 'user123';
       const avatarUrl = 'https://example.com/avatar.jpg';
 
-      final user = User(
-        id: authorId,
-        imageSource: avatarUrl,
-      );
+      final user = User(id: authorId, imageSource: avatarUrl);
 
       // 验证 User 对象包含正确的头像信息
       expect(user.id, authorId);

@@ -60,8 +60,11 @@ void main() {
     test('save with empty list falls back to defaults on next load', () async {
       await service.save(uid, []);
       final list = await service.load(uid);
-      expect(list, defaults,
-          reason: 'empty saved list is meaningless; surface defaults');
+      expect(
+        list,
+        defaults,
+        reason: 'empty saved list is meaningless; surface defaults',
+      );
     });
 
     test('reset clears storage; next load yields defaults', () async {
@@ -212,8 +215,7 @@ void main() {
       final before = store.writes;
       await service.reorder(uid, 1, 1);
       expect(await service.load(uid), ['a', 'b', 'c']);
-      expect(store.writes, before,
-          reason: 'no-op reorder must not persist');
+      expect(store.writes, before, reason: 'no-op reorder must not persist');
     });
 
     test('out-of-range oldIndex is a no-op', () async {
@@ -226,8 +228,11 @@ void main() {
     test('out-of-range newIndex is clamped (safety)', () async {
       await service.save(uid, ['a', 'b', 'c']);
       await service.reorder(uid, 0, 999);
-      expect(await service.load(uid), ['b', 'c', 'a'],
-          reason: 'huge newIndex clamps to end of list');
+      expect(await service.load(uid), [
+        'b',
+        'c',
+        'a',
+      ], reason: 'huge newIndex clamps to end of list');
     });
 
     test('reorder on empty list is no-op', () async {
@@ -236,10 +241,7 @@ void main() {
       // load will return defaults (empty save → default fallback);
       // reorder must still not crash or persist garbage.
       await service.reorder(uid, 0, 1);
-      expect(
-        (await service.load(uid)).length,
-        greaterThanOrEqualTo(0),
-      );
+      expect((await service.load(uid)).length, greaterThanOrEqualTo(0));
     });
   });
 

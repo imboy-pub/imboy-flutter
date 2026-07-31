@@ -43,8 +43,11 @@ void main() {
         id: 'm3',
         text: '  spaced  ',
       );
-      expect(resolveCopyableText(msg), '  spaced  ',
-          reason: '复制内容应保留原始空白以便用户粘贴');
+      expect(
+        resolveCopyableText(msg),
+        '  spaced  ',
+        reason: '复制内容应保留原始空白以便用户粘贴',
+      );
     });
 
     test('text 为空字符串 → null', () {

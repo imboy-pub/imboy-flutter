@@ -43,10 +43,7 @@ void main() {
     });
 
     test('single increment 3 -> 4', () async {
-      await db.insert('channel_message', {
-        'id': 'msg-1',
-        'view_count': 3,
-      });
+      await db.insert('channel_message', {'id': 'msg-1', 'view_count': 3});
 
       final affected = await db.rawUpdate(_atomicIncrementSql, ['msg-1']);
 
@@ -60,24 +57,23 @@ void main() {
     });
 
     test('concurrent increments are not lost', () async {
-      await db.insert('channel_message', {
-        'id': 'msg-1',
-        'view_count': 0,
-      });
+      await db.insert('channel_message', {'id': 'msg-1', 'view_count': 0});
 
       // 并发 10 次曝光：原子 SQL 必须得到 view_count=10。
-      await Future.wait(List.generate(
-        10,
-        (_) => db.rawUpdate(_atomicIncrementSql, ['msg-1']),
-      ));
+      await Future.wait(
+        List.generate(10, (_) => db.rawUpdate(_atomicIncrementSql, ['msg-1'])),
+      );
 
       final rows = await db.query(
         'channel_message',
         where: 'id = ?',
         whereArgs: ['msg-1'],
       );
-      expect(rows.single['view_count'], 10,
-          reason: '10 次并发原子 +1 必须累加为 10；否则说明回退为非原子实现');
+      expect(
+        rows.single['view_count'],
+        10,
+        reason: '10 次并发原子 +1 必须累加为 10；否则说明回退为非原子实现',
+      );
     });
 
     test('returns 0 affected rows when message does not exist', () async {

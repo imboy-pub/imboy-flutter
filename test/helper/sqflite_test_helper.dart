@@ -16,27 +16,27 @@ void mockSqfliteSqlcipher() {
   const sqfliteChannel = MethodChannel('com.davidmartos96.sqflite_sqlcipher');
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(sqfliteChannel, (methodCall) async {
-    switch (methodCall.method) {
-      case 'getDatabasesPath':
-        return Directory.systemTemp.path;
-      case 'openDatabase':
-        return 1;
-      case 'closeDatabase':
-        return null;
-      case 'query':
-        return <Map<String, dynamic>>[];
-      case 'insert':
-        return 1;
-      case 'update':
-        return 0;
-      case 'execute':
-        return null;
-      case 'batch':
-        return <dynamic>[];
-      default:
-        return null;
-    }
-  });
+        switch (methodCall.method) {
+          case 'getDatabasesPath':
+            return Directory.systemTemp.path;
+          case 'openDatabase':
+            return 1;
+          case 'closeDatabase':
+            return null;
+          case 'query':
+            return <Map<String, dynamic>>[];
+          case 'insert':
+            return 1;
+          case 'update':
+            return 0;
+          case 'execute':
+            return null;
+          case 'batch':
+            return <dynamic>[];
+          default:
+            return null;
+        }
+      });
 
   // Mock flutter_secure_storage
   const secureStorageChannel = MethodChannel(
@@ -44,21 +44,21 @@ void mockSqfliteSqlcipher() {
   );
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(secureStorageChannel, (methodCall) async {
-    switch (methodCall.method) {
-      case 'read':
-        return null; // no stored value
-      case 'write':
-        return null;
-      case 'delete':
-        return null;
-      case 'deleteAll':
-        return null;
-      case 'readAll':
-        return <String, String>{};
-      case 'containsKey':
-        return false;
-      default:
-        return null;
-    }
-  });
+        switch (methodCall.method) {
+          case 'read':
+            return null; // no stored value
+          case 'write':
+            return null;
+          case 'delete':
+            return null;
+          case 'deleteAll':
+            return null;
+          case 'readAll':
+            return <String, String>{};
+          case 'containsKey':
+            return false;
+          default:
+            return null;
+        }
+      });
 }

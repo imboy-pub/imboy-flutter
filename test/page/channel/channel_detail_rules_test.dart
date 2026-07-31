@@ -15,12 +15,12 @@ import 'package:imboy/store/model/channel_message_model.dart';
 
 // ─── 辅助：快速构造 ChannelMessageModel（仅填 createdAt）────────────────────
 ChannelMessageModel _msgAt(DateTime dt) => ChannelMessageModel(
-      id: 0,
-      channelId: 1,
-      content: '',
-      msgType: 'channel_text',
-      createdAt: dt,
-    );
+  id: 0,
+  channelId: 1,
+  content: '',
+  msgType: 'channel_text',
+  createdAt: dt,
+);
 
 final _epoch = DateTime(2025, 1, 1);
 
@@ -30,15 +30,15 @@ ChannelModel _channel({
   bool isSubscribed = false,
   ChannelUserRole userRole = ChannelUserRole.none,
 }) => ChannelModel(
-      id: 1,
-      name: 'test',
-      type: type,
-      creatorId: 0,
-      createdAt: _epoch,
-      updatedAt: _epoch,
-      isSubscribed: isSubscribed,
-      userRole: userRole,
-    );
+  id: 1,
+  name: 'test',
+  type: type,
+  creatorId: 0,
+  createdAt: _epoch,
+  updatedAt: _epoch,
+  isSubscribed: isSubscribed,
+  userRole: userRole,
+);
 
 void main() {
   // ─── CD-1  isPaidChannelLocked ────────────────────────────────────────────
@@ -98,7 +98,10 @@ void main() {
     });
 
     test('相同日期的相邻消息 → 不显示', () {
-      expect(shouldShowDateDivider([_msgAt(day1), _msgAt(day1Later)], 1), isFalse);
+      expect(
+        shouldShowDateDivider([_msgAt(day1), _msgAt(day1Later)], 1),
+        isFalse,
+      );
     });
 
     test('跨天的相邻消息 → 显示', () {
@@ -129,8 +132,14 @@ void main() {
     test('999999 → "1000.0K"（K 区间上限）', () {
       expect(formatChannelNumber(999999), '1000.0K');
     });
-    test('1000000 → "1.0M"', () => expect(formatChannelNumber(1000000), '1.0M'));
-    test('2500000 → "2.5M"', () => expect(formatChannelNumber(2500000), '2.5M'));
+    test(
+      '1000000 → "1.0M"',
+      () => expect(formatChannelNumber(1000000), '1.0M'),
+    );
+    test(
+      '2500000 → "2.5M"',
+      () => expect(formatChannelNumber(2500000), '2.5M'),
+    );
   });
 
   // ─── CD-4  formatFileSize ─────────────────────────────────────────────────

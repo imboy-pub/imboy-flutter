@@ -72,7 +72,9 @@ void main() {
       final items = List.generate(9, (_) => <String, dynamic>{});
       expect(validateMediaSelection(items).ok, isTrue);
       expect(
-        validateMediaSelection(List.generate(10, (_) => <String, dynamic>{})).error,
+        validateMediaSelection(
+          List.generate(10, (_) => <String, dynamic>{}),
+        ).error,
         momentMediaErrorTooManyImages,
       );
     });

@@ -18,18 +18,17 @@ ChannelModel _ch({
   String? description,
   String? avatar,
   List<String>? tags,
-}) =>
-    ChannelModel(
-      id: 1,
-      name: name,
-      type: ChannelType.public,
-      creatorId: 0,
-      createdAt: _epoch,
-      updatedAt: _epoch,
-      description: description,
-      avatar: avatar,
-      tags: tags,
-    );
+}) => ChannelModel(
+  id: 1,
+  name: name,
+  type: ChannelType.public,
+  creatorId: 0,
+  createdAt: _epoch,
+  updatedAt: _epoch,
+  description: description,
+  avatar: avatar,
+  tags: tags,
+);
 
 void main() {
   // ─── CE-1  normalizeTags ────────────────────────────────────────────────────
@@ -47,8 +46,10 @@ void main() {
     });
 
     test('标签两端空白被 trim', () {
-      expect(normalizeTags(['  dart  ', 'flutter']),
-          containsAll(['dart', 'flutter']));
+      expect(
+        normalizeTags(['  dart  ', 'flutter']),
+        containsAll(['dart', 'flutter']),
+      );
     });
 
     test('重复标签去重', () {

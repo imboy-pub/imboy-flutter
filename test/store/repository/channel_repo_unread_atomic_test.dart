@@ -84,12 +84,14 @@ void main() {
         where: 'channel_id = ?',
         whereArgs: ['1001'],
       );
-      expect(rows.single['unread_count'], 7,
-          reason: '两次并发原子 +1 必须得到 +2；若观察到 +1 则说明回退为非原子实现');
+      expect(
+        rows.single['unread_count'],
+        7,
+        reason: '两次并发原子 +1 必须得到 +2；若观察到 +1 则说明回退为非原子实现',
+      );
     });
 
-    test('returns 0 affected rows when subscription does not exist',
-        () async {
+    test('returns 0 affected rows when subscription does not exist', () async {
       final affected = await db.rawUpdate(_atomicIncrementSql, ['9999']);
       expect(affected, 0);
     });

@@ -19,10 +19,13 @@ void main() {
     test('getSingleFile 应该支持 validateImageData 参数', () async {
       // 验证方法签名正确
       // 这个测试确保 getSingleFile 方法接受 validateImageData 参数
-      expect(() => cacheManager.getSingleFile(
-        'https://example.com/test.m4a',
-        validateImageData: false,
-      ), returnsNormally);
+      expect(
+        () => cacheManager.getSingleFile(
+          'https://example.com/test.m4a',
+          validateImageData: false,
+        ),
+        returnsNormally,
+      );
     });
 
     test('getSingleFile 默认验证图片数据', () async {
@@ -31,9 +34,10 @@ void main() {
 
       // 注意：这个测试只是验证方法签名和行为
       // 实际的网络请求应该在集成测试中完成
-      expect(() => cacheManager.getSingleFile(
-        'https://example.com/test.jpg',
-      ), returnsNormally);
+      expect(
+        () => cacheManager.getSingleFile('https://example.com/test.jpg'),
+        returnsNormally,
+      );
     });
 
     test('音频文件 URL 应该使用 validateImageData: false', () {
@@ -66,15 +70,19 @@ void main() {
 
     test('图片文件 URL 应该使用默认的 validateImageData: true', () {
       // 测试常见的图片文件扩展名
-      final imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
+      final imageExtensions = [
+        '.jpg',
+        '.jpeg',
+        '.png',
+        '.gif',
+        '.webp',
+        '.bmp',
+      ];
 
       for (final ext in imageExtensions) {
         final url = 'https://example.com/image$ext';
         // 验证图片文件使用默认的图片验证
-        expect(
-          cacheManager.getSingleFile(url),
-          isA<Future<File>>(),
-        );
+        expect(cacheManager.getSingleFile(url), isA<Future<File>>());
       }
     });
 
@@ -145,10 +153,7 @@ void main() {
       final cacheManager = IMBoyCacheManager();
 
       // 验证图片下载调用使用默认参数（验证图片格式）
-      expect(
-        () => cacheManager.getSingleFile(imageUrl),
-        returnsNormally,
-      );
+      expect(() => cacheManager.getSingleFile(imageUrl), returnsNormally);
     });
   });
 }

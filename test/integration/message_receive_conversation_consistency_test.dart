@@ -39,7 +39,10 @@ void main() {
     final data = merged.toJson();
     data.remove('id');
     await conversationRepo.updateById(oldObj.id, data);
-    return (await conversationRepo.findByPeerId(merged.type, merged.peerId.toString()))!;
+    return (await conversationRepo.findByPeerId(
+      merged.type,
+      merged.peerId.toString(),
+    ))!;
   }
 
   Future<ConversationModel> simulateReceiveAndSaveConversation({

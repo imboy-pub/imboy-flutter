@@ -44,7 +44,14 @@ void main() {
 
     test('public(0) → 陌生人也能看', () {
       final m = moment(authorUid: 'a', visibility: 0);
-      expect(canUserSeeMoment(viewerUid: 'stranger', moment: m, friendUids: const {}), isTrue);
+      expect(
+        canUserSeeMoment(
+          viewerUid: 'stranger',
+          moment: m,
+          friendUids: const {},
+        ),
+        isTrue,
+      );
     });
 
     test('friends(1) → 是好友可见', () {
@@ -72,13 +79,15 @@ void main() {
     });
 
     test('allowList(3) → 仅在 allow_uids 中可见', () {
-      final m = moment(
-        authorUid: 'a',
-        visibility: 3,
-        allowUids: const ['b'],
+      final m = moment(authorUid: 'a', visibility: 3, allowUids: const ['b']);
+      expect(
+        canUserSeeMoment(viewerUid: 'b', moment: m, friendUids: const {'b'}),
+        isTrue,
       );
-      expect(canUserSeeMoment(viewerUid: 'b', moment: m, friendUids: const {'b'}), isTrue);
-      expect(canUserSeeMoment(viewerUid: 'c', moment: m, friendUids: const {'c'}), isFalse);
+      expect(
+        canUserSeeMoment(viewerUid: 'c', moment: m, friendUids: const {'c'}),
+        isFalse,
+      );
     });
 
     test('denyList(4) → 是好友 且 不在 deny_uids 中可见', () {
@@ -103,7 +112,11 @@ void main() {
       );
       // 非好友 → 不可见（仅黑名单仍要求是好友圈以内）
       expect(
-        canUserSeeMoment(viewerUid: 'stranger', moment: m, friendUids: const {}),
+        canUserSeeMoment(
+          viewerUid: 'stranger',
+          moment: m,
+          friendUids: const {},
+        ),
         isFalse,
       );
     });
@@ -111,8 +124,14 @@ void main() {
     test('未登录 viewer（空 uid）→ 仅 public 可见', () {
       final pub = moment(authorUid: 'a', visibility: 0);
       final friends = moment(authorUid: 'a', visibility: 1);
-      expect(canUserSeeMoment(viewerUid: '', moment: pub, friendUids: const {}), isTrue);
-      expect(canUserSeeMoment(viewerUid: '', moment: friends, friendUids: const {}), isFalse);
+      expect(
+        canUserSeeMoment(viewerUid: '', moment: pub, friendUids: const {}),
+        isTrue,
+      );
+      expect(
+        canUserSeeMoment(viewerUid: '', moment: friends, friendUids: const {}),
+        isFalse,
+      );
     });
 
     test('未知 visibility → 走 friends 安全默认（与 parseMomentVisibility 对齐）', () {
@@ -121,13 +140,22 @@ void main() {
         'visibility': 99, // 未知
       };
       // 走 friends 默认：好友可见、陌生人不可见
-      expect(canUserSeeMoment(viewerUid: 'b', moment: raw, friendUids: const {'b'}), isTrue);
-      expect(canUserSeeMoment(viewerUid: 'b', moment: raw, friendUids: const {'c'}), isFalse);
+      expect(
+        canUserSeeMoment(viewerUid: 'b', moment: raw, friendUids: const {'b'}),
+        isTrue,
+      );
+      expect(
+        canUserSeeMoment(viewerUid: 'b', moment: raw, friendUids: const {'c'}),
+        isFalse,
+      );
     });
 
     test('author_uid 缺失 → 一律不可见（脏数据保守拒绝）', () {
       final m = <String, dynamic>{'visibility': 0};
-      expect(canUserSeeMoment(viewerUid: 'b', moment: m, friendUids: const {}), isFalse);
+      expect(
+        canUserSeeMoment(viewerUid: 'b', moment: m, friendUids: const {}),
+        isFalse,
+      );
     });
   });
 }

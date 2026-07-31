@@ -115,15 +115,18 @@ void main() {
       expect(info.hasUpdate, isFalse);
     });
 
-    test('updatable=false 时 hasUpdate=false / hasUpdate false when updatable=false', () {
-      final info = AppVersionInfo.fromJson({
-        'vsn': '2.0.0',
-        'upgrade_type': 'recommend',
-        'updatable': false,
-      });
+    test(
+      'updatable=false 时 hasUpdate=false / hasUpdate false when updatable=false',
+      () {
+        final info = AppVersionInfo.fromJson({
+          'vsn': '2.0.0',
+          'upgrade_type': 'recommend',
+          'updatable': false,
+        });
 
-      expect(info.hasUpdate, isFalse);
-    });
+        expect(info.hasUpdate, isFalse);
+      },
+    );
 
     test('解析结构化 changelog / parses structured changelog', () {
       final info = AppVersionInfo.fromJson({
@@ -277,10 +280,7 @@ void main() {
     });
 
     test('没有 changelog 时降级到 description / fallback to description', () {
-      final info = _makeInfo(
-        changelog: [],
-        description: '修复若干问题并优化性能',
-      );
+      final info = _makeInfo(changelog: [], description: '修复若干问题并优化性能');
 
       final text = UpgradeStrategy.buildChangelogText(info);
       expect(text, '修复若干问题并优化性能');
@@ -302,39 +302,98 @@ void main() {
   group('UpgradeStrategy.shouldPrompt', () {
     test('force 升级始终提示 / force always prompts', () {
       final info = _makeInfo(upgradeType: 'force', updatable: true);
-      expect(UpgradeStrategy.shouldPrompt(info, isDismissed: false, fromManual: false), isTrue);
-      expect(UpgradeStrategy.shouldPrompt(info, isDismissed: true, fromManual: false), isTrue);
+      expect(
+        UpgradeStrategy.shouldPrompt(
+          info,
+          isDismissed: false,
+          fromManual: false,
+        ),
+        isTrue,
+      );
+      expect(
+        UpgradeStrategy.shouldPrompt(
+          info,
+          isDismissed: true,
+          fromManual: false,
+        ),
+        isTrue,
+      );
     });
 
     test('recommend 未忽略时提示 / recommend prompts when not dismissed', () {
       final info = _makeInfo(upgradeType: 'recommend', updatable: true);
-      expect(UpgradeStrategy.shouldPrompt(info, isDismissed: false, fromManual: false), isTrue);
+      expect(
+        UpgradeStrategy.shouldPrompt(
+          info,
+          isDismissed: false,
+          fromManual: false,
+        ),
+        isTrue,
+      );
     });
 
     test('recommend 已忽略时不提示 / recommend suppressed when dismissed', () {
       final info = _makeInfo(upgradeType: 'recommend', updatable: true);
-      expect(UpgradeStrategy.shouldPrompt(info, isDismissed: true, fromManual: false), isFalse);
+      expect(
+        UpgradeStrategy.shouldPrompt(
+          info,
+          isDismissed: true,
+          fromManual: false,
+        ),
+        isFalse,
+      );
     });
 
     test('recommend 手动触发时忽略 dismissed 标记 / manual overrides dismissed', () {
       final info = _makeInfo(upgradeType: 'recommend', updatable: true);
-      expect(UpgradeStrategy.shouldPrompt(info, isDismissed: true, fromManual: true), isTrue);
+      expect(
+        UpgradeStrategy.shouldPrompt(info, isDismissed: true, fromManual: true),
+        isTrue,
+      );
     });
 
     test('silent 始终不提示 / silent never prompts', () {
       final info = _makeInfo(upgradeType: 'silent', updatable: true);
-      expect(UpgradeStrategy.shouldPrompt(info, isDismissed: false, fromManual: false), isFalse);
-      expect(UpgradeStrategy.shouldPrompt(info, isDismissed: false, fromManual: true), isFalse);
+      expect(
+        UpgradeStrategy.shouldPrompt(
+          info,
+          isDismissed: false,
+          fromManual: false,
+        ),
+        isFalse,
+      );
+      expect(
+        UpgradeStrategy.shouldPrompt(
+          info,
+          isDismissed: false,
+          fromManual: true,
+        ),
+        isFalse,
+      );
     });
 
     test('none 不提示 / none does not prompt', () {
       final info = _makeInfo(upgradeType: 'none', updatable: false);
-      expect(UpgradeStrategy.shouldPrompt(info, isDismissed: false, fromManual: false), isFalse);
+      expect(
+        UpgradeStrategy.shouldPrompt(
+          info,
+          isDismissed: false,
+          fromManual: false,
+        ),
+        isFalse,
+      );
     });
 
     test('没有更新时不提示 / no prompt when no update', () {
       final info = _makeInfo(upgradeType: 'force', updatable: false);
-      expect(UpgradeStrategy.shouldPrompt(info, isDismissed: false, fromManual: false), isFalse);
+      expect(
+        UpgradeStrategy.shouldPrompt(
+          info,
+          isDismissed: false,
+          fromManual: false,
+        ),
+        isFalse,
+      );
     });
   });
 
@@ -367,8 +426,9 @@ void main() {
     test('dismiss 超过 24 小时后 isDismissed 返回 false / expired after 24h', () {
       // 手动设置一个 25 小时前的时间戳
       // Manually set a timestamp 25 hours ago
-      final twentyFiveHoursAgo =
-          DateTime.now().subtract(const Duration(hours: 25)).millisecondsSinceEpoch;
+      final twentyFiveHoursAgo = DateTime.now()
+          .subtract(const Duration(hours: 25))
+          .millisecondsSinceEpoch;
       fakeStorage.setString(AppUpgradeDismissState.dismissedVsnKey, '2.0.0');
       fakeStorage.setString(
         AppUpgradeDismissState.lastCheckTimeKey,
@@ -379,8 +439,9 @@ void main() {
     });
 
     test('dismiss 24 小时内 isDismissed 返回 true / within 24h stays dismissed', () {
-      final oneHourAgo =
-          DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch;
+      final oneHourAgo = DateTime.now()
+          .subtract(const Duration(hours: 1))
+          .millisecondsSinceEpoch;
       fakeStorage.setString(AppUpgradeDismissState.dismissedVsnKey, '2.0.0');
       fakeStorage.setString(
         AppUpgradeDismissState.lastCheckTimeKey,

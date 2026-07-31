@@ -63,8 +63,11 @@ void main() {
         'role': 3,
       });
       expect(c.userId, 'u_1');
-      expect(c.displayName, 'GroupAlias',
-          reason: 'alias 非空时优先使用 alias，与 nickname 无关');
+      expect(
+        c.displayName,
+        'GroupAlias',
+        reason: 'alias 非空时优先使用 alias，与 nickname 无关',
+      );
       expect(c.avatar, 'http://a/x.jpg');
       expect(c.role, 3);
       expect(c.isAllMention, isFalse);
@@ -93,15 +96,17 @@ void main() {
   });
 
   group('MentionCandidate role getters', () {
-    test('admin (3) / owner (4) / vice_owner (5) → isAdmin/showRoleBadge true',
-        () {
-      expect(admin.isAdmin, isTrue);
-      expect(owner.isAdmin, isTrue);
-      expect(viceOwner.isAdmin, isTrue);
-      expect(admin.showRoleBadge, isTrue);
-      expect(owner.showRoleBadge, isTrue);
-      expect(viceOwner.showRoleBadge, isTrue);
-    });
+    test(
+      'admin (3) / owner (4) / vice_owner (5) → isAdmin/showRoleBadge true',
+      () {
+        expect(admin.isAdmin, isTrue);
+        expect(owner.isAdmin, isTrue);
+        expect(viceOwner.isAdmin, isTrue);
+        expect(admin.showRoleBadge, isTrue);
+        expect(owner.showRoleBadge, isTrue);
+        expect(viceOwner.showRoleBadge, isTrue);
+      },
+    );
 
     test('member (1) / guest (2) → isAdmin/showRoleBadge false', () {
       expect(member.isAdmin, isFalse);
@@ -150,10 +155,8 @@ void main() {
       const m0 = MentionData();
       final m1 = m0.addMention('u_1', 0, 5);
       final m2 = m1.addMention('u_1', 10, 15);
-      expect(m2.mentionIds, ['u_1'],
-          reason: 'mentionIds 是去重集合（同一用户只算一次）');
-      expect(m2.ranges.length, 2,
-          reason: 'ranges 是每次插入的位置元组，可重复');
+      expect(m2.mentionIds, ['u_1'], reason: 'mentionIds 是去重集合（同一用户只算一次）');
+      expect(m2.ranges.length, 2, reason: 'ranges 是每次插入的位置元组，可重复');
     });
 
     test('返回新对象（不可变性）', () {
@@ -172,8 +175,9 @@ void main() {
       final m2 = m1.removeRange(0, 5);
       expect(m2.ranges.length, 1);
       expect(m2.ranges.first.userId, 'u_2');
-      expect(m2.mentionIds, ['u_2'],
-          reason: '所属 range 全删后，对应 userId 也从 mentionIds 移除');
+      expect(m2.mentionIds, [
+        'u_2',
+      ], reason: '所属 range 全删后，对应 userId 也从 mentionIds 移除');
     });
 
     test('userId 仍有其他 range → mentionIds 保留', () {
@@ -181,8 +185,9 @@ void main() {
       final m1 = m0.addMention('u_1', 0, 5).addMention('u_1', 10, 15);
       final m2 = m1.removeRange(0, 5);
       expect(m2.ranges.length, 1);
-      expect(m2.mentionIds, ['u_1'],
-          reason: 'u_1 还有 (10,15) range，不应被移出 mentionIds');
+      expect(m2.mentionIds, [
+        'u_1',
+      ], reason: 'u_1 还有 (10,15) range，不应被移出 mentionIds');
     });
 
     test('不匹配的 (start,end) → 原状返回（新对象）', () {
@@ -242,8 +247,7 @@ void main() {
   group('MentionData json roundtrip', () {
     test('toJson + fromJson 还原到同等内容', () {
       const m0 = MentionData();
-      final m1 =
-          m0.addMention('u_1', 0, 5).addMention('all', 6, 10);
+      final m1 = m0.addMention('u_1', 0, 5).addMention('all', 6, 10);
       final j = m1.toJson();
       final restored = MentionData.fromJson(j);
       expect(restored.mentionIds, m1.mentionIds);
@@ -366,15 +370,11 @@ void main() {
       // 排除自己（admin），剩下 [member, guest]，再用 keyword='a' 过滤
       // → Guest 含 'a'（小写后 "guest" 不含 'a'）；
       //   "member" 不含 'a'。结果应为空。
-      expect(got, isEmpty,
-          reason: 'admin 自己被排除，member/guest 都不含小写 a');
+      expect(got, isEmpty, reason: 'admin 自己被排除，member/guest 都不含小写 a');
     });
 
     test('keyword 不匹配任何候选 → 空列表', () {
-      const s = MentionState(
-        candidates: [admin, member],
-        keyword: 'zzz_nope',
-      );
+      const s = MentionState(candidates: [admin, member], keyword: 'zzz_nope');
       expect(s.filteredCandidates, isEmpty);
     });
   });
@@ -403,10 +403,16 @@ void main() {
 
     test('member/guest/unknown → bg 走 surface，fg 走 onSurfaceVariant', () {
       for (final role in [0, 1, 2, 99]) {
-        expect(groupRoleBgColor(role, colorScheme), colorScheme.surface,
-            reason: 'role=$role 应走默认 surface');
-        expect(groupRoleFgColor(role, colorScheme), colorScheme.onSurfaceVariant,
-            reason: 'role=$role 应走默认 onSurfaceVariant');
+        expect(
+          groupRoleBgColor(role, colorScheme),
+          colorScheme.surface,
+          reason: 'role=$role 应走默认 surface',
+        );
+        expect(
+          groupRoleFgColor(role, colorScheme),
+          colorScheme.onSurfaceVariant,
+          reason: 'role=$role 应走默认 onSurfaceVariant',
+        );
       }
     });
   });
@@ -429,8 +435,7 @@ void main() {
     test('role 1 / 0 / unknown → 空字符串', () {
       expect(groupRoleLabel(1), '');
       expect(groupRoleLabel(0), '');
-      expect(groupRoleLabel(5), '',
-          reason: '副群主(5) 当前没有专属 label，返回空');
+      expect(groupRoleLabel(5), '', reason: '副群主(5) 当前没有专属 label，返回空');
       expect(groupRoleLabel(99), '');
     });
   });

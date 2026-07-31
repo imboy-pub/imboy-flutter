@@ -192,8 +192,11 @@ void main() {
         contactBadgeCount: 999,
         channelBadgeCount: 999,
       );
-      expect(items[kWebNavTabMine].badgeCount, 0,
-          reason: 'mine tab 不应显示 unread badge');
+      expect(
+        items[kWebNavTabMine].badgeCount,
+        0,
+        reason: 'mine tab 不应显示 unread badge',
+      );
     });
   });
 

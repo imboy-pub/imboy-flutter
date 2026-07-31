@@ -15,7 +15,14 @@ void main() {
 
     test('parses ISO 8601 string', () {
       final result = DateTimeHelper.parseTimestamp('2026-04-04T12:00:00Z');
-      final expected = DateTime.utc(2026, 4, 4, 12, 0, 0).millisecondsSinceEpoch;
+      final expected = DateTime.utc(
+        2026,
+        4,
+        4,
+        12,
+        0,
+        0,
+      ).millisecondsSinceEpoch;
       expect(result, expected);
     });
 
@@ -79,13 +86,32 @@ void main() {
 
   group('DateTimeHelper.rfc3339ToMillisecond', () {
     test('converts RFC3339 to milliseconds', () {
-      final expected = DateTime.utc(2026, 4, 4, 12, 0, 0).millisecondsSinceEpoch;
-      expect(DateTimeHelper.rfc3339ToMillisecond('2026-04-04T12:00:00Z'), expected);
+      final expected = DateTime.utc(
+        2026,
+        4,
+        4,
+        12,
+        0,
+        0,
+      ).millisecondsSinceEpoch;
+      expect(
+        DateTimeHelper.rfc3339ToMillisecond('2026-04-04T12:00:00Z'),
+        expected,
+      );
     });
 
     test('handles timezone offset in RFC3339', () {
-      final result = DateTimeHelper.rfc3339ToMillisecond('2026-04-04T20:00:00+08:00');
-      final expected = DateTime.utc(2026, 4, 4, 12, 0, 0).millisecondsSinceEpoch;
+      final result = DateTimeHelper.rfc3339ToMillisecond(
+        '2026-04-04T20:00:00+08:00',
+      );
+      final expected = DateTime.utc(
+        2026,
+        4,
+        4,
+        12,
+        0,
+        0,
+      ).millisecondsSinceEpoch;
       expect(result, expected);
     });
   });
@@ -135,7 +161,10 @@ void main() {
 
     test('formats with custom pattern', () {
       final seconds = DateTime(2026, 4, 4).millisecondsSinceEpoch ~/ 1000;
-      final result = DateTimeHelper.formatDateTime(seconds, pattern: 'yyyy/MM/dd');
+      final result = DateTimeHelper.formatDateTime(
+        seconds,
+        pattern: 'yyyy/MM/dd',
+      );
       expect(result, '2026/04/04');
     });
   });

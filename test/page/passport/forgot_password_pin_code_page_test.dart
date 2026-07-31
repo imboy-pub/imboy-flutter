@@ -24,17 +24,18 @@ import 'package:imboy/page/passport/widget/passport_title.dart';
 ///   - "设置密码" ElevatedButton (setParam(param: password))
 ///   - "重发验证码" (resendCode) 按钮
 ///   - "登录" 链接 → /sign_in
-GoRouter _stubRouter({String account = 'user@example.com', String accountType = 'email'}) {
+GoRouter _stubRouter({
+  String account = 'user@example.com',
+  String accountType = 'email',
+}) {
   Widget stub(String label) => Scaffold(body: Center(child: Text(label)));
   return GoRouter(
     initialLocation: '/pin_code',
     routes: [
       GoRoute(
         path: '/pin_code',
-        builder: (_, _) => PinCodeVerificationPage(
-          account: account,
-          accountType: accountType,
-        ),
+        builder: (_, _) =>
+            PinCodeVerificationPage(account: account, accountType: accountType),
       ),
       GoRoute(path: '/sign_in', builder: (_, _) => stub('sign_in stub')),
     ],
@@ -58,10 +59,7 @@ Future<void> _pump(
     ProviderScope(
       child: TranslationProvider(
         child: MaterialApp.router(
-          routerConfig: _stubRouter(
-            account: account,
-            accountType: accountType,
-          ),
+          routerConfig: _stubRouter(account: account, accountType: accountType),
         ),
       ),
     ),
@@ -99,11 +97,7 @@ void main() {
     });
 
     testWidgets('email 类型 → RichText 含 "验证码已发送到邮箱" + 账号', (tester) async {
-      await _pump(
-        tester,
-        account: 'alice@example.com',
-        accountType: 'email',
-      );
+      await _pump(tester, account: 'alice@example.com', accountType: 'email');
 
       // codeSentToEmail + account 拼接在 RichText/TextSpan 中
       expect(
@@ -122,18 +116,13 @@ void main() {
     });
 
     testWidgets('mobile 类型 → RichText 含 "验证码已发送到手机" + 手机号', (tester) async {
-      await _pump(
-        tester,
-        account: '13800138000',
-        accountType: 'mobile',
-      );
+      await _pump(tester, account: '13800138000', accountType: 'mobile');
 
       expect(
         find.byWidgetPredicate((w) {
           if (w is RichText) {
             final txt = w.text.toPlainText();
-            return txt.contains('验证码已发送到手机') &&
-                txt.contains('13800138000');
+            return txt.contains('验证码已发送到手机') && txt.contains('13800138000');
           }
           return false;
         }),
@@ -158,8 +147,9 @@ void main() {
       await _pump(tester);
 
       expect(find.byType(MaterialPinField), findsOneWidget);
-      final pinField =
-          tester.widget<MaterialPinField>(find.byType(MaterialPinField));
+      final pinField = tester.widget<MaterialPinField>(
+        find.byType(MaterialPinField),
+      );
       expect(pinField.length, 6);
 
       await _unmount(tester);
@@ -214,8 +204,7 @@ void main() {
   });
 
   group('PinCodeVerificationPage validation', () {
-    testWidgets('输入不足 6 位时 tap "设置密码" → 触发 hasError 显示提示',
-        (tester) async {
+    testWidgets('输入不足 6 位时 tap "设置密码" → 触发 hasError 显示提示', (tester) async {
       await _pump(tester);
 
       // 直接 tap "设置密码"，currentText 为空 → 进入 hasError 分支

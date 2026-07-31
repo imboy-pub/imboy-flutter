@@ -30,11 +30,7 @@ void main() {
     test('在窗口内 → true', () {
       final msg = _msg(authorId: 'me', createdAtMs: _now - 30 * 1000);
       expect(
-        canShowRecallAction(
-          message: msg,
-          currentUserId: 'me',
-          nowMs: _now,
-        ),
+        canShowRecallAction(message: msg, currentUserId: 'me', nowMs: _now),
         isTrue,
       );
     });

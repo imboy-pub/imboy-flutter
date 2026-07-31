@@ -31,7 +31,8 @@ void main() {
     }) {
       return handleGroupMemberRoleS2C(
         payload: payload,
-        applyRoleUpdate: applyRoleUpdate ??
+        applyRoleUpdate:
+            applyRoleUpdate ??
             (gid, userId, role, updatedAt) async =>
                 applyCalls.add((gid, userId, role, updatedAt)),
         fireEvent: fireCalls.add,
@@ -62,10 +63,7 @@ void main() {
       await run({'gid': 1, 'user_id': 2, 'role': 99});
       expect(applyCalls, isEmpty);
       expect(fireCalls, isEmpty);
-      expect(
-        logs.any((l) => l.contains('invalid_role')),
-        isTrue,
-      );
+      expect(logs.any((l) => l.contains('invalid_role')), isTrue);
     });
 
     test('非法 payload（invalid_user_id）→ 两个回调都不调用', () async {
@@ -84,10 +82,7 @@ void main() {
 
       expect(applyCalls, isEmpty);
       expect(fireCalls, hasLength(1), reason: '广播不应被本地写失败拖垮');
-      expect(
-        logs.any((l) => l.contains('apply_failed')),
-        isTrue,
-      );
+      expect(logs.any((l) => l.contains('apply_failed')), isTrue);
     });
 
     test('updated_at 为 0（后端未带）→ applyRoleUpdate 仍接收到 0', () async {

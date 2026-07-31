@@ -19,10 +19,7 @@ void main() {
         'session_id': 'session-abc',
         'payload': {
           'media': 'video',
-          'sd': {
-            'sdp': 'test-sdp',
-            'type': 'offer',
-          },
+          'sd': {'sdp': 'test-sdp', 'type': 'offer'},
         },
       };
 
@@ -75,15 +72,9 @@ void main() {
         timestamp: 0,
       );
 
-      expect(
-        offerModel.messagePriority,
-        equals(WebRTCMessagePriority.high),
-      );
+      expect(offerModel.messagePriority, equals(WebRTCMessagePriority.high));
 
-      expect(
-        byeModel.messagePriority,
-        equals(WebRTCMessagePriority.urgent),
-      );
+      expect(byeModel.messagePriority, equals(WebRTCMessagePriority.urgent));
     });
 
     test('should check if requires ACK', () {
@@ -226,10 +217,7 @@ void main() {
     });
 
     test('should check if error is retryable', () {
-      expect(
-        WebRTCErrorCode.isRetryable(WebRTCErrorCode.networkError),
-        isTrue,
-      );
+      expect(WebRTCErrorCode.isRetryable(WebRTCErrorCode.networkError), isTrue);
 
       expect(
         WebRTCErrorCode.isRetryable(WebRTCErrorCode.permissionDenied),
@@ -238,15 +226,9 @@ void main() {
     });
 
     test('should check if error is fatal', () {
-      expect(
-        WebRTCErrorCode.isFatal(WebRTCErrorCode.permissionDenied),
-        isTrue,
-      );
+      expect(WebRTCErrorCode.isFatal(WebRTCErrorCode.permissionDenied), isTrue);
 
-      expect(
-        WebRTCErrorCode.isFatal(WebRTCErrorCode.networkError),
-        isFalse,
-      );
+      expect(WebRTCErrorCode.isFatal(WebRTCErrorCode.networkError), isFalse);
     });
   });
 

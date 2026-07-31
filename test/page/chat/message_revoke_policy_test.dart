@@ -85,19 +85,11 @@ void main() {
       // use createdAtMs > 0 to avoid the "bad data" defensive branch
       const t0 = 1_000_000;
       expect(
-        canRevokeMessage(
-          createdAtMs: t0,
-          nowMs: t0 + 60_000,
-          windowMs: 60_000,
-        ),
+        canRevokeMessage(createdAtMs: t0, nowMs: t0 + 60_000, windowMs: 60_000),
         isTrue,
       );
       expect(
-        canRevokeMessage(
-          createdAtMs: t0,
-          nowMs: t0 + 60_001,
-          windowMs: 60_000,
-        ),
+        canRevokeMessage(createdAtMs: t0, nowMs: t0 + 60_001, windowMs: 60_000),
         isFalse,
       );
     });

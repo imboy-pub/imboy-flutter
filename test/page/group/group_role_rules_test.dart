@@ -34,9 +34,12 @@ void main() {
       expect(isGroupAdmin(-1), isFalse);
     });
 
-    test('role=6 (future unknown) is not admin — whitelist prevents accidental grant', () {
-      expect(isGroupAdmin(6), isFalse);
-    });
+    test(
+      'role=6 (future unknown) is not admin — whitelist prevents accidental grant',
+      () {
+        expect(isGroupAdmin(6), isFalse);
+      },
+    );
   });
 
   group('isGroupOwner', () {

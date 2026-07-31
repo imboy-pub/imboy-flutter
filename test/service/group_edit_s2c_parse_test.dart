@@ -33,10 +33,7 @@ void main() {
     });
 
     test('gid 为数字 String → 正确强转 int', () {
-      final r = parseGroupEditPayload({
-        'gid': '456',
-        'title': 'hello',
-      });
+      final r = parseGroupEditPayload({'gid': '456', 'title': 'hello'});
       expect(r, isA<GroupEditPayload>());
       expect((r as GroupEditPayload).gid, 456);
     });

@@ -76,8 +76,7 @@ void main() {
 
       final rows = await _queryPinned(db, 'ch-1', limit: 100);
 
-      expect(rows, hasLength(100),
-          reason: '默认 limit=100 必须截断大量置顶消息');
+      expect(rows, hasLength(100), reason: '默认 limit=100 必须截断大量置顶消息');
       // 排序：最新 created_at 优先
       expect(rows.first['id'], 'msg-249');
     });

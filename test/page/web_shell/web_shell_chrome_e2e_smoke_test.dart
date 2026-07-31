@@ -20,10 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/chat_panel.dart';
 import 'package:imboy/page/web_shell/web_shell.dart';
 
-const _kMessageTab = Center(
-  key: ValueKey('msg-tab'),
-  child: Text('MSG_TAB'),
-);
+const _kMessageTab = Center(key: ValueKey('msg-tab'), child: Text('MSG_TAB'));
 const _kContactTab = Center(
   key: ValueKey('contact-tab'),
   child: Text('CON_TAB'),
@@ -32,10 +29,7 @@ const _kChannelTab = Center(
   key: ValueKey('channel-tab'),
   child: Text('CH_TAB'),
 );
-const _kMineTab = Center(
-  key: ValueKey('mine-tab'),
-  child: Text('MINE_TAB'),
-);
+const _kMineTab = Center(key: ValueKey('mine-tab'), child: Text('MINE_TAB'));
 
 /// 模拟 web_shell_bootstrap.dart `_SimpleWebInput`：禁用 TextField + 禁用发送按钮。
 /// 与生产代码完全等价（只是 ValueKey 标识便于断言）。
@@ -110,14 +104,18 @@ Future<ProviderContainer> _pumpShell(
                 container.read(webShellProvider.notifier).clearSelection(),
             inputArea: const _DisabledInputArea(),
           ),
-          contactBuilder: (sel) =>
-              Center(key: const ValueKey('contact-panel'), child: Text('CONT:${sel.uid}')),
+          contactBuilder: (sel) => Center(
+            key: const ValueKey('contact-panel'),
+            child: Text('CONT:${sel.uid}'),
+          ),
           channelBuilder: (sel) => Center(
-              key: const ValueKey('channel-panel'),
-              child: Text('CHA:${sel.channelId}')),
+            key: const ValueKey('channel-panel'),
+            child: Text('CHA:${sel.channelId}'),
+          ),
           mineBuilder: (sel) => Center(
-              key: const ValueKey('mine-panel'),
-              child: Text('MINE:${sel.section ?? "ov"}')),
+            key: const ValueKey('mine-panel'),
+            child: Text('MINE:${sel.section ?? "ov"}'),
+          ),
           mobileFallback: const Material(
             key: ValueKey('mobile-fallback'),
             child: Center(child: Text('MOBILE')),
@@ -140,12 +138,13 @@ void main() {
       expect(find.byType(ChatPanel), findsNothing);
     });
 
-    testWidgets('selectItem(ChatSelection) → 右栏渲染真实 ChatPanel header',
-        (tester) async {
+    testWidgets('selectItem(ChatSelection) → 右栏渲染真实 ChatPanel header', (
+      tester,
+    ) async {
       final container = await _pumpShell(tester);
-      container.read(webShellProvider.notifier).selectItem(
-            const ChatSelection(peerId: 'u-001', chatType: 'C2C'),
-          );
+      container
+          .read(webShellProvider.notifier)
+          .selectItem(const ChatSelection(peerId: 'u-001', chatType: 'C2C'));
       await tester.pump();
 
       expect(find.byType(ChatPanel), findsOneWidget);
@@ -156,30 +155,41 @@ void main() {
       expect(find.text('WelcomeTitle'), findsNothing);
     });
 
-    testWidgets('ChatPanel 当前阶段：输入框禁用 + 发送按钮禁用（钉死 Phase 2.1.c TODO）',
-        (tester) async {
+    testWidgets('ChatPanel 当前阶段：输入框禁用 + 发送按钮禁用（钉死 Phase 2.1.c TODO）', (
+      tester,
+    ) async {
       final container = await _pumpShell(tester);
-      container.read(webShellProvider.notifier).selectItem(
-            const ChatSelection(peerId: 'u-002', chatType: 'C2C'),
-          );
+      container
+          .read(webShellProvider.notifier)
+          .selectItem(const ChatSelection(peerId: 'u-002', chatType: 'C2C'));
       await tester.pump();
 
       final textField = tester.widget<TextField>(
         find.byKey(const ValueKey('disabled-text-field')),
       );
-      expect(textField.enabled, isFalse, reason: 'TextField 必须禁用，等 Phase 2.1.c 接 ChatInput');
+      expect(
+        textField.enabled,
+        isFalse,
+        reason: 'TextField 必须禁用，等 Phase 2.1.c 接 ChatInput',
+      );
 
       final sendBtn = tester.widget<IconButton>(
         find.byKey(const ValueKey('disabled-send-btn')),
       );
-      expect(sendBtn.onPressed, isNull, reason: '发送按钮必须禁用，等 Phase 2.1.c 接 ChatInput');
+      expect(
+        sendBtn.onPressed,
+        isNull,
+        reason: '发送按钮必须禁用，等 Phase 2.1.c 接 ChatInput',
+      );
     });
 
-    testWidgets('点击 ChatPanel close → clearSelection 回 welcome', (tester) async {
+    testWidgets('点击 ChatPanel close → clearSelection 回 welcome', (
+      tester,
+    ) async {
       final container = await _pumpShell(tester);
-      container.read(webShellProvider.notifier).selectItem(
-            const ChatSelection(peerId: 'u-003', chatType: 'C2C'),
-          );
+      container
+          .read(webShellProvider.notifier)
+          .selectItem(const ChatSelection(peerId: 'u-003', chatType: 'C2C'));
       await tester.pump();
       expect(find.byType(ChatPanel), findsOneWidget);
 
@@ -191,12 +201,13 @@ void main() {
       expect(container.read(webShellProvider).selectedItem, isNull);
     });
 
-    testWidgets('选中聊天后切 Tab 1 → selection 清空，回 welcome（跨 Tab 串扰防护）',
-        (tester) async {
+    testWidgets('选中聊天后切 Tab 1 → selection 清空，回 welcome（跨 Tab 串扰防护）', (
+      tester,
+    ) async {
       final container = await _pumpShell(tester);
-      container.read(webShellProvider.notifier).selectItem(
-            const ChatSelection(peerId: 'u-004', chatType: 'C2C'),
-          );
+      container
+          .read(webShellProvider.notifier)
+          .selectItem(const ChatSelection(peerId: 'u-004', chatType: 'C2C'));
       await tester.pump();
       expect(find.byType(ChatPanel), findsOneWidget);
 

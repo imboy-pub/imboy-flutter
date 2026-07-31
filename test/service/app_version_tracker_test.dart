@@ -93,19 +93,13 @@ void main() {
   group('AppVersionTracker.commit', () {
     test('commit 后 lastRunVsn 更新为当前版本 / commit persists currentVsn', () {
       tracker.commit(vsn: '2.1.0');
-      expect(
-        fakeStorage.getString(AppVersionTracker.lastRunVsnKey),
-        '2.1.0',
-      );
+      expect(fakeStorage.getString(AppVersionTracker.lastRunVsnKey), '2.1.0');
     });
 
     test('连续两次 commit 保存最新版本 / successive commits update to latest', () {
       tracker.commit(vsn: '1.0.0');
       tracker.commit(vsn: '2.0.0');
-      expect(
-        fakeStorage.getString(AppVersionTracker.lastRunVsnKey),
-        '2.0.0',
-      );
+      expect(fakeStorage.getString(AppVersionTracker.lastRunVsnKey), '2.0.0');
     });
   });
 
@@ -144,19 +138,13 @@ void main() {
 
       expect(result.transition, VersionTransition.upgraded);
       // 提交后存储已更新
-      expect(
-        fakeStorage.getString(AppVersionTracker.lastRunVsnKey),
-        '2.0.0',
-      );
+      expect(fakeStorage.getString(AppVersionTracker.lastRunVsnKey), '2.0.0');
     });
 
     test('firstLaunch 时 detectAndCommit 也持久化版本', () {
       final result = tracker.detectAndCommit(currentVsn: '1.0.0');
       expect(result.transition, VersionTransition.firstLaunch);
-      expect(
-        fakeStorage.getString(AppVersionTracker.lastRunVsnKey),
-        '1.0.0',
-      );
+      expect(fakeStorage.getString(AppVersionTracker.lastRunVsnKey), '1.0.0');
     });
   });
 }

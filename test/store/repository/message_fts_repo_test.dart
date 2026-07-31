@@ -49,10 +49,7 @@ void main() {
     });
 
     test('voice 消息返回空', () {
-      expect(
-        MessageFtsRepo.extractTextContent('voice', {'duration': 5}),
-        '',
-      );
+      expect(MessageFtsRepo.extractTextContent('voice', {'duration': 5}), '');
     });
 
     test('file 消息返回空', () {
@@ -63,17 +60,11 @@ void main() {
     });
 
     test('null msgType 返回空', () {
-      expect(
-        MessageFtsRepo.extractTextContent(null, {'text': 'hello'}),
-        '',
-      );
+      expect(MessageFtsRepo.extractTextContent(null, {'text': 'hello'}), '');
     });
 
     test('空 text 返回空', () {
-      expect(
-        MessageFtsRepo.extractTextContent('text', {'text': '  '}),
-        '',
-      );
+      expect(MessageFtsRepo.extractTextContent('text', {'text': '  '}), '');
     });
 
     test('text 内容去除前后空白', () {

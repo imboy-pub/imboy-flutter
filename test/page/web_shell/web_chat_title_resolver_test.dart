@@ -25,10 +25,7 @@ void main() {
     });
 
     test('contactTitle null → fallback peerId', () {
-      final t = pickChatTitle(
-        chatType: 'C2C',
-        peerId: 'u-002',
-      );
+      final t = pickChatTitle(chatType: 'C2C', peerId: 'u-002');
       expect(t, 'u-002');
     });
 
@@ -71,19 +68,12 @@ void main() {
     });
 
     test('groupTitle null → fallback peerId', () {
-      final t = pickChatTitle(
-        chatType: 'C2G',
-        peerId: 'g-002',
-      );
+      final t = pickChatTitle(chatType: 'C2G', peerId: 'g-002');
       expect(t, 'g-002');
     });
 
     test('groupTitle 空字符串 → fallback peerId', () {
-      final t = pickChatTitle(
-        chatType: 'C2G',
-        peerId: 'g-003',
-        groupTitle: '',
-      );
+      final t = pickChatTitle(chatType: 'C2G', peerId: 'g-003', groupTitle: '');
       expect(t, 'g-003');
     });
 
@@ -120,10 +110,7 @@ void main() {
 
   group('pickChatTitle — 边界', () {
     test('peerId 也为空 → 返回空字符串（让调用方决定 placeholder）', () {
-      final t = pickChatTitle(
-        chatType: 'C2C',
-        peerId: '',
-      );
+      final t = pickChatTitle(chatType: 'C2C', peerId: '');
       expect(t, '');
     });
 
@@ -133,8 +120,7 @@ void main() {
         peerId: 'u-006',
         contactTitle: '  John Doe  ',
       );
-      expect(t, '  John Doe  ',
-          reason: '保留原始字符串：trim 仅用于"是否为空"判断，不修改返回值');
+      expect(t, '  John Doe  ', reason: '保留原始字符串：trim 仅用于"是否为空"判断，不修改返回值');
     });
   });
 }

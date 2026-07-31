@@ -9,44 +9,46 @@ import 'package:imboy/service/protocol/imboy_pb_codec.dart';
 void main() {
   group('ImboyPbCodec', () {
     group('tryDecode', () {
-      test('decodes protobuf IMBoyMessage with logged_another_device action',
-          () {
-        // Arrange: construct a logged_another_device protobuf message
-        final payload = PayloadLoggedAnotherDevice(
-          did: 'device-abc-123',
-          dname: 'iPhone 16e',
-        );
-        final msg = IMBoyMessage(
-          id: 'msg_001',
-          type: MsgDirection.S2C,
-          from: Int64(0),
-          to: Int64(1000000051),
-          msgType: ContentType.CUSTOM,
-          action: 'logged_another_device',
-          payload: payload.writeToBuffer(),
-          createdAt: Int64(1746300000000),
-          serverTs: Int64(1746300000100),
-        );
-        final bytes = msg.writeToBuffer();
+      test(
+        'decodes protobuf IMBoyMessage with logged_another_device action',
+        () {
+          // Arrange: construct a logged_another_device protobuf message
+          final payload = PayloadLoggedAnotherDevice(
+            did: 'device-abc-123',
+            dname: 'iPhone 16e',
+          );
+          final msg = IMBoyMessage(
+            id: 'msg_001',
+            type: MsgDirection.S2C,
+            from: Int64(0),
+            to: Int64(1000000051),
+            msgType: ContentType.CUSTOM,
+            action: 'logged_another_device',
+            payload: payload.writeToBuffer(),
+            createdAt: Int64(1746300000000),
+            serverTs: Int64(1746300000100),
+          );
+          final bytes = msg.writeToBuffer();
 
-        // Act
-        final result = ImboyPbCodec.tryDecode(Uint8List.fromList(bytes));
+          // Act
+          final result = ImboyPbCodec.tryDecode(Uint8List.fromList(bytes));
 
-        // Assert: should decode to Map<String, dynamic> successfully
-        expect(result, isNotNull);
-        expect(result!['id'], 'msg_001');
-        expect(result['type'], 'S2C');
-        expect(result['from'], 0);
-        expect(result['to'], 1000000051);
-        expect(result['action'], 'logged_another_device');
-        expect(result['server_ts'], 1746300000100);
+          // Assert: should decode to Map<String, dynamic> successfully
+          expect(result, isNotNull);
+          expect(result!['id'], 'msg_001');
+          expect(result['type'], 'S2C');
+          expect(result['from'], 0);
+          expect(result['to'], 1000000051);
+          expect(result['action'], 'logged_another_device');
+          expect(result['server_ts'], 1746300000100);
 
-        // payload should be JSON-decoded Map<String, dynamic>
-        final payloadMap = result['payload'];
-        expect(payloadMap, isA<Map<String, dynamic>>());
-        expect(payloadMap['did'], 'device-abc-123');
-        expect(payloadMap['dname'], 'iPhone 16e');
-      });
+          // payload should be JSON-decoded Map<String, dynamic>
+          final payloadMap = result['payload'];
+          expect(payloadMap, isA<Map<String, dynamic>>());
+          expect(payloadMap['did'], 'device-abc-123');
+          expect(payloadMap['dname'], 'iPhone 16e');
+        },
+      );
 
       test('returns null for non-protobuf binary (random bytes)', () {
         final randomBytes = Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]);
@@ -55,18 +57,19 @@ void main() {
       });
 
       test(
-          'falls back gracefully for valid protobuf but missing required fields',
-          () {
-        // Minimal protobuf message (only id field)
-        final msg = IMBoyMessage(id: 'minimal');
-        final bytes = msg.writeToBuffer();
+        'falls back gracefully for valid protobuf but missing required fields',
+        () {
+          // Minimal protobuf message (only id field)
+          final msg = IMBoyMessage(id: 'minimal');
+          final bytes = msg.writeToBuffer();
 
-        final result = ImboyPbCodec.tryDecode(Uint8List.fromList(bytes));
+          final result = ImboyPbCodec.tryDecode(Uint8List.fromList(bytes));
 
-        expect(result, isNotNull);
-        expect(result!['id'], 'minimal');
-        expect(result['action'], isEmpty);
-      });
+          expect(result, isNotNull);
+          expect(result!['id'], 'minimal');
+          expect(result['action'], isEmpty);
+        },
+      );
     });
 
     group('tryDecodeJsonFallback', () {
@@ -136,8 +139,9 @@ void main() {
           payload: inner.writeToBuffer(),
         );
 
-        final decoded =
-            ImboyPbCodec.tryDecode(Uint8List.fromList(msg.writeToBuffer()));
+        final decoded = ImboyPbCodec.tryDecode(
+          Uint8List.fromList(msg.writeToBuffer()),
+        );
 
         expect(decoded, isNotNull);
         expect(decoded!['action'], 'please_refresh_token');
@@ -154,8 +158,9 @@ void main() {
           payload: inner.writeToBuffer(),
         );
 
-        final decoded =
-            ImboyPbCodec.tryDecode(Uint8List.fromList(msg.writeToBuffer()));
+        final decoded = ImboyPbCodec.tryDecode(
+          Uint8List.fromList(msg.writeToBuffer()),
+        );
 
         expect(decoded, isNotNull);
         expect(decoded!['action'], 'device_force_offline');
@@ -172,8 +177,9 @@ void main() {
           payload: inner.writeToBuffer(),
         );
 
-        final decoded =
-            ImboyPbCodec.tryDecode(Uint8List.fromList(msg.writeToBuffer()));
+        final decoded = ImboyPbCodec.tryDecode(
+          Uint8List.fromList(msg.writeToBuffer()),
+        );
 
         expect(decoded, isNotNull);
         expect(decoded!['action'], 'c2c_del_everyone');
@@ -194,8 +200,9 @@ void main() {
           payload: inner.writeToBuffer(),
         );
 
-        final decoded =
-            ImboyPbCodec.tryDecode(Uint8List.fromList(msg.writeToBuffer()));
+        final decoded = ImboyPbCodec.tryDecode(
+          Uint8List.fromList(msg.writeToBuffer()),
+        );
 
         expect(decoded, isNotNull);
         expect(decoded!['action'], 'app_upgrade');
@@ -207,8 +214,7 @@ void main() {
 
       test('inner payload JSON fallback when not protobuf', () {
         // Simulate backend sending JSON as inner payload bytes
-        final innerJson =
-            utf8.encode(jsonEncode({'expire_at': 1234567890}));
+        final innerJson = utf8.encode(jsonEncode({'expire_at': 1234567890}));
         final msg = IMBoyMessage(
           id: 'json_inner',
           type: MsgDirection.S2C,
@@ -216,8 +222,9 @@ void main() {
           payload: innerJson,
         );
 
-        final decoded =
-            ImboyPbCodec.tryDecode(Uint8List.fromList(msg.writeToBuffer()));
+        final decoded = ImboyPbCodec.tryDecode(
+          Uint8List.fromList(msg.writeToBuffer()),
+        );
 
         expect(decoded, isNotNull);
         final p = decoded!['payload'] as Map<String, dynamic>;

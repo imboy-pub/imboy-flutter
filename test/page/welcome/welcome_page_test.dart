@@ -80,7 +80,8 @@ void main() {
       expect(
         hasBrandHero,
         isTrue,
-        reason: 'WelcomePage top logo must wrap in Hero(tag: kBrandLogoHeroTag) '
+        reason:
+            'WelcomePage top logo must wrap in Hero(tag: kBrandLogoHeroTag) '
             'as relay middle of Splash → Welcome → SignIn animation',
       );
     });
@@ -132,9 +133,7 @@ void main() {
       expect(find.text('sign in stub'), findsOneWidget);
     });
 
-    testWidgets('"下一步" tap on first page advances to step 2', (
-      tester,
-    ) async {
+    testWidgets('"下一步" tap on first page advances to step 2', (tester) async {
       await _pumpWelcome(tester);
       expect(find.text('简单连接'), findsOneWidget);
 

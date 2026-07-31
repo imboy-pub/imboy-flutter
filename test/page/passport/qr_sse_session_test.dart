@@ -17,8 +17,10 @@ import 'package:imboy/page/passport/sse_client.dart';
 // ---------------------------------------------------------------------------
 
 class FakeSseClient implements SseClient {
-  final StreamController<String> _framesCtrl = StreamController<String>.broadcast();
-  final StreamController<Object> _errorsCtrl = StreamController<Object>.broadcast();
+  final StreamController<String> _framesCtrl =
+      StreamController<String>.broadcast();
+  final StreamController<Object> _errorsCtrl =
+      StreamController<Object>.broadcast();
   bool _isOpen = false;
   bool _closed = false;
   int connectCalls = 0;
@@ -254,8 +256,11 @@ void main() {
         session.onResume();
         // 重置后再过 2 秒（共 4 秒 > gracePeriod 3 秒）— 但因为 reset 不应触发
         async.elapse(const Duration(seconds: 2));
-        expect(fallbackCalled, isFalse,
-            reason: 'onResume 重置后 silent 计数应从 0 重新累积');
+        expect(
+          fallbackCalled,
+          isFalse,
+          reason: 'onResume 重置后 silent 计数应从 0 重新累积',
+        );
         // 再过 2 秒（reset 后累计 4 秒 > 3）才应触发
         async.elapse(const Duration(seconds: 2));
         expect(fallbackCalled, isTrue);

@@ -12,13 +12,12 @@ Map<String, dynamic> _contact({
   required String nickname,
   String account = '',
   String remark = '',
-}) =>
-    {
-      'peer_id': peerId,
-      'nickname': nickname,
-      'account': account,
-      'remark': remark,
-    };
+}) => {
+  'peer_id': peerId,
+  'nickname': nickname,
+  'account': account,
+  'remark': remark,
+};
 
 void main() {
   // =========================================================================

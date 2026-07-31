@@ -57,14 +57,17 @@ void main() {
       expect(decision, isA<TransitionToScanned>());
     });
 
-    test('event=QrStatusConfirmed(token="jwt") → RequestCompleteLogin(token="jwt")', () {
-      final decision = derivePollingDecision(
-        sessionToken: 'sess_abc',
-        event: const QrStatusConfirmed('jwt_xyz'),
-      );
-      expect(decision, isA<RequestCompleteLogin>());
-      expect((decision as RequestCompleteLogin).token, 'jwt_xyz');
-    });
+    test(
+      'event=QrStatusConfirmed(token="jwt") → RequestCompleteLogin(token="jwt")',
+      () {
+        final decision = derivePollingDecision(
+          sessionToken: 'sess_abc',
+          event: const QrStatusConfirmed('jwt_xyz'),
+        );
+        expect(decision, isA<RequestCompleteLogin>());
+        expect((decision as RequestCompleteLogin).token, 'jwt_xyz');
+      },
+    );
 
     test('event=QrStatusExpired → TransitionToExpired', () {
       final decision = derivePollingDecision(
@@ -82,31 +85,40 @@ void main() {
       expect(decision, isA<TransitionToCancelledThenRefresh>());
     });
 
-    test('event=QrStatusUnknown(rawStatus="confirmed") → ProtocolViolation（防御）', () {
-      // 协议违反：parseQrStatusResponse 在 confirmed 但 token 为空时返回
-      // QrStatusUnknown(rawStatus="confirmed")，本决策器必须升级为 ProtocolViolation
-      final decision = derivePollingDecision(
-        sessionToken: 'sess_abc',
-        event: const QrStatusUnknown('confirmed'),
-      );
-      expect(decision, isA<ProtocolViolation>());
-    });
+    test(
+      'event=QrStatusUnknown(rawStatus="confirmed") → ProtocolViolation（防御）',
+      () {
+        // 协议违反：parseQrStatusResponse 在 confirmed 但 token 为空时返回
+        // QrStatusUnknown(rawStatus="confirmed")，本决策器必须升级为 ProtocolViolation
+        final decision = derivePollingDecision(
+          sessionToken: 'sess_abc',
+          event: const QrStatusUnknown('confirmed'),
+        );
+        expect(decision, isA<ProtocolViolation>());
+      },
+    );
 
-    test('event=QrStatusUnknown(rawStatus="weird") → KeepPolling（未知 status 容忍）', () {
-      final decision = derivePollingDecision(
-        sessionToken: 'sess_abc',
-        event: const QrStatusUnknown('weird'),
-      );
-      expect(decision, isA<KeepPolling>());
-    });
+    test(
+      'event=QrStatusUnknown(rawStatus="weird") → KeepPolling（未知 status 容忍）',
+      () {
+        final decision = derivePollingDecision(
+          sessionToken: 'sess_abc',
+          event: const QrStatusUnknown('weird'),
+        );
+        expect(decision, isA<KeepPolling>());
+      },
+    );
 
-    test('event=QrStatusUnknown(rawStatus=null) → KeepPolling（status 字段缺失）', () {
-      final decision = derivePollingDecision(
-        sessionToken: 'sess_abc',
-        event: const QrStatusUnknown(null),
-      );
-      expect(decision, isA<KeepPolling>());
-    });
+    test(
+      'event=QrStatusUnknown(rawStatus=null) → KeepPolling（status 字段缺失）',
+      () {
+        final decision = derivePollingDecision(
+          sessionToken: 'sess_abc',
+          event: const QrStatusUnknown(null),
+        );
+        expect(decision, isA<KeepPolling>());
+      },
+    );
 
     test('sessionToken 守卫优先于 event 决策（即使 event=Confirmed 也 StopSilently）', () {
       final decision = derivePollingDecision(
@@ -132,13 +144,16 @@ void main() {
       expect((decision as DecrementRemaining).newRemainingSeconds, 1);
     });
 
-    test('remainingSeconds=1 → DecrementRemaining(0)（最后 1 秒，下次 tick 才 expire）', () {
-      // 注意：保留原 web_login_page.dart:202-209 行为 —— remaining=1 时减到 0，
-      // 下次 tick 进入 `<= 0` 分支才 MarkExpired。避免单 tick 同时减计 + 标记
-      // expired 造成双状态。
-      final decision = deriveExpireTickDecision(remainingSeconds: 1);
-      expect((decision as DecrementRemaining).newRemainingSeconds, 0);
-    });
+    test(
+      'remainingSeconds=1 → DecrementRemaining(0)（最后 1 秒，下次 tick 才 expire）',
+      () {
+        // 注意：保留原 web_login_page.dart:202-209 行为 —— remaining=1 时减到 0，
+        // 下次 tick 进入 `<= 0` 分支才 MarkExpired。避免单 tick 同时减计 + 标记
+        // expired 造成双状态。
+        final decision = deriveExpireTickDecision(remainingSeconds: 1);
+        expect((decision as DecrementRemaining).newRemainingSeconds, 0);
+      },
+    );
 
     test('remainingSeconds=0 → MarkExpired', () {
       final decision = deriveExpireTickDecision(remainingSeconds: 0);
@@ -176,13 +191,16 @@ void main() {
       expect((decision as ProceedWithToken).token, 'jwt_abc');
     });
 
-    test('token="   " → ProceedWithToken (不 trim 空白，对齐 web_login_page:214 isEmpty 语义)', () {
-      // 关键：保留原 Notifier 行为，**不**在纯函数引入 trim() 副作用 —— 否则
-      // 后续若后端契约里出现合法的 base64 全空白头部 token 会被误拒。
-      final decision = deriveCompleteLoginDecision(token: '   ');
-      expect(decision, isA<ProceedWithToken>());
-      expect((decision as ProceedWithToken).token, '   ');
-    });
+    test(
+      'token="   " → ProceedWithToken (不 trim 空白，对齐 web_login_page:214 isEmpty 语义)',
+      () {
+        // 关键：保留原 Notifier 行为，**不**在纯函数引入 trim() 副作用 —— 否则
+        // 后续若后端契约里出现合法的 base64 全空白头部 token 会被误拒。
+        final decision = deriveCompleteLoginDecision(token: '   ');
+        expect(decision, isA<ProceedWithToken>());
+        expect((decision as ProceedWithToken).token, '   ');
+      },
+    );
 
     test('token=单字符 "x" → ProceedWithToken("x")', () {
       final decision = deriveCompleteLoginDecision(token: 'x');

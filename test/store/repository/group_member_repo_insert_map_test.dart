@@ -36,8 +36,11 @@ void main() {
     test('muteUntilMs=null → map 含 mute_until 且为 null', () {
       final map = GroupMemberRepo.toInsertMap(_buildMember());
 
-      expect(map.containsKey(GroupMemberColumns.muteUntil), isTrue,
-          reason: 'insert map 必须显式声明 mute_until 列，否则 Repo 永远写不进新字段');
+      expect(
+        map.containsKey(GroupMemberColumns.muteUntil),
+        isTrue,
+        reason: 'insert map 必须显式声明 mute_until 列，否则 Repo 永远写不进新字段',
+      );
       expect(map[GroupMemberColumns.muteUntil], isNull);
     });
 

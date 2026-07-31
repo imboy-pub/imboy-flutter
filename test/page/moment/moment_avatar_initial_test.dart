@@ -24,14 +24,17 @@ void main() {
       expect(avatarInitialFrom('   '), '?');
     });
 
-    test('handles supplementary-plane codepoints (emoji) without splitting', () {
-      // '🍎apple' starts with U+1F34E which is a surrogate pair in UTF-16.
-      // substring(0, 1) would slice off the high surrogate alone; we want the
-      // full code point.
-      final result = avatarInitialFrom('🍎apple');
-      expect(result, '🍎');
-      expect(result.runes.length, 1);
-    });
+    test(
+      'handles supplementary-plane codepoints (emoji) without splitting',
+      () {
+        // '🍎apple' starts with U+1F34E which is a surrogate pair in UTF-16.
+        // substring(0, 1) would slice off the high surrogate alone; we want the
+        // full code point.
+        final result = avatarInitialFrom('🍎apple');
+        expect(result, '🍎');
+        expect(result.runes.length, 1);
+      },
+    );
 
     test('trims leading whitespace before picking first character', () {
       expect(avatarInitialFrom('  Alice'), 'A');

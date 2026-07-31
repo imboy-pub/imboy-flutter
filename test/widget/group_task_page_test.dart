@@ -47,9 +47,7 @@ class FakeGroupTaskService implements IGroupTaskService {
     int size = 20,
   }) async {
     if (status != null) {
-      return tasksToReturn
-          .where((t) => t['status'] == status)
-          .toList();
+      return tasksToReturn.where((t) => t['status'] == status).toList();
     }
     return List.from(tasksToReturn);
   }
@@ -135,11 +133,7 @@ const _kFakeTasks = [
 /// Wraps with TranslationProvider as required by slang to avoid the "Please wrap" exception.
 Widget _buildTestApp(Widget home) {
   return TranslationProvider(
-    child: ProviderScope(
-      child: MaterialApp(
-        home: home,
-      ),
-    ),
+    child: ProviderScope(child: MaterialApp(home: home)),
   );
 }
 
@@ -157,9 +151,9 @@ void main() {
       );
       GroupTaskService.testInstance = fake;
 
-      await tester.pumpWidget(_buildTestApp(
-        const GroupTaskPage(groupId: '200'),
-      ));
+      await tester.pumpWidget(
+        _buildTestApp(const GroupTaskPage(groupId: '200')),
+      );
 
       // 等待异步加载完成 / Wait for async load
       await tester.pumpAndSettle();
@@ -168,13 +162,15 @@ void main() {
       expect(find.text('期中作业'), findsOneWidget);
     });
 
-    testWidgets('空列表时显示无数据视图 / shows empty state when no tasks', (tester) async {
+    testWidgets('空列表时显示无数据视图 / shows empty state when no tasks', (
+      tester,
+    ) async {
       final fake = FakeGroupTaskService(tasksToReturn: []);
       GroupTaskService.testInstance = fake;
 
-      await tester.pumpWidget(_buildTestApp(
-        const GroupTaskPage(groupId: '200'),
-      ));
+      await tester.pumpWidget(
+        _buildTestApp(const GroupTaskPage(groupId: '200')),
+      );
       await tester.pumpAndSettle();
 
       // 空状态视图应该可见（NoDataView 或类似组件）
@@ -182,15 +178,16 @@ void main() {
       expect(find.byKey(const Key('group_task_empty')), findsOneWidget);
     });
 
-    testWidgets('加载中显示进度指示器 / shows loading indicator while fetching',
-        (tester) async {
+    testWidgets('加载中显示进度指示器 / shows loading indicator while fetching', (
+      tester,
+    ) async {
       // 使用慢速 fake 验证 loading 状态 / Use slow fake to verify loading state
       final fake = _SlowFakeGroupTaskService();
       GroupTaskService.testInstance = fake;
 
-      await tester.pumpWidget(_buildTestApp(
-        const GroupTaskPage(groupId: '200'),
-      ));
+      await tester.pumpWidget(
+        _buildTestApp(const GroupTaskPage(groupId: '200')),
+      );
 
       // pump 一帧（不 settle），此时仍在加载
       await tester.pump();
@@ -212,9 +209,9 @@ void main() {
       );
       GroupTaskService.testInstance = fake;
 
-      await tester.pumpWidget(_buildTestApp(
-        const GroupTaskPage(groupId: '200'),
-      ));
+      await tester.pumpWidget(
+        _buildTestApp(const GroupTaskPage(groupId: '200')),
+      );
       await tester.pumpAndSettle();
 
       // 点击"待完成"过滤标签 / Tap "todo" filter tab
@@ -227,16 +224,17 @@ void main() {
       expect(find.text('期中作业'), findsNothing);
     });
 
-    testWidgets('切换"全部"过滤标签恢复全量显示 / tap all tab restores all tasks',
-        (tester) async {
+    testWidgets('切换"全部"过滤标签恢复全量显示 / tap all tab restores all tasks', (
+      tester,
+    ) async {
       final fake = FakeGroupTaskService(
         tasksToReturn: List<Map<String, dynamic>>.from(_kFakeTasks),
       );
       GroupTaskService.testInstance = fake;
 
-      await tester.pumpWidget(_buildTestApp(
-        const GroupTaskPage(groupId: '200'),
-      ));
+      await tester.pumpWidget(
+        _buildTestApp(const GroupTaskPage(groupId: '200')),
+      );
       await tester.pumpAndSettle();
 
       // 先切到"待完成" / First switch to "todo"
@@ -257,9 +255,9 @@ void main() {
       final fake = FakeGroupTaskService(tasksToReturn: []);
       GroupTaskService.testInstance = fake;
 
-      await tester.pumpWidget(_buildTestApp(
-        const GroupTaskPage(groupId: '200'),
-      ));
+      await tester.pumpWidget(
+        _buildTestApp(const GroupTaskPage(groupId: '200')),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('create_task_fab')));
@@ -273,9 +271,9 @@ void main() {
       final fake = FakeGroupTaskService(tasksToReturn: []);
       GroupTaskService.testInstance = fake;
 
-      await tester.pumpWidget(_buildTestApp(
-        const GroupTaskPage(groupId: '200'),
-      ));
+      await tester.pumpWidget(
+        _buildTestApp(const GroupTaskPage(groupId: '200')),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('create_task_fab')));
@@ -290,21 +288,24 @@ void main() {
       expect(fake.createCallCount, 0);
     });
 
-    testWidgets('填写标题后创建成功并刷新列表 / creates task and refreshes list',
-        (tester) async {
+    testWidgets('填写标题后创建成功并刷新列表 / creates task and refreshes list', (
+      tester,
+    ) async {
       final fake = FakeGroupTaskService(tasksToReturn: []);
       GroupTaskService.testInstance = fake;
 
-      await tester.pumpWidget(_buildTestApp(
-        const GroupTaskPage(groupId: '200'),
-      ));
+      await tester.pumpWidget(
+        _buildTestApp(const GroupTaskPage(groupId: '200')),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('create_task_fab')));
       await tester.pumpAndSettle();
 
       await tester.enterText(
-          find.byKey(const Key('task_title_field')), '新建集成测试作业');
+        find.byKey(const Key('task_title_field')),
+        '新建集成测试作业',
+      );
       await tester.tap(find.byKey(const Key('create_task_confirm')));
       await tester.pumpAndSettle();
 

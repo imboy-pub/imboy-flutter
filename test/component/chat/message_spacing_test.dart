@@ -57,9 +57,11 @@ void main() {
 
     test('播放按钮 = 40dp 直径，圆角 = 半径（完美圆形）', () {
       expect(MessageSpacing.playButtonSize, 40.0);
-      expect(MessageSpacing.playButtonBorderRadius * 2,
-          MessageSpacing.playButtonSize,
-          reason: '播放按钮圆角应等于直径的一半，呈完整圆形');
+      expect(
+        MessageSpacing.playButtonBorderRadius * 2,
+        MessageSpacing.playButtonSize,
+        reason: '播放按钮圆角应等于直径的一半，呈完整圆形',
+      );
     });
 
     test('发送 elevation > 接收 elevation（视觉层级区分）', () {

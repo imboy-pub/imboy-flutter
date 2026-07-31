@@ -105,8 +105,11 @@ void main() {
       // buffer=3 的语义：current >= exp - 3 即过期
       // exp = now+1 → now >= -2 → now >= now-2 → 永远 true
       final t = _makeJwt({'exp': _nowSec() + 1});
-      expect(tokenExpired(t), isTrue,
-          reason: 'buffer=3s，exp 在 3s 内已被认为过期（保守策略）');
+      expect(
+        tokenExpired(t),
+        isTrue,
+        reason: 'buffer=3s，exp 在 3s 内已被认为过期（保守策略）',
+      );
     });
 
     test('exp 刚好超出 buffer（now+10s）→ false', () {
@@ -118,8 +121,11 @@ void main() {
   group('tokenExpired exp type variations', () {
     test('exp 是字符串数字 → 也能解析', () {
       final t = _makeJwt({'exp': (_nowSec() + 3600).toString()});
-      expect(tokenExpired(t), isFalse,
-          reason: '_parseExp 用 int.parse(value.toString()) 兜底');
+      expect(
+        tokenExpired(t),
+        isFalse,
+        reason: '_parseExp 用 int.parse(value.toString()) 兜底',
+      );
     });
 
     test('exp 是 double（1234.0）→ toInt() 转换', () {

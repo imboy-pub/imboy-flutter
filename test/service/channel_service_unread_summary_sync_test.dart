@@ -132,10 +132,8 @@ void main() {
 
         final unreadEvents = <ChannelUnreadCountUpdatedEvent>[];
         final syncEvents = <ChannelUnreadSummarySyncEvent>[];
-        final unreadSub =
-            AppEventBus.on<ChannelUnreadCountUpdatedEvent>().listen(
-          unreadEvents.add,
-        );
+        final unreadSub = AppEventBus.on<ChannelUnreadCountUpdatedEvent>()
+            .listen(unreadEvents.add);
         final syncSub = AppEventBus.on<ChannelUnreadSummarySyncEvent>().listen(
           syncEvents.add,
         );
@@ -146,16 +144,22 @@ void main() {
         await unreadSub.cancel();
         await syncSub.cancel();
 
-        expect(repo.updatedUnreadByChannel, isEmpty,
-            reason: 'channels 缺失时不得清零本地未读');
+        expect(
+          repo.updatedUnreadByChannel,
+          isEmpty,
+          reason: 'channels 缺失时不得清零本地未读',
+        );
         expect(
           unreadEvents.any((e) => e.channelId == '1001'),
           isFalse,
           reason: 'channels 缺失时不得发 channel 级未读事件',
         );
         expect(syncEvents.length, 1);
-        expect(syncEvents.single.success, isFalse,
-            reason: 'channels 缺失应上报同步失败供观测');
+        expect(
+          syncEvents.single.success,
+          isFalse,
+          reason: 'channels 缺失应上报同步失败供观测',
+        );
       },
     );
 
@@ -223,8 +227,9 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 10));
         await syncSub.cancel();
 
-        expect(repo.updatedUnreadByChannel, {'1001': 0},
-            reason: 'channels:[] 是权威空集，应清零');
+        expect(repo.updatedUnreadByChannel, {
+          '1001': 0,
+        }, reason: 'channels:[] 是权威空集，应清零');
         expect(syncEvents.single.success, isTrue);
       },
     );

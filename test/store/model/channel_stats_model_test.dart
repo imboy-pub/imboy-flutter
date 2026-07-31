@@ -129,8 +129,9 @@ void main() {
   // ── CS-3  ChannelReactionModel ──────────────────────────────────────────────
   group('CS-3 ChannelReactionModel', () {
     final msEpoch = 1_750_000_000_000;
-    final isoCreatedAt =
-        DateTime.fromMillisecondsSinceEpoch(msEpoch).toIso8601String();
+    final isoCreatedAt = DateTime.fromMillisecondsSinceEpoch(
+      msEpoch,
+    ).toIso8601String();
 
     test('fromJson — 标准字段映射', () {
       final model = ChannelReactionModel.fromJson({

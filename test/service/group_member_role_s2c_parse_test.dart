@@ -130,10 +130,7 @@ void main() {
           reason: 'role=$bad 超出 1..5',
         );
       }
-      final missing = parseGroupMemberRolePayload({
-        'gid': 1,
-        'user_id': 2,
-      });
+      final missing = parseGroupMemberRolePayload({'gid': 1, 'user_id': 2});
       expect((missing as GroupMemberRoleParseError).reason, 'invalid_role');
     });
   });

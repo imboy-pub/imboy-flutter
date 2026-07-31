@@ -14,12 +14,12 @@ import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
 ChannelModel _channel(int id, String name) => ChannelModel(
-      id: id,
-      name: name,
-      creatorId: 1,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(1),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(2),
-    );
+  id: id,
+  name: name,
+  creatorId: 1,
+  createdAt: DateTime.fromMillisecondsSinceEpoch(1),
+  updatedAt: DateTime.fromMillisecondsSinceEpoch(2),
+);
 
 void main() {
   group('ChannelListNotifier auto-sync via ChannelStateChangedEvent', () {
@@ -37,81 +37,78 @@ void main() {
 
     tearDown(() => container.dispose());
 
-    test(
-      'channel_unsubscribed filters the channel out locally',
-      () async {
-        notifier.state = notifier.state.copyWith(channels: [
+    test('channel_unsubscribed filters the channel out locally', () async {
+      notifier.state = notifier.state.copyWith(
+        channels: [
           _channel(1001, 'A'),
           _channel(1002, 'B'),
           _channel(1003, 'C'),
-        ]);
+        ],
+      );
 
-        AppEventBus.fire(ChannelStateChangedEvent(
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
           channelId: '1002',
           action: 'channel_unsubscribed',
           payload: const {},
-        ));
-        await Future<void>.delayed(const Duration(milliseconds: 10));
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
-        final state = container.read(channelListProvider);
-        expect(state.channels.map((c) => c.id), [1001, 1003]);
-      },
-    );
+      final state = container.read(channelListProvider);
+      expect(state.channels.map((c) => c.id), [1001, 1003]);
+    });
 
-    test(
-      'channel_deleted filters the channel out locally',
-      () async {
-        notifier.state = notifier.state.copyWith(channels: [
-          _channel(1001, 'A'),
-          _channel(1002, 'B'),
-        ]);
+    test('channel_deleted filters the channel out locally', () async {
+      notifier.state = notifier.state.copyWith(
+        channels: [_channel(1001, 'A'), _channel(1002, 'B')],
+      );
 
-        AppEventBus.fire(ChannelStateChangedEvent(
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
           channelId: '1001',
           action: 'channel_deleted',
           payload: const {},
-        ));
-        await Future<void>.delayed(const Duration(milliseconds: 10));
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
-        final state = container.read(channelListProvider);
-        expect(state.channels.map((c) => c.id), [1002]);
-      },
-    );
+      final state = container.read(channelListProvider);
+      expect(state.channels.map((c) => c.id), [1002]);
+    });
 
-    test(
-      'unknown action does not mutate state',
-      () async {
-        final before = [_channel(1001, 'A')];
-        notifier.state = notifier.state.copyWith(channels: before);
+    test('unknown action does not mutate state', () async {
+      final before = [_channel(1001, 'A')];
+      notifier.state = notifier.state.copyWith(channels: before);
 
-        AppEventBus.fire(ChannelStateChangedEvent(
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
           channelId: '9999',
           action: 'something_unrelated',
           payload: const {},
-        ));
-        await Future<void>.delayed(const Duration(milliseconds: 10));
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
-        final state = container.read(channelListProvider);
-        expect(state.channels.map((c) => c.id), [1001]);
-      },
-    );
+      final state = container.read(channelListProvider);
+      expect(state.channels.map((c) => c.id), [1001]);
+    });
 
-    test(
-      'channel_unsubscribed for an id not in the list is a no-op',
-      () async {
-        final before = [_channel(1001, 'A'), _channel(1002, 'B')];
-        notifier.state = notifier.state.copyWith(channels: before);
+    test('channel_unsubscribed for an id not in the list is a no-op', () async {
+      final before = [_channel(1001, 'A'), _channel(1002, 'B')];
+      notifier.state = notifier.state.copyWith(channels: before);
 
-        AppEventBus.fire(ChannelStateChangedEvent(
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
           channelId: '9999',
           action: 'channel_unsubscribed',
           payload: const {},
-        ));
-        await Future<void>.delayed(const Duration(milliseconds: 10));
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 10));
 
-        final state = container.read(channelListProvider);
-        expect(state.channels.map((c) => c.id), [1001, 1002]);
-      },
-    );
+      final state = container.read(channelListProvider);
+      expect(state.channels.map((c) => c.id), [1001, 1002]);
+    });
   });
 }

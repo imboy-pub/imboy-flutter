@@ -11,10 +11,7 @@ void main() {
   group('buildReplyTarget', () {
     test('returns none when uid missing or empty', () {
       expect(buildReplyTarget(<String, dynamic>{}).isNone, isTrue);
-      expect(
-        buildReplyTarget(<String, dynamic>{'user_id': ''}).isNone,
-        isTrue,
-      );
+      expect(buildReplyTarget(<String, dynamic>{'user_id': ''}).isNone, isTrue);
     });
 
     test('prefers user_remark over nickname and uid', () {
@@ -55,12 +52,14 @@ void main() {
       expect(target.name, 'Bob');
     });
 
-    test('MomentReplyTarget.none exposes empty strings for setState safety',
-        () {
-      const none = MomentReplyTarget.none;
-      expect(none.uid, '');
-      expect(none.name, '');
-      expect(none.isNone, isTrue);
-    });
+    test(
+      'MomentReplyTarget.none exposes empty strings for setState safety',
+      () {
+        const none = MomentReplyTarget.none;
+        expect(none.uid, '');
+        expect(none.name, '');
+        expect(none.isNone, isTrue);
+      },
+    );
   });
 }

@@ -204,7 +204,11 @@ void main() {
         await db.execute(sql);
       }
 
-      final rows = await db.query('message', where: 'from_id = ?', whereArgs: ['alice']);
+      final rows = await db.query(
+        'message',
+        where: 'from_id = ?',
+        whereArgs: ['alice'],
+      );
       expect(rows, hasLength(1));
       expect(rows.first['payload'], 'hello');
       expect(rows.first['to_id'], 'bob');
@@ -257,13 +261,10 @@ void main() {
   });
 
   group('parseVersionBlock helper', () {
-    test(
-      '不存在的版本号返回空列表 / unknown version yields empty list',
-      () {
-        const content = '-- VERSION: 10\nSELECT 1;';
-        expect(parseVersionBlock(content, 99), isEmpty);
-      },
-    );
+    test('不存在的版本号返回空列表 / unknown version yields empty list', () {
+      const content = '-- VERSION: 10\nSELECT 1;';
+      expect(parseVersionBlock(content, 99), isEmpty);
+    });
 
     test('跳过注释与空行 / skips comments and blanks', () {
       const content = '''

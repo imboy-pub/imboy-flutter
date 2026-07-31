@@ -82,40 +82,42 @@ void main() {
       expect(identical(result, items), true);
     });
 
-    test('no fallback items → lookup never called, returns same instance',
-        () async {
-      final items = [
-        _m(id: '1', publisherId: '10086', publisherName: 'Alice'),
-        _m(id: '2', publisherId: '10087', publisherName: 'Bob'),
-      ];
-      var callCount = 0;
-      final result = await resolveAnnouncementNicknames(items, (_) async {
-        callCount++;
-        return 'should-not-be-called';
-      });
-      expect(callCount, 0);
-      expect(identical(result, items), true);
-    });
+    test(
+      'no fallback items → lookup never called, returns same instance',
+      () async {
+        final items = [
+          _m(id: '1', publisherId: '10086', publisherName: 'Alice'),
+          _m(id: '2', publisherId: '10087', publisherName: 'Bob'),
+        ];
+        var callCount = 0;
+        final result = await resolveAnnouncementNicknames(items, (_) async {
+          callCount++;
+          return 'should-not-be-called';
+        });
+        expect(callCount, 0);
+        expect(identical(result, items), true);
+      },
+    );
 
-    test('fallback item with successful lookup → publisherName replaced',
-        () async {
-      final items = [
-        _m(id: '1', publisherId: '10086', publisherName: '10086'),
-      ];
-      final result = await resolveAnnouncementNicknames(
-        items,
-        (id) async => id == '10086' ? 'Alice' : null,
-      );
-      expect(result.length, 1);
-      expect(result.first.publisherName, 'Alice');
-      expect(result.first.publisherId, '10086');
-      expect(result.first.id, '1');
-    });
+    test(
+      'fallback item with successful lookup → publisherName replaced',
+      () async {
+        final items = [
+          _m(id: '1', publisherId: '10086', publisherName: '10086'),
+        ];
+        final result = await resolveAnnouncementNicknames(
+          items,
+          (id) async => id == '10086' ? 'Alice' : null,
+        );
+        expect(result.length, 1);
+        expect(result.first.publisherName, 'Alice');
+        expect(result.first.publisherId, '10086');
+        expect(result.first.id, '1');
+      },
+    );
 
     test('lookup returns null → original publisherName preserved', () async {
-      final items = [
-        _m(id: '1', publisherId: '10086', publisherName: '10086'),
-      ];
+      final items = [_m(id: '1', publisherId: '10086', publisherName: '10086')];
       final result = await resolveAnnouncementNicknames(
         items,
         (_) async => null,
@@ -123,17 +125,19 @@ void main() {
       expect(result.first.publisherName, '10086');
     });
 
-    test('lookup returns empty string → original publisherName preserved',
-        () async {
-      final items = [
-        _m(id: '1', publisherId: '10086', publisherName: '10086'),
-      ];
-      final result = await resolveAnnouncementNicknames(
-        items,
-        (_) async => '',
-      );
-      expect(result.first.publisherName, '10086');
-    });
+    test(
+      'lookup returns empty string → original publisherName preserved',
+      () async {
+        final items = [
+          _m(id: '1', publisherId: '10086', publisherName: '10086'),
+        ];
+        final result = await resolveAnnouncementNicknames(
+          items,
+          (_) async => '',
+        );
+        expect(result.first.publisherName, '10086');
+      },
+    );
 
     test('lookup throws → item preserved, other items unaffected', () async {
       final items = [
@@ -149,8 +153,7 @@ void main() {
       expect(result[1].publisherName, 'Bob');
     });
 
-    test('duplicate publisherIds → lookup called once per unique id',
-        () async {
+    test('duplicate publisherIds → lookup called once per unique id', () async {
       final items = [
         _m(id: '1', publisherId: '10086', publisherName: '10086'),
         _m(id: '2', publisherId: '10086', publisherName: '10086'),
@@ -165,36 +168,40 @@ void main() {
       expect(result.every((item) => item.publisherName == 'Alice'), true);
     });
 
-    test('mixed: some fallback + some resolved → only fallback processed',
-        () async {
-      final items = [
-        _m(id: '1', publisherId: '10086', publisherName: '10086'),
-        _m(id: '2', publisherId: '10087', publisherName: 'Bob'),
-        _m(id: '3', publisherId: '10088', publisherName: '10088'),
-      ];
-      final lookedUp = <String>[];
-      final result = await resolveAnnouncementNicknames(items, (id) async {
-        lookedUp.add(id);
-        return 'Resolved-$id';
-      });
-      expect(lookedUp.toSet(), {'10086', '10088'});
-      expect(result[0].publisherName, 'Resolved-10086');
-      expect(result[1].publisherName, 'Bob'); // 未被查
-      expect(result[2].publisherName, 'Resolved-10088');
-    });
+    test(
+      'mixed: some fallback + some resolved → only fallback processed',
+      () async {
+        final items = [
+          _m(id: '1', publisherId: '10086', publisherName: '10086'),
+          _m(id: '2', publisherId: '10087', publisherName: 'Bob'),
+          _m(id: '3', publisherId: '10088', publisherName: '10088'),
+        ];
+        final lookedUp = <String>[];
+        final result = await resolveAnnouncementNicknames(items, (id) async {
+          lookedUp.add(id);
+          return 'Resolved-$id';
+        });
+        expect(lookedUp.toSet(), {'10086', '10088'});
+        expect(result[0].publisherName, 'Resolved-10086');
+        expect(result[1].publisherName, 'Bob'); // 未被查
+        expect(result[2].publisherName, 'Resolved-10088');
+      },
+    );
 
-    test('all lookups miss (return null) → returns original items instance',
-        () async {
-      final items = [
-        _m(id: '1', publisherId: '10086', publisherName: '10086'),
-        _m(id: '2', publisherId: '10087', publisherName: '10087'),
-      ];
-      final result = await resolveAnnouncementNicknames(
-        items,
-        (_) async => null,
-      );
-      // resolvedMap 为空 → 返回原列表实例（零 allocation 优化）
-      expect(identical(result, items), true);
-    });
+    test(
+      'all lookups miss (return null) → returns original items instance',
+      () async {
+        final items = [
+          _m(id: '1', publisherId: '10086', publisherName: '10086'),
+          _m(id: '2', publisherId: '10087', publisherName: '10087'),
+        ];
+        final result = await resolveAnnouncementNicknames(
+          items,
+          (_) async => null,
+        );
+        // resolvedMap 为空 → 返回原列表实例（零 allocation 优化）
+        expect(identical(result, items), true);
+      },
+    );
   });
 }

@@ -115,10 +115,7 @@ void main() {
       );
       // 4 个 Tooltip，每个 item 一个
       expect(find.byType(Tooltip), findsNWidgets(4));
-      expect(
-        find.byTooltip('Messages'),
-        findsOneWidget,
-      );
+      expect(find.byTooltip('Messages'), findsOneWidget);
       expect(find.byTooltip('Contacts'), findsOneWidget);
     });
   });
@@ -162,8 +159,7 @@ void main() {
         currentIndex: 0,
         onTap: (_) {},
       );
-      final BuildContext ctx =
-          tester.element(find.byIcon(Icons.chat_bubble));
+      final BuildContext ctx = tester.element(find.byIcon(Icons.chat_bubble));
       final cs = Theme.of(ctx).colorScheme;
       final iconWidget = tester.widget<Icon>(find.byIcon(Icons.chat_bubble));
       expect(iconWidget.color, cs.primary);
@@ -176,11 +172,13 @@ void main() {
         currentIndex: 0,
         onTap: (_) {},
       );
-      final BuildContext ctx =
-          tester.element(find.byIcon(Icons.people_alt_outlined));
+      final BuildContext ctx = tester.element(
+        find.byIcon(Icons.people_alt_outlined),
+      );
       final cs = Theme.of(ctx).colorScheme;
-      final iconWidget =
-          tester.widget<Icon>(find.byIcon(Icons.people_alt_outlined));
+      final iconWidget = tester.widget<Icon>(
+        find.byIcon(Icons.people_alt_outlined),
+      );
       expect(iconWidget.color, cs.onSurfaceVariant);
     });
   });
@@ -354,22 +352,14 @@ void main() {
 
     testWidgets('currentIndex 越界负数应触发 assert', (tester) async {
       expect(
-        () => WebNavRail(
-          items: _kSampleItems,
-          currentIndex: -1,
-          onTap: (_) {},
-        ),
+        () => WebNavRail(items: _kSampleItems, currentIndex: -1, onTap: (_) {}),
         throwsAssertionError,
       );
     });
 
     testWidgets('currentIndex 越界正数应触发 assert', (tester) async {
       expect(
-        () => WebNavRail(
-          items: _kSampleItems,
-          currentIndex: 4,
-          onTap: (_) {},
-        ),
+        () => WebNavRail(items: _kSampleItems, currentIndex: 4, onTap: (_) {}),
         throwsAssertionError,
       );
     });

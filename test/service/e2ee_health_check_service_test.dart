@@ -68,10 +68,7 @@ void main() {
 
     test('should create result with minimal fields', () {
       // Arrange & Act
-      const result = E2EEHealthCheckResult(
-        needsUpdate: false,
-        reason: 'ok',
-      );
+      const result = E2EEHealthCheckResult(needsUpdate: false, reason: 'ok');
 
       // Assert
       expect(result.needsUpdate, false);
@@ -182,9 +179,7 @@ void main() {
     group('checkUserKeyVersion', () {
       test('should return E2EEHealthCheckResult', () async {
         // Act
-        final result = await service.checkUserKeyVersion(
-          uid: 'test_uid_123',
-        );
+        final result = await service.checkUserKeyVersion(uid: 'test_uid_123');
 
         // Assert
         expect(result, isA<E2EEHealthCheckResult>());

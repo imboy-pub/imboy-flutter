@@ -76,10 +76,7 @@ void main() {
       );
 
       expect(result, isA<MomentNotifyParseInvalid>());
-      expect(
-        (result as MomentNotifyParseInvalid).reason,
-        'invalid_action',
-      );
+      expect((result as MomentNotifyParseInvalid).reason, 'invalid_action');
     });
 
     test('moment_deleted → ParseInvalid(invalid_action)', () {
@@ -189,10 +186,7 @@ void main() {
       );
 
       expect(result, isA<MomentNotifyParseInvalid>());
-      expect(
-        (result as MomentNotifyParseInvalid).reason,
-        'missing_moment_id',
-      );
+      expect((result as MomentNotifyParseInvalid).reason, 'missing_moment_id');
     });
 
     test('moment_id 为空串 → ParseInvalid', () {
@@ -203,10 +197,7 @@ void main() {
         nowMs: nowMs,
       );
 
-      expect(
-        (result as MomentNotifyParseInvalid).reason,
-        'missing_moment_id',
-      );
+      expect((result as MomentNotifyParseInvalid).reason, 'missing_moment_id');
     });
 
     test('moment_id 为 0 / "0" → ParseInvalid（防 TSID 无效值）', () {
@@ -235,10 +226,7 @@ void main() {
         nowMs: nowMs,
       );
 
-      expect(
-        (result as MomentNotifyParseInvalid).reason,
-        'missing_from_uid',
-      );
+      expect((result as MomentNotifyParseInvalid).reason, 'missing_from_uid');
     });
 
     test('from_uid 空白 → ParseInvalid', () {
@@ -249,10 +237,7 @@ void main() {
         nowMs: nowMs,
       );
 
-      expect(
-        (result as MomentNotifyParseInvalid).reason,
-        'missing_from_uid',
-      );
+      expect((result as MomentNotifyParseInvalid).reason, 'missing_from_uid');
     });
 
     test('currentUid 为空 → ParseInvalid(missing_current_uid)', () {
@@ -274,10 +259,7 @@ void main() {
     test('from_uid == currentUid → ParseSkipSelf', () {
       final result = MomentNotifyModel.fromS2CPayload(
         action: 'moment_like',
-        payload: <String, dynamic>{
-          'moment_id': '1',
-          'from_uid': '1000',
-        },
+        payload: <String, dynamic>{'moment_id': '1', 'from_uid': '1000'},
         currentUid: '1000',
         nowMs: nowMs,
       );
@@ -288,10 +270,7 @@ void main() {
     test('from_uid 数字等同 currentUid 字符串 → ParseSkipSelf', () {
       final result = MomentNotifyModel.fromS2CPayload(
         action: 'moment_comment',
-        payload: <String, dynamic>{
-          'moment_id': '1',
-          'from_uid': 1000,
-        },
+        payload: <String, dynamic>{'moment_id': '1', 'from_uid': 1000},
         currentUid: '1000',
         nowMs: nowMs,
       );
@@ -324,10 +303,7 @@ void main() {
       expect(map['created_at'], nowMs);
 
       // 模拟 SQLite 读回（带 id + is_read=0）
-      final row = <String, dynamic>{
-        'id': 42,
-        ...map,
-      };
+      final row = <String, dynamic>{'id': 42, ...map};
       final roundTrip = MomentNotifyModel.fromRow(row);
       expect(roundTrip.id, 42);
       expect(roundTrip.userId, original.userId);

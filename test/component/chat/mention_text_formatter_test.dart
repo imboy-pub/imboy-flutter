@@ -145,10 +145,7 @@ void main() {
   });
 
   group('insertMention', () {
-    const candidate = MentionCandidate(
-      userId: 'u_1',
-      displayName: 'Alice',
-    );
+    const candidate = MentionCandidate(userId: 'u_1', displayName: 'Alice');
 
     test('行首 @al + 候选 → "@Alice " + 光标在 7（after Alice + space）', () {
       const text = '@al';
@@ -211,10 +208,7 @@ void main() {
     });
 
     test('CJK displayName → 字符长度按 UTF-16 code units 计算', () {
-      const cjkCandidate = MentionCandidate(
-        userId: 'u_2',
-        displayName: '张三',
-      );
+      const cjkCandidate = MentionCandidate(userId: 'u_2', displayName: '张三');
       const text = '@';
       final result = MentionTextEditorHelper.insertMention(
         text: text,

@@ -32,8 +32,7 @@ void main() {
     });
 
     test('已设置为 true → true', () {
-      bool? readBool(String k) =>
-          k == 'group_notice_disabled:10' ? true : null;
+      bool? readBool(String k) => k == 'group_notice_disabled:10' ? true : null;
       expect(readNoticeDisabled(10, readBool: readBool), isTrue);
     });
 
@@ -48,6 +47,7 @@ void main() {
         called = true;
         return true;
       }
+
       expect(readNoticeDisabled(0, readBool: readBool), isFalse);
       expect(readNoticeDisabled(-1, readBool: readBool), isFalse);
       expect(called, isFalse, reason: '非法 gid 不应触发实际读取');

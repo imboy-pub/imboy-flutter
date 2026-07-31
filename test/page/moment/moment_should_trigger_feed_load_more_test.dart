@@ -46,18 +46,20 @@ void main() {
       );
     });
 
-    test('returns true exactly at the prefetch boundary (pixels = max - 320)',
-        () {
-      expect(
-        shouldTriggerFeedLoadMore(
-          pixels: 9680,
-          maxExtent: 10000,
-          isLoadingMore: false,
-          hasMore: true,
-        ),
-        isTrue,
-      );
-    });
+    test(
+      'returns true exactly at the prefetch boundary (pixels = max - 320)',
+      () {
+        expect(
+          shouldTriggerFeedLoadMore(
+            pixels: 9680,
+            maxExtent: 10000,
+            isLoadingMore: false,
+            hasMore: true,
+          ),
+          isTrue,
+        );
+      },
+    );
 
     test('returns true when scrolled past the boundary', () {
       expect(
@@ -83,44 +85,48 @@ void main() {
       );
     });
 
-    test('custom threshold honored (threshold = 0 means trigger only at bottom)',
-        () {
-      expect(
-        shouldTriggerFeedLoadMore(
-          pixels: 9999,
-          maxExtent: 10000,
-          isLoadingMore: false,
-          hasMore: true,
-          threshold: 0,
-        ),
-        isFalse,
-      );
-      expect(
-        shouldTriggerFeedLoadMore(
-          pixels: 10000,
-          maxExtent: 10000,
-          isLoadingMore: false,
-          hasMore: true,
-          threshold: 0,
-        ),
-        isTrue,
-      );
-    });
+    test(
+      'custom threshold honored (threshold = 0 means trigger only at bottom)',
+      () {
+        expect(
+          shouldTriggerFeedLoadMore(
+            pixels: 9999,
+            maxExtent: 10000,
+            isLoadingMore: false,
+            hasMore: true,
+            threshold: 0,
+          ),
+          isFalse,
+        );
+        expect(
+          shouldTriggerFeedLoadMore(
+            pixels: 10000,
+            maxExtent: 10000,
+            isLoadingMore: false,
+            hasMore: true,
+            threshold: 0,
+          ),
+          isTrue,
+        );
+      },
+    );
 
-    test('small list (maxExtent < threshold) still triggers when at bottom',
-        () {
-      // maxExtent=100, threshold=320 → max-threshold=-220；pixels>=-220 总是真
-      // 这是有意行为：列表本就不足一屏时，任何滚动到底都应允许加载下一页
-      expect(
-        shouldTriggerFeedLoadMore(
-          pixels: 50,
-          maxExtent: 100,
-          isLoadingMore: false,
-          hasMore: true,
-        ),
-        isTrue,
-      );
-    });
+    test(
+      'small list (maxExtent < threshold) still triggers when at bottom',
+      () {
+        // maxExtent=100, threshold=320 → max-threshold=-220；pixels>=-220 总是真
+        // 这是有意行为：列表本就不足一屏时，任何滚动到底都应允许加载下一页
+        expect(
+          shouldTriggerFeedLoadMore(
+            pixels: 50,
+            maxExtent: 100,
+            isLoadingMore: false,
+            hasMore: true,
+          ),
+          isTrue,
+        );
+      },
+    );
 
     test('zero pixels with empty list does not crash (degenerate case)', () {
       expect(

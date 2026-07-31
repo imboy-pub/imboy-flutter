@@ -40,10 +40,9 @@ void main() {
         buildMentionsPayload(uids: const ['u1', 'u2'], isAllSelected: true),
         const ['all'],
       );
-      expect(
-        buildMentionsPayload(uids: const [], isAllSelected: true),
-        const ['all'],
-      );
+      expect(buildMentionsPayload(uids: const [], isAllSelected: true), const [
+        'all',
+      ]);
     });
 
     test('isAllSelected=false → 返回 uids 去重副本，保序', () {
@@ -87,10 +86,7 @@ void main() {
       // 约定：uid 为 TSID 数字字符串，不会与 "all" 字面量碰撞；
       // 若确实传入，按普通 uid 保留 —— 判 @ 所有人以 isAllSelected 为准
       expect(
-        buildMentionsPayload(
-          uids: const ['all', 'u1'],
-          isAllSelected: false,
-        ),
+        buildMentionsPayload(uids: const ['all', 'u1'], isAllSelected: false),
         const ['all', 'u1'],
       );
     });

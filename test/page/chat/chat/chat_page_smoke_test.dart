@@ -93,11 +93,7 @@ void main() {
         peerTitle: 'Test Group',
         peerAvatar: '',
         peerSign: '',
-        options: {
-          'memberCount': 12,
-          'popTime': 2,
-          'showConversation': false,
-        },
+        options: {'memberCount': 12, 'popTime': 2, 'showConversation': false},
       );
       expect(page.options, isNotNull);
       expect(page.options?['memberCount'], 12);

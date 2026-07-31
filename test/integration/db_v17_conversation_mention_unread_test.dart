@@ -89,18 +89,32 @@ void main() {
   group('migration asset files contain the v17 blocks', () {
     test('upgrade.sql declares VERSION: 17 and mention_unread column', () {
       final content = File('assets/migrations/upgrade.sql').readAsStringSync();
-      expect(content.contains('-- VERSION: 17'), isTrue,
-          reason: 'upgrade.sql must have the v17 block');
-      expect(content.contains('mention_unread'), isTrue,
-          reason: 'upgrade.sql v17 must add mention_unread column');
-      expect(content.contains('PRAGMA user_version = 17'), isTrue,
-          reason: 'upgrade.sql must bump user_version to 17');
+      expect(
+        content.contains('-- VERSION: 17'),
+        isTrue,
+        reason: 'upgrade.sql must have the v17 block',
+      );
+      expect(
+        content.contains('mention_unread'),
+        isTrue,
+        reason: 'upgrade.sql v17 must add mention_unread column',
+      );
+      expect(
+        content.contains('PRAGMA user_version = 17'),
+        isTrue,
+        reason: 'upgrade.sql must bump user_version to 17',
+      );
     });
 
     test('downgrade.sql declares VERSION: 17 block', () {
-      final content = File('assets/migrations/downgrade.sql').readAsStringSync();
-      expect(content.contains('-- VERSION: 17'), isTrue,
-          reason: 'downgrade.sql must have the v17 → v16 block');
+      final content = File(
+        'assets/migrations/downgrade.sql',
+      ).readAsStringSync();
+      expect(
+        content.contains('-- VERSION: 17'),
+        isTrue,
+        reason: 'downgrade.sql must have the v17 → v16 block',
+      );
     });
   });
 
@@ -117,32 +131,41 @@ void main() {
     test('v16 baseline has NO mention_unread column', () async {
       final info = await tableInfo(db, 'conversation');
       expect(hasColumn(info, 'mention_unread'), isFalse);
-      expect(hasColumn(info, 'unread_num'), isTrue,
-          reason: 'sanity: v16 keeps unread_num');
+      expect(
+        hasColumn(info, 'unread_num'),
+        isTrue,
+        reason: 'sanity: v16 keeps unread_num',
+      );
     });
 
-    test('applying v17 upgrade adds mention_unread column (default 0)',
-        () async {
-      // seed v16 row
-      await db.insert('conversation', {
-        'user_id': 1,
-        'peer_id': 42,
-        'type': 'C2G',
-        'unread_num': 3,
-      });
+    test(
+      'applying v17 upgrade adds mention_unread column (default 0)',
+      () async {
+        // seed v16 row
+        await db.insert('conversation', {
+          'user_id': 1,
+          'peer_id': 42,
+          'type': 'C2G',
+          'unread_num': 3,
+        });
 
-      await db.execute(_v17Upgrade);
+        await db.execute(_v17Upgrade);
 
-      final info = await tableInfo(db, 'conversation');
-      expect(hasColumn(info, 'mention_unread'), isTrue);
+        final info = await tableInfo(db, 'conversation');
+        expect(hasColumn(info, 'mention_unread'), isTrue);
 
-      final rows = await db.rawQuery(
-          'SELECT mention_unread, unread_num FROM conversation');
-      expect(rows, hasLength(1));
-      expect(rows.first['mention_unread'], 0,
-          reason: 'existing v16 row must get default 0');
-      expect(rows.first['unread_num'], 3);
-    });
+        final rows = await db.rawQuery(
+          'SELECT mention_unread, unread_num FROM conversation',
+        );
+        expect(rows, hasLength(1));
+        expect(
+          rows.first['mention_unread'],
+          0,
+          reason: 'existing v16 row must get default 0',
+        );
+        expect(rows.first['unread_num'], 3);
+      },
+    );
 
     test('v17 table accepts explicit mention_unread writes', () async {
       await db.execute(_v17Upgrade);
@@ -155,8 +178,9 @@ void main() {
         'mention_unread': 2,
       });
 
-      final rows = await db
-          .rawQuery('SELECT mention_unread, unread_num FROM conversation');
+      final rows = await db.rawQuery(
+        'SELECT mention_unread, unread_num FROM conversation',
+      );
       expect(rows.first['mention_unread'], 2);
       expect(rows.first['unread_num'], 5);
     });
@@ -188,8 +212,11 @@ void main() {
 
       final info = await tableInfo(db, 'conversation');
       expect(hasColumn(info, 'mention_unread'), isFalse);
-      expect(hasColumn(info, 'unread_num'), isTrue,
-          reason: 'other columns must be preserved');
+      expect(
+        hasColumn(info, 'unread_num'),
+        isTrue,
+        reason: 'other columns must be preserved',
+      );
     });
 
     test('downgrade preserves non-mention_unread data', () async {
@@ -207,7 +234,8 @@ void main() {
       }
 
       final rows = await db.rawQuery(
-          'SELECT user_id, peer_id, title, unread_num FROM conversation');
+        'SELECT user_id, peer_id, title, unread_num FROM conversation',
+      );
       expect(rows, hasLength(1));
       expect(rows.first['user_id'], 9);
       expect(rows.first['peer_id'], 123);

@@ -20,11 +20,16 @@ void main() {
       expect(event, isA<QrStatusScanned>());
     });
 
-    test('data: {"status":"confirmed","token":"jwt_xyz"} → QrStatusConfirmed("jwt_xyz")', () {
-      final event = parseSseFrame('data: {"status":"confirmed","token":"jwt_xyz"}');
-      expect(event, isA<QrStatusConfirmed>());
-      expect((event as QrStatusConfirmed).token, 'jwt_xyz');
-    });
+    test(
+      'data: {"status":"confirmed","token":"jwt_xyz"} → QrStatusConfirmed("jwt_xyz")',
+      () {
+        final event = parseSseFrame(
+          'data: {"status":"confirmed","token":"jwt_xyz"}',
+        );
+        expect(event, isA<QrStatusConfirmed>());
+        expect((event as QrStatusConfirmed).token, 'jwt_xyz');
+      },
+    );
 
     test('data: {"status":"expired"} → QrStatusExpired', () {
       final event = parseSseFrame('data: {"status":"expired"}');
@@ -42,12 +47,15 @@ void main() {
       expect((event as QrStatusUnknown).rawStatus, 'future_unknown');
     });
 
-    test('data: {"status":"confirmed"} 缺 token → QrStatusUnknown("confirmed") (协议违反防御)', () {
-      // 与 parseQrStatusResponse:155 行为对齐：confirmed 必须附 token
-      final event = parseSseFrame('data: {"status":"confirmed"}');
-      expect(event, isA<QrStatusUnknown>());
-      expect((event as QrStatusUnknown).rawStatus, 'confirmed');
-    });
+    test(
+      'data: {"status":"confirmed"} 缺 token → QrStatusUnknown("confirmed") (协议违反防御)',
+      () {
+        // 与 parseQrStatusResponse:155 行为对齐：confirmed 必须附 token
+        final event = parseSseFrame('data: {"status":"confirmed"}');
+        expect(event, isA<QrStatusUnknown>());
+        expect((event as QrStatusUnknown).rawStatus, 'confirmed');
+      },
+    );
 
     test('非 data: 前缀（如 SSE comment ":heartbeat"）→ QrStatusStopPolling', () {
       // SSE 规范允许 `:heartbeat` 注释行；客户端不应解析为 event

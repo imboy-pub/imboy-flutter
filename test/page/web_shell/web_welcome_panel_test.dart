@@ -90,30 +90,21 @@ void main() {
 
   group('WebWelcomePanel — 图标', () {
     testWidgets('默认渲染 chat_bubble_outline', (tester) async {
-      await _pumpWelcomePanel(
-        tester,
-        child: const WebWelcomePanel(title: 'T'),
-      );
+      await _pumpWelcomePanel(tester, child: const WebWelcomePanel(title: 'T'));
       expect(find.byIcon(Icons.chat_bubble_outline), findsOneWidget);
     });
 
     testWidgets('自定义 icon 可注入', (tester) async {
       await _pumpWelcomePanel(
         tester,
-        child: const WebWelcomePanel(
-          title: 'T',
-          icon: Icons.contacts_outlined,
-        ),
+        child: const WebWelcomePanel(title: 'T', icon: Icons.contacts_outlined),
       );
       expect(find.byIcon(Icons.contacts_outlined), findsOneWidget);
       expect(find.byIcon(Icons.chat_bubble_outline), findsNothing);
     });
 
     testWidgets('图标尺寸为 96', (tester) async {
-      await _pumpWelcomePanel(
-        tester,
-        child: const WebWelcomePanel(title: 'T'),
-      );
+      await _pumpWelcomePanel(tester, child: const WebWelcomePanel(title: 'T'));
       final iconWidget = tester.widget<Icon>(
         find.byIcon(Icons.chat_bubble_outline),
       );
@@ -122,7 +113,9 @@ void main() {
   });
 
   group('WebWelcomePanel — 主题响应', () {
-    testWidgets('light theme: title 颜色取自 ColorScheme.onSurface', (tester) async {
+    testWidgets('light theme: title 颜色取自 ColorScheme.onSurface', (
+      tester,
+    ) async {
       await _pumpWelcomePanel(
         tester,
         child: const WebWelcomePanel(title: 'T'),
@@ -137,10 +130,7 @@ void main() {
     testWidgets('dark theme: 也能正确渲染（不抛异常）', (tester) async {
       await _pumpWelcomePanel(
         tester,
-        child: const WebWelcomePanel(
-          title: 'DarkTitle',
-          subtitle: 'darkSub',
-        ),
+        child: const WebWelcomePanel(title: 'DarkTitle', subtitle: 'darkSub'),
         brightness: Brightness.dark,
       );
       expect(find.text('DarkTitle'), findsOneWidget);
@@ -148,10 +138,7 @@ void main() {
     });
 
     testWidgets('icon 颜色取自 ColorScheme.primary 的 0.6 alpha 版本', (tester) async {
-      await _pumpWelcomePanel(
-        tester,
-        child: const WebWelcomePanel(title: 'T'),
-      );
+      await _pumpWelcomePanel(tester, child: const WebWelcomePanel(title: 'T'));
       final BuildContext ctx = tester.element(find.text('T'));
       final cs = Theme.of(ctx).colorScheme;
       final iconWidget = tester.widget<Icon>(
@@ -168,9 +155,7 @@ void main() {
         child: const WebWelcomePanel(title: 'T'),
         size: const Size(1280, 720),
       );
-      final container = tester.widget<Container>(
-        find.byType(Container).first,
-      );
+      final container = tester.widget<Container>(find.byType(Container).first);
       expect(container.alignment, Alignment.center);
     });
 
@@ -204,5 +189,4 @@ void main() {
       expect(constrainedBox.constraints.maxWidth, 600);
     });
   });
-
 }

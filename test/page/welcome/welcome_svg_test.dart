@@ -58,9 +58,7 @@ void main() {
       expect(find.byType(SvgPicture), findsAtLeastNWidgets(1));
     });
 
-    testWidgets('SvgPicture has 220×220 dimensions per design', (
-      tester,
-    ) async {
+    testWidgets('SvgPicture has 220×220 dimensions per design', (tester) async {
       await _pumpWelcome(tester);
 
       // 取首个 SvgPicture（step 1）
@@ -104,7 +102,8 @@ void main() {
         expect(
           svg.bytesLoader,
           isA<SvgStringLoader>(),
-          reason: 'Welcome 引导插画应用 inline _svgStep1/2/3 const string，'
+          reason:
+              'Welcome 引导插画应用 inline _svgStep1/2/3 const string，'
               '而非 asset / network 加载（启动期不依赖网络/磁盘）',
         );
       },

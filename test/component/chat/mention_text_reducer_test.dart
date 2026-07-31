@@ -50,10 +50,7 @@ void main() {
     });
 
     test('handles two consecutive @ tokens', () {
-      expect(
-        reduce('@Alice @Bob', {'Alice'}),
-        '@Alice ~~@已退群成员~~',
-      );
+      expect(reduce('@Alice @Bob', {'Alice'}), '@Alice ~~@已退群成员~~');
     });
 
     test('handles @ at start of line (no preceding char)', () {
@@ -91,17 +88,17 @@ void main() {
   });
 
   group('MentionTextReducer.applyTo — TextMessage projection (Z-2a)', () {
-    TextMessage build(String text) => TextMessage(
-          id: 'm1',
-          authorId: 'uid_sender',
-          text: text,
-        );
+    TextMessage build(String text) =>
+        TextMessage(id: 'm1', authorId: 'uid_sender', text: text);
 
     test('returns same instance when activeMemberNames is empty', () {
       final msg = build('@Bob 吃饭');
       final out = MentionTextReducer.applyTo(msg, const {});
-      expect(identical(msg, out), isTrue,
-          reason: 'empty set must short-circuit — no copyWith churn');
+      expect(
+        identical(msg, out),
+        isTrue,
+        reason: 'empty set must short-circuit — no copyWith churn',
+      );
     });
 
     test('returns same instance when text has no @ token', () {
@@ -113,8 +110,11 @@ void main() {
     test('returns same instance when reduce produces identical text', () {
       final msg = build('@Alice 吃饭');
       final out = MentionTextReducer.applyTo(msg, {'Alice'});
-      expect(identical(msg, out), isTrue,
-          reason: 'no-op reduce should not allocate a new TextMessage');
+      expect(
+        identical(msg, out),
+        isTrue,
+        reason: 'no-op reduce should not allocate a new TextMessage',
+      );
     });
 
     test('returns NEW instance with reduced text when a member has left', () {

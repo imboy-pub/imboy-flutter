@@ -51,10 +51,7 @@ Future<void> _pumpHostAndShow(
   await tester.pumpAndSettle();
 }
 
-TextMessage _textMsg({
-  String authorId = _currentUid,
-  DateTime? createdAt,
-}) {
+TextMessage _textMsg({String authorId = _currentUid, DateTime? createdAt}) {
   return TextMessage(
     id: 'msg_1',
     authorId: authorId,
@@ -77,8 +74,7 @@ void main() {
   });
 
   group('MessageQuickActionMenu.showRetryMenu', () {
-    testWidgets('renders 重试 (refresh icon) + 删除 (delete icon)',
-        (tester) async {
+    testWidgets('renders 重试 (refresh icon) + 删除 (delete icon)', (tester) async {
       await _pumpHostAndShow(tester, (ctx) {
         MessageQuickActionMenu.showRetryMenu(
           context: ctx,
@@ -95,8 +91,7 @@ void main() {
       expect(find.byIcon(Icons.delete_outline), findsOneWidget);
     });
 
-    testWidgets('tap 重新发送 → 触发 onRetry + 关闭 BottomSheet',
-        (tester) async {
+    testWidgets('tap 重新发送 → 触发 onRetry + 关闭 BottomSheet', (tester) async {
       var retryCount = 0;
       await _pumpHostAndShow(tester, (ctx) {
         MessageQuickActionMenu.showRetryMenu(
@@ -135,8 +130,7 @@ void main() {
   });
 
   group('MessageQuickActionMenu.showQuickActionMenu', () {
-    testWidgets('TextMessage → 渲染 复制 / 转发 / 收藏 / 回复 / 删除',
-        (tester) async {
+    testWidgets('TextMessage → 渲染 复制 / 转发 / 收藏 / 回复 / 删除', (tester) async {
       await _pumpHostAndShow(tester, (ctx) {
         MessageQuickActionMenu.showQuickActionMenu(
           context: ctx,
@@ -196,8 +190,7 @@ void main() {
       expect(find.text('撤回'), findsNothing);
     });
 
-    testWidgets('authorId == currentUid 但超过 2 分钟 → 不显示 "撤回"',
-        (tester) async {
+    testWidgets('authorId == currentUid 但超过 2 分钟 → 不显示 "撤回"', (tester) async {
       // 3 分钟前发送
       final oldTime = DateTime.now().subtract(const Duration(minutes: 3));
       await _pumpHostAndShow(tester, (ctx) {

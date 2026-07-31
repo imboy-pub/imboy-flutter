@@ -23,9 +23,7 @@ void main() {
       final result = await service.unmute(gid: '10086', userId: 'u1');
 
       expect(result, isA<UnmuteSuccess>());
-      expect(api.calls, [
-        ('/unmute', '10086', 'u1'),
-      ]);
+      expect(api.calls, [('/unmute', '10086', 'u1')]);
     });
 
     test('API ok=false → UnmuteApiFailure', () async {
@@ -59,10 +57,10 @@ void main() {
 
     test('sealed —— switch 必须穷尽', () {
       String describe(UnmuteResult r) => switch (r) {
-            UnmuteSuccess() => 'ok',
-            UnmuteValidationError(:final message) => 'invalid:$message',
-            UnmuteApiFailure(:final message) => 'fail:${message ?? ""}',
-          };
+        UnmuteSuccess() => 'ok',
+        UnmuteValidationError(:final message) => 'invalid:$message',
+        UnmuteApiFailure(:final message) => 'fail:${message ?? ""}',
+      };
 
       expect(describe(const UnmuteSuccess()), 'ok');
       expect(describe(const UnmuteValidationError('bad')), 'invalid:bad');

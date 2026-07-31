@@ -186,11 +186,7 @@ void main() {
     test('authoritative pull 应隐藏服务端已不存在的本地会话', () async {
       final api = _FakeConversationApi()
         ..entries = const <Map<String, dynamic>>[];
-      await _insertConversation(
-        peerId: 3001,
-        type: 'C2C',
-        lastTime: 1000,
-      );
+      await _insertConversation(peerId: 3001, type: 'C2C', lastTime: 1000);
 
       final container = ProviderContainer(
         overrides: [
@@ -244,11 +240,7 @@ void main() {
         lastTime: 1000,
         isShow: false,
       );
-      await _insertConversation(
-        peerId: 4002,
-        type: 'C2C',
-        lastTime: 1000,
-      );
+      await _insertConversation(peerId: 4002, type: 'C2C', lastTime: 1000);
 
       final container = ProviderContainer(
         overrides: [
@@ -263,10 +255,7 @@ void main() {
           .read(conversationProvider.notifier)
           .syncAuthoritativeConversationList(trigger: 'test_restore');
 
-      final restored = await ConversationRepo().findByPeerId(
-        'C2C',
-        '4001',
-      );
+      final restored = await ConversationRepo().findByPeerId('C2C', '4001');
       final conversations = container.read(conversationProvider).conversations;
 
       expect(restored, isNotNull);
@@ -299,10 +288,7 @@ void main() {
       final ok = await container
           .read(conversationProvider.notifier)
           .deleteConversationRemote(conversation);
-      final stored = await ConversationRepo().findByPeerId(
-        'C2C',
-        '5001',
-      );
+      final stored = await ConversationRepo().findByPeerId('C2C', '5001');
 
       expect(ok, isFalse);
       expect(api.deleteCalls.single, {
@@ -338,10 +324,7 @@ void main() {
       final stored = await ConversationRepo().findByPeerId('C2C', '6001');
 
       expect(ok, isFalse);
-      expect(api.pinCalls.single, {
-        'conversation_id': '6001',
-        'type': 'C2C',
-      });
+      expect(api.pinCalls.single, {'conversation_id': '6001', 'type': 'C2C'});
       expect(stored, isNotNull);
       expect(stored!.isPinned, isFalse);
 

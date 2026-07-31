@@ -27,10 +27,7 @@ GoRouter _stubRouter() {
         builder: (_, _) => const ManageAccountPage(),
       ),
       GoRoute(path: '/sign_in', builder: (_, _) => stub('sign_in stub')),
-      GoRoute(
-        path: '/bottom_navigation',
-        builder: (_, _) => stub('home stub'),
-      ),
+      GoRoute(path: '/bottom_navigation', builder: (_, _) => stub('home stub')),
       GoRoute(
         path: '/account_security',
         builder: (_, _) => stub('account_security stub'),
@@ -48,9 +45,7 @@ Future<void> _pump(WidgetTester tester) async {
   });
 
   await tester.pumpWidget(
-    TranslationProvider(
-      child: MaterialApp.router(routerConfig: _stubRouter()),
-    ),
+    TranslationProvider(child: MaterialApp.router(routerConfig: _stubRouter())),
   );
   await tester.pumpAndSettle();
 }
@@ -80,8 +75,7 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('default page 0 → 显示"绑定手机号" + 描述 + "立即绑定" 按钮',
-        (tester) async {
+    testWidgets('default page 0 → 显示"绑定手机号" + 描述 + "立即绑定" 按钮', (tester) async {
       await _pump(tester);
 
       // i18n: bindMobile = "绑定手机号"

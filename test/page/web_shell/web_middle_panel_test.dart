@@ -68,23 +68,19 @@ void main() {
     });
 
     testWidgets('自定义 width 生效', (tester) async {
-      await _pumpPanel(
-        tester,
-        currentTab: 0,
-        tabs: _kAllTabs,
-        width: 480,
-      );
+      await _pumpPanel(tester, currentTab: 0, tabs: _kAllTabs, width: 480);
       final panel = tester.widget<WebMiddlePanel>(find.byType(WebMiddlePanel));
       expect(panel.width, 480);
     });
   });
 
   group('WebMiddlePanel — keepAlive', () {
-    testWidgets('keepAlive=true: IndexedStack.children 长度等于 tabs.length', (tester) async {
+    testWidgets('keepAlive=true: IndexedStack.children 长度等于 tabs.length', (
+      tester,
+    ) async {
       await _pumpPanel(tester, currentTab: 0, tabs: _kAllTabs);
       expect(find.byType(IndexedStack), findsOneWidget);
-      final stack =
-          tester.widget<IndexedStack>(find.byType(IndexedStack));
+      final stack = tester.widget<IndexedStack>(find.byType(IndexedStack));
       expect(stack.children.length, _kAllTabs.length);
       // skipOffstage:false 可见 + 隐藏的全部子节点
       expect(
@@ -105,10 +101,11 @@ void main() {
       );
     });
 
-    testWidgets('keepAlive=true: IndexedStack.index 跟随 currentTab', (tester) async {
+    testWidgets('keepAlive=true: IndexedStack.index 跟随 currentTab', (
+      tester,
+    ) async {
       await _pumpPanel(tester, currentTab: 2, tabs: _kAllTabs);
-      final stack =
-          tester.widget<IndexedStack>(find.byType(IndexedStack));
+      final stack = tester.widget<IndexedStack>(find.byType(IndexedStack));
       expect(stack.index, 2);
     });
 
@@ -126,7 +123,9 @@ void main() {
       expect(find.byKey(const ValueKey('tab-2')), findsNothing);
     });
 
-    testWidgets('keepAlive=true: 切换 tab 后旧 tab 仍 mount（state 保留）', (tester) async {
+    testWidgets('keepAlive=true: 切换 tab 后旧 tab 仍 mount（state 保留）', (
+      tester,
+    ) async {
       // 第一次以 tab=0 渲染（用 skipOffstage:false 看完整 IndexedStack 子树）
       await _pumpPanel(tester, currentTab: 0, tabs: _kAllTabs);
       expect(
@@ -136,8 +135,7 @@ void main() {
 
       // 切换到 tab=2 后，IndexedStack 仍持有 4 个 children
       await _pumpPanel(tester, currentTab: 2, tabs: _kAllTabs);
-      final stack =
-          tester.widget<IndexedStack>(find.byType(IndexedStack));
+      final stack = tester.widget<IndexedStack>(find.byType(IndexedStack));
       expect(stack.children.length, 4);
       expect(stack.index, 2);
     });
@@ -146,14 +144,15 @@ void main() {
   group('WebMiddlePanel — 主题与边框', () {
     testWidgets('背景用 ColorScheme.surface', (tester) async {
       await _pumpPanel(tester, currentTab: 0, tabs: _kAllTabs);
-      final BuildContext ctx =
-          tester.element(find.byType(WebMiddlePanel));
+      final BuildContext ctx = tester.element(find.byType(WebMiddlePanel));
       final cs = Theme.of(ctx).colorScheme;
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(WebMiddlePanel),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(WebMiddlePanel),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final decoration = container.decoration as BoxDecoration?;
       expect(decoration?.color, cs.surface);
@@ -161,21 +160,19 @@ void main() {
 
     testWidgets('右侧有 outlineVariant 颜色的 border', (tester) async {
       await _pumpPanel(tester, currentTab: 0, tabs: _kAllTabs);
-      final BuildContext ctx =
-          tester.element(find.byType(WebMiddlePanel));
+      final BuildContext ctx = tester.element(find.byType(WebMiddlePanel));
       final cs = Theme.of(ctx).colorScheme;
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(WebMiddlePanel),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(WebMiddlePanel),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       final decoration = container.decoration as BoxDecoration?;
       expect(decoration?.border?.bottom, BorderSide.none);
-      expect(
-        (decoration?.border as Border?)?.right.color,
-        cs.outlineVariant,
-      );
+      expect((decoration?.border as Border?)?.right.color, cs.outlineVariant);
       expect((decoration?.border as Border?)?.right.width, 0.5);
     });
   });
@@ -183,30 +180,21 @@ void main() {
   group('WebMiddlePanel — assert 防御', () {
     test('tabs 长度 < 2 应触发 assert', () {
       expect(
-        () => WebMiddlePanel(
-          currentTab: 0,
-          tabs: const [SizedBox()],
-        ),
+        () => WebMiddlePanel(currentTab: 0, tabs: const [SizedBox()]),
         throwsAssertionError,
       );
     });
 
     test('currentTab 越界负数应触发 assert', () {
       expect(
-        () => WebMiddlePanel(
-          currentTab: -1,
-          tabs: _kAllTabs,
-        ),
+        () => WebMiddlePanel(currentTab: -1, tabs: _kAllTabs),
         throwsAssertionError,
       );
     });
 
     test('currentTab 越界正数应触发 assert', () {
       expect(
-        () => WebMiddlePanel(
-          currentTab: 4,
-          tabs: _kAllTabs,
-        ),
+        () => WebMiddlePanel(currentTab: 4, tabs: _kAllTabs),
         throwsAssertionError,
       );
     });

@@ -71,8 +71,7 @@ void main() {
   });
 
   group('ForgotPasswordPage layout', () {
-    testWidgets('renders PassportTitle (品牌锚点 + Hero relay)',
-        (tester) async {
+    testWidgets('renders PassportTitle (品牌锚点 + Hero relay)', (tester) async {
       await _pump(tester);
       expect(find.byType(PassportTitle), findsOneWidget);
 
@@ -98,21 +97,20 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('default Tab 0 (email) → 1 个 TextField + "下一步" 按钮',
-        (tester) async {
+    testWidgets('default Tab 0 (email) → 1 个 TextField + "下一步" 按钮', (
+      tester,
+    ) async {
       await _pump(tester);
       // _buildEmailInput 仅 1 个 TextField
-      expect(
-        find.byType(TextField).evaluate().length,
-        greaterThanOrEqualTo(1),
-      );
+      expect(find.byType(TextField).evaluate().length, greaterThanOrEqualTo(1));
       // "下一步" 按钮（i18n nextStep）
       expect(find.text('下一步'), findsAtLeastNWidgets(1));
       await _unmount(tester);
     });
 
-    testWidgets('renders email hint "请输入邮箱" (pleaseInputParam)',
-        (tester) async {
+    testWidgets('renders email hint "请输入邮箱" (pleaseInputParam)', (
+      tester,
+    ) async {
       await _pump(tester);
       // i18n: pleaseInputParam = "请输入$param"，param=email="邮箱" → "请输入邮箱"
       expect(find.text('请输入邮箱'), findsOneWidget);

@@ -16,11 +16,7 @@ void main() {
     displayName: 'Alice',
     role: 1,
   );
-  const bob = MentionCandidate(
-    userId: 'uid_bob',
-    displayName: 'Bob',
-    role: 1,
-  );
+  const bob = MentionCandidate(userId: 'uid_bob', displayName: 'Bob', role: 1);
   const carol = MentionCandidate(
     userId: 'uid_carol',
     displayName: 'Carol',
@@ -38,8 +34,7 @@ void main() {
     });
 
     test('empty countMap preserves input order', () {
-      final out =
-          MentionRanking.sortByFrequency([alice, bob, carol], const {});
+      final out = MentionRanking.sortByFrequency([alice, bob, carol], const {});
       expect(ids(out), ['uid_alice', 'uid_bob', 'uid_carol']);
     });
 
@@ -66,8 +61,11 @@ void main() {
         [alice, bob, carol],
         {'uid_alice': 5, 'uid_bob': 5, 'uid_carol': 5},
       );
-      expect(ids(out), ['uid_alice', 'uid_bob', 'uid_carol'],
-          reason: 'equal counts must keep the original relative order');
+      expect(ids(out), [
+        'uid_alice',
+        'uid_bob',
+        'uid_carol',
+      ], reason: 'equal counts must keep the original relative order');
     });
 
     test('member missing in countMap is treated as 0', () {
@@ -123,28 +121,36 @@ void main() {
       final input = [alice, bob, carol];
       final snapshot = List<MentionCandidate>.from(input);
       MentionRanking.sortByFrequency(input, {'uid_bob': 10});
-      expect(input, snapshot,
-          reason: 'input list must not be mutated in place');
+      expect(
+        input,
+        snapshot,
+        reason: 'input list must not be mutated in place',
+      );
     });
 
-    test('returns a new list (not the same reference) when ordering changes',
-        () {
-      final input = [alice, bob];
-      final out = MentionRanking.sortByFrequency(input, {'uid_bob': 10});
-      expect(identical(input, out), isFalse);
-    });
+    test(
+      'returns a new list (not the same reference) when ordering changes',
+      () {
+        final input = [alice, bob];
+        final out = MentionRanking.sortByFrequency(input, {'uid_bob': 10});
+        expect(identical(input, out), isFalse);
+      },
+    );
 
     test('returns a new list even when ordering does NOT change', () {
       // Even if frequency map produces same order as input, output should
       // be a fresh list (so callers can safely mutate the result).
       final input = [alice, bob];
-      final out = MentionRanking.sortByFrequency(
-        input,
-        {'uid_alice': 10, 'uid_bob': 5},
-      );
+      final out = MentionRanking.sortByFrequency(input, {
+        'uid_alice': 10,
+        'uid_bob': 5,
+      });
       expect(ids(out), ['uid_alice', 'uid_bob']);
-      expect(identical(input, out), isFalse,
-          reason: 'caller must always receive an independently mutable list');
+      expect(
+        identical(input, out),
+        isFalse,
+        reason: 'caller must always receive an independently mutable list',
+      );
     });
 
     test('mutating returned list does not affect input list', () {
@@ -191,25 +197,11 @@ void main() {
     test('multi-tier ties keep stable order within each tier', () {
       // Two tiers: count=5 for [alice, bob, carol]; count=1 for [d, e].
       // Result must keep original tier-internal order.
-      const d = MentionCandidate(
-        userId: 'uid_d',
-        displayName: 'D',
-        role: 1,
-      );
-      const e = MentionCandidate(
-        userId: 'uid_e',
-        displayName: 'E',
-        role: 1,
-      );
+      const d = MentionCandidate(userId: 'uid_d', displayName: 'D', role: 1);
+      const e = MentionCandidate(userId: 'uid_e', displayName: 'E', role: 1);
       final out = MentionRanking.sortByFrequency(
         [alice, d, bob, e, carol],
-        {
-          'uid_alice': 5,
-          'uid_bob': 5,
-          'uid_carol': 5,
-          'uid_d': 1,
-          'uid_e': 1,
-        },
+        {'uid_alice': 5, 'uid_bob': 5, 'uid_carol': 5, 'uid_d': 1, 'uid_e': 1},
       );
       expect(
         ids(out),

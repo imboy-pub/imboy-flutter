@@ -55,8 +55,11 @@ void main() {
         {'id': 'a'},
       ];
       final snapshot = pickFeedSnapshot(remote: null, cached: cached);
-      expect(identical(snapshot.items, cached), isFalse,
-          reason: '应返回 cached 的浅拷贝');
+      expect(
+        identical(snapshot.items, cached),
+        isFalse,
+        reason: '应返回 cached 的浅拷贝',
+      );
     });
   });
 }

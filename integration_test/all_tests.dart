@@ -6,7 +6,8 @@ import 'chat/group_chat_test.dart' as group_chat;
 import 'channel/channel_e2e_test.dart' as channel_e2e;
 import 'channel/channel_publish_test.dart' as channel_publish;
 import 'channel/channel_edit_persistence_test.dart' as channel_edit;
-import 'channel/channel_subscribed_detail_consistency_test.dart' as channel_consist;
+import 'channel/channel_subscribed_detail_consistency_test.dart'
+    as channel_consist;
 import 'contact/friend_management_test.dart' as friend_mgmt;
 import 'contact/add_friend_request_test.dart' as add_friend;
 import 'auth/register_flow_test.dart' as register;

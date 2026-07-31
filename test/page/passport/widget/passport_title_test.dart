@@ -35,7 +35,8 @@ void main() {
       expect(
         hasBrandHero,
         isTrue,
-        reason: 'PassportTitle must wrap logo in Hero(tag: kBrandLogoHeroTag) '
+        reason:
+            'PassportTitle must wrap logo in Hero(tag: kBrandLogoHeroTag) '
             'for Splash → Welcome → SignIn relay',
       );
     });
@@ -61,9 +62,7 @@ void main() {
       expect(text.style?.letterSpacing, 1.2);
     });
 
-    testWidgets('renders slogan "Simple · Secure · Reliable"', (
-      tester,
-    ) async {
+    testWidgets('renders slogan "Simple · Secure · Reliable"', (tester) async {
       await pump(tester);
       expect(find.text('Simple · Secure · Reliable'), findsOneWidget);
     });

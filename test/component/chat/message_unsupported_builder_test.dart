@@ -50,7 +50,9 @@ void main() {
     testWidgets('总是渲染 warning_amber_rounded 图标 + iosOrange', (tester) async {
       await _pump(tester, message: _msg());
       expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
-      final icon = tester.widget<Icon>(find.byIcon(Icons.warning_amber_rounded));
+      final icon = tester.widget<Icon>(
+        find.byIcon(Icons.warning_amber_rounded),
+      );
       expect(icon.color, AppColors.iosOrange);
     });
 
@@ -61,42 +63,45 @@ void main() {
   });
 
   group('ImUnsupportedMessageBuilder displayType subtext', () {
-    testWidgets(r'msg_type 非空 + 非 unknown → 显示 "($msgType)" 副标签',
-        (tester) async {
-      await _pump(
-        tester,
-        message: _msg(metadata: {'msg_type': 'sticker_v2'}),
-      );
+    testWidgets(r'msg_type 非空 + 非 unknown → 显示 "($msgType)" 副标签', (
+      tester,
+    ) async {
+      await _pump(tester, message: _msg(metadata: {'msg_type': 'sticker_v2'}));
       expect(find.text('(sticker_v2)'), findsOneWidget);
     });
 
-    testWidgets('msg_type=unknown + original_type 非空 → 副标签隐藏（按当前实现：msgType 非空就会用 unknown）',
-        (tester) async {
-      // 注：当前实现的回退逻辑是 displayType = msgType.isNotEmpty ? msgType : originalType
-      // 所以 msg_type='unknown' 时 displayType='unknown' 会被 isNotEmpty 命中，
-      // 然后被 displayType != 'unknown' 守卫隐藏 → 副标签不渲染（即便 original_type 有值）。
-      await _pump(
-        tester,
-        message: _msg(metadata: {
-          'msg_type': 'unknown',
-          'original_type': 'rich_card',
-        }),
-      );
-      // 主标签渲染
-      expect(find.text('不支持的消息类型'), findsOneWidget);
-      // 副标签 NOT 渲染（msg_type='unknown' 即被隐藏，回退仅在 msg_type 为空字符串时生效）
-      expect(find.text('(unknown)'), findsNothing);
-      expect(find.text('(rich_card)'), findsNothing);
-    });
+    testWidgets(
+      'msg_type=unknown + original_type 非空 → 副标签隐藏（按当前实现：msgType 非空就会用 unknown）',
+      (tester) async {
+        // 注：当前实现的回退逻辑是 displayType = msgType.isNotEmpty ? msgType : originalType
+        // 所以 msg_type='unknown' 时 displayType='unknown' 会被 isNotEmpty 命中，
+        // 然后被 displayType != 'unknown' 守卫隐藏 → 副标签不渲染（即便 original_type 有值）。
+        await _pump(
+          tester,
+          message: _msg(
+            metadata: {'msg_type': 'unknown', 'original_type': 'rich_card'},
+          ),
+        );
+        // 主标签渲染
+        expect(find.text('不支持的消息类型'), findsOneWidget);
+        // 副标签 NOT 渲染（msg_type='unknown' 即被隐藏，回退仅在 msg_type 为空字符串时生效）
+        expect(find.text('(unknown)'), findsNothing);
+        expect(find.text('(rich_card)'), findsNothing);
+      },
+    );
 
-    testWidgets('msg_type 缺失（默认 "unknown"）+ original_type 缺失 → 副标签隐藏',
-        (tester) async {
+    testWidgets('msg_type 缺失（默认 "unknown"）+ original_type 缺失 → 副标签隐藏', (
+      tester,
+    ) async {
       await _pump(tester, message: _msg(metadata: const {}));
       expect(find.text('不支持的消息类型'), findsOneWidget);
       // displayType = 'unknown'（msg_type 字段不存在 → ?? 'unknown'）
       // 守卫 != 'unknown' 不通过 → 副标签不渲染
-      expect(find.textContaining('('), findsNothing,
-          reason: '没有任何带括号的副标签 Text');
+      expect(
+        find.textContaining('('),
+        findsNothing,
+        reason: '没有任何带括号的副标签 Text',
+      );
     });
 
     testWidgets('完全无 metadata → 副标签隐藏', (tester) async {
@@ -106,10 +111,7 @@ void main() {
     });
 
     testWidgets('副标签为斜体 + 较小字号', (tester) async {
-      await _pump(
-        tester,
-        message: _msg(metadata: {'msg_type': 'custom_x'}),
-      );
+      await _pump(tester, message: _msg(metadata: {'msg_type': 'custom_x'}));
       final sub = tester.widget<Text>(find.text('(custom_x)'));
       expect(sub.style?.fontStyle, FontStyle.italic);
       expect(sub.style?.fontSize, 10);

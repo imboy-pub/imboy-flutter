@@ -43,37 +43,33 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets(
-      'AwaitingConfirm（无 deviceInfo）→ 显示标题 + 确认按钮 + 取消按钮',
-      (tester) async {
-        await tester.pumpWidget(
-          wrap(build(const QrLoginConfirmAwaitingConfirm())),
-        );
-        // 关键 UI 元素可见
-        expect(find.text('Web 端登录确认'), findsOneWidget);
-        expect(find.text('确认登录'), findsOneWidget);
-        expect(find.text('取消'), findsOneWidget);
-      },
-    );
+    testWidgets('AwaitingConfirm（无 deviceInfo）→ 显示标题 + 确认按钮 + 取消按钮', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(build(const QrLoginConfirmAwaitingConfirm())),
+      );
+      // 关键 UI 元素可见
+      expect(find.text('Web 端登录确认'), findsOneWidget);
+      expect(find.text('确认登录'), findsOneWidget);
+      expect(find.text('取消'), findsOneWidget);
+    });
 
-    testWidgets(
-      'AwaitingConfirm + deviceInfo → 显示设备名称卡片',
-      (tester) async {
-        await tester.pumpWidget(
-          wrap(
-            build(
-              const QrLoginConfirmAwaitingConfirm(
-                deviceInfo: QrLoginDeviceInfo(
-                  deviceName: 'Chrome 120',
-                  platform: 'web',
-                ),
+    testWidgets('AwaitingConfirm + deviceInfo → 显示设备名称卡片', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          build(
+            const QrLoginConfirmAwaitingConfirm(
+              deviceInfo: QrLoginDeviceInfo(
+                deviceName: 'Chrome 120',
+                platform: 'web',
               ),
             ),
           ),
-        );
-        expect(find.textContaining('Chrome 120'), findsOneWidget);
-      },
-    );
+        ),
+      );
+      expect(find.textContaining('Chrome 120'), findsOneWidget);
+    });
 
     testWidgets('Confirming → 显示加载指示器（登录中）', (tester) async {
       await tester.pumpWidget(wrap(build(const QrLoginConfirmConfirming())));
@@ -98,27 +94,20 @@ void main() {
     });
 
     testWidgets('CancelledByMe → 显示"已取消"文案', (tester) async {
-      await tester.pumpWidget(
-        wrap(build(const QrLoginConfirmCancelledByMe())),
-      );
+      await tester.pumpWidget(wrap(build(const QrLoginConfirmCancelledByMe())));
       expect(find.textContaining('已取消'), findsOneWidget);
     });
 
-    testWidgets(
-      'CancelledByOther → 显示"已取消"文案 + 关闭按钮',
-      (tester) async {
-        await tester.pumpWidget(
-          wrap(build(const QrLoginConfirmCancelledByOther())),
-        );
-        expect(find.textContaining('已取消'), findsOneWidget);
-        expect(find.text('关闭'), findsOneWidget);
-      },
-    );
+    testWidgets('CancelledByOther → 显示"已取消"文案 + 关闭按钮', (tester) async {
+      await tester.pumpWidget(
+        wrap(build(const QrLoginConfirmCancelledByOther())),
+      );
+      expect(find.textContaining('已取消'), findsOneWidget);
+      expect(find.text('关闭'), findsOneWidget);
+    });
 
     testWidgets('Failed(msg) → 显示自定义 msg + 关闭按钮', (tester) async {
-      await tester.pumpWidget(
-        wrap(build(const QrLoginConfirmFailed('网络错误'))),
-      );
+      await tester.pumpWidget(wrap(build(const QrLoginConfirmFailed('网络错误'))));
       expect(find.text('网络错误'), findsOneWidget);
       expect(find.text('关闭'), findsOneWidget);
     });
@@ -159,10 +148,7 @@ void main() {
       var called = 0;
       await tester.pumpWidget(
         wrap(
-          build(
-            const QrLoginConfirmFailed('网络错误'),
-            onClose: () => called++,
-          ),
+          build(const QrLoginConfirmFailed('网络错误'), onClose: () => called++),
         ),
       );
       await tester.tap(find.text('关闭'));
@@ -173,36 +159,30 @@ void main() {
     testWidgets('Expired tap "关闭" → onClose 被调用', (tester) async {
       var called = 0;
       await tester.pumpWidget(
-        wrap(
-          build(const QrLoginConfirmExpired(), onClose: () => called++),
-        ),
+        wrap(build(const QrLoginConfirmExpired(), onClose: () => called++)),
       );
       await tester.tap(find.text('关闭'));
       await tester.pumpAndSettle();
       expect(called, 1);
     });
 
-    testWidgets(
-      'Confirming 状态：tap 确认按钮无反应（按钮已被替换为 loading）',
-      (tester) async {
-        var confirmed = 0;
-        await tester.pumpWidget(
-          wrap(
-            build(
-              const QrLoginConfirmConfirming(),
-              onConfirm: () => confirmed++,
-            ),
-          ),
-        );
-        // 验证确认按钮已不存在
-        expect(find.text('确认登录'), findsNothing);
-        expect(confirmed, 0);
-      },
-    );
+    testWidgets('Confirming 状态：tap 确认按钮无反应（按钮已被替换为 loading）', (tester) async {
+      var confirmed = 0;
+      await tester.pumpWidget(
+        wrap(
+          build(const QrLoginConfirmConfirming(), onConfirm: () => confirmed++),
+        ),
+      );
+      // 验证确认按钮已不存在
+      expect(find.text('确认登录'), findsNothing);
+      expect(confirmed, 0);
+    });
   });
 
   group('QrLoginConfirmContent — 触达可访问性', () {
-    testWidgets('确认按钮 minHeight ≥ 44pt（iOS HIG / Material a11y）', (tester) async {
+    testWidgets('确认按钮 minHeight ≥ 44pt（iOS HIG / Material a11y）', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         wrap(build(const QrLoginConfirmAwaitingConfirm())),
       );

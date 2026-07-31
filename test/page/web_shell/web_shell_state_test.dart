@@ -70,10 +70,7 @@ void main() {
       final updated = original.copyWith(
         selectedItem: const ChannelSelection(channelId: 'ch1'),
       );
-      expect(
-        updated.selectedItem,
-        const ChannelSelection(channelId: 'ch1'),
-      );
+      expect(updated.selectedItem, const ChannelSelection(channelId: 'ch1'));
     });
   });
 
@@ -102,10 +99,7 @@ void main() {
         currentTab: 1,
         selectedItem: const ContactSelection(uid: 'u1'),
       );
-      final updated = original.copyWith(
-        currentTab: 2,
-        clearSelection: true,
-      );
+      final updated = original.copyWith(currentTab: 2, clearSelection: true);
       expect(updated.currentTab, 2);
       expect(updated.selectedItem, isNull);
     });
@@ -179,9 +173,7 @@ void main() {
 
     test('ChatSelection 解构正确', () {
       expect(
-        describeSelection(
-          const ChatSelection(peerId: 'p1', chatType: 'C2G'),
-        ),
+        describeSelection(const ChatSelection(peerId: 'p1', chatType: 'C2G')),
         'chat:C2G:p1',
       );
     });
@@ -227,12 +219,8 @@ void main() {
     });
 
     test('selection 不同则 state 不相等', () {
-      final a = WebShellState(
-        selectedItem: const ContactSelection(uid: 'u1'),
-      );
-      final b = WebShellState(
-        selectedItem: const ContactSelection(uid: 'u2'),
-      );
+      final a = WebShellState(selectedItem: const ContactSelection(uid: 'u1'));
+      final b = WebShellState(selectedItem: const ContactSelection(uid: 'u2'));
       expect(a, isNot(equals(b)));
     });
 

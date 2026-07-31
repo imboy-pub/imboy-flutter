@@ -15,45 +15,71 @@ void main() {
       await checkPreconditions(tester);
       await settle(tester, maxSeconds: 2);
 
-      if (!await _openConversationTab(tester)) { markTestSkipped('无法进入会话列表'); return; }
+      if (!await _openConversationTab(tester)) {
+        markTestSkipped('无法进入会话列表');
+        return;
+      }
       await settle(tester, maxSeconds: 2);
 
       // 优先用 Key 定位会话列表项，降级回退到 ListTile 类型查找
-      final convItemFinder = tester.any(find.byKey(const Key('conversation_list_item')))
+      final convItemFinder =
+          tester.any(find.byKey(const Key('conversation_list_item')))
           ? find.byKey(const Key('conversation_list_item'))
           : find.byType(ListTile);
-      if (!tester.any(convItemFinder)) { markTestSkipped('会话列表为空'); return; }
+      if (!tester.any(convItemFinder)) {
+        markTestSkipped('会话列表为空');
+        return;
+      }
 
       await safeTap(tester, convItemFinder.first);
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'c2c_01_chat_page');
 
       final input = find.byType(TextField);
-      if (!tester.any(input)) { markTestSkipped('聊天页无输入框'); return; }
+      if (!tester.any(input)) {
+        markTestSkipped('聊天页无输入框');
+        return;
+      }
 
       final msg = '[C2C-E2E] ${DateTime.now().millisecondsSinceEpoch}';
       await tester.enterText(input.first, msg);
 
-      final sent = await tapAny(tester, [find.byIcon(Icons.send), find.text('发送'), find.text('Send')]);
-      if (!sent) { await tester.sendKeyEvent(LogicalKeyboardKey.enter); await settle(tester, maxSeconds: 2); }
+      final sent = await tapAny(tester, [
+        find.byIcon(Icons.send),
+        find.text('发送'),
+        find.text('Send'),
+      ]);
+      if (!sent) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await settle(tester, maxSeconds: 2);
+      }
 
       await settle(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'c2c_02_after_send');
 
-      expect(find.textContaining('[C2C-E2E]'), findsWidgets,
-          reason: '发送后消息应出现在聊天列表中');
+      expect(
+        find.textContaining('[C2C-E2E]'),
+        findsWidgets,
+        reason: '发送后消息应出现在聊天列表中',
+      );
       drainKnownFrameworkExceptions(tester);
     }, timeout: const Timeout(Duration(minutes: 5)));
   });
 }
 
 bool _isOnConvList(WidgetTester t) =>
-    t.any(find.byIcon(Icons.search)) && t.any(find.byIcon(Icons.add_circle_outline));
+    t.any(find.byIcon(Icons.search)) &&
+    t.any(find.byIcon(Icons.add_circle_outline));
 
 Future<bool> _openConversationTab(WidgetTester t) async {
   if (_isOnConvList(t)) return true;
-  await tapAny(t, [find.byIcon(Icons.chat_bubble), find.byIcon(Icons.chat_bubble_outline),
-      find.text('消息'), find.text('会话'), find.text('Chats')]);
+  await tapAny(t, [
+    find.byIcon(Icons.chat_bubble),
+    find.byIcon(Icons.chat_bubble_outline),
+    find.text('消息'),
+    find.text('会话'),
+    find.text('Chats'),
+  ]);
   for (int i = 0; i < 5; i++) {
     await settle(t, maxSeconds: 1);
     if (_isOnConvList(t)) return true;

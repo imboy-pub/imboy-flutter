@@ -23,10 +23,7 @@ GoRouter _stubRouter() {
     initialLocation: '/sign_in',
     routes: [
       GoRoute(path: '/sign_in', builder: (_, _) => const LoginPage()),
-      GoRoute(
-        path: '/forgot_password',
-        builder: (_, _) => stub('forgot stub'),
-      ),
+      GoRoute(path: '/forgot_password', builder: (_, _) => stub('forgot stub')),
       GoRoute(path: '/sign_up', builder: (_, _) => stub('sign_up stub')),
     ],
   );
@@ -68,8 +65,7 @@ void main() {
   });
 
   group('LoginPage layout', () {
-    testWidgets('renders PassportTitle (品牌锚点 + Hero relay)',
-        (tester) async {
+    testWidgets('renders PassportTitle (品牌锚点 + Hero relay)', (tester) async {
       await _pump(tester);
 
       expect(find.byType(PassportTitle), findsOneWidget);

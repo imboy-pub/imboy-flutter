@@ -21,12 +21,12 @@ import 'package:imboy/store/model/channel_model.dart';
 // ─── helper ──────────────────────────────────────────────────────────────────
 
 ChannelModel _ch(int id) => ChannelModel(
-      id: id,
-      name: 'ch$id',
-      creatorId: 1,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(0),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
-    );
+  id: id,
+  name: 'ch$id',
+  creatorId: 1,
+  createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+  updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+);
 
 // ─── tests ───────────────────────────────────────────────────────────────────
 
@@ -55,12 +55,9 @@ void main() {
       await notifier.loadMoreSubscribedChannels();
 
       final state = container.read(channelListProvider);
-      expect(state.isLoading, isTrue,
-          reason: '守卫触发后 isLoading 不应被重置为 false');
-      expect(state.cursor, 'cursor-abc',
-          reason: '守卫触发后 cursor 不应被清空');
-      expect(state.channels, hasLength(1),
-          reason: '守卫触发后 channels 不应被追加或清空');
+      expect(state.isLoading, isTrue, reason: '守卫触发后 isLoading 不应被重置为 false');
+      expect(state.cursor, 'cursor-abc', reason: '守卫触发后 cursor 不应被清空');
+      expect(state.channels, hasLength(1), reason: '守卫触发后 channels 不应被追加或清空');
     });
 
     test('hasMore=false → 不改变 state，立即返回', () async {
@@ -91,8 +88,7 @@ void main() {
 
       final state = container.read(channelListProvider);
       expect(state.cursor, isNull);
-      expect(state.isLoading, isFalse,
-          reason: '守卫触发后 isLoading 不应被置 true');
+      expect(state.isLoading, isFalse, reason: '守卫触发后 isLoading 不应被置 true');
     });
 
     test('三守卫全满足（isLoading + !hasMore + cursor=null）→ 不改变', () async {

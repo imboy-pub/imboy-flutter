@@ -69,8 +69,11 @@ void main() {
       final before = container.read(webShellProvider);
       notifier.switchTab(0);
       final after = container.read(webShellProvider);
-      expect(identical(before, after), isTrue,
-          reason: '同 tab + null selection 不应触发 state 替换');
+      expect(
+        identical(before, after),
+        isTrue,
+        reason: '同 tab + null selection 不应触发 state 替换',
+      );
     });
 
     test('切 tab 强制清空 selectedItem', () {
@@ -86,8 +89,11 @@ void main() {
 
       notifier.switchTab(2);
       expect(container.read(webShellProvider).currentTab, 2);
-      expect(container.read(webShellProvider).selectedItem, isNull,
-          reason: '切 tab 时跨 Tab 选中语义不同，应清空避免串扰');
+      expect(
+        container.read(webShellProvider).selectedItem,
+        isNull,
+        reason: '切 tab 时跨 Tab 选中语义不同，应清空避免串扰',
+      );
     });
 
     test('同 tab 但 selection 非 null → 仍清空（清空 selection 是 switchTab 的副作用）', () {

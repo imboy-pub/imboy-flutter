@@ -47,11 +47,7 @@ void main() {
 
   group('applyTagToggle', () {
     test('select=true：加入标签下全部 uid', () {
-      final result = applyTagToggle(
-        {'u1'},
-        ['u2', 'u3'],
-        select: true,
-      );
+      final result = applyTagToggle({'u1'}, ['u2', 'u3'], select: true);
       expect(result, {'u1', 'u2', 'u3'});
     });
 
@@ -65,38 +61,27 @@ void main() {
     });
 
     test('select=true：已存在的 uid 不重复添加', () {
-      final result = applyTagToggle(
-        {'u1', 'u2'},
-        ['u2', 'u3'],
-        select: true,
-      );
+      final result = applyTagToggle({'u1', 'u2'}, ['u2', 'u3'], select: true);
       expect(result, {'u1', 'u2', 'u3'});
     });
 
     test('select=false：不存在的 uid 忽略', () {
-      final result = applyTagToggle(
-        {'u1'},
-        ['u2', 'u3'],
-        select: false,
-      );
+      final result = applyTagToggle({'u1'}, ['u2', 'u3'], select: false);
       expect(result, {'u1'});
     });
 
     test('tagUids 中的空白元素被忽略', () {
-      final result = applyTagToggle(
-        <String>{},
-        ['u1', '', '   ', 'u2'],
-        select: true,
-      );
+      final result = applyTagToggle(<String>{}, [
+        'u1',
+        '',
+        '   ',
+        'u2',
+      ], select: true);
       expect(result, {'u1', 'u2'});
     });
 
     test('空的 tagUids → 原样返回副本', () {
-      final result = applyTagToggle(
-        {'u1'},
-        const [],
-        select: true,
-      );
+      final result = applyTagToggle({'u1'}, const [], select: true);
       expect(result, {'u1'});
     });
 

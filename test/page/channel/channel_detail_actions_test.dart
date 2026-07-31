@@ -5,10 +5,7 @@ import 'package:imboy/store/model/channel_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/events/common_events.dart';
 
-ChannelMessageModel _buildMessage({
-  required int id,
-  bool pinned = false,
-}) {
+ChannelMessageModel _buildMessage({required int id, bool pinned = false}) {
   return ChannelMessageModel(
     id: id,
     channelId: 1001,
@@ -44,12 +41,16 @@ void main() {
       notifier.updateMessagePinned('1', true);
 
       final state = container.read(channelDetailProvider);
-      expect(state.messages.firstWhere((msg) => msg.id == 1).isPinned,
-          isTrue,
-          reason: '目标消息必须被置顶');
-      expect(state.messages.firstWhere((msg) => msg.id == 2).isPinned,
-          isFalse,
-          reason: '非目标消息不得被改动（隔离性）');
+      expect(
+        state.messages.firstWhere((msg) => msg.id == 1).isPinned,
+        isTrue,
+        reason: '目标消息必须被置顶',
+      );
+      expect(
+        state.messages.firstWhere((msg) => msg.id == 2).isPinned,
+        isFalse,
+        reason: '非目标消息不得被改动（隔离性）',
+      );
     });
 
     test('updateMessagePinned unpins only the targeted message (on→off)', () {
@@ -61,11 +62,12 @@ void main() {
       notifier.updateMessagePinned('1', false);
 
       final state = container.read(channelDetailProvider);
-      expect(state.messages.firstWhere((msg) => msg.id == 1).isPinned,
-          isFalse);
-      expect(state.messages.firstWhere((msg) => msg.id == 2).isPinned,
-          isTrue,
-          reason: '取消置顶只能影响目标消息');
+      expect(state.messages.firstWhere((msg) => msg.id == 1).isPinned, isFalse);
+      expect(
+        state.messages.firstWhere((msg) => msg.id == 2).isPinned,
+        isTrue,
+        reason: '取消置顶只能影响目标消息',
+      );
     });
 
     test('updateMessagePinned is a no-op when messageId is not found', () {
@@ -75,8 +77,11 @@ void main() {
       notifier.updateMessagePinned('9999', true);
 
       final state = container.read(channelDetailProvider);
-      expect(state.messages.single.isPinned, isFalse,
-          reason: '不存在的 id 不得误改现有消息');
+      expect(
+        state.messages.single.isPinned,
+        isFalse,
+        reason: '不存在的 id 不得误改现有消息',
+      );
     });
 
     test('removeMessageLocally drops the targeted message only', () {
@@ -148,14 +153,16 @@ void main() {
 
     tearDown(() => container.dispose());
 
-    test('publishMessage returns false when user role is subscriber',
-        () async {
+    test('publishMessage returns false when user role is subscriber', () async {
       notifier.debugSetChannelId('1001');
-      notifier.state = notifier.state
-          .copyWith(channel: buildChannel(ChannelUserRole.subscriber));
+      notifier.state = notifier.state.copyWith(
+        channel: buildChannel(ChannelUserRole.subscriber),
+      );
 
-      final result = await notifier
-          .publishMessage(content: 'hi', msgType: 'channel_text');
+      final result = await notifier.publishMessage(
+        content: 'hi',
+        msgType: 'channel_text',
+      );
 
       expect(result, isFalse);
       // State must not flip to isPublishing; no network call should be attempted.
@@ -165,11 +172,14 @@ void main() {
 
     test('publishMessage returns false when user role is none', () async {
       notifier.debugSetChannelId('1001');
-      notifier.state = notifier.state
-          .copyWith(channel: buildChannel(ChannelUserRole.none));
+      notifier.state = notifier.state.copyWith(
+        channel: buildChannel(ChannelUserRole.none),
+      );
 
-      final result = await notifier
-          .publishMessage(content: 'hi', msgType: 'channel_text');
+      final result = await notifier.publishMessage(
+        content: 'hi',
+        msgType: 'channel_text',
+      );
 
       expect(result, isFalse);
       expect(container.read(channelDetailProvider).isPublishing, isFalse);
@@ -178,25 +188,29 @@ void main() {
     test('publishMessage short-circuits before toggling isPublishing '
         'for non-publishing roles', () async {
       notifier.debugSetChannelId('1001');
-      notifier.state = notifier.state
-          .copyWith(channel: buildChannel(ChannelUserRole.subscriber));
+      notifier.state = notifier.state.copyWith(
+        channel: buildChannel(ChannelUserRole.subscriber),
+      );
 
       // If the guard is missing, the notifier would set isPublishing=true,
       // attempt a network call, and then reset it. We assert the state
       // never transitions through isPublishing=true.
       bool sawPublishing = false;
-      final sub = container.listen<ChannelDetailState>(
-        channelDetailProvider,
-        (_, next) {
-          if (next.isPublishing) sawPublishing = true;
-        },
-      );
+      final sub = container.listen<ChannelDetailState>(channelDetailProvider, (
+        _,
+        next,
+      ) {
+        if (next.isPublishing) sawPublishing = true;
+      });
       addTearDown(sub.close);
 
       await notifier.publishMessage(content: 'hi', msgType: 'channel_text');
 
-      expect(sawPublishing, isFalse,
-          reason: 'Guard must reject before mutating isPublishing');
+      expect(
+        sawPublishing,
+        isFalse,
+        reason: 'Guard must reject before mutating isPublishing',
+      );
     });
   });
 }

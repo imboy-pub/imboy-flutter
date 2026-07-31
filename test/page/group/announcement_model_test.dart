@@ -98,14 +98,8 @@ void main() {
 
   group('AnnouncementModel.fromJson — 字段别名', () {
     test('id 优先，fallback notice_id', () {
-      expect(
-        AnnouncementModel.fromJson({'id': 'a1'}).id,
-        'a1',
-      );
-      expect(
-        AnnouncementModel.fromJson({'notice_id': 'n1'}).id,
-        'n1',
-      );
+      expect(AnnouncementModel.fromJson({'id': 'a1'}).id, 'a1');
+      expect(AnnouncementModel.fromJson({'notice_id': 'n1'}).id, 'n1');
       expect(
         AnnouncementModel.fromJson({'id': 'a1', 'notice_id': 'n1'}).id,
         'a1',
@@ -117,21 +111,12 @@ void main() {
         AnnouncementModel.fromJson({'publisher_id': 'p1'}).publisherId,
         'p1',
       );
-      expect(
-        AnnouncementModel.fromJson({'user_id': 'u1'}).publisherId,
-        'u1',
-      );
+      expect(AnnouncementModel.fromJson({'user_id': 'u1'}).publisherId, 'u1');
     });
 
     test('content 优先，fallback body', () {
-      expect(
-        AnnouncementModel.fromJson({'content': 'C'}).content,
-        'C',
-      );
-      expect(
-        AnnouncementModel.fromJson({'body': 'B'}).content,
-        'B',
-      );
+      expect(AnnouncementModel.fromJson({'content': 'C'}).content, 'C');
+      expect(AnnouncementModel.fromJson({'body': 'B'}).content, 'B');
     });
 
     test('publisher_name 优先，fallback creator_name', () {
@@ -172,10 +157,7 @@ void main() {
     });
 
     test('数值 id / group_id 自动 toString', () {
-      final m = AnnouncementModel.fromJson({
-        'id': 123,
-        'group_id': 456,
-      });
+      final m = AnnouncementModel.fromJson({'id': 123, 'group_id': 456});
       expect(m.id, '123');
       expect(m.groupId, '456');
     });

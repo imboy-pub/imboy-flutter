@@ -142,16 +142,18 @@ void main() {
       expect(v.hasUpdate, isTrue);
     });
 
-    test('updatable=true + upgradeType=none → false（即使有新版本，none 表示客户端不需提示）',
-        () {
-      const v = AppVersionInfo(
-        vsn: '1',
-        downloadUrl: '',
-        updatable: true,
-        // upgradeType 默认 'none'
-      );
-      expect(v.hasUpdate, isFalse);
-    });
+    test(
+      'updatable=true + upgradeType=none → false（即使有新版本，none 表示客户端不需提示）',
+      () {
+        const v = AppVersionInfo(
+          vsn: '1',
+          downloadUrl: '',
+          updatable: true,
+          // upgradeType 默认 'none'
+        );
+        expect(v.hasUpdate, isFalse);
+      },
+    );
 
     test('updatable=false → false（无论 upgradeType）', () {
       const v = AppVersionInfo(

@@ -106,7 +106,8 @@ Future<void> _unmount(WidgetTester tester) async {
   final dynamic exception = tester.takeException();
   if (exception != null) {
     final s = exception.toString();
-    final isExpected = s.contains('UnmountedRefException') ||
+    final isExpected =
+        s.contains('UnmountedRefException') ||
         s.contains('Cannot use the Ref of passportProvider') ||
         s.contains('Using "ref" when a widget');
     if (!isExpected) {
@@ -128,8 +129,9 @@ void main() {
   });
 
   group('SignupContinuePage empty data fallback', () {
-    testWidgets('account/accountType/pwd 为空 → 渲染错误页 + "未知" + "返回" 按钮',
-        (tester) async {
+    testWidgets('account/accountType/pwd 为空 → 渲染错误页 + "未知" + "返回" 按钮', (
+      tester,
+    ) async {
       await _pump(tester); // 不传任何参数
 
       // 错误图标
@@ -225,8 +227,9 @@ void main() {
 
       expect(find.byType(MaterialPinField), findsOneWidget);
       // pin field 长度=6
-      final pinField =
-          tester.widget<MaterialPinField>(find.byType(MaterialPinField));
+      final pinField = tester.widget<MaterialPinField>(
+        find.byType(MaterialPinField),
+      );
       expect(pinField.length, 6);
 
       await _unmount(tester);
@@ -269,8 +272,7 @@ void main() {
         find.byWidgetPredicate((w) {
           if (w is RichText) {
             final txt = w.text.toPlainText();
-            return txt.contains('验证码已发送到手机') &&
-                txt.contains('13800138000');
+            return txt.contains('验证码已发送到手机') && txt.contains('13800138000');
           }
           return false;
         }),

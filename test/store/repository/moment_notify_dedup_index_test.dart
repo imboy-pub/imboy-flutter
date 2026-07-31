@@ -131,27 +131,29 @@ void main() {
       }
     });
 
-    test('moment_like + moment_comment 同 moment_id → action 字段区分，各自落库',
-        () async {
-      final db = await _openDb();
-      try {
-        await db.insert(
-          'moment_notify',
-          _row(action: 'moment_like'),
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        );
-        await db.insert(
-          'moment_notify',
-          _row(action: 'moment_comment', commentId: 'c-1'),
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        );
+    test(
+      'moment_like + moment_comment 同 moment_id → action 字段区分，各自落库',
+      () async {
+        final db = await _openDb();
+        try {
+          await db.insert(
+            'moment_notify',
+            _row(action: 'moment_like'),
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+          await db.insert(
+            'moment_notify',
+            _row(action: 'moment_comment', commentId: 'c-1'),
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
 
-        final count = await _countRows(db);
-        expect(count, 2, reason: 'action 不同互不冲突');
-      } finally {
-        await db.close();
-      }
-    });
+          final count = await _countRows(db);
+          expect(count, 2, reason: 'action 不同互不冲突');
+        } finally {
+          await db.close();
+        }
+      },
+    );
 
     test('不同 from_uid 的 moment_like（同 moment_id）可共存', () async {
       final db = await _openDb();

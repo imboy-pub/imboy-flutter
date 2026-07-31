@@ -74,7 +74,9 @@ void main() {
   stdout.writeln('   API=$apiUrl  PUBLIC=$publicUrl');
   stdout.writeln('\n⚠️  接下来手动两步：');
   stdout.writeln('   1) 改 .env.pro 里 envied 加密字段后重跑代码生成：');
-  stdout.writeln('      dart run build_runner build --delete-conflicting-outputs');
+  stdout.writeln(
+    '      dart run build_runner build --delete-conflicting-outputs',
+  );
   stdout.writeln('   2) App 图标（放好 1024x1024 png 后）：');
   stdout.writeln('      flutter pub add dev:flutter_launcher_icons');
   stdout.writeln('      # 在 pubspec 配置 image_path 后：');

@@ -178,12 +178,15 @@ void main() {
       expect((result as QrLoginIntentOther).raw, '  hello  ');
     });
 
-    test('类似但非合法的 imboy://qr_login/abc/xyz（多段 path）→ WebLogin（整段后缀作为 token）', () {
-      // 设计决策：path 多段时整体作为 token 保留，由后端 parse_qr_token 决定合法性
-      final result = detectQrLoginIntent('imboy://qr_login/abc/xyz');
-      expect(result, isA<QrLoginIntentWebLogin>());
-      expect((result as QrLoginIntentWebLogin).qrToken, 'abc/xyz');
-    });
+    test(
+      '类似但非合法的 imboy://qr_login/abc/xyz（多段 path）→ WebLogin（整段后缀作为 token）',
+      () {
+        // 设计决策：path 多段时整体作为 token 保留，由后端 parse_qr_token 决定合法性
+        final result = detectQrLoginIntent('imboy://qr_login/abc/xyz');
+        expect(result, isA<QrLoginIntentWebLogin>());
+        expect((result as QrLoginIntentWebLogin).qrToken, 'abc/xyz');
+      },
+    );
   });
 
   group('sealed exhaustiveness', () {

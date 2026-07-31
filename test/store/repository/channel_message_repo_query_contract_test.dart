@@ -139,8 +139,11 @@ void main() {
       final deleted = await _deleteOldMessages(db, 'ch-1', 5);
 
       expect(deleted, 0);
-      final remaining = await db.query('channel_message',
-          where: 'channel_id = ?', whereArgs: ['ch-1']);
+      final remaining = await db.query(
+        'channel_message',
+        where: 'channel_id = ?',
+        whereArgs: ['ch-1'],
+      );
       expect(remaining, hasLength(3));
     });
 
@@ -153,8 +156,11 @@ void main() {
       final deleted = await _deleteOldMessages(db, 'ch-1', 5);
 
       expect(deleted, 0);
-      final remaining = await db.query('channel_message',
-          where: 'channel_id = ?', whereArgs: ['ch-1']);
+      final remaining = await db.query(
+        'channel_message',
+        where: 'channel_id = ?',
+        whereArgs: ['ch-1'],
+      );
       expect(remaining, hasLength(5));
     });
 
@@ -167,9 +173,12 @@ void main() {
       final deleted = await _deleteOldMessages(db, 'ch-1', 5);
 
       expect(deleted, 3);
-      final remaining = await db.query('channel_message',
-          where: 'channel_id = ?', whereArgs: ['ch-1'],
-          orderBy: 'created_at ASC');
+      final remaining = await db.query(
+        'channel_message',
+        where: 'channel_id = ?',
+        whereArgs: ['ch-1'],
+        orderBy: 'created_at ASC',
+      );
       expect(remaining, hasLength(5));
       // 保留的是最近 5 条（created_at 4..8）
       expect(remaining.first['id'], 'msg-4');
@@ -193,8 +202,11 @@ void main() {
       await _deleteOldMessages(db, 'ch-1', 5);
 
       // ch-2 完整保留
-      final ch2 = await db.query('channel_message',
-          where: 'channel_id = ?', whereArgs: ['ch-2']);
+      final ch2 = await db.query(
+        'channel_message',
+        where: 'channel_id = ?',
+        whereArgs: ['ch-2'],
+      );
       expect(ch2, hasLength(3));
     });
 
@@ -206,8 +218,11 @@ void main() {
       final deleted = await _deleteOldMessages(db, 'ch-1', 1);
 
       expect(deleted, 4);
-      final remaining = await db.query('channel_message',
-          where: 'channel_id = ?', whereArgs: ['ch-1']);
+      final remaining = await db.query(
+        'channel_message',
+        where: 'channel_id = ?',
+        whereArgs: ['ch-1'],
+      );
       expect(remaining, hasLength(1));
       expect(remaining.first['id'], 'msg-5'); // 最新
     });
@@ -219,12 +234,7 @@ void main() {
     // 固定时间轴：t=100, 200, 300, 400, 500
     setUp(() async {
       for (var i = 1; i <= 5; i++) {
-        await _insert(
-          db,
-          id: 'msg-$i',
-          channelId: 'ch-1',
-          createdAt: i * 100,
-        );
+        await _insert(db, id: 'msg-$i', channelId: 'ch-1', createdAt: i * 100);
       }
     });
 
@@ -232,14 +242,22 @@ void main() {
 
     test('getMessagesBefore — 返回严格小于 beforeTime 的消息', () async {
       // beforeTime=300 → 应返回 t=100, t=200（不含 t=300）
-      final rows =
-          await _getMessagesBefore(db, 'ch-1', beforeTime: 300, limit: 20);
+      final rows = await _getMessagesBefore(
+        db,
+        'ch-1',
+        beforeTime: 300,
+        limit: 20,
+      );
       expect(rows, hasLength(2));
     });
 
     test('getMessagesBefore — 结果按 created_at DESC 排列（新在前）', () async {
-      final rows =
-          await _getMessagesBefore(db, 'ch-1', beforeTime: 500, limit: 20);
+      final rows = await _getMessagesBefore(
+        db,
+        'ch-1',
+        beforeTime: 500,
+        limit: 20,
+      );
       // t=400, t=300, t=200, t=100
       expect(rows.length, 4);
       expect(rows[0]['created_at'], 400);
@@ -265,15 +283,23 @@ void main() {
 
     test('getMessagesBefore — beforeTime 等于某条消息时间，不含该条', () async {
       // beforeTime=300 → t=100, t=200 仅 2 条，t=300 本身不含
-      final rows =
-          await _getMessagesBefore(db, 'ch-1', beforeTime: 300, limit: 20);
+      final rows = await _getMessagesBefore(
+        db,
+        'ch-1',
+        beforeTime: 300,
+        limit: 20,
+      );
       final times = rows.map((r) => r['created_at'] as int).toList();
       expect(times.contains(300), isFalse);
     });
 
     test('getMessagesBefore — 无更早消息时返回空列表', () async {
-      final rows =
-          await _getMessagesBefore(db, 'ch-1', beforeTime: 50, limit: 20);
+      final rows = await _getMessagesBefore(
+        db,
+        'ch-1',
+        beforeTime: 50,
+        limit: 20,
+      );
       expect(rows, isEmpty);
     });
 
@@ -281,15 +307,23 @@ void main() {
 
     test('getMessagesAfter — 返回严格大于 afterTime 的消息', () async {
       // afterTime=300 → 应返回 t=400, t=500（不含 t=300）
-      final rows =
-          await _getMessagesAfter(db, 'ch-1', afterTime: 300, limit: 100);
+      final rows = await _getMessagesAfter(
+        db,
+        'ch-1',
+        afterTime: 300,
+        limit: 100,
+      );
       expect(rows, hasLength(2));
     });
 
     test('getMessagesAfter — 结果按 created_at ASC 排列（旧在前）', () async {
       // afterTime=100 → t=200, t=300, t=400, t=500
-      final rows =
-          await _getMessagesAfter(db, 'ch-1', afterTime: 100, limit: 100);
+      final rows = await _getMessagesAfter(
+        db,
+        'ch-1',
+        afterTime: 100,
+        limit: 100,
+      );
       expect(rows.length, 4);
       expect(rows[0]['created_at'], 200);
       expect(rows[1]['created_at'], 300);
@@ -312,15 +346,23 @@ void main() {
     });
 
     test('getMessagesAfter — afterTime 等于某条消息时间，不含该条', () async {
-      final rows =
-          await _getMessagesAfter(db, 'ch-1', afterTime: 300, limit: 100);
+      final rows = await _getMessagesAfter(
+        db,
+        'ch-1',
+        afterTime: 300,
+        limit: 100,
+      );
       final times = rows.map((r) => r['created_at'] as int).toList();
       expect(times.contains(300), isFalse);
     });
 
     test('getMessagesAfter — 无更新消息时返回空列表', () async {
-      final rows =
-          await _getMessagesAfter(db, 'ch-1', afterTime: 600, limit: 100);
+      final rows = await _getMessagesAfter(
+        db,
+        'ch-1',
+        afterTime: 600,
+        limit: 100,
+      );
       expect(rows, isEmpty);
     });
 
@@ -328,10 +370,18 @@ void main() {
       // pivot = t=300 (msg-3)
       // Before(300) → [msg-2(200), msg-1(100)]（DESC）
       // After(300)  → [msg-4(400), msg-5(500)]（ASC）
-      final before =
-          await _getMessagesBefore(db, 'ch-1', beforeTime: 300, limit: 20);
-      final after =
-          await _getMessagesAfter(db, 'ch-1', afterTime: 300, limit: 100);
+      final before = await _getMessagesBefore(
+        db,
+        'ch-1',
+        beforeTime: 300,
+        limit: 20,
+      );
+      final after = await _getMessagesAfter(
+        db,
+        'ch-1',
+        afterTime: 300,
+        limit: 100,
+      );
 
       final beforeTimes = before.map((r) => r['created_at'] as int).toList();
       final afterTimes = after.map((r) => r['created_at'] as int).toList();
@@ -382,21 +432,30 @@ void main() {
     test('更新后读回等于新 summary（全量替换）', () async {
       await updateReaction(db, msgId, {'like': 3});
 
-      final rows = await db.query('channel_message',
-          where: 'id = ?', whereArgs: [msgId]);
+      final rows = await db.query(
+        'channel_message',
+        where: 'id = ?',
+        whereArgs: [msgId],
+      );
       final reaction = readReaction(rows.first);
 
       // 全量替换：原有 heart 字段消失
       expect(reaction, {'like': 3});
-      expect(reaction!.containsKey('heart'), isFalse,
-          reason: '全量替换语义：旧 key 应被清除');
+      expect(
+        reaction!.containsKey('heart'),
+        isFalse,
+        reason: '全量替换语义：旧 key 应被清除',
+      );
     });
 
     test('用空 map 替换 — 写入 {}，而非 null', () async {
       await updateReaction(db, msgId, {});
 
-      final rows = await db.query('channel_message',
-          where: 'id = ?', whereArgs: [msgId]);
+      final rows = await db.query(
+        'channel_message',
+        where: 'id = ?',
+        whereArgs: [msgId],
+      );
       final raw = rows.first['reaction_summary'] as String?;
 
       expect(raw, isNotNull);
@@ -407,8 +466,11 @@ void main() {
       await updateReaction(db, msgId, {'fire': 10});
       await updateReaction(db, msgId, {'like': 1, 'wave': 7});
 
-      final rows = await db.query('channel_message',
-          where: 'id = ?', whereArgs: [msgId]);
+      final rows = await db.query(
+        'channel_message',
+        where: 'id = ?',
+        whereArgs: [msgId],
+      );
       final reaction = readReaction(rows.first);
 
       expect(reaction, {'like': 1, 'wave': 7});
@@ -416,14 +478,12 @@ void main() {
     });
 
     test('消息不存在 — 返回 0（受影响行数）', () async {
-      final affected =
-          await updateReaction(db, 'non-exist', {'like': 1});
+      final affected = await updateReaction(db, 'non-exist', {'like': 1});
       expect(affected, 0);
     });
 
     test('受影响行数 == 1 当消息存在', () async {
-      final affected =
-          await updateReaction(db, msgId, {'thumbup': 3});
+      final affected = await updateReaction(db, msgId, {'thumbup': 3});
       expect(affected, 1);
     });
   });

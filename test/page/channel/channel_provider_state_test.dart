@@ -13,20 +13,20 @@ import 'package:imboy/store/model/channel_message_model.dart';
 // ─── 测试工厂 ───────────────────────────────────────────────────────────────
 
 ChannelModel _channel(int id) => ChannelModel(
-      id: id,
-      name: 'ch$id',
-      creatorId: 1,
-      createdAt: DateTime.utc(2025),
-      updatedAt: DateTime.utc(2025),
-    );
+  id: id,
+  name: 'ch$id',
+  creatorId: 1,
+  createdAt: DateTime.utc(2025),
+  updatedAt: DateTime.utc(2025),
+);
 
 ChannelMessageModel _msg(int id) => ChannelMessageModel(
-      id: id,
-      channelId: 1,
-      content: 'x',
-      msgType: 'channel_text',
-      createdAt: DateTime.utc(2025),
-    );
+  id: id,
+  channelId: 1,
+  content: 'x',
+  msgType: 'channel_text',
+  createdAt: DateTime.utc(2025),
+);
 
 void main() {
   // ── CPS-1  ChannelListState ────────────────────────────────────────────────
@@ -105,7 +105,11 @@ void main() {
 
     test('覆盖普通字段', () {
       const state = ChannelDetailState();
-      final updated = state.copyWith(isLoading: true, isPublishing: true, hasMore: false);
+      final updated = state.copyWith(
+        isLoading: true,
+        isPublishing: true,
+        hasMore: false,
+      );
       expect(updated.isLoading, isTrue);
       expect(updated.isPublishing, isTrue);
       expect(updated.hasMore, isFalse);

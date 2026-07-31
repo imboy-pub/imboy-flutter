@@ -20,10 +20,13 @@ void main() {
       expect(canDeleteMoment(moment, 'u_2'), isFalse);
     });
 
-    test('empty currentUid (not logged in) → false even with matching empty author', () {
-      final moment = {'author_uid': ''};
-      expect(canDeleteMoment(moment, ''), isFalse);
-    });
+    test(
+      'empty currentUid (not logged in) → false even with matching empty author',
+      () {
+        final moment = {'author_uid': ''};
+        expect(canDeleteMoment(moment, ''), isFalse);
+      },
+    );
 
     test('missing author_uid → false', () {
       expect(canDeleteMoment(const {}, 'u_1'), isFalse);
@@ -41,11 +44,7 @@ void main() {
       final comment = {'user_id': 'u_commenter'};
       final moment = {'author_uid': 'u_author'};
       expect(
-        canDeleteComment(
-          comment,
-          moment,
-          currentUid: 'u_commenter',
-        ),
+        canDeleteComment(comment, moment, currentUid: 'u_commenter'),
         isTrue,
       );
     });
@@ -53,25 +52,14 @@ void main() {
     test('post author deletes someone else\'s comment → true', () {
       final comment = {'user_id': 'u_commenter'};
       final moment = {'author_uid': 'u_author'};
-      expect(
-        canDeleteComment(
-          comment,
-          moment,
-          currentUid: 'u_author',
-        ),
-        isTrue,
-      );
+      expect(canDeleteComment(comment, moment, currentUid: 'u_author'), isTrue);
     });
 
     test('third-party user cannot delete → false', () {
       final comment = {'user_id': 'u_commenter'};
       final moment = {'author_uid': 'u_author'};
       expect(
-        canDeleteComment(
-          comment,
-          moment,
-          currentUid: 'u_stranger',
-        ),
+        canDeleteComment(comment, moment, currentUid: 'u_stranger'),
         isFalse,
       );
     });
@@ -79,24 +67,15 @@ void main() {
     test('empty currentUid → false even if comment/author also empty', () {
       final comment = {'user_id': ''};
       final moment = {'author_uid': ''};
-      expect(
-        canDeleteComment(comment, moment, currentUid: ''),
-        isFalse,
-      );
+      expect(canDeleteComment(comment, moment, currentUid: ''), isFalse);
     });
 
     test('missing user_id on comment falls through to author check', () {
       // Commenter id missing (defensive): permission only via post authorship
       final comment = <String, dynamic>{};
       final moment = {'author_uid': 'u_author'};
-      expect(
-        canDeleteComment(comment, moment, currentUid: 'u_author'),
-        isTrue,
-      );
-      expect(
-        canDeleteComment(comment, moment, currentUid: 'u_other'),
-        isFalse,
-      );
+      expect(canDeleteComment(comment, moment, currentUid: 'u_author'), isTrue);
+      expect(canDeleteComment(comment, moment, currentUid: 'u_other'), isFalse);
     });
   });
 }

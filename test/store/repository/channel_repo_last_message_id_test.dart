@@ -64,10 +64,12 @@ void main() {
         'channel_subscription',
         where: 'channel_id = ?',
         whereArgs: ['1001'],
-      ))
-          .single;
-      expect(row['last_message_id'], 1838294017982464,
-          reason: '数字字符串必须归一化为 int 存储');
+      )).single;
+      expect(
+        row['last_message_id'],
+        1838294017982464,
+        reason: '数字字符串必须归一化为 int 存储',
+      );
       expect(row['last_message_id'], isA<int>());
     });
 
@@ -78,10 +80,8 @@ void main() {
         'channel_subscription',
         where: 'channel_id = ?',
         whereArgs: ['1001'],
-      ))
-          .single;
-      expect(row['last_message_id'], isNull,
-          reason: '非法字符串不得写入整数列，落为 NULL');
+      )).single;
+      expect(row['last_message_id'], isNull, reason: '非法字符串不得写入整数列，落为 NULL');
     });
 
     test('empty string becomes NULL', () async {
@@ -91,8 +91,7 @@ void main() {
         'channel_subscription',
         where: 'channel_id = ?',
         whereArgs: ['1001'],
-      ))
-          .single;
+      )).single;
       expect(row['last_message_id'], isNull);
     });
   });

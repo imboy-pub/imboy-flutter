@@ -19,10 +19,7 @@ const _kMobile = Material(
   child: Center(child: Text('MOBILE')),
 );
 
-const _kMessageTab = Center(
-  key: ValueKey('msg-tab'),
-  child: Text('MSG_TAB'),
-);
+const _kMessageTab = Center(key: ValueKey('msg-tab'), child: Text('MSG_TAB'));
 const _kContactTab = Center(
   key: ValueKey('contact-tab'),
   child: Text('CON_TAB'),
@@ -31,27 +28,24 @@ const _kChannelTab = Center(
   key: ValueKey('channel-tab'),
   child: Text('CH_TAB'),
 );
-const _kMineTab = Center(
-  key: ValueKey('mine-tab'),
-  child: Text('MINE_TAB'),
-);
+const _kMineTab = Center(key: ValueKey('mine-tab'), child: Text('MINE_TAB'));
 
 Widget _chatBuilder(ChatSelection sel) => Center(
-      key: const ValueKey('chat-panel'),
-      child: Text('CHAT:${sel.peerId}'),
-    );
+  key: const ValueKey('chat-panel'),
+  child: Text('CHAT:${sel.peerId}'),
+);
 Widget _contactBuilder(ContactSelection sel) => Center(
-      key: const ValueKey('contact-panel'),
-      child: Text('CONT:${sel.uid}'),
-    );
+  key: const ValueKey('contact-panel'),
+  child: Text('CONT:${sel.uid}'),
+);
 Widget _channelBuilder(ChannelSelection sel) => Center(
-      key: const ValueKey('channel-panel'),
-      child: Text('CHA:${sel.channelId}'),
-    );
+  key: const ValueKey('channel-panel'),
+  child: Text('CHA:${sel.channelId}'),
+);
 Widget _mineBuilder(MineSelection sel) => Center(
-      key: const ValueKey('mine-panel'),
-      child: Text('MINE:${sel.section ?? "ov"}'),
-    );
+  key: const ValueKey('mine-panel'),
+  child: Text('MINE:${sel.section ?? "ov"}'),
+);
 
 Future<ProviderContainer> _pumpShell(
   WidgetTester tester, {
@@ -125,7 +119,9 @@ void main() {
   });
 
   group('WebShellPage — threeColumn (>= 900px)', () {
-    testWidgets('width 1400 → 渲染 NavRail + MiddlePanel + MainPanel', (tester) async {
+    testWidgets('width 1400 → 渲染 NavRail + MiddlePanel + MainPanel', (
+      tester,
+    ) async {
       await _pumpShell(tester, size: const Size(1400, 800));
       expect(find.byType(WebNavRail), findsOneWidget);
       expect(find.byType(WebMiddlePanel), findsOneWidget);
@@ -173,12 +169,10 @@ void main() {
   });
 
   group('WebShellPage — Tab 切换联动', () {
-    testWidgets('点击 NavRail tab 1 → currentTab=1，渲染 contactTab',
-        (tester) async {
-      final container = await _pumpShell(
-        tester,
-        size: const Size(1400, 800),
-      );
+    testWidgets('点击 NavRail tab 1 → currentTab=1，渲染 contactTab', (
+      tester,
+    ) async {
+      final container = await _pumpShell(tester, size: const Size(1400, 800));
       // 点击 NavRail 的第二项（联系人）
       await tester.tap(find.byType(InkWell).at(1));
       await tester.pump();
@@ -204,13 +198,10 @@ void main() {
     });
 
     testWidgets('ChatSelection → chatBuilder 渲染', (tester) async {
-      final container = await _pumpShell(
-        tester,
-        size: const Size(1400, 800),
-      );
-      container.read(webShellProvider.notifier).selectItem(
-            const ChatSelection(peerId: 'p1', chatType: 'C2C'),
-          );
+      final container = await _pumpShell(tester, size: const Size(1400, 800));
+      container
+          .read(webShellProvider.notifier)
+          .selectItem(const ChatSelection(peerId: 'p1', chatType: 'C2C'));
       await tester.pump();
 
       expect(find.byKey(const ValueKey('chat-panel')), findsOneWidget);
@@ -218,10 +209,7 @@ void main() {
     });
 
     testWidgets('ContactSelection → contactBuilder 渲染', (tester) async {
-      final container = await _pumpShell(
-        tester,
-        size: const Size(1400, 800),
-      );
+      final container = await _pumpShell(tester, size: const Size(1400, 800));
       container
           .read(webShellProvider.notifier)
           .selectItem(const ContactSelection(uid: 'u1'));
@@ -237,9 +225,9 @@ void main() {
         size: const Size(1400, 800),
         welcomeTitle: 'WelcomeText',
       );
-      container.read(webShellProvider.notifier).selectItem(
-            const ChatSelection(peerId: 'p1', chatType: 'C2C'),
-          );
+      container
+          .read(webShellProvider.notifier)
+          .selectItem(const ChatSelection(peerId: 'p1', chatType: 'C2C'));
       await tester.pump();
       expect(find.byKey(const ValueKey('chat-panel')), findsOneWidget);
 

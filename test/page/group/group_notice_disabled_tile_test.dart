@@ -17,37 +17,43 @@ void main() {
 
   group('GroupNoticeDisabledTile — 渲染', () {
     testWidgets('value=true → Switch 选中', (tester) async {
-      await tester.pumpWidget(wrap(
-        GroupNoticeDisabledTile(
-          label: '消息免打扰',
-          value: true,
-          onChanged: (_) {},
+      await tester.pumpWidget(
+        wrap(
+          GroupNoticeDisabledTile(
+            label: '消息免打扰',
+            value: true,
+            onChanged: (_) {},
+          ),
         ),
-      ));
+      );
       final sw = tester.widget<Switch>(find.byType(Switch));
       expect(sw.value, isTrue);
     });
 
     testWidgets('value=false → Switch 未选中', (tester) async {
-      await tester.pumpWidget(wrap(
-        GroupNoticeDisabledTile(
-          label: '消息免打扰',
-          value: false,
-          onChanged: (_) {},
+      await tester.pumpWidget(
+        wrap(
+          GroupNoticeDisabledTile(
+            label: '消息免打扰',
+            value: false,
+            onChanged: (_) {},
+          ),
         ),
-      ));
+      );
       final sw = tester.widget<Switch>(find.byType(Switch));
       expect(sw.value, isFalse);
     });
 
     testWidgets('label 文案显示在 ListTile 中', (tester) async {
-      await tester.pumpWidget(wrap(
-        const GroupNoticeDisabledTile(
-          label: '消息免打扰',
-          value: false,
-          onChanged: null,
+      await tester.pumpWidget(
+        wrap(
+          const GroupNoticeDisabledTile(
+            label: '消息免打扰',
+            value: false,
+            onChanged: null,
+          ),
         ),
-      ));
+      );
       expect(find.text('消息免打扰'), findsOneWidget);
     });
   });
@@ -55,13 +61,15 @@ void main() {
   group('GroupNoticeDisabledTile — 交互', () {
     testWidgets('tap Switch → onChanged 收到 !value', (tester) async {
       final calls = <bool>[];
-      await tester.pumpWidget(wrap(
-        GroupNoticeDisabledTile(
-          label: '消息免打扰',
-          value: false,
-          onChanged: calls.add,
+      await tester.pumpWidget(
+        wrap(
+          GroupNoticeDisabledTile(
+            label: '消息免打扰',
+            value: false,
+            onChanged: calls.add,
+          ),
         ),
-      ));
+      );
       await tester.tap(find.byType(Switch));
       await tester.pumpAndSettle();
       expect(calls, [true]);
@@ -69,13 +77,15 @@ void main() {
 
     testWidgets('tap ListTile 整行 → onChanged 收到 !value', (tester) async {
       final calls = <bool>[];
-      await tester.pumpWidget(wrap(
-        GroupNoticeDisabledTile(
-          label: '消息免打扰',
-          value: true,
-          onChanged: calls.add,
+      await tester.pumpWidget(
+        wrap(
+          GroupNoticeDisabledTile(
+            label: '消息免打扰',
+            value: true,
+            onChanged: calls.add,
+          ),
         ),
-      ));
+      );
       // 避开 Switch 精确区域，点标题文字以验证整行可点
       await tester.tap(find.text('消息免打扰'));
       await tester.pumpAndSettle();
@@ -83,13 +93,15 @@ void main() {
     });
 
     testWidgets('onChanged=null → 整行 disabled（tap 不抛错且无状态变化）', (tester) async {
-      await tester.pumpWidget(wrap(
-        const GroupNoticeDisabledTile(
-          label: '消息免打扰',
-          value: true,
-          onChanged: null,
+      await tester.pumpWidget(
+        wrap(
+          const GroupNoticeDisabledTile(
+            label: '消息免打扰',
+            value: true,
+            onChanged: null,
+          ),
         ),
-      ));
+      );
       // 点击不应抛异常
       await tester.tap(find.text('消息免打扰'));
       await tester.pumpAndSettle();

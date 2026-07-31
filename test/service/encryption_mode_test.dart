@@ -10,14 +10,26 @@ void main() {
     });
 
     test('fromApiString 正确解析', () {
-      expect(EncryptionModeExt.fromApiString('plaintext'), EncryptionMode.plaintext);
-      expect(EncryptionModeExt.fromApiString('compliance_e2ee'), EncryptionMode.complianceE2ee);
-      expect(EncryptionModeExt.fromApiString('secure_e2ee'), EncryptionMode.strictE2ee);
+      expect(
+        EncryptionModeExt.fromApiString('plaintext'),
+        EncryptionMode.plaintext,
+      );
+      expect(
+        EncryptionModeExt.fromApiString('compliance_e2ee'),
+        EncryptionMode.complianceE2ee,
+      );
+      expect(
+        EncryptionModeExt.fromApiString('secure_e2ee'),
+        EncryptionMode.strictE2ee,
+      );
     });
 
     test('fromApiString 未知值返回 plaintext', () {
       expect(EncryptionModeExt.fromApiString(null), EncryptionMode.plaintext);
-      expect(EncryptionModeExt.fromApiString('unknown'), EncryptionMode.plaintext);
+      expect(
+        EncryptionModeExt.fromApiString('unknown'),
+        EncryptionMode.plaintext,
+      );
     });
 
     test('requiresEncryption 正确判断', () {

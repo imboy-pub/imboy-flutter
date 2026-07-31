@@ -66,8 +66,7 @@ void main() {
   });
 
   group('SignupPage layout', () {
-    testWidgets('renders PassportTitle (品牌锚点 + Hero relay)',
-        (tester) async {
+    testWidgets('renders PassportTitle (品牌锚点 + Hero relay)', (tester) async {
       await _pump(tester);
       expect(find.byType(PassportTitle), findsOneWidget);
 
@@ -109,15 +108,13 @@ void main() {
   });
 
   group('SignupPage email tab (default Tab 0)', () {
-    testWidgets('default Tab 0 → 至少 3 个 TextField (昵称 + 邮箱 + 密码)',
-        (tester) async {
+    testWidgets('default Tab 0 → 至少 3 个 TextField (昵称 + 邮箱 + 密码)', (
+      tester,
+    ) async {
       await _pump(tester);
 
       // _buildEmailRegister: nickname + email + password 三个 TextField
-      expect(
-        find.byType(TextField).evaluate().length,
-        greaterThanOrEqualTo(3),
-      );
+      expect(find.byType(TextField).evaluate().length, greaterThanOrEqualTo(3));
 
       await _unmount(tester);
     });

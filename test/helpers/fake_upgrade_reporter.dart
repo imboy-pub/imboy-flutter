@@ -25,9 +25,7 @@ class FakeUpgradeReporter implements AppUpgradeReporter {
       nextError = null;
       throw err;
     }
-    events.add(
-      ReportedEvent(event: event, targetVsn: targetVsn, extra: extra),
-    );
+    events.add(ReportedEvent(event: event, targetVsn: targetVsn, extra: extra));
   }
 
   void clear() => events.clear();

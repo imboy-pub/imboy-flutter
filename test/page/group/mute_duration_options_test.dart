@@ -21,8 +21,12 @@ void main() {
     test('按秒数升序排列', () {
       final seconds = muteDurationOptions.map((o) => o.seconds).toList();
       for (var i = 0; i < seconds.length - 1; i++) {
-        expect(seconds[i], lessThan(seconds[i + 1]),
-            reason: 'index $i (${seconds[i]}) should be < index ${i + 1} (${seconds[i + 1]})');
+        expect(
+          seconds[i],
+          lessThan(seconds[i + 1]),
+          reason:
+              'index $i (${seconds[i]}) should be < index ${i + 1} (${seconds[i + 1]})',
+        );
       }
     });
 
@@ -40,8 +44,11 @@ void main() {
 
     test('labelKey 非空', () {
       for (final opt in muteDurationOptions) {
-        expect(opt.labelKey, isNotEmpty,
-            reason: 'seconds=${opt.seconds} has empty labelKey');
+        expect(
+          opt.labelKey,
+          isNotEmpty,
+          reason: 'seconds=${opt.seconds} has empty labelKey',
+        );
       }
     });
 

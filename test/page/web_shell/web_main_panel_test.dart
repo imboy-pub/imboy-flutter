@@ -14,30 +14,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_main_panel.dart';
 import 'package:imboy/page/web_shell/web_shell_state.dart';
 
-const _kWelcome = Center(
-  key: ValueKey('welcome'),
-  child: Text('WELCOME'),
-);
+const _kWelcome = Center(key: ValueKey('welcome'), child: Text('WELCOME'));
 
 Widget _chatBuilder(ChatSelection sel) => Center(
-      key: const ValueKey('chat'),
-      child: Text('CHAT:${sel.chatType}:${sel.peerId}'),
-    );
+  key: const ValueKey('chat'),
+  child: Text('CHAT:${sel.chatType}:${sel.peerId}'),
+);
 
-Widget _contactBuilder(ContactSelection sel) => Center(
-      key: const ValueKey('contact'),
-      child: Text('CONTACT:${sel.uid}'),
-    );
+Widget _contactBuilder(ContactSelection sel) =>
+    Center(key: const ValueKey('contact'), child: Text('CONTACT:${sel.uid}'));
 
 Widget _channelBuilder(ChannelSelection sel) => Center(
-      key: const ValueKey('channel'),
-      child: Text('CHANNEL:${sel.channelId}'),
-    );
+  key: const ValueKey('channel'),
+  child: Text('CHANNEL:${sel.channelId}'),
+);
 
 Widget _mineBuilder(MineSelection sel) => Center(
-      key: const ValueKey('mine'),
-      child: Text('MINE:${sel.section ?? "overview"}'),
-    );
+  key: const ValueKey('mine'),
+  child: Text('MINE:${sel.section ?? "overview"}'),
+);
 
 Future<void> _pumpPanel(
   WidgetTester tester, {
@@ -107,8 +102,9 @@ void main() {
       expect(find.text('CHAT:C2C:p1'), findsOneWidget);
     });
 
-    testWidgets('chatBuilder 接收的 selection 对象透传 (peerId+chatType)',
-        (tester) async {
+    testWidgets('chatBuilder 接收的 selection 对象透传 (peerId+chatType)', (
+      tester,
+    ) async {
       await _pumpPanel(
         tester,
         selection: const ChatSelection(peerId: 'group1', chatType: 'C2G'),
@@ -139,10 +135,7 @@ void main() {
     });
 
     testWidgets('其他 builder 不应被调用', (tester) async {
-      await _pumpPanel(
-        tester,
-        selection: const ContactSelection(uid: 'u1'),
-      );
+      await _pumpPanel(tester, selection: const ContactSelection(uid: 'u1'));
       expect(find.byKey(const ValueKey('welcome')), findsNothing);
       expect(find.byKey(const ValueKey('chat')), findsNothing);
       expect(find.byKey(const ValueKey('channel')), findsNothing);
@@ -174,10 +167,7 @@ void main() {
 
   group('WebMainPanel — MineSelection 分发', () {
     testWidgets('section=null → 渲染 overview', (tester) async {
-      await _pumpPanel(
-        tester,
-        selection: const MineSelection(),
-      );
+      await _pumpPanel(tester, selection: const MineSelection());
       expect(find.byKey(const ValueKey('mine')), findsOneWidget);
       expect(find.text('MINE:overview'), findsOneWidget);
     });
@@ -191,10 +181,7 @@ void main() {
     });
 
     testWidgets('其他 builder 不应被调用', (tester) async {
-      await _pumpPanel(
-        tester,
-        selection: const MineSelection(),
-      );
+      await _pumpPanel(tester, selection: const MineSelection());
       expect(find.byKey(const ValueKey('welcome')), findsNothing);
       expect(find.byKey(const ValueKey('chat')), findsNothing);
       expect(find.byKey(const ValueKey('contact')), findsNothing);
@@ -203,17 +190,15 @@ void main() {
   });
 
   group('WebMainPanel — 切换 selection 刷新', () {
-    testWidgets('null → ContactSelection → ChatSelection 内容跟随变化',
-        (tester) async {
+    testWidgets('null → ContactSelection → ChatSelection 内容跟随变化', (
+      tester,
+    ) async {
       // step 1: null → welcome
       await _pumpPanel(tester, selection: null);
       expect(find.byKey(const ValueKey('welcome')), findsOneWidget);
 
       // step 2: ContactSelection → 调 contactBuilder
-      await _pumpPanel(
-        tester,
-        selection: const ContactSelection(uid: 'u1'),
-      );
+      await _pumpPanel(tester, selection: const ContactSelection(uid: 'u1'));
       expect(find.byKey(const ValueKey('contact')), findsOneWidget);
       expect(find.text('CONTACT:u1'), findsOneWidget);
 
@@ -233,10 +218,12 @@ void main() {
       final BuildContext ctx = tester.element(find.byType(WebMainPanel));
       final cs = Theme.of(ctx).colorScheme;
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(WebMainPanel),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(WebMainPanel),
+              matching: find.byType(Container),
+            )
+            .first,
       );
       expect(container.color, cs.surface);
     });

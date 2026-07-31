@@ -37,8 +37,7 @@ void main() {
     });
 
     test('token 含特殊字符（JWT base64）也透传', () {
-      const jwt =
-          'eyJhbGciOiJIUzI1NiJ9.eyJ1aWQiOiIxMjMifQ.signature-x_y-z';
+      const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJ1aWQiOiIxMjMifQ.signature-x_y-z';
       final config = parseE2eBypassConfig(token: jwt, uid: 'u-002');
       expect((config as BypassEnabled).token, jwt);
     });
@@ -47,8 +46,7 @@ void main() {
   group('安全约束', () {
     test('token=" "（仅空格）应视为空，归 BypassDisabled', () {
       final config = parseE2eBypassConfig(token: '   ', uid: 'u-003');
-      expect(config, isA<BypassDisabled>(),
-          reason: '空白字符不应被当作合法 token，避免误开旁路');
+      expect(config, isA<BypassDisabled>(), reason: '空白字符不应被当作合法 token，避免误开旁路');
     });
 
     test('uid=" "（仅空格）应视为空，归 BypassDisabled', () {

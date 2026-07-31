@@ -34,11 +34,7 @@ void main() {
     });
 
     test('returns placeholder "?" when all three empty', () {
-      final name = resolveMomentDisplayName(
-        remark: '',
-        nickname: '',
-        uid: '',
-      );
+      final name = resolveMomentDisplayName(remark: '', nickname: '', uid: '');
       expect(name, '?');
     });
 

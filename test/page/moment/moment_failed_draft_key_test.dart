@@ -24,10 +24,7 @@ void main() {
     });
 
     test('different uids produce distinct keys (isolation)', () {
-      expect(
-        momentFailedDraftKey('alice'),
-        isNot(momentFailedDraftKey('bob')),
-      );
+      expect(momentFailedDraftKey('alice'), isNot(momentFailedDraftKey('bob')));
     });
   });
 }

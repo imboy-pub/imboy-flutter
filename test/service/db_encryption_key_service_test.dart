@@ -155,16 +155,18 @@ void main() {
         }
       });
 
-      test('generated keys are unique across calls with different uids',
-          () async {
-        final keys = <String>{};
-        for (var i = 0; i < 10; i++) {
-          final key = await DbEncryptionKeyService.getOrCreateKey('uniq_$i');
-          keys.add(key);
-        }
-        // All 10 keys should be unique
-        expect(keys.length, 10);
-      });
+      test(
+        'generated keys are unique across calls with different uids',
+        () async {
+          final keys = <String>{};
+          for (var i = 0; i < 10; i++) {
+            final key = await DbEncryptionKeyService.getOrCreateKey('uniq_$i');
+            keys.add(key);
+          }
+          // All 10 keys should be unique
+          expect(keys.length, 10);
+        },
+      );
     });
 
     group('storage key naming', () {

@@ -37,10 +37,10 @@ void main() {
     }) {
       return handleGroupEditS2C(
         payload: payload,
-        applyUpdate: applyUpdate ??
+        applyUpdate:
+            applyUpdate ??
             (gid, updates) async => applyCalls.add((gid, updates)),
-        fireEvent:
-            fireEvent ?? (gid, updates) => fireCalls.add((gid, updates)),
+        fireEvent: fireEvent ?? (gid, updates) => fireCalls.add((gid, updates)),
         log: logs.add,
       );
     }
@@ -60,8 +60,11 @@ void main() {
     test('仅含 gid 的 payload → 跳过 applyUpdate，仍 fireEvent', () async {
       await run({'gid': 7});
 
-      expect(applyCalls, isEmpty,
-          reason: '空 updates 不应触发 GroupRepo.update（避免无谓写库）');
+      expect(
+        applyCalls,
+        isEmpty,
+        reason: '空 updates 不应触发 GroupRepo.update（避免无谓写库）',
+      );
       expect(fireCalls, hasLength(1));
       expect(fireCalls.first.$1, 7);
       expect(fireCalls.first.$2, isEmpty);

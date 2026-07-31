@@ -99,7 +99,8 @@ void main() {
 
       final rows = await db.query(
         GroupMemberColumns.table,
-        where: '${GroupMemberColumns.groupId} = ? AND ${GroupMemberColumns.userId} = ?',
+        where:
+            '${GroupMemberColumns.groupId} = ? AND ${GroupMemberColumns.userId} = ?',
         whereArgs: [10, 100],
       );
       expect(rows, hasLength(1));
@@ -132,7 +133,8 @@ void main() {
       final affected = await db.update(
         GroupMemberColumns.table,
         {GroupMemberColumns.muteUntil: null},
-        where: '${GroupMemberColumns.groupId} = ? AND ${GroupMemberColumns.userId} = ?',
+        where:
+            '${GroupMemberColumns.groupId} = ? AND ${GroupMemberColumns.userId} = ?',
         whereArgs: [10, 100],
       );
 

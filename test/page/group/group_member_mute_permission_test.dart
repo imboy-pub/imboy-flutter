@@ -351,10 +351,7 @@ void main() {
 
     test('剩余正好 60 分钟 → "1 小时"（边界）', () {
       expect(
-        muteRemainingLabel(
-          muteUntilMs: nowMs + 60 * 60 * 1000,
-          nowMs: nowMs,
-        ),
+        muteRemainingLabel(muteUntilMs: nowMs + 60 * 60 * 1000, nowMs: nowMs),
         '1 小时',
       );
     });

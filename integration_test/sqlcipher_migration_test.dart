@@ -58,8 +58,7 @@ void main() {
   });
 
   group('SQLCipher Migration - New User Flow', () {
-    test('new user gets encryption key on first database open',
-        () async {
+    test('new user gets encryption key on first database open', () async {
       const uid = 'new_user_001';
 
       // Before: no key exists
@@ -76,8 +75,7 @@ void main() {
       }
     });
 
-    test('encryption key survives app restart simulation',
-        () async {
+    test('encryption key survives app restart simulation', () async {
       const uid = 'restart_user';
 
       final key1 = await DbEncryptionKeyService.getOrCreateKey(uid);
@@ -89,8 +87,7 @@ void main() {
   });
 
   group('SQLCipher Migration - Upgrade User Flow', () {
-    test('existing user without key gets new key on upgrade',
-        () async {
+    test('existing user without key gets new key on upgrade', () async {
       const uid = 'upgrade_user';
 
       // Simulate pre-SQLCipher state: user exists, no encryption key
@@ -122,8 +119,7 @@ void main() {
   });
 
   group('SQLCipher Migration - Backup Cleanup', () {
-    test('expired backup files are eligible for cleanup',
-        () async {
+    test('expired backup files are eligible for cleanup', () async {
       final tempDir = Directory.systemTemp.createTempSync(
         'sqlcipher_int_test_',
       );
@@ -134,9 +130,7 @@ void main() {
 
         // Create an "old" backup
         await backupFile.writeAsString('old backup');
-        final eightDaysAgo = DateTime.now().subtract(
-          const Duration(days: 8),
-        );
+        final eightDaysAgo = DateTime.now().subtract(const Duration(days: 8));
         await backupFile.setLastModified(eightDaysAgo);
 
         // Verify it's expired
@@ -148,8 +142,7 @@ void main() {
       }
     });
 
-    test('recent backup files are not eligible for cleanup',
-        () async {
+    test('recent backup files are not eligible for cleanup', () async {
       final tempDir = Directory.systemTemp.createTempSync(
         'sqlcipher_int_test2_',
       );

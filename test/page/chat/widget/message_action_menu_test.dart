@@ -17,11 +17,7 @@ import 'package:imboy/page/chat/widget/message_action_menu.dart';
 ///   - 发送者可见操作：撤回 / 重试 / 编辑（canEdit）/ 删除（destructive）
 ///   - 接收者可见操作：仅"删除我的消息"
 ///   - tap 触发对应回调（且自动 onClose）
-const _testMsg = TextMessage(
-  id: 'msg_1',
-  authorId: 'u_1',
-  text: 'hi',
-);
+const _testMsg = TextMessage(id: 'msg_1', authorId: 'u_1', text: 'hi');
 
 Future<void> _pump(
   WidgetTester tester, {
@@ -148,11 +144,7 @@ void main() {
 
     testWidgets('tap 复制 → onCopy + onClose', (tester) async {
       var copyCount = 0;
-      await _pump(
-        tester,
-        isSentByMe: false,
-        onCopy: () => copyCount++,
-      );
+      await _pump(tester, isSentByMe: false, onCopy: () => copyCount++);
 
       await tester.tap(find.text('复制'));
       await tester.pump();
@@ -162,11 +154,7 @@ void main() {
 
     testWidgets('tap 转发 → onForward + onClose', (tester) async {
       var forwardCount = 0;
-      await _pump(
-        tester,
-        isSentByMe: false,
-        onForward: () => forwardCount++,
-      );
+      await _pump(tester, isSentByMe: false, onForward: () => forwardCount++);
 
       await tester.tap(find.text('转发'));
       await tester.pump();
@@ -184,11 +172,7 @@ void main() {
 
     testWidgets('onCollect 非 null → "收藏" 渲染 + tap 触发回调', (tester) async {
       var collectCount = 0;
-      await _pump(
-        tester,
-        isSentByMe: false,
-        onCollect: () => collectCount++,
-      );
+      await _pump(tester, isSentByMe: false, onCollect: () => collectCount++);
 
       expect(find.text('收藏'), findsOneWidget);
       await tester.tap(find.text('收藏'));
@@ -205,11 +189,7 @@ void main() {
 
     testWidgets('onSave 非 null → "保存" 渲染 + tap 触发回调', (tester) async {
       var saveCount = 0;
-      await _pump(
-        tester,
-        isSentByMe: false,
-        onSave: () => saveCount++,
-      );
+      await _pump(tester, isSentByMe: false, onSave: () => saveCount++);
 
       expect(find.text('保存'), findsOneWidget);
       await tester.tap(find.text('保存'));
@@ -231,11 +211,7 @@ void main() {
 
     testWidgets('onRevoke 非 null → "撤回" 渲染 + tap 触发回调', (tester) async {
       var revokeCount = 0;
-      await _pump(
-        tester,
-        isSentByMe: true,
-        onRevoke: () => revokeCount++,
-      );
+      await _pump(tester, isSentByMe: true, onRevoke: () => revokeCount++);
 
       expect(find.text('撤回'), findsOneWidget);
       await tester.tap(find.text('撤回'));
@@ -246,11 +222,7 @@ void main() {
 
     testWidgets('onRetry 非 null → "重试" 渲染 + tap 触发回调', (tester) async {
       var retryCount = 0;
-      await _pump(
-        tester,
-        isSentByMe: true,
-        onRetry: () => retryCount++,
-      );
+      await _pump(tester, isSentByMe: true, onRetry: () => retryCount++);
 
       expect(find.text('重试'), findsOneWidget);
       await tester.tap(find.text('重试'));
@@ -283,8 +255,7 @@ void main() {
   });
 
   group('MessageActionMenu receiver (isSentByMe=false)', () {
-    testWidgets('isSentByMe=false → 显示"删除我的消息"（接收者专属）',
-        (tester) async {
+    testWidgets('isSentByMe=false → 显示"删除我的消息"（接收者专属）', (tester) async {
       await _pump(tester, isSentByMe: false);
       // i18n: deleteForMe = "删除我的消息"
       expect(find.text('删除我的消息'), findsOneWidget);
@@ -315,13 +286,8 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('isSentByMe=false 时 onRevoke 即使非 null 也不显示',
-        (tester) async {
-      await _pump(
-        tester,
-        isSentByMe: false,
-        onRevoke: () {},
-      );
+    testWidgets('isSentByMe=false 时 onRevoke 即使非 null 也不显示', (tester) async {
+      await _pump(tester, isSentByMe: false, onRevoke: () {});
       // 撤回是发送者专属，接收者绝不显示（即使 onRevoke 非 null）
       expect(find.text('撤回'), findsNothing);
       await _unmount(tester);

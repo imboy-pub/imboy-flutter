@@ -32,10 +32,7 @@ void main() {
 
     test('Esc + Cmd → 不响应（严格匹配，避免与系统冲突）', () {
       final result = resolveShellShortcut(
-        pressed: {
-          LogicalKeyboardKey.escape,
-          LogicalKeyboardKey.meta,
-        },
+        pressed: {LogicalKeyboardKey.escape, LogicalKeyboardKey.meta},
         isMacOS: true,
       );
       expect(result, isNull);
@@ -45,10 +42,7 @@ void main() {
   group('resolveShellShortcut — Cmd+K (macOS)', () {
     test('Cmd+K → OpenGlobalSearchShortcut', () {
       final result = resolveShellShortcut(
-        pressed: {
-          LogicalKeyboardKey.meta,
-          LogicalKeyboardKey.keyK,
-        },
+        pressed: {LogicalKeyboardKey.meta, LogicalKeyboardKey.keyK},
         isMacOS: true,
       );
       expect(result, isA<OpenGlobalSearchShortcut>());
@@ -56,10 +50,7 @@ void main() {
 
     test('Ctrl+K (macOS) → 不响应（macOS 用 meta）', () {
       final result = resolveShellShortcut(
-        pressed: {
-          LogicalKeyboardKey.control,
-          LogicalKeyboardKey.keyK,
-        },
+        pressed: {LogicalKeyboardKey.control, LogicalKeyboardKey.keyK},
         isMacOS: true,
       );
       expect(result, isNull);
@@ -69,10 +60,7 @@ void main() {
   group('resolveShellShortcut — Ctrl+K (Windows/Linux)', () {
     test('Ctrl+K → OpenGlobalSearchShortcut', () {
       final result = resolveShellShortcut(
-        pressed: {
-          LogicalKeyboardKey.control,
-          LogicalKeyboardKey.keyK,
-        },
+        pressed: {LogicalKeyboardKey.control, LogicalKeyboardKey.keyK},
         isMacOS: false,
       );
       expect(result, isA<OpenGlobalSearchShortcut>());
@@ -80,10 +68,7 @@ void main() {
 
     test('Cmd+K (Windows) → 不响应（Windows 用 control）', () {
       final result = resolveShellShortcut(
-        pressed: {
-          LogicalKeyboardKey.meta,
-          LogicalKeyboardKey.keyK,
-        },
+        pressed: {LogicalKeyboardKey.meta, LogicalKeyboardKey.keyK},
         isMacOS: false,
       );
       expect(result, isNull);
@@ -93,10 +78,7 @@ void main() {
   group('resolveShellShortcut — mod+N 新建会话', () {
     test('Cmd+N (macOS) → NewChatShortcut', () {
       final result = resolveShellShortcut(
-        pressed: {
-          LogicalKeyboardKey.meta,
-          LogicalKeyboardKey.keyN,
-        },
+        pressed: {LogicalKeyboardKey.meta, LogicalKeyboardKey.keyN},
         isMacOS: true,
       );
       expect(result, isA<NewChatShortcut>());
@@ -104,10 +86,7 @@ void main() {
 
     test('Ctrl+N (Windows) → NewChatShortcut', () {
       final result = resolveShellShortcut(
-        pressed: {
-          LogicalKeyboardKey.control,
-          LogicalKeyboardKey.keyN,
-        },
+        pressed: {LogicalKeyboardKey.control, LogicalKeyboardKey.keyN},
         isMacOS: false,
       );
       expect(result, isA<NewChatShortcut>());
@@ -117,10 +96,7 @@ void main() {
   group('resolveShellShortcut — mod+, 设置', () {
     test('Cmd+, (macOS) → OpenSettingsShortcut', () {
       final result = resolveShellShortcut(
-        pressed: {
-          LogicalKeyboardKey.meta,
-          LogicalKeyboardKey.comma,
-        },
+        pressed: {LogicalKeyboardKey.meta, LogicalKeyboardKey.comma},
         isMacOS: true,
       );
       expect(result, isA<OpenSettingsShortcut>());
@@ -128,10 +104,7 @@ void main() {
 
     test('Ctrl+, (Windows) → OpenSettingsShortcut', () {
       final result = resolveShellShortcut(
-        pressed: {
-          LogicalKeyboardKey.control,
-          LogicalKeyboardKey.comma,
-        },
+        pressed: {LogicalKeyboardKey.control, LogicalKeyboardKey.comma},
         isMacOS: false,
       );
       expect(result, isA<OpenSettingsShortcut>());
@@ -178,10 +151,7 @@ void main() {
 
   group('resolveShellShortcut — 边界', () {
     test('空集合 → null', () {
-      final result = resolveShellShortcut(
-        pressed: {},
-        isMacOS: true,
-      );
+      final result = resolveShellShortcut(pressed: {}, isMacOS: true);
       expect(result, isNull);
     });
 
@@ -203,10 +173,7 @@ void main() {
 
     test('mod + 不识别的字母 → null', () {
       final result = resolveShellShortcut(
-        pressed: {
-          LogicalKeyboardKey.meta,
-          LogicalKeyboardKey.keyZ,
-        },
+        pressed: {LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ},
         isMacOS: true,
       );
       expect(result, isNull);

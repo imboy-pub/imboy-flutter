@@ -155,8 +155,7 @@ void main() {
       expect(result, {'10': 2});
     });
 
-    test(
-        'edge: message with created_at exactly equal to sinceMs is INCLUDED '
+    test('edge: message with created_at exactly equal to sinceMs is INCLUDED '
         '(boundary is inclusive)', () async {
       await seed(db, id: 1, fromId: 7, uk3: _uk3A, createdAt: 5000);
       final result = await MentionFrequencyRepo.queryWith(

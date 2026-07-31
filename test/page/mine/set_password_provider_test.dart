@@ -11,16 +11,12 @@ ProviderContainer _makeContainer() {
 SetPassword _notifier(ProviderContainer c) =>
     c.read(setPasswordProvider.notifier);
 
-SetPasswordState _state(ProviderContainer c) =>
-    c.read(setPasswordProvider);
+SetPasswordState _state(ProviderContainer c) => c.read(setPasswordProvider);
 
 void main() {
   group('SetPasswordState.copyWith', () {
     test('preserves unmodified fields', () {
-      const state = SetPasswordState(
-        newPwd: 'hello',
-        newPwdObscure: false,
-      );
+      const state = SetPasswordState(newPwd: 'hello', newPwdObscure: false);
       final next = state.copyWith(retypePwd: 'world');
       expect(next.newPwd, 'hello');
       expect(next.newPwdObscure, isFalse);

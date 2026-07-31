@@ -37,8 +37,7 @@ void main() {
     });
 
     test('exports WebSelection sealed + 4 variants', () {
-      const WebSelection chat =
-          ChatSelection(peerId: 'p', chatType: 'C2C');
+      const WebSelection chat = ChatSelection(peerId: 'p', chatType: 'C2C');
       const WebSelection contact = ContactSelection(uid: 'u');
       const WebSelection channel = ChannelSelection(channelId: 'c');
       const WebSelection mine = MineSelection();

@@ -14,15 +14,12 @@ void main() {
       'ignored': {'enabled': true},
     });
 
-    expect(
-      normalized,
-      {
-        FeatureKeys.channel: true,
-        FeatureKeys.channelDiscover: true,
-        FeatureKeys.channelInvitation: false,
-        FeatureKeys.channelOrder: true,
-      },
-    );
+    expect(normalized, {
+      FeatureKeys.channel: true,
+      FeatureKeys.channelDiscover: true,
+      FeatureKeys.channelInvitation: false,
+      FeatureKeys.channelOrder: true,
+    });
   });
 
   test('inherits parent feature state for child features', () {
@@ -51,9 +48,7 @@ void main() {
   });
 
   test('returns bottom navigation redirect for disabled feature routes', () {
-    AppFeatureRegistry.replaceSnapshotForTest({
-      FeatureKeys.moment: false,
-    });
+    AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.moment: false});
 
     expect(
       RouteFeatureGuard.redirectPath(

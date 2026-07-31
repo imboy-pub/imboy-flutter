@@ -131,8 +131,9 @@ void main() {
       expect(decoded, isNotNull);
       expect(decoded!.frame.type, FrameType.heartbeatPong);
       // 校验 seq 回显
-      final gotSeq =
-          ByteData.sublistView(decoded.frame.payload).getUint16(0, Endian.big);
+      final gotSeq = ByteData.sublistView(
+        decoded.frame.payload,
+      ).getUint16(0, Endian.big);
       expect(gotSeq, seq);
     });
 
@@ -145,8 +146,9 @@ void main() {
       expect(decoded, isNotNull);
       expect(decoded!.frame.type, FrameType.ack);
       expect(decoded.frame.payload.length, 8);
-      final extracted =
-          ByteData.sublistView(decoded.frame.payload).getUint64(0, Endian.big);
+      final extracted = ByteData.sublistView(
+        decoded.frame.payload,
+      ).getUint64(0, Endian.big);
       expect(extracted, msgId);
 
       // 调用 handler，不应抛出（AckManager.ackConfirmed 会被调用但无副作用断言）

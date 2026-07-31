@@ -71,8 +71,9 @@ void main() {
   });
 
   group('TypingIndicatorWidget visibility', () {
-    testWidgets('default state → hidden (SizedBox.shrink, 不渲染气泡)',
-        (tester) async {
+    testWidgets('default state → hidden (SizedBox.shrink, 不渲染气泡)', (
+      tester,
+    ) async {
       await _pump(tester);
 
       // 初始 _isTyping=false → 整个 widget 树是 SizedBox.shrink
@@ -84,8 +85,9 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('收到 typing.start (非自己 + 同会话) → 显示气泡 + peerTitle',
-        (tester) async {
+    testWidgets('收到 typing.start (非自己 + 同会话) → 显示气泡 + peerTitle', (
+      tester,
+    ) async {
       await _pump(tester);
 
       AppEventBus.fire(

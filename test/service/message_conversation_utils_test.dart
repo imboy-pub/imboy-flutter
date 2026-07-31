@@ -90,8 +90,11 @@ void main() {
         mentionIds: const ['u_me', 'all'],
         currentUid: 'u_me',
       );
-      expect(delta, 0,
-          reason: 'self-sent message must never bump mention_unread');
+      expect(
+        delta,
+        0,
+        reason: 'self-sent message must never bump mention_unread',
+      );
     });
 
     test('returns 0 when user is already in that chat', () {
@@ -101,8 +104,7 @@ void main() {
         mentionIds: const ['u_me'],
         currentUid: 'u_me',
       );
-      expect(delta, 0,
-          reason: 'user is viewing the chat → no badge');
+      expect(delta, 0, reason: 'user is viewing the chat → no badge');
     });
 
     test('returns 0 when mentionIds is null', () {
@@ -152,8 +154,7 @@ void main() {
         mentionIds: const ['u_alice', 'u_bob'],
         currentUid: 'u_me',
       );
-      expect(delta, 0,
-          reason: 'message mentions others, not current user');
+      expect(delta, 0, reason: 'message mentions others, not current user');
     });
 
     test('returns 0 when empty currentUid (logged out edge case)', () {
@@ -164,8 +165,11 @@ void main() {
         mentionIds: const [''],
         currentUid: '',
       );
-      expect(delta, 0,
-          reason: 'empty currentUid must not opportunistically match empty id');
+      expect(
+        delta,
+        0,
+        reason: 'empty currentUid must not opportunistically match empty id',
+      );
     });
   });
 
@@ -271,50 +275,50 @@ void main() {
     });
 
     test('mentions 是空 List → 空 List（非 null）', () {
-      final result = extractMentionIdsFromPayload(
-        <String, dynamic>{'mentions': <dynamic>[]},
-      );
+      final result = extractMentionIdsFromPayload(<String, dynamic>{
+        'mentions': <dynamic>[],
+      });
       expect(result, isNotNull);
       expect(result, isEmpty);
     });
 
     test('mentions 是 List<String> → 按序返回', () {
       expect(
-        extractMentionIdsFromPayload(
-          <String, dynamic>{'mentions': ['u_a', 'u_b', 'u_c']},
-        ),
+        extractMentionIdsFromPayload(<String, dynamic>{
+          'mentions': ['u_a', 'u_b', 'u_c'],
+        }),
         ['u_a', 'u_b', 'u_c'],
       );
     });
 
     test('mentions 包含 "all" 哨兵 → 原样保留（供 @所有人 判定）', () {
-      final result = extractMentionIdsFromPayload(
-        <String, dynamic>{'mentions': ['all', 'u_me']},
-      );
+      final result = extractMentionIdsFromPayload(<String, dynamic>{
+        'mentions': ['all', 'u_me'],
+      });
       expect(result, contains('all'));
       expect(result, contains('u_me'));
     });
 
     test('mentions 含非字符串元素（int / bool）→ toString 兜底', () {
-      final result = extractMentionIdsFromPayload(
-        <String, dynamic>{'mentions': <dynamic>[1838294017982464, true, 'u_me']},
-      );
+      final result = extractMentionIdsFromPayload(<String, dynamic>{
+        'mentions': <dynamic>[1838294017982464, true, 'u_me'],
+      });
       expect(result, ['1838294017982464', 'true', 'u_me']);
     });
 
     test('mentions 含 null 元素 → 字面量字符串 "null"（暴露后端脏数据）', () {
-      final result = extractMentionIdsFromPayload(
-        <String, dynamic>{'mentions': <dynamic>[null, 'u_me']},
-      );
+      final result = extractMentionIdsFromPayload(<String, dynamic>{
+        'mentions': <dynamic>[null, 'u_me'],
+      });
       // 当前实现 toString 会把 null 转成 "null"；
       // 若未来要过滤应在本函数而非调用侧修复 → 此断言会 RED 提醒。
       expect(result, ['null', 'u_me']);
     });
 
     test('返回的 List 是 unmodifiable（growable: false）', () {
-      final result = extractMentionIdsFromPayload(
-        <String, dynamic>{'mentions': ['u_me']},
-      );
+      final result = extractMentionIdsFromPayload(<String, dynamic>{
+        'mentions': ['u_me'],
+      });
       expect(result, isNotNull);
       expect(() => result!.add('u_other'), throwsUnsupportedError);
     });

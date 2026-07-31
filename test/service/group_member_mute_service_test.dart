@@ -91,26 +91,29 @@ void main() {
       expect(api.muteCallCount, 0);
     });
 
-    test('API ok=true → MuteSuccess(muteUntilMs = clock + duration*1000)', () async {
-      final api = _StubApi()..nextMuteOk = true;
-      final svc = _build(api: api, nowMs: 1_700_000_000_000);
+    test(
+      'API ok=true → MuteSuccess(muteUntilMs = clock + duration*1000)',
+      () async {
+        final api = _StubApi()..nextMuteOk = true;
+        final svc = _build(api: api, nowMs: 1_700_000_000_000);
 
-      final result = await svc.mute(
-        gid: 'g-42',
-        userId: 'u-7',
-        durationSec: 600,
-      );
+        final result = await svc.mute(
+          gid: 'g-42',
+          userId: 'u-7',
+          durationSec: 600,
+        );
 
-      expect(result, isA<MuteSuccess>());
-      final success = result as MuteSuccess;
-      // 1_700_000_000_000 + 600 * 1000 = 1_700_000_600_000
-      expect(success.muteUntilMs, 1_700_000_600_000);
+        expect(result, isA<MuteSuccess>());
+        final success = result as MuteSuccess;
+        // 1_700_000_000_000 + 600 * 1000 = 1_700_000_600_000
+        expect(success.muteUntilMs, 1_700_000_600_000);
 
-      expect(api.muteCallCount, 1);
-      expect(api.lastGid, 'g-42');
-      expect(api.lastUserId, 'u-7');
-      expect(api.lastDuration, 600);
-    });
+        expect(api.muteCallCount, 1);
+        expect(api.lastGid, 'g-42');
+        expect(api.lastUserId, 'u-7');
+        expect(api.lastDuration, 600);
+      },
+    );
 
     test('API ok=false → MuteApiFailure', () async {
       final api = _StubApi()..nextMuteOk = false;
@@ -143,10 +146,7 @@ void main() {
       }
 
       expect(describe(const MuteSuccess(1)), 'success:1');
-      expect(
-        describe(const MuteValidationError('m')),
-        'validation:m',
-      );
+      expect(describe(const MuteValidationError('m')), 'validation:m');
       expect(describe(const MuteApiFailure('e')), 'api:e');
     });
   });

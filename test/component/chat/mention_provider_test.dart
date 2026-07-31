@@ -26,9 +26,7 @@ void main() {
     );
 
     test('returns all candidates when currentUserId is empty', () {
-      const state = MentionState(
-        candidates: [self, alice, bob],
-      );
+      const state = MentionState(candidates: [self, alice, bob]);
 
       expect(state.filteredCandidates, [self, alice, bob]);
     });
@@ -110,14 +108,8 @@ void main() {
   });
 
   group('MentionState.filteredCandidates - keyword edge cases', () {
-    const alice = MentionCandidate(
-      userId: 'uid_alice',
-      displayName: 'Alice',
-    );
-    const bob = MentionCandidate(
-      userId: 'uid_bob',
-      displayName: 'BOB',
-    );
+    const alice = MentionCandidate(userId: 'uid_alice', displayName: 'Alice');
+    const bob = MentionCandidate(userId: 'uid_bob', displayName: 'BOB');
 
     test('空候选 → 空结果（即使 keyword 非空）', () {
       const s = MentionState(candidates: [], keyword: 'a');
@@ -125,44 +117,30 @@ void main() {
     });
 
     test('keyword 大小写不敏感（"aLi" 匹配 "Alice"）', () {
-      const s = MentionState(
-        candidates: [alice, bob],
-        keyword: 'aLi',
-      );
+      const s = MentionState(candidates: [alice, bob], keyword: 'aLi');
       expect(s.filteredCandidates, [alice]);
     });
 
     test('keyword 大写匹配大写 displayName（"BOB" 候选）', () {
-      const s = MentionState(
-        candidates: [alice, bob],
-        keyword: 'bo',
-      );
+      const s = MentionState(candidates: [alice, bob], keyword: 'bo');
       // "BOB".toLowerCase().contains("bo") → 匹配
       expect(s.filteredCandidates, [bob]);
     });
 
     test('keyword 子串匹配（"ic" 匹配 "Alice"）', () {
-      const s = MentionState(
-        candidates: [alice, bob],
-        keyword: 'ic',
-      );
+      const s = MentionState(candidates: [alice, bob], keyword: 'ic');
       expect(s.filteredCandidates, [alice]);
     });
 
     test('keyword 无匹配 → 空结果', () {
-      const s = MentionState(
-        candidates: [alice, bob],
-        keyword: 'xyz',
-      );
+      const s = MentionState(candidates: [alice, bob], keyword: 'xyz');
       expect(s.filteredCandidates, isEmpty);
     });
   });
 
   group('MentionState.copyWith preserves unchanged fields', () {
     const initial = MentionState(
-      candidates: [
-        MentionCandidate(userId: 'u1', displayName: 'A'),
-      ],
+      candidates: [MentionCandidate(userId: 'u1', displayName: 'A')],
       groupId: 'g1',
       showAllMention: true,
       currentUserRole: 3,

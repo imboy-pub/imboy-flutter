@@ -216,7 +216,10 @@ void main() {
         expect(capturedEvent, isNotNull);
         expect(stats['retry_ceiling_hit_count'], 1);
         expect(stats['recent_retry_ceiling_hits'], isA<List<dynamic>>());
-        expect((stats['recent_retry_ceiling_hits'] as List<dynamic>).isNotEmpty, isTrue);
+        expect(
+          (stats['recent_retry_ceiling_hits'] as List<dynamic>).isNotEmpty,
+          isTrue,
+        );
         expect(capturedEvent!.retryCount, 4);
         expect(capturedEvent!.maxRetryCount, 4);
 

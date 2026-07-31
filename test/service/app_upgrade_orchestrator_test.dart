@@ -24,11 +24,11 @@ AppVersionInfo _makeInfo({
   bool updatable = true,
   String upgradeType = 'recommend',
 }) => AppVersionInfo.fromJson({
-      'vsn': vsn,
-      'download_url': 'https://example.com/$vsn.apk',
-      'upgrade_type': upgradeType,
-      'updatable': updatable,
-    });
+  'vsn': vsn,
+  'download_url': 'https://example.com/$vsn.apk',
+  'upgrade_type': upgradeType,
+  'updatable': updatable,
+});
 
 void main() {
   group('AppUpgradeOrchestrator.onAppStart', () {
@@ -48,55 +48,43 @@ void main() {
       );
     });
 
-    test(
-      '首次启动不上报事件 / firstLaunch does not report',
-      () async {
-        final transition = await orchestrator.onAppStart('1.0.0');
+    test('首次启动不上报事件 / firstLaunch does not report', () async {
+      final transition = await orchestrator.onAppStart('1.0.0');
 
-        expect(transition.isFirstLaunch, isTrue);
-        expect(reporter.events, isEmpty);
-      },
-    );
+      expect(transition.isFirstLaunch, isTrue);
+      expect(reporter.events, isEmpty);
+    });
 
-    test(
-      '版本未变时不上报 / unchanged does not report',
-      () async {
-        storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.0');
+    test('版本未变时不上报 / unchanged does not report', () async {
+      storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.0');
 
-        final transition = await orchestrator.onAppStart('1.0.0');
+      final transition = await orchestrator.onAppStart('1.0.0');
 
-        expect(transition.isUnchanged, isTrue);
-        expect(reporter.events, isEmpty);
-      },
-    );
+      expect(transition.isUnchanged, isTrue);
+      expect(reporter.events, isEmpty);
+    });
 
-    test(
-      '升级时不上报（仅日志）/ upgrade does not report',
-      () async {
-        storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.0');
+    test('升级时不上报（仅日志）/ upgrade does not report', () async {
+      storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.0');
 
-        final transition = await orchestrator.onAppStart('1.1.0');
+      final transition = await orchestrator.onAppStart('1.1.0');
 
-        expect(transition.isUpgrade, isTrue);
-        expect(reporter.events, isEmpty);
-      },
-    );
+      expect(transition.isUpgrade, isTrue);
+      expect(reporter.events, isEmpty);
+    });
 
-    test(
-      '降级时上报 downgrade 事件 / downgrade reports event',
-      () async {
-        storage.setString(AppVersionTracker.lastRunVsnKey, '1.2.0');
+    test('降级时上报 downgrade 事件 / downgrade reports event', () async {
+      storage.setString(AppVersionTracker.lastRunVsnKey, '1.2.0');
 
-        final transition = await orchestrator.onAppStart('1.0.0');
+      final transition = await orchestrator.onAppStart('1.0.0');
 
-        expect(transition.isDowngrade, isTrue);
-        expect(reporter.events, hasLength(1));
-        final evt = reporter.events.single;
-        expect(evt.event, 'downgrade');
-        expect(evt.targetVsn, '1.0.0');
-        expect(evt.extra, {'from_vsn': '1.2.0'});
-      },
-    );
+      expect(transition.isDowngrade, isTrue);
+      expect(reporter.events, hasLength(1));
+      final evt = reporter.events.single;
+      expect(evt.event, 'downgrade');
+      expect(evt.targetVsn, '1.0.0');
+      expect(evt.extra, {'from_vsn': '1.2.0'});
+    });
 
     test(
       '降级后 tracker 已 commit 当前版本 / tracker commits currentVsn after downgrade',
@@ -127,18 +115,15 @@ void main() {
       },
     );
 
-    test(
-      'patch 级降级也上报 / patch-level downgrade reports',
-      () async {
-        storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.5');
+    test('patch 级降级也上报 / patch-level downgrade reports', () async {
+      storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.5');
 
-        final transition = await orchestrator.onAppStart('1.0.3');
+      final transition = await orchestrator.onAppStart('1.0.3');
 
-        expect(transition.isDowngrade, isTrue);
-        expect(reporter.events, hasLength(1));
-        expect(reporter.events.single.extra?['from_vsn'], '1.0.5');
-      },
-    );
+      expect(transition.isDowngrade, isTrue);
+      expect(reporter.events, hasLength(1));
+      expect(reporter.events.single.extra?['from_vsn'], '1.0.5');
+    });
 
     test(
       'reporter 抛异常不影响启动主流程 / reporter error does not break startup',
@@ -164,18 +149,15 @@ void main() {
     // Downgrade side-effect cleanup
     // -------------------------------------------------------------
 
-    test(
-      '降级时调用 cleaner 一次 / cleaner invoked once on downgrade',
-      () async {
-        storage.setString(AppVersionTracker.lastRunVsnKey, '2.0.0');
+    test('降级时调用 cleaner 一次 / cleaner invoked once on downgrade', () async {
+      storage.setString(AppVersionTracker.lastRunVsnKey, '2.0.0');
 
-        await orchestrator.onAppStart('1.0.0');
+      await orchestrator.onAppStart('1.0.0');
 
-        expect(cleaner.calls, hasLength(1));
-        expect(cleaner.calls.single.fromVsn, '2.0.0');
-        expect(cleaner.calls.single.toVsn, '1.0.0');
-      },
-    );
+      expect(cleaner.calls, hasLength(1));
+      expect(cleaner.calls.single.fromVsn, '2.0.0');
+      expect(cleaner.calls.single.toVsn, '1.0.0');
+    });
 
     test(
       'firstLaunch 不调用 cleaner / firstLaunch does not invoke cleaner',
@@ -185,68 +167,52 @@ void main() {
       },
     );
 
-    test(
-      '升级不调用 cleaner / upgrade does not invoke cleaner',
-      () async {
-        storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.0');
-        await orchestrator.onAppStart('2.0.0');
-        expect(cleaner.calls, isEmpty);
-      },
-    );
+    test('升级不调用 cleaner / upgrade does not invoke cleaner', () async {
+      storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.0');
+      await orchestrator.onAppStart('2.0.0');
+      expect(cleaner.calls, isEmpty);
+    });
 
-    test(
-      '未变不调用 cleaner / unchanged does not invoke cleaner',
-      () async {
-        storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.0');
-        await orchestrator.onAppStart('1.0.0');
-        expect(cleaner.calls, isEmpty);
-      },
-    );
+    test('未变不调用 cleaner / unchanged does not invoke cleaner', () async {
+      storage.setString(AppVersionTracker.lastRunVsnKey, '1.0.0');
+      await orchestrator.onAppStart('1.0.0');
+      expect(cleaner.calls, isEmpty);
+    });
 
-    test(
-      'cleaner 抛异常不影响启动主流程与 reporter 调用 / '
-      'cleaner error does not block startup nor reporter',
-      () async {
-        storage.setString(AppVersionTracker.lastRunVsnKey, '2.0.0');
-        cleaner.nextError = Exception('storage failure');
+    test('cleaner 抛异常不影响启动主流程与 reporter 调用 / '
+        'cleaner error does not block startup nor reporter', () async {
+      storage.setString(AppVersionTracker.lastRunVsnKey, '2.0.0');
+      cleaner.nextError = Exception('storage failure');
 
-        // 不应抛出
-        final transition = await orchestrator.onAppStart('1.0.0');
+      // 不应抛出
+      final transition = await orchestrator.onAppStart('1.0.0');
 
-        expect(transition.isDowngrade, isTrue);
-        expect(
-          storage.getString(AppVersionTracker.lastRunVsnKey),
-          '1.0.0',
-          reason: '清理失败不能阻止版本提交',
-        );
-        expect(
-          reporter.events,
-          hasLength(1),
-          reason: '清理失败不能阻止降级上报（两条独立错误隔离线）',
-        );
-      },
-    );
+      expect(transition.isDowngrade, isTrue);
+      expect(
+        storage.getString(AppVersionTracker.lastRunVsnKey),
+        '1.0.0',
+        reason: '清理失败不能阻止版本提交',
+      );
+      expect(reporter.events, hasLength(1), reason: '清理失败不能阻止降级上报（两条独立错误隔离线）');
+    });
 
-    test(
-      '清理在上报之前执行 / cleaner runs before reporter',
-      () async {
-        storage.setString(AppVersionTracker.lastRunVsnKey, '2.0.0');
-        // 记录全局调用顺序
-        // Record global call order
-        final order = <String>[];
-        cleaner = _OrderingCleaner(order);
-        reporter = _OrderingReporter(order);
-        orchestrator = AppUpgradeOrchestrator(
-          tracker: AppVersionTracker(storage: storage),
-          reporter: reporter,
-          cleaner: cleaner,
-        );
+    test('清理在上报之前执行 / cleaner runs before reporter', () async {
+      storage.setString(AppVersionTracker.lastRunVsnKey, '2.0.0');
+      // 记录全局调用顺序
+      // Record global call order
+      final order = <String>[];
+      cleaner = _OrderingCleaner(order);
+      reporter = _OrderingReporter(order);
+      orchestrator = AppUpgradeOrchestrator(
+        tracker: AppVersionTracker(storage: storage),
+        reporter: reporter,
+        cleaner: cleaner,
+      );
 
-        await orchestrator.onAppStart('1.0.0');
+      await orchestrator.onAppStart('1.0.0');
 
-        expect(order, ['clean', 'report']);
-      },
-    );
+      expect(order, ['clean', 'report']);
+    });
   });
 
   // -------------------------------------------------------------
@@ -285,10 +251,7 @@ void main() {
       'silent 返回 SilentUpdateAvailable / silent → SilentUpdateAvailable',
       () {
         final info = _makeInfo(upgradeType: 'silent');
-        final action = orchestrator.decideS2CAction(
-          info,
-          isDismissed: false,
-        );
+        final action = orchestrator.decideS2CAction(info, isDismissed: false);
         expect(action, isA<S2CSilentUpdateAvailable>());
         expect((action as S2CSilentUpdateAvailable).info.vsn, info.vsn);
       },
@@ -313,17 +276,14 @@ void main() {
       },
     );
 
-    test(
-      'recommend 已 dismiss 返回 NoAction（不同于手动检查）/ '
-      'recommend dismissed → NoAction (S2C push is never manual)',
-      () {
-        final action = orchestrator.decideS2CAction(
-          _makeInfo(upgradeType: 'recommend'),
-          isDismissed: true,
-        );
-        expect(action, isA<S2CNoAction>());
-      },
-    );
+    test('recommend 已 dismiss 返回 NoAction（不同于手动检查）/ '
+        'recommend dismissed → NoAction (S2C push is never manual)', () {
+      final action = orchestrator.decideS2CAction(
+        _makeInfo(upgradeType: 'recommend'),
+        isDismissed: true,
+      );
+      expect(action, isA<S2CNoAction>());
+    });
   });
 }
 

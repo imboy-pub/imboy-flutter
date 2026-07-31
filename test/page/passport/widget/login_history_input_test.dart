@@ -118,8 +118,11 @@ void main() {
       );
 
       expect(find.byKey(const Key('custom_suffix')), findsOneWidget);
-      expect(find.byIcon(Icons.arrow_drop_down), findsNothing,
-          reason: '自定义 suffix 应覆盖默认下拉箭头');
+      expect(
+        find.byIcon(Icons.arrow_drop_down),
+        findsNothing,
+        reason: '自定义 suffix 应覆盖默认下拉箭头',
+      );
     });
 
     testWidgets('obscureText + keyboardType 透传 TextField', (tester) async {
@@ -143,8 +146,9 @@ void main() {
   });
 
   group('LoginHistoryInput overlay interactions', () {
-    testWidgets('tap 下拉箭头 → Overlay 出现 + ListTile 渲染所有 history',
-        (tester) async {
+    testWidgets('tap 下拉箭头 → Overlay 出现 + ListTile 渲染所有 history', (
+      tester,
+    ) async {
       final ctrl = TextEditingController();
       addTearDown(ctrl.dispose);
       const items = ['alice@example.com', 'bob@example.com'];
@@ -167,35 +171,35 @@ void main() {
       }
     });
 
-    testWidgets('tap ListTile → onSelect 回调 + controller.text 同步 + Overlay 关闭',
-        (tester) async {
-      final ctrl = TextEditingController();
-      addTearDown(ctrl.dispose);
-      String? selected;
+    testWidgets(
+      'tap ListTile → onSelect 回调 + controller.text 同步 + Overlay 关闭',
+      (tester) async {
+        final ctrl = TextEditingController();
+        addTearDown(ctrl.dispose);
+        String? selected;
 
-      await _pump(
-        tester,
-        controller: ctrl,
-        history: const ['alice@example.com', 'bob@example.com'],
-        onSelect: (v) => selected = v,
-        onDelete: (_) {},
-      );
+        await _pump(
+          tester,
+          controller: ctrl,
+          history: const ['alice@example.com', 'bob@example.com'],
+          onSelect: (v) => selected = v,
+          onDelete: (_) {},
+        );
 
-      await tester.tap(find.byIcon(Icons.arrow_drop_down));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byIcon(Icons.arrow_drop_down));
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('bob@example.com'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('bob@example.com'));
+        await tester.pumpAndSettle();
 
-      expect(selected, 'bob@example.com');
-      expect(ctrl.text, 'bob@example.com',
-          reason: 'controller.text 必须同步选中项');
-      // Overlay 关闭：ListTile 不再可见
-      expect(find.byType(ListTile), findsNothing);
-    });
+        expect(selected, 'bob@example.com');
+        expect(ctrl.text, 'bob@example.com', reason: 'controller.text 必须同步选中项');
+        // Overlay 关闭：ListTile 不再可见
+        expect(find.byType(ListTile), findsNothing);
+      },
+    );
 
-    testWidgets('tap close icon → onDelete 回调 + Overlay 关闭',
-        (tester) async {
+    testWidgets('tap close icon → onDelete 回调 + Overlay 关闭', (tester) async {
       final ctrl = TextEditingController();
       addTearDown(ctrl.dispose);
       String? deleted;
@@ -220,14 +224,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(deleted, 'alice@example.com');
-      expect(ctrl.text, '',
-          reason: 'onDelete 不应改 controller.text，仅触发回调');
+      expect(ctrl.text, '', reason: 'onDelete 不应改 controller.text，仅触发回调');
       // 当前实现：tap 删除即关闭 Overlay
       expect(find.byType(ListTile), findsNothing);
     });
 
-    testWidgets('再次 tap 下拉箭头 (Overlay 已开) → 关闭 Overlay (toggle)',
-        (tester) async {
+    testWidgets('再次 tap 下拉箭头 (Overlay 已开) → 关闭 Overlay (toggle)', (
+      tester,
+    ) async {
       final ctrl = TextEditingController();
       addTearDown(ctrl.dispose);
 

@@ -78,7 +78,9 @@ void main() {
       }
 
       // 订阅会话更新事件
-      eventSubscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) {
+      eventSubscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((
+        event,
+      ) {
         // 测试中只记录事件，不做处理
       });
     });

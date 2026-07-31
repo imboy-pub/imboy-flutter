@@ -63,10 +63,7 @@ void main() {
       });
 
       expect(result, isA<GroupMemberMuteParseError>());
-      expect(
-        (result as GroupMemberMuteParseError).reason,
-        'invalid_gid',
-      );
+      expect((result as GroupMemberMuteParseError).reason, 'invalid_gid');
     });
 
     test('gid = 0 → invalid_gid（防止污染全局默认行）', () {
@@ -76,10 +73,7 @@ void main() {
       });
 
       expect(result, isA<GroupMemberMuteParseError>());
-      expect(
-        (result as GroupMemberMuteParseError).reason,
-        'invalid_gid',
-      );
+      expect((result as GroupMemberMuteParseError).reason, 'invalid_gid');
     });
 
     test('mute_until 缺失 → invalid_mute_until', () {
@@ -94,9 +88,7 @@ void main() {
 
     test('mute_until 缺失 → invalid_mute_until', () {
       // slice-9b 后：mute_until==0 改为解禁信号；仅"缺失 / 负数 / 非法格式"才报错
-      final result = parseGroupMemberMutePayload({
-        'gid': 10086,
-      });
+      final result = parseGroupMemberMutePayload({'gid': 10086});
 
       expect(result, isA<GroupMemberMuteParseError>());
       expect(
@@ -214,10 +206,7 @@ void main() {
       });
 
       expect(result, isA<GroupMemberMuteParseError>());
-      expect(
-        (result as GroupMemberMuteParseError).reason,
-        'invalid_gid',
-      );
+      expect((result as GroupMemberMuteParseError).reason, 'invalid_gid');
     });
 
     test('mute_until < 0 → invalid_mute_until（异常值，不视为解禁）', () {
@@ -252,17 +241,25 @@ void main() {
       }
 
       expect(
-        describe(const GroupMemberMutePayload(
-          gid: 1,
-          muteUntilMs: 2,
-          remainingSeconds: 3,
-          durationText: 't',
-          adminNickname: 'a',
-        )),
+        describe(
+          const GroupMemberMutePayload(
+            gid: 1,
+            muteUntilMs: 2,
+            remainingSeconds: 3,
+            durationText: 't',
+            adminNickname: 'a',
+          ),
+        ),
         'mute:1',
       );
       expect(
-        describe(const GroupMemberUnmutePayload(gid: 9, userId: 'u', adminNickname: 'a')),
+        describe(
+          const GroupMemberUnmutePayload(
+            gid: 9,
+            userId: 'u',
+            adminNickname: 'a',
+          ),
+        ),
         'unmute:9',
       );
       expect(
