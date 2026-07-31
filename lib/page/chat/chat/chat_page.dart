@@ -30,6 +30,7 @@ import 'mixin/message_event_handler.dart';
 import 'mixin/selection_handler.dart';
 
 // UI 组件
+import '../widget/message_semantics.dart';
 import '../widget/message_quick_action_menu.dart';
 import '../widget/typing_indicator.dart';
 
@@ -1586,6 +1587,9 @@ class ChatPageState extends ConsumerState<ChatPage>
                   _chatInputKey.currentState?.hideAllPanel();
                 },
                 behavior: HitTestBehavior.translucent,
+                // 这层只是"点空白处收起面板"，不是控件。不排除的话整个消息区
+                // 会被读成一个铺满屏幕的可点元素，把下面每条消息都盖住。
+                excludeFromSemantics: true,
                 child: Stack(
                   children: [
                     _buildChatWidget(context, theme, chatState),
@@ -1871,25 +1875,29 @@ class ChatPageState extends ConsumerState<ChatPage>
             required bool isSentByMe,
             MessageGroupStatus? groupStatus,
           }) {
-            return GestureDetector(
-              onTap: () => _previewImageMessage(message, index),
-              child: FlyerChatImageMessage(
-                message: message,
-                index: index,
-                showStatus: false,
-                showTime: true,
-                // ponytail: message.source 是 Garage object_key（非 URL），
-                // 必须走 cachedImageProvider → IMBoyCachedImageProvider → viewUrl 授权；
-                // 否则 FlyerChatImageMessage 默认用 CachedNetworkImage 直传 object_key，
-                // cross_cache 无法识别 scheme → "Invalid source: cannot be processed"。
-                // 上限：每个渲染附件的第三方 widget 都得单独注入 provider，漏一
-                // 处就是一个大叉叉（历史上 flyer_chat 的 Avatar、audio/video
-                // message 都栽过）。
-                // 无升级路径（设计约束，非延期）：只要附件存在 Garage、
-                // message.source 存的是 object_key、访问需 AssetsService.viewUrl
-                // 授权（见根 CLAUDE.md「附件 URL 必须经授权」），任何 widget 的
-                // 默认网络加载就都不可用。换掉 flyer_chat 也仍要注入授权 provider。
-                customImageProvider: cachedImageProvider(message.source),
+            return semanticMessage(
+              isSentByMe: isSentByMe,
+              kind: t.chat.image,
+              child: GestureDetector(
+                onTap: () => _previewImageMessage(message, index),
+                child: FlyerChatImageMessage(
+                  message: message,
+                  index: index,
+                  showStatus: false,
+                  showTime: true,
+                  // ponytail: message.source 是 Garage object_key（非 URL），
+                  // 必须走 cachedImageProvider → IMBoyCachedImageProvider → viewUrl 授权；
+                  // 否则 FlyerChatImageMessage 默认用 CachedNetworkImage 直传 object_key，
+                  // cross_cache 无法识别 scheme → "Invalid source: cannot be processed"。
+                  // 上限：每个渲染附件的第三方 widget 都得单独注入 provider，漏一
+                  // 处就是一个大叉叉（历史上 flyer_chat 的 Avatar、audio/video
+                  // message 都栽过）。
+                  // 无升级路径（设计约束，非延期）：只要附件存在 Garage、
+                  // message.source 存的是 object_key、访问需 AssetsService.viewUrl
+                  // 授权（见根 CLAUDE.md「附件 URL 必须经授权」），任何 widget 的
+                  // 默认网络加载就都不可用。换掉 flyer_chat 也仍要注入授权 provider。
+                  customImageProvider: cachedImageProvider(message.source),
+                ),
               ),
             );
           },
@@ -1958,11 +1966,15 @@ class ChatPageState extends ConsumerState<ChatPage>
             required bool isSentByMe,
             MessageGroupStatus? groupStatus,
           }) {
-            return FlyerChatFileMessage(
-              message: message,
-              index: index,
-              showStatus: false,
-              showTime: true,
+            return semanticMessage(
+              isSentByMe: isSentByMe,
+              kind: t.chat.file,
+              child: FlyerChatFileMessage(
+                message: message,
+                index: index,
+                showStatus: false,
+                showTime: true,
+              ),
             );
           },
       videoMessageBuilder:
@@ -1973,11 +1985,15 @@ class ChatPageState extends ConsumerState<ChatPage>
             required bool isSentByMe,
             MessageGroupStatus? groupStatus,
           }) {
-            return FlyerChatVideoMessage(
-              message: message,
-              index: index,
-              showStatus: false,
-              showTime: true,
+            return semanticMessage(
+              isSentByMe: isSentByMe,
+              kind: t.chat.video,
+              child: FlyerChatVideoMessage(
+                message: message,
+                index: index,
+                showStatus: false,
+                showTime: true,
+              ),
             );
           },
       audioMessageBuilder:
@@ -1990,28 +2006,32 @@ class ChatPageState extends ConsumerState<ChatPage>
           }) {
             final playbackState = ref.watch(voicePlaybackServiceProvider);
             bool isThis(String id) => playbackState.currentMessageId == id;
-            return FlyerChatAudioMessage(
-              message: message,
-              index: index,
-              showStatus: false,
-              showTime: true,
-              isPlaying: isThis(message.id) && playbackState.isPlaying,
-              isPaused: isThis(message.id) && playbackState.isPaused,
-              currentPositionMs: isThis(message.id)
-                  ? playbackState.currentPosition
-                  : 0,
-              currentDurationMs: isThis(message.id)
-                  ? playbackState.currentDuration
-                  : 0,
-              onPlayPause: (audioPath, msg, totalDuration) {
-                ref
-                    .read(voicePlaybackServiceProvider.notifier)
-                    .play(
-                      path: audioPath,
-                      messageId: msg.id,
-                      durationMs: totalDuration.inMilliseconds,
-                    );
-              },
+            return semanticMessage(
+              isSentByMe: isSentByMe,
+              kind: t.chat.voice,
+              child: FlyerChatAudioMessage(
+                message: message,
+                index: index,
+                showStatus: false,
+                showTime: true,
+                isPlaying: isThis(message.id) && playbackState.isPlaying,
+                isPaused: isThis(message.id) && playbackState.isPaused,
+                currentPositionMs: isThis(message.id)
+                    ? playbackState.currentPosition
+                    : 0,
+                currentDurationMs: isThis(message.id)
+                    ? playbackState.currentDuration
+                    : 0,
+                onPlayPause: (audioPath, msg, totalDuration) {
+                  ref
+                      .read(voicePlaybackServiceProvider.notifier)
+                      .play(
+                        path: audioPath,
+                        messageId: msg.id,
+                        durationMs: totalDuration.inMilliseconds,
+                      );
+                },
+              ),
             );
           },
       chatMessageBuilder:
