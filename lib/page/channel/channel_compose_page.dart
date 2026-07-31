@@ -68,6 +68,9 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   AssetEntity? _coverAsset;
   bool _isPublishing = false;
 
+  /// 已成功发布：dispose 时不得再把内容当草稿写回（见 _persistDraftOnExit）。
+  bool _published = false;
+
   /// 生效封面：用户已选则用之，否则退化为第一张（无图则 null）。
   AssetEntity? get _effectiveCover =>
       _coverAsset ?? (_images.isNotEmpty ? _images.first : null);
@@ -126,6 +129,11 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   }
 
   void _persistDraftOnExit() {
+    // 已发布就别再存了：_publish 成功后 remove(_draftKey) 与 pop() 都是
+    // unawaited，pop 触发 dispose 时 controller 里文本还在，会把刚发出去的
+    // 内容当草稿写回去——下次进撰写页凭空冒出上一篇。两个异步顺序还不定，
+    // 表现为偶发。用标志位比清空 controller 稳。
+    if (_published) return;
     final title = _titleController.text.trim();
     final body = _contentController.text.trim();
     if (title.isEmpty && body.isEmpty) {
@@ -221,6 +229,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
           );
       if (!mounted) return;
       if (ok) {
+        _published = true;
         unawaited(StorageService.to.remove(_draftKey));
         unawaited(HapticFeedback.lightImpact());
         AppLoading.showSuccess(t.common.tipSuccess);
@@ -494,20 +503,39 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
               ),
             ),
           Positioned(
-            top: 2,
-            right: 2,
-            child: GestureDetector(
-              onTap: _isPublishing ? null : () => _removeImage(index),
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: AppColors.mediaScrimBlack.withValues(alpha: 0.54),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.close,
-                  size: 16,
-                  color: AppColors.mediaScrimWhite,
+            top: 0,
+            right: 0,
+            // 视觉不变，命中区撑到 44×44（DESIGN.md §13.2）。原先
+            // padding:2 + icon:16 只有 ~20×20，缩略图紧挨着极易误删。
+            child: Semantics(
+              button: true,
+              label: context.t.common.delete,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _isPublishing ? null : () => _removeImage(index),
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.tiny),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Container(
+                        padding: const EdgeInsets.all(AppSpacing.tiny),
+                        decoration: BoxDecoration(
+                          color: AppColors.mediaScrimBlack.withValues(
+                            alpha: 0.54,
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          size: 16,
+                          color: AppColors.mediaScrimWhite,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

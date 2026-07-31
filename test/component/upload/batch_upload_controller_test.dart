@@ -243,4 +243,74 @@ void main() {
       },
     );
   });
+
+  // 草稿恢复用：朋友圈发布失败时把已传成功的 URL 存进草稿，重进页面必须能
+  // 把这些图恢复回来。此前只回填文字，图片全丢，用户得重选重传一遍。
+  group('BatchUploadController.adoptUploaded（草稿恢复）', () {
+    test('注入的项直接是 done 态，并按顺序进 results', () {
+      final controller = BatchUploadController<String>(
+        uploader: (a) async => 'never_called',
+      );
+
+      controller.adoptUploaded(['url_1', 'url_2']);
+
+      expect(controller.length, 2);
+      expect(controller.items.every((i) => i.isDone), isTrue);
+      expect(controller.results, ['url_1', 'url_2']);
+      expect(controller.isBusy, isFalse);
+      expect(controller.hasFailed, isFalse);
+    });
+
+    test('注入项没有本地源，因此不可重试（它们本来就已在服务端）', () {
+      final controller = BatchUploadController<String>(
+        uploader: (a) async => 'never_called',
+      );
+
+      controller.adoptUploaded(['url_1']);
+
+      final item = controller.items.single;
+      expect(item.asset, isNull);
+      expect(item.file, isNull);
+      expect(item.canRetry, isFalse, reason: '已完成项没有可重传的本地源，不该出现重试入口');
+    });
+
+    test('空列表是安全的 no-op，不通知监听者', () {
+      final controller = BatchUploadController<String>(
+        uploader: (a) async => 'never_called',
+      );
+      var notified = 0;
+      controller.addListener(() => notified++);
+
+      controller.adoptUploaded([]);
+
+      expect(controller.length, 0);
+      expect(notified, 0);
+    });
+
+    test('注入后再追加上传，id 不冲突且顺序稳定', () async {
+      final controller = BatchUploadController<String>(
+        uploader: (a) async => 'url_${a.id}',
+        concurrency: 2,
+      );
+
+      controller.adoptUploaded(['draft_1']);
+      await controller.addAndUpload([_asset('new')]);
+
+      expect(controller.results, ['draft_1', 'url_new']);
+      // id 稳定且互不相同——回写按 id 定位，冲突会导致结果串位
+      final ids = controller.items.map((i) => i.id).toSet();
+      expect(ids.length, 2);
+    });
+
+    test('注入项可被 removeAt 删除（用户恢复草稿后想删掉某张）', () {
+      final controller = BatchUploadController<String>(
+        uploader: (a) async => 'never_called',
+      );
+
+      controller.adoptUploaded(['url_1', 'url_2', 'url_3']);
+      controller.removeAt(1);
+
+      expect(controller.results, ['url_1', 'url_3']);
+    });
+  });
 }

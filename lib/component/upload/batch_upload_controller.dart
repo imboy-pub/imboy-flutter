@@ -123,6 +123,24 @@ class BatchUploadController<T> extends ChangeNotifier {
     await _uploadById(id);
   }
 
+  /// 注入一批**已上传完成**的结果（草稿恢复用）。
+  ///
+  /// 这些项没有本地 [AssetEntity]/[File] 源，状态直接置 done、带上原结果
+  /// payload，UI 走 result 里的 URL 渲染远端缩略图。因为没有本地源，
+  /// [UploadItem.canRetry] 恒 false —— 它们本来就不需要重传。
+  ///
+  /// 存在的意义：草稿把已传成功的 URL 存了下来，恢复时若不注入回来，
+  /// 用户重进页面就只剩文字、图全丢（还得重选重传）。
+  void adoptUploaded(List<T> uploaded) {
+    if (uploaded.isEmpty) return;
+    for (final r in uploaded) {
+      _items.add(
+        UploadItem<T>(id: _nextId++, status: UploadItemStatus.done, result: r),
+      );
+    }
+    notifyListeners();
+  }
+
   /// 移除指定项（用户手动删除网格缩略图）。上传进行中删除是安全的：其余项按 id
   /// 回写，被删项的 in-flight 结果查不到 id 后丢弃。
   void removeAt(int index) {

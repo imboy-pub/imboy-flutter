@@ -119,6 +119,13 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       _allowUidsController.text = draft.allowUids.join(',');
       _denyUidsController.text = draft.denyUids.join(',');
     });
+    // 媒体一并恢复：草稿本来就存了已上传成功的 URL（_saveFailedDraft），
+    // 此前只回填文字，图片全丢——发布失败后用户还得重选重传一遍。
+    // 这些项已在服务端，注入为 done 态即可，不需要也不能重传。
+    _uploads.adoptUploaded([
+      for (final url in draft.mediaUrls)
+        if (url.trim().isNotEmpty) <String, dynamic>{'url': url},
+    ]);
     AppLoading.showInfo(context.t.discovery.momentsDraftRestored);
   }
 
@@ -687,7 +694,11 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   Widget build(BuildContext context) {
     final t = context.t;
     return PopScope(
-      canPop: !_hasUnsavedContent,
+      // 恒 false + 统一走 _confirmExit：不能用 `canPop: !_hasUnsavedContent`。
+      // _hasUnsavedContent 读的是 _contentController.text，而本页只监听 _uploads
+      // 不监听 controller，纯文字场景不会触发 rebuild，canPop 会停在 true，
+      // 侧滑/返回直接把内容丢掉。只有加过图才"碰巧"生效。
+      canPop: false,
       onPopInvokedWithResult: (didPop, _) => _confirmExit(didPop),
       child: Scaffold(
         appBar: CupertinoNavigationBar(
@@ -900,21 +911,34 @@ class _MediaThumb extends StatelessWidget {
         Positioned(
           right: 0,
           top: 0,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onRemove,
-            child: Container(
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: AppColors.darkBackground.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(AppRadius.tiny),
+          // 视觉仍是右上角那颗小 x，但命中区撑到 44×44（DESIGN.md §13.2 硬规则）。
+          // 原先 padding:2 + icon:14 只有 ~18×18，缩略图挨得又近，很容易误删旁边一张。
+          child: Semantics(
+            button: true,
+            label: context.t.common.delete,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onRemove,
+              child: SizedBox(
+                width: 44,
+                height: 44,
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    padding: const EdgeInsets.all(AppSpacing.tiny),
+                    decoration: BoxDecoration(
+                      color: AppColors.darkBackground.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(AppRadius.tiny),
+                      ),
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.xmark,
+                      size: 14,
+                      color: AppColors.onPrimary,
+                    ),
+                  ),
                 ),
-              ),
-              child: const Icon(
-                CupertinoIcons.xmark,
-                size: 14,
-                color: AppColors.onPrimary,
               ),
             ),
           ),
@@ -1014,41 +1038,47 @@ class _ToolbarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return InkWell(
+    // 不用 InkWell：DESIGN.md §13.2 明令禁止在 Cupertino 列表行上使用
+    // Material Ripple。用透明命中区 + 最小 44pt 高度，反馈交给页面整体风格。
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: AppColors.wechatBlue),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                style: context.textStyle(
-                  FontSizeType.normal,
-                  fontWeight: FontWeight.w500,
-                  color: isDark
-                      ? AppColors.darkTextPrimary
-                      : AppColors.lightTextPrimary,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 44),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: AppColors.wechatBlue),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: context.textStyle(
+                    FontSizeType.normal,
+                    fontWeight: FontWeight.w500,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
+                  ),
                 ),
               ),
-            ),
-            if (value != null)
-              Text(
-                value!,
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: AppColors.iosGray,
+              if (value != null)
+                Text(
+                  value!,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: AppColors.iosGray,
+                  ),
                 ),
+              const SizedBox(width: 6),
+              const Icon(
+                CupertinoIcons.chevron_right,
+                size: 16,
+                color: AppColors.iosGray3,
               ),
-            const SizedBox(width: 6),
-            const Icon(
-              CupertinoIcons.chevron_right,
-              size: 16,
-              color: AppColors.iosGray3,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
