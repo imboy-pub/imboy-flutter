@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
@@ -293,6 +294,66 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final model = filtered[index];
+                // 侧滑三个操作抽成闭包：既给 SlidableAction 用，也挂到
+                // Semantics.customSemanticsActions 上。读屏用户做不出侧滑手势，
+                // 不挂的话「已读 / 置顶 / 删除」对他们完全不可达。
+                final markReadLabel = model.unreadNum > 0
+                    ? t.chat.markRead
+                    : t.chat.markUnread;
+                final pinLabel = model.isPinned ? t.chat.unpin : t.chat.pin;
+
+                Future<void> onToggleRead() async {
+                  final target = model.unreadNum > 0 ? 0 : 1;
+                  if (model.unreadNum > 0) {
+                    try {
+                      final db = await SqliteService.to.db;
+                      if (db != null) {
+                        final tb = MessageRepo.getTableName(model.type);
+                        await db.update(
+                          tb,
+                          {MessageRepo.status: IMBoyMessageStatus.seen},
+                          where:
+                              "${MessageRepo.conversationUk3} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
+                          whereArgs: [
+                            model.uk3,
+                            IMBoyMessageStatus.delivered,
+                            0,
+                          ],
+                        );
+                      }
+                    } catch (_) {}
+                    await notifier.advanceWatermarkToLatest(model);
+                    await notifier.setConversationRemind(model, 0);
+                  } else {
+                    await notifier.setConversationRemind(model, 1);
+                  }
+                  notifier.applyConversationSnapshot(
+                    model.copyWith(unreadNum: target),
+                  );
+                }
+
+                Future<void> onTogglePin(BuildContext ctx) async {
+                  // 补反馈：原来忽略返回值、成功失败都无提示（QA#30）
+                  final willPin = !model.isPinned;
+                  final ok = await notifier.setConversationPinned(
+                    model,
+                    willPin,
+                  );
+                  if (!ctx.mounted) return;
+                  if (ok) {
+                    AppLoading.showToast(
+                      willPin
+                          ? t.common.chatSettingPinnedSuccess
+                          : t.common.chatSettingUnpinnedSuccess,
+                    );
+                  } else {
+                    AppLoading.showError(t.common.errorNetwork);
+                  }
+                }
+
+                Future<void> onDelete() =>
+                    notifier.deleteConversationRemote(model);
+
                 return Column(
                   children: [
                     Slidable(
@@ -303,79 +364,25 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                         motion: const ScrollMotion(),
                         children: [
                           SlidableAction(
-                            onPressed: (_) async {
-                              final target = model.unreadNum > 0 ? 0 : 1;
-                              if (model.unreadNum > 0) {
-                                try {
-                                  final db = await SqliteService.to.db;
-                                  if (db != null) {
-                                    final tb = MessageRepo.getTableName(
-                                      model.type,
-                                    );
-                                    await db.update(
-                                      tb,
-                                      {
-                                        MessageRepo.status:
-                                            IMBoyMessageStatus.seen,
-                                      },
-                                      where:
-                                          "${MessageRepo.conversationUk3} = ? and ${MessageRepo.status} = ? and ${MessageRepo.isAuthor} = ?",
-                                      whereArgs: [
-                                        model.uk3,
-                                        IMBoyMessageStatus.delivered,
-                                        0,
-                                      ],
-                                    );
-                                  }
-                                } catch (_) {}
-                                await notifier.advanceWatermarkToLatest(model);
-                                await notifier.setConversationRemind(model, 0);
-                              } else {
-                                await notifier.setConversationRemind(model, 1);
-                              }
-                              notifier.applyConversationSnapshot(
-                                model.copyWith(unreadNum: target),
-                              );
-                            },
+                            onPressed: (_) => onToggleRead(),
                             backgroundColor: AppColors.getIosBlue(brightness),
                             foregroundColor: AppColors.onPrimary,
-                            label: model.unreadNum > 0
-                                ? t.chat.markRead
-                                : t.chat.markUnread,
+                            label: markReadLabel,
                             icon: model.unreadNum > 0
                                 ? CupertinoIcons.chat_bubble
                                 : CupertinoIcons.chat_bubble_fill,
                           ),
                           SlidableAction(
-                            onPressed: (ctx) async {
-                              // 补反馈：原来忽略返回值、成功失败都无提示（QA#30）
-                              final willPin = !model.isPinned;
-                              final ok = await notifier.setConversationPinned(
-                                model,
-                                willPin,
-                              );
-                              if (!ctx.mounted) return;
-                              if (ok) {
-                                AppLoading.showToast(
-                                  willPin
-                                      ? t.common.chatSettingPinnedSuccess
-                                      : t.common.chatSettingUnpinnedSuccess,
-                                );
-                              } else {
-                                AppLoading.showError(t.common.errorNetwork);
-                              }
-                            },
+                            onPressed: (ctx) => onTogglePin(ctx),
                             backgroundColor: AppColors.iosOrange,
                             foregroundColor: AppColors.onPrimary,
-                            label: model.isPinned ? t.chat.unpin : t.chat.pin,
+                            label: pinLabel,
                             icon: model.isPinned
                                 ? CupertinoIcons.pin_slash_fill
                                 : CupertinoIcons.pin_fill,
                           ),
                           SlidableAction(
-                            onPressed: (_) async {
-                              await notifier.deleteConversationRemote(model);
-                            },
+                            onPressed: (_) => onDelete(),
                             backgroundColor: AppColors.getIosRed(brightness),
                             foregroundColor: AppColors.onPrimary,
                             label: t.common.buttonDelete,
@@ -383,46 +390,67 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                           ),
                         ],
                       ),
-                      child: ConversationItem(
-                        model: model,
-                        onTap: () {
-                          final useSplitView =
-                              _isWebShellHosted(context) &&
-                              AppBreakpoints.isWide(
-                                MediaQuery.sizeOf(context).width,
-                              );
-                          final action = resolveConversationTap(
-                            useSplitView: useSplitView,
-                            peerId: model.peerId.toString(),
-                            type: model.type,
-                            title: model.title,
-                            avatar: model.avatar,
-                            sign: model.sign,
-                          );
-                          if (action is WebSelectChat) {
-                            ref
-                                .read(webShellProvider.notifier)
-                                .selectItem(
-                                  ChatSelection(
-                                    peerId: action.peerId,
-                                    chatType: action.chatType,
-                                  ),
-                                );
-                          } else if (action is MobilePushChat) {
-                            context.push(
-                              '/chat/${action.peerId}',
-                              extra: {
-                                'type': action.chatType,
-                                'title': action.title,
-                                'avatar': action.avatar,
-                                'sign': action.sign,
+                      // 把侧滑操作暴露给读屏：VoiceOver / TalkBack 用户做不出
+                      // 侧滑手势，不挂 customSemanticsActions 的话
+                      // 「已读 / 置顶 / 删除」三个操作对他们完全不可达。
+                      // 挂上后可从读屏的「操作」菜单里选。
+                      child: Builder(
+                        builder: (rowContext) => Semantics(
+                          customSemanticsActions:
+                              <CustomSemanticsAction, VoidCallback>{
+                                CustomSemanticsAction(
+                                  label: markReadLabel,
+                                ): () =>
+                                    unawaited(onToggleRead()),
+                                CustomSemanticsAction(label: pinLabel): () =>
+                                    unawaited(onTogglePin(rowContext)),
+                                CustomSemanticsAction(
+                                  label: t.common.buttonDelete,
+                                ): () =>
+                                    unawaited(onDelete()),
                               },
-                            );
-                          }
-                        },
-                        onTapAvatar: () => context.push(
-                          '/contact/people/${model.peerId}',
-                          extra: {'scene': ''},
+                          child: ConversationItem(
+                            model: model,
+                            onTap: () {
+                              final useSplitView =
+                                  _isWebShellHosted(context) &&
+                                  AppBreakpoints.isWide(
+                                    MediaQuery.sizeOf(context).width,
+                                  );
+                              final action = resolveConversationTap(
+                                useSplitView: useSplitView,
+                                peerId: model.peerId.toString(),
+                                type: model.type,
+                                title: model.title,
+                                avatar: model.avatar,
+                                sign: model.sign,
+                              );
+                              if (action is WebSelectChat) {
+                                ref
+                                    .read(webShellProvider.notifier)
+                                    .selectItem(
+                                      ChatSelection(
+                                        peerId: action.peerId,
+                                        chatType: action.chatType,
+                                      ),
+                                    );
+                              } else if (action is MobilePushChat) {
+                                context.push(
+                                  '/chat/${action.peerId}',
+                                  extra: {
+                                    'type': action.chatType,
+                                    'title': action.title,
+                                    'avatar': action.avatar,
+                                    'sign': action.sign,
+                                  },
+                                );
+                              }
+                            },
+                            onTapAvatar: () => context.push(
+                              '/contact/people/${model.peerId}',
+                              extra: {'scene': ''},
+                            ),
+                          ),
                         ),
                       ),
                     ),

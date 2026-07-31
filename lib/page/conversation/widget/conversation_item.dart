@@ -180,12 +180,17 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
                         child: _buildContent(currentModel, theme, isDark),
                       ),
                       if (currentModel.isMuted > 0)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 8),
+                        // 纯图标：不补 semanticLabel 的话读屏用户完全不知道
+                        // 这个会话已设免打扰。
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: AppSpacing.small,
+                          ),
                           child: Icon(
                             CupertinoIcons.bell_slash_fill,
                             size: 12,
                             color: AppColors.iosGray3,
+                            semanticLabel: context.t.common.muteNotifications,
                           ),
                         ),
                     ],

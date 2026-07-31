@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -208,6 +209,64 @@ void main() {
       // 源码已从 RefreshIndicator 重构为 IosPageTemplate(slivers) → CustomScrollView，
       // 不再有下拉刷新入口；验证会话列表承载于可滚动容器
       expect(find.byType(CustomScrollView), findsOneWidget);
+      await _unmount(tester);
+    });
+  });
+
+  group('会话行无障碍（本轮整改回归）', () {
+    testWidgets('侧滑的三个操作暴露为 customSemanticsActions', (tester) async {
+      final handle = tester.ensureSemantics();
+      final c1 = _conv(id: 1, title: '张三', unreadNum: 3);
+      await _pumpConv(
+        tester,
+        state: ConversationState(
+          isLoading: false,
+          conversationMap: {c1.uk3: c1},
+        ),
+      );
+
+      // 读屏用户做不出侧滑手势，三个操作必须能从「操作」菜单触达，
+      // 否则「已读 / 置顶 / 删除」对他们完全不可用。
+      final node = tester.getSemantics(find.text('张三'));
+      final labels = node
+          .getSemanticsData()
+          .customSemanticsActionIds
+          ?.map((id) => CustomSemanticsAction.getAction(id)?.label)
+          .whereType<String>()
+          .toSet();
+
+      expect(labels, isNotNull, reason: '会话行没有任何自定义语义操作');
+      expect(labels, contains(t.chat.markRead));
+      expect(labels, contains(t.chat.pin));
+      expect(labels, contains(t.common.buttonDelete));
+
+      handle.dispose();
+      await _unmount(tester);
+    });
+
+    testWidgets('未读为 0 时语义操作变成「标为未读」', (tester) async {
+      final handle = tester.ensureSemantics();
+      final c1 = _conv(id: 1, title: '李四');
+      await _pumpConv(
+        tester,
+        state: ConversationState(
+          isLoading: false,
+          conversationMap: {c1.uk3: c1},
+        ),
+      );
+
+      final node = tester.getSemantics(find.text('李四'));
+      final labels = node
+          .getSemanticsData()
+          .customSemanticsActionIds
+          ?.map((id) => CustomSemanticsAction.getAction(id)?.label)
+          .whereType<String>()
+          .toSet();
+
+      expect(labels, contains(t.chat.markUnread));
+      expect(labels, isNot(contains(t.chat.markRead)));
+
+      handle.dispose();
       await _unmount(tester);
     });
   });
