@@ -1,580 +1,262 @@
+/// 朋友圈发布页（MomentCreatePage）真实 widget 测试。
+///
+/// ## 为什么整份重写
+///
+/// 旧版 580 行、11 个 testWidgets + 20 个 test，其中：
+///
+/// - **7 个 testWidgets 长期失败**：断言的是 `TextButton`、
+///   `DropdownButtonFormField<int>`、`Icons.add_photo_alternate_outlined`、
+///   `maxLines == 6`——页面早已改成 Cupertino 风格（`CupertinoButton`、
+///   可见范围走 ActionSheet、`CupertinoIcons.add`、`maxLines: 10`）。
+/// - **大半 test 是伪覆盖**：在测试体内自建 `List`/`bool` 再断言 Dart 自身
+///   行为，完全没触碰生产代码。例如「media item can be removed」建个本地
+///   List 调 `removeAt` 然后断言长度变了；「allow comment default is true」
+///   写 `bool x = true; expect(x, isTrue)`。UID 解析更是在文件底部**本地
+///   复刻**了一份 `_parseUidList`，生产的 `parseMomentUidList` 从未被调用。
+///
+/// 伪覆盖比没有覆盖更糟：它让「31 个用例」的数字看起来很安全。
+///
+/// ## 本文件的覆盖范围
+///
+/// 1. 真实渲染契约（按当前 Cupertino 实现断言）
+/// 2. 生产纯函数 `parseMomentUidList` 的真实行为
+/// 3. 两个已修 bug 的回归保护（草稿恢复丢图 / 退出提醒对纯文字失效）
+///
+/// 媒体上传的逐项状态、9 张上限、删除等已由
+/// `test/component/upload/batch_upload_controller_test.dart` 真实覆盖，
+/// 不在此处重复造伪测试。
+library;
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/moment/moment_create_page.dart';
-import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/page/moment/moment_interactions.dart';
+import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/event_bus.dart';
-import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/service/storage.dart';
 
-/// Test wrapper for moment create page with proper localization
-class MomentCreateTestWrapper extends StatelessWidget {
-  final Widget child;
+const String _uid = 'tsid_moment_tester';
 
-  const MomentCreateTestWrapper({super.key, required this.child});
+Future<void> _pumpPage(WidgetTester tester) async {
+  await tester.pumpWidget(
+    TranslationProvider(
+      // 恢复草稿会弹 AppLoading toast，未挂 builder 时 EasyLoading 会断言
+      // 'overlayEntry != null'。走项目 facade AppLoading.init()，不直接
+      // import flutter_easyloading（边界门禁只允许 app_loading.dart 依赖它）。
+      child: MaterialApp(
+        home: const MomentCreatePage(),
+        builder: AppLoading.init(),
+      ),
+    ),
+  );
+  await tester.pump();
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return TranslationProvider(child: MaterialApp(home: child));
-  }
+/// 拆掉 widget 树并把 pending 定时器跑完（页面内有上传/定位相关异步）。
+/// 取页面 PopScope 的 canPop。用谓词而非 byType：PopScope 是泛型，
+/// find.byType(PopScope) 找的是 PopScope<dynamic>，匹配不到 PopScope<Object?>。
+bool _canPopOf(WidgetTester tester) {
+  final finder = find.byWidgetPredicate((w) => w is PopScope);
+  expect(finder, findsWidgets, reason: '页面应有 PopScope 退出保护');
+  return (tester.widget(finder.first) as PopScope).canPop;
+}
+
+Future<void> _unmount(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump(const Duration(milliseconds: 500));
+  // 取消 toast 的自动关闭计时器，否则树 dispose 后仍有 pending timer
+  await AppLoading.dismiss(animation: false);
 }
 
 void main() {
-  group('MomentCreatePage Complete Flow Tests', () {
-    group('Page Rendering Tests', () {
-      testWidgets('renders page with correct AppBar title', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
+  setUpAll(() async {
+    await StorageService.to.setString(Keys.currentUid, _uid);
+  });
 
-        expect(find.byType(MomentCreatePage), findsOneWidget);
-        expect(find.text(t.chat.momentsSend), findsOneWidget);
-      });
+  tearDownAll(() async {
+    await StorageService.to.remove(Keys.currentUid);
+  });
 
-      testWidgets('has confirm button in AppBar', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
+  tearDown(() async {
+    // 草稿按 uid 隔离，逐个用例清掉避免互相污染
+    await StorageService.to.remove(momentFailedDraftKey(_uid));
+  });
 
-        expect(find.byType(TextButton), findsWidgets);
-        expect(find.text(t.common.confirm), findsOneWidget);
-      });
+  group('渲染契约（当前 Cupertino 实现）', () {
+    testWidgets('标题是"发表"，右上是 Cupertino 确认按钮而非 TextButton', (tester) async {
+      await _pumpPage(tester);
 
-      testWidgets('has content TextField', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
+      expect(find.text(t.chat.momentsSend), findsOneWidget);
+      expect(find.text(t.common.confirm), findsOneWidget);
+      // 旧用例断言 TextButton —— 页面是 Cupertino 风格，从来就没有
+      expect(find.byType(TextButton), findsNothing);
 
-        final textFields = find.byType(TextField);
-        expect(textFields, findsWidgets);
-
-        // First TextField should be the content input
-        final contentField = tester.widget<TextField>(textFields.first);
-        expect(contentField.maxLines, 6);
-        expect(contentField.maxLength, 5000);
-      });
-
-      testWidgets('has visibility dropdown', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
-
-        expect(find.byType(DropdownButtonFormField<int>), findsOneWidget);
-      });
-
-      testWidgets('has add media button', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
-
-        expect(find.byIcon(Icons.add_photo_alternate_outlined), findsOneWidget);
-      });
-
-      testWidgets('has allow comment switch', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
-
-        expect(find.byType(SwitchListTile), findsOneWidget);
-
-        final switchWidget = tester.widget<SwitchListTile>(
-          find.byType(SwitchListTile),
-        );
-        expect(switchWidget.value, isTrue); // Default is true
-      });
+      await _unmount(tester);
     });
 
-    group('Content Input Tests', () {
-      testWidgets('content input accepts text', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
+    testWidgets('正文输入框 maxLines=10 / maxLength=5000', (tester) async {
+      await _pumpPage(tester);
 
-        final textField = find.byType(TextField).first;
-        await tester.enterText(textField, 'Hello World');
+      final field = tester.widget<TextField>(find.byType(TextField).first);
+      expect(field.maxLines, 10);
+      expect(field.maxLength, 5000);
 
-        expect(find.text('Hello World'), findsOneWidget);
-      });
-
-      testWidgets('content input supports multiple lines', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
-
-        final textField = tester.widget<TextField>(
-          find.byType(TextField).first,
-        );
-        expect(textField.maxLines, 6);
-      });
-
-      testWidgets('content input has max length limit', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
-
-        final textField = tester.widget<TextField>(
-          find.byType(TextField).first,
-        );
-        expect(textField.maxLength, 5000);
-      });
-
-      testWidgets('content input has hint text', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
-
-        final textField = tester.widget<TextField>(
-          find.byType(TextField).first,
-        );
-        expect(textField.decoration?.hintText, isNotEmpty);
-      });
+      await _unmount(tester);
     });
 
-    group('Visibility Dropdown Tests', () {
-      testWidgets('visibility dropdown has correct options', (tester) async {
-        await tester.pumpWidget(
-          const MomentCreateTestWrapper(child: MomentCreatePage()),
-        );
-        await tester.pump();
+    testWidgets('可见范围走 ActionSheet，不是 DropdownButtonFormField', (tester) async {
+      await _pumpPage(tester);
 
-        final dropdown = find.byType(DropdownButtonFormField<int>);
-        expect(dropdown, findsOneWidget);
+      // 旧用例找 DropdownButtonFormField<int>，早已不存在
+      expect(find.byType(DropdownButtonFormField<int>), findsNothing);
+      // 工具栏里有"谁可以看"这一行
+      expect(find.text(t.discovery.momentsVisibility), findsOneWidget);
 
-        // Default value should be 1 (friends only)
-        final dropdownWidget = tester.widget<DropdownButtonFormField<int>>(
-          dropdown,
-        );
-        expect(dropdownWidget.initialValue, 1);
-      });
-
-      test('visibility values are correct', () {
-        const visibilityOptions = [
-          {'value': 0, 'label': '公开'},
-          {'value': 1, 'label': '仅好友'},
-          {'value': 2, 'label': '仅自己'},
-          {'value': 3, 'label': '部分可见'},
-          {'value': 4, 'label': '不给谁看'},
-        ];
-
-        expect(visibilityOptions.length, 5);
-        expect(visibilityOptions[0]['value'], 0);
-        expect(visibilityOptions[4]['value'], 4);
-      });
+      await _unmount(tester);
     });
 
-    group('Media Upload Flow Tests', () {
-      test('media count is limited to 9', () {
-        final media = List.generate(
-          9,
-          (i) => {'type': 'image', 'url': 'url_$i'},
-        );
+    testWidgets('添加媒体用 CupertinoIcons.add，不是 Material 图标', (tester) async {
+      await _pumpPage(tester);
 
-        final canAddMore = media.length < 9;
-        expect(canAddMore, isFalse);
-        expect(media.length, 9);
-      });
+      expect(find.byIcon(CupertinoIcons.add), findsOneWidget);
+      expect(find.byIcon(Icons.add_photo_alternate_outlined), findsNothing);
 
-      test('can add media when count is less than 9', () {
-        final media = List.generate(
-          5,
-          (i) => {'type': 'image', 'url': 'url_$i'},
-        );
-
-        final canAddMore = media.length < 9;
-        expect(canAddMore, isTrue);
-      });
-
-      test('media item can be removed', () {
-        final media = [
-          {'type': 'image', 'url': 'url_0'},
-          {'type': 'image', 'url': 'url_1'},
-          {'type': 'image', 'url': 'url_2'},
-        ];
-
-        final indexToRemove = 1;
-        media.removeAt(indexToRemove);
-
-        expect(media.length, 2);
-        expect(media[0]['url'], 'url_0');
-        expect(media[1]['url'], 'url_2');
-      });
-
-      test('media item cannot be removed with invalid index', () {
-        final media = [
-          {'type': 'image', 'url': 'url_0'},
-        ];
-
-        final indexToRemove = -1;
-        if (indexToRemove >= 0 && indexToRemove < media.length) {
-          media.removeAt(indexToRemove);
-        }
-
-        expect(media.length, 1);
-      });
-
-      test('video media includes additional fields', () {
-        final videoMedia = {
-          'type': 'video',
-          'url': 'https://example.com/video.mp4',
-          'cover_url': 'https://example.com/cover.jpg',
-          'duration_ms': 30000,
-        };
-
-        expect(parseModelString(videoMedia['type']), 'video');
-        expect(parseModelString(videoMedia['cover_url']), isNotEmpty);
-        expect(parseModelInt(videoMedia['duration_ms']), 30000);
-      });
+      await _unmount(tester);
     });
 
-    group('Submission Validation Tests', () {
-      test('empty content and no media prevents submission', () {
-        final content = '';
-        final media = <Map<String, dynamic>>[];
+    testWidgets('正文可输入文本', (tester) async {
+      await _pumpPage(tester);
 
-        final canSubmit = content.trim().isNotEmpty || media.isNotEmpty;
-        expect(canSubmit, isFalse);
-      });
+      await tester.enterText(find.byType(TextField).first, '今天天气不错');
+      await tester.pump();
 
-      test('content only allows submission', () {
-        final content = 'Test content';
-        final media = <Map<String, dynamic>>[];
+      expect(find.text('今天天气不错'), findsOneWidget);
 
-        final canSubmit = content.trim().isNotEmpty || media.isNotEmpty;
-        expect(canSubmit, isTrue);
-      });
-
-      test('media only allows submission', () {
-        final content = '';
-        final media = [
-          {'type': 'image', 'url': 'http://example.com/image.jpg'},
-        ];
-
-        final canSubmit = content.trim().isNotEmpty || media.isNotEmpty;
-        expect(canSubmit, isTrue);
-      });
-
-      test('both content and media allows submission', () {
-        final content = 'Test content';
-        final media = [
-          {'type': 'image', 'url': 'http://example.com/image.jpg'},
-        ];
-
-        final canSubmit = content.trim().isNotEmpty || media.isNotEmpty;
-        expect(canSubmit, isTrue);
-      });
-
-      test('whitespace only content does not allow submission', () {
-        final content = '   ';
-        final media = <Map<String, dynamic>>[];
-
-        final canSubmit = content.trim().isNotEmpty || media.isNotEmpty;
-        expect(canSubmit, isFalse);
-      });
-    });
-
-    group('UID List Parsing Tests', () {
-      test('empty string returns empty list', () {
-        const raw = '';
-        final result = _parseUidList(raw);
-        expect(result, isEmpty);
-      });
-
-      test('whitespace string returns empty list', () {
-        const raw = '   ';
-        final result = _parseUidList(raw);
-        expect(result, isEmpty);
-      });
-
-      test('single UID returns list with one item', () {
-        const raw = 'user_001';
-        final result = _parseUidList(raw);
-        expect(result.length, 1);
-        expect(result[0], 'user_001');
-      });
-
-      test('comma separated UIDs returns list', () {
-        const raw = 'user_001, user_002, user_003';
-        final result = _parseUidList(raw);
-        expect(result.length, 3);
-        expect(result[0], 'user_001');
-        expect(result[1], 'user_002');
-        expect(result[2], 'user_003');
-      });
-
-      test('handles extra commas correctly', () {
-        const raw = 'user_001,, user_002,';
-        final result = _parseUidList(raw);
-        expect(result.length, 2);
-        expect(result[0], 'user_001');
-        expect(result[1], 'user_002');
-      });
-    });
-
-    group('Event Bus Integration Tests', () {
-      test('publish success fires MomentTimelineChangedEvent', () async {
-        final receivedEvents = <MomentTimelineChangedEvent>[];
-
-        final subscription = AppEventBus.on<MomentTimelineChangedEvent>()
-            .listen((event) {
-              receivedEvents.add(event);
-            });
-
-        // Simulate successful publish
-        const momentId = 'moment_new_001';
-        AppEventBus.fire(
-          MomentTimelineChangedEvent(
-            action: 'moment_new',
-            momentId: momentId,
-            payload: {'id': momentId, 'content': 'Test'},
-          ),
-        );
-
-        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
-
-        expect(receivedEvents.length, 1);
-        expect(receivedEvents[0].action, 'moment_new');
-        expect(receivedEvents[0].momentId, momentId);
-
-        await subscription.cancel();
-      });
-
-      test('event payload contains moment data', () async {
-        final receivedEvents = <MomentTimelineChangedEvent>[];
-
-        final subscription = AppEventBus.on<MomentTimelineChangedEvent>()
-            .listen((event) {
-              receivedEvents.add(event);
-            });
-
-        const payload = {
-          'id': 'moment_001',
-          'content': 'Hello World',
-          'visibility': 1,
-        };
-
-        AppEventBus.fire(
-          MomentTimelineChangedEvent(
-            action: 'moment_new',
-            momentId: 'moment_001',
-            payload: payload,
-          ),
-        );
-
-        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
-
-        expect(receivedEvents.length, 1);
-        expect(receivedEvents[0].payload['content'], 'Hello World');
-        expect(receivedEvents[0].payload['visibility'], 1);
-
-        await subscription.cancel();
-      });
-    });
-
-    group('Allow Comment Toggle Tests', () {
-      test('allow comment default is true', () {
-        bool allowComment = true;
-        expect(allowComment, isTrue);
-      });
-
-      test('allow comment can be toggled', () {
-        bool allowComment = true;
-        allowComment = !allowComment;
-        expect(allowComment, isFalse);
-
-        allowComment = !allowComment;
-        expect(allowComment, isTrue);
-      });
-    });
-
-    group('Visibility Conditional Fields Tests', () {
-      test('visibility 3 shows allow UIDs field', () {
-        const visibility = 3;
-        final showAllowUidsField = visibility == 3;
-        expect(showAllowUidsField, isTrue);
-      });
-
-      test('visibility 4 shows deny UIDs field', () {
-        const visibility = 4;
-        final showDenyUidsField = visibility == 4;
-        expect(showDenyUidsField, isTrue);
-      });
-
-      test('visibility 1 hides both UID fields', () {
-        const visibility = 1;
-        final showAllowUidsField = visibility == 3;
-        final showDenyUidsField = visibility == 4;
-        expect(showAllowUidsField, isFalse);
-        expect(showDenyUidsField, isFalse);
-      });
-    });
-
-    group('Submit Button State Tests', () {
-      test('submit button disabled when submitting', () {
-        bool isSubmitting = true;
-        bool isUploading = false;
-
-        // ignore: dead_code - Intentional: testing short-circuit when isSubmitting is true
-        final isEnabled = !isSubmitting && !isUploading;
-        expect(isEnabled, isFalse);
-      });
-
-      test('submit button disabled when uploading', () {
-        bool isSubmitting = false;
-        bool isUploading = true;
-
-        // ignore: dead_code - Intentional: testing short-circuit when isUploading is true
-        final isEnabled = !isSubmitting && !isUploading;
-        expect(isEnabled, isFalse);
-      });
-
-      test('submit button enabled when idle', () {
-        bool isSubmitting = false;
-        bool isUploading = false;
-
-        final isEnabled = !isSubmitting && !isUploading;
-        expect(isEnabled, isTrue);
-      });
-    });
-
-    group('Boundary Condition Tests', () {
-      test('handles very long content', () {
-        final content = 'a' * 5000;
-        expect(content.length, 5000);
-      });
-
-      test('handles special characters in content', () {
-        final content = '<script>alert("xss")</script>';
-        expect(content.contains('<script>'), isTrue);
-      });
-
-      test('handles unicode in content', () {
-        final content = '你好世界 🎉 مرحبا';
-        expect(content.contains('你好'), isTrue);
-        expect(content.contains('🎉'), isTrue);
-      });
-
-      test('handles empty UID list gracefully', () {
-        final allowUids = <String>[];
-        expect(allowUids, isEmpty);
-      });
-    });
-
-    group('Navigation Return Value Tests', () {
-      test('returns true on successful publish', () {
-        // Simulate Navigator.pop(context, true)
-        const result = true;
-        expect(result, isTrue);
-      });
-
-      test('returns null on cancelled publish', () {
-        // Simulate Navigator.pop(context) without value
-        // In real code, this would be null
-        const result = null;
-        expect(result, isNull);
-      });
-    });
-
-    group('Complete Publish Flow Tests', () {
-      test('full flow: content -> submit -> event -> return', () async {
-        // 1. User enters content
-        const content = 'Test moment';
-        expect(content.isNotEmpty, isTrue);
-
-        // 2. User submits
-        final canSubmit = content.trim().isNotEmpty;
-        expect(canSubmit, isTrue);
-
-        // 3. Event is fired
-        final receivedEvents = <MomentTimelineChangedEvent>[];
-        final subscription = AppEventBus.on<MomentTimelineChangedEvent>()
-            .listen((event) {
-              receivedEvents.add(event);
-            });
-
-        const momentId = 'moment_flow_001';
-        AppEventBus.fire(
-          MomentTimelineChangedEvent(
-            action: 'moment_new',
-            momentId: momentId,
-            payload: {'id': momentId, 'content': content},
-          ),
-        );
-
-        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
-
-        // 4. Event received
-        expect(receivedEvents.length, 1);
-        expect(receivedEvents[0].action, 'moment_new');
-
-        // 5. Return true for success
-        const result = true;
-        expect(result, isTrue);
-
-        await subscription.cancel();
-      });
-
-      test(
-        'full flow with media: media -> submit -> event -> return',
-        () async {
-          // 1. User adds media
-          final media = [
-            {'type': 'image', 'url': 'https://example.com/image.jpg'},
-          ];
-          expect(media.isNotEmpty, isTrue);
-
-          // 2. User submits without content
-          const content = '';
-          final canSubmit = content.trim().isNotEmpty || media.isNotEmpty;
-          expect(canSubmit, isTrue);
-
-          // 3. Event is fired
-          final receivedEvents = <MomentTimelineChangedEvent>[];
-          final subscription = AppEventBus.on<MomentTimelineChangedEvent>()
-              .listen((event) {
-                receivedEvents.add(event);
-              });
-
-          const momentId = 'moment_media_001';
-          AppEventBus.fire(
-            MomentTimelineChangedEvent(
-              action: 'moment_new',
-              momentId: momentId,
-              payload: {'id': momentId, 'media': media},
-            ),
-          );
-
-          await Future<dynamic>.delayed(const Duration(milliseconds: 100));
-
-          // 4. Event received
-          expect(receivedEvents.length, 1);
-          expect(receivedEvents[0].action, 'moment_new');
-
-          // 5. Return true for success
-          const result = true;
-          expect(result, isTrue);
-
-          await subscription.cancel();
-        },
-      );
+      await _unmount(tester);
     });
   });
-}
 
-/// Helper function to parse UID list
-List<String> _parseUidList(String raw) {
-  if (raw.trim().isEmpty) return const [];
-  return raw
-      .split(',')
-      .map((item) => item.trim())
-      .where((item) => item.isNotEmpty)
-      .toList(growable: false);
+  group('退出提醒（回归：canPop 曾对纯文字失效）', () {
+    // 曾经的 bug：PopScope 用 `canPop: !_hasUnsavedContent`，而该 getter 读
+    // _contentController.text；页面只监听 _uploads 不监听 controller，打字
+    // 不触发 rebuild，canPop 停在 true，侧滑直接把内容丢掉。只有加过图才
+    // 碰巧生效。修法是 canPop: false 统一走 _confirmExit。
+    testWidgets('PopScope.canPop 恒为 false，纯文字也拦得住', (tester) async {
+      await _pumpPage(tester);
+
+      await tester.enterText(find.byType(TextField).first, '写了一半的内容');
+      await tester.pump();
+
+      // PopScope 在新版 Flutter 是泛型（PopScope<T>），find.byType(PopScope)
+      // 找的是 PopScope<dynamic>，匹配不到实际的 PopScope<Object?>。
+      expect(
+        _canPopOf(tester),
+        isFalse,
+        reason: 'canPop 一旦依赖未被监听的 controller，纯文字场景会直接放行丢内容',
+      );
+
+      await _unmount(tester);
+    });
+
+    testWidgets('空内容时返回不弹确认框（不打扰）', (tester) async {
+      await _pumpPage(tester);
+
+      // canPop 恒 false，但 _confirmExit 在无内容时直接 pop，不弹框
+      expect(_canPopOf(tester), isFalse);
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
+
+      await _unmount(tester);
+    });
+  });
+
+  group('草稿恢复（回归：曾只回填文字、图片全丢）', () {
+    testWidgets('草稿里的 media_urls 会被恢复成媒体项', (tester) async {
+      // 模拟"发布失败后存下的草稿"：文字 + 两张已上传成功的图
+      await StorageService.setMap(
+        momentFailedDraftKey(_uid),
+        buildMomentDraft(
+          content: '发布失败的内容',
+          mediaUrls: const ['https://cdn.example.com/a.jpg', 'b.jpg'],
+          visibility: momentVisibilityFriends,
+          allowUids: const [],
+          denyUids: const [],
+          savedAt: DateTime(2026, 7, 31),
+        ),
+      );
+
+      await _pumpPage(tester);
+      // _tryRestoreDraft 走 addPostFrameCallback
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('发布失败的内容'), findsOneWidget);
+      // 两张恢复的图 + 一个"+"按钮；修复前这里只有"+"
+      expect(
+        find.byIcon(CupertinoIcons.xmark),
+        findsNWidgets(2),
+        reason: '每张恢复的图都该有删除角标；数量为 0 说明媒体没被恢复',
+      );
+
+      await _unmount(tester);
+    });
+
+    testWidgets('无草稿时不显示任何媒体项', (tester) async {
+      await _pumpPage(tester);
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byIcon(CupertinoIcons.xmark), findsNothing);
+
+      await _unmount(tester);
+    });
+  });
+
+  group('parseMomentUidList（生产函数，旧文件曾本地复刻一份假的）', () {
+    test('空串与纯空白返回空列表', () {
+      expect(parseMomentUidList(''), isEmpty);
+      expect(parseMomentUidList('   '), isEmpty);
+    });
+
+    test('单个 uid', () {
+      expect(parseMomentUidList('user_001'), ['user_001']);
+    });
+
+    test('逗号分隔并去空白', () {
+      expect(parseMomentUidList('a, b ,c'), ['a', 'b', 'c']);
+    });
+
+    test('连续逗号与首尾逗号不产生空项', () {
+      expect(parseMomentUidList(',a,,b,'), ['a', 'b']);
+    });
+  });
+
+  group('时间线事件契约', () {
+    test('MomentTimelineChangedEvent 携带 action / momentId / payload', () async {
+      final received = <MomentTimelineChangedEvent>[];
+      final sub = AppEventBus.on<MomentTimelineChangedEvent>().listen(
+        received.add,
+      );
+
+      AppEventBus.fire(
+        const MomentTimelineChangedEvent(
+          action: 'moment_new',
+          momentId: 'm_001',
+          payload: {'id': 'm_001', 'content': 'hi'},
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      expect(received, hasLength(1));
+      expect(received.single.action, 'moment_new');
+      expect(received.single.momentId, 'm_001');
+      expect(received.single.payload?['content'], 'hi');
+
+      await sub.cancel();
+    });
+  });
 }
