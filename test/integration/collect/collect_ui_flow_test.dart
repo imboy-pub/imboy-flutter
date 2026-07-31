@@ -114,7 +114,7 @@ void main() {
 
       expect(model.userId, 1001);
       expect(model.kind, 1);
-      expect(model.kindId, 1);
+      expect(model.kindId, '1');
       expect(model.source, 'chat');
       expect(model.remark, '重要内容');
       expect(model.tag, 'work,important,');
@@ -165,7 +165,7 @@ void main() {
       final model = UserCollectModel(
         userId: 1001,
         kind: 1,
-        kindId: 1,
+        kindId: '1',
         source: 'chat',
         remark: '备注',
         tag: 'tag1,',
@@ -178,7 +178,7 @@ void main() {
 
       expect(map['user_id'], 1001);
       expect(map['kind'], 1);
-      expect(map['kind_id'], 1);
+      expect(map['kind_id'], '1');
       expect(map['source'], 'chat');
       expect(map['remark'], '备注');
       expect(map['tag'], 'tag1,');
@@ -248,7 +248,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 1,
+          kindId: '1',
           source: '',
           remark: '',
           tag: '',
@@ -259,7 +259,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 2,
+          kindId: '2',
           source: '',
           remark: '',
           tag: '',
@@ -273,7 +273,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 2, // 重复
+          kindId: '2', // 重复
           source: '',
           remark: '',
           tag: '',
@@ -284,7 +284,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 3, // 新的
+          kindId: '3', // 新的
           source: '',
           remark: '',
           tag: '',
@@ -300,7 +300,7 @@ void main() {
           .toList();
 
       expect(filtered.length, 1);
-      expect(filtered.first.kindId, 3);
+      expect(filtered.first.kindId, '3');
     });
   });
 
@@ -359,10 +359,7 @@ void main() {
     test('切换标签应该重置分页和列表', () {
       final state = UserCollectState()
         ..page = 3
-        ..items = [
-          {'id': 1},
-          {'id': 2},
-        ];
+        ..items = [_collect('1'), _collect('2')];
 
       // 切换标签时应该重置
       final newState = state.copyWith(page: 1, items: [], kind: 'all');
@@ -465,7 +462,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 1,
+          kindId: '1',
           source: '',
           remark: '',
           tag: '',
@@ -476,7 +473,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 2,
+          kindId: '2',
           source: '',
           remark: '',
           tag: '',
@@ -487,10 +484,11 @@ void main() {
       ];
 
       // 删除 kind_001
-      final updatedItems = items.where((item) => item.kindId != 1).toList();
+      // kindId 已是 String（QA#31 Xid），与 int 比较恒真会让过滤失效
+      final updatedItems = items.where((item) => item.kindId != '1').toList();
 
       expect(updatedItems.length, 1);
-      expect(updatedItems.first.kindId, 2);
+      expect(updatedItems.first.kindId, '2');
     });
   });
 
@@ -514,7 +512,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 1,
+          kindId: '1',
           source: '',
           remark: '',
           tag: '',
@@ -525,7 +523,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 2,
+          kindId: '2',
           source: '',
           remark: '',
           tag: '',
@@ -536,7 +534,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 3,
+          kindId: '3',
           source: '',
           remark: '',
           tag: '',
@@ -548,7 +546,7 @@ void main() {
 
       final allIds = items.map((e) => e.kindId).toSet();
       expect(allIds.length, 3);
-      expect(allIds.containsAll([1, 2, 3]), isTrue);
+      expect(allIds.containsAll(['1', '2', '3']), isTrue);
     });
 
     test('批量删除应该删除所有选中项', () {
@@ -556,7 +554,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 1,
+          kindId: '1',
           source: '',
           remark: '',
           tag: '',
@@ -567,7 +565,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 2,
+          kindId: '2',
           source: '',
           remark: '',
           tag: '',
@@ -578,7 +576,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 3,
+          kindId: '3',
           source: '',
           remark: '',
           tag: '',
@@ -588,14 +586,14 @@ void main() {
         ),
       ];
 
-      final selectedIds = {1, 3};
+      final selectedIds = {'1', '3'};
 
       final remainingItems = items
           .where((item) => !selectedIds.contains(item.kindId))
           .toList();
 
       expect(remainingItems.length, 1);
-      expect(remainingItems.first.kindId, 2);
+      expect(remainingItems.first.kindId, '2');
     });
   });
 
@@ -603,7 +601,7 @@ void main() {
     test('下拉刷新应该重置分页并清空列表', () {
       final state = UserCollectState()
         ..page = 3
-        ..items = [1, 2, 3]
+        ..items = [_collect('1'), _collect('2'), _collect('3')]
         ..hasMore = false;
 
       // 刷新时重置状态
@@ -681,10 +679,7 @@ void main() {
       // 3. 加载完成
       final loadedState = loadingState.copyWith(
         isLoading: false,
-        items: [
-          {'kind_id': 1},
-          {'kind_id': 2},
-        ],
+        items: [_collect('1'), _collect('2')],
         hasMore: true,
       );
 
@@ -708,7 +703,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 1,
+          kindId: '1',
           source: '',
           remark: '',
           tag: '',
@@ -719,7 +714,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 2,
+          kindId: '2',
           source: '',
           remark: '',
           tag: '',
@@ -737,12 +732,12 @@ void main() {
 
     test('完整流程：选择 -> 删除 -> 反馈', () {
       // 1. 初始化选择
-      final selectedIds = <int>{};
+      final selectedIds = <String>{};
       expect(selectedIds, isEmpty);
 
       // 2. 选中项目
-      selectedIds.add(1);
-      selectedIds.add(2);
+      selectedIds.add('1');
+      selectedIds.add('2');
       expect(selectedIds.length, 2);
 
       // 3. 执行删除（模拟 API 返回成功）
@@ -754,7 +749,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 1,
+          kindId: '1',
           source: '',
           remark: '',
           tag: '',
@@ -765,7 +760,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 2,
+          kindId: '2',
           source: '',
           remark: '',
           tag: '',
@@ -776,7 +771,7 @@ void main() {
         UserCollectModel(
           userId: 1,
           kind: 1,
-          kindId: 3,
+          kindId: '3',
           source: '',
           remark: '',
           tag: '',
@@ -792,7 +787,7 @@ void main() {
 
       // 5. 验证删除结果
       expect(remainingItems.length, 1);
-      expect(remainingItems.first.kindId, 3);
+      expect(remainingItems.first.kindId, '3');
 
       // 6. 清空选择
       selectedIds.clear();
@@ -800,3 +795,20 @@ void main() {
     });
   });
 }
+
+/// 构造最小可用 UserCollectModel。
+///
+/// 旧用例把裸 `{'id': 1}` / `1` 塞进 `items`，那时 items 还是 List<dynamic>；
+/// 模型收紧为 List<UserCollectModel> 后整份文件编译失败——注意它单跑时
+/// 只报「加载失败」不报断言错，很容易被当成偶发跳过。
+UserCollectModel _collect(String kindId) => UserCollectModel(
+  userId: 1,
+  kind: 1,
+  kindId: kindId,
+  source: '',
+  remark: '',
+  tag: '',
+  updatedAt: 0,
+  createdAt: 0,
+  info: const {},
+);

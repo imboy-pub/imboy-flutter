@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -130,18 +131,28 @@ void main() {
         expect(find.text(t.discovery.moments), findsOneWidget);
       });
 
-      testWidgets('shows publish button in AppBar', (tester) async {
+      testWidgets('导航栏发布按钮：Cupertino 相机图标 + 读屏标签', (tester) async {
         await _pumpMomentFeedPage(tester);
 
-        final publishButton = find.byIcon(Icons.add_a_photo_outlined);
-        expect(publishButton, findsOneWidget);
+        // 页面已 Cupertino 化：Material 的 IconButton/add_a_photo_outlined
+        // 早就没了，改用 CupertinoButton + CupertinoIcons.camera。
+        // CupertinoButton 无 tooltip 参数，靠显式 Semantics 提供读屏标签。
+        expect(find.byIcon(Icons.add_a_photo_outlined), findsNothing);
 
-        // Verify tooltip
-        final iconButton = find.ancestor(
-          of: publishButton,
-          matching: find.byType(IconButton),
+        final publishButton = find.byIcon(CupertinoIcons.camera);
+        expect(publishButton, findsOneWidget);
+        expect(
+          find.ancestor(
+            of: publishButton,
+            matching: find.byType(CupertinoButton),
+          ),
+          findsOneWidget,
         );
-        expect(iconButton, findsOneWidget);
+        expect(
+          find.bySemanticsLabel(t.main.publish),
+          findsWidgets,
+          reason: '纯图标按钮缺 Semantics 时读屏只会念"按钮"',
+        );
       });
 
       testWidgets('shows loading indicator initially', (tester) async {
@@ -150,10 +161,18 @@ void main() {
         expect(find.byType(MomentFeedPage), findsOneWidget);
       });
 
-      testWidgets('has RefreshIndicator for pull-to-refresh', (tester) async {
+      testWidgets('下拉刷新用 CupertinoSliverRefreshControl', (tester) async {
         await _pumpMomentFeedPage(tester);
 
-        expect(find.byType(RefreshIndicator), findsOneWidget);
+        // 页面是 sliver 结构，Material 的 RefreshIndicator 用不了，
+        // 改用 CupertinoSliverRefreshControl（与全页 iOS 风格一致）。
+        expect(find.byType(RefreshIndicator), findsNothing);
+        // skipOffstage: false —— 未下拉时该 sliver 布局尺寸为零，
+        // find.byType 默认会把它当 offstage 跳过。
+        expect(
+          find.byType(CupertinoSliverRefreshControl, skipOffstage: false),
+          findsOneWidget,
+        );
       });
     });
 
