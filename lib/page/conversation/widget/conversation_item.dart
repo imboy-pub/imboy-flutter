@@ -51,6 +51,11 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
   // 2026-07-30 UI/UX Sprint Task 6 复核结论：确认为已登记可接受技术债，本次延期。
   // 理由：单行索引查询有界且不触网，当前列表规模下无明显瓶颈；批量收敛需先注入
   // repository 边界（无现成 seam），超出本 Sprint 范围。升级路径见上一行。
+  //
+  // "不触网"这条前提有证据测试守着：
+  // test/store/repository/contact_repo_no_network_test.dart
+  // （A/B 已验证：去掉下面的 autoFetch: false 会真的发起 HTTP 请求）。
+  // 动这里之前先看那个文件。
   Future<void> _loadPeerAccountType() async {
     if (widget.model.type != 'C2C') return;
     final ct = await ContactRepo().findByUid(
