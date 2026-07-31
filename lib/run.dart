@@ -3,6 +3,7 @@ import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderFlex;
 import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -81,6 +82,41 @@ Future<void> main() async {
 
 Future<void> run() async {
   // === 全局错误捕获 ===
+  // TODO(overflow-probe): 临时定位 RenderFlex(137×22) 溢出组件，定位后删除
+  bool overflowProbed = false;
+  void probeOverflow() {
+    if (overflowProbed) return;
+    overflowProbed = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final hits = <String>[];
+      void walk(Element el) {
+        if (el is RenderObjectElement) {
+          final ro = el.renderObject;
+          if (ro is RenderFlex &&
+              (ro.size.width - 137).abs() < 3 &&
+              (ro.size.height - 22).abs() < 3) {
+            final chain = <String>[];
+            el.visitAncestorElements((a) {
+              chain.add(a.widget.runtimeType.toString());
+              return chain.length < 10;
+            });
+            hits.add(
+              '${el.widget.runtimeType} @depth=${el.depth} '
+              '<- ${chain.join(' < ')}',
+            );
+          }
+        }
+        el.visitChildren(walk);
+      }
+
+      WidgetsBinding.instance.rootElement?.visitChildren(walk);
+      debugPrint(
+        '🐛 [overflow-probe] '
+        '${hits.isEmpty ? "未匹配（约束已变）" : hits.join(' | ')}',
+      );
+    });
+  }
+
   // 捕获 Flutter 框架内部错误（Widget build、layout、paint 等）
   FlutterError.onError = (FlutterErrorDetails details) {
     AppLogger.fatal(
@@ -90,10 +126,25 @@ Future<void> run() async {
     );
     // 保留默认行为（debug 模式打印到控制台）
     FlutterError.presentError(details);
+    // TODO(overflow-probe): 溢出时触发一次定位，定位后删除
+    final msg = details.exceptionAsString();
+    if (msg.contains('RenderFlex') && details.toString().contains('overflow')) {
+      probeOverflow();
+    }
   };
 
   // 捕获 Dart 异步未处理异常（Future 中未被 catch 的错误）
   PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    // ponytail: audio_waveforms 2.0.1 的 PlayerController.dispose() 内部
+    // fire-and-forget 触发 stopWaveformExtraction()；Android（尤华为 OMX）
+    // 上 codec 已被 just_audio 释放后再 stop() 会异步抛 IllegalStateException。
+    // 该 Future 在库内未 await，调用点 try/catch 接不住，属无害 teardown 竞态，
+    // 按签名吞掉以免污染 AppLogger.fatal。
+    final s = error.toString();
+    if (s.contains('WaveformExtractor.stop') &&
+        s.contains('IllegalStateException')) {
+      return true;
+    }
     AppLogger.fatal('PlatformDispatcher uncaught error: $error', error, stack);
     // 返回 true 表示已处理，不再传播
     return true;
