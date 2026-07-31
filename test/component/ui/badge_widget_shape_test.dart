@@ -140,4 +140,60 @@ void main() {
       expect(r.width, 8.0);
     });
   });
+
+  group('未读角标读屏语义（DESIGN.md 11.4）', () {
+    testWidgets('传了 semanticLabel 就读「N 条未读」，不再念光秃秃的数字', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: MaterialApp(
+            home: Scaffold(
+              body: BadgeWidget(
+                semanticLabel: t.common.unreadCount(count: '5'),
+                content: const Text('5'),
+                child: const Icon(Icons.chat, key: Key('probe_child')),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(
+        find.bySemanticsLabel(t.common.unreadCount(count: '5')),
+        findsOneWidget,
+      );
+      // 数字本身要被挡掉，否则读屏会连着念「5 条未读」和「5」。
+      // 注意不能用 getSemantics(find.text('5')).label 判空——被 Exclude 掉的
+      // 节点没有自己的语义节点，getSemantics 会上溯到外层，拿到的是那句标签。
+      expect(
+        find.bySemanticsLabel(RegExp(r'^5$')),
+        findsNothing,
+        reason: '内容未被 ExcludeSemantics 挡住，读屏会重复念数字',
+      );
+
+      handle.dispose();
+    });
+
+    testWidgets('不传 semanticLabel 时行为不变（老调用方不受影响）', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: const MaterialApp(
+            home: Scaffold(
+              body: BadgeWidget(
+                content: const Text('7'),
+                child: const Icon(Icons.chat),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.getSemantics(find.text('7')).label, '7');
+
+      handle.dispose();
+    });
+  });
 }

@@ -824,6 +824,7 @@ sectionPrivacySecurity: "Privacy & Security"
 sectionHelpAbout: "Help & About"
 msgOnlyVisibleToParties: Message readable only by sender and recipient
 msgNotEncrypted: Message transmitted unencrypted
+unreadCount(count): "${count} unread"
 durationMinutes(count): "${count}min"
 durationSeconds(count): "${count}s"
 rechargeAmountError: "Please enter an amount between ¥1 and ¥10,000"

@@ -1459,6 +1459,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get sectionHelpAbout => 'Aide et à propos';
 	@override String get msgOnlyVisibleToParties => 'Message lisible uniquement par expéditeur et destinataire';
 	@override String get msgNotEncrypted => 'Message non chiffré';
+	@override String unreadCount({required Object count}) => '${count} non lus';
 	@override String durationMinutes({required Object count}) => '${count} min';
 	@override String durationSeconds({required Object count}) => '${count} s';
 	@override String get rechargeAmountError => 'Montant entre 1 et 10000 yuan';
@@ -3868,6 +3869,7 @@ extension on TranslationsFrFr {
 			'common.sectionHelpAbout' => 'Aide et à propos',
 			'common.msgOnlyVisibleToParties' => 'Message lisible uniquement par expéditeur et destinataire',
 			'common.msgNotEncrypted' => 'Message non chiffré',
+			'common.unreadCount' => ({required Object count}) => '${count} non lus',
 			'common.durationMinutes' => ({required Object count}) => '${count} min',
 			'common.durationSeconds' => ({required Object count}) => '${count} s',
 			'common.rechargeAmountError' => 'Montant entre 1 et 10000 yuan',
@@ -4052,9 +4054,9 @@ extension on TranslationsFrFr {
 			'common.e2eeSocialAddProxy' => 'Ajouter un dépositaire',
 			'common.e2eeSocialAddProxyHint' => 'Ajoutez un dépositaire',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Ajoutez d\'abord ${count} dépositaires',
-			'common.e2eeSocialCreateSuccessTitle' => 'Fragments créés',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialCreateSuccessTitle' => 'Fragments créés',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Clé divisée en ${count} fragments',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} dépositaires suffisent pour restaurer',
 			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust : le serveur ne conserve aucun fragment',
@@ -4566,9 +4568,9 @@ extension on TranslationsFrFr {
 			'main.availableCount' => 'Disponible',
 			'main.mostUsed' => 'Les plus utilisés',
 			'main.commentPlaceholder' => 'Commentaire...',
-			'main.delayMsLabel' => 'Délai en ms (>=100)',
 			_ => null,
 		} ?? switch (path) {
+			'main.delayMsLabel' => 'Délai en ms (>=100)',
 			'main.processed' => 'Traité',
 			'main.export' => 'Exporter',
 			'main.school' => 'École',

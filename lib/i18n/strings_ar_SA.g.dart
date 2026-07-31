@@ -1459,6 +1459,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get sectionHelpAbout => 'مساعدة وحول';
 	@override String get msgOnlyVisibleToParties => 'الرسائل مرئية للمرسل والمستلم فقط';
 	@override String get msgNotEncrypted => 'تُرسل الرسائل دون تشفير';
+	@override String unreadCount({required Object count}) => '${count} غير مقروءة';
 	@override String durationMinutes({required Object count}) => '${count} دقيقة';
 	@override String durationSeconds({required Object count}) => '${count} ثانية';
 	@override String get rechargeAmountError => 'أدخل مبلغاً بين 1 و10000 يوان';
@@ -3868,6 +3869,7 @@ extension on TranslationsArSa {
 			'common.sectionHelpAbout' => 'مساعدة وحول',
 			'common.msgOnlyVisibleToParties' => 'الرسائل مرئية للمرسل والمستلم فقط',
 			'common.msgNotEncrypted' => 'تُرسل الرسائل دون تشفير',
+			'common.unreadCount' => ({required Object count}) => '${count} غير مقروءة',
 			'common.durationMinutes' => ({required Object count}) => '${count} دقيقة',
 			'common.durationSeconds' => ({required Object count}) => '${count} ثانية',
 			'common.rechargeAmountError' => 'أدخل مبلغاً بين 1 و10000 يوان',
@@ -4052,9 +4054,9 @@ extension on TranslationsArSa {
 			'common.e2eeSocialAddProxy' => 'إضافة وكيل',
 			'common.e2eeSocialAddProxyHint' => 'أضف جهات اتصال كوكلاء',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'أضف ${count} وكلاء آخرين',
-			'common.e2eeSocialCreateSuccessTitle' => 'تم إنشاء الشظايا',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialCreateSuccessTitle' => 'تم إنشاء الشظايا',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'يكفي ${count} وكيل للاستعادة',
 			'common.e2eeSocialZeroTrustNote' => 'بنية الثقة الصفرية: لا يحفظ الخادم أي شظية',
@@ -4566,9 +4568,9 @@ extension on TranslationsArSa {
 			'main.availableCount' => 'قابل للاختيار',
 			'main.mostUsed' => 'الأكثر استخداماً',
 			'main.commentPlaceholder' => 'تعليق...',
-			'main.delayMsLabel' => 'تأخير بالمللي ثانية (>=100)',
 			_ => null,
 		} ?? switch (path) {
+			'main.delayMsLabel' => 'تأخير بالمللي ثانية (>=100)',
 			'main.processed' => 'تمت المعالجة',
 			'main.export' => 'تصدير',
 			'main.school' => 'المدرسة',

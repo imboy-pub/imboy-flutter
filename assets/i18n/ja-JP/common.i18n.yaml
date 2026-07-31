@@ -827,6 +827,7 @@ sectionPrivacySecurity: プライバシーとセキュリティ
 sectionHelpAbout: ヘルプとアプリ情報
 msgOnlyVisibleToParties: メッセージは送受信者のみ閲覧できます
 msgNotEncrypted: メッセージは暗号化されていません
+unreadCount(count): "未読 ${count} 件"
 durationMinutes(count): "${count}分"
 durationSeconds(count): "${count}秒"
 rechargeAmountError: 1元〜10000元の金額を入力してください

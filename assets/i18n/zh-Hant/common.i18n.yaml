@@ -826,6 +826,7 @@ sectionPrivacySecurity: 隱私與安全
 sectionHelpAbout: 幫助與關於
 msgOnlyVisibleToParties: 訊息僅收發雙方可讀
 msgNotEncrypted: 訊息未加密傳輸
+unreadCount(count): "${count} 則未讀"
 durationMinutes(count): ${count}分鐘
 durationSeconds(count): ${count}秒
 rechargeAmountError: 請輸入1元到10000元之間的金額

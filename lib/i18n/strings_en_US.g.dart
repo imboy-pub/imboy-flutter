@@ -1473,6 +1473,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get sectionHelpAbout => 'Help & About';
 	@override String get msgOnlyVisibleToParties => 'Message readable only by sender and recipient';
 	@override String get msgNotEncrypted => 'Message transmitted unencrypted';
+	@override String unreadCount({required Object count}) => '${count} unread';
 	@override String durationMinutes({required Object count}) => '${count}min';
 	@override String durationSeconds({required Object count}) => '${count}s';
 	@override String get rechargeAmountError => 'Please enter an amount between ¥1 and ¥10,000';
@@ -3905,6 +3906,7 @@ extension on TranslationsEnUs {
 			'common.sectionHelpAbout' => 'Help & About',
 			'common.msgOnlyVisibleToParties' => 'Message readable only by sender and recipient',
 			'common.msgNotEncrypted' => 'Message transmitted unencrypted',
+			'common.unreadCount' => ({required Object count}) => '${count} unread',
 			'common.durationMinutes' => ({required Object count}) => '${count}min',
 			'common.durationSeconds' => ({required Object count}) => '${count}s',
 			'common.rechargeAmountError' => 'Please enter an amount between ¥1 and ¥10,000',
@@ -4075,9 +4077,9 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupErrCloudUploadFailed' => 'Cloud backup failed, please retry',
 			'common.e2eeBackupCloudRestoreTitle' => 'Restore from cloud backup',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Cloud backup detected (version ${version})',
-			'common.e2eeBackupCloudRestoreBtn' => 'Restore from cloud',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupCloudRestoreBtn' => 'Restore from cloud',
 			'common.e2eeBackupCloudRestoreConfirmNote' => 'Restoring will overwrite the current E2EE keys on this device',
 			'common.e2eeBackupCloudPwdHint' => 'Enter your backup passphrase',
 			'common.e2eeBackupErrNoCloudBackup' => 'No cloud backup found',
@@ -4589,9 +4591,9 @@ extension on TranslationsEnUs {
 			'main.pendingInput' => 'Pending input',
 			'main.lengthCheck' => 'Length check',
 			'main.bugReport' => 'Bug report',
-			'main.deleting' => 'Deleting...',
 			_ => null,
 		} ?? switch (path) {
+			'main.deleting' => 'Deleting...',
 			'main.current' => 'Current',
 			'main.publish' => 'Publish',
 			'main.privacyPolicy' => 'Privacy Policy',

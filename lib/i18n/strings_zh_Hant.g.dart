@@ -1476,6 +1476,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get sectionHelpAbout => '幫助與關於';
 	@override String get msgOnlyVisibleToParties => '訊息僅收發雙方可讀';
 	@override String get msgNotEncrypted => '訊息未加密傳輸';
+	@override String unreadCount({required Object count}) => '${count} 則未讀';
 	@override String durationMinutes({required Object count}) => '${count}分鐘';
 	@override String durationSeconds({required Object count}) => '${count}秒';
 	@override String get rechargeAmountError => '請輸入1元到10000元之間的金額';
@@ -3908,6 +3909,7 @@ extension on TranslationsZhHant {
 			'common.sectionHelpAbout' => '幫助與關於',
 			'common.msgOnlyVisibleToParties' => '訊息僅收發雙方可讀',
 			'common.msgNotEncrypted' => '訊息未加密傳輸',
+			'common.unreadCount' => ({required Object count}) => '${count} 則未讀',
 			'common.durationMinutes' => ({required Object count}) => '${count}分鐘',
 			'common.durationSeconds' => ({required Object count}) => '${count}秒',
 			'common.rechargeAmountError' => '請輸入1元到10000元之間的金額',
@@ -4075,9 +4077,9 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupNoteRow' => '備註',
 			'common.e2eeBackupDeleteTitle' => '刪除備份記錄',
 			'common.e2eeBackupDeleteConfirm' => '確定要刪除此備份記錄嗎？',
-			'common.e2eeBackupDeleteSuccess' => '備份記錄已刪除',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupDeleteSuccess' => '備份記錄已刪除',
 			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
 			'common.e2eeBackupErrCloudUploadFailed' => '雲端備份失敗，請重試',
@@ -4589,9 +4591,9 @@ extension on TranslationsZhHant {
 			'main.pendingInput' => '待輸入',
 			'main.lengthCheck' => '長度檢查',
 			'main.bugReport' => '錯誤報告',
-			'main.deleting' => '刪除中...',
 			_ => null,
 		} ?? switch (path) {
+			'main.deleting' => '刪除中...',
 			'main.current' => '目前',
 			'main.publish' => '發布',
 			'main.privacyPolicy' => '隱私政策',

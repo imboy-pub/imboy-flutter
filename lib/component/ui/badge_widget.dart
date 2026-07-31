@@ -28,6 +28,7 @@ class BadgeWidget extends StatelessWidget {
     this.bottom,
     this.left,
     this.right = -4.0,
+    this.semanticLabel,
   });
 
   final Widget child;
@@ -42,6 +43,12 @@ class BadgeWidget extends StatelessWidget {
   final double? left;
   final double? right;
 
+  /// 读屏标签，如「5 条未读」（DESIGN.md 11.4）。
+  ///
+  /// 不传的话读屏只会念出一个孤零零的数字——接在昵称和消息预览后面，
+  /// 「张三 晚点聊 5」完全看不出这个 5 是什么。
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
     if (!showBadge) return child;
@@ -54,7 +61,9 @@ class BadgeWidget extends StatelessWidget {
 
     // 无 content 的圆点角标：尺寸只由 padding 决定，本来就是正方 → 正圆。
     if (content == null) {
-      return _stack(Container(padding: padding, decoration: decoration));
+      return _stack(
+        _withSemantics(Container(padding: padding, decoration: decoration)),
+      );
     }
 
     // 有 content（未读数）时不能只靠 padding：数字的字宽比行高窄，
@@ -70,17 +79,28 @@ class BadgeWidget extends StatelessWidget {
     final diameter = _baseDiameter * scale;
 
     return _stack(
-      Container(
-        height: diameter,
-        constraints: BoxConstraints(minWidth: diameter),
-        // 水平内边距固定且很小：不沿用调用方的 padding（那是给旧的
-        // 「靠 padding 撑圆」写法用的，10pt 会把 1 位数也顶出 diameter）。
-        // 只服务多位数不贴边，1~2 位数由 minWidth 兜成正圆。
-        padding: const EdgeInsets.symmetric(horizontal: _contentHPadding),
-        alignment: Alignment.center,
-        decoration: decoration,
-        child: content,
+      _withSemantics(
+        Container(
+          height: diameter,
+          constraints: BoxConstraints(minWidth: diameter),
+          // 水平内边距固定且很小：不沿用调用方的 padding（那是给旧的
+          // 「靠 padding 撑圆」写法用的，10pt 会把 1 位数也顶出 diameter）。
+          // 只服务多位数不贴边，1~2 位数由 minWidth 兜成正圆。
+          padding: const EdgeInsets.symmetric(horizontal: _contentHPadding),
+          alignment: Alignment.center,
+          decoration: decoration,
+          child: content,
+        ),
       ),
+    );
+  }
+
+  /// 有标签时把数字本身挡掉，避免读屏把「5 条未读」和「5」念两遍。
+  Widget _withSemantics(Widget badge) {
+    if (semanticLabel == null) return badge;
+    return Semantics(
+      label: semanticLabel,
+      child: ExcludeSemantics(child: badge),
     );
   }
 

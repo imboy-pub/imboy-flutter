@@ -827,6 +827,7 @@ sectionPrivacySecurity: Datenschutz & Sicherheit
 sectionHelpAbout: Hilfe & Info
 msgOnlyVisibleToParties: Nachricht nur für Absender und Empfänger lesbar
 msgNotEncrypted: Nachricht unverschlüsselt
+unreadCount(count): "${count} ungelesen"
 durationMinutes(count): "${count} Min."
 durationSeconds(count): "${count} Sek."
 rechargeAmountError: Betrag zwischen 1 und 10000 Yuan eingeben

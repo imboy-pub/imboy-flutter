@@ -827,6 +827,7 @@ sectionPrivacySecurity: 개인정보 및 보안
 sectionHelpAbout: 도움말 및 정보
 msgOnlyVisibleToParties: 메시지는 발신자와 수신자만 볼 수 있습니다
 msgNotEncrypted: 메시지가 암호화되지 않았습니다
+unreadCount(count): "읽지 않음 ${count}개"
 durationMinutes(count): "${count}분"
 durationSeconds(count): "${count}초"
 rechargeAmountError: 1위안에서 10000위안 사이의 금액을 입력하세요

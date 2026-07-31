@@ -4443,6 +4443,9 @@ class Translations$common$zh_CN {
 	/// zh-CN: '消息未加密传输'
 	String get msgNotEncrypted => '消息未加密传输';
 
+	/// zh-CN: '${count} 条未读'
+	String unreadCount({required Object count}) => '${count} 条未读';
+
 	/// zh-CN: '${count}分钟'
 	String durationMinutes({required Object count}) => '${count}分钟';
 
@@ -8921,6 +8924,7 @@ extension on Translations {
 			'common.sectionHelpAbout' => '帮助与关于',
 			'common.msgOnlyVisibleToParties' => '消息仅收发双方可读',
 			'common.msgNotEncrypted' => '消息未加密传输',
+			'common.unreadCount' => ({required Object count}) => '${count} 条未读',
 			'common.durationMinutes' => ({required Object count}) => '${count}分钟',
 			'common.durationSeconds' => ({required Object count}) => '${count}秒',
 			'common.rechargeAmountError' => '请输入1元到10000元之间的金额',
@@ -9015,9 +9019,9 @@ extension on Translations {
 			'common.webQRStatusFailed' => '登录失败，请重试',
 			'common.webQRStatusSuccess' => '正在跳转...',
 			'common.webLoginEmptyError' => '请输入账号和密码',
-			'common.webQRGenerateFailed' => '生成二维码失败',
 			_ => null,
 		} ?? switch (path) {
+			'common.webQRGenerateFailed' => '生成二维码失败',
 			'common.webQRTokenInvalid' => '登录令牌无效',
 			'common.e2eeErrNoRecipientKey' => '无法获取对方设备密钥，消息未发送',
 			'common.e2eeDecryptFailed' => '消息无法解密',
@@ -9529,9 +9533,9 @@ extension on Translations {
 			'main.lifePayment' => '生活缴费',
 			'main.medicalHealth' => '医疗健康',
 			'main.meituanDelivery' => '美团外卖',
-			'main.tencentService' => '腾讯服务',
 			_ => null,
 		} ?? switch (path) {
+			'main.tencentService' => '腾讯服务',
 			'main.traffic' => '交通出行',
 			'main.totalAssets' => '总资产',
 			'main.album' => '照片',

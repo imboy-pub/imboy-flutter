@@ -1459,6 +1459,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get sectionHelpAbout => 'Справка и о приложении';
 	@override String get msgOnlyVisibleToParties => 'Сообщения видны только отправителю и получателю';
 	@override String get msgNotEncrypted => 'Сообщения передаются без шифрования';
+	@override String unreadCount({required Object count}) => '${count} непрочитанных';
 	@override String durationMinutes({required Object count}) => '${count} мин';
 	@override String durationSeconds({required Object count}) => '${count} сек';
 	@override String get rechargeAmountError => 'Введите сумму от 1 до 10000 юаней';
@@ -3868,6 +3869,7 @@ extension on TranslationsRuRu {
 			'common.sectionHelpAbout' => 'Справка и о приложении',
 			'common.msgOnlyVisibleToParties' => 'Сообщения видны только отправителю и получателю',
 			'common.msgNotEncrypted' => 'Сообщения передаются без шифрования',
+			'common.unreadCount' => ({required Object count}) => '${count} непрочитанных',
 			'common.durationMinutes' => ({required Object count}) => '${count} мин',
 			'common.durationSeconds' => ({required Object count}) => '${count} сек',
 			'common.rechargeAmountError' => 'Введите сумму от 1 до 10000 юаней',
@@ -4052,9 +4054,9 @@ extension on TranslationsRuRu {
 			'common.e2eeSocialAddProxy' => 'Добавить посредника',
 			'common.e2eeSocialAddProxyHint' => 'Добавьте контакты-посредники',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Добавьте ещё ${count} посредников',
-			'common.e2eeSocialCreateSuccessTitle' => 'Фрагменты созданы',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialCreateSuccessTitle' => 'Фрагменты созданы',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Ключ разделён на ${count} фрагментов',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Для восстановления хватит ${count} посредников',
 			'common.e2eeSocialZeroTrustNote' => 'Архитектура нулевого доверия: сервер не хранит фрагменты',
@@ -4566,9 +4568,9 @@ extension on TranslationsRuRu {
 			'main.availableCount' => 'Доступно',
 			'main.mostUsed' => 'Наиболее используемые',
 			'main.commentPlaceholder' => 'Комментарий...',
-			'main.delayMsLabel' => 'Задержка в мс (>=100)',
 			_ => null,
 		} ?? switch (path) {
+			'main.delayMsLabel' => 'Задержка в мс (>=100)',
 			'main.processed' => 'Обработано',
 			'main.export' => 'Экспорт',
 			'main.school' => 'Школа',

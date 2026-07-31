@@ -117,6 +117,9 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
             // 头像区域 + 未读角标
             BadgeWidget(
               showBadge: (remindCounter > 0),
+              semanticLabel: context.t.common.unreadCount(
+                count: '$remindCounter',
+              ),
               content: Text(
                 remindCounter > 99 ? '99+' : "$remindCounter",
                 style: context

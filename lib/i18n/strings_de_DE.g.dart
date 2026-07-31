@@ -1459,6 +1459,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get sectionHelpAbout => 'Hilfe & Info';
 	@override String get msgOnlyVisibleToParties => 'Nachricht nur für Absender und Empfänger lesbar';
 	@override String get msgNotEncrypted => 'Nachricht unverschlüsselt';
+	@override String unreadCount({required Object count}) => '${count} ungelesen';
 	@override String durationMinutes({required Object count}) => '${count} Min.';
 	@override String durationSeconds({required Object count}) => '${count} Sek.';
 	@override String get rechargeAmountError => 'Betrag zwischen 1 und 10000 Yuan eingeben';
@@ -3868,6 +3869,7 @@ extension on TranslationsDeDe {
 			'common.sectionHelpAbout' => 'Hilfe & Info',
 			'common.msgOnlyVisibleToParties' => 'Nachricht nur für Absender und Empfänger lesbar',
 			'common.msgNotEncrypted' => 'Nachricht unverschlüsselt',
+			'common.unreadCount' => ({required Object count}) => '${count} ungelesen',
 			'common.durationMinutes' => ({required Object count}) => '${count} Min.',
 			'common.durationSeconds' => ({required Object count}) => '${count} Sek.',
 			'common.rechargeAmountError' => 'Betrag zwischen 1 und 10000 Yuan eingeben',
@@ -4052,9 +4054,9 @@ extension on TranslationsDeDe {
 			'common.e2eeSocialAddProxy' => 'Treuhänder hinzufügen',
 			'common.e2eeSocialAddProxyHint' => 'Treuhänder hinzufügen',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Zuerst ${count} Treuhänder hinzufügen',
-			'common.e2eeSocialCreateSuccessTitle' => 'Fragmente erstellt',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialCreateSuccessTitle' => 'Fragmente erstellt',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Schlüssel in ${count} Fragmente geteilt',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} Treuhänder für Wiederherstellung nötig',
 			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust: Server speichert keine Fragmente',
@@ -4566,9 +4568,9 @@ extension on TranslationsDeDe {
 			'main.availableCount' => 'Verfügbar',
 			'main.mostUsed' => 'Am häufigsten verwendet',
 			'main.commentPlaceholder' => 'Kommentar...',
-			'main.delayMsLabel' => 'Verzögerung in ms (>=100)',
 			_ => null,
 		} ?? switch (path) {
+			'main.delayMsLabel' => 'Verzögerung in ms (>=100)',
 			'main.processed' => 'Verarbeitet',
 			'main.export' => 'Exportieren',
 			'main.school' => 'Schule',

@@ -827,6 +827,7 @@ sectionPrivacySecurity: Конфиденциальность и безопасн
 sectionHelpAbout: Справка и о приложении
 msgOnlyVisibleToParties: Сообщения видны только отправителю и получателю
 msgNotEncrypted: Сообщения передаются без шифрования
+unreadCount(count): "${count} непрочитанных"
 durationMinutes(count): "${count} мин"
 durationSeconds(count): "${count} сек"
 rechargeAmountError: Введите сумму от 1 до 10000 юаней

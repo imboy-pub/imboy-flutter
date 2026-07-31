@@ -827,6 +827,7 @@ sectionPrivacySecurity: الخصوصية والأمان
 sectionHelpAbout: مساعدة وحول
 msgOnlyVisibleToParties: الرسائل مرئية للمرسل والمستلم فقط
 msgNotEncrypted: تُرسل الرسائل دون تشفير
+unreadCount(count): "${count} غير مقروءة"
 durationMinutes(count): "${count} دقيقة"
 durationSeconds(count): "${count} ثانية"
 rechargeAmountError: أدخل مبلغاً بين 1 و10000 يوان

@@ -349,6 +349,9 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
     if (item.remindCount > 0) {
       return BadgeWidget(
+        semanticLabel: context.t.common.unreadCount(
+          count: '${item.remindCount}',
+        ),
         content: Text(
           item.remindCount > 99 ? '99+' : '${item.remindCount}',
           style: context

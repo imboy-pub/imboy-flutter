@@ -1459,6 +1459,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get sectionHelpAbout => 'Aiuto e info';
 	@override String get msgOnlyVisibleToParties => 'Messaggio leggibile solo da mittente e destinatario';
 	@override String get msgNotEncrypted => 'Messaggio non cifrato';
+	@override String unreadCount({required Object count}) => '${count} non letti';
 	@override String durationMinutes({required Object count}) => '${count} min';
 	@override String durationSeconds({required Object count}) => '${count} s';
 	@override String get rechargeAmountError => 'Importo tra 1 e 10000 yuan';
@@ -3868,6 +3869,7 @@ extension on TranslationsItIt {
 			'common.sectionHelpAbout' => 'Aiuto e info',
 			'common.msgOnlyVisibleToParties' => 'Messaggio leggibile solo da mittente e destinatario',
 			'common.msgNotEncrypted' => 'Messaggio non cifrato',
+			'common.unreadCount' => ({required Object count}) => '${count} non letti',
 			'common.durationMinutes' => ({required Object count}) => '${count} min',
 			'common.durationSeconds' => ({required Object count}) => '${count} s',
 			'common.rechargeAmountError' => 'Importo tra 1 e 10000 yuan',
@@ -4052,9 +4054,9 @@ extension on TranslationsItIt {
 			'common.e2eeSocialAddProxy' => 'Aggiungi garante',
 			'common.e2eeSocialAddProxyHint' => 'Aggiungi un garante',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Aggiungi prima ${count} garanti',
-			'common.e2eeSocialCreateSuccessTitle' => 'Frammenti creati',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialCreateSuccessTitle' => 'Frammenti creati',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Chiave divisa in ${count} frammenti',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} garanti sufficienti per il ripristino',
 			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust: il server non conserva frammenti',
@@ -4566,9 +4568,9 @@ extension on TranslationsItIt {
 			'main.availableCount' => 'Disponibile',
 			'main.mostUsed' => 'Più usati',
 			'main.commentPlaceholder' => 'Commento...',
-			'main.delayMsLabel' => 'Ritardo in ms (>=100)',
 			_ => null,
 		} ?? switch (path) {
+			'main.delayMsLabel' => 'Ritardo in ms (>=100)',
 			'main.processed' => 'Elaborato',
 			'main.export' => 'Esporta',
 			'main.school' => 'Scuola',

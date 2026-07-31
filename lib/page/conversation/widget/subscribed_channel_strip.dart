@@ -194,6 +194,7 @@ class _ChannelAvatar extends StatelessWidget {
     if (unreadCount <= 0) return avatarWidget;
 
     return BadgeWidget(
+      semanticLabel: context.t.common.unreadCount(count: '$unreadCount'),
       content: Text(
         unreadCount > 99 ? '99+' : unreadCount.toString(),
         style: context.textStyle(

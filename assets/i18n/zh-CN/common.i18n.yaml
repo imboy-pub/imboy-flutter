@@ -838,6 +838,7 @@ sectionPrivacySecurity: 隐私与安全
 sectionHelpAbout: 帮助与关于
 msgOnlyVisibleToParties: 消息仅收发双方可读
 msgNotEncrypted: 消息未加密传输
+unreadCount(count): "${count} 条未读"
 durationMinutes(count): "${count}分钟"
 durationSeconds(count): "${count}秒"
 rechargeAmountError: 请输入1元到10000元之间的金额

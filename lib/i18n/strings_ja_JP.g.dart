@@ -1459,6 +1459,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get sectionHelpAbout => 'ヘルプとアプリ情報';
 	@override String get msgOnlyVisibleToParties => 'メッセージは送受信者のみ閲覧できます';
 	@override String get msgNotEncrypted => 'メッセージは暗号化されていません';
+	@override String unreadCount({required Object count}) => '未読 ${count} 件';
 	@override String durationMinutes({required Object count}) => '${count}分';
 	@override String durationSeconds({required Object count}) => '${count}秒';
 	@override String get rechargeAmountError => '1元〜10000元の金額を入力してください';
@@ -3868,6 +3869,7 @@ extension on TranslationsJaJp {
 			'common.sectionHelpAbout' => 'ヘルプとアプリ情報',
 			'common.msgOnlyVisibleToParties' => 'メッセージは送受信者のみ閲覧できます',
 			'common.msgNotEncrypted' => 'メッセージは暗号化されていません',
+			'common.unreadCount' => ({required Object count}) => '未読 ${count} 件',
 			'common.durationMinutes' => ({required Object count}) => '${count}分',
 			'common.durationSeconds' => ({required Object count}) => '${count}秒',
 			'common.rechargeAmountError' => '1元〜10000元の金額を入力してください',
@@ -4052,9 +4054,9 @@ extension on TranslationsJaJp {
 			'common.e2eeSocialAddProxy' => '代理者を追加',
 			'common.e2eeSocialAddProxyHint' => '代理者の連絡先を追加してください',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '先に ${count} 人の代理者を追加してください',
-			'common.e2eeSocialCreateSuccessTitle' => 'シャードを作成しました',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialCreateSuccessTitle' => 'シャードを作成しました',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'キーを ${count} 個のシャードに分割しました',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} 人の代理者の協力でキーを復元できます',
 			'common.e2eeSocialZeroTrustNote' => 'ゼロトラスト構成：サーバーにはシャードを一切保存しません',
@@ -4566,9 +4568,9 @@ extension on TranslationsJaJp {
 			'main.availableCount' => '選択可能',
 			'main.mostUsed' => '最も使用',
 			'main.commentPlaceholder' => 'コメント...',
-			'main.delayMsLabel' => '遅延ミリ秒 (>=100)',
 			_ => null,
 		} ?? switch (path) {
+			'main.delayMsLabel' => '遅延ミリ秒 (>=100)',
 			'main.processed' => '処理済み',
 			'main.export' => 'エクスポート',
 			'main.school' => '学校',

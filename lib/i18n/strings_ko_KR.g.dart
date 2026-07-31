@@ -1459,6 +1459,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get sectionHelpAbout => '도움말 및 정보';
 	@override String get msgOnlyVisibleToParties => '메시지는 발신자와 수신자만 볼 수 있습니다';
 	@override String get msgNotEncrypted => '메시지가 암호화되지 않았습니다';
+	@override String unreadCount({required Object count}) => '읽지 않음 ${count}개';
 	@override String durationMinutes({required Object count}) => '${count}분';
 	@override String durationSeconds({required Object count}) => '${count}초';
 	@override String get rechargeAmountError => '1위안에서 10000위안 사이의 금액을 입력하세요';
@@ -3868,6 +3869,7 @@ extension on TranslationsKoKr {
 			'common.sectionHelpAbout' => '도움말 및 정보',
 			'common.msgOnlyVisibleToParties' => '메시지는 발신자와 수신자만 볼 수 있습니다',
 			'common.msgNotEncrypted' => '메시지가 암호화되지 않았습니다',
+			'common.unreadCount' => ({required Object count}) => '읽지 않음 ${count}개',
 			'common.durationMinutes' => ({required Object count}) => '${count}분',
 			'common.durationSeconds' => ({required Object count}) => '${count}초',
 			'common.rechargeAmountError' => '1위안에서 10000위안 사이의 금액을 입력하세요',
@@ -4052,9 +4054,9 @@ extension on TranslationsKoKr {
 			'common.e2eeSocialAddProxy' => '대리자 추가',
 			'common.e2eeSocialAddProxyHint' => '대리자 연락처를 추가해주세요',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '대리자를 ${count}명 더 추가해주세요',
-			'common.e2eeSocialCreateSuccessTitle' => '샤드 생성 완료',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialCreateSuccessTitle' => '샤드 생성 완료',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다',
 			'common.e2eeSocialZeroTrustNote' => '제로 트러스트 구조: 서버는 어떤 샤드도 저장하지 않습니다',
@@ -4566,9 +4568,9 @@ extension on TranslationsKoKr {
 			'main.availableCount' => '선택 가능',
 			'main.mostUsed' => '가장 많이 사용',
 			'main.commentPlaceholder' => '댓글...',
-			'main.delayMsLabel' => '지연 시간(ms) (>=100)',
 			_ => null,
 		} ?? switch (path) {
+			'main.delayMsLabel' => '지연 시간(ms) (>=100)',
 			'main.processed' => '처리됨',
 			'main.export' => '내보내기',
 			'main.school' => '학교',

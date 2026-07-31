@@ -827,6 +827,7 @@ sectionPrivacySecurity: Confidentialité et sécurité
 sectionHelpAbout: Aide et à propos
 msgOnlyVisibleToParties: Message lisible uniquement par expéditeur et destinataire
 msgNotEncrypted: Message non chiffré
+unreadCount(count): "${count} non lus"
 durationMinutes(count): "${count} min"
 durationSeconds(count): "${count} s"
 rechargeAmountError: Montant entre 1 et 10000 yuan
