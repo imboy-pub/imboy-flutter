@@ -1,7 +1,12 @@
+// 页面走 iOS 风格（CupertinoListTile.notched / CupertinoTextField /
+// CupertinoButton / CupertinoIcons），断言必须同步；此前用 Material
+// TextFormField / ListTile / TextButton / Icons.arrow_forward_ios，从未通过。
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_page.dart';
 import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_provider.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_provider.dart';
@@ -56,7 +61,7 @@ void main() {
       // 验证页面存在
       expect(find.byType(ContactSettingTagPage), findsOneWidget);
       // 验证备注输入框存在
-      expect(find.byType(TextFormField), findsOneWidget);
+      expect(find.byType(CupertinoTextField), findsOneWidget);
     });
 
     testWidgets('页面正确显示现有标签', (tester) async {
@@ -82,7 +87,7 @@ void main() {
       await tester.pump();
 
       // 查找导航箭头图标
-      expect(find.byIcon(Icons.arrow_forward_ios), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.chevron_right), findsOneWidget);
     });
   });
 
@@ -95,18 +100,18 @@ void main() {
       await tester.pump();
 
       // 初始状态：保存按钮应该禁用
-      final buttonsBefore = tester.widgetList<TextButton>(
-        find.byType(TextButton),
+      final buttonsBefore = tester.widgetList<CupertinoButton>(
+        find.byType(CupertinoButton),
       );
       expect(buttonsBefore.any((button) => button.onPressed == null), isTrue);
 
       // 修改备注
-      await tester.enterText(find.byType(TextFormField), 'new-remark');
+      await tester.enterText(find.byType(CupertinoTextField), 'new-remark');
       await tester.pump();
 
       // 保存按钮应该启用
-      final buttonsAfter = tester.widgetList<TextButton>(
-        find.byType(TextButton),
+      final buttonsAfter = tester.widgetList<CupertinoButton>(
+        find.byType(CupertinoButton),
       );
       expect(buttonsAfter.any((button) => button.onPressed != null), isTrue);
     });
@@ -115,11 +120,11 @@ void main() {
       await tester.pumpWidget(_buildContactTagPage());
       await tester.pump();
 
-      // 验证 TextFormField 存在
-      expect(find.byType(TextFormField), findsOneWidget);
+      // 验证 CupertinoTextField 存在
+      expect(find.byType(CupertinoTextField), findsOneWidget);
 
       // 验证可以输入文本
-      await tester.enterText(find.byType(TextFormField), '测试备注');
+      await tester.enterText(find.byType(CupertinoTextField), '测试备注');
       await tester.pump();
       expect(find.text('测试备注'), findsOneWidget);
     });
@@ -143,7 +148,10 @@ void main() {
       await tester.pump();
 
       // 修改备注
-      await tester.enterText(find.byType(TextFormField), 'new-remark-test');
+      await tester.enterText(
+        find.byType(CupertinoTextField),
+        'new-remark-test',
+      );
       await tester.pump();
 
       // 验证修改成功
@@ -170,11 +178,11 @@ void main() {
       await tester.pump();
 
       // 找到标签区域的 ListTile
-      final listTile = find.byType(ListTile);
+      final listTile = find.byKey(const Key('contact_tag_row'));
       expect(listTile, findsOneWidget);
 
       // 验证 ListTile 存在
-      final listTileWidget = tester.widget<ListTile>(listTile);
+      final listTileWidget = tester.widget<ImBoySettingsTile>(listTile);
       expect(listTileWidget.onTap, isNotNull);
     });
   });
@@ -354,11 +362,11 @@ void main() {
       await tester.pump();
 
       // 找到标签区域的 ListTile
-      final listTile = find.byType(ListTile);
+      final listTile = find.byKey(const Key('contact_tag_row'));
       expect(listTile, findsOneWidget);
 
       // 验证 ListTile 有 onTap 回调
-      final listTileWidget = tester.widget<ListTile>(listTile);
+      final listTileWidget = tester.widget<ImBoySettingsTile>(listTile);
       expect(listTileWidget.onTap, isNotNull);
     });
 

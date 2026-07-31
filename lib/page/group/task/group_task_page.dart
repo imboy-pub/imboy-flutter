@@ -183,9 +183,22 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
           thumbColor: AppColors.getIosBlue(Theme.of(context).brightness),
           padding: const EdgeInsets.all(3),
           children: {
-            0: _segmentLabel(t.groupTask.all, _currentFilter == 0),
-            1: _segmentLabel(t.groupTask.pending, _currentFilter == 1),
-            2: _segmentLabel(t.groupTask.completed, _currentFilter == 2),
+            // Key 供 widget 测试定位分段，避免断言 i18n 文案（10 语言易漂移）。
+            0: _segmentLabel(
+              t.groupTask.all,
+              _currentFilter == 0,
+              key: const Key('filter_tab_all'),
+            ),
+            1: _segmentLabel(
+              t.groupTask.pending,
+              _currentFilter == 1,
+              key: const Key('filter_tab_todo'),
+            ),
+            2: _segmentLabel(
+              t.groupTask.completed,
+              _currentFilter == 2,
+              key: const Key('filter_tab_done'),
+            ),
           },
           onValueChanged: (v) {
             if (v != null && v != _currentFilter) {
@@ -199,8 +212,9 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   }
 
   /// 分段控件标签
-  Widget _segmentLabel(String text, bool selected) {
+  Widget _segmentLabel(String text, bool selected, {Key? key}) {
     return Padding(
+      key: key,
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Text(
         text,

@@ -131,6 +131,9 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
             header: Text(t.contact.tags.toUpperCase()),
             children: [
               ImBoySettingsTile(
+                // Key 供 widget 测试定位标签行：本页有两个 CupertinoListTile
+                // （备注输入行 + 本行），按类型查会命中多个。
+                key: const Key('contact_tag_row'),
                 title: Text(t.contact.tags),
                 subtitle: _currentTag.isEmpty
                     ? null
