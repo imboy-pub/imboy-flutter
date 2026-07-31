@@ -2398,6 +2398,10 @@ class _Translations$mention$de_DE extends Translations$mention$zh_CN {
 	final TranslationsDeDe _root; // ignore: unused_field
 
 	// Translations
+	@override String get mentionAll => 'Alle';
+	@override String get mentionAllHint => 'Alle Gruppenmitglieder benachrichtigen';
+	@override String get noMatchedMember => 'Keine passenden Mitglieder';
+	@override String get selectMention => 'Mitglied zum Erwähnen wählen';
 	@override String get title => '@Erwähnungen';
 	@override String get noMention => 'Keine @Erwähnungen';
 	@override String get allRead => 'Alle gelesen';
@@ -4681,6 +4685,10 @@ extension on TranslationsDeDe {
 			'main.e2eeProxyReachedMin' => 'Mindestanzahl erreicht',
 			'main.liveRoomTitleLabel' => 'Livestream-Titel',
 			'main.liveRoomTitleHint' => 'Livestream-Titel eingeben',
+			'mention.mentionAll' => 'Alle',
+			'mention.mentionAllHint' => 'Alle Gruppenmitglieder benachrichtigen',
+			'mention.noMatchedMember' => 'Keine passenden Mitglieder',
+			'mention.selectMention' => 'Mitglied zum Erwähnen wählen',
 			'mention.title' => '@Erwähnungen',
 			'mention.noMention' => 'Keine @Erwähnungen',
 			'mention.allRead' => 'Alle gelesen',

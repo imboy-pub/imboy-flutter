@@ -1,4 +1,8 @@
 ---
+mentionAll: 全員
+mentionAllHint: グループ全員に通知
+noMatchedMember: 一致するメンバーがいません
+selectMention: メンションするメンバーを選択
 title: "@メンション"
 noMention: "@メンションはありません"
 allRead: すべて既読にする

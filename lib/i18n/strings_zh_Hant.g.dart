@@ -2421,6 +2421,10 @@ class Translations$mention$zh_Hant extends Translations$mention$zh_CN {
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
+	@override String get mentionAll => '所有人';
+	@override String get mentionAllHint => '通知所有群成員';
+	@override String get noMatchedMember => '沒有匹配的成員';
+	@override String get selectMention => '選擇要@的成員';
 	@override String get title => '@提及';
 	@override String get noMention => '暫無@提及';
 	@override String get allRead => '全部已讀';
@@ -4727,6 +4731,10 @@ extension on TranslationsZhHant {
 			'main.e2eeProxyReachedMin' => '已達到最少代理數量',
 			'main.liveRoomTitleLabel' => '直播間標題',
 			'main.liveRoomTitleHint' => '請輸入直播間標題',
+			'mention.mentionAll' => '所有人',
+			'mention.mentionAllHint' => '通知所有群成員',
+			'mention.noMatchedMember' => '沒有匹配的成員',
+			'mention.selectMention' => '選擇要@的成員',
 			'mention.title' => '@提及',
 			'mention.noMention' => '暫無@提及',
 			'mention.allRead' => '全部已讀',

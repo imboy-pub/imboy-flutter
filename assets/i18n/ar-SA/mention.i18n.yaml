@@ -1,4 +1,8 @@
 ---
+mentionAll: الجميع
+mentionAllHint: إشعار جميع أعضاء المجموعة
+noMatchedMember: لا يوجد أعضاء مطابقون
+selectMention: اختر عضوًا للإشارة إليه
 title: "@إشارات"
 noMention: لا توجد إشارات
 allRead: تمت قراءة الكل

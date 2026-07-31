@@ -2398,6 +2398,10 @@ class _Translations$mention$ko_KR extends Translations$mention$zh_CN {
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
+	@override String get mentionAll => '전체';
+	@override String get mentionAllHint => '모든 그룹 구성원에게 알림';
+	@override String get noMatchedMember => '일치하는 멤버가 없습니다';
+	@override String get selectMention => '멘션할 멤버 선택';
 	@override String get title => '@멘션';
 	@override String get noMention => '멘션이 없습니다';
 	@override String get allRead => '모두 읽음';
@@ -4681,6 +4685,10 @@ extension on TranslationsKoKr {
 			'main.e2eeProxyReachedMin' => '최소 대리자 수에 도달했습니다',
 			'main.liveRoomTitleLabel' => '라이브 룸 제목',
 			'main.liveRoomTitleHint' => '라이브 룸 제목을 입력하세요',
+			'mention.mentionAll' => '전체',
+			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
+			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',
+			'mention.selectMention' => '멘션할 멤버 선택',
 			'mention.title' => '@멘션',
 			'mention.noMention' => '멘션이 없습니다',
 			'mention.allRead' => '모두 읽음',

@@ -2398,6 +2398,10 @@ class _Translations$mention$ru_RU extends Translations$mention$zh_CN {
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
+	@override String get mentionAll => 'Все';
+	@override String get mentionAllHint => 'Уведомить всех участников группы';
+	@override String get noMatchedMember => 'Нет подходящих участников';
+	@override String get selectMention => 'Выберите участника для упоминания';
 	@override String get title => '@Упоминания';
 	@override String get noMention => 'Нет упоминаний';
 	@override String get allRead => 'Всё прочитано';
@@ -4681,6 +4685,10 @@ extension on TranslationsRuRu {
 			'main.e2eeProxyReachedMin' => 'Достигнуто минимальное число посредников',
 			'main.liveRoomTitleLabel' => 'Название трансляции',
 			'main.liveRoomTitleHint' => 'Введите название трансляции',
+			'mention.mentionAll' => 'Все',
+			'mention.mentionAllHint' => 'Уведомить всех участников группы',
+			'mention.noMatchedMember' => 'Нет подходящих участников',
+			'mention.selectMention' => 'Выберите участника для упоминания',
 			'mention.title' => '@Упоминания',
 			'mention.noMention' => 'Нет упоминаний',
 			'mention.allRead' => 'Всё прочитано',

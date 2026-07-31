@@ -2398,6 +2398,10 @@ class _Translations$mention$ar_SA extends Translations$mention$zh_CN {
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
+	@override String get mentionAll => 'الجميع';
+	@override String get mentionAllHint => 'إشعار جميع أعضاء المجموعة';
+	@override String get noMatchedMember => 'لا يوجد أعضاء مطابقون';
+	@override String get selectMention => 'اختر عضوًا للإشارة إليه';
 	@override String get title => '@إشارات';
 	@override String get noMention => 'لا توجد إشارات';
 	@override String get allRead => 'تمت قراءة الكل';
@@ -4681,6 +4685,10 @@ extension on TranslationsArSa {
 			'main.e2eeProxyReachedMin' => 'تم بلوغ الحد الأدنى للوكلاء',
 			'main.liveRoomTitleLabel' => 'عنوان الغرفة',
 			'main.liveRoomTitleHint' => 'أدخل عنوان الغرفة',
+			'mention.mentionAll' => 'الجميع',
+			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
+			'mention.noMatchedMember' => 'لا يوجد أعضاء مطابقون',
+			'mention.selectMention' => 'اختر عضوًا للإشارة إليه',
 			'mention.title' => '@إشارات',
 			'mention.noMention' => 'لا توجد إشارات',
 			'mention.allRead' => 'تمت قراءة الكل',

@@ -7209,6 +7209,18 @@ class Translations$mention$zh_CN {
 
 	// Translations
 
+	/// zh-CN: '所有人'
+	String get mentionAll => '所有人';
+
+	/// zh-CN: '通知所有群成员'
+	String get mentionAllHint => '通知所有群成员';
+
+	/// zh-CN: '没有匹配的成员'
+	String get noMatchedMember => '没有匹配的成员';
+
+	/// zh-CN: '选择要@的成员'
+	String get selectMention => '选择要@的成员';
+
 	/// zh-CN: '@提及'
 	String get title => '@提及';
 
@@ -9793,6 +9805,10 @@ extension on Translations {
 			'main.e2eeProxyReachedMin' => '已达到最少代理数量',
 			'main.liveRoomTitleLabel' => '直播间标题',
 			'main.liveRoomTitleHint' => '请输入直播间标题',
+			'mention.mentionAll' => '所有人',
+			'mention.mentionAllHint' => '通知所有群成员',
+			'mention.noMatchedMember' => '没有匹配的成员',
+			'mention.selectMention' => '选择要@的成员',
 			'mention.title' => '@提及',
 			'mention.noMention' => '暂无@提及',
 			'mention.allRead' => '全部已读',

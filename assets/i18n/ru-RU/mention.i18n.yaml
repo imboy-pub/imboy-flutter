@@ -1,4 +1,8 @@
 ---
+mentionAll: Все
+mentionAllHint: Уведомить всех участников группы
+noMatchedMember: Нет подходящих участников
+selectMention: Выберите участника для упоминания
 title: "@Упоминания"
 noMention: Нет упоминаний
 allRead: Всё прочитано

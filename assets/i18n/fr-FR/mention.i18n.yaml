@@ -1,4 +1,8 @@
 ---
+mentionAll: Tout le monde
+mentionAllHint: Notifier tous les membres du groupe
+noMatchedMember: Aucun membre correspondant
+selectMention: Choisir un membre à mentionner
 title: "@Mentions"
 noMention: Aucune @mention
 allRead: Tout marquer lu

@@ -1,3 +1,7 @@
+mentionAll: Everyone
+mentionAllHint: Notify all group members
+noMatchedMember: No matching members
+selectMention: Select a member to mention
 title: "@Mentions"
 noMention: No mentions yet
 allRead: All read

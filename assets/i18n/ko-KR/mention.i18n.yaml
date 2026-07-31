@@ -1,4 +1,8 @@
 ---
+mentionAll: 전체
+mentionAllHint: 모든 그룹 구성원에게 알림
+noMatchedMember: 일치하는 멤버가 없습니다
+selectMention: 멘션할 멤버 선택
 title: "@멘션"
 noMention: 멘션이 없습니다
 allRead: 모두 읽음

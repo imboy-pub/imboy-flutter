@@ -1,4 +1,8 @@
 ---
+mentionAll: Alle
+mentionAllHint: Alle Gruppenmitglieder benachrichtigen
+noMatchedMember: Keine passenden Mitglieder
+selectMention: Mitglied zum Erwähnen wählen
 title: "@Erwähnungen"
 noMention: Keine @Erwähnungen
 allRead: Alle gelesen

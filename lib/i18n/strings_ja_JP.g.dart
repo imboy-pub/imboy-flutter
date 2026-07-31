@@ -2398,6 +2398,10 @@ class _Translations$mention$ja_JP extends Translations$mention$zh_CN {
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
+	@override String get mentionAll => '全員';
+	@override String get mentionAllHint => 'グループ全員に通知';
+	@override String get noMatchedMember => '一致するメンバーがいません';
+	@override String get selectMention => 'メンションするメンバーを選択';
 	@override String get title => '@メンション';
 	@override String get noMention => '@メンションはありません';
 	@override String get allRead => 'すべて既読にする';
@@ -4681,6 +4685,10 @@ extension on TranslationsJaJp {
 			'main.e2eeProxyReachedMin' => '最少代理者数に達しました',
 			'main.liveRoomTitleLabel' => '配信ルーム名',
 			'main.liveRoomTitleHint' => '配信ルーム名を入力',
+			'mention.mentionAll' => '全員',
+			'mention.mentionAllHint' => 'グループ全員に通知',
+			'mention.noMatchedMember' => '一致するメンバーがいません',
+			'mention.selectMention' => 'メンションするメンバーを選択',
 			'mention.title' => '@メンション',
 			'mention.noMention' => '@メンションはありません',
 			'mention.allRead' => 'すべて既読にする',

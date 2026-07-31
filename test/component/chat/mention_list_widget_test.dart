@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/chat/mention_list_widget.dart';
@@ -69,8 +70,7 @@ void main() {
   });
 
   group('MentionListWidget empty state', () {
-    testWidgets('空候选 + 不显示 @所有人 → SizedBox.shrink（无 ListView）',
-        (tester) async {
+    testWidgets('空候选 + 不显示 @所有人 → SizedBox.shrink（无 ListView）', (tester) async {
       await _pump(tester, candidates: const []);
 
       // ListView 不应渲染（隐藏态走 SizedBox.shrink）
@@ -154,8 +154,9 @@ void main() {
       expect(find.byIcon(Icons.group), findsOneWidget);
     });
 
-    testWidgets('showAllMention=true + isAdmin=false → 不渲染 @所有人',
-        (tester) async {
+    testWidgets('showAllMention=true + isAdmin=false → 不渲染 @所有人', (
+      tester,
+    ) async {
       await _pump(
         tester,
         candidates: [_member(displayName: 'Alice')],
@@ -195,8 +196,9 @@ void main() {
   });
 
   group('MentionListWidget interaction', () {
-    testWidgets('tap 候选项 → 触发 onSelected 并回传该 MentionCandidate',
-        (tester) async {
+    testWidgets('tap 候选项 → 触发 onSelected 并回传该 MentionCandidate', (
+      tester,
+    ) async {
       MentionCandidate? selected;
       final alice = _member(userId: 'u1', displayName: 'Alice');
       final bob = _member(userId: 'u2', displayName: 'Bob');
@@ -263,6 +265,89 @@ void main() {
       expect(find.text('群主'), findsNothing);
       expect(find.text('管理员'), findsNothing);
       expect(find.text('嘉宾'), findsNothing);
+    });
+  });
+
+  group('本轮整改回归', () {
+    testWidgets('文案走 i18n，不再是硬编码中文（MentionStrings 已删）', (tester) async {
+      await _pump(
+        tester,
+        candidates: const [],
+        showAllMention: true,
+        isAdmin: true,
+      );
+
+      // 三条文案此前写死在 MentionStrings 里，绕过了整套 10 语言 i18n
+      expect(find.text(t.mention.mentionAll), findsOneWidget);
+      expect(find.text(t.mention.mentionAllHint), findsOneWidget);
+    });
+
+    testWidgets('拼音搜索：中文昵称可用全拼与首字母搜到', (tester) async {
+      final list = [_member(userId: 'u1', displayName: '张三')];
+
+      await _pump(tester, candidates: list, keyword: 'zhangsan');
+      expect(find.text('张三'), findsOneWidget, reason: '全拼应命中');
+
+      await _pump(tester, candidates: list, keyword: 'zs');
+      expect(find.text('张三'), findsOneWidget, reason: '首字母应命中');
+
+      await _pump(tester, candidates: list, keyword: 'lisi');
+      expect(find.text('张三'), findsNothing, reason: '不相干拼音不该命中');
+    });
+
+    testWidgets('搜索无结果显示提示，而不是整块消失', (tester) async {
+      await _pump(
+        tester,
+        candidates: [_member(displayName: '张三')],
+        keyword: 'zzzz',
+      );
+
+      expect(find.text(t.mention.noMatchedMember), findsOneWidget);
+      expect(find.text('张三'), findsNothing);
+    });
+
+    testWidgets('无关键词且无候选 = 还没加载完，不谎报"没有匹配"', (tester) async {
+      await _pump(tester, candidates: const []);
+
+      expect(
+        find.text(t.mention.noMatchedMember),
+        findsNothing,
+        reason: '成员未加载时提示"没有匹配的成员"是撒谎',
+      );
+    });
+
+    testWidgets('列表行触达区 >= 44 且不用 Material Ripple', (tester) async {
+      await _pump(tester, candidates: [_member(displayName: 'Alice')]);
+
+      // DESIGN.md 13.2：Cupertino 列表行禁用 Material Ripple
+      expect(find.byType(InkWell), findsNothing);
+
+      final row = find.ancestor(
+        of: find.text('Alice'),
+        matching: find.byType(GestureDetector),
+      );
+      expect(row, findsWidgets);
+      expect(tester.getRect(row.first).height, greaterThanOrEqualTo(44));
+    });
+
+    testWidgets('每行声明 button 语义，@ 徽标被排除出语义树', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _pump(tester, candidates: [_member(displayName: 'Alice')]);
+
+      // 名字由 Text 自带语义提供，外层只补 button 标志
+      // （不重复设 label，否则双标签重复读屏——同 glass_bottom_bar 约定）
+      // getSemantics 会上溯到包含该 widget 的最近语义节点，
+      // Semantics(button: true) 的标志会合并到那里
+      expect(
+        tester.getSemantics(find.text('Alice')).hasFlag(SemanticsFlag.isButton),
+        isTrue,
+        reason: '候选行未声明 button 语义，读屏用户不知道这是可点的',
+      );
+
+      // @ 徽标是纯装饰，必须包 ExcludeSemantics 否则每行都会多读一个 "@"
+      expect(find.byType(ExcludeSemantics), findsWidgets);
+
+      handle.dispose();
     });
   });
 }

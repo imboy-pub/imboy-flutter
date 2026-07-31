@@ -1,3 +1,7 @@
+mentionAll: 所有人
+mentionAllHint: 通知所有群成员
+noMatchedMember: 没有匹配的成员
+selectMention: 选择要@的成员
 title: "@提及"
 noMention: "暂无@提及"
 allRead: 全部已读

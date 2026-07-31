@@ -2421,6 +2421,10 @@ class _Translations$mention$en_US extends Translations$mention$zh_CN {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get mentionAll => 'Everyone';
+	@override String get mentionAllHint => 'Notify all group members';
+	@override String get noMatchedMember => 'No matching members';
+	@override String get selectMention => 'Select a member to mention';
 	@override String get title => '@Mentions';
 	@override String get noMention => 'No mentions yet';
 	@override String get allRead => 'All read';
@@ -4727,6 +4731,10 @@ extension on TranslationsEnUs {
 			'main.liveRoomTitleLabel' => 'Live Room Title',
 			'main.liveRoomTitleHint' => 'Enter live room title',
 			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}',
+			'mention.mentionAll' => 'Everyone',
+			'mention.mentionAllHint' => 'Notify all group members',
+			'mention.noMatchedMember' => 'No matching members',
+			'mention.selectMention' => 'Select a member to mention',
 			'mention.title' => '@Mentions',
 			'mention.noMention' => 'No mentions yet',
 			'mention.allRead' => 'All read',
