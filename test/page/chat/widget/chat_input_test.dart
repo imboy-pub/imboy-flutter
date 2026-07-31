@@ -1,3 +1,4 @@
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
+import 'package:imboy/page/chat/widget/chat_input_types.dart';
 import 'package:imboy/service/storage.dart';
 
 /// ChatInput widget 契约测试
@@ -279,6 +281,51 @@ void main() {
     tester.state<ChatInputState>(find.byType(ChatInput)).hideAllPanel();
     await tester.pump();
     expect(states.last, isFalse);
+
+    await _unmount(tester);
+  });
+
+  testWidgets('键盘动画中间帧（53px）不被缓存为面板高度，表情面板不溢出', (tester) async {
+    final composerHeight = ValueNotifier<double>(52);
+    addTearDown(composerHeight.dispose);
+
+    // 53 逻辑像素是键盘弹起动画的中间帧。旧实现会把它缓存成 _keyboardHeight，
+    // 表情面板随之只有 53px，低于 EmojiPicker 固定装饰（48 分类栏 + 40 底栏），
+    // 触发 "RenderFlex overflowed by 35 pixels on the bottom"。
+    // ChatInput.build 读的是 View.viewInsets（物理像素），故在此设置而非 MediaQuery。
+    addTearDown(tester.view.reset);
+    tester.view.viewInsets = FakeViewPadding(
+      bottom: 53 * tester.view.devicePixelRatio,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: TranslationProvider(
+          child: MaterialApp(
+            home: Scaffold(
+              body: ChatInput(
+                type: 'C2C',
+                peerId: 'peer_1',
+                onSendPressed: (text) async => true,
+                composerHeight: composerHeight,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester
+        .state<ChatInputState>(find.byType(ChatInput))
+        .updateState(InputType.emoji);
+    await tester.pump();
+
+    // EmojiPicker 固定装饰 48（分类栏）+ 40（底部操作栏）= 88，面板矮于此必溢出
+    expect(
+      tester.getSize(find.byType(EmojiPicker)).height,
+      greaterThanOrEqualTo(88.0),
+    );
 
     await _unmount(tester);
   });

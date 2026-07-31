@@ -147,6 +147,19 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   double get fontSize => 22 * (Platform.isIOS ? 1.2 : 1.0);
 
   double _keyboardHeight = 0; // 当前键盘高度
+
+  /// 可缓存的键盘高度下限：键盘弹起/收起动画的中间帧 viewInsets 会给出几十 px
+  /// 的瞬时值，缓存下来后表情面板会矮于 EmojiPicker 的固定装饰（48 分类栏 +
+  /// 40 底部操作栏 = 88），触发 RenderFlex overflow。真实软键盘均高于此值。
+  static const double _minKeyboardHeight = 180;
+
+  /// 仅缓存合法的键盘高度，过滤动画中间帧
+  void _cacheKeyboardHeight(double height) {
+    if (height >= _minKeyboardHeight) {
+      _keyboardHeight = height;
+    }
+  }
+
   bool _isTransitioningToTextFromPanel = false; // 是否正在从面板切换回文本（用于丝滑动画）
   bool? _lastInputLayerExpanded;
 
@@ -299,7 +312,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       final newKeyboardHeight = mediaQuery.viewInsets.bottom;
 
       if (newKeyboardHeight != _keyboardHeight) {
-        _keyboardHeight = newKeyboardHeight;
+        _cacheKeyboardHeight(newKeyboardHeight);
         _updateComposerHeightByKeyboard();
       }
     });
@@ -1152,9 +1165,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     final bottomInset = view.viewInsets.bottom / view.devicePixelRatio;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    if (bottomInset > (bottomPadding + 50)) {
-      _keyboardHeight = bottomInset;
-    }
+    _cacheKeyboardHeight(bottomInset);
 
     final targetPanelHeight = _keyboardHeight > 0
         ? _keyboardHeight
