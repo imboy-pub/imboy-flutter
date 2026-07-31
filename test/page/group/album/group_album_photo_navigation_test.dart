@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -186,8 +187,8 @@ void main() {
     await tester.tap(find.byIcon(Icons.delete_outline).first);
     await tester.pumpAndSettle();
     final actionButtons = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoDialogAction),
     );
     await tester.tap(actionButtons.last);
     await tester.pumpAndSettle();
@@ -226,8 +227,8 @@ void main() {
     await tester.tap(find.byIcon(Icons.delete_outline).first);
     await tester.pumpAndSettle();
     final actionButtons = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoDialogAction),
     );
     await tester.tap(actionButtons.last);
     await tester.pumpAndSettle();
@@ -277,8 +278,8 @@ void main() {
     await tester.tap(find.byKey(const Key('group_album_photo_batch_delete')));
     await tester.pumpAndSettle();
     final actionButtons = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoDialogAction),
     );
     await tester.tap(actionButtons.last);
     await tester.pumpAndSettle();
@@ -325,8 +326,8 @@ void main() {
     await tester.tap(find.byKey(const Key('group_album_photo_batch_delete')));
     await tester.pumpAndSettle();
     final actionButtons = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoDialogAction),
     );
     await tester.tap(actionButtons.last);
     await tester.pumpAndSettle();
@@ -563,8 +564,8 @@ void main() {
     await tester.pumpAndSettle();
 
     final actionButtons = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoDialogAction),
     );
     await tester.tap(actionButtons.last);
     await tester.pumpAndSettle();
@@ -599,8 +600,8 @@ void main() {
     await tester.pumpAndSettle();
 
     final actionButtons = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoDialogAction),
     );
     await tester.tap(actionButtons.last);
     await tester.pumpAndSettle();

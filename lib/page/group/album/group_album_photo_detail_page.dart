@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -118,17 +119,20 @@ class _GroupAlbumPhotoDetailPageState
 
   Future<void> _deletePhoto() async {
     if (_isDeleting) return;
-    final confirm = await showDialog<bool>(
+    // 与相册功能其余页面统一 iOS 风格弹窗；删除是破坏性操作，
+    // 按 DESIGN.md 用 isDestructiveAction 渲染 iosRed。
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.common.groupAlbumPhotoDeleteTitle),
         content: Text(t.common.groupAlbumPhotoDeleteConfirm),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
             child: Text(t.common.confirm),
           ),

@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -199,19 +200,23 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final selectedCount = _selectedPhotoIds.length;
     if (selectedCount == 0 || _isBatchDeleting) return;
 
-    final confirm = await showDialog<bool>(
+    // 与同目录 group_album_page 的 iOS 风格弹窗对齐（此前本页用 Material
+    // AlertDialog，同一个相册功能两种弹窗风格）；删除是破坏性操作，
+    // 按 DESIGN.md 用 isDestructiveAction 渲染 iosRed。
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.common.groupAlbumPhotoBatchDeleteTitle),
         content: Text(
           t.common.groupAlbumPhotoBatchDeleteConfirm(count: selectedCount),
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
             child: Text(t.common.confirm),
           ),
@@ -257,17 +262,18 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final photoId = _resolveDeletePhotoId(photo);
     if (photoId.isEmpty) return;
 
-    final confirm = await showDialog<bool>(
+    final confirm = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.common.groupAlbumPhotoDeleteTitle),
         content: Text(t.common.groupAlbumPhotoDeleteConfirm),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(context, true),
             child: Text(t.common.confirm),
           ),
