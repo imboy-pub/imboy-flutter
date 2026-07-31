@@ -35,22 +35,22 @@ void main() {
   setUpAll(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(storageChannel, (call) async {
-      switch (call.method) {
-        case 'write':
-          store[call.arguments['key'] as String] =
-              call.arguments['value'] as String?;
-          return null;
-        case 'read':
-          return store[call.arguments['key'] as String];
-        case 'delete':
-          store.remove(call.arguments['key'] as String);
-          return null;
-        case 'containsKey':
-          return store.containsKey(call.arguments['key'] as String);
-        default:
-          return null;
-      }
-    });
+          switch (call.method) {
+            case 'write':
+              store[call.arguments['key'] as String] =
+                  call.arguments['value'] as String?;
+              return null;
+            case 'read':
+              return store[call.arguments['key'] as String];
+            case 'delete':
+              store.remove(call.arguments['key'] as String);
+              return null;
+            case 'containsKey':
+              return store.containsKey(call.arguments['key'] as String);
+            default:
+              return null;
+          }
+        });
 
     // vodozemac 全进程只能初始化一次（flutter_rust_bridge 限制）
     await fvod.init();
@@ -96,9 +96,9 @@ void main() {
       bob.markKeysAsPublished();
       final bobSession = inbound.session;
 
-      // Alice → Bob（Double Ratchet 正常消息）
+      // Alice → Bob（Alice 还没收到 Bob 的回信，按 Olm 语义会话仍处 pre-key 状态）
       final m1 = aliceSession.encrypt('hello from alice');
-      expect(m1.messageType, equals(1)); // normal message
+      expect(m1.messageType, equals(0)); // 仍是 pre-key，不是 normal
       final pt1 = bobSession.decrypt(
         messageType: m1.messageType,
         ciphertext: m1.ciphertext,
@@ -112,6 +112,17 @@ void main() {
         ciphertext: m2.ciphertext,
       );
       expect(pt2, equals('hello from bob'));
+
+      // Alice 解密过 Bob 的消息后会话才算建立，此后才切成 normal message
+      final m3 = aliceSession.encrypt('after handshake');
+      expect(m3.messageType, equals(1)); // normal message
+      expect(
+        bobSession.decrypt(
+          messageType: m3.messageType,
+          ciphertext: m3.ciphertext,
+        ),
+        equals('after handshake'),
+      );
 
       // 多轮往返（ratchet 推进）
       for (var i = 0; i < 10; i++) {
@@ -180,7 +191,9 @@ void main() {
       session.encrypt('before-pickle');
 
       // Pickle（模拟落盘）
-      final pickleKey = Uint8List.fromList(List<int>.generate(32, (i) => i + 100));
+      final pickleKey = Uint8List.fromList(
+        List<int>.generate(32, (i) => i + 100),
+      );
       final pickle = session.toPickleEncrypted(pickleKey);
       expect(pickle.isNotEmpty, isTrue);
 

@@ -15,6 +15,12 @@ import 'package:integration_test/integration_test.dart';
 
 import '../flows/test_utils.dart';
 
+/// 是否允许真实提交注册。默认 false —— 提交会创建真实账号，生产环境禁止。
+/// 开启：--dart-define=TEST_ALLOW_REGISTER=true
+const bool _allowRegister =
+    String.fromEnvironment('TEST_ALLOW_REGISTER', defaultValue: 'false') ==
+    'true';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -91,6 +97,15 @@ void main() {
         '提交',
         'Submit',
       ]);
+
+      // 安全开关：默认不提交。提交会在目标环境真实创建账号，生产环境禁止。
+      // 与 auth/password_change_test.dart 的 TEST_ALLOW_PASSWORD_CHANGE 同款。
+      if (!_allowRegister) {
+        expect(tester.any(submitFinder), isTrue, reason: '注册页应有提交按钮');
+        flowLog('TEST_ALLOW_REGISTER=false，仅验收注册页可达性与提交按钮存在');
+        return;
+      }
+
       final submitted = tester.any(submitFinder)
           ? await safeTap(tester, submitFinder.first)
           : false;
