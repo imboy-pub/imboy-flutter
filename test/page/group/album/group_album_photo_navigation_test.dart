@@ -5,7 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/page/group/album/group_album_photo_detail_page.dart';
 import 'package:imboy/page/group/album/group_album_photo_page.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/group_album_api.dart';
 
 class _FakeGroupAlbumService extends GroupAlbumService {
@@ -100,7 +102,21 @@ class _DetailDeleteHostState extends State<_DetailDeleteHost> {
   }
 }
 
+/// SR-4：删除照片仅上传者本人 / 群管理员可见可点。widget 测试里
+/// GroupMemberRepo 拿不到角色（无 SQLite，_loadCurrentRole 静默回退 0），
+/// 所以只能走"上传者本人"这条路——注入 currentUid 并让 fake 照片的
+/// uploader_id 与之匹配，删除入口才会渲染。
+const String _currentUid = 'u-tester';
+
 void main() {
+  setUpAll(() async {
+    await StorageService.to.setString(Keys.currentUid, _currentUid);
+  });
+
+  tearDownAll(() async {
+    await StorageService.to.remove(Keys.currentUid);
+  });
+
   tearDown(() {
     GroupAlbumService.instanceForTest = null;
   });
@@ -110,8 +126,18 @@ void main() {
   ) async {
     final fakeService = _FakeGroupAlbumService(
       photos: [
-        {'id': 'legacy-1', 'photo_id': 'p1', 'thumbnail_url': ''},
-        {'id': 'legacy-2', 'photo_id': 'p2', 'thumbnail_url': ''},
+        {
+          'id': 'legacy-1',
+          'photo_id': 'p1',
+          'thumbnail_url': '',
+          'uploader_id': _currentUid,
+        },
+        {
+          'id': 'legacy-2',
+          'photo_id': 'p2',
+          'thumbnail_url': '',
+          'uploader_id': _currentUid,
+        },
       ],
       photoDetails: const {},
     );
@@ -163,7 +189,12 @@ void main() {
   ) async {
     final fakeService = _FakeGroupAlbumService(
       photos: const [
-        {'id': 'legacy-1', 'photo_id': 'p1', 'thumbnail_url': ''},
+        {
+          'id': 'legacy-1',
+          'photo_id': 'p1',
+          'thumbnail_url': '',
+          'uploader_id': _currentUid,
+        },
       ],
       photoDetails: const {},
       deleteResult: true,
@@ -203,7 +234,12 @@ void main() {
   ) async {
     final fakeService = _FakeGroupAlbumService(
       photos: const [
-        {'id': 'legacy-1', 'photo_id': 'p1', 'thumbnail_url': ''},
+        {
+          'id': 'legacy-1',
+          'photo_id': 'p1',
+          'thumbnail_url': '',
+          'uploader_id': _currentUid,
+        },
       ],
       photoDetails: const {},
       deleteResult: false,
@@ -243,8 +279,18 @@ void main() {
   ) async {
     final fakeService = _FakeGroupAlbumService(
       photos: const [
-        {'id': 'legacy-1', 'photo_id': 'p1', 'thumbnail_url': ''},
-        {'id': 'legacy-2', 'photo_id': 'p2', 'thumbnail_url': ''},
+        {
+          'id': 'legacy-1',
+          'photo_id': 'p1',
+          'thumbnail_url': '',
+          'uploader_id': _currentUid,
+        },
+        {
+          'id': 'legacy-2',
+          'photo_id': 'p2',
+          'thumbnail_url': '',
+          'uploader_id': _currentUid,
+        },
       ],
       photoDetails: const {},
       deleteResult: true,
@@ -294,8 +340,18 @@ void main() {
   ) async {
     final fakeService = _FakeGroupAlbumService(
       photos: const [
-        {'id': 'legacy-1', 'photo_id': 'p1', 'thumbnail_url': ''},
-        {'id': 'legacy-2', 'photo_id': 'p2', 'thumbnail_url': ''},
+        {
+          'id': 'legacy-1',
+          'photo_id': 'p1',
+          'thumbnail_url': '',
+          'uploader_id': _currentUid,
+        },
+        {
+          'id': 'legacy-2',
+          'photo_id': 'p2',
+          'thumbnail_url': '',
+          'uploader_id': _currentUid,
+        },
       ],
       photoDetails: const {},
       deleteResult: false,
