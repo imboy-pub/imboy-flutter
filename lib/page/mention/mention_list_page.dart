@@ -30,6 +30,11 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
   int _unreadCount = 0;
   bool _isLoading = true;
   bool _isLoadingMore = false;
+
+  /// 首屏拉取失败标记。MentionService 失败时返回 null，此前该信号被
+  /// `if (result != null)` 直接丢弃，页面最终渲染"暂无提及"，
+  /// 用户以为没人 @ 过自己。
+  bool _loadFailed = false;
   int _page = 1;
   bool _hasMore = true;
   StreamSubscription<dynamic>? _mentionSub;
@@ -103,6 +108,7 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
     if (mounted) {
       setState(() {
         if (result != null) {
+          _loadFailed = false;
           final items = result['items'] as List? ?? [];
           if (refresh) {
             _mentions = items.cast<Map<String, dynamic>>();
@@ -110,6 +116,10 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
             _mentions.addAll(items.cast<Map<String, dynamic>>());
           }
           _hasMore = items.length >= 20;
+        } else {
+          // 失败信号不再丢弃：仅在无已有数据时呈现失败态，
+          // 已有列表时保留旧数据，避免刷新失败清空屏幕。
+          _loadFailed = _mentions.isEmpty;
         }
         _isLoading = false;
       });
@@ -210,11 +220,18 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
       return const Center(child: CupertinoActivityIndicator());
     }
 
-    if (_mentions.isEmpty) {
+    // 失败态优先于空态，并且只有失败态才给重试入口 —— 对齐
+    // AsyncStateView 的既定语义（"暂无数据 + 重试"会混淆空态与失败态）。
+    if (_loadFailed) {
       return NoDataView(
-        text: t.mention.noMention,
+        icon: CupertinoIcons.exclamationmark_circle,
+        text: t.common.loadError,
         onTop: () => _loadMentions(refresh: true),
       );
+    }
+
+    if (_mentions.isEmpty) {
+      return NoDataView(text: t.mention.noMention);
     }
 
     return RefreshIndicator(

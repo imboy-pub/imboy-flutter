@@ -5,6 +5,7 @@ import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/service/group_file_service.dart';
 import 'package:imboy/store/api/group_file_api.dart';
@@ -29,12 +30,16 @@ class _FakeGroupFileService extends GroupFileService {
     required this.categoryStats,
     required this.searchResult,
     this.uploadResult,
+    this.getFilesFailures = 0,
   }) : super.withApi(GroupFileApi());
 
   final List<Map<String, dynamic>> files;
   final List<Map<String, dynamic>> categoryStats;
   final List<Map<String, dynamic>> searchResult;
   final Map<String, dynamic>? uploadResult;
+
+  /// 前 N 次 getFiles 抛异常，用于验证失败态与重试（service 已改为 rethrow）。
+  final int getFilesFailures;
 
   final List<String?> getFilesCategoryCalls = [];
   final List<String> searchKeywordCalls = [];
@@ -51,6 +56,9 @@ class _FakeGroupFileService extends GroupFileService {
   }) async {
     getFilesCallCount++;
     getFilesCategoryCalls.add(category);
+    if (getFilesCallCount <= getFilesFailures) {
+      throw Exception('mock network down');
+    }
     return {'list': files, 'total': files.length, 'page': page, 'size': size};
   }
 
@@ -200,6 +208,36 @@ void main() {
     expect(find.text('文档A'), findsNothing);
     expect(find.text('图片B'), findsOneWidget);
     expect(fakeService.getFilesCategoryCalls.contains('image'), isTrue);
+  });
+
+  testWidgets('load failure renders retryable error view, not empty state', (
+    tester,
+  ) async {
+    final fakeService = _FakeGroupFileService(
+      files: [
+        {'file_id': 'f1', 'file_name': '会议纪要', 'file_category': 'document'},
+      ],
+      categoryStats: const [],
+      searchResult: const [],
+      getFilesFailures: 1, // 首次加载失败，重试成功
+    );
+    GroupFileService.instanceForTest = fakeService;
+
+    await tester.pumpWidget(_buildTestApp());
+    await tester.pumpAndSettle();
+
+    // 失败态：不能冒充"暂无群文件"空态，且必须给出重试入口
+    expect(find.text(t.common.loadError), findsOneWidget);
+    expect(find.text(t.chat.groupFileEmpty), findsNothing);
+    expect(find.text(t.common.buttonRetry), findsOneWidget);
+
+    // 点重试真的重新拉取并渲染出数据
+    await tester.tap(find.text(t.common.buttonRetry));
+    await tester.pumpAndSettle();
+
+    expect(fakeService.getFilesCallCount, 2);
+    expect(find.text('会议纪要'), findsOneWidget);
+    expect(find.text(t.common.loadError), findsNothing);
   });
 
   testWidgets('search uses keyword and renders search result', (tester) async {

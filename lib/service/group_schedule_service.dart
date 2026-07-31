@@ -84,8 +84,10 @@ class GroupScheduleService {
         size: size,
       );
     } catch (e) {
+      // 不 fail-open：group_schedule_page 已有 AsyncStateView(error:) 分支，
+      // 吞掉异常会让失败伪装成"暂无日程"。
       iPrint('GroupScheduleService: 获取日程列表失败 - $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -105,7 +107,7 @@ class GroupScheduleService {
       );
     } catch (e) {
       iPrint('GroupScheduleService: 获取我的日程失败 - $e');
-      return [];
+      rethrow;
     }
   }
 

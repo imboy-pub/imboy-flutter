@@ -144,8 +144,10 @@ class GroupTaskService implements IGroupTaskService {
         size: size,
       );
     } catch (e) {
+      // 不 fail-open：group_task_page 已有 _error + 失败态分支（key:
+      // group_task_error），吞掉异常会让失败伪装成"暂无任务"。
       iPrint('GroupTaskService: 获取任务列表失败 - $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -159,7 +161,7 @@ class GroupTaskService implements IGroupTaskService {
       return await _api.getMyTasks(status: status, page: page, size: size);
     } catch (e) {
       iPrint('GroupTaskService: 获取我的任务失败 - $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -178,7 +180,7 @@ class GroupTaskService implements IGroupTaskService {
       );
     } catch (e) {
       iPrint('GroupTaskService: 获取待审核任务失败 - $e');
-      return [];
+      rethrow;
     }
   }
 

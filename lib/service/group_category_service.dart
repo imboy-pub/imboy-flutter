@@ -20,8 +20,10 @@ class GroupCategoryService {
     try {
       return await _api.getCategories();
     } catch (e) {
+      // 不 fail-open：group_category_page 已有 AsyncStateView(error:) 分支，
+      // 吞掉异常会让失败伪装成"暂无分组"。
       iPrint('GroupCategoryService: 获取分组列表失败 - $e');
-      return [];
+      rethrow;
     }
   }
 

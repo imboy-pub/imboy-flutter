@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_role_rules.dart' show isGroupAdmin;
 import 'package:imboy/page/group/widgets/group_dialogs.dart';
@@ -58,6 +59,9 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   List<Map<String, dynamic>> _categoryStats = [];
   bool _isLoading = true;
   bool _isUploading = false;
+
+  /// 首屏/刷新失败的友好文案；非 null 时渲染失败态而非"暂无文件"空态。
+  String? _error;
   String _selectedCategory = '';
   String _keyword = '';
 
@@ -100,6 +104,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   Future<void> _loadInitialData() async {
     setState(() => _isLoading = true);
+    // 两个 loader 各自吞掉并记录自己的失败（见 _error），此处不会抛，
+    // 因此 _isLoading 一定能关掉，不会卡在永久转圈。
     await Future.wait([_loadCategoryStats(), _loadFiles(showLoading: false)]);
     if (mounted) {
       setState(() => _isLoading = false);
@@ -107,13 +113,18 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   }
 
   Future<void> _loadCategoryStats() async {
-    final stats = await GroupFileService.to.getCategoryStats(
-      groupId: widget.groupId,
-    );
-    if (mounted) {
-      setState(() {
-        _categoryStats = stats;
-      });
+    try {
+      final stats = await GroupFileService.to.getCategoryStats(
+        groupId: widget.groupId,
+      );
+      if (mounted) {
+        setState(() {
+          _categoryStats = stats;
+        });
+      }
+    } on Exception catch (e) {
+      // 分类统计失败不阻塞文件列表：仅记录，筛选条降级为不显示计数。
+      iPrint('GroupFilePage: 加载分类统计失败 - $e');
     }
   }
 
@@ -123,39 +134,56 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   Future<void> _loadFiles({bool showLoading = true}) async {
     if (showLoading && mounted) {
-      setState(() => _isLoading = true);
-    }
-    final payload = _keyword.isNotEmpty
-        ? await GroupFileService.to.searchFiles(
-            groupId: widget.groupId,
-            keyword: _keyword,
-          )
-        : await GroupFileService.to.getFiles(
-            groupId: widget.groupId,
-            category: _selectedCategory.isEmpty ? null : _selectedCategory,
-          );
-    final list = payload['list'];
-    final normalizedList = list is List
-        ? list
-              .whereType<Map<String, dynamic>>()
-              .map((item) => Map<String, dynamic>.from(item))
-              .toList()
-        : <Map<String, dynamic>>[];
-    final files = _selectedCategory.isEmpty
-        ? normalizedList
-        : normalizedList.where((item) {
-            final category = (item['file_category'] ?? '')
-                .toString()
-                .toLowerCase();
-            return category == _selectedCategory.toLowerCase();
-          }).toList();
-    if (mounted) {
       setState(() {
-        _files = files;
-        if (showLoading) {
-          _isLoading = false;
-        }
+        _isLoading = true;
+        _error = null;
       });
+    }
+    try {
+      final payload = _keyword.isNotEmpty
+          ? await GroupFileService.to.searchFiles(
+              groupId: widget.groupId,
+              keyword: _keyword,
+            )
+          : await GroupFileService.to.getFiles(
+              groupId: widget.groupId,
+              category: _selectedCategory.isEmpty ? null : _selectedCategory,
+            );
+      final list = payload['list'];
+      final normalizedList = list is List
+          ? list
+                .whereType<Map<String, dynamic>>()
+                .map((item) => Map<String, dynamic>.from(item))
+                .toList()
+          : <Map<String, dynamic>>[];
+      final files = _selectedCategory.isEmpty
+          ? normalizedList
+          : normalizedList.where((item) {
+              final category = (item['file_category'] ?? '')
+                  .toString()
+                  .toLowerCase();
+              return category == _selectedCategory.toLowerCase();
+            }).toList();
+      if (mounted) {
+        setState(() {
+          _files = files;
+          _error = null;
+          if (showLoading) {
+            _isLoading = false;
+          }
+        });
+      }
+    } on Exception catch (e) {
+      iPrint('GroupFilePage: 加载群文件失败 - $e');
+      if (mounted) {
+        setState(() {
+          // 全局 t：initState 首帧同步抛错时 context.t 会触发框架断言
+          _error = t.common.loadError;
+          if (showLoading) {
+            _isLoading = false;
+          }
+        });
+      }
     }
   }
 
@@ -511,7 +539,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      // 列表页首屏用骨架屏而非转圈，与频道/群列表一致。
+      return const ShimmerList(itemCount: 8);
     }
 
     return Column(
@@ -597,6 +626,25 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   }
 
   Widget _buildFileList() {
+    // 失败态优先于空态：此前 service fail-open 返回空列表，网络失败会渲染
+    // "暂无文件"，用户以为群文件被清空了。现在失败有独立文案和重试入口。
+    if (_error != null && _files.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _refreshAll,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            const SizedBox(height: 120),
+            NoDataView(
+              icon: Icons.error_outline,
+              text: _error!,
+              onTop: _refreshAll,
+            ),
+          ],
+        ),
+      );
+    }
+
     if (_files.isEmpty) {
       return RefreshIndicator(
         onRefresh: _refreshAll,

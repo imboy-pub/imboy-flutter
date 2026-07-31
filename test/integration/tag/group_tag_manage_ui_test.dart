@@ -1,3 +1,7 @@
+// 页面走 iOS/Glass 风格（GlassAppBar + CupertinoButton + CupertinoIcons），
+// 断言必须用 CupertinoIcons；此前用 Material Icons.add 导致 16 个用例
+// 从未通过过（Icons.add=U+0E047 与 CupertinoIcons.add 不是同一 codepoint）。
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,6 +33,14 @@ Widget _buildGroupTagPage({String groupId = 'g_1001'}) {
       ),
     ),
   );
+}
+
+/// 读接口必抛的 API，用于验证失败态（service 已改为 rethrow）。
+class _ThrowingGroupTagApi extends GroupTagApi {
+  @override
+  Future<List<Map<String, dynamic>>> getGroupTags(String groupId) async {
+    throw Exception('mock network down');
+  }
 }
 
 class _FakeGroupTagApi extends GroupTagApi {
@@ -103,6 +115,41 @@ class _FakeGroupTagApi extends GroupTagApi {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  group('GroupTagPage - 无障碍', () {
+    testWidgets('顶栏添加按钮有读屏标签', (tester) async {
+      // CupertinoButton 无 tooltip 参数，纯图标按钮不包 Semantics
+      // 就完全没有读屏标签，视障用户只听到"按钮"。
+      await tester.pumpWidget(_buildGroupTagPage());
+      await tester.pumpAndSettle();
+
+      expect(find.bySemanticsLabel(t.groupTag.addTag), findsOneWidget);
+    });
+  });
+
+  group('GroupTagPage - 失败态与空态区分', () {
+    testWidgets('加载失败渲染可重试失败态，而非"暂无标签"空态', (tester) async {
+      // GroupTagService 此前 catch 后返回 []，把网络失败伪装成空态，
+      // 页面 AsyncStateView(error:) 分支永远进不去（死代码）。
+      // 改为 rethrow 后本用例才可能通过。
+      final service = GroupTagService(api: _ThrowingGroupTagApi());
+
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: ProviderScope(
+            child: MaterialApp(
+              home: GroupTagPage(groupId: 'g_err', service: service),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(t.common.tipFailed), findsOneWidget);
+      expect(find.text(t.groupTag.noTag), findsNothing);
+      expect(find.text(t.common.buttonRetry), findsOneWidget);
+    });
+  });
+
   group('GroupTagPage - 基础渲染测试', () {
     testWidgets('页面正确渲染', (tester) async {
       await tester.pumpWidget(_buildGroupTagPage());
@@ -121,7 +168,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // 验证添加按钮存在
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.add), findsOneWidget);
     });
 
     testWidgets('页面标题正确显示', (tester) async {
@@ -139,29 +186,29 @@ void main() {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.byType(TextField), findsOneWidget);
+      expect(find.byType(CupertinoAlertDialog), findsOneWidget);
+      expect(find.byType(CupertinoTextField), findsOneWidget);
 
       final dialogButtons = find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.byType(TextButton),
+        of: find.byType(CupertinoAlertDialog),
+        matching: find.byType(CupertinoDialogAction),
       );
       expect(dialogButtons, findsNWidgets(2));
 
       await tester.tap(dialogButtons.first);
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
     });
 
     testWidgets('对话框有取消和确认按钮', (tester) async {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text(t.common.cancel), findsOneWidget);
@@ -172,21 +219,25 @@ void main() {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      final textField = tester.widget<TextField>(find.byType(TextField));
-      expect(textField.decoration?.hintText, t.groupTag.tagName);
+      // CupertinoTextField 的提示文字是 placeholder，
+      // decoration 是 BoxDecoration（无 hintText）。
+      final textField = tester.widget<CupertinoTextField>(
+        find.byType(CupertinoTextField),
+      );
+      expect(textField.placeholder, t.groupTag.tagName);
     });
 
     testWidgets('可以在对话框中输入标签名', (tester) async {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      await tester.enterText(find.byType(TextField), 'new_tag');
+      await tester.enterText(find.byType(CupertinoTextField), 'new_tag');
       await tester.pump();
 
       expect(find.text('new_tag'), findsOneWidget);
@@ -196,35 +247,41 @@ void main() {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      await tester.enterText(find.byType(TextField), 'test_tag');
+      await tester.enterText(find.byType(CupertinoTextField), 'test_tag');
       await tester.pump();
 
-      final cancelButton = find.widgetWithText(TextButton, t.common.cancel);
+      final cancelButton = find.widgetWithText(
+        CupertinoDialogAction,
+        t.common.cancel,
+      );
       await tester.tap(cancelButton);
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
     });
 
     testWidgets('确认按钮关闭对话框', (tester) async {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      await tester.enterText(find.byType(TextField), 'confirm_tag');
+      await tester.enterText(find.byType(CupertinoTextField), 'confirm_tag');
       await tester.pump();
 
-      final confirmButton = find.widgetWithText(TextButton, t.common.confirm);
+      final confirmButton = find.widgetWithText(
+        CupertinoDialogAction,
+        t.common.confirm,
+      );
       await tester.tap(confirmButton);
       await tester.pump(const Duration(milliseconds: 100));
 
       // 对话框应该关闭
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
     });
   });
 
@@ -233,10 +290,10 @@ void main() {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      await tester.enterText(find.byType(TextField), '工作标签');
+      await tester.enterText(find.byType(CupertinoTextField), '工作标签');
       await tester.pump();
 
       expect(find.text('工作标签'), findsOneWidget);
@@ -246,11 +303,11 @@ void main() {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
       final longName = 'a' * 50;
-      await tester.enterText(find.byType(TextField), longName);
+      await tester.enterText(find.byType(CupertinoTextField), longName);
       await tester.pump();
 
       expect(find.text(longName), findsOneWidget);
@@ -260,16 +317,19 @@ void main() {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
       // 不输入任何内容，直接点击确认
-      final confirmButton = find.widgetWithText(TextButton, t.common.confirm);
+      final confirmButton = find.widgetWithText(
+        CupertinoDialogAction,
+        t.common.confirm,
+      );
       await tester.tap(confirmButton);
       await tester.pump(const Duration(milliseconds: 100));
 
       // 对话框关闭，但没有添加标签
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
     });
   });
 
@@ -302,26 +362,29 @@ void main() {
       await tester.pump();
 
       // Step 1: 点击添加按钮
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
       // Step 2: 验证对话框打开
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(CupertinoAlertDialog), findsOneWidget);
 
       // Step 3: 输入标签名
-      await tester.enterText(find.byType(TextField), '测试标签');
+      await tester.enterText(find.byType(CupertinoTextField), '测试标签');
       await tester.pump();
 
       // Step 4: 验证输入内容
       expect(find.text('测试标签'), findsOneWidget);
 
       // Step 5: 点击确认
-      final confirmButton = find.widgetWithText(TextButton, t.common.confirm);
+      final confirmButton = find.widgetWithText(
+        CupertinoDialogAction,
+        t.common.confirm,
+      );
       await tester.tap(confirmButton);
       await tester.pump(const Duration(milliseconds: 100));
 
       // 验证对话框关闭
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
     });
 
     testWidgets('取消添加标签流程', (tester) async {
@@ -329,20 +392,23 @@ void main() {
       await tester.pump();
 
       // 打开对话框
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
       // 输入标签名
-      await tester.enterText(find.byType(TextField), '取消测试');
+      await tester.enterText(find.byType(CupertinoTextField), '取消测试');
       await tester.pump();
 
       // 点击取消
-      final cancelButton = find.widgetWithText(TextButton, t.common.cancel);
+      final cancelButton = find.widgetWithText(
+        CupertinoDialogAction,
+        t.common.cancel,
+      );
       await tester.tap(cancelButton);
       await tester.pump(const Duration(milliseconds: 100));
 
       // 验证对话框关闭
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
     });
 
     testWidgets('页面支持刷新或显示空状态', (tester) async {
@@ -602,18 +668,21 @@ void main() {
       await tester.pump();
 
       // 模拟添加标签
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      await tester.enterText(find.byType(TextField), '新标签');
+      await tester.enterText(find.byType(CupertinoTextField), '新标签');
       await tester.pump();
 
-      final confirmButton = find.widgetWithText(TextButton, t.common.confirm);
+      final confirmButton = find.widgetWithText(
+        CupertinoDialogAction,
+        t.common.confirm,
+      );
       await tester.tap(confirmButton);
       await tester.pump(const Duration(milliseconds: 100));
 
       // 验证对话框关闭
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
     });
 
     testWidgets('删除标签后页面刷新', (tester) async {
@@ -648,10 +717,10 @@ void main() {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      await tester.enterText(find.byType(TextField), '中文标签测试');
+      await tester.enterText(find.byType(CupertinoTextField), '中文标签测试');
       await tester.pump();
 
       expect(find.text('中文标签测试'), findsOneWidget);
@@ -661,10 +730,10 @@ void main() {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      await tester.enterText(find.byType(TextField), 'EnglishTag');
+      await tester.enterText(find.byType(CupertinoTextField), 'EnglishTag');
       await tester.pump();
 
       expect(find.text('EnglishTag'), findsOneWidget);
@@ -674,10 +743,10 @@ void main() {
       await tester.pumpWidget(_buildGroupTagPage());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.add));
+      await tester.tap(find.byIcon(CupertinoIcons.add));
       await tester.pump(const Duration(milliseconds: 100));
 
-      await tester.enterText(find.byType(TextField), 'Tag-标签_2024');
+      await tester.enterText(find.byType(CupertinoTextField), 'Tag-标签_2024');
       await tester.pump();
 
       expect(find.text('Tag-标签_2024'), findsOneWidget);

@@ -20,8 +20,11 @@ class GroupTagService {
     try {
       return await _api.getGroupTags(groupId);
     } catch (e) {
+      // 不 fail-open 返回空列表：调用方 group_tag_page 已写好 _error +
+      // AsyncStateView(error:) 分支，吞掉异常会让那段分支变成死代码，
+      // 网络失败时用户只看到"暂无标签"，以为标签被清空了。
       iPrint('GroupTagService: 获取群标签失败 - $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -77,7 +80,7 @@ class GroupTagService {
       return await _api.searchByTag(tagName, limit: limit);
     } catch (e) {
       iPrint('GroupTagService: 按标签搜索群失败 - $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -87,7 +90,7 @@ class GroupTagService {
       return await _api.getHotTags(limit: limit);
     } catch (e) {
       iPrint('GroupTagService: 获取热门标签失败 - $e');
-      return [];
+      rethrow;
     }
   }
 }

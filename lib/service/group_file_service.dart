@@ -31,13 +31,11 @@ class GroupFileService {
         category: category,
       );
     } catch (e) {
+      // 不再 fail-open 返回空列表：那会让「网络失败」和「群里真的没文件」
+      // 压成同一个返回值，页面永远只能渲染"暂无文件"空态，用户以为文件没了。
+      // 失败信号必须上浮，由调用方区分空态与失败态。
       iPrint('GroupFileService: 获取群文件失败 - $e');
-      return const {
-        'list': <Map<String, dynamic>>[],
-        'total': 0,
-        'page': 1,
-        'size': 20,
-      };
+      rethrow;
     }
   }
 
@@ -48,7 +46,7 @@ class GroupFileService {
       return await _api.getCategoryStats(groupId: groupId);
     } catch (e) {
       iPrint('GroupFileService: 获取群文件分类统计失败 - $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -67,12 +65,7 @@ class GroupFileService {
       );
     } catch (e) {
       iPrint('GroupFileService: 搜索群文件失败 - $e');
-      return const {
-        'list': <Map<String, dynamic>>[],
-        'total': 0,
-        'page': 1,
-        'size': 20,
-      };
+      rethrow;
     }
   }
 
