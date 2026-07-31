@@ -57,7 +57,13 @@ jobs:
         run: dart analyze --fatal-infos
 
       - name: Dart format check
-        run: dart format --set-exit-if-changed .
+        # 与 ci.yml 同款：范围必须是 git ls-files 而不是目录扫描 `.`。
+        # `.` 会扫进 plugin/amap_flutter_location_plus（submodule）和 build/
+        # 等 gitignored 生成物，submodule 里的文件属于另一个仓库、本仓改不了，
+        # 这个**无 `|| true` 的硬门禁**因此会永久失败。
+        run: |
+          set -o pipefail
+          git ls-files -z '*.dart' | xargs -0 dart format --output=none --set-exit-if-changed
 
   # ── Job 2: 单元测试 ──
   unit-test:
