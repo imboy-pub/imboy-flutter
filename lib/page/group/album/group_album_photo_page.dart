@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -448,84 +449,97 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final photoId = _resolveDeletePhotoId(photo);
     final isSelected = _selectedPhotoIds.contains(photoId);
     final url = _resolvePhotoUrl(photo);
-    return InkWell(
-      key: Key('group_album_photo_cell_$index'),
-      borderRadius: AppRadius.borderRadiusSmall,
-      onTap: () {
-        if (_isSelectionMode) {
-          _togglePhotoSelection(photo);
-          return;
-        }
-        _openPhotoDetail(photo, index);
-      },
-      onLongPress: () {
-        if (_isSelectionMode) return;
-        _enterSelectionMode(photo);
-      },
-      child: ClipRRect(
+    // 图片格没有文字，读屏只能靠语义：
+    //   - selected 声明选中态，否则多选时完全不知道选了哪几张
+    //   - 长按进多选是纯手势，读屏用户做不出来，挂成自定义操作才够得到
+    return Semantics(
+      button: true,
+      selected: _isSelectionMode ? isSelected : false,
+      customSemanticsActions: _isSelectionMode
+          ? null
+          : <CustomSemanticsAction, VoidCallback>{
+              CustomSemanticsAction(label: t.main.multiSelect): () =>
+                  _enterSelectionMode(photo),
+            },
+      child: InkWell(
+        key: Key('group_album_photo_cell_$index'),
         borderRadius: AppRadius.borderRadiusSmall,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // 缩略图加载前的中性占位底（图片网格衬底，保留中性灰语义）
-            Container(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.darkSurface
-                  : AppColors.lightSurfaceContainer,
-            ),
-            // 选中态压暗蒙层（叠在照片上，固定深色蒙层语义）
-            if (isSelected)
+        onTap: () {
+          if (_isSelectionMode) {
+            _togglePhotoSelection(photo);
+            return;
+          }
+          _openPhotoDetail(photo, index);
+        },
+        onLongPress: () {
+          if (_isSelectionMode) return;
+          _enterSelectionMode(photo);
+        },
+        child: ClipRRect(
+          borderRadius: AppRadius.borderRadiusSmall,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // 缩略图加载前的中性占位底（图片网格衬底，保留中性灰语义）
               Container(
-                color: AppColors.darkBackground.withValues(alpha: 0.102),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.darkSurface
+                    : AppColors.lightSurfaceContainer,
               ),
-            if (url.isNotEmpty)
-              Image(
-                image: cachedImageProvider(url),
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) =>
-                    const Center(child: Icon(Icons.broken_image_outlined)),
-              )
-            else
-              const Center(child: Icon(Icons.image_not_supported_outlined)),
-            if (_isSelectionMode)
-              Positioned(
-                left: 2,
-                top: 2,
-                child: Icon(
-                  isSelected
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  color: isSelected
-                      ? AppColors.iosSkyBlue
-                      : AppColors.onPrimary.withValues(alpha: 0.7),
-                  size: 20,
+              // 选中态压暗蒙层（叠在照片上，固定深色蒙层语义）
+              if (isSelected)
+                Container(
+                  color: AppColors.darkBackground.withValues(alpha: 0.102),
                 ),
-              ),
-            // SR-4：删除仅上传者本人 / 管理员 / 群主可见（隐藏而非报错）
-            if (!_isSelectionMode && _canDeletePhoto(photo))
-              Positioned(
-                right: 2,
-                top: 2,
-                child: Material(
-                  // 删除按钮叠在照片上，固定深色半透明底以保证可读
-                  color: AppColors.darkBackground.withValues(alpha: 0.54),
-                  borderRadius: AppRadius.borderRadiusRegular,
-                  child: InkWell(
-                    key: Key('group_album_photo_delete_$index'),
+              if (url.isNotEmpty)
+                Image(
+                  image: cachedImageProvider(url),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) =>
+                      const Center(child: Icon(Icons.broken_image_outlined)),
+                )
+              else
+                const Center(child: Icon(Icons.image_not_supported_outlined)),
+              if (_isSelectionMode)
+                Positioned(
+                  left: 2,
+                  top: 2,
+                  child: Icon(
+                    isSelected
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    color: isSelected
+                        ? AppColors.iosSkyBlue
+                        : AppColors.onPrimary.withValues(alpha: 0.7),
+                    size: 20,
+                  ),
+                ),
+              // SR-4：删除仅上传者本人 / 管理员 / 群主可见（隐藏而非报错）
+              if (!_isSelectionMode && _canDeletePhoto(photo))
+                Positioned(
+                  right: 2,
+                  top: 2,
+                  child: Material(
+                    // 删除按钮叠在照片上，固定深色半透明底以保证可读
+                    color: AppColors.darkBackground.withValues(alpha: 0.54),
                     borderRadius: AppRadius.borderRadiusRegular,
-                    onTap: () => _deletePhoto(photo),
-                    child: const Padding(
-                      padding: EdgeInsets.all(AppSpacing.tiny),
-                      child: Icon(
-                        Icons.delete_outline,
-                        size: 16,
-                        color: AppColors.onPrimary,
+                    child: InkWell(
+                      key: Key('group_album_photo_delete_$index'),
+                      borderRadius: AppRadius.borderRadiusRegular,
+                      onTap: () => _deletePhoto(photo),
+                      child: const Padding(
+                        padding: EdgeInsets.all(AppSpacing.tiny),
+                        child: Icon(
+                          Icons.delete_outline,
+                          size: 16,
+                          color: AppColors.onPrimary,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

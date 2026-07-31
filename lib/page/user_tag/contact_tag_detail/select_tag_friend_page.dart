@@ -83,47 +83,57 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
       children: [
         SizedBox(
           height: _itemHeight.toDouble(),
-          child: InkWell(
-            onTap: () {
-              setState(() {
-                model.selected = !model.selected;
-                if (model.selected) {
-                  selectedContact.insert(0, model);
-                } else {
-                  selectedContact.removeWhere((e) => e.peerId == model.peerId);
-                }
-              });
-            },
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Icon(
-                    model.selected
-                        ? CupertinoIcons.check_mark_circled_solid
-                        : CupertinoIcons.check_mark_circled,
-                    color: model.selected
-                        ? AppColors.iosGreen
-                        : AppColors.iosGray,
-                  ),
-                ),
-                Avatar(imgUri: model.avatar, width: 49, height: 49),
-                const Space(),
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.only(right: 30),
-                    height: _itemHeight.toDouble(),
-                    decoration: const BoxDecoration(
-                      border: Border(top: BorderSide(width: 0.2)),
-                    ),
-                    child: Text(
-                      model.title,
-                      style: context.textStyle(FontSizeType.normal),
+          // 多选页必须声明 selected：读屏用户听到名字但不知道自己选没选。
+          // 名字由 Text 自带语义提供，不重复设 label。
+          child: Semantics(
+            button: true,
+            selected: isSelected,
+            child: GestureDetector(
+              // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                setState(() {
+                  model.selected = !model.selected;
+                  if (model.selected) {
+                    selectedContact.insert(0, model);
+                  } else {
+                    selectedContact.removeWhere(
+                      (e) => e.peerId == model.peerId,
+                    );
+                  }
+                });
+              },
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Icon(
+                      model.selected
+                          ? CupertinoIcons.check_mark_circled_solid
+                          : CupertinoIcons.check_mark_circled,
+                      color: model.selected
+                          ? AppColors.iosGreen
+                          : AppColors.iosGray,
                     ),
                   ),
-                ),
-              ],
+                  Avatar(imgUri: model.avatar, width: 49, height: 49),
+                  const Space(),
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.only(right: 30),
+                      height: _itemHeight.toDouble(),
+                      decoration: const BoxDecoration(
+                        border: Border(top: BorderSide(width: 0.2)),
+                      ),
+                      child: Text(
+                        model.title,
+                        style: context.textStyle(FontSizeType.normal),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -134,20 +144,26 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   /// 构建悬浮标签项（A-Z 分组标题）
   Widget _buildSusItem(BuildContext context, String tag) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      height: 32,
-      width: double.infinity,
-      padding: const EdgeInsets.only(left: 16),
-      alignment: Alignment.centerLeft,
-      color: isDark ? AppColors.iosGray6 : AppColors.iosGray5,
-      child: Text(
-        tag,
-        style: context.textStyle(
-          FontSizeType.normal,
-          color: AppColors.getTextColor(
-            isDark ? Brightness.dark : Brightness.light,
+    // width 必须按约束决定，不能写死 double.infinity——AzListView 把吸顶头
+    // 同时用作内联项（宽度有界）和悬浮头（Stack positioned child，某些布局
+    // 路径下宽度无界），后者会触发 "BoxConstraints forces an infinite width"
+    // 把整页布局打崩。contact_page 已经栽过同一个坑（commit 894ab390）。
+    return LayoutBuilder(
+      builder: (context, constraints) => Container(
+        height: 32,
+        width: constraints.hasBoundedWidth ? double.infinity : null,
+        padding: const EdgeInsets.only(left: AppSpacing.regular),
+        alignment: Alignment.centerLeft,
+        color: isDark ? AppColors.iosGray6 : AppColors.iosGray5,
+        child: Text(
+          tag,
+          style: context.textStyle(
+            FontSizeType.normal,
+            color: AppColors.getTextColor(
+              isDark ? Brightness.dark : Brightness.light,
+            ),
+            fontWeight: FontWeight.bold,
           ),
-          fontWeight: FontWeight.bold,
         ),
       ),
     );

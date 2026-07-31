@@ -59,58 +59,63 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
     return Container(
       height: _itemHeight.toDouble(),
       color: isDark ? colorScheme.surface : AppColors.lightSurface,
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () {
-          ref.read(launchChatProvider.notifier).toggleSelection(model);
-        },
-        child: Row(
-          children: [
-            // 选择状态图标 - iOS 风格圆圈勾选
-            Padding(
-              padding: const EdgeInsets.only(
-                left: AppSpacing.regular,
-                right: AppSpacing.medium,
+      // 多选页必须声明 selected：读屏用户听到名字但不知道自己选没选。
+      // 名字由 Text 自带语义提供，此处不重复设 label（避免双标签重复朗读）。
+      child: Semantics(
+        selected: isSelected,
+        child: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            ref.read(launchChatProvider.notifier).toggleSelection(model);
+          },
+          child: Row(
+            children: [
+              // 选择状态图标 - iOS 风格圆圈勾选
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: AppSpacing.regular,
+                  right: AppSpacing.medium,
+                ),
+                child: Icon(
+                  isSelected
+                      ? CupertinoIcons.check_mark_circled_solid
+                      : CupertinoIcons.circle,
+                  color: isSelected
+                      ? AppColors.getIosBlue(Theme.of(context).brightness)
+                      : colorScheme.outline.withValues(alpha: 0.3),
+                  size: 26,
+                ),
               ),
-              child: Icon(
-                isSelected
-                    ? CupertinoIcons.check_mark_circled_solid
-                    : CupertinoIcons.circle,
-                color: isSelected
-                    ? AppColors.getIosBlue(Theme.of(context).brightness)
-                    : colorScheme.outline.withValues(alpha: 0.3),
-                size: 26,
-              ),
-            ),
-            // 用户头像
-            Avatar(imgUri: model.avatar, width: 40, height: 40),
-            const SizedBox(width: AppSpacing.medium),
-            // 用户昵称
-            Expanded(
-              child: Container(
-                alignment: Alignment.centerLeft,
-                height: _itemHeight.toDouble(),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      width: 0.5,
-                      color: colorScheme.outline.withValues(alpha: 0.1),
+              // 用户头像
+              Avatar(imgUri: model.avatar, width: 40, height: 40),
+              const SizedBox(width: AppSpacing.medium),
+              // 用户昵称
+              Expanded(
+                child: Container(
+                  alignment: Alignment.centerLeft,
+                  height: _itemHeight.toDouble(),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        width: 0.5,
+                        color: colorScheme.outline.withValues(alpha: 0.1),
+                      ),
                     ),
                   ),
-                ),
-                child: Text(
-                  model.title,
-                  style: context.textStyle(
-                    FontSizeType.body,
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.w400,
+                  child: Text(
+                    model.title,
+                    style: context.textStyle(
+                      FontSizeType.body,
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
