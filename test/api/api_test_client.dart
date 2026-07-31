@@ -32,6 +32,24 @@ class ApiTestConfig {
   static String get apiBaseUrl =>
       Platform.environment['API_BASE_URL'] ?? 'http://127.0.0.1:9800';
 
+  /// 当前是否跑在 `flutter test` harness 里。
+  ///
+  /// flutter_test 会把 `HttpOverrides.global` 换成 `_MockHttpOverrides`，
+  /// **任何真实 HTTP 请求都恒定返回 400 空体**。本目录是打真实后端的契约
+  /// 测试（见各文件头部：`dart test test/api/xxx_test.dart`），在
+  /// `flutter test` 下不可能通过——拿到的 400 不代表后端有问题。
+  ///
+  /// 实证：后端 `/api/v1/init` curl 返回 200 + code:0，同一请求在
+  /// `flutter test` 里拿到 `{code: 400, msg: non_json_response}`。
+  static bool get isFlutterTestHarness =>
+      Platform.environment['FLUTTER_TEST'] == 'true';
+
+  /// 网络不可用（被 mock 掉）时应跳过而非失败的原因说明。
+  static String? get skipReasonIfNoRealNetwork => isFlutterTestHarness
+      ? 'API 契约测试需真实网络与后端；flutter test 的 _MockHttpOverrides '
+            '会让所有请求恒返 400。请用 dart test 运行本目录。'
+      : null;
+
   static bool get isConfigured =>
       testPhone.isNotEmpty && (testPassword.isNotEmpty || testCode.isNotEmpty);
 

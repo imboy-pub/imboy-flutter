@@ -16,6 +16,10 @@ import 'package:test/test.dart';
 import 'api_test_client.dart';
 
 void main() {
+  // flutter test 会 mock 掉全部 HTTP（恒返 400 空体），本目录是打真实后端的
+  // 契约测试，只能用 dart test 跑。详见 ApiTestConfig.isFlutterTestHarness。
+  final networkSkip = ApiTestConfig.skipReasonIfNoRealNetwork;
+
   late ApiTestClient client;
 
   setUpAll(() async {
@@ -86,7 +90,7 @@ void main() {
         noAuthClient.close();
       }
     });
-  });
+  }, skip: networkSkip);
 
   group('App 初始化配置', () {
     test('2.1 init_config 无需认证可达，返回 code=0', () async {
@@ -122,7 +126,7 @@ void main() {
         );
       }
     });
-  });
+  }, skip: networkSkip);
 
   group('用户信息', () {
     test('3.1 获取当前用户信息', () async {
@@ -139,12 +143,12 @@ void main() {
       ApiAssert.success(resp, context: '获取用户信息');
       expect(resp['payload'], isA<Map<String, dynamic>>());
     });
-  });
+  }, skip: networkSkip);
 
   group('错误处理', () {
     test('4.1 无效路径 — 返回非 0 code', () async {
       final resp = await client.get('/api/v1/nonexistent_e2e_endpoint_xyz');
       expect(resp['code'], isNot(0), reason: '无效路径应返回错误');
     });
-  });
+  }, skip: networkSkip);
 }
