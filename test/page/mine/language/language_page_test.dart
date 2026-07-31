@@ -103,9 +103,12 @@ void main() {
     testWidgets('多种语言名称渲染（zhCn/enUs/jaJp/koKr 至少 4 种可见）', (tester) async {
       await _pumpLang(tester);
 
-      // 至少能看到几个常见语种 title（i18n 已确认 zhCn=简体中文 / enUs=美国英语）
+      // 语言选择器按行业惯例渲染**母语名**而非本地化译名——看不懂当前
+      // 界面语言的用户也要能找到自己的语言。所以是 English 不是"美国英语"。
       expect(find.text('简体中文'), findsOneWidget);
-      expect(find.text('美国英语'), findsOneWidget);
+      expect(find.text('English'), findsOneWidget);
+      expect(find.text('日本語'), findsOneWidget);
+      expect(find.text('한국어'), findsOneWidget);
 
       await _unmount(tester);
     });
@@ -118,9 +121,8 @@ void main() {
       // 初始：仅 zhCn 有 check_mark
       expect(find.byIcon(CupertinoIcons.check_mark), findsOneWidget);
 
-      // 找到 "美国英语" tile 并点击
-      // 用 tapAt 限定到第一处确保命中
-      final enUsTile = find.text('美国英语');
+      // 母语名（见上一用例说明）
+      final enUsTile = find.text('English');
       expect(enUsTile, findsOneWidget);
       await tester.tap(enUsTile);
       await tester.pump();

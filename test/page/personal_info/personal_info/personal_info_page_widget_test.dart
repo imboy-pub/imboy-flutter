@@ -205,5 +205,29 @@ void main() {
           'Non-empty avatar URL must push _AvatarPreviewPage '
           'with xmark close button (Hero animation source landed)',
     );
+
+    // 只有本用例会 push 预览页，从而触发 cachedImageProvider 去解图。
+    // 两件收尾必做，否则测试必挂：
+    //
+    // 1) 拆掉 widget 树并把定时器跑完 —— 否则 '!timersPending' 断言失败。
+    // 2) 消费预期内的图片异常 —— 本用例故意用 file:// 规避网络，而
+    //    IMBoyCacheManager.getSingleFile 后来加了 URI scheme 白名单，
+    //    file:// 会被拦下抛 "Security Block"。这是安全护栏在正常工作，
+    //    Image 的 errorBuilder 也已兜底，不影响上面的断言；但未消费的
+    //    framework 异常会被判为测试失败。
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1));
+
+    var drained = 0;
+    while (tester.takeException() != null) {
+      drained++;
+    }
+    expect(
+      drained,
+      greaterThan(0),
+      reason:
+          'file:// 应被 getSingleFile 的 scheme 白名单拦下；'
+          '若这里变成 0，说明安全护栏被摘掉了',
+    );
   });
 }

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/splash/splash_page.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// Test-only fake — injected via `tester.platformDispatcher.accessibilityFeaturesTestValue`
 /// so `MediaQuery.disableAnimationsOf` reflects the system "Reduce Motion" state.
@@ -216,7 +217,15 @@ void main() {
       await _pumpSplash(tester, size: const Size(390, 844));
 
       final wordmark = tester.widget<Text>(find.text('ImBoy'));
-      expect(wordmark.style?.fontSize, 36);
+      // 不断言魔法数：a3e43c0a 把硬编码 36 改成走 context.textStyle 的
+      // extraLargeTitle token（a11y 修正——品牌字号也该随用户字号偏好缩放）。
+      // 这里断言"用的就是这个 token"，换默认字号设置不会误挂。
+      final expectedSize = tester
+          .element(find.text('ImBoy'))
+          .textStyle(FontSizeType.extraLargeTitle)
+          .fontSize;
+      expect(expectedSize, isNotNull);
+      expect(wordmark.style?.fontSize, expectedSize);
       expect(wordmark.style?.fontWeight, FontWeight.w700);
       expect(wordmark.style?.letterSpacing, 0.5);
       expect(wordmark.style?.color, Colors.white);

@@ -171,8 +171,10 @@ void main() {
       expect(find.text('登录设备管理'), findsOneWidget);
       expect(find.text('设置'), findsOneWidget);
       expect(find.text('反馈建议'), findsOneWidget);
-      // 收藏 同时出现在 QuickActionGrid 与设置分组 Tile 中
-      expect(find.text('收藏'), findsNWidgets(2));
+      // 收藏 已从设置分组 Tile 移走，现只在 QuickActionGrid 里出现一次
+      // （菜单重组：QuickActionGrid = 钱包/我的频道/收藏）
+      expect(find.text('收藏'), findsOneWidget);
+      expect(find.text('我的频道'), findsOneWidget);
     });
 
     testWidgets('renders chevron next to each menu item + profile', (
@@ -186,13 +188,14 @@ void main() {
         findsOneWidget,
         reason: 'profile card 右侧应有 chevron_right',
       );
-      // 5 个 ImBoySettingsTile（favorites/storageSpace/loginDeviceManagement/
+      // 4 个 ImBoySettingsTile（storageSpace/loginDeviceManagement/
       // setting/feedback）默认 trailing 为 CupertinoListTileChevron，
       // 内部渲染 CupertinoIcons.right_chevron。
+      // favorites 已移入 QuickActionGrid，不再是 Tile，故是 4 不是 5。
       expect(
         find.byIcon(CupertinoIcons.right_chevron),
-        findsNWidgets(5),
-        reason: '5 个设置项每项右侧应有 CupertinoListTileChevron',
+        findsNWidgets(4),
+        reason: '4 个设置项每项右侧应有 CupertinoListTileChevron',
       );
     });
   });

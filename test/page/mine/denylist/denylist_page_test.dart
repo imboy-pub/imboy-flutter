@@ -34,6 +34,12 @@ class _StateOverrideNotifier extends DenylistNotifier {
 
   @override
   DenylistState build() => _initial;
+
+  /// 必须一并覆盖：DenylistPage.initState 会调 _load() → loadData()。
+  /// 只覆盖 build() 的话真实 loadData 仍会走 SqliteService 并抛异常，
+  /// 页面进入 _error 分支渲染失败态，永远到不了空态/列表态。
+  @override
+  Future<void> loadData({int page = 1, int size = 1000}) async {}
 }
 
 GoRouter _stubRouter() {
