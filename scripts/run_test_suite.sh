@@ -110,8 +110,11 @@ APP_ENV="${IMBOY_APP_ENV:-${APP_ENV:-local_office}}"
 # App 自身的地址来自 envied 编译期 baked 的 .env.<APP_ENV>（生成物 lib/config/env_*.g.dart
 # 已提交，改 .env 不跑 build_runner 不生效）。--dart-define=API_BASE_URL 只喂测试客户端，
 # 覆盖 App 必须用 EnvLocalOffice/EnvLocalHome 里的 *_OVERRIDE 键（见 lib/config/env_local_office.dart）。
-API_BASE_URL_OVERRIDE="${IMBOY_API_BASE_URL_OVERRIDE:-$API_BASE_URL}"
-WS_URL_OVERRIDE="${IMBOY_WS_URL_OVERRIDE:-ws${API_BASE_URL#http}/api/v1/ws}"
+# 统一去掉尾部斜杠再拼：Cowboy 路由严格匹配，`ws://h//api/v1/ws` 会 404；
+# Env.effectiveWsUrl 优先用 env 值（盖过服务端下发），传错就没有兜底。
+API_BASE_TRIMMED="${API_BASE_URL%/}"
+API_BASE_URL_OVERRIDE="${IMBOY_API_BASE_URL_OVERRIDE:-$API_BASE_TRIMMED}"
+WS_URL_OVERRIDE="${IMBOY_WS_URL_OVERRIDE:-ws${API_BASE_TRIMMED#http}/api/v1/ws}"
 
 timestamp() { date '+%Y-%m-%dT%H:%M:%S%z'; }
 
