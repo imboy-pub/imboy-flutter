@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/events/base_event.dart';
@@ -9,10 +10,18 @@ import 'package:imboy/store/api/mention_api.dart';
 ///
 /// 负责协调 API 和本地存储，处理@提及业务逻辑
 class MentionService {
-  static final MentionService to = MentionService._privateConstructor();
-  MentionService._privateConstructor();
+  static MentionService _instance = MentionService._privateConstructor();
+  static MentionService get to => _instance;
 
-  final MentionApi _api = MentionApi();
+  @visibleForTesting
+  static set instanceForTest(MentionService? service) {
+    _instance = service ?? MentionService._privateConstructor();
+  }
+
+  MentionService._privateConstructor() : _api = MentionApi();
+  MentionService.withApi(this._api);
+
+  final MentionApi _api;
 
   // ==================== 查询操作 ====================
 

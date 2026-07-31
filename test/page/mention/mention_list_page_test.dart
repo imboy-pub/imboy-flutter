@@ -1,23 +1,121 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mention/mention_list_page.dart';
 import 'package:imboy/service/mention_service.dart'
-    show NewMentionEvent, MentionAllReadEvent;
+    show NewMentionEvent, MentionAllReadEvent, MentionService;
+import 'package:imboy/store/api/mention_api.dart';
 
-/// MentionListPage 可测范围说明（为何不做整页渲染）：
+/// MentionListPage 测试。
 ///
-/// - 页面在 initState 中直接调用 MentionService.to（`static final` 单例，
-///   无 testInstance/接口注入点）→ MentionApi → HttpClient；HttpClient
-///   使用 dio Http2Adapter 建立真实 socket 连接，flutter_test 的
-///   HttpOverrides 拦截不到，整页 pump 会发起真实网络请求（60s 超时挂起）。
-/// - 页面内的数据解析逻辑（_toInt/_resolveGroupId/_resolveMessageId/
-///   _formatTime 等）均为 library-private 方法，测试无法直接访问。
+/// 此前本文件只能测公开构造契约：页面 initState 直接走 `MentionService.to`
+/// （当时是 `static final` 单例，无注入点）→ MentionApi → HttpClient 的
+/// dio Http2Adapter 真实 socket，flutter_test 的 HttpOverrides 拦不住，
+/// 整页 pump 会发起真实网络请求并挂到 60s 超时。
 ///
-/// 因此本文件仅覆盖公开构造契约；整页交互留待 integration_test 真机验证。
-/// 若后续为 MentionService 增加接口 + testInstance 注入点（参考
-/// GroupTaskService / test/widget/group_task_page_test.dart 范式），
-/// 即可补齐列表渲染/已读跳转的 widget 测试。
+/// MentionService 补上 GroupAlbumService 同款 `instanceForTest` 后即可整页
+/// 渲染。下面覆盖 d2749ea4 的失败态修复：service 失败返回 null，页面此前用
+/// `if (result != null)` 直接丢弃该信号，渲染成"暂无提及"。
+class _FakeMentionService extends MentionService {
+  _FakeMentionService({this.items = const [], this.failGetMentions = false})
+    : super.withApi(MentionApi());
+
+  final List<Map<String, dynamic>> items;
+
+  /// true 时 getMentions 返回 null —— 与 MentionService 真实失败路径一致。
+  bool failGetMentions;
+  int getMentionsCallCount = 0;
+
+  @override
+  Future<Map<String, dynamic>?> getMentions({
+    int page = 1,
+    int size = 20,
+    int? isRead,
+    String? groupId,
+  }) async {
+    getMentionsCallCount++;
+    if (failGetMentions) return null;
+    return {'items': items, 'total': items.length};
+  }
+
+  @override
+  Future<int> getUnreadCount({String? groupId}) async => 0;
+}
+
+Widget _buildTestApp() {
+  // 页面 build 用 context.t，必须包 TranslationProvider
+  return ProviderScope(
+    child: TranslationProvider(
+      child: const MaterialApp(home: MentionListPage(groupId: 'g100')),
+    ),
+  );
+}
+
 void main() {
+  tearDown(() {
+    MentionService.instanceForTest = null;
+  });
+
+  group('MentionListPage 失败态（d2749ea4 回归）', () {
+    testWidgets('拉取失败渲染"加载失败 + 重试"，而不是"暂无提及"', (tester) async {
+      MentionService.instanceForTest = _FakeMentionService(
+        failGetMentions: true,
+      );
+
+      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('加载失败，请重试'), findsOneWidget);
+      expect(find.text('重试'), findsOneWidget);
+      expect(find.text("暂无@提及"), findsNothing);
+    });
+
+    testWidgets('点重试真的重拉；成功后渲染列表且失败态消失', (tester) async {
+      final fake = _FakeMentionService(
+        items: const [
+          {
+            'id': 1,
+            'group_id': 'g100',
+            'msg_id': 'm1',
+            'from_nickname': '张三',
+            'content': '喊你一声',
+            'is_read': 0,
+          },
+        ],
+        failGetMentions: true,
+      );
+      MentionService.instanceForTest = fake;
+
+      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpAndSettle();
+      final failedCallCount = fake.getMentionsCallCount;
+      expect(failedCallCount, greaterThan(0));
+
+      fake.failGetMentions = false;
+      await tester.tap(find.text('重试'));
+      await tester.pumpAndSettle();
+
+      expect(fake.getMentionsCallCount, greaterThan(failedCallCount));
+      expect(find.text('加载失败，请重试'), findsNothing);
+      expect(find.textContaining('喊你一声'), findsOneWidget);
+    });
+
+    testWidgets('真的没数据时是纯空态，不带重试入口（空态/失败态语义分离）', (tester) async {
+      MentionService.instanceForTest = _FakeMentionService();
+
+      await tester.pumpWidget(_buildTestApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text("暂无@提及"), findsOneWidget);
+      expect(find.text('加载失败，请重试'), findsNothing);
+      final emptyView = tester.widget<NoDataView>(find.byType(NoDataView));
+      expect(emptyView.onTop, isNull, reason: '空态不该给重试入口');
+    });
+  });
+
   group('MentionListPage 构造契约', () {
     test('MC-1 默认构造 groupId 为 null（全部提及入口）', () {
       const page = MentionListPage();
