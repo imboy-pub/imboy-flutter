@@ -206,27 +206,47 @@ class _MomentAtPickerPageState extends ConsumerState<MomentAtPickerPage> {
   Widget _buildFriendRow(ContactModel c) {
     final uid = c.peerId.toString();
     final checked = _picked.contains(uid);
-    return InkWell(
-      onTap: () => _onFriendToggle(c),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Avatar(imgUri: c.avatar, width: 40, height: 40),
-            AppSpacing.horizontalMedium,
-            Expanded(
-              child: Text(
-                c.title,
-                style: context.textStyle(FontSizeType.subheadline),
-                overflow: TextOverflow.ellipsis,
+    // selected 必须声明：这是多选页，读屏用户光听到名字不知道自己选没选。
+    // 名字由 Text 自带语义提供，此处不重复设 label（避免双标签重复朗读）。
+    return Semantics(
+      button: true,
+      selected: checked,
+      child: GestureDetector(
+        // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple。
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _onFriendToggle(c),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.small,
+          ),
+          child: Row(
+            children: [
+              Avatar(imgUri: c.avatar, width: 40, height: 40),
+              AppSpacing.horizontalMedium,
+              Expanded(
+                child: Text(
+                  c.title,
+                  style: context.textStyle(FontSizeType.subheadline),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            Checkbox(
-              value: checked,
-              onChanged: (_) => _onFriendToggle(c),
-              visualDensity: VisualDensity.compact,
-            ),
-          ],
+              // 勾选框退化为纯状态展示，点击统一交给整行。
+              // 原先行与勾选框各挂一个 toggle：实测手势竞技场里内层胜出，
+              // 不会双触发（已验证），但勾选框自身命中区偏小，落在它上面的
+              // 点击走的是那条窄路径；统一由整行接管后命中区更宽更好点。
+              // ExcludeSemantics：行已声明 selected 状态，读屏不必再念一遍复选框。
+              ExcludeSemantics(
+                child: IgnorePointer(
+                  child: Checkbox(
+                    value: checked,
+                    onChanged: (_) {},
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
