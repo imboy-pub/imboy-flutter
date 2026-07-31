@@ -57,6 +57,12 @@ class StorageSecureService {
   //   - write 判定 key 不存在 → SecItemAdd → errSecDuplicateItem(-25299)
   // 这里在读写两侧各做一次搬迁，把旧条目迁到当前 accessibility 下。
   static const int _errSecDuplicateItem = -25299;
+
+  /// errSecMissingEntitlement：签名未授予 keychain-access-groups。
+  /// macOS 桌面构建恒定命中——entitlements 文件已声明该 group，但
+  /// project.pbxproj 用 ad-hoc 签名（CODE_SIGN_IDENTITY="-"、DEVELOPMENT_TEAM=""），
+  /// `$(AppIdentifierPrefix)` 展开为空且签名无 team identifier，Keychain 拒绝。
+  static const int _errSecMissingEntitlement = -34018;
   static const IOSOptions _legacyIOptions = IOSOptions(
     accessibility: KeychainAccessibility.unlocked,
   );
@@ -193,7 +199,12 @@ class StorageSecureService {
   /// [webOptions] optional web options
   /// [mOptions] optional MacOs options
   /// [wOptions] optional Windows options
-  /// Can throw a [PlatformException].
+  /// Can throw a [PlatformException]。
+  ///
+  /// 例外：Keychain 不可访问（errSecMissingEntitlement）时视作「本平台没有安全
+  /// 存储 → 无秘密可删」。同一 entitlement 缺失下 write 也必失败，故不存在
+  /// 「删不掉的残留」；purgeAll 的 readAll 复核仍会拦下真正的残留。
+  /// 不放宽 write/read：那两个静默失败会让调用方误以为秘密已落盘。
   Future<void> delete({
     required String key,
     IOSOptions? iOptions,
@@ -202,15 +213,21 @@ class StorageSecureService {
     WebOptions? webOptions,
     MacOsOptions? mOptions,
     WindowsOptions? wOptions,
-  }) => _self.delete(
-    key: key,
-    iOptions: iOptions,
-    aOptions: aOptions,
-    lOptions: lOptions,
-    webOptions: webOptions,
-    mOptions: mOptions,
-    wOptions: wOptions,
-  );
+  }) async {
+    try {
+      return await _self.delete(
+        key: key,
+        iOptions: iOptions,
+        aOptions: aOptions,
+        lOptions: lOptions,
+        webOptions: webOptions,
+        mOptions: mOptions,
+        wOptions: wOptions,
+      );
+    } on PlatformException catch (e) {
+      if (!_isApple || e.details != _errSecMissingEntitlement) rethrow;
+    }
+  }
 
   /// Decrypts and returns all keys with associated values.
   ///

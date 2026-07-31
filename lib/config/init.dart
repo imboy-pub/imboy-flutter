@@ -496,12 +496,21 @@ class AppInitializer {
         Keys.uploadUrl,
         (payload['upload_url'] as String?) ?? '',
       );
-      // H8: upload_key 改用加密安全存储，同时更新内存缓存供同步访问
-      await StorageSecureService.to.write(
-        key: Keys.uploadKey,
-        value: (payload['upload_key'] as String?) ?? '',
-      );
-      await Env.getUploadKey(); // populate in-memory cache
+      // H8: upload_key 改用加密安全存储，同时更新内存缓存供同步访问。
+      // macOS 桌面 ad-hoc 签名（project.pbxproj: CODE_SIGN_IDENTITY="-"、
+      // DEVELOPMENT_TEAM="") 下 keychain-access-groups 无有效 team 前缀，
+      // Keychain 一律拒绝 → PlatformException -34018，安全存储 read/write 均抛；
+      // 此处隔离该失败，避免单个 upload_key 拖垮整个 initConfig
+      //（否则 apiPublicKey/缓存无法落盘 → 登录链断）。
+      try {
+        await StorageSecureService.to.write(
+          key: Keys.uploadKey,
+          value: (payload['upload_key'] as String?) ?? '',
+        );
+        await Env.getUploadKey(); // populate in-memory cache
+      } on Exception catch (e) {
+        logger.w('upload_key secure persistence unavailable: $e');
+      }
       await StorageService.to.setString(
         Keys.uploadScene,
         (payload['upload_scene'] as String?) ?? '',

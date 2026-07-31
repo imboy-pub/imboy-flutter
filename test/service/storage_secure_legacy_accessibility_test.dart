@@ -62,6 +62,39 @@ void main() {
     expect(calls.map((c) => c.method).toList(), ['write']);
   });
 
+  test(
+    'delete 遇 errSecMissingEntitlement 时不抛（macOS 无 Keychain entitlement）',
+    () async {
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        calls.add(call);
+        throw PlatformException(
+          code: 'Unexpected security result code',
+          message: "A required entitlement isn't present.",
+          details: -34018,
+        );
+      });
+
+      await StorageSecureService.to.delete(key: 'olm_account_pickle');
+      expect(calls.map((c) => c.method).toList(), ['delete']);
+    },
+  );
+
+  test('delete 遇其他 Keychain 错误时原样抛出', () async {
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      calls.add(call);
+      throw PlatformException(
+        code: 'Unexpected security result code',
+        message: 'Code: -25300',
+        details: -25300,
+      );
+    });
+
+    await expectLater(
+      StorageSecureService.to.delete(key: 'olm_account_pickle'),
+      throwsA(isA<PlatformException>()),
+    );
+  });
+
   test('read 回落到旧 accessibility 并把命中值搬迁到新 accessibility', () async {
     messenger.setMockMethodCallHandler(channel, (call) async {
       calls.add(call);
