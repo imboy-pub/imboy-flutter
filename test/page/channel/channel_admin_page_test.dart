@@ -63,6 +63,31 @@ void main() {
     expect(find.text('管理员小李'), findsOneWidget);
   });
 
+  testWidgets('加载失败时渲染可重试的失败态 / renders retryable error view on load failure', (
+    tester,
+  ) async {
+    var calls = 0;
+    when(() => api.getAdmins(any())).thenAnswer((_) async {
+      calls++;
+      if (calls == 1) throw Exception('network down');
+      return const [];
+    });
+
+    await tester.pumpWidget(_buildTestApp(api));
+    await tester.pumpAndSettle();
+
+    // 失败态：友好文案 + 重试入口，而非空态"暂无管理员"
+    expect(find.text(t.common.loadError), findsOneWidget);
+    expect(find.text(t.common.buttonRetry), findsOneWidget);
+    expect(find.text(t.channel.noAdmins), findsNothing);
+
+    // 点击重试真的重新拉取，并切换到空态
+    await tester.tap(find.text(t.common.buttonRetry));
+    await tester.pumpAndSettle();
+    expect(calls, 2);
+    expect(find.text(t.channel.noAdmins), findsOneWidget);
+  });
+
   testWidgets(
     '管理员数据类型异常时仍能正常渲染 / handles loose data types in admins without throwing TypeError',
     (tester) async {

@@ -181,25 +181,19 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     }
 
     if (state.error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(state.error!),
-            AppSpacing.verticalRegular,
-            ElevatedButton(
-              onPressed: () {
-                final notifier = ref.read(channelListProvider.notifier);
-                if (isSubscribed) {
-                  notifier.loadSubscribedChannels();
-                } else {
-                  notifier.loadManagedChannels();
-                }
-              },
-              child: Text(context.t.common.buttonRetry),
-            ),
-          ],
-        ),
+      // 失败态与空态统一走 NoDataView：此前手写 Text + Material ElevatedButton，
+      // 与同函数下方的 NoDataView 空态视觉割裂（无图标、按钮风格不一致）。
+      return NoDataView(
+        icon: Icons.error_outline,
+        text: state.error!,
+        onTop: () {
+          final notifier = ref.read(channelListProvider.notifier);
+          if (isSubscribed) {
+            notifier.loadSubscribedChannels();
+          } else {
+            notifier.loadManagedChannels();
+          }
+        },
       );
     }
 

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/material.dart';
@@ -7,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -313,22 +313,15 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
     final t = context.t;
 
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      // 列表页首屏用骨架屏而非转圈，与频道列表/消息流一致。
+      return const ShimmerList(itemCount: 6);
     }
 
     if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(_error!),
-            AppSpacing.verticalRegular,
-            ElevatedButton(
-              onPressed: _loadAdmins,
-              child: Text(t.common.buttonRetry),
-            ),
-          ],
-        ),
+      return NoDataView(
+        icon: Icons.error_outline,
+        text: _error!,
+        onTop: _loadAdmins,
       );
     }
 

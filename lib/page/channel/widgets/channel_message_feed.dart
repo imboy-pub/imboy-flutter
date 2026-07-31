@@ -182,20 +182,13 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   }
 
   Widget _buildErrorView(BuildContext context, String error, Translations t) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(error),
-          AppSpacing.verticalRegular,
-          ElevatedButton(
-            onPressed: () => ref
-                .read(channelDetailProvider.notifier)
-                .loadChannel(widget.channelId),
-            child: Text(t.common.buttonRetry),
-          ),
-        ],
-      ),
+    // 与同 build 里的 NoDataView 空态统一，避免失败态自成一套视觉。
+    return NoDataView(
+      icon: Icons.error_outline,
+      text: error,
+      onTop: () => ref
+          .read(channelDetailProvider.notifier)
+          .loadChannel(widget.channelId),
     );
   }
 

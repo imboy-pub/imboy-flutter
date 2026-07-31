@@ -229,8 +229,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // 错误文本 / 重试按钮出现
-      expect(find.byType(ElevatedButton), findsOneWidget);
+      // 失败态已统一为 NoDataView（此前是手写 Material ElevatedButton，
+      // 与同页空态视觉割裂）：错误文案 + 重试入口都应出现。
+      expect(find.text('NetworkException'), findsOneWidget);
+      expect(find.text(t.common.buttonRetry), findsOneWidget);
     });
   });
 

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/channel_service.dart';
@@ -322,20 +323,13 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   }
 
   Widget _buildErrorView(String error) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(error),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () => ref
-                .read(channelDetailProvider.notifier)
-                .loadChannel(_resolveChannelId()),
-            child: Text(context.t.common.buttonRetry),
-          ),
-        ],
-      ),
+    // 与空态统一走 NoDataView，避免同一 App 内失败态样式各写一套。
+    return NoDataView(
+      icon: Icons.error_outline,
+      text: error,
+      onTop: () => ref
+          .read(channelDetailProvider.notifier)
+          .loadChannel(_resolveChannelId()),
     );
   }
 
