@@ -143,32 +143,56 @@ void main() {
   });
 
   group('退出提醒（回归：canPop 曾对纯文字失效）', () {
-    // 曾经的 bug：PopScope 用 `canPop: !_hasUnsavedContent`，而该 getter 读
+    // 原 bug：PopScope 用 `canPop: !_hasUnsavedContent`，而该 getter 读
     // _contentController.text；页面只监听 _uploads 不监听 controller，打字
     // 不触发 rebuild，canPop 停在 true，侧滑直接把内容丢掉。只有加过图才
-    // 碰巧生效。修法是 canPop: false 统一走 _confirmExit。
-    testWidgets('PopScope.canPop 恒为 false，纯文字也拦得住', (tester) async {
+    // 碰巧生效。
+    //
+    // 修法不是写死 canPop: false —— 那会连空页面一起拦，而 Flutter 在
+    // canPop 为 false 时整体禁用 iOS 侧滑返回手势，没东西可丢时也不让滑。
+    // 正确做法是监听 controller 让 canPop 真的随内容变化。
+    testWidgets('打字后 canPop 转 false（纯文字也拦得住）', (tester) async {
       await _pumpPage(tester);
+
+      // PopScope 在新版 Flutter 是泛型（PopScope<T>），find.byType(PopScope)
+      // 找的是 PopScope<dynamic>，匹配不到实际的 PopScope<Object?>。
+      expect(_canPopOf(tester), isTrue, reason: '空页面应可自由返回');
 
       await tester.enterText(find.byType(TextField).first, '写了一半的内容');
       await tester.pump();
 
-      // PopScope 在新版 Flutter 是泛型（PopScope<T>），find.byType(PopScope)
-      // 找的是 PopScope<dynamic>，匹配不到实际的 PopScope<Object?>。
       expect(
         _canPopOf(tester),
         isFalse,
-        reason: 'canPop 一旦依赖未被监听的 controller，纯文字场景会直接放行丢内容',
+        reason: 'canPop 不随 controller 更新的话，纯文字场景会直接放行丢内容',
       );
 
       await _unmount(tester);
     });
 
-    testWidgets('空内容时返回不弹确认框（不打扰）', (tester) async {
+    testWidgets('清空内容后 canPop 转回 true（不误拦、不禁用侧滑）', (tester) async {
       await _pumpPage(tester);
 
-      // canPop 恒 false，但 _confirmExit 在无内容时直接 pop，不弹框
+      await tester.enterText(find.byType(TextField).first, '临时输入');
+      await tester.pump();
       expect(_canPopOf(tester), isFalse);
+
+      await tester.enterText(find.byType(TextField).first, '');
+      await tester.pump();
+
+      expect(
+        _canPopOf(tester),
+        isTrue,
+        reason: '写死 canPop: false 会让空页面也禁用 iOS 侧滑返回',
+      );
+
+      await _unmount(tester);
+    });
+
+    testWidgets('空内容时不弹确认框（不打扰）', (tester) async {
+      await _pumpPage(tester);
+
+      expect(_canPopOf(tester), isTrue);
       expect(find.byType(CupertinoAlertDialog), findsNothing);
 
       await _unmount(tester);

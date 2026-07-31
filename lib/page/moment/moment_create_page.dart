@@ -78,21 +78,44 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
 
   String get _draftKey => momentFailedDraftKey(UserRepoLocal.to.currentUid);
 
+  /// 上一次已知的「有未保存内容」状态，用于只在布尔翻转时重建。
+  bool _lastHasUnsavedContent = false;
+
   @override
   void initState() {
     super.initState();
     _uploads.addListener(_onUploadsChanged);
+    // PopScope.canPop 依赖 _hasUnsavedContent，而它读的是 controller 文本。
+    // 不监听的话打字不会触发 rebuild，canPop 会停在旧值（这正是本页
+    // 「纯文字场景退出提醒失效」的原相）。
+    _contentController.addListener(_onContentChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _tryRestoreDraft());
   }
 
   void _onUploadsChanged() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    // 媒体增删同样会改变 _hasUnsavedContent，顺带同步基线值，
+    // 避免下次击键因基线过期而多做一次无谓重建。
+    setState(() => _lastHasUnsavedContent = _hasUnsavedContent);
+  }
+
+  /// 只在「有无内容」真的翻转时才 setState。
+  ///
+  /// 逐字符 setState 会把整页（ComposerField + 媒体网格 + 工具栏）全部重建，
+  /// 而 canPop 只关心布尔值，绝大多数击键不改变它。
+  void _onContentChanged() {
+    if (!mounted) return;
+    final now = _hasUnsavedContent;
+    if (now != _lastHasUnsavedContent) {
+      setState(() => _lastHasUnsavedContent = now);
+    }
   }
 
   @override
   void dispose() {
     _uploads.removeListener(_onUploadsChanged);
     _uploads.dispose();
+    _contentController.removeListener(_onContentChanged);
     _contentController.dispose();
     _allowUidsController.dispose();
     _denyUidsController.dispose();
@@ -706,11 +729,13 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   Widget build(BuildContext context) {
     final t = context.t;
     return PopScope(
-      // 恒 false + 统一走 _confirmExit：不能用 `canPop: !_hasUnsavedContent`。
-      // _hasUnsavedContent 读的是 _contentController.text，而本页只监听 _uploads
-      // 不监听 controller，纯文字场景不会触发 rebuild，canPop 会停在 true，
-      // 侧滑/返回直接把内容丢掉。只有加过图才"碰巧"生效。
-      canPop: false,
+      // 有未保存内容才拦截。_hasUnsavedContent 读 _contentController.text，
+      // 必须配合 initState 里的 _onContentChanged 监听才会随打字更新——
+      // 不监听就会停在旧值，纯文字场景侧滑直接丢内容（本页原 bug）。
+      //
+      // 不写死 canPop: false：那样连"空页面"都拦，而 Flutter 在 canPop 为
+      // false 时会整体禁用 iOS 侧滑返回手势，等于没东西可丢时也不让滑。
+      canPop: !_hasUnsavedContent,
       onPopInvokedWithResult: (didPop, _) => _confirmExit(didPop),
       child: Scaffold(
         appBar: CupertinoNavigationBar(
