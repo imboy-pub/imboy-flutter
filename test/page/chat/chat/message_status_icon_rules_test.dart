@@ -56,11 +56,35 @@ void main() {
       expect(r.colorKey, isNull);
     });
 
-    test('sent / delivered 结果对称（colorKey 相同）', () {
+    test('sent / delivered 图标同形，但读屏标签必须可区分', () {
       final sent = resolveMessageStatusIcon(MessageStatus.sent);
       final delivered = resolveMessageStatusIcon(MessageStatus.delivered);
       expect(sent.iconData, delivered.iconData);
       expect(sent.colorKey, delivered.colorKey);
+      expect(sent.semanticLabel, isNot(delivered.semanticLabel));
+    });
+
+    test('每个可见状态都有非空读屏标签（a11y 契约）', () {
+      const visible = [
+        MessageStatus.sending,
+        MessageStatus.sent,
+        MessageStatus.delivered,
+        MessageStatus.seen,
+        MessageStatus.error,
+      ];
+      final labels = <String>{};
+      for (final s in visible) {
+        final label = resolveMessageStatusIcon(s).semanticLabel;
+        expect(label, isNotNull, reason: '$s 缺读屏标签');
+        expect(label, isNotEmpty, reason: '$s 读屏标签为空串');
+        labels.add(label!);
+      }
+      // 五态标签互不相同，否则读屏用户仍分不清
+      expect(labels.length, visible.length);
+    });
+
+    test('无图标状态不带读屏标签', () {
+      expect(resolveMessageStatusIcon(null).semanticLabel, isNull);
     });
   });
 }

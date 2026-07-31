@@ -111,7 +111,12 @@ class ChatMessageItem extends ConsumerWidget {
       final color = statusSpec.colorKey == 'sendMessageBg'
           ? themeNotifier.getChatColor(statusSpec.colorKey!)
           : themeNotifier.getThemeColor(statusSpec.colorKey!);
-      statusIcon = Icon(statusSpec.iconData, size: 16, color: color);
+      statusIcon = Icon(
+        statusSpec.iconData,
+        size: 16,
+        color: color,
+        semanticLabel: statusSpec.semanticLabel,
+      );
     }
 
     Widget? avatar;
