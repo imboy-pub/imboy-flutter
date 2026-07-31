@@ -52,16 +52,46 @@ void main() {
       expect(plan.map((s) => s.version).toList(), [10]);
     });
 
-    test('升级 V9→V12 跳过不存在的 V12 脚本 / skips missing scripts', () {
-      // 只有 V10 / V11 脚本，无 V12
+    // ⚠️ 本用例原名 "跳过不存在的 V12 脚本 / skips missing scripts"，
+    // 断言的是 plan 返回 [10, 11] —— 即断言了缺陷本身（A-23）。
+    // 静默跳过的后果：sqflite 回调正常返回 → user_version 被设成 12 →
+    // 下次启动不再迁移 → V12 的表结构永久缺失（A-21 是这条链的真实实例）。
+    // 按 Execution Rule 7 反转断言，而不是放宽它。
+    test('升级 V9→V12 缺目标 V12 脚本必须抛异常 / missing target script throws', () {
       final scripts = {10: upgradeScript(10), 11: upgradeScript(11)};
+      expect(
+        () => MigrationScriptPlanner.plan(
+          scripts: scripts,
+          fromVersion: 9,
+          toVersion: 12,
+        ),
+        throwsA(isA<MissingMigrationScriptException>()),
+      );
+    });
+
+    // ⚠️ 版本号允许跳号：本仓 v15 在 embedded 与 asset 里都不存在（历史废弃），
+    // v14 → v16 是合法的一步。这条守住"严格化没有锁死 v14 及更早的存量装机" ——
+    // A-23 判据原文举的 "[14,16] 缺 15 抛异常" 恰恰是本仓的正常状态，不能照做。
+    test('中间版本号跳号是合法的，不得抛 / skipped version numbers are legal', () {
+      final scripts = {14: upgradeScript(14), 16: upgradeScript(16)};
       final plan = MigrationScriptPlanner.plan(
         scripts: scripts,
-        fromVersion: 9,
-        toVersion: 12,
+        fromVersion: 13,
+        toVersion: 16,
       );
-      // 已有的都应执行
-      expect(plan.map((s) => s.version).toList(), [10, 11]);
+      expect(plan.map((s) => s.version).toList(), [14, 16]);
+    });
+
+    // 降级方向不校验：kDowngradeScriptSql 止于 v18（v19~v25 全缺，A-21 记录的
+    // 预存缺口）。不补脚本就严格化，只会让旧版 app 直接打不开数据库。
+    test('降级缺脚本仍按原样返回（预存缺口，不在本任务范围） / downgrade unchanged', () {
+      final scripts = {11: downgradeScript(11)};
+      final plan = MigrationScriptPlanner.plan(
+        scripts: scripts,
+        fromVersion: 11,
+        toVersion: 9,
+      );
+      expect(plan.map((s) => s.version).toList(), [11]);
     });
   });
 
@@ -122,13 +152,32 @@ void main() {
       expect(plan, isEmpty);
     });
 
-    test('空 scripts map 返回空列表 / empty map returns empty', () {
-      final plan = MigrationScriptPlanner.plan(
-        scripts: <int, MigrationScript>{},
-        fromVersion: 9,
-        toVersion: 11,
+    // ⚠️ 原断言 "空 map 返回空列表" 同样是 A-23 的缺陷面：
+    // 脚本一个都没加载成功（embedded 常量为空、asset 读取失败）时返回空计划，
+    // MigrationService 走 `scripts.isEmpty` 分支直接 return success —— 迁移
+    // 完全没发生却报成功。反转为"必须抛"。
+    test('空 scripts map 必须抛异常 / empty map throws', () {
+      expect(
+        () => MigrationScriptPlanner.plan(
+          scripts: <int, MigrationScript>{},
+          fromVersion: 9,
+          toVersion: 11,
+        ),
+        throwsA(isA<MissingMigrationScriptException>()),
       );
-      expect(plan, isEmpty);
+    });
+
+    // 但 from == to 时空 map 仍是合法的 no-op（没有区间要覆盖），
+    // 这条守住"严格化没有波及无需迁移的正常路径"。
+    test('from == to 时空 map 不抛 / no-op stays a no-op', () {
+      expect(
+        MigrationScriptPlanner.plan(
+          scripts: <int, MigrationScript>{},
+          fromVersion: 11,
+          toVersion: 11,
+        ),
+        isEmpty,
+      );
     });
 
     test('选择区间为 (min, max]（开下界、闭上界） / half-open interval', () {
