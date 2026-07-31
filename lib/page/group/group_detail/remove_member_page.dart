@@ -67,80 +67,93 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
       children: [
         SizedBox(
           height: _itemHeight.toDouble(),
-          child: InkWell(
-            onTap: () {
-              notifier.toggleSelection(model);
-            },
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: AppSpacing.regular,
-                    right: AppSpacing.small,
+          // 多选页必须声明 selected：读屏用户听到名字但不知道选没选。
+          // 移除成员是破坏性操作，选中态读不出来风险更高。
+          // 名字由 Text 自带语义提供，此处不重复设 label。
+          child: Semantics(
+            button: true,
+            selected: isSelected,
+            child: GestureDetector(
+              // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                notifier.toggleSelection(model);
+              },
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: AppSpacing.regular,
+                      right: AppSpacing.small,
+                    ),
+                    child: Icon(
+                      isSelected
+                          ? CupertinoIcons.check_mark_circled_solid
+                          : CupertinoIcons.check_mark_circled,
+                      color: isSelected
+                          ? AppColors.primary
+                          : Theme.of(context).colorScheme.outline,
+                    ),
                   ),
-                  child: Icon(
-                    isSelected
-                        ? CupertinoIcons.check_mark_circled_solid
-                        : CupertinoIcons.check_mark_circled,
-                    color: isSelected
-                        ? AppColors.primary
-                        : Theme.of(context).colorScheme.outline,
-                  ),
-                ),
-                Avatar(imgUri: model.avatar, width: 49, height: 49),
-                const SizedBox(width: AppSpacing.small),
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    height: _itemHeight.toDouble(),
-                    decoration: BoxDecoration(
-                      borderRadius: AppRadius.borderRadiusMedium,
-                      border: Border(
-                        top: BorderSide(
-                          width: 0.5,
-                          color: Theme.of(context).colorScheme.primaryContainer,
+                  Avatar(imgUri: model.avatar, width: 49, height: 49),
+                  const SizedBox(width: AppSpacing.small),
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      height: _itemHeight.toDouble(),
+                      decoration: BoxDecoration(
+                        borderRadius: AppRadius.borderRadiusMedium,
+                        border: Border(
+                          top: BorderSide(
+                            width: 0.5,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                          ),
                         ),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            model.alias.isEmpty ? model.nickname : model.alias,
-                            style: context.textStyle(
-                              FontSizeType.normal,
-                              color: Theme.of(context).colorScheme.onSurface,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Text(
+                              model.alias.isEmpty
+                                  ? model.nickname
+                                  : model.alias,
+                              style: context.textStyle(
+                                FontSizeType.normal,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                             ),
                           ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: IconButton(
-                            tooltip: t.channel.viewProfile,
-                            icon: Icon(
-                              Icons.info_outline,
-                              color: AppColors.primary,
+                          Expanded(
+                            flex: 1,
+                            child: IconButton(
+                              tooltip: t.channel.viewProfile,
+                              icon: Icon(
+                                Icons.info_outline,
+                                color: AppColors.primary,
+                              ),
+                              padding: const EdgeInsets.only(
+                                left: AppSpacing.small,
+                                right: AppSpacing.small,
+                              ),
+                              onPressed: () {
+                                // 路由 /people_info/:id 通过 pathParameters 解析 id，
+                                // scene 走 queryParameters；extra 在该路由 builder 中不会被读取。
+                                context.push(
+                                  '/people_info/${model.userId}?scene=group_member',
+                                );
+                              },
                             ),
-                            padding: const EdgeInsets.only(
-                              left: AppSpacing.small,
-                              right: AppSpacing.small,
-                            ),
-                            onPressed: () {
-                              // 路由 /people_info/:id 通过 pathParameters 解析 id，
-                              // scene 走 queryParameters；extra 在该路由 builder 中不会被读取。
-                              context.push(
-                                '/people_info/${model.userId}?scene=group_member',
-                              );
-                            },
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

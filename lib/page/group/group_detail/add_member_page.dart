@@ -97,129 +97,139 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
               ]
             : null,
       ),
-      child: InkWell(
-        onTap: isMember
-            ? null
-            : () {
-                ref
-                    .read(addMemberProvider.notifier)
-                    .toggleSelection(model, widget.groupId);
-              },
-        borderRadius: AppRadius.borderRadiusMedium,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.regular,
-            vertical: AppSpacing.small,
-          ),
-          child: Row(
-            children: [
-              // 选择图标
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isMember
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.2)
-                      : isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.3),
-                ),
-                child: Icon(
-                  isMember
-                      ? CupertinoIcons.check_mark_circled_solid
-                      : isSelected
-                      ? CupertinoIcons.check_mark_circled_solid
-                      : CupertinoIcons.check_mark_circled,
-                  size: 16,
-                  color: isMember
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.6)
-                      : AppColors.onPrimary,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.medium),
-              // 头像
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
+      // 多选页必须声明 selected：读屏用户听到名字但不知道自己选没选。
+      // 已是群成员的行不可选，用 enabled: false 让读屏读出"已停用"，
+      // 否则用户会一直点一个永远没反应的行。
+      // 名字由 Text 自带语义提供，此处不重复设 label（避免双标签重复朗读）。
+      child: Semantics(
+        button: true,
+        enabled: !isMember,
+        selected: isSelected,
+        child: GestureDetector(
+          // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Material Ripple
+          behavior: HitTestBehavior.opaque,
+          onTap: isMember
+              ? null
+              : () {
+                  ref
+                      .read(addMemberProvider.notifier)
+                      .toggleSelection(model, widget.groupId);
+                },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.regular,
+              vertical: AppSpacing.small,
+            ),
+            child: Row(
+              children: [
+                // 选择图标
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
                     color: isMember
                         ? Theme.of(
                             context,
-                          ).colorScheme.outline.withValues(alpha: 0.3)
+                          ).colorScheme.outline.withValues(alpha: 0.2)
                         : isSelected
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.3),
+                  ),
+                  child: Icon(
+                    isMember
+                        ? CupertinoIcons.check_mark_circled_solid
+                        : isSelected
+                        ? CupertinoIcons.check_mark_circled_solid
+                        : CupertinoIcons.check_mark_circled,
+                    size: 16,
+                    color: isMember
                         ? Theme.of(
                             context,
-                          ).colorScheme.primary.withValues(alpha: 0.5)
-                        : AppColors.transparent,
-                    width: 2,
+                          ).colorScheme.outline.withValues(alpha: 0.6)
+                        : AppColors.onPrimary,
                   ),
                 ),
-                child: Avatar(imgUri: model.avatar, width: 44, height: 44),
-              ),
-              const SizedBox(width: AppSpacing.medium),
-              // 姓名和状态
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      model.title,
-                      style: context.textStyle(
-                        FontSizeType.large,
-                        color: isMember
-                            ? Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.5)
-                            : Theme.of(context).colorScheme.onSurface,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (isMember) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        t.chat.alreadyMember,
-                        style: context.textStyle(
-                          FontSizeType.small,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              // 选中状态指示器
-              if (isSelected)
+                const SizedBox(width: AppSpacing.medium),
+                // 头像
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.small,
-                    vertical: AppSpacing.tiny,
-                  ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: AppRadius.borderRadiusMedium,
-                  ),
-                  child: Text(
-                    t.main.selected,
-                    style: context.textStyle(
-                      FontSizeType.tiny,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.w600,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isMember
+                          ? Theme.of(
+                              context,
+                            ).colorScheme.outline.withValues(alpha: 0.3)
+                          : isSelected
+                          ? Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.5)
+                          : AppColors.transparent,
+                      width: 2,
                     ),
                   ),
+                  child: Avatar(imgUri: model.avatar, width: 44, height: 44),
                 ),
-            ],
+                const SizedBox(width: AppSpacing.medium),
+                // 姓名和状态
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        model.title,
+                        style: context.textStyle(
+                          FontSizeType.large,
+                          color: isMember
+                              ? Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5)
+                              : Theme.of(context).colorScheme.onSurface,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (isMember) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          t.chat.alreadyMember,
+                          style: context.textStyle(
+                            FontSizeType.small,
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                // 选中状态指示器
+                if (isSelected)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.small,
+                      vertical: AppSpacing.tiny,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: AppRadius.borderRadiusMedium,
+                    ),
+                    child: Text(
+                      t.main.selected,
+                      style: context.textStyle(
+                        FontSizeType.tiny,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
