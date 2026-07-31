@@ -1249,6 +1249,14 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       color: composerBgColor,
       child: Column(
         children: [
+          // @提及候选列表。
+          //
+          // 必须放在这里当输入区的同级兄弟，不能塞进输入框内部的 Stack 再用
+          // Positioned(bottom: 50) 浮上来：Clip.none 只让溢出内容**画得出来**，
+          // 命中测试不会越过父 RenderBox 边界，结果就是「列表看得见、点了没反应」。
+          // 已用最小复现验证过（Stack + Clip.none + Positioned 溢出区 tap 不生效）。
+          _buildMentionList(),
+
           // 引用消息提示条
           if (widget.quoteTipsWidget != null) widget.quoteTipsWidget!,
 
@@ -1299,23 +1307,12 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                             width: isFocused ? 1.0 : 0.5,
                           ),
                         ),
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              child: _buildInputButton(),
-                            ),
-                            // @提及列表
-                            Positioned(
-                              bottom: 50,
-                              left: 0,
-                              right: 0,
-                              child: _buildMentionList(),
-                            ),
-                          ],
+                        // @提及列表已上移为输入区的同级兄弟（见本文件 Column
+                        // 顶部注释）：原先挂在这个 Stack 里靠 Positioned 浮出
+                        // 边界，命中测试收不到，点了没反应。这里不再需要 Stack。
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: _buildInputButton(),
                         ),
                       );
                     },

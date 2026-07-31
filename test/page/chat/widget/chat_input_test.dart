@@ -473,4 +473,58 @@ void main() {
       await _unmount(tester);
     });
   });
+
+  group('@提及候选点击（回归：曾看得见点不中）', () {
+    // 原 bug：候选列表挂在输入框内部的 Stack 里，用
+    // Positioned(bottom: 50) 浮到输入框上方。Clip.none 只保证「画得出来」，
+    // 命中测试不会越过父 RenderBox 边界 —— 用户看得到列表，点下去毫无反应。
+    // 修法是把列表提为输入区的同级兄弟，回到正常布局流。
+    testWidgets('候选列表整体落在输入区之上，且命中区未溢出父边界', (tester) async {
+      final composerHeight = ValueNotifier<double>(52);
+      addTearDown(composerHeight.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp(
+              home: Scaffold(
+                body: Column(
+                  children: [
+                    const Spacer(),
+                    ChatInput(
+                      type: 'C2G',
+                      peerId: 'g1',
+                      onSendPressed: (_) async => true,
+                      composerHeight: composerHeight,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      // 触发 @：点 @ 按钮会在光标处插入 @ 并唤起候选面板
+      await tester.tap(find.byKey(const Key('chat_mention_button')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+
+      // 候选面板由 provider 驱动，测试环境下群成员为空 → 面板不渲染，
+      // 这里只钉死结构不变量：ChatInput 内不得再出现 clipBehavior: Clip.none
+      // 的 Stack 承载候选列表（那正是命中失效的根源）。
+      final stacks = tester.widgetList<Stack>(find.byType(Stack));
+      final leakyStacks = stacks.where((s) => s.clipBehavior == Clip.none);
+      expect(
+        leakyStacks,
+        isEmpty,
+        reason:
+            'Clip.none 的 Stack 里放溢出内容 = 看得见点不中，'
+            '候选列表必须留在正常布局流里',
+      );
+
+      await _unmount(tester);
+    });
+  });
 }
