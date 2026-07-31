@@ -155,7 +155,12 @@ class ChannelApi extends HttpClient {
       queryParameters: params,
     );
 
-    if (!resp.ok || resp.payload == null) {
+    // 三个调用点均已有 catch + error 态：channel_provider 的
+    // loadSubscribedChannels / loadMoreSubscribedChannels（error: loadError），
+    // channel_discover_page._loadSubscribedChannelIds（catch 后降级）。
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return const ChannelPageResult(
         list: [],
         nextCursor: null,
@@ -580,7 +585,10 @@ class ChannelApi extends HttpClient {
   /// 获取我收到的邀请列表
   Future<List<Map<String, dynamic>>> getMyInvitations() async {
     final resp = await get('/api/v1/channel/invitations/my');
-    if (!resp.ok || resp.payload == null) return [];
+    // 调用点 channel_invitation_page 有 _error + 重试 UI
+    resp.throwIfFailed();
+
+    if (resp.payload == null) return [];
     final list = resp.payload['list'] as List?;
     return list?.cast<Map<String, dynamic>>() ?? [];
   }
@@ -588,7 +596,10 @@ class ChannelApi extends HttpClient {
   /// 获取我发出的邀请列表
   Future<List<Map<String, dynamic>>> getSentInvitations() async {
     final resp = await get('/api/v1/channel/invitations/sent');
-    if (!resp.ok || resp.payload == null) return [];
+    // 调用点 channel_invitation_page(_error) 与 channel_subscriber_page(catch 降级)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) return [];
     final list = resp.payload['list'] as List?;
     return list?.cast<Map<String, dynamic>>() ?? [];
   }
@@ -624,7 +635,11 @@ class ChannelApi extends HttpClient {
   Future<List<ChannelOrderModel>> getMyOrders() async {
     final resp = await get('/api/v1/channel/orders/my');
 
-    if (!resp.ok || resp.payload == null) {
+    // 付费场景不得伪装成"暂无订单"；调用点 channel_paywall_view._showMyOrdersSheet 已补 catch
+
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 

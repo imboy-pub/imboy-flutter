@@ -60,4 +60,18 @@ class IMBoyHttpResponse {
     payload = <String, dynamic>{};
     ok = false;
   }
+
+  /// 请求失败时抛出，把失败信号从"返回值"变回"异常"。
+  ///
+  /// HttpClient 从不抛异常（`on Exception catch (e) => handleException(...)`，
+  /// 断网更是走前置 NetworkException 分支直接 return），所以 API 层写
+  /// `if (!resp.ok) return <空列表>` 就把网络失败压成了"没有数据"，
+  /// 上层 service 的 try/catch 与页面的失败态分支全部变成死代码。
+  ///
+  /// 只在**页面已具备失败态 UI** 的链路上调用；调用方必须有 catch，
+  /// 否则静默空态会变成未捕获崩溃。
+  void throwIfFailed() {
+    if (ok) return;
+    throw error ?? UnknownException();
+  }
 }

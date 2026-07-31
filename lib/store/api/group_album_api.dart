@@ -30,7 +30,11 @@ class GroupAlbumApi extends HttpClient {
       queryParameters: {'gid': groupId, 'page': page, 'size': size},
     );
 
-    if (!resp.ok || resp.payload == null) {
+    // 请求失败必须上抛：伪造空分页会让"网络挂了"渲染成"群相册被清空了"。
+    // 链路：GroupAlbumService.getAlbums(rethrow) → group_album_page(_loadFailed)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return const {
         'list': <Map<String, dynamic>>[],
         'total': 0,
@@ -149,7 +153,10 @@ class GroupAlbumApi extends HttpClient {
       queryParameters: {'album_id': aid, 'page': page, 'size': size},
     );
 
-    if (!resp.ok || resp.payload == null) {
+    // 同 getAlbums；且伪造 total=0 还会让分页误判 _hasMore
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return const {
         'list': <Map<String, dynamic>>[],
         'total': 0,

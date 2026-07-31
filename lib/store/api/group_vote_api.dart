@@ -93,7 +93,10 @@ class GroupVoteApi extends HttpClient {
 
     final resp = await get(API.groupVoteList, queryParameters: query);
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：GroupVoteService.getVotes(rethrow) → group_vote_page(_loadFailed)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 
@@ -197,7 +200,12 @@ class GroupVoteApi extends HttpClient {
       queryParameters: {'vote_id': voteIdText},
     );
 
-    if (!resp.ok || resp.payload == null) {
+    // 空列表 == "你还没投票"，网络失败绝不能压成这个：已投票的人会看到
+    // 可投票界面并重复提交。链路：GroupVoteService.getMyVotes(rethrow)
+    // → group_vote_detail_page(_loadFailed)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 

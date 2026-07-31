@@ -21,7 +21,11 @@ class GroupTagApi extends HttpClient {
   Future<List<Map<String, dynamic>>> getGroupTags(String groupId) async {
     final resp = await get(API.groupTagList, queryParameters: {'gid': groupId});
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：GroupTagService.getGroupTags(rethrow, d2749ea4)
+    // → group_tag_page._loadTags(on Exception catch → _error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 

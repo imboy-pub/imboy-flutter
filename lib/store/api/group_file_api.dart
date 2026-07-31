@@ -44,7 +44,10 @@ class GroupFileApi extends HttpClient {
 
     final resp = await get(API.groupFileList, queryParameters: query);
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：GroupFileService.getFiles(rethrow) → group_file_page._loadFiles(_error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return const {
         'list': <Map<String, dynamic>>[],
         'total': 0,
@@ -80,7 +83,10 @@ class GroupFileApi extends HttpClient {
       queryParameters: {'gid': gid},
     );
 
-    if (!resp.ok || resp.payload == null) {
+    // 分类统计失败不阻塞列表：group_file_page._loadCategoryStats 已 catch 并降级
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 
@@ -113,7 +119,10 @@ class GroupFileApi extends HttpClient {
       queryParameters: {'gid': gid, 'keyword': kw, 'page': page, 'size': size},
     );
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：GroupFileService.searchFiles(rethrow) → group_file_page._loadFiles(_error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return const {
         'list': <Map<String, dynamic>>[],
         'total': 0,
