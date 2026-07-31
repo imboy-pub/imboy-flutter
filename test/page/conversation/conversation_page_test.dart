@@ -270,4 +270,32 @@ void main() {
       await _unmount(tester);
     });
   });
+
+  group('ConversationPage 分隔线', () {
+    testWidgets('N 行只画 N-1 条分隔线（末行下面不画）', (tester) async {
+      // iOS 列表最后一行下面是空白。多画一条会让列表看起来"还没到底"，
+      // 尤其在只有两三个会话时特别明显。
+      final c1 = _conv(id: 1, title: '张三');
+      final c2 = _conv(id: 2, title: '李四');
+      final c3 = _conv(id: 3, title: '王五');
+      await _pumpConv(
+        tester,
+        state: ConversationState(
+          isLoading: false,
+          conversationMap: {c1.uk3: c1, c2.uk3: c2, c3.uk3: c3},
+        ),
+      );
+
+      expect(find.text('张三'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(SliverList),
+          matching: find.byType(Divider),
+        ),
+        findsNWidgets(2),
+        reason: '3 行会话应该只有 2 条分隔线',
+      );
+      await _unmount(tester);
+    });
+  });
 }

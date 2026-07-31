@@ -1,6 +1,7 @@
 import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:imboy/component/ui/bot_badge.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/theme/default/app_duration.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
@@ -100,12 +101,16 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
       onTapCancel: () => setState(() => _isPressed = false),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+        // DESIGN.md 6.4：Cell 按压反馈 100ms
+        duration: AppDuration.buttonPress,
         color: _isPressed
             // 按压态半透明高光叠加：暗色用白、亮色用黑，属固定交互反馈
             ? (isDark ? AppColors.overlayWhite10 : AppColors.overlayBlack5)
             : bgColor,
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -147,7 +152,9 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
               ),
             ),
 
-            const SizedBox(width: 14),
+            // 12pt 不是随手取的：分隔线按 16(左padding)+56(头像)+12 = 84 起画
+            // （conversation_page)。这里给 14 的话文字左缘和分隔线差 2pt。
+            AppSpacing.horizontalMedium,
 
             // 内容区域
             Expanded(
@@ -173,7 +180,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
                         currentModel.lastMsgStatus,
                       ))
                         const Padding(
-                          padding: EdgeInsets.only(right: 4),
+                          padding: EdgeInsets.only(right: AppSpacing.tiny),
                           child: CupertinoActivityIndicator(radius: 6),
                         ),
                       Expanded(

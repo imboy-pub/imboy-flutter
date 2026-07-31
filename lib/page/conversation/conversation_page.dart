@@ -454,16 +454,20 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                         ),
                       ),
                     ),
-                    // 分隔线
-                    Padding(
-                      padding: const EdgeInsets.only(left: 84),
-                      child: Divider(
-                        height: 0.5,
-                        color: AppColors.getIosSeparator(
-                          brightness,
-                        ).withValues(alpha: 0.3),
+                    // 分隔线：左 16(页面 padding) + 56(头像) + 12(头像后间距) = 84，
+                    // 与文字左缘对齐（DESIGN.md 8.3 A）。
+                    // 末行不画——iOS 列表最后一行下面是空白，多一条线会让列表
+                    // 看起来"还没到底"。
+                    if (index < filtered.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 84),
+                        child: Divider(
+                          height: 0.5,
+                          color: AppColors.getIosSeparator(
+                            brightness,
+                          ).withValues(alpha: 0.3),
+                        ),
                       ),
-                    ),
                   ],
                 );
               }, childCount: filtered.length),
