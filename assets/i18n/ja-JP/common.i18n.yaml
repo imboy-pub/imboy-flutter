@@ -6,6 +6,7 @@ acceptFriendRequest: 友達リクエストを承認
 addFriend: 友達を追加
 addPhoneContact: 電話番号の連絡先を追加
 creditCardRepayment: クレジットカード返済
+dataNotFound: ページのデータが存在しないか、期限切れです
 smallChange: 残高
 addTag: タグを追加
 addToContacts: 連絡先に追加

@@ -637,6 +637,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get addFriend => 'Aggiungi amico';
 	@override String get addPhoneContact => 'Aggiungi contatto telefonico';
 	@override String get creditCardRepayment => 'Pagamento carta di credito';
+	@override String get dataNotFound => 'I dati di questa pagina non esistono o sono scaduti';
 	@override String get smallChange => 'Spiccioli';
 	@override String get addTag => 'Aggiungi tag';
 	@override String get addToContacts => 'Aggiungi ai contatti';
@@ -3038,6 +3039,7 @@ extension on TranslationsItIt {
 			'common.addFriend' => 'Aggiungi amico',
 			'common.addPhoneContact' => 'Aggiungi contatto telefonico',
 			'common.creditCardRepayment' => 'Pagamento carta di credito',
+			'common.dataNotFound' => 'I dati di questa pagina non esistono o sono scaduti',
 			'common.smallChange' => 'Spiccioli',
 			'common.addTag' => 'Aggiungi tag',
 			'common.addToContacts' => 'Aggiungi ai contatti',
@@ -3532,9 +3534,9 @@ extension on TranslationsItIt {
 			'common.groupAnnouncementLoadFailed' => 'Caricamento annuncio fallito. Riprova più tardi.',
 			'common.groupAnnouncementPublishFailed' => 'Pubblicazione annuncio fallita',
 			'common.groupAnnouncementPublishSuccess' => 'Annuncio pubblicato',
-			'common.groupAnnouncementDeleteFailed' => 'Eliminazione annuncio fallita',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteFailed' => 'Eliminazione annuncio fallita',
 			'common.groupAnnouncementDeleteSuccess' => 'Annuncio eliminato',
 			'common.privacyClearChatHistory' => 'Cancella cronologia delle chat',
 			'common.privacyClearChatHistoryConfirm' => 'Sei sicuro di voler cancellare tutta la cronologia delle chat? Questa azione non può essere annullata.',
@@ -4046,9 +4048,9 @@ extension on TranslationsItIt {
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Aggiungi prima ${count} garanti',
 			'common.e2eeSocialCreateSuccessTitle' => 'Frammenti creati',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Chiave divisa in ${count} frammenti',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} garanti sufficienti per il ripristino',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} garanti sufficienti per il ripristino',
 			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust: il server non conserva frammenti',
 			'common.e2eeSocialNoShards' => 'Nessun frammento creato',
 			'common.e2eeSocialNoProxyShards' => 'Nessun frammento garante',
@@ -4560,9 +4562,9 @@ extension on TranslationsItIt {
 			'main.commentPlaceholder' => 'Commento...',
 			'main.delayMsLabel' => 'Ritardo in ms (>=100)',
 			'main.processed' => 'Elaborato',
-			'main.export' => 'Esporta',
 			_ => null,
 		} ?? switch (path) {
+			'main.export' => 'Esporta',
 			'main.school' => 'Scuola',
 			'main.hobbiesAndInterests' => 'Hobby & Interessi',
 			'main.interests' => 'Interests',

@@ -654,6 +654,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get addFriend => '新增朋友';
 	@override String get addPhoneContact => '新增手機聯絡人';
 	@override String get creditCardRepayment => '信用卡還款';
+	@override String get dataNotFound => '頁面資料不存在或已失效';
 	@override String get smallChange => '零錢';
 	@override String get addTag => '新增標籤';
 	@override String get addToContacts => '新增到通訊錄';
@@ -3078,6 +3079,7 @@ extension on TranslationsZhHant {
 			'common.addFriend' => '新增朋友',
 			'common.addPhoneContact' => '新增手機聯絡人',
 			'common.creditCardRepayment' => '信用卡還款',
+			'common.dataNotFound' => '頁面資料不存在或已失效',
 			'common.smallChange' => '零錢',
 			'common.addTag' => '新增標籤',
 			'common.addToContacts' => '新增到通訊錄',
@@ -3555,9 +3557,9 @@ extension on TranslationsZhHant {
 			'common.officialReply' => '官方回覆',
 			'common.setPasswordSecurityTips' => '為了提升帳號安全，同時防止因無法獲取驗證碼導致無法登入，請設定登入密碼。',
 			'common.locationHidden' => '已隱藏您的位置',
-			'common.locationVisible' => '已顯示您的位置',
 			_ => null,
 		} ?? switch (path) {
+			'common.locationVisible' => '已顯示您的位置',
 			'common.noNearbyPeople' => '暫無附近的人',
 			'common.clickSearchButtonToFind' => '點擊上方的搜尋按鈕搜尋附近的人',
 			'common.operationSuccess' => _root.common.success,
@@ -4069,9 +4071,9 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupDeleteConfirm' => '確定要刪除此備份記錄嗎？',
 			'common.e2eeBackupDeleteSuccess' => '備份記錄已刪除',
 			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
-			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
 			'common.e2eeBackupErrCloudUploadFailed' => '雲端備份失敗，請重試',
 			'common.e2eeBackupCloudRestoreTitle' => '從雲端備份恢復',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '偵測到雲端備份（版本 ${version}）',
@@ -4583,9 +4585,9 @@ extension on TranslationsZhHant {
 			'main.bugReport' => '錯誤報告',
 			'main.deleting' => '刪除中...',
 			'main.current' => '目前',
-			'main.publish' => '發布',
 			_ => null,
 		} ?? switch (path) {
+			'main.publish' => '發布',
 			'main.privacyPolicy' => '隱私政策',
 			'main.termsOfService' => '服務條款',
 			'main.saving' => _root.common.loading,

@@ -1938,6 +1938,9 @@ class Translations$common$zh_CN {
 	/// zh-CN: '接听'
 	String get answer => '接听';
 
+	/// zh-CN: '页面数据不存在或已失效'
+	String get dataNotFound => '页面数据不存在或已失效';
+
 	/// zh-CN: '拒绝'
 	String get declineCall => '拒绝';
 
@@ -8066,6 +8069,7 @@ extension on Translations {
 			'common.accept' => '接受',
 			'common.acceptFriendRequest' => '通过好友验证',
 			'common.answer' => '接听',
+			'common.dataNotFound' => '页面数据不存在或已失效',
 			'common.declineCall' => '拒绝',
 			'common.reconnecting' => '网络不佳，正在重连…',
 			'common.minimize' => '最小化',
@@ -8483,9 +8487,9 @@ extension on Translations {
 			'common.tipEmptyChatPlaceholder' => '这里还没有消息',
 			'common.tipFailed' => '操作失败！',
 			'common.tipGreeting' => '欢迎使用',
-			'common.tipProvidersTitleFirst' => '或用以下账号登录',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipProvidersTitleFirst' => '或用以下账号登录',
 			'common.tipSuccess' => '操作成功！',
 			'common.tipTips' => '小贴士',
 			'common.titleContact' => '联系人',
@@ -8997,9 +9001,9 @@ extension on Translations {
 			'common.webLoginEmptyError' => '请输入账号和密码',
 			'common.webQRGenerateFailed' => '生成二维码失败',
 			'common.webQRTokenInvalid' => '登录令牌无效',
-			'common.e2eeErrNoRecipientKey' => '无法获取对方设备密钥，消息未发送',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeErrNoRecipientKey' => '无法获取对方设备密钥，消息未发送',
 			'common.e2eeDecryptFailed' => '消息无法解密',
 			'common.e2eeDecryptFailedReasons' => '此消息无法解密，可能原因是：',
 			'common.e2eeDecryptReasonOtherDevice' => '• 您在其他设备上登录',
@@ -9511,9 +9515,9 @@ extension on Translations {
 			'main.meituanDelivery' => '美团外卖',
 			'main.tencentService' => '腾讯服务',
 			'main.traffic' => '交通出行',
-			'main.totalAssets' => '总资产',
 			_ => null,
 		} ?? switch (path) {
+			'main.totalAssets' => '总资产',
 			'main.album' => '照片',
 			'main.appSize' => '应用大小',
 			'main.arSa' => '阿拉伯语（沙特阿拉伯）',

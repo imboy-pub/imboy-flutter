@@ -6,6 +6,7 @@ acceptFriendRequest: Freundschaftsanfrage bestätigen
 addFriend: Freund hinzufügen
 addPhoneContact: Telefonkontakt hinzufügen
 creditCardRepayment: Kreditkartenrückzahlung
+dataNotFound: Die Daten dieser Seite fehlen oder sind abgelaufen
 smallChange: Kleingeld
 addTag: Tag hinzufügen
 addToContacts: Zu Kontakten hinzufügen

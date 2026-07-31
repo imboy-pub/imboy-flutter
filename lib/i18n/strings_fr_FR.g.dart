@@ -637,6 +637,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get addFriend => 'Ajouter un ami';
 	@override String get addPhoneContact => 'Ajouter un contact téléphonique';
 	@override String get creditCardRepayment => 'Remboursement de carte de crédit';
+	@override String get dataNotFound => 'Les données de cette page sont introuvables ou ont expiré';
 	@override String get smallChange => 'Monnaie';
 	@override String get addTag => 'Ajouter une étiquette';
 	@override String get addToContacts => 'Ajouter aux contacts';
@@ -3038,6 +3039,7 @@ extension on TranslationsFrFr {
 			'common.addFriend' => 'Ajouter un ami',
 			'common.addPhoneContact' => 'Ajouter un contact téléphonique',
 			'common.creditCardRepayment' => 'Remboursement de carte de crédit',
+			'common.dataNotFound' => 'Les données de cette page sont introuvables ou ont expiré',
 			'common.smallChange' => 'Monnaie',
 			'common.addTag' => 'Ajouter une étiquette',
 			'common.addToContacts' => 'Ajouter aux contacts',
@@ -3532,9 +3534,9 @@ extension on TranslationsFrFr {
 			'common.groupAnnouncementLoadFailed' => 'Chargement de l\'annonce impossible. Réessayez plus tard.',
 			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
 			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
-			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
 			'common.groupAnnouncementDeleteSuccess' => 'Annonce supprimée',
 			'common.privacyClearChatHistory' => 'Effacer l\'historique de conversation',
 			'common.privacyClearChatHistoryConfirm' => 'Confirmer l\'effacement de tout l\'historique de conversation ? Cette action est irréversible.',
@@ -4046,9 +4048,9 @@ extension on TranslationsFrFr {
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Ajoutez d\'abord ${count} dépositaires',
 			'common.e2eeSocialCreateSuccessTitle' => 'Fragments créés',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Clé divisée en ${count} fragments',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} dépositaires suffisent pour restaurer',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} dépositaires suffisent pour restaurer',
 			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust : le serveur ne conserve aucun fragment',
 			'common.e2eeSocialNoShards' => 'Aucun fragment créé',
 			'common.e2eeSocialNoProxyShards' => 'Aucun fragment dépositaire',
@@ -4560,9 +4562,9 @@ extension on TranslationsFrFr {
 			'main.commentPlaceholder' => 'Commentaire...',
 			'main.delayMsLabel' => 'Délai en ms (>=100)',
 			'main.processed' => 'Traité',
-			'main.export' => 'Exporter',
 			_ => null,
 		} ?? switch (path) {
+			'main.export' => 'Exporter',
 			'main.school' => 'École',
 			'main.hobbiesAndInterests' => 'Loisirs et intérêts',
 			'main.interests' => 'Interests',

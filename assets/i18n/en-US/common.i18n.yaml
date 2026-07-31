@@ -5,6 +5,7 @@ acceptFriendRequest: Accept friend request
 addFriend: Add friend
 addPhoneContact: Add phone contact
 creditCardRepayment: Credit Card Repayment
+dataNotFound: "This page's data is missing or has expired"
 smallChange: Pocket Money
 addTag: Add tag
 addToContacts: Add to contacts

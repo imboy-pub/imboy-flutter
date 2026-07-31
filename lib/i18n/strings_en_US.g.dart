@@ -654,6 +654,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get addFriend => 'Add friend';
 	@override String get addPhoneContact => 'Add phone contact';
 	@override String get creditCardRepayment => 'Credit Card Repayment';
+	@override String get dataNotFound => 'This page\'s data is missing or has expired';
 	@override String get smallChange => 'Pocket Money';
 	@override String get addTag => 'Add tag';
 	@override String get addToContacts => 'Add to contacts';
@@ -3078,6 +3079,7 @@ extension on TranslationsEnUs {
 			'common.addFriend' => 'Add friend',
 			'common.addPhoneContact' => 'Add phone contact',
 			'common.creditCardRepayment' => 'Credit Card Repayment',
+			'common.dataNotFound' => 'This page\'s data is missing or has expired',
 			'common.smallChange' => 'Pocket Money',
 			'common.addTag' => 'Add tag',
 			'common.addToContacts' => 'Add to contacts',
@@ -3555,9 +3557,9 @@ extension on TranslationsEnUs {
 			'common.addedToDenylist' => 'Added to blocklist',
 			'common.bindSuccess' => 'Bound successfully',
 			'common.mobileUpdatedToParam' => ({required Object param}) => 'Mobile number updated to ${param}',
-			'common.groupAnnouncementPublish' => 'Publish announcement',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementPublish' => 'Publish announcement',
 			'common.pleaseEnterAnnouncementContent' => 'Please enter announcement content',
 			'common.selectExpirationDateOptional' => 'Select expiration date (optional)',
 			'common.groupAnnouncementDeleteConfirm' => 'Are you sure you want to delete this announcement?',
@@ -4069,9 +4071,9 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Cloud backup detected (version ${version})',
 			'common.e2eeBackupCloudRestoreBtn' => 'Restore from cloud',
 			'common.e2eeBackupCloudRestoreConfirmNote' => 'Restoring will overwrite the current E2EE keys on this device',
-			'common.e2eeBackupCloudPwdHint' => 'Enter your backup passphrase',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupCloudPwdHint' => 'Enter your backup passphrase',
 			'common.e2eeBackupErrNoCloudBackup' => 'No cloud backup found',
 			'common.e2eeBackupErrCloudPwd' => 'Wrong passphrase or corrupted backup',
 			'common.e2eeBackupErrCloudRestoreFailed' => 'Cloud restore failed, please retry',
@@ -4583,9 +4585,9 @@ extension on TranslationsEnUs {
 			'main.bugReport' => 'Bug report',
 			'main.deleting' => 'Deleting...',
 			'main.current' => 'Current',
-			'main.publish' => 'Publish',
 			_ => null,
 		} ?? switch (path) {
+			'main.publish' => 'Publish',
 			'main.privacyPolicy' => 'Privacy Policy',
 			'main.termsOfService' => 'Terms of Service',
 			'main.saving' => _root.common.loading,

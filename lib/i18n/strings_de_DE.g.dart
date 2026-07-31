@@ -637,6 +637,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get addFriend => 'Freund hinzufügen';
 	@override String get addPhoneContact => 'Telefonkontakt hinzufügen';
 	@override String get creditCardRepayment => 'Kreditkartenrückzahlung';
+	@override String get dataNotFound => 'Die Daten dieser Seite fehlen oder sind abgelaufen';
 	@override String get smallChange => 'Kleingeld';
 	@override String get addTag => 'Tag hinzufügen';
 	@override String get addToContacts => 'Zu Kontakten hinzufügen';
@@ -3038,6 +3039,7 @@ extension on TranslationsDeDe {
 			'common.addFriend' => 'Freund hinzufügen',
 			'common.addPhoneContact' => 'Telefonkontakt hinzufügen',
 			'common.creditCardRepayment' => 'Kreditkartenrückzahlung',
+			'common.dataNotFound' => 'Die Daten dieser Seite fehlen oder sind abgelaufen',
 			'common.smallChange' => 'Kleingeld',
 			'common.addTag' => 'Tag hinzufügen',
 			'common.addToContacts' => 'Zu Kontakten hinzufügen',
@@ -3532,9 +3534,9 @@ extension on TranslationsDeDe {
 			'common.groupAnnouncementLoadFailed' => 'Ankündigung konnte nicht geladen werden. Bitte später erneut versuchen.',
 			'common.groupAnnouncementPublishFailed' => 'Ankündigung konnte nicht veröffentlicht werden',
 			'common.groupAnnouncementPublishSuccess' => 'Ankündigung veröffentlicht',
-			'common.groupAnnouncementDeleteFailed' => 'Ankündigung konnte nicht gelöscht werden',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteFailed' => 'Ankündigung konnte nicht gelöscht werden',
 			'common.groupAnnouncementDeleteSuccess' => 'Ankündigung gelöscht',
 			'common.privacyClearChatHistory' => 'Chat-Verlauf löschen',
 			'common.privacyClearChatHistoryConfirm' => 'Wirklich gesamten Chat-Verlauf löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
@@ -4046,9 +4048,9 @@ extension on TranslationsDeDe {
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Zuerst ${count} Treuhänder hinzufügen',
 			'common.e2eeSocialCreateSuccessTitle' => 'Fragmente erstellt',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Schlüssel in ${count} Fragmente geteilt',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} Treuhänder für Wiederherstellung nötig',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} Treuhänder für Wiederherstellung nötig',
 			'common.e2eeSocialZeroTrustNote' => 'Zero-Trust: Server speichert keine Fragmente',
 			'common.e2eeSocialNoShards' => 'Keine Fragmente erstellt',
 			'common.e2eeSocialNoProxyShards' => 'Keine Treuhänder-Fragmente',
@@ -4560,9 +4562,9 @@ extension on TranslationsDeDe {
 			'main.commentPlaceholder' => 'Kommentar...',
 			'main.delayMsLabel' => 'Verzögerung in ms (>=100)',
 			'main.processed' => 'Verarbeitet',
-			'main.export' => 'Exportieren',
 			_ => null,
 		} ?? switch (path) {
+			'main.export' => 'Exportieren',
 			'main.school' => 'Schule',
 			'main.hobbiesAndInterests' => 'Hobbys & Interessen',
 			'main.interests' => 'Interests',

@@ -637,6 +637,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get addFriend => 'Добавить друга';
 	@override String get addPhoneContact => 'Добавить контакт';
 	@override String get creditCardRepayment => 'Погашение кредитной карты';
+	@override String get dataNotFound => 'Данные страницы отсутствуют или устарели';
 	@override String get smallChange => 'Баланс';
 	@override String get addTag => 'Добавить тег';
 	@override String get addToContacts => 'Добавить в контакты';
@@ -3038,6 +3039,7 @@ extension on TranslationsRuRu {
 			'common.addFriend' => 'Добавить друга',
 			'common.addPhoneContact' => 'Добавить контакт',
 			'common.creditCardRepayment' => 'Погашение кредитной карты',
+			'common.dataNotFound' => 'Данные страницы отсутствуют или устарели',
 			'common.smallChange' => 'Баланс',
 			'common.addTag' => 'Добавить тег',
 			'common.addToContacts' => 'Добавить в контакты',
@@ -3532,9 +3534,9 @@ extension on TranslationsRuRu {
 			'common.groupAnnouncementLoadFailed' => 'Не удалось загрузить объявление, попробуйте позже',
 			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
 			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
-			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
 			'common.groupAnnouncementDeleteSuccess' => 'Объявление удалено',
 			'common.privacyClearChatHistory' => 'Очистить историю чата',
 			'common.privacyClearChatHistoryConfirm' => 'Вы уверены, что хотите очистить всю историю чата? Это действие нельзя отменить.',
@@ -4046,9 +4048,9 @@ extension on TranslationsRuRu {
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Добавьте ещё ${count} посредников',
 			'common.e2eeSocialCreateSuccessTitle' => 'Фрагменты созданы',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Ключ разделён на ${count} фрагментов',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Для восстановления хватит ${count} посредников',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Для восстановления хватит ${count} посредников',
 			'common.e2eeSocialZeroTrustNote' => 'Архитектура нулевого доверия: сервер не хранит фрагменты',
 			'common.e2eeSocialNoShards' => 'Вы ещё не создали фрагменты восстановления',
 			'common.e2eeSocialNoProxyShards' => 'Нет фрагментов посредников',
@@ -4560,9 +4562,9 @@ extension on TranslationsRuRu {
 			'main.commentPlaceholder' => 'Комментарий...',
 			'main.delayMsLabel' => 'Задержка в мс (>=100)',
 			'main.processed' => 'Обработано',
-			'main.export' => 'Экспорт',
 			_ => null,
 		} ?? switch (path) {
+			'main.export' => 'Экспорт',
 			'main.school' => 'Школа',
 			'main.hobbiesAndInterests' => 'Хобби и интересы',
 			'main.interests' => 'Interests',

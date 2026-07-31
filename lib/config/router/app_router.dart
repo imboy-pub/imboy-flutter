@@ -589,9 +589,7 @@ GoRouter createAppRouter({
           if (group == null) {
             return CupertinoPage(
               key: state.pageKey,
-              child: Scaffold(
-                body: Center(child: Text('Group data not found')),
-              ),
+              child: Scaffold(body: Center(child: Text(t.common.dataNotFound))),
             );
           }
           return CupertinoPage(
@@ -609,9 +607,7 @@ GoRouter createAppRouter({
           if (extra == null) {
             return CupertinoPage(
               key: state.pageKey,
-              child: Scaffold(
-                body: Center(child: Text('Channel data not found')),
-              ),
+              child: Scaffold(body: Center(child: Text(t.common.dataNotFound))),
             );
           }
           return CupertinoPage(

@@ -637,6 +637,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get addFriend => '友達を追加';
 	@override String get addPhoneContact => '電話番号の連絡先を追加';
 	@override String get creditCardRepayment => 'クレジットカード返済';
+	@override String get dataNotFound => 'ページのデータが存在しないか、期限切れです';
 	@override String get smallChange => '残高';
 	@override String get addTag => 'タグを追加';
 	@override String get addToContacts => '連絡先に追加';
@@ -3038,6 +3039,7 @@ extension on TranslationsJaJp {
 			'common.addFriend' => '友達を追加',
 			'common.addPhoneContact' => '電話番号の連絡先を追加',
 			'common.creditCardRepayment' => 'クレジットカード返済',
+			'common.dataNotFound' => 'ページのデータが存在しないか、期限切れです',
 			'common.smallChange' => '残高',
 			'common.addTag' => 'タグを追加',
 			'common.addToContacts' => '連絡先に追加',
@@ -3532,9 +3534,9 @@ extension on TranslationsJaJp {
 			'common.groupAnnouncementLoadFailed' => 'お知らせの読み込みに失敗しました。後でもう一度お試しください',
 			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
 			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
-			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
 			'common.groupAnnouncementDeleteSuccess' => 'お知らせを削除しました',
 			'common.privacyClearChatHistory' => 'チャット履歴を消去',
 			'common.privacyClearChatHistoryConfirm' => 'すべてのチャット履歴を消去してもよろしいですか？この操作は取り消せません。',
@@ -4046,9 +4048,9 @@ extension on TranslationsJaJp {
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '先に ${count} 人の代理者を追加してください',
 			'common.e2eeSocialCreateSuccessTitle' => 'シャードを作成しました',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'キーを ${count} 個のシャードに分割しました',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} 人の代理者の協力でキーを復元できます',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} 人の代理者の協力でキーを復元できます',
 			'common.e2eeSocialZeroTrustNote' => 'ゼロトラスト構成：サーバーにはシャードを一切保存しません',
 			'common.e2eeSocialNoShards' => '復元シャードをまだ作成していません',
 			'common.e2eeSocialNoProxyShards' => '代理シャードはありません',
@@ -4560,9 +4562,9 @@ extension on TranslationsJaJp {
 			'main.commentPlaceholder' => 'コメント...',
 			'main.delayMsLabel' => '遅延ミリ秒 (>=100)',
 			'main.processed' => '処理済み',
-			'main.export' => 'エクスポート',
 			_ => null,
 		} ?? switch (path) {
+			'main.export' => 'エクスポート',
 			'main.school' => '学校',
 			'main.hobbiesAndInterests' => '趣味と興味',
 			'main.interests' => 'Interests',

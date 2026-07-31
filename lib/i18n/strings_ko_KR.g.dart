@@ -637,6 +637,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get addFriend => '친구 추가';
 	@override String get addPhoneContact => '연락처 추가';
 	@override String get creditCardRepayment => '신용카드 상환';
+	@override String get dataNotFound => '페이지 데이터가 없거나 만료되었습니다';
 	@override String get smallChange => '잔액';
 	@override String get addTag => '태그 추가';
 	@override String get addToContacts => '연락처에 추가';
@@ -3038,6 +3039,7 @@ extension on TranslationsKoKr {
 			'common.addFriend' => '친구 추가',
 			'common.addPhoneContact' => '연락처 추가',
 			'common.creditCardRepayment' => '신용카드 상환',
+			'common.dataNotFound' => '페이지 데이터가 없거나 만료되었습니다',
 			'common.smallChange' => '잔액',
 			'common.addTag' => '태그 추가',
 			'common.addToContacts' => '연락처에 추가',
@@ -3532,9 +3534,9 @@ extension on TranslationsKoKr {
 			'common.groupAnnouncementLoadFailed' => '공지를 불러오지 못했습니다. 나중에 다시 시도해주세요',
 			'common.groupAnnouncementPublishFailed' => '공지 게시 실패',
 			'common.groupAnnouncementPublishSuccess' => '공지가 게시되었습니다',
-			'common.groupAnnouncementDeleteFailed' => '공지 삭제 실패',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteFailed' => '공지 삭제 실패',
 			'common.groupAnnouncementDeleteSuccess' => '공지가 삭제되었습니다',
 			'common.privacyClearChatHistory' => '채팅 기록 삭제',
 			'common.privacyClearChatHistoryConfirm' => '모든 채팅 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
@@ -4046,9 +4048,9 @@ extension on TranslationsKoKr {
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '대리자를 ${count}명 더 추가해주세요',
 			'common.e2eeSocialCreateSuccessTitle' => '샤드 생성 완료',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다',
 			'common.e2eeSocialZeroTrustNote' => '제로 트러스트 구조: 서버는 어떤 샤드도 저장하지 않습니다',
 			'common.e2eeSocialNoShards' => '생성한 복구 샤드가 없습니다',
 			'common.e2eeSocialNoProxyShards' => '대리자 샤드가 없습니다',
@@ -4560,9 +4562,9 @@ extension on TranslationsKoKr {
 			'main.commentPlaceholder' => '댓글...',
 			'main.delayMsLabel' => '지연 시간(ms) (>=100)',
 			'main.processed' => '처리됨',
-			'main.export' => '내보내기',
 			_ => null,
 		} ?? switch (path) {
+			'main.export' => '내보내기',
 			'main.school' => '학교',
 			'main.hobbiesAndInterests' => '취미 및 관심사',
 			'main.interests' => 'Interests',

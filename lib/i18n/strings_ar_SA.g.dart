@@ -637,6 +637,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get addFriend => 'إضافة صديق';
 	@override String get addPhoneContact => 'إضافة جهة اتصال هاتف';
 	@override String get creditCardRepayment => 'سداد بطاقة الائتمان';
+	@override String get dataNotFound => 'بيانات هذه الصفحة غير موجودة أو منتهية الصلاحية';
 	@override String get smallChange => 'الفكّة';
 	@override String get addTag => 'إضافة علامة';
 	@override String get addToContacts => 'إضافة إلى جهات الاتصال';
@@ -3038,6 +3039,7 @@ extension on TranslationsArSa {
 			'common.addFriend' => 'إضافة صديق',
 			'common.addPhoneContact' => 'إضافة جهة اتصال هاتف',
 			'common.creditCardRepayment' => 'سداد بطاقة الائتمان',
+			'common.dataNotFound' => 'بيانات هذه الصفحة غير موجودة أو منتهية الصلاحية',
 			'common.smallChange' => 'الفكّة',
 			'common.addTag' => 'إضافة علامة',
 			'common.addToContacts' => 'إضافة إلى جهات الاتصال',
@@ -3532,9 +3534,9 @@ extension on TranslationsArSa {
 			'common.groupAnnouncementLoadFailed' => 'تعذّر تحميل الإعلان، حاول لاحقاً',
 			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
 			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
-			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
 			'common.groupAnnouncementDeleteSuccess' => 'تم حذف الإعلان',
 			'common.privacyClearChatHistory' => 'مسح سجل الدردشة',
 			'common.privacyClearChatHistoryConfirm' => 'هل أنت متأكد من مسح جميع سجلات الدردشة؟ هذا الإجراء لا يمكن التراجع عنه.',
@@ -4046,9 +4048,9 @@ extension on TranslationsArSa {
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'أضف ${count} وكلاء آخرين',
 			'common.e2eeSocialCreateSuccessTitle' => 'تم إنشاء الشظايا',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'يكفي ${count} وكيل للاستعادة',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'يكفي ${count} وكيل للاستعادة',
 			'common.e2eeSocialZeroTrustNote' => 'بنية الثقة الصفرية: لا يحفظ الخادم أي شظية',
 			'common.e2eeSocialNoShards' => 'لم تنشئ أي شظايا استعادة بعد',
 			'common.e2eeSocialNoProxyShards' => 'لا توجد شظايا وكلاء',
@@ -4560,9 +4562,9 @@ extension on TranslationsArSa {
 			'main.commentPlaceholder' => 'تعليق...',
 			'main.delayMsLabel' => 'تأخير بالمللي ثانية (>=100)',
 			'main.processed' => 'تمت المعالجة',
-			'main.export' => 'تصدير',
 			_ => null,
 		} ?? switch (path) {
+			'main.export' => 'تصدير',
 			'main.school' => 'المدرسة',
 			'main.hobbiesAndInterests' => 'الهوايات والاهتمامات',
 			'main.interests' => 'Interests',

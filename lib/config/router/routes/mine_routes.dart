@@ -3,6 +3,7 @@ library;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:feedback/feedback.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/store/model/feedback_model.dart';
@@ -194,9 +195,7 @@ List<RouteBase> mineRoutes() => [
           if (model == null) {
             return CupertinoPage(
               key: state.pageKey,
-              child: Scaffold(
-                body: Center(child: Text('Feedback model not found')),
-              ),
+              child: Scaffold(body: Center(child: Text(t.common.dataNotFound))),
             );
           }
           return CupertinoPage(

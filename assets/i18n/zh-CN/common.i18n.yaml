@@ -3,6 +3,7 @@ aboutApp: 关于应用
 accept: 接受
 acceptFriendRequest: 通过好友验证
 answer: 接听
+dataNotFound: 页面数据不存在或已失效
 declineCall: 拒绝
 reconnecting: 网络不佳，正在重连…
 minimize: 最小化

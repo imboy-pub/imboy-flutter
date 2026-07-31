@@ -5,6 +5,7 @@ acceptFriendRequest: 通過好友驗證
 addFriend: 新增朋友
 addPhoneContact: 新增手機聯絡人
 creditCardRepayment: 信用卡還款
+dataNotFound: 頁面資料不存在或已失效
 smallChange: 零錢
 addTag: 新增標籤
 addToContacts: 新增到通訊錄

@@ -6,6 +6,7 @@ acceptFriendRequest: 친구 요청 수락
 addFriend: 친구 추가
 addPhoneContact: 연락처 추가
 creditCardRepayment: 신용카드 상환
+dataNotFound: 페이지 데이터가 없거나 만료되었습니다
 smallChange: 잔액
 addTag: 태그 추가
 addToContacts: 연락처에 추가
