@@ -310,6 +310,54 @@ void main() {
       expect(find.byKey(const Key('add_friend_button')), findsOneWidget);
     });
   });
+
+  group('ContactPage —— 视觉/无障碍收口', () {
+    Future<void> pumpWithContacts(WidgetTester tester) async {
+      _useIphoneViewport(tester);
+      await tester.pumpWidget(
+        _buildTestApp(
+          const ContactPage(),
+          overrides: [
+            contactProvider.overrideWith(
+              () => _StateOverrideNotifier(
+                ContactState(
+                  contactList: _buildFakeContacts(),
+                  isLoading: false,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('联系人行不画 disclosure chevron', (tester) async {
+      await pumpWithContacts(tester);
+
+      expect(find.text('Alice'), findsWidgets, reason: '列表没渲染出来，后续断言无意义');
+      // 整行可点，箭头传达不了额外信息。iOS 通讯录 / 微信通讯录都没有。
+      expect(find.byIcon(CupertinoIcons.chevron_right), findsNothing);
+    });
+
+    testWidgets('在线状态点不进语义树', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpWithContacts(tester);
+
+      // 那个点是纯颜色编码（在线/1小时内/1天内/更久），本身读不出来；
+      // 有 lastSeenAt 时 subtitle 已经把同样信息写成文字，点只是重复。
+      expect(
+        find.descendant(
+          of: find.byType(ContactPage),
+          matching: find.byType(ExcludeSemantics),
+        ),
+        findsWidgets,
+        reason: '状态点未用 ExcludeSemantics 排除',
+      );
+
+      handle.dispose();
+    });
+  });
 }
 
 /// 注入指定 ContactState 的 fake notifier。

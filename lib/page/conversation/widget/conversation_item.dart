@@ -6,7 +6,6 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -93,10 +92,9 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
 
     return GestureDetector(
       onTap: widget.onTap,
-      onTapDown: (_) {
-        HapticFeedback.selectionClick();
-        setState(() => _isPressed = true);
-      },
+      // 不触发 HapticFeedback：iOS 系统列表按下不给触感，只有切换/选择类
+      // 操作才给。每点一个会话都震一下是噪音，高频列表尤其明显。
+      onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
       behavior: HitTestBehavior.opaque,
@@ -260,26 +258,18 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
   ) {
     if (currentModel.lastTime <= 0) return const SizedBox.shrink();
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          DateTimeHelper.lastTimeFmt(currentModel.lastTime),
-          style: context
-              .textStyle(
-                FontSizeType.footnote,
-                color: AppColors.iosGray,
-                fontWeight: FontWeight.w400,
-              )
-              .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-        ),
-        AppSpacing.horizontalTiny,
-        const Icon(
-          CupertinoIcons.chevron_right,
-          size: 12,
-          color: AppColors.iosGray3,
-        ),
-      ],
+    // 不画 disclosure chevron：整行都可点，箭头传达不了额外信息，
+    // 只是占宽度、和时间挤在一起。微信 / Telegram / iMessage 的会话列表
+    // 都没有这个箭头。
+    return Text(
+      DateTimeHelper.lastTimeFmt(currentModel.lastTime),
+      style: context
+          .textStyle(
+            FontSizeType.footnote,
+            color: AppColors.iosGray,
+            fontWeight: FontWeight.w400,
+          )
+          .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
     );
   }
 

@@ -230,17 +230,23 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             Positioned(
               bottom: -1,
               right: -1,
-              child: Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: _getOnlineStatusColor(context, model),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isDark
-                        ? AppColors.darkSurface
-                        : AppColors.lightSurface,
-                    width: 2,
+              // 这个点是纯颜色编码（在线/1小时内/1天内/更久），本身读不出来。
+              // 有 lastSeenAt 时 subtitle 的 UserOnlineStatusWidget 已经把同样
+              // 的信息写成文字了，点只是重复；没有 lastSeenAt 时它是灰点表示
+              // "状态未知"，念出来也是噪音。两种情况都不该进语义树。
+              child: ExcludeSemantics(
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: _getOnlineStatusColor(context, model),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.darkSurface
+                          : AppColors.lightSurface,
+                      width: 2,
+                    ),
                   ),
                 ),
               ),
@@ -299,11 +305,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               indicatorSize: 0,
             )
           : null,
-      trailing: const Icon(
-        CupertinoIcons.chevron_right,
-        size: 14,
-        color: AppColors.iosGray3,
-      ),
+      // 同会话列表：整行可点，不画 disclosure chevron。
+      // iOS 通讯录 / 微信通讯录都没有。
     );
   }
 

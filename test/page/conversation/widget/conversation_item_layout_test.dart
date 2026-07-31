@@ -7,7 +7,9 @@
 /// 这里把"分隔线起点必须等于文字左缘"钉成可执行断言，改任一边都会报警。
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -94,6 +96,49 @@ void main() {
       animated.duration,
       AppDuration.buttonPress,
       reason: '按压高亮时长偏离规范，列表点击手感会和其他页面不一致',
+    );
+  });
+
+  testWidgets('不画 disclosure chevron', (tester) async {
+    await pump(tester);
+
+    // 整行都可点，箭头传达不了额外信息，只占宽度。
+    // 微信 / Telegram / iMessage 的会话列表都没有这个箭头。
+    expect(
+      find.descendant(
+        of: find.byType(ConversationItem),
+        matching: find.byIcon(CupertinoIcons.chevron_right),
+      ),
+      findsNothing,
+    );
+  });
+
+  testWidgets('按下不触发触感反馈', (tester) async {
+    final calls = <MethodCall>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        calls.add(call);
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+
+    await pump(tester);
+    await tester.press(find.text('张三'));
+    await tester.pump();
+
+    // iOS 系统列表按下不给触感，只有切换/选择类操作才给。
+    // 每点一个会话都震一下，在高频列表里是噪音。
+    expect(
+      calls.where((c) => c.method == 'HapticFeedback.vibrate'),
+      isEmpty,
+      reason: '会话行按下触发了触感反馈',
     );
   });
 }
