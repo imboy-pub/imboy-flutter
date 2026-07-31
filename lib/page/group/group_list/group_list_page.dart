@@ -144,7 +144,13 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
             );
             await initData(onRefresh: true);
           },
-          child: const Icon(CupertinoIcons.refresh, size: 22),
+          // 纯图标按钮必须有 semanticLabel（DESIGN.md 11.4）；
+          // 不补的话读屏用户在这个位置只听到"按钮"，不知道按下去干什么。
+          child: Icon(
+            CupertinoIcons.refresh,
+            size: 22,
+            semanticLabel: t.groupList.refresh,
+          ),
         ),
       ],
       slivers: [
@@ -314,7 +320,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                 color: AppColors.iosBlue,
               ),
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalRegular,
             Text(
               text ?? t.common.noData,
               style: context.textStyle(
@@ -325,7 +331,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
               textAlign: TextAlign.center,
             ),
             if (showCta) ...[
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmall,
               Text(
                 t.common.createGroupF2fTips,
                 style: context.textStyle(
@@ -334,7 +340,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
+              AppSpacing.verticalLarge,
               CupertinoButton.filled(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.xLarge,
