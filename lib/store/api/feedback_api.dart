@@ -9,9 +9,9 @@ class FeedbackApi extends HttpClient {
       API.feedbackPage,
       queryParameters: {'page': page, 'size': size},
     );
-    if (!resp.ok) {
-      return null;
-    }
+    // 链路：feedback_page(_error)
+    resp.throwIfFailed();
+
     return resp.payload as Map<String, dynamic>?;
   }
 
@@ -46,9 +46,9 @@ class FeedbackApi extends HttpClient {
       API.feedbackPageReply,
       queryParameters: {'feedback_id': feedbackId, 'page': page, 'size': size},
     );
-    if (!resp.ok) {
-      return null;
-    }
+    // 链路：feedback_detail_page(_error)
+    resp.throwIfFailed();
+
     return resp.payload as Map<String, dynamic>?;
   }
 }

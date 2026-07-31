@@ -8,9 +8,9 @@ class DenylistApi extends HttpClient {
       API.denylistPage,
       queryParameters: {'page': page, 'size': size},
     );
-    if (!resp.ok) {
-      return null;
-    }
+    // 链路：denylist_page(_error → AsyncStateView)
+    resp.throwIfFailed();
+
     return resp.payload as Map<String, dynamic>?;
   }
 

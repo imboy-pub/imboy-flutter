@@ -21,7 +21,10 @@ class GroupCategoryApi extends HttpClient {
   Future<List<Map<String, dynamic>>> getCategories() async {
     final resp = await get(API.groupCategoryList);
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：group_category_page(_error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 

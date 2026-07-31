@@ -144,7 +144,10 @@ class GroupTaskApi extends HttpClient {
 
     final resp = await get(API.groupTaskList, queryParameters: query);
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：group_task_page(_error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 
@@ -164,7 +167,10 @@ class GroupTaskApi extends HttpClient {
       queryParameters: {'group_id': groupId, 'task_id': taskIdText},
     );
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：group_task_detail_page(_error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return null;
     }
 
@@ -182,7 +188,10 @@ class GroupTaskApi extends HttpClient {
 
     final resp = await get(API.groupTaskMy, queryParameters: query);
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：group_task_page(_error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 
@@ -200,7 +209,10 @@ class GroupTaskApi extends HttpClient {
       queryParameters: {'task_id': taskId, 'page': page, 'size': size},
     );
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：group_task_page(_error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 

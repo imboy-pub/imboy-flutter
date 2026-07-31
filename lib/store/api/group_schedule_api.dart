@@ -142,7 +142,10 @@ class GroupScheduleApi extends HttpClient {
       queryParameters: {'group_id': groupId, 'schedule_id': scheduleIdText},
     );
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：group_schedule_detail_page(_error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return null;
     }
 
@@ -177,7 +180,10 @@ class GroupScheduleApi extends HttpClient {
 
     final resp = await get(API.groupScheduleList, queryParameters: query);
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：group_schedule_page(_error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 
@@ -197,7 +203,10 @@ class GroupScheduleApi extends HttpClient {
 
     final resp = await get(API.groupScheduleMyList, queryParameters: query);
 
-    if (!resp.ok || resp.payload == null) {
+    // 链路：group_schedule_page(_error)
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
       return [];
     }
 

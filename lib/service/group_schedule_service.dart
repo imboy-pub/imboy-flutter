@@ -62,8 +62,10 @@ class GroupScheduleService {
     try {
       return await _api.getSchedule(groupId: groupId, scheduleId: scheduleId);
     } catch (e) {
+      // 不 fail-open：group_schedule_detail_page 已有 _error 分支，
+      // 返回 null 会让"加载失败"渲染成"日程不存在"。
       iPrint('GroupScheduleService: 获取日程详情失败 - $e');
-      return null;
+      rethrow;
     }
   }
 

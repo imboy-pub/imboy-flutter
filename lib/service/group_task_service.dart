@@ -121,8 +121,10 @@ class GroupTaskService implements IGroupTaskService {
     try {
       return await _api.getTask(groupId: groupId, taskId: taskId);
     } catch (e) {
+      // 不 fail-open：group_task_detail_page 已有 _error 分支，
+      // 返回 null 会让"加载失败"渲染成"任务不存在"。
       iPrint('GroupTaskService: 获取任务详情失败 - $e');
-      return null;
+      rethrow;
     }
   }
 

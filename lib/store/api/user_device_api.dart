@@ -9,9 +9,9 @@ class UserDeviceApi extends HttpClient {
       API.userDevicePage,
       queryParameters: {'page': page, 'size': size},
     );
-    if (!resp.ok) {
-      return null;
-    }
+    // 链路：user_device_page(_error)
+    resp.throwIfFailed();
+
     return resp.payload as Map<String, dynamic>?;
   }
 
@@ -50,9 +50,9 @@ class UserDeviceApi extends HttpClient {
   /// 返回当前用户的活跃设备会话信息
   Future<Map<String, dynamic>?> getActiveSessions() async {
     IMBoyHttpResponse resp = await get(API.userDeviceSessions);
-    if (!resp.ok) {
-      return null;
-    }
+    // 链路：user_device_page(_error)
+    resp.throwIfFailed();
+
     return resp.payload as Map<String, dynamic>?;
   }
 
