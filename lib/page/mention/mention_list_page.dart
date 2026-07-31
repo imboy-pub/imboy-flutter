@@ -326,7 +326,7 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
         ),
         if (!isLast)
           Padding(
-            padding: const EdgeInsets.only(left: 78),
+            padding: const EdgeInsets.only(left: 76),
             child: Divider(
               height: 0.33,
               color: AppColors.getIosSeparator(

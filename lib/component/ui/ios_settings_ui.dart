@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 /// iOS 风格页面模板
@@ -310,7 +311,11 @@ class ImBoyListTile extends StatelessWidget {
             padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            if (leading != null) ...[leading!, const SizedBox(width: 14)],
+            // 12pt 是规范值（DESIGN.md 8.3 A「左图标/头像后 12pt 间距」），
+            // 也是各页分隔线缩进的推导基数：contact 72 = 16+44+12、
+            // group_list 76 = 16+48+12、people_nearby 84 = 16+56+12。
+            // 这里给 14 的话上述页面的文字左缘会比分隔线右移 2pt。
+            if (leading != null) ...[leading!, AppSpacing.horizontalMedium],
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
