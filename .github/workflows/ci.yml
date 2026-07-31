@@ -51,13 +51,11 @@ jobs:
         # 用 git ls-files 天然排除 submodule、gitignored 与 vendored 插件，
         # 检查范围正好是本仓自己的 1358 个 .dart。
         #
-        # 仍暂不阻断：C-01b 已格式化 134 个，还剩 3 个
-        # （integration_test/{app_test,auth/register_flow_test,e2ee_olm_device_test}.dart）
-        # 正被并发会话占用。那 3 个补齐后即可摘掉 `|| true` 恢复硬门禁。
+        # C-01b 已完成：1359 个受版本控制的 .dart 全部合规，本地实测退出码 0，
+        # 故摘掉此前的 `|| true`，恢复为硬门禁。
         run: |
           set -o pipefail
-          git ls-files -z '*.dart' | xargs -0 dart format --output=none --set-exit-if-changed || \
-            echo "::warning::存在未格式化文件，待 C-01b 剩余 3 个文件清理后恢复硬门禁"
+          git ls-files -z '*.dart' | xargs -0 dart format --output=none --set-exit-if-changed
 
       - name: Analyze code
         # errors 仍然阻断；warnings/infos 的 ratchet 计数由 quality.yml 负责，
