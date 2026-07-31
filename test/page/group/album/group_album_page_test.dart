@@ -45,12 +45,16 @@ class _FakeGroupAlbumService extends GroupAlbumService {
     this.createAlbumResult,
     this.uploadPhotoResult,
     this.renameAlbumResult = true,
+    this.throwOnGetAlbums = false,
   }) : super.withApi(GroupAlbumApi());
 
   final List<Map<String, dynamic>> albums;
   final Map<String, dynamic>? createAlbumResult;
   final Map<String, dynamic>? uploadPhotoResult;
   final bool renameAlbumResult;
+
+  /// true 时 getAlbums 抛出，模拟网络失败（service 不再 fail-open）。
+  bool throwOnGetAlbums;
 
   int getAlbumsCallCount = 0;
   final List<_CreateCall> createCalls = [];
@@ -64,6 +68,7 @@ class _FakeGroupAlbumService extends GroupAlbumService {
     int size = 20,
   }) async {
     getAlbumsCallCount++;
+    if (throwOnGetAlbums) throw Exception('network error');
     return {'list': albums, 'total': albums.length, 'page': page, 'size': size};
   }
 
@@ -434,5 +439,44 @@ void main() {
     expect(fakeService.renameCalls.length, 1);
     expect(find.text('更新失败，请稍后重试'), findsOneWidget);
     expect(fakeService.getAlbumsCallCount, 1);
+  });
+
+  // 失败态回归：service 改 rethrow 之前，getAlbums 吞异常返回空分页，
+  // 页面只能渲染"暂无群相册"，下面两个用例必然失败。
+  testWidgets('加载失败渲染失败态 + 重试，而不是"暂无群相册"', (tester) async {
+    final fakeService = _FakeGroupAlbumService(
+      albums: const [],
+      throwOnGetAlbums: true,
+    );
+    GroupAlbumService.instanceForTest = fakeService;
+
+    await tester.pumpWidget(_buildTestApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('加载失败，请重试'), findsOneWidget);
+    expect(find.text('重试'), findsOneWidget);
+    expect(find.text('暂无群相册'), findsNothing);
+  });
+
+  testWidgets('点失败态重试真的重新拉取；成功后回到正常列表', (tester) async {
+    final fakeService = _FakeGroupAlbumService(
+      albums: [
+        {'album_id': 'a1', 'album_name': '相册一'},
+      ],
+      throwOnGetAlbums: true,
+    );
+    GroupAlbumService.instanceForTest = fakeService;
+
+    await tester.pumpWidget(_buildTestApp());
+    await tester.pumpAndSettle();
+    expect(fakeService.getAlbumsCallCount, 1);
+
+    fakeService.throwOnGetAlbums = false;
+    await tester.tap(find.text('重试'));
+    await tester.pumpAndSettle();
+
+    expect(fakeService.getAlbumsCallCount, 2);
+    expect(find.text('加载失败，请重试'), findsNothing);
+    expect(find.text('相册一'), findsOneWidget);
   });
 }

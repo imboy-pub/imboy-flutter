@@ -3,6 +3,7 @@ import 'dart:async' show unawaited;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -36,6 +37,9 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
   Set<String> _selectedOptionIds = <String>{};
   bool _hasVoted = false;
   bool _isLoading = true;
+
+  /// 加载失败标记：与"投票不存在/已删除"区分，两者文案不同。
+  bool _loadFailed = false;
   bool _isSubmitting = false;
 
   /// 当前登录用户在本群的角色（0 = 未加载 / 不在群），安全默认无管理权限。
@@ -95,13 +99,31 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
   }
 
   Future<void> _loadVoteDetail() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadFailed = false;
+    });
 
-    final vote = await GroupVoteService.to.getVote(
-      groupId: widget.groupId,
-      voteId: widget.voteId,
-    );
-    final myVotes = await GroupVoteService.to.getMyVotes(voteId: widget.voteId);
+    final Map<String, dynamic>? vote;
+    final List<Map<String, dynamic>> myVotes;
+    try {
+      vote = await GroupVoteService.to.getVote(
+        groupId: widget.groupId,
+        voteId: widget.voteId,
+      );
+      myVotes = await GroupVoteService.to.getMyVotes(voteId: widget.voteId);
+    } catch (e) {
+      // myVotes 失败绝不能降级成空列表：那等于告诉用户"你还没投票"，
+      // 已投票的人会看到可投票界面并重复提交。
+      iPrint('GroupVoteDetailPage: 加载投票详情失败 - $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _loadFailed = true;
+        });
+      }
+      return;
+    }
 
     if (!mounted) return;
 
@@ -338,6 +360,14 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
   Widget _buildBody() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_loadFailed) {
+      return NoDataView(
+        text: context.t.common.loadError,
+        icon: Icons.cloud_off,
+        onTop: _loadVoteDetail,
+      );
     }
 
     if (_vote == null) {

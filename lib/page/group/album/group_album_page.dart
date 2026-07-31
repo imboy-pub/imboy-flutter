@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -29,6 +30,9 @@ class GroupAlbumPage extends ConsumerStatefulWidget {
 class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
   List<Map<String, dynamic>> _albums = [];
   bool _isLoading = true;
+
+  /// 加载失败标记：与"真的没有相册"区分，失败态才出重试入口。
+  bool _loadFailed = false;
   bool _isUploadingPhoto = false;
 
   /// 当前登录用户在本群的角色（0 = 未加载 / 不在群），安全默认无管理权限。
@@ -63,10 +67,23 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
   }
 
   Future<void> _loadAlbums() async {
-    setState(() => _isLoading = true);
-    final payload = await GroupAlbumService.to.getAlbums(
-      groupId: widget.groupId,
-    );
+    setState(() {
+      _isLoading = true;
+      _loadFailed = false;
+    });
+    final Map<String, dynamic> payload;
+    try {
+      payload = await GroupAlbumService.to.getAlbums(groupId: widget.groupId);
+    } catch (e) {
+      iPrint('GroupAlbumPage: 加载群相册失败 - $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _loadFailed = true;
+        });
+      }
+      return;
+    }
     final list = payload['list'];
     if (mounted) {
       setState(() {
@@ -293,7 +310,13 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
       children: [
         if (_isUploadingPhoto) const LinearProgressIndicator(minHeight: 2),
         Expanded(
-          child: _albums.isEmpty
+          child: _loadFailed
+              ? NoDataView(
+                  text: t.common.loadError,
+                  icon: Icons.cloud_off,
+                  onTop: _loadAlbums,
+                )
+              : _albums.isEmpty
               ? NoDataView(text: t.common.groupAlbumNoAlbum)
               : RefreshIndicator(
                   onRefresh: _loadAlbums,

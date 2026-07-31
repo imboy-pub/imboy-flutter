@@ -39,6 +39,9 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
   List<Map<String, dynamic>> _photos = [];
   Set<String> _selectedPhotoIds = <String>{};
   bool _isLoading = true;
+
+  /// 首屏加载失败标记：与"相册里真的没有图片"区分，失败态才出重试入口。
+  bool _loadFailed = false;
   bool _isLoadingMore = false;
   bool _isSelectionMode = false;
   bool _isBatchDeleting = false;
@@ -98,6 +101,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     if (refresh) {
       setState(() {
         _isLoading = true;
+        _loadFailed = false;
         _hasMore = true;
         _nextPage = 1;
       });
@@ -107,11 +111,26 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     }
 
     final page = _nextPage;
-    final payload = await GroupAlbumService.to.getPhotos(
-      albumId: widget.albumId,
-      page: page,
-      size: _pageSize,
-    );
+    final Map<String, dynamic> payload;
+    try {
+      payload = await GroupAlbumService.to.getPhotos(
+        albumId: widget.albumId,
+        page: page,
+        size: _pageSize,
+      );
+    } catch (e) {
+      iPrint('GroupAlbumPhotoPage: 加载相册图片失败 - $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isLoadingMore = false;
+          // 翻页失败不清空已有图片，也不把 _hasMore 误置 false——
+          // 下次滚动到底仍会重试同一页
+          _loadFailed = _photos.isEmpty;
+        });
+      }
+      return;
+    }
     final list = payload['list'];
     final total = _toInt(payload['total']);
     final normalized = list is List
@@ -388,11 +407,17 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_photos.isEmpty) {
+    if (_loadFailed) {
       return NoDataView(
-        text: t.group.groupAlbumPhotoEmpty,
+        text: t.common.loadError,
+        icon: Icons.cloud_off,
         onTop: () => _loadPhotos(refresh: true),
       );
+    }
+
+    if (_photos.isEmpty) {
+      // 空态仅引导，不带重试（对齐 d2749ea4 的空态/失败态语义分离）
+      return NoDataView(text: t.group.groupAlbumPhotoEmpty);
     }
 
     return RefreshIndicator(

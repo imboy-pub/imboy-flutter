@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -33,6 +34,9 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
   List<Map<String, dynamic>> _votes = [];
   bool _isLoading = true;
 
+  /// 加载失败标记：与"群里真的没有投票"区分，失败态才出重试入口。
+  bool _loadFailed = false;
+
   @override
   void initState() {
     super.initState();
@@ -45,13 +49,29 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
   }
 
   Future<void> _loadVotes({bool refresh = false}) async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadFailed = false;
+    });
 
-    final votes = await GroupVoteService.to.getVotes(
-      groupId: widget.groupId,
-      page: 1,
-      size: 100,
-    );
+    final List<Map<String, dynamic>> votes;
+    try {
+      votes = await GroupVoteService.to.getVotes(
+        groupId: widget.groupId,
+        page: 1,
+        size: 100,
+      );
+    } catch (e) {
+      iPrint('GroupVotePage: 加载投票列表失败 - $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          // 刷新失败时保留旧列表，只在首屏无数据时接管整页
+          _loadFailed = true;
+        });
+      }
+      return;
+    }
 
     if (mounted) {
       setState(() {
@@ -155,6 +175,14 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
   Widget _buildBody() {
     if (_isLoading && _votes.isEmpty) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_loadFailed && _votes.isEmpty) {
+      return NoDataView(
+        text: t.common.loadError,
+        icon: Icons.cloud_off,
+        onTop: () => _loadVotes(refresh: true),
+      );
     }
 
     if (_votes.isEmpty) {

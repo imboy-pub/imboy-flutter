@@ -74,8 +74,10 @@ class GroupVoteService {
         status: status,
       );
     } catch (e) {
+      // 不 fail-open：吞掉异常会让"网络挂了"渲染成"群里没有投票"。
+      // 调用点 group_vote_page._loadVotes 已据此渲染失败态 + 重试。
       iPrint('GroupVoteService: 获取投票列表失败 - $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -84,8 +86,10 @@ class GroupVoteService {
     try {
       return await _api.getMyVotes(voteId: voteId);
     } catch (e) {
+      // 不 fail-open：空列表 == "你还没投票"，会让已投票用户看到可投票的
+      // 界面并重复提交。调用点 group_vote_detail_page 已据此渲染失败态。
       iPrint('GroupVoteService: 获取我的投票失败 - $e');
-      return [];
+      rethrow;
     }
   }
 

@@ -25,13 +25,10 @@ class GroupAlbumService {
     try {
       return await _api.getAlbums(groupId: groupId, page: page, size: size);
     } catch (e) {
+      // 不 fail-open：伪造空分页会让"网络挂了"渲染成"群相册被清空了"。
+      // 调用点 group_album_page._loadAlbums 已据此渲染失败态 + 重试。
       iPrint('GroupAlbumService: 获取群相册失败 - $e');
-      return const {
-        'list': <Map<String, dynamic>>[],
-        'total': 0,
-        'page': 1,
-        'size': 20,
-      };
+      rethrow;
     }
   }
 
@@ -91,13 +88,9 @@ class GroupAlbumService {
     try {
       return await _api.getPhotos(albumId: albumId, page: page, size: size);
     } catch (e) {
+      // 不 fail-open：同 getAlbums，且分页场景伪造 total=0 会误判 _hasMore。
       iPrint('GroupAlbumService: 获取相册图片失败 - $e');
-      return const {
-        'list': <Map<String, dynamic>>[],
-        'total': 0,
-        'page': 1,
-        'size': 20,
-      };
+      rethrow;
     }
   }
 
