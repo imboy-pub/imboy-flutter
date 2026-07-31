@@ -60,5 +60,85 @@ void main() {
       final w = IosPageTemplate(title: 'x');
       expect(w.useLargeTitle, isFalse);
     });
+
+    testWidgets('字重也随之切换：true→w700 / false→w600', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: IosPageTemplate(title: '设置')),
+      );
+      await tester.pump();
+      expect(
+        tester.widget<Text>(find.text('设置')).style?.fontWeight,
+        FontWeight.w600,
+      );
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: IosPageTemplate(title: '设置', useLargeTitle: true),
+        ),
+      );
+      await tester.pump();
+      expect(
+        tester.widget<Text>(find.text('设置')).style?.fontWeight,
+        FontWeight.w700,
+      );
+    });
+
+    testWidgets('大标题不撑破导航栏（本项目 largeTitle=24pt，非 iOS 的 34pt 折叠大标题）', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: IosPageTemplate(title: '设置', useLargeTitle: true),
+        ),
+      );
+      await tester.pump();
+
+      // 标题塞在 CupertinoNavigationBar.middle 里，超过 44pt 会被裁切。
+      // 若日后把 largeTitle token 调大，这条会先报警。
+      expect(
+        tester.getRect(find.text('设置')).height,
+        lessThanOrEqualTo(44),
+        reason: '标题高度超过导航栏高度会被裁切',
+      );
+    });
+  });
+
+  // Task 5 第 2/3 条：user_collect_page 传的是 `useLargeTitle: !widget.isSelect`，
+  // 不是字面量 true。语义是「多选态收紧标题给操作让位，浏览态才用大标题」，
+  // 这里按调用方的两个实际分支钉死最终样式。
+  group('调用方意图：user_collect 的 !isSelect', () {
+    Future<double?> pumpForIsSelect(WidgetTester tester, bool isSelect) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: IosPageTemplate(title: '我的收藏', useLargeTitle: !isSelect),
+        ),
+      );
+      await tester.pump();
+      return tester.widget<Text>(find.text('我的收藏')).style?.fontSize;
+    }
+
+    testWidgets('浏览态 isSelect=false → 大标题', (tester) async {
+      final size = await pumpForIsSelect(tester, false);
+      expect(
+        tester.widget<Text>(find.text('我的收藏')).style?.fontWeight,
+        FontWeight.w700,
+      );
+      expect(size, isNotNull);
+    });
+
+    testWidgets('多选态 isSelect=true → 紧凑标题，且确实比浏览态小', (tester) async {
+      final browsing = await pumpForIsSelect(tester, false);
+      final selecting = await pumpForIsSelect(tester, true);
+
+      expect(
+        tester.widget<Text>(find.text('我的收藏')).style?.fontWeight,
+        FontWeight.w600,
+      );
+      expect(
+        selecting!,
+        lessThan(browsing!),
+        reason: '多选态标题必须收紧，否则给操作按钮让位的设计意图落空',
+      );
+    });
   });
 }
