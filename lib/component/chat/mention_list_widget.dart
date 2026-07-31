@@ -253,16 +253,22 @@ class _EmptyHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.medium,
-        vertical: AppSpacing.regular,
-      ),
-      child: Text(
-        text,
-        style: context.textStyle(
-          FontSizeType.small,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+    // 撑满宽度并左对齐：真机上发现只包住文字时会缩成居中的小气泡，
+    // 和候选列表的满宽卡片对不上，看着像个游离的 tooltip。
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.medium,
+          vertical: AppSpacing.regular,
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.start,
+          style: context.textStyle(
+            FontSizeType.small,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ),
     );
