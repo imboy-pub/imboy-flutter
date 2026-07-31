@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_payment_method_sheet.dart';
@@ -298,7 +299,18 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
   Future<void> _showMyOrdersSheet() async {
     final t = context.t;
     final channelId = widget.channel.id.toString();
-    final allOrders = await _channelService.getMyOrders();
+    final List<ChannelOrderModel> allOrders;
+    try {
+      allOrders = await _channelService.getMyOrders();
+    } catch (e) {
+      // 拉单失败不能渲染成"暂无订单"——用户会以为付款没成功
+      iPrint('ChannelPaywall: 获取订单列表失败 - $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.common.loadError)));
+      return;
+    }
     if (!mounted) return;
 
     final orders = allOrders

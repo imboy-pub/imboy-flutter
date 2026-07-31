@@ -83,8 +83,10 @@ class ChannelService {
     try {
       return await _api.getSubscribedChannels(limit: limit);
     } catch (e) {
+      // 不 fail-open：唯一调用点 channel_discover_page._loadSubscribedChannelIds
+      // 自带 catch，吞在这里只会让它的 catch 变成死代码。
       iPrint('ChannelService: 获取订阅频道失败 - $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -509,8 +511,10 @@ class ChannelService {
     try {
       return await _api.getMyOrders();
     } catch (e) {
+      // 不 fail-open：付费场景把失败伪装成"暂无订单"，用户会以为钱白付了。
+      // 调用点 channel_paywall_view._showMyOrdersSheet 已补 catch + 提示。
       iPrint('ChannelService: 获取我的订单失败 - $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -531,8 +535,10 @@ class ChannelService {
     try {
       return await _api.getMyInvitations();
     } catch (e) {
+      // 不 fail-open：channel_invitation_page 已写好 _error + 重试 UI，
+      // 吞掉异常会让"网络挂了"渲染成"你没有任何邀请"。
       iPrint('ChannelService: 获取我的邀请失败 - $e');
-      return [];
+      rethrow;
     }
   }
 
@@ -541,8 +547,10 @@ class ChannelService {
     try {
       return await _api.getSentInvitations();
     } catch (e) {
+      // 不 fail-open：两个调用点各自 catch —— channel_invitation_page 渲染
+      // 失败态，channel_subscriber_page 降级为不过滤联系人。
       iPrint('ChannelService: 获取已发邀请失败 - $e');
-      return [];
+      rethrow;
     }
   }
 

@@ -2195,12 +2195,12 @@ void main() {
       expect(result, hasLength(1));
     });
 
-    test('getSubscribedChannels — API 抛异常 → 返回空列表', () async {
+    test('getSubscribedChannels — API 抛异常 → 上抛（不伪装成空列表）', () async {
       final svc = ChannelService.forTest(
         api: _ThrowingChannelApi(),
         repo: _FakeChannelRepo(),
       );
-      expect(await svc.getSubscribedChannels(), isEmpty);
+      await expectLater(svc.getSubscribedChannels(), throwsA(isA<Object>()));
     });
 
     // isSubscribed
@@ -2244,12 +2244,12 @@ void main() {
       expect(result, hasLength(2));
     });
 
-    test('getMyOrders — API 抛异常 → 返回空列表', () async {
+    test('getMyOrders — API 抛异常 → 上抛（付费场景不得伪装成"暂无订单"）', () async {
       final svc = ChannelService.forTest(
         api: _ThrowingChannelApi(),
         repo: _FakeChannelRepo(),
       );
-      expect(await svc.getMyOrders(), isEmpty);
+      await expectLater(svc.getMyOrders(), throwsA(isA<Object>()));
     });
 
     // getMyInvitations / getSentInvitations
@@ -2264,12 +2264,12 @@ void main() {
       expect(await svc.getMyInvitations(), hasLength(2));
     });
 
-    test('getMyInvitations — API 抛异常 → 返回空列表', () async {
+    test('getMyInvitations — API 抛异常 → 上抛（页面据此渲染失败态）', () async {
       final svc = ChannelService.forTest(
         api: _ThrowingChannelApi(),
         repo: _FakeChannelRepo(),
       );
-      expect(await svc.getMyInvitations(), isEmpty);
+      await expectLater(svc.getMyInvitations(), throwsA(isA<Object>()));
     });
 
     test('getSentInvitations — API 成功 → 透传', () async {
@@ -2282,12 +2282,12 @@ void main() {
       expect(await svc.getSentInvitations(), hasLength(1));
     });
 
-    test('getSentInvitations — API 抛异常 → 返回空列表', () async {
+    test('getSentInvitations — API 抛异常 → 上抛（页面据此渲染失败态）', () async {
       final svc = ChannelService.forTest(
         api: _ThrowingChannelApi(),
         repo: _FakeChannelRepo(),
       );
-      expect(await svc.getSentInvitations(), isEmpty);
+      await expectLater(svc.getSentInvitations(), throwsA(isA<Object>()));
     });
   });
 
