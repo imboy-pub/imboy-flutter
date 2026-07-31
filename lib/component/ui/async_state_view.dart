@@ -40,8 +40,11 @@ class AsyncStateView extends StatelessWidget {
       return const Center(child: CupertinoActivityIndicator());
     }
     if (error != null) {
+      // 默认文案用 loadError（"加载失败，请重试"）而非 tipFailed（"操作失败！"）：
+      // 本组件 15 个调用点全是页面级数据加载视图，"操作失败"读起来像写操作
+      // 失败，会误导用户以为自己刚才的动作出了问题。真机实测群标签断网即此症。
       return NoDataView(
-        text: errorText ?? t.common.tipFailed,
+        text: errorText ?? t.common.loadError,
         icon: errorIcon,
         onTop: onRetry,
       );

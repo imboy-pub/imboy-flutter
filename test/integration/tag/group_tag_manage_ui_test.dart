@@ -144,7 +144,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text(t.common.tipFailed), findsOneWidget);
+      // 文案是 loadError（"加载失败，请重试"）不是 tipFailed（"操作失败！"）：
+      // 这是加载失败，不是用户的写操作失败。真机实测群标签断网时旧文案会误导。
+      expect(find.text(t.common.loadError), findsOneWidget);
       expect(find.text(t.groupTag.noTag), findsNothing);
       expect(find.text(t.common.buttonRetry), findsOneWidget);
     });
