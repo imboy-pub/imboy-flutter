@@ -164,6 +164,10 @@ class LanguageNotifier extends _$LanguageNotifier {
     if (locale == null) return;
     await StorageService.to.setString(Keys.currentLanguageCode, locale.name);
     await LocaleSettings.setLocale(locale);
+    // 两次 await 之后 provider 可能已被销毁（用户选完语言立刻返回上一页）。
+    // 不查 ref.mounted 直接写 state 会抛 UnmountedRefException。
+    // 语言本身已经持久化 + 全局生效，这里只是同步本页高亮，跳过即可。
+    if (!ref.mounted) return;
     state = state.copyWith(currentLocale: locale);
   }
 }
