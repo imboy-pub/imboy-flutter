@@ -205,6 +205,9 @@ CREATE TABLE msg_c2c (
     is_author INTEGER,
     type TEXT DEFAULT 'C2C',
     action TEXT DEFAULT '',
+    -- v25: PFv3 context binding #6（ADR 15 §3.3）。与 upgrade.sql VERSION 25
+    -- 必须同步；漏一处即「全新安装」与「存量升级」schema 分叉。
+    sender_did TEXT,
     CONSTRAINT uk_MsgId UNIQUE (id)
 );
 CREATE INDEX idx_msg_c2c_conversation_status_author ON msg_c2c (conversation_uk3, status, is_author);
