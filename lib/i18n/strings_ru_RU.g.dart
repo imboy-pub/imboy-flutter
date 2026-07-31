@@ -666,6 +666,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get buttonCreate => 'Создать';
 	@override String get buttonChangePassword => 'Изменить пароль';
 	@override String get phoneInputHint => 'Введите номер телефона';
+	@override String get buttonMore => 'Ещё';
+	@override String get buttonRefresh => 'Обновить';
 	@override String get buttonClose => 'Закрыть';
 	@override String get buttonConfirm => 'Подтвердить';
 	@override String get buttonContinue => 'Продолжить';
@@ -3074,6 +3076,8 @@ extension on TranslationsRuRu {
 			'common.buttonCreate' => 'Создать',
 			'common.buttonChangePassword' => 'Изменить пароль',
 			'common.phoneInputHint' => 'Введите номер телефона',
+			'common.buttonMore' => 'Ещё',
+			'common.buttonRefresh' => 'Обновить',
 			'common.buttonClose' => 'Закрыть',
 			'common.buttonConfirm' => 'Подтвердить',
 			'common.buttonContinue' => 'Продолжить',
@@ -3538,10 +3542,10 @@ extension on TranslationsRuRu {
 			'common.selectExpirationDateOptional' => 'Выберите срок действия (необязательно)',
 			'common.groupAnnouncementDeleteConfirm' => 'Удалить это объявление?',
 			'common.groupAnnouncementDelete' => 'Удалить',
-			'common.groupAnnouncementLoadFailed' => 'Не удалось загрузить объявление, попробуйте позже',
-			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementLoadFailed' => 'Не удалось загрузить объявление, попробуйте позже',
+			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
 			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
 			'common.groupAnnouncementDeleteFailed' => 'Не удалось удалить объявление',
 			'common.groupAnnouncementDeleteSuccess' => 'Объявление удалено',
@@ -4052,10 +4056,10 @@ extension on TranslationsRuRu {
 			'common.e2eeSocialShardSettings' => 'Настройки фрагментов',
 			'common.e2eeSocialShardStoredNote' => 'Фрагменты хранятся на устройствах посредников, сервер не хранит ни одного',
 			'common.e2eeSocialAddProxy' => 'Добавить посредника',
-			'common.e2eeSocialAddProxyHint' => 'Добавьте контакты-посредники',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Добавьте ещё ${count} посредников',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialAddProxyHint' => 'Добавьте контакты-посредники',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Добавьте ещё ${count} посредников',
 			'common.e2eeSocialCreateSuccessTitle' => 'Фрагменты созданы',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Ключ разделён на ${count} фрагментов',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Для восстановления хватит ${count} посредников',
@@ -4566,10 +4570,10 @@ extension on TranslationsRuRu {
 			'main.thisIsAuxiliaryText' => 'Это вспомогательный текст',
 			'main.toBeCompleted' => 'Требуется завершение',
 			'main.availableCount' => 'Доступно',
-			'main.mostUsed' => 'Наиболее используемые',
-			'main.commentPlaceholder' => 'Комментарий...',
 			_ => null,
 		} ?? switch (path) {
+			'main.mostUsed' => 'Наиболее используемые',
+			'main.commentPlaceholder' => 'Комментарий...',
 			'main.delayMsLabel' => 'Задержка в мс (>=100)',
 			'main.processed' => 'Обработано',
 			'main.export' => 'Экспорт',

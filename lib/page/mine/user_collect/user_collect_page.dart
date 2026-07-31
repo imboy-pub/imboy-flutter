@@ -807,7 +807,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
           ? [
               CupertinoButton(
                 padding: EdgeInsets.zero,
-                child: const Icon(CupertinoIcons.xmark, size: 20),
+                child: Icon(
+                  CupertinoIcons.xmark,
+                  size: 20,
+                  semanticLabel: t.common.buttonClose,
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
             ]
@@ -925,6 +929,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
               CupertinoIcons.delete,
               color: AppColors.getIosRed(brightness),
               size: 20,
+              semanticLabel: t.common.buttonDelete,
             ),
           ),
           CupertinoButton(

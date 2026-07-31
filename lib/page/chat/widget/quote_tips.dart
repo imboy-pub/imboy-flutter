@@ -252,6 +252,7 @@ class QuoteTipsWidget extends StatelessWidget {
               child: Icon(
                 CupertinoIcons.xmark_circle_fill,
                 size: 20,
+                semanticLabel: t.common.buttonClose,
                 color: AppColors.iosGray,
               ),
             ),

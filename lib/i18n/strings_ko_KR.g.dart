@@ -666,6 +666,8 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get buttonCreate => '만들기';
 	@override String get buttonChangePassword => '비밀번호 변경';
 	@override String get phoneInputHint => '휴대폰 번호를 입력하세요';
+	@override String get buttonMore => '더 보기';
+	@override String get buttonRefresh => '새로 고침';
 	@override String get buttonClose => '닫기';
 	@override String get buttonConfirm => '확인';
 	@override String get buttonContinue => '계속';
@@ -3074,6 +3076,8 @@ extension on TranslationsKoKr {
 			'common.buttonCreate' => '만들기',
 			'common.buttonChangePassword' => '비밀번호 변경',
 			'common.phoneInputHint' => '휴대폰 번호를 입력하세요',
+			'common.buttonMore' => '더 보기',
+			'common.buttonRefresh' => '새로 고침',
 			'common.buttonClose' => '닫기',
 			'common.buttonConfirm' => '확인',
 			'common.buttonContinue' => '계속',
@@ -3538,10 +3542,10 @@ extension on TranslationsKoKr {
 			'common.selectExpirationDateOptional' => '만료 날짜 선택 (선택 사항)',
 			'common.groupAnnouncementDeleteConfirm' => '이 공지를 삭제하시겠습니까?',
 			'common.groupAnnouncementDelete' => '삭제',
-			'common.groupAnnouncementLoadFailed' => '공지를 불러오지 못했습니다. 나중에 다시 시도해주세요',
-			'common.groupAnnouncementPublishFailed' => '공지 게시 실패',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementLoadFailed' => '공지를 불러오지 못했습니다. 나중에 다시 시도해주세요',
+			'common.groupAnnouncementPublishFailed' => '공지 게시 실패',
 			'common.groupAnnouncementPublishSuccess' => '공지가 게시되었습니다',
 			'common.groupAnnouncementDeleteFailed' => '공지 삭제 실패',
 			'common.groupAnnouncementDeleteSuccess' => '공지가 삭제되었습니다',
@@ -4052,10 +4056,10 @@ extension on TranslationsKoKr {
 			'common.e2eeSocialShardSettings' => '샤드 설정',
 			'common.e2eeSocialShardStoredNote' => '안내: 샤드는 대리자 기기에 저장되며 서버에는 어떤 샤드도 저장되지 않습니다',
 			'common.e2eeSocialAddProxy' => '대리자 추가',
-			'common.e2eeSocialAddProxyHint' => '대리자 연락처를 추가해주세요',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '대리자를 ${count}명 더 추가해주세요',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialAddProxyHint' => '대리자 연락처를 추가해주세요',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '대리자를 ${count}명 더 추가해주세요',
 			'common.e2eeSocialCreateSuccessTitle' => '샤드 생성 완료',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다',
@@ -4566,10 +4570,10 @@ extension on TranslationsKoKr {
 			'main.thisIsAuxiliaryText' => '이것은 보조 텍스트입니다',
 			'main.toBeCompleted' => '미완성',
 			'main.availableCount' => '선택 가능',
-			'main.mostUsed' => '가장 많이 사용',
-			'main.commentPlaceholder' => '댓글...',
 			_ => null,
 		} ?? switch (path) {
+			'main.mostUsed' => '가장 많이 사용',
+			'main.commentPlaceholder' => '댓글...',
 			'main.delayMsLabel' => '지연 시간(ms) (>=100)',
 			'main.processed' => '처리됨',
 			'main.export' => '내보내기',

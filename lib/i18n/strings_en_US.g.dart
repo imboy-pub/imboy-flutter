@@ -683,6 +683,8 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get buttonCreate => 'Create';
 	@override String get buttonChangePassword => 'Change password';
 	@override String get phoneInputHint => 'Enter phone number';
+	@override String get buttonMore => 'More';
+	@override String get buttonRefresh => 'Refresh';
 	@override String get buttonClose => 'Close';
 	@override String get buttonConfirm => 'Confirm';
 	@override String get buttonContinue => 'Continue';
@@ -3114,6 +3116,8 @@ extension on TranslationsEnUs {
 			'common.buttonCreate' => 'Create',
 			'common.buttonChangePassword' => 'Change password',
 			'common.phoneInputHint' => 'Enter phone number',
+			'common.buttonMore' => 'More',
+			'common.buttonRefresh' => 'Refresh',
 			'common.buttonClose' => 'Close',
 			'common.buttonConfirm' => 'Confirm',
 			'common.buttonContinue' => 'Continue',
@@ -3561,10 +3565,10 @@ extension on TranslationsEnUs {
 			'common.operationSuccess' => _root.common.success,
 			'common.operationFailed' => _root.common.error,
 			'common.featureInDevelopment' => 'Feature under development...',
-			'common.addedToDenylist' => 'Added to blocklist',
-			'common.bindSuccess' => 'Bound successfully',
 			_ => null,
 		} ?? switch (path) {
+			'common.addedToDenylist' => 'Added to blocklist',
+			'common.bindSuccess' => 'Bound successfully',
 			'common.mobileUpdatedToParam' => ({required Object param}) => 'Mobile number updated to ${param}',
 			'common.groupAnnouncementPublish' => 'Publish announcement',
 			'common.pleaseEnterAnnouncementContent' => 'Please enter announcement content',
@@ -4075,10 +4079,10 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupCloudUploadBtn' => 'Back up to cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backed up to cloud (version ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'Cloud backup failed, please retry',
-			'common.e2eeBackupCloudRestoreTitle' => 'Restore from cloud backup',
-			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Cloud backup detected (version ${version})',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupCloudRestoreTitle' => 'Restore from cloud backup',
+			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Cloud backup detected (version ${version})',
 			'common.e2eeBackupCloudRestoreBtn' => 'Restore from cloud',
 			'common.e2eeBackupCloudRestoreConfirmNote' => 'Restoring will overwrite the current E2EE keys on this device',
 			'common.e2eeBackupCloudPwdHint' => 'Enter your backup passphrase',
@@ -4589,10 +4593,10 @@ extension on TranslationsEnUs {
 			'main.bound' => 'Bound',
 			'main.correct' => 'Correct',
 			'main.pendingInput' => 'Pending input',
-			'main.lengthCheck' => 'Length check',
-			'main.bugReport' => 'Bug report',
 			_ => null,
 		} ?? switch (path) {
+			'main.lengthCheck' => 'Length check',
+			'main.bugReport' => 'Bug report',
 			'main.deleting' => 'Deleting...',
 			'main.current' => 'Current',
 			'main.publish' => 'Publish',

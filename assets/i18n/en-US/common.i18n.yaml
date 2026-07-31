@@ -33,6 +33,8 @@ buttonCancel: Cancel
 buttonCreate: Create
 buttonChangePassword: Change password
 phoneInputHint: Enter phone number
+buttonMore: More
+buttonRefresh: Refresh
 buttonClose: Close
 buttonConfirm: Confirm
 buttonContinue: Continue

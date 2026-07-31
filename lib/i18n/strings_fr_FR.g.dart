@@ -666,6 +666,8 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get buttonCreate => 'Créer';
 	@override String get buttonChangePassword => 'Modifier le mot de passe';
 	@override String get phoneInputHint => 'Numéro de téléphone';
+	@override String get buttonMore => 'Plus';
+	@override String get buttonRefresh => 'Actualiser';
 	@override String get buttonClose => 'Fermer';
 	@override String get buttonConfirm => 'Confirmer';
 	@override String get buttonContinue => 'Continuer';
@@ -3074,6 +3076,8 @@ extension on TranslationsFrFr {
 			'common.buttonCreate' => 'Créer',
 			'common.buttonChangePassword' => 'Modifier le mot de passe',
 			'common.phoneInputHint' => 'Numéro de téléphone',
+			'common.buttonMore' => 'Plus',
+			'common.buttonRefresh' => 'Actualiser',
 			'common.buttonClose' => 'Fermer',
 			'common.buttonConfirm' => 'Confirmer',
 			'common.buttonContinue' => 'Continuer',
@@ -3538,10 +3542,10 @@ extension on TranslationsFrFr {
 			'common.selectExpirationDateOptional' => 'Sélectionner la date d\'expiration (facultatif)',
 			'common.groupAnnouncementDeleteConfirm' => 'Confirmer la suppression de cette annonce ?',
 			'common.groupAnnouncementDelete' => 'Supprimer',
-			'common.groupAnnouncementLoadFailed' => 'Chargement de l\'annonce impossible. Réessayez plus tard.',
-			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementLoadFailed' => 'Chargement de l\'annonce impossible. Réessayez plus tard.',
+			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
 			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
 			'common.groupAnnouncementDeleteFailed' => 'Suppression de l\'annonce impossible',
 			'common.groupAnnouncementDeleteSuccess' => 'Annonce supprimée',
@@ -4052,10 +4056,10 @@ extension on TranslationsFrFr {
 			'common.e2eeSocialShardSettings' => 'Paramètres des fragments',
 			'common.e2eeSocialShardStoredNote' => 'Les fragments sont stockés chez les dépositaires, le serveur n\'en conserve aucun',
 			'common.e2eeSocialAddProxy' => 'Ajouter un dépositaire',
-			'common.e2eeSocialAddProxyHint' => 'Ajoutez un dépositaire',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Ajoutez d\'abord ${count} dépositaires',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialAddProxyHint' => 'Ajoutez un dépositaire',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Ajoutez d\'abord ${count} dépositaires',
 			'common.e2eeSocialCreateSuccessTitle' => 'Fragments créés',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Clé divisée en ${count} fragments',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} dépositaires suffisent pour restaurer',
@@ -4566,10 +4570,10 @@ extension on TranslationsFrFr {
 			'main.thisIsAuxiliaryText' => 'Ceci est un texte auxiliaire',
 			'main.toBeCompleted' => 'À compléter',
 			'main.availableCount' => 'Disponible',
-			'main.mostUsed' => 'Les plus utilisés',
-			'main.commentPlaceholder' => 'Commentaire...',
 			_ => null,
 		} ?? switch (path) {
+			'main.mostUsed' => 'Les plus utilisés',
+			'main.commentPlaceholder' => 'Commentaire...',
 			'main.delayMsLabel' => 'Délai en ms (>=100)',
 			'main.processed' => 'Traité',
 			'main.export' => 'Exporter',

@@ -683,6 +683,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get buttonCreate => '建立';
 	@override String get buttonChangePassword => '修改密碼';
 	@override String get phoneInputHint => '請輸入手機號';
+	@override String get buttonMore => '更多';
+	@override String get buttonRefresh => '重新整理';
 	@override String get buttonClose => '關閉';
 	@override String get buttonConfirm => '確認';
 	@override String get buttonContinue => '繼續';
@@ -3114,6 +3116,8 @@ extension on TranslationsZhHant {
 			'common.buttonCreate' => '建立',
 			'common.buttonChangePassword' => '修改密碼',
 			'common.phoneInputHint' => '請輸入手機號',
+			'common.buttonMore' => '更多',
+			'common.buttonRefresh' => '重新整理',
 			'common.buttonClose' => '關閉',
 			'common.buttonConfirm' => '確認',
 			'common.buttonContinue' => '繼續',
@@ -3561,10 +3565,10 @@ extension on TranslationsZhHant {
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => '驗證碼',
 			'common.feedbackContent' => '回饋內容',
-			'common.officialReply' => '官方回覆',
-			'common.setPasswordSecurityTips' => '為了提升帳號安全，同時防止因無法獲取驗證碼導致無法登入，請設定登入密碼。',
 			_ => null,
 		} ?? switch (path) {
+			'common.officialReply' => '官方回覆',
+			'common.setPasswordSecurityTips' => '為了提升帳號安全，同時防止因無法獲取驗證碼導致無法登入，請設定登入密碼。',
 			'common.locationHidden' => '已隱藏您的位置',
 			'common.locationVisible' => '已顯示您的位置',
 			'common.noNearbyPeople' => '暫無附近的人',
@@ -4075,10 +4079,10 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupCreatedAtRow' => '建立時間',
 			'common.e2eeBackupFileSizeRow' => '檔案大小',
 			'common.e2eeBackupNoteRow' => '備註',
-			'common.e2eeBackupDeleteTitle' => '刪除備份記錄',
-			'common.e2eeBackupDeleteConfirm' => '確定要刪除此備份記錄嗎？',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupDeleteTitle' => '刪除備份記錄',
+			'common.e2eeBackupDeleteConfirm' => '確定要刪除此備份記錄嗎？',
 			'common.e2eeBackupDeleteSuccess' => '備份記錄已刪除',
 			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
@@ -4589,10 +4593,10 @@ extension on TranslationsZhHant {
 			'main.bound' => '已綁定',
 			'main.correct' => '正確',
 			'main.pendingInput' => '待輸入',
-			'main.lengthCheck' => '長度檢查',
-			'main.bugReport' => '錯誤報告',
 			_ => null,
 		} ?? switch (path) {
+			'main.lengthCheck' => '長度檢查',
+			'main.bugReport' => '錯誤報告',
 			'main.deleting' => '刪除中...',
 			'main.current' => '目前',
 			'main.publish' => '發布',

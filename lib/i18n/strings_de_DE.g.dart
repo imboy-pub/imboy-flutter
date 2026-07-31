@@ -666,6 +666,8 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get buttonCreate => 'Erstellen';
 	@override String get buttonChangePassword => 'Passwort ändern';
 	@override String get phoneInputHint => 'Telefonnummer eingeben';
+	@override String get buttonMore => 'Mehr';
+	@override String get buttonRefresh => 'Aktualisieren';
 	@override String get buttonClose => 'Schließen';
 	@override String get buttonConfirm => 'Bestätigen';
 	@override String get buttonContinue => 'Fortfahren';
@@ -3074,6 +3076,8 @@ extension on TranslationsDeDe {
 			'common.buttonCreate' => 'Erstellen',
 			'common.buttonChangePassword' => 'Passwort ändern',
 			'common.phoneInputHint' => 'Telefonnummer eingeben',
+			'common.buttonMore' => 'Mehr',
+			'common.buttonRefresh' => 'Aktualisieren',
 			'common.buttonClose' => 'Schließen',
 			'common.buttonConfirm' => 'Bestätigen',
 			'common.buttonContinue' => 'Fortfahren',
@@ -3538,10 +3542,10 @@ extension on TranslationsDeDe {
 			'common.selectExpirationDateOptional' => 'Ablaufdatum auswählen (optional)',
 			'common.groupAnnouncementDeleteConfirm' => 'Diese Ankündigung wirklich löschen?',
 			'common.groupAnnouncementDelete' => 'Löschen',
-			'common.groupAnnouncementLoadFailed' => 'Ankündigung konnte nicht geladen werden. Bitte später erneut versuchen.',
-			'common.groupAnnouncementPublishFailed' => 'Ankündigung konnte nicht veröffentlicht werden',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementLoadFailed' => 'Ankündigung konnte nicht geladen werden. Bitte später erneut versuchen.',
+			'common.groupAnnouncementPublishFailed' => 'Ankündigung konnte nicht veröffentlicht werden',
 			'common.groupAnnouncementPublishSuccess' => 'Ankündigung veröffentlicht',
 			'common.groupAnnouncementDeleteFailed' => 'Ankündigung konnte nicht gelöscht werden',
 			'common.groupAnnouncementDeleteSuccess' => 'Ankündigung gelöscht',
@@ -4052,10 +4056,10 @@ extension on TranslationsDeDe {
 			'common.e2eeSocialShardSettings' => 'Fragment-Einstellungen',
 			'common.e2eeSocialShardStoredNote' => 'Fragmente werden bei Treuhändern gespeichert, Server speichert nichts',
 			'common.e2eeSocialAddProxy' => 'Treuhänder hinzufügen',
-			'common.e2eeSocialAddProxyHint' => 'Treuhänder hinzufügen',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Zuerst ${count} Treuhänder hinzufügen',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialAddProxyHint' => 'Treuhänder hinzufügen',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Zuerst ${count} Treuhänder hinzufügen',
 			'common.e2eeSocialCreateSuccessTitle' => 'Fragmente erstellt',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Schlüssel in ${count} Fragmente geteilt',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} Treuhänder für Wiederherstellung nötig',
@@ -4566,10 +4570,10 @@ extension on TranslationsDeDe {
 			'main.thisIsAuxiliaryText' => 'Dies ist Hilfstext',
 			'main.toBeCompleted' => 'Noch zu vervollständigen',
 			'main.availableCount' => 'Verfügbar',
-			'main.mostUsed' => 'Am häufigsten verwendet',
-			'main.commentPlaceholder' => 'Kommentar...',
 			_ => null,
 		} ?? switch (path) {
+			'main.mostUsed' => 'Am häufigsten verwendet',
+			'main.commentPlaceholder' => 'Kommentar...',
 			'main.delayMsLabel' => 'Verzögerung in ms (>=100)',
 			'main.processed' => 'Verarbeitet',
 			'main.export' => 'Exportieren',

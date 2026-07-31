@@ -38,7 +38,11 @@ class UserQrCodePage extends ConsumerWidget {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.ellipsis_circle, size: 22),
+          child: Icon(
+            CupertinoIcons.ellipsis_circle,
+            size: 22,
+            semanticLabel: t.common.buttonMore,
+          ),
           onPressed: () => _showBottomSheet(context, globalKey, filename),
         ),
       ],

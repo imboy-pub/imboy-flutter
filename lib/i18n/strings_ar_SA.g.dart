@@ -666,6 +666,8 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get buttonCreate => 'إنشاء';
 	@override String get buttonChangePassword => 'تغيير كلمة المرور';
 	@override String get phoneInputHint => 'أدخل رقم الهاتف';
+	@override String get buttonMore => 'المزيد';
+	@override String get buttonRefresh => 'تحديث';
 	@override String get buttonClose => 'إغلاق';
 	@override String get buttonConfirm => 'تأكيد';
 	@override String get buttonContinue => 'متابعة';
@@ -3074,6 +3076,8 @@ extension on TranslationsArSa {
 			'common.buttonCreate' => 'إنشاء',
 			'common.buttonChangePassword' => 'تغيير كلمة المرور',
 			'common.phoneInputHint' => 'أدخل رقم الهاتف',
+			'common.buttonMore' => 'المزيد',
+			'common.buttonRefresh' => 'تحديث',
 			'common.buttonClose' => 'إغلاق',
 			'common.buttonConfirm' => 'تأكيد',
 			'common.buttonContinue' => 'متابعة',
@@ -3538,10 +3542,10 @@ extension on TranslationsArSa {
 			'common.selectExpirationDateOptional' => 'اختيار تاريخ انتهاء الصلاحية (اختياري)',
 			'common.groupAnnouncementDeleteConfirm' => 'هل أنت متأكد من حذف هذا الإعلان؟',
 			'common.groupAnnouncementDelete' => 'حذف',
-			'common.groupAnnouncementLoadFailed' => 'تعذّر تحميل الإعلان، حاول لاحقاً',
-			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementLoadFailed' => 'تعذّر تحميل الإعلان، حاول لاحقاً',
+			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
 			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
 			'common.groupAnnouncementDeleteFailed' => 'تعذّر حذف الإعلان',
 			'common.groupAnnouncementDeleteSuccess' => 'تم حذف الإعلان',
@@ -4052,10 +4056,10 @@ extension on TranslationsArSa {
 			'common.e2eeSocialShardSettings' => 'إعدادات الشظايا',
 			'common.e2eeSocialShardStoredNote' => 'تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية',
 			'common.e2eeSocialAddProxy' => 'إضافة وكيل',
-			'common.e2eeSocialAddProxyHint' => 'أضف جهات اتصال كوكلاء',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'أضف ${count} وكلاء آخرين',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialAddProxyHint' => 'أضف جهات اتصال كوكلاء',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'أضف ${count} وكلاء آخرين',
 			'common.e2eeSocialCreateSuccessTitle' => 'تم إنشاء الشظايا',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'يكفي ${count} وكيل للاستعادة',
@@ -4566,10 +4570,10 @@ extension on TranslationsArSa {
 			'main.thisIsAuxiliaryText' => 'هذا نص توضيحي مساعد',
 			'main.toBeCompleted' => 'يجب إكماله',
 			'main.availableCount' => 'قابل للاختيار',
-			'main.mostUsed' => 'الأكثر استخداماً',
-			'main.commentPlaceholder' => 'تعليق...',
 			_ => null,
 		} ?? switch (path) {
+			'main.mostUsed' => 'الأكثر استخداماً',
+			'main.commentPlaceholder' => 'تعليق...',
 			'main.delayMsLabel' => 'تأخير بالمللي ثانية (>=100)',
 			'main.processed' => 'تمت المعالجة',
 			'main.export' => 'تصدير',

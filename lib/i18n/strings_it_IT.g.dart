@@ -666,6 +666,8 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get buttonCreate => 'Crea';
 	@override String get buttonChangePassword => 'Cambia password';
 	@override String get phoneInputHint => 'Numero di telefono';
+	@override String get buttonMore => 'Altro';
+	@override String get buttonRefresh => 'Aggiorna';
 	@override String get buttonClose => 'Chiudi';
 	@override String get buttonConfirm => 'Conferma';
 	@override String get buttonContinue => 'Continua';
@@ -3074,6 +3076,8 @@ extension on TranslationsItIt {
 			'common.buttonCreate' => 'Crea',
 			'common.buttonChangePassword' => 'Cambia password',
 			'common.phoneInputHint' => 'Numero di telefono',
+			'common.buttonMore' => 'Altro',
+			'common.buttonRefresh' => 'Aggiorna',
 			'common.buttonClose' => 'Chiudi',
 			'common.buttonConfirm' => 'Conferma',
 			'common.buttonContinue' => 'Continua',
@@ -3538,10 +3542,10 @@ extension on TranslationsItIt {
 			'common.selectExpirationDateOptional' => 'Seleziona data di scadenza (opzionale)',
 			'common.groupAnnouncementDeleteConfirm' => 'Sei sicuro di voler eliminare questo annuncio?',
 			'common.groupAnnouncementDelete' => 'Elimina',
-			'common.groupAnnouncementLoadFailed' => 'Caricamento annuncio fallito. Riprova più tardi.',
-			'common.groupAnnouncementPublishFailed' => 'Pubblicazione annuncio fallita',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementLoadFailed' => 'Caricamento annuncio fallito. Riprova più tardi.',
+			'common.groupAnnouncementPublishFailed' => 'Pubblicazione annuncio fallita',
 			'common.groupAnnouncementPublishSuccess' => 'Annuncio pubblicato',
 			'common.groupAnnouncementDeleteFailed' => 'Eliminazione annuncio fallita',
 			'common.groupAnnouncementDeleteSuccess' => 'Annuncio eliminato',
@@ -4052,10 +4056,10 @@ extension on TranslationsItIt {
 			'common.e2eeSocialShardSettings' => 'Impostazioni frammenti',
 			'common.e2eeSocialShardStoredNote' => 'I frammenti sono conservati dai garanti, il server non ne trattiene alcuno',
 			'common.e2eeSocialAddProxy' => 'Aggiungi garante',
-			'common.e2eeSocialAddProxyHint' => 'Aggiungi un garante',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Aggiungi prima ${count} garanti',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialAddProxyHint' => 'Aggiungi un garante',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Aggiungi prima ${count} garanti',
 			'common.e2eeSocialCreateSuccessTitle' => 'Frammenti creati',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Chiave divisa in ${count} frammenti',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} garanti sufficienti per il ripristino',
@@ -4566,10 +4570,10 @@ extension on TranslationsItIt {
 			'main.thisIsAuxiliaryText' => 'Questo è testo ausiliario',
 			'main.toBeCompleted' => 'Da completare',
 			'main.availableCount' => 'Disponibile',
-			'main.mostUsed' => 'Più usati',
-			'main.commentPlaceholder' => 'Commento...',
 			_ => null,
 		} ?? switch (path) {
+			'main.mostUsed' => 'Più usati',
+			'main.commentPlaceholder' => 'Commento...',
 			'main.delayMsLabel' => 'Ritardo in ms (>=100)',
 			'main.processed' => 'Elaborato',
 			'main.export' => 'Esporta',

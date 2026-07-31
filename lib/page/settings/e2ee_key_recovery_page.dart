@@ -49,7 +49,11 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: _loadKeyInfo,
-          child: const Icon(CupertinoIcons.refresh, size: 22),
+          child: Icon(
+            CupertinoIcons.refresh,
+            size: 22,
+            semanticLabel: t.common.buttonRefresh,
+          ),
         ),
       ],
       child: _isLoading

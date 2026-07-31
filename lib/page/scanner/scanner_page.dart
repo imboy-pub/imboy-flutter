@@ -306,10 +306,11 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                 child: CupertinoButton(
                   padding: EdgeInsets.zero,
                   onPressed: () => Navigator.pop(context),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.back,
                     color: AppColors.onPrimary,
                     size: 28,
+                    semanticLabel: t.common.buttonBack,
                   ),
                 ),
               ),

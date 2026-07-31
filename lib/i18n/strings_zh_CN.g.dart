@@ -2046,6 +2046,12 @@ class Translations$common$zh_CN {
 	/// zh-CN: '请输入手机号'
 	String get phoneInputHint => '请输入手机号';
 
+	/// zh-CN: '更多'
+	String get buttonMore => '更多';
+
+	/// zh-CN: '刷新'
+	String get buttonRefresh => '刷新';
+
 	/// zh-CN: '关闭'
 	String get buttonClose => '关闭';
 
@@ -8123,6 +8129,8 @@ extension on Translations {
 			'common.buttonCreate' => '创建',
 			'common.buttonChangePassword' => '修改密码',
 			'common.phoneInputHint' => '请输入手机号',
+			'common.buttonMore' => '更多',
+			'common.buttonRefresh' => '刷新',
 			'common.buttonClose' => '关闭',
 			'common.buttonConfirm' => '确认',
 			'common.buttonContinue' => '继续',
@@ -8503,10 +8511,10 @@ extension on Translations {
 			'common.tipDeleteContact' => ({required Object param}) => '将联系人"${param}"删除，同时删除与该联系人的聊天记录',
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '占设备 ${param1}% 存储空间(${param2})',
 			'common.tipDraft' => '草稿',
-			'common.tipEmptyChatPlaceholder' => '这里还没有消息',
-			'common.tipFailed' => '操作失败！',
 			_ => null,
 		} ?? switch (path) {
+			'common.tipEmptyChatPlaceholder' => '这里还没有消息',
+			'common.tipFailed' => '操作失败！',
 			'common.tipGreeting' => '欢迎使用',
 			'common.tipProvidersTitleFirst' => '或用以下账号登录',
 			'common.tipSuccess' => '操作成功！',
@@ -9017,10 +9025,10 @@ extension on Translations {
 			'common.webQRLoginSuccess' => '登录成功',
 			'common.webQRExpiresIn' => ({required Object seconds}) => '${seconds} 秒后过期',
 			'common.webQRStatusFailed' => '登录失败，请重试',
-			'common.webQRStatusSuccess' => '正在跳转...',
-			'common.webLoginEmptyError' => '请输入账号和密码',
 			_ => null,
 		} ?? switch (path) {
+			'common.webQRStatusSuccess' => '正在跳转...',
+			'common.webLoginEmptyError' => '请输入账号和密码',
 			'common.webQRGenerateFailed' => '生成二维码失败',
 			'common.webQRTokenInvalid' => '登录令牌无效',
 			'common.e2eeErrNoRecipientKey' => '无法获取对方设备密钥，消息未发送',
@@ -9531,10 +9539,10 @@ extension on Translations {
 			'main.change' => '修改',
 			'main.entertainment' => '电影演出',
 			'main.lifePayment' => '生活缴费',
-			'main.medicalHealth' => '医疗健康',
-			'main.meituanDelivery' => '美团外卖',
 			_ => null,
 		} ?? switch (path) {
+			'main.medicalHealth' => '医疗健康',
+			'main.meituanDelivery' => '美团外卖',
 			'main.tencentService' => '腾讯服务',
 			'main.traffic' => '交通出行',
 			'main.totalAssets' => '总资产',

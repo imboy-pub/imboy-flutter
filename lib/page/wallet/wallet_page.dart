@@ -215,7 +215,11 @@ class _WalletPageState extends ConsumerState<WalletPage> {
         ),
         CupertinoButton(
           padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.ellipsis_circle, size: 22),
+          child: Icon(
+            CupertinoIcons.ellipsis_circle,
+            size: 22,
+            semanticLabel: t.common.buttonMore,
+          ),
           onPressed: () => _showMoreSheet(context),
         ),
       ],

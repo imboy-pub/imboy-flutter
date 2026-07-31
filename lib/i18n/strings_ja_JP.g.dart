@@ -666,6 +666,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get buttonCreate => '作成';
 	@override String get buttonChangePassword => 'パスワードを変更';
 	@override String get phoneInputHint => '電話番号を入力';
+	@override String get buttonMore => 'その他';
+	@override String get buttonRefresh => '更新';
 	@override String get buttonClose => '閉じる';
 	@override String get buttonConfirm => '確認';
 	@override String get buttonContinue => '続行';
@@ -3074,6 +3076,8 @@ extension on TranslationsJaJp {
 			'common.buttonCreate' => '作成',
 			'common.buttonChangePassword' => 'パスワードを変更',
 			'common.phoneInputHint' => '電話番号を入力',
+			'common.buttonMore' => 'その他',
+			'common.buttonRefresh' => '更新',
 			'common.buttonClose' => '閉じる',
 			'common.buttonConfirm' => '確認',
 			'common.buttonContinue' => '続行',
@@ -3538,10 +3542,10 @@ extension on TranslationsJaJp {
 			'common.selectExpirationDateOptional' => '有効期限を選択（オプション）',
 			'common.groupAnnouncementDeleteConfirm' => 'この公告を削除してもよろしいですか？',
 			'common.groupAnnouncementDelete' => '削除',
-			'common.groupAnnouncementLoadFailed' => 'お知らせの読み込みに失敗しました。後でもう一度お試しください',
-			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'common.groupAnnouncementLoadFailed' => 'お知らせの読み込みに失敗しました。後でもう一度お試しください',
+			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
 			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
 			'common.groupAnnouncementDeleteFailed' => 'お知らせの削除に失敗しました',
 			'common.groupAnnouncementDeleteSuccess' => 'お知らせを削除しました',
@@ -4052,10 +4056,10 @@ extension on TranslationsJaJp {
 			'common.e2eeSocialShardSettings' => 'シャード設定',
 			'common.e2eeSocialShardStoredNote' => '説明：シャードは代理デバイスに保存され、サーバーには一切保存されません',
 			'common.e2eeSocialAddProxy' => '代理者を追加',
-			'common.e2eeSocialAddProxyHint' => '代理者の連絡先を追加してください',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '先に ${count} 人の代理者を追加してください',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSocialAddProxyHint' => '代理者の連絡先を追加してください',
+			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '先に ${count} 人の代理者を追加してください',
 			'common.e2eeSocialCreateSuccessTitle' => 'シャードを作成しました',
 			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'キーを ${count} 個のシャードに分割しました',
 			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} 人の代理者の協力でキーを復元できます',
@@ -4566,10 +4570,10 @@ extension on TranslationsJaJp {
 			'main.thisIsAuxiliaryText' => 'これは補助テキストです',
 			'main.toBeCompleted' => '未完了',
 			'main.availableCount' => '選択可能',
-			'main.mostUsed' => '最も使用',
-			'main.commentPlaceholder' => 'コメント...',
 			_ => null,
 		} ?? switch (path) {
+			'main.mostUsed' => '最も使用',
+			'main.commentPlaceholder' => 'コメント...',
 			'main.delayMsLabel' => '遅延ミリ秒 (>=100)',
 			'main.processed' => '処理済み',
 			'main.export' => 'エクスポート',
