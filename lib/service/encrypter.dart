@@ -178,6 +178,35 @@ class EncrypterService {
     return cipher.process(cipherBytes);
   }
 
+  /// 解密后端 `elib_cipher:aes_gcm_encrypt/2` 的自包含密文
+  ///
+  /// 布局：`base64( Salt(16) ‖ IV(12) ‖ Ciphertext ‖ Tag(16) )`，AAD = Salt。
+  /// 与 `aesDecrypt`（AES-CBC + 固定 IV + 无认证标签）的区别在于 GCM 自带认证：
+  /// 密文被篡改会抛 `InvalidCipherTextException`，不会静默解出脏数据。
+  ///
+  /// 长度不足 44 字节（16+12+16，即空明文时的最小长度）直接判非法，
+  /// 免得 sublist 越界抛 RangeError，与"被篡改"混作一谈。
+  static Uint8List aesGcmDecryptSelfContained(
+    String combinedBase64,
+    Uint8List keyBytes,
+  ) {
+    final combined = base64.decode(base64.normalize(combinedBase64));
+    const int saltLen = 16;
+    const int ivLen = 12;
+    const int tagLen = 16;
+    if (combined.length < saltLen + ivLen + tagLen) {
+      throw ArgumentError('密文长度不足，无法解析 salt/iv/tag');
+    }
+    final salt = Uint8List.sublistView(combined, 0, saltLen);
+    final iv = Uint8List.sublistView(combined, saltLen, saltLen + ivLen);
+    // PointyCastle 解密侧要求 密文‖tag 一并传入，由它校验 tag
+    final ctWithTag = Uint8List.sublistView(combined, saltLen + ivLen);
+
+    final cipher = GCMBlockCipher(AESEngine());
+    cipher.init(false, AEADParameters(KeyParameter(keyBytes), 128, iv, salt));
+    return cipher.process(ctWithTag);
+  }
+
   /// 获取或创建缓存的密钥
   static Uint8List _getOrCreateCachedKey(String key) {
     // 直接从缓存获取

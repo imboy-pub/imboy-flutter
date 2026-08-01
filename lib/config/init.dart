@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
@@ -439,10 +440,21 @@ class AppInitializer {
         return error;
       }
 
+      // res_v2 = AES-256-GCM 自包含密文（AEAD 有认证 + 每次随机 IV）；
+      // res = 旧的 AES-256-CBC + 固定 IV + 无认证标签，仅在后端
+      // init_config_legacy_cbc=on 的过渡期还会下发。优先吃 v2。
+      final encryptedV2 = (resp1.payload['res_v2'] ?? '') as String;
       final encrypted = (resp1.payload['res'] ?? '') as String;
-      if (kDebugMode) debugPrint('🔧 initConfig: 加密内容长度=${encrypted.length}');
+      final bool useGcm = encryptedV2.isNotEmpty;
+      if (kDebugMode) {
+        debugPrint(
+          '🔧 initConfig: 加密内容长度='
+          '${useGcm ? encryptedV2.length : encrypted.length}'
+          ' 模式=${useGcm ? "gcm" : "cbc(legacy)"}',
+        );
+      }
 
-      if (encrypted.isEmpty) {
+      if (!useGcm && encrypted.isEmpty) {
         if (kDebugMode) debugPrint('❌ initConfig: ��密内容为空');
         final error = {"error": t.common.initConfigProtocolError};
         completer.complete(error);
@@ -452,15 +464,21 @@ class AppInitializer {
       if (kDebugMode) debugPrint('🔧 initConfig: 开始解密配置');
       final key = await Env.signKey();
       if (kDebugMode) debugPrint('🔐 [INIT] signKey initialized');
+      final String md5Key = EncrypterService.md5(key);
+      final String decrypted = useGcm
+          ? utf8.decode(
+              EncrypterService.aesGcmDecryptSelfContained(
+                encryptedV2,
+                Uint8List.fromList(utf8.encode(md5Key)),
+              ),
+            )
+          : EncrypterService.aesDecrypt(
+              encrypted,
+              md5Key,
+              Env().solidifiedKeyIv,
+            );
       Map<String, dynamic> payload =
-          jsonDecode(
-                EncrypterService.aesDecrypt(
-                  encrypted,
-                  EncrypterService.md5(key),
-                  Env().solidifiedKeyIv,
-                ),
-              )
-              as Map<String, dynamic>;
+          jsonDecode(decrypted) as Map<String, dynamic>;
       if (kDebugMode) debugPrint('🔧 initConfig: 解密完成');
 
       if (payload.containsKey('error')) {
