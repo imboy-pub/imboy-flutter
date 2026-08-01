@@ -52,6 +52,7 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Dart analyze
         run: dart analyze --fatal-infos
@@ -63,7 +64,7 @@ jobs:
         # 这个**无 `|| true` 的硬门禁**因此会永久失败。
         run: |
           set -o pipefail
-          git ls-files -z '*.dart' | xargs -0 dart format --output=none --set-exit-if-changed
+          git ls-files -z '*.dart' ':!plugin/' | xargs -0 dart format --output=none --set-exit-if-changed
 
   # ── Job 2: 单元测试 ──
   unit-test:
@@ -83,6 +84,7 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Run unit tests
         run: flutter test --coverage
@@ -118,6 +120,7 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Run integration tests
         run: |

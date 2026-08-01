@@ -40,24 +40,22 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Verify formatting
         # 此前是 `flutter format`，该子命令在 Flutter 3.19 已移除，而 CI 固定 3.41.0
         # → 本 step 必挂 → 同 job 后续 analyze / 边界检查 / 单元测试 / moment 回归门
         #   全部从未执行过。命令修正后，格式问题才第一次暴露出来：148 个文件未格式化。
         #
-        # 检查范围改为 `git ls-files '*.dart'` 而非目录扫描 `.`：
-        # 后者会扫进 plugin/amap_flutter_location_plus（submodule，mode 160000）
-        # 与 build/ 等 gitignored 生成物 —— 前者的文件属于**另一个仓库**，
-        # 本仓永远改不了，硬门禁因此在结构上不可能变绿。
-        # 用 git ls-files 天然排除 submodule、gitignored 与 vendored 插件，
-        # 检查范围正好是本仓自己受版本控制的 .dart 文件。
+        # 检查范围改为 `git ls-files '*.dart' ':!plugin/'`：
+        # plugin/ 下是 vendored 第三方插件源码（2026-08-02 实体化，原 gitlink），
+        # 第三方风格不归本仓格式门禁约束；其余排除逻辑同原注释。
         #
         # C-01b 已完成：1359 个受版本控制的 .dart 全部合规，本地实测退出码 0，
         # 故摘掉此前的 `|| true`，恢复为硬门禁。
         run: |
           set -o pipefail
-          git ls-files -z '*.dart' | xargs -0 dart format --output=none --set-exit-if-changed
+          git ls-files -z '*.dart' ':!plugin/' | xargs -0 dart format --output=none --set-exit-if-changed
 
       - name: Analyze code
         # errors 仍然阻断；warnings/infos 的 ratchet 计数由 quality.yml 负责，
@@ -115,6 +113,7 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Analyze lib (zero-issue gate)
         run: dart analyze lib
@@ -152,6 +151,7 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Run integration tests
         run: flutter test test/integration/ --reporter=github
@@ -215,6 +215,7 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Inject Firebase google-services.json
         if: ${{ env.GOOGLE_SERVICES_JSON_B64 != '' }}
@@ -260,6 +261,7 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Inject Firebase GoogleService-Info.plist
         if: ${{ env.GOOGLE_SERVICE_INFO_PLIST_B64 != '' }}
@@ -294,6 +296,7 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Analyze code
         run: flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings
@@ -323,6 +326,7 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Run performance tests
         run: |
@@ -373,6 +377,7 @@ jobs:
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
+          bash .github/scripts/ci_gen_env.sh
 
       - name: Run isolated route smoke test
         run: bash test/smoke/run_smoke_isolated.sh --quiet
