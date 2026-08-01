@@ -87,6 +87,47 @@ jobs:
           flutter test test/service/moment_event_test.dart --reporter=github
           flutter test test/page/moment/moment_routes_test.dart --reporter=github
 
+  # ----------------------------------------------------------------
+  # E2EE Suite — 加密套件门（阻塞）
+  # 基线 2026-08-02：588 例全绿 + dart analyze lib 零 issue。
+  # 依赖 vodozemac FFI 的用例在无 spike dylib 时自动 skip（spikes/ 未跟踪入仓，
+  # CI 重建 dylib 为后续任务，见 summary 输出）。
+  # ----------------------------------------------------------------
+  e2ee:
+    name: E2EE Suite Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Analyze lib (zero-issue gate)
+        run: dart analyze lib
+
+      - name: Run E2EE suite
+        run: |
+          set -o pipefail
+          flutter test test/service/e2ee/ --reporter=github 2>&1 | tee e2ee-suite.log
+
+      - name: Summarize E2EE suite
+        if: always()
+        run: |
+          echo "## E2EE suite" >> "$GITHUB_STEP_SUMMARY"
+          tail -3 e2ee-suite.log >> "$GITHUB_STEP_SUMMARY" || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "注：依赖 vodozemac FFI 的用例在无 spike dylib 时自动 skip；dylib 未跟踪入仓（spikes/），CI 重建为后续任务。" >> "$GITHUB_STEP_SUMMARY"
+
   test:
     name: Run Integration Tests
     runs-on: ubuntu-latest
