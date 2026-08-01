@@ -11,7 +11,7 @@ on:
     - cron: '0 18 * * *'
 
 env:
-  FLUTTER_VERSION: '3.41.0'
+  FLUTTER_VERSION: '3.44.8'
 
 jobs:
   # ==================== 测试任务 ====================

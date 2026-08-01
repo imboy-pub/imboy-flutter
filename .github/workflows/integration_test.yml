@@ -29,7 +29,7 @@ on:
 env:
   # 与 ci.yml / core-automation.yml 保持一致。此前的 3.29.3 是 Dart 3.7，
   # 与 pubspec.yaml 的 sdk: ^3.8.0 不兼容，flutter pub get 必失败
-  FLUTTER_VERSION: '3.41.0'
+  FLUTTER_VERSION: '3.44.8'
   TEST_DEVICE: ${{ github.event.inputs.test_device || 'macos' }}
 
 jobs:
