@@ -162,13 +162,21 @@ class WalletApi extends HttpClient {
   /// [count] 红包个数
   /// [type] random (拼手气), fixed (普通红包)
   /// [greeting] 祝福语
+  /// [scopeType] 会话类型 C2C/C2G，[scopeId] 群 id 或对端 uid（B-11 作用域绑定）
   /// 返回 新建红包ID (String) 或 null
   Future<String?> sendRedPacket({
     required int amount,
     required int count,
     String type = 'fixed',
     String greeting = '恭喜发财，大吉大利',
+    String? scopeType,
+    String? scopeId,
   }) async {
+    // 服务端据此判定"非该群成员不得领取"；不传则退回旧行为（任何人凭 id 可领）
+    final hasScope =
+        (scopeType == 'C2C' || scopeType == 'C2G') &&
+        scopeId != null &&
+        scopeId.isNotEmpty;
     IMBoyHttpResponse resp = await post(
       API.walletRedPacketSend,
       data: {
@@ -176,6 +184,8 @@ class WalletApi extends HttpClient {
         'count': count,
         'type': type,
         'greeting': greeting,
+        if (hasScope) 'scope_type': scopeType,
+        if (hasScope) 'scope_id': scopeId,
       },
     );
     if (!resp.ok || resp.payload == null) {

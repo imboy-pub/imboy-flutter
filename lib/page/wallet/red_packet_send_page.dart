@@ -79,6 +79,9 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
       count: count,
       type: _isGroup ? _selectedType : 'fixed',
       greeting: greeting,
+      // B-11：把聊天页已有的会话上下文一并落库，服务端才能判定越权领取
+      scopeType: widget.chatType,
+      scopeId: widget.toUid,
     );
 
     if (packetId != null && packetId.isNotEmpty) {
