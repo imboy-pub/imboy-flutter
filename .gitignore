@@ -70,6 +70,12 @@ lib/config/env_pro.dart
 lib/config/env_local.g.dart
 lib/config/env_dev.g.dart
 lib/config/env_pro.g.dart
+# env_local_home / env_local_office 两个变体此前漏加，导致 envied 生成的
+# solidifiedKey（含解混淆用的 XOR 密钥数组，可直接还原明文）随代码入库。
+# 约定与上面三条一致：env_*.dart 源文件入库、env_*.g.dart 生成物不入库，
+# 各自从本地未入库的 .env.<环境> 用 build_runner 重新生成。
+lib/config/env_local_home.g.dart
+lib/config/env_local_office.g.dart
 IDEWorkspaceChecks.plist
 android/build
 .trae
