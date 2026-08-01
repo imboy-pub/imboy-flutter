@@ -2,18 +2,31 @@
 
 import 'dart:io';
 
+/// 错误码生成器（C-20）
+///
+/// 用法：
+///   dart scripts/generate_error_code.dart              # 生成/更新
+///   dart scripts/generate_error_code.dart --check      # 只校验，不写文件（CI 用）
+///   dart scripts/generate_error_code.dart --source=/path/to/error_code.hrl
+///
+/// 源文件查找顺序：`--source=` > 环境变量 `IMBOY_ERROR_CODE_HRL` >
+/// 默认的跨仓相对路径 `../imboy/include/error_code.hrl`。
+/// 独立 clone imboyapp（没有并排的 imboy 仓）时只有前两条可用 —— 这正是本脚本
+/// 此前必然失败、进而从未被接进 CI 的原因。
 void main(List<String> args) async {
-  stdout.writeln('开始生成错误码文件...\n');
+  final checkOnly = args.contains('--check');
+  stdout.writeln(checkOnly ? '校验错误码文件是否最新...\n' : '开始生成错误码文件...\n');
 
-  // 获取项目根目录
   final projectDir = Directory.current.path;
-  final backendFile = File('$projectDir/../imboy/include/error_code.hrl');
+  final backendFile = File(_resolveSourcePath(args, projectDir));
   final frontendFile = File('$projectDir/lib/config/error_code.dart');
 
   // 检查后端文件是否存在
   if (!backendFile.existsSync()) {
     stdout.writeln('后端错误码文件不存在: ${backendFile.path}');
-    stdout.writeln('请确保 imboy 项目在正确位置\n');
+    stdout.writeln('独立 clone 时请显式指定源文件：');
+    stdout.writeln('  dart scripts/generate_error_code.dart --source=<路径>');
+    stdout.writeln('  或设置环境变量 IMBOY_ERROR_CODE_HRL=<路径>\n');
     exit(1);
   }
 
@@ -70,81 +83,76 @@ void main(List<String> args) async {
   final buffer = StringBuffer();
 
   // 文件头
+  //
+  // ⚠️ 这里**不写生成时间戳**：带时间戳则每次运行产物都不同，
+  // "跑生成器后 git diff 为空" 这条 CI 判据永远不可能满足（C-20）。
+  // 用 `//` 而非 `///`：`ignore_for_file` 之后接文档注释会触发
+  // dangling_library_doc_comments lint。
   buffer.writeln('// ignore_for_file: constant_identifier_names');
-  buffer.writeln('/// ⚠️ 此文件由脚本自动生成，请勿手动修改');
-  buffer.writeln('///');
-  buffer.writeln('/// 生成命令: dart script/generate_error_code.dart');
-  buffer.writeln('/// 源文件: ../imboy/include/error_code.hrl');
-  buffer.writeln('/// 生成时间: ${DateTime.now().toIso8601String()}');
-  buffer.writeln('///');
-  buffer.writeln('/// 错误码设计原则:');
-  buffer.writeln('/// - 0: 成功（API 响应成功标记）');
-  buffer.writeln('/// - 4xx: 客户端错误（参数、认证、资源等）');
-  buffer.writeln('/// - 5xx: 服务端错误（服务器问题）');
-  buffer.writeln('/// - 9xx: 业务特定错误（IM 业务专用）');
+  buffer.writeln('// ⚠️ 此文件由脚本自动生成，请勿手动修改');
+  buffer.writeln('//');
+  buffer.writeln('// 生成命令: dart scripts/generate_error_code.dart');
+  buffer.writeln('// 校验命令: dart scripts/generate_error_code.dart --check');
+  buffer.writeln('// 源文件: imboy/include/error_code.hrl');
+  buffer.writeln('//');
+  buffer.writeln('// 错误码设计原则:');
+  buffer.writeln('// - 0: 成功（API 响应成功标记）');
+  buffer.writeln('// - 4xx: 客户端错误（参数、认证、资源等）');
+  buffer.writeln('// - 5xx: 服务端错误（服务器问题）');
+  buffer.writeln('// - 9xx: 业务特定错误（IM 业务专用）');
+  buffer.writeln('// - 其余: 各子系统扩展码（E2EE / 支付 / 插件 …）');
   buffer.writeln();
   buffer.writeln('class ErrorCode {');
-  buffer.writeln(
-    '  // =====================================================================',
-  );
-  buffer.writeln('  // 成功 (0)');
-  buffer.writeln(
-    '  // =====================================================================',
-  );
-  buffer.writeln();
 
-  // 生成常量定义
-  buffer.writeln('  /// 成功');
-  buffer.writeln('  static const int OK = 0;');
-  buffer.writeln();
+  // 分段输出。
+  //
+  // ⚠️ 最后一段是 **"其余全部"** 而不是又一个固定区间：原实现只生成
+  // 4xx/5xx/9xx 三段，148 个定义里有 58 个（E2EE 5000+、支付、插件…）
+  // 落在区间外被**静默丢弃** —— 前端 75 个常量对后端 148 个，差 73 个。
+  // 兜底段 + 下面的数量断言让"新增一个区间就静默漏掉"从此不可能发生。
+  //
+  // "成功 (0)" 也走分段而不是硬编码 `static const int OK = 0;` ——
+  // hrl 里本就有 `ERR_OK`，硬编码会与生成的 `OK` 撞成 duplicate_definition。
+  final segments = <({String title, bool Function(int) match})>[
+    (title: '成功 (0) 与通用错误 (1)', match: (c) => c < 400),
+    (title: '4xx 客户端错误（参考 HTTP 4xx）', match: (c) => c >= 400 && c < 500),
+    (title: '5xx 服务端错误（参考 HTTP 5xx）', match: (c) => c >= 500 && c < 600),
+    (title: '9xx 业务特定错误（IM 业务专用）', match: (c) => c >= 900 && c < 1000),
+    (title: '其余：各子系统扩展错误码', match: (_) => true),
+  ];
 
-  // 4xx 客户端错误
-  buffer.writeln(
-    '  // =====================================================================',
-  );
-  buffer.writeln('  // 4xx 客户端错误（参考 HTTP 4xx）');
-  buffer.writeln(
-    '  // =====================================================================',
-  );
-  buffer.writeln();
+  final remaining = errorCodes.values.toList()
+    ..sort((a, b) => a.code.compareTo(b.code));
+  var emittedNames = 0;
 
-  final codes4xx =
-      errorCodes.values.where((e) => e.code >= 400 && e.code < 500).toList()
-        ..sort((a, b) => a.code.compareTo(b.code));
+  for (final segment in segments) {
+    final picked = remaining.where((e) => segment.match(e.code)).toList();
+    if (picked.isEmpty) continue;
+    remaining.removeWhere((e) => segment.match(e.code));
 
-  _generateConstants(buffer, codes4xx, errorCodes);
+    buffer.writeln(
+      '  // =====================================================================',
+    );
+    buffer.writeln('  // ${segment.title}');
+    buffer.writeln(
+      '  // =====================================================================',
+    );
+    buffer.writeln();
 
-  // 5xx 服务端错误
-  buffer.writeln(
-    '  // =====================================================================',
-  );
-  buffer.writeln('  // 5xx 服务端错误（参考 HTTP 5xx）');
-  buffer.writeln(
-    '  // =====================================================================',
-  );
-  buffer.writeln();
+    _generateConstants(buffer, picked, errorCodes);
+    emittedNames += picked.length;
+  }
 
-  final codes5xx =
-      errorCodes.values.where((e) => e.code >= 500 && e.code < 600).toList()
-        ..sort((a, b) => a.code.compareTo(b.code));
-
-  _generateConstants(buffer, codes5xx, errorCodes);
-
-  // 9xx 业务特定错误
-  buffer.writeln(
-    '  // =====================================================================',
-  );
-  buffer.writeln('  // 9xx 业务特定错误（IM 业务专用）');
-  buffer.writeln(
-    '  // =====================================================================',
-  );
-  buffer.writeln();
-
-  final codes9xx =
-      errorCodes.values.where((e) => e.code >= 900 && e.code < 1000).toList()
-        ..sort((a, b) => a.code.compareTo(b.code));
-
-  _generateConstants(buffer, codes9xx, errorCodes);
+  // 完整性断言：每一个解析到的 define 都必须落进某一段。
+  // 生成器"少生成一些"是最难发现的失败模式 —— 产物看起来完全正常，
+  // 只有引用到缺失常量时才编译报错，而那可能是几个月后（本次即 7 个月）。
+  if (emittedNames != errorCodes.length || remaining.isNotEmpty) {
+    stdout.writeln(
+      '生成不完整：解析到 ${errorCodes.length} 个定义，只输出 $emittedNames 个'
+      '（漏掉 ${remaining.map((e) => '${e.name}=${e.code}').join(', ')}）\n',
+    );
+    exit(1);
+  }
 
   // 错误消息映射
   buffer.writeln(
@@ -212,6 +220,15 @@ void main(List<String> args) async {
     exit(0);
   }
 
+  // --check：CI 门禁模式，只报告不写盘。
+  // 判据"跑生成器后 git diff 为空"在 CI 里等价于本模式 exit 0。
+  if (checkOnly) {
+    stdout.writeln('❌ lib/config/error_code.dart 与后端 error_code.hrl 不同步。');
+    stdout.writeln('   后端定义 ${errorCodes.length} 个，当前文件需要重新生成。');
+    stdout.writeln('   本地执行：dart scripts/generate_error_code.dart 并提交产物\n');
+    exit(1);
+  }
+
   try {
     await frontendFile.writeAsString(newContent);
     stdout.writeln('已生成错误码文件: ${frontendFile.path}');
@@ -219,15 +236,24 @@ void main(List<String> args) async {
     stdout.writeln('\n统计信息:');
     stdout.writeln('  - 总错误码数: ${errorCodes.length}');
     stdout.writeln('  - 错误消息数: ${messages.length}');
-    stdout.writeln('  - 4xx 错误: ${codes4xx.length}');
-    stdout.writeln('  - 5xx 错误: ${codes5xx.length}');
-    stdout.writeln('  - 9xx 错误: ${codes9xx.length}\n');
+    stdout.writeln('  - 已生成常量: $emittedNames\n');
   } catch (e) {
     stdout.writeln('写入文件失败: $e\n');
     exit(1);
   }
 
   stdout.writeln('生成完成!\n');
+}
+
+/// 解析源文件路径：`--source=` > `IMBOY_ERROR_CODE_HRL` > 跨仓相对路径
+String _resolveSourcePath(List<String> args, String projectDir) {
+  final flag = args.where((a) => a.startsWith('--source=')).firstOrNull;
+  if (flag != null) return flag.substring('--source='.length);
+
+  final env = Platform.environment['IMBOY_ERROR_CODE_HRL'];
+  if (env != null && env.isNotEmpty) return env;
+
+  return '$projectDir/../imboy/include/error_code.hrl';
 }
 
 /// 生成常量定义

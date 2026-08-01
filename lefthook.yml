@@ -16,6 +16,21 @@ pre-commit:
       run: dart analyze --no-fatal-warnings {staged_files}
     gitleaks:
       run: gitleaks protect --staged --no-banner --redact
+    # C-20：改动 error_code.dart 时校验它确实是当前生成器 + 后端 hrl 的产物。
+    # 该文件头写着"由脚本自动生成、请勿手动修改"，实测却被手工补过常量
+    # （ERR_ERROR=1 当时不在 hrl 里）—— 于是没人再敢跑生成器，漂移了 7 个月。
+    # 只在**并排存在 imboy 仓**时校验：独立 clone 下没有真源，跳过而不是误拦。
+    # 跨仓校验做不进 GitHub CI（两仓各自 checkout 且三仓 origin 指向 gitee），
+    # 本机钩子是当前唯一真实生效的门禁。
+    error-code-sync:
+      glob: "lib/config/error_code.dart"
+      run: |
+        hrl="${IMBOY_ERROR_CODE_HRL:-../imboy/include/error_code.hrl}"
+        if [ ! -f "$hrl" ]; then
+          echo "⚠️  未找到 $hrl，跳过错误码同步校验（独立 clone 属正常）" >&2
+          exit 0
+        fi
+        dart run scripts/generate_error_code.dart --check --source="$hrl"
     design-tokens:
       glob: "lib/**/*.dart"
       exclude:
