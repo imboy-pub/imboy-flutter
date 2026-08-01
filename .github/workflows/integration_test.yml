@@ -53,6 +53,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Dart analyze
         run: dart analyze --fatal-infos
@@ -85,6 +86,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Run unit tests
         run: flutter test --coverage
@@ -121,6 +123,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Run integration tests
         run: |

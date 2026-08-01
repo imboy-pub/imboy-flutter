@@ -41,6 +41,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Verify formatting
         # 此前是 `flutter format`，该子命令在 Flutter 3.19 已移除，而 CI 固定 3.41.0
@@ -114,6 +115,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Analyze lib (zero-issue gate)
         run: dart analyze lib
@@ -152,6 +154,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Run integration tests
         run: flutter test test/integration/ --reporter=github
@@ -216,6 +219,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Inject Firebase google-services.json
         if: ${{ env.GOOGLE_SERVICES_JSON_B64 != '' }}
@@ -262,6 +266,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Inject Firebase GoogleService-Info.plist
         if: ${{ env.GOOGLE_SERVICE_INFO_PLIST_B64 != '' }}
@@ -297,6 +302,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Analyze code
         run: flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings
@@ -327,6 +333,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Run performance tests
         run: |
@@ -378,6 +385,7 @@ jobs:
           bash .github/scripts/ci_patch_path_deps.sh
           flutter pub get
           bash .github/scripts/ci_gen_env.sh
+          bash .github/scripts/ci_build_vod.sh
 
       - name: Run isolated route smoke test
         run: bash test/smoke/run_smoke_isolated.sh --quiet
