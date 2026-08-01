@@ -130,6 +130,10 @@ class ChatBurnService {
 
   // ===== 删除/过期 =====
 
+  /// 销毁失败后的重试节奏：阅后即焚是安全承诺，静默失败等于消息永久留在本地库
+  static const int maxBurnDeleteAttempts = 3;
+  static const Duration burnDeleteRetryDelay = Duration(seconds: 5);
+
   /// 内部删除阅后即焚消息（由定时器触发）
   Future<void> deleteBurnMessage({
     required Map<String, Timer> burnDeleteTimers,
@@ -137,6 +141,7 @@ class ChatBurnService {
     required ConversationModel conversation,
     required String messageId,
     required Future<void> Function(ConversationModel, String) onExpire,
+    int attempt = 0,
   }) async {
     try {
       final String tb = MessageRepo.getTableName(conversation.type);
@@ -147,11 +152,33 @@ class ChatBurnService {
           if (chatService?.isDisposed != true) {
             await chatService?.removeMessageById(messageId);
           }
-        } catch (_) {}
+        } catch (e) {
+          // 库中已无此消息，UI 摘除失败只影响显示，不影响销毁保证
+          iPrint('阅后即焚 UI 摘除失败(库中已无) $messageId: $e');
+        }
         return;
       }
       await onExpire(conversation, messageId);
-    } catch (_) {}
+    } catch (e) {
+      // 原实现在此静默吞掉，然后照样删掉定时器 —— 销毁失败即永久失败，
+      // 消息留在本地 SQLite 可被取证。改为记录 + 有界重试。
+      iPrint('阅后即焚销毁失败 $messageId (第 ${attempt + 1} 次): $e');
+      if (attempt + 1 < maxBurnDeleteAttempts) {
+        burnDeleteTimers[messageId]?.cancel();
+        burnDeleteTimers[messageId] = Timer(burnDeleteRetryDelay, () async {
+          await deleteBurnMessage(
+            burnDeleteTimers: burnDeleteTimers,
+            chatService: chatService,
+            conversation: conversation,
+            messageId: messageId,
+            onExpire: onExpire,
+            attempt: attempt + 1,
+          );
+        });
+        return;
+      }
+      iPrint('阅后即焚销毁重试耗尽，消息可能仍在本地库: $messageId');
+    }
     burnDeleteTimers.remove(messageId)?.cancel();
   }
 
@@ -199,7 +226,12 @@ class ChatBurnService {
       if (updated != null) {
         AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
       }
-    } catch (_) {}
+    } catch (e) {
+      // 不向上抛：调用链直连 UI 点击（chat_page），抛出会崩页面。
+      // 但要记录 —— 这里失败意味着 burn_read_at 未落库或定时器未排，
+      // 该消息将永远不会被销毁。
+      iPrint('阅后即焚标记已读/排期失败，该消息可能永不销毁 $messageId: $e');
+    }
   }
 
   /// 过期阅后即焚消息（写墓碑或直接删除）
@@ -221,7 +253,9 @@ class ChatBurnService {
           if (chatService?.isDisposed != true) {
             await chatService?.removeMessageById(messageId);
           }
-        } catch (_) {}
+        } catch (e) {
+          iPrint('阅后即焚 UI 摘除失败(库中已无) $messageId: $e');
+        }
         return;
       }
 
@@ -242,14 +276,22 @@ class ChatBurnService {
         if (chatService?.isDisposed != true) {
           await chatService?.removeMessageById(messageId);
         }
-      } catch (_) {}
+      } catch (e) {
+        // 此处 DB 行已删除，销毁保证已达成；UI 摘除失败只影响当前列表显示
+        iPrint('阅后即焚 UI 摘除失败(已出库) $messageId: $e');
+      }
 
       await updateConversationLastMessageAfterBurnHidden(
         conversation: conversation,
         messageRepo: repo,
         hiddenMessageId: messageId,
       );
-    } catch (_) {}
+    } catch (e) {
+      // 原实现静默吞掉，repo.delete 失败时消息仍留在本地 SQLite 可被取证。
+      // 向上抛给 deleteBurnMessage 触发有界重试 —— 唯一调用方就是它。
+      iPrint('阅后即焚出库失败 $messageId: $e');
+      rethrow;
+    }
   }
 
   // ===== 会话最后消息更新 =====
@@ -321,7 +363,11 @@ class ChatBurnService {
       if (updated != null) {
         AppEventBus.fireData(updated);
       }
-    } catch (_) {}
+    } catch (e) {
+      // 不向上抛：消息本体已出库，销毁保证已达成。但失败意味着会话列表
+      // 的 subtitle 可能仍显示已销毁消息的内容 —— 属于隐私残留，必须可见。
+      iPrint('阅后即焚后会话末条消息更新失败，列表可能仍显示旧内容: $e');
+    }
   }
 
   // ===== SharedPreferences 辅助 =====

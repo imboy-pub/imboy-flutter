@@ -896,7 +896,9 @@ class ChatNotifier extends _$ChatNotifier {
       messageId: messageId,
       onExpire: expireBurnMessage,
     );
-    burnDeleteTimers.remove(messageId)?.cancel();
+    // 此处原有一次无条件 burnDeleteTimers.remove(messageId)?.cancel()：
+    // 与 ChatBurnService.deleteBurnMessage 内部的清理重复，且会把销毁失败后
+    // 排下的重试定时器立刻掐掉。清理统一交由服务层负责。
   }
 
   static Future<bool> isMessageDeleted(String messageId) async {
