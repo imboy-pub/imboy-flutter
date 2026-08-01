@@ -1016,9 +1016,20 @@ class MessageRepo implements MessageRepository {
           }
         }
       }
-    } on Object catch (e) {
+    } on Object catch (e, s) {
+      // 不再吞成 null（A-24）。
+      //
+      // 返回 null 与"这批本来就没有需要 ACK 的消息"在调用方看来完全一样
+      // （`if (msgIds != null && msgIds.isNotEmpty)`），于是整批写入失败
+      // 被读成"没什么要确认的"：不 ACK、不报错、拉取继续、游标照常推进。
+      // 持久性失败（A-21 的 msg_c2c.sender_did 缺列就是实例）因此变成
+      // 每次拉取都失败、每次都只留一行 print 的静默循环。
+      //
+      // 向上抛之后由 message_offline.dart 的拉取外层 catch 接住 —— 那里
+      // 有失败计数、_markPullFailure()、指标上报和用户可见提示，
+      // 是这条链上唯一有处理能力的一层。异常不会逃逸成未捕获崩溃。
       func_helper.iPrint("批量插入离线消息失败: $e");
-      return null;
+      Error.throwWithStackTrace(e, s);
     }
     return ackMsgIds;
   }
