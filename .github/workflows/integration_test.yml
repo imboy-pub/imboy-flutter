@@ -49,7 +49,9 @@ jobs:
           channel: 'stable'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Dart analyze
         run: dart analyze --fatal-infos
@@ -78,7 +80,9 @@ jobs:
           channel: 'stable'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Run unit tests
         run: flutter test --coverage
@@ -111,7 +115,9 @@ jobs:
           channel: 'stable'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Run integration tests
         run: |

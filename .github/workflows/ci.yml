@@ -37,7 +37,9 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Verify formatting
         # 此前是 `flutter format`，该子命令在 Flutter 3.19 已移除，而 CI 固定 3.41.0
@@ -110,7 +112,9 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Analyze lib (zero-issue gate)
         run: dart analyze lib
@@ -145,7 +149,9 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Run integration tests
         run: flutter test test/integration/ --reporter=github
@@ -206,7 +212,9 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Inject Firebase google-services.json
         if: ${{ env.GOOGLE_SERVICES_JSON_B64 != '' }}
@@ -249,7 +257,9 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Inject Firebase GoogleService-Info.plist
         if: ${{ env.GOOGLE_SERVICE_INFO_PLIST_B64 != '' }}
@@ -281,7 +291,9 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Analyze code
         run: flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings
@@ -308,7 +320,9 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Run performance tests
         run: |
@@ -356,7 +370,9 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
 
       - name: Run isolated route smoke test
         run: bash test/smoke/run_smoke_isolated.sh --quiet
