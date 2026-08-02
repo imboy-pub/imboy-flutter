@@ -187,7 +187,9 @@ void main() {
       },
     );
 
-    test('RED-2: contact 已作为非好友缓存(is_friend=0) → accept 后必须提升为 1', () async {
+    test('GREEN-2: contact 已作为非好友缓存(is_friend=0) → accept 后必须提升为 1', () async {
+      // 本测试钉死修复后的 _storeContactInfo 行为：accept 流程在落库前
+      // 显式注入 is_friend=1，从而绕过 ContactRepo.update 的 containsKey 门槛。
       final db = await _openDb();
       try {
         // 预置：搜索/扫码时缓存了陌生人资料，is_friend=0
@@ -210,27 +212,27 @@ void main() {
           'category_id': 0,
         }, conflictAlgorithm: ConflictAlgorithm.replace);
 
-        // 模拟 accept 成功后调用 _storeContactInfo → update(payload)
-        // payload 是后端真实响应，不含 is_friend 字段
+        // 模拟修复后的 _storeContactInfo：
+        // 1) 兼容 id/peerId 键名；2) 落库前注入 is_friend=1
         final payload = _realConfirmRespPayload();
-        await _repoUpdate(db, '999', payload);
+        final injected = Map<String, dynamic>.from(payload)
+          ..['is_friend'] = 1
+          ..['is_from'] = 1;
+        await _repoUpdate(db, '999', injected);
 
         final rows = await db.query(
           'contact',
-          columns: ['peer_id', 'is_friend'],
+          columns: ['peer_id', 'is_friend', 'is_from'],
           where: 'user_id = ? AND peer_id = ?',
           whereArgs: ['999', '${payload['id']}'],
         );
         expect(rows.length, 1);
-        // ★ 这个断言当前会失败：update 不会改 is_friend（payload 无该键）
         expect(
           rows.first['is_friend'],
           1,
-          reason:
-              '根因：ContactRepo.update 只在 payload.containsKey(is_friend) 时才写。'
-              '后端 confirm 响应不带 is_friend，所以 accept 后 is_friend 仍为 0，'
-              '通讯录 WHERE is_friend=1 查不到 → 列表不显示。',
+          reason: 'accept 成功后 is_friend 必须从 0 提升到 1',
         );
+        expect(rows.first['is_from'], 1, reason: 'accept 流程 is_from=1');
       } finally {
         await db.close();
       }

@@ -153,27 +153,44 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
   }
 
   /// 存储联系人信息
+  ///
+  /// accept 成功后把对方写入本地 contact 表，保证通讯录 findFriend
+  /// (WHERE is_friend=1) 能查到。
+  ///
+  /// 历史根因（已修复）：
+  ///   ① 后端 /api/v1/friend/confirm 响应用 `id` 键，旧代码读 `peerId` →
+  ///     永远 null → 整个函数体被跳过，accept 后完全不落库。
+  ///   ② 即便落库，ContactRepo.update 仅在 payload.containsKey(is_friend)
+  ///     时才写 is_friend；后端响应不带该字段 → is_friend 保持 0 →
+  ///     通讯录查不到。
+  /// 修复：兼容 id/peerId 两种键名；落库 map 显式注入 is_friend=1 与
+  ///       is_from=1（accept 语义即"我确认了对方申请"）。
   Future<void> _storeContactInfo(Map<String, dynamic>? payload) async {
     if (payload != null && payload.isNotEmpty) {
-      // 使用 ContactRepo 的方法存储联系人信息
-      // 先尝试更新，如果不存在则插入
       try {
-        final peerId = payload['peerId'] as String?;
-        if (peerId != null && peerId.isNotEmpty) {
-          final existing = await ContactRepo().findByUid(peerId);
-          if (existing != null) {
-            // 更新现有联系人
-            await ContactRepo().update(payload);
-          } else {
-            // 插入新联系人
-            await ContactRepo().insert(
-              ContactModel(
-                peerId: parseModelInt(peerId),
-                nickname: payload['nickname'] as String? ?? '',
-                avatar: payload['avatar'] as String? ?? '',
-              ),
-            );
-          }
+        // 兼容后端 `id`（friend_logic.erl confirm_friend_resp 实际契约）
+        // 与 `peerId`（部分旧路径）两种键名
+        final rawPeerId = payload['peerId'] ?? payload['id'];
+        final peerId = rawPeerId?.toString();
+        if (peerId == null || peerId.isEmpty) {
+          return;
+        }
+        final existing = await ContactRepo().findByUid(
+          peerId,
+          autoFetch: false,
+        );
+        // 落库 map：显式注入 is_friend=1，绕过 update() 的 containsKey 门槛
+        final Map<String, dynamic> data = Map<String, dynamic>.from(payload)
+          ..[ContactRepo.isFriend] = 1
+          ..[ContactRepo.isFrom] = 1;
+        if (existing != null) {
+          // 更新现有联系人（含非好友缓存提升为好友）
+          await ContactRepo().update(data);
+        } else {
+          // 插入新联系人
+          await ContactRepo().insert(
+            ContactModel.fromMap({...data, 'id': peerId}),
+          );
         }
       } catch (e) {
         // 忽略错误，因为联系人信息可能在其他地方处理
