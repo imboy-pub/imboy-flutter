@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -115,7 +116,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
         title: t.main.myLive,
         rightDMActions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(CupertinoIcons.add, size: 22),
             onPressed: _showCreateRoomDialog,
             tooltip: t.chat.liveRoomCreateTitle,
           ),
@@ -198,7 +199,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
         children: [
           if (room.isLive)
             IconButton(
-              icon: const Icon(Icons.play_circle_outline),
+              icon: const Icon(CupertinoIcons.play_circle),
               tooltip: t.chat.liveRoomWatch,
               onPressed: () =>
                   context.push('/live_room/subscriber', extra: room),

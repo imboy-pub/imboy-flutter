@@ -75,7 +75,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.main.setParam(param: t.contact.remarksTags)),
-                leading: _buildIcon(Icons.edit_outlined, AppColors.iosBlue),
+                leading: _buildIcon(CupertinoIcons.pencil, AppColors.iosBlue),
                 onTap: () => Navigator.push(
                   context,
                   CupertinoPageRoute<dynamic>(
@@ -100,7 +100,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               ),
               ImBoySettingsTile(
                 title: Text(t.contact.recommendToFriend),
-                leading: _buildIcon(Icons.share_outlined, AppColors.iosPurple),
+                leading: _buildIcon(CupertinoIcons.share, AppColors.iosPurple),
                 onTap: () => AppLoading.showInfo(t.common.featureInDevelopment),
               ),
             ],
@@ -113,7 +113,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               ImBoySettingsTile(
                 title: Text(t.common.addToDenylist),
                 leading: _buildIcon(
-                  Icons.block_outlined,
+                  CupertinoIcons.nosign,
                   state.isInDenylist
                       ? AppColors.getIosRed(brightness)
                       : AppColors.iosGray,
@@ -127,7 +127,7 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               ImBoySettingsTile(
                 title: Text(t.complaint.complaint),
                 leading: _buildIcon(
-                  Icons.flag_outlined,
+                  CupertinoIcons.flag,
                   AppColors.getIosRed(brightness),
                 ),
                 onTap: () => _showReportDialog(context),

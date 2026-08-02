@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -828,8 +829,8 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
           child: ListTile(
             leading: Icon(
               widget.message.isPinned
-                  ? Icons.push_pin_outlined
-                  : Icons.push_pin,
+                  ? CupertinoIcons.pin
+                  : CupertinoIcons.pin_fill,
               size: 20,
             ),
             title: Text(
@@ -844,7 +845,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
           value: 'delete',
           child: ListTile(
             leading: const Icon(
-              Icons.delete_outline,
+              CupertinoIcons.delete,
               size: 20,
               color: AppColors.iosRed,
             ),
@@ -870,7 +871,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.copy_outlined),
+              leading: const Icon(CupertinoIcons.doc_on_doc),
               title: Text(t.common.copy),
               onTap: () {
                 Navigator.pop(ctx);
@@ -885,7 +886,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               },
             ),
             ListTile(
-              leading: const Icon(Icons.share_outlined),
+              leading: const Icon(CupertinoIcons.share),
               title: Text(t.channel.share),
               onTap: () {
                 Navigator.pop(ctx);
@@ -980,7 +981,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.link),
+              leading: const Icon(CupertinoIcons.link),
               title: Text(t.channel.share),
               onTap: () {
                 Navigator.pop(ctx);
@@ -992,7 +993,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               },
             ),
             ListTile(
-              leading: const Icon(Icons.send),
+              leading: const Icon(CupertinoIcons.paperplane),
               title: Text(t.channel.shareToChat),
               onTap: () {
                 Navigator.pop(ctx);

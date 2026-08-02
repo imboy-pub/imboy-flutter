@@ -7,6 +7,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -148,7 +149,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
           : FloatingActionButton(
               onPressed: _handleAdd,
               tooltip: t.common.buttonAdd,
-              child: const Icon(Icons.add),
+              child: const Icon(CupertinoIcons.add),
             ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -196,7 +197,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.edit_outlined, size: 20),
+                          icon: const Icon(CupertinoIcons.pencil, size: 20),
                           tooltip: t.common.edit,
                           onPressed: () => _handleEdit(index),
                         ),

@@ -14,6 +14,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:highlight_text/highlight_text.dart';
@@ -523,7 +524,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
               final search = _state.recentSearches[index];
               return ListTile(
                 leading: Icon(
-                  Icons.history,
+                  CupertinoIcons.clock,
                   color: isDark
                       ? AppColors.chatWebSecondaryDark
                       : AppColors.chatWebSecondaryLight,
@@ -539,7 +540,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 ),
                 trailing: IconButton(
                   icon: Icon(
-                    Icons.north_west,
+                    CupertinoIcons.arrow_up_left,
                     color: isDark
                         ? AppColors.chatWebSecondaryDark
                         : AppColors.chatWebSecondaryLight,

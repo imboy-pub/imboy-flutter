@@ -2,6 +2,7 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
@@ -83,7 +84,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
         actions: [
           if (AppFeatureRegistry.isEnabled(FeatureKeys.channelDiscover))
             IconButton(
-              icon: const Icon(Icons.search),
+              icon: const Icon(CupertinoIcons.search, size: 22),
               onPressed: () {
                 context.push('/channel/discover');
               },
@@ -91,7 +92,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
               color: AppColors.getTextColor(brightness),
             ),
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add, size: 22),
             onPressed: () {
               context.push('/channel/create');
             },
@@ -145,7 +146,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
         PopupMenuItem(
           value: '/channel/orders',
           child: ListTile(
-            leading: const Icon(Icons.receipt_long_outlined),
+            leading: const Icon(CupertinoIcons.doc_plaintext),
             title: Text(t.channel.myOrders),
             contentPadding: EdgeInsets.zero,
           ),
@@ -154,7 +155,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
         PopupMenuItem(
           value: '/channel/invitations',
           child: ListTile(
-            leading: const Icon(Icons.mark_email_unread_outlined),
+            leading: const Icon(CupertinoIcons.envelope_badge),
             title: Text(t.common.channelInvitations),
             contentPadding: EdgeInsets.zero,
           ),
@@ -387,7 +388,7 @@ class _ChannelListItem extends StatelessWidget {
         ],
       ),
       trailing: const Icon(
-        Icons.chevron_right,
+        CupertinoIcons.chevron_right,
         size: 16,
         color: AppColors.iosGray,
       ),

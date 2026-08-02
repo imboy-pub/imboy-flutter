@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
 import 'package:go_router/go_router.dart';
@@ -57,7 +58,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
         ),
         backgroundColor: colorScheme.surface,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colorScheme.primary),
+          icon: Icon(CupertinoIcons.back, color: colorScheme.primary, size: 22),
           onPressed: () => context.pop(),
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         ),
@@ -170,8 +171,8 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                         ),
                         trailing: Icon(
                           isSelected
-                              ? Icons.check_circle
-                              : Icons.circle_outlined,
+                              ? CupertinoIcons.checkmark_circle
+                              : CupertinoIcons.circle,
                           color: isSelected
                               ? colorScheme.primary
                               : colorScheme.onSurfaceVariant,

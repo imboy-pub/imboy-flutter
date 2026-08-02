@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -100,7 +101,7 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
                     title: Text(item),
                     trailing: IconButton(
                       icon: const Icon(
-                        Icons.close,
+                        CupertinoIcons.xmark,
                         size: 18,
                         color: AppColors.iosGray,
                       ),

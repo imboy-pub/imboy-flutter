@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:amap_flutter_base_plus/amap_flutter_base_plus.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -479,7 +480,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                                           ),
                                           trailing: isSelected
                                               ? Icon(
-                                                  Icons.check,
+                                                  CupertinoIcons.checkmark,
                                                   color: AppColors.primary,
                                                 )
                                               : const SizedBox.shrink(),

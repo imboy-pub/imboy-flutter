@@ -180,7 +180,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
             onTap: () {
               Navigator.of(context).pop();
             },
-            child: const Icon(Icons.close),
+            child: const Icon(CupertinoIcons.xmark),
           ),
         ),
         rightDMActions: <Widget>[

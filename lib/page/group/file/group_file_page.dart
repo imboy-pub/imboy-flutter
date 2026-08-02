@@ -367,7 +367,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
                 trailing: IconButton(
                   tooltip: t.common.groupFileClosePreview,
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(CupertinoIcons.xmark),
                 ),
               ),
               const Divider(height: 1),
@@ -527,7 +527,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
-            icon: const Icon(Icons.upload_file_outlined),
+            icon: const Icon(CupertinoIcons.arrow_up_doc, size: 22),
             tooltip: t.common.groupFileUploadTooltip,
             onPressed: _isUploading ? null : _pickAndUploadFile,
           ),
@@ -681,7 +681,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
-        leading: const Icon(Icons.insert_drive_file_outlined),
+        leading: const Icon(CupertinoIcons.doc),
         title: Text(name),
         onTap: () => _openFile(file),
         subtitle: Text(
@@ -697,7 +697,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
         trailing: _canDeleteFile(file)
             ? IconButton(
                 tooltip: t.common.groupFileDeleteTitle,
-                icon: const Icon(Icons.delete_outline),
+                icon: const Icon(CupertinoIcons.delete),
                 onPressed: () => _deleteFile(file),
               )
             : null,

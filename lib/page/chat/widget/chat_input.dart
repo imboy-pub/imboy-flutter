@@ -867,7 +867,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                         iconColorSelected: _themeColor('primary'),
                         indicatorColor: _themeColor('primary'),
                         categoryIcons: const CategoryIcons(
-                          recentIcon: Icons.access_time_outlined,
+                          recentIcon: CupertinoIcons.clock,
                           smileyIcon: Icons.emoji_emotions_outlined,
                           animalIcon: Icons.cruelty_free_outlined,
                           foodIcon: Icons.coffee_outlined,

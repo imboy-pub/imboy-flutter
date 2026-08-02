@@ -532,9 +532,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back_ios_new,
+            CupertinoIcons.back,
             color: Theme.of(context).colorScheme.primary,
-            size: 20,
+            size: 22,
           ),
           onPressed: () {
             Navigator.pop(context, backDoRefresh);

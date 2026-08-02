@@ -127,23 +127,29 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.account.accountSecurity),
-                leading: _buildIcon(Icons.security, AppColors.iosOrange),
+                leading: _buildIcon(
+                  CupertinoIcons.lock_shield,
+                  AppColors.iosOrange,
+                ),
                 onTap: () => context.push('/account_security'),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.languageSetting),
-                leading: _buildIcon(Icons.language, AppColors.iosBlue),
+                leading: _buildIcon(CupertinoIcons.globe, AppColors.iosBlue),
                 onTap: () => context.push('/language'),
               ),
               ImBoySettingsTile(
                 title: Text(t.main.darkModel),
-                leading: _buildIcon(Icons.dark_mode, AppColors.iosGray),
+                leading: _buildIcon(CupertinoIcons.moon, AppColors.iosGray),
                 trailing: _buildValueTrailing(themeTypeTips(ref)),
                 onTap: () => context.push('/dark_model'),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.fontSettings),
-                leading: _buildIcon(Icons.text_fields, AppColors.iosGreen),
+                leading: _buildIcon(
+                  CupertinoIcons.textformat,
+                  AppColors.iosGreen,
+                ),
                 trailing: _buildValueTrailing(
                   themeState.fontSizeOption.localizedName,
                 ),
@@ -161,7 +167,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ImBoySettingsTile(
                 title: Text(t.common.allowSearchMe),
                 subtitle: Text(t.discovery.otherUsersCanFindMe),
-                leading: _buildIcon(Icons.search, AppColors.iosBlue),
+                leading: _buildIcon(CupertinoIcons.search, AppColors.iosBlue),
                 trailing: CupertinoSwitch(
                   value: allowSearch,
                   activeTrackColor: AppColors.getIosBlue(brightness),
@@ -173,13 +179,13 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ImBoySettingsTile(
                 title: Text(t.account.refreshDeviceKey),
                 subtitle: Text(t.account.refreshDeviceKeyHint),
-                leading: _buildIcon(Icons.refresh, AppColors.iosBlue),
+                leading: _buildIcon(CupertinoIcons.refresh, AppColors.iosBlue),
                 onTap: _isRefreshingKeys ? null : _handleRefreshDeviceKey,
               ),
               ImBoySettingsTile(
                 title: Text(t.group.e2eeKeyManagement),
                 subtitle: Text(t.group.e2eeKeyManagementSubtitle),
-                leading: _buildIcon(Icons.vpn_key, AppColors.iosGreen),
+                leading: _buildIcon(CupertinoIcons.lock, AppColors.iosGreen),
                 onTap: () => Navigator.push(
                   context,
                   CupertinoPageRoute<void>(
@@ -198,7 +204,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             children: [
               ImBoySettingsTile(
                 title: Text(t.common.updateLog),
-                leading: _buildIcon(Icons.update, AppColors.iosGreen),
+                leading: _buildIcon(
+                  CupertinoIcons.arrow_2_circlepath,
+                  AppColors.iosGreen,
+                ),
                 onTap: () => _openMarkdown(
                   t.common.updateLog,
                   "asset://docs/changelog.md",
@@ -206,14 +215,17 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ),
               ImBoySettingsTile(
                 title: Text(t.common.helpDocument),
-                leading: _buildIcon(Icons.help_outline, AppColors.iosBlue),
+                leading: _buildIcon(
+                  CupertinoIcons.question_circle,
+                  AppColors.iosBlue,
+                ),
                 onTap: () =>
                     _openMarkdown(t.common.helpDocument, "asset://docs/FAQ.md"),
               ),
               ImBoySettingsTile(
                 title: Text(t.main.privacyPolicy),
                 leading: _buildIcon(
-                  Icons.privacy_tip_outlined,
+                  CupertinoIcons.exclamationmark_shield,
                   AppColors.iosOrange,
                 ),
                 onTap: () => _openMarkdown(
@@ -223,7 +235,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ),
               ImBoySettingsTile(
                 title: Text(t.common.aboutApp),
-                leading: _buildIcon(Icons.info_outline, AppColors.primary),
+                leading: _buildIcon(CupertinoIcons.info, AppColors.primary),
                 trailing: _buildAboutTrailing(),
                 onTap: _showAboutDialog,
               ),
@@ -239,7 +251,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               children: [
                 ImBoySettingsTile(
                   title: Text(t.common.switchEnvironment),
-                  leading: _buildIcon(Icons.developer_mode, AppColors.iosRed),
+                  leading: _buildIcon(CupertinoIcons.hammer, AppColors.iosRed),
                   trailing: _buildEnvDropdown(),
                 ),
               ],

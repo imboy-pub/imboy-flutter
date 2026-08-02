@@ -308,8 +308,7 @@ iosAccelerate    = Cubic(0.4, 0.0, 1.0, 1.0)       // 离开动画
 
 ### 7.1 图标源
 
-- **iOS**：SF Symbols（系统内置，通过 `CupertinoIcons`）
-- **Android**：Material Symbols（通过 `Icons`）
+- **两端统一**：SF Symbols 风格（通过 `CupertinoIcons`）
 - **自定义**：`assets/fonts/iconfont.ttf`（现有）
 
 ### 7.2 图标规范

@@ -394,7 +394,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
             ? IconButton(
                 tooltip: t.common.groupAlbumPhotoExitSelection,
                 onPressed: _isBatchDeleting ? null : _exitSelectionMode,
-                icon: const Icon(Icons.close),
+                icon: const Icon(CupertinoIcons.xmark),
               )
             : null,
         rightDMActions: actionWidgets,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
@@ -324,13 +325,13 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: const Icon(CupertinoIcons.search, size: 22),
             onPressed: _showSearchDialog,
             tooltip: t.common.search,
           ),
           if (_searchKeyword != null)
             IconButton(
-              icon: const Icon(Icons.clear),
+              icon: const Icon(Icons.clear, size: 22),
               onPressed: () {
                 setState(() => _searchKeyword = null);
                 _loadSubscribers(refresh: true);
@@ -417,7 +418,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
                 PopupMenuItem(
                   value: 'view_profile',
                   child: ListTile(
-                    leading: const Icon(Icons.person_outline),
+                    leading: const Icon(CupertinoIcons.person),
                     title: Text(t.channel.viewProfile),
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -426,7 +427,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
                   value: 'remove',
                   child: ListTile(
                     leading: const Icon(
-                      Icons.person_remove_outlined,
+                      CupertinoIcons.person_badge_minus,
                       color: AppColors.iosRed,
                     ),
                     title: Text(

@@ -246,8 +246,9 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
         leading: IconButton(
           tooltip: t.common.buttonCancel,
           icon: Icon(
-            Icons.close,
+            CupertinoIcons.xmark,
             color: Theme.of(context).colorScheme.onSurface,
+            size: 22,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),

@@ -529,7 +529,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               final query = state.searchHistory[index];
               return ListTile(
                 leading: Icon(
-                  Icons.history,
+                  CupertinoIcons.clock,
                   color: AppColors.textSecondary,
                   size: 20,
                 ),
@@ -542,7 +542,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                 ),
                 trailing: IconButton(
                   icon: Icon(
-                    Icons.close,
+                    CupertinoIcons.xmark,
                     color: AppColors.textSecondary,
                     size: 18,
                   ),

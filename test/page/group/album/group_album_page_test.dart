@@ -207,7 +207,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(fakeService.getAlbumsCallCount, 1);
 
-    await tester.tap(find.widgetWithIcon(IconButton, Icons.add));
+    await tester.tap(find.widgetWithIcon(IconButton, CupertinoIcons.add));
     await tester.pumpAndSettle();
 
     await tester.enterText(
@@ -246,7 +246,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(fakeService.getAlbumsCallCount, 1);
 
-    await tester.tap(find.widgetWithIcon(IconButton, Icons.add));
+    await tester.tap(find.widgetWithIcon(IconButton, CupertinoIcons.add));
     await tester.pumpAndSettle();
 
     await tester.enterText(

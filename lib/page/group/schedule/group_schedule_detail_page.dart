@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -222,7 +223,7 @@ class _GroupScheduleDetailPageState
                   (item) => ListTile(
                     dense: true,
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.person, size: 18),
+                    leading: const Icon(CupertinoIcons.person, size: 18),
                     title: Text(
                       _toText(item['nickname']).isEmpty
                           ? _toText(item['user_id'])

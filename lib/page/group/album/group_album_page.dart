@@ -291,7 +291,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(CupertinoIcons.add, size: 22),
             onPressed: _createAlbum,
             tooltip: t.common.groupAlbumCreateTooltip,
           ),
@@ -347,7 +347,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         vertical: AppSpacing.small,
       ),
       child: ListTile(
-        leading: const Icon(Icons.photo_album_outlined),
+        leading: const Icon(CupertinoIcons.rectangle_stack),
         title: Text(name),
         onTap: () async {
           if (albumId.isEmpty) return;
@@ -374,7 +374,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.edit_outlined),
+                icon: const Icon(CupertinoIcons.pencil),
                 tooltip: t.group.groupAlbumRenameTitle,
                 onPressed: _isUploadingPhoto ? null : () => _renameAlbum(album),
               ),

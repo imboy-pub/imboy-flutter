@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/button.dart';
@@ -62,7 +63,7 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
           onTap: () {
             Navigator.of(context).pop();
           },
-          child: const Icon(Icons.close),
+          child: const Icon(CupertinoIcons.xmark),
         ),
         title: widget.tag == null
             ? t.common.addTag

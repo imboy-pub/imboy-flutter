@@ -40,6 +40,10 @@ const _allowlist = <String>{
 final _ctrl = RegExp(r'\b(IconButton|CupertinoButton)\s*\(');
 final _handled = RegExp(r'semanticLabel|tooltip|Semantics\(');
 final _iconName = RegExp(r'Icon\(\s*(?:CupertinoIcons|Icons)\.([A-Za-z0-9_]+)');
+final _navContext = RegExp(
+  r'actions:|leading:|trailing:|AppBar|NavigationBar|BottomNav|tabBar',
+);
+final _materialIcon = RegExp(r'(?<!\w)Icons\.([A-Za-z0-9_]+)(?![A-Za-z0-9_])');
 
 void main() {
   test('纯图标按钮都有读屏标签', () {
@@ -81,6 +85,36 @@ void main() {
       reason:
           '这些纯图标按钮读屏只会念出「按钮」，用户不知道按下去干什么。\n'
           '补 semanticLabel，或在 _allowlist 里写明为什么暂不补：\n'
+          '${offenders.join('\n')}',
+    );
+  });
+
+  test('高可见位置统一使用 CupertinoIcons', () {
+    final offenders = <String>[];
+
+    for (final entity in Directory('lib').listSync(recursive: true)) {
+      if (entity is! File || !entity.path.endsWith('.dart')) continue;
+      final lines = entity.readAsStringSync().split('\n');
+
+      for (var i = 0; i < lines.length; i++) {
+        if (!_materialIcon.hasMatch(lines[i])) continue;
+        final start = i - 6 < 0 ? 0 : i - 6;
+        final end = i + 3 > lines.length ? lines.length : i + 3;
+        if (!_navContext.hasMatch(lines.sublist(start, end).join('\n'))) {
+          continue;
+        }
+
+        for (final match in _materialIcon.allMatches(lines[i])) {
+          offenders.add('${entity.path}:${i + 1} Icons.${match.group(1)}');
+        }
+      }
+    }
+
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          '高可见导航/操作位置不得使用 Material Icons；请改为对应 CupertinoIcons：\n'
           '${offenders.join('\n')}',
     );
   });

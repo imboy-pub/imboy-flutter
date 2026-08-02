@@ -20,6 +20,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_chat_core/flutter_chat_core.dart'
@@ -282,7 +283,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
               if (copyable != null)
                 ListTile(
                   key: const ValueKey('web-msg-action-copy'),
-                  leading: const Icon(Icons.copy),
+                  leading: const Icon(CupertinoIcons.doc_on_doc),
                   title: Text(t.common.buttonCopy),
                   onTap: () async {
                     Navigator.of(sheetCtx).pop();
@@ -299,7 +300,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
               if (canRecall)
                 ListTile(
                   key: const ValueKey('web-msg-action-recall'),
-                  leading: const Icon(Icons.replay),
+                  leading: const Icon(CupertinoIcons.arrow_counterclockwise),
                   title: Text(t.chat.revoke),
                   onTap: () {
                     Navigator.of(sheetCtx).pop();
@@ -308,7 +309,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
                 ),
               ListTile(
                 key: const ValueKey('web-msg-action-cancel'),
-                leading: const Icon(Icons.close),
+                leading: const Icon(CupertinoIcons.xmark),
                 title: Text(t.common.cancel),
                 onTap: () => Navigator.of(sheetCtx).pop(),
               ),

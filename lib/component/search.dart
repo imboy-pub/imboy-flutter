@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -29,7 +30,7 @@ Widget searchBar(
       leading:
           leading ??
           Icon(
-            Icons.search,
+            CupertinoIcons.search,
             color: ThemeManager.instance.getThemeColor('textSecondary'),
             size: 20,
           ),

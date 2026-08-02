@@ -4,6 +4,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -153,17 +154,17 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.camera_alt),
+              leading: const Icon(CupertinoIcons.camera),
               title: Text(context.t.main.takePhoto),
               onTap: () => _pickAvatar(useCamera: true),
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library),
+              leading: const Icon(CupertinoIcons.photo_on_rectangle),
               title: Text(context.t.main.selectFromAlbum),
               onTap: () => _pickAvatar(),
             ),
             ListTile(
-              leading: const Icon(Icons.close),
+              leading: const Icon(CupertinoIcons.xmark),
               title: Text(context.t.common.buttonCancel),
               onTap: () => Navigator.of(ctx).pop(),
             ),

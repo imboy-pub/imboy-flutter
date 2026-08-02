@@ -446,7 +446,7 @@ void main() {
       expect(find.text('Album 1/3'), findsOneWidget);
       expect(fakeService.detailCalls, ['p2', 'p3', 'p2', 'p1']);
       final prevButton = tester.widget<IconButton>(
-        find.widgetWithIcon(IconButton, Icons.chevron_left),
+        find.widgetWithIcon(IconButton, CupertinoIcons.chevron_left),
       );
       expect(prevButton.onPressed, isNull);
     },

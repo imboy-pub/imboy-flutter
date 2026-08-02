@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show TextMessage;
 import 'package:flutter_test/flutter_test.dart';
@@ -87,8 +88,8 @@ void main() {
       // i18n: chatResend = "重新发送", chatDeleteMessage = "删除消息"
       expect(find.text('重新发送'), findsOneWidget);
       expect(find.text('删除消息'), findsOneWidget);
-      expect(find.byIcon(Icons.refresh), findsOneWidget);
-      expect(find.byIcon(Icons.delete_outline), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.refresh), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.delete), findsOneWidget);
     });
 
     testWidgets('tap 重新发送 → 触发 onRetry + 关闭 BottomSheet', (tester) async {

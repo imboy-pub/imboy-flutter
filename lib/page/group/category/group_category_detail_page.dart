@@ -216,15 +216,15 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.edit_outlined),
+                  leading: const Icon(CupertinoIcons.pencil),
                   title: Text(t.groupCategory.renameCategory),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
                   onTap: _renameCategory,
                 ),
                 const Divider(height: 1, indent: 56),
                 ListTile(
                   leading: Icon(
-                    Icons.delete_outline,
+                    CupertinoIcons.delete,
                     color: AppColors.getIosRed(Theme.of(context).brightness),
                   ),
                   title: Text(
@@ -233,7 +233,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
                       color: AppColors.getIosRed(Theme.of(context).brightness),
                     ),
                   ),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
                   onTap: _deleteCategory,
                 ),
               ],

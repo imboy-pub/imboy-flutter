@@ -326,7 +326,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                             tagId: widget.tag.tagId,
                           );
                     },
-                    child: const Icon(Icons.search),
+                    child: const Icon(CupertinoIcons.search),
                   ),
                   trailing: _kwd.isEmpty
                       ? [
@@ -334,7 +334,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                             onTap: () {
                               addContact(context);
                             },
-                            child: const Icon(Icons.add_box_outlined),
+                            child: const Icon(CupertinoIcons.plus_square),
                           ),
                         ]
                       : [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -314,7 +315,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.link),
+              leading: const Icon(CupertinoIcons.link),
               title: Text(t.channel.share),
               onTap: () {
                 Navigator.pop(ctx);
@@ -326,7 +327,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.send),
+              leading: const Icon(CupertinoIcons.paperplane),
               title: Text(t.channel.shareToChat),
               onTap: () {
                 Navigator.pop(ctx);
@@ -363,7 +364,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
       return Scaffold(
         appBar: AppBar(title: Text(title)),
         body: NoDataView(
-          icon: Icons.article_outlined,
+          icon: CupertinoIcons.doc_text,
           text: t.common.loadError,
         ),
       );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -259,7 +260,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                     leading: CircleAvatar(
                       backgroundColor: AppColors.getIosOrange(brightness),
                       child: const Icon(
-                        Icons.person,
+                        CupertinoIcons.person,
                         color: AppColors.onPrimary,
                       ),
                     ),

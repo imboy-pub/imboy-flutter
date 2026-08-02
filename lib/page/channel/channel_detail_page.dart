@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -144,7 +145,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     return [
       if (channel.isManaged)
         IconButton(
-          icon: const Icon(Icons.settings_outlined),
+          icon: const Icon(CupertinoIcons.settings, size: 22),
           onPressed: () => _showChannelSettings(channel),
           tooltip: context.t.channel.settings,
         ),
@@ -165,7 +166,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         PopupMenuItem(
           value: 'edit_channel',
           child: ListTile(
-            leading: const Icon(Icons.edit_outlined),
+            leading: const Icon(CupertinoIcons.pencil),
             title: Text(t.channel.editChannel),
             contentPadding: EdgeInsets.zero,
           ),
@@ -175,7 +176,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         PopupMenuItem(
           value: 'manage_admins',
           child: ListTile(
-            leading: const Icon(Icons.admin_panel_settings_outlined),
+            leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
             title: Text(t.channel.manageAdmins),
             contentPadding: EdgeInsets.zero,
           ),
@@ -185,7 +186,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         PopupMenuItem(
           value: 'manage_subscribers',
           child: ListTile(
-            leading: const Icon(Icons.people_outline),
+            leading: const Icon(CupertinoIcons.person_2),
             title: Text(t.channel.manageSubscribers),
             contentPadding: EdgeInsets.zero,
           ),
@@ -198,7 +199,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             value: 'delete_channel',
             child: ListTile(
               leading: const Icon(
-                Icons.delete_outline,
+                CupertinoIcons.delete,
                 color: AppColors.iosRed,
               ),
               title: Text(
@@ -215,7 +216,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         PopupMenuItem(
           value: 'unsubscribe',
           child: ListTile(
-            leading: const Icon(Icons.unsubscribe_outlined),
+            leading: const Icon(CupertinoIcons.bell_slash),
             title: Text(t.channel.unsubscribe),
             contentPadding: EdgeInsets.zero,
           ),
@@ -228,7 +229,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         PopupMenuItem(
           value: 'invitation_center',
           child: ListTile(
-            leading: const Icon(Icons.mark_email_unread_outlined),
+            leading: const Icon(CupertinoIcons.envelope_badge),
             title: Text(t.common.channelInvitations),
             contentPadding: EdgeInsets.zero,
           ),
@@ -239,7 +240,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       PopupMenuItem(
         value: 'share',
         child: ListTile(
-          leading: const Icon(Icons.share_outlined),
+          leading: const Icon(CupertinoIcons.share),
           title: Text(t.channel.share),
           contentPadding: EdgeInsets.zero,
         ),
@@ -251,7 +252,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         PopupMenuItem(
           value: 'my_orders',
           child: ListTile(
-            leading: const Icon(Icons.receipt_long_outlined),
+            leading: const Icon(CupertinoIcons.doc_plaintext),
             title: Text(t.main.myOrders),
             contentPadding: EdgeInsets.zero,
           ),
@@ -373,7 +374,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               ),
               const SizedBox(height: 16),
               ListTile(
-                leading: const Icon(Icons.edit_outlined),
+                leading: const Icon(CupertinoIcons.pencil),
                 title: Text(context.t.channel.editChannel),
                 subtitle: Text(context.t.channel.editChannelDesc),
                 onTap: () async {
@@ -382,7 +383,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.admin_panel_settings_outlined),
+                leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
                 title: Text(context.t.channel.manageAdmins),
                 subtitle: Text(context.t.channel.manageAdminsDesc),
                 onTap: () {
@@ -391,7 +392,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.people_outline),
+                leading: const Icon(CupertinoIcons.person_2),
                 title: Text(context.t.channel.manageSubscribers),
                 subtitle: Text(context.t.channel.manageSubscribersDesc),
                 onTap: () {
@@ -401,7 +402,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               ),
               if (channel.userRole.isCreator)
                 ListTile(
-                  leading: Icon(Icons.delete_outline, color: AppColors.iosRed),
+                  leading: Icon(CupertinoIcons.delete, color: AppColors.iosRed),
                   title: Text(
                     context.t.channel.deleteChannel,
                     style: TextStyle(color: AppColors.iosRed),
@@ -638,7 +639,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.link),
+              leading: const Icon(CupertinoIcons.link),
               title: Text(t.channel.share),
               subtitle: Text(shareLink),
               onTap: () {
@@ -650,7 +651,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.qr_code),
+              leading: const Icon(CupertinoIcons.qrcode),
               title: Text(t.account.myQrcode),
               onTap: () {
                 Navigator.pop(context);
@@ -665,7 +666,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.send),
+              leading: const Icon(CupertinoIcons.paperplane),
               title: Text(t.channel.shareToChat),
               onTap: () {
                 Navigator.pop(context);

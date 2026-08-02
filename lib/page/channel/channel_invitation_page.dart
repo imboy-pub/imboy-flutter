@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -209,7 +210,9 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
           return ListTile(
             leading: CircleAvatar(
               child: Icon(
-                isMyInvitations ? Icons.mail_outline : Icons.outbox_outlined,
+                isMyInvitations
+                    ? CupertinoIcons.mail
+                    : CupertinoIcons.tray_arrow_up,
               ),
             ),
             title: Text(
@@ -328,7 +331,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
         rightDMActions: [
           IconButton(
             onPressed: () => _loadInvitations(showLoading: false),
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(CupertinoIcons.refresh, size: 22),
             tooltip: t.groupList.refresh,
           ),
         ],

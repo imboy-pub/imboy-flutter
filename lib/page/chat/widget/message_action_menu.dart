@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -467,7 +468,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.person),
+                  leading: const Icon(CupertinoIcons.person),
                   title: Text(t.common.deleteForMe),
                   subtitle: Text(t.common.chatDeleteOnlyLocal),
                   onTap: () {
@@ -478,7 +479,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 ),
                 const Divider(),
                 ListTile(
-                  leading: Icon(Icons.group, color: AppColors.iosRed),
+                  leading: Icon(CupertinoIcons.group, color: AppColors.iosRed),
                   title: Text(t.common.deleteForEveryone),
                   subtitle: Text(t.common.chatDeleteAll),
                   onTap: () {

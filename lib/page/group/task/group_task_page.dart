@@ -154,7 +154,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
         rightDMActions: [
           IconButton(
             key: const Key('create_task_fab'),
-            icon: const Icon(Icons.add),
+            icon: const Icon(CupertinoIcons.add, size: 22),
             onPressed: _createTask,
             tooltip: t.groupTask.createTask,
           ),

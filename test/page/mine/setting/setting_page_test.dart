@@ -128,7 +128,7 @@ void main() {
       expect(find.text('语言设置'), findsOneWidget);
       expect(find.text('深色模式'), findsOneWidget);
       // fontSettings = @:fontSizeSetting 别名 → 解析为 "字体大小设置"
-      expect(find.byIcon(Icons.text_fields), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.textformat), findsOneWidget);
 
       await _unmount(tester);
     });

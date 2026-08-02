@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/common_bar.dart';
@@ -206,7 +207,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
     return ListTile(
       title: Text(label),
       trailing: role == currentRole
-          ? const Icon(Icons.check, color: AppColors.primary)
+          ? const Icon(CupertinoIcons.checkmark, color: AppColors.primary)
           : null,
       onTap: () => Navigator.pop(context, role),
     );
@@ -299,7 +300,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
-            icon: const Icon(Icons.person_add),
+            icon: const Icon(CupertinoIcons.person_add, size: 22),
             onPressed: _showContactPicker,
             tooltip: t.channel.addAdmin,
           ),
@@ -377,7 +378,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
                     PopupMenuItem(
                       value: 'change_role',
                       child: ListTile(
-                        leading: const Icon(Icons.edit_outlined),
+                        leading: const Icon(CupertinoIcons.pencil),
                         title: Text(t.channel.changeRole),
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -386,7 +387,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
                       value: 'remove',
                       child: ListTile(
                         leading: const Icon(
-                          Icons.person_remove_outlined,
+                          CupertinoIcons.person_badge_minus,
                           color: AppColors.iosRed,
                         ),
                         title: Text(
@@ -492,13 +493,13 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
             ListTile(
               title: Text(t.channel.roleEditor),
               subtitle: Text(t.channel.roleEditorDesc),
-              leading: const Icon(Icons.edit_outlined),
+              leading: const Icon(CupertinoIcons.pencil),
               onTap: () => Navigator.pop(context, 1),
             ),
             ListTile(
               title: Text(t.channel.roleAdmin),
               subtitle: Text(t.channel.roleAdminDesc),
-              leading: const Icon(Icons.admin_panel_settings_outlined),
+              leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
               onTap: () => Navigator.pop(context, 2),
             ),
           ],

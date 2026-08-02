@@ -4,6 +4,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
@@ -35,7 +36,10 @@ class MessageQuickActionMenu {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(Icons.refresh, color: AppColors.iosOrange),
+                leading: Icon(
+                  CupertinoIcons.refresh,
+                  color: AppColors.iosOrange,
+                ),
                 title: Text(t.chat.chatResend),
                 onTap: () {
                   Navigator.pop(context);
@@ -43,7 +47,7 @@ class MessageQuickActionMenu {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.delete_outline, color: AppColors.iosRed),
+                leading: Icon(CupertinoIcons.delete, color: AppColors.iosRed),
                 title: Text(t.common.chatDeleteMessage),
                 onTap: () {
                   Navigator.pop(context);
@@ -110,7 +114,7 @@ class MessageQuickActionMenu {
                 // 复制 (仅文本)
                 if (message is TextMessage)
                   ListTile(
-                    leading: const Icon(Icons.copy_rounded),
+                    leading: const Icon(CupertinoIcons.doc_on_doc),
                     title: Text(t.common.buttonCopy),
                     onTap: () {
                       Navigator.pop(context);
@@ -120,7 +124,7 @@ class MessageQuickActionMenu {
 
                 // 转发
                 ListTile(
-                  leading: const Icon(Icons.forward_rounded),
+                  leading: const Icon(CupertinoIcons.forward),
                   title: Text(t.chat.forward),
                   onTap: () {
                     Navigator.pop(context);
@@ -130,7 +134,7 @@ class MessageQuickActionMenu {
 
                 // 收藏
                 ListTile(
-                  leading: const Icon(Icons.favorite_border_rounded),
+                  leading: const Icon(CupertinoIcons.heart),
                   title: Text(t.main.favorites),
                   onTap: () {
                     Navigator.pop(context);
@@ -140,7 +144,7 @@ class MessageQuickActionMenu {
 
                 // 回复
                 ListTile(
-                  leading: const Icon(Icons.reply_rounded),
+                  leading: const Icon(CupertinoIcons.reply),
                   title: Text(t.chat.reply),
                   onTap: () {
                     Navigator.pop(context);
@@ -153,7 +157,7 @@ class MessageQuickActionMenu {
                     message is FileMessage ||
                     message is VideoMessage)
                   ListTile(
-                    leading: const Icon(Icons.save_alt_rounded),
+                    leading: const Icon(CupertinoIcons.arrow_down_to_line),
                     title: Text(t.common.chatSaveImage), // 这里可能需要通用的 save 文本
                     onTap: () async {
                       Navigator.pop(context);
@@ -172,7 +176,7 @@ class MessageQuickActionMenu {
                 if (canRevoke)
                   ListTile(
                     leading: Icon(
-                      Icons.undo_rounded,
+                      CupertinoIcons.arrow_uturn_left,
                       color: AppColors.iosOrange,
                     ),
                     title: Text(t.chat.revoke),
@@ -184,10 +188,7 @@ class MessageQuickActionMenu {
 
                 // 删除
                 ListTile(
-                  leading: Icon(
-                    Icons.delete_outline_rounded,
-                    color: AppColors.iosRed,
-                  ),
+                  leading: Icon(CupertinoIcons.delete, color: AppColors.iosRed),
                   title: Text(t.common.buttonDelete),
                   onTap: () {
                     Navigator.pop(context);

@@ -204,12 +204,12 @@ class _GroupAlbumPhotoDetailPageState
         rightDMActions: [
           IconButton(
             tooltip: t.group.groupAlbumPhotoPrev,
-            icon: const Icon(Icons.chevron_left),
+            icon: const Icon(CupertinoIcons.chevron_left, size: 22),
             onPressed: _canGoPrev ? _goPrev : null,
           ),
           IconButton(
             tooltip: t.common.groupAlbumPhotoNext,
-            icon: const Icon(Icons.chevron_right),
+            icon: const Icon(Icons.chevron_right, size: 22),
             onPressed: _canGoNext ? _goNext : null,
           ),
         ],

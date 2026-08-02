@@ -2,6 +2,7 @@ import 'package:azlistview/azlistview.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lpinyin/lpinyin.dart';
@@ -289,7 +290,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
             onTap: () {
               Navigator.of(context).pop();
             },
-            child: const Icon(Icons.close),
+            child: const Icon(CupertinoIcons.xmark),
           ),
         ),
       ),

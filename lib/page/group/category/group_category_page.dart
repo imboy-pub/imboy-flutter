@@ -97,7 +97,7 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
         automaticallyImplyLeading: true,
         rightDMActions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(CupertinoIcons.add, size: 22),
             onPressed: _createCategory,
             tooltip: t.groupCategory.createCategory,
           ),
@@ -129,14 +129,14 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
 
   Widget _buildCategoryItem(Map<String, dynamic> category) {
     return ListTile(
-      leading: const Icon(Icons.folder),
+      leading: const Icon(CupertinoIcons.folder),
       title: Text(category['name'] as String? ?? ''),
       subtitle: Text(
         t.chat.groupCategoryGroupCount(
           count: category['group_count'] as Object? ?? 0,
         ),
       ),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: const Icon(CupertinoIcons.chevron_right),
       onTap: () {
         Navigator.push(
           context,
