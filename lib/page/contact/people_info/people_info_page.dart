@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +14,8 @@ import 'package:imboy/page/contact/apply_friend/apply_friend_page.dart';
 import 'package:imboy/page/contact/contact_setting/contact_setting_page.dart';
 import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_page.dart';
 import 'package:imboy/page/contact/people_info_more/people_info_more_page.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/user_events.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -33,6 +37,10 @@ class PeopleInfoPage extends ConsumerStatefulWidget {
 }
 
 class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
+  /// 订阅实时在线状态变更（S2C online/offline/hide → UserStatusChangeEvent）。
+  /// 进入页面后对方上下线会实时刷新"在线/最后上线时间"，无需重新进页面。
+  StreamSubscription<UserStatusChangeEvent>? _statusSub;
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +48,18 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(peopleInfoProvider.notifier).initData(widget.id, widget.scene);
     });
+    // 订阅状态变更：仅处理当前页面 peer 的事件，避免串台
+    _statusSub = AppEventBus.on<UserStatusChangeEvent>().listen((event) {
+      if (event.userId != widget.id) return;
+      if (!mounted) return;
+      ref.read(peopleInfoProvider.notifier).applyStatusChange(event.status);
+    });
+  }
+
+  @override
+  void dispose() {
+    _statusSub?.cancel();
+    super.dispose();
   }
 
   @override

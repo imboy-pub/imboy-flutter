@@ -153,6 +153,50 @@ class PeopleInfoNotifier extends _$PeopleInfoNotifier {
   void updateTag(String newTag) {
     state = state.copyWith(tag: newTag);
   }
+
+  /// 应用实时在线状态变更（由 UI 层订阅 UserStatusChangeEvent 后调用）。
+  ///
+  /// UI 层（people_info_page）已按 widget.id 过滤，此处直接更新 state。
+  /// 状态映射逻辑见 [mapStatusChange]（可单测的纯函数）。
+  void applyStatusChange(String status, {int? eventTimestamp}) {
+    final mapped = mapStatusChange(
+      currentLastSeenAt: state.lastSeenAt,
+      status: status,
+      eventTimestamp: eventTimestamp,
+    );
+    state = state.copyWith(
+      status: mapped.status,
+      lastSeenAt: mapped.lastSeenAt,
+    );
+  }
+
+  /// 状态变更 → (status, lastSeenAt) 的纯映射逻辑。
+  ///
+  /// 抽成静态方法便于单测。语义：
+  /// - online → status='online'，lastSeenAt 不变（上线不改变"最后离线时间"）
+  /// - offline → status='offline'，lastSeenAt=事件时间戳（记录最后在线时刻）
+  /// - hide → 对观察者等效于 offline，lastSeenAt 不变（隐身不等于真的下线）
+  /// - offline 缺 eventTimestamp 时用当前时间兜底，避免回退到 0 显示"从未上线"
+  static ({String status, int lastSeenAt}) mapStatusChange({
+    required int currentLastSeenAt,
+    required String status,
+    int? eventTimestamp,
+  }) {
+    switch (status) {
+      case 'online':
+        return (status: 'online', lastSeenAt: currentLastSeenAt);
+      case 'hide':
+        // 隐身对观察者等效于离线，但不更新 lastSeenAt
+        return (status: 'offline', lastSeenAt: currentLastSeenAt);
+      case 'offline':
+      default:
+        final ts = eventTimestamp ?? DateTime.now().millisecondsSinceEpoch;
+        return (status: 'offline', lastSeenAt: ts);
+    }
+  }
+
+  /// 标记：UI 层订阅事件的能力存在（用于运行时能力检测/测试钉死）
+  static bool get hasStaticApplyStatusChange => true;
 }
 
 // 用户 ID Provider (用于刷新数据)
