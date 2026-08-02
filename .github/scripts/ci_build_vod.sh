@@ -7,6 +7,13 @@
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
+# 只在 Linux 需要：macOS 上 VM 测试回退 pub 包内预编译 dylib；
+# 构建 job（APK/iOS）由 flutter_vodozemac 插件自身 cargokit 构建，不需要本脚本产物
+if [ "$(uname -s)" != "Linux" ]; then
+  echo "[ci_build_vod] 非 Linux（$(uname -s)），跳过"
+  exit 0
+fi
+
 if ! command -v cargo >/dev/null 2>&1; then
   if [ -f "$HOME/.cargo/env" ]; then
     . "$HOME/.cargo/env"
