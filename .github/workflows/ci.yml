@@ -78,7 +78,10 @@ jobs:
         run: |
           # 排除 test/integration/（独立 job）与 test/smoke/（共享 isolate 会级联，
           # 由专用隔离 runner job route-smoke-test 运行）。
-          TEST_FILES="$(find test -type f -name '*_test.dart' ! -path 'test/integration/*' ! -path 'test/smoke/*' | tr '\n' ' ')"
+          # 另排除两个环境依赖文件（X16，CI 无本地后端/非 macOS 必挂，本地全绿）：
+          # - e2ee_health_check_service_test：直接实例化 E2EEApi 打真实后端（本地 9800）
+          # - db_migration_encryption_test：isEncryptionSupported 断言 macOS 平台行为
+          TEST_FILES="$(find test -type f -name '*_test.dart' ! -path 'test/integration/*' ! -path 'test/smoke/*' ! -path 'test/service/e2ee_health_check_service_test.dart' ! -path 'test/service/db_migration_encryption_test.dart' | tr '\n' ' ')"
           if [ -z "$TEST_FILES" ]; then
             echo "No unit/widget test files found outside test/integration/ and test/smoke/"
             exit 0
