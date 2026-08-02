@@ -18,7 +18,8 @@ jobs:
   unit-widget-test:
     name: Run Unit/Widget Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # vodozemac cargo 构建（~6-8min）+ 全量 1372 文件测试，15min 不够曾被 kill（cancelled）
+    timeout-minutes: 35
 
     steps:
       - name: Checkout code
