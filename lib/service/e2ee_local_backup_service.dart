@@ -2,8 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/e2ee/megolm_backup_section.dart';
+import 'package:imboy/service/storage_secure.dart';
 
 import 'e2ee_crypto_service.dart';
 
@@ -128,9 +133,21 @@ class E2EELocalBackupService {
     required String deviceId,
     required String keyId,
     String? userNotes,
+    @visibleForTesting Map<String, String>? secureEntriesForTest,
   }) async {
     // 1. 验证密码强度
     _validatePassword(password);
+
+    // P3-1：Megolm inbound session 段——换设备后群聊历史可恢复的唯一材料。
+    // 收集失败不阻断备份（RSA 私钥仍值得备份），但留日志不静默。
+    Map<String, String> megolmSection = const {};
+    try {
+      final all =
+          secureEntriesForTest ?? await StorageSecureService.to.readAll();
+      megolmSection = collectMegolmSection(all);
+    } on Object catch (e) {
+      iPrint('⚠️ [BACKUP] Megolm 段收集失败，仅备份 RSA 私钥: $e');
+    }
 
     // 2. 构建备份数据（JSON）
     final backupData = {
@@ -140,6 +157,8 @@ class E2EELocalBackupService {
       'public_key': publicKey,
       'key_id': keyId,
       'created_at': DateTime.now().toUtc().toIso8601String(),
+      // 空段也写入：让「新格式但确实没有群会话」与「旧格式备份」可区分
+      kMegolmSectionKey: megolmSection,
     };
 
     // 3. 计算校验和
@@ -354,6 +373,9 @@ class E2EELocalBackupService {
     }
 
     // 10. 返回密钥数据
+    //
+    // P3-1：`megolm_inbound` 为可选段——v1 旧备份无此字段时解析为空 map，
+    // 不影响 RSA 私钥恢复（fail-closed 取舍见 megolm_backup_section.dart）。
     return {
       'device_id': backupData['device_id'],
       'key_id': backupData['key_id'],
@@ -361,6 +383,7 @@ class E2EELocalBackupService {
       'public_key': backupData['public_key'],
       'created_at': backupData['created_at'],
       'file_size': fileBytes.length,
+      kMegolmSectionKey: parseMegolmSection(backupData[kMegolmSectionKey]),
     };
   }
 

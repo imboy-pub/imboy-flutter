@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/e2ee_server_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
@@ -506,6 +508,23 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     // 不得覆盖当前物理设备 DID——否则本机会冒充备份来源设备，
     // 破坏 E2EE-013「加密写入绑定已认证设备」的授权边界。故此处不再 setDeviceId。
     await StorageSecureService.to.setKeyId(result['key_id'] as String);
+
+    // P3-1：回填 Megolm inbound session（换设备后群聊历史可恢复）。
+    // 单条写失败不整体回滚——已恢复的会话仍有价值，失败项只是该会话历史读不到。
+    final section = parseMegolmSection(result[kMegolmSectionKey]);
+    final entries = megolmRestoreEntries(section);
+    var restored = 0;
+    for (final e in entries.entries) {
+      try {
+        await StorageSecureService.to.write(key: e.key, value: e.value);
+        restored++;
+      } on Object catch (err) {
+        iPrint('⚠️ [RESTORE] Megolm 会话回填失败: ${e.key}, $err');
+      }
+    }
+    if (entries.isNotEmpty) {
+      iPrint('[RESTORE] Megolm 会话回填 $restored/${entries.length}');
+    }
 
     if (!mounted) return;
     _showSuccessDialog(result);
