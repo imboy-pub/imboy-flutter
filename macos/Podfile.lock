@@ -1,6 +1,7 @@
 PODS:
   - audio_session (0.0.1):
     - FlutterMacOS
+  - CocoaAsyncSocket (7.6.5)
   - connectivity_plus (0.0.1):
     - FlutterMacOS
   - device_info_plus (0.0.1):
@@ -119,6 +120,10 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - patrol (0.0.1):
+    - CocoaAsyncSocket (~> 7.6)
+    - Flutter
+    - FlutterMacOS
   - PhoneNumberKit (3.8.0):
     - PhoneNumberKit/PhoneNumberKitCore (= 3.8.0)
     - PhoneNumberKit/UIKit (= 3.8.0)
@@ -185,6 +190,7 @@ DEPENDENCIES:
   - open_file_mac (from `Flutter/ephemeral/.symlinks/plugins/open_file_mac/macos`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
+  - patrol (from `Flutter/ephemeral/.symlinks/plugins/patrol/darwin`)
   - PhoneNumberKit (~> 3.8.0)
   - photo_manager (from `Flutter/ephemeral/.symlinks/plugins/photo_manager/darwin`)
   - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
@@ -199,6 +205,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
+    - CocoaAsyncSocket
     - Firebase
     - FirebaseCore
     - FirebaseCoreInternal
@@ -263,6 +270,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   path_provider_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
+  patrol:
+    :path: Flutter/ephemeral/.symlinks/plugins/patrol/darwin
   photo_manager:
     :path: Flutter/ephemeral/.symlinks/plugins/photo_manager/darwin
   sentry_flutter:
@@ -286,6 +295,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   audio_session: eaca2512cf2b39212d724f35d11f46180ad3a33e
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   connectivity_plus: 4adf20a405e25b42b9c9f87feff8f4b6fde18a4e
   device_info_plus: 4fb280989f669696856f8b129e4a5e3cd6c48f76
   dynamic_color: cb7c2a300ee67ed3bd96c3e852df3af0300bf610
@@ -318,6 +328,7 @@ SPEC CHECKSUMS:
   open_file_mac: 76f06c8597551249bdb5e8fd8827a98eae0f4585
   package_info_plus: f0052d280d17aa382b932f399edf32507174e870
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
+  patrol: 09773d9cd563ec54230813755b3231b2e8252aac
   PhoneNumberKit: 460b1ae0347f2447af12749fc42f27fc3eb743b1
   photo_manager: 25fd77df14f4f0ba5ef99e2c61814dde77e2bceb
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
