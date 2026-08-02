@@ -33,7 +33,10 @@ class OlmApi extends HttpClient {
         'signature': signature,
       },
     );
-    return resp.ok;
+    // 请求失败必须上抛：调用方（OlmSessionService.publishIdentityAndPrekeys）
+    // 不检查返回值，false 会被吞成「身份已上报」——对端永远建不了会话且无任何信号。
+    resp.throwIfFailed();
+    return true;
   }
 
   /// 批量上报 one-time keys（全量替换式）
@@ -46,7 +49,9 @@ class OlmApi extends HttpClient {
       API.olmReportPrekeys,
       data: {'device_id': deviceId, 'keys': keys},
     );
-    if (!resp.ok) return 0;
+    // 失败必须上抛：调用方得手后无条件 markKeysAsPublished()，
+    // 返回 0 会把「上传失败」伪装成「上传了 0 条」并照标已发布。
+    resp.throwIfFailed();
     final payload = resp.payload;
     if (payload is Map) {
       final count = payload['count'];
@@ -109,7 +114,10 @@ class OlmApi extends HttpClient {
         signature: signature,
       ),
     );
-    return resp.ok;
+    // 失败必须上抛：调用方（fallback 轮换链）不检查返回值，
+    // false 会被吞成「fallback 已上报」——OTK 耗尽后无兜底键可用且无信号。
+    resp.throwIfFailed();
+    return true;
   }
 
   /// 查询对端身份键（X3DH createInboundSession / createOutboundSession 需要）

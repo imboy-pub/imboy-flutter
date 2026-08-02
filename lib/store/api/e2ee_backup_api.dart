@@ -76,7 +76,9 @@ class E2EEBackupApi extends HttpClient {
   /// encrypted_payload, payload_hash, created_at} 或 null（无备份/失败）。
   Future<Map<String, dynamic>?> getBackup() async {
     final IMBoyHttpResponse resp = await get(API.e2eeBackupGet);
-    if (!resp.ok) return null;
+    // 失败必须上抛：恢复链把 null 当「无云端备份」展示——网络故障会被
+    // 误读成备份丢失。null 只许表达「确认无备份」（成功响应但无 payload）。
+    resp.throwIfFailed();
     final p = resp.payload;
     return p is Map ? p.cast<String, dynamic>() : null;
   }
@@ -84,7 +86,9 @@ class E2EEBackupApi extends HttpClient {
   /// GET /api/v1/e2ee/backup/info — 备份存在性探测（恢复横幅用）
   Future<E2EEBackupInfo> info() async {
     final IMBoyHttpResponse resp = await get(API.e2eeBackupInfo);
-    if (!resp.ok) return const E2EEBackupInfo(hasBackup: false);
+    // 失败必须上抛：上传链用它算 nextVersion（假「无备份」会退化成
+    // version=1 连撞 409），恢复横幅会把网络故障误报成「无备份可恢复」。
+    resp.throwIfFailed();
     final p = resp.payload;
     if (p is! Map) return const E2EEBackupInfo(hasBackup: false);
     final version = p['backup_version'];
@@ -98,6 +102,8 @@ class E2EEBackupApi extends HttpClient {
   /// POST /api/v1/e2ee/backup/delete — 删除全部云端备份版本
   Future<bool> deleteBackup() async {
     final IMBoyHttpResponse resp = await post(API.e2eeBackupDelete);
-    return resp.ok;
+    // 失败必须上抛：false 会被设置页吞成「已删除」或原因不明的失败提示。
+    resp.throwIfFailed();
+    return true;
   }
 }
