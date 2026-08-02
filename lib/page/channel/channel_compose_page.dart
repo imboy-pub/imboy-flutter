@@ -204,10 +204,6 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
         if (!completer.isCompleted) completer.complete(false);
       },
       process: true,
-      // 频道附件必须标 channel scope：否则默认 private（仅上传者可读），
-      // 订阅者渲染时 view_url 授权失败（"无权访问该附件"）。
-      scope: 'channel',
-      scopeRef: widget.channelId,
     );
     return (await completer.future) ? uploadedUrl : null;
   }
