@@ -875,7 +875,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                           travelIcon: Icons.directions_car_filled_outlined,
                           objectIcon: Icons.lightbulb_outline,
                           symbolIcon: Icons.emoji_symbols_outlined,
-                          flagIcon: Icons.flag_outlined,
+                          flagIcon: CupertinoIcons.flag,
                         ),
                       ),
                       bottomActionBarConfig: BottomActionBarConfig(

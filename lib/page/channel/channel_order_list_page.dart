@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,14 +72,14 @@ class ChannelOrderListPage extends ConsumerWidget {
         loading: () => const ShimmerList(),
         error: (_, _) => NoDataView(
           text: t.channel.noOrders,
-          icon: Icons.receipt_long_outlined,
+          icon: CupertinoIcons.doc_plaintext,
           onTop: () => ref.invalidate(channelMyOrdersProvider),
         ),
         data: (orders) {
           if (orders.isEmpty) {
             return NoDataView(
               text: t.channel.noOrders,
-              icon: Icons.receipt_long_outlined,
+              icon: CupertinoIcons.doc_plaintext,
             );
           }
           return RefreshIndicator(

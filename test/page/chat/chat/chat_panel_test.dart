@@ -9,6 +9,7 @@
 /// - 占位 body 包含 peerId（保证 props 透传）
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -69,14 +70,14 @@ void main() {
   group('ChatPanel — C2C / C2G 分歧', () {
     testWidgets('C2C → person icon', (tester) async {
       await _pumpPanel(tester, chatType: 'C2C');
-      expect(find.byIcon(Icons.person), findsOneWidget);
-      expect(find.byIcon(Icons.group), findsNothing);
+      expect(find.byIcon(CupertinoIcons.person), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.group), findsNothing);
     });
 
     testWidgets('C2G → group icon', (tester) async {
       await _pumpPanel(tester, chatType: 'C2G');
-      expect(find.byIcon(Icons.group), findsOneWidget);
-      expect(find.byIcon(Icons.person), findsNothing);
+      expect(find.byIcon(CupertinoIcons.group), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.person), findsNothing);
     });
 
     testWidgets('C2G 占位渲染 group_outlined 图标', (tester) async {

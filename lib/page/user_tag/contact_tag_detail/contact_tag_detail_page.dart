@@ -352,7 +352,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                                     tagId: widget.tag.tagId,
                                   );
                             },
-                            child: const Icon(Icons.close),
+                            child: const Icon(CupertinoIcons.xmark, size: 22),
                           ),
                         ],
                   controller: _searchController,

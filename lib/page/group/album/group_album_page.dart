@@ -388,7 +388,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
               // SR-4：删除仅创建者本人 / 管理员 / 群主可见（隐藏而非报错）
               if (_canDeleteAlbum(album))
                 IconButton(
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(CupertinoIcons.delete, size: 22),
                   tooltip: t.common.groupAlbumDeleteTooltip,
                   onPressed: _isUploadingPhoto
                       ? null

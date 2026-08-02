@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode, kIsWeb;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
@@ -369,7 +370,7 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
     return IconImageProvider(Icons.broken_image);
   }
   if (url.contains("def_avatar.png", 0)) {
-    return IconImageProvider(Icons.person);
+    return IconImageProvider(CupertinoIcons.person);
   }
 
   try {
@@ -397,7 +398,7 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
 ImageProvider<Object> avatarImageProvider(String? avatar, {double w = 400}) {
   final String url = avatar ?? '';
   if (url.isEmpty || url.contains("def_avatar.png", 0)) {
-    return IconImageProvider(Icons.person);
+    return IconImageProvider(CupertinoIcons.person);
   }
   // public object_key → 公开直读
   if (AssetsService.isObjectKey(url)) {
@@ -416,7 +417,7 @@ DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {
   // iPrint("dynamicAvatar_avatar $avatar; w $w");
   if (strEmpty(avatar)) {
     return DecorationImage(
-      image: IconImageProvider(Icons.person, size: w.toInt()),
+      image: IconImageProvider(CupertinoIcons.person, size: w.toInt()),
       fit: BoxFit.cover,
     );
   }
@@ -433,7 +434,10 @@ Widget genderIcon(int gender) {
   } else if (gender == 2) {
     icon = const Icon(Icons.female, color: AppColors.iosPink);
   } else if (gender == 3) {
-    icon = const Icon(Icons.security, color: Colors.black87);
+    icon = const Icon(
+      CupertinoIcons.lock_shield,
+      color: AppColors.lightTextPrimary,
+    );
   } else {
     icon = const Icon(Icons.battery_unknown, color: AppColors.iosGray);
   }

@@ -411,7 +411,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         ),
       _buildSettingTile(
         title: t.common.searchChatRecord,
-        icon: Icons.search,
+        icon: CupertinoIcons.search,
         isFirst: true,
         onTap: () {
           Navigator.push(

@@ -209,7 +209,7 @@ class _GroupAlbumPhotoDetailPageState
           ),
           IconButton(
             tooltip: t.common.groupAlbumPhotoNext,
-            icon: const Icon(Icons.chevron_right, size: 22),
+            icon: const Icon(CupertinoIcons.chevron_right, size: 22),
             onPressed: _canGoNext ? _goNext : null,
           ),
         ],

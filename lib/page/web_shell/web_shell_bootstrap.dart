@@ -573,7 +573,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
               children: [
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(CupertinoIcons.xmark, size: 22),
                   tooltip: widget.closeTooltip,
                   onPressed: widget.onClose,
                 ),

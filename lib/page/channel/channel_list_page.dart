@@ -92,7 +92,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
               color: AppColors.getTextColor(brightness),
             ),
           IconButton(
-            icon: const Icon(Icons.add, size: 22),
+            icon: const Icon(CupertinoIcons.add, size: 22),
             onPressed: () {
               context.push('/channel/create');
             },

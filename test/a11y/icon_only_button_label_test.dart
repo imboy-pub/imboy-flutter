@@ -98,7 +98,7 @@ void main() {
 
       for (var i = 0; i < lines.length; i++) {
         if (!_materialIcon.hasMatch(lines[i])) continue;
-        final start = i - 6 < 0 ? 0 : i - 6;
+        final start = i - 25 < 0 ? 0 : i - 25;
         final end = i + 3 > lines.length ? lines.length : i + 3;
         if (!_navContext.hasMatch(lines.sublist(start, end).join('\n'))) {
           continue;

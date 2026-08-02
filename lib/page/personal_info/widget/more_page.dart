@@ -47,7 +47,7 @@ class _MorePageState extends ConsumerState<MorePage> {
               // 性别设置项
               _buildInfoItem(
                 context: context,
-                icon: Icons.person_outline,
+                icon: CupertinoIcons.person,
                 iconColor: AppColors.iosBlue,
                 title: t.account.gender,
                 trailing: Text(
@@ -79,7 +79,7 @@ class _MorePageState extends ConsumerState<MorePage> {
               // 个性签名设置项
               _buildInfoItem(
                 context: context,
-                icon: Icons.edit_outlined,
+                icon: CupertinoIcons.pencil,
                 iconColor: AppColors.iosOrange,
                 title: t.account.signature,
                 trailing: Flexible(

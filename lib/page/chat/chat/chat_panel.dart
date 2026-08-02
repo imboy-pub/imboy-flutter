@@ -15,6 +15,7 @@
 /// - 响应主题：用 ColorScheme / TextTheme 取色
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -167,7 +168,7 @@ class _ChatPanelHeader extends StatelessWidget {
             radius: 18,
             backgroundColor: colorScheme.primary.withAlpha(31),
             child: Icon(
-              chatType == 'C2G' ? Icons.group : Icons.person,
+              chatType == 'C2G' ? CupertinoIcons.group : CupertinoIcons.person,
               size: 18,
               color: colorScheme.primary,
             ),

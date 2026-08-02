@@ -217,7 +217,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(fakeService.getPhotosCallCount, 1);
 
-    await tester.tap(find.byIcon(Icons.delete_outline).first);
+    await tester.tap(find.byIcon(CupertinoIcons.delete).first);
     await tester.pumpAndSettle();
     final actionButtons = find.descendant(
       of: find.byType(CupertinoAlertDialog),
@@ -262,7 +262,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(fakeService.getPhotosCallCount, 1);
 
-    await tester.tap(find.byIcon(Icons.delete_outline).first);
+    await tester.tap(find.byIcon(CupertinoIcons.delete).first);
     await tester.pumpAndSettle();
     final actionButtons = find.descendant(
       of: find.byType(CupertinoAlertDialog),

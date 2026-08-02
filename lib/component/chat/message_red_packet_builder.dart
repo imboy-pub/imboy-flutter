@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
@@ -220,10 +221,14 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 28,
                       backgroundColor: Colors.amber,
-                      child: Icon(Icons.person, size: 36, color: Colors.white),
+                      child: Icon(
+                        CupertinoIcons.person,
+                        size: 36,
+                        color: AppColors.onPrimary,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Text(

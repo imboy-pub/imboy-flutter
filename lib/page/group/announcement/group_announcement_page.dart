@@ -64,7 +64,11 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
           if (canManageAnnouncement(state.currentUserRole))
             IconButton(
               tooltip: t.common.groupAnnouncementPublish,
-              icon: Icon(Icons.add, color: Theme.of(context).iconTheme.color),
+              icon: Icon(
+                CupertinoIcons.add,
+                size: 22,
+                color: Theme.of(context).iconTheme.color,
+              ),
               onPressed: () => _showPublishDialog(context, notifier),
             ),
         ],

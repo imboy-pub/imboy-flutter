@@ -10,6 +10,7 @@
 // 运行方式 / How to run:
 //   flutter test test/widget/channel_page_test.dart
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -248,8 +249,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Icons.add 来自 AppBar actions 中的"创建频道"按钮
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      // CupertinoIcons.add 来自 AppBar actions 中的"创建频道"按钮
+      expect(find.byIcon(CupertinoIcons.add), findsOneWidget);
     });
   });
 }
