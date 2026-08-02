@@ -222,6 +222,9 @@ jobs:
         run: |
           echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > android/app/google-services.json
 
+      - name: Strip local dev proxy (gradle.properties 内含本机代理 127.0.0.1:7897，CI 无此代理)
+        run: sed -i.bak '/systemProp.http.proxy/d;/systemProp.https.proxy/d' android/gradle.properties && rm -f android/gradle.properties.bak
+
       - name: Build APK (Release)
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
@@ -268,6 +271,9 @@ jobs:
           GOOGLE_SERVICE_INFO_PLIST_B64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}
         run: |
           echo "$GOOGLE_SERVICE_INFO_PLIST_B64" | base64 -d > ios/Runner/GoogleService-Info.plist
+
+      - name: Update CocoaPods specs repo (Agora 等依赖要求最新 specs)
+        run: pod repo update
 
       - name: Build iOS (Release)
         env:
