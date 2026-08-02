@@ -39,7 +39,8 @@ class SqliteService {
   // v20: Slice A-1 新增 moment_notify 表（朋友圈通知中心）
   // v19: 群成员禁言 group_member.mute_until
   // v18: C7-α-1 本地 DND 免打扰 conversation.is_muted
-  static const _dbVersion = 25;
+  // v26: contact.last_seen_at 最后在线时间戳（修复详情页"从未上线"）
+  static const _dbVersion = 26;
 
   // 单例构造
   SqliteService._privateConstructor();

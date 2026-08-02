@@ -16,6 +16,7 @@ CREATE TABLE contact (
     is_friend INTEGER NOT NULL DEFAULT 0,
     is_from INTEGER NOT NULL DEFAULT 0,
     category_id INTEGER NOT NULL DEFAULT 0,
+    last_seen_at INTEGER,
     CONSTRAINT uk_FromTo UNIQUE (user_id, peer_id)
 );
 CREATE INDEX i_UserId_IsFriend_UpdateTime ON contact (user_id, is_friend, updated_at);

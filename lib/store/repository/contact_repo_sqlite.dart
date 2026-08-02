@@ -35,6 +35,9 @@ class ContactRepo implements ContactRepository {
   // 账号类型 0=真人 1=AI 助手 2=官方机器人（服务端只读投影，v24 迁移）
   static String accountType = 'account_type';
 
+  // 最后在线时间戳（毫秒），v26 迁移；服务端 friend/list、user/show 返回
+  static String lastSeenAt = 'last_seen_at';
+
   // 公共列名列表
   static final List<String> defaultColumns = [
     ContactRepo.peerId,
@@ -52,6 +55,7 @@ class ContactRepo implements ContactRepository {
     ContactRepo.isFrom,
     ContactRepo.categoryId,
     ContactRepo.accountType,
+    ContactRepo.lastSeenAt,
   ];
 
   final SqliteService _db = SqliteService.to;
@@ -117,6 +121,7 @@ class ContactRepo implements ContactRepository {
       ContactRepo.isFrom: obj.isFrom,
       ContactRepo.categoryId: obj.categoryId,
       ContactRepo.accountType: obj.accountType,
+      ContactRepo.lastSeenAt: obj.lastSeenAt,
     };
     if (txn != null) {
       // [#19] 与非事务路径 `_db.insert` 对齐：必须传 ConflictAlgorithm.replace。
@@ -287,6 +292,17 @@ class ContactRepo implements ContactRepository {
     if (json.containsKey(ContactRepo.accountType)) {
       var accountType = json[ContactRepo.accountType] ?? 0;
       data[ContactRepo.accountType] = int.tryParse('$accountType') ?? 0;
+    }
+    // last_seen_at：可空，仅当 payload 显式提供时才覆盖（避免误清空）
+    if (json.containsKey(ContactRepo.lastSeenAt)) {
+      final raw = json[ContactRepo.lastSeenAt];
+      if (raw == null) {
+        data[ContactRepo.lastSeenAt] = null;
+      } else if (raw is num) {
+        data[ContactRepo.lastSeenAt] = raw.toInt();
+      } else {
+        data[ContactRepo.lastSeenAt] = int.tryParse(raw.toString());
+      }
     }
     // debugPrint("> on ContactRepo/update/1 data: ${data.toString()}");
     if (strNoEmpty(peerId)) {

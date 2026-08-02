@@ -67,34 +67,11 @@ void main() {
     });
 
     test('RED-3: ContactRepo 必须有 last_seen_at 列名常量', () {
-      // 用 dart:mirrors 不可用，改用反射式检查：遍历 ContactRepo 的静态字段
-      // 这里通过 hasField 间接判断——若常量不存在则 contains 为 false
-      final declaredFields = <String>[
-        // 当前已知的列名常量（来自源码 contact_repo_sqlite.dart:12-36）
-        'tableName',
-        'userId',
-        'peerId',
-        'nickname',
-        'avatar',
-        'gender',
-        'account',
-        'status',
-        'remark',
-        'tag',
-        'region',
-        'sign',
-        'source',
-        'updatedAt',
-        'isFriend',
-        'categoryId',
-        'isFrom',
-        'accountType',
-      ];
-      // 钉死：lastSeenAt 不在上述列表中 → 当前缺失
+      // 钉死存在静态列名常量，供 insert/update/查询统一引用
       expect(
-        declaredFields.contains('lastSeenAt'),
-        isFalse,
-        reason: '这是 RED 状态的文档性断言：确认当前 ContactRepo 确实没有 lastSeenAt 常量',
+        ContactRepo.lastSeenAt,
+        'last_seen_at',
+        reason: 'ContactRepo 必须定义 static String lastSeenAt 列名常量',
       );
     });
 

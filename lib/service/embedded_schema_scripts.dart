@@ -31,6 +31,7 @@ CREATE TABLE contact (
     is_friend INTEGER NOT NULL DEFAULT 0,
     is_from INTEGER NOT NULL DEFAULT 0,
     category_id INTEGER NOT NULL DEFAULT 0,
+    last_seen_at INTEGER,
     CONSTRAINT uk_FromTo UNIQUE (user_id, peer_id)
 );
 CREATE INDEX i_UserId_IsFriend_UpdateTime ON contact (user_id, is_friend, updated_at);
@@ -1743,6 +1744,23 @@ ALTER TABLE msg_c2c ADD COLUMN sender_did TEXT;
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 25;
+
+-- ============================================================
+-- VERSION: 26
+-- DESC: contact 新增 last_seen_at 列（最后在线时间戳，毫秒）。
+--       后端 /api/v1/friend/list、/api/v1/user/show、/api/v1/friend/confirm
+--       均返回 last_seen_at，但旧表无该列 → 落库被丢弃 → 详情页
+--       lastSeenAt 永远为 0 → UserOnlineTimeHelper 显示"从未上线"
+--       （即使对方在线）。本列持久化后，详情页可正确显示最后上线时间。
+--       可空：迁移前落库的旧行保持 NULL（语义=未知/从未记录）。
+-- ============================================================
+
+ALTER TABLE contact ADD COLUMN last_seen_at INTEGER;
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 26;
 """;
 
 /// 与 assets/migrations/downgrade.sql 内容保持同步（同上）。

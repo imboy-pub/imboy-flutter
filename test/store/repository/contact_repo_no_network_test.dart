@@ -42,6 +42,7 @@ const String _contactDDL = '''
     is_from TEXT NOT NULL DEFAULT '',
     category_id INTEGER NOT NULL DEFAULT 0,
     account_type INTEGER NOT NULL DEFAULT 0,
+    last_seen_at INTEGER,
     updated_at INTEGER NOT NULL DEFAULT 0,
     UNIQUE (user_id, peer_id)
   )

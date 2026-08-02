@@ -1363,3 +1363,21 @@ ALTER TABLE msg_c2c ADD COLUMN sender_did TEXT;
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 25;
+
+-- ============================================================
+-- VERSION: 26
+-- DESC: contact 新增 last_seen_at 列（最后在线时间戳，毫秒）。
+--       后端 /api/v1/friend/list、/api/v1/user/show、/api/v1/friend/confirm
+--       均返回 last_seen_at，但旧表无该列 → 落库被丢弃 → 详情页
+--       lastSeenAt 永远为 0 → UserOnlineTimeHelper 显示"从未上线"
+--       （即使对方在线）。本列持久化后，详情页可正确显示最后上线时间。
+--       可空：迁移前落库的旧行保持 NULL（语义=未知/从未记录），
+--       与 UserOnlineTimeHelper 的 lastSeenTimestamp==null 分支一致。
+-- ============================================================
+
+ALTER TABLE contact ADD COLUMN last_seen_at INTEGER;
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 26;
