@@ -237,9 +237,11 @@ class CryptoStore {
   ///
   /// 崩溃恢复：加密后先写 immutable outbox，提交成功才允许发送。
   ///
-  /// ⚠️ 读侧尚未接线：`pendingOutbox`/`confirmOutbox` 目前在 `lib/` 下无生产
-  /// 调用者，重发仍由 `message_retry.dart` 走业务重发（会重新 encrypt）。
-  /// "重发复用已提交密文"是 E2EE-027 的残留项，见 evidence/E2EE-027-followup.md。
+  /// 读侧接线状态（2026-08-02）：`confirmOutbox` 已接入 ACK 单一汇聚点
+  /// （`MessageRetry` 的 RemoveFromRetryQueueRequestedEvent 监听）。重发路径
+  /// 实测为**复用库中已提交信封**（不重新加密），验收项「byte-for-byte 相同
+  /// 且 ratchet 只推进一次」经 `test/service/e2ee/outbox_read_side_wiring_test.dart`
+  /// 实证。残留见 evidence/E2EE-027-followup.md（原子性属 ADR 02 冻结项）。
   Future<void> insertOutbox({
     required String id,
     required String payload,

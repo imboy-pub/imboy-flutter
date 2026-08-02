@@ -4,11 +4,13 @@ import 'dart:convert';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/retry_plaintext_guard.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/service/group_session_service.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -93,11 +95,26 @@ class MessageRetry with EventSubscriptionManager {
     subscribeTo(
       AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().listen((event) {
         removeFromRetryQueue(event.messageId);
+        // E2EE-027 outbox 读侧接线：ACK 移除重试时同步确认 outbox 条目
+        // （防 crypto_outbox 无限增长；清理失败只记日志，不影响 ACK 主路径）
+        unawaited(_confirmOutboxQuietly(event.messageId));
         iPrint(
           '🗑️ [RETRY_QUEUE] 从重试队列移除: messageId=${event.messageId}, reason=${event.reason}',
         );
       }),
     );
+  }
+
+  /// E2EE-027 outbox 读侧接线：确认 outbox 条目（ACK 汇聚点调用）。
+  /// 卫生动作非安全路径：失败静默记录，不阻断 ACK/重试移除。
+  Future<void> _confirmOutboxQuietly(String messageId) async {
+    try {
+      final db = await SqliteService.to.db;
+      if (db == null) return;
+      await CryptoStore(db).confirmOutbox(messageId);
+    } on Object catch (e) {
+      iPrint('⚠️ [RETRY] outbox 确认失败（不影响 ACK）: $messageId, $e');
+    }
   }
 
   /// 释放资源
