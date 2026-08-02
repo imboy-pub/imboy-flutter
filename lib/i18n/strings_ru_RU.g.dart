@@ -1616,7 +1616,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'Не удалось импортировать, проверьте пароль';
 	@override String get e2eeBackupImportSuccessTitle => 'Импорт выполнен';
 	@override String get e2eeBackupImportSuccessBody => 'Ключ E2EE восстановлен!';
-	@override String get e2eeBackupImportSuccessNote => 'Примечание: старые сообщения могут быть недоступны — это нормальное поведение E2EE';
+	@override String get e2eeBackupImportSuccessNote => 'Примечание: история групповых чатов восстановлена. История личных переписок недоступна — по принципам E2EE ключи 1:1 никогда не сохраняются между устройствами';
 	@override String get e2eeBackupNoRecords => 'Нет резервных копий';
 	@override String get e2eeBackupNoRecordsHint => 'После экспорта здесь появится история';
 	@override String e2eeBackupDeviceLabel({required Object id}) => 'Устройство ${id}';
@@ -4028,7 +4028,7 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupErrImportFailed' => 'Не удалось импортировать, проверьте пароль',
 			'common.e2eeBackupImportSuccessTitle' => 'Импорт выполнен',
 			'common.e2eeBackupImportSuccessBody' => 'Ключ E2EE восстановлен!',
-			'common.e2eeBackupImportSuccessNote' => 'Примечание: старые сообщения могут быть недоступны — это нормальное поведение E2EE',
+			'common.e2eeBackupImportSuccessNote' => 'Примечание: история групповых чатов восстановлена. История личных переписок недоступна — по принципам E2EE ключи 1:1 никогда не сохраняются между устройствами',
 			'common.e2eeBackupNoRecords' => 'Нет резервных копий',
 			'common.e2eeBackupNoRecordsHint' => 'После экспорта здесь появится история',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Устройство ${id}',

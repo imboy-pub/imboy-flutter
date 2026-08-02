@@ -9,6 +9,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_provider.dart';
 
 void main() {
@@ -53,6 +54,14 @@ void main() {
       expect(s.minimized, isTrue);
     });
 
+    test('接通后本地小窗坐标使用 right 偏移，不会跑出屏幕', () {
+      notifier().updateConnected(true, width: 400);
+      final s = read();
+      expect(s.connected, isTrue);
+      expect(s.localX, CallUILayoutConfig.localVideoOffsetX);
+      expect(s.localY, CallUILayoutConfig.localVideoInitialY);
+    });
+
     test('toggleMinimized 复原全屏', () {
       notifier().enterFloating(300, 70);
       expect(read().minimized, isTrue);
@@ -91,6 +100,15 @@ void main() {
         snapFloatingLeft(currentLeft: 146, windowWidth: 108, screenWidth: 400),
         282,
       );
+    });
+  });
+
+  group('视频主次画面交换手势', () {
+    test('上下滑动速度超过阈值才交换，避免轻触误触', () {
+      expect(shouldSwapVideoLayout(null), isFalse);
+      expect(shouldSwapVideoLayout(280), isFalse);
+      expect(shouldSwapVideoLayout(-281), isTrue);
+      expect(shouldSwapVideoLayout(400), isTrue);
     });
   });
 

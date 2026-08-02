@@ -5,6 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/func.dart';
+import 'package:imboy/component/webrtc/media_permission.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/init.dart' show webRTCSessions, p2pCallScreenOn;
 import 'package:imboy/i18n/strings.g.dart';
@@ -29,6 +30,11 @@ double snapFloatingLeft({
   return center < screenWidth / 2 ? margin : rightEdge;
 }
 
+/// 主画面上下滑动交换本端/对端视频的最小速度阈值。
+bool shouldSwapVideoLayout(double? verticalVelocity, {double threshold = 280}) {
+  return (verticalVelocity ?? 0).abs() > threshold;
+}
+
 /// 通话时长格式化：<1h 显示 mm:ss，≥1h 显示 hh:mm:ss（FaceTime 同款）。
 String formatCallDuration(int totalSeconds) {
   final h = totalSeconds ~/ 3600;
@@ -41,6 +47,7 @@ String formatCallDuration(int totalSeconds) {
 /// P2P Call Screen 状态
 class P2pCallScreenState {
   final bool cameraOff;
+  final bool isFrontCamera;
   final bool micOff;
   final bool speakerOn;
   final bool connected;
@@ -57,9 +64,12 @@ class P2pCallScreenState {
 
   /// 网络重连中（ICE Disconnected/Failed）。用于顶部“网络不佳”横幅。
   final bool reconnecting;
+  final String errorMessage;
+  final MediaPermissionTarget? permissionTarget;
 
   const P2pCallScreenState({
     this.cameraOff = false,
+    this.isFrontCamera = true,
     this.micOff = false,
     this.speakerOn = true,
     this.connected = false,
@@ -72,10 +82,13 @@ class P2pCallScreenState {
     this.floatX = 0.0,
     this.floatY = 0.0,
     this.reconnecting = false,
+    this.errorMessage = '',
+    this.permissionTarget,
   });
 
   P2pCallScreenState copyWith({
     bool? cameraOff,
+    bool? isFrontCamera,
     bool? micOff,
     bool? speakerOn,
     bool? connected,
@@ -88,9 +101,13 @@ class P2pCallScreenState {
     double? floatX,
     double? floatY,
     bool? reconnecting,
+    String? errorMessage,
+    MediaPermissionTarget? permissionTarget,
+    bool clearPermissionTarget = false,
   }) {
     return P2pCallScreenState(
       cameraOff: cameraOff ?? this.cameraOff,
+      isFrontCamera: isFrontCamera ?? this.isFrontCamera,
       micOff: micOff ?? this.micOff,
       speakerOn: speakerOn ?? this.speakerOn,
       connected: connected ?? this.connected,
@@ -103,6 +120,10 @@ class P2pCallScreenState {
       floatX: floatX ?? this.floatX,
       floatY: floatY ?? this.floatY,
       reconnecting: reconnecting ?? this.reconnecting,
+      errorMessage: errorMessage ?? this.errorMessage,
+      permissionTarget: clearPermissionTarget
+          ? null
+          : permissionTarget ?? this.permissionTarget,
     );
   }
 }
@@ -449,6 +470,12 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       return stream;
     } catch (e) {
       iPrint("> rtc createStream error userScreen $userScreen ${e.toString()}");
+      updateStateError(
+        t.common.permissionAcquisitionFailed,
+        permissionTarget: media == 'audio'
+            ? MediaPermissionTarget.microphone
+            : MediaPermissionTarget.camera,
+      );
     }
     return null;
   }
@@ -462,6 +489,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     iPrint("> rtc createSession media $media, sid ${newSession.sid}");
     if (media != 'data') {
       _localStream ??= await _createStream(media, screenSharing);
+      // 权限/设备失败时不要继续创建“无本地轨道”的连接；否则对端只会
+      // 看到黑屏或无声，用户也会误以为是公网 ICE 故障。
+      if (_localStream == null) return newSession;
     }
     if (newSession.pc != null) {
       return newSession;
@@ -476,8 +506,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
     pc.onTrack = (RTCTrackEvent event) {
       iPrint("> rtc onTrack ${event.track.enabled}");
-      if (event.track.kind == 'audio' || event.track.kind == 'video') {
-        onAddRemoteStream?.call(newSession, event.streams[0]);
+      if ((event.track.kind == 'audio' || event.track.kind == 'video') &&
+          event.streams.isNotEmpty) {
+        onAddRemoteStream?.call(newSession, event.streams.first);
         onCallStateChange?.call(newSession, WebRTCCallState.callStateConnected);
       }
     };
@@ -819,9 +850,13 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
           }
         }
         _videoSource = VideoSource.camera;
+        state = state.copyWith(isFrontCamera: true);
         onLocalStream?.call(_localStream!);
       } else {
-        Helper.switchCamera(_localStream!.getVideoTracks()[0]);
+        final tracks = _localStream!.getVideoTracks();
+        if (tracks.isEmpty) return;
+        Helper.switchCamera(tracks.first);
+        state = state.copyWith(isFrontCamera: !state.isFrontCamera);
       }
     }
   }
@@ -839,39 +874,52 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }
 
   void switchSpeaker(bool speakerOn) {
-    if (_localStream != null) {
-      MediaStreamTrack audioTrack = _localStream!.getAudioTracks()[0];
-      audioTrack.enableSpeakerphone(speakerOn);
-    }
+    final tracks = _localStream?.getAudioTracks() ?? <MediaStreamTrack>[];
+    if (tracks.isEmpty) return;
+    tracks.first.enableSpeakerphone(speakerOn);
+    state = state.copyWith(speakerOn: speakerOn);
   }
 
   bool? turnMicrophone() {
     iPrint("> rtc turnMicrophone");
-    if (_localStream != null && _localStream!.getAudioTracks().isNotEmpty) {
-      bool enabled = _localStream!.getAudioTracks()[0].enabled;
-      _localStream!.getAudioTracks()[0].enabled = !enabled;
-      return enabled;
-    }
-    return null;
+    final tracks = _localStream?.getAudioTracks() ?? <MediaStreamTrack>[];
+    if (tracks.isEmpty) return null;
+    final nextEnabled = !tracks.first.enabled;
+    tracks.first.enabled = nextEnabled;
+    state = state.copyWith(micOff: !nextEnabled);
+    return nextEnabled;
   }
 
   void turnCamera() {
-    if (_localStream!.getVideoTracks().isNotEmpty) {
-      bool muted = !state.cameraOff;
-      state = state.copyWith(cameraOff: muted);
-      _localStream!.getVideoTracks()[0].enabled = !muted;
-    }
+    final tracks = _localStream?.getVideoTracks() ?? <MediaStreamTrack>[];
+    if (tracks.isEmpty) return;
+    final muted = !state.cameraOff;
+    state = state.copyWith(cameraOff: muted);
+    tracks.first.enabled = !muted;
   }
 
   void updateStateTips(String tips) {
     state = state.copyWith(stateTips: tips);
   }
 
+  void updateStateError(
+    String message, {
+    MediaPermissionTarget? permissionTarget,
+  }) {
+    state = state.copyWith(
+      errorMessage: message,
+      permissionTarget: permissionTarget,
+      clearPermissionTarget: permissionTarget == null,
+    );
+  }
+
   void updateConnected(bool isConnected, {double? width}) {
     state = state.copyWith(
       connected: isConnected,
       localX: width != null
-          ? width - CallUILayoutConfig.localVideoOffsetX
+          // localX 与页面的 Positioned(right: localX) 保持同一坐标语义。
+          // 旧实现把屏幕宽度减进来，导致窄屏时小窗直接跑到屏幕外。
+          ? CallUILayoutConfig.localVideoOffsetX
           : state.localX,
       localY: CallUILayoutConfig.localVideoInitialY,
     );

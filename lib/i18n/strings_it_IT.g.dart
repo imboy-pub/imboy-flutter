@@ -1616,7 +1616,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'Importazione fallita. Controlla la password.';
 	@override String get e2eeBackupImportSuccessTitle => 'Importata';
 	@override String get e2eeBackupImportSuccessBody => 'Chiave E2EE ripristinata !';
-	@override String get e2eeBackupImportSuccessNote => 'Nota: i vecchi messaggi potrebbero essere inaccessibili (normale in E2EE)';
+	@override String get e2eeBackupImportSuccessNote => 'Nota: la cronologia delle chat di gruppo è stata ripristinata. La cronologia delle chat individuali non è recuperabile — per design E2EE le chiavi 1:1 non vengono mai salvate tra dispositivi';
 	@override String get e2eeBackupNoRecords => 'Nessun backup';
 	@override String get e2eeBackupNoRecordsHint => 'I backup appariranno qui dopo l\'esportazione';
 	@override String e2eeBackupDeviceLabel({required Object id}) => 'Dispositivo ${id}';
@@ -4028,7 +4028,7 @@ extension on TranslationsItIt {
 			'common.e2eeBackupErrImportFailed' => 'Importazione fallita. Controlla la password.',
 			'common.e2eeBackupImportSuccessTitle' => 'Importata',
 			'common.e2eeBackupImportSuccessBody' => 'Chiave E2EE ripristinata !',
-			'common.e2eeBackupImportSuccessNote' => 'Nota: i vecchi messaggi potrebbero essere inaccessibili (normale in E2EE)',
+			'common.e2eeBackupImportSuccessNote' => 'Nota: la cronologia delle chat di gruppo è stata ripristinata. La cronologia delle chat individuali non è recuperabile — per design E2EE le chiavi 1:1 non vengono mai salvate tra dispositivi',
 			'common.e2eeBackupNoRecords' => 'Nessun backup',
 			'common.e2eeBackupNoRecordsHint' => 'I backup appariranno qui dopo l\'esportazione',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Dispositivo ${id}',

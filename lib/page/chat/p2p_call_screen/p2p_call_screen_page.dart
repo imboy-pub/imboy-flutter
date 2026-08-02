@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'dart:ui';
 
@@ -10,6 +11,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/enum.dart';
+import 'package:imboy/component/webrtc/media_permission.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_provider.dart'
@@ -17,7 +19,8 @@ import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_provider.dart'
         p2pCallScreenProvider,
         P2pCallScreenState,
         P2pCallScreenNotifier,
-        snapFloatingLeft;
+        snapFloatingLeft,
+        shouldSwapVideoLayout;
 import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -58,7 +61,15 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
   RTCVideoRenderer localRenderer = RTCVideoRenderer();
   RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
-  bool switchRenderer = true;
+  bool _remoteVideoReady = false;
+  // 默认对端主画面、本端小窗；点击小窗或上下滑动主画面可以交换。
+  bool _localOnMain = false;
+
+  // 拖拽过程中使用独立基准，避免 Provider 每次更新后闭包使用旧坐标，
+  // 造成快速拖动时跳动或只应用最后一帧 delta。
+  double? _videoDragRight;
+  double? _videoDragTop;
+  Duration _videoAnim = Duration.zero;
 
   // 悬浮窗拖拽时无动画(0)、松手吸附时有动画(250ms)。
   Duration _floatAnim = Duration.zero;
@@ -249,6 +260,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       if (mounted) {
         setState(() {
           remoteRenderer.srcObject = stream;
+          // onTrack 可能先收到音频轨，再收到视频轨；只有真正有视频轨时
+          // 才切到视频布局，避免“已接通但黑屏”的假象。
+          _remoteVideoReady = stream.getVideoTracks().isNotEmpty;
         });
       }
     });
@@ -257,6 +271,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       if (mounted) {
         setState(() {
           remoteRenderer.srcObject = null;
+          _remoteVideoReady = false;
         });
       }
     });
@@ -268,6 +283,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       media: media,
       screenSharing: false,
     );
+    if (!mounted || ref.read(p2pCallScreenProvider).errorMessage.isNotEmpty) {
+      return;
+    }
 
     // 订阅信令消息
     subscription = AppEventBus.on<WebRTCSignalingEvent>().listen((
@@ -509,6 +527,57 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMediaErrorBanner(P2pCallScreenState state) {
+    final target = state.permissionTarget;
+    return Positioned(
+      left: 16,
+      right: 16,
+      bottom: 116,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+          decoration: BoxDecoration(
+            color: CallTokens.blackA75,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: CallTokens.white24),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.error_outline,
+                color: CallTokens.white70,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  state.errorMessage,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: CallTokens.white,
+                  ),
+                ),
+              ),
+              if (target != null)
+                TextButton(
+                  onPressed: () =>
+                      unawaited(openMediaPermissionSettings(target)),
+                  child: Text(
+                    t.common.privacySettings,
+                    style: context.textStyle(
+                      FontSizeType.footnote,
+                      color: CallTokens.white,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
@@ -758,34 +827,107 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     );
   }
 
-  /// 接通后的本地摄像头小窗（可拖拽，圆角描边）。
-  Widget _buildLocalVideo() {
-    final state = ref.watch(p2pCallScreenProvider);
-    final notifier = _notifier;
+  void _swapVideoLayout() {
+    HapticFeedback.selectionClick();
+    if (mounted) setState(() => _localOnMain = !_localOnMain);
+  }
+
+  void _startVideoDrag(P2pCallScreenState state) {
+    _videoDragRight = state.localX;
+    _videoDragTop = state.localY;
+    if (_videoAnim != Duration.zero && mounted) {
+      setState(() => _videoAnim = Duration.zero);
+    }
+  }
+
+  void _updateVideoDrag(DragUpdateDetails details) {
+    final right = _videoDragRight ?? CallUILayoutConfig.localVideoOffsetX;
+    final top = _videoDragTop ?? CallUILayoutConfig.localVideoInitialY;
+    final size = MediaQuery.sizeOf(context);
+    final maxRight = math.max(12.0, size.width - LocalVideoConfig.width - 12.0);
+    final maxTop = math.max(
+      12.0,
+      size.height - LocalVideoConfig.height - 136.0,
+    );
+
+    // localX 是 right 偏移，因此向右拖动时 right 需要减少。
+    _videoDragRight = (right - details.delta.dx)
+        .clamp(12.0, maxRight)
+        .toDouble();
+    _videoDragTop = (top + details.delta.dy).clamp(12.0, maxTop).toDouble();
+    _notifier.updateLocalPosition(_videoDragRight!, _videoDragTop!);
+  }
+
+  void _finishVideoDrag(P2pCallScreenState state) {
+    final size = MediaQuery.sizeOf(context);
+    const margin = 12.0;
+    final width = LocalVideoConfig.width;
+    final height = LocalVideoConfig.height;
+    final currentRight = _videoDragRight ?? state.localX;
+    final currentTop = _videoDragTop ?? state.localY;
+    final currentLeft = size.width - currentRight - width;
+    final snappedLeft = snapFloatingLeft(
+      currentLeft: currentLeft,
+      windowWidth: width,
+      screenWidth: size.width,
+      margin: margin,
+    );
+    final maxTop = math.max(margin, size.height - height - 136.0);
+    final snappedTop = currentTop.clamp(margin, maxTop).toDouble();
+    final snappedRight = size.width - snappedLeft - width;
+
+    _videoDragRight = snappedRight;
+    _videoDragTop = snappedTop;
+    if (mounted) {
+      setState(() => _videoAnim = const Duration(milliseconds: 220));
+    }
+    _notifier.updateLocalPosition(snappedRight, snappedTop);
+    Future<void>.delayed(const Duration(milliseconds: 260), () {
+      if (mounted) setState(() => _videoAnim = Duration.zero);
+    });
+  }
+
+  Widget _buildVideoContent({
+    required P2pCallScreenState state,
+    required bool isLocal,
+  }) {
+    if (isLocal && state.cameraOff) {
+      return const ColoredBox(
+        color: CallTokens.bg1A1A1A,
+        child: Center(
+          child: Icon(Icons.videocam_off, color: CallTokens.white38, size: 28),
+        ),
+      );
+    }
+
+    return RTCVideoView(
+      isLocal ? localRenderer : remoteRenderer,
+      objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+      // 只有本地自视图镜像；远端视频永远不镜像。
+      mirror: isLocal && state.isFrontCamera,
+    );
+  }
+
+  /// 接通后的视频小窗：本端/对端均可拖拽，点击交换主次位置。
+  Widget _buildVideoMini(P2pCallScreenState state) {
     final localWidth = LocalVideoConfig.width;
     final localHeight = LocalVideoConfig.height;
+    final isLocal = !_localOnMain;
 
-    return Positioned(
+    return AnimatedPositioned(
+      duration: _videoAnim,
+      curve: Curves.easeOutCubic,
       right: state.localX,
       top: state.localY,
       child: Semantics(
         button: true,
-        toggled: !switchRenderer,
-        label: switchRenderer
-            ? t.common.enterFullscreen
-            : t.common.exitFullscreen,
+        toggled: _localOnMain,
+        label: t.common.enterFullscreen,
         child: GestureDetector(
-          // 点小窗交换主次画面（FaceTime 同款：点自己的小窗 → 自己上大屏）
-          onTap: () {
-            HapticFeedback.selectionClick();
-            if (mounted) setState(() => switchRenderer = !switchRenderer);
-          },
-          onPanUpdate: (details) {
-            notifier.updateLocalPosition(
-              state.localX + details.delta.dx,
-              state.localY + details.delta.dy,
-            );
-          },
+          onTap: _swapVideoLayout,
+          onPanStart: (_) => _startVideoDrag(state),
+          onPanUpdate: _updateVideoDrag,
+          onPanEnd: (_) => _finishVideoDrag(state),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(14),
             child: Container(
@@ -799,25 +941,38 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                   BoxShadow(color: CallTokens.black54, blurRadius: 10),
                 ],
               ),
-              child: state.cameraOff
-                  ? const ColoredBox(
-                      color: CallTokens.bg1A1A1A,
-                      child: Center(
-                        child: Icon(
-                          Icons.videocam_off,
-                          color: CallTokens.white38,
-                          size: 28,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _buildVideoContent(state: state, isLocal: isLocal),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Semantics(
+                      button: true,
+                      label: t.common.enterFullscreen,
+                      child: ClipOval(
+                        child: Material(
+                          color: CallTokens.black54,
+                          child: InkWell(
+                            onTap: _swapVideoLayout,
+                            customBorder: const CircleBorder(),
+                            child: const SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: Icon(
+                                Icons.swap_vert,
+                                color: CallTokens.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    )
-                  : RTCVideoView(
-                      switchRenderer ? localRenderer : remoteRenderer,
-                      objectFit:
-                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                      // ponytail: 前置自视图镜像; 显示本地渲染器时才镜像。
-                      // 切后置摄像头的去镜像暂未跟踪 facing, 真机批次再补。
-                      mirror: switchRenderer,
                     ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -825,27 +980,20 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     );
   }
 
-  /// 接通后的远端视频（铺满，点屏切换控件显隐）。
-  Widget _buildRemoteVideo(P2pCallScreenState state) {
+  /// 接通后的主画面。上下滑动主画面也可以交换本端/对端位置。
+  Widget _buildVideoMain(P2pCallScreenState state) {
     return Positioned.fill(
       child: Semantics(
         button: true,
         label: state.showTool ? t.common.collapse : t.common.expandFull,
         child: GestureDetector(
           onTap: () => _notifier.toggleShowTool(),
-          child: RTCVideoView(
-            switchRenderer ? remoteRenderer : localRenderer,
-            objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-            // ponytail: 铺满显示本地渲染器(已切换)时镜像前置自视图。
-            // 上限：mirror 只按 switchRenderer 推断"铺满的是不是本地渲染器"，
-            // 不看摄像头 facing。切后置（工具条的 switchCamera 已上线）后本地
-            // 画面仍被镜像，画面里的文字/场景左右反。
-            // 升级触发：p2p_call_screen_provider.switchCamera 开始记录当前
-            // facing 并暴露到 P2pCallScreenState 后，改成
-            // `mirror: !switchRenderer && state.isFrontCamera`，与上面小窗
-            // (_build 小窗那处 ponytail) 一并改。
-            mirror: !switchRenderer,
-          ),
+          onVerticalDragEnd: (details) {
+            if (shouldSwapVideoLayout(details.primaryVelocity)) {
+              _swapVideoLayout();
+            }
+          },
+          child: _buildVideoContent(state: state, isLocal: _localOnMain),
         ),
       ),
     );
@@ -903,18 +1051,16 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     );
   }
 
-  /// 悬浮窗：最小化后的可拖拽小窗。视频显示远端画面，音频显示头像 + 时长；
+  /// 悬浮窗：最小化后的可拖拽小窗。视频显示当前主画面，音频显示头像 + 时长；
   /// 点击复原全屏。渲染器实例保持存活，通话全程不中断。
   Widget _buildFloatingWindow(P2pCallScreenState state) {
     const double w = 108;
     const double h = 156;
-    final bool showRemoteVideo = media == 'video' && state.connected;
+    final bool showVideo =
+        media == 'video' && state.connected && _remoteVideoReady;
 
-    final Widget inner = showRemoteVideo
-        ? RTCVideoView(
-            remoteRenderer,
-            objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-          )
+    final Widget inner = showVideo
+        ? _buildVideoContent(state: state, isLocal: _localOnMain)
         : DecoratedBox(
             decoration: const BoxDecoration(color: CallTokens.bg0E1A2B),
             child: Center(
@@ -1037,7 +1183,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
     final isVideo = media == 'video';
     // 仅“接通的视频通话”才有远端画面铺满；其余（呼出 / 音频）走渐变 + 头像。
-    final hasRemoteVideo = isVideo && state.connected;
+    final hasRemoteVideo = isVideo && state.connected && _remoteVideoReady;
     // 控件可见性：音频/呼出常驻；接通视频点屏切换。淡入淡出替代硬切。
     final bool toolsVisible = !hasRemoteVideo || state.showTool;
 
@@ -1047,12 +1193,12 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
         children: [
           // 1. 背景层
           if (hasRemoteVideo)
-            _buildRemoteVideo(state)
+            _buildVideoMain(state)
           else
             _buildGradientBackground(),
 
           // 2. 接通的视频：本地小窗
-          if (hasRemoteVideo) _buildLocalVideo(),
+          if (hasRemoteVideo) _buildVideoMini(state),
 
           // 3. 呼出 / 音频：中部头像 + 昵称 + 状态
           if (!hasRemoteVideo) _buildConnectingInfo(state),
@@ -1064,10 +1210,13 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           // 5. 网络不佳横幅（接通后 ICE 重连中）——真实连接态驱动
           if (state.connected && state.reconnecting) _buildReconnectingBanner(),
 
-          // 6. 顶部左上角最小化按钮（淡入淡出）
+          // 6. 摄像头/麦克风权限或设备错误：明确告知，不再伪装成“等待中”。
+          if (state.errorMessage.isNotEmpty) _buildMediaErrorBanner(state),
+
+          // 7. 顶部左上角最小化按钮（淡入淡出）
           _buildMinimizeButton(visible: toolsVisible),
 
-          // 7. 底部控制条（淡入淡出）。挂断键始终可达。
+          // 8. 底部控制条（淡入淡出）。挂断键始终可达。
           _buildControlBar(state, visible: toolsVisible),
         ],
       ),

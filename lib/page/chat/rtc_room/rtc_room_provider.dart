@@ -13,18 +13,26 @@ class RtcRoomState {
   final RtcRoomStatus status;
   final bool micOn;
   final bool cameraOn;
+  final bool speakerOn;
 
   const RtcRoomState({
     this.status = RtcRoomStatus.idle,
     this.micOn = true,
     this.cameraOn = true,
+    this.speakerOn = true,
   });
 
-  RtcRoomState copyWith({RtcRoomStatus? status, bool? micOn, bool? cameraOn}) {
+  RtcRoomState copyWith({
+    RtcRoomStatus? status,
+    bool? micOn,
+    bool? cameraOn,
+    bool? speakerOn,
+  }) {
     return RtcRoomState(
       status: status ?? this.status,
       micOn: micOn ?? this.micOn,
       cameraOn: cameraOn ?? this.cameraOn,
+      speakerOn: speakerOn ?? this.speakerOn,
     );
   }
 }
@@ -90,6 +98,12 @@ class RtcRoomNotifier extends _$RtcRoomNotifier {
     final next = !state.cameraOn;
     await lp.setCameraEnabled(next);
     state = state.copyWith(cameraOn: next);
+  }
+
+  Future<void> toggleSpeaker() async {
+    final next = !state.speakerOn;
+    await AudioManager.instance.setSpeakerOutputPreferred(next);
+    state = state.copyWith(speakerOn: next);
   }
 
   Future<void> switchCamera() async {

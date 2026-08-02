@@ -984,7 +984,7 @@ e2eeBackupErrValidateFailed: Validierung fehlgeschlagen. Format prüfen.
 e2eeBackupErrImportFailed: Import fehlgeschlagen. Passwort prüfen.
 e2eeBackupImportSuccessTitle: Importiert
 e2eeBackupImportSuccessBody: E2EE-Schlüssel wiederhergestellt!
-e2eeBackupImportSuccessNote: 'Hinweis: Alte Nachrichten evtl. nicht lesbar (E2EE-typisch)'
+e2eeBackupImportSuccessNote: "Hinweis: Gruppenchat-Verlauf wurde wiederhergestellt. Einzelchat-Verlauf ist nicht wiederherstellbar – E2EE-bedingt werden 1:1-Schlüssel nie geräteübergreifend gesichert"
 e2eeBackupNoRecords: Keine Backups
 e2eeBackupNoRecordsHint: Nach Export erscheinen hier Einträge
 e2eeBackupDeviceLabel(id): Gerät $id

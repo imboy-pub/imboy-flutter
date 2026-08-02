@@ -978,7 +978,7 @@ e2eeBackupErrValidateFailed: "File validation failed, please check file format"
 e2eeBackupErrImportFailed: "Import failed, please check your password"
 e2eeBackupImportSuccessTitle: Import successful
 e2eeBackupImportSuccessBody: "E2EE key has been restored successfully!"
-e2eeBackupImportSuccessNote: "Note: Old messages may be inaccessible — this is normal E2EE behavior"
+e2eeBackupImportSuccessNote: "Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices"
 e2eeBackupNoRecords: No backup records
 e2eeBackupNoRecordsHint: Backup history will appear here after exporting
 e2eeBackupDeviceLabel(id): Device $id

@@ -1633,7 +1633,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => '匯入失敗，請檢查密碼是否正確';
 	@override String get e2eeBackupImportSuccessTitle => '匯入成功';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE 金鑰已成功恢復！';
-	@override String get e2eeBackupImportSuccessNote => '注意：舊訊息可能無法訪問，這是 E2EE 的正常行為';
+	@override String get e2eeBackupImportSuccessNote => '注意：群聊歷史已隨備份恢復；單聊歷史無法恢復——依端對端加密規範，單聊金鑰不跨裝置備份';
 	@override String get e2eeBackupNoRecords => '暫無備份記錄';
 	@override String get e2eeBackupNoRecordsHint => '匯出備份後將在此顯示歷史記錄';
 	@override String e2eeBackupDeviceLabel({required Object id}) => '裝置 ${id}';
@@ -4068,7 +4068,7 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrImportFailed' => '匯入失敗，請檢查密碼是否正確',
 			'common.e2eeBackupImportSuccessTitle' => '匯入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 金鑰已成功恢復！',
-			'common.e2eeBackupImportSuccessNote' => '注意：舊訊息可能無法訪問，這是 E2EE 的正常行為',
+			'common.e2eeBackupImportSuccessNote' => '注意：群聊歷史已隨備份恢復；單聊歷史無法恢復——依端對端加密規範，單聊金鑰不跨裝置備份',
 			'common.e2eeBackupNoRecords' => '暫無備份記錄',
 			'common.e2eeBackupNoRecordsHint' => '匯出備份後將在此顯示歷史記錄',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => '裝置 ${id}',

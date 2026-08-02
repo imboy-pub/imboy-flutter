@@ -219,6 +219,11 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
             onPressed: notifier.toggleCamera,
           ),
           _controlButton(
+            icon: state.speakerOn ? Icons.volume_up : Icons.volume_off,
+            label: t.main.loudspeaker,
+            onPressed: notifier.toggleSpeaker,
+          ),
+          _controlButton(
             icon: Icons.cameraswitch,
             label: t.common.switchCamera,
             onPressed: notifier.switchCamera,

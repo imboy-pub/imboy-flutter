@@ -1616,7 +1616,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'Import fehlgeschlagen. Passwort prüfen.';
 	@override String get e2eeBackupImportSuccessTitle => 'Importiert';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE-Schlüssel wiederhergestellt!';
-	@override String get e2eeBackupImportSuccessNote => 'Hinweis: Alte Nachrichten evtl. nicht lesbar (E2EE-typisch)';
+	@override String get e2eeBackupImportSuccessNote => 'Hinweis: Gruppenchat-Verlauf wurde wiederhergestellt. Einzelchat-Verlauf ist nicht wiederherstellbar – E2EE-bedingt werden 1:1-Schlüssel nie geräteübergreifend gesichert';
 	@override String get e2eeBackupNoRecords => 'Keine Backups';
 	@override String get e2eeBackupNoRecordsHint => 'Nach Export erscheinen hier Einträge';
 	@override String e2eeBackupDeviceLabel({required Object id}) => 'Gerät ${id}';
@@ -4028,7 +4028,7 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupErrImportFailed' => 'Import fehlgeschlagen. Passwort prüfen.',
 			'common.e2eeBackupImportSuccessTitle' => 'Importiert',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE-Schlüssel wiederhergestellt!',
-			'common.e2eeBackupImportSuccessNote' => 'Hinweis: Alte Nachrichten evtl. nicht lesbar (E2EE-typisch)',
+			'common.e2eeBackupImportSuccessNote' => 'Hinweis: Gruppenchat-Verlauf wurde wiederhergestellt. Einzelchat-Verlauf ist nicht wiederherstellbar – E2EE-bedingt werden 1:1-Schlüssel nie geräteübergreifend gesichert',
 			'common.e2eeBackupNoRecords' => 'Keine Backups',
 			'common.e2eeBackupNoRecordsHint' => 'Nach Export erscheinen hier Einträge',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Gerät ${id}',

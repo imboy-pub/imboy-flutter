@@ -984,7 +984,7 @@ e2eeBackupErrValidateFailed: Validazione fallita. Controlla il formato.
 e2eeBackupErrImportFailed: Importazione fallita. Controlla la password.
 e2eeBackupImportSuccessTitle: Importata
 e2eeBackupImportSuccessBody: Chiave E2EE ripristinata !
-e2eeBackupImportSuccessNote: 'Nota: i vecchi messaggi potrebbero essere inaccessibili (normale in E2EE)'
+e2eeBackupImportSuccessNote: "Nota: la cronologia delle chat di gruppo è stata ripristinata. La cronologia delle chat individuali non è recuperabile — per design E2EE le chiavi 1:1 non vengono mai salvate tra dispositivi"
 e2eeBackupNoRecords: Nessun backup
 e2eeBackupNoRecordsHint: I backup appariranno qui dopo l'esportazione
 e2eeBackupDeviceLabel(id): Dispositivo $id

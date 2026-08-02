@@ -984,7 +984,7 @@ e2eeBackupErrValidateFailed: Ошибка проверки файла, пров�
 e2eeBackupErrImportFailed: Не удалось импортировать, проверьте пароль
 e2eeBackupImportSuccessTitle: Импорт выполнен
 e2eeBackupImportSuccessBody: Ключ E2EE восстановлен!
-e2eeBackupImportSuccessNote: 'Примечание: старые сообщения могут быть недоступны — это нормальное поведение E2EE'
+e2eeBackupImportSuccessNote: "Примечание: история групповых чатов восстановлена. История личных переписок недоступна — по принципам E2EE ключи 1:1 никогда не сохраняются между устройствами"
 e2eeBackupNoRecords: Нет резервных копий
 e2eeBackupNoRecordsHint: После экспорта здесь появится история
 e2eeBackupDeviceLabel(id): Устройство $id

@@ -4926,8 +4926,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: 'E2EE 密钥已成功恢复！'
 	String get e2eeBackupImportSuccessBody => 'E2EE 密钥已成功恢复！';
 
-	/// zh-CN: '注意：旧消息可能无法访问，这是 E2EE 的正常行为'
-	String get e2eeBackupImportSuccessNote => '注意：旧消息可能无法访问，这是 E2EE 的正常行为';
+	/// zh-CN: '注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份'
+	String get e2eeBackupImportSuccessNote => '注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份';
 
 	/// zh-CN: '暂无备份记录'
 	String get e2eeBackupNoRecords => '暂无备份记录';
@@ -9093,7 +9093,7 @@ extension on Translations {
 			'common.e2eeBackupErrImportFailed' => '导入失败，请检查密码是否正确',
 			'common.e2eeBackupImportSuccessTitle' => '导入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 密钥已成功恢复！',
-			'common.e2eeBackupImportSuccessNote' => '注意：旧消息可能无法访问，这是 E2EE 的正常行为',
+			'common.e2eeBackupImportSuccessNote' => '注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份',
 			'common.e2eeBackupNoRecords' => '暂无备份记录',
 			'common.e2eeBackupNoRecordsHint' => '导出备份后将在此显示历史记录',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => '设备 ${id}',

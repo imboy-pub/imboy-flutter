@@ -1627,7 +1627,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'Import failed, please check your password';
 	@override String get e2eeBackupImportSuccessTitle => 'Import successful';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE key has been restored successfully!';
-	@override String get e2eeBackupImportSuccessNote => 'Note: Old messages may be inaccessible — this is normal E2EE behavior';
+	@override String get e2eeBackupImportSuccessNote => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices';
 	@override String get e2eeBackupNoRecords => 'No backup records';
 	@override String get e2eeBackupNoRecordsHint => 'Backup history will appear here after exporting';
 	@override String e2eeBackupDeviceLabel({required Object id}) => 'Device ${id}';
@@ -4062,7 +4062,7 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupErrImportFailed' => 'Import failed, please check your password',
 			'common.e2eeBackupImportSuccessTitle' => 'Import successful',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
-			'common.e2eeBackupImportSuccessNote' => 'Note: Old messages may be inaccessible — this is normal E2EE behavior',
+			'common.e2eeBackupImportSuccessNote' => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices',
 			'common.e2eeBackupNoRecords' => 'No backup records',
 			'common.e2eeBackupNoRecordsHint' => 'Backup history will appear here after exporting',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Device ${id}',

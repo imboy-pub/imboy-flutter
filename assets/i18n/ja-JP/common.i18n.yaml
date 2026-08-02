@@ -984,7 +984,7 @@ e2eeBackupErrValidateFailed: ファイルの検証に失敗しました。ファ
 e2eeBackupErrImportFailed: 読み込みに失敗しました。パスワードが正しいか確認してください
 e2eeBackupImportSuccessTitle: 読み込み完了
 e2eeBackupImportSuccessBody: E2EEキーを復元しました！
-e2eeBackupImportSuccessNote: 注意：古いメッセージは閲覧できない場合があります。これはE2EEの正常な動作です
+e2eeBackupImportSuccessNote: "注意：グループチャットの履歴は復元されました。1対1の履歴は復元できません——E2EEの設計上、1対1の鍵は端末間でバックアップされません"
 e2eeBackupNoRecords: バックアップ履歴はありません
 e2eeBackupNoRecordsHint: バックアップを書き出すと、ここに履歴が表示されます
 e2eeBackupDeviceLabel(id): デバイス $id

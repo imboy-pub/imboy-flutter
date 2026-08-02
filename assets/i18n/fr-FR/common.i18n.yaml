@@ -984,7 +984,7 @@ e2eeBackupErrValidateFailed: Échec de la validation. Vérifiez le format.
 e2eeBackupErrImportFailed: Échec de l'import. Vérifiez le mot de passe.
 e2eeBackupImportSuccessTitle: Importée
 e2eeBackupImportSuccessBody: Clé E2EE restaurée !
-e2eeBackupImportSuccessNote: 'À noter : les anciens messages peuvent être inaccessibles (normal en E2EE)'
+e2eeBackupImportSuccessNote: "À noter : l'historique des discussions de groupe a été restauré. L'historique des conversations individuelles est irrécupérable — par conception E2EE, les clés 1:1 ne sont jamais sauvegardées entre appareils"
 e2eeBackupNoRecords: Aucune sauvegarde
 e2eeBackupNoRecordsHint: Les sauvegardes apparaîtront ici après export
 e2eeBackupDeviceLabel(id): Appareil $id

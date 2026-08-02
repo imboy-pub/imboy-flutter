@@ -1616,7 +1616,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => '가져오기 실패, 비밀번호를 확인해주세요';
 	@override String get e2eeBackupImportSuccessTitle => '가져오기 완료';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE 키가 복구되었습니다!';
-	@override String get e2eeBackupImportSuccessNote => '참고: 이전 메시지를 볼 수 없을 수 있으며 이는 E2EE의 정상적인 동작입니다';
+	@override String get e2eeBackupImportSuccessNote => '참고: 그룹 채팅 기록은 복원되었습니다. 1:1 대화 기록은 복원할 수 없습니다 — E2EE 설계상 1:1 키는 기기 간에 백업되지 않습니다';
 	@override String get e2eeBackupNoRecords => '백업 기록이 없습니다';
 	@override String get e2eeBackupNoRecordsHint => '백업을 내보내면 기록이 여기에 표시됩니다';
 	@override String e2eeBackupDeviceLabel({required Object id}) => '기기 ${id}';
@@ -4028,7 +4028,7 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupErrImportFailed' => '가져오기 실패, 비밀번호를 확인해주세요',
 			'common.e2eeBackupImportSuccessTitle' => '가져오기 완료',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 키가 복구되었습니다!',
-			'common.e2eeBackupImportSuccessNote' => '참고: 이전 메시지를 볼 수 없을 수 있으며 이는 E2EE의 정상적인 동작입니다',
+			'common.e2eeBackupImportSuccessNote' => '참고: 그룹 채팅 기록은 복원되었습니다. 1:1 대화 기록은 복원할 수 없습니다 — E2EE 설계상 1:1 키는 기기 간에 백업되지 않습니다',
 			'common.e2eeBackupNoRecords' => '백업 기록이 없습니다',
 			'common.e2eeBackupNoRecordsHint' => '백업을 내보내면 기록이 여기에 표시됩니다',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => '기기 ${id}',

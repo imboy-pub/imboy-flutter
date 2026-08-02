@@ -984,7 +984,7 @@ e2eeBackupErrValidateFailed: فشل التحقق من الملف، تحقق من
 e2eeBackupErrImportFailed: تعذّر الاستيراد، تحقق من كلمة المرور
 e2eeBackupImportSuccessTitle: تم الاستيراد
 e2eeBackupImportSuccessBody: تمت استعادة مفتاح E2EE!
-e2eeBackupImportSuccessNote: 'ملاحظة: قد لا تكون الرسائل القديمة متاحة، وهذا سلوك طبيعي لـ E2EE'
+e2eeBackupImportSuccessNote: "ملاحظة: تمت استعادة سجل المحادثات الجماعية. لا يمكن استعادة سجل المحادثات الفردية — فوفقًا لتصميم التشفير التام، لا يتم نسخ مفاتيح المحادثات الفردية بين الأجهزة"
 e2eeBackupNoRecords: لا توجد نسخ احتياطية
 e2eeBackupNoRecordsHint: بعد التصدير سيظهر السجل هنا
 e2eeBackupDeviceLabel(id): جهاز $id

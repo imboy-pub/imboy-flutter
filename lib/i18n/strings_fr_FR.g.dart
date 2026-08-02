@@ -1616,7 +1616,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'Échec de l\'import. Vérifiez le mot de passe.';
 	@override String get e2eeBackupImportSuccessTitle => 'Importée';
 	@override String get e2eeBackupImportSuccessBody => 'Clé E2EE restaurée !';
-	@override String get e2eeBackupImportSuccessNote => 'À noter : les anciens messages peuvent être inaccessibles (normal en E2EE)';
+	@override String get e2eeBackupImportSuccessNote => 'À noter : l\'historique des discussions de groupe a été restauré. L\'historique des conversations individuelles est irrécupérable — par conception E2EE, les clés 1:1 ne sont jamais sauvegardées entre appareils';
 	@override String get e2eeBackupNoRecords => 'Aucune sauvegarde';
 	@override String get e2eeBackupNoRecordsHint => 'Les sauvegardes apparaîtront ici après export';
 	@override String e2eeBackupDeviceLabel({required Object id}) => 'Appareil ${id}';
@@ -4028,7 +4028,7 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupErrImportFailed' => 'Échec de l\'import. Vérifiez le mot de passe.',
 			'common.e2eeBackupImportSuccessTitle' => 'Importée',
 			'common.e2eeBackupImportSuccessBody' => 'Clé E2EE restaurée !',
-			'common.e2eeBackupImportSuccessNote' => 'À noter : les anciens messages peuvent être inaccessibles (normal en E2EE)',
+			'common.e2eeBackupImportSuccessNote' => 'À noter : l\'historique des discussions de groupe a été restauré. L\'historique des conversations individuelles est irrécupérable — par conception E2EE, les clés 1:1 ne sont jamais sauvegardées entre appareils',
 			'common.e2eeBackupNoRecords' => 'Aucune sauvegarde',
 			'common.e2eeBackupNoRecordsHint' => 'Les sauvegardes apparaîtront ici après export',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Appareil ${id}',

@@ -24,6 +24,11 @@ class _FakeRtcRoomNotifier extends RtcRoomNotifier {
   }
 
   @override
+  Future<void> toggleSpeaker() async {
+    state = state.copyWith(speakerOn: !state.speakerOn);
+  }
+
+  @override
   Future<void> switchCamera() async {}
 
   @override
@@ -81,5 +86,14 @@ void main() {
     await tester.tap(find.byIcon(Icons.videocam));
     await tester.pump();
     expect(find.byIcon(Icons.videocam_off), findsOneWidget);
+  });
+
+  testWidgets('speaker button toggles icon', (tester) async {
+    await tester.pumpWidget(_buildPage());
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.volume_up));
+    await tester.pump();
+    expect(find.byIcon(Icons.volume_off), findsOneWidget);
   });
 }

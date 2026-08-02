@@ -1616,7 +1616,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => '読み込みに失敗しました。パスワードが正しいか確認してください';
 	@override String get e2eeBackupImportSuccessTitle => '読み込み完了';
 	@override String get e2eeBackupImportSuccessBody => 'E2EEキーを復元しました！';
-	@override String get e2eeBackupImportSuccessNote => '注意：古いメッセージは閲覧できない場合があります。これはE2EEの正常な動作です';
+	@override String get e2eeBackupImportSuccessNote => '注意：グループチャットの履歴は復元されました。1対1の履歴は復元できません——E2EEの設計上、1対1の鍵は端末間でバックアップされません';
 	@override String get e2eeBackupNoRecords => 'バックアップ履歴はありません';
 	@override String get e2eeBackupNoRecordsHint => 'バックアップを書き出すと、ここに履歴が表示されます';
 	@override String e2eeBackupDeviceLabel({required Object id}) => 'デバイス ${id}';
@@ -4028,7 +4028,7 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupErrImportFailed' => '読み込みに失敗しました。パスワードが正しいか確認してください',
 			'common.e2eeBackupImportSuccessTitle' => '読み込み完了',
 			'common.e2eeBackupImportSuccessBody' => 'E2EEキーを復元しました！',
-			'common.e2eeBackupImportSuccessNote' => '注意：古いメッセージは閲覧できない場合があります。これはE2EEの正常な動作です',
+			'common.e2eeBackupImportSuccessNote' => '注意：グループチャットの履歴は復元されました。1対1の履歴は復元できません——E2EEの設計上、1対1の鍵は端末間でバックアップされません',
 			'common.e2eeBackupNoRecords' => 'バックアップ履歴はありません',
 			'common.e2eeBackupNoRecordsHint' => 'バックアップを書き出すと、ここに履歴が表示されます',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'デバイス ${id}',

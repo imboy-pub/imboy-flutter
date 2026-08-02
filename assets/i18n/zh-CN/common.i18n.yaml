@@ -999,7 +999,7 @@ e2eeBackupErrValidateFailed: 文件验证失败，请检查文件格式
 e2eeBackupErrImportFailed: 导入失败，请检查密码是否正确
 e2eeBackupImportSuccessTitle: 导入成功
 e2eeBackupImportSuccessBody: E2EE 密钥已成功恢复！
-e2eeBackupImportSuccessNote: 注意：旧消息可能无法访问，这是 E2EE 的正常行为
+e2eeBackupImportSuccessNote: "注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份"
 e2eeBackupNoRecords: 暂无备份记录
 e2eeBackupNoRecordsHint: 导出备份后将在此显示历史记录
 e2eeBackupDeviceLabel(id): 设备 $id
