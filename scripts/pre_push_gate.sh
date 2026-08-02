@@ -82,7 +82,9 @@ export API_BASE_URL TEST_PHONE TEST_PASSWORD
 
 # concurrency=1：避免并发登录导致 token 互踢
 # test-timeout：单测试最长 60s，防止后端 hang 住阻塞 push
-if dart test test/api/ --concurrency=1 --timeout=60s; then
+# 必须用 flutter test：pubspec 含 Flutter-only 依赖（patrol 等），
+# dart test 的 dart pub 解析会报 "requires the Flutter SDK" 必崩
+if flutter test test/api/ --concurrency=1 --timeout=60s; then
   echo ""
   echo "[pre-push] ✅ API 契约测试通过"
   exit 0
