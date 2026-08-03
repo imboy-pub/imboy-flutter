@@ -144,3 +144,12 @@ shareToChat: Send to Friend
 qrcode: Channel QR Code
 qrcodeTips: QR code valid for $days days (until $date)
 defaultName: Unnamed Channel
+noMessagesManaged: No content published yet
+noMessagesManagedDesc: As a channel manager, you can publish the first piece of content below.
+noMessagesVisitor: Subscribe to see content
+noMessagesVisitorDesc: Stay tuned! The content of this channel will be available after you subscribe.
+noMessagesSubscribed: No content yet
+noMessagesSubscribedDesc: Subscribed successfully! Please stay tuned for new updates.
+continueEditing: Continue Editing
+publishFirstContent: Publish first content
+noSubscribersDesc: No subscribers yet, share it with your friends!

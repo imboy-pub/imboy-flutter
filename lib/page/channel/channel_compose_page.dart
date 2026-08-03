@@ -703,11 +703,7 @@ class _ComposePreviewSheet extends StatelessWidget {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    LocaleSettings.currentLocale.languageCode == 'zh'
-                        ? '继续编辑'
-                        : 'Continue Editing',
-                  ),
+                  child: Text(context.t.channel.continueEditing),
                 ),
               ),
               if (onPublish != null) ...[

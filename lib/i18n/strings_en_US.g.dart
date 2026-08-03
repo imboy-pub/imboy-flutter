@@ -358,6 +358,15 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get qrcode => 'Channel QR Code';
 	@override String qrcodeTips({required Object days, required Object date}) => 'QR code valid for ${days} days (until ${date})';
 	@override String get defaultName => 'Unnamed Channel';
+	@override String get noMessagesManaged => 'No content published yet';
+	@override String get noMessagesManagedDesc => 'As a channel manager, you can publish the first piece of content below.';
+	@override String get noMessagesVisitor => 'Subscribe to see content';
+	@override String get noMessagesVisitorDesc => 'Stay tuned! The content of this channel will be available after you subscribe.';
+	@override String get noMessagesSubscribed => 'No content yet';
+	@override String get noMessagesSubscribedDesc => 'Subscribed successfully! Please stay tuned for new updates.';
+	@override String get continueEditing => 'Continue Editing';
+	@override String get publishFirstContent => 'Publish first content';
+	@override String get noSubscribersDesc => 'No subscribers yet, share it with your friends!';
 }
 
 // Path: chat
@@ -2807,6 +2816,15 @@ extension on TranslationsEnUs {
 			'channel.qrcode' => 'Channel QR Code',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => 'QR code valid for ${days} days (until ${date})',
 			'channel.defaultName' => 'Unnamed Channel',
+			'channel.noMessagesManaged' => 'No content published yet',
+			'channel.noMessagesManagedDesc' => 'As a channel manager, you can publish the first piece of content below.',
+			'channel.noMessagesVisitor' => 'Subscribe to see content',
+			'channel.noMessagesVisitorDesc' => 'Stay tuned! The content of this channel will be available after you subscribe.',
+			'channel.noMessagesSubscribed' => 'No content yet',
+			'channel.noMessagesSubscribedDesc' => 'Subscribed successfully! Please stay tuned for new updates.',
+			'channel.continueEditing' => 'Continue Editing',
+			'channel.publishFirstContent' => 'Publish first content',
+			'channel.noSubscribersDesc' => 'No subscribers yet, share it with your friends!',
 			'chat.bankCard' => 'Bank Card',
 			'chat.cards' => 'cards',
 			'chat.jdShopping' => 'JD Shopping',
@@ -3042,6 +3060,8 @@ extension on TranslationsEnUs {
 			'chat.webFeatureE2EE' => 'End-to-End Encryption',
 			'chat.webFeatureE2EEDesc' => 'All messages are end-to-end encrypted, ensuring privacy and security',
 			'chat.webFeatureFileTransfer' => 'File Transfer',
+			_ => null,
+		} ?? switch (path) {
 			'chat.webFeatureFileTransferDesc' => 'Drag and drop to send files, supports various formats',
 			'chat.webQRStatusWaiting' => 'Open ImBoy on your phone > Settings > Scan',
 			'chat.webQRStatusScanned' => 'Please tap "Confirm Login" on your phone',
@@ -3051,8 +3071,6 @@ extension on TranslationsEnUs {
 			'chat.e2eeSocialCreateTitle' => 'Create recovery shards',
 			'chat.e2eeSocialCreateBtn' => 'Create shards',
 			'chat.e2eeSocialCreateFailTitle' => 'Creation failed',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeSocialCreateFailBody' => 'Failed to create shards, please try again',
 			'chat.e2eeSocialCreateFirst' => 'Create shards to see content here',
 			'chat.e2eeSocialUsedAtLabel' => 'Used at',
@@ -3556,6 +3574,8 @@ extension on TranslationsEnUs {
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => 'Verification code',
 			'common.feedbackContent' => 'Feedback content',
+			_ => null,
+		} ?? switch (path) {
 			'common.officialReply' => 'Official reply',
 			'common.setPasswordSecurityTips' => 'Set a login password to enhance security and ensure you can always access your account.',
 			'common.locationHidden' => 'Your location has been hidden',
@@ -3565,8 +3585,6 @@ extension on TranslationsEnUs {
 			'common.operationSuccess' => _root.common.success,
 			'common.operationFailed' => _root.common.error,
 			'common.featureInDevelopment' => 'Feature under development...',
-			_ => null,
-		} ?? switch (path) {
 			'common.addedToDenylist' => 'Added to blocklist',
 			'common.bindSuccess' => 'Bound successfully',
 			'common.mobileUpdatedToParam' => ({required Object param}) => 'Mobile number updated to ${param}',
@@ -4070,6 +4088,8 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupDetailTitle' => 'Backup details',
 			'common.e2eeBackupDeviceIdLabel' => 'Device ID',
 			'common.e2eeBackupVersionNum' => 'Backup version',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCreatedAtRow' => 'Created at',
 			'common.e2eeBackupFileSizeRow' => 'File size',
 			'common.e2eeBackupNoteRow' => 'Note',
@@ -4079,8 +4099,6 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupCloudUploadBtn' => 'Back up to cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backed up to cloud (version ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'Cloud backup failed, please retry',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupCloudRestoreTitle' => 'Restore from cloud backup',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => 'Cloud backup detected (version ${version})',
 			'common.e2eeBackupCloudRestoreBtn' => 'Restore from cloud',
@@ -4584,6 +4602,8 @@ extension on TranslationsEnUs {
 			'main.unnamed' => 'Unnamed',
 			'main.upToWords' => ({required Object param}) => 'Up to ${param} characters',
 			'main.upgrade' => 'Upgrade',
+			_ => null,
+		} ?? switch (path) {
 			'main.usedSpace' => 'Used space',
 			'main.webView' => 'Web page',
 			'main.you' => 'You',
@@ -4593,8 +4613,6 @@ extension on TranslationsEnUs {
 			'main.bound' => 'Bound',
 			'main.correct' => 'Correct',
 			'main.pendingInput' => 'Pending input',
-			_ => null,
-		} ?? switch (path) {
 			'main.lengthCheck' => 'Length check',
 			'main.bugReport' => 'Bug report',
 			'main.deleting' => 'Deleting...',

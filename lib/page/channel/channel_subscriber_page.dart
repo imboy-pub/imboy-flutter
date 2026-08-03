@@ -456,9 +456,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
             : t.channel.noSubscribers,
         description: _searchKeyword != null
             ? null
-            : (LocaleSettings.currentLocale.languageCode == 'zh'
-                  ? '还没有订阅者，分享给好友吧'
-                  : 'No subscribers yet, share it with your friends!'),
+            : t.channel.noSubscribersDesc,
         onTop: _searchKeyword != null || channel == null
             ? null
             : () => _shareChannel(channel),

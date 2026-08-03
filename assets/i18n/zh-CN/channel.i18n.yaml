@@ -182,3 +182,12 @@ commentFailed: 评论失败
 deleteComment: 删除评论
 deleteCommentConfirm: 确定删除这条评论吗？
 commentDeleteNoPermission: 无权删除该评论
+noMessagesManaged: 频道还没有发布任何内容
+noMessagesManagedDesc: 作为频道主，你可以点击下方按钮发布第一条内容
+noMessagesVisitor: 订阅后查看频道内容
+noMessagesVisitorDesc: 本频道发布的精彩内容将在订阅后呈现
+noMessagesSubscribed: 频道还没有发布内容
+noMessagesSubscribedDesc: 订阅成功！请耐心等待作者发布新内容
+continueEditing: 继续编辑
+publishFirstContent: 发布第一条内容
+noSubscribersDesc: 还没有订阅者，分享给好友吧

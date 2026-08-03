@@ -1061,6 +1061,33 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '无权删除该评论'
 	String get commentDeleteNoPermission => '无权删除该评论';
+
+	/// zh-CN: '频道还没有发布任何内容'
+	String get noMessagesManaged => '频道还没有发布任何内容';
+
+	/// zh-CN: '作为频道主，你可以点击下方按钮发布第一条内容'
+	String get noMessagesManagedDesc => '作为频道主，你可以点击下方按钮发布第一条内容';
+
+	/// zh-CN: '订阅后查看频道内容'
+	String get noMessagesVisitor => '订阅后查看频道内容';
+
+	/// zh-CN: '本频道发布的精彩内容将在订阅后呈现'
+	String get noMessagesVisitorDesc => '本频道发布的精彩内容将在订阅后呈现';
+
+	/// zh-CN: '频道还没有发布内容'
+	String get noMessagesSubscribed => '频道还没有发布内容';
+
+	/// zh-CN: '订阅成功！请耐心等待作者发布新内容'
+	String get noMessagesSubscribedDesc => '订阅成功！请耐心等待作者发布新内容';
+
+	/// zh-CN: '继续编辑'
+	String get continueEditing => '继续编辑';
+
+	/// zh-CN: '发布第一条内容'
+	String get publishFirstContent => '发布第一条内容';
+
+	/// zh-CN: '还没有订阅者，分享给好友吧'
+	String get noSubscribersDesc => '还没有订阅者，分享给好友吧';
 }
 
 // Path: chat
@@ -7805,6 +7832,15 @@ extension on Translations {
 			'channel.deleteComment' => '删除评论',
 			'channel.deleteCommentConfirm' => '确定删除这条评论吗？',
 			'channel.commentDeleteNoPermission' => '无权删除该评论',
+			'channel.noMessagesManaged' => '频道还没有发布任何内容',
+			'channel.noMessagesManagedDesc' => '作为频道主，你可以点击下方按钮发布第一条内容',
+			'channel.noMessagesVisitor' => '订阅后查看频道内容',
+			'channel.noMessagesVisitorDesc' => '本频道发布的精彩内容将在订阅后呈现',
+			'channel.noMessagesSubscribed' => '频道还没有发布内容',
+			'channel.noMessagesSubscribedDesc' => '订阅成功！请耐心等待作者发布新内容',
+			'channel.continueEditing' => '继续编辑',
+			'channel.publishFirstContent' => '发布第一条内容',
+			'channel.noSubscribersDesc' => '还没有订阅者，分享给好友吧',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.cards' => '张',
@@ -7988,6 +8024,8 @@ extension on Translations {
 			'chat.goodReadability' => '可读性良好',
 			'chat.profileCompleteness' => '资料完善度',
 			'chat.tagStatistics' => '标签统计',
+			_ => null,
+		} ?? switch (path) {
 			'chat.alreadySent' => '已发送',
 			'chat.visibleRatioLabel' => '可见比例 (0.1~1.0)',
 			'chat.unsupportedMessageType' => '不支持的消息类型',
@@ -7997,8 +8035,6 @@ extension on Translations {
 			'chat.momentsRecordVideo' => '拍摄视频',
 			'chat.momentsVisibilityPrivate' => '仅自己',
 			'chat.momentsMediaTooManyImages' => '最多只能选择 9 张图片',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsMediaTooManyVideos' => '最多只能选择 1 个视频',
 			'chat.momentsMediaMixedImageAndVideo' => '图片和视频不能同时发布',
 			'chat.momentsReplyPrefix' => '回复 @',
@@ -8502,6 +8538,8 @@ extension on Translations {
 			'common.thisMonth' => '本月',
 			'common.timeDaysAgo' => ({required Object param}) => '${param}天前',
 			'common.timeHoursAgo' => ({required Object param}) => '${param}小时前',
+			_ => null,
+		} ?? switch (path) {
 			'common.timeJustNow' => '刚刚',
 			'common.timeMinutesAgo' => ({required Object param}) => '${param}分钟前',
 			'common.timeToday' => '今天',
@@ -8511,8 +8549,6 @@ extension on Translations {
 			'common.tipDeleteContact' => ({required Object param}) => '将联系人"${param}"删除，同时删除与该联系人的聊天记录',
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '占设备 ${param1}% 存储空间(${param2})',
 			'common.tipDraft' => '草稿',
-			_ => null,
-		} ?? switch (path) {
 			'common.tipEmptyChatPlaceholder' => '这里还没有消息',
 			'common.tipFailed' => '操作失败！',
 			'common.tipGreeting' => '欢迎使用',
@@ -9016,6 +9052,8 @@ extension on Translations {
 			'common.e2eeLoadingShards' => '加载分片信息...',
 			'common.e2eeNoShards' => '没有可用的分片',
 			'common.e2eeLoadFailed' => '加载失败，请重试',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeContactingProxy' => ({required Object name}) => '正在联系: ${name}',
 			'common.e2eeRecoveryFailed' => '恢复失败，请重试',
 			'common.webFeatureNotification' => '桌面通知',
@@ -9025,8 +9063,6 @@ extension on Translations {
 			'common.webQRLoginSuccess' => '登录成功',
 			'common.webQRExpiresIn' => ({required Object seconds}) => '${seconds} 秒后过期',
 			'common.webQRStatusFailed' => '登录失败，请重试',
-			_ => null,
-		} ?? switch (path) {
 			'common.webQRStatusSuccess' => '正在跳转...',
 			'common.webLoginEmptyError' => '请输入账号和密码',
 			'common.webQRGenerateFailed' => '生成二维码失败',
@@ -9530,6 +9566,8 @@ extension on Translations {
 			'groupVote.cancelVoteSuccess' => '已取消投票',
 			'groupVote.cancelVoteFailed' => '取消失败，请稍后重试',
 			'groupVote.endVoteFailed' => '结束失败，请稍后重试',
+			_ => null,
+		} ?? switch (path) {
 			'groupVote.eachOptionPerLine' => '每行一个选项',
 			'groupVote.statusInProgress' => '进行中',
 			'groupVote.updateVote' => '更新投票',
@@ -9539,8 +9577,6 @@ extension on Translations {
 			'main.change' => '修改',
 			'main.entertainment' => '电影演出',
 			'main.lifePayment' => '生活缴费',
-			_ => null,
-		} ?? switch (path) {
 			'main.medicalHealth' => '医疗健康',
 			'main.meituanDelivery' => '美团外卖',
 			'main.tencentService' => '腾讯服务',
