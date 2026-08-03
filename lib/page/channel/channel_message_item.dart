@@ -15,6 +15,7 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -106,38 +107,62 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   }
 
   Future<void> _addReaction(String reactionType) async {
+    if (reactionType == ChannelReactionType.like) {
+      setState(() {
+        _liked = true;
+        _likeDelta += 1;
+      });
+      widget.onReactionChanged?.call();
+    }
+
     final channelService = ref.read(channelServiceProvider);
     final success = await channelService.addReaction(
       channelId: widget.channelId,
       messageId: widget.message.id.toString(),
       reactionType: reactionType,
     );
-    if (success && mounted) {
-      if (reactionType == ChannelReactionType.like) {
+
+    if (!success) {
+      if (mounted) {
         setState(() {
-          _liked = true;
-          _likeDelta += 1;
+          if (reactionType == ChannelReactionType.like) {
+            _liked = false;
+            _likeDelta -= 1;
+          }
         });
+        widget.onReactionChanged?.call();
+        AppLoading.showToast(t.common.operationFailedAgainLater);
       }
-      widget.onReactionChanged?.call();
     }
   }
 
   Future<void> _removeReaction(String reactionType) async {
+    if (reactionType == ChannelReactionType.like) {
+      setState(() {
+        _liked = false;
+        _likeDelta -= 1;
+      });
+      widget.onReactionChanged?.call();
+    }
+
     final channelService = ref.read(channelServiceProvider);
     final success = await channelService.removeReaction(
       channelId: widget.channelId,
       messageId: widget.message.id.toString(),
       reactionType: reactionType,
     );
-    if (success && mounted) {
-      if (reactionType == ChannelReactionType.like) {
+
+    if (!success) {
+      if (mounted) {
         setState(() {
-          _liked = false;
-          _likeDelta -= 1;
+          if (reactionType == ChannelReactionType.like) {
+            _liked = true;
+            _likeDelta += 1;
+          }
         });
+        widget.onReactionChanged?.call();
+        AppLoading.showToast(t.common.operationFailedAgainLater);
       }
-      widget.onReactionChanged?.call();
     }
   }
 
@@ -749,6 +774,9 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                 : t.channel.like,
             color: _liked ? AppColors.primary : secondaryColor,
             onTap: _toggleLike,
+            semanticsLabel: totalReactions > 0
+                ? '${t.channel.like}: $totalReactions'
+                : t.channel.like,
           ),
           AppSpacing.horizontalRegular,
           // 评论 —— 直达 B1 阅读页（评论区随正文一并承载），不再走独立评论页
@@ -762,6 +790,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                 extra: widget.message,
               );
             },
+            semanticsLabel: t.channel.comment,
           ),
           AppSpacing.horizontalRegular,
           // 分享
@@ -770,6 +799,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
             label: t.channel.share,
             color: secondaryColor,
             onTap: () => _shareMessage(),
+            semanticsLabel: t.channel.share,
           ),
         ],
       ),
@@ -782,25 +812,30 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     required Color color,
     required VoidCallback onTap,
     VoidCallback? onLongPress,
+    String? semanticsLabel,
   }) {
     // InkWell 提供点按涟漪/高亮反馈（此前为无反馈的 GestureDetector）
-    return Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        onTap: onTap,
-        onLongPress: onLongPress,
-        borderRadius: AppRadius.borderRadiusSmall,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          child: Row(
-            children: [
-              Icon(icon, size: 16, color: color),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: context.textStyle(FontSizeType.caption2, color: color),
-              ),
-            ],
+    return Semantics(
+      label: semanticsLabel,
+      button: true,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          borderRadius: AppRadius.borderRadiusSmall,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+            child: Row(
+              children: [
+                Icon(icon, size: 16, color: color),
+                const SizedBox(width: 4),
+                Text(
+                  label,
+                  style: context.textStyle(FontSizeType.caption2, color: color),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -322,6 +322,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
         content: _contentController.text.trim(),
         images: List<AssetEntity>.from(_images),
         cover: _effectiveCover,
+        onPublish: _publish,
       ),
     );
   }
@@ -632,12 +633,14 @@ class _ComposePreviewSheet extends StatelessWidget {
 
   /// 生效封面（用户标记或默认第一张）；有封面时预览用大图卡样式。
   final AssetEntity? cover;
+  final VoidCallback? onPublish;
 
   const _ComposePreviewSheet({
     required this.title,
     required this.content,
     required this.images,
     required this.cover,
+    this.onPublish,
   });
 
   @override
@@ -652,14 +655,26 @@ class _ComposePreviewSheet extends StatelessWidget {
         controller: scrollController,
         padding: AppSpacing.allRegular,
         children: [
-          Center(
-            child: Text(
-              context.t.channel.preview,
-              style: context.textStyle(
-                FontSizeType.subheadline,
-                fontWeight: FontWeight.w600,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(width: 48), // Spacer to balance close button
+              Text(
+                context.t.channel.preview,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
+              IconButton(
+                icon: const Icon(Icons.close, size: 20),
+                onPressed: () => Navigator.pop(context),
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              ),
+            ],
           ),
           AppSpacing.verticalRegular,
           if (title.isNotEmpty) ...[
@@ -681,6 +696,34 @@ class _ComposePreviewSheet extends StatelessWidget {
             AppSpacing.verticalRegular,
             _buildPreviewGrid(context),
           ],
+          AppSpacing.verticalLarge,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    LocaleSettings.currentLocale.languageCode == 'zh'
+                        ? '继续编辑'
+                        : 'Continue Editing',
+                  ),
+                ),
+              ),
+              if (onPublish != null) ...[
+                AppSpacing.horizontalMedium,
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      onPublish!();
+                    },
+                    child: Text(context.t.channel.publish),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ],
       ),
     );

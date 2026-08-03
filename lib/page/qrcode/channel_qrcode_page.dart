@@ -34,9 +34,9 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final channelId = widget.channelData['id'] as String? ?? '';
-    final channelName = widget.channelData['name'] as String? ?? '';
-    final channelAvatar = widget.channelData['avatar'] as String?;
+    final channelId = widget.channelData['id']?.toString() ?? '';
+    final channelName = widget.channelData['name']?.toString() ?? '';
+    final channelAvatar = widget.channelData['avatar']?.toString();
     int expiredAt = DateTimeHelper.millisecond() + dayNum * 86400 * 1000;
     String qrcodeData =
         "${Env().apiBaseUrl}/channel/qrcode?id=$channelId&exp=$expiredAt&tk=${EncrypterService.md5("${expiredAt}_${Env().solidifiedKey}")}&$qrcodeDataSuffix";

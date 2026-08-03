@@ -815,12 +815,15 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     }
     totalReactions = (totalReactions + _likeDelta).clamp(0, 1 << 31);
 
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Container(
       padding: EdgeInsets.only(
         left: AppSpacing.regular,
         right: AppSpacing.regular,
         top: AppSpacing.small,
-        bottom: MediaQuery.of(context).padding.bottom + AppSpacing.small,
+        bottom:
+            (keyboardHeight > 0 ? 0 : MediaQuery.of(context).padding.bottom) +
+            AppSpacing.small,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -840,6 +843,9 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 label: totalReactions > 0 ? '$totalReactions' : t.channel.like,
                 color: _liked ? AppColors.primary : secondary,
                 onTap: _toggleMessageLike,
+                semanticsLabel: totalReactions > 0
+                    ? '点赞，共 $totalReactions 个赞'
+                    : '点赞',
               ),
               AppSpacing.horizontalRegular,
               _actionButton(
@@ -849,6 +855,9 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                     : t.channel.comment,
                 color: secondary,
                 onTap: () => _inputFocusNode.requestFocus(),
+                semanticsLabel: _comments.isNotEmpty
+                    ? '评论，共 ${_comments.length} 条'
+                    : '评论，暂无评论',
               ),
               AppSpacing.horizontalRegular,
               _actionButton(
@@ -856,6 +865,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 label: t.channel.share,
                 color: secondary,
                 onTap: _shareMessage,
+                semanticsLabel: '分享',
               ),
             ],
           ),
@@ -929,21 +939,26 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     required String label,
     required Color color,
     required VoidCallback onTap,
+    String? semanticsLabel,
   }) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: color),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: context.textStyle(FontSizeType.caption2, color: color),
-            ),
-          ],
+    return Semantics(
+      label: semanticsLabel,
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: color),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: context.textStyle(FontSizeType.caption2, color: color),
+              ),
+            ],
+          ),
         ),
       ),
     );

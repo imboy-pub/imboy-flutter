@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:imboy/config/const.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
@@ -15,9 +17,12 @@ import 'package:imboy/page/channel/channel_admin_add_rules.dart'
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_invitation_rules.dart';
 import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 订阅者信息模型
 class SubscriberInfo {
@@ -315,6 +320,81 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     if (ok) unawaited(_loadSubscribers(refresh: true));
   }
 
+  void _shareChannel(ChannelModel? channel) {
+    if (channel == null) return;
+    final t = context.t;
+    final shareLink = '$webBaseUrl/channel/${channel.id}';
+
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                channel.name,
+                style: context.textStyle(
+                  FontSizeType.large,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(CupertinoIcons.link),
+              title: Text(t.channel.share),
+              subtitle: Text(shareLink),
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: shareLink));
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(t.main.copiedToClipboard)),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(CupertinoIcons.qrcode),
+              title: Text(t.account.myQrcode),
+              onTap: () {
+                Navigator.pop(context);
+                context.push(
+                  '/qrcode/channel',
+                  extra: {
+                    'id': channel.id,
+                    'name': channel.name,
+                    'avatar': channel.avatar,
+                  },
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(CupertinoIcons.paperplane),
+              title: Text(t.channel.shareToChat),
+              onTap: () {
+                Navigator.pop(context);
+                context.push(
+                  '/chat/send_to',
+                  extra: {
+                    'msg': {
+                      'msg_type': 'channel_card',
+                      'content': channel.name,
+                      'payload': {
+                        'channel_id': channel.id,
+                        'channel_name': channel.name,
+                        'channel_avatar': channel.avatar,
+                      },
+                    },
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t;
@@ -368,11 +448,21 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     }
 
     if (_subscribers.isEmpty) {
+      final channel = ref.read(channelDetailProvider).channel;
       return NoDataView(
         icon: Icons.people_outline,
         text: _searchKeyword != null
             ? t.channel.noSearchResults
             : t.channel.noSubscribers,
+        description: _searchKeyword != null
+            ? null
+            : (LocaleSettings.currentLocale.languageCode == 'zh'
+                  ? '还没有订阅者，分享给好友吧'
+                  : 'No subscribers yet, share it with your friends!'),
+        onTop: _searchKeyword != null || channel == null
+            ? null
+            : () => _shareChannel(channel),
+        retryLabel: _searchKeyword != null ? null : t.channel.share,
       );
     }
 

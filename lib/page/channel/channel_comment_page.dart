@@ -311,12 +311,15 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
 
   Widget _buildInputBar() {
     final t = context.t;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Container(
       padding: EdgeInsets.only(
         left: AppSpacing.regular,
         right: AppSpacing.regular,
         top: AppSpacing.small,
-        bottom: MediaQuery.of(context).padding.bottom + AppSpacing.small,
+        bottom:
+            (keyboardHeight > 0 ? 0 : MediaQuery.of(context).padding.bottom) +
+            AppSpacing.small,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,

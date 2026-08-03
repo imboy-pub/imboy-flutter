@@ -11,6 +11,7 @@ import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -114,6 +115,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     FocusScope.of(context).unfocus();
 
     setState(() => _isSaving = true);
+    AppLoading.show(status: t.main.saving);
 
     try {
       final api = ref.read(channelApiProvider);
@@ -142,29 +144,18 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
               tags: targetTags,
             )) {
           _channel = result;
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.channel.updateSuccess)));
+          AppLoading.showSuccess(t.channel.updateSuccess);
           context.pop(result); // 返回最新频道对象，避免详情页继续使用旧数据
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(t.channel.updateFailed),
-              backgroundColor: AppColors.iosRed,
-            ),
-          );
+          AppLoading.showError(t.channel.updateFailed);
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t.channel.updateFailed),
-            backgroundColor: AppColors.iosRed,
-          ),
-        );
+        AppLoading.showError(t.channel.updateFailed);
       }
     } finally {
+      AppLoading.dismiss();
       if (mounted) {
         setState(() => _isSaving = false);
       }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -270,26 +271,25 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 
   Future<bool> _subscribeChannel(ChannelModel channel) async {
     final t = context.t;
+    final channelIdStr = channel.id.toString();
+
+    // 乐观更新
+    setState(() {
+      _subscribedChannelIds.add(channelIdStr);
+    });
 
     final success = await ref
         .read(channelListProvider.notifier)
-        .subscribeChannel(channel.id.toString());
+        .subscribeChannel(channelIdStr);
 
-    if (success && mounted) {
+    if (!success && mounted) {
+      // 失败回滚
       setState(() {
-        _subscribedChannelIds.add(channel.id.toString());
+        _subscribedChannelIds.remove(channelIdStr);
       });
-      await _loadSubscribedChannelIds();
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            success ? t.channel.subscribeSuccess : t.channel.subscribeFailed,
-          ),
-        ),
-      );
+      AppLoading.showError(t.channel.subscribeFailed);
+    } else if (success && mounted) {
+      AppLoading.showSuccess(t.channel.subscribeSuccess);
     }
 
     return success;
@@ -297,6 +297,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 
   Future<bool> _unsubscribeChannel(ChannelModel channel) async {
     final t = context.t;
+    final channelIdStr = channel.id.toString();
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -317,23 +318,23 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     );
     if (confirmed != true) return false;
 
+    // 乐观更新
+    setState(() {
+      _subscribedChannelIds.remove(channelIdStr);
+    });
+
     final success = await ref
         .read(channelListProvider.notifier)
-        .unsubscribeChannel(channel.id.toString());
+        .unsubscribeChannel(channelIdStr);
 
-    if (success && mounted) {
+    if (!success && mounted) {
+      // 失败回滚
       setState(() {
-        _subscribedChannelIds.remove(channel.id.toString());
+        _subscribedChannelIds.add(channelIdStr);
       });
-      await _loadSubscribedChannelIds();
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success ? t.common.tipSuccess : t.common.tipFailed),
-        ),
-      );
+      AppLoading.showError(t.common.tipFailed);
+    } else if (success && mounted) {
+      AppLoading.showSuccess(t.common.tipSuccess);
     }
 
     return success;
@@ -360,6 +361,13 @@ class _SearchResultItem extends ConsumerStatefulWidget {
 
 class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
   bool _isSubmitting = false;
+  late final bool _wasSubscribedInitially;
+
+  @override
+  void initState() {
+    super.initState();
+    _wasSubscribedInitially = widget.isSubscribed;
+  }
 
   String _detailRouteId(ChannelModel channel) {
     final customId = channel.customId?.trim() ?? '';
@@ -370,6 +378,11 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
+    final int displayCount =
+        widget.channel.subscriberCount +
+        (widget.isSubscribed
+            ? (_wasSubscribedInitially ? 0 : 1)
+            : (_wasSubscribedInitially ? -1 : 0));
 
     return ListTile(
       leading: CircleAvatar(
@@ -422,7 +435,7 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
               Icon(Icons.people_outline, size: 14, color: AppColors.iosGray),
               AppSpacing.horizontalTiny,
               Text(
-                '${widget.channel.subscriberCount} ${t.channel.subscribers}',
+                '$displayCount ${t.channel.subscribers}',
                 style: context.textStyle(
                   FontSizeType.small,
                   color: AppColors.iosGray,
@@ -447,43 +460,50 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
         ],
       ),
       isThreeLine: true,
-      trailing: widget.isSubscribed
+      trailing: widget.channel.isManaged
           ? TextButton(
-              onPressed: _isSubmitting
-                  ? null
-                  : () async {
-                      setState(() => _isSubmitting = true);
-                      await widget.onUnsubscribe();
-                      if (mounted) {
-                        setState(() => _isSubmitting = false);
-                      }
-                    },
-              child: _isSubmitting
-                  ? const SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(t.channel.unsubscribe),
+              onPressed: () {
+                context.push('/channel/${_detailRouteId(widget.channel)}');
+              },
+              child: Text(t.main.manage),
             )
-          : TextButton(
-              onPressed: _isSubmitting
-                  ? null
-                  : () async {
-                      setState(() => _isSubmitting = true);
-                      await widget.onSubscribe();
-                      if (mounted) {
-                        setState(() => _isSubmitting = false);
-                      }
-                    },
-              child: _isSubmitting
-                  ? const SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(t.channel.subscribe),
-            ),
+          : (widget.isSubscribed
+                ? TextButton(
+                    onPressed: _isSubmitting
+                        ? null
+                        : () async {
+                            setState(() => _isSubmitting = true);
+                            await widget.onUnsubscribe();
+                            if (mounted) {
+                              setState(() => _isSubmitting = false);
+                            }
+                          },
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(t.channel.unsubscribe),
+                  )
+                : TextButton(
+                    onPressed: _isSubmitting
+                        ? null
+                        : () async {
+                            setState(() => _isSubmitting = true);
+                            await widget.onSubscribe();
+                            if (mounted) {
+                              setState(() => _isSubmitting = false);
+                            }
+                          },
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(t.channel.subscribe),
+                  )),
       onTap: () {
         context.push('/channel/${_detailRouteId(widget.channel)}');
       },

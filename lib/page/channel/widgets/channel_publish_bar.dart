@@ -34,8 +34,13 @@ typedef _ChannelMediaUpload = ({
 class ChannelPublishBar extends ConsumerStatefulWidget {
   /// 输入框焦点（父层持有，用于键盘/语音切换管理）
   final FocusNode focusNode;
+  final VoidCallback? onMessageSent;
 
-  const ChannelPublishBar({super.key, required this.focusNode});
+  const ChannelPublishBar({
+    super.key,
+    required this.focusNode,
+    this.onMessageSent,
+  });
 
   @override
   ConsumerState<ChannelPublishBar> createState() => _ChannelPublishBarState();
@@ -125,6 +130,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       if (key.isNotEmpty) unawaited(StorageService.to.remove(key));
       // 仅震动反馈：消息进流即确认，连发场景不再弹成功 toast
       unawaited(HapticFeedback.lightImpact());
+      widget.onMessageSent?.call();
       return;
     }
     ScaffoldMessenger.of(
@@ -173,6 +179,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
             );
         if (success) {
           AppLoading.showSuccess(t.common.tipSuccess);
+          widget.onMessageSent?.call();
         } else {
           AppLoading.showError(t.channel.publishFailed);
         }
@@ -267,6 +274,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       } else if (publishedIdx.isNotEmpty) {
         unawaited(HapticFeedback.lightImpact());
         AppLoading.showSuccess(t.common.tipSuccess);
+        widget.onMessageSent?.call();
       }
     } finally {
       controller.removeListener(onProgress);
@@ -411,12 +419,17 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     final channelId = state.channel?.id;
     _cachedDraftKey = channelId == null ? '' : 'channel_draft_$channelId';
 
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Container(
       padding: EdgeInsets.only(
         left: AppSpacing.tiny,
         right: AppSpacing.tiny,
         top: AppSpacing.small,
-        bottom: MediaQuery.of(context).padding.bottom + AppSpacing.small,
+        bottom:
+            (keyboardHeight > 0
+                ? keyboardHeight
+                : MediaQuery.of(context).padding.bottom) +
+            AppSpacing.small,
       ),
       decoration: BoxDecoration(
         color: surfaceGrouped,

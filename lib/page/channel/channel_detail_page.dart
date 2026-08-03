@@ -124,6 +124,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       });
     }
 
+    final channelId = _resolveChannelId(channel);
+
     return Scaffold(
       appBar: GlassAppBar(
         title: channel?.name ?? t.channel.loading,
@@ -132,7 +134,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       ),
       body: _buildBody(state),
       bottomNavigationBar: channel?.canPublish == true
-          ? ChannelPublishBar(focusNode: _publishFocusNode)
+          ? ChannelPublishBar(
+              focusNode: _publishFocusNode,
+              onMessageSent: () => _loadStats(channelId),
+            )
           : null,
     );
   }
@@ -143,12 +148,6 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (channel == null) return [];
 
     return [
-      if (channel.isManaged)
-        IconButton(
-          icon: const Icon(CupertinoIcons.settings, size: 22),
-          onPressed: () => _showChannelSettings(channel),
-          tooltip: context.t.channel.settings,
-        ),
       PopupMenuButton<String>(
         icon: const Icon(Icons.more_vert),
         onSelected: (value) => _handleMenuAction(value, channel),
@@ -334,91 +333,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     );
   }
 
-  // ---- 设置 sheet ----
-
-  void _showChannelSettings(ChannelModel channel) {
-    final channelId = _resolveChannelId(channel);
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.3,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) => SingleChildScrollView(
-          controller: scrollController,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.getIosSeparator(
-                      Theme.of(context).brightness,
-                    ),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                context.t.channel.settings,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                leading: const Icon(CupertinoIcons.pencil),
-                title: Text(context.t.channel.editChannel),
-                subtitle: Text(context.t.channel.editChannelDesc),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _openChannelEdit(channel);
-                },
-              ),
-              ListTile(
-                leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
-                title: Text(context.t.channel.manageAdmins),
-                subtitle: Text(context.t.channel.manageAdminsDesc),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push('/channel/$channelId/admins');
-                },
-              ),
-              ListTile(
-                leading: const Icon(CupertinoIcons.person_2),
-                title: Text(context.t.channel.manageSubscribers),
-                subtitle: Text(context.t.channel.manageSubscribersDesc),
-                onTap: () {
-                  Navigator.pop(context);
-                  context.push('/channel/$channelId/subscribers');
-                },
-              ),
-              if (channel.userRole.isCreator)
-                ListTile(
-                  leading: Icon(CupertinoIcons.delete, color: AppColors.iosRed),
-                  title: Text(
-                    context.t.channel.deleteChannel,
-                    style: TextStyle(color: AppColors.iosRed),
-                  ),
-                  subtitle: Text(context.t.channel.deleteChannelDesc),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showDeleteChannelDialog(channel);
-                  },
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  // ---- 删除对话框 ----
 
   void _showDeleteChannelDialog(ChannelModel channel) {
     final t = context.t;
