@@ -4,6 +4,7 @@ title: Каналы
 loading: Загрузка...
 subscribed: Подписан
 managed: Управляемый
+writeArticle: Написать публикацию
 discover: Обзор
 search: Поиск
 create: Создать канал
@@ -124,3 +125,12 @@ shareToChat: Отправить другу
 qrcode: QR-код канала
 qrcodeTips: QR-код действителен $days дней (до $date)
 defaultName: Канал без названия
+noMessagesManaged: В канале пока нет опубликованных материалов
+noMessagesManagedDesc: Как владелец канала, вы можете опубликовать первый материал ниже
+noMessagesVisitor: Подпишитесь, чтобы просматривать содержимое канала
+noMessagesVisitorDesc: Содержимое канала будет доступно после подписки
+noMessagesSubscribed: В канале пока нет опубликованных материалов
+noMessagesSubscribedDesc: Подписка оформлена! Дождитесь новых публикаций автора
+continueEditing: Продолжить редактирование
+publishFirstContent: Опубликовать первый материал
+noSubscribersDesc: Подписчиков пока нет, поделитесь каналом с друзьями

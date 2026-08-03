@@ -24,3 +24,5 @@ confirmAttend: Подтвердить участие
 declineAttend: Не приду
 cancelSchedule: Отменить событие
 scheduleIdMissing: ID события отсутствует, нельзя открыть детали
+untitledSchedule: "Событие без названия"
+cardViewAndAttend: "Подробности и подтверждение"

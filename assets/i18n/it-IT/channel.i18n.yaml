@@ -4,6 +4,7 @@ title: Canali
 loading: Caricamento...
 subscribed: Iscritto
 managed: Gestito
+writeArticle: Scrivi un post
 discover: Scopri
 search: Cerca
 create: Crea canale
@@ -124,3 +125,12 @@ shareToChat: Invia a un amico
 qrcode: Codice QR del canale
 qrcodeTips: Codice QR valido per $days giorni (fino al $date)
 defaultName: Canale senza nome
+noMessagesManaged: Il canale non ha ancora pubblicato contenuti
+noMessagesManagedDesc: In quanto proprietario del canale, puoi pubblicare il primo contenuto qui sotto
+noMessagesVisitor: Iscriviti per vedere i contenuti del canale
+noMessagesVisitorDesc: I contenuti del canale saranno disponibili dopo l'iscrizione
+noMessagesSubscribed: Il canale non ha ancora pubblicato contenuti
+noMessagesSubscribedDesc: Iscrizione completata! Attendi i nuovi contenuti dell'autore
+continueEditing: Continua a modificare
+publishFirstContent: Pubblica il primo contenuto
+noSubscribersDesc: Nessun iscritto, condividi il canale con i tuoi amici

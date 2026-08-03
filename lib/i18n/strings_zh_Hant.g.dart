@@ -358,6 +358,15 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get qrcode => '頻道二維碼';
 	@override String qrcodeTips({required Object days, required Object date}) => '二維碼${days}天內（${date}前）有效';
 	@override String get defaultName => '未命名頻道';
+	@override String get noMessagesManaged => '頻道尚未發布任何內容';
+	@override String get noMessagesManagedDesc => '作為頻道主，你可以點擊下方按鈕發布第一條內容';
+	@override String get noMessagesVisitor => '訂閱後查看頻道內容';
+	@override String get noMessagesVisitorDesc => '訂閱後即可查看本頻道發布的內容';
+	@override String get noMessagesSubscribed => '頻道尚未發布內容';
+	@override String get noMessagesSubscribedDesc => '訂閱成功！請耐心等待作者發布新內容';
+	@override String get continueEditing => '繼續編輯';
+	@override String get publishFirstContent => '發布第一條內容';
+	@override String get noSubscribersDesc => '還沒有訂閱者，分享給好友吧';
 }
 
 // Path: chat
@@ -403,6 +412,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get createGroupF2f => '面對面建群組';
 	@override String get displayProfile => '顯示您的資料';
 	@override String get file => '檔案';
+	@override String get unknownFile => '未知檔案';
 	@override String get fileMessage => '[檔案]';
 	@override String get fileSize => '檔案大小';
 	@override String get forgotPasswordPinCodeView => '忘記密碼驗證碼視圖';
@@ -639,6 +649,8 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get switchToVoiceInput => '切換到語音輸入';
 	@override String get switchToKeyboardInput => '切換到鍵盤輸入';
 	@override String get extraItems => '附加項';
+	@override String get messageInputHint => '說點什麼...';
+	@override String get invalidMessageType => '[不支援的訊息]';
 }
 
 // Path: common
@@ -707,6 +719,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get buttonTakingPictures => '拍照';
 	@override String get cacheTips => '快取是使用應用過程中產生的暫時資料，清理快取不會影響您的正常使用。';
 	@override String get callDuration => '通話時長';
+	@override String get callEnded => '通話已結束';
 	@override String get calling => '正在通話';
 	@override String get canNotAddYourselfFriend => '您不能新增自己為好友';
 	@override String get cancel => _root.common.buttonCancel;
@@ -1750,6 +1763,15 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get enterFullscreen => '進入全螢幕';
 	@override String get exitFullscreen => '退出全螢幕';
 	@override String get developer => '開發者';
+	@override String get fontSizeOptionSmall => '小';
+	@override String get fontSizeOptionNormal => '標準';
+	@override String get fontSizeOptionMedium => '中';
+	@override String get fontSizeOptionLarge => '大';
+	@override String get fontSizeOptionExtraLarge => '特大';
+	@override String get fontSizeOptionHuge => '超大';
+	@override String get searchFailedRetry => '搜尋失敗，請重試';
+	@override String get searchDisabledTitle => '訊息搜尋未啟用';
+	@override String get searchDisabledByEncryption => '已開啟端對端加密，伺服器無法讀取訊息內容，因此不提供全文搜尋';
 }
 
 // Path: complaint
@@ -2044,6 +2066,8 @@ class Translations$groupSchedule$zh_Hant extends Translations$groupSchedule$zh_C
 	@override String get declineAttend => '不參加';
 	@override String get cancelSchedule => '取消日程';
 	@override String get scheduleIdMissing => '日程ID缺失，無法檢視詳情';
+	@override String get untitledSchedule => '未命名日程';
+	@override String get cardViewAndAttend => '查看詳情並確認參加';
 }
 
 // Path: groupTag
@@ -2415,6 +2439,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get e2eeProxyReachedMin => '已達到最少代理數量';
 	@override String get liveRoomTitleLabel => '直播間標題';
 	@override String get liveRoomTitleHint => '請輸入直播間標題';
+	@override String get lightModel => '淺色模式';
 }
 
 // Path: mention
@@ -2807,6 +2832,15 @@ extension on TranslationsZhHant {
 			'channel.qrcode' => '頻道二維碼',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => '二維碼${days}天內（${date}前）有效',
 			'channel.defaultName' => '未命名頻道',
+			'channel.noMessagesManaged' => '頻道尚未發布任何內容',
+			'channel.noMessagesManagedDesc' => '作為頻道主，你可以點擊下方按鈕發布第一條內容',
+			'channel.noMessagesVisitor' => '訂閱後查看頻道內容',
+			'channel.noMessagesVisitorDesc' => '訂閱後即可查看本頻道發布的內容',
+			'channel.noMessagesSubscribed' => '頻道尚未發布內容',
+			'channel.noMessagesSubscribedDesc' => '訂閱成功！請耐心等待作者發布新內容',
+			'channel.continueEditing' => '繼續編輯',
+			'channel.publishFirstContent' => '發布第一條內容',
+			'channel.noSubscribersDesc' => '還沒有訂閱者，分享給好友吧',
 			'chat.bankCard' => '銀行卡',
 			'chat.cards' => '張',
 			'chat.jdShopping' => '京東購物',
@@ -2843,6 +2877,7 @@ extension on TranslationsZhHant {
 			'chat.createGroupF2f' => '面對面建群組',
 			'chat.displayProfile' => '顯示您的資料',
 			'chat.file' => '檔案',
+			'chat.unknownFile' => '未知檔案',
 			'chat.fileMessage' => '[檔案]',
 			'chat.fileSize' => '檔案大小',
 			'chat.forgotPasswordPinCodeView' => '忘記密碼驗證碼視圖',
@@ -3041,6 +3076,8 @@ extension on TranslationsZhHant {
 			'chat.webFeatureMultiDevice' => '多裝置同步',
 			'chat.webFeatureMultiDeviceDesc' => '在手機和電腦之間無縫切換，訊息實時同步',
 			'chat.webFeatureE2EE' => '端到端加密',
+			_ => null,
+		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => '所有訊息都經過端到端加密，確保隱私安全',
 			'chat.webFeatureFileTransfer' => '檔案傳輸',
 			'chat.webFeatureFileTransferDesc' => '拖拽即可傳送檔案，支援各種格式',
@@ -3051,8 +3088,6 @@ extension on TranslationsZhHant {
 			'chat.e2eeErrInvalidFormat' => '訊息格式錯誤，加密失敗',
 			'chat.e2eeSocialCreateTitle' => '建立恢復分片',
 			'chat.e2eeSocialCreateBtn' => '建立分片',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeSocialCreateFailTitle' => '建立失敗',
 			'chat.e2eeSocialCreateFailBody' => '建立分片失敗，請重試',
 			'chat.e2eeSocialCreateFirst' => '建立分片後才能看到內容',
@@ -3081,6 +3116,8 @@ extension on TranslationsZhHant {
 			'chat.switchToVoiceInput' => '切換到語音輸入',
 			'chat.switchToKeyboardInput' => '切換到鍵盤輸入',
 			'chat.extraItems' => '附加項',
+			'chat.messageInputHint' => '說點什麼...',
+			'chat.invalidMessageType' => '[不支援的訊息]',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '接受',
@@ -3140,6 +3177,7 @@ extension on TranslationsZhHant {
 			'common.buttonTakingPictures' => '拍照',
 			'common.cacheTips' => '快取是使用應用過程中產生的暫時資料，清理快取不會影響您的正常使用。',
 			'common.callDuration' => '通話時長',
+			'common.callEnded' => '通話已結束',
 			'common.calling' => '正在通話',
 			'common.canNotAddYourselfFriend' => '您不能新增自己為好友',
 			'common.cancel' => _root.common.buttonCancel,
@@ -3552,6 +3590,8 @@ extension on TranslationsZhHant {
 			'common.sendFailed' => '傳送失敗',
 			'common.noChangeNeeded' => '無需修改',
 			'common.submissionFailed' => '提交失敗',
+			_ => null,
+		} ?? switch (path) {
 			'common.checkVerificationCodeOrRetry' => '請檢查驗證碼或稍後重試',
 			'common.forceOffline' => '下線',
 			'common.forceDeviceOffline' => '讓該設備下線',
@@ -3565,8 +3605,6 @@ extension on TranslationsZhHant {
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => '驗證碼',
 			'common.feedbackContent' => '回饋內容',
-			_ => null,
-		} ?? switch (path) {
 			'common.officialReply' => '官方回覆',
 			'common.setPasswordSecurityTips' => '為了提升帳號安全，同時防止因無法獲取驗證碼導致無法登入，請設定登入密碼。',
 			'common.locationHidden' => '已隱藏您的位置',
@@ -4066,6 +4104,8 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrSelectFile' => '選擇檔案失敗，請重試',
 			'common.e2eeBackupErrValidateFailed' => '檔案驗證失敗，請檢查檔案格式',
 			'common.e2eeBackupErrImportFailed' => '匯入失敗，請檢查密碼是否正確',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupImportSuccessTitle' => '匯入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 金鑰已成功恢復！',
 			'common.e2eeBackupImportSuccessNote' => '注意：群聊歷史已隨備份恢復；單聊歷史無法恢復——依端對端加密規範，單聊金鑰不跨裝置備份',
@@ -4079,8 +4119,6 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupCreatedAtRow' => '建立時間',
 			'common.e2eeBackupFileSizeRow' => '檔案大小',
 			'common.e2eeBackupNoteRow' => '備註',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupDeleteTitle' => '刪除備份記錄',
 			'common.e2eeBackupDeleteConfirm' => '確定要刪除此備份記錄嗎？',
 			'common.e2eeBackupDeleteSuccess' => '備份記錄已刪除',
@@ -4187,6 +4225,15 @@ extension on TranslationsZhHant {
 			'common.enterFullscreen' => '進入全螢幕',
 			'common.exitFullscreen' => '退出全螢幕',
 			'common.developer' => '開發者',
+			'common.fontSizeOptionSmall' => '小',
+			'common.fontSizeOptionNormal' => '標準',
+			'common.fontSizeOptionMedium' => '中',
+			'common.fontSizeOptionLarge' => '大',
+			'common.fontSizeOptionExtraLarge' => '特大',
+			'common.fontSizeOptionHuge' => '超大',
+			'common.searchFailedRetry' => '搜尋失敗，請重試',
+			'common.searchDisabledTitle' => '訊息搜尋未啟用',
+			'common.searchDisabledByEncryption' => '已開啟端對端加密，伺服器無法讀取訊息內容，因此不提供全文搜尋',
 			'complaint.complaint' => '投訴',
 			'complaintReason.spam' => '垃圾資訊',
 			'complaintReason.harassment' => '騷擾',
@@ -4400,6 +4447,8 @@ extension on TranslationsZhHant {
 			'groupSchedule.declineAttend' => '不參加',
 			'groupSchedule.cancelSchedule' => '取消日程',
 			'groupSchedule.scheduleIdMissing' => '日程ID缺失，無法檢視詳情',
+			'groupSchedule.untitledSchedule' => '未命名日程',
+			'groupSchedule.cardViewAndAttend' => '查看詳情並確認參加',
 			'groupTag.title' => '群標籤',
 			'groupTag.addTag' => '新增標籤',
 			'groupTag.tagName' => '標籤名稱',
@@ -4569,6 +4618,8 @@ extension on TranslationsZhHant {
 			'main.speed' => '速度',
 			'main.star' => _root.main.markStar,
 			'main.stillNeeded' => '還需',
+			_ => null,
+		} ?? switch (path) {
 			'main.storageSpace' => '儲存空間',
 			'main.termOfServices' => '服務條款',
 			'main.text' => '文字',
@@ -4593,8 +4644,6 @@ extension on TranslationsZhHant {
 			'main.bound' => '已綁定',
 			'main.correct' => '正確',
 			'main.pendingInput' => '待輸入',
-			_ => null,
-		} ?? switch (path) {
 			'main.lengthCheck' => '長度檢查',
 			'main.bugReport' => '錯誤報告',
 			'main.deleting' => '刪除中...',
@@ -4737,6 +4786,7 @@ extension on TranslationsZhHant {
 			'main.e2eeProxyReachedMin' => '已達到最少代理數量',
 			'main.liveRoomTitleLabel' => '直播間標題',
 			'main.liveRoomTitleHint' => '請輸入直播間標題',
+			'main.lightModel' => '淺色模式',
 			'mention.mentionAll' => '所有人',
 			'mention.mentionAllHint' => '通知所有群成員',
 			'mention.noMatchedMember' => '沒有匹配的成員',

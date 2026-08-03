@@ -108,8 +108,11 @@ class WebRTCMessageBuilder extends StatelessWidget {
     if (title.isEmpty && callCuration.isNotEmpty) {
       title = "${t.common.callDuration} $callCuration";
     }
+    // state==1（已接通）且 start_at/end_at 缺失或异常时 title 仍为空。
+    // 原来这里返回 SizedBox.shrink()，气泡整个消失——用户看到的是"通话记录丢了"，
+    // 而实际上消息在库里。兜底给一句"通话已结束"，宁可少一个时长也不能少一条记录。
     if (title.isEmpty) {
-      return const SizedBox.shrink();
+      title = t.common.callEnded;
     }
     return InkWell(
       onTap: peerId.isEmpty

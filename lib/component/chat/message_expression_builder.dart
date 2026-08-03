@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/shimmer_box.dart';
 
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -35,35 +36,49 @@ class ExpressionMessageBuilder extends StatelessWidget {
     final double width = widthVal is num ? widthVal.toDouble() : 120.0;
     final double height = heightVal is num ? heightVal.toDouble() : 120.0;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // url 为空 = 对端发的是纯文本贴图（历史数据）。本端已不再生产这种消息，
+    // 见 attachment_handler 里 sendExpressionMessage 的删除说明。
     if (url.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(8),
         child: Text(
-          text.isNotEmpty ? text : '[表情]',
+          text.isNotEmpty ? text : '[${t.common.expression}]',
           style: const TextStyle(fontSize: AppSizes.iconSizeXLarge),
         ),
       );
     }
 
-    return Tooltip(
-      message: text,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: OctoImage(
-          image: cachedImageProvider(url),
-          width: width,
-          height: height,
-          fit: BoxFit.contain,
-          placeholderBuilder: (context) => ShimmerBox(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(width: width, height: height, color: Colors.white),
-          ),
-          errorBuilder: (context, error, stackTrace) => Container(
+    return Semantics(
+      label: text.isNotEmpty ? text : t.common.expression,
+      image: true,
+      child: Tooltip(
+        message: text,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: OctoImage(
+            image: cachedImageProvider(url),
             width: width,
             height: height,
-            color: Colors.grey[200],
-            child: const Icon(Icons.broken_image, color: AppColors.iosGray),
+            fit: BoxFit.contain,
+            placeholderBuilder: (context) => ShimmerBox(
+              baseColor: AppColors.shimmerBase,
+              highlightColor: AppColors.shimmerHighlight,
+              child: Container(
+                width: width,
+                height: height,
+                color: AppColors.shimmerBase,
+              ),
+            ),
+            errorBuilder: (context, error, stackTrace) => Container(
+              width: width,
+              height: height,
+              color: isDark
+                  ? AppColors.placeholderSurfaceDark
+                  : AppColors.placeholderSurfaceLight,
+              child: const Icon(Icons.broken_image, color: AppColors.iosGray),
+            ),
           ),
         ),
       ),

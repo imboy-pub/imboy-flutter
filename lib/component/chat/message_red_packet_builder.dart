@@ -38,7 +38,7 @@ class MessageRedPacketBuilder extends ConsumerWidget {
         borderRadius: borderRadius,
       ),
       child: Material(
-        color: Colors.transparent,
+        color: AppColors.transparent,
         child: InkWell(
           onTap: () => _handleOpenRedPacket(context, ref, packetId),
           borderRadius: borderRadius,
@@ -62,7 +62,7 @@ class MessageRedPacketBuilder extends ConsumerWidget {
                             greeting,
                             style: context.textStyle(
                               FontSizeType.normal,
-                              color: Colors.white,
+                              color: AppColors.onPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                             maxLines: 1,
@@ -81,7 +81,7 @@ class MessageRedPacketBuilder extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const Divider(color: Colors.white24, height: 16),
+                const Divider(color: AppColors.overlayWhite24, height: 16),
                 Text(
                   t.common.redPacketBrand,
                   style: context.textStyle(
@@ -191,7 +191,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
   Widget build(BuildContext context) {
     return Center(
       child: Material(
-        color: Colors.transparent,
+        color: AppColors.transparent,
         child: Container(
           width: 300,
           height: 400,
@@ -200,7 +200,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
             borderRadius: AppRadius.borderRadiusLarge,
             boxShadow: const [
               BoxShadow(
-                color: Colors.black26,
+                color: AppColors.overlayBlack26,
                 blurRadius: 16,
                 offset: Offset(0, 8),
               ),
@@ -223,7 +223,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                   children: [
                     CircleAvatar(
                       radius: 28,
-                      backgroundColor: Colors.amber,
+                      backgroundColor: AppColors.redPacketGold,
                       child: Icon(
                         CupertinoIcons.person,
                         size: 36,
@@ -235,7 +235,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                       t.common.redPacketDialogTitle,
                       style: context.textStyle(
                         FontSizeType.medium,
-                        color: Colors.orange.shade100,
+                        color: AppColors.redPacketTitleText,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -262,15 +262,15 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                       width: 84,
                       height: 84,
                       decoration: BoxDecoration(
-                        color: Colors.amber.shade600,
+                        color: AppColors.redPacketGold,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.amber.shade200,
+                          color: AppColors.redPacketGoldLight,
                           width: 2,
                         ),
                         boxShadow: const [
                           BoxShadow(
-                            color: Colors.black12,
+                            color: AppColors.overlayBlack12,
                             blurRadius: 8,
                             offset: Offset(0, 4),
                           ),
@@ -282,7 +282,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                           style: context.textStyle(
                             FontSizeType.extraLargeTitle,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: AppColors.lightTextPrimary,
                           ),
                         ),
                       ),
@@ -297,7 +297,10 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                 right: 12,
                 child: IconButton(
                   tooltip: t.common.buttonClose,
-                  icon: const Icon(Icons.close, color: Colors.white60),
+                  icon: const Icon(
+                    Icons.close,
+                    color: AppColors.overlayWhite70,
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),

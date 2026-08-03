@@ -58,6 +58,7 @@ buttonSubmit: إرسال
 buttonTakingPictures: التقاط صورة
 cacheTips: الذاكرة المؤقتة هي بيانات مؤقتة تُنشأ أثناء استخدام التطبيق، مسح الذاكرة المؤقتة لن يؤثر على استخدامك العادي.
 callDuration: مدة المكالمة
+callEnded: "انتهت المكالمة"
 calling: جارٍ الاتصال
 canNotAddYourselfFriend: لا يمكنك إضافة نفسك كصديق
 cancel: "@:common.buttonCancel"
@@ -1101,3 +1102,12 @@ resumeScan: استئناف المسح
 enterFullscreen: الدخول لوضع ملء الشاشة
 exitFullscreen: الخروج من وضع ملء الشاشة
 developer: مطوّر
+fontSizeOptionSmall: صغير
+fontSizeOptionNormal: قياسي
+fontSizeOptionMedium: متوسط
+fontSizeOptionLarge: كبير
+fontSizeOptionExtraLarge: كبير جدًا
+fontSizeOptionHuge: ضخم
+searchFailedRetry: "فشل البحث، يرجى المحاولة مرة أخرى"
+searchDisabledTitle: "بحث الرسائل غير متاح"
+searchDisabledByEncryption: "التشفير التام مُفعّل، لذا لا يستطيع الخادم قراءة رسائلك ولا يتوفر البحث في النص الكامل"

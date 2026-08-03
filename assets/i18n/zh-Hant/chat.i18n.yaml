@@ -34,6 +34,7 @@ chatStatusSeenDesc: 訊息已讀
 createGroupF2f: 面對面建群組
 displayProfile: 顯示您的資料
 file: 檔案
+unknownFile: "未知檔案"
 fileMessage: '[檔案]'
 fileSize: 檔案大小
 forgotPasswordPinCodeView: 忘記密碼驗證碼視圖
@@ -276,3 +277,5 @@ liveRoomWatch: 觀看直播
 switchToVoiceInput: 切換到語音輸入
 switchToKeyboardInput: 切換到鍵盤輸入
 extraItems: 附加項
+messageInputHint: 說點什麼...
+invalidMessageType: "[不支援的訊息]"

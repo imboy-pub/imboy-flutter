@@ -24,3 +24,5 @@ confirmAttend: 참석 확인
 declineAttend: 불참
 cancelSchedule: 일정 취소
 scheduleIdMissing: 일정 ID가 없어 상세정보를 볼 수 없습니다
+untitledSchedule: "제목 없는 일정"
+cardViewAndAttend: "상세 보기 및 참석 확인"

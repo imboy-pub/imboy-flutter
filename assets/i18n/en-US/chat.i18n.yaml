@@ -26,6 +26,7 @@ chatSettingUnmuted: Unmuted
 createGroupF2f: Face-to-face group creation
 displayProfile: Display your profile
 file: File
+unknownFile: "Unknown file"
 fileMessage: "[File]"
 fileSize: File size
 forgotPasswordPinCodeView: Enter verification code
@@ -271,3 +272,5 @@ sendMessage: Send Message
 switchToVoiceInput: Switch to voice input
 switchToKeyboardInput: Switch to keyboard input
 extraItems: Extras
+messageInputHint: Say something...
+invalidMessageType: "[Unsupported message]"

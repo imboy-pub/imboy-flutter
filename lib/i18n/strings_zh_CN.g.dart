@@ -1218,6 +1218,9 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '文件'
 	String get file => '文件';
 
+	/// zh-CN: '未知文件'
+	String get unknownFile => '未知文件';
+
 	/// zh-CN: '[文件]'
 	String get fileMessage => '[文件]';
 
@@ -1943,6 +1946,9 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: '附加项'
 	String get extraItems => '附加项';
+
+	/// zh-CN: '[不支持的消息]'
+	String get invalidMessageType => '[不支持的消息]';
 }
 
 // Path: common
@@ -2144,6 +2150,9 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '通话时长'
 	String get callDuration => '通话时长';
+
+	/// zh-CN: '通话已结束'
+	String get callEnded => '通话已结束';
 
 	/// zh-CN: '正在通话'
 	String get calling => '正在通话';
@@ -5468,6 +5477,15 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '开发者'
 	String get developer => '开发者';
+
+	/// zh-CN: '搜索失败，请重试'
+	String get searchFailedRetry => '搜索失败，请重试';
+
+	/// zh-CN: '消息搜索未启用'
+	String get searchDisabledTitle => '消息搜索未启用';
+
+	/// zh-CN: '端到端加密已开启，服务器无法读取消息内容，因此不提供全文搜索'
+	String get searchDisabledByEncryption => '端到端加密已开启，服务器无法读取消息内容，因此不提供全文搜索';
 }
 
 // Path: complaint
@@ -6194,6 +6212,12 @@ class Translations$groupSchedule$zh_CN {
 
 	/// zh-CN: '日程ID缺失，无法查看详情'
 	String get scheduleIdMissing => '日程ID缺失，无法查看详情';
+
+	/// zh-CN: '未命名日程'
+	String get untitledSchedule => '未命名日程';
+
+	/// zh-CN: '查看详情并确认参加'
+	String get cardViewAndAttend => '查看详情并确认参加';
 }
 
 // Path: groupTag
@@ -7235,6 +7259,9 @@ class Translations$main$zh_CN {
 
 	/// zh-CN: '请输入直播间标题'
 	String get liveRoomTitleHint => '请输入直播间标题';
+
+	/// zh-CN: '浅色模式'
+	String get lightModel => '浅色模式';
 }
 
 // Path: mention
@@ -7881,6 +7908,7 @@ extension on Translations {
 			'chat.extraPanelCollab' => '群协作',
 			'chat.extraPanelFunds' => '资金',
 			'chat.file' => '文件',
+			'chat.unknownFile' => '未知文件',
 			'chat.fileMessage' => '[文件]',
 			'chat.fileSize' => '文件大小',
 			'chat.forgotPasswordPinCodeView' => '忘记密码验证码视图',
@@ -8023,9 +8051,9 @@ extension on Translations {
 			'chat.readThresholdDelay' => '已读阈值与延时',
 			'chat.goodReadability' => '可读性良好',
 			'chat.profileCompleteness' => '资料完善度',
-			'chat.tagStatistics' => '标签统计',
 			_ => null,
 		} ?? switch (path) {
+			'chat.tagStatistics' => '标签统计',
 			'chat.alreadySent' => '已发送',
 			'chat.visibleRatioLabel' => '可见比例 (0.1~1.0)',
 			'chat.unsupportedMessageType' => '不支持的消息类型',
@@ -8125,6 +8153,7 @@ extension on Translations {
 			'chat.switchToVoiceInput' => '切换到语音输入',
 			'chat.switchToKeyboardInput' => '切换到键盘输入',
 			'chat.extraItems' => '附加项',
+			'chat.invalidMessageType' => '[不支持的消息]',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
@@ -8189,6 +8218,7 @@ extension on Translations {
 			'common.buttonTakingPictures' => '拍照',
 			'common.cacheTips' => '缓存是使用APP过程中产生的临时数据，清理缓存不会影响你的正常使用。',
 			'common.callDuration' => '通话时长',
+			'common.callEnded' => '通话已结束',
 			'common.calling' => '正在通话',
 			'common.canNotAddYourselfFriend' => '你不能添加自己为好友',
 			'common.cancel' => _root.common.buttonCancel,
@@ -8535,11 +8565,11 @@ extension on Translations {
 			'common.sureDeleteData' => '确认删除吗？删除后不可恢复。',
 			'common.sureDeleteGroupChatRecord' => '确定删除群的聊天记录吗？',
 			'common.switchEnvironment' => '切换环境',
+			_ => null,
+		} ?? switch (path) {
 			'common.thisMonth' => '本月',
 			'common.timeDaysAgo' => ({required Object param}) => '${param}天前',
 			'common.timeHoursAgo' => ({required Object param}) => '${param}小时前',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeJustNow' => '刚刚',
 			'common.timeMinutesAgo' => ({required Object param}) => '${param}分钟前',
 			'common.timeToday' => '今天',
@@ -9049,11 +9079,11 @@ extension on Translations {
 			'common.e2eeRecoverSuccess' => '恢复成功',
 			'common.e2eeRecoverFailed' => '恢复失败',
 			'common.e2eeRecoverKeyFailed' => '恢复密钥失败，请重试',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeLoadingShards' => '加载分片信息...',
 			'common.e2eeNoShards' => '没有可用的分片',
 			'common.e2eeLoadFailed' => '加载失败，请重试',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeContactingProxy' => ({required Object name}) => '正在联系: ${name}',
 			'common.e2eeRecoveryFailed' => '恢复失败，请重试',
 			'common.webFeatureNotification' => '桌面通知',
@@ -9301,6 +9331,9 @@ extension on Translations {
 			'common.fontSizeOptionExtraLarge' => '特大',
 			'common.fontSizeOptionHuge' => '超大',
 			'common.developer' => '开发者',
+			'common.searchFailedRetry' => '搜索失败，请重试',
+			'common.searchDisabledTitle' => '消息搜索未启用',
+			'common.searchDisabledByEncryption' => '端到端加密已开启，服务器无法读取消息内容，因此不提供全文搜索',
 			'complaint.complaint' => '投诉',
 			'complaintReason.spam' => '垃圾信息',
 			'complaintReason.harassment' => '骚扰',
@@ -9516,6 +9549,8 @@ extension on Translations {
 			'groupSchedule.declineAttend' => '不参加',
 			'groupSchedule.cancelSchedule' => '取消日程',
 			'groupSchedule.scheduleIdMissing' => '日程ID缺失，无法查看详情',
+			'groupSchedule.untitledSchedule' => '未命名日程',
+			'groupSchedule.cardViewAndAttend' => '查看详情并确认参加',
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
 			'groupTag.tagName' => '标签名称',
@@ -9558,6 +9593,8 @@ extension on Translations {
 			'groupVote.deadline' => '截止时间',
 			'groupVote.noDeadline' => '无截止时间',
 			'groupVote.noVote' => '暂无投票',
+			_ => null,
+		} ?? switch (path) {
 			'groupVote.voteEnded' => '投票已结束',
 			'groupVote.totalVotes' => ({required Object count}) => '共 ${count} 票',
 			'groupVote.voteSuccess' => '投票成功',
@@ -9566,8 +9603,6 @@ extension on Translations {
 			'groupVote.cancelVoteSuccess' => '已取消投票',
 			'groupVote.cancelVoteFailed' => '取消失败，请稍后重试',
 			'groupVote.endVoteFailed' => '结束失败，请稍后重试',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.eachOptionPerLine' => '每行一个选项',
 			'groupVote.statusInProgress' => '进行中',
 			'groupVote.updateVote' => '更新投票',
@@ -9853,6 +9888,7 @@ extension on Translations {
 			'main.e2eeProxyReachedMin' => '已达到最少代理数量',
 			'main.liveRoomTitleLabel' => '直播间标题',
 			'main.liveRoomTitleHint' => '请输入直播间标题',
+			'main.lightModel' => '浅色模式',
 			'mention.mentionAll' => '所有人',
 			'mention.mentionAllHint' => '通知所有群成员',
 			'mention.noMatchedMember' => '没有匹配的成员',

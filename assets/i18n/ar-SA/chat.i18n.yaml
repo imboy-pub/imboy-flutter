@@ -35,6 +35,7 @@ chatStatusSeenDesc: تمت قراءة الرسالة
 createGroupF2f: إنشاء مجموعة وجهاً لوجه
 displayProfile: عرض ملفك الشخصي
 file: ملف
+unknownFile: "ملف غير معروف"
 fileMessage: "[ملف]"
 fileSize: حجم الملف
 forgotPasswordPinCodeView: عرض رمز التحقق لنسيان كلمة المرور
@@ -277,3 +278,5 @@ liveRoomWatch: مشاهدة البث
 switchToVoiceInput: التبديل إلى الإدخال الصوتي
 switchToKeyboardInput: التبديل إلى إدخال لوحة المفاتيح
 extraItems: إضافات
+messageInputHint: اكتب رسالة...
+invalidMessageType: "[رسالة غير مدعومة]"

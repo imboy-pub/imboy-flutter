@@ -278,3 +278,4 @@ e2eeProxySelectedCount(selected, total): Выбрано $selected / $total
 e2eeProxyReachedMin: Достигнуто минимальное число посредников
 liveRoomTitleLabel: Название трансляции
 liveRoomTitleHint: Введите название трансляции
+lightModel: Светлая тема

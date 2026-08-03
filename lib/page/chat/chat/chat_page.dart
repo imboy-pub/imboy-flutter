@@ -53,6 +53,9 @@ import 'package:imboy/component/chat/mention_text_reducer.dart'
 
 // 显式导入 StorageService（解决编译错误）
 import 'package:imboy/service/storage.dart';
+// metadata 松散类型的防御性解析（status 不保证是 int）
+import 'package:imboy/store/model/model_parse_utils.dart'
+    show parseModelNullableInt;
 
 // 显式导入 E2EE 事件（barrel 用 show 白名单未含 E2EEPeerKeyChangedEvent）
 import 'package:imboy/service/events/message_events.dart';
@@ -66,6 +69,10 @@ import 'chat_message_item.dart';
 
 // 性能优化开关：设置为 true 使用优化的 ChatMessageList，false 使用原 ChatAnimatedList
 const bool _useOptimizedMessageList = false;
+
+/// 超过这个长度就不再判断"是否纯 emoji"（放大渲染对长文本没意义，
+/// 而 isOnlyEmoji 的正则会扫全文，每条可见消息每帧都跑）。
+const int _kOnlyEmojiScanMaxChars = 64;
 
 // 聊天页面主Widget
 class ChatPage extends ConsumerStatefulWidget {
@@ -856,8 +863,21 @@ class ChatPageState extends ConsumerState<ChatPage>
   // 移除了 _clearUnreadOnEnter()，依靠消息本身的可见性检查来渐进式消除未读数
 
   // 滚动到目标消息
-  Future<void> _scrollToTargetMessage() async {
-    if (widget.msgId.isEmpty) return;
+  /// 深链进页时定位到 widget.msgId
+  Future<void> _scrollToTargetMessage() =>
+      _scrollToMessageId(widget.msgId, retry: true);
+
+  /// 点击引用块跳回被引用的原消息。
+  /// 原消息可能已滚出已加载窗口（indexWhere == -1），此时静默不动——
+  /// 加载历史再定位是另一个能力，不在本次范围内。
+  void _onQuoteTap(String quotedMessageId) {
+    unawaited(_scrollToMessageId(quotedMessageId, retry: false));
+  }
+
+  /// 滚动并高亮指定消息。[retry] 为 true 时做渐进式重试（深链进页场景下
+  /// 列表可能尚未完成首帧布局）；用户主动点击时列表已就绪，一次即可。
+  Future<void> _scrollToMessageId(String msgId, {required bool retry}) async {
+    if (msgId.isEmpty) return;
 
     try {
       // 确保消息列表已加载
@@ -868,13 +888,14 @@ class ChatPageState extends ConsumerState<ChatPage>
       }
 
       // 查找目标消息在列表中的索引
-      final targetIndex = messages.indexWhere((m) => m.id == widget.msgId);
+      final targetIndex = messages.indexWhere((m) => m.id == msgId);
       if (targetIndex == -1) {
         return;
       }
+      final attempts = retry ? 15 : 1;
 
       // 增加重试次数和间隔，确保在复杂布局或低端机上也能成功定位
-      for (var attempt = 0; attempt < 15; attempt++) {
+      for (var attempt = 0; attempt < attempts; attempt++) {
         // 检查 widget 是否仍然 mounted
         if (!mounted) {
           return;
@@ -892,7 +913,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             .read(chatProvider.notifier)
             .chatService
             ?.scrollToMessage(
-              widget.msgId,
+              msgId,
               duration: const Duration(milliseconds: 500),
               offset: 120.0, // 增加偏移量，避开 AppBar
             );
@@ -905,24 +926,22 @@ class ChatPageState extends ConsumerState<ChatPage>
 
       // 无论是否成功通过 Key 定位，最后都尝试高亮（如果消息在列表中）
       if (mounted) {
-        ref
-            .read(messageScrollManagerProvider.notifier)
-            .highlightMessage(widget.msgId);
+        ref.read(messageScrollManagerProvider.notifier).highlightMessage(msgId);
       }
     } catch (e) {
-      _fallbackScrollToMessage();
+      _fallbackScrollToMessage(msgId);
     }
   }
 
   // 降级滚动方法
-  void _fallbackScrollToMessage() {
+  void _fallbackScrollToMessage(String msgId) {
     try {
       // 检查 widget 是否仍然 mounted
       if (!mounted) return;
 
       final messages =
           ref.read(chatProvider.notifier).chatService?.messages ?? [];
-      final targetIndex = messages.indexWhere((m) => m.id == widget.msgId);
+      final targetIndex = messages.indexWhere((m) => m.id == msgId);
 
       if (targetIndex == -1) return;
 
@@ -1114,24 +1133,6 @@ class ChatPageState extends ConsumerState<ChatPage>
         }
       }
     }
-  }
-
-  /// 处理贴图选择
-  Future<void> _handleStickerSelection() async {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => StickerPicker(
-        onStickerSelected: (sticker) async {
-          Navigator.of(context).pop();
-          await _attachmentHandler.sendExpressionMessage(
-            context,
-            sticker.url,
-            sticker.text,
-          );
-        },
-      ),
-    );
   }
 
   // 消息双击事件
@@ -1662,7 +1663,6 @@ class ChatPageState extends ConsumerState<ChatPage>
                   handleLocationSelection: _handleLocationSelection,
                   handleVisitCardSelection: _handleVisitCardSelection,
                   handleCollectSelection: _handleCollectSelection,
-                  handleStickerSelection: _handleStickerSelection,
                   handleRedPacketSelection: handleRedPacketSelection,
                   handleTransferSelection: handleTransferSelection,
                   options: {
@@ -1861,10 +1861,33 @@ class ChatPageState extends ConsumerState<ChatPage>
                 .read(chatProvider.notifier)
                 .chatService
                 ?.messages;
-            return CustomMessageBuilder(
-              type: _chatType,
-              message: message,
-              messages: allMessages,
+            // 撤回消息（status 30/31）不按原类型念，否则读屏会把一条
+            // "已撤回" 念成 "对方发来的图片"。
+            //
+            // 用 parseModelNullableInt 而非 `as int?`：status 从 SQLite / JSON
+            // 回来时不保证是 int（message_model.dart 对同一字段也是这么防的）。
+            // 这里位于 build 闭包内、外层没有 try/catch，强转失败会整屏红。
+            final status = parseModelNullableInt(message.metadata?['status']);
+            final isRevoked = IMBoyMessageStatus.isRevokedStatus(status);
+            final msgType =
+                (message.metadata?['effective_msg_type'] ??
+                        message.metadata?['msg_type'] ??
+                        '')
+                    .toString();
+            final kind = isRevoked
+                ? t.common.messageRevoked
+                : messageKindLabel(msgType);
+            return semanticMessage(
+              isSentByMe: isSentByMe,
+              kind: kind,
+              // 撤回后的气泡只是一行提示，点不了
+              isButton: !isRevoked && messageKindIsTappable(msgType),
+              child: CustomMessageBuilder(
+                type: _chatType,
+                message: message,
+                messages: allMessages,
+                onQuoteTap: _onQuoteTap,
+              ),
             );
           },
       imageMessageBuilder:
@@ -1931,8 +1954,23 @@ class ChatPageState extends ConsumerState<ChatPage>
                 .values
                 .toSet();
             final projected = MentionTextReducer.applyTo(message, activeNames);
+            // 纯 emoji 消息去掉气泡、放大到 48px（FlyerChatTextMessage 读
+            // metadata.isOnlyEmoji 决定）。这是"发个大表情"的唯一实现路径——
+            // 不再有第二个伪贴图消息类型，见 sticker_picker 删除记录。
+            //
+            // 长度短路：isOnlyEmoji 的正则很大，且会对全文跑 replaceAll。
+            // 这里每条可见文本消息每帧都会走一次，长文没必要扫——
+            // 放大渲染本来也只对寥寥几个 emoji 有意义（48px × 超过 8 个
+            // 已经撑满一行）。上限：极端多 emoji 的消息不放大，可接受。
+            final maybeOnlyEmoji =
+                projected.text.length <= _kOnlyEmojiScanMaxChars &&
+                isOnlyEmoji(projected.text);
             return FlyerChatTextMessage(
-              message: projected,
+              message: maybeOnlyEmoji
+                  ? projected.copyWith(
+                      metadata: {...?projected.metadata, 'isOnlyEmoji': true},
+                    )
+                  : projected,
               index: index,
               showStatus: false,
               showTime: true,

@@ -404,6 +404,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get createGroupF2f => 'Face-to-face group creation';
 	@override String get displayProfile => 'Display your profile';
 	@override String get file => 'File';
+	@override String get unknownFile => 'Unknown file';
 	@override String get fileMessage => '[File]';
 	@override String get fileSize => 'File size';
 	@override String get forgotPasswordPinCodeView => 'Enter verification code';
@@ -648,6 +649,8 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get switchToVoiceInput => 'Switch to voice input';
 	@override String get switchToKeyboardInput => 'Switch to keyboard input';
 	@override String get extraItems => 'Extras';
+	@override String get messageInputHint => 'Say something...';
+	@override String get invalidMessageType => '[Unsupported message]';
 }
 
 // Path: common
@@ -716,6 +719,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get buttonTakingPictures => 'Camera';
 	@override String get cacheTips => 'Cache is temporary data generated during app usage. Clearing cache will not affect your normal use.';
 	@override String get callDuration => 'Call duration';
+	@override String get callEnded => 'Call ended';
 	@override String get calling => 'Calling';
 	@override String get canNotAddYourselfFriend => 'You cannot add yourself as a friend';
 	@override String get cancel => _root.common.buttonCancel;
@@ -1759,6 +1763,15 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get enterFullscreen => 'Enter fullscreen';
 	@override String get exitFullscreen => 'Exit fullscreen';
 	@override String get developer => 'Developer';
+	@override String get fontSizeOptionSmall => 'Small';
+	@override String get fontSizeOptionNormal => 'Standard';
+	@override String get fontSizeOptionMedium => 'Medium';
+	@override String get fontSizeOptionLarge => 'Large';
+	@override String get fontSizeOptionExtraLarge => 'Extra large';
+	@override String get fontSizeOptionHuge => 'Huge';
+	@override String get searchFailedRetry => 'Search failed, please try again';
+	@override String get searchDisabledTitle => 'Message search unavailable';
+	@override String get searchDisabledByEncryption => 'End-to-end encryption is on, so the server cannot read your messages and full-text search is not available';
 }
 
 // Path: complaint
@@ -2053,6 +2066,8 @@ class _Translations$groupSchedule$en_US extends Translations$groupSchedule$zh_CN
 	@override String get declineAttend => 'Decline';
 	@override String get cancelSchedule => 'Cancel Schedule';
 	@override String get scheduleIdMissing => 'Schedule ID missing, cannot view details';
+	@override String get untitledSchedule => 'Untitled schedule';
+	@override String get cardViewAndAttend => 'View details and RSVP';
 }
 
 // Path: groupTag
@@ -2424,6 +2439,7 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get liveRoomTitleLabel => 'Live Room Title';
 	@override String get liveRoomTitleHint => 'Enter live room title';
 	@override String channelPriceLabel({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}';
+	@override String get lightModel => 'Light mode';
 }
 
 // Path: mention
@@ -2853,6 +2869,7 @@ extension on TranslationsEnUs {
 			'chat.createGroupF2f' => 'Face-to-face group creation',
 			'chat.displayProfile' => 'Display your profile',
 			'chat.file' => 'File',
+			'chat.unknownFile' => 'Unknown file',
 			'chat.fileMessage' => '[File]',
 			'chat.fileSize' => 'File size',
 			'chat.forgotPasswordPinCodeView' => 'Enter verification code',
@@ -3059,9 +3076,9 @@ extension on TranslationsEnUs {
 			'chat.webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
 			'chat.webFeatureE2EE' => 'End-to-End Encryption',
 			'chat.webFeatureE2EEDesc' => 'All messages are end-to-end encrypted, ensuring privacy and security',
-			'chat.webFeatureFileTransfer' => 'File Transfer',
 			_ => null,
 		} ?? switch (path) {
+			'chat.webFeatureFileTransfer' => 'File Transfer',
 			'chat.webFeatureFileTransferDesc' => 'Drag and drop to send files, supports various formats',
 			'chat.webQRStatusWaiting' => 'Open ImBoy on your phone > Settings > Scan',
 			'chat.webQRStatusScanned' => 'Please tap "Confirm Login" on your phone',
@@ -3099,6 +3116,8 @@ extension on TranslationsEnUs {
 			'chat.switchToVoiceInput' => 'Switch to voice input',
 			'chat.switchToKeyboardInput' => 'Switch to keyboard input',
 			'chat.extraItems' => 'Extras',
+			'chat.messageInputHint' => 'Say something...',
+			'chat.invalidMessageType' => '[Unsupported message]',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -3158,6 +3177,7 @@ extension on TranslationsEnUs {
 			'common.buttonTakingPictures' => 'Camera',
 			'common.cacheTips' => 'Cache is temporary data generated during app usage. Clearing cache will not affect your normal use.',
 			'common.callDuration' => 'Call duration',
+			'common.callEnded' => 'Call ended',
 			'common.calling' => 'Calling',
 			'common.canNotAddYourselfFriend' => 'You cannot add yourself as a friend',
 			'common.cancel' => _root.common.buttonCancel,
@@ -3570,12 +3590,12 @@ extension on TranslationsEnUs {
 			'common.feedbackSlogan' => 'Your suggestions are our motivation for improvement',
 			'common.newFeedback' => 'New feedback',
 			'common.feedbackHistory' => 'Feedback history',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmDelete' => 'Confirm delete',
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => 'Verification code',
 			'common.feedbackContent' => 'Feedback content',
-			_ => null,
-		} ?? switch (path) {
 			'common.officialReply' => 'Official reply',
 			'common.setPasswordSecurityTips' => 'Set a login password to enhance security and ensure you can always access your account.',
 			'common.locationHidden' => 'Your location has been hidden',
@@ -4084,12 +4104,12 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupNoRecords' => 'No backup records',
 			'common.e2eeBackupNoRecordsHint' => 'Backup history will appear here after exporting',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Device ${id}',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => 'Created at ${time}',
 			'common.e2eeBackupDetailTitle' => 'Backup details',
 			'common.e2eeBackupDeviceIdLabel' => 'Device ID',
 			'common.e2eeBackupVersionNum' => 'Backup version',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupCreatedAtRow' => 'Created at',
 			'common.e2eeBackupFileSizeRow' => 'File size',
 			'common.e2eeBackupNoteRow' => 'Note',
@@ -4205,6 +4225,15 @@ extension on TranslationsEnUs {
 			'common.enterFullscreen' => 'Enter fullscreen',
 			'common.exitFullscreen' => 'Exit fullscreen',
 			'common.developer' => 'Developer',
+			'common.fontSizeOptionSmall' => 'Small',
+			'common.fontSizeOptionNormal' => 'Standard',
+			'common.fontSizeOptionMedium' => 'Medium',
+			'common.fontSizeOptionLarge' => 'Large',
+			'common.fontSizeOptionExtraLarge' => 'Extra large',
+			'common.fontSizeOptionHuge' => 'Huge',
+			'common.searchFailedRetry' => 'Search failed, please try again',
+			'common.searchDisabledTitle' => 'Message search unavailable',
+			'common.searchDisabledByEncryption' => 'End-to-end encryption is on, so the server cannot read your messages and full-text search is not available',
 			'complaint.complaint' => 'Complaint',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harassment',
@@ -4418,6 +4447,8 @@ extension on TranslationsEnUs {
 			'groupSchedule.declineAttend' => 'Decline',
 			'groupSchedule.cancelSchedule' => 'Cancel Schedule',
 			'groupSchedule.scheduleIdMissing' => 'Schedule ID missing, cannot view details',
+			'groupSchedule.untitledSchedule' => 'Untitled schedule',
+			'groupSchedule.cardViewAndAttend' => 'View details and RSVP',
 			'groupTag.title' => 'Group Tags',
 			'groupTag.addTag' => 'Add Tag',
 			'groupTag.tagName' => 'Tag Name',
@@ -4587,6 +4618,8 @@ extension on TranslationsEnUs {
 			'main.speed' => 'Speed',
 			'main.star' => _root.main.markStar,
 			'main.stillNeeded' => 'Still need',
+			_ => null,
+		} ?? switch (path) {
 			'main.storageSpace' => 'Storage space',
 			'main.termOfServices' => 'Terms of service',
 			'main.text' => 'Text',
@@ -4602,8 +4635,6 @@ extension on TranslationsEnUs {
 			'main.unnamed' => 'Unnamed',
 			'main.upToWords' => ({required Object param}) => 'Up to ${param} characters',
 			'main.upgrade' => 'Upgrade',
-			_ => null,
-		} ?? switch (path) {
 			'main.usedSpace' => 'Used space',
 			'main.webView' => 'Web page',
 			'main.you' => 'You',
@@ -4755,6 +4786,7 @@ extension on TranslationsEnUs {
 			'main.liveRoomTitleLabel' => 'Live Room Title',
 			'main.liveRoomTitleHint' => 'Enter live room title',
 			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}',
+			'main.lightModel' => 'Light mode',
 			'mention.mentionAll' => 'Everyone',
 			'mention.mentionAllHint' => 'Notify all group members',
 			'mention.noMatchedMember' => 'No matching members',

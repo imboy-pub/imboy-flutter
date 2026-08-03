@@ -221,6 +221,7 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get loading => 'جاري التحميل...';
 	@override String get subscribed => 'مشترك';
 	@override String get managed => 'مُدار';
+	@override String get writeArticle => 'كتابة منشور';
 	@override String get discover => 'استكشف';
 	@override String get search => 'بحث';
 	@override String get create => 'إنشاء قناة';
@@ -341,6 +342,15 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get qrcode => 'رمز QR للقناة';
 	@override String qrcodeTips({required Object days, required Object date}) => 'رمز QR صالح لمدة ${days} أيام (حتى ${date})';
 	@override String get defaultName => 'قناة بدون اسم';
+	@override String get noMessagesManaged => 'لم يُنشر أي محتوى في القناة بعد';
+	@override String get noMessagesManagedDesc => 'بصفتك مالك القناة، يمكنك نشر أول محتوى باستخدام الزر أدناه';
+	@override String get noMessagesVisitor => 'اشترك لعرض محتوى القناة';
+	@override String get noMessagesVisitorDesc => 'سيظهر محتوى القناة بعد الاشتراك';
+	@override String get noMessagesSubscribed => 'لم تنشر القناة أي محتوى بعد';
+	@override String get noMessagesSubscribedDesc => 'تم الاشتراك بنجاح! يرجى انتظار منشورات جديدة من الكاتب';
+	@override String get continueEditing => 'متابعة التعديل';
+	@override String get publishFirstContent => 'نشر أول محتوى';
+	@override String get noSubscribersDesc => 'لا يوجد مشتركون بعد، شارك القناة مع أصدقائك';
 }
 
 // Path: chat
@@ -386,6 +396,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get createGroupF2f => 'إنشاء مجموعة وجهاً لوجه';
 	@override String get displayProfile => 'عرض ملفك الشخصي';
 	@override String get file => 'ملف';
+	@override String get unknownFile => 'ملف غير معروف';
 	@override String get fileMessage => '[ملف]';
 	@override String get fileSize => 'حجم الملف';
 	@override String get forgotPasswordPinCodeView => 'عرض رمز التحقق لنسيان كلمة المرور';
@@ -622,6 +633,8 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get switchToVoiceInput => 'التبديل إلى الإدخال الصوتي';
 	@override String get switchToKeyboardInput => 'التبديل إلى إدخال لوحة المفاتيح';
 	@override String get extraItems => 'إضافات';
+	@override String get messageInputHint => 'اكتب رسالة...';
+	@override String get invalidMessageType => '[رسالة غير مدعومة]';
 }
 
 // Path: common
@@ -690,6 +703,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get buttonTakingPictures => 'التقاط صورة';
 	@override String get cacheTips => 'الذاكرة المؤقتة هي بيانات مؤقتة تُنشأ أثناء استخدام التطبيق، مسح الذاكرة المؤقتة لن يؤثر على استخدامك العادي.';
 	@override String get callDuration => 'مدة المكالمة';
+	@override String get callEnded => 'انتهت المكالمة';
 	@override String get calling => 'جارٍ الاتصال';
 	@override String get canNotAddYourselfFriend => 'لا يمكنك إضافة نفسك كصديق';
 	@override String get cancel => _root.common.buttonCancel;
@@ -1733,6 +1747,15 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get enterFullscreen => 'الدخول لوضع ملء الشاشة';
 	@override String get exitFullscreen => 'الخروج من وضع ملء الشاشة';
 	@override String get developer => 'مطوّر';
+	@override String get fontSizeOptionSmall => 'صغير';
+	@override String get fontSizeOptionNormal => 'قياسي';
+	@override String get fontSizeOptionMedium => 'متوسط';
+	@override String get fontSizeOptionLarge => 'كبير';
+	@override String get fontSizeOptionExtraLarge => 'كبير جدًا';
+	@override String get fontSizeOptionHuge => 'ضخم';
+	@override String get searchFailedRetry => 'فشل البحث، يرجى المحاولة مرة أخرى';
+	@override String get searchDisabledTitle => 'بحث الرسائل غير متاح';
+	@override String get searchDisabledByEncryption => 'التشفير التام مُفعّل، لذا لا يستطيع الخادم قراءة رسائلك ولا يتوفر البحث في النص الكامل';
 }
 
 // Path: complaint
@@ -2021,6 +2044,8 @@ class _Translations$groupSchedule$ar_SA extends Translations$groupSchedule$zh_CN
 	@override String get declineAttend => 'لن أحضر';
 	@override String get cancelSchedule => 'إلغاء الفعالية';
 	@override String get scheduleIdMissing => 'معرّف الفعالية مفقود، لا يمكن عرض التفاصيل';
+	@override String get untitledSchedule => 'موعد بدون عنوان';
+	@override String get cardViewAndAttend => 'عرض التفاصيل وتأكيد الحضور';
 }
 
 // Path: groupTag
@@ -2392,6 +2417,7 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get e2eeProxyReachedMin => 'تم بلوغ الحد الأدنى للوكلاء';
 	@override String get liveRoomTitleLabel => 'عنوان الغرفة';
 	@override String get liveRoomTitleHint => 'أدخل عنوان الغرفة';
+	@override String get lightModel => 'الوضع الفاتح';
 }
 
 // Path: mention
@@ -2647,6 +2673,7 @@ extension on TranslationsArSa {
 			'channel.loading' => 'جاري التحميل...',
 			'channel.subscribed' => 'مشترك',
 			'channel.managed' => 'مُدار',
+			'channel.writeArticle' => 'كتابة منشور',
 			'channel.discover' => 'استكشف',
 			'channel.search' => 'بحث',
 			'channel.create' => 'إنشاء قناة',
@@ -2767,6 +2794,15 @@ extension on TranslationsArSa {
 			'channel.qrcode' => 'رمز QR للقناة',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => 'رمز QR صالح لمدة ${days} أيام (حتى ${date})',
 			'channel.defaultName' => 'قناة بدون اسم',
+			'channel.noMessagesManaged' => 'لم يُنشر أي محتوى في القناة بعد',
+			'channel.noMessagesManagedDesc' => 'بصفتك مالك القناة، يمكنك نشر أول محتوى باستخدام الزر أدناه',
+			'channel.noMessagesVisitor' => 'اشترك لعرض محتوى القناة',
+			'channel.noMessagesVisitorDesc' => 'سيظهر محتوى القناة بعد الاشتراك',
+			'channel.noMessagesSubscribed' => 'لم تنشر القناة أي محتوى بعد',
+			'channel.noMessagesSubscribedDesc' => 'تم الاشتراك بنجاح! يرجى انتظار منشورات جديدة من الكاتب',
+			'channel.continueEditing' => 'متابعة التعديل',
+			'channel.publishFirstContent' => 'نشر أول محتوى',
+			'channel.noSubscribersDesc' => 'لا يوجد مشتركون بعد، شارك القناة مع أصدقائك',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.cards' => 'بطاقات',
 			'chat.jdShopping' => 'تسوق JD',
@@ -2803,6 +2839,7 @@ extension on TranslationsArSa {
 			'chat.createGroupF2f' => 'إنشاء مجموعة وجهاً لوجه',
 			'chat.displayProfile' => 'عرض ملفك الشخصي',
 			'chat.file' => 'ملف',
+			'chat.unknownFile' => 'ملف غير معروف',
 			'chat.fileMessage' => '[ملف]',
 			'chat.fileSize' => 'حجم الملف',
 			'chat.forgotPasswordPinCodeView' => 'عرض رمز التحقق لنسيان كلمة المرور',
@@ -3017,6 +3054,8 @@ extension on TranslationsArSa {
 			'chat.e2eeSocialUsedAtLabel' => 'وقت الاستخدام',
 			'chat.e2eeTransferSendTitle' => 'إرسال المفتاح إلى جهاز جديد',
 			'chat.e2eeTransferCreateBtn' => 'إنشاء',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeTransferReceiveTitle' => 'استقبال المفتاح من الجهاز القديم',
 			'chat.e2eeTransferSendDesc' => 'نقل المفتاح إلى جهاز جديد عبر رمز QR',
 			'chat.e2eeTransferReceiveDesc' => 'امسح رمز QR للجهاز القديم لاستقبال المفتاح',
@@ -3028,8 +3067,6 @@ extension on TranslationsArSa {
 			'chat.e2eeKeyRecreated' => 'تمت إعادة إنشاء المفتاح',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'تم رصد دخول من جهاز جديد',
 			'chat.e2eeRecoveryNewDeviceBody' => 'لحماية الرسائل، أنشأ هذا الجهاز مفتاح تشفير من طرف إلى طرف جديد.\n\nالرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ويجب استعادة المفتاح أولاً لعرضها. يمكنك الاستعادة عبر «نقل الأجهزة» أو «الاستعادة الاجتماعية» أو استيراد نسخة محلية.',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'تعذّر فك تشفير هذه الرسالة',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'هذه الرسالة مشفّرة بمفتاح جهاز آخر.\n\nإذا غيّرت الجهاز أو أعدت تثبيت التطبيق، فاستعد مفتاح التشفير لعرض الرسائل السابقة.',
 			'chat.e2eeRecoveryLater' => 'لاحقاً',
@@ -3041,6 +3078,8 @@ extension on TranslationsArSa {
 			'chat.switchToVoiceInput' => 'التبديل إلى الإدخال الصوتي',
 			'chat.switchToKeyboardInput' => 'التبديل إلى إدخال لوحة المفاتيح',
 			'chat.extraItems' => 'إضافات',
+			'chat.messageInputHint' => 'اكتب رسالة...',
+			'chat.invalidMessageType' => '[رسالة غير مدعومة]',
 			'common.about' => 'حول',
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
@@ -3100,6 +3139,7 @@ extension on TranslationsArSa {
 			'common.buttonTakingPictures' => 'التقاط صورة',
 			'common.cacheTips' => 'الذاكرة المؤقتة هي بيانات مؤقتة تُنشأ أثناء استخدام التطبيق، مسح الذاكرة المؤقتة لن يؤثر على استخدامك العادي.',
 			'common.callDuration' => 'مدة المكالمة',
+			'common.callEnded' => 'انتهت المكالمة',
 			'common.calling' => 'جارٍ الاتصال',
 			'common.canNotAddYourselfFriend' => 'لا يمكنك إضافة نفسك كصديق',
 			'common.cancel' => _root.common.buttonCancel,
@@ -3528,6 +3568,8 @@ extension on TranslationsArSa {
 			'common.officialReply' => 'الرد الرسمي',
 			'common.setPasswordSecurityTips' => 'لتحسين أمان الحساب ومنع عدم القدرة على تسجيل الدخول بسبب عدم القدرة على الحصول على رمز التحقق، يرجى تعيين كلمة مرور تسجيل الدخول.',
 			'common.locationHidden' => 'تم إخفاء موقعك',
+			_ => null,
+		} ?? switch (path) {
 			'common.locationVisible' => 'تم عرض موقعك',
 			'common.noNearbyPeople' => 'لا يوجد أشخاص قريبون',
 			'common.clickSearchButtonToFind' => 'انقر على زر البحث أعلاه للعثور على أشخاص قريبين',
@@ -3542,8 +3584,6 @@ extension on TranslationsArSa {
 			'common.selectExpirationDateOptional' => 'اختيار تاريخ انتهاء الصلاحية (اختياري)',
 			'common.groupAnnouncementDeleteConfirm' => 'هل أنت متأكد من حذف هذا الإعلان؟',
 			'common.groupAnnouncementDelete' => 'حذف',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementLoadFailed' => 'تعذّر تحميل الإعلان، حاول لاحقاً',
 			'common.groupAnnouncementPublishFailed' => 'تعذّر نشر الإعلان',
 			'common.groupAnnouncementPublishSuccess' => 'تم نشر الإعلان',
@@ -4042,6 +4082,8 @@ extension on TranslationsArSa {
 			'common.e2eeBackupDeleteTitle' => 'حذف سجل النسخة',
 			'common.e2eeBackupDeleteConfirm' => 'حذف سجل النسخة هذا؟',
 			'common.e2eeBackupDeleteSuccess' => 'تم حذف السجل',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCloudUploadBtn' => 'النسخ الاحتياطي إلى السحابة',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'فشل النسخ السحابي، يرجى المحاولة مرة أخرى',
@@ -4056,8 +4098,6 @@ extension on TranslationsArSa {
 			'common.e2eeSocialShardSettings' => 'إعدادات الشظايا',
 			'common.e2eeSocialShardStoredNote' => 'تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية',
 			'common.e2eeSocialAddProxy' => 'إضافة وكيل',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialAddProxyHint' => 'أضف جهات اتصال كوكلاء',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'أضف ${count} وكلاء آخرين',
 			'common.e2eeSocialCreateSuccessTitle' => 'تم إنشاء الشظايا',
@@ -4147,6 +4187,15 @@ extension on TranslationsArSa {
 			'common.enterFullscreen' => 'الدخول لوضع ملء الشاشة',
 			'common.exitFullscreen' => 'الخروج من وضع ملء الشاشة',
 			'common.developer' => 'مطوّر',
+			'common.fontSizeOptionSmall' => 'صغير',
+			'common.fontSizeOptionNormal' => 'قياسي',
+			'common.fontSizeOptionMedium' => 'متوسط',
+			'common.fontSizeOptionLarge' => 'كبير',
+			'common.fontSizeOptionExtraLarge' => 'كبير جدًا',
+			'common.fontSizeOptionHuge' => 'ضخم',
+			'common.searchFailedRetry' => 'فشل البحث، يرجى المحاولة مرة أخرى',
+			'common.searchDisabledTitle' => 'بحث الرسائل غير متاح',
+			'common.searchDisabledByEncryption' => 'التشفير التام مُفعّل، لذا لا يستطيع الخادم قراءة رسائلك ولا يتوفر البحث في النص الكامل',
 			'complaint.complaint' => 'شكوى',
 			'complaintReason.spam' => 'رسائل مزعجة',
 			'complaintReason.harassment' => 'مضايقة',
@@ -4354,6 +4403,8 @@ extension on TranslationsArSa {
 			'groupSchedule.declineAttend' => 'لن أحضر',
 			'groupSchedule.cancelSchedule' => 'إلغاء الفعالية',
 			'groupSchedule.scheduleIdMissing' => 'معرّف الفعالية مفقود، لا يمكن عرض التفاصيل',
+			'groupSchedule.untitledSchedule' => 'موعد بدون عنوان',
+			'groupSchedule.cardViewAndAttend' => 'عرض التفاصيل وتأكيد الحضور',
 			'groupTag.title' => 'وسوم المجموعة',
 			'groupTag.addTag' => 'إضافة وسم',
 			'groupTag.tagName' => 'اسم الوسم',
@@ -4545,6 +4596,8 @@ extension on TranslationsArSa {
 			'main.zhCn' => 'الصينية المبسطة',
 			'main.zhHant' => 'الصينية التقليدية',
 			'main.bound' => 'تم الربط',
+			_ => null,
+		} ?? switch (path) {
 			'main.correct' => 'صحيح',
 			'main.pendingInput' => 'في انتظار الإدخال',
 			'main.lengthCheck' => 'فحص الطول',
@@ -4570,8 +4623,6 @@ extension on TranslationsArSa {
 			'main.thisIsAuxiliaryText' => 'هذا نص توضيحي مساعد',
 			'main.toBeCompleted' => 'يجب إكماله',
 			'main.availableCount' => 'قابل للاختيار',
-			_ => null,
-		} ?? switch (path) {
 			'main.mostUsed' => 'الأكثر استخداماً',
 			'main.commentPlaceholder' => 'تعليق...',
 			'main.delayMsLabel' => 'تأخير بالمللي ثانية (>=100)',
@@ -4691,6 +4742,7 @@ extension on TranslationsArSa {
 			'main.e2eeProxyReachedMin' => 'تم بلوغ الحد الأدنى للوكلاء',
 			'main.liveRoomTitleLabel' => 'عنوان الغرفة',
 			'main.liveRoomTitleHint' => 'أدخل عنوان الغرفة',
+			'main.lightModel' => 'الوضع الفاتح',
 			'mention.mentionAll' => 'الجميع',
 			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
 			'mention.noMatchedMember' => 'لا يوجد أعضاء مطابقون',

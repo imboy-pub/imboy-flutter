@@ -57,6 +57,7 @@ buttonSubmit: 提交
 buttonTakingPictures: 拍照
 cacheTips: 快取是使用應用過程中產生的暫時資料，清理快取不會影響您的正常使用。
 callDuration: 通話時長
+callEnded: "通話已結束"
 calling: 正在通話
 canNotAddYourselfFriend: 您不能新增自己為好友
 cancel: '@:common.buttonCancel'
@@ -1100,3 +1101,12 @@ resumeScan: 繼續掃描
 enterFullscreen: 進入全螢幕
 exitFullscreen: 退出全螢幕
 developer: 開發者
+fontSizeOptionSmall: 小
+fontSizeOptionNormal: 標準
+fontSizeOptionMedium: 中
+fontSizeOptionLarge: 大
+fontSizeOptionExtraLarge: 特大
+fontSizeOptionHuge: 超大
+searchFailedRetry: "搜尋失敗，請重試"
+searchDisabledTitle: "訊息搜尋未啟用"
+searchDisabledByEncryption: "已開啟端對端加密，伺服器無法讀取訊息內容，因此不提供全文搜尋"

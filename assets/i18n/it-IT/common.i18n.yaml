@@ -58,6 +58,7 @@ buttonSubmit: Invia
 buttonTakingPictures: Scatta foto
 cacheTips: La cache è dati temporanei generati durante l'uso dell'APP, pulire la cache non influirà sull'utilizzo normale.
 callDuration: Durata della chiamata
+callEnded: "Chiamata terminata"
 calling: In chiamata
 canNotAddYourselfFriend: Non puoi aggiungere te stesso come amico
 cancel: "@:common.buttonCancel"
@@ -1101,3 +1102,12 @@ resumeScan: Riprendi la scansione
 enterFullscreen: Attiva schermo intero
 exitFullscreen: Esci da schermo intero
 developer: Sviluppatore
+fontSizeOptionSmall: Piccolo
+fontSizeOptionNormal: Standard
+fontSizeOptionMedium: Medio
+fontSizeOptionLarge: Grande
+fontSizeOptionExtraLarge: Molto grande
+fontSizeOptionHuge: Enorme
+searchFailedRetry: "Ricerca non riuscita, riprova"
+searchDisabledTitle: "Ricerca messaggi non disponibile"
+searchDisabledByEncryption: "La crittografia end-to-end è attiva: il server non può leggere i messaggi, quindi la ricerca full-text non è disponibile"

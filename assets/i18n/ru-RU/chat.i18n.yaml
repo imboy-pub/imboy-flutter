@@ -35,6 +35,7 @@ chatStatusSeenDesc: Сообщение прочитано
 createGroupF2f: Создать группу лицом к лицу
 displayProfile: Показать ваш профиль
 file: Файл
+unknownFile: "Неизвестный файл"
 fileMessage: "[Файл]"
 fileSize: Размер файла
 forgotPasswordPinCodeView: PIN-код забытого пароля
@@ -277,3 +278,5 @@ liveRoomWatch: Смотреть трансляцию
 switchToVoiceInput: Переключиться на голосовой ввод
 switchToKeyboardInput: Переключиться на ввод с клавиатуры
 extraItems: Дополнительно
+messageInputHint: Напишите сообщение...
+invalidMessageType: "[Неподдерживаемое сообщение]"

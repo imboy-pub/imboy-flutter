@@ -23,3 +23,5 @@ confirmAttend: 确认参加
 declineAttend: 不参加
 cancelSchedule: 取消日程
 scheduleIdMissing: 日程ID缺失，无法查看详情
+untitledSchedule: "未命名日程"
+cardViewAndAttend: "查看详情并确认参加"

@@ -4,6 +4,7 @@ title: القنوات
 loading: جاري التحميل...
 subscribed: مشترك
 managed: مُدار
+writeArticle: كتابة منشور
 discover: استكشف
 search: بحث
 create: إنشاء قناة
@@ -124,3 +125,12 @@ shareToChat: إرسال إلى صديق
 qrcode: رمز QR للقناة
 qrcodeTips: رمز QR صالح لمدة $days أيام (حتى $date)
 defaultName: قناة بدون اسم
+noMessagesManaged: لم يُنشر أي محتوى في القناة بعد
+noMessagesManagedDesc: بصفتك مالك القناة، يمكنك نشر أول محتوى باستخدام الزر أدناه
+noMessagesVisitor: اشترك لعرض محتوى القناة
+noMessagesVisitorDesc: سيظهر محتوى القناة بعد الاشتراك
+noMessagesSubscribed: لم تنشر القناة أي محتوى بعد
+noMessagesSubscribedDesc: تم الاشتراك بنجاح! يرجى انتظار منشورات جديدة من الكاتب
+continueEditing: متابعة التعديل
+publishFirstContent: نشر أول محتوى
+noSubscribersDesc: لا يوجد مشتركون بعد، شارك القناة مع أصدقائك

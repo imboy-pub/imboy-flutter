@@ -278,3 +278,4 @@ e2eeProxySelectedCount(selected, total): "$selected / $total 선택됨"
 e2eeProxyReachedMin: 최소 대리자 수에 도달했습니다
 liveRoomTitleLabel: 라이브 룸 제목
 liveRoomTitleHint: 라이브 룸 제목을 입력하세요
+lightModel: 라이트 모드

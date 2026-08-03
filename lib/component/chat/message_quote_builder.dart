@@ -44,15 +44,18 @@ class QuoteMessageBuilder extends StatelessWidget {
     }
 
     String text = message.metadata?['quote_text'] as String? ?? '';
+    // 引用块底色：发送方叠在品牌蓝气泡上用半透明白，接收方按主题叠白/黑。
     final bubbleColor = userIsAuthor
-        ? Colors.white.withValues(alpha: 0.15)
+        ? AppColors.mediaScrimWhite.withValues(alpha: 0.15)
         : (isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Colors.black.withValues(alpha: 0.05));
+              ? AppColors.mediaScrimWhite.withValues(alpha: 0.05)
+              : AppColors.overlayBlack5);
     final textColor = userIsAuthor
-        ? Colors.white
+        ? AppColors.sentMessageText
         : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
-    final barColor = userIsAuthor ? Colors.white70 : AppColors.primary;
+    final barColor = userIsAuthor
+        ? AppColors.overlayWhite70
+        : AppColors.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,7 +70,9 @@ class QuoteMessageBuilder extends StatelessWidget {
           ),
         ),
         GestureDetector(
-          onTap: () => onQuoteTap?.call(quoteMsg.id),
+          // opaque：引用块内边距区域也要能点中，否则只有文字命中
+          behavior: HitTestBehavior.opaque,
+          onTap: onQuoteTap == null ? null : () => onQuoteTap!(quoteMsg.id),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
@@ -267,5 +272,6 @@ class QuoteMessageTypePlugin implements MessageTypePlugin {
         type: context.type,
         message: message,
         user: context.user,
+        onQuoteTap: context.onQuoteTap,
       );
 }

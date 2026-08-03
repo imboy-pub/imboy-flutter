@@ -221,6 +221,7 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get loading => '読み込み中...';
 	@override String get subscribed => '購読済み';
 	@override String get managed => '管理中';
+	@override String get writeArticle => '投稿を書く';
 	@override String get discover => 'チャンネルを探す';
 	@override String get search => 'チャンネル検索';
 	@override String get create => 'チャンネル作成';
@@ -341,6 +342,15 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get qrcode => 'チャンネルQRコード';
 	@override String qrcodeTips({required Object days, required Object date}) => 'QRコードは${days}日間（${date}まで）有効です';
 	@override String get defaultName => '名前のないチャンネル';
+	@override String get noMessagesManaged => 'チャンネルにはまだコンテンツがありません';
+	@override String get noMessagesManagedDesc => 'チャンネルの所有者は、下のボタンから最初のコンテンツを公開できます';
+	@override String get noMessagesVisitor => '購読してチャンネルのコンテンツを見る';
+	@override String get noMessagesVisitorDesc => '購読するとこのチャンネルのコンテンツが表示されます';
+	@override String get noMessagesSubscribed => 'チャンネルにはまだコンテンツがありません';
+	@override String get noMessagesSubscribedDesc => '購読しました！投稿者の新しいコンテンツをお待ちください';
+	@override String get continueEditing => '編集を続ける';
+	@override String get publishFirstContent => '最初のコンテンツを公開';
+	@override String get noSubscribersDesc => 'まだ購読者はいません。友達にチャンネルを共有しましょう';
 }
 
 // Path: chat
@@ -386,6 +396,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get createGroupF2f => '対面でグループ作成';
 	@override String get displayProfile => 'プロフィールを表示';
 	@override String get file => 'ファイル';
+	@override String get unknownFile => '不明なファイル';
 	@override String get fileMessage => '[ファイル]';
 	@override String get fileSize => 'ファイルサイズ';
 	@override String get forgotPasswordPinCodeView => 'パスワード忘れたPINコード画面';
@@ -622,6 +633,8 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get switchToVoiceInput => '音声入力に切り替え';
 	@override String get switchToKeyboardInput => 'キーボード入力に切り替え';
 	@override String get extraItems => '追加項目';
+	@override String get messageInputHint => 'メッセージを入力...';
+	@override String get invalidMessageType => '[未対応のメッセージ]';
 }
 
 // Path: common
@@ -690,6 +703,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get buttonTakingPictures => '写真を撮る';
 	@override String get cacheTips => 'キャッシュはアプリ使用中に生成される一時データです。キャッシュを削除しても正常な使用には影響しません。';
 	@override String get callDuration => '通話時間';
+	@override String get callEnded => '通話終了';
 	@override String get calling => '通話中';
 	@override String get canNotAddYourselfFriend => '自分自身を友達に追加することはできません';
 	@override String get cancel => _root.common.buttonCancel;
@@ -1733,6 +1747,15 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get enterFullscreen => '全画面表示にする';
 	@override String get exitFullscreen => '全画面表示を終了';
 	@override String get developer => '開発者';
+	@override String get fontSizeOptionSmall => '小';
+	@override String get fontSizeOptionNormal => '標準';
+	@override String get fontSizeOptionMedium => '中';
+	@override String get fontSizeOptionLarge => '大';
+	@override String get fontSizeOptionExtraLarge => '特大';
+	@override String get fontSizeOptionHuge => '極大';
+	@override String get searchFailedRetry => '検索に失敗しました。再試行してください';
+	@override String get searchDisabledTitle => 'メッセージ検索は利用できません';
+	@override String get searchDisabledByEncryption => 'エンドツーエンド暗号化が有効なため、サーバーはメッセージを読み取れず、全文検索は利用できません';
 }
 
 // Path: complaint
@@ -2021,6 +2044,8 @@ class _Translations$groupSchedule$ja_JP extends Translations$groupSchedule$zh_CN
 	@override String get declineAttend => '参加しない';
 	@override String get cancelSchedule => 'スケジュールをキャンセル';
 	@override String get scheduleIdMissing => 'スケジュールIDがありません。詳細を表示できません';
+	@override String get untitledSchedule => '無題の予定';
+	@override String get cardViewAndAttend => '詳細を見て参加を確認';
 }
 
 // Path: groupTag
@@ -2392,6 +2417,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get e2eeProxyReachedMin => '最少代理者数に達しました';
 	@override String get liveRoomTitleLabel => '配信ルーム名';
 	@override String get liveRoomTitleHint => '配信ルーム名を入力';
+	@override String get lightModel => 'ライトモード';
 }
 
 // Path: mention
@@ -2647,6 +2673,7 @@ extension on TranslationsJaJp {
 			'channel.loading' => '読み込み中...',
 			'channel.subscribed' => '購読済み',
 			'channel.managed' => '管理中',
+			'channel.writeArticle' => '投稿を書く',
 			'channel.discover' => 'チャンネルを探す',
 			'channel.search' => 'チャンネル検索',
 			'channel.create' => 'チャンネル作成',
@@ -2767,6 +2794,15 @@ extension on TranslationsJaJp {
 			'channel.qrcode' => 'チャンネルQRコード',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => 'QRコードは${days}日間（${date}まで）有効です',
 			'channel.defaultName' => '名前のないチャンネル',
+			'channel.noMessagesManaged' => 'チャンネルにはまだコンテンツがありません',
+			'channel.noMessagesManagedDesc' => 'チャンネルの所有者は、下のボタンから最初のコンテンツを公開できます',
+			'channel.noMessagesVisitor' => '購読してチャンネルのコンテンツを見る',
+			'channel.noMessagesVisitorDesc' => '購読するとこのチャンネルのコンテンツが表示されます',
+			'channel.noMessagesSubscribed' => 'チャンネルにはまだコンテンツがありません',
+			'channel.noMessagesSubscribedDesc' => '購読しました！投稿者の新しいコンテンツをお待ちください',
+			'channel.continueEditing' => '編集を続ける',
+			'channel.publishFirstContent' => '最初のコンテンツを公開',
+			'channel.noSubscribersDesc' => 'まだ購読者はいません。友達にチャンネルを共有しましょう',
 			'chat.bankCard' => '銀行カード',
 			'chat.cards' => '枚',
 			'chat.jdShopping' => 'JDショッピング',
@@ -2803,6 +2839,7 @@ extension on TranslationsJaJp {
 			'chat.createGroupF2f' => '対面でグループ作成',
 			'chat.displayProfile' => 'プロフィールを表示',
 			'chat.file' => 'ファイル',
+			'chat.unknownFile' => '不明なファイル',
 			'chat.fileMessage' => '[ファイル]',
 			'chat.fileSize' => 'ファイルサイズ',
 			'chat.forgotPasswordPinCodeView' => 'パスワード忘れたPINコード画面',
@@ -3017,6 +3054,8 @@ extension on TranslationsJaJp {
 			'chat.e2eeSocialUsedAtLabel' => '使用日時',
 			'chat.e2eeTransferSendTitle' => '新しいデバイスにキーを送信',
 			'chat.e2eeTransferCreateBtn' => '作成',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeTransferReceiveTitle' => '古いデバイスからキーを受信',
 			'chat.e2eeTransferSendDesc' => 'QRコードでキーを新しいデバイスに転送',
 			'chat.e2eeTransferReceiveDesc' => '古いデバイスのQRコードをスキャンしてキーを受信',
@@ -3028,8 +3067,6 @@ extension on TranslationsJaJp {
 			'chat.e2eeKeyRecreated' => 'キーを再作成しました',
 			'chat.e2eeRecoveryNewDeviceTitle' => '新しいデバイスのログインを検出しました',
 			'chat.e2eeRecoveryNewDeviceBody' => 'メッセージの安全性を保つため、このデバイスで新しいエンドツーエンド暗号キーを生成しました。\n\n過去のメッセージは旧デバイスのキーで暗号化されているため、閲覧にはキーの復元が必要です。「デバイス転送」「ソーシャルリカバリ」「ローカルバックアップの読み込み」で復元できます。',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'このメッセージを復号できません',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'このメッセージは別のデバイスのキーで暗号化されています。\n\nデバイスを変更したりアプリを再インストールした場合は、暗号キーを復元してから過去のメッセージを閲覧してください。',
 			'chat.e2eeRecoveryLater' => '後で',
@@ -3041,6 +3078,8 @@ extension on TranslationsJaJp {
 			'chat.switchToVoiceInput' => '音声入力に切り替え',
 			'chat.switchToKeyboardInput' => 'キーボード入力に切り替え',
 			'chat.extraItems' => '追加項目',
+			'chat.messageInputHint' => 'メッセージを入力...',
+			'chat.invalidMessageType' => '[未対応のメッセージ]',
 			'common.about' => '概要',
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
@@ -3100,6 +3139,7 @@ extension on TranslationsJaJp {
 			'common.buttonTakingPictures' => '写真を撮る',
 			'common.cacheTips' => 'キャッシュはアプリ使用中に生成される一時データです。キャッシュを削除しても正常な使用には影響しません。',
 			'common.callDuration' => '通話時間',
+			'common.callEnded' => '通話終了',
 			'common.calling' => '通話中',
 			'common.canNotAddYourselfFriend' => '自分自身を友達に追加することはできません',
 			'common.cancel' => _root.common.buttonCancel,
@@ -3528,6 +3568,8 @@ extension on TranslationsJaJp {
 			'common.officialReply' => '公式返信',
 			'common.setPasswordSecurityTips' => 'アカウントのセキュリティを強化し、認証コードを取得できないためにログインできないのを防ぐために、ログインパスワードを設定してください。',
 			'common.locationHidden' => '位置情報を非表示にしました',
+			_ => null,
+		} ?? switch (path) {
 			'common.locationVisible' => '位置情報を表示しました',
 			'common.noNearbyPeople' => '近くに人はいません',
 			'common.clickSearchButtonToFind' => '上の検索ボタンをクリックして近くの人を探してください',
@@ -3542,8 +3584,6 @@ extension on TranslationsJaJp {
 			'common.selectExpirationDateOptional' => '有効期限を選択（オプション）',
 			'common.groupAnnouncementDeleteConfirm' => 'この公告を削除してもよろしいですか？',
 			'common.groupAnnouncementDelete' => '削除',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementLoadFailed' => 'お知らせの読み込みに失敗しました。後でもう一度お試しください',
 			'common.groupAnnouncementPublishFailed' => 'お知らせの公開に失敗しました',
 			'common.groupAnnouncementPublishSuccess' => 'お知らせを公開しました',
@@ -4042,6 +4082,8 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupDeleteTitle' => 'バックアップ履歴を削除',
 			'common.e2eeBackupDeleteConfirm' => 'このバックアップ履歴を削除しますか？',
 			'common.e2eeBackupDeleteSuccess' => 'バックアップ履歴を削除しました',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCloudUploadBtn' => 'クラウドにバックアップ',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）',
 			'common.e2eeBackupErrCloudUploadFailed' => 'クラウドバックアップに失敗しました。再試行してください',
@@ -4056,8 +4098,6 @@ extension on TranslationsJaJp {
 			'common.e2eeSocialShardSettings' => 'シャード設定',
 			'common.e2eeSocialShardStoredNote' => '説明：シャードは代理デバイスに保存され、サーバーには一切保存されません',
 			'common.e2eeSocialAddProxy' => '代理者を追加',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialAddProxyHint' => '代理者の連絡先を追加してください',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '先に ${count} 人の代理者を追加してください',
 			'common.e2eeSocialCreateSuccessTitle' => 'シャードを作成しました',
@@ -4147,6 +4187,15 @@ extension on TranslationsJaJp {
 			'common.enterFullscreen' => '全画面表示にする',
 			'common.exitFullscreen' => '全画面表示を終了',
 			'common.developer' => '開発者',
+			'common.fontSizeOptionSmall' => '小',
+			'common.fontSizeOptionNormal' => '標準',
+			'common.fontSizeOptionMedium' => '中',
+			'common.fontSizeOptionLarge' => '大',
+			'common.fontSizeOptionExtraLarge' => '特大',
+			'common.fontSizeOptionHuge' => '極大',
+			'common.searchFailedRetry' => '検索に失敗しました。再試行してください',
+			'common.searchDisabledTitle' => 'メッセージ検索は利用できません',
+			'common.searchDisabledByEncryption' => 'エンドツーエンド暗号化が有効なため、サーバーはメッセージを読み取れず、全文検索は利用できません',
 			'complaint.complaint' => '通報',
 			'complaintReason.spam' => 'スパム',
 			'complaintReason.harassment' => 'ハラスメント',
@@ -4354,6 +4403,8 @@ extension on TranslationsJaJp {
 			'groupSchedule.declineAttend' => '参加しない',
 			'groupSchedule.cancelSchedule' => 'スケジュールをキャンセル',
 			'groupSchedule.scheduleIdMissing' => 'スケジュールIDがありません。詳細を表示できません',
+			'groupSchedule.untitledSchedule' => '無題の予定',
+			'groupSchedule.cardViewAndAttend' => '詳細を見て参加を確認',
 			'groupTag.title' => 'グループタグ',
 			'groupTag.addTag' => 'タグを追加',
 			'groupTag.tagName' => 'タグ名',
@@ -4545,6 +4596,8 @@ extension on TranslationsJaJp {
 			'main.zhCn' => '簡体字中国語',
 			'main.zhHant' => '繁体字中国語',
 			'main.bound' => '登録済み',
+			_ => null,
+		} ?? switch (path) {
 			'main.correct' => '正しい',
 			'main.pendingInput' => '入力待ち',
 			'main.lengthCheck' => '長さチェック',
@@ -4570,8 +4623,6 @@ extension on TranslationsJaJp {
 			'main.thisIsAuxiliaryText' => 'これは補助テキストです',
 			'main.toBeCompleted' => '未完了',
 			'main.availableCount' => '選択可能',
-			_ => null,
-		} ?? switch (path) {
 			'main.mostUsed' => '最も使用',
 			'main.commentPlaceholder' => 'コメント...',
 			'main.delayMsLabel' => '遅延ミリ秒 (>=100)',
@@ -4691,6 +4742,7 @@ extension on TranslationsJaJp {
 			'main.e2eeProxyReachedMin' => '最少代理者数に達しました',
 			'main.liveRoomTitleLabel' => '配信ルーム名',
 			'main.liveRoomTitleHint' => '配信ルーム名を入力',
+			'main.lightModel' => 'ライトモード',
 			'mention.mentionAll' => '全員',
 			'mention.mentionAllHint' => 'グループ全員に通知',
 			'mention.noMatchedMember' => '一致するメンバーがいません',

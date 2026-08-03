@@ -38,6 +38,7 @@ extraPanelMedia: 媒体
 extraPanelCollab: 群协作
 extraPanelFunds: 资金
 file: 文件
+unknownFile: "未知文件"
 fileMessage: "[文件]"
 fileSize: 文件大小
 forgotPasswordPinCodeView: 忘记密码验证码视图
@@ -281,3 +282,4 @@ liveRoomWatch: 观看直播
 switchToVoiceInput: 切换到语音输入
 switchToKeyboardInput: 切换到键盘输入
 extraItems: 附加项
+invalidMessageType: "[不支持的消息]"

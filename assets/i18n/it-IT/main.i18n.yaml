@@ -278,3 +278,4 @@ e2eeProxySelectedCount(selected, total): "$selected / $total scelti"
 e2eeProxyReachedMin: Numero minimo raggiunto
 liveRoomTitleLabel: Titolo live
 liveRoomTitleHint: Titolo live
+lightModel: Modalità chiara

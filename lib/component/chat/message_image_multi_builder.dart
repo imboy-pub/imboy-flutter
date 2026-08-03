@@ -4,12 +4,20 @@ import 'package:octo_image/octo_image.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
-    show zoomInPhotoViewGallery;
+    show zoomInPhotoViewGalleryWithInitialPage;
+import 'package:imboy/component/ui/shimmer_box.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
+
+/// 一条多图消息最多显示的格子数，超出部分折叠成 "+N"
+const int _kMaxVisibleTiles = 9;
 
 /// 多图消息构建器
 ///
-/// 用于展示一次发送的多张图片（最多9张）
-/// 使用 3x3 网格布局，点击可预览大图
+/// 微信/QQ 式九宫格：1 张独占，2/4 张走 2 列，其余 3 列。
+/// 每个格子是正方形裁切（`BoxFit.cover`），尺寸由网格算，不由图片原始宽高算——
+/// 旧实现给每张图写死 100px 再塞进约 75px 的格子，横竖图还各自算出更小的高度，
+/// 于是格子里图片忽大忽小、边缘被裁掉。
 class ImageMultiMessageBuilder extends StatefulWidget {
   const ImageMultiMessageBuilder({
     super.key,
@@ -40,14 +48,34 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
     );
   }
 
+  /// 列数：1 张独占一列，2/4 张两列（4 张走 2×2 而非 3+1），其余三列
+  int get _crossAxisCount {
+    if (images.length == 1) return 1;
+    if (images.length == 2 || images.length == 4) return 2;
+    return 3;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (images.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    // 根据图片数量决定网格列数
-    int crossAxisCount = images.length == 1 ? 1 : (images.length == 2 ? 2 : 3);
+    final visible = images.length > _kMaxVisibleTiles
+        ? images.sublist(0, _kMaxVisibleTiles)
+        : images;
+    final hiddenCount = images.length - visible.length;
+    final crossAxisCount = _crossAxisCount;
+
+    // 单图不走网格：按原始宽高比展示，避免正方形裁切丢信息
+    if (images.length == 1) {
+      return _SingleTile(
+        uri: (images.first['uri'] ?? '') as String,
+        width: (images.first['width'] as num? ?? 0).toDouble(),
+        height: (images.first['height'] as num? ?? 0).toDouble(),
+        onTap: () => _previewImage(0),
+      );
+    }
 
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.618,
@@ -59,20 +87,36 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
           crossAxisSpacing: 4,
           mainAxisSpacing: 4,
         ),
-        itemCount: images.length,
+        itemCount: visible.length,
         itemBuilder: (context, index) {
-          final img = images[index];
-          final uri = (img['uri'] ?? '') as String;
-          final width = (img['width'] as num? ?? 0).toDouble();
-          final height = (img['height'] as num? ?? 0).toDouble();
-
+          final uri = (visible[index]['uri'] ?? '') as String;
+          final isLastVisible = index == visible.length - 1;
           return GestureDetector(
             onTap: () => _previewImage(index),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(
                 MessageSpacing.imageBorderRadius,
               ),
-              child: _buildImageWidget(uri, width, height),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _GridTile(uri: uri),
+                  // 折叠角标：第 9 格盖一层 "+N"，点进去仍是全量预览
+                  if (hiddenCount > 0 && isLastVisible)
+                    Container(
+                      color: AppColors.mediaScrimBlack.withValues(alpha: 0.45),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '+$hiddenCount',
+                        style: context.textStyle(
+                          FontSizeType.large,
+                          color: AppColors.mediaScrimWhite,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           );
         },
@@ -80,43 +124,8 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
     );
   }
 
-  Widget _buildImageWidget(String uri, double width, double height) {
-    if (uri.isEmpty) {
-      return Container(
-        width: 100,
-        height: 100,
-        color: Colors.grey[300],
-        child: const Icon(Icons.broken_image),
-      );
-    }
-
-    // 计算合适的显示尺寸
-    final displayWidth = width > 0 ? width : 100;
-    final displayHeight = height > 0 ? height : 100;
-    final aspectRatio = displayWidth / displayHeight;
-
-    return OctoImage(
-      image: cachedImageProvider(uri),
-      width: 100,
-      height: aspectRatio > 1 ? 100 / aspectRatio : 100 * aspectRatio,
-      fit: BoxFit.cover,
-      placeholderBuilder: (context) => Container(
-        width: 100,
-        height: 100,
-        color: Colors.grey[200],
-        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-      ),
-      errorBuilder: (context, error, stacktrace) => Container(
-        width: 100,
-        height: 100,
-        color: Colors.grey[300],
-        child: const Icon(Icons.broken_image),
-      ),
-    );
-  }
-
   void _previewImage(int index) {
-    // 提取所有图片URL用于预览
+    // 提取所有图片URL用于预览（含被 "+N" 折叠的部分）
     final List<String> imageUrls = images
         .map<String>((img) => (img['uri'] ?? '') as String)
         .where((uri) => uri.isNotEmpty)
@@ -124,7 +133,88 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
 
     if (imageUrls.isEmpty || !mounted) return;
 
-    // 使用 zoomInPhotoViewGallery 预览多图
-    zoomInPhotoViewGallery(context, imageUrls);
+    final initial = index.clamp(0, imageUrls.length - 1);
+    zoomInPhotoViewGalleryWithInitialPage(context, imageUrls, initial);
+  }
+}
+
+/// 网格格子：尺寸完全由父级 GridView 决定，内部只负责填满
+class _GridTile extends StatelessWidget {
+  const _GridTile({required this.uri});
+
+  final String uri;
+
+  @override
+  Widget build(BuildContext context) {
+    if (uri.isEmpty) return const _TilePlaceholder(icon: Icons.broken_image);
+
+    return OctoImage(
+      image: cachedImageProvider(uri),
+      fit: BoxFit.cover,
+      placeholderBuilder: (context) => ShimmerBox(
+        baseColor: AppColors.shimmerBase,
+        highlightColor: AppColors.shimmerHighlight,
+        child: Container(color: AppColors.shimmerBase),
+      ),
+      errorBuilder: (context, error, stacktrace) =>
+          const _TilePlaceholder(icon: Icons.broken_image),
+    );
+  }
+}
+
+/// 单图：按原始宽高比展示，上限与单图消息一致
+class _SingleTile extends StatelessWidget {
+  const _SingleTile({
+    required this.uri,
+    required this.width,
+    required this.height,
+    required this.onTap,
+  });
+
+  final String uri;
+  final double width;
+  final double height;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final maxWidth = MediaQuery.of(context).size.width * 0.618;
+    final ratio = (width > 0 && height > 0) ? width / height : 1.0;
+    final displayWidth = maxWidth;
+    final displayHeight = (displayWidth / ratio).clamp(80.0, maxWidth * 1.6);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(MessageSpacing.imageBorderRadius),
+        child: SizedBox(
+          width: displayWidth,
+          height: displayHeight,
+          child: _GridTile(uri: uri),
+        ),
+      ),
+    );
+  }
+}
+
+class _TilePlaceholder extends StatelessWidget {
+  const _TilePlaceholder({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      color: isDark
+          ? AppColors.placeholderSurfaceDark
+          : AppColors.placeholderSurfaceLight,
+      child: Icon(
+        icon,
+        color: isDark
+            ? AppColors.mediaScrimWhite.withValues(alpha: 0.3)
+            : AppColors.mediaScrimBlack.withValues(alpha: 0.26),
+      ),
+    );
   }
 }

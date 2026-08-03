@@ -278,3 +278,4 @@ e2eeProxySelectedCount(selected, total): 'محدد: $selected / $total'
 e2eeProxyReachedMin: تم بلوغ الحد الأدنى للوكلاء
 liveRoomTitleLabel: عنوان الغرفة
 liveRoomTitleHint: أدخل عنوان الغرفة
+lightModel: الوضع الفاتح

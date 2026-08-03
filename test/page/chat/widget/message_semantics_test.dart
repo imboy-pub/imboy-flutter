@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/message_semantics.dart';
+import 'package:imboy/service/message_type_constants.dart';
 
 void main() {
   Future<void> pump(
@@ -76,5 +77,64 @@ void main() {
     );
 
     handle.dispose();
+  });
+
+  // ── messageKindLabel：CustomMessage 那 16 个插件类型的读法 ──
+  // 这条链此前完全没有语义标签，读屏用户翻聊天记录时位置/名片/红包/转账/
+  // 通话记录全是哑的。下面钉住每个类型都念得出专属名字。
+
+  test('未知类型 → 落到自定义消息兜底，不返回空串', () {
+    expect(messageKindLabel('no_such_type'), t.chat.customMessage);
+    expect(messageKindLabel(''), t.chat.customMessage);
+  });
+
+  test('image 与 imageMulti 念同一个"图片"', () {
+    expect(messageKindLabel(MessageType.image), t.chat.image);
+    expect(messageKindLabel(MessageType.imageMulti), t.chat.image);
+  });
+
+  test('每个经 CustomMessage 渲染的类型都有专属读法（不落兜底）', () {
+    // text / textStream 走 FlyerChatTextMessage 与 mapper 归一，不经此链；
+    // custom 本身就是兜底语义。
+    const rendered = [
+      MessageType.image,
+      MessageType.imageMulti,
+      MessageType.voice,
+      MessageType.video,
+      MessageType.file,
+      MessageType.location,
+      MessageType.expression,
+      MessageType.quote,
+      MessageType.visitCard,
+      MessageType.redPacket,
+      MessageType.transfer,
+      MessageType.webrtcAudio,
+      MessageType.webrtcVideo,
+      MessageType.groupSchedule,
+      MessageType.unsupported,
+    ];
+
+    for (final type in rendered) {
+      final label = messageKindLabel(type);
+      expect(label, isNotEmpty, reason: '$type 没有读法');
+      expect(
+        label,
+        isNot(t.chat.customMessage),
+        reason: '$type 落到了兜底读法，读屏念不出具体类型',
+      );
+    }
+  });
+
+  test('通话记录不与语音/视频消息混淆', () {
+    expect(messageKindLabel(MessageType.webrtcAudio), t.common.voiceCall);
+    expect(messageKindLabel(MessageType.voice), t.chat.voiceMessage);
+    expect(
+      messageKindLabel(MessageType.webrtcAudio),
+      isNot(messageKindLabel(MessageType.voice)),
+    );
+    expect(
+      messageKindLabel(MessageType.webrtcVideo),
+      isNot(messageKindLabel(MessageType.video)),
+    );
   });
 }

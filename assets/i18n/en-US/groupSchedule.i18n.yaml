@@ -23,3 +23,5 @@ confirmAttend: Confirm Attendance
 declineAttend: Decline
 cancelSchedule: Cancel Schedule
 scheduleIdMissing: "Schedule ID missing, cannot view details"
+untitledSchedule: "Untitled schedule"
+cardViewAndAttend: "View details and RSVP"

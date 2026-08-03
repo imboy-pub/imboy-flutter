@@ -62,6 +62,7 @@ buttonSubmit: 提交
 buttonTakingPictures: 拍照
 cacheTips: 缓存是使用APP过程中产生的临时数据，清理缓存不会影响你的正常使用。
 callDuration: 通话时长
+callEnded: "通话已结束"
 calling: 正在通话
 canNotAddYourselfFriend: 你不能添加自己为好友
 cancel: "@:common.buttonCancel"
@@ -1172,3 +1173,6 @@ fontSizeOptionLarge: 大
 fontSizeOptionExtraLarge: 特大
 fontSizeOptionHuge: 超大
 developer: 开发者
+searchFailedRetry: "搜索失败，请重试"
+searchDisabledTitle: "消息搜索未启用"
+searchDisabledByEncryption: "端到端加密已开启，服务器无法读取消息内容，因此不提供全文搜索"

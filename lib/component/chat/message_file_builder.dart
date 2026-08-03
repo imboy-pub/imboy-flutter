@@ -3,11 +3,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/chat/message.dart' show confirmOpenFile;
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
+/// 按扩展名给文件挑图标。
+///
+/// 原来所有文件都是同一个 `doc_fill`——一屏里 PDF、压缩包、表格长得一模一样，
+/// 用户只能靠读文件名区分。这里只做粗分类，不追求覆盖所有扩展名。
+IconData _iconForFile(String filename) {
+  final dot = filename.lastIndexOf('.');
+  if (dot < 0 || dot == filename.length - 1) return CupertinoIcons.doc_fill;
+  final ext = filename.substring(dot + 1).toLowerCase();
+  return switch (ext) {
+    'pdf' => CupertinoIcons.doc_richtext,
+    'doc' || 'docx' || 'rtf' || 'odt' => CupertinoIcons.doc_text_fill,
+    'xls' || 'xlsx' || 'csv' || 'numbers' => CupertinoIcons.table_fill,
+    'ppt' || 'pptx' || 'key' => CupertinoIcons.rectangle_on_rectangle,
+    'zip' || 'rar' || '7z' || 'tar' || 'gz' => CupertinoIcons.archivebox_fill,
+    'png' ||
+    'jpg' ||
+    'jpeg' ||
+    'gif' ||
+    'webp' ||
+    'heic' ||
+    'bmp' => CupertinoIcons.photo_fill,
+    'mp4' || 'mov' || 'avi' || 'mkv' || 'webm' => CupertinoIcons.videocam_fill,
+    'mp3' || 'wav' || 'aac' || 'flac' || 'm4a' => CupertinoIcons.music_note,
+    'apk' || 'ipa' || 'dmg' || 'exe' => CupertinoIcons.cube_box_fill,
+    _ => CupertinoIcons.doc_fill,
+  };
+}
 
 /// 文件消息构建器
 class MessageFileBuilder extends StatelessWidget {
@@ -28,7 +57,7 @@ class MessageFileBuilder extends StatelessWidget {
     final String filename =
         metadata['name'] as String? ??
         metadata['filename'] as String? ??
-        '未知文件';
+        t.chat.unknownFile;
     final int size = metadata['size'] as int? ?? 0;
     final String uri = metadata['uri'] as String? ?? '';
     final bool isSentByMe = message.authorId == user.id;
@@ -38,7 +67,7 @@ class MessageFileBuilder extends StatelessWidget {
         ? AppColors.onPrimary
         : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
     final subTextColor = isSentByMe
-        ? Colors.white.withValues(alpha: 0.7)
+        ? AppColors.overlayWhite70
         : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary);
 
     return GestureDetector(
@@ -87,14 +116,14 @@ class MessageFileBuilder extends StatelessWidget {
               height: 44,
               decoration: BoxDecoration(
                 color: isSentByMe
-                    ? Colors.white.withValues(alpha: 0.2)
+                    ? AppColors.mediaScrimWhite.withValues(alpha: 0.2)
                     : AppColors.getIosBlue(
                         Theme.of(context).brightness,
                       ).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                CupertinoIcons.doc_fill,
+                _iconForFile(filename),
                 color: isSentByMe
                     ? AppColors.onPrimary
                     : AppColors.getIosBlue(Theme.of(context).brightness),

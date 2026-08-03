@@ -24,3 +24,5 @@ confirmAttend: 参加する
 declineAttend: 参加しない
 cancelSchedule: スケジュールをキャンセル
 scheduleIdMissing: スケジュールIDがありません。詳細を表示できません
+untitledSchedule: "無題の予定"
+cardViewAndAttend: "詳細を見て参加を確認"

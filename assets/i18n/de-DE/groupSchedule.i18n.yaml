@@ -24,3 +24,5 @@ confirmAttend: Teilnehmen
 declineAttend: Absagen
 cancelSchedule: Termin absagen
 scheduleIdMissing: Termin-ID fehlt, Details können nicht angezeigt werden
+untitledSchedule: "Unbenannter Termin"
+cardViewAndAttend: "Details ansehen und zusagen"

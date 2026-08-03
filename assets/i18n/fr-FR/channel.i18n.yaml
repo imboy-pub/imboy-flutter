@@ -4,6 +4,7 @@ title: Canaux
 loading: Chargement...
 subscribed: Abonné
 managed: Géré
+writeArticle: Écrire une publication
 discover: Découvrir
 search: Rechercher
 create: Créer un canal
@@ -124,3 +125,12 @@ shareToChat: Envoyer à un ami
 qrcode: QR Code du canal
 qrcodeTips: QR Code valable $days jours (jusqu'au $date)
 defaultName: Canal sans nom
+noMessagesManaged: La chaîne n'a pas encore publié de contenu
+noMessagesManagedDesc: En tant que propriétaire, vous pouvez publier le premier contenu ci-dessous
+noMessagesVisitor: Abonnez-vous pour voir le contenu de la chaîne
+noMessagesVisitorDesc: Le contenu de cette chaîne sera disponible après votre abonnement
+noMessagesSubscribed: La chaîne n'a pas encore publié de contenu
+noMessagesSubscribedDesc: Abonnement réussi ! Attendez les prochaines publications de l'auteur
+continueEditing: Continuer la modification
+publishFirstContent: Publier le premier contenu
+noSubscribersDesc: Aucun abonné pour le moment, partagez la chaîne avec vos amis

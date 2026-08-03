@@ -8,6 +8,7 @@ import 'package:octo_image/octo_image.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
+import 'package:imboy/component/ui/shimmer_box.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -61,11 +62,14 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
       future: messageFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
+          // 骨架尺寸与最终卡片 240×200 完全一致：原来是居中的
+          // CircularProgressIndicator，尺寸和成品对不上，加载完成时
+          // 整条气泡会跳一下。
+          return const _LocationSkeleton();
         }
         final msg = snapshot.data;
         if (msg == null) {
-          return Container(); // 或者一些错误提示
+          return const _LocationSkeleton();
         }
         // 构建消息视图
         return _buildMessageView(context, msg);
@@ -223,6 +227,29 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 位置卡骨架：与成品卡片同尺寸，避免加载完成时气泡跳动
+class _LocationSkeleton extends StatelessWidget {
+  const _LocationSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ShimmerBox(
+      baseColor: AppColors.shimmerBase,
+      highlightColor: AppColors.shimmerHighlight,
+      child: Container(
+        width: 240,
+        height: 200,
+        decoration: BoxDecoration(
+          color: AppColors.shimmerBase,
+          borderRadius: BorderRadius.circular(
+            MessageSpacing.bubbleBorderRadius,
+          ),
+        ),
       ),
     );
   }

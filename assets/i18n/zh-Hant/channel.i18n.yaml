@@ -141,3 +141,12 @@ shareToChat: 發送給好友
 qrcode: 頻道二維碼
 qrcodeTips: 二維碼$days天內（$date前）有效
 defaultName: 未命名頻道
+noMessagesManaged: 頻道尚未發布任何內容
+noMessagesManagedDesc: 作為頻道主，你可以點擊下方按鈕發布第一條內容
+noMessagesVisitor: 訂閱後查看頻道內容
+noMessagesVisitorDesc: 訂閱後即可查看本頻道發布的內容
+noMessagesSubscribed: 頻道尚未發布內容
+noMessagesSubscribedDesc: 訂閱成功！請耐心等待作者發布新內容
+continueEditing: 繼續編輯
+publishFirstContent: 發布第一條內容
+noSubscribersDesc: 還沒有訂閱者，分享給好友吧

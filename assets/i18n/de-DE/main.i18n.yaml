@@ -278,3 +278,4 @@ e2eeProxySelectedCount(selected, total): "$selected / $total gewählt"
 e2eeProxyReachedMin: Mindestanzahl erreicht
 liveRoomTitleLabel: Livestream-Titel
 liveRoomTitleHint: Livestream-Titel eingeben
+lightModel: Heller Modus

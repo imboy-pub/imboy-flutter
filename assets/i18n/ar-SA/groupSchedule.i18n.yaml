@@ -24,3 +24,5 @@ confirmAttend: تأكيد الحضور
 declineAttend: لن أحضر
 cancelSchedule: إلغاء الفعالية
 scheduleIdMissing: معرّف الفعالية مفقود، لا يمكن عرض التفاصيل
+untitledSchedule: "موعد بدون عنوان"
+cardViewAndAttend: "عرض التفاصيل وتأكيد الحضور"

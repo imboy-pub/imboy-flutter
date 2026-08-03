@@ -58,6 +58,7 @@ buttonSubmit: 送信
 buttonTakingPictures: 写真を撮る
 cacheTips: キャッシュはアプリ使用中に生成される一時データです。キャッシュを削除しても正常な使用には影響しません。
 callDuration: 通話時間
+callEnded: "通話終了"
 calling: 通話中
 canNotAddYourselfFriend: 自分自身を友達に追加することはできません
 cancel: "@:common.buttonCancel"
@@ -1101,3 +1102,12 @@ resumeScan: スキャンを再開
 enterFullscreen: 全画面表示にする
 exitFullscreen: 全画面表示を終了
 developer: 開発者
+fontSizeOptionSmall: 小
+fontSizeOptionNormal: 標準
+fontSizeOptionMedium: 中
+fontSizeOptionLarge: 大
+fontSizeOptionExtraLarge: 特大
+fontSizeOptionHuge: 極大
+searchFailedRetry: "検索に失敗しました。再試行してください"
+searchDisabledTitle: "メッセージ検索は利用できません"
+searchDisabledByEncryption: "エンドツーエンド暗号化が有効なため、サーバーはメッセージを読み取れず、全文検索は利用できません"

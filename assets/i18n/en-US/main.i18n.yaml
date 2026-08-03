@@ -277,3 +277,4 @@ e2eeProxyReachedMin: Minimum proxy count reached
 liveRoomTitleLabel: Live Room Title
 liveRoomTitleHint: Enter live room title
 channelPriceLabel(currency, amount): "Price: $currency $amount"
+lightModel: Light mode

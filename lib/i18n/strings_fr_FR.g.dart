@@ -221,6 +221,7 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get loading => 'Chargement...';
 	@override String get subscribed => 'Abonné';
 	@override String get managed => 'Géré';
+	@override String get writeArticle => 'Écrire une publication';
 	@override String get discover => 'Découvrir';
 	@override String get search => 'Rechercher';
 	@override String get create => 'Créer un canal';
@@ -341,6 +342,15 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get qrcode => 'QR Code du canal';
 	@override String qrcodeTips({required Object days, required Object date}) => 'QR Code valable ${days} jours (jusqu\'au ${date})';
 	@override String get defaultName => 'Canal sans nom';
+	@override String get noMessagesManaged => 'La chaîne n\'a pas encore publié de contenu';
+	@override String get noMessagesManagedDesc => 'En tant que propriétaire, vous pouvez publier le premier contenu ci-dessous';
+	@override String get noMessagesVisitor => 'Abonnez-vous pour voir le contenu de la chaîne';
+	@override String get noMessagesVisitorDesc => 'Le contenu de cette chaîne sera disponible après votre abonnement';
+	@override String get noMessagesSubscribed => 'La chaîne n\'a pas encore publié de contenu';
+	@override String get noMessagesSubscribedDesc => 'Abonnement réussi ! Attendez les prochaines publications de l\'auteur';
+	@override String get continueEditing => 'Continuer la modification';
+	@override String get publishFirstContent => 'Publier le premier contenu';
+	@override String get noSubscribersDesc => 'Aucun abonné pour le moment, partagez la chaîne avec vos amis';
 }
 
 // Path: chat
@@ -386,6 +396,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get createGroupF2f => 'Créer un groupe en face à face';
 	@override String get displayProfile => 'Afficher votre profil';
 	@override String get file => 'Fichier';
+	@override String get unknownFile => 'Fichier inconnu';
 	@override String get fileMessage => '[Fichier]';
 	@override String get fileSize => 'Taille du fichier';
 	@override String get forgotPasswordPinCodeView => 'Vue du code PIN de mot de passe oublié';
@@ -622,6 +633,8 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get switchToVoiceInput => 'Passer à la saisie vocale';
 	@override String get switchToKeyboardInput => 'Passer à la saisie clavier';
 	@override String get extraItems => 'Suppléments';
+	@override String get messageInputHint => 'Écrire un message...';
+	@override String get invalidMessageType => '[Message non pris en charge]';
 }
 
 // Path: common
@@ -690,6 +703,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get buttonTakingPictures => 'Prendre une photo';
 	@override String get cacheTips => 'Le cache est constitué de données temporaires générées lors de l\'utilisation de l\'application. Le nettoyage du cache n\'affectera pas votre utilisation normale.';
 	@override String get callDuration => 'Durée de l\'appel';
+	@override String get callEnded => 'Appel terminé';
 	@override String get calling => 'Appel en cours';
 	@override String get canNotAddYourselfFriend => 'Vous ne pouvez pas vous ajouter vous-même comme ami.';
 	@override String get cancel => _root.common.buttonCancel;
@@ -1733,6 +1747,15 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get enterFullscreen => 'Passer en plein écran';
 	@override String get exitFullscreen => 'Quitter le plein écran';
 	@override String get developer => 'Développeur';
+	@override String get fontSizeOptionSmall => 'Petit';
+	@override String get fontSizeOptionNormal => 'Standard';
+	@override String get fontSizeOptionMedium => 'Moyen';
+	@override String get fontSizeOptionLarge => 'Grand';
+	@override String get fontSizeOptionExtraLarge => 'Très grand';
+	@override String get fontSizeOptionHuge => 'Énorme';
+	@override String get searchFailedRetry => 'Échec de la recherche, veuillez réessayer';
+	@override String get searchDisabledTitle => 'Recherche de messages indisponible';
+	@override String get searchDisabledByEncryption => 'Le chiffrement de bout en bout est activé : le serveur ne peut pas lire vos messages, la recherche en texte intégral est donc indisponible';
 }
 
 // Path: complaint
@@ -2021,6 +2044,8 @@ class _Translations$groupSchedule$fr_FR extends Translations$groupSchedule$zh_CN
 	@override String get declineAttend => 'Refuser';
 	@override String get cancelSchedule => 'Annuler l\'événement';
 	@override String get scheduleIdMissing => 'ID de l\'événement manquant, détails indisponibles';
+	@override String get untitledSchedule => 'Événement sans titre';
+	@override String get cardViewAndAttend => 'Voir les détails et confirmer';
 }
 
 // Path: groupTag
@@ -2392,6 +2417,7 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get e2eeProxyReachedMin => 'Nombre minimum atteint';
 	@override String get liveRoomTitleLabel => 'Titre du live';
 	@override String get liveRoomTitleHint => 'Titre du live';
+	@override String get lightModel => 'Mode clair';
 }
 
 // Path: mention
@@ -2647,6 +2673,7 @@ extension on TranslationsFrFr {
 			'channel.loading' => 'Chargement...',
 			'channel.subscribed' => 'Abonné',
 			'channel.managed' => 'Géré',
+			'channel.writeArticle' => 'Écrire une publication',
 			'channel.discover' => 'Découvrir',
 			'channel.search' => 'Rechercher',
 			'channel.create' => 'Créer un canal',
@@ -2767,6 +2794,15 @@ extension on TranslationsFrFr {
 			'channel.qrcode' => 'QR Code du canal',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => 'QR Code valable ${days} jours (jusqu\'au ${date})',
 			'channel.defaultName' => 'Canal sans nom',
+			'channel.noMessagesManaged' => 'La chaîne n\'a pas encore publié de contenu',
+			'channel.noMessagesManagedDesc' => 'En tant que propriétaire, vous pouvez publier le premier contenu ci-dessous',
+			'channel.noMessagesVisitor' => 'Abonnez-vous pour voir le contenu de la chaîne',
+			'channel.noMessagesVisitorDesc' => 'Le contenu de cette chaîne sera disponible après votre abonnement',
+			'channel.noMessagesSubscribed' => 'La chaîne n\'a pas encore publié de contenu',
+			'channel.noMessagesSubscribedDesc' => 'Abonnement réussi ! Attendez les prochaines publications de l\'auteur',
+			'channel.continueEditing' => 'Continuer la modification',
+			'channel.publishFirstContent' => 'Publier le premier contenu',
+			'channel.noSubscribersDesc' => 'Aucun abonné pour le moment, partagez la chaîne avec vos amis',
 			'chat.bankCard' => 'Carte bancaire',
 			'chat.cards' => 'cartes',
 			'chat.jdShopping' => 'Shopping JD',
@@ -2803,6 +2839,7 @@ extension on TranslationsFrFr {
 			'chat.createGroupF2f' => 'Créer un groupe en face à face',
 			'chat.displayProfile' => 'Afficher votre profil',
 			'chat.file' => 'Fichier',
+			'chat.unknownFile' => 'Fichier inconnu',
 			'chat.fileMessage' => '[Fichier]',
 			'chat.fileSize' => 'Taille du fichier',
 			'chat.forgotPasswordPinCodeView' => 'Vue du code PIN de mot de passe oublié',
@@ -3017,6 +3054,8 @@ extension on TranslationsFrFr {
 			'chat.e2eeSocialUsedAtLabel' => 'Utilisé le',
 			'chat.e2eeTransferSendTitle' => 'Envoyer la clé au nouvel appareil',
 			'chat.e2eeTransferCreateBtn' => 'Créer',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeTransferReceiveTitle' => 'Recevoir la clé de l\'ancien appareil',
 			'chat.e2eeTransferSendDesc' => 'Transférer la clé au nouvel appareil via QR code',
 			'chat.e2eeTransferReceiveDesc' => 'Scanner le QR code de l\'ancien appareil',
@@ -3028,8 +3067,6 @@ extension on TranslationsFrFr {
 			'chat.e2eeKeyRecreated' => 'Clé recréée',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Nouvel appareil détecté',
 			'chat.e2eeRecoveryNewDeviceBody' => 'Pour protéger vos messages, une nouvelle clé E2EE a été générée sur cet appareil.\n\nLes anciens messages, chiffrés avec la clé de l\'ancien appareil, nécessitent d\'abord une restauration. Restaurez via « Transfert », « Récupération sociale » ou « Sauvegarde locale ».',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Message indéchiffrable',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Ce message est chiffré avec la clé d\'un autre appareil.\n\nSi vous avez changé d\'appareil ou réinstallé l\'app, restaurez la clé pour lire les anciens messages.',
 			'chat.e2eeRecoveryLater' => 'Plus tard',
@@ -3041,6 +3078,8 @@ extension on TranslationsFrFr {
 			'chat.switchToVoiceInput' => 'Passer à la saisie vocale',
 			'chat.switchToKeyboardInput' => 'Passer à la saisie clavier',
 			'chat.extraItems' => 'Suppléments',
+			'chat.messageInputHint' => 'Écrire un message...',
+			'chat.invalidMessageType' => '[Message non pris en charge]',
 			'common.about' => 'À propos',
 			'common.aboutApp' => 'À propos de l\'application',
 			'common.accept' => 'Accepter',
@@ -3100,6 +3139,7 @@ extension on TranslationsFrFr {
 			'common.buttonTakingPictures' => 'Prendre une photo',
 			'common.cacheTips' => 'Le cache est constitué de données temporaires générées lors de l\'utilisation de l\'application. Le nettoyage du cache n\'affectera pas votre utilisation normale.',
 			'common.callDuration' => 'Durée de l\'appel',
+			'common.callEnded' => 'Appel terminé',
 			'common.calling' => 'Appel en cours',
 			'common.canNotAddYourselfFriend' => 'Vous ne pouvez pas vous ajouter vous-même comme ami.',
 			'common.cancel' => _root.common.buttonCancel,
@@ -3528,6 +3568,8 @@ extension on TranslationsFrFr {
 			'common.officialReply' => 'Réponse officielle',
 			'common.setPasswordSecurityTips' => 'Pour améliorer la sécurité du compte et empêcher l\'impossibilité de se connecter en cas d\'impossibilité d\'obtenir le code de vérification, veuillez définir un mot de passe de connexion.',
 			'common.locationHidden' => 'Votre emplacement a été masqué.',
+			_ => null,
+		} ?? switch (path) {
 			'common.locationVisible' => 'Votre emplacement a été affiché.',
 			'common.noNearbyPeople' => 'Aucune personne à proximité pour le moment.',
 			'common.clickSearchButtonToFind' => 'Cliquez sur le bouton de recherche ci-dessus pour trouver des personnes à proximité.',
@@ -3542,8 +3584,6 @@ extension on TranslationsFrFr {
 			'common.selectExpirationDateOptional' => 'Sélectionner la date d\'expiration (facultatif)',
 			'common.groupAnnouncementDeleteConfirm' => 'Confirmer la suppression de cette annonce ?',
 			'common.groupAnnouncementDelete' => 'Supprimer',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementLoadFailed' => 'Chargement de l\'annonce impossible. Réessayez plus tard.',
 			'common.groupAnnouncementPublishFailed' => 'Publication de l\'annonce impossible',
 			'common.groupAnnouncementPublishSuccess' => 'Annonce publiée',
@@ -4042,6 +4082,8 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupDeleteTitle' => 'Supprimer la sauvegarde',
 			'common.e2eeBackupDeleteConfirm' => 'Supprimer cette sauvegarde ?',
 			'common.e2eeBackupDeleteSuccess' => 'Sauvegarde supprimée',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCloudUploadBtn' => 'Sauvegarder dans le cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Sauvegardé dans le cloud (version ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'Échec de la sauvegarde cloud, veuillez réessayer',
@@ -4056,8 +4098,6 @@ extension on TranslationsFrFr {
 			'common.e2eeSocialShardSettings' => 'Paramètres des fragments',
 			'common.e2eeSocialShardStoredNote' => 'Les fragments sont stockés chez les dépositaires, le serveur n\'en conserve aucun',
 			'common.e2eeSocialAddProxy' => 'Ajouter un dépositaire',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialAddProxyHint' => 'Ajoutez un dépositaire',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Ajoutez d\'abord ${count} dépositaires',
 			'common.e2eeSocialCreateSuccessTitle' => 'Fragments créés',
@@ -4147,6 +4187,15 @@ extension on TranslationsFrFr {
 			'common.enterFullscreen' => 'Passer en plein écran',
 			'common.exitFullscreen' => 'Quitter le plein écran',
 			'common.developer' => 'Développeur',
+			'common.fontSizeOptionSmall' => 'Petit',
+			'common.fontSizeOptionNormal' => 'Standard',
+			'common.fontSizeOptionMedium' => 'Moyen',
+			'common.fontSizeOptionLarge' => 'Grand',
+			'common.fontSizeOptionExtraLarge' => 'Très grand',
+			'common.fontSizeOptionHuge' => 'Énorme',
+			'common.searchFailedRetry' => 'Échec de la recherche, veuillez réessayer',
+			'common.searchDisabledTitle' => 'Recherche de messages indisponible',
+			'common.searchDisabledByEncryption' => 'Le chiffrement de bout en bout est activé : le serveur ne peut pas lire vos messages, la recherche en texte intégral est donc indisponible',
 			'complaint.complaint' => 'Plainte',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harcèlement',
@@ -4354,6 +4403,8 @@ extension on TranslationsFrFr {
 			'groupSchedule.declineAttend' => 'Refuser',
 			'groupSchedule.cancelSchedule' => 'Annuler l\'événement',
 			'groupSchedule.scheduleIdMissing' => 'ID de l\'événement manquant, détails indisponibles',
+			'groupSchedule.untitledSchedule' => 'Événement sans titre',
+			'groupSchedule.cardViewAndAttend' => 'Voir les détails et confirmer',
 			'groupTag.title' => 'Étiquettes de groupe',
 			'groupTag.addTag' => 'Ajouter une étiquette',
 			'groupTag.tagName' => 'Nom de l\'étiquette',
@@ -4545,6 +4596,8 @@ extension on TranslationsFrFr {
 			'main.zhCn' => 'Chinois simplifié',
 			'main.zhHant' => 'Chinois traditionnel',
 			'main.bound' => 'Lié',
+			_ => null,
+		} ?? switch (path) {
 			'main.correct' => 'Correcte',
 			'main.pendingInput' => 'En attente de saisie',
 			'main.lengthCheck' => 'Vérification de la longueur',
@@ -4570,8 +4623,6 @@ extension on TranslationsFrFr {
 			'main.thisIsAuxiliaryText' => 'Ceci est un texte auxiliaire',
 			'main.toBeCompleted' => 'À compléter',
 			'main.availableCount' => 'Disponible',
-			_ => null,
-		} ?? switch (path) {
 			'main.mostUsed' => 'Les plus utilisés',
 			'main.commentPlaceholder' => 'Commentaire...',
 			'main.delayMsLabel' => 'Délai en ms (>=100)',
@@ -4691,6 +4742,7 @@ extension on TranslationsFrFr {
 			'main.e2eeProxyReachedMin' => 'Nombre minimum atteint',
 			'main.liveRoomTitleLabel' => 'Titre du live',
 			'main.liveRoomTitleHint' => 'Titre du live',
+			'main.lightModel' => 'Mode clair',
 			'mention.mentionAll' => 'Tout le monde',
 			'mention.mentionAllHint' => 'Notifier tous les membres du groupe',
 			'mention.noMatchedMember' => 'Aucun membre correspondant',

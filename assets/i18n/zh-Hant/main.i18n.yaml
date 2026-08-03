@@ -277,3 +277,4 @@ e2eeProxySelectedCount(selected, total): 已選 $selected / $total
 e2eeProxyReachedMin: 已達到最少代理數量
 liveRoomTitleLabel: 直播間標題
 liveRoomTitleHint: 請輸入直播間標題
+lightModel: 淺色模式

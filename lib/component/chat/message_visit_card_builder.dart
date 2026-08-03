@@ -3,6 +3,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/shimmer_box.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -53,12 +54,14 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
     return FutureBuilder<CustomMessage?>(
       future: messageFuture,
       builder: (context, snapshot) {
+        // 骨架与成品名片同宽（240）同高，原来用居中 spinner，尺寸对不上，
+        // 加载完成时整条气泡会跳一下。
         if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
+          return const _VisitCardSkeleton();
         }
         final msg = snapshot.data;
         if (msg == null) {
-          return Container(); // 或者一些错误提示
+          return const _VisitCardSkeleton();
         }
 
         // 判断是否为发送方
@@ -74,8 +77,8 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
 
         Color textColor, subTextColor;
         if (userIsAuthor) {
-          textColor = Colors.white;
-          subTextColor = Colors.white70;
+          textColor = AppColors.sentMessageText;
+          subTextColor = AppColors.overlayWhite70;
         } else {
           textColor = isDark
               ? AppColors.darkTextPrimary
@@ -155,6 +158,27 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
           ),
         );
       },
+    );
+  }
+}
+
+/// 名片骨架：与成品名片同尺寸（240 宽 + 头像行 + 分隔线 + 副标题）
+class _VisitCardSkeleton extends StatelessWidget {
+  const _VisitCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ShimmerBox(
+      baseColor: AppColors.shimmerBase,
+      highlightColor: AppColors.shimmerHighlight,
+      child: Container(
+        width: 240,
+        height: 116,
+        decoration: BoxDecoration(
+          color: AppColors.shimmerBase,
+          borderRadius: MessageSpacing.getBubbleBorderRadius(false),
+        ),
+      ),
     );
   }
 }

@@ -58,6 +58,7 @@ buttonSubmit: Absenden
 buttonTakingPictures: Foto aufnehmen
 cacheTips: Temporäre App-Daten. Bereinigung beeinflusst Nutzung nicht.
 callDuration: Anrufdauer
+callEnded: "Anruf beendet"
 calling: Im Gespräch
 canNotAddYourselfFriend: Sie können sich nicht selbst als Freund hinzufügen
 cancel: "@:common.buttonCancel"
@@ -1101,3 +1102,12 @@ resumeScan: Scan fortsetzen
 enterFullscreen: Vollbild aktivieren
 exitFullscreen: Vollbild beenden
 developer: Entwickler
+fontSizeOptionSmall: Klein
+fontSizeOptionNormal: Standard
+fontSizeOptionMedium: Mittel
+fontSizeOptionLarge: Groß
+fontSizeOptionExtraLarge: Sehr groß
+fontSizeOptionHuge: Riesig
+searchFailedRetry: "Suche fehlgeschlagen, bitte erneut versuchen"
+searchDisabledTitle: "Nachrichtensuche nicht verfügbar"
+searchDisabledByEncryption: "Ende-zu-Ende-Verschlüsselung ist aktiv; der Server kann die Nachrichten nicht lesen, daher gibt es keine Volltextsuche"

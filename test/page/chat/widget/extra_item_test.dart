@@ -86,19 +86,28 @@ void main() {
       expect(find.text(t.common.transfer), findsNothing);
     });
 
-    testWidgets('群协作三项（投票/日程/作业）在第 2 页', (tester) async {
+    testWidgets('投票升到第 1 页，日程/作业仍在第 2 页', (tester) async {
       await pumpItems(tester, type: 'C2G');
 
-      // ⚠️ 这三项曾要求"无需翻页"（见 git 历史里的旧用例名）。面板改成分页
-      // 轮播后它们被挤到第 2 页，群聊最核心的协作入口现在要滑一下才看得见。
-      // 这是待产品确认的 UX 退化，不是测试问题——此处先钉住现状。
-      expect(find.text(t.groupVote.title), findsNothing, reason: '当前在第 1 页');
+      // 历史：这三项曾要求"无需翻页"，面板改成分页轮播后全被挤到第 2 页，
+      // 群聊最核心的协作入口要滑一下才看得见（当时钉住的是这个退化现状）。
+      // 删掉"表情"假贴图入口后每项前移一格，投票已回到第 1 页。
+      // C2G 第 1 页 8 项：相册/拍摄/位置/文件/收藏/名片/群通话/投票
+      expect(find.text(t.groupVote.title), findsOneWidget, reason: '已回到第 1 页');
+      expect(find.text(t.groupSchedule.title), findsNothing);
+      expect(find.text(t.groupTask.title), findsNothing);
 
       await swipeToPage2(tester);
 
-      expect(find.text(t.groupVote.title), findsOneWidget);
       expect(find.text(t.groupSchedule.title), findsOneWidget);
       expect(find.text(t.groupTask.title), findsOneWidget);
+    });
+
+    testWidgets('"表情"不再出现在附加面板（emoji 只有输入框笑脸键一个入口）', (tester) async {
+      await pumpItems(tester, type: 'C2G');
+      expect(find.text(t.common.expression), findsNothing);
+      await swipeToPage2(tester);
+      expect(find.text(t.common.expression), findsNothing);
     });
   });
 
@@ -118,14 +127,18 @@ void main() {
       expectNoGroupTools();
     });
 
-    testWidgets('单聊专属项：语音通话在第 1 页，视频通话/转账在第 2 页', (tester) async {
+    testWidgets('单聊专属项：语音/视频通话在第 1 页，红包/转账在第 2 页', (tester) async {
       await pumpItems(tester, type: 'C2C');
 
+      // C2C 第 1 页 8 项：相册/拍摄/位置/文件/收藏/名片/语音通话/视频通话
+      // 删掉"表情"假贴图入口后每项前移一格，视频通话从第 2 页回到第 1 页。
       expect(find.text(t.common.voiceCall), findsOneWidget);
+      expect(find.text(t.common.videoCall), findsOneWidget, reason: '已回到第 1 页');
+      expect(find.text(t.common.transfer), findsNothing);
 
       await swipeToPage2(tester);
 
-      expect(find.text(t.common.videoCall), findsOneWidget);
+      expect(find.text(t.common.redPacket), findsOneWidget);
       expect(find.text(t.common.transfer), findsOneWidget);
     });
   });

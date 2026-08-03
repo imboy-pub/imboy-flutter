@@ -221,6 +221,7 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get loading => '로딩 중...';
 	@override String get subscribed => '구독 중';
 	@override String get managed => '관리 중';
+	@override String get writeArticle => '게시물 작성';
 	@override String get discover => '채널 찾기';
 	@override String get search => '채널 검색';
 	@override String get create => '채널 만들기';
@@ -341,6 +342,15 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get qrcode => '채널 QR 코드';
 	@override String qrcodeTips({required Object days, required Object date}) => 'QR 코드는 ${days}일 동안(${date}까지) 유효합니다';
 	@override String get defaultName => '이름 없는 채널';
+	@override String get noMessagesManaged => '채널에 아직 게시된 콘텐츠가 없습니다';
+	@override String get noMessagesManagedDesc => '채널 소유자는 아래 버튼을 눌러 첫 콘텐츠를 게시할 수 있습니다';
+	@override String get noMessagesVisitor => '구독하고 채널 콘텐츠 보기';
+	@override String get noMessagesVisitorDesc => '구독하면 이 채널의 콘텐츠를 볼 수 있습니다';
+	@override String get noMessagesSubscribed => '채널에 아직 게시된 콘텐츠가 없습니다';
+	@override String get noMessagesSubscribedDesc => '구독이 완료되었습니다! 작성자의 새 게시물을 기다려 주세요';
+	@override String get continueEditing => '편집 계속하기';
+	@override String get publishFirstContent => '첫 콘텐츠 게시';
+	@override String get noSubscribersDesc => '아직 구독자가 없습니다. 친구에게 채널을 공유해 보세요';
 }
 
 // Path: chat
@@ -386,6 +396,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get createGroupF2f => '대면 그룹 만들기';
 	@override String get displayProfile => '프로필 표시';
 	@override String get file => '파일';
+	@override String get unknownFile => '알 수 없는 파일';
 	@override String get fileMessage => '[파일]';
 	@override String get fileSize => '파일 크기';
 	@override String get forgotPasswordPinCodeView => '비밀번호 찾기 PIN 코드 보기';
@@ -622,6 +633,8 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get switchToVoiceInput => '음성 입력으로 전환';
 	@override String get switchToKeyboardInput => '키보드 입력으로 전환';
 	@override String get extraItems => '추가 항목';
+	@override String get messageInputHint => '메시지를 입력하세요...';
+	@override String get invalidMessageType => '[지원하지 않는 메시지]';
 }
 
 // Path: common
@@ -690,6 +703,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get buttonTakingPictures => '사진 촬영';
 	@override String get cacheTips => '캐시는 앱 사용 중 생성되는 임시 데이터입니다. 캐시를 정리해도 정상적인 사용에 영향을 주지 않습니다.';
 	@override String get callDuration => '통화 시간';
+	@override String get callEnded => '통화 종료';
 	@override String get calling => '통화 중';
 	@override String get canNotAddYourselfFriend => '자신을 친구로 추가할 수 없습니다';
 	@override String get cancel => _root.common.buttonCancel;
@@ -1733,6 +1747,15 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get enterFullscreen => '전체 화면으로 전환';
 	@override String get exitFullscreen => '전체 화면 종료';
 	@override String get developer => '개발자';
+	@override String get fontSizeOptionSmall => '작게';
+	@override String get fontSizeOptionNormal => '표준';
+	@override String get fontSizeOptionMedium => '보통';
+	@override String get fontSizeOptionLarge => '크게';
+	@override String get fontSizeOptionExtraLarge => '아주 크게';
+	@override String get fontSizeOptionHuge => '최대';
+	@override String get searchFailedRetry => '검색에 실패했습니다. 다시 시도해 주세요';
+	@override String get searchDisabledTitle => '메시지 검색을 사용할 수 없음';
+	@override String get searchDisabledByEncryption => '종단간 암호화가 켜져 있어 서버가 메시지를 읽을 수 없으므로 전체 검색을 제공하지 않습니다';
 }
 
 // Path: complaint
@@ -2021,6 +2044,8 @@ class _Translations$groupSchedule$ko_KR extends Translations$groupSchedule$zh_CN
 	@override String get declineAttend => '불참';
 	@override String get cancelSchedule => '일정 취소';
 	@override String get scheduleIdMissing => '일정 ID가 없어 상세정보를 볼 수 없습니다';
+	@override String get untitledSchedule => '제목 없는 일정';
+	@override String get cardViewAndAttend => '상세 보기 및 참석 확인';
 }
 
 // Path: groupTag
@@ -2392,6 +2417,7 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get e2eeProxyReachedMin => '최소 대리자 수에 도달했습니다';
 	@override String get liveRoomTitleLabel => '라이브 룸 제목';
 	@override String get liveRoomTitleHint => '라이브 룸 제목을 입력하세요';
+	@override String get lightModel => '라이트 모드';
 }
 
 // Path: mention
@@ -2647,6 +2673,7 @@ extension on TranslationsKoKr {
 			'channel.loading' => '로딩 중...',
 			'channel.subscribed' => '구독 중',
 			'channel.managed' => '관리 중',
+			'channel.writeArticle' => '게시물 작성',
 			'channel.discover' => '채널 찾기',
 			'channel.search' => '채널 검색',
 			'channel.create' => '채널 만들기',
@@ -2767,6 +2794,15 @@ extension on TranslationsKoKr {
 			'channel.qrcode' => '채널 QR 코드',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => 'QR 코드는 ${days}일 동안(${date}까지) 유효합니다',
 			'channel.defaultName' => '이름 없는 채널',
+			'channel.noMessagesManaged' => '채널에 아직 게시된 콘텐츠가 없습니다',
+			'channel.noMessagesManagedDesc' => '채널 소유자는 아래 버튼을 눌러 첫 콘텐츠를 게시할 수 있습니다',
+			'channel.noMessagesVisitor' => '구독하고 채널 콘텐츠 보기',
+			'channel.noMessagesVisitorDesc' => '구독하면 이 채널의 콘텐츠를 볼 수 있습니다',
+			'channel.noMessagesSubscribed' => '채널에 아직 게시된 콘텐츠가 없습니다',
+			'channel.noMessagesSubscribedDesc' => '구독이 완료되었습니다! 작성자의 새 게시물을 기다려 주세요',
+			'channel.continueEditing' => '편집 계속하기',
+			'channel.publishFirstContent' => '첫 콘텐츠 게시',
+			'channel.noSubscribersDesc' => '아직 구독자가 없습니다. 친구에게 채널을 공유해 보세요',
 			'chat.bankCard' => '은행 카드',
 			'chat.cards' => '장',
 			'chat.jdShopping' => 'JD 쇼핑',
@@ -2803,6 +2839,7 @@ extension on TranslationsKoKr {
 			'chat.createGroupF2f' => '대면 그룹 만들기',
 			'chat.displayProfile' => '프로필 표시',
 			'chat.file' => '파일',
+			'chat.unknownFile' => '알 수 없는 파일',
 			'chat.fileMessage' => '[파일]',
 			'chat.fileSize' => '파일 크기',
 			'chat.forgotPasswordPinCodeView' => '비밀번호 찾기 PIN 코드 보기',
@@ -3017,6 +3054,8 @@ extension on TranslationsKoKr {
 			'chat.e2eeSocialUsedAtLabel' => '사용 시간',
 			'chat.e2eeTransferSendTitle' => '새 기기로 키 전송',
 			'chat.e2eeTransferCreateBtn' => '만들기',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeTransferReceiveTitle' => '이전 기기에서 키 받기',
 			'chat.e2eeTransferSendDesc' => 'QR 코드로 새 기기에 키를 전송합니다',
 			'chat.e2eeTransferReceiveDesc' => '이전 기기의 QR 코드를 스캔하여 키를 받습니다',
@@ -3028,8 +3067,6 @@ extension on TranslationsKoKr {
 			'chat.e2eeKeyRecreated' => '키가 다시 만들어졌습니다',
 			'chat.e2eeRecoveryNewDeviceTitle' => '새 기기 로그인 감지',
 			'chat.e2eeRecoveryNewDeviceBody' => '메시지 보안을 위해 이 기기에 새 종단간 암호화 키가 생성되었습니다.\n\n이전 메시지는 이전 기기의 키로 암호화되어 있어 먼저 키를 복구해야 볼 수 있습니다. "기기 전송", "소셜 복구" 또는 "로컬 백업 가져오기"로 복구할 수 있습니다.',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedTitle' => '이 메시지를 복호화할 수 없습니다',
 			'chat.e2eeRecoveryDecryptFailedBody' => '이 메시지는 다른 기기의 키로 암호화되었습니다.\n\n기기를 교체했거나 앱을 다시 설치했다면, 암호화 키를 복구한 후 이전 메시지를 확인하세요.',
 			'chat.e2eeRecoveryLater' => '나중에',
@@ -3041,6 +3078,8 @@ extension on TranslationsKoKr {
 			'chat.switchToVoiceInput' => '음성 입력으로 전환',
 			'chat.switchToKeyboardInput' => '키보드 입력으로 전환',
 			'chat.extraItems' => '추가 항목',
+			'chat.messageInputHint' => '메시지를 입력하세요...',
+			'chat.invalidMessageType' => '[지원하지 않는 메시지]',
 			'common.about' => '정보',
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
@@ -3100,6 +3139,7 @@ extension on TranslationsKoKr {
 			'common.buttonTakingPictures' => '사진 촬영',
 			'common.cacheTips' => '캐시는 앱 사용 중 생성되는 임시 데이터입니다. 캐시를 정리해도 정상적인 사용에 영향을 주지 않습니다.',
 			'common.callDuration' => '통화 시간',
+			'common.callEnded' => '통화 종료',
 			'common.calling' => '통화 중',
 			'common.canNotAddYourselfFriend' => '자신을 친구로 추가할 수 없습니다',
 			'common.cancel' => _root.common.buttonCancel,
@@ -3528,6 +3568,8 @@ extension on TranslationsKoKr {
 			'common.officialReply' => '공식 답변',
 			'common.setPasswordSecurityTips' => '계정 보안을 높이고 인증 코드를 받지 못해 로그인할 수 없는 상황을 방지하기 위해 로그인 비밀번호를 설정하세요.',
 			'common.locationHidden' => '위치가 숨겨졌습니다',
+			_ => null,
+		} ?? switch (path) {
 			'common.locationVisible' => '위치가 표시됩니다',
 			'common.noNearbyPeople' => '주변에 사람이 없습니다',
 			'common.clickSearchButtonToFind' => '위쪽 검색 버튼을 클릭하여 주변 사람을 찾아주세요',
@@ -3542,8 +3584,6 @@ extension on TranslationsKoKr {
 			'common.selectExpirationDateOptional' => '만료 날짜 선택 (선택 사항)',
 			'common.groupAnnouncementDeleteConfirm' => '이 공지를 삭제하시겠습니까?',
 			'common.groupAnnouncementDelete' => '삭제',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementLoadFailed' => '공지를 불러오지 못했습니다. 나중에 다시 시도해주세요',
 			'common.groupAnnouncementPublishFailed' => '공지 게시 실패',
 			'common.groupAnnouncementPublishSuccess' => '공지가 게시되었습니다',
@@ -4042,6 +4082,8 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupDeleteTitle' => '백업 기록 삭제',
 			'common.e2eeBackupDeleteConfirm' => '이 백업 기록을 삭제하시겠습니까?',
 			'common.e2eeBackupDeleteSuccess' => '백업 기록이 삭제되었습니다',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCloudUploadBtn' => '클라우드에 백업',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => '클라우드 백업 실패, 다시 시도하세요',
@@ -4056,8 +4098,6 @@ extension on TranslationsKoKr {
 			'common.e2eeSocialShardSettings' => '샤드 설정',
 			'common.e2eeSocialShardStoredNote' => '안내: 샤드는 대리자 기기에 저장되며 서버에는 어떤 샤드도 저장되지 않습니다',
 			'common.e2eeSocialAddProxy' => '대리자 추가',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialAddProxyHint' => '대리자 연락처를 추가해주세요',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '대리자를 ${count}명 더 추가해주세요',
 			'common.e2eeSocialCreateSuccessTitle' => '샤드 생성 완료',
@@ -4147,6 +4187,15 @@ extension on TranslationsKoKr {
 			'common.enterFullscreen' => '전체 화면으로 전환',
 			'common.exitFullscreen' => '전체 화면 종료',
 			'common.developer' => '개발자',
+			'common.fontSizeOptionSmall' => '작게',
+			'common.fontSizeOptionNormal' => '표준',
+			'common.fontSizeOptionMedium' => '보통',
+			'common.fontSizeOptionLarge' => '크게',
+			'common.fontSizeOptionExtraLarge' => '아주 크게',
+			'common.fontSizeOptionHuge' => '최대',
+			'common.searchFailedRetry' => '검색에 실패했습니다. 다시 시도해 주세요',
+			'common.searchDisabledTitle' => '메시지 검색을 사용할 수 없음',
+			'common.searchDisabledByEncryption' => '종단간 암호화가 켜져 있어 서버가 메시지를 읽을 수 없으므로 전체 검색을 제공하지 않습니다',
 			'complaint.complaint' => '신고',
 			'complaintReason.spam' => '스팸',
 			'complaintReason.harassment' => '괴롭힘',
@@ -4354,6 +4403,8 @@ extension on TranslationsKoKr {
 			'groupSchedule.declineAttend' => '불참',
 			'groupSchedule.cancelSchedule' => '일정 취소',
 			'groupSchedule.scheduleIdMissing' => '일정 ID가 없어 상세정보를 볼 수 없습니다',
+			'groupSchedule.untitledSchedule' => '제목 없는 일정',
+			'groupSchedule.cardViewAndAttend' => '상세 보기 및 참석 확인',
 			'groupTag.title' => '그룹 태그',
 			'groupTag.addTag' => '태그 추가',
 			'groupTag.tagName' => '태그 이름',
@@ -4545,6 +4596,8 @@ extension on TranslationsKoKr {
 			'main.zhCn' => '중국어 간체',
 			'main.zhHant' => '중국어 번체',
 			'main.bound' => '연결됨',
+			_ => null,
+		} ?? switch (path) {
 			'main.correct' => '올바름',
 			'main.pendingInput' => '입력 대기 중',
 			'main.lengthCheck' => '길이 검사',
@@ -4570,8 +4623,6 @@ extension on TranslationsKoKr {
 			'main.thisIsAuxiliaryText' => '이것은 보조 텍스트입니다',
 			'main.toBeCompleted' => '미완성',
 			'main.availableCount' => '선택 가능',
-			_ => null,
-		} ?? switch (path) {
 			'main.mostUsed' => '가장 많이 사용',
 			'main.commentPlaceholder' => '댓글...',
 			'main.delayMsLabel' => '지연 시간(ms) (>=100)',
@@ -4691,6 +4742,7 @@ extension on TranslationsKoKr {
 			'main.e2eeProxyReachedMin' => '최소 대리자 수에 도달했습니다',
 			'main.liveRoomTitleLabel' => '라이브 룸 제목',
 			'main.liveRoomTitleHint' => '라이브 룸 제목을 입력하세요',
+			'main.lightModel' => '라이트 모드',
 			'mention.mentionAll' => '전체',
 			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
 			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',

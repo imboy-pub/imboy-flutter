@@ -58,6 +58,7 @@ buttonSubmit: Soumettre
 buttonTakingPictures: Prendre une photo
 cacheTips: Le cache est constitué de données temporaires générées lors de l'utilisation de l'application. Le nettoyage du cache n'affectera pas votre utilisation normale.
 callDuration: Durée de l'appel
+callEnded: "Appel terminé"
 calling: Appel en cours
 canNotAddYourselfFriend: Vous ne pouvez pas vous ajouter vous-même comme ami.
 cancel: "@:common.buttonCancel"
@@ -1101,3 +1102,12 @@ resumeScan: Reprendre le scan
 enterFullscreen: Passer en plein écran
 exitFullscreen: Quitter le plein écran
 developer: Développeur
+fontSizeOptionSmall: Petit
+fontSizeOptionNormal: Standard
+fontSizeOptionMedium: Moyen
+fontSizeOptionLarge: Grand
+fontSizeOptionExtraLarge: Très grand
+fontSizeOptionHuge: Énorme
+searchFailedRetry: "Échec de la recherche, veuillez réessayer"
+searchDisabledTitle: "Recherche de messages indisponible"
+searchDisabledByEncryption: "Le chiffrement de bout en bout est activé : le serveur ne peut pas lire vos messages, la recherche en texte intégral est donc indisponible"

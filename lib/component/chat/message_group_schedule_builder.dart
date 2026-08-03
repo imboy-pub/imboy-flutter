@@ -18,7 +18,8 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metadata = message.metadata ?? {};
-    final title = metadata['title']?.toString() ?? '未命名日程';
+    final title =
+        metadata['title']?.toString() ?? t.groupSchedule.untitledSchedule;
     final startTime = metadata['start_time']?.toString() ?? '';
     final scheduleId = metadata['id']?.toString() ?? '';
     final groupId = metadata['group_id']?.toString() ?? '';
@@ -29,10 +30,20 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
     final isSentByMe = message.authorId == UserRepoLocal.to.currentUid;
     final borderRadius = MessageSpacing.getBubbleBorderRadius(isSentByMe);
 
+    // 日程卡是"白底卡片"而非聊天气泡，文字色走主题 token 而不是裸 Colors.*，
+    // 否则暗色下白字白底 / 亮色下 white60 直接看不见。
+    final titleColor = AppColors.getTextColor(Theme.of(context).brightness);
+    final secondaryColor = AppColors.getTextColor(
+      Theme.of(context).brightness,
+      isSecondary: true,
+    );
+
     return Container(
       width: 250,
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest
+            : AppColors.mediaScrimWhite,
         borderRadius: borderRadius,
         border: Border.all(
           color: isDark ? AppColors.overlayWhite10 : AppColors.iosGray5,
@@ -40,7 +51,7 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
         ),
       ),
       child: Material(
-        color: Colors.transparent,
+        color: AppColors.transparent,
         child: InkWell(
           onTap: () {
             if (groupId.isNotEmpty && scheduleId.isNotEmpty) {
@@ -66,7 +77,7 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                       t.groupSchedule.title,
                       style: context.textStyle(
                         FontSizeType.small,
-                        color: isDark ? Colors.white60 : Colors.black54,
+                        color: secondaryColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -77,7 +88,7 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                   title,
                   style: context.textStyle(
                     FontSizeType.medium,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: titleColor,
                     fontWeight: FontWeight.bold,
                   ),
                   maxLines: 1,
@@ -86,7 +97,7 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                 if (startTime.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Text(
-                    '时间: $startTime',
+                    '${t.groupSchedule.startTime}: $startTime',
                     style: context.textStyle(
                       FontSizeType.small,
                       color: AppColors.iosGray,
@@ -97,17 +108,22 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '查看详情并确认参加',
-                      style: context.textStyle(
-                        FontSizeType.caption2,
-                        color: isDark ? Colors.white54 : Colors.black54,
+                    Flexible(
+                      child: Text(
+                        t.groupSchedule.cardViewAndAttend,
+                        style: context.textStyle(
+                          FontSizeType.caption2,
+                          color: secondaryColor,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 8),
                     const Icon(
                       Icons.arrow_forward_ios,
                       size: 12,
-                      color: Colors.grey,
+                      color: AppColors.iosGray,
                     ),
                   ],
                 ),

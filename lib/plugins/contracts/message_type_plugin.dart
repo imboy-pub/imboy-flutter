@@ -22,6 +22,7 @@ class MessageRenderContext {
     this.currentPositionMs = 0,
     this.currentDurationMs = 0,
     this.messages,
+    this.onQuoteTap,
     this.services = const PluginServices(),
   });
 
@@ -41,6 +42,9 @@ class MessageRenderContext {
   final int currentPositionMs;
   final int currentDurationMs;
   final List<dynamic>? messages;
+
+  /// 点击引用块跳回原消息。为空时引用块不可点（历史行为）。
+  final void Function(String quotedMessageId)? onQuoteTap;
   final PluginServices services;
 }
 

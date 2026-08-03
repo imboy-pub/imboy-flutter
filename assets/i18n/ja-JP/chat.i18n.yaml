@@ -35,6 +35,7 @@ chatStatusSeenDesc: メッセージが既読になりました
 createGroupF2f: 対面でグループ作成
 displayProfile: プロフィールを表示
 file: ファイル
+unknownFile: "不明なファイル"
 fileMessage: "[ファイル]"
 fileSize: ファイルサイズ
 forgotPasswordPinCodeView: パスワード忘れたPINコード画面
@@ -277,3 +278,5 @@ liveRoomWatch: 配信を見る
 switchToVoiceInput: 音声入力に切り替え
 switchToKeyboardInput: キーボード入力に切り替え
 extraItems: 追加項目
+messageInputHint: メッセージを入力...
+invalidMessageType: "[未対応のメッセージ]"

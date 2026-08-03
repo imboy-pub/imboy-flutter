@@ -278,3 +278,4 @@ e2eeProxySelectedCount(selected, total): 選択中 $selected / $total
 e2eeProxyReachedMin: 最少代理者数に達しました
 liveRoomTitleLabel: 配信ルーム名
 liveRoomTitleHint: 配信ルーム名を入力
+lightModel: ライトモード

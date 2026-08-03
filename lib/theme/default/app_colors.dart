@@ -312,6 +312,34 @@ class AppColors {
   /// 红包气泡柔和红
   static const Color redPacketColor = Color(0xFFFA5151);
 
+  /// 红包封面金 — 主体（"開"按钮底、头像圈）。红包是固定品牌视觉，
+  /// 红金配色刻意不随亮/暗主题变化，与微信/支付宝的心智一致。
+  static const Color redPacketGold = Color(0xFFFFB300);
+
+  /// 红包封面金 — 高光描边
+  static const Color redPacketGoldLight = Color(0xFFFFE082);
+
+  /// 红包封面暖白 — 封面标题文字
+  static const Color redPacketTitleText = Color(0xFFFFE0B2);
+
+  /// 转账卡片底色 — 待收（≈ Colors.orange.shade800）
+  static const Color transferPendingSurface = Color(0xFFEF6C00);
+
+  /// 转账卡片底色 — 已收（比待收淡一档，表示"已完成、不再需要动作"）
+  static const Color transferAcceptedSurface = Color(0xFFF57C00);
+
+  /// 转账卡片底色 — 已退回（≈ Colors.grey.shade600，去饱和表示终态）
+  static const Color transferRefundedSurface = Color(0xFF757575);
+
+  /// 24% 白分隔线（= Colors.white24）用于品牌/彩色卡片内部分隔
+  static const Color overlayWhite24 = Color(0x3DFFFFFF);
+
+  /// 12% 黑叠层（= Colors.black12）浅色卡片内部分隔/阴影
+  static const Color overlayBlack12 = Color(0x1F000000);
+
+  /// 26% 黑叠层（= Colors.black26）模态遮罩、弱化前景
+  static const Color overlayBlack26 = Color(0x42000000);
+
   /// 媒体遮罩白：叠在视频/图片缩略图上的播放钮、时长标签、骨架屏底色等
   static const Color mediaScrimWhite = Color(0xFFFFFFFF);
 

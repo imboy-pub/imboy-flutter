@@ -221,6 +221,7 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get loading => 'Загрузка...';
 	@override String get subscribed => 'Подписан';
 	@override String get managed => 'Управляемый';
+	@override String get writeArticle => 'Написать публикацию';
 	@override String get discover => 'Обзор';
 	@override String get search => 'Поиск';
 	@override String get create => 'Создать канал';
@@ -341,6 +342,15 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get qrcode => 'QR-код канала';
 	@override String qrcodeTips({required Object days, required Object date}) => 'QR-код действителен ${days} дней (до ${date})';
 	@override String get defaultName => 'Канал без названия';
+	@override String get noMessagesManaged => 'В канале пока нет опубликованных материалов';
+	@override String get noMessagesManagedDesc => 'Как владелец канала, вы можете опубликовать первый материал ниже';
+	@override String get noMessagesVisitor => 'Подпишитесь, чтобы просматривать содержимое канала';
+	@override String get noMessagesVisitorDesc => 'Содержимое канала будет доступно после подписки';
+	@override String get noMessagesSubscribed => 'В канале пока нет опубликованных материалов';
+	@override String get noMessagesSubscribedDesc => 'Подписка оформлена! Дождитесь новых публикаций автора';
+	@override String get continueEditing => 'Продолжить редактирование';
+	@override String get publishFirstContent => 'Опубликовать первый материал';
+	@override String get noSubscribersDesc => 'Подписчиков пока нет, поделитесь каналом с друзьями';
 }
 
 // Path: chat
@@ -386,6 +396,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get createGroupF2f => 'Создать группу лицом к лицу';
 	@override String get displayProfile => 'Показать ваш профиль';
 	@override String get file => 'Файл';
+	@override String get unknownFile => 'Неизвестный файл';
 	@override String get fileMessage => '[Файл]';
 	@override String get fileSize => 'Размер файла';
 	@override String get forgotPasswordPinCodeView => 'PIN-код забытого пароля';
@@ -622,6 +633,8 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get switchToVoiceInput => 'Переключиться на голосовой ввод';
 	@override String get switchToKeyboardInput => 'Переключиться на ввод с клавиатуры';
 	@override String get extraItems => 'Дополнительно';
+	@override String get messageInputHint => 'Напишите сообщение...';
+	@override String get invalidMessageType => '[Неподдерживаемое сообщение]';
 }
 
 // Path: common
@@ -690,6 +703,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get buttonTakingPictures => 'Сфотографировать';
 	@override String get cacheTips => 'Временные данные приложения. Очистка безопасна';
 	@override String get callDuration => 'Длительность звонка';
+	@override String get callEnded => 'Звонок завершён';
 	@override String get calling => 'Вызов';
 	@override String get canNotAddYourselfFriend => 'Вы не можете добавить себя в друзья';
 	@override String get cancel => _root.common.buttonCancel;
@@ -1733,6 +1747,15 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get enterFullscreen => 'Включить полноэкранный режим';
 	@override String get exitFullscreen => 'Выйти из полноэкранного режима';
 	@override String get developer => 'Разработчик';
+	@override String get fontSizeOptionSmall => 'Мелкий';
+	@override String get fontSizeOptionNormal => 'Стандартный';
+	@override String get fontSizeOptionMedium => 'Средний';
+	@override String get fontSizeOptionLarge => 'Крупный';
+	@override String get fontSizeOptionExtraLarge => 'Очень крупный';
+	@override String get fontSizeOptionHuge => 'Огромный';
+	@override String get searchFailedRetry => 'Поиск не удался, повторите попытку';
+	@override String get searchDisabledTitle => 'Поиск по сообщениям недоступен';
+	@override String get searchDisabledByEncryption => 'Включено сквозное шифрование: сервер не может читать сообщения, поэтому полнотекстовый поиск недоступен';
 }
 
 // Path: complaint
@@ -2021,6 +2044,8 @@ class _Translations$groupSchedule$ru_RU extends Translations$groupSchedule$zh_CN
 	@override String get declineAttend => 'Не приду';
 	@override String get cancelSchedule => 'Отменить событие';
 	@override String get scheduleIdMissing => 'ID события отсутствует, нельзя открыть детали';
+	@override String get untitledSchedule => 'Событие без названия';
+	@override String get cardViewAndAttend => 'Подробности и подтверждение';
 }
 
 // Path: groupTag
@@ -2392,6 +2417,7 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get e2eeProxyReachedMin => 'Достигнуто минимальное число посредников';
 	@override String get liveRoomTitleLabel => 'Название трансляции';
 	@override String get liveRoomTitleHint => 'Введите название трансляции';
+	@override String get lightModel => 'Светлая тема';
 }
 
 // Path: mention
@@ -2647,6 +2673,7 @@ extension on TranslationsRuRu {
 			'channel.loading' => 'Загрузка...',
 			'channel.subscribed' => 'Подписан',
 			'channel.managed' => 'Управляемый',
+			'channel.writeArticle' => 'Написать публикацию',
 			'channel.discover' => 'Обзор',
 			'channel.search' => 'Поиск',
 			'channel.create' => 'Создать канал',
@@ -2767,6 +2794,15 @@ extension on TranslationsRuRu {
 			'channel.qrcode' => 'QR-код канала',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => 'QR-код действителен ${days} дней (до ${date})',
 			'channel.defaultName' => 'Канал без названия',
+			'channel.noMessagesManaged' => 'В канале пока нет опубликованных материалов',
+			'channel.noMessagesManagedDesc' => 'Как владелец канала, вы можете опубликовать первый материал ниже',
+			'channel.noMessagesVisitor' => 'Подпишитесь, чтобы просматривать содержимое канала',
+			'channel.noMessagesVisitorDesc' => 'Содержимое канала будет доступно после подписки',
+			'channel.noMessagesSubscribed' => 'В канале пока нет опубликованных материалов',
+			'channel.noMessagesSubscribedDesc' => 'Подписка оформлена! Дождитесь новых публикаций автора',
+			'channel.continueEditing' => 'Продолжить редактирование',
+			'channel.publishFirstContent' => 'Опубликовать первый материал',
+			'channel.noSubscribersDesc' => 'Подписчиков пока нет, поделитесь каналом с друзьями',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.cards' => 'шт.',
 			'chat.jdShopping' => 'Покупки на JD',
@@ -2803,6 +2839,7 @@ extension on TranslationsRuRu {
 			'chat.createGroupF2f' => 'Создать группу лицом к лицу',
 			'chat.displayProfile' => 'Показать ваш профиль',
 			'chat.file' => 'Файл',
+			'chat.unknownFile' => 'Неизвестный файл',
 			'chat.fileMessage' => '[Файл]',
 			'chat.fileSize' => 'Размер файла',
 			'chat.forgotPasswordPinCodeView' => 'PIN-код забытого пароля',
@@ -3017,6 +3054,8 @@ extension on TranslationsRuRu {
 			'chat.e2eeSocialUsedAtLabel' => 'Дата использования',
 			'chat.e2eeTransferSendTitle' => 'Отправить ключ на новое устройство',
 			'chat.e2eeTransferCreateBtn' => 'Создать',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeTransferReceiveTitle' => 'Получить ключ со старого устройства',
 			'chat.e2eeTransferSendDesc' => 'Передача ключа на новое устройство через QR-код',
 			'chat.e2eeTransferReceiveDesc' => 'Сканируйте QR-код старого устройства для получения ключа',
@@ -3028,8 +3067,6 @@ extension on TranslationsRuRu {
 			'chat.e2eeKeyRecreated' => 'Ключ создан заново',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Обнаружен вход с нового устройства',
 			'chat.e2eeRecoveryNewDeviceBody' => 'Для защиты сообщений на этом устройстве создан новый ключ сквозного шифрования.\n\nПрошлые сообщения зашифрованы ключом старого устройства — сначала восстановите ключ, чтобы их прочитать. Восстановить можно через «Передачу устройств», «Социальное восстановление» или импорт локальной копии.',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Не удалось расшифровать сообщение',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Это сообщение зашифровано ключом другого устройства.\n\nЕсли вы сменили устройство или переустановили приложение, восстановите ключ шифрования, чтобы прочитать прошлые сообщения.',
 			'chat.e2eeRecoveryLater' => 'Позже',
@@ -3041,6 +3078,8 @@ extension on TranslationsRuRu {
 			'chat.switchToVoiceInput' => 'Переключиться на голосовой ввод',
 			'chat.switchToKeyboardInput' => 'Переключиться на ввод с клавиатуры',
 			'chat.extraItems' => 'Дополнительно',
+			'chat.messageInputHint' => 'Напишите сообщение...',
+			'chat.invalidMessageType' => '[Неподдерживаемое сообщение]',
 			'common.about' => 'О приложении',
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
@@ -3100,6 +3139,7 @@ extension on TranslationsRuRu {
 			'common.buttonTakingPictures' => 'Сфотографировать',
 			'common.cacheTips' => 'Временные данные приложения. Очистка безопасна',
 			'common.callDuration' => 'Длительность звонка',
+			'common.callEnded' => 'Звонок завершён',
 			'common.calling' => 'Вызов',
 			'common.canNotAddYourselfFriend' => 'Вы не можете добавить себя в друзья',
 			'common.cancel' => _root.common.buttonCancel,
@@ -3528,6 +3568,8 @@ extension on TranslationsRuRu {
 			'common.officialReply' => 'Официальный ответ',
 			'common.setPasswordSecurityTips' => 'Установите пароль для входа и безопасности',
 			'common.locationHidden' => 'Ваше местоположение скрыто',
+			_ => null,
+		} ?? switch (path) {
 			'common.locationVisible' => 'Ваше местоположение отображается',
 			'common.noNearbyPeople' => 'Нет людей рядом',
 			'common.clickSearchButtonToFind' => 'Нажмите кнопку поиска выше, чтобы найти людей рядом',
@@ -3542,8 +3584,6 @@ extension on TranslationsRuRu {
 			'common.selectExpirationDateOptional' => 'Выберите срок действия (необязательно)',
 			'common.groupAnnouncementDeleteConfirm' => 'Удалить это объявление?',
 			'common.groupAnnouncementDelete' => 'Удалить',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementLoadFailed' => 'Не удалось загрузить объявление, попробуйте позже',
 			'common.groupAnnouncementPublishFailed' => 'Не удалось опубликовать объявление',
 			'common.groupAnnouncementPublishSuccess' => 'Объявление опубликовано',
@@ -4042,6 +4082,8 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupDeleteTitle' => 'Удалить запись о копии',
 			'common.e2eeBackupDeleteConfirm' => 'Удалить эту запись о копии?',
 			'common.e2eeBackupDeleteSuccess' => 'Запись удалена',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCloudUploadBtn' => 'Сохранить в облако',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Сохранено в облаке (версия ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'Не удалось создать облачную копию, повторите попытку',
@@ -4056,8 +4098,6 @@ extension on TranslationsRuRu {
 			'common.e2eeSocialShardSettings' => 'Настройки фрагментов',
 			'common.e2eeSocialShardStoredNote' => 'Фрагменты хранятся на устройствах посредников, сервер не хранит ни одного',
 			'common.e2eeSocialAddProxy' => 'Добавить посредника',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialAddProxyHint' => 'Добавьте контакты-посредники',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Добавьте ещё ${count} посредников',
 			'common.e2eeSocialCreateSuccessTitle' => 'Фрагменты созданы',
@@ -4147,6 +4187,15 @@ extension on TranslationsRuRu {
 			'common.enterFullscreen' => 'Включить полноэкранный режим',
 			'common.exitFullscreen' => 'Выйти из полноэкранного режима',
 			'common.developer' => 'Разработчик',
+			'common.fontSizeOptionSmall' => 'Мелкий',
+			'common.fontSizeOptionNormal' => 'Стандартный',
+			'common.fontSizeOptionMedium' => 'Средний',
+			'common.fontSizeOptionLarge' => 'Крупный',
+			'common.fontSizeOptionExtraLarge' => 'Очень крупный',
+			'common.fontSizeOptionHuge' => 'Огромный',
+			'common.searchFailedRetry' => 'Поиск не удался, повторите попытку',
+			'common.searchDisabledTitle' => 'Поиск по сообщениям недоступен',
+			'common.searchDisabledByEncryption' => 'Включено сквозное шифрование: сервер не может читать сообщения, поэтому полнотекстовый поиск недоступен',
 			'complaint.complaint' => 'Жалоба',
 			'complaintReason.spam' => 'Спам',
 			'complaintReason.harassment' => 'Преследование',
@@ -4354,6 +4403,8 @@ extension on TranslationsRuRu {
 			'groupSchedule.declineAttend' => 'Не приду',
 			'groupSchedule.cancelSchedule' => 'Отменить событие',
 			'groupSchedule.scheduleIdMissing' => 'ID события отсутствует, нельзя открыть детали',
+			'groupSchedule.untitledSchedule' => 'Событие без названия',
+			'groupSchedule.cardViewAndAttend' => 'Подробности и подтверждение',
 			'groupTag.title' => 'Метки групп',
 			'groupTag.addTag' => 'Добавить метку',
 			'groupTag.tagName' => 'Название метки',
@@ -4545,6 +4596,8 @@ extension on TranslationsRuRu {
 			'main.zhCn' => 'Упрощённый китайский',
 			'main.zhHant' => 'Традиционный китайский',
 			'main.bound' => 'Привязано',
+			_ => null,
+		} ?? switch (path) {
 			'main.correct' => 'Верно',
 			'main.pendingInput' => 'Ожидание ввода',
 			'main.lengthCheck' => 'Проверка длины',
@@ -4570,8 +4623,6 @@ extension on TranslationsRuRu {
 			'main.thisIsAuxiliaryText' => 'Это вспомогательный текст',
 			'main.toBeCompleted' => 'Требуется завершение',
 			'main.availableCount' => 'Доступно',
-			_ => null,
-		} ?? switch (path) {
 			'main.mostUsed' => 'Наиболее используемые',
 			'main.commentPlaceholder' => 'Комментарий...',
 			'main.delayMsLabel' => 'Задержка в мс (>=100)',
@@ -4691,6 +4742,7 @@ extension on TranslationsRuRu {
 			'main.e2eeProxyReachedMin' => 'Достигнуто минимальное число посредников',
 			'main.liveRoomTitleLabel' => 'Название трансляции',
 			'main.liveRoomTitleHint' => 'Введите название трансляции',
+			'main.lightModel' => 'Светлая тема',
 			'mention.mentionAll' => 'Все',
 			'mention.mentionAllHint' => 'Уведомить всех участников группы',
 			'mention.noMatchedMember' => 'Нет подходящих участников',

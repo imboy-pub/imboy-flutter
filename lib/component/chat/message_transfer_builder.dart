@@ -65,15 +65,18 @@ class _MessageTransferBuilderState
     return Container(
       width: 240,
       decoration: BoxDecoration(
+        // 三态改用 token，不再直接引 Material 调色板的 shade：
+        // 原来"已收"是橙 shade700 再压 0.6 alpha，卡片会透出背后气泡色，
+        // 在暗色聊天背景上整块发灰、和"已退回"几乎分不出来。
         color: isAccepted
-            ? Colors.orange.shade700.withValues(alpha: 0.6)
+            ? AppColors.transferAcceptedSurface
             : isRefunded
-            ? Colors.grey.shade600
-            : Colors.orange.shade800,
+            ? AppColors.transferRefundedSurface
+            : AppColors.transferPendingSurface,
         borderRadius: borderRadius,
       ),
       child: Material(
-        color: Colors.transparent,
+        color: AppColors.transparent,
         child: InkWell(
           onTap: () {
             if (isPending && !isSender) {
@@ -97,7 +100,7 @@ class _MessageTransferBuilderState
                           : isRefunded
                           ? Icons.replay
                           : Icons.swap_horiz,
-                      color: Colors.white,
+                      color: AppColors.onPrimary,
                       size: 36,
                     ),
                     const SizedBox(width: 12),
@@ -134,7 +137,7 @@ class _MessageTransferBuilderState
                     ),
                   ],
                 ),
-                const Divider(color: Colors.white24, height: 16),
+                const Divider(color: AppColors.overlayWhite24, height: 16),
                 Text(
                   remark,
                   style: context.textStyle(

@@ -121,12 +121,21 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
   }
 
   Widget _buildImageWidget() {
+    // 占位/失败底色随主题走：原来是写死的中性灰，暗色下是一块刺眼的亮灰。
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final placeholderSurface = isDark
+        ? AppColors.placeholderSurfaceDark
+        : AppColors.placeholderSurfaceLight;
+    final placeholderFg = isDark
+        ? AppColors.mediaScrimWhite.withValues(alpha: 0.5)
+        : AppColors.mediaScrimBlack.withValues(alpha: 0.4);
+
     if (_imageUrl.isEmpty) {
       return Container(
         width: 200,
         height: 200,
-        color: Colors.grey[300],
-        child: const Icon(Icons.broken_image, size: 48),
+        color: placeholderSurface,
+        child: Icon(Icons.broken_image, size: 48, color: placeholderFg),
       );
     }
 
@@ -134,20 +143,23 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
       image: cachedImageProvider(_imageUrl),
       fit: BoxFit.cover,
       placeholderBuilder: (context) => ShimmerBox(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: Container(color: Colors.white),
+        baseColor: AppColors.shimmerBase,
+        highlightColor: AppColors.shimmerHighlight,
+        child: Container(color: AppColors.shimmerBase),
       ),
       errorBuilder: (context, error, stacktrace) => Container(
-        color: Colors.grey[300],
+        color: placeholderSurface,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.broken_image, size: 32),
+            Icon(Icons.broken_image, size: 32, color: placeholderFg),
             const SizedBox(height: 8),
             Text(
               t.common.imageLoadFailed,
-              style: context.textStyle(FontSizeType.small),
+              style: context.textStyle(
+                FontSizeType.small,
+                color: placeholderFg,
+              ),
             ),
           ],
         ),

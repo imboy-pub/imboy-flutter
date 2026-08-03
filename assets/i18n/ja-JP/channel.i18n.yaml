@@ -4,6 +4,7 @@ title: チャンネル
 loading: 読み込み中...
 subscribed: 購読済み
 managed: 管理中
+writeArticle: 投稿を書く
 discover: チャンネルを探す
 search: チャンネル検索
 create: チャンネル作成
@@ -124,3 +125,12 @@ shareToChat: 友達に送信
 qrcode: チャンネルQRコード
 qrcodeTips: QRコードは$days日間（$dateまで）有効です
 defaultName: 名前のないチャンネル
+noMessagesManaged: チャンネルにはまだコンテンツがありません
+noMessagesManagedDesc: チャンネルの所有者は、下のボタンから最初のコンテンツを公開できます
+noMessagesVisitor: 購読してチャンネルのコンテンツを見る
+noMessagesVisitorDesc: 購読するとこのチャンネルのコンテンツが表示されます
+noMessagesSubscribed: チャンネルにはまだコンテンツがありません
+noMessagesSubscribedDesc: 購読しました！投稿者の新しいコンテンツをお待ちください
+continueEditing: 編集を続ける
+publishFirstContent: 最初のコンテンツを公開
+noSubscribersDesc: まだ購読者はいません。友達にチャンネルを共有しましょう

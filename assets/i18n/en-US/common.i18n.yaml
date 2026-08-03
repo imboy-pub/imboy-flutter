@@ -57,6 +57,7 @@ buttonSubmit: Submit
 buttonTakingPictures: Camera
 cacheTips: Cache is temporary data generated during app usage. Clearing cache will not affect your normal use.
 callDuration: Call duration
+callEnded: "Call ended"
 calling: Calling
 canNotAddYourselfFriend: You cannot add yourself as a friend
 cancel: "@:common.buttonCancel"
@@ -1101,3 +1102,12 @@ resumeScan: Resume scanning
 enterFullscreen: Enter fullscreen
 exitFullscreen: Exit fullscreen
 developer: Developer
+fontSizeOptionSmall: Small
+fontSizeOptionNormal: Standard
+fontSizeOptionMedium: Medium
+fontSizeOptionLarge: Large
+fontSizeOptionExtraLarge: Extra large
+fontSizeOptionHuge: Huge
+searchFailedRetry: "Search failed, please try again"
+searchDisabledTitle: "Message search unavailable"
+searchDisabledByEncryption: "End-to-end encryption is on, so the server cannot read your messages and full-text search is not available"

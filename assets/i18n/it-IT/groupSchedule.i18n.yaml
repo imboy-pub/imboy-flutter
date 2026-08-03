@@ -24,3 +24,5 @@ confirmAttend: Partecipa
 declineAttend: Rifiuta
 cancelSchedule: Annulla evento
 scheduleIdMissing: ID evento mancante, dettagli non disponibili
+untitledSchedule: "Evento senza titolo"
+cardViewAndAttend: "Vedi dettagli e conferma"

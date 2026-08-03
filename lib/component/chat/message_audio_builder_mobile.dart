@@ -368,7 +368,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
           : AppColors.lightSentMessageBackground;
       iconColor = AppColors.sentMessageText;
       textColor = AppColors.sentMessageText;
-      waveformColor = Colors.white70;
+      waveformColor = AppColors.overlayWhite70;
     } else {
       // 接收语音气泡背景：统一走 AppColors token，对齐 DESIGN.md 第 9/10 章
       // 暗色 → darkReceivedMessageBackground(#2A2A2A)
@@ -505,9 +505,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
     bool userIsAuthor,
     Color waveformColor,
   ) {
-    final waveColor = userIsAuthor ? Colors.white70 : waveformColor;
+    final waveColor = userIsAuthor ? AppColors.overlayWhite70 : waveformColor;
     final inactive = userIsAuthor
-        ? Colors.white.withValues(alpha: 0.25)
+        ? AppColors.mediaScrimWhite.withValues(alpha: 0.25)
         : waveformColor.withValues(alpha: 0.25);
 
     // 插件不可用时显示简化的波形可视化

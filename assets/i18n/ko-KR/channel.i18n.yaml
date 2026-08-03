@@ -4,6 +4,7 @@ title: 채널
 loading: 로딩 중...
 subscribed: 구독 중
 managed: 관리 중
+writeArticle: 게시물 작성
 discover: 채널 찾기
 search: 채널 검색
 create: 채널 만들기
@@ -124,3 +125,12 @@ shareToChat: 친구에게 보내기
 qrcode: 채널 QR 코드
 qrcodeTips: QR 코드는 $days일 동안($date까지) 유효합니다
 defaultName: 이름 없는 채널
+noMessagesManaged: 채널에 아직 게시된 콘텐츠가 없습니다
+noMessagesManagedDesc: 채널 소유자는 아래 버튼을 눌러 첫 콘텐츠를 게시할 수 있습니다
+noMessagesVisitor: 구독하고 채널 콘텐츠 보기
+noMessagesVisitorDesc: 구독하면 이 채널의 콘텐츠를 볼 수 있습니다
+noMessagesSubscribed: 채널에 아직 게시된 콘텐츠가 없습니다
+noMessagesSubscribedDesc: 구독이 완료되었습니다! 작성자의 새 게시물을 기다려 주세요
+continueEditing: 편집 계속하기
+publishFirstContent: 첫 콘텐츠 게시
+noSubscribersDesc: 아직 구독자가 없습니다. 친구에게 채널을 공유해 보세요

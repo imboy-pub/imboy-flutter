@@ -35,6 +35,7 @@ chatStatusSeenDesc: Nachricht gelesen
 createGroupF2f: Face-to-Face Gruppe erstellen
 displayProfile: Mein Profil anzeigen
 file: Datei
+unknownFile: "Unbekannte Datei"
 fileMessage: "[Datei]"
 fileSize: Dateigröße
 forgotPasswordPinCodeView: PIN-Code für Passwort vergessen
@@ -277,3 +278,5 @@ liveRoomWatch: Ansehen
 switchToVoiceInput: Zur Spracheingabe wechseln
 switchToKeyboardInput: Zur Tastatureingabe wechseln
 extraItems: Extras
+messageInputHint: Nachricht schreiben ...
+invalidMessageType: "[Nicht unterstützte Nachricht]"

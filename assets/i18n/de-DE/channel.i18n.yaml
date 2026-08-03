@@ -4,6 +4,7 @@ title: Kanäle
 loading: Laden...
 subscribed: Abonniert
 managed: Verwaltet
+writeArticle: Beitrag schreiben
 discover: Entdecken
 search: Suchen
 create: Kanal erstellen
@@ -124,3 +125,12 @@ shareToChat: An Freund senden
 qrcode: Kanal-QR-Code
 qrcodeTips: QR-Code $days Tage gültig (bis $date)
 defaultName: Unbenannter Kanal
+noMessagesManaged: Der Kanal hat noch keine Inhalte veröffentlicht
+noMessagesManagedDesc: Als Kanalinhaber kannst du unten den ersten Inhalt veröffentlichen
+noMessagesVisitor: Abonnieren, um die Inhalte des Kanals zu sehen
+noMessagesVisitorDesc: Die Inhalte dieses Kanals werden nach dem Abonnieren angezeigt
+noMessagesSubscribed: Der Kanal hat noch keine Inhalte veröffentlicht
+noMessagesSubscribedDesc: Erfolgreich abonniert! Bitte warte auf neue Beiträge des Autors
+continueEditing: Weiter bearbeiten
+publishFirstContent: Ersten Inhalt veröffentlichen
+noSubscribersDesc: Noch keine Abonnenten. Teile den Kanal mit deinen Freunden

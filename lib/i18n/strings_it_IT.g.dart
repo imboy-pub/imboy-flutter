@@ -221,6 +221,7 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get loading => 'Caricamento...';
 	@override String get subscribed => 'Iscritto';
 	@override String get managed => 'Gestito';
+	@override String get writeArticle => 'Scrivi un post';
 	@override String get discover => 'Scopri';
 	@override String get search => 'Cerca';
 	@override String get create => 'Crea canale';
@@ -341,6 +342,15 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get qrcode => 'Codice QR del canale';
 	@override String qrcodeTips({required Object days, required Object date}) => 'Codice QR valido per ${days} giorni (fino al ${date})';
 	@override String get defaultName => 'Canale senza nome';
+	@override String get noMessagesManaged => 'Il canale non ha ancora pubblicato contenuti';
+	@override String get noMessagesManagedDesc => 'In quanto proprietario del canale, puoi pubblicare il primo contenuto qui sotto';
+	@override String get noMessagesVisitor => 'Iscriviti per vedere i contenuti del canale';
+	@override String get noMessagesVisitorDesc => 'I contenuti del canale saranno disponibili dopo l\'iscrizione';
+	@override String get noMessagesSubscribed => 'Il canale non ha ancora pubblicato contenuti';
+	@override String get noMessagesSubscribedDesc => 'Iscrizione completata! Attendi i nuovi contenuti dell\'autore';
+	@override String get continueEditing => 'Continua a modificare';
+	@override String get publishFirstContent => 'Pubblica il primo contenuto';
+	@override String get noSubscribersDesc => 'Nessun iscritto, condividi il canale con i tuoi amici';
 }
 
 // Path: chat
@@ -386,6 +396,7 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get createGroupF2f => 'Crea gruppo faccia a faccia';
 	@override String get displayProfile => 'Mostra il tuo profilo';
 	@override String get file => 'File';
+	@override String get unknownFile => 'File sconosciuto';
 	@override String get fileMessage => '[File]';
 	@override String get fileSize => 'Dimensione file';
 	@override String get forgotPasswordPinCodeView => 'Vista codice PIN password dimenticata';
@@ -622,6 +633,8 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get switchToVoiceInput => 'Passa all\'input vocale';
 	@override String get switchToKeyboardInput => 'Passa all\'input da tastiera';
 	@override String get extraItems => 'Extra';
+	@override String get messageInputHint => 'Scrivi un messaggio...';
+	@override String get invalidMessageType => '[Messaggio non supportato]';
 }
 
 // Path: common
@@ -690,6 +703,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get buttonTakingPictures => 'Scatta foto';
 	@override String get cacheTips => 'La cache è dati temporanei generati durante l\'uso dell\'APP, pulire la cache non influirà sull\'utilizzo normale.';
 	@override String get callDuration => 'Durata della chiamata';
+	@override String get callEnded => 'Chiamata terminata';
 	@override String get calling => 'In chiamata';
 	@override String get canNotAddYourselfFriend => 'Non puoi aggiungere te stesso come amico';
 	@override String get cancel => _root.common.buttonCancel;
@@ -1733,6 +1747,15 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get enterFullscreen => 'Attiva schermo intero';
 	@override String get exitFullscreen => 'Esci da schermo intero';
 	@override String get developer => 'Sviluppatore';
+	@override String get fontSizeOptionSmall => 'Piccolo';
+	@override String get fontSizeOptionNormal => 'Standard';
+	@override String get fontSizeOptionMedium => 'Medio';
+	@override String get fontSizeOptionLarge => 'Grande';
+	@override String get fontSizeOptionExtraLarge => 'Molto grande';
+	@override String get fontSizeOptionHuge => 'Enorme';
+	@override String get searchFailedRetry => 'Ricerca non riuscita, riprova';
+	@override String get searchDisabledTitle => 'Ricerca messaggi non disponibile';
+	@override String get searchDisabledByEncryption => 'La crittografia end-to-end è attiva: il server non può leggere i messaggi, quindi la ricerca full-text non è disponibile';
 }
 
 // Path: complaint
@@ -2021,6 +2044,8 @@ class _Translations$groupSchedule$it_IT extends Translations$groupSchedule$zh_CN
 	@override String get declineAttend => 'Rifiuta';
 	@override String get cancelSchedule => 'Annulla evento';
 	@override String get scheduleIdMissing => 'ID evento mancante, dettagli non disponibili';
+	@override String get untitledSchedule => 'Evento senza titolo';
+	@override String get cardViewAndAttend => 'Vedi dettagli e conferma';
 }
 
 // Path: groupTag
@@ -2392,6 +2417,7 @@ class _Translations$main$it_IT extends Translations$main$zh_CN {
 	@override String get e2eeProxyReachedMin => 'Numero minimo raggiunto';
 	@override String get liveRoomTitleLabel => 'Titolo live';
 	@override String get liveRoomTitleHint => 'Titolo live';
+	@override String get lightModel => 'Modalità chiara';
 }
 
 // Path: mention
@@ -2647,6 +2673,7 @@ extension on TranslationsItIt {
 			'channel.loading' => 'Caricamento...',
 			'channel.subscribed' => 'Iscritto',
 			'channel.managed' => 'Gestito',
+			'channel.writeArticle' => 'Scrivi un post',
 			'channel.discover' => 'Scopri',
 			'channel.search' => 'Cerca',
 			'channel.create' => 'Crea canale',
@@ -2767,6 +2794,15 @@ extension on TranslationsItIt {
 			'channel.qrcode' => 'Codice QR del canale',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => 'Codice QR valido per ${days} giorni (fino al ${date})',
 			'channel.defaultName' => 'Canale senza nome',
+			'channel.noMessagesManaged' => 'Il canale non ha ancora pubblicato contenuti',
+			'channel.noMessagesManagedDesc' => 'In quanto proprietario del canale, puoi pubblicare il primo contenuto qui sotto',
+			'channel.noMessagesVisitor' => 'Iscriviti per vedere i contenuti del canale',
+			'channel.noMessagesVisitorDesc' => 'I contenuti del canale saranno disponibili dopo l\'iscrizione',
+			'channel.noMessagesSubscribed' => 'Il canale non ha ancora pubblicato contenuti',
+			'channel.noMessagesSubscribedDesc' => 'Iscrizione completata! Attendi i nuovi contenuti dell\'autore',
+			'channel.continueEditing' => 'Continua a modificare',
+			'channel.publishFirstContent' => 'Pubblica il primo contenuto',
+			'channel.noSubscribersDesc' => 'Nessun iscritto, condividi il canale con i tuoi amici',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.cards' => 'pz',
 			'chat.jdShopping' => 'Shopping JD',
@@ -2803,6 +2839,7 @@ extension on TranslationsItIt {
 			'chat.createGroupF2f' => 'Crea gruppo faccia a faccia',
 			'chat.displayProfile' => 'Mostra il tuo profilo',
 			'chat.file' => 'File',
+			'chat.unknownFile' => 'File sconosciuto',
 			'chat.fileMessage' => '[File]',
 			'chat.fileSize' => 'Dimensione file',
 			'chat.forgotPasswordPinCodeView' => 'Vista codice PIN password dimenticata',
@@ -3017,6 +3054,8 @@ extension on TranslationsItIt {
 			'chat.e2eeSocialUsedAtLabel' => 'Usato il',
 			'chat.e2eeTransferSendTitle' => 'Invia chiave al nuovo dispositivo',
 			'chat.e2eeTransferCreateBtn' => 'Crea',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeTransferReceiveTitle' => 'Ricevi chiave dal vecchio dispositivo',
 			'chat.e2eeTransferSendDesc' => 'Trasferisci la chiave al nuovo dispositivo via QR code',
 			'chat.e2eeTransferReceiveDesc' => 'Scansiona il QR code del vecchio dispositivo',
@@ -3028,8 +3067,6 @@ extension on TranslationsItIt {
 			'chat.e2eeKeyRecreated' => 'Chiave ricreata',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Nuovo dispositivo rilevato',
 			'chat.e2eeRecoveryNewDeviceBody' => 'Per proteggere i messaggi, su questo dispositivo è stata generata una nuova chiave E2EE.\n\nI messaggi precedenti, cifrati con la chiave del vecchio dispositivo, richiedono prima un ripristino. Ripristina tramite « Trasferimento », « Recupero sociale » o « Backup locale ».',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Messaggio indecifrabile',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Questo messaggio è cifrato con la chiave di un altro dispositivo.\n\nSe hai cambiato dispositivo o reinstallato l\'app, ripristina la chiave per leggere i vecchi messaggi.',
 			'chat.e2eeRecoveryLater' => 'Più tardi',
@@ -3041,6 +3078,8 @@ extension on TranslationsItIt {
 			'chat.switchToVoiceInput' => 'Passa all\'input vocale',
 			'chat.switchToKeyboardInput' => 'Passa all\'input da tastiera',
 			'chat.extraItems' => 'Extra',
+			'chat.messageInputHint' => 'Scrivi un messaggio...',
+			'chat.invalidMessageType' => '[Messaggio non supportato]',
 			'common.about' => 'Informazioni',
 			'common.aboutApp' => 'Informazioni sull\'app',
 			'common.accept' => 'Accetta',
@@ -3100,6 +3139,7 @@ extension on TranslationsItIt {
 			'common.buttonTakingPictures' => 'Scatta foto',
 			'common.cacheTips' => 'La cache è dati temporanei generati durante l\'uso dell\'APP, pulire la cache non influirà sull\'utilizzo normale.',
 			'common.callDuration' => 'Durata della chiamata',
+			'common.callEnded' => 'Chiamata terminata',
 			'common.calling' => 'In chiamata',
 			'common.canNotAddYourselfFriend' => 'Non puoi aggiungere te stesso come amico',
 			'common.cancel' => _root.common.buttonCancel,
@@ -3528,6 +3568,8 @@ extension on TranslationsItIt {
 			'common.officialReply' => 'Risposta ufficiale',
 			'common.setPasswordSecurityTips' => 'Per migliorare la sicurezza dell\'account e impedire l\'impossibilità di accedere a causa dell\'impossibilità di ottenere il codice di verifica, impostare la password di accesso.',
 			'common.locationHidden' => 'La tua posizione è stata nascosta',
+			_ => null,
+		} ?? switch (path) {
 			'common.locationVisible' => 'La tua posizione è stata mostrata',
 			'common.noNearbyPeople' => 'Nessuna persona nelle vicinanze',
 			'common.clickSearchButtonToFind' => 'Tocca il pulsante ricerca sopra per trovare persone nelle vicinanze',
@@ -3542,8 +3584,6 @@ extension on TranslationsItIt {
 			'common.selectExpirationDateOptional' => 'Seleziona data di scadenza (opzionale)',
 			'common.groupAnnouncementDeleteConfirm' => 'Sei sicuro di voler eliminare questo annuncio?',
 			'common.groupAnnouncementDelete' => 'Elimina',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementLoadFailed' => 'Caricamento annuncio fallito. Riprova più tardi.',
 			'common.groupAnnouncementPublishFailed' => 'Pubblicazione annuncio fallita',
 			'common.groupAnnouncementPublishSuccess' => 'Annuncio pubblicato',
@@ -4042,6 +4082,8 @@ extension on TranslationsItIt {
 			'common.e2eeBackupDeleteTitle' => 'Elimina backup',
 			'common.e2eeBackupDeleteConfirm' => 'Eliminare questo backup ?',
 			'common.e2eeBackupDeleteSuccess' => 'Backup eliminato',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupCloudUploadBtn' => 'Backup su cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backup su cloud completato (versione ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'Backup su cloud non riuscito, riprova',
@@ -4056,8 +4098,6 @@ extension on TranslationsItIt {
 			'common.e2eeSocialShardSettings' => 'Impostazioni frammenti',
 			'common.e2eeSocialShardStoredNote' => 'I frammenti sono conservati dai garanti, il server non ne trattiene alcuno',
 			'common.e2eeSocialAddProxy' => 'Aggiungi garante',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSocialAddProxyHint' => 'Aggiungi un garante',
 			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Aggiungi prima ${count} garanti',
 			'common.e2eeSocialCreateSuccessTitle' => 'Frammenti creati',
@@ -4147,6 +4187,15 @@ extension on TranslationsItIt {
 			'common.enterFullscreen' => 'Attiva schermo intero',
 			'common.exitFullscreen' => 'Esci da schermo intero',
 			'common.developer' => 'Sviluppatore',
+			'common.fontSizeOptionSmall' => 'Piccolo',
+			'common.fontSizeOptionNormal' => 'Standard',
+			'common.fontSizeOptionMedium' => 'Medio',
+			'common.fontSizeOptionLarge' => 'Grande',
+			'common.fontSizeOptionExtraLarge' => 'Molto grande',
+			'common.fontSizeOptionHuge' => 'Enorme',
+			'common.searchFailedRetry' => 'Ricerca non riuscita, riprova',
+			'common.searchDisabledTitle' => 'Ricerca messaggi non disponibile',
+			'common.searchDisabledByEncryption' => 'La crittografia end-to-end è attiva: il server non può leggere i messaggi, quindi la ricerca full-text non è disponibile',
 			'complaint.complaint' => 'Reclamo',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Molestie',
@@ -4354,6 +4403,8 @@ extension on TranslationsItIt {
 			'groupSchedule.declineAttend' => 'Rifiuta',
 			'groupSchedule.cancelSchedule' => 'Annulla evento',
 			'groupSchedule.scheduleIdMissing' => 'ID evento mancante, dettagli non disponibili',
+			'groupSchedule.untitledSchedule' => 'Evento senza titolo',
+			'groupSchedule.cardViewAndAttend' => 'Vedi dettagli e conferma',
 			'groupTag.title' => 'Tag di gruppo',
 			'groupTag.addTag' => 'Aggiungi tag',
 			'groupTag.tagName' => 'Nome tag',
@@ -4545,6 +4596,8 @@ extension on TranslationsItIt {
 			'main.zhCn' => 'Cinese semplificato',
 			'main.zhHant' => 'Cinese tradizionale',
 			'main.bound' => 'Collegato',
+			_ => null,
+		} ?? switch (path) {
 			'main.correct' => 'Corretto',
 			'main.pendingInput' => 'In attesa di input',
 			'main.lengthCheck' => 'Controllo lunghezza',
@@ -4570,8 +4623,6 @@ extension on TranslationsItIt {
 			'main.thisIsAuxiliaryText' => 'Questo è testo ausiliario',
 			'main.toBeCompleted' => 'Da completare',
 			'main.availableCount' => 'Disponibile',
-			_ => null,
-		} ?? switch (path) {
 			'main.mostUsed' => 'Più usati',
 			'main.commentPlaceholder' => 'Commento...',
 			'main.delayMsLabel' => 'Ritardo in ms (>=100)',
@@ -4691,6 +4742,7 @@ extension on TranslationsItIt {
 			'main.e2eeProxyReachedMin' => 'Numero minimo raggiunto',
 			'main.liveRoomTitleLabel' => 'Titolo live',
 			'main.liveRoomTitleHint' => 'Titolo live',
+			'main.lightModel' => 'Modalità chiara',
 			'mention.mentionAll' => 'Tutti',
 			'mention.mentionAllHint' => 'Notifica tutti i membri del gruppo',
 			'mention.noMatchedMember' => 'Nessun membro corrispondente',

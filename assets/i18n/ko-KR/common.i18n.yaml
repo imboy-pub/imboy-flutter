@@ -58,6 +58,7 @@ buttonSubmit: 제출
 buttonTakingPictures: 사진 촬영
 cacheTips: 캐시는 앱 사용 중 생성되는 임시 데이터입니다. 캐시를 정리해도 정상적인 사용에 영향을 주지 않습니다.
 callDuration: 통화 시간
+callEnded: "통화 종료"
 calling: 통화 중
 canNotAddYourselfFriend: 자신을 친구로 추가할 수 없습니다
 cancel: "@:common.buttonCancel"
@@ -1101,3 +1102,12 @@ resumeScan: 스캔 재개
 enterFullscreen: 전체 화면으로 전환
 exitFullscreen: 전체 화면 종료
 developer: 개발자
+fontSizeOptionSmall: 작게
+fontSizeOptionNormal: 표준
+fontSizeOptionMedium: 보통
+fontSizeOptionLarge: 크게
+fontSizeOptionExtraLarge: 아주 크게
+fontSizeOptionHuge: 최대
+searchFailedRetry: "검색에 실패했습니다. 다시 시도해 주세요"
+searchDisabledTitle: "메시지 검색을 사용할 수 없음"
+searchDisabledByEncryption: "종단간 암호화가 켜져 있어 서버가 메시지를 읽을 수 없으므로 전체 검색을 제공하지 않습니다"

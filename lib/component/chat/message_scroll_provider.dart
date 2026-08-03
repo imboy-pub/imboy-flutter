@@ -412,7 +412,7 @@ class ScrollToBottomButton extends ConsumerWidget {
             // alpha 0.2 → 0.08 对齐推荐值
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
+                color: AppColors.mediaScrimBlack.withValues(alpha: 0.08),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -435,7 +435,7 @@ class ScrollToBottomButton extends ConsumerWidget {
                     const Center(
                       child: Icon(
                         Icons.keyboard_arrow_down,
-                        color: Colors.white,
+                        color: AppColors.onPrimary,
                         size: 24,
                       ),
                     ),
@@ -458,7 +458,7 @@ class ScrollToBottomButton extends ConsumerWidget {
                               // fontSize 8 has no exact tier; nearest is tiny(10), -2px delta
                               style: context.textStyle(
                                 FontSizeType.tiny,
-                                color: Colors.white,
+                                color: AppColors.onPrimary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

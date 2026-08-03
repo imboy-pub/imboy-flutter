@@ -797,32 +797,10 @@ class ChatAttachmentHandler {
     );
   }
 
-  /// 发送表情消息
-  Future<void> sendExpressionMessage(
-    BuildContext context,
-    String url,
-    String text, {
-    int? width,
-    int? height,
-  }) async {
-    final message = CustomMessage(
-      authorId: _currentUser.id,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(
-        DateTimeHelper.millisecond(),
-        isUtc: true,
-      ),
-      id: Xid().toString(),
-      metadata: _withBurnMetadata({
-        'msg_type': 'expression',
-        'peer_id': peerId,
-        'url': url,
-        'text': text,
-        'width': width ?? 120,
-        'height': height ?? 120,
-      }),
-    );
-    await _sendMessage(message);
-  }
+  // sendExpressionMessage 已删除：唯一调用方是假贴图面板（16 个硬编码 emoji，
+  // url 恒为空），本端不再生产 expression 消息。接收侧的
+  // ExpressionMessageTypePlugin 保留，仍能渲染他端/历史的贴图消息。
+  // 要恢复生产，前提是后端有表情包资源（当前 user_collect 的 kind 1~7 里没有）。
 
   /// 发送收藏消息
   Future<void> sendCollectMessage(

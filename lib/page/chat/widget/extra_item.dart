@@ -130,7 +130,6 @@ class ExtraItems extends ConsumerStatefulWidget {
     this.handleLocationSelection,
     this.handleVisitCardSelection,
     this.handleCollectSelection,
-    this.handleStickerSelection,
     this.handleRedPacketSelection,
     this.handleTransferSelection,
     required this.type,
@@ -146,7 +145,6 @@ class ExtraItems extends ConsumerStatefulWidget {
   handleLocationSelection;
   final void Function()? handleVisitCardSelection;
   final void Function()? handleCollectSelection;
-  final void Function()? handleStickerSelection;
   final void Function(Map<String, dynamic>)? handleRedPacketSelection;
   final void Function(Map<String, dynamic>)? handleTransferSelection;
 
@@ -264,11 +262,10 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
         image: const Icon(Icons.insert_drive_file_outlined, size: iconSize),
         onPressed: widget.handleFileSelection,
       ),
-      ExtraItem(
-        title: t.common.expression,
-        image: const Icon(Icons.face_outlined, size: iconSize),
-        onPressed: widget.handleStickerSelection,
-      ),
+      // 表情入口只保留输入框的笑脸键（emoji 属于文本内容，不是独立消息类型）。
+      // 原先这里的"表情"打开的是 16 个硬编码 Unicode emoji 的假贴图面板，
+      // 是笑脸键的劣化子集。真表情包（url 非空的 expression 消息）待后端
+      // 表情包资源就绪后再加回来，届时图标应是贴纸而非 face_outlined。
       ExtraItem(
         title: t.main.favorites,
         image: const Icon(Icons.collections_bookmark_outlined, size: iconSize),

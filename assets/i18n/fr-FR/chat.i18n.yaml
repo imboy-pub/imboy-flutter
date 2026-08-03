@@ -35,6 +35,7 @@ chatStatusSeenDesc: Message lu
 createGroupF2f: Créer un groupe en face à face
 displayProfile: Afficher votre profil
 file: Fichier
+unknownFile: "Fichier inconnu"
 fileMessage: "[Fichier]"
 fileSize: Taille du fichier
 forgotPasswordPinCodeView: Vue du code PIN de mot de passe oublié
@@ -277,3 +278,5 @@ liveRoomWatch: Regarder
 switchToVoiceInput: Passer à la saisie vocale
 switchToKeyboardInput: Passer à la saisie clavier
 extraItems: Suppléments
+messageInputHint: Écrire un message...
+invalidMessageType: "[Message non pris en charge]"

@@ -38,6 +38,8 @@ class CustomMessageBuilder extends StatelessWidget {
     this.currentDurationMs = 0,
     // 当前会话的所有消息（用于图片预览时获取其他图片）
     this.messages,
+    // 点击引用块跳回原消息
+    this.onQuoteTap,
   });
 
   final String type; // C2C C2G
@@ -56,6 +58,7 @@ class CustomMessageBuilder extends StatelessWidget {
   final int currentDurationMs;
   // 当前会话的所有消息
   final List<dynamic>? messages;
+  final void Function(String quotedMessageId)? onQuoteTap;
 
   Widget _wrapWithDefaultBubble(
     BuildContext context,
@@ -128,6 +131,7 @@ class CustomMessageBuilder extends StatelessWidget {
           currentPositionMs: currentPositionMs,
           currentDurationMs: currentDurationMs,
           messages: messages,
+          onQuoteTap: onQuoteTap,
         );
         final plugin = pluginRegistry.resolve(
           messageType.isEmpty ? MessageType.unsupported : messageType,
