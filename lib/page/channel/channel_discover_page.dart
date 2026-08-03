@@ -461,14 +461,18 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
       ),
       isThreeLine: true,
       trailing: widget.channel.isManaged
-          ? TextButton(
+          ? OutlinedButton(
               onPressed: () {
                 context.push('/channel/${_detailRouteId(widget.channel)}');
               },
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                visualDensity: VisualDensity.compact,
+              ),
               child: Text(t.main.manage),
             )
           : (widget.isSubscribed
-                ? TextButton(
+                ? OutlinedButton.icon(
                     onPressed: _isSubmitting
                         ? null
                         : () async {
@@ -478,15 +482,20 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
                               setState(() => _isSubmitting = false);
                             }
                           },
-                    child: _isSubmitting
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    icon: _isSubmitting
                         ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            width: 12,
+                            height: 12,
+                            child: CircularProgressIndicator(strokeWidth: 1.5),
                           )
-                        : Text(t.channel.unsubscribe),
+                        : const Icon(Icons.check, size: 14),
+                    label: Text(t.channel.subscribed),
                   )
-                : TextButton(
+                : FilledButton(
                     onPressed: _isSubmitting
                         ? null
                         : () async {
@@ -496,11 +505,18 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
                               setState(() => _isSubmitting = false);
                             }
                           },
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      visualDensity: VisualDensity.compact,
+                    ),
                     child: _isSubmitting
                         ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            width: 12,
+                            height: 12,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.5,
+                              color: AppColors.onPrimary,
+                            ),
                           )
                         : Text(t.channel.subscribe),
                   )),

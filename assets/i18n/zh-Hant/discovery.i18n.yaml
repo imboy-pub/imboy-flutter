@@ -25,7 +25,7 @@ momentsDenyUidsLabel: 不給誰看 UID 列表（逗號分隔）
 momentsDraftRestored: 已恢復上次未傳送的草稿
 momentsFeedStale: 網路異常，顯示的是快取內容
 momentActionLike: "讚"
-momentActionCancelLike: "取消"
+momentActionCancelLike: "取消讚"
 momentActionComment: "評論"
 momentActionDelete: "刪除"
 momentActionReport: "舉報"

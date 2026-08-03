@@ -36,7 +36,12 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(loadData());
+    // provider 写入必须晚于首帧，否则 Riverpod 抛
+    // "Tried to modify a provider while the widget tree was building"
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(loadData());
+    });
   }
 
   Future<void> loadData() async {

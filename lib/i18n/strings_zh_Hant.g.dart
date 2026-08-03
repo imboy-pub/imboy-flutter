@@ -1867,7 +1867,7 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String get momentsDraftRestored => '已恢復上次未傳送的草稿';
 	@override String get momentsFeedStale => '網路異常，顯示的是快取內容';
 	@override String get momentActionLike => '讚';
-	@override String get momentActionCancelLike => '取消';
+	@override String get momentActionCancelLike => '取消讚';
 	@override String get momentActionComment => '評論';
 	@override String get momentActionDelete => '刪除';
 	@override String get momentActionReport => '舉報';
@@ -4268,7 +4268,7 @@ extension on TranslationsZhHant {
 			'discovery.momentsDraftRestored' => '已恢復上次未傳送的草稿',
 			'discovery.momentsFeedStale' => '網路異常，顯示的是快取內容',
 			'discovery.momentActionLike' => '讚',
-			'discovery.momentActionCancelLike' => '取消',
+			'discovery.momentActionCancelLike' => '取消讚',
 			'discovery.momentActionComment' => '評論',
 			'discovery.momentActionDelete' => '刪除',
 			'discovery.momentActionReport' => '舉報',

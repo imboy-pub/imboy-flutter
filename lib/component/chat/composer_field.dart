@@ -137,6 +137,46 @@ class ComposerFieldState extends State<ComposerField> {
     }
   }
 
+  /// 单行输入条：表情按钮并排在右侧（聊天场景，高度只有一行，不浪费）。
+  /// 多行创作区：并排会让按钮独占整条 44pt 右列（朋友圈发布页实测：填充区
+  /// 被切掉右侧约 22%，视觉上像两个错位的框），改为浮在输入框右下角。
+  Widget _wrapWithEmoji({required Widget field}) {
+    if (!widget.showEmojiButton) return field;
+
+    final button = IconButton(
+      key: const Key('composer_emoji_button'),
+      // ≥44pt 触达
+      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
+      onPressed: widget.enabled ? _toggleEmoji : null,
+      icon: Icon(
+        _emojiOpen ? Icons.keyboard_outlined : Icons.emoji_emotions_outlined,
+        size: 24,
+        color: AppColors.iosGray,
+      ),
+    );
+
+    if (widget.maxLines == 1) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(child: field),
+          button,
+        ],
+      );
+    }
+
+    return Stack(
+      // passthrough：把父级的 tight 宽度原样传给 TextField，
+      // 否则非 positioned child 只拿到 loose 约束，输入框不会撑满整宽。
+      fit: StackFit.passthrough,
+      children: [
+        field,
+        Positioned(right: 0, bottom: 0, child: button),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -171,69 +211,46 @@ class ComposerFieldState extends State<ComposerField> {
               borderRadius: AppRadius.borderRadiusRegular,
               border: Border.all(color: borderColor, width: borderWidth),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: TextField(
-                    key: const Key('composer_text_field'),
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    enabled: widget.enabled,
-                    autofocus: widget.autofocus,
-                    minLines: widget.minLines,
-                    maxLines: widget.maxLines,
-                    maxLength: widget.maxLength,
-                    textInputAction: widget.textInputAction,
-                    onTap: () {
-                      if (_emojiOpen) setState(() => _emojiOpen = false);
-                    },
-                    onChanged: widget.onChanged,
-                    onSubmitted: (_) => widget.onSubmitted?.call(),
-                    decoration: InputDecoration(
-                      hintText: widget.hintText,
-                      hintStyle: context.textStyle(
-                        FontSizeType.body,
-                        color: AppColors.iosGray,
-                      ),
-                      border: InputBorder.none,
-                      counterText: '', // 计数由下方自绘，隐藏内置
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.medium,
-                        vertical: AppSpacing.medium,
-                      ),
-                    ),
-                    style: context
-                        .textStyle(
-                          FontSizeType.body,
-                          color: AppColors.getTextColor(
-                            Theme.of(context).brightness,
-                          ),
-                        )
-                        .copyWith(height: 1.45),
+            // 单行（聊天输入条）表情按钮并排在右；多行（朋友圈/频道创作区）
+            // 并排会让按钮独占整条 44pt 右列、把填充区切掉一块，改为浮在右下角。
+            child: _wrapWithEmoji(
+              field: TextField(
+                key: const Key('composer_text_field'),
+                controller: _controller,
+                focusNode: _focusNode,
+                enabled: widget.enabled,
+                autofocus: widget.autofocus,
+                minLines: widget.minLines,
+                maxLines: widget.maxLines,
+                maxLength: widget.maxLength,
+                textInputAction: widget.textInputAction,
+                onTap: () {
+                  if (_emojiOpen) setState(() => _emojiOpen = false);
+                },
+                onChanged: widget.onChanged,
+                onSubmitted: (_) => widget.onSubmitted?.call(),
+                decoration: InputDecoration(
+                  hintText: widget.hintText,
+                  hintStyle: context.textStyle(
+                    FontSizeType.body,
+                    color: AppColors.iosGray,
+                  ),
+                  border: InputBorder.none,
+                  counterText: '', // 计数由下方自绘，隐藏内置
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.medium,
+                    vertical: AppSpacing.medium,
                   ),
                 ),
-                if (widget.showEmojiButton)
-                  IconButton(
-                    key: const Key('composer_emoji_button'),
-                    // ≥44pt 触达
-                    constraints: const BoxConstraints(
-                      minWidth: 44,
-                      minHeight: 44,
-                    ),
-                    tooltip: MaterialLocalizations.of(
-                      context,
-                    ).moreButtonTooltip,
-                    onPressed: widget.enabled ? _toggleEmoji : null,
-                    icon: Icon(
-                      _emojiOpen
-                          ? Icons.keyboard_outlined
-                          : Icons.emoji_emotions_outlined,
-                      size: 24,
-                      color: AppColors.iosGray,
-                    ),
-                  ),
-              ],
+                style: context
+                    .textStyle(
+                      FontSizeType.body,
+                      color: AppColors.getTextColor(
+                        Theme.of(context).brightness,
+                      ),
+                    )
+                    .copyWith(height: 1.45),
+              ),
             ),
           ),
         ),

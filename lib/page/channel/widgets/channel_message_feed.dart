@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
+import 'package:go_router/go_router.dart';
 
 import '../channel_message_item.dart';
 import '../channel_provider.dart';
@@ -105,10 +106,50 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
     }
 
     if (state.messages.isEmpty && !state.isLoading) {
-      return NoDataView(
-        icon: Icons.article_outlined,
-        text: t.channel.noMessages,
-      );
+      final channel = state.channel;
+      final isManaged = channel?.isManaged ?? widget.isManaged;
+      final isSubscribed = channel?.isSubscribed ?? false;
+      final isZh = LocaleSettings.currentLocale.languageCode == 'zh';
+
+      if (isManaged) {
+        return NoDataView(
+          icon: Icons.edit_note_outlined,
+          text: isZh ? '频道还没有发布任何内容' : 'No content published yet',
+          description: isZh
+              ? '作为频道主，你可以点击下方按钮发布第一条内容'
+              : 'As a channel manager, you can publish the first piece of content below.',
+          onTop: () => context.push('/channel/${widget.channelId}/compose'),
+          retryLabel: isZh ? '发布第一条内容' : 'Publish first content',
+        );
+      } else if (!isSubscribed) {
+        return NoDataView(
+          icon: Icons.notifications_active_outlined,
+          text: isZh ? '订阅后查看频道内容' : 'Subscribe to see content',
+          description: isZh
+              ? '本频道发布的精彩内容将在订阅后呈现'
+              : 'Stay tuned! The content of this channel will be available after you subscribe.',
+          onTop: () async {
+            final success = await ref
+                .read(channelListProvider.notifier)
+                .subscribeChannel(widget.channelId);
+            if (success) {
+              await ref
+                  .read(channelDetailProvider.notifier)
+                  .loadChannel(widget.channelId);
+              widget.onReactionChanged?.call();
+            }
+          },
+          retryLabel: t.channel.subscribe,
+        );
+      } else {
+        return NoDataView(
+          icon: Icons.article_outlined,
+          text: isZh ? '频道还没有发布内容' : 'No content yet',
+          description: isZh
+              ? '订阅成功！请耐心等待作者发布新内容'
+              : 'Subscribed successfully! Please stay tuned for new updates.',
+        );
+      }
     }
 
     return Stack(

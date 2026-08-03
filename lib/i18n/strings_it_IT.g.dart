@@ -1850,7 +1850,7 @@ class _Translations$discovery$it_IT extends Translations$discovery$zh_CN {
 	@override String get momentsDraftRestored => 'Bozza precedente ripristinata';
 	@override String get momentsFeedStale => 'Errore di rete, mostra contenuti in cache';
 	@override String get momentActionLike => 'Mi piace';
-	@override String get momentActionCancelLike => 'Annulla';
+	@override String get momentActionCancelLike => 'Non mi piace più';
 	@override String get momentActionComment => 'Commenta';
 	@override String get momentActionDelete => 'Elimina';
 	@override String get momentActionReport => 'Segnala';
@@ -4228,7 +4228,7 @@ extension on TranslationsItIt {
 			'discovery.momentsDraftRestored' => 'Bozza precedente ripristinata',
 			'discovery.momentsFeedStale' => 'Errore di rete, mostra contenuti in cache',
 			'discovery.momentActionLike' => 'Mi piace',
-			'discovery.momentActionCancelLike' => 'Annulla',
+			'discovery.momentActionCancelLike' => 'Non mi piace più',
 			'discovery.momentActionComment' => 'Commenta',
 			'discovery.momentActionDelete' => 'Elimina',
 			'discovery.momentActionReport' => 'Segnala',

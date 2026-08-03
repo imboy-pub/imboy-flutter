@@ -37,7 +37,12 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(initData());
+    // provider 写入必须晚于首帧，否则 Riverpod 抛
+    // "Tried to modify a provider while the widget tree was building"
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(initData());
+    });
   }
 
   Future<void> initData() async {

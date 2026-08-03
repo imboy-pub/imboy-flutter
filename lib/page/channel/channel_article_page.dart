@@ -69,6 +69,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   // 让底栏计数即时反映操作（消息本身不随点赞实时刷新）。
   bool _liked = false;
   int _likeDelta = 0;
+  bool _likeActionBusy = false;
 
   @override
   void initState() {
@@ -282,26 +283,63 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   // ---- 消息点赞（底部操作栏）----
 
   Future<void> _toggleMessageLike() async {
+    if (_likeActionBusy) return;
+    _likeActionBusy = true;
     HapticFeedback.lightImpact();
+
     final service = ref.read(channelServiceProvider);
     final messageId = widget.message!.id.toString();
     final willLike = !_liked;
-    final success = willLike
-        ? await service.addReaction(
-            channelId: widget.channelId,
-            messageId: messageId,
-            reactionType: ChannelReactionType.like,
-          )
-        : await service.removeReaction(
-            channelId: widget.channelId,
-            messageId: messageId,
-            reactionType: ChannelReactionType.like,
-          );
-    if (success && mounted) {
-      setState(() {
-        _liked = willLike;
-        _likeDelta += willLike ? 1 : -1;
-      });
+
+    // 乐观更新
+    final previousLiked = _liked;
+    final previousDelta = _likeDelta;
+
+    setState(() {
+      _liked = willLike;
+      _likeDelta += willLike ? 1 : -1;
+    });
+
+    try {
+      final success = willLike
+          ? await service.addReaction(
+              channelId: widget.channelId,
+              messageId: messageId,
+              reactionType: ChannelReactionType.like,
+            )
+          : await service.removeReaction(
+              channelId: widget.channelId,
+              messageId: messageId,
+              reactionType: ChannelReactionType.like,
+            );
+
+      if (success) {
+        // 成功！将状态同步给全局 provider
+        final totalLikes =
+            widget.message!.reactionSummary?[ChannelReactionType.like] ?? 0;
+        ref
+            .read(channelDetailProvider.notifier)
+            .updateMessageReaction(messageId, _liked, totalLikes + _likeDelta);
+      } else {
+        // 失败回滚
+        if (mounted) {
+          setState(() {
+            _liked = previousLiked;
+            _likeDelta = previousDelta;
+          });
+          AppLoading.showToast(context.t.common.operationFailedAgainLater);
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _liked = previousLiked;
+          _likeDelta = previousDelta;
+        });
+        AppLoading.showToast(context.t.common.operationFailedAgainLater);
+      }
+    } finally {
+      _likeActionBusy = false;
     }
   }
 

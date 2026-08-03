@@ -1850,7 +1850,7 @@ class _Translations$discovery$ja_JP extends Translations$discovery$zh_CN {
 	@override String get momentsDraftRestored => '前回の未送信下書きを復元しました';
 	@override String get momentsFeedStale => '通信エラーのため、キャッシュの内容を表示しています';
 	@override String get momentActionLike => 'いいね';
-	@override String get momentActionCancelLike => '取り消す';
+	@override String get momentActionCancelLike => 'いいねを取り消す';
 	@override String get momentActionComment => 'コメント';
 	@override String get momentActionDelete => '削除';
 	@override String get momentActionReport => '通報';
@@ -4228,7 +4228,7 @@ extension on TranslationsJaJp {
 			'discovery.momentsDraftRestored' => '前回の未送信下書きを復元しました',
 			'discovery.momentsFeedStale' => '通信エラーのため、キャッシュの内容を表示しています',
 			'discovery.momentActionLike' => 'いいね',
-			'discovery.momentActionCancelLike' => '取り消す',
+			'discovery.momentActionCancelLike' => 'いいねを取り消す',
 			'discovery.momentActionComment' => 'コメント',
 			'discovery.momentActionDelete' => '削除',
 			'discovery.momentActionReport' => '通報',

@@ -50,12 +50,13 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
 
   /// 初始化数据
   void _initData() {
-    final notifier = ref.read(changeInfoProvider.notifier);
-    notifier.setGroup(widget.group);
     _setText(widget.group.title);
 
-    // 给予一些延时，确保页面构建完成
+    // provider 写入必须晚于首帧，否则 Riverpod 抛
+    // "Tried to modify a provider while the widget tree was building"
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(changeInfoProvider.notifier).setGroup(widget.group);
       _inputFocusNode.requestFocus();
     });
   }

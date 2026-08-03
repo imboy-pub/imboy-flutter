@@ -26,7 +26,7 @@ momentsDenyUidsLabel: UID esclusi (separati da virgola)
 momentsDraftRestored: Bozza precedente ripristinata
 momentsFeedStale: Errore di rete, mostra contenuti in cache
 momentActionLike: "Mi piace"
-momentActionCancelLike: "Annulla"
+momentActionCancelLike: "Non mi piace più"
 momentActionComment: "Commenta"
 momentActionDelete: "Elimina"
 momentActionReport: "Segnala"

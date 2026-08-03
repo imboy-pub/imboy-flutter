@@ -17,6 +17,7 @@ import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
+import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
@@ -122,7 +123,19 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       reactionType: reactionType,
     );
 
-    if (!success) {
+    if (success) {
+      if (reactionType == ChannelReactionType.like) {
+        final totalLikes =
+            widget.message.reactionSummary?[ChannelReactionType.like] ?? 0;
+        ref
+            .read(channelDetailProvider.notifier)
+            .updateMessageReaction(
+              widget.message.id.toString(),
+              _liked,
+              totalLikes + _likeDelta,
+            );
+      }
+    } else {
       if (mounted) {
         setState(() {
           if (reactionType == ChannelReactionType.like) {
@@ -152,7 +165,19 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       reactionType: reactionType,
     );
 
-    if (!success) {
+    if (success) {
+      if (reactionType == ChannelReactionType.like) {
+        final totalLikes =
+            widget.message.reactionSummary?[ChannelReactionType.like] ?? 0;
+        ref
+            .read(channelDetailProvider.notifier)
+            .updateMessageReaction(
+              widget.message.id.toString(),
+              _liked,
+              totalLikes + _likeDelta,
+            );
+      }
+    } else {
       if (mounted) {
         setState(() {
           if (reactionType == ChannelReactionType.like) {

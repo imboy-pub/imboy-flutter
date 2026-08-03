@@ -43,6 +43,9 @@ const String _contactDDL = '''
     is_from TEXT NOT NULL DEFAULT '',
     category_id INTEGER NOT NULL DEFAULT 0,
     account_type INTEGER NOT NULL DEFAULT 0,
+    -- upgrade.sql:1378 新增；findFriend 的 SELECT 列表含此列，
+    -- 漏掉会让整条查询 "no such column" 直接失败（列表空）。
+    last_seen_at INTEGER,
     updated_at INTEGER NOT NULL DEFAULT 0,
     UNIQUE (user_id, peer_id)
   )

@@ -747,7 +747,10 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 )
               : CupertinoButton(
                   padding: EdgeInsets.zero,
-                  onPressed: _busy ? null : _submit,
+                  // 空内容时置灰：原先按钮常亮，点下去才弹"请输入内容"，
+                  // 白跑一趟。_hasUnsavedContent 正好是"有文本或有媒体"。
+                  // _submit 内的空值兜底保留，作为防御。
+                  onPressed: (_busy || !_hasUnsavedContent) ? null : _submit,
                   child: Text(
                     t.common.confirm,
                     style: context.textStyle(

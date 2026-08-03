@@ -1850,7 +1850,7 @@ class _Translations$discovery$fr_FR extends Translations$discovery$zh_CN {
 	@override String get momentsDraftRestored => 'Brouillon précédent restauré';
 	@override String get momentsFeedStale => 'Erreur réseau, affichage du cache';
 	@override String get momentActionLike => 'J\'aime';
-	@override String get momentActionCancelLike => 'Annuler';
+	@override String get momentActionCancelLike => 'Je n\'aime plus';
 	@override String get momentActionComment => 'Commenter';
 	@override String get momentActionDelete => 'Supprimer';
 	@override String get momentActionReport => 'Signaler';
@@ -4228,7 +4228,7 @@ extension on TranslationsFrFr {
 			'discovery.momentsDraftRestored' => 'Brouillon précédent restauré',
 			'discovery.momentsFeedStale' => 'Erreur réseau, affichage du cache',
 			'discovery.momentActionLike' => 'J\'aime',
-			'discovery.momentActionCancelLike' => 'Annuler',
+			'discovery.momentActionCancelLike' => 'Je n\'aime plus',
 			'discovery.momentActionComment' => 'Commenter',
 			'discovery.momentActionDelete' => 'Supprimer',
 			'discovery.momentActionReport' => 'Signaler',

@@ -5721,8 +5721,8 @@ class Translations$discovery$zh_CN {
 	/// zh-CN: '赞'
 	String get momentActionLike => '赞';
 
-	/// zh-CN: '取消'
-	String get momentActionCancelLike => '取消';
+	/// zh-CN: '取消点赞'
+	String get momentActionCancelLike => '取消点赞';
 
 	/// zh-CN: '评论'
 	String get momentActionComment => '评论';
@@ -9346,7 +9346,7 @@ extension on Translations {
 			'discovery.momentsDraftRestored' => '已恢复上次未发送的草稿',
 			'discovery.momentsFeedStale' => '网络异常，显示的是缓存内容',
 			'discovery.momentActionLike' => '赞',
-			'discovery.momentActionCancelLike' => '取消',
+			'discovery.momentActionCancelLike' => '取消点赞',
 			'discovery.momentActionComment' => '评论',
 			'discovery.momentActionMore' => '更多操作',
 			'discovery.momentActionDelete' => '删除',

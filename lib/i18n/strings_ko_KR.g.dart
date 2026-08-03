@@ -1850,7 +1850,7 @@ class _Translations$discovery$ko_KR extends Translations$discovery$zh_CN {
 	@override String get momentsDraftRestored => '마지막 저장된 임시글이 복원되었습니다';
 	@override String get momentsFeedStale => '네트워크 오류로 캐시된 내용을 표시합니다';
 	@override String get momentActionLike => '좋아요';
-	@override String get momentActionCancelLike => '취소';
+	@override String get momentActionCancelLike => '좋아요 취소';
 	@override String get momentActionComment => '댓글';
 	@override String get momentActionDelete => '삭제';
 	@override String get momentActionReport => '신고';
@@ -4228,7 +4228,7 @@ extension on TranslationsKoKr {
 			'discovery.momentsDraftRestored' => '마지막 저장된 임시글이 복원되었습니다',
 			'discovery.momentsFeedStale' => '네트워크 오류로 캐시된 내용을 표시합니다',
 			'discovery.momentActionLike' => '좋아요',
-			'discovery.momentActionCancelLike' => '취소',
+			'discovery.momentActionCancelLike' => '좋아요 취소',
 			'discovery.momentActionComment' => '댓글',
 			'discovery.momentActionDelete' => '삭제',
 			'discovery.momentActionReport' => '신고',

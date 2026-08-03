@@ -25,7 +25,7 @@ momentsDenyUidsLabel: 不给谁看 UID 列表（逗号分隔）
 momentsDraftRestored: 已恢复上次未发送的草稿
 momentsFeedStale: 网络异常，显示的是缓存内容
 momentActionLike: "赞"
-momentActionCancelLike: "取消"
+momentActionCancelLike: "取消点赞"
 momentActionComment: "评论"
 momentActionMore: "更多操作"
 momentActionDelete: "删除"

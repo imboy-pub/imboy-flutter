@@ -26,7 +26,7 @@ momentsDenyUidsLabel: UIDs exclus (séparés par virgule)
 momentsDraftRestored: Brouillon précédent restauré
 momentsFeedStale: Erreur réseau, affichage du cache
 momentActionLike: "J'aime"
-momentActionCancelLike: "Annuler"
+momentActionCancelLike: "Je n'aime plus"
 momentActionComment: "Commenter"
 momentActionDelete: "Supprimer"
 momentActionReport: "Signaler"

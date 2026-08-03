@@ -100,4 +100,45 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(controller.text, 'hi😀');
   });
+
+  // 多行创作区（朋友圈发布/频道撰写）：表情按钮不再并排独占右侧 44pt 一列，
+  // 而是浮在右下角，输入框必须撑满整宽。Stack 少了 fit: passthrough 时
+  // TextField 只拿到 loose 约束会缩宽 —— 这条测试就是钉住那个回归。
+  testWidgets('多行模式下输入框撑满整宽，表情按钮浮于右下', (tester) async {
+    const boxWidth = 300.0;
+    await tester.pumpWidget(
+      _wrap(
+        const SizedBox(
+          width: boxWidth,
+          child: ComposerField(minLines: 5, maxLines: 10),
+        ),
+      ),
+    );
+
+    final fieldWidth = tester.getSize(find.byType(TextField)).width;
+    final borderWidth = 1.5 * 2; // 聚焦态描边占宽，autofocus=false 时为 0.5*2
+    expect(fieldWidth, greaterThan(boxWidth - borderWidth - 1));
+
+    // 表情按钮贴在输入框右下角，而非纵向居中独占一列
+    final fieldRect = tester.getRect(find.byType(TextField));
+    final btnRect = tester.getRect(
+      find.byKey(const Key('composer_emoji_button')),
+    );
+    expect(btnRect.right, closeTo(fieldRect.right, 1.0));
+    expect(btnRect.bottom, closeTo(fieldRect.bottom, 1.0));
+  });
+
+  // 单行输入条（聊天）保持并排布局：按钮在右，输入框让出按钮宽度。
+  testWidgets('单行模式下表情按钮仍并排在右侧', (tester) async {
+    const boxWidth = 300.0;
+    await tester.pumpWidget(
+      _wrap(const SizedBox(width: boxWidth, child: ComposerField(maxLines: 1))),
+    );
+
+    final fieldRect = tester.getRect(find.byType(TextField));
+    final btnRect = tester.getRect(
+      find.byKey(const Key('composer_emoji_button')),
+    );
+    expect(fieldRect.right, lessThanOrEqualTo(btnRect.left + 1));
+  });
 }

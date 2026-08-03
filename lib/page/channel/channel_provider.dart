@@ -8,6 +8,7 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
+import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -600,6 +601,40 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
               ? message.copyWith(isPinned: pinned)
               : message,
         )
+        .toList(growable: false);
+    state = state.copyWith(messages: updated);
+  }
+
+  /// 立刻更新指定消息的点赞反应状态，供详情卡片与阅读页双向高保真同步
+  void updateMessageReaction(String messageId, bool liked, int totalLikes) {
+    final updated = state.messages
+        .map((message) {
+          if (message.id.toString() == messageId) {
+            // 构造新的 reactionSummary
+            final Map<String, int> summary = Map<String, int>.from(
+              message.reactionSummary ?? {},
+            );
+            summary[ChannelReactionType.like] = totalLikes;
+
+            // 构造新的 myReactions
+            final List<String> myReactions = List<String>.from(
+              message.myReactions,
+            );
+            if (liked) {
+              if (!myReactions.contains(ChannelReactionType.like)) {
+                myReactions.add(ChannelReactionType.like);
+              }
+            } else {
+              myReactions.remove(ChannelReactionType.like);
+            }
+
+            return message.copyWith(
+              reactionSummary: summary,
+              myReactions: myReactions,
+            );
+          }
+          return message;
+        })
         .toList(growable: false);
     state = state.copyWith(messages: updated);
   }

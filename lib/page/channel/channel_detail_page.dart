@@ -160,6 +160,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     final t = context.t;
     final items = <PopupMenuEntry<String>>[];
 
+    // 1. 内容/编辑 分组
     if (channel.isManaged) {
       items.add(
         PopupMenuItem(
@@ -171,6 +172,11 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           ),
         ),
       );
+    }
+
+    // 2. 成员管理 分组
+    if (channel.isManaged) {
+      if (items.isNotEmpty) items.add(const PopupMenuDivider());
       items.add(
         PopupMenuItem(
           value: 'manage_admins',
@@ -191,27 +197,12 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           ),
         ),
       );
-      // 与齿轮设置 sheet 对齐：创建者在 more_vert 菜单同样可删除频道（M10）
-      if (channel.userRole.isCreator) {
-        items.add(
-          PopupMenuItem(
-            value: 'delete_channel',
-            child: ListTile(
-              leading: const Icon(
-                CupertinoIcons.delete,
-                color: AppColors.iosRed,
-              ),
-              title: Text(
-                t.channel.deleteChannel,
-                style: const TextStyle(color: AppColors.iosRed),
-              ),
-              contentPadding: EdgeInsets.zero,
-            ),
-          ),
-        );
-      }
-    } else if (channel.isSubscribed) {
-      items.add(
+    }
+
+    // 3. 消费/分享/订单 分组
+    final List<PopupMenuEntry<String>> consumerSection = [];
+    if (channel.isSubscribed && !channel.isManaged) {
+      consumerSection.add(
         PopupMenuItem(
           value: 'unsubscribe',
           child: ListTile(
@@ -222,9 +213,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         ),
       );
     }
-
     if (AppFeatureRegistry.isEnabled(FeatureKeys.channelInvitation)) {
-      items.add(
+      consumerSection.add(
         PopupMenuItem(
           value: 'invitation_center',
           child: ListTile(
@@ -235,7 +225,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         ),
       );
     }
-    items.add(
+    consumerSection.add(
       PopupMenuItem(
         value: 'share',
         child: ListTile(
@@ -247,7 +237,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     );
     if (channel.type == ChannelType.paid &&
         AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder)) {
-      items.add(
+      consumerSection.add(
         PopupMenuItem(
           value: 'my_orders',
           child: ListTile(
@@ -258,6 +248,30 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         ),
       );
     }
+
+    if (consumerSection.isNotEmpty) {
+      if (items.isNotEmpty) items.add(const PopupMenuDivider());
+      items.addAll(consumerSection);
+    }
+
+    // 4. 危险区 分组
+    if (channel.isManaged && channel.userRole.isCreator) {
+      if (items.isNotEmpty) items.add(const PopupMenuDivider());
+      items.add(
+        PopupMenuItem(
+          value: 'delete_channel',
+          child: ListTile(
+            leading: const Icon(CupertinoIcons.delete, color: AppColors.iosRed),
+            title: Text(
+              t.channel.deleteChannel,
+              style: const TextStyle(color: AppColors.iosRed),
+            ),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      );
+    }
+
     return items;
   }
 
@@ -392,6 +406,11 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   Future<void> _doSubscribeAction(ChannelModel channel) async {
     final t = context.t;
     final channelId = _resolveChannelId(channel);
+
+    if (channel.isManaged) {
+      await _openChannelEdit(channel);
+      return;
+    }
 
     if (channel.isSubscribed) {
       // 已订阅 → 确认退订

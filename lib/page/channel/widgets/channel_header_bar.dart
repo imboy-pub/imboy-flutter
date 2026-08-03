@@ -137,8 +137,8 @@ class ChannelHeaderBar extends StatelessWidget {
               ],
             ),
           ),
-          // 订阅/管理操作行（仅非管理者显示订阅状态）
-          if (!channel.canPublish && onActionTap != null)
+          // 订阅/管理操作行
+          if (onActionTap != null)
             Padding(
               padding: const EdgeInsets.only(
                 left: AppSpacing.regular,
@@ -147,63 +147,99 @@ class ChannelHeaderBar extends StatelessWidget {
               ),
               child: SizedBox(
                 width: double.infinity,
-                child: channel.isSubscribed
+                child: channel.isManaged
                     ? OutlinedButton.icon(
                         onPressed: onActionTap,
-                        icon: const Icon(Icons.check, size: 16),
-                        label: Text(t.channel.subscribed),
+                        icon: const Icon(Icons.edit_outlined, size: 16),
+                        label: Text(t.main.manage),
                       )
-                    : FilledButton.icon(
-                        onPressed: onActionTap,
-                        icon: const Icon(
-                          Icons.notifications_active_outlined,
-                          size: 16,
-                        ),
-                        label: Text(t.channel.subscribe),
+                    : (channel.isSubscribed
+                          ? OutlinedButton.icon(
+                              onPressed: onActionTap,
+                              icon: const Icon(Icons.check, size: 16),
+                              label: Text(t.channel.subscribed),
+                            )
+                          : FilledButton.icon(
+                              onPressed: onActionTap,
+                              icon: const Icon(
+                                Icons.notifications_active_outlined,
+                                size: 16,
+                              ),
+                              label: Text(t.channel.subscribe),
+                            )),
+              ),
+            ),
+          // 紧凑统计信息：一行文字与图标表示，对齐内容定位，省空间
+          if (stats != null)
+            Padding(
+              padding: const EdgeInsets.only(
+                left: AppSpacing.regular,
+                right: AppSpacing.regular,
+                bottom: AppSpacing.regular,
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    Icon(Icons.people_outline, size: 14, color: secondaryColor),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${_formatNumber(stats?.subscriberCount ?? 0)} ${t.channel.subscribers}',
+                      style: context.textStyle(
+                        FontSizeType.small,
+                        color: secondaryColor,
                       ),
+                    ),
+                    Text('  ·  ', style: TextStyle(color: secondaryColor)),
+                    Icon(
+                      Icons.article_outlined,
+                      size: 14,
+                      color: secondaryColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${_formatNumber(stats?.totalMessages ?? 0)} ${t.channel.messages}',
+                      style: context.textStyle(
+                        FontSizeType.small,
+                        color: secondaryColor,
+                      ),
+                    ),
+                    if ((stats?.totalViews ?? 0) > 0) ...[
+                      Text('  ·  ', style: TextStyle(color: secondaryColor)),
+                      Icon(
+                        Icons.remove_red_eye_outlined,
+                        size: 14,
+                        color: secondaryColor,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${_formatNumber(stats?.totalViews ?? 0)} ${t.channel.views}',
+                        style: context.textStyle(
+                          FontSizeType.small,
+                          color: secondaryColor,
+                        ),
+                      ),
+                    ],
+                    if ((stats?.totalReactions ?? 0) > 0) ...[
+                      Text('  ·  ', style: TextStyle(color: secondaryColor)),
+                      Icon(
+                        Icons.thumb_up_outlined,
+                        size: 14,
+                        color: secondaryColor,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${_formatNumber(stats?.totalReactions ?? 0)} ${t.channel.reactions}',
+                        style: context.textStyle(
+                          FontSizeType.small,
+                          color: secondaryColor,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
-          // 统计栏：stats 未就绪时渲染等高透明占位，数据到达后原地填充，
-          // 避免条件插入把下方消息流往下顶（首屏闪跳）
-          Padding(
-            padding: const EdgeInsets.only(
-              left: AppSpacing.regular,
-              right: AppSpacing.regular,
-              bottom: AppSpacing.regular,
-            ),
-            child: Opacity(
-              opacity: stats == null ? 0 : 1,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildStatItem(
-                    context,
-                    icon: Icons.people_outline,
-                    label: t.channel.subscribers,
-                    value: _formatNumber(stats?.subscriberCount ?? 0),
-                  ),
-                  _buildStatItem(
-                    context,
-                    icon: Icons.article_outlined,
-                    label: t.channel.messages,
-                    value: _formatNumber(stats?.totalMessages ?? 0),
-                  ),
-                  _buildStatItem(
-                    context,
-                    icon: Icons.remove_red_eye_outlined,
-                    label: t.channel.views,
-                    value: _formatNumber(stats?.totalViews ?? 0),
-                  ),
-                  _buildStatItem(
-                    context,
-                    icon: Icons.thumb_up_outlined,
-                    label: t.channel.reactions,
-                    value: _formatNumber(stats?.totalReactions ?? 0),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -242,38 +278,6 @@ class ChannelHeaderBar extends StatelessWidget {
                 ),
               ),
             ),
-    );
-  }
-
-  Widget _buildStatItem(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    final secondaryColor = AppColors.getTextColor(
-      Theme.of(context).brightness,
-      isSecondary: true,
-    );
-    return Column(
-      children: [
-        Icon(icon, size: 18, color: secondaryColor),
-        AppSpacing.verticalTiny,
-        Text(
-          value,
-          style: context.textStyle(
-            FontSizeType.subheadline,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          label,
-          style: context.textStyle(
-            FontSizeType.caption2,
-            color: secondaryColor,
-          ),
-        ),
-      ],
     );
   }
 

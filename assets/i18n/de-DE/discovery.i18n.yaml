@@ -26,7 +26,7 @@ momentsDenyUidsLabel: Ausgeschlossen UIDs (kommagetrennt)
 momentsDraftRestored: Letzter Entwurf wiederhergestellt
 momentsFeedStale: Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt
 momentActionLike: "Gefällt mir"
-momentActionCancelLike: "Wegnehmen"
+momentActionCancelLike: "Gefällt mir nicht mehr"
 momentActionComment: "Kommentieren"
 momentActionDelete: "Löschen"
 momentActionReport: "Melden"

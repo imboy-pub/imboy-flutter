@@ -1850,7 +1850,7 @@ class _Translations$discovery$ar_SA extends Translations$discovery$zh_CN {
 	@override String get momentsDraftRestored => 'تمت استعادة المسودة الأخيرة';
 	@override String get momentsFeedStale => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً';
 	@override String get momentActionLike => 'إعجاب';
-	@override String get momentActionCancelLike => 'إلغاء';
+	@override String get momentActionCancelLike => 'إلغاء الإعجاب';
 	@override String get momentActionComment => 'تعليق';
 	@override String get momentActionDelete => 'حذف';
 	@override String get momentActionReport => 'إبلاغ';
@@ -4228,7 +4228,7 @@ extension on TranslationsArSa {
 			'discovery.momentsDraftRestored' => 'تمت استعادة المسودة الأخيرة',
 			'discovery.momentsFeedStale' => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً',
 			'discovery.momentActionLike' => 'إعجاب',
-			'discovery.momentActionCancelLike' => 'إلغاء',
+			'discovery.momentActionCancelLike' => 'إلغاء الإعجاب',
 			'discovery.momentActionComment' => 'تعليق',
 			'discovery.momentActionDelete' => 'حذف',
 			'discovery.momentActionReport' => 'إبلاغ',

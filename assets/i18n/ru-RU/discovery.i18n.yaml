@@ -26,7 +26,7 @@ momentsDenyUidsLabel: Скрыть от UID (через запятую)
 momentsDraftRestored: Восстановлен черновик
 momentsFeedStale: Сетевая ошибка, показан кэш
 momentActionLike: "Нравится"
-momentActionCancelLike: "Отменить"
+momentActionCancelLike: "Убрать лайк"
 momentActionComment: "Комментарий"
 momentActionDelete: "Удалить"
 momentActionReport: "Пожаловаться"

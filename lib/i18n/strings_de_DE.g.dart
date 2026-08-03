@@ -1850,7 +1850,7 @@ class _Translations$discovery$de_DE extends Translations$discovery$zh_CN {
 	@override String get momentsDraftRestored => 'Letzter Entwurf wiederhergestellt';
 	@override String get momentsFeedStale => 'Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt';
 	@override String get momentActionLike => 'Gefällt mir';
-	@override String get momentActionCancelLike => 'Wegnehmen';
+	@override String get momentActionCancelLike => 'Gefällt mir nicht mehr';
 	@override String get momentActionComment => 'Kommentieren';
 	@override String get momentActionDelete => 'Löschen';
 	@override String get momentActionReport => 'Melden';
@@ -4228,7 +4228,7 @@ extension on TranslationsDeDe {
 			'discovery.momentsDraftRestored' => 'Letzter Entwurf wiederhergestellt',
 			'discovery.momentsFeedStale' => 'Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt',
 			'discovery.momentActionLike' => 'Gefällt mir',
-			'discovery.momentActionCancelLike' => 'Wegnehmen',
+			'discovery.momentActionCancelLike' => 'Gefällt mir nicht mehr',
 			'discovery.momentActionComment' => 'Kommentieren',
 			'discovery.momentActionDelete' => 'Löschen',
 			'discovery.momentActionReport' => 'Melden',

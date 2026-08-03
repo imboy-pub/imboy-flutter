@@ -26,7 +26,7 @@ momentsDenyUidsLabel: 제외할 UID 목록 (쉼표로 구분)
 momentsDraftRestored: 마지막 저장된 임시글이 복원되었습니다
 momentsFeedStale: 네트워크 오류로 캐시된 내용을 표시합니다
 momentActionLike: "좋아요"
-momentActionCancelLike: "취소"
+momentActionCancelLike: "좋아요 취소"
 momentActionComment: "댓글"
 momentActionDelete: "삭제"
 momentActionReport: "신고"

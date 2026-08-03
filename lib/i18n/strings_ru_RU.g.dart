@@ -1850,7 +1850,7 @@ class _Translations$discovery$ru_RU extends Translations$discovery$zh_CN {
 	@override String get momentsDraftRestored => 'Восстановлен черновик';
 	@override String get momentsFeedStale => 'Сетевая ошибка, показан кэш';
 	@override String get momentActionLike => 'Нравится';
-	@override String get momentActionCancelLike => 'Отменить';
+	@override String get momentActionCancelLike => 'Убрать лайк';
 	@override String get momentActionComment => 'Комментарий';
 	@override String get momentActionDelete => 'Удалить';
 	@override String get momentActionReport => 'Пожаловаться';
@@ -4228,7 +4228,7 @@ extension on TranslationsRuRu {
 			'discovery.momentsDraftRestored' => 'Восстановлен черновик',
 			'discovery.momentsFeedStale' => 'Сетевая ошибка, показан кэш',
 			'discovery.momentActionLike' => 'Нравится',
-			'discovery.momentActionCancelLike' => 'Отменить',
+			'discovery.momentActionCancelLike' => 'Убрать лайк',
 			'discovery.momentActionComment' => 'Комментарий',
 			'discovery.momentActionDelete' => 'Удалить',
 			'discovery.momentActionReport' => 'Пожаловаться',
