@@ -228,9 +228,13 @@ Future<void> zoomInPhotoView(BuildContext context, String thumb) async {
   // 如果有网络、并且图片有设置width，就从网络读取2倍清晰图片
   if (!connectivityResult.contains(ConnectivityResult.none) &&
       width.isNotEmpty) {
-    int w = int.parse(width) * 2;
-    thumb = thumb.replaceAll('&width=$width', '&width=$w');
-    thumbProvider = cachedImageProvider(thumb, w: -1);
+    // 原来是 int.parse：width 不是纯数字时直接抛 FormatException。
+    final parsed = int.tryParse(width);
+    if (parsed != null) {
+      final w = parsed * 2;
+      thumb = thumb.replaceAll('&width=$width', '&width=$w');
+      thumbProvider = cachedImageProvider(thumb, w: -1);
+    }
   }
   if (!context.mounted) return;
   showModalBottomSheet<void>(

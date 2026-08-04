@@ -176,6 +176,11 @@ List<RouteBase> mineRoutes() => [
   GoRoute(
     path: '/feedback',
     name: 'feedback',
+    // 注：第三方 feedback 包的标注工具条里「截图」「涂鸦」显示成竖排单字，
+    // 曾误判为大字号导致（QA#53），实测**标准字号下完全一样** ——
+    // 是该库侧栏固定宽度（~40pt）放不下中文两字，与字号缩放无关。
+    // 试过用 MediaQuery.withNoTextScaling 包裹，无效，已回退。
+    // 真要修得改该库的图标/文案，成本远超收益，暂记为已知第三方限制。
     pageBuilder: (context, state) => CupertinoPage(
       key: state.pageKey,
       child: const BetterFeedback(
