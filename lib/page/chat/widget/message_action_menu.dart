@@ -135,54 +135,66 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: reactions.map((emoji) {
-          // 触达层（≥44×44pt，DESIGN.md §13.2 Hard Rule 1）。
-          // 视觉气泡保留原 padding(8)+fontSize(20) 紧凑外观，
-          // 由 ConstrainedBox 把 hit area 扩到 44×44pt。
-          return GestureDetector(
-            key: ValueKey('reaction_$emoji'),
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              widget.onReaction(emoji);
-              widget.onClose?.call();
-            },
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                minWidth: _kReactionMinTouchTarget,
-                minHeight: _kReactionMinTouchTarget,
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                // horizontal:4 时 6×(44+8)=312 > 窄屏可用宽(~296)，右溢出11px；
-                // 收窄到 2 → 6×48=288，保住 44pt 触达区且不溢出。
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  padding: AppSpacing.allSmall,
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.borderRadiusLarge,
-                    border: Border.all(
+      // 6 个表情 × (44pt 触达区 + margin) 在窄屏本就临界，字号调到
+      // 「超大(140%)」后 emoji 撑破 44pt，原来的 Row 会右溢出 47px、
+      // 第 6 个表情被裁掉一半（QA#47）。
+      //
+      // 试过换 Wrap：即使给 `width: double.infinity`，真机上 6 个表情
+      // 仍然竖成一列、底部溢出 226px，把下面的操作按钮整片挤没 —— 比原 bug 更糟。
+      // 不再猜父级约束，直接用横向滚动：**任何字号、任何宽度都不会溢出**，
+      // 放不下时用户左右滑即可。常规字号下内容不超宽，不出现滚动，
+      // 表现与原来的单行完全一致。
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: reactions.map((emoji) {
+            // 触达层（≥44×44pt，DESIGN.md §13.2 Hard Rule 1）。
+            // 视觉气泡保留原 padding(8)+fontSize(20) 紧凑外观，
+            // 由 ConstrainedBox 把 hit area 扩到 44×44pt。
+            return GestureDetector(
+              key: ValueKey('reaction_$emoji'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                widget.onClose?.call();
+                widget.onReaction(emoji);
+              },
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minWidth: _kReactionMinTouchTarget,
+                  minHeight: _kReactionMinTouchTarget,
+                ),
+                child: Container(
+                  alignment: Alignment.center,
+                  // horizontal:4 时 6×(44+8)=312 > 窄屏可用宽(~296)，右溢出11px；
+                  // 收窄到 2 → 6×48=288，保住 44pt 触达区且不溢出。
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    padding: AppSpacing.allSmall,
+                    decoration: BoxDecoration(
                       color: Theme.of(
                         context,
-                      ).colorScheme.primary.withValues(alpha: 0.2),
-                      width: 1,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: AppRadius.borderRadiusLarge,
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    emoji,
-                    style: context.textStyle(FontSizeType.extraLarge),
+                    child: Text(
+                      emoji,
+                      style: context.textStyle(FontSizeType.extraLarge),
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -202,10 +214,16 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 context: context,
                 icon: Icons.reply,
                 label: t.main.quote,
+                // 本菜单所有动作一律 "先关菜单、再执行"。
+                // 反过来（先执行再关）时，onClose 里的 Navigator.pop() 会把
+                // 动作刚 push 上去的路由弹掉 —— 真机实测：点「转发」，
+                // SendToPage 被自己的 onClose 反手关掉，菜单反而留在原地，
+                // 表现为"转发按钮完全没反应"。不 push 路由的动作（复制/引用等）
+                // 顺序无所谓，统一成同一种写法，避免以后新增动作再踩。
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  widget.onReply();
                   widget.onClose?.call();
+                  widget.onReply();
                 },
               ),
               _buildActionButton(
@@ -214,8 +232,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 label: t.common.buttonCopy,
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  widget.onCopy();
                   widget.onClose?.call();
+                  widget.onCopy();
                 },
               ),
               _buildActionButton(
@@ -224,8 +242,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 label: t.chat.forward,
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  widget.onForward();
                   widget.onClose?.call();
+                  widget.onForward();
                 },
               ),
               if (widget.onCollect != null)
@@ -235,8 +253,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                   label: t.main.favorites,
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    widget.onCollect!();
                     widget.onClose?.call();
+                    widget.onCollect!();
                   },
                 ),
             ],
@@ -255,8 +273,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                   label: t.common.buttonSave,
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    widget.onSave!();
                     widget.onClose?.call();
+                    widget.onSave!();
                   },
                 ),
 
@@ -270,8 +288,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                     label: t.common.buttonRetry,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      widget.onRetry!();
                       widget.onClose?.call();
+                      widget.onRetry!();
                     },
                   ),
                 // 编辑按钮（仅文本消息且发送后2分钟内）
@@ -282,8 +300,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                     label: t.common.edit,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      widget.onEdit();
                       widget.onClose?.call();
+                      widget.onEdit();
                     },
                   ),
                 // 撤回按钮（发送者专有）
@@ -294,8 +312,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                     label: t.chat.revoke,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      widget.onRevoke!();
                       widget.onClose?.call();
+                      widget.onRevoke!();
                     },
                   ),
                 // 删除按钮（发送者：可选择删除所有人或仅自己）
@@ -328,8 +346,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                   label: t.common.deleteForMe,
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    widget.onDelete();
                     widget.onClose?.call();
+                    widget.onDelete();
                   },
                   isDestructive: true,
                 ),

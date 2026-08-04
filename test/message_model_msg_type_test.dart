@@ -17,6 +17,7 @@ library;
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -178,7 +179,7 @@ void main() {
         // THEN: 应该返回错误消息
         expect(message, isA<TextMessage>());
         final textMessage = message as TextMessage;
-        expect(textMessage.text, equals('[无效消息类型]'));
+        expect(textMessage.text, equals(t.chat.invalidMessageType));
         expect(textMessage.metadata?['error'], equals('invalid_msg_type'));
       });
 
@@ -205,7 +206,7 @@ void main() {
         // THEN: 应该返回错误消息
         expect(message, isA<TextMessage>());
         final textMessage = message as TextMessage;
-        expect(textMessage.text, equals('[无效消息类型]'));
+        expect(textMessage.text, equals(t.chat.invalidMessageType));
         expect(textMessage.metadata?['error'], equals('invalid_msg_type'));
       });
 
@@ -258,7 +259,7 @@ void main() {
         // THEN: 应该返回错误消息
         expect(message, isA<TextMessage>());
         final textMessage = message as TextMessage;
-        expect(textMessage.text, equals('[无效消息类型]'));
+        expect(textMessage.text, equals(t.chat.invalidMessageType));
         expect(textMessage.metadata?['error'], equals('invalid_msg_type'));
       });
 
@@ -284,7 +285,7 @@ void main() {
         // THEN: 应该返回错误消息
         expect(message, isA<TextMessage>());
         final textMessage = message as TextMessage;
-        expect(textMessage.text, equals('[无效消息类型]'));
+        expect(textMessage.text, equals(t.chat.invalidMessageType));
         expect(textMessage.metadata?['error'], equals('invalid_msg_type'));
       });
 
@@ -450,7 +451,7 @@ void main() {
         // THEN: 应该返回错误消息
         expect(message, isA<TextMessage>());
         final textMessage = message as TextMessage;
-        expect(textMessage.text, equals('[无效消息类型]'));
+        expect(textMessage.text, equals(t.chat.invalidMessageType));
         expect(textMessage.metadata?['error'], equals('invalid_msg_type'));
       });
 

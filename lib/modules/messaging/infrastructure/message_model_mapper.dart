@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/assets.dart' show AssetsService;
 import 'package:imboy/service/e2ee/attachment_open_registry.dart';
 import 'package:imboy/service/e2ee_service.dart';
@@ -226,7 +227,7 @@ extension MessageModelMapper on MessageModel {
         authorId: safeFromId,
         createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
         id: safeId,
-        text: '[无效消息类型]',
+        text: t.chat.invalidMessageType,
         status: MessageStatus.error,
         metadata: {
           'conversation_uk3': conversationUk3,

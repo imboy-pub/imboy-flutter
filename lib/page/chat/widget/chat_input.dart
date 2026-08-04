@@ -251,6 +251,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     final list = await service.load(uid);
     if (mounted) {
       _quickReplies.value = list;
+      // 列表是异步加载的，可能晚于用户点中输入框，这里补一次同步，
+      // 否则首次聚焦时 _quickReplies 还是空、面板不会出来。
+      _syncQuickRepliesVisibility();
     }
   }
 
@@ -281,7 +284,25 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       if (_inputFocusNode.hasFocus) {
         updateState(InputType.text);
       }
+      _syncQuickRepliesVisibility();
     });
+  }
+
+  /// 同步快捷回复面板的显隐。
+  ///
+  /// 此前 `_showQuickReplies` 初值 false，全文件只有 `_insertQuickReply` 里
+  /// 把它置回 false，**没有任何一处置为 true** —— 面板永远短路成
+  /// `SizedBox.shrink()`，连带面板末尾的「管理」入口和 `QuickReplyManagePage`
+  /// 一起成了不可达代码（QA#49）。
+  ///
+  /// 触发规则（本次定的默认，可调）：**输入框获得焦点且内容为空**时显示。
+  /// 选它是因为面板本身就是输入框上方 60pt 的横向条、非模态，
+  /// 定位就是「随手可点」；用户一开始打字就自动收起，不挡输入。
+  void _syncQuickRepliesVisibility() {
+    _showQuickReplies.value =
+        _inputFocusNode.hasFocus &&
+        _textController.text.trim().isEmpty &&
+        _quickReplies.value.isNotEmpty;
   }
 
   /// 初始化事件监听器（输入框获取焦点自动切回文本模式）
@@ -591,6 +612,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       final text = _textController.text.trim();
       _sendButtonVisible.value = text.isNotEmpty;
       _characterCount.value = text.characters.length;
+      _syncQuickRepliesVisibility();
 
       // 超长自动裁剪并存储草稿
       if (text.length <= (widget.maxLength ?? 1000)) {
@@ -1338,14 +1360,16 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
             ),
           ),
 
+          // 快捷回复面板
+          // 必须排在底部面板**之前**：键盘弹起时 _buildBottomContainer 的高度
+          // 等于键盘高度，排在它后面会被整体推出屏幕外，永远看不见。
+          _buildQuickRepliesPanel(),
+
           // 底部面板
           _buildBottomContainer(
             child: _buildBottomItems(),
             height: panelHeight,
           ),
-
-          // 快捷回复面板
-          _buildQuickRepliesPanel(),
 
           // 安全区填充
           if (panelHeight == 0) SizedBox(height: bottomPadding),
