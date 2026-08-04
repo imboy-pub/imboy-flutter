@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -86,26 +87,43 @@ class UserTagRepo {
     );
   }
 
-  // 更新信息
-  Future<int> update(Map<String, dynamic> json, {Transaction? txn}) async {
-    Map<String, Object?> data = {};
-    if (strNoEmpty("${json[UserTagRepo.name]}")) {
-      data[UserTagRepo.name] = json[UserTagRepo.name].toString();
+  /// 从入参挑出本次真正要写的列。
+  ///
+  /// 抽成纯函数是为了能直接测这几个守卫 —— 它们出过两个隐蔽 bug：
+  /// 1. `strNoEmpty("${json[name]}")`：name 缺失时 null 被插值成字面量 "null"，
+  ///    守卫判真 → 标签名被写成 "null"。而 setObject（增删成员）从不传 name，
+  ///    于是每次改成员都毁掉标签名；列表优先读内存，重启后才显形，极难察觉。
+  /// 2. `refererTime > 0`：成员被全部移除时 length 恰好是 0，这次合法更新被吞掉，
+  ///    计数停在旧值。改为按「是否传了该键」判断。
+  @visibleForTesting
+  static Map<String, Object?> buildUpdateData(Map<String, dynamic> json) {
+    final Map<String, Object?> data = {};
+
+    final Object? name = json[UserTagRepo.name];
+    if (name != null && strNoEmpty(name.toString())) {
+      data[UserTagRepo.name] = name.toString();
     }
-    String? subtitle = json[UserTagRepo.subtitle] as String?;
+
+    final String? subtitle = json[UserTagRepo.subtitle] as String?;
     if (subtitle != null) {
-      data[UserTagRepo.subtitle] = json[UserTagRepo.subtitle];
+      data[UserTagRepo.subtitle] = subtitle;
     }
 
-    int refererTime = json[UserTagRepo.refererTime] as int? ?? 0;
-    if (refererTime > 0) {
-      data[UserTagRepo.refererTime] = refererTime;
+    if (json.containsKey(UserTagRepo.refererTime)) {
+      data[UserTagRepo.refererTime] =
+          json[UserTagRepo.refererTime] as int? ?? 0;
     }
 
-    int updatedAt = json[UserTagRepo.updatedAt] as int? ?? 0;
+    final int updatedAt = json[UserTagRepo.updatedAt] as int? ?? 0;
     if (updatedAt > 0) {
       data[UserTagRepo.updatedAt] = updatedAt;
     }
+    return data;
+  }
+
+  // 更新信息
+  Future<int> update(Map<String, dynamic> json, {Transaction? txn}) async {
+    Map<String, Object?> data = buildUpdateData(json);
     int tagId = json[UserTagRepo.tagId] as int? ?? (json['id'] as int? ?? 0);
     if (tagId > 0) {
       if (txn != null) {

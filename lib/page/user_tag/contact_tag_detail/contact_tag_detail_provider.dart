@@ -1,4 +1,5 @@
 import 'package:azlistview/azlistview.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/api/user_tag_api.dart';
@@ -166,6 +167,13 @@ class ContactTagDetailNotifier extends _$ContactTagDetailNotifier {
     return res;
   }
 
+  /// 标签列表副标题：成员名预览，取 `ContactModel.title`（remark > nickname > account）。
+  ///
+  /// 空列表返回空串 —— 列表页据此回退到「暂无数据」，语义正确。
+  @visibleForTesting
+  static String buildTagSubtitle(List<ContactModel> contacts) =>
+      contacts.map((e) => e.title).where((t) => t.isNotEmpty).join(', ');
+
   /// 设置标签关联
   Future<bool> setObject({
     required String scene,
@@ -188,6 +196,9 @@ class ContactTagDetailNotifier extends _$ContactTagDetailNotifier {
       await UserTagRepo().update({
         UserTagRepo.tagId: tagId,
         UserTagRepo.refererTime: selectedContact.length,
+        // BUG#74：此前只写 refererTime，subtitle 列永远停在空串，于是标签列表
+        // 同一行「计数 (1)」与「暂无数据」自相矛盾。成员增删都走这里，一处补齐。
+        UserTagRepo.subtitle: buildTagSubtitle(selectedContact),
       });
       List<String> oldObjectIds = [];
       // 处理移除情况

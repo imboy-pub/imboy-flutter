@@ -142,12 +142,18 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
       child: Column(
         children: [
           ImBoyListTile(
-            onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute<dynamic>(
-                builder: (context) => ContactTagDetailPage(tag: obj),
-              ),
-            ),
+            // 详情页里增删成员会改本地库的 referer_time / subtitle，
+            // 返回后必须重读，否则副标题要等下次冷启动才更新（BUG#74 的后半段）。
+            onTap: () async {
+              await Navigator.push(
+                context,
+                CupertinoPageRoute<dynamic>(
+                  builder: (context) => ContactTagDetailPage(tag: obj),
+                ),
+              );
+              if (!context.mounted) return;
+              await ref.read(contactTagListProvider.notifier).loadData();
+            },
             title: Text('${obj.name} (${obj.refererTime})'),
             subtitle: Text(
               obj.subtitle.isEmpty ? t.common.noData : obj.subtitle,

@@ -117,20 +117,25 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
   /// 构建悬浮标签项（A-Z 分组标题）
   Widget _buildSusItem(BuildContext context, String tag) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      height: 32,
-      width: double.infinity,
-      padding: const EdgeInsets.only(left: AppSpacing.regular),
-      alignment: Alignment.centerLeft,
-      color: isDark ? AppColors.iosGray6 : AppColors.iosGray5,
-      child: Text(
-        tag,
-        style: context.textStyle(
-          FontSizeType.normal,
-          color: AppColors.getTextColor(
-            isDark ? Brightness.dark : Brightness.light,
+    // width 必须按约束决定，不能写死 double.infinity —— 与 contact_page
+    // 同款修法（AzListView 把吸顶头同时用作列表内联项和 Stack 悬浮头，
+    // 后者某些布局路径下宽度无界）。有界时仍撑满，视觉不变。
+    return LayoutBuilder(
+      builder: (context, constraints) => Container(
+        height: 32,
+        width: constraints.hasBoundedWidth ? double.infinity : null,
+        padding: const EdgeInsets.only(left: AppSpacing.regular),
+        alignment: Alignment.centerLeft,
+        color: isDark ? AppColors.iosGray6 : AppColors.iosGray5,
+        child: Text(
+          tag,
+          style: context.textStyle(
+            FontSizeType.normal,
+            color: AppColors.getTextColor(
+              isDark ? Brightness.dark : Brightness.light,
+            ),
+            fontWeight: FontWeight.bold,
           ),
-          fontWeight: FontWeight.bold,
         ),
       ),
     );
