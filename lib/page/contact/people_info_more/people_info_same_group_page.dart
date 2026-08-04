@@ -8,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/component/ui/line.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -103,13 +102,7 @@ class _PeopleInfoSameGroupPageState
                               ),
                               title: Row(
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      strEmpty(model.title)
-                                          ? model.computeTitle
-                                          : model.title,
-                                    ),
-                                  ),
+                                  Expanded(child: Text(model.displayTitle)),
                                 ],
                               ),
                               onTap: () => _navigateToChat(model),

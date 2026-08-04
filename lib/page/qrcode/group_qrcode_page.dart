@@ -81,7 +81,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                     ),
                     AppSpacing.verticalRegular,
                     Text(
-                      "${t.chat.groupChat}: ${widget.group.title.isEmpty ? widget.group.computeTitle : widget.group.title}",
+                      "${t.chat.groupChat}: ${widget.group.displayTitle}",
                       textAlign: TextAlign.center,
                       style: context.textStyle(
                         FontSizeType.large,

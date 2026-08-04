@@ -1,4 +1,5 @@
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 
@@ -21,6 +22,18 @@ class GroupModel {
 
   // 如果 title 为空，零时计算title
   String computeTitle = '';
+
+  /// 展示用群名，**任何 UI 都应该用它，不要自己写 title/computeTitle 三元表达式**。
+  ///
+  /// `title` 和 `computeTitle` 可能同时为空（无名群 + 还没算出临时名），
+  /// 此前各页面各写各的兜底，同一个群在群列表/聊天页/二维码页/共同群聊
+  /// 出现过 4 种不同显示（其中二维码页显示 `群聊: ` 空白、共同群聊整行没有文字）。
+  /// 这里统一收口到 `未命名`，并且**绝不回退到 groupId**（TSID 不进 UI）。
+  String get displayTitle {
+    if (title.trim().isNotEmpty) return title.trim();
+    if (computeTitle.trim().isNotEmpty) return computeTitle.trim();
+    return t.main.unnamed;
+  }
 
   GroupModel({
     required this.groupId,

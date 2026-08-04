@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -338,7 +339,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         (album['album_name'] ?? album['name'])?.toString() ??
         t.group.groupAlbumUnnamed;
     final photoCount = _toInt(album['photo_count']);
-    final createdAt = album['created_at']?.toString() ?? '';
+    final createdAt = _formatCreatedAt(album['created_at']);
     final albumId = _resolveAlbumId(album);
 
     return Card(
@@ -405,5 +406,13 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     if (value is int) return value;
     if (value is String) return int.tryParse(value) ?? 0;
     return 0;
+  }
+
+  /// created_at 是毫秒时间戳，此前直接 toString 会把 `1785742186575`
+  /// 原样显示给用户。解析不出来时返回空串（宁可不显示，也不露原始值）。
+  String _formatCreatedAt(dynamic value) {
+    final millis = _toInt(value);
+    if (millis <= 0) return '';
+    return DateTimeHelper.lastTimeFmt(millis);
   }
 }

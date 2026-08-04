@@ -294,12 +294,23 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                     Map<String, dynamic> group =
                         res['group'] as Map<String, dynamic>;
                     await GroupRepo().save('', group);
+                    // `?? ''` 只挡得住 null —— 无名群后端返回的 title 就是**空字符串**，
+                    // 于是空串一路传到聊天页，标题栏整个是空的（QA#60，比显示 gid 还糟）。
+                    // 兜底策略与 GroupModel.displayTitle 保持一致：回退「未命名」，
+                    // 且绝不回退到 gid。
+                    // 注意不要写成 `group['title'] as String?` —— 后端返回的
+                    // title 未必是 String，`as` 会抛 TypeError 并被下面的
+                    // catch(_) 吞掉，表现为「点进入该群完全没反应」（实测踩过）。
+                    final rawTitle = (group['title'] ?? '').toString().trim();
+                    final chatTitle = rawTitle.isNotEmpty
+                        ? rawTitle
+                        : t.main.unnamed;
                     if (context.mounted) {
                       context.pushReplacement(
                         '/chat/${widget.gid}',
                         extra: {
                           'type': 'C2G',
-                          'title': group['title'] ?? '',
+                          'title': chatTitle,
                           'avatar': group['avatar'] ?? '',
                           'sign': group['introduction'] ?? '',
                           'memberCount': memberList.length,
