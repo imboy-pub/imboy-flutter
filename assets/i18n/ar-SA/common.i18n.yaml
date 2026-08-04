@@ -406,10 +406,13 @@ sureDeleteData: هل أنت متأكد من الحذف؟ لا يمكن التر�
 sureDeleteGroupChatRecord: هل أنت متأكد من حذف سجل المجموعة؟
 switchEnvironment: تبديل البيئة
 thisMonth: هذا الشهر
-timeDaysAgo: منذ $param يوم
-timeHoursAgo: منذ $param ساعة
+timeDaysAgo(plural):
+  other: منذ $n يوم
+timeHoursAgo(plural):
+  other: منذ $n ساعة
 timeJustNow: الآن
-timeMinutesAgo: منذ $param دقيقة
+timeMinutesAgo(plural):
+  other: منذ $n دقيقة
 timeToday: اليوم
 timeYesterday: أمس
 tipConnectDesc: لا يوجد اتصال بالشبكة

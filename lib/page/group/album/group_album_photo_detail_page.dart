@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -236,7 +237,9 @@ class _GroupAlbumPhotoDetailPageState
             ?.toString()
             .trim() ??
         '';
-    final createdAt = photo['created_at']?.toString() ?? '';
+    // created_at 是毫秒时间戳；此前直接 toString 会把 `1785806160783`
+    // 原样摆给用户看（与 BUG#51 相册副标题同族）。
+    final createdAt = DateTimeHelper.millisFmtOrEmpty(photo['created_at']);
     final size = _toInt(photo['photo_size'] ?? photo['size']);
     final width = _toInt(photo['width']);
     final height = _toInt(photo['height']);

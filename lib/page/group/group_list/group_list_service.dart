@@ -285,8 +285,29 @@ class GroupListService {
 
     const limit = 3;
     String title = '';
+    final String currentUid = UserRepoLocal.to.currentUid;
+    // 原 SQL 以 contact 为驱动表 LEFT JOIN group_member，过滤条件
+    // `gm.group_id = ?` 却落在被 join 的表上 —— 实际只能取到**同时是我好友**
+    // 的群成员，非好友成员一个都出不来。
+    //
+    // 群成员名的权威来源是 group_member 自己，contact 只用来补「好友备注」。
+    // 同时排除自己，否则只剩自己的无名群会显示成自己的昵称。
+    //
+    // 📝 一处更正：清单曾把「两个群都显示 IMBoy」记为本函数的缺陷。
+    // 真机复验后不成立 —— 那两个群都是 2 人群、另一位成员确实都是 IMBoy，
+    // 同名是数据决定的，微信同样如此。本次改的是「取不到非好友成员」
+    // 与「没排除自己」这两个真问题，不改变那个场景的显示结果。
     String sql =
-        "select c.remark, c.nickname, c.account, gm.${GroupMemberRepo.alias} from ${ContactRepo.tableName} as c left join ${GroupMemberRepo.tableName} gm on gm.${GroupMemberRepo.userId} = c.${ContactRepo.peerId} WHERE gm.group_id = ? limit $limit;";
+        "select gm.${GroupMemberRepo.alias} as alias"
+        ", gm.${GroupMemberRepo.nickname} as nickname"
+        ", gm.${GroupMemberRepo.account} as account"
+        ", c.${ContactRepo.remark} as remark"
+        " from ${GroupMemberRepo.tableName} as gm"
+        " left join ${ContactRepo.tableName} as c"
+        " on c.${ContactRepo.peerId} = gm.${GroupMemberRepo.userId}"
+        " where gm.${GroupMemberRepo.groupId} = ?"
+        " and gm.${GroupMemberRepo.userId} != ?"
+        " limit $limit;";
     Database? db = await SqliteService.to.db;
     if (db == null) {
       iPrint("computeTitle: database is null");
@@ -294,27 +315,14 @@ class GroupListService {
     }
 
     try {
-      List<Map<String, dynamic>> list = await db.rawQuery(sql, [gid]);
+      List<Map<String, dynamic>> list = await db.rawQuery(sql, [
+        gid,
+        currentUid,
+      ]);
       iPrint("computeTitle $gid, ${list.length} members found in local db");
 
       if (list.isNotEmpty) {
-        List<String> names = [];
-        for (var e in list) {
-          String t = (e['alias']?.toString() ?? '').trim();
-          if (t.isEmpty) {
-            t = (e['remark']?.toString() ?? '').trim();
-          }
-          if (t.isEmpty) {
-            t = (e['nickname']?.toString() ?? '').trim();
-          }
-          if (t.isEmpty) {
-            t = (e['account']?.toString() ?? '').trim();
-          }
-          if (t.isNotEmpty) {
-            names.add(t);
-          }
-        }
-
+        final names = pickMemberNames(list);
         if (names.isNotEmpty) {
           title = names.join('、');
           iPrint("computeTitle local result: $title");
@@ -333,24 +341,20 @@ class GroupListService {
           payload['list'] != null &&
           payload['list'] is List) {
         GroupMemberRepo repo = GroupMemberRepo();
-        List<String> names = [];
+        final rows = <Map<String, dynamic>>[];
 
         for (var item in (payload['list'] as List)) {
           if (item is Map<String, dynamic>) {
             await repo.save(item);
-            String t = (item['alias']?.toString() ?? '').trim();
-            if (t.isEmpty) {
-              t = (item['nickname']?.toString() ?? '').trim();
+            // 与本地分支同一条约定：排除自己
+            if (item[GroupMemberRepo.userId]?.toString() == currentUid) {
+              continue;
             }
-            if (t.isEmpty) {
-              t = (item['account']?.toString() ?? '').trim();
-            }
-            if (t.isNotEmpty) {
-              names.add(t);
-            }
+            rows.add(item);
           }
         }
 
+        final names = pickMemberNames(rows);
         if (names.isNotEmpty) {
           title = names.join('、');
           iPrint("computeTitle server result: $title");
@@ -362,6 +366,24 @@ class GroupListService {
 
     iPrint("computeTitle final result for $gid: '$title'");
     return title;
+  }
+
+  /// 从群成员行里挑展示名，优先级：群内别名 → 好友备注 → 昵称 → 账号。
+  ///
+  /// 抽成静态纯函数是为了能脱离 SQLite 单例做契约测试 ——
+  /// BUG#4 家族的坑就在于取名逻辑散落在本地/服务端两个分支里各写一遍。
+  static List<String> pickMemberNames(List<Map<String, dynamic>> rows) {
+    final names = <String>[];
+    for (final row in rows) {
+      for (final key in const ['alias', 'remark', 'nickname', 'account']) {
+        final value = (row[key]?.toString() ?? '').trim();
+        if (value.isNotEmpty) {
+          names.add(value);
+          break;
+        }
+      }
+    }
+    return names;
   }
 
   /// 分页获取群组列表

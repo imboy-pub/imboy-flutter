@@ -339,7 +339,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         (album['album_name'] ?? album['name'])?.toString() ??
         t.group.groupAlbumUnnamed;
     final photoCount = _toInt(album['photo_count']);
-    final createdAt = _formatCreatedAt(album['created_at']);
+    final createdAt = DateTimeHelper.millisFmtOrEmpty(album['created_at']);
     final albumId = _resolveAlbumId(album);
 
     return Card(
@@ -406,13 +406,5 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     if (value is int) return value;
     if (value is String) return int.tryParse(value) ?? 0;
     return 0;
-  }
-
-  /// created_at 是毫秒时间戳，此前直接 toString 会把 `1785742186575`
-  /// 原样显示给用户。解析不出来时返回空串（宁可不显示，也不露原始值）。
-  String _formatCreatedAt(dynamic value) {
-    final millis = _toInt(value);
-    if (millis <= 0) return '';
-    return DateTimeHelper.lastTimeFmt(millis);
   }
 }

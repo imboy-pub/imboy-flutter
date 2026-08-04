@@ -410,10 +410,13 @@ sureDeleteData: 确认删除吗？删除后不可恢复。
 sureDeleteGroupChatRecord: 确定删除群的聊天记录吗？
 switchEnvironment: 切换环境
 thisMonth: 本月
-timeDaysAgo: $param天前
-timeHoursAgo: $param小时前
+timeDaysAgo(plural):
+  other: $n天前
+timeHoursAgo(plural):
+  other: $n小时前
 timeJustNow: 刚刚
-timeMinutesAgo: $param分钟前
+timeMinutesAgo(plural):
+  other: $n分钟前
 timeToday: 今天
 timeYesterday: 昨天
 tipConnectDesc: 无网络

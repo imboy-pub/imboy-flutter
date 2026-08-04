@@ -406,10 +406,16 @@ sureDeleteData: Löschen bestätigen? Nach dem Löschen kann nicht wiederhergest
 sureDeleteGroupChatRecord: Chat-Verlauf der Gruppe löschen?
 switchEnvironment: Umgebung wechseln
 thisMonth: Dieser Monat
-timeDaysAgo: Vor $param Tagen
-timeHoursAgo: Vor $param Stunden
+timeDaysAgo(plural):
+  one: Vor $n Tag
+  other: Vor $n Tagen
+timeHoursAgo(plural):
+  one: Vor $n Stunde
+  other: Vor $n Stunden
 timeJustNow: Gerade eben
-timeMinutesAgo: Vor $param Minuten
+timeMinutesAgo(plural):
+  one: Vor $n Minute
+  other: Vor $n Minuten
 timeToday: Heute
 timeYesterday: Gestern
 tipConnectDesc: Kein Netzwerk

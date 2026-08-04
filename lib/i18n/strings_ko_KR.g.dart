@@ -1051,10 +1051,16 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get sureDeleteGroupChatRecord => '그룹 채팅 기록을 삭제하시겠습니까?';
 	@override String get switchEnvironment => '환경 전환';
 	@override String get thisMonth => '이번 달';
-	@override String timeDaysAgo({required Object param}) => '${param}일 전';
-	@override String timeHoursAgo({required Object param}) => '${param}시간 전';
+	@override String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n,
+		other: '${n}일 전',
+	);
+	@override String timeHoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n,
+		other: '${n}시간 전',
+	);
 	@override String get timeJustNow => '방금';
-	@override String timeMinutesAgo({required Object param}) => '${param}분 전';
+	@override String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n,
+		other: '${n}분 전',
+	);
 	@override String get timeToday => '오늘';
 	@override String get timeYesterday => '어제';
 	@override String get tipConnectDesc => '네트워크 없음';
@@ -1423,9 +1429,9 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get networkFailureTryAgain => '네트워크 오류, 다시 시도해 주세요!';
 	@override String get networkNotAvailable => '현재 네트워크를 사용할 수 없습니다.';
 	@override String get pleaseCheckNetworkConnection => '네트워크 연결을 확인해 주세요.';
-	@override String lastSeenMinutesAgo({required Object param}) => _root.common.timeMinutesAgo(param: param);
-	@override String lastSeenHoursAgo({required Object param}) => _root.common.timeHoursAgo(param: param);
-	@override String lastSeenDaysAgo({required Object param}) => _root.common.timeDaysAgo(param: param);
+	@override String lastSeenMinutesAgo({required num n}) => _root.common.timeMinutesAgo(n: n);
+	@override String lastSeenHoursAgo({required num n}) => _root.common.timeHoursAgo(n: n);
+	@override String lastSeenDaysAgo({required num n}) => _root.common.timeDaysAgo(n: n);
 	@override String get fontSettings => _root.common.fontSizeSetting;
 	@override String get failed => _root.common.error;
 	@override String get lazyUserNoSignature => '아직 소개글을 작성하지 않았습니다';
@@ -3487,10 +3493,10 @@ extension on TranslationsKoKr {
 			'common.sureDeleteGroupChatRecord' => '그룹 채팅 기록을 삭제하시겠습니까?',
 			'common.switchEnvironment' => '환경 전환',
 			'common.thisMonth' => '이번 달',
-			'common.timeDaysAgo' => ({required Object param}) => '${param}일 전',
-			'common.timeHoursAgo' => ({required Object param}) => '${param}시간 전',
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '${n}일 전', ), 
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '${n}시간 전', ), 
 			'common.timeJustNow' => '방금',
-			'common.timeMinutesAgo' => ({required Object param}) => '${param}분 전',
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '${n}분 전', ), 
 			'common.timeToday' => '오늘',
 			'common.timeYesterday' => '어제',
 			'common.tipConnectDesc' => '네트워크 없음',
@@ -3861,9 +3867,9 @@ extension on TranslationsKoKr {
 			'common.networkFailureTryAgain' => '네트워크 오류, 다시 시도해 주세요!',
 			'common.networkNotAvailable' => '현재 네트워크를 사용할 수 없습니다.',
 			'common.pleaseCheckNetworkConnection' => '네트워크 연결을 확인해 주세요.',
-			'common.lastSeenMinutesAgo' => ({required Object param}) => _root.common.timeMinutesAgo(param: param),
-			'common.lastSeenHoursAgo' => ({required Object param}) => _root.common.timeHoursAgo(param: param),
-			'common.lastSeenDaysAgo' => ({required Object param}) => _root.common.timeDaysAgo(param: param),
+			'common.lastSeenMinutesAgo' => ({required num n}) => _root.common.timeMinutesAgo(n: n),
+			'common.lastSeenHoursAgo' => ({required num n}) => _root.common.timeHoursAgo(n: n),
+			'common.lastSeenDaysAgo' => ({required num n}) => _root.common.timeDaysAgo(n: n),
 			'common.fontSettings' => _root.common.fontSizeSetting,
 			'common.failed' => _root.common.error,
 			'common.lazyUserNoSignature' => '아직 소개글을 작성하지 않았습니다',

@@ -1051,10 +1051,16 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get sureDeleteGroupChatRecord => 'هل أنت متأكد من حذف سجل المجموعة؟';
 	@override String get switchEnvironment => 'تبديل البيئة';
 	@override String get thisMonth => 'هذا الشهر';
-	@override String timeDaysAgo({required Object param}) => 'منذ ${param} يوم';
-	@override String timeHoursAgo({required Object param}) => 'منذ ${param} ساعة';
+	@override String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n,
+		other: 'منذ ${n} يوم',
+	);
+	@override String timeHoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n,
+		other: 'منذ ${n} ساعة',
+	);
 	@override String get timeJustNow => 'الآن';
-	@override String timeMinutesAgo({required Object param}) => 'منذ ${param} دقيقة';
+	@override String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n,
+		other: 'منذ ${n} دقيقة',
+	);
 	@override String get timeToday => 'اليوم';
 	@override String get timeYesterday => 'أمس';
 	@override String get tipConnectDesc => 'لا يوجد اتصال بالشبكة';
@@ -1423,9 +1429,9 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get networkFailureTryAgain => 'فشل الشبكة، يرجى المحاولة مرة أخرى!';
 	@override String get networkNotAvailable => 'الشبكة غير متاحة حالياً.';
 	@override String get pleaseCheckNetworkConnection => 'يرجى التحقق من اتصال الشبكة الخاص بك.';
-	@override String lastSeenMinutesAgo({required Object param}) => _root.common.timeMinutesAgo(param: param);
-	@override String lastSeenHoursAgo({required Object param}) => _root.common.timeHoursAgo(param: param);
-	@override String lastSeenDaysAgo({required Object param}) => _root.common.timeDaysAgo(param: param);
+	@override String lastSeenMinutesAgo({required num n}) => _root.common.timeMinutesAgo(n: n);
+	@override String lastSeenHoursAgo({required num n}) => _root.common.timeHoursAgo(n: n);
+	@override String lastSeenDaysAgo({required num n}) => _root.common.timeDaysAgo(n: n);
 	@override String get fontSettings => _root.common.fontSizeSetting;
 	@override String get failed => _root.common.error;
 	@override String get lazyUserNoSignature => 'لا يوجد توقيع شخصي بعد';
@@ -3487,10 +3493,10 @@ extension on TranslationsArSa {
 			'common.sureDeleteGroupChatRecord' => 'هل أنت متأكد من حذف سجل المجموعة؟',
 			'common.switchEnvironment' => 'تبديل البيئة',
 			'common.thisMonth' => 'هذا الشهر',
-			'common.timeDaysAgo' => ({required Object param}) => 'منذ ${param} يوم',
-			'common.timeHoursAgo' => ({required Object param}) => 'منذ ${param} ساعة',
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} يوم', ), 
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} ساعة', ), 
 			'common.timeJustNow' => 'الآن',
-			'common.timeMinutesAgo' => ({required Object param}) => 'منذ ${param} دقيقة',
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} دقيقة', ), 
 			'common.timeToday' => 'اليوم',
 			'common.timeYesterday' => 'أمس',
 			'common.tipConnectDesc' => 'لا يوجد اتصال بالشبكة',
@@ -3861,9 +3867,9 @@ extension on TranslationsArSa {
 			'common.networkFailureTryAgain' => 'فشل الشبكة، يرجى المحاولة مرة أخرى!',
 			'common.networkNotAvailable' => 'الشبكة غير متاحة حالياً.',
 			'common.pleaseCheckNetworkConnection' => 'يرجى التحقق من اتصال الشبكة الخاص بك.',
-			'common.lastSeenMinutesAgo' => ({required Object param}) => _root.common.timeMinutesAgo(param: param),
-			'common.lastSeenHoursAgo' => ({required Object param}) => _root.common.timeHoursAgo(param: param),
-			'common.lastSeenDaysAgo' => ({required Object param}) => _root.common.timeDaysAgo(param: param),
+			'common.lastSeenMinutesAgo' => ({required num n}) => _root.common.timeMinutesAgo(n: n),
+			'common.lastSeenHoursAgo' => ({required num n}) => _root.common.timeHoursAgo(n: n),
+			'common.lastSeenDaysAgo' => ({required num n}) => _root.common.timeDaysAgo(n: n),
 			'common.fontSettings' => _root.common.fontSizeSetting,
 			'common.failed' => _root.common.error,
 			'common.lazyUserNoSignature' => 'لا يوجد توقيع شخصي بعد',

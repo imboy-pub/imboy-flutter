@@ -406,10 +406,16 @@ sureDeleteData: Confirmer la suppression ? Cette action est irréversible.
 sureDeleteGroupChatRecord: Confirmer la suppression de l'historique de conversation du groupe ?
 switchEnvironment: Changer d'environnement
 thisMonth: Ce mois
-timeDaysAgo: Il y a $param jours
-timeHoursAgo: Il y a $param heures
+timeDaysAgo(plural):
+  one: Il y a $n jour
+  other: Il y a $n jours
+timeHoursAgo(plural):
+  one: Il y a $n heure
+  other: Il y a $n heures
 timeJustNow: À l'instant
-timeMinutesAgo: Il y a $param minutes
+timeMinutesAgo(plural):
+  one: Il y a $n minute
+  other: Il y a $n minutes
 timeToday: Aujourd'hui
 timeYesterday: Hier
 tipConnectDesc: Pas de réseau

@@ -396,10 +396,16 @@ sureDeleteData: Confirm deletion? This action cannot be undone.
 sureDeleteGroupChatRecord: Delete group chat records?
 switchEnvironment: Switch environment
 thisMonth: This month
-timeDaysAgo: $param days ago
-timeHoursAgo: $param hours ago
+timeDaysAgo(plural):
+  one: $n day ago
+  other: $n days ago
+timeHoursAgo(plural):
+  one: $n hour ago
+  other: $n hours ago
 timeJustNow: Just now
-timeMinutesAgo: $param minutes ago
+timeMinutesAgo(plural):
+  one: $n minute ago
+  other: $n minutes ago
 timeToday: Today
 timeYesterday: Yesterday
 tipConnectDesc: No network

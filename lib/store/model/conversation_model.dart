@@ -157,6 +157,16 @@ class ConversationModel {
       str = subtitle;
     } else if (msgType == 'empty') {
       return '';
+    } else if (subtitle.trim().isNotEmpty) {
+      // 上面这串 if/else 是一张**枚举白名单**，任何没列进去的类型
+      // （expression / textStream / imageMulti / redPacket / transfer /
+      // groupSchedule / 群系统通知 / 以后新增的类型…）一律落到「未知消息」。
+      // 生产实测：群 99746135830431744 最后一条是 `expression`，会话列表就显示
+      // 「[未知消息]」，而它的 subtitle 明明是 `👏`。
+      //
+      // subtitle 已经是这条消息的可读摘要，有它就用它 —— 比「未知消息」永远更好，
+      // 且对将来新增的消息类型自动生效，不用每加一种类型就回来补一次白名单。
+      return subtitle;
     }
     return "[$str]";
   }

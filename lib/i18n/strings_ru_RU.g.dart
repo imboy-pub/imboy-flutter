@@ -1051,10 +1051,16 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get sureDeleteGroupChatRecord => 'Удалить историю чата группы?';
 	@override String get switchEnvironment => 'Переключить среду';
 	@override String get thisMonth => 'В этом месяце';
-	@override String timeDaysAgo({required Object param}) => '${param} дней назад';
-	@override String timeHoursAgo({required Object param}) => '${param} часов назад';
+	@override String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
+		other: '${n} дней назад',
+	);
+	@override String timeHoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
+		other: '${n} часов назад',
+	);
 	@override String get timeJustNow => 'Только что';
-	@override String timeMinutesAgo({required Object param}) => '${param} минут назад';
+	@override String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
+		other: '${n} минут назад',
+	);
 	@override String get timeToday => 'Сегодня';
 	@override String get timeYesterday => 'Вчера';
 	@override String get tipConnectDesc => 'Нет сети';
@@ -1423,9 +1429,9 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get networkFailureTryAgain => 'Сетевая ошибка, попробуйте снова!';
 	@override String get networkNotAvailable => 'Сеть в данный момент недоступна.';
 	@override String get pleaseCheckNetworkConnection => 'Пожалуйста, проверьте ваше сетевое подключение.';
-	@override String lastSeenMinutesAgo({required Object param}) => _root.common.timeMinutesAgo(param: param);
-	@override String lastSeenHoursAgo({required Object param}) => _root.common.timeHoursAgo(param: param);
-	@override String lastSeenDaysAgo({required Object param}) => _root.common.timeDaysAgo(param: param);
+	@override String lastSeenMinutesAgo({required num n}) => _root.common.timeMinutesAgo(n: n);
+	@override String lastSeenHoursAgo({required num n}) => _root.common.timeHoursAgo(n: n);
+	@override String lastSeenDaysAgo({required num n}) => _root.common.timeDaysAgo(n: n);
 	@override String get fontSettings => _root.common.fontSizeSetting;
 	@override String get failed => _root.common.error;
 	@override String get lazyUserNoSignature => 'Пользователь не указал подпись';
@@ -3487,10 +3493,10 @@ extension on TranslationsRuRu {
 			'common.sureDeleteGroupChatRecord' => 'Удалить историю чата группы?',
 			'common.switchEnvironment' => 'Переключить среду',
 			'common.thisMonth' => 'В этом месяце',
-			'common.timeDaysAgo' => ({required Object param}) => '${param} дней назад',
-			'common.timeHoursAgo' => ({required Object param}) => '${param} часов назад',
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, other: '${n} дней назад', ), 
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, other: '${n} часов назад', ), 
 			'common.timeJustNow' => 'Только что',
-			'common.timeMinutesAgo' => ({required Object param}) => '${param} минут назад',
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, other: '${n} минут назад', ), 
 			'common.timeToday' => 'Сегодня',
 			'common.timeYesterday' => 'Вчера',
 			'common.tipConnectDesc' => 'Нет сети',
@@ -3861,9 +3867,9 @@ extension on TranslationsRuRu {
 			'common.networkFailureTryAgain' => 'Сетевая ошибка, попробуйте снова!',
 			'common.networkNotAvailable' => 'Сеть в данный момент недоступна.',
 			'common.pleaseCheckNetworkConnection' => 'Пожалуйста, проверьте ваше сетевое подключение.',
-			'common.lastSeenMinutesAgo' => ({required Object param}) => _root.common.timeMinutesAgo(param: param),
-			'common.lastSeenHoursAgo' => ({required Object param}) => _root.common.timeHoursAgo(param: param),
-			'common.lastSeenDaysAgo' => ({required Object param}) => _root.common.timeDaysAgo(param: param),
+			'common.lastSeenMinutesAgo' => ({required num n}) => _root.common.timeMinutesAgo(n: n),
+			'common.lastSeenHoursAgo' => ({required num n}) => _root.common.timeHoursAgo(n: n),
+			'common.lastSeenDaysAgo' => ({required num n}) => _root.common.timeDaysAgo(n: n),
 			'common.fontSettings' => _root.common.fontSizeSetting,
 			'common.failed' => _root.common.error,
 			'common.lazyUserNoSignature' => 'Пользователь не указал подпись',

@@ -603,7 +603,7 @@ class ChatNetworkService {
     }
 
     // 默认路径：Megolm（C2G 群聊；C2C 已全部走 Olm fan-out）
-    E2eeBootstrap.ensureRegistered();
+    await E2eeBootstrap.ensureReady();
     final context = E2eeContext(gid: toId, scope: 'c2g');
     final encrypted = await E2eeOutboundRouter.encrypt(
       suite: ProtocolSuite.megolm,
@@ -625,7 +625,7 @@ class ChatNetworkService {
     required String messageId,
     required String messageType,
   }) async {
-    E2eeBootstrap.ensureRegistered();
+    await E2eeBootstrap.ensureReady();
 
     // 获取对端所有设备公钥
     final keyResult = await E2EEService.getUserDevicePublicKeys(toId);
@@ -746,18 +746,36 @@ class ChatNetworkService {
   // ===== 群组操作 =====
 
   /// 获取群组标题
+  ///
+  /// BUG#4 家族：`prefix` 为空时原先直接落到通用词「群聊」，于是无名群的聊天页
+  /// 标题一律是 `群聊(2)`，而同一个群在群列表里显示的是成员名 —— 同群两种叫法，
+  /// 正是 `GroupModel.displayTitle` 文档注释里点名要消灭的情况。
+  ///
+  /// 群名其实查得到，只是原逻辑仅在 `num <= 0` 分支查群详情、且只取 memberCount。
+  /// 这里是所有入口（会话列表 / 群列表 / 设置页回传）的必经收口点，
+  /// 补齐三级回退：传入名 → 群 title → 成员名（与群列表同一算法）。
   Future<String> groupTitle(String gid, String prefix, int num) async {
-    final String prefix2 = strNoEmpty(prefix) ? prefix : t.chat.groupChat;
-    if (num > 0) {
-      return "$prefix2($num)";
-    } else {
+    String name = prefix.trim();
+    int memberCount = num;
+
+    if (name.isEmpty || memberCount <= 0) {
       final GroupModel? g = await GroupDetailService().detail(gid: gid);
-      final int memberCount = g?.memberCount ?? 0;
-      if (memberCount > 0) {
-        return "$prefix2($memberCount)";
+      if (name.isEmpty) {
+        name = g?.title.trim() ?? '';
       }
-      return prefix2;
+      if (memberCount <= 0) {
+        memberCount = g?.memberCount ?? 0;
+      }
     }
+    if (name.isEmpty) {
+      // 无名群：取前几位成员昵称，与群列表页 computeTitle 同源，保证两处一致
+      name = (await GroupListService().computeTitle(gid)).trim();
+    }
+    if (name.isEmpty) {
+      name = t.main.unnamed;
+    }
+
+    return memberCount > 0 ? "$name($memberCount)" : name;
   }
 
   // ===== 队列操作（read receipts / reactions）=====

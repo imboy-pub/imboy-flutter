@@ -289,7 +289,11 @@ class ConversationNotifier extends _$ConversationNotifier {
     } catch (e) {
       iPrint('_getGroupTitle error: $e');
     }
-    return peerId;
+    // BUG#4 根因：这里原本 `return peerId`，随后被 computeTitle 持久化写进
+    // conversation.title —— gid 就此永久落库，渲染层再怎么加兜底也碰不到
+    // （真机实测群会话标题一直是 `104603643803863040`）。
+    // 缺名一律返回空串：不落库，交给渲染层统一兜底为「未命名」。
+    return '';
   }
 
   Future<String> computeTitle(ConversationModel obj) async {
@@ -308,6 +312,15 @@ class ConversationNotifier extends _$ConversationNotifier {
       computedTitle = await _getContactTitle(obj.peerId.toString());
     }
     iPrint("${obj.peerId} computedTitle $computedTitle");
+    // 存量纠正：修复前 _getGroupTitle/_getContactTitle 缺名时返回 peerId，
+    // 已经把 gid/uid 写进了 title 落库。这类历史脏值只靠新逻辑清不掉
+    // （title 非空 → 渲染层兜底永远碰不到），必须在这里主动抹掉一次。
+    if (obj.title.trim() == obj.peerId.toString()) {
+      await (ConversationRepo()).updateById(obj.id, {
+        ConversationRepo.title: '',
+      });
+      obj.title = '';
+    }
     // 将计算结果持久化到数据库
     if (computedTitle.isNotEmpty) {
       await (ConversationRepo()).updateById(obj.id, {
@@ -375,8 +388,11 @@ class ConversationNotifier extends _$ConversationNotifier {
   String _resolveAuthoritativeMsgType(Map<String, dynamic> lastMsg) {
     final payload =
         parseModelJsonMap(lastMsg['payload']) ?? <String, dynamic>{};
+    // ⚠️ 不要把 `lastMsg['type']` 加进这条回退链：那是**通道类型**（C2C/C2G），
+    // 不是消息内容类型。原实现末档正是它 —— 一旦 msg_type 缺失（旧消息），
+    // 会话的 msgType 就被写成字面量 `C2G`，渲染层任何类型判断都认不出来。
     final msgType = parseModelString(
-      lastMsg['msg_type'] ?? payload['msg_type'] ?? lastMsg['type'],
+      lastMsg['msg_type'] ?? payload['msg_type'],
     );
     if (msgType.isNotEmpty) return msgType;
     final text = parseModelString(lastMsg['text'] ?? payload['text']);
@@ -436,7 +452,17 @@ class ConversationNotifier extends _$ConversationNotifier {
     int hidden = 0;
 
     for (final conversation in visible) {
-      if (conversation.type != 'C2C' && conversation.type != 'C2G') {
+      // BUG#71：群会话不参与"不在权威列表就隐藏"。
+      //
+      // 服务端 /conversation/mine 的 C2G 部分来自
+      // `msg_c2g_timeline_repo:list_by_uid`——**只含该用户尚未确认的离线群消息**。
+      // 群消息一确认，timeline 就清空，该群随即从权威列表消失，这里便把它隐藏掉：
+      // 结果是"在群里聊完天，群就从消息列表没了"，连带
+      // `group_select` 查 is_show=1 的 C2G 得到 0 条（选择群聊页空白）。
+      //
+      // 这是止血：真正的根因在后端应按"我加入的群 + 每群最后一条消息"返回。
+      // 代价是别的设备删除的群会话可能残留——远小于所有群会话集体消失。
+      if (conversation.type != 'C2C') {
         continue;
       }
       final key = _authoritativeKey(
@@ -985,8 +1011,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       iPrint('_getContactTitle error for $peerId: $e; $s');
     }
 
-    // 如果没有找到联系人信息，返回peerId
-    return peerId;
+    // 同 _getGroupTitle：缺名不返回 uid，避免把内部 ID 写进 title 落库
+    return '';
   }
 
   // Compute avatar for group - temporary implementation

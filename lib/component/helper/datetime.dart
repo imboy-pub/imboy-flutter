@@ -35,17 +35,19 @@ class DateTimeHelper {
     final nowMs = millisecond();
     final diffMs = nowMs - timestampMs;
 
+    // 三个 key 都是 slang plural：传 num 而非 String，由各语言的
+    // cardinal resolver 选 one/other —— 英文此前恒取复数形式，出现 `1 days ago`。
     if (diffMs < 60 * 1000) {
       return t.common.timeJustNow;
     } else if (diffMs < 3600 * 1000) {
       final minutes = (diffMs / (60 * 1000)).floor();
-      return t.common.timeMinutesAgo(param: minutes.toString());
+      return t.common.timeMinutesAgo(n: minutes);
     } else if (diffMs < 24 * 3600 * 1000) {
       final hours = (diffMs / (3600 * 1000)).floor();
-      return t.common.timeHoursAgo(param: hours.toString());
+      return t.common.timeHoursAgo(n: hours);
     } else {
       final days = (diffMs / (24 * 3600 * 1000)).floor();
-      return t.common.timeDaysAgo(param: days.toString());
+      return t.common.timeDaysAgo(n: days);
     }
   }
 
@@ -53,6 +55,23 @@ class DateTimeHelper {
   static String lastTimeFmt(int lastTime, {String pattern = 'y-MM-dd HH:mm'}) {
     DateTime dt = DateTimeHelper.millisecondToDateTime(lastTime, isUtc: true);
     return dateTimeFmt(dt, pattern: pattern);
+  }
+
+  /// 毫秒时间戳 → 可读时间；解析不出来返回空串。
+  ///
+  /// 用于「后端原样返回 created_at、UI 直接 toString 就把 `1785742186575`
+  /// 摆给用户看」这类场景（BUG#51 相册副标题、相册照片详情页均属此列）。
+  /// **宁可不显示，也不露原始值** —— 所以拿不到有效毫秒数时返回空串，
+  /// 由调用方决定整块隐藏。
+  static String millisFmtOrEmpty(
+    dynamic value, {
+    String pattern = 'y-MM-dd HH:mm',
+  }) {
+    final int millis = value is int
+        ? value
+        : (value is String ? int.tryParse(value) ?? 0 : 0);
+    if (millis <= 0) return '';
+    return lastTimeFmt(millis, pattern: pattern);
   }
 
   /// 格式化日期时间（秒级时间戳）

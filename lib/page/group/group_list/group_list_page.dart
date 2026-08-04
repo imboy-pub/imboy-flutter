@@ -116,8 +116,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
     final kw = _keyword.trim().toLowerCase();
     if (kw.isEmpty) return source;
     return source.where((m) {
-      final title = m.title.isEmpty ? m.computeTitle : m.title;
-      return title.toLowerCase().contains(kw);
+      return m.displayTitle.toLowerCase().contains(kw);
     }).toList();
   }
 
@@ -232,9 +231,9 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final model = filtered[index];
-                final displayTitle = model.title.isEmpty
-                    ? model.computeTitle
-                    : model.title;
+                // 统一走 GroupModel.displayTitle（见其文档注释）：
+                // 三元表达式在 title 与 computeTitle 同时为空时会渲染出空标题。
+                final displayTitle = model.displayTitle;
                 return Column(
                   children: [
                     ImBoyListTile(
@@ -243,7 +242,9 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                         context.push(
                           '/chat/${model.groupId}',
                           extra: {
-                            'title': model.title,
+                            // BUG#4 家族：这里原本传 `model.title`，无名群传出空串，
+                            // 聊天页 `groupTitle` 便退化成通用词「群聊(2)」。
+                            'title': displayTitle,
                             'avatar': model.avatar,
                             'type': 'C2G',
                             'options': {'memberCount': model.memberCount},

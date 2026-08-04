@@ -406,10 +406,13 @@ sureDeleteData: 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.
 sureDeleteGroupChatRecord: 그룹 채팅 기록을 삭제하시겠습니까?
 switchEnvironment: 환경 전환
 thisMonth: 이번 달
-timeDaysAgo: "$param일 전"
-timeHoursAgo: "$param시간 전"
+timeDaysAgo(plural):
+  other: "$n일 전"
+timeHoursAgo(plural):
+  other: "$n시간 전"
 timeJustNow: 방금
-timeMinutesAgo: "$param분 전"
+timeMinutesAgo(plural):
+  other: "$n분 전"
 timeToday: 오늘
 timeYesterday: 어제
 tipConnectDesc: 네트워크 없음

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_vodozemac/flutter_vodozemac.dart' as fvod;
+import 'package:imboy/service/e2ee/vodozemac_init.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
@@ -64,9 +64,6 @@ class GroupSessionService {
   /// P0-2: Megolm outbound session 最大存活时间（7 天，超过则强制 rotate）
   static const int _maxSessionAgeMs = 7 * 24 * 60 * 60 * 1000;
 
-  static bool _vodReady = false;
-  static Future<void>? _initFuture;
-
   /// C2C 单聊的会话域前缀（outbound map 键 'c2c:$peerUid'，inbound 存储域 'c2c'）
   static const String c2cScope = 'c2c';
 
@@ -92,21 +89,15 @@ class GroupSessionService {
   }
 
   /// 懒加载 vodozemac 原生库（失败可重试）
-  Future<void> ensureInitialized() async {
-    if (_vodReady) return;
-    _initFuture ??= fvod.init();
-    try {
-      await _initFuture;
-      _vodReady = true;
-    } catch (_) {
-      _initFuture = null;
-      rethrow;
-    }
-  }
+  ///
+  /// 状态收口在 [VodozemacInit]：flutter_rust_bridge 的初始化是进程级全局的，
+  /// 本类与 OlmSessionService 各存一份就绪标志时，谁先 init 成功，
+  /// 另一个必然重复 init 并抛 `Should not initialize flutter_rust_bridge twice`。
+  Future<void> ensureInitialized() => VodozemacInit.ensure();
 
   /// 测试专用：测试进程自行 vod.init(libraryPath:) 后标记就绪
   @visibleForTesting
-  static void debugMarkVodReady() => _vodReady = true;
+  static void debugMarkVodReady() => VodozemacInit.debugMarkReady();
 
   // ===== 群级 E2EE 旗标（来源：S2C group_e2ee_mode 广播 / 群详情 / 收到 room key）=====
 

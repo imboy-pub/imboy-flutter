@@ -406,10 +406,13 @@ sureDeleteData: 削除してもよろしいですか？削除後は復元でき�
 sureDeleteGroupChatRecord: グループのチャット履歴を削除してもよろしいですか？
 switchEnvironment: 環境を切り替え
 thisMonth: 今月
-timeDaysAgo: "$param日前"
-timeHoursAgo: "$param時間前"
+timeDaysAgo(plural):
+  other: "$n日前"
+timeHoursAgo(plural):
+  other: "$n時間前"
 timeJustNow: たった今
-timeMinutesAgo: "$param分前"
+timeMinutesAgo(plural):
+  other: "$n分前"
 timeToday: 今日
 timeYesterday: 昨日
 tipConnectDesc: ネットワークなし

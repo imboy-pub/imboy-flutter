@@ -1058,10 +1058,19 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get sureDeleteGroupChatRecord => 'Delete group chat records?';
 	@override String get switchEnvironment => 'Switch environment';
 	@override String get thisMonth => 'This month';
-	@override String timeDaysAgo({required Object param}) => '${param} days ago';
-	@override String timeHoursAgo({required Object param}) => '${param} hours ago';
+	@override String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
+		one: '${n} day ago',
+		other: '${n} days ago',
+	);
+	@override String timeHoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
+		one: '${n} hour ago',
+		other: '${n} hours ago',
+	);
 	@override String get timeJustNow => 'Just now';
-	@override String timeMinutesAgo({required Object param}) => '${param} minutes ago';
+	@override String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
+		one: '${n} minute ago',
+		other: '${n} minutes ago',
+	);
 	@override String get timeToday => 'Today';
 	@override String get timeYesterday => 'Yesterday';
 	@override String get tipConnectDesc => 'No network';
@@ -1429,9 +1438,9 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get networkFailureTryAgain => 'Network error. Please try again!';
 	@override String get networkNotAvailable => 'No internet connection.';
 	@override String get pleaseCheckNetworkConnection => 'Please check your network connection.';
-	@override String lastSeenMinutesAgo({required Object param}) => _root.common.timeMinutesAgo(param: param);
-	@override String lastSeenHoursAgo({required Object param}) => _root.common.timeHoursAgo(param: param);
-	@override String lastSeenDaysAgo({required Object param}) => _root.common.timeDaysAgo(param: param);
+	@override String lastSeenMinutesAgo({required num n}) => _root.common.timeMinutesAgo(n: n);
+	@override String lastSeenHoursAgo({required num n}) => _root.common.timeHoursAgo(n: n);
+	@override String lastSeenDaysAgo({required num n}) => _root.common.timeDaysAgo(n: n);
 	@override String get fontSettings => _root.common.fontSizeSetting;
 	@override String get retryingSend => 'Retrying send...';
 	@override String get quickReplyOk => 'OK';
@@ -3516,10 +3525,10 @@ extension on TranslationsEnUs {
 			'common.sureDeleteGroupChatRecord' => 'Delete group chat records?',
 			'common.switchEnvironment' => 'Switch environment',
 			'common.thisMonth' => 'This month',
-			'common.timeDaysAgo' => ({required Object param}) => '${param} days ago',
-			'common.timeHoursAgo' => ({required Object param}) => '${param} hours ago',
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '${n} day ago', other: '${n} days ago', ), 
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '${n} hour ago', other: '${n} hours ago', ), 
 			'common.timeJustNow' => 'Just now',
-			'common.timeMinutesAgo' => ({required Object param}) => '${param} minutes ago',
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '${n} minute ago', other: '${n} minutes ago', ), 
 			'common.timeToday' => 'Today',
 			'common.timeYesterday' => 'Yesterday',
 			'common.tipConnectDesc' => 'No network',
@@ -3889,9 +3898,9 @@ extension on TranslationsEnUs {
 			'common.networkFailureTryAgain' => 'Network error. Please try again!',
 			'common.networkNotAvailable' => 'No internet connection.',
 			'common.pleaseCheckNetworkConnection' => 'Please check your network connection.',
-			'common.lastSeenMinutesAgo' => ({required Object param}) => _root.common.timeMinutesAgo(param: param),
-			'common.lastSeenHoursAgo' => ({required Object param}) => _root.common.timeHoursAgo(param: param),
-			'common.lastSeenDaysAgo' => ({required Object param}) => _root.common.timeDaysAgo(param: param),
+			'common.lastSeenMinutesAgo' => ({required num n}) => _root.common.timeMinutesAgo(n: n),
+			'common.lastSeenHoursAgo' => ({required num n}) => _root.common.timeHoursAgo(n: n),
+			'common.lastSeenDaysAgo' => ({required num n}) => _root.common.timeDaysAgo(n: n),
 			'common.fontSettings' => _root.common.fontSizeSetting,
 			'common.retryingSend' => 'Retrying send...',
 			'common.quickReplyOk' => 'OK',

@@ -3195,17 +3195,23 @@ class Translations$common$zh_CN {
 	/// zh-CN: '本月'
 	String get thisMonth => '本月';
 
-	/// zh-CN: '$param天前'
-	String timeDaysAgo({required Object param}) => '${param}天前';
+	/// zh-CN: '(other) {$n天前}'
+	String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		other: '${n}天前',
+	);
 
-	/// zh-CN: '$param小时前'
-	String timeHoursAgo({required Object param}) => '${param}小时前';
+	/// zh-CN: '(other) {$n小时前}'
+	String timeHoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		other: '${n}小时前',
+	);
 
 	/// zh-CN: '刚刚'
 	String get timeJustNow => '刚刚';
 
-	/// zh-CN: '$param分钟前'
-	String timeMinutesAgo({required Object param}) => '${param}分钟前';
+	/// zh-CN: '(other) {$n分钟前}'
+	String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		other: '${n}分钟前',
+	);
 
 	/// zh-CN: '今天'
 	String get timeToday => '今天';
@@ -4329,14 +4335,14 @@ class Translations$common$zh_CN {
 	/// zh-CN: '请检查你的网络连接。'
 	String get pleaseCheckNetworkConnection => '请检查你的网络连接。';
 
-	/// zh-CN: '$param分钟前'
-	String lastSeenMinutesAgo({required Object param}) => _root.common.timeMinutesAgo(param: param);
+	/// zh-CN: '(other) {$n分钟前}'
+	String lastSeenMinutesAgo({required num n}) => _root.common.timeMinutesAgo(n: n);
 
-	/// zh-CN: '$param小时前'
-	String lastSeenHoursAgo({required Object param}) => _root.common.timeHoursAgo(param: param);
+	/// zh-CN: '(other) {$n小时前}'
+	String lastSeenHoursAgo({required num n}) => _root.common.timeHoursAgo(n: n);
 
-	/// zh-CN: '$param天前'
-	String lastSeenDaysAgo({required Object param}) => _root.common.timeDaysAgo(param: param);
+	/// zh-CN: '(other) {$n天前}'
+	String lastSeenDaysAgo({required num n}) => _root.common.timeDaysAgo(n: n);
 
 	/// zh-CN: '字体大小设置'
 	String get fontSettings => _root.common.fontSizeSetting;
@@ -8568,10 +8574,10 @@ extension on Translations {
 			_ => null,
 		} ?? switch (path) {
 			'common.thisMonth' => '本月',
-			'common.timeDaysAgo' => ({required Object param}) => '${param}天前',
-			'common.timeHoursAgo' => ({required Object param}) => '${param}小时前',
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}天前', ), 
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}小时前', ), 
 			'common.timeJustNow' => '刚刚',
-			'common.timeMinutesAgo' => ({required Object param}) => '${param}分钟前',
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}分钟前', ), 
 			'common.timeToday' => '今天',
 			'common.timeYesterday' => '昨天',
 			'common.tipConnectDesc' => '无网络',
@@ -8946,9 +8952,9 @@ extension on Translations {
 			'common.networkFailureTryAgain' => '网络故障，请重试！',
 			'common.networkNotAvailable' => '当前网络不可用。',
 			'common.pleaseCheckNetworkConnection' => '请检查你的网络连接。',
-			'common.lastSeenMinutesAgo' => ({required Object param}) => _root.common.timeMinutesAgo(param: param),
-			'common.lastSeenHoursAgo' => ({required Object param}) => _root.common.timeHoursAgo(param: param),
-			'common.lastSeenDaysAgo' => ({required Object param}) => _root.common.timeDaysAgo(param: param),
+			'common.lastSeenMinutesAgo' => ({required num n}) => _root.common.timeMinutesAgo(n: n),
+			'common.lastSeenHoursAgo' => ({required num n}) => _root.common.timeHoursAgo(n: n),
+			'common.lastSeenDaysAgo' => ({required num n}) => _root.common.timeDaysAgo(n: n),
 			'common.fontSettings' => _root.common.fontSizeSetting,
 			'common.failed' => _root.common.error,
 			'common.lazyUserNoSignature' => '暂无个人签名',

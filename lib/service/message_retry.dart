@@ -176,13 +176,23 @@ class MessageRetry with EventSubscriptionManager {
 
       iPrint('🔍 [RETRY_SCAN] 开始扫描失败消息...');
 
-      // 需要重试的消息状态：sending（发送中）、pendingRetry（待重试）和 error（错误）
+      // 需要重试的消息状态：sending（发送中）、pendingRetry（待重试）。
       // repo.page 不按状态过滤，每表只查一次、单遍按状态集过滤
       //（原实现按状态循环把同一批行查 3 遍）。
+      //
+      // ⚠️ **不含 error**：那是本状态机自己的终态。
+      // `_markMessageAsError` 在 retryCount 达上限时把行置为 error 并出队，
+      // 而 error 原本也在这张扫描表里 —— 下一次扫描立刻把它捞回来，
+      // retryCount 归零（队列是内存的），再重试 4 次，再置 error……
+      // 闭环自噬，放弃上限形同虚设。真机实测：一条服务端恒拒的存量坏消息
+      // （msg_type 为空）每 5~10s 就被重发一次，永远不停。
+      //
+      // error 的语义是「已放弃并已告知用户」：聊天页渲染失败标记，
+      // 用户点它走 `MessageRetry.retryMessage` 显式重发。自动扫描不该复活终态。
+      // sending / pendingRetry 则是进程被杀留下的中间态，必须恢复重试。
       const statusesToRetry = {
         IMBoyMessageStatus.sending,
         IMBoyMessageStatus.pendingRetry,
-        IMBoyMessageStatus.error,
       };
 
       // 获取所有消息表
@@ -435,6 +445,10 @@ class MessageRetry with EventSubscriptionManager {
       }
       if (await _isPlaintextRetryBlocked(msg)) {
         iPrint('🚫 [RETRY] 未加密消息不得重发，已拦下: ${info.messageId}');
+        // 必须落终态再出队：库里的 payload 已经是明文，闸门条件不会自行好转。
+        // 只出队不改状态的话，行仍是 sending/pendingRetry，下一轮扫描原样捞回，
+        // 每个周期白跑一遍 DB —— 与 error 被扫描表收录是同一类闭环自噬。
+        await _markMessageAsError(info);
         _retryQueue.remove(info.messageId);
         return;
       }
@@ -650,6 +664,13 @@ class MessageRetry with EventSubscriptionManager {
   }
 
   // ---- 仅用于测试/调试 ----
+
+  /// 测试专用：驱动一次启动时的失败消息扫描。
+  ///
+  /// 生产路径上它只在构造函数里跑一次，没有公开入口，
+  /// 「终态 error 不得被重新捞回队列」这条不变量因此无法被测试驱动。
+  Future<void> debugScanFailedMessages() => _scanAndRetryFailedMessages();
+
   int get retryQueueSize => _retryQueue.length;
   MessageRetryInfo? getRetryInfo(String messageId) => _retryQueue[messageId];
 }

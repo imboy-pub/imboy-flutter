@@ -406,10 +406,13 @@ sureDeleteData: Удалить? Восстановление невозможн�
 sureDeleteGroupChatRecord: Удалить историю чата группы?
 switchEnvironment: Переключить среду
 thisMonth: В этом месяце
-timeDaysAgo: "$param дней назад"
-timeHoursAgo: "$param часов назад"
+timeDaysAgo(plural):
+  other: "$n дней назад"
+timeHoursAgo(plural):
+  other: "$n часов назад"
 timeJustNow: Только что
-timeMinutesAgo: "$param минут назад"
+timeMinutesAgo(plural):
+  other: "$n минут назад"
 timeToday: Сегодня
 timeYesterday: Вчера
 tipConnectDesc: Нет сети

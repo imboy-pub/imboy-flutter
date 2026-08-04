@@ -1067,10 +1067,16 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get sureDeleteGroupChatRecord => '確定刪除群組的聊天記錄嗎？';
 	@override String get switchEnvironment => '切換環境';
 	@override String get thisMonth => '本月';
-	@override String timeDaysAgo({required Object param}) => '${param}天前';
-	@override String timeHoursAgo({required Object param}) => '${param}小時前';
+	@override String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		other: '${n}天前',
+	);
+	@override String timeHoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		other: '${n}小時前',
+	);
 	@override String get timeJustNow => '剛剛';
-	@override String timeMinutesAgo({required Object param}) => '${param}分鐘前';
+	@override String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		other: '${n}分鐘前',
+	);
 	@override String get timeToday => '今天';
 	@override String get timeYesterday => '昨天';
 	@override String get tipConnectDesc => '無網路';
@@ -1439,9 +1445,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get networkFailureTryAgain => '網路故障，請重試！';
 	@override String get networkNotAvailable => '目前網路不可用。';
 	@override String get pleaseCheckNetworkConnection => '請檢查您的網路連接。';
-	@override String lastSeenMinutesAgo({required Object param}) => _root.common.timeMinutesAgo(param: param);
-	@override String lastSeenHoursAgo({required Object param}) => _root.common.timeHoursAgo(param: param);
-	@override String lastSeenDaysAgo({required Object param}) => _root.common.timeDaysAgo(param: param);
+	@override String lastSeenMinutesAgo({required num n}) => _root.common.timeMinutesAgo(n: n);
+	@override String lastSeenHoursAgo({required num n}) => _root.common.timeHoursAgo(n: n);
+	@override String lastSeenDaysAgo({required num n}) => _root.common.timeDaysAgo(n: n);
 	@override String get fontSettings => _root.common.fontSizeSetting;
 	@override String get failed => _root.common.error;
 	@override String get lazyUserNoSignature => '暫無個人簽名';
@@ -3525,10 +3531,10 @@ extension on TranslationsZhHant {
 			'common.sureDeleteGroupChatRecord' => '確定刪除群組的聊天記錄嗎？',
 			'common.switchEnvironment' => '切換環境',
 			'common.thisMonth' => '本月',
-			'common.timeDaysAgo' => ({required Object param}) => '${param}天前',
-			'common.timeHoursAgo' => ({required Object param}) => '${param}小時前',
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}天前', ), 
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}小時前', ), 
 			'common.timeJustNow' => '剛剛',
-			'common.timeMinutesAgo' => ({required Object param}) => '${param}分鐘前',
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}分鐘前', ), 
 			'common.timeToday' => '今天',
 			'common.timeYesterday' => '昨天',
 			'common.tipConnectDesc' => '無網路',
@@ -3899,9 +3905,9 @@ extension on TranslationsZhHant {
 			'common.networkFailureTryAgain' => '網路故障，請重試！',
 			'common.networkNotAvailable' => '目前網路不可用。',
 			'common.pleaseCheckNetworkConnection' => '請檢查您的網路連接。',
-			'common.lastSeenMinutesAgo' => ({required Object param}) => _root.common.timeMinutesAgo(param: param),
-			'common.lastSeenHoursAgo' => ({required Object param}) => _root.common.timeHoursAgo(param: param),
-			'common.lastSeenDaysAgo' => ({required Object param}) => _root.common.timeDaysAgo(param: param),
+			'common.lastSeenMinutesAgo' => ({required num n}) => _root.common.timeMinutesAgo(n: n),
+			'common.lastSeenHoursAgo' => ({required num n}) => _root.common.timeHoursAgo(n: n),
+			'common.lastSeenDaysAgo' => ({required num n}) => _root.common.timeDaysAgo(n: n),
 			'common.fontSettings' => _root.common.fontSizeSetting,
 			'common.failed' => _root.common.error,
 			'common.lazyUserNoSignature' => '暫無個人簽名',

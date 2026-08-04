@@ -406,10 +406,16 @@ sureDeleteData: Confermi l'eliminazione? Dopo l'eliminazione non può essere rec
 sureDeleteGroupChatRecord: Sei sicuro di voler eliminare la cronologia della chat del gruppo?
 switchEnvironment: Cambia ambiente
 thisMonth: Questo mese
-timeDaysAgo: "$param giorni fa"
-timeHoursAgo: "$param ore fa"
+timeDaysAgo(plural):
+  one: "$n giorno fa"
+  other: "$n giorni fa"
+timeHoursAgo(plural):
+  one: "$n ora fa"
+  other: "$n ore fa"
 timeJustNow: Proprio ora
-timeMinutesAgo: "$param minuti fa"
+timeMinutesAgo(plural):
+  one: "$n minuto fa"
+  other: "$n minuti fa"
 timeToday: Oggi
 timeYesterday: Ieri
 tipConnectDesc: Nessuna rete

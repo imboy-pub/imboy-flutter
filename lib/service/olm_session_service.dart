@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_vodozemac/flutter_vodozemac.dart' as fvod;
+import 'package:imboy/service/e2ee/vodozemac_init.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
@@ -127,9 +127,6 @@ class OlmSessionService {
   static OlmSessionService get to => _instance;
   OlmSessionService._internal();
 
-  static bool _vodReady = false;
-  static Future<void>? _initFuture;
-
   /// 内存中的 Account（长期身份，懒加载自 pickle）
   vod.Account? _account;
 
@@ -179,20 +176,14 @@ class OlmSessionService {
 
   // ===== 原生库懒加载（与 GroupSessionService 同模式）=====
 
-  Future<void> ensureInitialized() async {
-    if (_vodReady) return;
-    _initFuture ??= fvod.init();
-    try {
-      await _initFuture;
-      _vodReady = true;
-    } catch (_) {
-      _initFuture = null;
-      rethrow;
-    }
-  }
+  /// 懒加载 vodozemac 原生库（失败可重试）
+  ///
+  /// 状态收口在 [VodozemacInit]，与 GroupSessionService 共用一份就绪标志 ——
+  /// flutter_rust_bridge 的初始化是进程级全局的，两处各存一份必然重复 init。
+  Future<void> ensureInitialized() => VodozemacInit.ensure();
 
   @visibleForTesting
-  static void debugMarkVodReady() => _vodReady = true;
+  static void debugMarkVodReady() => VodozemacInit.debugMarkReady();
 
   // ===== pickle 加密密钥（设备级，与身份私钥同级）=====
 

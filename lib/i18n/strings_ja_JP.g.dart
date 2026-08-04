@@ -1051,10 +1051,16 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get sureDeleteGroupChatRecord => 'グループのチャット履歴を削除してもよろしいですか？';
 	@override String get switchEnvironment => '環境を切り替え';
 	@override String get thisMonth => '今月';
-	@override String timeDaysAgo({required Object param}) => '${param}日前';
-	@override String timeHoursAgo({required Object param}) => '${param}時間前';
+	@override String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n,
+		other: '${n}日前',
+	);
+	@override String timeHoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n,
+		other: '${n}時間前',
+	);
 	@override String get timeJustNow => 'たった今';
-	@override String timeMinutesAgo({required Object param}) => '${param}分前';
+	@override String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n,
+		other: '${n}分前',
+	);
 	@override String get timeToday => '今日';
 	@override String get timeYesterday => '昨日';
 	@override String get tipConnectDesc => 'ネットワークなし';
@@ -1423,9 +1429,9 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get networkFailureTryAgain => 'ネットワークエラーです。もう一度お試しください！';
 	@override String get networkNotAvailable => '現在ネットワークが利用できません。';
 	@override String get pleaseCheckNetworkConnection => 'ネットワーク接続を確認してください。';
-	@override String lastSeenMinutesAgo({required Object param}) => _root.common.timeMinutesAgo(param: param);
-	@override String lastSeenHoursAgo({required Object param}) => _root.common.timeHoursAgo(param: param);
-	@override String lastSeenDaysAgo({required Object param}) => _root.common.timeDaysAgo(param: param);
+	@override String lastSeenMinutesAgo({required num n}) => _root.common.timeMinutesAgo(n: n);
+	@override String lastSeenHoursAgo({required num n}) => _root.common.timeHoursAgo(n: n);
+	@override String lastSeenDaysAgo({required num n}) => _root.common.timeDaysAgo(n: n);
 	@override String get fontSettings => _root.common.fontSizeSetting;
 	@override String get failed => _root.common.error;
 	@override String get lazyUserNoSignature => '自己紹介は未設定です';
@@ -3487,10 +3493,10 @@ extension on TranslationsJaJp {
 			'common.sureDeleteGroupChatRecord' => 'グループのチャット履歴を削除してもよろしいですか？',
 			'common.switchEnvironment' => '環境を切り替え',
 			'common.thisMonth' => '今月',
-			'common.timeDaysAgo' => ({required Object param}) => '${param}日前',
-			'common.timeHoursAgo' => ({required Object param}) => '${param}時間前',
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '${n}日前', ), 
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '${n}時間前', ), 
 			'common.timeJustNow' => 'たった今',
-			'common.timeMinutesAgo' => ({required Object param}) => '${param}分前',
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '${n}分前', ), 
 			'common.timeToday' => '今日',
 			'common.timeYesterday' => '昨日',
 			'common.tipConnectDesc' => 'ネットワークなし',
@@ -3861,9 +3867,9 @@ extension on TranslationsJaJp {
 			'common.networkFailureTryAgain' => 'ネットワークエラーです。もう一度お試しください！',
 			'common.networkNotAvailable' => '現在ネットワークが利用できません。',
 			'common.pleaseCheckNetworkConnection' => 'ネットワーク接続を確認してください。',
-			'common.lastSeenMinutesAgo' => ({required Object param}) => _root.common.timeMinutesAgo(param: param),
-			'common.lastSeenHoursAgo' => ({required Object param}) => _root.common.timeHoursAgo(param: param),
-			'common.lastSeenDaysAgo' => ({required Object param}) => _root.common.timeDaysAgo(param: param),
+			'common.lastSeenMinutesAgo' => ({required num n}) => _root.common.timeMinutesAgo(n: n),
+			'common.lastSeenHoursAgo' => ({required num n}) => _root.common.timeHoursAgo(n: n),
+			'common.lastSeenDaysAgo' => ({required num n}) => _root.common.timeDaysAgo(n: n),
 			'common.fontSettings' => _root.common.fontSizeSetting,
 			'common.failed' => _root.common.error,
 			'common.lazyUserNoSignature' => '自己紹介は未設定です',

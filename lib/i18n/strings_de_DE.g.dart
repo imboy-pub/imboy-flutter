@@ -1051,10 +1051,19 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get sureDeleteGroupChatRecord => 'Chat-Verlauf der Gruppe löschen?';
 	@override String get switchEnvironment => 'Umgebung wechseln';
 	@override String get thisMonth => 'Dieser Monat';
-	@override String timeDaysAgo({required Object param}) => 'Vor ${param} Tagen';
-	@override String timeHoursAgo({required Object param}) => 'Vor ${param} Stunden';
+	@override String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('de'))(n,
+		one: 'Vor ${n} Tag',
+		other: 'Vor ${n} Tagen',
+	);
+	@override String timeHoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('de'))(n,
+		one: 'Vor ${n} Stunde',
+		other: 'Vor ${n} Stunden',
+	);
 	@override String get timeJustNow => 'Gerade eben';
-	@override String timeMinutesAgo({required Object param}) => 'Vor ${param} Minuten';
+	@override String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('de'))(n,
+		one: 'Vor ${n} Minute',
+		other: 'Vor ${n} Minuten',
+	);
 	@override String get timeToday => 'Heute';
 	@override String get timeYesterday => 'Gestern';
 	@override String get tipConnectDesc => 'Kein Netzwerk';
@@ -1423,9 +1432,9 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get networkFailureTryAgain => 'Netzwerkfehler, bitte versuchen Sie es erneut!';
 	@override String get networkNotAvailable => 'Netzwerk derzeit nicht verfügbar.';
 	@override String get pleaseCheckNetworkConnection => 'Bitte überprüfen Sie Ihre Netzwerkverbindung.';
-	@override String lastSeenMinutesAgo({required Object param}) => _root.common.timeMinutesAgo(param: param);
-	@override String lastSeenHoursAgo({required Object param}) => _root.common.timeHoursAgo(param: param);
-	@override String lastSeenDaysAgo({required Object param}) => _root.common.timeDaysAgo(param: param);
+	@override String lastSeenMinutesAgo({required num n}) => _root.common.timeMinutesAgo(n: n);
+	@override String lastSeenHoursAgo({required num n}) => _root.common.timeHoursAgo(n: n);
+	@override String lastSeenDaysAgo({required num n}) => _root.common.timeDaysAgo(n: n);
 	@override String get fontSettings => _root.common.fontSizeSetting;
 	@override String get failed => _root.common.error;
 	@override String get lazyUserNoSignature => 'Keine persönliche Signatur';
@@ -3487,10 +3496,10 @@ extension on TranslationsDeDe {
 			'common.sureDeleteGroupChatRecord' => 'Chat-Verlauf der Gruppe löschen?',
 			'common.switchEnvironment' => 'Umgebung wechseln',
 			'common.thisMonth' => 'Dieser Monat',
-			'common.timeDaysAgo' => ({required Object param}) => 'Vor ${param} Tagen',
-			'common.timeHoursAgo' => ({required Object param}) => 'Vor ${param} Stunden',
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('de'))(n, one: 'Vor ${n} Tag', other: 'Vor ${n} Tagen', ), 
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('de'))(n, one: 'Vor ${n} Stunde', other: 'Vor ${n} Stunden', ), 
 			'common.timeJustNow' => 'Gerade eben',
-			'common.timeMinutesAgo' => ({required Object param}) => 'Vor ${param} Minuten',
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('de'))(n, one: 'Vor ${n} Minute', other: 'Vor ${n} Minuten', ), 
 			'common.timeToday' => 'Heute',
 			'common.timeYesterday' => 'Gestern',
 			'common.tipConnectDesc' => 'Kein Netzwerk',
@@ -3861,9 +3870,9 @@ extension on TranslationsDeDe {
 			'common.networkFailureTryAgain' => 'Netzwerkfehler, bitte versuchen Sie es erneut!',
 			'common.networkNotAvailable' => 'Netzwerk derzeit nicht verfügbar.',
 			'common.pleaseCheckNetworkConnection' => 'Bitte überprüfen Sie Ihre Netzwerkverbindung.',
-			'common.lastSeenMinutesAgo' => ({required Object param}) => _root.common.timeMinutesAgo(param: param),
-			'common.lastSeenHoursAgo' => ({required Object param}) => _root.common.timeHoursAgo(param: param),
-			'common.lastSeenDaysAgo' => ({required Object param}) => _root.common.timeDaysAgo(param: param),
+			'common.lastSeenMinutesAgo' => ({required num n}) => _root.common.timeMinutesAgo(n: n),
+			'common.lastSeenHoursAgo' => ({required num n}) => _root.common.timeHoursAgo(n: n),
+			'common.lastSeenDaysAgo' => ({required num n}) => _root.common.timeDaysAgo(n: n),
 			'common.fontSettings' => _root.common.fontSizeSetting,
 			'common.failed' => _root.common.error,
 			'common.lazyUserNoSignature' => 'Keine persönliche Signatur',

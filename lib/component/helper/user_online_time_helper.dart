@@ -85,9 +85,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinMinutes,
         lastSeenAt: lastSeen,
-        statusText: t.common.lastSeenMinutesAgo(
-          param: difference.inMinutes.toString(),
-        ),
+        statusText: t.common.lastSeenMinutesAgo(n: difference.inMinutes),
         timeValue: difference.inMinutes,
       );
     }
@@ -96,9 +94,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinHours,
         lastSeenAt: lastSeen,
-        statusText: t.common.lastSeenHoursAgo(
-          param: difference.inHours.toString(),
-        ),
+        statusText: t.common.lastSeenHoursAgo(n: difference.inHours),
         timeValue: difference.inHours,
       );
     }
@@ -107,9 +103,7 @@ class UserOnlineTimeHelper {
       return UserOnlineStatus(
         status: LastSeenStatus.withinDays,
         lastSeenAt: lastSeen,
-        statusText: t.common.lastSeenDaysAgo(
-          param: difference.inDays.toString(),
-        ),
+        statusText: t.common.lastSeenDaysAgo(n: difference.inDays),
         timeValue: difference.inDays,
       );
     }

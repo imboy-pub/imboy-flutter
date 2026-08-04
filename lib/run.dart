@@ -221,6 +221,8 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
   Future<void> _initLocale() async {
     if (_localeInitialized) return;
 
+    _registerPluralResolvers();
+
     try {
       // 优先从本地存储读取用户上次选择的语言
       final savedLocaleName = StorageService.to.getString(
@@ -244,6 +246,29 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
       // 如果获取失败，使用默认的简体中文
       await LocaleSettings.setLocale(AppLocale.zhCn);
       _localeInitialized = true;
+    }
+  }
+
+  /// 为 slang 内置表里没有的语言注册 cardinal resolver。
+  ///
+  /// 相对时间三个 key（timeDaysAgo / timeHoursAgo / timeMinutesAgo）改成 plural
+  /// 后，slang 会对每种语言查 resolver；zh / ja / ko / ar / ru 不在内置表里，
+  /// 每次渲染都会打一条
+  /// `Resolver for <lang = zh> not specified! ... A fallback is used now.`
+  ///
+  /// 这几种语言在本项目里只提供 `other` 一档（无单复数变化，或复数规则复杂
+  /// 待母语者补），恒返回 other 即为正确行为 —— 显式注册只为消除噪音日志，
+  /// 不改变任何输出。ru / ar 将来补齐 few/many 时，把对应 resolver 换成
+  /// 真实规则即可。
+  void _registerPluralResolvers() {
+    for (final lang in const ['zh', 'ja', 'ko', 'ar', 'ru']) {
+      LocaleSettings.setPluralResolver(
+        language: lang,
+        cardinalResolver: (n, {zero, one, two, few, many, other}) =>
+            other ?? one ?? n.toString(),
+        ordinalResolver: (n, {zero, one, two, few, many, other}) =>
+            other ?? one ?? n.toString(),
+      );
     }
   }
 
