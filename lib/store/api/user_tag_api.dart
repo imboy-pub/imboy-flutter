@@ -1,3 +1,4 @@
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/config/const.dart';
@@ -71,7 +72,16 @@ class UserTagApi extends HttpClient {
     if (resp.code == ErrorCode.ERROR) {
       AppLoading.showError(resp.msg);
     }
-    return resp.ok ? ((resp.payload['tagId'] as num?)?.toInt() ?? 0) : 0;
+    final tagId = resp.ok ? ((resp.payload['tagId'] as num?)?.toInt() ?? 0) : 0;
+    if (tagId <= 0) {
+      // QA#29 排查受阻的直接原因：请求 200 返回了，但拿不到 tagId 时
+      // 这里静默返回 0，既没提示也没日志，根因无从查起。
+      iPrint(
+        '> UserTagApi/addTag failed ok:${resp.ok} code:${resp.code} '
+        'msg:${resp.msg} payload:${resp.payload}',
+      );
+    }
+    return tagId;
   }
 
   Future<Map<String, dynamic>?> pageRelation({

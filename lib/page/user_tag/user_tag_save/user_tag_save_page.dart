@@ -170,6 +170,12 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                                 if (context.mounted) {
                                   Navigator.of(context).pop();
                                 }
+                              } else {
+                                // 此前这里是空的：新增失败时不 pop、不提示、不记日志，
+                                // 用户看到的就是「点了完成，页面纹丝不动」（QA#29），
+                                // 也让失败原因彻底查不出来。下面的改名分支一直是有
+                                // else 提示的，这里属遗漏。
+                                AppLoading.showError(t.common.tipFailed);
                               }
                             } else if (_valueChanged) {
                               // 修改标签名称
