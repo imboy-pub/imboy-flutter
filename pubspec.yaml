@@ -358,10 +358,12 @@ flutter:
 
   # ┌─ Assets & Resources ────────────────────────────────────────────┐
   assets:
-    # 离线文档（更新日志/FAQ/隐私政策；gitee raw 匿名 404 不可依赖）
+    # 离线文档（更新日志/FAQ/隐私政策/关于；gitee raw 匿名 404 不可依赖）
+    # 这几个文件都是**直接展示给终端用户**的，不要往里塞开发者内容。
     - docs/changelog.md
     - docs/FAQ.md
     - docs/privacy-policy.md
+    - docs/about.md
     - assets/example10.db                  # 示例数据库
     - assets/data/region.json              # 地区数据
     - assets/images/                       # 通用图片资源

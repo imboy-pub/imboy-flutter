@@ -7,6 +7,8 @@ import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'package:imboy/page/mine/change_password/change_password_page.dart';
+
 import 'bind_email_page.dart';
 import 'bind_mobile_page.dart';
 
@@ -85,6 +87,19 @@ class AccountSecurityPage extends ConsumerWidget {
               Navigator.of(context).push(
                 CupertinoPageRoute<dynamic>(
                   builder: (_) => const BindMobilePage(),
+                ),
+              );
+            },
+          ),
+          // ChangePasswordPage 此前只在路由表里注册、全项目零跳转点，
+          // 用户登录后无从修改密码。入口挂在本页（账号安全）最自然。
+          ImBoySettingsTile(
+            title: Text(t.account.changeLoginPassword),
+            subtitle: Text(t.account.loginPasswordDesc),
+            onTap: () {
+              Navigator.of(context).push(
+                CupertinoPageRoute<dynamic>(
+                  builder: (_) => const ChangePasswordPage(),
                 ),
               );
             },

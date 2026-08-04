@@ -10,7 +10,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/single/markdown_page.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
@@ -232,6 +231,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   t.main.privacyPolicy,
                   "asset://docs/privacy-policy.md",
                 ),
+              ),
+              // TermsOfServicePage 内容是完整的（6 章正式条款），路由也注册了，
+              // 但全项目零跳转点 —— 用户根本看不到服务条款，只能看到隐私政策。
+              // 对要对外销售的产品这是合规缺口（QA#58）。
+              ImBoySettingsTile(
+                title: Text(t.main.termsOfService),
+                leading: _buildIcon(CupertinoIcons.doc_text, AppColors.iosGray),
+                onTap: () => context.push('/terms_of_service'),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.aboutApp),
@@ -461,11 +468,24 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   void _showAboutDialog() {
     final rightDMActions = [
+      // 这里在 AppBar 的 actions 里，可用高度只有 ~36pt，
+      // 而 RoundedElevatedButton 的 minimumSize 是 48pt，
+      // 字号调大后「检查更新」四个字上下被裁掉（QA#46）。
+      // 换成导航栏惯例的文字按钮：高度随内容、不会被裁，
+      // 颜色按 DESIGN.md 用 iOS 蓝，触达区保持 44pt。
       Padding(
-        padding: const EdgeInsets.only(right: 10, top: 10, bottom: 10),
-        child: RoundedElevatedButton(
-          text: t.common.checkForUpdates,
-          highlighted: true,
+        padding: const EdgeInsets.only(right: 4),
+        child: CupertinoButton(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          minimumSize: const Size(44, 44),
+          child: Text(
+            t.common.checkForUpdates,
+            style: context.textStyle(
+              FontSizeType.body,
+              color: AppColors.getIosBlue(Theme.of(context).brightness),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           onPressed: () async {
             AppLoading.show();
             try {
@@ -489,7 +509,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         builder: (_) => MarkdownPage(
           title: "${t.common.about} $appName",
           rightDMActions: rightDMActions,
-          url: "https://gitee.com/imboy-pub/imboy-flutter/raw/main/README.md",
+          // 曾经直接拉仓库 README，用户点开「关于」看到的是
+          // flutter doctor / pub get / APP_ENV=local_home。
+          // 改为本地面向用户的 about.md，顺带不再依赖 gitee 匿名 raw。
+          url: "asset://docs/about.md",
         ),
       ),
     );
