@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/chat/mention_model.dart';
 import 'package:imboy/component/chat/mention_search.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -233,12 +234,13 @@ class MentionListWidget extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Center(
-        child: Text(
-          name.isNotEmpty ? name[0].toUpperCase() : '?',
-          style: context.textStyle(
+        child: AvatarFallbackContent(
+          name: name,
+          color: colorScheme.primary,
+          iconSize: 24,
+          textStyle: context.textStyle(
             FontSizeType.large,
             fontWeight: FontWeight.w600,
-            color: colorScheme.primary,
           ),
         ),
       ),

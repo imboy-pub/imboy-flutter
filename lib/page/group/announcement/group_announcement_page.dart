@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -150,11 +151,11 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
               children: [
                 CircleAvatar(
                   radius: 18,
-                  child: Text(
-                    announcement.publisherName.isNotEmpty
-                        ? announcement.publisherName[0].toUpperCase()
-                        : '?',
-                    style: context.textStyle(
+                  child: AvatarFallbackContent(
+                    name: announcement.publisherName,
+                    color: AppColors.primary,
+                    iconSize: 22,
+                    textStyle: context.textStyle(
                       FontSizeType.medium,
                       fontWeight: FontWeight.bold,
                     ),

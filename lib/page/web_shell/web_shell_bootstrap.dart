@@ -29,6 +29,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/avatar_fallback.dart';
 
 import 'package:imboy/config/init.dart' show appName;
 import 'package:imboy/i18n/strings.g.dart';
@@ -657,11 +658,11 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
           CircleAvatar(
             radius: 48,
             backgroundColor: colorScheme.primaryContainer,
-            child: Text(
-              c.title.isNotEmpty ? c.title.characters.first : '?',
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: colorScheme.onPrimaryContainer,
-              ),
+            child: AvatarFallbackContent(
+              name: c.title,
+              color: colorScheme.onPrimaryContainer,
+              iconSize: 42,
+              textStyle: theme.textTheme.headlineMedium,
             ),
           ),
           AppSpacing.verticalRegular,

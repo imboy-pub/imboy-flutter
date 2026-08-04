@@ -9,6 +9,7 @@ import 'package:imboy/component/helper/func.dart'
     show cachedImageProvider, iPrint;
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
@@ -457,12 +458,11 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 ? cachedImageProvider(message.authorAvatar!, w: 64)
                 : null,
             child: !hasAvatar
-                ? Text(
-                    (message.authorName ?? channelName ?? '?').isNotEmpty
-                        ? (message.authorName ?? channelName ?? '?')[0]
-                              .toUpperCase()
-                        : '?',
-                    style: context.textStyle(FontSizeType.normal),
+                ? AvatarFallbackContent(
+                    name: message.authorName ?? channelName,
+                    color: AppColors.primary,
+                    iconSize: 24,
+                    textStyle: context.textStyle(FontSizeType.normal),
                   )
                 : null,
           ),

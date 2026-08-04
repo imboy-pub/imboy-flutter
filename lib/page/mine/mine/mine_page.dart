@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/quick_action_grid.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -187,13 +188,13 @@ class _MinePageState extends ConsumerState<MinePage> {
                 ),
                 child: !hasAvatar
                     ? Center(
-                        child: Text(
-                          (nickname.isNotEmpty ? nickname.substring(0, 1) : '?')
-                              .toUpperCase(),
-                          style: context.textStyle(
+                        child: AvatarFallbackContent(
+                          name: nickname,
+                          color: AppColors.primary,
+                          iconSize: 32,
+                          textStyle: context.textStyle(
                             FontSizeType.extraLargeTitle,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
                           ),
                         ),
                       )

@@ -4,6 +4,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
@@ -31,7 +32,6 @@ class ChannelHeaderBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryColor = AppColors.getTextColor(
       Theme.of(context).brightness,
       isSecondary: true,
@@ -56,7 +56,7 @@ class ChannelHeaderBar extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildAvatar(isDark),
+                _buildAvatar(context),
                 AppSpacing.horizontalRegular,
                 Expanded(
                   child: Column(
@@ -245,7 +245,7 @@ class ChannelHeaderBar extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar(bool isDark) {
+  Widget _buildAvatar(BuildContext context) {
     final hasAvatar = channel.avatar != null && channel.avatar!.isNotEmpty;
     return Container(
       width: 56,
@@ -263,17 +263,26 @@ class ChannelHeaderBar extends StatelessWidget {
               height: 56,
               // 加载失败降级占位，避免默认红叉方框（QA#28）
               errorBuilder: (context, error, stackTrace) => Center(
-                child: Icon(
-                  Icons.broken_image_outlined,
-                  color: AppColors.primary.withValues(alpha: 0.5),
+                child: AvatarFallbackContent(
+                  name: channel.name,
+                  color: AppColors.primary,
+                  emptyIcon: Icons.campaign_outlined,
+                  iconSize: 28,
+                  textStyle: context.textStyle(
+                    FontSizeType.large,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             )
           : Center(
-              child: Text(
-                channel.name.isNotEmpty ? channel.name[0].toUpperCase() : '?',
-                style: const TextStyle(
-                  fontSize: 24,
+              child: AvatarFallbackContent(
+                name: channel.name,
+                color: AppColors.primary,
+                emptyIcon: Icons.campaign_outlined,
+                iconSize: 28,
+                textStyle: context.textStyle(
+                  FontSizeType.large,
                   fontWeight: FontWeight.bold,
                 ),
               ),

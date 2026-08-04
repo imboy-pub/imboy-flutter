@@ -16,6 +16,7 @@ import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/moment/moment_utils.dart';
@@ -381,11 +382,11 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
           : null,
       child: hasAvatar
           ? null
-          : Text(
-              (message.authorName != null && message.authorName!.isNotEmpty)
-                  ? message.authorName![0].toUpperCase()
-                  : '?',
-              style: context.textStyle(FontSizeType.tiny),
+          : AvatarFallbackContent(
+              name: message.authorName,
+              color: AppColors.primary,
+              iconSize: size * 0.55,
+              textStyle: context.textStyle(FontSizeType.tiny),
             ),
     );
   }

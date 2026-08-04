@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/conversation/subscribed_channel_strip_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -213,11 +214,13 @@ class _ChannelAvatar extends StatelessWidget {
     return ColoredBox(
       color: AppColors.primary.withValues(alpha: 0.15),
       child: Center(
-        child: Text(
-          name.isNotEmpty ? name[0].toUpperCase() : '?',
-          style: context.textStyle(
+        child: AvatarFallbackContent(
+          name: name,
+          color: AppColors.primary,
+          emptyIcon: Icons.campaign_outlined,
+          iconSize: 22,
+          textStyle: context.textStyle(
             FontSizeType.large,
-            color: AppColors.primary,
             fontWeight: FontWeight.bold,
           ),
         ),

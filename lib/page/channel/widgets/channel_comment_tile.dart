@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:imboy/component/helper/func.dart' show cachedImageProvider;
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_comment_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -65,11 +66,11 @@ class ChannelCommentTile extends StatelessWidget {
                 ? cachedImageProvider(comment.userAvatar, w: 64)
                 : null,
             child: !hasAvatar
-                ? Text(
-                    comment.userName.isNotEmpty
-                        ? comment.userName[0].toUpperCase()
-                        : '?',
-                    style: context.textStyle(FontSizeType.normal),
+                ? AvatarFallbackContent(
+                    name: comment.userName,
+                    color: AppColors.primary,
+                    iconSize: 22,
+                    textStyle: context.textStyle(FontSizeType.normal),
                   )
                 : null,
           ),

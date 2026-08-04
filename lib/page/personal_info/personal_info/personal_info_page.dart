@@ -10,6 +10,7 @@ import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 
 import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/qrcode/qrcode_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -168,14 +169,13 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                       ),
                       child: currentUserAvatar.isEmpty
                           ? Center(
-                              child: Text(
-                                nickname.isNotEmpty
-                                    ? nickname.substring(0, 1).toUpperCase()
-                                    : '?',
-                                style: context.textStyle(
+                              child: AvatarFallbackContent(
+                                name: nickname,
+                                color: AppColors.primary,
+                                iconSize: 44,
+                                textStyle: context.textStyle(
                                   FontSizeType.extraLargeTitle,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
                                 ),
                               ),
                             )
