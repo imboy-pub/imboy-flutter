@@ -1547,9 +1547,15 @@ class ChatPageState extends ConsumerState<ChatPage>
                         children: [
                           Flexible(
                             child: Text(
-                              newGroupName.isEmpty
-                                  ? widget.peerTitle
-                                  : newGroupName,
+                              // C2G 走 newGroupName（groupTitle 已做三级回退）；
+                              // C2C 不经 groupTitle，peerTitle 缺失时这里原本会
+                              // 渲染成空标题 —— 会话列表改传 resolvedTitle 后，
+                              // 「拿不到名字」表达为空串，兜底必须落在这一档。
+                              newGroupName.isNotEmpty
+                                  ? newGroupName
+                                  : (widget.peerTitle.trim().isNotEmpty
+                                        ? widget.peerTitle
+                                        : t.main.unnamed),
                               style: TextStyle(
                                 color: themeNotifier.getThemeColor(
                                   'textPrimary',

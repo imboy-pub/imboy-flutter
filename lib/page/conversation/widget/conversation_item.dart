@@ -217,11 +217,10 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
     ThemeData theme,
     bool isDark,
   ) {
-    String displayTitle = currentModel.title.trim().isNotEmpty
-        ? currentModel.title
-        : (currentModel.computeTitle.trim().isNotEmpty
-              ? currentModel.computeTitle
-              : currentModel.peerId.toString());
+    // 末档原本是 `peerId.toString()`，把 TSID 直接渲染给用户。
+    // 判据与兜底已收口到 ConversationModel.displayTitle —— 会话列表、搜索过滤、
+    // 跳转参数、聊天页原本各写一遍，写歪一处就漏一条路径。
+    String displayTitle = currentModel.displayTitle;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

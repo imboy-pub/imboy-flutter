@@ -50,6 +50,29 @@ class ConversationModel {
   // 如果 title 为空，零时计算title
   String computeTitle = '';
 
+  /// 已确认可用的会话名；拿不到就返回空串，**刻意不兜底**。
+  ///
+  /// 传给下游（聊天页 `peerTitle` 等）时用它 —— 下游还要基于「名字缺失」
+  /// 继续查群详情/成员名，传兜底后的「未命名」会把那条查找链直接堵死。
+  ///
+  /// 存量脏值：修复前 `_getGroupTitle` / `_getContactTitle` 缺名时返回 peerId
+  /// 并被持久化进 `title`。这类值「非空」，纯兜底链救不回来，
+  /// 必须在这里显式判定为缺失（读时纠正，不写库，对老会话立即生效）。
+  String get resolvedTitle {
+    final raw = title.trim();
+    if (raw.isNotEmpty && raw != peerId.toString()) return raw;
+    return computeTitle.trim();
+  }
+
+  /// 展示用会话名，**任何 UI 都应该用它，不要自己写 title/computeTitle 三元表达式**。
+  ///
+  /// 与 `GroupModel.displayTitle` 同一条约定：缺名一律「未命名」，
+  /// 且 **TSID 在任何情况下都不进 UI**。
+  String get displayTitle {
+    final resolved = resolvedTitle;
+    return resolved.isNotEmpty ? resolved : t.main.unnamed;
+  }
+
   bool get isPinned {
     final authoritative =
         parseModelJsonMap(payload?['authoritative']) ?? <String, dynamic>{};

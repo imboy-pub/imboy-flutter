@@ -216,8 +216,11 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         ? all
         : all
               .where(
+                // 按 displayTitle 搜而非 raw title：raw title 里可能存着
+                // 存量脏值（peerId 本身），那样「搜屏幕上看得见的名字搜不到、
+                // 搜一串谁也不会输入的 TSID 反而能搜到」。
                 (c) =>
-                    c.title.toLowerCase().contains(_searchQuery) ||
+                    c.displayTitle.toLowerCase().contains(_searchQuery) ||
                     c.subtitle.toLowerCase().contains(_searchQuery),
               )
               .toList();
@@ -421,7 +424,12 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                                 useSplitView: useSplitView,
                                 peerId: model.peerId.toString(),
                                 type: model.type,
-                                title: model.title,
+                                // 传 resolvedTitle 而非 raw title：
+                                // 存量脏 title 里存的就是 peerId，原样传下去
+                                // 聊天页就把 TSID 显示给用户（批次 14 实测）。
+                                // 也不能传 displayTitle —— 兜底后的「未命名」
+                                // 会堵死聊天页继续查群名/成员名的那条链。
+                                title: model.resolvedTitle,
                                 avatar: model.avatar,
                                 sign: model.sign,
                               );
