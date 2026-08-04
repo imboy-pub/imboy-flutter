@@ -550,6 +550,12 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
       (momentVisibilityAllowList, t.discovery.momentsVisibilityPartial),
       (momentVisibilityDenyList, t.discovery.momentsVisibilityExclude),
     ];
+    // 选中标记不能省：5 个选项原本全是光秃秃的 Text，用户打开面板看不出
+    // 当前是哪一档（QA §十 实测报为缺陷）。当前值 `_visibility` 就在手边。
+    // 用 ✓ 而非 `isDefaultAction`（加粗）—— 后者在 iOS 里语义是「推荐操作」
+    // 不是「当前值」，且加粗辨识度低，正是 QA 没看出来的那种表达。
+    // 与语言设置页同一套表达（iOS 蓝 check_mark, 18pt），全 app 保持一致。
+    final checkColor = AppColors.getIosBlue(Theme.of(context).brightness);
     showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) => CupertinoActionSheet(
@@ -560,7 +566,20 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                 Navigator.of(ctx).pop();
                 _onVisibilityOptionTap(o.$1);
               },
-              child: Text(o.$2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(child: Text(o.$2)),
+                  if (o.$1 == _visibility) ...[
+                    AppSpacing.horizontalSmall,
+                    Icon(
+                      CupertinoIcons.check_mark,
+                      size: 18,
+                      color: checkColor,
+                    ),
+                  ],
+                ],
+              ),
             ),
         ],
         cancelButton: CupertinoActionSheetAction(
