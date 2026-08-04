@@ -7,6 +7,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -69,6 +70,16 @@ class FontSizeNotifier extends _$FontSizeNotifier {
 
     try {
       await ref.read(themeProvider.notifier).updateFontSizeOption(option);
+      // 字号有两个数据源：themeProvider 存 SharedPreferences 的 `theme_font_size`，
+      // 而启动时 run.dart 的 _initFontSize 是从 UserRepoLocal.setting.fontSize 读的，
+      // 并且会**覆盖**掉刚从 SharedPreferences 加载的值。
+      // 只写前者的话，设置在本次运行内有效，一重启就被后者盖回旧值（QA#57）。
+      // 这里同步写用户设置，让两个源保持一致。
+      final setting = UserRepoLocal.to.setting;
+      if (setting.fontSize != option.value) {
+        setting.fontSize = option.value;
+        await UserRepoLocal.to.changeSetting(setting);
+      }
       currentFontSize.value = option.value;
       state = state.copyWith(
         currentOption: option,

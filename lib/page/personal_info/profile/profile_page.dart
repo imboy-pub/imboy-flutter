@@ -32,6 +32,18 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
+  /// 跳到子页编辑，回来后重新读一次本地用户数据。
+  ///
+  /// 子页（昵称/性别/地区/隐私）通过 `UserProfileService.updateField` 保存，
+  /// 成功后会写 `UserRepoLocal`，但本页 state 是进页时的快照，不会自己更新 ——
+  /// 于是出现「保存成功、返回后还是旧值，必须手动点刷新」（QA#41）。
+  /// 同页的生日走 modal 不经路由，所以一直是正常的，正好是对照组。
+  Future<void> _pushThenReload(String location) async {
+    await context.push(location);
+    if (!mounted) return;
+    ref.read(profileProvider.notifier).refreshUserData();
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileState = ref.watch(profileProvider);
@@ -82,7 +94,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     color: AppColors.iosGray,
                   ),
                 ),
-                onTap: () => context.push('/personal_info/set_nickname'),
+                onTap: () => _pushThenReload('/personal_info/set_nickname'),
               ),
               ImBoySettingsTile(
                 title: Text(t.account.gender),
@@ -93,7 +105,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     color: AppColors.iosGray,
                   ),
                 ),
-                onTap: () => context.push('/personal_info/set_gender'),
+                onTap: () => _pushThenReload('/personal_info/set_gender'),
               ),
               ImBoySettingsTile(
                 title: Text(t.account.birthday),
@@ -117,7 +129,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     color: AppColors.iosGray,
                   ),
                 ),
-                onTap: () => context.push('/personal_info/set_region'),
+                onTap: () => _pushThenReload('/personal_info/set_region'),
               ),
             ],
           ),
@@ -256,7 +268,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   color: AppColors.iosGreen,
                   size: 22,
                 ),
-                onTap: () => context.push('/personal_info/privacy_settings'),
+                onTap: () => _pushThenReload('/personal_info/privacy_settings'),
               ),
             ],
           ),

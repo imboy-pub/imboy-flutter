@@ -125,7 +125,12 @@ class DarkModelPage extends ConsumerWidget {
               header: Text(t.common.sectionTheme.toUpperCase()),
               children: [
                 ImBoySettingsTile(
-                  title: Text(t.main.systemDefault),
+                  // 这一项 onTap 走的是 tapDarkItem(2) → toggleTheme(isDark: false)，
+                  // 也就是**强制浅色**，跟「跟随系统」没关系（那是上面那个开关）。
+                  // 之前却用了 t.main.systemDefault「系统默认」的文案，于是页面上
+                  // 出现「跟随系统=关」却选中「系统默认」的自相矛盾，用户也以为
+                  // 没有强制浅色选项（QA#56）。功能一直是全的，错的是文案。
+                  title: Text(t.main.lightModel),
                   trailing: state.selectIndex == 2
                       ? Icon(
                           CupertinoIcons.check_mark,
