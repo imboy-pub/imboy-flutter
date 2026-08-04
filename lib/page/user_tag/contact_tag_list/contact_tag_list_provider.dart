@@ -229,15 +229,26 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
     ]);
   }
 
-  /// 更新标签
+  /// 写入一条标签：已存在则替换，不存在则追加（upsert 语义）。
+  ///
+  /// 原本只有「已存在则替换」那一支，`indexWhere` 找不到就**静默返回**。
+  /// 而新建标签的 tagId 在列表里必然不存在 —— 于是点「完成」后列表纹丝不动，
+  /// 要退出重进才看得到（2026-08-04 发布后真机实测）。
+  /// `user_tag_save_page` 那个调用点的注释写的正是「添加到列表」，
+  /// 函数却从不添加：静默失败藏在名实不符里。
+  ///
+  /// 追加到尾部而非头部：与服务端 `page()` 返回的顺序一致
+  /// （真机实测重进后新建的 postdeploy0804 就排在 qa0804 之后）。
   void updateTag(UserTagModel? tag) {
     if (tag == null) return;
     final newItems = List<UserTagModel>.from(state.items);
     final index = newItems.indexWhere((e) => e.tagId == tag.tagId);
     if (index > -1) {
       newItems[index] = tag;
-      state = state.copyWith(items: newItems);
+    } else {
+      newItems.add(tag);
     }
+    state = state.copyWith(items: newItems);
   }
 
   /// 加载初始数据
