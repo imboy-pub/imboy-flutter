@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -22,6 +23,11 @@ class MessageSearchState {
   final int currentPage;
   final bool hasMore;
   final String errorMessage;
+
+  /// 搜索被后端策略禁用（E2EE 模式下服务端读不到明文，无法做全文搜索）。
+  /// 与 errorMessage 分开，是因为这不是"出错"而是"用不了"——
+  /// 重试多少次都不会成功，UI 不该给重试按钮（QA#7）。
+  final bool searchDisabled;
   final int totalResults;
 
   // 联系人信息缓存
@@ -53,6 +59,7 @@ class MessageSearchState {
     this.currentPage = 1,
     this.hasMore = true,
     this.errorMessage = '',
+    this.searchDisabled = false,
     this.totalResults = 0,
     this.contactCache = const {},
     this.conversationCache = const {},
@@ -73,6 +80,7 @@ class MessageSearchState {
     int? currentPage,
     bool? hasMore,
     String? errorMessage,
+    bool? searchDisabled,
     int? totalResults,
     Map<String, ContactModel>? contactCache,
     Map<String, ConversationModel>? conversationCache,
@@ -92,6 +100,7 @@ class MessageSearchState {
       currentPage: currentPage ?? this.currentPage,
       hasMore: hasMore ?? this.hasMore,
       errorMessage: errorMessage ?? this.errorMessage,
+      searchDisabled: searchDisabled ?? this.searchDisabled,
       totalResults: totalResults ?? this.totalResults,
       contactCache: contactCache ?? this.contactCache,
       conversationCache: conversationCache ?? this.conversationCache,
@@ -324,20 +333,25 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         state = state.copyWith(
           isLoading: false,
           isSearching: false,
-          errorMessage: '搜索失败，请重试',
+          errorMessage: t.common.searchFailedRetry,
+          searchDisabled: false,
         );
       }
-    } on FtsFeatureDisabledException catch (e) {
+    } on FtsFeatureDisabledException {
+      // 后端按策略关掉了消息搜索（E2EE 模式），不是故障。
+      // 文案统一走 i18n，不再用异常里那句硬编码中文。
       state = state.copyWith(
         isLoading: false,
         isSearching: false,
-        errorMessage: e.message,
+        errorMessage: t.common.searchDisabledByEncryption,
+        searchDisabled: true,
       );
     } on Exception {
       state = state.copyWith(
         isLoading: false,
         isSearching: false,
-        errorMessage: '搜索失败，请重试',
+        errorMessage: t.common.searchFailedRetry,
+        searchDisabled: false,
       );
     }
   }

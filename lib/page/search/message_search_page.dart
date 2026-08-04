@@ -587,6 +587,17 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     MessageSearchState state,
     Translations t,
   ) {
+    // 搜索被策略禁用（E2EE 开启时服务端读不到明文）是**预期状态**，不是故障：
+    // 此前统一渲染成「搜索错误 + 感叹号 + 重试」，用户会一直点重试，
+    // 而它永远不可能成功（QA#7）。这里改成说明性空态，并且不给重试按钮。
+    if (state.searchDisabled) {
+      return NoDataView(
+        text: t.common.searchDisabledTitle,
+        description: state.errorMessage,
+        icon: Icons.lock_outline,
+        iconSize: 64,
+      );
+    }
     return NoDataView(
       text: t.common.searchError,
       description: state.errorMessage,
