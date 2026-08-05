@@ -180,19 +180,37 @@ class ChannelApi extends HttpClient {
     final channels = list
         .map((json) => ChannelModel.fromJson(json as Map<String, dynamic>))
         .toList();
+    // 只认「下一页游标」字段，绝不回落到 `cursor` —— 那是**请求参数的回显**。
+    // /channels/subscribed 目前把入参原样返回（channel_handler.erl:219
+    // `#{list => .., cursor => Cursor, ..}`），首屏 Cursor=undefined 又被
+    // jsone 编成字符串 "undefined"（jsone_encode 默认 undefined_as_null=false，
+    // 且 ?IS_STR 含 is_atom），于是 hasMore 恒为真：列表底部转圈永不消失，
+    // 滚动还会带 cursor=undefined 重复拉全量、把列表 append 成重复项。
     final dynamic next =
         resp.payload['next_cursor'] ??
-        resp.payload['cursor'] ??
         resp.payload['next'] ??
         resp.payload['nextCursor'];
-    final nextCursor = next?.toString();
-    final hasMore = nextCursor != null && nextCursor.isNotEmpty;
+    final nextCursor = normalizeCursor(next);
+    final hasMore = nextCursor != null;
 
     return ChannelPageResult(
       list: channels,
-      nextCursor: hasMore ? nextCursor : null,
+      nextCursor: nextCursor,
       hasMore: hasMore,
     );
+  }
+
+  /// 归一化游标：空、以及 Erlang atom 被 jsone 序列化出来的哨兵字符串
+  /// （`undefined` / `null`）一律视为「没有下一页」。
+  ///
+  /// 后端 `jsone:encode` 未开 `undefined_as_null`，任何 `undefined` 字段都会
+  /// 变成字符串而非 JSON null —— 这不是本接口独有，故在此统一挡掉，避免同类
+  /// 「永远还有下一页」的假象再次出现。
+  static String? normalizeCursor(dynamic raw) {
+    if (raw == null) return null;
+    final value = raw.toString().trim();
+    if (value.isEmpty || value == 'undefined' || value == 'null') return null;
+    return value;
   }
 
   /// 拉取频道未读汇总（服务端权威）
