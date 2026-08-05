@@ -14,6 +14,8 @@
 ///   数据加载 + UI 渲染 + 状态持有。
 library;
 
+import 'dart:math' as math;
+
 import 'package:azlistview/azlistview.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -522,24 +524,40 @@ class _MomentFriendPickerPageState
         itemBuilder: (_, i) => _buildFriendRow(_displayFriends[i]),
       );
     }
-    return AzListView(
-      data: _displayFriends,
-      itemCount: _displayFriends.length,
-      itemBuilder: (_, i) => _buildFriendRow(_displayFriends[i]),
-      susItemBuilder: (context, i) {
-        final c = _displayFriends[i];
-        return Container(
-          height: 28,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            c.getSuspensionTag(),
-            style: context.textStyle(
-              FontSizeType.small,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+    // IndexBar 是固定高度的 Column（kIndexBarData 共 27 项 × itemHeight），
+    // 不会自己收缩。本页顶部还压着「可见性五选一」区块，Expanded 分给列表的
+    // 高度常小于 27×16=432 → 右侧 A-Z 栏 RenderFlex BOTTOM OVERFLOWED
+    // （at_picker 无可见性区块，空间够，所以只有本页复现）。
+    // 按可用高度压缩每项高度即可，列表本身不受影响。
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemHeight = constraints.maxHeight.isFinite
+            ? math.min(
+                kIndexBarItemHeight,
+                constraints.maxHeight / kIndexBarData.length,
+              )
+            : kIndexBarItemHeight;
+        return AzListView(
+          data: _displayFriends,
+          itemCount: _displayFriends.length,
+          indexBarItemHeight: itemHeight,
+          itemBuilder: (_, i) => _buildFriendRow(_displayFriends[i]),
+          susItemBuilder: (context, i) {
+            final c = _displayFriends[i];
+            return Container(
+              height: 28,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                c.getSuspensionTag(),
+                style: context.textStyle(
+                  FontSizeType.small,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            );
+          },
         );
       },
     );
