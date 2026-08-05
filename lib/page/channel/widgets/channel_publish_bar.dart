@@ -237,6 +237,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
 
     controller.addListener(onProgress);
     final publishedIdx = <int>{};
+    final publishFailedIdx = <int>{};
 
     Future<void> publishDone() async {
       final items = controller.items;
@@ -251,7 +252,12 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
               payload: item.result!.payload,
             );
         if (!mounted) return;
-        if (ok) publishedIdx.add(i);
+        if (ok) {
+          publishedIdx.add(i);
+          publishFailedIdx.remove(i);
+        } else {
+          publishFailedIdx.add(i);
+        }
       }
     }
 
@@ -268,9 +274,17 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       await publishDone();
       if (!mounted) return;
 
-      final failedCount = controller.items.where((i) => i.isFailed).length;
-      if (failedCount > 0) {
-        _showUploadFailedSnackBar(failedCount, controller, publishDone);
+      final uploadFailedCount = controller.items
+          .where((i) => i.isFailed)
+          .length;
+      if (uploadFailedCount > 0 || publishFailedIdx.isNotEmpty) {
+        _showMediaFailureSnackBar(
+          uploadFailedCount: uploadFailedCount,
+          publishFailedCount: publishFailedIdx.length,
+          controller: controller,
+          publishFailedIdx: publishFailedIdx,
+          publishDone: publishDone,
+        );
       } else if (publishedIdx.isNotEmpty) {
         unawaited(HapticFeedback.lightImpact());
         AppLoading.showSuccess(t.common.tipSuccess);
@@ -282,22 +296,31 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     }
   }
 
-  /// 弹出「N 项上传失败 + 重试」SnackBar；重试走同一 [controller] 管道，成功项
-  /// 经 [publishDone] 补发布，剩余失败继续重新弹出重试入口。
-  void _showUploadFailedSnackBar(
-    int failedCount,
-    BatchUploadController<_ChannelMediaUpload> controller,
-    Future<void> Function() publishDone,
-  ) {
+  /// 弹出上传/发布失败反馈；重试只上传失败项，并只补发布尚未成功的项目。
+  void _showMediaFailureSnackBar({
+    required int uploadFailedCount,
+    required int publishFailedCount,
+    required BatchUploadController<_ChannelMediaUpload> controller,
+    required Set<int> publishFailedIdx,
+    required Future<void> Function() publishDone,
+  }) {
     if (!mounted) return;
     final t = context.t;
+    final message = uploadFailedCount > 0
+        ? t.common.uploadPartialFailed(count: uploadFailedCount)
+        : t.channel.publishFailed;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(t.common.uploadPartialFailed(count: failedCount)),
+        content: Text(
+          uploadFailedCount > 0 && publishFailedCount > 0
+              ? '${t.common.uploadPartialFailed(count: uploadFailedCount)} · ${t.channel.publishFailed}'
+              : message,
+        ),
         action: SnackBarAction(
           label: t.common.buttonRetry,
-          onPressed: () =>
-              unawaited(_retryFailedMedia(controller, publishDone)),
+          onPressed: () => unawaited(
+            _retryFailedMedia(controller, publishFailedIdx, publishDone),
+          ),
         ),
       ),
     );
@@ -305,18 +328,31 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
 
   Future<void> _retryFailedMedia(
     BatchUploadController<_ChannelMediaUpload> controller,
+    Set<int> publishFailedIdx,
     Future<void> Function() publishDone,
   ) async {
-    if (_isUploadingMedia) return;
+    if (!mounted || _isUploadingMedia) return;
     setState(() => _isUploadingMedia = true);
     try {
       await controller.retryFailed();
       if (!mounted) return;
       await publishDone();
       if (!mounted) return;
-      final failedCount = controller.items.where((i) => i.isFailed).length;
-      if (failedCount > 0) {
-        _showUploadFailedSnackBar(failedCount, controller, publishDone);
+      final uploadFailedCount = controller.items
+          .where((i) => i.isFailed)
+          .length;
+      if (uploadFailedCount > 0 || publishFailedIdx.isNotEmpty) {
+        _showMediaFailureSnackBar(
+          uploadFailedCount: uploadFailedCount,
+          publishFailedCount: publishFailedIdx.length,
+          controller: controller,
+          publishFailedIdx: publishFailedIdx,
+          publishDone: publishDone,
+        );
+      } else {
+        unawaited(HapticFeedback.lightImpact());
+        AppLoading.showSuccess(context.t.common.tipSuccess);
+        widget.onMessageSent?.call();
       }
     } finally {
       if (mounted) setState(() => _isUploadingMedia = false);

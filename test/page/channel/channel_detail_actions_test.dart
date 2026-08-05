@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/events/common_events.dart';
 
@@ -83,6 +84,58 @@ void main() {
         reason: '不存在的 id 不得误改现有消息',
       );
     });
+
+    test(
+      'updateMessageReaction syncs like count and my reaction only on target',
+      () {
+        final messageA = _buildMessage(
+          id: 1,
+        ).copyWith(reactionSummary: {ChannelReactionType.like: 2});
+        final messageB = _buildMessage(
+          id: 2,
+        ).copyWith(reactionSummary: {ChannelReactionType.like: 7});
+        notifier.state = notifier.state.copyWith(
+          messages: [messageA, messageB],
+        );
+
+        notifier.updateMessageReaction('1', true, 3);
+
+        final state = container.read(channelDetailProvider);
+        final updatedA = state.messages.firstWhere((msg) => msg.id == 1);
+        final unchangedB = state.messages.firstWhere((msg) => msg.id == 2);
+        expect(updatedA.reactionSummary?[ChannelReactionType.like], 3);
+        expect(updatedA.myReactions, contains(ChannelReactionType.like));
+        expect(unchangedB.reactionSummary?[ChannelReactionType.like], 7);
+        expect(unchangedB.myReactions, isEmpty);
+      },
+    );
+
+    test(
+      'updateMessageReaction removes like from target without affecting others',
+      () {
+        final messageA = _buildMessage(id: 1).copyWith(
+          reactionSummary: {ChannelReactionType.like: 3},
+          myReactions: [ChannelReactionType.like],
+        );
+        final messageB = _buildMessage(id: 2).copyWith(
+          reactionSummary: {ChannelReactionType.like: 4},
+          myReactions: [ChannelReactionType.like],
+        );
+        notifier.state = notifier.state.copyWith(
+          messages: [messageA, messageB],
+        );
+
+        notifier.updateMessageReaction('1', false, 2);
+
+        final state = container.read(channelDetailProvider);
+        final updatedA = state.messages.firstWhere((msg) => msg.id == 1);
+        final unchangedB = state.messages.firstWhere((msg) => msg.id == 2);
+        expect(updatedA.reactionSummary?[ChannelReactionType.like], 2);
+        expect(updatedA.myReactions, isNot(contains(ChannelReactionType.like)));
+        expect(unchangedB.reactionSummary?[ChannelReactionType.like], 4);
+        expect(unchangedB.myReactions, contains(ChannelReactionType.like));
+      },
+    );
 
     test('removeMessageLocally drops the targeted message only', () {
       final messageA = _buildMessage(id: 1);

@@ -1,12 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_schedule_service.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
+/// 参与人的显示名。
+///
+/// 后端 `group_schedule_repo:list_participants/1` 只查
+/// `id,schedule_id,user_id,status,created_at` —— **不返回昵称**，
+/// 所以原先的「nickname 为空就显示 user_id」等于把内部 uid 摆给用户看
+/// （真机实测参与人一栏显示成「50」）。
+/// 优先级：后端昵称 → 本地群成员表（群内别名 > 昵称）→ 通用占位。
+/// 任何一档都不回退到 uid。
+String resolveParticipantName(
+  Map<String, dynamic> participant,
+  Map<String, String> memberNames,
+) {
+  final fromServer = (participant['nickname'] ?? '').toString().trim();
+  if (fromServer.isNotEmpty) return fromServer;
+  final uid = (participant['user_id'] ?? '').toString().trim();
+  final local = memberNames[uid] ?? '';
+  if (local.isNotEmpty) return local;
+  return t.main.unnamed;
+}
 
 /// 群日程详情页
 class GroupScheduleDetailPage extends ConsumerStatefulWidget {
@@ -31,10 +53,33 @@ class _GroupScheduleDetailPageState
   bool _isSubmitting = false;
   Object? _error;
 
+  /// uid -> 群内显示名，用来补后端参与人列表缺失的昵称，见
+  /// [resolveParticipantName]。
+  Map<String, String> _memberNames = const {};
+
   @override
   void initState() {
     super.initState();
     _loadDetail();
+  }
+
+  /// 从本地群成员表建 uid -> 显示名映射（群内别名优先于昵称）。
+  Future<Map<String, String>> _loadMemberNames() async {
+    try {
+      final members = await GroupMemberRepo().page(
+        where: '${GroupMemberRepo.groupId} = ?',
+        whereArgs: [int.tryParse(widget.groupId) ?? 0],
+      );
+      return {
+        for (final m in members)
+          m.userId.toString(): m.alias.trim().isNotEmpty
+              ? m.alias.trim()
+              : m.nickname.trim(),
+      };
+    } on Exception {
+      // 补名字失败不该拖垮整个详情页，退化为占位名即可。
+      return const {};
+    }
   }
 
   String _toText(dynamic value) {
@@ -66,9 +111,11 @@ class _GroupScheduleDetailPageState
         groupId: widget.groupId,
         scheduleId: widget.scheduleId,
       );
+      final names = await _loadMemberNames();
       if (!mounted) return;
       setState(() {
         _detail = detail;
+        _memberNames = names;
         _isLoading = false;
       });
     } on Exception catch (e) {
@@ -83,47 +130,49 @@ class _GroupScheduleDetailPageState
   Future<void> _confirm(bool confirm) async {
     if (_isSubmitting) return;
     setState(() => _isSubmitting = true);
-    final success = await GroupScheduleService.to.confirmSchedule(
-      groupId: widget.groupId,
-      scheduleId: widget.scheduleId,
-      confirm: confirm,
-    );
-    if (!mounted) return;
-    setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? context.t.common.operationSuccessful
-              : context.t.common.operationFailedAgainLater,
-        ),
-      ),
-    );
-    if (success) {
-      await _loadDetail();
+    try {
+      final success = await GroupScheduleService.to.confirmSchedule(
+        groupId: widget.groupId,
+        scheduleId: widget.scheduleId,
+        confirm: confirm,
+      );
+      if (!mounted) return;
+      // 原先用 ScaffoldMessenger.showSnackBar，真机上完全看不到；
+      // 改用项目主流的 AppLoading（EasyLoading），全项目 290 处在用。
+      if (success) {
+        AppLoading.showSuccess(t.common.operationSuccessful);
+        await _loadDetail();
+      } else {
+        AppLoading.showError(t.common.operationFailedAgainLater);
+      }
+    } finally {
+      // 没有 finally 时，只要上面任何一步抛出（哪怕是 mounted 检查后的
+      // setState），_isSubmitting 就永久卡在 true，此后每一次点击都会被
+      // 方法开头的 `if (_isSubmitting) return` 静默吞掉 —— 表现正是
+      // "按钮彻底失灵、零请求、零日志"。
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
   Future<void> _cancelSchedule() async {
     if (_isSubmitting) return;
     setState(() => _isSubmitting = true);
-    final success = await GroupScheduleService.to.cancelSchedule(
-      groupId: widget.groupId,
-      scheduleId: widget.scheduleId,
-    );
-    if (!mounted) return;
-    setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? context.t.groupSchedule.cancelSuccess
-              : context.t.groupSchedule.cancelFailed,
-        ),
-      ),
-    );
-    if (success) {
-      await _loadDetail();
+    try {
+      final success = await GroupScheduleService.to.cancelSchedule(
+        groupId: widget.groupId,
+        scheduleId: widget.scheduleId,
+      );
+      if (!mounted) return;
+      // 同上：SnackBar 在真机不可见，统一改用 AppLoading。
+      if (success) {
+        AppLoading.showSuccess(t.groupSchedule.cancelSuccess);
+        await _loadDetail();
+      } else {
+        AppLoading.showError(t.groupSchedule.cancelFailed);
+      }
+    } finally {
+      // 同 _confirm：缺 finally 时一次异常就让按钮永久失灵。
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -224,11 +273,7 @@ class _GroupScheduleDetailPageState
                     dense: true,
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(CupertinoIcons.person, size: 18),
-                    title: Text(
-                      _toText(item['nickname']).isEmpty
-                          ? _toText(item['user_id'])
-                          : _toText(item['nickname']),
-                    ),
+                    title: Text(resolveParticipantName(item, _memberNames)),
                   ),
                 ),
           ],

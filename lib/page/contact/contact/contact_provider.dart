@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -17,6 +19,15 @@ const int kPeerIdNewFriend = -2;
 const int kPeerIdGroup = -3;
 const int kPeerIdTag = -4;
 const int kPeerIdAssistantPlaza = -6;
+
+/// 是否是真实好友（而非上面那些功能入口占位）。
+///
+/// `ContactState.contactList` 里混着 6 个功能入口的伪 [ContactModel]
+/// （朋友圈 / 找附近的人 / AI 助手广场 / 新的朋友 / 群聊 / 标签），
+/// 它们只在联系人首页当菜单用。任何"选人"场景（加群成员、@提醒、转发等）
+/// 直接消费整份列表都会把这些入口一并渲染出来 —— 真机实测：
+/// 群详情 `+` 加成员，列表里赫然躺着"朋友圈""找附近的人"。
+bool isRealContact(ContactModel c) => c.peerId > 0;
 
 // 联系人状态类
 class ContactState {
@@ -148,22 +159,37 @@ class ContactNotifier extends _$ContactNotifier {
   }
 
   // 获取好友列表
+  //
+  // BUG#66：此前只有本地表为空时才请求服务端，本地一旦有任意一条记录，
+  // 好友列表就永远停在那一刻——新加的好友再也不会出现（选人/加群成员/
+  // @提及等所有"选好友"页面一并受害）。改为本地优先返回 + 后台补同步。
   Future<List<ContactModel>> listFriend(bool onRefresh) async {
-    // [DIAG #19] 进入点：记录触发方式 + 当前 uid
     List<ContactModel> contact = [];
     if (onRefresh == false) {
       contact = await ContactRepo().findFriend();
     }
     if (contact.isNotEmpty) {
+      unawaited(_syncFriendFromServer());
       return contact;
     }
-    final repo = ContactRepo();
-    final dataMap = await contact_provider.ContactApi().listFriend();
-    for (var json in dataMap) {
-      await repo.save(json as Map<String, dynamic>);
+    await _syncFriendFromServer();
+    return ContactRepo().findFriend();
+  }
+
+  // 从服务端同步好友到本地库；成功后刷新页面状态。
+  // 网络失败不应影响已展示的本地列表，故整体吞掉异常但留日志。
+  Future<void> _syncFriendFromServer() async {
+    try {
+      final repo = ContactRepo();
+      final dataMap = await contact_provider.ContactApi().listFriend();
+      for (var json in dataMap) {
+        await repo.save(json as Map<String, dynamic>);
+      }
+      if (!ref.mounted) return;
+      handleList(await repo.findFriend());
+    } on Object catch (e) {
+      debugPrint('[contact_provider] listFriend sync error: $e');
     }
-    contact = await ContactRepo().findFriend();
-    return contact;
   }
 
   // 判断是否为好友

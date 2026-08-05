@@ -46,90 +46,102 @@ class NoDataView extends StatelessWidget {
     // theme.dart 已配置 onSurfaceVariant → lightTextSecondary / darkTextSecondary，
     // 通过 ColorScheme 访问可正确随主题切换。
     final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    // 空态整体（图标 + 文案 + 重试块）约 200pt 高。搜索类页面键盘弹起后
+    // 可用高度只剩 100 出头，固定 Center 会直接 RenderFlex overflow
+    // （真机实测群内搜索空态溢出 91px）。
+    // Center 给 SingleChildScrollView 的是 loose 约束：内容比视口矮时滚动区
+    // 收缩到内容高度并被居中，更高时才滚动 —— 够高居中、不够可滚。
+    // 不用 LayoutBuilder + ConstrainedBox 那套常见写法 —— 调用点里有
+    // SliverFillRemaining(hasScrollBody: false)，它会向 child 要 intrinsic 高度，
+    // 而 LayoutBuilder 明确不支持 intrinsic，会直接 assert 崩掉。
     return Center(
-      child: InkWell(
-        onTap: onTop,
-        borderRadius: AppRadius.borderRadiusMedium, // 添加圆角点击效果
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.xLarge),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 图标 - 使用主题色
-              if (icon != null)
-                Container(
-                  width: iconBgSize,
-                  height: iconBgSize,
-                  padding: iconBgSize == null
-                      ? const EdgeInsets.all(AppSpacing.regular)
-                      : null,
-                  alignment: iconBgSize == null ? null : Alignment.center,
-                  decoration: BoxDecoration(
-                    color: secondaryColor.withValues(alpha: 0.1),
-                    shape: iconBgBorderRadius == null
-                        ? BoxShape.circle
-                        : BoxShape.rectangle,
-                    borderRadius: iconBgBorderRadius,
+      child: SingleChildScrollView(
+        child: InkWell(
+          onTap: onTop,
+          borderRadius: AppRadius.borderRadiusMedium, // 添加圆角点击效果
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.xLarge),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 图标 - 使用主题色
+                if (icon != null)
+                  Container(
+                    width: iconBgSize,
+                    height: iconBgSize,
+                    padding: iconBgSize == null
+                        ? const EdgeInsets.all(AppSpacing.regular)
+                        : null,
+                    alignment: iconBgSize == null ? null : Alignment.center,
+                    decoration: BoxDecoration(
+                      color: secondaryColor.withValues(alpha: 0.1),
+                      shape: iconBgBorderRadius == null
+                          ? BoxShape.circle
+                          : BoxShape.rectangle,
+                      borderRadius: iconBgBorderRadius,
+                    ),
+                    child: Icon(
+                      icon!,
+                      size: iconSize,
+                      color: secondaryColor, // 使用主题次要文字色
+                    ),
                   ),
-                  child: Icon(
-                    icon!,
-                    size: iconSize,
-                    color: secondaryColor, // 使用主题次要文字色
-                  ),
-                ),
-              if (icon != null) const SizedBox(height: 16),
+                if (icon != null) const SizedBox(height: 16),
 
-              // 主要文本 - 使用优化后的主题样式
-              Text(
-                text,
-                style: ThemeManager.instance.getTextStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.w500,
-                  color: secondaryColor, // 使用主题次要文字色
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              // 描述文本 - 使用优化后的主题样式
-              if (description != null) ...[
-                const SizedBox(height: 8),
+                // 主要文本 - 使用优化后的主题样式
                 Text(
-                  description!,
+                  text,
                   style: ThemeManager.instance.getTextStyle(
-                    FontSizeType.small,
-                    color: secondaryColor.withValues(alpha: 0.7), // 使用更淡的次要文字色
+                    FontSizeType.medium,
+                    fontWeight: FontWeight.w500,
+                    color: secondaryColor, // 使用主题次要文字色
                   ),
                   textAlign: TextAlign.center,
                 ),
-              ],
 
-              // 点击提示 - 如果有点击事件
-              if (onTop != null) ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.medium,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: AppRadius.borderRadiusRegular,
-                    border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    retryLabel ?? t.common.buttonRetry,
+                // 描述文本 - 使用优化后的主题样式
+                if (description != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    description!,
                     style: ThemeManager.instance.getTextStyle(
                       FontSizeType.small,
-                      color: AppColors.primary, // 使用主题主色
-                      fontWeight: FontWeight.w500,
+                      color: secondaryColor.withValues(
+                        alpha: 0.7,
+                      ), // 使用更淡的次要文字色
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+
+                // 点击提示 - 如果有点击事件
+                if (onTop != null) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.medium,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: AppRadius.borderRadiusRegular,
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      retryLabel ?? t.common.buttonRetry,
+                      style: ThemeManager.instance.getTextStyle(
+                        FontSizeType.small,
+                        color: AppColors.primary, // 使用主题主色
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

@@ -289,51 +289,61 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // 统计信息卡片
-                _buildStatisticsCard(isDark),
-
-                // 快捷操作栏
-                _buildQuickActions(isDark),
-
-                AppSpacing.verticalRegular,
-
-                // 标签编辑区域
+                // 键盘弹起后 body 高度骤减，而统计卡 + 快捷操作栏 + 底部保存按钮
+                // 都是固定高度，Expanded 收缩到 0 也补不上这个差额
+                // （真机实测：加到第二个标签时底部 overflow 16px）。
+                // 把上半部分整体放进可滚区，只留底部按钮固定。
                 Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: AppSpacing.allRegular,
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest
-                          : AppColors.lightSurface,
-                      borderRadius: AppRadius.borderRadiusMedium,
-                      boxShadow: [
-                        BoxShadow(
-                          color: isDark
-                              ? Colors.transparent
-                              : AppColors.darkBackground.withValues(
-                                  alpha: 0.04,
-                                ),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // 统计信息卡片
+                        _buildStatisticsCard(isDark),
+
+                        // 快捷操作栏
+                        _buildQuickActions(isDark),
+
+                        AppSpacing.verticalRegular,
+
+                        // 标签编辑区域
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: AppSpacing.allRegular,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest
+                                : AppColors.lightSurface,
+                            borderRadius: AppRadius.borderRadiusMedium,
+                            boxShadow: [
+                              BoxShadow(
+                                color: isDark
+                                    ? Colors.transparent
+                                    : AppColors.darkBackground.withValues(
+                                        alpha: 0.04,
+                                      ),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: TagInput(
+                            initialTags: _currentTags,
+                            suggestedTags: _suggestedTags,
+                            tagUsageCount: _tagUsageCount,
+                            onTagsChanged: _onTagsChanged,
+                            hintText: t.contact.inputNewTag,
+                            maxTagLength: 14,
+                            maxTags: 20,
+                          ),
                         ),
+
+                        AppSpacing.verticalRegular,
                       ],
-                    ),
-                    child: TagInput(
-                      initialTags: _currentTags,
-                      suggestedTags: _suggestedTags,
-                      tagUsageCount: _tagUsageCount,
-                      onTagsChanged: _onTagsChanged,
-                      hintText: t.contact.inputNewTag,
-                      maxTagLength: 14,
-                      maxTags: 20,
                     ),
                   ),
                 ),
-
-                AppSpacing.verticalRegular,
 
                 // 底部保存按钮
                 if (_hasChanges())

@@ -515,15 +515,34 @@ class AttachmentApi {
     videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
 
     // 2. 压缩视频 → presign
-    final MediaInfo? info = await VideoCompress.compressVideo(
-      path,
-      quality: VideoQuality.Res640x480Quality,
-      deleteOrigin: true,
-    );
-    if (info?.file == null) {
-      throw Exception('uploadVideoViaPresign: 视频压缩失败');
+    //
+    // 压缩是优化而非必需：部分机型（实测华为 MRD-AL00 / MTK 编码器）转码必失败
+    // （TranscodeEngine: Failed to stop the muxer），此前直接抛异常导致
+    // **视频消息完全发不出去且无任何提示**。失败一律退回原视频，
+    // 大小超限由下游 uploadViaPresign 的 maxUploadBytes 校验兜底。
+    // deleteOrigin 必须为 false，否则降级时原文件已被删掉。
+    MediaInfo? info;
+    try {
+      info = await VideoCompress.compressVideo(
+        path,
+        quality: VideoQuality.Res640x480Quality,
+        deleteOrigin: false,
+      );
+    } on Object catch (e) {
+      debugPrint('uploadVideoViaPresign: 视频压缩失败，退回原视频上传: $e');
     }
-    final File videoFile = info!.file!;
+    if (info == null) {
+      // 降级路径的元数据必须探测原视频拿，不能用 entity 推算：
+      // 实测 entity.duration 在相机合成的 asset 上是**毫秒**（与 photo_manager
+      // 文档的"秒"不符），据此换算会把 3 秒视频显示成 50:00。
+      // getMediaInfo 只读元数据不转码，压缩失败的机型上同样可用。
+      try {
+        info = await VideoCompress.getMediaInfo(path);
+      } on Object catch (e) {
+        debugPrint('uploadVideoViaPresign: 读取原视频元数据失败: $e');
+      }
+    }
+    final File videoFile = info?.file ?? file;
     final Uint8List videoBytes = await videoFile.readAsBytes();
     final String videoName = '${Xid().toString()}.mp4';
     final String videoObjKey = await uploadViaPresign(
@@ -550,11 +569,13 @@ class AttachmentApi {
           sha256.convert(videoBytes).toString(),
       name: videoName,
       uri: videoObjKey,
-      size: info.filesize,
-      duration: info.duration,
-      author: info.author,
-      width: info.width!,
-      height: info.height!,
+      // info 现在来自压缩结果或原视频探测，两者的 duration 都是毫秒。
+      // 探测也失败时宁可留空，也不拿 entity.duration 换算——单位不可靠。
+      size: info?.filesize ?? videoBytes.length,
+      duration: info?.duration,
+      author: info?.author,
+      width: info?.width ?? entity.width,
+      height: info?.height ?? entity.height,
     );
     await VideoCompress.deleteAllCache();
     return <String, dynamic>{'thumb': thumb, 'video': video};
@@ -596,17 +617,18 @@ class AttachmentApi {
         scopeRef: scopeRef,
       );
 
-      // 2. 压缩视频 → presign
-      final MediaInfo? info = await VideoCompress.compressVideo(
-        path,
-        quality: VideoQuality.Res640x480Quality,
-        deleteOrigin: false,
-      );
-      if (info?.file == null) {
-        await VideoCompress.deleteAllCache();
-        return null;
+      // 2. 压缩视频 → presign（同上：压缩失败退回原视频，不放弃整次上传）
+      MediaInfo? info;
+      try {
+        info = await VideoCompress.compressVideo(
+          path,
+          quality: VideoQuality.Res640x480Quality,
+          deleteOrigin: false,
+        );
+      } on Object catch (e) {
+        debugPrint('[attachment_api] 视频压缩失败，退回原视频上传: $e');
       }
-      final File videoFile = info!.file!;
+      final File videoFile = info?.file ?? File(path);
       final Uint8List videoBytes = await videoFile.readAsBytes();
       final String videoName = '${Xid().toString()}.mp4';
       final String videoObjKey = await uploadViaPresign(
@@ -621,7 +643,7 @@ class AttachmentApi {
       return <String, dynamic>{
         'video_uri': videoObjKey,
         'thumb_uri': thumbMeta['object_key'] as String,
-        'size': info.filesize ?? videoBytes.length,
+        'size': info?.filesize ?? videoBytes.length,
         'duration': durationMs,
         'width': width,
         'height': height,

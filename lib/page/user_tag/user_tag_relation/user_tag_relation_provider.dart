@@ -406,6 +406,13 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
       objectId: objectId,
       tags: plan.finalTags,
     );
+    // 本 provider 是 autoDispose，而调用方（tag_relation_page）只 ref.read 不 watch，
+    // 没有 listener 保活 —— 上面这串网络往返期间它可能已经被回收。
+    // 此时给 state 赋值会抛 UnmountedRefException，被页面的 catch 兜成"保存失败"，
+    // 于是出现最坏的一种表现：**服务端已经存好了，用户却看不到任何成功迹象**。
+    // 真机实测：点「保存标签」，`user_tag_relation/add` 已 200，页面纹丝不动。
+    // 写入服务端和本地库都已完成，此处状态同步失败不影响结果，直接算成功。
+    if (!ref.mounted) return true;
     state = state.copyWith(
       tagItems: plan.finalTags,
       tagIdByName: resolvedTagIdByName,

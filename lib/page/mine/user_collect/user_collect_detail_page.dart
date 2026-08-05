@@ -38,7 +38,12 @@ class UserCollectDetailPage extends ConsumerWidget {
   });
 
   /// 构建操作菜单
-  Widget _buildActionMenu(BuildContext context, WidgetRef ref) {
+  /// [obj] 由 build 从 provider 取最新值传入，遮蔽同名字段（那是打开页面时的快照）。
+  Widget _buildActionMenu(
+    BuildContext context,
+    WidgetRef ref,
+    UserCollectModel obj,
+  ) {
     final notifier = ref.read(userCollectProvider.notifier);
 
     return Container(
@@ -248,6 +253,25 @@ class UserCollectDetailPage extends ConsumerWidget {
                           obj.kindId.toString(),
                           remarkNew,
                         );
+                        // remark() 只写服务端和本地库，不碰 provider 里的列表。
+                        // 少了这一步，备注卡片（`if (obj.remark.isNotEmpty)`）
+                        // 就永远拿不到新值 —— 真机实测：设完备注返回详情页，
+                        // 备注区压根不出现。与上面「编辑标签」的处理保持一致。
+                        if (ok) {
+                          notifier.updateItem(
+                            UserCollectModel(
+                              userId: obj.userId,
+                              kind: obj.kind,
+                              kindId: obj.kindId,
+                              source: obj.source,
+                              remark: remarkNew,
+                              tag: obj.tag,
+                              updatedAt: obj.updatedAt,
+                              createdAt: obj.createdAt,
+                              info: obj.info,
+                            ),
+                          );
+                        }
                         return ok;
                       },
                     ),
@@ -382,6 +406,12 @@ class UserCollectDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final notifier = ref.read(userCollectProvider.notifier);
+    // 字段 obj 是构造参数（final），是打开页面那一刻的快照。改完备注/标签后
+    // 最新数据在 provider 里，必须 watch 回来取，否则页面永远不刷新。
+    final current = ref
+        .watch(userCollectProvider)
+        .items
+        .firstWhere((e) => e.kindId == obj.kindId, orElse: () => obj);
 
     return Scaffold(
       backgroundColor: AppColors.getSurfaceGrouped(
@@ -404,7 +434,8 @@ class UserCollectDetailPage extends ConsumerWidget {
                   showModalBottomSheet<void>(
                     context: context,
                     isScrollControlled: true,
-                    builder: (context) => _buildActionMenu(context, ref),
+                    builder: (context) =>
+                        _buildActionMenu(context, ref, current),
                   );
                 },
                 child: Icon(
@@ -440,7 +471,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                   AppSpacing.horizontalMedium,
                   Expanded(
                     child: Text(
-                      "${t.main.from} ${obj.source} ${DateTimeHelper.lastTimeFmt(obj.createdAt)}",
+                      "${t.main.from} ${current.source} ${DateTimeHelper.lastTimeFmt(current.createdAt)}",
                       style: context.textStyle(
                         FontSizeType.normal,
                         color: Theme.of(
@@ -455,7 +486,7 @@ class UserCollectDetailPage extends ConsumerWidget {
             ),
 
             // 备注信息卡片
-            if (obj.remark.isNotEmpty)
+            if (current.remark.isNotEmpty)
               Container(
                 margin: const EdgeInsets.symmetric(
                   horizontal: 16.0,
@@ -505,7 +536,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                     ),
                     AppSpacing.verticalSmall,
                     Text(
-                      obj.remark,
+                      current.remark,
                       style: context
                           .textStyle(
                             FontSizeType.subheadline,

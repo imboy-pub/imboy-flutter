@@ -21,12 +21,14 @@ class ChannelHeaderBar extends StatelessWidget {
 
   /// 点击订阅/管理按钮回调
   final VoidCallback? onActionTap;
+  final bool isActionPending;
 
   const ChannelHeaderBar({
     super.key,
     required this.channel,
     this.stats,
     this.onActionTap,
+    this.isActionPending = false,
   });
 
   @override
@@ -149,94 +151,154 @@ class ChannelHeaderBar extends StatelessWidget {
                 width: double.infinity,
                 child: channel.isManaged
                     ? OutlinedButton.icon(
-                        onPressed: onActionTap,
-                        icon: const Icon(Icons.edit_outlined, size: 16),
+                        onPressed: isActionPending ? null : onActionTap,
+                        icon: isActionPending
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.edit_outlined, size: 16),
                         label: Text(t.main.manage),
                       )
                     : (channel.isSubscribed
                           ? OutlinedButton.icon(
-                              onPressed: onActionTap,
-                              icon: const Icon(Icons.check, size: 16),
+                              onPressed: isActionPending ? null : onActionTap,
+                              icon: isActionPending
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.check, size: 16),
                               label: Text(t.channel.subscribed),
                             )
                           : FilledButton.icon(
-                              onPressed: onActionTap,
-                              icon: const Icon(
-                                Icons.notifications_active_outlined,
-                                size: 16,
-                              ),
+                              onPressed: isActionPending ? null : onActionTap,
+                              icon: isActionPending
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.onPrimary,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.notifications_active_outlined,
+                                      size: 16,
+                                    ),
                               label: Text(t.channel.subscribe),
                             )),
               ),
             ),
-          // 紧凑统计信息：一行文字与图标表示，对齐内容定位，省空间
-          if (stats != null)
+          // 紧凑统计信息：一行文字与图标表示，对齐内容定位，省空间。
+          // stats 未就绪时保留等高 skeleton，避免异步返回后内容流跳动，
+          // 也避免把“0”误读成真实统计。
+          Padding(
+            padding: const EdgeInsets.only(
+              left: AppSpacing.regular,
+              right: AppSpacing.regular,
+              bottom: AppSpacing.regular,
+            ),
+            child: stats == null
+                ? _buildStatsSkeleton(context, secondaryColor)
+                : SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.people_outline,
+                          size: 14,
+                          color: secondaryColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${_formatNumber(stats?.subscriberCount ?? 0)} ${t.channel.subscribers}',
+                          style: context.textStyle(
+                            FontSizeType.small,
+                            color: secondaryColor,
+                          ),
+                        ),
+                        Text('  ·  ', style: TextStyle(color: secondaryColor)),
+                        Icon(
+                          Icons.article_outlined,
+                          size: 14,
+                          color: secondaryColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${_formatNumber(stats?.totalMessages ?? 0)} ${t.channel.messages}',
+                          style: context.textStyle(
+                            FontSizeType.small,
+                            color: secondaryColor,
+                          ),
+                        ),
+                        if ((stats?.totalViews ?? 0) > 0) ...[
+                          Text(
+                            '  ·  ',
+                            style: TextStyle(color: secondaryColor),
+                          ),
+                          Icon(
+                            Icons.remove_red_eye_outlined,
+                            size: 14,
+                            color: secondaryColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${_formatNumber(stats?.totalViews ?? 0)} ${t.channel.views}',
+                            style: context.textStyle(
+                              FontSizeType.small,
+                              color: secondaryColor,
+                            ),
+                          ),
+                        ],
+                        if ((stats?.totalReactions ?? 0) > 0) ...[
+                          Text(
+                            '  ·  ',
+                            style: TextStyle(color: secondaryColor),
+                          ),
+                          Icon(
+                            Icons.thumb_up_outlined,
+                            size: 14,
+                            color: secondaryColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${_formatNumber(stats?.totalReactions ?? 0)} ${t.channel.reactions}',
+                            style: context.textStyle(
+                              FontSizeType.small,
+                              color: secondaryColor,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsSkeleton(BuildContext context, Color color) {
+    return SizedBox(
+      height: 20,
+      child: Row(
+        children: [
+          for (final width in const [72.0, 68.0, 58.0])
             Padding(
-              padding: const EdgeInsets.only(
-                left: AppSpacing.regular,
-                right: AppSpacing.regular,
-                bottom: AppSpacing.regular,
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    Icon(Icons.people_outline, size: 14, color: secondaryColor),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${_formatNumber(stats?.subscriberCount ?? 0)} ${t.channel.subscribers}',
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: secondaryColor,
-                      ),
-                    ),
-                    Text('  ·  ', style: TextStyle(color: secondaryColor)),
-                    Icon(
-                      Icons.article_outlined,
-                      size: 14,
-                      color: secondaryColor,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${_formatNumber(stats?.totalMessages ?? 0)} ${t.channel.messages}',
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: secondaryColor,
-                      ),
-                    ),
-                    if ((stats?.totalViews ?? 0) > 0) ...[
-                      Text('  ·  ', style: TextStyle(color: secondaryColor)),
-                      Icon(
-                        Icons.remove_red_eye_outlined,
-                        size: 14,
-                        color: secondaryColor,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${_formatNumber(stats?.totalViews ?? 0)} ${t.channel.views}',
-                        style: context.textStyle(
-                          FontSizeType.small,
-                          color: secondaryColor,
-                        ),
-                      ),
-                    ],
-                    if ((stats?.totalReactions ?? 0) > 0) ...[
-                      Text('  ·  ', style: TextStyle(color: secondaryColor)),
-                      Icon(
-                        Icons.thumb_up_outlined,
-                        size: 14,
-                        color: secondaryColor,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${_formatNumber(stats?.totalReactions ?? 0)} ${t.channel.reactions}',
-                        style: context.textStyle(
-                          FontSizeType.small,
-                          color: secondaryColor,
-                        ),
-                      ),
-                    ],
-                  ],
+              padding: const EdgeInsets.only(right: AppSpacing.small),
+              child: Container(
+                width: width,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(6),
                 ),
               ),
             ),

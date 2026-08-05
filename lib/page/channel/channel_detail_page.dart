@@ -52,6 +52,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   ChannelStatsModel? _stats;
   bool _isLoadingStats = false;
+  String? _pendingStatsChannelId;
   String? _statsRequestedChannelId;
   ProviderSubscription<ChannelDetailState>? _markReadSub;
 
@@ -92,18 +93,30 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   }
 
   Future<void> _loadStats([String? channelId]) async {
-    if (_isLoadingStats) return;
     final id = (channelId != null && channelId.isNotEmpty)
         ? channelId
         : widget.channelId;
+    if (_isLoadingStats) {
+      // 发布、点赞和订阅可能在首轮统计请求未完成时同时触发；记住最后
+      // 一个目标，首轮结束后补一次权威刷新，避免把“请求被跳过”误当成已同步。
+      _pendingStatsChannelId = id;
+      return;
+    }
     _isLoadingStats = true;
     try {
       final stats = await _channelService.getChannelStats(id);
       if (mounted && stats != null) {
         setState(() => _stats = stats);
       }
+    } catch (_) {
+      // 统计是辅助信息，失败不应打断内容流；保留已有统计并等待后续刷新。
     } finally {
       _isLoadingStats = false;
+      final pendingId = _pendingStatsChannelId;
+      _pendingStatsChannelId = null;
+      if (pendingId != null && mounted) {
+        unawaited(_loadStats(pendingId));
+      }
     }
   }
 
@@ -150,6 +163,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     return [
       PopupMenuButton<String>(
         icon: const Icon(Icons.more_vert),
+        tooltip: MaterialLocalizations.of(context).showMenuTooltip,
         onSelected: (value) => _handleMenuAction(value, channel),
         itemBuilder: (context) => _buildMenuItems(channel),
       ),
@@ -168,6 +182,16 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           child: ListTile(
             leading: const Icon(CupertinoIcons.pencil),
             title: Text(t.channel.editChannel),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      );
+      items.add(
+        PopupMenuItem(
+          value: 'publish_article',
+          child: ListTile(
+            leading: const Icon(CupertinoIcons.doc_text),
+            title: Text(t.channel.writeArticle),
             contentPadding: EdgeInsets.zero,
           ),
         ),
@@ -298,6 +322,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             child: ChannelHeaderBar(
               channel: state.channel!,
               stats: _stats,
+              isActionPending: _subscribeActionBusy,
               onActionTap: () => _handleSubscribeAction(state.channel!),
             ),
           ),
@@ -395,11 +420,19 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   Future<void> _handleSubscribeAction(ChannelModel channel) async {
     if (_subscribeActionBusy) return;
-    _subscribeActionBusy = true;
+    if (mounted) {
+      setState(() => _subscribeActionBusy = true);
+    } else {
+      _subscribeActionBusy = true;
+    }
     try {
       await _doSubscribeAction(channel);
     } finally {
-      _subscribeActionBusy = false;
+      if (mounted) {
+        setState(() => _subscribeActionBusy = false);
+      } else {
+        _subscribeActionBusy = false;
+      }
     }
   }
 
@@ -445,6 +478,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             context,
           ).showSnackBar(SnackBar(content: Text(t.common.tipSuccess)));
         }
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.common.operationFailedAgainLater)),
+        );
       }
     } else {
       // 未订阅 → 订阅
@@ -492,7 +529,15 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                   final success = await ref
                       .read(channelListProvider.notifier)
                       .unsubscribeChannel(channelId);
-                  if (success && mounted) context.pop();
+                  if (success && mounted) {
+                    context.pop();
+                  } else if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(t.common.operationFailedAgainLater),
+                      ),
+                    );
+                  }
                 },
                 child: Text(t.common.confirm),
               ),
@@ -514,6 +559,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         break;
       case 'edit_channel':
         if (channel != null) _openChannelEdit(channel);
+        break;
+      case 'publish_article':
+        context.push('/channel/$channelId/compose');
         break;
       case 'manage_admins':
         context.push('/channel/$channelId/admins');

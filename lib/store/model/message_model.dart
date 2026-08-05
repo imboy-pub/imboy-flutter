@@ -480,6 +480,14 @@ class MessageModel {
       return MessageType.image;
     } else if (message is FileMessage) {
       return MessageType.file;
+    } else if (message is VideoMessage) {
+      // BUG#70：漏了视频/语音/流式三种，会话列表把它们全渲染成「未知消息」。
+      // 同文件 `toPayload` 的类型链早就写全了，这里是少写的那一份。
+      return MessageType.video;
+    } else if (message is AudioMessage) {
+      return MessageType.voice;
+    } else if (message is TextStreamMessage) {
+      return MessageType.textStream;
     } else if (message is CustomMessage) {
       // CustomMessage 也可能包含 msg_type
       final customMsgType = message.metadata?['msg_type'];

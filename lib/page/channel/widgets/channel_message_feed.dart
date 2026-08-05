@@ -6,6 +6,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
@@ -45,6 +46,7 @@ class ChannelMessageFeed extends ConsumerStatefulWidget {
 class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   late ScrollController _scrollController;
   bool _showScrollTop = false;
+  bool _isSubscribingFromEmpty = false;
 
   @override
   void initState() {
@@ -92,6 +94,33 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
     widget.onReactionChanged?.call();
   }
 
+  Future<void> _subscribeFromEmpty(String channelId) async {
+    if (_isSubscribingFromEmpty) return;
+    setState(() => _isSubscribingFromEmpty = true);
+    try {
+      final success = await ref
+          .read(channelListProvider.notifier)
+          .subscribeChannel(channelId);
+      if (!mounted) return;
+      if (success) {
+        await ref.read(channelDetailProvider.notifier).loadChannel(channelId);
+        widget.onReactionChanged?.call();
+      } else {
+        AppLoading.showError(context.t.channel.subscribeFailed);
+      }
+    } catch (_) {
+      if (mounted) {
+        AppLoading.showError(context.t.channel.subscribeFailed);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubscribingFromEmpty = false);
+      } else {
+        _isSubscribingFromEmpty = false;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(channelDetailProvider);
@@ -121,20 +150,16 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
       } else if (!isSubscribed) {
         return NoDataView(
           icon: Icons.notifications_active_outlined,
-          text: t.channel.noMessagesVisitor,
-          description: t.channel.noMessagesVisitorDesc,
-          onTop: () async {
-            final success = await ref
-                .read(channelListProvider.notifier)
-                .subscribeChannel(widget.channelId);
-            if (success) {
-              await ref
-                  .read(channelDetailProvider.notifier)
-                  .loadChannel(widget.channelId);
-              widget.onReactionChanged?.call();
-            }
-          },
-          retryLabel: t.channel.subscribe,
+          text: _isSubscribingFromEmpty
+              ? t.common.loading
+              : t.channel.noMessagesVisitor,
+          description: _isSubscribingFromEmpty
+              ? null
+              : t.channel.noMessagesVisitorDesc,
+          onTop: _isSubscribingFromEmpty
+              ? null
+              : () => _subscribeFromEmpty(widget.channelId),
+          retryLabel: _isSubscribingFromEmpty ? null : t.channel.subscribe,
         );
       } else {
         return NoDataView(

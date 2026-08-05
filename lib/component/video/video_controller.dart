@@ -207,15 +207,11 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(
-                0xCC000000,
-              ), // Colors.black.withValues(alpha: 0.8)
+              color: AppColors.mediaScrimBlack.withValues(alpha: 0.8),
               borderRadius: AppRadius.borderRadiusRegular,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(
-                    0x80000000,
-                  ), // Colors.black.withValues(alpha: 0.5)
+                  color: AppColors.mediaScrimBlack.withValues(alpha: 0.5),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -256,261 +252,269 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _toggleControls,
-      onDoubleTap: _handleDoubleTap,
-      onHorizontalDragStart: _handleHorizontalDragStart,
-      onHorizontalDragUpdate: _handleHorizontalDragUpdate,
-      onHorizontalDragEnd: _handleHorizontalDragEnd,
-      onVerticalDragStart: _handleVerticalDragStart,
-      onVerticalDragUpdate: _handleVerticalDragUpdate,
-      onVerticalDragEnd: _handleVerticalDragEnd,
-      child: Stack(
-        children: [
-          // 控制层背景渐变
-          if (_showControls)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      const Color(
-                        0x99000000,
-                      ), // Colors.black.withValues(alpha: 0.6)
-                      AppColors.transparent,
-                      AppColors.transparent,
-                      const Color(
-                        0x99000000,
-                      ), // Colors.black.withValues(alpha: 0.6)
-                    ],
+    // BUG#68：必须显式撑满父级。下面这个 Stack 里唯一的**非定位**子节点是
+    // `_buildGestureFeedback`，它空闲时返回 `SizedBox.shrink()` ——
+    // 于是在 loose 约束下（作为 Stack 的非定位子节点时就是 loose）整层坍缩成
+    // 0×0，所有 Positioned.fill 子节点跟着变 0，GestureDetector 没有命中区域：
+    // 控制栏 3 秒自动隐藏后**再也点不出来**，视频页只剩一个返回键。
+    return SizedBox.expand(
+      child: GestureDetector(
+        onTap: _toggleControls,
+        onDoubleTap: _handleDoubleTap,
+        onHorizontalDragStart: _handleHorizontalDragStart,
+        onHorizontalDragUpdate: _handleHorizontalDragUpdate,
+        onHorizontalDragEnd: _handleHorizontalDragEnd,
+        onVerticalDragStart: _handleVerticalDragStart,
+        onVerticalDragUpdate: _handleVerticalDragUpdate,
+        onVerticalDragEnd: _handleVerticalDragEnd,
+        child: Stack(
+          children: [
+            // 控制层背景渐变
+            if (_showControls)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.mediaScrimBlack.withValues(alpha: 0.6),
+                        AppColors.transparent,
+                        AppColors.transparent,
+                        AppColors.mediaScrimBlack.withValues(alpha: 0.6),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-          // 顶部控制栏
-          if (_showControls)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        tooltip: MaterialLocalizations.of(
-                          context,
-                        ).backButtonTooltip,
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        tooltip: widget.isFullScreen
-                            ? t.common.exitFullscreen
-                            : t.common.enterFullscreen,
-                        icon: Icon(
-                          widget.isFullScreen
-                              ? Icons.fullscreen_exit
-                              : Icons.fullscreen,
-                          color: Colors.white,
+            // 顶部控制栏
+            if (_showControls)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          tooltip: MaterialLocalizations.of(
+                            context,
+                          ).backButtonTooltip,
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: AppColors.mediaScrimWhite,
+                          ),
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
-                        onPressed: widget.onFullScreenPressed,
-                      ),
-                    ],
+                        const Spacer(),
+                        IconButton(
+                          tooltip: widget.isFullScreen
+                              ? t.common.exitFullscreen
+                              : t.common.enterFullscreen,
+                          icon: Icon(
+                            widget.isFullScreen
+                                ? Icons.fullscreen_exit
+                                : Icons.fullscreen,
+                            color: AppColors.mediaScrimWhite,
+                          ),
+                          onPressed: widget.onFullScreenPressed,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-          // 底部控制栏
-          if (_showControls)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      // 进度条
-                      ValueListenableBuilder(
-                        valueListenable: widget.controller,
-                        builder: (context, VideoPlayerValue value, child) {
-                          return SliderTheme(
-                            data: SliderThemeData(
-                              trackHeight: 2,
-                              thumbShape: const RoundSliderThumbShape(
-                                enabledThumbRadius: 8,
+            // 底部控制栏
+            if (_showControls)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        // 进度条
+                        ValueListenableBuilder(
+                          valueListenable: widget.controller,
+                          builder: (context, VideoPlayerValue value, child) {
+                            return SliderTheme(
+                              data: SliderThemeData(
+                                trackHeight: 2,
+                                thumbShape: const RoundSliderThumbShape(
+                                  enabledThumbRadius: 8,
+                                ),
+                                overlayShape: const RoundSliderOverlayShape(
+                                  overlayRadius: 12,
+                                ),
                               ),
-                              overlayShape: const RoundSliderOverlayShape(
-                                overlayRadius: 12,
-                              ),
-                            ),
-                            child: Slider(
-                              value: value.position.inMilliseconds.toDouble(),
-                              min: 0,
-                              max: value.duration.inMilliseconds.toDouble(),
-                              onChanged: (double newValue) {
-                                widget.controller.seekTo(
-                                  Duration(milliseconds: newValue.round()),
-                                );
-                              },
-                              onChangeEnd: (double newValue) {
-                                widget.controller.seekTo(
-                                  Duration(milliseconds: newValue.round()),
-                                );
-                                if (!value.isPlaying) {
-                                  widget.controller.play();
-                                }
-                              },
-                            ),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      // 时间信息和播放控制
-                      Row(
-                        children: [
-                          ValueListenableBuilder(
-                            valueListenable: widget.controller,
-                            builder: (context, VideoPlayerValue value, child) {
-                              return Text(
-                                _formatDuration(value.position),
-                                style: context.textStyle(
-                                  FontSizeType.small,
-                                  color: AppColors
-                                      .onPrimary, // on dark video overlay
-                                ),
-                              );
-                            },
-                          ),
-
-                          const Spacer(),
-
-                          ValueListenableBuilder(
-                            valueListenable: widget.controller,
-                            builder: (context, VideoPlayerValue value, child) {
-                              return Text(
-                                _formatDuration(value.duration),
-                                style: context.textStyle(
-                                  FontSizeType.small,
-                                  color: AppColors
-                                      .overlayWhite70, // on dark video overlay
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // 播放控制按钮
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            tooltip: t.main.fastRewind(seconds: '10'),
-                            icon: const Icon(
-                              Icons.replay_10,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                            onPressed: () {
-                              final currentPosition =
-                                  widget.controller.value.position;
-                              widget.controller.seekTo(
-                                currentPosition - const Duration(seconds: 10),
-                              );
-                            },
-                          ),
-
-                          const SizedBox(width: 24),
-
-                          ValueListenableBuilder(
-                            valueListenable: widget.controller,
-                            builder: (context, VideoPlayerValue value, child) {
-                              return IconButton(
-                                tooltip: value.isPlaying
-                                    ? t.chat.groupFileMediaPause
-                                    : t.main.play,
-                                icon: Icon(
-                                  value.isPlaying
-                                      ? Icons.pause
-                                      : Icons.play_arrow,
-                                  color: Colors.white,
-                                  size: 36,
-                                ),
-                                onPressed: () {
-                                  if (value.isPlaying) {
-                                    widget.controller.pause();
-                                  } else {
+                              child: Slider(
+                                value: value.position.inMilliseconds.toDouble(),
+                                min: 0,
+                                max: value.duration.inMilliseconds.toDouble(),
+                                onChanged: (double newValue) {
+                                  widget.controller.seekTo(
+                                    Duration(milliseconds: newValue.round()),
+                                  );
+                                },
+                                onChangeEnd: (double newValue) {
+                                  widget.controller.seekTo(
+                                    Duration(milliseconds: newValue.round()),
+                                  );
+                                  if (!value.isPlaying) {
                                     widget.controller.play();
                                   }
                                 },
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
+                        ),
 
-                          const SizedBox(width: 24),
+                        const SizedBox(height: 8),
 
-                          IconButton(
-                            tooltip: t.chat.fastForward(seconds: '10'),
-                            icon: const Icon(
-                              Icons.forward_10,
-                              color: Colors.white,
-                              size: 28,
+                        // 时间信息和播放控制
+                        Row(
+                          children: [
+                            ValueListenableBuilder(
+                              valueListenable: widget.controller,
+                              builder:
+                                  (context, VideoPlayerValue value, child) {
+                                    return Text(
+                                      _formatDuration(value.position),
+                                      style: context.textStyle(
+                                        FontSizeType.small,
+                                        color: AppColors
+                                            .onPrimary, // on dark video overlay
+                                      ),
+                                    );
+                                  },
                             ),
-                            onPressed: () {
-                              final currentPosition =
-                                  widget.controller.value.position;
-                              widget.controller.seekTo(
-                                currentPosition + const Duration(seconds: 10),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
+
+                            const Spacer(),
+
+                            ValueListenableBuilder(
+                              valueListenable: widget.controller,
+                              builder: (context, VideoPlayerValue value, child) {
+                                return Text(
+                                  _formatDuration(value.duration),
+                                  style: context.textStyle(
+                                    FontSizeType.small,
+                                    color: AppColors
+                                        .overlayWhite70, // on dark video overlay
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // 播放控制按钮
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              tooltip: t.main.fastRewind(seconds: '10'),
+                              icon: const Icon(
+                                Icons.replay_10,
+                                color: AppColors.mediaScrimWhite,
+                                size: 28,
+                              ),
+                              onPressed: () {
+                                final currentPosition =
+                                    widget.controller.value.position;
+                                widget.controller.seekTo(
+                                  currentPosition - const Duration(seconds: 10),
+                                );
+                              },
+                            ),
+
+                            const SizedBox(width: 24),
+
+                            ValueListenableBuilder(
+                              valueListenable: widget.controller,
+                              builder:
+                                  (context, VideoPlayerValue value, child) {
+                                    return IconButton(
+                                      tooltip: value.isPlaying
+                                          ? t.chat.groupFileMediaPause
+                                          : t.main.play,
+                                      icon: Icon(
+                                        value.isPlaying
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: AppColors.mediaScrimWhite,
+                                        size: 36,
+                                      ),
+                                      onPressed: () {
+                                        if (value.isPlaying) {
+                                          widget.controller.pause();
+                                        } else {
+                                          widget.controller.play();
+                                        }
+                                      },
+                                    );
+                                  },
+                            ),
+
+                            const SizedBox(width: 24),
+
+                            IconButton(
+                              tooltip: t.chat.fastForward(seconds: '10'),
+                              icon: const Icon(
+                                Icons.forward_10,
+                                color: AppColors.mediaScrimWhite,
+                                size: 28,
+                              ),
+                              onPressed: () {
+                                final currentPosition =
+                                    widget.controller.value.position;
+                                widget.controller.seekTo(
+                                  currentPosition + const Duration(seconds: 10),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-          // 中央播放按钮（当控制栏隐藏时）
-          if (!_showControls)
-            Positioned.fill(
-              child: Center(
-                child: ValueListenableBuilder(
-                  valueListenable: widget.controller,
-                  builder: (context, VideoPlayerValue value, child) {
-                    return AnimatedOpacity(
-                      opacity: value.isPlaying ? 0.0 : 1.0,
-                      duration: const Duration(milliseconds: 300),
-                      child: Icon(
-                        value.isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: const Color(
-                          0xCCFFFFFF,
-                        ), // Colors.white.withValues(alpha: 0.8)
-                        size: 56,
-                      ),
-                    );
-                  },
+            // 中央播放按钮（当控制栏隐藏时）
+            if (!_showControls)
+              Positioned.fill(
+                child: Center(
+                  child: ValueListenableBuilder(
+                    valueListenable: widget.controller,
+                    builder: (context, VideoPlayerValue value, child) {
+                      return AnimatedOpacity(
+                        opacity: value.isPlaying ? 0.0 : 1.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Icon(
+                          value.isPlaying ? Icons.pause : Icons.play_arrow,
+                          color: AppColors.mediaScrimWhite.withValues(
+                            alpha: 0.8,
+                          ),
+                          size: 56,
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
 
-          // 手势反馈
-          _buildGestureFeedback(context),
-        ],
+            // 手势反馈
+            _buildGestureFeedback(context),
+          ],
+        ),
       ),
     );
   }

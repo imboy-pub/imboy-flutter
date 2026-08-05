@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -237,18 +238,7 @@ class FtsApi extends HttpClient {
       queryParams['msg_type'] = msgType;
     }
 
-    // 后端不支持 conversation_uk3；解析出 type 和 conversation_id 做最大化过滤
-    final parts = conversationUk3.split('_');
-    if (parts.isNotEmpty) {
-      final convType = parts[0].toUpperCase();
-      queryParams['type'] = convType;
-      if (convType == 'C2G' && parts.length >= 2) {
-        final groupId = int.tryParse(parts[1]);
-        if (groupId != null && groupId > 0) {
-          queryParams['conversation_id'] = groupId;
-        }
-      }
-    }
+    queryParams.addAll(buildConversationFilter(conversationUk3));
 
     try {
       final IMBoyHttpResponse resp = await get(
@@ -274,6 +264,34 @@ class FtsApi extends HttpClient {
     } on Exception {
       return null;
     }
+  }
+
+  /// 由 conversationUk3 推导后端可用的过滤参数。
+  ///
+  /// 后端不支持 conversation_uk3，只能拆出 type + conversation_id 做最大化过滤。
+  ///
+  /// uk3 格式（见 [ConversationUk3Generator]）：
+  /// - C2G：`C2G_<currentUserId>_<groupId>` → 群 id 在 **parts[2]**
+  /// - C2C：`C2C_<小 uid>_<大 uid>`（排序后）→ 无法区分哪个是对端，不传 conversation_id
+  /// - S2C/C2S：`<TYPE>_SYSTEM_<userId>`
+  ///
+  /// 原实现对 C2G 取了 parts[1]，那是**当前用户 uid** —— 真机实测发出
+  /// `type=C2G&conversation_id=50`（50 是自己），必然搜不到任何群消息。
+  @visibleForTesting
+  static Map<String, dynamic> buildConversationFilter(String conversationUk3) {
+    final parts = conversationUk3.split('_');
+    if (parts.isEmpty || parts[0].isEmpty) return {};
+
+    final convType = parts[0].toUpperCase();
+    final filter = <String, dynamic>{'type': convType};
+
+    if (convType == 'C2G' && parts.length >= 3) {
+      final groupId = int.tryParse(parts[2]);
+      if (groupId != null && groupId > 0) {
+        filter['conversation_id'] = groupId;
+      }
+    }
+    return filter;
   }
 
   /// 毫秒时间戳 → YYYY-MM-DD（后端 start_date/end_date 格式）

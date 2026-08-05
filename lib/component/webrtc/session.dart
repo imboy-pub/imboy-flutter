@@ -5,6 +5,7 @@ class WebRTCSession {
   WebRTCSession({
     required this.peerId,
     required this.sid,
+    this.callId,
     this.pc,
     this.dc,
     // DONE(2026-04-04): 添加 media 属性支持多媒体类型标识
@@ -16,6 +17,9 @@ class WebRTCSession {
 
   // sessionId
   final String sid;
+
+  /// 通话 ID
+  String? callId;
 
   /// 会话媒体类型：'audio' | 'video'，null 表示未指定
   String? media;

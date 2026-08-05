@@ -62,7 +62,13 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
       if (contactState.contactList.isEmpty) {
         await ref.read(contactProvider.notifier).loadData();
       }
-      final contacts = ref.read(contactProvider).contactList;
+      // contactList 里混着 6 个功能入口占位（朋友圈/找附近的人/AI 助手广场…），
+      // 那是联系人首页的菜单，不能出现在"选人加群"里。
+      final contacts = ref
+          .read(contactProvider)
+          .contactList
+          .where(isRealContact)
+          .toList();
       notifier.handleContactList(contacts);
     } finally {
       notifier.setLoading(false);

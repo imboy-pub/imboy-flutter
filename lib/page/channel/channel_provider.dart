@@ -14,6 +14,7 @@ import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/websocket_events.dart'
     show WebSocketStatusChangedEvent;
+import 'channel_di_provider.dart';
 
 part 'channel_provider.g.dart';
 
@@ -138,8 +139,9 @@ class ChannelListState {
 /// 频道列表 Notifier
 @riverpod
 class ChannelListNotifier extends _$ChannelListNotifier {
-  final ChannelApi _api = ChannelApi();
+  ChannelApi get _api => ref.read(channelApiProvider);
   StreamSubscription<ChannelStateChangedEvent>? _stateChangedSub;
+  Future<void>? _subscribedChannelsLoad;
 
   @override
   ChannelListState build() {
@@ -177,7 +179,25 @@ class ChannelListNotifier extends _$ChannelListNotifier {
   }
 
   /// 加载订阅的频道列表
-  Future<void> loadSubscribedChannels() async {
+  ///
+  /// 订阅动作、页面回到前台、下拉刷新和 S2C 事件可能同时要求刷新。
+  /// 统一复用同一个 in-flight 请求，避免调用方各自 reload 造成按钮闪烁和重复 GET。
+  Future<void> loadSubscribedChannels() {
+    final inFlight = _subscribedChannelsLoad;
+    if (inFlight != null) return inFlight;
+
+    final request = _loadSubscribedChannels();
+    late final Future<void> coordinatedRequest;
+    coordinatedRequest = request.whenComplete(() {
+      if (identical(_subscribedChannelsLoad, coordinatedRequest)) {
+        _subscribedChannelsLoad = null;
+      }
+    });
+    _subscribedChannelsLoad = coordinatedRequest;
+    return coordinatedRequest;
+  }
+
+  Future<void> _loadSubscribedChannels() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {

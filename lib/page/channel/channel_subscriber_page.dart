@@ -89,6 +89,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
   String? _error;
   String? _searchKeyword;
   bool _hasMore = true;
+  bool _isSendingInvitation = false;
 
   @override
   void initState() {
@@ -282,42 +283,59 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
   }
 
   Future<void> _showInviteContactPicker() async {
-    // 先获取已有待处理邀请列表，用于过滤联系人
-    List<Map<String, dynamic>> sentInvitations = [];
+    if (_isSendingInvitation) return;
+    setState(() => _isSendingInvitation = true);
+
     try {
-      sentInvitations = await ref
+      // 先获取已有待处理邀请列表，用于过滤联系人
+      List<Map<String, dynamic>> sentInvitations = [];
+      try {
+        sentInvitations = await ref
+            .read(channelServiceProvider)
+            .getSentInvitations();
+      } catch (_) {
+        // 获取失败时不阻塞邀请流程，直接显示全量联系人
+      }
+      final pendingIds = extractPendingInviteeIds(sentInvitations);
+
+      if (!mounted) return;
+
+      final inviteeUid = await showModalBottomSheet<String>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: AppColors.transparent,
+        builder: (_) => _InviteContactPickerSheet(
+          channelId: widget.channelId,
+          pendingInviteeIds: pendingIds,
+        ),
+      );
+
+      if (inviteeUid == null || !mounted) return;
+
+      final t = context.t;
+      final ok = await ref
           .read(channelServiceProvider)
-          .getSentInvitations();
+          .sendInvitation(channelId: widget.channelId, inviteeUid: inviteeUid);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ok ? t.channel.inviteSuccess : t.channel.inviteFailed),
+        ),
+      );
+      if (ok) unawaited(_loadSubscribers(refresh: true));
     } catch (_) {
-      // 获取失败时不阻塞邀请流程，直接显示全量联系人
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.t.channel.inviteFailed)));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSendingInvitation = false);
+      } else {
+        _isSendingInvitation = false;
+      }
     }
-    final pendingIds = extractPendingInviteeIds(sentInvitations);
-
-    if (!mounted) return;
-
-    final inviteeUid = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
-      builder: (_) => _InviteContactPickerSheet(
-        channelId: widget.channelId,
-        pendingInviteeIds: pendingIds,
-      ),
-    );
-
-    if (inviteeUid == null || !mounted) return;
-
-    final t = context.t;
-    final ok = await ref
-        .read(channelServiceProvider)
-        .sendInvitation(channelId: widget.channelId, inviteeUid: inviteeUid);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(ok ? t.channel.inviteSuccess : t.channel.inviteFailed),
-      ),
-    );
-    if (ok) unawaited(_loadSubscribers(refresh: true));
   }
 
   void _shareChannel(ChannelModel? channel) {
@@ -422,9 +440,18 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
       ),
       floatingActionButton: widget.canInvite
           ? FloatingActionButton(
-              onPressed: _showInviteContactPicker,
+              onPressed: _isSendingInvitation ? null : _showInviteContactPicker,
               tooltip: t.channel.inviteFromContacts,
-              child: const Icon(Icons.person_add_outlined),
+              child: _isSendingInvitation
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.onPrimary,
+                      ),
+                    )
+                  : const Icon(Icons.person_add_outlined),
             )
           : null,
       body: _buildBody(),

@@ -314,7 +314,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
               reactionType: ChannelReactionType.like,
             );
 
-      if (success) {
+      if (success && mounted) {
         // 成功！将状态同步给全局 provider
         final totalLikes =
             widget.message!.reactionSummary?[ChannelReactionType.like] ?? 0;
@@ -340,7 +340,11 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
         AppLoading.showToast(context.t.common.operationFailedAgainLater);
       }
     } finally {
-      _likeActionBusy = false;
+      if (mounted) {
+        setState(() => _likeActionBusy = false);
+      } else {
+        _likeActionBusy = false;
+      }
     }
   }
 
@@ -881,9 +885,10 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 label: totalReactions > 0 ? '$totalReactions' : t.channel.like,
                 color: _liked ? AppColors.primary : secondary,
                 onTap: _toggleMessageLike,
+                isLoading: _likeActionBusy,
                 semanticsLabel: totalReactions > 0
-                    ? '点赞，共 $totalReactions 个赞'
-                    : '点赞',
+                    ? '${t.channel.like} $totalReactions'
+                    : t.channel.like,
               ),
               AppSpacing.horizontalRegular,
               _actionButton(
@@ -894,8 +899,8 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 color: secondary,
                 onTap: () => _inputFocusNode.requestFocus(),
                 semanticsLabel: _comments.isNotEmpty
-                    ? '评论，共 ${_comments.length} 条'
-                    : '评论，暂无评论',
+                    ? '${t.channel.comment} ${_comments.length}'
+                    : t.channel.comment,
               ),
               AppSpacing.horizontalRegular,
               _actionButton(
@@ -903,7 +908,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 label: t.channel.share,
                 color: secondary,
                 onTap: _shareMessage,
-                semanticsLabel: '分享',
+                semanticsLabel: t.channel.share,
               ),
             ],
           ),
@@ -977,6 +982,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     required String label,
     required Color color,
     required VoidCallback onTap,
+    bool isLoading = false,
     String? semanticsLabel,
   }) {
     return Semantics(
@@ -989,7 +995,17 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
           child: Row(
             children: [
-              Icon(icon, size: 18, color: color),
+              if (isLoading)
+                SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: color,
+                  ),
+                )
+              else
+                Icon(icon, size: 18, color: color),
               const SizedBox(width: 4),
               Text(
                 label,

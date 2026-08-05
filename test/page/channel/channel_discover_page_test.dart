@@ -83,5 +83,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('推荐频道A'), findsOneWidget);
+    expect(find.byType(Card), findsOneWidget);
+    expect(find.textContaining(t.channel.subscribers), findsOneWidget);
   });
 }

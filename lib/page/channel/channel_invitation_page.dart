@@ -103,6 +103,8 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
       success = accept
           ? await channelService.acceptInvitation(invitationId)
           : await channelService.rejectInvitation(invitationId);
+    } catch (_) {
+      success = false;
     } finally {
       // 无论成功、失败还是抛异常，都必须解锁按钮。旧实现无 try-finally，
       // ChannelService 方法若外层抛异常，invitationId 会永久滞留在

@@ -133,15 +133,19 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
       final results = await ref
           .read(channelListProvider.notifier)
           .searchChannels(keyword);
-      setState(() {
-        _searchResults = results;
-        _isSearching = false;
-      });
+      if (mounted) {
+        setState(() {
+          _searchResults = results;
+          _isSearching = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _searchResults = [];
-        _isSearching = false;
-      });
+      if (mounted) {
+        setState(() {
+          _searchResults = [];
+          _isSearching = false;
+        });
+      }
     }
   }
 
@@ -270,6 +274,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   }
 
   Future<bool> _subscribeChannel(ChannelModel channel) async {
+    if (!mounted) return false;
     final t = context.t;
     final channelIdStr = channel.id.toString();
 
@@ -316,7 +321,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
         ],
       ),
     );
-    if (confirmed != true) return false;
+    if (confirmed != true || !mounted) return false;
 
     // 乐观更新
     setState(() {
@@ -361,12 +366,20 @@ class _SearchResultItem extends ConsumerStatefulWidget {
 
 class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
   bool _isSubmitting = false;
-  late final bool _wasSubscribedInitially;
+  int _localSubscriberCountDelta = 0;
 
   @override
   void initState() {
     super.initState();
-    _wasSubscribedInitially = widget.isSubscribed;
+  }
+
+  @override
+  void didUpdateWidget(covariant _SearchResultItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.channel.subscriberCount != widget.channel.subscriberCount) {
+      // 权威计数已包含本地 mutation，避免刷新后重复加减。
+      _localSubscriberCountDelta = 0;
+    }
   }
 
   String _detailRouteId(ChannelModel channel) {
@@ -379,150 +392,175 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
   Widget build(BuildContext context) {
     final t = context.t;
     final int displayCount =
-        widget.channel.subscriberCount +
-        (widget.isSubscribed
-            ? (_wasSubscribedInitially ? 0 : 1)
-            : (_wasSubscribedInitially ? -1 : 0));
+        (widget.channel.subscriberCount + _localSubscriberCountDelta).clamp(
+          0,
+          1 << 31,
+        );
 
-    return ListTile(
-      leading: CircleAvatar(
-        radius: 24,
-        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-        backgroundImage:
-            widget.channel.avatar != null && widget.channel.avatar!.isNotEmpty
-            ? cachedImageProvider(widget.channel.avatar!, w: 96)
-            : null,
-        child: widget.channel.avatar == null || widget.channel.avatar!.isEmpty
-            ? const Icon(Icons.campaign, size: 24)
-            : null,
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: AppRadius.borderRadiusMedium,
+        side: BorderSide(
+          color: AppColors.getIosSeparator(
+            Theme.of(context).brightness,
+          ).withValues(alpha: 0.45),
+        ),
       ),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              widget.channel.name,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (widget.channel.isVerified)
-            Container(
-              margin: const EdgeInsets.only(left: AppSpacing.tiny),
-              child: const Icon(
-                Icons.verified,
-                size: 16,
-                color: AppColors.primary,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.small,
+        ),
+        leading: CircleAvatar(
+          radius: 24,
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+          backgroundImage:
+              widget.channel.avatar != null && widget.channel.avatar!.isNotEmpty
+              ? cachedImageProvider(widget.channel.avatar!, w: 96)
+              : null,
+          child: widget.channel.avatar == null || widget.channel.avatar!.isEmpty
+              ? const Icon(Icons.campaign, size: 24)
+              : null,
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                widget.channel.name,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-        ],
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppSpacing.verticalTiny,
-          Text(
-            widget.channel.description ?? '',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: context.textStyle(
-              FontSizeType.footnote,
-              color: AppColors.iosGray,
-            ),
-          ),
-          AppSpacing.verticalTiny,
-          Row(
-            children: [
-              Icon(Icons.people_outline, size: 14, color: AppColors.iosGray),
-              AppSpacing.horizontalTiny,
-              Text(
-                '$displayCount ${t.channel.subscribers}',
-                style: context.textStyle(
-                  FontSizeType.small,
-                  color: AppColors.iosGray,
+            if (widget.channel.isVerified)
+              Container(
+                margin: const EdgeInsets.only(left: AppSpacing.tiny),
+                child: const Icon(
+                  Icons.verified,
+                  size: 16,
+                  color: AppColors.primary,
                 ),
               ),
-              if (widget.channel.tags != null &&
-                  widget.channel.tags!.isNotEmpty) ...[
-                AppSpacing.horizontalSmall,
-                Expanded(
-                  child: Text(
-                    widget.channel.tags!.take(2).join(' · '),
-                    style: context.textStyle(
-                      FontSizeType.small,
-                      color: AppColors.iosGray,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+          ],
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppSpacing.verticalTiny,
+            Text(
+              widget.channel.description ?? '',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: AppColors.iosGray,
+              ),
+            ),
+            AppSpacing.verticalTiny,
+            Row(
+              children: [
+                Icon(Icons.people_outline, size: 14, color: AppColors.iosGray),
+                AppSpacing.horizontalTiny,
+                Text(
+                  '$displayCount ${t.channel.subscribers}',
+                  style: context.textStyle(
+                    FontSizeType.small,
+                    color: AppColors.iosGray,
                   ),
                 ),
+                if (widget.channel.tags != null &&
+                    widget.channel.tags!.isNotEmpty) ...[
+                  AppSpacing.horizontalSmall,
+                  Expanded(
+                    child: Text(
+                      widget.channel.tags!.take(2).join(' · '),
+                      style: context.textStyle(
+                        FontSizeType.small,
+                        color: AppColors.iosGray,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ],
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
+        isThreeLine: true,
+        trailing: widget.channel.isManaged
+            ? OutlinedButton(
+                onPressed: () {
+                  context.push('/channel/${_detailRouteId(widget.channel)}');
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  visualDensity: VisualDensity.compact,
+                ),
+                child: Text(t.main.manage),
+              )
+            : (widget.isSubscribed
+                  ? OutlinedButton.icon(
+                      onPressed: _isSubmitting
+                          ? null
+                          : () async {
+                              setState(() => _isSubmitting = true);
+                              final success = await widget.onUnsubscribe();
+                              if (mounted) {
+                                setState(() {
+                                  _isSubmitting = false;
+                                  if (success) _localSubscriberCountDelta--;
+                                });
+                              }
+                            },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      icon: _isSubmitting
+                          ? const SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                              ),
+                            )
+                          : const Icon(Icons.check, size: 14),
+                      label: Text(t.channel.subscribed),
+                    )
+                  : FilledButton(
+                      onPressed: _isSubmitting
+                          ? null
+                          : () async {
+                              setState(() => _isSubmitting = true);
+                              final success = await widget.onSubscribe();
+                              if (mounted) {
+                                setState(() {
+                                  _isSubmitting = false;
+                                  if (success) _localSubscriberCountDelta++;
+                                });
+                              }
+                            },
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                color: AppColors.onPrimary,
+                              ),
+                            )
+                          : Text(t.channel.subscribe),
+                    )),
+        onTap: () {
+          context.push('/channel/${_detailRouteId(widget.channel)}');
+        },
       ),
-      isThreeLine: true,
-      trailing: widget.channel.isManaged
-          ? OutlinedButton(
-              onPressed: () {
-                context.push('/channel/${_detailRouteId(widget.channel)}');
-              },
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                visualDensity: VisualDensity.compact,
-              ),
-              child: Text(t.main.manage),
-            )
-          : (widget.isSubscribed
-                ? OutlinedButton.icon(
-                    onPressed: _isSubmitting
-                        ? null
-                        : () async {
-                            setState(() => _isSubmitting = true);
-                            await widget.onUnsubscribe();
-                            if (mounted) {
-                              setState(() => _isSubmitting = false);
-                            }
-                          },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    icon: _isSubmitting
-                        ? const SizedBox(
-                            width: 12,
-                            height: 12,
-                            child: CircularProgressIndicator(strokeWidth: 1.5),
-                          )
-                        : const Icon(Icons.check, size: 14),
-                    label: Text(t.channel.subscribed),
-                  )
-                : FilledButton(
-                    onPressed: _isSubmitting
-                        ? null
-                        : () async {
-                            setState(() => _isSubmitting = true);
-                            await widget.onSubscribe();
-                            if (mounted) {
-                              setState(() => _isSubmitting = false);
-                            }
-                          },
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    child: _isSubmitting
-                        ? const SizedBox(
-                            width: 12,
-                            height: 12,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.5,
-                              color: AppColors.onPrimary,
-                            ),
-                          )
-                        : Text(t.channel.subscribe),
-                  )),
-      onTap: () {
-        context.push('/channel/${_detailRouteId(widget.channel)}');
-      },
     );
   }
 }

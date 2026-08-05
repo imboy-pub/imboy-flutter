@@ -52,4 +52,40 @@ void main() {
       expect(response.total, 2);
     });
   });
+
+  // 会话内搜索的过滤参数推导。
+  // C2G 的 uk3 是 `C2G_<currentUserId>_<groupId>`，群 id 在 parts[2]；
+  // 曾误取 parts[1]（当前用户 uid），真机实测发出
+  // `type=C2G&conversation_id=50`（50 是自己），群消息一条也搜不到。
+  group('FtsApi.buildConversationFilter', () {
+    test('C2G 取 parts[2] 作为 conversation_id（而非当前用户 uid）', () {
+      final filter = FtsApi.buildConversationFilter(
+        'C2G_50_104603643803863040',
+      );
+      expect(filter['type'], 'C2G');
+      expect(filter['conversation_id'], 104603643803863040);
+    });
+
+    test('C2C 不带 conversation_id（排序后无法区分对端）', () {
+      final filter = FtsApi.buildConversationFilter('C2C_1_50');
+      expect(filter['type'], 'C2C');
+      expect(filter.containsKey('conversation_id'), isFalse);
+    });
+
+    test('C2G 段数不足时只带 type，不臆造 id', () {
+      final filter = FtsApi.buildConversationFilter('C2G_50');
+      expect(filter['type'], 'C2G');
+      expect(filter.containsKey('conversation_id'), isFalse);
+    });
+
+    test('系统会话只带 type', () {
+      final filter = FtsApi.buildConversationFilter('S2C_SYSTEM_50');
+      expect(filter['type'], 'S2C');
+      expect(filter.containsKey('conversation_id'), isFalse);
+    });
+
+    test('空串返回空过滤条件', () {
+      expect(FtsApi.buildConversationFilter(''), isEmpty);
+    });
+  });
 }

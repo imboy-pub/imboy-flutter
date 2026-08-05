@@ -61,7 +61,9 @@ void main() {
     size: 2048,
     width: 640,
     height: 480,
-    duration: 12.0,
+    // MediaInfo.duration 的单位是**毫秒**（真机实证：3154 → 气泡 00:03）。
+    // 此前 fixture 按"秒"写并断言 ×1000，把 BUG#67 钉成了"预期行为"。
+    duration: 12000.0,
   );
 
   setUp(() {
@@ -98,7 +100,7 @@ void main() {
         expect(md?['peer_id'], peerId);
         expect(md?['file_hash256'], 'video-md5');
         expect(md?['thumb'], thumb.toJson());
-        expect(md?['duration_ms'], (12.0 * 1000).round());
+        expect(md?['duration_ms'], 12000);
       },
     );
 

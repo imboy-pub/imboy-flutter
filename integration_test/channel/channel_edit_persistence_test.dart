@@ -14,6 +14,7 @@ void main() {
 
       await ensureAppLaunched(tester, maxSeconds: 3);
       await checkPreconditions(tester);
+      requireChannelWriteAuthorization();
       await settle(tester, maxSeconds: 2);
 
       if (!await _openChannelTab(tester)) {

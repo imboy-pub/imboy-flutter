@@ -70,6 +70,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   // 点赞本地增量：add 成功 +1 / remove 成功 -1，叠加在 reactionSummary 汇总上，
   // 让底栏计数即时反映操作（后端消息列表不会随点赞实时刷新）。
   int _likeDelta = 0;
+  bool _likeActionBusy = false;
   // 双击点赞浮层动画
   late AnimationController _likeAnimController;
 
@@ -109,7 +110,13 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   }
 
   Future<void> _addReaction(String reactionType) async {
-    if (reactionType == ChannelReactionType.like) {
+    final isLike = reactionType == ChannelReactionType.like;
+    if (isLike && _likeActionBusy) return;
+
+    final previousLiked = _liked;
+    final previousDelta = _likeDelta;
+    if (isLike) {
+      _likeActionBusy = true;
       setState(() {
         _liked = true;
         _likeDelta += 1;
@@ -117,15 +124,16 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       widget.onReactionChanged?.call();
     }
 
-    final channelService = ref.read(channelServiceProvider);
-    final success = await channelService.addReaction(
-      channelId: widget.channelId,
-      messageId: widget.message.id.toString(),
-      reactionType: reactionType,
-    );
+    try {
+      final channelService = ref.read(channelServiceProvider);
+      final success = await channelService.addReaction(
+        channelId: widget.channelId,
+        messageId: widget.message.id.toString(),
+        reactionType: reactionType,
+      );
 
-    if (success) {
-      if (reactionType == ChannelReactionType.like) {
+      if (!mounted) return;
+      if (success && isLike) {
         final totalLikes =
             widget.message.reactionSummary?[ChannelReactionType.like] ?? 0;
         ref
@@ -135,23 +143,40 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               _liked,
               totalLikes + _likeDelta,
             );
-      }
-    } else {
-      if (mounted) {
+      } else if (!success && isLike) {
         setState(() {
-          if (reactionType == ChannelReactionType.like) {
-            _liked = false;
-            _likeDelta -= 1;
-          }
+          _liked = previousLiked;
+          _likeDelta = previousDelta;
         });
         widget.onReactionChanged?.call();
         AppLoading.showToast(t.common.operationFailedAgainLater);
+      }
+    } catch (_) {
+      if (mounted && isLike) {
+        setState(() {
+          _liked = previousLiked;
+          _likeDelta = previousDelta;
+        });
+        widget.onReactionChanged?.call();
+        AppLoading.showToast(t.common.operationFailedAgainLater);
+      }
+    } finally {
+      if (isLike && mounted) {
+        setState(() => _likeActionBusy = false);
+      } else if (isLike) {
+        _likeActionBusy = false;
       }
     }
   }
 
   Future<void> _removeReaction(String reactionType) async {
-    if (reactionType == ChannelReactionType.like) {
+    final isLike = reactionType == ChannelReactionType.like;
+    if (isLike && _likeActionBusy) return;
+
+    final previousLiked = _liked;
+    final previousDelta = _likeDelta;
+    if (isLike) {
+      _likeActionBusy = true;
       setState(() {
         _liked = false;
         _likeDelta -= 1;
@@ -159,15 +184,16 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       widget.onReactionChanged?.call();
     }
 
-    final channelService = ref.read(channelServiceProvider);
-    final success = await channelService.removeReaction(
-      channelId: widget.channelId,
-      messageId: widget.message.id.toString(),
-      reactionType: reactionType,
-    );
+    try {
+      final channelService = ref.read(channelServiceProvider);
+      final success = await channelService.removeReaction(
+        channelId: widget.channelId,
+        messageId: widget.message.id.toString(),
+        reactionType: reactionType,
+      );
 
-    if (success) {
-      if (reactionType == ChannelReactionType.like) {
+      if (!mounted) return;
+      if (success && isLike) {
         final totalLikes =
             widget.message.reactionSummary?[ChannelReactionType.like] ?? 0;
         ref
@@ -177,17 +203,28 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               _liked,
               totalLikes + _likeDelta,
             );
-      }
-    } else {
-      if (mounted) {
+      } else if (!success && isLike) {
         setState(() {
-          if (reactionType == ChannelReactionType.like) {
-            _liked = true;
-            _likeDelta += 1;
-          }
+          _liked = previousLiked;
+          _likeDelta = previousDelta;
         });
         widget.onReactionChanged?.call();
         AppLoading.showToast(t.common.operationFailedAgainLater);
+      }
+    } catch (_) {
+      if (mounted && isLike) {
+        setState(() {
+          _liked = previousLiked;
+          _likeDelta = previousDelta;
+        });
+        widget.onReactionChanged?.call();
+        AppLoading.showToast(t.common.operationFailedAgainLater);
+      }
+    } finally {
+      if (isLike && mounted) {
+        setState(() => _likeActionBusy = false);
+      } else if (isLike) {
+        _likeActionBusy = false;
       }
     }
   }
@@ -800,6 +837,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                 : t.channel.like,
             color: _liked ? AppColors.primary : secondaryColor,
             onTap: _toggleLike,
+            isLoading: _likeActionBusy,
             semanticsLabel: totalReactions > 0
                 ? '${t.channel.like}: $totalReactions'
                 : t.channel.like,
@@ -837,6 +875,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     required String label,
     required Color color,
     required VoidCallback onTap,
+    bool isLoading = false,
     VoidCallback? onLongPress,
     String? semanticsLabel,
   }) {
@@ -854,7 +893,17 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
             child: Row(
               children: [
-                Icon(icon, size: 16, color: color),
+                if (isLoading)
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: color,
+                    ),
+                  )
+                else
+                  Icon(icon, size: 16, color: color),
                 const SizedBox(width: 4),
                 Text(
                   label,

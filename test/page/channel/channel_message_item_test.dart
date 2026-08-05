@@ -39,17 +39,26 @@ ChannelMessageModel _message({
   viewCount: 42,
 );
 
-Widget _wrap(ChannelMessageModel message) => TranslationProvider(
-  child: ProviderScope(
-    child: MaterialApp(
-      home: Scaffold(
-        body: ListView(
-          children: [ChannelMessageItem(message: message, channelId: '1001')],
+Widget _wrap(
+  ChannelMessageModel message, {
+  ThemeData? theme,
+  MediaQueryData? mediaQuery,
+}) {
+  final app = TranslationProvider(
+    child: ProviderScope(
+      child: MaterialApp(
+        theme: theme,
+        home: Scaffold(
+          body: ListView(
+            children: [ChannelMessageItem(message: message, channelId: '1001')],
+          ),
         ),
       ),
     ),
-  ),
-);
+  );
+  if (mediaQuery == null) return app;
+  return MediaQuery(data: mediaQuery, child: app);
+}
 
 void main() {
   testWidgets('imageText 卡：标题+摘要拆分、九宫格预览、长正文不内联全文', (tester) async {
@@ -156,5 +165,31 @@ void main() {
 
     expect(find.text('短短一句'), findsOneWidget);
     expect(find.text(t.channel.readFull), findsNothing);
+  });
+
+  testWidgets('暗色大字号下 feed 操作暴露统一读屏语义', (tester) async {
+    final semanticsHandle = tester.ensureSemantics();
+
+    await tester.pumpWidget(
+      _wrap(
+        _message(content: '可读的频道短文', msgType: ChannelMessageType.text),
+        theme: ThemeData.dark(useMaterial3: true),
+        mediaQuery: MediaQueryData(textScaler: TextScaler.linear(1.6)),
+      ),
+    );
+    await tester.pump();
+
+    bool hasExplicitLabel(String label) => find
+        .byWidgetPredicate(
+          (widget) => widget is Semantics && widget.properties.label == label,
+        )
+        .evaluate()
+        .isNotEmpty;
+
+    expect(hasExplicitLabel(t.channel.like), isTrue);
+    expect(hasExplicitLabel(t.channel.comment), isTrue);
+    expect(hasExplicitLabel(t.channel.share), isTrue);
+    expect(tester.takeException(), isNull);
+    semanticsHandle.dispose();
   });
 }

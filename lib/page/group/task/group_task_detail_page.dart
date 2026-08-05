@@ -175,12 +175,8 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
             label: context.t.groupTask.deadline,
             value: _formatDeadline(_task!['deadline']),
           ),
-          _InfoLine(
-            label: context.t.groupTask.taskId,
-            value: _toText(_task!['task_id']).isEmpty
-                ? widget.taskId
-                : _toText(_task!['task_id']),
-          ),
+          // 不展示 task_id：那是内部标识（形如 task.5yPMVuT6W5P03.c），
+          // 对用户没有任何意义，只会让详情页看起来像调试面板。
           _InfoLine(
             label: context.t.groupTask.pendingReview,
             value: _pendingReviewCount.toString(),

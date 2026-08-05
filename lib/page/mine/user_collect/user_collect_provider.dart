@@ -1275,9 +1275,13 @@ class UserCollectNotifier extends _$UserCollectNotifier {
 
   void updateItem(UserCollectModel item) {
     final index = state.items.indexWhere((e) => e.kindId == item.kindId);
-    if (index > -1) {
-      state.items.setRange(index, index + 1, [item]);
-    }
+    if (index < 0) return;
+    // 原先是 state.items.setRange(...)：就地改同一个 List 实例，state 引用没变，
+    // Riverpod 据此判定"无变化"，一个监听者都不会收到通知 ——
+    // 于是改完标签/备注，列表和详情页全都还是旧值。
+    final next = List<UserCollectModel>.from(state.items);
+    next[index] = item;
+    state = state.copyWith(items: next);
   }
 
   /// Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片

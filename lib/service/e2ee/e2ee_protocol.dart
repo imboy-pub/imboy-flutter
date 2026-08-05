@@ -237,6 +237,10 @@ class E2eeProtocolRegistry {
   static List<ProtocolSuite> all() =>
       _byProtocol.values.map((p) => p.suite).toList(growable: false);
 
+  /// 已注册的协议实现（只读）。供 [E2eeBootstrap.ensureReady] 逐个初始化。
+  static List<E2eeSessionProtocol> registered() =>
+      _byProtocol.values.toList(growable: false);
+
   /// 清空注册表（仅测试用：隔离用例间的全局状态）。
   static void resetForTest() => _byProtocol.clear();
 }

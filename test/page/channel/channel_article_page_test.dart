@@ -48,6 +48,24 @@ Widget _buildTestApp(ChannelService service, ChannelMessageModel? message) {
   );
 }
 
+Widget _buildAccessibleTestApp(
+  ChannelService service,
+  ChannelMessageModel message,
+) {
+  return MediaQuery(
+    data: MediaQueryData(textScaler: TextScaler.linear(1.6)),
+    child: TranslationProvider(
+      child: ProviderScope(
+        overrides: [channelServiceProvider.overrideWithValue(service)],
+        child: MaterialApp(
+          theme: ThemeData.dark(useMaterial3: true),
+          home: ChannelArticlePage(channelId: '1001', message: message),
+        ),
+      ),
+    ),
+  );
+}
+
 void main() {
   late _MockChannelService service;
 
@@ -135,5 +153,27 @@ void main() {
       ),
     );
     expect(find.text(t.common.loadError), findsOneWidget);
+  });
+
+  testWidgets('暗色大字号下阅读页操作与 feed 使用统一读屏语义', (tester) async {
+    final semanticsHandle = tester.ensureSemantics();
+
+    await tester.pumpWidget(
+      _buildAccessibleTestApp(service, _fakeMessage(content: '正文内容')),
+    );
+    await tester.pumpAndSettle();
+
+    bool hasExplicitLabel(String label) => find
+        .byWidgetPredicate(
+          (widget) => widget is Semantics && widget.properties.label == label,
+        )
+        .evaluate()
+        .isNotEmpty;
+
+    expect(hasExplicitLabel(t.channel.like), isTrue);
+    expect(hasExplicitLabel(t.channel.comment), isTrue);
+    expect(hasExplicitLabel(t.channel.share), isTrue);
+    expect(tester.takeException(), isNull);
+    semanticsHandle.dispose();
   });
 }

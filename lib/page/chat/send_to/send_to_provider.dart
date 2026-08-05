@@ -5,6 +5,7 @@ import 'package:xid/xid.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -55,18 +56,51 @@ class SendToNotifier extends Notifier<SendToState> {
     );
   }
 
+  /// 构造转发消息的 payload。
+  ///
+  /// 源消息 metadata 必须**先**展开、再被目标会话字段覆盖。反过来（原实现把
+  /// `...metadata` 放在最后）会让源会话的 `peer_id` / `conversation_uk3`
+  /// 盖掉目标值 —— 真机实测：从群里转发到单聊，发出的 payload 仍带
+  /// `peer_id: <群 gid>` 与 `conversation_uk3: C2G_...`，消息归属错乱。
+  @visibleForTesting
+  static Map<String, dynamic> buildForwardPayload({
+    required Map<String, dynamic>? sourceMetadata,
+    required String text,
+    required int peerId,
+    required String conversationUk3,
+  }) {
+    return <String, dynamic>{
+      ...?sourceMetadata,
+      'text': text,
+      'peer_id': peerId,
+      'conversation_uk3': conversationUk3,
+    };
+  }
+
+  /// 推导转发消息的顶层 msg_type。
+  ///
+  /// 顶层 msg_type 为空时服务端直接回 `action=invalid_message`，客户端
+  /// `toTypeMessage` 也判为「msg_type 为空或无效」→ 消息显示「[无效消息类型]」
+  /// 并进入无限重试（真机实测每 5~10s 重发一次，服务端每次都拒）。
+  @visibleForTesting
+  static String resolveForwardMsgType(Map<String, dynamic>? sourceMetadata) {
+    final raw = parseModelString(sourceMetadata?['msg_type']);
+    return raw.isEmpty ? 'text' : raw;
+  }
+
   /// 发送消息
   Future<bool> sendMsg(ConversationModel conversation, Message msg) async {
     try {
-      // 构造 payload
-      final payload = <String, dynamic>{
-        'text': msg is TextMessage ? msg.text : '',
-        'peer_id': conversation.peerId,
-        if (msg.metadata != null) ...msg.metadata!,
-      };
-
       // 获取并归一化会话类型，历史脏值统一按 C2C 处理
       final chatType = _normalizeConversationType(conversation.type);
+
+      final payload = buildForwardPayload(
+        sourceMetadata: msg.metadata,
+        text: msg is TextMessage ? msg.text : '',
+        peerId: conversation.peerId,
+        conversationUk3: conversation.uk3,
+      );
+      final msgType = resolveForwardMsgType(msg.metadata);
 
       // 创建 MessageModel
       final msgModel = MessageModel(
@@ -80,6 +114,7 @@ class SendToNotifier extends Notifier<SendToState> {
         createdAt: DateTimeHelper.millisecond(),
         isAuthor: 1,
         conversationUk3: conversation.uk3,
+        msgType: msgType,
       );
 
       // 添加消息到数据库

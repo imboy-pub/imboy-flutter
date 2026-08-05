@@ -13,6 +13,7 @@ void main() {
     testWidgets('向已有频道发布文本消息', (tester) async {
       await ensureAppLaunched(tester, maxSeconds: 3);
       await checkPreconditions(tester);
+      requireChannelWriteAuthorization();
       await settle(tester, maxSeconds: 2);
 
       if (!await _openChannelTab(tester)) {

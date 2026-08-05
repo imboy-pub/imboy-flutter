@@ -12,6 +12,7 @@ import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/video/video_controller.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -115,60 +116,13 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
     }
   }
 
-  Widget buildBackButton(BuildContext context) {
-    return Semantics(
-      sortKey: const OrdinalSortKey(0),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          padding: EdgeInsets.zero,
-          constraints: BoxConstraints.tight(Size.square(28)),
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          iconSize: 18,
-          icon: Container(
-            padding: const EdgeInsets.all(5),
-            decoration: const BoxDecoration(
-              // 视频上方播放控件固定配色，不随主题切换
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.keyboard_return_rounded,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildPlayControlButton(BuildContext context) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: isPlaying,
-      builder: (_, bool value, Widget? child) => GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: playButtonCallback,
-        child: Center(
-          child: AnimatedOpacity(
-            duration: kThemeAnimationDuration,
-            opacity: value ? 0 : 1,
-            child: const DecoratedBox(
-              decoration: BoxDecoration(
-                boxShadow: [BoxShadow(color: Colors.black12)],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.play_circle_filled,
-                size: 70,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // 注：原先这里有 buildBackButton() / buildPlayControlButton() 两个方法，
+  // 定义了却从未被 build 引用（死代码）。已删除。
+  // ⚠️ 不要再把它们加回来 —— 控制层由 buildVideo 内层的
+  // VideoControllerOverlay 提供（自带播放/暂停、进度条、时长、全屏、返回），
+  // 加回来只会得到**第二套**返回键和播放按钮。
+  // BUG#75「视频页只剩一个返回键」的真因是该 overlay 在 loose 约束下
+  // 坍缩成 0×0（见 video_controller.dart 的 BUG#68 注释），与这两个方法无关。
 
   Widget buildVideo(BuildContext context) {
     return MergeSemantics(
@@ -274,18 +228,17 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
 
     return Material(
       // 视频播放器全屏衬底固定黑色，与亮/暗主题无关
-      color: Colors.black,
+      color: AppColors.mediaScrimBlack,
       child: Stack(
         fit: StackFit.expand,
-        children: [
-          buildVideo(context),
-          // BUG#75：这两个 builder 定义了却从没被加进 Stack —— 整页因此
-          // 只剩一个返回键，没有播放/暂停、没有进度条、没有中央播放图标。
-          // 之前三轮都在猜「控制层坍缩 / duration 为 0 / 页面身份不对」，
-          // 实际是 build 的已加载分支压根没引用它们。
-          buildPlayControlButton(context),
-          Align(alignment: Alignment.topLeft, child: buildBackButton(context)),
-        ],
+        // 控制层由 buildVideo 内层的 VideoControllerOverlay 提供（见 :189），
+        // 它自带播放/暂停、进度条、时长、全屏与返回。
+        // ⚠️ 不要再往这里挂 buildPlayControlButton / buildBackButton ——
+        // 那两个确实是死代码，但把它们加回来会得到**第二套**返回键和播放按钮。
+        // BUG#75「视频页只剩一个返回键」的真因是 VideoControllerOverlay 在
+        // loose 约束下坍缩成 0×0（见 video_controller.dart 的 BUG#68 注释），
+        // 已由 SizedBox.expand 修掉，与这两个 builder 无关。
+        children: [buildVideo(context)],
       ),
     );
   }

@@ -315,7 +315,7 @@ class E2EEService {
     //
     // aad 经 metadata 瞬态键透传：ADR 02 §2.1 冻结的 decrypt 接口无 aad 参数，
     // 仅 RsaLegacyProtocol 读取 metadata['aad']；Olm/Megolm 忽略。
-    E2eeBootstrap.ensureRegistered();
+    await E2eeBootstrap.ensureReady();
     final metadata = (aad != null && aad.isNotEmpty)
         ? <String, dynamic>{...e2ee, 'aad': aad}
         : e2ee;

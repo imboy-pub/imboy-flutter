@@ -387,21 +387,27 @@ class _TagInputState extends State<TagInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 当前标签显示
-        if (_currentTags.isNotEmpty) ...[
-          _buildCurrentTags(),
-          AppSpacing.verticalRegular,
+    // 调用方（tag_relation_page）把本组件塞在 Expanded 里，拿到的是 tight 高度。
+    // 键盘弹起后这个高度骤减，而已选标签 + 输入框 + 建议列表是会长高的 ——
+    // 真机实测：输入标签时输入框直接 `BOTTOM OVERFLOWED BY 24 PIXELS`，
+    // 黄黑条纹糊在文字上。内容超出时改为滚动。
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 当前标签显示
+          if (_currentTags.isNotEmpty) ...[
+            _buildCurrentTags(),
+            AppSpacing.verticalRegular,
+          ],
+
+          // 输入框
+          _buildInputField(),
+
+          // 建议标签
+          _buildSuggestions(),
         ],
-
-        // 输入框
-        _buildInputField(),
-
-        // 建议标签
-        _buildSuggestions(),
-      ],
+      ),
     );
   }
 }

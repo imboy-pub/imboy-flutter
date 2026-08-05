@@ -403,6 +403,8 @@ class ChatAttachmentHandler {
         );
       } on Object catch (e) {
         debugPrint('[attachment_handler] handleImageUploadPresign error: $e');
+        // 静默 catch 会让用户以为"点了确认什么都没发生"，必须给可见反馈
+        AppLoading.showError(t.common.uploadFailed);
       }
     } else if (entity.type == AssetType.video) {
       // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
@@ -421,6 +423,8 @@ class ChatAttachmentHandler {
         await handleVideoUpload(resp, messageId: messageId, seal: seal);
       } on Object catch (e) {
         debugPrint('[attachment_handler] handleVideoUpload error: $e');
+        // 同上：视频压缩/上传失败此前完全无提示（BUG#65）
+        AppLoading.showError(t.common.uploadFailed);
       }
     }
     // 上传后删除临时文件
@@ -488,8 +492,10 @@ class ChatAttachmentHandler {
           'peer_id': peerId,
           'file_hash256': video.fileHash256,
           'thumb': thumb,
-          if (video.duration != null)
-            'duration_ms': (video.duration! * 1000).round(),
+          // MediaInfo.duration 本身就是**毫秒**，此前又乘了一次 1000，
+          // 3 秒的视频会显示成 52:34（BUG#67）。此前视频压根发不出去
+          // （BUG#64），所以这个错误一直没暴露。
+          if (video.duration != null) 'duration_ms': video.duration!.round(),
         }, seal),
       ),
     );
@@ -634,6 +640,8 @@ class ChatAttachmentHandler {
         );
       } on Object catch (e) {
         debugPrint('[attachment_handler] handleImageUploadPresign error: $e');
+        // 静默 catch 会让用户以为"点了确认什么都没发生"，必须给可见反馈
+        AppLoading.showError(t.common.uploadFailed);
       }
     } else if (entity.type == AssetType.video) {
       // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
@@ -652,6 +660,7 @@ class ChatAttachmentHandler {
         await handleSelectedVideoUpload(resp, messageId: messageId, seal: seal);
       } on Object catch (e) {
         debugPrint('[attachment_handler] handleSelectedVideoUpload error: $e');
+        AppLoading.showError(t.common.uploadFailed);
       }
     }
   }
@@ -684,8 +693,10 @@ class ChatAttachmentHandler {
           'peer_id': peerId,
           'file_hash256': video.fileHash256,
           'thumb': thumb,
-          if (video.duration != null)
-            'duration_ms': (video.duration! * 1000).round(),
+          // MediaInfo.duration 本身就是**毫秒**，此前又乘了一次 1000，
+          // 3 秒的视频会显示成 52:34（BUG#67）。此前视频压根发不出去
+          // （BUG#64），所以这个错误一直没暴露。
+          if (video.duration != null) 'duration_ms': video.duration!.round(),
         }, seal),
       ),
     );

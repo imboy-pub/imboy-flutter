@@ -68,6 +68,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   bool _contentFocused = false;
 
   final List<AssetEntity> _images = [];
+  BatchUploadController<_ImageUpload>? _imageUploadController;
 
   /// 用户显式标记的封面图；null 时默认取第一张（见 [_effectiveCover]）。
   /// 用对象引用而非下标追踪，避免删图后下标错位。
@@ -90,6 +91,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
 
   @override
   void dispose() {
+    _imageUploadController?.dispose();
     _persistDraftOnExit();
     _contentFocusNode.removeListener(_onContentFocusChanged);
     _contentFocusNode.dispose();
@@ -105,6 +107,11 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   }
 
   String get _draftKey => 'channel_compose_draft_${widget.channelId}';
+
+  void _discardPendingImageUpload() {
+    _imageUploadController?.dispose();
+    _imageUploadController = null;
+  }
 
   bool get _hasContent =>
       _titleController.text.trim().isNotEmpty ||
@@ -171,6 +178,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
       ),
     );
     if (assets == null || assets.isEmpty || !mounted) return;
+    _discardPendingImageUpload();
     setState(() => _images.addAll(assets));
   }
 
@@ -221,34 +229,42 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
       // 上传失败：保留已选图供用户重试（再次点发布），不落库半成品。
       if (images == null) return;
 
-      final title = _titleController.text.trim();
-      final coverUri = _resolveCoverUri(images);
-      // 向后兼容：title/cover 仅在非空时写入，旧渲染路径（无这两字段）不受影响。
-      final payload = <String, dynamic>{
-        'images': images,
-        if (title.isNotEmpty) 'title': title,
-        'cover': ?coverUri,
-      };
-
-      final ok = await ref
-          .read(channelDetailProvider.notifier)
-          .publishMessage(
-            content: _contentController.text.trim(),
-            msgType: ChannelMessageType.imageText,
-            payload: payload,
-          );
-      if (!mounted) return;
-      if (ok) {
-        _published = true;
-        unawaited(StorageService.to.remove(_draftKey));
-        unawaited(HapticFeedback.lightImpact());
-        AppLoading.showSuccess(t.common.tipSuccess);
-        context.pop();
-      } else {
-        AppLoading.showError(t.channel.publishFailed);
-      }
+      await _publishUploadedImages(images, t);
     } finally {
       if (mounted) setState(() => _isPublishing = false);
+    }
+  }
+
+  Future<void> _publishUploadedImages(
+    List<Map<String, dynamic>> images,
+    Translations t,
+  ) async {
+    final title = _titleController.text.trim();
+    final coverUri = _resolveCoverUri(images);
+    // 向后兼容：title/cover 仅在非空时写入，旧渲染路径（无这两字段）不受影响。
+    final payload = <String, dynamic>{
+      'images': images,
+      if (title.isNotEmpty) 'title': title,
+      'cover': ?coverUri,
+    };
+
+    final ok = await ref
+        .read(channelDetailProvider.notifier)
+        .publishMessage(
+          content: _contentController.text.trim(),
+          msgType: ChannelMessageType.imageText,
+          payload: payload,
+        );
+    if (!mounted) return;
+    if (ok) {
+      _published = true;
+      _discardPendingImageUpload();
+      unawaited(StorageService.to.remove(_draftKey));
+      unawaited(HapticFeedback.lightImpact());
+      AppLoading.showSuccess(t.common.tipSuccess);
+      context.pop();
+    } else {
+      AppLoading.showError(t.channel.publishFailed);
     }
   }
 
@@ -257,10 +273,11 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   Future<List<Map<String, dynamic>>?> _uploadAllImages(Translations t) async {
     if (_images.isEmpty) return const [];
 
-    final controller = BatchUploadController<_ImageUpload>(
-      uploader: _uploadImage,
-      concurrency: _uploadConcurrency,
-    );
+    final controller = _imageUploadController ??=
+        BatchUploadController<_ImageUpload>(
+          uploader: _uploadImage,
+          concurrency: _uploadConcurrency,
+        );
     void onProgress() {
       final total = controller.length;
       if (total == 0) return;
@@ -279,7 +296,11 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
         0,
         status: '${t.common.uploading} 0/${_images.length}',
       );
-      await controller.addAndUpload(_images);
+      if (controller.items.isEmpty) {
+        await controller.addAndUpload(_images);
+      } else {
+        await controller.retryFailed();
+      }
     } finally {
       controller.removeListener(onProgress);
       AppLoading.dismiss();
@@ -289,12 +310,57 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     final failed = controller.items.where((i) => i.isFailed).length;
     if (failed > 0) {
       AppLoading.showError(t.common.uploadPartialFailed(count: failed));
+      _showImageUploadRetry(controller, failed, t);
       return null;
     }
     // results 按加入顺序返回，与 _images 顺序一致。
     return [
       for (final r in controller.results) {'uri': r.uri, 'w': r.w, 'h': r.h},
     ];
+  }
+
+  void _showImageUploadRetry(
+    BatchUploadController<_ImageUpload> controller,
+    int failed,
+    Translations t,
+  ) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(t.common.uploadPartialFailed(count: failed)),
+        action: SnackBarAction(
+          label: t.common.buttonRetry,
+          onPressed: () => unawaited(_retryImageUpload(controller, t)),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _retryImageUpload(
+    BatchUploadController<_ImageUpload> controller,
+    Translations t,
+  ) async {
+    if (!mounted ||
+        _isPublishing ||
+        !identical(_imageUploadController, controller)) {
+      return;
+    }
+    setState(() => _isPublishing = true);
+    try {
+      await controller.retryFailed();
+      if (!mounted) return;
+      final failed = controller.items.where((i) => i.isFailed).length;
+      if (failed > 0) {
+        _showImageUploadRetry(controller, failed, t);
+        return;
+      }
+      final images = [
+        for (final r in controller.results) {'uri': r.uri, 'w': r.w, 'h': r.h},
+      ];
+      await _publishUploadedImages(images, t);
+    } finally {
+      if (mounted) setState(() => _isPublishing = false);
+    }
   }
 
   /// 封面 uri：默认第一张，用户显式标记则用之；无图返回 null。
@@ -334,6 +400,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   }
 
   void _removeImage(int index) {
+    _discardPendingImageUpload();
     setState(() {
       final removed = _images.removeAt(index);
       // 移除的正是显式封面 → 清空标记，回退默认第一张。

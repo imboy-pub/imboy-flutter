@@ -293,4 +293,42 @@ void main() {
       await _unmount(tester);
     });
   });
+
+  // 顺序契约：onClose 必须先于动作执行。
+  // 反过来时，onClose 里的 Navigator.pop() 会弹掉动作刚 push 的路由 ——
+  // 真机实测：点「转发」，SendToPage 被自己的 onClose 关掉，菜单反而留在原地，
+  // 用户看到的是"转发按钮完全没反应"。
+  group('回调顺序（onClose 先于动作）', () {
+    testWidgets('转发：onClose 在 onForward 之前触发', (tester) async {
+      final calls = <String>[];
+      await _pump(
+        tester,
+        isSentByMe: true,
+        onForward: () => calls.add('forward'),
+        onClose: () => calls.add('close'),
+      );
+
+      await tester.tap(find.text('转发'));
+      await tester.pump();
+
+      expect(calls, ['close', 'forward']);
+      await _unmount(tester);
+    });
+
+    testWidgets('复制：同样遵循 close-first', (tester) async {
+      final calls = <String>[];
+      await _pump(
+        tester,
+        isSentByMe: true,
+        onCopy: () => calls.add('copy'),
+        onClose: () => calls.add('close'),
+      );
+
+      await tester.tap(find.text('复制'));
+      await tester.pump();
+
+      expect(calls, ['close', 'copy']);
+      await _unmount(tester);
+    });
+  });
 }

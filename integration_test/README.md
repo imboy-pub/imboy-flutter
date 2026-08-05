@@ -56,9 +56,12 @@ flutter test integration_test/app_test.dart -d <device> --dart-define=APP_ENV=lo
 flutter test integration_test/chat/conversation_test.dart ...
 flutter test integration_test/chat/group_chat_test.dart ...
 flutter test integration_test/e2e_chat_test.dart ...
-flutter test integration_test/channel/channel_e2e_test.dart ...
-flutter test integration_test/channel/channel_publish_test.dart ...
-flutter test integration_test/channel/channel_edit_persistence_test.dart ...
+flutter test integration_test/channel/channel_e2e_test.dart ... \
+  --dart-define=TEST_ALLOW_CHANNEL_WRITES=true
+flutter test integration_test/channel/channel_publish_test.dart ... \
+  --dart-define=TEST_ALLOW_CHANNEL_WRITES=true
+flutter test integration_test/channel/channel_edit_persistence_test.dart ... \
+  --dart-define=TEST_ALLOW_CHANNEL_WRITES=true
 flutter test integration_test/channel/channel_subscribed_detail_consistency_test.dart ...
 flutter test integration_test/contact/friend_management_test.dart ...
 flutter test integration_test/contact/add_friend_request_test.dart --dart-define=TEST_SEARCH_KEYWORD=<uid> ...
@@ -78,6 +81,7 @@ flutter test integration_test/auth/password_change_test.dart \
 | 未配置凭证 | `markTestSkipped` | SKIP |
 | 登录失败 | `markTestSkipped` | SKIP |
 | 数据为空 | `markTestSkipped` | SKIP |
+| 频道写入未显式授权 | `markTestSkipped` | SKIP |
 | 断言失败 | `fail` / `expect` | FAIL（真实失败） |
 
 > **禁止**：`if (!ok) { return; }` 裸返回——使测试假绿，CI 无法发现问题。
@@ -87,6 +91,10 @@ flutter test integration_test/auth/password_change_test.dart \
 ## 共享工具库
 
 `integration_test/flows/test_utils.dart`
+
+频道创建、发布和编辑测试还要求 `TEST_ALLOW_CHANNEL_WRITES=true`，并且必须显式
+设置 `API_BASE_URL` 或非生产 `APP_ENV`。这些条件独立于账号凭证，是避免 E2E
+命令误写目标环境的安全闸门；只读的频道详情一致性测试不需要此开关。
 
 | 函数 | 用途 |
 |------|------|
@@ -120,4 +128,3 @@ flutter test integration_test/auth/password_change_test.dart \
 | `tab_contacts` | 联系人 | 索引 1 |
 | `tab_channel` | 频道 | 索引 2，功能开关控制 |
 | `tab_mine` | 我 | 最后索引 |
-

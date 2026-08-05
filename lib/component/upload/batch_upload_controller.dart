@@ -188,7 +188,14 @@ class BatchUploadController<T> extends ChangeNotifier {
       return;
     }
     _setById(id, (item) => item._to(UploadItemStatus.uploading));
-    final result = await run();
+    T? result;
+    try {
+      result = await run();
+    } catch (_) {
+      // 上传器可能抛出网络、文件读取或平台异常；统一转为可重试的
+      // failed 状态，不能让批次停在 uploading 或中断其他项目。
+      result = null;
+    }
     _setById(
       id,
       (item) => result == null

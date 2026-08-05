@@ -6,12 +6,19 @@
 /// 本端列表会立即对齐，不依赖用户手动下拉。
 library;
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:mocktail/mocktail.dart';
+
+class _MockChannelApi extends Mock implements ChannelApi {}
 
 ChannelModel _channel(int id, String name) => ChannelModel(
   id: id,
@@ -110,5 +117,39 @@ void main() {
       final state = container.read(channelListProvider);
       expect(state.channels.map((c) => c.id), [1001, 1002]);
     });
+  });
+
+  test('并发订阅列表刷新复用同一个 in-flight 请求', () async {
+    final api = _MockChannelApi();
+    final gate = Completer<ChannelPageResult<ChannelModel>>();
+    when(
+      () => api.getSubscribedChannelsPage(
+        cursor: any(named: 'cursor'),
+        limit: any(named: 'limit'),
+      ),
+    ).thenAnswer((_) => gate.future);
+
+    final container = ProviderContainer(
+      overrides: [channelApiProvider.overrideWithValue(api)],
+    );
+    addTearDown(container.dispose);
+    container.listen(channelListProvider, (_, _) {});
+    final notifier = container.read(channelListProvider.notifier);
+
+    final first = notifier.loadSubscribedChannels();
+    final second = notifier.loadSubscribedChannels();
+    expect(identical(first, second), isTrue);
+    verify(
+      () => api.getSubscribedChannelsPage(cursor: null, limit: 50),
+    ).called(1);
+
+    gate.complete(
+      const ChannelPageResult<ChannelModel>(
+        list: [],
+        nextCursor: null,
+        hasMore: false,
+      ),
+    );
+    await Future.wait([first, second]);
   });
 }

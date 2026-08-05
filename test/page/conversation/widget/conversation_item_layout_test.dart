@@ -37,6 +37,7 @@ ConversationModel _model() => ConversationModel(
 );
 
 void main() {
+  _titleFallbackTests();
   Future<void> pump(WidgetTester tester) async {
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = const Size(390, 844);
@@ -140,5 +141,83 @@ void main() {
       isEmpty,
       reason: '会话行按下触发了触感反馈',
     );
+  });
+}
+
+/// BUG#4 家族：标题缺失时**绝不**回退到内部 ID。
+///
+/// 真机实测（批次 12/13）：群会话在消息列表里标题渲染成
+/// `104603643803863040`，140% 字号下被截断成 `10460364380380…`——
+/// 一串对用户毫无意义的数字，两个不同的群还长得一样。
+///
+/// §十七 给 GroupModel.displayTitle 定过同一条约定，这里把它钉到会话行上。
+/// 反向验证过：把末档改回 `peerId.toString()` → 本用例立刻红。
+void _titleFallbackTests() {
+  ConversationModel namelessGroup() => ConversationModel(
+    id: 2,
+    peerId: 104603643803863040,
+    type: 'C2G',
+    msgType: 'text',
+    title: '', // 无名群：服务端与本地都没有可用群名
+    subtitle: 'hi',
+    avatar: '',
+    sign: '',
+    lastTime: 0,
+    unreadNum: 0,
+  );
+
+  testWidgets('标题为空的群会话显示「未命名」，不显示 gid', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: TranslationProvider(
+          child: MaterialApp(
+            home: Scaffold(
+              body: ConversationItem(model: namelessGroup(), onTapAvatar: null),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(
+      find.text('104603643803863040'),
+      findsNothing,
+      reason: '内部 TSID 不允许出现在会话列表标题上',
+    );
+    expect(find.text(t.main.unnamed), findsOneWidget);
+  });
+
+  testWidgets('存量脏值：title 里存的就是 gid，也必须显示「未命名」', (WidgetTester tester) async {
+    // 修复前 _getGroupTitle 缺名时 return peerId，并被持久化进 title。
+    // 这类值"非空"，纯兜底链救不回来——读时必须显式判定为缺失。
+    final dirty = ConversationModel(
+      id: 3,
+      peerId: 104603643803863040,
+      type: 'C2G',
+      msgType: 'text',
+      title: '104603643803863040',
+      subtitle: 'hi',
+      avatar: '',
+      sign: '',
+      lastTime: 0,
+      unreadNum: 0,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: TranslationProvider(
+          child: MaterialApp(
+            home: Scaffold(
+              body: ConversationItem(model: dirty, onTapAvatar: null),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('104603643803863040'), findsNothing);
+    expect(find.text(t.main.unnamed), findsOneWidget);
   });
 }

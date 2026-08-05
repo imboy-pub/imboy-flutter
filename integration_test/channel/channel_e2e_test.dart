@@ -32,6 +32,7 @@ void main() {
       await takeScreenshot(tester, 'channel_01_launch');
 
       await checkPreconditions(tester);
+      requireChannelWriteAuthorization();
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'channel_02_after_login');
@@ -126,6 +127,7 @@ void main() {
       await takeScreenshot(tester, 'channel_create_01_launch');
 
       await checkPreconditions(tester);
+      requireChannelWriteAuthorization();
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'channel_create_02_after_login');

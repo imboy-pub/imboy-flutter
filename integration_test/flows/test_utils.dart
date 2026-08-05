@@ -24,6 +24,9 @@ import 'package:integration_test/integration_test.dart';
 class FlowConfig {
   FlowConfig._();
 
+  static String get appEnv =>
+      const String.fromEnvironment('APP_ENV', defaultValue: '').trim();
+
   static String get testPhone =>
       const String.fromEnvironment('TEST_PHONE', defaultValue: '');
 
@@ -40,6 +43,23 @@ class FlowConfig {
       testPhone.isNotEmpty && (testPassword.isNotEmpty || testCode.isNotEmpty);
 
   static bool get hasApiUrl => apiBaseUrl.isNotEmpty;
+
+  static bool get hasExplicitTestEnvironment => hasApiUrl || appEnv.isNotEmpty;
+
+  static bool get targetsProduction {
+    final normalized = appEnv.toLowerCase();
+    return normalized == 'pro' ||
+        normalized == 'prod' ||
+        normalized == 'production';
+  }
+
+  /// 外部写入授权必须显式开启，避免误运行频道创建/发布/编辑测试。
+  static bool get allowChannelWrites =>
+      const String.fromEnvironment(
+        'TEST_ALLOW_CHANNEL_WRITES',
+        defaultValue: 'false',
+      ).toLowerCase() ==
+      'true';
 }
 
 // ──────────────────────────────────────────────
@@ -49,6 +69,23 @@ class FlowConfig {
 void flowLog(String message) {
   // ignore: avoid_print
   print('[FLOW] $message');
+}
+
+/// 频道写入类 E2E 的安全闸门。
+///
+/// 该测试会创建频道、发布消息或修改频道资料，必须通过
+/// `--dart-define=TEST_ALLOW_CHANNEL_WRITES=true` 显式授权；缺省时以
+/// skipped 结束，不能因为缺少授权而误判为功能通过。
+void requireChannelWriteAuthorization() {
+  if (!FlowConfig.allowChannelWrites) {
+    markTestSkipped('频道 E2E 会写入后端；请显式设置 TEST_ALLOW_CHANNEL_WRITES=true 后运行');
+  }
+  if (!FlowConfig.hasExplicitTestEnvironment) {
+    markTestSkipped('频道 E2E 写入需要显式设置 API_BASE_URL 或 APP_ENV，禁止使用隐式环境');
+  }
+  if (FlowConfig.targetsProduction) {
+    markTestSkipped('频道 E2E 禁止在生产环境执行写入');
+  }
 }
 
 // ──────────────────────────────────────────────

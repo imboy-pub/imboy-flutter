@@ -46,6 +46,25 @@ void main() {
     });
 
     test(
+      'uploader exception becomes retryable failure instead of aborting batch',
+      () async {
+        final controller = BatchUploadController<String>(
+          uploader: (a) async {
+            if (a.id == 'b') throw StateError('network down');
+            return 'url_${a.id}';
+          },
+        );
+
+        await controller.addAndUpload([_asset('a'), _asset('b'), _asset('c')]);
+
+        expect(controller.items[0].isDone, isTrue);
+        expect(controller.items[1].isFailed, isTrue);
+        expect(controller.items[1].canRetry, isTrue);
+        expect(controller.items[2].isDone, isTrue);
+      },
+    );
+
+    test(
       'retry re-uploads only the failed item, successes untouched',
       () async {
         // Arrange
