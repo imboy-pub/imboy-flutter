@@ -48,6 +48,13 @@ class IconImageProvider extends ImageProvider<IconImageProvider> {
       style: TextStyle(
         fontSize: size.toDouble(),
         fontFamily: icon.fontFamily,
+        // package 不传就渲染成缺字形方框：CupertinoIcons / 各类图标包的字体
+        // 打在 package 里，Flutter 要 `packages/<pkg>/<family>` 才找得到，
+        // 只给 fontFamily 是解析不到的。
+        // 这条路径正是**无头像用户**的兜底（dynamicAvatar 空值分支），
+        // 于是所有没设头像的人在列表里都顶着一个 ⊠ 方框，看着像加载失败。
+        package: icon.fontPackage,
+        fontFamilyFallback: icon.fontFamilyFallback,
         color: color,
       ),
     );
