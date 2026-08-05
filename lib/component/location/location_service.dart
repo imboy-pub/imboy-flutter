@@ -37,17 +37,50 @@ class LocationService {
   /// - iOS: 优先使用高德地图定位（提供地址信息）
   /// - Android: 优先使用高德地图，失败时降级到 geolocator
   /// - macOS/Web: 使用 geolocator 定位
-  Future<AMapPosition?> getCurrentPosition() async {
+  /// [preferLastKnown] 为 true 时，先返回系统缓存的最后已知位置（瞬时可得），
+  /// 拿不到才走实时定位。仅供**对位置新鲜度不敏感**的场景使用——
+  /// 「附近的人」半径 500km，用几分钟前的坐标与实时坐标结果无差别，
+  /// 却能省掉高德失败(约1s) + geolocator 超时(4s) 共约 5s 的等待。
+  /// 发送位置 / 面对面建群 / 朋友圈定位**不要**传 true，它们需要实时坐标。
+  Future<AMapPosition?> getCurrentPosition({
+    bool preferLastKnown = false,
+  }) async {
     if (kIsWeb) {
       return _getCurrentPositionGeolocator();
     } else if (Platform.isMacOS) {
       return _getCurrentPositionGeolocator();
     } else if (Platform.isIOS || Platform.isAndroid) {
+      if (preferLastKnown) {
+        final cached = await _lastKnownAsPosition();
+        if (cached != null) {
+          debugPrint('[PeopleNearbyPerf]   1a.命中系统缓存位置，跳过实时定位');
+          return cached;
+        }
+      }
       // iOS/Android: 优先高德，失败时降级到 geolocator(系统定位)
       // iOS 此前只用高德、无兜底；高德 Key/Bundle 绑定或网络异常时彻底拿不到坐标。
       return await _getCurrentPositionWithFallback();
     }
     return null;
+  }
+
+  /// 取系统最后已知位置。不发起新的定位请求，因此是瞬时返回（拿不到就 null）。
+  Future<AMapPosition?> _lastKnownAsPosition() async {
+    try {
+      final last = await Geolocator.getLastKnownPosition();
+      if (last == null) return null;
+      return AMapPosition(
+        latLng: LatLng(last.latitude, last.longitude),
+        id: '',
+        name: '',
+        address: '',
+        adCode: '',
+        distance: last.accuracy.toString(),
+      );
+    } on Exception catch (e) {
+      debugPrint('[Location] getLastKnownPosition 失败: $e');
+      return null;
+    }
   }
 
   /// 移动端定位：高德优先，失败时降级到 geolocator（系统 CoreLocation/LocationManager）

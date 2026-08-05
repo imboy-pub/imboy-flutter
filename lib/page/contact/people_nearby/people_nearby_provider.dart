@@ -128,7 +128,11 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     try {
       if (state.longitude.isEmpty) {
         final swLocate = Stopwatch()..start();
-        AMapPosition? l = await LocationService().getCurrentPosition();
+        // preferLastKnown: 附近的人半径 500km，几分钟前的坐标与实时坐标
+        // 落到同一批结果，没必要为此等高德失败(约1s)+geolocator 超时(4s)。
+        AMapPosition? l = await LocationService().getCurrentPosition(
+          preferLastKnown: true,
+        );
         msLocate = swLocate.elapsedMilliseconds;
         debugPrint('[PeopleNearbyPerf] 1.定位 ${msLocate}ms');
         updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
