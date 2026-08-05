@@ -117,6 +117,14 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     ];
   }
 
+  /// 把成员数抬到 `count`（仅当更大时）。只用于本地列表条数这类**下界**证据，
+  /// 服务端权威值不走这里——那个要能升也能降。
+  void _liftMemberCount(int count) {
+    if (count > ref.read(groupDetailProvider).memberCount) {
+      ref.read(groupDetailProvider.notifier).setMemberCount(count);
+    }
+  }
+
   Future<void> initData() async {
     final notifier = ref.read(groupDetailProvider.notifier);
     final service = GroupDetailService();
@@ -142,6 +150,9 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       bool isAdmin = isGroupAdmin(role);
       notifier.setRoleInfo(role, isAdmin);
       notifier.setMemberList(_withActionSlots(memberList, isAdmin: isAdmin));
+      // 调用方传进来的 memberCount 普遍是陈旧值或硬编码 0（见 group_select_page），
+      // 实际拿到的成员条数是可信下界，取较大者兜底。
+      _liftMemberCount(memberList.length);
 
       GroupMemberModel? m = await service.getMyGroupMemberInfo(widget.groupId);
       if (m != null) notifier.setMyGroupAlias(m.alias);
@@ -152,7 +163,13 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
 
     service.detail(gid: widget.groupId, sync: connected).then((g) async {
       if (g != null) {
-        notifier.setMemberCount(g.memberCount);
+        // 服务端是权威，有效值直接采信——**可升可降**，群解散成员后要能减下来。
+        // 只有 memberCount==0 才拒绝：群必有成员，0 只可能是存量字段没维护住，
+        // 拿它覆盖会让头部显示「0 群成员」而下面明明渲染着 2 个人。
+        // 聊天页 groupTitle 早有同款 `> 0` 守卫，这里口径对齐。
+        if (g.memberCount > 0) {
+          ref.read(groupDetailProvider.notifier).setMemberCount(g.memberCount);
+        }
         notifier.setTitle(g.title);
         // 补全群信息，供 GroupInfoCard 展示头像/简介
         notifier.setGroup(g);
@@ -732,10 +749,16 @@ class _GroupMemberSection extends ConsumerWidget {
             width: 52,
             height: 52,
             column: (MediaQuery.sizeOf(context).width - 72) ~/ 64,
-            onTapAvatar: (p) => context.push(
-              '/people_info/${p.id}',
-              extra: {'scene': 'group_member'},
-            ),
+            // 点自己的头像时 people_info 会退化成空壳：那个页面靠好友关系
+            // 取数，对自己既没有好友记录、也拿不到 account（user/show 白名单
+            // 端点刻意不返回 account 防手机号泄露），结果只剩头像+昵称、
+            // 「ID: 」空值、性别渲染成方框、零操作项。改跳自己的资料页。
+            onTapAvatar: (p) => p.id.toString() == UserRepoLocal.to.currentUid
+                ? context.push('/personal_info/profile')
+                : context.push(
+                    '/people_info/${p.id}',
+                    extra: {'scene': 'group_member'},
+                  ),
             onTapAdd: () =>
                 context.push('/group/add_member', extra: {'groupId': groupId}),
             onTapRemove: () async {

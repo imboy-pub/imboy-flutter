@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:io' as io show HttpClient;
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 
-// ignore: implementation_imports
-import 'package:dio_http2_adapter/dio_http2_adapter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/material.dart';
 
@@ -28,6 +28,19 @@ import 'http_transformer.dart';
 import 'http_retry_interceptor.dart';
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
+/// 构造底层 HttpClient：统一挂证书校验，可选走代理。
+io.HttpClient _buildHttpClient({String? proxy}) {
+  final client = io.HttpClient();
+  client.badCertificateCallback =
+      (X509Certificate cert, String host, int port) =>
+          _certificateValidationCallback(cert);
+  if (proxy != null && proxy.isNotEmpty) {
+    final authority = Uri.parse(proxy).authority;
+    client.findProxy = (uri) => 'PROXY $authority';
+  }
+  return client;
+}
 
 /// 安全的证书验证回调
 /// 生产环境严格验证证书，开发环境允许白名单内的自签名证书
@@ -134,20 +147,21 @@ class HttpClient {
       _dio.interceptors.addAll(conf!.interceptors!);
     }
 
-    // Web 平台使用浏览器默认的 Fetch API，不需要 Http2Adapter
+    // Web 平台使用浏览器默认的 Fetch API，无需自定义适配器。
+    //
+    // 这里曾用 Http2Adapter：它自管 socket，App 长时间运行后连接会进入
+    // 半死状态（对端已断、客户端不知），后续请求写进死连接后挂满 15s 才抛
+    // TimeoutException——表现为频道列表打不开、社交资料查不到、群成员详情
+    // 空白，重启 App 立即恢复，而同一端点 curl 0.2s 正常。改回 dart:io 的
+    // IOHttpClientAdapter，由 HttpClient 自己做连接健康管理；顺带让
+    // HttpOverrides 重新生效，flutter test 不会再真的打到线上。
     if (!kIsWeb) {
-      _dio.httpClientAdapter = Http2Adapter(
-        ConnectionManager(
-          idleTimeout: const Duration(seconds: 10),
-          onClientCreate: (_, config) =>
-              config.onBadCertificate = _certificateValidationCallback,
-        ),
+      _dio.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () => _buildHttpClient(),
       );
     }
 
-    // Http2Adapter 自己管 socket，绕开了 dart:io 的 HttpOverrides——也就是说
-    // flutter test 的内置 mock 拦不住它，任何调 API 的测试都会真的打到线上。
-    // 这个注入点让测试把出口换掉，约定同 SqliteService.setDbForTest。
+    // 测试注入点：让测试把出口换掉，约定同 SqliteService.setDbForTest。
     if (adapterForTest != null) {
       _dio.httpClientAdapter = adapterForTest!;
     }
@@ -163,14 +177,8 @@ class HttpClient {
       return;
     }
 
-    _dio.httpClientAdapter = Http2Adapter(
-      ConnectionManager(
-        idleTimeout: const Duration(seconds: 10),
-        onClientCreate: (_, config) {
-          config.onBadCertificate = _certificateValidationCallback;
-          config.proxy = Uri.parse(proxy);
-        },
-      ),
+    _dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () => _buildHttpClient(proxy: proxy),
     );
   }
 

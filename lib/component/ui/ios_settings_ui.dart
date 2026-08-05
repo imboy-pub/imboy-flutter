@@ -136,6 +136,13 @@ class ImBoySettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // CupertinoListSection.insetGrouped 断言 children 非空或 header 非空，
+    // 否则整个子树被 ErrorWidget 替换（红屏）。调用方在"加载中且列表为空"
+    // 这一帧很容易同时给出空 children + 无 header，这里兜住。
+    if (children.isEmpty && header == null) {
+      return const SizedBox.shrink();
+    }
+
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 

@@ -4,7 +4,9 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/api/wallet_api.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/page/wallet/widget/wallet_form.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -34,13 +36,24 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
   bool get _isGroup => widget.chatType == 'C2G';
   bool get _isLucky => _selectedType == 'random';
 
+  /// 收款人显示名。二次确认弹窗原先直接显示 TSID uid，用户无从核对发给谁。
+  String _receiverName = '';
+
   @override
   void initState() {
     super.initState();
+    if (!_isGroup) _loadReceiverName();
     // 进页拉真实余额，否则默认 0 会误判"余额不足"（QA#25，同转账页）
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) ref.read(walletProvider.notifier).loadBalance();
     });
+  }
+
+  Future<void> _loadReceiverName() async {
+    final contact = await ContactRepo().findByUid(widget.toUid);
+    if (mounted && contact != null && strNoEmpty(contact.title)) {
+      setState(() => _receiverName = contact.title);
+    }
   }
 
   @override
@@ -127,7 +140,13 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                     ),
                   ] else ...[
                     AppSpacing.verticalTiny,
-                    Text(t.common.redPacketReceiverLabel(uid: widget.toUid)),
+                    Text(
+                      t.common.redPacketReceiverLabel(
+                        uid: _receiverName.isEmpty
+                            ? widget.toUid
+                            : _receiverName,
+                      ),
+                    ),
                   ],
                 ],
               ),

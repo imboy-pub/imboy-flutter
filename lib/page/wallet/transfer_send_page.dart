@@ -3,7 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/api/wallet_api.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/page/wallet/widget/wallet_form.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -23,14 +25,25 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
   final _amountController = TextEditingController();
   final _remarkController = TextEditingController();
 
+  /// 收款人显示名。二次确认弹窗原先直接显示 TSID uid，用户无从核对转给谁。
+  String _receiverName = '';
+
   @override
   void initState() {
     super.initState();
+    _loadReceiverName();
     // 进页拉真实余额，否则 walletProvider.build() 默认 0 会让有钱用户
     // 被 _handleSend 的余额守卫误判"余额不足"、任何金额都发不出（QA#25）。
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) ref.read(walletProvider.notifier).loadBalance();
     });
+  }
+
+  Future<void> _loadReceiverName() async {
+    final contact = await ContactRepo().findByUid(widget.toUid);
+    if (mounted && contact != null && strNoEmpty(contact.title)) {
+      setState(() => _receiverName = contact.title);
+    }
   }
 
   @override
@@ -104,7 +117,11 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                     ),
                   ),
                   AppSpacing.verticalTiny,
-                  Text(t.common.redPacketReceiverLabel(uid: widget.toUid)),
+                  Text(
+                    t.common.redPacketReceiverLabel(
+                      uid: _receiverName.isEmpty ? widget.toUid : _receiverName,
+                    ),
+                  ),
                   AppSpacing.verticalTiny,
                   Text('${t.common.transferRemarkLabel}：$remark'),
                 ],

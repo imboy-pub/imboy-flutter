@@ -141,4 +141,36 @@ void main() {
       );
     });
   });
+
+  group('ImBoySettingsSection 空 children 守卫', () {
+    // CupertinoListSection.insetGrouped 断言 children 非空或 header 非空。
+    // 钱包页在"加载中且流水为空"那一帧正好同时给出空 children + 无 header，
+    // 整个流水区被 ErrorWidget 替换成红屏（批次 22 BUG#110）。
+    testWidgets('空 children 且无 header → 收敛成空盒子，不抛断言', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: ImBoySettingsSection(children: <Widget>[])),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SizedBox), findsWidgets);
+    });
+
+    testWidgets('空 children 但有 header → 仍照常渲染 header', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ImBoySettingsSection(
+              header: Text('流水记录'),
+              children: <Widget>[],
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('流水记录'), findsOneWidget);
+    });
+  });
 }

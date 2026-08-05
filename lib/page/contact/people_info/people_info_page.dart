@@ -87,18 +87,23 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                   onPressed: () => Navigator.push(
                     context,
                     CupertinoPageRoute<void>(
+                      // 这里曾把除 peerId 外的 10 个参数全传空串，下游
+                      // ContactSettingTagPage 靠 peerTag/peerRemark 回显，
+                      // 于是「设置备注和标签」页永远显示「添加标签」+ 空备注，
+                      // 哪怕这个联系人明明已有标签。同文件 _openTagPage 的
+                      // 传参才是对的，这里对齐。
                       builder: (_) => ContactSettingPage(
                         peerId: id,
-                        peerAvatar: '',
-                        peerAccount: '',
-                        peerNickname: '',
-                        peerGender: 0,
-                        peerTitle: '',
-                        peerSign: '',
-                        peerRegion: '',
-                        peerSource: '',
-                        peerRemark: '',
-                        peerTag: '',
+                        peerAvatar: state.avatar,
+                        peerAccount: state.account,
+                        peerNickname: state.nickname,
+                        peerGender: state.gender,
+                        peerTitle: state.title,
+                        peerSign: state.sign,
+                        peerRegion: state.region,
+                        peerSource: state.source,
+                        peerRemark: state.remark,
+                        peerTag: state.tag,
                       ),
                     ),
                   ),
