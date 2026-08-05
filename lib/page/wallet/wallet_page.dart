@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/config/payment_config.dart';
 import 'package:imboy/service/payment_launcher.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -112,20 +113,22 @@ class _WalletPageState extends ConsumerState<WalletPage> {
   }
 
   /// 金额确认后弹出支付方式选择。
-  /// mock 走开发即时入账链路；支付宝/微信暂未接入 SDK，提示即将开通（待 S4）。
+  /// mock 走开发即时入账链路（**生产不展示**，见 [PaymentConfig.isMockPayAllowed]）；
+  /// 支付宝/微信暂未接入 SDK，提示即将开通（待 S4）。
   void _showPayMethodSheet(int amountFen) {
     showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) => CupertinoActionSheet(
         title: Text(t.account.payMethodTitle),
         actions: [
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _doRecharge(amountFen, 'mock');
-            },
-            child: Text(t.account.payMethodMock),
-          ),
+          if (PaymentConfig.isMockPayAllowed)
+            CupertinoActionSheetAction(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _doRecharge(amountFen, 'mock');
+              },
+              child: Text(t.account.payMethodMock),
+            ),
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.of(ctx).pop();

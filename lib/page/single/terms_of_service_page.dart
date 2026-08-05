@@ -16,7 +16,12 @@ class TermsOfServicePage extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: GlassAppBar(title: t.main.termsOfService),
+      // automaticallyImplyLeading 在 GlassAppBar 里默认 false（与 Flutter 自带
+      // AppBar 相反），不显式传就整页没有返回按钮，只能靠系统返回键（BUG#85）。
+      appBar: GlassAppBar(
+        title: t.main.termsOfService,
+        automaticallyImplyLeading: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Column(

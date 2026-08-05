@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
@@ -37,6 +38,10 @@ class RepaintBoundaryHelper {
 
   /// for example:{"isSuccess":true, "filePath":String?}
   ///保存到相册
+  ///
+  /// 失败提示在**这里**弹，不交给调用方：user / group / channel 三个二维码页
+  /// 都只写了 `if (isSuccess) showSuccess(...)`、没有 else，失败时用户点了保存
+  /// 什么都不会发生（BUG#87）。收口到这一层，新增第四个调用点也不会再漏。
   FutureOr<dynamic> savePhoto(
     BuildContext ctx,
     GlobalKey boundaryKey,
@@ -44,7 +49,9 @@ class RepaintBoundaryHelper {
   ) async {
     final img = await image(ctx, boundaryKey);
     if (img == null) {
-      return {"isSuccess": false, "errorMessage": "Failed to capture image"};
+      // image() 返回 null 只有一种情况：相册权限未授予，且已跳去系统设置。
+      // 不再弹 toast —— 用户此刻已经在设置页，弹了也看不见。
+      return {"isSuccess": false, "errorMessage": t.common.saveFailedRetry};
     }
 
     try {
@@ -54,6 +61,7 @@ class RepaintBoundaryHelper {
       return {"isSuccess": true, "filePath": asset.id};
     } on Exception catch (e) {
       if (kDebugMode) debugPrint("savePhoto error: ${e.runtimeType}");
+      AppLoading.showError(t.common.saveFailedRetry);
       return {"isSuccess": false, "errorMessage": t.common.saveFailedRetry};
     }
   }

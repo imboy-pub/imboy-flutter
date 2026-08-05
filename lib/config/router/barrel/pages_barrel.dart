@@ -105,5 +105,4 @@ export 'package:imboy/page/wallet/withdraw_page.dart';
 export 'package:imboy/page/wallet/red_packet_send_page.dart';
 export 'package:imboy/page/wallet/red_packet_detail_page.dart';
 export 'package:imboy/page/wallet/transfer_send_page.dart';
-export 'package:imboy/page/single/privacy_policy_page.dart';
 export 'package:imboy/page/single/terms_of_service_page.dart';

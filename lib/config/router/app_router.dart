@@ -48,7 +48,6 @@ bool _isPublicPath(String currentPath) {
     AppRoutes.signUp,
     '/welcome',
     AppRoutes.forgotPassword,
-    AppRoutes.privacyPolicy,
     AppRoutes.termsOfService,
   ];
   return publicPaths.any((path) => _matchesPublicPath(currentPath, path));
@@ -478,12 +477,10 @@ GoRouter createAppRouter({
           );
         },
       ),
-      GoRoute(
-        path: AppRoutes.privacyPolicy,
-        name: 'privacy_policy',
-        pageBuilder: (context, state) =>
-            CupertinoPage(key: state.pageKey, child: const PrivacyPolicyPage()),
-      ),
+      // 隐私政策没有独立路由：设置页走 _openMarkdown("asset://docs/privacy-policy.md")。
+      // 原 PrivacyPolicyPage 是零入口死页面，且硬编码了一份与 asset 日期不一致的
+      // 法律文本（生效日期 2026-01-01 vs asset 最后更新 2026-04-05）——
+      // 法务文档留两个真相源比留死代码更危险，已删（BUG#88）。
       GoRoute(
         path: AppRoutes.termsOfService,
         name: 'terms_of_service',

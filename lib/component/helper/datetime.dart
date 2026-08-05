@@ -51,9 +51,17 @@ class DateTimeHelper {
     }
   }
 
-  /// 上次事件时间戳格式化
+  /// 上次事件时间戳格式化。
+  ///
+  /// **必须构造本地时区 DateTime**：`DateFormat.format` 按 DateTime 自身的
+  /// isUtc 输出字段值，传 UTC 进去就会把 UTC 时间当本地时间摆给用户看
+  /// （BUG#84：东八区少 8 小时，设备管理列表 `08-01 16:13` vs 详情页
+  /// `2026-08-02 00:13:36`，同一条记录差恰好一个时区）。
+  ///
+  /// 相对时间分支不受影响 —— `dateTimeFmt` 里算 diff 用的是
+  /// `dt.toUtc().millisecondsSinceEpoch`，对同一时刻的两种表示结果相同。
   static String lastTimeFmt(int lastTime, {String pattern = 'y-MM-dd HH:mm'}) {
-    DateTime dt = DateTimeHelper.millisecondToDateTime(lastTime, isUtc: true);
+    DateTime dt = DateTimeHelper.millisecondToDateTime(lastTime, isUtc: false);
     return dateTimeFmt(dt, pattern: pattern);
   }
 

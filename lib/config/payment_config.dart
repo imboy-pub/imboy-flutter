@@ -31,6 +31,20 @@ abstract final class PaymentConfig {
     'ALIPAY_UNIVERSAL_LINK',
   );
 
+  /// 运行环境（`--dart-define=APP_ENV`）。缺省 `pro` —— 判不出来时按生产处理。
+  static const String _appEnv = String.fromEnvironment(
+    'APP_ENV',
+    defaultValue: 'pro',
+  );
+
+  /// mock（即时入账）支付方式是否可用。
+  ///
+  /// 后端 `recharge_logic:is_payment_method_allowed/1` 在生产会拒绝 mock，
+  /// 前端把入口一并藏掉，避免生产用户点了只拿到一个失败提示。
+  /// 两侧都判生产才算安全 —— 见 BUG#82（后端曾因环境判定写错而在生产放行 mock）。
+  static bool get isMockPayAllowed =>
+      _appEnv != 'pro' && _appEnv != 'prod' && _appEnv != 'production';
+
   /// 微信支付配置是否就绪。
   static bool get isWechatConfigured => wechatAppId.isNotEmpty;
 
