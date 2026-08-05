@@ -303,7 +303,9 @@ CREATE TABLE channel (
     is_verified INTEGER DEFAULT 0,
     tags TEXT,
     created_at INTEGER NOT NULL,
-    updated_at INTEGER NOT NULL
+    updated_at INTEGER NOT NULL,
+    user_role INTEGER DEFAULT 0,
+    is_subscribed INTEGER DEFAULT 0
 );
 CREATE INDEX idx_channel_custom_id ON channel(custom_id);
 CREATE INDEX idx_channel_creator_id ON channel(creator_id);
@@ -1761,6 +1763,27 @@ ALTER TABLE contact ADD COLUMN last_seen_at INTEGER;
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 26;
+
+-- ============================================================
+-- VERSION: 27
+-- DESC: channel 表补 user_role / is_subscribed 两列。
+--       ChannelModel.toMap() 一直输出这两个字段，但建表语句（baseline 与
+--       Step 16 的 channel_new 重建）都没有它们 → 任何 ChannelRepo 写入都抛
+--       "table channel has no column named user_role" → 订阅频道、频道信息
+--       本地缓存、订阅通知落库全部静默失败（后端已成功，客户端 UI 不更新）。
+--       实测：点「订阅」后端返回 user_role=3/is_subscribed=1，本地 INSERT 崩，
+--       按钮仍显示「订阅」、订阅数仍为 0。
+--       user_role: 0=无角色 1=订阅者 2=管理员 3=创建者（ChannelUserRole）
+--       is_subscribed: 0/1
+-- ============================================================
+
+ALTER TABLE channel ADD COLUMN user_role INTEGER DEFAULT 0;
+ALTER TABLE channel ADD COLUMN is_subscribed INTEGER DEFAULT 0;
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 27;
 """;
 
 /// 与 assets/migrations/downgrade.sql 内容保持同步（同上）。
