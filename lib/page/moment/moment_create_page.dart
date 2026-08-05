@@ -779,26 +779,35 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
                   ),
                 ),
         ),
-        body: Column(
+        // 工具栏随内容滚动，不再是底部常驻条。原来 Column+Expanded 的结构下，
+        // 4 行工具栏固定吃掉 ~250pt，键盘再占 2/5 屏，Expanded 剩下的可视区
+        // 装不下「输入框 + 媒体网格」——「+」号被挤出首屏，看起来就像被工具栏盖住。
+        // 微信同款：4 项排在图片下方跟着滚，首屏永远是「输入框 → 媒体格」。
+        body: ListView(
+          // 下拉即收键盘（微信同款）；再点输入框重新弹起。ListView 默认
+          // manual —— 页面全是滚动内容、没有空白可点，键盘一弹就下不去。
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.fromLTRB(
+            20,
+            16,
+            20,
+            24 + MediaQuery.paddingOf(context).bottom,
+          ),
           children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                children: [
-                  ComposerField(
-                    controller: _contentController,
-                    autofocus: true,
-                    minLines: 5,
-                    maxLines: 10,
-                    maxLength: 5000,
-                    warnThreshold: 4500,
-                    hintText: t.discovery.momentContentPlaceholder,
-                  ),
-                  AppSpacing.verticalLarge,
-                  _buildMediaGrid(t),
-                ],
-              ),
+            ComposerField(
+              controller: _contentController,
+              autofocus: true,
+              // minLines 5 在键盘弹起后独占近半个可视区；3 行足够起笔，
+              // maxLines 10 保证写长文时照样自动长高。
+              minLines: 3,
+              maxLines: 10,
+              maxLength: 5000,
+              warnThreshold: 4500,
+              hintText: t.discovery.momentContentPlaceholder,
             ),
+            AppSpacing.verticalLarge,
+            _buildMediaGrid(t),
+            AppSpacing.verticalLarge,
             _buildToolbar(t),
           ],
         ),
@@ -840,49 +849,47 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
 
   Widget _buildToolbar(Translations t) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // 在滚动区里是一张分组卡片（圆角 + 描边），不再是贴屏底的固定条，
+    // 故去掉顶部分隔线与 SafeArea（底部安全区由 ListView 的 padding 承担）。
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        border: Border(
-          top: BorderSide(
-            color: AppColors.getIosSeparator(
-              Theme.of(context).brightness,
-            ).withValues(alpha: 0.3),
-            width: 0.5,
-          ),
+        borderRadius: AppRadius.borderRadiusRegular,
+        border: Border.all(
+          color: AppColors.getIosSeparator(
+            Theme.of(context).brightness,
+          ).withValues(alpha: 0.3),
+          width: 0.5,
         ),
       ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            _ToolbarItem(
-              icon: CupertinoIcons.lock_fill,
-              label: t.discovery.momentsVisibility,
-              value: _visibilitySummary(t),
-              onTap: _pickVisibility,
-            ),
-            _ToolbarItem(
-              icon: CupertinoIcons.location_solid,
-              label: t.discovery.momentLocation,
-              value: _locationSummary(t),
-              onTap: _pickLocation,
-            ),
-            _ToolbarItem(
-              icon: CupertinoIcons.at,
-              label: t.discovery.momentAtWho,
-              value: _atSummary(t),
-              onTap: _pickAtFriends,
-            ),
-            _ToolbarSwitch(
-              icon: CupertinoIcons.chat_bubble_fill,
-              label: t.common.momentsAllowComment,
-              value: _allowComment,
-              onChanged: (v) => setState(() => _allowComment = v),
-            ),
-          ],
-        ),
+      child: Column(
+        children: [
+          _ToolbarItem(
+            icon: CupertinoIcons.lock_fill,
+            label: t.discovery.momentsVisibility,
+            value: _visibilitySummary(t),
+            onTap: _pickVisibility,
+          ),
+          _ToolbarItem(
+            icon: CupertinoIcons.location_solid,
+            label: t.discovery.momentLocation,
+            value: _locationSummary(t),
+            onTap: _pickLocation,
+          ),
+          _ToolbarItem(
+            icon: CupertinoIcons.at,
+            label: t.discovery.momentAtWho,
+            value: _atSummary(t),
+            onTap: _pickAtFriends,
+          ),
+          _ToolbarSwitch(
+            icon: CupertinoIcons.chat_bubble_fill,
+            label: t.common.momentsAllowComment,
+            value: _allowComment,
+            onChanged: (v) => setState(() => _allowComment = v),
+          ),
+        ],
       ),
     );
   }
