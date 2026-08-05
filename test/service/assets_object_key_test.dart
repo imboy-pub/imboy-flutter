@@ -32,11 +32,28 @@ void main() {
       );
     });
 
+    test('存量裸 key 形态也要认（BUG#89）', () {
+      // 群相册/群文件早期服务端直传落的是不带 u<uid>/ 前缀的裸 key，
+      // 对象就实实在在存在这个位置。认不出来 → 走旧 go-fastdfs HMAC 授权
+      // → Garage 不认那套签名 → 破图。生产上有 6 行这种数据。
+      expect(
+        AssetsService.isObjectKey('file_1785806160300_946818/i2.png'),
+        isTrue,
+      );
+      expect(
+        AssetsService.isObjectKey('file_1785838337586_214629/y2.png'),
+        isTrue,
+      );
+    });
+
     test('边界用例返回 false', () {
       expect(AssetsService.isObjectKey(''), isFalse);
-      // 不以 u<digits>/ 开头
+      // 不以 u<digits>/ 或 file_<ts>_<hex>/ 开头
       expect(AssetsService.isObjectKey('avatar/def_avatar.png'), isFalse);
       expect(AssetsService.isObjectKey('user123/file_x/a.png'), isFalse);
+      // file_ 开头但不是 file_<数字>_<hex>/ 形态，不放行
+      expect(AssetsService.isObjectKey('file_abc/x.png'), isFalse);
+      expect(AssetsService.isObjectKey('file_123/x.png'), isFalse);
       // 含 scheme 一律按完整 URL 处理
       expect(AssetsService.isObjectKey('s3://u1/file_x/a.png'), isFalse);
     });
