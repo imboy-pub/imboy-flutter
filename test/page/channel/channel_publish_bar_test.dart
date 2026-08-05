@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/chat/composer_field.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/channel/widgets/channel_publish_bar.dart';
@@ -104,4 +105,27 @@ void main() {
       expect(newScreenHeight - newRowBottom, AppSpacing.small);
     },
   );
+
+  testWidgets('空文本时发送按钮不占宽，输入后才让位 / send button reclaims width when empty', (
+    tester,
+  ) async {
+    final focusNode = FocusNode();
+    addTearDown(focusNode.dispose);
+
+    await tester.pumpWidget(
+      _app(_channel(), focusNode, bottomPadding: 0, viewInsetsBottom: 0),
+    );
+    await tester.pumpAndSettle();
+
+    final fieldFinder = find.byType(ComposerField);
+    final emptyWidth = tester.getSize(fieldFinder).width;
+
+    await tester.enterText(find.byKey(const Key('composer_text_field')), '你好');
+    await tester.pumpAndSettle();
+
+    final filledWidth = tester.getSize(fieldFinder).width;
+    // 发送按钮 44pt + 左间距 8pt 从零展开，输入框必须相应变窄
+    expect(filledWidth, lessThan(emptyWidth));
+    expect(emptyWidth - filledWidth, 44 + AppSpacing.small);
+  });
 }

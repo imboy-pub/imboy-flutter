@@ -1,5 +1,6 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/chat/composer_emoji_panel.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -27,6 +28,7 @@ class ComposerField extends StatefulWidget {
     this.maxLines,
     this.showCounter = true,
     this.showEmojiButton = true,
+    this.emojiOpen,
     this.textInputAction = TextInputAction.newline,
     this.onChanged,
     this.onSubmitted,
@@ -53,6 +55,14 @@ class ComposerField extends StatefulWidget {
   final int? maxLines;
   final bool showCounter;
   final bool showEmojiButton;
+
+  /// 表情面板开关的外部托管。
+  ///
+  /// 传入时本组件**只渲染表情按钮**，面板由父级用 [ComposerEmojiPanel] 自行
+  /// 挂在整条输入栏下方 —— 输入框被 `Expanded` 夹在图标列之间时，内联面板只能
+  /// 拿到输入框那一列的宽度（iPhone 390pt 实测仅 256pt）。
+  /// 不传则退回内联（朋友圈/文章页这类本身就占满宽的场景够用）。
+  final ValueNotifier<bool>? emojiOpen;
   final TextInputAction textInputAction;
   final ValueChanged<String>? onChanged;
 
@@ -68,7 +78,20 @@ class ComposerFieldState extends State<ComposerField> {
   late final FocusNode _focusNode;
   bool _ownsController = false;
   bool _ownsFocusNode = false;
-  bool _emojiOpen = false;
+
+  /// 面板未被父级托管时的本地开关。
+  bool _localEmojiOpen = false;
+
+  bool get _emojiOpen => widget.emojiOpen?.value ?? _localEmojiOpen;
+
+  set _emojiOpen(bool open) {
+    final host = widget.emojiOpen;
+    if (host != null) {
+      host.value = open; // 父级监听后重建面板
+    } else {
+      setState(() => _localEmojiOpen = open);
+    }
+  }
 
   int get _warnThreshold =>
       widget.warnThreshold ?? (widget.maxLength * 0.9).floor();
@@ -83,12 +106,15 @@ class ComposerFieldState extends State<ComposerField> {
     _controller.addListener(_onControllerChanged);
     // 聚焦态高亮边框：监听内建/外部 focusNode 均兼容（只用引用不问归属）。
     _focusNode.addListener(_onFocusChanged);
+    // 面板由父级托管时，开关变化也要让按钮图标（笑脸↔键盘）跟着切。
+    widget.emojiOpen?.addListener(_onFocusChanged);
   }
 
   @override
   void dispose() {
     _controller.removeListener(_onControllerChanged);
     _focusNode.removeListener(_onFocusChanged);
+    widget.emojiOpen?.removeListener(_onFocusChanged);
     if (_ownsController) _controller.dispose();
     if (_ownsFocusNode) _focusNode.dispose();
     super.dispose();
@@ -104,32 +130,17 @@ class ComposerFieldState extends State<ComposerField> {
     if (mounted) setState(() {});
   }
 
-  /// 在光标处插入表情。光标 selection 可能为 -1（从未聚焦），此时追加到末尾，
-  /// 避免 replaceRange(-1, ...) 抛 RangeError。
-  void _insertEmoji(String emoji) {
-    final value = _controller.value;
-    final text = value.text;
-    var start = value.selection.start;
-    var end = value.selection.end;
-    if (start < 0 || end < 0 || start > text.length || end > text.length) {
-      start = end = text.length;
-    }
-    final newText = text.replaceRange(start, end, emoji);
-    // 超上限则丢弃这次插入（按 grapheme 计数，与 maxLength 语义一致）。
-    if (newText.characters.length > widget.maxLength) return;
-    _controller.value = TextEditingValue(
-      text: newText,
-      selection: TextSelection.collapsed(offset: start + emoji.length),
-    );
-    widget.onChanged?.call(newText);
-  }
-
   /// 仅供测试：验证光标无效(-1)时插入不崩溃。
   @visibleForTesting
-  void debugInsertEmoji(String emoji) => _insertEmoji(emoji);
+  void debugInsertEmoji(String emoji) => insertEmojiAtCursor(
+    _controller,
+    emoji,
+    maxLength: widget.maxLength,
+    onChanged: widget.onChanged,
+  );
 
   void _toggleEmoji() {
-    setState(() => _emojiOpen = !_emojiOpen);
+    _emojiOpen = !_emojiOpen;
     if (_emojiOpen) {
       _focusNode.unfocus(); // 收起系统键盘，让位表情面板
     } else if (widget.enabled) {
@@ -225,7 +236,7 @@ class ComposerFieldState extends State<ComposerField> {
                 maxLength: widget.maxLength,
                 textInputAction: widget.textInputAction,
                 onTap: () {
-                  if (_emojiOpen) setState(() => _emojiOpen = false);
+                  if (_emojiOpen) _emojiOpen = false;
                 },
                 onChanged: widget.onChanged,
                 onSubmitted: (_) => widget.onSubmitted?.call(),
@@ -259,7 +270,14 @@ class ComposerFieldState extends State<ComposerField> {
         if (widget.showCounter &&
             _controller.text.characters.length >= _warnThreshold)
           _buildCounter(context),
-        if (_emojiOpen) _buildEmojiPanel(fillColor),
+        // 面板被父级托管时不内联渲染（否则会被输入框那一列的宽度夹住）。
+        if (_emojiOpen && widget.emojiOpen == null)
+          ComposerEmojiPanel(
+            controller: _controller,
+            backgroundColor: fillColor,
+            maxLength: widget.maxLength,
+            onChanged: widget.onChanged,
+          ),
       ],
     );
   }
@@ -280,43 +298,6 @@ class ComposerFieldState extends State<ComposerField> {
           style: context.textStyle(
             FontSizeType.caption2,
             color: warn ? AppColors.iosOrange : AppColors.iosGray3,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmojiPanel(Color backgroundColor) {
-    return SizedBox(
-      height: 250,
-      child: EmojiPicker(
-        onEmojiSelected: (Category? category, Emoji emoji) {
-          _insertEmoji(emoji.emoji);
-        },
-        onBackspacePressed: () {
-          if (_controller.text.isNotEmpty) {
-            _controller
-              ..text = _controller.text.characters.skipLast(1).toString()
-              ..selection = TextSelection.fromPosition(
-                TextPosition(offset: _controller.text.length),
-              );
-          }
-        },
-        config: Config(
-          emojiViewConfig: EmojiViewConfig(backgroundColor: backgroundColor),
-          categoryViewConfig: CategoryViewConfig(
-            backgroundColor: backgroundColor,
-            iconColorSelected: AppColors.primary,
-            indicatorColor: AppColors.primary,
-          ),
-          bottomActionBarConfig: BottomActionBarConfig(
-            backgroundColor: backgroundColor,
-            buttonColor: AppColors.primary,
-            buttonIconColor: AppColors.onPrimary,
-          ),
-          searchViewConfig: SearchViewConfig(
-            backgroundColor: backgroundColor,
-            buttonIconColor: AppColors.primary,
           ),
         ),
       ),
