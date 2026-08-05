@@ -74,6 +74,10 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   // 双击点赞浮层动画
   late AnimationController _likeAnimController;
 
+  /// 双击点赞浮层 👍 的字号。装饰性图形尺寸（一次性放大动画），不是正文排版，
+  /// 故不走 FontSizeType token —— 提为命名常量以满足"禁止硬编码 fontSize"。
+  static const double _likeOverlayEmojiSize = 80;
+
   @override
   void initState() {
     super.initState();
@@ -316,24 +320,38 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
             ),
           ),
           // 双击点赞浮层动画
+          //
+          // 控制器静止（isDismissed，t=0）时不能渲染这一层：opacity 的
+          // Tween(1.0 → 0.0) 挂在 Interval(0.5, 1.0) 上，t=0 时 Interval 输出 0
+          // → Tween 求值为 begin=1.0，即**完全不透明**。于是从未双击过的卡片
+          // 上也会常驻一个 fontSize 80 的 👍，压在标题与正文右半部上。
           Positioned.fill(
             child: IgnorePointer(
-              child: Center(
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: 0.5, end: 1.4).animate(
-                    CurvedAnimation(
-                      parent: _likeAnimController,
-                      curve: Curves.elasticOut,
-                    ),
-                  ),
-                  child: FadeTransition(
-                    opacity: Tween<double>(begin: 1.0, end: 0.0).animate(
+              child: AnimatedBuilder(
+                animation: _likeAnimController,
+                builder: (context, child) => _likeAnimController.isDismissed
+                    ? const SizedBox.shrink()
+                    : child!,
+                child: Center(
+                  child: ScaleTransition(
+                    scale: Tween<double>(begin: 0.5, end: 1.4).animate(
                       CurvedAnimation(
                         parent: _likeAnimController,
-                        curve: const Interval(0.5, 1.0),
+                        curve: Curves.elasticOut,
                       ),
                     ),
-                    child: const Text('👍', style: TextStyle(fontSize: 80)),
+                    child: FadeTransition(
+                      opacity: Tween<double>(begin: 1.0, end: 0.0).animate(
+                        CurvedAnimation(
+                          parent: _likeAnimController,
+                          curve: const Interval(0.5, 1.0),
+                        ),
+                      ),
+                      child: const Text(
+                        '👍',
+                        style: TextStyle(fontSize: _likeOverlayEmojiSize),
+                      ),
+                    ),
                   ),
                 ),
               ),
