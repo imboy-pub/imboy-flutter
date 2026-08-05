@@ -12,6 +12,7 @@ pending: In corso
 completed: Completate
 taskCreated: Attività creata
 taskSubmitted: Attività inviata
+submitTask: "Invia attività"
 taskCompleted: Attività completata
 overdue: In ritardo
 daysLeft: Scadenza tra $days gg

@@ -2044,6 +2044,8 @@ class _Translations$groupSchedule$ar_SA extends Translations$groupSchedule$zh_CN
 	@override String get participants => 'المشاركون';
 	@override String get statusCancelled => 'ملغى';
 	@override String get statusInProgress => 'جارٍ';
+	@override String get statusNotStarted => 'لم يبدأ بعد';
+	@override String get statusEnded => 'انتهى';
 	@override String get cancelSuccess => 'تم إلغاء الفعالية';
 	@override String get cancelFailed => 'تعذّر الإلغاء، حاول لاحقاً';
 	@override String get confirmAttend => 'تأكيد الحضور';
@@ -2092,6 +2094,7 @@ class _Translations$groupTask$ar_SA extends Translations$groupTask$zh_CN {
 	@override String get completed => 'مكتملة';
 	@override String get taskCreated => 'تم إنشاء المهمة';
 	@override String get taskSubmitted => 'تم إرسال المهمة';
+	@override String get submitTask => 'إرسال الواجب';
 	@override String get taskCompleted => 'تمت المهمة';
 	@override String get overdue => 'متأخرة';
 	@override String daysLeft({required Object days}) => 'الموعد النهائي بعد ${days} يوماً';
@@ -4403,6 +4406,8 @@ extension on TranslationsArSa {
 			'groupSchedule.participants' => 'المشاركون',
 			'groupSchedule.statusCancelled' => 'ملغى',
 			'groupSchedule.statusInProgress' => 'جارٍ',
+			'groupSchedule.statusNotStarted' => 'لم يبدأ بعد',
+			'groupSchedule.statusEnded' => 'انتهى',
 			'groupSchedule.cancelSuccess' => 'تم إلغاء الفعالية',
 			'groupSchedule.cancelFailed' => 'تعذّر الإلغاء، حاول لاحقاً',
 			'groupSchedule.confirmAttend' => 'تأكيد الحضور',
@@ -4433,6 +4438,7 @@ extension on TranslationsArSa {
 			'groupTask.completed' => 'مكتملة',
 			'groupTask.taskCreated' => 'تم إنشاء المهمة',
 			'groupTask.taskSubmitted' => 'تم إرسال المهمة',
+			'groupTask.submitTask' => 'إرسال الواجب',
 			'groupTask.taskCompleted' => 'تمت المهمة',
 			'groupTask.overdue' => 'متأخرة',
 			'groupTask.daysLeft' => ({required Object days}) => 'الموعد النهائي بعد ${days} يوماً',
@@ -4599,11 +4605,11 @@ extension on TranslationsArSa {
 			'main.webView' => 'عرض الويب',
 			'main.you' => 'أنت',
 			'main.yourFeel' => 'كيف تشعر بذلك؟',
+			_ => null,
+		} ?? switch (path) {
 			'main.zhCn' => 'الصينية المبسطة',
 			'main.zhHant' => 'الصينية التقليدية',
 			'main.bound' => 'تم الربط',
-			_ => null,
-		} ?? switch (path) {
 			'main.correct' => 'صحيح',
 			'main.pendingInput' => 'في انتظار الإدخال',
 			'main.lengthCheck' => 'فحص الطول',

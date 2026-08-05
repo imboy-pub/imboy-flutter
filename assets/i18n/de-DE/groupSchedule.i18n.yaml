@@ -18,6 +18,8 @@ endTime: Ende
 participants: Teilnehmer
 statusCancelled: Abgesagt
 statusInProgress: Läuft
+statusNotStarted: "Nicht begonnen"
+statusEnded: "Beendet"
 cancelSuccess: Termin abgesagt
 cancelFailed: Absagen fehlgeschlagen. Bitte später erneut versuchen.
 confirmAttend: Teilnehmen

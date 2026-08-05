@@ -11,6 +11,7 @@ pending: 待完成
 completed: 已完成
 taskCreated: 任務建立成功
 taskSubmitted: 任務已提交
+submitTask: "提交作業"
 taskCompleted: 任務已完成
 overdue: 已過期
 daysLeft: $days 天后截止

@@ -53,11 +53,14 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
       _error = null;
     });
 
+    // group_task.status 枚举：1待完成 2进行中 3已截止（foundation 迁移列注释）。
+    // 原先「已完成」筛选发的是 status=2，而 2 是**进行中**——筛出来的根本不是
+    // 已结束的作业。这里按真实枚举对齐：能收作业的是 1，收完了的是 3。
     int? status;
     if (_currentFilter == 1) {
-      status = 1; // 待完成（in-progress）
+      status = 1; // 待完成
     } else if (_currentFilter == 2) {
-      status = 2; // 已完成（completed）
+      status = 3; // 已截止
     }
 
     try {
@@ -271,7 +274,8 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   Widget _buildTaskItem(Map<String, dynamic> task) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final status = task['status'] ?? 0;
-    final isDone = status == 1;
+    // 同上：1 是待完成，不是已完成。只有 3（已截止）才画成"已结束"的样式。
+    final isDone = status == 3;
     final deadline = task['deadline'] is int ? task['deadline'] as int : null;
     final taskId = _resolveTaskRouteId(task);
 

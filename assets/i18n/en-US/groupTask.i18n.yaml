@@ -11,6 +11,7 @@ pending: Pending
 completed: Completed
 taskCreated: Task created
 taskSubmitted: Task submitted
+submitTask: "Submit Task"
 taskCompleted: Task completed
 overdue: Overdue
 daysLeft: $days days left

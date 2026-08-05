@@ -2044,6 +2044,8 @@ class _Translations$groupSchedule$ja_JP extends Translations$groupSchedule$zh_CN
 	@override String get participants => '参加者数';
 	@override String get statusCancelled => 'キャンセル済み';
 	@override String get statusInProgress => '進行中';
+	@override String get statusNotStarted => '未開始';
+	@override String get statusEnded => '終了';
 	@override String get cancelSuccess => 'スケジュールをキャンセルしました';
 	@override String get cancelFailed => 'キャンセルに失敗しました。後でもう一度お試しください';
 	@override String get confirmAttend => '参加する';
@@ -2092,6 +2094,7 @@ class _Translations$groupTask$ja_JP extends Translations$groupTask$zh_CN {
 	@override String get completed => '完了';
 	@override String get taskCreated => 'タスクを作成しました';
 	@override String get taskSubmitted => 'タスクを提出しました';
+	@override String get submitTask => 'タスクを提出';
 	@override String get taskCompleted => 'タスクが完了しました';
 	@override String get overdue => '期限切れ';
 	@override String daysLeft({required Object days}) => 'あと ${days} 日';
@@ -4403,6 +4406,8 @@ extension on TranslationsJaJp {
 			'groupSchedule.participants' => '参加者数',
 			'groupSchedule.statusCancelled' => 'キャンセル済み',
 			'groupSchedule.statusInProgress' => '進行中',
+			'groupSchedule.statusNotStarted' => '未開始',
+			'groupSchedule.statusEnded' => '終了',
 			'groupSchedule.cancelSuccess' => 'スケジュールをキャンセルしました',
 			'groupSchedule.cancelFailed' => 'キャンセルに失敗しました。後でもう一度お試しください',
 			'groupSchedule.confirmAttend' => '参加する',
@@ -4433,6 +4438,7 @@ extension on TranslationsJaJp {
 			'groupTask.completed' => '完了',
 			'groupTask.taskCreated' => 'タスクを作成しました',
 			'groupTask.taskSubmitted' => 'タスクを提出しました',
+			'groupTask.submitTask' => 'タスクを提出',
 			'groupTask.taskCompleted' => 'タスクが完了しました',
 			'groupTask.overdue' => '期限切れ',
 			'groupTask.daysLeft' => ({required Object days}) => 'あと ${days} 日',
@@ -4599,11 +4605,11 @@ extension on TranslationsJaJp {
 			'main.webView' => 'ウェブビュー',
 			'main.you' => 'あなた',
 			'main.yourFeel' => 'どう感じましたか？',
+			_ => null,
+		} ?? switch (path) {
 			'main.zhCn' => '簡体字中国語',
 			'main.zhHant' => '繁体字中国語',
 			'main.bound' => '登録済み',
-			_ => null,
-		} ?? switch (path) {
 			'main.correct' => '正しい',
 			'main.pendingInput' => '入力待ち',
 			'main.lengthCheck' => '長さチェック',

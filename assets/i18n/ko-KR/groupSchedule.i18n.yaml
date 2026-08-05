@@ -18,6 +18,8 @@ endTime: 종료 시간
 participants: 참여 인원
 statusCancelled: 취소됨
 statusInProgress: 진행 중
+statusNotStarted: "시작 전"
+statusEnded: "종료됨"
 cancelSuccess: 일정이 취소되었습니다
 cancelFailed: 취소 실패, 나중에 다시 시도해주세요
 confirmAttend: 참석 확인

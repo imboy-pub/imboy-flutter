@@ -2044,6 +2044,8 @@ class _Translations$groupSchedule$ko_KR extends Translations$groupSchedule$zh_CN
 	@override String get participants => '참여 인원';
 	@override String get statusCancelled => '취소됨';
 	@override String get statusInProgress => '진행 중';
+	@override String get statusNotStarted => '시작 전';
+	@override String get statusEnded => '종료됨';
 	@override String get cancelSuccess => '일정이 취소되었습니다';
 	@override String get cancelFailed => '취소 실패, 나중에 다시 시도해주세요';
 	@override String get confirmAttend => '참석 확인';
@@ -2092,6 +2094,7 @@ class _Translations$groupTask$ko_KR extends Translations$groupTask$zh_CN {
 	@override String get completed => '완료';
 	@override String get taskCreated => '작업이 생성되었습니다';
 	@override String get taskSubmitted => '작업이 제출되었습니다';
+	@override String get submitTask => '작업 제출';
 	@override String get taskCompleted => '작업이 완료되었습니다';
 	@override String get overdue => '마감';
 	@override String daysLeft({required Object days}) => '${days}일 후 마감';
@@ -4403,6 +4406,8 @@ extension on TranslationsKoKr {
 			'groupSchedule.participants' => '참여 인원',
 			'groupSchedule.statusCancelled' => '취소됨',
 			'groupSchedule.statusInProgress' => '진행 중',
+			'groupSchedule.statusNotStarted' => '시작 전',
+			'groupSchedule.statusEnded' => '종료됨',
 			'groupSchedule.cancelSuccess' => '일정이 취소되었습니다',
 			'groupSchedule.cancelFailed' => '취소 실패, 나중에 다시 시도해주세요',
 			'groupSchedule.confirmAttend' => '참석 확인',
@@ -4433,6 +4438,7 @@ extension on TranslationsKoKr {
 			'groupTask.completed' => '완료',
 			'groupTask.taskCreated' => '작업이 생성되었습니다',
 			'groupTask.taskSubmitted' => '작업이 제출되었습니다',
+			'groupTask.submitTask' => '작업 제출',
 			'groupTask.taskCompleted' => '작업이 완료되었습니다',
 			'groupTask.overdue' => '마감',
 			'groupTask.daysLeft' => ({required Object days}) => '${days}일 후 마감',
@@ -4599,11 +4605,11 @@ extension on TranslationsKoKr {
 			'main.webView' => '웹 보기',
 			'main.you' => '당신',
 			'main.yourFeel' => '어떻게 생각하시나요?',
+			_ => null,
+		} ?? switch (path) {
 			'main.zhCn' => '중국어 간체',
 			'main.zhHant' => '중국어 번체',
 			'main.bound' => '연결됨',
-			_ => null,
-		} ?? switch (path) {
 			'main.correct' => '올바름',
 			'main.pendingInput' => '입력 대기 중',
 			'main.lengthCheck' => '길이 검사',

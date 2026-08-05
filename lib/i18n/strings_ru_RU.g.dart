@@ -2044,6 +2044,8 @@ class _Translations$groupSchedule$ru_RU extends Translations$groupSchedule$zh_CN
 	@override String get participants => 'Участники';
 	@override String get statusCancelled => 'Отменено';
 	@override String get statusInProgress => 'Идёт';
+	@override String get statusNotStarted => 'Не начато';
+	@override String get statusEnded => 'Завершено';
 	@override String get cancelSuccess => 'Событие отменено';
 	@override String get cancelFailed => 'Не удалось отменить, попробуйте позже';
 	@override String get confirmAttend => 'Подтвердить участие';
@@ -2092,6 +2094,7 @@ class _Translations$groupTask$ru_RU extends Translations$groupTask$zh_CN {
 	@override String get completed => 'Завершено';
 	@override String get taskCreated => 'Задача создана';
 	@override String get taskSubmitted => 'Задача отправлена';
+	@override String get submitTask => 'Отправить задание';
 	@override String get taskCompleted => 'Задача завершена';
 	@override String get overdue => 'Просрочено';
 	@override String daysLeft({required Object days}) => 'Срок через ${days} дн.';
@@ -4403,6 +4406,8 @@ extension on TranslationsRuRu {
 			'groupSchedule.participants' => 'Участники',
 			'groupSchedule.statusCancelled' => 'Отменено',
 			'groupSchedule.statusInProgress' => 'Идёт',
+			'groupSchedule.statusNotStarted' => 'Не начато',
+			'groupSchedule.statusEnded' => 'Завершено',
 			'groupSchedule.cancelSuccess' => 'Событие отменено',
 			'groupSchedule.cancelFailed' => 'Не удалось отменить, попробуйте позже',
 			'groupSchedule.confirmAttend' => 'Подтвердить участие',
@@ -4433,6 +4438,7 @@ extension on TranslationsRuRu {
 			'groupTask.completed' => 'Завершено',
 			'groupTask.taskCreated' => 'Задача создана',
 			'groupTask.taskSubmitted' => 'Задача отправлена',
+			'groupTask.submitTask' => 'Отправить задание',
 			'groupTask.taskCompleted' => 'Задача завершена',
 			'groupTask.overdue' => 'Просрочено',
 			'groupTask.daysLeft' => ({required Object days}) => 'Срок через ${days} дн.',
@@ -4599,11 +4605,11 @@ extension on TranslationsRuRu {
 			'main.webView' => 'Веб-представление',
 			'main.you' => 'Вы',
 			'main.yourFeel' => 'Что вы чувствуете?',
+			_ => null,
+		} ?? switch (path) {
 			'main.zhCn' => 'Упрощённый китайский',
 			'main.zhHant' => 'Традиционный китайский',
 			'main.bound' => 'Привязано',
-			_ => null,
-		} ?? switch (path) {
 			'main.correct' => 'Верно',
 			'main.pendingInput' => 'Ожидание ввода',
 			'main.lengthCheck' => 'Проверка длины',

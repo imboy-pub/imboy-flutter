@@ -18,6 +18,8 @@ endTime: Конец
 participants: Участники
 statusCancelled: Отменено
 statusInProgress: Идёт
+statusNotStarted: "Не начато"
+statusEnded: "Завершено"
 cancelSuccess: Событие отменено
 cancelFailed: Не удалось отменить, попробуйте позже
 confirmAttend: Подтвердить участие

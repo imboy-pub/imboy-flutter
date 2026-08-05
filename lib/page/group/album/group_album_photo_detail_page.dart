@@ -318,7 +318,14 @@ class _GroupAlbumPhotoDetailPageState
             AppSpacing.verticalSmall,
             SizedBox(
               width: double.infinity,
+              // 破坏性操作按 DESIGN.md 必须用 iosRed —— 确认弹窗（本文件 L123）
+              // 早就是 isDestructiveAction 了，按钮本身漏了，结果页面上唯一的
+              // 实心高对比按钮是"删除图片"，看起来像本页的推荐操作。
               child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.iosRed,
+                  foregroundColor: AppColors.onPrimary,
+                ),
                 onPressed: _isDeleting ? null : _deletePhoto,
                 icon: const Icon(Icons.delete_outline),
                 label: Text(t.common.groupAlbumPhotoDeleteTitle),

@@ -13,6 +13,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -57,18 +58,20 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
 
       notifier.setGroupMemberList(list);
 
-      // 加载联系人列表
-      final contactState = ref.read(contactProvider);
-      if (contactState.contactList.isEmpty) {
+      // 联系人**不能**走 contactProvider 的 state 取：它是 @riverpod（autoDispose），
+      // 本页只 read 不 watch，读完实例就被回收 —— loadData() 写进去的数据落在一个
+      // 已被丢弃的实例上，await 之后再 read 拿到的是全新空状态，于是"添加成员"
+      // 永远显示「暂无数据」（本页因 BUG#102 长期不可达，这个空列表一直没被发现）。
+      //
+      // 直接读本地库：既不受 provider 生命周期影响，返回的也都是真实好友，
+      // 不含 contactList 里混的 6 个功能入口占位（朋友圈/找附近的人/AI 助手广场…）。
+      List<ContactModel> contacts = await ContactRepo().findFriend();
+      if (contacts.isEmpty) {
+        // 本地还没同步过（如新装后直接进本页）：借 contactProvider 触发一次
+        // 服务端同步，同步结果落库，再从库里读。
         await ref.read(contactProvider.notifier).loadData();
+        contacts = await ContactRepo().findFriend();
       }
-      // contactList 里混着 6 个功能入口占位（朋友圈/找附近的人/AI 助手广场…），
-      // 那是联系人首页的菜单，不能出现在"选人加群"里。
-      final contacts = ref
-          .read(contactProvider)
-          .contactList
-          .where(isRealContact)
-          .toList();
       notifier.handleContactList(contacts);
     } finally {
       notifier.setLoading(false);

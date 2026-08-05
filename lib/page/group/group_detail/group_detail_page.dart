@@ -102,6 +102,21 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     super.dispose();
   }
 
+  /// AvatarList 完全靠 `account == 'add'/'remove'` 这两个伪成员来渲染「＋」「－」
+  /// 按钮（avatar_list.dart:50-77），而 `/group/add_member`、`/group/remove_member`
+  /// **没有任何其他入口**。所以每一次 setMemberList 都必须带上它们——
+  /// 曾经网络同步那趟漏了，导致群主打开群详情后加/移成员按钮直接消失。
+  List<PeopleModel> _withActionSlots(
+    List<PeopleModel> members, {
+    required bool isAdmin,
+  }) {
+    return [
+      ...members,
+      PeopleModel(id: -1, account: 'add'),
+      if (isAdmin) PeopleModel(id: -2, account: 'remove'),
+    ];
+  }
+
   Future<void> initData() async {
     final notifier = ref.read(groupDetailProvider.notifier);
     final service = GroupDetailService();
@@ -120,15 +135,13 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
         sync: false,
         limit: 18,
       );
-      memberList.add(PeopleModel(id: -1, account: 'add'));
       int role = await service.role(
         gid: widget.groupId,
         userId: UserRepoLocal.to.currentUid,
       );
       bool isAdmin = isGroupAdmin(role);
       notifier.setRoleInfo(role, isAdmin);
-      if (isAdmin) memberList.add(PeopleModel(id: -2, account: 'remove'));
-      notifier.setMemberList(memberList);
+      notifier.setMemberList(_withActionSlots(memberList, isAdmin: isAdmin));
 
       GroupMemberModel? m = await service.getMyGroupMemberInfo(widget.groupId);
       if (m != null) notifier.setMyGroupAlias(m.alias);
@@ -150,7 +163,12 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             limit: 1000,
           );
           if (memberList.length > 18) memberList = memberList.sublist(0, 18);
-          notifier.setMemberList(memberList);
+          notifier.setMemberList(
+            _withActionSlots(
+              memberList,
+              isAdmin: ref.read(groupDetailProvider).isAdmin,
+            ),
+          );
         }
         // 群详情同步会更新本地 E2EE 旗标（group_api.detail），此处回读刷新开关
         _groupE2ee = await GroupSessionService.to.isGroupE2EE(widget.groupId);

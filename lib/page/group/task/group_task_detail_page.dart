@@ -143,7 +143,12 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
 
   Widget _buildDetailContent() {
     final status = _toInt(_task!['status']);
-    final isCompleted = status == 1 || status == 3;
+    // group_task.status 枚举是 1待完成 2进行中 3已截止（见 foundation 迁移的列注释），
+    // 只有 3 才是「不能再提交」。原先写成 `status == 1 || status == 3`，把**待完成**
+    // 判成了已完成 —— 新建作业恒为 1，于是提交按钮永远不出现，群作业提交功能
+    // 对最常见的状态 100% 不可用。疑似与 group_task_assignment.status
+    //（0待完成 1进行中 2已提交 3已批改）的枚举混淆。
+    final isCompleted = status == 3;
 
     return RefreshIndicator(
       onRefresh: _loadDetail,
@@ -191,7 +196,10 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(context.t.groupTask.taskSubmitted),
+                  // 这里要的是**动作**标签，不是结果文案。原先复用了
+                  // taskSubmitted（"任务已提交"，L111 的成功 toast），
+                  // 按钮上写着"任务已提交"却是用来提交的。
+                  : Text(context.t.groupTask.submitTask),
             ),
         ],
       ),

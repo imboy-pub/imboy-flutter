@@ -2047,6 +2047,8 @@ class _Translations$groupSchedule$de_DE extends Translations$groupSchedule$zh_CN
 	@override String get participants => 'Teilnehmer';
 	@override String get statusCancelled => 'Abgesagt';
 	@override String get statusInProgress => 'Läuft';
+	@override String get statusNotStarted => 'Nicht begonnen';
+	@override String get statusEnded => 'Beendet';
 	@override String get cancelSuccess => 'Termin abgesagt';
 	@override String get cancelFailed => 'Absagen fehlgeschlagen. Bitte später erneut versuchen.';
 	@override String get confirmAttend => 'Teilnehmen';
@@ -2095,6 +2097,7 @@ class _Translations$groupTask$de_DE extends Translations$groupTask$zh_CN {
 	@override String get completed => 'Erledigt';
 	@override String get taskCreated => 'Aufgabe erstellt';
 	@override String get taskSubmitted => 'Aufgabe eingereicht';
+	@override String get submitTask => 'Aufgabe einreichen';
 	@override String get taskCompleted => 'Aufgabe erledigt';
 	@override String get overdue => 'Überfällig';
 	@override String daysLeft({required Object days}) => 'Frist in ${days} Tagen';
@@ -4406,6 +4409,8 @@ extension on TranslationsDeDe {
 			'groupSchedule.participants' => 'Teilnehmer',
 			'groupSchedule.statusCancelled' => 'Abgesagt',
 			'groupSchedule.statusInProgress' => 'Läuft',
+			'groupSchedule.statusNotStarted' => 'Nicht begonnen',
+			'groupSchedule.statusEnded' => 'Beendet',
 			'groupSchedule.cancelSuccess' => 'Termin abgesagt',
 			'groupSchedule.cancelFailed' => 'Absagen fehlgeschlagen. Bitte später erneut versuchen.',
 			'groupSchedule.confirmAttend' => 'Teilnehmen',
@@ -4436,6 +4441,7 @@ extension on TranslationsDeDe {
 			'groupTask.completed' => 'Erledigt',
 			'groupTask.taskCreated' => 'Aufgabe erstellt',
 			'groupTask.taskSubmitted' => 'Aufgabe eingereicht',
+			'groupTask.submitTask' => 'Aufgabe einreichen',
 			'groupTask.taskCompleted' => 'Aufgabe erledigt',
 			'groupTask.overdue' => 'Überfällig',
 			'groupTask.daysLeft' => ({required Object days}) => 'Frist in ${days} Tagen',
@@ -4602,11 +4608,11 @@ extension on TranslationsDeDe {
 			'main.webView' => 'Webansicht',
 			'main.you' => 'Sie',
 			'main.yourFeel' => 'Wie fühlen Sie sich dabei?',
+			_ => null,
+		} ?? switch (path) {
 			'main.zhCn' => 'Vereinfachtes Chinesisch',
 			'main.zhHant' => 'Traditionelles Chinesisch',
 			'main.bound' => 'Gebunden',
-			_ => null,
-		} ?? switch (path) {
 			'main.correct' => 'Korrekt',
 			'main.pendingInput' => 'Eingabe ausstehend',
 			'main.lengthCheck' => 'Längenprüfung',

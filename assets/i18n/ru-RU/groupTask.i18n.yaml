@@ -12,6 +12,7 @@ pending: В работе
 completed: Завершено
 taskCreated: Задача создана
 taskSubmitted: Задача отправлена
+submitTask: "Отправить задание"
 taskCompleted: Задача завершена
 overdue: Просрочено
 daysLeft: Срок через $days дн.

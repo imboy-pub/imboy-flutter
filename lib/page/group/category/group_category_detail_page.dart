@@ -113,6 +113,11 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
     }
   }
 
+  /// 「未分类」是服务端合成出来的桶：`group_category_ds:find_by_uid/1` 在真实
+  /// 分类前面固定拼一条 `#{id => 0, category_name => 未分类}`，数据库里并不存在
+  /// 这条记录。所以它不能被重命名或删除——否则等于对一个不存在的 id 发起写操作。
+  bool get _isDefaultCategory => widget.categoryId == 0;
+
   /// 显示更多操作菜单（Cupertino ActionSheet）
   void _showMoreMenu() {
     final t = context.t;
@@ -156,15 +161,16 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
           // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
           // 文案跨用 discovery 域的「更多操作」：全 App 通用且已有 10 语言，
           // 避免为一个标签新增一套翻译。
-          Semantics(
-            button: true,
-            label: t.discovery.momentActionMore,
-            child: CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: _showMoreMenu,
-              child: const Icon(CupertinoIcons.ellipsis, size: 22),
+          if (!_isDefaultCategory)
+            Semantics(
+              button: true,
+              label: t.discovery.momentActionMore,
+              child: CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: _showMoreMenu,
+                child: const Icon(CupertinoIcons.ellipsis, size: 22),
+              ),
             ),
-          ),
         ],
       ),
       body: _buildBody(t),
@@ -207,39 +213,42 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
           ),
         ),
         AppSpacing.verticalXLarge,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: AppRadius.borderRadiusMedium,
-            ),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(CupertinoIcons.pencil),
-                  title: Text(t.groupCategory.renameCategory),
-                  trailing: const Icon(CupertinoIcons.chevron_right),
-                  onTap: _renameCategory,
-                ),
-                const Divider(height: 1, indent: 56),
-                ListTile(
-                  leading: Icon(
-                    CupertinoIcons.delete,
-                    color: AppColors.getIosRed(Theme.of(context).brightness),
+        if (!_isDefaultCategory)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: AppRadius.borderRadiusMedium,
+              ),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(CupertinoIcons.pencil),
+                    title: Text(t.groupCategory.renameCategory),
+                    trailing: const Icon(CupertinoIcons.chevron_right),
+                    onTap: _renameCategory,
                   ),
-                  title: Text(
-                    t.groupCategory.deleteCategory,
-                    style: TextStyle(
+                  const Divider(height: 1, indent: 56),
+                  ListTile(
+                    leading: Icon(
+                      CupertinoIcons.delete,
                       color: AppColors.getIosRed(Theme.of(context).brightness),
                     ),
+                    title: Text(
+                      t.groupCategory.deleteCategory,
+                      style: TextStyle(
+                        color: AppColors.getIosRed(
+                          Theme.of(context).brightness,
+                        ),
+                      ),
+                    ),
+                    trailing: const Icon(CupertinoIcons.chevron_right),
+                    onTap: _deleteCategory,
                   ),
-                  trailing: const Icon(CupertinoIcons.chevron_right),
-                  onTap: _deleteCategory,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
       ],
     );
   }

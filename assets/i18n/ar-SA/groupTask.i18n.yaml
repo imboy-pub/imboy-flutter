@@ -12,6 +12,7 @@ pending: قيد التنفيذ
 completed: مكتملة
 taskCreated: تم إنشاء المهمة
 taskSubmitted: تم إرسال المهمة
+submitTask: "إرسال الواجب"
 taskCompleted: تمت المهمة
 overdue: متأخرة
 daysLeft: الموعد النهائي بعد $days يوماً

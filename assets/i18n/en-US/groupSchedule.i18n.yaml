@@ -17,6 +17,8 @@ endTime: End Time
 participants: Participants
 statusCancelled: Cancelled
 statusInProgress: In Progress
+statusNotStarted: "Not Started"
+statusEnded: "Ended"
 cancelSuccess: Schedule cancelled
 cancelFailed: "Cancel failed, please try again"
 confirmAttend: Confirm Attendance

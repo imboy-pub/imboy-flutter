@@ -17,6 +17,8 @@ endTime: 結束時間
 participants: 參與人數
 statusCancelled: 已取消
 statusInProgress: 進行中
+statusNotStarted: "未開始"
+statusEnded: "已結束"
 cancelSuccess: 日程已取消
 cancelFailed: 取消失敗，請稍後重試
 confirmAttend: 確認參加

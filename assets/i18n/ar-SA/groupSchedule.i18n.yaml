@@ -18,6 +18,8 @@ endTime: الانتهاء
 participants: المشاركون
 statusCancelled: ملغى
 statusInProgress: جارٍ
+statusNotStarted: "لم يبدأ بعد"
+statusEnded: "انتهى"
 cancelSuccess: تم إلغاء الفعالية
 cancelFailed: تعذّر الإلغاء، حاول لاحقاً
 confirmAttend: تأكيد الحضور

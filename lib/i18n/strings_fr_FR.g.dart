@@ -2047,6 +2047,8 @@ class _Translations$groupSchedule$fr_FR extends Translations$groupSchedule$zh_CN
 	@override String get participants => 'Participants';
 	@override String get statusCancelled => 'Annulé';
 	@override String get statusInProgress => 'En cours';
+	@override String get statusNotStarted => 'Pas commencé';
+	@override String get statusEnded => 'Terminé';
 	@override String get cancelSuccess => 'Événement annulé';
 	@override String get cancelFailed => 'Échec de l\'annulation. Réessayez plus tard.';
 	@override String get confirmAttend => 'Participer';
@@ -2095,6 +2097,7 @@ class _Translations$groupTask$fr_FR extends Translations$groupTask$zh_CN {
 	@override String get completed => 'Terminées';
 	@override String get taskCreated => 'Tâche créée';
 	@override String get taskSubmitted => 'Tâche soumise';
+	@override String get submitTask => 'Soumettre la tâche';
 	@override String get taskCompleted => 'Tâche terminée';
 	@override String get overdue => 'En retard';
 	@override String daysLeft({required Object days}) => 'Échéance dans ${days} j';
@@ -4406,6 +4409,8 @@ extension on TranslationsFrFr {
 			'groupSchedule.participants' => 'Participants',
 			'groupSchedule.statusCancelled' => 'Annulé',
 			'groupSchedule.statusInProgress' => 'En cours',
+			'groupSchedule.statusNotStarted' => 'Pas commencé',
+			'groupSchedule.statusEnded' => 'Terminé',
 			'groupSchedule.cancelSuccess' => 'Événement annulé',
 			'groupSchedule.cancelFailed' => 'Échec de l\'annulation. Réessayez plus tard.',
 			'groupSchedule.confirmAttend' => 'Participer',
@@ -4436,6 +4441,7 @@ extension on TranslationsFrFr {
 			'groupTask.completed' => 'Terminées',
 			'groupTask.taskCreated' => 'Tâche créée',
 			'groupTask.taskSubmitted' => 'Tâche soumise',
+			'groupTask.submitTask' => 'Soumettre la tâche',
 			'groupTask.taskCompleted' => 'Tâche terminée',
 			'groupTask.overdue' => 'En retard',
 			'groupTask.daysLeft' => ({required Object days}) => 'Échéance dans ${days} j',
@@ -4602,11 +4608,11 @@ extension on TranslationsFrFr {
 			'main.webView' => 'Vue Web',
 			'main.you' => 'Vous',
 			'main.yourFeel' => 'Comment vous sentez-vous ?',
+			_ => null,
+		} ?? switch (path) {
 			'main.zhCn' => 'Chinois simplifié',
 			'main.zhHant' => 'Chinois traditionnel',
 			'main.bound' => 'Lié',
-			_ => null,
-		} ?? switch (path) {
 			'main.correct' => 'Correcte',
 			'main.pendingInput' => 'En attente de saisie',
 			'main.lengthCheck' => 'Vérification de la longueur',

@@ -18,6 +18,8 @@ endTime: 終了時刻
 participants: 参加者数
 statusCancelled: キャンセル済み
 statusInProgress: 進行中
+statusNotStarted: "未開始"
+statusEnded: "終了"
 cancelSuccess: スケジュールをキャンセルしました
 cancelFailed: キャンセルに失敗しました。後でもう一度お試しください
 confirmAttend: 参加する

@@ -369,34 +369,37 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        trailing: SizedBox(
-          width: 144,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+        // 原先是 SizedBox(width: 144)：3 个默认 IconButton（48dp）刚好占满，
+        // 360dp 宽的机器上给标题只剩 ~110dp，相册名会被断词折行
+        //（`qa-album-0804` → `qa-` / `album-0804`）。而且这个宽度是写死的，
+        // 删除按钮按权限隐藏时照样白占 48dp。
+        // 改为让 Row 自己量宽 + compact 密度，触达区仍保持 ≥40dp。
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(CupertinoIcons.pencil),
+              tooltip: t.group.groupAlbumRenameTitle,
+              onPressed: _isUploadingPhoto ? null : () => _renameAlbum(album),
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.add_photo_alternate_outlined),
+              tooltip: t.common.groupAlbumUploadTooltip,
+              onPressed: _isUploadingPhoto
+                  ? null
+                  : () => _pickAndUploadPhoto(album),
+            ),
+            // SR-4：删除仅创建者本人 / 管理员 / 群主可见（隐藏而非报错）
+            if (_canDeleteAlbum(album))
               IconButton(
-                icon: const Icon(CupertinoIcons.pencil),
-                tooltip: t.group.groupAlbumRenameTitle,
-                onPressed: _isUploadingPhoto ? null : () => _renameAlbum(album),
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(CupertinoIcons.delete, size: 22),
+                tooltip: t.common.groupAlbumDeleteTooltip,
+                onPressed: _isUploadingPhoto ? null : () => _deleteAlbum(album),
               ),
-              IconButton(
-                icon: const Icon(Icons.add_photo_alternate_outlined),
-                tooltip: t.common.groupAlbumUploadTooltip,
-                onPressed: _isUploadingPhoto
-                    ? null
-                    : () => _pickAndUploadPhoto(album),
-              ),
-              // SR-4：删除仅创建者本人 / 管理员 / 群主可见（隐藏而非报错）
-              if (_canDeleteAlbum(album))
-                IconButton(
-                  icon: const Icon(CupertinoIcons.delete, size: 22),
-                  tooltip: t.common.groupAlbumDeleteTooltip,
-                  onPressed: _isUploadingPhoto
-                      ? null
-                      : () => _deleteAlbum(album),
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );

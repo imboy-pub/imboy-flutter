@@ -12,6 +12,7 @@ pending: 未完了
 completed: 完了
 taskCreated: タスクを作成しました
 taskSubmitted: タスクを提出しました
+submitTask: "タスクを提出"
 taskCompleted: タスクが完了しました
 overdue: 期限切れ
 daysLeft: あと $days 日

@@ -12,6 +12,7 @@ pending: En cours
 completed: Terminées
 taskCreated: Tâche créée
 taskSubmitted: Tâche soumise
+submitTask: "Soumettre la tâche"
 taskCompleted: Tâche terminée
 overdue: En retard
 daysLeft: Échéance dans $days j

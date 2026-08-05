@@ -12,6 +12,7 @@ pending: Offen
 completed: Erledigt
 taskCreated: Aufgabe erstellt
 taskSubmitted: Aufgabe eingereicht
+submitTask: "Aufgabe einreichen"
 taskCompleted: Aufgabe erledigt
 overdue: Überfällig
 daysLeft: Frist in $days Tagen

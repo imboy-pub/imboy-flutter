@@ -2069,6 +2069,8 @@ class _Translations$groupSchedule$en_US extends Translations$groupSchedule$zh_CN
 	@override String get participants => 'Participants';
 	@override String get statusCancelled => 'Cancelled';
 	@override String get statusInProgress => 'In Progress';
+	@override String get statusNotStarted => 'Not Started';
+	@override String get statusEnded => 'Ended';
 	@override String get cancelSuccess => 'Schedule cancelled';
 	@override String get cancelFailed => 'Cancel failed, please try again';
 	@override String get confirmAttend => 'Confirm Attendance';
@@ -2117,6 +2119,7 @@ class _Translations$groupTask$en_US extends Translations$groupTask$zh_CN {
 	@override String get completed => 'Completed';
 	@override String get taskCreated => 'Task created';
 	@override String get taskSubmitted => 'Task submitted';
+	@override String get submitTask => 'Submit Task';
 	@override String get taskCompleted => 'Task completed';
 	@override String get overdue => 'Overdue';
 	@override String daysLeft({required Object days}) => '${days} days left';
@@ -4450,6 +4453,8 @@ extension on TranslationsEnUs {
 			'groupSchedule.participants' => 'Participants',
 			'groupSchedule.statusCancelled' => 'Cancelled',
 			'groupSchedule.statusInProgress' => 'In Progress',
+			'groupSchedule.statusNotStarted' => 'Not Started',
+			'groupSchedule.statusEnded' => 'Ended',
 			'groupSchedule.cancelSuccess' => 'Schedule cancelled',
 			'groupSchedule.cancelFailed' => 'Cancel failed, please try again',
 			'groupSchedule.confirmAttend' => 'Confirm Attendance',
@@ -4480,6 +4485,7 @@ extension on TranslationsEnUs {
 			'groupTask.completed' => 'Completed',
 			'groupTask.taskCreated' => 'Task created',
 			'groupTask.taskSubmitted' => 'Task submitted',
+			'groupTask.submitTask' => 'Submit Task',
 			'groupTask.taskCompleted' => 'Task completed',
 			'groupTask.overdue' => 'Overdue',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} days left',
@@ -4624,11 +4630,11 @@ extension on TranslationsEnUs {
 			'main.signInWith' => ({required Object param}) => 'Sign in with ${param}',
 			'main.source' => 'Source',
 			'main.speakingTooShort' => 'Speaking time too short',
+			_ => null,
+		} ?? switch (path) {
 			'main.speed' => 'Speed',
 			'main.star' => _root.main.markStar,
 			'main.stillNeeded' => 'Still need',
-			_ => null,
-		} ?? switch (path) {
 			'main.storageSpace' => 'Storage space',
 			'main.termOfServices' => 'Terms of service',
 			'main.text' => 'Text',

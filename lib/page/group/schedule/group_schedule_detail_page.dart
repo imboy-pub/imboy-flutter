@@ -215,6 +215,18 @@ class _GroupScheduleDetailPageState
     final participants = _toMapList(_detail!['participants']);
 
     final status = _toInt(schedule['status']);
+    final startAt = _toInt(schedule['start_time'] ?? schedule['start_at']);
+    final endAt = _toInt(schedule['end_time'] ?? schedule['end_at']);
+    // 后端 group_schedule.status 只会是 1（创建时写死）或 4（取消），
+    // 2进行中/3已结束 没有任何流转逻辑 —— 所以时间态必须由客户端按
+    // start/end 推导，否则三天前结束的日程会永远显示"进行中"并继续催人报名。
+    // start_at/end_at 与 _formatTimestamp 一致，单位是**秒**不是毫秒。
+    final nowSec = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final isCancelled = status == 4;
+    final isEnded = !isCancelled && endAt > 0 && nowSec > endAt;
+    final isNotStarted = !isCancelled && startAt > 0 && nowSec < startAt;
+    // 已取消或已结束都不该再接受报名/取消操作。
+    final isActionable = !isCancelled && !isEnded;
     final startTime = _formatTimestamp(
       schedule['start_time'] ?? schedule['start_at'],
     );
@@ -239,8 +251,12 @@ class _GroupScheduleDetailPageState
           const SizedBox(height: AppSpacing.small),
           Chip(
             label: Text(
-              status == 4
+              isCancelled
                   ? context.t.groupSchedule.statusCancelled
+                  : isEnded
+                  ? context.t.groupSchedule.statusEnded
+                  : isNotStarted
+                  ? context.t.groupSchedule.statusNotStarted
                   : context.t.groupSchedule.statusInProgress,
             ),
           ),
@@ -278,7 +294,7 @@ class _GroupScheduleDetailPageState
                 ),
           ],
           const SizedBox(height: AppSpacing.regular),
-          if (status != 4)
+          if (isActionable)
             Row(
               children: [
                 Expanded(
@@ -296,8 +312,8 @@ class _GroupScheduleDetailPageState
                 ),
               ],
             ),
-          if (status != 4) const SizedBox(height: AppSpacing.medium),
-          if (status != 4)
+          if (isActionable) const SizedBox(height: AppSpacing.medium),
+          if (isActionable)
             OutlinedButton(
               onPressed: _isSubmitting ? null : _cancelSchedule,
               child: Text(context.t.groupSchedule.cancelSchedule),

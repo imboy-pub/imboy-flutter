@@ -6201,6 +6201,12 @@ class Translations$groupSchedule$zh_CN {
 	/// zh-CN: '进行中'
 	String get statusInProgress => '进行中';
 
+	/// zh-CN: '未开始'
+	String get statusNotStarted => '未开始';
+
+	/// zh-CN: '已结束'
+	String get statusEnded => '已结束';
+
 	/// zh-CN: '日程已取消'
 	String get cancelSuccess => '日程已取消';
 
@@ -6308,6 +6314,9 @@ class Translations$groupTask$zh_CN {
 
 	/// zh-CN: '任务已提交'
 	String get taskSubmitted => '任务已提交';
+
+	/// zh-CN: '提交作业'
+	String get submitTask => '提交作业';
 
 	/// zh-CN: '任务已完成'
 	String get taskCompleted => '任务已完成';
@@ -9549,6 +9558,8 @@ extension on Translations {
 			'groupSchedule.participants' => '参与人数',
 			'groupSchedule.statusCancelled' => '已取消',
 			'groupSchedule.statusInProgress' => '进行中',
+			'groupSchedule.statusNotStarted' => '未开始',
+			'groupSchedule.statusEnded' => '已结束',
 			'groupSchedule.cancelSuccess' => '日程已取消',
 			'groupSchedule.cancelFailed' => '取消失败，请稍后重试',
 			'groupSchedule.confirmAttend' => '确认参加',
@@ -9579,6 +9590,7 @@ extension on Translations {
 			'groupTask.completed' => '已完成',
 			'groupTask.taskCreated' => '任务创建成功',
 			'groupTask.taskSubmitted' => '任务已提交',
+			'groupTask.submitTask' => '提交作业',
 			'groupTask.taskCompleted' => '任务已完成',
 			'groupTask.overdue' => '已过期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
@@ -9596,11 +9608,11 @@ extension on Translations {
 			'groupVote.addOption' => '添加选项',
 			'groupVote.allowMultiple' => '允许多选',
 			'groupVote.anonymous' => '匿名投票',
+			_ => null,
+		} ?? switch (path) {
 			'groupVote.deadline' => '截止时间',
 			'groupVote.noDeadline' => '无截止时间',
 			'groupVote.noVote' => '暂无投票',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.voteEnded' => '投票已结束',
 			'groupVote.totalVotes' => ({required Object count}) => '共 ${count} 票',
 			'groupVote.voteSuccess' => '投票成功',

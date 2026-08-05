@@ -18,6 +18,8 @@ endTime: Fine
 participants: Partecipanti
 statusCancelled: Annullato
 statusInProgress: In corso
+statusNotStarted: "Non iniziato"
+statusEnded: "Terminato"
 cancelSuccess: Evento annullato
 cancelFailed: Annullamento fallito. Riprova più tardi.
 confirmAttend: Partecipa

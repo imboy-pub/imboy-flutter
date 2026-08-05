@@ -12,6 +12,7 @@ pending: 미완료
 completed: 완료
 taskCreated: 작업이 생성되었습니다
 taskSubmitted: 작업이 제출되었습니다
+submitTask: "작업 제출"
 taskCompleted: 작업이 완료되었습니다
 overdue: 마감
 daysLeft: "$days일 후 마감"

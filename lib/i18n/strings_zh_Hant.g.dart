@@ -2066,6 +2066,8 @@ class Translations$groupSchedule$zh_Hant extends Translations$groupSchedule$zh_C
 	@override String get participants => '參與人數';
 	@override String get statusCancelled => '已取消';
 	@override String get statusInProgress => '進行中';
+	@override String get statusNotStarted => '未開始';
+	@override String get statusEnded => '已結束';
 	@override String get cancelSuccess => '日程已取消';
 	@override String get cancelFailed => '取消失敗，請稍後重試';
 	@override String get confirmAttend => '確認參加';
@@ -2114,6 +2116,7 @@ class Translations$groupTask$zh_Hant extends Translations$groupTask$zh_CN {
 	@override String get completed => '已完成';
 	@override String get taskCreated => '任務建立成功';
 	@override String get taskSubmitted => '任務已提交';
+	@override String get submitTask => '提交作業';
 	@override String get taskCompleted => '任務已完成';
 	@override String get overdue => '已過期';
 	@override String daysLeft({required Object days}) => '${days} 天后截止';
@@ -4447,6 +4450,8 @@ extension on TranslationsZhHant {
 			'groupSchedule.participants' => '參與人數',
 			'groupSchedule.statusCancelled' => '已取消',
 			'groupSchedule.statusInProgress' => '進行中',
+			'groupSchedule.statusNotStarted' => '未開始',
+			'groupSchedule.statusEnded' => '已結束',
 			'groupSchedule.cancelSuccess' => '日程已取消',
 			'groupSchedule.cancelFailed' => '取消失敗，請稍後重試',
 			'groupSchedule.confirmAttend' => '確認參加',
@@ -4477,6 +4482,7 @@ extension on TranslationsZhHant {
 			'groupTask.completed' => '已完成',
 			'groupTask.taskCreated' => '任務建立成功',
 			'groupTask.taskSubmitted' => '任務已提交',
+			'groupTask.submitTask' => '提交作業',
 			'groupTask.taskCompleted' => '任務已完成',
 			'groupTask.overdue' => '已過期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
@@ -4621,11 +4627,11 @@ extension on TranslationsZhHant {
 			'main.signInWith' => ({required Object param}) => '用${param}登入',
 			'main.source' => '來源',
 			'main.speakingTooShort' => '說話時間太短',
+			_ => null,
+		} ?? switch (path) {
 			'main.speed' => '速度',
 			'main.star' => _root.main.markStar,
 			'main.stillNeeded' => '還需',
-			_ => null,
-		} ?? switch (path) {
 			'main.storageSpace' => '儲存空間',
 			'main.termOfServices' => '服務條款',
 			'main.text' => '文字',

@@ -2047,6 +2047,8 @@ class _Translations$groupSchedule$it_IT extends Translations$groupSchedule$zh_CN
 	@override String get participants => 'Partecipanti';
 	@override String get statusCancelled => 'Annullato';
 	@override String get statusInProgress => 'In corso';
+	@override String get statusNotStarted => 'Non iniziato';
+	@override String get statusEnded => 'Terminato';
 	@override String get cancelSuccess => 'Evento annullato';
 	@override String get cancelFailed => 'Annullamento fallito. Riprova più tardi.';
 	@override String get confirmAttend => 'Partecipa';
@@ -2095,6 +2097,7 @@ class _Translations$groupTask$it_IT extends Translations$groupTask$zh_CN {
 	@override String get completed => 'Completate';
 	@override String get taskCreated => 'Attività creata';
 	@override String get taskSubmitted => 'Attività inviata';
+	@override String get submitTask => 'Invia attività';
 	@override String get taskCompleted => 'Attività completata';
 	@override String get overdue => 'In ritardo';
 	@override String daysLeft({required Object days}) => 'Scadenza tra ${days} gg';
@@ -4406,6 +4409,8 @@ extension on TranslationsItIt {
 			'groupSchedule.participants' => 'Partecipanti',
 			'groupSchedule.statusCancelled' => 'Annullato',
 			'groupSchedule.statusInProgress' => 'In corso',
+			'groupSchedule.statusNotStarted' => 'Non iniziato',
+			'groupSchedule.statusEnded' => 'Terminato',
 			'groupSchedule.cancelSuccess' => 'Evento annullato',
 			'groupSchedule.cancelFailed' => 'Annullamento fallito. Riprova più tardi.',
 			'groupSchedule.confirmAttend' => 'Partecipa',
@@ -4436,6 +4441,7 @@ extension on TranslationsItIt {
 			'groupTask.completed' => 'Completate',
 			'groupTask.taskCreated' => 'Attività creata',
 			'groupTask.taskSubmitted' => 'Attività inviata',
+			'groupTask.submitTask' => 'Invia attività',
 			'groupTask.taskCompleted' => 'Attività completata',
 			'groupTask.overdue' => 'In ritardo',
 			'groupTask.daysLeft' => ({required Object days}) => 'Scadenza tra ${days} gg',
@@ -4602,11 +4608,11 @@ extension on TranslationsItIt {
 			'main.webView' => 'Vista web',
 			'main.you' => 'Tu',
 			'main.yourFeel' => 'Come ti fa sentire?',
+			_ => null,
+		} ?? switch (path) {
 			'main.zhCn' => 'Cinese semplificato',
 			'main.zhHant' => 'Cinese tradizionale',
 			'main.bound' => 'Collegato',
-			_ => null,
-		} ?? switch (path) {
 			'main.correct' => 'Corretto',
 			'main.pendingInput' => 'In attesa di input',
 			'main.lengthCheck' => 'Controllo lunghezza',
