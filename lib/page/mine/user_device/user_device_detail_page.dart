@@ -36,7 +36,9 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
   @override
   void initState() {
     super.initState();
-    _deviceName = widget.model.deviceName;
+    // 展示位用带兜底的 displayName；下方"设置设备名"入口仍读原始 deviceName，
+    // 否则用户会误以为已经取过名字。
+    _deviceName = widget.model.displayName;
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
       if (mounted) {
         setState(() {});
@@ -266,7 +268,11 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                     ),
                     AppSpacing.verticalTiny,
                     Text(
-                      value,
+                      // 空值兜底放在这里而不是各调用点：后端 device_type 可能是
+                      // 空串（生产实测 5 台桌面端设备都是），原样渲染就是
+                      // 「设备类型」有 label 没有值的空白行（BUG#86）。
+                      // 收口到唯一渲染点，任何详情项缺值都不会再露白。
+                      value.trim().isEmpty ? t.common.unknown : value,
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurface,

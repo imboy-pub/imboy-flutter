@@ -76,7 +76,10 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
             onRetry: _load,
             emptyIcon: CupertinoIcons.device_phone_portrait,
             child: ImBoySettingsSection(
-              header: Text(t.account.loginDeviceManagement.toUpperCase()),
+              // AppBar 已经是「登录设备管理」，分组标题再写一遍就是同一句话
+              // 在一屏里出现两次。改用现成的 deviceList（"设备列表"），
+              // 不新增 i18n key。
+              header: Text(t.account.deviceList.toUpperCase()),
               children: deviceState.deviceList.asMap().entries.map((entry) {
                 return _buildDeviceItem(
                   context,
@@ -162,7 +165,7 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
         children: [
           Expanded(
             child: Text(
-              model.deviceName,
+              model.displayName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
