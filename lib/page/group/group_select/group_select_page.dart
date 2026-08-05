@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -73,11 +72,11 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
                         avatarLoader: computeAvatar,
                         size: 48,
                       ),
-                      title: Text(
-                        strEmpty(model.title)
-                            ? model.computeTitle
-                            : model.title,
-                      ),
+                      // 用 displayTitle（缺名兜「未命名」），不要自己写
+                      // title/computeTitle 三元表达式 —— 那是 ConversationModel
+                      // 文档里明令禁止的写法，且两者同时为空时会渲染出一个
+                      // 只有头像和箭头的**空白条目**，用户完全不知道是哪个群。
+                      title: Text(model.displayTitle),
                       trailing: const Icon(
                         CupertinoIcons.chevron_right,
                         size: 14,
@@ -88,7 +87,10 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
                           '/chat/${model.peerId}',
                           extra: {
                             'peerId': model.peerId,
-                            'peerTitle': model.title,
+                            // 传下游用 resolvedTitle（刻意不兜底）：聊天页拿到
+                            // 空串才会继续查群详情/成员名，传「未命名」会堵死
+                            // 那条查找链（见 ConversationModel.resolvedTitle）。
+                            'peerTitle': model.resolvedTitle,
                             'peerAvatar': model.avatar,
                             'peerSign': '',
                             'type': 'C2G',
