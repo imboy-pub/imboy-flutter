@@ -10,6 +10,7 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:video_player/video_player.dart' as vp;
+import 'package:imboy/component/video/video_controller.dart';
 
 /// FlyerChatVideoMessage - 视频消息组件
 ///
@@ -362,6 +363,15 @@ class _FlyerChatVideoMessageState extends State<FlyerChatVideoMessage> {
 }
 
 /// 全屏视频播放页面
+///
+/// BUG#75 真根因：聊天页视频消息点击走的是 [FlyerChatVideoMessage._handlePlayTap]
+/// → [Navigator.push] 到本页（不是 `VideoViewerPage`），而本页原本只有
+/// `Scaffold+AppBar+VideoPlayer`，**没有调用 play()、没有控制层**，导致
+/// 「画面静止、只有返回键、点击无反应」。此前若干轮都在改 `VideoViewerPage`，
+/// 而聊天页根本走不到它。
+///
+/// 修复：复用项目的 [VideoControllerOverlay]（已含播放/暂停、进度条、时长、
+/// 全屏、点击 toggle），并在进入时自动播放。
 class _VideoPlayerPage extends StatefulWidget {
   final vp.VideoPlayerController videoController;
 
@@ -372,19 +382,40 @@ class _VideoPlayerPage extends StatefulWidget {
 }
 
 class _VideoPlayerPageState extends State<_VideoPlayerPage> {
+  bool _isFullScreen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 进入即播放（主流 IM 行为，与 VideoViewerPage 的 BUG#69 修复一致）
+    widget.videoController
+      ..setLooping(true)
+      ..play();
+  }
+
+  void _toggleFullScreen() {
+    setState(() => _isFullScreen = !_isFullScreen);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: Center(
-        child: AspectRatio(
-          aspectRatio: widget.videoController.value.aspectRatio,
-          child: vp.VideoPlayer(widget.videoController),
-        ),
+    return Material(
+      color: Colors.black,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Center(
+            child: AspectRatio(
+              aspectRatio: widget.videoController.value.aspectRatio,
+              child: vp.VideoPlayer(widget.videoController),
+            ),
+          ),
+          VideoControllerOverlay(
+            controller: widget.videoController,
+            onFullScreenPressed: _toggleFullScreen,
+            isFullScreen: _isFullScreen,
+          ),
+        ],
       ),
     );
   }
