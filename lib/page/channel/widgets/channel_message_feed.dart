@@ -176,6 +176,8 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
           onRefresh: widget.onRefresh ?? _handleRefresh,
           child: ListView.builder(
             controller: _scrollController,
+            // 下滑即收键盘：消息流是实际吃掉手势的那一层，不加这里外层白搭。
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.only(bottom: AppSpacing.regular),
             itemCount: state.messages.length + (state.hasMore ? 1 : 0),
             itemBuilder: (context, index) {

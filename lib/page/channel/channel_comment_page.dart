@@ -56,16 +56,29 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   int _replyToCommentId = 0;
   String _replyToName = '';
 
+  /// 输入框是否有内容：决定发送按钮出现/收起（对标微信、小红书评论区）。
+  bool _hasText = false;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    // 监听 controller 而非 ComposerField.onChanged：发送成功后的 clear()
+    // 不触发 onChanged，只有 listener 能让发送按钮跟着收回去。
+    _inputController.addListener(_onInputChanged);
     _loadComments();
+  }
+
+  /// 空↔非空跨越时才重建，逐字刷新整页没必要。
+  void _onInputChanged() {
+    final hasText = _inputController.text.trim().isNotEmpty;
+    if (hasText != _hasText && mounted) setState(() => _hasText = hasText);
   }
 
   @override
   void dispose() {
     _scrollController.removeListener(_onScroll);
+    _inputController.removeListener(_onInputChanged);
     _inputController.dispose();
     _inputFocusNode.dispose();
     _scrollController.dispose();
@@ -300,6 +313,8 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
       onRefresh: _loadComments,
       child: ListView.builder(
         controller: _scrollController,
+        // 下滑即收键盘：外层 GestureDetector 只吃 onTap，列表拖拽由框架处理。
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: AppSpacing.allSmall,
         itemCount: _comments.length,
         itemBuilder: (context, index) {
@@ -317,16 +332,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
 
   Widget _buildInputBar() {
     final t = context.t;
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Container(
-      padding: EdgeInsets.only(
-        left: AppSpacing.regular,
-        right: AppSpacing.regular,
-        top: AppSpacing.small,
-        bottom:
-            (keyboardHeight > 0 ? 0 : MediaQuery.of(context).padding.bottom) +
-            AppSpacing.small,
-      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
@@ -335,70 +341,98 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
           ),
         ),
       ),
-      child: Column(
-        children: [
-          if (_replyToCommentId > 0)
-            Container(
-              padding: AppSpacing.allSmall,
-              margin: const EdgeInsets.only(bottom: AppSpacing.small),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.06),
-                borderRadius: AppRadius.borderRadiusSmall,
-              ),
-              child: Row(
+      // SafeArea 自适应：键盘弹起时 padding.bottom 归零不会多留白，
+      // 收起时自动补 iPhone 底部安全区（替代原先手算 viewInsets 的写法）。
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.small,
+          ),
+          child: Column(
+            children: [
+              if (_replyToCommentId > 0)
+                Container(
+                  padding: AppSpacing.allSmall,
+                  margin: const EdgeInsets.only(bottom: AppSpacing.small),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.06),
+                    borderRadius: AppRadius.borderRadiusSmall,
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        '${t.channel.replyTo}: $_replyToName',
+                        style: context.textStyle(
+                          FontSizeType.small,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: _cancelReply,
+                        child: Icon(
+                          Icons.close,
+                          size: 16,
+                          color: AppColors.iosGray,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Row(
+                // 底对齐：输入框长到 4 行时按钮跟着停在最后一行旁边，
+                // 而不是吊在顶上留一条空走廊。
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    '${t.channel.replyTo}: $_replyToName',
-                    style: context.textStyle(
-                      FontSizeType.small,
-                      color: AppColors.primary,
+                  Expanded(
+                    child: ComposerField(
+                      controller: _inputController,
+                      focusNode: _inputFocusNode,
+                      hintText: t.channel.writeComment,
+                      maxLength: 500,
+                      maxLines: 4,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: _sendComment,
                     ),
                   ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: _cancelReply,
-                    child: Icon(
-                      Icons.close,
-                      size: 16,
-                      color: AppColors.iosGray,
-                    ),
+                  // 空文本时整块宽度收到 0（AnimatedSize 而非 AnimatedScale：
+                  // 缩放不释放布局位，右侧仍留一条 48pt 空列 —— 正是本次要消灭的）。
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOutCubic,
+                    alignment: Alignment.centerLeft,
+                    child: (_hasText || _isSending)
+                        ? _buildSendButton()
+                        : const SizedBox(height: 44),
                   ),
                 ],
               ),
-            ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: ComposerField(
-                  controller: _inputController,
-                  focusNode: _inputFocusNode,
-                  hintText: t.channel.writeComment,
-                  maxLength: 500,
-                  maxLines: 4,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: _sendComment,
-                ),
-              ),
-              AppSpacing.horizontalSmall,
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: 4,
-                ), // Align vertically with input field
-                child: IconButton.filled(
-                  onPressed: _isSending ? null : _sendComment,
-                  icon: _isSending
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.send, size: 18),
-                ),
-              ),
             ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSendButton() {
+    return Padding(
+      padding: const EdgeInsets.only(left: AppSpacing.small),
+      child: SizedBox(
+        width: 44,
+        height: 44,
+        child: IconButton.filled(
+          onPressed: _isSending ? null : _sendComment,
+          tooltip: context.t.common.buttonSend,
+          icon: _isSending
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.arrow_upward_rounded, size: 20),
+        ),
       ),
     );
   }

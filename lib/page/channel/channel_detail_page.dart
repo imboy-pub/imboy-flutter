@@ -145,19 +145,28 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         automaticallyImplyLeading: true,
         rightDMActions: _buildAppBarActions(channel),
       ),
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: _buildBody(state),
-      ),
-      bottomNavigationBar: channel?.canPublish == true
-          ? ChannelPublishBar(
+      // 发布栏必须在 body 内（而非 bottomNavigationBar）：Flutter 的
+      // _ScaffoldLayout 把 bottomNavigationBar 定位在整屏底部（bottom =
+      // size.height），只有 body 会按 minInsets 内缩，键盘一弹发布栏就被压在
+      // 键盘下面「消失」。放进 Column 尾部后随 body 一起被顶起，粘在键盘上沿。
+      body: Column(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              child: _buildBody(state),
+            ),
+          ),
+          if (channel?.canPublish == true)
+            ChannelPublishBar(
               focusNode: _publishFocusNode,
               onMessageSent: () => _loadStats(channelId),
-            )
-          : null,
+            ),
+        ],
+      ),
     );
   }
 
@@ -321,6 +330,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     return CustomScrollView(
       controller: _scrollController,
+      // 下滑即收键盘（微信手感）：GestureDetector 只吃 onTap，列表滑动吞掉手势后
+      // 键盘赖着不走，这里交给框架内建行为处理拖拽收起。
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       slivers: [
         // 头部信息 + 统计
         if (state.channel != null)
