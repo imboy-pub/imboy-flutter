@@ -29,11 +29,16 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
   @override
   void initState() {
     super.initState();
+    debugPrint('[PeopleNearbyPerf] 0b.页面 initState');
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
+    // 注意：addPostFrameCallback 要等首帧渲染完才回调，路由转场动画期间不会执行。
+    // 真机实测「点击入口 → 权限检查」有 2.5s 空档，这里的日志用于区分是
+    // 路由/首帧慢，还是定位链本身慢。
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      debugPrint('[PeopleNearbyPerf] 0c.首帧后回调，开始 init');
       ref.read(peopleNearbyProvider.notifier).init();
     });
   }

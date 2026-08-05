@@ -117,6 +117,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         context.push('/moment/feed');
         return;
       case kPeerIdPeopleNearby:
+        debugPrint('[PeopleNearbyPerf] 0a.点击入口，开始 push 路由');
         context.push('/contact/people_nearby');
         return;
       case kPeerIdAssistantPlaza:

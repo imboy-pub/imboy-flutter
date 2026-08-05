@@ -151,7 +151,13 @@ class AMapHelper {
     // iOS端是否允许系统暂停定位
     pausesLocationUpdatesAutomatically: false,
     // iOS端期望的定位精度， 只在iOS端有效
-    desiredAccuracy: DesiredAccuracy.Best,
+    // 不用 Best：kCLLocationAccuracyBest 会让 CoreLocation 一直等 GPS 收敛到
+    // 最佳精度才回调，冷启动/室内典型要 3~10s（真机反馈「首次进附近的人 3 秒+」）。
+    // 四个调用方（附近的人 / 面对面建群 / 聊天发位置 / 朋友圈发位置）都不需要
+    // 亚米级——10 米足够，达标即回调，不再空等收敛。
+    // 注意：这只影响 iOS。Android 走下面的 locationMode，同样的慢在 Android
+    // 另有原因，靠 [PeopleNearbyPerf] 埋点定位，别指望这一行。
+    desiredAccuracy: DesiredAccuracy.NearestTenMeters,
   );
 
   /// 设置定位参数
@@ -168,11 +174,15 @@ class AMapHelper {
     }
 
     // 1. 检查权限
+    final swPerm = Stopwatch()..start();
     bool p = await requestLocationPermission();
-    debugPrint('[AMap] 权限/定位服务检查结果 = $p');
+    debugPrint(
+      '[PeopleNearbyPerf]     权限检查 ${swPerm.elapsedMilliseconds}ms 结果=$p',
+    );
     if (!p) {
       return null;
     }
+    final swFix = Stopwatch()..start();
 
     // 2. 初始化隐私协议（如果未初始化）
     init();
@@ -207,6 +217,10 @@ class AMapHelper {
 
     // 7. 等待定位结果或超时
     final result = await Future.any([completer.future, timeoutFuture]);
+    debugPrint(
+      '[PeopleNearbyPerf]     高德SDK出坐标 ${swFix.elapsedMilliseconds}ms '
+      '${result == null ? '(超时/失败)' : '成功'}',
+    );
 
     return result;
   }

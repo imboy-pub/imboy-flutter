@@ -56,8 +56,13 @@ class LocationService {
   /// 1. 高德返回 null（定位失败/权限/超时）
   /// 2. 高德返回 (0.0, 0.0) 无效坐标（通常表示 Key 认证或 Bundle 绑定失败）
   Future<AMapPosition?> _getCurrentPositionWithFallback() async {
-    // 尝试使用高德地图定位
+    // 注意这里是**串行**降级：高德不成才走 geolocator，两段耗时累加。
+    // 高德侧超时保护是 15s（amap_helper.startLocation），一旦高德挂住，
+    // 光第一段就能吃掉十几秒。分段计时用于判断真机「首次 3 秒+」到底
+    // 是高德慢、还是高德失败后又重定位了一次。
+    final swAmap = Stopwatch()..start();
     AMapPosition? amapResult = await AMapHelper().startLocation();
+    final msAmap = swAmap.elapsedMilliseconds;
 
     // 检查高德定位结果是否有效
     if (amapResult != null &&
@@ -65,14 +70,21 @@ class LocationService {
           amapResult.latLng.latitude,
           amapResult.latLng.longitude,
         )) {
+      debugPrint('[PeopleNearbyPerf]   1a.高德定位 ${msAmap}ms 成功，未降级');
       return amapResult;
     }
 
     // 降级到 geolocator
-    debugPrint('[Location] 高德定位无效，降级到 geolocator(系统定位)');
+    debugPrint(
+      '[PeopleNearbyPerf]   1a.高德定位 ${msAmap}ms 无效'
+      '(${amapResult == null ? 'null' : '${amapResult.latLng.latitude},${amapResult.latLng.longitude}'})'
+      ' → 串行降级 geolocator',
+    );
+    final swGeo = Stopwatch()..start();
     final geo = await _getCurrentPositionGeolocator();
     debugPrint(
-      '[Location] geolocator 结果 = ${geo == null ? 'null' : '${geo.latLng.latitude},${geo.latLng.longitude}'}',
+      '[PeopleNearbyPerf]   1b.geolocator ${swGeo.elapsedMilliseconds}ms 结果='
+      '${geo == null ? 'null' : '${geo.latLng.latitude},${geo.latLng.longitude}'}',
     );
     return geo;
   }
@@ -185,15 +197,22 @@ class LocationService {
       // 获取当前位置
       // Android：强制用系统 LocationManager（华为/无 GMS 设备的 FusedLocation 不可用，
       // 否则 getCurrentPosition 会一直超时）。其余平台用通用 LocationSettings。
+      // timeLimit 4s 而非 15s：本方法是**降级路径**，走到这里说明高德已经失败
+      // （真机实测华为 MRD-AL00：高德 errorCode=7 KEY 鉴权失败，必现）。
+      // 超时后 catch 块会用 getLastKnownPosition 兜底，而它是瞬时可得的——
+      // 等满 15s 再去拿缓存，等于白白多花 15s 得到同一个结果。
+      // 2026-08-05 实测：点击「找附近的人」到出数据 18.7s，其中 15.0s 就耗在这里。
+      // 4s 足够 GPS/网络定位在信号正常时返回；拿不到就快速落到缓存位置。
+      const fixTimeLimit = Duration(seconds: 4);
       final LocationSettings locationSettings = (!kIsWeb && Platform.isAndroid)
           ? AndroidSettings(
               forceLocationManager: true,
               accuracy: LocationAccuracy.high,
-              timeLimit: const Duration(seconds: 15),
+              timeLimit: fixTimeLimit,
             )
           : const LocationSettings(
               accuracy: LocationAccuracy.high,
-              timeLimit: Duration(seconds: 15),
+              timeLimit: fixTimeLimit,
             );
       final Position position = await Geolocator.getCurrentPosition(
         locationSettings: locationSettings,

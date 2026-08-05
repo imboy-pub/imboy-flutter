@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/location/location_service.dart';
@@ -119,10 +120,20 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     // 进入即置加载态：首次定位(GPS+权限)耗时期间显示加载菊花，
     // 而非误导性的空状态。finally 统一兜底关闭。
     state = state.copyWith(isLoading: true);
+    // 分段耗时埋点：真机反馈「首次进入要 3 秒以上才出数据」，iOS/Android 都有。
+    // 后端接口公网实测 49~220ms，慢的不在服务端，用分段计时定位到底卡在哪一段。
+    // 过滤日志：flutter logs | grep PeopleNearbyPerf
+    final swTotal = Stopwatch()..start();
+    int msLocate = 0, msApi = 0, msLocalDb = 0;
     try {
       if (state.longitude.isEmpty) {
+        final swLocate = Stopwatch()..start();
         AMapPosition? l = await LocationService().getCurrentPosition();
+        msLocate = swLocate.elapsedMilliseconds;
+        debugPrint('[PeopleNearbyPerf] 1.定位 ${msLocate}ms');
         updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
+      } else {
+        debugPrint('[PeopleNearbyPerf] 1.定位 跳过(已有坐标)');
       }
 
       // 检查坐标是否有效（包括 "0.0", "0.0000000" 等无效坐标）
@@ -135,19 +146,25 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
 
       int radius = 500000;
       // 获取附近的人
+      final swApi = Stopwatch()..start();
       Map<String, dynamic>? payload = await LocationApi().peopleNearby(
         longitude: state.longitude, // 经度
         latitude: state.latitude, // 维度
         radius: radius,
         unit: 'm',
       );
+      msApi = swApi.elapsedMilliseconds;
+      debugPrint('[PeopleNearbyPerf] 2.接口 ${msApi}ms');
 
       if (payload == null) {
         return;
       }
+      final swDb = Stopwatch()..start();
       List<Map<String, dynamic>> li = await ContactRepo().selectFriend(
         columns: [ContactRepo.peerId],
       );
+      msLocalDb = swDb.elapsedMilliseconds;
+      debugPrint('[PeopleNearbyPerf] 3.本地好友查询 ${msLocalDb}ms');
       List<String> friendUidList = [];
       for (var f in li) {
         // peer_id 在 SQLite 中为整型(TSID)，统一 toString 比较，避免 as String 崩溃
@@ -168,6 +185,11 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       updatePeopleList(l);
     } finally {
       state = state.copyWith(isLoading: false);
+      debugPrint(
+        '[PeopleNearbyPerf] 合计 ${swTotal.elapsedMilliseconds}ms '
+        '= 定位 ${msLocate}ms + 接口 ${msApi}ms + 本地库 ${msLocalDb}ms '
+        '+ 其余 ${swTotal.elapsedMilliseconds - msLocate - msApi - msLocalDb}ms',
+      );
     }
   }
 
