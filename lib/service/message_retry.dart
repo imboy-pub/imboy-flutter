@@ -559,6 +559,17 @@ class MessageRetry with EventSubscriptionManager {
         return false; // 返回 false 表示无需重试
       }
 
+      // 损坏消息守卫：非 S2C 消息 msg_type 必须非空（WS API v2.0 规范，
+      // 与 message_model_mapper 的 isValidMsgType 同款判定）。
+      // msg_type 为空时服务端必回 invalid_message，重试注定失败——
+      // 多为历史脏数据（如 BUG#36 修复前的转发残留）。快速失败，避免
+      // 发出 WS 帧后让用户看到"重试成功"的假象（消息仍停留在发送失败）。
+      if (normalizedType != 'S2C' &&
+          (msg.msgType == null || msg.msgType!.isEmpty)) {
+        iPrint('⚠️ [MANUAL_RETRY] 消息 msg_type 为空，已损坏无法重试: $messageId');
+        return false;
+      }
+
       // 更新状态为发送中
       await repo.update({
         'id': messageId,
