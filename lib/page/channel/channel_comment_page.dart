@@ -264,11 +264,17 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text('${t.channel.comment} (${_comments.length})')),
-      body: Column(
-        children: [
-          Expanded(child: _buildCommentList()),
-          _buildInputBar(),
-        ],
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Column(
+          children: [
+            Expanded(child: _buildCommentList()),
+            _buildInputBar(),
+          ],
+        ),
       ),
     );
   }
@@ -361,6 +367,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
               ),
             ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: ComposerField(
@@ -374,15 +381,20 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
                 ),
               ),
               AppSpacing.horizontalSmall,
-              IconButton.filled(
-                onPressed: _isSending ? null : _sendComment,
-                icon: _isSending
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.send, size: 18),
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 4,
+                ), // Align vertically with input field
+                child: IconButton.filled(
+                  onPressed: _isSending ? null : _sendComment,
+                  icon: _isSending
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.send, size: 18),
+                ),
               ),
             ],
           ),

@@ -145,7 +145,13 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         automaticallyImplyLeading: true,
         rightDMActions: _buildAppBarActions(channel),
       ),
-      body: _buildBody(state),
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: _buildBody(state),
+      ),
       bottomNavigationBar: channel?.canPublish == true
           ? ChannelPublishBar(
               focusNode: _publishFocusNode,

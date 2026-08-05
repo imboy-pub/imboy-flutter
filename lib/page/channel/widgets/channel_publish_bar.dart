@@ -455,137 +455,138 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     final channelId = state.channel?.id;
     _cachedDraftKey = channelId == null ? '' : 'channel_draft_$channelId';
 
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Container(
-      padding: EdgeInsets.only(
-        left: AppSpacing.tiny,
-        right: AppSpacing.tiny,
-        top: AppSpacing.small,
-        bottom:
-            (keyboardHeight > 0
-                ? keyboardHeight
-                : MediaQuery.of(context).padding.bottom) +
-            AppSpacing.small,
-      ),
       decoration: BoxDecoration(
         color: surfaceGrouped,
         border: Border(top: BorderSide(color: separator, width: 0.33)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // 三个前导图标统一 26pt/紧凑内边距，视觉不拥挤
-          IconButton(
-            icon: const Icon(Icons.article_outlined, size: 26),
-            color: secondaryText,
-            visualDensity: VisualDensity.compact,
-            onPressed: isBusy ? null : _openCompose,
-            tooltip: context.t.channel.writeArticle,
+      child: SafeArea(
+        top: false,
+        bottom: true,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.tiny,
+            vertical: AppSpacing.small,
           ),
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline, size: 26),
-            color: secondaryText,
-            visualDensity: VisualDensity.compact,
-            onPressed: isBusy ? null : _pickAndSendMedia,
-            tooltip: context.t.common.momentsAddMedia,
-          ),
-          IconButton(
-            tooltip: _showVoiceInput
-                ? context.t.chat.switchToKeyboardInput
-                : context.t.chat.switchToVoiceInput,
-            icon: Icon(
-              _showVoiceInput ? Icons.keyboard_alt_outlined : Icons.mic_none,
-              size: 26,
-            ),
-            color: secondaryText,
-            visualDensity: VisualDensity.compact,
-            onPressed: isBusy
-                ? null
-                : () {
-                    setState(() {
-                      _showVoiceInput = !_showVoiceInput;
-                      if (_showVoiceInput) {
-                        widget.focusNode.unfocus();
-                      } else {
-                        widget.focusNode.requestFocus();
-                      }
-                    });
-                  },
-          ),
-          Expanded(
-            child: _showVoiceInput
-                ? VoiceWidget(
-                    startRecord: () {},
-                    stopRecord: _handleVoiceRecordFinished,
-                    height: 44,
-                    margin: EdgeInsets.zero,
-                  )
-                : ComposerField(
-                    controller: _messageController,
-                    focusNode: widget.focusNode,
-                    enabled: !isBusy,
-                    hintText: context.t.channel.writeMessage,
-                    // 上限放宽但在折叠阈值(消费侧 channel_message_item:397
-                    // content.length > 280)处变警示色，提示作者"超过将被折叠"。
-                    maxLength: 2000,
-                    warnThreshold: 280,
-                    maxLines: 6,
-                    textInputAction: TextInputAction.send,
-                    onChanged: (_) => setState(() {}),
-                    onSubmitted: () {
-                      if (!isBusy) _sendMessage();
-                    },
-                  ),
-          ),
-          if (!_showVoiceInput) ...[
-            AppSpacing.horizontalSmall,
-            // 发送按钮：36pt 圆形视觉 + ≥44 命中区；有文字/发送中才显示，
-            // 用 AnimatedScale 从 0 弹出，切换更顺滑（精细化）。
-            AnimatedScale(
-              scale: (hasText || isBusy) ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOutBack,
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 6),
-                width: 44,
-                height: 44,
-                alignment: Alignment.center,
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: isBusy
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.onPrimary,
-                          ),
-                        )
-                      : IconButton(
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                            minWidth: 44,
-                            minHeight: 44,
-                          ),
-                          icon: const Icon(
-                            Icons.arrow_upward_rounded,
-                            size: 22,
-                            color: AppColors.onPrimary,
-                          ),
-                          onPressed: hasText ? _sendMessage : null,
-                          tooltip: context.t.common.buttonSend,
-                        ),
-                ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 三个前导图标统一 26pt/紧凑内边距，视觉不拥挤
+              IconButton(
+                icon: const Icon(Icons.article_outlined, size: 26),
+                color: secondaryText,
+                visualDensity: VisualDensity.compact,
+                onPressed: isBusy ? null : _openCompose,
+                tooltip: context.t.channel.writeArticle,
               ),
-            ),
-          ],
-        ],
+              IconButton(
+                icon: const Icon(Icons.add_circle_outline, size: 26),
+                color: secondaryText,
+                visualDensity: VisualDensity.compact,
+                onPressed: isBusy ? null : _pickAndSendMedia,
+                tooltip: context.t.common.momentsAddMedia,
+              ),
+              IconButton(
+                tooltip: _showVoiceInput
+                    ? context.t.chat.switchToKeyboardInput
+                    : context.t.chat.switchToVoiceInput,
+                icon: Icon(
+                  _showVoiceInput
+                      ? Icons.keyboard_alt_outlined
+                      : Icons.mic_none,
+                  size: 26,
+                ),
+                color: secondaryText,
+                visualDensity: VisualDensity.compact,
+                onPressed: isBusy
+                    ? null
+                    : () {
+                        setState(() {
+                          _showVoiceInput = !_showVoiceInput;
+                          if (_showVoiceInput) {
+                            widget.focusNode.unfocus();
+                          } else {
+                            widget.focusNode.requestFocus();
+                          }
+                        });
+                      },
+              ),
+              Expanded(
+                child: _showVoiceInput
+                    ? VoiceWidget(
+                        startRecord: () {},
+                        stopRecord: _handleVoiceRecordFinished,
+                        height: 44,
+                        margin: EdgeInsets.zero,
+                      )
+                    : ComposerField(
+                        controller: _messageController,
+                        focusNode: widget.focusNode,
+                        enabled: !isBusy,
+                        hintText: context.t.channel.writeMessage,
+                        // 上限放宽但在折叠阈值(消费侧 channel_message_item:397
+                        // content.length > 280)处变警示色，提示作者"超过将被折叠"。
+                        maxLength: 2000,
+                        warnThreshold: 280,
+                        maxLines: 6,
+                        textInputAction: TextInputAction.send,
+                        onChanged: (_) => setState(() {}),
+                        onSubmitted: () {
+                          if (!isBusy) _sendMessage();
+                        },
+                      ),
+              ),
+              if (!_showVoiceInput) ...[
+                AppSpacing.horizontalSmall,
+                // 发送按钮：36pt 圆形视觉 + ≥44 命中区；有文字/发送中才显示，
+                // 用 AnimatedScale 从 0 弹出，切换更顺滑（精细化）。
+                AnimatedScale(
+                  scale: (hasText || isBusy) ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOutBack,
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    width: 44,
+                    height: 44,
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: isBusy
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.onPrimary,
+                              ),
+                            )
+                          : IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 44,
+                                minHeight: 44,
+                              ),
+                              icon: const Icon(
+                                Icons.arrow_upward_rounded,
+                                size: 22,
+                                color: AppColors.onPrimary,
+                              ),
+                              onPressed: hasText ? _sendMessage : null,
+                              tooltip: context.t.common.buttonSend,
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
