@@ -48,6 +48,10 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
   Timer? _debounceTimer;
   Map<String, HighlightedWord> words = {};
 
+  /// 服务端按策略关闭了消息搜索（E2EE 模式下读不到明文）。
+  /// 这是预期状态而非故障，错误视图要走说明性空态且不给重试入口。
+  bool _searchDisabled = false;
+
   @override
   void dispose() {
     _debounceTimer?.cancel();
@@ -75,6 +79,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
     notifier.setLoading(true);
     notifier.startSearching();
     notifier.setError('');
+    _searchDisabled = false;
     try {
       final response = await FtsApi.to.searchConversationMessages(
         keyword: effectiveQuery,
@@ -117,6 +122,12 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
           };
         });
       }
+    } on FtsFeatureDisabledException {
+      // 与 message_search_page 同款处理：搜索被策略禁用是预期状态，不是故障。
+      // 原先这里被 catch (_) 一并吞成「搜索错误 + 重试」，而重试永远不可能
+      // 成功——服务端 imboy_policy:message_search_enabled() 恒为 false。
+      if (mounted) setState(() => _searchDisabled = true);
+      notifier.setError(t.common.searchDisabledByEncryption);
     } catch (_) {
       notifier.setError(t.common.searchError);
     } finally {
@@ -277,13 +288,20 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
   Widget _buildErrorResults(String errorMessage, String query) {
     return Padding(
       padding: const EdgeInsets.only(top: 100),
-      child: NoDataView(
-        text: t.common.searchError,
-        description: errorMessage,
-        icon: Icons.error_outline,
-        iconSize: 64,
-        onTop: () => performSearch(query: query),
-      ),
+      child: _searchDisabled
+          ? NoDataView(
+              text: t.common.searchDisabledTitle,
+              description: errorMessage,
+              icon: Icons.lock_outline,
+              iconSize: 64,
+            )
+          : NoDataView(
+              text: t.common.searchError,
+              description: errorMessage,
+              icon: Icons.error_outline,
+              iconSize: 64,
+              onTop: () => performSearch(query: query),
+            ),
     );
   }
 
