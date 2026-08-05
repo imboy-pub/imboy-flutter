@@ -911,7 +911,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get nicknameUpdateSuccess => 'Nickname updated successfully';
 	@override String get nicknameWhitespaceError => 'Nickname cannot contain only whitespace';
 	@override String get noAvatar => 'No avatar';
-	@override String get noBarcodeFound => 'Barcode not found!';
+	@override String get noBarcodeFound => 'No QR code detected';
 	@override String get noContacts => 'No contacts';
 	@override String get noConversationMessages => 'No conversation messages';
 	@override String get noData => 'No data';
@@ -2181,7 +2181,7 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get appSize => 'App size';
 	@override String get arSa => 'Arabic (Saudi Arabia)';
 	@override String get audio => 'Audio';
-	@override String get barcodeFound => 'Barcode found!';
+	@override String get barcodeFound => 'QR code detected';
 	@override String get botQianFan => 'Qianfan Bot';
 	@override String get liveRoomWhipLabel => 'WHIP Stream URL';
 	@override String get liveRoomWhepLabel => 'WHEP Stream URL';
@@ -3378,7 +3378,7 @@ extension on TranslationsEnUs {
 			'common.nicknameUpdateSuccess' => 'Nickname updated successfully',
 			'common.nicknameWhitespaceError' => 'Nickname cannot contain only whitespace',
 			'common.noAvatar' => 'No avatar',
-			'common.noBarcodeFound' => 'Barcode not found!',
+			'common.noBarcodeFound' => 'No QR code detected',
 			'common.noContacts' => 'No contacts',
 			'common.noConversationMessages' => 'No conversation messages',
 			'common.noData' => 'No data',
@@ -4526,7 +4526,7 @@ extension on TranslationsEnUs {
 			'main.appSize' => 'App size',
 			'main.arSa' => 'Arabic (Saudi Arabia)',
 			'main.audio' => 'Audio',
-			'main.barcodeFound' => 'Barcode found!',
+			'main.barcodeFound' => 'QR code detected',
 			'main.botQianFan' => 'Qianfan Bot',
 			'main.liveRoomWhipLabel' => 'WHIP Stream URL',
 			'main.liveRoomWhepLabel' => 'WHEP Stream URL',

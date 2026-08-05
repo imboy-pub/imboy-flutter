@@ -249,7 +249,7 @@ nicknameUpdateFailed: "Nickname update failed, please try again"
 nicknameUpdateSuccess: Nickname updated successfully
 nicknameWhitespaceError: Nickname cannot contain only whitespace
 noAvatar: No avatar
-noBarcodeFound: "Barcode not found!"
+noBarcodeFound: "No QR code detected"
 noContacts: No contacts
 noConversationMessages: No conversation messages
 noData: No data

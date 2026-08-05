@@ -2751,8 +2751,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '无头像'
 	String get noAvatar => '无头像';
 
-	/// zh-CN: '未找到条形码！'
-	String get noBarcodeFound => '未找到条形码！';
+	/// zh-CN: '未识别到二维码'
+	String get noBarcodeFound => '未识别到二维码';
 
 	/// zh-CN: '无联系人'
 	String get noContacts => '无联系人';
@@ -6465,8 +6465,8 @@ class Translations$main$zh_CN {
 	/// zh-CN: '音频'
 	String get audio => '音频';
 
-	/// zh-CN: '找到条形码！'
-	String get barcodeFound => '找到条形码！';
+	/// zh-CN: '已识别二维码'
+	String get barcodeFound => '已识别二维码';
 
 	/// zh-CN: '千帆机器人'
 	String get botQianFan => '千帆机器人';
@@ -8424,7 +8424,7 @@ extension on Translations {
 			'common.nicknameUpdateSuccess' => '昵称修改成功',
 			'common.nicknameWhitespaceError' => '昵称不能仅包含空白字符',
 			'common.noAvatar' => '无头像',
-			'common.noBarcodeFound' => '未找到条形码！',
+			'common.noBarcodeFound' => '未识别到二维码',
 			'common.noContacts' => '无联系人',
 			'common.noConversationMessages' => '无会话消息',
 			'common.noData' => '暂无数据',
@@ -9627,7 +9627,7 @@ extension on Translations {
 			'main.appSize' => '应用大小',
 			'main.arSa' => '阿拉伯语（沙特阿拉伯）',
 			'main.audio' => '音频',
-			'main.barcodeFound' => '找到条形码！',
+			'main.barcodeFound' => '已识别二维码',
 			'main.botQianFan' => '千帆机器人',
 			'main.liveRoomWhipLabel' => 'WHIP 推流地址',
 			'main.liveRoomWhepLabel' => 'WHEP 拉流地址',

@@ -232,6 +232,10 @@ class ImBoySettingsTile extends StatelessWidget {
     );
 
     return CupertinoListTile.notched(
+      // 非 Text 的 title（Center / Row / Expanded 包着 Text 的写法，全仓 28 处）
+      // 走 DefaultTextStyle 让样式穿透，否则 destructive 的 iosRed 会被整个跳过 ——
+      // 设置页「注销账号」传的正是 Center(child: Text(...))，明明写了
+      // destructive: true 却一直渲染成中性色。
       title: title is Text
           ? Text(
               (title as Text).data!,
@@ -239,7 +243,7 @@ class ImBoySettingsTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             )
-          : title,
+          : DefaultTextStyle.merge(style: titleStyle, child: title),
       subtitle: subtitle is Text
           ? Text(
               (subtitle as Text).data!,
@@ -247,7 +251,12 @@ class ImBoySettingsTile extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             )
-          : subtitle,
+          : (subtitle == null
+                ? null
+                : DefaultTextStyle.merge(
+                    style: subtitleStyle,
+                    child: subtitle!,
+                  )),
       leading: leading,
       trailing:
           trailing ?? (onTap != null ? const CupertinoListTileChevron() : null),

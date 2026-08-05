@@ -262,7 +262,7 @@ nicknameUpdateFailed: 昵称修改失败，请重试
 nicknameUpdateSuccess: 昵称修改成功
 nicknameWhitespaceError: 昵称不能仅包含空白字符
 noAvatar: 无头像
-noBarcodeFound: 未找到条形码！
+noBarcodeFound: 未识别到二维码
 noContacts: 无联系人
 noConversationMessages: 无会话消息
 noData: 暂无数据
