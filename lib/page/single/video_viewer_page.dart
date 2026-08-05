@@ -77,6 +77,10 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
       }
       _controller?.addListener(videoControllerListener);
       _controller?.setLooping(true);
+      // BUG#69：此前初始化完就停在首帧，而唯一的播放入口是会自动隐藏的控制层，
+      // 用户点开视频后「什么都不会发生」。主流 IM 打开视频即播放，这里对齐。
+      if (kDebugMode) debugPrint('chat_video_autoplay');
+      await _controller?.play();
     } on Exception catch (e) {
       if (kDebugMode) debugPrint("video init error: ${e.runtimeType}");
       if (mounted) {
@@ -271,7 +275,18 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
     return Material(
       // 视频播放器全屏衬底固定黑色，与亮/暗主题无关
       color: Colors.black,
-      child: Stack(fit: StackFit.expand, children: [buildVideo(context)]),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          buildVideo(context),
+          // BUG#75：这两个 builder 定义了却从没被加进 Stack —— 整页因此
+          // 只剩一个返回键，没有播放/暂停、没有进度条、没有中央播放图标。
+          // 之前三轮都在猜「控制层坍缩 / duration 为 0 / 页面身份不对」，
+          // 实际是 build 的已加载分支压根没引用它们。
+          buildPlayControlButton(context),
+          Align(alignment: Alignment.topLeft, child: buildBackButton(context)),
+        ],
+      ),
     );
   }
 }
