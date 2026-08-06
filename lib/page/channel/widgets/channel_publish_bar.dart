@@ -168,36 +168,59 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
         name,
         mime,
         process: false,
+        // 与同文件的频道视频上传对齐。此前漏传，落到默认 scope='private'：
+        // 对象只有上传者可读，其他订阅者点开语音会 403 播不出来。
+        scope: 'channel',
       );
       final String? uploadedUri = meta['object_key'] as String?;
 
-      if (uploadedUri != null && uploadedUri.isNotEmpty) {
-        final success = await ref
-            .read(channelDetailProvider.notifier)
-            .publishMessage(
-              content: '',
-              msgType: ChannelMessageType.audio,
-              payload: {
-                'uri': uploadedUri,
-                'duration_ms': obj.duration.inMilliseconds,
-                'size': bytes.length,
-                'waveform': obj.waveform,
-              },
-            );
-        if (success) {
-          AppLoading.showSuccess(t.common.tipSuccess);
-          widget.onMessageSent?.call();
-        } else {
-          AppLoading.showError(t.channel.publishFailed);
-        }
-      } else {
+      // 上传失败与发布失败必须分开报：此前两条链共用一句「语音发送失败」，
+      // 线上无法判断是 presign/PUT（前端+对象存储）还是 publish（后端）出的问题。
+      if (uploadedUri == null || uploadedUri.isEmpty) {
+        debugPrint(
+          '[channel][voice] upload FAIL: presign 返回空 object_key '
+          'mime=$mime bytes=${bytes.length}',
+        );
         AppLoading.showError(t.common.uploadFailed);
+        return;
       }
-    } catch (_) {
+
+      final success = await ref
+          .read(channelDetailProvider.notifier)
+          .publishMessage(
+            content: '',
+            msgType: ChannelMessageType.audio,
+            payload: {
+              'uri': uploadedUri,
+              'duration_ms': obj.duration.inMilliseconds,
+              'size': bytes.length,
+              'waveform': obj.waveform,
+            },
+          );
+      if (success) {
+        AppLoading.showSuccess(t.common.tipSuccess);
+        widget.onMessageSent?.call();
+        return;
+      }
+      debugPrint(
+        '[channel][voice] publish FAIL: 上传成功但发布被拒 '
+        'uri=$uploadedUri type=${ChannelMessageType.audio}',
+      );
+      AppLoading.showError(t.channel.publishFailed);
+    } on Object catch (e, s) {
+      // 抛异常的只可能是上传链（publishMessage 自身返回 bool 不抛）。
+      // 打印 scope 与前三行栈，覆盖读文件/presign/PUT garage 各步。
+      debugPrint('[channel][voice] upload THREW: $e');
+      debugPrint(
+        '[channel][voice] stack=${s.toString().split('\n').take(3).join(' | ')}',
+      );
       AppLoading.showError(t.common.voiceSendFailed);
     } finally {
+      // 此处原有 AppLoading.dismiss()：它是 EasyLoading.dismiss()，会把上面刚
+      // showSuccess/showError 弹出的 toast 立刻抹掉 —— 语音不论成败用户都看不到
+      // 任何反馈（图片链路没有这行，所以 toast 正常）。所有分支均已自行结束
+      // 遮罩（showSuccess/showError 会替换当前 overlay），无需再 dismiss。
       if (mounted) setState(() => _isUploadingMedia = false);
-      AppLoading.dismiss();
     }
   }
 
