@@ -145,6 +145,12 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     ).showSnackBar(SnackBar(content: Text(context.t.channel.publishFailed)));
   }
 
+  /// 频道附件上传的 scope_ref：后端 attach_logic:can_upload 拿它查订阅关系，
+  /// 缺了就走 to_int(undefined)=error 分支直接 403「无权向该范围上传」——
+  /// presign 阶段就失败，压根到不了 PUT。频道未加载时返回 null。
+  String? get _channelScopeRef =>
+      ref.read(channelDetailProvider).channel?.id.toString();
+
   /// 语音录制完成
   Future<void> _handleVoiceRecordFinished(AudioFile? obj) async {
     if (obj == null) return;
@@ -171,6 +177,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
         // 与同文件的频道视频上传对齐。此前漏传，落到默认 scope='private'：
         // 对象只有上传者可读，其他订阅者点开语音会 403 播不出来。
         scope: 'channel',
+        scopeRef: _channelScopeRef,
       );
       final String? uploadedUri = meta['object_key'] as String?;
 
@@ -188,7 +195,11 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       final success = await ref
           .read(channelDetailProvider.notifier)
           .publishMessage(
-            content: '',
+            // 后端 send_message 对所有 msg_type 一律拒收空 content
+            // （channel_handler_message.erl:226），媒体消息内容本在 payload 里。
+            // 同文件图片/视频链路早已用 fileName / '[media]' 占位，只有语音传空串
+            // 被拒。audio 走 _buildAudioContent 独立渲染，占位不会显示给用户。
+            content: '[voice]',
             msgType: ChannelMessageType.audio,
             payload: {
               'uri': uploadedUri,
@@ -417,6 +428,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
         width: asset.width,
         height: asset.height,
         scope: 'channel',
+        scopeRef: _channelScopeRef,
       );
       if (result == null) return null;
       payload['uri'] = result['video_uri'];
@@ -458,6 +470,10 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
         if (!completer.isCompleted) completer.complete(false);
       },
       process: true,
+      // 图片/文件此前连 scope 都没传，落默认 private：只有上传者可读，
+      // 其他订阅者渲染时 view_url 授权失败。
+      scope: 'channel',
+      scopeRef: _channelScopeRef,
     );
 
     return (await completer.future) ? uploadedUrl : null;
