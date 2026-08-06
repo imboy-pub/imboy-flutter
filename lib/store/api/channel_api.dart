@@ -78,6 +78,7 @@ class ChannelApi extends HttpClient {
     String? description,
     String? avatar,
     List<String>? tags,
+    String? customId,
   }) async {
     final data = <String, dynamic>{};
 
@@ -85,6 +86,9 @@ class ChannelApi extends HttpClient {
     if (description != null) data['description'] = description;
     if (avatar != null) data['avatar'] = avatar;
     if (tags != null) data['tags'] = tags;
+    // 仅在原值为空时才由调用方传入；后端 resolve_custom_id_update 会二次校验
+    // 「设过即锁定」，客户端置灰只是体验，不是权威。
+    if (customId != null) data['custom_id'] = customId;
 
     final resp = await put('/api/v1/channel/$channelId/update', data: data);
 

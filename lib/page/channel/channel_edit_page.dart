@@ -109,6 +109,22 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     }
   }
 
+  /// 自定义 ID 是否可编辑：仅当频道当前没有 ID 时允许补设一次。
+  /// 判据取服务端返回的 [_channel]，不取输入框内容 —— 否则用户清空输入框
+  /// 就能骗过前端把已有 ID 改掉（后端仍会拒，但前端不该给出假希望）。
+  bool get _isCustomIdEditable => (_channel?.customId ?? '').trim().isEmpty;
+
+  /// 与后端 custom_id 语义对齐：允许留空（表示不设置），非空则限定字符集。
+  String? _validateCustomId(String? value) {
+    final v = (value ?? '').trim();
+    if (v.isEmpty) return null;
+    if (v.length < 4) return t.channel.customIdHint;
+    if (!RegExp(r'^[a-zA-Z][a-zA-Z0-9_]*$').hasMatch(v)) {
+      return t.channel.customIdHint;
+    }
+    return null;
+  }
+
   Future<void> _saveChanges() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -126,12 +142,19 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       final targetDescription = _descriptionController.text.trim();
       final targetAvatar = _avatarUrl?.trim();
       final targetTags = normalizeTags(_tags);
+      // 自定义 ID 只在原值为空时可设置；已有值则连传都不传，避免误触发后端
+      // 「设过即锁定」的拒绝分支。
+      final typedCustomId = _customIdController.text.trim();
+      final targetCustomId = (_isCustomIdEditable && typedCustomId.isNotEmpty)
+          ? typedCustomId
+          : null;
       final result = await api.updateChannel(
         channelId,
         name: targetName,
         description: targetDescription,
         avatar: targetAvatar,
         tags: targetTags,
+        customId: targetCustomId,
       );
 
       if (mounted) {
@@ -423,11 +446,15 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                 hintText: t.channel.customIdHint,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.alternate_email),
-                helperText:
-                    '${t.channel.customIdHelper} · ${t.channel.typeCannotChange}',
+                helperText: _isCustomIdEditable
+                    ? t.channel.customIdHelper
+                    : '${t.channel.customIdHelper} · ${t.channel.typeCannotChange}',
               ),
-              readOnly: true,
-              enabled: false,
+              // 创建时留空的频道允许补设一次；已有值则永久锁定（后端同样校验）。
+              readOnly: !_isCustomIdEditable,
+              enabled: _isCustomIdEditable,
+              maxLength: 32,
+              validator: _validateCustomId,
             ),
             AppSpacing.verticalRegular,
 
