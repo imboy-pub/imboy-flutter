@@ -492,17 +492,24 @@ class ProfileNotifier extends _$ProfileNotifier {
     return region;
   }
 
-  /// 获取完善度建议
-  List<String> getCompletionSuggestions() {
-    List<String> suggestions = [];
-
-    if (state.avatar.isEmpty) suggestions.add(t.chat.setAvatar);
-    if (state.nickname.isEmpty) suggestions.add(t.account.setNickname);
-    if (state.gender == 0) suggestions.add(t.account.setGender);
-    if (state.region.isEmpty) suggestions.add(t.common.setRegion);
-    if (state.signature.isEmpty) suggestions.add(t.chat.setSignature);
-    if (state.birthday.isEmpty) suggestions.add(t.account.setBirthday);
-
-    return suggestions;
+  /// 获取完善度建议。
+  ///
+  /// 返回 (key, label)：label 用于展示，key 用于让 profile_page 分发到对应编辑入口
+  /// —— 建议 chip 此前是纯展示，点了没反应。key 不参与展示，故不需要 i18n。
+  List<ProfileSuggestion> getCompletionSuggestions() {
+    return [
+      if (state.avatar.isEmpty) (key: 'avatar', label: t.chat.setAvatar),
+      if (state.nickname.isEmpty)
+        (key: 'nickname', label: t.account.setNickname),
+      if (state.gender == 0) (key: 'gender', label: t.account.setGender),
+      if (state.region.isEmpty) (key: 'region', label: t.common.setRegion),
+      if (state.signature.isEmpty)
+        (key: 'signature', label: t.chat.setSignature),
+      if (state.birthday.isEmpty)
+        (key: 'birthday', label: t.account.setBirthday),
+    ];
   }
 }
+
+/// 完善度建议项：`key` 是稳定标识（用于跳转分发），`label` 是已本地化的展示文案。
+typedef ProfileSuggestion = ({String key, String label});

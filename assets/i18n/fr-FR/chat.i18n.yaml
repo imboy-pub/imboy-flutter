@@ -43,6 +43,7 @@ forward: Transférer
 forwardReply: Transférer la réponse
 forwardTo: Transférer à
 forwardToFriend: Transférer à un ami
+forwardedToChats: "Transféré à $count conversations"
 great: Excellent
 groupFile: Fichiers du groupe
 groupFileImagePreview: Aperçu image

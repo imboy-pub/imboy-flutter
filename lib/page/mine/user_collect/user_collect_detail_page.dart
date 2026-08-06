@@ -288,6 +288,11 @@ class UserCollectDetailPage extends ConsumerWidget {
               title: t.common.buttonDelete,
               subtitle: t.common.deleteThisCollection,
               onTap: () async {
+                // NavigatorState 必须在关闭 sheet 之前抓住：这里的 context 属于
+                // sheet 的 builder，sheet pop 掉之后它就 defunct，
+                // `if (context.mounted)` 恒为 false —— 删除成功后详情页根本不会
+                // 退出，用户还停在一条已被删除的收藏上。
+                final navigator = Navigator.of(context);
                 Navigator.pop(context);
                 // 调用 Provider 的 remove 方法
                 bool res = await notifier.remove(obj);
@@ -300,7 +305,12 @@ class UserCollectDetailPage extends ConsumerWidget {
                   notifier.updateState(
                     currentState.copyWith(items: updatedItems),
                   );
-                  if (context.mounted) Navigator.pop(context);
+                  AppLoading.showSuccess(t.common.deleteSuccess);
+                  navigator.pop();
+                } else {
+                  // 失败必须出声：remove() 内部只在 kDebugMode 打日志，
+                  // 之前这里没有 else 分支，删除失败对用户完全静默。
+                  AppLoading.showError(t.common.deleteFailedPleaseTryAgain);
                 }
               },
               iconColor: AppColors.getIosRed(Theme.of(context).brightness),

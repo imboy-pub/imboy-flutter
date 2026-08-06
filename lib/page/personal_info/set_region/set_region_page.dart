@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'set_region_provider.dart';
 
@@ -97,6 +98,13 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
               controller: _searchC,
               placeholder: t.common.regionSearchHint,
             ),
+          ),
+        ),
+
+        SliverToBoxAdapter(
+          child: _SelectionLevelHint(
+            region: state.selectedRegion,
+            level: selectedPath.length,
           ),
         ),
 
@@ -203,6 +211,31 @@ class _SetRegionPageState extends ConsumerState<SetRegionPage> {
   }
 }
 
+/// 「完成」歧义提示：省/市/区三级里，选到第二级「完成」就已可点，
+/// 用户不知道是不是必须选到第三级。这里显式播报"当前选到第几级 + 可以直接完成"，
+/// 不改变可完成的层级（仍是选中任意叶子即可完成），只把状态说清楚。
+class _SelectionLevelHint extends StatelessWidget {
+  const _SelectionLevelHint({required this.region, required this.level});
+
+  final String region;
+  final int level;
+
+  @override
+  Widget build(BuildContext context) {
+    if (region.isEmpty || level <= 0) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Text(
+        t.common.regionSelectedLevelHint(region: region, level: level),
+        style: context.textStyle(
+          FontSizeType.footnote,
+          color: AppColors.iosGray,
+        ),
+      ),
+    );
+  }
+}
+
 /// 子级地区页面 - 保持一致的高级质感
 class _SubRegionPage extends ConsumerStatefulWidget {
   final String title;
@@ -297,6 +330,12 @@ class _SubRegionPageState extends ConsumerState<_SubRegionPage> {
               controller: _searchC,
               placeholder: t.common.search,
             ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: _SelectionLevelHint(
+            region: state.selectedRegion,
+            level: state.regionPath.length,
           ),
         ),
         SliverToBoxAdapter(

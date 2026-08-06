@@ -404,6 +404,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get forwardReply => 'Transférer la réponse';
 	@override String get forwardTo => 'Transférer à';
 	@override String get forwardToFriend => 'Transférer à un ami';
+	@override String forwardedToChats({required Object count}) => 'Transféré à ${count} conversations';
 	@override String get great => 'Excellent';
 	@override String get groupFile => 'Fichiers du groupe';
 	@override String get groupFileImagePreview => 'Aperçu image';
@@ -958,6 +959,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get regionConfirm => 'Confirmer';
 	@override String get regionNoResult => 'Aucun résultat.';
 	@override String get regionSearchHint => 'Rechercher par nom de région.';
+	@override String regionSelectedLevelHint({required Object region, required Object level}) => 'Sélection : ${region} (niveau ${level}). Vous pouvez terminer maintenant ou affiner davantage.';
 	@override String get regionSearchTips => 'Rechercher par nom de région ou code de zone.';
 	@override String get regionSelectTitle => 'Sélectionner la région';
 	@override String get releaseFingerCancelSending => 'Relâchez le doigt pour annuler l\'envoi.';
@@ -1026,7 +1028,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get searchHint => 'Entrez des mots-clés pour rechercher des messages.';
 	@override String get searchHistory => 'Historique de recherche';
 	@override String get searchLocation => 'Rechercher un lieu';
-	@override String get searchMessagesHint => 'Conseil de recherche de messages.';
+	@override String get searchMessagesHint => 'Rechercher dans la conversation';
 	@override String get searchNoFound => 'Aucun résultat de recherche :(';
 	@override String get searchNoResults => 'Aucun résultat de recherche.';
 	@override String get noSearchHistory => 'Aucun historique de recherche.';
@@ -2859,6 +2861,7 @@ extension on TranslationsFrFr {
 			'chat.forwardReply' => 'Transférer la réponse',
 			'chat.forwardTo' => 'Transférer à',
 			'chat.forwardToFriend' => 'Transférer à un ami',
+			'chat.forwardedToChats' => ({required Object count}) => 'Transféré à ${count} conversations',
 			'chat.great' => 'Excellent',
 			'chat.groupFile' => 'Fichiers du groupe',
 			'chat.groupFileImagePreview' => 'Aperçu image',
@@ -3065,9 +3068,9 @@ extension on TranslationsFrFr {
 			'chat.e2eeSocialCreateFirst' => 'Visible après création',
 			'chat.e2eeSocialUsedAtLabel' => 'Utilisé le',
 			'chat.e2eeTransferSendTitle' => 'Envoyer la clé au nouvel appareil',
-			'chat.e2eeTransferCreateBtn' => 'Créer',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeTransferCreateBtn' => 'Créer',
 			'chat.e2eeTransferReceiveTitle' => 'Recevoir la clé de l\'ancien appareil',
 			'chat.e2eeTransferSendDesc' => 'Transférer la clé au nouvel appareil via QR code',
 			'chat.e2eeTransferReceiveDesc' => 'Scanner le QR code de l\'ancien appareil',
@@ -3406,6 +3409,7 @@ extension on TranslationsFrFr {
 			'common.regionConfirm' => 'Confirmer',
 			'common.regionNoResult' => 'Aucun résultat.',
 			'common.regionSearchHint' => 'Rechercher par nom de région.',
+			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => 'Sélection : ${region} (niveau ${level}). Vous pouvez terminer maintenant ou affiner davantage.',
 			'common.regionSearchTips' => 'Rechercher par nom de région ou code de zone.',
 			'common.regionSelectTitle' => 'Sélectionner la région',
 			'common.releaseFingerCancelSending' => 'Relâchez le doigt pour annuler l\'envoi.',
@@ -3474,7 +3478,7 @@ extension on TranslationsFrFr {
 			'common.searchHint' => 'Entrez des mots-clés pour rechercher des messages.',
 			'common.searchHistory' => 'Historique de recherche',
 			'common.searchLocation' => 'Rechercher un lieu',
-			'common.searchMessagesHint' => 'Conseil de recherche de messages.',
+			'common.searchMessagesHint' => 'Rechercher dans la conversation',
 			'common.searchNoFound' => 'Aucun résultat de recherche :(',
 			'common.searchNoResults' => 'Aucun résultat de recherche.',
 			'common.noSearchHistory' => 'Aucun historique de recherche.',
@@ -3578,10 +3582,10 @@ extension on TranslationsFrFr {
 			'common.verificationCode' => 'Code de vérification',
 			'common.feedbackContent' => 'Contenu du commentaire',
 			'common.officialReply' => 'Réponse officielle',
-			'common.setPasswordSecurityTips' => 'Pour améliorer la sécurité du compte et empêcher l\'impossibilité de se connecter en cas d\'impossibilité d\'obtenir le code de vérification, veuillez définir un mot de passe de connexion.',
-			'common.locationHidden' => 'Votre emplacement a été masqué.',
 			_ => null,
 		} ?? switch (path) {
+			'common.setPasswordSecurityTips' => 'Pour améliorer la sécurité du compte et empêcher l\'impossibilité de se connecter en cas d\'impossibilité d\'obtenir le code de vérification, veuillez définir un mot de passe de connexion.',
+			'common.locationHidden' => 'Votre emplacement a été masqué.',
 			'common.locationVisible' => 'Votre emplacement a été affiché.',
 			'common.noNearbyPeople' => 'Aucune personne à proximité pour le moment.',
 			'common.clickSearchButtonToFind' => 'Cliquez sur le bouton de recherche ci-dessus pour trouver des personnes à proximité.',
@@ -4092,10 +4096,10 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupFileSizeRow' => 'Taille',
 			'common.e2eeBackupNoteRow' => 'Note',
 			'common.e2eeBackupDeleteTitle' => 'Supprimer la sauvegarde',
-			'common.e2eeBackupDeleteConfirm' => 'Supprimer cette sauvegarde ?',
-			'common.e2eeBackupDeleteSuccess' => 'Sauvegarde supprimée',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupDeleteConfirm' => 'Supprimer cette sauvegarde ?',
+			'common.e2eeBackupDeleteSuccess' => 'Sauvegarde supprimée',
 			'common.e2eeBackupCloudUploadBtn' => 'Sauvegarder dans le cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Sauvegardé dans le cloud (version ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'Échec de la sauvegarde cloud, veuillez réessayer',
@@ -4606,10 +4610,10 @@ extension on TranslationsFrFr {
 			'main.upgrade' => 'Mise à niveau',
 			'main.usedSpace' => 'Espace utilisé',
 			'main.webView' => 'Vue Web',
-			'main.you' => 'Vous',
-			'main.yourFeel' => 'Comment vous sentez-vous ?',
 			_ => null,
 		} ?? switch (path) {
+			'main.you' => 'Vous',
+			'main.yourFeel' => 'Comment vous sentez-vous ?',
 			'main.zhCn' => 'Chinois simplifié',
 			'main.zhHant' => 'Chinois traditionnel',
 			'main.bound' => 'Lié',

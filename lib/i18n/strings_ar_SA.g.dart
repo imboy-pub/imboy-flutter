@@ -404,6 +404,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get forwardReply => 'إعادة توجيه الرد';
 	@override String get forwardTo => 'إعادة توجيه إلى';
 	@override String get forwardToFriend => 'إعادة توجيه إلى صديق';
+	@override String forwardedToChats({required Object count}) => 'تمت إعادة التوجيه إلى ${count} محادثة';
 	@override String get great => 'ممتاز جداً';
 	@override String get groupFile => 'ملفات المجموعة';
 	@override String get groupFileImagePreview => 'معاينة الصورة';
@@ -958,6 +959,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get regionConfirm => 'تأكيد';
 	@override String get regionNoResult => 'لا توجد نتائج';
 	@override String get regionSearchHint => 'البحث باسم المنطقة';
+	@override String regionSelectedLevelHint({required Object region, required Object level}) => 'المحدد: ${region} (المستوى ${level}). يمكنك الإنهاء الآن أو متابعة التحديد لمستوى أدق.';
 	@override String get regionSearchTips => 'البحث باسم المنطقة أو رمز المنطقة';
 	@override String get regionSelectTitle => 'اختيار المنطقة';
 	@override String get releaseFingerCancelSending => 'اترك إصبعك لإلغاء الإرسال';
@@ -1026,7 +1028,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get searchHint => 'أدخل كلمات مفتاحية للبحث عن الرسائل';
 	@override String get searchHistory => 'سجل البحث';
 	@override String get searchLocation => 'البحث عن موقع';
-	@override String get searchMessagesHint => 'تلميح البحث عن الرسائل';
+	@override String get searchMessagesHint => 'ابحث في محتوى الدردشة';
 	@override String get searchNoFound => 'نتائج البحث فارغة :(';
 	@override String get searchNoResults => 'لا توجد نتائج بحث';
 	@override String get noSearchHistory => 'لا يوجد سجل بحث';
@@ -2856,6 +2858,7 @@ extension on TranslationsArSa {
 			'chat.forwardReply' => 'إعادة توجيه الرد',
 			'chat.forwardTo' => 'إعادة توجيه إلى',
 			'chat.forwardToFriend' => 'إعادة توجيه إلى صديق',
+			'chat.forwardedToChats' => ({required Object count}) => 'تمت إعادة التوجيه إلى ${count} محادثة',
 			'chat.great' => 'ممتاز جداً',
 			'chat.groupFile' => 'ملفات المجموعة',
 			'chat.groupFileImagePreview' => 'معاينة الصورة',
@@ -3062,9 +3065,9 @@ extension on TranslationsArSa {
 			'chat.e2eeSocialCreateFirst' => 'سيظهر المحتوى بعد إنشاء الشظايا',
 			'chat.e2eeSocialUsedAtLabel' => 'وقت الاستخدام',
 			'chat.e2eeTransferSendTitle' => 'إرسال المفتاح إلى جهاز جديد',
-			'chat.e2eeTransferCreateBtn' => 'إنشاء',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeTransferCreateBtn' => 'إنشاء',
 			'chat.e2eeTransferReceiveTitle' => 'استقبال المفتاح من الجهاز القديم',
 			'chat.e2eeTransferSendDesc' => 'نقل المفتاح إلى جهاز جديد عبر رمز QR',
 			'chat.e2eeTransferReceiveDesc' => 'امسح رمز QR للجهاز القديم لاستقبال المفتاح',
@@ -3403,6 +3406,7 @@ extension on TranslationsArSa {
 			'common.regionConfirm' => 'تأكيد',
 			'common.regionNoResult' => 'لا توجد نتائج',
 			'common.regionSearchHint' => 'البحث باسم المنطقة',
+			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => 'المحدد: ${region} (المستوى ${level}). يمكنك الإنهاء الآن أو متابعة التحديد لمستوى أدق.',
 			'common.regionSearchTips' => 'البحث باسم المنطقة أو رمز المنطقة',
 			'common.regionSelectTitle' => 'اختيار المنطقة',
 			'common.releaseFingerCancelSending' => 'اترك إصبعك لإلغاء الإرسال',
@@ -3471,7 +3475,7 @@ extension on TranslationsArSa {
 			'common.searchHint' => 'أدخل كلمات مفتاحية للبحث عن الرسائل',
 			'common.searchHistory' => 'سجل البحث',
 			'common.searchLocation' => 'البحث عن موقع',
-			'common.searchMessagesHint' => 'تلميح البحث عن الرسائل',
+			'common.searchMessagesHint' => 'ابحث في محتوى الدردشة',
 			'common.searchNoFound' => 'نتائج البحث فارغة :(',
 			'common.searchNoResults' => 'لا توجد نتائج بحث',
 			'common.noSearchHistory' => 'لا يوجد سجل بحث',
@@ -3575,10 +3579,10 @@ extension on TranslationsArSa {
 			'common.verificationCode' => 'رمز التحقق',
 			'common.feedbackContent' => 'محتوى الملاحظات',
 			'common.officialReply' => 'الرد الرسمي',
-			'common.setPasswordSecurityTips' => 'لتحسين أمان الحساب ومنع عدم القدرة على تسجيل الدخول بسبب عدم القدرة على الحصول على رمز التحقق، يرجى تعيين كلمة مرور تسجيل الدخول.',
-			'common.locationHidden' => 'تم إخفاء موقعك',
 			_ => null,
 		} ?? switch (path) {
+			'common.setPasswordSecurityTips' => 'لتحسين أمان الحساب ومنع عدم القدرة على تسجيل الدخول بسبب عدم القدرة على الحصول على رمز التحقق، يرجى تعيين كلمة مرور تسجيل الدخول.',
+			'common.locationHidden' => 'تم إخفاء موقعك',
 			'common.locationVisible' => 'تم عرض موقعك',
 			'common.noNearbyPeople' => 'لا يوجد أشخاص قريبون',
 			'common.clickSearchButtonToFind' => 'انقر على زر البحث أعلاه للعثور على أشخاص قريبين',
@@ -4089,10 +4093,10 @@ extension on TranslationsArSa {
 			'common.e2eeBackupFileSizeRow' => 'حجم الملف',
 			'common.e2eeBackupNoteRow' => 'ملاحظة',
 			'common.e2eeBackupDeleteTitle' => 'حذف سجل النسخة',
-			'common.e2eeBackupDeleteConfirm' => 'حذف سجل النسخة هذا؟',
-			'common.e2eeBackupDeleteSuccess' => 'تم حذف السجل',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupDeleteConfirm' => 'حذف سجل النسخة هذا؟',
+			'common.e2eeBackupDeleteSuccess' => 'تم حذف السجل',
 			'common.e2eeBackupCloudUploadBtn' => 'النسخ الاحتياطي إلى السحابة',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'فشل النسخ السحابي، يرجى المحاولة مرة أخرى',
@@ -4603,10 +4607,10 @@ extension on TranslationsArSa {
 			'main.upgrade' => 'ترقية',
 			'main.usedSpace' => 'المساحة المستخدمة',
 			'main.webView' => 'عرض الويب',
-			'main.you' => 'أنت',
-			'main.yourFeel' => 'كيف تشعر بذلك؟',
 			_ => null,
 		} ?? switch (path) {
+			'main.you' => 'أنت',
+			'main.yourFeel' => 'كيف تشعر بذلك؟',
 			'main.zhCn' => 'الصينية المبسطة',
 			'main.zhHant' => 'الصينية التقليدية',
 			'main.bound' => 'تم الربط',

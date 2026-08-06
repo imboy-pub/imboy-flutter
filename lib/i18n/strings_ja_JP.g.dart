@@ -404,6 +404,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get forwardReply => '転送して返信';
 	@override String get forwardTo => '転送先';
 	@override String get forwardToFriend => '友達に転送';
+	@override String forwardedToChats({required Object count}) => '${count} 件のチャットに転送しました';
 	@override String get great => '素晴らしい';
 	@override String get groupFile => 'グループファイル';
 	@override String get groupFileImagePreview => '画像プレビュー';
@@ -958,6 +959,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get regionConfirm => '確認';
 	@override String get regionNoResult => '結果がありません';
 	@override String get regionSearchHint => '地域名で検索';
+	@override String regionSelectedLevelHint({required Object region, required Object level}) => '選択中: ${region}（第 ${level} 階層）。このまま完了できます。さらに下の階層を選ぶこともできます。';
 	@override String get regionSearchTips => '地域名または地域コードで検索';
 	@override String get regionSelectTitle => '地域を選択';
 	@override String get releaseFingerCancelSending => '指を離して送信をキャンセル';
@@ -1026,7 +1028,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get searchHint => 'キーワードを入力してメッセージを検索';
 	@override String get searchHistory => '検索履歴';
 	@override String get searchLocation => '場所を検索';
-	@override String get searchMessagesHint => 'メッセージ検索のヒント';
+	@override String get searchMessagesHint => 'チャット内容を検索';
 	@override String get searchNoFound => '検索結果が空です :(';
 	@override String get searchNoResults => '検索結果なし';
 	@override String get noSearchHistory => '検索履歴なし';
@@ -2856,6 +2858,7 @@ extension on TranslationsJaJp {
 			'chat.forwardReply' => '転送して返信',
 			'chat.forwardTo' => '転送先',
 			'chat.forwardToFriend' => '友達に転送',
+			'chat.forwardedToChats' => ({required Object count}) => '${count} 件のチャットに転送しました',
 			'chat.great' => '素晴らしい',
 			'chat.groupFile' => 'グループファイル',
 			'chat.groupFileImagePreview' => '画像プレビュー',
@@ -3062,9 +3065,9 @@ extension on TranslationsJaJp {
 			'chat.e2eeSocialCreateFirst' => 'シャードを作成すると内容が表示されます',
 			'chat.e2eeSocialUsedAtLabel' => '使用日時',
 			'chat.e2eeTransferSendTitle' => '新しいデバイスにキーを送信',
-			'chat.e2eeTransferCreateBtn' => '作成',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeTransferCreateBtn' => '作成',
 			'chat.e2eeTransferReceiveTitle' => '古いデバイスからキーを受信',
 			'chat.e2eeTransferSendDesc' => 'QRコードでキーを新しいデバイスに転送',
 			'chat.e2eeTransferReceiveDesc' => '古いデバイスのQRコードをスキャンしてキーを受信',
@@ -3403,6 +3406,7 @@ extension on TranslationsJaJp {
 			'common.regionConfirm' => '確認',
 			'common.regionNoResult' => '結果がありません',
 			'common.regionSearchHint' => '地域名で検索',
+			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => '選択中: ${region}（第 ${level} 階層）。このまま完了できます。さらに下の階層を選ぶこともできます。',
 			'common.regionSearchTips' => '地域名または地域コードで検索',
 			'common.regionSelectTitle' => '地域を選択',
 			'common.releaseFingerCancelSending' => '指を離して送信をキャンセル',
@@ -3471,7 +3475,7 @@ extension on TranslationsJaJp {
 			'common.searchHint' => 'キーワードを入力してメッセージを検索',
 			'common.searchHistory' => '検索履歴',
 			'common.searchLocation' => '場所を検索',
-			'common.searchMessagesHint' => 'メッセージ検索のヒント',
+			'common.searchMessagesHint' => 'チャット内容を検索',
 			'common.searchNoFound' => '検索結果が空です :(',
 			'common.searchNoResults' => '検索結果なし',
 			'common.noSearchHistory' => '検索履歴なし',
@@ -3575,10 +3579,10 @@ extension on TranslationsJaJp {
 			'common.verificationCode' => '認証コード',
 			'common.feedbackContent' => 'フィードバック内容',
 			'common.officialReply' => '公式返信',
-			'common.setPasswordSecurityTips' => 'アカウントのセキュリティを強化し、認証コードを取得できないためにログインできないのを防ぐために、ログインパスワードを設定してください。',
-			'common.locationHidden' => '位置情報を非表示にしました',
 			_ => null,
 		} ?? switch (path) {
+			'common.setPasswordSecurityTips' => 'アカウントのセキュリティを強化し、認証コードを取得できないためにログインできないのを防ぐために、ログインパスワードを設定してください。',
+			'common.locationHidden' => '位置情報を非表示にしました',
 			'common.locationVisible' => '位置情報を表示しました',
 			'common.noNearbyPeople' => '近くに人はいません',
 			'common.clickSearchButtonToFind' => '上の検索ボタンをクリックして近くの人を探してください',
@@ -4089,10 +4093,10 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupFileSizeRow' => 'ファイルサイズ',
 			'common.e2eeBackupNoteRow' => 'メモ',
 			'common.e2eeBackupDeleteTitle' => 'バックアップ履歴を削除',
-			'common.e2eeBackupDeleteConfirm' => 'このバックアップ履歴を削除しますか？',
-			'common.e2eeBackupDeleteSuccess' => 'バックアップ履歴を削除しました',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupDeleteConfirm' => 'このバックアップ履歴を削除しますか？',
+			'common.e2eeBackupDeleteSuccess' => 'バックアップ履歴を削除しました',
 			'common.e2eeBackupCloudUploadBtn' => 'クラウドにバックアップ',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）',
 			'common.e2eeBackupErrCloudUploadFailed' => 'クラウドバックアップに失敗しました。再試行してください',
@@ -4603,10 +4607,10 @@ extension on TranslationsJaJp {
 			'main.upgrade' => 'アップグレード',
 			'main.usedSpace' => '使用済み容量',
 			'main.webView' => 'ウェブビュー',
-			'main.you' => 'あなた',
-			'main.yourFeel' => 'どう感じましたか？',
 			_ => null,
 		} ?? switch (path) {
+			'main.you' => 'あなた',
+			'main.yourFeel' => 'どう感じましたか？',
 			'main.zhCn' => '簡体字中国語',
 			'main.zhHant' => '繁体字中国語',
 			'main.bound' => '登録済み',

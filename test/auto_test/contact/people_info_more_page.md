@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 待修复 | 2026-08-06 | `page/contact/people_info_more/people_info_more_page.dart` | 共同群聊请求超时的失败反馈 | 有BUG待修 | - | 1 | 0 | 1 | BUG#116 超时被静默渲染成「暂无共同群组」，无错误提示，类型 A 债务 |
+| 待复验 | 2026-08-06 | `page/contact/people_info_more/people_info_more_page.dart` | 共同群聊请求超时的失败反馈 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：失败落进 state 区分三态，原重试 UI 是死代码 |
 | 无待办 | - | `page/contact/people_info_more/people_info_more_page.dart` | 展示共同群聊数量与徽章 | 已通过 | - | 0 | 0 | 0 | |
 | 无待办 | - | `page/contact/people_info_more/people_info_more_page.dart` | 展示对方个性签名卡片 | 已通过 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/contact/people_info_more/people_info_more_page.dart` | 展示好友来源信息卡片 | 待重验 | - | 0 | 0 | 0 | |

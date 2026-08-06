@@ -43,6 +43,7 @@ forward: Переслать
 forwardReply: Переслать ответ
 forwardTo: Переслать
 forwardToFriend: Переслать другу
+forwardedToChats: "Переслано в $count чатов"
 great: Превосходно
 groupFile: Файлы группы
 groupFileImagePreview: Просмотр изображения

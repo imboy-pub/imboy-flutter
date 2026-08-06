@@ -46,7 +46,9 @@ class NewFriendRepo {
       NewFriendRepo.from: obj.from,
       NewFriendRepo.to: obj.to,
       NewFriendRepo.nickname: obj.nickname,
-      NewFriendRepo.avatar: obj.avatar,
+      // avatar 列是 TEXT NOT NULL DEFAULT ''：显式传 NULL 不会走 DEFAULT，
+      // 而是直接触发 NOT NULL 约束失败，整条申请记录落不了库（BUG#1）。
+      NewFriendRepo.avatar: obj.avatar ?? '',
       NewFriendRepo.msg: obj.msg,
       NewFriendRepo.status: obj.status,
       NewFriendRepo.payload: obj.payload,

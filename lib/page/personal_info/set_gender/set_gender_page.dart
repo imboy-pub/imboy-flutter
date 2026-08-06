@@ -38,42 +38,51 @@ class SetGenderPage extends ConsumerWidget {
           final isPending =
               state.pendingGender == option['id'] && state.isSaving;
 
-          return ImBoySettingsTile(
-            title: Text(option['title'] as String),
-            leading: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.getIosBlue(brightness)
-                    : AppColors.iosGray,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                option['icon'] as IconData,
-                color: AppColors.onPrimary,
-                size: 18,
+          // 三个选项是互斥单选。读屏此前只能听到标题，听不出哪个选中
+          // （勾选态只由无 label 的 check_mark 图标表达）。
+          // MergeSemantics 把标题与 selected 合成一个节点，避免重复播报 label。
+          return MergeSemantics(
+            child: Semantics(
+              selected: isSelected,
+              inMutuallyExclusiveGroup: true,
+              child: ImBoySettingsTile(
+                title: Text(option['title'] as String),
+                leading: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.getIosBlue(brightness)
+                        : AppColors.iosGray,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    option['icon'] as IconData,
+                    color: AppColors.onPrimary,
+                    size: 18,
+                  ),
+                ),
+                trailing: isPending
+                    ? const CupertinoActivityIndicator(radius: 8)
+                    : (isSelected
+                          ? Icon(
+                              CupertinoIcons.check_mark,
+                              color: AppColors.getIosBlue(brightness),
+                              size: 18,
+                            )
+                          : const SizedBox.shrink()),
+                onTap: state.isSaving
+                    ? null
+                    : () async {
+                        final success = await ref
+                            .read(setGenderProvider.notifier)
+                            .selectGender(option['id'] as String, ref);
+                        if (success && context.mounted) {
+                          Navigator.of(context).pop(true);
+                        }
+                      },
               ),
             ),
-            trailing: isPending
-                ? const CupertinoActivityIndicator(radius: 8)
-                : (isSelected
-                      ? Icon(
-                          CupertinoIcons.check_mark,
-                          color: AppColors.getIosBlue(brightness),
-                          size: 18,
-                        )
-                      : const SizedBox.shrink()),
-            onTap: state.isSaving
-                ? null
-                : () async {
-                    final success = await ref
-                        .read(setGenderProvider.notifier)
-                        .selectGender(option['id'] as String, ref);
-                    if (success && context.mounted) {
-                      Navigator.of(context).pop(true);
-                    }
-                  },
           );
         }).toList(),
       ),

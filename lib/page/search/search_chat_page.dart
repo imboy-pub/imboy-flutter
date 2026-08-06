@@ -192,15 +192,17 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
             b,
           ),
           AppSpacing.horizontalSmall,
+          // 口径统一为「类型名」：t.chat.imageMessage 的值是消息预览标识
+          // "[图片]"，带方括号的预览文案不该出现在筛选标签上。
           _buildFilterChip(
-            t.chat.textMessage,
+            t.main.text,
             state.selectedMessageType == MessageType.text,
             () => _applyFilter(MessageType.text),
             b,
           ),
           AppSpacing.horizontalSmall,
           _buildFilterChip(
-            t.chat.imageMessage,
+            t.chat.image,
             state.selectedMessageType == MessageType.image,
             () => _applyFilter(MessageType.image),
             b,

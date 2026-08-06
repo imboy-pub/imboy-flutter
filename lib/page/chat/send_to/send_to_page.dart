@@ -215,7 +215,9 @@ class _SendToPageState extends ConsumerState<SendToPage> {
       return;
     }
 
-    AppLoading.showSuccess(t.common.success);
+    AppLoading.showSuccess(
+      t.chat.forwardedToChats(count: selectedContacts.length),
+    );
     context.pop();
   }
 }

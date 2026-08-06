@@ -608,7 +608,10 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                         t.common.buttonAdd,
                         style: context.textStyle(
                           FontSizeType.medium,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          // 按钮底色是 colorScheme.surface（浅色 = 纯白），
+                          // 文字却用 onPrimary（= 纯白）→ 白底白字，真机上看着
+                          // 就是"只有轮廓没有文字的空按钮"。改用 primary。
+                          color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.normal,
                         ),
                       ),

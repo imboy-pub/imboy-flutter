@@ -317,6 +317,7 @@ regionCancel: 取消
 regionConfirm: 确定
 regionNoResult: 暂无结果
 regionSearchHint: 按地区名称搜索
+regionSelectedLevelHint(region, level): "已选 $region（第 $level 级）：可直接点右上角完成，也可继续选择下一级"
 regionSearchTips: 按地区名称或区域编码搜索
 regionSelectTitle: 选择地区
 releaseFingerCancelSending: "松开手指,取消发送"
@@ -385,7 +386,7 @@ searchFriendsTips: 通过好友昵称、备注搜索好友
 searchHint: 输入关键词搜索消息
 searchHistory: 搜索历史
 searchLocation: 搜索地点
-searchMessagesHint: 搜索消息提示
+searchMessagesHint: "搜索聊天内容"
 searchNoFound: "搜索结果为空 :("
 searchNoResults: 无搜索结果
 noSearchHistory: 暂无搜索历史

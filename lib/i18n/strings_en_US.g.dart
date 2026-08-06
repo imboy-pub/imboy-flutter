@@ -412,6 +412,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get forwardReply => 'Forward reply';
 	@override String get forwardTo => 'Forward to';
 	@override String get forwardToFriend => 'Forward to friend';
+	@override String forwardedToChats({required Object count}) => 'Forwarded to ${count} chats';
 	@override String get great => 'Excellent';
 	@override String get groupFile => 'Group Files';
 	@override String get groupFileImagePreview => 'Image preview';
@@ -965,6 +966,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get regionConfirm => 'OK';
 	@override String get regionNoResult => 'No results yet';
 	@override String get regionSearchHint => 'Search by region name';
+	@override String regionSelectedLevelHint({required Object region, required Object level}) => 'Selected ${region} (level ${level}). You can finish now, or keep drilling down.';
 	@override String get regionSearchTips => 'Search by region name or code';
 	@override String get regionSelectTitle => 'Select region';
 	@override String get releaseFingerCancelSending => 'Release finger to cancel sending';
@@ -1033,7 +1035,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get searchHint => 'Enter keywords to search messages';
 	@override String get searchHistory => 'Search history';
 	@override String get searchLocation => 'Search location';
-	@override String get searchMessagesHint => 'Search messages tip';
+	@override String get searchMessagesHint => 'Search chat content';
 	@override String get searchNoFound => 'Search results empty :(';
 	@override String get searchNoResults => 'No search results';
 	@override String get noSearchHistory => 'No search history yet';
@@ -2889,6 +2891,7 @@ extension on TranslationsEnUs {
 			'chat.forwardReply' => 'Forward reply',
 			'chat.forwardTo' => 'Forward to',
 			'chat.forwardToFriend' => 'Forward to friend',
+			'chat.forwardedToChats' => ({required Object count}) => 'Forwarded to ${count} chats',
 			'chat.great' => 'Excellent',
 			'chat.groupFile' => 'Group Files',
 			'chat.groupFileImagePreview' => 'Image preview',
@@ -3087,9 +3090,9 @@ extension on TranslationsEnUs {
 			'chat.webFeatureMultiDevice' => 'Multi-Device Sync',
 			'chat.webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
 			'chat.webFeatureE2EE' => 'End-to-End Encryption',
-			'chat.webFeatureE2EEDesc' => 'All messages are end-to-end encrypted, ensuring privacy and security',
 			_ => null,
 		} ?? switch (path) {
+			'chat.webFeatureE2EEDesc' => 'All messages are end-to-end encrypted, ensuring privacy and security',
 			'chat.webFeatureFileTransfer' => 'File Transfer',
 			'chat.webFeatureFileTransferDesc' => 'Drag and drop to send files, supports various formats',
 			'chat.webQRStatusWaiting' => 'Open ImBoy on your phone > Settings > Scan',
@@ -3435,6 +3438,7 @@ extension on TranslationsEnUs {
 			'common.regionConfirm' => 'OK',
 			'common.regionNoResult' => 'No results yet',
 			'common.regionSearchHint' => 'Search by region name',
+			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => 'Selected ${region} (level ${level}). You can finish now, or keep drilling down.',
 			'common.regionSearchTips' => 'Search by region name or code',
 			'common.regionSelectTitle' => 'Select region',
 			'common.releaseFingerCancelSending' => 'Release finger to cancel sending',
@@ -3503,7 +3507,7 @@ extension on TranslationsEnUs {
 			'common.searchHint' => 'Enter keywords to search messages',
 			'common.searchHistory' => 'Search history',
 			'common.searchLocation' => 'Search location',
-			'common.searchMessagesHint' => 'Search messages tip',
+			'common.searchMessagesHint' => 'Search chat content',
 			'common.searchNoFound' => 'Search results empty :(',
 			'common.searchNoResults' => 'No search results',
 			'common.noSearchHistory' => 'No search history yet',
@@ -3600,10 +3604,10 @@ extension on TranslationsEnUs {
 			'common.confirmForceOffline' => 'Confirm offline',
 			'common.forceOfflineCommandSent' => 'Offline command sent',
 			'common.feedbackSlogan' => 'Your suggestions are our motivation for improvement',
-			'common.newFeedback' => 'New feedback',
-			'common.feedbackHistory' => 'Feedback history',
 			_ => null,
 		} ?? switch (path) {
+			'common.newFeedback' => 'New feedback',
+			'common.feedbackHistory' => 'Feedback history',
 			'common.confirmDelete' => 'Confirm delete',
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => 'Verification code',
@@ -4114,10 +4118,10 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
 			'common.e2eeBackupImportSuccessNote' => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices',
 			'common.e2eeBackupNoRecords' => 'No backup records',
-			'common.e2eeBackupNoRecordsHint' => 'Backup history will appear here after exporting',
-			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Device ${id}',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupNoRecordsHint' => 'Backup history will appear here after exporting',
+			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Device ${id}',
 			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => 'Created at ${time}',
 			'common.e2eeBackupDetailTitle' => 'Backup details',
 			'common.e2eeBackupDeviceIdLabel' => 'Device ID',
@@ -4628,10 +4632,10 @@ extension on TranslationsEnUs {
 			'main.setting' => 'Settings',
 			'main.siginQ' => 'Already have an account?',
 			'main.signInWith' => ({required Object param}) => 'Sign in with ${param}',
-			'main.source' => 'Source',
-			'main.speakingTooShort' => 'Speaking time too short',
 			_ => null,
 		} ?? switch (path) {
+			'main.source' => 'Source',
+			'main.speakingTooShort' => 'Speaking time too short',
 			'main.speed' => 'Speed',
 			'main.star' => _root.main.markStar,
 			'main.stillNeeded' => 'Still need',

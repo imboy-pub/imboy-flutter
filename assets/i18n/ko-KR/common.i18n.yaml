@@ -313,6 +313,7 @@ regionCancel: 취소
 regionConfirm: 확인
 regionNoResult: 결과 없음
 regionSearchHint: 지역 이름으로 검색
+regionSelectedLevelHint(region, level): "선택됨: $region(레벨 $level). 지금 완료하거나 하위 단계를 계속 선택할 수 있습니다."
 regionSearchTips: 지역 이름 또는 지역 코드로 검색
 regionSelectTitle: 지역 선택
 releaseFingerCancelSending: 손가락을 놓으면 전송 취소
@@ -381,7 +382,7 @@ searchFriendsTips: 친구 닉네임, 메모로 친구 검색
 searchHint: 키워드를 입력하여 메시지를 검색하세요
 searchHistory: 검색 기록
 searchLocation: 위치 검색
-searchMessagesHint: 메시지 검색 팁
+searchMessagesHint: "채팅 내용 검색"
 searchNoFound: 검색 결과가 없습니다 :(
 searchNoResults: 검색 결과 없음
 noSearchHistory: 검색 기록 없음

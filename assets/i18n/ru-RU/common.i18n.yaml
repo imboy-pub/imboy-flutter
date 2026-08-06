@@ -313,6 +313,7 @@ regionCancel: Отмена
 regionConfirm: Подтвердить
 regionNoResult: Нет результатов
 regionSearchHint: Поиск по названию региона
+regionSelectedLevelHint(region, level): "Выбрано: $region (уровень $level). Можно завершить сейчас или уточнить дальше."
 regionSearchTips: Поиск по названию региона или коду региона
 regionSelectTitle: Выберите регион
 releaseFingerCancelSending: Отпустите палец, чтобы отменить отправку
@@ -381,7 +382,7 @@ searchFriendsTips: Поиск друзей по никнейму и примеч
 searchHint: Введите ключевые слова для поиска сообщений
 searchHistory: История поиска
 searchLocation: Найти местоположение
-searchMessagesHint: Подсказка поиска сообщений
+searchMessagesHint: "Поиск по чату"
 searchNoFound: Результаты поиска пусты :(
 searchNoResults: Нет результатов поиска
 noSearchHistory: Нет истории поиска

@@ -298,6 +298,38 @@ class _ChannelListItem extends StatelessWidget {
     }
   }
 
+  /// 频道头像。
+  ///
+  /// 原实现用 `CircleAvatar.backgroundImage`，只在「没有 URL」时才渲染兜底
+  /// 图标；有 URL 但加载失败（授权过期 / 对象不存在 / 断网）时 CircleAvatar
+  /// 只剩背景色，表现为一个完全空白的圆。改用 Image + errorBuilder，
+  /// 让「加载失败」和「没有 URL」走同一个兜底图标。
+  Widget _buildAvatar() {
+    const double size = 48;
+    const Widget fallback = Center(
+      child: Icon(Icons.campaign, size: 24, color: AppColors.primary),
+    );
+    final String url = channel.avatar ?? '';
+    return ClipOval(
+      child: Container(
+        width: size,
+        height: size,
+        color: AppColors.primaryAlpha10,
+        child: url.isEmpty
+            ? fallback
+            : Image(
+                // 必须走 cachedImageProvider（内部已重新授权），
+                // 禁止直接 Image.network。
+                image: cachedImageProvider(url, w: 96),
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => fallback,
+              ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t;
@@ -308,16 +340,7 @@ class _ChannelListItem extends StatelessWidget {
         context.push('/channel/${_detailRouteId(channel)}');
       },
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      leading: CircleAvatar(
-        radius: 24,
-        backgroundColor: AppColors.primaryAlpha10,
-        backgroundImage: channel.avatar != null && channel.avatar!.isNotEmpty
-            ? cachedImageProvider(channel.avatar!, w: 96)
-            : null,
-        child: channel.avatar == null || channel.avatar!.isEmpty
-            ? const Icon(Icons.campaign, size: 24, color: AppColors.primary)
-            : null,
-      ),
+      leading: _buildAvatar(),
       title: Row(
         children: [
           Expanded(

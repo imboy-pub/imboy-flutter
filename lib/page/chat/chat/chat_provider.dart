@@ -619,12 +619,39 @@ class ChatNotifier extends _$ChatNotifier {
     }
   }
 
-  /// 阅后即焚清理
+  /// 阅后即焚清理：进会话时兜底扫最近 [scanLimit] 条，销毁已过期的消息。
+  ///
+  /// 逐条定时器（[ChatBurnService.ensureBurnTimerForItem]）只对**已渲染**的消息生效。
+  /// 关 App 期间过期、且落在当前加载窗口之外的消息，不滚到它就永远不会被销毁——
+  /// 阅后即焚是安全承诺，漏销毁等于消息永久留在本地库，所以这里补一次开屏兜底。
   Future<void> cleanupExpiredBurnMessagesForConversation(
     ConversationModel conversation, {
     int scanLimit = 30,
   }) async {
-    iPrint('阅后即焚清理: ${conversation.uk3}');
+    try {
+      final String tb = MessageRepo.getTableName(conversation.type);
+      final List<MessageModel> items = await MessageRepo(
+        tableName: tb,
+      ).page(page: 1, size: scanLimit, conversationUk3: conversation.uk3);
+      if (items.isEmpty) return;
+
+      final int nowMs = DateTimeHelper.millisecond();
+      int burned = 0;
+      for (final MessageModel item in items) {
+        final dynamic payload = item.payload;
+        if (payload is! Map<String, dynamic>) continue;
+        // 已经是墓碑的不重复销毁，否则会把重试定时器和计数搅乱
+        if (_burnService.isBurnTombstonePayload(payload)) continue;
+        if (!_burnService.isBurnExpired(payload, nowMs)) continue;
+        if (item.id.isEmpty) continue;
+        await _deleteBurnMessage(conversation, item.id);
+        burned++;
+      }
+      iPrint('阅后即焚清理: ${conversation.uk3} 扫描 ${items.length} 条，销毁 $burned 条');
+    } catch (e) {
+      // 不能静默吞：销毁失败要留痕，否则「安全承诺没兑现」这件事没人知道
+      iPrint('阅后即焚清理失败: ${conversation.uk3} $e');
+    }
   }
 
   // ===== 语音播放（委托给 ChatAudioHandler）=====

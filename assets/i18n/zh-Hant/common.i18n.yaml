@@ -312,6 +312,7 @@ regionCancel: 取消
 regionConfirm: 確定
 regionNoResult: 暫無結果
 regionSearchHint: 按地區名稱搜尋
+regionSelectedLevelHint(region, level): "已選 $region（第 $level 級）：可直接點右上角完成，也可繼續選擇下一級"
 regionSearchTips: 按地區名稱或區域編碼搜尋
 regionSelectTitle: 選擇地區
 releaseFingerCancelSending: 鬆開手指，取消傳送
@@ -380,7 +381,7 @@ searchFriendsTips: 通過好友暱稱、備註搜尋好友
 searchHint: 輸入關鍵詞搜尋訊息
 searchHistory: 搜尋記錄
 searchLocation: 搜尋地點
-searchMessagesHint: 搜尋訊息提示
+searchMessagesHint: "搜尋聊天內容"
 searchNoFound: 搜尋結果為空 :(
 searchNoResults: 無搜尋結果
 noSearchHistory: 暫無搜尋記錄

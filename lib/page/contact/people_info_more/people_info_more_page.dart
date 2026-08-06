@@ -147,6 +147,10 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
     BuildContext context,
     PeopleInfoMoreState state,
   ) {
+    // 请求失败：整张卡片变成「加载失败，请重试」+ 点按重试，
+    // 不再和「成功但 0 个共同群」共用同一个空态文案。
+    final failed = state.sameGroupFailed;
+    final hasGroup = !failed && state.groupCount > 0;
     return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: AppSpacing.regular,
@@ -164,7 +168,9 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
       child: ClipRRect(
         borderRadius: AppRadius.borderRadiusRegular,
         child: CellPressable(
-          onTap: state.groupCount > 0
+          onTap: failed
+              ? _loadData
+              : hasGroup
               ? () {
                   Navigator.push(
                     context,
@@ -185,7 +191,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: state.groupCount > 0
+                    color: hasGroup
                         ? Theme.of(
                             context,
                           ).colorScheme.primaryContainer.withValues(alpha: 0.3)
@@ -194,8 +200,10 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     borderRadius: AppRadius.borderRadiusRegular,
                   ),
                   child: Icon(
-                    Icons.groups_outlined,
-                    color: state.groupCount > 0
+                    failed ? Icons.error_outline : Icons.groups_outlined,
+                    color: failed
+                        ? Theme.of(context).colorScheme.error
+                        : hasGroup
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 24,
@@ -219,20 +227,34 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                       ),
                       AppSpacing.verticalTiny,
                       Text(
-                        state.groupCount > 0
+                        failed
+                            ? t.common.loadError
+                            : hasGroup
                             ? t.main.numUnit(param: '${state.groupCount}')
                             : t.common.noCommonGroups,
                         style: context.textStyle(
                           FontSizeType.normal,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          color: failed
+                              ? Theme.of(context).colorScheme.error
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                // 右侧箭头或数字徽章
-                if (state.groupCount > 0) ...[
+                // 右侧：失败态给重试入口，否则数字徽章 / 空态占位
+                if (failed) ...[
+                  Semantics(
+                    button: true,
+                    label: t.common.buttonRetry,
+                    child: Icon(
+                      Icons.refresh,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 20,
+                    ),
+                  ),
+                ] else if (hasGroup) ...[
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.medium,

@@ -44,6 +44,26 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     ref.read(profileProvider.notifier).refreshUserData();
   }
 
+  /// 完善建议 chip → 对应编辑入口。
+  /// 走路由的复用 [_pushThenReload]（含回来后刷新，见 QA#41）；
+  /// 头像/签名/生日本来就是本页 modal，直接调既有方法。
+  void _openSuggestion(String key) {
+    switch (key) {
+      case 'avatar':
+        _editAvatar(context, ref.read(profileProvider.notifier));
+      case 'nickname':
+        _pushThenReload('/personal_info/set_nickname');
+      case 'gender':
+        _pushThenReload('/personal_info/set_gender');
+      case 'region':
+        _pushThenReload('/personal_info/set_region');
+      case 'signature':
+        _editSignature(context);
+      case 'birthday':
+        _editBirthday(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileState = ref.watch(profileProvider);
@@ -76,7 +96,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         ),
 
         // 完善度进度
-        const SliverToBoxAdapter(child: ProfileCompletionWidget()),
+        SliverToBoxAdapter(
+          child: ProfileCompletionWidget(onSuggestionTap: _openSuggestion),
+        ),
 
         // 基本信息
         SliverToBoxAdapter(

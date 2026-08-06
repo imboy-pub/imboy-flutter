@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 待修复 | 2026-08-06 | `page/group/category/group_category_detail_page.dart` | 重命名分组并同步父页列表 | 有BUG待修 | - | 1 | 0 | 1 | BUG#33 改判为重命名请求已发出但列表不刷新，A类债务 |
+| 待复验 | 2026-08-06 | `page/group/category/group_category_detail_page.dart` | 重命名分组并同步父页列表 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：父页仅在 pop 结果==true 时刷新，重命名 pop 给的是 null |
 | 回归复测 | 2026-08-07 | `page/group/category/group_category_detail_page.dart` | 名称未变更时跳过重命名请求 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/category/group_category_detail_page.dart` | 删除分组并二次确认拦截 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/category/group_category_detail_page.dart` | 删除成功后回传刷新并退出 | 待重验 | - | 0 | 0 | 0 | |

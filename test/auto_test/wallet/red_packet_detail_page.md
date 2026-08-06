@@ -15,5 +15,5 @@
 | 阻塞 | 需真实红包消息素材 | `page/wallet/red_packet_detail_page.dart` | 渲染领取记录列表与时间 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 需真实红包消息素材 | `page/wallet/red_packet_detail_page.dart` | 计算并标记手气最佳领取人 | 未测 | - | 0 | 0 | 0 | 仅拼手气红包 |
 | 阻塞 | 需真实红包消息素材 | `page/wallet/red_packet_detail_page.dart` | 无人领取时展示空态提示 | 未测 | - | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/wallet/red_packet_detail_page.dart` | 展示领取人身份标识 | 有BUG待修 | - | 1 | 0 | 1 | 与 BUG#111 同源仍未修：`redPacketReceiverLabel(uid: r.receiverUid)` 直接渲染裸 TSID，未接 ContactRepo |
+| 待复验 | 2026-08-06 | `page/wallet/red_packet_detail_page.dart` | 展示领取人身份标识 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：照抄 transfer_send 走 ContactRepo().findByUid() 取 title |
 | 阻塞 | 需真实红包消息素材 | `page/wallet/red_packet_detail_page.dart` | 展示零信任端解密角标 | 未测 | - | 0 | 0 | 0 | 文案硬编码未走 i18n |

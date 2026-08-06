@@ -303,6 +303,7 @@ regionCancel: Cancel
 regionConfirm: OK
 regionNoResult: No results yet
 regionSearchHint: Search by region name
+regionSelectedLevelHint(region, level): "Selected $region (level $level). You can finish now, or keep drilling down."
 regionSearchTips: Search by region name or code
 regionSelectTitle: Select region
 releaseFingerCancelSending: Release finger to cancel sending
@@ -371,7 +372,7 @@ searchFriendsTips: Search friends by nickname or remark
 searchHint: Enter keywords to search messages
 searchHistory: Search history
 searchLocation: Search location
-searchMessagesHint: Search messages tip
+searchMessagesHint: "Search chat content"
 searchNoFound: "Search results empty :("
 searchNoResults: No search results
 noSearchHistory: No search history yet

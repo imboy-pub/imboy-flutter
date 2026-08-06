@@ -12,8 +12,8 @@
 | 无待办 | — | `page/chat/chat/chat_page.dart` | 长按消息弹出操作菜单 | 已通过 | 批次25 | 1 | 1 | 0 | |
 | 无待办 | — | `page/chat/chat/chat_page.dart` | 转发消息到其他会话 | 已通过 | 批次25 | 1 | 1 | 0 | |
 | 无待办 | — | `page/chat/chat/chat_page.dart` | 发送并播放视频消息 | 已通过 | 批次25 | 3 | 3 | 0 | |
-| 待修复 | 2026-08-06 | `page/chat/chat/chat_page.dart` | 打开表情面板插入表情 | 有BUG待修 | 批次25 | 2 | 0 | 2 | P3 面板缺退格删除键；P3 搜索 FAB 悬浮位置突兀 |
-| 待修复 | 2026-08-06 | `page/chat/chat/chat_page.dart` | 清理已到期的阅后即焚消息 | 有BUG待修 | 批次25 | 1 | 0 | 1 | `chat_provider.dart:623` 清理函数是只打日志的空实现 |
+| 回归复测 | 2026-08-06 | `page/chat/chat/chat_page.dart` | 打开表情面板插入表情 | 待重验 | 批次26 | 0 | 0 | 0 | 已撤回：包内 showBackspaceButton 默认 true，退格键应在面板右下；原判定仅凭一眼截图，需真机复核 |
+| 待复验 | 2026-08-06 | `page/chat/chat/chat_page.dart` | 清理已到期的阅后即焚消息 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：开屏兜底扫描原为空实现，逐条定时器只覆盖已渲染消息 |
 | 回归复测 | 2026-08-07 | `page/chat/chat/chat_page.dart` | 发送图片并多图滑动预览 | 待重验 | 批次25 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/chat/chat/chat_page.dart` | 录制并播放语音消息 | 待重验 | 批次25 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/chat/chat/chat_page.dart` | 发送文件并确认打开 | 待重验 | 批次25 | 0 | 0 | 0 | |

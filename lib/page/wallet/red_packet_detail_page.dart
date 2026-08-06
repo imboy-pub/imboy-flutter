@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/store/model/red_packet_model.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -26,6 +28,11 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
   RedPacketModel? _packet;
   List<RedPacketReceiveModel> _receivers = [];
   int? _myGrabbedAmount;
+
+  /// 领取人显示名（uid → title）。列表原先直接渲染 TSID，用户看不懂谁领的。
+  /// 与 transfer_send_page / red_packet_send_page 同源：走 ContactRepo.title
+  /// （remark > nickname > account），查不到才回落 uid。
+  final Map<int, String> _receiverNames = {};
 
   @override
   void initState() {
@@ -58,6 +65,9 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
           }
         }
 
+        await _loadReceiverNames(receivers, currentUid);
+        if (!mounted) return;
+
         setState(() {
           _packet = packet;
           _receivers = receivers;
@@ -71,6 +81,27 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
     } catch (e) {
       setState(() => _isLoading = false);
       AppLoading.showError(t.common.redPacketFetchError);
+    }
+  }
+
+  /// 批量解析领取人昵称，填充 [_receiverNames]。查不到的 uid 不入表，
+  /// 渲染时回落原 uid（不会渲染出空名字）。
+  Future<void> _loadReceiverNames(
+    List<RedPacketReceiveModel> receivers,
+    int currentUid,
+  ) async {
+    final repo = ContactRepo();
+    for (final r in receivers) {
+      if (_receiverNames.containsKey(r.receiverUid)) continue;
+      if (r.receiverUid == currentUid) {
+        final me = UserRepoLocal.to.currentUser?.nickname ?? '';
+        if (strNoEmpty(me)) _receiverNames[r.receiverUid] = me;
+        continue;
+      }
+      final contact = await repo.findByUid(r.receiverUid.toString());
+      if (contact != null && strNoEmpty(contact.title)) {
+        _receiverNames[r.receiverUid] = contact.title;
+      }
     }
   }
 
@@ -267,7 +298,11 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                     title: Row(
                       children: [
                         Text(
-                          t.common.redPacketReceiverLabel(uid: r.receiverUid),
+                          t.common.redPacketReceiverLabel(
+                            uid:
+                                _receiverNames[r.receiverUid] ??
+                                r.receiverUid.toString(),
+                          ),
                         ),
                         if (isBestLuck) ...[
                           AppSpacing.horizontalSmall,

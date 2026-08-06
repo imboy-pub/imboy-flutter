@@ -15,4 +15,4 @@
 | 无待办 | - | `page/user_tag/contact_tag_detail/contact_tag_detail_page.dart` | 移除成员后计数与副标题同步 | 已通过 | §二十七 | 1 | 1 | 0 | |
 | 回归复测 | 2026-08-07 | `page/user_tag/contact_tag_detail/contact_tag_detail_page.dart` | 更多菜单打开修改标签名面板 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/user_tag/contact_tag_detail/contact_tag_detail_page.dart` | 更多菜单删除标签并退回列表 | 待重验 | - | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/user_tag/contact_tag_detail/contact_tag_detail_page.dart` | 空标签时展示空态与添加按钮 | 有BUG待修 | §二十七 | 1 | 0 | 1 | P3：空态含无文字空按钮，源在 component/ui/nodata_view.dart，曾转交并发会话 |
+| 待复验 | 2026-08-06 | `page/user_tag/contact_tag_detail/contact_tag_detail_page.dart` | 空标签时展示空态与添加按钮 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：根因是白底白字（surface 底 + onPrimary 文字），非缺文案 |

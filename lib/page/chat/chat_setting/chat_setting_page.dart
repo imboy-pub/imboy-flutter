@@ -198,6 +198,14 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
     String? subtitle,
     bool isDestructive = false,
   }) {
+    // DESIGN.md §13.1：破坏性操作图标必须与标题同为 iosRed。
+    // 此前图标只认 iconColor，未传时一律回落品牌蓝，导致「清空聊天记录」
+    // 文字红、图标蓝的语义割裂。
+    final resolvedIconColor =
+        iconColor ??
+        (isDestructive
+            ? AppColors.getIosRed(Theme.of(context).brightness)
+            : Theme.of(context).colorScheme.primary);
     return Container(
       margin: EdgeInsets.only(
         left: 16,
@@ -232,16 +240,10 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color:
-                          (iconColor ?? Theme.of(context).colorScheme.primary)
-                              .withValues(alpha: 0.1),
+                      color: resolvedIconColor.withValues(alpha: 0.1),
                       borderRadius: AppRadius.borderRadiusMedium,
                     ),
-                    child: Icon(
-                      icon,
-                      size: 20,
-                      color: iconColor ?? Theme.of(context).colorScheme.primary,
-                    ),
+                    child: Icon(icon, size: 20, color: resolvedIconColor),
                   ),
                   AppSpacing.horizontalMedium,
                 ],

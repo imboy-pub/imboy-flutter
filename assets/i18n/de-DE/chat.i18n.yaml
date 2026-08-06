@@ -43,6 +43,7 @@ forward: Weiterleiten
 forwardReply: Antwort weiterleiten
 forwardTo: Weiterleiten an
 forwardToFriend: An Freund weiterleiten
+forwardedToChats: "An $count Chats weitergeleitet"
 great: Ausgezeichnet
 groupFile: Gruppendateien
 groupFileImagePreview: Bildvorschau

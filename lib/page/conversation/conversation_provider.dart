@@ -8,6 +8,7 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/events/common_events.dart'
     show ConversationAuthoritySyncEvent;
+import 'package:imboy/page/group/group_list/group_list_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/api/conversation_api.dart';
 import 'package:imboy/store/model/contact_model.dart' show ContactModel;
@@ -306,6 +307,18 @@ class ConversationNotifier extends _$ConversationNotifier {
         computedTitle = group.title;
       } else {
         computedTitle = await _getGroupTitle(obj.peerId.toString());
+      }
+      if (computedTitle.isEmpty) {
+        // 无名群：群列表页 / 聊天页都会回落到成员昵称拼接
+        // （GroupListService.computeTitle），只有会话列表漏了这一跳，
+        // 于是同一个群在群列表有名字、在会话列表却是「未命名」。
+        //
+        // 结果只写内存态 obj.computeTitle，**不落库**：派生名固化进 title
+        // 就是 BUG#4 家族的老坑（成员改名后永不更新）。
+        // computeTitle 取不到时返回空串，绝不回落 TSID。
+        obj.computeTitle = (await GroupListService().computeTitle(
+          obj.peerId.toString(),
+        )).trim();
       }
     } else if (obj.type == 'C2C') {
       // 个人会话：获取联系人标题

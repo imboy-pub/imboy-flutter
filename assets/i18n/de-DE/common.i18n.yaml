@@ -313,6 +313,7 @@ regionCancel: Abbrechen
 regionConfirm: Bestätigen
 regionNoResult: Keine Ergebnisse
 regionSearchHint: Nach Regionsname suchen
+regionSelectedLevelHint(region, level): "Ausgewählt: $region (Ebene $level). Sie können jetzt fertigstellen oder weiter eingrenzen."
 regionSearchTips: Nach Regionsname oder Regionscode suchen
 regionSelectTitle: Region auswählen
 releaseFingerCancelSending: Finger nach oben wischen, um das Senden abzubrechen
@@ -381,7 +382,7 @@ searchFriendsTips: Freunde nach Spitzname oder Bemerkung suchen
 searchHint: Schlüsselwörter eingeben, um Nachrichten zu suchen
 searchHistory: Suchverlauf
 searchLocation: Standort suchen
-searchMessagesHint: Nachrichtensuch-Hinweis
+searchMessagesHint: "Chat-Inhalt durchsuchen"
 searchNoFound: Keine Suchergebnisse :(
 searchNoResults: Keine Suchergebnisse
 noSearchHistory: Kein Suchverlauf

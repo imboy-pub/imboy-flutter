@@ -404,6 +404,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get forwardReply => 'Переслать ответ';
 	@override String get forwardTo => 'Переслать';
 	@override String get forwardToFriend => 'Переслать другу';
+	@override String forwardedToChats({required Object count}) => 'Переслано в ${count} чатов';
 	@override String get great => 'Превосходно';
 	@override String get groupFile => 'Файлы группы';
 	@override String get groupFileImagePreview => 'Просмотр изображения';
@@ -958,6 +959,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get regionConfirm => 'Подтвердить';
 	@override String get regionNoResult => 'Нет результатов';
 	@override String get regionSearchHint => 'Поиск по названию региона';
+	@override String regionSelectedLevelHint({required Object region, required Object level}) => 'Выбрано: ${region} (уровень ${level}). Можно завершить сейчас или уточнить дальше.';
 	@override String get regionSearchTips => 'Поиск по названию региона или коду региона';
 	@override String get regionSelectTitle => 'Выберите регион';
 	@override String get releaseFingerCancelSending => 'Отпустите палец, чтобы отменить отправку';
@@ -1026,7 +1028,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get searchHint => 'Введите ключевые слова для поиска сообщений';
 	@override String get searchHistory => 'История поиска';
 	@override String get searchLocation => 'Найти местоположение';
-	@override String get searchMessagesHint => 'Подсказка поиска сообщений';
+	@override String get searchMessagesHint => 'Поиск по чату';
 	@override String get searchNoFound => 'Результаты поиска пусты :(';
 	@override String get searchNoResults => 'Нет результатов поиска';
 	@override String get noSearchHistory => 'Нет истории поиска';
@@ -2856,6 +2858,7 @@ extension on TranslationsRuRu {
 			'chat.forwardReply' => 'Переслать ответ',
 			'chat.forwardTo' => 'Переслать',
 			'chat.forwardToFriend' => 'Переслать другу',
+			'chat.forwardedToChats' => ({required Object count}) => 'Переслано в ${count} чатов',
 			'chat.great' => 'Превосходно',
 			'chat.groupFile' => 'Файлы группы',
 			'chat.groupFileImagePreview' => 'Просмотр изображения',
@@ -3062,9 +3065,9 @@ extension on TranslationsRuRu {
 			'chat.e2eeSocialCreateFirst' => 'Содержимое появится после создания фрагментов',
 			'chat.e2eeSocialUsedAtLabel' => 'Дата использования',
 			'chat.e2eeTransferSendTitle' => 'Отправить ключ на новое устройство',
-			'chat.e2eeTransferCreateBtn' => 'Создать',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeTransferCreateBtn' => 'Создать',
 			'chat.e2eeTransferReceiveTitle' => 'Получить ключ со старого устройства',
 			'chat.e2eeTransferSendDesc' => 'Передача ключа на новое устройство через QR-код',
 			'chat.e2eeTransferReceiveDesc' => 'Сканируйте QR-код старого устройства для получения ключа',
@@ -3403,6 +3406,7 @@ extension on TranslationsRuRu {
 			'common.regionConfirm' => 'Подтвердить',
 			'common.regionNoResult' => 'Нет результатов',
 			'common.regionSearchHint' => 'Поиск по названию региона',
+			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => 'Выбрано: ${region} (уровень ${level}). Можно завершить сейчас или уточнить дальше.',
 			'common.regionSearchTips' => 'Поиск по названию региона или коду региона',
 			'common.regionSelectTitle' => 'Выберите регион',
 			'common.releaseFingerCancelSending' => 'Отпустите палец, чтобы отменить отправку',
@@ -3471,7 +3475,7 @@ extension on TranslationsRuRu {
 			'common.searchHint' => 'Введите ключевые слова для поиска сообщений',
 			'common.searchHistory' => 'История поиска',
 			'common.searchLocation' => 'Найти местоположение',
-			'common.searchMessagesHint' => 'Подсказка поиска сообщений',
+			'common.searchMessagesHint' => 'Поиск по чату',
 			'common.searchNoFound' => 'Результаты поиска пусты :(',
 			'common.searchNoResults' => 'Нет результатов поиска',
 			'common.noSearchHistory' => 'Нет истории поиска',
@@ -3575,10 +3579,10 @@ extension on TranslationsRuRu {
 			'common.verificationCode' => 'Код подтверждения',
 			'common.feedbackContent' => 'Содержание предложения',
 			'common.officialReply' => 'Официальный ответ',
-			'common.setPasswordSecurityTips' => 'Установите пароль для входа и безопасности',
-			'common.locationHidden' => 'Ваше местоположение скрыто',
 			_ => null,
 		} ?? switch (path) {
+			'common.setPasswordSecurityTips' => 'Установите пароль для входа и безопасности',
+			'common.locationHidden' => 'Ваше местоположение скрыто',
 			'common.locationVisible' => 'Ваше местоположение отображается',
 			'common.noNearbyPeople' => 'Нет людей рядом',
 			'common.clickSearchButtonToFind' => 'Нажмите кнопку поиска выше, чтобы найти людей рядом',
@@ -4089,10 +4093,10 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupFileSizeRow' => 'Размер файла',
 			'common.e2eeBackupNoteRow' => 'Заметка',
 			'common.e2eeBackupDeleteTitle' => 'Удалить запись о копии',
-			'common.e2eeBackupDeleteConfirm' => 'Удалить эту запись о копии?',
-			'common.e2eeBackupDeleteSuccess' => 'Запись удалена',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupDeleteConfirm' => 'Удалить эту запись о копии?',
+			'common.e2eeBackupDeleteSuccess' => 'Запись удалена',
 			'common.e2eeBackupCloudUploadBtn' => 'Сохранить в облако',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Сохранено в облаке (версия ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'Не удалось создать облачную копию, повторите попытку',
@@ -4603,10 +4607,10 @@ extension on TranslationsRuRu {
 			'main.upgrade' => 'Обновление',
 			'main.usedSpace' => 'Использованное место',
 			'main.webView' => 'Веб-представление',
-			'main.you' => 'Вы',
-			'main.yourFeel' => 'Что вы чувствуете?',
 			_ => null,
 		} ?? switch (path) {
+			'main.you' => 'Вы',
+			'main.yourFeel' => 'Что вы чувствуете?',
 			'main.zhCn' => 'Упрощённый китайский',
 			'main.zhHant' => 'Традиционный китайский',
 			'main.bound' => 'Привязано',

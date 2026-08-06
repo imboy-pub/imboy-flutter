@@ -43,6 +43,7 @@ forward: Inoltra
 forwardReply: Inoltra risposta
 forwardTo: Inoltra a
 forwardToFriend: Inoltra ad amico
+forwardedToChats: "Inoltrato a $count chat"
 great: Eccellente
 groupFile: File del gruppo
 groupFileImagePreview: Anteprima immagine

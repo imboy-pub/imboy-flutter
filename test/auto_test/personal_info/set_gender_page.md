@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 渲染男女保密三个性别选项 | 已通过 | 批次19 | 0 | 0 | 0 | |
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 当前性别项显示蓝色对勾 | 已通过 | 批次19 | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/personal_info/set_gender/set_gender_page.dart` | 单选项暴露无障碍选中语义 | 有BUG待修 | 批次19 | 1 | 0 | 1 | P3：读屏听不出选中态 |
+| 待复验 | 2026-08-06 | `page/personal_info/set_gender/set_gender_page.dart` | 单选项暴露无障碍选中语义 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：补 Semantics(selected, inMutuallyExclusiveGroup)，不设 label 避免重复播报 |
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 点选性别保存成功后退栈 | 已通过 | 批次19 | 0 | 0 | 0 | |
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 退栈后上级性别文案立即刷新 | 已通过 | 批次19 | 1 | 1 | 0 | |
 | 待首测 | 2026-08-07 | `page/personal_info/set_gender/set_gender_page.dart` | 保存中该项显示菊花指示 | 未测 | - | 0 | 0 | 0 | |

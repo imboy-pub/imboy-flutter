@@ -79,8 +79,14 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
       if (!mounted) return;
 
       if (success) {
-        setState(() => _categoryName = newName);
         AppLoading.showSuccess(t.groupCategory.categoryRenamed);
+        // 父页 GroupCategoryPage 只在 `pop` 结果 == true 时才 _loadCategories()。
+        // 重命名此前只改本页 _categoryName，返回时 pop 结果是 null，父页列表
+        // 永远停留在旧名字。
+        // 为什么不用 PopScope 在返回时补结果：GlassAppBar 的返回键
+        // （GlassBackButton）直接调 Navigator.pop，绕过 PopScope，拦不住。
+        // 所以照搬同页 _deleteCategory 的做法——成功即带结果返回。
+        Navigator.pop(context, true);
       } else {
         AppLoading.showError(t.groupCategory.renameFailed);
       }

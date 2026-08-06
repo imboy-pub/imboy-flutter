@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 回归复测 | 2026-08-07 | `page/search/message_search_page.dart` | 输入关键词防抖触发搜索 | 待重验 | 批次25 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/search/message_search_page.dart` | 点清除按钮重置搜索状态 | 待重验 | 批次25 | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/search/message_search_page.dart` | 按会话类型筛选搜索结果 | 有BUG待修 | 批次25 | 1 | 0 | 1 | P3 筛选 chip 写成字面量 `[图片]`，把消息预览标识当筛选标签用 |
+| 待复验 | 2026-08-06 | `page/search/message_search_page.dart` | 按会话类型筛选搜索结果 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：真实问题点在 search_chat_page.dart 的 chip，本页 chip 无此问题 |
 | 回归复测 | 2026-08-07 | `page/search/message_search_page.dart` | 按时间范围筛选搜索结果 | 待重验 | 批次25 | 0 | 0 | 0 | |
 | 无待办 | — | `page/search/message_search_page.dart` | E2EE 下展示搜索关闭说明态 | 已通过 | 批次25 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/search/message_search_page.dart` | 搜索出错时展示重试入口 | 待重验 | 批次25 | 0 | 0 | 0 | 需断网构造错误态 |

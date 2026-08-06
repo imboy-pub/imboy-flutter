@@ -554,7 +554,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   /// 其余=正文」旧约定。非 imageText：无标题，content 整体作正文（向后兼容）。
   (String, String) _titleAndBody() {
     final message = widget.message!;
-    final content = message.content;
+    final content = _displayBody(message.content);
     final isImageText =
         message.msgType == ChannelMessageType.imageText ||
         message.msgType == 'imageText';
@@ -568,6 +568,22 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
       trimmed.substring(0, idx).trim(),
       trimmed.substring(idx + 1).trim(),
     );
+  }
+
+  /// 发布端为绕过后端「content 不可为空」校验写入的内部占位符
+  /// （见 channel_publish_bar.dart：语音写 `[voice]`、无文件名的图片/视频写 `[media]`）。
+  /// 原样当正文渲染就会把内部标记漏给用户。
+  /// - `[voice]`：阅读页没有音频播放器，给出本地化的类型提示比空白更有信息量
+  /// - `[media]`：媒体本身由 [_buildMedia] 渲染，正文留空
+  String _displayBody(String content) {
+    switch (content.trim()) {
+      case '[voice]':
+        return '[${context.t.chat.voice}]';
+      case '[media]':
+        return '';
+      default:
+        return content;
+    }
   }
 
   String _payloadString(String key) {

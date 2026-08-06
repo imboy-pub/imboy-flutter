@@ -404,6 +404,7 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get forwardReply => 'Antwort weiterleiten';
 	@override String get forwardTo => 'Weiterleiten an';
 	@override String get forwardToFriend => 'An Freund weiterleiten';
+	@override String forwardedToChats({required Object count}) => 'An ${count} Chats weitergeleitet';
 	@override String get great => 'Ausgezeichnet';
 	@override String get groupFile => 'Gruppendateien';
 	@override String get groupFileImagePreview => 'Bildvorschau';
@@ -958,6 +959,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get regionConfirm => 'Bestätigen';
 	@override String get regionNoResult => 'Keine Ergebnisse';
 	@override String get regionSearchHint => 'Nach Regionsname suchen';
+	@override String regionSelectedLevelHint({required Object region, required Object level}) => 'Ausgewählt: ${region} (Ebene ${level}). Sie können jetzt fertigstellen oder weiter eingrenzen.';
 	@override String get regionSearchTips => 'Nach Regionsname oder Regionscode suchen';
 	@override String get regionSelectTitle => 'Region auswählen';
 	@override String get releaseFingerCancelSending => 'Finger nach oben wischen, um das Senden abzubrechen';
@@ -1026,7 +1028,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get searchHint => 'Schlüsselwörter eingeben, um Nachrichten zu suchen';
 	@override String get searchHistory => 'Suchverlauf';
 	@override String get searchLocation => 'Standort suchen';
-	@override String get searchMessagesHint => 'Nachrichtensuch-Hinweis';
+	@override String get searchMessagesHint => 'Chat-Inhalt durchsuchen';
 	@override String get searchNoFound => 'Keine Suchergebnisse :(';
 	@override String get searchNoResults => 'Keine Suchergebnisse';
 	@override String get noSearchHistory => 'Kein Suchverlauf';
@@ -2859,6 +2861,7 @@ extension on TranslationsDeDe {
 			'chat.forwardReply' => 'Antwort weiterleiten',
 			'chat.forwardTo' => 'Weiterleiten an',
 			'chat.forwardToFriend' => 'An Freund weiterleiten',
+			'chat.forwardedToChats' => ({required Object count}) => 'An ${count} Chats weitergeleitet',
 			'chat.great' => 'Ausgezeichnet',
 			'chat.groupFile' => 'Gruppendateien',
 			'chat.groupFileImagePreview' => 'Bildvorschau',
@@ -3065,9 +3068,9 @@ extension on TranslationsDeDe {
 			'chat.e2eeSocialCreateFirst' => 'Nach Erstellung sichtbar',
 			'chat.e2eeSocialUsedAtLabel' => 'Verwendet am',
 			'chat.e2eeTransferSendTitle' => 'Schlüssel an neues Gerät senden',
-			'chat.e2eeTransferCreateBtn' => 'Erstellen',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeTransferCreateBtn' => 'Erstellen',
 			'chat.e2eeTransferReceiveTitle' => 'Schlüssel vom alten Gerät empfangen',
 			'chat.e2eeTransferSendDesc' => 'Schlüssel per QR-Code an neues Gerät',
 			'chat.e2eeTransferReceiveDesc' => 'QR-Code des alten Geräts scannen',
@@ -3406,6 +3409,7 @@ extension on TranslationsDeDe {
 			'common.regionConfirm' => 'Bestätigen',
 			'common.regionNoResult' => 'Keine Ergebnisse',
 			'common.regionSearchHint' => 'Nach Regionsname suchen',
+			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => 'Ausgewählt: ${region} (Ebene ${level}). Sie können jetzt fertigstellen oder weiter eingrenzen.',
 			'common.regionSearchTips' => 'Nach Regionsname oder Regionscode suchen',
 			'common.regionSelectTitle' => 'Region auswählen',
 			'common.releaseFingerCancelSending' => 'Finger nach oben wischen, um das Senden abzubrechen',
@@ -3474,7 +3478,7 @@ extension on TranslationsDeDe {
 			'common.searchHint' => 'Schlüsselwörter eingeben, um Nachrichten zu suchen',
 			'common.searchHistory' => 'Suchverlauf',
 			'common.searchLocation' => 'Standort suchen',
-			'common.searchMessagesHint' => 'Nachrichtensuch-Hinweis',
+			'common.searchMessagesHint' => 'Chat-Inhalt durchsuchen',
 			'common.searchNoFound' => 'Keine Suchergebnisse :(',
 			'common.searchNoResults' => 'Keine Suchergebnisse',
 			'common.noSearchHistory' => 'Kein Suchverlauf',
@@ -3578,10 +3582,10 @@ extension on TranslationsDeDe {
 			'common.verificationCode' => 'Bestätigungscode',
 			'common.feedbackContent' => 'Feedback-Inhalt',
 			'common.officialReply' => 'Offizielle Antwort',
-			'common.setPasswordSecurityTips' => 'Verbessern Sie die Kontosicherheit und vermeiden Sie Anmeldeprobleme ohne Bestätigungscode. Legen Sie ein Anmeldepasswort fest.',
-			'common.locationHidden' => 'Ihr Standort ist ausgeblendet',
 			_ => null,
 		} ?? switch (path) {
+			'common.setPasswordSecurityTips' => 'Verbessern Sie die Kontosicherheit und vermeiden Sie Anmeldeprobleme ohne Bestätigungscode. Legen Sie ein Anmeldepasswort fest.',
+			'common.locationHidden' => 'Ihr Standort ist ausgeblendet',
 			'common.locationVisible' => 'Ihr Standort wird angezeigt',
 			'common.noNearbyPeople' => 'Keine Personen in der Nähe',
 			'common.clickSearchButtonToFind' => 'Tippen Sie oben auf Suchen, um Personen in der Nähe zu finden',
@@ -4092,10 +4096,10 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupFileSizeRow' => 'Dateigröße',
 			'common.e2eeBackupNoteRow' => 'Notiz',
 			'common.e2eeBackupDeleteTitle' => 'Backup löschen',
-			'common.e2eeBackupDeleteConfirm' => 'Dieses Backup wirklich löschen?',
-			'common.e2eeBackupDeleteSuccess' => 'Backup gelöscht',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupDeleteConfirm' => 'Dieses Backup wirklich löschen?',
+			'common.e2eeBackupDeleteSuccess' => 'Backup gelöscht',
 			'common.e2eeBackupCloudUploadBtn' => 'In die Cloud sichern',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'In der Cloud gesichert (Version ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'Cloud-Backup fehlgeschlagen, bitte erneut versuchen',
@@ -4606,10 +4610,10 @@ extension on TranslationsDeDe {
 			'main.upgrade' => 'Aktualisieren',
 			'main.usedSpace' => 'Verwendeter Speicherplatz',
 			'main.webView' => 'Webansicht',
-			'main.you' => 'Sie',
-			'main.yourFeel' => 'Wie fühlen Sie sich dabei?',
 			_ => null,
 		} ?? switch (path) {
+			'main.you' => 'Sie',
+			'main.yourFeel' => 'Wie fühlen Sie sich dabei?',
 			'main.zhCn' => 'Vereinfachtes Chinesisch',
 			'main.zhHant' => 'Traditionelles Chinesisch',
 			'main.bound' => 'Gebunden',

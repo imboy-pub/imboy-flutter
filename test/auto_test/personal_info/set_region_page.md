@@ -13,6 +13,6 @@
 | 回归复测 | 2026-08-07 | `page/personal_info/set_region/set_region_page.dart` | 含子级项显示箭头并进入子页 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/personal_info/set_region/set_region_page.dart` | 点叶子节点更新选择路径 | 待重验 | - | 0 | 0 | 0 | |
 | 待首测 | 2026-08-07 | `page/personal_info/set_region/set_region_page.dart` | 子页搜索框过滤子级地区 | 未测 | - | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/personal_info/set_region/set_region_page.dart` | 子页点完成保存后连退两级 | 有BUG待修 | §十七 | 1 | 0 | 1 | P3：两级完成语义歧义 |
+| 待复验 | 2026-08-06 | `page/personal_info/set_region/set_region_page.dart` | 子页点完成保存后连退两级 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：保守做法，不改可完成层级，只加层级提示行 |
 | 回归复测 | 2026-08-07 | `page/personal_info/set_region/set_region_page.dart` | 完成按钮按有无变更启用置灰 | 待重验 | - | 0 | 0 | 0 | |
 | 无待办 | - | `page/personal_info/set_region/set_region_page.dart` | 保存成功后上级地区立即刷新 | 已通过 | §十七 | 1 | 1 | 0 | |

@@ -404,6 +404,7 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get forwardReply => 'Inoltra risposta';
 	@override String get forwardTo => 'Inoltra a';
 	@override String get forwardToFriend => 'Inoltra ad amico';
+	@override String forwardedToChats({required Object count}) => 'Inoltrato a ${count} chat';
 	@override String get great => 'Eccellente';
 	@override String get groupFile => 'File del gruppo';
 	@override String get groupFileImagePreview => 'Anteprima immagine';
@@ -958,6 +959,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get regionConfirm => 'Conferma';
 	@override String get regionNoResult => 'Nessun risultato';
 	@override String get regionSearchHint => 'Cerca per nome regione';
+	@override String regionSelectedLevelHint({required Object region, required Object level}) => 'Selezionato: ${region} (livello ${level}). Puoi completare ora o continuare a scendere di livello.';
 	@override String get regionSearchTips => 'Cerca per nome regione o codice area';
 	@override String get regionSelectTitle => 'Seleziona regione';
 	@override String get releaseFingerCancelSending => 'Rilascia il dito per annullare l\'invio';
@@ -1026,7 +1028,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get searchHint => 'Inserisci parole chiave per cercare messaggi';
 	@override String get searchHistory => 'Cronologia ricerca';
 	@override String get searchLocation => 'Cerca posizione';
-	@override String get searchMessagesHint => 'Suggerimento ricerca messaggi';
+	@override String get searchMessagesHint => 'Cerca nella chat';
 	@override String get searchNoFound => 'Risultato ricerca vuoto :(';
 	@override String get searchNoResults => 'Nessun risultato ricerca';
 	@override String get noSearchHistory => 'Nessuna cronologia ricerca';
@@ -2859,6 +2861,7 @@ extension on TranslationsItIt {
 			'chat.forwardReply' => 'Inoltra risposta',
 			'chat.forwardTo' => 'Inoltra a',
 			'chat.forwardToFriend' => 'Inoltra ad amico',
+			'chat.forwardedToChats' => ({required Object count}) => 'Inoltrato a ${count} chat',
 			'chat.great' => 'Eccellente',
 			'chat.groupFile' => 'File del gruppo',
 			'chat.groupFileImagePreview' => 'Anteprima immagine',
@@ -3065,9 +3068,9 @@ extension on TranslationsItIt {
 			'chat.e2eeSocialCreateFirst' => 'Visibile dopo la creazione',
 			'chat.e2eeSocialUsedAtLabel' => 'Usato il',
 			'chat.e2eeTransferSendTitle' => 'Invia chiave al nuovo dispositivo',
-			'chat.e2eeTransferCreateBtn' => 'Crea',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeTransferCreateBtn' => 'Crea',
 			'chat.e2eeTransferReceiveTitle' => 'Ricevi chiave dal vecchio dispositivo',
 			'chat.e2eeTransferSendDesc' => 'Trasferisci la chiave al nuovo dispositivo via QR code',
 			'chat.e2eeTransferReceiveDesc' => 'Scansiona il QR code del vecchio dispositivo',
@@ -3406,6 +3409,7 @@ extension on TranslationsItIt {
 			'common.regionConfirm' => 'Conferma',
 			'common.regionNoResult' => 'Nessun risultato',
 			'common.regionSearchHint' => 'Cerca per nome regione',
+			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => 'Selezionato: ${region} (livello ${level}). Puoi completare ora o continuare a scendere di livello.',
 			'common.regionSearchTips' => 'Cerca per nome regione o codice area',
 			'common.regionSelectTitle' => 'Seleziona regione',
 			'common.releaseFingerCancelSending' => 'Rilascia il dito per annullare l\'invio',
@@ -3474,7 +3478,7 @@ extension on TranslationsItIt {
 			'common.searchHint' => 'Inserisci parole chiave per cercare messaggi',
 			'common.searchHistory' => 'Cronologia ricerca',
 			'common.searchLocation' => 'Cerca posizione',
-			'common.searchMessagesHint' => 'Suggerimento ricerca messaggi',
+			'common.searchMessagesHint' => 'Cerca nella chat',
 			'common.searchNoFound' => 'Risultato ricerca vuoto :(',
 			'common.searchNoResults' => 'Nessun risultato ricerca',
 			'common.noSearchHistory' => 'Nessuna cronologia ricerca',
@@ -3578,10 +3582,10 @@ extension on TranslationsItIt {
 			'common.verificationCode' => 'Codice di verifica',
 			'common.feedbackContent' => 'Contenuto feedback',
 			'common.officialReply' => 'Risposta ufficiale',
-			'common.setPasswordSecurityTips' => 'Per migliorare la sicurezza dell\'account e impedire l\'impossibilità di accedere a causa dell\'impossibilità di ottenere il codice di verifica, impostare la password di accesso.',
-			'common.locationHidden' => 'La tua posizione è stata nascosta',
 			_ => null,
 		} ?? switch (path) {
+			'common.setPasswordSecurityTips' => 'Per migliorare la sicurezza dell\'account e impedire l\'impossibilità di accedere a causa dell\'impossibilità di ottenere il codice di verifica, impostare la password di accesso.',
+			'common.locationHidden' => 'La tua posizione è stata nascosta',
 			'common.locationVisible' => 'La tua posizione è stata mostrata',
 			'common.noNearbyPeople' => 'Nessuna persona nelle vicinanze',
 			'common.clickSearchButtonToFind' => 'Tocca il pulsante ricerca sopra per trovare persone nelle vicinanze',
@@ -4092,10 +4096,10 @@ extension on TranslationsItIt {
 			'common.e2eeBackupFileSizeRow' => 'Dimensione',
 			'common.e2eeBackupNoteRow' => 'Nota',
 			'common.e2eeBackupDeleteTitle' => 'Elimina backup',
-			'common.e2eeBackupDeleteConfirm' => 'Eliminare questo backup ?',
-			'common.e2eeBackupDeleteSuccess' => 'Backup eliminato',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupDeleteConfirm' => 'Eliminare questo backup ?',
+			'common.e2eeBackupDeleteSuccess' => 'Backup eliminato',
 			'common.e2eeBackupCloudUploadBtn' => 'Backup su cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backup su cloud completato (versione ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => 'Backup su cloud non riuscito, riprova',
@@ -4606,10 +4610,10 @@ extension on TranslationsItIt {
 			'main.upgrade' => 'Aggiorna',
 			'main.usedSpace' => 'Spazio utilizzato',
 			'main.webView' => 'Vista web',
-			'main.you' => 'Tu',
-			'main.yourFeel' => 'Come ti fa sentire?',
 			_ => null,
 		} ?? switch (path) {
+			'main.you' => 'Tu',
+			'main.yourFeel' => 'Come ti fa sentire?',
 			'main.zhCn' => 'Cinese semplificato',
 			'main.zhHant' => 'Cinese tradizionale',
 			'main.bound' => 'Collegato',

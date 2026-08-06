@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/page/contact/new_friend/new_friend_provider.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -199,6 +200,11 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                       .confirm(from: widget.from, to: widget.to, payload: p2);
                   if (!context.mounted) return;
                   if (ok) {
+                    // confirm() 里的 _receivedConfirmFriend 只把 status 写进
+                    // SQLite，父页 newFriendProvider 的内存列表没动 —— 返回后
+                    // 那一条仍渲染成「接受」按钮。必须重载列表再 pop。
+                    await ref.read(newFriendProvider.notifier).initData();
+                    if (!context.mounted) return;
                     Navigator.of(context).pop();
                     return;
                   }

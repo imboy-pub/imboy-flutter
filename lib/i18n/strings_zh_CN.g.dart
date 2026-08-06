@@ -1242,6 +1242,9 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '转发给朋友'
 	String get forwardToFriend => '转发给朋友';
 
+	/// zh-CN: '已转发给 $count 个会话'
+	String forwardedToChats({required Object count}) => '已转发给 ${count} 个会话';
+
 	/// zh-CN: '非常棒'
 	String get great => '非常棒';
 
@@ -2916,6 +2919,9 @@ class Translations$common$zh_CN {
 	/// zh-CN: '按地区名称搜索'
 	String get regionSearchHint => '按地区名称搜索';
 
+	/// zh-CN: '已选 $region（第 $level 级）：可直接点右上角完成，也可继续选择下一级'
+	String regionSelectedLevelHint({required Object region, required Object level}) => '已选 ${region}（第 ${level} 级）：可直接点右上角完成，也可继续选择下一级';
+
 	/// zh-CN: '按地区名称或区域编码搜索'
 	String get regionSearchTips => '按地区名称或区域编码搜索';
 
@@ -3120,8 +3126,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '搜索地点'
 	String get searchLocation => '搜索地点';
 
-	/// zh-CN: '搜索消息提示'
-	String get searchMessagesHint => '搜索消息提示';
+	/// zh-CN: '搜索聊天内容'
+	String get searchMessagesHint => '搜索聊天内容';
 
 	/// zh-CN: '搜索结果为空 :('
 	String get searchNoFound => '搜索结果为空 :(';
@@ -7931,6 +7937,7 @@ extension on Translations {
 			'chat.forwardReply' => '转发回复',
 			'chat.forwardTo' => '转发给',
 			'chat.forwardToFriend' => '转发给朋友',
+			'chat.forwardedToChats' => ({required Object count}) => '已转发给 ${count} 个会话',
 			'chat.great' => '非常棒',
 			'chat.groupFile' => '群文件',
 			'chat.groupFileImagePreview' => '图片预览',
@@ -8065,9 +8072,9 @@ extension on Translations {
 			'chat.visibleThresholdRead' => '可视阈值已读',
 			'chat.readThresholdDelay' => '已读阈值与延时',
 			'chat.goodReadability' => '可读性良好',
-			'chat.profileCompleteness' => '资料完善度',
 			_ => null,
 		} ?? switch (path) {
+			'chat.profileCompleteness' => '资料完善度',
 			'chat.tagStatistics' => '标签统计',
 			'chat.alreadySent' => '已发送',
 			'chat.visibleRatioLabel' => '可见比例 (0.1~1.0)',
@@ -8488,6 +8495,7 @@ extension on Translations {
 			'common.regionConfirm' => '确定',
 			'common.regionNoResult' => '暂无结果',
 			'common.regionSearchHint' => '按地区名称搜索',
+			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => '已选 ${region}（第 ${level} 级）：可直接点右上角完成，也可继续选择下一级',
 			'common.regionSearchTips' => '按地区名称或区域编码搜索',
 			'common.regionSelectTitle' => '选择地区',
 			'common.releaseFingerCancelSending' => '松开手指,取消发送',
@@ -8556,7 +8564,7 @@ extension on Translations {
 			'common.searchHint' => '输入关键词搜索消息',
 			'common.searchHistory' => '搜索历史',
 			'common.searchLocation' => '搜索地点',
-			'common.searchMessagesHint' => '搜索消息提示',
+			'common.searchMessagesHint' => '搜索聊天内容',
 			'common.searchNoFound' => '搜索结果为空 :(',
 			'common.searchNoResults' => '无搜索结果',
 			'common.noSearchHistory' => '暂无搜索历史',
@@ -8578,10 +8586,10 @@ extension on Translations {
 			'common.strongReminder' => '强提醒',
 			'common.submittedAt' => '提交于',
 			'common.sureDeleteData' => '确认删除吗？删除后不可恢复。',
-			'common.sureDeleteGroupChatRecord' => '确定删除群的聊天记录吗？',
-			'common.switchEnvironment' => '切换环境',
 			_ => null,
 		} ?? switch (path) {
+			'common.sureDeleteGroupChatRecord' => '确定删除群的聊天记录吗？',
+			'common.switchEnvironment' => '切换环境',
 			'common.thisMonth' => '本月',
 			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}天前', ), 
 			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}小时前', ), 
@@ -9092,10 +9100,10 @@ extension on Translations {
 			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '可用分片: ${available} 个，需要 ${required} 个代理协助',
 			'common.e2eeNoRecoveryShards' => '没有可用的恢复分片',
 			'common.e2eeRecoverSuccess' => '恢复成功',
-			'common.e2eeRecoverFailed' => '恢复失败',
-			'common.e2eeRecoverKeyFailed' => '恢复密钥失败，请重试',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeRecoverFailed' => '恢复失败',
+			'common.e2eeRecoverKeyFailed' => '恢复密钥失败，请重试',
 			'common.e2eeLoadingShards' => '加载分片信息...',
 			'common.e2eeNoShards' => '没有可用的分片',
 			'common.e2eeLoadFailed' => '加载失败，请重试',
@@ -9606,10 +9614,10 @@ extension on Translations {
 			'groupVote.voteTitle' => '投票标题',
 			'groupVote.voteOptions' => '投票选项',
 			'groupVote.addOption' => '添加选项',
-			'groupVote.allowMultiple' => '允许多选',
-			'groupVote.anonymous' => '匿名投票',
 			_ => null,
 		} ?? switch (path) {
+			'groupVote.allowMultiple' => '允许多选',
+			'groupVote.anonymous' => '匿名投票',
 			'groupVote.deadline' => '截止时间',
 			'groupVote.noDeadline' => '无截止时间',
 			'groupVote.noVote' => '暂无投票',

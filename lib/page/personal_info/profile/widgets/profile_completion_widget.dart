@@ -8,7 +8,11 @@ import 'package:imboy/theme/default/font_types.dart';
 
 /// 资料完善度组件 - iOS 17 Premium 风格
 class ProfileCompletionWidget extends ConsumerWidget {
-  const ProfileCompletionWidget({super.key});
+  const ProfileCompletionWidget({super.key, this.onSuggestionTap});
+
+  /// 点击建议 chip 时回调，入参是 [ProfileSuggestion.key]。
+  /// 跳转由页面持有（部分建议走路由、部分走 modal），组件只负责上报。
+  final void Function(String key)? onSuggestionTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -137,11 +141,10 @@ class ProfileCompletionWidget extends ConsumerWidget {
 
   Widget _buildSuggestions(
     BuildContext context,
-    dynamic profileNotifier,
+    ProfileNotifier profileNotifier,
     bool isDark,
   ) {
-    final List<dynamic> suggestions =
-        profileNotifier.getCompletionSuggestions() as List<dynamic>;
+    final suggestions = profileNotifier.getCompletionSuggestions();
     if (suggestions.isEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(
@@ -184,24 +187,35 @@ class ProfileCompletionWidget extends ConsumerWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: (suggestions as List<String>)
+          children: suggestions
               .take(3)
               .map(
-                (suggestion) => Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    suggestion,
-                    style: context.textStyle(
-                      FontSizeType.small,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w500,
+                // InkWell 自带 button 语义，无需再包 Semantics（会重复播报）。
+                (suggestion) => InkWell(
+                  onTap: onSuggestionTap == null
+                      ? null
+                      : () => onSuggestionTap!(suggestion.key),
+                  borderRadius: BorderRadius.circular(10),
+                  // DESIGN.md §11.5：可点击区域最小 44×44pt，
+                  // chip 视觉高度只有 ~28pt，靠 minHeight 撑出触达区。
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 44),
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.medium,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      suggestion.label,
+                      style: context.textStyle(
+                        FontSizeType.small,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),

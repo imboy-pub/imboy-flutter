@@ -114,8 +114,10 @@ class NoDataView extends StatelessWidget {
                   ),
                 ],
 
-                // 点击提示 - 如果有点击事件
-                if (onTop != null) ...[
+                // 点击提示 - 有点击事件且文案非空时才渲染。
+                // 文案为空时按钮只剩边框，视觉上是个"空按钮"。
+                if (onTop != null &&
+                    (retryLabel ?? t.common.buttonRetry).isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(

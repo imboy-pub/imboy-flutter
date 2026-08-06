@@ -404,6 +404,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get forwardReply => '전달 답장';
 	@override String get forwardTo => '전달 대상';
 	@override String get forwardToFriend => '친구에게 전달';
+	@override String forwardedToChats({required Object count}) => '${count}개의 대화에 전달했습니다';
 	@override String get great => '매우 좋음';
 	@override String get groupFile => '그룹 파일';
 	@override String get groupFileImagePreview => '이미지 미리보기';
@@ -958,6 +959,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get regionConfirm => '확인';
 	@override String get regionNoResult => '결과 없음';
 	@override String get regionSearchHint => '지역 이름으로 검색';
+	@override String regionSelectedLevelHint({required Object region, required Object level}) => '선택됨: ${region}(레벨 ${level}). 지금 완료하거나 하위 단계를 계속 선택할 수 있습니다.';
 	@override String get regionSearchTips => '지역 이름 또는 지역 코드로 검색';
 	@override String get regionSelectTitle => '지역 선택';
 	@override String get releaseFingerCancelSending => '손가락을 놓으면 전송 취소';
@@ -1026,7 +1028,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get searchHint => '키워드를 입력하여 메시지를 검색하세요';
 	@override String get searchHistory => '검색 기록';
 	@override String get searchLocation => '위치 검색';
-	@override String get searchMessagesHint => '메시지 검색 팁';
+	@override String get searchMessagesHint => '채팅 내용 검색';
 	@override String get searchNoFound => '검색 결과가 없습니다 :(';
 	@override String get searchNoResults => '검색 결과 없음';
 	@override String get noSearchHistory => '검색 기록 없음';
@@ -2856,6 +2858,7 @@ extension on TranslationsKoKr {
 			'chat.forwardReply' => '전달 답장',
 			'chat.forwardTo' => '전달 대상',
 			'chat.forwardToFriend' => '친구에게 전달',
+			'chat.forwardedToChats' => ({required Object count}) => '${count}개의 대화에 전달했습니다',
 			'chat.great' => '매우 좋음',
 			'chat.groupFile' => '그룹 파일',
 			'chat.groupFileImagePreview' => '이미지 미리보기',
@@ -3062,9 +3065,9 @@ extension on TranslationsKoKr {
 			'chat.e2eeSocialCreateFirst' => '샤드를 생성해야 내용을 볼 수 있습니다',
 			'chat.e2eeSocialUsedAtLabel' => '사용 시간',
 			'chat.e2eeTransferSendTitle' => '새 기기로 키 전송',
-			'chat.e2eeTransferCreateBtn' => '만들기',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeTransferCreateBtn' => '만들기',
 			'chat.e2eeTransferReceiveTitle' => '이전 기기에서 키 받기',
 			'chat.e2eeTransferSendDesc' => 'QR 코드로 새 기기에 키를 전송합니다',
 			'chat.e2eeTransferReceiveDesc' => '이전 기기의 QR 코드를 스캔하여 키를 받습니다',
@@ -3403,6 +3406,7 @@ extension on TranslationsKoKr {
 			'common.regionConfirm' => '확인',
 			'common.regionNoResult' => '결과 없음',
 			'common.regionSearchHint' => '지역 이름으로 검색',
+			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => '선택됨: ${region}(레벨 ${level}). 지금 완료하거나 하위 단계를 계속 선택할 수 있습니다.',
 			'common.regionSearchTips' => '지역 이름 또는 지역 코드로 검색',
 			'common.regionSelectTitle' => '지역 선택',
 			'common.releaseFingerCancelSending' => '손가락을 놓으면 전송 취소',
@@ -3471,7 +3475,7 @@ extension on TranslationsKoKr {
 			'common.searchHint' => '키워드를 입력하여 메시지를 검색하세요',
 			'common.searchHistory' => '검색 기록',
 			'common.searchLocation' => '위치 검색',
-			'common.searchMessagesHint' => '메시지 검색 팁',
+			'common.searchMessagesHint' => '채팅 내용 검색',
 			'common.searchNoFound' => '검색 결과가 없습니다 :(',
 			'common.searchNoResults' => '검색 결과 없음',
 			'common.noSearchHistory' => '검색 기록 없음',
@@ -3575,10 +3579,10 @@ extension on TranslationsKoKr {
 			'common.verificationCode' => '인증 코드',
 			'common.feedbackContent' => '피드백 내용',
 			'common.officialReply' => '공식 답변',
-			'common.setPasswordSecurityTips' => '계정 보안을 높이고 인증 코드를 받지 못해 로그인할 수 없는 상황을 방지하기 위해 로그인 비밀번호를 설정하세요.',
-			'common.locationHidden' => '위치가 숨겨졌습니다',
 			_ => null,
 		} ?? switch (path) {
+			'common.setPasswordSecurityTips' => '계정 보안을 높이고 인증 코드를 받지 못해 로그인할 수 없는 상황을 방지하기 위해 로그인 비밀번호를 설정하세요.',
+			'common.locationHidden' => '위치가 숨겨졌습니다',
 			'common.locationVisible' => '위치가 표시됩니다',
 			'common.noNearbyPeople' => '주변에 사람이 없습니다',
 			'common.clickSearchButtonToFind' => '위쪽 검색 버튼을 클릭하여 주변 사람을 찾아주세요',
@@ -4089,10 +4093,10 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupFileSizeRow' => '파일 크기',
 			'common.e2eeBackupNoteRow' => '메모',
 			'common.e2eeBackupDeleteTitle' => '백업 기록 삭제',
-			'common.e2eeBackupDeleteConfirm' => '이 백업 기록을 삭제하시겠습니까?',
-			'common.e2eeBackupDeleteSuccess' => '백업 기록이 삭제되었습니다',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupDeleteConfirm' => '이 백업 기록을 삭제하시겠습니까?',
+			'common.e2eeBackupDeleteSuccess' => '백업 기록이 삭제되었습니다',
 			'common.e2eeBackupCloudUploadBtn' => '클라우드에 백업',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})',
 			'common.e2eeBackupErrCloudUploadFailed' => '클라우드 백업 실패, 다시 시도하세요',
@@ -4603,10 +4607,10 @@ extension on TranslationsKoKr {
 			'main.upgrade' => '업그레이드',
 			'main.usedSpace' => '사용된 공간',
 			'main.webView' => '웹 보기',
-			'main.you' => '당신',
-			'main.yourFeel' => '어떻게 생각하시나요?',
 			_ => null,
 		} ?? switch (path) {
+			'main.you' => '당신',
+			'main.yourFeel' => '어떻게 생각하시나요?',
 			'main.zhCn' => '중국어 간체',
 			'main.zhHant' => '중국어 번체',
 			'main.bound' => '연결됨',

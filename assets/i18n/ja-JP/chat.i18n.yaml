@@ -43,6 +43,7 @@ forward: 転送
 forwardReply: 転送して返信
 forwardTo: 転送先
 forwardToFriend: 友達に転送
+forwardedToChats: "$count 件のチャットに転送しました"
 great: 素晴らしい
 groupFile: グループファイル
 groupFileImagePreview: 画像プレビュー

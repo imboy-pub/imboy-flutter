@@ -46,6 +46,7 @@ forward: 转发
 forwardReply: 转发回复
 forwardTo: 转发给
 forwardToFriend: 转发给朋友
+forwardedToChats: "已转发给 $count 个会话"
 great: 非常棒
 groupFile: 群文件
 groupFileImagePreview: 图片预览

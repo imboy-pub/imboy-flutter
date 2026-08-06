@@ -420,6 +420,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get forwardReply => '轉發回覆';
 	@override String get forwardTo => '轉發給';
 	@override String get forwardToFriend => '轉發給好友';
+	@override String forwardedToChats({required Object count}) => '已轉發給 ${count} 個會話';
 	@override String get great => '太棒了';
 	@override String get groupFile => '群檔案';
 	@override String get groupFileImagePreview => '圖片預覽';
@@ -974,6 +975,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get regionConfirm => '確定';
 	@override String get regionNoResult => '暫無結果';
 	@override String get regionSearchHint => '按地區名稱搜尋';
+	@override String regionSelectedLevelHint({required Object region, required Object level}) => '已選 ${region}（第 ${level} 級）：可直接點右上角完成，也可繼續選擇下一級';
 	@override String get regionSearchTips => '按地區名稱或區域編碼搜尋';
 	@override String get regionSelectTitle => '選擇地區';
 	@override String get releaseFingerCancelSending => '鬆開手指，取消傳送';
@@ -1042,7 +1044,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get searchHint => '輸入關鍵詞搜尋訊息';
 	@override String get searchHistory => '搜尋記錄';
 	@override String get searchLocation => '搜尋地點';
-	@override String get searchMessagesHint => '搜尋訊息提示';
+	@override String get searchMessagesHint => '搜尋聊天內容';
 	@override String get searchNoFound => '搜尋結果為空 :(';
 	@override String get searchNoResults => '無搜尋結果';
 	@override String get noSearchHistory => '暫無搜尋記錄';
@@ -2894,6 +2896,7 @@ extension on TranslationsZhHant {
 			'chat.forwardReply' => '轉發回覆',
 			'chat.forwardTo' => '轉發給',
 			'chat.forwardToFriend' => '轉發給好友',
+			'chat.forwardedToChats' => ({required Object count}) => '已轉發給 ${count} 個會話',
 			'chat.great' => '太棒了',
 			'chat.groupFile' => '群檔案',
 			'chat.groupFileImagePreview' => '圖片預覽',
@@ -3084,9 +3087,9 @@ extension on TranslationsZhHant {
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備就緒（${count} 個分片）',
 			'chat.webFeatureMultiDevice' => '多裝置同步',
 			'chat.webFeatureMultiDeviceDesc' => '在手機和電腦之間無縫切換，訊息實時同步',
-			'chat.webFeatureE2EE' => '端到端加密',
 			_ => null,
 		} ?? switch (path) {
+			'chat.webFeatureE2EE' => '端到端加密',
 			'chat.webFeatureE2EEDesc' => '所有訊息都經過端到端加密，確保隱私安全',
 			'chat.webFeatureFileTransfer' => '檔案傳輸',
 			'chat.webFeatureFileTransferDesc' => '拖拽即可傳送檔案，支援各種格式',
@@ -3441,6 +3444,7 @@ extension on TranslationsZhHant {
 			'common.regionConfirm' => '確定',
 			'common.regionNoResult' => '暫無結果',
 			'common.regionSearchHint' => '按地區名稱搜尋',
+			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => '已選 ${region}（第 ${level} 級）：可直接點右上角完成，也可繼續選擇下一級',
 			'common.regionSearchTips' => '按地區名稱或區域編碼搜尋',
 			'common.regionSelectTitle' => '選擇地區',
 			'common.releaseFingerCancelSending' => '鬆開手指，取消傳送',
@@ -3509,7 +3513,7 @@ extension on TranslationsZhHant {
 			'common.searchHint' => '輸入關鍵詞搜尋訊息',
 			'common.searchHistory' => '搜尋記錄',
 			'common.searchLocation' => '搜尋地點',
-			'common.searchMessagesHint' => '搜尋訊息提示',
+			'common.searchMessagesHint' => '搜尋聊天內容',
 			'common.searchNoFound' => '搜尋結果為空 :(',
 			'common.searchNoResults' => '無搜尋結果',
 			'common.noSearchHistory' => '暫無搜尋記錄',
@@ -3597,10 +3601,10 @@ extension on TranslationsZhHant {
 			'common.pleaseEnter6DigitVerificationCode' => '請輸入 6 位驗證碼',
 			'common.verificationCodeSent' => '驗證碼已傳送',
 			'common.sendFailed' => '傳送失敗',
-			'common.noChangeNeeded' => '無需修改',
-			'common.submissionFailed' => '提交失敗',
 			_ => null,
 		} ?? switch (path) {
+			'common.noChangeNeeded' => '無需修改',
+			'common.submissionFailed' => '提交失敗',
 			'common.checkVerificationCodeOrRetry' => '請檢查驗證碼或稍後重試',
 			'common.forceOffline' => '下線',
 			'common.forceDeviceOffline' => '讓該設備下線',
@@ -4111,10 +4115,10 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupImportPwdHint' => '請輸入備份時設定的密碼',
 			'common.e2eeBackupImportBtn' => '匯入金鑰',
 			'common.e2eeBackupErrSelectFile' => '選擇檔案失敗，請重試',
-			'common.e2eeBackupErrValidateFailed' => '檔案驗證失敗，請檢查檔案格式',
-			'common.e2eeBackupErrImportFailed' => '匯入失敗，請檢查密碼是否正確',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupErrValidateFailed' => '檔案驗證失敗，請檢查檔案格式',
+			'common.e2eeBackupErrImportFailed' => '匯入失敗，請檢查密碼是否正確',
 			'common.e2eeBackupImportSuccessTitle' => '匯入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 金鑰已成功恢復！',
 			'common.e2eeBackupImportSuccessNote' => '注意：群聊歷史已隨備份恢復；單聊歷史無法恢復——依端對端加密規範，單聊金鑰不跨裝置備份',
@@ -4625,10 +4629,10 @@ extension on TranslationsZhHant {
 			'main.setting' => '設定',
 			'main.siginQ' => '已經有帳號了？',
 			'main.signInWith' => ({required Object param}) => '用${param}登入',
-			'main.source' => '來源',
-			'main.speakingTooShort' => '說話時間太短',
 			_ => null,
 		} ?? switch (path) {
+			'main.source' => '來源',
+			'main.speakingTooShort' => '說話時間太短',
 			'main.speed' => '速度',
 			'main.star' => _root.main.markStar,
 			'main.stillNeeded' => '還需',

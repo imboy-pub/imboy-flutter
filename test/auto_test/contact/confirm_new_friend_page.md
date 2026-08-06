@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 待修复 | 2026-08-06 | `page/contact/confirm_new_friend/confirm_new_friend_page.dart` | 点击「完成」提交确认加好友 | 有BUG待修 | - | 1 | 0 | 1 | BUG#2 confirm 成功后列表状态不刷新、页面不自动返回 |
+| 待复验 | 2026-08-06 | `page/contact/confirm_new_friend/confirm_new_friend_page.dart` | 点击「完成」提交确认加好友 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：父页内存列表未重载，成功后补 initData 再 pop |
 | 待首测 | 2026-08-07 | `page/contact/confirm_new_friend/confirm_new_friend_page.dart` | 展示对方发来的验证消息 | 未测 | - | 0 | 0 | 0 | |
 | 待首测 | 2026-08-07 | `page/contact/confirm_new_friend/confirm_new_friend_page.dart` | 备注输入框默认填充对方昵称 | 未测 | - | 0 | 0 | 0 | |
 | 待首测 | 2026-08-07 | `page/contact/confirm_new_friend/confirm_new_friend_page.dart` | 修改备注并限制 80 字上限 | 未测 | - | 0 | 0 | 0 | |

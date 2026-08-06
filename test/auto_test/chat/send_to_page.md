@@ -13,5 +13,5 @@
 | 回归复测 | 2026-08-07 | `page/chat/send_to/send_to_page.dart` | 未选联系人直接点发送即返回 | 待重验 | 批次20 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/chat/send_to/send_to_page.dart` | 部分转发失败留页并提示 | 待重验 | 批次20 | 0 | 0 | 0 | 需断网构造部分失败 |
 | 回归复测 | 2026-08-07 | `page/chat/send_to/send_to_page.dart` | 无联系人时展示空态文案 | 待重验 | 批次20 | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/chat/send_to/send_to_page.dart` | 转发成功 toast 文案提示 | 有BUG待修 | 批次20 | 1 | 0 | 1 | P3 仅显示「成功」，未说明转发了几个对象 |
+| 待复验 | 2026-08-06 | `page/chat/send_to/send_to_page.dart` | 转发成功 toast 文案提示 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：新增 chat.forwardedToChats(count)，10 语言齐备 |
 | 回归复测 | 2026-08-07 | `page/chat/send_to/send_to_page.dart` | 点返回按钮取消转发 | 待重验 | 批次20 | 0 | 0 | 0 | |

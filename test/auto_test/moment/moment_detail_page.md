@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 待修复 | 2026-08-06 | `page/moment/moment_detail_page.dart` | 评论「加载更多」按钮显示条件 | 有BUG待修 | 批次18 | 1 | 0 | 1 | P3 未修：仅 1 条评论仍显示「加载更多」 |
+| 待复验 | 2026-08-06 | `page/moment/moment_detail_page.dart` | 评论「加载更多」按钮显示条件 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：服务端末页也回 cursor，页面侧加满页判据；moment_api 另 3 处同款未修 |
 | 无待办 | - | `page/moment/moment_detail_page.dart` | 取消点赞按钮文案多语言正确 | 已通过 | 批次18 | 1 | 1 | 0 | |
 | 无待办 | - | `page/moment/moment_detail_page.dart` | 加载动态详情并渲染正文媒体 | 已通过 | 批次18 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/moment/moment_detail_page.dart` | 发表评论并更新评论计数 | 待重验 | - | 0 | 0 | 0 | 写生产评论数据 |

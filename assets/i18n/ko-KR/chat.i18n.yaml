@@ -43,6 +43,7 @@ forward: 전달
 forwardReply: 전달 답장
 forwardTo: 전달 대상
 forwardToFriend: 친구에게 전달
+forwardedToChats: "$count개의 대화에 전달했습니다"
 great: 매우 좋음
 groupFile: 그룹 파일
 groupFileImagePreview: 이미지 미리보기

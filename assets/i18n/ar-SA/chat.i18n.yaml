@@ -43,6 +43,7 @@ forward: إعادة توجيه
 forwardReply: إعادة توجيه الرد
 forwardTo: إعادة توجيه إلى
 forwardToFriend: إعادة توجيه إلى صديق
+forwardedToChats: "تمت إعادة التوجيه إلى $count محادثة"
 great: ممتاز جداً
 groupFile: ملفات المجموعة
 groupFileImagePreview: معاينة الصورة

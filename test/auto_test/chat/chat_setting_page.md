@@ -11,7 +11,7 @@
 | 回归复测 | 2026-08-07 | `page/chat/chat_setting/chat_setting_page.dart` | 选择阅后即焚销毁时长 | 待重验 | 批次25 | 0 | 0 | 0 | 底部滚轮弹层当初未单独点名 |
 | 无待办 | — | `page/chat/chat_setting/chat_setting_page.dart` | 跳转查找聊天记录页 | 已通过 | 批次25 | 0 | 0 | 0 | |
 | 无待办 | — | `page/chat/chat_setting/chat_setting_page.dart` | 跳转聊天背景设置页 | 已通过 | 批次25 | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/chat/chat_setting/chat_setting_page.dart` | 确认并清空本会话聊天记录 | 有BUG待修 | 批次25 | 1 | 0 | 1 | P3 破坏性操作图标仍是品牌蓝，违反 DESIGN.md |
+| 待复验 | 2026-08-06 | `page/chat/chat_setting/chat_setting_page.dart` | 确认并清空本会话聊天记录 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：isDestructive 未传导到图标色，共享 helper 单点修 |
 | 回归复测 | 2026-08-07 | `page/chat/chat_setting/chat_setting_page.dart` | 返回时回传刷新标记给聊天页 | 待重验 | 批次25 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/chat/chat_setting/chat_setting_page.dart` | 开关操作后弹出成功/失败提示 | 待重验 | 批次25 | 0 | 0 | 0 | toast 截图须在 1s 内 |
 | 待首测 | 2026-08-07 | `page/chat/chat_setting/chat_setting_page.dart` | 切换系统语言后页面实时刷新 | 未测 | - | 0 | 0 | 0 | |

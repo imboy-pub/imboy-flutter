@@ -9,8 +9,8 @@
 | 无待办 | - | `page/channel/channel_comment_page.dart` | 评论点赞与取消点赞计数增减 | 已通过 | 批次25 | 0 | 0 | 0 | |
 | 无待办 | - | `page/channel/channel_comment_page.dart` | 标题栏评论计数随增删刷新 | 已通过 | 批次25 | 0 | 0 | 0 | |
 | 无待办 | - | `page/channel/channel_comment_page.dart` | 无评论时空态渲染 | 已通过 | 批次25 | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/channel/channel_comment_page.dart` | 原消息正文预览渲染语音消息 | 有BUG待修 | 批次25 | 1 | 0 | 1 | 语音被渲染成字面量 `[voice]` |
-| 待修复 | 2026-08-06 | `page/channel/channel_comment_page.dart` | 评论输入框表情面板输入与删除 | 有BUG待修 | 批次25 | 1 | 0 | 1 | 表情面板缺退格删除键 |
+| 待复验 | 2026-08-06 | `page/channel/channel_comment_page.dart` | 原消息正文预览渲染语音消息 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：真实渲染点是 channel_article_page.dart；根因是 publish_bar 为绕过后端空 content 校验塞了占位符，改在渲染侧映射 |
+| 回归复测 | 2026-08-06 | `page/channel/channel_comment_page.dart` | 评论输入框表情面板输入与删除 | 待重验 | 批次26 | 0 | 0 | 0 | 已撤回：同上，退格键默认渲染，需真机复核 |
 | 回归复测 | 2026-08-07 | `page/channel/channel_comment_page.dart` | 评论首屏加载与失败态重试 | 待重验 | 批次25 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/channel/channel_comment_page.dart` | 下拉刷新重载评论列表 | 待重验 | 批次25 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/channel/channel_comment_page.dart` | 滚动到底加载更多评论分页 | 待重验 | 批次25 | 0 | 0 | 0 | 需单条消息 20 条以上评论 |
