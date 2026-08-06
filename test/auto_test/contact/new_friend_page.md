@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 待复验 | 2026-08-06 | `page/contact/new_friend/new_friend_page.dart` | 拉取好友申请列表并落库渲染 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：avatar 显式传 NULL 不走 DEFAULT，写入侧兜底空串 |
+| 阻塞 | 解阻塞条件：需第二个账号发起真实好友申请 | `page/contact/new_friend/new_friend_page.dart` | 拉取好友申请列表并落库渲染 | BUG已修待验 | 批次27 | 1 | 0 | 1 | 批次27 装机复验受阻：uid50 当前零好友申请，页面只能验到空态「没有新的好友」，avatar 兜底路径无数据可打 |
 | 待首测 | 2026-08-07 | `page/contact/new_friend/new_friend_page.dart` | 顶部搜索账号并跳转用户详情 | 未测 | - | 0 | 0 | 0 | |
 | 待首测 | 2026-08-07 | `page/contact/new_friend/new_friend_page.dart` | 搜索无结果与网络异常提示 | 未测 | - | 0 | 0 | 0 | |
 | 待首测 | 2026-08-07 | `page/contact/new_friend/new_friend_page.dart` | 左滑删除单条申请记录 | 未测 | - | 0 | 0 | 0 | 会写生产数据，删除后不可恢复 |

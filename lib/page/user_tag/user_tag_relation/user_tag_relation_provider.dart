@@ -498,7 +498,15 @@ class UserTagRelationNotifier extends _$UserTagRelationNotifier {
   }
 
   /// 更新标签统计信息
+  ///
+  /// 同 [syncFinalState] 的 `ref.mounted` 守卫：本 provider 是 autoDispose，
+  /// 调用方（tag_relation_page）只 ref.read 不 watch，网络往返期间可能已被回收。
+  /// 缺这道守卫时 `_loadTagStatistics` 会抛两次 UnmountedRefException——
+  /// 成功路径抛一次被自己的 catch 接住，catch 里再写一次 empty 又抛，这次逃逸到页面，
+  /// 兜成"加载标签数据失败"。真机实测：`user_tag/page` 已 200 且数据齐全，页面却报失败。
+  /// 调用方读的是返回值而非 state，状态同步失败不影响结果，直接跳过。
   void updateTagStatistics(Map<String, dynamic> statistics) {
+    if (!ref.mounted) return;
     state = state.copyWith(
       tagStatistics: statistics,
       recentTagItems: List<String>.from(

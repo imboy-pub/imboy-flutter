@@ -1,6 +1,6 @@
 # `page/mine/user_device/user_device_detail_page.dart`
 
-> 功能点 14 个 | bug 发现 1 / 解决 1 / 待处理 0
+> 功能点 14 个 | bug 发现 2 / 解决 2 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -17,5 +17,5 @@
 | 回归复测 | 2026-08-07 | `page/mine/user_device/user_device_detail_page.dart` | 设备离线时下线按钮置灰禁用 | 待重验 | 批次18 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/user_device/user_device_detail_page.dart` | 强制下线二次确认并下发指令 | 待重验 | 批次18 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/user_device/user_device_detail_page.dart` | 删除设备按钮用 iosRed 破坏色 | 待重验 | 批次18 | 0 | 0 | 0 | |
-| 待复验 | 2026-08-06 | `page/mine/user_device/user_device_detail_page.dart` | 删除设备二次确认并返回列表 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 本轮新发现并已修：_deleteDevice 用 dialog builder context，pop 后 mounted 恒 false，「返回设备列表」从未执行 |
+| 无待办 | — | `page/mine/user_device/user_device_detail_page.dart` | 删除设备二次确认并返回列表 | 已通过 | 批次27 | 1 | 1 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/user_device/user_device_detail_page.dart` | 切换语言后页面文案即时刷新 | 待重验 | 批次18 | 0 | 0 | 0 | |
