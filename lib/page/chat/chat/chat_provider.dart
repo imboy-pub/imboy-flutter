@@ -1037,6 +1037,10 @@ class ChatNotifier extends _$ChatNotifier {
           limit: 50,
         );
         pages++;
+        iPrint(
+          'syncHistoryBackfill: uk3=${obj.uk3}, afterSeq=$seq, '
+          'fetched=${page.fetched}, nextSeq=${page.nextSeq}, hasMore=${page.hasMore}',
+        );
         if (page.fetched > 0) anyFetched = true;
         if (page.nextSeq > seq) {
           seq = page.nextSeq;
@@ -1047,6 +1051,13 @@ class ChatNotifier extends _$ChatNotifier {
       // 有回填则重置本地分页游标位，让上滑能读到新落库的更老消息
       if (anyFetched) {
         state = state.copyWith(hasMoreMessage: true);
+        // BUG#120：空会话没有可上滑的内容，只置 hasMoreMessage 回填消息本次
+        // 完全不可见（必须退出重进）。视图为空时主动重跑一次首屏加载。
+        // 此处仍在 _historySyncing=true 的窗口内，嵌套调用会被入口 guard 挡掉，
+        // 不会递归回填。
+        if ((_chatService?.messages.length ?? 0) == 0) {
+          await loadMoreMessages(obj, isInitial: true);
+        }
       }
     } catch (e) {
       iPrint('syncHistoryBackfill error: $e');

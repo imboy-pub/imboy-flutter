@@ -7,9 +7,9 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 阻塞 | 解阻塞条件：需第二台真机 + 对端账号在线 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 发起音视频呼叫并邀请对端 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 解阻塞条件：需第二台真机 + 对端账号在线 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 接听来电并建立连接 | 未测 | - | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 通话状态机流转与文案切换 | 有BUG待修 | - | 1 | 0 | 1 | BUG#15 状态机错误 |
-| 待修复 | 2026-08-06 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 对端无应答超时自动结束 | 有BUG待修 | - | 1 | 0 | 1 | BUG#15 无超时处理 |
-| 待修复 | 2026-08-06 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 通话结束写入本地通话记录 | 有BUG待修 | - | 1 | 0 | 1 | BUG#15 无通话记录 |
+| 待复验 | 2026-08-06 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 通话状态机流转与文案切换 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待两端真机：stateTips 全项目无处清空致接通后文案不更新；抽出纯逻辑状态机 CallPhase×CallSignal，14 例单测 + 反证 |
+| 待复验 | 2026-08-06 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 对端无应答超时自动结束 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待两端真机：**原判定有误**——60s 超时本就存在，缺口是起臂位置（三种悬挂态收不到 callStateNew）；改到 _initData 统一起臂 |
+| 待复验 | 2026-08-06 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 通话结束写入本地通话记录 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待两端真机：ChatMessageAddRequestedEvent 全项目零订阅方，消息从未落库；改为直接 MessageRepo.save + fireData |
 | 阻塞 | 解阻塞条件：需第二台真机建立通话 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 切换麦克风静音状态 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 解阻塞条件：需第二台真机建立通话 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 切换摄像头开关状态 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 解阻塞条件：需第二台真机建立通话 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 切换扬声器与前后镜头 | 未测 | - | 0 | 0 | 0 | |

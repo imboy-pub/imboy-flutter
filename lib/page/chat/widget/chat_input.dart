@@ -499,45 +499,64 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: AppSpacing.symmetricSmall,
-                // S2-b: 末尾追加"管理"入口（settings icon 按钮）
-                itemCount: replies.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == replies.length) {
-                    // 管理按钮
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      child: IconButton(
-                        tooltip: t.chat.quickReplyManage,
-                        icon: Icon(Icons.tune, color: _themeColor('primary')),
-                        onPressed: _openQuickReplyManage,
-                      ),
-                    );
-                  }
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ElevatedButton(
-                      onPressed: () => _insertQuickReply(replies[index]),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _themeColor(
-                          'primary',
-                        ).withValues(alpha: 0.1),
-                        foregroundColor: _themeColor('primary'),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadius.borderRadiusRegular,
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(replies[index]),
+              // BUG#101: 「管理」原来是这条横向 ListView 的末尾一项，8 条默认
+              // 快捷回复在 360pt 逻辑宽下把它顶出屏幕；而横滑手势会让输入框
+              // 失焦、键盘收起、整条栏消失 —— 用户永远够不到它。
+              // 改成 Row + Expanded(滚动区) + 固定尾部按钮：位置仍在右端
+              // （不动既有心智），但彻底不依赖滚动。
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: AppSpacing.symmetricSmall,
+                      itemCount: replies.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.tiny,
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () => _insertQuickReply(replies[index]),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _themeColor(
+                                'primary',
+                              ).withValues(alpha: 0.1),
+                              foregroundColor: _themeColor('primary'),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppSpacing.medium,
+                                vertical: AppSpacing.tiny,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: AppRadius.borderRadiusRegular,
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(replies[index]),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                  // 固定尾部：不随内容滚动的「管理」入口
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.tiny),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        left: BorderSide(
+                          color: _themeColor('outline').withValues(alpha: 0.1),
+                          width: 0.5,
+                        ),
+                      ),
+                    ),
+                    child: IconButton(
+                      key: const Key('quick_reply_manage_button'),
+                      tooltip: t.chat.quickReplyManage,
+                      icon: Icon(Icons.tune, color: _themeColor('primary')),
+                      onPressed: _openQuickReplyManage,
+                    ),
+                  ),
+                ],
               ),
             );
           },

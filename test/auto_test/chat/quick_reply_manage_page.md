@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 待修复 | 2026-08-06 | `page/chat/widget/quick_reply_manage_page.dart` | 从快捷回复面板进入管理页 | 有BUG待修 | 批次25 | 1 | 0 | 1 | BUG#101 「管理」入口在横向滚动条右侧屏幕外够不到，滑动即失焦收面板 |
+| 待复验 | 2026-08-06 | `page/chat/widget/quick_reply_manage_page.dart` | 从快捷回复面板进入管理页 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：管理键在 ListView 末尾且懒构建，屏幕外根本没被建；改 Row+Expanded+固定尾部，测试用 getRect 断言在 viewport 内并做了 A/B 反证 |
 | 阻塞 | 解阻塞条件：BUG#101 修复后管理页可达 | `page/chat/widget/quick_reply_manage_page.dart` | 加载快捷回复列表与空态 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 解阻塞条件：BUG#101 修复后管理页可达 | `page/chat/widget/quick_reply_manage_page.dart` | 点 FAB 新增快捷回复短语 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 解阻塞条件：BUG#101 修复后管理页可达 | `page/chat/widget/quick_reply_manage_page.dart` | 超出条数上限时提示拒绝 | 未测 | - | 0 | 0 | 0 | |

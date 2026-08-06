@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -123,14 +124,23 @@ class ApplyFriendNotifier extends _$ApplyFriendNotifier {
           NewFriendRepo.createdAt: createdAt,
         };
 
-        (NewFriendRepo()).save(saveData);
-        AppLoading.showSuccess(t.main.sent);
+        // 单独 try：申请已经发到服务端了，本地落库失败不能被外层 catch 当成
+        // 「网络失败」并 return false（会诱导用户重复申请）。但也不能静默 ——
+        // 不 await 时异常会被吞，用户看到「已发送」，记录却根本没落库。
+        try {
+          await (NewFriendRepo()).save(saveData);
+          AppLoading.showSuccess(t.main.sent);
+        } catch (e) {
+          iPrint("❌ [APPLY_FRIEND] 好友申请落库失败 to=$to error=$e");
+          AppLoading.showError(t.common.saveFailedRetry);
+        }
         return true;
       } else {
         AppLoading.showError(t.common.networkFailureTryAgain);
         return false;
       }
     } catch (e) {
+      iPrint("❌ [APPLY_FRIEND] 好友申请发送失败 to=$to error=$e");
       AppLoading.showError(t.common.networkFailureTryAgain);
       return false;
     }

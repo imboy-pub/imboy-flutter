@@ -299,7 +299,7 @@ class ConversationModel {
     int? isShow,
     Map<String, dynamic>? payload,
   }) {
-    return ConversationModel.fromJson({
+    final next = ConversationModel.fromJson({
       ConversationRepo.id: id ?? this.id,
       ConversationRepo.peerId: peerId ?? this.peerId,
       ConversationRepo.avatar: avatar ?? this.avatar,
@@ -318,6 +318,13 @@ class ConversationModel {
       ConversationRepo.isShow: isShow ?? this.isShow,
       ConversationRepo.payload: payload ?? this.payload,
     });
+    // computeTitle 是**只活在内存里**的派生名（无名群回落到成员昵称，刻意不落库），
+    // fromJson 认不出它。不在这里搬过去，任何一次 copyWith 都会把它抹成空 ——
+    // 真机实证：会话列表算出「IMBoy」后，未读数防抖回写走
+    // setConversationRemind → copyWith(unreadNum:) 重建模型，
+    // 500ms 后标题就变回「未命名」。
+    next.computeTitle = computeTitle;
+    return next;
   }
 
   /// 解析系统提示信息（静态方法，避免依赖 Get.find）

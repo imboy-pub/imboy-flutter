@@ -15,5 +15,5 @@
 | 回归复测 | 2026-08-07 | `page/conversation/conversation_page.dart` | 侧滑置顶与取消置顶会话 | 待重验 | 批次25 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/conversation/conversation_page.dart` | 侧滑删除会话并同步服务端 | 待重验 | 批次25 | 0 | 0 | 0 | 删除为不可逆操作，须用测试会话 |
 | 无待办 | — | `page/conversation/conversation_page.dart` | 展示与关闭 E2EE 恢复横幅 | 已通过 | 批次25 | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/conversation/conversation_page.dart` | 群名缺失时的标题兜底显示 | 有BUG待修 | 批次26 | 1 | 0 | 1 | 复验不通过：群列表同一批群能回落显示「IMBoy」，会话列表仍「未命名」→ 回落源选错，不是数据缺失 |
+| 待复验 | 2026-08-06 | `page/conversation/conversation_page.dart` | 群名缺失时的标题兜底显示 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：真根因是 copyWith 走 fromJson 重建丢掉非构造器字段 computeTitle（真机 logcat 证明派生名算出来了又被抹掉），改在 copyWith 显式搬运 |
 | 回归复测 | 2026-08-07 | `page/conversation/conversation_page.dart` | 空列表与搜索无结果空态 | 待重验 | 批次25 | 0 | 0 | 0 | |

@@ -12,6 +12,44 @@ class MomentPageResult<T> {
     required this.nextCursor,
     required this.hasMore,
   });
+
+  /// 空页（请求失败 / payload 结构不符）。
+  static const MomentPageResult<Map<String, dynamic>> empty =
+      MomentPageResult<Map<String, dynamic>>(
+        list: [],
+        nextCursor: null,
+        hasMore: false,
+      );
+
+  /// 从后端分页 payload 解析出一页数据。
+  ///
+  /// hasMore 判据是**本页返回条数是否满一页**（`list.length >= limit`），
+  /// 不是「cursor 非空」—— 服务端对最后一页也照样回一个 cursor，按 cursor
+  /// 推 hasMore 会让「加载更多」在没有下一页时也一直显示（只有 1 条评论时
+  /// 底部照样转圈）。cursor 为空时同样翻不了页，故两者取与。
+  static MomentPageResult<Map<String, dynamic>> fromPayload(
+    Map<String, dynamic> payload, {
+    required int limit,
+  }) {
+    final rawList = payload['list'];
+    final list = rawList is List
+        ? rawList
+              .whereType<Map<String, dynamic>>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList(growable: false)
+        : <Map<String, dynamic>>[];
+    final nextCursor = parseModelNullableString(payload['cursor']);
+    final hasMore =
+        limit > 0 &&
+        list.length >= limit &&
+        nextCursor != null &&
+        nextCursor.isNotEmpty;
+    return MomentPageResult(
+      list: list,
+      nextCursor: nextCursor,
+      hasMore: hasMore,
+    );
+  }
 }
 
 /// Moment(朋友圈) API 客户端
@@ -81,26 +119,12 @@ class MomentApi extends HttpClient {
       params['cursor'] = cursor;
     }
     final resp = await get(API.momentsFeed, queryParameters: params);
-    if (!resp.ok ||
-        resp.payload == null ||
-        resp.payload is! Map<String, dynamic>) {
-      return const MomentPageResult(list: [], nextCursor: null, hasMore: false);
+    if (!resp.ok || resp.payload is! Map<String, dynamic>) {
+      return MomentPageResult.empty;
     }
-    final payload = Map<String, dynamic>.from(
-      resp.payload as Map<dynamic, dynamic>,
-    );
-    final rawList = payload['list'];
-    final list = rawList is List
-        ? rawList
-              .whereType<Map<String, dynamic>>()
-              .map((item) => Map<String, dynamic>.from(item))
-              .toList(growable: false)
-        : <Map<String, dynamic>>[];
-    final nextCursor = parseModelNullableString(payload['cursor']);
-    return MomentPageResult(
-      list: list,
-      nextCursor: nextCursor,
-      hasMore: nextCursor != null && nextCursor.isNotEmpty,
+    return MomentPageResult.fromPayload(
+      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      limit: limit,
     );
   }
 
@@ -114,26 +138,12 @@ class MomentApi extends HttpClient {
       params['cursor'] = cursor;
     }
     final resp = await get(API.momentsUser(uid), queryParameters: params);
-    if (!resp.ok ||
-        resp.payload == null ||
-        resp.payload is! Map<String, dynamic>) {
-      return const MomentPageResult(list: [], nextCursor: null, hasMore: false);
+    if (!resp.ok || resp.payload is! Map<String, dynamic>) {
+      return MomentPageResult.empty;
     }
-    final payload = Map<String, dynamic>.from(
-      resp.payload as Map<dynamic, dynamic>,
-    );
-    final rawList = payload['list'];
-    final list = rawList is List
-        ? rawList
-              .whereType<Map<String, dynamic>>()
-              .map((item) => Map<String, dynamic>.from(item))
-              .toList(growable: false)
-        : <Map<String, dynamic>>[];
-    final nextCursor = parseModelNullableString(payload['cursor']);
-    return MomentPageResult(
-      list: list,
-      nextCursor: nextCursor,
-      hasMore: nextCursor != null && nextCursor.isNotEmpty,
+    return MomentPageResult.fromPayload(
+      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      limit: limit,
     );
   }
 
@@ -189,26 +199,12 @@ class MomentApi extends HttpClient {
       API.momentComments(momentId),
       queryParameters: params,
     );
-    if (!resp.ok ||
-        resp.payload == null ||
-        resp.payload is! Map<String, dynamic>) {
-      return const MomentPageResult(list: [], nextCursor: null, hasMore: false);
+    if (!resp.ok || resp.payload is! Map<String, dynamic>) {
+      return MomentPageResult.empty;
     }
-    final payload = Map<String, dynamic>.from(
-      resp.payload as Map<dynamic, dynamic>,
-    );
-    final rawList = payload['list'];
-    final list = rawList is List
-        ? rawList
-              .whereType<Map<String, dynamic>>()
-              .map((item) => Map<String, dynamic>.from(item))
-              .toList(growable: false)
-        : <Map<String, dynamic>>[];
-    final nextCursor = parseModelNullableString(payload['cursor']);
-    return MomentPageResult(
-      list: list,
-      nextCursor: nextCursor,
-      hasMore: nextCursor != null && nextCursor.isNotEmpty,
+    return MomentPageResult.fromPayload(
+      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      limit: limit,
     );
   }
 

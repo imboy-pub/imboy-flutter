@@ -14,6 +14,7 @@ import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/media_permission.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_state_machine.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_provider.dart'
     show
         p2pCallScreenProvider,
@@ -61,6 +62,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
   RTCVideoRenderer localRenderer = RTCVideoRenderer();
   RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
+
+  // 接通 / 结束收尾的一次性闩，见 _applySignal。
+  bool _connectedHandled = false;
+  bool _closeScheduled = false;
   bool _remoteVideoReady = false;
   // 默认对端主画面、本端小窗；点击小窗或上下滑动主画面可以交换。
   bool _localOnMain = false;
@@ -181,72 +186,34 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     // 设置回调
     notifier.onSignalingStateChange = (RTCSignalingState state) {};
 
-    notifier.onCallStateChange =
-        (WebRTCSession? s1, WebRTCCallState state) async {
-          switch (state) {
-            case WebRTCCallState.callStateInvite:
-              break;
-            case WebRTCCallState.callStateNew:
-              if (mounted) {
-                notifier.updateStateTips(t.common.waitingPeerAccept);
-              }
-              notifier.startAnswerTimer(() {
-                if (mounted) {
-                  notifier.updateStateTips(t.common.peerNoResponse);
-                }
-                Future<dynamic>.delayed(
-                  const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
-                  () {
-                    if (!mounted) return;
-                    _hangUp(sendBye: false, callState: CallStateCode.rejected);
-                  },
-                );
-              });
-              break;
-            case WebRTCCallState.callStateRinging:
-              if (widget.caller && mounted) {
-                notifier.updateStateTips(t.main.ringing);
-              }
-              break;
-            case WebRTCCallState.callStateBye:
-              if (mounted) {
-                final state = ref.read(p2pCallScreenProvider);
-                notifier.stopCallTimer();
-                notifier.updateStateTips(t.main.peerHasHungUp);
-                Future<dynamic>.delayed(
-                  const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
-                  () {
-                    if (!mounted) return;
-                    _hangUp(
-                      sendBye: false,
-                      callState: state.connected
-                          ? CallStateCode.connected
-                          : CallStateCode.peerHungUp,
-                      endAt:
-                          DateTimeHelper.millisecond() -
-                          CallTimeoutConfig.hangupDelay,
-                    );
-                  },
-                );
-              }
-              break;
-            case WebRTCCallState.callStateBusy:
-              if (mounted) {
-                notifier.updateStateTips(t.chat.busyTryAgainLater);
-              }
-              Future<dynamic>.delayed(
-                const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
-                () {
-                  if (!mounted) return;
-                  _hangUp(sendBye: false, callState: CallStateCode.busy);
-                },
-              );
-              break;
-            case WebRTCCallState.callStateConnected:
-              _connectedAfter();
-              break;
-          }
-        };
+    notifier.onCallStateChange = (WebRTCSession? s1, WebRTCCallState s) async {
+      switch (s) {
+        // invite / new 只是“已发起”，状态机初值即 dialing，无需迁移。
+        case WebRTCCallState.callStateInvite:
+        case WebRTCCallState.callStateNew:
+          break;
+        case WebRTCCallState.callStateRinging:
+          if (widget.caller) _applySignal(CallSignal.ringing);
+          break;
+        case WebRTCCallState.callStateBye:
+          _applySignal(CallSignal.peerBye);
+          break;
+        case WebRTCCallState.callStateBusy:
+          _applySignal(CallSignal.peerBusy);
+          break;
+        case WebRTCCallState.callStateFailed:
+          _applySignal(CallSignal.failed);
+          break;
+        case WebRTCCallState.callStateConnected:
+          _applySignal(CallSignal.connected);
+          break;
+      }
+    };
+
+    // 应答超时在此处统一起臂，而不是等 callStateNew 分支：
+    // 后者只有主叫成功发出 offer 才会到达，媒体权限失败、invitePeer 早退、
+    // 被叫接听后 ICE 永远连不上这三种悬挂态都收不到，页面会永久停在“呼叫中”。
+    notifier.startAnswerTimer(() => _applySignal(CallSignal.answerTimeout));
 
     notifier.onLocalStream = ((stream) {
       if (mounted) {
@@ -324,7 +291,40 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     }
   }
 
+  /// 信令 / 本地事件统一入口：驱动状态机，并按迁移结果做一次性收尾。
+  ///
+  /// 幂等由两个闩控制而非状态比较——ICE connected 与 SDP answer 会各报一次
+  /// 接通，ICE failed 与随后的 bye 也会各报一次结束，重复触发必须无害。
+  void _applySignal(CallSignal signal) {
+    if (!mounted) return;
+    final status = _notifier.applySignal(signal);
+
+    if (status.phase == CallPhase.connected) {
+      _connectedAfter();
+      return;
+    }
+    if (!status.isTerminal || _closeScheduled) return;
+    _closeScheduled = true;
+    _notifier.stopAnswerTimer();
+    _notifier.stopCallTimer();
+    // 结束时刻取“现在”，而不是延迟关页后的时刻，否则通话时长凭空多 2 秒。
+    final endAt = DateTimeHelper.millisecond();
+    Future<void>.delayed(
+      const Duration(milliseconds: CallTimeoutConfig.hangupDelay),
+      () {
+        if (!mounted) return;
+        _hangUp(
+          sendBye: false,
+          callState: status.recordStateCode,
+          endAt: endAt,
+        );
+      },
+    );
+  }
+
   void _connectedAfter() {
+    if (_connectedHandled) return;
+    _connectedHandled = true;
     final notifier = _notifier;
     final size = MediaQuery.sizeOf(context);
     notifier.stopAnswerTimer();
@@ -361,6 +361,23 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   // ===========================================================================
 
   bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+
+  /// 状态机文案键 → i18n。逻辑层不认识 i18n，翻译只发生在这里。
+  /// [CallTipKey.none] 表示“接通中”，此时展示通话时长而非任何提示语——
+  /// 这正是原来 stateTips 从不清空导致音频通话看不到时长的那处缺陷。
+  String _tipText(CallTipKey key, P2pCallScreenState state) {
+    return switch (key) {
+      CallTipKey.none =>
+        state.callStatus.showsDuration ? state.callDuration : t.common.calling,
+      CallTipKey.waitingPeerAccept => t.common.waitingPeerAccept,
+      CallTipKey.ringing => t.main.ringing,
+      CallTipKey.peerNoResponse => t.common.peerNoResponse,
+      CallTipKey.peerHungUp => t.main.peerHasHungUp,
+      CallTipKey.busy => t.chat.busyTryAgainLater,
+      CallTipKey.networkError => t.common.errorNetwork,
+      CallTipKey.callEnded => t.common.callEnded,
+    };
+  }
 
   /// 背景：对方头像高斯模糊铺底 + 深色渐变压暗（FaceTime 景深观感）。
   /// 连接态、音频、远端视频未到达时显示。
@@ -403,9 +420,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   /// 连接态 / 音频的中部信息：呼吸光环头像 + 昵称 + 状态文案。
   Widget _buildConnectingInfo(P2pCallScreenState state) {
     final size = MediaQuery.sizeOf(context);
-    final String statusText = state.stateTips.isNotEmpty
-        ? state.stateTips
-        : (state.connected ? state.callDuration : t.common.calling);
+    final String statusText = _tipText(state.callStatus.tipKey, state);
 
     return Positioned.fill(
       child: Padding(
@@ -699,10 +714,12 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
         background: AppColors.getIosRed(Theme.of(context).brightness),
         onTap: () {
           HapticFeedback.mediumImpact();
+          // 本机挂断立即关页（不走 _applySignal 的 2s 提示延迟），
+          // 但状态码仍由状态机给出：接通过就记通话时长，没接通记已取消。
+          _closeScheduled = true;
+          final status = _notifier.applySignal(CallSignal.localHangUp);
           _hangUp(
-            callState: state.connected
-                ? CallStateCode.connected
-                : CallStateCode.localHungUp,
+            callState: status.recordStateCode,
             endAt: DateTimeHelper.millisecond(),
           );
         },

@@ -100,4 +100,7 @@ class CallStateCode {
 
   /// 忙碌
   static const int busy = 5;
+
+  /// 异常中断（网络/媒体故障，非任何一方主动挂断）
+  static const int failed = 6;
 }

@@ -7,6 +7,9 @@ import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
+import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -159,40 +162,47 @@ class MessageWebrtc {
           imageSource: peer.avatar,
         );
       }
-      final msg = CustomMessage(
-        authorId: author.id,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(
-          DateTimeHelper.millisecond(),
-          isUtc: true,
+      final String currentUid = UserRepoLocal.to.currentUid;
+      final String peerUid = peer.peerId.toString();
+      final String msgType = media == 'video'
+          ? MessageType.webrtcVideo
+          : MessageType.webrtcAudio;
+
+      // ⚠️ 这条记录必须落库，不能只丢给事件总线：
+      // 原实现只 fire ChatMessageAddRequestedEvent，而全项目**没有任何订阅方**，
+      // 消息从未写进 msg_c2c；随后 changeLocalMsgState 的 repo.find(msgId)
+      // 恒为 null 直接 return，于是通话结束后聊天里永远看不到通话记录。
+      final model = MessageModel(
+        msgId,
+        autoId: 0,
+        type: 'C2C',
+        status: IMBoyMessageStatus.delivered,
+        fromId: int.tryParse(author.id) ?? 0,
+        toId: int.tryParse(author.id == currentUid ? peerUid : currentUid) ?? 0,
+        isAuthor: author.id == currentUid ? 1 : 0,
+        msgType: msgType,
+        createdAt: DateTimeHelper.millisecond(),
+        conversationUk3: ConversationUk3Generator.generateSmart(
+          type: 'C2C',
+          currentUserId: currentUid,
+          peerId: peerUid,
         ),
-        id: msgId,
-        status: MessageStatus.delivered,
-        metadata: {
+        payload: <String, dynamic>{
           'peer_id': peer.peerId,
-          'msg_type': media == 'video'
-              ? MessageType.webrtcVideo
-              : MessageType.webrtcAudio,
+          'msg_type': msgType,
           'media': media,
           'start_at': 0,
           'end_at': 0,
-          'state': 0,
+          'state': CallStateCode.calling,
         },
       );
+      await MessageRepo(tableName: MessageRepo.c2cTable).save(model);
 
-      // 通过事件总线通知 UI 层添加消息
-      // UI 层（ChatProvider）需要订阅此事件
-      AppEventBus.fire(
-        ChatMessageAddRequestedEvent(
-          peerId: peer.peerId.toString(),
-          peerAvatar: peer.avatar,
-          peerNickname: peer.nickname,
-          conversationType: 'C2C',
-          message: msg,
-          sendToServer: false,
-        ),
-      );
+      // 会话页正开着时立刻插入气泡；页面关闭时也无妨——记录已在库里，
+      // 下次进会话由 pageForConversation 读出来。
+      AppEventBus.fireData(await model.toTypeMessage(), 'Message');
 
-      iPrint('✅ [WebRTC] 已发送本地消息添加请求: msgId=$msgId');
+      iPrint('✅ [WebRTC] 本地通话记录已落库: msgId=$msgId');
     } catch (e, s) {
       iPrint('❌ [WebRTC] addLocalMsg error: $e; $s');
       rethrow;

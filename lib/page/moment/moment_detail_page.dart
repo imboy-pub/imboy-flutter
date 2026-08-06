@@ -113,11 +113,9 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
         _moment = enrichedPost;
         _comments = enrichedComments;
         _commentsCursor = page.nextCursor as String?;
-        // MomentApi 只按「cursor 非空」推 hasMore，而服务端对最后一页也照样
-        // 回一个 cursor —— 只有 1 条评论时「加载更多」照样显示。
-        // 本页不满一页即可断定没有下一页。
-        _commentsHasMore =
-            (page.hasMore as bool) && rawComments.length >= _commentsPageSize;
+        // hasMore 判据（本页满一页 + cursor 非空）已下沉到
+        // MomentPageResult.fromPayload，此处直接采信，勿再叠加页面侧判据。
+        _commentsHasMore = page.hasMore as bool;
         _loading = false;
       });
     } on Exception catch (_) {
@@ -155,9 +153,7 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
       setState(() {
         _comments = appendCommentsPage(_comments, enriched);
         _commentsCursor = page.nextCursor;
-        // 同 _loadAll：不满一页即没有下一页
-        _commentsHasMore =
-            page.hasMore && page.list.length >= _commentsPageSize;
+        _commentsHasMore = page.hasMore;
         _loadingMoreComments = false;
       });
     } on Exception catch (_) {

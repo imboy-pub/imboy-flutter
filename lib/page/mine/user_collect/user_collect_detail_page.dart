@@ -197,36 +197,42 @@ class UserCollectDetailPage extends ConsumerWidget {
               title: t.common.editTag,
               subtitle: t.common.addTagsToFavorites,
               onTap: () {
+                // 同「删除」分支：NavigatorState 必须在关闭 sheet 之前抓住。
+                // 这里的 context 属于 sheet 的 builder，sheet pop 掉之后它就
+                // defunct，`if (context.mounted)` 恒为 false —— 编辑完标签回来
+                // 详情页根本不会退出（详情页不展示标签，用户看不到任何变化）。
+                final navigator = Navigator.of(context);
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute<dynamic>(
-                    builder: (context) => TagRelationPage(
-                      peerId: obj.kindId.toString(),
-                      peerTag: obj.tag,
-                      scene: 'collect',
-                      title: t.common.editTag,
-                    ),
-                  ),
-                ).then((value) {
-                  if (value != null && value is String) {
-                    // 更新本地对象
-                    final updatedObj = UserCollectModel(
-                      userId: obj.userId,
-                      kind: obj.kind,
-                      kindId: obj.kindId,
-                      source: obj.source,
-                      remark: obj.remark,
-                      tag: value.toString(),
-                      updatedAt: obj.updatedAt,
-                      createdAt: obj.createdAt,
-                      info: obj.info,
-                    );
-                    // 调用 Provider 的 updateItem 方法
-                    notifier.updateItem(updatedObj);
-                    if (context.mounted) Navigator.pop(context);
-                  }
-                });
+                navigator
+                    .push(
+                      CupertinoPageRoute<dynamic>(
+                        builder: (context) => TagRelationPage(
+                          peerId: obj.kindId.toString(),
+                          peerTag: obj.tag,
+                          scene: 'collect',
+                          title: t.common.editTag,
+                        ),
+                      ),
+                    )
+                    .then((value) {
+                      if (value != null && value is String) {
+                        // 更新本地对象
+                        final updatedObj = UserCollectModel(
+                          userId: obj.userId,
+                          kind: obj.kind,
+                          kindId: obj.kindId,
+                          source: obj.source,
+                          remark: obj.remark,
+                          tag: value.toString(),
+                          updatedAt: obj.updatedAt,
+                          createdAt: obj.createdAt,
+                          info: obj.info,
+                        );
+                        // 调用 Provider 的 updateItem 方法
+                        notifier.updateItem(updatedObj);
+                        navigator.pop();
+                      }
+                    });
               },
               iconColor: Theme.of(context).colorScheme.tertiary,
             ),

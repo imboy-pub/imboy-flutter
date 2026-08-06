@@ -542,7 +542,11 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
 
   /// 删除设备
   Future<void> _deleteDevice(BuildContext context) async {
-    Navigator.of(context).pop(); // 关闭对话框
+    // 传进来的是 dialog builder 的 context，dialog pop 掉之后它就 defunct，
+    // `context.mounted` 恒为 false —— 删除成功后设备详情页根本不会退出。
+    // NavigatorState 必须在关闭 dialog 之前抓住。
+    final navigator = Navigator.of(context);
+    navigator.pop(); // 关闭对话框
 
     AppLoading.show(status: t.common.loading);
     try {
@@ -551,9 +555,9 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           .deleteDevice(widget.model.deviceId);
       AppLoading.dismiss();
 
-      if (res && context.mounted) {
+      if (res) {
         AppLoading.showSuccess(t.common.tipSuccess);
-        Navigator.of(context).pop(); // 返回设备列表页
+        navigator.pop(); // 返回设备列表页
       } else {
         AppLoading.showError(t.common.tipFailed);
       }

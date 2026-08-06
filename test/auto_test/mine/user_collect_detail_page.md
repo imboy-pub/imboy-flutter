@@ -12,7 +12,7 @@
 | 回归复测 | 2026-08-07 | `page/mine/user_collect/user_collect_detail_page.dart` | 复制文本类收藏到剪贴板 | 待重验 | 第八批 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/user_collect/user_collect_detail_page.dart` | 转发收藏给好友并推断消息类型 | 待重验 | 第八批 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/user_collect/user_collect_detail_page.dart` | 转发构造失败时兜底错误提示 | 待重验 | 第八批 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/mine/user_collect/user_collect_detail_page.dart` | 编辑标签并回写到收藏列表 | 待重验 | 第八批 | 0 | 0 | 0 | |
+| 待复验 | 2026-08-06 | `page/mine/user_collect/user_collect_detail_page.dart` | 编辑标签并回写到收藏列表 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 本轮新发现并已修：同款 sheet-context pop 隐患，改完标签不退回列表 |
 | 回归复测 | 2026-08-07 | `page/mine/user_collect/user_collect_detail_page.dart` | 设置备注并回写到收藏列表 | 待重验 | 第八批 | 0 | 0 | 0 | |
 | 待复验 | 2026-08-06 | `page/mine/user_collect/user_collect_detail_page.dart` | 删除收藏成功后给出结果反馈 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：补成功/失败双 toast；顺带修 pop 用 sheet context 致页面不退出 |
 | 回归复测 | 2026-08-07 | `page/mine/user_collect/user_collect_detail_page.dart` | 点击取消关闭底部操作面板 | 待重验 | 第八批 | 0 | 0 | 0 | |

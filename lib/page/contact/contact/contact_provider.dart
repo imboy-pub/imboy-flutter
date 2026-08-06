@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/api/contact_api.dart' as contact_provider;
@@ -205,7 +206,7 @@ class ContactNotifier extends _$ContactNotifier {
   }
 
   // 接收确认好友
-  void receivedConfirmFriend(Map<String, dynamic> data) {
+  Future<void> receivedConfirmFriend(Map<String, dynamic> data) async {
     if (!ref.mounted) return;
     final repo = ContactRepo();
     final json = {
@@ -226,7 +227,15 @@ class ContactNotifier extends _$ContactNotifier {
     };
     final newList = List<ContactModel>.from(state.contactList);
     newList.add(ContactModel.fromMap(json));
-    repo.save(json);
+    // 同 new_friend_provider：不 await 时落库异常被吞，通讯录里这位新好友
+    // 只活在内存里，重启即消失且全程无提示。
+    try {
+      await repo.save(json);
+    } catch (e) {
+      debugPrint("❌ [CONTACT] 新好友落库失败 peerId=${data['id']} error=$e");
+      AppLoading.showError(t.common.saveFailedRetry);
+    }
+    if (!ref.mounted) return;
     state = state.copyWith(contactList: newList);
   }
 }

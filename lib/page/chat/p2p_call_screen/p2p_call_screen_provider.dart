@@ -10,6 +10,7 @@ import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/config/init.dart' show webRTCSessions, p2pCallScreenOn;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_state_machine.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -53,7 +54,10 @@ class P2pCallScreenState {
   final bool connected;
   final bool showTool;
   final bool minimized;
-  final String stateTips;
+
+  /// 通话阶段 + 结束原因（唯一真值源，见 [CallStatus]）。
+  /// 原来是一条自由文本 stateTips，接通后无人清空导致文案与实际状态脱节。
+  final CallStatus callStatus;
   final String callDuration;
   final double localX;
   final double localY;
@@ -75,7 +79,7 @@ class P2pCallScreenState {
     this.connected = false,
     this.showTool = true,
     this.minimized = false,
-    this.stateTips = '',
+    this.callStatus = const CallStatus(),
     this.callDuration = '00:00',
     this.localX = 0.0,
     this.localY = 0.0,
@@ -94,7 +98,7 @@ class P2pCallScreenState {
     bool? connected,
     bool? showTool,
     bool? minimized,
-    String? stateTips,
+    CallStatus? callStatus,
     String? callDuration,
     double? localX,
     double? localY,
@@ -113,7 +117,7 @@ class P2pCallScreenState {
       connected: connected ?? this.connected,
       showTool: showTool ?? this.showTool,
       minimized: minimized ?? this.minimized,
-      stateTips: stateTips ?? this.stateTips,
+      callStatus: callStatus ?? this.callStatus,
       callDuration: callDuration ?? this.callDuration,
       localX: localX ?? this.localX,
       localY: localY ?? this.localY,
@@ -573,7 +577,12 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
           _iceDisconnectTimer = null;
           // 注意：此回调参数名为 state（遮蔽 Notifier.state），故用 setReconnecting
           setReconnecting(false);
-          updateConnected(true);
+          // 走与 SDP answer 相同的“接通”入口：否则这条路径只翻 connected 标志，
+          // 既不停应答超时定时器、也不启动通话计时、也不写 start_at。
+          onCallStateChange?.call(
+            newSession,
+            WebRTCCallState.callStateConnected,
+          );
           break;
 
         case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
@@ -816,9 +825,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       currentSession!.pc!.restartIce();
     } else {
       iPrint('> rtc ICE restart max attempts reached, connection failed');
-      // 超过重试次数，通知连接失败
-      onCallStateChange?.call(currentSession!, WebRTCCallState.callStateBye);
-      updateStateTips(t.common.errorNetwork);
+      // 超过重试次数：这是链路故障，不是对端挂断。原来复用 callStateBye
+      // 会让界面显示“对方已挂断”，并把通话记录写成对端挂断。
+      onCallStateChange?.call(currentSession!, WebRTCCallState.callStateFailed);
     }
   }
 
@@ -898,8 +907,13 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     tracks.first.enabled = !muted;
   }
 
-  void updateStateTips(String tips) {
-    state = state.copyWith(stateTips: tips);
+  /// 用信令/本地事件驱动状态机，返回迁移后的状态（页面据此决定收尾动作）。
+  CallStatus applySignal(CallSignal signal) {
+    final next = state.callStatus.apply(signal);
+    if (next != state.callStatus) {
+      state = state.copyWith(callStatus: next);
+    }
+    return next;
   }
 
   void updateStateError(
@@ -953,6 +967,8 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }
 
   void startAnswerTimer(VoidCallback onTimeout) {
+    // 重复起臂时先撤旧的，否则旧 Timer 无人持有也不会被取消。
+    _answerTimer?.cancel();
     _answerTimer = Timer(
       const Duration(seconds: CallTimeoutConfig.answerTimeout),
       () {

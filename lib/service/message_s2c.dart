@@ -653,7 +653,7 @@ class MessageS2CService {
       'source': payload['from']['source'],
     };
 
-    _container.read(contactProvider.notifier).receivedConfirmFriend(json);
+    await _container.read(contactProvider.notifier).receivedConfirmFriend(json);
 
     // 修正好友申请状态
     await _container

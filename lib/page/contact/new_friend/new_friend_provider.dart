@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/enum.dart';
@@ -10,6 +11,7 @@ import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 新好友状态类
 class NewFriendState {
@@ -86,7 +88,14 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
       ),
     };
     iPrint("> on receivedAddFriend from=$from to=$to");
-    (NewFriendRepo()).save(saveData);
+    // 不 await 的 Future 抛异常会变成未处理的异步错误被吞掉：申请没落库，
+    // UI 却毫无反馈，表现为「退出再进申请就丢了」。必须 await 并让失败可见。
+    try {
+      await (NewFriendRepo()).save(saveData);
+    } catch (e) {
+      iPrint("❌ [NEW_FRIEND] 好友申请落库失败 from=$from to=$to error=$e");
+      AppLoading.showError(t.common.saveFailedRetry);
+    }
     replaceItems(NewFriendModel.fromJson(saveData));
 
     // 使用事件总线发送 ACK
@@ -111,7 +120,12 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
     NewFriendModel? obj = await repo.findByFromTo(to, from);
     if (obj != null) {
       obj.status = NewFriendStatus.added.index;
-      repo.update({"from": to, "to": from, "status": obj.status});
+      try {
+        await repo.update({"from": to, "to": from, "status": obj.status});
+      } catch (e) {
+        iPrint("❌ [NEW_FRIEND] 好友申请状态更新失败 from=$to to=$from error=$e");
+        AppLoading.showError(t.common.saveFailedRetry);
+      }
       replaceItems(obj);
     }
     if (ack) {

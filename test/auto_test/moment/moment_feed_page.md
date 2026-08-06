@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/moment/moment_feed_page.dart` | 首屏加载并渲染朋友圈信息流 | 已通过 | 批次18 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/moment/moment_feed_page.dart` | 下拉刷新与缓存降级横幅重试 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_feed_page.dart` | 滚动触底加载更多与失败重试 | 待重验 | - | 0 | 0 | 0 | |
+| 待复验 | 2026-08-06 | `page/moment/moment_feed_page.dart` | 滚动触底加载更多与失败重试 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 本轮连带修复：moment_api 三处 hasMore=cursor非空 推导错误，判据已下沉到 fromPayload |
 | 回归复测 | 2026-08-07 | `page/moment/moment_feed_page.dart` | 点赞取消赞乐观更新与防抖 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/moment/moment_feed_page.dart` | 点「•••」弹出卡片操作面板 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/moment/moment_feed_page.dart` | 删除自己的动态并二次确认 | 待重验 | - | 0 | 0 | 0 | 真删生产动态 |

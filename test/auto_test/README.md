@@ -39,14 +39,14 @@
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
 | 无待办 | 227 | 14.8% |
-| 回归复测 | 741 | 48.2% |
+| 回归复测 | 737 | 47.9% |
 | 待首测 | 216 | 14.0% |
-| 待修复 | 12 | 0.8% |
-| 待复验 | 25 | 1.6% |
+| 待修复 | 8 | 0.5% |
+| 待复验 | 33 | 2.1% |
 | 阻塞 | 317 | 20.6% |
 | **合计** | **1538** | 100% |
 
-bug 累计：**发现 135 / 解决 109 / 待处理 26**
+bug 累计：**发现 139 / 解决 109 / 待处理 30**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -55,13 +55,13 @@ bug 累计：**发现 135 / 解决 109 / 待处理 26**
 | 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 回归复测 | 待首测 | 待修复 | 待复验 | 阻塞 |
 |---|---|---|---|---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 1 | 50 | 178 | 16 | 0 | 1 | 41 |
-| [mine](mine/) | 21 | 249 | 2 | 29 | 111 | 91 | 1 | 1 | 16 |
+| [mine](mine/) | 21 | 249 | 5 | 29 | 108 | 91 | 2 | 3 | 16 |
 | [channel](channel/) | 13 | 145 | 2 | 18 | 108 | 0 | 0 | 3 | 16 |
 | [contact](contact/) | 13 | 126 | 4 | 17 | 73 | 29 | 1 | 5 | 1 |
 | [personal_info](personal_info/) | 8 | 87 | 4 | 20 | 36 | 17 | 2 | 2 | 10 |
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 0 | 0 | 39 |
-| [chat](chat/) | 6 | 76 | 7 | 14 | 20 | 1 | 5 | 2 | 34 |
-| [moment](moment/) | 6 | 74 | 2 | 12 | 59 | 0 | 1 | 2 | 0 |
+| [chat](chat/) | 6 | 76 | 7 | 14 | 20 | 1 | 1 | 6 | 34 |
+| [moment](moment/) | 6 | 74 | 3 | 12 | 58 | 0 | 1 | 3 | 0 |
 | [wallet](wallet/) | 5 | 60 | 2 | 5 | 24 | 0 | 1 | 5 | 25 |
 | [user_tag](user_tag/) | 5 | 58 | 1 | 11 | 26 | 20 | 0 | 1 | 0 |
 | [single](single/) | 5 | 48 | 0 | 3 | 14 | 0 | 0 | 2 | 29 |
@@ -71,7 +71,7 @@ bug 累计：**发现 135 / 解决 109 / 待处理 26**
 | [live_room](live_room/) | 3 | 33 | 0 | 0 | 0 | 10 | 0 | 0 | 23 |
 | [scanner](scanner/) | 3 | 30 | 0 | 1 | 5 | 0 | 0 | 0 | 24 |
 | [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 5 | 0 | 0 | 0 | 0 | 7 |
-| [conversation](conversation/) | 1 | 12 | 1 | 4 | 7 | 0 | 1 | 0 | 0 |
+| [conversation](conversation/) | 1 | 12 | 1 | 4 | 7 | 0 | 0 | 1 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 0 | 0 | 6 | 0 | 0 | 6 |
 | [splash](splash/) | 1 | 12 | 0 | 3 | 5 | 2 | 0 | 0 | 2 |
 | [welcome](welcome/) | 1 | 12 | 0 | 0 | 0 | 0 | 0 | 0 | 12 |
@@ -175,7 +175,7 @@ bug 累计：**发现 135 / 解决 109 / 待处理 26**
 - [bind_mobile_page](mine/bind_mobile_page.md) — 12 功能点
 - [change_name_page](mine/change_name_page.md) — 11 功能点
 - [change_password_page](mine/change_password_page.md) — 12 功能点
-- [dark_model_page](mine/dark_model_page.md) — 9 功能点
+- [dark_model_page](mine/dark_model_page.md) — 9 功能点 ⚠️ 1 待处理
 - [denylist_page](mine/denylist_page.md) — 12 功能点
 - [feedback_detail_page](mine/feedback_detail_page.md) — 12 功能点
 - [feedback_page](mine/feedback_page.md) — 13 功能点
@@ -187,9 +187,9 @@ bug 累计：**发现 135 / 解决 109 / 待处理 26**
 - [set_password_page](mine/set_password_page.md) — 11 功能点
 - [setting_page](mine/setting_page.md) — 16 功能点
 - [storage_space_page](mine/storage_space_page.md) — 10 功能点
-- [user_collect_detail_page](mine/user_collect_detail_page.md) — 12 功能点 ⚠️ 1 待处理
+- [user_collect_detail_page](mine/user_collect_detail_page.md) — 12 功能点 ⚠️ 2 待处理
 - [user_collect_page](mine/user_collect_page.md) — 17 功能点
-- [user_device_detail_page](mine/user_device_detail_page.md) — 14 功能点
+- [user_device_detail_page](mine/user_device_detail_page.md) — 14 功能点 ⚠️ 1 待处理
 - [user_device_page](mine/user_device_page.md) — 14 功能点
 
 ### moment
@@ -197,7 +197,7 @@ bug 累计：**发现 135 / 解决 109 / 待处理 26**
 - [moment_at_picker_page](moment/moment_at_picker_page.md) — 10 功能点
 - [moment_create_page](moment/moment_create_page.md) — 14 功能点
 - [moment_detail_page](moment/moment_detail_page.md) — 13 功能点 ⚠️ 1 待处理
-- [moment_feed_page](moment/moment_feed_page.md) — 13 功能点
+- [moment_feed_page](moment/moment_feed_page.md) — 13 功能点 ⚠️ 1 待处理
 - [moment_friend_picker_page](moment/moment_friend_picker_page.md) — 12 功能点
 - [moment_notify_page](moment/moment_notify_page.md) — 12 功能点 ⚠️ 1 待处理
 
