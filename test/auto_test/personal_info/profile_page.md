@@ -6,7 +6,7 @@
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/personal_info/profile/profile_page.dart` | 子页编辑返回后自动重载资料 | 已通过 | §十七 | 1 | 1 | 0 | |
-| 待复验 | 2026-08-06 | `page/personal_info/profile/profile_page.dart` | 完善度进度与完善建议展示 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：chip 改 InkWell 并接 _pushThenReload 分发，触达区 44pt |
+| 无待办 | - | `page/personal_info/profile/profile_page.dart` | 完善度进度与完善建议展示 | 已通过 | 批次26 | 1 | 1 | 0 | 真机复验通过：chip 已 clickable，点「设置个性签名」正确弹出编辑框 |
 | 回归复测 | 2026-08-07 | `page/personal_info/profile/profile_page.dart` | 顶部刷新按钮重新拉取资料 | 待重验 | - | 0 | 0 | 0 | |
 | 待首测 | 2026-08-07 | `page/personal_info/profile/profile_page.dart` | 更多菜单分享资料到外部应用 | 未测 | - | 0 | 0 | 0 | |
 | 待首测 | 2026-08-07 | `page/personal_info/profile/profile_page.dart` | 更多菜单导出JSON或TXT到剪贴板 | 未测 | - | 0 | 0 | 0 | |

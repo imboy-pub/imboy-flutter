@@ -38,15 +38,15 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 223 | 14.5% |
+| 无待办 | 227 | 14.8% |
 | 回归复测 | 741 | 48.2% |
 | 待首测 | 216 | 14.0% |
-| 待修复 | 11 | 0.7% |
-| 待复验 | 30 | 2.0% |
+| 待修复 | 12 | 0.8% |
+| 待复验 | 25 | 1.6% |
 | 阻塞 | 317 | 20.6% |
 | **合计** | **1538** | 100% |
 
-bug 累计：**发现 135 / 解决 105 / 待处理 30**
+bug 累计：**发现 135 / 解决 109 / 待处理 26**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -58,20 +58,20 @@ bug 累计：**发现 135 / 解决 105 / 待处理 30**
 | [mine](mine/) | 21 | 249 | 2 | 29 | 111 | 91 | 1 | 1 | 16 |
 | [channel](channel/) | 13 | 145 | 2 | 18 | 108 | 0 | 0 | 3 | 16 |
 | [contact](contact/) | 13 | 126 | 4 | 17 | 73 | 29 | 1 | 5 | 1 |
-| [personal_info](personal_info/) | 8 | 87 | 5 | 19 | 36 | 17 | 2 | 3 | 10 |
+| [personal_info](personal_info/) | 8 | 87 | 4 | 20 | 36 | 17 | 2 | 2 | 10 |
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 0 | 0 | 39 |
-| [chat](chat/) | 6 | 76 | 8 | 13 | 20 | 1 | 5 | 3 | 34 |
+| [chat](chat/) | 6 | 76 | 7 | 14 | 20 | 1 | 5 | 2 | 34 |
 | [moment](moment/) | 6 | 74 | 2 | 12 | 59 | 0 | 1 | 2 | 0 |
 | [wallet](wallet/) | 5 | 60 | 2 | 5 | 24 | 0 | 1 | 5 | 25 |
 | [user_tag](user_tag/) | 5 | 58 | 1 | 11 | 26 | 20 | 0 | 1 | 0 |
 | [single](single/) | 5 | 48 | 0 | 3 | 14 | 0 | 0 | 2 | 29 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 6 | 25 | 10 | 0 | 1 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 2 | 10 | 14 | 0 | 0 | 10 |
-| [search](search/) | 3 | 35 | 2 | 3 | 19 | 0 | 0 | 2 | 11 |
+| [search](search/) | 3 | 35 | 0 | 5 | 19 | 0 | 0 | 0 | 11 |
 | [live_room](live_room/) | 3 | 33 | 0 | 0 | 0 | 10 | 0 | 0 | 23 |
 | [scanner](scanner/) | 3 | 30 | 0 | 1 | 5 | 0 | 0 | 0 | 24 |
 | [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 5 | 0 | 0 | 0 | 0 | 7 |
-| [conversation](conversation/) | 1 | 12 | 1 | 4 | 7 | 0 | 0 | 1 | 0 |
+| [conversation](conversation/) | 1 | 12 | 1 | 4 | 7 | 0 | 1 | 0 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 0 | 0 | 6 | 0 | 0 | 6 |
 | [splash](splash/) | 1 | 12 | 0 | 3 | 5 | 2 | 0 | 0 | 2 |
 | [welcome](welcome/) | 1 | 12 | 0 | 0 | 0 | 0 | 0 | 0 | 12 |
@@ -103,7 +103,7 @@ bug 累计：**发现 135 / 解决 105 / 待处理 30**
 ### chat
 
 - [chat_page](chat/chat_page.md) — 21 功能点 ⚠️ 2 待处理
-- [chat_setting_page](chat/chat_setting_page.md) — 10 功能点 ⚠️ 1 待处理
+- [chat_setting_page](chat/chat_setting_page.md) — 10 功能点
 - [p2p_call_screen_page](chat/p2p_call_screen_page.md) — 12 功能点 ⚠️ 3 待处理
 - [quick_reply_manage_page](chat/quick_reply_manage_page.md) — 11 功能点 ⚠️ 1 待处理
 - [rtc_room_page](chat/rtc_room_page.md) — 12 功能点
@@ -216,7 +216,7 @@ bug 累计：**发现 135 / 解决 105 / 待处理 30**
 - [more_page](personal_info/more_page.md) — 10 功能点 ⚠️ 1 待处理
 - [personal_info_page](personal_info/personal_info_page.md) — 11 功能点
 - [privacy_settings_page](personal_info/privacy_settings_page.md) — 11 功能点
-- [profile_page](personal_info/profile_page.md) — 12 功能点 ⚠️ 1 待处理
+- [profile_page](personal_info/profile_page.md) — 12 功能点
 - [set_gender_page](personal_info/set_gender_page.md) — 10 功能点 ⚠️ 1 待处理
 - [set_nickname_page](personal_info/set_nickname_page.md) — 11 功能点 ⚠️ 1 待处理
 - [set_region_page](personal_info/set_region_page.md) — 11 功能点 ⚠️ 1 待处理
@@ -237,8 +237,8 @@ bug 累计：**发现 135 / 解决 105 / 待处理 30**
 
 ### search
 
-- [message_search_page](search/message_search_page.md) — 12 功能点 ⚠️ 1 待处理
-- [search_chat_page](search/search_chat_page.md) — 11 功能点 ⚠️ 1 待处理
+- [message_search_page](search/message_search_page.md) — 12 功能点
+- [search_chat_page](search/search_chat_page.md) — 11 功能点
 - [web_search_page](search/web_search_page.md) — 12 功能点
 
 ### settings

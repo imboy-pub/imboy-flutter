@@ -15,4 +15,4 @@
 | 回归复测 | 2026-08-07 | `page/search/search_chat_page.dart` | 异步加载结果作者头像昵称 | 待重验 | 批次25 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/search/search_chat_page.dart` | 点结果跳聊天页并定位消息 | 待重验 | 批次25 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/search/search_chat_page.dart` | 无匹配结果时展示空态 | 待重验 | 批次25 | 0 | 0 | 0 | |
-| 待复验 | 2026-08-06 | `page/search/search_chat_page.dart` | 搜索框占位文案展示 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待真机复验：译文被机翻成 key 名直译，10 语言全部重译 |
+| 无待办 | - | `page/search/search_chat_page.dart` | 搜索框占位文案展示 | 已通过 | 批次26 | 1 | 1 | 0 | 真机复验通过：placeholder 已是「搜索聊天内容」 |
