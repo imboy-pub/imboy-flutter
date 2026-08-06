@@ -18,14 +18,14 @@ echo "[OK] 静态分析零警告"
 echo ""
 
 # 2. E2EE 单元测试套件
-echo "--- [2/3] flutter test test/service/e2ee/ ---"
-flutter test test/service/e2ee/ --reporter compact
+echo "--- [2/3] flutter test test/unit_test/service/e2ee/ ---"
+flutter test test/unit_test/service/e2ee/ --reporter compact
 echo ""
 
 # 3. 协议集成测试
-echo "--- [3/3] flutter test test/service/protocol/ ---"
-if ls test/service/protocol/*_test.dart 1>/dev/null 2>&1; then
-    flutter test test/service/protocol/ --reporter compact
+echo "--- [3/3] flutter test test/unit_test/service/protocol/ ---"
+if ls test/unit_test/service/protocol/*_test.dart 1>/dev/null 2>&1; then
+    flutter test test/unit_test/service/protocol/ --reporter compact
 else
     echo "[SKIP] 无 protocol 测试文件"
 fi

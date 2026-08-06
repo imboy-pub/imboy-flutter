@@ -60,7 +60,7 @@ jobs:
           # ':!plugin/'=vendored 第三方插件源码不归本仓风格约束。
           # 暂排 chat_page_utils_test.dart（X17）：HEAD 版旧格式，别线工作树已改好
           # 未提交，其提交落仓后须撤销该排除。
-          git ls-files -z '*.dart' ':!plugin/' ':!test/page/chat/chat/chat_page_utils_test.dart' | xargs -0 dart format --output=show --set-exit-if-changed
+          git ls-files -z '*.dart' ':!plugin/' ':!test/unit_test/page/chat/chat/chat_page_utils_test.dart' | xargs -0 dart format --output=show --set-exit-if-changed
 
       - name: Analyze code
         # errors 仍然阻断；warnings/infos 的 ratchet 计数由 quality.yml 负责，
@@ -76,24 +76,24 @@ jobs:
 
       - name: Run unit/widget tests
         run: |
-          # 排除 test/integration/（独立 job）与 test/smoke/（共享 isolate 会级联，
+          # 排除 test/unit_test/integration/（独立 job）与 test/unit_test/smoke/（共享 isolate 会级联，
           # 由专用隔离 runner job route-smoke-test 运行）。
           # 另排除两个环境依赖文件（X16，CI 无本地后端/非 macOS 必挂，本地全绿）：
           # - e2ee_health_check_service_test：直接实例化 E2EEApi 打真实后端（本地 9800）
           # - db_migration_encryption_test：isEncryptionSupported 断言 macOS 平台行为
-          TEST_FILES="$(find test -type f -name '*_test.dart' ! -path 'test/integration/*' ! -path 'test/smoke/*' ! -path 'test/service/e2ee_health_check_service_test.dart' ! -path 'test/service/db_migration_encryption_test.dart' | tr '\n' ' ')"
+          TEST_FILES="$(find test/unit_test -type f -name '*_test.dart' ! -path 'test/unit_test/integration/*' ! -path 'test/unit_test/smoke/*' ! -path 'test/unit_test/service/e2ee_health_check_service_test.dart' ! -path 'test/unit_test/service/db_migration_encryption_test.dart' | tr '\n' ' ')"
           if [ -z "$TEST_FILES" ]; then
-            echo "No unit/widget test files found outside test/integration/ and test/smoke/"
+            echo "No unit/widget test files found outside test/unit_test/integration/ and test/unit_test/smoke/"
             exit 0
           fi
           flutter test $TEST_FILES --reporter=github
 
       - name: Moment regression gate
         run: |
-          flutter test test/service/message_type_constants_test.dart --reporter=github
-          flutter test test/service/message_s2c_test.dart --reporter=github
-          flutter test test/service/moment_event_test.dart --reporter=github
-          flutter test test/page/moment/moment_routes_test.dart --reporter=github
+          flutter test test/unit_test/service/message_type_constants_test.dart --reporter=github
+          flutter test test/unit_test/service/message_s2c_test.dart --reporter=github
+          flutter test test/unit_test/service/moment_event_test.dart --reporter=github
+          flutter test test/unit_test/page/moment/moment_routes_test.dart --reporter=github
 
   # ----------------------------------------------------------------
   # E2EE Suite — 加密套件门（阻塞）
@@ -130,7 +130,7 @@ jobs:
       - name: Run E2EE suite
         run: |
           set -o pipefail
-          flutter test test/service/e2ee/ --reporter=github 2>&1 | tee e2ee-suite.log
+          flutter test test/unit_test/service/e2ee/ --reporter=github 2>&1 | tee e2ee-suite.log
 
       - name: Summarize E2EE suite
         if: always()
@@ -164,10 +164,10 @@ jobs:
           bash .github/scripts/ci_build_vod.sh
 
       - name: Run integration tests
-        run: flutter test test/integration/ --reporter=github
+        run: flutter test test/unit_test/integration/ --reporter=github
 
-      - name: Channel regression gate (test/integration)
-        run: flutter test test/integration/channel_integration_test.dart --reporter=github
+      - name: Channel regression gate (test/unit_test/integration)
+        run: flutter test test/unit_test/integration/channel_integration_test.dart --reporter=github
 
       # integration_test/（真机/桌面设备套件）不在 ubuntu 跑：
       # "Web devices are not supported for integration tests yet"（无 -d 设备）。
@@ -175,7 +175,7 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          flutter test test/integration/ --coverage
+          flutter test test/unit_test/integration/ --coverage
           mv coverage/lcov.info coverage/lcov.test_integration.info
           cp coverage/lcov.test_integration.info coverage/lcov.integration_test.info
 
@@ -341,8 +341,8 @@ jobs:
 
       - name: Run performance tests
         run: |
-          flutter test test/integration/conversation_state_mock_test.dart --reporter=github
-          flutter test test/integration/message_action_conversation_update_mock_test.dart --name="性能" --reporter=github
+          flutter test test/unit_test/integration/conversation_state_mock_test.dart --reporter=github
+          flutter test test/unit_test/integration/message_action_conversation_update_mock_test.dart --name="性能" --reporter=github
 
   # ----------------------------------------------------------------
   # DCO — 仅 PR 检查，验证所有 commits 带有 Signed-off-by
@@ -392,4 +392,4 @@ jobs:
           bash .github/scripts/ci_build_vod.sh
 
       - name: Run isolated route smoke test
-        run: bash test/smoke/run_smoke_isolated.sh --quiet
+        run: bash test/unit_test/smoke/run_smoke_isolated.sh --quiet

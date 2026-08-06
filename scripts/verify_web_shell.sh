@@ -7,8 +7,8 @@
 #   ./scripts/verify_web_shell.sh --no-server  # 不启动 http server
 #
 # 验证项 / Checks:
-#   1. flutter analyze lib/page/web_shell/ test/page/web_shell/    (静态分析零警告)
-#   2. flutter test test/page/web_shell/                           (12 个 _test.dart 文件)
+#   1. flutter analyze lib/page/web_shell/ test/unit_test/page/web_shell/    (静态分析零警告)
+#   2. flutter test test/unit_test/page/web_shell/                           (12 个 _test.dart 文件)
 #   3. flutter build web --release --no-tree-shake-icons           (完整构建)
 #   4. python3 -m http.server 9820 (build/web)                     (烟雾测试 server)
 #
@@ -50,7 +50,7 @@ echo ""
 
 # ─── flutter analyze ─────────────────────────────────────
 echo "==> [2/4] flutter analyze (web_shell 模块)"
-if flutter analyze lib/page/web_shell/ test/page/web_shell/ --no-fatal-infos; then
+if flutter analyze lib/page/web_shell/ test/unit_test/page/web_shell/ --no-fatal-infos; then
   echo "✅ analyze 零警告 / clean"
 else
   echo "❌ analyze 失败 / failed" >&2
@@ -60,7 +60,7 @@ echo ""
 
 # ─── flutter test (web_shell only) ────────────────────────
 echo "==> [3/4] flutter test (web_shell 模块, 应有 226 测全绿)"
-if flutter test test/page/web_shell/ --reporter compact; then
+if flutter test test/unit_test/page/web_shell/ --reporter compact; then
   echo "✅ web_shell 测试全绿 / tests pass"
 else
   echo "❌ 测试失败 / tests failed" >&2

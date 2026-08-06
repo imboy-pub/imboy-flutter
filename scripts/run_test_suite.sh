@@ -241,10 +241,10 @@ if [[ "$MODE" == "quick" ]]; then
     [[ -n "$test_file" ]] || continue
     QUICK_TEST_FILES+=("$test_file")
   done < <(
-    cd "$APP_ROOT" && find test -type f -name '*_test.dart' \
-      ! -path 'test/api/*' \
-      ! -path 'test/integration/*' \
-      ! -path 'test/smoke/*' \
+    cd "$APP_ROOT" && find test/unit_test -type f -name '*_test.dart' \
+      ! -path 'test/unit_test/api/*' \
+      ! -path 'test/unit_test/integration/*' \
+      ! -path 'test/unit_test/smoke/*' \
       | sort
   )
   if [[ "${#QUICK_TEST_FILES[@]}" -eq 0 ]]; then
@@ -269,7 +269,7 @@ if [[ "$MODE" != "quick" ]]; then
   elif [[ -z "$TEST_PHONE" || -z "$TEST_PASSWORD" ]]; then
     blocked "app_api_contract" "缺少 IMBOY_TEST_PHONE 或 IMBOY_TEST_PASSWORD"
   else
-    run_step "app_api_contract" required "$APP_ROOT" env API_BASE_URL="$API_BASE_URL" TEST_PHONE="$TEST_PHONE" TEST_PASSWORD="$TEST_PASSWORD" dart test test/api/ --concurrency=1 --timeout=60s
+    run_step "app_api_contract" required "$APP_ROOT" env API_BASE_URL="$API_BASE_URL" TEST_PHONE="$TEST_PHONE" TEST_PASSWORD="$TEST_PASSWORD" dart test test/unit_test/api/ --concurrency=1 --timeout=60s
   fi
 fi
 

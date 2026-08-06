@@ -61,10 +61,17 @@ lib/
 └── i18n/          # slang 生成物（*.g.dart），勿手动修改
 assets/i18n/       # 国际化源文件 <locale>/<namespace>.i18n.yaml（先改这里）
 assets/migrations/ # SQLite 迁移脚本
-test/              # 单元/集成测试
+test/              # 测试根目录 → test/CLAUDE.md
+├── unit_test/     #   单元/widget 测试（无需设备）
+├── auto_test/     #   测试计划表（137 页 / 1538 功能点，镜像 lib/page 结构）
+└── test_driver/   #   flutter drive 驱动入口
+integration_test/  # 端到端测试（需真机/桌面设备）—— 刻意留在根，勿移入 test/
 plugin/            # 插件源码（勿动 plugin/r_upgrade）
 scripts/           # 构建/测试脚本
 ```
+
+> ⚠️ `integration_test/` 必须留在仓库根：`flutter test` 不带路径会递归扫 `test/`，
+> 把需要设备的端到端测试扫进去会在无设备环境必然失败。详见 [test/CLAUDE.md](./test/CLAUDE.md)。
 
 **保留区（禁止修改）**：`ios/*`、`macos/*`、`plugin/r_upgrade`
 

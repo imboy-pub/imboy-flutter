@@ -3,7 +3,7 @@
 #
 # 设计原则：
 #   1. 不阻塞所有 push —— 后端不可达 / 未配置凭证时优雅跳过（exit 0）
-#   2. 只跑无设备的 Tier 1 API 契约测试（dart test test/api/）
+#   2. 只跑无设备的 Tier 1 API 契约测试（dart test test/unit_test/api/）
 #   3. 后端可达 + 凭证就绪 → 跑测试，失败则阻塞 push（exit 1）
 #   4. 紧急情况可用 IMBOY_SKIP_PRE_PUSH=1 强制跳过
 #
@@ -73,7 +73,7 @@ if ! command -v dart >/dev/null 2>&1; then
 fi
 
 # ─── 执行 Tier 1 API 契约测试 ───
-echo "[pre-push] 执行 Tier 1 API 契约测试 (test/api/) ..."
+echo "[pre-push] 执行 Tier 1 API 契约测试 (test/unit_test/api/) ..."
 echo "           API_BASE_URL=${API_BASE_URL}"
 echo "           TEST_PHONE=${TEST_PHONE}"
 echo ""
@@ -84,7 +84,7 @@ export API_BASE_URL TEST_PHONE TEST_PASSWORD
 # test-timeout：单测试最长 60s，防止后端 hang 住阻塞 push
 # 必须用 flutter test：pubspec 含 Flutter-only 依赖（patrol 等），
 # dart test 的 dart pub 解析会报 "requires the Flutter SDK" 必崩
-if flutter test test/api/ --concurrency=1 --timeout=60s; then
+if flutter test test/unit_test/api/ --concurrency=1 --timeout=60s; then
   echo ""
   echo "[pre-push] ✅ API 契约测试通过"
   exit 0

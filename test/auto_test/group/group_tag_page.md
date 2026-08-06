@@ -1,0 +1,17 @@
+# `page/group/tag/group_tag_page.dart`
+
+> 功能点 10 个 | bug 发现 0 / 解决 0 / 待处理 0
+> 索引：[../README.md](../README.md)
+
+| 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
+|---|---|---|---|---|---|---|---|---|---|
+| 回归复测 | 2026-08-07 | `page/group/tag/group_tag_page.dart` | 加载并渲染群标签列表 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/group/tag/group_tag_page.dart` | 弹窗输入名称新增群标签 | 已通过 | 首轮 | 0 | 0 | 0 | |
+| 回归复测 | 2026-08-07 | `page/group/tag/group_tag_page.dart` | 标签名为空时不发起新增 | 待重验 | - | 0 | 0 | 0 | |
+| 回归复测 | 2026-08-07 | `page/group/tag/group_tag_page.dart` | 删除标签并二次确认拦截 | 待重验 | - | 0 | 0 | 0 | |
+| 回归复测 | 2026-08-07 | `page/group/tag/group_tag_page.dart` | 删除成功后自动刷新列表 | 待重验 | - | 0 | 0 | 0 | |
+| 回归复测 | 2026-08-07 | `page/group/tag/group_tag_page.dart` | 新增与删除失败的错误提示 | 待重验 | - | 0 | 0 | 0 | |
+| 回归复测 | 2026-08-07 | `page/group/tag/group_tag_page.dart` | 下拉刷新重新拉取标签 | 待重验 | - | 0 | 0 | 0 | |
+| 回归复测 | 2026-08-07 | `page/group/tag/group_tag_page.dart` | 解析服务端颜色渲染标签圆点 | 待重验 | - | 0 | 0 | 0 | |
+| 回归复测 | 2026-08-07 | `page/group/tag/group_tag_page.dart` | 无标签时展示空态占位 | 待重验 | - | 0 | 0 | 0 | |
+| 回归复测 | 2026-08-07 | `page/group/tag/group_tag_page.dart` | 加载失败展示重试入口 | 待重验 | - | 0 | 0 | 0 | |
