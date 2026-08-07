@@ -59,7 +59,9 @@ class IconImageProvider extends ImageProvider<IconImageProvider> {
       ),
     );
     textPainter.layout();
-    textPainter.paint(canvas, Offset.zero);
+    final double xOffset = (size.toDouble() - textPainter.width) / 2;
+    final double yOffset = (size.toDouble() - textPainter.height) / 2;
+    textPainter.paint(canvas, Offset(xOffset, yOffset));
     final image = await recorder.endRecording().toImage(size, size);
     return ImageInfo(image: image, scale: key.scale);
   }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:xid/xid.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -48,8 +49,20 @@ class SendToNotifier extends Notifier<SendToState> {
   }
 
   /// 最近聊天
+  ///
+  /// 群会话的 `title` 列在库里通常是空的 —— 真实群名是会话页 load 时
+  /// `ConversationNotifier.computeTitle` 现算出来的（无名群还要回落成员昵称
+  /// 拼接，那一跳只存内存态 `computeTitle`，刻意不落库）。本页直读 SQLite，
+  /// 缺了这一跳就会把每个群都兜成「未命名」，用户搜真实群名也永远搜不出来。
+  /// 只对缺名的补算，复用同一份口径，别在这里另写一套。
   Future<void> conversationsList() async {
     final conversations = await (ConversationRepo()).list(limit: 100);
+    final notifier = ref.read(conversationProvider.notifier);
+    for (final conversation in conversations) {
+      if (conversation.resolvedTitle.isEmpty) {
+        conversation.title = await notifier.computeTitle(conversation);
+      }
+    }
     state = state.copyWith(
       conversations: conversations,
       searchResults: List.from(conversations),

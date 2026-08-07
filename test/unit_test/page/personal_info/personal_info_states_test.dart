@@ -56,6 +56,19 @@ void main() {
       expect(n.validationError, 'too long');
       expect(n.isSaving, true);
     });
+
+    // remainingCharsFor 是初始化和 onChange 共用的唯一口径。分成两处各写
+    // 一遍时真机复现过：昵称「117👩‍👩‍👧」进页面显示 13、敲键盘后跳成 20。
+    test('SN-4 剩余字数按字素簇算，ZWJ emoji 只计 1', () {
+      // 👩‍👩‍👧 = 5 码位 / 8 个 UTF-16 code unit，字素簇口径算 1
+      expect(SetNicknameNotifier.remainingCharsFor('117👩‍👩‍👧'), 20);
+      expect(SetNicknameNotifier.remainingCharsFor('117'), 21);
+      expect(SetNicknameNotifier.remainingCharsFor(''), 24);
+    });
+
+    test('SN-5 超长时钳到 0，不出负数', () {
+      expect(SetNicknameNotifier.remainingCharsFor('a' * 30), 0);
+    });
   });
 
   group('SetRegionState', () {

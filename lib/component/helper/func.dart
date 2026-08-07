@@ -418,11 +418,13 @@ DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {
   if (strEmpty(avatar)) {
     return DecorationImage(
       image: IconImageProvider(CupertinoIcons.person, size: w.toInt()),
+      alignment: Alignment.center,
       fit: BoxFit.cover,
     );
   }
   return DecorationImage(
     image: avatarImageProvider(avatar, w: w),
+    alignment: Alignment.center,
     fit: BoxFit.cover,
   );
 }

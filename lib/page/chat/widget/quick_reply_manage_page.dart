@@ -109,35 +109,15 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
   }
 
   /// 弹 Material 对话框，接收用户输入文本，取消时返回 null。
-  Future<String?> _promptText({
-    required String title,
-    String initial = '',
-  }) async {
-    final controller = TextEditingController(text: initial);
-    final result = await showDialog<String>(
+  ///
+  /// controller 须由对话框自身 State 持有（见 [_PromptDialog]）：在本
+  /// 方法作用域手动 dispose 会早于退出动画，动画帧重建 TextField 时
+  /// 触发 "used after being disposed"。
+  Future<String?> _promptText({required String title, String initial = ''}) {
+    return showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLength: QuickReplyService.maxTextLength,
-          decoration: InputDecoration(hintText: t.chat.quickReplyHint),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(t.common.buttonCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(controller.text),
-            child: Text(t.common.buttonConfirm),
-          ),
-        ],
-      ),
+      builder: (_) => _PromptDialog(title: title, initial: initial),
     );
-    controller.dispose();
-    return result;
   }
 
   @override
@@ -224,6 +204,59 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
                 );
               },
             ),
+    );
+  }
+}
+
+/// [_promptText] 的输入对话框。
+///
+/// controller 生命周期绑定本 widget，dispose 在对话框真正移出树后
+/// （退出动画结束）触发，而非随 showDialog 调用方作用域提前释放。
+class _PromptDialog extends StatefulWidget {
+  const _PromptDialog({required this.title, this.initial = ''});
+
+  final String title;
+  final String initial;
+
+  @override
+  State<_PromptDialog> createState() => _PromptDialogState();
+}
+
+class _PromptDialogState extends State<_PromptDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initial);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        maxLength: QuickReplyService.maxTextLength,
+        decoration: InputDecoration(hintText: t.chat.quickReplyHint),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(t.common.buttonCancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(_controller.text),
+          child: Text(t.common.buttonConfirm),
+        ),
+      ],
     );
   }
 }

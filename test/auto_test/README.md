@@ -1,7 +1,7 @@
 # imboyapp 自动化测试计划 —— 索引
 
 > **权威文档**。imboyapp 现有全部功能点（已完成 / 未完成 / 阻塞 全部纳入）。
-> 覆盖 **137 个页面 / 1538 个功能点**
+> 覆盖 **137 个页面 / 1540 个功能点**
 > 数据源：`lib/page/**` 真实源码抽取 ＋ 真机实测记录
 
 > ⚠️ 本文件由 `regen_readme.py` 生成，**不要手改**。
@@ -38,15 +38,15 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 235 | 15.3% |
-| 回归复测 | 736 | 47.9% |
-| 待首测 | 224 | 14.6% |
-| 待修复 | 3 | 0.2% |
-| 待复验 | 30 | 2.0% |
-| 阻塞 | 310 | 20.2% |
-| **合计** | **1538** | 100% |
+| 无待办 | 243 | 15.8% |
+| 回归复测 | 736 | 47.8% |
+| 待首测 | 223 | 14.5% |
+| 待修复 | 5 | 0.3% |
+| 待复验 | 23 | 1.5% |
+| 阻塞 | 310 | 20.1% |
+| **合计** | **1540** | 100% |
 
-bug 累计：**发现 143 / 解决 115 / 待处理 28**
+bug 累计：**发现 148 / 解决 127 / 待处理 21**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -55,15 +55,15 @@ bug 累计：**发现 143 / 解决 115 / 待处理 28**
 | 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 回归复测 | 待首测 | 待修复 | 待复验 | 阻塞 |
 |---|---|---|---|---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 1 | 50 | 178 | 16 | 0 | 1 | 41 |
-| [mine](mine/) | 21 | 249 | 3 | 32 | 108 | 91 | 0 | 2 | 16 |
-| [channel](channel/) | 13 | 145 | 2 | 18 | 108 | 0 | 0 | 3 | 16 |
+| [mine](mine/) | 21 | 249 | 0 | 34 | 108 | 91 | 0 | 0 | 16 |
+| [channel](channel/) | 13 | 145 | 1 | 19 | 108 | 0 | 0 | 2 | 16 |
 | [contact](contact/) | 13 | 126 | 4 | 19 | 73 | 29 | 1 | 1 | 3 |
-| [personal_info](personal_info/) | 8 | 87 | 4 | 20 | 36 | 17 | 1 | 3 | 10 |
+| [personal_info](personal_info/) | 8 | 88 | 4 | 21 | 36 | 17 | 1 | 3 | 10 |
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 0 | 0 | 39 |
-| [chat](chat/) | 6 | 76 | 7 | 16 | 20 | 9 | 1 | 5 | 25 |
-| [moment](moment/) | 6 | 74 | 3 | 12 | 58 | 0 | 0 | 4 | 0 |
-| [wallet](wallet/) | 5 | 60 | 2 | 5 | 24 | 0 | 0 | 6 | 25 |
-| [user_tag](user_tag/) | 5 | 58 | 1 | 12 | 25 | 20 | 0 | 1 | 0 |
+| [chat](chat/) | 6 | 76 | 5 | 17 | 20 | 9 | 1 | 4 | 25 |
+| [moment](moment/) | 6 | 74 | 2 | 13 | 58 | 0 | 0 | 3 | 0 |
+| [wallet](wallet/) | 5 | 61 | 2 | 6 | 24 | 0 | 1 | 5 | 25 |
+| [user_tag](user_tag/) | 5 | 58 | 1 | 13 | 25 | 19 | 1 | 0 | 0 |
 | [single](single/) | 5 | 48 | 0 | 3 | 14 | 0 | 0 | 2 | 29 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 6 | 25 | 10 | 0 | 1 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 2 | 10 | 14 | 0 | 0 | 10 |
@@ -95,7 +95,7 @@ bug 累计：**发现 143 / 解决 115 / 待处理 28**
 - [channel_discover_page](channel/channel_discover_page.md) — 10 功能点
 - [channel_edit_page](channel/channel_edit_page.md) — 11 功能点
 - [channel_invitation_page](channel/channel_invitation_page.md) — 11 功能点
-- [channel_list_page](channel/channel_list_page.md) — 12 功能点 ⚠️ 1 待处理
+- [channel_list_page](channel/channel_list_page.md) — 12 功能点
 - [channel_order_detail_page](channel/channel_order_detail_page.md) — 10 功能点
 - [channel_order_list_page](channel/channel_order_list_page.md) — 9 功能点
 - [channel_subscriber_page](channel/channel_subscriber_page.md) — 12 功能点
@@ -107,7 +107,7 @@ bug 累计：**发现 143 / 解决 115 / 待处理 28**
 - [p2p_call_screen_page](chat/p2p_call_screen_page.md) — 12 功能点 ⚠️ 3 待处理
 - [quick_reply_manage_page](chat/quick_reply_manage_page.md) — 11 功能点
 - [rtc_room_page](chat/rtc_room_page.md) — 12 功能点
-- [send_to_page](chat/send_to_page.md) — 10 功能点 ⚠️ 2 待处理
+- [send_to_page](chat/send_to_page.md) — 10 功能点
 
 ### contact
 
@@ -180,14 +180,14 @@ bug 累计：**发现 143 / 解决 115 / 待处理 28**
 - [feedback_detail_page](mine/feedback_detail_page.md) — 12 功能点
 - [feedback_page](mine/feedback_page.md) — 13 功能点
 - [font_size_page](mine/font_size_page.md) — 10 功能点
-- [language_page](mine/language_page.md) — 9 功能点 ⚠️ 1 待处理
+- [language_page](mine/language_page.md) — 9 功能点
 - [logout_account_page](mine/logout_account_page.md) — 12 功能点
 - [mine_page](mine/mine_page.md) — 12 功能点
 - [select_region_page](mine/select_region_page.md) — 10 功能点
 - [set_password_page](mine/set_password_page.md) — 11 功能点
 - [setting_page](mine/setting_page.md) — 16 功能点
 - [storage_space_page](mine/storage_space_page.md) — 10 功能点
-- [user_collect_detail_page](mine/user_collect_detail_page.md) — 12 功能点 ⚠️ 2 待处理
+- [user_collect_detail_page](mine/user_collect_detail_page.md) — 12 功能点
 - [user_collect_page](mine/user_collect_page.md) — 17 功能点
 - [user_device_detail_page](mine/user_device_detail_page.md) — 14 功能点
 - [user_device_page](mine/user_device_page.md) — 14 功能点
@@ -199,7 +199,7 @@ bug 累计：**发现 143 / 解决 115 / 待处理 28**
 - [moment_detail_page](moment/moment_detail_page.md) — 13 功能点 ⚠️ 1 待处理
 - [moment_feed_page](moment/moment_feed_page.md) — 13 功能点 ⚠️ 1 待处理
 - [moment_friend_picker_page](moment/moment_friend_picker_page.md) — 12 功能点
-- [moment_notify_page](moment/moment_notify_page.md) — 12 功能点 ⚠️ 1 待处理
+- [moment_notify_page](moment/moment_notify_page.md) — 12 功能点
 
 ### passport
 
@@ -218,7 +218,7 @@ bug 累计：**发现 143 / 解决 115 / 待处理 28**
 - [privacy_settings_page](personal_info/privacy_settings_page.md) — 11 功能点
 - [profile_page](personal_info/profile_page.md) — 12 功能点
 - [set_gender_page](personal_info/set_gender_page.md) — 10 功能点 ⚠️ 1 待处理
-- [set_nickname_page](personal_info/set_nickname_page.md) — 11 功能点 ⚠️ 1 待处理
+- [set_nickname_page](personal_info/set_nickname_page.md) — 12 功能点 ⚠️ 1 待处理
 - [set_region_page](personal_info/set_region_page.md) — 11 功能点 ⚠️ 1 待处理
 - [update_page](personal_info/update_page.md) — 11 功能点
 
@@ -262,9 +262,9 @@ bug 累计：**发现 143 / 解决 115 / 待处理 28**
 ### user_tag
 
 - [contact_tag_detail_page](user_tag/contact_tag_detail_page.md) — 11 功能点
-- [contact_tag_list_page](user_tag/contact_tag_list_page.md) — 12 功能点 ⚠️ 1 待处理
+- [contact_tag_list_page](user_tag/contact_tag_list_page.md) — 12 功能点
 - [select_tag_friend_page](user_tag/select_tag_friend_page.md) — 12 功能点
-- [tag_relation_page](user_tag/tag_relation_page.md) — 12 功能点
+- [tag_relation_page](user_tag/tag_relation_page.md) — 12 功能点 ⚠️ 1 待处理
 - [user_tag_save_page](user_tag/user_tag_save_page.md) — 11 功能点
 
 ### wallet
@@ -273,7 +273,7 @@ bug 累计：**发现 143 / 解决 115 / 待处理 28**
 - [red_packet_send_page](wallet/red_packet_send_page.md) — 12 功能点
 - [transfer_send_page](wallet/transfer_send_page.md) — 12 功能点
 - [wallet_page](wallet/wallet_page.md) — 12 功能点
-- [withdraw_page](wallet/withdraw_page.md) — 12 功能点 ⚠️ 1 待处理
+- [withdraw_page](wallet/withdraw_page.md) — 13 功能点 ⚠️ 1 待处理
 
 ### web_shell
 

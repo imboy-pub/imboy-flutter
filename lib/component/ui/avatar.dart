@@ -128,6 +128,7 @@ class Avatar extends StatelessWidget {
     Widget avatarContent = Container(
       width: w,
       height: h,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.circular(radius),

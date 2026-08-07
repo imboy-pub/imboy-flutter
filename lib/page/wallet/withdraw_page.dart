@@ -309,7 +309,9 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
 
               WalletPrimaryButton(
                 label: t.common.withdrawConfirm,
-                color: AppColors.getIosRed(brightness),
+                // 与二次确认弹窗同一条判据：提现不是破坏性操作，iosRed 留给
+                // 删除/退出。转账页同为资金主操作，也用 primary。
+                color: AppColors.primary,
                 onPressed: () {
                   FocusScope.of(context).unfocus();
                   _handleWithdraw(balanceYuan);

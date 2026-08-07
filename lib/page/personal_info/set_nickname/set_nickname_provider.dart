@@ -63,12 +63,24 @@ class SetNicknameNotifier extends _$SetNicknameNotifier {
     '官方',
   ];
 
+  /// 剩余可输入字数。**初始化和 onChange 必须共用这一个** —— 两处各写一遍
+  /// 就是上一轮的 bug：build() 用 String.length、onChange 用字素簇，
+  /// 真机实测昵称「117👩‍👩‍👧」进页面显示 13、敲一下键盘跳成 20。
+  ///
+  /// 口径必须是字素簇：String.length 是 UTF-16 code unit 数，一个
+  /// 👨‍👩‍👧‍👦 占 11；而输入框的 `maxLength: 24` 走
+  /// LengthLimitingTextInputFormatter，按字素簇截断。口径不一致时输入框
+  /// 放行的内容会被判成超长：计数归零、校验报错、存不下去。
+  @visibleForTesting
+  static int remainingCharsFor(String value) =>
+      (24 - value.characters.length).clamp(0, 24);
+
   @override
   SetNicknameState build() {
     _initData();
     return SetNicknameState(
       nickname: originalNickname,
-      remainingChars: 24 - originalNickname.length,
+      remainingChars: remainingCharsFor(originalNickname),
     );
   }
 
@@ -102,20 +114,11 @@ class SetNicknameNotifier extends _$SetNicknameNotifier {
 
     final canSave = validationError.isEmpty && trimmedText != originalNickname;
 
-    // 更新剩余字数。
-    //
-    // 必须用字素簇（characters）而不是 String.length —— 后者是 UTF-16 code
-    // unit 数，一个 👨‍👩‍👧‍👦 就占 11。而输入框的 `maxLength: 24` 走的是
-    // LengthLimitingTextInputFormatter，它按字素簇截断。两个口径不一致时，
-    // 输入框放行的内容会被这里判成超长：计数归零、校验报错、存不下去。
-    final currentLength = value.characters.length;
-    final remainingChars = (24 - currentLength).clamp(0, 24);
-
     state = state.copyWith(
       nickname: value,
       canSave: canSave,
       validationError: validationError,
-      remainingChars: remainingChars,
+      remainingChars: remainingCharsFor(value),
     );
   }
 
