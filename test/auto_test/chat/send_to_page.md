@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 待修复 | 2026-08-06 | `page/chat/send_to/send_to_page.dart` | 加载可转发的会话联系人列表 | 有BUG | 批次27 | 2 | 0 | 2 | 批次27 真机新发现两处：①群会话标题为空（会话列表页有兜底名，本页无，同源于 conversation 的 computeTitle 未复用）②ListTile 被 ColoredBox 包裹致 ink splash 不可见，FlutterError 刷屏 |
+| 待复验 | 2026-08-07 | `page/chat/send_to/send_to_page.dart` | 加载可转发的会话联系人列表 | BUG已修待验 | 批次27 | 2 | 0 | 2 | 批次27 真机发现两处，均已修待验：①群会话标题为空 —— 本页用裸 `contact.title`，而 `ConversationModel.displayTitle` 的注释明确要求 UI 一律走它；连带修了 provider 搜索同样用裸 title（导致群名搜不出来）②`Container(color:)` 的 ColoredBox 挡在 Scaffold 的 Material 与 ListTile 之间，水波纹画不出且刷 "ink was not painted" —— 改用 Scaffold.backgroundColor，去掉整层容器 |
 | 回归复测 | 2026-08-07 | `page/chat/send_to/send_to_page.dart` | 输入关键词过滤联系人 | 待重验 | 批次20 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/chat/send_to/send_to_page.dart` | 点选与取消选择联系人 | 待重验 | 批次20 | 0 | 0 | 0 | |
 | 无待办 | — | `page/chat/send_to/send_to_page.dart` | 点发送转发消息给选中对象 | 已通过 | 批次20 | 1 | 1 | 0 | |

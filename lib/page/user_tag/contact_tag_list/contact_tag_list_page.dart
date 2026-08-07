@@ -117,6 +117,10 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
     Brightness brightness,
     int totalCount,
   ) {
+    final subtitleText = ContactTagListNotifier.buildListSubtitle(
+      obj,
+      t.common.noData,
+    );
     return Slidable(
       key: ValueKey(obj.tagId),
       endActionPane: ActionPane(
@@ -155,9 +159,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
               await ref.read(contactTagListProvider.notifier).loadData();
             },
             title: Text('${obj.name} (${obj.refererTime})'),
-            subtitle: Text(
-              obj.subtitle.isEmpty ? t.common.noData : obj.subtitle,
-            ),
+            subtitle: subtitleText == null ? null : Text(subtitleText),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

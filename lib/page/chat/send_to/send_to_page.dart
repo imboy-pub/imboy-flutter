@@ -47,6 +47,10 @@ class _SendToPageState extends ConsumerState<SendToPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      // 底色走 Scaffold 而不是包一层 Container：Container 的 ColoredBox 会挡在
+      // Scaffold 的 Material 和下面的 ListTile 之间，点击水波纹画不出来，
+      // 且 Flutter 会持续刷 "ink was not painted" 错误（批次27 真机实测）。
+      backgroundColor: colorScheme.surface,
       appBar: GlassAppBar(
         titleWidget: Text(
           t.chat.forwardTo,
@@ -76,120 +80,119 @@ class _SendToPageState extends ConsumerState<SendToPage> {
           ),
         ],
       ),
-      body: Container(
-        color: colorScheme.surface,
-        child: Column(
-          children: [
-            // 搜索框
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.regular),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: t.common.search,
-                  hintStyle: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize:
-                        textTheme.bodyMedium?.fontSize ??
-                        FontSizeType.normal.size,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: colorScheme.onSurfaceVariant,
-                    size: textTheme.bodyMedium?.fontSize ?? 14,
-                  ),
-                  filled: true,
-                  fillColor: colorScheme.surfaceContainerHighest,
-                  border: OutlineInputBorder(
-                    borderRadius: AppRadius.borderRadiusXLarge,
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: TextStyle(
-                  color: colorScheme.onSurface,
+      body: Column(
+        children: [
+          // 搜索框
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.regular),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: t.common.search,
+                hintStyle: TextStyle(
+                  color: colorScheme.onSurfaceVariant,
                   fontSize:
                       textTheme.bodyMedium?.fontSize ??
                       FontSizeType.normal.size,
                 ),
-                onChanged: (query) {
-                  ref.read(sendToProvider.notifier).search(query);
-                },
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: colorScheme.onSurfaceVariant,
+                  size: textTheme.bodyMedium?.fontSize ?? 14,
+                ),
+                filled: true,
+                fillColor: colorScheme.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: AppRadius.borderRadiusXLarge,
+                  borderSide: BorderSide.none,
+                ),
               ),
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize:
+                    textTheme.bodyMedium?.fontSize ?? FontSizeType.normal.size,
+              ),
+              onChanged: (query) {
+                ref.read(sendToProvider.notifier).search(query);
+              },
             ),
-            // 联系人列表
-            Expanded(
-              child: Consumer(
-                builder: (context, ref, child) {
-                  final state = ref.watch(sendToProvider);
-                  final searchResults = state.searchResults;
-                  final selectedContacts = state.selectedContacts;
+          ),
+          // 联系人列表
+          Expanded(
+            child: Consumer(
+              builder: (context, ref, child) {
+                final state = ref.watch(sendToProvider);
+                final searchResults = state.searchResults;
+                final selectedContacts = state.selectedContacts;
 
-                  if (searchResults.isEmpty) {
-                    return Center(
-                      child: Text(
-                        t.common.noContacts,
+                if (searchResults.isEmpty) {
+                  return Center(
+                    child: Text(
+                      t.common.noContacts,
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant,
+                        fontSize:
+                            textTheme.bodyMedium?.fontSize ??
+                            FontSizeType.normal.size,
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: searchResults.length,
+                  itemBuilder: (context, index) {
+                    final contact = searchResults[index];
+                    final isSelected = selectedContacts.any(
+                      (element) => element.id == contact.id,
+                    );
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage: avatarImageProvider(contact.avatar),
+                        backgroundColor: colorScheme.primaryContainer,
+                        child: null,
+                      ),
+                      title: Text(
+                        // 必须走 displayTitle：裸 title 对群会话可能是空串，
+                        // 本页因此整行没有标题（批次27 真机实测），
+                        // 而会话列表页有兜底 —— 同一份数据两种呈现。
+                        contact.displayTitle,
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
+                          fontSize:
+                              textTheme.titleMedium?.fontSize ??
+                              FontSizeType.medium.size,
+                        ),
+                      ),
+                      subtitle: Text(
+                        contact.subtitle,
                         style: TextStyle(
                           color: colorScheme.onSurfaceVariant,
                           fontSize:
-                              textTheme.bodyMedium?.fontSize ??
-                              FontSizeType.normal.size,
+                              textTheme.bodySmall?.fontSize ??
+                              FontSizeType.small.size,
                         ),
                       ),
+                      trailing: Icon(
+                        isSelected
+                            ? CupertinoIcons.checkmark_circle
+                            : CupertinoIcons.circle,
+                        color: isSelected
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                      onTap: () {
+                        ref
+                            .read(sendToProvider.notifier)
+                            .toggleContactSelection(contact);
+                      },
                     );
-                  }
-
-                  return ListView.builder(
-                    itemCount: searchResults.length,
-                    itemBuilder: (context, index) {
-                      final contact = searchResults[index];
-                      final isSelected = selectedContacts.any(
-                        (element) => element.id == contact.id,
-                      );
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: avatarImageProvider(contact.avatar),
-                          backgroundColor: colorScheme.primaryContainer,
-                          child: null,
-                        ),
-                        title: Text(
-                          contact.title,
-                          style: TextStyle(
-                            color: colorScheme.onSurface,
-                            fontSize:
-                                textTheme.titleMedium?.fontSize ??
-                                FontSizeType.medium.size,
-                          ),
-                        ),
-                        subtitle: Text(
-                          contact.subtitle,
-                          style: TextStyle(
-                            color: colorScheme.onSurfaceVariant,
-                            fontSize:
-                                textTheme.bodySmall?.fontSize ??
-                                FontSizeType.small.size,
-                          ),
-                        ),
-                        trailing: Icon(
-                          isSelected
-                              ? CupertinoIcons.checkmark_circle
-                              : CupertinoIcons.circle,
-                          color: isSelected
-                              ? colorScheme.primary
-                              : colorScheme.onSurfaceVariant,
-                        ),
-                        onTap: () {
-                          ref
-                              .read(sendToProvider.notifier)
-                              .toggleContactSelection(contact);
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
+                  },
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

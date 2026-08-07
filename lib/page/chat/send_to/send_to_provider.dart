@@ -156,7 +156,11 @@ class SendToNotifier extends Notifier<SendToState> {
         : state.conversations
               .where(
                 (contact) =>
-                    contact.title.toLowerCase().contains(query.toLowerCase()),
+                    // 同 send_to_page：按 displayTitle 匹配。裸 title 对群会话
+                    // 可能是空串，那样用户搜群名永远搜不出来。
+                    contact.displayTitle.toLowerCase().contains(
+                      query.toLowerCase(),
+                    ),
               )
               .toList();
     state = state.copyWith(searchResults: results);

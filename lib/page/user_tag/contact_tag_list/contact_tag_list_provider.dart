@@ -251,6 +251,24 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
     state = state.copyWith(items: newItems);
   }
 
+  /// 列表副标题：拿不到成员预览时返回 null（不渲染副标题），而不是谎报空态。
+  ///
+  /// `subtitle` 是纯本地派生列 —— 服务端 `user_tag/page` 不返回它，
+  /// 只有在本机进过详情页增删成员时才由 `setObject` 写入（BUG#74 的修法）。
+  /// 而 `refererTime` 是服务端给的权威成员数。两者来源不同，
+  /// 于是任何从服务端新拉下来的标签必然 subtitle 为空 ——
+  /// 旧代码一律回退到「暂无数据」，和标题算出的 (2) 当场打架
+  /// （批次27 真机实测 qa0804：详情页确有 2 名成员）。
+  ///
+  /// 成员数已经在标题里，副标题只是锦上添花，缺了不损失信息；
+  /// 但说反话会。真的零成员时「暂无数据」才是真话。
+  /// 不在这里补拉成员列表：详情页的成员走 API `pageRelation`，
+  /// 每个标签补一次就是 N+1 个请求，为一行预览不值。
+  static String? buildListSubtitle(UserTagModel tag, String noDataText) {
+    if (tag.subtitle.isNotEmpty) return tag.subtitle;
+    return tag.refererTime == 0 ? noDataText : null;
+  }
+
   /// 加载初始数据
   Future<void> loadData() async {
     state = state.copyWith(page: 1, isLoading: true);
