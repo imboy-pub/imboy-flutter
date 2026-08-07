@@ -2482,7 +2482,7 @@ class _Translations$momentNotify$ja_JP extends Translations$momentNotify$zh_CN {
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '通知';
+	@override String get title => 'アクティビティ';
 	@override String get emptyTitle => '新しい通知はありません';
 	@override String get emptyHint => '友達からの「いいね」やコメントはここに表示されます';
 	@override String get actionLike => 'があなたのモーメントに「いいね」しました';
@@ -4785,7 +4785,7 @@ extension on TranslationsJaJp {
 			'momentFriendPicker.emptyTags' => 'タグはありません',
 			'momentFriendPicker.tagLoadFailed' => 'タグの読み込みに失敗しました',
 			'momentFriendPicker.searchHint' => '友達を検索',
-			'momentNotify.title' => '通知',
+			'momentNotify.title' => 'アクティビティ',
 			'momentNotify.emptyTitle' => '新しい通知はありません',
 			'momentNotify.emptyHint' => '友達からの「いいね」やコメントはここに表示されます',
 			'momentNotify.actionLike' => 'があなたのモーメントに「いいね」しました',

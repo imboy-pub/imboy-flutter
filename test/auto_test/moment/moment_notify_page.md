@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 待修复 | 2026-08-06 | `page/moment/moment_notify/moment_notify_page.dart` | 页面标题表达通知类型 | 有BUG待修 | 批次18 | 1 | 0 | 1 | P3 未修：标题过于泛化 |
+| 待复验 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 页面标题表达通知类型 | BUG已修待验 | 批次27 | 1 | 0 | 1 | 标题原为泛化的「消息通知/Notifications」。10 个语言已改为互动语义（互动消息／互動訊息／Interactions／Interaktionen／Interazioni／Взаимодействия／التفاعلات／アクティビティ／활동），值一律加引号规避 slang 裸值陷阱，已 `dart run slang` 重生成，待真机看标题栏 |
 | 无待办 | - | `page/moment/moment_notify/moment_notify_page.dart` | 无通知时展示友好空态 | 已通过 | 批次18 | 0 | 0 | 0 | |
 | 无待办 | - | `page/moment/moment_notify/moment_notify_page.dart` | 加载并渲染点赞评论通知列表 | 已通过 | 批次18 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 下拉刷新重新拉取通知 | 待重验 | - | 0 | 0 | 0 | |

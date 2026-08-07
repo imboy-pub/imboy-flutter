@@ -2485,7 +2485,7 @@ class _Translations$momentNotify$fr_FR extends Translations$momentNotify$zh_CN {
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Notifications';
+	@override String get title => 'Interactions';
 	@override String get emptyTitle => 'Aucune nouvelle notification';
 	@override String get emptyHint => 'Les « J\'aime » et commentaires de vos amis s\'affichent ici';
 	@override String get actionLike => 'a aimé votre moment';
@@ -4788,7 +4788,7 @@ extension on TranslationsFrFr {
 			'momentFriendPicker.emptyTags' => 'Aucune étiquette',
 			'momentFriendPicker.tagLoadFailed' => 'Échec du chargement des étiquettes',
 			'momentFriendPicker.searchHint' => 'Rechercher un ami',
-			'momentNotify.title' => 'Notifications',
+			'momentNotify.title' => 'Interactions',
 			'momentNotify.emptyTitle' => 'Aucune nouvelle notification',
 			'momentNotify.emptyHint' => 'Les « J\'aime » et commentaires de vos amis s\'affichent ici',
 			'momentNotify.actionLike' => 'a aimé votre moment',

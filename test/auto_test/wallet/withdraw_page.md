@@ -13,7 +13,7 @@
 | 回归复测 | 2026-08-07 | `page/wallet/withdraw_page.dart` | 校验支付宝邮箱或手机号格式 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/wallet/withdraw_page.dart` | 校验微信号 6-20 位字母开头 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/wallet/withdraw_page.dart` | 二次确认展示金额渠道账号 | 待重验 | - | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/wallet/withdraw_page.dart` | 确认按钮使用破坏性红配色 | 有BUG待修 | 批次22 | 1 | 0 | 1 | P3 未定级：`isDestructiveAction` + `iosRed`，但提现不是破坏性操作 |
+| 待复验 | 2026-08-07 | `page/wallet/withdraw_page.dart` | 确认按钮使用破坏性红配色 | BUG已修待验 | 批次27 | 1 | 0 | 1 | 提现不是破坏性操作，iosRed 是留给删除/退出这类不可逆动作的。已把确认按钮从 `isDestructiveAction` 改为 `isDefaultAction`（主操作语义，加粗蓝），待真机看弹窗配色 |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/withdraw_page.dart` | 提交提现请求并刷新余额返回 | 未测 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/wallet/withdraw_page.dart` | 展示手续费与到账时效中性说明 | 待重验 | - | 0 | 0 | 0 | |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/withdraw_page.dart` | 提现失败错误提示 | 未测 | - | 0 | 0 | 0 | |

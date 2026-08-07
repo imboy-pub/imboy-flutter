@@ -6,7 +6,7 @@
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
 | 回归复测 | 2026-08-07 | `page/mine/dark_model/dark_model_page.dart` | 切换跟随系统主题开关 | 待重验 | §十七 | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/mine/dark_model/dark_model_page.dart` | 开启跟随系统时隐藏主题选项组 | 有BUG待修 | 批次26 | 1 | 0 | 1 | 本轮发现预存红灯（非本轮引入）：dark_model_page_test 的「浅色」用例找不到文案「系统默认」Found 0 widgets，需核实是测试写错还是页面缺项 |
+| 无待办 | — | `page/mine/dark_model/dark_model_page.dart` | 开启跟随系统时隐藏主题选项组 | 已通过 | 批次27 | 1 | 1 | 0 | 预存红灯已定性：**测试写错，页面一直是对的**。selectIndex=2 走 tapDarkItem(2)→强制浅色，页面早按 QA#56 把文案从「系统默认」改为「浅色模式」，只有这条断言没跟着改。修断言后 8/8 全绿 |
 | 无待办 | - | `page/mine/dark_model/dark_model_page.dart` | 选择强制浅色主题并即时生效 | 已通过 | §十七 | 1 | 1 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/dark_model/dark_model_page.dart` | 选择强制深色主题并即时生效 | 待重验 | §十七 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/dark_model/dark_model_page.dart` | 当前选中项显示对勾标记 | 待重验 | §十七 | 0 | 0 | 0 | |

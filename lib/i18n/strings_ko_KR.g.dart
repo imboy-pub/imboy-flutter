@@ -2482,7 +2482,7 @@ class _Translations$momentNotify$ko_KR extends Translations$momentNotify$zh_CN {
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '알림';
+	@override String get title => '활동';
 	@override String get emptyTitle => '새 알림이 없습니다';
 	@override String get emptyHint => '친구가 내 모멘트에 좋아요나 댓글을 남기면 여기에 표시됩니다';
 	@override String get actionLike => '님이 회원님의 모멘트를 좋아합니다';
@@ -4785,7 +4785,7 @@ extension on TranslationsKoKr {
 			'momentFriendPicker.emptyTags' => '태그가 없습니다',
 			'momentFriendPicker.tagLoadFailed' => '태그를 불러오지 못했습니다',
 			'momentFriendPicker.searchHint' => '친구 검색',
-			'momentNotify.title' => '알림',
+			'momentNotify.title' => '활동',
 			'momentNotify.emptyTitle' => '새 알림이 없습니다',
 			'momentNotify.emptyHint' => '친구가 내 모멘트에 좋아요나 댓글을 남기면 여기에 표시됩니다',
 			'momentNotify.actionLike' => '님이 회원님의 모멘트를 좋아합니다',

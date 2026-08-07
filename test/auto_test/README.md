@@ -38,15 +38,15 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 234 | 15.2% |
+| 无待办 | 235 | 15.3% |
 | 回归复测 | 736 | 47.9% |
 | 待首测 | 224 | 14.6% |
-| 待修复 | 8 | 0.5% |
-| 待复验 | 26 | 1.7% |
+| 待修复 | 5 | 0.3% |
+| 待复验 | 28 | 1.8% |
 | 阻塞 | 310 | 20.2% |
 | **合计** | **1538** | 100% |
 
-bug 累计：**发现 143 / 解决 114 / 待处理 29**
+bug 累计：**发现 143 / 解决 115 / 待处理 28**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -55,14 +55,14 @@ bug 累计：**发现 143 / 解决 114 / 待处理 29**
 | 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 回归复测 | 待首测 | 待修复 | 待复验 | 阻塞 |
 |---|---|---|---|---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 1 | 50 | 178 | 16 | 0 | 1 | 41 |
-| [mine](mine/) | 21 | 249 | 4 | 31 | 108 | 91 | 2 | 1 | 16 |
+| [mine](mine/) | 21 | 249 | 3 | 32 | 108 | 91 | 1 | 1 | 16 |
 | [channel](channel/) | 13 | 145 | 2 | 18 | 108 | 0 | 0 | 3 | 16 |
 | [contact](contact/) | 13 | 126 | 4 | 19 | 73 | 29 | 1 | 1 | 3 |
 | [personal_info](personal_info/) | 8 | 87 | 4 | 20 | 36 | 17 | 2 | 2 | 10 |
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 0 | 0 | 39 |
 | [chat](chat/) | 6 | 76 | 7 | 16 | 20 | 9 | 1 | 5 | 25 |
-| [moment](moment/) | 6 | 74 | 3 | 12 | 58 | 0 | 1 | 3 | 0 |
-| [wallet](wallet/) | 5 | 60 | 2 | 5 | 24 | 0 | 1 | 5 | 25 |
+| [moment](moment/) | 6 | 74 | 3 | 12 | 58 | 0 | 0 | 4 | 0 |
+| [wallet](wallet/) | 5 | 60 | 2 | 5 | 24 | 0 | 0 | 6 | 25 |
 | [user_tag](user_tag/) | 5 | 58 | 1 | 12 | 25 | 20 | 0 | 1 | 0 |
 | [single](single/) | 5 | 48 | 0 | 3 | 14 | 0 | 0 | 2 | 29 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 6 | 25 | 10 | 0 | 1 | 0 |
@@ -175,7 +175,7 @@ bug 累计：**发现 143 / 解决 114 / 待处理 29**
 - [bind_mobile_page](mine/bind_mobile_page.md) — 12 功能点
 - [change_name_page](mine/change_name_page.md) — 11 功能点
 - [change_password_page](mine/change_password_page.md) — 12 功能点
-- [dark_model_page](mine/dark_model_page.md) — 9 功能点 ⚠️ 1 待处理
+- [dark_model_page](mine/dark_model_page.md) — 9 功能点
 - [denylist_page](mine/denylist_page.md) — 12 功能点
 - [feedback_detail_page](mine/feedback_detail_page.md) — 12 功能点
 - [feedback_page](mine/feedback_page.md) — 13 功能点

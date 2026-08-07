@@ -2482,7 +2482,7 @@ class _Translations$momentNotify$ru_RU extends Translations$momentNotify$zh_CN {
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Уведомления';
+	@override String get title => 'Взаимодействия';
 	@override String get emptyTitle => 'Нет новых уведомлений';
 	@override String get emptyHint => 'Здесь появятся лайки и комментарии друзей к вашим Моментам';
 	@override String get actionLike => 'оценил(а) ваш Момент';
@@ -4785,7 +4785,7 @@ extension on TranslationsRuRu {
 			'momentFriendPicker.emptyTags' => 'Нет меток',
 			'momentFriendPicker.tagLoadFailed' => 'Не удалось загрузить метки',
 			'momentFriendPicker.searchHint' => 'Поиск друзей',
-			'momentNotify.title' => 'Уведомления',
+			'momentNotify.title' => 'Взаимодействия',
 			'momentNotify.emptyTitle' => 'Нет новых уведомлений',
 			'momentNotify.emptyHint' => 'Здесь появятся лайки и комментарии друзей к вашим Моментам',
 			'momentNotify.actionLike' => 'оценил(а) ваш Момент',

@@ -2504,7 +2504,7 @@ class Translations$momentNotify$zh_Hant extends Translations$momentNotify$zh_CN 
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '訊息通知';
+	@override String get title => '互動訊息';
 	@override String get emptyTitle => '暫無新訊息';
 	@override String get emptyHint => '好友點贊或評論你的朋友圈後，會出現在這裡';
 	@override String get actionLike => '讚了你的朋友圈';
@@ -4829,7 +4829,7 @@ extension on TranslationsZhHant {
 			'momentFriendPicker.emptyTags' => '暫無標籤',
 			'momentFriendPicker.tagLoadFailed' => '標籤載入失敗',
 			'momentFriendPicker.searchHint' => '搜尋好友',
-			'momentNotify.title' => '訊息通知',
+			'momentNotify.title' => '互動訊息',
 			'momentNotify.emptyTitle' => '暫無新訊息',
 			'momentNotify.emptyHint' => '好友點贊或評論你的朋友圈後，會出現在這裡',
 			'momentNotify.actionLike' => '讚了你的朋友圈',

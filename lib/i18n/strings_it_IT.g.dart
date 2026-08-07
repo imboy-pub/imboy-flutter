@@ -2485,7 +2485,7 @@ class _Translations$momentNotify$it_IT extends Translations$momentNotify$zh_CN {
 	final TranslationsItIt _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Notifiche';
+	@override String get title => 'Interazioni';
 	@override String get emptyTitle => 'Nessuna nuova notifica';
 	@override String get emptyHint => 'I « Mi piace » e i commenti degli amici appaiono qui';
 	@override String get actionLike => 'ha messo mi piace al tuo momento';
@@ -4788,7 +4788,7 @@ extension on TranslationsItIt {
 			'momentFriendPicker.emptyTags' => 'Nessun tag',
 			'momentFriendPicker.tagLoadFailed' => 'Caricamento tag fallito',
 			'momentFriendPicker.searchHint' => 'Cerca amico',
-			'momentNotify.title' => 'Notifiche',
+			'momentNotify.title' => 'Interazioni',
 			'momentNotify.emptyTitle' => 'Nessuna nuova notifica',
 			'momentNotify.emptyHint' => 'I « Mi piace » e i commenti degli amici appaiono qui',
 			'momentNotify.actionLike' => 'ha messo mi piace al tuo momento',

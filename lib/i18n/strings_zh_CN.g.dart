@@ -7392,8 +7392,8 @@ class Translations$momentNotify$zh_CN {
 
 	// Translations
 
-	/// zh-CN: '消息通知'
-	String get title => '消息通知';
+	/// zh-CN: '互动消息'
+	String get title => '互动消息';
 
 	/// zh-CN: '暂无新消息'
 	String get emptyTitle => '暂无新消息';
@@ -9942,7 +9942,7 @@ extension on Translations {
 			'momentFriendPicker.emptyTags' => '暂无标签',
 			'momentFriendPicker.tagLoadFailed' => '标签加载失败',
 			'momentFriendPicker.searchHint' => '搜索好友',
-			'momentNotify.title' => '消息通知',
+			'momentNotify.title' => '互动消息',
 			'momentNotify.emptyTitle' => '暂无新消息',
 			'momentNotify.emptyHint' => '好友点赞或评论你的朋友圈后，会出现在这里',
 			'momentNotify.actionLike' => '赞了你的朋友圈',

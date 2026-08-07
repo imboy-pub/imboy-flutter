@@ -2507,7 +2507,7 @@ class _Translations$momentNotify$en_US extends Translations$momentNotify$zh_CN {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Notifications';
+	@override String get title => 'Interactions';
 	@override String get emptyTitle => 'No new notifications';
 	@override String get emptyHint => 'Likes and comments on your moments will appear here';
 	@override String get actionLike => 'liked your moment';
@@ -4832,7 +4832,7 @@ extension on TranslationsEnUs {
 			'momentFriendPicker.emptyTags' => 'No tags',
 			'momentFriendPicker.tagLoadFailed' => 'Failed to load tag',
 			'momentFriendPicker.searchHint' => 'Search friends',
-			'momentNotify.title' => 'Notifications',
+			'momentNotify.title' => 'Interactions',
 			'momentNotify.emptyTitle' => 'No new notifications',
 			'momentNotify.emptyHint' => 'Likes and comments on your moments will appear here',
 			'momentNotify.actionLike' => 'liked your moment',

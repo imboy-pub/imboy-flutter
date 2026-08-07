@@ -138,7 +138,7 @@ void main() {
   });
 
   group('DarkModelPage selection', () {
-    testWidgets('selectIndex=2 (浅色) → 仅"系统默认"显示 check_mark', (tester) async {
+    testWidgets('selectIndex=2 (浅色) → 仅"浅色模式"显示 check_mark', (tester) async {
       await _pumpDark(
         tester,
         state: const DarkModelState(switchValue: false, selectIndex: 2),
@@ -146,8 +146,11 @@ void main() {
 
       // 仅 1 个 check_mark
       expect(find.byIcon(CupertinoIcons.check_mark), findsOneWidget);
-      // i18n zhCn: systemDefault = "系统默认"
-      expect(find.text('系统默认'), findsOneWidget);
+      // selectIndex=2 走 tapDarkItem(2) → toggleTheme(isDark: false)，是**强制浅色**，
+      // 与上方的「跟随系统」开关无关。页面早已按 QA#56 把文案从 t.main.systemDefault
+      // 「系统默认」改成 t.main.lightModel「浅色模式」（那个旧文案会让「跟随系统=关」
+      // 却选中「系统默认」自相矛盾），只有这条断言没跟着改 —— 红的是测试不是页面。
+      expect(find.text('浅色模式'), findsOneWidget);
 
       await _unmount(tester);
     });

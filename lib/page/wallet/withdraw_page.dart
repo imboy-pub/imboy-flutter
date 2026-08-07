@@ -131,7 +131,9 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                 child: Text(t.common.buttonCancel),
               ),
               CupertinoDialogAction(
-                isDestructiveAction: true,
+                // 提现是用户想做的事，不是破坏性操作 —— iosRed 是留给删除/退出
+                // 这类不可逆动作的。用 isDefaultAction 走主操作语义（加粗蓝）。
+                isDefaultAction: true,
                 onPressed: () => Navigator.of(ctx).pop(true),
                 child: Text(t.common.withdrawConfirm),
               ),

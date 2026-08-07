@@ -2482,7 +2482,7 @@ class _Translations$momentNotify$ar_SA extends Translations$momentNotify$zh_CN {
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'الإشعارات';
+	@override String get title => 'التفاعلات';
 	@override String get emptyTitle => 'لا توجد إشعارات جديدة';
 	@override String get emptyHint => 'تظهر هنا إعجابات الأصدقاء وتعليقاتهم على لحظاتك';
 	@override String get actionLike => 'أعجب بلحظتك';
@@ -4785,7 +4785,7 @@ extension on TranslationsArSa {
 			'momentFriendPicker.emptyTags' => 'لا توجد وسوم',
 			'momentFriendPicker.tagLoadFailed' => 'تعذّر تحميل الوسوم',
 			'momentFriendPicker.searchHint' => 'ابحث عن أصدقاء',
-			'momentNotify.title' => 'الإشعارات',
+			'momentNotify.title' => 'التفاعلات',
 			'momentNotify.emptyTitle' => 'لا توجد إشعارات جديدة',
 			'momentNotify.emptyHint' => 'تظهر هنا إعجابات الأصدقاء وتعليقاتهم على لحظاتك',
 			'momentNotify.actionLike' => 'أعجب بلحظتك',
