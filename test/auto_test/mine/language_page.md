@@ -11,6 +11,6 @@
 | 回归复测 | 2026-08-07 | `page/mine/language/language_page.dart` | 持久化所选语言到本地存储 | 待重验 | §二十九 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/language/language_page.dart` | 选完立刻返回不触发未挂载异常 | 待重验 | §二十九 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/language/language_page.dart` | 渲染选择语言分组标题 | 待重验 | §二十九 | 0 | 0 | 0 | |
-| 待修复 | 2026-08-06 | `page/mine/language/language_page.dart` | 提供跟随系统语言选项 | 有BUG待修 | §二十九 | 1 | 0 | 1 | P3：列表缺「跟随系统」项 |
+| 待复验 | 2026-08-07 | `page/mine/language/language_page.dart` | 提供跟随系统语言选项 | BUG已修待验 | 批次27 | 1 | 0 | 1 | 已加「跟随系统」置顶项并作为新装默认。存哨兵值 `Keys.systemLanguageCode` 而非具体枚举名（存具体值就退化成普通选择，改系统语言不再跟随）；判定收敛到 `Keys.isFollowSystemLanguage`，run.dart 启动恢复与本页共用一份防漂移 —— 哨兵值若落进 `firstWhere` 会被 orElse 兜成简体中文，重启即失效。补 4 条单测并反证。待真机验：①列表首项有「跟随系统」且默认选中 ②切换系统语言后 App 跟随 ③选具体语言后勾只出现一个 |
 | 回归复测 | 2026-08-07 | `page/mine/language/language_page.dart` | 切换阿拉伯语后 RTL 布局表现 | 待重验 | §二十九 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/language/language_page.dart` | 存储值非法时回落简体中文 | 待重验 | §二十九 | 0 | 0 | 0 | |

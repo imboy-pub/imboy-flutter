@@ -29,6 +29,19 @@ class Keys {
   static const String currentLanguageCode = "current_language_code";
   static const String currentLanguage = "current_language";
 
+  /// `currentLanguageCode` 的哨兵值：跟随系统语言。
+  ///
+  /// 它**不是** AppLocale 的枚举名，读取方必须先判这个值再去查枚举 ——
+  /// 否则 firstWhere 匹配不到会 orElse 回落成简体中文，用户选的「跟随系统」
+  /// 一重启就失效。
+  static const String systemLanguageCode = "system";
+
+  /// 存储值是否表示「跟随系统语言」。空值（从未设置）与哨兵值同义 —— 新装默认跟随系统。
+  ///
+  /// 启动恢复（run.dart）与设置页各需要判一次，放在这里防两处漂移。
+  static bool isFollowSystemLanguage(String saved) =>
+      saved.isEmpty || saved == systemLanguageCode;
+
   static const String currentUid = "current_uid";
   static const String currentUser = "current_user";
   // E2EE-015：logout 秘密清理失败标记；置位期间禁止建立新账号会话

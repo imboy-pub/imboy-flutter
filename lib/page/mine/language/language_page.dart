@@ -53,18 +53,25 @@ class LanguageState {
   final AppLocale currentLocale;
   final List<LanguageModel> languageList;
 
+  /// 是否跟随系统语言。为 true 时具体语言项一律不打勾 ——
+  /// 否则「跟随系统」和它当前解析出的那门语言会同时显示对勾。
+  final bool followSystem;
+
   const LanguageState({
     this.currentLocale = AppLocale.zhCn,
     this.languageList = const [],
+    this.followSystem = false,
   });
 
   LanguageState copyWith({
     AppLocale? currentLocale,
     List<LanguageModel>? languageList,
+    bool? followSystem,
   }) {
     return LanguageState(
       currentLocale: currentLocale ?? this.currentLocale,
       languageList: languageList ?? this.languageList,
+      followSystem: followSystem ?? this.followSystem,
     );
   }
 }
@@ -76,8 +83,10 @@ class LanguageNotifier extends _$LanguageNotifier {
     final savedLocaleName = StorageService.to.getString(
       Keys.currentLanguageCode,
     );
-    AppLocale currentLocale = AppLocale.zhCn;
-    if (savedLocaleName.isNotEmpty) {
+    final followSystem = Keys.isFollowSystemLanguage(savedLocaleName);
+
+    AppLocale currentLocale = LocaleSettings.currentLocale;
+    if (!followSystem) {
       try {
         currentLocale = AppLocale.values.firstWhere(
           (locale) => locale.name == savedLocaleName,
@@ -89,6 +98,7 @@ class LanguageNotifier extends _$LanguageNotifier {
     return LanguageState(
       currentLocale: currentLocale,
       languageList: _buildLanguageList(),
+      followSystem: followSystem,
     );
   }
 
@@ -159,6 +169,18 @@ class LanguageNotifier extends _$LanguageNotifier {
     ];
   }
 
+  /// 切到「跟随系统」。存哨兵值而非某个具体枚举名 —— 存具体值就退化成
+  /// 普通选择，之后改系统语言 App 不会跟着变。
+  Future<void> useSystemLanguage() async {
+    await StorageService.to.setString(
+      Keys.currentLanguageCode,
+      Keys.systemLanguageCode,
+    );
+    final locale = await LocaleSettings.useDeviceLocale();
+    if (!ref.mounted) return;
+    state = state.copyWith(currentLocale: locale, followSystem: true);
+  }
+
   Future<void> changeLanguage(String langId) async {
     final locale = localeIdMap[langId];
     if (locale == null) return;
@@ -168,7 +190,7 @@ class LanguageNotifier extends _$LanguageNotifier {
     // 不查 ref.mounted 直接写 state 会抛 UnmountedRefException。
     // 语言本身已经持久化 + 全局生效，这里只是同步本页高亮，跳过即可。
     if (!ref.mounted) return;
-    state = state.copyWith(currentLocale: locale);
+    state = state.copyWith(currentLocale: locale, followSystem: false);
   }
 }
 
@@ -188,10 +210,26 @@ class LanguagePage extends ConsumerWidget {
       child: ImBoySettingsSection(
         header: Text(t.common.selectLanguage.toUpperCase()),
         children: [
+          // 「跟随系统」置顶：它是新装默认，也是唯一走 i18n 文案的一项
+          // （下面的语言名是 endonym，恒显自身语言）。
+          ImBoySettingsTile(
+            title: Text(t.main.followSystem),
+            trailing: state.followSystem
+                ? Icon(
+                    CupertinoIcons.check_mark,
+                    size: 18,
+                    color: AppColors.getIosBlue(brightness),
+                  )
+                : const SizedBox.shrink(),
+            onTap: () =>
+                ref.read(languageProvider.notifier).useSystemLanguage(),
+          ),
           for (var item in state.languageList)
             ImBoySettingsTile(
               title: Text(item.title),
-              trailing: state.currentLocale == localeIdMap[item.id]
+              trailing:
+                  !state.followSystem &&
+                      state.currentLocale == localeIdMap[item.id]
                   ? Icon(
                       CupertinoIcons.check_mark,
                       size: 18,

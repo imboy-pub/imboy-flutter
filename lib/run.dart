@@ -229,7 +229,13 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
         Keys.currentLanguageCode,
       );
 
-      if (savedLocaleName.isNotEmpty) {
+      if (Keys.isFollowSystemLanguage(savedLocaleName)) {
+        // 跟随系统（显式选的，或从未设置过的新装）。必须先判这一支 ——
+        // 哨兵值不是枚举名，落到下面的 firstWhere 会被 orElse 兜成简体中文，
+        // 用户选的「跟随系统」一重启就失效。
+        // slang 匹配不到设备语言时自己回落 base_locale，不需要再兜一层。
+        await LocaleSettings.useDeviceLocale();
+      } else {
         // 通过枚举名称查找 AppLocale（如 'zhCn' -> AppLocale.zhCn）
         final savedLocale = AppLocale.values.firstWhere(
           (locale) => locale.name == savedLocaleName,
@@ -237,9 +243,6 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
         );
         // 使用异步方法设置语言
         await LocaleSettings.setLocale(savedLocale);
-      } else {
-        // 没有保存的语言，使用默认的简体中文
-        await LocaleSettings.setLocale(AppLocale.zhCn);
       }
       _localeInitialized = true;
     } catch (e) {
