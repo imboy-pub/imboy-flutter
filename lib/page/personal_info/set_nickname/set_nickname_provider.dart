@@ -102,8 +102,13 @@ class SetNicknameNotifier extends _$SetNicknameNotifier {
 
     final canSave = validationError.isEmpty && trimmedText != originalNickname;
 
-    // 更新剩余字数
-    final currentLength = value.length;
+    // 更新剩余字数。
+    //
+    // 必须用字素簇（characters）而不是 String.length —— 后者是 UTF-16 code
+    // unit 数，一个 👨‍👩‍👧‍👦 就占 11。而输入框的 `maxLength: 24` 走的是
+    // LengthLimitingTextInputFormatter，它按字素簇截断。两个口径不一致时，
+    // 输入框放行的内容会被这里判成超长：计数归零、校验报错、存不下去。
+    final currentLength = value.characters.length;
     final remainingChars = (24 - currentLength).clamp(0, 24);
 
     state = state.copyWith(
@@ -123,11 +128,12 @@ class SetNicknameNotifier extends _$SetNicknameNotifier {
       return t.common.nicknameEmptyError;
     }
 
-    if (trimmed.length < 2) {
+    // 同 _updateState：一律按字素簇计，与输入框 maxLength 的口径对齐。
+    if (trimmed.characters.length < 2) {
       return t.common.nicknameLengthError;
     }
 
-    if (nickname.length > 24) {
+    if (nickname.characters.length > 24) {
       return t.common.nicknameLengthError;
     }
 
