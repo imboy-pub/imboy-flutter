@@ -1094,6 +1094,17 @@ withdrawAmountError: Amount must be at least 1 CNY
 withdrawAccountEmpty: Please enter your withdrawal account
 withdrawMethod: Withdrawal Method
 withdrawAccount: Withdrawal Account
+withdrawAmountLabel: Withdrawal Amount
+withdrawAlipay: Alipay
+withdrawWechat: WeChat
+walletBalanceLabel(balance): "Wallet Balance ￥$balance"
+withdrawAccountHintAlipay: "Withdrawal Account (email or phone number)"
+withdrawAccountHintWechat: "Withdrawal Account (WeChat ID)"
+withdrawAlipayFormatError: "Please enter a valid Alipay email or phone number"
+withdrawWechatFormatError: "Please enter a valid WeChat ID (6-20 characters, starting with a letter)"
+withdrawConfirmAmount(amount): "Withdrawal Amount: ￥$amount"
+withdrawConfirmMethod(method): "Withdrawal Method: $method"
+withdrawConfirmAccount(account): "Withdrawal Account: $account"
 contactInfoNotSynced: Contacts not synced
 logoutFailed: Logout failed
 notLoggedIn: Not logged in

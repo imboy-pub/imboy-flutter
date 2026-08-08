@@ -540,6 +540,8 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => '지원되지 않는 메시지 유형';
 	@override String get passwordMismatch => '비밀번호가 일치하지 않습니다';
 	@override String get pleaseTryAgainLater => '나중에 다시 시도해 주세요';
+	@override String get historyUnavailable => '히스토리 메시지를 일시적으로 사용할 수 없습니다';
+	@override String get historyUnavailableHint => '서버측 히스토리 보관이 비활성화되었거나 사용할 수 없습니다. 다시 시도를 탭하여 재동기화하세요';
 	@override String get momentsSelectVideo => '동영상 선택';
 	@override String get momentsRecordVideo => '동영상 촬영';
 	@override String get momentsVisibilityPrivate => '나만 보기';
@@ -1746,6 +1748,17 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => '출금 계좌를 입력해주세요';
 	@override String get withdrawMethod => '출금 방식';
 	@override String get withdrawAccount => '출금 계좌';
+	@override String get withdrawAmountLabel => '출금 금액';
+	@override String get withdrawAlipay => 'Alipay';
+	@override String get withdrawWechat => 'WeChat';
+	@override String walletBalanceLabel({required Object balance}) => '지갑 잔액 ￥${balance}';
+	@override String get withdrawAccountHintAlipay => '출금 계좌(이메일 또는 휴대폰 번호)';
+	@override String get withdrawAccountHintWechat => '출금 계좌(WeChat ID)';
+	@override String get withdrawAlipayFormatError => '올바른 Alipay 이메일 또는 휴대폰 번호를 입력하세요';
+	@override String get withdrawWechatFormatError => '올바른 WeChat ID(6-20자, 영문자로 시작)를 입력하세요';
+	@override String withdrawConfirmAmount({required Object amount}) => '출금 금액: ￥${amount}';
+	@override String withdrawConfirmMethod({required Object method}) => '출금 방법: ${method}';
+	@override String withdrawConfirmAccount({required Object account}) => '출금 계좌: ${account}';
 	@override String get showPassword => '비밀번호 표시';
 	@override String get hidePassword => '비밀번호 숨기기';
 	@override String get turnOnFlashlight => '손전등 켜기';
@@ -2994,6 +3007,8 @@ extension on TranslationsKoKr {
 			'chat.unsupportedMessageType' => '지원되지 않는 메시지 유형',
 			'chat.passwordMismatch' => '비밀번호가 일치하지 않습니다',
 			'chat.pleaseTryAgainLater' => '나중에 다시 시도해 주세요',
+			'chat.historyUnavailable' => '히스토리 메시지를 일시적으로 사용할 수 없습니다',
+			'chat.historyUnavailableHint' => '서버측 히스토리 보관이 비활성화되었거나 사용할 수 없습니다. 다시 시도를 탭하여 재동기화하세요',
 			'chat.momentsSelectVideo' => '동영상 선택',
 			'chat.momentsRecordVideo' => '동영상 촬영',
 			'chat.momentsVisibilityPrivate' => '나만 보기',
@@ -3063,10 +3078,10 @@ extension on TranslationsKoKr {
 			'chat.e2eeSocialCreateFailTitle' => '생성 실패',
 			'chat.e2eeSocialCreateFailBody' => '샤드 생성 실패, 다시 시도해주세요',
 			'chat.e2eeSocialCreateFirst' => '샤드를 생성해야 내용을 볼 수 있습니다',
-			'chat.e2eeSocialUsedAtLabel' => '사용 시간',
-			'chat.e2eeTransferSendTitle' => '새 기기로 키 전송',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialUsedAtLabel' => '사용 시간',
+			'chat.e2eeTransferSendTitle' => '새 기기로 키 전송',
 			'chat.e2eeTransferCreateBtn' => '만들기',
 			'chat.e2eeTransferReceiveTitle' => '이전 기기에서 키 받기',
 			'chat.e2eeTransferSendDesc' => 'QR 코드로 새 기기에 키를 전송합니다',
@@ -3577,10 +3592,10 @@ extension on TranslationsKoKr {
 			'common.confirmDelete' => '삭제 확인',
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => '인증 코드',
-			'common.feedbackContent' => '피드백 내용',
-			'common.officialReply' => '공식 답변',
 			_ => null,
 		} ?? switch (path) {
+			'common.feedbackContent' => '피드백 내용',
+			'common.officialReply' => '공식 답변',
 			'common.setPasswordSecurityTips' => '계정 보안을 높이고 인증 코드를 받지 못해 로그인할 수 없는 상황을 방지하기 위해 로그인 비밀번호를 설정하세요.',
 			'common.locationHidden' => '위치가 숨겨졌습니다',
 			'common.locationVisible' => '위치가 표시됩니다',
@@ -4091,10 +4106,10 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupVersionNum' => '백업 버전',
 			'common.e2eeBackupCreatedAtRow' => '생성 시간',
 			'common.e2eeBackupFileSizeRow' => '파일 크기',
-			'common.e2eeBackupNoteRow' => '메모',
-			'common.e2eeBackupDeleteTitle' => '백업 기록 삭제',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupNoteRow' => '메모',
+			'common.e2eeBackupDeleteTitle' => '백업 기록 삭제',
 			'common.e2eeBackupDeleteConfirm' => '이 백업 기록을 삭제하시겠습니까?',
 			'common.e2eeBackupDeleteSuccess' => '백업 기록이 삭제되었습니다',
 			'common.e2eeBackupCloudUploadBtn' => '클라우드에 백업',
@@ -4191,6 +4206,17 @@ extension on TranslationsKoKr {
 			'common.withdrawAccountEmpty' => '출금 계좌를 입력해주세요',
 			'common.withdrawMethod' => '출금 방식',
 			'common.withdrawAccount' => '출금 계좌',
+			'common.withdrawAmountLabel' => '출금 금액',
+			'common.withdrawAlipay' => 'Alipay',
+			'common.withdrawWechat' => 'WeChat',
+			'common.walletBalanceLabel' => ({required Object balance}) => '지갑 잔액 ￥${balance}',
+			'common.withdrawAccountHintAlipay' => '출금 계좌(이메일 또는 휴대폰 번호)',
+			'common.withdrawAccountHintWechat' => '출금 계좌(WeChat ID)',
+			'common.withdrawAlipayFormatError' => '올바른 Alipay 이메일 또는 휴대폰 번호를 입력하세요',
+			'common.withdrawWechatFormatError' => '올바른 WeChat ID(6-20자, 영문자로 시작)를 입력하세요',
+			'common.withdrawConfirmAmount' => ({required Object amount}) => '출금 금액: ￥${amount}',
+			'common.withdrawConfirmMethod' => ({required Object method}) => '출금 방법: ${method}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => '출금 계좌: ${account}',
 			'common.showPassword' => '비밀번호 표시',
 			'common.hidePassword' => '비밀번호 숨기기',
 			'common.turnOnFlashlight' => '손전등 켜기',
@@ -4594,6 +4620,8 @@ extension on TranslationsKoKr {
 			'main.termOfServices' => '서비스 약관',
 			'main.text' => '텍스트',
 			'main.thisWeek' => '이번 주',
+			_ => null,
+		} ?? switch (path) {
 			'main.timeRange' => '시간 범위',
 			'main.timeWeekdays' => '월요일, 화요일, 수요일, 목요일, 금요일, 토요일, 일요일',
 			'main.titleMine' => '내 정보',
@@ -4607,8 +4635,6 @@ extension on TranslationsKoKr {
 			'main.upgrade' => '업그레이드',
 			'main.usedSpace' => '사용된 공간',
 			'main.webView' => '웹 보기',
-			_ => null,
-		} ?? switch (path) {
 			'main.you' => '당신',
 			'main.yourFeel' => '어떻게 생각하시나요?',
 			'main.zhCn' => '중국어 간체',

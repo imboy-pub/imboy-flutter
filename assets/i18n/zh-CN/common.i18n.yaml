@@ -1119,6 +1119,13 @@ withdrawAccount: 提现账号
 withdrawAmountLabel: 提现金额
 withdrawAlipay: 支付宝
 withdrawWechat: 微信
+withdrawAccountHintAlipay: 提现账号（邮箱或手机号）
+withdrawAccountHintWechat: 提现账号（微信号）
+withdrawAlipayFormatError: 请输入正确的支付宝邮箱或手机号
+withdrawWechatFormatError: 请输入正确的微信号（6-20位，字母开头）
+withdrawConfirmAmount(amount): "提现金额：￥$amount"
+withdrawConfirmMethod(method): "提现方式：$method"
+withdrawConfirmAccount(account): "提现账号：$account"
 noHistory: 暂无历史记录
 enterAmount: 请输入金额
 transferDefaultRemark: 转账给好友

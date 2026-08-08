@@ -540,6 +540,8 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'Nicht unterstützter Nachrichtentyp';
 	@override String get passwordMismatch => 'Passwörter stimmen nicht überein';
 	@override String get pleaseTryAgainLater => 'Bitte versuchen Sie es später erneut';
+	@override String get historyUnavailable => 'Verlaufsnachrichten vorübergehend nicht verfügbar';
+	@override String get historyUnavailableHint => 'Serverseitiges Verlaufsarchiv ist deaktiviert oder nicht verfügbar. Tippen Sie auf Erneut versuchen, um die Synchronisierung neu zu starten';
 	@override String get momentsSelectVideo => 'Video auswählen';
 	@override String get momentsRecordVideo => 'Video aufnehmen';
 	@override String get momentsVisibilityPrivate => 'Nur ich';
@@ -1749,6 +1751,17 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'Auszahlungskonto eingeben';
 	@override String get withdrawMethod => 'Auszahlungsmethode';
 	@override String get withdrawAccount => 'Auszahlungskonto';
+	@override String get withdrawAmountLabel => 'Auszahlungsbetrag';
+	@override String get withdrawAlipay => 'Alipay';
+	@override String get withdrawWechat => 'WeChat';
+	@override String walletBalanceLabel({required Object balance}) => 'Guthaben ￥${balance}';
+	@override String get withdrawAccountHintAlipay => 'Auszahlungskonto (E-Mail oder Telefonnummer)';
+	@override String get withdrawAccountHintWechat => 'Auszahlungskonto (WeChat-ID)';
+	@override String get withdrawAlipayFormatError => 'Bitte eine gültige Alipay-E-Mail-Adresse oder Telefonnummer eingeben';
+	@override String get withdrawWechatFormatError => 'Bitte eine gültige WeChat-ID eingeben (6-20 Zeichen, beginnend mit einem Buchstaben)';
+	@override String withdrawConfirmAmount({required Object amount}) => 'Auszahlungsbetrag: ￥${amount}';
+	@override String withdrawConfirmMethod({required Object method}) => 'Auszahlungsmethode: ${method}';
+	@override String withdrawConfirmAccount({required Object account}) => 'Auszahlungskonto: ${account}';
 	@override String get showPassword => 'Passwort anzeigen';
 	@override String get hidePassword => 'Passwort ausblenden';
 	@override String get turnOnFlashlight => 'Taschenlampe einschalten';
@@ -2997,6 +3010,8 @@ extension on TranslationsDeDe {
 			'chat.unsupportedMessageType' => 'Nicht unterstützter Nachrichtentyp',
 			'chat.passwordMismatch' => 'Passwörter stimmen nicht überein',
 			'chat.pleaseTryAgainLater' => 'Bitte versuchen Sie es später erneut',
+			'chat.historyUnavailable' => 'Verlaufsnachrichten vorübergehend nicht verfügbar',
+			'chat.historyUnavailableHint' => 'Serverseitiges Verlaufsarchiv ist deaktiviert oder nicht verfügbar. Tippen Sie auf Erneut versuchen, um die Synchronisierung neu zu starten',
 			'chat.momentsSelectVideo' => 'Video auswählen',
 			'chat.momentsRecordVideo' => 'Video aufnehmen',
 			'chat.momentsVisibilityPrivate' => 'Nur ich',
@@ -3066,10 +3081,10 @@ extension on TranslationsDeDe {
 			'chat.e2eeSocialCreateFailTitle' => 'Fehlgeschlagen',
 			'chat.e2eeSocialCreateFailBody' => 'Fragmente konnten nicht erstellt werden. Bitte erneut versuchen.',
 			'chat.e2eeSocialCreateFirst' => 'Nach Erstellung sichtbar',
-			'chat.e2eeSocialUsedAtLabel' => 'Verwendet am',
-			'chat.e2eeTransferSendTitle' => 'Schlüssel an neues Gerät senden',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialUsedAtLabel' => 'Verwendet am',
+			'chat.e2eeTransferSendTitle' => 'Schlüssel an neues Gerät senden',
 			'chat.e2eeTransferCreateBtn' => 'Erstellen',
 			'chat.e2eeTransferReceiveTitle' => 'Schlüssel vom alten Gerät empfangen',
 			'chat.e2eeTransferSendDesc' => 'Schlüssel per QR-Code an neues Gerät',
@@ -3580,10 +3595,10 @@ extension on TranslationsDeDe {
 			'common.confirmDelete' => 'Löschen bestätigen',
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => 'Bestätigungscode',
-			'common.feedbackContent' => 'Feedback-Inhalt',
-			'common.officialReply' => 'Offizielle Antwort',
 			_ => null,
 		} ?? switch (path) {
+			'common.feedbackContent' => 'Feedback-Inhalt',
+			'common.officialReply' => 'Offizielle Antwort',
 			'common.setPasswordSecurityTips' => 'Verbessern Sie die Kontosicherheit und vermeiden Sie Anmeldeprobleme ohne Bestätigungscode. Legen Sie ein Anmeldepasswort fest.',
 			'common.locationHidden' => 'Ihr Standort ist ausgeblendet',
 			'common.locationVisible' => 'Ihr Standort wird angezeigt',
@@ -4094,10 +4109,10 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupVersionNum' => 'Backup-Version',
 			'common.e2eeBackupCreatedAtRow' => 'Erstellt am',
 			'common.e2eeBackupFileSizeRow' => 'Dateigröße',
-			'common.e2eeBackupNoteRow' => 'Notiz',
-			'common.e2eeBackupDeleteTitle' => 'Backup löschen',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupNoteRow' => 'Notiz',
+			'common.e2eeBackupDeleteTitle' => 'Backup löschen',
 			'common.e2eeBackupDeleteConfirm' => 'Dieses Backup wirklich löschen?',
 			'common.e2eeBackupDeleteSuccess' => 'Backup gelöscht',
 			'common.e2eeBackupCloudUploadBtn' => 'In die Cloud sichern',
@@ -4194,6 +4209,17 @@ extension on TranslationsDeDe {
 			'common.withdrawAccountEmpty' => 'Auszahlungskonto eingeben',
 			'common.withdrawMethod' => 'Auszahlungsmethode',
 			'common.withdrawAccount' => 'Auszahlungskonto',
+			'common.withdrawAmountLabel' => 'Auszahlungsbetrag',
+			'common.withdrawAlipay' => 'Alipay',
+			'common.withdrawWechat' => 'WeChat',
+			'common.walletBalanceLabel' => ({required Object balance}) => 'Guthaben ￥${balance}',
+			'common.withdrawAccountHintAlipay' => 'Auszahlungskonto (E-Mail oder Telefonnummer)',
+			'common.withdrawAccountHintWechat' => 'Auszahlungskonto (WeChat-ID)',
+			'common.withdrawAlipayFormatError' => 'Bitte eine gültige Alipay-E-Mail-Adresse oder Telefonnummer eingeben',
+			'common.withdrawWechatFormatError' => 'Bitte eine gültige WeChat-ID eingeben (6-20 Zeichen, beginnend mit einem Buchstaben)',
+			'common.withdrawConfirmAmount' => ({required Object amount}) => 'Auszahlungsbetrag: ￥${amount}',
+			'common.withdrawConfirmMethod' => ({required Object method}) => 'Auszahlungsmethode: ${method}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => 'Auszahlungskonto: ${account}',
 			'common.showPassword' => 'Passwort anzeigen',
 			'common.hidePassword' => 'Passwort ausblenden',
 			'common.turnOnFlashlight' => 'Taschenlampe einschalten',
@@ -4597,6 +4623,8 @@ extension on TranslationsDeDe {
 			'main.termOfServices' => 'Nutzungsbedingungen',
 			'main.text' => 'Text',
 			'main.thisWeek' => 'Diese Woche',
+			_ => null,
+		} ?? switch (path) {
 			'main.timeRange' => 'Zeitbereich',
 			'main.timeWeekdays' => 'Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag,Sonntag',
 			'main.titleMine' => 'Ich',
@@ -4610,8 +4638,6 @@ extension on TranslationsDeDe {
 			'main.upgrade' => 'Aktualisieren',
 			'main.usedSpace' => 'Verwendeter Speicherplatz',
 			'main.webView' => 'Webansicht',
-			_ => null,
-		} ?? switch (path) {
 			'main.you' => 'Sie',
 			'main.yourFeel' => 'Wie fühlen Sie sich dabei?',
 			'main.zhCn' => 'Vereinfachtes Chinesisch',

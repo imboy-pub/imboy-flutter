@@ -1097,6 +1097,17 @@ withdrawAmountError: Введите сумму не менее 1 юаня
 withdrawAccountEmpty: Введите счёт для вывода
 withdrawMethod: Способ вывода
 withdrawAccount: Счёт для вывода
+withdrawAmountLabel: Сумма вывода
+withdrawAlipay: Alipay
+withdrawWechat: WeChat
+walletBalanceLabel(balance): "Баланс кошелька ￥$balance"
+withdrawAccountHintAlipay: "Счёт для вывода (email или номер телефона)"
+withdrawAccountHintWechat: "Счёт для вывода (ID WeChat)"
+withdrawAlipayFormatError: "Введите корректный email или номер телефона Alipay"
+withdrawWechatFormatError: "Введите корректный ID WeChat (6–20 символов, начинается с буквы)"
+withdrawConfirmAmount(amount): "Сумма вывода: ￥$amount"
+withdrawConfirmMethod(method): "Метод вывода: $method"
+withdrawConfirmAccount(account): "Счёт для вывода: $account"
 showPassword: Показать пароль
 hidePassword: Скрыть пароль
 turnOnFlashlight: Включить фонарик

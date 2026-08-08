@@ -1096,6 +1096,17 @@ withdrawAmountError: 請輸入不低於1元的金額
 withdrawAccountEmpty: 請輸入提現賬號
 withdrawMethod: 提現方式
 withdrawAccount: 提現賬號
+withdrawAmountLabel: 提現金額
+withdrawAlipay: 支付寶
+withdrawWechat: 微信
+walletBalanceLabel(balance): "錢包餘額 ￥$balance"
+withdrawAccountHintAlipay: 提現賬號（郵箱或手機號）
+withdrawAccountHintWechat: 提現賬號（微信號）
+withdrawAlipayFormatError: 請輸入正確的支付寶郵箱或手機號
+withdrawWechatFormatError: 請輸入正確的微信號（6-20位，字母開頭）
+withdrawConfirmAmount(amount): "提現金額：￥$amount"
+withdrawConfirmMethod(method): "提現方式：$method"
+withdrawConfirmAccount(account): "提現賬號：$account"
 showPassword: 顯示密碼
 hidePassword: 隱藏密碼
 turnOnFlashlight: 打開手電筒

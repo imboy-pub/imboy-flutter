@@ -540,6 +540,8 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'サポートされていないメッセージタイプ';
 	@override String get passwordMismatch => 'パスワードが一致しません';
 	@override String get pleaseTryAgainLater => '後でもう一度お試しください';
+	@override String get historyUnavailable => '履歴メッセージは一時的に利用できません';
+	@override String get historyUnavailableHint => 'サーバー側の履歴アーカイブが無効または利用できません。再試行をタップして再同期してください';
 	@override String get momentsSelectVideo => '動画を選択';
 	@override String get momentsRecordVideo => '動画を撮影';
 	@override String get momentsVisibilityPrivate => '非公開';
@@ -1746,6 +1748,17 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => '出金先のアカウントを入力してください';
 	@override String get withdrawMethod => '出金方法';
 	@override String get withdrawAccount => '出金先アカウント';
+	@override String get withdrawAmountLabel => '出金金額';
+	@override String get withdrawAlipay => 'Alipay';
+	@override String get withdrawWechat => 'WeChat';
+	@override String walletBalanceLabel({required Object balance}) => 'ウォレット残高 ￥${balance}';
+	@override String get withdrawAccountHintAlipay => '出金先アカウント（メールアドレスまたは電話番号）';
+	@override String get withdrawAccountHintWechat => '出金先アカウント（WeChat ID）';
+	@override String get withdrawAlipayFormatError => '正しいAlipayのメールアドレスまたは電話番号を入力してください';
+	@override String get withdrawWechatFormatError => '正しいWeChat ID（6〜20文字、英字始まり）を入力してください';
+	@override String withdrawConfirmAmount({required Object amount}) => '出金金額：￥${amount}';
+	@override String withdrawConfirmMethod({required Object method}) => '出金方法：${method}';
+	@override String withdrawConfirmAccount({required Object account}) => '出金先アカウント：${account}';
 	@override String get showPassword => 'パスワードを表示';
 	@override String get hidePassword => 'パスワードを隠す';
 	@override String get turnOnFlashlight => 'ライトを点ける';
@@ -2994,6 +3007,8 @@ extension on TranslationsJaJp {
 			'chat.unsupportedMessageType' => 'サポートされていないメッセージタイプ',
 			'chat.passwordMismatch' => 'パスワードが一致しません',
 			'chat.pleaseTryAgainLater' => '後でもう一度お試しください',
+			'chat.historyUnavailable' => '履歴メッセージは一時的に利用できません',
+			'chat.historyUnavailableHint' => 'サーバー側の履歴アーカイブが無効または利用できません。再試行をタップして再同期してください',
 			'chat.momentsSelectVideo' => '動画を選択',
 			'chat.momentsRecordVideo' => '動画を撮影',
 			'chat.momentsVisibilityPrivate' => '非公開',
@@ -3063,10 +3078,10 @@ extension on TranslationsJaJp {
 			'chat.e2eeSocialCreateFailTitle' => '作成に失敗しました',
 			'chat.e2eeSocialCreateFailBody' => 'シャードの作成に失敗しました。もう一度お試しください',
 			'chat.e2eeSocialCreateFirst' => 'シャードを作成すると内容が表示されます',
-			'chat.e2eeSocialUsedAtLabel' => '使用日時',
-			'chat.e2eeTransferSendTitle' => '新しいデバイスにキーを送信',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialUsedAtLabel' => '使用日時',
+			'chat.e2eeTransferSendTitle' => '新しいデバイスにキーを送信',
 			'chat.e2eeTransferCreateBtn' => '作成',
 			'chat.e2eeTransferReceiveTitle' => '古いデバイスからキーを受信',
 			'chat.e2eeTransferSendDesc' => 'QRコードでキーを新しいデバイスに転送',
@@ -3577,10 +3592,10 @@ extension on TranslationsJaJp {
 			'common.confirmDelete' => '削除確認',
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => '認証コード',
-			'common.feedbackContent' => 'フィードバック内容',
-			'common.officialReply' => '公式返信',
 			_ => null,
 		} ?? switch (path) {
+			'common.feedbackContent' => 'フィードバック内容',
+			'common.officialReply' => '公式返信',
 			'common.setPasswordSecurityTips' => 'アカウントのセキュリティを強化し、認証コードを取得できないためにログインできないのを防ぐために、ログインパスワードを設定してください。',
 			'common.locationHidden' => '位置情報を非表示にしました',
 			'common.locationVisible' => '位置情報を表示しました',
@@ -4091,10 +4106,10 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupVersionNum' => 'バックアップバージョン',
 			'common.e2eeBackupCreatedAtRow' => '作成日時',
 			'common.e2eeBackupFileSizeRow' => 'ファイルサイズ',
-			'common.e2eeBackupNoteRow' => 'メモ',
-			'common.e2eeBackupDeleteTitle' => 'バックアップ履歴を削除',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupNoteRow' => 'メモ',
+			'common.e2eeBackupDeleteTitle' => 'バックアップ履歴を削除',
 			'common.e2eeBackupDeleteConfirm' => 'このバックアップ履歴を削除しますか？',
 			'common.e2eeBackupDeleteSuccess' => 'バックアップ履歴を削除しました',
 			'common.e2eeBackupCloudUploadBtn' => 'クラウドにバックアップ',
@@ -4191,6 +4206,17 @@ extension on TranslationsJaJp {
 			'common.withdrawAccountEmpty' => '出金先のアカウントを入力してください',
 			'common.withdrawMethod' => '出金方法',
 			'common.withdrawAccount' => '出金先アカウント',
+			'common.withdrawAmountLabel' => '出金金額',
+			'common.withdrawAlipay' => 'Alipay',
+			'common.withdrawWechat' => 'WeChat',
+			'common.walletBalanceLabel' => ({required Object balance}) => 'ウォレット残高 ￥${balance}',
+			'common.withdrawAccountHintAlipay' => '出金先アカウント（メールアドレスまたは電話番号）',
+			'common.withdrawAccountHintWechat' => '出金先アカウント（WeChat ID）',
+			'common.withdrawAlipayFormatError' => '正しいAlipayのメールアドレスまたは電話番号を入力してください',
+			'common.withdrawWechatFormatError' => '正しいWeChat ID（6〜20文字、英字始まり）を入力してください',
+			'common.withdrawConfirmAmount' => ({required Object amount}) => '出金金額：￥${amount}',
+			'common.withdrawConfirmMethod' => ({required Object method}) => '出金方法：${method}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => '出金先アカウント：${account}',
 			'common.showPassword' => 'パスワードを表示',
 			'common.hidePassword' => 'パスワードを隠す',
 			'common.turnOnFlashlight' => 'ライトを点ける',
@@ -4594,6 +4620,8 @@ extension on TranslationsJaJp {
 			'main.termOfServices' => '利用規約',
 			'main.text' => 'テキスト',
 			'main.thisWeek' => '今週',
+			_ => null,
+		} ?? switch (path) {
 			'main.timeRange' => '時間範囲',
 			'main.timeWeekdays' => '月曜,火曜,水曜,木曜,金曜,土曜,日曜',
 			'main.titleMine' => 'マイページ',
@@ -4607,8 +4635,6 @@ extension on TranslationsJaJp {
 			'main.upgrade' => 'アップグレード',
 			'main.usedSpace' => '使用済み容量',
 			'main.webView' => 'ウェブビュー',
-			_ => null,
-		} ?? switch (path) {
 			'main.you' => 'あなた',
 			'main.yourFeel' => 'どう感じましたか？',
 			'main.zhCn' => '簡体字中国語',

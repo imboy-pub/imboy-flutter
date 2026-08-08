@@ -1097,6 +1097,17 @@ withdrawAmountError: 1元以上の金額を入力してください
 withdrawAccountEmpty: 出金先のアカウントを入力してください
 withdrawMethod: 出金方法
 withdrawAccount: 出金先アカウント
+withdrawAmountLabel: 出金金額
+withdrawAlipay: Alipay
+withdrawWechat: WeChat
+walletBalanceLabel(balance): "ウォレット残高 ￥$balance"
+withdrawAccountHintAlipay: 出金先アカウント（メールアドレスまたは電話番号）
+withdrawAccountHintWechat: 出金先アカウント（WeChat ID）
+withdrawAlipayFormatError: 正しいAlipayのメールアドレスまたは電話番号を入力してください
+withdrawWechatFormatError: 正しいWeChat ID（6〜20文字、英字始まり）を入力してください
+withdrawConfirmAmount(amount): "出金金額：￥$amount"
+withdrawConfirmMethod(method): "出金方法：$method"
+withdrawConfirmAccount(account): "出金先アカウント：$account"
 showPassword: パスワードを表示
 hidePassword: パスワードを隠す
 turnOnFlashlight: ライトを点ける

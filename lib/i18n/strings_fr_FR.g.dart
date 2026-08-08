@@ -540,6 +540,8 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'Type de message non pris en charge.';
 	@override String get passwordMismatch => 'Les mots de passe ne correspondent pas.';
 	@override String get pleaseTryAgainLater => 'Réessayez plus tard.';
+	@override String get historyUnavailable => 'Historique des messages temporairement indisponible';
+	@override String get historyUnavailableHint => 'L\'archive d\'historique côté serveur est désactivée ou indisponible. Touchez Réessayer pour resynchroniser';
 	@override String get momentsSelectVideo => 'Choisir une vidéo';
 	@override String get momentsRecordVideo => 'Filmer une vidéo';
 	@override String get momentsVisibilityPrivate => 'Privé';
@@ -1749,6 +1751,17 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'Compte de retrait requis';
 	@override String get withdrawMethod => 'Méthode de retrait';
 	@override String get withdrawAccount => 'Compte de retrait';
+	@override String get withdrawAmountLabel => 'Montant du retrait';
+	@override String get withdrawAlipay => 'Alipay';
+	@override String get withdrawWechat => 'WeChat';
+	@override String walletBalanceLabel({required Object balance}) => 'Solde du portefeuille ￥${balance}';
+	@override String get withdrawAccountHintAlipay => 'Compte de retrait (e-mail ou numéro de téléphone)';
+	@override String get withdrawAccountHintWechat => 'Compte de retrait (identifiant WeChat)';
+	@override String get withdrawAlipayFormatError => 'Veuillez saisir un e-mail ou un numéro de téléphone Alipay valide';
+	@override String get withdrawWechatFormatError => 'Veuillez saisir un identifiant WeChat valide (6 à 20 caractères, commençant par une lettre)';
+	@override String withdrawConfirmAmount({required Object amount}) => 'Montant du retrait : ￥${amount}';
+	@override String withdrawConfirmMethod({required Object method}) => 'Méthode de retrait : ${method}';
+	@override String withdrawConfirmAccount({required Object account}) => 'Compte de retrait : ${account}';
 	@override String get showPassword => 'Afficher le mot de passe';
 	@override String get hidePassword => 'Masquer le mot de passe';
 	@override String get turnOnFlashlight => 'Activer le flash';
@@ -2997,6 +3010,8 @@ extension on TranslationsFrFr {
 			'chat.unsupportedMessageType' => 'Type de message non pris en charge.',
 			'chat.passwordMismatch' => 'Les mots de passe ne correspondent pas.',
 			'chat.pleaseTryAgainLater' => 'Réessayez plus tard.',
+			'chat.historyUnavailable' => 'Historique des messages temporairement indisponible',
+			'chat.historyUnavailableHint' => 'L\'archive d\'historique côté serveur est désactivée ou indisponible. Touchez Réessayer pour resynchroniser',
 			'chat.momentsSelectVideo' => 'Choisir une vidéo',
 			'chat.momentsRecordVideo' => 'Filmer une vidéo',
 			'chat.momentsVisibilityPrivate' => 'Privé',
@@ -3066,10 +3081,10 @@ extension on TranslationsFrFr {
 			'chat.e2eeSocialCreateFailTitle' => 'Échec',
 			'chat.e2eeSocialCreateFailBody' => 'Échec de la création. Réessayez.',
 			'chat.e2eeSocialCreateFirst' => 'Visible après création',
-			'chat.e2eeSocialUsedAtLabel' => 'Utilisé le',
-			'chat.e2eeTransferSendTitle' => 'Envoyer la clé au nouvel appareil',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialUsedAtLabel' => 'Utilisé le',
+			'chat.e2eeTransferSendTitle' => 'Envoyer la clé au nouvel appareil',
 			'chat.e2eeTransferCreateBtn' => 'Créer',
 			'chat.e2eeTransferReceiveTitle' => 'Recevoir la clé de l\'ancien appareil',
 			'chat.e2eeTransferSendDesc' => 'Transférer la clé au nouvel appareil via QR code',
@@ -3580,10 +3595,10 @@ extension on TranslationsFrFr {
 			'common.confirmDelete' => 'Confirmer la suppression',
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => 'Code de vérification',
-			'common.feedbackContent' => 'Contenu du commentaire',
-			'common.officialReply' => 'Réponse officielle',
 			_ => null,
 		} ?? switch (path) {
+			'common.feedbackContent' => 'Contenu du commentaire',
+			'common.officialReply' => 'Réponse officielle',
 			'common.setPasswordSecurityTips' => 'Pour améliorer la sécurité du compte et empêcher l\'impossibilité de se connecter en cas d\'impossibilité d\'obtenir le code de vérification, veuillez définir un mot de passe de connexion.',
 			'common.locationHidden' => 'Votre emplacement a été masqué.',
 			'common.locationVisible' => 'Votre emplacement a été affiché.',
@@ -4094,10 +4109,10 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupVersionNum' => 'Version de sauvegarde',
 			'common.e2eeBackupCreatedAtRow' => 'Créée le',
 			'common.e2eeBackupFileSizeRow' => 'Taille',
-			'common.e2eeBackupNoteRow' => 'Note',
-			'common.e2eeBackupDeleteTitle' => 'Supprimer la sauvegarde',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupNoteRow' => 'Note',
+			'common.e2eeBackupDeleteTitle' => 'Supprimer la sauvegarde',
 			'common.e2eeBackupDeleteConfirm' => 'Supprimer cette sauvegarde ?',
 			'common.e2eeBackupDeleteSuccess' => 'Sauvegarde supprimée',
 			'common.e2eeBackupCloudUploadBtn' => 'Sauvegarder dans le cloud',
@@ -4194,6 +4209,17 @@ extension on TranslationsFrFr {
 			'common.withdrawAccountEmpty' => 'Compte de retrait requis',
 			'common.withdrawMethod' => 'Méthode de retrait',
 			'common.withdrawAccount' => 'Compte de retrait',
+			'common.withdrawAmountLabel' => 'Montant du retrait',
+			'common.withdrawAlipay' => 'Alipay',
+			'common.withdrawWechat' => 'WeChat',
+			'common.walletBalanceLabel' => ({required Object balance}) => 'Solde du portefeuille ￥${balance}',
+			'common.withdrawAccountHintAlipay' => 'Compte de retrait (e-mail ou numéro de téléphone)',
+			'common.withdrawAccountHintWechat' => 'Compte de retrait (identifiant WeChat)',
+			'common.withdrawAlipayFormatError' => 'Veuillez saisir un e-mail ou un numéro de téléphone Alipay valide',
+			'common.withdrawWechatFormatError' => 'Veuillez saisir un identifiant WeChat valide (6 à 20 caractères, commençant par une lettre)',
+			'common.withdrawConfirmAmount' => ({required Object amount}) => 'Montant du retrait : ￥${amount}',
+			'common.withdrawConfirmMethod' => ({required Object method}) => 'Méthode de retrait : ${method}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => 'Compte de retrait : ${account}',
 			'common.showPassword' => 'Afficher le mot de passe',
 			'common.hidePassword' => 'Masquer le mot de passe',
 			'common.turnOnFlashlight' => 'Activer le flash',
@@ -4597,6 +4623,8 @@ extension on TranslationsFrFr {
 			'main.termOfServices' => 'Conditions d\'utilisation',
 			'main.text' => 'Texte',
 			'main.thisWeek' => 'Cette semaine',
+			_ => null,
+		} ?? switch (path) {
 			'main.timeRange' => 'Période',
 			'main.timeWeekdays' => 'Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche',
 			'main.titleMine' => 'Moi',
@@ -4610,8 +4638,6 @@ extension on TranslationsFrFr {
 			'main.upgrade' => 'Mise à niveau',
 			'main.usedSpace' => 'Espace utilisé',
 			'main.webView' => 'Vue Web',
-			_ => null,
-		} ?? switch (path) {
 			'main.you' => 'Vous',
 			'main.yourFeel' => 'Comment vous sentez-vous ?',
 			'main.zhCn' => 'Chinois simplifié',

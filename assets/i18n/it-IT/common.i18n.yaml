@@ -1100,6 +1100,17 @@ withdrawAmountError: Importo minimo 1 yuan
 withdrawAccountEmpty: Conto di prelievo richiesto
 withdrawMethod: Metodo di prelievo
 withdrawAccount: Conto di prelievo
+withdrawAmountLabel: Importo del prelievo
+withdrawAlipay: Alipay
+withdrawWechat: WeChat
+walletBalanceLabel(balance): "Saldo del portafoglio ￥$balance"
+withdrawAccountHintAlipay: "Conto di prelievo (e-mail o numero di telefono)"
+withdrawAccountHintWechat: "Conto di prelievo (ID WeChat)"
+withdrawAlipayFormatError: "Inserisci un'e-mail o un numero di telefono Alipay valido"
+withdrawWechatFormatError: "Inserisci un ID WeChat valido (6-20 caratteri, che inizia con una lettera)"
+withdrawConfirmAmount(amount): "Importo del prelievo: ￥$amount"
+withdrawConfirmMethod(method): "Metodo di prelievo: $method"
+withdrawConfirmAccount(account): "Conto di prelievo: $account"
 showPassword: Mostra password
 hidePassword: Nascondi password
 turnOnFlashlight: Accendi il flash

@@ -540,6 +540,8 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'Неподдерживаемый тип сообщения';
 	@override String get passwordMismatch => 'Пароли не совпадают';
 	@override String get pleaseTryAgainLater => 'Пожалуйста, попробуйте позже';
+	@override String get historyUnavailable => 'История сообщений временно недоступна';
+	@override String get historyUnavailableHint => 'Архив истории на сервере отключён или недоступен. Нажмите «Повторить», чтобы синхронизировать заново';
 	@override String get momentsSelectVideo => 'Выбрать видео';
 	@override String get momentsRecordVideo => 'Снять видео';
 	@override String get momentsVisibilityPrivate => 'Только я';
@@ -1746,6 +1748,17 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'Введите счёт для вывода';
 	@override String get withdrawMethod => 'Способ вывода';
 	@override String get withdrawAccount => 'Счёт для вывода';
+	@override String get withdrawAmountLabel => 'Сумма вывода';
+	@override String get withdrawAlipay => 'Alipay';
+	@override String get withdrawWechat => 'WeChat';
+	@override String walletBalanceLabel({required Object balance}) => 'Баланс кошелька ￥${balance}';
+	@override String get withdrawAccountHintAlipay => 'Счёт для вывода (email или номер телефона)';
+	@override String get withdrawAccountHintWechat => 'Счёт для вывода (ID WeChat)';
+	@override String get withdrawAlipayFormatError => 'Введите корректный email или номер телефона Alipay';
+	@override String get withdrawWechatFormatError => 'Введите корректный ID WeChat (6–20 символов, начинается с буквы)';
+	@override String withdrawConfirmAmount({required Object amount}) => 'Сумма вывода: ￥${amount}';
+	@override String withdrawConfirmMethod({required Object method}) => 'Метод вывода: ${method}';
+	@override String withdrawConfirmAccount({required Object account}) => 'Счёт для вывода: ${account}';
 	@override String get showPassword => 'Показать пароль';
 	@override String get hidePassword => 'Скрыть пароль';
 	@override String get turnOnFlashlight => 'Включить фонарик';
@@ -2994,6 +3007,8 @@ extension on TranslationsRuRu {
 			'chat.unsupportedMessageType' => 'Неподдерживаемый тип сообщения',
 			'chat.passwordMismatch' => 'Пароли не совпадают',
 			'chat.pleaseTryAgainLater' => 'Пожалуйста, попробуйте позже',
+			'chat.historyUnavailable' => 'История сообщений временно недоступна',
+			'chat.historyUnavailableHint' => 'Архив истории на сервере отключён или недоступен. Нажмите «Повторить», чтобы синхронизировать заново',
 			'chat.momentsSelectVideo' => 'Выбрать видео',
 			'chat.momentsRecordVideo' => 'Снять видео',
 			'chat.momentsVisibilityPrivate' => 'Только я',
@@ -3063,10 +3078,10 @@ extension on TranslationsRuRu {
 			'chat.e2eeSocialCreateFailTitle' => 'Не удалось создать',
 			'chat.e2eeSocialCreateFailBody' => 'Не удалось создать фрагменты, попробуйте ещё раз',
 			'chat.e2eeSocialCreateFirst' => 'Содержимое появится после создания фрагментов',
-			'chat.e2eeSocialUsedAtLabel' => 'Дата использования',
-			'chat.e2eeTransferSendTitle' => 'Отправить ключ на новое устройство',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialUsedAtLabel' => 'Дата использования',
+			'chat.e2eeTransferSendTitle' => 'Отправить ключ на новое устройство',
 			'chat.e2eeTransferCreateBtn' => 'Создать',
 			'chat.e2eeTransferReceiveTitle' => 'Получить ключ со старого устройства',
 			'chat.e2eeTransferSendDesc' => 'Передача ключа на новое устройство через QR-код',
@@ -3577,10 +3592,10 @@ extension on TranslationsRuRu {
 			'common.confirmDelete' => 'Подтвердить удаление',
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => 'Код подтверждения',
-			'common.feedbackContent' => 'Содержание предложения',
-			'common.officialReply' => 'Официальный ответ',
 			_ => null,
 		} ?? switch (path) {
+			'common.feedbackContent' => 'Содержание предложения',
+			'common.officialReply' => 'Официальный ответ',
 			'common.setPasswordSecurityTips' => 'Установите пароль для входа и безопасности',
 			'common.locationHidden' => 'Ваше местоположение скрыто',
 			'common.locationVisible' => 'Ваше местоположение отображается',
@@ -4091,10 +4106,10 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupVersionNum' => 'Версия копии',
 			'common.e2eeBackupCreatedAtRow' => 'Дата создания',
 			'common.e2eeBackupFileSizeRow' => 'Размер файла',
-			'common.e2eeBackupNoteRow' => 'Заметка',
-			'common.e2eeBackupDeleteTitle' => 'Удалить запись о копии',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupNoteRow' => 'Заметка',
+			'common.e2eeBackupDeleteTitle' => 'Удалить запись о копии',
 			'common.e2eeBackupDeleteConfirm' => 'Удалить эту запись о копии?',
 			'common.e2eeBackupDeleteSuccess' => 'Запись удалена',
 			'common.e2eeBackupCloudUploadBtn' => 'Сохранить в облако',
@@ -4191,6 +4206,17 @@ extension on TranslationsRuRu {
 			'common.withdrawAccountEmpty' => 'Введите счёт для вывода',
 			'common.withdrawMethod' => 'Способ вывода',
 			'common.withdrawAccount' => 'Счёт для вывода',
+			'common.withdrawAmountLabel' => 'Сумма вывода',
+			'common.withdrawAlipay' => 'Alipay',
+			'common.withdrawWechat' => 'WeChat',
+			'common.walletBalanceLabel' => ({required Object balance}) => 'Баланс кошелька ￥${balance}',
+			'common.withdrawAccountHintAlipay' => 'Счёт для вывода (email или номер телефона)',
+			'common.withdrawAccountHintWechat' => 'Счёт для вывода (ID WeChat)',
+			'common.withdrawAlipayFormatError' => 'Введите корректный email или номер телефона Alipay',
+			'common.withdrawWechatFormatError' => 'Введите корректный ID WeChat (6–20 символов, начинается с буквы)',
+			'common.withdrawConfirmAmount' => ({required Object amount}) => 'Сумма вывода: ￥${amount}',
+			'common.withdrawConfirmMethod' => ({required Object method}) => 'Метод вывода: ${method}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => 'Счёт для вывода: ${account}',
 			'common.showPassword' => 'Показать пароль',
 			'common.hidePassword' => 'Скрыть пароль',
 			'common.turnOnFlashlight' => 'Включить фонарик',
@@ -4594,6 +4620,8 @@ extension on TranslationsRuRu {
 			'main.termOfServices' => 'Условия обслуживания',
 			'main.text' => 'Текст',
 			'main.thisWeek' => 'На этой неделе',
+			_ => null,
+		} ?? switch (path) {
 			'main.timeRange' => 'Временной диапазон',
 			'main.timeWeekdays' => 'Понедельник, Вторник, Среда, Четверг, Пятница, Суббота, Воскресенье',
 			'main.titleMine' => 'Мой',
@@ -4607,8 +4635,6 @@ extension on TranslationsRuRu {
 			'main.upgrade' => 'Обновление',
 			'main.usedSpace' => 'Использованное место',
 			'main.webView' => 'Веб-представление',
-			_ => null,
-		} ?? switch (path) {
 			'main.you' => 'Вы',
 			'main.yourFeel' => 'Что вы чувствуете?',
 			'main.zhCn' => 'Упрощённый китайский',

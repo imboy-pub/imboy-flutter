@@ -547,6 +547,8 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'Unsupported message type';
 	@override String get passwordMismatch => 'Passwords do not match';
 	@override String get pleaseTryAgainLater => 'Please try again later';
+	@override String get historyUnavailable => 'History messages are temporarily unavailable';
+	@override String get historyUnavailableHint => 'Server-side history archive is disabled or unavailable. Tap retry to re-sync';
 	@override String get momentsSelectVideo => 'Select Video';
 	@override String get momentsRecordVideo => 'Record Video';
 	@override String get momentsVisibilityPrivate => 'Private';
@@ -1759,6 +1761,17 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'Please enter your withdrawal account';
 	@override String get withdrawMethod => 'Withdrawal Method';
 	@override String get withdrawAccount => 'Withdrawal Account';
+	@override String get withdrawAmountLabel => 'Withdrawal Amount';
+	@override String get withdrawAlipay => 'Alipay';
+	@override String get withdrawWechat => 'WeChat';
+	@override String walletBalanceLabel({required Object balance}) => 'Wallet Balance ￥${balance}';
+	@override String get withdrawAccountHintAlipay => 'Withdrawal Account (email or phone number)';
+	@override String get withdrawAccountHintWechat => 'Withdrawal Account (WeChat ID)';
+	@override String get withdrawAlipayFormatError => 'Please enter a valid Alipay email or phone number';
+	@override String get withdrawWechatFormatError => 'Please enter a valid WeChat ID (6-20 characters, starting with a letter)';
+	@override String withdrawConfirmAmount({required Object amount}) => 'Withdrawal Amount: ￥${amount}';
+	@override String withdrawConfirmMethod({required Object method}) => 'Withdrawal Method: ${method}';
+	@override String withdrawConfirmAccount({required Object account}) => 'Withdrawal Account: ${account}';
 	@override String get contactInfoNotSynced => 'Contacts not synced';
 	@override String get logoutFailed => 'Logout failed';
 	@override String get notLoggedIn => 'Not logged in';
@@ -3026,6 +3039,8 @@ extension on TranslationsEnUs {
 			'chat.unsupportedMessageType' => 'Unsupported message type',
 			'chat.passwordMismatch' => 'Passwords do not match',
 			'chat.pleaseTryAgainLater' => 'Please try again later',
+			'chat.historyUnavailable' => 'History messages are temporarily unavailable',
+			'chat.historyUnavailableHint' => 'Server-side history archive is disabled or unavailable. Tap retry to re-sync',
 			'chat.momentsSelectVideo' => 'Select Video',
 			'chat.momentsRecordVideo' => 'Record Video',
 			'chat.momentsVisibilityPrivate' => 'Private',
@@ -3088,10 +3103,10 @@ extension on TranslationsEnUs {
 			'chat.e2eeReady' => 'Ready',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Ready (${count} shards)',
 			'chat.webFeatureMultiDevice' => 'Multi-Device Sync',
-			'chat.webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
-			'chat.webFeatureE2EE' => 'End-to-End Encryption',
 			_ => null,
 		} ?? switch (path) {
+			'chat.webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
+			'chat.webFeatureE2EE' => 'End-to-End Encryption',
 			'chat.webFeatureE2EEDesc' => 'All messages are end-to-end encrypted, ensuring privacy and security',
 			'chat.webFeatureFileTransfer' => 'File Transfer',
 			'chat.webFeatureFileTransferDesc' => 'Drag and drop to send files, supports various formats',
@@ -3602,10 +3617,10 @@ extension on TranslationsEnUs {
 			'common.forceDeviceOffline' => 'Make this device offline',
 			'common.forceDeviceOfflineConfirm' => 'Will send offline command to this device, confirm to continue?',
 			'common.confirmForceOffline' => 'Confirm offline',
-			'common.forceOfflineCommandSent' => 'Offline command sent',
-			'common.feedbackSlogan' => 'Your suggestions are our motivation for improvement',
 			_ => null,
 		} ?? switch (path) {
+			'common.forceOfflineCommandSent' => 'Offline command sent',
+			'common.feedbackSlogan' => 'Your suggestions are our motivation for improvement',
 			'common.newFeedback' => 'New feedback',
 			'common.feedbackHistory' => 'Feedback history',
 			'common.confirmDelete' => 'Confirm delete',
@@ -4116,10 +4131,10 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupErrImportFailed' => 'Import failed, please check your password',
 			'common.e2eeBackupImportSuccessTitle' => 'Import successful',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
-			'common.e2eeBackupImportSuccessNote' => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices',
-			'common.e2eeBackupNoRecords' => 'No backup records',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupImportSuccessNote' => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices',
+			'common.e2eeBackupNoRecords' => 'No backup records',
 			'common.e2eeBackupNoRecordsHint' => 'Backup history will appear here after exporting',
 			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Device ${id}',
 			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => 'Created at ${time}',
@@ -4226,6 +4241,17 @@ extension on TranslationsEnUs {
 			'common.withdrawAccountEmpty' => 'Please enter your withdrawal account',
 			'common.withdrawMethod' => 'Withdrawal Method',
 			'common.withdrawAccount' => 'Withdrawal Account',
+			'common.withdrawAmountLabel' => 'Withdrawal Amount',
+			'common.withdrawAlipay' => 'Alipay',
+			'common.withdrawWechat' => 'WeChat',
+			'common.walletBalanceLabel' => ({required Object balance}) => 'Wallet Balance ￥${balance}',
+			'common.withdrawAccountHintAlipay' => 'Withdrawal Account (email or phone number)',
+			'common.withdrawAccountHintWechat' => 'Withdrawal Account (WeChat ID)',
+			'common.withdrawAlipayFormatError' => 'Please enter a valid Alipay email or phone number',
+			'common.withdrawWechatFormatError' => 'Please enter a valid WeChat ID (6-20 characters, starting with a letter)',
+			'common.withdrawConfirmAmount' => ({required Object amount}) => 'Withdrawal Amount: ￥${amount}',
+			'common.withdrawConfirmMethod' => ({required Object method}) => 'Withdrawal Method: ${method}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => 'Withdrawal Account: ${account}',
 			'common.contactInfoNotSynced' => 'Contacts not synced',
 			'common.logoutFailed' => 'Logout failed',
 			'common.notLoggedIn' => 'Not logged in',
@@ -4619,6 +4645,8 @@ extension on TranslationsEnUs {
 			'main.remainingChars' => ({required Object param}) => '${param} characters remaining',
 			'main.kickMember' => 'Remove from Group',
 			'main.memberDetail' => 'Member Details',
+			_ => null,
+		} ?? switch (path) {
 			'main.memberRole' => 'Role',
 			'main.replied' => 'Replied',
 			'main.ringing' => 'Ringing...',
@@ -4632,8 +4660,6 @@ extension on TranslationsEnUs {
 			'main.setting' => 'Settings',
 			'main.siginQ' => 'Already have an account?',
 			'main.signInWith' => ({required Object param}) => 'Sign in with ${param}',
-			_ => null,
-		} ?? switch (path) {
 			'main.source' => 'Source',
 			'main.speakingTooShort' => 'Speaking time too short',
 			'main.speed' => 'Speed',

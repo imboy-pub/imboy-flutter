@@ -1097,6 +1097,17 @@ withdrawAmountError: 1위안 이상의 금액을 입력해주세요
 withdrawAccountEmpty: 출금 계좌를 입력해주세요
 withdrawMethod: 출금 방식
 withdrawAccount: 출금 계좌
+withdrawAmountLabel: 출금 금액
+withdrawAlipay: Alipay
+withdrawWechat: WeChat
+walletBalanceLabel(balance): "지갑 잔액 ￥$balance"
+withdrawAccountHintAlipay: 출금 계좌(이메일 또는 휴대폰 번호)
+withdrawAccountHintWechat: 출금 계좌(WeChat ID)
+withdrawAlipayFormatError: 올바른 Alipay 이메일 또는 휴대폰 번호를 입력하세요
+withdrawWechatFormatError: 올바른 WeChat ID(6-20자, 영문자로 시작)를 입력하세요
+withdrawConfirmAmount(amount): "출금 금액: ￥$amount"
+withdrawConfirmMethod(method): "출금 방법: $method"
+withdrawConfirmAccount(account): "출금 계좌: $account"
 showPassword: 비밀번호 표시
 hidePassword: 비밀번호 숨기기
 turnOnFlashlight: 손전등 켜기

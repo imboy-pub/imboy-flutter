@@ -1100,6 +1100,17 @@ withdrawAmountError: Mindestens 1 Yuan eingeben
 withdrawAccountEmpty: Auszahlungskonto eingeben
 withdrawMethod: Auszahlungsmethode
 withdrawAccount: Auszahlungskonto
+withdrawAmountLabel: Auszahlungsbetrag
+withdrawAlipay: Alipay
+withdrawWechat: WeChat
+walletBalanceLabel(balance): "Guthaben ￥$balance"
+withdrawAccountHintAlipay: "Auszahlungskonto (E-Mail oder Telefonnummer)"
+withdrawAccountHintWechat: "Auszahlungskonto (WeChat-ID)"
+withdrawAlipayFormatError: "Bitte eine gültige Alipay-E-Mail-Adresse oder Telefonnummer eingeben"
+withdrawWechatFormatError: "Bitte eine gültige WeChat-ID eingeben (6-20 Zeichen, beginnend mit einem Buchstaben)"
+withdrawConfirmAmount(amount): "Auszahlungsbetrag: ￥$amount"
+withdrawConfirmMethod(method): "Auszahlungsmethode: $method"
+withdrawConfirmAccount(account): "Auszahlungskonto: $account"
 showPassword: Passwort anzeigen
 hidePassword: Passwort ausblenden
 turnOnFlashlight: Taschenlampe einschalten

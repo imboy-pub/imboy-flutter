@@ -540,6 +540,8 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'نوع رسالة غير مدعوم';
 	@override String get passwordMismatch => 'كلمتا المرور غير متطابقتين';
 	@override String get pleaseTryAgainLater => 'يرجى المحاولة مرة أخرى لاحقاً';
+	@override String get historyUnavailable => 'رسائل السجل غير متاحة مؤقتاً';
+	@override String get historyUnavailableHint => 'أرشيف السجل على الخادم معطّل أو غير متاح. اضغط على إعادة المحاولة لإعادة المزامنة';
 	@override String get momentsSelectVideo => 'اختيار فيديو';
 	@override String get momentsRecordVideo => 'تسجيل فيديو';
 	@override String get momentsVisibilityPrivate => 'أنا فقط';
@@ -1746,6 +1748,17 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'أدخل حساب السحب';
 	@override String get withdrawMethod => 'طريقة السحب';
 	@override String get withdrawAccount => 'حساب السحب';
+	@override String get withdrawAmountLabel => 'مبلغ السحب';
+	@override String get withdrawAlipay => 'Alipay';
+	@override String get withdrawWechat => 'WeChat';
+	@override String walletBalanceLabel({required Object balance}) => 'رصيد المحفظة ￥${balance}';
+	@override String get withdrawAccountHintAlipay => 'حساب السحب (البريد الإلكتروني أو رقم الهاتف)';
+	@override String get withdrawAccountHintWechat => 'حساب السحب (معرّف WeChat)';
+	@override String get withdrawAlipayFormatError => 'يرجى إدخال بريد إلكتروني أو رقم هاتف صحيح لـ Alipay';
+	@override String get withdrawWechatFormatError => 'يرجى إدخال معرّف WeChat صحيح (6-20 حرفًا، يبدأ بحرف)';
+	@override String withdrawConfirmAmount({required Object amount}) => 'مبلغ السحب: ￥${amount}';
+	@override String withdrawConfirmMethod({required Object method}) => 'طريقة السحب: ${method}';
+	@override String withdrawConfirmAccount({required Object account}) => 'حساب السحب: ${account}';
 	@override String get showPassword => 'إظهار كلمة المرور';
 	@override String get hidePassword => 'إخفاء كلمة المرور';
 	@override String get turnOnFlashlight => 'تشغيل الفلاش';
@@ -2994,6 +3007,8 @@ extension on TranslationsArSa {
 			'chat.unsupportedMessageType' => 'نوع رسالة غير مدعوم',
 			'chat.passwordMismatch' => 'كلمتا المرور غير متطابقتين',
 			'chat.pleaseTryAgainLater' => 'يرجى المحاولة مرة أخرى لاحقاً',
+			'chat.historyUnavailable' => 'رسائل السجل غير متاحة مؤقتاً',
+			'chat.historyUnavailableHint' => 'أرشيف السجل على الخادم معطّل أو غير متاح. اضغط على إعادة المحاولة لإعادة المزامنة',
 			'chat.momentsSelectVideo' => 'اختيار فيديو',
 			'chat.momentsRecordVideo' => 'تسجيل فيديو',
 			'chat.momentsVisibilityPrivate' => 'أنا فقط',
@@ -3063,10 +3078,10 @@ extension on TranslationsArSa {
 			'chat.e2eeSocialCreateFailTitle' => 'تعذّر الإنشاء',
 			'chat.e2eeSocialCreateFailBody' => 'تعذّر إنشاء الشظايا، أعد المحاولة',
 			'chat.e2eeSocialCreateFirst' => 'سيظهر المحتوى بعد إنشاء الشظايا',
-			'chat.e2eeSocialUsedAtLabel' => 'وقت الاستخدام',
-			'chat.e2eeTransferSendTitle' => 'إرسال المفتاح إلى جهاز جديد',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialUsedAtLabel' => 'وقت الاستخدام',
+			'chat.e2eeTransferSendTitle' => 'إرسال المفتاح إلى جهاز جديد',
 			'chat.e2eeTransferCreateBtn' => 'إنشاء',
 			'chat.e2eeTransferReceiveTitle' => 'استقبال المفتاح من الجهاز القديم',
 			'chat.e2eeTransferSendDesc' => 'نقل المفتاح إلى جهاز جديد عبر رمز QR',
@@ -3577,10 +3592,10 @@ extension on TranslationsArSa {
 			'common.confirmDelete' => 'تأكيد الحذف',
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => 'رمز التحقق',
-			'common.feedbackContent' => 'محتوى الملاحظات',
-			'common.officialReply' => 'الرد الرسمي',
 			_ => null,
 		} ?? switch (path) {
+			'common.feedbackContent' => 'محتوى الملاحظات',
+			'common.officialReply' => 'الرد الرسمي',
 			'common.setPasswordSecurityTips' => 'لتحسين أمان الحساب ومنع عدم القدرة على تسجيل الدخول بسبب عدم القدرة على الحصول على رمز التحقق، يرجى تعيين كلمة مرور تسجيل الدخول.',
 			'common.locationHidden' => 'تم إخفاء موقعك',
 			'common.locationVisible' => 'تم عرض موقعك',
@@ -4091,10 +4106,10 @@ extension on TranslationsArSa {
 			'common.e2eeBackupVersionNum' => 'إصدار النسخة',
 			'common.e2eeBackupCreatedAtRow' => 'تاريخ الإنشاء',
 			'common.e2eeBackupFileSizeRow' => 'حجم الملف',
-			'common.e2eeBackupNoteRow' => 'ملاحظة',
-			'common.e2eeBackupDeleteTitle' => 'حذف سجل النسخة',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupNoteRow' => 'ملاحظة',
+			'common.e2eeBackupDeleteTitle' => 'حذف سجل النسخة',
 			'common.e2eeBackupDeleteConfirm' => 'حذف سجل النسخة هذا؟',
 			'common.e2eeBackupDeleteSuccess' => 'تم حذف السجل',
 			'common.e2eeBackupCloudUploadBtn' => 'النسخ الاحتياطي إلى السحابة',
@@ -4191,6 +4206,17 @@ extension on TranslationsArSa {
 			'common.withdrawAccountEmpty' => 'أدخل حساب السحب',
 			'common.withdrawMethod' => 'طريقة السحب',
 			'common.withdrawAccount' => 'حساب السحب',
+			'common.withdrawAmountLabel' => 'مبلغ السحب',
+			'common.withdrawAlipay' => 'Alipay',
+			'common.withdrawWechat' => 'WeChat',
+			'common.walletBalanceLabel' => ({required Object balance}) => 'رصيد المحفظة ￥${balance}',
+			'common.withdrawAccountHintAlipay' => 'حساب السحب (البريد الإلكتروني أو رقم الهاتف)',
+			'common.withdrawAccountHintWechat' => 'حساب السحب (معرّف WeChat)',
+			'common.withdrawAlipayFormatError' => 'يرجى إدخال بريد إلكتروني أو رقم هاتف صحيح لـ Alipay',
+			'common.withdrawWechatFormatError' => 'يرجى إدخال معرّف WeChat صحيح (6-20 حرفًا، يبدأ بحرف)',
+			'common.withdrawConfirmAmount' => ({required Object amount}) => 'مبلغ السحب: ￥${amount}',
+			'common.withdrawConfirmMethod' => ({required Object method}) => 'طريقة السحب: ${method}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => 'حساب السحب: ${account}',
 			'common.showPassword' => 'إظهار كلمة المرور',
 			'common.hidePassword' => 'إخفاء كلمة المرور',
 			'common.turnOnFlashlight' => 'تشغيل الفلاش',
@@ -4594,6 +4620,8 @@ extension on TranslationsArSa {
 			'main.termOfServices' => 'شروط الخدمة',
 			'main.text' => 'نص',
 			'main.thisWeek' => 'هذا الأسبوع',
+			_ => null,
+		} ?? switch (path) {
 			'main.timeRange' => 'النطاق الزمني',
 			'main.timeWeekdays' => 'الاثنين،الثلاثاء،الأربعاء،الخميس،الجمعة،السبت،الأحد',
 			'main.titleMine' => 'أنا',
@@ -4607,8 +4635,6 @@ extension on TranslationsArSa {
 			'main.upgrade' => 'ترقية',
 			'main.usedSpace' => 'المساحة المستخدمة',
 			'main.webView' => 'عرض الويب',
-			_ => null,
-		} ?? switch (path) {
 			'main.you' => 'أنت',
 			'main.yourFeel' => 'كيف تشعر بذلك؟',
 			'main.zhCn' => 'الصينية المبسطة',

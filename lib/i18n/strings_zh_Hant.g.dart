@@ -556,6 +556,8 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => '不支援的訊息類型';
 	@override String get passwordMismatch => '兩次密碼不一致';
 	@override String get pleaseTryAgainLater => '請稍後重試';
+	@override String get historyUnavailable => '歷史訊息暫不可用';
+	@override String get historyUnavailableHint => '伺服器端歷史歸檔未開啟或暫不可用，點擊重試重新同步';
 	@override String get momentsSelectVideo => '選擇影片';
 	@override String get momentsRecordVideo => '拍攝影片';
 	@override String get momentsVisibilityPrivate => '僅自己';
@@ -1762,6 +1764,17 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => '請輸入提現賬號';
 	@override String get withdrawMethod => '提現方式';
 	@override String get withdrawAccount => '提現賬號';
+	@override String get withdrawAmountLabel => '提現金額';
+	@override String get withdrawAlipay => '支付寶';
+	@override String get withdrawWechat => '微信';
+	@override String walletBalanceLabel({required Object balance}) => '錢包餘額 ￥${balance}';
+	@override String get withdrawAccountHintAlipay => '提現賬號（郵箱或手機號）';
+	@override String get withdrawAccountHintWechat => '提現賬號（微信號）';
+	@override String get withdrawAlipayFormatError => '請輸入正確的支付寶郵箱或手機號';
+	@override String get withdrawWechatFormatError => '請輸入正確的微信號（6-20位，字母開頭）';
+	@override String withdrawConfirmAmount({required Object amount}) => '提現金額：￥${amount}';
+	@override String withdrawConfirmMethod({required Object method}) => '提現方式：${method}';
+	@override String withdrawConfirmAccount({required Object account}) => '提現賬號：${account}';
 	@override String get showPassword => '顯示密碼';
 	@override String get hidePassword => '隱藏密碼';
 	@override String get turnOnFlashlight => '打開手電筒';
@@ -3032,6 +3045,8 @@ extension on TranslationsZhHant {
 			'chat.unsupportedMessageType' => '不支援的訊息類型',
 			'chat.passwordMismatch' => '兩次密碼不一致',
 			'chat.pleaseTryAgainLater' => '請稍後重試',
+			'chat.historyUnavailable' => '歷史訊息暫不可用',
+			'chat.historyUnavailableHint' => '伺服器端歷史歸檔未開啟或暫不可用，點擊重試重新同步',
 			'chat.momentsSelectVideo' => '選擇影片',
 			'chat.momentsRecordVideo' => '拍攝影片',
 			'chat.momentsVisibilityPrivate' => '僅自己',
@@ -3085,10 +3100,10 @@ extension on TranslationsZhHant {
 			'chat.e2eeNewKeyGenerated' => '新的 E2EE 金鑰對已生成！',
 			'chat.e2eeReady' => '準備就緒',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備就緒（${count} 個分片）',
-			'chat.webFeatureMultiDevice' => '多裝置同步',
-			'chat.webFeatureMultiDeviceDesc' => '在手機和電腦之間無縫切換，訊息實時同步',
 			_ => null,
 		} ?? switch (path) {
+			'chat.webFeatureMultiDevice' => '多裝置同步',
+			'chat.webFeatureMultiDeviceDesc' => '在手機和電腦之間無縫切換，訊息實時同步',
 			'chat.webFeatureE2EE' => '端到端加密',
 			'chat.webFeatureE2EEDesc' => '所有訊息都經過端到端加密，確保隱私安全',
 			'chat.webFeatureFileTransfer' => '檔案傳輸',
@@ -3599,10 +3614,10 @@ extension on TranslationsZhHant {
 			'common.verificationCodeSentToMobile' => '驗證碼將傳送至該手機，請在有效期內完成驗證',
 			'common.pleaseEnterCorrectEmailAddress' => '請輸入正確的郵箱地址',
 			'common.pleaseEnter6DigitVerificationCode' => '請輸入 6 位驗證碼',
-			'common.verificationCodeSent' => '驗證碼已傳送',
-			'common.sendFailed' => '傳送失敗',
 			_ => null,
 		} ?? switch (path) {
+			'common.verificationCodeSent' => '驗證碼已傳送',
+			'common.sendFailed' => '傳送失敗',
 			'common.noChangeNeeded' => '無需修改',
 			'common.submissionFailed' => '提交失敗',
 			'common.checkVerificationCodeOrRetry' => '請檢查驗證碼或稍後重試',
@@ -4113,10 +4128,10 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupFileSizeLabel' => '檔案大小',
 			'common.e2eeBackupFileValid' => '✓ 檔案格式有效',
 			'common.e2eeBackupImportPwdHint' => '請輸入備份時設定的密碼',
-			'common.e2eeBackupImportBtn' => '匯入金鑰',
-			'common.e2eeBackupErrSelectFile' => '選擇檔案失敗，請重試',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupImportBtn' => '匯入金鑰',
+			'common.e2eeBackupErrSelectFile' => '選擇檔案失敗，請重試',
 			'common.e2eeBackupErrValidateFailed' => '檔案驗證失敗，請檢查檔案格式',
 			'common.e2eeBackupErrImportFailed' => '匯入失敗，請檢查密碼是否正確',
 			'common.e2eeBackupImportSuccessTitle' => '匯入成功',
@@ -4229,6 +4244,17 @@ extension on TranslationsZhHant {
 			'common.withdrawAccountEmpty' => '請輸入提現賬號',
 			'common.withdrawMethod' => '提現方式',
 			'common.withdrawAccount' => '提現賬號',
+			'common.withdrawAmountLabel' => '提現金額',
+			'common.withdrawAlipay' => '支付寶',
+			'common.withdrawWechat' => '微信',
+			'common.walletBalanceLabel' => ({required Object balance}) => '錢包餘額 ￥${balance}',
+			'common.withdrawAccountHintAlipay' => '提現賬號（郵箱或手機號）',
+			'common.withdrawAccountHintWechat' => '提現賬號（微信號）',
+			'common.withdrawAlipayFormatError' => '請輸入正確的支付寶郵箱或手機號',
+			'common.withdrawWechatFormatError' => '請輸入正確的微信號（6-20位，字母開頭）',
+			'common.withdrawConfirmAmount' => ({required Object amount}) => '提現金額：￥${amount}',
+			'common.withdrawConfirmMethod' => ({required Object method}) => '提現方式：${method}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => '提現賬號：${account}',
 			'common.showPassword' => '顯示密碼',
 			'common.hidePassword' => '隱藏密碼',
 			'common.turnOnFlashlight' => '打開手電筒',
@@ -4616,6 +4642,8 @@ extension on TranslationsZhHant {
 			'main.remainingChars' => ({required Object param}) => '還可輸入 ${param} 個字元',
 			'main.kickMember' => 'Remove from Group',
 			'main.memberDetail' => 'Member Details',
+			_ => null,
+		} ?? switch (path) {
 			'main.memberRole' => 'Role',
 			'main.replied' => '已回覆',
 			'main.ringing' => '已響鈴...',
@@ -4629,8 +4657,6 @@ extension on TranslationsZhHant {
 			'main.setting' => '設定',
 			'main.siginQ' => '已經有帳號了？',
 			'main.signInWith' => ({required Object param}) => '用${param}登入',
-			_ => null,
-		} ?? switch (path) {
 			'main.source' => '來源',
 			'main.speakingTooShort' => '說話時間太短',
 			'main.speed' => '速度',

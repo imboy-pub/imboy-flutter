@@ -1100,6 +1100,17 @@ withdrawAmountError: Montant minimum 1 yuan
 withdrawAccountEmpty: Compte de retrait requis
 withdrawMethod: Méthode de retrait
 withdrawAccount: Compte de retrait
+withdrawAmountLabel: Montant du retrait
+withdrawAlipay: Alipay
+withdrawWechat: WeChat
+walletBalanceLabel(balance): "Solde du portefeuille ￥$balance"
+withdrawAccountHintAlipay: "Compte de retrait (e-mail ou numéro de téléphone)"
+withdrawAccountHintWechat: "Compte de retrait (identifiant WeChat)"
+withdrawAlipayFormatError: "Veuillez saisir un e-mail ou un numéro de téléphone Alipay valide"
+withdrawWechatFormatError: "Veuillez saisir un identifiant WeChat valide (6 à 20 caractères, commençant par une lettre)"
+withdrawConfirmAmount(amount): "Montant du retrait : ￥$amount"
+withdrawConfirmMethod(method): "Méthode de retrait : $method"
+withdrawConfirmAccount(account): "Compte de retrait : $account"
 showPassword: Afficher le mot de passe
 hidePassword: Masquer le mot de passe
 turnOnFlashlight: Activer le flash

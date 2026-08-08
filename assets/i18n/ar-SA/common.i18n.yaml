@@ -1097,6 +1097,17 @@ withdrawAmountError: أدخل مبلغاً لا يقل عن يوان واحد
 withdrawAccountEmpty: أدخل حساب السحب
 withdrawMethod: طريقة السحب
 withdrawAccount: حساب السحب
+withdrawAmountLabel: مبلغ السحب
+withdrawAlipay: Alipay
+withdrawWechat: WeChat
+walletBalanceLabel(balance): "رصيد المحفظة ￥$balance"
+withdrawAccountHintAlipay: "حساب السحب (البريد الإلكتروني أو رقم الهاتف)"
+withdrawAccountHintWechat: "حساب السحب (معرّف WeChat)"
+withdrawAlipayFormatError: "يرجى إدخال بريد إلكتروني أو رقم هاتف صحيح لـ Alipay"
+withdrawWechatFormatError: "يرجى إدخال معرّف WeChat صحيح (6-20 حرفًا، يبدأ بحرف)"
+withdrawConfirmAmount(amount): "مبلغ السحب: ￥$amount"
+withdrawConfirmMethod(method): "طريقة السحب: $method"
+withdrawConfirmAccount(account): "حساب السحب: $account"
 showPassword: إظهار كلمة المرور
 hidePassword: إخفاء كلمة المرور
 turnOnFlashlight: تشغيل الفلاش

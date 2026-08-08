@@ -540,6 +540,8 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get unsupportedMessageType => 'Tipo di messaggio non supportato';
 	@override String get passwordMismatch => 'Le password non corrispondono';
 	@override String get pleaseTryAgainLater => 'Riprova più tardi';
+	@override String get historyUnavailable => 'Cronologia messaggi temporaneamente non disponibile';
+	@override String get historyUnavailableHint => 'L\'archivio cronologico sul server è disabilitato o non disponibile. Tocca Riprova per risincronizzare';
 	@override String get momentsSelectVideo => 'Scegli video';
 	@override String get momentsRecordVideo => 'Registra video';
 	@override String get momentsVisibilityPrivate => 'Privato';
@@ -1749,6 +1751,17 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get withdrawAccountEmpty => 'Conto di prelievo richiesto';
 	@override String get withdrawMethod => 'Metodo di prelievo';
 	@override String get withdrawAccount => 'Conto di prelievo';
+	@override String get withdrawAmountLabel => 'Importo del prelievo';
+	@override String get withdrawAlipay => 'Alipay';
+	@override String get withdrawWechat => 'WeChat';
+	@override String walletBalanceLabel({required Object balance}) => 'Saldo del portafoglio ￥${balance}';
+	@override String get withdrawAccountHintAlipay => 'Conto di prelievo (e-mail o numero di telefono)';
+	@override String get withdrawAccountHintWechat => 'Conto di prelievo (ID WeChat)';
+	@override String get withdrawAlipayFormatError => 'Inserisci un\'e-mail o un numero di telefono Alipay valido';
+	@override String get withdrawWechatFormatError => 'Inserisci un ID WeChat valido (6-20 caratteri, che inizia con una lettera)';
+	@override String withdrawConfirmAmount({required Object amount}) => 'Importo del prelievo: ￥${amount}';
+	@override String withdrawConfirmMethod({required Object method}) => 'Metodo di prelievo: ${method}';
+	@override String withdrawConfirmAccount({required Object account}) => 'Conto di prelievo: ${account}';
 	@override String get showPassword => 'Mostra password';
 	@override String get hidePassword => 'Nascondi password';
 	@override String get turnOnFlashlight => 'Accendi il flash';
@@ -2997,6 +3010,8 @@ extension on TranslationsItIt {
 			'chat.unsupportedMessageType' => 'Tipo di messaggio non supportato',
 			'chat.passwordMismatch' => 'Le password non corrispondono',
 			'chat.pleaseTryAgainLater' => 'Riprova più tardi',
+			'chat.historyUnavailable' => 'Cronologia messaggi temporaneamente non disponibile',
+			'chat.historyUnavailableHint' => 'L\'archivio cronologico sul server è disabilitato o non disponibile. Tocca Riprova per risincronizzare',
 			'chat.momentsSelectVideo' => 'Scegli video',
 			'chat.momentsRecordVideo' => 'Registra video',
 			'chat.momentsVisibilityPrivate' => 'Privato',
@@ -3066,10 +3081,10 @@ extension on TranslationsItIt {
 			'chat.e2eeSocialCreateFailTitle' => 'Fallito',
 			'chat.e2eeSocialCreateFailBody' => 'Creazione fallita. Riprova.',
 			'chat.e2eeSocialCreateFirst' => 'Visibile dopo la creazione',
-			'chat.e2eeSocialUsedAtLabel' => 'Usato il',
-			'chat.e2eeTransferSendTitle' => 'Invia chiave al nuovo dispositivo',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialUsedAtLabel' => 'Usato il',
+			'chat.e2eeTransferSendTitle' => 'Invia chiave al nuovo dispositivo',
 			'chat.e2eeTransferCreateBtn' => 'Crea',
 			'chat.e2eeTransferReceiveTitle' => 'Ricevi chiave dal vecchio dispositivo',
 			'chat.e2eeTransferSendDesc' => 'Trasferisci la chiave al nuovo dispositivo via QR code',
@@ -3580,10 +3595,10 @@ extension on TranslationsItIt {
 			'common.confirmDelete' => 'Conferma eliminazione',
 			'common.processing' => _root.common.loading,
 			'common.verificationCode' => 'Codice di verifica',
-			'common.feedbackContent' => 'Contenuto feedback',
-			'common.officialReply' => 'Risposta ufficiale',
 			_ => null,
 		} ?? switch (path) {
+			'common.feedbackContent' => 'Contenuto feedback',
+			'common.officialReply' => 'Risposta ufficiale',
 			'common.setPasswordSecurityTips' => 'Per migliorare la sicurezza dell\'account e impedire l\'impossibilità di accedere a causa dell\'impossibilità di ottenere il codice di verifica, impostare la password di accesso.',
 			'common.locationHidden' => 'La tua posizione è stata nascosta',
 			'common.locationVisible' => 'La tua posizione è stata mostrata',
@@ -4094,10 +4109,10 @@ extension on TranslationsItIt {
 			'common.e2eeBackupVersionNum' => 'Versione backup',
 			'common.e2eeBackupCreatedAtRow' => 'Creato il',
 			'common.e2eeBackupFileSizeRow' => 'Dimensione',
-			'common.e2eeBackupNoteRow' => 'Nota',
-			'common.e2eeBackupDeleteTitle' => 'Elimina backup',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupNoteRow' => 'Nota',
+			'common.e2eeBackupDeleteTitle' => 'Elimina backup',
 			'common.e2eeBackupDeleteConfirm' => 'Eliminare questo backup ?',
 			'common.e2eeBackupDeleteSuccess' => 'Backup eliminato',
 			'common.e2eeBackupCloudUploadBtn' => 'Backup su cloud',
@@ -4194,6 +4209,17 @@ extension on TranslationsItIt {
 			'common.withdrawAccountEmpty' => 'Conto di prelievo richiesto',
 			'common.withdrawMethod' => 'Metodo di prelievo',
 			'common.withdrawAccount' => 'Conto di prelievo',
+			'common.withdrawAmountLabel' => 'Importo del prelievo',
+			'common.withdrawAlipay' => 'Alipay',
+			'common.withdrawWechat' => 'WeChat',
+			'common.walletBalanceLabel' => ({required Object balance}) => 'Saldo del portafoglio ￥${balance}',
+			'common.withdrawAccountHintAlipay' => 'Conto di prelievo (e-mail o numero di telefono)',
+			'common.withdrawAccountHintWechat' => 'Conto di prelievo (ID WeChat)',
+			'common.withdrawAlipayFormatError' => 'Inserisci un\'e-mail o un numero di telefono Alipay valido',
+			'common.withdrawWechatFormatError' => 'Inserisci un ID WeChat valido (6-20 caratteri, che inizia con una lettera)',
+			'common.withdrawConfirmAmount' => ({required Object amount}) => 'Importo del prelievo: ￥${amount}',
+			'common.withdrawConfirmMethod' => ({required Object method}) => 'Metodo di prelievo: ${method}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => 'Conto di prelievo: ${account}',
 			'common.showPassword' => 'Mostra password',
 			'common.hidePassword' => 'Nascondi password',
 			'common.turnOnFlashlight' => 'Accendi il flash',
@@ -4597,6 +4623,8 @@ extension on TranslationsItIt {
 			'main.termOfServices' => 'Termini di servizio',
 			'main.text' => 'Testo',
 			'main.thisWeek' => 'Questa settimana',
+			_ => null,
+		} ?? switch (path) {
 			'main.timeRange' => 'Intervallo di tempo',
 			'main.timeWeekdays' => 'Lunedì,Martedì,Mercoledì,Giovedì,Venerdì,Sabato,Domenica',
 			'main.titleMine' => 'Io',
@@ -4610,8 +4638,6 @@ extension on TranslationsItIt {
 			'main.upgrade' => 'Aggiorna',
 			'main.usedSpace' => 'Spazio utilizzato',
 			'main.webView' => 'Vista web',
-			_ => null,
-		} ?? switch (path) {
 			'main.you' => 'Tu',
 			'main.yourFeel' => 'Come ti fa sentire?',
 			'main.zhCn' => 'Cinese semplificato',
