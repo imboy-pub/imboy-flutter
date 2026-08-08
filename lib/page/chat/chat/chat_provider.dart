@@ -7,6 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:xid/xid.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
@@ -75,6 +76,17 @@ class ChatNotifier extends _$ChatNotifier {
   /// 单次进会话最多正向同步的页数（每页 50 条），有界避免大会话首开卡顿；
   /// 未追平的靠持久化游标下次进会话继续。
   static const int _historyMaxPagesPerOpen = 6;
+
+  /// BUG#119 判定：归档回填「0 条」但会话行确认有消息（lastMsgId > 0）时，
+  /// 标记「历史不可用」——服务端归档为空（如未开启 msg_archive_enabled），
+  /// 消息存在但不可取，空态应显示「历史消息暂不可用」而非「暂无数据」。
+  ///
+  /// 反证用例：归档拉到消息（anyFetched=true）或会话确实无消息
+  /// （lastMsgId=0，新会话）都不标记。
+  static bool shouldMarkHistoryUnavailable({
+    required bool anyFetched,
+    required int lastMsgId,
+  }) => !anyFetched && lastMsgId > 0;
 
   // SharedPreferences keys
   static const String _spPendingReadReceiptsKey =
@@ -385,6 +397,43 @@ class ChatNotifier extends _$ChatNotifier {
       sendToServer: sendToServer,
       syncMessagesToState: () async => syncMessagesToState(),
     );
+    // BUG#139：发送方自己的阅后即焚消息从发送时刻起排销毁定时器。
+    // 不依赖已读回执（真机证据：AI 机器人不回已读，消息永久停留「已发送」）。
+    final Map<String, dynamic>? meta = message.metadata;
+    if (meta != null && ChatBurnService.isBurnPayload(meta)) {
+      await _scheduleSenderBurnTimer(toId, type, message.id);
+    }
+  }
+
+  /// 为发送方自己的阅后即焚消息排销毁定时器（发送后立即调用）。
+  Future<void> _scheduleSenderBurnTimer(
+    String toId,
+    String type,
+    String messageId,
+  ) async {
+    try {
+      final ConversationModel? c = await ConversationRepo().findByPeerId(
+        type,
+        toId,
+      );
+      if (c == null) return;
+      final MessageRepo repo = MessageRepo(
+        tableName: MessageRepo.getTableName(c.type),
+      );
+      final MessageModel? item = await repo.find(messageId);
+      if (item == null) return;
+      await _burnService.ensureBurnTimerForItem(
+        burnDeleteTimers: burnDeleteTimers,
+        conversation: c,
+        repo: repo,
+        item: item,
+        nowMs: DateTimeHelper.millisecond(),
+        onDelete: (conv, msgId) => _deleteBurnMessage(conv, msgId),
+      );
+    } catch (e) {
+      // 排期失败 = 消息可能永不销毁（本地隐私残留），必须留痕
+      iPrint('[chat_provider] 发送方阅后即焚定时器排期失败 $messageId: $e');
+    }
   }
 
   Future<bool> sendMessage(Map<String, dynamic> msg) async {
@@ -642,10 +691,35 @@ class ChatNotifier extends _$ChatNotifier {
         if (payload is! Map<String, dynamic>) continue;
         // 已经是墓碑的不重复销毁，否则会把重试定时器和计数搅乱
         if (_burnService.isBurnTombstonePayload(payload)) continue;
-        if (!_burnService.isBurnExpired(payload, nowMs)) continue;
+        if (!_burnService.isBurnExpired(
+          payload,
+          nowMs,
+          // BUG#139：发送方自己的阅后即焚消息从发送时间起算（接收方从已读起算）
+          fallbackStartMs: item.isAuthor == 1 ? item.createdAt : 0,
+        )) {
+          continue;
+        }
         if (item.id.isEmpty) continue;
         await _deleteBurnMessage(conversation, item.id);
         burned++;
+      }
+      // BUG#139 补充：未过期但仍在扫描窗口内的阅后即焚消息补排销毁定时器
+      // （进入会话后停留超过 burnAfter 的消息，只靠兜底扫描管不到）
+      final MessageRepo repo = MessageRepo(tableName: tb);
+      for (final MessageModel item in items) {
+        final dynamic payload = item.payload;
+        if (payload is! Map<String, dynamic>) continue;
+        if (_burnService.isBurnTombstonePayload(payload)) continue;
+        if (!ChatBurnService.isBurnPayload(payload)) continue;
+        if (item.id.isEmpty) continue;
+        await _burnService.ensureBurnTimerForItem(
+          burnDeleteTimers: burnDeleteTimers,
+          conversation: conversation,
+          repo: repo,
+          item: item,
+          nowMs: nowMs,
+          onDelete: (conv, msgId) => _deleteBurnMessage(conv, msgId),
+        );
       }
       iPrint('阅后即焚清理: ${conversation.uk3} 扫描 ${items.length} 条，销毁 $burned 条');
     } catch (e) {
@@ -978,7 +1052,12 @@ class ChatNotifier extends _$ChatNotifier {
         conversation: obj,
         prevAutoId: state.prevAutoId,
         pageSize: state.pageSize,
-        isBurnExpired: _burnService.isBurnExpired,
+        isBurnExpired: (item, nowMs) => _burnService.isBurnExpired(
+          item.payload as Map<String, dynamic>,
+          nowMs,
+          // BUG#139：发送方自己的阅后即焚消息从发送时间起算
+          fallbackStartMs: item.isAuthor == 1 ? item.createdAt : 0,
+        ),
         onRemoveMessage: removeMessage,
         ensureBurnTimer:
             ({
@@ -1023,8 +1102,13 @@ class ChatNotifier extends _$ChatNotifier {
     if (chatType != 'c2c' && chatType != 'c2g') return;
 
     _historySyncing = true;
-    final String cursorKey = 'msg_history_seq_${obj.uk3}';
+    final String cursorKey = '${Keys.msgHistorySeqPrefix}${obj.uk3}';
     try {
+      // 新一轮同步开始即清除上次失败/不可用标记，避免上次状态残留误导
+      state = state.copyWith(
+        historySyncFailed: false,
+        historyUnavailable: false,
+      );
       final String peerId = obj.peerId.toString();
       int seq = StorageService.to.getInt(cursorKey) ?? 0;
       bool anyFetched = false;
@@ -1048,6 +1132,21 @@ class ChatNotifier extends _$ChatNotifier {
         }
         if (!page.hasMore) break;
       }
+      // BUG#119（批次72 真机复现）：回填「成功但 0 条」≠「会话无消息」。
+      // 服务端 msg_store 归档为空（生产未开启 msg_archive_enabled）时，
+      // history 接口正常返回空，此时不能展示误导性的「暂无数据」——
+      // 会话行 lastMsgId > 0 即服务端确认该会话存在消息，只是历史不可取。
+      // 置 historyUnavailable 让空态显示「历史消息暂不可用」而非「暂无数据」。
+      if (shouldMarkHistoryUnavailable(
+        anyFetched: anyFetched,
+        lastMsgId: obj.lastMsgId,
+      )) {
+        iPrint(
+          'syncHistoryBackfill: 归档为空但会话有消息(lastMsgId=${obj.lastMsgId})，'
+          '标记 historyUnavailable',
+        );
+        state = state.copyWith(historyUnavailable: true);
+      }
       // 有回填则重置本地分页游标位，让上滑能读到新落库的更老消息
       if (anyFetched) {
         state = state.copyWith(hasMoreMessage: true);
@@ -1061,6 +1160,13 @@ class ChatNotifier extends _$ChatNotifier {
       }
     } catch (e) {
       iPrint('syncHistoryBackfill error: $e');
+      // BUG#119：回填失败不能静默。HistoryFetchException（API 失败）或
+      // 落库异常都必须置失败标记——聊天页空态据此显示「历史记录加载
+      // 失败，点击重试」，与「服务端确认无数据」的「暂无数据」区分。
+      // 不重置 hasMoreMessage：失败时它可能已是 false（首屏空态），
+      // 由页面空态分支按 historySyncFailed 优先展示失败提示；成功回填
+      // 后 anyFetched 分支仍会置 true 恢复可上滑。
+      state = state.copyWith(historySyncFailed: true);
     } finally {
       _historySyncing = false;
     }

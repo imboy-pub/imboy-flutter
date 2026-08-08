@@ -179,6 +179,8 @@ visibleRatioLabel: Sichtbares Verhältnis (0.1~1.0)
 unsupportedMessageType: Nicht unterstützter Nachrichtentyp
 passwordMismatch: Passwörter stimmen nicht überein
 pleaseTryAgainLater: Bitte versuchen Sie es später erneut
+historyUnavailable: "Verlaufsnachrichten vorübergehend nicht verfügbar"
+historyUnavailableHint: "Serverseitiges Verlaufsarchiv ist deaktiviert oder nicht verfügbar. Tippen Sie auf Erneut versuchen, um die Synchronisierung neu zu starten"
 momentsSelectVideo: Video auswählen
 momentsRecordVideo: Video aufnehmen
 momentsVisibilityPrivate: Nur ich

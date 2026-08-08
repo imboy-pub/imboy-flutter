@@ -45,6 +45,20 @@ class ChatState {
   /// msg_store 历史消息是否还有更多
   final bool historyHasMore;
 
+  /// 归档历史正向同步（syncHistoryBackfill）最近一次是否失败
+  ///
+  /// BUG#119：回填失败不再静默。置 true 时聊天页空态显示「历史记录
+  /// 加载失败，点击重试」，与「服务端确认无数据」的「暂无数据」区分。
+  final bool historySyncFailed;
+
+  /// 归档历史回填成功但服务端确认 0 条（msg_store 为空），而会话有
+  /// lastMsgId（服务端会话行确认消息存在）——即「消息存在但历史不可取」。
+  ///
+  /// 与 historySyncFailed（API 失败/落库异常）不同：本标记是服务端
+  /// 正常返回空归档，不能归为失败，但也不能展示误导性的「暂无数据」。
+  /// 置 true 时聊天页空态显示「历史消息暂不可用」，附重试入口。
+  final bool historyUnavailable;
+
   /// 当前会话的消息列表（Phase 2.1.d 接缝字段）
   ///
   /// 默认 const []。ChatNotifier 在 init / 收消息 / 发消息 / 加载更多 等关键
@@ -69,6 +83,8 @@ class ChatState {
     this.currentConversationId = '',
     this.lastHistorySeq = 0,
     this.historyHasMore = true,
+    this.historySyncFailed = false,
+    this.historyUnavailable = false,
     this.messages = const [],
   });
 
@@ -86,6 +102,8 @@ class ChatState {
     String? currentConversationId,
     int? lastHistorySeq,
     bool? historyHasMore,
+    bool? historySyncFailed,
+    bool? historyUnavailable,
     List<Message>? messages,
   }) {
     return ChatState(
@@ -102,6 +120,8 @@ class ChatState {
           currentConversationId ?? this.currentConversationId,
       lastHistorySeq: lastHistorySeq ?? this.lastHistorySeq,
       historyHasMore: historyHasMore ?? this.historyHasMore,
+      historySyncFailed: historySyncFailed ?? this.historySyncFailed,
+      historyUnavailable: historyUnavailable ?? this.historyUnavailable,
       messages: messages ?? this.messages,
     );
   }
@@ -120,7 +140,9 @@ class ChatState {
         'prevAutoId: $prevAutoId, memberCount: $memberCount, '
         'composerHeight: $composerHeight, '
         'currentConversationId: $currentConversationId, '
-        'lastHistorySeq: $lastHistorySeq, historyHasMore: $historyHasMore)';
+        'lastHistorySeq: $lastHistorySeq, historyHasMore: $historyHasMore, '
+        'historySyncFailed: $historySyncFailed, '
+        'historyUnavailable: $historyUnavailable)';
   }
 
   @override
@@ -139,7 +161,9 @@ class ChatState {
         other.composerHeight == composerHeight &&
         other.currentConversationId == currentConversationId &&
         other.lastHistorySeq == lastHistorySeq &&
-        other.historyHasMore == historyHasMore;
+        other.historyHasMore == historyHasMore &&
+        other.historySyncFailed == historySyncFailed &&
+        other.historyUnavailable == historyUnavailable;
   }
 
   @override
@@ -157,6 +181,8 @@ class ChatState {
       currentConversationId,
       lastHistorySeq,
       historyHasMore,
+      historySyncFailed,
+      historyUnavailable,
     );
   }
 }

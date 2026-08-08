@@ -178,6 +178,8 @@ visibleRatioLabel: 可見比例 (0.1~1.0)
 unsupportedMessageType: 不支援的訊息類型
 passwordMismatch: 兩次密碼不一致
 pleaseTryAgainLater: 請稍後重試
+historyUnavailable: "歷史訊息暫不可用"
+historyUnavailableHint: "伺服器端歷史歸檔未開啟或暫不可用，點擊重試重新同步"
 momentsSelectVideo: 選擇影片
 momentsRecordVideo: 拍攝影片
 momentsVisibilityPrivate: 僅自己

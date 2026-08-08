@@ -1481,6 +1481,69 @@ class ChatPageState extends ConsumerState<ChatPage>
     );
   }
 
+  /// BUG#119：归档历史回填失败的可见空态视图（带重试入口）。
+  ///
+  /// 与「服务端确认无数据」的 [EmptyChatList]（暂无数据）区分：失败时
+  /// 显示本视图，点击重试重新执行 [ChatNotifier.syncHistoryBackfill]。
+  Widget _buildHistoryUnavailableView({required VoidCallback onRetry}) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.history_rounded, size: 48, color: AppColors.textSecondary),
+          SizedBox(height: AppSpacing.small),
+          Text(
+            t.chat.historyUnavailable,
+            style: TextStyle(
+              fontSize: FontSizeType.normal.size,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          SizedBox(height: AppSpacing.tiny),
+          Text(
+            t.chat.historyUnavailableHint,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: FontSizeType.small.size,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          SizedBox(height: AppSpacing.medium),
+          TextButton(onPressed: onRetry, child: Text(t.common.buttonRetry)),
+        ],
+      ),
+    );
+  }
+
+  /// BUG#119：归档历史回填失败的可见空态视图（带重试入口）。
+  ///
+  /// 与「服务端确认无数据」的 [EmptyChatList]（暂无数据）区分：失败时
+  /// 显示本视图，点击重试重新执行 [ChatNotifier.syncHistoryBackfill]。
+  Widget _buildHistorySyncFailedView({required VoidCallback onRetry}) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.cloud_off_rounded,
+            size: 48,
+            color: AppColors.textSecondary,
+          ),
+          SizedBox(height: AppSpacing.small),
+          Text(
+            t.chat.pleaseTryAgainLater,
+            style: TextStyle(
+              fontSize: FontSizeType.normal.size,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          SizedBox(height: AppSpacing.medium),
+          TextButton(onPressed: onRetry, child: Text(t.common.buttonRetry)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatState = ref.watch(chatProvider);
@@ -1848,10 +1911,32 @@ class ChatPageState extends ConsumerState<ChatPage>
         if (chatState.isLoading && chatState.hasMoreMessage) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (!chatState.hasMoreMessage &&
-            (ref.read(chatProvider.notifier).chatService?.messages.isEmpty ??
-                true)) {
+        final bool isEmpty =
+            ref.read(chatProvider.notifier).chatService?.messages.isEmpty ??
+            true;
+        // BUG#119：归档历史回填失败优先于「暂无数据」展示，给用户可点的
+        // 重试入口（重新执行 syncHistoryBackfill），避免失败被静默吞掉、
+        // 用户看到误导性的「暂无数据」。
+        if (chatState.historySyncFailed && isEmpty) {
+          return _buildHistorySyncFailedView(
+            onRetry: () {
+              ref.read(chatProvider.notifier).syncHistoryBackfill(conversation);
+            },
+          );
+        }
+        if (!chatState.hasMoreMessage && isEmpty) {
           return EmptyChatList(text: t.common.noData);
+          // BUG#119：回填成功但服务端归档为空、会话却有 lastMsgId（消息存在
+          // 但历史不可取）时，不能展示误导性的「暂无数据」。
+          if (chatState.historyUnavailable && isEmpty) {
+            return _buildHistoryUnavailableView(
+              onRetry: () {
+                ref
+                    .read(chatProvider.notifier)
+                    .syncHistoryBackfill(conversation);
+              },
+            );
+          }
         }
         return const SizedBox.shrink();
       },

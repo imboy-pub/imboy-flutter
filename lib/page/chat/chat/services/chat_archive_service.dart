@@ -9,13 +9,29 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
+/// 历史回填 API 请求失败（与「服务端确认无数据」严格区分）。
+///
+/// BUG#119：旧实现把 API 失败（result == null）读成「无数据」返回
+/// (fetched: 0, hasMore: false)，调用方同步历史失败时被完全静默，
+/// 用户看到误导性的「暂无数据」且无重试入口。抛本异常让
+/// [ChatNotifier.syncHistoryBackfill] 能显式标记失败并保持可重试。
+class HistoryFetchException implements Exception {
+  const HistoryFetchException();
+
+  @override
+  String toString() => 'HistoryFetchException: 归档历史接口请求失败';
+}
+
 /// 消息历史 / 定位 / 双向分页服务
 ///
 /// 负责从服务端拉取归档消息、加载指定消息附近的上下文以及
 /// 加载较新消息（双向分页）等功能。
 /// 从 ChatNotifier 提取，保持公共方法签名不变。
 class ChatArchiveService {
-  const ChatArchiveService();
+  const ChatArchiveService({this.api});
+
+  /// 可注入的 API 客户端（测试用）；为 null 时用默认 [MsgApi]。
+  final MsgApi? api;
 
   // ===== 消息定位 =====
 
@@ -131,8 +147,9 @@ class ChatArchiveService {
     required ConversationModel conversation,
     required int prevAutoId,
     required int pageSize,
-    required bool Function(Map<String, dynamic> payload, int nowMs)
-    isBurnExpired,
+    // BUG#139：接收方按已读时间、发送方按发送时间（fallbackStartMs）判定过期，
+    // 故改为传完整 item 而非仅 payload
+    required bool Function(MessageModel item, int nowMs) isBurnExpired,
     required Future<bool> Function(ConversationModel, Message) onRemoveMessage,
     required Future<void> Function({
       required ConversationModel conversation,
@@ -165,8 +182,7 @@ class ChatArchiveService {
     final int nowMs = DateTimeHelper.millisecond();
     final List<MessageModel> kept = [];
     for (final item in items) {
-      final payload = item.payload as Map<String, dynamic>;
-      if (isBurnExpired(payload, nowMs)) {
+      if (isBurnExpired(item, nowMs)) {
         await onRemoveMessage(conversation, await item.toTypeMessage());
         continue;
       }
@@ -219,14 +235,18 @@ class ChatArchiveService {
     required int afterSeq,
     int limit = 50,
   }) async {
-    final result = await MsgApi().history(
+    final result = await (api ?? MsgApi()).history(
       chatType: chatType.toLowerCase(),
       peerId: peerId,
       afterSeq: afterSeq,
       limit: limit,
     );
     if (result == null) {
-      return (fetched: 0, nextSeq: afterSeq, hasMore: false);
+      // BUG#119：API 失败（401/5xx/超时/解析失败）与「服务端确认无数据」
+      // 必须区分。返回 (fetched: 0, hasMore: false) 会让上层把失败当成
+      // 「没有历史可同步」，游标不推进、UI 显示误导性「暂无数据」且失败
+      // 完全不可见。抛异常由 syncHistoryBackfill 显式标记失败（可重试）。
+      throw const HistoryFetchException();
     }
 
     final rows =

@@ -179,6 +179,8 @@ visibleRatioLabel: 가시성 비율 (0.1~1.0)
 unsupportedMessageType: 지원되지 않는 메시지 유형
 passwordMismatch: 비밀번호가 일치하지 않습니다
 pleaseTryAgainLater: 나중에 다시 시도해 주세요
+historyUnavailable: "히스토리 메시지를 일시적으로 사용할 수 없습니다"
+historyUnavailableHint: "서버측 히스토리 보관이 비활성화되었거나 사용할 수 없습니다. 다시 시도를 탭하여 재동기화하세요"
 momentsSelectVideo: 동영상 선택
 momentsRecordVideo: 동영상 촬영
 momentsVisibilityPrivate: 나만 보기

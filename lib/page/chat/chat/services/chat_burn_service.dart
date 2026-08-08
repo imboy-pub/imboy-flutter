@@ -38,19 +38,46 @@ class ChatBurnService {
     return 0;
   }
 
-  int burnReadAtMsFromPayload(Map<String, dynamic> payload) {
+  /// 纯函数（读取 payload），static 供 [burnCountdownStartMs] 等静态入口复用。
+  static int burnReadAtMsFromPayload(Map<String, dynamic> payload) {
     final raw = payload['burn_read_at'];
     if (raw is int) return raw;
     if (raw is String) return int.tryParse(raw) ?? 0;
     return 0;
   }
 
-  bool isBurnExpired(Map<String, dynamic> payload, int nowMs) {
+  /// 阅后即焚倒计时起点（毫秒）。
+  ///
+  /// 语义（对齐 Telegram/微信闪照）：接收方消息从「已读」起算
+  /// （payload.burn_read_at）；发送方自己的消息从「发送」起算 —— 把
+  /// [fallbackStartMs]（消息 createdAt）作为起点传入。返回 <= 0 表示
+  /// 无可用的起点（永不销毁）。
+  ///
+  /// 注意：发送方的起点**不能**写进 payload —— 该 payload 会随重试重发、
+  /// 也会被服务端原样转发给接收方，接收方会据此提前开烧。
+  static int burnCountdownStartMs(
+    Map<String, dynamic> payload,
+    int fallbackStartMs,
+  ) {
+    final int readAt = burnReadAtMsFromPayload(payload);
+    return readAt > 0 ? readAt : fallbackStartMs;
+  }
+
+  /// 判断阅后即焚消息是否已过销毁时限。
+  ///
+  /// [fallbackStartMs]：发送方自己的消息传 createdAt，接收方不传（0），
+  /// 保持「接收方未读不销毁」的既有语义。
+  bool isBurnExpired(
+    Map<String, dynamic> payload,
+    int nowMs, {
+    int fallbackStartMs = 0,
+  }) {
     if (!isBurnPayload(payload)) return false;
     final int burnAfter = burnAfterMsFromPayload(payload);
-    final int readAt = burnReadAtMsFromPayload(payload);
-    if (burnAfter <= 0 || readAt <= 0) return false;
-    return readAt + burnAfter <= nowMs;
+    if (burnAfter <= 0) return false;
+    final int startMs = burnCountdownStartMs(payload, fallbackStartMs);
+    if (startMs <= 0) return false;
+    return startMs + burnAfter <= nowMs;
   }
 
   // ===== 定时器调度 =====
@@ -104,7 +131,13 @@ class ChatBurnService {
     if (burnAfter <= 0) return;
 
     int readAt = burnReadAtMsFromPayload(payload);
-    if (readAt <= 0 && item.status == IMBoyMessageStatus.seen) {
+    if (readAt <= 0 && item.isAuthor == 1) {
+      // BUG#139：发送方自己的阅后即焚消息从「发送时间」起算倒计时。
+      // 不依赖已读回执（机器人/AI 可能不回报已读），也不写 payload——
+      // 写进 payload 会随重试重发 / 被服务端转发给接收方，导致接收方
+      // 未读就开始销毁。
+      readAt = item.createdAt > 0 ? item.createdAt : nowMs;
+    } else if (readAt <= 0 && item.status == IMBoyMessageStatus.seen) {
       readAt = nowMs;
       payload['burn_read_at'] = readAt;
       final String messageId = item.id;
@@ -202,6 +235,23 @@ class ChatBurnService {
 
       final int burnAfter = burnAfterMsFromPayload(payload);
       if (burnAfter <= 0) return;
+
+      if (m.isAuthor == 1) {
+        // BUG#139：发送方自己的消息倒计时固定从发送时间起算，
+        // 已读回执到达不得把销毁时刻推迟到「已读 + burnAfter」。
+        // 不写 payload（见 ensureBurnTimerForItem 注释）。
+        if (m.createdAt > 0) {
+          await scheduleBurnDeletion(
+            burnDeleteTimers: burnDeleteTimers,
+            conversation: conversation,
+            messageId: messageId,
+            burnAfterMs: burnAfter,
+            readAtMs: m.createdAt,
+            onDelete: onDelete,
+          );
+        }
+        return;
+      }
 
       final int existingReadAt = burnReadAtMsFromPayload(payload);
       final int nextReadAt = existingReadAt > 0 ? existingReadAt : readAtMs;
@@ -313,7 +363,13 @@ class ChatBurnService {
     for (final item in items) {
       final payload = item.payload as Map<String, dynamic>;
       if (isBurnTombstonePayload(payload)) continue;
-      if (isBurnExpired(payload, nowMs)) continue;
+      if (isBurnExpired(
+        payload,
+        nowMs,
+        fallbackStartMs: item.isAuthor == 1 ? item.createdAt : 0,
+      )) {
+        continue;
+      }
       return item;
     }
     return null;

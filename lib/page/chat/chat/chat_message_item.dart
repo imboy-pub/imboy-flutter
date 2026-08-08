@@ -137,11 +137,20 @@ class ChatMessageItem extends ConsumerWidget {
       avatar = const SizedBox(width: 40);
     }
 
+    // BUG#139：发送方自己的阅后即焚消息倒计时从发送时间起算
+    // （销毁逻辑同语义，见 ChatBurnService.ensureBurnTimerForItem）
+    final int metaReadAt = parseBurnReadAtMs(message.metadata);
+    final int badgeReadAtMs = metaReadAt > 0
+        ? metaReadAt
+        : (isCurrentUser && message.createdAt != null
+              ? message.createdAt!.millisecondsSinceEpoch
+              : 0);
+
     final burnBadge = _isBurnMessage(message)
         ? BurnBadge(
             isSentByMe: isCurrentUser,
             burnAfterMs: _burnAfterMsFromMessage(message),
-            burnReadAtMs: parseBurnReadAtMs(message.metadata),
+            burnReadAtMs: badgeReadAtMs,
             burnTicker: burnTicker,
           )
         : null;

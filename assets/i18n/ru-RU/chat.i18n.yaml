@@ -179,6 +179,8 @@ visibleRatioLabel: Коэффициент видимости (0.1~1.0)
 unsupportedMessageType: Неподдерживаемый тип сообщения
 passwordMismatch: Пароли не совпадают
 pleaseTryAgainLater: Пожалуйста, попробуйте позже
+historyUnavailable: "История сообщений временно недоступна"
+historyUnavailableHint: "Архив истории на сервере отключён или недоступен. Нажмите «Повторить», чтобы синхронизировать заново"
 momentsSelectVideo: Выбрать видео
 momentsRecordVideo: Снять видео
 momentsVisibilityPrivate: Только я

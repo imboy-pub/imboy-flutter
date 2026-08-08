@@ -179,6 +179,8 @@ visibleRatioLabel: 表示率 (0.1~1.0)
 unsupportedMessageType: サポートされていないメッセージタイプ
 passwordMismatch: パスワードが一致しません
 pleaseTryAgainLater: 後でもう一度お試しください
+historyUnavailable: "履歴メッセージは一時的に利用できません"
+historyUnavailableHint: "サーバー側の履歴アーカイブが無効または利用できません。再試行をタップして再同期してください"
 momentsSelectVideo: 動画を選択
 momentsRecordVideo: 動画を撮影
 momentsVisibilityPrivate: 非公開

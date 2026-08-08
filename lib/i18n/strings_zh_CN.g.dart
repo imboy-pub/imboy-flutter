@@ -1668,6 +1668,12 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '请稍后重试'
 	String get pleaseTryAgainLater => '请稍后重试';
 
+	/// zh-CN: '历史消息暂不可用'
+	String get historyUnavailable => '历史消息暂不可用';
+
+	/// zh-CN: '服务端历史归档未开启或暂不可用，点击重试重新同步'
+	String get historyUnavailableHint => '服务端历史归档未开启或暂不可用，点击重试重新同步';
+
 	/// zh-CN: '选择视频'
 	String get momentsSelectVideo => '选择视频';
 
@@ -5319,6 +5325,27 @@ class Translations$common$zh_CN {
 	/// zh-CN: '微信'
 	String get withdrawWechat => '微信';
 
+	/// zh-CN: '提现账号（邮箱或手机号）'
+	String get withdrawAccountHintAlipay => '提现账号（邮箱或手机号）';
+
+	/// zh-CN: '提现账号（微信号）'
+	String get withdrawAccountHintWechat => '提现账号（微信号）';
+
+	/// zh-CN: '请输入正确的支付宝邮箱或手机号'
+	String get withdrawAlipayFormatError => '请输入正确的支付宝邮箱或手机号';
+
+	/// zh-CN: '请输入正确的微信号（6-20位，字母开头）'
+	String get withdrawWechatFormatError => '请输入正确的微信号（6-20位，字母开头）';
+
+	/// zh-CN: '提现金额：￥$amount'
+	String withdrawConfirmAmount({required Object amount}) => '提现金额：￥${amount}';
+
+	/// zh-CN: '提现方式：$method'
+	String withdrawConfirmMethod({required Object method}) => '提现方式：${method}';
+
+	/// zh-CN: '提现账号：$account'
+	String withdrawConfirmAccount({required Object account}) => '提现账号：${account}';
+
 	/// zh-CN: '暂无历史记录'
 	String get noHistory => '暂无历史记录';
 
@@ -8081,6 +8108,8 @@ extension on Translations {
 			'chat.unsupportedMessageType' => '不支持的消息类型',
 			'chat.passwordMismatch' => '两次密码不一致',
 			'chat.pleaseTryAgainLater' => '请稍后重试',
+			'chat.historyUnavailable' => '历史消息暂不可用',
+			'chat.historyUnavailableHint' => '服务端历史归档未开启或暂不可用，点击重试重新同步',
 			'chat.momentsSelectVideo' => '选择视频',
 			'chat.momentsRecordVideo' => '拍摄视频',
 			'chat.momentsVisibilityPrivate' => '仅自己',
@@ -8584,10 +8613,10 @@ extension on Translations {
 			'common.slideUpCancelSending' => '手指上滑,取消发送',
 			'common.storagePermissionNotObtained' => '未获取存储权限',
 			'common.strongReminder' => '强提醒',
-			'common.submittedAt' => '提交于',
-			'common.sureDeleteData' => '确认删除吗？删除后不可恢复。',
 			_ => null,
 		} ?? switch (path) {
+			'common.submittedAt' => '提交于',
+			'common.sureDeleteData' => '确认删除吗？删除后不可恢复。',
 			'common.sureDeleteGroupChatRecord' => '确定删除群的聊天记录吗？',
 			'common.switchEnvironment' => '切换环境',
 			'common.thisMonth' => '本月',
@@ -9098,10 +9127,10 @@ extension on Translations {
 			'common.e2eeKeyDeleted' => '密钥已删除',
 			'common.e2eeDeleteFailed' => '删除失败，请重试',
 			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '可用分片: ${available} 个，需要 ${required} 个代理协助',
-			'common.e2eeNoRecoveryShards' => '没有可用的恢复分片',
-			'common.e2eeRecoverSuccess' => '恢复成功',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeNoRecoveryShards' => '没有可用的恢复分片',
+			'common.e2eeRecoverSuccess' => '恢复成功',
 			'common.e2eeRecoverFailed' => '恢复失败',
 			'common.e2eeRecoverKeyFailed' => '恢复密钥失败，请重试',
 			'common.e2eeLoadingShards' => '加载分片信息...',
@@ -9297,6 +9326,13 @@ extension on Translations {
 			'common.withdrawAmountLabel' => '提现金额',
 			'common.withdrawAlipay' => '支付宝',
 			'common.withdrawWechat' => '微信',
+			'common.withdrawAccountHintAlipay' => '提现账号（邮箱或手机号）',
+			'common.withdrawAccountHintWechat' => '提现账号（微信号）',
+			'common.withdrawAlipayFormatError' => '请输入正确的支付宝邮箱或手机号',
+			'common.withdrawWechatFormatError' => '请输入正确的微信号（6-20位，字母开头）',
+			'common.withdrawConfirmAmount' => ({required Object amount}) => '提现金额：￥${amount}',
+			'common.withdrawConfirmMethod' => ({required Object method}) => '提现方式：${method}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => '提现账号：${account}',
 			'common.noHistory' => '暂无历史记录',
 			'common.enterAmount' => '请输入金额',
 			'common.transferDefaultRemark' => '转账给好友',
@@ -9605,6 +9641,8 @@ extension on Translations {
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			'groupTask.dueSoon' => '即将截止',
 			'groupTask.submitFailed' => '提交失败，请稍后重试',
+			_ => null,
+		} ?? switch (path) {
 			'groupTask.taskId' => '任务ID',
 			'groupTask.pendingReview' => '待审核',
 			'groupTask.taskIdMissing' => '任务ID缺失，无法查看详情',
@@ -9614,8 +9652,6 @@ extension on Translations {
 			'groupVote.voteTitle' => '投票标题',
 			'groupVote.voteOptions' => '投票选项',
 			'groupVote.addOption' => '添加选项',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.allowMultiple' => '允许多选',
 			'groupVote.anonymous' => '匿名投票',
 			'groupVote.deadline' => '截止时间',

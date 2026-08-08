@@ -189,6 +189,8 @@ visibleRatioLabel: 可见比例 (0.1~1.0)
 unsupportedMessageType: 不支持的消息类型
 passwordMismatch: 两次密码不一致
 pleaseTryAgainLater: 请稍后重试
+historyUnavailable: "历史消息暂不可用"
+historyUnavailableHint: "服务端历史归档未开启或暂不可用，点击重试重新同步"
 momentsSelectVideo: 选择视频
 momentsRecordVideo: 拍摄视频
 momentsVisibilityPrivate: 仅自己

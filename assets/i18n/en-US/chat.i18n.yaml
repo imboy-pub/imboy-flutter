@@ -170,6 +170,8 @@ visibleRatioLabel: Visible ratio (0.1~1.0)
 unsupportedMessageType: Unsupported message type
 passwordMismatch: Passwords do not match
 pleaseTryAgainLater: Please try again later
+historyUnavailable: "History messages are temporarily unavailable"
+historyUnavailableHint: "Server-side history archive is disabled or unavailable. Tap retry to re-sync"
 momentsSelectVideo: Select Video
 momentsRecordVideo: Record Video
 momentsVisibilityPrivate: Private

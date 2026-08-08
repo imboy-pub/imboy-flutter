@@ -179,6 +179,8 @@ visibleRatioLabel: Rapporto visibile (0.1~1.0)
 unsupportedMessageType: Tipo di messaggio non supportato
 passwordMismatch: Le password non corrispondono
 pleaseTryAgainLater: Riprova più tardi
+historyUnavailable: "Cronologia messaggi temporaneamente non disponibile"
+historyUnavailableHint: "L'archivio cronologico sul server è disabilitato o non disponibile. Tocca Riprova per risincronizzare"
 momentsSelectVideo: Scegli video
 momentsRecordVideo: Registra video
 momentsVisibilityPrivate: Privato

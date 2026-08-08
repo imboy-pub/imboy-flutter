@@ -179,6 +179,8 @@ visibleRatioLabel: نسبة الرؤية (0.1~1.0)
 unsupportedMessageType: نوع رسالة غير مدعوم
 passwordMismatch: كلمتا المرور غير متطابقتين
 pleaseTryAgainLater: يرجى المحاولة مرة أخرى لاحقاً
+historyUnavailable: "رسائل السجل غير متاحة مؤقتاً"
+historyUnavailableHint: "أرشيف السجل على الخادم معطّل أو غير متاح. اضغط على إعادة المحاولة لإعادة المزامنة"
 momentsSelectVideo: اختيار فيديو
 momentsRecordVideo: تسجيل فيديو
 momentsVisibilityPrivate: أنا فقط
