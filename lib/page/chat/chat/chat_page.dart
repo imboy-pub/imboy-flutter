@@ -1925,10 +1925,9 @@ class ChatPageState extends ConsumerState<ChatPage>
           );
         }
         if (!chatState.hasMoreMessage && isEmpty) {
-          return EmptyChatList(text: t.common.noData);
           // BUG#119：回填成功但服务端归档为空、会话却有 lastMsgId（消息存在
           // 但历史不可取）时，不能展示误导性的「暂无数据」。
-          if (chatState.historyUnavailable && isEmpty) {
+          if (chatState.historyUnavailable) {
             return _buildHistoryUnavailableView(
               onRetry: () {
                 ref
@@ -1937,6 +1936,7 @@ class ChatPageState extends ConsumerState<ChatPage>
               },
             );
           }
+          return EmptyChatList(text: t.common.noData);
         }
         return const SizedBox.shrink();
       },
