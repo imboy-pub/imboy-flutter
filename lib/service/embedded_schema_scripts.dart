@@ -1740,6 +1740,7 @@ PRAGMA user_version = 24;
 --       不得回填空串——空串会把「没提供」与「设备 ID 是空串」混为一谈。
 --       仅 msg_c2c：C2G 当前走 Megolm v2（非 PFv3），不需要该列。
 -- ============================================================
+
 ALTER TABLE msg_c2c ADD COLUMN sender_did TEXT;
 
 -- ============================================================
@@ -1754,7 +1755,8 @@ PRAGMA user_version = 25;
 --       均返回 last_seen_at，但旧表无该列 → 落库被丢弃 → 详情页
 --       lastSeenAt 永远为 0 → UserOnlineTimeHelper 显示"从未上线"
 --       （即使对方在线）。本列持久化后，详情页可正确显示最后上线时间。
---       可空：迁移前落库的旧行保持 NULL（语义=未知/从未记录）。
+--       可空：迁移前落库的旧行保持 NULL（语义=未知/从未记录），
+--       与 UserOnlineTimeHelper 的 lastSeenTimestamp==null 分支一致。
 -- ============================================================
 
 ALTER TABLE contact ADD COLUMN last_seen_at INTEGER;
