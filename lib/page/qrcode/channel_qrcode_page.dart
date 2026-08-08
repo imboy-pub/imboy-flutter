@@ -9,12 +9,10 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/config/env.dart';
-import 'package:imboy/service/encrypter.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/page/qrcode/qrcode_url.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -38,8 +36,10 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
     final channelName = widget.channelData['name']?.toString() ?? '';
     final channelAvatar = widget.channelData['avatar']?.toString();
     int expiredAt = DateTimeHelper.millisecond() + dayNum * 86400 * 1000;
-    String qrcodeData =
-        "${Env().apiBaseUrl}/channel/qrcode?id=$channelId&exp=$expiredAt&tk=${EncrypterService.md5("${expiredAt}_${Env().solidifiedKey}")}&$qrcodeDataSuffix";
+    String qrcodeData = buildChannelQrcodeUrl(
+      channelId: channelId,
+      expiredAt: expiredAt,
+    );
 
     return IosPageTemplate(
       title: t.channel.qrcode,

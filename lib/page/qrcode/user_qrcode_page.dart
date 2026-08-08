@@ -8,8 +8,7 @@ import 'package:imboy/component/ui/avatar.dart' show Avatar;
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:imboy/config/env.dart';
-import 'package:imboy/config/const.dart';
+import 'package:imboy/page/qrcode/qrcode_url.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -28,8 +27,7 @@ class UserQrCodePage extends ConsumerWidget {
     final user = UserRepoLocal.to.current;
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    String qrcodeData =
-        "${Env().apiBaseUrl}/user/qrcode?id=${UserRepoLocal.to.currentUid}&$qrcodeDataSuffix";
+    String qrcodeData = buildUserQrcodeUrl(UserRepoLocal.to.currentUid);
     String filename = "${UserRepoLocal.to.currentUid}_qrcode";
 
     return IosPageTemplate(

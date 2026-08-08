@@ -10,10 +10,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/config/env.dart';
-import 'package:imboy/service/encrypter.dart';
+import 'package:imboy/page/qrcode/qrcode_url.dart';
 import 'package:imboy/store/model/group_model.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
@@ -45,8 +43,10 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     int expiredAt = DateTimeHelper.millisecond() + dayNum * 86400 * 1000;
-    String qrcodeData =
-        "${Env().apiBaseUrl}/group/qrcode?id=${widget.group.groupId}&exp=$expiredAt&tk=${EncrypterService.md5("${expiredAt}_${Env().solidifiedKey}")}&$qrcodeDataSuffix";
+    String qrcodeData = buildGroupQrcodeUrl(
+      groupId: widget.group.groupId,
+      expiredAt: expiredAt,
+    );
 
     return IosPageTemplate(
       title: t.account.groupQrcode,
