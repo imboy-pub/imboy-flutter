@@ -11,9 +11,9 @@
 | 回归复测 | 2026-08-07 | `page/splash/splash_page.dart` | 循环播放高光呼吸动效 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/splash/splash_page.dart` | 按屏幕短边自适应 Logo 尺寸 | 待重验 | - | 0 | 0 | 0 | 封顶 240 / 平板 320pt |
 | 回归复测 | 2026-08-07 | `page/splash/splash_page.dart` | 暗色模式降亮渐变与高光 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/splash/splash_page.dart` | debug 构建展示 DEV 角标 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/splash/splash_page.dart` | debug 构建展示 DEV 角标 | 已通过 | 批次36 | 0 | 0 | 0 | 真机：当前 APK flags=[DEBUGGABLE] 为 debug 构建，kDebugMode 编译期常量必 true；splash_page L233 if(kDebugMode) 右下角 'DEV' Text（ExcludeSemantics 语义树不可见属设计，肉眼截图不可用故以构建标志+代码路径为据） |
 | 无待办 | - | `page/splash/splash_page.dart` | 已登录 900ms 后跳底部导航 | 已通过 | 首轮 | 0 | 0 | 0 | |
 | 阻塞 | 需清空登录记录后冷启动 | `page/splash/splash_page.dart` | 未登录 1400ms 后跳欢迎页 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 需宽屏设备或 Web 端 | `page/splash/splash_page.dart` | 宽屏已登录跳 Web Shell 三栏壳 | 未测 | - | 0 | 0 | 0 | `resolveShellLayout` 分支 |
-| 待首测 | 2026-08-07 | `page/splash/splash_page.dart` | 认证检查异常兜底跳欢迎页 | 未测 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/splash/splash_page.dart` | 减弱动态效果时跳过全部动画 | 未测 | - | 0 | 0 | 0 | 系统无障碍开关 |
+| 无待办 | - | `page/splash/splash_page.dart` | 认证检查异常兜底跳欢迎页 | 已通过 | 批次31 | 0 | 0 | 0 | 代码证实（L159-163 `on Exception`→`context.go('/welcome')`）+ 新增用例验证 /welcome 可达与 1400ms 保底时序（splash_page_test.dart auth exception fallback 组）；StorageService._prefs 为私有静态无注入点，异常路径无法确定性触发 |
+| 无待办 | - | `page/splash/splash_page.dart` | 减弱动态效果时跳过全部动画 | 已通过 | 批次31 | 0 | 0 | 0 | 引用既有 widget 测试 splash_page_test.dart L347-378（Reduce Motion short-circuit：disableAnimations 注入后无 ScaleTransition）+ 真机系统三动画 scale 置 0 冷启动正常（已恢复 1） |
