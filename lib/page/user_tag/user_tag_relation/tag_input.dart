@@ -42,7 +42,6 @@ class _TagInputState extends State<TagInput> {
   final FocusNode _focusNode = FocusNode();
   List<String> _currentTags = [];
   List<String> _filteredSuggestions = [];
-  bool _showSuggestions = false;
   Timer? _debounceTimer;
 
   @override
@@ -52,7 +51,6 @@ class _TagInputState extends State<TagInput> {
     _filteredSuggestions = List.from(widget.suggestedTags);
 
     _controller.addListener(_onTextChanged);
-    _focusNode.addListener(_onFocusChanged);
   }
 
   @override
@@ -71,13 +69,6 @@ class _TagInputState extends State<TagInput> {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       _filterSuggestions(text);
-    });
-  }
-
-  /// 焦点变化监听
-  void _onFocusChanged() {
-    setState(() {
-      _showSuggestions = _focusNode.hasFocus;
     });
   }
 
@@ -323,9 +314,13 @@ class _TagInputState extends State<TagInput> {
     );
   }
 
-  /// 构建建议标签列表
+  /// 构建建议标签列表。
+  ///
+  /// ⚠️ 勿把显示条件绑回输入框焦点（批次28 真机死循环）：输入框在页面底部，
+  /// 聚焦时键盘盖住下方建议区，滚动查看又让输入框失焦、建议区随之收起。
+  /// 建议区必须常驻 —— 有数据就显示，与焦点无关。
   Widget _buildSuggestions() {
-    if (!_showSuggestions || _filteredSuggestions.isEmpty) {
+    if (_filteredSuggestions.isEmpty) {
       return const SizedBox.shrink();
     }
 
