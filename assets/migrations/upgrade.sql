@@ -1425,3 +1425,28 @@ CREATE INDEX IF NOT EXISTS idx_channel_message_outbox_due
     ON channel_message_outbox(next_attempt_at, channel_id);
 
 PRAGMA user_version = 28;
+
+-- ============================================================
+-- VERSION: 29
+-- DESC: 频道消息发布可靠重试 outbox。
+--       网络超时或请求失败时保存原始发布参数与 request_id，待进入频道或同步时重放；
+--       服务端按 request_id 幂等，避免“服务端已成功但客户端未收到响应”造成重复消息。
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS channel_publish_outbox (
+    request_id TEXT PRIMARY KEY,
+    channel_id TEXT NOT NULL,
+    content TEXT NOT NULL,
+    msg_type TEXT NOT NULL,
+    payload TEXT,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    next_attempt_at INTEGER NOT NULL,
+    last_error TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_channel_publish_outbox_due
+    ON channel_publish_outbox(next_attempt_at, channel_id);
+
+PRAGMA user_version = 29;

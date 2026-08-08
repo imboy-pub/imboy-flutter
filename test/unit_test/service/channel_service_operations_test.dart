@@ -28,6 +28,7 @@ import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
 import 'package:imboy/store/repository/channel_message_outbox_repo.dart';
+import 'package:imboy/store/repository/channel_publish_outbox_repo.dart';
 import 'package:imboy/store/repository/channel_repo_sqlite.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -57,9 +58,11 @@ class _FakeChannelApi extends ChannelApi {
     this.myInvitationsResult = const [],
     this.sentInvitationsResult = const [],
     this.publishMessageResult,
+    this.publishMessageError,
   });
 
   final ChannelMessageModel? Function()? publishMessageResult;
+  final Object? publishMessageError;
 
   final Map<String, ChannelModel> channelById;
   final bool subscribeResult;
@@ -90,6 +93,7 @@ class _FakeChannelApi extends ChannelApi {
   int discoverChannelsCalls = 0;
 
   final List<(String, String, String)> publishMessageCalls = [];
+  final List<String?> publishRequestIds = <String?>[];
   final List<(String, String)> markAsReadCalls = [];
   final List<String> deleteChannelCalls = [];
   final List<String> searchChannelCalls = [];
@@ -177,8 +181,11 @@ class _FakeChannelApi extends ChannelApi {
     required String content,
     required String msgType,
     Map<String, dynamic>? payload,
+    String? requestId,
   }) async {
     publishMessageCalls.add((channelId, content, msgType));
+    publishRequestIds.add(requestId);
+    if (publishMessageError != null) throw publishMessageError!;
     return publishMessageResult?.call();
   }
 
@@ -467,6 +474,58 @@ class _FakeChannelMessageOutboxRepo extends ChannelMessageOutboxRepo {
   @override
   Future<void> markRetry(int messageId, Object error) async {
     retried.add(messageId);
+  }
+}
+
+class _FakeChannelPublishOutboxRepo extends ChannelPublishOutboxRepo {
+  final List<ChannelPublishOutboxItem> queued = <ChannelPublishOutboxItem>[];
+  final List<String> removed = <String>[];
+  final List<String> retried = <String>[];
+  final List<String> enqueued = <String>[];
+
+  @override
+  Future<void> enqueue({
+    required String requestId,
+    required String channelId,
+    required String content,
+    required String msgType,
+    Map<String, dynamic>? payload,
+    String? error,
+  }) async {
+    enqueued.add(requestId);
+    queued.removeWhere((item) => item.requestId == requestId);
+    queued.add(
+      ChannelPublishOutboxItem(
+        requestId: requestId,
+        channelId: channelId,
+        content: content,
+        msgType: msgType,
+        payload: payload,
+        attempts: 0,
+      ),
+    );
+  }
+
+  @override
+  Future<List<ChannelPublishOutboxItem>> pending({
+    String? channelId,
+    int limit = 20,
+  }) async {
+    return queued
+        .where((item) => channelId == null || item.channelId == channelId)
+        .take(limit)
+        .toList();
+  }
+
+  @override
+  Future<void> remove(String requestId) async {
+    removed.add(requestId);
+    queued.removeWhere((item) => item.requestId == requestId);
+  }
+
+  @override
+  Future<void> markRetry(String requestId, Object error) async {
+    retried.add(requestId);
   }
 }
 
@@ -1200,6 +1259,58 @@ void main() {
       expect(msgRepo.savedMessages, hasLength(1));
       expect(msgRepo.savedMessages.single.id, 9002);
       expect(outbox.queued, isEmpty);
+    });
+
+    test('网络发布失败 → 保存原始请求到发布 outbox', () async {
+      final publishOutbox = _FakeChannelPublishOutboxRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(publishMessageError: Exception('timeout')),
+        repo: _FakeChannelRepo(),
+        publishOutboxRepo: publishOutbox,
+      );
+
+      final result = await service.publishMessage(
+        channelId: '100',
+        content: 'retry me',
+        msgType: 'channel_text',
+        payload: {'draft': true},
+        requestId: 'publish-request-1',
+      );
+
+      expect(result, isNull);
+      expect(publishOutbox.enqueued, ['publish-request-1']);
+      expect(publishOutbox.queued.single.requestId, 'publish-request-1');
+      expect(publishOutbox.queued.single.payload, {'draft': true});
+    });
+
+    test('进入频道消息列表前 → 使用原 request_id 重放发布 outbox', () async {
+      final publishOutbox = _FakeChannelPublishOutboxRepo()
+        ..queued.add(
+          const ChannelPublishOutboxItem(
+            requestId: 'publish-request-2',
+            channelId: '100',
+            content: 'queued publish',
+            msgType: 'channel_text',
+            payload: {'from': 'outbox'},
+            attempts: 1,
+          ),
+        );
+      final message = apiMsg();
+      final api = _FakeChannelApi(publishMessageResult: () => message);
+      final messageRepo = _FakeChannelMessageRepo();
+      final service = ChannelService.forTest(
+        api: api,
+        repo: _FakeChannelRepo()..localChannels.add(_channel(100)),
+        messageRepo: messageRepo,
+        publishOutboxRepo: publishOutbox,
+      );
+
+      await service.getMessages(channelId: '100');
+
+      expect(api.publishRequestIds, ['publish-request-2']);
+      expect(publishOutbox.removed, ['publish-request-2']);
+      expect(messageRepo.savedMessages, hasLength(1));
+      expect(messageRepo.savedMessages.single.id, message.id);
     });
   });
 
@@ -2472,6 +2583,7 @@ class _ThrowingChannelApi extends ChannelApi {
     required String content,
     required String msgType,
     Map<String, dynamic>? payload,
+    String? requestId,
   }) => Future.error(Exception('network error'));
 
   @override

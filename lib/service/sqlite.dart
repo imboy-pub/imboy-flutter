@@ -41,7 +41,8 @@ class SqliteService {
   // v18: C7-α-1 本地 DND 免打扰 conversation.is_muted
   // v26: contact.last_seen_at 最后在线时间戳（修复详情页"从未上线"）
   // v28: channel_message_outbox 频道消息可靠本地待同步队列
-  static const _dbVersion = 28;
+  // v29: channel_publish_outbox 频道消息发布可靠重试队列
+  static const _dbVersion = 29;
 
   // 单例构造
   SqliteService._privateConstructor();

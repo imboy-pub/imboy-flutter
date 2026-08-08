@@ -19,6 +19,7 @@ import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:imboy/store/repository/channel_repo_sqlite.dart';
 import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
 import 'package:imboy/store/repository/channel_message_outbox_repo.dart';
+import 'package:imboy/store/repository/channel_publish_outbox_repo.dart';
 
 /// Channel 服务
 ///
@@ -27,17 +28,20 @@ import 'package:imboy/store/repository/channel_message_outbox_repo.dart';
 /// 包括：数据同步、消息处理、订阅管理等
 class ChannelService {
   static final ChannelService to = ChannelService._privateConstructor();
+  static int _publishRequestSequence = 0;
 
   final ChannelApi _api;
   final ChannelRepo _repo;
   final ChannelMessageRepo _messageRepo;
   final ChannelMessageOutboxRepo _outboxRepo;
+  final ChannelPublishOutboxRepo _publishOutboxRepo;
 
   ChannelService._privateConstructor()
     : _api = ChannelApi(),
       _repo = ChannelRepo(),
       _messageRepo = ChannelMessageRepo(),
-      _outboxRepo = ChannelMessageOutboxRepo();
+      _outboxRepo = ChannelMessageOutboxRepo(),
+      _publishOutboxRepo = ChannelPublishOutboxRepo();
 
   @visibleForTesting
   ChannelService.forTest({
@@ -45,10 +49,13 @@ class ChannelService {
     required ChannelRepo repo,
     ChannelMessageRepo? messageRepo,
     ChannelMessageOutboxRepo? outboxRepo,
+    ChannelPublishOutboxRepo? publishOutboxRepo,
   }) : _api = api,
        _repo = repo,
        _messageRepo = messageRepo ?? ChannelMessageRepo(),
-       _outboxRepo = outboxRepo ?? ChannelMessageOutboxRepo.noop();
+       _outboxRepo = outboxRepo ?? ChannelMessageOutboxRepo.noop(),
+       _publishOutboxRepo =
+           publishOutboxRepo ?? ChannelPublishOutboxRepo.noop();
 
   // ==================== 频道同步 ====================
 
@@ -105,6 +112,7 @@ class ChannelService {
     int limit = 20,
   }) async {
     try {
+      await _drainPublishOutbox(channelId);
       final messages = await _api.getMessages(
         channelId: channelId,
         cursor: cursor,
@@ -188,20 +196,40 @@ class ChannelService {
     required String content,
     required String msgType,
     Map<String, dynamic>? payload,
+    String? requestId,
   }) async {
+    final effectiveRequestId = requestId ?? _issuePublishRequestId();
     try {
       final message = await _api.publishMessage(
         channelId: channelId,
         content: content,
         msgType: msgType,
         payload: payload,
+        requestId: effectiveRequestId,
       );
-      if (message != null) {
-        await _cacheOrEnqueue(message);
+      if (message == null) {
+        throw StateError('publish response message is null');
       }
+      await _publishOutboxRepo.remove(effectiveRequestId);
+      await _cacheOrEnqueue(message);
       return message;
     } catch (e) {
-      iPrint('ChannelService: 发布频道消息失败 - $e');
+      try {
+        await _publishOutboxRepo.enqueue(
+          requestId: effectiveRequestId,
+          channelId: channelId,
+          content: content,
+          msgType: msgType,
+          payload: payload,
+          error: e.toString(),
+        );
+        iPrint(
+          'ChannelService: 发布频道消息失败，已进入发布 outbox - '
+          '$effectiveRequestId: $e',
+        );
+      } catch (outboxError) {
+        iPrint('ChannelService: 发布失败且 outbox 写入失败 - $outboxError');
+      }
       return null;
     }
   }
@@ -212,6 +240,7 @@ class ChannelService {
     int? cursor,
     int limit = 20,
   }) async {
+    await _drainPublishOutbox(channelId);
     await _drainMessageOutbox(channelId);
 
     // 先从本地获取
@@ -232,6 +261,44 @@ class ChannelService {
       cursor: cursor,
       limit: limit,
     );
+  }
+
+  static String _issuePublishRequestId() {
+    final timestamp = DateTime.now().microsecondsSinceEpoch;
+    _publishRequestSequence = (_publishRequestSequence + 1) & 0x7fffffff;
+    return '$timestamp-$_publishRequestSequence';
+  }
+
+  /// 重放待发布请求。每条请求使用原 request_id，服务端据此保证幂等。
+  Future<void> _drainPublishOutbox(String channelId) async {
+    try {
+      final pending = await _publishOutboxRepo.pending(channelId: channelId);
+      for (final item in pending) {
+        try {
+          final message = await _api.publishMessage(
+            channelId: item.channelId,
+            content: item.content,
+            msgType: item.msgType,
+            payload: item.payload,
+            requestId: item.requestId,
+          );
+          if (message == null) {
+            throw StateError('publish response message is null');
+          }
+          await _publishOutboxRepo.remove(item.requestId);
+          await _cacheOrEnqueue(message);
+        } catch (e) {
+          await _publishOutboxRepo.markRetry(item.requestId, e);
+          iPrint(
+            'ChannelService: 发布 outbox 重放失败 - '
+            '${item.requestId}: $e',
+          );
+        }
+      }
+    } catch (e) {
+      // outbox 不得阻塞正常的服务端拉取路径；下次进入/同步时继续尝试。
+      iPrint('ChannelService: 读取发布 outbox 失败 - $e');
+    }
   }
 
   /// 补齐消息父频道后保存；任何本地失败都转入持久化 outbox。

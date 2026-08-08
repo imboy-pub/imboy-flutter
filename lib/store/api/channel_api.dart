@@ -324,10 +324,14 @@ class ChannelApi extends HttpClient {
     required String content,
     required String msgType,
     Map<String, dynamic>? payload,
+    String? requestId,
   }) async {
     final data = <String, dynamic>{'content': content, 'msg_type': msgType};
 
     if (payload != null) data['payload'] = payload;
+    if (requestId != null && requestId.isNotEmpty) {
+      data['request_id'] = requestId;
+    }
 
     final resp = await post('/api/v1/channel/$channelId/message', data: data);
 
