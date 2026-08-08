@@ -38,6 +38,7 @@ import '../widget/typing_indicator.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/service/message_type_normalizer.dart';
 // T4.2b: 域 MessageStatus（与 flutter_chat_core.MessageStatus 同名,用前缀避免冲突）
 import 'package:imboy/modules/messaging/domain/message_status.dart'
     as domain_msg;
@@ -1961,11 +1962,14 @@ class ChatPageState extends ConsumerState<ChatPage>
             // 这里位于 build 闭包内、外层没有 try/catch，强转失败会整屏红。
             final status = parseModelNullableInt(message.metadata?['status']);
             final isRevoked = IMBoyMessageStatus.isRevokedStatus(status);
-            final msgType =
-                (message.metadata?['effective_msg_type'] ??
-                        message.metadata?['msg_type'] ??
-                        '')
-                    .toString();
+            // msg_type 原值优先（真值）；effective_msg_type 是写时缓存，
+            // 旧版本曾把 transfer/redPacket 归一化成 unsupported 持久化，
+            // 优先读它会读错读屏类别，见 MessageTypeNormalizer.renderType。
+            final msgType = MessageTypeNormalizer.renderType(
+              effectiveMsgType: message.metadata?['effective_msg_type']
+                  ?.toString(),
+              rawMsgType: message.metadata?['msg_type']?.toString(),
+            );
             final kind = isRevoked
                 ? t.common.messageRevoked
                 : messageKindLabel(msgType);

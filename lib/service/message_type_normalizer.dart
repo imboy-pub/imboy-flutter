@@ -48,6 +48,24 @@ class MessageTypeNormalizer {
     return type;
   }
 
+  /// 渲染优先类型。
+  ///
+  /// msg_type 原值有效则直接使用——它是消息类型的真值；
+  /// effective_msg_type 是 WS 回显时的写时缓存，旧版本曾把
+  /// redPacket/transfer/groupSchedule 归一化成 unsupported 并持久化，
+  /// 脏缓存会挡住本应正常渲染的类型（读回显示「不支持的消息类型」）。
+  /// 仅当 msg_type 无效（真未知/为空）时回退 effective_msg_type。
+  static String renderType({
+    required String? effectiveMsgType,
+    required String? rawMsgType,
+  }) {
+    final raw = rawMsgType?.trim() ?? '';
+    if (_isValidType(raw)) {
+      return raw;
+    }
+    return effectiveMsgType ?? '';
+  }
+
   /// 批量归一化消息列表（不修改原始数据）
   static List<Map<String, dynamic>> normalizeBatch(
     List<Map<String, dynamic>> messages,

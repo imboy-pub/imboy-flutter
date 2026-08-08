@@ -7,6 +7,8 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart'
+    show parseModelNullableInt;
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -28,7 +30,9 @@ class RevokedMessageBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     // 获取消息元数据
     final Map<String, dynamic> metadata = message.metadata ?? {};
-    final int? status = metadata['status'] as int?;
+    // status 从 WS 回显 / SQLite 回来不保证是 int（旧版本曾以 String 持久化），
+    // `as int?` 强转会抛 TypeError，与 message.dart 同款修复
+    final int? status = parseModelNullableInt(metadata['status']);
     final bool userIsAuthor = user.id == message.authorId;
     final String text = metadata['text'] as String? ?? '';
     final int nowMs = DateTimeHelper.millisecond();

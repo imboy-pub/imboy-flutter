@@ -11,10 +11,13 @@ import 'package:imboy/plugins/builtin/register_builtin_plugins.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/plugins/registry/message_type_registry.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart'
+    show parseModelNullableInt;
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'message_spacing.dart';
@@ -101,11 +104,18 @@ class CustomMessageBuilder extends StatelessWidget {
     bool isSentByMe = message.authorId == user.id;
     Widget content = const SizedBox.shrink();
     try {
-      final effectiveMsgType =
-          message.metadata?['effective_msg_type'] ??
-          message.metadata?['msg_type'] ??
-          '';
-      final status = message.metadata?['status'] as int?;
+      // effective_msg_type 是 WS 回显时的写时缓存，旧版本曾把
+      // redPacket/transfer/groupSchedule 归一化成 unsupported 并持久化，
+      // 渲染层优先读它会把脏缓存渲染成「不支持的消息类型」；
+      // msg_type 原值才是真值，见 MessageTypeNormalizer.renderType。
+      final effectiveMsgType = MessageTypeNormalizer.renderType(
+        effectiveMsgType: message.metadata?['effective_msg_type']?.toString(),
+        rawMsgType: message.metadata?['msg_type']?.toString(),
+      );
+      // status 从 WS 回显 / SQLite 回来不保证是 int（旧版本曾把转账的
+      // status 以 String 持久化），`as int?` 强转会抛 TypeError 被 catch
+      // 兜底成「不支持的消息类型」。parseModelNullableInt 与 chat_page 同款防御。
+      final status = parseModelNullableInt(message.metadata?['status']);
 
       // 方案 D: 检查 status 字段（撤回状态 30-39）
       if (IMBoyMessageStatus.isRevokedStatus(status)) {
@@ -182,9 +192,12 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
       .textStyle(FontSizeType.normal, color: txtColor)
       .copyWith(height: 1.4);
 
-  // 【重构】WebSocket API v2.0: 优先使用 effective_msg_type（归一化后的类型）
-  final effectiveMsgType =
-      msg.metadata?['effective_msg_type'] ?? msg.metadata?['msg_type'] ?? '';
+  // 【重构】WebSocket API v2.0: msg_type 原值优先（见 renderType 注释：
+  // 旧版本脏缓存 effective_msg_type=unsupported 曾挡住 transfer/redPacket 渲染）
+  final effectiveMsgType = MessageTypeNormalizer.renderType(
+    effectiveMsgType: msg.metadata?['effective_msg_type']?.toString(),
+    rawMsgType: msg.metadata?['msg_type']?.toString(),
+  );
 
   Widget content;
   switch (effectiveMsgType) {

@@ -47,7 +47,11 @@ class _MessageTransferBuilderState
   @override
   Widget build(BuildContext context) {
     final metadata = widget.message.metadata ?? {};
-    final amountCents = (metadata['amount'] as num?)?.toInt() ?? 0;
+    // metadata 来自 WS 回显的 payload（跨端/旧版本类型不可信：可能是
+    // String '100' 而非 int 100）。`as num?` 强转失败会抛 TypeError，
+    // 被 CustomMessageBuilder 的 catch 兜底成「不支持的消息类型」。
+    final amountCents =
+        num.tryParse(metadata['amount']?.toString() ?? '')?.toInt() ?? 0;
     final amountYuan = amountCents / 100.0;
     final remark = metadata['remark']?.toString() ?? '转账给好友';
     final transferId = metadata['id']?.toString() ?? '';

@@ -180,6 +180,71 @@ void main() {
     });
   });
 
+  group('MessageTypeNormalizer.renderType', () {
+    test('msg_type 有效时优先用原值（修复脏 effective_msg_type 缓存）', () {
+      // 旧版本曾把 transfer/redPacket 归一化成 unsupported 并随 WS 回显持久化，
+      // 渲染层若优先读 effective_msg_type 会挡住本应正常渲染的类型
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'unsupported',
+          rawMsgType: 'transfer',
+        ),
+        equals('transfer'),
+      );
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'unsupported',
+          rawMsgType: 'redPacket',
+        ),
+        equals('redPacket'),
+      );
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'unsupported',
+          rawMsgType: 'groupSchedule',
+        ),
+        equals('groupSchedule'),
+      );
+    });
+
+    test('msg_type 无效时回退 effective_msg_type（unsupported 兜底）', () {
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'unsupported',
+          rawMsgType: 'invalid_type',
+        ),
+        equals('unsupported'),
+      );
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'unsupported',
+          rawMsgType: '',
+        ),
+        equals('unsupported'),
+      );
+    });
+
+    test('常规消息 msg_type 与 effective_msg_type 一致时返回原值', () {
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'text',
+          rawMsgType: 'text',
+        ),
+        equals('text'),
+      );
+    });
+
+    test('两者都为空返回空串', () {
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: null,
+          rawMsgType: null,
+        ),
+        equals(''),
+      );
+    });
+  });
+
   group('MessageTypeNormalizer.isValidType', () {
     test('应该识别有效类型', () {
       expect(MessageTypeNormalizer.isValidType('text'), isTrue);
