@@ -226,7 +226,7 @@ void main() {
           limit: 20,
         );
         expect(subscribedPage.list, hasLength(1));
-        expect(subscribedPage.hasMore, isTrue);
+        expect(subscribedPage.hasMore, isFalse);
         expect(subscribedPage.nextCursor, 'cursor_2');
         final subscribedReq = api.lastRequest();
         expect(subscribedReq.path, '/api/v1/channels/subscribed');
@@ -237,6 +237,7 @@ void main() {
           channelId: '1001',
           content: 'hello ci',
           msgType: 'channel_text',
+          requestId: 'channel-publish-ci-1',
         );
         expect(message, isNotNull);
         expect(message!.id, 5001);
@@ -249,6 +250,10 @@ void main() {
         expect(
           (publishReq.data as Map<String, dynamic>)['msg_type'],
           'channel_text',
+        );
+        expect(
+          (publishReq.data as Map<String, dynamic>)['request_id'],
+          'channel-publish-ci-1',
         );
       },
     );
