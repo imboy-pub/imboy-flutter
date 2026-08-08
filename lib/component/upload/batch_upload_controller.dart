@@ -73,14 +73,16 @@ typedef FileUploader<T> = Future<T?> Function(File file, bool isVideo);
 /// 朋友圈与频道两处批量上传复用同一控制器（DRY）。
 class BatchUploadController<T> extends ChangeNotifier {
   BatchUploadController({
-    required this.uploader,
+    this.uploader,
     this.fileUploader,
     this.concurrency = 3,
   }) : assert(concurrency > 0);
 
-  final AssetUploader<T> uploader;
+  /// 相册项（AssetEntity）上传器：仅走 [addAndUpload] 时必需。
+  final AssetUploader<T>? uploader;
 
-  /// 仅使用 [addFileAndUpload]（相机路径）时必须提供。
+  /// File 项（相机即拍即传 / file_picker 绕行）上传器：仅走
+  /// [addFileAndUpload] / [addFilesAndUpload] 时必需。
   final FileUploader<T>? fileUploader;
 
   final int concurrency;
@@ -121,6 +123,24 @@ class BatchUploadController<T> extends ChangeNotifier {
     _items.add(UploadItem<T>(id: id, file: file, isVideoFile: isVideo));
     notifyListeners();
     await _uploadById(id);
+  }
+
+  /// 追加一批 File 项并立即分批并行上传（file_picker / Android 绕行路径）。
+  /// 与 [addAndUpload] 同构：按加入顺序回写结果，失败项保留可重试。
+  Future<void> addFilesAndUpload(
+    List<File> files, {
+    bool isVideo = false,
+  }) async {
+    assert(fileUploader != null, 'addFilesAndUpload requires fileUploader');
+    if (files.isEmpty) return;
+    final ids = <int>[];
+    for (final f in files) {
+      final id = _nextId++;
+      ids.add(id);
+      _items.add(UploadItem<T>(id: id, file: f, isVideoFile: isVideo));
+    }
+    notifyListeners();
+    await _runBatches(ids);
   }
 
   /// 注入一批**已上传完成**的结果（草稿恢复用）。
@@ -177,8 +197,8 @@ class BatchUploadController<T> extends ChangeNotifier {
     final item = _itemById(id);
     if (item == null) return;
     final Future<T?> Function() run;
-    if (item.asset != null) {
-      run = () => uploader(item.asset!);
+    if (item.asset != null && uploader != null) {
+      run = () => uploader!(item.asset!);
     } else if (item.file != null && fileUploader != null) {
       run = () => fileUploader!(item.file!, item.isVideoFile);
     } else {

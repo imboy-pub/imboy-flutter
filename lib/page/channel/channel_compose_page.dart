@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,12 +22,47 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:image/image.dart' as img;
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'channel_provider.dart';
 
 /// 单张图片上传结果：object_key + 原始宽高（供 feed 九宫格布局使用）。
 typedef _ImageUpload = ({String uri, int w, int h});
+
+/// 选图函数签名：与 [AssetPicker.pickAssets] 前两个参数对齐（后者多余的可选
+/// 命名参数可赋值给本类型，见 Dart 函数子类型规则）。
+typedef PickAssetsFn =
+    Future<List<AssetEntity>?> Function(
+      BuildContext context, {
+      AssetPickerConfig pickerConfig,
+    });
+
+/// 已选图片的统一抽象：photo_manager 的 [AssetEntity]（非 Android 路径）或
+/// 本地文件（Android 绕行路径，file_picker 无 AssetEntity）。预览与上传两用。
+class _PickedImage {
+  _PickedImage.asset(AssetEntity a) : asset = a, file = null;
+  _PickedImage.file(File f) : asset = null, file = f;
+
+  final AssetEntity? asset;
+  final File? file;
+
+  bool get isAsset => asset != null;
+
+  /// 预览图：photo_manager 路径用缩略图 provider（防大图 OOM）；文件路径用
+  /// ResizeImage 限制解码尺寸（等同缩略图效果）。
+  ImageProvider get provider => isAsset
+      ? AssetEntityImageProvider(asset!, isOriginal: false)
+      : ResizeImage(FileImage(file!), width: 480);
+
+  /// 上传用文件句柄（两条路径最终都落到 [File]）。
+  Future<File> fileOf() async {
+    if (file != null) return file!;
+    final f = await asset!.file;
+    if (f == null) throw StateError('asset file unavailable');
+    return f;
+  }
+}
 
 /// 频道「撰写图文」页（公众号式）
 ///
@@ -35,7 +72,16 @@ typedef _ImageUpload = ({String uri, int w, int h});
 class ChannelComposePage extends ConsumerStatefulWidget {
   final String channelId;
 
-  const ChannelComposePage({super.key, required this.channelId});
+  /// 选图实现注入点（仅测试用）：默认 null 走 [AssetPicker.pickAssets]。
+  /// ponytail: 静态方法不可 mock，函数字段是最低成本接缝；生产恒为 null。
+  @visibleForTesting
+  final PickAssetsFn? pickAssetsOverride;
+
+  const ChannelComposePage({
+    super.key,
+    required this.channelId,
+    this.pickAssetsOverride,
+  });
 
   @override
   ConsumerState<ChannelComposePage> createState() => _ChannelComposePageState();
@@ -67,19 +113,19 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   /// 正文当前是否获焦——决定格式工具条是否显示（获焦时浮在键盘上方）。
   bool _contentFocused = false;
 
-  final List<AssetEntity> _images = [];
+  final List<_PickedImage> _images = [];
   BatchUploadController<_ImageUpload>? _imageUploadController;
 
   /// 用户显式标记的封面图；null 时默认取第一张（见 [_effectiveCover]）。
   /// 用对象引用而非下标追踪，避免删图后下标错位。
-  AssetEntity? _coverAsset;
+  _PickedImage? _coverAsset;
   bool _isPublishing = false;
 
   /// 已成功发布：dispose 时不得再把内容当草稿写回（见 _persistDraftOnExit）。
   bool _published = false;
 
   /// 生效封面：用户已选则用之，否则退化为第一张（无图则 null）。
-  AssetEntity? get _effectiveCover =>
+  _PickedImage? get _effectiveCover =>
       _coverAsset ?? (_images.isNotEmpty ? _images.first : null);
 
   @override
@@ -169,28 +215,117 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   Future<void> _pickImages() async {
     final remaining = _maxImages - _images.length;
     if (remaining <= 0) return;
-    final assets = await AssetPicker.pickAssets(
-      context,
-      pickerConfig: AssetPickerConfig(
-        maxAssets: remaining,
-        requestType: RequestType.image,
-        textDelegate: const EnglishAssetPickerTextDelegate(),
-      ),
-    );
-    if (assets == null || assets.isEmpty || !mounted) return;
-    _discardPendingImageUpload();
-    setState(() => _images.addAll(assets));
+    // Android 上 photo_manager 在部分定制 ROM（华为 Android 9 等）的 platform
+    // channel 会挂起：wechat_assets_picker 永远弹不出且无异常、无日志——正是
+    // BUG#137「点击无反应」的症状（chat_page 为此已全量绕行 file_picker）。
+    // 先短超时探测可用性：挂起/异常走 file_picker（系统原生 Intent）；正常
+    // 设备保留 wechat 相册体验（与频道发布栏一致）。override 非空时跳过探测，
+    // 保持测试注入走 wechat 路径（widget 测试无真实 platform channel）。
+    if (widget.pickAssetsOverride == null &&
+        !kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        !await _photoManagerUsable()) {
+      if (!mounted) return;
+      await _pickImagesViaFilePicker(remaining);
+      return;
+    }
+    // 探测 await 后可能已离页，wechat 路径使用 context 前统一检查。
+    if (!mounted) return;
+    try {
+      final picker = widget.pickAssetsOverride ?? AssetPicker.pickAssets;
+      final assets = await picker(
+        context,
+        pickerConfig: AssetPickerConfig(
+          maxAssets: remaining,
+          requestType: RequestType.image,
+          textDelegate: const EnglishAssetPickerTextDelegate(),
+        ),
+      );
+      if (assets == null || assets.isEmpty || !mounted) return;
+      _discardPendingImageUpload();
+      setState(() {
+        _images.addAll(assets.map(_PickedImage.asset));
+      });
+    } catch (e) {
+      if (!mounted) return;
+      // BUG#137 诊断闭环：真机 Android 9 上本页选图点击无任何反应（无过渡帧、
+      // 无崩溃），同进程 channel_detail 发布栏 (RequestType.common) 相册正常。
+      // 已核对 wechat_assets_picker 10.1.2 源码：permission 流程在 API<33
+      // (PermissionDelegate23) 忽略 requestType；getAssetPathList 对 image 的
+      // SQL (MEDIA_TYPE = 1) 干净——两值加载路径等价，未见 image 专属平台缺陷。
+      // 此前无 try/catch，release 下异常被 zone 吞掉即「无反应」；此处把真实
+      // 异常透出为 toast（与 channel_edit_page 同款「失败 · 真实原因」格式），
+      // 下次真机复验若复现，错误文案即根因线索。
+      // 无需 dismiss：进入 catch 前没有任何 show()，showError 即终态 toast。
+      final reason = e.toString().replaceFirst('Exception: ', '').trim();
+      AppLoading.showError(
+        reason.isEmpty
+            ? t.common.selectImageFailed
+            : '${t.common.selectImageFailedWithError} · $reason',
+      );
+    }
   }
 
-  // ---- 上传 + 发布 ----
+  /// 探测 photo_manager 是否可用：定制 ROM 上 platform channel 挂起时调用
+  /// 永不完成且无异常，只能靠超时兜底（正常设备毫秒级返回）。
+  Future<bool> _photoManagerUsable() async {
+    try {
+      await PhotoManager.getAssetPathList(
+        type: RequestType.image,
+        onlyAll: true,
+      ).timeout(const Duration(seconds: 5));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Android 绕行：file_picker 走系统原生 Intent（ACTION_GET_CONTENT），
+  /// 完全绕过 photo_manager。选中的本地文件同样进 [_PickedImage] 双轨，
+  /// 后续上传/预览与相册路径一致。
+  Future<void> _pickImagesViaFilePicker(int remaining) async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.image,
+        allowMultiple: true,
+      );
+      if (result == null || result.files.isEmpty || !mounted) return;
+      final picked = <_PickedImage>[
+        for (final f in result.files.take(remaining))
+          if (f.path != null) _PickedImage.file(File(f.path!)),
+      ];
+      if (picked.isEmpty) return;
+      _discardPendingImageUpload();
+      setState(() => _images.addAll(picked));
+    } catch (e) {
+      if (!mounted) return;
+      final reason = e.toString().replaceFirst('Exception: ', '').trim();
+      AppLoading.showError(
+        reason.isEmpty
+            ? t.common.selectImageFailed
+            : '${t.common.selectImageFailedWithError} · $reason',
+      );
+    }
+  }
 
   /// 上传单张图片，返回 object_key + 宽高；失败返回 null 计入失败计数。
-  Future<_ImageUpload?> _uploadImage(AssetEntity asset) async {
-    final file = await asset.file;
-    if (file == null) return null;
+  ///
+  /// 宽高统一从文件解码：file_picker 路径拿不到 photo_manager 的元数据，
+  /// 解码结果与相册路径一致（attachment_handler 同款做法）。
+  Future<_ImageUpload?> _uploadImage(File file) async {
     final uri = await _uploadChannelFile(file);
     if (uri == null || uri.isEmpty) return null;
-    return (uri: uri, w: asset.width, h: asset.height);
+    var width = 0, height = 0;
+    try {
+      final decoded = img.decodeImage(await file.readAsBytes());
+      if (decoded != null) {
+        width = decoded.width;
+        height = decoded.height;
+      }
+    } catch (e) {
+      debugPrint('[channel_compose] decodeImage error: $e');
+    }
+    return (uri: uri, w: width, h: height);
   }
 
   Future<String?> _uploadChannelFile(File file) async {
@@ -273,9 +408,22 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   Future<List<Map<String, dynamic>>?> _uploadAllImages(Translations t) async {
     if (_images.isEmpty) return const [];
 
+    // 先解析全部本地文件（相册路径的 AssetEntity 也同步落盘句柄），再按
+    // _images 顺序批量并发上传（统一走 file 轨道，见 BatchUploadController）。
+    final files = <File>[];
+    try {
+      for (final image in _images) {
+        files.add(await image.fileOf());
+      }
+    } catch (e) {
+      debugPrint('[channel_compose] resolve image file error: $e');
+      AppLoading.showError(t.common.uploadFailed);
+      return null;
+    }
+
     final controller = _imageUploadController ??=
         BatchUploadController<_ImageUpload>(
-          uploader: _uploadImage,
+          fileUploader: (file, _) => _uploadImage(file),
           concurrency: _uploadConcurrency,
         );
     void onProgress() {
@@ -297,7 +445,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
         status: '${t.common.uploading} 0/${_images.length}',
       );
       if (controller.items.isEmpty) {
-        await controller.addAndUpload(_images);
+        await controller.addFilesAndUpload(files);
       } else {
         await controller.retryFailed();
       }
@@ -386,16 +534,16 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
       builder: (ctx) => _ComposePreviewSheet(
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
-        images: List<AssetEntity>.from(_images),
+        images: List<_PickedImage>.from(_images),
         cover: _effectiveCover,
         onPublish: _publish,
       ),
     );
   }
 
-  void _setCover(AssetEntity asset) {
+  void _setCover(_PickedImage image) {
     HapticFeedback.selectionClick();
-    setState(() => _coverAsset = asset);
+    setState(() => _coverAsset = image);
     AppLoading.showToast(context.t.channel.coverSet);
   }
 
@@ -585,17 +733,17 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     );
   }
 
-  Widget _buildImageTile(AssetEntity asset, int index, double size) {
-    final isCover = identical(asset, _effectiveCover);
+  Widget _buildImageTile(_PickedImage image, int index, double size) {
+    final isCover = identical(image, _effectiveCover);
     // 长按标记封面（订阅号大图卡取此图作封面）。
     return GestureDetector(
-      onLongPress: _isPublishing ? null : () => _setCover(asset),
+      onLongPress: _isPublishing ? null : () => _setCover(image),
       child: Stack(
         children: [
           ClipRRect(
             borderRadius: AppRadius.borderRadiusSmall,
             child: Image(
-              image: AssetEntityImageProvider(asset, isOriginal: false),
+              image: image.provider,
               width: size,
               height: size,
               fit: BoxFit.cover,
@@ -696,10 +844,10 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
 class _ComposePreviewSheet extends StatelessWidget {
   final String title;
   final String content;
-  final List<AssetEntity> images;
+  final List<_PickedImage> images;
 
   /// 生效封面（用户标记或默认第一张）；有封面时预览用大图卡样式。
-  final AssetEntity? cover;
+  final _PickedImage? cover;
   final VoidCallback? onPublish;
 
   const _ComposePreviewSheet({
@@ -797,10 +945,7 @@ class _ComposePreviewSheet extends StatelessWidget {
       borderRadius: AppRadius.borderRadiusSmall,
       child: AspectRatio(
         aspectRatio: 16 / 9,
-        child: Image(
-          image: AssetEntityImageProvider(cover!, isOriginal: false),
-          fit: BoxFit.cover,
-        ),
+        child: Image(image: cover!.provider, fit: BoxFit.cover),
       ),
     );
   }
@@ -819,11 +964,11 @@ class _ComposePreviewSheet extends StatelessWidget {
           spacing: spacing,
           runSpacing: spacing,
           children: [
-            for (final asset in images)
+            for (final image in images)
               ClipRRect(
                 borderRadius: AppRadius.borderRadiusSmall,
                 child: Image(
-                  image: AssetEntityImageProvider(asset, isOriginal: false),
+                  image: image.provider,
                   width: cell,
                   height: cell,
                   fit: BoxFit.cover,
