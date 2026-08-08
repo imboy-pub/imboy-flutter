@@ -1,7 +1,7 @@
 # imboyapp 自动化测试计划 —— 索引
 
 > **权威文档**。imboyapp 现有全部功能点（已完成 / 未完成 / 阻塞 全部纳入）。
-> 覆盖 **137 个页面 / 1532 个功能点**
+> 覆盖 **137 个页面 / 1542 个功能点**
 > 数据源：`lib/page/**` 真实源码抽取 ＋ 真机实测记录
 
 > ⚠️ 本文件由 `regen_readme.py` 生成，**不要手改**。
@@ -38,11 +38,11 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 467 | 30.5% |
-| 回归复测 | 630 | 41.1% |
+| 无待办 | 467 | 30.3% |
+| 回归复测 | 630 | 40.9% |
 | 待复验 | 23 | 1.5% |
-| 阻塞 | 412 | 26.9% |
-| **合计** | **1532** | 100% |
+| 阻塞 | 422 | 27.4% |
+| **合计** | **1542** | 100% |
 
 bug 累计：**发现 176 / 解决 149 / 待处理 27**
 
@@ -65,9 +65,9 @@ bug 累计：**发现 176 / 解决 149 / 待处理 27**
 | [single](single/) | 5 | 48 | 0 | 3 | 14 | 2 | 29 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 16 | 25 | 1 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 16 | 9 | 0 | 11 |
+| [search](search/) | 3 | 35 | 1 | 5 | 9 | 0 | 21 |
 | [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 0 | 28 |
 | [scanner](scanner/) | 3 | 30 | 0 | 1 | 5 | 0 | 24 |
-| [search](search/) | 3 | 25 | 1 | 5 | 9 | 0 | 11 |
 | [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 5 | 0 | 0 | 7 |
 | [conversation](conversation/) | 1 | 12 | 1 | 4 | 7 | 1 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 3 | 0 | 0 | 9 |
@@ -235,8 +235,8 @@ bug 累计：**发现 176 / 解决 149 / 待处理 27**
 
 ### search
 
-- [message_search_page](search/message_search_page.md) — 7 功能点 ⚠️ 1 待处理
-- [search_chat_page](search/search_chat_page.md) — 6 功能点
+- [message_search_page](search/message_search_page.md) — 12 功能点 ⚠️ 1 待处理
+- [search_chat_page](search/search_chat_page.md) — 11 功能点
 - [web_search_page](search/web_search_page.md) — 12 功能点
 
 ### settings
