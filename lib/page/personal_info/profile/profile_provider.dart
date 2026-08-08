@@ -265,6 +265,15 @@ class ProfileNotifier extends _$ProfileNotifier {
           case 'birthday':
             state = state.copyWith(birthday: value as String?);
             break;
+          case 'profession':
+            state = state.copyWith(profession: value as String?);
+            break;
+          case 'school':
+            state = state.copyWith(school: value as String?);
+            break;
+          case 'interests':
+            state = state.copyWith(interests: value as String?);
+            break;
           // 隐私设置字段
           case 'allow_search':
             state = state.copyWith(

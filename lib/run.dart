@@ -220,8 +220,12 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
   /// 初始化 slang locale
   Future<void> _initLocale() async {
     if (_localeInitialized) return;
+    // 进入即置位：addPostFrameCallback 每次 build 都会触发本方法，
+    // 若等 await 完成后才置位，首个 await 挂起期间的重入会并发执行
+    // setPluralResolver，撞上 slang lazy 加载同一 locale 的竞态 NPE。
+    _localeInitialized = true;
 
-    _registerPluralResolvers();
+    await _registerPluralResolvers();
 
     try {
       // 优先从本地存储读取用户上次选择的语言
@@ -244,11 +248,9 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
         // 使用异步方法设置语言
         await LocaleSettings.setLocale(savedLocale);
       }
-      _localeInitialized = true;
     } catch (e) {
       // 如果获取失败，使用默认的简体中文
       await LocaleSettings.setLocale(AppLocale.zhCn);
-      _localeInitialized = true;
     }
   }
 
@@ -263,9 +265,9 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
   /// 待母语者补），恒返回 other 即为正确行为 —— 显式注册只为消除噪音日志，
   /// 不改变任何输出。ru / ar 将来补齐 few/many 时，把对应 resolver 换成
   /// 真实规则即可。
-  void _registerPluralResolvers() {
+  Future<void> _registerPluralResolvers() async {
     for (final lang in const ['zh', 'ja', 'ko', 'ar', 'ru']) {
-      LocaleSettings.setPluralResolver(
+      await LocaleSettings.setPluralResolver(
         language: lang,
         cardinalResolver: (n, {zero, one, two, few, many, other}) =>
             other ?? one ?? n.toString(),
