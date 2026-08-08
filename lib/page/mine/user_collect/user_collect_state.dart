@@ -43,6 +43,11 @@ class UserCollectState {
   /// 是否还有更多数据可加载
   bool hasMore = true;
 
+  /// 本次加载是否失败（失败置 true，成功置 false）。
+  /// 收藏页的 page() 是 fail-open 的：请求失败只体现为空列表，不抛异常，
+  /// 页面靠这个标记区分「加载失败」与「服务端确实没数据」。
+  bool loadFailed = false;
+
   /// 正在进行删除的项集合，用于防止重复提交
   Set<String> removingIds = <String>{};
 
@@ -65,6 +70,7 @@ class UserCollectState {
     bool? isLoading,
     bool? isRefreshing,
     bool? hasMore,
+    bool? loadFailed,
     Set<String>? removingIds,
   }) {
     return UserCollectState()
@@ -81,6 +87,7 @@ class UserCollectState {
       ..isLoading = isLoading ?? this.isLoading
       ..isRefreshing = isRefreshing ?? this.isRefreshing
       ..hasMore = hasMore ?? this.hasMore
+      ..loadFailed = loadFailed ?? this.loadFailed
       ..removingIds = removingIds ?? this.removingIds;
   }
 }

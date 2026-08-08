@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/http/http_transformer.dart';
 import 'package:imboy/config/const.dart';
@@ -79,16 +80,17 @@ void main() {
       },
     );
 
-    test('page should return null on failure', () async {
+    // BUG#128：page() 不再 fail-open 吞失败（旧契约是失败返回 null，
+    // 页面把失败当成「没数据」静默空态）。必须抛异常，provider 的
+    // on Exception 分支才能置 loadFailed 标记渲染错误横幅。
+    test('page should throw HttpException on failure', () async {
       final api = _FakeUserCollectApi();
       api.nextResponse = IMBoyHttpResponse.failure(
         errCode: 500,
         errMsg: 'failed',
       );
 
-      final result = await api.page({'page': 1});
-
-      expect(result, isNull);
+      await expectLater(api.page({'page': 1}), throwsA(isA<HttpException>()));
       expect(api.lastUri, API.userCollectPage);
     });
 

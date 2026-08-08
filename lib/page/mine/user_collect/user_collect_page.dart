@@ -90,6 +90,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         notifier.tagItems(context),
       ]);
       if (!mounted) return;
+      // BUG#128：page() 失败时不抛异常（fail-open），只通过 state.loadFailed
+      // 区分「加载失败」与「服务端确实没数据」。必须在下面的 updateState
+      // 之前读——updateState 用 currentState 旧快照 copyWith，会把
+      // loadFailed 覆盖回旧值，晚读就拿不到本次失败标记了。
+      final latest = ref.read(userCollectProvider);
+      setState(() => _loadError = latest.loadFailed);
       final list = results[0] as List<UserCollectModel>;
       final tagItems = results[1] as List<Widget>;
       notifier.updateState(
@@ -103,6 +109,18 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     } on Exception catch (_) {
       if (mounted) setState(() => _loadError = true);
     }
+  }
+
+  /// BUG#128：page() 是 fail-open 的——请求失败只返回空列表并置
+  /// state.loadFailed，不抛异常。而 updateState 用调用前的旧快照
+  /// copyWith，会把 loadFailed 覆盖回旧值，所以各调用点必须在
+  /// updateState 之前读最新标记刷 _loadError。
+  /// 返回 true 表示本次加载失败（调用方应跳过 updateState 保留原列表）。
+  bool _applyLoadFailed() {
+    if (!mounted) return true;
+    final failed = ref.read(userCollectProvider).loadFailed;
+    setState(() => _loadError = failed);
+    return failed;
   }
 
   void _setupScrollListener() {
@@ -119,6 +137,9 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             size: currentState.size,
             kind: currentState.kind,
           );
+          // BUG#128：加载更多失败时保留原列表 + 显示错误横幅，
+          // 不再静默 updateState(hasMore: false)（旧快照会覆盖 loadFailed）。
+          if (_applyLoadFailed()) return;
           if (list.isNotEmpty && mounted) {
             final existingIds = currentState.items.map((e) => e.kindId).toSet();
             final filtered = list
@@ -729,11 +750,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       kind: currentState.kind,
       kwd: query,
     );
-    if (mounted) {
-      notifier.updateState(
-        currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1),
-      );
-    }
+    if (!mounted) return;
+    // BUG#128：搜索失败保留原列表 + 错误横幅，不静默变成空态
+    if (_applyLoadFailed()) return;
+    notifier.updateState(
+      currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1),
+    );
   }
 
   Future<void> _resetSearch() async {
@@ -745,12 +767,11 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       kind: currentState.kind,
       onRefresh: true,
     );
-    if (mounted) {
-      notifier.updateState(
-        currentState.copyWith(items: list, page: 2, kwd: ''),
-      );
-      _searchController.clear();
-    }
+    if (!mounted) return;
+    // BUG#128：刷新失败保留原列表 + 错误横幅
+    if (_applyLoadFailed()) return;
+    notifier.updateState(currentState.copyWith(items: list, page: 2, kwd: ''));
+    _searchController.clear();
   }
 
   Future<void> _searchByTag(
@@ -765,11 +786,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       size: currentState.size,
       tag: tag,
     );
-    if (mounted) {
-      notifier.updateState(
-        currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1),
-      );
-    }
+    if (!mounted) return;
+    // BUG#128：标签搜索失败保留原列表 + 错误横幅
+    if (_applyLoadFailed()) return;
+    notifier.updateState(
+      currentState.copyWith(items: list, page: list.isNotEmpty ? 2 : 1),
+    );
   }
 
   Future<void> _searchByKind(
@@ -784,15 +806,16 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       size: currentState.size,
       kind: kind,
     );
-    if (mounted) {
-      notifier.updateState(
-        currentState.copyWith(
-          items: list,
-          kind: kind,
-          page: list.isNotEmpty ? 2 : 1,
-        ),
-      );
-    }
+    if (!mounted) return;
+    // BUG#128：分类切换失败保留原列表 + 错误横幅
+    if (_applyLoadFailed()) return;
+    notifier.updateState(
+      currentState.copyWith(
+        items: list,
+        kind: kind,
+        page: list.isNotEmpty ? 2 : 1,
+      ),
+    );
   }
 
   @override

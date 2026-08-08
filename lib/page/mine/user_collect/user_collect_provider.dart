@@ -113,7 +113,10 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         } else {
           // 本地有数据，直接返回（并更新 hasMore）
           await _decryptCollectModels(localList);
-          state.hasMore = localList.length >= size;
+          state = state.copyWith(
+            hasMore: localList.length >= size,
+            loadFailed: false,
+          );
           return localList;
         }
       }
@@ -135,9 +138,13 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       final Map<String, dynamic>? payload = await UserCollectApi().page(args);
       if (payload == null || payload['list'] == null) {
         // 服务端返回为空或异常，标记无更多并返回空列表
-        state.hasMore = false;
+        // BUG#128：payload == null 恒等于请求失败（成功空数据是 {"list": []}），
+        // 必须置 loadFailed 标记，页面才能渲染错误横幅而不是「暂无收藏内容」。
+        state = state.copyWith(hasMore: false, loadFailed: true);
         return [];
       }
+      // 请求成功（含空列表），清除失败标记，后续 return 路径都保持 false
+      state = state.copyWith(loadFailed: false);
 
       for (var json in (payload['list'] as List)) {
         json['user_id'] = json['user_id'] ?? UserRepoLocal.to.currentUid;
@@ -166,7 +173,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     } on Exception {
       if (kDebugMode) {}
       // 出错返回空列表，外层会显示错误态或重试
-      state.hasMore = false;
+      state = state.copyWith(hasMore: false, loadFailed: true);
       return [];
     } finally {
       state.isLoading = false;

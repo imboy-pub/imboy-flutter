@@ -12,9 +12,10 @@ class UserCollectApi extends HttpClient {
       API.userCollectPage,
       queryParameters: args,
     );
-    if (!resp.ok) {
-      return null;
-    }
+    // BUG#128：HttpClient 从不抛异常（fail-open），网络失败只体现为
+    // resp.ok == false。必须显式抛出，provider.page() 的 on Exception
+    // 分支才能置 loadFailed 标记，页面才会渲染错误横幅而不是静默空态。
+    resp.throwIfFailed();
     return resp.payload as Map<String, dynamic>?;
   }
 
