@@ -38,13 +38,13 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 470 | 30.5% |
-| 回归复测 | 625 | 40.5% |
-| 待复验 | 21 | 1.4% |
-| 阻塞 | 426 | 27.6% |
+| 无待办 | 478 | 31.0% |
+| 回归复测 | 629 | 40.8% |
+| 待复验 | 17 | 1.1% |
+| 阻塞 | 418 | 27.1% |
 | **合计** | **1542** | 100% |
 
-bug 累计：**发现 176 / 解决 155 / 待处理 21**
+bug 累计：**发现 180 / 解决 160 / 待处理 20**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -54,15 +54,15 @@ bug 累计：**发现 176 / 解决 155 / 待处理 21**
 |---|---|---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 2 | 58 | 178 | 0 | 50 |
 | [mine](mine/) | 21 | 249 | 0 | 112 | 107 | 0 | 30 |
-| [channel](channel/) | 13 | 146 | 3 | 38 | 71 | 3 | 34 |
-| [contact](contact/) | 13 | 126 | 4 | 35 | 73 | 1 | 17 |
+| [channel](channel/) | 13 | 146 | 3 | 42 | 71 | 3 | 30 |
+| [contact](contact/) | 13 | 126 | 4 | 34 | 74 | 1 | 17 |
 | [personal_info](personal_info/) | 8 | 89 | 5 | 45 | 21 | 3 | 20 |
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 39 |
-| [chat](chat/) | 6 | 76 | 3 | 38 | 7 | 6 | 25 |
+| [chat](chat/) | 6 | 76 | 1 | 38 | 12 | 4 | 22 |
 | [moment](moment/) | 6 | 74 | 0 | 13 | 47 | 3 | 11 |
 | [wallet](wallet/) | 5 | 61 | 1 | 11 | 19 | 1 | 30 |
-| [user_tag](user_tag/) | 5 | 58 | 1 | 34 | 8 | 0 | 16 |
-| [single](single/) | 5 | 48 | 0 | 3 | 14 | 2 | 29 |
+| [user_tag](user_tag/) | 5 | 58 | 2 | 36 | 6 | 0 | 16 |
+| [single](single/) | 5 | 48 | 0 | 6 | 14 | 0 | 28 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 16 | 25 | 1 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 16 | 9 | 0 | 11 |
 | [search](search/) | 3 | 35 | 1 | 5 | 9 | 0 | 21 |
@@ -102,7 +102,7 @@ bug 累计：**发现 176 / 解决 155 / 待处理 21**
 
 - [chat_page](chat/chat_page.md) — 21 功能点
 - [chat_setting_page](chat/chat_setting_page.md) — 10 功能点
-- [p2p_call_screen_page](chat/p2p_call_screen_page.md) — 12 功能点 ⚠️ 3 待处理
+- [p2p_call_screen_page](chat/p2p_call_screen_page.md) — 12 功能点 ⚠️ 1 待处理
 - [quick_reply_manage_page](chat/quick_reply_manage_page.md) — 11 功能点
 - [rtc_room_page](chat/rtc_room_page.md) — 12 功能点
 - [send_to_page](chat/send_to_page.md) — 10 功能点
@@ -259,7 +259,7 @@ bug 累计：**发现 176 / 解决 155 / 待处理 21**
 
 ### user_tag
 
-- [contact_tag_detail_page](user_tag/contact_tag_detail_page.md) — 11 功能点
+- [contact_tag_detail_page](user_tag/contact_tag_detail_page.md) — 11 功能点 ⚠️ 1 待处理
 - [contact_tag_list_page](user_tag/contact_tag_list_page.md) — 12 功能点
 - [select_tag_friend_page](user_tag/select_tag_friend_page.md) — 12 功能点
 - [tag_relation_page](user_tag/tag_relation_page.md) — 12 功能点
