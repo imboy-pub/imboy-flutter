@@ -42,6 +42,16 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
   bool _isLoading = true;
   bool _isSaving = false;
 
+  /// TagInput 重建版本号（BUG#142）。
+  ///
+  /// TagInput 只在 initState 读取 initialTags，内部增删改经 onTagsChanged
+  /// 回传页面。页面侧命令式操作（清空/重置）只改 `_currentTags`，
+  /// TagInput 内部列表不同步 → 清空后已选区块还显示旧标签，且去重拦截
+  /// 导致建议区加不回来。自增此值并作为 TagInput 的 key 强制重建，
+  /// 重建后新 State 从最新 initialTags 重新初始化（输入框文本/焦点天然重置）。
+  /// 不能用 `_currentTags` 内容当 key：内部编辑也会改它，会导致每次添加都重建丢焦点。
+  int _tagInputVersion = 0;
+
   @override
   void initState() {
     super.initState();
@@ -157,6 +167,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
   void _resetTags() {
     setState(() {
       _currentTags = List.from(_originalTags);
+      _tagInputVersion++;
     });
     HapticFeedback.lightImpact();
   }
@@ -179,6 +190,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
               Navigator.of(context).pop();
               setState(() {
                 _currentTags.clear();
+                _tagInputVersion++;
               });
               HapticFeedback.lightImpact();
             },
@@ -329,6 +341,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                             ],
                           ),
                           child: TagInput(
+                            key: ValueKey('tag_input_$_tagInputVersion'),
                             initialTags: _currentTags,
                             suggestedTags: _suggestedTags,
                             tagUsageCount: _tagUsageCount,
