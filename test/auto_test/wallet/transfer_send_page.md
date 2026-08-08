@@ -6,7 +6,7 @@
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
 | 回归复测 | 2026-08-07 | `page/wallet/transfer_send_page.dart` | 进页自动拉取真实余额 | 待重验 | - | 0 | 0 | 0 | |
-| 待复验 | 2026-08-06 | `page/wallet/transfer_send_page.dart` | 从通讯录加载收款人显示名 | BUG已修待验 | - | 0 | 0 | 0 | BUG#111 同源修改，`ContactRepo().findByUid()` |
+| 阻塞 | 需余额>0 且用户授权 | `page/wallet/transfer_send_page.dart` | 从通讯录加载收款人显示名 | BUG已修待验 | - | 0 | 0 | 0 | BUG#111 同源修改，`ContactRepo().findByUid()`；批次37 复核：_receiverName 仅渲染于二次确认弹窗（transfer_send_page L122 redPacketReceiverLabel），弹窗必经余额拦截（余额 ¥0.00 实测），条件不具备转阻塞（待充值） |
 | 回归复测 | 2026-08-07 | `page/wallet/transfer_send_page.dart` | 校验转账金额非空与格式 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/wallet/transfer_send_page.dart` | 拦截低于 0.1 元的转账金额 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/wallet/transfer_send_page.dart` | 拦截超出余额的转账金额 | 待重验 | - | 0 | 0 | 0 | |

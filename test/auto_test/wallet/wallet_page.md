@@ -16,4 +16,4 @@
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/wallet_page.dart` | 触底加载更多流水记录 | 未测 | - | 0 | 0 | 0 | 需 >1 页真实流水 |
 | 无待办 | - | `page/wallet/wallet_page.dart` | 渲染流水记录空态 | 已通过 | 批次22 | 1 | 1 | 0 | BUG#110 已在 `ImBoySettingsSection` 加空 children 守卫 |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/wallet_page.dart` | 区分收支方向并着色金额 | 未测 | - | 0 | 0 | 0 | 需真实流水记录 |
-| 回归复测 | 2026-08-07 | `page/wallet/wallet_page.dart` | 展示收款/银行卡即将开放禁用态 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/wallet/wallet_page.dart` | 展示收款/银行卡即将开放禁用态 | 已通过 | 批次37 | 0 | 0 | 0 | 真机：钱包页「收付款」与「银行卡」区块各渲染「敬请期待」禁用态，零钱正常显示 ¥0.00 |
