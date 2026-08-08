@@ -16,5 +16,5 @@
 | 回归复测 | 2026-08-07 | `page/wallet/withdraw_page.dart` | 二次确认展示金额渠道账号 | 待重验 | - | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 确认按钮使用破坏性红配色 | 已通过 | 批次28 | 2 | 2 | 0 | 批次28 真机复验挖出**同族漏改**：上轮只改了二次确认弹窗的 `CupertinoDialogAction`，页面主按钮 `WalletPrimaryButton` 仍是 `AppColors.getIosRed`（真机截图确认）。同一条判据、同一个页面，已一并改为 `AppColors.primary`（与转账页 `transfer_send_page` 的资金主操作一致）。重装后复验：主按钮为品牌蓝。⚠️**弹窗分支未覆盖** —— `_handleWithdraw` 在 `amountYuan > maxBalanceYuan` 时直接 showError 并 return，测试账号余额 ￥0.00，弹窗代码路径不可达；弹窗侧改动仅有代码核实（`isDefaultAction: true`，withdraw_page.dart:136）。原修复记录： 提现不是破坏性操作，iosRed 是留给删除/退出这类不可逆动作的。已把确认按钮从 `isDestructiveAction` 改为 `isDefaultAction`（主操作语义，加粗蓝），待真机看弹窗配色 |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/withdraw_page.dart` | 提交提现请求并刷新余额返回 | 未测 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/wallet/withdraw_page.dart` | 展示手续费与到账时效中性说明 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/wallet/withdraw_page.dart` | 展示手续费与到账时效中性说明 | 已通过 | 批次32 | 0 | 0 | 0 | 真机复验通过（批次32）：钱包→更多→提现，UI 树确认「手续费与到账时间以实际结算为准」中性说明渲染于零钱余额提示条与确认按钮之间，无具体费率/时效承诺 |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/withdraw_page.dart` | 提现失败错误提示 | 未测 | - | 0 | 0 | 0 | |

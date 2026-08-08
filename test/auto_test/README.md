@@ -38,13 +38,13 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 466 | 30.4% |
-| 回归复测 | 632 | 41.3% |
-| 待复验 | 26 | 1.7% |
-| 阻塞 | 408 | 26.6% |
+| 无待办 | 467 | 30.5% |
+| 回归复测 | 631 | 41.2% |
+| 待复验 | 24 | 1.6% |
+| 阻塞 | 410 | 26.8% |
 | **合计** | **1532** | 100% |
 
-bug 累计：**发现 175 / 解决 149 / 待处理 26**
+bug 累计：**发现 176 / 解决 149 / 待处理 27**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -52,7 +52,7 @@ bug 累计：**发现 175 / 解决 149 / 待处理 26**
 
 | 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 回归复测 | 待复验 | 阻塞 |
 |---|---|---|---|---|---|---|---|
-| [group](group/) | 26 | 286 | 1 | 58 | 178 | 1 | 49 |
+| [group](group/) | 26 | 286 | 2 | 58 | 178 | 0 | 50 |
 | [mine](mine/) | 21 | 249 | 1 | 112 | 108 | 0 | 29 |
 | [channel](channel/) | 13 | 146 | 5 | 38 | 71 | 3 | 34 |
 | [contact](contact/) | 13 | 126 | 4 | 35 | 73 | 1 | 17 |
@@ -60,7 +60,7 @@ bug 累计：**发现 175 / 解决 149 / 待处理 26**
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 39 |
 | [chat](chat/) | 6 | 76 | 3 | 38 | 7 | 6 | 25 |
 | [moment](moment/) | 6 | 74 | 2 | 13 | 47 | 2 | 12 |
-| [wallet](wallet/) | 5 | 61 | 1 | 7 | 24 | 5 | 25 |
+| [wallet](wallet/) | 5 | 61 | 1 | 8 | 23 | 4 | 26 |
 | [user_tag](user_tag/) | 5 | 58 | 2 | 34 | 8 | 2 | 14 |
 | [single](single/) | 5 | 48 | 0 | 3 | 14 | 2 | 29 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 16 | 25 | 1 | 0 |
@@ -137,7 +137,7 @@ bug 累计：**发现 175 / 解决 149 / 待处理 26**
 - [group_album_photo_detail_page](group/group_album_photo_detail_page.md) — 11 功能点
 - [group_album_photo_page](group/group_album_photo_page.md) — 12 功能点
 - [group_announcement_page](group/group_announcement_page.md) — 12 功能点
-- [group_category_detail_page](group/group_category_detail_page.md) — 10 功能点 ⚠️ 1 待处理
+- [group_category_detail_page](group/group_category_detail_page.md) — 10 功能点 ⚠️ 2 待处理
 - [group_category_page](group/group_category_page.md) — 10 功能点
 - [group_detail_page](group/group_detail_page.md) — 12 功能点
 - [group_file_audio_preview_page](group/group_file_audio_preview_page.md) — 9 功能点
