@@ -10,6 +10,7 @@ README 的规则说明与列定义是静态文案，写死在本脚本里，不�
 避免「改了规则忘了同步」。
 """
 import os
+import sys
 import glob
 import collections
 
@@ -24,11 +25,13 @@ def parse():
         mod = os.path.basename(os.path.dirname(f))
         name = os.path.basename(f)
         rows, c, found, solved, pending, path = 0, collections.Counter(), 0, 0, 0, ''
-        for line in open(f, encoding='utf-8'):
+        for lineno, line in enumerate(open(f, encoding='utf-8'), 1):
             if not line.startswith('| ') or line.startswith('| 计划变化'):
                 continue
             col = [x.strip() for x in line.split('|')]
             if len(col) < 11:
+                print(f'⚠️ 跳过列数不足的行: {f}:{lineno} 列数={len(col)} | {line.rstrip()[:60]}…',
+                      file=sys.stderr)
                 continue
             rows += 1
             c[col[1]] += 1
