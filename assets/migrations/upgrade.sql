@@ -1402,3 +1402,26 @@ ALTER TABLE channel ADD COLUMN is_subscribed INTEGER DEFAULT 0;
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 27;
+
+-- ============================================================
+-- VERSION: 28
+-- DESC: 频道消息本地可靠待同步 outbox。
+--       API 成功后若本地频道/消息写入失败，保存完整消息快照，待下次同步重放；
+--       避免仅依赖内存和后续偶然拉取。
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS channel_message_outbox (
+    message_id INTEGER PRIMARY KEY,
+    channel_id INTEGER NOT NULL,
+    payload TEXT NOT NULL,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    next_attempt_at INTEGER NOT NULL,
+    last_error TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_channel_message_outbox_due
+    ON channel_message_outbox(next_attempt_at, channel_id);
+
+PRAGMA user_version = 28;

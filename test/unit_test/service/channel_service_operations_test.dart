@@ -27,6 +27,7 @@ import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
+import 'package:imboy/store/repository/channel_message_outbox_repo.dart';
 import 'package:imboy/store/repository/channel_repo_sqlite.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -431,6 +432,41 @@ class _FakeChannelMessageRepo extends ChannelMessageRepo {
   Future<int> deleteOldMessages(String channelId, int keepCount) async {
     deleteOldMessagesCalls.add((channelId, keepCount));
     return 0;
+  }
+}
+
+class _FakeChannelMessageOutboxRepo extends ChannelMessageOutboxRepo {
+  final List<ChannelMessageModel> queued = <ChannelMessageModel>[];
+  final List<int> retried = <int>[];
+
+  @override
+  Future<void> enqueue(ChannelMessageModel message, {String? error}) async {
+    queued.removeWhere((item) => item.id == message.id);
+    queued.add(message);
+  }
+
+  @override
+  Future<List<ChannelMessageModel>> pending({
+    String? channelId,
+    int limit = 20,
+  }) async {
+    return queued
+        .where(
+          (message) =>
+              channelId == null || message.channelId.toString() == channelId,
+        )
+        .take(limit)
+        .toList();
+  }
+
+  @override
+  Future<void> remove(int messageId) async {
+    queued.removeWhere((item) => item.id == messageId);
+  }
+
+  @override
+  Future<void> markRetry(int messageId, Object error) async {
+    retried.add(messageId);
   }
 }
 
@@ -1003,7 +1039,10 @@ void main() {
     test('API 返回 3 条消息 → saveMessage 被调 3 次 + 返回 3 条', () async {
       final msgRepo = _FakeChannelMessageRepo();
       final service = ChannelService.forTest(
-        api: _FakeChannelApi(messages: [msg(1), msg(2), msg(3)]),
+        api: _FakeChannelApi(
+          messages: [msg(1), msg(2), msg(3)],
+          channelById: {'100': _channel(100)},
+        ),
         repo: _FakeChannelRepo(),
         messageRepo: msgRepo,
       );
@@ -1058,10 +1097,14 @@ void main() {
 
     test('API 成功 → 返回消息并落库缓存', () async {
       final msgRepo = _FakeChannelMessageRepo();
-      final api = _FakeChannelApi(publishMessageResult: apiMsg);
+      final repo = _FakeChannelRepo();
+      final api = _FakeChannelApi(
+        channelById: {'100': _channel(100)},
+        publishMessageResult: apiMsg,
+      );
       final service = ChannelService.forTest(
         api: api,
-        repo: _FakeChannelRepo(),
+        repo: repo,
         messageRepo: msgRepo,
       );
 
@@ -1074,6 +1117,7 @@ void main() {
       expect(result, isNotNull);
       expect(result!.content, 'hello');
       expect(api.publishMessageCalls, hasLength(1));
+      expect(repo.savedChannels, hasLength(1));
       expect(msgRepo.savedMessages, hasLength(1));
     });
 
@@ -1095,11 +1139,12 @@ void main() {
       expect(msgRepo.savedMessages, isEmpty);
     });
 
-    test('saveMessage 抛异常 → 仍返回 API 消息（本地缓存失败仅日志）', () async {
+    test('saveMessage 抛异常 → 仍返回 API 消息（本地缓存失败进入 outbox）', () async {
       final msgRepo = _FakeChannelMessageRepo()..throwOnSave = true;
+      final repo = _FakeChannelRepo()..localChannels.add(_channel(100));
       final service = ChannelService.forTest(
         api: _FakeChannelApi(publishMessageResult: apiMsg),
-        repo: _FakeChannelRepo(),
+        repo: repo,
         messageRepo: msgRepo,
       );
 
@@ -1110,6 +1155,51 @@ void main() {
       );
 
       expect(result, isNotNull, reason: 'API 已成功，本地缓存失败不影响返回');
+    });
+
+    test('saveMessage 抛异常 → 消息进入持久化 outbox', () async {
+      final msgRepo = _FakeChannelMessageRepo()..throwOnSave = true;
+      final outbox = _FakeChannelMessageOutboxRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(publishMessageResult: apiMsg),
+        repo: _FakeChannelRepo()..localChannels.add(_channel(100)),
+        messageRepo: msgRepo,
+        outboxRepo: outbox,
+      );
+
+      final result = await service.publishMessage(
+        channelId: '100',
+        content: 'hello',
+        msgType: 'channel_text',
+      );
+
+      expect(result, isNotNull);
+      expect(outbox.queued, hasLength(1));
+      expect(outbox.queued.single.id, 9001);
+    });
+
+    test('进入频道消息列表前 → 重放到期 outbox', () async {
+      final queued = ChannelMessageModel(
+        id: 9002,
+        channelId: 100,
+        content: 'queued',
+        msgType: 'channel_text',
+        createdAt: DateTime.fromMillisecondsSinceEpoch(2000),
+      );
+      final outbox = _FakeChannelMessageOutboxRepo()..queued.add(queued);
+      final msgRepo = _FakeChannelMessageRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(),
+        repo: _FakeChannelRepo()..localChannels.add(_channel(100)),
+        messageRepo: msgRepo,
+        outboxRepo: outbox,
+      );
+
+      await service.getMessages(channelId: '100');
+
+      expect(msgRepo.savedMessages, hasLength(1));
+      expect(msgRepo.savedMessages.single.id, 9002);
+      expect(outbox.queued, isEmpty);
     });
   });
 
@@ -1145,7 +1235,10 @@ void main() {
       // localMessages 为空（默认）
 
       final apiMsg = msg(5, 100);
-      final api = _FakeChannelApi(messages: [apiMsg]);
+      final api = _FakeChannelApi(
+        messages: [apiMsg],
+        channelById: {'100': _channel(100)},
+      );
       final service = ChannelService.forTest(
         api: api,
         repo: _FakeChannelRepo(),

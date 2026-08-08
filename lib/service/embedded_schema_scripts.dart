@@ -1784,6 +1784,29 @@ ALTER TABLE channel ADD COLUMN is_subscribed INTEGER DEFAULT 0;
 -- 更新版本号
 -- ============================================================
 PRAGMA user_version = 27;
+
+-- ============================================================
+-- VERSION: 28
+-- DESC: 频道消息本地可靠待同步 outbox。
+--       API 成功后若本地频道/消息写入失败，保存完整消息快照，待下次同步重放；
+--       避免仅依赖内存和后续偶然拉取。
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS channel_message_outbox (
+    message_id INTEGER PRIMARY KEY,
+    channel_id INTEGER NOT NULL,
+    payload TEXT NOT NULL,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    next_attempt_at INTEGER NOT NULL,
+    last_error TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_channel_message_outbox_due
+    ON channel_message_outbox(next_attempt_at, channel_id);
+
+PRAGMA user_version = 28;
 """;
 
 /// 与 assets/migrations/downgrade.sql 内容保持同步（同上）。
@@ -1822,6 +1845,14 @@ const String kDowngradeScriptSql = r"""
 --
 -- 当前版本无需降级，此块留空
 -- PRAGMA user_version = 9;
+
+-- ============================================================
+-- VERSION: 28
+-- DESC: 从 v28 降级到 v27（删除频道消息本地 outbox）
+-- ============================================================
+
+DROP TABLE IF EXISTS channel_message_outbox;
+PRAGMA user_version = 27;
 
 -- ============================================================
 -- VERSION: 10

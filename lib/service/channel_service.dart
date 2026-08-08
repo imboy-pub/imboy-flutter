@@ -18,6 +18,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:imboy/store/repository/channel_repo_sqlite.dart';
 import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
+import 'package:imboy/store/repository/channel_message_outbox_repo.dart';
 
 /// Channel 服务
 ///
@@ -30,20 +31,24 @@ class ChannelService {
   final ChannelApi _api;
   final ChannelRepo _repo;
   final ChannelMessageRepo _messageRepo;
+  final ChannelMessageOutboxRepo _outboxRepo;
 
   ChannelService._privateConstructor()
     : _api = ChannelApi(),
       _repo = ChannelRepo(),
-      _messageRepo = ChannelMessageRepo();
+      _messageRepo = ChannelMessageRepo(),
+      _outboxRepo = ChannelMessageOutboxRepo();
 
   @visibleForTesting
   ChannelService.forTest({
     required ChannelApi api,
     required ChannelRepo repo,
     ChannelMessageRepo? messageRepo,
+    ChannelMessageOutboxRepo? outboxRepo,
   }) : _api = api,
        _repo = repo,
-       _messageRepo = messageRepo ?? ChannelMessageRepo();
+       _messageRepo = messageRepo ?? ChannelMessageRepo(),
+       _outboxRepo = outboxRepo ?? ChannelMessageOutboxRepo.noop();
 
   // ==================== 频道同步 ====================
 
@@ -106,10 +111,12 @@ class ChannelService {
         limit: limit,
       );
 
-      // 保存到本地数据库
+      // 保存到本地数据库；失败时进入持久化 outbox，稍后重放。
       for (final message in messages) {
-        await _messageRepo.saveMessage(message);
+        await _cacheOrEnqueue(message);
       }
+
+      await _drainMessageOutbox(channelId);
 
       iPrint('ChannelService: 同步了 ${messages.length} 条频道消息');
       return messages;
@@ -190,17 +197,7 @@ class ChannelService {
         payload: payload,
       );
       if (message != null) {
-        try {
-          await _messageRepo.saveMessage(message);
-        } catch (e) {
-          // ponytail: API 成功为主；本地 FK 约束失败（channel 未缓存）只 log，不影响返回值。
-          // 上限：这条消息不进本地库，而 getMessages 是"本地非空即直接返回"，
-          // 所以本地已有其它消息时，刚发出的这条要等下次 syncMessages 才补齐。
-          // 升级触发：频道消息改为真正的本地优先（离线可读 / 发件箱语义）时，
-          // 改成先 upsert channel 行再存消息（或 FK 失败后回填 channel 缓存重试），
-          // 不能继续吞。
-          iPrint('ChannelService: 本地缓存频道消息失败（忽略）- $e');
-        }
+        await _cacheOrEnqueue(message);
       }
       return message;
     } catch (e) {
@@ -215,6 +212,8 @@ class ChannelService {
     int? cursor,
     int limit = 20,
   }) async {
+    await _drainMessageOutbox(channelId);
+
     // 先从本地获取
     final localMessages = await _messageRepo.getMessages(
       channelId: channelId,
@@ -233,6 +232,50 @@ class ChannelService {
       cursor: cursor,
       limit: limit,
     );
+  }
+
+  /// 补齐消息父频道后保存；任何本地失败都转入持久化 outbox。
+  Future<void> _cacheOrEnqueue(ChannelMessageModel message) async {
+    try {
+      final channel = await getChannel(message.channelId.toString());
+      if (channel == null) {
+        throw StateError('channel ${message.channelId} is not cached');
+      }
+      await _messageRepo.saveMessage(message);
+      await _outboxRepo.remove(message.id);
+    } catch (e) {
+      try {
+        await _outboxRepo.enqueue(message, error: e.toString());
+        iPrint('ChannelService: 本地缓存失败，已进入消息 outbox - ${message.id}: $e');
+      } catch (outboxError) {
+        iPrint(
+          'ChannelService: 本地缓存与 outbox 均失败 - ${message.id}: $outboxError',
+        );
+      }
+    }
+  }
+
+  /// 重放到期 outbox。单条失败只延迟该条，不阻塞其它消息。
+  Future<void> _drainMessageOutbox(String channelId) async {
+    try {
+      final pending = await _outboxRepo.pending(channelId: channelId);
+      for (final message in pending) {
+        try {
+          final channel = await getChannel(channelId);
+          if (channel == null) {
+            throw StateError('channel $channelId is not cached');
+          }
+          await _messageRepo.saveMessage(message);
+          await _outboxRepo.remove(message.id);
+        } catch (e) {
+          await _outboxRepo.markRetry(message.id, e);
+          iPrint('ChannelService: 消息 outbox 重放失败 - ${message.id}: $e');
+        }
+      }
+    } catch (e) {
+      // outbox 不得阻塞正常的服务端拉取路径；下次进入/同步时继续尝试。
+      iPrint('ChannelService: 读取消息 outbox 失败 - $e');
+    }
   }
 
   /// 删除频道。
