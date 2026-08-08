@@ -362,6 +362,9 @@ abstract class MessageType {
     webrtcAudio,
     webrtcVideo,
     visitCard,
+    redPacket,
+    transfer,
+    groupSchedule,
   ];
 
   /// 判断是否为有效的消息类型

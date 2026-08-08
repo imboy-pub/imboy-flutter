@@ -35,6 +35,29 @@ void main() {
         ),
         equals('voice'),
       );
+      // 业务消息类型（回归：redPacket 曾被漏出 allTypes，
+      // 归一化成 unsupported → 读回渲染成「不支持的消息类型」）
+      expect(
+        MessageTypeNormalizer.normalize(
+          msgType: 'redPacket',
+          payload: <String, dynamic>{},
+        ),
+        equals('redPacket'),
+      );
+      expect(
+        MessageTypeNormalizer.normalize(
+          msgType: 'transfer',
+          payload: <String, dynamic>{},
+        ),
+        equals('transfer'),
+      );
+      expect(
+        MessageTypeNormalizer.normalize(
+          msgType: 'groupSchedule',
+          payload: <String, dynamic>{},
+        ),
+        equals('groupSchedule'),
+      );
     });
 
     test('旧别名 audio 应判定为 unsupported', () {
@@ -162,6 +185,9 @@ void main() {
       expect(MessageTypeNormalizer.isValidType('text'), isTrue);
       expect(MessageTypeNormalizer.isValidType('webrtcAudio'), isTrue);
       expect(MessageTypeNormalizer.isValidType('visitCard'), isTrue);
+      expect(MessageTypeNormalizer.isValidType('redPacket'), isTrue);
+      expect(MessageTypeNormalizer.isValidType('transfer'), isTrue);
+      expect(MessageTypeNormalizer.isValidType('groupSchedule'), isTrue);
       expect(MessageTypeNormalizer.isValidType('custom'), isTrue);
       expect(MessageTypeNormalizer.isValidType('unsupported'), isTrue);
     });

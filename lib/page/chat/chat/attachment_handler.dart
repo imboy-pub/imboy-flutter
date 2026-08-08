@@ -882,6 +882,7 @@ class ChatAttachmentHandler {
       id: Xid().toString(),
       metadata: _withBurnMetadata({
         'msg_type': 'redPacket',
+        'peer_id': peerId,
         'id': data['id'],
         'greeting': data['greeting'],
         'amount': data['amount'],
@@ -903,6 +904,7 @@ class ChatAttachmentHandler {
       id: Xid().toString(),
       metadata: _withBurnMetadata({
         'msg_type': 'transfer',
+        'peer_id': peerId,
         'id': data['id'],
         'amount': data['amount'],
         'remark': data['remark'],
