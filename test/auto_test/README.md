@@ -45,7 +45,7 @@
 | 阻塞 | 400 | 26.1% |
 | **合计** | **1531** | 100% |
 
-bug 累计：**发现 169 / 解决 144 / 待处理 25**
+bug 累计：**发现 169 / 解决 145 / 待处理 24**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -59,7 +59,7 @@ bug 累计：**发现 169 / 解决 144 / 待处理 25**
 | [contact](contact/) | 13 | 126 | 4 | 33 | 73 | 1 | 2 | 17 |
 | [personal_info](personal_info/) | 8 | 88 | 3 | 39 | 36 | 1 | 2 | 10 |
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 0 | 39 |
-| [chat](chat/) | 6 | 76 | 4 | 36 | 11 | 0 | 4 | 25 |
+| [chat](chat/) | 6 | 76 | 3 | 36 | 11 | 0 | 4 | 25 |
 | [moment](moment/) | 6 | 74 | 2 | 13 | 47 | 0 | 2 | 12 |
 | [wallet](wallet/) | 5 | 61 | 1 | 6 | 24 | 0 | 6 | 25 |
 | [user_tag](user_tag/) | 5 | 58 | 2 | 28 | 13 | 0 | 1 | 16 |
@@ -101,7 +101,7 @@ bug 累计：**发现 169 / 解决 144 / 待处理 25**
 
 ### chat
 
-- [chat_page](chat/chat_page.md) — 21 功能点 ⚠️ 1 待处理
+- [chat_page](chat/chat_page.md) — 21 功能点
 - [chat_setting_page](chat/chat_setting_page.md) — 10 功能点
 - [p2p_call_screen_page](chat/p2p_call_screen_page.md) — 12 功能点 ⚠️ 3 待处理
 - [quick_reply_manage_page](chat/quick_reply_manage_page.md) — 11 功能点
