@@ -114,7 +114,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                     SizedBox(
                       width: 80,
                       child: Text(
-                        '手机号',
+                        t.account.mobile,
                         style: context.textStyle(FontSizeType.body),
                       ),
                     ),
@@ -144,7 +144,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                     SizedBox(
                       width: 80,
                       child: Text(
-                        '验证码',
+                        t.common.verificationCode,
                         style: context.textStyle(FontSizeType.body),
                       ),
                     ),
