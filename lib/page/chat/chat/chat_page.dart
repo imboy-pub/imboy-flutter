@@ -1786,6 +1786,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       onMessageSend: _handleSendPressed,
       onMessageLongPress: _onMessageLongPress,
       onMessageTap: _onMessageTap,
+      onMessageDoubleTap: _onMessageDoubleTap,
       onMessageSecondaryTap: _onMessageSecondaryTap,
       // onMessageStatusTap: _onMessageStatusTap,
       decoration: ref
