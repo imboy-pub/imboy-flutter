@@ -38,13 +38,13 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 467 | 30.3% |
-| 回归复测 | 630 | 40.9% |
-| 待复验 | 23 | 1.5% |
-| 阻塞 | 422 | 27.4% |
+| 无待办 | 468 | 30.4% |
+| 回归复测 | 629 | 40.8% |
+| 待复验 | 22 | 1.4% |
+| 阻塞 | 423 | 27.4% |
 | **合计** | **1542** | 100% |
 
-bug 累计：**发现 176 / 解决 149 / 待处理 27**
+bug 累计：**发现 176 / 解决 150 / 待处理 26**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -54,14 +54,14 @@ bug 累计：**发现 176 / 解决 149 / 待处理 27**
 |---|---|---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 2 | 58 | 178 | 0 | 50 |
 | [mine](mine/) | 21 | 249 | 1 | 112 | 108 | 0 | 29 |
-| [channel](channel/) | 13 | 146 | 5 | 38 | 71 | 3 | 34 |
+| [channel](channel/) | 13 | 146 | 4 | 38 | 71 | 3 | 34 |
 | [contact](contact/) | 13 | 126 | 4 | 35 | 73 | 1 | 17 |
 | [personal_info](personal_info/) | 8 | 89 | 5 | 46 | 21 | 2 | 20 |
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 39 |
 | [chat](chat/) | 6 | 76 | 3 | 38 | 7 | 6 | 25 |
 | [moment](moment/) | 6 | 74 | 2 | 13 | 47 | 2 | 12 |
-| [wallet](wallet/) | 5 | 61 | 1 | 8 | 22 | 3 | 28 |
-| [user_tag](user_tag/) | 5 | 58 | 2 | 34 | 8 | 2 | 14 |
+| [wallet](wallet/) | 5 | 61 | 1 | 9 | 21 | 3 | 28 |
+| [user_tag](user_tag/) | 5 | 58 | 2 | 34 | 8 | 1 | 15 |
 | [single](single/) | 5 | 48 | 0 | 3 | 14 | 2 | 29 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 16 | 25 | 1 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 16 | 9 | 0 | 11 |
@@ -90,7 +90,7 @@ bug 累计：**发现 176 / 解决 149 / 待处理 27**
 - [channel_compose_page](channel/channel_compose_page.md) — 12 功能点 ⚠️ 1 待处理
 - [channel_create_page](channel/channel_create_page.md) — 11 功能点
 - [channel_detail_page](channel/channel_detail_page.md) — 13 功能点 ⚠️ 2 待处理
-- [channel_discover_page](channel/channel_discover_page.md) — 10 功能点 ⚠️ 1 待处理
+- [channel_discover_page](channel/channel_discover_page.md) — 10 功能点
 - [channel_edit_page](channel/channel_edit_page.md) — 11 功能点
 - [channel_invitation_page](channel/channel_invitation_page.md) — 11 功能点
 - [channel_list_page](channel/channel_list_page.md) — 12 功能点
