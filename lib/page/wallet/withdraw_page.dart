@@ -89,11 +89,11 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
     if (_selectedMethod == 'alipay') {
       if (!_emailPattern.hasMatch(account) &&
           !_phonePattern.hasMatch(account)) {
-        return '请输入正确的支付宝邮箱或手机号';
+        return t.common.withdrawAlipayFormatError;
       }
     } else {
       if (!_wechatPattern.hasMatch(account)) {
-        return '请输入正确的微信号（6-20位，字母开头）';
+        return t.common.withdrawWechatFormatError;
       }
     }
     return null;
@@ -116,12 +116,14 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${t.common.withdrawAmountLabel}：￥${amountYuan.toStringAsFixed(2)}',
+                    t.common.withdrawConfirmAmount(
+                      amount: amountYuan.toStringAsFixed(2),
+                    ),
                   ),
                   AppSpacing.verticalTiny,
-                  Text('${t.common.withdrawMethod}：$methodLabel'),
+                  Text(t.common.withdrawConfirmMethod(method: methodLabel)),
                   AppSpacing.verticalTiny,
-                  Text('${t.common.withdrawAccount}：$account'),
+                  Text(t.common.withdrawConfirmAccount(account: account)),
                 ],
               ),
             ),
@@ -277,8 +279,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   controller: _accountController,
                   decoration: walletInputDecoration(
                     hint: _selectedMethod == 'alipay'
-                        ? '${t.common.withdrawAccount}（邮箱或手机号）'
-                        : '${t.common.withdrawAccount}（微信号）',
+                        ? t.common.withdrawAccountHintAlipay
+                        : t.common.withdrawAccountHintWechat,
                   ),
                   validator: _validateAccount,
                 ),
