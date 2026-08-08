@@ -195,7 +195,14 @@ class ChannelApi extends HttpClient {
         resp.payload['next'] ??
         resp.payload['nextCursor'];
     final nextCursor = normalizeCursor(next);
-    final hasMore = nextCursor != null;
+    // hasMore 判据与 MomentPageResult.fromPayload 对齐：本页满一页
+    // （list.length >= limit）且游标非空。服务端对最后一页也照样回
+    // next_cursor，只按游标非空推导会让「加载更多」在末页也一直显示。
+    final hasMore = hasMoreByPage(
+      listLength: channels.length,
+      limit: limit,
+      nextCursor: nextCursor,
+    );
 
     return ChannelPageResult(
       list: channels,
@@ -215,6 +222,18 @@ class ChannelApi extends HttpClient {
     final value = raw.toString().trim();
     if (value.isEmpty || value == 'undefined' || value == 'null') return null;
     return value;
+  }
+
+  /// hasMore 判据：本页满一页（listLength >= limit）且游标非空。
+  ///
+  /// 与 `MomentPageResult.fromPayload` 同款修法 —— 服务端末页也照常回
+  /// 游标，只按「游标非空」推导会让「加载更多」在末页也一直显示。
+  static bool hasMoreByPage({
+    required int listLength,
+    required int limit,
+    required String? nextCursor,
+  }) {
+    return limit > 0 && listLength >= limit && nextCursor != null;
   }
 
   /// 拉取频道未读汇总（服务端权威）

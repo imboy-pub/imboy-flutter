@@ -183,117 +183,124 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                 builder: (context) => SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: 172,
-                  child: Column(
-                    children: [
-                      Center(
-                        child: TextButton(
-                          child: Text(
-                            t.main.changeParam(param: t.contact.tags),
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          onPressed: () async {
-                            Navigator.of(context).pop();
-                            showModalBottomSheet<void>(
-                              context: context,
-                              backgroundColor: isDark
-                                  ? AppColors.darkSurfaceGroupedTertiary
-                                  : AppColors.lightSurfaceGrouped,
-                              builder: (context) => UserTagSavePage(
-                                tag: widget.tag,
-                                scene: 'friend',
+                  // 键盘弹出时弹层可用高度收缩，固定高度内容会 RenderFlex
+                  // 底部溢出（真机记录：58px）；包一层滚动，收缩时可滚动，
+                  // 静止时高度不变、视觉不变。
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Center(
+                          child: TextButton(
+                            child: Text(
+                              t.main.changeParam(param: t.contact.tags),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.normal,
                               ),
-                            );
-                          },
+                            ),
+                            onPressed: () async {
+                              Navigator.of(context).pop();
+                              showModalBottomSheet<void>(
+                                context: context,
+                                backgroundColor: isDark
+                                    ? AppColors.darkSurfaceGroupedTertiary
+                                    : AppColors.lightSurfaceGrouped,
+                                builder: (context) => UserTagSavePage(
+                                  tag: widget.tag,
+                                  scene: 'friend',
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      const Divider(),
-                      Center(
-                        child: TextButton(
-                          onPressed: () async {
-                            Navigator.of(context).pop();
-                            // 显示删除确认
-                            await showCupertinoDialog<bool>(
-                              context: context,
-                              builder: (context) => CupertinoAlertDialog(
-                                title: Text(t.common.confirmDelete),
-                                content: Text(t.common.deleteTagTips),
-                                actions: [
-                                  CupertinoDialogAction(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text(t.common.buttonCancel),
-                                  ),
-                                  CupertinoDialogAction(
-                                    isDestructiveAction: true,
-                                    onPressed: () async {
-                                      const String scene = 'friend';
-                                      bool res = await ref
-                                          .read(contactTagListProvider.notifier)
-                                          .deleteTag(
-                                            tagId: widget.tag.tagId,
-                                            tagName: widget.tag.name,
-                                            scene: scene,
-                                          );
-                                      if (res) {
-                                        await ref
+                        const Divider(),
+                        Center(
+                          child: TextButton(
+                            onPressed: () async {
+                              Navigator.of(context).pop();
+                              // 显示删除确认
+                              await showCupertinoDialog<bool>(
+                                context: context,
+                                builder: (context) => CupertinoAlertDialog(
+                                  title: Text(t.common.confirmDelete),
+                                  content: Text(t.common.deleteTagTips),
+                                  actions: [
+                                    CupertinoDialogAction(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text(t.common.buttonCancel),
+                                    ),
+                                    CupertinoDialogAction(
+                                      isDestructiveAction: true,
+                                      onPressed: () async {
+                                        const String scene = 'friend';
+                                        bool res = await ref
                                             .read(
                                               contactTagListProvider.notifier,
                                             )
-                                            .replaceObjectTag(
+                                            .deleteTag(
+                                              tagId: widget.tag.tagId,
+                                              tagName: widget.tag.name,
                                               scene: scene,
-                                              oldName: widget.tag.name,
-                                              newName: '',
                                             );
-                                        if (context.mounted) {
-                                          Navigator.pop(context, true);
+                                        if (res) {
+                                          await ref
+                                              .read(
+                                                contactTagListProvider.notifier,
+                                              )
+                                              .replaceObjectTag(
+                                                scene: scene,
+                                                oldName: widget.tag.name,
+                                                newName: '',
+                                              );
+                                          if (context.mounted) {
+                                            Navigator.pop(context, true);
+                                          }
+                                          if (context.mounted) {
+                                            Navigator.pop(context);
+                                          }
+                                          AppLoading.showSuccess(
+                                            t.common.tipSuccess,
+                                          );
+                                        } else {
+                                          if (context.mounted) {
+                                            Navigator.pop(context, false);
+                                          }
+                                          AppLoading.showError(
+                                            t.common.tipFailed,
+                                          );
                                         }
-                                        if (context.mounted) {
-                                          Navigator.pop(context);
-                                        }
-                                        AppLoading.showSuccess(
-                                          t.common.tipSuccess,
-                                        );
-                                      } else {
-                                        if (context.mounted) {
-                                          Navigator.pop(context, false);
-                                        }
-                                        AppLoading.showError(
-                                          t.common.tipFailed,
-                                        );
-                                      }
-                                    },
-                                    child: Text(t.common.buttonDelete),
-                                  ),
-                                ],
+                                      },
+                                      child: Text(t.common.buttonDelete),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            child: Text(
+                              t.common.buttonDelete,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: AppColors.iosRed,
+                                fontWeight: FontWeight.normal,
                               ),
-                            );
-                          },
-                          child: Text(
-                            t.common.buttonDelete,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppColors.iosRed,
-                              fontWeight: FontWeight.normal,
                             ),
                           ),
                         ),
-                      ),
-                      const HorizontalLine(height: 6),
-                      Center(
-                        child: TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: Text(
-                            t.common.buttonCancel,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.normal,
+                        const HorizontalLine(height: 6),
+                        Center(
+                          child: TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text(
+                              t.common.buttonCancel,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.normal,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );
