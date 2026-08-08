@@ -1,7 +1,7 @@
 # imboyapp 自动化测试计划 —— 索引
 
 > **权威文档**。imboyapp 现有全部功能点（已完成 / 未完成 / 阻塞 全部纳入）。
-> 覆盖 **137 个页面 / 1531 个功能点**
+> 覆盖 **137 个页面 / 1532 个功能点**
 > 数据源：`lib/page/**` 真实源码抽取 ＋ 真机实测记录
 
 > ⚠️ 本文件由 `regen_readme.py` 生成，**不要手改**。
@@ -38,43 +38,42 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 459 | 30.0% |
-| 回归复测 | 647 | 42.3% |
-| 待修复 | 2 | 0.1% |
+| 无待办 | 466 | 30.4% |
+| 回归复测 | 632 | 41.3% |
 | 待复验 | 26 | 1.7% |
-| 阻塞 | 397 | 25.9% |
-| **合计** | **1531** | 100% |
+| 阻塞 | 408 | 26.6% |
+| **合计** | **1532** | 100% |
 
-bug 累计：**发现 173 / 解决 149 / 待处理 24**
+bug 累计：**发现 175 / 解决 149 / 待处理 26**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
 ## 模块索引
 
-| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 回归复测 | 待修复 | 待复验 | 阻塞 |
-|---|---|---|---|---|---|---|---|---|
-| [group](group/) | 26 | 286 | 1 | 58 | 178 | 0 | 1 | 49 |
-| [mine](mine/) | 21 | 249 | 1 | 112 | 108 | 0 | 0 | 29 |
-| [channel](channel/) | 13 | 146 | 5 | 38 | 71 | 0 | 3 | 34 |
-| [contact](contact/) | 13 | 126 | 4 | 35 | 73 | 1 | 1 | 16 |
-| [personal_info](personal_info/) | 8 | 88 | 3 | 39 | 36 | 1 | 2 | 10 |
-| [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 0 | 39 |
-| [chat](chat/) | 6 | 76 | 3 | 38 | 7 | 0 | 6 | 25 |
-| [moment](moment/) | 6 | 74 | 2 | 13 | 47 | 0 | 2 | 12 |
-| [wallet](wallet/) | 5 | 61 | 1 | 7 | 24 | 0 | 5 | 25 |
-| [user_tag](user_tag/) | 5 | 58 | 2 | 34 | 8 | 0 | 2 | 14 |
-| [single](single/) | 5 | 48 | 0 | 3 | 14 | 0 | 2 | 29 |
-| [qrcode](qrcode/) | 4 | 42 | 0 | 16 | 25 | 0 | 1 | 0 |
-| [settings](settings/) | 3 | 36 | 0 | 16 | 9 | 0 | 0 | 11 |
-| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 0 | 0 | 28 |
-| [scanner](scanner/) | 3 | 30 | 0 | 1 | 5 | 0 | 0 | 24 |
-| [search](search/) | 3 | 25 | 1 | 5 | 9 | 0 | 0 | 11 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 5 | 0 | 0 | 0 | 7 |
-| [conversation](conversation/) | 1 | 12 | 1 | 4 | 7 | 0 | 1 | 0 |
-| [mention](mention/) | 1 | 12 | 0 | 3 | 0 | 0 | 0 | 9 |
-| [splash](splash/) | 1 | 12 | 0 | 5 | 5 | 0 | 0 | 2 |
-| [welcome](welcome/) | 1 | 12 | 0 | 0 | 0 | 0 | 0 | 12 |
-| [web_shell](web_shell/) | 1 | 11 | 0 | 0 | 0 | 0 | 0 | 11 |
+| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 回归复测 | 待复验 | 阻塞 |
+|---|---|---|---|---|---|---|---|
+| [group](group/) | 26 | 286 | 1 | 58 | 178 | 1 | 49 |
+| [mine](mine/) | 21 | 249 | 1 | 112 | 108 | 0 | 29 |
+| [channel](channel/) | 13 | 146 | 5 | 38 | 71 | 3 | 34 |
+| [contact](contact/) | 13 | 126 | 4 | 35 | 73 | 1 | 17 |
+| [personal_info](personal_info/) | 8 | 89 | 5 | 46 | 21 | 2 | 20 |
+| [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 39 |
+| [chat](chat/) | 6 | 76 | 3 | 38 | 7 | 6 | 25 |
+| [moment](moment/) | 6 | 74 | 2 | 13 | 47 | 2 | 12 |
+| [wallet](wallet/) | 5 | 61 | 1 | 7 | 24 | 5 | 25 |
+| [user_tag](user_tag/) | 5 | 58 | 2 | 34 | 8 | 2 | 14 |
+| [single](single/) | 5 | 48 | 0 | 3 | 14 | 2 | 29 |
+| [qrcode](qrcode/) | 4 | 42 | 0 | 16 | 25 | 1 | 0 |
+| [settings](settings/) | 3 | 36 | 0 | 16 | 9 | 0 | 11 |
+| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 0 | 28 |
+| [scanner](scanner/) | 3 | 30 | 0 | 1 | 5 | 0 | 24 |
+| [search](search/) | 3 | 25 | 1 | 5 | 9 | 0 | 11 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 5 | 0 | 0 | 7 |
+| [conversation](conversation/) | 1 | 12 | 1 | 4 | 7 | 1 | 0 |
+| [mention](mention/) | 1 | 12 | 0 | 3 | 0 | 0 | 9 |
+| [splash](splash/) | 1 | 12 | 0 | 5 | 5 | 0 | 2 |
+| [welcome](welcome/) | 1 | 12 | 0 | 0 | 0 | 0 | 12 |
+| [web_shell](web_shell/) | 1 | 11 | 0 | 0 | 0 | 0 | 11 |
 
 ## 页面清单
 
@@ -213,9 +212,9 @@ bug 累计：**发现 173 / 解决 149 / 待处理 24**
 ### personal_info
 
 - [more_page](personal_info/more_page.md) — 10 功能点 ⚠️ 1 待处理
-- [personal_info_page](personal_info/personal_info_page.md) — 11 功能点
+- [personal_info_page](personal_info/personal_info_page.md) — 12 功能点 ⚠️ 1 待处理
 - [privacy_settings_page](personal_info/privacy_settings_page.md) — 11 功能点
-- [profile_page](personal_info/profile_page.md) — 12 功能点
+- [profile_page](personal_info/profile_page.md) — 12 功能点 ⚠️ 1 待处理
 - [set_gender_page](personal_info/set_gender_page.md) — 10 功能点 ⚠️ 1 待处理
 - [set_nickname_page](personal_info/set_nickname_page.md) — 12 功能点 ⚠️ 1 待处理
 - [set_region_page](personal_info/set_region_page.md) — 11 功能点
