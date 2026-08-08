@@ -220,9 +220,9 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                           tooltip: t.common.clear,
                           onPressed: () {
                             _searchController.clear();
-                            ref
-                                .read(messageSearchProvider.notifier)
-                                .resetSearch();
+                            // 复用 onChanged 空串路径：先 cancel 页面防抖定时器再重置，
+                            // 否则 300ms 内点清除，旧词的 performSearch 仍会触发（BUG#130）。
+                            _onSearchChanged('');
                           },
                         )
                       : null,
