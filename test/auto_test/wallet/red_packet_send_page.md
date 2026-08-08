@@ -16,4 +16,4 @@
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/red_packet_send_page.dart` | 群聊二次确认展示红包个数 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/red_packet_send_page.dart` | 提交红包并携带会话上下文 | 未测 | - | 0 | 0 | 0 | scopeType/scopeId 越权领取判定 |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/red_packet_send_page.dart` | 回传红包结果给聊天页投递 | 未测 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/wallet/red_packet_send_page.dart` | 展示可用余额提示条 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/wallet/red_packet_send_page.dart` | 展示可用余额提示条 | 已通过 | 批次35 | 0 | 0 | 0 | 真机：automation-buddy 单聊附加面板翻页进红包发送页，「钱包余额 ￥0.00」提示条渲染且与钱包页真实余额一致 |
