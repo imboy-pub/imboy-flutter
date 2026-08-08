@@ -1,12 +1,12 @@
 # `page/wallet/withdraw_page.dart`
 
-> 功能点 12 个 | bug 发现 3 / 解决 2 / 待处理 1
+> 功能点 12 个 | bug 发现 3 / 解决 3 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
 | 回归复测 | 2026-08-07 | `page/wallet/withdraw_page.dart` | 展示当前零钱余额卡片 | 待重验 | - | 0 | 0 | 0 | |
-| 待修复 | 2026-08-07 | `page/wallet/withdraw_page.dart` | 英文语言下页面文案完整翻译 | 不通过 | 批次28 | 1 | 0 | 1 | 批次28 验「跟随系统语言」时顺带发现：系统切 en-US 后本页中英混排 —— 已翻的有 Withdraw / Pocket Money / Withdrawal Method / Withdrawal Account / Confirm Withdrawal；**仍是中文**的有「提现金额」「支付宝」「微信」「钱包余额 ￥0.00」以及 Withdrawal Account 后面括号里的「（邮箱或手机号）」。最后一条是硬编码拼接（英文 label + 中文括号），不只是缺 key |
+| 无待办 | - | `page/wallet/withdraw_page.dart` | 英文语言下页面文案完整翻译 | 已通过 | 批次72 | 1 | 1 | 0 | 真机复验通过（56c9738d）：切 en-US 进提现页（钱包→More→Withdraw），全页无中文残留——Withdraw/Pocket Money/Withdrawal Amount/Withdrawal Method/Alipay/WeChat/Wallet Balance/Fees and arrival time are subj.../Confirm Withdrawal 全英文化；账号输入框 hint（withdrawAccountHint* 独立键）聚焦时语义树不暴露，代码侧已核实（键随 14a8d8c4 在生成物就绪）；二次确认弹窗 withdrawConfirm* 键受余额 ￥0.00 限制不可达（超余额直接 showError）维持代码核实 |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 校验提现金额非空与格式 | 已通过 | 批次22 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 拦截低于 1 元的提现金额 | 已通过 | 批次22 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 拦截超出余额的提现金额 | 已通过 | 批次22 | 0 | 0 | 0 | |
