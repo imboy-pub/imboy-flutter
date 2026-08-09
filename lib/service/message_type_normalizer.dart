@@ -55,15 +55,28 @@ class MessageTypeNormalizer {
   /// redPacket/transfer/groupSchedule 归一化成 unsupported 并持久化，
   /// 脏缓存会挡住本应正常渲染的类型（读回显示「不支持的消息类型」）。
   /// 仅当 msg_type 无效（真未知/为空）时回退 effective_msg_type。
+  ///
+  /// ⚠️ `unsupported` 本身是**脏值不是真值**：`_isValidType` 把
+  /// `unsupported` 判为有效（归一化器的合法取值之一），旧版本把业务
+  /// 类型归一化成 unsupported 持久化后，raw 与 effective 都是
+  /// `unsupported`——不加排除 raw 永远"有效"，脏缓存照常渲染成
+  /// 「不支持的消息类型」。排除后回退 effective 仍可能救回
+  /// `effective_msg_type` 未被覆盖的历史行。
   static String renderType({
     required String? effectiveMsgType,
     required String? rawMsgType,
   }) {
     final raw = rawMsgType?.trim() ?? '';
-    if (_isValidType(raw)) {
+    if (raw.isNotEmpty && raw != MessageType.unsupported && _isValidType(raw)) {
       return raw;
     }
-    return effectiveMsgType ?? '';
+    final effective = effectiveMsgType?.trim() ?? '';
+    if (effective.isNotEmpty &&
+        effective != MessageType.unsupported &&
+        _isValidType(effective)) {
+      return effective;
+    }
+    return '';
   }
 
   /// 批量归一化消息列表（不修改原始数据）

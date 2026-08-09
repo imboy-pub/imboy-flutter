@@ -207,20 +207,54 @@ void main() {
       );
     });
 
-    test('msg_type 无效时回退 effective_msg_type（unsupported 兜底）', () {
+    test('msg_type 无效时回退 effective_msg_type（脏 unsupported 除外）', () {
+      // unsupported 是归一化器的脏值不是真值：raw 无效时若 effective 也是
+      // unsupported，说明历史数据已被归一化成 unsupported，无有效类型可渲染
       expect(
         MessageTypeNormalizer.renderType(
           effectiveMsgType: 'unsupported',
           rawMsgType: 'invalid_type',
         ),
-        equals('unsupported'),
+        equals(''),
       );
       expect(
         MessageTypeNormalizer.renderType(
           effectiveMsgType: 'unsupported',
           rawMsgType: '',
         ),
-        equals('unsupported'),
+        equals(''),
+      );
+    });
+
+    test('raw 为脏 unsupported 时 effective 有效值救回（修复核心场景）', () {
+      // 旧版本把 transfer/redPacket 归一化成 unsupported 持久化进 msg_type，
+      // 渲染层 raw 恒"有效"（_isValidType('unsupported')=true）挡住 effective
+      // ——修复前这类消息永远渲染成「不支持的消息类型」
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'redPacket',
+          rawMsgType: 'unsupported',
+        ),
+        equals('redPacket'),
+      );
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'transfer',
+          rawMsgType: 'unsupported',
+        ),
+        equals('transfer'),
+      );
+    });
+
+    test('raw 与 effective 都是 unsupported（双脏）不可恢复返回空串', () {
+      // 旧版本 normalize 后持久化的 msg_type 与 effective_msg_type 同源，
+      // 双脏数据没有真值可救，渲染层 resolve('') 会走 unsupported builder
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'unsupported',
+          rawMsgType: 'unsupported',
+        ),
+        equals(''),
       );
     });
 

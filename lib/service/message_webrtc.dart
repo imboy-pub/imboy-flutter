@@ -9,6 +9,8 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -197,6 +199,24 @@ class MessageWebrtc {
         },
       );
       await MessageRepo(tableName: MessageRepo.c2cTable).save(model);
+
+      // ⚠️ 通话记录落库后必须同步 upsert 会话元数据：旧实现只写消息表，
+      // 会话表 subtitle/msgType 停留在上一条消息的值（甚至为空），
+      // 会话列表把通话会话显示成「[未知消息]」（生产实测）。
+      // subtitle 文案与 MessageService._messageTypeLabel 的 webrtc case 保持一致。
+      final conv = ConversationModel(
+        peerId: int.tryParse(peerUid) ?? 0,
+        avatar: peer.avatar,
+        title: peer.nickname,
+        subtitle: msgType == MessageType.webrtcVideo ? '[视频通话]' : '[语音通话]',
+        type: 'C2C',
+        msgType: msgType,
+        lastMsgId: int.tryParse(msgId) ?? 0,
+        lastTime: DateTimeHelper.millisecond(),
+        unreadNum: 0,
+        id: 0,
+      );
+      await ConversationRepo().save(conv, autoIncrement: false);
 
       // 会话页正开着时立刻插入气泡；页面关闭时也无妨——记录已在库里，
       // 下次进会话由 pageForConversation 读出来。

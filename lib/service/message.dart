@@ -1296,10 +1296,25 @@ class MessageService with EventSubscriptionManager {
         return payload['quote_text']?.toString() ?? '[引用]';
       case 'location':
         return '[位置] ${payload['title']?.toString() ?? ''}';
+      // ⚠️ 历史脏数据可能用下划线命名持久化，常量是驼峰（MessageType.webrtcAudio）
+      // 双 case 都接住，避免新旧数据都 fallback 成「[消息]」
       case 'webrtc_audio':
+      case 'webrtcAudio':
         return '[语音通话]';
       case 'webrtc_video':
+      case 'webrtcVideo':
         return '[视频通话]';
+      // redPacket/transfer/groupSchedule 不在白名单时会 fallback 成
+      // payload['text']（红包/转账 payload 没有 text 字段）→ 「[消息]」，
+      // 会话列表/通知把红包显示成普通消息
+      case 'redPacket':
+        final greeting = payload['greeting']?.toString() ?? '';
+        return greeting.isNotEmpty ? '[红包] $greeting' : '[红包]';
+      case 'transfer':
+        final remark = payload['remark']?.toString() ?? '';
+        return remark.isNotEmpty ? '[转账] $remark' : '[转账]';
+      case 'groupSchedule':
+        return '[群日程]';
       case 'revoked':
         return '[消息已撤回]';
       case 'custom':

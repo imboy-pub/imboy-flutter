@@ -170,6 +170,17 @@ class ConversationModel {
       str = t.common.voiceCall;
     } else if (msgType == MessageType.webrtcVideo) {
       str = t.common.videoCall;
+    } else if (msgType == MessageType.redPacket) {
+      // 会话副标题可能为空（旧版本红包/转账未写 subtitle），
+      // 显式白名单避免落「[未知消息]」；subtitle 非空时追加红包祝福语
+      str = t.common.redPacket;
+      return "[$str]$subtitle";
+    } else if (msgType == MessageType.transfer) {
+      str = t.common.transfer;
+      return "[$str]$subtitle";
+    } else if (msgType == MessageType.groupSchedule) {
+      str = t.groupSchedule.title;
+      return "[$str]$subtitle";
     } else if (msgType == MessageType.visitCard) {
       str = t.common.personalCard;
       return "[$str]$subtitle";
