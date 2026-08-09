@@ -273,8 +273,25 @@ class SqliteService {
       iPrint('✅ Database already encrypted');
       return true;
     } catch (_) {
-      // 用密码打开失败，说明未加密
-      iPrint('🔄 Database not yet encrypted');
+      // 密码打开失败：可能是明文库（正常迁移），也可能是加密库 key 不匹配
+      // 或文件损坏（崩溃后遗症）——后者一旦走到「备份→删除→重建」就是
+      // 不可逆的数据丢失（2026-08-09 真机事故实证：崩溃后 key 读取失败，
+      // 旧库被当明文删除重建，全部历史消息丢失且生产无归档不可恢复）。
+      // 删库前必须用无密码打开验证确属明文：能打开才允许走迁移；
+      // 打不开则保留原库降级（数据在，可另路恢复），绝不删库。
+      try {
+        final plainDb = await openEncryptedDatabase(path, password: null);
+        await plainDb.rawQuery('SELECT count(*) FROM sqlite_master');
+        await plainDb.close();
+        iPrint('🔄 Database is plaintext, migrating to encrypted');
+      } catch (_) {
+        AppLogger.error(
+          '[_migrateToEncryptedIfNeeded] password open AND plaintext open '
+          'both failed: key mismatch or corrupt DB. NOT deleting $path — '
+          'data preserved.',
+        );
+        return false;
+      }
     }
 
     final file = File(path);
