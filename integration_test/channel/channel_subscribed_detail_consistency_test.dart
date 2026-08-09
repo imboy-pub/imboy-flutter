@@ -10,8 +10,10 @@ void main() {
 
   group('频道订阅详情一致性', () {
     testWidgets('已订阅频道详情页数据正常显示', (tester) async {
-      await ensureAppLaunched(tester, maxSeconds: 3);
-      await checkPreconditions(tester);
+      // 生产环境首次初始化包含远端配置、数据库和 E2EE 服务启动，
+      // 华为真机冷启动可能超过 3 秒；频道只读验收应等待入口稳定后再判定。
+      await ensureAppLaunched(tester, maxSeconds: 10);
+      if (!await checkPreconditions(tester)) return;
       await settle(tester, maxSeconds: 2);
 
       if (!await _openChannelTab(tester)) {
@@ -56,13 +58,19 @@ void main() {
 }
 
 bool _isOnChannelList(WidgetTester t) =>
-    t.any(_anyText(['频道', 'Channel', 'Channels'])) &&
-    t.any(find.byIcon(Icons.search));
+    t.any(
+      find.byWidgetPredicate(
+        (w) => w.runtimeType.toString() == 'ChannelListPage',
+      ),
+    ) ||
+    (t.any(_anyText(['频道', 'Channel', 'Channels'])) &&
+        t.any(find.byIcon(Icons.search)));
 
 Future<bool> _openChannelTab(WidgetTester t) async {
   if (_isOnChannelList(t)) return true;
   for (int i = 0; i < 4; i++) {
     await tapAny(t, [
+      find.byKey(const Key('tab_channel')),
       find.byIcon(Icons.campaign_outlined),
       find.byIcon(Icons.campaign),
       find.text('频道'),

@@ -1174,7 +1174,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get allowAddByQRDesc => '다른 사용자가 QR코드를 스캔하여 친구 추가할 수 있습니다';
 	@override String get statusSettings => '상태 설정';
 	@override String get showOnlineStatus => '온라인 상태 표시';
-	@override String get showOnlineStatusDesc => '친구가 온라인 상태를 볼 수 있습니다';
+	@override String get showOnlineStatusDesc => '끄면 친구가 온라인 상태와 마지막 접속 시간을 볼 수 없습니다. 메시지 전달에는 영향이 없습니다';
 	@override String get allowNearbyVisible => '주변 사용자에게 표시';
 	@override String get dataSettings => '데이터 설정';
 	@override String get clearChatRecords => '채팅 기록 삭제';
@@ -3630,7 +3630,7 @@ extension on TranslationsKoKr {
 			'common.allowAddByQRDesc' => '다른 사용자가 QR코드를 스캔하여 친구 추가할 수 있습니다',
 			'common.statusSettings' => '상태 설정',
 			'common.showOnlineStatus' => '온라인 상태 표시',
-			'common.showOnlineStatusDesc' => '친구가 온라인 상태를 볼 수 있습니다',
+			'common.showOnlineStatusDesc' => '끄면 친구가 온라인 상태와 마지막 접속 시간을 볼 수 없습니다. 메시지 전달에는 영향이 없습니다',
 			'common.allowNearbyVisible' => '주변 사용자에게 표시',
 			'common.dataSettings' => '데이터 설정',
 			'common.clearChatRecords' => '채팅 기록 삭제',

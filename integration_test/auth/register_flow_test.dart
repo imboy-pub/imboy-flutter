@@ -106,6 +106,7 @@ void main() {
         return;
       }
 
+      if (!requireBusinessWriteAuthorization()) return;
       final submitted = tester.any(submitFinder)
           ? await safeTap(tester, submitFinder.first)
           : false;

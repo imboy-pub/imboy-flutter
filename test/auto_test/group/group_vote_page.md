@@ -9,7 +9,7 @@
 | 无待办 | - | `page/group/vote/group_vote_page.dart` | 弹窗填写标题选项创建投票 | 已通过 | 首轮 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/vote/group_vote_page.dart` | 选项不足两条时拦截并提示 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/vote/group_vote_page.dart` | 创建失败弹出网络错误提示 | 待重验 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/group/vote/group_vote_page.dart` | 从聊天面板直达自动弹创建表单 | 未测 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/group/vote/group_vote_page.dart` | 从聊天面板直达自动弹创建表单 | 已通过 | 批次29 | 0 | 0 | 0 | 附加面板第1页点「群投票」→ 跳转后自动弹「创建投票」表单(标题+选项输入框+取消/确认) |
 | 回归复测 | 2026-08-07 | `page/group/vote/group_vote_page.dart` | 下拉刷新重新拉取投票列表 | 待重验 | - | 0 | 0 | 0 | |
 | 无待办 | - | `page/group/vote/group_vote_page.dart` | 点击投票进详情并回传刷新 | 已通过 | 首轮 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/vote/group_vote_page.dart` | 展示进行中与已结束状态徽标 | 待重验 | - | 0 | 0 | 0 | |

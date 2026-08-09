@@ -1174,7 +1174,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get allowAddByQRDesc => '他のユーザーがあなたのQRコードをスキャンして友達として追加できます';
 	@override String get statusSettings => 'ステータス設定';
 	@override String get showOnlineStatus => 'オンラインステータスを表示';
-	@override String get showOnlineStatusDesc => '友達があなたのオンラインステータスを見ることができます';
+	@override String get showOnlineStatusDesc => 'オフにすると、友達はあなたのオンライン状態と最終ログイン時間を見ることができません。メッセージの配信には影響しません';
 	@override String get allowNearbyVisible => '近くの人に表示';
 	@override String get dataSettings => 'データ設定';
 	@override String get clearChatRecords => 'チャット履歴を消去';
@@ -3630,7 +3630,7 @@ extension on TranslationsJaJp {
 			'common.allowAddByQRDesc' => '他のユーザーがあなたのQRコードをスキャンして友達として追加できます',
 			'common.statusSettings' => 'ステータス設定',
 			'common.showOnlineStatus' => 'オンラインステータスを表示',
-			'common.showOnlineStatusDesc' => '友達があなたのオンラインステータスを見ることができます',
+			'common.showOnlineStatusDesc' => 'オフにすると、友達はあなたのオンライン状態と最終ログイン時間を見ることができません。メッセージの配信には影響しません',
 			'common.allowNearbyVisible' => '近くの人に表示',
 			'common.dataSettings' => 'データ設定',
 			'common.clearChatRecords' => 'チャット履歴を消去',

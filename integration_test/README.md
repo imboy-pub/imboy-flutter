@@ -69,6 +69,8 @@ flutter test integration_test/auth/register_flow_test.dart ...
 flutter test integration_test/auth/password_change_test.dart \
   --dart-define=TEST_NEW_PASSWORD=<new_pwd> \
   --dart-define=TEST_ALLOW_PASSWORD_CHANGE=true ...
+# 关系/消息/群/密码等业务写入还必须显式设置
+# --dart-define=TEST_ALLOW_BUSINESS_WRITES=true，且目标环境不能是生产
 ```
 
 ---
@@ -81,10 +83,10 @@ flutter test integration_test/auth/password_change_test.dart \
 | 未配置凭证 | `markTestSkipped` | SKIP |
 | 登录失败 | `markTestSkipped` | SKIP |
 | 数据为空 | `markTestSkipped` | SKIP |
-| 频道写入未显式授权 | `markTestSkipped` | SKIP |
+| 频道或业务写入未显式授权/指向生产 | `markTestSkipped` + 立即 `return` | SKIP |
 | 断言失败 | `fail` / `expect` | FAIL（真实失败） |
 
-> **禁止**：`if (!ok) { return; }` 裸返回——使测试假绿，CI 无法发现问题。
+> 门禁必须先调用 `markTestSkipped`，再由调用方立即 `return`；禁止在没有跳过标记的情况下裸返回。
 
 ---
 
@@ -96,6 +98,10 @@ flutter test integration_test/auth/password_change_test.dart \
 设置 `API_BASE_URL` 或非生产 `APP_ENV`。这些条件独立于账号凭证，是避免 E2E
 命令误写目标环境的安全闸门；只读的频道详情一致性测试不需要此开关。
 
+关系、消息、群、日程、密码和其它业务写入测试还要求
+`TEST_ALLOW_BUSINESS_WRITES=true`；共享门禁同时拒绝生产 `APP_ENV` 和生产地址，
+调用方必须在门禁返回 `false` 后立即 `return`。
+
 | 函数 | 用途 |
 |------|------|
 | `settle(tester)` | 等待帧稳定 |
@@ -105,6 +111,8 @@ flutter test integration_test/auth/password_change_test.dart \
 | `safeTap / tapAny` | 安全点击 |
 | `drainKnownFrameworkExceptions` | 过滤良性框架异常，未知异常重抛 |
 | `FlowConfig.*` | 从 `--dart-define` 读取配置 |
+| `requireChannelWriteAuthorization()` | 频道写入授权与生产环境门禁，返回 `false` 时立即退出 |
+| `requireBusinessWriteAuthorization()` | 通用业务写入授权与生产环境门禁，返回 `false` 时立即退出 |
 
 ---
 

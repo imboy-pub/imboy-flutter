@@ -122,5 +122,28 @@ void main() {
 
       expect(find.textContaining('周末羽毛球'), findsOneWidget);
     });
+
+    testWidgets('GQ-3 分享卡固定白底黑字不随主题（暗色下仍白底黑字）', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          Theme(
+            data: ThemeData(brightness: Brightness.dark),
+            child: GroupQrCodePage(group: buildGroup(title: '周末羽毛球')),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      // 卡片底色写死 Colors.white（group_qrcode_page.dart L124 注释：
+      // 分享二维码为固定外观白底黑字，刻意不随明暗主题切换）
+      final hasWhiteCard = tester
+          .widgetList<Container>(find.byType(Container))
+          .any((c) => (c.decoration as BoxDecoration?)?.color == Colors.white);
+      expect(hasWhiteCard, isTrue, reason: '分享卡应为白底，不随暗色主题');
+
+      // 群名写死 Colors.black（L90 同注释意图）
+      final title = tester.widget<Text>(find.textContaining('周末羽毛球'));
+      expect(title.style?.color, Colors.black, reason: '群名应为黑字，不随暗色主题');
+    });
   });
 }

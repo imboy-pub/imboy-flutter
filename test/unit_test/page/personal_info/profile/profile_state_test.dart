@@ -16,6 +16,7 @@ void main() {
       // completenessColor 默认走 token iosRed（原 Colors.red 已映射）
       expect(s.completenessColor, AppColors.iosRed);
       expect(s.allowSearch, true);
+      expect(s.showOnlineStatus, false);
       expect(s.allowNearbyVisible, false);
       expect(s.isLoading, false);
       expect(s.isUploading, false);

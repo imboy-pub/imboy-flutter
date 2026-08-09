@@ -146,6 +146,9 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         prefixIcon: const Icon(CupertinoIcons.lock_fill),
         border: const OutlineInputBorder(),
       ),
+      // BUG#132: 缺 onChanged 时确认框输入不触发 setState，
+      // 导出按钮 isEnabled 不重算，卡在初始 disabled 状态。
+      onChanged: (_) => setState(() {}),
     );
   }
 

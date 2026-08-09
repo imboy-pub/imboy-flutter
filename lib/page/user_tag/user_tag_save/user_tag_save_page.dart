@@ -71,171 +71,175 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
       ),
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextFormField(
-                autofocus: true,
-                focusNode: _inputFocusNode,
-                controller: _textController,
-                keyboardType: TextInputType.text,
-                textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
-                  filled: true,
-                  fillColor: isDark
-                      ? AppColors.darkSurfaceGroupedTertiary
-                      : AppColors.lightSurface,
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: AppRadius.borderRadiusTiny,
-                    borderSide: const BorderSide(width: 1.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: AppRadius.borderRadiusTiny,
-                    borderSide: const BorderSide(width: 1.0),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: AppRadius.borderRadiusTiny,
-                    borderSide: const BorderSide(
-                      width: 1.0,
-                      color: AppColors.iosRed,
+        // 弹层(showModalBottomSheet) + 键盘弹出时可用高度骤减，
+        // 包一层滚动避免 RenderFlex overflow（真机复现：溢出 58px）
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: TextFormField(
+                  autofocus: true,
+                  focusNode: _inputFocusNode,
+                  controller: _textController,
+                  keyboardType: TextInputType.text,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(14, 0, 8, 0),
+                    filled: true,
+                    fillColor: isDark
+                        ? AppColors.darkSurfaceGroupedTertiary
+                        : AppColors.lightSurface,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.borderRadiusTiny,
+                      borderSide: const BorderSide(width: 1.0),
                     ),
-                  ),
-                  errorStyle: const TextStyle(),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: AppRadius.borderRadiusTiny,
-                    borderSide: const BorderSide(
-                      width: 1.0,
-                      color: AppColors.iosRed,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.borderRadiusTiny,
+                      borderSide: const BorderSide(width: 1.0),
                     ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.borderRadiusTiny,
+                      borderSide: const BorderSide(
+                        width: 1.0,
+                        color: AppColors.iosRed,
+                      ),
+                    ),
+                    errorStyle: const TextStyle(),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.borderRadiusTiny,
+                      borderSide: const BorderSide(
+                        width: 1.0,
+                        color: AppColors.iosRed,
+                      ),
+                    ),
+                    border: InputBorder.none,
                   ),
-                  border: InputBorder.none,
+                  readOnly: false,
+                  onFieldSubmitted: (val) async {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    if (val == '') {
+                      setState(() {
+                        _valueChanged = false;
+                      });
+                    }
+                  },
+                  onChanged: (val) {
+                    // 已经在 initState 中监听
+                  },
+                  onSaved: (value) {},
+                  validator: (value) {
+                    return null;
+                  },
                 ),
-                readOnly: false,
-                onFieldSubmitted: (val) async {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  if (val == '') {
-                    setState(() {
-                      _valueChanged = false;
-                    });
-                  }
-                },
-                onChanged: (val) {
-                  // 已经在 initState 中监听
-                },
-                onSaved: (value) {},
-                validator: (value) {
-                  return null;
-                },
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                RoundedElevatedButton(
-                  text: t.common.buttonAccomplish,
-                  highlighted: _valueChanged && !_isSaving,
-                  onPressed: _isSaving
-                      ? null
-                      : () async {
-                          FocusScope.of(context).unfocus();
-                          String trimmedText = _textController.text.trim();
-                          if (trimmedText.isEmpty) {
-                            setState(() {
-                              _valueChanged = false;
-                            });
-                            return;
-                          }
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RoundedElevatedButton(
+                    text: t.common.buttonAccomplish,
+                    highlighted: _valueChanged && !_isSaving,
+                    onPressed: _isSaving
+                        ? null
+                        : () async {
+                            FocusScope.of(context).unfocus();
+                            String trimmedText = _textController.text.trim();
+                            if (trimmedText.isEmpty) {
+                              setState(() {
+                                _valueChanged = false;
+                              });
+                              return;
+                            }
 
-                          // 防抖：设置保存状态
-                          setState(() => _isSaving = true);
+                            // 防抖：设置保存状态
+                            setState(() => _isSaving = true);
 
-                          try {
-                            if (widget.tag == null && _valueChanged) {
-                              // 添加新标签
-                              final newTag = await ref
-                                  .read(userTagSaveProvider.notifier)
-                                  .addTag(
-                                    scene: widget.scene,
-                                    tagName: trimmedText,
-                                  );
-                              if (newTag != null) {
-                                // 添加到列表
-                                ref
-                                    .read(contactTagListProvider.notifier)
-                                    .updateTag(newTag);
-                                if (context.mounted) {
-                                  Navigator.of(context).pop();
-                                }
-                              } else {
-                                // 此前这里是空的：新增失败时不 pop、不提示、不记日志，
-                                // 用户看到的就是「点了完成，页面纹丝不动」（QA#29），
-                                // 也让失败原因彻底查不出来。下面的改名分支一直是有
-                                // else 提示的，这里属遗漏。
-                                AppLoading.showError(t.common.tipFailed);
-                              }
-                            } else if (_valueChanged) {
-                              // 修改标签名称
-                              bool res = await ref
-                                  .read(userTagSaveProvider.notifier)
-                                  .changeName(
-                                    scene: widget.scene,
-                                    tagId: widget.tag?.tagId ?? 0,
-                                    tagName: trimmedText,
-                                  );
-                              if (res) {
-                                await ref
-                                    .read(contactTagListProvider.notifier)
-                                    .replaceObjectTag(
+                            try {
+                              if (widget.tag == null && _valueChanged) {
+                                // 添加新标签
+                                final newTag = await ref
+                                    .read(userTagSaveProvider.notifier)
+                                    .addTag(
                                       scene: widget.scene,
-                                      oldName: widget.tag?.name ?? '',
-                                      newName: trimmedText,
+                                      tagName: trimmedText,
                                     );
-
-                                // 更新标签
-                                UserTagModel updatedTag = UserTagModel(
-                                  userId: widget.tag?.userId ?? 0,
-                                  tagId: widget.tag?.tagId ?? 0,
-                                  scene: widget.tag?.scene ?? 2,
-                                  name: trimmedText,
-                                  subtitle: widget.tag?.subtitle ?? '',
-                                  refererTime: widget.tag?.refererTime ?? 0,
-                                  updatedAt: widget.tag?.updatedAt ?? 0,
-                                  createdAt: widget.tag?.createdAt ?? 0,
-                                );
-                                ref
-                                    .read(contactTagListProvider.notifier)
-                                    .updateTag(updatedTag);
-
-                                // 如果详情页面已打开，更新标签名称
-                                try {
-                                  ref.read(contactTagDetailProvider).tagName;
-                                } catch (e) {
-                                  // 详情页面未打开，忽略
+                                if (newTag != null) {
+                                  // 添加到列表
+                                  ref
+                                      .read(contactTagListProvider.notifier)
+                                      .updateTag(newTag);
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
+                                } else {
+                                  // 此前这里是空的：新增失败时不 pop、不提示、不记日志，
+                                  // 用户看到的就是「点了完成，页面纹丝不动」（QA#29），
+                                  // 也让失败原因彻底查不出来。下面的改名分支一直是有
+                                  // else 提示的，这里属遗漏。
+                                  AppLoading.showError(t.common.tipFailed);
                                 }
+                              } else if (_valueChanged) {
+                                // 修改标签名称
+                                bool res = await ref
+                                    .read(userTagSaveProvider.notifier)
+                                    .changeName(
+                                      scene: widget.scene,
+                                      tagId: widget.tag?.tagId ?? 0,
+                                      tagName: trimmedText,
+                                    );
+                                if (res) {
+                                  await ref
+                                      .read(contactTagListProvider.notifier)
+                                      .replaceObjectTag(
+                                        scene: widget.scene,
+                                        oldName: widget.tag?.name ?? '',
+                                        newName: trimmedText,
+                                      );
 
-                                AppLoading.showSuccess(t.common.tipSuccess);
-                                if (context.mounted) {
-                                  Navigator.of(context).pop();
+                                  // 更新标签
+                                  UserTagModel updatedTag = UserTagModel(
+                                    userId: widget.tag?.userId ?? 0,
+                                    tagId: widget.tag?.tagId ?? 0,
+                                    scene: widget.tag?.scene ?? 2,
+                                    name: trimmedText,
+                                    subtitle: widget.tag?.subtitle ?? '',
+                                    refererTime: widget.tag?.refererTime ?? 0,
+                                    updatedAt: widget.tag?.updatedAt ?? 0,
+                                    createdAt: widget.tag?.createdAt ?? 0,
+                                  );
+                                  ref
+                                      .read(contactTagListProvider.notifier)
+                                      .updateTag(updatedTag);
+
+                                  // 如果详情页面已打开，更新标签名称
+                                  try {
+                                    ref.read(contactTagDetailProvider).tagName;
+                                  } catch (e) {
+                                    // 详情页面未打开，忽略
+                                  }
+
+                                  AppLoading.showSuccess(t.common.tipSuccess);
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
+                                } else {
+                                  AppLoading.showError(t.common.tipFailed);
                                 }
-                              } else {
-                                AppLoading.showError(t.common.tipFailed);
+                              }
+                            } finally {
+                              // 恢复保存状态
+                              if (mounted) {
+                                setState(() => _isSaving = false);
                               }
                             }
-                          } finally {
-                            // 恢复保存状态
-                            if (mounted) {
-                              setState(() => _isSaving = false);
-                            }
-                          }
-                        },
-                ),
-              ],
-            ),
-          ],
+                          },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

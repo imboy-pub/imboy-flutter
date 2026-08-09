@@ -3,6 +3,7 @@
 // 统一 App 启动管理，确保 app.main() 在整个测试进程内只执行一次。
 // 避免重复调用导致的全局单例（WebSocket、DB、ProviderContainer）状态污染。
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/main.dart' as app;
 
@@ -19,7 +20,7 @@ bool _launched = false;
 /// ```dart
 /// testWidgets('某个测试', (tester) async {
 ///   await ensureAppLaunched(tester);
-///   await checkPreconditions(tester);
+///   if (!await checkPreconditions(tester)) return;
 ///   // ... 断言
 /// });
 /// ```
@@ -27,10 +28,15 @@ Future<void> ensureAppLaunched(
   WidgetTester tester, {
   int maxSeconds = 5,
 }) async {
-  if (!_launched) {
+  // integration_test 的每个 testWidgets 可能拥有独立的 tester 树；
+  // 仅用进程级标志复用 app.main() 会让后续用例看不到已挂载的 MaterialApp。
+  // 只有当前 tester 确实还有 App 树时才复用，否则重新挂载入口。
+  final hasAppTree = tester.any(find.byType(MaterialApp));
+  if (!_launched || !hasAppTree) {
+    final firstLaunch = !_launched;
     app.main();
     _launched = true;
-    flowLog('App 首次启动');
+    flowLog(firstLaunch ? 'App 首次启动' : 'App 入口重新挂载');
   }
   await settle(tester, maxSeconds: maxSeconds);
 }

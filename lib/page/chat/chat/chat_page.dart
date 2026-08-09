@@ -369,7 +369,10 @@ class ChatPageState extends ConsumerState<ChatPage>
       _setupEventListeners();
     } catch (e) {
       // 显示错误提示
-      if (context.mounted) {
+      // State.context 在 dispose 后本身会抛异常；这里必须先检查 State.mounted，
+      // 不能通过 context.mounted 读取已卸载 State 的 context。
+      if (mounted) {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${t.common.chatInitFailed}: $e')),
         );
@@ -1097,8 +1100,11 @@ class ChatPageState extends ConsumerState<ChatPage>
     );
 
     // 如果用户选择了好友，发送名片消息
-    if (result != null && context.mounted) {
+    if (result != null && mounted) {
+      // ignore: use_build_context_synchronously
       await _attachmentHandler.sendVisitCardMessage(
+        // State.mounted 已在上方检查；此处仅把当前页面上下文传给发送服务。
+        // ignore: use_build_context_synchronously
         context,
         result.peerId.toString(),
         result.title,
@@ -1125,8 +1131,9 @@ class ChatPageState extends ConsumerState<ChatPage>
     );
 
     // 如果用户选择了收藏消息，发送它
-    if (result != null && context.mounted) {
+    if (result != null && mounted) {
       try {
+        // ignore: use_build_context_synchronously
         await _attachmentHandler.sendCollectMessage(context, result.info);
       } catch (e) {
         if (mounted) {

@@ -1174,7 +1174,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get allowAddByQRDesc => 'Другие пользователи могут добавить вас в друзья, отсканировав ваш QR-код';
 	@override String get statusSettings => 'Настройки статуса';
 	@override String get showOnlineStatus => 'Показать онлайн-статус';
-	@override String get showOnlineStatusDesc => 'Друзья могут видеть ваш онлайн-статус';
+	@override String get showOnlineStatusDesc => 'Когда выключено, друзья не видят ваш онлайн-статус и время последнего входа; доставка сообщений не затрагивается';
 	@override String get allowNearbyVisible => 'Видимый для находящихся рядом';
 	@override String get dataSettings => 'Настройки данных';
 	@override String get clearChatRecords => 'Очистить записи чата';
@@ -3630,7 +3630,7 @@ extension on TranslationsRuRu {
 			'common.allowAddByQRDesc' => 'Другие пользователи могут добавить вас в друзья, отсканировав ваш QR-код',
 			'common.statusSettings' => 'Настройки статуса',
 			'common.showOnlineStatus' => 'Показать онлайн-статус',
-			'common.showOnlineStatusDesc' => 'Друзья могут видеть ваш онлайн-статус',
+			'common.showOnlineStatusDesc' => 'Когда выключено, друзья не видят ваш онлайн-статус и время последнего входа; доставка сообщений не затрагивается',
 			'common.allowNearbyVisible' => 'Видимый для находящихся рядом',
 			'common.dataSettings' => 'Настройки данных',
 			'common.clearChatRecords' => 'Очистить записи чата',

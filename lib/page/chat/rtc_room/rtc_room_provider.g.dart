@@ -41,7 +41,7 @@ final class RtcRoomNotifierProvider
   }
 }
 
-String _$rtcRoomNotifierHash() => r'11d66a426b6698753406aa0b8716aa9f9f077e43';
+String _$rtcRoomNotifierHash() => r'2b1aff85ab2e4988b7bb36879f5c8c661da71cba';
 
 abstract class _$RtcRoomNotifier extends $Notifier<RtcRoomState> {
   RtcRoomState build();

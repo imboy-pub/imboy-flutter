@@ -3552,8 +3552,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '显示在线状态'
 	String get showOnlineStatus => '显示在线状态';
 
-	/// zh-CN: '好友可以看到你的在线状态'
-	String get showOnlineStatusDesc => '好友可以看到你的在线状态';
+	/// zh-CN: '关闭后，好友看不到你的在线状态和最后上线时间；消息投递不受影响'
+	String get showOnlineStatusDesc => '关闭后，好友看不到你的在线状态和最后上线时间；消息投递不受影响';
 
 	/// zh-CN: '附近的人可见'
 	String get allowNearbyVisible => '附近的人可见';
@@ -8733,7 +8733,7 @@ extension on Translations {
 			'common.allowAddByQRDesc' => '其他用户可以通过扫描你的二维码添加你为好友',
 			'common.statusSettings' => '状态设置',
 			'common.showOnlineStatus' => '显示在线状态',
-			'common.showOnlineStatusDesc' => '好友可以看到你的在线状态',
+			'common.showOnlineStatusDesc' => '关闭后，好友看不到你的在线状态和最后上线时间；消息投递不受影响',
 			'common.allowNearbyVisible' => '附近的人可见',
 			'common.dataSettings' => '数据设置',
 			'common.clearChatRecords' => '清除聊天记录',

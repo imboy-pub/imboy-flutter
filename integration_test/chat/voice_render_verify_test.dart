@@ -32,6 +32,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('voice 消息渲染为语音气泡（WS JSON 发送链路）', (tester) async {
+    if (!requireBusinessWriteAuthorization()) return;
     // 1. 启动 app 并以 demo_voice_recv 登录（TEST_PHONE / TEST_PASSWORD）
     await ensureAppLaunched(tester, maxSeconds: 5);
     // 全新安装冷启动较慢，先等欢迎页/登录页/主界面任一入口就绪

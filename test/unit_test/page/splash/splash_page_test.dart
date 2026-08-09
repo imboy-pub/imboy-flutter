@@ -377,4 +377,40 @@ void main() {
       await _drainSplashTimer(tester);
     });
   });
+
+  // ── L18 认证检查异常兜底跳欢迎页 ──────────────────────────────────────
+  group('SplashPage auth exception fallback (L18)', () {
+    testWidgets('异常兜底与未登录路径共享 /welcome 目标：1400ms 保底内留在 splash，'
+        '随后落在欢迎页（catch 分支为代码证实）', (tester) async {
+      // 环境事实：test/unit_test/flutter_test_config.dart 已执行
+      // SharedPreferences.setMockInitialValues + StorageService.init()，
+      // 因此 UserRepoLocal.to.isLoggedIn 能正常读到空 uid（未登录，不抛异常），
+      // 走 splash_page.dart L143-151 的未登录正常路径 → context.go('/welcome')。
+      //
+      // L18 catch 分支（L159-163 `on Exception` → context.go('/welcome')）无法在
+      // 本环境注入触发：StorageService._prefs 为私有静态且已被 config 初始化，
+      // UserRepoLocal._instance 为 static final，均无注入点。
+      // 覆盖方式 = 代码证实（try/catch 结构 + 两路跳转目标同为 /welcome）
+      //             + 目标路由可达性测试（下述断言）。
+      await _pumpSplash(tester, size: const Size(390, 844));
+
+      // 未登录 hold = kSplashMinHoldNew = 1400ms：100ms 时保底 timer 未到，
+      // 不应提前跳走（异常兜底虽免保底，但目标路由相同，先验证时序成立）。
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(
+        find.text('welcome stub'),
+        findsNothing,
+        reason: '未登录路径需 1400ms 保底，100ms 时仍应停留在 splash',
+      );
+
+      await _drainSplashTimer(tester);
+      // 正常路径 L149 与异常兜底 L162 都 context.go('/welcome')；
+      // /welcome stub 可达即证明兜底跳转目标有效（不会跳空/崩溃）。
+      expect(
+        find.text('welcome stub'),
+        findsOneWidget,
+        reason: '未登录/认证异常最终都必须落在 /welcome',
+      );
+    });
+  });
 }

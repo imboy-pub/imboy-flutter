@@ -1174,7 +1174,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get allowAddByQRDesc => 'يمكن للمستخدمين الآخرين إضافتك كصديق من خلال مسح رمز QR الخاص بك';
 	@override String get statusSettings => 'إعدادات الحالة';
 	@override String get showOnlineStatus => 'عرض الحالة عبر الإنترنت';
-	@override String get showOnlineStatusDesc => 'يمكن للأصدقاء رؤية حالتك عبر الإنترنت';
+	@override String get showOnlineStatusDesc => 'عند الإيقاف، لا يمكن للأصدقاء رؤية حالتك عبر الإنترنت أو آخر وقت ظهور؛ توصيل الرسائل لا يتأثر';
 	@override String get allowNearbyVisible => 'مرئي للأشخاص القريبين';
 	@override String get dataSettings => 'إعدادات البيانات';
 	@override String get clearChatRecords => 'مسح سجلات الدردشة';
@@ -3630,7 +3630,7 @@ extension on TranslationsArSa {
 			'common.allowAddByQRDesc' => 'يمكن للمستخدمين الآخرين إضافتك كصديق من خلال مسح رمز QR الخاص بك',
 			'common.statusSettings' => 'إعدادات الحالة',
 			'common.showOnlineStatus' => 'عرض الحالة عبر الإنترنت',
-			'common.showOnlineStatusDesc' => 'يمكن للأصدقاء رؤية حالتك عبر الإنترنت',
+			'common.showOnlineStatusDesc' => 'عند الإيقاف، لا يمكن للأصدقاء رؤية حالتك عبر الإنترنت أو آخر وقت ظهور؛ توصيل الرسائل لا يتأثر',
 			'common.allowNearbyVisible' => 'مرئي للأشخاص القريبين',
 			'common.dataSettings' => 'إعدادات البيانات',
 			'common.clearChatRecords' => 'مسح سجلات الدردشة',

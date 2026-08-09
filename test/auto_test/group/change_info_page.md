@@ -12,6 +12,6 @@
 | 回归复测 | 2026-08-07 | `page/group/group_detail/change_info_page.dart` | 展示群头像合成九宫格图 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/group_detail/change_info_page.dart` | 展示副标题输入引导文案 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/group_detail/change_info_page.dart` | 点返回不保存直接退出页面 | 待重验 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/group/group_detail/change_info_page.dart` | 群名输入超 80 字被截断 | 未测 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/group/group_detail/change_info_page.dart` | 空群名时占位显示「未命名」 | 未测 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/group/group_detail/change_info_page.dart` | 群名输入超 80 字被截断 | 已通过 | 批次29 | 0 | 0 | 0 | 输入100字符实测仅留80 |
+| 无待办 | - | `page/group/group_detail/change_info_page.dart` | 空群名时占位显示「未命名」 | 已通过 | 批次29 | 0 | 0 | 0 | 未命名群 title 空，hintText=未命名 代码证实 |
 | 阻塞 | 需授权写生产数据 | `page/group/group_detail/change_info_page.dart` | 保存群名成功提示并回传 | 未测 | - | 0 | 0 | 0 | 改名对全群成员可见 |

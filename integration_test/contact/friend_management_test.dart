@@ -24,7 +24,7 @@ void main() {
       await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'friend_01_launch');
 
-      await checkPreconditions(tester);
+      if (!await checkPreconditions(tester)) return;
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'friend_02_after_login');
@@ -47,7 +47,7 @@ void main() {
     testWidgets('点击好友进入详情页', (tester) async {
       await ensureAppLaunched(tester, maxSeconds: 3);
 
-      await checkPreconditions(tester);
+      if (!await checkPreconditions(tester)) return;
 
       if (!await _openContactTab(tester)) {
         markTestSkipped('无法进入联系人页，跳过');
@@ -74,7 +74,7 @@ void main() {
 }
 
 Future<bool> _openContactTab(WidgetTester tester) async {
-  final tapped = await tapAny(tester, [
+  final candidates = [
     find.byKey(const Key('tab_contacts')),
     find.byIcon(Icons.people),
     find.byIcon(Icons.people_outline),
@@ -82,7 +82,37 @@ Future<bool> _openContactTab(WidgetTester tester) async {
     find.text('联系人'),
     find.text('Contacts'),
     find.text('Friends'),
-  ]);
-  if (tapped) await settle(tester, maxSeconds: 2);
-  return tapped;
+  ];
+  for (final candidate in candidates) {
+    if (!await safeTap(tester, candidate)) continue;
+    await settle(tester, maxSeconds: 2);
+    final onContactPage =
+        tester.any(
+          find.byWidgetPredicate(
+            (w) => w.runtimeType.toString() == 'ContactPage',
+          ),
+        ) ||
+        tester.any(find.byKey(const Key('contact_search_input')));
+    if (onContactPage) return true;
+  }
+
+  final glassBar = find.byWidgetPredicate(
+    (w) => w.runtimeType.toString() == 'GlassBottomNavigationBar',
+  );
+  if (tester.any(glassBar)) {
+    try {
+      final rect = tester.getRect(glassBar.first);
+      await tester.tapAt(
+        Offset(rect.left + rect.width * 0.375, rect.center.dy),
+      );
+      await settle(tester, maxSeconds: 2);
+      return tester.any(
+            find.byWidgetPredicate(
+              (w) => w.runtimeType.toString() == 'ContactPage',
+            ),
+          ) ||
+          tester.any(find.byKey(const Key('contact_search_input')));
+    } catch (_) {}
+  }
+  return false;
 }

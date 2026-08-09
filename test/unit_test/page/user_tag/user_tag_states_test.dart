@@ -1,9 +1,11 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_provider.dart';
 import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_provider.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_provider.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_provider.dart';
+import 'package:imboy/store/model/contact_model.dart';
 
 /// user_tag 各 provider 的不可变 State copyWith 纯逻辑单测。
 ///
@@ -39,6 +41,27 @@ void main() {
       expect(s2.text, 'a');
       expect(s2.valueChanged, true);
       expect(s2.isLoading, true);
+    });
+  });
+
+  group('ContactTagDetailNotifier.handleList 空 title', () {
+    test('CD-H1 空 title 归入 # 组不崩溃', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(contactTagDetailProvider.notifier);
+      final list = [
+        ContactModel(peerId: 1, nickname: 'Alice'),
+        ContactModel(peerId: 2, nickname: ''),
+      ];
+      // 回归：getPinyinE('') 返回空串，修复前 substring(0,1) 抛 RangeError
+      // 导致整页渲染空列表（真机实测 select_tag_friend_page.dart）。
+      notifier.handleList(list);
+      expect(list[0].nameIndex, 'A');
+      expect(list[1].nameIndex, '#');
+      expect(
+        container.read(contactTagDetailProvider).currIndexBarData,
+        contains('#'),
+      );
     });
   });
 

@@ -1177,7 +1177,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get allowAddByQRDesc => 'D\'autres utilisateurs peuvent vous ajouter comme ami en scannant votre code QR.';
 	@override String get statusSettings => 'Paramètres de statut';
 	@override String get showOnlineStatus => 'Afficher le statut en ligne';
-	@override String get showOnlineStatusDesc => 'Les amis peuvent voir votre statut en ligne.';
+	@override String get showOnlineStatusDesc => 'Lorsqu\'il est désactivé, vos amis ne peuvent pas voir votre statut en ligne ni l\'heure de votre dernière connexion ; la distribution des messages n\'est pas affectée';
 	@override String get allowNearbyVisible => 'Visible pour les personnes à proximité';
 	@override String get dataSettings => 'Paramètres des données';
 	@override String get clearChatRecords => 'Effacer les enregistrements de conversation';
@@ -3633,7 +3633,7 @@ extension on TranslationsFrFr {
 			'common.allowAddByQRDesc' => 'D\'autres utilisateurs peuvent vous ajouter comme ami en scannant votre code QR.',
 			'common.statusSettings' => 'Paramètres de statut',
 			'common.showOnlineStatus' => 'Afficher le statut en ligne',
-			'common.showOnlineStatusDesc' => 'Les amis peuvent voir votre statut en ligne.',
+			'common.showOnlineStatusDesc' => 'Lorsqu\'il est désactivé, vos amis ne peuvent pas voir votre statut en ligne ni l\'heure de votre dernière connexion ; la distribution des messages n\'est pas affectée',
 			'common.allowNearbyVisible' => 'Visible pour les personnes à proximité',
 			'common.dataSettings' => 'Paramètres des données',
 			'common.clearChatRecords' => 'Effacer les enregistrements de conversation',

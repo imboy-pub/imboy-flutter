@@ -107,6 +107,7 @@ void main() {
       final resp = await client.post(
         '/api/v1/group/page',
         data: {'page': 1, 'size': 10},
+        readOnly: true,
       );
       expect(resp, containsPair('code', isA<int>()));
       if (resp['code'] == 0) {
@@ -170,6 +171,33 @@ void main() {
         containsPair('code', isA<int>()),
         reason: 'C2C 发送接口应返回包含 code 的 JSON 响应',
       );
+    });
+  });
+
+  // 只验证写端点的参数校验边界：conversation_id=0 不对应真实会话，
+  // 服务端必须结构化拒绝，不能以 code=0 伪装成功或返回未处理的 HTML/崩溃。
+  group('会话写入参数边界', () {
+    test('8.1 置顶/取消置顶/删除/恢复拒绝无效会话 ID', () async {
+      if (!loggedIn) {
+        markTestSkipped('未登录');
+        return;
+      }
+
+      const endpoints = [
+        '/api/v1/conversation/pin',
+        '/api/v1/conversation/unpin',
+        '/api/v1/conversation/delete',
+        '/api/v1/conversation/restore',
+      ];
+
+      for (final endpoint in endpoints) {
+        final resp = await client.post(
+          endpoint,
+          data: {'conversation_id': '0', 'type': 'c2c'},
+        );
+        expect(resp, containsPair('code', isA<int>()), reason: endpoint);
+        expect(resp['code'], isNot(0), reason: '$endpoint 不应接受无效会话 ID');
+      }
     });
   });
 }

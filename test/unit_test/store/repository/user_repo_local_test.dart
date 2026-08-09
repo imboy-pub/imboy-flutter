@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/helper/jwt.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// 用户仓库测试
 /// 测试 Token 管理和登录流程的关键场景
@@ -178,6 +181,58 @@ void main() {
         returnsNormally,
         reason: '所有字段都有效时应该验证通过',
       );
+    });
+  });
+
+  group('UserRepoLocal.quitLogin - 游标清理测试', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      await StorageService.init();
+    });
+
+    // BUG#119 附带发现：聊天历史回填游标（msg_history_seq_<uk3>）只写不
+    // 清理，登出后残留，换号/重装后无新消息的会话持续「暂无数据」。
+    test('应该清理全部 msg_history_seq_* 前缀键', () async {
+      // Arrange
+      await StorageService.to.setString(Keys.currentUid, '1817128709888507904');
+      await StorageService.to.setInt('msg_history_seq_c2c_1_2', 42);
+      await StorageService.to.setInt('msg_history_seq_C2G_1_3', 7);
+
+      // Act
+      await UserRepoLocal.to.quitLogin();
+
+      // Assert
+      expect(
+        StorageService.to.containsKey('msg_history_seq_c2c_1_2'),
+        isFalse,
+        reason: 'quitLogin 必须清理 C2C 会话回填游标',
+      );
+      expect(
+        StorageService.to.containsKey('msg_history_seq_C2G_1_3'),
+        isFalse,
+        reason: 'quitLogin 必须清理 C2G 会话回填游标',
+      );
+    });
+
+    test('应该只清理游标键，不动其他键', () async {
+      // Arrange
+      await StorageService.to.setString(Keys.currentUid, '1817128709888507904');
+      await StorageService.to.setString(
+        Keys.lastLoginAccount,
+        'demo@imboy.pub',
+      );
+      await StorageService.to.setInt('msg_history_seq_c2c_1_2', 42);
+
+      // Act
+      await UserRepoLocal.to.quitLogin();
+
+      // Assert
+      expect(
+        StorageService.to.getString(Keys.lastLoginAccount),
+        'demo@imboy.pub',
+        reason: '登录历史账号不属于游标，不应被清理',
+      );
+      expect(StorageService.to.containsKey('msg_history_seq_c2c_1_2'), isFalse);
     });
   });
 }

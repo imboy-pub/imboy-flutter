@@ -11,8 +11,9 @@ void main() {
 
   group('C2C 聊天', () {
     testWidgets('打开已有单聊并发送文本消息', (tester) async {
+      if (!requireBusinessWriteAuthorization()) return;
       await ensureAppLaunched(tester, maxSeconds: 3);
-      await checkPreconditions(tester);
+      if (!await checkPreconditions(tester)) return;
       await settle(tester, maxSeconds: 2);
 
       if (!await _openConversationTab(tester)) {
@@ -68,12 +69,18 @@ void main() {
 }
 
 bool _isOnConvList(WidgetTester t) =>
-    t.any(find.byIcon(Icons.search)) &&
-    t.any(find.byIcon(Icons.add_circle_outline));
+    t.any(
+      find.byWidgetPredicate(
+        (w) => w.runtimeType.toString() == 'ConversationPage',
+      ),
+    ) ||
+    (t.any(find.byIcon(Icons.search)) &&
+        t.any(find.byIcon(Icons.add_circle_outline)));
 
 Future<bool> _openConversationTab(WidgetTester t) async {
   if (_isOnConvList(t)) return true;
   await tapAny(t, [
+    find.byKey(const Key('tab_conversations')),
     find.byIcon(Icons.chat_bubble),
     find.byIcon(Icons.chat_bubble_outline),
     find.text('消息'),

@@ -12,6 +12,6 @@
 | 回归复测 | 2026-08-07 | `page/group/group_detail/remove_member_page.dart` | 未选中时点完成不触发请求 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/group_detail/remove_member_page.dart` | 点信息图标查看成员资料 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/group_detail/remove_member_page.dart` | 点取消返回群详情页 | 待重验 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/group/group_detail/remove_member_page.dart` | 成员为空时展示暂无数据空态 | 未测 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/group/group_detail/remove_member_page.dart` | 移除失败时弹出错误提示 | 未测 | - | 0 | 0 | 0 | 需构造接口失败场景 |
+| 阻塞 | 需授权写生产数据（建仅含自己的群）或本地库构造 | `page/group/group_detail/remove_member_page.dart` | 成员为空时展示暂无数据空态 | 未测 | 批次29 | 0 | 0 | 0 | 空态需「排除自己+群主后为空」；本机唯一单人群「未命名」uid50 非管理员无「-」入口（isAdmin 才渲染 group_detail_page.dart L116），IMBoy 群可进但含 1 名可移除成员非空；代码证实 remove_member_page.dart L216-217 + provider L53-64 过滤 |
+| 无待办 | - | `page/group/group_detail/remove_member_page.dart` | 移除失败时弹出错误提示 | 已通过 | 批次29 | 0 | 0 | 0 | 飞行模式构造接口失败：勾选 IMBoy→完成(1)→断网→点完成两次→页面不 pop（成功路径会 pop 回群详情）→res=false 走 L207 showError 失败分支；恢复网络点取消退出，未踢任何人 |
 | 阻塞 | 需授权写生产数据 | `page/group/group_detail/remove_member_page.dart` | 提交移除成员并回传结果 | 未测 | - | 0 | 0 | 0 | 会真实踢人并通知第三方 |

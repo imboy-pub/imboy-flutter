@@ -20,6 +20,9 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:imboy/config/env.dart';
+import 'package:imboy/service/encrypter.dart';
+
 class FlowApiConfig {
   FlowApiConfig._();
 
@@ -72,7 +75,7 @@ class FlowApiClient {
         ),
       );
 
-  Map<String, String> _defaultHeaders() {
+  Future<Map<String, String>> _defaultHeaders() async {
     final cos = Platform.isIOS
         ? 'ios'
         : Platform.isAndroid
@@ -80,20 +83,32 @@ class FlowApiClient {
         : Platform.isMacOS
         ? 'macos'
         : 'linux';
+    // pkg 必须与各平台实际 bundle id/applicationId 一致，否则后端 902
+    final pkg = Platform.isAndroid
+        ? 'imboy.chat'
+        : Platform.isMacOS
+        ? 'pub.imboy.macos'
+        : Platform.isIOS
+        ? 'pub.imboy.2'
+        : 'pub.imboy.app';
+    final vsn = '0.8.0';
+    final key = await Env.signKey();
 
     return {
       'cos': cos,
-      'vsn': '0.8.0',
-      'pkg': 'pub.imboy.app',
+      'vsn': vsn,
+      'pkg': pkg,
       'did': _deviceId,
       'tz_offset': '${DateTime.now().timeZoneOffset.inMilliseconds}',
       'method': 'sha512',
       'sk': '1',
+      // 与 App 客户端一致：base64(HMAC-SHA512("did|vsn|cos|pkg", key))
+      'sign': EncrypterService.sha512('$_deviceId|$vsn|$cos|$pkg', key),
     };
   }
 
-  Map<String, String> _authHeaders() {
-    final h = _defaultHeaders();
+  Future<Map<String, String>> _authHeaders() async {
+    final h = await _defaultHeaders();
     if (_accessToken != null && _accessToken!.isNotEmpty) {
       h['authorization'] = 'Bearer $_accessToken';
     }
@@ -123,7 +138,7 @@ class FlowApiClient {
         'type': loginType,
         'rsa_encrypt': '0',
       },
-      options: Options(headers: _defaultHeaders()),
+      options: Options(headers: await _defaultHeaders()),
     );
     final body = _parse(resp);
     if (body['code'] == 0) {
@@ -139,7 +154,7 @@ class FlowApiClient {
   }
 
   Future<Map<String, dynamic>> refreshToken() async {
-    final h = _defaultHeaders();
+    final h = await _defaultHeaders();
     if (_refreshToken != null) h['imboy-refreshtoken'] = _refreshToken!;
     final resp = await _dio.post<dynamic>(
       '/api/v1/refreshtoken',
@@ -161,7 +176,7 @@ class FlowApiClient {
     final resp = await _dio.get<dynamic>(
       path,
       queryParameters: queryParameters,
-      options: Options(headers: _authHeaders()),
+      options: Options(headers: await _authHeaders()),
     );
     return _parse(resp);
   }
@@ -173,7 +188,7 @@ class FlowApiClient {
     final resp = await _dio.post<dynamic>(
       path,
       data: data,
-      options: Options(headers: _authHeaders()),
+      options: Options(headers: await _authHeaders()),
     );
     return _parse(resp);
   }

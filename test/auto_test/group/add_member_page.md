@@ -14,5 +14,5 @@
 | 回归复测 | 2026-08-07 | `page/group/group_detail/add_member_page.dart` | A-Z 索引栏拖动定位联系人 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/group_detail/add_member_page.dart` | 未选中时完成按钮置灰禁用 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/group_detail/add_member_page.dart` | 点左上角关闭退出选人页 | 待重验 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/group/group_detail/add_member_page.dart` | 无联系人时展示暂无数据空态 | 未测 | - | 0 | 0 | 0 | |
+| 阻塞 | 需本地库零好友数据的测试账号或测试数据（构造需删好友，破坏性） | `page/group/group_detail/add_member_page.dart` | 无联系人时展示暂无数据空态 | 未测 | 批次29 | 0 | 0 | 0 | uid50 本地库 3 好友；选人页列表/禁选/完成钮已正常 |
 | 阻塞 | 需授权写生产数据 | `page/group/group_detail/add_member_page.dart` | 提交添加选中成员入群 | 未测 | - | 0 | 0 | 0 | 会真实拉人入群并通知第三方 |

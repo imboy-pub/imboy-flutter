@@ -400,7 +400,11 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         _selectedFile!.path,
       );
       setState(() => _backupInfo = info);
-    } on Exception {
+    } on Object {
+      // verifyBackupFile 的格式错误均为 ArgumentError——当前 Dart SDK 中
+      // ArgumentError 仅 implements Error（不 implements Exception），
+      // 用 on Exception 会捕获不到而静默冒泡（用户无任何提示）。
+      // 校验失败一律清空元信息并提示。
       setState(() {
         _backupInfo = null;
       });

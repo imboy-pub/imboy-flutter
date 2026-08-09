@@ -313,16 +313,12 @@ class AppInitializer {
         '🔄 Cleared all cached configurations due to environment change',
       );
 
-      // 【关键】立即从新环境获取配置，获取正确的 ws_url、upload_url 等
-      logger.i('🔄 Fetching new environment configuration...');
-      final config = await initConfig();
-      if (config.containsKey('error')) {
-        logger.w(
-          '⚠️ Failed to fetch config for new environment: ${config['error']}',
-        );
-      } else {
-        logger.i('✅ Successfully fetched config for new environment');
-      }
+      // 配置请求依赖 HttpClient，而 HttpClient 在 _initializeCore 的后段
+      // 注册。这里仅清理旧缓存，交由 _initializeServices 在 HttpClient
+      // 注册后统一拉取，避免环境切换时出现 “Service HttpClient not registered”。
+      logger.i(
+        '🔄 New environment configuration fetch deferred until HttpClient setup',
+      );
     }
 
     await StorageService.to.setString('env', currentEnv);

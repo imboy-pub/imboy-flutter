@@ -527,7 +527,7 @@ allowAddByQR: 允许通过二维码添加
 allowAddByQRDesc: 其他用户可以通过扫描你的二维码添加你为好友
 statusSettings: 状态设置
 showOnlineStatus: 显示在线状态
-showOnlineStatusDesc: 好友可以看到你的在线状态
+showOnlineStatusDesc: 关闭后，好友看不到你的在线状态和最后上线时间；消息投递不受影响
 allowNearbyVisible: 附近的人可见
 dataSettings: 数据设置
 clearChatRecords: 清除聊天记录

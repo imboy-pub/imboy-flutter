@@ -24,7 +24,7 @@ void main() {
       await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'conv_01_launch');
 
-      await checkPreconditions(tester);
+      if (!await checkPreconditions(tester)) return;
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'conv_02_after_login');
@@ -53,10 +53,12 @@ void main() {
       drainKnownFrameworkExceptions(tester);
     }, timeout: const Timeout(Duration(minutes: 5)));
 
-    testWidgets('长按会话项出现操作菜单', (tester) async {
+    testWidgets('侧滑会话项显示操作菜单（不执行操作）', (tester) async {
       await ensureAppLaunched(tester, maxSeconds: 3);
 
-      await checkPreconditions(tester);
+      if (!await checkPreconditions(tester)) return;
+      await settle(tester, maxSeconds: 2);
+      await _dismissRecoveryGuideIfVisible(tester);
 
       if (!await _openConversationTab(tester)) {
         markTestSkipped('无法进入会话列表，跳过');
@@ -82,7 +84,10 @@ void main() {
         return;
       }
 
-      await tester.longPress(target);
+      await tester.ensureVisible(target);
+      // 会话项当前通过 Slidable 暴露“已读/未读、置顶、删除”操作，
+      // 没有长按菜单；只展开侧滑面板并检查文案，不点击任何业务动作。
+      await tester.drag(target, const Offset(-320, 0));
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'conv_menu_after_longpress');
 
@@ -112,7 +117,7 @@ void main() {
     testWidgets('搜索入口可访问', (tester) async {
       await ensureAppLaunched(tester, maxSeconds: 3);
 
-      await checkPreconditions(tester);
+      if (!await checkPreconditions(tester)) return;
 
       if (!await _openConversationTab(tester)) {
         markTestSkipped('无法进入会话列表，跳过');
@@ -121,20 +126,26 @@ void main() {
 
       await settle(tester, maxSeconds: 2);
 
-      final searchIcon = find.byIcon(Icons.search);
-      if (!tester.any(searchIcon)) {
-        markTestSkipped('未找到搜索图标，跳过');
+      // 当前会话页将搜索框直接嵌入列表顶部，使用稳定 Key 定位；
+      // 旧版独立 Material 搜索图标已不再是实际 UI 入口。
+      final searchField = find.byKey(const Key('conversation_search_input'));
+      if (!tester.any(searchField)) {
+        markTestSkipped('未找到会话搜索框，跳过');
         return;
       }
 
-      await safeTap(tester, searchIcon.first);
+      await safeTap(tester, searchField.first);
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'conv_search_page');
 
       // 断言：搜索页应有文本输入框
-      expect(find.byType(TextField), findsWidgets, reason: '搜索页面应有文本输入框');
+      expect(
+        find.byKey(const Key('conversation_search_input')),
+        findsOneWidget,
+        reason: '会话页应有文本搜索框',
+      );
 
-      await tester.enterText(find.byType(TextField).first, 'test');
+      await tester.enterText(searchField.first, 'test');
       await settle(tester, maxSeconds: 1);
       await takeScreenshot(tester, 'conv_search_typed');
 
@@ -143,19 +154,40 @@ void main() {
   });
 }
 
+Future<void> _dismissRecoveryGuideIfVisible(WidgetTester tester) async {
+  for (int i = 0; i < 20; i++) {
+    final later = find.byWidgetPredicate(
+      (widget) =>
+          widget is Text && ['稍后', 'Later'].contains(widget.data?.trim()),
+    );
+    if (tester.any(later)) {
+      await safeTap(tester, later.first);
+      await settle(tester, maxSeconds: 1);
+      return;
+    }
+    await tester.pump(const Duration(milliseconds: 200));
+  }
+}
+
 // ──────────────────────────────────────────────
 // 会话页专用导航（本文件私有，不复制到 test_utils.dart）
 // ──────────────────────────────────────────────
 
 bool _isOnConversationListPage(WidgetTester tester) {
-  return tester.any(find.byIcon(Icons.search)) &&
-      tester.any(find.byIcon(Icons.add_circle_outline));
+  return tester.any(
+        find.byWidgetPredicate(
+          (w) => w.runtimeType.toString() == 'ConversationPage',
+        ),
+      ) ||
+      (tester.any(find.byIcon(Icons.search)) &&
+          tester.any(find.byIcon(Icons.add_circle_outline)));
 }
 
 Future<bool> _openConversationTab(WidgetTester tester) async {
   if (_isOnConversationListPage(tester)) return true;
 
   final tapped = await tapAny(tester, [
+    find.byKey(const Key('tab_conversations')),
     find.byIcon(Icons.chat_bubble),
     find.byIcon(Icons.chat_bubble_outline),
     find.text('消息'),

@@ -3,6 +3,12 @@ import 'package:imboy/store/model/user_model.dart';
 
 void main() {
   group('UserSettingModel.fromJson', () {
+    test('missing online visibility defaults to hidden', () {
+      final model = UserSettingModel.fromJson({});
+
+      expect(model.showOnlineStatus, isFalse);
+    });
+
     test('parses mixed primitive representations safely', () {
       final model = UserSettingModel.fromJson({
         'allow_search': '1',
@@ -27,6 +33,23 @@ void main() {
       expect(model.showOnlineStatus, isTrue);
       expect(model.allowAddByPhone, isFalse);
       expect(model.allowAddByQR, isTrue);
+    });
+
+    test('preserves explicit online visibility values across encodings', () {
+      expect(
+        UserSettingModel.fromJson({
+          'show_online_status': true,
+        }).showOnlineStatus,
+        isTrue,
+      );
+      for (final value in [false, 'false', 0]) {
+        expect(
+          UserSettingModel.fromJson({
+            'show_online_status': value,
+          }).showOnlineStatus,
+          isFalse,
+        );
+      }
     });
   });
 

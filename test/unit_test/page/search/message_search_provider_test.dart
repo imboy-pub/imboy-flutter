@@ -25,8 +25,9 @@ void main() {
       expect(s.currentPage, 1);
     });
 
-    test('MS-3 resetSearch 清空结果与分页', () {
+    test('MS-3 resetSearch 清空结果、分页与查询词', () {
       const s = MessageSearchState(
+        currentQuery: 'qa-collect-59-test',
         currentPage: 4,
         totalResults: 12,
         isSearching: true,
@@ -36,6 +37,9 @@ void main() {
       expect(s2.totalResults, 0);
       expect(s2.isSearching, isFalse);
       expect(s2.hasMore, isTrue);
+      // 回归断言：清空后 currentQuery 必须归空，
+      // 否则筛选 chips 残留、点筛选会用旧词重发搜索（BUG#130）。
+      expect(s2.currentQuery, '');
     });
 
     test('MS-4 resetFilters 复位类型与时间范围', () {

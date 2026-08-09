@@ -13,8 +13,8 @@ void main() {
       final newDesc = '[E2E-DESC] ${DateTime.now().millisecondsSinceEpoch}';
 
       await ensureAppLaunched(tester, maxSeconds: 3);
-      await checkPreconditions(tester);
-      requireChannelWriteAuthorization();
+      if (!await checkPreconditions(tester)) return;
+      if (!requireChannelWriteAuthorization()) return;
       await settle(tester, maxSeconds: 2);
 
       if (!await _openChannelTab(tester)) {

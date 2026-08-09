@@ -42,6 +42,7 @@ void main() {
       final resp = await client.post(
         '/api/v1/mention/list',
         data: {'page': 1, 'size': 20},
+        readOnly: true,
       );
       expect(resp, containsPair('code', isA<int>()));
     });
@@ -51,6 +52,7 @@ void main() {
       final resp = await client.post(
         '/api/v1/mention/list',
         data: {'page': 1, 'size': 20},
+        readOnly: true,
       );
       if (resp['code'] != 0) return markTestSkipped('mention/list 非成功');
       final payload = resp['payload'];
@@ -66,6 +68,7 @@ void main() {
       final resp = await client.post(
         '/api/v1/mention/list',
         data: {'page': 1, 'size': 20, 'group_id': '0'},
+        readOnly: true,
       );
       expect(resp, containsPair('code', isA<int>()));
     });
@@ -77,13 +80,21 @@ void main() {
   group('未读@提及数量', () {
     test('2.1 接口可达 — 含 code', () async {
       if (!loggedIn) return markTestSkipped('未登录');
-      final resp = await client.post('/api/v1/mention/unread', data: {});
+      final resp = await client.post(
+        '/api/v1/mention/unread',
+        data: {},
+        readOnly: true,
+      );
       expect(resp, containsPair('code', isA<int>()));
     });
 
     test('2.2 成功时 count 为整数（若存在）', () async {
       if (!loggedIn) return markTestSkipped('未登录');
-      final resp = await client.post('/api/v1/mention/unread', data: {});
+      final resp = await client.post(
+        '/api/v1/mention/unread',
+        data: {},
+        readOnly: true,
+      );
       if (resp['code'] != 0) return markTestSkipped('mention/unread 非成功');
       final payload = resp['payload'];
       if (payload is Map && payload.containsKey('count')) {

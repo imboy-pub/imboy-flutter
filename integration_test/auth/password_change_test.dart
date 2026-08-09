@@ -38,7 +38,7 @@ void main() {
       await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'pwd_01_launch');
 
-      await checkPreconditions(tester);
+      if (!await checkPreconditions(tester)) return;
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'pwd_02_after_login');
@@ -80,10 +80,12 @@ void main() {
         return;
       }
 
+      if (!requireBusinessWriteAuthorization()) return;
       final fields = find.byType(TextField);
       final count = fields.evaluate().length;
-      if (count >= 1)
+      if (count >= 1) {
         await tester.enterText(fields.at(0), FlowConfig.testPassword);
+      }
       if (count >= 2) await tester.enterText(fields.at(1), newPassword);
       if (count >= 3) await tester.enterText(fields.at(2), newPassword);
       await settle(tester, maxSeconds: 1);

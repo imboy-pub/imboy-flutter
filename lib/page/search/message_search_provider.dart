@@ -117,6 +117,9 @@ class MessageSearchState {
 
   MessageSearchState resetSearch() {
     return copyWith(
+      // 必须清 currentQuery：UI 靠它是否非空渲染筛选栏、内容区也靠它切历史/空态；
+      // 不清的话点筛选 chips 会用旧词重发搜索（BUG#130）。
+      currentQuery: '',
       searchResults: [],
       currentPage: 1,
       hasMore: true,

@@ -1190,7 +1190,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get allowAddByQRDesc => '其他用家可以通過掃描您的二維碼新增您為好友';
 	@override String get statusSettings => '狀態設定';
 	@override String get showOnlineStatus => '顯示上線狀態';
-	@override String get showOnlineStatusDesc => '好友可以看到您的上線狀態';
+	@override String get showOnlineStatusDesc => '關閉後，好友看不到您的上線狀態和最後上線時間；訊息傳送不受影響';
 	@override String get allowNearbyVisible => '附近的人可見';
 	@override String get dataSettings => '資料設定';
 	@override String get clearChatRecords => '清除聊天記錄';
@@ -3668,7 +3668,7 @@ extension on TranslationsZhHant {
 			'common.allowAddByQRDesc' => '其他用家可以通過掃描您的二維碼新增您為好友',
 			'common.statusSettings' => '狀態設定',
 			'common.showOnlineStatus' => '顯示上線狀態',
-			'common.showOnlineStatusDesc' => '好友可以看到您的上線狀態',
+			'common.showOnlineStatusDesc' => '關閉後，好友看不到您的上線狀態和最後上線時間；訊息傳送不受影響',
 			'common.allowNearbyVisible' => '附近的人可見',
 			'common.dataSettings' => '資料設定',
 			'common.clearChatRecords' => '清除聊天記錄',

@@ -27,7 +27,8 @@ import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/main.dart' as app;
 
-import '../flows/test_utils.dart' show flowLog, drainKnownFrameworkExceptions;
+import '../flows/test_utils.dart'
+    show checkPreconditions, drainKnownFrameworkExceptions, flowLog;
 
 /// 一个「我的」子页面：路由 + 渲染成功标志候选文案（空则退化为断言存在任意 Text）。
 class _SubPage {
@@ -56,6 +57,22 @@ const _subPages = <_SubPage>[
   _SubPage('字号设置', '/font_size', ['字号', '字体', 'Font']),
   _SubPage('修改密码', '/change_password', ['密码', 'Password']),
   _SubPage('意见反馈', '/feedback', ['反馈', 'Feedback', '意见']),
+  _SubPage('E2EE 密钥恢复入口', '/e2ee_key_recovery', [
+    '密钥恢复',
+    'Key Recovery',
+    '端到端加密',
+    'E2EE',
+  ]),
+  _SubPage('E2EE 备份导出', '/e2ee_backup_export', [
+    '导出 E2EE 备份',
+    'Export E2EE Backup',
+    'E2EE',
+  ]),
+  _SubPage('E2EE 备份导入', '/e2ee_backup_import', [
+    '导入 E2EE 备份',
+    'Import E2EE Backup',
+    'E2EE',
+  ]),
   _SubPage('注销账号', '/logout_account', [
     '注销',
     '账号',
@@ -68,65 +85,69 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('「我的」子页面冒烟', () {
-    testWidgets('各子页路由可进入并渲染，破坏性页仅进入不执行', (tester) async {
-      app.main();
+    testWidgets(
+      '各子页路由可进入并渲染，破坏性页仅进入不执行',
+      (tester) async {
+        app.main();
 
-      // 固定抽帧等待启动/网络初始化完成（仿 smoke_test.dart，不用 settle）。
-      await _pump(tester, seconds: 12);
+        // 固定抽帧等待启动/网络初始化完成（仿 smoke_test.dart，不用 settle）。
+        await _pump(tester, seconds: 12);
 
-      if (_onLoginPage(tester)) {
-        markTestSkipped('停在登录页（设备未登录，且未配置自动登录），跳过');
-        return;
-      }
+        // 复用统一前置检查：允许通过 --dart-define 注入专用测试账号，
+        // 只建立登录态，不在任何子页执行写操作。
+        if (!await checkPreconditions(tester)) return;
 
-      final navFinder = find.byType(Navigator);
-      if (!tester.any(navFinder)) {
-        markTestSkipped('未找到 Navigator（App 未进入主界面），跳过');
-        return;
-      }
-      final GoRouter router;
-      try {
-        router = GoRouter.of(tester.element(navFinder.first));
-      } catch (e) {
-        markTestSkipped('无法取得 GoRouter：$e，跳过');
-        return;
-      }
-
-      for (final page in _subPages) {
-        flowLog('进入子页 ${page.name} (${page.path})');
+        final navFinder = find.byType(Navigator);
+        if (!tester.any(navFinder)) {
+          markTestSkipped('未找到 Navigator（App 未进入主界面），跳过');
+          return;
+        }
+        final GoRouter router;
         try {
-          router.push(page.path);
+          router = GoRouter.of(tester.element(navFinder.first));
         } catch (e) {
-          flowLog('push ${page.path} 失败：$e，跳过该页');
-          continue;
-        }
-        await _pump(tester, seconds: 3);
-
-        // 断言子页已渲染：命中特定文案，或退化为存在任意 Text（页面非空白崩溃）。
-        final rendered = page.renderLabels.isEmpty
-            ? find.byType(Text)
-            : _anyText(page.renderLabels);
-        expect(
-          rendered,
-          findsWidgets,
-          reason: '「${page.name}」(${page.path}) 子页应成功渲染',
-        );
-
-        if (page.destructive) {
-          flowLog('${page.name} 为破坏性页，仅断言渲染，不点任何执行按钮');
+          markTestSkipped('无法取得 GoRouter：$e，跳过');
+          return;
         }
 
-        // 返回上一页，避免路由栈叠加干扰后续断言。
-        final nav = Navigator.of(
-          tester.element(find.byType(Navigator).first),
-          rootNavigator: true,
-        );
-        if (nav.canPop()) nav.pop();
-        await _pump(tester, seconds: 2);
-      }
+        for (final page in _subPages) {
+          flowLog('进入子页 ${page.name} (${page.path})');
+          try {
+            router.push(page.path);
+          } catch (e) {
+            flowLog('push ${page.path} 失败：$e，跳过该页');
+            continue;
+          }
+          await _pump(tester, seconds: 3);
 
-      drainKnownFrameworkExceptions(tester);
-    }, timeout: const Timeout(Duration(minutes: 5)));
+          // 断言子页已渲染：命中特定文案，或退化为存在任意 Text（页面非空白崩溃）。
+          final rendered = page.renderLabels.isEmpty
+              ? find.byType(Text)
+              : _anyText(page.renderLabels);
+          expect(
+            rendered,
+            findsWidgets,
+            reason: '「${page.name}」(${page.path}) 子页应成功渲染',
+          );
+
+          if (page.destructive) {
+            flowLog('${page.name} 为破坏性页，仅断言渲染，不点任何执行按钮');
+          }
+
+          // 返回上一页，避免路由栈叠加干扰后续断言。
+          final nav = Navigator.of(
+            tester.element(find.byType(Navigator).first),
+            rootNavigator: true,
+          );
+          if (nav.canPop()) nav.pop();
+          await _pump(tester, seconds: 2);
+        }
+
+        drainKnownFrameworkExceptions(tester);
+      },
+      semanticsEnabled: false,
+      timeout: const Timeout(Duration(minutes: 5)),
+    );
   });
 }
 
@@ -135,12 +156,6 @@ Future<void> _pump(WidgetTester tester, {required int seconds}) async {
   for (int i = 0; i < seconds * 2; i++) {
     await tester.pump(const Duration(milliseconds: 500));
   }
-}
-
-bool _onLoginPage(WidgetTester tester) {
-  return tester.any(find.byKey(const Key('login_phone_input'))) ||
-      tester.any(find.text('登 录')) ||
-      tester.any(find.byKey(const Key('login_submit_button')));
 }
 
 /// 命中候选文案任一子串的 Text。

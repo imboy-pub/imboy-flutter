@@ -49,6 +49,10 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
   Widget build(BuildContext context) {
     final deviceState = ref.watch(userDeviceProvider);
     final brightness = Theme.of(context).brightness;
+    final hasLoadedDevices =
+        !deviceState.isLoading &&
+        _error == null &&
+        deviceState.deviceList.isNotEmpty;
 
     return IosPageTemplate(
       title: t.account.loginDeviceManagement,
@@ -67,14 +71,11 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           ),
         ),
 
-        // 设备列表 Section：加载 / 错误(可重试) / 空 / 数据 四态收敛为三态组件
-        SliverFillRemaining(
-          child: AsyncStateView(
-            isLoading: deviceState.isLoading,
-            error: _error,
-            isEmpty: deviceState.deviceList.isEmpty,
-            onRetry: _load,
-            emptyIcon: CupertinoIcons.device_phone_portrait,
+        // 加载/错误/空态需要占满剩余空间；数据态改用普通 sliver，
+        // 让设备列表随外层 CustomScrollView 滚动，避免设备较多时
+        // CupertinoListSection 在 SliverFillRemaining 内发生 RenderFlex 溢出。
+        if (hasLoadedDevices)
+          SliverToBoxAdapter(
             child: ImBoySettingsSection(
               // AppBar 已经是「登录设备管理」，分组标题再写一遍就是同一句话
               // 在一屏里出现两次。改用现成的 deviceList（"设备列表"），
@@ -89,8 +90,18 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
                 );
               }).toList(),
             ),
+          )
+        else
+          SliverFillRemaining(
+            child: AsyncStateView(
+              isLoading: deviceState.isLoading,
+              error: _error,
+              isEmpty: deviceState.deviceList.isEmpty,
+              onRetry: _load,
+              emptyIcon: CupertinoIcons.device_phone_portrait,
+              child: const SizedBox.shrink(),
+            ),
           ),
-        ),
       ],
     );
   }

@@ -38,6 +38,12 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
   bool backDoRefresh = false;
   bool _burnEnabled = false;
   int _burnAfterMs = 30000;
+  // BUG#122: 滚轮弹层的当前选中索引必须放在 State 字段（跨 rebuild 存活）。
+  // 原先写在 showModalBottomSheet 的 builder 局部变量里：bottom sheet 在
+  // 真机上因 MediaQuery/键盘/安全区变化会重新执行 builder，每次都新建一个
+  // 局部变量——滚轮回调写入旧实例、确认按钮读到新实例（恒为初始值），
+  // 于是「确认」永远写回旧档位。
+  int _burnPickerIndex = 2;
   // C7-α-2: 本地 DND 开关
   bool _muteEnabled = false;
   int? _conversationId;
@@ -121,11 +127,14 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
     final options = <int>[5000, 10000, 30000, 60000, 300000, 600000];
     int selectedIndex = options.indexWhere((e) => e == _burnAfterMs);
     if (selectedIndex < 0) selectedIndex = 2;
+    _burnPickerIndex = selectedIndex;
+    // controller 提升到 builder 外：bottom sheet rebuild 时复用同一实例，
+    // 滚动位置不跳回 initialItem（与 _burnPickerIndex 同源修复）。
+    final controller = FixedExtentScrollController(initialItem: selectedIndex);
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: AppColors.transparent,
       builder: (ctx) {
-        int tempIndex = selectedIndex;
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(ctx).colorScheme.surface,
@@ -154,8 +163,12 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                         const Spacer(),
                         TextButton(
                           onPressed: () async {
+                            // 先 setState 再 pop：pop 后页面 State 可能在动画
+                            // 完成前已 dispose，setState 顺序放前面最稳。
+                            setState(
+                              () => _burnAfterMs = options[_burnPickerIndex],
+                            );
                             Navigator.of(ctx).pop();
-                            setState(() => _burnAfterMs = options[tempIndex]);
                             await _persistBurnSetting();
                             AppLoading.showToast(t.common.tipSuccess);
                           },
@@ -166,11 +179,9 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                   ),
                   Expanded(
                     child: CupertinoPicker(
-                      scrollController: FixedExtentScrollController(
-                        initialItem: selectedIndex,
-                      ),
+                      scrollController: controller,
                       itemExtent: 40,
-                      onSelectedItemChanged: (i) => tempIndex = i,
+                      onSelectedItemChanged: (i) => _burnPickerIndex = i,
                       children: options
                           .map(
                             (ms) => Center(child: Text(_formatBurnAfterMs(ms))),

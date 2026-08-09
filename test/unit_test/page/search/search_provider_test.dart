@@ -25,8 +25,9 @@ void main() {
       expect(s.currentPage, 2); // 原对象不可变
     });
 
-    test('SD-3 resetSearch 清空结果保留过滤器与历史', () {
+    test('SD-3 resetSearch 清空结果与查询词，保留过滤器与历史', () {
       const s = SearchDataState(
+        currentQuery: 'qa-collect-59-test',
         searchResults: [],
         currentPage: 3,
         totalResults: 9,
@@ -38,6 +39,8 @@ void main() {
       expect(s2.totalResults, 0);
       expect(s2.searchHistory, ['x']);
       expect(s2.selectedMessageType, 'image');
+      // 锁行为：全量构造函数重建会把 currentQuery 归空（与 MS-3 同语义）。
+      expect(s2.currentQuery, '');
     });
 
     test('SD-4 resetFilters 复位过滤项', () {

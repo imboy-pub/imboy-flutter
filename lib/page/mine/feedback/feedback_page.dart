@@ -47,11 +47,12 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   }
 
   /// 加载反馈列表（走 provider.loadData，统一维护 isLoading/error）
+  /// 本页无分页 UI（size=1000 一次拉全量），page 恒为 1；
+  /// 提交成功后的刷新必须从第 1 页重取，否则新提交的反馈看不到。
   Future<void> _loadFeedbackList() async {
     await ref
         .read(feedbackPageProvider.notifier)
         .loadData(page: page, size: size);
-    page = page + 1;
   }
 
   void _showFeedbackEditor() {
@@ -76,17 +77,27 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           result,
           (Map<String, dynamic> resp, String uri) async {
             FeedbackApi p = FeedbackApi();
+            // 编辑器无类型/评分 UI 时 extra 里没有对应键，传 '' 会撞服务端
+            // feedback 表 CHECK 约束（type 仅 bugReport/featureRequest，
+            // rating 仅 bad/neutral/good）导致 INSERT 必失败；省略键让服务端
+            // 回落合法默认值（type=bugReport / rating=neutral）。
             Map<String, dynamic> data = {
-              'rating': feedback.extra?['rating'] ?? '',
-              'type': (feedback.extra?['feedback_type'] ?? '')
-                  .toString()
-                  .split('.')
-                  .last
-                  .replaceAll('_', ' '),
               'contact_detail': feedback.extra?['contact_detail'] ?? '',
               'description': feedback.text,
               'screenshot': [uri],
             };
+            final rating = feedback.extra?['rating'];
+            if (rating != null && rating.toString().isNotEmpty) {
+              data['rating'] = rating.toString();
+            }
+            final feedbackType = feedback.extra?['feedback_type'];
+            if (feedbackType != null && feedbackType.toString().isNotEmpty) {
+              data['type'] = feedbackType
+                  .toString()
+                  .split('.')
+                  .last
+                  .replaceAll('_', ' ');
+            }
             if (await p.add(data)) {
               AppLoading.showSuccess(t.common.feedbackSuccessMsg);
               await _loadFeedbackList();

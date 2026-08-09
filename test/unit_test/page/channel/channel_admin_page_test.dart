@@ -63,6 +63,44 @@ void main() {
     expect(find.text('管理员小李'), findsOneWidget);
   });
 
+  testWidgets('creator(role=3) 渲染创建者徽标且无操作菜单，防止创建者被降级/移除', (tester) async {
+    when(() => api.getAdmins(any())).thenAnswer(
+      (_) async => [
+        {
+          'user_id': '3003',
+          'nickname': '创建者老王',
+          'role': 3,
+          'created_at': '2024-01-01T00:00:00Z',
+        },
+      ],
+    );
+
+    await tester.pumpWidget(_buildTestApp(api));
+    await tester.pumpAndSettle();
+
+    expect(find.text(t.channel.roleCreator), findsOneWidget);
+    expect(find.byType(PopupMenuButton<String>), findsNothing);
+  });
+
+  testWidgets('admin(role=2) 渲染操作菜单（可改角色/移除）且无创建者徽标', (tester) async {
+    when(() => api.getAdmins(any())).thenAnswer(
+      (_) async => [
+        {
+          'user_id': '2002',
+          'nickname': '管理员小李',
+          'role': 2,
+          'created_at': '2024-01-02T00:00:00Z',
+        },
+      ],
+    );
+
+    await tester.pumpWidget(_buildTestApp(api));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PopupMenuButton<String>), findsOneWidget);
+    expect(find.text(t.channel.roleCreator), findsNothing);
+  });
+
   testWidgets('加载失败时渲染可重试的失败态 / renders retryable error view on load failure', (
     tester,
   ) async {

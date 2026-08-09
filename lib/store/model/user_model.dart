@@ -35,7 +35,7 @@ class UserSettingModel {
     this.enableVisibilityRead = true,
     this.visibilityReadFraction = 0.6,
     this.visibilityReadDelayMs = 400,
-    this.showOnlineStatus = true,
+    this.showOnlineStatus = false,
     this.allowAddByPhone = true,
     this.allowAddByQR = true,
   });
@@ -64,12 +64,13 @@ class UserSettingModel {
         json['visibility_read_delay_ms'],
         defaultValue: 400,
       ),
-      // 三个开关后端语义=缺省允许(true)；仅缺 key 时取默认，
-      // 已存 false 仍解析为 false（不违反上方"勿 ?? true"警示）
+      // 在线状态默认隐藏；仅缺 key 时取默认，已存 false 仍解析为 false。
       showOnlineStatus: parseModelBool(
         json['show_online_status'],
-        defaultValue: true,
+        defaultValue: false,
       ),
+      // 其他两个开关后端语义=缺省允许(true)；仅缺 key 时取默认，
+      // 已存 false 仍解析为 false（不违反上方"勿 ?? true"警示）
       allowAddByPhone: parseModelBool(
         json['allow_add_by_phone'],
         defaultValue: true,

@@ -63,7 +63,13 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
       final userApi = ref.read(userApiProvider);
       final data = await userApi.exportUserData();
       if (data == null) {
-        state = state.copyWith(isLoading: false);
+        // HttpClient fail-open（http_client.dart 吞异常返回 ok:false 响应，
+        // 永不抛异常），此分支是实际失败路径：必须设置 error，否则页面
+        // iosRed 错误区块（state.error 渲染）永远不可达，用户只见一闪 toast。
+        state = state.copyWith(
+          isLoading: false,
+          error: t.common.operationFailedAgainLater,
+        );
         return null;
       }
       final tempDir = await getTemporaryDirectory();
@@ -87,8 +93,19 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
     try {
       final userApi = ref.read(userApiProvider);
       bool result = await userApi.applyLogout();
+      if (!result) {
+        // 同 exportUserData：HttpClient fail-open（http_client.dart 吞异常
+        // 返回 ok:false 响应，永不抛异常）下失败不抛异常走 on Exception，
+        // 必须显式设置 error，否则注销失败只有一闪 toast、页面 iosRed
+        // 错误区块不可达（user_api 内部已 showError 提示）。
+        state = state.copyWith(
+          isLoading: false,
+          error: t.common.operationFailedAgainLater,
+        );
+        return false;
+      }
       state = state.copyWith(isLoading: false);
-      return result;
+      return true;
     } on Exception {
       state = state.copyWith(
         isLoading: false,

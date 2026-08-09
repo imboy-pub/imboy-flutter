@@ -337,7 +337,8 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
       itemCount: _admins.length,
       itemBuilder: (context, index) {
         final admin = _admins[index];
-        final isCreator = admin.role == 2;
+        // 规范角色码：1=editor, 2=admin, 3=creator（见 _getRoleName）
+        final isCreator = admin.role == 3;
 
         return ListTile(
           leading: Avatar(imgUri: admin.avatar ?? '', width: 48, height: 48),

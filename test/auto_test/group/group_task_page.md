@@ -9,7 +9,7 @@
 | 无待办 | - | `page/group/task/group_task_page.dart` | 弹窗填写标题描述创建任务 | 已通过 | 首轮 | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/task/group_task_page.dart` | 标题为空时阻止弹窗关闭 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/task/group_task_page.dart` | 全部待完成已截止分段筛选 | 待重验 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/group/task/group_task_page.dart` | 从聊天面板直达自动弹创建表单 | 未测 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/group/task/group_task_page.dart` | 从聊天面板直达自动弹创建表单 | 已通过 | 批次29 | 0 | 0 | 0 | 附加面板第2页点「群作业」→ 跳转后自动弹「创建任务」表单(标题+描述输入框+取消/确认) |
 | 阻塞 | 获授权写生产数据后 | `page/group/task/group_task_page.dart` | 列表项勾选直接提交作业 | 未测 | - | 0 | 0 | 0 | 提交作业写生产数据，需授权 |
 | 回归复测 | 2026-08-07 | `page/group/task/group_task_page.dart` | 下拉刷新重新拉取任务列表 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/task/group_task_page.dart` | 点击任务进详情并回传刷新 | 待重验 | - | 0 | 0 | 0 | |

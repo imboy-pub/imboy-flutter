@@ -227,7 +227,11 @@ class _LoginPageState extends ConsumerState<LoginPage>
             );
             return;
           }
-          notifier.loginUser('account', account, pwd).then((err) {
+          // 账号密码登录支持邮箱账号；服务端按 account/email 使用不同的
+          // 查询分支，邮箱不能继续伪装成 account，否则 API 登录成功但
+          // 客户端无法建立本地会话。
+          final accountType = account.contains('@') ? 'email' : 'account';
+          notifier.loginUser(accountType, account, pwd).then((err) {
             if (err == null) {
               notifier.saveHistory('account', account);
               if (mounted) context.go('/bottom_navigation');

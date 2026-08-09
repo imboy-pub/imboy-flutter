@@ -67,7 +67,7 @@ class ProfileState {
     this.completenessLevel = '',
     this.completenessColor = AppColors.iosRed,
     this.allowSearch = true,
-    this.showOnlineStatus = true,
+    this.showOnlineStatus = false,
     this.allowNearbyVisible = false,
     this.allowAddByPhone = true,
     this.allowAddByQR = true,

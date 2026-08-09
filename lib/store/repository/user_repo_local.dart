@@ -247,6 +247,15 @@ class UserRepoLocal {
       await StorageService.to.remove(Keys.uploadKey);
       await StorageService.to.remove(Keys.uploadScene);
 
+      // BUG#119 附带发现：聊天历史回填游标（msg_history_seq_<uk3>）只写不
+      // 清理。残留游标会让换号/重装（SharedPreferences 保留）后无新消息的
+      // 会话持续「暂无数据」——即使服务端归档正常。登出时按前缀全量清理。
+      for (final key in StorageService.to.getKeys().where(
+        (k) => k.startsWith(Keys.msgHistorySeqPrefix),
+      )) {
+        await StorageService.to.remove(key);
+      }
+
       iPrint("> quitLogin: Purging E2EE secret inventory");
       // E2EE-015：logout 必须清空全部秘密（RSA/Olm/Megolm/SQLCipher key/
       // compliance 缓存/临时备份文件）。失败置位标记，由 loginAfter 闸门补救。

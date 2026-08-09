@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:math' show Random;
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/api.dart' as api;
 
@@ -78,6 +79,21 @@ class E2EECryptoService {
     if (salt.length != saltLength) {
       throw ArgumentError('Salt must be $saltLength bytes');
     }
+
+    // PBKDF2 310k 次迭代纯 Dart 计算在低端机耗时数秒，必须在 isolate 中
+    // 执行，否则阻塞 UI 主线程触发系统 ANR（BUG#133）。
+    // web 平台无多线程，compute() 自动降级为当前 isolate 执行（行为同旧版）。
+    return compute(_deriveKeyInIsolate, (password, salt, iterations));
+  }
+
+  /// 在独立 isolate 中执行 PBKDF2 派生。
+  ///
+  /// pointycastle 的 HMac/PBKDF2KeyDerivator 无法跨 isolate 传送，
+  /// 因此在 isolate 内重新构建。参数与返回值均为可传送类型。
+  static Uint8List _deriveKeyInIsolate(
+    (String password, Uint8List salt, int iterations) args,
+  ) {
+    final (password, salt, iterations) = args;
 
     // 将密码转换为字节
     final passwordBytes = Uint8List.fromList(utf8.encode(password));

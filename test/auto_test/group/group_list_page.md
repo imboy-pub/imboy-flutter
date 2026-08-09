@@ -16,4 +16,4 @@
 | 回归复测 | 2026-08-07 | `page/group/group_list/group_list_page.dart` | 点群条目进入该群聊天页 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/group_list/group_list_page.dart` | 长按弹出群聊信息与聊天操作表 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/group_list/group_list_page.dart` | 空态展示发起群聊引导按钮 | 待重验 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/group/group_list/group_list_page.dart` | 搜索无结果展示纯文案空态 | 未测 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/group/group_list/group_list_page.dart` | 搜索无结果展示纯文案空态 | 已通过 | 批次29 | 0 | 0 | 0 | 输入 zzz 群列表消失，仅显示「无搜索结果」纯文案，无 CTA 按钮 |

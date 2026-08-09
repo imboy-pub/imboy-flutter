@@ -516,7 +516,7 @@ allowAddByQR: Allow add by QR code
 allowAddByQRDesc: Other users can add you as a friend by scanning your QR code
 statusSettings: Status settings
 showOnlineStatus: Show online status
-showOnlineStatusDesc: Friends can see your online status
+showOnlineStatusDesc: When off, friends cannot see your online status or last seen time; message delivery is unaffected
 allowNearbyVisible: Visible to nearby people
 dataSettings: Data settings
 clearChatRecords: Clear chat records

@@ -81,6 +81,16 @@ flutter test test/unit_test/api/                 # Tier 1 API 契约（pre-push 
 新增页面时：在对应模块目录建 `<page_name>.md`，抽 8～12 个功能点，
 并更新 `auto_test/README.md` 的汇总与索引。
 
+### `demo_flow/` —— 跨模块业务流程计划
+
+`test/demo_flow/` 记录跨页面、跨模块的演示链路，例如频道到群日程、添加好友到单聊、
+群管理和朋友圈。它不镜像 `lib/page/`，不参与 `auto_test/README.md` 的页面/功能点统计，
+也不放可执行的 `*_test.dart` 文件。
+
+每个流程文档必须写清楚：前置账号与环境、操作步骤、对应的 `auto_test` 页面计划、
+服务端证据、验收标准、阻塞条件，以及未来对应的 `integration_test/` 文件。
+入口见 [`demo_flow/README.md`](./demo_flow/README.md)。
+
 ### `test_driver/` —— flutter drive 驱动
 
 只有 `driver.dart` 一个文件。当前 CI 未使用（走 `flutter test integration_test/xxx -d <device>`），

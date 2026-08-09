@@ -31,8 +31,8 @@ void main() {
       await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'channel_01_launch');
 
-      await checkPreconditions(tester);
-      requireChannelWriteAuthorization();
+      if (!await checkPreconditions(tester)) return;
+      if (!requireChannelWriteAuthorization()) return;
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'channel_02_after_login');
@@ -126,8 +126,8 @@ void main() {
       await ensureAppLaunched(tester, maxSeconds: 3);
       await takeScreenshot(tester, 'channel_create_01_launch');
 
-      await checkPreconditions(tester);
-      requireChannelWriteAuthorization();
+      if (!await checkPreconditions(tester)) return;
+      if (!requireChannelWriteAuthorization()) return;
 
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'channel_create_02_after_login');

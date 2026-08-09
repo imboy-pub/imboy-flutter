@@ -10,7 +10,7 @@
 | 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 滚轮选择日程开始日期 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 滚轮选择日程开始时间 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 创建后向群内发送日程卡片消息 | 待重验 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 从聊天面板直达自动弹创建表单 | 未测 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/group/schedule/group_schedule_page.dart` | 从聊天面板直达自动弹创建表单 | 已通过 | 批次29 | 0 | 0 | 0 | 附加面板第2页点「群日程」→ 跳转后自动弹「创建日程」表单(标题输入框+日期/时间+取消/确认) |
 | 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 下拉刷新重新拉取日程 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 点击日程进详情并回传刷新 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 渲染日期块时间与地点信息 | 待重验 | - | 0 | 0 | 0 | |

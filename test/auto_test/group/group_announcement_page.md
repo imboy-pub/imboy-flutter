@@ -16,4 +16,4 @@
 | 回归复测 | 2026-08-07 | `page/group/announcement/group_announcement_page.dart` | 无公告时展示空态占位图 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/announcement/group_announcement_page.dart` | 加载失败弹提示并清除错误态 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/announcement/group_announcement_page.dart` | 展示公告过期时间标签 | 待重验 | - | 0 | 0 | 0 | |
-| 待首测 | 2026-08-07 | `page/group/announcement/group_announcement_page.dart` | 群ID为空时自动退出页面 | 未测 | - | 0 | 0 | 0 | |
+| 阻塞 | 需可传空参的路由入口或代码注入（正常入口必传 groupId） | `page/group/announcement/group_announcement_page.dart` | 群ID为空时自动退出页面 | 未测 | 批次29 | 0 | 0 | 0 | isEmpty→pop 防御代码已证实（L35-37） |

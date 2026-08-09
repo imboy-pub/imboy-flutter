@@ -74,7 +74,7 @@ class AddMemberNotifier extends _$AddMemberNotifier {
 
     for (int i = 0; i < list.length; i++) {
       String pinyin = PinyinHelper.getPinyinE(list[i].title);
-      String tag = pinyin.substring(0, 1).toUpperCase();
+      String tag = pinyin.isEmpty ? '#' : pinyin.substring(0, 1).toUpperCase();
       list[i].namePinyin = pinyin;
       if (RegExp("[A-Z]").hasMatch(tag)) {
         list[i].nameIndex = tag;

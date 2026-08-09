@@ -958,7 +958,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               }
 
               final error = await passportNotifier.loginUser(
-                'account',
+                account.contains('@') ? 'email' : 'account',
                 account,
                 pwd,
               );

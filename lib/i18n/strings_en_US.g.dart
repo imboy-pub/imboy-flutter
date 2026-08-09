@@ -1184,7 +1184,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get allowAddByQRDesc => 'Other users can add you as a friend by scanning your QR code';
 	@override String get statusSettings => 'Status settings';
 	@override String get showOnlineStatus => 'Show online status';
-	@override String get showOnlineStatusDesc => 'Friends can see your online status';
+	@override String get showOnlineStatusDesc => 'When off, friends cannot see your online status or last seen time; message delivery is unaffected';
 	@override String get allowNearbyVisible => 'Visible to nearby people';
 	@override String get dataSettings => 'Data settings';
 	@override String get clearChatRecords => 'Clear chat records';
@@ -3662,7 +3662,7 @@ extension on TranslationsEnUs {
 			'common.allowAddByQRDesc' => 'Other users can add you as a friend by scanning your QR code',
 			'common.statusSettings' => 'Status settings',
 			'common.showOnlineStatus' => 'Show online status',
-			'common.showOnlineStatusDesc' => 'Friends can see your online status',
+			'common.showOnlineStatusDesc' => 'When off, friends cannot see your online status or last seen time; message delivery is unaffected',
 			'common.allowNearbyVisible' => 'Visible to nearby people',
 			'common.dataSettings' => 'Data settings',
 			'common.clearChatRecords' => 'Clear chat records',

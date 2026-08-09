@@ -36,6 +36,18 @@ void main() {
       expect(versioned.length, equals(32));
     });
 
+    test('PBKDF2-HMAC-SHA256 310k 已知向量逐字节一致', () async {
+      // 独立实现（Python hashlib.pbkdf2_hmac）生成，锁死跨平台算法行为：
+      // 任何优化改动若改变派生结果，将使既有备份文件无法解密。
+      final key = await E2EECryptoService.deriveKey(password, salt);
+      expect(
+        E2EECryptoService.toHex(key),
+        equals(
+          '721ae75360a174a162d045911113778ad7ec5baee2bc406f8e04311f0d808ef4',
+        ),
+      );
+    });
+
     test('确定性：相同输入 → 相同密钥', () async {
       final a = await KdfVersion.derive(
         version: 1,

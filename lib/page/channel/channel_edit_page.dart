@@ -175,12 +175,23 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       }
     } catch (e) {
       if (mounted) {
-        AppLoading.showError(t.channel.updateFailed);
+        // 透出服务端真实原因（如 902 签名失败、403 无权限），避免固定文案吞错
+        final reason = e.toString().replaceFirst('Exception: ', '').trim();
+        AppLoading.showError(
+          reason.isEmpty
+              ? t.channel.updateFailed
+              : '${t.channel.updateFailed} · $reason',
+        );
       }
     } finally {
-      AppLoading.dismiss();
       if (mounted) {
+        // 前台：loading 已被 showSuccess/showError 顶替为 toast（EasyLoading 是
+        // 单实例 overlay，互斥替换不叠加），此处再 dismiss 会把刚弹出的错误提示
+        // 连自动消失 timer 一起吞掉（BUG#136），故不再无条件 dismiss。
         setState(() => _isSaving = false);
+      } else {
+        // 页面已退出：无 toast 顶替，需手动关闭 loading 防止遮罩残留。
+        AppLoading.dismiss();
       }
     }
   }

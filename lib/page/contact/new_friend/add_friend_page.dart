@@ -110,6 +110,7 @@ class AddFriendPage extends ConsumerWidget {
         child: Column(
           children: [
             CupertinoSearchTextField(
+              key: const Key('add_friend_search_input'),
               placeholder: t.account.hintLoginAccount,
               onSubmitted: (v) async {
                 if (v.trim().isEmpty) return;
