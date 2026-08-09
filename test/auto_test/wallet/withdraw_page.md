@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 回归复测 | 2026-08-07 | `page/wallet/withdraw_page.dart` | 展示当前零钱余额卡片 | 待重验 | - | 0 | 0 | 0 | |
+| 回归复测 | 2026-08-09 | `page/wallet/withdraw_page.dart` | 展示当前零钱余额卡片 | 待重验 | - | 0 | 0 | 0 | 代码核验：L151-187 余额卡片 `walletState.balance / 100.0` + `￥${toStringAsFixed(2)}`，分转元+固定两位，AppColors/AppSpacing/AppSpacing tokens 合规；真机展示待设备空闲 |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 英文语言下页面文案完整翻译 | 已通过 | 批次72 | 1 | 1 | 0 | 真机复验通过（56c9738d）：切 en-US 进提现页（钱包→More→Withdraw），全页无中文残留——Withdraw/Pocket Money/Withdrawal Amount/Withdrawal Method/Alipay/WeChat/Wallet Balance/Fees and arrival time are subj.../Confirm Withdrawal 全英文化；账号输入框 hint（withdrawAccountHint* 独立键）聚焦时语义树不暴露，代码侧已核实（键随 14a8d8c4 在生成物就绪）；二次确认弹窗 withdrawConfirm* 键受余额 ￥0.00 限制不可达（超余额直接 showError）维持代码核实 |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 校验提现金额非空与格式 | 已通过 | 批次22 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 拦截低于 1 元的提现金额 | 已通过 | 批次22 | 0 | 0 | 0 | |
