@@ -45,7 +45,18 @@ class MessageTypeNormalizer {
     }
 
     iPrint('✅ [MessageTypeNormalizer] 有效类型: $type');
-    return type;
+    return _canonical(type);
+  }
+
+  /// 协议别称 → 渲染真值归一。
+  ///
+  /// 'audio' 是 protobuf 通道（ContentType.AUDIO）与收藏恢复链路
+  /// （kind=3）产出的协议别称，全站发送口径与渲染注册都是 'voice'
+  /// （MessageAudioBuilder.type = MessageType.voice）。不归一的话
+  /// 'audio' 虽判有效，渲染注册表却解析不到对应 builder，照样落
+  /// 「不支持的消息类型」。
+  static String _canonical(String type) {
+    return type == MessageType.audio ? MessageType.voice : type;
   }
 
   /// 渲染优先类型。
@@ -68,13 +79,13 @@ class MessageTypeNormalizer {
   }) {
     final raw = rawMsgType?.trim() ?? '';
     if (raw.isNotEmpty && raw != MessageType.unsupported && _isValidType(raw)) {
-      return raw;
+      return _canonical(raw);
     }
     final effective = effectiveMsgType?.trim() ?? '';
     if (effective.isNotEmpty &&
         effective != MessageType.unsupported &&
         _isValidType(effective)) {
-      return effective;
+      return _canonical(effective);
     }
     return '';
   }

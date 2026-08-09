@@ -14,6 +14,7 @@ import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart'
 
 import 'package:imboy/page/chat/send_to/send_to_page.dart';
 import 'package:imboy/page/personal_info/update/update_page.dart';
+import 'package:imboy/service/message_type_constants.dart' show MessageType;
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
 
@@ -141,7 +142,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                       msgType = 'image';
                       break;
                     case 3:
-                      msgType = 'audio';
+                      msgType = MessageType.voice;
                       break;
                     case 4:
                       msgType = 'video';

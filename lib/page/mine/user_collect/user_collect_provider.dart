@@ -14,6 +14,7 @@ import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/page/single/video_viewer_page.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_provider.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/service/message_type_constants.dart' show MessageType;
 import 'package:imboy/store/model/message_model.dart' show MessageModel;
 import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/store/api/user_collect_api.dart';
@@ -1128,7 +1129,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           finalMsgType = 'image';
           break;
         case 3:
-          finalMsgType = 'audio';
+          finalMsgType = MessageType.voice;
           break;
         case 4:
           finalMsgType = 'video';

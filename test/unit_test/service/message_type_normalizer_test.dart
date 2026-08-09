@@ -60,12 +60,14 @@ void main() {
       );
     });
 
-    test('旧别名 audio 应判定为 unsupported', () {
-      final result = MessageTypeNormalizer.normalize(
-        msgType: 'audio',
-        payload: {},
+    test('协议别称 audio 应归一为 voice', () {
+      // protobuf 通道（ContentType.AUDIO）与收藏恢复链路（kind=3）产出的
+      // 是 'audio'；全站渲染注册与发送口径都是 'voice'，须归一再渲染，
+      // 否则解析不到 builder 落「不支持的消息类型」。
+      expect(
+        MessageTypeNormalizer.normalize(msgType: 'audio', payload: {}),
+        equals('voice'),
       );
-      expect(result, equals('unsupported'));
     });
 
     test('下划线命名应判定为 unsupported', () {
@@ -146,7 +148,7 @@ void main() {
       final result = MessageTypeNormalizer.normalizeBatch(messages);
 
       expect(result, hasLength(4));
-      expect(result[0]['msg_type'], equals('unsupported'));
+      expect(result[0]['msg_type'], equals('voice')); // audio 协议别称归一声
       expect(result[1]['msg_type'], equals('unsupported'));
       expect(result[2]['msg_type'], equals('image'));
       expect(result[3]['msg_type'], equals('text'));
@@ -268,6 +270,24 @@ void main() {
       );
     });
 
+    test('raw 为协议别称 audio 时归一为 voice 渲染', () {
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'voice',
+          rawMsgType: 'audio',
+        ),
+        equals('voice'),
+      );
+      // effective 侧同样归一：收藏恢复/历史行只留了 audio 无 voice 真值
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'audio',
+          rawMsgType: '',
+        ),
+        equals('voice'),
+      );
+    });
+
     test('两者都为空返回空串', () {
       expect(
         MessageTypeNormalizer.renderType(
@@ -289,11 +309,12 @@ void main() {
       expect(MessageTypeNormalizer.isValidType('groupSchedule'), isTrue);
       expect(MessageTypeNormalizer.isValidType('custom'), isTrue);
       expect(MessageTypeNormalizer.isValidType('unsupported'), isTrue);
+      // 协议别称 audio（protobuf AUDIO / 收藏 kind=3）合法，渲染时归一 voice
+      expect(MessageTypeNormalizer.isValidType('audio'), isTrue);
     });
 
     test('应该拒绝无效类型', () {
       expect(MessageTypeNormalizer.isValidType('invalid_type'), isFalse);
-      expect(MessageTypeNormalizer.isValidType('audio'), isFalse);
       expect(MessageTypeNormalizer.isValidType('visit_card'), isFalse);
       expect(MessageTypeNormalizer.isValidType(''), isFalse);
     });

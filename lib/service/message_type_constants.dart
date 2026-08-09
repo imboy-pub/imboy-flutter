@@ -237,6 +237,14 @@ abstract class MessageType {
   /// ```
   static const String voice = 'voice';
 
+  /// 语音消息协议别称
+  ///
+  /// protobuf 通道（ContentType.AUDIO）与收藏恢复链路（kind=3）产出的
+  /// 是 'audio' 而非 'voice'。渲染真值统一为 [voice]（见
+  /// MessageTypeNormalizer 的 audio→voice 别名归一），此处仅保证
+  /// `isValidType('audio')` 通过、不被判成 unsupported。
+  static const String audio = 'audio';
+
   /// 视频消息
   ///
   /// payload 结构：
@@ -353,6 +361,7 @@ abstract class MessageType {
     image,
     imageMulti,
     voice,
+    audio,
     video,
     file,
     location,
