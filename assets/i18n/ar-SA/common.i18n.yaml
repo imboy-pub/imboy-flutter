@@ -523,7 +523,7 @@ allowAddByQR: السماح بالإضافة عبر رمز QR
 allowAddByQRDesc: يمكن للمستخدمين الآخرين إضافتك كصديق من خلال مسح رمز QR الخاص بك
 statusSettings: إعدادات الحالة
 showOnlineStatus: عرض الحالة عبر الإنترنت
-showOnlineStatusDesc: يمكن للأصدقاء رؤية حالتك عبر الإنترنت
+showOnlineStatusDesc: عند الإيقاف، لا يمكن للأصدقاء رؤية حالتك عبر الإنترنت أو آخر وقت ظهور؛ توصيل الرسائل لا يتأثر
 allowNearbyVisible: مرئي للأشخاص القريبين
 dataSettings: إعدادات البيانات
 clearChatRecords: مسح سجلات الدردشة

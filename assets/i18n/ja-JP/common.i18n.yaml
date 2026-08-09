@@ -523,7 +523,7 @@ allowAddByQR: QRコードで追加を許可
 allowAddByQRDesc: 他のユーザーがあなたのQRコードをスキャンして友達として追加できます
 statusSettings: ステータス設定
 showOnlineStatus: オンラインステータスを表示
-showOnlineStatusDesc: 友達があなたのオンラインステータスを見ることができます
+showOnlineStatusDesc: オフにすると、友達はあなたのオンライン状態と最終ログイン時間を見ることができません。メッセージの配信には影響しません
 allowNearbyVisible: 近くの人に表示
 dataSettings: データ設定
 clearChatRecords: チャット履歴を消去

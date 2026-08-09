@@ -523,7 +523,7 @@ allowAddByQR: Разрешить добавление по QR-коду
 allowAddByQRDesc: Другие пользователи могут добавить вас в друзья, отсканировав ваш QR-код
 statusSettings: Настройки статуса
 showOnlineStatus: Показать онлайн-статус
-showOnlineStatusDesc: Друзья могут видеть ваш онлайн-статус
+showOnlineStatusDesc: Когда выключено, друзья не видят ваш онлайн-статус и время последнего входа; доставка сообщений не затрагивается
 allowNearbyVisible: Видимый для находящихся рядом
 dataSettings: Настройки данных
 clearChatRecords: Очистить записи чата

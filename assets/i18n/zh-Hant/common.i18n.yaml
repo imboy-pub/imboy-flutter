@@ -522,7 +522,7 @@ allowAddByQR: 允許通過二維碼新增
 allowAddByQRDesc: 其他用家可以通過掃描您的二維碼新增您為好友
 statusSettings: 狀態設定
 showOnlineStatus: 顯示上線狀態
-showOnlineStatusDesc: 好友可以看到您的上線狀態
+showOnlineStatusDesc: 關閉後，好友看不到您的上線狀態和最後上線時間；訊息傳送不受影響
 allowNearbyVisible: 附近的人可見
 dataSettings: 資料設定
 clearChatRecords: 清除聊天記錄

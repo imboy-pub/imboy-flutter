@@ -526,7 +526,7 @@ allowAddByQR: Consenti aggiunta per codice QR
 allowAddByQRDesc: Altri utenti possono aggiungerti come amico scansionando il tuo codice QR
 statusSettings: Impostazioni stato
 showOnlineStatus: Mostra stato online
-showOnlineStatusDesc: Gli amici possono vedere il tuo stato online
+showOnlineStatusDesc: Se disattivato, gli amici non possono vedere il tuo stato online o l'ultimo accesso; la consegna dei messaggi non è influenzata
 allowNearbyVisible: Visibile alle persone nelle vicinanze
 dataSettings: Impostazioni dati
 clearChatRecords: Cancella cronologia delle chat
