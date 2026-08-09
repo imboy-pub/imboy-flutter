@@ -434,6 +434,12 @@ class PassportNotifier extends _$PassportNotifier {
       return <String, dynamic>{
         "password": encryptedPassword,
         "rsa_encrypt": rsaEncrypt,
+        // 密码契约标记：服务端 7/1 迁移后新账号存储 hmac_sha512(明文)，
+        // 仅接受明文；存量账号为 md5 格式，依赖 default_md5 兼容分支接受
+        // md5 传输。未做 RSA 加密（rsa_encrypt 非 "1"，服务端下发
+        // "on"/"off" 而客户端判 "0"/"1"，故用 != "1" 判定）且密码被
+        // md5 化时置位，供登录失败后明文回退。
+        "pwd_was_md5": rsaEncrypt != "1",
       };
     } catch (e) {
       if (kDebugMode) {}
@@ -485,9 +491,29 @@ class PassportNotifier extends _$PassportNotifier {
       );
 
       if (!resp2.ok) {
-        safeUpdateState((state) => state.copyWith(error: resp2.error!.message));
-        return 0;
-      } else {
+        final errMsg = resp2.error?.message ?? '';
+        final wasMd5 = data['pwd_was_md5'] == true;
+        if (wasMd5 && errMsg.contains('errorPassword')) {
+          // 新账号（hmac_sha512 存储）只接受明文；md5 传输必 errorPassword。
+          // 回退明文重试一次；存量账号 md5 一次成功，不会走到这里。
+          if (kDebugMode) {
+            debugPrint('[passport] md5 登录失败，回退明文重试（新账号 hmac 契约）');
+          }
+          postData['pwd'] = password;
+          final retry = await HttpClient.client.post(API.login, data: postData);
+          if (!retry.ok) {
+            safeUpdateState(
+              (state) => state.copyWith(error: retry.error!.message),
+            );
+            return 0;
+          }
+          resp2 = retry;
+        } else {
+          safeUpdateState((state) => state.copyWith(error: errMsg));
+          return 0;
+        }
+      }
+      if (resp2.ok) {
         int status = (resp2.payload['status'] ?? 1) as int;
         if (status == 1 || status == 2) {
           await UserRepoLocal.to.loginAfter(
@@ -509,6 +535,8 @@ class PassportNotifier extends _$PassportNotifier {
         }
         return 1;
       }
+      // 理论上不可达：!resp2.ok 分支均已 return 0
+      return 0;
     } on PlatformException catch (e) {
       if (kDebugMode) {}
       if (e.code.contains('34018') ||
