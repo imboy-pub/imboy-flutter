@@ -16,4 +16,4 @@
 | 阻塞 | 需清空登录记录后冷启动 | `page/welcome/welcome_page.dart` | 选中语言即时切换并持久化 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 需清空登录记录后冷启动 | `page/welcome/welcome_page.dart` | 菜单中勾选当前语言 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 需清空登录记录后冷启动 | `page/welcome/welcome_page.dart` | 接力启动页品牌 Hero 动画 | 未测 | - | 0 | 0 | 0 | Logo + wordmark 两个 Hero tag |
-| 阻塞 | 需清空登录记录后冷启动 | `page/welcome/welcome_page.dart` | 渲染三页引导 SVG 插画 | 未测 | - | 0 | 0 | 0 | |
+| 阻塞 | 需清空登录记录后冷启动 | `page/welcome/welcome_page.dart` | 渲染三页引导 SVG 插画 | 未测 | - | 0 | 0 | 0 | 条件评估：需卸载/清数据后冷启动；设备被并发会话占用（imboy.chat 为其测试环境），清数据会破坏并发会话，维持阻塞待设备空闲 |
