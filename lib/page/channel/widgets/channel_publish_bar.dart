@@ -198,7 +198,8 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
             // 后端 send_message 对所有 msg_type 一律拒收空 content
             // （channel_handler_message.erl:226），媒体消息内容本在 payload 里。
             // 同文件图片/视频链路早已用 fileName / '[media]' 占位，只有语音传空串
-            // 被拒。audio 走 _buildAudioContent 独立渲染，占位不会显示给用户。
+            // 被拒。阅读页无音频播放器（channel_article_page.dart _displayBody），
+            // 渲染侧把 '[voice]' 映射为本地化「语音」提示，占位不会原样漏给用户。
             content: '[voice]',
             msgType: ChannelMessageType.audio,
             payload: {
