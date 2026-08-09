@@ -1,7 +1,7 @@
 # imboyapp 自动化测试计划 —— 索引
 
 > **权威文档**。imboyapp 现有全部功能点（已完成 / 未完成 / 阻塞 全部纳入）。
-> 覆盖 **137 个页面 / 1542 个功能点**
+> 覆盖 **136 个页面 / 1531 个功能点**
 > 数据源：`lib/page/**` 真实源码抽取 ＋ 真机实测记录
 
 > ⚠️ 本文件由 `regen_readme.py` 生成，**不要手改**。
@@ -38,13 +38,13 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 478 | 31.0% |
-| 回归复测 | 629 | 40.8% |
-| 待复验 | 17 | 1.1% |
-| 阻塞 | 418 | 27.1% |
-| **合计** | **1542** | 100% |
+| 无待办 | 486 | 31.7% |
+| 回归复测 | 619 | 40.4% |
+| 待复验 | 14 | 0.9% |
+| 阻塞 | 403 | 26.3% |
+| **合计** | **1531** | 100% |
 
-bug 累计：**发现 180 / 解决 160 / 待处理 20**
+bug 累计：**发现 181 / 解决 162 / 待处理 19**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -56,11 +56,11 @@ bug 累计：**发现 180 / 解决 160 / 待处理 20**
 | [mine](mine/) | 21 | 249 | 0 | 112 | 107 | 0 | 30 |
 | [channel](channel/) | 13 | 146 | 3 | 42 | 71 | 3 | 30 |
 | [contact](contact/) | 13 | 126 | 4 | 34 | 74 | 1 | 17 |
-| [personal_info](personal_info/) | 8 | 89 | 5 | 45 | 21 | 3 | 20 |
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 39 |
+| [personal_info](personal_info/) | 7 | 78 | 4 | 40 | 17 | 1 | 20 |
 | [chat](chat/) | 6 | 76 | 1 | 38 | 12 | 4 | 22 |
 | [moment](moment/) | 6 | 74 | 0 | 13 | 47 | 3 | 11 |
-| [wallet](wallet/) | 5 | 61 | 1 | 11 | 19 | 1 | 30 |
+| [wallet](wallet/) | 5 | 61 | 1 | 24 | 13 | 0 | 15 |
 | [user_tag](user_tag/) | 5 | 58 | 2 | 36 | 6 | 0 | 16 |
 | [single](single/) | 5 | 48 | 0 | 6 | 14 | 0 | 28 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 16 | 25 | 1 | 0 |
@@ -213,10 +213,9 @@ bug 累计：**发现 180 / 解决 160 / 待处理 20**
 
 - [more_page](personal_info/more_page.md) — 10 功能点 ⚠️ 1 待处理
 - [personal_info_page](personal_info/personal_info_page.md) — 12 功能点 ⚠️ 1 待处理
-- [privacy_settings_page](personal_info/privacy_settings_page.md) — 11 功能点
 - [profile_page](personal_info/profile_page.md) — 12 功能点 ⚠️ 1 待处理
 - [set_gender_page](personal_info/set_gender_page.md) — 10 功能点 ⚠️ 1 待处理
-- [set_nickname_page](personal_info/set_nickname_page.md) — 12 功能点 ⚠️ 1 待处理
+- [set_nickname_page](personal_info/set_nickname_page.md) — 12 功能点
 - [set_region_page](personal_info/set_region_page.md) — 11 功能点
 - [update_page](personal_info/update_page.md) — 11 功能点
 
@@ -267,9 +266,9 @@ bug 累计：**发现 180 / 解决 160 / 待处理 20**
 
 ### wallet
 
-- [red_packet_detail_page](wallet/red_packet_detail_page.md) — 12 功能点 ⚠️ 1 待处理
+- [red_packet_detail_page](wallet/red_packet_detail_page.md) — 12 功能点
 - [red_packet_send_page](wallet/red_packet_send_page.md) — 12 功能点
-- [transfer_send_page](wallet/transfer_send_page.md) — 12 功能点
+- [transfer_send_page](wallet/transfer_send_page.md) — 12 功能点 ⚠️ 1 待处理
 - [wallet_page](wallet/wallet_page.md) — 12 功能点
 - [withdraw_page](wallet/withdraw_page.md) — 13 功能点
 
