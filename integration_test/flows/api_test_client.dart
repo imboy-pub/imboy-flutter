@@ -107,6 +107,10 @@ class FlowApiClient {
     required String account,
     required String password,
     String? type,
+    // 服务端 7/1 迁移后新账号存储 hmac_sha512(明文)，只接受明文；
+    // 存量账号（md5 存储）依赖 default_md5 兼容分支接受 md5 传输。
+    // 默认 md5（兼容存量账号/生产），新格式测试账号传 true 用明文。
+    bool plainPassword = false,
   }) async {
     // 自动推断 type：包含 @ 的是 email，否则默认 mobile
     final loginType = type ?? (account.contains('@') ? 'email' : 'mobile');
@@ -115,7 +119,7 @@ class FlowApiClient {
       '/api/v1/passport/login',
       data: {
         'account': account,
-        'pwd': _md5(password),
+        'pwd': plainPassword ? password : _md5(password),
         'type': loginType,
         'rsa_encrypt': '0',
       },
