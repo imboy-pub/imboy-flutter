@@ -1,6 +1,6 @@
 # `page/web_shell/web_shell_page.dart`
 
-> 功能点 11 个 | bug 发现 0 / 解决 0 / 待处理 0
+> 功能点 11 个 | bug 发现 1 / 解决 1 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -15,4 +15,4 @@
 | 阻塞 | 需 Web 环境运行 | `page/web_shell/web_shell_page.dart` | 未选中条目时右栏展示欢迎屏 | 未测 | - | 0 | 0 | 0 | — |
 | 阻塞 | 需 Web 环境运行 | `page/web_shell/web_shell_page.dart` | 选中会话时右栏渲染聊天视图 | 未测 | - | 0 | 0 | 0 | — |
 | 阻塞 | 需 Web 环境运行 | `page/web_shell/web_shell_page.dart` | 选中联系人频道或我的分发对应视图 | 未测 | - | 0 | 0 | 0 | sealed switch 三个分支 |
-| 阻塞 | 需 Web 环境运行 | `page/web_shell/web_shell_page.dart` | 页面背景色随主题明暗切换 | 未测 | - | 0 | 0 | 0 | — |
+| 已通过 | 2026-08-09 | `page/web_shell/web_shell_page.dart` | 页面背景色随主题明暗切换 | 已通过 | 批次65 | 1 | 1 | 0 | widget 测试覆盖（web_shell_page_test.dart「Scaffold 背景色随主题明暗切换」）：实现即 `Scaffold(backgroundColor: colorScheme.surface)`，M3 surface 随 brightness 自动切换，代码正确；曾疑似 bug 实为测试陷阱——MaterialApp 默认 themeAnimationDuration=200ms，主题切换经 AnimatedTheme lerp，未等动画完成就读 Scaffold 会拿到过渡中间值（伪失败），测试补 `pump(300ms)` 后两主题断言全绿 |

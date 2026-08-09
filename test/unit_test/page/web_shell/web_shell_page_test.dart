@@ -309,5 +309,70 @@ void main() {
       expect(find.text('Dark'), findsOneWidget);
       expect(find.byType(WebNavRail), findsOneWidget);
     });
+
+    testWidgets('Scaffold 背景色随主题明暗切换', (tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(1400, 800);
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      Color surfaceOf(Brightness b) => ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: b,
+        ),
+      ).colorScheme.surface;
+
+      Future<Color> pumpAndGetBackground(Brightness b) async {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: Colors.blue,
+                  brightness: b,
+                ),
+              ),
+              home: WebShellPage(
+                tabMessageLabel: 'M',
+                tabContactLabel: 'C',
+                tabChannelLabel: 'H',
+                tabMineLabel: 'I',
+                welcomeTitle: 'W',
+                messageTab: _kMessageTab,
+                contactTab: _kContactTab,
+                channelTab: _kChannelTab,
+                mineTab: _kMineTab,
+                chatBuilder: _chatBuilder,
+                contactBuilder: _contactBuilder,
+                channelBuilder: _channelBuilder,
+                mineBuilder: _mineBuilder,
+                mobileFallback: _kMobile,
+              ),
+            ),
+          ),
+        );
+        // MaterialApp 默认 themeAnimationDuration=200ms：主题切换经 AnimatedTheme
+        // lerp，未等动画完成就读 Scaffold 会拿到过渡中间值（伪失败）。等动画结束。
+        await tester.pump(const Duration(milliseconds: 300));
+        final scaffold = tester.widget<Scaffold>(
+          find.byType(Scaffold).first,
+        );
+        return scaffold.backgroundColor ?? Colors.transparent;
+      }
+
+      final lightBg = await pumpAndGetBackground(Brightness.light);
+      final darkBg = await pumpAndGetBackground(Brightness.dark);
+      // 背景色取自 colorScheme.surface（M3 随明暗自动切换），
+      // 明暗两主题下必须不同且各自等于对应 surface 值。
+      expect(lightBg, surfaceOf(Brightness.light));
+      expect(darkBg, surfaceOf(Brightness.dark));
+      expect(lightBg, isNot(darkBg));
+    });
   });
 }

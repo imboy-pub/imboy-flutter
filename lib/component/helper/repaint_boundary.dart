@@ -47,7 +47,16 @@ class RepaintBoundaryHelper {
     GlobalKey boundaryKey,
     String name,
   ) async {
-    final img = await image(ctx, boundaryKey);
+    final Uint8List? img;
+    try {
+      img = await image(ctx, boundaryKey);
+    } on Exception catch (e) {
+      // 截图阶段异常（低内存等）：与保存异常同款反馈，不向上穿透
+      // （三个调用方均无 try-catch，穿透=未处理异常）。
+      if (kDebugMode) debugPrint("savePhoto image error: ${e.runtimeType}");
+      AppLoading.showError(t.common.saveFailedRetry);
+      return {"isSuccess": false, "errorMessage": t.common.saveFailedRetry};
+    }
     if (img == null) {
       // image() 返回 null 只有一种情况：相册权限未授予，且已跳去系统设置。
       // 不再弹 toast —— 用户此刻已经在设置页，弹了也看不见。
