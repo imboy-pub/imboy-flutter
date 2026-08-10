@@ -82,9 +82,15 @@ class GroupVoteService {
   }
 
   /// 获取我参与的投票列表
-  Future<List<Map<String, dynamic>>> getMyVotes({dynamic voteId}) async {
+  Future<List<Map<String, dynamic>>> getMyVotes({
+    dynamic voteId,
+    dynamic numericVoteId,
+  }) async {
     try {
-      return await _api.getMyVotes(voteId: voteId);
+      return await _api.getMyVotes(
+        voteId: voteId,
+        numericVoteId: numericVoteId,
+      );
     } catch (e) {
       // 不 fail-open：空列表 == "你还没投票"，会让已投票用户看到可投票的
       // 界面并重复提交。调用点 group_vote_detail_page 已据此渲染失败态。

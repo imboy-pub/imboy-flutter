@@ -111,7 +111,10 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
         groupId: widget.groupId,
         voteId: widget.voteId,
       );
-      myVotes = await GroupVoteService.to.getMyVotes(voteId: widget.voteId);
+      myVotes = await GroupVoteService.to.getMyVotes(
+        voteId: widget.voteId,
+        numericVoteId: vote?['id'],
+      );
     } catch (e) {
       // myVotes 失败绝不能降级成空列表：那等于告诉用户"你还没投票"，
       // 已投票的人会看到可投票界面并重复提交。

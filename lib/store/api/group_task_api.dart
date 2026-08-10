@@ -15,12 +15,31 @@ class GroupTaskApi extends HttpClient {
     return value.toString().trim();
   }
 
+  String _toRfc3339(int seconds) {
+    return DateTime.fromMillisecondsSinceEpoch(
+      seconds * 1000,
+      isUtc: true,
+    ).toIso8601String();
+  }
+
+  Map<String, dynamic> _normalizeTask(Map<dynamic, dynamic> raw) {
+    final task = Map<String, dynamic>.from(raw);
+    final deadline = task['deadline'];
+    if (deadline is String) {
+      final parsed = DateTime.tryParse(deadline);
+      if (parsed != null) {
+        task['deadline'] = parsed.millisecondsSinceEpoch ~/ 1000;
+      }
+    } else if (deadline is num) {
+      final value = deadline.toInt();
+      task['deadline'] = value > 1000000000000 ? value ~/ 1000 : value;
+    }
+    return task;
+  }
+
   List<Map<String, dynamic>> _parseListPayload(dynamic raw) {
     if (raw is! List) return const [];
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .map((item) => Map<String, dynamic>.from(item))
-        .toList();
+    return raw.whereType<Map<String, dynamic>>().map(_normalizeTask).toList();
   }
 
   /// 创建任务
@@ -33,7 +52,7 @@ class GroupTaskApi extends HttpClient {
   }) async {
     final data = <String, dynamic>{'group_id': groupId, 'title': title};
     if (description != null) data['description'] = description;
-    if (deadline != null) data['deadline'] = deadline;
+    if (deadline != null) data['deadline'] = _toRfc3339(deadline);
     if (assigneeIds != null) data['user_ids'] = assigneeIds;
 
     final resp = await post(API.groupTaskCreate, data: data);
@@ -42,7 +61,8 @@ class GroupTaskApi extends HttpClient {
       return null;
     }
 
-    return resp.payload as Map<String, dynamic>?;
+    if (resp.payload is! Map) return null;
+    return _normalizeTask(resp.payload as Map<dynamic, dynamic>);
   }
 
   /// 更新任务
@@ -60,7 +80,7 @@ class GroupTaskApi extends HttpClient {
     final data = <String, dynamic>{'group_id': groupId, 'task_id': taskIdText};
     if (title != null) data['title'] = title;
     if (description != null) data['description'] = description;
-    if (deadline != null) data['deadline'] = deadline;
+    if (deadline != null) data['deadline'] = _toRfc3339(deadline);
     if (status != null) data['status'] = status;
 
     final resp = await post(API.groupTaskUpdate, data: data);
@@ -174,7 +194,8 @@ class GroupTaskApi extends HttpClient {
       return null;
     }
 
-    return resp.payload as Map<String, dynamic>?;
+    if (resp.payload is! Map) return null;
+    return _normalizeTask(resp.payload as Map<dynamic, dynamic>);
   }
 
   /// 获取我的任务

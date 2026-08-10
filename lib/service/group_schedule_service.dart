@@ -32,6 +32,7 @@ class GroupScheduleService {
     String? description,
     String? location,
     int? remindBefore,
+    List<String>? participantIds,
   }) async {
     try {
       final result = await _api.createSchedule(
@@ -42,6 +43,7 @@ class GroupScheduleService {
         description: description,
         location: location,
         remindBefore: remindBefore,
+        participantIds: participantIds,
       );
       if (result != null) {
         iPrint('GroupScheduleService: 创建日程成功 - $title');

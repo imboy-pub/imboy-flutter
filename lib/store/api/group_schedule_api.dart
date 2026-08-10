@@ -62,6 +62,7 @@ class GroupScheduleApi extends HttpClient {
     String? description,
     String? location,
     int? remindBefore,
+    List<String>? participantIds,
   }) async {
     final normalizedEndTime = endTime ?? (startTime + 3600);
     final data = <String, dynamic>{
@@ -73,6 +74,7 @@ class GroupScheduleApi extends HttpClient {
     if (description != null) data['description'] = description;
     if (location != null) data['location'] = location;
     if (remindBefore != null) data['remind_before'] = remindBefore;
+    if (participantIds != null) data['participant_ids'] = participantIds;
 
     final resp = await post(API.groupScheduleCreate, data: data);
 

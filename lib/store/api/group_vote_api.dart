@@ -1,4 +1,5 @@
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 
 /// 群投票 API 客户端
@@ -189,26 +190,43 @@ class GroupVoteApi extends HttpClient {
     return resp.ok;
   }
 
-  /// 获取我参与的投票列表
-  Future<List<Map<String, dynamic>>> getMyVotes({dynamic voteId}) async {
-    final voteIdText = _toVoteId(voteId);
-    if (voteIdText.isEmpty) {
+  /// 获取我参与的投票列表。
+  ///
+  /// 生产接口的历史兼容层对 `vote_id` 同时存在外部 TSID 和数值主键
+  /// 两种契约；详情/投票操作使用外部 ID，而 my_vote 可能只接受数值 ID。
+  Future<List<Map<String, dynamic>>> getMyVotes({
+    dynamic voteId,
+    dynamic numericVoteId,
+  }) async {
+    final candidates = <String>{_toVoteId(voteId), _toVoteId(numericVoteId)}
+      ..removeWhere((value) => value.isEmpty);
+    if (candidates.isEmpty) {
       return [];
     }
-    final resp = await get(
-      API.groupVoteMyVote,
-      queryParameters: {'vote_id': voteIdText},
-    );
+
+    IMBoyHttpResponse? lastResponse;
+    for (final candidate in candidates) {
+      final resp = await get(
+        API.groupVoteMyVote,
+        queryParameters: {'vote_id': candidate},
+      );
+      lastResponse = resp;
+      if (resp.ok) {
+        if (resp.payload == null) return [];
+        return [
+          Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+        ];
+      }
+      if (resp.msg.contains('未投票') ||
+          resp.msg.toLowerCase().contains('not voted')) {
+        return [];
+      }
+    }
 
     // 空列表 == "你还没投票"，网络失败绝不能压成这个：已投票的人会看到
     // 可投票界面并重复提交。链路：GroupVoteService.getMyVotes(rethrow)
     // → group_vote_detail_page(_loadFailed)
-    resp.throwIfFailed();
-
-    if (resp.payload == null) {
-      return [];
-    }
-
-    return [Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>)];
+    lastResponse!.throwIfFailed();
+    return [];
   }
 }
