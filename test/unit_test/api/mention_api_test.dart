@@ -108,11 +108,17 @@ void main() {
   // ──────────────────────────────────────────────
   group('鉴权保护', () {
     test('3.1 无 token 访问 mention/list — 不返回成功数据', () async {
+      // 匿名用例不需登录，但签名头是构造请求的前提
+      if (!ApiTestConfig.hasSigningKey) {
+        return markTestSkipped('签名密钥不可用（无凭证环境）');
+      }
       final anon = ApiTestClient(baseUrl: ApiTestConfig.apiBaseUrl);
       try {
         final resp = await anon.post(
           '/api/v1/mention/list',
           data: {'page': 1, 'size': 20},
+          // 鉴权负向用例（预期被拒），非业务写入——豁免写门禁
+          readOnly: true,
         );
         expect(
           resp['code'] != 0 || resp['payload'] == null,

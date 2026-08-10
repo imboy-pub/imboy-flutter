@@ -31,6 +31,9 @@ void main() {
   // ──────────────────────────────────────────────
   group('版本检查', () {
     test('1.1 免登录可达 — 返回含 code 的 JSON', () async {
+      if (!ApiTestConfig.hasSigningKey) {
+        return markTestSkipped('签名密钥不可用（无凭证环境）');
+      }
       final resp = await client.get(
         '/api/v1/app_version/check',
         queryParameters: {'vsn': '0.8.0'},
@@ -39,6 +42,9 @@ void main() {
     });
 
     test('1.2 成功时 payload 含升级判定字段', () async {
+      if (!ApiTestConfig.hasSigningKey) {
+        return markTestSkipped('签名密钥不可用（无凭证环境）');
+      }
       final resp = await client.get(
         '/api/v1/app_version/check',
         queryParameters: {'vsn': '0.8.0'},
@@ -74,6 +80,9 @@ void main() {
   // ──────────────────────────────────────────────
   group('SQLite 升级 DDL', () {
     test('2.1 接口可达 — 含 code', () async {
+      if (!ApiTestConfig.hasSigningKey) {
+        return markTestSkipped('签名密钥不可用（无凭证环境）');
+      }
       final resp = await client.get(
         '/api/v1/app_ddl/get',
         queryParameters: {'type': 'upgrade', 'old_vsn': 1, 'new_vsn': 2},
@@ -82,6 +91,9 @@ void main() {
     });
 
     test('2.2 成功时 payload.ddl 为 List（若存在）', () async {
+      if (!ApiTestConfig.hasSigningKey) {
+        return markTestSkipped('签名密钥不可用（无凭证环境）');
+      }
       final resp = await client.get(
         '/api/v1/app_ddl/get',
         queryParameters: {'type': 'upgrade', 'old_vsn': 1, 'new_vsn': 2},

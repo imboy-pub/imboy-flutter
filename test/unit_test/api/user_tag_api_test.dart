@@ -126,6 +126,9 @@ void main() {
   // ──────────────────────────────────────────────
   group('鉴权保护', () {
     test('3.1 无 token 访问 user_tag/page — 不返回成功数据', () async {
+      if (!ApiTestConfig.hasSigningKey) {
+        return markTestSkipped('签名密钥不可用（无凭证环境）');
+      }
       final anon = ApiTestClient(baseUrl: ApiTestConfig.apiBaseUrl);
       try {
         final resp = await anon.get(

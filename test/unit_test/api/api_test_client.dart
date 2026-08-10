@@ -97,6 +97,17 @@ class ApiTestConfig {
   static bool get isConfigured =>
       testPhone.isNotEmpty && (testPassword.isNotEmpty || testCode.isNotEmpty);
 
+  /// 签名密钥是否可用（不泄露值，仅探测）。匿名鉴权负向用例只需要
+  /// 签名头不需要登录，用此跳过无密钥环境（如本机 flutter test 裸跑）。
+  static bool get hasSigningKey {
+    try {
+      ApiTestClient._loadSigningKey();
+      return true;
+    } on Object {
+      return false;
+    }
+  }
+
   static bool get isDualConfigured =>
       isConfigured && testPhone2.isNotEmpty && testPassword2.isNotEmpty;
 }

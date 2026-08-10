@@ -96,6 +96,9 @@ void main() {
   // ──────────────────────────────────────────────
   group('鉴权保护', () {
     test('4.1 无 token 访问 user/setting — code≠0', () async {
+      if (!ApiTestConfig.hasSigningKey) {
+        return markTestSkipped('签名密钥不可用（无凭证环境）');
+      }
       final anon = ApiTestClient(baseUrl: ApiTestConfig.apiBaseUrl);
       try {
         final resp = await anon.get('/api/v1/user/setting');
