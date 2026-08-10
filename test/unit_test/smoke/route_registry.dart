@@ -282,7 +282,8 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(name: 'markdown', location: '/markdown'),
   const SmokeRoute(name: 'video_viewer', location: '/video_viewer'),
   const SmokeRoute(name: 'upgrade', location: '/upgrade'),
-  const SmokeRoute(name: 'privacy_policy', location: '/privacy_policy'),
+  // ponytail: privacy_policy 无独立路由（app_router.dart:480 设计决策：走
+  // _openMarkdown("asset://docs/privacy-policy.md")），注册表不留多余条目。
   const SmokeRoute(name: 'terms_of_service', location: '/terms_of_service'),
   const SmokeRoute(
     name: 'network_failure_guidance',

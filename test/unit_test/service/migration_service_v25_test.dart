@@ -21,13 +21,14 @@ void main() {
       await MigrationService.to.init();
     });
 
-    test('init 后 targetVersion == 25（v25 块已被解析加载）', () {
+    test('init 后 targetVersion >= 25（v25 块已被解析加载）', () {
       expect(
         MigrationService.to.targetVersion,
-        equals(25),
+        greaterThanOrEqualTo(25),
         reason:
             '若 embedded kUpgradeScriptSql 漏 v25，targetVersion 会卡在 24 '
-            '（A-21 原bug：upgrade.sql 有 v25 但运行时不读 asset）',
+            '（A-21 原bug：upgrade.sql 有 v25 但运行时不读 asset）。'
+            'schema 后续会继续演进（已 >25），故断言下界而非等值。',
       );
     });
 
