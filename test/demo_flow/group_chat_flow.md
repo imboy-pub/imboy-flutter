@@ -1,7 +1,7 @@
 # DF-08 群会话 → 群消息 → @成员 → 消息恢复
 
 > 优先级：P0
-> 状态：`群聊只读入口通过 / 双账号消息阻塞`
+> 状态：`双账号文本消息闭环通过 / @成员与失败分支未覆盖`
 
 ## 1. 目标
 
@@ -15,37 +15,44 @@
 
 ## 3. TODO 步骤
 
-- [ ] A 从会话列表进入测试群。
+- [x] A 从会话列表或已核对群成员的现有 `ChatPage` 进入测试群。
   - 预期：群标题、成员信息和消息列表加载正确。
   - 页面计划：[chat_page.md](../auto_test/chat/chat_page.md)
-- [ ] A 发送唯一文本，B 打开群会话查看并回复。
+- [x] A 发送唯一文本，B 打开群会话查看并回复。
   - 预期：发送者、顺序、时间和服务端成功证据一致。
 - [ ] A @ B，B 查看提醒或群内消息。
   - 预期：@ 成员选择、消息渲染和提醒状态正确。
   - 页面计划：[mention_list_page.md](../auto_test/mention/mention_list_page.md)
-- [ ] A 退出群聊页再重新进入。
+- [x] A 退出群聊页再重新进入。
   - 预期：消息从本地/服务端恢复，未读状态可解释。
 - [ ] 在测试群验证发送失败和重复点击反馈。
   - 预期：失败不生成假成功气泡。
 
 ## 4. 验收标准
 
-- [ ] 双向群消息均有服务端成功证据。
+- [x] 双向群消息均有服务端 ACK、跨设备收发和本地重进回读证据。
 - [ ] @ 普通成员和权限边界有明确结果。
-- [ ] 重进页面后消息和未读状态一致。
+- [x] 重进页面后两条唯一消息均可回读；未读状态差异仍未单独验收。
 
 ## 5. 当前覆盖与阻塞
 
 - 已有 `integration_test/chat/group_chat_test.dart`。
+- 已新增并实跑 `integration_test/demo_flow/group_dual_account_message_flow_test.dart`。
 - 2026-08-09：生产 `conversation_api_test.dart` 9/9 通过，其中消息发送仅使用无效接收方边界，不产生真实群消息；双账号群消息、@成员和重进恢复尚未通过。
 - 2026-08-09：Android 华为真机运行 `group_chat_test.dart --plain-name='进入已有群聊页面可访问'` 通过：登录、会话同步、按 `ConversationModel.type == C2G` 识别已有群聊、进入 `ChatPage`，并加载生产群历史 4 条均有证据；截图因 Android 厂商 ROM surface 按诊断策略跳过。
 - 本次用例未输入或点击发送；但登录期间 App 自有的已有 C2G 重试队列出现后台 `custom/PLAIN` 重试发送日志。因此只能认定“群聊页面和历史只读入口通过”，不能认定生产零写入或消息闭环通过。
 - 2026-08-09：同一 Android 真机另有群协作列表 `1/1` 通过，日程/任务/投票列表均可读取；这不替代群消息、@成员或消息恢复验收。
 - 2026-08-09：为防止 P0 串行执行误写生产，`group_chat_test.dart` 的发送用例接入通用 `TEST_ALLOW_BUSINESS_WRITES` 闸门；`.env.pro` 复核为 `0` 通过、`1` 受控跳过，门禁返回后不启动 App。双账号群消息仍需非生产隔离数据。
 - @所有人、多人并发和 E2EE 解密异常依赖更多账号/设备，暂不纳入默认流程。
+- 2026-08-10：使用 `.env.pro`、117 macOS 与 118 Android 华为真机，在测试群
+  `104603643803863040` 完成双向唯一标记收发；两端均取得 `C2G_SERVER_ACK`，
+  Android 直接从已核对成员的现有 `ChatPage` 进入，双方退出并重进后均回读两条消息，
+  最终 sender/receiver 均 `1/1 All tests passed`。本次只写入文本消息，不创建/删除群，
+  未覆盖 @成员、失败重试和多人并发。
 
 ## 6. 未来自动化目标
 
-已新增 `integration_test/demo_flow/group_chat_flow_test.dart`，生产 Android 真机复核时因当前账号无可识别已有 C2G 受控 `SKIP`；测试不会创建群或发送消息。
+`integration_test/demo_flow/group_dual_account_message_flow_test.dart` 已覆盖双账号文本收发、
+服务端 ACK、跨设备回读和重进恢复；`group_chat_flow_test.dart` 继续作为只读入口测试。
 
 后续文本、@普通成员和消息恢复只在双账号、非生产隔离数据和显式写入授权满足时执行。

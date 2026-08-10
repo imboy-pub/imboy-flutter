@@ -82,7 +82,9 @@
 - 2026-08-09：生产 `channel_api_test.dart` 7/7 通过；只证明频道 API 可达，不证明发现→订阅→内容→群聊→日程→钱包的 UI 链路。
 - 2026-08-09：Android 华为真机可进入频道 Tab；`channel_subscribed_detail_consistency_test.dart` 因生产账号无已订阅频道明确 `SKIP`，未形成频道详情证据。
 - 2026-08-09：新增 `integration_test/channel/channel_discover_readonly_test.dart`，Android 华为真机生产登录后读取推荐频道并显示 5 个列表项，`1/1 All tests passed`；未点击订阅、付费或详情入口。
+- 2026-08-10：Android 华为真机使用 `.env.pro` 重跑频道发现只读，推荐频道显示 5 项，`1/1 All tests passed`；未执行订阅。随后重跑 `channel_subscribed_detail_consistency_test.dart`，服务端订阅列表为空，测试明确 `All tests skipped`，因此当前没有可用于详情/群入口串联的已订阅测试频道。
 - 2026-08-09：已有群的日程/任务/投票列表已有只读证据；新增 `integration_test/wallet/wallet_readonly_test.dart`，Android 真机钱包首页余额/流水只读加载通过 `1/1`。频道到群聊的实际绑定、日程创建/确认和钱包转账仍未串成跨模块闭环。
+- 2026-08-10：代码复核确认 `ChannelModel`/频道 API 没有频道绑定群 ID 或自动入群字段；若继续使用现有功能，只能记录为“频道分享/转发到已有群聊”的人工替代入口，不能宣称频道自动进入群聊。
 - 订阅/付费购买、频道写入和真实钱包转账未执行；钱包仅完成受控接口检查，不能宣称 AA 结算。
 - 钱包转账属于资金写操作；前端最低金额与后端最低金额曾存在不一致，需先确认目标环境和金额规则。
 - 真实活动费用结算、AA、托管、退款不属于现有能力，暂不扩展。
