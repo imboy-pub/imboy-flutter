@@ -56,6 +56,24 @@ flutter test test/unit_test/api/                 # Tier 1 API 契约（pre-push 
 
 `flutter_test_config.dart` 在 `test/unit_test/` 根，作用域覆盖其下全部子目录。
 
+#### e2ee 测试的 vodozemac 动态库依赖（macOS 本机）
+
+`service/e2ee/` 与 `group_session_service_test.dart` 的 `setUpAll` 会
+`dlopen('vodozemac_bindings_dart')`。`flutter test` 的 darwin 目标不走 pod
+构建，cargokit 不会自动产出 macOS 动态库 → 缺失时这些文件全部挂在
+setUpAll（不是代码回归）。本机一次性补齐（需 Rust 工具链）：
+
+```bash
+cd ~/.pub-cache/hosted/pub.dev/flutter_vodozemac-0.5.0/rust
+cargo build --release --target aarch64-apple-darwin
+mkdir -p /usr/local/lib/vodozemac_bindings_dart.framework
+cp target/aarch64-apple-darwin/release/libvodozemac_bindings_dart.dylib \
+   /usr/local/lib/vodozemac_bindings_dart.framework/vodozemac_bindings_dart
+```
+
+真机/真机构建不受影响（iOS/Android 由 pod/gradle 正常链接）。
+
+
 ### `auto_test/` —— 测试计划表（文档）
 
 **不是可执行代码**，是 imboyapp 全部功能点的测试计划，共 **137 个页面 / 1538 个功能点**。
