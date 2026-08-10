@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
 import 'package:flutter/material.dart';
@@ -593,7 +594,7 @@ void main() {
     expect(fakeService.getCategoryStatsCallCount, 1);
 
     await tester.tap(
-      find.widgetWithIcon(IconButton, Icons.upload_file_outlined),
+      find.widgetWithIcon(IconButton, CupertinoIcons.arrow_up_doc),
     );
     await tester.pumpAndSettle();
 
@@ -633,7 +634,7 @@ void main() {
     expect(fakeService.getCategoryStatsCallCount, 1);
 
     await tester.tap(
-      find.widgetWithIcon(IconButton, Icons.upload_file_outlined),
+      find.widgetWithIcon(IconButton, CupertinoIcons.arrow_up_doc),
     );
     await tester.pumpAndSettle();
 
@@ -667,7 +668,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(
-      find.widgetWithIcon(IconButton, Icons.upload_file_outlined),
+      find.widgetWithIcon(IconButton, CupertinoIcons.arrow_up_doc),
     );
     await tester.pumpAndSettle();
 

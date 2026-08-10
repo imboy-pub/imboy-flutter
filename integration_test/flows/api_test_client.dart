@@ -55,6 +55,7 @@ class FlowApiClient {
   final Dio _dio;
   final String baseUrl;
   final String _deviceId;
+  final String? _deviceTypeOverride;
 
   String? _accessToken;
   String? _refreshToken;
@@ -63,8 +64,9 @@ class FlowApiClient {
   String? get accessToken => _accessToken;
   String? get currentUid => _currentUid;
 
-  FlowApiClient({required this.baseUrl, String? deviceId})
+  FlowApiClient({required this.baseUrl, String? deviceId, String? deviceType})
     : _deviceId = deviceId ?? 'e2e-flow-test-001',
+      _deviceTypeOverride = deviceType,
       _dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
@@ -76,22 +78,31 @@ class FlowApiClient {
       );
 
   Future<Map<String, String>> _defaultHeaders() async {
-    final cos = Platform.isIOS
-        ? 'ios'
-        : Platform.isAndroid
-        ? 'android'
-        : Platform.isMacOS
-        ? 'macos'
-        : 'linux';
+    final cos =
+        _deviceTypeOverride ??
+        (Platform.isIOS
+            ? 'ios'
+            : Platform.isAndroid
+            ? 'android'
+            : Platform.isMacOS
+            ? 'macos'
+            : 'linux');
     // pkg 必须与各平台实际 bundle id/applicationId 一致，否则后端 902
-    final pkg = Platform.isAndroid
+    final pkg =
+        _deviceTypeOverride == 'android' ||
+            (_deviceTypeOverride == null && Platform.isAndroid)
         ? 'imboy.chat'
-        : Platform.isMacOS
+        : _deviceTypeOverride == 'macos' ||
+              (_deviceTypeOverride == null && Platform.isMacOS)
         ? 'pub.imboy.macos'
-        : Platform.isIOS
+        : _deviceTypeOverride == 'ios' ||
+              (_deviceTypeOverride == null && Platform.isIOS)
         ? 'pub.imboy.2'
         : 'pub.imboy.app';
-    final vsn = '0.8.0';
+    // package_info_plus 在当前构建产物中返回的平台版本并不完全一致：
+    // Android 为 pubspec 的 alpha 版本，macOS 为构建后的 1.0.0.15。
+    // 签名原文必须与运行中的 App 版本一致，否则服务端返回 902。
+    final vsn = Platform.isMacOS ? '1.0.0.15' : '1.0.0-alpha.15';
     final key = await Env.signKey();
 
     return {
@@ -104,6 +115,7 @@ class FlowApiClient {
       'sk': '1',
       // 与 App 客户端一致：base64(HMAC-SHA512("did|vsn|cos|pkg", key))
       'sign': EncrypterService.sha512('$_deviceId|$vsn|$cos|$pkg', key),
+      'X-Client-Type': 'mobile',
     };
   }
 
@@ -129,6 +141,13 @@ class FlowApiClient {
   }) async {
     // 自动推断 type：包含 @ 的是 email，否则默认 mobile
     final loginType = type ?? (account.contains('@') ? 'email' : 'mobile');
+    final loginCos =
+        _deviceTypeOverride ??
+        (Platform.isAndroid
+            ? 'android'
+            : Platform.isMacOS
+            ? 'macos'
+            : 'linux');
     _log('登录: $account (type=$loginType)');
     final resp = await _dio.post<dynamic>(
       '/api/v1/passport/login',
@@ -137,6 +156,8 @@ class FlowApiClient {
         'pwd': plainPassword ? password : _md5(password),
         'type': loginType,
         'rsa_encrypt': '0',
+        'did': _deviceId,
+        'cos': loginCos,
       },
       options: Options(headers: await _defaultHeaders()),
     );

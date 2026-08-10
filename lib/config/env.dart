@@ -83,6 +83,16 @@ abstract interface class Env implements EnvField {
   /// WebSocket URL - 优先从环境配置读取，如果没有则从本地存储读取
   /// Environment-specific WebSocket URL, falls back to cached value
   static String? get effectiveWsUrl {
+    // 集成测试可显式注入地址，避免首次安装的真机依赖历史缓存。
+    // 仅在调用方传入 WS_URL_OVERRIDE 时生效，不改变正常环境配置优先级。
+    const override = String.fromEnvironment(
+      'WS_URL_OVERRIDE',
+      defaultValue: '',
+    );
+    if (override.isNotEmpty) {
+      return _normalizeWsUrl(override);
+    }
+
     // 优先使用环境配置中的 wsUrl
     final envWsUrl = _to.wsUrl;
     if (envWsUrl != null && envWsUrl.isNotEmpty) {

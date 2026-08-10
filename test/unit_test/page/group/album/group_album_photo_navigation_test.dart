@@ -217,7 +217,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(fakeService.getPhotosCallCount, 1);
 
-    await tester.tap(find.byIcon(CupertinoIcons.delete).first);
+    await tester.tap(find.byKey(const Key('group_album_photo_delete_0')));
     await tester.pumpAndSettle();
     final actionButtons = find.descendant(
       of: find.byType(CupertinoAlertDialog),
@@ -262,7 +262,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(fakeService.getPhotosCallCount, 1);
 
-    await tester.tap(find.byIcon(CupertinoIcons.delete).first);
+    await tester.tap(find.byKey(const Key('group_album_photo_delete_0')));
     await tester.pumpAndSettle();
     final actionButtons = find.descendant(
       of: find.byType(CupertinoAlertDialog),
@@ -434,7 +434,7 @@ void main() {
       expect(fakeService.detailCalls, ['p2', 'p3']);
 
       final nextButton = tester.widget<IconButton>(
-        find.widgetWithIcon(IconButton, Icons.chevron_right),
+        find.widgetWithIcon(IconButton, CupertinoIcons.chevron_right),
       );
       expect(nextButton.onPressed, isNull);
 
