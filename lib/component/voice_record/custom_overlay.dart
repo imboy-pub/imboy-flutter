@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -189,21 +191,25 @@ class CustomOverlay extends StatelessWidget {
                               SizedBox(
                                 height: 32,
                                 width: 180,
-                                child: AudioWaveforms(
-                                  enableGesture: false,
-                                  size: const Size(180, 32),
-                                  recorderController:
-                                      recorderController ??
-                                      RecorderController(),
-                                  waveStyle: WaveStyle(
-                                    waveColor: primaryColor,
-                                    showMiddleLine: false,
-                                    spacing: 3.0,
-                                    waveThickness: 1.5,
-                                    extendWaveform: true,
-                                    scaleFactor: 35.0,
-                                  ),
-                                ),
+                                // imboy iOS 兜底：audio_waveforms 原生未注册（vendored 置空），
+                                // iOS 用静态波形占位，避免渲染 AudioWaveforms 抛 MissingPluginException
+                                child: Platform.isIOS
+                                    ? const _StaticWaveformFallback()
+                                    : AudioWaveforms(
+                                        enableGesture: false,
+                                        size: const Size(180, 32),
+                                        recorderController:
+                                            recorderController ??
+                                            RecorderController(),
+                                        waveStyle: WaveStyle(
+                                          waveColor: primaryColor,
+                                          showMiddleLine: false,
+                                          spacing: 3.0,
+                                          waveThickness: 1.5,
+                                          extendWaveform: true,
+                                          scaleFactor: 35.0,
+                                        ),
+                                      ),
                               ),
                             ],
                           ],
@@ -317,4 +323,47 @@ class CustomOverlay extends StatelessWidget {
       ],
     );
   }
+}
+
+/// iOS 兜底：audio_waveforms 原生未注册（vendored 置空注册），
+/// 录音悬浮层用静态波形占位，避免渲染 AudioWaveforms 抛 MissingPluginException。
+class _StaticWaveformFallback extends StatelessWidget {
+  const _StaticWaveformFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _StaticWaveformPainter(AppColors.primary),
+      size: const Size(180, 32),
+    );
+  }
+}
+
+class _StaticWaveformPainter extends CustomPainter {
+  _StaticWaveformPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round;
+    const barCount = 20;
+    for (var i = 0; i < barCount; i++) {
+      // 确定性伪随机高度（i*7919 素数散列），iOS 静态占位不随真实音量变化
+      final barHeight = 4.0 + (i * 7919) % 24;
+      final x = i * size.width / barCount + 2;
+      canvas.drawLine(
+        Offset(x, size.height / 2 - barHeight / 2),
+        Offset(x, size.height / 2 + barHeight / 2),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_StaticWaveformPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

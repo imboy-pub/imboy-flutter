@@ -96,7 +96,8 @@ dependencies:
   # pin: 2.9.0-dev.0 是唯一 pin flutter_webrtc 1.5.2 的版本（稳定版 2.5.x 上限
   # 更低，与本项目 flutter_webrtc ^1.5.2 冲突）。待 livekit 发布兼容稳定版后解锁。
   livekit_client: 2.9.0-dev.0   # LiveKit SFU 群通话（与 flutter_webrtc 共享 native webrtc 库）
-  audio_waveforms: ^2.0.1             # Audio waveform visualization
+  audio_waveforms:
+    path: plugin/audio_waveforms       # vendored（上游 2.0.2 iOS 注册 SIGSEGV，本地置空注册）
   just_audio: ^0.10.6                # Audio playback with gapless support (updated: 0.10.5 → 0.10.6)
 
   # ┌─────────────────────────────────────────────────────────────────┐

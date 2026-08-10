@@ -99,10 +99,9 @@ packages:
   audio_waveforms:
     dependency: "direct main"
     description:
-      name: audio_waveforms
-      sha256: "03b3430ecf430a2e90185518a228c02be3d26653c62dd931e50d671213a6dbc8"
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugin/audio_waveforms"
+      relative: true
+    source: path
     version: "2.0.2"
   azlistview:
     dependency: "direct main"

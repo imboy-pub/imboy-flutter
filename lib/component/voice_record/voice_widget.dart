@@ -687,7 +687,10 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       }
 
       // 暂时不启动 AudioWaveforms 的录音功能，避免与 FlutterSound 冲突
-      await recorderController.record();
+      // imboy iOS 兜底：audio_waveforms 原生未注册（vendored 置空），跳过原生调用
+      if (!Platform.isIOS) {
+        await recorderController.record();
+      }
 
       // 设置录音监听
       recordStream = recorder.onProgress!.listen(
