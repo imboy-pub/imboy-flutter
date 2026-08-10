@@ -110,6 +110,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     _instance = null;
   }
 
+  /// 【测试】暴露初始化状态（仅测试使用）
+  @visibleForTesting
+  bool get isInitializedForTest => _initialized;
+
   /// 用于防止快速重连竞态：同一时刻只有一个连接请求在进行
   /// 后续的连接请求会等待当前连接完成，而不是创建重复连接
   Completer<void>? _connectCompleter;
@@ -285,6 +289,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 对外接口：建立连接
   Future<void> openSocket({String from = ''}) async {
+    // 自愈：quitLogin/permanent 关闭销毁单例后，新实例无人调 init()，
+    // EventBus 发送订阅缺失会导致上行消息静默全丢（2026-08-10 实证）。
+    // init() 有 _initialized 防重，幂等；其内部 openSocket(from:'init')
+    // 与本次调用由 _connecting/_connectCompleter 防重合并。
+    if (!_initialized) init();
     if (!_preConnectionCheck()) return;
     await _establishConnection(from);
   }
