@@ -77,6 +77,9 @@ void main() {
 
   group('put/get/info/delete 全链路（写测试）', () {
     test('版本单调 + 密文逐字节透传 + 明文拒收 + 删除', () async {
+      if (!ApiTestConfig.allowBusinessWrites) {
+        return markTestSkipped('TEST_ALLOW_API_WRITES 未开启');
+      }
       if (hadPreexistingBackup) {
         markTestSkipped('测试账号已有真实云端备份，跳过写测试防摧毁');
         return;
