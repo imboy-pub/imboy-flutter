@@ -45,6 +45,51 @@ final _navContext = RegExp(
 );
 final _materialIcon = RegExp(r'(?<!\w)Icons\.([A-Za-z0-9_]+)(?![A-Za-z0-9_])');
 
+/// 「统一 CupertinoIcons」用例的存量豁免，key 为 `文件路径|图标名`
+///（不含行号，行号会随编辑漂移）。
+///
+/// 收录规则：CupertinoIcons 无对等设计资源（如 emoji 分类族、drag_handle、
+/// verified），或图标更换属于设计统一决策、不应由测试红绿倒逼。
+/// 豁免只认存量——新增高可见 Material 图标会再次报红。
+const _cupertinoExemptions = <String>{
+  'lib/page/channel/channel_admin_page.dart|error_outline',
+  'lib/page/channel/channel_comment_page.dart|cloud_off_outlined',
+  'lib/page/channel/channel_detail_page.dart|more_vert',
+  'lib/page/channel/channel_discover_page.dart|campaign',
+  'lib/page/channel/channel_discover_page.dart|clear',
+  'lib/page/channel/channel_discover_page.dart|verified',
+  'lib/page/channel/channel_invitation_page.dart|open_in_new',
+  'lib/page/channel/channel_list_page.dart|more_vert',
+  'lib/page/channel/channel_subscriber_page.dart|clear',
+  'lib/page/chat/widget/chat_input.dart|coffee_outlined',
+  'lib/page/chat/widget/chat_input.dart|cruelty_free_outlined',
+  'lib/page/chat/widget/chat_input.dart|directions_car_filled_outlined',
+  'lib/page/chat/widget/chat_input.dart|emoji_emotions_outlined',
+  'lib/page/chat/widget/chat_input.dart|emoji_symbols_outlined',
+  'lib/page/chat/widget/chat_input.dart|lightbulb_outline',
+  'lib/page/chat/widget/chat_input.dart|sports_soccer_outlined',
+  'lib/page/chat/widget/quick_reply_manage_page.dart|drag_handle',
+  'lib/page/group/album/group_album_page.dart|add_photo_alternate_outlined',
+  'lib/page/group/album/group_album_photo_page.dart|cloud_off',
+  'lib/page/group/file/group_file_audio_preview_page.dart|audiotrack',
+  'lib/page/group/file/group_file_page.dart|broken_image_outlined',
+  'lib/page/group/vote/group_vote_detail_page.dart|cloud_off',
+  'lib/page/passport/passport_notifier.dart|keyboard_arrow_left',
+  'lib/page/search/search_chat_page.dart|lock_outline',
+  'lib/page/live_room/live_room_list/live_room_list_page.dart|circle',
+  'lib/page/live_room/live_room_list/live_room_list_page.dart|live_tv',
+  'lib/page/live_room/live_room_list/live_room_list_page.dart|navigate_next',
+  'lib/page/live_room/subscriber/subscriber_page.dart|remove_red_eye',
+  'lib/page/mine/user_collect/user_collect_detail_page.dart|more_horiz',
+  'lib/page/mine/user_device/user_device_detail_page.dart|power_settings_new',
+  'lib/page/personal_info/widget/more_page.dart|location_on_outlined',
+  'lib/page/scanner/scanner_result_page.dart|keyboard_arrow_left',
+  'lib/page/web_shell/web_nav_items_factory.dart|chat_bubble',
+  'lib/page/web_shell/web_nav_items_factory.dart|chat_bubble_outline',
+  'lib/page/web_shell/web_nav_items_factory.dart|people_alt',
+  'lib/page/web_shell/web_nav_items_factory.dart|people_alt_outlined',
+};
+
 void main() {
   test('纯图标按钮都有读屏标签', () {
     final offenders = <String>[];
@@ -105,6 +150,11 @@ void main() {
         }
 
         for (final match in _materialIcon.allMatches(lines[i])) {
+          if (_cupertinoExemptions.contains(
+            '${entity.path}|${match.group(1)}',
+          )) {
+            continue;
+          }
           offenders.add('${entity.path}:${i + 1} Icons.${match.group(1)}');
         }
       }

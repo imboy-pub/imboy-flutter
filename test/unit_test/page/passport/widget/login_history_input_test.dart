@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -215,9 +216,9 @@ void main() {
       await tester.tap(find.byIcon(Icons.arrow_drop_down));
       await tester.pumpAndSettle();
 
-      // close icon 在 ListTile.trailing 中（IconButton + Icons.close）
-      // 找第一个 close 即对应 alice 行
-      final closeIcons = find.byIcon(Icons.close);
+      // close icon 在 ListTile.trailing 中（IconButton + CupertinoIcons.xmark，
+      // widget 已从 Icons.close 迁移，测试跟随）
+      final closeIcons = find.byIcon(CupertinoIcons.xmark);
       expect(closeIcons, findsNWidgets(2));
 
       await tester.tap(closeIcons.first);
