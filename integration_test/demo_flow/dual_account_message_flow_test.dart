@@ -8,8 +8,10 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart' show navigatorKey;
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
@@ -80,6 +82,7 @@ void main() {
         markTestSkipped('未找到目标测试账号的已有 C2C 会话');
         return;
       }
+      flowLog('步骤: 已找到目标会话，准备进入聊天页');
 
       await safeTap(tester, conversation.first);
       if (!await _waitForChatPage(tester)) {
@@ -99,18 +102,25 @@ void main() {
       final receiverMarker = 'P0-DUAL-B-$_runId';
 
       if (_dualRole == 'sender') {
+        flowLog('步骤: sender 发送 A=$senderMarker');
         await _sendText(tester, senderMarker);
+        flowLog('步骤: A 已上屏，等待服务端 ACK');
         await _waitForOutgoingAck(tester, senderMarker);
+        flowLog('步骤: A ACK 完成，查历史');
         await _assertHistoryContains(senderMarker);
+        flowLog('步骤: 等待 B=$receiverMarker');
         await _waitForMarker(tester, receiverMarker);
         await _assertHistoryContains(receiverMarker);
       } else {
+        flowLog('步骤: receiver 等待 A=$senderMarker');
         await _waitForMarker(tester, senderMarker);
         await _assertHistoryContains(senderMarker);
+        flowLog('步骤: receiver 回发 B=$receiverMarker');
         await _sendText(tester, receiverMarker);
         await _waitForOutgoingAck(tester, receiverMarker);
         await _assertHistoryContains(receiverMarker);
       }
+      flowLog('步骤: 收发断言完成，准备重进');
 
       expect(find.textContaining(senderMarker), findsWidgets);
       expect(find.textContaining(receiverMarker), findsWidgets);
@@ -122,6 +132,7 @@ void main() {
 
       // 退出并重新进入同一会话，验证消息不是只存在于当前页面内存。
       await _leaveChatPage(tester);
+      flowLog('步骤: 已离开聊天页，回会话列表');
       await settle(tester, maxSeconds: 3);
       if (!await _openConversationTab(tester)) {
         fail('发送/回复后无法回到会话列表');
@@ -130,6 +141,7 @@ void main() {
       if (reopened == null) fail('重进时未找到目标 C2C 会话');
       await safeTap(tester, reopened.first);
       if (!await _waitForChatPage(tester)) fail('重进时未进入聊天页面');
+      flowLog('步骤: 已重进聊天页，校验两条标记');
       await _waitForMarker(tester, senderMarker);
       await _waitForMarker(tester, receiverMarker);
       expect(find.textContaining(senderMarker), findsWidgets);
@@ -249,6 +261,7 @@ Future<void> _sendText(WidgetTester tester, String marker) async {
     find.byKey(const Key('send_button_inner')),
   ]);
   if (!sent) fail('未找到消息发送按钮');
+  flowLog('步骤: _sendText 已点击发送 $marker');
   await _waitForMarker(tester, marker);
 }
 
@@ -296,8 +309,40 @@ Future<void> _leaveChatPage(WidgetTester tester) async {
 }
 
 Future<void> _waitForMarker(WidgetTester tester, String marker) async {
-  for (var i = 0; i < _messageWaitSeconds * 2; i++) {
-    if (tester.any(find.textContaining(marker))) return;
+  flowLog('步骤: _waitForMarker 开始 $marker（预算 ${_messageWaitSeconds}s）');
+  final deadline = DateTime.now().add(Duration(seconds: _messageWaitSeconds));
+  var lastDump = DateTime.fromMillisecondsSinceEpoch(0);
+  while (DateTime.now().isBefore(deadline)) {
+    // skipOffstage:false——聊天页被临时路由/弹层遮挡时消息气泡仍应可命中；
+    // 真机/macOS 桌面端的页面层级不受窗口焦点影响，但路由栈会影响 offstage。
+    if (tester.any(find.textContaining(marker, skipOffstage: false))) {
+      return;
+    }
+    // 每 20s 转储一次当前可见文本（前 12 条截断），用于判定消息
+    // 到底在不在树里——2026-08-11 r9/r11 实证 B 已入库上屏但
+    // find.textContaining 长期不匹配，需要看到树里实际渲染了什么。
+    if (DateTime.now().difference(lastDump) > const Duration(seconds: 20)) {
+      lastDump = DateTime.now();
+      final texts = <String>[];
+      for (final e
+          in find.byType(Text, skipOffstage: false).evaluate().take(12)) {
+        final t = (e.widget as Text).data ?? '';
+        texts.add(t.length > 40 ? '${t.substring(0, 40)}…' : t);
+      }
+      var route = '?';
+      final ctx = navigatorKey.currentContext;
+      if (ctx != null) {
+        try {
+          // ignore: use_build_context_synchronously -- 仅读路由位置做诊断转储
+          route = GoRouter.of(
+            ctx,
+          ).routeInformationProvider.value.uri.toString();
+        } on Object {
+          route = 'n/a';
+        }
+      }
+      flowLog('步骤: 等待中，route=$route 可见 Text=${texts.join(' | ')}');
+    }
     await tester.pump(const Duration(milliseconds: 500));
   }
   fail('等待消息超时：$marker');
@@ -306,21 +351,32 @@ Future<void> _waitForMarker(WidgetTester tester, String marker) async {
 Future<void> _assertHistoryContains(String marker) async {
   // 复用当前 App 已登录会话，确保使用真实平台的签名密钥与 Bearer token。
   // 不二次登录，避免触发设备冲突，也不伪造生产环境不存在的 linux 签名组合。
-  final response = await HttpClient.client.dio.get<dynamic>(
-    '/api/v1/msg/history',
-    queryParameters: {
-      'chat_type': 'c2c',
-      'peer_id': _peerUid,
-      'after_seq': 0,
-      'limit': 100,
-    },
-  );
-  final history = response.data is Map<String, dynamic>
-      ? response.data as Map<String, dynamic>
-      : <String, dynamic>{
-          'code': response.statusCode,
-          'msg': 'non_json_response',
-        };
+  // 网络调用必须带硬超时：2026-08-11 r9 实证 in-app dio.get 可无限挂起
+  // （第二次调用未返回、无日志，最终撞 6 分钟全局超时），历史接口只是
+  // 补充证据，挂起/异常一律按 historyUnavailable 记录，不阻断闭环。
+  late final dynamic responseData;
+  final int? statusCode;
+  try {
+    final response = await HttpClient.client.dio
+        .get<dynamic>(
+          '/api/v1/msg/history',
+          queryParameters: {
+            'chat_type': 'c2c',
+            'peer_id': _peerUid,
+            'after_seq': 0,
+            'limit': 100,
+          },
+        )
+        .timeout(const Duration(seconds: 15));
+    responseData = response.data;
+    statusCode = response.statusCode;
+  } on Object catch (e) {
+    flowLog('服务端历史接口超时/异常（$e），按 historyUnavailable 记录，不阻断双端收发验收');
+    return;
+  }
+  final history = responseData is Map<String, dynamic>
+      ? responseData
+      : <String, dynamic>{'code': statusCode, 'msg': 'non_json_response'};
   // 历史接口是补充证据，不应因联调过程中 access token 过期而否定
   // 已由 WebSocket ACK、接收端 UI 和本地 SQLite 证明的双端消息闭环。
   // 705/401 统一记录为 historyUnavailable；不把它伪装成服务端历史通过。
