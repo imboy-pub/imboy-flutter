@@ -9,6 +9,7 @@ import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/page/wallet/widget/wallet_form.dart';
+import 'package:imboy/page/wallet/wallet_amount.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -64,20 +65,20 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
     super.dispose();
   }
 
-  Future<void> _handleSend(double maxBalanceYuan) async {
+  Future<void> _handleSend(int maxBalanceFen) async {
     if (!_formKey.currentState!.validate()) return;
 
-    final amountYuan = double.tryParse(_amountController.text) ?? 0.0;
-    if (amountYuan < 0.01) {
+    final amountFen = parseYuanToFen(_amountController.text);
+    if (amountFen == null || amountFen < 1) {
       AppLoading.showError(t.common.rechargeAmountError);
       return;
     }
-    if (amountYuan > maxBalanceYuan) {
+    if (amountFen > maxBalanceFen) {
       AppLoading.showError(t.common.insufficientBalance);
       return;
     }
 
-    final amountCents = (amountYuan * 100).toInt();
+    final amountYuan = fenToYuan(amountFen);
     final count = _isGroup ? (int.tryParse(_countController.text) ?? 1) : 1;
     final greeting = _greetingController.text.trim().isNotEmpty
         ? _greetingController.text.trim()
@@ -88,7 +89,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
 
     AppLoading.show(status: t.common.loading);
     final packetId = await WalletApi().sendRedPacket(
-      amount: amountCents,
+      amount: amountFen,
       count: count,
       type: _isGroup ? _selectedType : 'fixed',
       greeting: greeting,
@@ -107,7 +108,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
           'msg_type': 'redPacket',
           'id': packetId,
           'greeting': greeting,
-          'amount': amountCents,
+          'amount': amountFen,
           'count': count,
           'type': _isGroup ? _selectedType : 'fixed',
         });
@@ -233,8 +234,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                   if (value == null || value.isEmpty) {
                     return t.common.enterAmount;
                   }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount < 0.01) {
+                  final amountFen = parseYuanToFen(value);
+                  if (amountFen == null || amountFen < 1) {
                     return t.common.amountMustPositive;
                   }
                   return null;
@@ -288,7 +289,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                 color: AppColors.iosRed,
                 onPressed: () {
                   FocusScope.of(context).unfocus();
-                  _handleSend(balanceYuan);
+                  _handleSend(walletState.balance);
                 },
               ),
             ],

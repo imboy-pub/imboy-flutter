@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
+import 'package:imboy/page/channel/channel_detail_rules.dart';
 import 'package:go_router/go_router.dart';
 
 import '../channel_message_item.dart';
@@ -137,7 +138,9 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
     if (state.messages.isEmpty && !state.isLoading) {
       final channel = state.channel;
       final isManaged = channel?.isManaged ?? widget.isManaged;
-      final isSubscribed = channel?.isSubscribed ?? false;
+      // 付费频道的内容权限由购买订单授予；历史订单恢复或订阅状态
+      // 短暂不同步时，已购买用户仍不应看到访客订阅 CTA。
+      final hasContentAccess = hasChannelContentAccess(channel);
 
       if (isManaged) {
         return NoDataView(
@@ -147,7 +150,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
           onTop: () => context.push('/channel/${widget.channelId}/compose'),
           retryLabel: t.channel.publishFirstContent,
         );
-      } else if (!isSubscribed) {
+      } else if (!hasContentAccess) {
         return NoDataView(
           icon: Icons.notifications_active_outlined,
           text: _isSubscribingFromEmpty

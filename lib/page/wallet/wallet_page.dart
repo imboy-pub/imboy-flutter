@@ -13,6 +13,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart'
     show WalletState, WalletTransaction, walletProvider;
+import 'package:imboy/page/wallet/wallet_amount.dart';
 
 /// 钱包页面 - 极致 iOS 17 Premium 风格重构
 class WalletPage extends ConsumerStatefulWidget {
@@ -96,12 +97,11 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             isDefaultAction: true,
             onPressed: () {
               final input = controller.text.trim();
-              final yuan = double.tryParse(input);
-              if (yuan == null || yuan < 1 || yuan > 10000) {
+              final amountFen = parseYuanToFen(input);
+              if (amountFen == null || amountFen < 100 || amountFen > 1000000) {
                 AppLoading.showError(t.common.rechargeAmountError);
                 return;
               }
-              final amountFen = (yuan * 100).round();
               Navigator.of(ctx).pop();
               _showPayMethodSheet(amountFen);
             },

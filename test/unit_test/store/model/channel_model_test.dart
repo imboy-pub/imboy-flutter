@@ -20,6 +20,7 @@ ChannelModel _channel({
   int creatorId = 100,
   ChannelUserRole userRole = ChannelUserRole.none,
   bool isSubscribed = false,
+  bool hasPurchased = false,
   bool isVerified = false,
   int subscriberCount = 0,
   List<String>? tags,
@@ -34,6 +35,7 @@ ChannelModel _channel({
     creatorId: creatorId,
     userRole: userRole,
     isSubscribed: isSubscribed,
+    hasPurchased: hasPurchased,
     isVerified: isVerified,
     subscriberCount: subscriberCount,
     tags: tags,
@@ -173,6 +175,7 @@ void main() {
         'updated_at': baseMs,
         'user_role': 3,
         'is_subscribed': 1,
+        'has_purchased': 1,
       });
 
       expect(model.id, 42);
@@ -188,6 +191,7 @@ void main() {
       expect(model.createdAt.millisecondsSinceEpoch, baseMs);
       expect(model.userRole, ChannelUserRole.creator);
       expect(model.isSubscribed, isTrue);
+      expect(model.hasPurchased, isTrue);
     });
 
     test('creator_uid 优先于 creator_id', () {
@@ -247,6 +251,34 @@ void main() {
         'updated_at': baseMs,
       });
       expect(model.isVerified, isFalse);
+      expect(model.isSubscribed, isFalse);
+    });
+
+    test('has_purchased 缺失或为 0 时为 false', () {
+      final model = ChannelModel.fromJson({
+        'id': 1,
+        'name': 'x',
+        'has_purchased': 0,
+        'created_at': baseMs,
+        'updated_at': baseMs,
+      });
+      expect(model.hasPurchased, isFalse);
+    });
+
+    test('fromMap 保留已购买权限，重启/缓存恢复不重新显示 paywall', () {
+      final model = ChannelModel.fromMap({
+        'id': 1,
+        'name': '付费频道',
+        'type': ChannelType.paid.index,
+        'creator_id': 2,
+        'user_role': ChannelUserRole.subscriber.toInt(),
+        'is_subscribed': 0,
+        'has_purchased': 1,
+        'created_at': DateTime(2024, 1, 1).millisecondsSinceEpoch,
+        'updated_at': DateTime(2024, 1, 1).millisecondsSinceEpoch,
+      });
+
+      expect(model.hasPurchased, isTrue);
       expect(model.isSubscribed, isFalse);
     });
 
@@ -314,6 +346,19 @@ void main() {
       expect(mapT['is_subscribed'], 1);
       expect(mapF['is_verified'], 0);
       expect(mapF['is_subscribed'], 0);
+    });
+
+    test('toMap — has_purchased 编码为 0/1，确保购买态可重启恢复', () {
+      final mapT = _channel(hasPurchased: true).toMap();
+      final mapF = _channel(hasPurchased: false).toMap();
+      expect(mapT['has_purchased'], 1);
+      expect(mapF['has_purchased'], 0);
+      expect(ChannelModel.fromMap(mapT).hasPurchased, isTrue);
+    });
+
+    test('toJson — has_purchased 编码为 0/1', () {
+      expect(_channel(hasPurchased: true).toJson()['has_purchased'], 1);
+      expect(_channel(hasPurchased: false).toJson()['has_purchased'], 0);
     });
 
     test('isManaged — admin/creator 为 true，其余为 false', () {

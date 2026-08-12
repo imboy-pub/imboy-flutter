@@ -1450,3 +1450,15 @@ CREATE INDEX IF NOT EXISTS idx_channel_publish_outbox_due
     ON channel_publish_outbox(next_attempt_at, channel_id);
 
 PRAGMA user_version = 29;
+
+-- ============================================================
+-- VERSION: 30
+-- DESC: channel 新增 has_purchased 列（付费频道购买权益）。
+--       ChannelModel.toMap() 会持久化购买态；缺少本列会导致已购买频道
+--       保存失败，并在重启/本地缓存恢复后重新显示 paywall。
+--       旧设备默认 0，随后由频道详情接口回填真实购买状态。
+-- ============================================================
+
+ALTER TABLE channel ADD COLUMN has_purchased INTEGER DEFAULT 0;
+
+PRAGMA user_version = 30;

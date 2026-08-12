@@ -8,6 +8,7 @@ import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/page/wallet/widget/wallet_form.dart';
+import 'package:imboy/page/wallet/wallet_amount.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -53,20 +54,20 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
     super.dispose();
   }
 
-  Future<void> _handleSend(double maxBalanceYuan) async {
+  Future<void> _handleSend(int maxBalanceFen) async {
     if (!_formKey.currentState!.validate()) return;
 
-    final amountYuan = double.tryParse(_amountController.text) ?? 0.0;
-    if (amountYuan < 0.1) {
+    final amountFen = parseYuanToFen(_amountController.text);
+    if (amountFen == null || amountFen < 100) {
       AppLoading.showError(t.common.transferMinAmountError);
       return;
     }
-    if (amountYuan > maxBalanceYuan) {
+    if (amountFen > maxBalanceFen) {
       AppLoading.showError(t.common.insufficientBalance);
       return;
     }
 
-    final amountCents = (amountYuan * 100).toInt();
+    final amountYuan = fenToYuan(amountFen);
     final remark = _remarkController.text.trim().isNotEmpty
         ? _remarkController.text.trim()
         : t.common.transferDefaultRemark;
@@ -77,7 +78,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
     AppLoading.show(status: t.common.loading);
     final transferId = await WalletApi().sendTransfer(
       receiverUid: widget.toUid,
-      amount: amountCents,
+      amount: amountFen,
       remark: remark,
     );
 
@@ -90,7 +91,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
         Navigator.pop(context, {
           'msg_type': 'transfer',
           'id': transferId,
-          'amount': amountCents,
+          'amount': amountFen,
           'remark': remark,
         });
       }
@@ -169,8 +170,8 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                   if (value == null || value.isEmpty) {
                     return t.common.enterAmount;
                   }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount < 0.1) {
+                  final amountFen = parseYuanToFen(value);
+                  if (amountFen == null || amountFen < 100) {
                     return t.common.transferMinAmountError;
                   }
                   return null;
@@ -197,7 +198,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                 color: AppColors.primary,
                 onPressed: () {
                   FocusScope.of(context).unfocus();
-                  _handleSend(balanceYuan);
+                  _handleSend(walletState.balance);
                 },
               ),
             ],

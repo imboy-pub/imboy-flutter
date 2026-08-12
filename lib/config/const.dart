@@ -331,6 +331,7 @@ class API {
   static String channelCreateOrder(String channelId) =>
       '/api/v1/channel/$channelId/order';
   static const channelOrderPay = '/api/v1/channel/order/pay';
+  static const channelOrderCancel = '/api/v1/channel/order/cancel';
   static const channelOrderRefund = '/api/v1/channel/order/refund';
   static const channelMyOrders = '/api/v1/channel/orders/my';
   static String channelOrderStatus(String orderNo) =>

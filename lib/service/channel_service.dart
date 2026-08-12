@@ -605,13 +605,32 @@ class ChannelService {
     }
   }
 
+  /// 取消待支付订单，避免支付失败后遗留孤儿订单。
+  Future<bool> cancelOrder(String orderNo) async {
+    try {
+      final success = await _api.cancelOrder(orderNo: orderNo);
+      iPrint('ChannelService: 取消订单${success ? "成功" : "失败"} - $orderNo');
+      return success;
+    } catch (e) {
+      iPrint('ChannelService: 取消订单失败 - $e');
+      return false;
+    }
+  }
+
   /// 创建并支付订单（最小闭环）
   Future<ChannelOrderModel?> createAndPayOrder(String channelId) async {
     final order = await createOrder(channelId);
     if (order == null) return null;
 
     final paid = await payOrder(order.orderNo);
-    if (!paid) return null;
+    if (!paid) {
+      try {
+        await _api.cancelOrder(orderNo: order.orderNo);
+      } catch (e) {
+        iPrint('ChannelService: 支付失败后回收订单失败 - $e');
+      }
+      return null;
+    }
 
     return await getOrder(order.orderNo);
   }
@@ -1059,6 +1078,23 @@ class ChannelService {
       await _repo.saveChannel(remote);
     }
     return remote;
+  }
+
+  /// 强制刷新频道权威快照并写入本地缓存。
+  ///
+  /// 购买/退款等权益变化不能走 [getChannel] 的本地优先路径，否则旧的
+  /// `hasPurchased` 可能遮蔽服务端最新状态。远端没有成功返回时保持 null，
+  /// 调用方不得用旧缓存绕过付费权限判断。
+  Future<ChannelModel?> refreshChannel(String channelId) async {
+    final remote = await _api.getChannel(channelId);
+    if (remote == null) return null;
+    await _repo.saveChannel(remote);
+    return remote;
+  }
+
+  /// 保存已由服务端确认的频道快照（例如 custom_id 详情路径）。
+  Future<void> cacheChannelSnapshot(ChannelModel channel) async {
+    await _repo.saveChannel(channel);
   }
 
   /// 检查是否已订阅

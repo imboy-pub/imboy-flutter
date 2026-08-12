@@ -13,13 +13,24 @@ import 'package:imboy/component/helper/datetime.dart';
 /// 满足全部条件时返回 true：
 ///   1. channel 不为 null
 ///   2. type == ChannelType.paid
-///   3. 未订阅（!isSubscribed）
+///   3. 未购买（!hasPurchased）；订阅关系不能替代付费订单
 ///   4. 非管理员（!isManaged，即 userRole 不是 admin/creator）
 bool isPaidChannelLocked(ChannelModel? channel) {
   if (channel == null) return false;
   return channel.type == ChannelType.paid &&
-      !channel.isSubscribed &&
+      !channel.hasPurchased &&
       !channel.isManaged;
+}
+
+/// CD-1b 空消息流是否可以按“有权限但暂无内容”展示。
+///
+/// 公共频道沿用客户端的访客关注引导；私有频道需要订阅；付费频道
+/// 只认购买订单，不能用历史订阅关系替代购买权益。
+bool hasChannelContentAccess(ChannelModel? channel) {
+  if (channel == null || channel.isManaged) return false;
+  if (channel.type == ChannelType.paid) return channel.hasPurchased;
+  if (channel.type == ChannelType.private) return channel.isSubscribed;
+  return channel.isSubscribed || channel.hasPurchased;
 }
 
 /// CD-2 消息列表中 index 位置是否需要显示日期分割线

@@ -290,7 +290,8 @@ CREATE TABLE channel (
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL,
     user_role INTEGER DEFAULT 0,
-    is_subscribed INTEGER DEFAULT 0
+    is_subscribed INTEGER DEFAULT 0,
+    has_purchased INTEGER DEFAULT 0
 );
 CREATE INDEX idx_channel_custom_id ON channel(custom_id);
 CREATE INDEX idx_channel_creator_id ON channel(creator_id);

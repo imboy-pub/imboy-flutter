@@ -170,6 +170,10 @@ refundApply: 申请退款
 refundConfirmTitle: 确认退款
 refundConfirmMessage: 确定要对该订单申请退款吗？退款后将取消订阅。
 refundSuccess: 退款申请已提交
+cancelOrder: 取消订单
+cancelOrderConfirmTitle: 确认取消订单
+cancelOrderConfirmMessage: 确定要取消该待支付订单吗？取消后不能继续支付。
+cancelOrderSuccess: 订单已取消
 # 频道评论功能（a43d242f 合并补全：UI 引用了 key 但源文件此前漏加翻译）
 comment: 评论
 readFull: 阅读全文

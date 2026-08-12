@@ -7,6 +7,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/wallet_api.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart';
 import 'package:imboy/page/wallet/widget/wallet_form.dart';
+import 'package:imboy/page/wallet/wallet_amount.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -31,20 +32,20 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
     super.dispose();
   }
 
-  Future<void> _handleWithdraw(double maxBalanceYuan) async {
+  Future<void> _handleWithdraw(int maxBalanceFen) async {
     if (!_formKey.currentState!.validate()) return;
 
-    final amountYuan = double.tryParse(_amountController.text) ?? 0.0;
-    if (amountYuan < 1.0) {
+    final amountFen = parseYuanToFen(_amountController.text);
+    if (amountFen == null || amountFen < 100) {
       AppLoading.showError(t.common.withdrawAmountError);
       return;
     }
-    if (amountYuan > maxBalanceYuan) {
+    if (amountFen > maxBalanceFen) {
       AppLoading.showError(t.common.insufficientBalance);
       return;
     }
 
-    final amountCents = (amountYuan * 100).toInt();
+    final amountYuan = fenToYuan(amountFen);
     final account = _accountController.text.trim();
     final methodLabel = _selectedMethod == 'alipay'
         ? t.common.withdrawAlipay
@@ -55,7 +56,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
 
     AppLoading.show(status: t.common.loading);
     final success = await WalletApi().withdraw(
-      amount: amountCents,
+      amount: amountFen,
       method: _selectedMethod,
       account: account,
     );
@@ -204,8 +205,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                   if (value == null || value.isEmpty) {
                     return t.common.withdrawAmountError;
                   }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount < 1.0) {
+                  final amountFen = parseYuanToFen(value);
+                  if (amountFen == null || amountFen < 100) {
                     return t.common.withdrawAmountError;
                   }
                   return null;
@@ -316,7 +317,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                 color: AppColors.primary,
                 onPressed: () {
                   FocusScope.of(context).unfocus();
-                  _handleWithdraw(balanceYuan);
+                  _handleWithdraw(walletState.balance);
                 },
               ),
             ],

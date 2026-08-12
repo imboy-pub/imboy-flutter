@@ -399,9 +399,16 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
     state = state.copyWith(isLoading: true, error: null, clearChannel: true);
 
     try {
-      ChannelModel? channel = await _api.getChannel(channelId);
-      // 兼容通过 custom_id 进入详情的场景
-      channel ??= await _api.getChannelByCustomId(channelId);
+      // 详情页可能是购买/退款后的第一处刷新点，必须强制读取服务端并
+      // 持久化最新 has_purchased；不能使用本地优先快照遮蔽权益变化。
+      ChannelModel? channel = await ChannelService.to.refreshChannel(channelId);
+      if (channel == null) {
+        // 兼容通过 custom_id 进入详情的场景；该 API 结果同样必须落缓存。
+        channel = await _api.getChannelByCustomId(channelId);
+        if (channel != null) {
+          await ChannelService.to.cacheChannelSnapshot(channel);
+        }
+      }
       if (!ref.mounted) return;
       if (channel != null) {
         final effectiveChannelId = channel.id != 0

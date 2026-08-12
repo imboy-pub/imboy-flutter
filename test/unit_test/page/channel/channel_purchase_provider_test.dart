@@ -2,13 +2,13 @@
 ///
 /// 覆盖：
 /// - CP-1 createOrder 返回 null → purchase 失败，且不调 payOrder/getOrder
-/// - CP-2 payOrder 返回 null → purchase 失败，不进入轮询
+/// - CP-2 payOrder 返回 null → purchase 失败、回收 pending 订单，不进入轮询
 /// - CP-3 全成功（getOrder 命中 paid）→ 返回订单，payOrder 收到 paymentMethod
 /// - CP-4 终态 cancelled → 返回 null
 /// - CP-5 isPurchasing 完成后回到 false
 /// - CP-6 paymentMethod 默认 wallet，可自定义透传
 /// - CP-7 第三方成功 → 唤起收银台后轮询命中，返回已支付订单
-/// - CP-8 第三方取消/未配置 → 返回 null 且不轮询
+/// - CP-8 第三方取消/未配置 → 回收 pending 订单，返回 null 且不轮询
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -41,12 +41,18 @@ class _FakeOrderApi extends ChannelOrderApi {
   final int? getStatus;
 
   final List<String> createCalls = <String>[];
+  final List<String> createPaymentMethods = <String>[];
   final List<(String, String)> payCalls = <(String, String)>[];
+  final List<String> cancelCalls = <String>[];
   final List<String> getCalls = <String>[];
 
   @override
-  Future<ChannelOrderModel?> createOrder(String channelId) async {
+  Future<ChannelOrderModel?> createOrder(
+    String channelId, {
+    String paymentMethod = 'wallet',
+  }) async {
     createCalls.add(channelId);
+    createPaymentMethods.add(paymentMethod);
     return createResult?.call();
   }
 
@@ -64,6 +70,12 @@ class _FakeOrderApi extends ChannelOrderApi {
     getCalls.add(orderNo);
     if (getStatus == null) return null;
     return _order(orderNo, getStatus!);
+  }
+
+  @override
+  Future<bool> cancelOrder(String orderNo) async {
+    cancelCalls.add(orderNo);
+    return true;
   }
 
   @override
@@ -159,7 +171,7 @@ void main() {
       expect(fake.getCalls, isEmpty);
     });
 
-    test('CP-2 payOrder 失败 → null，不进入轮询', () async {
+    test('CP-2 payOrder 失败 → 回收 pending 订单，null，不进入轮询', () async {
       final fake = _FakeOrderApi(
         createResult: () => _order('CH-2', ChannelOrderStatus.pending),
         payResult: null,
@@ -173,6 +185,7 @@ void main() {
 
       expect(result, isNull);
       expect(fake.payCalls, hasLength(1));
+      expect(fake.cancelCalls, ['CH-2']);
       expect(fake.getCalls, isEmpty);
     });
 
@@ -191,7 +204,11 @@ void main() {
 
       expect(result, isNotNull);
       expect(result!.status, ChannelOrderStatus.paid);
+      expect(fake.createPaymentMethods.single, 'wallet');
       expect(fake.payCalls.single.$2, 'wallet');
+      expect(fake.getCalls, [
+        'CH-3',
+      ], reason: '轮询命中 paid 后应直接返回该订单，不重复查询造成误报失败');
     });
 
     test('CP-4 终态 cancelled → null', () async {
@@ -254,6 +271,7 @@ void main() {
 
       expect(result, isNotNull);
       expect(result!.status, ChannelOrderStatus.paid);
+      expect(fake.createPaymentMethods.single, 'alipay');
       expect(launcher.launchCalls, ['alipay']);
       expect(fake.payCalls.single.$2, 'alipay');
       expect(fake.getCalls, isNotEmpty, reason: '第三方成功后应轮询');
@@ -275,6 +293,7 @@ void main() {
 
       expect(result, isNull);
       expect(launcher.launchCalls, ['alipay']);
+      expect(fake.cancelCalls, ['CH-8']);
       expect(fake.getCalls, isEmpty, reason: '用户取消不应轮询');
     });
 
@@ -294,6 +313,7 @@ void main() {
 
       expect(result, isNull);
       expect(launcher.launchCalls, ['wechat']);
+      expect(fake.cancelCalls, ['CH-9']);
       expect(fake.getCalls, isEmpty, reason: '未配置应中止不轮询');
     });
   });

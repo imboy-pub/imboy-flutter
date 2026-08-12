@@ -68,7 +68,10 @@ class ChannelPurchaseNotifier extends Notifier<ChannelPurchaseState> {
     state = const ChannelPurchaseState(isPurchasing: true);
     try {
       // 1. 创建订单（价格后端定）
-      final order = await _api.createOrder(channelId);
+      final order = await _api.createOrder(
+        channelId,
+        paymentMethod: paymentMethod,
+      );
       if (order == null || order.orderNo.isEmpty) return null;
 
       // 2. 发起支付：钱包即时扣款；第三方返回 pay_params 供唤起收银台
@@ -76,25 +79,36 @@ class ChannelPurchaseNotifier extends Notifier<ChannelPurchaseState> {
         order.orderNo,
         paymentMethod: paymentMethod,
       );
-      if (payResult == null) return null;
+      if (payResult == null) {
+        await _cancelPendingOrder(order.orderNo);
+        return null;
+      }
 
       // 3. 第三方：唤起原生收银台，取消/未配置则中止（不轮询）
       if (paymentMethod != 'wallet') {
         final launched = await _launchThirdParty(paymentMethod, payResult);
         if (launched != PaymentLaunchResult.success &&
             launched != PaymentLaunchResult.failed) {
+          await _cancelPendingOrder(order.orderNo);
           return null; // cancelled / notConfigured：不轮询
         }
       }
 
-      // 4. 轮询订单状态，直到入账成功或终态/超时（回调入账后命中）
-      final paid = await _pollOrder(order.orderNo);
-      if (!paid) return null;
-
-      // 5. 返回最终已支付订单
-      return await _api.getOrder(order.orderNo);
+      // 4. 轮询订单状态，直到入账成功或终态/超时（回调入账后命中）。
+      // 轮询拿到的 paid 订单就是权威结果，直接返回，避免再发一次
+      // getOrder；否则支付已成功但第二次查询瞬时失败时，UI 会误报购买失败。
+      return await _pollOrder(order.orderNo);
     } finally {
       state = state.copyWith(isPurchasing: false);
+    }
+  }
+
+  /// 回收尚未支付的订单；失败不覆盖原始购买结果。
+  Future<void> _cancelPendingOrder(String orderNo) async {
+    try {
+      await _api.cancelOrder(orderNo);
+    } catch (_) {
+      // 订单可能已被异步回调推进到已支付，取消失败不能改变前端结论。
     }
   }
 
@@ -115,9 +129,9 @@ class ChannelPurchaseNotifier extends Notifier<ChannelPurchaseState> {
   /// 轮询订单状态。
   ///
   /// 最多轮询 [maxAttempts] 次，每次间隔 [intervalMs] 毫秒。
-  /// 命中已支付返回 `true`；命中退款/取消/过期或超时返回 `false`。
+  /// 命中已支付返回该订单；命中退款/取消/过期或超时返回 `null`。
   /// 钱包/模拟支付后端即时置为已支付，首轮即命中（无 delay）。
-  Future<bool> _pollOrder(
+  Future<ChannelOrderModel?> _pollOrder(
     String orderNo, {
     int maxAttempts = 6,
     int intervalMs = 800,
@@ -125,19 +139,19 @@ class ChannelPurchaseNotifier extends Notifier<ChannelPurchaseState> {
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
       final order = await _api.getOrder(orderNo);
       if (order != null) {
-        if (order.status == ChannelOrderStatus.paid) return true;
+        if (order.status == ChannelOrderStatus.paid) return order;
         // 终态失败：无需继续轮询
         if (order.status == ChannelOrderStatus.refunded ||
             order.status == ChannelOrderStatus.cancelled ||
             order.status == ChannelOrderStatus.expired) {
-          return false;
+          return null;
         }
       }
       if (attempt < maxAttempts - 1) {
         await Future<void>.delayed(Duration(milliseconds: intervalMs));
       }
     }
-    return false;
+    return null;
   }
 }
 

@@ -101,6 +101,9 @@ class ChannelModel {
   final ChannelUserRole userRole;
   final bool isSubscribed;
 
+  /// 付费频道内容权益：只由服务端购买订单状态决定，不等同于订阅关系。
+  final bool hasPurchased;
+
   // 付费频道价格字段（仅 type == paid 时有意义）
   // price 单位：分（与钱包余额一致），currency 默认 CNY。
   // 后端通过 channel_price LEFT JOIN 返回，DB 存「元」，接口已转换为「分」。
@@ -122,6 +125,7 @@ class ChannelModel {
     required this.updatedAt,
     this.userRole = ChannelUserRole.none,
     this.isSubscribed = false,
+    this.hasPurchased = false,
     this.price = 0,
     this.currency = 'CNY',
   });
@@ -161,6 +165,7 @@ class ChannelModel {
           : DateTime.now(),
       userRole: ChannelUserRole.fromInt(parseModelInt(json['user_role'])),
       isSubscribed: parseModelBool(json['is_subscribed']),
+      hasPurchased: parseModelBool(json['has_purchased']),
       price: parseModelInt(json['price']),
       currency: parseModelString(json['currency'], defaultValue: 'CNY'),
     );
@@ -182,6 +187,7 @@ class ChannelModel {
       'updated_at': updatedAt.millisecondsSinceEpoch,
       'user_role': userRole.toInt(),
       'is_subscribed': isSubscribed ? 1 : 0,
+      'has_purchased': hasPurchased ? 1 : 0,
       'price': price,
       'currency': currency,
     };
@@ -206,6 +212,7 @@ class ChannelModel {
       updatedAt: parseModelDateTime(map['updated_at']),
       userRole: ChannelUserRole.fromInt(parseModelInt(map['user_role'])),
       isSubscribed: parseModelBool(map['is_subscribed']),
+      hasPurchased: parseModelBool(map['has_purchased']),
       // 容错读取：旧 SQLite 表可能无 price/currency 列，缺失时退化为默认值。
       price: parseModelInt(map['price']),
       currency: parseModelString(map['currency'], defaultValue: 'CNY'),
@@ -237,6 +244,8 @@ class ChannelModel {
       'updated_at': updatedAt.millisecondsSinceEpoch,
       'user_role': userRole.toInt(),
       'is_subscribed': isSubscribed ? 1 : 0,
+      // 购买权益必须随频道快照持久化；否则重启后已付款用户会重新看到 paywall。
+      'has_purchased': hasPurchased ? 1 : 0,
     };
   }
 
@@ -256,6 +265,7 @@ class ChannelModel {
     DateTime? updatedAt,
     ChannelUserRole? userRole,
     bool? isSubscribed,
+    bool? hasPurchased,
     int? price,
     String? currency,
   }) {
@@ -274,6 +284,7 @@ class ChannelModel {
       updatedAt: updatedAt ?? this.updatedAt,
       userRole: userRole ?? this.userRole,
       isSubscribed: isSubscribed ?? this.isSubscribed,
+      hasPurchased: hasPurchased ?? this.hasPurchased,
       price: price ?? this.price,
       currency: currency ?? this.currency,
     );

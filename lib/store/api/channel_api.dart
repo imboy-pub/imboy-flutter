@@ -676,6 +676,15 @@ class ChannelApi extends HttpClient {
     return resp.ok;
   }
 
+  /// 取消待支付订单；已支付订单必须改走退款。
+  Future<bool> cancelOrder({required String orderNo}) async {
+    final resp = await post(
+      '/api/v1/channel/order/cancel',
+      data: {'order_no': orderNo},
+    );
+    return resp.ok;
+  }
+
   /// 获取我的订单列表
   Future<List<ChannelOrderModel>> getMyOrders() async {
     final resp = await get('/api/v1/channel/orders/my');

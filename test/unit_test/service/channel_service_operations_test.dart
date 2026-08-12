@@ -105,6 +105,7 @@ class _FakeChannelApi extends ChannelApi {
 
   final List<String> createOrderCalls = <String>[];
   final List<String> payOrderCalls = <String>[];
+  final List<String> cancelOrderCalls = <String>[];
   final List<String> getOrderCalls = <String>[];
   final List<(String, String)> deleteMessageCalls = <(String, String)>[];
   final List<(String, String, bool)> setMessagePinnedCalls =
@@ -134,6 +135,12 @@ class _FakeChannelApi extends ChannelApi {
   Future<bool> payOrder({required String orderNo}) async {
     payOrderCalls.add(orderNo);
     return payOrderResult;
+  }
+
+  @override
+  Future<bool> cancelOrder({required String orderNo}) async {
+    cancelOrderCalls.add(orderNo);
+    return true;
   }
 
   @override
@@ -792,7 +799,7 @@ void main() {
       expect(api.getOrderCalls, isEmpty);
     });
 
-    test('payOrder 返回 false → 返回 null，不调 getOrder', () async {
+    test('payOrder 返回 false → 回收订单，返回 null，不调 getOrder', () async {
       final api = _FakeChannelApi(
         createOrderResult: () => _order('order-001'),
         payOrderResult: false,
@@ -811,6 +818,7 @@ void main() {
         equals(['order-001']),
         reason: 'payOrder 必须以 createOrder 返回的 orderNo 调用',
       );
+      expect(api.cancelOrderCalls, equals(['order-001']));
       expect(api.getOrderCalls, isEmpty, reason: '支付失败后不应调 getOrder');
     });
 
@@ -1552,6 +1560,29 @@ void main() {
 
       expect(result, isNull);
       expect(repo.savedChannels, isEmpty, reason: 'API 返回 null 时不应写本地');
+    });
+
+    test('refreshChannel 强制读取服务端并持久化最新购买权限', () async {
+      final repo = _FakeChannelRepo()
+        ..localChannels = [_channel(42)]; // 本地仍是未购买旧快照
+      final remote = _channel(42).copyWith(hasPurchased: true);
+      final api = _FakeChannelApi(channelByIdFromApi: remote);
+      final service = ChannelService.forTest(
+        api: api,
+        repo: repo,
+        messageRepo: _FakeChannelMessageRepo(),
+      );
+
+      final result = await service.refreshChannel('42');
+
+      expect(result?.hasPurchased, isTrue);
+      expect(api.getChannelCalls, ['42']);
+      expect(repo.savedChannels, hasLength(1));
+      expect(
+        repo.savedChannels.single.hasPurchased,
+        isTrue,
+        reason: '购买成功后的权威快照必须写回 SQLite，供重启/缓存恢复使用',
+      );
     });
   });
 

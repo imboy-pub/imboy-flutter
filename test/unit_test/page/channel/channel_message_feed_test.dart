@@ -29,12 +29,14 @@ class _EmptyChannelDetailNotifier extends ChannelDetailNotifier {
 ChannelModel _channel({
   required ChannelUserRole role,
   required bool subscribed,
+  bool hasPurchased = false,
 }) => ChannelModel(
   id: 1001,
   name: '测试频道',
   description: '频道简介',
   userRole: role,
   isSubscribed: subscribed,
+  hasPurchased: hasPurchased,
   creatorId: 1,
   createdAt: DateTime(2024, 1, 1),
   updatedAt: DateTime(2024, 1, 1),
@@ -74,6 +76,22 @@ void main() {
     expect(find.text(t.channel.noMessagesSubscribedDesc), findsOneWidget);
     expect(find.text(t.channel.subscribe), findsNothing);
     expect(find.text(t.channel.publishFirstContent), findsNothing);
+  });
+
+  testWidgets('已购买用户即使订阅状态不同步也不显示访客 CTA', (tester) async {
+    await tester.pumpWidget(
+      _app(
+        _channel(
+          role: ChannelUserRole.none,
+          subscribed: false,
+          hasPurchased: true,
+        ),
+      ),
+    );
+
+    expect(find.text(t.channel.noMessagesSubscribed), findsOneWidget);
+    expect(find.text(t.channel.subscribe), findsNothing);
+    expect(find.text(t.channel.noMessagesVisitor), findsNothing);
   });
 
   testWidgets('管理者空态只给发布第一条内容 CTA', (tester) async {

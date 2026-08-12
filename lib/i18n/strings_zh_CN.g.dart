@@ -1029,6 +1029,18 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '退款申请已提交'
 	String get refundSuccess => '退款申请已提交';
 
+	/// zh-CN: '取消订单'
+	String get cancelOrder => '取消订单';
+
+	/// zh-CN: '确认取消订单'
+	String get cancelOrderConfirmTitle => '确认取消订单';
+
+	/// zh-CN: '确定要取消该待支付订单吗？取消后不能继续支付。'
+	String get cancelOrderConfirmMessage => '确定要取消该待支付订单吗？取消后不能继续支付。';
+
+	/// zh-CN: '订单已取消'
+	String get cancelOrderSuccess => '订单已取消';
+
 	/// zh-CN: '评论'
 	String get comment => '评论';
 
@@ -7896,6 +7908,10 @@ extension on Translations {
 			'channel.refundConfirmTitle' => '确认退款',
 			'channel.refundConfirmMessage' => '确定要对该订单申请退款吗？退款后将取消订阅。',
 			'channel.refundSuccess' => '退款申请已提交',
+			'channel.cancelOrder' => '取消订单',
+			'channel.cancelOrderConfirmTitle' => '确认取消订单',
+			'channel.cancelOrderConfirmMessage' => '确定要取消该待支付订单吗？取消后不能继续支付。',
+			'channel.cancelOrderSuccess' => '订单已取消',
 			'channel.comment' => '评论',
 			'channel.readFull' => '阅读全文',
 			'channel.noComments' => '暂无评论',
@@ -8095,12 +8111,12 @@ extension on Translations {
 			'chat.voiceRecordResultEmpty' => '语音录制结果为空',
 			'chat.voiceFileInvalid' => '语音文件无效',
 			'chat.burnAfterReading' => '阅后即焚',
+			_ => null,
+		} ?? switch (path) {
 			'chat.burnReadBadge' => '阅后',
 			'chat.visibleThresholdRead' => '可视阈值已读',
 			'chat.readThresholdDelay' => '已读阈值与延时',
 			'chat.goodReadability' => '可读性良好',
-			_ => null,
-		} ?? switch (path) {
 			'chat.profileCompleteness' => '资料完善度',
 			'chat.tagStatistics' => '标签统计',
 			'chat.alreadySent' => '已发送',
@@ -8609,12 +8625,12 @@ extension on Translations {
 			'common.sendMsgNotFriendTips' => '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。',
 			'common.setChatBackground' => '设置当前聊天背景',
 			'common.share' => '分享',
+			_ => null,
+		} ?? switch (path) {
 			'common.signatureTips' => '签名提示',
 			'common.slideUpCancelSending' => '手指上滑,取消发送',
 			'common.storagePermissionNotObtained' => '未获取存储权限',
 			'common.strongReminder' => '强提醒',
-			_ => null,
-		} ?? switch (path) {
 			'common.submittedAt' => '提交于',
 			'common.sureDeleteData' => '确认删除吗？删除后不可恢复。',
 			'common.sureDeleteGroupChatRecord' => '确定删除群的聊天记录吗？',
@@ -9123,12 +9139,12 @@ extension on Translations {
 			'common.e2eeWarnOldMayNotDecrypt' => '• 旧消息可能无法解密',
 			'common.e2eeSuggestBackupNow' => '• 建议立即导出备份',
 			'common.e2eeGoBackup' => '去备份',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeKeyGenerateFailed' => '密钥生成失败，请重试',
 			'common.e2eeKeyDeleted' => '密钥已删除',
 			'common.e2eeDeleteFailed' => '删除失败，请重试',
 			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '可用分片: ${available} 个，需要 ${required} 个代理协助',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeNoRecoveryShards' => '没有可用的恢复分片',
 			'common.e2eeRecoverSuccess' => '恢复成功',
 			'common.e2eeRecoverFailed' => '恢复失败',
@@ -9637,12 +9653,12 @@ extension on Translations {
 			'groupTask.submitTask' => '提交作业',
 			'groupTask.taskCompleted' => '任务已完成',
 			'groupTask.overdue' => '已过期',
+			_ => null,
+		} ?? switch (path) {
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			'groupTask.dueSoon' => '即将截止',
 			'groupTask.submitFailed' => '提交失败，请稍后重试',
-			_ => null,
-		} ?? switch (path) {
 			'groupTask.taskId' => '任务ID',
 			'groupTask.pendingReview' => '待审核',
 			'groupTask.taskIdMissing' => '任务ID缺失，无法查看详情',

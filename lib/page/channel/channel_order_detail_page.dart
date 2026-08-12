@@ -47,6 +47,27 @@ final channelRefundProvider = NotifierProvider<ChannelRefundNotifier, bool>(
   ChannelRefundNotifier.new,
 );
 
+/// 取消待支付订单编排。`state` 即 isCancelling 标志，进行中重复调用直接返回 false。
+class ChannelCancelNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  /// 取消订单；已支付订单由后端拒绝，必须改走退款。
+  Future<bool> cancel(String orderNo) async {
+    if (state) return false;
+    state = true;
+    try {
+      return await ref.read(channelOrderApiProvider).cancelOrder(orderNo);
+    } finally {
+      state = false;
+    }
+  }
+}
+
+final channelCancelProvider = NotifierProvider<ChannelCancelNotifier, bool>(
+  ChannelCancelNotifier.new,
+);
+
 /// 付费频道订单详情页。展示订单全字段；已支付订单提供退款入口。
 class ChannelOrderDetailPage extends ConsumerWidget {
   const ChannelOrderDetailPage({super.key, required this.orderNo});
@@ -106,6 +127,7 @@ class _OrderDetailBody extends ConsumerWidget {
     final brightness = Theme.of(context).brightness;
     final (statusLabel, statusColor) = channelOrderStatusStyle(order.status, t);
     final isRefunding = ref.watch(channelRefundProvider);
+    final isCancelling = ref.watch(channelCancelProvider);
 
     return ListView(
       padding: AppSpacing.allRegular,
@@ -158,6 +180,21 @@ class _OrderDetailBody extends ConsumerWidget {
               ),
               onPressed: isRefunding ? null : () => _onRefund(context, ref),
               child: Text(t.channel.refundApply),
+            ),
+          ),
+        ],
+        if (order.status == ChannelOrderStatus.pending) ...[
+          AppSpacing.verticalXLarge,
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.iosRed,
+                side: const BorderSide(color: AppColors.iosRed),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              onPressed: isCancelling ? null : () => _onCancel(context, ref),
+              child: Text(t.channel.cancelOrder),
             ),
           ),
         ],
@@ -217,6 +254,39 @@ class _OrderDetailBody extends ConsumerWidget {
       ref.invalidate(channelMyOrdersProvider);
     }
     // 失败提示已由 ChannelOrderApi.refundOrder 统一弹出。
+  }
+
+  Future<void> _onCancel(BuildContext context, WidgetRef ref) async {
+    final t = context.t;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.channel.cancelOrderConfirmTitle),
+        content: Text(t.channel.cancelOrderConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(t.common.buttonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(t.common.buttonConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final ok = await ref
+        .read(channelCancelProvider.notifier)
+        .cancel(order.orderNo);
+    if (!context.mounted) return;
+    if (ok) {
+      AppLoading.showSuccess(t.channel.cancelOrderSuccess);
+      ref.invalidate(channelOrderDetailProvider(order.orderNo));
+      ref.invalidate(channelMyOrdersProvider);
+    }
+    // 失败提示已由 ChannelOrderApi.cancelOrder 统一弹出。
   }
 
   Widget _row(BuildContext context, String label, String value) {

@@ -12,10 +12,13 @@ import 'package:imboy/store/model/channel_order_model.dart';
 /// 订单模型复用 [ChannelOrderModel]，状态码见 [ChannelOrderStatus]。
 class ChannelOrderApi extends HttpClient {
   /// 创建订单。价格在后端按频道配置确定。
-  Future<ChannelOrderModel?> createOrder(String channelId) async {
+  Future<ChannelOrderModel?> createOrder(
+    String channelId, {
+    String paymentMethod = 'wallet',
+  }) async {
     IMBoyHttpResponse resp = await post(
       API.channelCreateOrder(channelId),
-      data: const <String, dynamic>{},
+      data: {'payment_method': paymentMethod},
     );
     if (!resp.ok || resp.payload == null) {
       AppLoading.showError(resp.msg);
@@ -47,6 +50,19 @@ class ChannelOrderApi extends HttpClient {
       return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
     }
     return <String, dynamic>{};
+  }
+
+  /// 取消待支付订单；已支付订单必须改走退款。
+  Future<bool> cancelOrder(String orderNo) async {
+    final resp = await post(
+      API.channelOrderCancel,
+      data: {'order_no': orderNo},
+    );
+    if (!resp.ok) {
+      AppLoading.showError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   /// 查询订单状态。
