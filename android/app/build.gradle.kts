@@ -18,7 +18,9 @@ val localNdkVersion = localProperties.getProperty("flutter.ndkVersion") ?: "28.2
 
 android {
     namespace = "imboy.chat"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android 14.x requires API 37; keep this explicit so
+    // the release build does not silently fall back to Flutter's older default.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = localNdkVersion
 
     compileOptions {

@@ -98,13 +98,10 @@ PODS:
   - flutter_sound_core (9.30.0)
   - flutter_vodozemac (0.0.1):
     - Flutter
-  - flutter_webrtc (1.4.0):
+  - flutter_webrtc (1.6.0):
     - Flutter
     - WebRTC-SDK (= 144.7559.09)
-  - fluwx (0.0.1):
-    - Flutter
-    - fluwx/pay (= 0.0.1)
-  - fluwx/pay (0.0.1):
+  - fluwx (2.0.5):
     - Flutter
     - WechatOpenSDK-XCFramework (~> 2.0.5)
   - FMDB/Core (2.7.12)
@@ -157,7 +154,7 @@ PODS:
     - Flutter
     - JCore (>= 5.0.1)
     - JVerification (= 3.4.3)
-  - livekit_client (2.9.0-dev.0):
+  - livekit_client (2.11.0):
     - Flutter
     - flutter_webrtc
     - WebRTC-SDK (= 144.7559.09)
@@ -438,8 +435,8 @@ SPEC CHECKSUMS:
   flutter_sound: d95194f6476c9ad211d22b3a414d852c12c7ca44
   flutter_sound_core: 7f2626d249d3a57bfa6da892ef7e22d234482c1a
   flutter_vodozemac: 46015daf07988356d46784d05ab0c7afca00ff36
-  flutter_webrtc: 3ee86aa10e0313c38c93fdb215dd86e77014f96a
-  fluwx: 2ef787502fccb3f3596b380509001a8ea71cbbff
+  flutter_webrtc: f952258e6fa67477d481cfbad2885a4f117922a7
+  fluwx: 3fc75ea9a5796bd90d53fd9657ff88b3dd9fca70
   FMDB: 728731dd336af3936ce00f91d9d8495f5718a0e6
   geolocator_apple: ab36aa0e8b7d7a2d7639b3b4e48308394e8cef5e
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
@@ -451,7 +448,7 @@ SPEC CHECKSUMS:
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: e26fc139307b3d80e30d01479656f4b9632f083f
   jverify: 756c7d4d358faa9fdc46e86b66aedcb1a410561a
-  livekit_client: b47ad395a714c455b517fb38b4436cb07b4b5116
+  livekit_client: 35ee4fef4e184950cc40a5c2a580a84a616d588f
   map_launcher: 8051ad5783913cafce93f2414c6858f2904fd8df
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
