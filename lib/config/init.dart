@@ -14,7 +14,6 @@ import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:logger/logger.dart';
-import 'package:map_launcher/map_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -122,8 +121,6 @@ Map<String, WebRTCSession> webRTCSessions = {};
 
 /// Connectivity监听器订阅（需要在dispose时取消）
 StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
-
-List<AvailableMap> availableMaps = [];
 
 // JPush push = JPush();
 

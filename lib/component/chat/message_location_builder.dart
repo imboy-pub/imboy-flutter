@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:octo_image/octo_image.dart';
 
@@ -9,7 +8,6 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/shimmer_box.dart';
-import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
@@ -78,41 +76,46 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
   }
 
   void _showMapsSheet(BuildContext context, CustomMessage msg) {
+    final lat = double.tryParse(msg.metadata?['latitude']?.toString() ?? '');
+    final lng = double.tryParse(msg.metadata?['longitude']?.toString() ?? '');
+    if (lat == null || lng == null) return;
+    final title = msg.metadata?['title']?.toString() ?? '';
+
+    // map_launcher 6.0 采用 per-request 模型：先构建 marker 请求，再查询当前
+    // 设备可用的地图（含已安装原生 app 与支持 universal link 的地图）。
+    final request = MapLauncher.marker(LocationCoords(lat, lng, title: title));
+
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => Container(
         color: Theme.of(context).colorScheme.surface,
-        child: availableMaps.isEmpty
-            ? Center(child: Text(t.common.notInstallAnyMapApp))
-            : SingleChildScrollView(
-                child: Wrap(
-                  children: availableMaps.map<Widget>((map) {
-                    return ListTile(
-                      onTap: () {
-                        final lat = double.tryParse(
-                          msg.metadata?['latitude']?.toString() ?? '',
-                        );
-                        final lng = double.tryParse(
-                          msg.metadata?['longitude']?.toString() ?? '',
-                        );
-                        if (lat == null || lng == null) return;
-                        map.showMarker(
-                          coords: Coords(lat, lng),
-                          title: msg.metadata?['title']?.toString() ?? '',
-                          description:
-                              msg.metadata?['description']?.toString() ?? '',
-                        );
-                      },
-                      title: Text(map.mapName),
-                      leading: SvgPicture.asset(
-                        map.icon,
-                        height: 30.0,
-                        width: 30.0,
-                      ),
-                    );
-                  }).toList(),
-                ),
+        child: FutureBuilder<List<SupportedMap>>(
+          future: request.getSupportedMaps(MapApp.all),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final maps = snapshot.data!;
+            if (maps.isEmpty) {
+              return Center(child: Text(t.common.notInstallAnyMapApp));
+            }
+            return SingleChildScrollView(
+              child: Wrap(
+                children: maps.map<Widget>((m) {
+                  return ListTile(
+                    onTap: () => m.show(),
+                    title: Text(m.name),
+                    leading: Image.memory(
+                      m.iconBytes,
+                      height: 30.0,
+                      width: 30.0,
+                    ),
+                  );
+                }).toList(),
               ),
+            );
+          },
+        ),
       ),
     );
   }
