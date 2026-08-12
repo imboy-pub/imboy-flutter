@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/services.dart';
+import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide getDatabasesPath;
+import 'package:sqflite_sqlcipher/sqflite.dart' show getDatabasesPath;
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -55,5 +60,63 @@ void main() {
 
     expect(oldHandle.isOpen, isFalse, reason: '旧账号句柄必须被关闭');
     expect(got, isNot(same(oldHandle)), reason: '绝不把旧句柄交给新账号');
+  });
+
+  test('登出时只删除指定 uid 的数据库及 sidecar 文件', () async {
+    const uid = 'logout-delete-test-uid';
+    const sqlcipherChannel = MethodChannel(
+      'com.davidmartos96.sqflite_sqlcipher',
+    );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(sqlcipherChannel, (call) async {
+          if (call.method == 'getDatabasesPath') {
+            return Directory.systemTemp.path;
+          }
+          return null;
+        });
+
+    try {
+      final directory = await getDatabasesPath();
+      final target = path.join(
+        directory,
+        SqliteService.databaseNameForUid(uid),
+      );
+      final other = path.join(
+        directory,
+        SqliteService.databaseNameForUid('other-uid'),
+      );
+
+      for (final suffix in const ['', '-wal', '-shm', '-journal']) {
+        await File('$target$suffix').writeAsString('test');
+      }
+      await File(other).writeAsString('must-preserve');
+
+      try {
+        await SqliteService.to.deleteDatabaseForUid(uid);
+
+        for (final suffix in const ['', '-wal', '-shm', '-journal']) {
+          expect(
+            await File('$target$suffix').exists(),
+            isFalse,
+            reason: '登出必须清理数据库 sidecar：$suffix',
+          );
+        }
+        expect(await File(other).readAsString(), 'must-preserve');
+      } finally {
+        for (final file in [
+          target,
+          '$target-wal',
+          '$target-shm',
+          '$target-journal',
+          other,
+        ]) {
+          final handle = File(file);
+          if (await handle.exists()) await handle.delete();
+        }
+      }
+    } finally {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(sqlcipherChannel, null);
+    }
   });
 }

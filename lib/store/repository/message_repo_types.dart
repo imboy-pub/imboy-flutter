@@ -7,7 +7,7 @@ class InsertedOfflineMessage {
   final String type;
   final String fromId;
   final String toId;
-  final Map<String, dynamic> payload;
+  final dynamic payload;
   final int createdAt;
   final int isAuthor;
   final int topicId;
@@ -15,6 +15,8 @@ class InsertedOfflineMessage {
   final int status;
   final String peerId;
   final String msgType; // WebSocket API v2.0: 顶层 msg_type 字段
+  final Map<String, dynamic>? e2ee;
+  final String? senderDid;
 
   const InsertedOfflineMessage({
     required this.id,
@@ -29,6 +31,8 @@ class InsertedOfflineMessage {
     required this.status,
     required this.peerId,
     required this.msgType, // WebSocket API v2.0
+    this.e2ee,
+    this.senderDid,
   });
 
   MessageModel toMessageModel() {
@@ -45,6 +49,8 @@ class InsertedOfflineMessage {
       conversationUk3: conversationUk3,
       status: status,
       msgType: msgType, // WebSocket API v2.0
+      e2ee: e2ee,
+      senderDid: senderDid,
     );
   }
 }
@@ -70,7 +76,11 @@ class OfflineConversationAgg {
     if (msg.isAuthor == 0 && msg.conversationUk3 != currentConversationUk3) {
       unreadDelta += 1;
       // C7-β：离线批量路径对称累加 mention_unread
-      final mentionIds = extractMentionIdsFromPayload(msg.payload);
+      final mentionIds = extractMentionIdsFromPayload(
+        msg.payload is Map<String, dynamic>
+            ? msg.payload as Map<String, dynamic>
+            : null,
+      );
       mentionDelta += computeMentionUnreadIncrement(
         isFromCurrentUser: false, // isAuthor == 0 保证非自己
         isUserInChat: false, // 路径前提保证不在当前会话

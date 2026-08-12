@@ -19,6 +19,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:flutter_vodozemac/flutter_vodozemac.dart' as fvod;
 import 'package:integration_test/integration_test.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
@@ -81,6 +82,7 @@ void main() {
       final aliceSession = alice.createOutboundSession(
         identityKey: bob.identityKeys.curve25519,
         oneTimeKey: bobOtk,
+        config: legacyOlmSessionConfig(),
       );
 
       // Prekey 消息
@@ -91,6 +93,7 @@ void main() {
       final inbound = bob.createInboundSession(
         theirIdentityKey: alice.identityKeys.curve25519,
         preKeyMessageBase64: prekeyMsg.ciphertext,
+        config: legacyOlmSessionConfig(),
       );
       expect(inbound.plaintext, equals('x3dh-handshake'));
       bob.markKeysAsPublished();
@@ -185,6 +188,7 @@ void main() {
       final session = alice.createOutboundSession(
         identityKey: bob.identityKeys.curve25519,
         oneTimeKey: bob.oneTimeKeys.values.first,
+        config: legacyOlmSessionConfig(),
       );
 
       // 加密一条消息推进 ratchet

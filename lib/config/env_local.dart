@@ -6,9 +6,28 @@ part 'env_local.g.dart';
 
 @Envied(name: 'Env', path: '.env.local', obfuscate: true)
 final class EnvLocal implements Env, EnvField {
+  static const String _apiBaseUrlOverride = String.fromEnvironment(
+    'API_BASE_URL_OVERRIDE',
+    defaultValue: '',
+  );
+  static const String _wsUrlOverride = String.fromEnvironment(
+    'WS_URL_OVERRIDE',
+    defaultValue: '',
+  );
+  static const String _solidifiedKeyOverride = String.fromEnvironment(
+    'SOLIDIFIED_KEY_OVERRIDE',
+    defaultValue: '',
+  );
+  static const String _solidifiedKeyIvOverride = String.fromEnvironment(
+    'SOLIDIFIED_KEY_IV_OVERRIDE',
+    defaultValue: '',
+  );
+
   @override
   @EnviedField(varName: 'API_BASE_URL', obfuscate: false)
-  final String apiBaseUrl = _Env.apiBaseUrl;
+  final String apiBaseUrl = _apiBaseUrlOverride.isNotEmpty
+      ? _apiBaseUrlOverride
+      : _Env.apiBaseUrl;
 
   @override
   @EnviedField(defaultValue: '', varName: "IOS_APP_ID", obfuscate: false)
@@ -16,11 +35,15 @@ final class EnvLocal implements Env, EnvField {
 
   @override
   @EnviedField(varName: 'SOLIDIFIED_KEY')
-  final String solidifiedKey = _Env.solidifiedKey;
+  final String solidifiedKey = _solidifiedKeyOverride.isNotEmpty
+      ? _solidifiedKeyOverride
+      : _Env.solidifiedKey;
 
   @override
   @EnviedField(varName: 'SOLIDIFIED_KEY_IV')
-  final String solidifiedKeyIv = _Env.solidifiedKeyIv;
+  final String solidifiedKeyIv = _solidifiedKeyIvOverride.isNotEmpty
+      ? _solidifiedKeyIvOverride
+      : _Env.solidifiedKeyIv;
 
   @override
   @EnviedField(varName: 'A_MAP_IOS_KEY')
@@ -58,5 +81,5 @@ final class EnvLocal implements Env, EnvField {
   final bool aiTestEnabled = _Env.aiTestEnabled;
 
   @override
-  String? get wsUrl => null; // 从服务器配置获取
+  String? get wsUrl => _wsUrlOverride.isNotEmpty ? _wsUrlOverride : null;
 }

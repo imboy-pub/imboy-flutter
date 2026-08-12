@@ -17,6 +17,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
@@ -123,6 +124,7 @@ void main() {
       final aliceSession = alice.account.createOutboundSession(
         identityKey: bob.curve25519Key,
         oneTimeKey: bobOtk,
+        config: legacyOlmSessionConfig(),
       );
       final prekeyMsg = aliceSession.encrypt('x3dh-init');
       expect(prekeyMsg.messageType, equals(0)); // prekey message
@@ -130,6 +132,7 @@ void main() {
       final inbound = bob.account.createInboundSession(
         theirIdentityKey: alice.curve25519Key,
         preKeyMessageBase64: prekeyMsg.ciphertext,
+        config: legacyOlmSessionConfig(),
       );
       expect(inbound.plaintext, equals('x3dh-init'));
       bob.account.markKeysAsPublished();

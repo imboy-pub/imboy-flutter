@@ -5,12 +5,14 @@ import 'dart:convert';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'dart:async';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/storage.dart';
@@ -128,6 +130,10 @@ class E2EEHealthCheckService {
   /// 协议一致性修复 D3：客户端通过增量拉取好友密钥变更通知，
   /// 自动清除并更新失效的好友公钥缓存，从而彻底解决对端重装/换机后导致的解密失败。
   Future<void> pullKeyNotifications() async {
+    // 初始化阶段服务会先注册生命周期/WS监听；此时可能还没有用户会话。
+    // 不能在未登录状态请求受保护接口，否则 401 的统一处理会异步清理
+    // 正在建立的登录会话，形成“登录成功后又被登出”的竞态。
+    if (!UserRepoLocal.to.isLoggedIn) return;
     if (_isPulling) return;
     _isPulling = true;
     try {
@@ -234,6 +240,8 @@ class E2EEHealthCheckService {
   /// 校验服务端密钥状态，若本地密钥丢失且服务端已注册，则自动标记需要恢复引导
   Future<void> checkServerKeyStatusAndGuide() async {
     try {
+      // 首次启动可能早于登录页提交；未登录时不访问受保护的密钥状态接口。
+      if (!UserRepoLocal.to.isLoggedIn) return;
       final hasKey = await hasValidKey();
       if (hasKey) return; // 本地已有密钥，无需引导恢复
 
@@ -369,8 +377,23 @@ class E2EEHealthCheckService {
   /// ```
   Future<bool> syncFriendPublicKey(String uid) async {
     try {
+      final previous = await E2EEService.getUserDevicePublicKeys(uid);
       // 强制刷新缓存
-      await E2EEService.getUserDevicePublicKeys(uid, forceRefresh: true);
+      final keys = await E2EEService.getUserDevicePublicKeys(
+        uid,
+        forceRefresh: true,
+      );
+      final previousByDevice = previous['didToPem']!;
+      final currentByDevice = keys['didToPem']!;
+      for (final entry in currentByDevice.entries) {
+        if (previousByDevice[entry.key] != null &&
+            previousByDevice[entry.key] != entry.value) {
+          await OlmSessionService.to.invalidatePeerSession(
+            peerUid: uid,
+            peerDeviceId: entry.key,
+          );
+        }
+      }
 
       return true;
     } catch (e) {

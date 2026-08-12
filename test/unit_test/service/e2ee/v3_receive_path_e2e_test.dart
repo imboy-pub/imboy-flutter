@@ -97,6 +97,40 @@ class _IdentityOlmProtocol implements E2eeSessionProtocol {
   Future<void> clearAll() async {}
 }
 
+class _IdentityMegolmProtocol implements E2eeSessionProtocol {
+  @override
+  ProtocolSuite get suite => ProtocolSuite.megolm;
+
+  @override
+  Future<void> initialize({
+    required String userId,
+    required String deviceId,
+  }) async {}
+
+  @override
+  Future<E2eeCiphertext> encrypt({
+    required String plaintext,
+    required List<RecipientDevice> recipients,
+    required E2eeContext context,
+  }) async => E2eeCiphertext(plaintext, {
+    'protocol': suite.protocol,
+    'version': suite.version,
+    'e2ee_suite': suite.legacyWire,
+    'gid': 'group-1',
+    'session_id': _sessionId,
+  });
+
+  @override
+  Future<String> decrypt({
+    required String ciphertext,
+    required Map<String, dynamic> metadata,
+    E2eeContext? context,
+  }) async => ciphertext;
+
+  @override
+  Future<void> clearAll() async {}
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -116,6 +150,7 @@ void main() {
     E2eeBootstrap.ensureRegistered();
     E2eeProtocolRegistry.resetForTest();
     E2eeProtocolRegistry.register(_IdentityOlmProtocol());
+    E2eeProtocolRegistry.register(_IdentityMegolmProtocol());
   });
 
   tearDown(() async {
@@ -234,6 +269,30 @@ void main() {
       expect(result, isNotNull);
       expect(result!['_e2ee_failed'], isTrue);
       expect(result['_e2ee_reason'], equals('no_device_envelope'));
+    });
+
+    test('C2G Megolm v2 扁平 metadata 必须走 Megolm 入站路由', () async {
+      final result = await E2EEService.decryptIncomingPayload(
+        payload: {
+          'id': 'inbound-c2g-001',
+          'type': 'C2G',
+          'from': '100',
+          'to': 'group-1',
+          'msg_type': 'text',
+          'e2ee': {
+            'protocol': 'megolm',
+            'version': 1,
+            'e2ee_suite': 'MEGOLM.V1',
+            'meta_version': 2,
+            'gid': 'group-1',
+            'session_id': _sessionId,
+          },
+          'payload': jsonEncode({'msg_type': 'text', 'body': plainBody}),
+        },
+      );
+      expect(result['_e2ee_failed'], isNot(true));
+      expect(result['_e2ee_megolm_verified'], isTrue);
+      expect(result['body'], plainBody);
     });
   });
 }

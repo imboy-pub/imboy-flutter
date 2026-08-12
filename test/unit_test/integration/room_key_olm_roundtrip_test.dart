@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
 /// ADR 13 T-13-04：room-key-over-Olm 真 vodozemac 密码学 round-trip。
@@ -41,6 +42,7 @@ void main() {
     final outbound = sender.createOutboundSession(
       identityKey: receiverIdentity,
       oneTimeKey: receiverOtk,
+      config: legacyOlmSessionConfig(),
     );
     final wrapped = outbound.encrypt(exported!);
     expect(wrapped.messageType, 0, reason: '首条应为 prekey message（type=0）');
@@ -49,6 +51,7 @@ void main() {
     final inboundResult = receiver.createInboundSession(
       theirIdentityKey: senderIdentity,
       preKeyMessageBase64: wrapped.ciphertext,
+      config: legacyOlmSessionConfig(),
     );
     expect(inboundResult.plaintext, exported, reason: 'Olm 解包必须逐字节还原 room key');
 

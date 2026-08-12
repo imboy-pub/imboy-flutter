@@ -13,6 +13,7 @@ library;
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
 /// spike 已构建的 vodozemac 宿主动态库（同 group_session_service_test.dart）
@@ -52,6 +53,7 @@ _Pair _establish() {
   final aliceSession = alice.createOutboundSession(
     identityKey: bobIdentity,
     oneTimeKey: bobOtk,
+    config: legacyOlmSessionConfig(),
   );
 
   // Alice 加密首条 prekey 消息（messageType=0）
@@ -62,6 +64,7 @@ _Pair _establish() {
   final inbound = bob.createInboundSession(
     theirIdentityKey: alice.identityKeys.curve25519,
     preKeyMessageBase64: first.ciphertext,
+    config: legacyOlmSessionConfig(),
   );
   expect(inbound.plaintext, equals('hello-bob'));
   bob.markKeysAsPublished();
@@ -74,6 +77,10 @@ void main() {
 
   setUpAll(() async {
     await _ensureVod();
+  });
+
+  test('vodozemac 0.7 兼容配置固定为 Olm session config v1', () {
+    expect(legacyOlmSessionConfig().version(), equals(1));
   });
 
   group('vodozemac Olm 运行时可用性', () {

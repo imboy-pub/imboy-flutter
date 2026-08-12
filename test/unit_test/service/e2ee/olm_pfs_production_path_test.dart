@@ -19,6 +19,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
@@ -142,6 +143,7 @@ void main() {
     final aliceSession = alice.createOutboundSession(
       identityKey: bobBootstrap.identityKeys.curve25519,
       oneTimeKey: bobBootstrap.oneTimeKeys.values.first,
+      config: legacyOlmSessionConfig(),
     );
 
     final bootstrap = aliceSession.encrypt('bootstrap');
@@ -149,6 +151,7 @@ void main() {
     final inbound = bobBootstrap.createInboundSession(
       theirIdentityKey: alice.identityKeys.curve25519,
       preKeyMessageBase64: bootstrap.ciphertext,
+      config: legacyOlmSessionConfig(),
     );
     expect(inbound.plaintext, equals('bootstrap'));
 
@@ -478,11 +481,13 @@ void main() {
       final aliceSession = alice.createOutboundSession(
         identityKey: bobBootstrap.identityKeys.curve25519,
         oneTimeKey: bobBootstrap.oneTimeKeys.values.first,
+        config: legacyOlmSessionConfig(),
       );
       final bootstrap = aliceSession.encrypt('bootstrap');
       final inbound = bobBootstrap.createInboundSession(
         theirIdentityKey: alice.identityKeys.curve25519,
         preKeyMessageBase64: bootstrap.ciphertext,
+        config: legacyOlmSessionConfig(),
       );
 
       // 仅存在 legacy SecureStorage 副本（升级前版本写入），CryptoStore 无记录

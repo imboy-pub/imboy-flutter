@@ -38,13 +38,27 @@ const _dualRole = String.fromEnvironment(
 );
 const _runId = String.fromEnvironment('TEST_DUAL_RUN_ID', defaultValue: '');
 const _testWsUrl = String.fromEnvironment('TEST_WS_URL', defaultValue: '');
+const _wsUrlOverride = String.fromEnvironment(
+  'WS_URL_OVERRIDE',
+  defaultValue: '',
+);
 const _expectE2ee = bool.fromEnvironment(
   'TEST_EXPECT_E2EE',
+  defaultValue: false,
+);
+const _forceLogoutBeforeLogin = bool.fromEnvironment(
+  'TEST_FORCE_LOGOUT_BEFORE_LOGIN',
   defaultValue: false,
 );
 const _messageWaitSeconds = int.fromEnvironment(
   'TEST_MESSAGE_WAIT_SECONDS',
   defaultValue: 180,
+);
+// 离线验收的发送阶段只负责把 A 投递到服务端；收到 ACK 后退出，
+// 由外部编排重新启动 receiver 验证离线取件。默认关闭，不改变普通双端闭环。
+const _stopAfterOutgoingAck = bool.fromEnvironment(
+  'TEST_STOP_AFTER_OUTGOING_ACK',
+  defaultValue: false,
 );
 
 void main() {
@@ -56,6 +70,11 @@ void main() {
       if (!_requireDualWriteAuthorization()) return;
 
       await ensureAppLaunched(tester, maxSeconds: 10);
+      if (_forceLogoutBeforeLogin) {
+        await UserRepoLocal.to.quitLogin();
+        await settle(tester, maxSeconds: 2);
+        flowLog('已按测试参数清理本地登录与 E2EE 会话');
+      }
       if (!await checkPreconditions(tester)) return;
 
       if (_expectE2ee && !EncryptionModeService.current.requiresEncryption) {
@@ -79,22 +98,34 @@ void main() {
 
       final conversation = await _waitForPeerConversation(tester);
       if (conversation == null) {
-        markTestSkipped('未找到目标测试账号的已有 C2C 会话');
-        return;
-      }
-      flowLog('步骤: 已找到目标会话，准备进入聊天页');
-
-      await safeTap(tester, conversation.first);
-      if (!await _waitForChatPage(tester)) {
-        // 部分 Android ROM 上对 Slidable 内层 GestureDetector 的语义点击
-        // 可能不派发，补一次真实屏幕坐标点击；仍失败才跳过。
-        try {
-          await tester.tapAt(tester.getCenter(conversation.first));
-          await settle(tester, maxSeconds: 1);
-        } catch (_) {}
+        // 清理本地数据库后，会话列表可能没有存量 C2C 记录；ChatPage
+        // 本身会通过 createConversation 建立本地会话，允许严格测试从
+        // 干净数据库开始，而不是把“没有历史会话”误报为 E2EE 失败。
+        flowLog('未找到存量 C2C 会话，直接打开目标聊天页让 ChatPage 建立会话');
+        final ctx = navigatorKey.currentContext;
+        if (ctx == null) {
+          markTestSkipped('无法取得导航上下文以打开目标 C2C 会话');
+          return;
+        }
+        GoRouter.of(ctx).push('/chat/$_peerUid?type=C2C');
         if (!await _waitForChatPage(tester)) {
           markTestSkipped('目标 C2C 会话未进入聊天页面');
           return;
+        }
+      } else {
+        flowLog('步骤: 已找到目标会话，准备进入聊天页');
+        await safeTap(tester, conversation.first);
+        if (!await _waitForChatPage(tester)) {
+          // 部分 Android ROM 上对 Slidable 内层 GestureDetector 的语义点击
+          // 可能不派发，补一次真实屏幕坐标点击；仍失败才跳过。
+          try {
+            await tester.tapAt(tester.getCenter(conversation.first));
+            await settle(tester, maxSeconds: 1);
+          } catch (_) {}
+          if (!await _waitForChatPage(tester)) {
+            markTestSkipped('目标 C2C 会话未进入聊天页面');
+            return;
+          }
         }
       }
 
@@ -108,6 +139,11 @@ void main() {
         await _waitForOutgoingAck(tester, senderMarker);
         flowLog('步骤: A ACK 完成，查历史');
         await _assertHistoryContains(senderMarker);
+        if (_stopAfterOutgoingAck) {
+          flowLog('离线发送阶段完成：A 已获得 ACK，按 TEST_STOP_AFTER_OUTGOING_ACK 退出');
+          drainKnownFrameworkExceptions(tester);
+          return;
+        }
         flowLog('步骤: 等待 B=$receiverMarker');
         await _waitForMarker(tester, receiverMarker);
         await _assertHistoryContains(receiverMarker);
@@ -156,10 +192,15 @@ void main() {
 }
 
 Future<void> _ensureTestWebSocket(WidgetTester tester) async {
-  if (_testWsUrl.isEmpty) {
-    fail('双账号测试必须显式设置 TEST_WS_URL');
+  final wsUrl = _effectiveTestWsUrl;
+  if (wsUrl.isEmpty) {
+    fail('双账号测试必须显式设置 TEST_WS_URL 或 WS_URL_OVERRIDE');
   }
-  await StorageService.to.setString(Keys.wsUrl, _testWsUrl);
+  await StorageService.to.setString(Keys.wsUrl, wsUrl);
+
+  // 启动阶段可能已经按旧缓存建立了连接；仅更新缓存不会切换现有 channel，
+  // 会造成发送端拿到 ACK、接收端却未挂到目标服务的假阴性。
+  await WebSocketService.to.closeSocket();
 
   // 不能在连接尚未建立时继续进入聊天页：后端只有在 websocket_init
   // 执行后才会把设备加入 imboy_syn，过早发送会出现发送端有 ACK、接收端
@@ -176,6 +217,9 @@ Future<void> _ensureTestWebSocket(WidgetTester tester) async {
   }
   fail('双账号测试 WebSocket 未在 60 秒内建立，拒绝继续发送生产消息');
 }
+
+String get _effectiveTestWsUrl =>
+    _testWsUrl.isNotEmpty ? _testWsUrl : _wsUrlOverride;
 
 bool _requireDualWriteAuthorization() {
   const allowed = String.fromEnvironment(
@@ -194,6 +238,10 @@ bool _requireDualWriteAuthorization() {
   }
   if (!{'sender', 'receiver'}.contains(_dualRole)) {
     markTestSkipped('TEST_DUAL_ROLE 只能是 sender 或 receiver');
+    return false;
+  }
+  if (_stopAfterOutgoingAck && _dualRole != 'sender') {
+    markTestSkipped('TEST_STOP_AFTER_OUTGOING_ACK 只能用于 sender 阶段');
     return false;
   }
   return true;
@@ -269,7 +317,7 @@ Future<void> _waitForOutgoingAck(WidgetTester tester, String marker) async {
   for (var i = 0; i < 120; i++) {
     final rows = await SqliteService.to.query(
       MessageRepo.c2cTable,
-      columns: MessageRepo.defaultColumns,
+      columns: MessageRepo.c2cColumns,
       where: '${MessageRepo.payload} LIKE ?',
       whereArgs: ['%$marker%'],
       orderBy: '${MessageRepo.createdAt} DESC',
@@ -349,6 +397,12 @@ Future<void> _waitForMarker(WidgetTester tester, String marker) async {
 }
 
 Future<void> _assertHistoryContains(String marker) async {
+  if (_expectE2ee) {
+    // 严格 E2EE 闭环的历史证据来自本地密文记录与重进恢复；服务端归档
+    // 不应要求返回可检索的明文 marker，且本地联调可能未启用归档服务。
+    flowLog('strict E2EE：跳过服务端明文历史 marker 查询：$marker');
+    return;
+  }
   // 复用当前 App 已登录会话，确保使用真实平台的签名密钥与 Bearer token。
   // 不二次登录，避免触发设备冲突，也不伪造生产环境不存在的 linux 签名组合。
   // 网络调用必须带硬超时：2026-08-11 r9 实证 in-app dio.get 可无限挂起
@@ -386,6 +440,13 @@ Future<void> _assertHistoryContains(String marker) async {
     return;
   }
   FlowApiAssert.success(history, context: '双账号消息历史');
+  if (_expectE2ee) {
+    // strict E2EE 下服务端历史只能携带密文，不能用明文 marker 做检索断言。
+    // 双端闭环的可验证证据由 ACK、接收端 UI、本地消息与 e2ee 元数据、重进后
+    // 的本地恢复共同组成；这里仅记录历史接口可访问，不把“找不到明文”算失败。
+    flowLog('strict E2EE：服务端历史可访问但不检索明文 marker，按本地密文证据验收');
+    return;
+  }
   final payload = history['payload'];
   final messages = payload is Map ? payload['messages'] : null;
   if (messages is List && messages.isEmpty) {
@@ -402,7 +463,7 @@ Future<void> _assertOlmEncryptedMessage(String marker) async {
   for (var i = 0; i < 120; i++) {
     final rows = await SqliteService.to.query(
       MessageRepo.c2cTable,
-      columns: MessageRepo.defaultColumns,
+      columns: MessageRepo.c2cColumns,
       where: '${MessageRepo.payload} LIKE ?',
       whereArgs: ['%$marker%'],
       orderBy: '${MessageRepo.createdAt} DESC',

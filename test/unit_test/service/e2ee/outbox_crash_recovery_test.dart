@@ -32,7 +32,7 @@ class _IdentityProtocol implements E2eeSessionProtocol {
     required E2eeContext context,
   }) async {
     encryptCallCount++;
-    return E2eeCiphertext('mock-ciphertext-${encryptCallCount}', {
+    return E2eeCiphertext('mock-ciphertext-$encryptCallCount', {
       'session_id': 'sess-outbox',
       'message_type': 1,
     });
@@ -119,6 +119,110 @@ void main() {
         expect(result.metadata['meta_version'], equals(3));
       },
     );
+
+    test('fan-out 统一提交完整 devices map，不覆盖前一个设备的 outbox', () async {
+      final device1 = await E2eeOutboundRouter.encryptV3(
+        suite: ProtocolSuite.olm,
+        plaintext: jsonEncode({'body': 'hello'}),
+        recipients: const [
+          RecipientDevice(deviceId: 'peer-d1', keyId: 'k1', publicKey: 'pk-1'),
+        ],
+        context: const E2eeContext(
+          peerUid: '200',
+          peerDeviceId: 'peer-d1',
+          scope: 'c2c',
+        ),
+        messageId: 'msg-fanout-001',
+        senderUid: '100',
+        senderDid: 'dev-sender',
+        destination: '200',
+        messageType: 'text',
+        action: 'message',
+        sessionRef: 'sess-d1',
+        epochOrCounter: 1,
+        createdAtMs: 1753500000000,
+        persistOutbox: false,
+      );
+      final device2 = await E2eeOutboundRouter.encryptV3(
+        suite: ProtocolSuite.olm,
+        plaintext: jsonEncode({'body': 'hello'}),
+        recipients: const [
+          RecipientDevice(deviceId: 'peer-d2', keyId: 'k2', publicKey: 'pk-2'),
+        ],
+        context: const E2eeContext(
+          peerUid: '200',
+          peerDeviceId: 'peer-d2',
+          scope: 'c2c',
+        ),
+        messageId: 'msg-fanout-001',
+        senderUid: '100',
+        senderDid: 'dev-sender',
+        destination: '200',
+        messageType: 'text',
+        action: 'message',
+        sessionRef: 'sess-d2',
+        epochOrCounter: 1,
+        createdAtMs: 1753500000000,
+        persistOutbox: false,
+      );
+
+      final devices = <String, dynamic>{
+        'peer-d1': device1.metadata,
+        'peer-d2': device2.metadata,
+      };
+      await E2eeOutboundRouter.persistOutboxPayload(
+        messageId: 'msg-fanout-001',
+        payload: {
+          'e2ee': {
+            'meta_version': 3,
+            'protocol': 'olm',
+            'version': 1,
+            'fan_out': 'per_device',
+            'devices': devices,
+          },
+          'payload': '',
+        },
+      );
+
+      final pending = await store.pendingOutbox();
+      expect(pending, hasLength(1));
+      final payload = jsonDecode(pending.single['payload'] as String) as Map;
+      final persistedDevices = ((payload['e2ee'] as Map)['devices'] as Map);
+      expect(persistedDevices.keys, containsAll(['peer-d1', 'peer-d2']));
+    });
+
+    test('编辑路由元数据与密文一起进入 outbox', () async {
+      const messageId = 'msg-outbox-edit-001';
+      final result = await E2eeOutboundRouter.encryptV3(
+        suite: ProtocolSuite.olm,
+        plaintext: jsonEncode({'original_msg_id': 'orig-1', 'content': 'v2'}),
+        recipients: const [
+          RecipientDevice(deviceId: 'dev-1', keyId: 'k1', publicKey: 'pk-1'),
+        ],
+        context: const E2eeContext(peerUid: '200', scope: 'c2c'),
+        messageId: messageId,
+        senderUid: '100',
+        senderDid: 'dev-sender',
+        destination: '200',
+        messageType: 'text',
+        action: 'message_edit',
+        sessionRef: 'sess-outbox',
+        epochOrCounter: 1,
+        createdAtMs: 1753500000000,
+        outerMetadata: const {
+          'edit_of': 'orig-1',
+          'relay_action': 'message_edit',
+        },
+      );
+
+      final entry = await store.getOutboxEntry(messageId);
+      final payload =
+          jsonDecode(entry!['payload'] as String) as Map<String, dynamic>;
+      expect(result.metadata['edit_of'], 'orig-1');
+      expect(result.metadata['relay_action'], 'message_edit');
+      expect(payload['edit_of'], 'orig-1');
+      expect(payload['relay_action'], 'message_edit');
+    });
 
     test(
       'confirmOutbox marks entry as sent after successful delivery',
@@ -287,7 +391,6 @@ void main() {
       'concurrent send of same message — only one outbox entry, no double encrypt',
       () async {
         const messageId = 'msg-concurrent-001';
-        final encryptCountBefore = _IdentityProtocol.encryptCallCount;
 
         // 模拟并发发送同一条消息（启动两次 encryptV3）
         await E2eeOutboundRouter.encryptV3(

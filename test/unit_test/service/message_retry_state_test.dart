@@ -40,7 +40,8 @@ const String _msgC2cDdl = '''
     topic_id INTEGER,
     msg_type TEXT,
     action TEXT,
-    e2ee TEXT
+    e2ee TEXT,
+    sender_did TEXT
   )
 ''';
 
@@ -62,7 +63,29 @@ const String _contactDdl = '''
     is_friend INTEGER,
     is_from INTEGER,
     category_id INTEGER,
+    account_type TEXT,
+    last_seen_at INTEGER,
     updated_at INTEGER
+  )
+''';
+
+/// MessageRepo.insert 会尽力维护本地 FTS 索引；状态机测试不验证搜索，
+/// 但提供最小表可避免无关的索引异常污染重试日志。
+const String _msgC2cFtsDdl = '''
+  CREATE TABLE msg_c2c_fts (
+    id TEXT,
+    conversation_uk3 TEXT,
+    text_content TEXT
+  )
+''';
+
+const String _cryptoOutboxDdl = '''
+  CREATE TABLE crypto_outbox (
+    id TEXT PRIMARY KEY,
+    payload TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at INTEGER NOT NULL,
+    sent_at INTEGER
   )
 ''';
 
@@ -111,6 +134,8 @@ void main() {
     final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute(_msgC2cDdl);
     await db.execute(_contactDdl);
+    await db.execute(_msgC2cFtsDdl);
+    await db.execute(_cryptoOutboxDdl);
     // 播种联系人：toTypeMessage 的作者查询本地命中，避免走 HTTP 拉取
     // （测试环境该请求失败会级联登出/关库，污染后续用例）。
     for (final peerId in [1001, 2002]) {

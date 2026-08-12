@@ -359,8 +359,9 @@ class MessageService with EventSubscriptionManager {
       // S2C 消息优先走 switchS2C（包含所有 S2C action 处理）
       await MessageS2CService.switchS2C(data);
     } else if (action != null && action.isNotEmpty) {
-      // C2C/C2G/C2S 的 action 走 handleActionMessage
-      await _messageActions.handleActionMessage(action, data);
+      // 内容 action 可能携带 E2EE 密文；必须先解密再交给 action 处理器。
+      // 控制 action（已读/撤回/输入状态/ACK）保持原有明文元数据路径。
+      await _receiveActionMessage(action, type, data);
     } else if (type == 'MSG_READ') {
       await _receiveReadReceipt(data);
     } else {
@@ -377,6 +378,47 @@ class MessageService with EventSubscriptionManager {
           iPrint('Unhandled message type: $type');
       }
     }
+  }
+
+  Future<void> _receiveActionMessage(
+    String action,
+    String type,
+    Map<String, dynamic> data,
+  ) async {
+    if (!_isEncryptedEditAction(action, data)) {
+      await _messageActions.handleActionMessage(action, data);
+      return;
+    }
+
+    final msgId = parseModelString(data['id']);
+    var createdAt = data['created_at'];
+    if (createdAt is String) {
+      createdAt = DateTimeHelper.rfc3339ToMillisecond(createdAt);
+    }
+    final decrypted = await _handleE2EEMessage(
+      data: data,
+      msgId: msgId,
+      chatType: type,
+      createdAtMs: parseModelInt(
+        createdAt,
+        defaultValue: DateTimeHelper.millisecond(),
+      ),
+    );
+    if (decrypted['_e2ee_failed'] == true) {
+      iPrint(
+        '🚫 [E2EE] 编辑 action 解密失败，拒绝执行: msgId=$msgId, reason=${decrypted['_e2ee_reason']}',
+      );
+      return;
+    }
+    final actionData = Map<String, dynamic>.from(data)..['payload'] = decrypted;
+    await _messageActions.handleActionMessage(action, actionData);
+  }
+
+  bool _isEncryptedEditAction(String action, Map<String, dynamic> data) {
+    if (action != 'message_edit' && action != 'message_edit_ack') return false;
+    final e2ee = data['e2ee'];
+    if (e2ee is Map) return e2ee.isNotEmpty;
+    return e2ee is String && e2ee.isNotEmpty;
   }
 
   /// 处理 C2C/C2G 消息接收（WebSocket API v2.0）
@@ -658,6 +700,8 @@ class MessageService with EventSubscriptionManager {
         conversationUk3: tempConv.uk3,
         status: IMBoyMessageStatus.delivered,
         msgType: parseModelNullableString(data['msg_type']), // ✅ 修复：传递 msg_type
+        e2ee: e2ee,
+        senderDid: data['sender_did']?.toString(),
       );
       iPrint('⏱️ [4] 消息对象构造完成: +${DateTimeHelper.millisecond() - startTime}ms');
 
@@ -898,6 +942,8 @@ class MessageService with EventSubscriptionManager {
         conversationUk3: conv.uk3,
         status: IMBoyMessageStatus.delivered,
         msgType: msgContentType, // WebSocket API v2.0: 从顶层读取消息内容类型
+        e2ee: tempMsg.e2ee,
+        senderDid: tempMsg.senderDid,
       );
 
       // 保存消息到 sqlite
@@ -1465,6 +1511,31 @@ class MessageService with EventSubscriptionManager {
       }
       iPrint('✅ [E2EE] v3 解密成功: msgId=$msgId');
       return v3Result;
+    }
+
+    // C2G Megolm v2 使用扁平 e2ee metadata，正文仍在顶层 payload；它既不是
+    // PFv3，也不能交给 legacy RSA/Olm 形状解析。这里必须接入统一的 Megolm
+    // 入站路由，否则真实 WebSocket 群消息会在后续 `keys` 校验处被误判为
+    // invalid_keys。该分流与 C2C PFv3 分流并列，保持生产接收链可追踪。
+    final e2eeRawForMegolm = data['e2ee'];
+    final e2eeForMegolm = e2eeRawForMegolm is Map
+        ? Map<String, dynamic>.from(e2eeRawForMegolm)
+        : <String, dynamic>{};
+    final isMegolmGroup =
+        e2eeForMegolm['protocol'] == 'megolm' &&
+        (e2eeForMegolm['gid']?.toString() ?? '').isNotEmpty;
+    if (isMegolmGroup) {
+      final megolmResult = await E2EEService.decryptIncomingPayload(
+        payload: data,
+      );
+      if (megolmResult['_e2ee_failed'] == true) {
+        iPrint(
+          '❌ [E2EE] Megolm 解密失败: msgId=$msgId, reason=${megolmResult['_e2ee_reason']}',
+        );
+      } else {
+        iPrint('✅ [E2EE] Megolm 解密成功: msgId=$msgId');
+      }
+      return megolmResult;
     }
 
     // 1. 获取密文字符串

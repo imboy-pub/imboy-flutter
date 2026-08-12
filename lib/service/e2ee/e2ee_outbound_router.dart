@@ -82,6 +82,8 @@ class E2eeOutboundRouter {
   /// [action] 消息动作（message/room_key/...）。
   /// [sessionRef] 协议会话标识（Olm session ID / Megolm session ID）。
   /// [epochOrCounter] MLS epoch 或应用去重计数。
+  /// [persistOutbox] 是否把本次信封写入 immutable outbox。fan-out 场景
+  /// 会先逐设备生成密文，待完整 devices map 构造完成后统一写入。
   static Future<E2eeCiphertext> encryptV3({
     required ProtocolSuite suite,
     required String plaintext,
@@ -96,6 +98,8 @@ class E2eeOutboundRouter {
     required String sessionRef,
     int epochOrCounter = 0,
     int? createdAtMs,
+    Map<String, dynamic> outerMetadata = const {},
+    bool persistOutbox = true,
   }) async {
     final protocol = E2eeProtocolRegistry.resolve({
       'protocol': suite.protocol,
@@ -158,12 +162,32 @@ class E2eeOutboundRouter {
     );
     final protocolMetadata = Map<String, dynamic>.from(encrypted.metadata);
 
-    final envelope = ProtectedFrameV3.encodeOuterEnvelope(
-      context: frameContext,
-      ciphertext: ciphertextBytes,
-      protocolMetadata: protocolMetadata,
-    );
+    final envelope = <String, dynamic>{
+      ...ProtectedFrameV3.encodeOuterEnvelope(
+        context: frameContext,
+        ciphertext: ciphertextBytes,
+        protocolMetadata: protocolMetadata,
+      ),
+      ...outerMetadata,
+    };
 
+    if (persistOutbox) {
+      await persistOutboxPayload(messageId: messageId, payload: envelope);
+    }
+
+    // v3: ciphertext 在 envelope 内，外层 E2eeCiphertext.ciphertext 为空
+    return E2eeCiphertext('', envelope);
+  }
+
+  /// 将已经构造完成的 v3 发送载荷写入 immutable outbox。
+  ///
+  /// 普通单设备消息由 [encryptV3] 直接调用；C2C fan-out 必须等所有
+  /// per-device 信封都生成后再调用，避免同一个 messageId 只留下最后一台
+  /// 设备的密文。
+  static Future<void> persistOutboxPayload({
+    required String messageId,
+    required Object payload,
+  }) async {
     // E2EE-027: 加密后先把 immutable 密文落 outbox，**再**允许调用方发送
     // （ADR 20 §S2.3）。fail-closed：无法提交就抛错，不返回可发送信封——否则
     // 崩溃后消息既未投递也无重发依据，用户却看到"已发送"（ADR 14 §8）。
@@ -177,10 +201,7 @@ class E2eeOutboundRouter {
     }
     final store = CryptoStore(db);
     await store.ensureSchema();
-    await store.insertOutbox(id: messageId, payload: jsonEncode(envelope));
-
-    // v3: ciphertext 在 envelope 内，外层 E2eeCiphertext.ciphertext 为空
-    return E2eeCiphertext('', envelope);
+    await store.insertOutbox(id: messageId, payload: jsonEncode(payload));
   }
 
   /// C2C conversation_id: 两个 UID 排序后拼接（确定性，双方计算结果相同）

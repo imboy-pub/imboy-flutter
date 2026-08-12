@@ -348,6 +348,10 @@ class ChatPageState extends ConsumerState<ChatPage>
       // 创建或获取会话
       await _setupConversation();
       await _reloadConversationSettings();
+      // 先订阅消息事件，再启动首屏加载和后台历史回填。
+      // 历史回填与离线队列可能并行完成；若监听晚于加载，消息虽已落 SQLite，
+      // 但 DataWrapperEvent 会丢失，随后离线队列因同 ID 已存在而跳过，UI 永不刷新。
+      _setupEventListeners();
       await ref
           .read(chatProvider.notifier)
           .cleanupExpiredBurnMessagesForConversation(conversation);
@@ -365,8 +369,6 @@ class ChatPageState extends ConsumerState<ChatPage>
             .read(chatProvider.notifier)
             .loadMoreMessages(conversation, isInitial: true);
       }
-
-      _setupEventListeners();
     } catch (e) {
       // 显示错误提示
       // State.context 在 dispose 后本身会抛异常；这里必须先检查 State.mounted，
@@ -404,13 +406,6 @@ class ChatPageState extends ConsumerState<ChatPage>
         }
       }
     });
-    if (availableMaps.isEmpty) {
-      try {
-        availableMaps = await MapLauncher.installedMaps;
-      } catch (e) {
-        //
-      }
-    }
     // 初始化群组信息
     await _initGroupInfo();
     // 注意：_setupEventListeners 已在 _initChat 中调用，此处不再重复调用
@@ -486,6 +481,9 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     conversation = conversationResult;
     _conversationInitialized = true;
+    // 离线消息落库后会按活动会话广播解密后的 Message；必须在首屏/历史
+    // 回填开始前注册，否则消息可能只存在于 SQLite 而不进入当前 ChatService。
+    MessageRepo.setCurrentActiveConversationUk3(conversation.uk3);
 
     if (showConversation) {
       AppEventBus.fireData(conversation);
@@ -786,6 +784,12 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     // 取消事件订阅管理器的所有订阅
     _eventSubscriptionManager?.dispose();
+
+    // 仅清理自己注册的活动会话，避免未来快速切换页面时误清掉新页面的 UK3。
+    if (_conversationInitialized &&
+        MessageRepo.currentActiveConversationUk3 == conversation.uk3) {
+      MessageRepo.setCurrentActiveConversationUk3(null);
+    }
 
     // 取消 AppErrorEvent 本地监听器
     _ssAppErrorLocal?.cancel();

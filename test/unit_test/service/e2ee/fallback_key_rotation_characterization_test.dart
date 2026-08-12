@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
 /// E2EE-062：**fallback key 轮换语义的特征测试**（characterization test）。
@@ -74,6 +75,7 @@ void main() {
     final aliceSession = alice.createOutboundSession(
       identityKey: bob.identityKeys.curve25519,
       oneTimeKey: oldFb,
+      config: legacyOlmSessionConfig(),
     );
     final msg = aliceSession.encrypt('hello-via-old-fallback');
 
@@ -86,6 +88,7 @@ void main() {
     final inbound = bob.createInboundSession(
       theirIdentityKey: alice.identityKeys.curve25519,
       preKeyMessageBase64: msg.ciphertext,
+      config: legacyOlmSessionConfig(),
     );
     expect(
       inbound.plaintext,

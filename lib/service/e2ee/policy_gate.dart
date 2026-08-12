@@ -13,7 +13,7 @@ import 'package:imboy/service/encryption_mode.dart';
 ///
 /// [reason] 为机器可读原因，不含任何密钥/明文/PII：
 /// `policy_not_initialized` / `compliance_key_unavailable` /
-/// `compliance_key_expired`。
+/// `compliance_key_expired` / `encryption_required_not_applied`。
 class E2eeSecurityException implements Exception {
   const E2eeSecurityException(this.reason);
 

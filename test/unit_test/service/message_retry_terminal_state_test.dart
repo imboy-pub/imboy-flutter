@@ -34,7 +34,39 @@ const String _msgC2cDdl = '''
     topic_id INTEGER,
     msg_type TEXT,
     action TEXT,
-    e2ee TEXT
+    e2ee TEXT,
+    sender_did TEXT
+  )
+''';
+
+const String _contactDdl = '''
+  CREATE TABLE contact (
+    user_id INTEGER,
+    peer_id INTEGER,
+    nickname TEXT,
+    avatar TEXT,
+    account TEXT,
+    status INTEGER,
+    remark TEXT,
+    tag TEXT,
+    region TEXT,
+    sign TEXT,
+    source TEXT,
+    gender INTEGER,
+    is_friend INTEGER,
+    is_from INTEGER,
+    category_id INTEGER,
+    account_type TEXT,
+    last_seen_at INTEGER,
+    updated_at INTEGER
+  )
+''';
+
+const String _msgC2cFtsDdl = '''
+  CREATE TABLE msg_c2c_fts (
+    id TEXT,
+    conversation_uk3 TEXT,
+    text_content TEXT
   )
 ''';
 
@@ -66,6 +98,31 @@ void main() {
     sqfliteFfiInit();
     final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute(_msgC2cDdl);
+    // MessageRetry 启动扫描会按生产路径读取三类消息表；其余两张表
+    // 只需具备相同列集合即可，避免测试把“缺表”误报成状态机故障。
+    await db.execute('CREATE TABLE msg_c2g AS SELECT * FROM msg_c2c WHERE 0');
+    await db.execute('CREATE TABLE msg_c2s AS SELECT * FROM msg_c2c WHERE 0');
+    await db.execute(_contactDdl);
+    await db.execute(_msgC2cFtsDdl);
+    await db.insert('contact', {
+      'user_id': '',
+      'peer_id': 1001,
+      'nickname': 'peer1001',
+      'avatar': '',
+      'account': 'acc1001',
+      'status': 1,
+      'remark': '',
+      'tag': '',
+      'region': '',
+      'sign': '',
+      'source': '',
+      'gender': 1,
+      'is_friend': 1,
+      'is_from': 0,
+      'category_id': 0,
+      'account_type': '',
+      'updated_at': 1751850000000,
+    });
     SqliteService.setDbForTest(db);
     retry = MessageRetry.instance;
     await pumpEventQueue(times: 200);

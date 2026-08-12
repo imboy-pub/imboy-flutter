@@ -54,6 +54,12 @@ class MessageRetry with EventSubscriptionManager {
   /// 两次扫描都在 lastRetryTime 更新前通过间隔检查会各重投一次（双发）。
   bool _isScanning = false;
 
+  /// 启动时失败消息扫描的句柄。
+  ///
+  /// 生产路径保持 fire-and-forget；测试/应用退出路径可以等待它完成，
+  /// 避免扫描在本地数据库关闭后继续访问消息映射层。
+  Future<void>? _initialScan;
+
   /// 获取在线状态
   bool get isOnline => _isOnline;
 
@@ -87,7 +93,8 @@ class MessageRetry with EventSubscriptionManager {
     );
 
     // 【新增】应用启动时扫描失败消息并添加到重试队列
-    unawaited(_scanAndRetryFailedMessages());
+    _initialScan = _scanAndRetryFailedMessages();
+    unawaited(_initialScan!);
 
     // 【新增】订阅从重试队列移除请求事件（解耦：通过事件总线接收移除请求）
     // Subscribe to remove from retry queue request event (decoupling: receive removal requests via event bus)
@@ -559,6 +566,15 @@ class MessageRetry with EventSubscriptionManager {
         return false; // 返回 false 表示无需重试
       }
 
+      // E2EE-062：手动重试同样不能绕过明文闸门。
+      // 聊天页的重试按钮直接读取本地 payload，不会经过 ChatNetworkService
+      // 的 encryptPayload；群级 E2EE 开启且本地行没有 e2ee 元数据时，
+      // 必须拒发，否则用户点击“重试”即可把明文重新送出。
+      if (await _isPlaintextRetryBlocked(msg)) {
+        iPrint('🚫 [MANUAL_RETRY] 未加密消息不得重发，已拦下: $messageId');
+        return false;
+      }
+
       // 损坏消息守卫：非 S2C 消息 msg_type 必须非空（WS API v2.0 规范，
       // 与 message_model_mapper 的 isValidMsgType 同款判定）。
       // msg_type 为空时服务端必回 invalid_message，重试注定失败——
@@ -681,6 +697,20 @@ class MessageRetry with EventSubscriptionManager {
   /// 生产路径上它只在构造函数里跑一次，没有公开入口，
   /// 「终态 error 不得被重新捞回队列」这条不变量因此无法被测试驱动。
   Future<void> debugScanFailedMessages() => _scanAndRetryFailedMessages();
+
+  /// 测试/退出路径专用：等待启动扫描及当前重试扫描完全结束。
+  ///
+  /// [dispose] 只能取消后续 timer，不能中断已经进入 await 的数据库或
+  /// 消息映射操作；调用方清理数据库前必须先等待这些操作退出。
+  Future<void> debugWaitForIdle() async {
+    final initialScan = _initialScan;
+    if (initialScan != null) {
+      await initialScan;
+    }
+    while (_isScanning) {
+      await Future<void>.delayed(Duration.zero);
+    }
+  }
 
   int get retryQueueSize => _retryQueue.length;
   MessageRetryInfo? getRetryInfo(String messageId) => _retryQueue[messageId];

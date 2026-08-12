@@ -21,6 +21,7 @@ import 'package:imboy/service/e2ee/attachment_binding.dart';
 import 'package:imboy/service/e2ee/attachment_conversation_ref.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
@@ -233,19 +234,21 @@ class ChatAttachmentHandler {
   }
 
   /// 取「这条消息的 payload 会不会被加密」——必须与真正决定加密的那一处
-  /// **同一个判据**：`ChatNetworkService.sendWsMsg` 用的就是
-  /// `E2EEService.shouldEncryptOutgoingPayload(type)`。
+  /// **同一组判据**：`ChatNetworkService.sendWsMsg` 同时检查群级 E2EE
+  /// 强制门与 `E2EEService.shouldEncryptOutgoingPayload(type)`。
   ///
-  /// ⚠️ 刻意**不**把 `encryptPayload` 里那个 `groupMegolm` 条件并进来：
-  /// `sendWsMsg` 在 `shouldEncryptOutgoingPayload` 为假时**根本不会调用**
-  /// `encryptPayload`，直接走明文分支。跟着 `groupMegolm` 判「会加密」会让
-  /// 群附件在 payload 实际明文出网时被封装，**content key 明文出网**——
-  /// 比今天的明文附件更糟。判据必须抄发送路径实际用的那个，不是它内部
-  /// 那个更宽的。
+  /// ⚠️ 这里必须把 `encryptPayload` 里的 `groupMegolm` 条件同步进来：
+  /// `sendWsMsg` 在全局策略和群级 E2EE 强制门都为假时才会走明文分支。
+  /// 因此这里必须与发送入口共享两条判据：群级 E2EE 开启时，即使全局策略
+  /// 是 plaintext，消息 payload 仍会进入 `encryptPayload`，附件也必须封装。
   ///
   /// PolicyGate 拿不到策略时抛 [E2eeSecurityException]：拿不准 → 不封装，
   /// 退回今天已知的明文行为（这条消息随后会被 `sendWsMsg` 的同一道门拒发）。
-  bool get _payloadWillBeEncrypted {
+  Future<bool> _payloadWillBeEncrypted() async {
+    if (type.toUpperCase() == 'C2G' &&
+        await GroupSessionService.to.isGroupE2EE(peerId)) {
+      return true;
+    }
     try {
       return E2EEService.shouldEncryptOutgoingPayload(type);
     } on Object {
@@ -253,15 +256,17 @@ class ChatAttachmentHandler {
     }
   }
 
-  AttachmentSealRequest? _sealFor(String messageId, String attachmentId) =>
-      buildSealRequest(
-        rolloutEnabled: sealRollout,
-        payloadWillBeEncrypted: _payloadWillBeEncrypted,
-        messageId: messageId,
-        conversationId: sealConversationId,
-        senderUid: _currentUser.id,
-        attachmentId: attachmentId,
-      );
+  Future<AttachmentSealRequest?> _sealFor(
+    String messageId,
+    String attachmentId,
+  ) async => buildSealRequest(
+    rolloutEnabled: sealRollout,
+    payloadWillBeEncrypted: await _payloadWillBeEncrypted(),
+    messageId: messageId,
+    conversationId: sealConversationId,
+    senderUid: _currentUser.id,
+    attachmentId: attachmentId,
+  );
 
   /// 把 descriptor 放进消息 metadata —— 它会被 `getMsgFromTMsg`
   /// 原样并入 payload，从而随 PFv3 一起加密。
@@ -303,7 +308,7 @@ class ChatAttachmentHandler {
       final s = _uploadScope;
       // message_id 必须在上传**之前**生成：它是绑定值（方案甲）的输入。
       final String messageId = Xid().toString();
-      final seal = _sealFor(messageId, 'file');
+      final seal = await _sealFor(messageId, 'file');
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         file.name,
@@ -388,7 +393,7 @@ class ChatAttachmentHandler {
       try {
         final s = _uploadScope;
         final String messageId = Xid().toString();
-        final seal = _sealFor(messageId, 'image');
+        final seal = await _sealFor(messageId, 'image');
         final meta = await AttachmentApi.uploadImageEntityViaPresign(
           entity,
           scope: s.scope,
@@ -411,14 +416,14 @@ class ChatAttachmentHandler {
       try {
         final s = _uploadScope;
         final String messageId = Xid().toString();
-        final seal = _sealFor(messageId, 'video');
+        final seal = await _sealFor(messageId, 'video');
         final resp = await AttachmentApi.uploadVideoViaPresign(
           entity,
           scope: s.scope,
           scopeRef: s.scopeRef,
           videoSeal: seal,
           // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
-          thumbSeal: _sealFor(messageId, 'video_thumb'),
+          thumbSeal: await _sealFor(messageId, 'video_thumb'),
         );
         await handleVideoUpload(resp, messageId: messageId, seal: seal);
       } on Object catch (e) {
@@ -562,7 +567,7 @@ class ChatAttachmentHandler {
 
       final s = _uploadScope;
       final String messageId = Xid().toString();
-      final seal = _sealFor(messageId, 'image');
+      final seal = await _sealFor(messageId, 'image');
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         '${Xid()}.$ext',
@@ -625,7 +630,7 @@ class ChatAttachmentHandler {
       try {
         final s = _uploadScope;
         final String messageId = Xid().toString();
-        final seal = _sealFor(messageId, 'image');
+        final seal = await _sealFor(messageId, 'image');
         final meta = await AttachmentApi.uploadImageEntityViaPresign(
           entity,
           scope: s.scope,
@@ -648,14 +653,14 @@ class ChatAttachmentHandler {
       try {
         final s = _uploadScope;
         final String messageId = Xid().toString();
-        final seal = _sealFor(messageId, 'video');
+        final seal = await _sealFor(messageId, 'video');
         final resp = await AttachmentApi.uploadVideoViaPresign(
           entity,
           scope: s.scope,
           scopeRef: s.scopeRef,
           videoSeal: seal,
           // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
-          thumbSeal: _sealFor(messageId, 'video_thumb'),
+          thumbSeal: await _sealFor(messageId, 'video_thumb'),
         );
         await handleSelectedVideoUpload(resp, messageId: messageId, seal: seal);
       } on Object catch (e) {
@@ -716,7 +721,7 @@ class ChatAttachmentHandler {
       final String name = '${Xid().toString()}.$ext';
       final s = _uploadScope;
       final String messageId = Xid().toString();
-      final seal = _sealFor(messageId, 'voice');
+      final seal = await _sealFor(messageId, 'voice');
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         name,
@@ -769,7 +774,7 @@ class ChatAttachmentHandler {
     final result = img.encodeJpg(image, quality: 65);
     final s = _uploadScope;
     final String messageId = Xid().toString();
-    final seal = _sealFor(messageId, 'location_thumb');
+    final seal = await _sealFor(messageId, 'location_thumb');
     await AttachmentApi.uploadBytesViaPresignCompat(
       "location",
       result,

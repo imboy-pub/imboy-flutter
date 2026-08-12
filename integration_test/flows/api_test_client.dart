@@ -20,6 +20,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:imboy/config/init.dart' show currentEnv;
 import 'package:imboy/config/env.dart';
 import 'package:imboy/service/encrypter.dart';
 
@@ -75,7 +76,12 @@ class FlowApiClient {
           receiveTimeout: const Duration(seconds: 30),
           validateStatus: (status) => status != null,
         ),
-      );
+      ) {
+    // 集成测试不启动完整 AppInitializer，但签名密钥仍依赖 currentEnv。
+    // 同步显式 dart-define，避免 currentEnv 为空时 Env() 静默回退生产配置。
+    const testEnv = String.fromEnvironment('APP_ENV', defaultValue: '');
+    if (testEnv.isNotEmpty) currentEnv = testEnv;
+  }
 
   Future<Map<String, String>> _defaultHeaders() async {
     final cos =

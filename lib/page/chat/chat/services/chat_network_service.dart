@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -301,6 +302,32 @@ class ChatNetworkService {
 
   // ===== WebSocket 发送 =====
 
+  /// 判断业务消息是否必须走 E2EE。
+  ///
+  /// 群级 E2EE 是独立于全局策略的强制门：群详情/S2C 已确认开启时，
+  /// 即使全局策略允许明文，也必须进入 [encryptPayload]。否则发送入口
+  /// 会在调用 [encryptPayload] 之前直接把 C2G payload 按明文发出。
+  Future<bool> _shouldEncryptOutbound({
+    required String chatType,
+    required String toId,
+    required String action,
+  }) async {
+    // 编辑动作携带正文，必须与普通内容消息使用同一套 E2EE 策略。
+    // 其它 action（已读、撤回、输入状态、ACK）仍是非内容控制帧。
+    if (action.isNotEmpty && action != 'message_edit') return false;
+    if (chatType == 'C2G' && await GroupSessionService.to.isGroupE2EE(toId)) {
+      return true;
+    }
+    return E2EEService.shouldEncryptOutgoingPayload(chatType);
+  }
+
+  @visibleForTesting
+  Future<bool> shouldEncryptOutboundForTest({
+    required String chatType,
+    required String toId,
+    required String action,
+  }) => _shouldEncryptOutbound(chatType: chatType, toId: toId, action: action);
+
   /// 通过 WebSocket 发送消息（含 E2EE 加密）
   Future<bool> sendWsMsg(MessageModel obj) async {
     iPrint('📤 [sendWsMsg] 开始: msgId=${obj.id}, status=${obj.status}');
@@ -324,9 +351,11 @@ class ChatNetworkService {
 
     final bool needEncrypt;
     try {
-      needEncrypt =
-          action.isEmpty &&
-          E2EEService.shouldEncryptOutgoingPayload(obj.type ?? 'C2C');
+      needEncrypt = await _shouldEncryptOutbound(
+        chatType: obj.type ?? 'C2C',
+        toId: obj.toId.toString(),
+        action: action,
+      );
     } on E2eeSecurityException catch (e) {
       // 策略门 fail-closed 拒发。旧行为：异常直接向上穿透，
       // _addMessage 一个裸 catch 吞掉 → 用户点了发送什么都没发生（消息连
@@ -356,12 +385,16 @@ class ChatNetworkService {
           messageType: msgType,
           removeKeys: ['client_send_ts'],
         );
-        if (encrypted != null) {
-          e2ee = encrypted['e2ee'] as Map<String, dynamic>;
-          finalPayload = encrypted['payload'];
-        } else {
-          finalPayload = payloadWithTs;
-        }
+        final protected = _requireEncryptedResult(encrypted);
+        e2ee = protected['e2ee'] as Map<String, dynamic>;
+        finalPayload = protected['payload'];
+        // 消息先以 sending 状态落库，再在这里完成 E2EE 加密。必须把同一份
+        // PFv3 元数据回写到本地记录，否则发送端当场能发出密文，但重进会话
+        // 或严格验收从 msg_c2c 读取时会误判为“没有 E2EE 元数据”。
+        obj.e2ee = e2ee;
+        await MessageRepo(
+          tableName: MessageRepo.getTableName(obj.type ?? 'C2C'),
+        ).update({MessageRepo.id: obj.id, MessageRepo.e2ee: e2ee});
       } catch (e, stackTrace) {
         iPrint('❌ [E2EE] v2.0 加密失败: msgId=${obj.id}, error=$e');
         AppLogger.error(
@@ -434,9 +467,11 @@ class ChatNetworkService {
 
       final bool needEncrypt;
       try {
-        needEncrypt =
-            msgAction.isEmpty &&
-            E2EEService.shouldEncryptOutgoingPayload(chatType);
+        needEncrypt = await _shouldEncryptOutbound(
+          chatType: chatType,
+          toId: msg['to']?.toString() ?? '',
+          action: msgAction,
+        );
       } on E2eeSecurityException catch (e) {
         // 同 sendWsMsg：fail-closed 拒发 + 可见反馈，绝不落到明文分支。
         iPrint('🚫 [E2EE] 策略门拒发: msgId=${msg['id']}, reason=${e.reason}');
@@ -457,13 +492,25 @@ class ChatNetworkService {
             messageType: msg['msg_type']?.toString() ?? '',
             removeKeys: ['msg_type'],
           );
-          if (encrypted != null) {
-            msg['e2ee'] = encrypted['e2ee'];
-            msg['payload'] = encrypted['payload'];
-            iPrint(
-              'ChatNetworkService.sendMessage: E2EE v2.0 加密成功 (${msg['id']})',
-            );
+          final protected = _requireEncryptedResult(encrypted);
+          final protectedE2ee = Map<String, dynamic>.from(
+            (protected['e2ee'] as Map).cast<String, dynamic>(),
+          );
+          // 服务端不能解密编辑正文，但需要这个不敏感的路由引用完成
+          // 归属/时间窗校验。正文仍在 PFv3 inner payload 内。
+          if (msgAction == 'message_edit') {
+            final editOf = payload['original_msg_id']?.toString() ?? '';
+            if (editOf.isEmpty) {
+              throw const E2eeSecurityException('edit_target_missing');
+            }
+            protectedE2ee['edit_of'] = editOf;
+            protectedE2ee['relay_action'] = 'message_edit';
           }
+          msg['e2ee'] = protectedE2ee;
+          msg['payload'] = protected['payload'];
+          iPrint(
+            'ChatNetworkService.sendMessage: E2EE v2.0 加密成功 (${msg['id']})',
+          );
         } catch (e, stackTrace) {
           iPrint('ChatNetworkService.sendMessage: E2EE v2.0 加密失败: $e');
           AppLogger.error(
@@ -579,7 +626,7 @@ class ChatNetworkService {
     final bool groupMegolm =
         chatType == 'C2G' && await GroupSessionService.to.isGroupE2EE(toId);
     final bool needEncrypt =
-        action.isEmpty &&
+        (action.isEmpty || action == 'message_edit') &&
         (groupMegolm || E2EEService.shouldEncryptOutgoingPayload(chatType));
     if (!needEncrypt) return null;
 
@@ -593,13 +640,14 @@ class ChatNetworkService {
 
     // E2EE-029: C2C defaults to per-device Olm fan-out（ADR 15 Protected Frame v3）
     if (chatType == 'C2C') {
-      return _encryptC2COlmFanOut(
+      final result = await _encryptC2COlmFanOut(
         toId,
         plaintext,
         action,
         messageId: messageId,
         messageType: messageType,
       );
+      return _addEditRoutingMetadata(result, plaintextPayload, action);
     }
 
     // 默认路径：Megolm（C2G 群聊；C2C 已全部走 Olm fan-out）
@@ -611,7 +659,30 @@ class ChatNetworkService {
       recipients: const [],
       context: context,
     );
-    return {'e2ee': encrypted.metadata, 'payload': encrypted.ciphertext};
+    return _addEditRoutingMetadata(
+      {'e2ee': encrypted.metadata, 'payload': encrypted.ciphertext},
+      plaintextPayload,
+      action,
+    );
+  }
+
+  Map<String, dynamic> _addEditRoutingMetadata(
+    Map<String, dynamic> encrypted,
+    Map<String, dynamic> plaintext,
+    String action,
+  ) {
+    if (action != 'message_edit') return encrypted;
+    final editOf = plaintext['original_msg_id']?.toString() ?? '';
+    if (editOf.isEmpty) {
+      throw const E2eeSecurityException('edit_target_missing');
+    }
+    final e2ee =
+        Map<String, dynamic>.from(
+            (encrypted['e2ee'] as Map).cast<String, dynamic>(),
+          )
+          ..['edit_of'] = editOf
+          ..['relay_action'] = 'message_edit';
+    return {...encrypted, 'e2ee': e2ee};
   }
 
   /// S2.2: C2C per-device Olm fan-out。
@@ -681,6 +752,10 @@ class ChatNetworkService {
         action: action.isEmpty ? 'message' : action,
         sessionRef: sessionRef,
         createdAtMs: now,
+        outerMetadata: action == 'message_edit'
+            ? _editOuterMetadata(plaintext)
+            : const {},
+        persistOutbox: false,
       );
 
       // encrypted.metadata 是 v3 外层信封（不含 meta_version，由外层统一标注）
@@ -689,17 +764,50 @@ class ChatNetworkService {
       devices[peerDid] = envelope;
     }
 
-    return {
-      'e2ee': {
-        'meta_version': 3,
-        'protocol': 'olm',
-        'version': 1,
-        'fan_out': 'per_device',
-        'devices': devices,
-      },
-      'payload': '',
+    final e2ee = <String, dynamic>{
+      'meta_version': 3,
+      'protocol': 'olm',
+      'version': 1,
+      'fan_out': 'per_device',
+      'devices': devices,
     };
+    await E2eeOutboundRouter.persistOutboxPayload(
+      messageId: messageId,
+      payload: {'e2ee': e2ee, 'payload': ''},
+    );
+
+    return {'e2ee': e2ee, 'payload': ''};
   }
+
+  Map<String, dynamic> _editOuterMetadata(String plaintext) {
+    final decoded = jsonDecode(plaintext);
+    if (decoded is! Map<String, dynamic>) {
+      throw const E2eeSecurityException('edit_payload_invalid');
+    }
+    final editOf = decoded['original_msg_id']?.toString() ?? '';
+    if (editOf.isEmpty) {
+      throw const E2eeSecurityException('edit_target_missing');
+    }
+    return {'edit_of': editOf, 'relay_action': 'message_edit'};
+  }
+
+  /// 加密已被上游判定为必需时，空结果只能表示竞态或实现错误。
+  ///
+  /// 不能把 null 当成“无需加密”再把原文送出；否则策略在判定与实际
+  /// 加密之间变化时会形成 fail-open。调用方在 catch 中统一拒发。
+  Map<String, dynamic> _requireEncryptedResult(
+    Map<String, dynamic>? encrypted,
+  ) {
+    if (encrypted == null) {
+      throw const E2eeSecurityException('encryption_required_not_applied');
+    }
+    return encrypted;
+  }
+
+  @visibleForTesting
+  Map<String, dynamic> requireEncryptedResultForTest(
+    Map<String, dynamic>? encrypted,
+  ) => _requireEncryptedResult(encrypted);
 
   /// 是否对 C2C 单聊启用 Olm（X3DH + Double Ratchet）套件。
   ///

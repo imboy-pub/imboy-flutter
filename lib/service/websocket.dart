@@ -80,6 +80,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   static const _v1PongTimeout = Duration(seconds: 20);
   bool _connecting = false;
 
+  // 每次主动关闭都会使当前连接尝试失效，避免旧的 ready/error 回调
+  // 在新连接建立后继续改写状态、channel 或连接完成器。
+  int _connectionGeneration = 0;
+
   /// 当前 WebSocket framing 模式（由子协议协商决定）
   FramingMode _framing = FramingMode.none;
   FramingMode get framing => _framing;
@@ -324,10 +328,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       return;
     }
 
-    _connectCompleter = Completer<void>();
+    final generation = ++_connectionGeneration;
+    final completer = Completer<void>();
+    _connectCompleter = completer;
     _connecting = true;
     _updateStatus(SocketStatus.connecting);
     iPrint('> ws: 开始连接 (from: $from)');
+
+    WebSocketChannel? attemptChannel;
+    bool isCurrentAttempt() => generation == _connectionGeneration;
 
     try {
       // 增强的网络连通性检查
@@ -360,13 +369,13 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
       if (kIsWeb) {
         // Web 平台使用 WebSocketChannel.connect (protocols 作为位置参数)
-        _channel = WebSocketChannel.connect(
+        attemptChannel = WebSocketChannel.connect(
           Uri.parse(wsUrl),
           protocols: protocols,
         );
       } else {
         // 移动端/桌面端使用 IOWebSocketChannel
-        _channel = IOWebSocketChannel.connect(
+        attemptChannel = IOWebSocketChannel.connect(
           wsUrl,
           headers: {...await defaultHeaders(), Keys.tokenKey: token},
           protocols: protocols,
@@ -374,10 +383,22 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         );
       }
 
-      await _channel!.ready;
+      if (!isCurrentAttempt()) {
+        await attemptChannel.sink.close();
+        return;
+      }
+      _channel = attemptChannel;
+      await attemptChannel.ready;
+
+      // closeSocket() 可能在 ready 等待期间使本次连接失效；旧连接不得
+      // 抢占新连接的 channel 或把状态重新改成 connected。
+      if (!isCurrentAttempt() || !identical(_channel, attemptChannel)) {
+        await attemptChannel.sink.close();
+        return;
+      }
 
       // 检测服务端选中的子协议，设置 framing 模式
-      _framing = _detectFraming(_channel);
+      _framing = _detectFraming(attemptChannel);
       AppLogger.info(
         'WebSocket framing 模式: ${_framing.name} '
         '(selected protocol: ${_selectedProtocol(_channel)})',
@@ -408,10 +429,12 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       _cancelReconnectTimer();
       await _flushMessageQueue();
 
+      if (!isCurrentAttempt() || !identical(_channel, attemptChannel)) return;
+
       await _wsSub?.cancel();
       final start = DateTime.now();
 
-      _wsSub = _channel?.stream.listen(
+      _wsSub = attemptChannel.stream.listen(
         (data) => _onMessage(data),
         onError: _onError,
         onDone: () {
@@ -425,14 +448,24 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       );
       AppLogger.info('WebSocket 连接成功: ${Env.effectiveWsUrl}');
     } catch (e, s) {
-      AppLogger.error('WebSocket 连接失败: ${Env.effectiveWsUrl}', e, s);
-      await _handleConnectionFailure(e);
-      // 【修复】异常发生时确保清理 WebSocket 资源
-      _cancelStream();
+      if (isCurrentAttempt()) {
+        AppLogger.error('WebSocket 连接失败: ${Env.effectiveWsUrl}', e, s);
+        await _handleConnectionFailure(e);
+        // 【修复】异常发生时确保清理 WebSocket 资源
+        _cancelStream();
+      } else {
+        // 这是被主动关闭后返回的旧尝试，只清理自己的 channel，不触碰
+        // 新一代连接的共享状态。
+        try {
+          await attemptChannel?.sink.close();
+        } on Object {
+          // channel 可能已经由 closeSocket 关闭，忽略二次关闭异常。
+        }
+      }
     } finally {
-      _connecting = false;
-      if (_connectCompleter != null && !_connectCompleter!.isCompleted) {
-        _connectCompleter!.complete();
+      if (isCurrentAttempt()) _connecting = false;
+      if (identical(_connectCompleter, completer) && !completer.isCompleted) {
+        completer.complete();
       }
     }
   }
@@ -1069,6 +1102,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// [permanent]=true：永久销毁实例，单例置空，重连请求将创建新实例。
   Future<void> closeSocket({bool permanent = false}) async {
     iPrint('> ws: 手动关闭连接');
+    _connectionGeneration++;
+    _connecting = false;
+    final pending = _connectCompleter;
+    _connectCompleter = null;
+    if (pending != null && !pending.isCompleted) pending.complete();
     _updateStatus(SocketStatus.disconnected);
     _cleanupResources();
     if (permanent) {

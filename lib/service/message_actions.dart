@@ -23,6 +23,7 @@ import 'package:imboy/modules/identity/domain/value/user_id.dart' as ddd;
 import 'package:imboy/modules/messaging/domain/message.dart' as ddd;
 import 'package:imboy/modules/messaging/domain/message_status.dart' as ddd;
 import 'package:imboy/service/group_session_service.dart';
+import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/modules/messaging/domain/value/message_id.dart' as ddd;
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
@@ -547,7 +548,13 @@ class MessageActions {
 
     // 只有消息接收者才需要处理编辑请求
     if (fromId == currentUid) {
-      iPrint('🔄 这是自己发送的编辑请求，无需处理');
+      // E2EE 编辑由服务端原样回显给发送者，外层 action 仍为
+      // message_edit 以保持 PFv3 header binding；把它按本地 ACK 应用。
+      if (_hasEncryptedEnvelope(data)) {
+        await _processEditAck(data, originalMsgId, newContent);
+      } else {
+        iPrint('🔄 这是自己发送的编辑请求，无需处理');
+      }
       return;
     }
 
@@ -562,6 +569,10 @@ class MessageActions {
 
     // 处理对方编辑
     await _processPeerEdit(originalMsg, repo, data, newContent);
+
+    // E2EE 编辑的服务端回显已经同时作为发送者/接收者的确认，
+    // 不再发送一个包含正文的明文 ACK。
+    if (_hasEncryptedEnvelope(data)) return;
 
     // 发送编辑确认 (v2.0 格式)
     final ackMessage = {
@@ -912,22 +923,19 @@ class MessageActions {
         '🔄 发送编辑消息请求 (v2.0): msgId=${editMessage['id']}, action=message_edit, original_msg_id=$messageId',
       );
 
-      // 先添加到重试队列（确保消息会被重试）
-      _messageRetry.addToRetryQueue(editMessage['id'].toString(), messageType);
-
-      // 通过事件发送消息（fire-and-forget）
-      AppEventBus.fire(
-        WebSocketMessageSendRequestEvent(
-          message: json.encode(editMessage),
-          messageId: editMessage['id'].toString(),
-        ),
-      );
-
-      return true; // 返回 true 表示已提交发送请求
+      // 统一经过 ChatNetworkService，确保 E2EE 策略、加密失败和重试
+      // 语义与普通内容消息一致；服务端只会看到 edit_of 元数据。
+      return await const ChatNetworkService().sendMessage(editMessage);
     } on Object catch (e, s) {
       iPrint("❌ 发送编辑消息异常: $e; $s");
       return false;
     }
+  }
+
+  bool _hasEncryptedEnvelope(Map<String, dynamic> data) {
+    final e2ee = data['e2ee'];
+    if (e2ee is Map) return e2ee.isNotEmpty;
+    return e2ee is String && e2ee.isNotEmpty;
   }
 
   /// 检查消息是否可以撤回

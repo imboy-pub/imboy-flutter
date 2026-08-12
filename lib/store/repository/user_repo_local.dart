@@ -232,6 +232,7 @@ class UserRepoLocal {
 
   Future<bool> quitLogin() async {
     try {
+      final logoutUid = currentUid;
       iPrint("> quitLogin: Starting logout process");
       if (to.isLoggedIn) {
         iPrint("> quitLogin: User is logged in");
@@ -284,9 +285,13 @@ class UserRepoLocal {
       iPrint("> quitLogin: Closing WebSocket");
       await WebSocketService.to.closeSocket(permanent: true);
       iPrint("> quitLogin: Closing database");
-      SqliteService.to.close();
+      await SqliteService.to.close();
       // purge 失败时返回 false（logout 不算完整成功），但物理资源已强制收尾。
       if (purgeFailed) return false;
+      if (logoutUid.isNotEmpty) {
+        iPrint("> quitLogin: Removing database for uid=$logoutUid");
+        await SqliteService.to.deleteDatabaseForUid(logoutUid);
+      }
       iPrint("> quitLogin: Logout process completed successfully");
       return true;
     } on Object {

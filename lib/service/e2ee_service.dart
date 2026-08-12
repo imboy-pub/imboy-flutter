@@ -82,6 +82,11 @@ class E2EEService {
     Map<String, String> didToPem,
   ) {
     _userKeyCacheByDevice[uid] = didToPem;
+    _userKeyCacheTimestamp[uid] = DateTime.now().millisecondsSinceEpoch;
+    _userKidCacheByDevice[uid] = Map.fromIterable(
+      didToPem.keys,
+      value: (k) => 'kid_$k',
+    );
   }
 
   static void setGroupDeviceKeyCacheForTest(
@@ -370,6 +375,13 @@ class E2EEService {
     final e2ee = data['e2ee'];
     if (e2ee is! Map) return null;
     if (e2ee['meta_version'] != 3) return null;
+    // 接收端可能在本次进程中尚未发送过消息，因此不能依赖发送路径的
+    // E2eeBootstrap.ensureReady() 来注册协议。否则首条入站 PFv3 消息会在
+    // registry.resolve() 处以 StateError 失败，表现为无意义的 decrypt_error。
+    // 仅在 registry 为空时补注册，保留单元测试注入的协议实现。
+    if (E2eeProtocolRegistry.all().isEmpty) {
+      E2eeBootstrap.ensureRegistered();
+    }
     return decryptIncomingPayload(payload: data);
   }
 
@@ -384,6 +396,44 @@ class E2EEService {
         : null;
     if (e2eeData is! Map<String, dynamic>) {
       return _decryptFailedPayload(payload, reason: 'invalid_e2ee');
+    }
+
+    // C2G Megolm v2：群消息使用扁平 metadata（meta_version=2），正文是
+    // Megolm ciphertext；它不带 C2C PFv3 的 per-device envelope，也没有
+    // legacy RSA `keys`。必须先按 protocol/suite 路由，否则会误落到下面
+    // 的 RSA 兼容分支并返回 invalid_keys，导致真实群消息在入站被吞掉。
+    final isMegolmGroup =
+        e2eeData['protocol'] == 'megolm' &&
+        (e2eeData['gid']?.toString() ?? '').isNotEmpty;
+    if (isMegolmGroup) {
+      final ciphertext = payload['payload']?.toString() ?? '';
+      if (ciphertext.isEmpty) {
+        return _decryptFailedPayload(payload, reason: 'missing_ciphertext');
+      }
+      try {
+        final plaintext = await decryptE2EEMessage(
+          ciphertext: ciphertext,
+          e2ee: e2eeData,
+        );
+        final decoded = jsonDecode(plaintext);
+        if (decoded is! Map<String, dynamic>) {
+          return _decryptFailedPayload(payload, reason: 'invalid_plaintext');
+        }
+        final plain = Map<String, dynamic>.from(decoded);
+        if (payload.containsKey('sender_did')) {
+          plain['sender_did'] = payload['sender_did'];
+        }
+        if (payload.containsKey('sender_dtype')) {
+          plain['sender_dtype'] = payload['sender_dtype'];
+        }
+        if (payload.containsKey('client_send_ts')) {
+          plain['client_send_ts'] = payload['client_send_ts'];
+        }
+        plain['_e2ee_megolm_verified'] = true;
+        return plain;
+      } catch (_) {
+        return _decryptFailedPayload(payload, reason: 'decrypt_error');
+      }
     }
 
     // S2.1 / ADR 15: Protected Frame v3 路径

@@ -64,12 +64,16 @@ flutter test test/unit_test/api/                 # Tier 1 API 契约（pre-push 
 setUpAll（不是代码回归）。本机一次性补齐（需 Rust 工具链）：
 
 ```bash
-cd ~/.pub-cache/hosted/pub.dev/flutter_vodozemac-0.5.0/rust
+cd ~/.pub-cache/hosted/pub.dev/flutter_vodozemac-0.7.1/rust
 cargo build --release --target aarch64-apple-darwin
 mkdir -p /usr/local/lib/vodozemac_bindings_dart.framework
 cp target/aarch64-apple-darwin/release/libvodozemac_bindings_dart.dylib \
    /usr/local/lib/vodozemac_bindings_dart.framework/vodozemac_bindings_dart
 ```
+
+该动态库必须与当前 `pubspec.lock` 中的 `flutter_vodozemac` 同版本构建；
+升级 `vodozemac` 后不能继续复用旧版 spike 库，否则会出现 `The message didn't contain a version`
+一类的 FFI ABI 错误。当前锁定版本为 `flutter_vodozemac 0.7.1` / `vodozemac 0.7.0`。
 
 真机/真机构建不受影响（iOS/Android 由 pod/gradle 正常链接）。
 

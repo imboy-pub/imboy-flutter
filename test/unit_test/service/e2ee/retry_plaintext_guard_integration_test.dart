@@ -48,7 +48,8 @@ const String _msgC2cDdl = '''
     topic_id INTEGER,
     msg_type TEXT,
     action TEXT,
-    e2ee TEXT
+    e2ee TEXT,
+    sender_did TEXT
   )
 ''';
 
@@ -69,6 +70,8 @@ const String _contactDdl = '''
     is_friend INTEGER,
     is_from INTEGER,
     category_id INTEGER,
+    account_type TEXT,
+    last_seen_at INTEGER,
     updated_at INTEGER
   )
 ''';

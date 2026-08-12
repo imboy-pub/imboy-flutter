@@ -64,6 +64,20 @@ class E2eeBootstrap {
     _initializedUid = uid;
   }
 
+  /// 仅测试用：标记指定用户已完成协议初始化，避免平台集成测试触发网络注册。
+  ///
+  /// 这只跳过 Olm identity 的远端注册，不替代协议注册；需要实际验证 Olm
+  /// 初始化的测试仍应调用 [ensureReady]，而不应使用此入口。
+  static void debugMarkReadyForTest(String uid) {
+    ensureRegistered();
+    for (final impl in E2eeProtocolRegistry.registered()) {
+      if (impl is OlmProtocol) {
+        impl.debugMarkReadyForTest(uid);
+      }
+    }
+    _initializedUid = uid;
+  }
+
   /// 仅测试用：重置引导标志 + 清空注册表。
   static void resetForTest() {
     _registered = false;

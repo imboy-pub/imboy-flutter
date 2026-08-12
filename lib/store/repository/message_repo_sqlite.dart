@@ -74,6 +74,16 @@ class MessageRepo implements MessageRepository {
     e2ee, // v2.0 新增
   ]);
 
+  /// C2C 专用读取列。sender_did 只存在于 msg_c2c，不能放进所有表的
+  /// defaultColumns，否则 C2G/C2S 查询会因列不存在而失败。
+  static final List<String> c2cColumns = List.unmodifiable([
+    ...defaultColumns,
+    MessageColumns.senderDid,
+  ]);
+
+  List<String> get _readColumns =>
+      tableName == c2cTable ? c2cColumns : defaultColumns;
+
   // 共享 ProviderContainer — 必须通过 setProviderContainer 注入，否则 UI 状态不同步
   // 初始值为 null，防止创建与根容器状态不同步的孤立容器
   static ProviderContainer? _providerContainer;
@@ -301,6 +311,11 @@ class MessageRepo implements MessageRepository {
         MessageRepo.action: msg.action,
         MessageRepo.e2ee: msg.e2ee != null ? json.encode(msg.e2ee) : '',
       };
+      if (targetTableName == MessageRepo.c2cTable &&
+          msg.senderDid != null &&
+          msg.senderDid!.isNotEmpty) {
+        insert[MessageColumns.senderDid] = msg.senderDid;
+      }
       if (kDebugMode) {}
       if (txn != null) {
         await txn.insert(targetTableName, insert);
@@ -471,7 +486,7 @@ class MessageRepo implements MessageRepository {
     try {
       List<Map<String, dynamic>> maps = await _db.query(
         tableName,
-        columns: defaultColumns,
+        columns: _readColumns,
         where: where,
         whereArgs: args,
         orderBy: "${MessageRepo.autoId} ASC",
@@ -515,7 +530,7 @@ class MessageRepo implements MessageRepository {
     try {
       List<Map<String, dynamic>> maps = await _db.query(
         tableName,
-        columns: defaultColumns,
+        columns: _readColumns,
         where: where,
         whereArgs: args,
         orderBy: "${MessageRepo.autoId} ASC",
@@ -600,7 +615,7 @@ class MessageRepo implements MessageRepository {
     try {
       List<Map<String, dynamic>> maps = await _db.query(
         tableName,
-        columns: defaultColumns,
+        columns: _readColumns,
         where: where,
         whereArgs: whereArgs,
         orderBy: optimizedOrderBy,
@@ -665,14 +680,14 @@ class MessageRepo implements MessageRepository {
     if (txn != null) {
       maps = await txn.query(
         tableName,
-        columns: defaultColumns,
+        columns: _readColumns,
         where: '${MessageRepo.id} = ?',
         whereArgs: [id],
       );
     } else {
       maps = await _db.query(
         tableName,
-        columns: defaultColumns,
+        columns: _readColumns,
         where: '${MessageRepo.id} = ?',
         whereArgs: [id],
       );
@@ -713,7 +728,7 @@ class MessageRepo implements MessageRepository {
   ) async {
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
-      columns: defaultColumns,
+      columns: _readColumns,
       where: '${MessageRepo.conversationUk3} = ? AND ${MessageRepo.status} = ?',
       whereArgs: [conversationUk3, status],
       orderBy: '${MessageRepo.createdAt} DESC',
@@ -756,7 +771,7 @@ class MessageRepo implements MessageRepository {
   Future<MessageModel?> lastMsg() async {
     List<Map<String, dynamic>> maps = await _db.query(
       tableName,
-      columns: defaultColumns,
+      columns: _readColumns,
       where: '${MessageRepo.from} = ?',
       whereArgs: [UserRepoLocal.to.currentUid],
       orderBy: "${MessageRepo.createdAt} desc",
@@ -856,21 +871,31 @@ class MessageRepo implements MessageRepository {
           // 导致离线加密消息内容永久丢失。密文原样落库，由读取路径
           // MessageModelMapper.toTypeMessage() 解密（decrypt-on-read）。
           Map<String, dynamic> payload = {};
-          String? rawPayloadCipher; // 非空表示原始密文/非 JSON 字符串，原样落库
+          String? rawPayloadCipher; // 非 null 表示原始密文/协议空 payload，原样落库
+          final e2ee = msgData['e2ee'];
+          final hasE2ee =
+              (e2ee is Map && e2ee.isNotEmpty) ||
+              (e2ee is String && e2ee.isNotEmpty);
           final payloadRaw = msgData['payload'];
           if (payloadRaw is Map) {
             payload = payloadRaw.cast<String, dynamic>();
-          } else if (payloadRaw is String && payloadRaw.isNotEmpty) {
-            try {
-              final decoded = json.decode(payloadRaw);
-              if (decoded is Map) {
-                payload = decoded.cast<String, dynamic>();
-              } else {
+          } else if (payloadRaw is String) {
+            if (payloadRaw.isEmpty && hasE2ee) {
+              // PFv3 外层 payload 恒为空串；必须保留为空串，读取时才能
+              // 进入 decryptInboundV3，而不是被序列化成 {}。
+              rawPayloadCipher = payloadRaw;
+            } else if (payloadRaw.isNotEmpty) {
+              try {
+                final decoded = json.decode(payloadRaw);
+                if (decoded is Map) {
+                  payload = decoded.cast<String, dynamic>();
+                } else {
+                  rawPayloadCipher = payloadRaw;
+                }
+              } on FormatException {
+                // 非 JSON：E2EE 密文等，原样保留供读取路径解密，不丢内容、不刷屏
                 rawPayloadCipher = payloadRaw;
               }
-            } on FormatException {
-              // 非 JSON：E2EE 密文等，原样保留供读取路径解密，不丢内容、不刷屏
-              rawPayloadCipher = payloadRaw;
             }
           }
 
@@ -894,7 +919,6 @@ class MessageRepo implements MessageRepository {
             func_helper.iPrint('🔍 [DEBUG 离线消息] 归一化后: msgType="$msgType"');
           }
           final action = (msgData['action'] ?? '').toString();
-          final e2ee = msgData['e2ee'];
 
           final fromId = (msgData['from'] ?? '').toString();
           final toId = (msgData['to'] ?? '').toString();
@@ -968,7 +992,7 @@ class MessageRepo implements MessageRepository {
               type: type,
               fromId: fromId,
               toId: toId,
-              payload: payload,
+              payload: rawPayloadCipher ?? payload,
               createdAt: createdAt,
               isAuthor: isAuthor ? 1 : 0,
               topicId: topicId,
@@ -976,6 +1000,8 @@ class MessageRepo implements MessageRepository {
               status: IMBoyMessageStatus.delivered,
               peerId: peerId,
               msgType: msgType, // WebSocket API v2.0: 从顶层字段读取
+              e2ee: e2ee is Map ? Map<String, dynamic>.from(e2ee) : null,
+              senderDid: senderDid.isNotEmpty ? senderDid : null,
             ),
           );
 
@@ -996,7 +1022,9 @@ class MessageRepo implements MessageRepository {
               id: msg.id,
               conversationUk3: msg.conversationUk3,
               msgTypeField: msg.msgType,
-              payload: msg.payload,
+              payload: msg.payload is Map<String, dynamic>
+                  ? msg.payload as Map<String, dynamic>
+                  : <String, dynamic>{},
             ),
           );
         }
@@ -1095,16 +1123,20 @@ class MessageRepo implements MessageRepository {
         AppLogger.error('[message_repo_sqlite] findByUid error', e, s);
       }
 
+      final previewPayload = latest.payload is Map<String, dynamic>
+          ? latest.payload as Map<String, dynamic>
+          : <String, dynamic>{};
+
       // WebSocket API v2.0: 从顶层字段读取 msg_type 和 status
       if (kDebugMode) {
         func_helper.iPrint(
-          '🔍 [DEBUG 会话同步] latest.msgType="${latest.msgType}", latest.status=${latest.status}, payload keys=${latest.payload.keys.toList()}',
+          '🔍 [DEBUG 会话同步] latest.msgType="${latest.msgType}", latest.status=${latest.status}, payload keys=${previewPayload.keys.toList()}',
         );
       }
       final preview = _derivePreview(
         latest.msgType,
         latest.status,
-        latest.payload,
+        previewPayload,
       );
       final existing = await conversationRepo.findByPeerId(
         agg.type,
@@ -1401,7 +1433,7 @@ class MessageRepo implements MessageRepository {
 
       final List<Map<String, dynamic>> maps = await db.query(
         table,
-        columns: defaultColumns,
+        columns: table == c2cTable ? c2cColumns : defaultColumns,
         where: where,
         whereArgs: whereArgs,
         orderBy: "${MessageRepo.createdAt} DESC",

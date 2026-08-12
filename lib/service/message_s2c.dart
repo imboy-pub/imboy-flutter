@@ -35,6 +35,7 @@ import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/group_member_mute_s2c.dart';
 import 'package:imboy/service/group_edit_s2c.dart';
 import 'package:imboy/service/group_member_role_s2c.dart';
@@ -882,6 +883,12 @@ class MessageS2CService {
     // 清除该用户的公钥缓存
     if (uid.isNotEmpty) {
       E2EEService.clearUserKeyCache(uid);
+      if (deviceId.isNotEmpty) {
+        await OlmSessionService.to.invalidatePeerSession(
+          peerUid: uid,
+          peerDeviceId: deviceId,
+        );
+      }
       iPrint('🔑 E2EE: 已清除用户 $uid 的公钥缓存（密钥已变更）');
       // TOFU 安全告警：通知 UI 层（若正打开与该 uid 的 C2C 会话）提示"对方安全码已变更"
       AppEventBus.fire(

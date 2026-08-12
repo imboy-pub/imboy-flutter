@@ -35,7 +35,7 @@ import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
-import 'package:imboy/service/websocket.dart';
+import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -56,7 +56,8 @@ const String _msgC2gDdl = '''
     topic_id INTEGER,
     msg_type TEXT,
     action TEXT,
-    e2ee TEXT
+    e2ee TEXT,
+    sender_did TEXT
   )
 ''';
 
@@ -78,6 +79,7 @@ const String _contactDdl = '''
     is_from INTEGER,
     category_id INTEGER,
     account_type INTEGER,
+    last_seen_at INTEGER,
     updated_at INTEGER
   )
 ''';
@@ -193,6 +195,36 @@ void main() {
       sendRequests.where((e) => e.messageId == id);
 
   group('重发明文闸门 · C2G 群级 E2EE 分支', () {
+    test('实际发送入口：群已开 E2EE 时不受全局 plaintext 绕过', () async {
+      final network = const ChatNetworkService();
+      await GroupSessionService.to.setGroupE2EEMode(_gid, 1);
+
+      expect(
+        await network.shouldEncryptOutboundForTest(
+          chatType: 'C2G',
+          toId: _gid,
+          action: '',
+        ),
+        isTrue,
+      );
+      expect(
+        await network.shouldEncryptOutboundForTest(
+          chatType: 'C2G',
+          toId: 'other-group',
+          action: '',
+        ),
+        isFalse,
+      );
+      expect(
+        await network.shouldEncryptOutboundForTest(
+          chatType: 'C2G',
+          toId: _gid,
+          action: 'message_read',
+        ),
+        isFalse,
+      );
+    });
+
     test('对照组：群未开 E2EE + 全局 plaintext → 明文行必须照常重投', () async {
       expect(await GroupSessionService.to.isGroupE2EE(_gid), isFalse);
       const id = 'gg0000000000000ct01';
@@ -225,6 +257,23 @@ void main() {
             '群级 E2EE 独立于全局策略（P0-B B4）。'
             '只看全局策略会让开了群级 E2EE 的群的明文行照常重发 = 明文出网',
       );
+    });
+
+    test('手动重试：群已开 E2EE + 明文行 → 不得出网', () async {
+      await GroupSessionService.to.setGroupE2EEMode(_gid, 1);
+      expect(await GroupSessionService.to.isGroupE2EE(_gid), isTrue);
+
+      const id = 'gg0000000000000ct04';
+      await _insertGroupMsg(id, status: IMBoyMessageStatus.error);
+
+      expect(await retry.retryMessage(id, 'C2G'), isFalse);
+      await pumpEventQueue();
+
+      expect(sentOf(id), isEmpty, reason: '手动重试不能绕过群级 E2EE 明文闸门');
+      final stored = await MessageRepo(
+        tableName: MessageRepo.c2gTable,
+      ).find(id);
+      expect(stored?.status, IMBoyMessageStatus.error);
     });
 
     test('正向可用性：群已开 E2EE + 已加密行 → 必须照常重投', () async {

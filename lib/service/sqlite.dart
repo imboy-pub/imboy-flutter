@@ -42,7 +42,8 @@ class SqliteService {
   // v26: contact.last_seen_at 最后在线时间戳（修复详情页"从未上线"）
   // v28: channel_message_outbox 频道消息可靠本地待同步队列
   // v29: channel_publish_outbox 频道消息发布可靠重试队列
-  static const _dbVersion = 29;
+  // v30: channel.has_purchased 付费频道购买权益本地缓存
+  static const _dbVersion = 30;
 
   // 单例构造
   SqliteService._privateConstructor();
@@ -135,10 +136,48 @@ class SqliteService {
     }
   }
 
+  /// 返回指定 uid 的数据库文件名。
+  ///
+  /// 数据库按环境和账号隔离；登出时必须使用登出前捕获的 uid，不能
+  /// 依赖清理完存储后的 currentUid。
+  @visibleForTesting
+  static String databaseNameForUid(String uid) => '${currentEnv}_$uid.db';
+
+  /// 删除指定 uid 的本地数据库及 SQLite sidecar 文件。
+  ///
+  /// E2EE-015 要求登出后清除 SQLCipher 密钥。密钥清除后，旧数据库文件
+  /// 已无法被下一次登录复用，因此必须在句柄关闭后同步删除，避免新密钥
+  /// 打开旧文件时进入“key mismatch / out of memory”降级路径。
+  ///
+  /// 这里严格使用环境 + uid 的单个文件名，不接受路径片段，避免清理
+  /// 目标越界；不删除其他账号的数据库。
+  Future<void> deleteDatabaseForUid(String uid) async {
+    final normalizedUid = uid.trim();
+    if (normalizedUid.isEmpty || kIsWeb) return;
+    if (normalizedUid.contains('/') ||
+        normalizedUid.contains('\\') ||
+        normalizedUid == '.' ||
+        normalizedUid == '..') {
+      throw ArgumentError.value(uid, 'uid', 'must be a filename component');
+    }
+
+    final path = join(
+      await getDatabasesPath(),
+      databaseNameForUid(normalizedUid),
+    );
+    for (final suffix in const ['', '-wal', '-shm', '-journal']) {
+      final file = File('$path$suffix');
+      if (await file.exists()) {
+        await file.delete();
+        iPrint('🗑️ Deleted local database file: ${file.path}');
+      }
+    }
+  }
+
   /// 构建数据库文件路径
   /// Build the database file path
   Future<String> dbPath() async {
-    String name = "${currentEnv}_${UserRepoLocal.to.currentUid}.db";
+    String name = databaseNameForUid(UserRepoLocal.to.currentUid);
     iPrint(
       "Database path: currentEnv=$currentEnv, uid=${UserRepoLocal.to.currentUid}, dbName=$name",
     );

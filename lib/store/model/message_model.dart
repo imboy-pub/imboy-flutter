@@ -282,23 +282,30 @@ class MessageModel {
       }
     }
 
-    // 解析 payload - 支持 Map 或 String
+    // 解析 payload - 支持 Map 或 String。
+    // PFv3 的密文在 e2ee.devices 中，外层 payload 按协议固定为空串；
+    // 只要 e2ee 存在，就必须保留这个空串，交给 decryptInboundV3 分流，
+    // 不能把它改成空 Map，否则读取路径会误判为明文消息。
     dynamic p;
-    if (data[MessageColumns.payload] == null ||
-        data[MessageColumns.payload] == "") {
+    final rawPayload = data[MessageColumns.payload];
+    if ((rawPayload == null || rawPayload == '') &&
+        e2eeData != null &&
+        e2eeData.isNotEmpty) {
+      p = rawPayload ?? '';
+    } else if (rawPayload == null || rawPayload == "") {
       p = <String, dynamic>{};
-    } else if (data[MessageColumns.payload] is String) {
+    } else if (rawPayload is String) {
       // 尝试解析为 JSON
       try {
-        p = jsonDecode("${data[MessageColumns.payload]}");
+        p = jsonDecode(rawPayload);
       } catch (e) {
         // 如果解析失败，保持为 String（可能是加密数据）
-        p = data[MessageColumns.payload];
+        p = rawPayload;
       }
-    } else if (data[MessageColumns.payload] is Map<String, dynamic>) {
-      p = data[MessageColumns.payload];
+    } else if (rawPayload is Map<String, dynamic>) {
+      p = rawPayload;
     } else {
-      p = data[MessageColumns.payload];
+      p = rawPayload;
     }
 
     return MessageModel(

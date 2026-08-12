@@ -15,6 +15,7 @@ import 'package:imboy/service/e2ee/fallback_rotation_policy.dart';
 import 'package:imboy/service/e2ee/identity_verifier.dart';
 import 'package:imboy/service/e2ee/olm_claim_request_id.dart';
 import 'package:imboy/service/e2ee/otk_refill_policy.dart';
+import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/olm_api.dart';
@@ -493,6 +494,22 @@ class OlmSessionService {
     }
   }
 
+  /// 驱逐因对端身份变更而失效的旧 ratchet 会话。
+  ///
+  /// 只删除 session，不删除 TOFU 指纹：下次发送会重新协商，并由
+  /// [_enforceTofu] 阻止未经确认的新身份继续通信。
+  Future<void> invalidatePeerSession({
+    required String peerUid,
+    required String peerDeviceId,
+  }) async {
+    final key = _sessionKey(peerUid, peerDeviceId);
+    _sessions.remove(key);
+    final store = await cryptoStore;
+    await store?.deleteSession(peerUid: peerUid, peerDeviceId: peerDeviceId);
+    await StorageSecureService.to.delete(key: key);
+    iPrint('[olm] invalidated peer session $peerUid:$peerDeviceId');
+  }
+
   /// E2EE-030: 只写事务存储；不可提交则 fail-closed（不再双写 SecureStorage）。
   Future<void> _persistSession(
     String peerUid,
@@ -654,6 +671,8 @@ class OlmSessionService {
     final session = account.createOutboundSession(
       identityKey: vod.Curve25519PublicKey.fromBase64(theirCurve25519),
       oneTimeKey: vod.Curve25519PublicKey.fromBase64(oneTimeKey),
+      // 保持与现有设备及历史会话的 specced/libolm wire format 兼容。
+      config: legacyOlmSessionConfig(),
     );
     // 这条 OTK 已经变成一条活会话；后续任何**新的**建会话都应消费新 OTK。
     // 在此处（而非持久化成功后）丢弃是有意的安全方向：宁可多消费一条，
@@ -756,6 +775,8 @@ class OlmSessionService {
           result = account.createInboundSession(
             theirIdentityKey: vod.Curve25519PublicKey.fromBase64(theirIdentity),
             preKeyMessageBase64: ciphertext,
+            // vodozemac 0.7 默认改为 config v2；当前协议仍使用 v1。
+            config: legacyOlmSessionConfig(),
           );
         } on Object catch (e) {
           throw OlmAuthenticationException(

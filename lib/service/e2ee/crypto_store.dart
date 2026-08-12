@@ -195,6 +195,21 @@ class CryptoStore {
     return rows.first['pickle'] as String?;
   }
 
+  /// 清除单个对端设备的 Olm session。
+  ///
+  /// 对端重装/换机后可能复用 device_id，但 identity key 已经变化；旧
+  /// ratchet 不能继续发送到新身份。TOFU 指纹由上层保留，下一次建会话时
+  /// 仍会触发身份变更确认，而不是静默信任新 key。
+  Future<void> deleteSession({
+    required String peerUid,
+    required String peerDeviceId,
+  }) async {
+    await _db.rawDelete(
+      'DELETE FROM crypto_olm_session WHERE peer_uid = ? AND peer_device_id = ?',
+      [peerUid, peerDeviceId],
+    );
+  }
+
   /// 清除全部 Olm session（登出/换号）。
   ///
   /// E2EE-030 起 ratchet 状态只存在于本表（不再双写 SecureStorage），

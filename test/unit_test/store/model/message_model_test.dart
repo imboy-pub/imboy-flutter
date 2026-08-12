@@ -363,6 +363,22 @@ void main() {
       expect(model.payload, isA<String>());
       expect(model.payload, cipher);
     });
+
+    test('PFv3 空外层 payload 保留为空字符串，不转换成空 Map', () {
+      final model = MessageModel.fromJson({
+        'id': 'm-v3-empty-payload',
+        'type': 'C2C',
+        'from': 1,
+        'to': 2,
+        'msg_type': 'text',
+        'payload': '',
+        'e2ee': '{"protocol_version":3}',
+      });
+
+      expect(model.payload, isA<String>());
+      expect(model.payload, isEmpty);
+      expect(model.e2ee?['protocol_version'], 3);
+    });
   });
 }
 

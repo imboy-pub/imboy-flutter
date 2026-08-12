@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
 /// E2EE-062：**`forgetFallbackKey()` 与 fallback key 留存期的特征测试**。
@@ -29,6 +30,7 @@ String _encryptTo(
   final s = alice.createOutboundSession(
     identityKey: bob.identityKeys.curve25519,
     oneTimeKey: fbKey,
+    config: legacyOlmSessionConfig(),
   );
   return s.encrypt(text).ciphertext;
 }
@@ -38,6 +40,7 @@ bool _canDecrypt(vod.Account bob, vod.Account alice, String ciphertext) {
     final inbound = bob.createInboundSession(
       theirIdentityKey: alice.identityKeys.curve25519,
       preKeyMessageBase64: ciphertext,
+      config: legacyOlmSessionConfig(),
     );
     return inbound.plaintext.isNotEmpty;
   } on Object {

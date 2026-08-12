@@ -3,6 +3,8 @@
 // 写入生产测试群属于受控业务写入，必须显式传入
 // TEST_ALLOW_DUAL_GROUP_PROD_WRITES=true；本测试不创建、删除或修改群资料。
 
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +12,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
+import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
@@ -23,6 +26,10 @@ import '../flows/app_launcher.dart';
 import '../flows/test_utils.dart';
 
 const _groupId = String.fromEnvironment('TEST_GROUP_ID', defaultValue: '');
+const _requiredMemberUids = String.fromEnvironment(
+  'TEST_REQUIRED_MEMBER_UIDS',
+  defaultValue: '',
+);
 const _expectedUid = String.fromEnvironment(
   'TEST_EXPECTED_UID',
   defaultValue: '',
@@ -33,6 +40,14 @@ const _dualRole = String.fromEnvironment(
 );
 const _runId = String.fromEnvironment('TEST_DUAL_RUN_ID', defaultValue: '');
 const _testWsUrl = String.fromEnvironment('TEST_WS_URL', defaultValue: '');
+const _wsUrlOverride = String.fromEnvironment(
+  'WS_URL_OVERRIDE',
+  defaultValue: '',
+);
+const _expectE2ee = bool.fromEnvironment(
+  'TEST_EXPECT_E2EE',
+  defaultValue: false,
+);
 const _messageWaitSeconds = int.fromEnvironment(
   'TEST_MESSAGE_WAIT_SECONDS',
   defaultValue: 180,
@@ -48,6 +63,13 @@ void main() {
 
       await ensureAppLaunched(tester, maxSeconds: 10);
       if (!await checkPreconditions(tester)) return;
+
+      if (_expectE2ee && !EncryptionModeService.current.requiresEncryption) {
+        markTestSkipped(
+          'TEST_EXPECT_E2EE=true，但服务端 policy 不是 required/compliance；拒绝把明文结果算作 E2EE 通过',
+        );
+        return;
+      }
 
       final actualUid = UserRepoLocal.to.currentUid;
       if (_expectedUid.isNotEmpty && actualUid != _expectedUid) {
@@ -93,6 +115,11 @@ void main() {
         await _assertLocalMessage(receiverMarker);
       }
 
+      if (_expectE2ee) {
+        await _assertMegolmEncryptedMessage(senderMarker);
+        await _assertMegolmEncryptedMessage(receiverMarker);
+      }
+
       expect(find.textContaining(senderMarker), findsWidgets);
       expect(find.textContaining(receiverMarker), findsWidgets);
 
@@ -110,6 +137,10 @@ void main() {
       await _waitForMarker(tester, receiverMarker);
       await _assertLocalMessage(senderMarker);
       await _assertLocalMessage(receiverMarker);
+      if (_expectE2ee) {
+        await _assertMegolmEncryptedMessage(senderMarker);
+        await _assertMegolmEncryptedMessage(receiverMarker);
+      }
 
       flowLog('群聊双账号消息闭环通过：$_dualRole，双方各一条，ACK、跨设备收发和重进回读完成');
       drainKnownFrameworkExceptions(tester);
@@ -133,8 +164,11 @@ bool _requireAuthorization() {
   if (!FlowConfig.hasCredentials ||
       _groupId.isEmpty ||
       _runId.isEmpty ||
-      _testWsUrl.isEmpty) {
-    markTestSkipped('缺少测试群、账号、WebSocket 或 TEST_DUAL_RUN_ID');
+      _effectiveTestWsUrl.isEmpty ||
+      _requiredMemberUids.trim().isEmpty) {
+    markTestSkipped(
+      '缺少测试群、账号、WebSocket、TEST_DUAL_RUN_ID 或 TEST_REQUIRED_MEMBER_UIDS',
+    );
     return false;
   }
   if (!{'sender', 'receiver'}.contains(_dualRole)) {
@@ -144,8 +178,11 @@ bool _requireAuthorization() {
   return true;
 }
 
+String get _effectiveTestWsUrl =>
+    _testWsUrl.isNotEmpty ? _testWsUrl : _wsUrlOverride;
+
 Future<void> _ensureTestWebSocket(WidgetTester tester) async {
-  await StorageService.to.setString(Keys.wsUrl, _testWsUrl);
+  await StorageService.to.setString(Keys.wsUrl, _effectiveTestWsUrl);
   for (var i = 0; i < 120; i++) {
     if (WebSocketService.to.status == SocketStatus.connected) {
       flowLog('群聊双账号测试 WebSocket 已连接');
@@ -204,13 +241,8 @@ Future<Finder?> _waitForGroupConversation(WidgetTester tester) async {
 }
 
 Future<bool> _enterGroupChat(WidgetTester tester, Finder? conversation) async {
-  if (conversation != null) {
-    await safeTap(tester, conversation.first);
-    return true;
-  }
-
-  // 某些账号有群成员关系，但服务端尚未生成 conversation/mine 项。
-  // 只读核对群详情和成员后，直接走现有 ChatPage，不创建会话或群。
+  // 无论会话列表是否已有缓存项，都必须重新核对群成员与群级 E2EE
+  // 状态；不能因为本地存在旧会话就绕过严格验收前置条件。
   final detail = await GroupApi().detail(gid: _groupId);
   final memberPayload = await GroupMemberApi().page(
     gid: _groupId,
@@ -220,11 +252,30 @@ Future<bool> _enterGroupChat(WidgetTester tester, Finder? conversation) async {
   final memberIds = _asList(
     memberPayload,
   ).map(_readMemberId).whereType<String>().toSet();
-  if (!memberIds.containsAll(const {'50', '4'})) {
-    markTestSkipped('目标群未确认同时包含 117/118 两个测试账号，拒绝发送群消息');
+  final requiredMemberIds = _requiredMemberUids
+      .split(',')
+      .map((uid) => uid.trim())
+      .where((uid) => uid.isNotEmpty)
+      .toSet();
+  if (requiredMemberIds.isNotEmpty &&
+      !memberIds.containsAll(requiredMemberIds)) {
+    markTestSkipped('目标群未确认同时包含 TEST_REQUIRED_MEMBER_UIDS 指定账号，拒绝发送群消息');
+    return false;
+  }
+  if (_expectE2ee && _readE2eeMode(detail) != 1) {
+    markTestSkipped(
+      'TEST_EXPECT_E2EE=true，但目标群 e2ee_mode 不是 required(1)，拒绝把明文群聊算作通过',
+    );
     return false;
   }
 
+  if (conversation != null) {
+    await safeTap(tester, conversation.first);
+    return true;
+  }
+
+  // 某些账号有群成员关系，但服务端尚未生成 conversation/mine 项。
+  // 只读核对群详情和成员后，直接走现有 ChatPage，不创建会话或群。
   final title = _readTitle(detail);
   final navigatorFinder = find.byType(Navigator);
   if (!tester.any(navigatorFinder)) {
@@ -271,6 +322,15 @@ String? _readMemberId(dynamic value) {
 String _readTitle(dynamic value) {
   if (value is! Map) return '';
   return (value['title'] ?? value['name'])?.toString() ?? '';
+}
+
+int _readE2eeMode(dynamic value) {
+  if (value is! Map) return 0;
+  final direct = value['e2ee_mode'];
+  final nested = value['group'] is Map
+      ? (value['group'] as Map)['e2ee_mode']
+      : null;
+  return int.tryParse('${direct ?? nested ?? 0}') ?? 0;
 }
 
 void _logVisibleGroupConversations(WidgetTester tester) {
@@ -351,6 +411,50 @@ Future<void> _assertLocalMessage(String marker) async {
     isTrue,
     reason: '本地群消息表未找到 $marker',
   );
+}
+
+Future<void> _assertMegolmEncryptedMessage(String marker) async {
+  for (var i = 0; i < 120; i++) {
+    final rows = await SqliteService.to.query(
+      MessageRepo.c2gTable,
+      columns: MessageRepo.defaultColumns,
+      where: '${MessageRepo.payload} LIKE ?',
+      whereArgs: ['%$marker%'],
+      orderBy: '${MessageRepo.createdAt} DESC',
+      limit: 10,
+    );
+    for (final row in rows) {
+      if (!'${row[MessageRepo.payload]}'.contains(marker)) continue;
+      final raw = row[MessageRepo.e2ee];
+      final metadata = raw is Map
+          ? Map<String, dynamic>.from(raw)
+          : raw is String && raw.isNotEmpty
+          ? _decodeJsonMap(raw)
+          : null;
+      final valid =
+          metadata?['protocol'] == 'megolm' &&
+          metadata?['version'] == 1 &&
+          metadata?['e2ee_suite'] == 'MEGOLM.V1' &&
+          '${metadata?['session_id'] ?? ''}'.isNotEmpty &&
+          '${metadata?['gid'] ?? ''}' == _groupId;
+      if (valid) {
+        flowLog('Megolm 群级加密元数据已落本地：$marker');
+        return;
+      }
+      fail('消息 $marker 已到达但没有有效 Megolm 群级加密元数据');
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+  }
+  fail('消息 $marker 未在 60 秒内形成可核对的 Megolm 加密记录');
+}
+
+Map<String, dynamic>? _decodeJsonMap(String raw) {
+  try {
+    final decoded = jsonDecode(raw);
+    return decoded is Map ? Map<String, dynamic>.from(decoded) : null;
+  } on Object {
+    return null;
+  }
 }
 
 Future<void> _leaveChatPage(WidgetTester tester) async {

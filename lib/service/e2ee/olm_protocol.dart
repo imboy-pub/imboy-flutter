@@ -22,6 +22,12 @@ class OlmProtocol implements E2eeSessionProtocol {
   /// 发送方自身 uid（initialize 注入）。写入 metadata 供接收方定位 peer。
   String? _selfUid;
 
+  /// 仅供平台集成测试标记协议已就绪，不触发远端 identity/pre-key 注册。
+  ///
+  /// 生产初始化仍必须走 [initialize]，该入口只让无网络的发送编排测试
+  /// 能使用与生产相同的 OlmProtocol 实例。
+  void debugMarkReadyForTest(String uid) => _selfUid = uid;
+
   @override
   ProtocolSuite get suite => ProtocolSuite.olm;
 
@@ -63,7 +69,6 @@ class OlmProtocol implements E2eeSessionProtocol {
       peerDeviceId: recipients.first.deviceId,
       plaintext: plaintext,
     );
-
     return E2eeCiphertext(res.ciphertext, {
       // v2 三元组（fromMetadata 优先读，路由回 OlmProtocol）
       'protocol': suite.protocol,

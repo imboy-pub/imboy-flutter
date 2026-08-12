@@ -99,6 +99,17 @@ class GroupSessionService {
   @visibleForTesting
   static void debugMarkVodReady() => VodozemacInit.debugMarkReady();
 
+  /// 测试专用：捕获 room key 分发，避免单测建立真实 WebSocket。
+  /// 生产环境保持 null，仍走 [WebSocketService]。
+  @visibleForTesting
+  void Function(String chatType, String to, Map<String, dynamic> payload)?
+  debugRoomKeySender;
+
+  /// 测试专用：替换发送侧 Olm room-key 包裹器，验证会话服务自身的分发编排。
+  /// 生产环境保持 null，仍委托 [OlmSessionService]。
+  @visibleForTesting
+  OlmWrapFn? debugOlmWrap;
+
   // ===== 群级 E2EE 旗标（来源：S2C group_e2ee_mode 广播 / 群详情 / 收到 room key）=====
 
   /// 旗标存安全存储（与私钥同级保护，防本机篡改清零导致明文降级）
@@ -218,12 +229,24 @@ class GroupSessionService {
     await _storeInbound(isGroup ? target : c2cScope, sessionId, exported);
 
     final compliance = await _complianceKeyEntry(exported);
+    // 发送端在上面已经保存了同一份 outbound 对应的 inbound session，
+    // 不需要再把 room key 发回自己的设备。后端返回的群设备快照包含
+    // 当前设备，若原样放入 payload，本机收到后会因没有 self-to-self
+    // Olm 入站会话而拒绝该条目；更重要的是严格模式会误把本机条目当成
+    // “必须成功包裹的远端设备”。设备集合 didSet 仍保留完整快照，用于
+    // 成员/设备变化检测与后续 rotate。
+    final recipientDidToPem = Map<String, String>.from(didToPem)
+      ..remove(deviceId);
+    final recipientDidToKid = Map<String, String>.from(didToKid)
+      ..remove(deviceId);
+    final recipientDidToUid = Map<String, String>.from(didToUid)
+      ..remove(deviceId);
     final payload = buildRoomKeyPayload(
       gid: isGroup ? target : null,
       sessionId: sessionId,
       exportedKey: exported,
-      didToPem: didToPem,
-      didToKid: didToKid,
+      didToPem: recipientDidToPem,
+      didToKid: recipientDidToKid,
       extraKeys: compliance == null ? const [] : [compliance],
     );
     // ADR 13 双包：给可 Olm 的接收设备追加 olm 子对象（RSA ek 保留）。
@@ -233,7 +256,9 @@ class GroupSessionService {
       exportedKey: exported,
       senderDeviceId: deviceId,
       olmWrap: (String did, String exportedKey) async {
-        final uid = didToUid[did] ?? (isGroup ? '' : target);
+        final debugWrap = debugOlmWrap;
+        if (debugWrap != null) return debugWrap(did, exportedKey);
+        final uid = recipientDidToUid[did] ?? (isGroup ? '' : target);
         if (uid.isEmpty) return null;
         return OlmSessionService.to.wrapRoomKey(
           peerUid: uid,
@@ -286,6 +311,11 @@ class GroupSessionService {
       'payload': payload,
       'created_at': DateTime.now().millisecondsSinceEpoch,
     };
+    final debugSender = debugRoomKeySender;
+    if (debugSender != null) {
+      debugSender(chatType, to, payload);
+      return;
+    }
     WebSocketService.to.sendMessage(jsonEncode(msg), msgId);
   }
 
@@ -575,6 +605,10 @@ class GroupSessionService {
   ///   失败）→ 该条目仅 RSA 回退，不阻断分发（ADR 13 §4）。
   /// - `compliance-audit` 条目跳过（合规侧无 Olm 会话，恒 RSA，ADR 13 §3.3）。
   /// - [senderDeviceId] 填 olm.sid（发送方 deviceId），供接收侧定位 Olm 入站会话。
+  /// - 发送方自己的设备不需要建立“给自己”的 Olm 会话：发送侧已经在
+  ///   [_rotateAndDistribute] 中保存同一份 inbound session，故该设备条目
+  ///   保留为无 olm 的自持条目并跳过包裹。否则严格模式会因本机不存在
+  ///   self-to-self 入站 Olm session 而把整条群消息错误拒发。
   /// - **严格模式和合规模式下（ADR 14 §S1.1 / HOTFIX-03）**：包装必须 100% 成功，
   ///   任何包装失败或缺失、以及无 senderDeviceId，均直接 fail-closed 抛异常，绝不静默跳过、省略或仅 RSA 降级。
   @visibleForTesting
@@ -595,6 +629,9 @@ class GroupSessionService {
       if (k is! Map) continue;
       final did = k['did']?.toString() ?? '';
       if (did.isEmpty || did == 'compliance-audit') continue;
+      // 本机已在 rotate 时保存 outbound 对应的 inbound session；不需要、
+      // 也不能通过 X3DH 给自己建立一个可接收的 self-to-self Olm 会话。
+      if (did == senderDeviceId) continue;
       OlmWrapped? wrapped;
       try {
         wrapped = await olmWrap(did, exportedKey);

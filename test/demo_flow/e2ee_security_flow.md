@@ -57,6 +57,9 @@
 - 2026-08-10：本地 E2EE 策略门禁与 per-device fan-out 定向回归共 `18` 项通过，覆盖未初始化 fail-closed、设备信封缺失/篡改、独立 header/ciphertext 和外层元数据契约；`olm_pfs_production_path_test.dart` 在 macOS 主机因缺少 `vodozemac_bindings_dart.framework` 动态库未能初始化，未计入通过，也不影响双设备 strict E2EE 仍未验收的结论。
 - 2026-08-10：为本地验证临时用 `flutter_vodozemac` Rust 源码构建 macOS arm64 动态库后，`olm_pfs_production_path_test.dart` 的 `9` 项和 `room_key_olm_roundtrip_test.dart` 的 `1` 项均通过；这补齐了本地 OLM/PFS 与 room-key-over-Olm 协议证据，但仍不等于生产 strict/compliance 双设备消息或真实备份恢复。
 - 2026-08-09：按 App 真实 MD5 登录契约重新做签名只读探测：117（UID `50`）的 `user_keys` 返回 `3` 个设备，118（UID `4`）返回 `8` 个设备，设备公钥读取成功；这证明当前账号侧确有多设备密钥材料，但生产 policy 仍为 `optional`，不能把设备存在误报为加密消息闭环通过。`key/status` 在本次探测返回业务 `400`，未据此推断密钥有效性。
+- 2026-08-11：华为 Android 真机 `XWE6R19916004085` 重跑 `integration_test/e2ee_olm_device_test.dart`，`5/5 All tests passed`；覆盖 vodozemac 初始化、X3DH/Olm 双向解密、Ed25519、OTK 消费和 session pickle 恢复，仍只计为单机密码学证据。
+- 2026-08-11：macOS 主机运行 `integration_test/e2ee_olm_device_test.dart -d macos`，`5/5 All tests passed`；证明桌面端本地 vodozemac/Olm 协议路径可用，但仍不等于 Android↔macOS 双端消息闭环。
+- 2026-08-11：iPhone 8 真机完成 Xcode 构建，但安装/启动阶段返回 `Unable to start the app on the device`，未加载任何测试用例；本次不计为 iOS 通过，也未形成双设备 E2EE 消息闭环。
 
 ## 6. 未来自动化目标
 

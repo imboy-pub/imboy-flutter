@@ -10,7 +10,7 @@ import 'package:imboy/service/compliance_key_service.dart'
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/olm_session_service.dart'
-    show OlmAuthenticationException;
+    show OlmAuthenticationException, kOlmSuite;
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
@@ -147,6 +147,78 @@ void main() {
 
   group('Megolm 全链路（需要 spike 动态库，缺失自动 skip）', () {
     final hasLib = Directory(_spikeLibDir).existsSync();
+
+    test('encryptGroupMessage 真实发送编排：剔除本机并给远端设备包裹 room key', () async {
+      if (!hasLib) {
+        markTestSkipped('spike 动态库缺失：$_spikeLibDir');
+        return;
+      }
+      await _ensureVod();
+
+      const gid = 'g_encrypt_orchestration';
+      const senderDid = 'sender_did';
+      const peerDid = 'peer_did';
+      deviceId = senderDid;
+      GroupSessionService.to.clearMemory();
+      E2EEService.setGroupDeviceKeyCacheForTest(gid, {
+        senderDid: 'sender-pem',
+        peerDid: 'peer-pem',
+      });
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.plaintext,
+        initialized: true,
+      );
+
+      Map<String, dynamic>? sentRoomKey;
+      String? sentChatType;
+      String? sentTo;
+      GroupSessionService.to.debugRoomKeySender = (chatType, to, payload) {
+        sentChatType = chatType;
+        sentTo = to;
+        sentRoomKey = payload;
+      };
+      GroupSessionService.to.debugOlmWrap = (did, exportedKey) async =>
+          (type: 0, body: 'olm-for-$did');
+      addTearDown(() {
+        GroupSessionService.to.clearMemory();
+        GroupSessionService.to.debugRoomKeySender = null;
+        GroupSessionService.to.debugOlmWrap = null;
+        E2EEService.clearKeyCacheForTest();
+      });
+
+      final encrypted = await GroupSessionService.to.encryptGroupMessage(
+        gid: gid,
+        plaintext: '群消息生产入口',
+      );
+
+      expect(sentChatType, 'C2G');
+      expect(sentTo, gid);
+      expect(sentRoomKey, isNotNull);
+      final keys = sentRoomKey!['keys'] as List;
+      expect(keys, hasLength(1));
+      final peerEntry = (keys.single as Map).cast<String, dynamic>();
+      expect(peerEntry['did'], peerDid);
+      expect(peerEntry['olm'], {
+        'v': kOlmSuite,
+        'type': 0,
+        'sid': senderDid,
+        'body': 'olm-for-$peerDid',
+      });
+      expect(
+        keys.any((entry) => (entry as Map)['did'] == senderDid),
+        isFalse,
+        reason: '发送端已经保存自己的 inbound，不应产生 self-to-self room key',
+      );
+      expect(sentRoomKey!['session_id'], encrypted.sessionId);
+      expect(
+        await GroupSessionService.to.decryptGroupMessage(
+          gid: gid,
+          sessionId: encrypted.sessionId,
+          ciphertext: encrypted.ciphertext,
+        ),
+        '群消息生产入口',
+      );
+    });
 
     test('建群会话 → 导出 → 包裹 → 解包 → import → 加解密往返', () async {
       if (!hasLib) {
@@ -549,6 +621,39 @@ void main() {
       );
     });
 
+    test('严格模式：发送设备自身跳过 self-to-self Olm 包裹', () async {
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.strictE2ee,
+        initialized: true,
+      );
+      addTearDown(() {
+        EncryptionModeService.debugSet(
+          mode: EncryptionMode.plaintext,
+          initialized: false,
+        );
+      });
+
+      final keys = <Map<String, dynamic>>[
+        {'did': 'sender_device', 'kid': 'sender_kid'},
+        {'did': 'peer_device', 'kid': 'peer_kid'},
+      ];
+      final wrappedDids = <String>[];
+
+      await GroupSessionService.attachOlmWraps(
+        keys: keys,
+        exportedKey: 'EXPORTED_ROOM_KEY',
+        senderDeviceId: 'sender_device',
+        olmWrap: (did, key) async {
+          wrappedDids.add(did);
+          return (type: 1, body: 'OLM[$did]');
+        },
+      );
+
+      expect(wrappedDids, ['peer_device']);
+      expect(keys[0].containsKey('olm'), isFalse);
+      expect((keys[1]['olm'] as Map)['sid'], 'sender_device');
+    });
+
     test('T-13-03 接收侧优先 Olm：olm 有效 → 用 Olm，不走 RSA', () async {
       var olmCalled = false;
       GroupSessionService.to.debugOlmUnwrap = (uid, sid, type, body) async {
@@ -758,7 +863,6 @@ void main() {
         // 3. 准备基本发送要素并注入本地公钥缓存，绕过 API 接口
         final keyInfo = await _setupDeviceKey();
         final did = keyInfo['device_id'] as String;
-        final kid = keyInfo['key_id'] as String;
         final pem = keyInfo['public_key'] as String;
         deviceId = did;
 
