@@ -38,13 +38,13 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 505 | 33.0% |
-| 回归复测 | 614 | 40.1% |
-| 待复验 | 8 | 0.5% |
+| 无待办 | 507 | 33.1% |
+| 回归复测 | 613 | 40.0% |
+| 待复验 | 7 | 0.5% |
 | 阻塞 | 394 | 25.7% |
 | **合计** | **1531** | 100% |
 
-bug 累计：**发现 182 / 解决 163 / 待处理 19**
+bug 累计：**发现 182 / 解决 164 / 待处理 18**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -55,12 +55,12 @@ bug 累计：**发现 182 / 解决 163 / 待处理 19**
 | [group](group/) | 26 | 286 | 2 | 58 | 178 | 0 | 50 |
 | [mine](mine/) | 21 | 249 | 0 | 112 | 107 | 0 | 30 |
 | [channel](channel/) | 13 | 146 | 3 | 42 | 71 | 3 | 30 |
-| [contact](contact/) | 13 | 126 | 4 | 34 | 74 | 1 | 17 |
+| [contact](contact/) | 13 | 126 | 3 | 35 | 74 | 0 | 17 |
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 39 |
 | [personal_info](personal_info/) | 7 | 78 | 4 | 40 | 17 | 0 | 21 |
 | [chat](chat/) | 6 | 76 | 1 | 38 | 12 | 4 | 22 |
 | [moment](moment/) | 6 | 74 | 0 | 26 | 47 | 0 | 1 |
-| [wallet](wallet/) | 5 | 61 | 1 | 28 | 8 | 0 | 16 |
+| [wallet](wallet/) | 5 | 61 | 1 | 29 | 7 | 0 | 16 |
 | [user_tag](user_tag/) | 5 | 58 | 2 | 36 | 6 | 0 | 16 |
 | [single](single/) | 5 | 48 | 0 | 6 | 14 | 0 | 28 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 17 | 25 | 0 | 0 |
@@ -117,7 +117,7 @@ bug 累计：**发现 182 / 解决 163 / 待处理 19**
 - [contact_setting_page](contact/contact_setting_page.md) — 10 功能点
 - [contact_setting_tag_page](contact/contact_setting_tag_page.md) — 9 功能点
 - [new_friend_page](contact/new_friend_page.md) — 11 功能点 ⚠️ 1 待处理
-- [people_info_more_page](contact/people_info_more_page.md) — 9 功能点 ⚠️ 1 待处理
+- [people_info_more_page](contact/people_info_more_page.md) — 9 功能点
 - [people_info_page](contact/people_info_page.md) — 11 功能点
 - [people_info_same_group_page](contact/people_info_same_group_page.md) — 8 功能点
 - [people_nearby_page](contact/people_nearby_page.md) — 11 功能点
