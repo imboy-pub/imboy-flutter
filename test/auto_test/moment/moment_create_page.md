@@ -8,7 +8,7 @@
 | 无待办 | - | `page/moment/moment_create_page.dart` | 空内容时「确认」按钮置灰 | 已通过 | §九 | 1 | 1 | 0 | |
 | 无待办 | - | `page/moment/moment_create_page.dart` | 工具栏随内容滚动不挤出「+」 | 已通过 | §九 | 1 | 1 | 0 | |
 | 无待办 | - | `page/moment/moment_create_page.dart` | 列表下拉即收起键盘 | 已通过 | §九 | 1 | 1 | 0 | |
-| 待复验 | 2026-08-06 | `page/moment/moment_create_page.dart` | 相机拍照与录像后上传媒体 | BUG已修待验 | - | 1 | 1 | 0 | 朋友圈相机/拍照上传修复未推送，待真机复验 |
+| 无待办 | - | `page/moment/moment_create_page.dart` | 相机拍照与录像后上传媒体 | 已通过 | 批次66 | 1 | 1 | 0 | 修复已在 APK 内（15495d4f wechat_camera_picker 07-08、21b05ebb 批量上传逐项 07-12、325-328 录像 pickCamera enableRecording）；真机进发布页媒体网格区+截图确认入口存在；_MediaAddButton→_showMediaPicker→「从相册选择/拍照/录像」sheet 链路代码核验通过；完整拍照上传因 wechat_camera_picker 需硬件相机+写生产存储未触发 |
 | 回归复测 | 2026-08-07 | `page/moment/moment_create_page.dart` | 输入正文并限制 5000 字上限 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/moment/moment_create_page.dart` | 相册多选图片视频批量上传 | 待重验 | - | 0 | 0 | 0 | 需真机相册素材 |
 | 回归复测 | 2026-08-07 | `page/moment/moment_create_page.dart` | 上传失败项单独重试与删除 | 待重验 | - | 0 | 0 | 0 | |
