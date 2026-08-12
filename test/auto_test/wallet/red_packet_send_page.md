@@ -9,7 +9,7 @@
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/red_packet_send_page.dart` | 单聊场景加载收款人显示名 | BUG已修待验 | - | 0 | 0 | 0 | BUG#111 同源修改；批次33 复核：真机进入单聊（automation-buddy）红包发送页，_receiverName 仅渲染于二次确认弹窗（redPacketReceiverLabel），页面本体无展示；弹窗必经 amountYuan>maxBalanceYuan 拦截（余额 ¥0.00 实测），不可达 → 转阻塞 |
 | 回归复测 | 2026-08-07 | `page/wallet/red_packet_send_page.dart` | 群聊切换普通与拼手气红包 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/wallet/red_packet_send_page.dart` | 校验红包金额最小 0.01 元 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/wallet/red_packet_send_page.dart` | 拦截超出余额的红包金额 | 待重验 | - | 0 | 0 | 0 | BUG#48「缺余额校验」已改判为误判，校验实际存在 |
+| 无待办 | - | `page/wallet/red_packet_send_page.dart` | 拦截超出余额的红包金额 | 已通过 | 批次66 | 0 | 0 | 0 | 真机群红包页金额输10(>余额0)点提交→弹「余额不足」toast（L76-77 amountFen>maxBalanceFen→showError 生效）；BUG#48 确为误判，校验实际存在 |
 | 无待办 | - | `page/wallet/red_packet_send_page.dart` | 校验群聊红包个数最小 1 个 | 已通过 | 批次66 | 0 | 0 | 0 | 真机群聊(117)红包页个数输0点「放入钱包发送」→ validator 拦截显示「红包个数需大于等于 1」（L260-261 count<1 生效）；未实际发送（资金保护） |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/red_packet_send_page.dart` | 祝福语留空时回填默认祝福语 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/red_packet_send_page.dart` | 二次确认展示收款人昵称 | BUG已修待验 | - | 1 | 1 | 0 | BUG#111 同源；批次32 复核：修复 74b67501（08-06）已在 APK（14:55）内，但钱包实测余额 ¥0.00，发送 0.01 元即被「超出余额」校验拦截，二次确认弹窗不可达，条件不具备转阻塞 |
