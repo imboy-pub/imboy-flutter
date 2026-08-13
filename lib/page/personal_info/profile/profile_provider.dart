@@ -147,6 +147,9 @@ class ProfileNotifier extends _$ProfileNotifier {
       signature: user.sign,
       email: user.email,
       mobile: user.mobile,
+      profession: user.profession,
+      school: user.school,
+      interests: user.interests,
       // 从 UserSetting 初始化所有隐私设置字段
       allowSearch: setting.allowSearch,
       allowNearbyVisible: setting.peopleNearbyVisible,
@@ -174,6 +177,9 @@ class ProfileNotifier extends _$ProfileNotifier {
       signature: user.sign,
       email: user.email,
       mobile: user.mobile,
+      profession: user.profession,
+      school: user.school,
+      interests: user.interests,
       // 从 UserSetting 刷新所有隐私设置字段
       allowSearch: setting.allowSearch,
       allowNearbyVisible: setting.peopleNearbyVisible,
