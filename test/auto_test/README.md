@@ -48,12 +48,12 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 550 | 35.7% |
-| 回归复测 | 605 | 39.3% |
-| 阻塞 | 386 | 25.0% |
+| 无待办 | 598 | 38.8% |
+| 回归复测 | 598 | 38.8% |
+| 阻塞 | 345 | 22.4% |
 | **合计** | **1541** | 100% |
 
-bug 累计：**发现 185 / 解决 169 / 待处理 16**
+bug 累计：**发现 185 / 解决 171 / 待处理 14**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -62,15 +62,15 @@ bug 累计：**发现 185 / 解决 169 / 待处理 16**
 | 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 回归复测 | 阻塞 |
 |---|---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 2 | 58 | 178 | 50 |
-| [mine](mine/) | 21 | 249 | 0 | 112 | 97 | 40 |
-| [channel](channel/) | 13 | 146 | 2 | 45 | 71 | 30 |
+| [mine](mine/) | 21 | 249 | 0 | 113 | 97 | 39 |
+| [channel](channel/) | 13 | 146 | 2 | 50 | 71 | 25 |
 | [contact](contact/) | 13 | 126 | 3 | 35 | 74 | 17 |
-| [personal_info](personal_info/) | 8 | 88 | 4 | 47 | 20 | 21 |
+| [personal_info](personal_info/) | 8 | 88 | 3 | 48 | 20 | 20 |
 | [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 39 |
-| [chat](chat/) | 6 | 76 | 1 | 40 | 12 | 24 |
+| [chat](chat/) | 6 | 76 | 0 | 52 | 7 | 17 |
 | [moment](moment/) | 6 | 74 | 0 | 26 | 47 | 1 |
-| [wallet](wallet/) | 5 | 61 | 1 | 42 | 3 | 16 |
-| [user_tag](user_tag/) | 5 | 58 | 1 | 40 | 6 | 12 |
+| [wallet](wallet/) | 5 | 61 | 1 | 47 | 1 | 13 |
+| [user_tag](user_tag/) | 5 | 58 | 1 | 42 | 6 | 10 |
 | [single](single/) | 5 | 48 | 0 | 6 | 14 | 28 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 17 | 25 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 16 | 9 | 11 |
@@ -81,8 +81,8 @@ bug 累计：**发现 185 / 解决 169 / 待处理 16**
 | [conversation](conversation/) | 1 | 12 | 1 | 5 | 7 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 3 | 0 | 9 |
 | [splash](splash/) | 1 | 12 | 0 | 6 | 4 | 2 |
-| [welcome](welcome/) | 1 | 12 | 0 | 0 | 0 | 12 |
-| [web_shell](web_shell/) | 1 | 11 | 0 | 1 | 0 | 10 |
+| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 |
 
 ## 页面清单
 
@@ -111,7 +111,7 @@ bug 累计：**发现 185 / 解决 169 / 待处理 16**
 
 - [chat_page](chat/chat_page.md) — 21 功能点
 - [chat_setting_page](chat/chat_setting_page.md) — 10 功能点
-- [p2p_call_screen_page](chat/p2p_call_screen_page.md) — 12 功能点 ⚠️ 1 待处理
+- [p2p_call_screen_page](chat/p2p_call_screen_page.md) — 12 功能点
 - [quick_reply_manage_page](chat/quick_reply_manage_page.md) — 11 功能点
 - [rtc_room_page](chat/rtc_room_page.md) — 12 功能点
 - [send_to_page](chat/send_to_page.md) — 10 功能点
@@ -224,7 +224,7 @@ bug 累计：**发现 185 / 解决 169 / 待处理 16**
 - [personal_info_page](personal_info/personal_info_page.md) — 12 功能点 ⚠️ 1 待处理
 - [privacy_settings_page](personal_info/privacy_settings_page.md) — 10 功能点
 - [profile_page](personal_info/profile_page.md) — 12 功能点 ⚠️ 1 待处理
-- [set_gender_page](personal_info/set_gender_page.md) — 10 功能点 ⚠️ 1 待处理
+- [set_gender_page](personal_info/set_gender_page.md) — 10 功能点
 - [set_nickname_page](personal_info/set_nickname_page.md) — 12 功能点
 - [set_region_page](personal_info/set_region_page.md) — 11 功能点
 - [update_page](personal_info/update_page.md) — 11 功能点

@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 渲染男女保密三个性别选项 | 已通过 | 批次19 | 0 | 0 | 0 | |
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 当前性别项显示蓝色对勾 | 已通过 | 批次19 | 0 | 0 | 0 | |
-| 阻塞 | 待设备空闲+新APK | `page/personal_info/set_gender/set_gender_page.dart` | 单选项暴露无障碍选中语义 | 待重验 | 批次26 | 1 | 0 | 1 | 代码已核验到位（MergeSemantics+Semantics(selected,inMutuallyExclusiveGroup)，set_gender_page.dart:44-47，修复 74b67501 08-06）；设备被并发会话占用且 imboy.chat 未安装，待真机复验 |
+| 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 单选项暴露无障碍选中语义 | 已通过 | 批次78 | 1 | 1 | 0 | |
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 点选性别保存成功后退栈 | 已通过 | 批次19 | 0 | 0 | 0 | |
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 退栈后上级性别文案立即刷新 | 已通过 | 批次19 | 1 | 1 | 0 | |
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 保存中该项显示菊花指示 | 已通过 | 批次29 | 0 | 0 | 0 | 代码证实 L38-39 isPending=pendingGender==id&&isSaving → L65-66 trailing CupertinoActivityIndicator(radius:8)；瞬态 UI（正常请求 130ms 完成/断网毫秒级失败），禁截图+get_ui 无法目击 |

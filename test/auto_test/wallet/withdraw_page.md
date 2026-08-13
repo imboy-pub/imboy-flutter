@@ -10,7 +10,7 @@
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 校验提现金额非空与格式 | 已通过 | 批次22 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 拦截低于 1 元的提现金额 | 已通过 | 批次22 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 拦截超出余额的提现金额 | 已通过 | 批次22 | 0 | 0 | 0 | |
-| 阻塞 | 缺外部条件：设备空闲 | `page/wallet/withdraw_page.dart` | 切换支付宝与微信提现渠道 | 待重验 | - | 0 | 0 | 0 | 静态核验：纯本地 UI 切换（L216-267 渠道选择器 setState _selectedMethod，不发起真实支付请求），校验提示随渠道切换（L89-96 支付宝邮箱/手机号 vs 微信 6-20 位字母开头）；设备被并发会话占用待空闲真机复测 |
+| 无待办 | - | `page/wallet/withdraw_page.dart` | 切换支付宝与微信提现渠道 | 已通过 | 批次78 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 校验支付宝邮箱或手机号格式 | 已通过 | 批次74 | 0 | 0 | 0 | 批次74 回归复测通过：非法 abc → 错误提示「请输入正确的支付宝邮箱或手机号」；13800138000 → 弹确认对话框（取消未提交）；a@b.com → 弹确认对话框（取消未提交） |
 | 无待办 | - | `page/wallet/withdraw_page.dart` | 校验微信号 6-20 位字母开头 | 已通过 | 批次34 | 0 | 0 | 0 | 真机复测通过（批次34）：提现页切微信渠道输「1abcg」（数字开头）点确认 → UI 树出现「请输入正确的微信号（6-20位，字母开头）」拦截；改输合法「wechat01」（字母开头 8 位）再点确认 → 该提示消失，仅剩金额校验（金额空提示「请输入不低于1元的金额」），校验双向生效 |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/withdraw_page.dart` | 二次确认展示金额渠道账号 | 待重验 | - | 0 | 0 | 0 | 批次33 复核：_handleWithdraw 中 amountYuan>maxBalanceYuan 直接 showError return（余额 ¥0.00 实测），二次确认弹窗不可达，非回归系缺外部条件转阻塞 |

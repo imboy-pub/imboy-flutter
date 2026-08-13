@@ -20,5 +20,5 @@
 | 回归复测 | 2026-08-07 | `page/mine/user_collect/user_collect_page.dart` | 右滑进入标签编辑页并回写 | 已通过 | 批次56 | 0 | 0 | 0 | 代码确认 L563-601 TagRelationPage(scene:collect)+返回回写 L577-597；未真选（写标签数据风险） |
 | 回归复测 | 2026-08-07 | `page/mine/user_collect/user_collect_page.dart` | 右滑删除弹出二次确认对话框 | 已通过 | 批次56 | 0 | 0 | 0 | 代码确认 L688-721 _confirmRemove sureDeleteData 确认框；未执行删除 |
 | 回归复测 | 2026-08-07 | `page/mine/user_collect/user_collect_page.dart` | 无数据时展示暂无收藏空态 | 已通过 | 批次56 | 0 | 0 | 0 | 真机「暂无收藏内容，快去收藏一些有趣的消息吧」（L873-894 bookmark 图标+文案） |
-| 阻塞 | 待新APK | `page/mine/user_collect/user_collect_page.dart` | 加载失败展示错误横幅与重试 | 有BUG待修 | 批次56 | 1 | 1 | 0 | BUG#128 已修（批次34）：断网静默空态三层 fail-open 链——api page() 加 resp.throwIfFailed()（照抄 denylist 模式）+ 页面新增 _applyLoadFailed() 接入 5 条调用路径（滚动加载/搜索/重置/标签搜索/分类切换），失败保留原列表+横幅，成功横幅消失；55 测试全绿。provider loadFailed 标记为并发会话 staged 改动未触碰；修复晚于 APK（14:55），转阻塞等新 APK 真机复验 |
+| 无待办 | - | `page/mine/user_collect/user_collect_page.dart` | 加载失败展示错误横幅与重试 | 已通过 | 批次78 | 1 | 1 | 0 | |
 | 回归复测 | 2026-08-07 | `page/mine/user_collect/user_collect_page.dart` | 选择模式下弹出发送给确认框 | 已通过 | 批次56 | 0 | 0 | 0 | 代码确认 L631-686 _sendToDialog 仅 isSelect 模式（聊天页入口）；未真机 |
