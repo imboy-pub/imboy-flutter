@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -104,26 +105,24 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
               children: [
                 InkWell(
                   onTap: () {
-                    final uid = msg.metadata?['uid'];
-                    if (uid == null || uid.toString().isEmpty) return;
+                    final uid = parseModelString(msg.metadata?['uid']);
+                    if (uid.isEmpty) return;
                     // 统一走 GoRouter，对齐 /people_info/:id 路由（pathParameters 解析 id）
-                    context.push(
-                      '/people_info/${uid as String}?scene=visitCard',
-                    );
+                    context.push('/people_info/$uid?scene=visitCard');
                   },
                   child: Row(
                     children: [
                       Avatar(
-                        imgUri: (msg.metadata?['avatar'] ?? '') as String,
+                        imgUri: parseModelString(msg.metadata?['avatar']),
                         width: 48,
                         height: 48,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          (msg.metadata?['title'] ??
-                                  (msg.metadata?['account'] ?? ''))
-                              as String,
+                          parseModelString(
+                            msg.metadata?['title'] ?? msg.metadata?['account'],
+                          ),
                           style: context.textStyle(
                             FontSizeType.medium,
                             color: textColor,

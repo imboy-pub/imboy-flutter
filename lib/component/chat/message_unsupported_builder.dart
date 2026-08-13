@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -26,8 +27,11 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 从 metadata 获取消息类型信息
-    final msgType = (message.metadata?['msg_type'] ?? 'unknown') as String;
-    final originalType = (message.metadata?['original_type'] ?? '') as String;
+    final msgType = parseModelString(
+      message.metadata?['msg_type'],
+      defaultValue: 'unknown',
+    );
+    final originalType = parseModelString(message.metadata?['original_type']);
 
     final displayType = msgType.isNotEmpty ? msgType : originalType;
 

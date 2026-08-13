@@ -2,6 +2,7 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -28,11 +29,12 @@ class MessageVideoBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metadata = message.metadata ?? {};
-    final String videoUrl =
-        metadata['uri'] as String? ?? metadata['url'] as String? ?? '';
+    final String videoUrl = parseModelString(
+      metadata['uri'] ?? metadata['url'],
+    );
     final thumb = metadata['thumb'];
     final String thumbUrl = (thumb is Map)
-        ? (thumb['uri'] as String? ?? '')
+        ? parseModelString(thumb['uri'])
         : (thumb?.toString() ?? '');
 
     // 获取视频尺寸

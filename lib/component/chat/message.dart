@@ -17,7 +17,7 @@ import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart'
-    show parseModelNullableInt;
+    show parseModelNullableInt, parseModelString;
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'message_spacing.dart';
@@ -203,7 +203,7 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
   switch (effectiveMsgType) {
     case 'voice':
       return AudioMessageBuilder(
-        type: (msg.metadata?['type'] ?? 'C2C') as String,
+        type: parseModelString(msg.metadata?['type'], defaultValue: 'C2C'),
         user: user,
         message: msg as CustomMessage,
       );

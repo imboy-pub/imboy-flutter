@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xid/xid.dart';
 
@@ -264,7 +265,7 @@ class ChatNetworkService {
       };
     }
 
-    final String sysPrompt = message.metadata?['sys_prompt'] as String? ?? '';
+    final String sysPrompt = parseModelString(message.metadata?['sys_prompt']);
     if (strNoEmpty(sysPrompt)) {
       payload['sys_prompt'] = sysPrompt;
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:logger/logger.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
@@ -337,8 +338,8 @@ class MessageHandlingService {
   }) async {
     if (msg is CustomMessage) {
       await saveFileFn(
-        (msg.metadata!['file_hash256'] ?? msg.metadata!['md5']) as String,
-        msg.metadata!['uri'] as String,
+        parseModelString(msg.metadata?['file_hash256'] ?? msg.metadata?['md5']),
+        parseModelString(msg.metadata?['uri']),
       );
     } else if (msg is ImageMessage) {
       await saveFileFn(msg.text ?? Xid().toString(), msg.source);

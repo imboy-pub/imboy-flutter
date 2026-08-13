@@ -371,7 +371,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
         ],
       ),
       subtitle: TextHighlight(
-        text: message.metadata?['text'] as String? ?? '',
+        text: parseModelString(message.metadata?['text']),
         words: words,
         textStyle: context.textStyle(
           FontSizeType.normal,

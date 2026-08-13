@@ -24,6 +24,7 @@ import 'package:imboy/page/chat/send_to/send_to_page.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -227,8 +228,10 @@ class MessageActionHandler {
       await ref
           .read(chatProvider.notifier)
           .saveFile(
-            (msg.metadata!['file_hash256'] ?? msg.metadata!['md5']) as String,
-            msg.metadata!['uri'] as String,
+            parseModelString(
+              msg.metadata?['file_hash256'] ?? msg.metadata?['md5'],
+            ),
+            parseModelString(msg.metadata?['uri']),
           );
     } else if (msg is ImageMessage) {
       await ref

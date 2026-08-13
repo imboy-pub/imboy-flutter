@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:imboy/component/ui/shimmer_box.dart';
 
@@ -52,8 +53,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
   void _initImageInfo() {
     // 从 metadata 中获取图片信息
     final metadata = widget.message.metadata ?? {};
-    _imageUrl =
-        metadata['source'] as String? ?? metadata['uri'] as String? ?? '';
+    _imageUrl = parseModelString(metadata['source'] ?? metadata['uri']);
 
     // 确保 width 和 height 是 double 类型
     final width = metadata['width'];
@@ -216,8 +216,9 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
 
             // 单图消息
             if (effectiveMsgType == MessageType.image) {
-              final uri =
-                  (metadata['source'] ?? metadata['uri'] ?? '') as String;
+              final uri = parseModelString(
+                metadata['source'] ?? metadata['uri'],
+              );
               if (uri.isNotEmpty) {
                 imageUrls.add(uri);
               }
@@ -227,7 +228,7 @@ class _MessageImageBuilderState extends State<MessageImageBuilder> {
               final images = metadata['images'] as List<dynamic>?;
               if (images != null) {
                 for (final img in images) {
-                  final uri = (img['uri'] ?? '') as String;
+                  final uri = parseModelString(img['uri']);
                   if (uri.isNotEmpty) {
                     imageUrls.add(uri);
                   }

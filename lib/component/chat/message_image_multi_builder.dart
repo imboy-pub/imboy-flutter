@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -70,7 +71,7 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
     // 单图不走网格：按原始宽高比展示，避免正方形裁切丢信息
     if (images.length == 1) {
       return _SingleTile(
-        uri: (images.first['uri'] ?? '') as String,
+        uri: parseModelString(images.first['uri']),
         width: (images.first['width'] as num? ?? 0).toDouble(),
         height: (images.first['height'] as num? ?? 0).toDouble(),
         onTap: () => _previewImage(0),
@@ -89,7 +90,7 @@ class _ImageMultiMessageBuilderState extends State<ImageMultiMessageBuilder> {
         ),
         itemCount: visible.length,
         itemBuilder: (context, index) {
-          final uri = (visible[index]['uri'] ?? '') as String;
+          final uri = parseModelString(visible[index]['uri']);
           final isLastVisible = index == visible.length - 1;
           return GestureDetector(
             onTap: () => _previewImage(index),

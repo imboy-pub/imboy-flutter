@@ -14,6 +14,7 @@ import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/events/common_events.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 import '../chat_provider.dart';
 import '../../widget/chat_input.dart';
@@ -185,8 +186,9 @@ class ChatEventSubscriptionManager {
 
       final Message msg = event.data as Message;
       try {
-        final String msgConversationUk3 =
-            msg.metadata?['conversation_uk3'] as String? ?? '';
+        final String msgConversationUk3 = parseModelString(
+          msg.metadata?['conversation_uk3'],
+        );
         if (msgConversationUk3 != conversationUk3 || msgIds.contains(msg.id)) {
           return;
         }

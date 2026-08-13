@@ -12,6 +12,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// 消息快捷操作菜单组件
 class MessageQuickActionMenu {
@@ -162,10 +163,14 @@ class MessageQuickActionMenu {
                     onTap: () async {
                       Navigator.pop(context);
                       await onSaveFile(
-                        message.metadata?['name'] as String? ?? message.id,
-                        message.metadata?['uri'] as String? ??
-                            message.metadata?['source'] as String? ??
-                            '',
+                        parseModelString(
+                          message.metadata?['name'],
+                          defaultValue: message.id,
+                        ),
+                        parseModelString(
+                          message.metadata?['uri'] ??
+                              message.metadata?['source'],
+                        ),
                       );
                     },
                   ),

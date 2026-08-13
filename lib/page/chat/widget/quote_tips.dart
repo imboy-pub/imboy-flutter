@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/ui/image_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -85,8 +86,8 @@ class QuoteTipsWidget extends StatelessWidget {
       );
     }
 
-    String msgType = message?.metadata?['msg_type'] as String? ?? '';
-    final status = message?.metadata?['status'] as int?;
+    String msgType = parseModelString(message?.metadata?['msg_type']);
+    final status = parseModelNullableInt(message?.metadata?['status']);
 
     if (IMBoyMessageStatus.isRevokedStatus(status)) {
       body = Row(
@@ -102,7 +103,7 @@ class QuoteTipsWidget extends StatelessWidget {
         ],
       );
     } else if (msgType == MessageType.quote) {
-      String txt = message?.metadata?['quote_text'] as String? ?? '';
+      String txt = parseModelString(message?.metadata?['quote_text']);
       body = Row(
         children: [
           Icon(CupertinoIcons.quote_bubble, size: 16, color: AppColors.iosGray),
@@ -122,7 +123,7 @@ class QuoteTipsWidget extends StatelessWidget {
       );
     } else if (msgType == MessageType.voice) {
       double durationMS =
-          (message?.metadata?["duration_ms"] as int? ?? 0) / 1000;
+          parseModelInt(message?.metadata?["duration_ms"]) / 1000;
       body = Row(
         children: [
           Icon(CupertinoIcons.mic, size: 16, color: AppColors.iosGray),

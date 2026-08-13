@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
@@ -28,7 +29,6 @@ import 'package:imboy/component/chat/message_audio_builder.dart' as audio;
 
 import 'user_collect_state.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/service/assets.dart' show AssetsService;
@@ -1301,7 +1301,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     if (message == null) return 0;
 
     try {
-      String msgType = message.metadata?['msg_type'] as String? ?? '';
+      String msgType = parseModelString(message.metadata?['msg_type']);
       String messageType = message.runtimeType.toString();
 
       // 判断文本消息
@@ -1327,8 +1327,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
             return 7;
           default:
             // 检查payload中的msg_type
-            String msgType =
-                message.metadata?['payload']?['msg_type'] as String? ?? '';
+            String msgType = parseModelString(
+              message.metadata?['payload']?['msg_type'],
+            );
             switch (msgType) {
               case 'text':
                 return 1;

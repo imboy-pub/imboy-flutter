@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 import 'package:map_launcher/map_launcher.dart';
 import 'package:octo_image/octo_image.dart';
@@ -139,7 +140,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
         ? AppColors.sentMessageText.withValues(alpha: 0.7)
         : AppColors.getTextColor(theme.brightness, isSecondary: true);
 
-    String thumb = msg.metadata?['thumb'] as String? ?? '';
+    String thumb = parseModelString(msg.metadata?['thumb']);
 
     return Container(
       width: 240,

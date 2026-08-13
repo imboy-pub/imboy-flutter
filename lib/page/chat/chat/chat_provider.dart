@@ -28,6 +28,7 @@ import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/events/events.dart';
@@ -325,14 +326,16 @@ class ChatNotifier extends _$ChatNotifier {
         final service = _chatService;
         service?.setMessages(newItems);
         state = state.copyWith(
-          nextAutoId: newItems.first.metadata?['auto_id'] as int? ?? 0,
-          prevAutoId: newItems.last.metadata?['auto_id'] as int? ?? 0,
+          nextAutoId: parseModelInt(newItems.first.metadata?['auto_id']),
+          prevAutoId: parseModelInt(newItems.last.metadata?['auto_id']),
         );
       } else {
         _chatService?.insertAllMessages(newItems, index: 0);
         state = state.copyWith(
-          nextAutoId:
-              newItems.first.metadata?['auto_id'] as int? ?? state.nextAutoId,
+          nextAutoId: parseModelInt(
+            newItems.first.metadata?['auto_id'],
+            defaultValue: state.nextAutoId,
+          ),
         );
       }
     }

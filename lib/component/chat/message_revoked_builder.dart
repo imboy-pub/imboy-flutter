@@ -8,7 +8,7 @@ import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart'
-    show parseModelNullableInt;
+    show parseModelNullableInt, parseModelString;
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -34,7 +34,7 @@ class RevokedMessageBuilder extends StatelessWidget {
     // `as int?` 强转会抛 TypeError，与 message.dart 同款修复
     final int? status = parseModelNullableInt(metadata['status']);
     final bool userIsAuthor = user.id == message.authorId;
-    final String text = metadata['text'] as String? ?? '';
+    final String text = parseModelString(metadata['text']);
     final int nowMs = DateTimeHelper.millisecond();
 
     // 调试输出（仅记录非敏感信息）
@@ -149,8 +149,9 @@ class RevokedMessageBuilder extends StatelessWidget {
   Future<Map<String, dynamic>?> _fetchConversationAndContact() async {
     try {
       // 从消息元数据中获取会话UK3
-      String conversationUk3 =
-          message.metadata?['conversation_uk3'] as String? ?? '';
+      String conversationUk3 = parseModelString(
+        message.metadata?['conversation_uk3'],
+      );
       // 根据会话UK3解析出类型和peerId
       final parts = conversationUk3.split('_');
       if (parts.length >= 3) {
@@ -191,7 +192,7 @@ class RevokedMessageBuilder extends StatelessWidget {
     }
 
     // 如果没有会话和联系人信息，尝试从元数据中获取
-    String peerName = metadata['peer_name'] as String? ?? '';
+    String peerName = parseModelString(metadata['peer_name']);
     if (peerName.trim().isNotEmpty) {
       return peerName;
     }

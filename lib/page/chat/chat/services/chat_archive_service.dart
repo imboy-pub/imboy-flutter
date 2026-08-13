@@ -6,6 +6,7 @@ import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/api/msg_api.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
@@ -213,7 +214,10 @@ class ChatArchiveService {
     if (newItems.isNotEmpty) {
       chatService?.insertAllMessages(newItems);
       updatePrevAutoId(
-        newItems.last.metadata?['auto_id'] as int? ?? prevAutoId,
+        parseModelInt(
+          newItems.last.metadata?['auto_id'],
+          defaultValue: prevAutoId,
+        ),
       );
     }
 

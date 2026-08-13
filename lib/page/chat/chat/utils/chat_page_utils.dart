@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/message_type_constants.dart';
 
@@ -115,7 +116,10 @@ class ChatPageUtils {
   /// [message] - 要检查的消息
   /// 返回消息类型字符串
   static String getMessageType(Message message) {
-    return (message.metadata?['msg_type'] ?? 'unknown') as String;
+    return parseModelString(
+      message.metadata?['msg_type'],
+      defaultValue: 'unknown',
+    );
   }
 
   /// 检查消息是否由当前用户发送

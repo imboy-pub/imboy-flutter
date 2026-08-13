@@ -148,12 +148,12 @@ PODS:
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
-  - JVerification (3.4.3):
+  - JVerification (3.4.7):
     - JCore (>= 2.1.6)
   - jverify (0.0.1):
     - Flutter
-    - JCore (>= 5.0.1)
-    - JVerification (= 3.4.3)
+    - JCore (>= 5.4.0)
+    - JVerification (= 3.4.7)
   - livekit_client (2.11.0):
     - Flutter
     - flutter_webrtc
@@ -446,8 +446,8 @@ SPEC CHECKSUMS:
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   JCore: 38810b2235642507e9632ceb5bb66805042909bb
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
-  JVerification: e26fc139307b3d80e30d01479656f4b9632f083f
-  jverify: 756c7d4d358faa9fdc46e86b66aedcb1a410561a
+  JVerification: b59df3fbdfc48b67706141b8539e1ba41b3eb840
+  jverify: 16302a55a8c5ad64c1e77c4e3e823f56c6079580
   livekit_client: 35ee4fef4e184950cc40a5c2a580a84a616d588f
   map_launcher: 8051ad5783913cafce93f2414c6858f2904fd8df
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93

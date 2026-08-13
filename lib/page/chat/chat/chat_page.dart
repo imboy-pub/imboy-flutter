@@ -38,6 +38,7 @@ import '../widget/typing_indicator.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
 import 'package:imboy/theme/providers/theme_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 // T4.2b: 域 MessageStatus（与 flutter_chat_core.MessageStatus 同名,用前缀避免冲突）
 import 'package:imboy/modules/messaging/domain/message_status.dart'
@@ -54,9 +55,6 @@ import 'package:imboy/component/chat/mention_text_reducer.dart'
 
 // 显式导入 StorageService（解决编译错误）
 import 'package:imboy/service/storage.dart';
-// metadata 松散类型的防御性解析（status 不保证是 int）
-import 'package:imboy/store/model/model_parse_utils.dart'
-    show parseModelNullableInt;
 
 // 显式导入 E2EE 事件（barrel 用 show 白名单未含 E2EEPeerKeyChangedEvent）
 import 'package:imboy/service/events/message_events.dart';
@@ -1170,7 +1168,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         _showAppBar = false;
       });
     } else if (message is CustomMessage) {
-      String txt = message.metadata?['quote_text'] as String? ?? '';
+      String txt = parseModelString(message.metadata?['quote_text']);
       if (txt.isNotEmpty) showTextMessage(txt);
     }
   }
@@ -1468,7 +1466,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         } else if (message is CustomMessage &&
             message.metadata?['msg_type'] == MessageType.quote) {
           // 引用消息的复制功能
-          final quoteText = (message.metadata?['quote_text'] ?? '') as String;
+          final quoteText = parseModelString(message.metadata?['quote_text']);
           if (quoteText.isNotEmpty) {
             Clipboard.setData(ClipboardData(text: quoteText));
             AppLoading.showToast(t.main.copied);

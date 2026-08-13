@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/component/chat/message.dart' show confirmOpenFile;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -54,12 +55,12 @@ class MessageFileBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metadata = message.metadata ?? {};
-    final String filename =
-        metadata['name'] as String? ??
-        metadata['filename'] as String? ??
-        t.chat.unknownFile;
-    final int size = metadata['size'] as int? ?? 0;
-    final String uri = metadata['uri'] as String? ?? '';
+    final String filename = parseModelString(
+      metadata['name'] ?? metadata['filename'],
+      defaultValue: t.chat.unknownFile,
+    );
+    final int size = parseModelInt(metadata['size']);
+    final String uri = parseModelString(metadata['uri']);
     final bool isSentByMe = message.authorId == user.id;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;

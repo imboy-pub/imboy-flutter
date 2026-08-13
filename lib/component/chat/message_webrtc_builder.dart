@@ -7,6 +7,7 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -68,20 +69,20 @@ class WebRTCMessageBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     bool userIsAuthor = UserRepoLocal.to.currentUid == message.authorId;
     String peerId = userIsAuthor
-        ? (message.metadata?['peer_id'] as String? ?? '')
+        ? parseModelString(message.metadata?['peer_id'])
         : message.authorId;
-    int state = message.metadata?['state'] as int? ?? 0;
+    int state = parseModelInt(message.metadata?['state']);
 
     // 优先使用 msg_type 判断（WebSocket API v2.0）
-    final msgType = (message.metadata?['msg_type'] ?? '') as String;
+    final msgType = parseModelString(message.metadata?['msg_type']);
 
     // 新格式：msg_type = 'webrtcAudio' 或 'webrtcVideo'
     // 统一使用 msg_type = webrtcAudio / webrtcVideo
     final isVideo = msgType == MessageType.webrtcVideo;
     String media = isVideo ? 'video' : 'audio';
 
-    int startAt = message.metadata?['start_at'] as int? ?? 0;
-    int endAt = message.metadata?['end_at'] as int? ?? 0;
+    int startAt = parseModelInt(message.metadata?['start_at']);
+    int endAt = parseModelInt(message.metadata?['end_at']);
     String callCuration = '';
     if (startAt > 0 && endAt > startAt) {
       DateTime date = DateTime.fromMillisecondsSinceEpoch(

@@ -27,6 +27,7 @@ import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -740,7 +741,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 item.metadata?['timestamp'] != null) ...[
               AppSpacing.horizontalSmall,
               Text(
-                DateTimeHelper.lastTimeFmt(item.metadata!['timestamp'] as int),
+                DateTimeHelper.lastTimeFmt(
+                  parseModelInt(item.metadata?['timestamp']),
+                ),
                 style: context.textStyle(
                   FontSizeType.small,
                   color: isDark

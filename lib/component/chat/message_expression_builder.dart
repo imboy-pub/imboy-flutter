@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:imboy/component/ui/shimmer_box.dart';
 
@@ -27,8 +28,8 @@ class ExpressionMessageBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metadata = message.metadata ?? {};
-    final String url = metadata['url'] as String? ?? '';
-    final String text = metadata['text'] as String? ?? '';
+    final String url = parseModelString(metadata['url']);
+    final String text = parseModelString(metadata['text']);
 
     // 从 metadata 中获取尺寸，如果没有则使用默认值
     final widthVal = metadata['width'];

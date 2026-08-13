@@ -8,6 +8,7 @@ import 'dart:async';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
@@ -128,8 +129,8 @@ class ChatAudioHandler {
       audioUri = typedMessage.source;
       duration = typedMessage.duration.inMilliseconds;
     } else if (typedMessage is CustomMessage) {
-      audioUri = typedMessage.metadata?['uri'] as String?;
-      duration = typedMessage.metadata?['duration_ms'] as int? ?? 0;
+      audioUri = parseModelNullableString(typedMessage.metadata?['uri']);
+      duration = parseModelInt(typedMessage.metadata?['duration_ms']);
     }
 
     if (audioUri == null || audioUri.isEmpty) {

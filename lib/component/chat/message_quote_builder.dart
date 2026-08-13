@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -43,7 +44,7 @@ class QuoteMessageBuilder extends StatelessWidget {
       return _buildQuoteErrorWidget(context, userIsAuthor, isDark);
     }
 
-    String text = message.metadata?['quote_text'] as String? ?? '';
+    String text = parseModelString(message.metadata?['quote_text']);
     // 引用块底色：发送方叠在品牌蓝气泡上用半透明白，接收方按主题叠白/黑。
     final bubbleColor = userIsAuthor
         ? AppColors.mediaScrimWhite.withValues(alpha: 0.15)
@@ -213,7 +214,7 @@ class QuoteMessageBuilder extends StatelessWidget {
       icon = CupertinoIcons.doc_text;
       label = quoteMsg.name;
     } else if (quoteMsg is CustomMessage) {
-      String msgType = quoteMsg.metadata?['msg_type'] as String? ?? '';
+      String msgType = parseModelString(quoteMsg.metadata?['msg_type']);
       switch (msgType) {
         case 'voice':
           icon = CupertinoIcons.mic;
@@ -225,9 +226,10 @@ class QuoteMessageBuilder extends StatelessWidget {
           break;
         case 'location':
           icon = CupertinoIcons.location;
-          label =
-              quoteMsg.metadata?['title'] as String? ??
-              t.common.locationMessage;
+          label = parseModelString(
+            quoteMsg.metadata?['title'],
+            defaultValue: t.common.locationMessage,
+          );
           break;
         case 'visitCard':
           icon = CupertinoIcons.person_crop_circle;
