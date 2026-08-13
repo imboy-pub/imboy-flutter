@@ -16,4 +16,4 @@
 | 阻塞 | 第二台设备出示Web登录码后 | `page/scanner/scanner_page.dart` | 扫到登录码跳转登录确认页 | 未测 | - | 0 | 0 | 0 | 无第二设备，从未实扫 |
 | 阻塞 | 第二台设备出示个人二维码后 | `page/scanner/scanner_page.dart` | 扫到用户名片跳转个人资料页 | 未测 | - | 0 | 0 | 0 | 无第二设备，从未实扫 |
 | 阻塞 | 第二台设备出示群二维码后 | `page/scanner/scanner_page.dart` | 扫到群码入群并进入群聊页 | 未测 | - | 0 | 0 | 0 | 无第二设备，从未实扫 |
-| 阻塞 | 第二台设备出示任意二维码后 | `page/scanner/scanner_page.dart` | 扫到非站内内容跳扫描结果页 | 未测 | - | 0 | 0 | 0 | 无第二设备，从未实扫 |
+| 无待办 | - | `page/scanner/scanner_page.dart` | 扫到非站内内容跳扫描结果页 | 已通过 | 批次75 | 0 | 0 | 0 | 真机：相册选 qr_url.png（https://imboy.pub/scanner_test_75，非站内码）→识别成功→正确跳转 scanner_result_page（相册二维码替代第二台设备） |
