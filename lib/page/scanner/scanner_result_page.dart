@@ -60,25 +60,25 @@ class ScannerResultPage extends StatelessWidget {
                   heroTag: "open_in_browser",
                   tooltip: t.main.openInBrowser,
                   backgroundColor: isUrl(scanResult) ? null : AppColors.iosGray,
-                  onPressed: () {
-                    if (isUrl(scanResult)) {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute<dynamic>(
-                          builder: (context) => WebViewPage(
-                            scanResult,
-                            '',
-                            errorCallback: (String url) {
-                              _showResult(
-                                context,
-                                "${t.common.cannotOpenWebpage}: $url",
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: isUrl(scanResult)
+                      ? () {
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute<dynamic>(
+                              builder: (context) => WebViewPage(
+                                scanResult,
+                                '',
+                                errorCallback: (String url) {
+                                  _showResult(
+                                    context,
+                                    "${t.common.cannotOpenWebpage}: $url",
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        }
+                      : null,
                   child: const Icon(Icons.open_in_browser),
                 ),
                 const Space(width: 40),
