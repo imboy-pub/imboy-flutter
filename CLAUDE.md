@@ -36,10 +36,10 @@
 | 框架 | Flutter / Dart 3.8+ |
 | 状态管理 | Riverpod（100% 迁移完成，0 GetX） |
 | 路由 | go_router |
-| 本地数据库 | SQLite (sqflite 2.4+)，当前 schema v24 |
-| 网络 | Dio 5.9 |
+| 本地数据库 | SQLite (sqflite 2.4+)，当前 schema v30 |
+| 网络 | Dio 5.10 |
 | 实时通讯 | WebSocket + WebRTC |
-| 国际化 | slang ^4.11.2，默认语言 zh-CN |
+| 国际化 | slang ^4.18.0，默认语言 zh-CN |
 | 架构模式 | MVVM + Repository |
 
 ---
@@ -98,7 +98,7 @@ scripts/           # 构建/测试脚本
 
 ### SQLite 版本
 
-当前 `_dbVersion = 24`（以 `lib/service/sqlite.dart` 为准）。历史：v21 修复 `moment_notify` dedup 索引（`COALESCE(comment_id, '')`）。
+当前 `_dbVersion = 30`（以 `lib/service/sqlite.dart` 为准）。历史：v21 修复 `moment_notify` dedup 索引（`COALESCE(comment_id, '')`）。
 
 ---
 

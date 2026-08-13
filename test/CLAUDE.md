@@ -11,18 +11,18 @@
 ```
 imboyapp/
 ├── test/
-│   ├── unit_test/      单元 / widget 测试（551 个 .dart），无头 VM 运行
+│   ├── unit_test/      单元 / widget 测试（586 个 .dart），无头 VM 运行
 │   ├── auto_test/      自动化测试计划表（文档，非可执行代码）
 │   ├── test_driver/    flutter drive 驱动入口
 │   └── CLAUDE.md       本文件
-└── integration_test/   端到端测试（26 个 .dart）—— 刻意留在仓库根目录
+└── integration_test/   端到端测试（48 个 *_test.dart）—— 刻意留在仓库根目录
 ```
 
 ### ⚠️ 为什么 `integration_test/` 不在 `test/` 里面
 
 `flutter test` 不带路径参数时，会**递归扫描 `test/` 下所有 `*_test.dart`**。
 
-`integration_test/` 里的 18 个文件都调用 `IntegrationTestWidgetsFlutterBinding.ensureInitialized()`
+`integration_test/` 里的 46 个文件都调用 `IntegrationTestWidgetsFlutterBinding.ensureInitialized()`
 并 `app.main()` 启动整个 App，**必须有真机或桌面窗口**才能跑。一旦放进 `test/`，
 下面这些裸调用会把它们当单元测试执行，在无设备环境（如 CI 的 ubuntu runner）必然失败：
 

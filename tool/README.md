@@ -3,6 +3,9 @@
 此目录包含用于维护 IMBoy 项目的实用脚本，重点在于 i18n（国际化）系统的优化和代码库重构。
 This directory contains utility scripts for maintaining the IMBoy project, focusing on i18n optimization and codebase refactoring.
 
+> **状态 / Status（2026-08）**：下文的 `split_i18n.dart` 与 `refactor_i18n_calls.dart` 是一次性 i18n 迁移工具，迁移完成后已从本目录移除；当前目录仅保留 `check_module_boundaries.dart`。以下内容作为历史参考保留。
+> **Status**: `split_i18n.dart` and `refactor_i18n_calls.dart` below were one-time i18n migration tools and have since been removed; the directory now only contains `check_module_boundaries.dart`. The rest is kept as historical reference.
+
 ## i18n 优化工具 / i18n Optimization Tools
 
 这些工具旨在将项目从单体翻译文件迁移到基于 `slang` 命名空间的模块化结构。

@@ -18,13 +18,13 @@ Single Flutter application (cross-platform IM) with embedded plugins and domain-
 
 | 层级 / Layer | 技术 / Tech | 模式 / Pattern |
 |-----------|---------|---------|
-| 表现层 / Presentation | Flutter 3.8+ / Material 3 | MVVM |
+| 表现层 / Presentation | Flutter 3.41+ / Dart 3.8+ / Material 3 | MVVM |
 | 状态管理 / State | Riverpod 3.3.1（100% 迁移自 GetX）| Provider |
-| 路由 / Routing | go_router 17.0.1 | 声明式 / Declarative |
+| 路由 / Routing | go_router 17.2 | 声明式 / Declarative |
 | 数据 / Data | Repository + SQLite (SQLCipher AES-256) | Clean Architecture |
-| 网络 / Network | Dio 5.9 (HTTP/2) + WebSocket | REST + Real-time |
+| 网络 / Network | Dio 5.10 (HTTP/2) + WebSocket | REST + Real-time |
 | 加密 / Crypto | E2EE (RSA-2048+AES-256-GCM), Shamir 密钥碎片 | Zero-trust client-side |
-| 国际化 / i18n | slang 4.14 (code-gen) | 10 languages (ja-JP 新增) |
+| 国际化 / i18n | slang 4.18 (code-gen) | 10 languages (ja-JP 新增) |
 | DDD 模块 / DDD | 8 领域模块 (messaging, social_graph, identity 等) | 边界清晰、单向依赖 |
 | 许可层 / License | imboy_license (RSA-SHA256) | 配额网关、企业锁定 |
 | 平台 / Platform | iOS, Android, macOS, Web | 跨平台 / Cross-platform |

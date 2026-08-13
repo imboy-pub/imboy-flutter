@@ -28,10 +28,10 @@
 | 框架 | Flutter / Dart | 3.8+ | ✅ 稳定 |
 | 状态管理 | Riverpod | 3.3.1（pin） | ✅ 100% 迁移完成，0 GetX |
 | 路由 | go_router | 17.2.0 | ✅ 声明式 |
-| 本地数据库 | sqflite + SQLCipher | schema v21 | ✅ 加密 + 迁移脚本 |
+| 本地数据库 | sqflite + SQLCipher | schema v30 | ✅ 加密 + 迁移脚本 |
 | 网络 | Dio + HTTP/2 | 5.10 | ✅ |
 | 实时通讯 | WebSocket + protobuf + WebRTC | — | ✅ |
-| 群通话 | LiveKit | 2.9.0-dev.0 | ⚠ pin（等稳定版） |
+| 群通话 | LiveKit | 2.11.0 | ✅ 稳定版 |
 | 国际化 | slang | 4.18.0（10 语言） | ✅ |
 | 错误监控 | Sentry | 9.23.0 | ✅ |
 | 推送 | Firebase Messaging | 16.4.1 | ✅ |

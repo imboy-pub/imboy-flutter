@@ -21,7 +21,7 @@
 |---|---|
 | 客户端 | Flutter / Dart 3.8+，支持 iOS、Android 和桌面端 |
 | 状态与路由 | Riverpod · go_router |
-| 数据与实时通信 | SQLite（schema v24）· Dio · WebSocket · WebRTC |
+| 数据与实时通信 | SQLite（schema v30）· Dio · WebSocket · WebRTC |
 | 架构 | MVVM + Repository；业务模块按 DDD 组织 |
 | 国际化 | slang；源文件在 `assets/i18n/`，`lib/i18n/` 是生成物 |
 | 后端 | 相邻仓库 `../imboy/`（Erlang/OTP 28+） |

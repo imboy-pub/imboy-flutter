@@ -114,7 +114,7 @@
 
 ## Notes for Submission
 
-1. **No third-party analytics SDK** currently integrated (Sentry pending)
+1. **No third-party analytics SDK** — Sentry is integrated for crash reporting only (see "Data Not Linked to You" above)
 2. **No advertising SDK** — no ad-related data collection
-3. **No Firebase Analytics** — only FCM for push notifications (pending)
-4. When FCM is integrated, add: "Device or other IDs → collected for Push notifications"
+3. **No Firebase Analytics** — only FCM for push notifications (now integrated)
+4. FCM is integrated — ensure "Device or other IDs → collected for Push notifications" is declared above
