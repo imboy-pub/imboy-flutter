@@ -139,3 +139,5 @@ assets/i18n/_unused_translations.yaml
 # Patrol 生成物：patrol_cli 每次运行重新生成的测试入口
 patrol_test/
 **/.git.disabled/
+plugin/audio_waveforms
+plugin/r_upgrade

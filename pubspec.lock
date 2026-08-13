@@ -28,9 +28,11 @@ packages:
   amap_flutter_location_plus:
     dependency: "direct main"
     description:
-      path: "plugin/amap_flutter_location_plus"
-      relative: true
-    source: path
+      path: "."
+      ref: main
+      resolved-ref: d140b2f93b41f625496ce6fef5f8a527b66d46a2
+      url: "git@gitee.com:imboy-tripartite-deps/amap_flutter_location_plus.git"
+    source: git
     version: "3.1.2"
   analyzer:
     dependency: "direct overridden"
@@ -99,9 +101,11 @@ packages:
   audio_waveforms:
     dependency: "direct main"
     description:
-      path: "plugin/audio_waveforms"
-      relative: true
-    source: path
+      path: "."
+      ref: leeyi
+      resolved-ref: "1d932e159ea703a8e13dfa122c630150d356ec8c"
+      url: "git@gitee.com:imboy-tripartite-deps/audio_waveforms.git"
+    source: git
     version: "2.0.2"
   azlistview:
     dependency: "direct main"
@@ -1388,10 +1392,12 @@ packages:
   jverify:
     dependency: "direct main"
     description:
-      path: "plugin/jverify"
-      relative: true
-    source: path
-    version: "3.1.7"
+      path: "."
+      ref: "dev-3.x"
+      resolved-ref: d31487ba2823b6643d54e0e6a860ac0beda244f9
+      url: "git@gitee.com:imboy-tripartite-deps/jverify-flutter-plugin.git"
+    source: git
+    version: "3.1.9"
   leak_tracker:
     dependency: transitive
     description:
@@ -1971,9 +1977,11 @@ packages:
   r_upgrade:
     dependency: "direct main"
     description:
-      path: "plugin/r_upgrade"
-      relative: true
-    source: path
+      path: "."
+      ref: leeyi
+      resolved-ref: "3bfe371466023305cc56f07203fe3b141be2f598"
+      url: "git@gitee.com:imboy-tripartite-deps/r_upgrade.git"
+    source: git
     version: "0.4.3"
   recase:
     dependency: transitive

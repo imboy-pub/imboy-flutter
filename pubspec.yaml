@@ -96,8 +96,11 @@ dependencies:
   # livekit_client 2.11.0 稳定版兼容 flutter_webrtc 1.6.0；此前 pin 的 2.9.0-dev.0
   # 是唯一兼容 flutter_webrtc 1.5.2 的预览版，现已随 webrtc 1.6 一并解锁升级。
   livekit_client: ^2.11.0   # LiveKit SFU 群通话（与 flutter_webrtc 共享 native webrtc 库）
-  audio_waveforms:
-    path: plugin/audio_waveforms       # vendored（上游 2.0.2 iOS 注册 SIGSEGV，本地置空注册）
+  audio_waveforms:                     # iOS 16 register SIGSEGV 修复（gitee fork leeyi 分支）
+    #path: plugin/audio_waveforms
+    git:
+      url: git@gitee.com:imboy-tripartite-deps/audio_waveforms.git
+      ref: leeyi
   just_audio: ^0.10.6                # Audio playback with gapless support (updated: 0.10.5 → 0.10.6)
 
   # ┌─────────────────────────────────────────────────────────────────┐
@@ -199,7 +202,10 @@ dependencies:
   envied: ^1.3.8                    # Environment variables management (updated: 1.3.2 → 1.3.8)
   pin_code_fields: ^9.3.0             # PIN code input fields
   intl_phone_number_input: ^0.7.5    # Phone number input with validation
-  jverify: ^3.1.9                   # JVerification integration
+  jverify:                            # JVerification (gitee fork dev-3.x: SwiftPM + carrier SDK 适配)
+    git:
+      url: git@gitee.com:imboy-tripartite-deps/jverify-flutter-plugin.git
+      ref: dev-3.x
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 🌍 Internationalization                                          │
