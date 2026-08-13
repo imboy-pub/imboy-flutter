@@ -48,42 +48,41 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 599 | 38.9% |
+| 无待办 | 600 | 38.9% |
 | 回归复测 | 598 | 38.8% |
-| 待复验 | 1 | 0.1% |
 | 阻塞 | 343 | 22.3% |
 | **合计** | **1541** | 100% |
 
-bug 累计：**发现 185 / 解决 172 / 待处理 13**
+bug 累计：**发现 185 / 解决 174 / 待处理 11**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
 ## 模块索引
 
-| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 回归复测 | 待复验 | 阻塞 |
-|---|---|---|---|---|---|---|---|
-| [group](group/) | 26 | 286 | 2 | 58 | 178 | 1 | 49 |
-| [mine](mine/) | 21 | 249 | 0 | 113 | 97 | 0 | 39 |
-| [channel](channel/) | 13 | 146 | 2 | 50 | 71 | 0 | 25 |
-| [contact](contact/) | 13 | 126 | 3 | 35 | 74 | 0 | 17 |
-| [personal_info](personal_info/) | 8 | 88 | 2 | 49 | 20 | 0 | 19 |
-| [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 0 | 39 |
-| [chat](chat/) | 6 | 76 | 0 | 52 | 7 | 0 | 17 |
-| [moment](moment/) | 6 | 74 | 0 | 26 | 47 | 0 | 1 |
-| [wallet](wallet/) | 5 | 61 | 1 | 47 | 1 | 0 | 13 |
-| [user_tag](user_tag/) | 5 | 58 | 1 | 42 | 6 | 0 | 10 |
-| [single](single/) | 5 | 48 | 0 | 6 | 14 | 0 | 28 |
-| [qrcode](qrcode/) | 4 | 42 | 0 | 17 | 25 | 0 | 0 |
-| [settings](settings/) | 3 | 36 | 0 | 16 | 9 | 0 | 11 |
-| [search](search/) | 3 | 35 | 1 | 5 | 9 | 0 | 21 |
-| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 0 | 28 |
-| [scanner](scanner/) | 3 | 30 | 0 | 14 | 8 | 0 | 8 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 5 | 0 | 0 | 7 |
-| [conversation](conversation/) | 1 | 12 | 1 | 5 | 7 | 0 | 0 |
-| [mention](mention/) | 1 | 12 | 0 | 3 | 0 | 0 | 9 |
-| [splash](splash/) | 1 | 12 | 0 | 6 | 4 | 0 | 2 |
-| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
-| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 | 0 |
+| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 回归复测 | 阻塞 |
+|---|---|---|---|---|---|---|
+| [group](group/) | 26 | 286 | 0 | 59 | 178 | 49 |
+| [mine](mine/) | 21 | 249 | 0 | 113 | 97 | 39 |
+| [channel](channel/) | 13 | 146 | 2 | 50 | 71 | 25 |
+| [contact](contact/) | 13 | 126 | 3 | 35 | 74 | 17 |
+| [personal_info](personal_info/) | 8 | 88 | 2 | 49 | 20 | 19 |
+| [passport](passport/) | 7 | 82 | 0 | 22 | 21 | 39 |
+| [chat](chat/) | 6 | 76 | 0 | 52 | 7 | 17 |
+| [moment](moment/) | 6 | 74 | 0 | 26 | 47 | 1 |
+| [wallet](wallet/) | 5 | 61 | 1 | 47 | 1 | 13 |
+| [user_tag](user_tag/) | 5 | 58 | 1 | 42 | 6 | 10 |
+| [single](single/) | 5 | 48 | 0 | 6 | 14 | 28 |
+| [qrcode](qrcode/) | 4 | 42 | 0 | 17 | 25 | 0 |
+| [settings](settings/) | 3 | 36 | 0 | 16 | 9 | 11 |
+| [search](search/) | 3 | 35 | 1 | 5 | 9 | 21 |
+| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 28 |
+| [scanner](scanner/) | 3 | 30 | 0 | 14 | 8 | 8 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 5 | 0 | 7 |
+| [conversation](conversation/) | 1 | 12 | 1 | 5 | 7 | 0 |
+| [mention](mention/) | 1 | 12 | 0 | 3 | 0 | 9 |
+| [splash](splash/) | 1 | 12 | 0 | 6 | 4 | 2 |
+| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 |
 
 ## 页面清单
 
@@ -147,7 +146,7 @@ bug 累计：**发现 185 / 解决 172 / 待处理 13**
 - [group_album_photo_detail_page](group/group_album_photo_detail_page.md) — 11 功能点
 - [group_album_photo_page](group/group_album_photo_page.md) — 12 功能点
 - [group_announcement_page](group/group_announcement_page.md) — 12 功能点
-- [group_category_detail_page](group/group_category_detail_page.md) — 10 功能点 ⚠️ 2 待处理
+- [group_category_detail_page](group/group_category_detail_page.md) — 10 功能点
 - [group_category_page](group/group_category_page.md) — 10 功能点
 - [group_detail_page](group/group_detail_page.md) — 12 功能点
 - [group_file_audio_preview_page](group/group_file_audio_preview_page.md) — 9 功能点

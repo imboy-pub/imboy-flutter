@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 待复验 | - | `page/group/category/group_category_detail_page.dart` | 重命名分组并同步父页列表 | 待重验 | 批次79 | 2 | 0 | 2 | 批次79：alpha.27 已发布；迁移00000060删6个误挂 updated_at 触发器已在生产迁移版本66执行（BUG-3 触发器根因 DB 层面已消除）；前端 BUG-A(3f877d1e pop null)在当前 APK；待真机构造分组场景完整验证重命名+父页同步闭环后解决 bug |
+| 无待办 | - | `page/group/category/group_category_detail_page.dart` | 重命名分组并同步父页列表 | 已通过 | 批次80 | 2 | 2 | 0 | 批次80 真机复验通过：alpha.27 迁移00000060删6个误挂 updated_at 触发器已生效，重命名「感觉」→「Group79」调用 /user_tag/change_name 成功（不再抛 record new has no field updated_at）；父页列表同步显示 Group79；重进详情页标题正确显示 Group79（BUG-A pop null 3f877d1e 已修） |
 | 回归复测 | 2026-08-07 | `page/group/category/group_category_detail_page.dart` | 名称未变更时跳过重命名请求 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/category/group_category_detail_page.dart` | 删除分组并二次确认拦截 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/group/category/group_category_detail_page.dart` | 删除成功后回传刷新并退出 | 待重验 | - | 0 | 0 | 0 | |
