@@ -13,7 +13,7 @@
 | 阻塞 | 需实际注册且用户授权 | `page/passport/signup_continue_page.dart` | 提示账号已存在无法重复注册 | 未测 | - | 0 | 0 | 0 | `param_already_exist` 分支 |
 | 阻塞 | 需实际注册且用户授权 | `page/passport/signup_continue_page.dart` | 提交注册成功后跳管理账户 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 需实际注册且用户授权 | `page/passport/signup_continue_page.dart` | 提交注册失败错误提示 | 未测 | - | 0 | 0 | 0 | |
-| 阻塞 | 需实际注册且用户授权 | `page/passport/signup_continue_page.dart` | 弹出结果 SnackBar 提示 | BUG已修待验 | - | 1 | 1 | 0 | 历史修复：SnackBar 弹出屏幕外断言失败，已改 `ScaffoldMessenger` + `SnackBarBehavior.fixed`，从未真机复验 |
-| 阻塞 | 需实际注册且用户授权 | `page/passport/signup_continue_page.dart` | 页面滚动布局不溢出 | BUG已修待验 | - | 1 | 1 | 0 | 历史修复：RenderFlex 溢出 48px，已移除居中对齐 + 底部 80pt 留白，从未真机复验 |
+| 阻塞 | 需实际注册且用户授权 | `page/passport/signup_continue_page.dart` | 弹出结果 SnackBar 提示 | 待重验 | - | 1 | 1 | 0 | 历史修复：SnackBar 弹出屏幕外断言失败，已改 `ScaffoldMessenger` + `SnackBarBehavior.fixed`，从未真机复验 |
+| 阻塞 | 需实际注册且用户授权 | `page/passport/signup_continue_page.dart` | 页面滚动布局不溢出 | 待重验 | - | 1 | 1 | 0 | 历史修复：RenderFlex 溢出 48px，已移除居中对齐 + 底部 80pt 留白，从未真机复验 |
 | 阻塞 | 需实际注册且用户授权 | `page/passport/signup_continue_page.dart` | 语言切换实时重建页面 | 未测 | - | 0 | 0 | 0 | |
 | 阻塞 | 需实际注册且用户授权 | `page/passport/signup_continue_page.dart` | 底部返回登录入口跳转 | 未测 | - | 0 | 0 | 0 | |

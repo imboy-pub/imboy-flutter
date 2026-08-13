@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 阻塞 | 解阻塞条件：需第二个账号发起真实好友申请 | `page/contact/new_friend/new_friend_page.dart` | 拉取好友申请列表并落库渲染 | BUG已修待验 | 批次27 | 1 | 0 | 1 | 批次27 装机复验受阻：uid50 当前零好友申请，页面只能验到空态「没有新的好友」，avatar 兜底路径无数据可打 |
+| 阻塞 | 解阻塞条件：需第二个账号发起真实好友申请 | `page/contact/new_friend/new_friend_page.dart` | 拉取好友申请列表并落库渲染 | 待重验 | 批次27 | 1 | 0 | 1 | 批次27 装机复验受阻：uid50 当前零好友申请，页面只能验到空态「没有新的好友」，avatar 兜底路径无数据可打 |
 | 无待办 | - | `page/contact/new_friend/new_friend_page.dart` | 顶部搜索账号并跳转用户详情 | 已通过 | 批次29 | 0 | 0 | 0 | |
 | 无待办 | - | `page/contact/new_friend/new_friend_page.dart` | 搜索无结果与网络异常提示 | 已通过 | 批次29 | 0 | 0 | 0 | |
 | 阻塞 | 需测试环境或自主测试账号（会写生产数据，删除不可恢复） | `page/contact/new_friend/new_friend_page.dart` | 左滑删除单条申请记录 | 未测 | 批次29 | 0 | 0 | 0 | 当前零申请无数据可删；需非生产数据 |

@@ -16,5 +16,5 @@
 | 无待办 | - | `page/moment/moment_feed_page.dart` | 点作者头像或昵称进资料页 | 已通过 | 批次66 | 0 | 0 | 0 | 真机点头像进 leeyi 资料页（昵称/ID:50075/地区深圳/备注标签/发消息/通话入口齐全） |
 | 无待办 | - | `page/moment/moment_feed_page.dart` | 长文「全文/收起」折叠展开 | 已通过 | 批次66 | 0 | 0 | 0 | 代码核验 L706-754 _expanded 状态+6行阈值+maxLines:6 ellipsis+全文/收起 onTap 切换；当前朋友圈无长文动态触发属数据条件非缺陷 |
 | 无待办 | - | `page/moment/moment_feed_page.dart` | 点击图片进入大图浏览画廊 | 已通过 | 批次66 | 0 | 0 | 0 | 真机点图触发 zoomInPhotoViewGalleryWithInitialPage initialPage=0 total=1 全屏画廊打开 |
-| 阻塞 | 缺外部条件：真实视频动态素材 | `page/moment/moment_feed_page.dart` | 视频进入可视区自动播放与点播 | 阻塞 | 批次65 | 0 | 0 | 0 | 入口已解阻（APK 08-09 已含 cb8463af）；仍缺含视频的真实动态素材，待素材就绪转待复验 |
+| 阻塞 | 缺外部条件：真实视频动态素材 | `page/moment/moment_feed_page.dart` | 视频进入可视区自动播放与点播 | 未测 | 批次65 | 0 | 0 | 0 | 入口已解阻（APK 08-09 已含 cb8463af）；仍缺含视频的真实动态素材，待素材就绪转待复验 |
 | 无待办 | - | `page/moment/moment_feed_page.dart` | 顶栏铃铛未读徽章与发布入口 | 已通过 | 批次66 | 0 | 0 | 0 | 真机顶栏铃铛+发布按钮均在；当前无新互动通知故无徽章（无未读时不显示为正确行为） |

@@ -10,10 +10,10 @@
 | 无待办 | - | `page/channel/channel_compose_page.dart` | 退出保存草稿与再次进入恢复标题正文 | 已通过 | 批次68 | 0 | 0 | 0 | 真机：重进 compose 标题 qa_batch68_title + 正文 qa_batch68_body_test_001**** 完整恢复 |
 | 无待办 | - | `page/channel/channel_compose_page.dart` | 标题输入与临界字数计数器显隐 | 已通过 | 批次68 | 0 | 0 | 0 | 真机：标题 qa_batch68_title 输入；计数 2000-24=1976 实时显示（正文 24 字） |
 | 无待办 | - | `page/channel/channel_compose_page.dart` | 正文多行输入与聚焦边框态 | 已通过 | 批次68 | 0 | 0 | 0 | 真机：正文输入+加粗插入 **** 计数-4 联动；聚焦边框态代码确认 |
-| 阻塞 | 待新APK | `page/channel/channel_compose_page.dart` | 选图上限九张与添加格子隐藏 | 阻塞 | 批次68 | 1 | 1 | 0 | BUG#137 已修（批次34）：根因=photo_manager platform channel 在华为 Android 9 定制 ROM 全面挂起（chat_page.dart:1044-1050 同款踩坑），挂起=Future 永不完成=无异常无日志，compose 是全 app 唯一未绕行入口；修复=Android 先 5 秒超时探测 getAssetPathList，挂起/异常回退 FilePicker（系统 Intent 绕过），正常设备保留 wechat 体验；_PickedImage 双轨模型+BatchUploadController.addFilesAndUpload；analyze 零 issue、23+15 测试全绿；修复晚于 APK（14:55）转阻塞待新 APK 真机复验；channel_edit/create 同款入口待同机验证 |
-| 阻塞 | 需含BUG#137修复的新APK | `page/channel/channel_compose_page.dart` | 长按图片标记封面与封面角标 | 阻塞 | 批次68 | 0 | 0 | 0 | 依赖选图（BUG#137 修复后复验） |
-| 阻塞 | 需含BUG#137修复的新APK | `page/channel/channel_compose_page.dart` | 删除已选图片与封面标记回退 | 阻塞 | 批次68 | 0 | 0 | 0 | 依赖选图（BUG#137 修复后复验） |
+| 阻塞 | 待新APK | `page/channel/channel_compose_page.dart` | 选图上限九张与添加格子隐藏 | 未测 | 批次68 | 1 | 1 | 0 | BUG#137 已修（批次34）：根因=photo_manager platform channel 在华为 Android 9 定制 ROM 全面挂起（chat_page.dart:1044-1050 同款踩坑），挂起=Future 永不完成=无异常无日志，compose 是全 app 唯一未绕行入口；修复=Android 先 5 秒超时探测 getAssetPathList，挂起/异常回退 FilePicker（系统 Intent 绕过），正常设备保留 wechat 体验；_PickedImage 双轨模型+BatchUploadController.addFilesAndUpload；analyze 零 issue、23+15 测试全绿；修复晚于 APK（14:55）转阻塞待新 APK 真机复验；channel_edit/create 同款入口待同机验证 |
+| 阻塞 | 需含BUG#137修复的新APK | `page/channel/channel_compose_page.dart` | 长按图片标记封面与封面角标 | 未测 | 批次68 | 0 | 0 | 0 | 依赖选图（BUG#137 修复后复验） |
+| 阻塞 | 需含BUG#137修复的新APK | `page/channel/channel_compose_page.dart` | 删除已选图片与封面标记回退 | 未测 | 批次68 | 0 | 0 | 0 | 依赖选图（BUG#137 修复后复验） |
 | 无待办 | - | `page/channel/channel_compose_page.dart` | 预览弹层标题封面正文九宫格渲染 | 已通过 | 批次68 | 0 | 0 | 0 | 真机：预览弹层（纱罩+标题+正文 markdown 原样+继续编辑/发布）打开与关闭正常 |
-| 阻塞 | 需含BUG#137修复的新APK | `page/channel/channel_compose_page.dart` | 图片并发上传进度与部分失败重试 | 阻塞 | 批次68 | 0 | 0 | 0 | 依赖选图（BUG#137 修复后复验） |
+| 阻塞 | 需含BUG#137修复的新APK | `page/channel/channel_compose_page.dart` | 图片并发上传进度与部分失败重试 | 未测 | 批次68 | 0 | 0 | 0 | 依赖选图（BUG#137 修复后复验） |
 | 无待办 | - | `page/channel/channel_compose_page.dart` | 发布图文消息并清除草稿返回 | 已通过 | 批次68 | 0 | 0 | 0 | 真机：无图发布成功（qa_batch68_title 进消息流+点赞评论分享按钮渲染+返回频道详情）；重进 compose 草稿已清空（计数恢复 2000+预览发布 disabled 联动）；图文部分待 BUG#137 修复后复验 |
-| 阻塞 | 需含BUG#137修复的新APK | `page/channel/channel_compose_page.dart` | 已选图返回时拦截确认弹窗 | 阻塞 | 批次68 | 0 | 0 | 0 | 无图返回直接退已验（首次 BACK 收键盘二次退出）；已选图拦截依赖 BUG#137 修复后复验 |
+| 阻塞 | 需含BUG#137修复的新APK | `page/channel/channel_compose_page.dart` | 已选图返回时拦截确认弹窗 | 未测 | 批次68 | 0 | 0 | 0 | 无图返回直接退已验（首次 BACK 收键盘二次退出）；已选图拦截依赖 BUG#137 修复后复验 |

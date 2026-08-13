@@ -16,10 +16,15 @@ import collections
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 KEYS = ['无待办', '回归复测', '待重验', '待首测', '待修复', '待复验', '阻塞']
+# 测试状态列（第 6 列）合法取值。野值会污染统计与 LOOP_PROMPT 的选取命令。
+TEST_STATUS_KEYS = {'已通过', '有BUG待修', '未测', '待重验', ''}
 
 
-def parse():
-    """返回 {module: {page_md: (path, rows, counter, pending)}}"""
+def parse(errors):
+    """返回 {module: {page_md: (path, rows, counter, pending)}}
+
+    errors 收集两类硬错误：整个文件 0 行计入（格式不合规）与列取值野值。
+    """
     data = collections.defaultdict(dict)
     for f in sorted(glob.glob(os.path.join(BASE, '*', '*.md'))):
         mod = os.path.basename(os.path.dirname(f))
@@ -34,6 +39,10 @@ def parse():
                       file=sys.stderr)
                 continue
             rows += 1
+            if col[1] not in KEYS:
+                errors.append(f'{f}:{lineno} 计划变化野值 {col[1]!r} | {line.rstrip()[:60]}…')
+            if col[5] not in TEST_STATUS_KEYS:
+                errors.append(f'{f}:{lineno} 测试状态野值 {col[5]!r} | {line.rstrip()[:60]}…')
             c[col[1]] += 1
             if not path:
                 path = col[3].strip('`')
@@ -45,11 +54,18 @@ def parse():
                 pass
         if rows:
             data[mod][name] = (path, rows, c, found, solved, pending)
+        else:
+            errors.append(f'{f} 无一行计入统计（表格列数 <11 或格式不合规），请转标准 11 列格式')
     return data
 
 
 def main():
-    data = parse()
+    errors = []
+    data = parse(errors)
+    if errors:
+        for e in errors:
+            print(f'❌ {e}', file=sys.stderr)
+        raise SystemExit('regen 中止：%d 处格式/取值错误，修复后重跑' % len(errors))
     tot = collections.Counter()
     pages = sum(len(v) for v in data.values())
     for mod in data.values():
@@ -87,6 +103,13 @@ def main():
     A('| `待复验` | 代码已改，缺真机证据 |')
     A('| `阻塞` | 缺外部条件（第二台设备 / 真实素材 / 授权 / 特定数据规模） |')
     A('| `无待办` | 当前无动作，只在回归轮被动扫到 |\n')
+    A('## 「测试状态」列取值（第 6 列，白名单）\n')
+    A('| 取值 | 含义 |\n|---|---|')
+    A('| `已通过` | 该功能点真机验证通过（logcat/截图有证据） |')
+    A('| `未测` | 条件不具备，从未执行 |')
+    A('| `待重验` | 已按判据测过或代码已改，缺真机证据待补 |')
+    A('| `有BUG待修` | 发现 bug，等待修复 |')
+    A('| 空 | 未记录（历史行允许，新写行不推荐） |\n')
     A('## 全局汇总\n')
     A('| 计划变化 | 条数 | 占比 |\n|---|---|---|')
     for k in present:

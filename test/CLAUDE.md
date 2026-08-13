@@ -80,7 +80,8 @@ cp target/aarch64-apple-darwin/release/libvodozemac_bindings_dart.dylib \
 
 ### `auto_test/` —— 测试计划表（文档）
 
-**不是可执行代码**，是 imboyapp 全部功能点的测试计划，共 **137 个页面 / 1538 个功能点**。
+**不是可执行代码**，是 imboyapp 全部功能点的测试计划，共 **137 个页面 / 1541 个功能点**。
+（统计以 `auto_test/README.md` 为准，由 `regen_readme.py` 自动生成，勿手抄数字。）
 
 目录结构**镜像 `lib/page/`**：
 

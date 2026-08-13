@@ -16,4 +16,4 @@
 | 回归复测 | 2026-08-08 | `page/settings/e2ee_backup_export_page.dart` | 导出后展示文件名与分享入口 | 已通过 | 批次66 | 0 | 0 | 0 | 真机：分享卡片渲染（「备份文件已生成！」+ File: 文件名 monospace）；分享按钮 L352-359 代码确认（卡片下方，未滚动目击） |
 | 回归复测 | 2026-08-08 | `page/settings/e2ee_backup_export_page.dart` | 点击分享调起系统分享面板 | 已通过 | 批次66 | 0 | 0 | 0 | 代码确认 L352-359 → _handleShare → shareBackup（share_plus）；外向分享未触发（点到即止，备份文件不真实外发） |
 | 回归复测 | 2026-08-08 | `page/settings/e2ee_backup_export_page.dart` | 点击云端备份上传并提示版本号 | 已通过 | 批次66 | 1 | 1 | 0 | 真机：点击触发上传流程（ANR 期间主线程卡，实际已发起）；成功=绿色 SnackBar 含版本号（L432-434 e2eeBackupCloudUploadSuccess，3s 错过未目击）；BUG#133 同根因已随 deriveKey isolate 化修复（upload L29 复用 packBackupBytes 同款 PBKDF2）；服务端上传结果未确认（测试账号 117 加密备份，无明文泄露风险） |
-| 阻塞 | 需无密钥设备 | `page/settings/e2ee_backup_export_page.dart` | 本地无密钥数据时提示导出失败 | 阻塞 | 批次66 | 0 | 0 | 0 | 本机有密钥数据无法构造；代码确认 L449-462 _readKeys null → L380 NoKeyData 红色 SnackBar；构造需清空本机密钥（影响登录态，不做） |
+| 阻塞 | 需无密钥设备 | `page/settings/e2ee_backup_export_page.dart` | 本地无密钥数据时提示导出失败 | 未测 | 批次66 | 0 | 0 | 0 | 本机有密钥数据无法构造；代码确认 L449-462 _readKeys null → L380 NoKeyData 红色 SnackBar；构造需清空本机密钥（影响登录态，不做） |
