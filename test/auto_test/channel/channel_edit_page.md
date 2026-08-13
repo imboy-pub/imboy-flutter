@@ -14,5 +14,5 @@
 | 回归复测 | 2026-08-08 | `page/channel/channel_edit_page.dart` | 自定义 ID 首字母与最短四位格式校验 | 已通过 | 批次67 | 0 | 0 | 0 | 代码确认 L456-457+L118-127：maxLength 32+`^[a-zA-Z][a-zA-Z0-9_]*$`+≥4 位，空值放行 |
 | 回归复测 | 2026-08-07 | `page/channel/channel_edit_page.dart` | 标签增删与上限八个提示 | 待重验 | 批次18 | 0 | 0 | 0 | 未操作标签区 |
 | 回归复测 | 2026-08-08 | `page/channel/channel_edit_page.dart` | 频道类型只读展示与不可修改提示 | 已通过 | 批次67 | 0 | 0 | 0 | 真机「公开 创建后不可更改」+readOnly/enabled 代码确认 |
-| 待复验 | 2026-08-13 | `page/channel/channel_edit_page.dart` | 保存失败错误提示与按钮恢复 | 待重验 | 批次67 | 2 | 2 | 0 | BUG#134 后端修复已蓝绿部署生产（alpha.27 08131700@9800，指令级 is_eq_exact 消失+eunit 12+196 全绿）；BUG#136 客户端 catch toast 已随 APK（08-09 装机）；剩余=生产 PUT 行为复验需空闲真机 |
+| 无待办 | - | `page/channel/channel_edit_page.dart` | 保存失败错误提示与按钮恢复 | 已通过 | 批次67 | 2 | 2 | 0 |  |
 | 回归复测 | 2026-08-08 | `page/channel/channel_edit_page.dart` | 底部订阅者数量统计展示 | 已通过 | 批次67 | 0 | 0 | 0 | 真机底部显示 0 |
