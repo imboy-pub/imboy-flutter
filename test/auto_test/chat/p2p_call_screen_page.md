@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 回归复测 | 2026-08-08 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 发起音视频呼叫并邀请对端 | 部分通过 | 批次71 | 0 | 0 | 0 | 真机对 leeyi(50075) 发起语音呼叫：呼叫页打开「等待对方接受邀请...」文案正确；⚠️偶现 FlutterWebRTC NPE（SurfaceTextureSurfaceProducer.release null，语音 renderer 未渲染即 dispose，首次触发第二次未复现）已记 BUG#145；接听闭环仍需对端接听 |
 | 阻塞 | 解阻塞条件：需第二台真机 + 对端账号在线 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 接听来电并建立连接 | 未测 | - | 0 | 0 | 0 | |
-| 待复验 | 2026-08-06 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 通话状态机流转与文案切换 | BUG已修待验 | 批次26 | 1 | 0 | 1 | 已修待两端真机：stateTips 全项目无处清空致接通后文案不更新；抽出纯逻辑状态机 CallPhase×CallSignal，14 例单测 + 反证 |
+| 阻塞 | 需第二台真机建立实时通话 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 通话状态机流转与文案切换 | 待重验 | 批次77 | 1 | 0 | 1 | 代码侧闭环（CallPhase×CallSignal 纯逻辑状态机，14 单测+反证）。批次77 评估：状态机流转需 A→B 实时通话各阶段（呼叫/振铃/接通/挂断文案），单设备无法构造对端接听，B 类待双机 |
 | 回归复测 | 2026-08-08 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 对端无应答超时自动结束 | 已通过 | 批次71 | 1 | 1 | 0 | 复验通过：两次真机呼叫对端均 60s 超时自动结束回会话页（精确计时 23:25:56 发起 → ~23:26:56 自动关闭，logcat 干净）；修复（起臂位置改 _initData）生效，勿回退 |
 | 回归复测 | 2026-08-08 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 通话结束写入本地通话记录 | 已通过 | 批次71 | 1 | 1 | 0 | 复验通过：超时结束后 leeyi 会话出现「117 我发送的语音通话」气泡（MessageRepo.save 直写路径生效），勿回退 |
 | 回归复测 | 2026-08-08 | `page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 切换麦克风静音状态 | 已通过 | 批次71 | 0 | 0 | 0 | 真机通话页点麦克风开关 checked→未勾选（静音切换生效，无需对端） |
