@@ -13,7 +13,7 @@
 | 阻塞 | 生产 user_tag TSID 缺失修复中 | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 拖拽手柄重排标签顺序 | 未测 | - | 0 | 0 | 0 | 需 ≥2 标签 |
 | 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 加号打开新建标签面板并生效 | 已通过 | §三十一 | 1 | 1 | 0 | |
 | 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 新建标签后列表立即刷新 | 已通过 | §三十一 | 1 | 1 | 0 | |
-| 阻塞 | 后端 user_tag 发布 | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 左滑打开重命名标签面板 | 未测 | 批次34 | 0 | 0 | 0 | 真机 logcat 实测 /api/v1/user_tag/add 返回 23502 not_null_violation（生产缺 TSID 修复）；修复已在 imboy 工作区落盘未提交（并发 10:00:50），发布后解阻塞 |
-| 阻塞 | 后端 user_tag 发布 | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 左滑删除标签弹出二次确认 | 未测 | 批次34 | 0 | 0 | 0 | 真机 logcat 实测 /api/v1/user_tag/add 返回 23502 not_null_violation（生产缺 TSID 修复）；修复已在 imboy 工作区落盘未提交（并发 10:00:50），发布后解阻塞 |
-| 阻塞 | 后端 user_tag 发布 | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 删除成功与失败分别弹提示 | 未测 | 批次34 | 0 | 0 | 0 | 真机 logcat 实测 /api/v1/user_tag/add 返回 23502 not_null_violation（生产缺 TSID 修复）；修复已在 imboy 工作区落盘未提交（并发 10:00:50），发布后解阻塞 |
+| 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 左滑打开重命名标签面板 | 已通过 | 批次75 | 0 | 0 | 0 | 真机：左滑 tag75 行→右侧出现「名称」(重命名入口)+「删除」按钮（user_tag/add 的 23502 已随 9586c7dd alpha.24 修复，不再阻塞） |
+| 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 左滑删除标签弹出二次确认 | 已通过 | 批次75 | 0 | 0 | 0 | 真机：左滑 tag75→点删除→弹出「确认删除 / 删除标签后标签中的联系人不会被删除 / 取消 / 删除」二次确认框 |
+| 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 删除成功与失败分别弹提示 | 已通过 | 批次75 | 0 | 0 | 0 | 真机：二次确认点删除→`/api/v1/user_tag/delete` 200（f65495c8 残留根修复生效，无报错）→tag75 从列表消失，缓存清除 |
 | 阻塞 | 后端 user_tag 发布 | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 详情页返回后重读副标题与计数 | 未测 | 批次34 | 0 | 0 | 0 | 真机 logcat 实测 /api/v1/user_tag/add 返回 23502 not_null_violation（生产缺 TSID 修复）；修复已在 imboy 工作区落盘未提交（并发 10:00:50），发布后解阻塞 |

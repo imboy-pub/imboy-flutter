@@ -38,13 +38,13 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 509 | 33.2% |
+| 无待办 | 513 | 33.5% |
 | 回归复测 | 613 | 40.0% |
 | 待复验 | 5 | 0.3% |
-| 阻塞 | 394 | 25.7% |
+| 阻塞 | 390 | 25.5% |
 | **合计** | **1531** | 100% |
 
-bug 累计：**发现 182 / 解决 164 / 待处理 18**
+bug 累计：**发现 182 / 解决 165 / 待处理 17**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -61,7 +61,7 @@ bug 累计：**发现 182 / 解决 164 / 待处理 18**
 | [chat](chat/) | 6 | 76 | 1 | 40 | 12 | 2 | 22 |
 | [moment](moment/) | 6 | 74 | 0 | 26 | 47 | 0 | 1 |
 | [wallet](wallet/) | 5 | 61 | 1 | 29 | 7 | 0 | 16 |
-| [user_tag](user_tag/) | 5 | 58 | 2 | 36 | 6 | 0 | 16 |
+| [user_tag](user_tag/) | 5 | 58 | 1 | 40 | 6 | 0 | 12 |
 | [single](single/) | 5 | 48 | 0 | 6 | 14 | 0 | 28 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 17 | 25 | 0 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 16 | 9 | 0 | 11 |
@@ -262,7 +262,7 @@ bug 累计：**发现 182 / 解决 164 / 待处理 18**
 - [contact_tag_list_page](user_tag/contact_tag_list_page.md) — 12 功能点
 - [select_tag_friend_page](user_tag/select_tag_friend_page.md) — 12 功能点
 - [tag_relation_page](user_tag/tag_relation_page.md) — 12 功能点
-- [user_tag_save_page](user_tag/user_tag_save_page.md) — 11 功能点 ⚠️ 1 待处理
+- [user_tag_save_page](user_tag/user_tag_save_page.md) — 11 功能点
 
 ### wallet
 
