@@ -16,5 +16,5 @@
 | 无待办 | - | `page/mine/feedback/feedback_page.dart` | 加载历史反馈列表 | 已通过 | 批次29 | 0 | 0 | 0 | 实测 page=1&size=1000 请求发出返回（服务端 count=0 真无数据，空态符合实际——上游提交 bug 所致，见 L15） |
 | 无待办 | - | `page/mine/feedback/feedback_page.dart` | 展示加载空态与错误重试三态 | 已通过 | 批次29 | 0 | 0 | 0 | 空态实测（列表无数据展示空文案）；加载/错误重试代码证实 AsyncStateView(isLoading/onRetry) 同 denylist 已验证模式 |
 | 无待办 | - | `page/mine/feedback/feedback_page.dart` | 按状态码渲染待回复已回复完结色 | 已通过 | 批次29 | 0 | 0 | 0 | 代码证实 _getFeedbackStatusColor（status 3=绿 1=橙 default=primary）；无数据未实测色值 |
-| 阻塞 | 待服务端部署 | `page/mine/feedback/feedback_page.dart` | 点击条目进入反馈详情页 | 未测 | - | 0 | 0 | 0 | 无数据（L15 服务端修复未部署，生产提交仍失败）列表恒空无法点击；部署后可实测 |
-| 阻塞 | 待服务端部署 | `page/mine/feedback/feedback_page.dart` | 左滑删除反馈并二次确认 | 未测 | - | 0 | 0 | 0 | 无数据（L15 服务端修复未部署，生产提交仍失败）无法实测删除闭环 |
+| 阻塞 | 待查列表查询 | `page/mine/feedback/feedback_page.dart` | 点击条目进入反馈详情页 | 未测 | 批次79 | 0 | 0 | 0 | 批次79：alpha.27 后 POST /feedback/add 返回成功(handleResponse true)，但反馈列表仍显空（下拉刷新亦空），疑似列表查询接口/状态筛选问题，详情入口待列表有数据后验证 |
+| 阻塞 | 待查列表查询 | `page/mine/feedback/feedback_page.dart` | 左滑删除反馈并二次确认 | 未测 | 批次79 | 0 | 0 | 0 | 批次79：同上，提交不再报错但列表恒空，删除闭环待列表有数据后验证 |

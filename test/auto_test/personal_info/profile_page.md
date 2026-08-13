@@ -15,5 +15,5 @@
 | 无待办 | - | `page/personal_info/profile/profile_page.dart` | 封面相机图标更换个人背景图 | 已通过 | 批次30 | 0 | 0 | 0 | 面板→系统相册→选图→上传→回页正常（华为 documentsui 单选正常） |
 | 无待办 | - | `page/personal_info/profile/profile_page.dart` | 生日选择器保存并回填日期 | 已通过 | 批次30 | 0 | 0 | 0 | 回填「1990-01-01」铁证 + 完善度 75%→88% + 建议变「资料已完善！」 |
 | 无待办 | - | `page/personal_info/profile/profile_page.dart` | 个性签名弹窗编辑并保存 | 已通过 | 批次30 | 0 | 0 | 0 | ASCII 输入「QA test sig 2026-08-08」保存成功，签名行回填（adb 不支持中文输入，用 ASCII 替代） |
-| 阻塞 | 待发布生效+真机复验 | `page/personal_info/profile/profile_page.dart` | 职业学校兴趣弹窗编辑并保存 | 待重验 | 批次30 | 1 | 0 | 1 | BUG：职业/学校/兴趣保存失败（确认后回填仍「未设置」，刷新亦然）。根因三处：后端 user_agg:validate_update 白名单缺 profession/school/interests + user 表缺三列 + 前端 profileProvider switch 缺三 case。已修（未 push）：imboy 仓迁移 00000059 加列 + user_agg 白名单 + common.hrl 读侧列；imboyapp 仓 profile_provider +9 行 |
+| 无待办 | - | `page/personal_info/profile/profile_page.dart` | 职业学校兴趣弹窗编辑并保存 | 已通过 | 批次79 | 1 | 1 | 0 | 批次79 真机复验通过：alpha.27 蓝绿发布后端 user_agg 白名单+迁移00000059加列已生效（DB 持久化确认 profession 有值）；前端真根因=ProfileNotifier.build() 初始 state 与 refreshUserData 均漏读 profession/school/interests（进页走 build() 不调 refreshUserData），已补两处读取；真机 IMBoy(51698) 进资料页职业正确回填，学校/兴趣空值显示未设置 |
 | 无待办 | - | `page/personal_info/profile/profile_page.dart` | 点隐私设置行跳转隐私设置页 | 已通过 | 批次30 | 0 | 0 | 0 | 隐私设置页正常打开：搜索设置（账号搜索/手机号添加/二维码添加 3 开关全开）+ 状态设置（在线状态开/附近的人可见关） |
