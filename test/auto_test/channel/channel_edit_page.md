@@ -6,7 +6,7 @@
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 保存成功提示并回传最新频道对象 | 已通过 | 批次18 | 1 | 1 | 0 | 历史真机保存成功（PUT 链 6-23 起存在且曾通） |
-| 待复验 | 2026-08-13 | `page/channel/channel_edit_page.dart` | 自定义 ID 为空可补设一次、已设则锁定 | 待重验 | 批次18 | 1 | 1 | 0 | 后端修复已蓝绿部署生产（alpha.27 08131700@9800，指令级 is_eq_exact 消失+eunit 12+196 全绿）；剩余=空闲真机补设复验 |
+| 无待办 | - | `page/channel/channel_edit_page.dart` | 自定义 ID 为空可补设一次、已设则锁定 | 已通过 | 批次18 | 1 | 1 | 0 |  |
 | 回归复测 | 2026-08-08 | `page/channel/channel_edit_page.dart` | 进入时回填资料并拉服务端最新覆盖 | 已通过 | 批次67 | 0 | 0 | 0 | 真机：名称 qa-batch67-edit 回填、ID 框空（未设）、描述空、类型「公开 创建后不可更改」 |
 | 回归复测 | 2026-08-07 | `page/channel/channel_edit_page.dart` | 头像弹层选择与上传替换 | 待重验 | 批次18 | 0 | 0 | 0 | 未操作头像 |
 | 回归复测 | 2026-08-08 | `page/channel/channel_edit_page.dart` | 频道名称必填与 50 字上限校验 | 已通过 | 批次67 | 0 | 0 | 0 | 代码确认 L413-427：validator 必填+trim>50 报错+maxLength 50；真机名称框正常 |

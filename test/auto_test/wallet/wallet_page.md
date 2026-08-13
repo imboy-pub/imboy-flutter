@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 回归复测 | 2026-08-07 | `page/wallet/wallet_page.dart` | 点击加号打开充值弹窗 | 待重验 | - | 0 | 0 | 0 | |
 | 回归复测 | 2026-08-07 | `page/wallet/wallet_page.dart` | 校验充值金额 1~10000 元 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/wallet/wallet_page.dart` | 弹出支付方式选择列表 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/wallet/wallet_page.dart` | 弹出支付方式选择列表 | 已通过 | 批次67 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/wallet_page.dart` | 门控生产环境 mock 支付通道 | 已通过 | 批次22 | 1 | 1 | 0 | BUG#82 资金红线；生产遗留一笔 mock 充值待用户决定如何处理 |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/wallet_page.dart` | 提交充值订单并刷新余额 | 未测 | - | 0 | 0 | 0 | 从未实充 |
 | 无待办 | - | `page/wallet/wallet_page.dart` | 更多菜单跳转提现页 | 已通过 | 批次67 | 0 | 0 | 0 | |
