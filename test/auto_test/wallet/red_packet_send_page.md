@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 回归复测 | 2026-08-07 | `page/wallet/red_packet_send_page.dart` | 进页自动拉取真实余额 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/wallet/red_packet_send_page.dart` | 进页自动拉取真实余额 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 真机验证通过：单聊附加面板进红包发送页，GET /wallet/balance 调用成功，余额提示条「钱包余额 ￥0.00」与实际余额一致渲染 |
 | 阻塞 | 需余额>0 且用户授权 | `page/wallet/red_packet_send_page.dart` | 单聊场景加载收款人显示名 | 待重验 | - | 0 | 0 | 0 | BUG#111 同源修改；批次33 复核：真机进入单聊（automation-buddy）红包发送页，_receiverName 仅渲染于二次确认弹窗（redPacketReceiverLabel），页面本体无展示；弹窗必经 amountYuan>maxBalanceYuan 拦截（余额 ¥0.00 实测），不可达 → 转阻塞 |
 | 无待办 | - | `page/wallet/red_packet_send_page.dart` | 群聊切换普通与拼手气红包 | 已通过 | 批次78 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/red_packet_send_page.dart` | 校验红包金额最小 0.01 元 | 已通过 | 批次66 | 0 | 0 | 0 | 真机红包页金额输0点「放入钱包发送」→ validator 拦截「金额必须大于 0」（L72/L238 amountFen<1 即 <0.01元 生效） |
