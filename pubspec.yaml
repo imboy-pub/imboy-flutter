@@ -137,7 +137,10 @@ dependencies:
   # 服务 API（AMapApi.staticMapUrl，纯 HTTP，全平台可用），不再需要原生
   # 地图渲染插件（此前 iOS/Android 之外的平台完全用不了）。
   amap_flutter_location_plus:
-    path: plugin/amap_flutter_location_plus       # Amap location services
+    #path: plugin/amap_flutter_location_plus       # Amap location services
+    git:
+      url: git@gitee.com:imboy-tripartite-deps/amap_flutter_location_plus.git
+      ref: main
 #    git:
 #      url: https://github.com/xiejeep/amap_flutter_location_plus.git
 #      ref: main
@@ -169,7 +172,10 @@ dependencies:
   share_plus: ^13.2.0                # Sharing functionality (updated: 13.0.0 → 13.2.0)
   wakelock_plus: 1.6.1               # Keep screen on; 1.7.0 is incompatible with current Kotlin APIs
   r_upgrade:                          # App upgrade utility
-    path: plugin/r_upgrade
+    #path: plugin/r_upgrade
+    git:
+      url: git@gitee.com:imboy-tripartite-deps/r_upgrade.git
+      ref: leeyi
   ic_storage_space:                   # Storage space information
     git:
       url: https://github.com/leeyisoft/IcStorageSpace.git
@@ -193,7 +199,7 @@ dependencies:
   envied: ^1.3.8                    # Environment variables management (updated: 1.3.2 → 1.3.8)
   pin_code_fields: ^9.3.0             # PIN code input fields
   intl_phone_number_input: ^0.7.5    # Phone number input with validation
-  jverify: ^3.1.7                   # JVerification integration
+  jverify: ^3.1.9                   # JVerification integration
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 🌍 Internationalization                                          │
@@ -287,8 +293,6 @@ dependency_overrides:
     path: plugin/flutter_chat_ui/packages/flyer_chat_location_message
   cross_cache:
     path: plugin/flutter_chat_ui/packages/cross_cache
-  jverify:
-    path: plugin/jverify
 
 
 #  characters: ^1.4.0
