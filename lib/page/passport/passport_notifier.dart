@@ -451,6 +451,18 @@ class PassportNotifier extends _$PassportNotifier {
     }
   }
 
+  /// passport 接口的错误信息多为中文明文，个别是 i18n 键（如密码错误时
+  /// 服务端 elib_password 返回 `errorPassword`）。原始键直接展示给用户
+  /// 是展示 bug，在写入 state 前统一翻译；未知键原样透传。
+  /// 注意：登录 md5 回退逻辑依赖**原始**消息做 contains('errorPassword')
+  /// 判断，不能提前在 http 层翻译。
+  String _localizedAuthErrMsg(String raw) {
+    return switch (raw) {
+      'errorPassword' => t.common.errorPassword,
+      _ => raw,
+    };
+  }
+
   Future<int> _login(
     String accountType,
     String account,
@@ -503,13 +515,17 @@ class PassportNotifier extends _$PassportNotifier {
           final retry = await HttpClient.client.post(API.login, data: postData);
           if (!retry.ok) {
             safeUpdateState(
-              (state) => state.copyWith(error: retry.error!.message),
+              (state) => state.copyWith(
+                error: _localizedAuthErrMsg(retry.error?.message ?? ''),
+              ),
             );
             return 0;
           }
           resp2 = retry;
         } else {
-          safeUpdateState((state) => state.copyWith(error: errMsg));
+          safeUpdateState(
+            (state) => state.copyWith(error: _localizedAuthErrMsg(errMsg)),
+          );
           return 0;
         }
       }
@@ -577,7 +593,11 @@ class PassportNotifier extends _$PassportNotifier {
         data: postData,
       );
       if (!resp2.ok) {
-        safeUpdateState((state) => state.copyWith(error: resp2.error!.message));
+        safeUpdateState(
+          (state) => state.copyWith(
+            error: _localizedAuthErrMsg(resp2.error?.message ?? ''),
+          ),
+        );
         return 0;
       } else {
         int status = (resp2.payload['status'] ?? 1) as int;
@@ -666,7 +686,9 @@ class PassportNotifier extends _$PassportNotifier {
     if (resp2.ok) {
       return null;
     } else {
-      state = state.copyWith(error: resp2.error?.message ?? t.common.unknown);
+      state = state.copyWith(
+        error: _localizedAuthErrMsg(resp2.error?.message ?? t.common.unknown),
+      );
       return state.error;
     }
   }
@@ -687,7 +709,9 @@ class PassportNotifier extends _$PassportNotifier {
       if (errorMsg.contains('%s')) {
         errorMsg = errorMsg.replaceFirst('%s', account);
       }
-      safeUpdateState((state) => state.copyWith(error: errorMsg));
+      safeUpdateState(
+        (state) => state.copyWith(error: _localizedAuthErrMsg(errorMsg)),
+      );
       return errorMsg;
     }
   }
@@ -732,7 +756,9 @@ class PassportNotifier extends _$PassportNotifier {
         data: postData,
       );
       if (!resp2.ok) {
-        state = state.copyWith(error: resp2.error!.message);
+        state = state.copyWith(
+          error: _localizedAuthErrMsg(resp2.error?.message ?? ''),
+        );
         return state.error;
       } else {
         StorageService.to.setString(Keys.lastLoginAccount, account);
@@ -847,7 +873,9 @@ class PassportNotifier extends _$PassportNotifier {
       data: postData,
     );
     if (!resp2.ok) {
-      state = state.copyWith(error: resp2.error!.message);
+      state = state.copyWith(
+        error: _localizedAuthErrMsg(resp2.error?.message ?? ''),
+      );
       return state.error;
     } else {
       int status = (resp2.payload['status'] ?? 1) as int;
