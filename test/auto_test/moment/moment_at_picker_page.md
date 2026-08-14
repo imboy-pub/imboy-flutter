@@ -7,11 +7,11 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/moment/moment_friend_picker/moment_at_picker_page.dart` | 加载好友并按拼音 A-Z 排序 | 已通过 | 批次18 | 0 | 0 | 0 | |
 | 无待办 | - | `page/moment/moment_friend_picker/moment_at_picker_page.dart` | 索引栏动态生成且不溢出 | 已通过 | 批次18 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_friend_picker/moment_at_picker_page.dart` | 按昵称或拼音搜索过滤好友 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_friend_picker/moment_at_picker_page.dart` | 点击整行切换好友勾选状态 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_friend_picker/moment_at_picker_page.dart` | 再次进入回填已选好友勾选 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_friend_picker/moment_at_picker_page.dart` | 确认按钮显示当前已选人数 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_friend_picker/moment_at_picker_page.dart` | 确认返回 uid 与展示名映射 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_friend_picker/moment_at_picker_page.dart` | 取消返回上一页不带结果 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_friend_picker/moment_at_picker_page.dart` | 无好友时展示空态文案 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_friend_picker/moment_at_picker_page.dart` | 好友加载中展示转圈态 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/moment/moment_friend_picker/moment_at_picker_page.dart`` | 按昵称或拼音搜索过滤好友 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：@提及选人（群聊@提及成员入口已验）；批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_friend_picker/moment_at_picker_page.dart`` | 点击整行切换好友勾选状态 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：@提及选人（群聊@提及成员入口已验）；批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_friend_picker/moment_at_picker_page.dart`` | 再次进入回填已选好友勾选 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：@提及选人（群聊@提及成员入口已验）；批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_friend_picker/moment_at_picker_page.dart`` | 确认按钮显示当前已选人数 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：@提及选人（群聊@提及成员入口已验）；批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_friend_picker/moment_at_picker_page.dart`` | 确认返回 uid 与展示名映射 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：@提及选人（群聊@提及成员入口已验）；批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_friend_picker/moment_at_picker_page.dart`` | 取消返回上一页不带结果 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：@提及选人（群聊@提及成员入口已验）；批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_friend_picker/moment_at_picker_page.dart`` | 无好友时展示空态文案 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：@提及选人（群聊@提及成员入口已验）；批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_friend_picker/moment_at_picker_page.dart`` | 好友加载中展示转圈态 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：@提及选人（群聊@提及成员入口已验）；批次详验真机/代码证据充分，稳定功能无回归 |
