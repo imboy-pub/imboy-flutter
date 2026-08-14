@@ -6,7 +6,7 @@
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | ``page/search/message_search_page.dart`` | 输入关键词防抖触发搜索 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
-| 无待办 | - | ``page/search/message_search_page.dart`` | 点清除按钮重置搜索状态 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
+| 回归复测 | 2026-08-07 | `page/search/message_search_page.dart` | 点清除按钮重置搜索状态 | 有BUG待修 | 批次62 | 1 | 0 | 1 | BUG#130：真机清空后点「私聊」chip 旧关键词 fts/msg 请求复出+chips 残留；根因 resetSearch copyWith 无 currentQuery:''（L118-127）；agent 已修 15/15 测试全绿，真机复验需新 APK |
 | 无待办 | - | `page/search/message_search_page.dart` | 按会话类型筛选搜索结果 | 已通过 | 批次62 | 1 | 1 | 0 | 真机：点「私聊」chip→logcat type=C2C 实锤；chips「全部/私聊/群聊」渲染 |
 | 无待办 | - | ``page/search/message_search_page.dart`` | 按时间范围筛选搜索结果 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | — | `page/search/message_search_page.dart` | E2EE 下展示搜索关闭说明态 | 已通过 | 批次62 | 0 | 0 | 0 | 真机：错误态重试后呈现「消息搜索未启用/端到端加密已开启」（fts 请求→FtsFeatureDisabledException→searchDisabled 态） |

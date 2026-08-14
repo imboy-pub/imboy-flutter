@@ -48,12 +48,12 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1158 | 75.1% |
-| 回归复测 | 42 | 2.7% |
+| 无待办 | 1156 | 75.0% |
+| 回归复测 | 44 | 2.9% |
 | 阻塞 | 341 | 22.1% |
 | **合计** | **1541** | 100% |
 
-bug 累计：**发现 178 / 解决 169 / 待处理 9**
+bug 累计：**发现 180 / 解决 169 / 待处理 11**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -74,11 +74,11 @@ bug 累计：**发现 178 / 解决 169 / 待处理 9**
 | [single](single/) | 5 | 48 | 0 | 20 | 0 | 28 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 25 | 0 | 11 |
-| [search](search/) | 3 | 35 | 0 | 14 | 0 | 21 |
+| [search](search/) | 3 | 35 | 1 | 13 | 1 | 21 |
 | [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 28 |
 | [scanner](scanner/) | 3 | 30 | 0 | 22 | 0 | 8 |
 | [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 5 | 0 | 7 |
-| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [conversation](conversation/) | 1 | 12 | 1 | 11 | 1 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 3 | 0 | 9 |
 | [splash](splash/) | 1 | 12 | 0 | 10 | 0 | 2 |
 | [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 |
@@ -134,7 +134,7 @@ bug 累计：**发现 178 / 解决 169 / 待处理 9**
 
 ### conversation
 
-- [conversation_page](conversation/conversation_page.md) — 12 功能点
+- [conversation_page](conversation/conversation_page.md) — 12 功能点 ⚠️ 1 待处理
 
 ### group
 
@@ -244,7 +244,7 @@ bug 累计：**发现 178 / 解决 169 / 待处理 9**
 
 ### search
 
-- [message_search_page](search/message_search_page.md) — 12 功能点
+- [message_search_page](search/message_search_page.md) — 12 功能点 ⚠️ 1 待处理
 - [search_chat_page](search/search_chat_page.md) — 11 功能点
 - [web_search_page](search/web_search_page.md) — 12 功能点
 
