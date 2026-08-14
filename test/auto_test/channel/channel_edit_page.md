@@ -12,7 +12,7 @@
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 频道名称必填与 50 字上限校验 | 已通过 | 批次67 | 0 | 0 | 0 | 代码确认 L413-427：validator 必填+trim>50 报错+maxLength 50；真机名称框正常 |
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 频道描述编辑与 500 字上限 | 已通过 | 批次67 | 0 | 0 | 0 | 代码确认 L437 maxLength 500；真机描述框空 |
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 自定义 ID 首字母与最短四位格式校验 | 已通过 | 批次67 | 0 | 0 | 0 | 代码确认 L456-457+L118-127：maxLength 32+`^[a-zA-Z][a-zA-Z0-9_]*$`+≥4 位，空值放行 |
-| 回归复测 | 2026-08-07 | `page/channel/channel_edit_page.dart` | 标签增删与上限八个提示 | 待重验 | 批次18 | 0 | 0 | 0 | 未操作标签区 |
+| 无待办 | - | `page/channel/channel_edit_page.dart` | 标签增删与上限八个提示 | 已通过 | 批次82 | 0 | 0 | 0 | |
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 频道类型只读展示与不可修改提示 | 已通过 | 批次67 | 0 | 0 | 0 | 真机「公开 创建后不可更改」+readOnly/enabled 代码确认 |
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 保存失败错误提示与按钮恢复 | 已通过 | 批次67 | 2 | 2 | 0 |  |
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 底部订阅者数量统计展示 | 已通过 | 批次67 | 0 | 0 | 0 | 真机底部显示 0 |
