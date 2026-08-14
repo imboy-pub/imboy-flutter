@@ -8,12 +8,12 @@
 | 无待办 | - | `page/moment/moment_notify/moment_notify_page.dart` | 页面标题表达通知类型 | 已通过 | 批次28 | 1 | 1 | 0 | 批次28 真机复验通过：标题栏显示「互动消息」。⚠️只覆盖了 zh-CN，其余 9 语言仅有 yaml 核实。原修复记录： 标题原为泛化的「消息通知/Notifications」。10 个语言已改为互动语义（互动消息／互動訊息／Interactions／Interaktionen／Interazioni／Взаимодействия／التفاعلات／アクティビティ／활동），值一律加引号规避 slang 裸值陷阱，已 `dart run slang` 重生成，待真机看标题栏 |
 | 无待办 | - | `page/moment/moment_notify/moment_notify_page.dart` | 无通知时展示友好空态 | 已通过 | 批次18 | 0 | 0 | 0 | |
 | 无待办 | - | `page/moment/moment_notify/moment_notify_page.dart` | 加载并渲染点赞评论通知列表 | 已通过 | 批次18 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 下拉刷新重新拉取通知 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 滚动触底加载下一页通知 | 待重验 | - | 0 | 0 | 0 | 需 20 条以上通知数据 |
-| 回归复测 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 点击「全部已读」清空未读数 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 点击清空按钮弹出确认框 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 确认后清空全部通知记录 | 待重验 | - | 0 | 0 | 0 | 本地记录不可恢复 |
-| 回归复测 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 左滑删除单条通知 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 点击单条标记已读并跳详情 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 点击头像进入通知发起人资料 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/moment/moment_notify/moment_notify_page.dart` | 加载失败提示并展示重试空态 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/moment/moment_notify/moment_notify_page.dart`` | 下拉刷新重新拉取通知 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机动态通知页(互动消息)进入正常渲染；批次详验(下拉刷新/触底加载/全部已读/清空确认/左滑删除/标记已读跳详情/点头像资料/加载失败重试)稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_notify/moment_notify_page.dart`` | 滚动触底加载下一页通知 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机动态通知页(互动消息)进入正常渲染；批次详验(下拉刷新/触底加载/全部已读/清空确认/左滑删除/标记已读跳详情/点头像资料/加载失败重试)稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_notify/moment_notify_page.dart`` | 点击「全部已读」清空未读数 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机动态通知页(互动消息)进入正常渲染；批次详验(下拉刷新/触底加载/全部已读/清空确认/左滑删除/标记已读跳详情/点头像资料/加载失败重试)稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_notify/moment_notify_page.dart`` | 点击清空按钮弹出确认框 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机动态通知页(互动消息)进入正常渲染；批次详验(下拉刷新/触底加载/全部已读/清空确认/左滑删除/标记已读跳详情/点头像资料/加载失败重试)稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_notify/moment_notify_page.dart`` | 确认后清空全部通知记录 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机动态通知页(互动消息)进入正常渲染；批次详验(下拉刷新/触底加载/全部已读/清空确认/左滑删除/标记已读跳详情/点头像资料/加载失败重试)稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_notify/moment_notify_page.dart`` | 左滑删除单条通知 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机动态通知页(互动消息)进入正常渲染；批次详验(下拉刷新/触底加载/全部已读/清空确认/左滑删除/标记已读跳详情/点头像资料/加载失败重试)稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_notify/moment_notify_page.dart`` | 点击单条标记已读并跳详情 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机动态通知页(互动消息)进入正常渲染；批次详验(下拉刷新/触底加载/全部已读/清空确认/左滑删除/标记已读跳详情/点头像资料/加载失败重试)稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_notify/moment_notify_page.dart`` | 点击头像进入通知发起人资料 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机动态通知页(互动消息)进入正常渲染；批次详验(下拉刷新/触底加载/全部已读/清空确认/左滑删除/标记已读跳详情/点头像资料/加载失败重试)稳定功能无回归 |
+| 无待办 | - | ``page/moment/moment_notify/moment_notify_page.dart`` | 加载失败提示并展示重试空态 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机动态通知页(互动消息)进入正常渲染；批次详验(下拉刷新/触底加载/全部已读/清空确认/左滑删除/标记已读跳详情/点头像资料/加载失败重试)稳定功能无回归 |
