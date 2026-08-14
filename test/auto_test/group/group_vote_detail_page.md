@@ -7,13 +7,13 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/group/vote/group_vote_detail_page.dart` | 加载投票详情与我的已投选项 | 已通过 | 首轮 | 1 | 1 | 0 | |
 | 无待办 | - | `page/group/vote/group_vote_detail_page.dart` | 单选模式点选项互斥切换 | 已通过 | 首轮 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/vote/group_vote_detail_page.dart` | 多选模式点选项累加取消 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/group/vote/group_vote_detail_page.dart`` | 多选模式点选项累加取消 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群投票页——「创建投票」入口渲染；批次详验(投票列表/选项/投票统计/截止时间/详情)稳定功能无回归 |
 | 无待办 | - | `page/group/vote/group_vote_detail_page.dart` | 提交投票并刷新统计结果 | 已通过 | 首轮 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/vote/group_vote_detail_page.dart` | 已投票时按钮改为更新投票 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/vote/group_vote_detail_page.dart` | 撤销我的投票并刷新 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/vote/group_vote_detail_page.dart` | 发起人或管理员结束投票 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/vote/group_vote_detail_page.dart` | 已结束时禁用选项与操作区 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/vote/group_vote_detail_page.dart` | 渲染票数百分比与进度条 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/vote/group_vote_detail_page.dart` | 未选中选项时禁用提交按钮 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/vote/group_vote_detail_page.dart` | 下拉刷新重新拉取投票详情 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/vote/group_vote_detail_page.dart` | 区分加载失败与投票不存在态 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/group/vote/group_vote_detail_page.dart`` | 已投票时按钮改为更新投票 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群投票页——「创建投票」入口渲染；批次详验(投票列表/选项/投票统计/截止时间/详情)稳定功能无回归 |
+| 无待办 | - | ``page/group/vote/group_vote_detail_page.dart`` | 撤销我的投票并刷新 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群投票页——「创建投票」入口渲染；批次详验(投票列表/选项/投票统计/截止时间/详情)稳定功能无回归 |
+| 无待办 | - | ``page/group/vote/group_vote_detail_page.dart`` | 发起人或管理员结束投票 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群投票页——「创建投票」入口渲染；批次详验(投票列表/选项/投票统计/截止时间/详情)稳定功能无回归 |
+| 无待办 | - | ``page/group/vote/group_vote_detail_page.dart`` | 已结束时禁用选项与操作区 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群投票页——「创建投票」入口渲染；批次详验(投票列表/选项/投票统计/截止时间/详情)稳定功能无回归 |
+| 无待办 | - | ``page/group/vote/group_vote_detail_page.dart`` | 渲染票数百分比与进度条 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群投票页——「创建投票」入口渲染；批次详验(投票列表/选项/投票统计/截止时间/详情)稳定功能无回归 |
+| 无待办 | - | ``page/group/vote/group_vote_detail_page.dart`` | 未选中选项时禁用提交按钮 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群投票页——「创建投票」入口渲染；批次详验(投票列表/选项/投票统计/截止时间/详情)稳定功能无回归 |
+| 无待办 | - | ``page/group/vote/group_vote_detail_page.dart`` | 下拉刷新重新拉取投票详情 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群投票页——「创建投票」入口渲染；批次详验(投票列表/选项/投票统计/截止时间/详情)稳定功能无回归 |
+| 无待办 | - | ``page/group/vote/group_vote_detail_page.dart`` | 区分加载失败与投票不存在态 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群投票页——「创建投票」入口渲染；批次详验(投票列表/选项/投票统计/截止时间/详情)稳定功能无回归 |
