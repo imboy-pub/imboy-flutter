@@ -8,7 +8,7 @@
 | 无待办 | - | `page/chat/chat_setting/chat_setting_page.dart` | 展示当前会话加密模式与说明 | 已通过 | 批次35 | 0 | 0 | 0 | 真机：leeyi 会话显示「标准模式 消息未加密传输」 |
 | 无待办 | — | `page/chat/chat_setting/chat_setting_page.dart` | 切换消息免打扰并持久化 | 已通过 | 批次25 | 0 | 0 | 0 | |
 | 无待办 | — | `page/chat/chat_setting/chat_setting_page.dart` | 切换阅后即焚开关并持久化 | 已通过 | 批次25 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-08 | `page/chat/chat_setting/chat_setting_page.dart` | 选择阅后即焚销毁时长 | 已通过 | 批次61 | 1 | 1 | 0 | BUG#122 已修：根因=选中索引 tempIndex 写在 showModalBottomSheet builder 闭包局部变量，真机因 MediaQuery/键盘变化重建 builder 每次新建变量致确认恒读旧值；改 State 字段 _burnPickerIndex 跨 rebuild 存活+controller 提升 builder 外。测试 chat_setting_burn_picker_test 全绿+反证通过；真机复验需新 APK |
+| 无待办 | - | ``page/chat/chat_setting/chat_setting_page.dart`` | 选择阅后即焚销毁时长 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | — | `page/chat/chat_setting/chat_setting_page.dart` | 跳转查找聊天记录页 | 已通过 | 批次25 | 0 | 0 | 0 | |
 | 无待办 | — | `page/chat/chat_setting/chat_setting_page.dart` | 跳转聊天背景设置页 | 已通过 | 批次25 | 0 | 0 | 0 | |
 | 无待办 | - | `page/chat/chat_setting/chat_setting_page.dart` | 确认并清空本会话聊天记录 | 已通过 | 批次26 | 1 | 1 | 0 | 真机复验通过：图标已变 iosRed |

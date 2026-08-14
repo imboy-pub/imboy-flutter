@@ -12,6 +12,6 @@
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 退栈后上级性别文案立即刷新 | 已通过 | 批次19 | 1 | 1 | 0 | |
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 保存中该项显示菊花指示 | 已通过 | 批次29 | 0 | 0 | 0 | 代码证实 L38-39 isPending=pendingGender==id&&isSaving → L65-66 trailing CupertinoActivityIndicator(radius:8)；瞬态 UI（正常请求 130ms 完成/断网毫秒级失败），禁截图+get_ui 无法目击 |
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 保存中禁用其余选项点击 | 已通过 | 批次29 | 0 | 0 | 0 | 实测两连击（点保密后立即点男）：logcat 仅 1 次 PUT /api/v1/user/update（130ms 成功+退栈），第二次点击被拦截（L74-75 onTap isSaving?null + L62 selectGender isSaving 守卫双防线） |
-| 回归复测 | 2026-08-07 | `page/personal_info/set_gender/set_gender_page.dart` | 选中项前置图标底色变主题蓝 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/personal_info/set_gender/set_gender_page.dart`` | 选中项前置图标底色变主题蓝 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | `page/personal_info/set_gender/set_gender_page.dart` | 保存失败时停留当前页不退栈 | 已通过 | 批次29 | 0 | 0 | 0 | 实测断网（Active default network: none + ws 日志「设备无网络连接」）点女：logcat 0 次 user/update（网络检查拦截 fail-open 返回 ok:false）→ 停留性别页不退栈（L80-82 success&&mounted 才 pop）+ showError 提示；同位置正常路径已证可 PUT+退栈，点击链路有效 |
-| 回归复测 | 2026-08-07 | `page/personal_info/set_gender/set_gender_page.dart` | 分组头部标题大写渲染 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/personal_info/set_gender/set_gender_page.dart`` | 分组头部标题大写渲染 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |

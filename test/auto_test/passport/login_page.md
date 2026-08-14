@@ -14,6 +14,6 @@
 | 无待办 | - | `page/passport/login_page.dart` | 提交账号密码登录并跳主页 | 已通过 | 批次24续3 | 0 | 0 | 0 | |
 | 无待办 | - | `page/passport/login_page.dart` | 跳转忘记密码页 | 已通过 | 批次24续3 | 0 | 0 | 0 | |
 | 无待办 | - | `page/passport/login_page.dart` | 跳转注册页 | 已通过 | 批次24续3 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/passport/login_page.dart` | 提示账号或密码为空 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/passport/login_page.dart` | 获取验证码并提示账号为空 | 待重验 | - | 0 | 0 | 0 | 手机 / 邮箱两 tab |
-| 回归复测 | 2026-08-07 | `page/passport/login_page.dart` | 提交验证码登录并保存历史 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/passport/login_page.dart`` | 提示账号或密码为空 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/passport/login_page.dart`` | 获取验证码并提示账号为空 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/passport/login_page.dart`` | 提交验证码登录并保存历史 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |

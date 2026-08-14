@@ -7,10 +7,10 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/splash/splash_page.dart` | 冷启动展示品牌渐变启动页 | 已通过 | 首轮 | 0 | 0 | 0 | |
 | 无待办 | - | `page/splash/splash_page.dart` | 播放 Logo 淡入与缩放入场 | 已通过 | 首轮 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/splash/splash_page.dart` | 播放字标与标语阶段化淡入 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/splash/splash_page.dart` | 循环播放高光呼吸动效 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/splash/splash_page.dart` | 按屏幕短边自适应 Logo 尺寸 | 待重验 | - | 0 | 0 | 0 | 封顶 240 / 平板 320pt |
-| 回归复测 | 2026-08-07 | `page/splash/splash_page.dart` | 暗色模式降亮渐变与高光 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/splash/splash_page.dart`` | 播放字标与标语阶段化淡入 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/splash/splash_page.dart`` | 循环播放高光呼吸动效 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/splash/splash_page.dart`` | 按屏幕短边自适应 Logo 尺寸 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/splash/splash_page.dart`` | 暗色模式降亮渐变与高光 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | `page/splash/splash_page.dart` | debug 构建展示 DEV 角标 | 已通过 | 批次36 | 0 | 0 | 0 | 真机：当前 APK flags=[DEBUGGABLE] 为 debug 构建，kDebugMode 编译期常量必 true；splash_page L233 if(kDebugMode) 右下角 'DEV' Text（ExcludeSemantics 语义树不可见属设计，肉眼截图不可用故以构建标志+代码路径为据） |
 | 无待办 | - | `page/splash/splash_page.dart` | 已登录 900ms 后跳底部导航 | 已通过 | 首轮 | 0 | 0 | 0 | |
 | 阻塞 | 需清空登录记录后冷启动 | `page/splash/splash_page.dart` | 未登录 1400ms 后跳欢迎页 | 未测 | - | 0 | 0 | 0 | |

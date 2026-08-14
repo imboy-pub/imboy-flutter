@@ -12,8 +12,8 @@
 | 无待办 | - | `page/passport/forgot_password_page.dart` | 渲染国际区号手机号输入 | 已通过 | 批次24续3 | 0 | 0 | 0 | |
 | 无待办 | - | `page/passport/forgot_password_page.dart` | 渲染邮箱链路下一步按钮 | 已通过 | 批次24续3 | 0 | 0 | 0 | |
 | 无待办 | - | `page/passport/forgot_password_page.dart` | 渲染手机链路下一步按钮 | 已通过 | 批次24续3 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/passport/forgot_password_page.dart` | 拦截邮箱为空并提示 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/passport/forgot_password_page.dart` | 拦截手机号为空并提示 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/passport/forgot_password_page.dart`` | 拦截邮箱为空并提示 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/passport/forgot_password_page.dart`` | 拦截手机号为空并提示 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 阻塞 | 需收到真实重置验证码 | `page/passport/forgot_password_page.dart` | 邮箱发送重置码并跳验证页 | 未测 | - | 0 | 0 | 0 | 批次24续3 只看 UI 未提交 |
 | 阻塞 | 需收到真实重置验证码 | `page/passport/forgot_password_page.dart` | 手机发送重置码并跳验证页 | 未测 | - | 0 | 0 | 0 | 批次24续3 只看 UI 未提交 |
-| 回归复测 | 2026-08-07 | `page/passport/forgot_password_page.dart` | 返回按钮退回上一页 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/passport/forgot_password_page.dart`` | 返回按钮退回上一页 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |

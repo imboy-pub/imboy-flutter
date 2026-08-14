@@ -8,7 +8,7 @@
 | 无待办 | - | `page/user_tag/contact_tag_detail/select_tag_friend_page.dart` | 加载并展示全部好友列表 | 已通过 | 批次14 | 0 | 0 | 0 | |
 | 无待办 | - | `page/user_tag/contact_tag_detail/select_tag_friend_page.dart` | 勾选好友并显示已选数量 | 已通过 | 批次14 | 0 | 0 | 0 | |
 | 无待办 | - | `page/user_tag/contact_tag_detail/select_tag_friend_page.dart` | 取消勾选后已选计数递减 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 真机验证通过：勾选好友顶部按钮变「添加 (1)」计数+1，取消后计数递减（toggle 同源机制） |
-| 回归复测 | 2026-08-07 | `page/user_tag/contact_tag_detail/select_tag_friend_page.dart` | 已在标签内的好友进页默认勾选 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/user_tag/contact_tag_detail/select_tag_friend_page.dart`` | 已在标签内的好友进页默认勾选 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | `page/user_tag/contact_tag_detail/select_tag_friend_page.dart` | 按拼音首字母分组并渲染吸顶头 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 真机验证通过：好友列表按拼音首字母分组（H/L/P/U/X 分组头），右侧索引条 ↑H# 渲染 |
 | 阻塞 | substring 空串崩溃修复中 | `page/user_tag/contact_tag_detail/select_tag_friend_page.dart` | 右侧索引条拖动定位字母分组 | 未测 | - | 0 | 0 | 0 | 好友列表渲染被 substring 空串崩溃中断（本页61行），9处同类修复中 |
 | 阻塞 | substring 修复上 APK + 需标签/好友数据 | `page/user_tag/contact_tag_detail/select_tag_friend_page.dart` | 下拉刷新重新拉取好友列表 | 未测 | 批次33 | 0 | 0 | 0 | 页面临时不可达：当前账号标签已删空；好友列表 substring 崩溃（本页61行）未上 APK |

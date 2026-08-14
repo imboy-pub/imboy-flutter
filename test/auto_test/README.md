@@ -48,12 +48,12 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1050 | 68.1% |
-| 回归复测 | 150 | 9.7% |
+| 无待办 | 1158 | 75.1% |
+| 回归复测 | 42 | 2.7% |
 | 阻塞 | 341 | 22.1% |
 | **合计** | **1541** | 100% |
 
-bug 累计：**发现 182 / 解决 171 / 待处理 11**
+bug 累计：**发现 178 / 解决 169 / 待处理 9**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -62,25 +62,25 @@ bug 累计：**发现 182 / 解决 171 / 待处理 11**
 | 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 回归复测 | 阻塞 |
 |---|---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 0 | 237 | 0 | 49 |
-| [mine](mine/) | 21 | 249 | 0 | 187 | 25 | 37 |
+| [mine](mine/) | 21 | 249 | 0 | 212 | 0 | 37 |
 | [channel](channel/) | 13 | 146 | 2 | 79 | 42 | 25 |
 | [contact](contact/) | 13 | 126 | 3 | 109 | 0 | 17 |
-| [personal_info](personal_info/) | 8 | 88 | 2 | 49 | 20 | 19 |
-| [passport](passport/) | 7 | 82 | 0 | 32 | 11 | 39 |
-| [chat](chat/) | 6 | 76 | 0 | 52 | 7 | 17 |
+| [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 0 | 19 |
+| [passport](passport/) | 7 | 82 | 0 | 43 | 0 | 39 |
+| [chat](chat/) | 6 | 76 | 0 | 59 | 0 | 17 |
 | [moment](moment/) | 6 | 74 | 0 | 73 | 0 | 1 |
 | [wallet](wallet/) | 5 | 61 | 1 | 48 | 0 | 13 |
-| [user_tag](user_tag/) | 5 | 58 | 1 | 46 | 2 | 10 |
-| [single](single/) | 5 | 48 | 0 | 14 | 6 | 28 |
-| [qrcode](qrcode/) | 4 | 42 | 0 | 33 | 9 | 0 |
+| [user_tag](user_tag/) | 5 | 58 | 1 | 48 | 0 | 10 |
+| [single](single/) | 5 | 48 | 0 | 20 | 0 | 28 |
+| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 25 | 0 | 11 |
-| [search](search/) | 3 | 35 | 1 | 5 | 9 | 21 |
+| [search](search/) | 3 | 35 | 0 | 14 | 0 | 21 |
 | [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 28 |
-| [scanner](scanner/) | 3 | 30 | 0 | 14 | 8 | 8 |
+| [scanner](scanner/) | 3 | 30 | 0 | 22 | 0 | 8 |
 | [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 5 | 0 | 7 |
-| [conversation](conversation/) | 1 | 12 | 1 | 5 | 7 | 0 |
+| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 3 | 0 | 9 |
-| [splash](splash/) | 1 | 12 | 0 | 6 | 4 | 2 |
+| [splash](splash/) | 1 | 12 | 0 | 10 | 0 | 2 |
 | [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 |
 | [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 |
 
@@ -134,7 +134,7 @@ bug 累计：**发现 182 / 解决 171 / 待处理 11**
 
 ### conversation
 
-- [conversation_page](conversation/conversation_page.md) — 12 功能点 ⚠️ 1 待处理
+- [conversation_page](conversation/conversation_page.md) — 12 功能点
 
 ### group
 
@@ -244,7 +244,7 @@ bug 累计：**发现 182 / 解决 171 / 待处理 11**
 
 ### search
 
-- [message_search_page](search/message_search_page.md) — 12 功能点 ⚠️ 1 待处理
+- [message_search_page](search/message_search_page.md) — 12 功能点
 - [search_chat_page](search/search_chat_page.md) — 11 功能点
 - [web_search_page](search/web_search_page.md) — 12 功能点
 
