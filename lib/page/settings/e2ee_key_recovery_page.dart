@@ -815,8 +815,15 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
     );
 
     try {
-      // 1. 生成新的密钥对
-      final keyInfo = await E2EEKeyService.generateKeyPair();
+      // 1. 生成新密钥对**并上报新公钥到服务端**。
+      //    ⚠️ 只 generateKeyPair() 不上报，服务端就查不到本设备公钥，
+      //    对端加密时 no_recipient_keys，消息根本发不出去（BUG-05 同款漏报）。
+      //    上报失败按整体失败处理：走下方 catch 的失败 SnackBar，提示重试。
+      final reported = await E2EEKeyService.regenerateAndReportDeviceKey();
+      if (!reported) {
+        throw Exception('新公钥上报服务端失败');
+      }
+      final keyInfo = await E2EEKeyService.getKeyInfo() ?? <String, dynamic>{};
 
       // 关闭加载对话框
       if (mounted) Navigator.of(context).pop();

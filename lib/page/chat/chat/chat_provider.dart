@@ -379,7 +379,9 @@ class ChatNotifier extends _$ChatNotifier {
 
   // ===== 消息发送（委托给 ChatNetworkService）=====
 
-  Future<void> addMessage(
+  /// 返回 false = 发送链失败（加密失败/策略拒发/WS 发送失败），
+  /// 上层（ChatInput）据此保留输入框内容，不再报告"发送成功"。
+  Future<bool> addMessage(
     String fromId,
     String toId,
     String? avatar,
@@ -388,7 +390,7 @@ class ChatNotifier extends _$ChatNotifier {
     Message message, {
     bool sendToServer = true,
   }) async {
-    await _networkService.addMessage(
+    final sent = await _networkService.addMessage(
       ref: ref,
       chatService: _chatService!,
       fromId: fromId,
@@ -406,6 +408,7 @@ class ChatNotifier extends _$ChatNotifier {
     if (meta != null && ChatBurnService.isBurnPayload(meta)) {
       await _scheduleSenderBurnTimer(toId, type, message.id);
     }
+    return sent;
   }
 
   /// 为发送方自己的阅后即焚消息排销毁定时器（发送后立即调用）。

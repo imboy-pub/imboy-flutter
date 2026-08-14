@@ -977,7 +977,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   // 添加消息
   Future<bool> _addMessage(Message message) async {
     try {
-      await ref
+      final sent = await ref
           .read(chatProvider.notifier)
           .addMessage(
             UserRepoLocal.to.currentUid,
@@ -997,7 +997,7 @@ class ChatPageState extends ConsumerState<ChatPage>
                 0,
             animated: true, // 新消息使用动画
           );
-      return true;
+      return sent;
     } catch (e) {
       return false;
     }

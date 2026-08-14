@@ -48,9 +48,9 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1196 | 77.6% |
+| 无待办 | 1197 | 77.7% |
 | 回归复测 | 3 | 0.2% |
-| 阻塞 | 342 | 22.2% |
+| 阻塞 | 341 | 22.1% |
 | **合计** | **1541** | 100% |
 
 bug 累计：**发现 180 / 解决 172 / 待处理 8**
@@ -77,7 +77,7 @@ bug 累计：**发现 180 / 解决 172 / 待处理 8**
 | [search](search/) | 3 | 35 | 0 | 14 | 0 | 21 |
 | [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 28 |
 | [scanner](scanner/) | 3 | 30 | 0 | 22 | 0 | 8 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 5 | 0 | 7 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 6 | 0 | 6 |
 | [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 3 | 0 | 9 |
 | [splash](splash/) | 1 | 12 | 0 | 10 | 0 | 2 |

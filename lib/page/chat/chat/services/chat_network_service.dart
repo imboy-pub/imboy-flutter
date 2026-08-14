@@ -46,7 +46,9 @@ class ChatNetworkService {
   // ===== 添加消息到会话 =====
 
   /// 添加消息到会话（同时写库 + 发 WebSocket）
-  Future<void> addMessage({
+  /// 返回 false = 发送链失败（加密失败/策略拒发/WS 发送失败）。
+  /// 消息已落库（error 或 sending 状态），调用方不得再向用户报告"发送成功"。
+  Future<bool> addMessage({
     required Ref ref,
     required SqliteChatService chatService,
     required String fromId,
@@ -128,11 +130,12 @@ class ChatNetworkService {
         "📤 [ChatNetworkService.addMessage] 发送事件到 EventBus: msgId=${message.id}, type: $type, toId: $toId, sendToServer=$sendToServer",
       );
 
+      var sent = true;
       if (sendToServer) {
         iPrint('📤 [ChatNetworkService.addMessage] 准备通过 WebSocket 发送消息');
-        await sendWsMsg(obj);
+        sent = await sendWsMsg(obj);
         iPrint(
-          '📤 [ChatNetworkService.addMessage] WebSocket 发送完成: msgId=${obj.id}',
+          '📤 [ChatNetworkService.addMessage] WebSocket 发送完成: msgId=${obj.id}, sent=$sent',
         );
       }
 
@@ -142,9 +145,16 @@ class ChatNetworkService {
             .pushToLast(message.id, message.source);
       }
 
-      iPrint('✅ [ChatNetworkService.addMessage] 完成: msgId=${message.id}');
+      if (sent) {
+        iPrint('✅ [ChatNetworkService.addMessage] 完成: msgId=${message.id}');
+      } else {
+        iPrint(
+          '⛔ [ChatNetworkService.addMessage] 发送失败（已置错误状态或保留重试）: msgId=${message.id}',
+        );
+      }
 
       await syncMessagesToState();
+      return sent;
     } catch (e, stack) {
       iPrint(
         '❌ [ChatNetworkService.addMessage] 异常: msgId=${message.id}, error=$e',
@@ -731,10 +741,18 @@ class ChatNetworkService {
       // 接收侧 `_validateContextBinding` §7 硬比对
       // `protocol_metadata.session_id == protected_header.session_ref`，
       // 这里若留空，整条消息会被判 context_mismatch_session_id 而不可读。
-      final sessionRef = await OlmSessionService.to.ensureSessionId(
-        toId,
-        peerDid,
-      );
+      //
+      // 设备列表来自 user_keys（RSA 全量），混有从未注册 Olm 身份的设备——
+      // 对它们 claim 必得 device_not_registered，而它们本来也解不开 Olm
+      // 密文。跳过而非让整条消息失败；全部不可用才视为无接收者（fail-closed）。
+      final String sessionRef;
+      try {
+        sessionRef = await OlmSessionService.to.ensureSessionId(toId, peerDid);
+      } on Exception catch (e) {
+        if (!e.toString().contains('device_not_registered')) rethrow;
+        iPrint('⏭️ [E2EE] 对端设备未注册 Olm，跳过 fan-out: uid=$toId, did=$peerDid');
+        continue;
+      }
 
       final encrypted = await E2eeOutboundRouter.encryptV3(
         suite: ProtocolSuite.olm,
@@ -763,6 +781,10 @@ class ChatNetworkService {
       final envelope = Map<String, dynamic>.from(encrypted.metadata);
       envelope.remove('meta_version'); // 避免重复
       devices[peerDid] = envelope;
+    }
+
+    if (devices.isEmpty) {
+      throw E2eeDecryptException('no_olm_recipient_devices');
     }
 
     final e2ee = <String, dynamic>{

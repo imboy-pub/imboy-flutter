@@ -6,7 +6,7 @@
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 点击底部标签切换对应主页面 | 已通过 | 批次26 | 0 | 0 | 0 | |
-| 阻塞 | 需对端账号产生未读消息 | `page/bottom_navigation/bottom_navigation_page.dart` | 消息标签展示未读消息数角标 | 未测 | 批次26 | 0 | 0 | 0 | 当前未读为 0，角标不渲染属正确；需第二设备发消息才能验渲染与 99+ |
+| 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 消息标签展示未读消息数角标 | 已通过 | 批次85 | 0 | 0 | 0 | macOS(uid4)→Android(uid50) E2EE C2C 真机送达，消息 Tab 与会话条目均显红色角标「1」；99+ 上限未验 |
 | 阻塞 | 需真实好友发起申请 | `page/bottom_navigation/bottom_navigation_page.dart` | 联系人标签展示新好友提醒角标 | 未测 | 批次26 | 0 | 0 | 0 | 造申请会打扰第三方，按规程跳过 |
 | 阻塞 | 需订阅频道产生新消息 | `page/bottom_navigation/bottom_navigation_page.dart` | 频道标签汇总订阅未读数角标 | 未测 | 批次26 | 0 | 0 | 0 | 自己发的频道消息不给自己产生未读 |
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 我的标签展示长连接三态指示点 | 已通过 | 批次26 | 0 | 0 | 0 | 仅验证绿(已连)态；橙/红需断网触发，历史上断网会触发 EMUI 防误触锁屏 |
