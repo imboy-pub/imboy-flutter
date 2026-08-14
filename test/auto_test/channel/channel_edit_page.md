@@ -8,7 +8,7 @@
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 保存成功提示并回传最新频道对象 | 已通过 | 批次18 | 1 | 1 | 0 | 历史真机保存成功（PUT 链 6-23 起存在且曾通） |
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 自定义 ID 为空可补设一次、已设则锁定 | 已通过 | 批次18 | 1 | 1 | 0 |  |
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 进入时回填资料并拉服务端最新覆盖 | 已通过 | 批次67 | 0 | 0 | 0 | 真机：名称 qa-batch67-edit 回填、ID 框空（未设）、描述空、类型「公开 创建后不可更改」 |
-| 回归复测 | 2026-08-07 | `page/channel/channel_edit_page.dart` | 头像弹层选择与上传替换 | 待重验 | 批次18 | 0 | 0 | 0 | 未操作头像 |
+| 无待办 | - | `page/channel/channel_edit_page.dart` | 头像弹层选择与上传替换 | 已通过 | 批次83 | 0 | 0 | 0 | |
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 频道名称必填与 50 字上限校验 | 已通过 | 批次67 | 0 | 0 | 0 | 代码确认 L413-427：validator 必填+trim>50 报错+maxLength 50；真机名称框正常 |
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 频道描述编辑与 500 字上限 | 已通过 | 批次67 | 0 | 0 | 0 | 代码确认 L437 maxLength 500；真机描述框空 |
 | 无待办 | - | `page/channel/channel_edit_page.dart` | 自定义 ID 首字母与最短四位格式校验 | 已通过 | 批次67 | 0 | 0 | 0 | 代码确认 L456-457+L118-127：maxLength 32+`^[a-zA-Z][a-zA-Z0-9_]*$`+≥4 位，空值放行 |
