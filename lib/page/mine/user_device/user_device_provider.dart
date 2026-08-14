@@ -7,7 +7,6 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/user_device_model.dart';
 import 'package:imboy/store/api/user_device_api.dart' as api;
@@ -369,7 +368,7 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
     return '';
   }
 
-  /// 让指定设备下线（向后端请求下发 S2C 指令）
+  /// 让指定设备下线（向后端请求下发下线指令）
   /// 参数:
   /// - deviceId: 目标设备ID（did）
   /// 返回:
@@ -381,27 +380,39 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       return false;
     }
 
-    String name = await getDeviceName(deviceId);
+    // 获取目标设备类型
+    String deviceType = '';
+    final idx = state.deviceList.indexWhere((e) => e.deviceId == deviceId);
+    if (idx >= 0) {
+      deviceType = state.deviceList[idx].deviceType;
+    } else {
+      // 如果内存中没有，从本地数据库查找
+      final repo = UserDeviceRepo();
+      final m = await repo.find(deviceId);
+      if (m != null) {
+        deviceType = m.deviceType;
+      }
+    }
 
-    final message = {
-      "id": "device_force_offline",
-      "type": "S2C",
-      "msg_type": "device_force_offline",
-      "payload": {
-        "by_did": deviceId,
-        "by_name": name.isEmpty ? t.account.otherDevice : name,
-      },
-    };
+    if (deviceType.isEmpty) {
+      debugPrint(
+        '[user_device_provider] forceOffline: deviceType is empty for $deviceId',
+      );
+      return false;
+    }
 
-    // 解耦：通过事件发送消息
-    AppEventBus.fire(
-      WebSocketMessageSendRequestEvent(
-        message: json.encode(message),
-        messageId: message['id']?.toString(),
-      ),
+    final result = await api.UserDeviceApi().kickDevice(
+      deviceType: deviceType,
+      deviceId: deviceId,
     );
 
-    return true;
+    if (result != null) {
+      // 刷新设备列表以更新在线/离线状态
+      await fetchPage();
+      return true;
+    }
+
+    return false;
   }
 
   /// 加载设备列表

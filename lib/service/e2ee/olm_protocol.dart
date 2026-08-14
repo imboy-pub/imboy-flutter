@@ -12,6 +12,7 @@
 /// 这样 B 读 metadata 得到的 peer 恰是 A。
 library;
 
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart' show deviceId;
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/olm_session_service.dart';
@@ -112,7 +113,13 @@ class OlmProtocol implements E2eeSessionProtocol {
       rethrow;
     } on DuplicateMessageException {
       rethrow; // S2.3: 重复投递信号，调用方静默跳过
-    } catch (_) {
+    } on Object catch (e) {
+      // 本地日志仅记异常类型与消息（不含密文），供真机排障区分
+      // TOFU 指纹变更 / prekey 失配 / 棘轮失配等根因。
+      iPrint(
+        '[olm] decryptC2CMessage 异常: ${e.runtimeType}: $e '
+        '(peer=$peerUid:$peerDeviceId, msgType=$messageType)',
+      );
       throw const E2eeDecryptException('decrypt_error');
     }
   }

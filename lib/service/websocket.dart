@@ -1028,6 +1028,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     _updateStatus(SocketStatus.disconnected);
 
     switch (closeCode) {
+      case 4000:
       case 4006:
         _cancelStream(); // 先清理资源，再执行登出跳转
         UserRepoLocal.to.quitLogin();

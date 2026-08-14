@@ -638,8 +638,11 @@ class E2EEService {
     } on CryptoStoreUnavailableException {
       // E2EE-025 §5.2：同上，来自 CryptoStore 自身的存储故障。
       return _decryptFailedPayload(payload, reason: 'crypto_store_unavailable');
-    } catch (_) {
-      // 其余一律归为稳定、无秘密的通用分类（ADR 15 §5：不上送 oracle 细节）
+    } on Object catch (e) {
+      // 其余一律归为稳定、无秘密的通用分类（ADR 15 §5：不上送 oracle 细节）。
+      // 本地日志仅记异常类型与消息（不含密文），供真机排障区分
+      // TOFU 指纹变更 / prekey 失配 / 棘轮失配等根因。
+      iPrint('[e2ee] v3 协议解密异常: ${e.runtimeType}: $e');
       return _decryptFailedPayload(payload, reason: 'decrypt_error');
     }
 

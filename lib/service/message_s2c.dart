@@ -271,6 +271,7 @@ class MessageS2CService {
           await _handleAppUpgrade(payloadMap);
           break;
         case 'device_force_offline':
+        case 'device_kicked':
           await _handleDeviceForceOffline(payloadMap);
           break;
         case 'online':
