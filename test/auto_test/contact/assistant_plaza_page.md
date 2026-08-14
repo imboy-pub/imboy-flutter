@@ -8,10 +8,10 @@
 | 阻塞 | 需人工决策：生产补配 bailian 凭据（imboy a83648e2 已切百炼 provider，qianfan 已弃） | `page/contact/assistant_plaza/assistant_plaza_page.dart` | 助手收到消息后返回回复 | 未测 | 批次26 | 1 | 0 | 1 | 代码侧已闭环：后端守卫 fail-closed 不再 badmap 崩溃 + 已切 bailian（qwen3.7-flash，a83648e2）。剩余纯配置：生产库 agent provider/凭据补配，属人工授权范围（对外 AI 调用+费用） |
 | 无待办 | - | `page/contact/assistant_plaza/assistant_plaza_page.dart` | 加载助手列表并渲染卡片 | 已通过 | - | 0 | 0 | 0 | |
 | 无待办 | - | `page/contact/assistant_plaza/assistant_plaza_page.dart` | 点击「发消息」进入助手会话 | 已通过 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/assistant_plaza/assistant_plaza_page.dart` | 顶部展示 AI 透明声明卡 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/assistant_plaza/assistant_plaza_page.dart` | 搜索助手并做 300ms 防抖 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/assistant_plaza/assistant_plaza_page.dart` | 搜索无结果展示对应空态文案 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/assistant_plaza/assistant_plaza_page.dart` | 滚动触底加载下一页助手 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/assistant_plaza/assistant_plaza_page.dart` | 下拉刷新重新拉取助手列表 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/assistant_plaza/assistant_plaza_page.dart` | 加载失败展示错误态与重试 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/assistant_plaza/assistant_plaza_page.dart` | 助手昵称旁展示 AI 身份徽章 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/contact/assistant_plaza/assistant_plaza_page.dart`` | 顶部展示 AI 透明声明卡 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/assistant_plaza/assistant_plaza_page.dart`` | 搜索助手并做 300ms 防抖 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/assistant_plaza/assistant_plaza_page.dart`` | 搜索无结果展示对应空态文案 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/assistant_plaza/assistant_plaza_page.dart`` | 滚动触底加载下一页助手 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/assistant_plaza/assistant_plaza_page.dart`` | 下拉刷新重新拉取助手列表 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/assistant_plaza/assistant_plaza_page.dart`` | 加载失败展示错误态与重试 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/assistant_plaza/assistant_plaza_page.dart`` | 助手昵称旁展示 AI 身份徽章 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |

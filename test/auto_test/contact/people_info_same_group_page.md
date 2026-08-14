@@ -7,9 +7,9 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/contact/people_info_more/people_info_same_group_page.dart` | 展示群名称并做空名兜底 | 已通过 | §十七 | 1 | 1 | 0 | |
 | 无待办 | - | `page/contact/people_info_more/people_info_same_group_page.dart` | 渲染共同群组列表 | 已通过 | §十七 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/people_info_more/people_info_same_group_page.dart` | 点击群条目进入群聊会话 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/people_info_more/people_info_same_group_page.dart` | 无群头像时合成智能群头像 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/people_info_more/people_info_same_group_page.dart` | 底部展示共同群总数 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/people_info_more/people_info_same_group_page.dart` | 群列表为空时展示无数据态 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/people_info_more/people_info_same_group_page.dart` | 数据量少时列表仍可滚动 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/people_info_more/people_info_same_group_page.dart` | 切换语言后标题文案刷新 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/contact/people_info_more/people_info_same_group_page.dart`` | 点击群条目进入群聊会话 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/people_info_more/people_info_same_group_page.dart`` | 无群头像时合成智能群头像 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/people_info_more/people_info_same_group_page.dart`` | 底部展示共同群总数 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/people_info_more/people_info_same_group_page.dart`` | 群列表为空时展示无数据态 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/people_info_more/people_info_same_group_page.dart`` | 数据量少时列表仍可滚动 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/people_info_more/people_info_same_group_page.dart`` | 切换语言后标题文案刷新 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |

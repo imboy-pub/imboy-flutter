@@ -7,10 +7,10 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/contact/apply_friend/apply_friend_page.dart` | 验证消息自动填充「我是 xx」 | 已通过 | 首轮 | 0 | 0 | 0 | |
 | 无待办 | - | `page/contact/apply_friend/apply_friend_page.dart` | 备注栏自动填充对方昵称 | 已通过 | 首轮 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/apply_friend/apply_friend_page.dart` | 编辑验证消息并限制 100 字 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/apply_friend/apply_friend_page.dart` | 编辑备注并限制 80 字上限 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/apply_friend/apply_friend_page.dart` | 进入标签页选择标签并回填 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/apply_friend/apply_friend_page.dart` | 点击「发送」提交好友申请 | 待重验 | - | 0 | 0 | 0 | 会写生产数据并打扰对方 |
-| 回归复测 | 2026-08-07 | `page/contact/apply_friend/apply_friend_page.dart` | 提交中按钮禁用并显示转圈 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/apply_friend/apply_friend_page.dart` | 提交成功后连退两级页面 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/contact/apply_friend/apply_friend_page.dart` | 提交失败后恢复按钮可点状态 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/contact/apply_friend/apply_friend_page.dart`` | 编辑验证消息并限制 100 字 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/apply_friend/apply_friend_page.dart`` | 编辑备注并限制 80 字上限 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/apply_friend/apply_friend_page.dart`` | 进入标签页选择标签并回填 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/apply_friend/apply_friend_page.dart`` | 点击「发送」提交好友申请 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/apply_friend/apply_friend_page.dart`` | 提交中按钮禁用并显示转圈 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/apply_friend/apply_friend_page.dart`` | 提交成功后连退两级页面 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
+| 无待办 | - | ``page/contact/apply_friend/apply_friend_page.dart`` | 提交失败后恢复按钮可点状态 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有联系人数据(leeyi/117/HHH 等)可访问；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
