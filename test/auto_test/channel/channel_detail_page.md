@@ -12,7 +12,7 @@
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 发布栏文本发布与键盘避让 | 已通过 | 批次25 | 1 | 1 | 0 | |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 发布栏语音录制发送与发送反馈 | 已通过 | 批次25 | 3 | 3 | 0 | |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 发布栏附件上传 scope 传参授权 | 已通过 | 批次25 | 1 | 1 | 0 | |
-| 回归复测 | 2026-08-07 | `page/channel/channel_detail_page.dart` | 头部订阅/退订按钮与确认弹窗防重入 | 已通过 | 批次39 | 1 | 0 | 1 | 真机退订成功(订阅者 2→1)+弹窗取消/确认正常；退订后按钮仍「已订阅」=BUG#125 服务端 is_subscribed 用 user_role 推断(editor role≠0 恒 true)；agent 已修(role==3 恒 true 其余查订阅)+4/4 测试反证，待发布真机复验 |
+| 待复验 | 2026-08-07 | `page/channel/channel_detail_page.dart` | 头部订阅/退订按钮与确认弹窗防重入 | 待重验 | 批次39 | 1 | 0 | 1 | 真机退订成功(订阅者 2→1)+弹窗取消/确认正常；退订后按钮仍「已订阅」=BUG#125 服务端 is_subscribed 用 user_role 推断(editor role≠0 恒 true)；agent 已修(role==3 恒 true 其余查订阅)+4/4 测试反证，待发布真机复验 |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 消息流首屏加载、下拉刷新与加载更多 | 已通过 | 批次39 | 0 | 0 | 0 | 真机首屏 3 条+下拉刷新正常；10 条<20 未触发加载更多，分页链代码确认 |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 更多菜单管理项（编辑/写文章/管理员/订阅者） | 已通过 | 批次39 | 0 | 0 | 0 | 当前账号 editor 无管理项(渲染条件 isManaged 代码确认)；管理项需 admin/creator 账号另验 |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 分享面板复制链接、二维码与转发聊天 | 已通过 | 批次39 | 0 | 0 | 0 | 真机：复制链接关闭面板；二维码页渲染(7天有效+保存按钮)；发送给好友→聊天页 |
