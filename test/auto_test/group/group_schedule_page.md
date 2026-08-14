@@ -5,14 +5,14 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 加载并渲染群日程卡片列表 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/group/schedule/group_schedule_page.dart`` | 加载并渲染群日程卡片列表 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群日程页——「创建日程」入口渲染；批次详验(列表/创建表单/详情/删除/下拉刷新/空态)稳定功能无回归 |
 | 无待办 | - | `page/group/schedule/group_schedule_page.dart` | 弹窗填写标题并创建日程 | 已通过 | 首轮 | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 滚轮选择日程开始日期 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 滚轮选择日程开始时间 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 创建后向群内发送日程卡片消息 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/group/schedule/group_schedule_page.dart`` | 滚轮选择日程开始日期 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群日程页——「创建日程」入口渲染；批次详验(列表/创建表单/详情/删除/下拉刷新/空态)稳定功能无回归 |
+| 无待办 | - | ``page/group/schedule/group_schedule_page.dart`` | 滚轮选择日程开始时间 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群日程页——「创建日程」入口渲染；批次详验(列表/创建表单/详情/删除/下拉刷新/空态)稳定功能无回归 |
+| 无待办 | - | ``page/group/schedule/group_schedule_page.dart`` | 创建后向群内发送日程卡片消息 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群日程页——「创建日程」入口渲染；批次详验(列表/创建表单/详情/删除/下拉刷新/空态)稳定功能无回归 |
 | 无待办 | - | `page/group/schedule/group_schedule_page.dart` | 从聊天面板直达自动弹创建表单 | 已通过 | 批次29 | 0 | 0 | 0 | 附加面板第2页点「群日程」→ 跳转后自动弹「创建日程」表单(标题输入框+日期/时间+取消/确认) |
-| 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 下拉刷新重新拉取日程 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 点击日程进详情并回传刷新 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 渲染日期块时间与地点信息 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 区分空态与加载失败重试入口 | 待重验 | - | 0 | 0 | 0 | |
-| 回归复测 | 2026-08-07 | `page/group/schedule/group_schedule_page.dart` | 日程ID缺失时提示不跳转 | 待重验 | - | 0 | 0 | 0 | |
+| 无待办 | - | ``page/group/schedule/group_schedule_page.dart`` | 下拉刷新重新拉取日程 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群日程页——「创建日程」入口渲染；批次详验(列表/创建表单/详情/删除/下拉刷新/空态)稳定功能无回归 |
+| 无待办 | - | ``page/group/schedule/group_schedule_page.dart`` | 点击日程进详情并回传刷新 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群日程页——「创建日程」入口渲染；批次详验(列表/创建表单/详情/删除/下拉刷新/空态)稳定功能无回归 |
+| 无待办 | - | ``page/group/schedule/group_schedule_page.dart`` | 渲染日期块时间与地点信息 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群日程页——「创建日程」入口渲染；批次详验(列表/创建表单/详情/删除/下拉刷新/空态)稳定功能无回归 |
+| 无待办 | - | ``page/group/schedule/group_schedule_page.dart`` | 区分空态与加载失败重试入口 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群日程页——「创建日程」入口渲染；批次详验(列表/创建表单/详情/删除/下拉刷新/空态)稳定功能无回归 |
+| 无待办 | - | ``page/group/schedule/group_schedule_page.dart`` | 日程ID缺失时提示不跳转 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群日程页——「创建日程」入口渲染；批次详验(列表/创建表单/详情/删除/下拉刷新/空态)稳定功能无回归 |
