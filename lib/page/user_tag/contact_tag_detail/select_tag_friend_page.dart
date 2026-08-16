@@ -31,6 +31,19 @@ class SelectFriendPage extends ConsumerStatefulWidget {
     required this.tagContactList,
   });
 
+  /// 行选中判定：以本次会话选中集合为权威。
+  ///
+  /// selectedContact 初始化自标签成员（_loadData L51），onTap 勾选 insert /
+  /// 取消 removeWhere，始终是当前会话完整选中态。BUG#132：此前仅按进页
+  /// tagContactList 判定，勾选/取消后 setState 重建把 model.selected 重置回
+  /// 进页态，行图标与 Semantics.selected 永不随交互更新（真机像素实证：
+  /// 勾选 automation-buddy 后行图标仍灰色空心圆圈）。
+  @visibleForTesting
+  static bool isRowSelected(
+    ContactModel model,
+    List<ContactModel> selectedContact,
+  ) => selectedContact.any((e) => e.peerId == model.peerId);
+
   @override
   ConsumerState<SelectFriendPage> createState() => _SelectFriendPageState();
 }
@@ -73,11 +86,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
   }
 
   Widget _buildListItem(ContactModel model) {
-    // 检查是否在已选列表中
-    bool isSelected = widget.tagContactList.any(
-      (e) => e.peerId == model.peerId,
-    );
-    model.selected = isSelected;
+    model.selected = SelectFriendPage.isRowSelected(model, selectedContact);
 
     return Column(
       children: [
@@ -87,7 +96,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
           // 名字由 Text 自带语义提供，不重复设 label。
           child: Semantics(
             button: true,
-            selected: isSelected,
+            selected: model.selected,
             child: GestureDetector(
               // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
               behavior: HitTestBehavior.opaque,

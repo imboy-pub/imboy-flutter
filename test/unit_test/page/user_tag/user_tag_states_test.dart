@@ -5,6 +5,7 @@ import 'package:imboy/page/user_tag/user_tag_save/user_tag_save_provider.dart';
 import 'package:imboy/page/user_tag/contact_tag_detail/contact_tag_detail_provider.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_provider.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_provider.dart';
+import 'package:imboy/page/user_tag/contact_tag_detail/select_tag_friend_page.dart';
 import 'package:imboy/store/model/contact_model.dart';
 
 /// user_tag 各 provider 的不可变 State copyWith 纯逻辑单测。
@@ -41,6 +42,31 @@ void main() {
       expect(s2.text, 'a');
       expect(s2.valueChanged, true);
       expect(s2.isLoading, true);
+    });
+  });
+
+  group('SelectFriendPage.isRowSelected', () {
+    test('SF-1 未勾选任何好友返回 false', () {
+      final model = ContactModel(peerId: 1, nickname: 'Alice');
+      expect(SelectFriendPage.isRowSelected(model, []), false);
+    });
+
+    test('SF-2 进页已在标签内默认选中', () {
+      final model = ContactModel(peerId: 1, nickname: 'Alice');
+      // 进页时 selectedContact 初始化自标签成员（_loadData L51）
+      expect(SelectFriendPage.isRowSelected(model, [model]), true);
+    });
+
+    test('SF-3 本次会话勾选后返回 true（BUG#132 回归）', () {
+      final model = ContactModel(peerId: 1, nickname: 'Alice');
+      final other = ContactModel(peerId: 2, nickname: 'Bob');
+      expect(SelectFriendPage.isRowSelected(model, [other, model]), true);
+    });
+
+    test('SF-4 取消勾选后返回 false（BUG#132 回归：进页已选被取消）', () {
+      final model = ContactModel(peerId: 1, nickname: 'Alice');
+      // 进页已选（初始在 selectedContact），会话内被 removeWhere 移除
+      expect(SelectFriendPage.isRowSelected(model, []), false);
     });
   });
 
