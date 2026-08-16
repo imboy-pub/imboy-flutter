@@ -1,12 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
-import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// 修改名称页面
 class ChangeNamePage extends ConsumerStatefulWidget {
@@ -88,19 +89,29 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
       ),
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        titleWidget: Row(
-          children: [
-            Expanded(child: Text(widget.title, textAlign: TextAlign.center)),
-            RoundedElevatedButton(
-              text: t.common.buttonAccomplish,
-              highlighted: valueChanged,
-              isLoading: _isSubmitting,
-              onPressed: _isSubmitting
-                  ? null
-                  : () => _submit(textController.text),
-            ),
-          ],
-        ),
+        title: widget.title,
+        rightDMActions: [
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            onPressed: _isSubmitting
+                ? null
+                : () => _submit(textController.text),
+            child: _isSubmitting
+                ? const CupertinoActivityIndicator(radius: 10)
+                : Text(
+                    t.common.buttonAccomplish,
+                    style: context.textStyle(
+                      FontSizeType.body,
+                      fontWeight: valueChanged
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                      color: valueChanged
+                          ? AppColors.getIosBlue(Theme.of(context).brightness)
+                          : AppColors.iosGray,
+                    ),
+                  ),
+          ),
+        ],
       ),
       body: TextFormField(
         autofocus: true,
