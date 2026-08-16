@@ -257,8 +257,16 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
     // 于是在 loose 约束下（作为 Stack 的非定位子节点时就是 loose）整层坍缩成
     // 0×0，所有 Positioned.fill 子节点跟着变 0，GestureDetector 没有命中区域：
     // 控制栏 3 秒自动隐藏后**再也点不出来**，视频页只剩一个返回键。
+    //
+    // BUG#137 补刀：SizedBox.expand 只修好了**布局**，没修好**命中测试**。
+    // GestureDetector 默认 HitTestBehavior.deferToChild —— 命中只测子节点，
+    // 而 _showControls=false 时 Stack 子节点全是 0×0（shrink / 条件渲染消失），
+    // 于是整层点击/双击/滑动全部失效：控制层隐藏后唤不出，双击暂停、滑动
+    // 快进/音量也全废。opaque 让 GestureDetector 自身即命中区域（真机实证：
+    // 隐藏态点击无任何反应）。
     return SizedBox.expand(
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: _toggleControls,
         onDoubleTap: _handleDoubleTap,
         onHorizontalDragStart: _handleHorizontalDragStart,

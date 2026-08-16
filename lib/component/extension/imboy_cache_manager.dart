@@ -4,6 +4,7 @@ import 'package:cross_cache/cross_cache.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/e2ee/attachment_open_registry.dart';
 import 'package:imboy/service/e2ee/attachment_temp_hygiene.dart';
@@ -118,6 +119,24 @@ class IMBoyCacheManager {
     return false;
   }
 
+  /// BUG#137：判断 host 是否属于 Garage 公开资源基址（Env.publicBaseUrl）。
+  static bool _isGarageHost(String host) {
+    final base = Uri.tryParse(Env.publicBaseUrl);
+    if (base == null || base.host.isEmpty) return false;
+    final h = host.toLowerCase();
+    final b = base.host.toLowerCase();
+    return h == b || h.endsWith('.$b');
+  }
+
+  /// BUG#137：Garage 完整 URL（`https://s3.imboy.pub/<bucket>/<object_key>`）
+  /// → object_key（剥掉第一段 bucket）。如 `/imboy/file_123_abc/a.mp4`
+  /// → `file_123_abc/a.mp4`，与 [AssetsService.isObjectKey] 的
+  /// `file_<ts>_<hex>/` 前缀规则匹配。
+  static String _objectKeyFromUrl(Uri uri) {
+    final segments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
+    return segments.skip(1).join('/');
+  }
+
   Future<File> getSingleFile(
     String url, {
     Map<String, String>? headers,
@@ -197,9 +216,19 @@ class IMBoyCacheManager {
       final rawUri = Uri.parse(url);
       cacheKey =
           '${rawUri.scheme}://${rawUri.host}:${rawUri.port}${rawUri.path}';
-      final viewUri = await AssetsService.viewUrlAsync(url);
-      downloadUrl = viewUri.toString();
-      extSource = viewUri.path;
+      // BUG#137：Garage 私桶完整 URL（群文件等，elib_oss:upload 落库的裸
+      // URL 不带签名，attachment 表无记录）——viewUrl 拼的 go-fastdfs HMAC
+      // （?s&a&v，s/a 为空）Garage 不认 → GET 404。host 属 publicBaseUrl
+      // 时提取 object_key（剥掉 bucket 段）走后端 view_url 签发 presign GET。
+      extSource = rawUri.path;
+      if (_isGarageHost(rawUri.host)) {
+        downloadUrl = await AssetUrlResolver.instance.resolve(
+          _objectKeyFromUrl(rawUri),
+        );
+      } else {
+        final viewUri = await AssetsService.viewUrlAsync(url);
+        downloadUrl = viewUri.toString();
+      }
     }
     // 验证真实下载域名：public 头像应为 s3.imboy.pub 直读；附件应为后端签发的
     // presigned host（X-Amz-Signature）。若这里出现 pro.imboy.pub，即下载走了 API 域名。
