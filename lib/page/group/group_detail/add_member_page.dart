@@ -268,51 +268,33 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
         ),
         title: t.common.selectContacts,
         rightDMActions: [
-          Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.regular),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              child: ElevatedButton(
-                onPressed: state.selects.isNotEmpty
-                    ? () async {
-                        AppLoading.show(status: t.common.loading);
-                        int memberCount = state.selects.length;
-                        iPrint("selects $memberCount");
-                        bool res = await ref
-                            .read(addMemberProvider.notifier)
-                            .joinGroup(widget.groupId, state.selects);
-                        AppLoading.dismiss();
-                        if (res && context.mounted) {
-                          ref.read(addMemberProvider.notifier).resetData();
-                          Navigator.of(context).pop();
-                        }
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: state.selects.isNotEmpty
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.3),
-                  foregroundColor: state.selects.isNotEmpty
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.outline,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.regular,
-                    vertical: AppSpacing.small,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: AppRadius.borderRadiusLarge,
-                  ),
-                  elevation: state.selects.isNotEmpty ? 2 : 0,
-                ),
-                child: Text(
-                  '${t.common.buttonAccomplish}${state.selectsTips}',
-                  style: context.textStyle(
-                    FontSizeType.normal,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            onPressed: state.selects.isNotEmpty
+                ? () async {
+                    AppLoading.show(status: t.common.loading);
+                    int memberCount = state.selects.length;
+                    iPrint("selects $memberCount");
+                    bool res = await ref
+                        .read(addMemberProvider.notifier)
+                        .joinGroup(widget.groupId, state.selects);
+                    AppLoading.dismiss();
+                    if (res && context.mounted) {
+                      ref.read(addMemberProvider.notifier).resetData();
+                      Navigator.of(context).pop();
+                    }
+                  }
+                : null,
+            child: Text(
+              '${t.common.buttonAccomplish}${state.selectsTips}',
+              style: context.textStyle(
+                FontSizeType.body,
+                fontWeight: state.selects.isNotEmpty
+                    ? FontWeight.w600
+                    : FontWeight.w400,
+                color: state.selects.isNotEmpty
+                    ? AppColors.getIosBlue(Theme.of(context).brightness)
+                    : AppColors.iosGray,
               ),
             ),
           ),
