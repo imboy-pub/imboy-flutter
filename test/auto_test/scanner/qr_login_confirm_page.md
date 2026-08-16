@@ -13,4 +13,4 @@
 | 阻塞 | 真实 Web 端二维码（双端闭环） | `page/scanner/qr_login_confirm_page.dart` | 登录成功后延时自动退栈 | 未测 | - | 0 | 0 | 0 | Success 态需真实成功 confirm，双端闭环 |
 | 无待办 | - | ``page/scanner/qr_login_confirm_page.dart`` | 本机取消后延时自动退栈 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | `page/scanner/qr_login_confirm_page.dart` | 令牌过期或失效时展示错误态 | 已通过 | 批次78 | 0 | 0 | 0 | 修复后真机扫 qr_login_fake.png：scan 返回 5200「无效的二维码」→ parseScanResponse 映射 QrLoginConfirmFailed(errorMessage) → QrLoginConfirmContent 渲染错误态：get_ui a11y 读取居中文本「无效的二维码」（centerX=360 centerY=781）+「关闭」按钮（centerX=360 centerY=932）。错误态完整可达，文案透传正确 |
-| 阻塞 | 断网构造 | `page/scanner/qr_login_confirm_page.dart` | 网络失败时展示错误与重试入口 | 未测 | - | 0 | 0 | 0 | 需断网构造 scan 网络异常，单机可测但需切网络 |
+| 无待办 | - | `page/scanner/qr_login_confirm_page.dart` | 网络失败时展示错误与关闭入口 | 已通过 | 批次97 | 0 | 0 | 0 | 实测：飞行模式断网→相册识别 imboy://qr_login/ 码→scan 网络异常→Failed 态（错误文案「Instance of 'NetworkException'」+「关闭」按钮，关闭退栈回扫描页正常）；⚠️无重试按钮（content.dart:94-98 _terminal 仅 onClose，失败后重试=重新扫码），功能点描述已按实际修正 |
