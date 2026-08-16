@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -196,44 +195,51 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
           ),
         ),
         rightDMActions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.regular),
-            child: RoundedElevatedButton(
-              text: '${t.common.buttonAccomplish}${state.selectsTips}',
-              highlighted: state.selects.isNotEmpty && !_isCreatingGroup,
-              // 未选成员或创建中时真正禁用，避免空列表进入建群异常分支
-              onPressed: (state.selects.isEmpty || _isCreatingGroup)
-                  ? null
-                  : () async {
-                      // 防抖：设置创建状态
-                      setState(() => _isCreatingGroup = true);
-                      try {
-                        AppLoading.show(status: t.common.loading);
-                        int memberCount = state.selects.length;
-                        GroupModel? m = await ref
-                            .read(launchChatProvider.notifier)
-                            .groupAdd(state.selects);
-                        if (m != null) {
-                          AppLoading.dismiss();
-                          ref.read(launchChatProvider.notifier).resetData();
-                          if (context.mounted) {
-                            // 建群成功引导：进入群聊 or 完善群信息
-                            _showCreatedSheet(m, memberCount + 1);
-                          }
-                        } else {
-                          AppLoading.dismiss();
-                          AppLoading.showError(t.common.tipFailed);
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            onPressed: (state.selects.isEmpty || _isCreatingGroup)
+                ? null
+                : () async {
+                    // 防抖：设置创建状态
+                    setState(() => _isCreatingGroup = true);
+                    try {
+                      AppLoading.show(status: t.common.loading);
+                      int memberCount = state.selects.length;
+                      GroupModel? m = await ref
+                          .read(launchChatProvider.notifier)
+                          .groupAdd(state.selects);
+                      if (m != null) {
+                        AppLoading.dismiss();
+                        ref.read(launchChatProvider.notifier).resetData();
+                        if (context.mounted) {
+                          // 建群成功引导：进入群聊 or 完善群信息
+                          _showCreatedSheet(m, memberCount + 1);
                         }
-                      } catch (e) {
+                      } else {
                         AppLoading.dismiss();
                         AppLoading.showError(t.common.tipFailed);
-                        iPrint("groupAdd error: ${e.runtimeType}");
-                      } finally {
-                        if (mounted) {
-                          setState(() => _isCreatingGroup = false);
-                        }
                       }
-                    },
+                    } catch (e) {
+                      AppLoading.dismiss();
+                      AppLoading.showError(t.common.tipFailed);
+                      iPrint("groupAdd error: ${e.runtimeType}");
+                    } finally {
+                      if (mounted) {
+                        setState(() => _isCreatingGroup = false);
+                      }
+                    }
+                  },
+            child: Text(
+              '${t.common.buttonAccomplish}${state.selectsTips}',
+              style: context.textStyle(
+                FontSizeType.body,
+                fontWeight: state.selects.isNotEmpty && !_isCreatingGroup
+                    ? FontWeight.w600
+                    : FontWeight.w400,
+                color: state.selects.isNotEmpty && !_isCreatingGroup
+                    ? AppColors.getIosBlue(Theme.of(context).brightness)
+                    : AppColors.iosGray,
+              ),
             ),
           ),
         ],

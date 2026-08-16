@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/group_member_model.dart';
@@ -187,28 +186,37 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
           ),
         ),
         rightDMActions: <Widget>[
-          RoundedElevatedButton(
-            text: '${t.common.buttonAccomplish}${state.selectsTips}',
-            highlighted: state.selects.isNotEmpty,
-            onPressed: () async {
-              if (state.selects.isEmpty) {
-                return;
-              }
-              AppLoading.show(status: t.common.loading);
-              int memberCount = state.selects.length;
-              iPrint("selects $memberCount");
-              bool res = await ref
-                  .read(removeMemberProvider.notifier)
-                  .removeMembers(widget.groupId);
-              AppLoading.dismiss();
-              if (res && context.mounted) {
-                context.pop(state.selects);
-              } else {
-                AppLoading.showError(t.common.tipFailed);
-              }
-            },
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            onPressed: state.selects.isEmpty
+                ? null
+                : () async {
+                    AppLoading.show(status: t.common.loading);
+                    int memberCount = state.selects.length;
+                    iPrint("selects $memberCount");
+                    bool res = await ref
+                        .read(removeMemberProvider.notifier)
+                        .removeMembers(widget.groupId);
+                    AppLoading.dismiss();
+                    if (res && context.mounted) {
+                      context.pop(state.selects);
+                    } else {
+                      AppLoading.showError(t.common.tipFailed);
+                    }
+                  },
+            child: Text(
+              '${t.common.buttonAccomplish}${state.selectsTips}',
+              style: context.textStyle(
+                FontSizeType.body,
+                fontWeight: state.selects.isNotEmpty
+                    ? FontWeight.w600
+                    : FontWeight.w400,
+                color: state.selects.isNotEmpty
+                    ? AppColors.getIosBlue(Theme.of(context).brightness)
+                    : AppColors.iosGray,
+              ),
+            ),
           ),
-          const SizedBox(width: 10),
         ],
       ),
       body: state.isLoading

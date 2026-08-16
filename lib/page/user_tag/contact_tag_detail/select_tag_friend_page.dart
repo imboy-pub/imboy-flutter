@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/page/user_tag/contact_tag_list/contact_tag_list_provider.dart';
@@ -193,46 +192,51 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
           ),
         ),
         rightDMActions: <Widget>[
-          Padding(
-            padding: AppSpacing.allSmall,
-            child: RoundedElevatedButton(
-              text:
-                  t.common.buttonAdd +
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              const String scene = 'friend';
+              bool res = await ref
+                  .read(contactTagDetailProvider.notifier)
+                  .setObject(
+                    scene: scene,
+                    tagId: widget.tag.tagId,
+                    tagName: widget.tag.name,
+                    selectedContact: selectedContact,
+                    tagContactList: widget.tagContactList,
+                  );
+              if (res) {
+                UserTagModel updatedTag = UserTagModel(
+                  userId: widget.tag.userId,
+                  tagId: widget.tag.tagId,
+                  scene: widget.tag.scene,
+                  name: widget.tag.name,
+                  subtitle: widget.tag.subtitle,
+                  refererTime: selectedContact.length,
+                  updatedAt: widget.tag.updatedAt,
+                  createdAt: widget.tag.createdAt,
+                );
+                ref.read(contactTagListProvider.notifier).updateTag(updatedTag);
+                AppLoading.showSuccess(t.common.tipSuccess);
+              } else {
+                AppLoading.showError(t.common.tipFailed);
+              }
+            },
+            child: Text(
+              t.common.buttonAdd +
                   (selectedContact.isEmpty
                       ? ""
-                      : " (${selectedContact.length})    "),
-              highlighted: selectedContact.isNotEmpty,
-              onPressed: () async {
-                Navigator.of(context).pop();
-                const String scene = 'friend';
-                bool res = await ref
-                    .read(contactTagDetailProvider.notifier)
-                    .setObject(
-                      scene: scene,
-                      tagId: widget.tag.tagId,
-                      tagName: widget.tag.name,
-                      selectedContact: selectedContact,
-                      tagContactList: widget.tagContactList,
-                    );
-                if (res) {
-                  UserTagModel updatedTag = UserTagModel(
-                    userId: widget.tag.userId,
-                    tagId: widget.tag.tagId,
-                    scene: widget.tag.scene,
-                    name: widget.tag.name,
-                    subtitle: widget.tag.subtitle,
-                    refererTime: selectedContact.length,
-                    updatedAt: widget.tag.updatedAt,
-                    createdAt: widget.tag.createdAt,
-                  );
-                  ref
-                      .read(contactTagListProvider.notifier)
-                      .updateTag(updatedTag);
-                  AppLoading.showSuccess(t.common.tipSuccess);
-                } else {
-                  AppLoading.showError(t.common.tipFailed);
-                }
-              },
+                      : " (${selectedContact.length})"),
+              style: context.textStyle(
+                FontSizeType.body,
+                fontWeight: selectedContact.isNotEmpty
+                    ? FontWeight.w600
+                    : FontWeight.w400,
+                color: selectedContact.isNotEmpty
+                    ? AppColors.getIosBlue(Theme.of(context).brightness)
+                    : AppColors.iosGray,
+              ),
             ),
           ),
         ],
