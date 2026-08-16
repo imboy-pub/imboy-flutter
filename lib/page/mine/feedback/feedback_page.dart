@@ -105,7 +105,12 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
               AppLoading.showError(t.common.tipFailed);
             }
           },
-          (_) {},
+          (Object e) {
+            // BUG#133 诊断：uploadBytesViaPresignCompat 的 on Object catch
+            // 会把回调内任何异常静默吞掉（errorCallback 空函数），导致
+            // add=true 后 _loadFeedbackList 未执行的异常无痕。先打日志定位。
+            debugPrint('FEEDBACK_SUBMIT_CALLBACK_ERROR: $e');
+          },
           process: false,
         );
       } finally {
