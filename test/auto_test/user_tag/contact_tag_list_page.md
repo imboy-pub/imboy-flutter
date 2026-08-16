@@ -1,6 +1,6 @@
 # `page/user_tag/contact_tag_list/contact_tag_list_page.dart`
 
-> 功能点 12 个 | bug 发现 3 / 解决 3 / 待处理 0
+> 功能点 12 个 | bug 发现 4 / 解决 4 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -9,7 +9,7 @@
 | 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 加载中显示居中菊花 | 已通过 | 批次33 | 0 | 0 | 0 | 代码确认：L83 isLoading→SliverFillRemaining(Center(CupertinoActivityIndicator))；真机请求过快抓不到 loading 帧 |
 | 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 无标签时显示空数据视图 | 已通过 | 批次33 | 0 | 0 | 0 | 真机确认：当前账号标签列表为空时显示「暂无数据」；上轮删 qa0806empty 后同款验证 |
 | 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 搜索框输入实时过滤标签 | 已通过 | 批次88 | 0 | 0 | 0 | 真机（0816 批次88，automation-buddy）：输入 batch→列表即时过滤只剩 qa_batch88，清除后恢复两条（qa_loop4 + qa_batch88） |
-| 阻塞 | 需分页数据量 | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 滚动触底自动加载更多标签 | 未测 | - | 0 | 0 | 0 | 当前仅 2 条标签不足一页，仍缺分页数据量 |
+| 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 滚动触底自动加载更多标签 | 已通过 | 批次98 | 1 | 1 | 0 | BUG#批次98-1 已修+复验：`IosPageTemplate._buildBody` 的 CustomScrollView 不接收 ScrollController → 页面 `_initScrollListener` 注册在从未 attach 的 controller 上，触底加载是静默 dead code。修复=ios_settings_ui.dart 加 `controller` 透传参数 + contact_tag_list_page 传入 `_controller`（flutter analyze 零问题 + 54 单测通过）。真机（0816）：本地 11 条（10 网络同步 + UI 新增 qa_b98_13 本地 insert）→ 滚动触底 → loadMore 触发 → qa_b98_13 自动加载到第 11 位。遗留（设计非缺陷，不修）：loadMore 本地 offset 无数据时永不触网，>10 条时第 11+ 条仅本地 insert 可达；服务端测试数据已自产自清（user_tag total=0 复核） |
 | 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 拖拽手柄重排标签顺序 | 已通过 | 批次88 | 0 | 0 | 0 | 真机（0816 批次88）：行尾 bars 手柄（ReorderableDragStartListener L172）拖动 qa_loop4 至第 2 位生效；reorderItems L296-302 注释「仅更新本地状态，无需网络请求」= 纯客户端排序设计（user_tag 表无排序字段佐证），非持久化属设计非缺陷 |
 | 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 加号打开新建标签面板并生效 | 已通过 | §三十一 | 1 | 1 | 0 | |
 | 无待办 | - | `page/user_tag/contact_tag_list/contact_tag_list_page.dart` | 新建标签后列表立即刷新 | 已通过 | §三十一 | 1 | 1 | 0 | |
