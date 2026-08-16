@@ -48,11 +48,11 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1263 | 82.0% |
-| 阻塞 | 278 | 18.0% |
+| 无待办 | 1283 | 83.3% |
+| 阻塞 | 258 | 16.7% |
 | **合计** | **1541** | 100% |
 
-bug 累计：**发现 196 / 解决 189 / 待处理 7**
+bug 累计：**发现 197 / 解决 191 / 待处理 6**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -63,12 +63,12 @@ bug 累计：**发现 196 / 解决 189 / 待处理 7**
 | [group](group/) | 26 | 286 | 0 | 246 | 40 |
 | [mine](mine/) | 21 | 249 | 0 | 234 | 15 |
 | [channel](channel/) | 13 | 146 | 0 | 119 | 27 |
-| [contact](contact/) | 13 | 126 | 3 | 109 | 17 |
+| [contact](contact/) | 13 | 126 | 2 | 118 | 8 |
 | [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 19 |
 | [passport](passport/) | 7 | 82 | 0 | 43 | 39 |
 | [chat](chat/) | 6 | 76 | 0 | 59 | 17 |
 | [moment](moment/) | 6 | 74 | 0 | 73 | 1 |
-| [wallet](wallet/) | 5 | 61 | 1 | 48 | 13 |
+| [wallet](wallet/) | 5 | 61 | 1 | 51 | 10 |
 | [user_tag](user_tag/) | 5 | 58 | 1 | 58 | 0 |
 | [single](single/) | 5 | 48 | 0 | 36 | 12 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 |
@@ -78,7 +78,7 @@ bug 累计：**发现 196 / 解决 189 / 待处理 7**
 | [scanner](scanner/) | 3 | 30 | 0 | 28 | 2 |
 | [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 6 | 6 |
 | [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 |
-| [mention](mention/) | 1 | 12 | 0 | 3 | 9 |
+| [mention](mention/) | 1 | 12 | 0 | 11 | 1 |
 | [splash](splash/) | 1 | 12 | 0 | 11 | 1 |
 | [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 |
 | [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 |
@@ -120,7 +120,7 @@ bug 累计：**发现 196 / 解决 189 / 待处理 7**
 - [add_friend_page](contact/add_friend_page.md) — 9 功能点
 - [apply_friend_page](contact/apply_friend_page.md) — 9 功能点
 - [assistant_plaza_page](contact/assistant_plaza_page.md) — 10 功能点 ⚠️ 1 待处理
-- [confirm_new_friend_page](contact/confirm_new_friend_page.md) — 9 功能点 ⚠️ 1 待处理
+- [confirm_new_friend_page](contact/confirm_new_friend_page.md) — 9 功能点
 - [contact_page](contact/contact_page.md) — 12 功能点
 - [contact_setting_page](contact/contact_setting_page.md) — 10 功能点
 - [contact_setting_tag_page](contact/contact_setting_tag_page.md) — 9 功能点
