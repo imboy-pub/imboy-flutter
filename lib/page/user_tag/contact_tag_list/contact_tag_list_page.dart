@@ -57,6 +57,7 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
 
     return IosPageTemplate(
       title: t.common.contactTags,
+      controller: _controller,
       useLargeTitle: false,
       actions: [
         CupertinoButton(
