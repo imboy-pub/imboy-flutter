@@ -1,6 +1,6 @@
 # `page/chat/chat/chat_page.dart`
 
-> 功能点 21 个 | bug 发现 14 / 解决 11 / 待处理 3
+> 功能点 21 个 | bug 发现 12 / 解决 12 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -16,7 +16,7 @@
 | 无待办 | - | `page/chat/chat/chat_page.dart` | 清理已到期的阅后即焚消息 | 已通过 | 批次72 | 1 | 1 | 0 | 真机复验：设置页开阅后即焚 30s → 发送 qa-burn72 → 日志 `14:58:43 addMessage` → `14:59:13 removeMessageById`（恰 30s 整销毁），UI 列表同步移除；AI 回复消息不受影响 |
 | 无待办 | - | `page/chat/chat/chat_page.dart` | 发送图片并多图滑动预览 | 已通过 | 批次72 | 0 | 0 | 0 | 真机：系统选择器选图发送成功（shot.png+tapcheck.png 两张均渲染「我发送的图片」），单图预览打开，多图预览左滑/右滑切换无崩溃无错误日志，AI 回复佐证送达 |
 | 无待办 | - | `page/chat/chat/chat_page.dart` | 录制并播放语音消息 | 已通过 | 批次72 | 0 | 0 | 0 | 真机：授权录音后按住说话录 1s 发送成功（「我发送的语音 00:01」渲染），点击播放无崩溃无错误日志（播放动画 a11y 不可见，logcat 干净） |
-| 阻塞 | 需 uiautomator2/Appium 双击注入工具 | `page/chat/chat/chat_page.dart` | 发送文件并确认打开 | 待重验 | 批次76 | 1 | 1 | 0 | BUG#140 代码侧闭环（3f877d1e onMessageDoubleTap 接线，analyze 零 issues，已在 11:10 APK 内）。批次76 真机复验受双击注入工具限制：adb `input tap` 单次 ~410ms > 300ms 双击窗口（实测两次 onTap 间隔 820ms，onDoubleTap 不触发）；sendevent type B+BTN_TOUCH 注入华为 event2 不生效（SELinux/协议）；mobile-mcp 不可用。待引入 uiautomator2/Appium 做亚 300ms 双击注入 |
+| 无待办 | - | `page/chat/chat/chat_page.dart` | 发送文件并确认打开 | 已通过 | 批次105 | 2 | 2 | 0 | 真机全链路闭环（0817 批次105）：单击文件气泡 → 「确定要打开文件吗？」对话框（语义树 bounds 取消 (320,773)-(448,869) / 确认 (464,773)-(592,869)）→ 确认 → getSingleFile(object_key) presign 授权下载 82191 bytes → 华为系统打开方式选择器（HwResolverActivity）→ 选华为视频 → FullscreenActivity + `player state:started` 播放成功。⭐BUG#141 单击无反应：文件消息渲染走 `fileMessageBuilder → FlyerChatFileMessage`（vendored 纯展示组件**零点击处理**），CustomMessageBuilder/MessageFileBuilder 是死路径；打开逻辑仅挂在双击（_onMessageDoubleTap L1160）；修复=chat_page._onMessageTap 加 FileMessage 分支 `confirmOpenFile(context, message.source)`（最小 diff，保留双击路径与 _e2ee_failed 引导优先级） |
 | 无待办 | - | `page/chat/chat/chat_page.dart` | 选点发送位置消息 | 已通过 | 批次72 | 0 | 0 | 0 | 真机：附加项→地点→系统定位权限弹窗（点「始终允许」）→WebView 高德地图加载+**真实 GPS 定位成功**（深圳院子 88m/万科都会四季 228m/充电站 236m，此前「无 GPS 阻塞」顾虑排除）→选「万科·都会四季花园西区」→发送→气泡「我发送的位置消息」+地点卡片+地图缩略图渲染→日志 [C2C/location/PLAIN] 505B→C2C_SERVER_ACK→sent，缩略图 presign+Garage 下载成功（125KB） |
 | 无待办 | - | `page/chat/chat/chat_page.dart` | 选择好友发送名片消息 | 已通过 | 批次72 | 0 | 0 | 0 | 真机：附加项→个人名片→「选择朋友」页（A/I/L/# 分组渲染正常，佐证 BUG#131 修复）→ 选 IMBoy → 确认弹窗「发送给 IMBoy + [个人名片]小男孩」→ 发送 → 气泡「我发送的名片 IMBoy 个人名片」渲染正常，无错误日志 |
 | 无待办 | - | `page/chat/chat/chat_page.dart` | 从收藏选内容发送到会话 | 已通过 | 批次72 | 0 | 0 | 0 | 真机：长按 AI 消息→快捷菜单→收藏；附加项→收藏（isSelect）→点收藏内容→确认弹窗「发送给小男孩」→发送→气泡渲染+日志 C2C_SERVER_ACK→sent，AI 回复佐证送达。⚠️观察项：对收到的 C2C 消息（数字 TSID）v2 二进制 ACK，服务端回 CLIENT_ACK_ERROR「缺 msgId, invalid_type」重试 4 次失败，是否系统性问题待后续批次确认 |

@@ -1,6 +1,6 @@
 # `page/group/category/group_category_detail_page.dart`
 
-> 功能点 10 个 | bug 发现 1 / 解决 0 / 待处理 1
+> 功能点 10 个 | bug 发现 2 / 解决 2 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |

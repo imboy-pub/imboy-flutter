@@ -45,7 +45,8 @@ import 'package:imboy/modules/messaging/domain/message_status.dart'
     as domain_msg;
 
 // CustomMessageBuilder 需要显式导入（与 flutter_chat_core 冲突）
-import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
+import 'package:imboy/component/chat/message.dart'
+    show CustomMessageBuilder, confirmOpenFile;
 import 'package:imboy/component/chat/message_agent_task_builder.dart';
 import 'package:imboy/component/chat/agent_task_progress_banner.dart';
 import 'package:imboy/component/chat/mention_provider.dart'
@@ -1189,6 +1190,15 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 接通设备转移 / 社交恢复 / 本地备份导入，避免撞墙后无引导的死胡同。
     if (message.metadata?['_e2ee_failed'] == true) {
       showE2EERecoveryGuide(context, scene: E2EERecoveryScene.decryptFailed);
+      return;
+    }
+
+    // BUG#141：单击文件消息直接打开文件。
+    // 双击路径（_onMessageDoubleTap）已有 confirmOpenFile，但用户直觉是单击
+    // 打开（对齐图片消息单击预览）；FlyerChatFileMessage 本身是纯展示组件
+    // 无点击处理，此前单击只有外层 Message tapped 日志、无任何动作。
+    if (message is FileMessage) {
+      confirmOpenFile(context, message.source);
       return;
     }
 
