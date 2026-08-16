@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 阻塞 | 需后端发布 | `page/channel/channel_detail_page.dart` | 频道消息图片附件渲染（view_url 授权） | 待重验 | 批次65 | 1 | 0 | 1 | BUG#124b 代码侧已闭环（2026-08-08）：根因=批次36 旧客户端上传未传 scope 落 default private（非上传者 view_url 400）；读鉴权 channel 订阅者可访问已就位；工作区 can_upload channel 分支（订阅者判定）核实正确 + 新增 EUnit authorize_channel_uploader_subscribed_grants_test 共 34 用例全绿。真机复验待后端发布（含并发未提交改动，commit/push/发布需人工确认）；存量「干饭」两条 private 附件需生产回填 SQL（scope→channel+scope_ref，生产数据待人工拍板） |
+| 无待办 | - | `page/channel/channel_detail_page.dart` | 频道消息图片附件渲染（view_url 授权） | 已通过 | 批次90 | 1 | 1 | 0 | ⭐BUG#124b 真机复验闭环（08-16 alpha.32）：qa-batch84-admin 发图全链路证据——nginx 23:36:36 `presign?scope=channel&scope_ref=106933346608875520` 200 402B（客户端上传带 channel scope）→ 23:36:37 confirm 落库（attachment id=107384663800285184 scope=channel scope_ref=频道ID creator=50）→ 23:36:38 `view_url?object_key=u50/channel/20260816/...` 200 352B（渲染授权成功）→ 消息流 ImageView 渲染 + 点击全屏预览正常；头像 view_url 亦 200。代码侧：读鉴权 channel 分支 has_channel_attachment_access（创建者 role 短路/订阅者放行）+ can_upload channel 分支 + EUnit 34 用例全绿（d891c6fd，随 alpha.32 上线）。遗留：存量「干饭」两条 private 附件生产回填 SQL（scope→channel+scope_ref）仍待人工拍板（历史数据修复，不影响本功能点） |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 频道详情加载、头部渲染与未读清零 | 已通过 | 批次25 | 1 | 1 | 0 | |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 头部统计加载与发布后权威刷新 | 已通过 | 批次25 | 1 | 1 | 0 | |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 消息卡片点赞落库与计数回显 | 已通过 | 批次25 | 2 | 2 | 0 | |
