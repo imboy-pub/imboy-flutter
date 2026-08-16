@@ -274,24 +274,19 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
             : AppColors.lightSurface,
         rightDMActions: [
           if (_hasChanges())
-            TextButton(
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               onPressed: _isSaving ? null : _saveTags,
               child: _isSaving
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.primary,
-                        ),
-                      ),
-                    )
+                  ? const CupertinoActivityIndicator(radius: 10)
                   : Text(
                       t.common.buttonSave,
-                      style: TextStyle(
-                        color: AppColors.primary,
+                      style: context.textStyle(
+                        FontSizeType.body,
                         fontWeight: FontWeight.w600,
+                        color: AppColors.getIosBlue(
+                          Theme.of(context).brightness,
+                        ),
                       ),
                     ),
             ),

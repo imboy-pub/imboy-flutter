@@ -232,17 +232,25 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
         title: t.channel.create,
         automaticallyImplyLeading: true,
         rightDMActions: [
-          TextButton(
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             onPressed: (state.isCreating || _isUploadingAvatar)
                 ? null
                 : _createChannel,
             child: state.isCreating
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(t.common.confirm),
+                ? const CupertinoActivityIndicator(radius: 10)
+                : Text(
+                    t.common.confirm,
+                    style: context.textStyle(
+                      FontSizeType.body,
+                      fontWeight: !(state.isCreating || _isUploadingAvatar)
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                      color: !(state.isCreating || _isUploadingAvatar)
+                          ? AppColors.getIosBlue(Theme.of(context).brightness)
+                          : AppColors.iosGray,
+                    ),
+                  ),
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -67,14 +68,15 @@ class _SendToPageState extends ConsumerState<SendToPage> {
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         ),
         rightDMActions: [
-          TextButton(
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             onPressed: _send,
             child: Text(
               t.common.buttonSend,
-              style: TextStyle(
-                color: colorScheme.primary,
-                fontSize:
-                    textTheme.bodyMedium?.fontSize ?? FontSizeType.normal.size,
+              style: context.textStyle(
+                FontSizeType.body,
+                fontWeight: FontWeight.w600,
+                color: AppColors.getIosBlue(Theme.of(context).brightness),
               ),
             ),
           ),

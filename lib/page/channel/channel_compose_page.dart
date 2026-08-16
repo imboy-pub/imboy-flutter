@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -575,19 +576,39 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
           rightDMActions: [
             // 常驻但按内容启停：原先 `if (_hasContent)` 会让按钮凭空出现，
             // 打第一个字时整条 AppBar 跳一下。
-            TextButton(
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               onPressed: (_hasContent && !_isPublishing) ? _showPreview : null,
-              child: Text(t.channel.preview),
+              child: Text(
+                t.channel.preview,
+                style: context.textStyle(
+                  FontSizeType.body,
+                  fontWeight: (_hasContent && !_isPublishing)
+                      ? FontWeight.w600
+                      : FontWeight.w400,
+                  color: (_hasContent && !_isPublishing)
+                      ? AppColors.getIosBlue(Theme.of(context).brightness)
+                      : AppColors.iosGray,
+                ),
+              ),
             ),
-            TextButton(
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               onPressed: canPublish ? _publish : null,
               child: _isPublishing
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(t.channel.publish),
+                  ? const CupertinoActivityIndicator(radius: 10)
+                  : Text(
+                      t.channel.publish,
+                      style: context.textStyle(
+                        FontSizeType.body,
+                        fontWeight: canPublish
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                        color: canPublish
+                            ? AppColors.getIosBlue(Theme.of(context).brightness)
+                            : AppColors.iosGray,
+                      ),
+                    ),
             ),
           ],
         ),

@@ -325,15 +325,23 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
         title: t.channel.editChannel,
         automaticallyImplyLeading: true,
         rightDMActions: [
-          TextButton(
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             onPressed: (_isSaving || _isUploadingAvatar) ? null : _saveChanges,
             child: _isSaving
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(t.common.save),
+                ? const CupertinoActivityIndicator(radius: 10)
+                : Text(
+                    t.common.save,
+                    style: context.textStyle(
+                      FontSizeType.body,
+                      fontWeight: !(_isSaving || _isUploadingAvatar)
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                      color: !(_isSaving || _isUploadingAvatar)
+                          ? AppColors.getIosBlue(Theme.of(context).brightness)
+                          : AppColors.iosGray,
+                    ),
+                  ),
           ),
         ],
       ),
