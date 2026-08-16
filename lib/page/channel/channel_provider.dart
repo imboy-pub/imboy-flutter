@@ -210,10 +210,14 @@ class ChannelListNotifier extends _$ChannelListNotifier {
         hasMore: result.hasMore,
         cursor: result.nextCursor,
       );
-      // 列表可用后异步对账未读汇总，失败不阻断页面渲染。
-      unawaited(
-        ChannelService.to.syncUnreadSummary(trigger: 'channel_list_load'),
-      );
+      // 列表可用后异步对账本地订阅 + 未读汇总，失败不阻断页面渲染。
+      // 必须先对账订阅表再对账未读：订阅表缺行时未读 UPDATE 是空操作，
+      // 未读汇总对账只能修正已存在的行（Slice-1 回归，840919d0 移除了
+      // 冷启动 syncSubscribedChannels 调用点）。
+      unawaited(() async {
+        await ChannelService.to.syncSubscribedChannels(fromList: result.list);
+        await ChannelService.to.syncUnreadSummary(trigger: 'channel_list_load');
+      }());
     } catch (e) {
       iPrint('loadSubscribedChannels failed: $e');
       if (!ref.mounted) return;

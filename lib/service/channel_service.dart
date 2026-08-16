@@ -59,12 +59,17 @@ class ChannelService {
 
   // ==================== 频道同步 ====================
 
-  /// 同步订阅的频道列表
+  /// 同步订阅的频道列表到本地 SQLite（频道表 + 订阅表）
   ///
-  /// 从服务器获取用户订阅的所有频道，并保存到本地
-  Future<List<ChannelModel>> syncSubscribedChannels() async {
+  /// 从服务器获取用户订阅的所有频道，并保存到本地；调用方已有分页列表
+  /// 时可通过 [fromList] 直接传入，避免重复 API 请求（Slice-1 回归修复：
+  /// 冷启动不再自动拉全量订阅，频道列表页加载后必须把订阅对账到本地，
+  /// 否则订阅表缺行 → 未读计数 UPDATE 空操作 → 角标恒 0）。
+  Future<List<ChannelModel>> syncSubscribedChannels({
+    List<ChannelModel>? fromList,
+  }) async {
     try {
-      final channels = await _api.getSubscribedChannels();
+      final channels = fromList ?? await _api.getSubscribedChannels();
 
       // 保存到本地数据库
       for (final channel in channels) {

@@ -1091,6 +1091,28 @@ void main() {
 
       expect(result, isEmpty);
     });
+
+    test('fromList 传入 → 不调 API，直接对账本地订阅（频道列表页加载后）', () async {
+      final ch1 = _channel(1);
+      final ch2 = _channel(2);
+      final api = _ThrowingChannelApi(); // 若误调 API 立即抛错
+      final repo = _FakeChannelRepo();
+      final service = ChannelService.forTest(
+        api: api,
+        repo: repo,
+        messageRepo: _FakeChannelMessageRepo(),
+      );
+
+      final result = await service.syncSubscribedChannels(fromList: [ch1, ch2]);
+
+      expect(result, hasLength(2));
+      expect(repo.savedChannels, hasLength(2));
+      expect(
+        repo.savedSubscriptions,
+        hasLength(2),
+        reason: 'fromList 同样应补齐缺失的本地订阅行（角标链路依赖）',
+      );
+    });
   });
 
   // ─── CH-7  syncMessages ───────────────────────────────────────────────────

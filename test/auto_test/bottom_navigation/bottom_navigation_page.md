@@ -1,6 +1,6 @@
 # `page/bottom_navigation/bottom_navigation_page.dart`
 
-> 功能点 12 个 | bug 发现 2 / 解决 2 / 待处理 0
+> 功能点 12 个 | bug 发现 3 / 解决 3 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -8,7 +8,7 @@
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 点击底部标签切换对应主页面 | 已通过 | 批次26 | 0 | 0 | 0 | |
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 消息标签展示未读消息数角标 | 已通过 | 批次85 | 0 | 0 | 0 | macOS(uid4)→Android(uid50) E2EE C2C 真机送达，消息 Tab 与会话条目均显红色角标「1」；99+ 上限未验 |
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 联系人标签展示新好友提醒角标 | 已通过 | 批次103 | 2 | 2 | 0 | 真机全链路闭环：服务端 eval 造数（friend_ds:insert_pending+msg_s2c_ds:write_msg+message_ds:assemble_msg+send_next，MsgId af_qa103g_7_50）→ WS receivedAddFriend 落库 → countReminders → BadgeWidget「1 条未读 联系人」语义树+934px #FF3B30 双铁证 → 「接受→通过好友验证→完成」→ confirm 后角标即时消失（重启后也不复现）。⭐BUG#136 落库失败：receivedAddFriend 传 DateTime 对象，save() 对已存在 from/to 走 update 分支 `(json[createdAt] as num)` 强转抛 TypeError → 事务回滚 → 同 from/to 重复申请静默失败（首条走 insert 分支不暴露）；修复=createdAt 传 DateTimeHelper.millisecond() 毫秒整数。⭐BUG#137 角标 stale：confirmNewFriendProvider 是 autoDispose，confirm 后页面 pop → provider 立即 dispose → `Future.delayed(1s)` 回调里 ref.mounted 恒 false → countReminders 永远跳过 → 角标保留到重启/切页；修复=confirm() 内同步调用 countReminders（notifier 存活期 ref 有效且 update 已 await），S2C accept 路径（new_friend_provider.receivedConfirmFriend）同步补刷新 |
-| 阻塞 | 需订阅频道产生新消息 | `page/bottom_navigation/bottom_navigation_page.dart` | 频道标签汇总订阅未读数角标 | 未测 | 批次26 | 0 | 0 | 0 | 自己发的频道消息不给自己产生未读 |
+| 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 频道标签汇总订阅未读数角标 | 已通过 | 批次106 | 1 | 1 | 0 | 真机全链路闭环（MRD-AL00，pm clear 冷启动复现缺订阅态）：进频道列表页 → 造数（uid=3 发干饭频道，msg id 107443989189494784）→ WS 推送 _reload → 频道条「干饭 3 条未读」+ 底部导航频道 tab 红角标（语义树 desc + 像素 883px @448-483/1378-1412 双铁证）。⭐BUG#146 订阅未读角标恒 0：本地 channel_subscription 表缺订阅行——syncSubscribedChannels() 调用点被 Slice-1 重构（840919d0）移除成死代码 → incrementUnreadCount/updateUnreadCount UPDATE 空操作 → subscribedChannelStripProvider INNER JOIN 恒 0 行 → 角标恒 0（频道列表走 API 显示正常造成迷惑）；修复=channel_service.dart syncSubscribedChannels 加 fromList 参数 + channel_provider.dart 频道列表加载成功后顺序对账「订阅表→未读汇总」；CH-6 组补 fromList 用例 5 例全绿 |
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 我的标签展示长连接三态指示点 | 已通过 | 批次26 | 0 | 0 | 0 | 仅验证绿(已连)态；橙/红需断网触发，历史上断网会触发 EMUI 防误触锁屏 |
 | 阻塞 | 需关闭 channel FeatureFlag | `page/bottom_navigation/bottom_navigation_page.dart` | 频道开关关闭时隐藏频道标签 | 未测 | 批次26 | 0 | 0 | 0 | 开关开启态已验（频道标签在位） |
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 路由参数指定进入时的初始标签 | 已通过 | 批次103 | 0 | 0 | 0 | 单测证实：resolveInitialIndex 纯函数（query index=2→tab2；deep link 真机不可达=经 Splash 重定向 query 丢失，L96-108 代码核实） |
