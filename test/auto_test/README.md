@@ -48,11 +48,11 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1215 | 78.8% |
-| 阻塞 | 326 | 21.2% |
+| 无待办 | 1239 | 80.4% |
+| 阻塞 | 302 | 19.6% |
 | **合计** | **1541** | 100% |
 
-bug 累计：**发现 182 / 解决 174 / 待处理 8**
+bug 累计：**发现 185 / 解决 178 / 待处理 7**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -61,8 +61,8 @@ bug 累计：**发现 182 / 解决 174 / 待处理 8**
 | 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 阻塞 |
 |---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 0 | 237 | 49 |
-| [mine](mine/) | 21 | 249 | 0 | 212 | 37 |
-| [channel](channel/) | 13 | 146 | 1 | 117 | 29 |
+| [mine](mine/) | 21 | 249 | 0 | 224 | 25 |
+| [channel](channel/) | 13 | 146 | 0 | 119 | 27 |
 | [contact](contact/) | 13 | 126 | 3 | 109 | 17 |
 | [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 19 |
 | [passport](passport/) | 7 | 82 | 0 | 43 | 39 |
@@ -70,12 +70,12 @@ bug 累计：**发现 182 / 解决 174 / 待处理 8**
 | [moment](moment/) | 6 | 74 | 0 | 73 | 1 |
 | [wallet](wallet/) | 5 | 61 | 1 | 48 | 13 |
 | [user_tag](user_tag/) | 5 | 58 | 1 | 57 | 1 |
-| [single](single/) | 5 | 48 | 0 | 28 | 20 |
+| [single](single/) | 5 | 48 | 0 | 36 | 12 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 25 | 11 |
 | [search](search/) | 3 | 35 | 0 | 14 | 21 |
 | [live_room](live_room/) | 3 | 33 | 0 | 5 | 28 |
-| [scanner](scanner/) | 3 | 30 | 0 | 22 | 8 |
+| [scanner](scanner/) | 3 | 30 | 0 | 24 | 6 |
 | [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 6 | 6 |
 | [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 3 | 9 |
@@ -97,7 +97,7 @@ bug 累计：**发现 182 / 解决 174 / 待处理 8**
 - [channel_comment_page](channel/channel_comment_page.md) — 12 功能点
 - [channel_compose_page](channel/channel_compose_page.md) — 12 功能点
 - [channel_create_page](channel/channel_create_page.md) — 11 功能点
-- [channel_detail_page](channel/channel_detail_page.md) — 13 功能点 ⚠️ 1 待处理
+- [channel_detail_page](channel/channel_detail_page.md) — 13 功能点
 - [channel_discover_page](channel/channel_discover_page.md) — 10 功能点
 - [channel_edit_page](channel/channel_edit_page.md) — 11 功能点
 - [channel_invitation_page](channel/channel_invitation_page.md) — 11 功能点

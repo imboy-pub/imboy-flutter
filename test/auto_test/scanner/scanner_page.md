@@ -1,13 +1,13 @@
 # `page/scanner/scanner_page.dart`
 
-> 功能点 12 个 | bug 发现 1 / 解决 1 / 待处理 0
+> 功能点 12 个 | bug 发现 3 / 解决 3 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | ``page/scanner/scanner_page.dart`` | 进页延迟启动相机并渲染取景框 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
-| 阻塞 | 手动拒绝相机权限后 | `page/scanner/scanner_page.dart` | 权限被拒时显示去设置引导 | 未测 | - | 0 | 0 | 0 | 需构造权限拒绝场景 |
-| 阻塞 | 可构造相机启动失败场景后 | `page/scanner/scanner_page.dart` | 启动失败时显示重试按钮 | 未测 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/scanner/scanner_page.dart` | 权限被拒时显示去设置引导 | 已通过 | 批次92 | 1 | 1 | 0 | BUG#141 闭环。真机：pm revoke CAMERA → 扫描页触发系统弹窗点「禁止」→ 显示「没有权限」+「设置」按钮引导（uiautomator 文字铁证），底部控制条不渲染（0 白像素）；点「设置」→ 跳系统应用详情页（InstalledAppDetails）。修复根因：mobile_scanner 7.x `start()` 把权限异常吞进 `controller.value.error` 不向外抛，`on MobileScannerException` 分支不可达 → 权限被拒时只显示库默认英文文案无引导。修复：`Permission.camera.request()` 主动预检 + import 补 `PermissionActions`/`PermissionStatusGetters`（`show Permission` 不含 request()/isGranted 两个 extension）。widget 测试 scanner_permission_test.dart 3 例覆盖 |
+| 无待办 | - | `page/scanner/scanner_page.dart` | 启动失败时显示重试按钮 | 已通过 | 批次92 | 1 | 1 | 0 | 与 BUG#141 同根：start() 吞异常（写 value.error）也吞掉非权限启动失败（摄像头被占用等）→ 显示库默认错误。修复：start() 返回后主动检查 `controller.value.error`，非空即进失败引导（permissionDenied 判定 errorCode）。widget 测试 mock MobileScannerPlatform.start 抛 genericError → 显示「权限获取失败」+「重试」+ 控制条不渲染 |
 | 无待办 | - | ``page/scanner/scanner_page.dart`` | 闪光灯按钮开关并切换图标 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/scanner/scanner_page.dart`` | 暂停与继续扫描切换 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/scanner/scanner_page.dart`` | 前后摄像头切换 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |

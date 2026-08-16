@@ -10,7 +10,11 @@ import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart'
-    show openAppSettings;
+    show
+        Permission,
+        PermissionActions,
+        PermissionStatusGetters,
+        openAppSettings;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -68,8 +72,38 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
   Future<void> _startScanner() async {
     if (_isControllerInitialized || !mounted) return;
 
+    // BUG#141：mobile_scanner 7.x 的 start() 把权限被拒异常吞进
+    // controller.value.error（不向外抛）——下方 `on MobileScannerException`
+    // 分支永远不可达，权限被拒时只能看到库默认英文错误文案，无「去设置」引导。
+    // 必须先自行请求权限：被拒即进入 _buildStartErrorView 引导分支。
+    final status = await Permission.camera.request();
+    if (!status.isGranted) {
+      if (mounted) {
+        setState(() {
+          _startFailed = true;
+          _permissionDenied = true;
+        });
+      }
+      return;
+    }
+
     try {
       await controller.start();
+      // BUG#141 补刀：start() 成功返回≠启动成功——mobile_scanner 7.x 的
+      // start() 把 MobileScannerException 吞进 value.error 不向外抛
+      // （上方 `on MobileScannerException` 分支永远不可达，摄像头被占用
+      // 等非权限失败同样走这条）。必须主动检查吞掉的错误。
+      final startError = controller.value.error;
+      if (startError != null) {
+        if (mounted) {
+          setState(() {
+            _startFailed = true;
+            _permissionDenied =
+                startError.errorCode == MobileScannerErrorCode.permissionDenied;
+          });
+        }
+        return;
+      }
       if (mounted) {
         setState(() {
           _isControllerInitialized = true;
