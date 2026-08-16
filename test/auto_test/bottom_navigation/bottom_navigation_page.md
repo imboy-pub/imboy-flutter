@@ -15,5 +15,5 @@
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 越界标签下标归一化到合法范围 | 已通过 | 批次103 | 0 | 0 | 0 | 单测证实：normalizeIndex clamp 契约（99→末tab/ -1→0 / abc→0），unit_test 17 例全过 |
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 平板宽度改用侧边导航栏布局 | 已通过 | 批次26 | 0 | 0 | 0 | `wm density 160` 使逻辑宽 720px，侧栏正确出现、底栏消失，验后已 reset |
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 按系统返回键不退出应用 | 已通过 | 批次26 | 0 | 0 | 0 | |
-| 阻塞 | 需换设备或清一次性标记 | `page/bottom_navigation/bottom_navigation_page.dart` | 换设备后首屏弹一次密钥恢复引导 | 未测 | 批次26 | 0 | 0 | 0 | 当前设备标记已消费 |
+| 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 换设备后首屏弹一次密钥恢复引导 | 已通过 | 批次104 | 0 | 0 | 0 | 真机（0817 批次104）：adb run-as sed 注入 SharedPreferences 标记 `flutter.e2ee_new_device_guide_pending`=true（复现换设备条件）→ 冷启动底部导航 postFrame `_maybeShowE2EERecoveryGuide` 触发 → 像素铁证弹窗在位（半透明遮罩 87 灰 + 中央白面板 y=480~1048 + 双品牌蓝按钮 y≈960；华为 uiautomator 对 Flutter overlay dump 不完整故语义树不可见，须像素分析）→ 点「稍后」遮罩消失关闭 → 标记自动消费为 false → 重启冷启动不再弹（一次性消费语义闭环） |
 | 无待办 | - | `page/bottom_navigation/bottom_navigation_page.dart` | 切换语言后标签文案同步刷新 | 已通过 | 批次26 | 0 | 0 | 0 | 中→英→中，四个标签文案即时刷新无需重启 |
