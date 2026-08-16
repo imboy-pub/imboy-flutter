@@ -14,6 +14,6 @@
 | 无待办 | - | `page/user_tag/user_tag_relation/tag_relation_page.dart` | 点清空弹出二次确认后清空 | 已通过 | 批次78 | 1 | 1 | 0 | |
 | 无待办 | - | `page/user_tag/user_tag_relation/tag_relation_page.dart` | 仅有变更时才显示保存入口 | 已通过 | 批次72 | 0 | 0 | 0 | 真机：清空/添加后有变更→顶栏保存+底部保存标签 (N) 出现；重置回初始后入口消失 |
 | 无待办 | - | `page/user_tag/user_tag_relation/tag_relation_page.dart` | 底部保存提交并回传标签串 | 已通过 | 第八批 | 1 | 1 | 0 | |
-| 阻塞 | 需写生产标签数据（测试规范限制） | `page/user_tag/user_tag_relation/tag_relation_page.dart` | 保存成功弹提示并触觉反馈 | 未测 | - | 0 | 0 | 0 | 保存会同步标签到服务端（tag_relation_page.dart L123-131），本轮未操作避免写数据；代码路径：成功→showSuccess+lightImpact+pop 回传 |
-| 阻塞 | 需写生产标签数据（测试规范限制） | `page/user_tag/user_tag_relation/tag_relation_page.dart` | 保存失败弹出保存失败提示 | 未测 | - | 0 | 0 | 0 | 需真实保存失败场景；代码路径 L142-148：失败→showError(saveFailed) |
+| 待复验 | 已具备：保存可逆（测前记录原标签、测后恢复） | `page/user_tag/user_tag_relation/tag_relation_page.dart` | 保存成功弹提示并触觉反馈 | 待重验 | - | 0 | 0 | 0 | 0816复核：§1.4 无禁写标签项，同页保存已于第八批实测；转待复验。代码路径 L123-131：成功→showSuccess+lightImpact+pop 回传 |
+| 待复验 | 已具备：飞行模式可制造失败且零数据写入 | `page/user_tag/user_tag_relation/tag_relation_page.dart` | 保存失败弹出保存失败提示 | 待重验 | - | 0 | 0 | 0 | 0816复核：失败测试无需写数据，「需写生产标签数据」误标；转待复验。代码路径 L142-148：失败→showError(saveFailed) |
 | 无待办 | - | `page/user_tag/user_tag_relation/tag_relation_page.dart` | 单标签十四字与总数二十上限 | 已通过 | 批次72 | 0 | 0 | 0 | 真机：输入 15 字符 abcdefghijklmno→添加被拦截（已选不变、无新 chip，tag_input.dart L110-114 超限弹 tagLengthExceeded）；总 20 上限代码佐证（maxTags=20 + L116-119 超限弹 maxTagsExceeded，未实测避免耗时） |
