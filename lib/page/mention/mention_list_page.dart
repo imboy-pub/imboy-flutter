@@ -153,7 +153,8 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
 
   String _resolveGroupId(Map<String, dynamic> mention) {
     final fromGroupId = _toText(mention['group_id']);
-    if (fromGroupId.isNotEmpty) return fromGroupId;
+    // group_id=0 与缺失等价（服务端缺群记录时回 0），否则会跳转到 /chat/0
+    if (fromGroupId.isNotEmpty && fromGroupId != '0') return fromGroupId;
     return _toText(mention['gid']);
   }
 
