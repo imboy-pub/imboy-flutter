@@ -182,13 +182,14 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     return Scaffold(
       appBar: GlassAppBar(
         title: t.contact.selectFriends,
-        leading: Padding(
-          padding: AppSpacing.allSmall,
-          child: InkWell(
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-            child: const Icon(CupertinoIcons.xmark),
+        leading: CupertinoButton(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Icon(
+            CupertinoIcons.xmark,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         rightDMActions: <Widget>[
