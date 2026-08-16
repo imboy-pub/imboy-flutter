@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -117,12 +118,13 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
         // 存储好友信息
         _storeContactInfo(resp.payload as Map<String, dynamic>?);
 
-        // 触发新好友提醒计数重新计算
-        Future<dynamic>.delayed(const Duration(seconds: 1), () {
-          if (ref.mounted) {
-            ref.read(newFriendRemindProvider.notifier).countReminders();
-          }
-        });
+        // 同步触发新好友提醒计数重新计算。
+        // ⚠️ 不能再用 Future.delayed：confirmNewFriendProvider 是 autoDispose，
+        // 页面确认后 pop → provider 被立即 dispose → 延迟回调里 ref.mounted
+        // 恒为 false → countReminders 被跳过 → 角标 stale 直到重启/切页。
+        // 本方法执行期间 notifier 存活，ref 有效，且 _receivedConfirmFriend
+        // 已 await 完成（status=1 已落库），此处查询结果必然最新。
+        ref.read(newFriendRemindProvider.notifier).countReminders();
 
         return true;
       } else {
@@ -141,13 +143,17 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
     String to = data["to"] as String;
     NewFriendRepo repo = NewFriendRepo();
     var obj = await repo.findByFromTo(to, from);
+    iPrint(
+      "> on _receivedConfirmFriend data=${json.encode(data)} obj=${obj?.from}/${obj?.to}/${obj?.status}",
+    );
     if (obj != null) {
       // 更新状态为已添加
-      await repo.update({
+      int n = await repo.update({
         "from": to,
         "to": from,
         "status": 1, // NewFriendStatus.added.index
       });
+      iPrint("> _receivedConfirmFriend update rows=$n");
     }
   }
 

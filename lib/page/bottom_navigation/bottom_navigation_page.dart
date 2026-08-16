@@ -27,6 +27,23 @@ import 'package:imboy/i18n/strings.g.dart';
 
 import 'bottom_navigation_provider.dart';
 
+/// tab 下标越界时归一化到合法范围 [0, tabCount-1]。
+@visibleForTesting
+int normalizeIndex(int value, int tabCount) {
+  return value.clamp(0, tabCount - 1);
+}
+
+/// 从路由 query 参数解析初始 tab 下标（越界/非法值归一到合法范围）。
+///
+/// 独立为纯函数以便单测覆盖「路由参数指定初始标签」与「越界归一化」，
+/// Android 真机深链经 Splash 重定向后 query 丢失，该链路不可达。
+@visibleForTesting
+int resolveInitialIndex(Map<String, String> queryParameters, int tabCount) {
+  final raw = queryParameters['index'];
+  final index = int.tryParse(raw ?? '') ?? 0;
+  return normalizeIndex(index, tabCount);
+}
+
 class BottomNavigationPage extends ConsumerStatefulWidget {
   const BottomNavigationPage({super.key});
 
@@ -56,7 +73,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   }
 
   int _normalizeIndex(int value) {
-    return value.clamp(0, _buildPageList().length - 1);
+    return normalizeIndex(value, _buildPageList().length);
   }
 
   List<Widget> _buildPageList() {
@@ -97,15 +114,13 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
     try {
       final routerState = GoRouterState.of(context);
-      final indexParam = routerState.uri.queryParameters['index'];
-      if (indexParam != null) {
-        initialIndex = int.tryParse(indexParam) ?? 0;
-      }
+      initialIndex = resolveInitialIndex(
+        routerState.uri.queryParameters,
+        _buildPageList().length,
+      );
     } catch (e) {
       // 非 GoRouter 上下文时使用默认值
     }
-
-    initialIndex = _normalizeIndex(initialIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;

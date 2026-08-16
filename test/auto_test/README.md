@@ -48,11 +48,11 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1283 | 83.3% |
-| 阻塞 | 258 | 16.7% |
+| 无待办 | 1289 | 83.6% |
+| 阻塞 | 252 | 16.4% |
 | **合计** | **1541** | 100% |
 
-bug 累计：**发现 197 / 解决 191 / 待处理 6**
+bug 累计：**发现 199 / 解决 193 / 待处理 6**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -62,7 +62,7 @@ bug 累计：**发现 197 / 解决 191 / 待处理 6**
 |---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 0 | 246 | 40 |
 | [mine](mine/) | 21 | 249 | 0 | 234 | 15 |
-| [channel](channel/) | 13 | 146 | 0 | 119 | 27 |
+| [channel](channel/) | 13 | 146 | 0 | 122 | 24 |
 | [contact](contact/) | 13 | 126 | 2 | 118 | 8 |
 | [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 19 |
 | [passport](passport/) | 7 | 82 | 0 | 43 | 39 |
@@ -76,7 +76,7 @@ bug 累计：**发现 197 / 解决 191 / 待处理 6**
 | [search](search/) | 3 | 35 | 0 | 14 | 21 |
 | [live_room](live_room/) | 3 | 33 | 0 | 5 | 28 |
 | [scanner](scanner/) | 3 | 30 | 0 | 28 | 2 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 6 | 6 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 9 | 3 |
 | [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 11 | 1 |
 | [splash](splash/) | 1 | 12 | 0 | 11 | 1 |

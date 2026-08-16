@@ -13,9 +13,13 @@ import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart';
 ///   1. **provider 单元测试**（bottomNavigationProvider 默认 state /
 ///     newFriendRemindProvider 默认 Set）
 ///   2. **类型契约**（const widget / ConsumerStatefulWidget / 无构造参数）
+///   3. **resolveInitialIndex / normalizeIndex 纯函数**（路由 query 解析 + 越界归一化；
+///      deep link ?index=N 经 Splash 重定向后 query 丢失，真机不可达，单测固化契约）
 ///
 /// 不测 changeIndex（依赖 WebSocketService 单例链）/ 完整 widget tree（4 子页副作用）。
 void main() {
+  const tabCount = 4; // 消息/联系人/频道/我的
+
   group('BottomNavigationPage construction contract', () {
     test('widget is const-constructible (no required args)', () {
       const page = BottomNavigationPage();
@@ -113,6 +117,40 @@ void main() {
         isFalse,
         reason: '不同 container 应持有各自独立的默认 Set 实例',
       );
+    });
+  });
+
+  group('resolveInitialIndex 路由参数解析', () {
+    test('缺失 index 参数 → 0', () {
+      expect(resolveInitialIndex(const {}, tabCount), 0);
+    });
+
+    test('index=2 → 2（频道 tab）', () {
+      expect(resolveInitialIndex(const {'index': '2'}, tabCount), 2);
+    });
+
+    test('index=99 越界 → 归一化到最后一个 tab', () {
+      expect(resolveInitialIndex(const {'index': '99'}, tabCount), 3);
+    });
+
+    test('index=-1 负值越界 → 0', () {
+      expect(resolveInitialIndex(const {'index': '-1'}, tabCount), 0);
+    });
+
+    test('index=abc 非数字 → 0', () {
+      expect(resolveInitialIndex(const {'index': 'abc'}, tabCount), 0);
+    });
+  });
+
+  group('normalizeIndex 顶层契约', () {
+    test('合法值原样返回', () {
+      expect(normalizeIndex(0, 4), 0);
+      expect(normalizeIndex(3, 4), 3);
+    });
+
+    test('上下越界各归一到边界', () {
+      expect(normalizeIndex(99, 4), 3);
+      expect(normalizeIndex(-5, 4), 0);
     });
   });
 }

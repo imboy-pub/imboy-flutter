@@ -9,9 +9,10 @@ import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/api/user_api.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/i18n/strings.g.dart';
 
 /// 新好友状态类
 class NewFriendState {
@@ -82,10 +83,11 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
       NewFriendRepo.msg: payload["from"]["msg"] ?? "",
       NewFriendRepo.payload: json.encode(payload),
       NewFriendRepo.status: NewFriendStatus.waitingForValidation.index,
-      NewFriendRepo.createdAt: DateTime.fromMillisecondsSinceEpoch(
-        DateTimeHelper.millisecond(),
-        isUtc: true,
-      ),
+      // ⚠️ 必须是毫秒整数（num），不能传 DateTime 对象：save() 对已存在
+      // 的 from/to 走 update 分支，update() 里 `(json[createdAt] as num)` 强转
+      // DateTime 抛 TypeError → 事务回滚 → 同 from/to 的重复申请落库失败
+      //（首次申请走 insert 分支不读本字段，故只在第二条申请时暴露）。
+      NewFriendRepo.createdAt: DateTimeHelper.millisecond(),
     };
     iPrint("> on receivedAddFriend from=$from to=$to");
     // 不 await 的 Future 抛异常会变成未处理的异步错误被吞掉：申请没落库，
@@ -118,6 +120,9 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
     String to = (data["to"] ?? "").toString();
     NewFriendRepo repo = NewFriendRepo();
     NewFriendModel? obj = await repo.findByFromTo(to, from);
+    iPrint(
+      "> on receivedConfirmFriend(s2c) data=${json.encode(data)} obj=${obj?.from}/${obj?.to}/${obj?.status}",
+    );
     if (obj != null) {
       obj.status = NewFriendStatus.added.index;
       try {
@@ -127,6 +132,8 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
         AppLoading.showError(t.common.saveFailedRetry);
       }
       replaceItems(obj);
+      // 跨设备确认场景：S2C accept 更新成功后同步刷新角标
+      ref.read(newFriendRemindProvider.notifier).countReminders();
     }
     if (ack) {
       final msgId = data['id'];

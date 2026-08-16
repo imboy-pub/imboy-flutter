@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
@@ -47,6 +48,9 @@ class NewFriendRemindNotifier extends _$NewFriendRemindNotifier {
       for (var e in items)
         if (e[NewFriendRepo.from] != null) '${e[NewFriendRepo.from]}',
     };
+    iPrint(
+      "📊 [REMIND] countReminders items=${items.length} newFroms=$newFroms",
+    );
 
     // 再次检查（防止在异步间隙中被 disposed）
     if (!ref.mounted) return;
