@@ -49,7 +49,8 @@
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
 | 无待办 | 1293 | 83.9% |
-| 阻塞 | 248 | 16.1% |
+| 待复验 | 12 | 0.8% |
+| 阻塞 | 236 | 15.3% |
 | **合计** | **1541** | 100% |
 
 bug 累计：**发现 201 / 解决 195 / 待处理 6**
@@ -58,30 +59,30 @@ bug 累计：**发现 201 / 解决 195 / 待处理 6**
 
 ## 模块索引
 
-| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 阻塞 |
-|---|---|---|---|---|---|
-| [group](group/) | 26 | 286 | 0 | 246 | 40 |
-| [mine](mine/) | 21 | 249 | 0 | 234 | 15 |
-| [channel](channel/) | 13 | 146 | 0 | 122 | 24 |
-| [contact](contact/) | 13 | 126 | 2 | 118 | 8 |
-| [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 19 |
-| [passport](passport/) | 7 | 82 | 0 | 43 | 39 |
-| [chat](chat/) | 6 | 76 | 0 | 60 | 16 |
-| [moment](moment/) | 6 | 74 | 0 | 73 | 1 |
-| [wallet](wallet/) | 5 | 61 | 1 | 51 | 10 |
-| [user_tag](user_tag/) | 5 | 58 | 1 | 58 | 0 |
-| [single](single/) | 5 | 48 | 0 | 36 | 12 |
-| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 |
-| [settings](settings/) | 3 | 36 | 0 | 25 | 11 |
-| [search](search/) | 3 | 35 | 0 | 14 | 21 |
-| [live_room](live_room/) | 3 | 33 | 0 | 5 | 28 |
-| [scanner](scanner/) | 3 | 30 | 0 | 28 | 2 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 11 | 1 |
-| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 |
-| [mention](mention/) | 1 | 12 | 0 | 11 | 1 |
-| [splash](splash/) | 1 | 12 | 0 | 12 | 0 |
-| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 |
-| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 |
+| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 待复验 | 阻塞 |
+|---|---|---|---|---|---|---|
+| [group](group/) | 26 | 286 | 0 | 246 | 0 | 40 |
+| [mine](mine/) | 21 | 249 | 0 | 234 | 0 | 15 |
+| [channel](channel/) | 13 | 146 | 0 | 122 | 0 | 24 |
+| [contact](contact/) | 13 | 126 | 2 | 118 | 0 | 8 |
+| [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 0 | 19 |
+| [passport](passport/) | 7 | 82 | 0 | 43 | 0 | 39 |
+| [chat](chat/) | 6 | 76 | 0 | 60 | 0 | 16 |
+| [moment](moment/) | 6 | 74 | 0 | 73 | 0 | 1 |
+| [wallet](wallet/) | 5 | 61 | 1 | 51 | 0 | 10 |
+| [user_tag](user_tag/) | 5 | 58 | 1 | 58 | 0 | 0 |
+| [single](single/) | 5 | 48 | 0 | 36 | 12 | 0 |
+| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 | 0 |
+| [settings](settings/) | 3 | 36 | 0 | 25 | 0 | 11 |
+| [search](search/) | 3 | 35 | 0 | 14 | 0 | 21 |
+| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 28 |
+| [scanner](scanner/) | 3 | 30 | 0 | 28 | 0 | 2 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 11 | 0 | 1 |
+| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [mention](mention/) | 1 | 12 | 0 | 11 | 0 | 1 |
+| [splash](splash/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 |
 
 ## 页面清单
 
