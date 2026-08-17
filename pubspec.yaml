@@ -67,9 +67,9 @@ dependencies:
   # │ 🎨 Theme & UI Enhancement                                      │
   # └─────────────────────────────────────────────────────────────────┘
   dynamic_color: ^1.7.0            # Material 3 dynamic color support
-  cross_cache: any                 # Cross-platform caching strategy
-  device_info_plus: ^13.0.0         # Device information access
-  package_info_plus: ^10.0.0        # Package metadata and version info
+  cross_cache: 1.1.0                 # Cross-platform caching strategy
+  device_info_plus: ^13.2.0         # Device information access
+  package_info_plus: ^10.2.1        # Package metadata and version info
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 📷 Media & Camera                                               │
@@ -81,7 +81,7 @@ dependencies:
   photo_manager: 3.9.0               # Media management; 3.12.0 breaks current Android Kotlin build
   carousel_slider_plus: ^7.1.2       # 聊天附件面板左右滑动分页
   video_compress: ^3.1.4             # Video compression before upload
-  file_picker: ^11.0.0               # File picker
+  file_picker: ^12.0.0               # File picker
   open_file: ^4.0.0                   # File opening with default apps (updated: 3.5.10 → 4.0.0)
   image: ^4.8.0                      # Image manipulation library
   video_player: ^2.11.1               # Video playback support
@@ -106,16 +106,16 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # 💬 Chat & Messaging                                             │
   # └─────────────────────────────────────────────────────────────────┘
-  flutter_chat_core: any             # Core chat data models
-  flutter_chat_ui: any               # Chat UI components
-  flyer_chat_audio_message: any      # Audio message component
-  flyer_chat_file_message: any       # File message component
-  flyer_chat_image_message: any      # Image message component
-  flyer_chat_location_message: any   # Location message component
-  flyer_chat_system_message: any     # System message component
-  flyer_chat_text_message: any       # Text message component
-  flyer_chat_text_stream_message: any # Text stream message component
-  flyer_chat_video_message: any      # Video message component
+  flutter_chat_core: 2.9.0             # Core chat data models
+  flutter_chat_ui: 2.11.1               # Chat UI components
+  flyer_chat_audio_message: 0.0.13      # Audio message component
+  flyer_chat_file_message: 2.4.0       # File message component
+  flyer_chat_image_message: 2.3.0      # Image message component
+  flyer_chat_location_message: 0.0.13   # Location message component
+  flyer_chat_system_message: 2.2.0     # System message component
+  flyer_chat_text_message: 2.6.0       # Text message component
+  flyer_chat_text_stream_message: 2.3.0 # Text stream message component
+  flyer_chat_video_message: 0.0.13      # Video message component
 
   emoji_picker_flutter: ^4.4.0       # Emoji picker integration
   highlight_text: ^1.8.0            # Text highlighting support
@@ -211,7 +211,7 @@ dependencies:
   # 🌍 Internationalization                                          │
   # └─────────────────────────────────────────────────────────────────┘
   lpinyin: ^2.0.3                    # Chinese pinyin conversion
-  intl: ^0.20.2                      # Internationalization utilities
+  intl: ^0.20.3                      # Internationalization utilities
   feedback: ^3.2.0                   # Feedback collection UI
 
   # ┌─────────────────────────────────────────────────────────────────┐
@@ -319,7 +319,7 @@ dev_dependencies:
     sdk: flutter
 
   # ┌─ Code Generation ─────────────────────────────────────────────┐
-  build_runner: ^2.12.2                # Code generation for Riverpod, slang, envied
+  build_runner: ^2.15.1                # Code generation for Riverpod, slang, envied
   riverpod_generator: 4.0.3            # pin: 4.0.4 传递依赖 mockito 5.7.0 (^13) 与自身 analyzer ^12 冲突，builder 无法编译
   envied_generator: ^1.3.8             # Environment variables code generation (updated: 1.3.2 → 1.3.8)
 
@@ -327,7 +327,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0                # Official Flutter linting rules
 
   # ┌─ Testing ─────────────────────────────────────────────────────┐
-  test: any                            # Pure dart test runner (used by test/api/ without Flutter binding)
+  test: 1.31.1                            # Pure dart test runner (used by test/api/ without Flutter binding)
   mocktail: ^1.0.4                     # Mocking library for testing
   # mockito 已移除：5.7.0 要求 analyzer ^13，与 riverpod_generator 4.0.4 (^12) 冲突；
   # mockito 跳过 analyzer 12 时代，无任何版本兼容 riverpod 代码生成链。
@@ -340,7 +340,7 @@ dev_dependencies:
     sdk: flutter
   # Patrol：integration_test 的超集，补齐原生权限/通知/WebView 交互。
   # 现有 integration_test 用例与 Key 可直接沿用。Android 已接入，iOS 待 ios/* 解禁。
-  patrol: ^4.8.0
+  patrol: ^4.9.0
 
   # ┌─ AI Testing Framework ────────────────────────────────────────────┐
   # 🤖 AI 驱动测试框架 - MVP 精简版
