@@ -1,8 +1,9 @@
 # DF-11 E2EE 建立 → 安全消息 → 密钥备份/恢复
 
 > 优先级：P0
-> 状态：`本地密码学与只读入口通过 / 生产策略为 optional / 双设备和恢复阻塞`
+> 状态：`本地密码学与只读入口通过 / 生产策略为 disabled / 双设备和恢复阻塞`
 > 安全等级：高风险，密钥恢复步骤默认不执行
+> 最近验证：2026-08-17
 
 ## 1. 目标
 
@@ -60,6 +61,9 @@
 - 2026-08-11：华为 Android 真机 `XWE6R19916004085` 重跑 `integration_test/e2ee_olm_device_test.dart`，`5/5 All tests passed`；覆盖 vodozemac 初始化、X3DH/Olm 双向解密、Ed25519、OTK 消费和 session pickle 恢复，仍只计为单机密码学证据。
 - 2026-08-11：macOS 主机运行 `integration_test/e2ee_olm_device_test.dart -d macos`，`5/5 All tests passed`；证明桌面端本地 vodozemac/Olm 协议路径可用，但仍不等于 Android↔macOS 双端消息闭环。
 - 2026-08-11：iPhone 8 真机完成 Xcode 构建，但安装/启动阶段返回 `Unable to start the app on the device`，未加载任何测试用例；本次不计为 iOS 通过，也未形成双设备 E2EE 消息闭环。
+- 2026-08-17（DEMO-FLOW-20260817）：本地无头协议回归全绿。`flutter test --concurrency=1` 定向复跑：`e2ee_backup_restore_test.dart` `13` 通过；`olm_pfs_production_path_test.dart` `8` 通过（源码现为 8 个用例，与 08-10 记录的 9 项属文件演进差异）；`policy_gate_test.dart + fan_out_per_device_test.dart` 合计 `18` 通过；`group_session_service_test.dart` `24` 通过；`room_key_olm_roundtrip_test.dart` `1` 项本轮**真实执行**并通过（JSON reporter 确认 `skipped:false`，工作区根 `spikes/e2ee-group/rust/target/release/libvodozemac_bindings_dart.dylib` 存在），不再是 08-10 的受控跳过。`/usr/local/lib/vodozemac_bindings_dart.framework` 已确认在位（2026-08-10 部署）。
+- 2026-08-17（DEMO-FLOW-20260817）：生产只读 policy 探测 `GET https://pro.imboy.pub/api/v1/app/policy` → `e2ee_mode=disabled`、`storage_mode=compliance_e2ee`（alpha.36）。与 08-09 记录的 `optional/archived` 相比策略已演进，但仍不满足双账号 flow `TEST_EXPECT_E2EE` 要求的 `required/compliance` 门，双设备 strict 闭环保持阻塞。本地后端（alpha.27）对照探测为 `e2ee_mode=required`、`storage_mode=secure_e2ee`——本地满足 strict 策略，但无第二设备与授权密钥材料，仍不执行双设备闭环。
+- 2026-08-17（DEMO-FLOW-20260817）：生产 E2EE API 契约复跑（`.env.pro` 提取注入）：`e2ee_api_test.dart` `8` 通过、`1` 条件跳过（与历史口径一致）；`e2ee_backup_api_test.dart` `1` 通过、`1` 受控跳过——put/get/info/delete 写链路被 `TEST_ALLOW_API_WRITES` 门禁按预期拦截，未对生产写入任何密钥数据。
 
 ## 6. 未来自动化目标
 

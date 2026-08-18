@@ -1,6 +1,6 @@
 # DF-03 单聊消息闭环
 
-> 状态：`双账号双端消息闭环通过 / 服务端历史归档为空 / E2EE 未覆盖`
+> 状态：`双账号双端消息闭环通过（2026-08-11 r14 历史证据；2026-08-17 无第二设备未重跑）/ 服务端历史归档为空 / E2EE 未覆盖`
 > 优先级：P0
 > 类型：好友关系后的核心消息流程
 
@@ -53,6 +53,11 @@
 - 本次运行的服务端历史接口返回成功但归档列表为空，故服务端历史证据按 `historyUnavailable` 记录；重进恢复证据来自双端本地消息库，不把空历史接口误报为服务端归档通过。
 - 本次消息使用 `e2ee:false` 明文路径；另有既有 `crypto_outbox` 表缺失告警和旧 ACK 噪声，但两条新业务消息仍获得服务端 ACK 并完成本地状态核对。该结果不证明 E2EE 双设备握手、密文收发或密钥恢复，E2EE 仍须单独完成 P0 验收。
 - 2026-08-09：生产 `conversation_api_test.dart` 仅验证无效收件人边界；双账号写入仅限本次已授权测试账号和唯一文本标记，不作为普通 API 契约通过的替代。
+- 2026-08-17（Demo Flow 复验轮，本轮无第二设备）：
+  - **双端实时闭环未重跑**：仅 macOS 桌面可用（Android 真机未连接、iPhone 16e 离线），维持引用 2026-08-11 r14 历史 PASS 证据（run id `dual-20260811-mac117-118a-r14`，macOS/117 ↔ Android/118 明文消息闭环、双方 `C2C_SERVER_ACK`、重进本地回读）。本轮未新增双端证据。
+  - macOS 桌面只读入口复核：`flutter test integration_test/demo_flow/single_chat_flow_test.dart -d macos`（APP_ENV=pro + `.env.pro` 注入，生产只读）→ `1/1 All tests passed`；从已有 C2C 会话进入 `ChatPage`，未输入或发送消息。
+  - 本地单端发送补充（探查，未形成发送 PASS）：本地后端（127.0.0.1:9800，alpha.27）以 uid=4 登录成功并完成 WS 握手（`imboy.v2` 子协议 + Bearer token）；`GET /api/v1/app/policy` 返回 **`e2ee_mode=required`**，向 AI 小助手（agent uid `103107938360756224`，免好友校验）发送明文 C2C 被部署级明文门结构化拒收：`policy_violation / encrypted_message_required`（msg 帧含正确 `id` 回显）。错误边界链路验证：`type` 小写被拒 `unknown_message_type` → 改大写 `C2C` 后到达策略门。**本地明文发送阻塞于本地部署策略（需 E2EE 加密，超出本轮补充证据范围）**；本地亦无第二可登测试账号（117 本地不存在、注册被 License 配额 402 拦截）。
+  - 本轮环境注记：生产只读 `conversation_api_test.dart` 复跑 8 过 2 拦截（客户端写门禁设计行为，详见 conversation_flow.md 2026-08-17 条目）；macOS 构建签名问题已通过重新生成 Mac 描述文件解决。
 
 ## 6. 未来自动化目标
 

@@ -1,7 +1,7 @@
 # DF-01 注册 → 登录 → 首次进入 → 账号恢复
 
 > 优先级：P0
-> 状态：`登录与账号子页通过 / 注册、恢复受控跳过`
+> 状态：`登录与账号子页通过 / 注册本地被 License 配额阻塞 / 找回密码失败分支通过 / 退出重登阻塞（2026-08-17 更新）`
 
 ## 1. 目标
 
@@ -46,6 +46,15 @@
 - 注册、退出后重登、忘记密码和恢复 UI 尚未形成完整证据；客户端自动登录仍受桌面/真机运行器交互能力限制。
 - 验证码、真实手机号和改密属于外部条件；缺条件时标记 `阻塞`。
 - 2026-08-09：注册、退出后重登和忘记密码/恢复均按生产写入与验证码前置条件受控跳过；本轮不把登录和账号子页通过扩展为完整账号闭环。
+- 2026-08-17（Demo Flow 复验轮）：
+  - 生产只读登录契约复跑：`API_BASE_URL/TEST_PHONE/TEST_PASSWORD` 从 `.env.pro` 注入执行 `dart test test/unit_test/api/auth_api_test.dart --concurrency=1`，`9/9 All tests passed`（登录 uid=4、错误凭证、token 刷新、init、版本检查、用户信息、无效路径边界）。未执行任何生产写入。
+  - 注册机制侦察（imboy 后端仓只读）：`/api/v1/passport/signup` 与 `/api/v1/passport/findpassword` 均先经 `verification_code_ds:consume/2` 校验验证码；本地 `config/sys.local.config` 配置了仅 local/dev/test 生效的 `verification_master_code` 万能码（生产 `sys.config` 留空禁用），且本地 `api_auth_switch=off` 免签名。
+  - 本地注册（DEMO-FLOW-20260817 前缀测试账号，POST 本地 signup）：万能码校验已通过（请求到达配额检查），但被 License 配额守卫结构化拒绝 `402 用户数已达授权上限`（社区版默认 `community_max_users=100` 已满）。**注册在本地环境阻塞于容量，非验证码问题**；本轮不清理本地用户数据（禁止删除）。
+  - 错误验证码注册分支（本地）：`code=000000` → `code=1 验证码无效`，验证码门禁正确拒绝、无误报成功。
+  - 找回密码失败分支（本地，复用 `.env.pro` 测试账号 uid=4）：`POST /api/v1/passport/findpassword` 错误验证码 → `code=1 验证码无效`；随后原密码重新登录 `code=0` 成功（uid=4）。**错误验证码不改变原密码已验证**；"恢复成功后新密码可登录"的正向分支未执行（不修改真实测试账号密码）。
+  - 本地登录可用性：`.env.pro` 测试账号在本地后端可登录（uid=4，token 正常），本地 `conversation/mine` 为空（无会话数据）。
+  - 退出重登（macOS App 自身会话）：**阻塞**。共享 macOS 容器仍持有 117（uid=50）生产会话与 r14 双端闭环的本地消息库；`quitLogin` 的 `E2eeSecretInventory.purgeAll` 按前缀**全局**清理 `e2ee_/olm_/db_cipher_key_` 等秘密（跨账号），登出会毁掉该本地证据库的解密密钥；且以本地环境启动会对生产 token 触发 401 自动登出（同样触发 purge）。无隔离容器或第二设备可用，本轮不执行。
+  - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260817/`（signup_a/b.json、signup_wrongcode.json、findpwd_wrongcode.json、local_login_pro_acct.json、relogin_original_pwd.txt）。
 
 ## 6. 未来自动化目标
 

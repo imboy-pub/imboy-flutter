@@ -1,8 +1,9 @@
 # DF-21 单聊 → 音视频通话 → RTC 房间
 
 > 优先级：P1
-> 状态：`本地状态/UI协议通过，双端媒体阻塞`
+> 状态：`本地状态机/信令协议通过，生产 RTC 入口可达，本地 join 缺 LiveKit 配置阻塞，双端媒体阻塞`
 > 条件：双端真机/媒体环境
+> 最近验证：2026-08-17
 
 ## 1. 目标
 
@@ -39,6 +40,10 @@
 - 必须使用真机和可用 RTC 服务；无双端条件时标记 `阻塞`。
 - 2026-08-09：本地呼叫状态机、信令协议和 RTC 控件检查通过；没有第二台授权真机及可验证媒体服务，呼叫接通、双向音视频和断线恢复保持 `BLOCKED`。
 - 单端按钮、状态变化或 RTC 控件存在不能替代双端媒体证据。
+- 2026-08-17（DEMO-FLOW-20260817）：本地无头复跑 `p2p_call_state_machine_test.dart + rtc_room_test.dart + webrtc_protocol_alignment_test.dart + component/webrtc/`（含信令模型）合计 `51` 项全部通过，覆盖呼叫状态机、RTC 房间控件、WebRTC 协议对齐与信令消息构造。
+- 2026-08-17（DEMO-FLOW-20260817）：生产 `rtc_room_api_test.dart` 复跑——`rtc/room/join` 属 POST 入场券签发，生产写入红线（含 RTC 房间创建）下两个 join 用例被 `ApiTestClient` 写门禁在本地拦截（`Bad state: API 写入测试已阻止`），未向生产发出请求；该拦截是红线正确生效，不是回归。改用匿名负向探测：`POST https://pro.imboy.pub/api/v1/rtc/room/join`（无凭证）→ HTTP `200` + `{"code":902,"msg":"签名验证失败"}`，证明 alpha.36 上 RTC 入口路由可达且签名中间件正常（历史 502 修复维持），未进入业务逻辑、无写入。
+- 2026-08-17（DEMO-FLOW-20260817）：本地 `rtc_room_api_test.dart`（`TEST_ALLOW_API_WRITES=true` + `.env.local` 签名）结果 `1` 通过 / `1` 失败：错误路径（非法 `target_id` → 业务错误）通过，证明路由与参数校验正常；群成员 `join` 失败根因已定位——本地后端 `config/sys.local.config` 无 `livekit` 配置段，`rtc_room_logic.erl` `build_grant/4` 的 `config_ds:env(livekit, #{})` 返回 `#{}` 后 `#{ws_url := WsUrl, ...}` 模式匹配崩溃 → HTTP 500。属本地媒体服务配置缺失（环境性阻塞），非客户端或路由回归；按约束不干预本地后端进程与配置。
+- 双端媒体通话（真实呼叫、接听、双向音视频、断线恢复）保持 `BLOCKED`：无第二台授权设备、无 TURN/LiveKit 媒体环境。
 
 ## 6. 未来自动化目标
 

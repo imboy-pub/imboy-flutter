@@ -18,9 +18,26 @@ import 'package:flutter_easyloading/flutter_easyloading.dart' as el;
 class AppLoading {
   const AppLoading._();
 
+  // 使用 GlobalKey 确保 EasyLoading 宿主 Widget 在整个生命周期中（包括热重载和打开 Flutter Inspector）
+  // 保持状态与 Element 实例的唯一性，从而避免 "EasyLoading supports one active Host" 重复挂载报错。
+  static final GlobalKey _easyLoadingKey = GlobalKey(
+    debugLabel: 'AppEasyLoadingKey',
+  );
+
+  static Widget _defaultInit(BuildContext context, Widget? child) {
+    return el.FlutterEasyLoading(key: _easyLoadingKey, child: child);
+  }
+
   /// 挂载到 MaterialApp.builder。见 run.dart。
-  static TransitionBuilder init({TransitionBuilder? builder}) =>
-      el.EasyLoading.init(builder: builder);
+  static TransitionBuilder init({TransitionBuilder? builder}) {
+    if (builder == null) {
+      return _defaultInit;
+    }
+    return (BuildContext context, Widget? child) {
+      final host = el.FlutterEasyLoading(key: _easyLoadingKey, child: child);
+      return builder(context, host);
+    };
+  }
 
   static Future<void> show({String? status}) =>
       el.EasyLoading.show(status: status);

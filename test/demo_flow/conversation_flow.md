@@ -1,7 +1,7 @@
 # DF-03 会话列表 → 未读 → 进入聊天
 
 > 优先级：P0
-> 状态：`列表与只读聊天入口通过 / 双账号写入待补齐`
+> 状态：`列表与只读聊天入口通过（Android 真机 + macOS 生产只读）/ 未读写入与双账号闭环待补齐`
 
 ## 1. 目标
 
@@ -46,6 +46,11 @@
 - 2026-08-09：生产 `conversation_api_test.dart` 扩展为 `10/10` 通过；置顶、取消置顶、删除、恢复四个写端点以无效 `conversation_id=0` 做参数边界检查，均返回结构化非成功结果。该结果证明错误边界可控，不证明有效会话写入或历史 TSID 契约问题已修复。
 - Android 截图因厂商 ROM 的 surface 转换会阻塞运行器，已按测试工具策略跳过；这不影响列表和导航业务断言，但暂不产出截图诊断物。
 - 当前页面计划记录过会话置顶/删除接口契约问题；删除会话和清空数据默认不执行。
+- 2026-08-17（Demo Flow 复验轮）：
+  - 生产只读契约复跑：`.env.pro` 注入执行 `dart test test/unit_test/api/conversation_api_test.dart --concurrency=1` → `8 passed / 2 failed`。会话列表、离线消息、好友/群列表、搜索、设置等只读用例全部通过；失败的 `7.1 C2C 发送接口可达` 与 `8.1 会话写入参数边界` 均在**客户端写门禁**处被拦截（未设 `TEST_ALLOW_API_WRITES`，且生产目标按设计不允许开启），未发出任何 HTTP 请求，属门禁设计行为而非服务端/业务回归；`test/unit_test/` 本轮禁改，仅归类报告。生产只读约束下历史 10/10 记录不可复现，以本轮 8 过 2 拦截为准。
+  - macOS 桌面只读复核：`flutter test integration_test/demo_flow/conversation_flow_test.dart -d macos`（APP_ENV=pro + API_BASE_URL/TEST_PHONE/TEST_PASSWORD 自 `.env.pro` 注入）→ `1/1 All tests passed`，登录后进入会话列表，`conversation_search_input` 存在，发现 `4` 个 `Slidable` 会话项。同轮 `flutter test integration_test/app_test.dart -d macos` → `2/2 All tests passed`。
+  - 本轮环境注记：macOS 构建一度因本机描述文件缺失失败（`No profiles for 'pub.imboy.macos'`）；通过 `xcodebuild -allowProvisioningUpdates` 重新生成 Mac Team Provisioning Profile 解决（未修改任何仓内文件）。历史"加密 SQLite out of memory"问题本轮未复现。
+  - 未读清零、置顶/取消置顶、删除/恢复的**有效会话写入**仍未验收（需隔离测试会话数据与写入授权）；本地后端 uid=4 无会话数据（`conversation/mine` 空列表），无法在本地构造。
 
 ## 6. 未来自动化目标
 

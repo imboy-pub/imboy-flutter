@@ -1,6 +1,6 @@
 # DF-02 添加好友流程
 
-> 状态：`搜索与联系人只读通过 / 关系写入受控跳过`
+> 状态：`本地 API 闭环通过（2026-08-17）/ 双端 UI 通知验证阻塞`
 > 优先级：P0
 > 类型：基础关系建立流程
 
@@ -10,33 +10,36 @@
 
 ## 2. 前置条件
 
-- [ ] 使用两个明确授权的测试账号 A、B；禁止把真实第三方账号当作测试对象。
-- [ ] A、B 位于同一可用测试环境。
-- [ ] 测试前确认两账号当前不是好友，或准备一组可重复使用的隔离测试账号。
-- [ ] 不执行删除好友、拉黑等不可逆或影响他人的清理操作。
+- [x] 使用两个明确授权的测试账号 A、B；禁止把真实第三方账号当作测试对象。（2026-08-17：本地合成账号 13900260817/13900260818，昵称 DEMO-FLOW-20260817-A/B）
+- [x] A、B 位于同一可用测试环境。（2026-08-17：本地后端 http://127.0.0.1:9800，healthz version=1.0.0-alpha.27）
+- [x] 测试前确认两账号当前不是好友，或准备一组可重复使用的隔离测试账号。（测试含自愈清理：已是好友则先 friend/delete 再重建）
+- [ ] 不执行删除好友、拉黑等不可逆或影响他人的清理操作。（本地合成账号间的 friend/delete 属可回收测试数据，已在本地执行；生产仍禁止）
 
 ## 3. TODO 执行步骤
 
-- [ ] A 打开添加好友页，使用 B 的测试账号搜索。
+> 2026-08-17 勾选说明：以下步骤按 **API 级等价物** 完成并勾选（服务端证据充分）；
+> 双端 UI（添加好友页/新朋友页/确认页的实际页面流）未在本轮执行，详见第 5 节阻塞。
+
+- [x] A 打开添加好友页，使用 B 的测试账号搜索。（API 级：`GET /api/v1/user/search` keyword=B 账号，code=0 且结果含 B；前置发现见第 5 节 allow_search）
   - 预期：搜索结果进入 B 的用户详情页。
   - 页面计划：[add_friend_page.md](../auto_test/contact/add_friend_page.md)
-- [ ] A 查看 B 的资料并发送好友申请。
+- [x] A 查看 B 的资料并发送好友申请。（API 级：`POST /api/v1/friend/add` → code=0；B 侧申请通知的 UI 呈现未验证）
   - 预期：A 侧出现发送成功反馈；B 侧收到新的好友申请。
-- [ ] B 打开新的好友列表，查看申请详情。
+- [ ] B 打开新的好友列表，查看申请详情。（无独立 HTTP 端点，申请由 S2C 消息触达；pending 存在已由「重复申请被拒 + confirm 成功」间接证明）
   - 预期：申请人、申请状态和操作按钮正确。
   - 页面计划：[new_friend_page.md](../auto_test/contact/new_friend_page.md)
-- [ ] B 确认好友申请。
+- [x] B 确认好友申请。（API 级：`POST /api/v1/friend/confirm` → code=0 且响应 payload.is_friend=1）
   - 预期：双方联系人列表出现对方，状态刷新后仍保持。
   - 页面计划：[confirm_new_friend_page.md](../auto_test/contact/confirm_new_friend_page.md)
-- [ ] A、B 分别重新进入联系人列表确认关系。
+- [x] A、B 分别重新进入联系人列表确认关系。（API 级：双方各自 `GET /api/v1/friend/list`，B 在 A 列表、A 在 B 列表，is_friend 均=1）
   - 预期：服务端关系一致，不依赖单端乐观更新。
 
 ## 4. 验收标准
 
-- [ ] 搜索、申请、确认、联系人刷新四个阶段均完成。
-- [ ] 两个账号看到的好友关系一致。
-- [ ] 失败、重复申请和无结果场景有明确提示，不误显示为已加好友。
-- [ ] 不能通过单端 UI 变化作为唯一成功证据。
+- [x] 搜索、申请、确认、联系人刷新四个阶段均完成。（2026-08-17 本地 API 级全链路，7/7 测试通过）
+- [x] 两个账号看到的好友关系一致。（A/B 双端 friend/list 回读 is_friend=1）
+- [x] 失败、重复申请和无结果场景有明确提示，不误显示为已加好友。（重复 friend/add 服务端拒绝 code!=0；无结果 keyword 搜索返回空列表不崩）
+- [x] 不能通过单端 UI 变化作为唯一成功证据。（全部结论基于 API 响应码+响应体）
 
 ## 5. 当前已有覆盖与阻塞
 
@@ -52,9 +55,18 @@
 - 该流程涉及向测试账号发送通知，必须先确认两个账号和目标环境。
 - 2026-08-09：生产 Android 真机已完成“搜索测试账号 → 用户详情”只读路径 `1/1`；联系人列表只读 `1/1`，新朋友入口因无待处理申请受控 `SKIP`。申请、通知、确认和双方关系刷新均未执行。
 - 2026-08-10：后端好友状态机本地回归通过：`friend_logic_tests` 27/27、`friend_agg_tests` 18/18；覆盖重复申请、已是好友、pending→friends、无 pending 禁止确认等状态门禁。该结果不替代 117/118 生产关系写入闭环。
+- 2026-08-17：**本地 API 级好友关系闭环通过（7/7）**。新增 `integration_test/demo_flow/friend_flow_api_test.dart`（纯 dart test，门禁：`TEST_ALLOW_API_WRITES=true` + 非生产 URL + 双账号，缺一即 SKIP）。环境：本地后端 `http://127.0.0.1:9800`（healthz db=up，version=1.0.0-alpha.27）；测试账号为本地合成账号 A=13900260817（uid=107539488731039744）、B=13900260818（uid=107539489230161920），昵称带 DEMO-FLOW-20260817 标记。命令（凭据经环境注入）：`API_BASE_URL=... IMBOY_ENV_PRO=.env.local TEST_PHONE=... TEST_PHONE2=... TEST_ALLOW_API_WRITES=true dart test integration_test/demo_flow/friend_flow_api_test.dart --concurrency=1` → `All tests passed!`（7 passed）。步骤证据：
+  - 搜索：`GET /api/v1/user/search`（keyword=B 手机号）→ code=0，list 含 B；
+  - 清理：对上一轮建立的关系执行 `POST /api/v1/friend/delete {uid}` → code=0，删除后 A 列表无 B（验证了删除分支）；
+  - 申请：`POST /api/v1/friend/add {to, payload:{from:{source:"search"}}, created_at}` → code=0；
+  - 重复申请被拒：第二次 add → code!=0（服务端状态门禁生效）；
+  - 确认：B `POST /api/v1/friend/confirm {from:A, to:B, payload:{from/to 备注为 DEMO-FLOW-20260817-*}}` → code=0，payload.is_friend=1（alpha.26 confirm 修复在本地 alpha.27 依旧有效，无 500）；
+  - 双方回读：A/B 各自 friend/list 均含对方且 is_friend=1；
+  - 无结果边界：搜索 `DEMO-FLOW-20260817-NO-SUCH-USER-XYZ` → code=0 空列表。
+- 2026-08-17 环境发现（本地）：① 新用户 `fts_user.allow_search` 缺省=2（不允许被搜索），导致搜索步骤首轮失败；B 通过 `POST /api/v1/user/update {field:"allow_search", value:"1"}` 开启后命中——产品隐私默认值，已作为测试前置写入。② 本地 HTTP `/api/v1/passport/signup` 被社区版 License 用户数上限拦截（code=402，本地库用户数已达默认 100）；测试账号改经后端标准管理通道 `escript scripts/imboy_ctl user create`（imboy_dev 节点，seed_demo.sh 同款方式）创建，未干预后端进程。③ 本地 SMS `switch=off`（验证码不真实发送），注册验证码依赖 `{imboy, verification_master_code}` 万能码；注册密码契约为 md5(明文) 直传（本地 `login_pwd_rsa_encrypt` 缺省 off）。
+- 2026-08-17 生产只读复跑：`contact_api_test.dart` 以 `.env.pro` 注入运行 → 5/5 通过（好友列表/本人资料/搜索可达/黑名单分页，登录 uid=4），未执行任何生产写入。
+- 2026-08-17 阻塞：双端 UI 通知验证仍缺第二设备（本轮无 Android/iOS 真机在线，macOS 设备被其他会话独占）。B 侧收到申请的「新朋友」入口红点/通知、双方 App 内联系人列表刷新的 UI 呈现未验证；现有结论止步于 API 层。
 
 ## 6. 未来自动化目标
 
-现有联系人集成测试已覆盖当前可安全执行的搜索、联系人列表和新朋友入口；暂不新增包装测试。缺少隔离 A/B 数据时，申请、确认和关系刷新必须保持 `SKIP`。
-
-自动化测试必须支持显式配置 A/B 测试账号；缺少第二账号时应 `SKIP`，不能裸返回造成假绿。
+2026-08-17 已落地 `integration_test/demo_flow/friend_flow_api_test.dart`（API 级闭环，双账号显式配置、缺账号/生产 URL/未开写入门禁即 SKIP，不裸返回假绿）。B 侧「新朋友」申请列表无独立 HTTP 端点（由 S2C 消息触达），该环节的 UI 级验证仍需双设备。

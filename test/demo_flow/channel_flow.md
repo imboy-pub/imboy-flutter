@@ -85,7 +85,9 @@
 - 2026-08-10：Android 华为真机使用 `.env.pro` 重跑频道发现只读，推荐频道显示 5 项，`1/1 All tests passed`；未执行订阅。随后重跑 `channel_subscribed_detail_consistency_test.dart`，服务端订阅列表为空，测试明确 `All tests skipped`，因此当前没有可用于详情/群入口串联的已订阅测试频道。
 - 2026-08-09：已有群的日程/任务/投票列表已有只读证据；新增 `integration_test/wallet/wallet_readonly_test.dart`，Android 真机钱包首页余额/流水只读加载通过 `1/1`。频道到群聊的实际绑定、日程创建/确认和钱包转账仍未串成跨模块闭环。
 - 2026-08-10：代码复核确认 `ChannelModel`/频道 API 没有频道绑定群 ID 或自动入群字段；若继续使用现有功能，只能记录为“频道分享/转发到已有群聊”的人工替代入口，不能宣称频道自动进入群聊。
-- 订阅/付费购买、频道写入和真实钱包转账未执行；钱包仅完成受控接口检查，不能宣称 AA 结算。
+- 2026-08-17：生产只读复跑。`channel_api_test.dart`（`.env.pro` 注入）6 项只读通过、1 项（空 name 校验 POST）被客户端写入门禁 StateError 拦截（预期，生产禁写）；`channel_order_api_test.dart` 3 过 2 跳过（无订单数据）；`wallet_api_test.dart` 只读 4 过；`channel_api_has_more_test.dart` 6 过（纯逻辑）。生产发现列表只读探针（复刻 api_test_client 签名的临时脚本，仅 GET）：`GET /api/v1/channels/discover` → code=0、7 项、type 分布 `{0:7}`（全部免费频道，无付费样本）；`GET /api/v1/channels/subscribed` → 0 项（测试账号无已订阅频道，与 2026-08-10 结论一致）。
+- 2026-08-17：本地 API 级订阅写入与付费解锁证据见 [channel_creator_flow.md](./channel_creator_flow.md)（creator 订阅自己频道 code=0、订阅者列表回读）与 [paid_channel_flow.md](./paid_channel_flow.md)（付费频道订单购买→解锁→退款全链）。本地 `channel` 表列复核：`id, name, description, avatar, type, custom_id, creator_uid, subscriber_count, is_verified, tags, status, updated_at, created_at`——**仍无群绑定字段**，频道→群→日程跨模块链路结构性不支持的结论维持。
+- 订阅/付费购买（生产）、频道写入和真实钱包转账未执行；钱包仅完成受控接口检查，不能宣称 AA 结算。
 - 钱包转账属于资金写操作；前端最低金额与后端最低金额曾存在不一致，需先确认目标环境和金额规则。
 - 真实活动费用结算、AA、托管、退款不属于现有能力，暂不扩展。
 

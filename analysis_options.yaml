@@ -59,6 +59,12 @@ analyzer:
     # 构建产物
     - "build/**"
     - ".dart_tool/**"
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
 
   # Architecture note:
   # Domain callers should import `lib/modules/<domain>/public.dart` only.

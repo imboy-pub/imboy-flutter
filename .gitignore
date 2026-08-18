@@ -141,3 +141,5 @@ patrol_test/
 **/.git.disabled/
 plugin/audio_waveforms
 plugin/r_upgrade
+# Widget Preview related
+.widget_preview/
