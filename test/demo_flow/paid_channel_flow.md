@@ -1,7 +1,7 @@
 # DF-13 付费频道 → 订单 → 购买后解锁
 
 > 优先级：P1
-> 状态：`本地 mock 闭环通过（API 级）/ 生产付费验收阻塞`
+> 状态：`本地 mock 闭环通过（API 级，2026-08-18 复跑 6/6 维持）/ 生产付费验收阻塞`
 > 风险等级：资金/权益写入，默认阻塞
 
 ## 1. 目标
@@ -10,7 +10,7 @@
 
 ## 2. 前置条件
 
-- [x] 付费频道能力已在非生产环境启用。（2026-08-17：本地后端 alpha.27 + fixture 频道 type=2 + channel_price 9.90 元）
+- [x] 付费频道能力已在非生产环境启用。（2026-08-17：本地后端 alpha.27 + fixture 频道 type=2 + channel_price 9.90 元。2026-08-18：本地后端升级 alpha.36 后以新 fixture 复跑，能力不变）
 - [x] 准备测试价格、测试付款账号和测试频道，不使用真实资金。（2026-08-17：本地 wallet 资金为 mock；topup 仅非生产可用并已验证）
 - [x] 已确认待支付订单取消、支付失败回收和退款权益回滚规则；重复购买仍需隔离环境验收。
 - [ ] 没有测试订单或测试钱包时只做页面入口检查。（本轮有测试订单与 mock 钱包，未走页面入口检查分支）
@@ -40,6 +40,7 @@
 - 涉及资金或权益写入，默认不执行真实购买。
 - 2026-08-12：后端订单取消接口、客户端订单详情取消入口和 mock 闭环测试已补齐；默认安全模式下未执行资金/权益写入，真实隔离支付仍保持 `BLOCKED`。
 - 2026-08-17：**本地 mock 闭环打通（API 级，`dart test` 全绿 6/6）**——paywall → mock topup → 订单创建（wallet 网关）→ 支付 → 订单列表/详情回读 → 内容解锁 → 余额扣款回读 → 退款回收（权益与余额均恢复）。生产环境付费能力仍未启用（生产 discover 全部 type=0、账号零余额），生产付费验收维持 `BLOCKED`。
+- 2026-08-18：后端升级 alpha.36 后全链复跑 6/6 维持通过（新 fixture 已清理无残留）；生产只读探针复核 discover 仍 7 项全部 type=0（无付费样本），生产付费维持 `阻塞`，未向生产发送任何写入/付费请求。
 - 不能用普通频道订阅或订单列表出现替代购买后权益闭环证据。
 
 ### 2026-08-17 证据（本地 API 级）
@@ -57,6 +58,23 @@ Fixture：`PAID_FIXTURE_MARKER=imboy-paid-fixture-DEMO-FLOW-20260817 PAID_FIXTUR
 5. 回读：`GET channel/orders/my` 命中该订单。
 6. 退款回收：`POST /api/v1/channel/order/refund` code=0 → has_purchased=false、is_subscribed=false、messages 重新被 paywall 拒绝、余额回补至 990、订单 status=2。
 7. 清理：fixture 脚本 `cleanup`（DELETE 1），`inspect` 确认无残留。
+
+### 2026-08-18 复跑（本地 API 级，后端升级 alpha.36 后回归）
+
+环境：`http://127.0.0.1:9800/healthz` → alpha.36 db=up。Fixture：新 marker `imboy-paid-fixture-DEMO-FLOW-20260818`（owner/buyer UID 沿用 08-17 已确认值）→ `TEST_PAID_CHANNEL_ID=1787029025720985`。
+
+结果：`dart test` 全绿 **6/6**，链路行为与 08-17 一致：
+
+1. paywall：详情 price=990 分、内容被拒（「付费频道需要先购买」）。
+2. mock topup 990 分：余额 990 → 1980（起始 990 为上轮退款回补的遗留余额，非本轮新增风险）。
+3. 订单 CH1787029034030920635（wallet 网关）支付成功 status=1；`orders/my` 回读命中。
+4. 解锁回读通过；余额扣减 990 回到 990。
+5. 退款回收：has_purchased=false、余额回补至 1980、订单 status=2。
+6. 清理：`cleanup`（DELETE 1）后 `inspect` 输出为空、exit=0，无残留。
+
+三重门禁复核：不带门禁变量运行 → `0 passed, 6 skipped`（All tests skipped），未发出任何请求。
+
+生产付费阻塞复核（2026-08-18，只读探针，与 api_test_client 同源签名）：`GET /api/v1/channels/discover` → code=0、7 项、type 分布 `{0:7}`（**仍无 type=2 付费频道样本**）；`GET /api/v1/channels/subscribed` → 0 项。生产付费验收维持 `阻塞`（无样本 + 生产禁写红线）。
 
 ## 6. 未来自动化目标
 

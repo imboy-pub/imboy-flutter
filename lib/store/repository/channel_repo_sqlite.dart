@@ -45,7 +45,16 @@ class ChannelRepo {
 
   /// 保存或更新频道信息
   Future<void> saveChannel(ChannelModel channel, {Transaction? txn}) async {
-    final map = channel.toMap();
+    // 获取本地已有频道，如果已有角色为管理员/创建者/编辑，且新数据为 none，则保留本地角色
+    ChannelModel finalChannel = channel;
+    final local = await getChannel(channel.id.toString(), txn: txn);
+    if (local != null &&
+        local.userRole != ChannelUserRole.none &&
+        channel.userRole == ChannelUserRole.none) {
+      finalChannel = channel.copyWith(userRole: local.userRole);
+    }
+
+    final map = finalChannel.toMap();
     if (txn != null) {
       await txn.insert(
         tableName,
@@ -56,7 +65,9 @@ class ChannelRepo {
       // SqliteService.insert 内部已使用 ConflictAlgorithm.replace
       await _db.insert(tableName, map);
     }
-    iPrint('ChannelRepo: 保存频道 ${channel.id} - ${channel.name}');
+    iPrint(
+      'ChannelRepo: 保存频道 ${finalChannel.id} - ${finalChannel.name} (Role: ${finalChannel.userRole.displayName})',
+    );
   }
 
   /// 批量保存频道

@@ -1,7 +1,7 @@
 # DF-03 会话列表 → 未读 → 进入聊天
 
 > 优先级：P0
-> 状态：`列表与只读聊天入口通过（Android 真机 + macOS 生产只读）/ 未读写入与双账号闭环待补齐`
+> 状态：`列表与只读聊天入口通过（Android 真机 + macOS 生产只读）/ 有效会话置顶写入本地闭环通过（2026-08-18）/ 未读清零与双账号闭环待补齐`
 
 ## 1. 目标
 
@@ -51,6 +51,15 @@
   - macOS 桌面只读复核：`flutter test integration_test/demo_flow/conversation_flow_test.dart -d macos`（APP_ENV=pro + API_BASE_URL/TEST_PHONE/TEST_PASSWORD 自 `.env.pro` 注入）→ `1/1 All tests passed`，登录后进入会话列表，`conversation_search_input` 存在，发现 `4` 个 `Slidable` 会话项。同轮 `flutter test integration_test/app_test.dart -d macos` → `2/2 All tests passed`。
   - 本轮环境注记：macOS 构建一度因本机描述文件缺失失败（`No profiles for 'pub.imboy.macos'`）；通过 `xcodebuild -allowProvisioningUpdates` 重新生成 Mac Team Provisioning Profile 解决（未修改任何仓内文件）。历史"加密 SQLite out of memory"问题本轮未复现。
   - 未读清零、置顶/取消置顶、删除/恢复的**有效会话写入**仍未验收（需隔离测试会话数据与写入授权）；本地后端 uid=4 无会话数据（`conversation/mine` 空列表），无法在本地构造。
+- 2026-08-18（后端升级后复核轮，本地 main@e6d785d0）：
+  - macOS 桌面只读复跑：`flutter test integration_test/demo_flow/conversation_flow_test.dart -d macos`（APP_ENV=pro + `.env.pro` 变量逐项提取以 `--dart-define` 注入）→ `1/1 All tests passed`，登录后进入会话列表，`conversation_search_input` 存在，发现 `4` 个 `Slidable` 会话项；同轮 `flutter test integration_test/app_test.dart -d macos` → `2/2 All tests passed`。
+  - **有效会话写入本地闭环通过（API 级，全部带服务端证据）**：上轮遗留的「无法在本地构造会话」本轮以合规方式解决——
+    1. 本地两个可登账号（uid=4、`scripts/test.env` 账号 13900001002→uid=104250986822109184）`conversation/mine` 均为空列表；
+    2. 通过 WS（`imboy.v2` 子协议 + Bearer token）向 imboy 小助手（AI agent uid `103107938360756224`，免好友校验、不影响真实第三方）发送符合 v2.0 加密契约的信封消息（`e2ee` 非空 map 含 `devices` 信封、`payload` 空串；本地 `e2ee_mode=required` 下服务端按声明式契约校验，见 `imboy_policy.erl` `encrypted_message_body/3`）→ 收到二进制 v2 帧 `C2C_SERVER_ACK`（`in_reply_to` 回显发送 id）；
+    3. 服务端归档回读 `msg/history` code=0 且该消息在列、e2ee 元数据完整保留；`conversation/mine` 出现该 c2c 会话（`last_msg_id` 即发送 id）——会话由真实服务端路径产生，非直写数据库。
+  - 基于该有效会话执行置顶写入闭环：`POST /api/v1/conversation/pin`（conversation_id 按客户端 TSID 契约以 string 传输）→ `code=0`；`conversation/mine` 回读 `is_pinned=true`；`conversation/pinned` 列表含该会话且带 `pinned_at` 时间戳。`POST /api/v1/conversation/unpin` → `code=0`（payload `updated:true`）→ `is_pinned=false`、pinned 列表清空。重复 pin/unpin 幂等（均 `code=0`）。数据已还原为未置顶状态。
+  - 未读清零：本地 agent 未配置 LLM 后端、始终无对端回复消息，`message_read` 已读回执（WS `action=message_read`，`payload.msg_ids` 批量）无合法上报对象——**未读清零维持未验收**（不能上报"已读自己发送的消息"，语义不符）。会话删除/恢复仍默认不执行。
+  - 环境注记：本地 uid=4 现在存在 1 个与 agent 的 c2c 测试会话（本轮产生），后续复核「conversation/mine 为空」的表述不再成立；证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260818/`（ws_send_e2ee_result_r2.json、conv_mine_4_after.json、hist_4.json）。
 
 ## 6. 未来自动化目标
 

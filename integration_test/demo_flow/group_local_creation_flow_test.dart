@@ -11,11 +11,13 @@
 //
 // 覆盖：
 //   1. 普通建群（group/add 邀请 B）→ 服务端 detail/member 回读；
-//   2. 面对面建群（group/face2face 同暗号同位置）：A 创建 → B 凭暗号加入同一群
-//      → face2face_save → 成员回读（join_mode=face2face_join）。
+//   2. 面对面建群（group/face2face 同暗号同位置）：A 创建 → A/B 凭暗号加入同一群
+//      → face2face_save 落库（2026-08-18 加严：断言响应 group map 与 member_list
+//      非空、group/detail 回读群行、面对面群进入 attr=join 群列表——本地后端
+//      alpha.36 起已含 21af8e78/41034a52 修复，alpha.27 时代该接口静默不落库）。
 // 后端 group_member 无独立 invite/confirm 端点：邀请直接生效，无"确认后入群"
 // 二段式链路（见 flow 文档记录）。
-// 群名使用 DEMO-FLOW-20260817 前缀；本地创建的测试群不执行解散（保留可回收数据）。
+// 群名使用 DEMO-FLOW 前缀；本地创建的测试群不执行解散（保留可回收数据）。
 
 @TestOn('vm')
 library;
@@ -35,6 +37,7 @@ void main() {
   String uidB = '';
   String createdGid = '';
   String createdTitle = '';
+  String f2fGid = '';
 
   setUpAll(() async {
     clientA = ApiTestClient(baseUrl: ApiTestConfig.apiBaseUrl);
@@ -55,6 +58,9 @@ void main() {
     final respB = await clientB.login(
       account: ApiTestConfig.testPhone2,
       password: ApiTestConfig.testPassword2,
+      // smoke_bob 是 account 型登录（mobile 字段为空），与 moments/wallet 等
+      // demo_flow 测试一致；13900001002 走默认 mobile。
+      type: 'account',
     );
     if (respA['code'] != 0 || respB['code'] != 0) {
       skipReason = '双账号登录失败（A=${respA['code']} B=${respB['code']}）';
@@ -70,8 +76,11 @@ void main() {
     clientB.close();
   });
 
-  void requireReady() {
+  /// markTestSkipped 只标记不中断：未就绪时返回 false，调用方必须立即 return，
+  /// 避免带着空 uid 继续发起写请求（历史踩坑：空 member_uids 触发 500）。
+  bool requireReady() {
     if (!ready) markTestSkipped(skipReason);
+    return ready;
   }
 
   /// 后端对建群/入群有 three_second_once 限流（按 uid），连续写操作间等待。
@@ -96,7 +105,7 @@ void main() {
       .toSet();
 
   test('DF-07-1 普通建群并邀请 B，服务端回读群与成员', () async {
-    requireReady();
+    if (!requireReady()) return;
     final resp = await clientA.post(
       '/api/v1/group/add',
       data: {
@@ -163,7 +172,7 @@ void main() {
   });
 
   test('DF-07-2 面对面建群：A/B 凭同暗号加入同一群并落库回读', () async {
-    requireReady();
+    if (!requireReady()) return;
     if (createdGid.isEmpty) {
       markTestSkipped('依赖 DF-07-1 建群先完成（限流间隔）');
       return;
@@ -173,11 +182,11 @@ void main() {
     const lng = '113.951220';
     const lat = '22.553590';
 
-    // 后端语义：face2face 登记暗号（group_random_code）+ 内存缓存；
-    // group_member 落库由"同暗号再次 face2face"（join_group 路径）完成。
-    // 本地 alpha.27 的 face2face_save 存在已修复待部署的静默不落库 bug
-    // （上游 21af8e78/41034a52，parse_result 形态错 → 建群 INSERT 失败被吞，
-    // 返回空 group+空 member_list 的 code=0），因此本用例走 join 路径闭环。
+    // 后端语义（本地 alpha.36 起含 21af8e78/41034a52 修复）：
+    // - face2face 登记暗号：group_random_code 落库 + 内存缓存成员，不建 group 行；
+    // - 同暗号再次 face2face：join 路径写 group_member 行（仍不建 group 行）；
+    // - face2face_save：创建缺失的 group 行并幂等入群——2026-08-18 加严断言
+    //   （修复前 alpha.27 返回 code=0 但 group/member_list 为空且不落库）。
     final respA = await clientA.get(
       '/api/v1/group/face2face',
       queryParameters: {'code': code, 'longitude': lng, 'latitude': lat},
@@ -190,7 +199,7 @@ void main() {
       reason: 'face2face A 未返回 gid: ${respA['payload']}',
     );
 
-    // A 凭同暗号再次 face2face → join_group 落库入群。
+    // A 凭同暗号再次 face2face → join 路径写 group_member 行。
     await throttleGap();
     final respA2 = await clientA.get(
       '/api/v1/group/face2face',
@@ -200,7 +209,7 @@ void main() {
     final gidA2 = '${(respA2['payload'] as Map)['gid'] ?? ''}';
     expect(gidA2, gidA, reason: 'A 同暗号应加入同一群：登记=$gidA 加入=$gidA2');
 
-    // B 凭同暗号加入同一群。
+    // B 凭同暗号加入同一群（join 路径）。
     final respB = await clientB.get(
       '/api/v1/group/face2face',
       queryParameters: {'code': code, 'longitude': lng, 'latitude': lat},
@@ -208,14 +217,41 @@ void main() {
     ApiAssert.success(respB, context: 'group/face2face B');
     final gidB = '${(respB['payload'] as Map)['gid'] ?? ''}';
     expect(gidB, gidA, reason: '同暗号同位置应加入同一群：A=$gidA B=$gidB');
+    f2fGid = gidA;
 
-    // face2face_save 幂等确认（B 已是成员；alpha.27 返回空数据不落群行，
-    // 仅验证接口可达且不报错，落库断言由 member/page 承担）。
+    // face2face_save 落库（2026-08-18 加严）：此时 group 表仍无该群行，
+    // save 应创建 group 行并幂等确认成员；响应必须携带完整 group map 与
+    // member_list（修复前为空 map + 空列表），随后 group/detail 可回读。
     final save = await clientB.post(
       '/api/v1/group/face2face_save',
       data: {'code': code, 'gid': gidB},
     );
     ApiAssert.success(save, context: 'group/face2face_save');
+    final savePayload = save['payload'] as Map;
+    final savedGroup = (savePayload['group'] ?? const {}) as Map;
+    expect(
+      '${savedGroup['id'] ?? savedGroup['gid'] ?? ''}',
+      gidA,
+      reason: 'face2face_save 响应 group 应为已落库群（id=$gidA），实际=${savePayload}',
+    );
+    final savedUids = memberUids(memberRows(savePayload['member_list']));
+    expect(
+      savedUids,
+      containsAll(<String>{uidA, uidB}),
+      reason: 'face2face_save 响应 member_list 应包含双方（join 路径已落库），实际=$savedUids',
+    );
+
+    // group 行创建后的独立回读（修复前此处会报“你不是群成员”或群不存在）。
+    final detail = await clientA.get(
+      '/api/v1/group/detail',
+      queryParameters: {'gid': gidA},
+    );
+    ApiAssert.success(detail, context: 'group/detail(f2f)');
+    expect(
+      '${(detail['payload'] as Map)['id'] ?? ''}',
+      gidA,
+      reason: 'face2face_save 落库后 group/detail 应回读到群行',
+    );
 
     final page = await clientA.get(
       '/api/v1/group_member/page',
@@ -241,7 +277,7 @@ void main() {
   });
 
   test('DF-07-3 B 侧群列表回读包含普通建群创建的群', () async {
-    requireReady();
+    if (!requireReady()) return;
     if (createdGid.isEmpty) {
       markTestSkipped('依赖 DF-07-1 建群产出');
       return;
@@ -260,8 +296,24 @@ void main() {
       contains(createdGid),
       reason: 'B 加入的群列表应包含普通建群创建的群，实际=${gids.take(10)}',
     );
-    // 注：面对面群在本地 alpha.27 上 group 表无行（face2face_save 静默 bug），
-    // page_joined 的 LEFT JOIN 查不到它，不计入断言；成员关系以
-    // group_member 表与 member/page 回读为准（DF-07-2 已覆盖）。
+    // 2026-08-18 加严：face2face_save 修复后 group 表有行，面对面群应可从
+    // join 群列表回读。注意 owner 语义：group 行由 face2face_save 调用方创建
+    // （owner_uid=B），而 page_joined 排除自己是群主的群，因此 f2f 群要在
+    // A（非群主成员）的 join 列表断言；普通建群群 owner=A，在 B 侧断言。
+    if (f2fGid.isNotEmpty) {
+      final pageA = await clientA.get(
+        '/api/v1/group/page',
+        queryParameters: {'page': 1, 'size': 50, 'attr': 'join'},
+      );
+      ApiAssert.success(pageA, context: 'group/page A');
+      final gidsA = memberRows(
+        pageA['payload'],
+      ).map((g) => '${g['group_id'] ?? g['gid'] ?? g['id'] ?? ''}').toSet();
+      expect(
+        gidsA,
+        contains(f2fGid),
+        reason: 'face2face_save 落库后面对面群应出现在 A 的 join 群列表，实际=${gidsA.take(10)}',
+      );
+    }
   });
 }

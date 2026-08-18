@@ -3,7 +3,7 @@
 > 优先级：P0
 > 状态：`本地密码学与只读入口通过 / 生产策略为 disabled / 双设备和恢复阻塞`
 > 安全等级：高风险，密钥恢复步骤默认不执行
-> 最近验证：2026-08-17
+> 最近验证：2026-08-18
 
 ## 1. 目标
 
@@ -64,6 +64,10 @@
 - 2026-08-17（DEMO-FLOW-20260817）：本地无头协议回归全绿。`flutter test --concurrency=1` 定向复跑：`e2ee_backup_restore_test.dart` `13` 通过；`olm_pfs_production_path_test.dart` `8` 通过（源码现为 8 个用例，与 08-10 记录的 9 项属文件演进差异）；`policy_gate_test.dart + fan_out_per_device_test.dart` 合计 `18` 通过；`group_session_service_test.dart` `24` 通过；`room_key_olm_roundtrip_test.dart` `1` 项本轮**真实执行**并通过（JSON reporter 确认 `skipped:false`，工作区根 `spikes/e2ee-group/rust/target/release/libvodozemac_bindings_dart.dylib` 存在），不再是 08-10 的受控跳过。`/usr/local/lib/vodozemac_bindings_dart.framework` 已确认在位（2026-08-10 部署）。
 - 2026-08-17（DEMO-FLOW-20260817）：生产只读 policy 探测 `GET https://pro.imboy.pub/api/v1/app/policy` → `e2ee_mode=disabled`、`storage_mode=compliance_e2ee`（alpha.36）。与 08-09 记录的 `optional/archived` 相比策略已演进，但仍不满足双账号 flow `TEST_EXPECT_E2EE` 要求的 `required/compliance` 门，双设备 strict 闭环保持阻塞。本地后端（alpha.27）对照探测为 `e2ee_mode=required`、`storage_mode=secure_e2ee`——本地满足 strict 策略，但无第二设备与授权密钥材料，仍不执行双设备闭环。
 - 2026-08-17（DEMO-FLOW-20260817）：生产 E2EE API 契约复跑（`.env.pro` 提取注入）：`e2ee_api_test.dart` `8` 通过、`1` 条件跳过（与历史口径一致）；`e2ee_backup_api_test.dart` `1` 通过、`1` 受控跳过——put/get/info/delete 写链路被 `TEST_ALLOW_API_WRITES` 门禁按预期拦截，未对生产写入任何密钥数据。
+- 2026-08-18（DEMO-FLOW-20260818）：本地协议回归复跑全绿，合计 `64` 项 `0` 失败，与 08-17 基线逐文件一致：`e2ee_backup_restore_test.dart` `13`；`olm_pfs_production_path_test.dart` `8`；`policy_gate_test.dart + fan_out_per_device_test.dart` 合计 `18`；`group_session_service_test.dart` `24`；`room_key_olm_roundtrip_test.dart` `1` 项 JSON reporter 确认 `result=success, skipped=false`（真实执行非受控跳过；工作区根 `spikes/e2ee-group/rust/target/release/libvodozemac_bindings_dart.dylib`（2026-08-12 构建）与 `/usr/local/lib/vodozemac_bindings_dart.framework` 均在位）。命令：`flutter test --concurrency=1` 定向复跑。
+- 2026-08-18（DEMO-FLOW-20260818）：本地后端已升级 `1.0.0-alpha.36`（08-17 时为 alpha.27，beam.smp 今早 08:46 启动、已加载 08:44 编译代码），复核 E2EE 相关行为无回归：`GET http://127.0.0.1:9800/api/v1/app/policy` → `e2ee_mode=required`、`storage_mode=secure_e2ee`、`audit_mode=metadata`（核心策略与 08-17 记录一致，无变化）；本地只读 API 契约 `e2ee_api_test.dart` `8` 过 `1` 跳（`key/status` 业务非 0 受控跳过，与 08-09 生产探测口径一致）+ `e2ee_backup_api_test.dart` `1` 过 `1` 跳（写链路被 `TEST_ALLOW_API_WRITES` 门禁在发请求前拦截，设计行为），合计 `9` 过 `2` 跳 `0` 失败——本地与生产 alpha.36 的 E2EE API 契约口径完全对齐，升级未引入行为变化。
+- 2026-08-18（DEMO-FLOW-20260818）：双设备/密钥恢复维持 `阻塞`。设备枚举较 08-17 有变化：`flutter devices` 显示 Android 真机 MRD AL00（XWE6R19916004085，Android 9）与 iPhone 16e（iOS 26.6）均在线；但双设备 E2EE 闭环仍不执行，原因：两台设备需分别安装兼容构建并登录两个授权测试账号（账号归属/登录态需人工确认）；设备密钥生成/注册/备份恢复属密钥类操作，按全局强制规则需人工授权方可执行；iPhone 侧 08-11 曾构建后安装失败未复验。不以单设备密码学证据替代双端闭环。
+- 2026-08-18（DEMO-FLOW-20260818）：生产侧本轮未发送任何请求；生产策略 `e2ee_mode=disabled / storage_mode=compliance_e2ee` 维持 08-17 探测记录，双账号 flow 的 `TEST_EXPECT_E2EE` 门继续不满足，双设备 strict 闭环保持阻塞。
 
 ## 6. 未来自动化目标
 

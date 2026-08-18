@@ -1,7 +1,7 @@
 # DF-12 创建频道 → 发布内容 → 评论 → 管理
 
 > 优先级：P1
-> 状态：`API 级闭环通过（本地）/ UI 链路未覆盖，订阅者视角与邀请阻塞`
+> 状态：`API 级闭环通过（本地，2026-08-18 复跑 7/7 维持）/ UI 链路未覆盖，订阅者视角与邀请阻塞`
 
 ## 1. 目标
 
@@ -9,7 +9,7 @@
 
 ## 2. 前置条件
 
-- [x] 使用非生产环境和专用测试频道。（2026-08-17：本地后端 `http://127.0.0.1:9800/healthz` → alpha.27 db=up；写入均带 `DEMO-FLOW-20260817` 前缀）
+- [x] 使用非生产环境和专用测试频道。（2026-08-17：本地后端 `http://127.0.0.1:9800/healthz` → alpha.27 db=up；写入均带 `DEMO-FLOW-20260817` 前缀。2026-08-18：本地后端已升级，`/healthz` → alpha.36 db=up（imboy main@e6d785d0），复跑闭环不受影响）
 - [ ] 明确创建者、管理员、订阅者三种角色。（仅覆盖创建者单角色；本地无第二可登录测试账号）
 - [x] 频道发布、评论、邀请和删除均可能写入服务端；删除频道默认不执行。（本轮未执行任何删除）
 
@@ -56,6 +56,25 @@
 - 订阅者列表权限边界：未订阅时 `GET subscribers` → code=403「只有订阅者才能查看订阅者列表」；creator 订阅（`POST .../subscribe` code=0）后 → subscribers=1、admins=1、managed 命中新频道。
 - 清理：频道与内容保留在本地库（marker=DEMO-FLOW-20260817），未执行删除。
 
+### 2026-08-18 复跑（本地 API 级，后端升级 alpha.36 后回归）
+
+环境：`http://127.0.0.1:9800/healthz` → `{"status":"ok","db":"up","version":"1.0.0-alpha.36"}`（imboy main@e6d785d0 编译代码）。执行命令同上节（测试文件未改动，marker 常量仍为 `DEMO-FLOW-20260817`）。
+
+结果：`dart test` 全绿 **7/7**，闭环行为与 08-17 完全一致：
+
+1. 登录 uid=104250986822109184（同一本地测试账号，未注册新账号）。
+2. 创建免费频道 id=107666556160575488（type=0，code=0）；创建付费类型频道 id=107666556196227072（type=2，无 channel_price 行）。
+3. 编辑（update）→ 详情回读一致。
+4. 发布 messageId=107666556254947328，服务端列表回读命中。
+5. 评论 commentId=107666556298987520，回读命中（仍为创作者视角）。
+6. managed 命中新频道；订阅后 subscribers=1、admins=1。
+7. 清理：同上轮，保留在本地库，未删除。
+
+三重门禁复核：不带 `TEST_ALLOW_CHANNEL_WRITES` / `TEST_ALLOW_API_WRITES` 运行 → `0 passed, 7 skipped`（All tests skipped），未发出任何请求，默认 SKIP 行为仍属设计。
+
+剩余阻塞不变：UI 创建/编辑/发布/评论链路未覆盖（无设备）；第二订阅者账号视角与邀请接受阻塞（本地无第二可登录测试账号）；「文章」类型发布未覆盖。
+
 ## 6. 未来自动化目标
 
 - [x] 已新增 `integration_test/demo_flow/channel_creator_flow_test.dart`（纯 Dart，`dart test` 可跑，默认 SKIP，需 `TEST_ALLOW_CHANNEL_WRITES=true` + `TEST_ALLOW_API_WRITES=true` + 非生产地址三重门禁）。
+- [x] 2026-08-18：该测试作为后端升级（alpha.27 → alpha.36）后的回归手段复跑通过 7/7，值得保留为本地频道写入闭环的标准回归入口。

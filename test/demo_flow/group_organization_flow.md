@@ -1,7 +1,7 @@
 # DF-15 群分类/标签 → 二维码 → 邀请入群
 
 > 优先级：P1
-> 状态：`分类/标签写入与回读本地通过（2026-08-17） / 二维码 URL 构造+读码端点通过 / 客户端渲染无头回归通过 / 扫码入群双端阻塞`
+> 状态：`分类/标签写入与回读本地通过（2026-08-17 通过，2026-08-18 复跑维持） / 二维码 URL 构造+读码端点：08-17 通过，08-18 本地后端回归 302（环境级：solidified_key 未注入，见根因） / 客户端渲染无头回归 08-18 受 Flutter SDK 环境阻塞（08-17 证据 9/9 维持） / 扫码入群双端阻塞`
 
 ## 1. 目标
 
@@ -35,6 +35,12 @@
 
 ## 5. 当前覆盖与阻塞
 
+- 2026-08-18 后端升级后复跑（alpha.36）：`group_organization_local_api_flow_test.dart` 结果 `3 passed + 1 failed`，出现**回归**（08-17 同测试 4/4）。
+  - 群分类：创建（`DEMO-FLOW-20260817-CAT-*`）code=0，返回 TSID id → `category/list` 回读命中（列表累计 5 个分类），维持通过。
+  - 群标签：绑定测试群（gid=107539326623287296）code=0 → `tag/list` 回读命中（群累计 3 个标签），维持通过。
+  - 群二维码：**读码端点 `GET /api/v1/group/qrcode?id&exp&tk&s=app_qrcode` 对按客户端算法（`md5(exp_solidifiedKey)`）构造的有效 tk 返回 HTTP 302 重定向（non_json），`code=0` 不再出现**——08-17 通过、08-18 失败，回归窗口在后端 alpha.27 → alpha.36 升级 + 今早 08:46 重启。
+  - 回归根因（环境级配置缺失，非代码缺陷；imboy 仓只读定位）：`group_handler.erl:516-540` 中 `Key = config_ds:env(solidified_key)`，tk 校验 `md5(exp_Key)==Tk` 失败或未登录即 302。本轮核实：运行中 beam 进程环境**无任何 IMBOY_* 变量**（`ps eww` 确认，含 IMBOY_SOLIDIFIED_KEY 缺失）；`sys.local.config`、`sys.runtime.config`、运行 release 的 sys.config 中**均无 solidified_key 条目**（grep 0 命中）→ `imboy_app.erl:576-587` 走「节点名哈希派生 dev key」分支，与 imboyapp `.env.local` 的 SOLIDIFIED_KEY 不一致 → 校验必败。上轮通过说明当时后端进程曾注入 `IMBOY_SOLIDIFIED_KEY`（`imboy_env.erl:140` 支持该覆盖）或配置含此 key，本轮重启后丢失。**解锁方式：后端重启时注入 IMBOY_SOLIDIFIED_KEY（与 .env.local 一致）或写入 sys.local.config 后重启——涉及后端仓/进程变更，本轮未执行。**
+  - 客户端二维码渲染无头复跑：`test/unit_test/page/qrcode/qrcode_pages_test.dart` + `qrcode_url_test.dart` 本轮**加载失败**（Flutter 3.47.0 stable，8-11 升级）——编译错误发生在 Flutter SDK 框架源码内部（`packages/flutter/lib/src/painting/text_painter.dart` 报 `Type 'Offset' not found` / `_LineCaretMetrics` switch 不匹配），属 SDK/artifact 不匹配的环境级问题，所有挂载 Flutter 框架的无头测试均无法加载，非二维码业务代码回归；08-17 的 `9/9 All tests passed` 证据维持。纯 Dart 链路（本 flow 的 API 测试）不受影响。
 - 2026-08-17 本地组织能力 API 级验收（新增 `integration_test/demo_flow/group_organization_local_api_flow_test.dart`，纯 Dart 无设备，本地 alpha.27 + 测试账号 13900001002 + 测试群 `DEMO-FLOW-20260817-COLLAB` gid=107539326623287296）：最终 `4/4 All tests passed`。
   - 群分类：`POST /api/v1/group/category/create`（`DEMO-FLOW-20260817-CAT-*`）code=0，返回 id（TSID）→ `group/category/list` 回读命中（本地列表累计 4 个分类含本轮新建）。
   - 群标签：`POST /api/v1/group/tag/add`（绑定测试群）code=0 msg=标签添加成功 → `group/tag/list?gid` 回读命中（群累计 2 个标签）。负向发现：对非本人所在群调用 add 返回 `code=1 msg=只有群成员可以添加标签`，成员校验按预期拒绝。
@@ -50,4 +56,4 @@
 
 ## 6. 未来自动化目标
 
-`integration_test/demo_flow/group_organization_local_api_flow_test.dart` 已落地分类/标签/二维码 URL 与读码端点的 API 级回归；后续优先补扫码识别（`scanner_result_page`）与双端扫码入群闭环。
+`integration_test/demo_flow/group_organization_local_api_flow_test.dart` 已落地分类/标签/二维码 URL 与读码端点的 API 级回归；其中二维码读码用例在本地后端未注入 IMBOY_SOLIDIFIED_KEY 时会如实失败（2026-08-18 即如此），本身就是该环境配置漂移的自动哨兵，属预期行为不需要改测试。后续优先补扫码识别（`scanner_result_page`）与双端扫码入群闭环。

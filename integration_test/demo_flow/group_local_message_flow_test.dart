@@ -118,6 +118,8 @@ void main() {
     final respB = await clientB.login(
       account: ApiTestConfig.testPhone2,
       password: ApiTestConfig.testPassword2,
+      // smoke_bob 是 account 型登录（mobile 字段为空）。
+      type: 'account',
     );
     clientB.close();
     if (respB['code'] != 0) {

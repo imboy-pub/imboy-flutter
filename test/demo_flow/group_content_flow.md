@@ -1,7 +1,7 @@
 # DF-14 群相册 → 群文件 → 媒体预览
 
 > 优先级：P1
-> 状态：`API只读通过 / 本地相册创建与列表回读通过（2026-08-17） / 文件与照片上传阻塞（本地对象存储不可用） / 媒体预览闭环阻塞`
+> 状态：`API只读通过 / 本地相册创建与列表回读通过（2026-08-17 通过，2026-08-18 复跑维持） / 文件与照片上传阻塞（运行后端 garage endpoint 仍指向过期 IP，见 08-18 根因证据） / 媒体预览闭环阻塞`
 
 ## 1. 目标
 
@@ -36,6 +36,11 @@
 
 ## 5. 当前覆盖与阻塞
 
+- 2026-08-18 后端升级后复跑 + s3.imboy.pub 探测（本地后端已升级 `1.0.0-alpha.36` release，beam 08:46 启动）：`group_content_local_api_flow_test.dart` 复跑 `1 passed + 2 skipped（受控）All tests passed`，与 08-17 一致，无回归。
+  - 群相册：创建 code=0（album_id=`album_1787029307675_96890` 形态）→ 列表回读命中，维持通过。
+  - 群文件上传：304 字节代码生成文本 → HTTP 200 但业务 `code=950 msg=文件上传失败`（后端转存超时约 30s 后失败）；照片上传 `code=500 msg=上传失败`，均受控 skip 维持。
+  - **新根因证据（后端仓只读定位）**：`imboy/config/sys.local.config` 与 `config/sys.runtime.config` 中 `upload_url` 已改为 `https://s3.imboy.pub`（34 行），但该字段仅是 `index_handler.erl:56` 暴露给客户端的展示性配置；上传核心路径 `elib_oss.erl` 的 `upload_to_storage/4`（369 行）、`put_object/4`（94 行）、`presign_put/3`（110 行）全部读 `garage_config()` 的 `endpoint`，运行 release（`_rel/imboy/releases/1.0.0-alpha.36/sys.config`）中仍为 `http://192.168.1.150:3900`（过期 LAN IP，本机现为 192.168.0.98）→ 上传仍连不可达地址。**结论：仅改 upload_url 不解锁上传，需同步改 garage.endpoint 并重启后端。**
+  - s3.imboy.pub 可达性探测（只读，未写入）：域名在线，HTTPS TLS1.3 证书 CN=s3.imboy.pub 验证通过，根路径返回 404 `Code: NoSuchKey`（Garage S3 典型错误格式）；无签名 PUT 探测返回 400（被拒，无写入）。但本机 DNS 被 TUN 代理 fake-ip（198.18.0.94）遮蔽，公共解析器（223.5.5.5/114.114.114.114）查询也被劫持返回 fake-ip，**无法确认该域名真实指向本地/授权对象存储**；且运行中后端配置未指向它。按安全协议本轮未向 s3.imboy.pub 写入任何测试对象。本机无 Garage 进程、无 docker 容器、3900/3902 端口无监听。
 - 2026-08-17 本地媒体链路 API 级验收（新增 `integration_test/demo_flow/group_content_local_api_flow_test.dart`，纯 Dart 无设备，本地 alpha.27 + 测试账号 13900001002 + 测试群 `DEMO-FLOW-20260817-COLLAB`）：最终 `1 passed + 2 skipped（受控）All tests passed`。
   - 群相册：`POST /api/v1/group_album/create` code=0（msg=创建相册成功，album_id=`album_<ts>_<xid>` 形态）→ `group_album/list` 列表回读命中。相册元数据（DB 级）闭环通过。
   - 群文件上传：multipart（304 字节代码生成文本，无 PII）→ HTTP 200 但业务 `code=950 msg=文件上传失败`（后端转存 Garage 失败），按对象存储阻塞受控 skip。
@@ -51,4 +56,4 @@
 
 ## 6. 未来自动化目标
 
-`integration_test/demo_flow/group_content_local_api_flow_test.dart` 已落地（相册创建回读 + 上传阻塞受控记录）；本地 Garage 上线后同一测试会在上传成功路径自动继续验证列表回读、view_url 签发与下载内容一致。UI 级（九宫格/图片详情/音频预览）仍建议后续用固定测试素材补 `flutter test` 页面用例。
+`integration_test/demo_flow/group_content_local_api_flow_test.dart` 已落地（相册创建回读 + 上传阻塞受控记录）；对象存储解锁后（本地起 Garage，或确认 s3.imboy.pub 归属本地/授权后把运行后端 `garage.endpoint` 指向它并重启——注意仅改 `upload_url` 无效，见 08-18 根因证据）同一测试会在上传成功路径自动继续验证列表回读、view_url 签发与下载内容一致。UI 级（九宫格/图片详情/音频预览）仍建议后续用固定测试素材补 `flutter test` 页面用例。

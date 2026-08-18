@@ -15,6 +15,8 @@ import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/component/helper/func.dart';
 
 import 'channel_detail_rules.dart';
 import 'channel_provider.dart';
@@ -141,6 +143,64 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     return Scaffold(
       appBar: GlassAppBar(
+        titleWidget: channel != null
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      channel.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: FontSizeType.large.size,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (channel.isManaged) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            (channel.userRole == ChannelUserRole.creator
+                                    ? AppColors.primary
+                                    : channel.userRole == ChannelUserRole.admin
+                                    ? AppColors.iosOrange
+                                    : AppColors.iosBlue)
+                                .withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        Localizations.localeOf(context).languageCode == 'zh'
+                            ? (channel.userRole == ChannelUserRole.creator
+                                  ? '创建者'
+                                  : channel.userRole == ChannelUserRole.admin
+                                  ? '管理员'
+                                  : '编辑')
+                            : (channel.userRole == ChannelUserRole.creator
+                                  ? 'Creator'
+                                  : channel.userRole == ChannelUserRole.admin
+                                  ? 'Admin'
+                                  : 'Editor'),
+                        style: TextStyle(
+                          fontSize: FontSizeType.tiny.size,
+                          fontWeight: FontWeight.bold,
+                          color: channel.userRole == ChannelUserRole.creator
+                              ? AppColors.primary
+                              : channel.userRole == ChannelUserRole.admin
+                              ? AppColors.iosOrange
+                              : AppColors.iosBlue,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              )
+            : null,
         title: channel?.name ?? t.channel.loading,
         automaticallyImplyLeading: true,
         rightDMActions: _buildAppBarActions(channel),
@@ -179,136 +239,141 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       PopupMenuButton<String>(
         icon: const Icon(Icons.more_vert),
         tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppColors.darkSurfaceContainerHighest
+            : AppColors.lightSurface,
+        elevation: 8.0,
+        offset: const Offset(0, 48), // Float elegantly below the app bar
         onSelected: (value) => _handleMenuAction(value, channel),
         itemBuilder: (context) => _buildMenuItems(channel),
       ),
     ];
   }
 
+  PopupMenuItem<String> _buildPopupMenuItem({
+    required String value,
+    required IconData icon,
+    required String text,
+    Color? iconColor,
+    Color? textColor,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final effectiveIconColor =
+        iconColor ??
+        (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary);
+    final effectiveTextColor =
+        textColor ??
+        (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
+
+    return PopupMenuItem<String>(
+      value: value,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      height: 48,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 22, color: effectiveIconColor),
+          const SizedBox(width: 16),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: FontSizeType.medium.size,
+              fontWeight: FontWeight.w400,
+              color: effectiveTextColor,
+              fontFamily: 'PingFang SC',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   List<PopupMenuEntry<String>> _buildMenuItems(ChannelModel channel) {
     final t = context.t;
     final items = <PopupMenuEntry<String>>[];
+    final isChinese = Localizations.localeOf(context).languageCode == 'zh';
 
-    // 1. 内容/编辑 分组
     if (channel.isManaged) {
+      // 1. Channel Info / 频道信息
       items.add(
-        PopupMenuItem(
-          value: 'edit_channel',
-          child: ListTile(
-            leading: const Icon(CupertinoIcons.pencil),
-            title: Text(t.channel.editChannel),
-            contentPadding: EdgeInsets.zero,
-          ),
+        _buildPopupMenuItem(
+          value: 'show_channel_info',
+          icon: Icons.info_outline,
+          text: isChinese ? '频道信息' : 'Channel Info',
         ),
       );
+
+      // 2. Share / 分享
       items.add(
-        PopupMenuItem(
-          value: 'publish_article',
-          child: ListTile(
-            leading: const Icon(CupertinoIcons.doc_text),
-            title: Text(t.channel.writeArticle),
-            contentPadding: EdgeInsets.zero,
-          ),
+        _buildPopupMenuItem(
+          value: 'share',
+          icon: CupertinoIcons.share,
+          text: isChinese ? '分享' : t.channel.share,
         ),
       );
-    }
 
-    // 2. 成员管理 分组
-    if (channel.isManaged) {
-      if (items.isNotEmpty) items.add(const PopupMenuDivider());
+      // 3. Invite Admins / 邀请管理员
       items.add(
-        PopupMenuItem(
+        _buildPopupMenuItem(
           value: 'manage_admins',
-          child: ListTile(
-            leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
-            title: Text(t.channel.manageAdmins),
-            contentPadding: EdgeInsets.zero,
-          ),
+          icon: Icons.add,
+          text: isChinese ? '邀请管理员' : 'Invite Admins',
         ),
       );
+
+      // 4. Channel Settings / 频道设置
       items.add(
-        PopupMenuItem(
-          value: 'manage_subscribers',
-          child: ListTile(
-            leading: const Icon(CupertinoIcons.person_2),
-            title: Text(t.channel.manageSubscribers),
-            contentPadding: EdgeInsets.zero,
-          ),
+        _buildPopupMenuItem(
+          value: 'edit_channel',
+          icon: Icons.settings_outlined,
+          text: isChinese ? '频道设置' : 'Channel Settings',
         ),
       );
-    }
-
-    // 3. 消费/分享/订单 分组
-    final List<PopupMenuEntry<String>> consumerSection = [];
-    if (channel.isSubscribed && !channel.isManaged) {
-      consumerSection.add(
-        PopupMenuItem(
-          value: 'unsubscribe',
-          child: ListTile(
-            leading: const Icon(CupertinoIcons.bell_slash),
-            title: Text(t.channel.unsubscribe),
-            contentPadding: EdgeInsets.zero,
-          ),
-        ),
-      );
-    }
-    if (AppFeatureRegistry.isEnabled(FeatureKeys.channelInvitation)) {
-      consumerSection.add(
-        PopupMenuItem(
-          value: 'invitation_center',
-          child: ListTile(
-            leading: const Icon(CupertinoIcons.envelope_badge),
-            title: Text(t.common.channelInvitations),
-            contentPadding: EdgeInsets.zero,
-          ),
-        ),
-      );
-    }
-    consumerSection.add(
-      PopupMenuItem(
-        value: 'share',
-        child: ListTile(
-          leading: const Icon(CupertinoIcons.share),
-          title: Text(t.channel.share),
-          contentPadding: EdgeInsets.zero,
-        ),
-      ),
-    );
-    if (channel.type == ChannelType.paid &&
-        AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder)) {
-      consumerSection.add(
-        PopupMenuItem(
-          value: 'my_orders',
-          child: ListTile(
-            leading: const Icon(CupertinoIcons.doc_plaintext),
-            title: Text(t.main.myOrders),
-            contentPadding: EdgeInsets.zero,
-          ),
-        ),
-      );
-    }
-
-    if (consumerSection.isNotEmpty) {
-      if (items.isNotEmpty) items.add(const PopupMenuDivider());
-      items.addAll(consumerSection);
-    }
-
-    // 4. 危险区 分组
-    if (channel.isManaged && channel.userRole.isCreator) {
-      if (items.isNotEmpty) items.add(const PopupMenuDivider());
+    } else {
+      // Normal subscriber / visitor view
+      // 1. Channel Info
       items.add(
-        PopupMenuItem(
-          value: 'delete_channel',
-          child: ListTile(
-            leading: const Icon(CupertinoIcons.delete, color: AppColors.iosRed),
-            title: Text(
-              t.channel.deleteChannel,
-              style: const TextStyle(color: AppColors.iosRed),
-            ),
-            contentPadding: EdgeInsets.zero,
-          ),
+        _buildPopupMenuItem(
+          value: 'show_channel_info',
+          icon: Icons.info_outline,
+          text: isChinese ? '频道信息' : 'Channel Info',
         ),
       );
+
+      // 2. Share
+      items.add(
+        _buildPopupMenuItem(
+          value: 'share',
+          icon: CupertinoIcons.share,
+          text: isChinese ? '分享' : t.channel.share,
+        ),
+      );
+
+      // 3. Unsubscribe
+      if (channel.isSubscribed) {
+        items.add(
+          _buildPopupMenuItem(
+            value: 'unsubscribe',
+            icon: CupertinoIcons.bell_slash,
+            text: t.channel.unsubscribe,
+          ),
+        );
+      }
+
+      // 4. My Orders
+      if (channel.type == ChannelType.paid &&
+          AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder)) {
+        items.add(
+          _buildPopupMenuItem(
+            value: 'my_orders',
+            icon: CupertinoIcons.doc_plaintext,
+            text: t.main.myOrders,
+          ),
+        );
+      }
     }
 
     return items;
@@ -342,6 +407,27 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               stats: _stats,
               isActionPending: _subscribeActionBusy,
               onActionTap: () => _handleSubscribeAction(state.channel!),
+              onShareTap: () => _shareChannel(state.channel),
+              onForwardTap: () {
+                if (state.channel != null) {
+                  context.push(
+                    '/chat/send_to',
+                    extra: {
+                      'msg': {
+                        'msg_type': 'channel_card',
+                        'content': state.channel!.name,
+                        'payload': {
+                          'channel_id': state.channel!.id,
+                          'channel_name': state.channel!.name,
+                          'channel_avatar': state.channel!.avatar,
+                          'subscriber_count': state.channel!.subscriberCount,
+                        },
+                      },
+                    },
+                  );
+                }
+              },
+              onManageTap: () => _openChannelEdit(state.channel!),
             ),
           ),
         // 付费锁定 vs 消息流
@@ -531,37 +617,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     switch (action) {
       case 'unsubscribe':
-        showDialog<void>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: Text(t.channel.unsubscribeConfirm),
-            content: Text(t.channel.unsubscribeConfirmDesc),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(t.common.cancel),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.pop(dialogContext);
-                  final success = await ref
-                      .read(channelListProvider.notifier)
-                      .unsubscribeChannel(channelId);
-                  if (success && mounted) {
-                    context.pop();
-                  } else if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(t.common.operationFailedAgainLater),
-                      ),
-                    );
-                  }
-                },
-                child: Text(t.common.confirm),
-              ),
-            ],
-          ),
-        );
+        if (channel != null) {
+          _handleSubscribeAction(channel);
+        }
         break;
       case 'share':
         _shareChannel(channel);
@@ -577,6 +635,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         break;
       case 'edit_channel':
         if (channel != null) _openChannelEdit(channel);
+        break;
+      case 'show_channel_info':
+        if (channel != null) _showChannelInfoDialog(channel);
         break;
       case 'publish_article':
         context.push('/channel/$channelId/compose');
@@ -598,6 +659,64 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         );
         break;
     }
+  }
+
+  void _showChannelInfoDialog(ChannelModel channel) {
+    final desc = channel.description;
+    final descText = (desc != null && desc.isNotEmpty) ? desc : '暂无介绍';
+    final hasAvatar = channel.avatar != null && channel.avatar!.isNotEmpty;
+    final subscriberCount = _stats?.subscriberCount ?? channel.subscriberCount;
+
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        title: Row(
+          children: [
+            if (hasAvatar)
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: cachedImageProvider(channel.avatar!),
+              )
+            else
+              const CircleAvatar(radius: 20, child: Icon(Icons.campaign)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                channel.name,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              descText,
+              style: TextStyle(fontSize: FontSizeType.subheadline.size),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '${context.t.channel.subscribers}: $subscriberCount',
+              style: TextStyle(
+                fontSize: FontSizeType.footnote.size,
+                color: AppColors.iosGray,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(context.t.common.ok),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _openChannelEdit(ChannelModel channel) async {
@@ -624,12 +743,16 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     showModalBottomSheet<void>(
       context: context,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Text(
                 channel.name,
                 style: const TextStyle(

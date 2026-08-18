@@ -8,10 +8,15 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/page/channel/channel_detail_rules.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:imboy/config/routes.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/store/model/channel_model.dart';
 
 import '../channel_message_item.dart';
 import '../channel_provider.dart';
@@ -143,6 +148,9 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
       final hasContentAccess = hasChannelContentAccess(channel);
 
       if (isManaged) {
+        if (channel != null) {
+          return _buildStartGrowingCard(context, channel, t);
+        }
         return NoDataView(
           icon: Icons.edit_note_outlined,
           text: t.channel.noMessagesManaged,
@@ -304,6 +312,255 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStartGrowingCard(
+    BuildContext context,
+    ChannelModel channel,
+    dynamic t,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = Theme.of(context).cardColor;
+    final textPrimary = AppColors.getTextColor(Theme.of(context).brightness);
+    final channelName = channel.name;
+
+    final hasAvatar = channel.avatar != null && channel.avatar!.isNotEmpty;
+    final isChinese = Localizations.localeOf(context).languageCode == 'zh';
+
+    final createdPillText = isChinese
+        ? '频道 “$channelName” 已创建'
+        : 'Channel "$channelName" created';
+    final cardTitle = isChinese
+        ? '开始发展壮大 “$channelName”'
+        : 'Start growing "$channelName"';
+    final addPhotoText = hasAvatar
+        ? (isChinese ? '修改照片' : 'Change photo')
+        : (isChinese ? '添加照片' : 'Add photo');
+    final addDescText =
+        (channel.description != null && channel.description!.isNotEmpty)
+        ? channel.description!
+        : (isChinese ? '添加描述' : 'Add description');
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        child: Column(
+          children: [
+            // 1. 系统消息 pill: 频道 "xxx" 已创建
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.chatWebBackgroundDark
+                    : AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                createdPillText,
+                style: context.textStyle(
+                  FontSizeType.small,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.chatWebBrand,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // 2. 发展壮大 Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: cardBg,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.lightTextPrimary.withValues(
+                      alpha: isDark ? 0.2 : 0.05,
+                    ),
+                    blurRadius: 15,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // 大圆形占位头像 / 频道头像
+                  GestureDetector(
+                    onTap: () => context.push(
+                      '/channel/${channel.id}/edit',
+                      extra: channel,
+                    ),
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.chatWebSecondaryDark.withValues(
+                          alpha: 0.15,
+                        ),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: hasAvatar
+                          ? Image(
+                              image: cachedImageProvider(
+                                channel.avatar!,
+                                w: 256,
+                              ),
+                              fit: BoxFit.cover,
+                              width: 100,
+                              height: 100,
+                            )
+                          : const Center(
+                              child: Icon(
+                                Icons.campaign_outlined,
+                                size: 48,
+                                color: AppColors.chatWebSecondaryDark,
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // "添加照片" 绿色文本按钮
+                  TextButton(
+                    onPressed: () => context.push(
+                      '/channel/${channel.id}/edit',
+                      extra: channel,
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.chatWebBrand,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
+                    ),
+                    child: Text(
+                      addPhotoText,
+                      style: TextStyle(
+                        fontSize: FontSizeType.medium.size,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.chatWebBrand,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Title: 开始发展壮大 "xxx"
+                  Text(
+                    cardTitle,
+                    style: context
+                        .textStyle(
+                          FontSizeType.large,
+                          fontWeight: FontWeight.w800,
+                        )
+                        .copyWith(color: textPrimary),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // "添加描述" / "已有描述" 绿色文本按钮
+                  TextButton.icon(
+                    onPressed: () => context.push(
+                      '/channel/${channel.id}/edit',
+                      extra: channel,
+                    ),
+                    icon: const Icon(
+                      CupertinoIcons.pencil,
+                      size: 16,
+                      color: AppColors.chatWebBrand,
+                    ),
+                    label: Text(
+                      addDescText,
+                      style: TextStyle(
+                        fontSize: FontSizeType.normal.size,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.chatWebBrand,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Pill Button 1: 分享至我的动态
+                  _buildPillButton(
+                    context: context,
+                    icon: CupertinoIcons.arrow_2_circlepath,
+                    label: isChinese ? "分享至我的动态" : "Share to My Status",
+                    onTap: () {
+                      context.push(
+                        AppRoutes.momentCreate,
+                        extra: {
+                          'content': isChinese
+                              ? '大家快来关注我的频道【$channelName】吧！$webBaseUrl/channel/${channel.id}'
+                              : 'Come and follow my channel "$channelName" at $webBaseUrl/channel/${channel.id}',
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Pill Button 2: 邀请管理员
+                  _buildPillButton(
+                    context: context,
+                    icon: CupertinoIcons.plus,
+                    label: isChinese ? "邀请管理员" : "Invite Admins",
+                    onTap: () {
+                      context.push('/channel/${channel.id}/admins');
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPillButton({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final btnBg = isDark
+        ? AppColors.lightSurface.withValues(alpha: 0.08)
+        : AppColors.chatWebBackgroundLight;
+    final textPrimary = AppColors.getTextColor(Theme.of(context).brightness);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: btnBg,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: textPrimary),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: context
+                  .textStyle(FontSizeType.normal, fontWeight: FontWeight.bold)
+                  .copyWith(color: textPrimary),
+            ),
+          ],
         ),
       ),
     );

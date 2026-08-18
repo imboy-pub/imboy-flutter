@@ -1,7 +1,7 @@
 # DF-08 群会话 → 群消息 → @成员 → 消息恢复
 
 > 优先级：P0
-> 状态：`双账号文本消息闭环通过（生产，2026-08-10/11）/ 本地 strict 环境新增明文拒收+密文归档证据（2026-08-17）/ @成员与失败分支未覆盖 / 群历史 API 列名 bug 已定位`
+> 状态：`双账号文本消息闭环通过（生产，2026-08-10/11）/ 本地 strict 环境明文拒收+密文归档复跑通过（2026-08-18 2/2）/ @成员定性为本地 strict 环境结构性不可覆盖 / 群历史 API 列名 bug 复核仍未修（HEAD 与 alpha.36 均在）`
 
 ## 1. 目标
 
@@ -22,10 +22,16 @@
   - 预期：发送者、顺序、时间和服务端成功证据一致。
   - 2026-08-17 补充：本地 strict E2EE 环境下明文被 fail-closed 拒收、密文结构消息经 WS 接收并归档（单端 API 级）；
     生产明文双端闭环引用 2026-08-10/11 历史证据。
+  - 2026-08-18 复跑：本地 alpha.36 上两项证据均复现（2/2 通过），见第 5 节。
 - [ ] A @ B，B 查看提醒或群内消息。
   - 预期：@ 成员选择、消息渲染和提醒状态正确。
   - 页面计划：[mention_list_page.md](../auto_test/mention/mention_list_page.md)
   - 后端有 `msg_mention` 表与 mention API；本地密文消息对服务端不透明，@成员 payload 无法在 strict 环境以明文验证，未覆盖。
+  - 2026-08-18 定性（结构性，非仅缺条件）：strict 门禁 `imboy_policy:encrypted_message_body/3` 要求 payload 为
+    二进制密文（`is_binary(Payload)`），而 mentions 解析 `msg_c2g_logic:mentions_from_payload/1` 要求 payload 为
+    带 `mentions` 键的 map——两者互斥，本地 strict 环境下被接受的 C2G 消息服务端 mentions 恒为空，
+    `mention_logic:create_mentions` 永不触发。单账号 @ 自己也无法产生服务端 mention 记录；
+    真正覆盖需要非 strict 环境（如生产 `e2ee_mode=disabled`）或双设备真实客户端（@ 信息在密文内由接收端解密渲染）。
 - [x] A 退出群聊页再重新进入。
   - 预期：消息从本地/服务端恢复，未读状态可解释。
   - 2026-08-17 补充：服务端归档以 `msg_c2g` 表 DB 行核验通过；`group/msg_page` API 因列名 bug 恒空（见第 5 节），
@@ -71,6 +77,17 @@
   （historyUnavailable）”现象一致，很可能是该现象的根因；修复后群历史 API 回读可恢复。
 - 2026-08-17 发现项（后端，非回归）：本地 alpha.27 密文 C2G 消息归档成功但 `C2G_SERVER_ACK` 帧 15 秒内未返回
   （历史 WS ACK 修复在 alpha.26~28 间迭代）；本轮以 DB 归档行作为服务端成功证据，ACK 断言降级为尽力收集。
+- 2026-08-18：本地 alpha.36 复跑 `group_local_message_flow_test.dart` `2/2 All tests passed`
+  （双账号 A=`13900001002`、B=`smoke_bob`，B 仅用于建群成员集合）：
+  1. 明文 C2G 仍被 fail-closed 拒收（`policy_violation / encrypted_message_required`）——复跑通过。
+  2. 密文结构消息归档复验：`msg_c2g` DB 行 `demoflow-cipher-*`（to_id=测试群、e2ee 非空）命中；
+     `C2G_SERVER_ACK` 帧 15 秒仍不回（alpha.36 未修，非回归维持，以 DB 行为服务端成功证据）。
+- 2026-08-18 msg_page bug 复核（仍未修，证据链）：
+  - 源码：imboy HEAD `e6d785d0` 的 `src/api/group_handler.erl` msg_page 仍构造 `Where0 = #{to_groupid => Gid2}`，
+    经 `msg_c2g_ds:page/3` → `elib_pg:page_with_total` 直接以 Where 键为列名；
+  - 表结构：本地库 `information_schema` 确认 `msg_c2g` 实际列为 `to_id`（无 `to_groupid` 列）；
+  - 实测：归档消息 DB 行存在的同时 `group/msg_page` 返回 `total=0`（失败走 `_ -> total=0` 吞错分支）。
+  结论：bug 在 HEAD 与本地 alpha.36 均存在，历史回读断言继续以 DB 行为准，待后端修复后升级回 API 断言。
 
 ## 6. 未来自动化目标
 
@@ -79,4 +96,6 @@
 `group_local_message_flow_test.dart`（2026-08-17 新增）覆盖本地 strict 环境明文拒收与密文归档。
 
 后续文本、@普通成员和消息恢复只在双账号、非生产隔离数据和显式写入授权满足时执行；
-`msg_page` 列名 bug 修复后应把服务端历史回读断言从 DB 行升级回 API。
+`msg_page` 列名 bug 修复后应把服务端历史回读断言从 DB 行升级回 API（2026-08-18 复核：HEAD `e6d785d0`
+与本地 alpha.36 均未修）；@成员在本地 strict 环境结构性不可覆盖（见第 3 节定性），如需 API 级覆盖
+应在非 strict 环境补充专用用例。

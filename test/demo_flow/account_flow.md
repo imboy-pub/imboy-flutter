@@ -1,7 +1,7 @@
 # DF-01 注册 → 登录 → 首次进入 → 账号恢复
 
 > 优先级：P0
-> 状态：`登录与账号子页通过 / 注册本地被 License 配额阻塞 / 找回密码失败分支通过 / 退出重登阻塞（2026-08-17 更新）`
+> 状态：`登录与账号子页通过 / 注册本地被 License 配额阻塞（2026-08-18 后端升级后复核仍 402）/ 找回密码失败分支通过 / 退出重登阻塞（2026-08-18 复核维持）`
 
 ## 1. 目标
 
@@ -55,6 +55,11 @@
   - 本地登录可用性：`.env.pro` 测试账号在本地后端可登录（uid=4，token 正常），本地 `conversation/mine` 为空（无会话数据）。
   - 退出重登（macOS App 自身会话）：**阻塞**。共享 macOS 容器仍持有 117（uid=50）生产会话与 r14 双端闭环的本地消息库；`quitLogin` 的 `E2eeSecretInventory.purgeAll` 按前缀**全局**清理 `e2ee_/olm_/db_cipher_key_` 等秘密（跨账号），登出会毁掉该本地证据库的解密密钥；且以本地环境启动会对生产 token 触发 401 自动登出（同样触发 purge）。无隔离容器或第二设备可用，本轮不执行。
   - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260817/`（signup_a/b.json、signup_wrongcode.json、findpwd_wrongcode.json、local_login_pro_acct.json、relogin_original_pwd.txt）。
+- 2026-08-18（后端升级后复核轮，本地后端 main@e6d785d0 已加载 08:44 编译代码、policy 返回 `profile=enterprise / e2ee_mode=required / storage_mode=secure_e2ee`）：
+  - 生产只读登录契约复跑：`.env.pro` 变量逐项提取注入（未 source、未回显凭证）执行 `dart test test/unit_test/api/auth_api_test.dart --concurrency=1` → `9/9 All tests passed`（登录 uid=4、错误凭证、token 刷新、未认证 401、init、版本检查、极高版本不更新、用户信息、无效路径）。未执行任何生产写入。
+  - 注册 402 复核（后端已升级，探测一次）：万能码 `verification_master_code` 校验仍通过；首轮缺 `nickname` 参数返回 `code=1 昵称不能为空`，补全后请求到达配额守卫仍被结构化拒绝 `402 用户数已达授权上限`；本地库 `user` 表 count=1993（只读 SQL 核实）。**注册维持阻塞于 License 配额**——尽管 policy profile 已是 enterprise，当前 license 的 max_users 仍不覆盖 1993 存量用户；本轮不清理本地用户数据（禁止删除）。
+  - 退出重登阻塞复核：`user_repo_local.dart` `quitLogin` 仍调用 `E2eeSecretInventory.production().purgeAll()` 按 `secretKeyPrefixes` 前缀**全局**清理（跨账号，E2EE-015 设计行为，代码未变）；共享 macOS 容器（`pub.imboy.macos`）仍持有 `pro_1.db / pro_4.db / pro_50.db` 等多账号证据库（含 r14 双端闭环消息）。无隔离容器或第二设备，**维持阻塞不执行**。
+  - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260818/`（signup_probe.json、signup_probe2.json、local_login_pro4.json）。
 
 ## 6. 未来自动化目标
 

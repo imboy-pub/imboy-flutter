@@ -22,33 +22,33 @@ P0 的现有测试复用、缺口和执行门槛见 [P0_EXECUTION_PLAN.md](./P0_
 
 | 编号 | 文档 | 业务目标 | 当前状态 |
 |---|---|---|---|
-| DF-01 | [account_flow.md](./account_flow.md) | 注册、登录、首次进入和账号恢复 | 部分通过：登录契约 9/9 与 macOS 入口通过（08-17）；注册受本地 License 配额 402 阻塞；退出重登受共享容器 E2EE 秘密清理风险阻塞 |
-| DF-02 | [friend_flow.md](./friend_flow.md) | 添加好友并建立关系 | 本地 API 全闭环通过（08-17：搜索→删除→申请→确认→双端回读 7/7）；生产只读 5/5；双端 UI 通知阻塞 |
-| DF-03 | [conversation_flow.md](./conversation_flow.md) | 会话列表、未读和进入聊天 | API 契约与 macOS 入口通过（08-17：1/1+2/2，构建签名修复后历史 OOM 未复现）；有效会话写入待隔离数据 |
-| DF-04 | [single_chat_flow.md](./single_chat_flow.md) | 好友进入单聊并完成消息闭环 | 双端明文消息闭环历史 PASS 维持（08-17 无第二设备未新增）；macOS 入口 1/1；本地明文发送被 required 策略正确拒收；E2EE 未覆盖 |
-| DF-05 | [channel_flow.md](./channel_flow.md) | 频道发现到群日程的消费者链路 | API 部分通过；频道→群跨模块结构性不成立（无群绑定字段，08-17 复核维持）；本地订阅/付费证据见 DF-12/13 |
-| DF-06 | [group_flow.md](./group_flow.md) | 群功能总索引和执行入口 | 08-17 本地建群/面对面/管理/消息/协作 API 级全部闭环；索引已同步各专题状态 |
-| DF-07 | [group_creation_flow.md](./group_creation_flow.md) | 建群、面对面建群和入群 | 通过（08-17 本地 API 级：普通建群+邀请回读、面对面暗号入群双方落库 3/3）；本地 face2face_save 静默不落库 bug 上游已修复待部署 |
-| DF-08 | [group_chat_flow.md](./group_chat_flow.md) | 群内消息和成员协作 | 双账号文本消息闭环历史 PASS 维持；08-17 本地密文消息服务端归档验证 2/2；发现 msg_page 键名与列不匹配致历史恒空（疑似历史"归档为空"根因）；@成员与失败分支未覆盖 |
-| DF-09 | [group_management_flow.md](./group_management_flow.md) | 群信息、成员和权限管理 | 通过（08-17 本地 API 级全闭环 3/3：群名/公告、角色提升/恢复、成员移除+邀回——移除为历史首次执行）；群主转让/危险操作未覆盖 |
-| DF-10 | [group_collaboration_flow.md](./group_collaboration_flow.md) | 群日程、任务和投票 | 双账号写入历史 PASS 维持；08-17 本地单账号 API 闭环 4/4（创建/确认/提交/投票/回读）；费用与跨频道链路未覆盖 |
-| DF-11 | [e2ee_security_flow.md](./e2ee_security_flow.md) | E2EE 建立、消息安全和密钥恢复 | 本地密码学通过（08-17 复跑 64 项），生产策略已变 disabled，双设备/恢复阻塞 |
+| DF-01 | [account_flow.md](./account_flow.md) | 注册、登录、首次进入和账号恢复 | 部分通过：登录契约 9/9 复跑维持（08-18）；注册仍受本地 License 配额 402 阻塞（本地 user 表 1993，profile=enterprise 不覆盖存量）；退出重登维持共享容器 E2EE 秘密清理风险阻塞 |
+| DF-02 | [friend_flow.md](./friend_flow.md) | 添加好友并建立关系 | 本地 API 全闭环通过（08-18 复跑 7/7 维持）；生产只读 5/5；双端 UI 通知待执行（真机本轮已恢复在线，留待真机轮次） |
+| DF-03 | [conversation_flow.md](./conversation_flow.md) | 会话列表、未读和进入聊天 | API 契约与 macOS 入口通过（08-18 复跑维持）；有效会话写入本轮闭环通过（e2ee 信封→ACK→归档→pin/unpin 幂等）；未读清零待对端回复消息 |
+| DF-04 | [single_chat_flow.md](./single_chat_flow.md) | 好友进入单聊并完成消息闭环 | 单账号发送受理链路通过（08-18：e2ee 信封 ACK+归档+会话生成）；明文拒收为 required 策略设计行为；双端闭环维持历史 PASS；端上 E2EE 密码学闭环属 DF-11 |
+| DF-05 | [channel_flow.md](./channel_flow.md) | 频道发现到群日程的消费者链路 | API 部分通过（08-18 生产只读复跑维持）；频道→群跨模块结构性不成立维持（alpha.36 后 20 个 channel 模块 grep 零绑定字段）；本地订阅/付费证据见 DF-12/13 |
+| DF-06 | [group_flow.md](./group_flow.md) | 群功能总索引和执行入口 | 08-18 索引已同步各专题状态：建群 3/3、管理 4/4（含群主转让历史首次）、消息 2/2、协作 4/4 全部 API 级闭环维持或新增 |
+| DF-07 | [group_creation_flow.md](./group_creation_flow.md) | 建群、面对面建群和入群 | 通过（08-18 复跑 3/3；face2face_save 落库修复在 alpha.36 实测生效，断言已按文档加严：save 响应含 group map+member_list、detail 回读、attr=join 列表） |
+| DF-08 | [group_chat_flow.md](./group_chat_flow.md) | 群内消息和成员协作 | 密文归档 2/2 复跑维持（08-18）；msg_page 键名 bug 复核未修（to_groupid vs to_id，归档行存在同时 API total=0 实测复现）；@成员定性为本地 strict 环境结构性不可覆盖（密文 binary 与 mentions map 要求互斥） |
+| DF-09 | [group_management_flow.md](./group_management_flow.md) | 群信息、成员和权限管理 | 通过（08-18 复跑 4/4：群名/公告、角色提升/恢复、成员移除+邀回维持，新增 DF-09-4 群主转让为历史首次执行，含 per_hour_once 限流负向断言） |
+| DF-10 | [group_collaboration_flow.md](./group_collaboration_flow.md) | 群日程、任务和投票 | 通过（08-18 复跑 4/4 维持：创建/确认/提交/投票/回读）；费用与跨频道链路维持不覆盖（日程/任务/投票端点无费用语义） |
+| DF-11 | [e2ee_security_flow.md](./e2ee_security_flow.md) | E2EE 建立、消息安全和密钥恢复 | 本地密码学通过（08-18 复跑 64 项 0 失败，room_key_olm_roundtrip 真实执行）；本地 policy=required/secure_e2ee 无变化；生产 disabled 维持；双设备/恢复阻塞维持（设备已在线但密钥类操作需人工授权） |
 
 ### P1：重要业务能力
 
 | 编号 | 文档 | 业务目标 | 当前状态 |
 |---|---|---|---|
-| DF-12 | [channel_creator_flow.md](./channel_creator_flow.md) | 频道创建、发布、评论和管理 | 本地 API 写入闭环通过（08-17：创建/编辑/发布/评论/管理 7/7，三重门禁默认 SKIP）；UI 链路与订阅者视角阻塞 |
-| DF-13 | [paid_channel_flow.md](./paid_channel_flow.md) | 付费频道、订单和购买后解锁 | 本地 mock 全链闭环通过（08-17：充值→订单→解锁→退款回收 6/6）；生产购买阻塞（无付费频道样本+禁写） |
-| DF-14 | [group_content_flow.md](./group_content_flow.md) | 群相册、群文件和媒体内容 | 相册创建+回读通过（08-17）；文件/照片上传阻塞于本地 Garage 对象存储不在线（endpoint IP 过期 192.168.1.150→本机 192.168.0.98） |
-| DF-15 | [group_organization_flow.md](./group_organization_flow.md) | 群分类、标签、二维码和邀请 | 本地写入回读通过（08-17：分类/标签 4/4 + 群二维码 API 生成回读 + 渲染 9/9）；双端扫码阻塞 |
-| DF-16 | [moments_flow.md](./moments_flow.md) | 发布朋友圈并完成查看、互动 | 本地API闭环通过（发布/好友可见/点赞/评论/回读），UI链路未复验 |
-| DF-17 | [wallet_flow.md](./wallet_flow.md) | 钱包余额、转账和结果回传 | 本地API部分通过：充值/发送/扣款/流水/错误分支通过；accept被后端BUG-A阻塞 |
-| DF-18 | [red_packet_flow.md](./red_packet_flow.md) | 红包发送、领取和结果查看 | 本地API闭环通过（发送/领取/重复拒绝/详情一致/双方余额流水），UI链路未复验 |
-| DF-19 | [contact_management_flow.md](./contact_management_flow.md) | 联系人备注、标签和分组管理 | 本地写入闭环通过（08-17：备注/标签/打标/筛选/分组/移动 8/8）；发现分组 API 客户端未接入与 id 契约形状问题；UI 展示阻塞 |
-| DF-20 | [qrcode_invite_flow.md](./qrcode_invite_flow.md) | 用户、群、频道二维码和扫码邀请 | 本地渲染与用户/群码 API 生成回读通过，频道码服务端路由缺失，双端扫码阻塞 |
-| DF-21 | [call_flow.md](./call_flow.md) | 单聊音视频和 RTC 房间 | 本地状态机/信令 51 项通过，生产入口可达（902），本地 join 缺 LiveKit 配置，双端媒体阻塞 |
-| DF-22 | [live_room_flow.md](./live_room_flow.md) | 直播间创建、开播和观看 | 本地列表状态与 API 只读回读通过，开播/观看阻塞（媒体服务缺失） |
+| DF-12 | [channel_creator_flow.md](./channel_creator_flow.md) | 频道创建、发布、评论和管理 | 本地 API 写入闭环通过（08-18 复跑 7/7 维持：创建/编辑/发布/评论/管理）；三重门禁默认 SKIP 属设计；UI 链路与订阅者视角阻塞（本地无第二可登录账号+无设备轮次） |
+| DF-13 | [paid_channel_flow.md](./paid_channel_flow.md) | 付费频道、订单和购买后解锁 | 本地 mock 全链闭环通过（08-18 复跑 6/6：充值→订单→解锁→退款回收，fixture 无残留）；生产购买维持阻塞（无付费频道样本+资金红线禁写） |
+| DF-14 | [group_content_flow.md](./group_content_flow.md) | 群相册、群文件和媒体内容 | 相册创建+回读通过维持（08-18）；文件/照片上传阻塞根因更新：upload_url 域名仅为展示字段，上传核心路径仍读 garage.endpoint 过期 IP 192.168.1.150:3900，解锁需改配置并重启后端 |
+| DF-15 | [group_organization_flow.md](./group_organization_flow.md) | 群分类、标签、二维码和邀请 | 分类/标签 4/4 复跑维持（08-18）；群二维码读码出现环境级回归：后端重启后 IMBOY_SOLIDIFIED_KEY 未注入致 tk 校验 302（非代码缺陷，需人工重启注入）；双端扫码待真机 |
+| DF-16 | [moments_flow.md](./moments_flow.md) | 发布朋友圈并完成查看、互动 | 本地 API 闭环通过（08-18 复跑 5/5）；UI 链路本轮以 flutter test 补验 109 项 0 失败（feed/发布/详情/并发状态）；真实 HTTP 渲染与手势待真机 |
+| DF-17 | [wallet_flow.md](./wallet_flow.md) | 钱包余额、转账和结果回传 | 通过（08-18：上轮 P0 BUG-A 转账收款修复复验——accept code=0 闭环、双方余额/流水核对、重复 accept 拒绝；上轮卡死 pending 全部回收现 0 悬挂；BUG-B 超余额泄露 db_exception 亦修复） |
+| DF-18 | [red_packet_flow.md](./red_packet_flow.md) | 红包发送、领取和结果查看 | 本地 API 闭环通过（08-18 复跑 4/4：发送/领取/重复拒绝/详情一致/双方流水）；最低金额前后端不一致维持（后端≥100 分 vs 前端拦<1 分，P2）；UI 链路待真机 |
+| DF-19 | [contact_management_flow.md](./contact_management_flow.md) | 联系人备注、标签和分组管理 | 本地写入闭环通过（08-18 复跑 8/8 维持）；payload.id 嵌套 map 缺陷与分组 API 客户端未接入均维持未修；UI 展示待真机 |
+| DF-20 | [qrcode_invite_flow.md](./qrcode_invite_flow.md) | 用户、群、频道二维码和扫码邀请 | 渲染 20/20 与用户/群码 API 生成回读 5/5 通过（08-18）；频道码路由缺失且错误语义退化为被通配路由捕获返回 200/code=1（误导性业务错误，后端补路由后需反向加严断言）；双端扫码待真机 |
+| DF-21 | [call_flow.md](./call_flow.md) | 单聊音视频和 RTC 房间 | 本地状态机/信令 51 项复跑通过维持（08-18）；本地 join 仍缺 livekit 配置 500（build_grant/4 崩溃）；双端媒体待真机 |
+| DF-22 | [live_room_flow.md](./live_room_flow.md) | 直播间创建、开播和观看 | 本地列表状态 12 项与 API 只读回读通过维持（08-18）；开播/观看阻塞维持（与 DF-21 同根因缺媒体服务） |
 
 ## 3. 统一执行约束
 
@@ -150,6 +150,38 @@ P0 的现有测试复用、缺口和执行门槛见 [P0_EXECUTION_PLAN.md](./P0_
 ### 新增可复用测试资产
 
 `integration_test/demo_flow/` 新增 14 个纯 Dart 测试文件（均带非生产 URL + `TEST_ALLOW_API_WRITES` 等三重门禁，默认 SKIP，无凭证环境不假绿）。所有改动未 commit，`git diff --check` 通过。
+
+## 4.3 2026-08-18 全量 Flow 复核证据汇总
+
+本轮以 7 个并行会话覆盖全部 DF-01～DF-22，环境为本地后端（127.0.0.1:9800，已升级 **1.0.0-alpha.36**，main@e6d785d0，beam 08:44 编译/08:46 启动）+ 生产只读 + macOS 入口。上轮多项后端修复已随 alpha.36 部署到本地，本轮完成修复复验。
+
+### 本轮通过（含修复复验与历史首次执行）
+
+- **DF-17 钱包 BUG-A 修复复验通过（本轮最高价值）**：transfer accept 闭环 code=0、双方余额与流水核对一致、重复 accept 拒绝；上轮两笔卡死 pending（107540522685696000、107541287196166144）及未记录的第三笔全部成功回收，transfer_order 现 0 笔悬挂；BUG-B（超余额泄露 db_exception）同步修复确认。wallet_flow 状态升级为通过。
+- **DF-07 face2face_save 落库修复实测生效**：alpha.36 含修复提交 21af8e78/41034a52，断言按文档加严（save 响应 group map+member_list 双方、detail 回读、非群主侧 attr=join）。
+- **DF-09-4 群主转让历史首次执行**：专用面对面群上 A→B 单向转让（owner_uid 回读、role=4/1、group_log type=9 落库、per_hour_once 限流负向断言通过）。
+- **DF-03 有效会话写入闭环通过**（上轮遗留项）：符合 v2.0 加密契约的 e2ee 信封消息经真实服务端路径（C2C_SERVER_ACK→归档→conversation/mine）产生会话，pin/unpin 幂等验证通过，数据已还原。
+- **DF-16 朋友圈 UI 链路补验**（上轮"未复验"项）：flutter test 109 项 0 失败（feed/发布/详情渲染契约/并发状态）。
+- 其余复跑全绿维持：DF-01 登录 9/9、DF-02 好友 7/7、DF-04 单账号受理链路、DF-05 生产只读（channel 6+1 门禁拦/order 3 过 2 跳/wallet 4/has_more 6）、DF-08 密文归档 2/2、DF-10 协作 4/4、DF-11 E2EE 64 项（room_key_olm_roundtrip 真实执行）、DF-12 频道创作 7/7、DF-13 付费频道 mock 6/6（fixture 无残留）、DF-14 相册、DF-15 分类/标签 4/4、DF-18 红包 4/4、DF-19 联系人 8/8、DF-20 渲染 20/20+API 5/5、DF-21 状态机 51 项、DF-22 列表 12 项+只读回读。
+
+### 上轮缺陷复核结果（imboy 仓只读定位，未修改）
+
+1. **已修复并实测确认**：BUG-A 转账收款（transfer_repo accept 事务 query/3）、BUG-B 超余额泄露、face2face_save 静默不落库。
+2. **未修复维持**：msg_page 键名 bug（group_handler 仍构造 `to_groupid`，msg_c2g 实际列 `to_id`；归档行存在同时 API total=0 实测复现）；频道二维码路由缺失；friend/category/add payload.id 嵌套 map；红包最低金额前后端不一致（P2）。
+3. **新发现**：a) 频道码 `/api/v1/channel/qrcode` 被 `/api/v1/channel/:channel_id` 通配捕获，错误语义从 404 退化为 200+code=1 误导性业务错误；b) @成员在本地 strict 环境结构性不可覆盖（encrypted_message_body 要求密文 binary 与 mentions_from_payload 要求 map 互斥，服务端 mentions 恒空）；c) `scripts/test.env` 的 API_BASE_URL 行内注释会污染 URL 提取导致 non_json_response（须显式传干净环境变量）；d) `channel_api_has_more_test.dart` 等含 flutter_test 的文件必须 `flutter test` 运行。
+
+### 环境级问题（需人工决策，本轮未处置）
+
+1. **DF-14 上传阻塞根因更正**：`upload_url => https://s3.imboy.pub` 仅为 index_handler 暴露的展示字段，上传核心路径读 `garage.endpoint` 仍为过期 IP 192.168.1.150:3900；s3.imboy.pub 域名在线但本机 DNS 被 fake-ip 劫持无法确认归属——解锁需人工确认归属后改 endpoint 并重启后端。
+2. **DF-15 群二维码读码回归（环境级）**：后端重启后运行环境无 IMBOY_SOLIDIFIED_KEY 注入，走节点名哈希派生 dev key 分支致 tk 校验 302——需人工注入环境变量重启恢复。
+3. **Flutter 3.47.0 SDK artifact 损坏**：挂载框架的无头 widget 测试加载失败（text_painter.dart 编译错误），08-17 相关 9/9 证据维持历史引用。
+
+### 数据与账号披露
+
+- 群流程 B 账号由 test_886209702@example.com（凭证仅存占位符不可考据）切换为 smoke_bob（uid 1000000056，moments/wallet/red_packet 文档已记载账号），三个测试文件登录方式同步调整。
+- 本轮真机条件变化：Android 真机 MRD AL00 与 iPhone 16e 已恢复在线（上轮离线），但双端 UI 验收需两设备各自登录授权账号，属真机轮次，本轮未执行，各 flow 维持"待执行（设备已恢复在线）"。
+- 钱包余额：期初与上轮期末差（A +990/B +100）为 08-17 后其他流程所致，本轮 A 净 0、B +100（DF-18 红包），上轮悬挂 pending 已全部回收。
+- 新增本地可回收数据均已标记 DEMO-FLOW-20260818 并在各 flow 文档记录；含凭证的临时探针脚本已清理；`.env.pro` 未 source、凭证未输出、生产零写入。所有改动未 commit。
 
 ## 5. Claude Code 执行协议
 

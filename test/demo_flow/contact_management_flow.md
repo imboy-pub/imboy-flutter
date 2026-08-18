@@ -1,7 +1,7 @@
 # DF-19 联系人 → 备注/标签 → 分组筛选
 
 > 优先级：P1
-> 状态：`本地 API 写入闭环通过（2026-08-17）/ UI 级展示阻塞`
+> 状态：`本地 API 写入闭环通过（2026-08-17 建立，2026-08-18 alpha.36 复跑 8/8 维持）/ 分组 id 契约缺陷未修复 / UI 级展示待执行（设备已恢复在线）`
 
 ## 1. 目标
 
@@ -53,6 +53,12 @@
 - 2026-08-17 后端契约发现（本地 alpha.27，不修改后端，仅在测试中兼容）：① `friend/category/add` 响应 `payload.id` 不是 TSID 整数，而是嵌套 map `{id:<真实TSID>, name, groupname}`——handler 把 `friend_category_logic:add` 返回的整行 map 当作 LastInsertId 放进了 `#{<<"id">> => LastInsertId}`；建议后端后续修正为裸 TSID。② 标签名服务端限 14 字（超长报「Tag 最多14个字」）。③ 移动端无独立好友分组页面，App 分组能力由好友标签（scene=friend）承担；`friend/category`+`friend/move` 为后端已有但客户端未接入的能力。
 - 2026-08-17 生产只读复跑：`user_tag_api_test.dart` 以 `.env.pro` 注入运行 → 4/4 通过（无 SKIP：标签分页/数据结构/关系分页/匿名鉴权拒绝；登录 uid=4），未执行任何生产写入。
 - 2026-08-17 阻塞：UI 级展示未验证——无 Android/iOS 真机在线（macOS 被其他会话独占），联系人页备注同步显示、标签管理页、按标签筛选页面的 UI 呈现仍待设备可用后复核；结论止步于 API 层。
+- 2026-08-18：**alpha.36 复跑维持通过（8/8 All tests passed）**。备注回读、标签创建/打标/回读/筛选、分组创建/移动入组/category_id 回读全链路无回归。运行注意与 DF-02 同：上轮密码未持久化，本轮经本地 DB 重置两个 DEMO-FLOW 合成账号密码后以环境变量注入；API_BASE_URL 须传干净值（`scripts/test.env` 行内注释陷阱见 friend_flow.md 08-18 条目）。
+- 2026-08-18 遗留问题复核（后端 alpha.36，未修改后端）：
+  - **分组 id 契约缺陷未修复**：实测 `POST /api/v1/friend/category/add {name:"DF0818-contract-probe"}` → code=0，`payload.id` 仍是嵌套 map `{"groupname":"DF0818-contract-probe","id":107667256150067200,"name":"DF0818-contract-probe"}`（真实 TSID 在 `payload.id.id`）。代码定位维持：`friend_category_logic:add/2` 返回整行 map，`friend_category_handler.erl:46-47` 将其整体当作 LastInsertId 写入 `#{<<"id">> => LastInsertId}`。测试的兼容提取逻辑仍必要。
+  - **分组 API 客户端未接入维持**：imboyapp `lib/` 全库无 `friend/category`、`friend/move`、`friend_category` 任何引用；移动端分组能力仍由好友标签（scene=friend）承担。
+  - 探针数据：本轮新建分组 DF0818-contract-probe（id=107667256150067200）与测试内建的 DEMO-FLOW 标记标签/分组均保留在本地库，可回收。
+- 2026-08-18 设备复核：Android 真机 MRD AL00 与 iPhone 16e 已在线（同 DF-02 记录），UI 级展示验证的设备条件恢复，但联系人页备注同步显示、标签筛选页 UI 呈现属真机验收轮次，本轮未执行；结论仍止步于 API 层。
 
 ## 6. 未来自动化目标
 

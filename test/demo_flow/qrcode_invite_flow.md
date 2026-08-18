@@ -1,8 +1,8 @@
 # DF-20 生成二维码 → 扫码识别 → 进入目标业务
 
 > 优先级：P1
-> 状态：`本地渲染与用户/群二维码 API 生成回读通过，频道码服务端路由缺失，双端扫码阻塞`
-> 最近验证：2026-08-17
+> 状态：`本地渲染与用户/群二维码 API 生成回读通过（08-18 复跑维持），频道码专属路由仍缺失（行为已从 404 变为被 :channel_id 通配吞掉），双端扫码待执行（设备已恢复在线）`
+> 最近验证：2026-08-18
 
 ## 1. 目标
 
@@ -47,6 +47,9 @@
   - 过期群码（exp 过去 1 小时 + 正确 tk）→ 业务错误「验证码已过期」，不误入群；
   - **契约缺口（新发现）**：客户端 `buildChannelQrcodeUrl` 构造 `/api/v1/channel/qrcode?id=&exp=&tk=`，但后端 `imboy_router.erl` 未注册该路由——频道二维码扫码在服务端侧无法解析，需后端补路由或客户端调整。测试已将该缺口固化为断言。
 - 双端扫码识别（相机权限、第二设备扫码 → 进入资料/入群/频道）仍保持 `BLOCKED`；本轮证据不替代扫码 UI 闭环。
+- 2026-08-18：**复跑维持通过**。本地渲染 `flutter test test/unit_test/page/qrcode/ test/unit_test/page/scanner/scanner_qrcode_states_test.dart --concurrency=1` → `20` 项全部通过；API 生成回读 `dart test integration_test/demo_flow/qrcode_invite_flow_test.dart --concurrency=1` → `5/5 All tests passed`（用户码 type=user、无效码 user_not_exist、群码幂等回读、过期群码拒绝、频道码缺口断言）。运行注意：该测试头部注释示例从 `scripts/test.env` 读 API_BASE_URL，但该行带行内注释（`http://127.0.0.1:9800   # dart test ... 使用`），`read_env` awk 提取会把注释拼进 URL 导致登录报「code=200 non_json_response」——必须显式传 `API_BASE_URL=http://127.0.0.1:9800`（本轮实测确认）。
+- 2026-08-18 频道码路由复核（**行为变化，新证据**）：`/api/v1/channel/qrcode` 专属路由在 `imboy_router.erl` 仍无注册（缺陷维持），但后端 alpha.36 下该 URL 不再表现为 404——被 `imboy_router.erl:326` 的 `/api/v1/channel/:channel_id` 通配捕获，"qrcode" 字符串被当作 channel_id 进入 `channel_handler:show` → `channel_logic:get_channel(<<"qrcode">>, Uid)` 查无此频道 → 带 token 实测返回 `HTTP 200 + code=1 msg=频道不存在`。即使 query 携带真实频道 id（本地库 DEMO-FLOW 频道 107539669547485184）与正确 tk，同样报「频道不存在」（show 只读路径参数不读 query 的 id/exp/tk）。结论：频道码扫码在服务端侧依旧不可用，且错误语义从「404 路由缺失」退化为「频道不存在」业务错误，对客户端更具误导性；`DF-20-5` 测试断言（code!=0）当前仍通过，但其「无此路由（404 或路由级错误）」的注释描述已过时，后端补路由后该用例需反向加严为成功回读。
+- 2026-08-18 设备复核：Android 真机 MRD AL00 与 iPhone 16e 已在线（同 DF-02 记录），双端扫码 UI 闭环（相机权限、真机扫真实码 → 进入资料/入群/频道）的设备条件恢复，属真机验收轮次，本轮未执行。
 
 ## 6. 未来自动化目标
 

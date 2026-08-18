@@ -99,9 +99,10 @@ void main() {
       _app(_channel(role: ChannelUserRole.admin, subscribed: true)),
     );
 
-    expect(find.text(t.channel.noMessagesManaged), findsOneWidget);
-    expect(find.text(t.channel.noMessagesManagedDesc), findsOneWidget);
-    expect(find.text(t.channel.publishFirstContent), findsOneWidget);
-    expect(find.text(t.channel.subscribe), findsNothing);
+    // Verify the new premium "Start Growing" welcome card components (English default in tests)
+    expect(find.text('Channel "测试频道" created'), findsOneWidget);
+    expect(find.text('Start growing "测试频道"'), findsOneWidget);
+    expect(find.text('Share to My Status'), findsOneWidget);
+    expect(find.text('Invite Admins'), findsOneWidget);
   });
 }

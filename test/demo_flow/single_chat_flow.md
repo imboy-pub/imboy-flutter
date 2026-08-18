@@ -1,6 +1,6 @@
 # DF-03 单聊消息闭环
 
-> 状态：`双账号双端消息闭环通过（2026-08-11 r14 历史证据；2026-08-17 无第二设备未重跑）/ 服务端历史归档为空 / E2EE 未覆盖`
+> 状态：`双账号双端消息闭环通过（2026-08-11 r14 历史证据；2026-08-18 无第二设备未重跑）/ 本地单账号发送受理链路通过（e2ee 信封，2026-08-18）/ 服务端历史归档本地可用 / E2EE 端上闭环未覆盖`
 > 优先级：P0
 > 类型：好友关系后的核心消息流程
 
@@ -58,6 +58,13 @@
   - macOS 桌面只读入口复核：`flutter test integration_test/demo_flow/single_chat_flow_test.dart -d macos`（APP_ENV=pro + `.env.pro` 注入，生产只读）→ `1/1 All tests passed`；从已有 C2C 会话进入 `ChatPage`，未输入或发送消息。
   - 本地单端发送补充（探查，未形成发送 PASS）：本地后端（127.0.0.1:9800，alpha.27）以 uid=4 登录成功并完成 WS 握手（`imboy.v2` 子协议 + Bearer token）；`GET /api/v1/app/policy` 返回 **`e2ee_mode=required`**，向 AI 小助手（agent uid `103107938360756224`，免好友校验）发送明文 C2C 被部署级明文门结构化拒收：`policy_violation / encrypted_message_required`（msg 帧含正确 `id` 回显）。错误边界链路验证：`type` 小写被拒 `unknown_message_type` → 改大写 `C2C` 后到达策略门。**本地明文发送阻塞于本地部署策略（需 E2EE 加密，超出本轮补充证据范围）**；本地亦无第二可登测试账号（117 本地不存在、注册被 License 配额 402 拦截）。
   - 本轮环境注记：生产只读 `conversation_api_test.dart` 复跑 8 过 2 拦截（客户端写门禁设计行为，详见 conversation_flow.md 2026-08-17 条目）；macOS 构建签名问题已通过重新生成 Mac 描述文件解决。
+- 2026-08-18（后端升级后复核轮，本地 main@e6d785d0，`e2ee_mode=required`）：
+  - **双端实时闭环未重跑**：仍无第二设备（Android 真机未连接、iPhone 离线），维持引用 2026-08-11 r14 历史 PASS 证据（run id `dual-20260811-mac117-118a-r14`）。本轮未新增双端证据。
+  - macOS 桌面只读入口复跑：`flutter test integration_test/demo_flow/single_chat_flow_test.dart -d macos`（APP_ENV=pro + `.env.pro` 变量 `--dart-define` 注入，生产只读）→ `1/1 All tests passed`；从已有 C2C 会话进入 `ChatPage`，未输入或发送消息。
+  - 本地单账号明文拒收复验（两轮一致）：WS（`imboy.v2` + Bearer，uid=4）明文帧（`e2ee` 空串）→ `S2C policy_violation / encrypted_message_required`（帧含发送 `id` 回显）。**部署级明文门行为符合设计**。
+  - 本地单账号**发送受理链路通过（测试侧 e2ee 信封，非端上密码学闭环）**：同一 WS 会话发送符合 v2.0 加密契约的信封消息（`e2ee.devices` 非空 map + `payload` 空串，对端为 AI agent uid `103107938360756224` 免好友校验）→ 二进制 v2 帧 `C2C_SERVER_ACK`（`in_reply_to` 回显）→ 服务端 `msg/history` 归档命中且 e2ee 元数据完整保留 → `conversation/mine` 产生真实会话。注意：这是按服务端声明式契约校验（`imboy_policy.erl`）构造的测试信封，**不证明端上 Olm 握手/密钥协商/解密**——E2EE 端到端验收仍属 DF-11，本地亦无第二可登账号做对端（注册仍被 License 402 拦截，见 account_flow.md 2026-08-18 条目）。
+  - 服务端历史归档：本轮本地 `msg/history`（c2c, after_seq=0）code=0 且消息在列——"服务端历史归档为空"的历史问题在本轮本地环境未复现（上轮该表述针对生产 r14 联调环境）。
+  - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260818/`（ws_send_e2ee_result_r2.json 含明文拒收帧、C2C_SERVER_ACK 帧、归档与会话回读摘要）。
 
 ## 6. 未来自动化目标
 

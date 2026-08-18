@@ -1,9 +1,9 @@
 # DF-21 单聊 → 音视频通话 → RTC 房间
 
 > 优先级：P1
-> 状态：`本地状态机/信令协议通过，生产 RTC 入口可达，本地 join 缺 LiveKit 配置阻塞，双端媒体阻塞`
+> 状态：`本地状态机/信令协议通过（2026-08-18 复跑 51 项），生产 RTC 入口可达（902），本地 join 缺 LiveKit 配置阻塞（2026-08-18 复现维持），双端媒体阻塞`
 > 条件：双端真机/媒体环境
-> 最近验证：2026-08-17
+> 最近验证：2026-08-18
 
 ## 1. 目标
 
@@ -44,6 +44,15 @@
 - 2026-08-17（DEMO-FLOW-20260817）：生产 `rtc_room_api_test.dart` 复跑——`rtc/room/join` 属 POST 入场券签发，生产写入红线（含 RTC 房间创建）下两个 join 用例被 `ApiTestClient` 写门禁在本地拦截（`Bad state: API 写入测试已阻止`），未向生产发出请求；该拦截是红线正确生效，不是回归。改用匿名负向探测：`POST https://pro.imboy.pub/api/v1/rtc/room/join`（无凭证）→ HTTP `200` + `{"code":902,"msg":"签名验证失败"}`，证明 alpha.36 上 RTC 入口路由可达且签名中间件正常（历史 502 修复维持），未进入业务逻辑、无写入。
 - 2026-08-17（DEMO-FLOW-20260817）：本地 `rtc_room_api_test.dart`（`TEST_ALLOW_API_WRITES=true` + `.env.local` 签名）结果 `1` 通过 / `1` 失败：错误路径（非法 `target_id` → 业务错误）通过，证明路由与参数校验正常；群成员 `join` 失败根因已定位——本地后端 `config/sys.local.config` 无 `livekit` 配置段，`rtc_room_logic.erl` `build_grant/4` 的 `config_ds:env(livekit, #{})` 返回 `#{}` 后 `#{ws_url := WsUrl, ...}` 模式匹配崩溃 → HTTP 500。属本地媒体服务配置缺失（环境性阻塞），非客户端或路由回归；按约束不干预本地后端进程与配置。
 - 双端媒体通话（真实呼叫、接听、双向音视频、断线恢复）保持 `BLOCKED`：无第二台授权设备、无 TURN/LiveKit 媒体环境。
+- 2026-08-18（DEMO-FLOW-20260818）：本地无头复跑同上四个测试文件（`p2p_call_state_machine_test.dart` +
+  `rtc_room_test.dart` + `webrtc_protocol_alignment_test.dart` + `component/webrtc/signaling_models_test.dart`，
+  `flutter test --concurrency=1`）合计 `51` 项全部通过，与 08-17 结果一致（注意：这四个文件依赖
+  flutter_test，必须用 `flutter test`，`dart test` 会因 flutter_test 加载失败全红）。
+- 2026-08-18（DEMO-FLOW-20260818）：livekit 配置缺失复核维持——`config/sys.local.config` 与运行节点实际加载的
+  `_rel/imboy/releases/1.0.0-alpha.36/sys.config` 中 grep `livekit` 均 0 处（`config/sys.config` 里的
+  dev 段被 local 覆盖，不生效）。本地 `rtc_room_api_test.dart`（`TEST_ALLOW_API_WRITES=true` + `.env.local`
+  签名）复跑结果 `1` 过 / `1` 失败，与 08-17 完全一致：非法 `target_id` 业务错误路径通过；群成员 `join`
+  仍 `code=500 non_json_response`（`rtc_room_logic.erl` `build_grant/4` 因无 livekit 配置崩溃），环境性阻塞维持。
 
 ## 6. 未来自动化目标
 

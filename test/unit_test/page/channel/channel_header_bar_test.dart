@@ -26,7 +26,7 @@ Widget _themedApp(Widget child) => TranslationProvider(
     theme: ThemeData.dark(useMaterial3: true),
     home: MediaQuery(
       data: MediaQueryData(textScaler: TextScaler.linear(1.8)),
-      child: Scaffold(body: child),
+      child: Scaffold(body: SingleChildScrollView(child: child)),
     ),
   ),
 );

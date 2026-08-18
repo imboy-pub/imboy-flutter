@@ -1,7 +1,7 @@
 # DF-07 建群 → 面对面建群 → 入群确认
 
 > 优先级：P0
-> 状态：`普通建群/邀请双端回读通过；面对面凭暗号加入本地 API 闭环通过（face2face_save 落库 bug 待后端部署修复）；后端无独立入群确认端点（邀请直接生效）`
+> 状态：`通过（2026-08-18 本地 alpha.36 复跑 3/3，face2face_save 落库修复已实测验证并落实加严断言）；后端无独立入群确认端点（邀请直接生效）；面对面 UI 双端确认页仍未验收`
 
 ## 1. 目标
 
@@ -11,6 +11,8 @@
 
 - [x] 准备 A、B 两个授权测试账号；面对面流程按需准备第二设备。
   - 2026-08-17 起本地 A/B 双账号可用（API 级，无需第二设备）。
+  - 2026-08-18 起 B 账号为 `smoke_bob`（uid `1000000056`，account 型登录，凭证见 moments/wallet/red_packet
+    flow 文档）；原 `test_886209702@example.com` 密码不可考据，弃用（见第 5 节）。
 - [x] 使用可回收测试群或非生产环境。
 - [x] 不删除真实群、不清空聊天记录、不强制移除第三方成员。
 
@@ -29,6 +31,9 @@
   - 页面计划：[face_to_face_page.md](../auto_test/group/face_to_face_page.md)、[face_to_face_confirm_page.md](../auto_test/group/face_to_face_confirm_page.md)
   - 2026-08-17：本地 API 级闭环——A `face2face` 登记暗号后，A/B 凭同暗号+同位置（50m 内）加入同一群，
     `group_member` 落库回读双方 `join_mode=face2face_join`；纯 API 注入位置，无需物理第二设备。
+  - 2026-08-18：本地后端升级 alpha.36（含 `21af8e78`/`41034a52` 修复）后复跑 3/3 通过；
+    `face2face_save` 落库修复实测生效——响应携带完整 group map（id=gid）与 member_list（双方），
+    group 行随后可 `group/detail` 回读，面对面群进入非群主成员的 `attr=join` 群列表（详见第 5 节）。
 - [x] B 重新加载群列表确认群关系。
   - 预期：双方看到一致的成员关系。
   - 2026-08-17：成员关系以 `group_member/page` 服务端回读为准，双方一致。
@@ -65,11 +70,28 @@
   返回 `code=0` 但 payload 为空 `{group:{}, member_list:[]}` 且 `group`/`group_member` 表无写入；根因是建群链路
   `parse_result` 形态错（上游提交 `21af8e78`/`41034a52` 已修复，alpha.28+ 部署后生效）。当前测试改走“同暗号再次
   face2face”的 join 路径完成落库（与凭暗号加入的产品语义一致）。
+- 2026-08-18：本地后端升级到 alpha.36 release（beam 2026-08-17 02:50 构建，`21af8e78`/`41034a52` 均为
+  alpha.36 版本提交的祖先，进程 08:46 启动）后，`group_local_creation_flow_test.dart` 复跑 `3/3 All tests passed`，
+  并按上轮计划落实「断言加严」：
+  1. `face2face_save` 落库修复实测生效：此时 group 表仍无该群行（face2face 登记只写 `group_random_code`
+     +内存缓存，join 路径只写 `group_member`），save 响应携带完整 group map（id=gid）与 member_list（含双方），
+     group 行由 save 创建（`group_ds:face2face_save/3` 事务内 `create_group` + 幂等入群）。
+  2. 新增独立回读断言：`group/detail` 回读群行 id 一致；面对面群出现在非群主成员的 `group/page attr=join`
+     列表（修复前 group 无行、LEFT JOIN 查不到）。
+  3. B 账号切换为 `smoke_bob`（uid `1000000056`，account 型登录，凭证见 moments/wallet/red_packet flow 文档，
+     08-17 有本地成功记录）：原 `test_886209702@example.com`（uid `106571314139236352`）密码在仓库/文档/
+     会话记录中均不可考据（只有占位符），不猜测凭证，改用已记载账号。A+smoke_bod 成员集合的去重群为新群
+     `107668232984594432`（不影响历史 A+886209702 群的证据）。
+  4. 观察到的语义（记录，不作为验收断言）：face2face 群的 group 行 owner_uid 是 `face2face_save` 的调用方
+     （非暗号登记人）；`page_joined` 排除自己是群主的群，因此 f2f 群要在非群主一侧断言 join 列表；
+     f2f 群 `member_count` 停留在 1（建行前的 join 不回填统计）、title 为空（UI 端兜底）。
 - 入群确认：后端路由无独立 invite/confirm 端点，`group_member/join` 对邀请直接生效（被邀请方无确认页），
   `face2face` join_mode 为 `face2face_join`；“确认后入群”的二段式链路在当前后端实现中不存在，UI 确认页仅为保存动作。
 
 ## 6. 未来自动化目标
 
 现有 `integration_test/group/group_creation_readonly_test.dart` 已覆盖三个入口只读挂载；
-`integration_test/demo_flow/group_local_creation_flow_test.dart`（2026-08-17 新增）覆盖本地 API 级建群/邀请/面对面闭环。
-面对面 UI 双端真机确认页流程仍需第二设备；face2face_save 落库断言待后端 alpha.28+ 部署到本地后加严。
+`integration_test/demo_flow/group_local_creation_flow_test.dart` 覆盖本地 API 级建群/邀请/面对面闭环，
+2026-08-18 起已按 face2face_save 修复落实加严断言（响应 group/member_list 非空、group/detail 回读、
+面对面群进入 join 列表），可作为本地回归默认用例（双账号 13900001002 + smoke_bob）。
+面对面 UI 双端真机确认页流程仍需第二设备。

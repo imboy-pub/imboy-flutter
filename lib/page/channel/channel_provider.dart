@@ -398,15 +398,23 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
 
   /// 加载频道详情
   Future<void> loadChannel(String channelId) async {
-    // 避免加载失败后仍误用旧 channelId 进行发布等操作。
     _channelId = null;
-    state = state.copyWith(isLoading: true, error: null, clearChannel: true);
+
+    // 1. 优先尝试从本地缓存加载并立即渲染（秒开），提前拿到并保留管理员/创建者等角色信息
+    final cached = await ChannelService.to.getChannel(channelId);
+    if (cached != null) {
+      _channelId = cached.id.toString();
+      state = state.copyWith(channel: cached, isLoading: true, error: null);
+      // 预先拉取本地缓存的消息
+      await loadMessages(cached.id.toString());
+    } else {
+      state = state.copyWith(isLoading: true, error: null, clearChannel: true);
+    }
 
     try {
-      // 详情页可能是购买/退款后的第一处刷新点，必须强制读取服务端并
-      // 持久化最新 has_purchased；不能使用本地优先快照遮蔽权益变化。
+      // 2. 在后台静默/刷新网络最新详情，保证 has_purchased 等权益及消息的最终一致性
       ChannelModel? channel = await ChannelService.to.refreshChannel(channelId);
-      if (channel == null) {
+      if (channel == null && cached == null) {
         // 兼容通过 custom_id 进入详情的场景；该 API 结果同样必须落缓存。
         channel = await _api.getChannelByCustomId(channelId);
         if (channel != null) {
@@ -420,8 +428,11 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
             : channelId;
         _channelId = effectiveChannelId;
         state = state.copyWith(channel: channel, isLoading: false);
-        // 加载消息
+        // 静默刷新并载入最新消息
         await loadMessages(effectiveChannelId);
+      } else if (cached != null) {
+        // 远端加载失败但本地已有缓存时，允许降级走本地缓存（无网络离线进入）
+        state = state.copyWith(isLoading: false);
       } else {
         _channelId = null;
         state = state.copyWith(
@@ -431,9 +442,14 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
       }
     } catch (e) {
       iPrint('loadChannel failed: $e');
-      _channelId = null;
       if (!ref.mounted) return;
-      state = state.copyWith(isLoading: false, error: t.common.loadError);
+      if (cached != null) {
+        // 允许降级使用本地缓存，清除 loading 状态
+        state = state.copyWith(isLoading: false);
+      } else {
+        _channelId = null;
+        state = state.copyWith(isLoading: false, error: t.common.loadError);
+      }
     }
   }
 

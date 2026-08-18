@@ -1,6 +1,6 @@
 # DF-05 朋友圈发布 → 查看 → 互动
 
-> 状态：`本地 API 闭环通过（发布/自读/好友可见/点赞/评论/回读）；UI 链路未复验`
+> 状态：`本地 API 闭环通过（发布/自读/好友可见/点赞/评论/回读，2026-08-18 复跑 5/5）；UI 链路 widget 级复验通过（2026-08-18，109 项，无真机端到端）`
 > 优先级：P1
 > 类型：社交内容流程
 
@@ -17,18 +17,18 @@
 
 ## 3. TODO 执行步骤
 
-- [ ] 从朋友圈入口打开信息流。（UI 步骤，本轮无真机未复验；2026-08-09 本地 UI 部分检查通过，API 层 feed 见下）
+- [ ] 从朋友圈入口打开信息流。（真机 UI 步骤本轮无真机未复验；2026-08-09 本地 UI 部分检查通过；**2026-08-18 widget 级复验通过**：`moment_feed_ui_flow_test.dart` 34 项覆盖 MomentFeedPage 真实渲染（AppBar/标题/导航栏发布按钮 Cupertino 相机图标+读屏标签/初始加载指示/CupertinoSliverRefreshControl 下拉刷新），API 层 feed 见下。真机端到端（真实 HTTP 驱动+手势）仍待有设备时补验）
   - 预期：信息流首屏、发布入口和通知入口正常。
   - 页面计划：[moment_feed_page.md](../auto_test/moment/moment_feed_page.md)
-- [x] 打开发布页，输入唯一测试文本并确认发布。（2026-08-17 本地 API：`POST /api/v1/moment/create` code=0）
+- [x] 打开发布页，输入唯一测试文本并确认发布。（2026-08-17 本地 API：`POST /api/v1/moment/create` code=0；2026-08-18 复跑同结果，moment_id=`107666964029376512`。UI 层：2026-08-18 `moment_publish_ui_flow_test.dart` 15 项真实渲染 MomentCreatePage（Cupertino 契约、草稿恢复丢图回归、生产函数 parseMomentUidList）通过）
   - 预期：确认按钮状态正确，发布成功后返回信息流并出现新动态。
   - 页面计划：[moment_create_page.md](../auto_test/moment/moment_create_page.md)
-- [x] 点击自己的动态进入详情。（2026-08-17 本地 API：`GET /api/v1/moment/:id` 回读成功，like/comment 计数一致）
+- [x] 点击自己的动态进入详情。（2026-08-17 本地 API：`GET /api/v1/moment/:id` 回读成功，like/comment 计数一致；2026-08-18 复跑同结果。UI 层：2026-08-18 详情页渲染契约 30 项通过：`moment_comments_merge_test.dart` 6（分页合并/按 id 去重/不变性）、`moment_can_load_more_comments_test.dart` 6（加载更多守卫）、`moment_comments_preview_test.dart` 9（评论预览/回复格式）、`moment_confirm_dialog_test.dart` 9（二次确认对话框））
   - 预期：正文、媒体、作者信息和操作入口正确。
   - 页面计划：[moment_detail_page.md](../auto_test/moment/moment_detail_page.md)
-- [x] 在授权测试账号下执行点赞或评论其中一项。（2026-08-17 本地 API：点赞与评论均完成服务端闭环）
+- [x] 在授权测试账号下执行点赞或评论其中一项。（2026-08-17 本地 API：点赞与评论均完成服务端闭环；2026-08-18 复跑同结果，且 `moment_e2e_flow_test.dart` 30 项通过覆盖点赞/评论状态同步、详情返回一致性与并发防抖）
   - 预期：服务端成功，计数和详情刷新一致。
-- [x] 返回信息流并刷新。（2026-08-17 本地 API：A 自身 feed 首页回读命中；B 经 `/moments/user/:uid` 命中）
+- [x] 返回信息流并刷新。（2026-08-17 本地 API：A 自身 feed 首页回读命中；B 经 `/moments/user/:uid` 命中；2026-08-18 复跑同结果，B 可见性断言通过）
   - 预期：动态仍可见，互动状态与服务端一致。
 - [x] 不执行默认删除动态；如需清理，先取得人工授权并使用专用测试数据。（本轮未删除，遵守红线）
 
@@ -47,6 +47,7 @@
 - 2026-08-09：`moment_api_test.dart` 的信息流只读检查和本地朋友圈 UI 部分检查通过，计入本轮汇总。
 - 2026-08-17 生产只读复跑：`moment_api_test.dart` 以 `.env.pro` 注入运行 `4/4 All tests passed`（feed 信封/结构/无效 id 边界），未做任何生产写入。
 - 2026-08-17 本地 API 闭环通过（详见第 7 节证据）；删除动态未执行。
+- 2026-08-18 本地 API 闭环在后端升级至 `1.0.0-alpha.36` 后复跑 `5/5` 通过（详见第 8 节）；同轮完成 UI 链路 widget 级复验 `109` 项 `0` 失败（feed 34 + publish 15 + 事件流状态机 30 + 详情页渲染契约 30）。无真机情况下以 `flutter test` 覆盖页面级验证的评估结论：**可行且已执行**——`test/unit_test/integration/moment/` 下三个 UI flow 文件真实 pump 生产页面组件（MomentFeedPage/MomentCreatePage），配合 `test/unit_test/page/moment/` 的详情页渲染契约测试，可覆盖渲染、状态同步与交互契约；剩余不可覆盖项为真实 HTTP 驱动的端到端渲染、手势滚动/下拉、相机与媒体上传，仍需真机。
 
 ## 6. 未来自动化目标
 
@@ -91,3 +92,36 @@ dart test integration_test/demo_flow/moments_flow_test.dart --concurrency=1
 
 未覆盖/后续：真机 UI 链路（信息流入口→发布页→详情页操作）本轮无设备未复验；
 媒体上传、位置、@提醒、可见性 0/3/4 分支未覆盖。
+
+## 8. 2026-08-18 复核证据（DEMO-FLOW-20260818）
+
+环境：本地后端 `http://127.0.0.1:9800`（healthz `1.0.0-alpha.36`，08-17 验证时为 alpha.27，
+beam.smp 今早 08:46 启动加载 08:44 编译代码，本轮未干预进程）；账号复用第 7 节 A/B。
+测试标记由 `DEMO-FLOW-20260817` 更新为 `DEMO-FLOW-20260818`（`integration_test/demo_flow/moments_flow_test.dart`）。
+
+### API 闭环复跑（5/5，全部服务端证据）
+
+1. 好友前置幂等：add `code=1(already_friends)`、confirm `code=1(no_pending_request)`，与 08-17 一致。
+2. `POST /api/v1/moment/create`（visibility=1，allow_comment=true，含 `DEMO-FLOW-20260818` 标记）→ `code=0`，moment_id=`107666964029376512`。
+3. A `GET /api/v1/moments/feed?limit=20` → 首页命中新动态。
+4. B `GET /api/v1/moments/user/104250986822109184` → 命中同一动态（好友可见性通过）。
+5. B 点赞 + 评论均 `code=0`；A 详情回读 `stats.like_count=1`、`stats.comment_count=1`；B 评论列表回读命中标记评论。
+6. 错误分支 4 项均为结构化业务错误（空内容/visibility=9/moment 不存在/空评论），无崩溃。
+7. 红线遵守：未调用 `moment/:id/delete`；未向生产发任何请求。
+
+结论：alpha.27→alpha.36 后端升级未引入朋友圈 API 行为变化。
+
+### UI 链路 widget 级复验（109 项 0 失败，`flutter test --concurrency=1`）
+
+| 文件 | 通过数 | 覆盖 |
+|---|---|---|
+| `test/unit_test/integration/moment/moment_feed_ui_flow_test.dart` | 34 | MomentFeedPage 真实渲染：AppBar/标题/发布入口（Cupertino 相机图标+读屏标签）/加载指示/Cupertino 下拉刷新等 |
+| `test/unit_test/integration/moment/moment_publish_ui_flow_test.dart` | 15 | MomentCreatePage 真实 widget：Cupertino 契约、草稿恢复丢图回归、生产函数 `parseMomentUidList` |
+| `test/unit_test/integration/moment/moment_e2e_flow_test.dart` | 30 | 发布→feed 刷新、点赞/评论状态同步、详情返回一致性、事件驱动同步、并发/边界 |
+| `test/unit_test/page/moment/moment_comments_merge_test.dart` | 6 | 详情页评论分页合并/去重/不变性 |
+| `test/unit_test/page/moment/moment_can_load_more_comments_test.dart` | 6 | 详情页「加载更多」守卫 |
+| `test/unit_test/page/moment/moment_comments_preview_test.dart` | 9 | 评论预览与回复格式 |
+| `test/unit_test/page/moment/moment_confirm_dialog_test.dart` | 9 | 删除等二次确认对话框 |
+
+评估结论：上轮「UI 链路未复验」中可在无真机条件下覆盖的部分本轮已闭环（页面真实渲染+状态机+交互契约）；
+不可覆盖部分为真实 HTTP 驱动渲染、手势、相机/媒体上传，维持待真机补验。

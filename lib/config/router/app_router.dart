@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
+import 'package:xid/xid.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/app_core/routing/route_feature_guard.dart';
 import 'package:imboy/config/env.dart';
@@ -265,6 +266,36 @@ GoRouter createAppRouter({
       ),
 
       // ==================== 聊天相关 ====================
+      // 转发消息页 - 使用 CupertinoPage 支持 iOS 风格滑动返回
+      GoRoute(
+        path: '/chat/send_to',
+        name: 'send_to',
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final dynamic rawMsg = extra?['msg'];
+          Message? msg;
+          if (rawMsg is Message) {
+            msg = rawMsg;
+          } else if (rawMsg is Map<String, dynamic>) {
+            if (rawMsg.containsKey('id') && rawMsg.containsKey('authorId')) {
+              msg = Message.fromJson(rawMsg);
+            } else {
+              final msgMap = <String, dynamic>{
+                'id': rawMsg['id'] ?? Xid().toString(),
+                'authorId': rawMsg['authorId'] ?? UserRepoLocal.to.currentUid,
+                'type': 'custom',
+                'createdAt': DateTime.now().millisecondsSinceEpoch,
+                'metadata': rawMsg,
+              };
+              msg = Message.fromJson(msgMap);
+            }
+          }
+          return CupertinoPage(
+            key: state.pageKey,
+            child: SendToPage(msg: msg!),
+          );
+        },
+      ),
       // 聊天页面路由 - 使用 CupertinoPage 支持 iOS 风格滑动返回
       GoRoute(
         path: '/chat/:peerId',
@@ -307,18 +338,6 @@ GoRouter createAppRouter({
               type: extra['type']?.toString() ?? 'C2C',
               options: extra['options'] as Map<String, dynamic>?,
             ),
-          );
-        },
-      ),
-      // 转发消息页 - 使用 CupertinoPage 支持 iOS 风格滑动返回
-      GoRoute(
-        path: '/chat/send_to',
-        name: 'send_to',
-        pageBuilder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          return CupertinoPage(
-            key: state.pageKey,
-            child: SendToPage(msg: extra?['msg'] as Message),
           );
         },
       ),

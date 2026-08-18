@@ -189,6 +189,58 @@ class ChannelService {
     }
   }
 
+  /// 获取本地频道订阅配置信息
+  Future<ChannelSubscriptionModel?> getSubscription(String channelId) async {
+    try {
+      return await _repo.getSubscription(channelId);
+    } catch (e) {
+      iPrint('ChannelService: 获取本地订阅配置失败 - $e');
+      return null;
+    }
+  }
+
+  /// 设置频道免打扰（静音）状态
+  Future<bool> setMuted(String channelId, bool muted) async {
+    try {
+      final rows = await _repo.setMuted(channelId, muted);
+      if (rows > 0) {
+        AppEventBus.fire(
+          ChannelStateChangedEvent(
+            channelId: channelId,
+            action: 'channel_muted_changed',
+            payload: {'is_muted': muted},
+          ),
+        );
+        return true;
+      }
+      return false;
+    } catch (e) {
+      iPrint('ChannelService: 设置静音失败 - $e');
+      return false;
+    }
+  }
+
+  /// 设置频道消息通知启用状态
+  Future<bool> setNotificationsEnabled(String channelId, bool enabled) async {
+    try {
+      final rows = await _repo.setNotificationsEnabled(channelId, enabled);
+      if (rows > 0) {
+        AppEventBus.fire(
+          ChannelStateChangedEvent(
+            channelId: channelId,
+            action: 'channel_notifications_changed',
+            payload: {'notifications_enabled': enabled},
+          ),
+        );
+        return true;
+      }
+      return false;
+    } catch (e) {
+      iPrint('ChannelService: 设置通知开关失败 - $e');
+      return false;
+    }
+  }
+
   // ==================== 消息操作 ====================
 
   /// 发布频道消息

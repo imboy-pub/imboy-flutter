@@ -1,7 +1,7 @@
 # DF-09 群信息 → 成员 → 公告 → 可逆管理
 
 > 优先级：P0
-> 状态：`群名/公告与成员角色可逆写入、双端回读通过；成员移除+重新邀请本地闭环通过（2026-08-17 新覆盖）；群主转让与危险权限未覆盖`
+> 状态：`通过（2026-08-18 本地 alpha.36 复跑 4/4：群名/公告、角色提升/恢复、成员移除+邀回、群主转让）；群主转让已在专用一次性群单向执行并回读（立即转回被 per_hour_once 限流拒绝）；退群/解散/清空记录等危险操作仍默认不执行`
 
 ## 1. 目标
 
@@ -9,7 +9,8 @@
 
 ## 2. 前置条件
 
-- [x] 准备管理员 A、普通成员 B 两个测试账号；生产测试账号 UID 为 50/4，本地测试账号 UID 为 104250986822109184/106571314139236352。
+- [x] 准备管理员 A、普通成员 B 两个测试账号；生产测试账号 UID 为 50/4，本地测试账号 UID 为
+  104250986822109184（A=`13900001002`）/1000000056（B=`smoke_bob`，2026-08-18 起；原 886209702 密码不可考据弃用）。
 - [x] 使用可回收测试群，不执行解散、清空记录、退群和不可逆 E2EE 开启。
 - [ ] 需要 20 人以上成员的入口单独标记阻塞。
 
@@ -34,12 +35,18 @@
   - 预期：服务端角色从 `role=1` 变为 `role=3`，跨设备可读，恢复后回到 `role=1`。
   - 自动化：[group_member_role_flow_test.dart](../../integration_test/demo_flow/group_member_role_flow_test.dart)
   - 2026-08-17 补充：本地 API 级同样验证 1→3 提升回读、3→1 恢复回读。
+- [x] A 将群主转让给 B 并回读（2026-08-18 新覆盖，本地 API 级）。
+  - 预期：`group/transfer` 后 `owner_uid` 变更为 B，新群主 `role=4`、原群主降为 `role=1`，写入 `group_log type=9`。
+  - 自动化：[group_local_management_flow_test.dart](../../integration_test/demo_flow/group_local_management_flow_test.dart) DF-09-4。
+  - 说明：转让接口 `per_hour_once` 按 gid 限流，转回同一群一小时内不可行；本用例在专用一次性面对面群上
+    单向执行（A→B），立即转回的负向断言验证限流生效；转让后的群保留为可回收数据，不影响主测试群。
 
 ## 4. 验收标准
 
 - [x] 管理员和普通成员的角色变更可逆，服务端与 Android 真机回读一致。
 - [x] 群名、成员和公告重新加载后与服务端一致。
-- [x] 成员移除后成员列表权威刷新，重新邀请可恢复（本地 API 级，2026-08-17）；群主转让等高影响权限仍未验证。
+- [x] 成员移除后成员列表权威刷新，重新邀请可恢复（本地 API 级，2026-08-17）；群主转让已在本地 API 级验证
+  （2026-08-18：owner_uid/角色回读 + group_log 转让日志；因 per_hour_once 限流为单向执行，非立即可逆）。
 - [ ] 删除群、清空记录、退群和开启不可逆 E2EE 默认阻塞。
 
 ## 5. 当前覆盖与阻塞
@@ -65,7 +72,19 @@
      恢复 `role=1` → 回读 `role=1`。
   3. 成员移除+邀回（历史首次真实执行）：`group_member/leave {member_uids:[B]}` → 成员分页回读 B 消失 →
      `group_member/join` 重新邀请 → 回读 B 恢复在场且 `role=1`。未执行解散、群主转让或退群。
+- 2026-08-18：本地后端升级 alpha.36 后复跑 `group_local_management_flow_test.dart` `4/4 All tests passed`
+  （A=`13900001002` 群主、B=`smoke_bob` uid `1000000056`，B 账号切换原因见 group_creation_flow.md 第 5 节）：
+  1. 群名+公告、角色 1→3→1、成员移除+邀回三项闭环全部复现（与 08-17 一致；A+smoke_bob 成员集合的
+     去重主测试群为 `107668232984594432`，群名 `DEMO-FLOW-*-MGMT-*` 回读一致）。
+  2. 新增 DF-09-4 群主转让（历史未覆盖项，本轮首次真实执行）：在专用一次性面对面群 `107668853378779136`
+     上（B 登记暗号、A/B 凭暗号加入、A `face2face_save` 建行成为 owner）执行 `group/transfer {gid, new_owner_uid:B}`：
+     - 转让前 `group/detail` 回读 `owner_uid=A`；
+     - 转让后回读 `owner_uid=B`，成员分页回读 B `role=4`（ROLE_OWNER）、A 降为 `role=1`；
+     - `group_log` 落 `type=9` 转让日志（body 含 from/to_owner_uid，DB 只读核验）；
+     - 负向断言：B 立即转回同群被 `per_hour_once {group_transfer, gid}` 限流拒绝（“在处理中，请稍后重试”），
+       证明该操作一小时内不可回收，故只在专用群单向执行。
+- 危险操作（退群 owner leave、解散、清空记录、不可逆 E2EE）本轮仍默认不执行。
 
 ## 6. 未来自动化目标
 
-现有 `group_management_readonly_test.dart`、`group_management_longpress_readonly_test.dart` 和 `group_detail_readonly_test.dart` 已覆盖群列表、详情和成员只读入口；`integration_test/demo_flow/group_creation_management_flow_test.dart` 覆盖群名/公告写入，`group_member_readback_flow_test.dart` 覆盖普通成员跨设备回读，`group_member_role_flow_test.dart` 覆盖管理员→普通成员的可逆角色变更，`group_local_management_flow_test.dart`（2026-08-17 新增）覆盖本地群名/公告/角色/成员移除+邀回闭环。群主转让和危险操作仍独立受控。
+现有 `group_management_readonly_test.dart`、`group_management_longpress_readonly_test.dart` 和 `group_detail_readonly_test.dart` 已覆盖群列表、详情和成员只读入口；`integration_test/demo_flow/group_creation_management_flow_test.dart` 覆盖群名/公告写入，`group_member_readback_flow_test.dart` 覆盖普通成员跨设备回读，`group_member_role_flow_test.dart` 覆盖管理员→普通成员的可逆角色变更，`group_local_management_flow_test.dart` 覆盖本地群名/公告/角色/成员移除+邀回闭环，2026-08-18 起新增 DF-09-4 覆盖群主转让（单向 + 限流负向断言）。退群、解散和危险操作仍独立受控（默认阻塞）。

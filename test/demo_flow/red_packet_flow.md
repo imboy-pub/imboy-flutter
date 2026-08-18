@@ -1,7 +1,7 @@
 # DF-18 红包发送 → 领取 → 详情
 
 > 优先级：P1
-> 状态：`本地 API 闭环通过（发送/领取/重复领取拒绝/详情一致/双方余额流水）；UI 链路未复验`
+> 状态：`通过（本地 API 闭环：发送/领取/重复领取拒绝/详情一致/双方余额流水，2026-08-18 复跑 4/4 维持）；UI 链路未复验；红包最低金额前后端不一致维持（P2 待修）`
 > 风险等级：资金写入，默认阻塞
 
 ## 1. 目标
@@ -78,6 +78,18 @@ dart test integration_test/demo_flow/red_packet_flow_test.dart --concurrency=1
 
 未覆盖/后续：真机 UI（红包发送页/详情页/气泡）本轮无设备未复验；拼手气（random）红包、多人均分、
 过期退款（B-10 ecron）、会话作用域（B-11）分支未覆盖。
+
+### 2026-08-18 复跑记录
+
+本地 API 闭环复跑（命令同上，`--concurrency=1`）：`4 passed, 0 failed（All tests passed!）`
+——闭环用例 + 3 类错误分支（99 分/个数 0/无效 id）。关键数字：`red_packet_id=107667213114411008`
+（A topup 100 → send 后 A 1980 分），B `open` `grab_amount=100`、余额 800→900；重复 open 被拒
+「红包已被领完或已过期」余额不变；双方 detail 一致（status=finished、receivers=1）；
+双方流水均含 ±100 分条目；错误分支响应与 08-17 完全一致。
+
+红包最低金额前后端不一致复核（2026-08-18 维持）：后端 `red_packet_logic.erl:38`
+`Amount >= 100 andalso Count >= 1`；前端 `lib/page/wallet/red_packet_send_page.dart:72/238`
+仅拦 `amountFen < 1`。**不一致维持（P2 待修）**：1~99 分区间前端放行、后端拒绝。
 
 ## 6. 未来自动化目标
 
