@@ -1169,6 +1169,23 @@ class ChatPageState extends ConsumerState<ChatPage>
         _showAppBar = false;
       });
     } else if (message is CustomMessage) {
+      final String msgType = parseModelString(
+        message.metadata?['effective_msg_type'] ??
+            message.metadata?['msg_type'],
+      );
+      if (msgType == MessageType.channelCard) {
+        final channelId = parseModelString(message.metadata?['channel_id']);
+        if (channelId.isNotEmpty) {
+          context.push('/channel/$channelId');
+          return;
+        }
+      } else if (msgType == MessageType.visitCard) {
+        final uid = parseModelString(message.metadata?['uid']);
+        if (uid.isNotEmpty) {
+          context.push('/people_info/$uid?scene=visitCard');
+          return;
+        }
+      }
       String txt = parseModelString(message.metadata?['quote_text']);
       if (txt.isNotEmpty) showTextMessage(txt);
     }
@@ -1200,6 +1217,26 @@ class ChatPageState extends ConsumerState<ChatPage>
     if (message is FileMessage) {
       confirmOpenFile(context, message.source);
       return;
+    }
+
+    if (message is CustomMessage) {
+      final String msgType = parseModelString(
+        message.metadata?['effective_msg_type'] ??
+            message.metadata?['msg_type'],
+      );
+      if (msgType == MessageType.channelCard) {
+        final channelId = parseModelString(message.metadata?['channel_id']);
+        if (channelId.isNotEmpty) {
+          context.push('/channel/$channelId');
+          return;
+        }
+      } else if (msgType == MessageType.visitCard) {
+        final uid = parseModelString(message.metadata?['uid']);
+        if (uid.isNotEmpty) {
+          context.push('/people_info/$uid?scene=visitCard');
+          return;
+        }
+      }
     }
 
     // 可以在这里添加其他点击逻辑

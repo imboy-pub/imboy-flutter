@@ -310,6 +310,26 @@ void main() {
       expect(find.byType(CustomMessageBuilder), findsOneWidget);
     });
 
+    testWidgets('应该正确路由 channelCard 自定义类型', (WidgetTester tester) async {
+      // GIVEN: 一个 channel_card 类型的自定义消息
+      final message = createTestMessage(
+        msgType: MessageType.channelCard,
+        metadata: {'channel_id': 'channel123', 'channel_name': '测试频道'},
+      );
+
+      // WHEN: 构建 CustomMessageBuilder
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomMessageBuilder(type: 'C2C', message: message),
+          ),
+        ),
+      );
+
+      // THEN: 应该渲染 CustomMessageBuilder 成功
+      expect(find.byType(CustomMessageBuilder), findsOneWidget);
+    });
+
     testWidgets('应该优先检查撤回状态', (WidgetTester tester) async {
       // GIVEN: 一个已撤回的消息（status = 30）
       final message = createTestMessage(

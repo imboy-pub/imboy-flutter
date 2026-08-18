@@ -80,6 +80,9 @@ enum MsgTypeEnum {
 
   /// 转账消息
   transfer,
+
+  /// 频道卡片消息
+  channelCard,
 }
 
 /// MsgTypeEnum 扩展方法
@@ -119,6 +122,8 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MessageType.redPacket;
       case MsgTypeEnum.transfer:
         return MessageType.transfer;
+      case MsgTypeEnum.channelCard:
+        return MessageType.channelCard;
     }
   }
 
@@ -157,6 +162,8 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MsgTypeEnum.redPacket;
       case MessageType.transfer:
         return MsgTypeEnum.transfer;
+      case MessageType.channelCard:
+        return MsgTypeEnum.channelCard;
       default:
         return null;
     }
@@ -320,6 +327,9 @@ abstract class MessageType {
   /// 个人名片消息
   static const String visitCard = 'visitCard';
 
+  /// 频道卡片消息
+  static const String channelCard = 'channel_card';
+
   /// 红包消息
   static const String redPacket = 'redPacket';
 
@@ -371,6 +381,7 @@ abstract class MessageType {
     webrtcAudio,
     webrtcVideo,
     visitCard,
+    channelCard,
     redPacket,
     transfer,
     groupSchedule,

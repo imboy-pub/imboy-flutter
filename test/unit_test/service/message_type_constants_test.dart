@@ -60,6 +60,11 @@ void main() {
       expect(MessageType.visitCard, equals('visitCard'));
     });
 
+    test('channelCard 应该使用蛇形命名', () {
+      // THEN: channelCard 应该使用蛇形命名
+      expect(MessageType.channelCard, equals('channel_card'));
+    });
+
     test('WebRTC 相关枚举应该使用驼峰命名', () {
       // WHEN: 获取 WebRTC 枚举值
       // THEN: 应该对应驼峰命名的常量

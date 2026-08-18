@@ -437,6 +437,19 @@ extension MessageModelMapper on MessageModel {
         createdAt: createdDt,
         metadata: {...metadata, ...payloadData, 'is_system': true},
       );
+    } else if (effectiveMsgType == MessageType.visitCard ||
+        effectiveMsgType == MessageType.channelCard ||
+        effectiveMsgType == MessageType.webrtcAudio ||
+        effectiveMsgType == MessageType.webrtcVideo ||
+        effectiveMsgType == MessageType.redPacket ||
+        effectiveMsgType == MessageType.transfer ||
+        effectiveMsgType == MessageType.groupSchedule) {
+      message = CustomMessage(
+        authorId: author.id,
+        id: safeId,
+        createdAt: createdDt,
+        metadata: {...metadata, ...payloadData},
+      );
     } else if (effectiveMsgType == MessageType.custom) {
       message = CustomMessage(
         authorId: author.id,

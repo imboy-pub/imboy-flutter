@@ -394,6 +394,34 @@ void main() {
         expect(message.metadata?['effective_msg_type'], equals('visitCard'));
       });
 
+      test('应该正确处理 C2C 消息的 channel_card 类型 (蛇形)', () async {
+        // GIVEN: 一个 C2C 频道卡片消息（channel_card 类型）
+        final model = MessageModel(
+          '123',
+          autoId: 1,
+          type: 'C2C',
+          status: 11,
+          fromId: 8001,
+          toId: 8002,
+          msgType: 'channel_card',
+          payload: {
+            'channel_id': 'channel123',
+            'channel_name': '测试频道',
+            'channel_avatar': 'https://example.com/avatar.jpg',
+          },
+          isAuthor: 1,
+          conversationUk3: 'C2C_user1_user2',
+          createdAt: 1642579200000,
+        );
+
+        // WHEN: 转换为 Message
+        final message = await model.toTypeMessage();
+
+        // THEN: 应该成功转换为 CustomMessage
+        expect(message, isA<CustomMessage>());
+        expect(message.metadata?['effective_msg_type'], equals('channel_card'));
+      });
+
       test('应该拒绝 C2C 消息的下划线类型 (visit_card)', () async {
         // GIVEN: 一个 C2C 消息，msg_type=visit_card（非标准命名）
         final model = MessageModel(
