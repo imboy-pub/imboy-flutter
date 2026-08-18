@@ -2,6 +2,7 @@ import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -105,6 +106,7 @@ class _ChannelTile extends StatelessWidget {
               avatar: summary.avatar,
               name: summary.name,
               unreadCount: summary.unreadCount,
+              isMuted: summary.isMuted,
             ),
             AppSpacing.horizontalMedium,
             // 频道名 + 消息预览
@@ -115,12 +117,29 @@ class _ChannelTile extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          summary.name,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                summary.name,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (summary.isMuted) ...[
+                              AppSpacing.horizontalTiny,
+                              Icon(
+                                CupertinoIcons.bell_slash_fill,
+                                size: 12,
+                                color: AppColors.iosGray3,
+                                semanticLabel:
+                                    context.t.common.muteNotifications,
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       if (summary.lastMessageTime != null)
@@ -169,11 +188,13 @@ class _ChannelAvatar extends StatelessWidget {
     required this.avatar,
     required this.name,
     required this.unreadCount,
+    this.isMuted = false,
   });
 
   final String? avatar;
   final String name;
   final int unreadCount;
+  final bool isMuted;
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +225,7 @@ class _ChannelAvatar extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      color: AppColors.messageFailed,
+      color: isMuted ? AppColors.iosGray3 : AppColors.messageFailed,
       borderRadius: AppRadius.borderRadiusMedium,
       child: avatarWidget,
     );

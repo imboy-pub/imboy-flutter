@@ -33,6 +33,7 @@ final class SubscribedChannelSummary {
   String? get avatar => channel.avatar;
   int get unreadCount => subscription.unreadCount;
   bool get isPinned => subscription.isPinned;
+  bool get isMuted => subscription.isMuted;
 }
 
 /// 会话列表顶部订阅频道摘要列表
