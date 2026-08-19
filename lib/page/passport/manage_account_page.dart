@@ -178,68 +178,82 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.large),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 48, color: AppColors.primary),
-          ),
-          AppSpacing.verticalXLarge,
-          Text(
-            title,
-            style: context.textStyle(
-              FontSizeType.extraLarge,
-              color: isDark
-                  ? AppColors.darkTextPrimary
-                  : AppColors.lightTextPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          AppSpacing.verticalMedium,
-          Text(
-            subtitle,
-            textAlign: TextAlign.center,
-            style: context
-                .textStyle(
-                  FontSizeType.normal,
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.lightTextSecondary,
-                )
-                .copyWith(height: 1.5),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: onTap,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadius.borderRadiusRegular,
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
+      // LayoutBuilder+ConstrainedBox：正常字号保持 Spacer 贴底布局；
+      // 大字号（140%+）内容超高时退化为可滚动，按钮永远可达
+      // （2026-08-19 真机 iPhone16e 溢出 63px 修复）
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.large),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, size: 48, color: AppColors.primary),
+                  ),
+                  AppSpacing.verticalXLarge,
+                  Text(
+                    title,
+                    style: context.textStyle(
+                      FontSizeType.extraLarge,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  AppSpacing.verticalMedium,
+                  Text(
+                    subtitle,
+                    textAlign: TextAlign.center,
+                    style: context
+                        .textStyle(
+                          FontSizeType.normal,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                        )
+                        .copyWith(height: 1.5),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  // 原 Spacer 在无界滚动约束下非法（flex>0 + unbounded），
+                  // 换固定间距；整块内容经 Column center 在 minHeight 内垂直居中
+                  AppSpacing.verticalXXLarge,
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: onTap,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: AppRadius.borderRadiusRegular,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text(
+                        t.common.bindNow,
+                        style: context.textStyle(
+                          FontSizeType.medium,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              child: Text(
-                t.common.bindNow,
-                style: context.textStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

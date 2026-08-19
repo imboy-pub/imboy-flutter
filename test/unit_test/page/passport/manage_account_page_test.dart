@@ -161,4 +161,40 @@ void main() {
       await _unmount(tester);
     });
   });
+
+  group('ManageAccountPage 大字号可访问性', () {
+    // 2026-08-19 真机 iPhone16e RenderFlex 溢出 63px 回归：
+    // 200% 字号 + 小高度视口下卡片内容超高，须退化为可滚动而非溢出
+    testWidgets('200% 字号小视口：无溢出，立即绑定按钮可滚达', (tester) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(390, 700);
+      addTearDown(() {
+        tester.view.resetDevicePixelRatio();
+        tester.view.resetPhysicalSize();
+      });
+
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: MaterialApp.router(
+            routerConfig: _stubRouter(),
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(2.0)),
+              child: child!,
+            ),
+          ),
+        ),
+      );
+      // 旧布局在这一步 pump 即抛 RenderFlex overflow（FlutterError）
+      await tester.pumpAndSettle();
+
+      expect(find.text('立即绑定'), findsOneWidget);
+      // 按钮须可通过滚动进入可视区（超出时 ScrollView 生效）
+      await tester.ensureVisible(find.text('立即绑定'));
+      await tester.pumpAndSettle();
+
+      await _unmount(tester);
+    });
+  });
 }
