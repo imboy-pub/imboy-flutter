@@ -114,3 +114,4 @@ webAccountHint: 請輸入賬號/手機號/郵箱
 webPasswordHint: 請輸入密碼
 e2eeTransferFromOldDevice: 從舊裝置接收金鑰
 pleaseRelogin: 請重新登入
+otherLoginMethods: "其他登入方式"

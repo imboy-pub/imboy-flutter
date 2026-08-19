@@ -188,6 +188,7 @@ class _Translations$account$ru_RU extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'Введите пароль';
 	@override String get e2eeTransferFromOldDevice => 'Получить ключ со старого устройства';
 	@override String get pleaseRelogin => 'Войдите заново';
+	@override String get otherLoginMethods => 'Другие способы входа';
 }
 
 // Path: agent
@@ -2682,6 +2683,7 @@ extension on TranslationsRuRu {
 			'account.webPasswordHint' => 'Введите пароль',
 			'account.e2eeTransferFromOldDevice' => 'Получить ключ со старого устройства',
 			'account.pleaseRelogin' => 'Войдите заново',
+			'account.otherLoginMethods' => 'Другие способы входа',
 			'agent.plazaTitle' => 'ИИ-ассистенты',
 			'agent.transparencyBanner' => 'Все участники здесь — ИИ-ассистенты с чётко обозначенным статусом. В зашифрованных чатах — только настоящие люди.',
 			'agent.searchHint' => 'Поиск ассистентов',
@@ -3077,9 +3079,9 @@ extension on TranslationsRuRu {
 			'chat.e2eeSocialCreateBtn' => 'Создать фрагменты',
 			'chat.e2eeSocialCreateFailTitle' => 'Не удалось создать',
 			'chat.e2eeSocialCreateFailBody' => 'Не удалось создать фрагменты, попробуйте ещё раз',
-			'chat.e2eeSocialCreateFirst' => 'Содержимое появится после создания фрагментов',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialCreateFirst' => 'Содержимое появится после создания фрагментов',
 			'chat.e2eeSocialUsedAtLabel' => 'Дата использования',
 			'chat.e2eeTransferSendTitle' => 'Отправить ключ на новое устройство',
 			'chat.e2eeTransferCreateBtn' => 'Создать',
@@ -3591,9 +3593,9 @@ extension on TranslationsRuRu {
 			'common.feedbackHistory' => 'История предложений',
 			'common.confirmDelete' => 'Подтвердить удаление',
 			'common.processing' => _root.common.loading,
-			'common.verificationCode' => 'Код подтверждения',
 			_ => null,
 		} ?? switch (path) {
+			'common.verificationCode' => 'Код подтверждения',
 			'common.feedbackContent' => 'Содержание предложения',
 			'common.officialReply' => 'Официальный ответ',
 			'common.setPasswordSecurityTips' => 'Установите пароль для входа и безопасности',
@@ -4105,9 +4107,9 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupDeviceIdLabel' => 'ID устройства',
 			'common.e2eeBackupVersionNum' => 'Версия копии',
 			'common.e2eeBackupCreatedAtRow' => 'Дата создания',
-			'common.e2eeBackupFileSizeRow' => 'Размер файла',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupFileSizeRow' => 'Размер файла',
 			'common.e2eeBackupNoteRow' => 'Заметка',
 			'common.e2eeBackupDeleteTitle' => 'Удалить запись о копии',
 			'common.e2eeBackupDeleteConfirm' => 'Удалить эту запись о копии?',
@@ -4619,9 +4621,9 @@ extension on TranslationsRuRu {
 			'main.storageSpace' => 'Память',
 			'main.termOfServices' => 'Условия обслуживания',
 			'main.text' => 'Текст',
-			'main.thisWeek' => 'На этой неделе',
 			_ => null,
 		} ?? switch (path) {
+			'main.thisWeek' => 'На этой неделе',
 			'main.timeRange' => 'Временной диапазон',
 			'main.timeWeekdays' => 'Понедельник, Вторник, Среда, Четверг, Пятница, Суббота, Воскресенье',
 			'main.titleMine' => 'Мой',

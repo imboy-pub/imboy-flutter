@@ -188,6 +188,7 @@ class _Translations$account$it_IT extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'Password';
 	@override String get e2eeTransferFromOldDevice => 'Dal vecchio dispositivo';
 	@override String get pleaseRelogin => 'Riaccedi';
+	@override String get otherLoginMethods => 'Altri metodi di accesso';
 }
 
 // Path: agent
@@ -2685,6 +2686,7 @@ extension on TranslationsItIt {
 			'account.webPasswordHint' => 'Password',
 			'account.e2eeTransferFromOldDevice' => 'Dal vecchio dispositivo',
 			'account.pleaseRelogin' => 'Riaccedi',
+			'account.otherLoginMethods' => 'Altri metodi di accesso',
 			'agent.plazaTitle' => 'Assistenti IA',
 			'agent.transparencyBanner' => 'Tutti i membri qui sono assistenti IA, chiaramente identificati. Nelle chat crittografate ci sono solo persone reali.',
 			'agent.searchHint' => 'Cerca assistenti',
@@ -3080,9 +3082,9 @@ extension on TranslationsItIt {
 			'chat.e2eeSocialCreateBtn' => 'Crea frammenti',
 			'chat.e2eeSocialCreateFailTitle' => 'Fallito',
 			'chat.e2eeSocialCreateFailBody' => 'Creazione fallita. Riprova.',
-			'chat.e2eeSocialCreateFirst' => 'Visibile dopo la creazione',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialCreateFirst' => 'Visibile dopo la creazione',
 			'chat.e2eeSocialUsedAtLabel' => 'Usato il',
 			'chat.e2eeTransferSendTitle' => 'Invia chiave al nuovo dispositivo',
 			'chat.e2eeTransferCreateBtn' => 'Crea',
@@ -3594,9 +3596,9 @@ extension on TranslationsItIt {
 			'common.feedbackHistory' => 'Cronologia feedback',
 			'common.confirmDelete' => 'Conferma eliminazione',
 			'common.processing' => _root.common.loading,
-			'common.verificationCode' => 'Codice di verifica',
 			_ => null,
 		} ?? switch (path) {
+			'common.verificationCode' => 'Codice di verifica',
 			'common.feedbackContent' => 'Contenuto feedback',
 			'common.officialReply' => 'Risposta ufficiale',
 			'common.setPasswordSecurityTips' => 'Per migliorare la sicurezza dell\'account e impedire l\'impossibilità di accedere a causa dell\'impossibilità di ottenere il codice di verifica, impostare la password di accesso.',
@@ -4108,9 +4110,9 @@ extension on TranslationsItIt {
 			'common.e2eeBackupDeviceIdLabel' => 'ID dispositivo',
 			'common.e2eeBackupVersionNum' => 'Versione backup',
 			'common.e2eeBackupCreatedAtRow' => 'Creato il',
-			'common.e2eeBackupFileSizeRow' => 'Dimensione',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupFileSizeRow' => 'Dimensione',
 			'common.e2eeBackupNoteRow' => 'Nota',
 			'common.e2eeBackupDeleteTitle' => 'Elimina backup',
 			'common.e2eeBackupDeleteConfirm' => 'Eliminare questo backup ?',
@@ -4622,9 +4624,9 @@ extension on TranslationsItIt {
 			'main.storageSpace' => 'Spazio di archiviazione',
 			'main.termOfServices' => 'Termini di servizio',
 			'main.text' => 'Testo',
-			'main.thisWeek' => 'Questa settimana',
 			_ => null,
 		} ?? switch (path) {
+			'main.thisWeek' => 'Questa settimana',
 			'main.timeRange' => 'Intervallo di tempo',
 			'main.timeWeekdays' => 'Lunedì,Martedì,Mercoledì,Giovedì,Venerdì,Sabato,Domenica',
 			'main.titleMine' => 'Io',

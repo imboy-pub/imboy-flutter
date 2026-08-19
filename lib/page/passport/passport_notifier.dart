@@ -23,6 +23,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/service/alipay_auth_service.dart';
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/rsa.dart';
@@ -878,58 +879,116 @@ class PassportNotifier extends _$PassportNotifier {
       );
       return state.error;
     } else {
-      int status = (resp2.payload['status'] ?? 1) as int;
-      String account = resp2.payload['account'] as String? ?? '';
-      if (account.isNotEmpty) {
-        await StorageService.to.setString(Keys.lastLoginAccount, account);
-      }
-      if (status == 1 || status == 2) {
-        await UserRepoLocal.to.loginAfter(
-          account,
-          resp2.payload as Map<String, dynamic>,
+      return _onThirdLoginSuccess(
+        resp2.payload as Map<String, dynamic>,
+        from: 'quickLogin',
+      );
+    }
+  }
+
+  /// 第三方登录成功统一处理：落库、开 socket、按 action/资料完整度跳转
+  /// （quick_login / alipay_login 共用，返回 null 表示成功）
+  Future<String?> _onThirdLoginSuccess(
+    Map<String, dynamic> payload, {
+    required String from,
+  }) async {
+    int status = (payload['status'] ?? 1) as int;
+    String account = payload['account'] as String? ?? '';
+    if (account.isNotEmpty) {
+      await StorageService.to.setString(Keys.lastLoginAccount, account);
+    }
+    if (status == 1 || status == 2) {
+      await UserRepoLocal.to.loginAfter(account, payload);
+      await Future<dynamic>.delayed(const Duration(milliseconds: 100));
+      WebSocketService.to.openSocket(from: from);
+      unawaited(AppInitializer.triggerGroupMembershipSelfHeal(source: from));
+    }
+    String action = payload['action'] as String? ?? '';
+    if (action == 'need_set_password') {
+      await StorageService.to.setBool(Keys.needSetPwd, true);
+      final context = navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          CupertinoPageRoute<dynamic>(builder: (_) => SetPasswordPage()),
         );
-        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
-        WebSocketService.to.openSocket(from: 'quickLogin');
-        unawaited(
-          AppInitializer.triggerGroupMembershipSelfHeal(source: 'quickLogin'),
-        );
       }
-      String action = resp2.payload['action'] as String? ?? '';
-      if (action == 'need_set_password') {
-        await StorageService.to.setBool(Keys.needSetPwd, true);
-        final context = navigatorKey.currentContext;
-        if (context != null && context.mounted) {
-          Navigator.pushReplacement(
+    } else {
+      final user = UserRepoLocal.to.current;
+      final needGuide = (user.email.isEmpty || user.mobile.isEmpty);
+      final context = navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        if (needGuide) {
+          Navigator.pushAndRemoveUntil(
             context,
-            CupertinoPageRoute<dynamic>(builder: (_) => SetPasswordPage()),
+            CupertinoPageRoute<dynamic>(
+              builder: (_) => const ManageAccountPage(),
+            ),
+            (route) => false,
+          );
+        } else {
+          Navigator.pushAndRemoveUntil(
+            context,
+            CupertinoPageRoute<dynamic>(
+              builder: (_) => const BottomNavigationPage(),
+            ),
+            (route) => false,
           );
         }
-      } else {
-        final user = UserRepoLocal.to.current;
-        final needGuide = (user.email.isEmpty || user.mobile.isEmpty);
-        final context = navigatorKey.currentContext;
-        if (context != null && context.mounted) {
-          if (needGuide) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              CupertinoPageRoute<dynamic>(
-                builder: (_) => const ManageAccountPage(),
-              ),
-              (route) => false,
-            );
-          } else {
-            Navigator.pushAndRemoveUntil(
-              context,
-              CupertinoPageRoute<dynamic>(
-                builder: (_) => const BottomNavigationPage(),
-              ),
-              (route) => false,
-            );
-          }
-        }
       }
+    }
+    return null;
+  }
+
+  /// 支付宝登录：服务端 authinfo → SDK 授权拿 auth_code → 换 imboy 登录态。
+  /// 返回 null 表示成功或用户取消（取消静默）；返回错误消息表示失败。
+  Future<String?> loginByAlipay({AlipayAuthGateway? gateway}) async {
+    if (kIsWeb) {
+      snackBar('Web 平台不支持支付宝登录');
       return null;
     }
+    // 1. 服务端签名的授权串（私钥不出服务端）
+    IMBoyHttpResponse infoResp = await HttpClient.client.get(
+      API.alipayAuthinfo,
+    );
+    if (!infoResp.ok) {
+      state = state.copyWith(
+        error: _localizedAuthErrMsg(infoResp.error?.message ?? ''),
+      );
+      return state.error;
+    }
+    final authinfo = infoResp.payload['authinfo'] as String? ?? '';
+    if (authinfo.isEmpty) {
+      state = state.copyWith(error: '支付宝授权串获取失败');
+      return state.error;
+    }
+    // 2. 唤起支付宝 SDK 授权
+    final authRes = await (gateway ?? TobiasAlipayAuthGateway()).auth(authinfo);
+    final String authCode;
+    switch (authRes) {
+      case AlipayAuthSuccess(authCode: final c):
+        authCode = c;
+      case AlipayAuthCancelled():
+        return null; // 用户取消，静默
+      case AlipayAuthFailure(:final message):
+        state = state.copyWith(error: message);
+        return message;
+    }
+    // 3. auth_code 换 imboy 登录态
+    IMBoyHttpResponse resp2 = await HttpClient.client.post(
+      API.alipayLogin,
+      data: {"auth_code": authCode, "sys_version": getSystemVersion()},
+    );
+    if (!resp2.ok) {
+      state = state.copyWith(
+        error: _localizedAuthErrMsg(resp2.error?.message ?? ''),
+      );
+      return state.error;
+    }
+    return _onThirdLoginSuccess(
+      resp2.payload as Map<String, dynamic>,
+      from: 'alipayLogin',
+    );
   }
 
   /// 监听网络状态变化

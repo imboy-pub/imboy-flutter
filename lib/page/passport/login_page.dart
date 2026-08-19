@@ -164,6 +164,27 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       ),
                     ],
                   ),
+
+                  AppSpacing.verticalXXLarge,
+                  // 第三方登录
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: AppSpacing.symmetricMedium,
+                        child: Text(
+                          t.account.otherLoginMethods,
+                          style: TextStyle(
+                            color: AppColors.iosGray,
+                            fontSize: FontSizeType.small.size,
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ),
+                  AppSpacing.verticalLarge,
+                  _buildAlipayButton(context, notifier),
                 ],
               ),
             ),
@@ -409,6 +430,38 @@ class _LoginPageState extends ConsumerState<LoginPage>
           onPressed();
         },
         child: Text(t.account.login),
+      ),
+    );
+  }
+
+  /// 支付宝登录按钮（第三方品牌圆形入口，触达区 ≥44pt）
+  Widget _buildAlipayButton(BuildContext context, PassportNotifier notifier) {
+    return InkWell(
+      key: const Key('alipay_login_button'),
+      borderRadius: BorderRadius.circular(24),
+      onTap: () async {
+        final err = await notifier.loginByAlipay();
+        // 用户取消返回 null（静默）；仅失败时提示
+        if (err != null) {
+          notifier.snackBar(err);
+        }
+      },
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: const BoxDecoration(
+          color: AppColors.alipayBrand,
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          '支',
+          style: TextStyle(
+            color: AppColors.onPrimary,
+            fontSize: FontSizeType.extraLarge.size,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }

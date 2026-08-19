@@ -115,3 +115,4 @@ webAccountHint: 계정/휴대폰번호/이메일을 입력하세요
 webPasswordHint: 비밀번호를 입력하세요
 e2eeTransferFromOldDevice: 이전 기기에서 키 받기
 pleaseRelogin: 다시 로그인해주세요
+otherLoginMethods: "다른 로그인 방법"

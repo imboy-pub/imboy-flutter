@@ -115,3 +115,4 @@ webAccountHint: アカウント/電話番号/メールアドレスを入力
 webPasswordHint: パスワードを入力
 e2eeTransferFromOldDevice: 古いデバイスからキーを受信
 pleaseRelogin: 再度ログインしてください
+otherLoginMethods: "その他のログイン方法"

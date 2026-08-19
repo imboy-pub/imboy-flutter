@@ -115,3 +115,4 @@ webAccountHint: Konto/Handy/E-Mail eingeben
 webPasswordHint: Passwort eingeben
 e2eeTransferFromOldDevice: Vom alten Gerät empfangen
 pleaseRelogin: Bitte neu anmelden
+otherLoginMethods: "Weitere Anmeldemethoden"

@@ -18,6 +18,9 @@ class AppColors {
   static const Color onPrimary = Color(0xFFFFFFFF);
 
   static const Color tagAccent = Color(0xFF649BEC);
+
+  /// 支付宝品牌蓝（第三方登录按钮）
+  static const Color alipayBrand = Color(0xFF1677FF);
   static const Color slateText = Color(0xFF64748B);
   static const Color slateMuted = Color(0xFFCBD5E1);
 

@@ -188,6 +188,7 @@ class _Translations$account$en_US extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'Enter password';
 	@override String get e2eeTransferFromOldDevice => 'Receive Key from Old Device';
 	@override String get pleaseRelogin => 'Please log in again';
+	@override String get otherLoginMethods => 'Other sign-in methods';
 }
 
 // Path: agent
@@ -2707,6 +2708,7 @@ extension on TranslationsEnUs {
 			'account.webPasswordHint' => 'Enter password',
 			'account.e2eeTransferFromOldDevice' => 'Receive Key from Old Device',
 			'account.pleaseRelogin' => 'Please log in again',
+			'account.otherLoginMethods' => 'Other sign-in methods',
 			'agent.plazaTitle' => 'AI Assistants',
 			'agent.transparencyBanner' => 'Everyone here is an AI assistant, clearly labeled as such. In encrypted chats, there are only real people.',
 			'agent.searchHint' => 'Search assistants',
@@ -3102,9 +3104,9 @@ extension on TranslationsEnUs {
 			'chat.e2eeNewKeyGenerated' => 'New E2EE key pair generated!',
 			'chat.e2eeReady' => 'Ready',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Ready (${count} shards)',
-			'chat.webFeatureMultiDevice' => 'Multi-Device Sync',
 			_ => null,
 		} ?? switch (path) {
+			'chat.webFeatureMultiDevice' => 'Multi-Device Sync',
 			'chat.webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
 			'chat.webFeatureE2EE' => 'End-to-End Encryption',
 			'chat.webFeatureE2EEDesc' => 'All messages are end-to-end encrypted, ensuring privacy and security',
@@ -3616,9 +3618,9 @@ extension on TranslationsEnUs {
 			'common.forceOffline' => 'Offline',
 			'common.forceDeviceOffline' => 'Make this device offline',
 			'common.forceDeviceOfflineConfirm' => 'Will send offline command to this device, confirm to continue?',
-			'common.confirmForceOffline' => 'Confirm offline',
 			_ => null,
 		} ?? switch (path) {
+			'common.confirmForceOffline' => 'Confirm offline',
 			'common.forceOfflineCommandSent' => 'Offline command sent',
 			'common.feedbackSlogan' => 'Your suggestions are our motivation for improvement',
 			'common.newFeedback' => 'New feedback',
@@ -4130,9 +4132,9 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupErrValidateFailed' => 'File validation failed, please check file format',
 			'common.e2eeBackupErrImportFailed' => 'Import failed, please check your password',
 			'common.e2eeBackupImportSuccessTitle' => 'Import successful',
-			'common.e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
 			'common.e2eeBackupImportSuccessNote' => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices',
 			'common.e2eeBackupNoRecords' => 'No backup records',
 			'common.e2eeBackupNoRecordsHint' => 'Backup history will appear here after exporting',
@@ -4644,9 +4646,9 @@ extension on TranslationsEnUs {
 			'main.releaseEnd' => 'Release to end',
 			'main.remainingChars' => ({required Object param}) => '${param} characters remaining',
 			'main.kickMember' => 'Remove from Group',
-			'main.memberDetail' => 'Member Details',
 			_ => null,
 		} ?? switch (path) {
+			'main.memberDetail' => 'Member Details',
 			'main.memberRole' => 'Role',
 			'main.replied' => 'Replied',
 			'main.ringing' => 'Ringing...',

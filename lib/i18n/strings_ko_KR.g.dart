@@ -188,6 +188,7 @@ class _Translations$account$ko_KR extends Translations$account$zh_CN {
 	@override String get webPasswordHint => '비밀번호를 입력하세요';
 	@override String get e2eeTransferFromOldDevice => '이전 기기에서 키 받기';
 	@override String get pleaseRelogin => '다시 로그인해주세요';
+	@override String get otherLoginMethods => '다른 로그인 방법';
 }
 
 // Path: agent
@@ -2682,6 +2683,7 @@ extension on TranslationsKoKr {
 			'account.webPasswordHint' => '비밀번호를 입력하세요',
 			'account.e2eeTransferFromOldDevice' => '이전 기기에서 키 받기',
 			'account.pleaseRelogin' => '다시 로그인해주세요',
+			'account.otherLoginMethods' => '다른 로그인 방법',
 			'agent.plazaTitle' => 'AI 어시스턴트 광장',
 			'agent.transparencyBanner' => '여기 있는 구성원은 모두 AI 어시스턴트이며 신원이 명확히 표시됩니다. 암호화 채팅에는 실제 사람만 있습니다.',
 			'agent.searchHint' => '어시스턴트 검색',
@@ -3077,9 +3079,9 @@ extension on TranslationsKoKr {
 			'chat.e2eeSocialCreateBtn' => '샤드 만들기',
 			'chat.e2eeSocialCreateFailTitle' => '생성 실패',
 			'chat.e2eeSocialCreateFailBody' => '샤드 생성 실패, 다시 시도해주세요',
-			'chat.e2eeSocialCreateFirst' => '샤드를 생성해야 내용을 볼 수 있습니다',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialCreateFirst' => '샤드를 생성해야 내용을 볼 수 있습니다',
 			'chat.e2eeSocialUsedAtLabel' => '사용 시간',
 			'chat.e2eeTransferSendTitle' => '새 기기로 키 전송',
 			'chat.e2eeTransferCreateBtn' => '만들기',
@@ -3591,9 +3593,9 @@ extension on TranslationsKoKr {
 			'common.feedbackHistory' => '피드백 기록',
 			'common.confirmDelete' => '삭제 확인',
 			'common.processing' => _root.common.loading,
-			'common.verificationCode' => '인증 코드',
 			_ => null,
 		} ?? switch (path) {
+			'common.verificationCode' => '인증 코드',
 			'common.feedbackContent' => '피드백 내용',
 			'common.officialReply' => '공식 답변',
 			'common.setPasswordSecurityTips' => '계정 보안을 높이고 인증 코드를 받지 못해 로그인할 수 없는 상황을 방지하기 위해 로그인 비밀번호를 설정하세요.',
@@ -4105,9 +4107,9 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupDeviceIdLabel' => '기기 ID',
 			'common.e2eeBackupVersionNum' => '백업 버전',
 			'common.e2eeBackupCreatedAtRow' => '생성 시간',
-			'common.e2eeBackupFileSizeRow' => '파일 크기',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupFileSizeRow' => '파일 크기',
 			'common.e2eeBackupNoteRow' => '메모',
 			'common.e2eeBackupDeleteTitle' => '백업 기록 삭제',
 			'common.e2eeBackupDeleteConfirm' => '이 백업 기록을 삭제하시겠습니까?',
@@ -4619,9 +4621,9 @@ extension on TranslationsKoKr {
 			'main.storageSpace' => '저장 공간',
 			'main.termOfServices' => '서비스 약관',
 			'main.text' => '텍스트',
-			'main.thisWeek' => '이번 주',
 			_ => null,
 		} ?? switch (path) {
+			'main.thisWeek' => '이번 주',
 			'main.timeRange' => '시간 범위',
 			'main.timeWeekdays' => '월요일, 화요일, 수요일, 목요일, 금요일, 토요일, 일요일',
 			'main.titleMine' => '내 정보',

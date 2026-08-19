@@ -188,6 +188,7 @@ class _Translations$account$fr_FR extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'Mot de passe';
 	@override String get e2eeTransferFromOldDevice => 'Depuis l\'ancien appareil';
 	@override String get pleaseRelogin => 'Reconnectez-vous';
+	@override String get otherLoginMethods => 'Autres méthodes de connexion';
 }
 
 // Path: agent
@@ -2685,6 +2686,7 @@ extension on TranslationsFrFr {
 			'account.webPasswordHint' => 'Mot de passe',
 			'account.e2eeTransferFromOldDevice' => 'Depuis l\'ancien appareil',
 			'account.pleaseRelogin' => 'Reconnectez-vous',
+			'account.otherLoginMethods' => 'Autres méthodes de connexion',
 			'agent.plazaTitle' => 'Assistants IA',
 			'agent.transparencyBanner' => 'Tous les membres ici sont des assistants IA, clairement identifiés. Dans les discussions chiffrées, il n\'y a que de vraies personnes.',
 			'agent.searchHint' => 'Rechercher un assistant',
@@ -3080,9 +3082,9 @@ extension on TranslationsFrFr {
 			'chat.e2eeSocialCreateBtn' => 'Créer les fragments',
 			'chat.e2eeSocialCreateFailTitle' => 'Échec',
 			'chat.e2eeSocialCreateFailBody' => 'Échec de la création. Réessayez.',
-			'chat.e2eeSocialCreateFirst' => 'Visible après création',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialCreateFirst' => 'Visible après création',
 			'chat.e2eeSocialUsedAtLabel' => 'Utilisé le',
 			'chat.e2eeTransferSendTitle' => 'Envoyer la clé au nouvel appareil',
 			'chat.e2eeTransferCreateBtn' => 'Créer',
@@ -3594,9 +3596,9 @@ extension on TranslationsFrFr {
 			'common.feedbackHistory' => 'Historique des commentaires',
 			'common.confirmDelete' => 'Confirmer la suppression',
 			'common.processing' => _root.common.loading,
-			'common.verificationCode' => 'Code de vérification',
 			_ => null,
 		} ?? switch (path) {
+			'common.verificationCode' => 'Code de vérification',
 			'common.feedbackContent' => 'Contenu du commentaire',
 			'common.officialReply' => 'Réponse officielle',
 			'common.setPasswordSecurityTips' => 'Pour améliorer la sécurité du compte et empêcher l\'impossibilité de se connecter en cas d\'impossibilité d\'obtenir le code de vérification, veuillez définir un mot de passe de connexion.',
@@ -4108,9 +4110,9 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupDeviceIdLabel' => 'ID d\'appareil',
 			'common.e2eeBackupVersionNum' => 'Version de sauvegarde',
 			'common.e2eeBackupCreatedAtRow' => 'Créée le',
-			'common.e2eeBackupFileSizeRow' => 'Taille',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupFileSizeRow' => 'Taille',
 			'common.e2eeBackupNoteRow' => 'Note',
 			'common.e2eeBackupDeleteTitle' => 'Supprimer la sauvegarde',
 			'common.e2eeBackupDeleteConfirm' => 'Supprimer cette sauvegarde ?',
@@ -4622,9 +4624,9 @@ extension on TranslationsFrFr {
 			'main.storageSpace' => 'Espace de stockage',
 			'main.termOfServices' => 'Conditions d\'utilisation',
 			'main.text' => 'Texte',
-			'main.thisWeek' => 'Cette semaine',
 			_ => null,
 		} ?? switch (path) {
+			'main.thisWeek' => 'Cette semaine',
 			'main.timeRange' => 'Période',
 			'main.timeWeekdays' => 'Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche',
 			'main.titleMine' => 'Moi',

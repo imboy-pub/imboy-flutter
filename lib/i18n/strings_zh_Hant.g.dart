@@ -188,6 +188,7 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get webPasswordHint => '請輸入密碼';
 	@override String get e2eeTransferFromOldDevice => '從舊裝置接收金鑰';
 	@override String get pleaseRelogin => '請重新登入';
+	@override String get otherLoginMethods => '其他登入方式';
 }
 
 // Path: agent
@@ -2704,6 +2705,7 @@ extension on TranslationsZhHant {
 			'account.webPasswordHint' => '請輸入密碼',
 			'account.e2eeTransferFromOldDevice' => '從舊裝置接收金鑰',
 			'account.pleaseRelogin' => '請重新登入',
+			'account.otherLoginMethods' => '其他登入方式',
 			'agent.plazaTitle' => 'AI 助手廣場',
 			'agent.transparencyBanner' => '這裡的成員都是 AI 助手，身分會明確標註；加密聊天裡，只有真人。',
 			'agent.searchHint' => '搜尋助手',
@@ -3099,9 +3101,9 @@ extension on TranslationsZhHant {
 			'chat.e2eeGeneratingKey' => '正在生成金鑰，請稍候...',
 			'chat.e2eeNewKeyGenerated' => '新的 E2EE 金鑰對已生成！',
 			'chat.e2eeReady' => '準備就緒',
-			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備就緒（${count} 個分片）',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備就緒（${count} 個分片）',
 			'chat.webFeatureMultiDevice' => '多裝置同步',
 			'chat.webFeatureMultiDeviceDesc' => '在手機和電腦之間無縫切換，訊息實時同步',
 			'chat.webFeatureE2EE' => '端到端加密',
@@ -3613,9 +3615,9 @@ extension on TranslationsZhHant {
 			'common.verificationCodeSentToEmail' => '驗證碼將傳送至該郵箱，請在有效期內完成驗證',
 			'common.verificationCodeSentToMobile' => '驗證碼將傳送至該手機，請在有效期內完成驗證',
 			'common.pleaseEnterCorrectEmailAddress' => '請輸入正確的郵箱地址',
-			'common.pleaseEnter6DigitVerificationCode' => '請輸入 6 位驗證碼',
 			_ => null,
 		} ?? switch (path) {
+			'common.pleaseEnter6DigitVerificationCode' => '請輸入 6 位驗證碼',
 			'common.verificationCodeSent' => '驗證碼已傳送',
 			'common.sendFailed' => '傳送失敗',
 			'common.noChangeNeeded' => '無需修改',
@@ -4127,9 +4129,9 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupAlgorithmLabel' => '演算法',
 			'common.e2eeBackupFileSizeLabel' => '檔案大小',
 			'common.e2eeBackupFileValid' => '✓ 檔案格式有效',
-			'common.e2eeBackupImportPwdHint' => '請輸入備份時設定的密碼',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupImportPwdHint' => '請輸入備份時設定的密碼',
 			'common.e2eeBackupImportBtn' => '匯入金鑰',
 			'common.e2eeBackupErrSelectFile' => '選擇檔案失敗，請重試',
 			'common.e2eeBackupErrValidateFailed' => '檔案驗證失敗，請檢查檔案格式',
@@ -4641,9 +4643,9 @@ extension on TranslationsZhHant {
 			'main.releaseEnd' => '鬆開結束',
 			'main.remainingChars' => ({required Object param}) => '還可輸入 ${param} 個字元',
 			'main.kickMember' => 'Remove from Group',
-			'main.memberDetail' => 'Member Details',
 			_ => null,
 		} ?? switch (path) {
+			'main.memberDetail' => 'Member Details',
 			'main.memberRole' => 'Role',
 			'main.replied' => '已回覆',
 			'main.ringing' => '已響鈴...',

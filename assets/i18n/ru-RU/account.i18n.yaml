@@ -115,3 +115,4 @@ webAccountHint: Введите аккаунт/телефон/email
 webPasswordHint: Введите пароль
 e2eeTransferFromOldDevice: Получить ключ со старого устройства
 pleaseRelogin: Войдите заново
+otherLoginMethods: "Другие способы входа"

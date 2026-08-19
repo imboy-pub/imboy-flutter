@@ -104,6 +104,16 @@ void main() {
       expect(find.text('登录'), findsAtLeastNWidgets(1));
       await _unmount(tester);
     });
+
+    testWidgets('renders 支付宝登录入口（第三方登录区）', (tester) async {
+      await _pump(tester);
+
+      expect(find.byKey(const Key('alipay_login_button')), findsOneWidget);
+      expect(find.text('其他登录方式'), findsOneWidget);
+      expect(find.text('支'), findsOneWidget);
+
+      await _unmount(tester);
+    });
   });
 
   group('LoginPage tab switching', () {

@@ -443,6 +443,9 @@ class Translations$account$zh_CN {
 
 	/// zh-CN: '请重新登录'
 	String get pleaseRelogin => '请重新登录';
+
+	/// zh-CN: '其他登录方式'
+	String get otherLoginMethods => '其他登录方式';
 }
 
 // Path: agent
@@ -7722,6 +7725,7 @@ extension on Translations {
 			'account.webPasswordHint' => '请输入密码',
 			'account.e2eeTransferFromOldDevice' => '从旧设备接收密钥',
 			'account.pleaseRelogin' => '请重新登录',
+			'account.otherLoginMethods' => '其他登录方式',
 			'agent.plazaTitle' => 'AI 助手广场',
 			'agent.transparencyBanner' => '这里的成员都是 AI 助手，身份会明确标注；加密聊天里，只有真人。',
 			'agent.searchHint' => '搜索助手',
@@ -8110,9 +8114,9 @@ extension on Translations {
 			'chat.customImage' => '自定义图片',
 			'chat.voiceRecordResultEmpty' => '语音录制结果为空',
 			'chat.voiceFileInvalid' => '语音文件无效',
-			'chat.burnAfterReading' => '阅后即焚',
 			_ => null,
 		} ?? switch (path) {
+			'chat.burnAfterReading' => '阅后即焚',
 			'chat.burnReadBadge' => '阅后',
 			'chat.visibleThresholdRead' => '可视阈值已读',
 			'chat.readThresholdDelay' => '已读阈值与延时',
@@ -8624,9 +8628,9 @@ extension on Translations {
 			'common.selectedRegion' => '已选地区',
 			'common.sendMsgNotFriendTips' => '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。',
 			'common.setChatBackground' => '设置当前聊天背景',
-			'common.share' => '分享',
 			_ => null,
 		} ?? switch (path) {
+			'common.share' => '分享',
 			'common.signatureTips' => '签名提示',
 			'common.slideUpCancelSending' => '手指上滑,取消发送',
 			'common.storagePermissionNotObtained' => '未获取存储权限',
@@ -9138,9 +9142,9 @@ extension on Translations {
 			'common.e2eeImportantNote' => '重要提示',
 			'common.e2eeWarnOldMayNotDecrypt' => '• 旧消息可能无法解密',
 			'common.e2eeSuggestBackupNow' => '• 建议立即导出备份',
-			'common.e2eeGoBackup' => '去备份',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeGoBackup' => '去备份',
 			'common.e2eeKeyGenerateFailed' => '密钥生成失败，请重试',
 			'common.e2eeKeyDeleted' => '密钥已删除',
 			'common.e2eeDeleteFailed' => '删除失败，请重试',
@@ -9652,9 +9656,9 @@ extension on Translations {
 			'groupTask.taskSubmitted' => '任务已提交',
 			'groupTask.submitTask' => '提交作业',
 			'groupTask.taskCompleted' => '任务已完成',
-			'groupTask.overdue' => '已过期',
 			_ => null,
 		} ?? switch (path) {
+			'groupTask.overdue' => '已过期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			'groupTask.dueSoon' => '即将截止',

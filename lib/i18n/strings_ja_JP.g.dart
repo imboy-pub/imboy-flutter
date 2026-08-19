@@ -188,6 +188,7 @@ class _Translations$account$ja_JP extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'パスワードを入力';
 	@override String get e2eeTransferFromOldDevice => '古いデバイスからキーを受信';
 	@override String get pleaseRelogin => '再度ログインしてください';
+	@override String get otherLoginMethods => 'その他のログイン方法';
 }
 
 // Path: agent
@@ -2682,6 +2683,7 @@ extension on TranslationsJaJp {
 			'account.webPasswordHint' => 'パスワードを入力',
 			'account.e2eeTransferFromOldDevice' => '古いデバイスからキーを受信',
 			'account.pleaseRelogin' => '再度ログインしてください',
+			'account.otherLoginMethods' => 'その他のログイン方法',
 			'agent.plazaTitle' => 'AI アシスタント広場',
 			'agent.transparencyBanner' => 'ここにいるのはすべて AI アシスタントで、身元は明確に表示されます。暗号化チャットには本物の人間しかいません。',
 			'agent.searchHint' => 'アシスタントを検索',
@@ -3077,9 +3079,9 @@ extension on TranslationsJaJp {
 			'chat.e2eeSocialCreateBtn' => 'シャードを作成',
 			'chat.e2eeSocialCreateFailTitle' => '作成に失敗しました',
 			'chat.e2eeSocialCreateFailBody' => 'シャードの作成に失敗しました。もう一度お試しください',
-			'chat.e2eeSocialCreateFirst' => 'シャードを作成すると内容が表示されます',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialCreateFirst' => 'シャードを作成すると内容が表示されます',
 			'chat.e2eeSocialUsedAtLabel' => '使用日時',
 			'chat.e2eeTransferSendTitle' => '新しいデバイスにキーを送信',
 			'chat.e2eeTransferCreateBtn' => '作成',
@@ -3591,9 +3593,9 @@ extension on TranslationsJaJp {
 			'common.feedbackHistory' => 'フィードバック履歴',
 			'common.confirmDelete' => '削除確認',
 			'common.processing' => _root.common.loading,
-			'common.verificationCode' => '認証コード',
 			_ => null,
 		} ?? switch (path) {
+			'common.verificationCode' => '認証コード',
 			'common.feedbackContent' => 'フィードバック内容',
 			'common.officialReply' => '公式返信',
 			'common.setPasswordSecurityTips' => 'アカウントのセキュリティを強化し、認証コードを取得できないためにログインできないのを防ぐために、ログインパスワードを設定してください。',
@@ -4105,9 +4107,9 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupDeviceIdLabel' => 'デバイス ID',
 			'common.e2eeBackupVersionNum' => 'バックアップバージョン',
 			'common.e2eeBackupCreatedAtRow' => '作成日時',
-			'common.e2eeBackupFileSizeRow' => 'ファイルサイズ',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupFileSizeRow' => 'ファイルサイズ',
 			'common.e2eeBackupNoteRow' => 'メモ',
 			'common.e2eeBackupDeleteTitle' => 'バックアップ履歴を削除',
 			'common.e2eeBackupDeleteConfirm' => 'このバックアップ履歴を削除しますか？',
@@ -4619,9 +4621,9 @@ extension on TranslationsJaJp {
 			'main.storageSpace' => 'ストレージ容量',
 			'main.termOfServices' => '利用規約',
 			'main.text' => 'テキスト',
-			'main.thisWeek' => '今週',
 			_ => null,
 		} ?? switch (path) {
+			'main.thisWeek' => '今週',
 			'main.timeRange' => '時間範囲',
 			'main.timeWeekdays' => '月曜,火曜,水曜,木曜,金曜,土曜,日曜',
 			'main.titleMine' => 'マイページ',

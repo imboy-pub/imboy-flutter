@@ -115,3 +115,4 @@ webAccountHint: Account/mobile/email
 webPasswordHint: Password
 e2eeTransferFromOldDevice: Dal vecchio dispositivo
 pleaseRelogin: Riaccedi
+otherLoginMethods: "Altri metodi di accesso"

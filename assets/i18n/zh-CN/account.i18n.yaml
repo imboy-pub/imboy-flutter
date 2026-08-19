@@ -124,3 +124,4 @@ webAccountHint: 请输入账号/手机号/邮箱
 webPasswordHint: 请输入密码
 e2eeTransferFromOldDevice: 从旧设备接收密钥
 pleaseRelogin: 请重新登录
+otherLoginMethods: "其他登录方式"

@@ -82,6 +82,8 @@ class API {
   static const signup = '/api/v1/passport/signup';
   static const getCode = '/api/v1/passport/getcode';
   static const quickLogin = '/api/v1/passport/quick_login';
+  static const alipayAuthinfo = '/api/v1/passport/alipay_authinfo';
+  static const alipayLogin = '/api/v1/passport/alipay_login';
   static const findPassword = '/api/v1/passport/findpassword';
   static const appVersionCheck = '/api/v1/app_version/check';
   static const appFeatures = '/api/v1/app/features';

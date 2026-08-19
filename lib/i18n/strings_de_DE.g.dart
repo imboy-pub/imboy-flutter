@@ -188,6 +188,7 @@ class _Translations$account$de_DE extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'Passwort eingeben';
 	@override String get e2eeTransferFromOldDevice => 'Vom alten Gerät empfangen';
 	@override String get pleaseRelogin => 'Bitte neu anmelden';
+	@override String get otherLoginMethods => 'Weitere Anmeldemethoden';
 }
 
 // Path: agent
@@ -2685,6 +2686,7 @@ extension on TranslationsDeDe {
 			'account.webPasswordHint' => 'Passwort eingeben',
 			'account.e2eeTransferFromOldDevice' => 'Vom alten Gerät empfangen',
 			'account.pleaseRelogin' => 'Bitte neu anmelden',
+			'account.otherLoginMethods' => 'Weitere Anmeldemethoden',
 			'agent.plazaTitle' => 'KI-Assistenten',
 			'agent.transparencyBanner' => 'Alle Mitglieder hier sind KI-Assistenten und klar als solche gekennzeichnet. In verschlüsselten Chats gibt es nur echte Menschen.',
 			'agent.searchHint' => 'Assistenten suchen',
@@ -3080,9 +3082,9 @@ extension on TranslationsDeDe {
 			'chat.e2eeSocialCreateBtn' => 'Fragmente erstellen',
 			'chat.e2eeSocialCreateFailTitle' => 'Fehlgeschlagen',
 			'chat.e2eeSocialCreateFailBody' => 'Fragmente konnten nicht erstellt werden. Bitte erneut versuchen.',
-			'chat.e2eeSocialCreateFirst' => 'Nach Erstellung sichtbar',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialCreateFirst' => 'Nach Erstellung sichtbar',
 			'chat.e2eeSocialUsedAtLabel' => 'Verwendet am',
 			'chat.e2eeTransferSendTitle' => 'Schlüssel an neues Gerät senden',
 			'chat.e2eeTransferCreateBtn' => 'Erstellen',
@@ -3594,9 +3596,9 @@ extension on TranslationsDeDe {
 			'common.feedbackHistory' => 'Feedback-Verlauf',
 			'common.confirmDelete' => 'Löschen bestätigen',
 			'common.processing' => _root.common.loading,
-			'common.verificationCode' => 'Bestätigungscode',
 			_ => null,
 		} ?? switch (path) {
+			'common.verificationCode' => 'Bestätigungscode',
 			'common.feedbackContent' => 'Feedback-Inhalt',
 			'common.officialReply' => 'Offizielle Antwort',
 			'common.setPasswordSecurityTips' => 'Verbessern Sie die Kontosicherheit und vermeiden Sie Anmeldeprobleme ohne Bestätigungscode. Legen Sie ein Anmeldepasswort fest.',
@@ -4108,9 +4110,9 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupDeviceIdLabel' => 'Geräte-ID',
 			'common.e2eeBackupVersionNum' => 'Backup-Version',
 			'common.e2eeBackupCreatedAtRow' => 'Erstellt am',
-			'common.e2eeBackupFileSizeRow' => 'Dateigröße',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupFileSizeRow' => 'Dateigröße',
 			'common.e2eeBackupNoteRow' => 'Notiz',
 			'common.e2eeBackupDeleteTitle' => 'Backup löschen',
 			'common.e2eeBackupDeleteConfirm' => 'Dieses Backup wirklich löschen?',
@@ -4622,9 +4624,9 @@ extension on TranslationsDeDe {
 			'main.storageSpace' => 'Speicherplatz',
 			'main.termOfServices' => 'Nutzungsbedingungen',
 			'main.text' => 'Text',
-			'main.thisWeek' => 'Diese Woche',
 			_ => null,
 		} ?? switch (path) {
+			'main.thisWeek' => 'Diese Woche',
 			'main.timeRange' => 'Zeitbereich',
 			'main.timeWeekdays' => 'Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag,Sonntag',
 			'main.titleMine' => 'Ich',

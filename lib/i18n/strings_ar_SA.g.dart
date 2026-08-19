@@ -188,6 +188,7 @@ class _Translations$account$ar_SA extends Translations$account$zh_CN {
 	@override String get webPasswordHint => 'أدخل كلمة المرور';
 	@override String get e2eeTransferFromOldDevice => 'استقبال المفتاح من الجهاز القديم';
 	@override String get pleaseRelogin => 'سجّل الدخول مجدداً';
+	@override String get otherLoginMethods => 'طرق تسجيل دخول أخرى';
 }
 
 // Path: agent
@@ -2682,6 +2683,7 @@ extension on TranslationsArSa {
 			'account.webPasswordHint' => 'أدخل كلمة المرور',
 			'account.e2eeTransferFromOldDevice' => 'استقبال المفتاح من الجهاز القديم',
 			'account.pleaseRelogin' => 'سجّل الدخول مجدداً',
+			'account.otherLoginMethods' => 'طرق تسجيل دخول أخرى',
 			'agent.plazaTitle' => 'مساعدو الذكاء الاصطناعي',
 			'agent.transparencyBanner' => 'جميع الأعضاء هنا مساعدو ذكاء اصطناعي، وهويتهم موضحة بوضوح. في المحادثات المشفّرة لا يوجد سوى أشخاص حقيقيين.',
 			'agent.searchHint' => 'البحث عن مساعد',
@@ -3077,9 +3079,9 @@ extension on TranslationsArSa {
 			'chat.e2eeSocialCreateBtn' => 'إنشاء الشظايا',
 			'chat.e2eeSocialCreateFailTitle' => 'تعذّر الإنشاء',
 			'chat.e2eeSocialCreateFailBody' => 'تعذّر إنشاء الشظايا، أعد المحاولة',
-			'chat.e2eeSocialCreateFirst' => 'سيظهر المحتوى بعد إنشاء الشظايا',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeSocialCreateFirst' => 'سيظهر المحتوى بعد إنشاء الشظايا',
 			'chat.e2eeSocialUsedAtLabel' => 'وقت الاستخدام',
 			'chat.e2eeTransferSendTitle' => 'إرسال المفتاح إلى جهاز جديد',
 			'chat.e2eeTransferCreateBtn' => 'إنشاء',
@@ -3591,9 +3593,9 @@ extension on TranslationsArSa {
 			'common.feedbackHistory' => 'سجل الملاحظات',
 			'common.confirmDelete' => 'تأكيد الحذف',
 			'common.processing' => _root.common.loading,
-			'common.verificationCode' => 'رمز التحقق',
 			_ => null,
 		} ?? switch (path) {
+			'common.verificationCode' => 'رمز التحقق',
 			'common.feedbackContent' => 'محتوى الملاحظات',
 			'common.officialReply' => 'الرد الرسمي',
 			'common.setPasswordSecurityTips' => 'لتحسين أمان الحساب ومنع عدم القدرة على تسجيل الدخول بسبب عدم القدرة على الحصول على رمز التحقق، يرجى تعيين كلمة مرور تسجيل الدخول.',
@@ -4105,9 +4107,9 @@ extension on TranslationsArSa {
 			'common.e2eeBackupDeviceIdLabel' => 'معرّف الجهاز',
 			'common.e2eeBackupVersionNum' => 'إصدار النسخة',
 			'common.e2eeBackupCreatedAtRow' => 'تاريخ الإنشاء',
-			'common.e2eeBackupFileSizeRow' => 'حجم الملف',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupFileSizeRow' => 'حجم الملف',
 			'common.e2eeBackupNoteRow' => 'ملاحظة',
 			'common.e2eeBackupDeleteTitle' => 'حذف سجل النسخة',
 			'common.e2eeBackupDeleteConfirm' => 'حذف سجل النسخة هذا؟',
@@ -4619,9 +4621,9 @@ extension on TranslationsArSa {
 			'main.storageSpace' => 'مساحة التخزين',
 			'main.termOfServices' => 'شروط الخدمة',
 			'main.text' => 'نص',
-			'main.thisWeek' => 'هذا الأسبوع',
 			_ => null,
 		} ?? switch (path) {
+			'main.thisWeek' => 'هذا الأسبوع',
 			'main.timeRange' => 'النطاق الزمني',
 			'main.timeWeekdays' => 'الاثنين،الثلاثاء،الأربعاء،الخميس،الجمعة،السبت،الأحد',
 			'main.titleMine' => 'أنا',

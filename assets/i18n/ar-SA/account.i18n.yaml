@@ -115,3 +115,4 @@ webAccountHint: أدخل الحساب/الهاتف/البريد
 webPasswordHint: أدخل كلمة المرور
 e2eeTransferFromOldDevice: استقبال المفتاح من الجهاز القديم
 pleaseRelogin: سجّل الدخول مجدداً
+otherLoginMethods: "طرق تسجيل دخول أخرى"

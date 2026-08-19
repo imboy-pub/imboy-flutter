@@ -117,3 +117,4 @@ webAccountHint: Enter account / phone / email
 webPasswordHint: Enter password
 e2eeTransferFromOldDevice: Receive Key from Old Device
 pleaseRelogin: Please log in again
+otherLoginMethods: "Other sign-in methods"
