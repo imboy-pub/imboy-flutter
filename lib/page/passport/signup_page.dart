@@ -74,7 +74,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: _isDark ? AppColors.darkSurface : null,
+      backgroundColor: _isDark ? AppColors.darkSurface : AppColors.lightSurface,
       body: Stack(
         children: [
           Positioned(
@@ -82,15 +82,14 @@ class _SignupPageState extends ConsumerState<SignupPage>
             right: -MediaQuery.of(context).size.width * .18,
             child: const BezierContainer(),
           ),
-
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+          SafeArea(
             child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: height * 0.05),
+                  SizedBox(height: height * 0.04),
                   const PassportTitle(color: AppColors.primary),
                   AppSpacing.verticalXLarge,
 
@@ -118,7 +117,6 @@ class _SignupPageState extends ConsumerState<SignupPage>
                     ),
                   ),
 
-                  AppSpacing.verticalRegular,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
