@@ -1,6 +1,6 @@
-# DF-03 单聊消息闭环
+# DF-04 单聊消息闭环
 
-> 状态：`双账号双端消息闭环通过（2026-08-11 r14 历史证据；2026-08-18 无第二设备未重跑）/ 本地单账号发送受理链路通过（e2ee 信封，2026-08-18）/ 服务端历史归档本地可用 / E2EE 端上闭环未覆盖`
+> 状态：`双账号双端消息闭环通过（2026-08-11 r14 历史证据；2026-08-19 无第二真机未重跑）/ 本地单账号发送受理链路通过（e2ee 信封，2026-08-19 复验维持）/ 服务端历史归档本地可用 / E2EE 端上闭环未覆盖`
 > 优先级：P0
 > 类型：好友关系后的核心消息流程
 
@@ -65,6 +65,19 @@
   - 本地单账号**发送受理链路通过（测试侧 e2ee 信封，非端上密码学闭环）**：同一 WS 会话发送符合 v2.0 加密契约的信封消息（`e2ee.devices` 非空 map + `payload` 空串，对端为 AI agent uid `103107938360756224` 免好友校验）→ 二进制 v2 帧 `C2C_SERVER_ACK`（`in_reply_to` 回显）→ 服务端 `msg/history` 归档命中且 e2ee 元数据完整保留 → `conversation/mine` 产生真实会话。注意：这是按服务端声明式契约校验（`imboy_policy.erl`）构造的测试信封，**不证明端上 Olm 握手/密钥协商/解密**——E2EE 端到端验收仍属 DF-11，本地亦无第二可登账号做对端（注册仍被 License 402 拦截，见 account_flow.md 2026-08-18 条目）。
   - 服务端历史归档：本轮本地 `msg/history`（c2c, after_seq=0）code=0 且消息在列——"服务端历史归档为空"的历史问题在本轮本地环境未复现（上轮该表述针对生产 r14 联调环境）。
   - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260818/`（ws_send_e2ee_result_r2.json 含明文拒收帧、C2C_SERVER_ACK 帧、归档与会话回读摘要）。
+- 2026-08-19（本地 alpha.36 复核轮 + macOS 生产只读复跑）：
+  - **双端实时闭环未重跑**：Android 真机 MRD AL00 本轮未连接（iPhone 16e 无线在线，但双端验收需两台设备各自登录 A/B 且属真机轮次），维持引用 2026-08-11 r14 历史 PASS 证据（run id `dual-20260811-mac117-118a-r14`）。本轮未新增双端证据。
+  - macOS 桌面只读入口复跑：`flutter test integration_test/demo_flow/single_chat_flow_test.dart -d macos`（APP_ENV=pro + `.env.pro` 变量 `--dart-define` 注入，生产只读）→ `1/1 All tests passed`；从已有 C2C 会话进入 `ChatPage`（加载 3 条历史），未输入或发送消息。
+  - **本地单账号发送受理链路复验维持通过（探针复刻 08-18，标记 DEMO-FLOW-20260819）**：
+    - 登录：本地后端以 uid=4 登录（`.env.pro` TEST_PHONE 凭证，08-18 既定路径）。注：`scripts/test.env` 的 `TEST_PHONE=13900001002/TEST_PASSWORD=admin888` 本轮在本地登录失败（服务端回「密码有误」；该账号存在，uid=104250986822109184，昵称 ApiContractTest，status=1）——疑似被历史 API 契约/改密测试变更，属跨 flow 数据漂移，本轮未重置该共享账号密码、仅记录。
+    - `GET /api/v1/app/policy` → `payload.capabilities.e2ee_mode=required`、`storage_mode=secure_e2ee`（与 08-18 一致）。
+    - WS 握手（`imboy.v2` 子协议 + Bearer）成功；明文帧（`e2ee` 空串）→ `S2C policy_violation / encrypted_message_required`（帧含发送 `id` 回显）——required 部署级明文门设计行为，两轮以上一致。
+    - e2ee 信封帧（v2.0 契约：`e2ee.devices` 非空 map + `payload` 空串，对端 AI agent uid `103107938360756224` 免好友校验，ciphertext=`demo-flow-20260819-envelope`）→ 二进制 v2 帧 `C2C_SERVER_ACK`（`in_reply_to` 回显，客户端 id `k0uf1773hk8pj3sd7hkv`）。
+    - 服务端归档（本轮加严为 psql 直查 `msg_c2c`）：行存在，`created_at=2026-08-19 13:29:11.659+08`，`e2ee` 元数据完整保留（`protocol=olm / fan_out=per_device / devices.agent-default.ciphertext`）。
+    - 会话生成：`conversation/mine` 唯一 c2c 会话 `conversation_id=103107938360756224` 的 `last_msg_id=k0uf1773hk8pj3sd7hkv`、`server_ts` 与 ACK 一致——会话由本轮消息真实产生。
+    - 边界说明维持：这是按服务端声明式契约构造的测试信封，不证明端上 Olm 握手/密钥协商/解密（E2EE 端到端验收属 DF-11）；agent_reply 未在本轮观察（不作为断言条件）。
+    - 跨会话数据漂移：`msg_c2c` 存在 2026-08-19 13:21:51 归档行 `ub8711bb8c8330m8olhf`（ciphertext=`DEMO-FLOW-20260819-E2EE-envelope`，大写标记）——非本会话发送，说明同日另有会话执行了同款 DF-04 探针；已按并行规则记录，不作为本轮证据。
+    - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260819/`（ws_send_e2ee_result.json 原始探针输出 + ws_send_e2ee_result_verified.json 复核修正版，含 psql 直查与会话核验摘要）。
 
 ## 6. 未来自动化目标
 

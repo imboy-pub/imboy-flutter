@@ -17,7 +17,7 @@
 // - 只允许本地/开发后端（ApiTestClient.ensureBusinessWriteAllowed 门禁校验 host）；
 //   生产 URL 一律拒绝。
 // - 必须显式 TEST_ALLOW_API_WRITES=true。
-// - 测试数据命名带 DEMO-FLOW-20260817 前缀；不取消日程、不删除任务、不撤销投票。
+// - 测试数据命名带 DEMO-FLOW-20260819 前缀；不取消日程、不删除任务、不撤销投票。
 // - 单账号闭环：创建者本人确认日程/提交任务/投票；无第二本地可登录账号时，
 //   记录单账号覆盖范围（双账号互补证据见生产 group_collaboration_flow_test.dart）。
 
@@ -29,7 +29,7 @@ import 'dart:io';
 import 'package:test/test.dart';
 import '../../test/unit_test/api/api_test_client.dart';
 
-const _prefix = 'DEMO-FLOW-20260817';
+const _prefix = 'DEMO-FLOW-20260819';
 final _runTs = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
 void _log(String msg) => stderr.writeln('[DF10-LOCAL] $msg');
@@ -123,7 +123,7 @@ void main() {
       // 本地账号没有可复用群：创建专属测试群（空成员集合，由群主本人构成，
       // 后端按成员集合幂等，与 DF-14/DF-15 本地 flow 共用同一 gid），
       // 并显式命名以便与并行的其他测试会话区分。
-      const newTitle = 'DEMO-FLOW-20260817-COLLAB';
+      const newTitle = 'DEMO-FLOW-20260819-COLLAB';
       final created = await client.post(
         '/api/v1/group/add',
         data: {'member_uids': <String>[]},

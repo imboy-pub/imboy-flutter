@@ -1,7 +1,7 @@
 # DF-01 注册 → 登录 → 首次进入 → 账号恢复
 
 > 优先级：P0
-> 状态：`登录与账号子页通过 / 注册本地被 License 配额阻塞（2026-08-18 后端升级后复核仍 402）/ 找回密码失败分支通过 / 退出重登阻塞（2026-08-18 复核维持）`
+> 状态：`登录与账号子页通过（2026-08-19 复跑维持 9/9）/ 注册本地被 License 配额阻塞（2026-08-19 复核仍 402）/ 找回密码失败分支通过（2026-08-19 复核维持）/ 退出重登阻塞（2026-08-19 复核维持）`
 
 ## 1. 目标
 
@@ -60,6 +60,12 @@
   - 注册 402 复核（后端已升级，探测一次）：万能码 `verification_master_code` 校验仍通过；首轮缺 `nickname` 参数返回 `code=1 昵称不能为空`，补全后请求到达配额守卫仍被结构化拒绝 `402 用户数已达授权上限`；本地库 `user` 表 count=1993（只读 SQL 核实）。**注册维持阻塞于 License 配额**——尽管 policy profile 已是 enterprise，当前 license 的 max_users 仍不覆盖 1993 存量用户；本轮不清理本地用户数据（禁止删除）。
   - 退出重登阻塞复核：`user_repo_local.dart` `quitLogin` 仍调用 `E2eeSecretInventory.production().purgeAll()` 按 `secretKeyPrefixes` 前缀**全局**清理（跨账号，E2EE-015 设计行为，代码未变）；共享 macOS 容器（`pub.imboy.macos`）仍持有 `pro_1.db / pro_4.db / pro_50.db` 等多账号证据库（含 r14 双端闭环消息）。无隔离容器或第二设备，**维持阻塞不执行**。
   - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260818/`（signup_probe.json、signup_probe2.json、local_login_pro4.json）。
+- 2026-08-19（复核轮，本地后端维持 main@e6d785d0 / 1.0.0-alpha.36，`/healthz` ok）：
+  - 生产只读登录契约复跑：`.env.pro` 变量逐项提取注入（未 source、未回显凭证）执行 `dart test test/unit_test/api/auth_api_test.dart --concurrency=1` → `9/9 All tests passed`（登录 uid=4、错误凭证、token 刷新、未认证 401、init、版本检查、极高版本不更新、用户信息、无效路径）。未执行任何生产写入。
+  - 注册 402 复核（单次探测）：万能码 + `nickname` 齐备的 signup 请求（`DEMO-FLOW-20260819` 前缀测试账号）到达配额守卫，仍被结构化拒绝 `402 用户数已达授权上限`——**License 配额阻塞维持**（本轮未重复只读 SQL 计数，user 存量以 08-18 记录 count=1993 为准）；错误验证码 `code=000000` 分支 → `code=1 验证码无效`，验证码门禁仍正确拒绝、无误报成功。
+  - 找回密码失败分支复跑：本地 `POST /api/v1/passport/findpassword` 错误验证码 → `code=1 验证码无效`；随后原密码重新登录 `code=0`（uid=4）。**错误验证码不改变原密码，维持 08-17 结论**；正向改密分支继续不执行。
+  - 退出重登阻塞复核（代码 + 容器证据）：`lib/store/repository/user_repo_local.dart` `quitLogin`（233 行起）第 268 行仍调用 `E2eeSecretInventory.production().purgeAll()` 按前缀**全局**清理（跨账号，代码未变）；共享 macOS 容器 `pub.imboy.macos` 仍持有 `pro_1.db / pro_4.db / pro_50.db`（含 -shm/-wal）多账号证据库。无隔离容器或第二设备，**维持阻塞不执行**。
+  - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260819/`（df01_probe_result.json、token_uid4.txt；探针脚本 df01_probe.py 复用后即弃，不含凭证回显）。
 
 ## 6. 未来自动化目标
 

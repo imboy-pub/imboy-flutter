@@ -3,7 +3,7 @@
 > 优先级：P0
 > 状态：`本地密码学与只读入口通过 / 生产策略为 disabled / 双设备和恢复阻塞`
 > 安全等级：高风险，密钥恢复步骤默认不执行
-> 最近验证：2026-08-18
+> 最近验证：2026-08-19
 
 ## 1. 目标
 
@@ -68,6 +68,10 @@
 - 2026-08-18（DEMO-FLOW-20260818）：本地后端已升级 `1.0.0-alpha.36`（08-17 时为 alpha.27，beam.smp 今早 08:46 启动、已加载 08:44 编译代码），复核 E2EE 相关行为无回归：`GET http://127.0.0.1:9800/api/v1/app/policy` → `e2ee_mode=required`、`storage_mode=secure_e2ee`、`audit_mode=metadata`（核心策略与 08-17 记录一致，无变化）；本地只读 API 契约 `e2ee_api_test.dart` `8` 过 `1` 跳（`key/status` 业务非 0 受控跳过，与 08-09 生产探测口径一致）+ `e2ee_backup_api_test.dart` `1` 过 `1` 跳（写链路被 `TEST_ALLOW_API_WRITES` 门禁在发请求前拦截，设计行为），合计 `9` 过 `2` 跳 `0` 失败——本地与生产 alpha.36 的 E2EE API 契约口径完全对齐，升级未引入行为变化。
 - 2026-08-18（DEMO-FLOW-20260818）：双设备/密钥恢复维持 `阻塞`。设备枚举较 08-17 有变化：`flutter devices` 显示 Android 真机 MRD AL00（XWE6R19916004085，Android 9）与 iPhone 16e（iOS 26.6）均在线；但双设备 E2EE 闭环仍不执行，原因：两台设备需分别安装兼容构建并登录两个授权测试账号（账号归属/登录态需人工确认）；设备密钥生成/注册/备份恢复属密钥类操作，按全局强制规则需人工授权方可执行；iPhone 侧 08-11 曾构建后安装失败未复验。不以单设备密码学证据替代双端闭环。
 - 2026-08-18（DEMO-FLOW-20260818）：生产侧本轮未发送任何请求；生产策略 `e2ee_mode=disabled / storage_mode=compliance_e2ee` 维持 08-17 探测记录，双账号 flow 的 `TEST_EXPECT_E2EE` 门继续不满足，双设备 strict 闭环保持阻塞。
+- 2026-08-19（DEMO-FLOW-20260819）：本地协议回归复跑，`flutter test --concurrency=1` 定向 6 文件（e2ee_backup_restore 13 + olm_pfs_production_path 8 + policy_gate/fan_out_per_device 18 + group_session_service 24 + room_key_olm_roundtrip 1）：**首轮 63 过 1 败**（`e2ee_backup_restore_test.dart`「导出后再导入数据应一致/export-import data consistency」），随即单文件复跑 `13/13 All tests passed`、全套复跑 `64/64 All tests passed`（01:35 +64），首轮失败两次复跑均不能复现，记录为**偶发（flaky）非回归**（该用例无头环境下有 `flutter_secure_storage MissingPluginException` 降级警告，合跑时序敏感）。`room_key_olm_roundtrip_test.dart` 经 JSON reporter 确认 `result=success, skipped=false`（真实执行；工作区根 `spikes/e2ee-group/rust/target/release/libvodozemac_bindings_dart.dylib`（08-12 构建）与 `/usr/local/lib/vodozemac_bindings_dart.framework` 均在位），与 08-17/08-18 基线一致。
+- 2026-08-19（DEMO-FLOW-20260819）：本地后端（1.0.0-alpha.36，beam 今日 10:25 重启）policy 复核 `GET /api/v1/app/policy` → `e2ee_mode=required`、`storage_mode=secure_e2ee`、`audit_mode=metadata`，与 08-18 记录一致无变化。本地只读 API 契约 `e2ee_api_test.dart` `8` 过 `1` 跳（key/status 业务非 0 受控跳）+ `e2ee_backup_api_test.dart` `1` 过 `1` 跳（写链路被 `TEST_ALLOW_API_WRITES` 门禁在发请求前拦截，设计行为），合计 `9` 过 `2` 跳 `0` 失败，与 08-18 口径逐项一致。
+- 2026-08-19（DEMO-FLOW-20260819）：生产只读复跑（`.env.pro` read_env 提取注入，未 source、未输出凭证、零写入）：policy 探测 `GET https://pro.imboy.pub/api/v1/app/policy` → `e2ee_mode=disabled`、`storage_mode=compliance_e2ee`、`audit_mode=full`（e2ee_mode/storage_mode 与 08-17 起记录一致）；`e2ee_api_test.dart` `8` 过 `1` 跳 + `e2ee_backup_api_test.dart` `1` 过 `1` 跳（put/get/info/delete 写链路被门禁按预期拦截），`9` 过 `2` 跳 `0` 失败，与 08-17 口径一致。
+- 2026-08-19（DEMO-FLOW-20260819）：双设备/密钥恢复维持 `阻塞`（原因不变：两台设备需分别登录两个授权测试账号，账号归属/登录态需人工确认；设备密钥生成/注册/备份恢复属密钥类操作需人工授权；绝不导入/恢复真实 E2EE 密钥、绝不执行 quitLogin）。本轮未对任何环境执行密钥生成、导入、恢复或清空操作。
 
 ## 6. 未来自动化目标
 

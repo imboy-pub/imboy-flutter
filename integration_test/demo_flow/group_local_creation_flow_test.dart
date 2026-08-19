@@ -26,7 +26,7 @@ import 'package:test/test.dart';
 
 import '../../test/unit_test/api/api_test_client.dart';
 
-const _groupPrefix = 'DEMO-FLOW-20260817';
+const _groupPrefix = 'DEMO-FLOW-20260819';
 
 void main() {
   late ApiTestClient clientA;

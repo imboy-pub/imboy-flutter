@@ -1,7 +1,7 @@
 # DF-08 群会话 → 群消息 → @成员 → 消息恢复
 
 > 优先级：P0
-> 状态：`双账号文本消息闭环通过（生产，2026-08-10/11）/ 本地 strict 环境明文拒收+密文归档复跑通过（2026-08-18 2/2）/ @成员定性为本地 strict 环境结构性不可覆盖 / 群历史 API 列名 bug 复核仍未修（HEAD 与 alpha.36 均在）`
+> 状态：`双账号文本消息闭环通过（生产，2026-08-10/11）/ 本地 strict 环境明文拒收+密文归档复跑通过（2026-08-19 2/2）/ @成员定性为本地 strict 环境结构性不可覆盖（2026-08-19 源码复核维持）/ 群历史 API 列名 bug 复核仍未修（2026-08-19 HEAD e6d785d0 复核维持）`
 
 ## 1. 目标
 
@@ -23,6 +23,8 @@
   - 2026-08-17 补充：本地 strict E2EE 环境下明文被 fail-closed 拒收、密文结构消息经 WS 接收并归档（单端 API 级）；
     生产明文双端闭环引用 2026-08-10/11 历史证据。
   - 2026-08-18 复跑：本地 alpha.36 上两项证据均复现（2/2 通过），见第 5 节。
+  - 2026-08-19 复跑：本地 alpha.36（main@e6d785d0）两项证据再次复现（2/2 通过），
+    测试数据标记升级为 `DEMO-FLOW-20260819`，见第 5 节。
 - [ ] A @ B，B 查看提醒或群内消息。
   - 预期：@ 成员选择、消息渲染和提醒状态正确。
   - 页面计划：[mention_list_page.md](../auto_test/mention/mention_list_page.md)
@@ -88,6 +90,26 @@
   - 表结构：本地库 `information_schema` 确认 `msg_c2g` 实际列为 `to_id`（无 `to_groupid` 列）；
   - 实测：归档消息 DB 行存在的同时 `group/msg_page` 返回 `total=0`（失败走 `_ -> total=0` 吞错分支）。
   结论：bug 在 HEAD 与本地 alpha.36 均存在，历史回读断言继续以 DB 行为准，待后端修复后升级回 API 断言。
+- 2026-08-19 复跑（本地 alpha.36，healthz db=up，policy 只读确认 `e2ee_mode=required`、
+  `storage_mode=secure_e2ee`）：`group_local_message_flow_test.dart`（测试标记升级
+  `DEMO-FLOW-20260819`）`2/2 All tests passed`（双账号 A=`13900001002`/uid=104250986822109184、
+  B=`smoke_bob`/uid=1000000056，B 仅用于建群成员集合；A+smoke_bob 成员集合按后端幂等
+  去重复用群 `107668232984594432`）：
+  1. 明文 C2G（`DEMO-FLOW-20260819-PLAIN-*`）被 fail-closed 拒收，
+     收到 `policy_violation / encrypted_message_required` 帧——第三次复跑通过（08-17/18/19）。
+  2. 密文结构消息归档复验：`msg_c2g` DB 行 `demoflow-cipher-1787116818552`
+     （to_id=107668232984594432、e2ee 非空、created_at=2026-08-19 13:20:18）命中；
+     `C2G_SERVER_ACK` 帧 15 秒仍不回（alpha.36 未修，非回归维持，以 DB 行为服务端成功证据）。
+- 2026-08-19 msg_page bug 复核（仍未修）：源码（`group_handler.erl:435` 仍为
+  `Where0 = #{to_groupid => Gid2}`，HEAD `e6d785d0`）、表结构（`msg_c2g` 仅有 `to_id` 列）、
+  实测（归档行 `demoflow-cipher-1787116818552` 存在的同时 `group/msg_page` 返回 `total=0`）
+  三重证据链与 08-18 一致，缺陷维持未修。
+- 2026-08-19 @成员结构性不可覆盖复核（维持）：`src/lib/imboy_policy.erl:223`
+  `encrypted_message_body/3` 的 guard 要求 `is_map(E2EE), is_binary(Payload)`（v2.0 契约注释：
+  加密以顶层 e2ee 字段为准、payload 为密文 binary），而
+  `src/logic/msg_c2g_logic.erl:48` `mentions_from_payload/1` 仅在 `is_map(Payload)` 时
+  读取 `mentions` 键、binary 走 `_ -> []`——strict 环境下被接受的 C2G 密文消息服务端
+  mentions 恒空的定性维持（见第 3 节）。
 
 ## 6. 未来自动化目标
 
@@ -96,6 +118,7 @@
 `group_local_message_flow_test.dart`（2026-08-17 新增）覆盖本地 strict 环境明文拒收与密文归档。
 
 后续文本、@普通成员和消息恢复只在双账号、非生产隔离数据和显式写入授权满足时执行；
-`msg_page` 列名 bug 修复后应把服务端历史回读断言从 DB 行升级回 API（2026-08-18 复核：HEAD `e6d785d0`
-与本地 alpha.36 均未修）；@成员在本地 strict 环境结构性不可覆盖（见第 3 节定性），如需 API 级覆盖
-应在非 strict 环境补充专用用例。
+`msg_page` 列名 bug 修复后应把服务端历史回读断言从 DB 行升级回 API（2026-08-19 复核：HEAD `e6d785d0`
+仍构造 `to_groupid`，缺陷未修）；@成员在本地 strict 环境结构性不可覆盖（见第 3 节定性，2026-08-19
+源码复核维持 `imboy_policy.erl:223` binary 要求与 `msg_c2g_logic.erl:48` map 要求互斥），
+如需 API 级覆盖应在非 strict 环境补充专用用例。

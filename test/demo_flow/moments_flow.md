@@ -1,6 +1,6 @@
 # DF-05 朋友圈发布 → 查看 → 互动
 
-> 状态：`本地 API 闭环通过（发布/自读/好友可见/点赞/评论/回读，2026-08-18 复跑 5/5）；UI 链路 widget 级复验通过（2026-08-18，109 项，无真机端到端）`
+> 状态：`本地 API 闭环通过（发布/自读/好友可见/点赞/评论/回读，2026-08-19 复跑 5/5）；UI 链路 widget 级复验通过（2026-08-19 复跑 109 项 0 失败，无真机端到端）；生产只读契约 4/4 复跑维持`
 > 优先级：P1
 > 类型：社交内容流程
 
@@ -125,3 +125,32 @@ beam.smp 今早 08:46 启动加载 08:44 编译代码，本轮未干预进程）
 
 评估结论：上轮「UI 链路未复验」中可在无真机条件下覆盖的部分本轮已闭环（页面真实渲染+状态机+交互契约）；
 不可覆盖部分为真实 HTTP 驱动渲染、手势、相机/媒体上传，维持待真机补验。
+
+## 9. 2026-08-19 复核证据（DEMO-FLOW-20260819）
+
+环境：本地后端 `http://127.0.0.1:9800`（healthz `{"status":"ok","db":"up","version":"1.0.0-alpha.36"}`，运行节点为今早 10:25 从 `_rel/imboy` 发布包 console 模式启动，本轮未干预进程）；账号复用第 7 节 A/B（A=13900001002 uid=104250986822109184，B=smoke_bob uid=1000000056）。测试标记由 `DEMO-FLOW-20260818` 更新为 `DEMO-FLOW-20260819`（`integration_test/demo_flow/moments_flow_test.dart`）。
+
+### API 闭环复跑（5/5，全部服务端证据）
+
+1. 好友前置幂等：add `code=1(already_friends)`、confirm `code=1(no_pending_request)`，与 08-17/08-18 一致。
+2. `POST /api/v1/moment/create`（visibility=1，allow_comment=true，含 `DEMO-FLOW-20260819` 标记）→ `code=0`，moment_id=`107850823886964736`。
+3. A `GET /api/v1/moments/feed?limit=20` → 首页命中新动态；B `GET /api/v1/moments/user/104250986822109184` → 命中同一动态（好友可见性通过）。
+4. B 点赞 + 评论均 `code=0`；A 详情回读 `stats.like_count=1`、`stats.comment_count=1`；B 评论列表回读命中标记评论。
+5. 服务端 DB 回读（只读取证）：`moment_post` 含 id=107850823886964736 的标记动态；`moment_like`=1 行、`moment_comment`=1 行。
+6. 错误分支 4 项均为结构化业务错误：空内容「动态内容不能为空」、visibility=9「可见性参数无效」、`moment/0/like`「动态不存在」、空评论「动态不存在」，无崩溃。
+7. 红线遵守：未调用 `moment/:id/delete`；未向生产发任何写入。
+
+### UI 链路 widget 级复跑（109 项 0 失败，`flutter test --concurrency=1`）
+
+第 8 节 7 个文件全量复跑 `All tests passed!`（feed 34 + publish 15 + 事件流状态机 30 + 详情页渲染契约 30 = 109）。
+本轮 Flutter 3.47.0 无头 widget 测试未复现 text_painter.dart 编译错误，历史担忧的 SDK artifact 损坏问题本轮未触发。
+
+### 生产只读契约复跑（4/4，零写入）
+
+`dart test test/unit_test/api/moment_api_test.dart --concurrency=1` 以 `.env.pro` 注入运行 → `4/4 All tests passed`（feed 信封/结构/动态项 TSID/无效 id 边界），与 08-17 结果一致，未执行任何生产写入。
+
+**运行注意（本轮实测，与 P0_EXECUTION_PLAN 08-10 附加发现一致）**：`.env.pro` 的 `SOLIDIFIED_KEY`（34 字符）直接作为 `IMBOY_SOLIDIFIED_KEY` 注入会登录失败「签名验证失败，请更新客户端」；生产签名以编译期 bake 进 App 的 32 字符 key 为准（`lib/config/env_pro.g.dart` 的 `_enviedkeysolidifiedKey` XOR `_envieddatasolidifiedKey` 解码，解码仅在进程内传递、不打印）。`.env.pro` 未 source、凭证未输出。
+
+### 维持未覆盖
+
+真实 HTTP 驱动的端到端渲染、手势滚动/下拉、相机与媒体上传（待真机）；媒体上传另受 DF-14 记载的 Garage endpoint 环境问题约束。

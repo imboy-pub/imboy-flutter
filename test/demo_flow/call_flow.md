@@ -1,9 +1,9 @@
 # DF-21 单聊 → 音视频通话 → RTC 房间
 
 > 优先级：P1
-> 状态：`本地状态机/信令协议通过（2026-08-18 复跑 51 项），生产 RTC 入口可达（902），本地 join 缺 LiveKit 配置阻塞（2026-08-18 复现维持），双端媒体阻塞`
+> 状态：`本地状态机/信令协议通过（2026-08-19 复跑 51 项），生产 RTC 入口可达（902，历史证据），本地 join 缺 LiveKit 配置阻塞（2026-08-19 复现维持），双端媒体阻塞`
 > 条件：双端真机/媒体环境
-> 最近验证：2026-08-18
+> 最近验证：2026-08-19
 
 ## 1. 目标
 
@@ -53,6 +53,18 @@
   dev 段被 local 覆盖，不生效）。本地 `rtc_room_api_test.dart`（`TEST_ALLOW_API_WRITES=true` + `.env.local`
   签名）复跑结果 `1` 过 / `1` 失败，与 08-17 完全一致：非法 `target_id` 业务错误路径通过；群成员 `join`
   仍 `code=500 non_json_response`（`rtc_room_logic.erl` `build_grant/4` 因无 livekit 配置崩溃），环境性阻塞维持。
+- 2026-08-19（DEMO-FLOW-20260819）：本地无头复跑同上四个测试文件（`p2p_call_state_machine_test.dart` +
+  `rtc_room_test.dart` + `webrtc_protocol_alignment_test.dart` + `component/webrtc/signaling_models_test.dart`，
+  `flutter test --concurrency=1`）合计 `51` 项全部通过，与 08-17/08-18 一致；本轮未出现 Flutter 3.47.0
+  text_painter 编译错误。
+- 2026-08-19（DEMO-FLOW-20260819）：livekit 配置缺失复核维持——`config/sys.local.config` 与运行节点
+  `_rel/imboy/releases/1.0.0-alpha.36/sys.config` grep `livekit` 仍均 0 处（后端未重启、未改配置）。
+  本地 `rtc_room_api_test.dart`（`TEST_ALLOW_API_WRITES=true` + `.env.local` 签名）复跑结果 `1` 过 /
+  `1` 失败，与 08-17/08-18 完全一致：非法 `target_id`（=1）业务错误路径通过；群成员 `join` 仍
+  `code=500 non_json_response`（`rtc_room_logic.erl` `build_grant/4` 因无 livekit 配置崩溃，断言
+  `rtc/room/join 期望成功(code=0), 实际 code=500`），环境性阻塞维持。解锁条件不变：人工在本地后端
+  配置 `livekit` 段并重启（本目录约束禁止干预后端进程与配置）。双端媒体维持 `BLOCKED`（禁操作真机/模拟器，
+  无 TURN/LiveKit 媒体环境）。
 
 ## 6. 未来自动化目标
 

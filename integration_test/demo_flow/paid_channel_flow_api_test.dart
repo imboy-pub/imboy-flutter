@@ -223,7 +223,7 @@ void main() {
     }
     final refund = await client.post(
       '/api/v1/channel/order/refund',
-      data: {'order_no': orderNo, 'refund_reason': 'DEMO-FLOW-20260817 自动化回收'},
+      data: {'order_no': orderNo, 'refund_reason': 'DEMO-FLOW-20260819 自动化回收'},
     );
     ApiAssert.success(refund, context: '退款回收 mock 订单');
 

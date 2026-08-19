@@ -29,7 +29,7 @@ import 'package:test/test.dart';
 import '../../test/unit_test/api/api_test_client.dart';
 
 /// 写入数据的统一标记前缀（本地可回收测试数据）。
-const kFlowMark = 'DEMO-FLOW-20260817';
+const kFlowMark = 'DEMO-FLOW-20260819';
 
 /// 从 payload 提取 list（兼容 List / {list:[]} / {data:[]}）。
 List<dynamic> _extractList(dynamic payload) {
@@ -183,7 +183,7 @@ void main() {
     if (!ready) {
       return markTestSkipped(skipReason ?? '环境未就绪');
     }
-    tagName = 'DF0817标签';
+    tagName = 'DF0819标签';
     final resp = await clientA.post(
       '/api/v1/user_tag/add',
       data: {'scene': 'friend', 'tag': tagName},
@@ -265,7 +265,7 @@ void main() {
     }
     final resp = await clientA.post(
       '/api/v1/friend/category/add',
-      data: {'name': 'DF0817分组'},
+      data: {'name': 'DF0819分组'},
     );
     ApiAssert.success(resp, context: 'friend/category/add');
     final payload = resp['payload'];
@@ -279,6 +279,10 @@ void main() {
     // friend_category_logic:add 返回的 LastInsertId（实为整行 map）直接放入
     // #{<<"id">> => LastInsertId}。此处兼容两种形状，并在文档记录该问题。
     final rawId = (payload as Map<Object?, Object?>)['id'];
+    // 证据打印（复核用）：payload.id 为 num=契约已修复；为 Map=嵌套 map 缺陷维持。
+    print(
+      '[DF-19-EVIDENCE] category/add payload.id runtimeType=${rawId.runtimeType}',
+    );
     if (rawId is num) {
       categoryId = rawId.toInt();
     } else if (rawId is Map) {

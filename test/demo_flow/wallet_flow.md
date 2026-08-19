@@ -1,6 +1,6 @@
 # DF-06 钱包余额 → 转账确认 → 结果回传
 
-> 状态：`通过（本地 API 全闭环：充值/发送/扣款/accept 收款/重复拒绝/流水/错误分支，2026-08-18 BUG-A 修复复验通过）；UI 链路未复验`
+> 状态：`通过（本地 API 全闭环：充值/发送/扣款/accept 收款/重复拒绝/流水/错误分支，2026-08-18 BUG-A 修复复验通过，2026-08-19 复跑 7/7 维持且 transfer_order 0 悬挂）；UI 链路未复验`
 > 优先级：P1
 > 类型：高风险资金流程
 
@@ -65,6 +65,10 @@
 - 2026-08-09：`wallet_api_test.dart` 的余额/流水只读检查通过，计入本轮 `39 passed, 3 skipped, 0 failed` 汇总。
 - 2026-08-17 生产只读复跑：`wallet_api_test.dart` 以 `.env.pro` 注入运行 `4/4 All tests passed`
   （balance/transactions 结构与分/元一致性）；未运行 `wallet_api_fail_contract_test.dart`（禁令）。
+- 2026-08-19 生产只读复跑维持：`wallet_api_test.dart` 以 `.env.pro` read_env 注入
+  （`TEST_ALLOW_API_WRITES` 保持关闭）运行 `4/4 All tests passed`
+  （登录 uid=4；balance/transactions 结构与分/元一致性）；`wallet_api_fail_contract_test.dart`
+  未运行（禁令维持，历史审计要求禁止重新运行）。
 - 本轮另有误运行的 `wallet_api_fail_contract_test.dart` 向生产转账端点发送无效参数校验请求并收到 `400`；未观察到成功响应，该结果不计入证据，副作用仍需服务端审计确认，禁止重新运行。
 - 页面计划记录过一次真机小额转账成功和聊天气泡回传，但也记录了前端最低金额与后端最低金额不一致的问题。
   **2026-08-17 复核（转账）**：后端 `transfer_logic.erl:14` 要求 `Amount >= 100` 分（1 元）；前端
@@ -162,6 +166,50 @@ accept 用例执行方式说明：`dart test` 不支持 `--dart-define`（packag
 本轮结论：**DF-17 本地 API 全闭环通过**；BUG-A/BUG-B 均已修复且部署生效。UI 链路（钱包页/转账页/
 聊天气泡/取消交互）仍无设备未复验。
 
+## 6.2 2026-08-19 复跑维持：7/7 通过 + transfer_order 0 悬挂
+
+环境：本地后端 `http://127.0.0.1:9800`（healthz `1.0.0-alpha.36`，db up，节点未干预）；账号同第 6 节
+（A=13900001002/uid=104250986822109184，B=smoke_bob/uid=1000000056），remark 带 `DEMO-FLOW-20260819` 标记。
+
+本轮测试资产改进（第 6.1 节遗留建议落地）：`integration_test/demo_flow/wallet_transfer_flow_test.dart`
+的 accept 门禁已从 `--dart-define` 扩展为**同时接受环境变量 `TEST_EXPECT_TRANSFER_ACCEPT_FIXED=true`**
+（dart test 不支持 --dart-define），且主闭环用例在门禁打开时会顺带 accept 回收本笔转账，套件不再遗留
+悬挂 pending；数据标记更新为 `DEMO-FLOW-20260819`。
+
+命令（`TEST_EXPECT_TRANSFER_ACCEPT_FIXED=true` 打开 accept 用例，其余同第 6 节）：
+
+```bash
+read_env() { awk -F= -v key="$1" '$1 == key {sub(/^[^=]*=/, ""); gsub(/^"|"$/, ""); print; exit}' .env.local; }
+API_BASE_URL=http://127.0.0.1:9800 \
+IMBOY_SOLIDIFIED_KEY="$(read_env SOLIDIFIED_KEY)" \
+TEST_PHONE=13900001002 TEST_PASSWORD=admin888 \
+TEST_PHONE2=smoke_bob TEST_PASSWORD2=demoflow888 \
+TEST_ALLOW_API_WRITES=true \
+TEST_EXPECT_TRANSFER_ACCEPT_FIXED=true \
+dart test integration_test/demo_flow/wallet_transfer_flow_test.dart --concurrency=1
+# 结果：7 passed, 0 skipped, All tests passed!（accept 用例首次随套件直接执行）
+```
+
+注：`.env.local` 的 SOLIDIFIED_KEY 值带双引号，read_env 提取时需 `gsub(/^"|"$/, "")` 去引号，
+否则签名失败。
+
+本轮关键数字（DF-17 先于 DF-18 串行执行，避免动余额自我竞争）：
+
+1. 期初余额 A=2970 分、B=900 分（与 08-18 期末 1980/800 的差额 +990/+100 为 08-18 记录后
+   其他并行流程所致，非本流程操作；本套件断言均为本次操作净变化，外部漂移不影响）。
+2. 主闭环：topup 100 → A=3070；send（transfer_id=`107851467895080960`）→ A=2970（净 0）；
+   A 流水含 -100 tx_type=5「转账给好友」；B accept 前 900 不变（pending 语义）→ accept 后
+   B=1000（+100）；重复 accept `code=1 状态不合法，无法收取`，余额保持。
+3. 独立 accept 用例：transfer_id=`107851468014618624`，B 1000→1100（+100），流水含 +100
+   tx_type=6 入账条目，重复 accept 拒绝且余额不变。
+4. 错误分支与 08-18 完全一致：99/"10.5"/0 →「转账参数不合法」；超余额 → `code=1 钱包余额不足`
+   （BUG-B 修复维持）；receiver_uid 空/`abc` 均拒绝。
+5. 服务端 DB 只读取证：`transfer_order` 表状态分布 **7 笔 accepted / 700 分、0 笔 pending**；
+   本轮两笔 `DEMO-FLOW-20260819` 转账均 accepted，无悬挂。
+
+本轮净资金变化：A 净 0（topup +200 / send -200），B +200（两笔 accept）；期末 A=2970、B=1100
+（其后 DF-18 红包再 +100 → 1200，见 red_packet_flow.md）。
+
 ## 7. 未来自动化目标
 
 建议分成两个文件：
@@ -171,6 +219,8 @@ accept 用例执行方式说明：`dart test` 不支持 `--dart-define`（packag
 
 **2026-08-17 已落地**：`integration_test/demo_flow/wallet_transfer_flow_test.dart`（纯 dart test，本地门禁
 `TEST_ALLOW_API_WRITES=true` + 本地地址 + 双账号，默认 SKIP），覆盖 topup→send→余额/流水回读与 5 类错误分支；
-accept 收款闭环用例带 `TEST_EXPECT_TRANSFER_ACCEPT_FIXED` 门禁（待后端修复 BUG-A 后打开）。
+accept 收款闭环用例带 `TEST_EXPECT_TRANSFER_ACCEPT_FIXED` 门禁。
+**2026-08-19 更新**：该门禁已支持环境变量方式（`dart test` 直接打开，`--dart-define` 仍兼容），
+主闭环用例在门禁打开时自动 accept 回收本笔转账，套件不再遗留悬挂 pending。
 
 自动化测试不得把真实支付凭证写入命令、源码、日志或仓库文件。

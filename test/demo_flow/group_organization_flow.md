@@ -1,7 +1,7 @@
 # DF-15 群分类/标签 → 二维码 → 邀请入群
 
 > 优先级：P1
-> 状态：`分类/标签写入与回读本地通过（2026-08-17 通过，2026-08-18 复跑维持） / 二维码 URL 构造+读码端点：08-17 通过，08-18 本地后端回归 302（环境级：solidified_key 未注入，见根因） / 客户端渲染无头回归 08-18 受 Flutter SDK 环境阻塞（08-17 证据 9/9 维持） / 扫码入群双端阻塞`
+> 状态：`分类/标签写入与回读本地通过（2026-08-19 复跑 4/4，二维码读码回归恢复） / 二维码 URL 构造+读码端点通过（08-19 有效 tk code=0、无效 tk 302；08-18 的 302 回归不再复现，阻塞解除） / 客户端渲染无头回归 08-19 实测 9/9 通过（08-18 SDK 问题未复现） / 扫码入群双端阻塞`
 
 ## 1. 目标
 
@@ -35,7 +35,14 @@
 
 ## 5. 当前覆盖与阻塞
 
-- 2026-08-18 后端升级后复跑（alpha.36）：`group_organization_local_api_flow_test.dart` 结果 `3 passed + 1 failed`，出现**回归**（08-17 同测试 4/4）。
+- 2026-08-19（DEMO-FLOW-20260819）复跑 `4/4 All tests passed`，**08-18 的二维码读码 302 回归不再复现（阻塞解除）**：
+  - 群分类：`POST /api/v1/group/category/create`（`DEMO-FLOW-20260819-CAT-*`）code=0，返回 TSID id（107850845605070848）→ `category/list` 回读命中（列表累计 6 个分类），维持通过。
+  - 群标签：绑定测试群（复用 DF-14 本轮自举群 gid=107850811471824896）code=0 msg=标签添加成功 → `tag/list` 回读命中（群累计 1 个标签），维持通过。
+  - 群二维码：按客户端算法（`md5(exp_solidifiedKey)`，key 取 `.env.local` SOLIDIFIED_KEY）构造有效 tk → `GET /api/v1/group/qrcode?id&exp&tk&s=app_qrcode`（已登录）**恢复返回 `code=0 msg=success`**，payload 含群信息与 group_member（role=4）；无效 tk 仍返回 302 重定向（non_json_response），不误入群。与 08-17 通过口径一致。
+  - **302 回归根因复核（只读）**：beam 进程（今日 10:25 重启，PID 37755，加载 alpha.36 sys.config）经 `ps eww` 探测仍无任何 `IMBOY_*` 环境变量；`sys.config`/`sys.local.config`/`sys.runtime.config` 亦无 solidified_key 条目——**但 tk 校验实测通过**，说明服务端运行时 solidified_key 与 imboyapp `.env.local` 一致，08-18 描述的「节点名哈希派生 dev key」分支与本轮实测不符（`config_ds:env` 只读 application env；实际注入途径未能从进程外部定位，可能为 `ps eww` 不显示全部环境变量、启动参数或运行期 set_env）。结论：**回归自愈/已被人工处置，无需后续端变更，环境级阻塞解除**；该用例继续作为环境配置漂移的自动哨兵保留。
+  - 客户端二维码渲染无头复跑：`test/unit_test/page/qrcode/qrcode_pages_test.dart` + `qrcode_url_test.dart` 本轮实测 `9/9 All tests passed`——08-18 记录的 Flutter 3.47.0 SDK `text_painter.dart` 编译错误**未复现**（SDK/工件环境问题已消失，非二维码业务代码变化），恢复为实测证据而非历史引用。
+  - 生产只读复跑（`.env.pro` read_env 提取，零写入）：`group_category_api_test.dart` 3 通过；`group_tag_api_test.dart` 5 通过（含无效 gid 业务响应边界），合计 8 过 0 跳 0 失败，维持 08-17 口径。未在生产写入分类/标签。
+- 2026-08-18 后端升级后复跑（alpha.36）：`group_organization_local_api_flow_test.dart` 结果 `3 passed + 1 failed`，出现**回归**（08-17 同测试 4/4）。【历史记录：该回归于 08-19 复核确认不再复现，见上条】
   - 群分类：创建（`DEMO-FLOW-20260817-CAT-*`）code=0，返回 TSID id → `category/list` 回读命中（列表累计 5 个分类），维持通过。
   - 群标签：绑定测试群（gid=107539326623287296）code=0 → `tag/list` 回读命中（群累计 3 个标签），维持通过。
   - 群二维码：**读码端点 `GET /api/v1/group/qrcode?id&exp&tk&s=app_qrcode` 对按客户端算法（`md5(exp_solidifiedKey)`）构造的有效 tk 返回 HTTP 302 重定向（non_json），`code=0` 不再出现**——08-17 通过、08-18 失败，回归窗口在后端 alpha.27 → alpha.36 升级 + 今早 08:46 重启。
@@ -56,4 +63,4 @@
 
 ## 6. 未来自动化目标
 
-`integration_test/demo_flow/group_organization_local_api_flow_test.dart` 已落地分类/标签/二维码 URL 与读码端点的 API 级回归；其中二维码读码用例在本地后端未注入 IMBOY_SOLIDIFIED_KEY 时会如实失败（2026-08-18 即如此），本身就是该环境配置漂移的自动哨兵，属预期行为不需要改测试。后续优先补扫码识别（`scanner_result_page`）与双端扫码入群闭环。
+`integration_test/demo_flow/group_organization_local_api_flow_test.dart` 已落地分类/标签/二维码 URL 与读码端点的 API 级回归；其中二维码读码用例在本地后端未注入 IMBOY_SOLIDIFIED_KEY 且无等效 key 时会如实失败（2026-08-18 即如此，08-19 已恢复），本身就是该环境配置漂移的自动哨兵，属预期行为不需要改测试。后续优先补扫码识别（`scanner_result_page`）与双端扫码入群闭环。

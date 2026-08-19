@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/component/ui/debounce_button.dart';
 import 'package:imboy/component/ui/phone_input.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -10,6 +10,7 @@ import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/bezier_container.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
+import 'package:imboy/page/passport/widget/other_login_section.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -30,6 +31,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
   // Mobile Input
   final TextEditingController _mobileController = TextEditingController();
   String _fullMobile = '';
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -43,6 +45,11 @@ class _SignupPageState extends ConsumerState<SignupPage>
         ref.read(passportProvider.notifier).setAccountType(type);
       }
     });
+
+    _nicknameController.addListener(() => setState(() {}));
+    _emailController.addListener(() => setState(() {}));
+    _passwordController.addListener(() => setState(() {}));
+    _mobileController.addListener(() => setState(() {}));
   }
 
   @override
@@ -84,9 +91,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: height * 0.12),
+                  SizedBox(height: height * 0.05),
                   const PassportTitle(color: AppColors.primary),
-                  const SizedBox(height: 40),
+                  AppSpacing.verticalXLarge,
 
                   // Tabs
                   TabBar(
@@ -99,10 +106,10 @@ class _SignupPageState extends ConsumerState<SignupPage>
                       Tab(text: t.account.mobile),
                     ],
                   ),
-                  AppSpacing.verticalLarge,
+                  AppSpacing.verticalRegular,
 
                   SizedBox(
-                    height: 340,
+                    height: 290,
                     child: TabBarView(
                       controller: _tabController,
                       children: [
@@ -112,11 +119,15 @@ class _SignupPageState extends ConsumerState<SignupPage>
                     ),
                   ),
 
-                  AppSpacing.verticalLarge,
-                  // Quick Login / One Click Login
-                  _buildQuickLogin(notifier),
+                  AppSpacing.verticalRegular,
+                  OtherLoginSection(
+                    notifier: notifier,
+                    isDark: _isDark,
+                    showAlipay: true,
+                    showOneKey: true,
+                  ),
 
-                  AppSpacing.verticalLarge,
+                  AppSpacing.verticalRegular,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -158,333 +169,285 @@ class _SignupPageState extends ConsumerState<SignupPage>
     );
   }
 
+  InputDecoration _getInputDecoration({
+    required String hintText,
+    required IconData prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      prefixIcon: Icon(prefixIcon, color: AppColors.primary, size: 20),
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: _inputFill,
+      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: _isDark ? AppColors.darkBorder : AppColors.iosGray5,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: AppColors.primary),
+      ),
+    );
+  }
+
   Widget _buildEmailRegister(PassportState state, PassportNotifier notifier) {
-    return Column(
-      children: [
-        TextField(
-          controller: _nicknameController,
-          style: TextStyle(
-            color: _isDark
-                ? AppColors.darkTextPrimary
-                : AppColors.lightTextPrimary,
-          ),
-          keyboardType: TextInputType.name,
-          textInputAction: TextInputAction.next,
-          decoration: InputDecoration(
-            hintText: t.account.nicknameHint,
-            prefixIcon: const Icon(
-              Icons.person_outline,
-              color: AppColors.primary,
+    final bool isEnabled =
+        _nicknameController.text.trim().isNotEmpty &&
+        _emailController.text.trim().isNotEmpty &&
+        _passwordController.text.isNotEmpty;
+
+    return AutofillGroup(
+      child: Column(
+        children: [
+          TextField(
+            controller: _nicknameController,
+            style: TextStyle(
+              color: _isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
             ),
-            filled: true,
-            fillColor: _inputFill,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: _isDark
-                  ? const BorderSide(color: AppColors.darkBorder)
-                  : BorderSide.none,
+            keyboardType: TextInputType.name,
+            textInputAction: TextInputAction.next,
+            readOnly: _isLoading,
+            autofillHints: const [AutofillHints.nickname],
+            decoration: _getInputDecoration(
+              hintText: t.account.nicknameHint,
+              prefixIcon: Icons.person_outline,
             ),
           ),
-        ),
-        const SizedBox(height: 15),
-        TextField(
-          controller: _emailController,
-          style: TextStyle(
-            color: _isDark
-                ? AppColors.darkTextPrimary
-                : AppColors.lightTextPrimary,
-          ),
-          keyboardType: TextInputType.emailAddress,
-          textInputAction: TextInputAction.next,
-          decoration: InputDecoration(
-            hintText: t.passport.hintEmail,
-            prefixIcon: const Icon(Icons.email, color: AppColors.primary),
-            filled: true,
-            fillColor: _inputFill,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: _isDark
-                  ? const BorderSide(color: AppColors.darkBorder)
-                  : BorderSide.none,
+          const SizedBox(height: 15),
+          TextField(
+            controller: _emailController,
+            style: TextStyle(
+              color: _isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
+            ),
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            readOnly: _isLoading,
+            autofillHints: const [AutofillHints.email],
+            decoration: _getInputDecoration(
+              hintText: t.passport.hintEmail,
+              prefixIcon: Icons.email,
             ),
           ),
-        ),
-        const SizedBox(height: 15),
-        TextField(
-          controller: _passwordController,
-          style: TextStyle(
-            color: _isDark
-                ? AppColors.darkTextPrimary
-                : AppColors.lightTextPrimary,
-          ),
-          obscureText: state.loginPwdObscure,
-          decoration: InputDecoration(
-            hintText: t.passport.hintPassword,
-            prefixIcon: const Icon(Icons.lock, color: AppColors.primary),
-            suffixIcon: IconButton(
-              tooltip: state.loginPwdObscure
-                  ? t.common.showPassword
-                  : t.common.hidePassword,
-              icon: Icon(
-                state.loginPwdObscure ? Icons.visibility : Icons.visibility_off,
-              ),
-              onPressed: () => notifier.toggleLoginPwdObscure(),
+          const SizedBox(height: 15),
+          TextField(
+            controller: _passwordController,
+            style: TextStyle(
+              color: _isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
             ),
-            filled: true,
-            fillColor: _inputFill,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: _isDark
-                  ? const BorderSide(color: AppColors.darkBorder)
-                  : BorderSide.none,
-            ),
-          ),
-        ),
-        AppSpacing.verticalLarge,
-        DebounceButton(
-          text: t.common.nextStep,
-          width: double.infinity,
-          height: 50,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          textStyle: context.textStyle(
-            FontSizeType.large,
-            color: AppColors.onPrimary,
-          ),
-          onPressed: () async {
-            FocusScope.of(context).unfocus();
-            final nickname = _nicknameController.text.trim();
-            final email = _emailController.text.trim();
-            final pwd = _passwordController.text;
-            if (nickname.isEmpty) {
-              notifier.snackBar(t.common.nicknameEmptyError);
-              return;
-            }
-            if (email.isEmpty || pwd.isEmpty) {
-              notifier.snackBar(
-                t.common.errorEmptyDirectory(
-                  param: "${t.account.email}/${t.account.password}",
+            obscureText: state.loginPwdObscure,
+            readOnly: _isLoading,
+            autofillHints: const [AutofillHints.newPassword],
+            decoration: _getInputDecoration(
+              hintText: t.passport.hintPassword,
+              prefixIcon: Icons.lock,
+              suffixIcon: IconButton(
+                tooltip: state.loginPwdObscure
+                    ? t.common.showPassword
+                    : t.common.hidePassword,
+                icon: Icon(
+                  state.loginPwdObscure
+                      ? Icons.visibility
+                      : Icons.visibility_off,
                 ),
-              );
-              return;
-            }
-            final error = await notifier.sendCode('email', email, 'signup');
-            if (error == null) {
-              notifier.setSignupData(
-                account: email,
-                accountType: 'email',
-                password: pwd,
-                nickname: nickname,
-              );
-              if (mounted) {
-                context.push('/sign_up/continue');
-              }
-            } else {
-              notifier.snackBar(error);
-            }
-          },
-        ),
-      ],
+                onPressed: () => notifier.toggleLoginPwdObscure(),
+              ),
+            ),
+          ),
+          AppSpacing.verticalLarge,
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: (_isLoading || !isEnabled)
+                  ? null
+                  : () async {
+                      FocusScope.of(context).unfocus();
+                      final nickname = _nicknameController.text.trim();
+                      final email = _emailController.text.trim();
+                      final pwd = _passwordController.text;
+                      if (nickname.isEmpty) {
+                        notifier.snackBar(t.common.nicknameEmptyError);
+                        return;
+                      }
+                      if (email.isEmpty || pwd.isEmpty) {
+                        notifier.snackBar(
+                          t.common.errorEmptyDirectory(
+                            param: "${t.account.email}/${t.account.password}",
+                          ),
+                        );
+                        return;
+                      }
+                      setState(() => _isLoading = true);
+                      final error = await notifier.sendCode(
+                        'email',
+                        email,
+                        'signup',
+                      );
+                      if (mounted) setState(() => _isLoading = false);
+                      if (error == null) {
+                        notifier.setSignupData(
+                          account: email,
+                          accountType: 'email',
+                          password: pwd,
+                          nickname: nickname,
+                        );
+                        if (mounted) {
+                          context.push('/sign_up/continue');
+                        }
+                      } else {
+                        notifier.snackBar(error);
+                      }
+                    },
+              child: _isLoading
+                  ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
+                  : Text(t.common.nextStep),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildMobileRegister(PassportState state, PassportNotifier notifier) {
-    return Column(
-      children: [
-        TextField(
-          controller: _nicknameController,
-          style: TextStyle(
-            color: _isDark
-                ? AppColors.darkTextPrimary
-                : AppColors.lightTextPrimary,
-          ),
-          keyboardType: TextInputType.name,
-          textInputAction: TextInputAction.next,
-          decoration: InputDecoration(
-            hintText: t.account.nicknameHint,
-            prefixIcon: const Icon(
-              Icons.person_outline,
-              color: AppColors.primary,
-            ),
-            filled: true,
-            fillColor: _inputFill,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: _isDark
-                  ? const BorderSide(color: AppColors.darkBorder)
-                  : BorderSide.none,
-            ),
-          ),
-        ),
-        const SizedBox(height: 15),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: _inputFill,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: _isDark ? AppColors.darkBorder : AppColors.lightBorder,
-            ),
-          ),
-          child: PhoneInputWidget(
-            initialValue: '',
-            onInputChanged: (String fullNumber) {
-              _fullMobile = fullNumber;
-              _mobileController.text = fullNumber.replaceFirst(
-                RegExp(r'^\+\d+'),
-                '',
-              );
-            },
-            hintText: t.passport.hintMobile,
-          ),
-        ),
-        const SizedBox(height: 15),
-        TextField(
-          controller: _passwordController,
-          style: TextStyle(
-            color: _isDark
-                ? AppColors.darkTextPrimary
-                : AppColors.lightTextPrimary,
-          ),
-          obscureText: state.loginPwdObscure,
-          decoration: InputDecoration(
-            hintText: t.passport.hintPassword,
-            prefixIcon: const Icon(Icons.lock, color: AppColors.primary),
-            suffixIcon: IconButton(
-              tooltip: state.loginPwdObscure
-                  ? t.common.showPassword
-                  : t.common.hidePassword,
-              icon: Icon(
-                state.loginPwdObscure ? Icons.visibility : Icons.visibility_off,
-              ),
-              onPressed: () => notifier.toggleLoginPwdObscure(),
-            ),
-            filled: true,
-            fillColor: _inputFill,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: _isDark
-                  ? const BorderSide(color: AppColors.darkBorder)
-                  : BorderSide.none,
-            ),
-          ),
-        ),
-        AppSpacing.verticalLarge,
-        DebounceButton(
-          text: t.common.nextStep,
-          width: double.infinity,
-          height: 50,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          textStyle: context.textStyle(
-            FontSizeType.large,
-            color: AppColors.onPrimary,
-          ),
-          onPressed: () async {
-            FocusScope.of(context).unfocus();
-            final nickname = _nicknameController.text.trim();
-            if (nickname.isEmpty) {
-              notifier.snackBar(t.common.nicknameEmptyError);
-              return;
-            }
-            if (_fullMobile.isEmpty || _passwordController.text.isEmpty) {
-              notifier.snackBar(
-                t.common.errorEmptyDirectory(
-                  param: "${t.account.mobile}/${t.account.password}",
-                ),
-              );
-              return;
-            }
-            final error = await notifier.sendCode(
-              'mobile',
-              _fullMobile,
-              'signup',
-            );
-            if (error == null) {
-              notifier.setSignupData(
-                account: _fullMobile,
-                accountType: 'mobile',
-                password: _passwordController.text,
-                nickname: nickname,
-              );
-              if (mounted) {
-                context.push('/sign_up/continue');
-              }
-            } else {
-              notifier.snackBar(error);
-            }
-          },
-        ),
-      ],
-    );
-  }
+    final bool isEnabled =
+        _nicknameController.text.trim().isNotEmpty &&
+        _mobileController.text.trim().isNotEmpty &&
+        _passwordController.text.isNotEmpty;
 
-  Widget _buildQuickLogin(PassportNotifier notifier) {
-    // Placeholder for One-Click Login (JVerify usually)
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Divider(color: _isDark ? AppColors.darkBorder : null),
+    return AutofillGroup(
+      child: Column(
+        children: [
+          TextField(
+            controller: _nicknameController,
+            style: TextStyle(
+              color: _isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text(
-                "OR",
-                style: TextStyle(
-                  color: _isDark
-                      ? AppColors.darkTextSecondary
-                      : AppColors.iosGray,
-                ),
+            keyboardType: TextInputType.name,
+            textInputAction: TextInputAction.next,
+            readOnly: _isLoading,
+            autofillHints: const [AutofillHints.nickname],
+            decoration: _getInputDecoration(
+              hintText: t.account.nicknameHint,
+              prefixIcon: Icons.person_outline,
+            ),
+          ),
+          const SizedBox(height: 15),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: _inputFill,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: _isDark ? AppColors.darkBorder : AppColors.iosGray5,
               ),
             ),
-            Expanded(
-              child: Divider(color: _isDark ? AppColors.darkBorder : null),
+            child: PhoneInputWidget(
+              initialValue: '',
+              onInputChanged: (String fullNumber) {
+                _fullMobile = fullNumber;
+                _mobileController.text = fullNumber.replaceFirst(
+                  RegExp(r'^\+\d+'),
+                  '',
+                );
+                setState(() {});
+              },
+              hintText: t.passport.hintMobile,
             ),
-          ],
-        ),
-        AppSpacing.verticalLarge,
-        Semantics(
-          label: t.passport.oneKeyLogin,
-          button: true,
-          child: InkWell(
-            onTap: () {
-              // Trigger JVerify or similar
-              notifier.snackBar(
-                "One-click login implementation pending JVerify setup",
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: _isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          ),
+          const SizedBox(height: 15),
+          TextField(
+            controller: _passwordController,
+            style: TextStyle(
+              color: _isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
+            ),
+            obscureText: state.loginPwdObscure,
+            readOnly: _isLoading,
+            autofillHints: const [AutofillHints.newPassword],
+            decoration: _getInputDecoration(
+              hintText: t.passport.hintPassword,
+              prefixIcon: Icons.lock,
+              suffixIcon: IconButton(
+                tooltip: state.loginPwdObscure
+                    ? t.common.showPassword
+                    : t.common.hidePassword,
+                icon: Icon(
+                  state.loginPwdObscure
+                      ? Icons.visibility
+                      : Icons.visibility_off,
                 ),
-              ),
-              child: const Icon(
-                Icons.touch_app,
-                color: AppColors.primary,
-                size: 30,
+                onPressed: () => notifier.toggleLoginPwdObscure(),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          t.passport.oneKeyLogin,
-          style: context.textStyle(FontSizeType.small, color: _unselectedLabel),
-        ),
-      ],
+          AppSpacing.verticalLarge,
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: (_isLoading || !isEnabled)
+                  ? null
+                  : () async {
+                      FocusScope.of(context).unfocus();
+                      final nickname = _nicknameController.text.trim();
+                      if (nickname.isEmpty) {
+                        notifier.snackBar(t.common.nicknameEmptyError);
+                        return;
+                      }
+                      if (_fullMobile.isEmpty ||
+                          _passwordController.text.isEmpty) {
+                        notifier.snackBar(
+                          t.common.errorEmptyDirectory(
+                            param: "${t.account.mobile}/${t.account.password}",
+                          ),
+                        );
+                        return;
+                      }
+                      setState(() => _isLoading = true);
+                      final error = await notifier.sendCode(
+                        'mobile',
+                        _fullMobile,
+                        'signup',
+                      );
+                      if (mounted) setState(() => _isLoading = false);
+                      if (error == null) {
+                        notifier.setSignupData(
+                          account: _fullMobile,
+                          accountType: 'mobile',
+                          password: _passwordController.text,
+                          nickname: nickname,
+                        );
+                        if (mounted) {
+                          context.push('/sign_up/continue');
+                        }
+                      } else {
+                        notifier.snackBar(error);
+                      }
+                    },
+              child: _isLoading
+                  ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
+                  : Text(t.common.nextStep),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

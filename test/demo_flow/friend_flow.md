@@ -1,6 +1,6 @@
 # DF-02 添加好友流程
 
-> 状态：`本地 API 闭环通过（2026-08-17 建立，2026-08-18 alpha.36 复跑 7/7 维持）/ 双端 UI 通知验证待执行（设备已恢复在线）`
+> 状态：`本地 API 闭环通过（2026-08-17 建立，2026-08-19 alpha.36 复跑 7/7 维持）/ 生产只读 5/5（2026-08-19 复跑维持）/ 双端 UI 通知验证待执行（本轮 Android 真机未连接，iPhone 16e 在线但属真机轮次）`
 > 优先级：P0
 > 类型：基础关系建立流程
 
@@ -68,6 +68,12 @@
 - 2026-08-17 阻塞：双端 UI 通知验证仍缺第二设备（本轮无 Android/iOS 真机在线，macOS 设备被其他会话独占）。B 侧收到申请的「新朋友」入口红点/通知、双方 App 内联系人列表刷新的 UI 呈现未验证；现有结论止步于 API 层。
 - 2026-08-18：**alpha.36 复跑维持通过（7/7 All tests passed）**。后端升级后全链路无回归：搜索→删除自愈→申请 code=0→重复申请被拒→确认 payload.is_friend=1→双方 friend/list 回读 is_friend=1→无结果边界空列表。命令与 08-17 相同（`dart test integration_test/demo_flow/friend_flow_api_test.dart --concurrency=1` + 三重门禁环境变量）。本轮运行注意：① 上轮创建账号的密码未持久化，本轮经本地 DB（127.0.0.1:4323 imboy_v1）为两个 DEMO-FLOW 昵称合成账号重置密码（按 `elib_password:generate` 的 hmac_sha512+盐格式写入 password 字段，仅命中 nickname LIKE 'DEMO-FLOW%' 两行，可回收本地测试数据）；② `scripts/test.env` 的 `API_BASE_URL` 行带行内注释（`http://127.0.0.1:9800   # dart test ... 使用`），文件头部的 `read_env` awk 提取会把注释拼进 URL 使 dio 请求打到非法地址（表现为登录「code=200 non_json_response」），双账号测试需以 `.env.local` 取 API_BASE_URL 或显式传干净值，单账号测试不要按 `qrcode_invite_flow_test.dart` 头部注释从 scripts/test.env 读 API_BASE_URL。
 - 2026-08-18 设备复核：`flutter devices` 显示 Android 真机 MRD AL00（XWE6R19916004085，Android 9）与 iPhone 16e（iOS 26.6）均已在线——上轮「无第二设备」的阻塞条件已解除。但双端 UI 通知闭环需两台设备各自构建登录 A/B 账号（真机还需将 API 指向本机局域网地址而非 127.0.0.1）并实时观察 B 侧「新朋友」红点/通知，属专门轮次的真机验收，本轮未执行；结论仍止步于 API 层，不以设备在线代替 UI 证据。
+- 2026-08-19：**alpha.36 复跑维持通过（7/7 All tests passed）**。环境：本地后端 `http://127.0.0.1:9800`（healthz `{"status":"ok","db":"up","version":"1.0.0-alpha.36"}`）。命令与既定一致（`dart test integration_test/demo_flow/friend_flow_api_test.dart --concurrency=1` + 三重门禁：`API_BASE_URL` 取自 `.env.local`（干净值）、`IMBOY_ENV_PRO=.env.local`、双账号 + `TEST_ALLOW_API_WRITES=true`）。本轮操作记录：
+  - 账号凭证恢复：08-18 重置的密码未持久化，本轮按同款先例经本地 DB（127.0.0.1:4323 imboy_v1）为两个 DEMO-FLOW 昵称账号重置密码（`UPDATE "user" SET password=... WHERE nickname='DEMO-FLOW-20260817-A/B'`，各命中 1 行；哈希按 `elib_password:generate/1` 的 hmac_sha512+盐格式，登录复验 A code=0 uid=107539488731039744）；明文凭证仅存 `/tmp/demo_flow_20260819_creds.env`（600，不入仓）。
+  - 测试微调：`kFlowMark` 升级为 `DEMO-FLOW-20260819`（本轮新写入数据标记）；步骤 1 的昵称兜底搜索 keyword 由 `$kFlowMark-B`（随标记递增会失配）固定为建号昵称 `DEMO-FLOW-20260817-B`，主搜索路径（B 手机号 + allow_search=1）不受影响。
+  - 全链路复验：搜索命中 B → 步骤 2 自愈删除 08-18 遗留好友关系（friend/delete code=0，删除后 A 列表无 B）→ 申请 code=0 → 重复申请被拒 → 确认 payload.is_friend=1 → 双方 friend/list 回读 is_friend=1 → 无结果边界空列表。本轮新增好友关系两条（备注 DEMO-FLOW-20260819-A/B，可回收）。
+- 2026-08-19 生产只读复跑：`contact_api_test.dart` 以 `.env.pro` 变量注入（read_env 提取，未 source、凭证未输出、未设 `TEST_ALLOW_API_WRITES`）→ **5/5 通过**（好友列表/本人资料/搜索可达/黑名单分页，登录 uid=4），零写入，维持 08-17 结论。
+- 2026-08-19 设备复核：Android 真机 MRD AL00 本轮未连接（08-18 曾在线）；iPhone 16e 无线在线；双端 UI 通知闭环维持「待真机」，不以设备在线代替 UI 证据。
 
 ## 6. 未来自动化目标
 

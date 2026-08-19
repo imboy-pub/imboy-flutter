@@ -30,7 +30,7 @@ import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 import '../../test/unit_test/api/api_test_client.dart';
 
-const _prefix = 'DEMO-FLOW-20260817';
+const _prefix = 'DEMO-FLOW-20260819';
 final _runTs = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
 void _log(String msg) => stderr.writeln('[DF14-LOCAL] $msg');
@@ -187,7 +187,7 @@ void main() {
   test('群文件闭环：上传 1KB 代码生成文本 → 列表回读 → view_url 授权访问', () async {
     final fileName = '$_prefix-FILE-$_runTs.txt';
     final content =
-        'DEMO-FLOW-20260817 local group file upload probe '
+        'DEMO-FLOW-20260819 local group file upload probe '
         'run=$_runTs ${List.filled(24, '0123456789').join()}';
     final bytes = utf8.encode(content);
     _log('上传文件 $fileName bytes=${bytes.length}');
@@ -255,7 +255,16 @@ void main() {
       'title',
     ], fileName);
     expect(file, isNotNull, reason: '文件列表回读必须包含新上传文件');
-    final objectKey = '${file?['object_key'] ?? file?['url'] ?? ''}';
+    // group_file 表无 object_key 列（file_url 为 Garage 私桶裸 URL）；
+    // BUG#137 修复后上传时补写 attachment 记录，其 path = "<file_id>/<file_name>"，
+    // 按该格式构造 object_key 走 view_url presign 签发。
+    var objectKey = '${file?['object_key'] ?? ''}';
+    if (objectKey.isEmpty || objectKey.startsWith('http')) {
+      final fid = '${file?['file_id'] ?? file?['id'] ?? ''}';
+      final fname =
+          '${file?['file_name'] ?? file?['name'] ?? file?['title'] ?? ''}';
+      if (fid.isNotEmpty && fname.isNotEmpty) objectKey = '$fid/$fname';
+    }
     _log(
       '列表回读命中 file_id=${file?['file_id'] ?? file?['id']} '
       'object_key=${objectKey.isEmpty ? '<无>' : objectKey}',

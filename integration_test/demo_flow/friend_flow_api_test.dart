@@ -26,8 +26,8 @@ import 'package:test/test.dart';
 
 import '../../test/unit_test/api/api_test_client.dart';
 
-/// 写入数据的统一标记前缀（本地可回收测试数据）。
-const kFlowMark = 'DEMO-FLOW-20260817';
+/// 写入数据的统一标记前缀（本地可回收测试数据，每轮复核递增日期）。
+const kFlowMark = 'DEMO-FLOW-20260819';
 
 /// 从 payload 提取 list（兼容 List / {list:[]} / {data:[]}）。
 List<dynamic> _extractList(dynamic payload) {
@@ -157,9 +157,9 @@ void main() {
     if (!ready) {
       return markTestSkipped(skipReason ?? '环境未就绪');
     }
-    // 先按 B 的手机号搜，搜不到再按昵称兜底（允许被搜索开关等差异）
+    // 先按 B 的手机号搜，搜不到再按昵称兜底（B 昵称为 2026-08-17 建号固定值）
     Map<Object?, Object?>? hit;
-    for (final keyword in [ApiTestConfig.testPhone2, '$kFlowMark-B']) {
+    for (final keyword in [ApiTestConfig.testPhone2, 'DEMO-FLOW-20260817-B']) {
       final resp = await clientA.get(
         '/api/v1/user/search',
         queryParameters: {'page': 1, 'size': 20, 'keyword': keyword},

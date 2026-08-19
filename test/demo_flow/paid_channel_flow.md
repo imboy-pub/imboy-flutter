@@ -1,7 +1,7 @@
 # DF-13 付费频道 → 订单 → 购买后解锁
 
 > 优先级：P1
-> 状态：`本地 mock 闭环通过（API 级，2026-08-18 复跑 6/6 维持）/ 生产付费验收阻塞`
+> 状态：`本地 mock 闭环通过（API 级，2026-08-19 复跑 6/6 维持，fixture 标记 DEMO-FLOW-20260819）/ 生产付费验收阻塞`
 > 风险等级：资金/权益写入，默认阻塞
 
 ## 1. 目标
@@ -75,6 +75,23 @@ Fixture：`PAID_FIXTURE_MARKER=imboy-paid-fixture-DEMO-FLOW-20260817 PAID_FIXTUR
 三重门禁复核：不带门禁变量运行 → `0 passed, 6 skipped`（All tests skipped），未发出任何请求。
 
 生产付费阻塞复核（2026-08-18，只读探针，与 api_test_client 同源签名）：`GET /api/v1/channels/discover` → code=0、7 项、type 分布 `{0:7}`（**仍无 type=2 付费频道样本**）；`GET /api/v1/channels/subscribed` → 0 项。生产付费验收维持 `阻塞`（无样本 + 生产禁写红线）。
+
+### 2026-08-19 复跑（本地 API 级，fixture 标记 DEMO-FLOW-20260819）
+
+环境：`http://127.0.0.1:9800/healthz` → alpha.36 db=up（imboy main@e6d785d0，未重启）。Fixture：新 marker `imboy-paid-fixture-DEMO-FLOW-20260819`（owner/buyer UID 沿用已确认值 106571324662745088 / 104250986822109184）→ `TEST_PAID_CHANNEL_ID=1787117025494239`。测试文件退款原因字符串同步更新为 `DEMO-FLOW-20260819 自动化回收`。
+
+结果：`dart test` 全绿 **6/6**，链路行为与 08-17/08-18 一致：
+
+1. paywall：详情 price=990 分、内容被拒（「付费频道需要先购买」）。
+2. mock topup 990 分：余额 1980 → 2970（期初 1980 为 08-18 期末遗留值，期间无其他 flow 动用该账号钱包，非本轮新增风险）。
+3. 订单 CH1787117032728923983（wallet 网关）支付成功 status=1；`orders/my` 回读命中。
+4. 解锁回读通过（has_purchased=true、is_subscribed=true、fixture 内容可读）；余额扣减 990 回到 1980。
+5. 退款回收：has_purchased=false、is_subscribed=false、内容重新被 paywall 拒绝、余额回补至 2970、订单 status=2（+990 为 mock topup 增量留存，与上轮模式一致）。
+6. 清理：`cleanup`（DELETE 1）后 `inspect` 输出为空、exit=0，无残留。
+
+三重门禁复核：不带门禁变量运行 → `0 passed, 6 skipped`（All tests skipped），未发出任何请求。
+
+生产付费阻塞复核（2026-08-19，只读探针并入 DF-05 本轮探针）：`GET /api/v1/channels/discover` → code=0、7 项、type 分布 `{0:7}`（仍无付费样本）；`subscribed` → 0 项。生产付费验收维持 `阻塞`（无样本 + 生产禁写红线，本轮对生产零写入零付费）。
 
 ## 6. 未来自动化目标
 

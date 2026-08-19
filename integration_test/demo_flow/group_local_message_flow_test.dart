@@ -4,7 +4,7 @@
 //   API_BASE_URL=http://127.0.0.1:9800 \
 //   IMBOY_SOLIDIFIED_KEY=<本地签名密钥> \
 //   TEST_PHONE=13900001002 TEST_PASSWORD=admin888 \
-//   TEST_PHONE2=test_886209702@example.com TEST_PASSWORD2=<B 密码> \
+//   TEST_PHONE2=smoke_bob TEST_PASSWORD2=demoflow888 \
 //   TEST_ALLOW_API_WRITES=true \
 //   dart test integration_test/demo_flow/group_local_message_flow_test.dart \
 //     --concurrency=1
@@ -32,7 +32,9 @@ import 'package:test/test.dart';
 
 import '../../test/unit_test/api/api_test_client.dart';
 
-const _msgPrefix = 'DEMO-FLOW-20260817';
+// 2026-08-18 起 B 账号为 smoke_bob（uid 1000000056，account 型登录，
+// 凭证见 moments/wallet/red_packet flow 文档）。
+const _msgPrefix = 'DEMO-FLOW-20260819';
 
 /// 与 ApiTestClient._defaultHeaders 相同的设备签名（did 与登录客户端一致）。
 Map<String, String> _signedHeaders(String deviceId) {

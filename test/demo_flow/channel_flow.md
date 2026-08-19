@@ -1,6 +1,6 @@
 # DF-01 频道发现 → 群聊协作 → 群日程 → 钱包转账
 
-> 状态：`部分通过 / 高风险段阻塞`（2026-08-18 复核维持：生产只读 API 复跑通过、频道→群结构性不成立结论在后端 alpha.36 下维持）
+> 状态：`部分通过 / 高风险段阻塞`（2026-08-19 复核维持：生产只读 API 复跑通过、频道→群结构性不成立结论在后端 alpha.36 下维持）
 > 优先级：P0
 > 类型：现有能力组合演示，不新增产品功能
 
@@ -89,6 +89,7 @@
 - 2026-08-18：生产只读复跑维持。`channel_api_test.dart` 6 过 + 1 门禁拦（5.1 空 name POST 在发请求前被 `ensureBusinessWriteAllowed` StateError 拦截，属生产禁写设计行为）；`channel_order_api_test.dart` 3 过 2 跳过（无订单数据）；`wallet_api_test.dart` 4 过；`channel_api_has_more_test.dart` 6 过（注意该文件 import `flutter_test`，需 `flutter test` 运行，`dart test` 无法加载——上轮"纯逻辑"指不依赖网络而非纯 Dart）。生产只读探针（dart 版临时脚本，与契约测试同源签名，运行后即删）：`GET /api/v1/channels/discover` → code=0、7 项、type 分布 `{0:7}`（仍无付费样本）；`GET /api/v1/channels/subscribed` → 0 项。结论与 08-17 一致。
 - 2026-08-17：本地 API 级订阅写入与付费解锁证据见 [channel_creator_flow.md](./channel_creator_flow.md)（creator 订阅自己频道 code=0、订阅者列表回读）与 [paid_channel_flow.md](./paid_channel_flow.md)（付费频道订单购买→解锁→退款全链）。本地 `channel` 表列复核：`id, name, description, avatar, type, custom_id, creator_uid, subscriber_count, is_verified, tags, status, updated_at, created_at`——**仍无群绑定字段**，频道→群→日程跨模块链路结构性不支持的结论维持。
 - 2026-08-18：后端升级后（imboy main@e6d785d0，运行 alpha.36）快速复核群绑定字段是否出现：全量 20 个 channel 后端模块（src/ds、src/logic 下 channel_*.erl）grep `to_group|group_id|groupid|group_bind` **零匹配**；本地 PG `channel` 表 13 列与 08-17 完全相同，仍无群绑定字段。**「频道→群跨模块结构性不成立」结论继续维持**。本地订阅/付费证据同步更新：DF-12 复跑 7/7（2026-08-18）、DF-13 复跑 6/6 含退款回收（2026-08-18），详见对应文档。
+- 2026-08-19：复核维持（后端仍为 imboy main@e6d785d0 / alpha.36，`/healthz` db=up）。生产只读复跑：`channel_api_test.dart` 6 过 + 1 门禁拦（5.1 空 name POST 发请求前被 StateError 拦截，生产禁写设计）；`channel_order_api_test.dart` 3 过 2 跳（无订单数据）；`wallet_api_test.dart` 4 过；`channel_api_has_more_test.dart` 6 过（`flutter test` 运行，本轮未触发 SDK artifact 编译错误）。生产只读探针（临时 dart 脚本，与契约测试同源签名，运行后已删）：`GET /api/v1/channels/discover` → code=0、7 项、type 分布 `{0:7}`（无付费样本）；`GET /api/v1/channels/subscribed` → 0 项。结构性抽查复核：19 个 channel 后端模块（src/ds 8 + src/logic 11 的 channel_*.erl）grep `to_group|group_id|groupid|group_bind` 仍**零匹配**；本地 PG `channel` 表仍为 13 列无群绑定字段。本地订阅/付费证据同步更新：DF-12 复跑 7/7（2026-08-19）、DF-13 复跑 6/6 含退款回收（2026-08-19），详见对应文档。
 - 订阅/付费购买（生产）、频道写入和真实钱包转账未执行；钱包仅完成受控接口检查，不能宣称 AA 结算。
 - 钱包转账属于资金写操作；前端最低金额与后端最低金额曾存在不一致，需先确认目标环境和金额规则。
 - 真实活动费用结算、AA、托管、退款不属于现有能力，暂不扩展。

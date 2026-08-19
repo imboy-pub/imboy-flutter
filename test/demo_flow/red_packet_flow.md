@@ -1,7 +1,7 @@
 # DF-18 红包发送 → 领取 → 详情
 
 > 优先级：P1
-> 状态：`通过（本地 API 闭环：发送/领取/重复领取拒绝/详情一致/双方余额流水，2026-08-18 复跑 4/4 维持）；UI 链路未复验；红包最低金额前后端不一致维持（P2 待修）`
+> 状态：`通过（本地 API 闭环：发送/领取/重复领取拒绝/详情一致/双方余额流水，2026-08-19 复跑 4/4 维持）；UI 链路未复验；红包最低金额前后端不一致维持（P2 待修）`
 > 风险等级：资金写入，默认阻塞
 
 ## 1. 目标
@@ -90,6 +90,22 @@ dart test integration_test/demo_flow/red_packet_flow_test.dart --concurrency=1
 红包最低金额前后端不一致复核（2026-08-18 维持）：后端 `red_packet_logic.erl:38`
 `Amount >= 100 andalso Count >= 1`；前端 `lib/page/wallet/red_packet_send_page.dart:72/238`
 仅拦 `amountFen < 1`。**不一致维持（P2 待修）**：1~99 分区间前端放行、后端拒绝。
+
+### 2026-08-19 复跑记录
+
+本地 API 闭环复跑（DF-17 之后串行执行，避免两者同时动钱包余额自我竞争；命令同上但
+`_marker` 已更新为 `DEMO-FLOW-20260819`，`--concurrency=1`）：`4 passed, 0 failed
+（All tests passed!）`——闭环用例 + 3 类错误分支。关键数字：期初 A=2970 分（DF-17 期末）、
+B=1100 分（DF-17 期末），`red_packet_id=107851515078903808`（topup 100 → 3070 → send 后
+2970，净 0）；B `open` `grab_amount=100`、余额 1100→1200（+100）；重复 open 被拒
+「红包已被领完或已过期」余额不变；双方 detail 一致（sender=104250986822109184、
+status=finished、receivers=1 仅 B=1000000056）；双方流水均含 ±100 分红包条目；
+错误分支（99 分「红包参数不合法」/count=0「红包参数不合法」/无效 id「红包不存在」）
+与 08-17/08-18 响应完全一致。
+
+红包最低金额前后端不一致复核（2026-08-19 维持）：后端 `src/logic/red_packet_logic.erl:38`
+`Amount >= 100 andalso Count >= 1`；前端 `lib/page/wallet/red_packet_send_page.dart:72/238`
+仅拦 `amountFen < 1`。**不一致维持（P2 待修）**。本轮净资金变化：A 净 0、B +100。
 
 ## 6. 未来自动化目标
 

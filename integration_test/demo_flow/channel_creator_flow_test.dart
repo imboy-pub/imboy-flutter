@@ -22,7 +22,7 @@
 //
 // 覆盖：创建频道(type=0/type=2) → 详情回读 → 编辑 → 发布内容 → 评论 → 管理列表回读。
 // 未覆盖：第二订阅者账号视角评论、邀请接受（本地无第二可登录测试账号）。
-// 清理策略：频道与内容保留在本地库（marker=DEMO-FLOW-20260817），不做删除写操作。
+// 清理策略：频道与内容保留在本地库（marker=DEMO-FLOW-20260819），不做删除写操作。
 
 @TestOn('vm')
 library;
@@ -33,7 +33,7 @@ import 'package:test/test.dart';
 
 import '../../test/unit_test/api/api_test_client.dart';
 
-const _marker = 'DEMO-FLOW-20260817';
+const _marker = 'DEMO-FLOW-20260819';
 
 void main() {
   late ApiTestClient client;
@@ -75,7 +75,7 @@ void main() {
 
   tearDownAll(() => client.close());
 
-  test('DF-12.1 创建免费频道（type=0，DEMO-FLOW-20260817 命名）', () async {
+  test('DF-12.1 创建免费频道（type=0，DEMO-FLOW-20260819 命名）', () async {
     if (skipOr(needChannel: false) != null) return;
     final resp = await client.post(
       '/api/v1/channel/create',

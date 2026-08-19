@@ -27,7 +27,7 @@ class MobilePhoneInputWidget extends StatelessWidget {
         onInputChanged(number.phoneNumber ?? '');
       },
       selectorConfig: const SelectorConfig(
-        selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+        selectorType: PhoneInputSelectorType.DIALOG,
       ),
       ignoreBlank: false,
       autoValidateMode: AutovalidateMode.disabled,

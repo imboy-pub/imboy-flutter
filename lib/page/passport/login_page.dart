@@ -12,6 +12,7 @@ import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/page/passport/widget/bezier_container.dart';
 import 'package:imboy/page/passport/widget/login_history_input.dart';
+import 'package:imboy/page/passport/widget/other_login_section.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -36,6 +37,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
   String _fullMobile = '';
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _emailCodeController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -49,6 +51,13 @@ class _LoginPageState extends ConsumerState<LoginPage>
         ref.read(passportProvider.notifier).setAccountType(type);
       }
     });
+
+    _accountController.addListener(() => setState(() {}));
+    _passwordController.addListener(() => setState(() {}));
+    _mobileController.addListener(() => setState(() {}));
+    _mobileCodeController.addListener(() => setState(() {}));
+    _emailController.addListener(() => setState(() {}));
+    _emailCodeController.addListener(() => setState(() {}));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(passportProvider.notifier).initLoginHistory();
@@ -90,9 +99,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  SizedBox(height: height * 0.08),
+                  SizedBox(height: height * 0.04),
                   const PassportTitle(color: AppColors.primary),
-                  const SizedBox(height: 40),
+                  AppSpacing.verticalXLarge,
 
                   // TabBar 对齐 iOS 风格
                   Container(
@@ -131,10 +140,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       ],
                     ),
                   ),
-                  AppSpacing.verticalXXLarge,
+                  AppSpacing.verticalRegular,
 
                   SizedBox(
-                    height: 320,
+                    height: 220,
                     child: TabBarView(
                       controller: _tabController,
                       children: [
@@ -165,26 +174,13 @@ class _LoginPageState extends ConsumerState<LoginPage>
                     ],
                   ),
 
-                  AppSpacing.verticalXXLarge,
-                  // 第三方登录
-                  Row(
-                    children: [
-                      const Expanded(child: Divider()),
-                      Padding(
-                        padding: AppSpacing.symmetricMedium,
-                        child: Text(
-                          t.account.otherLoginMethods,
-                          style: TextStyle(
-                            color: AppColors.iosGray,
-                            fontSize: FontSizeType.small.size,
-                          ),
-                        ),
-                      ),
-                      const Expanded(child: Divider()),
-                    ],
-                  ),
                   AppSpacing.verticalLarge,
-                  _buildAlipayButton(context, notifier),
+                  OtherLoginSection(
+                    notifier: notifier,
+                    isDark: isDark,
+                    showAlipay: true,
+                    showOneKey: true,
+                  ),
                 ],
               ),
             ),
@@ -204,64 +200,76 @@ class _LoginPageState extends ConsumerState<LoginPage>
     PassportNotifier notifier,
     bool isDark,
   ) {
-    return Column(
-      children: [
-        LoginHistoryInput(
-          key: const Key('login_phone_input'),
-          controller: _accountController,
-          hintText: t.account.hintLoginAccount,
-          prefixIcon: CupertinoIcons.person,
-          historyList: state.accountHistory,
-          onSelect: (val) => _accountController.text = val,
-          onDelete: (val) => notifier.removeHistory('account', val),
-        ),
-        AppSpacing.verticalRegular,
-        TextField(
-          key: const Key('login_password_input'),
-          controller: _passwordController,
-          obscureText: state.loginPwdObscure,
-          decoration: InputDecoration(
-            hintText: t.account.password,
-            prefixIcon: const Icon(CupertinoIcons.lock, size: 20),
-            suffixIcon: CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: Icon(
-                state.loginPwdObscure
-                    ? CupertinoIcons.eye
-                    : CupertinoIcons.eye_slash,
-                size: 20,
-                color: AppColors.iosGray,
+    final bool isEnabled =
+        _accountController.text.trim().isNotEmpty &&
+        _passwordController.text.isNotEmpty;
+
+    return AutofillGroup(
+      child: Column(
+        children: [
+          LoginHistoryInput(
+            key: const Key('login_phone_input'),
+            controller: _accountController,
+            hintText: t.account.hintLoginAccount,
+            prefixIcon: CupertinoIcons.person,
+            historyList: state.accountHistory,
+            autofillHints: const [AutofillHints.username, AutofillHints.email],
+            onSelect: (val) {
+              _accountController.text = val;
+              setState(() {});
+            },
+            onDelete: (val) => notifier.removeHistory('account', val),
+          ),
+          AppSpacing.verticalRegular,
+          TextField(
+            key: const Key('login_password_input'),
+            controller: _passwordController,
+            obscureText: state.loginPwdObscure,
+            readOnly: _isLoading,
+            autofillHints: const [AutofillHints.password],
+            decoration: _getInputDecoration(
+              hintText: t.account.password,
+              prefixIcon: CupertinoIcons.lock,
+              isDark: isDark,
+              suffixIcon: CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: Icon(
+                  state.loginPwdObscure
+                      ? CupertinoIcons.eye
+                      : CupertinoIcons.eye_slash,
+                  size: 20,
+                  color: AppColors.iosGray,
+                ),
+                onPressed: () => notifier.toggleLoginPwdObscure(),
               ),
-              onPressed: () => notifier.toggleLoginPwdObscure(),
             ),
           ),
-        ),
-        AppSpacing.verticalXXLarge,
-        _buildLoginButton(() {
-          final account = _accountController.text;
-          final pwd = _passwordController.text;
-          if (account.isEmpty || pwd.isEmpty) {
-            notifier.setError(
-              t.common.errorEmptyDirectory(
-                param: "${t.account.account}/${t.account.password}",
-              ),
-            );
-            return;
-          }
-          // 账号密码登录支持邮箱账号；服务端按 account/email 使用不同的
-          // 查询分支，邮箱不能继续伪装成 account，否则 API 登录成功但
-          // 客户端无法建立本地会话。
-          final accountType = account.contains('@') ? 'email' : 'account';
-          notifier.loginUser(accountType, account, pwd).then((err) {
-            if (err == null) {
-              notifier.saveHistory('account', account);
-              if (mounted) context.go('/bottom_navigation');
-            } else {
-              notifier.snackBar(err);
+          AppSpacing.verticalXXLarge,
+          _buildLoginButton(() {
+            final account = _accountController.text;
+            final pwd = _passwordController.text;
+            if (account.isEmpty || pwd.isEmpty) {
+              notifier.setError(
+                t.common.errorEmptyDirectory(
+                  param: "${t.account.account}/${t.account.password}",
+                ),
+              );
+              return;
             }
-          });
-        }),
-      ],
+            final accountType = account.contains('@') ? 'email' : 'account';
+            setState(() => _isLoading = true);
+            notifier.loginUser(accountType, account, pwd).then((err) {
+              if (mounted) setState(() => _isLoading = false);
+              if (err == null) {
+                notifier.saveHistory('account', account);
+                if (mounted) context.go('/bottom_navigation');
+              } else {
+                notifier.snackBar(err);
+              }
+            });
+          }, isEnabled: isEnabled),
+        ],
+      ),
     );
   }
 
@@ -270,77 +278,98 @@ class _LoginPageState extends ConsumerState<LoginPage>
     PassportNotifier notifier,
     bool isDark,
   ) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkSurfaceGroupedTertiary
-                : AppColors.lightSurfaceGrouped,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: PhoneInputWidget(
-            initialValue: '',
-            onInputChanged: (v) {
-              _fullMobile = v;
-              _mobileController.text = v.replaceFirst(RegExp(r'^\+\d+'), '');
-            },
-            hintText: t.account.mobile,
-          ),
-        ),
-        AppSpacing.verticalRegular,
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _mobileCodeController,
-                decoration: InputDecoration(
-                  hintText: t.passport.hintVerifyCode,
-                  prefixIcon: Icon(CupertinoIcons.shield, size: 20),
-                ),
-              ),
-            ),
-            AppSpacing.horizontalMedium,
-            CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              color: AppColors.primary.withValues(alpha: 0.1),
+    final bool isEnabled =
+        _mobileController.text.trim().isNotEmpty &&
+        _mobileCodeController.text.trim().isNotEmpty;
+
+    return AutofillGroup(
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.darkSurfaceContainer
+                  : AppColors.lightSurface,
               borderRadius: BorderRadius.circular(10),
-              child: Text(
-                t.common.getVerificationCode,
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
+              border: Border.all(
+                color: isDark ? AppColors.darkBorder : AppColors.iosGray5,
+              ),
+            ),
+            child: PhoneInputWidget(
+              initialValue: '',
+              onInputChanged: (v) {
+                _fullMobile = v;
+                _mobileController.text = v.replaceFirst(RegExp(r'^\+\d+'), '');
+                setState(() {});
+              },
+              hintText: t.account.mobile,
+            ),
+          ),
+          AppSpacing.verticalRegular,
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _mobileCodeController,
+                  readOnly: _isLoading,
+                  autofillHints: const [AutofillHints.oneTimeCode],
+                  decoration: _getInputDecoration(
+                    hintText: t.passport.hintVerifyCode,
+                    prefixIcon: CupertinoIcons.shield,
+                    isDark: isDark,
+                  ),
                 ),
               ),
-              onPressed: () {
-                if (_fullMobile.isNotEmpty) {
-                  notifier.sendCode('mobile', _fullMobile, 'login');
-                } else {
-                  notifier.snackBar(
-                    t.common.errorEmptyDirectory(param: t.account.mobile),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-        AppSpacing.verticalXXLarge,
-        _buildLoginButton(() async {
-          if (_fullMobile.isEmpty || _mobileCodeController.text.isEmpty) return;
-          final err = await notifier.loginUserByCode(
-            'mobile',
-            _fullMobile,
-            _mobileCodeController.text,
-          );
-          if (err == null) {
-            notifier.saveHistory('mobile', _fullMobile);
-            if (mounted) context.go('/bottom_navigation');
-          } else {
-            notifier.snackBar(err);
-          }
-        }),
-      ],
+              AppSpacing.horizontalMedium,
+              CupertinoButton(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        if (_fullMobile.isNotEmpty) {
+                          notifier.sendCode('mobile', _fullMobile, 'login');
+                        } else {
+                          notifier.snackBar(
+                            t.common.errorEmptyDirectory(
+                              param: t.account.mobile,
+                            ),
+                          );
+                        }
+                      },
+                child: Text(
+                  t.common.getVerificationCode,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          AppSpacing.verticalXXLarge,
+          _buildLoginButton(() async {
+            if (_fullMobile.isEmpty || _mobileCodeController.text.isEmpty) {
+              return;
+            }
+            setState(() => _isLoading = true);
+            final err = await notifier.loginUserByCode(
+              'mobile',
+              _fullMobile,
+              _mobileCodeController.text,
+            );
+            if (mounted) setState(() => _isLoading = false);
+            if (err == null) {
+              notifier.saveHistory('mobile', _fullMobile);
+              if (mounted) context.go('/bottom_navigation');
+            } else {
+              notifier.snackBar(err);
+            }
+          }, isEnabled: isEnabled),
+        ],
+      ),
     );
   }
 
@@ -349,119 +378,149 @@ class _LoginPageState extends ConsumerState<LoginPage>
     PassportNotifier notifier,
     bool isDark,
   ) {
-    return Column(
-      children: [
-        LoginHistoryInput(
-          controller: _emailController,
-          hintText: t.passport.hintEmail,
-          prefixIcon: CupertinoIcons.mail,
-          historyList: state.emailHistory,
-          onSelect: (val) => _emailController.text = val,
-          onDelete: (val) => notifier.removeHistory('email', val),
-          keyboardType: TextInputType.emailAddress,
-        ),
-        AppSpacing.verticalRegular,
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _emailCodeController,
-                decoration: InputDecoration(
-                  hintText: t.passport.hintVerifyCode,
-                  prefixIcon: Icon(CupertinoIcons.shield, size: 20),
+    final bool isEnabled =
+        _emailController.text.trim().isNotEmpty &&
+        _emailCodeController.text.trim().isNotEmpty;
+
+    return AutofillGroup(
+      child: Column(
+        children: [
+          LoginHistoryInput(
+            controller: _emailController,
+            hintText: t.passport.hintEmail,
+            prefixIcon: CupertinoIcons.mail,
+            historyList: state.emailHistory,
+            autofillHints: const [AutofillHints.email],
+            onSelect: (val) {
+              _emailController.text = val;
+              setState(() {});
+            },
+            onDelete: (val) => notifier.removeHistory('email', val),
+            keyboardType: TextInputType.emailAddress,
+          ),
+          AppSpacing.verticalRegular,
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _emailCodeController,
+                  readOnly: _isLoading,
+                  autofillHints: const [AutofillHints.oneTimeCode],
+                  decoration: _getInputDecoration(
+                    hintText: t.passport.hintVerifyCode,
+                    prefixIcon: CupertinoIcons.shield,
+                    isDark: isDark,
+                  ),
                 ),
               ),
-            ),
-            AppSpacing.horizontalMedium,
-            CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-              child: Text(
-                t.passport.getVerifyCode,
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
+              AppSpacing.horizontalMedium,
+              CupertinoButton(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        if (_emailController.text.isNotEmpty) {
+                          notifier.sendCode(
+                            'email',
+                            _emailController.text,
+                            'login',
+                          );
+                        } else {
+                          notifier.snackBar(
+                            t.common.errorEmptyDirectory(
+                              param: t.account.email,
+                            ),
+                          );
+                        }
+                      },
+                child: Text(
+                  t.passport.getVerifyCode,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              onPressed: () {
-                if (_emailController.text.isNotEmpty) {
-                  notifier.sendCode('email', _emailController.text, 'login');
-                } else {
-                  notifier.snackBar(
-                    t.common.errorEmptyDirectory(param: t.account.email),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-        AppSpacing.verticalXXLarge,
-        _buildLoginButton(() async {
-          if (_emailController.text.isEmpty ||
-              _emailCodeController.text.isEmpty) {
-            return;
-          }
-          final err = await notifier.loginUserByCode(
-            'email',
-            _emailController.text,
-            _emailCodeController.text,
-          );
-          if (err == null) {
-            notifier.saveHistory('email', _emailController.text);
-            if (mounted) context.go('/bottom_navigation');
-          } else {
-            notifier.snackBar(err);
-          }
-        }),
-      ],
+            ],
+          ),
+          AppSpacing.verticalXXLarge,
+          _buildLoginButton(() async {
+            if (_emailController.text.isEmpty ||
+                _emailCodeController.text.isEmpty) {
+              return;
+            }
+            setState(() => _isLoading = true);
+            final err = await notifier.loginUserByCode(
+              'email',
+              _emailController.text,
+              _emailCodeController.text,
+            );
+            if (mounted) setState(() => _isLoading = false);
+            if (err == null) {
+              notifier.saveHistory('email', _emailController.text);
+              if (mounted) context.go('/bottom_navigation');
+            } else {
+              notifier.snackBar(err);
+            }
+          }, isEnabled: isEnabled),
+        ],
+      ),
     );
   }
 
-  Widget _buildLoginButton(VoidCallback onPressed) {
+  Color _getInputFill(bool isDark) =>
+      isDark ? AppColors.darkSurfaceContainer : AppColors.lightSurface;
+
+  Color _getBorderDefault(bool isDark) =>
+      isDark ? AppColors.darkBorder : AppColors.iosGray5;
+
+  InputDecoration _getInputDecoration({
+    required String hintText,
+    required IconData prefixIcon,
+    Widget? suffixIcon,
+    required bool isDark,
+  }) {
+    final borderDefault = _getBorderDefault(isDark);
+    return InputDecoration(
+      hintText: hintText,
+      prefixIcon: Icon(prefixIcon, color: AppColors.primary, size: 20),
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: _getInputFill(isDark),
+      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: borderDefault),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: AppColors.primary),
+      ),
+    );
+  }
+
+  Widget _buildLoginButton(VoidCallback onPressed, {bool isEnabled = true}) {
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
         key: const Key('login_submit_button'),
-        onPressed: () {
-          FocusScope.of(context).unfocus();
-          onPressed();
-        },
-        child: Text(t.account.login),
-      ),
-    );
-  }
-
-  /// 支付宝登录按钮（第三方品牌圆形入口，触达区 ≥44pt）
-  Widget _buildAlipayButton(BuildContext context, PassportNotifier notifier) {
-    return InkWell(
-      key: const Key('alipay_login_button'),
-      borderRadius: BorderRadius.circular(24),
-      onTap: () async {
-        final err = await notifier.loginByAlipay();
-        // 用户取消返回 null（静默）；仅失败时提示
-        if (err != null) {
-          notifier.snackBar(err);
-        }
-      },
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: const BoxDecoration(
-          color: AppColors.alipayBrand,
-          shape: BoxShape.circle,
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          '支',
-          style: TextStyle(
-            color: AppColors.onPrimary,
-            fontSize: FontSizeType.extraLarge.size,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        onPressed: (_isLoading || !isEnabled)
+            ? null
+            : () {
+                FocusScope.of(context).unfocus();
+                onPressed();
+              },
+        child: _isLoading
+            ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
+            : Text(t.account.login),
       ),
     );
   }

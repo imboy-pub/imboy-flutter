@@ -109,7 +109,7 @@ void main() {
             await Future<void>.delayed(const Duration(seconds: 4));
             await clientA.post(
               '/api/v1/group/edit',
-              data: {'gid': myGid, 'title': 'DEMO-FLOW-20260817-QR-GROUP'},
+              data: {'gid': myGid, 'title': 'DEMO-FLOW-20260819-QR-GROUP'},
             );
           }
         }
@@ -117,7 +117,16 @@ void main() {
         // 未开写门禁或非本地地址：保持跳过路径。
       }
     }
-    signingKey = Platform.environment['IMBOY_SOLIDIFIED_KEY']?.trim() ?? '';
+    // 环境注入的 key 同样去包裹引号：.env.local 等配置值常带双引号，
+    // read_env 未去引号直接注入会让 tk 恒 302（2026-08-19 DF-20 实测踩坑）。
+    var injectedKey =
+        Platform.environment['IMBOY_SOLIDIFIED_KEY']?.trim() ?? '';
+    if (injectedKey.length >= 2 &&
+        ((injectedKey.startsWith("'") && injectedKey.endsWith("'")) ||
+            (injectedKey.startsWith('"') && injectedKey.endsWith('"')))) {
+      injectedKey = injectedKey.substring(1, injectedKey.length - 1);
+    }
+    signingKey = injectedKey;
     if (signingKey.isEmpty) {
       // 与 api_test_client._loadSigningKey 同源逻辑：IMBOY_ENV_PRO 指向的
       // 配置文件中读取 SOLIDIFIED_KEY（不打印值）。
@@ -247,6 +256,13 @@ void main() {
     // 客户端 lib/page/qrcode/qrcode_url.dart 的 buildChannelQrcodeUrl 会构造
     // 该 URL，但后端 imboy_router.erl 未注册 channel/qrcode；预期非成功
     // 响应（404 或路由级错误 envelope）。本用例只固化该缺口，不判定通过。
+    // 证据打印（复核用）：08-18 起该 URL 被 /api/v1/channel/:channel_id 通配
+    // 捕获，表现为 HTTP 200 + code=1「频道不存在」——打印实际 code/msg 以便
+    // 文档复核该行为是否仍然存在。
+    print(
+      '[DF-20-EVIDENCE] channel/qrcode 实际响应 code=${resp['code']} '
+      'msg=${resp['msg']}',
+    );
     ApiAssert.failure(resp, context: 'channel/qrcode 契约缺口');
     expect(resp['code'], isNot(0), reason: '频道码端点不应返回成功: $resp');
   });

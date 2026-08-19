@@ -73,7 +73,10 @@ class ConversationState {
 
   // Get total remind counter
   int get chatMsgRemindCounter {
-    return conversationRemind.values.fold(0, (sum, val) => sum + val);
+    return conversationMap.values.fold(0, (sum, cm) {
+      if (cm.isMuted > 0) return sum;
+      return sum + (conversationRemind[cm.uk3] ?? 0);
+    });
   }
 }
 

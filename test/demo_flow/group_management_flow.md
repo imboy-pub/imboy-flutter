@@ -1,7 +1,7 @@
 # DF-09 群信息 → 成员 → 公告 → 可逆管理
 
 > 优先级：P0
-> 状态：`通过（2026-08-18 本地 alpha.36 复跑 4/4：群名/公告、角色提升/恢复、成员移除+邀回、群主转让）；群主转让已在专用一次性群单向执行并回读（立即转回被 per_hour_once 限流拒绝）；退群/解散/清空记录等危险操作仍默认不执行`
+> 状态：`通过（2026-08-19 本地 alpha.36 复跑 4/4 维持：群名/公告、角色提升/恢复、成员移除+邀回、群主转让，数据标记更新为 DEMO-FLOW-20260819）；群主转让在专用一次性群单向执行并回读（立即转回被 per_hour_once 限流拒绝）；退群/解散/清空记录等危险操作仍默认不执行`
 
 ## 1. 目标
 
@@ -83,6 +83,22 @@
      - `group_log` 落 `type=9` 转让日志（body 含 from/to_owner_uid，DB 只读核验）；
      - 负向断言：B 立即转回同群被 `per_hour_once {group_transfer, gid}` 限流拒绝（“在处理中，请稍后重试”），
        证明该操作一小时内不可回收，故只在专用群单向执行。
+- 2026-08-19：本地后端（healthz `1.0.0-alpha.36`，db=up，未干预进程）复跑
+  `group_local_management_flow_test.dart` `4/4 All tests passed`（A=`13900001002` uid 104250986822109184
+  群主、B=`smoke_bob` uid 1000000056）：
+  1. 群名+公告、角色 1→3→1、成员移除+邀回三项闭环全部复现，仍落在 A+B 去重主测试群
+     `107668232984594432`（群主保持为 A）。本轮数据标记更新为 `DEMO-FLOW-20260819`
+     （测试常量 `_groupPrefix`）；DB 只读核验：title=`DEMO-FLOW-20260819-MGMT-1787117018219`、
+     introduction=`DEMO-FLOW-20260819-NOTICE-1787117018219`、owner_uid=104250986822109184 落库一致。
+  2. DF-09-4 群主转让在新建专用面对面群 `107851155283118080` 上单向执行（B 登记暗号、A/B 凭暗号
+     加入、A face2face_save 建行为 owner），DB 只读核验：
+     - `group_log` 新增 type=9 日志 `107851163854178304`（body：from_owner_uid=A、to_owner_uid=B、
+       changed_by=A、remark=群转让，created_at 2026-08-19 13:24:02）；
+     - 转让后 group 行 owner_uid=B（1000000056），成员回读 B `role=4`（ROLE_OWNER）、A 降为 `role=1`，
+       双方 join_mode=face2face_join；
+     - 负向断言通过：B 立即转回同群被 `per_hour_once` 限流拒绝（该群保留为可回收数据，不解散）。
+  3. 上轮（08-18）转让群 `107668853378779136` 未再触碰；本轮转让群为新 gid，不受上轮限流影响。
+  4. 与 DF-07 同日串行执行（add/face2face 共用 uid 维度 three_second_once 限流桶），无跨用例限流冲突。
 - 危险操作（退群 owner leave、解散、清空记录、不可逆 E2EE）本轮仍默认不执行。
 
 ## 6. 未来自动化目标

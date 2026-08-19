@@ -1,7 +1,7 @@
 # DF-03 会话列表 → 未读 → 进入聊天
 
 > 优先级：P0
-> 状态：`列表与只读聊天入口通过（Android 真机 + macOS 生产只读）/ 有效会话置顶写入本地闭环通过（2026-08-18）/ 未读清零与双账号闭环待补齐`
+> 状态：`列表与只读聊天入口通过（Android 真机 + macOS 生产只读）/ 有效会话写入与置顶闭环本地复跑维持通过（2026-08-19）/ 未读清零与双账号闭环待补齐`
 
 ## 1. 目标
 
@@ -60,6 +60,15 @@
   - 基于该有效会话执行置顶写入闭环：`POST /api/v1/conversation/pin`（conversation_id 按客户端 TSID 契约以 string 传输）→ `code=0`；`conversation/mine` 回读 `is_pinned=true`；`conversation/pinned` 列表含该会话且带 `pinned_at` 时间戳。`POST /api/v1/conversation/unpin` → `code=0`（payload `updated:true`）→ `is_pinned=false`、pinned 列表清空。重复 pin/unpin 幂等（均 `code=0`）。数据已还原为未置顶状态。
   - 未读清零：本地 agent 未配置 LLM 后端、始终无对端回复消息，`message_read` 已读回执（WS `action=message_read`，`payload.msg_ids` 批量）无合法上报对象——**未读清零维持未验收**（不能上报"已读自己发送的消息"，语义不符）。会话删除/恢复仍默认不执行。
   - 环境注记：本地 uid=4 现在存在 1 个与 agent 的 c2c 测试会话（本轮产生），后续复核「conversation/mine 为空」的表述不再成立；证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260818/`（ws_send_e2ee_result_r2.json、conv_mine_4_after.json、hist_4.json）。
+- 2026-08-19（复核轮，本地后端维持 main@e6d785d0 / 1.0.0-alpha.36）：
+  - 生产只读契约复跑：`.env.pro` 变量逐项提取注入（未 source、未回显凭证、`TEST_ALLOW_API_WRITES` 保持关闭）执行 `dart test test/unit_test/api/conversation_api_test.dart --concurrency=1` → `8 passed / 2 门禁拦截`（7.1 C2C 发送与 8.1 写参数边界均在客户端写门禁处被拦截、未发出 HTTP 请求，属设计行为）。与 08-17/08-18 记录一致。
+  - **有效会话写入闭环复跑维持通过（DEMO-FLOW-20260819，全部带服务端证据）**：WS（`imboy.v2` 子协议 + Bearer）向 agent（uid `103107938360756224`）发送 v2.0 加密契约信封消息（`e2ee` 非空 map 含 `devices`、`payload` 空串）→ 二进制 v2 帧 `C2C_SERVER_ACK`（`in_reply_to` 回显发送 id `ub8711bb8c8330m8olhf`）；`msg/history` code=0 且该消息在列（history_total=3）；`conversation/mine` 该 c2c 会话 `last_msg_id` 即本轮发送 id。会话仍由真实服务端路径产生。
+  - **pin/unpin 闭环复跑维持通过（含幂等与还原）**：`POST /api/v1/conversation/pin`（conversation_id 以 string 传输）→ `code=0`；`conversation/mine` 回读 `is_pinned=true`；`conversation/pinned` 列表含该会话且带 `pinned_at=1787117004731`；重复 pin 幂等 `code=0`；`POST /api/v1/conversation/unpin` → `code=0`（payload `updated:true`）→ `is_pinned=false`、pinned 列表清空该会话；重复 unpin 幂等 `code=0`。终态已还原为未置顶（与初始态一致）。
+  - 勘误（不影响 08-18 结论）：`GET /api/v1/conversation/pinned` 响应结构为 `payload.items`（map 键 `items`），非裸 list；08-18 文档仅记"列表"未记键名，本轮探针初版解析只认 `payload.list` 曾误报 count=0，修正后复核通过。
+  - 未读清零：维持未验收——本轮再次确认 agent 无对端回复（WS 等待窗内无来自 agent 的 C2C/S2C 回复，`agent_reply_seen=false`），`message_read` 已读回执无合法上报对象，语义不符（不能上报"已读自己发送的消息"）。会话删除/恢复仍默认不执行。
+  - 环境注记（跨 flow 数据漂移，仅记录不断言）：登录 uid=4 建立 WS 后收到 `logged_another_device`（did=undefined）×2 及积压 `apply_friend_confirm`、`group_member_leave` 等 S2C 推送，与其他并行 flow 会话共享 uid=4 的迹象一致；`conversation/mine` 会话数仅断言本轮目标会话，不断言全局总数。
+  - macOS 桌面只读复跑：`flutter test integration_test/demo_flow/conversation_flow_test.dart -d macos`（APP_ENV=pro + `.env.pro` 变量以 `--dart-define` 注入）→ `1/1 All tests passed`，登录后进入会话列表，`conversation_search_input` 存在，发现 `4` 个 `Slidable` 会话项，与 08-18 记录一致。本轮复跑在含他人未提交改动（`bottom_navigation_page.dart`/`conversation_provider.dart`）的工作区上完成，证明这些改动未破坏会话列表基础入口；构建无锁等待。
+  - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260819/`（df03_ws_e2ee_result.json、df03_pin_unpin_result.json、df03_pinned_fix_result.json）。
 
 ## 6. 未来自动化目标
 

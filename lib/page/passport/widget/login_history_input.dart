@@ -13,6 +13,7 @@ class LoginHistoryInput extends StatefulWidget {
   final bool obscureText;
   final Widget? suffixIcon;
   final TextInputType keyboardType;
+  final Iterable<String>? autofillHints;
 
   const LoginHistoryInput({
     super.key,
@@ -25,6 +26,7 @@ class LoginHistoryInput extends StatefulWidget {
     this.obscureText = false,
     this.suffixIcon,
     this.keyboardType = TextInputType.text,
+    this.autofillHints,
   });
 
   @override
@@ -85,7 +87,7 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
           offset: Offset(0.0, size.height + 5.0),
           child: Material(
             elevation: 4.0,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
             color: Theme.of(context).brightness == Brightness.dark
                 ? AppColors.darkSurfaceContainer
                 : AppColors.lightSurface,
@@ -144,6 +146,7 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
         focusNode: _focusNode,
         obscureText: widget.obscureText,
         keyboardType: widget.keyboardType,
+        autofillHints: widget.autofillHints,
         decoration: InputDecoration(
           hintText: widget.hintText,
           prefixIcon: Icon(widget.prefixIcon, color: AppColors.primary),
@@ -163,15 +166,15 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
             horizontal: 16,
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: borderDefault),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: AppColors.primary),
           ),
         ),

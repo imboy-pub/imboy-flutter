@@ -209,10 +209,13 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
           activeIcon: CupertinoIcons.antenna_radiowaves_left_right,
           label: t.channel.title,
           remindCount: channelEnabled
-              ? (ref
-                        .watch(subscribedChannelStripProvider)
-                        .value
-                        ?.fold<int>(0, (sum, s) => sum + s.unreadCount) ??
+              ? (ref.watch(subscribedChannelStripProvider).value?.fold<int>(0, (
+                      sum,
+                      s,
+                    ) {
+                      if (s.isMuted) return sum;
+                      return sum + s.unreadCount;
+                    }) ??
                     0)
               : 0,
           tabKey: const Key('tab_channel'),

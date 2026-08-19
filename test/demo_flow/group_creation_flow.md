@@ -1,7 +1,7 @@
 # DF-07 建群 → 面对面建群 → 入群确认
 
 > 优先级：P0
-> 状态：`通过（2026-08-18 本地 alpha.36 复跑 3/3，face2face_save 落库修复已实测验证并落实加严断言）；后端无独立入群确认端点（邀请直接生效）；面对面 UI 双端确认页仍未验收`
+> 状态：`通过（2026-08-19 本地 alpha.36 复跑 3/3 维持，数据标记更新为 DEMO-FLOW-20260819；face2face_save 加严断言连续第二天全绿）；后端无独立入群确认端点（邀请直接生效）；面对面 UI 双端确认页仍未验收`
 
 ## 1. 目标
 
@@ -85,6 +85,20 @@
   4. 观察到的语义（记录，不作为验收断言）：face2face 群的 group 行 owner_uid 是 `face2face_save` 的调用方
      （非暗号登记人）；`page_joined` 排除自己是群主的群，因此 f2f 群要在非群主一侧断言 join 列表；
      f2f 群 `member_count` 停留在 1（建行前的 join 不回填统计）、title 为空（UI 端兜底）。
+- 2026-08-19：本地后端（healthz `{"status":"ok","db":"up","version":"1.0.0-alpha.36"}`，未干预进程）
+  复跑 `group_local_creation_flow_test.dart` `3/3 All tests passed`（A=`13900001002` uid 104250986822109184、
+  B=`smoke_bob` uid 1000000056）：
+  1. 普通建群、面对面建群、B 侧 join 列表回读三项闭环全部复现；A+smoke_bob 成员集合继续复用
+     去重主测试群 `107668232984594432`（重复 add 返回同一 gid，无幽灵群断言通过）。
+  2. face2face_save 加严断言（save 响应 group map+member_list 双方、group/detail 回读群行、
+     非群主侧 attr=join 列表包含 f2f 群）连续第二天全绿，alpha.36 修复维持有效。
+  3. 本轮数据标记由 `DEMO-FLOW-20260817` 更新为 `DEMO-FLOW-20260819`（测试常量 `_groupPrefix`）；
+     去重逻辑按创建者+成员集合，改标记不影响群复用，群名以新标记落库（DB 只读核验见
+     group_management_flow.md 第 5 节 2026-08-19 条目）。
+  4. 本轮新建面对面群 `107851069891282944`（B 调用 save，owner=B，title 空，与已记载 f2f 语义一致），
+     保留为可回收数据，不解散。
+  5. 跨 flow 数据漂移记录：同日另有并行会话（DF-10 协作）以 `DEMO-FLOW-20260817-COLLAB` 前缀
+     建群 `107850811471824896`（13:21:14，早于本轮 13:23），互不影响（不同成员集合暗号/时间戳）。
 - 入群确认：后端路由无独立 invite/confirm 端点，`group_member/join` 对邀请直接生效（被邀请方无确认页），
   `face2face` join_mode 为 `face2face_join`；“确认后入群”的二段式链路在当前后端实现中不存在，UI 确认页仅为保存动作。
 

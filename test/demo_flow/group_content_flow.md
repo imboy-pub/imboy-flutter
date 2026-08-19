@@ -1,7 +1,7 @@
 # DF-14 群相册 → 群文件 → 媒体预览
 
 > 优先级：P1
-> 状态：`API只读通过 / 本地相册创建与列表回读通过（2026-08-17 通过，2026-08-18 复跑维持） / 文件与照片上传阻塞（运行后端 garage endpoint 仍指向过期 IP，见 08-18 根因证据） / 媒体预览闭环阻塞`
+> 状态：`本地相册/文件/照片上传与 view_url 授权访问全闭环通过（2026-08-19：上传阻塞已由人工解除，附件授权链路历史首次闭环） / 生产只读契约维持 / 媒体预览 UI 闭环阻塞（待真机与真实素材）`
 
 ## 1. 目标
 
@@ -36,6 +36,14 @@
 
 ## 5. 当前覆盖与阻塞
 
+- 2026-08-19（DEMO-FLOW-20260819）**上传阻塞解除 + 附件授权链路历史首次闭环**：`group_content_local_api_flow_test.dart` 复跑两轮均 `3 passed + 0 skipped All tests passed`（08-17/08-18 为 1 过 2 受控跳）。
+  - **环境复核（本轮最先确认的解锁事实，均只读探测）**：本地 Garage 已启动（`127.0.0.1:3900` LISTEN，garage 进程）；运行 release `_rel/imboy/releases/1.0.0-alpha.36/sys.config` 的 `garage.endpoint` 已改为 `http://127.0.0.1:3900`（08-18 记录为过期 IP `192.168.1.150:3900`）；后端 beam 今日 10:25 重启加载新配置。08-18 记录的解锁条件（改 garage.endpoint 并重启后端 + 对象存储在线）**已由人工完成**，本轮仅复核与复跑，未改任何配置。
+  - 群文件：`POST /api/v1/group/file/upload`（304 字节 DEMO-FLOW-20260819-FILE 代码生成文本）→ `code=0 msg=success`（file_id=`file_<ts>_<xid>` 形态）→ `group/file/list` 列表回读命中 → **`GET /api/v1/attachment/view_url?object_key=<file_id>/<file_name>` 签发 code=0 → 授权 URL 下载 HTTP 200 且内容与上传逐字节一致（304 B）**。这是本 flow 首次完整走通"上传→列表→view_url 签发→内容回读"授权链路，证明后端 BUG#137 修复（上传补写 scope=group attachment 记录）在本地实测生效。
+  - 测试修正（integration_test/demo_flow，本轮唯一测试改动）：group_file 表实际无 object_key 列（`file_url` 列存 Garage 私桶裸 URL，不能直接当 object_key），原测试读 `object_key/url` 字段恒空导致 view_url 段被跳过；已按 BUG#137 修复写入 attachment 表的 `path = <file_id>/<file_name>` 格式构造 object_key，view_url 段随上传成功自动执行。
+  - 群相册：`group_album/create` code=0（album_id=`album_<ts>_<xid>`）→ 列表回读命中；照片上传（1x1 代码生成 PNG）`code=0 msg=上传成功` → `group_album/photo/list` 回读命中——照片上传同样随对象存储解锁恢复。
+  - 生产只读复跑（`.env.pro` read_env 提取，零写入）：`group_album_api_test.dart` 3 过 3 跳（生产样本群无相册）+ `group_file_api_test.dart` 5 过，合计 8 过 3 跳 0 失败，维持 08-17 口径。
+  - 跨会话数据漂移（并行 flow 共用账号）：08-18 使用的测试群 `gid=107539326623287296` 已不在 `group/page` 列表（疑被其他会话处置）；且实测 `attr=join` 过滤不含当前账号自建（owner）群——DF-14 定位用 attr=join 连续两轮未命中同名群，各轮自举新建 `gid=107850811471824896`、`gid=107852100410804224`（title 均为常量 `DEMO-FLOW-20260817-COLLAB`，单成员可回收）；DF-15 用 attr=owner 可正常命中。后续轮次建议本 flow 定位也改用 attr=owner 减少重复建群。
+  - 新增可回收数据（全部 DEMO-FLOW-20260819 前缀）：文件 2 份、相册 2 个、照片 2 张、自举群 2 个（群名沿用历史常量）；未删除任何文件/相册（前置条件"默认不删除"维持）。
 - 2026-08-18 后端升级后复跑 + s3.imboy.pub 探测（本地后端已升级 `1.0.0-alpha.36` release，beam 08:46 启动）：`group_content_local_api_flow_test.dart` 复跑 `1 passed + 2 skipped（受控）All tests passed`，与 08-17 一致，无回归。
   - 群相册：创建 code=0（album_id=`album_1787029307675_96890` 形态）→ 列表回读命中，维持通过。
   - 群文件上传：304 字节代码生成文本 → HTTP 200 但业务 `code=950 msg=文件上传失败`（后端转存超时约 30s 后失败）；照片上传 `code=500 msg=上传失败`，均受控 skip 维持。
@@ -56,4 +64,4 @@
 
 ## 6. 未来自动化目标
 
-`integration_test/demo_flow/group_content_local_api_flow_test.dart` 已落地（相册创建回读 + 上传阻塞受控记录）；对象存储解锁后（本地起 Garage，或确认 s3.imboy.pub 归属本地/授权后把运行后端 `garage.endpoint` 指向它并重启——注意仅改 `upload_url` 无效，见 08-18 根因证据）同一测试会在上传成功路径自动继续验证列表回读、view_url 签发与下载内容一致。UI 级（九宫格/图片详情/音频预览）仍建议后续用固定测试素材补 `flutter test` 页面用例。
+`integration_test/demo_flow/group_content_local_api_flow_test.dart` 已完成对象存储解锁后的完整闭环验证（2026-08-19）：上传成功路径自动验证列表回读、view_url 签发与下载内容一致。后续改进：群定位从 attr=join 改为 attr=owner（见 08-19 漂移记录）；UI 级（九宫格/图片详情/音频预览）仍建议后续用固定测试素材补 `flutter test` 页面用例（音频预览依赖真实素材）。

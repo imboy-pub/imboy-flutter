@@ -1,7 +1,7 @@
 # DF-19 联系人 → 备注/标签 → 分组筛选
 
 > 优先级：P1
-> 状态：`本地 API 写入闭环通过（2026-08-17 建立，2026-08-18 alpha.36 复跑 8/8 维持）/ 分组 id 契约缺陷未修复 / UI 级展示待执行（设备已恢复在线）`
+> 状态：`本地 API 写入闭环通过（2026-08-17 建立，2026-08-19 alpha.36 复跑 8/8 维持）/ 分组 id 契约缺陷未修复（2026-08-19 实测 payload.id 仍为嵌套 map）/ 分组 API 客户端未接入维持 / UI 级展示待真机轮次`
 
 ## 1. 目标
 
@@ -59,6 +59,12 @@
   - **分组 API 客户端未接入维持**：imboyapp `lib/` 全库无 `friend/category`、`friend/move`、`friend_category` 任何引用；移动端分组能力仍由好友标签（scene=friend）承担。
   - 探针数据：本轮新建分组 DF0818-contract-probe（id=107667256150067200）与测试内建的 DEMO-FLOW 标记标签/分组均保留在本地库，可回收。
 - 2026-08-18 设备复核：Android 真机 MRD AL00 与 iPhone 16e 已在线（同 DF-02 记录），UI 级展示验证的设备条件恢复，但联系人页备注同步显示、标签筛选页 UI 呈现属真机验收轮次，本轮未执行；结论仍止步于 API 层。
+- 2026-08-19：**alpha.36 复跑维持通过（8/8 All tests passed）**。备注回读、标签创建/打标/回读/筛选、分组创建/移动入组/category_id 回读全链路无回归。本轮写入数据（均带 0819 标记，可回收）：备注 `DEMO-FLOW-20260819-备注-v2`、标签 `DF0819标签`（id=107850992198092800）、分组 `DF0819分组`（id=107850992256813056，服务端 DB 只读回读确认）。
+  - **账号密码（跨 flow 披露）**：08-18 经 DB 重置的密码值未持久化/未记载，本轮 demoflow888/admin888 均登录失败（errorPassword，门禁 SKIP 非失败）；按 08-18 既定做法经本地 DB（127.0.0.1:4323 imboy_v1）复刻 `elib_password:generate(md5(明文))` 格式（base64(salt:hmac_sha512:hmac_b64)，盐为 base64(16 随机字节)、HMAC key 为盐字符串）将两个 DEMO-FLOW 昵称合成账号密码重置为 `demoflow888`，仅命中 nickname LIKE 'DEMO-FLOW%' 两行。**注意：该两账号与 DF-02 共用，并行 DF-02 会话如需重新登录请使用 demoflow888 或再次重置。**
+  - **payload.id 嵌套 map 缺陷维持未修**：测试内新增证据打印输出 `category/add payload.id runtimeType=_Map<String, dynamic>`，实测确认 `payload.id` 仍是嵌套 map（真实 TSID 在 `payload.id.id`），非 TSID 整数；测试兼容提取逻辑仍必要，后端 `friend_category_handler.erl` 修复维持待做。
+  - **分组 API 客户端未接入维持**：`grep -rn "friend/category|friend/move|friend_category" lib/` 仍为 0 命中；移动端分组能力仍由好友标签（scene=friend，`lib/config/const.dart` 承载 user_tag 端点）承担。
+  - 生产只读复跑：`user_tag_api_test.dart` 以 `.env.pro` 注入运行 → `4/4 All tests passed`（登录 uid=4；标签分页/TSID 结构/friend_page 可达/匿名鉴权拒绝），未执行任何生产写入。运行注意同 moments_flow.md 09 节：`.env.pro` 的 34 字符 SOLIDIFIED_KEY 直接注入会「签名验证失败」，须用 env_pro.g.dart bake 的 32 字符 key（XOR 解码，不打印）。
+  - UI 展示维持待真机轮次（本轮无设备操作）。
 
 ## 6. 未来自动化目标
 
