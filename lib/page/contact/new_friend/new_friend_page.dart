@@ -20,7 +20,6 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import '../confirm_new_friend/confirm_new_friend_page.dart';
-import 'add_friend_page.dart';
 import 'new_friend_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -64,10 +63,9 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
         CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Icon(CupertinoIcons.person_add, size: 22),
-          onPressed: () => Navigator.push(
-            context,
-            CupertinoPageRoute<void>(builder: (_) => const AddFriendPage()),
-          ),
+          // 统一走 go_router：原生 push 的页面不在 go_router 栈内，
+          // 页内 context.push 会「没反应」（混用排查批次修复）
+          onPressed: () => context.push('/add_friend'),
         ),
       ],
       slivers: [

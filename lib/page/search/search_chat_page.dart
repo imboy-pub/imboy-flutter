@@ -9,7 +9,7 @@ import 'package:imboy/service/message_type_constants.dart';
 import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -382,18 +382,16 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
   }
 
   void _goToChat(String msgId) {
-    Navigator.push(
-      context,
-      CupertinoPageRoute<dynamic>(
-        builder: (context) => ChatPage(
-          peerId: widget.peerId,
-          peerTitle: widget.peerTitle,
-          peerAvatar: widget.peerAvatar,
-          peerSign: widget.peerSign,
-          type: widget.type,
-          msgId: msgId,
-        ),
-      ),
+    // 统一走 go_router：原生 push 的 ChatPage 内 go_router 调用会失灵
+    context.push(
+      '/chat/${widget.peerId}',
+      extra: {
+        'type': widget.type,
+        'title': widget.peerTitle,
+        'avatar': widget.peerAvatar,
+        'sign': widget.peerSign,
+        'msg_id': msgId,
+      },
     );
   }
 

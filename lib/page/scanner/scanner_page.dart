@@ -22,7 +22,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/modules/social_graph/public.dart';
-import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/page/scanner/qr_login_confirm_page.dart';
 import 'package:imboy/page/scanner/qr_login_intent.dart';
@@ -238,18 +238,15 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
           payload['group_member'] as Map<String, dynamic>,
         );
         if (!mounted) return;
-        Navigator.push(
-          context,
-          CupertinoPageRoute<dynamic>(
-            builder: (context) => ChatPage(
-              peerId: parseModelString(payload['id']),
-              peerTitle: payload['title'] as String,
-              peerAvatar: payload['avatar'] as String,
-              peerSign: '',
-              type: 'C2G',
-              options: {'memberCount': payload['member_count']},
-            ),
-          ),
+        // 统一走 go_router：原生 push 的 ChatPage 内 go_router 调用会失灵
+        context.push(
+          '/chat/${parseModelString(payload['id'])}',
+          extra: {
+            'type': 'C2G',
+            'title': payload['title'] as String,
+            'avatar': payload['avatar'] as String,
+            'options': {'memberCount': payload['member_count']},
+          },
         );
       } else if (result == 'user_not_exist') {
         await _showResult(t.common.userNotExist);

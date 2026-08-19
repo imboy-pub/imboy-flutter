@@ -4,10 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/modules/group_collab/public.dart';
-import 'package:imboy/page/contact/people_nearby/people_nearby_page.dart';
-import 'package:imboy/page/contact/recently_registered_user/recently_registered_user_page.dart';
-import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:imboy/page/qrcode/qrcode_page.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -42,12 +38,7 @@ class AddFriendPage extends ConsumerWidget {
                 color: AppColors.iosBlue,
                 title: t.discovery.peopleNearby,
                 subtitle: t.common.nearbyPeopleTips,
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<void>(
-                    builder: (_) => const PeopleNearbyPage(),
-                  ),
-                ),
+                onTap: () => context.push('/people_nearby'),
               ),
               _buildFeatureTile(
                 context,
@@ -55,10 +46,7 @@ class AddFriendPage extends ConsumerWidget {
                 color: AppColors.iosGreen,
                 title: t.chat.createGroupF2f,
                 subtitle: t.group.enterSameGroup,
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<void>(builder: (_) => FaceToFacePage()),
-                ),
+                onTap: () => context.push('/group/face_to_face'),
               ),
               _buildFeatureTile(
                 context,
@@ -66,10 +54,7 @@ class AddFriendPage extends ConsumerWidget {
                 color: AppColors.iosPurple,
                 title: t.account.scanQrCode,
                 subtitle: t.chat.scanQrCodeBusinessCard,
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<void>(builder: (_) => const ScannerPage()),
-                ),
+                onTap: () => context.push('/scanner'),
               ),
               _buildFeatureTile(
                 context,
@@ -77,12 +62,7 @@ class AddFriendPage extends ConsumerWidget {
                 color: AppColors.iosOrange,
                 title: t.account.newlyRegisteredPeople,
                 subtitle: t.common.allowedBeSearched,
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<void>(
-                    builder: (_) => RecentlyRegisteredUserPage(),
-                  ),
-                ),
+                onTap: () => context.push('/recently_registered_user'),
               ),
             ],
           ),
