@@ -8,13 +8,12 @@ import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:jverify/jverify.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
-import 'package:imboy/page/mine/change_password/set_password_page.dart';
-import 'package:imboy/page/passport/manage_account_page.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/config/const.dart';
@@ -52,6 +51,7 @@ class PassportNotifier extends _$PassportNotifier {
 
   @override
   PassportState build() {
+    initPlatformState();
     return PassportState(loginAccountCtl: TextEditingController());
   }
 
@@ -908,10 +908,7 @@ class PassportNotifier extends _$PassportNotifier {
       await StorageService.to.setBool(Keys.needSetPwd, true);
       final context = navigatorKey.currentContext;
       if (context != null && context.mounted) {
-        Navigator.pushReplacement(
-          context,
-          CupertinoPageRoute<dynamic>(builder: (_) => SetPasswordPage()),
-        );
+        context.pushReplacement('/set_password');
       }
     } else {
       final user = UserRepoLocal.to.current;
@@ -919,21 +916,12 @@ class PassportNotifier extends _$PassportNotifier {
       final context = navigatorKey.currentContext;
       if (context != null && context.mounted) {
         if (needGuide) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            CupertinoPageRoute<dynamic>(
-              builder: (_) => const ManageAccountPage(),
-            ),
-            (route) => false,
-          );
+          // 必须走 go_router：原生 Navigator.push 的页面不在 go_router 栈内，
+          // 页内 context.go 只换底层栈，原生页仍盖在顶层 → 按钮「没有反应」
+          // （2026-08-19 真机 manage_account「完成」无响应根因）
+          context.go('/manage_account');
         } else {
-          Navigator.pushAndRemoveUntil(
-            context,
-            CupertinoPageRoute<dynamic>(
-              builder: (_) => const BottomNavigationPage(),
-            ),
-            (route) => false,
-          );
+          context.go('/bottom_navigation');
         }
       }
     }
@@ -1007,11 +995,20 @@ class PassportNotifier extends _$PassportNotifier {
   /// 初始化极光认证 SDK 并设置 UI 配置
   Future<String?> loginAuth(bool isSms) async {
     // Web 平台不支持 JVerify 一键登录
+    if (kIsWeb) {
+      snackBar('Web 平台不支持一键登录功能');
+      return null;
+    }
+
+    if (jverify == null) {
+      await initPlatformState();
+    }
+
     // 用局部变量捕获非空快照：避免函数内多个 await 之间 jverify 字段
     // 被并发的 initPlatformState()/登出流程置空后再用 `!` 解包崩溃。
     final jv = jverify;
-    if (kIsWeb || jv == null) {
-      snackBar('Web 平台不支持一键登录功能');
+    if (jv == null) {
+      snackBar('一键登录服务初始化失败，请稍后重试');
       return null;
     }
 
