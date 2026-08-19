@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -108,7 +109,14 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: ElevatedButton(
                 onPressed: () {
-                  context.go('/sign_in');
+                  // 按登录态分流：账号密码注册场景（未登录）去登录页；
+                  // 第三方登录场景（支付宝/一键登录，已是登录态）去主页——
+                  // 已登录用户回登录页是语义错误（2026-08-19 真机反馈）
+                  if (UserRepoLocal.to.currentUid.isNotEmpty) {
+                    context.go('/bottom_navigation');
+                  } else {
+                    context.go('/sign_in');
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: AppColors.onPrimary,
