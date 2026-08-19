@@ -120,14 +120,6 @@ class _SignupPageState extends ConsumerState<SignupPage>
                   ),
 
                   AppSpacing.verticalRegular,
-                  OtherLoginSection(
-                    notifier: notifier,
-                    isDark: _isDark,
-                    showAlipay: true,
-                    showOneKey: true,
-                  ),
-
-                  AppSpacing.verticalRegular,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -154,6 +146,14 @@ class _SignupPageState extends ConsumerState<SignupPage>
                         ),
                       ),
                     ],
+                  ),
+
+                  AppSpacing.verticalLarge,
+                  OtherLoginSection(
+                    notifier: notifier,
+                    isDark: _isDark,
+                    showAlipay: true,
+                    showOneKey: true,
                   ),
                 ],
               ),
