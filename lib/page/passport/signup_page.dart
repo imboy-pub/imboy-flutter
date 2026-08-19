@@ -12,7 +12,6 @@ import 'package:imboy/page/passport/widget/bezier_container.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/page/passport/widget/other_login_section.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/font_types.dart';
 
 class SignupPage extends ConsumerStatefulWidget {
   const SignupPage({super.key});
@@ -121,28 +120,20 @@ class _SignupPageState extends ConsumerState<SignupPage>
 
                   AppSpacing.verticalRegular,
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        t.main.siginQ,
-                        style: context.textStyle(
-                          FontSizeType.footnote,
-                          fontWeight: FontWeight.w600,
-                          color: _isDark
-                              ? AppColors.darkTextPrimary
-                              : AppColors.lightTextPrimary,
+                      TextButton(
+                        onPressed: () => context.go(AppRoutes.signIn),
+                        child: Text(
+                          t.main.siginQ,
+                          style: const TextStyle(color: AppColors.iosGray),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () => context.go(AppRoutes.signIn),
+                      TextButton(
+                        onPressed: () => context.go(AppRoutes.signIn),
                         child: Text(
                           t.account.login,
-                          style: context.textStyle(
-                            FontSizeType.footnote,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
