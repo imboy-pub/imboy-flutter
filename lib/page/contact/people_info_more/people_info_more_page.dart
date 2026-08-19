@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -9,7 +10,6 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 
 import 'people_info_more_provider.dart';
-import 'people_info_same_group_page.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -172,13 +172,10 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
               ? _loadData
               : hasGroup
               ? () {
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute<dynamic>(
-                      builder: (_) => PeopleInfoSameGroupPage(
-                        groupList: state.sameGroupList,
-                      ),
-                    ),
+                  // 统一走 go_router：原生 push 时页内点群进聊天会失灵
+                  context.push(
+                    '/people_info_same_group',
+                    extra: {'groupList': state.sameGroupList},
                   );
                 }
               : null,

@@ -9,9 +9,8 @@ import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/widget/user_online_status_widget.dart';
 
-import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/page/contact/apply_friend/apply_friend_page.dart';
-import 'package:imboy/page/contact/contact_setting/contact_setting_page.dart';
 import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_page.dart';
 import 'package:imboy/page/contact/people_info_more/people_info_more_page.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -84,28 +83,27 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                 child: CupertinoButton(
                   padding: EdgeInsets.zero,
                   child: const Icon(CupertinoIcons.ellipsis, size: 22),
-                  onPressed: () => Navigator.push(
-                    context,
-                    CupertinoPageRoute<void>(
-                      // 这里曾把除 peerId 外的 10 个参数全传空串，下游
-                      // ContactSettingTagPage 靠 peerTag/peerRemark 回显，
-                      // 于是「设置备注和标签」页永远显示「添加标签」+ 空备注，
-                      // 哪怕这个联系人明明已有标签。同文件 _openTagPage 的
-                      // 传参才是对的，这里对齐。
-                      builder: (_) => ContactSettingPage(
-                        peerId: id,
-                        peerAvatar: state.avatar,
-                        peerAccount: state.account,
-                        peerNickname: state.nickname,
-                        peerGender: state.gender,
-                        peerTitle: state.title,
-                        peerSign: state.sign,
-                        peerRegion: state.region,
-                        peerSource: state.source,
-                        peerRemark: state.remark,
-                        peerTag: state.tag,
-                      ),
-                    ),
+                  onPressed: () => context.push(
+                    '/contact_setting/$id',
+                    // 统一走 go_router（路由已注册，extra 传参对齐原生构造）：
+                    // 原生 push 时页内「删除联系人」成功后 context.go 失灵。
+                    // 这里曾把除 peerId 外的 10 个参数全传空串，下游
+                    // ContactSettingTagPage 靠 peerTag/peerRemark 回显，
+                    // 于是「设置备注和标签」页永远显示「添加标签」+ 空备注，
+                    // 哪怕这个联系人明明已有标签。同文件 _openTagPage 的
+                    // 传参才是对的，这里对齐。
+                    extra: {
+                      'peerAvatar': state.avatar,
+                      'peerAccount': state.account,
+                      'peerNickname': state.nickname,
+                      'peerGender': state.gender,
+                      'peerTitle': state.title,
+                      'peerSign': state.sign,
+                      'peerRegion': state.region,
+                      'peerSource': state.source,
+                      'peerRemark': state.remark,
+                      'peerTag': state.tag,
+                    },
                   ),
                 ),
               ),
@@ -339,17 +337,16 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
     String title = state.remark.isNotEmpty
         ? state.remark
         : (state.nickname.isNotEmpty ? state.nickname : state.account);
-    Navigator.push(
-      context,
-      CupertinoPageRoute<void>(
-        builder: (_) => ChatPage(
-          peerId: widget.id,
-          peerTitle: title,
-          peerAvatar: state.avatar,
-          peerSign: state.sign,
-          type: 'C2C',
-        ),
-      ),
+    // 统一走 go_router（/chat/:peerId 路由已支持 extra 双通道传参）：
+    // 原生 push 的 ChatPage 内点频道卡片/名片消息、token 失效重登都会失灵
+    context.push(
+      '/chat/${widget.id}',
+      extra: {
+        'type': 'C2C',
+        'title': title,
+        'avatar': state.avatar,
+        'sign': state.sign,
+      },
     );
   }
 

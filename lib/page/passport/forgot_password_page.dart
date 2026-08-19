@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/phone_input.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
@@ -10,7 +10,6 @@ import 'package:imboy/page/passport/widget/bezier_container.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/page/passport/forgot_password_pin_code_page.dart';
 
 class ForgotPasswordPage extends ConsumerStatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -177,14 +176,11 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
               );
               if (error == null) {
                 if (mounted) {
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute<dynamic>(
-                      builder: (context) => PinCodeVerificationPage(
-                        account: email,
-                        accountType: 'email',
-                      ),
-                    ),
+                  // 统一走 go_router：原生 push 时页内重置成功后
+                  // context.go('/sign_in') 失灵（混用排查批次修复）
+                  context.push(
+                    '/forgot_password/pin',
+                    extra: {'account': email, 'accountType': 'email'},
                   );
                 }
               } else {
@@ -256,14 +252,10 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
               );
               if (error == null) {
                 if (mounted) {
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute<dynamic>(
-                      builder: (context) => PinCodeVerificationPage(
-                        account: _fullMobile,
-                        accountType: 'mobile',
-                      ),
-                    ),
+                  // 统一走 go_router（同上，混用排查批次修复）
+                  context.push(
+                    '/forgot_password/pin',
+                    extra: {'account': _fullMobile, 'accountType': 'mobile'},
                   );
                 }
               } else {

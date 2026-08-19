@@ -1,6 +1,7 @@
 // Stable module entry for identity flows.
 // Keep passport internals in place and import this file from upper layers.
 export '../../page/passport/forgot_password_page.dart';
+export '../../page/passport/forgot_password_pin_code_page.dart';
 export '../../page/passport/login_page.dart';
 export '../../page/passport/manage_account_page.dart';
 export '../../page/passport/passport_notifier.dart';

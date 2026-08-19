@@ -194,6 +194,22 @@ GoRouter createAppRouter({
           child: const ForgotPasswordPage(),
         ),
       ),
+      // 忘记密码验证码页（原生×go_router 混用修复：原 forgot_password_page
+      // 原生 push，页内重置成功后 context.go('/sign_in') 失灵）
+      GoRoute(
+        path: '/forgot_password/pin',
+        name: 'forgot_password_pin',
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return CupertinoPage(
+            key: state.pageKey,
+            child: PinCodeVerificationPage(
+              account: extra['account']?.toString() ?? '',
+              accountType: extra['accountType']?.toString() ?? 'mobile',
+            ),
+          );
+        },
+      ),
       GoRoute(
         path: '/set_password',
         name: 'set_password',
@@ -355,6 +371,47 @@ GoRouter createAppRouter({
         pageBuilder: (context, state) =>
             CupertinoPage(key: state.pageKey, child: const ContactPage()),
         routes: [
+          // 联系人设置页（原生×go_router 混用修复：原 people_info_page 原生
+          // push，页内删除联系人成功后 context.go 失灵）
+          GoRoute(
+            path: '/contact_setting/:peerId',
+            name: 'contact_setting',
+            pageBuilder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return CupertinoPage(
+                key: state.pageKey,
+                child: ContactSettingPage(
+                  peerId: state.pathParameters['peerId'] ?? '',
+                  peerAvatar: extra['peerAvatar']?.toString() ?? '',
+                  peerAccount: extra['peerAccount']?.toString() ?? '',
+                  peerNickname: extra['peerNickname']?.toString() ?? '',
+                  peerGender: extra['peerGender'] as int? ?? 0,
+                  peerTitle: extra['peerTitle']?.toString() ?? '',
+                  peerSign: extra['peerSign']?.toString() ?? '',
+                  peerRegion: extra['peerRegion']?.toString() ?? '',
+                  peerSource: extra['peerSource']?.toString() ?? '',
+                  peerRemark: extra['peerRemark']?.toString() ?? '',
+                  peerTag: extra['peerTag']?.toString() ?? '',
+                ),
+              );
+            },
+          ),
+          // 共同群组页（混用修复：原 people_info_more_page 原生 push）
+          GoRoute(
+            path: '/people_info_same_group',
+            name: 'people_info_same_group',
+            pageBuilder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              return CupertinoPage(
+                key: state.pageKey,
+                child: PeopleInfoSameGroupPage(
+                  groupList:
+                      extra['groupList'] as List<GroupModel>? ??
+                      const <GroupModel>[],
+                ),
+              );
+            },
+          ),
           GoRoute(
             path: '/people/:id',
             name: 'people_info',

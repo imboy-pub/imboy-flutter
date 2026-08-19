@@ -4,6 +4,8 @@
 library;
 
 export '../../page/contact/contact/contact_page.dart';
+export '../../page/contact/contact_setting/contact_setting_page.dart';
+export '../../page/contact/people_info_more/people_info_same_group_page.dart';
 export '../../page/contact/new_friend/add_friend_page.dart';
 export '../../page/contact/new_friend/new_friend_page.dart';
 export '../../page/contact/people_info/people_info_page.dart';
