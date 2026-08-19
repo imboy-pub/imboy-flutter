@@ -19,21 +19,25 @@ class BindEmailPage extends ConsumerStatefulWidget {
 }
 
 class _BindEmailPageState extends ConsumerState<BindEmailPage> {
+  /// initState 时保存 notifier 引用：dispose() 里 ref 已不可用
+  /// （2026-08-19 真机 dispose 用 ref 崩溃实证，Riverpod 官方推荐模式）
+  late final BindEmailNotifier _notifier;
+
   @override
   void initState() {
     super.initState();
-    final notifier = ref.read(bindEmailProvider.notifier);
-    notifier.emailCtl.addListener(
-      () => notifier.updateEmail(notifier.emailCtl.text.trim()),
+    _notifier = ref.read(bindEmailProvider.notifier);
+    _notifier.emailCtl.addListener(
+      () => _notifier.updateEmail(_notifier.emailCtl.text.trim()),
     );
-    notifier.codeCtl.addListener(
-      () => notifier.updateCode(notifier.codeCtl.text.trim()),
+    _notifier.codeCtl.addListener(
+      () => _notifier.updateCode(_notifier.codeCtl.text.trim()),
     );
   }
 
   @override
   void dispose() {
-    ref.read(bindEmailProvider.notifier).dispose();
+    _notifier.dispose();
     super.dispose();
   }
 

@@ -22,21 +22,25 @@ class BindMobilePage extends ConsumerStatefulWidget {
 }
 
 class _BindMobilePageState extends ConsumerState<BindMobilePage> {
+  /// initState 时保存 notifier 引用：dispose() 里 ref 已不可用
+  /// （与 bind_email_page 同款隐患，一并修复）
+  late final BindMobileNotifier _notifier;
+
   @override
   void initState() {
     super.initState();
-    final notifier = ref.read(bindMobileProvider.notifier);
-    notifier.mobileCtl.addListener(
-      () => notifier.updateMobile(notifier.mobileCtl.text.trim()),
+    _notifier = ref.read(bindMobileProvider.notifier);
+    _notifier.mobileCtl.addListener(
+      () => _notifier.updateMobile(_notifier.mobileCtl.text.trim()),
     );
-    notifier.codeCtl.addListener(
-      () => notifier.updateCode(notifier.codeCtl.text.trim()),
+    _notifier.codeCtl.addListener(
+      () => _notifier.updateCode(_notifier.codeCtl.text.trim()),
     );
   }
 
   @override
   void dispose() {
-    ref.read(bindMobileProvider.notifier).dispose();
+    _notifier.dispose();
     super.dispose();
   }
 
