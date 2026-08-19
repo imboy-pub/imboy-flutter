@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -14,7 +15,6 @@ import 'package:imboy/page/qrcode/qrcode_url.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -262,10 +262,9 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.pop(ctx);
-              Navigator.push(
-                context,
-                CupertinoPageRoute<void>(builder: (_) => const ScannerPage()),
-              );
+              // 统一走 go_router：原生 push 的 ScannerPage 内扫码
+              // 跳 ChatPage/PeopleInfoPage 会失灵（混用排查批次3）
+              context.push('/scanner');
             },
             child: Text(t.account.scanQrCode),
           ),

@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -8,7 +9,6 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../widget/more_page.dart';
-import '../../qrcode/qrcode_page.dart';
 
 part 'personal_info_provider.g.dart';
 
@@ -62,10 +62,8 @@ class PersonalInfoNotifier extends _$PersonalInfoNotifier {
         CupertinoPageRoute<dynamic>(builder: (_) => const MorePage()),
       );
     } else if (label == "user_qrcode") {
-      Navigator.push(
-        context,
-        CupertinoPageRoute<dynamic>(builder: (_) => UserQrCodePage()),
-      );
+      // 统一走 go_router：原生 push 的 UserQrCodePage 内「扫一扫」会失灵
+      context.push('/qrcode/user');
     }
   }
 }

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/page/qrcode/qrcode_page.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -138,10 +137,9 @@ class AddFriendPage extends ConsumerWidget {
                 ),
                 AppSpacing.horizontalMedium,
                 GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    CupertinoPageRoute<void>(builder: (_) => UserQrCodePage()),
-                  ),
+                  // 统一走 go_router：原生 push 的 UserQrCodePage 内
+                  // 「扫一扫」跳 ScannerPage 会失灵（混用排查批次3）
+                  onTap: () => context.push('/qrcode/user'),
                   child: const Icon(
                     CupertinoIcons.qrcode,
                     color: AppColors.primary,

@@ -21,7 +21,6 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
-import 'package:imboy/modules/social_graph/public.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/page/scanner/qr_login_confirm_page.dart';
@@ -224,14 +223,10 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
       String type = payload['type'] as String? ?? 'user';
       if (result == '' && type == 'user') {
         if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          CupertinoPageRoute<dynamic>(
-            builder: (context) => PeopleInfoPage(
-              id: parseModelString(payload['id']),
-              scene: 'qrcode',
-            ),
-          ),
+        // 统一走 go_router：原生 push 的 PeopleInfoPage 内
+        // contact_setting/_goToChat 入口会失灵（混用排查批次3）
+        context.pushReplacement(
+          '/people_info/${parseModelString(payload['id'])}?scene=qrcode',
         );
       } else if (result == '' && type == 'group') {
         await GroupMemberRepo().save(

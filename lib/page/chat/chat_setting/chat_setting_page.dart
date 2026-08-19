@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:go_router/go_router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +11,6 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/page/chat/widget/chat_background_manager.dart';
-import 'package:imboy/page/search/search_chat_page.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -427,18 +427,18 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         icon: CupertinoIcons.search,
         isFirst: true,
         onTap: () {
-          Navigator.push(
-            context,
-            CupertinoPageRoute<dynamic>(
-              builder: (_) => SearchChatPage(
-                type: widget.type,
-                peerId: widget.options?['peer_id'] as String,
-                peerTitle: widget.options?['peerTitle'] as String,
-                peerAvatar: widget.options?['peerAvatar'] as String,
-                peerSign: widget.options?['peerSign'] as String? ?? '',
-                conversationUk3: widget.options?['conversationUk3'] as String,
-              ),
-            ),
+          // 统一走 go_router（/search_chat 路由已注册，extra 传参对齐）：
+          // 原生 push 时 SearchChatPage 内 _goToChat 会失灵
+          context.push(
+            '/search_chat',
+            extra: {
+              'type': widget.type,
+              'peerId': widget.options?['peer_id'] as String,
+              'peerTitle': widget.options?['peerTitle'] as String,
+              'peerAvatar': widget.options?['peerAvatar'] as String,
+              'peerSign': widget.options?['peerSign'] as String? ?? '',
+              'conversationUk3': widget.options?['conversationUk3'] as String,
+            },
           );
         },
       ),

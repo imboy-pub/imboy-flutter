@@ -12,7 +12,6 @@ import 'package:imboy/component/widget/user_online_status_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/page/contact/apply_friend/apply_friend_page.dart';
 import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_page.dart';
-import 'package:imboy/page/contact/people_info_more/people_info_more_page.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/user_events.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -200,12 +199,7 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                     color: AppColors.iosGray,
                     size: 20,
                   ),
-                  onTap: () => Navigator.push(
-                    context,
-                    CupertinoPageRoute<void>(
-                      builder: (_) => PeopleInfoMorePage(id: id),
-                    ),
-                  ),
+                  onTap: () => context.push('/people_info_more/$id'),
                 ),
               ],
             ),

@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +8,6 @@ import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -182,15 +182,11 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
   ) {
     final item = ImBoySettingsTile(
       onTap: () {
-        Navigator.push(
-          context,
-          CupertinoPageRoute<void>(
-            builder: (context) => PeopleInfoPage(
-              id: model.deniedUid.toString(),
-              scene: 'denylist',
-            ),
-          ),
-        ).then((_) {
+        // 统一走 go_router：原生 push 的 PeopleInfoPage 内
+        // contact_setting/_goToChat 入口会失灵（混用排查批次3）
+        context.push('/people_info/${model.deniedUid}?scene=denylist').then((
+          _,
+        ) {
           ref.read(denylistProvider.notifier).loadData(page: 1, size: 1000);
         });
       },

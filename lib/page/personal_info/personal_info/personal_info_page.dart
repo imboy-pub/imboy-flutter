@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -12,7 +13,6 @@ import 'package:imboy/component/helper/crop_image.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/page/qrcode/qrcode_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -110,10 +110,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
                   color: AppColors.iosGray,
                   size: 20,
                 ),
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<dynamic>(builder: (_) => UserQrCodePage()),
-                ),
+                onTap: () => context.push('/qrcode/user'),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.moreInfo),

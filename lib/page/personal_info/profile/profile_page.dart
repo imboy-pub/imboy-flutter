@@ -15,7 +15,6 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/page/qrcode/qrcode_page.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -278,10 +277,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   color: AppColors.iosBlue,
                   size: 22,
                 ),
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<void>(builder: (_) => UserQrCodePage()),
-                ),
+                onTap: () => context.push('/qrcode/user'),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.privacySettings),
