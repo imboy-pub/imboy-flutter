@@ -43,6 +43,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$account$zh_CN account = Translations$account$zh_CN.internal(_root);
 	late final Translations$agent$zh_CN agent = Translations$agent$zh_CN.internal(_root);
 	late final Translations$agentTask$zh_CN agentTask = Translations$agentTask$zh_CN.internal(_root);
+	late final Translations$billing$zh_CN billing = Translations$billing$zh_CN.internal(_root);
 	late final Translations$channel$zh_CN channel = Translations$channel$zh_CN.internal(_root);
 	late final Translations$chat$zh_CN chat = Translations$chat$zh_CN.internal(_root);
 	late final Translations$common$zh_CN common = Translations$common$zh_CN.internal(_root);
@@ -524,6 +525,66 @@ class Translations$agentTask$zh_CN {
 
 	/// zh-CN: '拒绝'
 	String get reject => '拒绝';
+}
+
+// Path: billing
+class Translations$billing$zh_CN {
+	Translations$billing$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '套餐订阅'
+	String get title => '套餐订阅';
+
+	/// zh-CN: '月付'
+	String get planPeriodMonthly => '月付';
+
+	/// zh-CN: '年付'
+	String get planPeriodYearly => '年付';
+
+	/// zh-CN: '立即订阅'
+	String get subscribe => '立即订阅';
+
+	/// zh-CN: '当前套餐'
+	String get currentPlan => '当前套餐';
+
+	/// zh-CN: '暂无可售套餐，敬请期待'
+	String get noPlans => '暂无可售套餐，敬请期待';
+
+	/// zh-CN: '加载失败，请下拉重试'
+	String get loadFailed => '加载失败，请下拉重试';
+
+	/// zh-CN: '重试'
+	String get retry => '重试';
+
+	/// zh-CN: '订阅成功'
+	String get paySuccess => '订阅成功';
+
+	/// zh-CN: '支付失败'
+	String get payFailed => '支付失败';
+
+	/// zh-CN: '已取消支付'
+	String get payCancelled => '已取消支付';
+
+	/// zh-CN: '选择支付方式'
+	String get payMethodTitle => '选择支付方式';
+
+	/// zh-CN: '模拟支付（开发环境）'
+	String get payMethodMock => '模拟支付（开发环境）';
+
+	/// zh-CN: '支付宝'
+	String get payMethodAlipay => '支付宝';
+
+	/// zh-CN: '微信支付'
+	String get payMethodWechat => '微信支付';
+
+	/// zh-CN: '该支付方式即将开通，敬请期待'
+	String get payMethodComingSoon => '该支付方式即将开通，敬请期待';
+
+	/// zh-CN: '不限'
+	String get quotaUnlimited => '不限';
 }
 
 // Path: channel
@@ -7749,6 +7810,23 @@ extension on Translations {
 			'agentTask.awaitingApproval' => '待审批',
 			'agentTask.approve' => '批准',
 			'agentTask.reject' => '拒绝',
+			'billing.title' => '套餐订阅',
+			'billing.planPeriodMonthly' => '月付',
+			'billing.planPeriodYearly' => '年付',
+			'billing.subscribe' => '立即订阅',
+			'billing.currentPlan' => '当前套餐',
+			'billing.noPlans' => '暂无可售套餐，敬请期待',
+			'billing.loadFailed' => '加载失败，请下拉重试',
+			'billing.retry' => '重试',
+			'billing.paySuccess' => '订阅成功',
+			'billing.payFailed' => '支付失败',
+			'billing.payCancelled' => '已取消支付',
+			'billing.payMethodTitle' => '选择支付方式',
+			'billing.payMethodMock' => '模拟支付（开发环境）',
+			'billing.payMethodAlipay' => '支付宝',
+			'billing.payMethodWechat' => '微信支付',
+			'billing.payMethodComingSoon' => '该支付方式即将开通，敬请期待',
+			'billing.quotaUnlimited' => '不限',
 			'channel.composeLeaveImagesLost' => '已选图片不会保存，确定离开？',
 			'channel.title' => '频道',
 			'channel.loading' => '加载中...',
@@ -8100,6 +8178,8 @@ extension on Translations {
 			'chat.formatCheck' => '格式检查',
 			'chat.featureRequest' => '功能请求',
 			'chat.resendCodeWithCount' => ({required Object count}) => '重新发送（${count}秒）',
+			_ => null,
+		} ?? switch (path) {
 			'chat.chatResend' => '重新发送',
 			'chat.chatReply' => '回复',
 			'chat.chatOpenFile' => '打开文件',
@@ -8117,8 +8197,6 @@ extension on Translations {
 			'chat.ripplePattern' => '波纹图案',
 			'chat.customImage' => '自定义图片',
 			'chat.voiceRecordResultEmpty' => '语音录制结果为空',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceFileInvalid' => '语音文件无效',
 			'chat.burnAfterReading' => '阅后即焚',
 			'chat.burnReadBadge' => '阅后',
@@ -8614,6 +8692,8 @@ extension on Translations {
 			'common.searchFilterToday' => '今日筛选',
 			'common.searchFilters' => '搜索筛选',
 			'common.searchFriendsTips' => '通过好友昵称、备注搜索好友',
+			_ => null,
+		} ?? switch (path) {
 			'common.searchHint' => '输入关键词搜索消息',
 			'common.searchHistory' => '搜索历史',
 			'common.searchLocation' => '搜索地点',
@@ -8631,8 +8711,6 @@ extension on Translations {
 			'common.selectedItems' => ({required Object param}) => '${param} 个选定项目',
 			'common.selectedRegion' => '已选地区',
 			'common.sendMsgNotFriendTips' => '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。',
-			_ => null,
-		} ?? switch (path) {
 			'common.setChatBackground' => '设置当前聊天背景',
 			'common.share' => '分享',
 			'common.signatureTips' => '签名提示',
@@ -9128,6 +9206,8 @@ extension on Translations {
 			'common.e2eeExportBackup' => '导出备份',
 			'common.e2eeExportBackupDesc' => '生成加密备份文件',
 			'common.e2eeImportBackup' => '导入备份',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeImportBackupDesc' => '从备份文件恢复密钥',
 			'common.e2eeBackupManage' => '备份管理',
 			'common.e2eeBackupManageDesc' => '查看备份历史记录',
@@ -9145,8 +9225,6 @@ extension on Translations {
 			'common.e2eeCreatedAtInfo' => ({required Object time}) => '创建时间: ${time}',
 			'common.e2eeImportantNote' => '重要提示',
 			'common.e2eeWarnOldMayNotDecrypt' => '• 旧消息可能无法解密',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeSuggestBackupNow' => '• 建议立即导出备份',
 			'common.e2eeGoBackup' => '去备份',
 			'common.e2eeKeyGenerateFailed' => '密钥生成失败，请重试',
@@ -9642,6 +9720,8 @@ extension on Translations {
 			'groupTag.tagColor' => '标签颜色',
 			'groupTag.noTag' => '暂无标签',
 			'groupTag.tagAdded' => '标签添加成功',
+			_ => null,
+		} ?? switch (path) {
 			'groupTag.tagRemoved' => '标签已移除',
 			'groupTag.removeTitle' => '移除标签',
 			'groupTag.removeConfirm' => '确定要移除这个标签吗？',
@@ -9659,8 +9739,6 @@ extension on Translations {
 			'groupTask.taskCreated' => '任务创建成功',
 			'groupTask.taskSubmitted' => '任务已提交',
 			'groupTask.submitTask' => '提交作业',
-			_ => null,
-		} ?? switch (path) {
 			'groupTask.taskCompleted' => '任务已完成',
 			'groupTask.overdue' => '已过期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',

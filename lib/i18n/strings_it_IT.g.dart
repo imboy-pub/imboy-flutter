@@ -41,6 +41,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	// Translations
 	@override late final _Translations$account$it_IT account = _Translations$account$it_IT._(_root);
 	@override late final _Translations$agent$it_IT agent = _Translations$agent$it_IT._(_root);
+	@override late final _Translations$billing$it_IT billing = _Translations$billing$it_IT._(_root);
 	@override late final _Translations$channel$it_IT channel = _Translations$channel$it_IT._(_root);
 	@override late final _Translations$chat$it_IT chat = _Translations$chat$it_IT._(_root);
 	@override late final _Translations$common$it_IT common = _Translations$common$it_IT._(_root);
@@ -208,6 +209,32 @@ class _Translations$agent$it_IT extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => 'Ufficiale';
 	@override String get badgeAiA11y => 'Assistente IA';
 	@override String get badgeOfficialA11y => 'Account ufficiale';
+}
+
+// Path: billing
+class _Translations$billing$it_IT extends Translations$billing$zh_CN {
+	_Translations$billing$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Abbonamenti';
+	@override String get planPeriodMonthly => 'Mensile';
+	@override String get planPeriodYearly => 'Annuale';
+	@override String get subscribe => 'Abbonati ora';
+	@override String get currentPlan => 'Piano attuale';
+	@override String get noPlans => 'Nessun piano ancora disponibile. A breve';
+	@override String get loadFailed => 'Caricamento non riuscito. Scorri per riprovare';
+	@override String get retry => 'Riprova';
+	@override String get paySuccess => 'Abbonamento riuscito';
+	@override String get payFailed => 'Pagamento non riuscito';
+	@override String get payCancelled => 'Pagamento annullato';
+	@override String get payMethodTitle => 'Scegli un metodo di pagamento';
+	@override String get payMethodMock => 'Pagamento di test (solo sviluppo)';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override String get payMethodComingSoon => 'Questo metodo di pagamento sarà disponibile a breve';
+	@override String get quotaUnlimited => 'Illimitato';
 }
 
 // Path: channel
@@ -2697,6 +2724,23 @@ extension on TranslationsItIt {
 			'agent.badgeOfficial' => 'Ufficiale',
 			'agent.badgeAiA11y' => 'Assistente IA',
 			'agent.badgeOfficialA11y' => 'Account ufficiale',
+			'billing.title' => 'Abbonamenti',
+			'billing.planPeriodMonthly' => 'Mensile',
+			'billing.planPeriodYearly' => 'Annuale',
+			'billing.subscribe' => 'Abbonati ora',
+			'billing.currentPlan' => 'Piano attuale',
+			'billing.noPlans' => 'Nessun piano ancora disponibile. A breve',
+			'billing.loadFailed' => 'Caricamento non riuscito. Scorri per riprovare',
+			'billing.retry' => 'Riprova',
+			'billing.paySuccess' => 'Abbonamento riuscito',
+			'billing.payFailed' => 'Pagamento non riuscito',
+			'billing.payCancelled' => 'Pagamento annullato',
+			'billing.payMethodTitle' => 'Scegli un metodo di pagamento',
+			'billing.payMethodMock' => 'Pagamento di test (solo sviluppo)',
+			'billing.payMethodAlipay' => 'Alipay',
+			'billing.payMethodWechat' => 'WeChat Pay',
+			'billing.payMethodComingSoon' => 'Questo metodo di pagamento sarà disponibile a breve',
+			'billing.quotaUnlimited' => 'Illimitato',
 			'channel.composeLeaveImagesLost' => 'Le immagini selezionate non verranno salvate. Uscire comunque?',
 			'channel.title' => 'Canali',
 			'channel.loading' => 'Caricamento...',
@@ -3065,6 +3109,8 @@ extension on TranslationsItIt {
 			'chat.e2eeCreatedAtLabel' => 'Creato il',
 			'chat.e2eeGeneratingKey' => 'Generazione chiave, attendi...',
 			'chat.e2eeNewKeyGenerated' => 'Nuova coppia di chiavi E2EE creata !',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeReady' => 'Pronto',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Pronto (${count} frammenti)',
 			'chat.webFeatureMultiDevice' => 'Multi-dispositivo',
@@ -3082,8 +3128,6 @@ extension on TranslationsItIt {
 			'chat.e2eeSocialCreateBtn' => 'Crea frammenti',
 			'chat.e2eeSocialCreateFailTitle' => 'Fallito',
 			'chat.e2eeSocialCreateFailBody' => 'Creazione fallita. Riprova.',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeSocialCreateFirst' => 'Visibile dopo la creazione',
 			'chat.e2eeSocialUsedAtLabel' => 'Usato il',
 			'chat.e2eeTransferSendTitle' => 'Invia chiave al nuovo dispositivo',
@@ -3579,6 +3623,8 @@ extension on TranslationsItIt {
 			'common.confirmChange' => 'Conferma modifica',
 			'common.verificationCodeSentToEmail' => 'Il codice di verifica sarà inviato a questa email, completa la verifica entro il periodo di validità',
 			'common.verificationCodeSentToMobile' => 'Il codice di verifica sarà inviato a questo numero di telefono, completa la verifica entro il periodo di validità',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => 'Inserisci l\'indirizzo email corretto',
 			'common.pleaseEnter6DigitVerificationCode' => 'Inserisci il codice di verifica a 6 cifre',
 			'common.verificationCodeSent' => 'Codice di verifica inviato',
@@ -3596,8 +3642,6 @@ extension on TranslationsItIt {
 			'common.feedbackHistory' => 'Cronologia feedback',
 			'common.confirmDelete' => 'Conferma eliminazione',
 			'common.processing' => _root.common.loading,
-			_ => null,
-		} ?? switch (path) {
 			'common.verificationCode' => 'Codice di verifica',
 			'common.feedbackContent' => 'Contenuto feedback',
 			'common.officialReply' => 'Risposta ufficiale',
@@ -4093,6 +4137,8 @@ extension on TranslationsItIt {
 			'common.e2eeBackupVersionLabel' => 'Versione',
 			'common.e2eeBackupAlgorithmLabel' => 'Algoritmo',
 			'common.e2eeBackupFileSizeLabel' => 'Dimensione',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ Formato valido',
 			'common.e2eeBackupImportPwdHint' => 'Password del backup',
 			'common.e2eeBackupImportBtn' => 'Importa chiave',
@@ -4110,8 +4156,6 @@ extension on TranslationsItIt {
 			'common.e2eeBackupDeviceIdLabel' => 'ID dispositivo',
 			'common.e2eeBackupVersionNum' => 'Versione backup',
 			'common.e2eeBackupCreatedAtRow' => 'Creato il',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileSizeRow' => 'Dimensione',
 			'common.e2eeBackupNoteRow' => 'Nota',
 			'common.e2eeBackupDeleteTitle' => 'Elimina backup',
@@ -4607,6 +4651,8 @@ extension on TranslationsItIt {
 			'main.replied' => 'Risposto',
 			'main.ringing' => 'Sta squillando...',
 			'main.ruRu' => 'Russo (Russia)',
+			_ => null,
+		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => 'Selezionato (${count})',
 			'main.selected' => 'Selezionato',
 			'main.sent' => 'Inviato',
@@ -4624,8 +4670,6 @@ extension on TranslationsItIt {
 			'main.storageSpace' => 'Spazio di archiviazione',
 			'main.termOfServices' => 'Termini di servizio',
 			'main.text' => 'Testo',
-			_ => null,
-		} ?? switch (path) {
 			'main.thisWeek' => 'Questa settimana',
 			'main.timeRange' => 'Intervallo di tempo',
 			'main.timeWeekdays' => 'Lunedì,Martedì,Mercoledì,Giovedì,Venerdì,Sabato,Domenica',

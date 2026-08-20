@@ -41,6 +41,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	// Translations
 	@override late final _Translations$account$ru_RU account = _Translations$account$ru_RU._(_root);
 	@override late final _Translations$agent$ru_RU agent = _Translations$agent$ru_RU._(_root);
+	@override late final _Translations$billing$ru_RU billing = _Translations$billing$ru_RU._(_root);
 	@override late final _Translations$channel$ru_RU channel = _Translations$channel$ru_RU._(_root);
 	@override late final _Translations$chat$ru_RU chat = _Translations$chat$ru_RU._(_root);
 	@override late final _Translations$common$ru_RU common = _Translations$common$ru_RU._(_root);
@@ -208,6 +209,32 @@ class _Translations$agent$ru_RU extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => 'Официальный';
 	@override String get badgeAiA11y => 'ИИ-ассистент';
 	@override String get badgeOfficialA11y => 'Официальный аккаунт';
+}
+
+// Path: billing
+class _Translations$billing$ru_RU extends Translations$billing$zh_CN {
+	_Translations$billing$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Подписки';
+	@override String get planPeriodMonthly => 'Ежемесячно';
+	@override String get planPeriodYearly => 'Ежегодно';
+	@override String get subscribe => 'Подписаться';
+	@override String get currentPlan => 'Текущий план';
+	@override String get noPlans => 'Пока нет доступных тарифов. Скоро';
+	@override String get loadFailed => 'Не удалось загрузить. Потяните вниз, чтобы повторить';
+	@override String get retry => 'Повторить';
+	@override String get paySuccess => 'Подписка оформлена';
+	@override String get payFailed => 'Оплата не удалась';
+	@override String get payCancelled => 'Оплата отменена';
+	@override String get payMethodTitle => 'Выберите способ оплаты';
+	@override String get payMethodMock => 'Тестовая оплата (только для разработки)';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override String get payMethodComingSoon => 'Этот способ оплаты скоро появится';
+	@override String get quotaUnlimited => 'Без ограничений';
 }
 
 // Path: channel
@@ -2694,6 +2721,23 @@ extension on TranslationsRuRu {
 			'agent.badgeOfficial' => 'Официальный',
 			'agent.badgeAiA11y' => 'ИИ-ассистент',
 			'agent.badgeOfficialA11y' => 'Официальный аккаунт',
+			'billing.title' => 'Подписки',
+			'billing.planPeriodMonthly' => 'Ежемесячно',
+			'billing.planPeriodYearly' => 'Ежегодно',
+			'billing.subscribe' => 'Подписаться',
+			'billing.currentPlan' => 'Текущий план',
+			'billing.noPlans' => 'Пока нет доступных тарифов. Скоро',
+			'billing.loadFailed' => 'Не удалось загрузить. Потяните вниз, чтобы повторить',
+			'billing.retry' => 'Повторить',
+			'billing.paySuccess' => 'Подписка оформлена',
+			'billing.payFailed' => 'Оплата не удалась',
+			'billing.payCancelled' => 'Оплата отменена',
+			'billing.payMethodTitle' => 'Выберите способ оплаты',
+			'billing.payMethodMock' => 'Тестовая оплата (только для разработки)',
+			'billing.payMethodAlipay' => 'Alipay',
+			'billing.payMethodWechat' => 'WeChat Pay',
+			'billing.payMethodComingSoon' => 'Этот способ оплаты скоро появится',
+			'billing.quotaUnlimited' => 'Без ограничений',
 			'channel.composeLeaveImagesLost' => 'Выбранные изображения не будут сохранены. Всё равно выйти?',
 			'channel.title' => 'Каналы',
 			'channel.loading' => 'Загрузка...',
@@ -3062,6 +3106,8 @@ extension on TranslationsRuRu {
 			'chat.e2eeCreatedAtLabel' => 'Создан',
 			'chat.e2eeGeneratingKey' => 'Создание ключа, подождите...',
 			'chat.e2eeNewKeyGenerated' => 'Новая пара ключей E2EE создана!',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeReady' => 'Готово',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Готово (фрагментов: ${count})',
 			'chat.webFeatureMultiDevice' => 'Синхронизация устройств',
@@ -3079,8 +3125,6 @@ extension on TranslationsRuRu {
 			'chat.e2eeSocialCreateBtn' => 'Создать фрагменты',
 			'chat.e2eeSocialCreateFailTitle' => 'Не удалось создать',
 			'chat.e2eeSocialCreateFailBody' => 'Не удалось создать фрагменты, попробуйте ещё раз',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeSocialCreateFirst' => 'Содержимое появится после создания фрагментов',
 			'chat.e2eeSocialUsedAtLabel' => 'Дата использования',
 			'chat.e2eeTransferSendTitle' => 'Отправить ключ на новое устройство',
@@ -3576,6 +3620,8 @@ extension on TranslationsRuRu {
 			'common.confirmChange' => 'Подтвердить изменение',
 			'common.verificationCodeSentToEmail' => 'Код подтверждения будет отправлен на эл. почту',
 			'common.verificationCodeSentToMobile' => 'Код подтверждения будет отправлен на телефон',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => 'Введите корректный адрес эл. почты',
 			'common.pleaseEnter6DigitVerificationCode' => 'Введите 6-значный код',
 			'common.verificationCodeSent' => 'Код подтверждения отправлен',
@@ -3593,8 +3639,6 @@ extension on TranslationsRuRu {
 			'common.feedbackHistory' => 'История предложений',
 			'common.confirmDelete' => 'Подтвердить удаление',
 			'common.processing' => _root.common.loading,
-			_ => null,
-		} ?? switch (path) {
 			'common.verificationCode' => 'Код подтверждения',
 			'common.feedbackContent' => 'Содержание предложения',
 			'common.officialReply' => 'Официальный ответ',
@@ -4090,6 +4134,8 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupVersionLabel' => 'Версия',
 			'common.e2eeBackupAlgorithmLabel' => 'Алгоритм',
 			'common.e2eeBackupFileSizeLabel' => 'Размер файла',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ Формат файла корректен',
 			'common.e2eeBackupImportPwdHint' => 'Введите пароль, заданный при создании копии',
 			'common.e2eeBackupImportBtn' => 'Импортировать ключ',
@@ -4107,8 +4153,6 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupDeviceIdLabel' => 'ID устройства',
 			'common.e2eeBackupVersionNum' => 'Версия копии',
 			'common.e2eeBackupCreatedAtRow' => 'Дата создания',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileSizeRow' => 'Размер файла',
 			'common.e2eeBackupNoteRow' => 'Заметка',
 			'common.e2eeBackupDeleteTitle' => 'Удалить запись о копии',
@@ -4604,6 +4648,8 @@ extension on TranslationsRuRu {
 			'main.replied' => 'Ответлено',
 			'main.ringing' => 'Звонок...',
 			'main.ruRu' => 'Русский (Россия)',
+			_ => null,
+		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => 'Выбрано (${count})',
 			'main.selected' => 'Выбрано',
 			'main.sent' => 'Отправлено',
@@ -4621,8 +4667,6 @@ extension on TranslationsRuRu {
 			'main.storageSpace' => 'Память',
 			'main.termOfServices' => 'Условия обслуживания',
 			'main.text' => 'Текст',
-			_ => null,
-		} ?? switch (path) {
 			'main.thisWeek' => 'На этой неделе',
 			'main.timeRange' => 'Временной диапазон',
 			'main.timeWeekdays' => 'Понедельник, Вторник, Среда, Четверг, Пятница, Суббота, Воскресенье',

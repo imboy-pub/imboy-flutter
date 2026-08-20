@@ -85,6 +85,7 @@ export 'package:imboy/modules/security_privacy/public.dart';
 // 其他功能
 // ============================================================================
 export 'package:imboy/page/wallet/wallet_page.dart';
+export 'package:imboy/page/billing/plan_list_page.dart';
 export 'package:imboy/page/live_room/live_room_list/live_room_list_page.dart';
 export 'package:imboy/page/live_room/publisher/publisher_page.dart';
 export 'package:imboy/page/live_room/subscriber/subscriber_page.dart';

@@ -41,6 +41,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	// Translations
 	@override late final _Translations$account$en_US account = _Translations$account$en_US._(_root);
 	@override late final _Translations$agent$en_US agent = _Translations$agent$en_US._(_root);
+	@override late final _Translations$billing$en_US billing = _Translations$billing$en_US._(_root);
 	@override late final _Translations$channel$en_US channel = _Translations$channel$en_US._(_root);
 	@override late final _Translations$chat$en_US chat = _Translations$chat$en_US._(_root);
 	@override late final _Translations$common$en_US common = _Translations$common$en_US._(_root);
@@ -208,6 +209,32 @@ class _Translations$agent$en_US extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => 'Official';
 	@override String get badgeAiA11y => 'AI assistant';
 	@override String get badgeOfficialA11y => 'Official account';
+}
+
+// Path: billing
+class _Translations$billing$en_US extends Translations$billing$zh_CN {
+	_Translations$billing$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Subscriptions';
+	@override String get planPeriodMonthly => 'Monthly';
+	@override String get planPeriodYearly => 'Yearly';
+	@override String get subscribe => 'Subscribe';
+	@override String get currentPlan => 'Current plan';
+	@override String get noPlans => 'No plans available yet. Stay tuned';
+	@override String get loadFailed => 'Failed to load. Pull down to retry';
+	@override String get retry => 'Retry';
+	@override String get paySuccess => 'Subscribed successfully';
+	@override String get payFailed => 'Payment failed';
+	@override String get payCancelled => 'Payment cancelled';
+	@override String get payMethodTitle => 'Choose a payment method';
+	@override String get payMethodMock => 'Sandbox pay (dev only)';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override String get payMethodComingSoon => 'This payment method is coming soon';
+	@override String get quotaUnlimited => 'Unlimited';
 }
 
 // Path: channel
@@ -2720,6 +2747,23 @@ extension on TranslationsEnUs {
 			'agent.badgeOfficial' => 'Official',
 			'agent.badgeAiA11y' => 'AI assistant',
 			'agent.badgeOfficialA11y' => 'Official account',
+			'billing.title' => 'Subscriptions',
+			'billing.planPeriodMonthly' => 'Monthly',
+			'billing.planPeriodYearly' => 'Yearly',
+			'billing.subscribe' => 'Subscribe',
+			'billing.currentPlan' => 'Current plan',
+			'billing.noPlans' => 'No plans available yet. Stay tuned',
+			'billing.loadFailed' => 'Failed to load. Pull down to retry',
+			'billing.retry' => 'Retry',
+			'billing.paySuccess' => 'Subscribed successfully',
+			'billing.payFailed' => 'Payment failed',
+			'billing.payCancelled' => 'Payment cancelled',
+			'billing.payMethodTitle' => 'Choose a payment method',
+			'billing.payMethodMock' => 'Sandbox pay (dev only)',
+			'billing.payMethodAlipay' => 'Alipay',
+			'billing.payMethodWechat' => 'WeChat Pay',
+			'billing.payMethodComingSoon' => 'This payment method is coming soon',
+			'billing.quotaUnlimited' => 'Unlimited',
 			'channel.composeLeaveImagesLost' => 'Selected images will not be saved. Leave anyway?',
 			'channel.title' => 'Channels',
 			'channel.loading' => 'Loading...',
@@ -3088,6 +3132,8 @@ extension on TranslationsEnUs {
 			'chat.createdAtLabel' => ({required Object time}) => 'Created: ${time}',
 			'chat.expiredAtLabel' => ({required Object time}) => 'Expires: ${time}',
 			'chat.myReceivedTab' => 'Received',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderStatusLabel' => ({required Object status}) => 'Status: ${status}',
 			'chat.orderCreatedAtLabel' => ({required Object time}) => 'Created: ${time}',
 			'chat.orderPaymentAtLabel' => ({required Object time}) => 'Paid: ${time}',
@@ -3105,8 +3151,6 @@ extension on TranslationsEnUs {
 			'chat.e2eeGeneratingKey' => 'Generating key, please wait...',
 			'chat.e2eeNewKeyGenerated' => 'New E2EE key pair generated!',
 			'chat.e2eeReady' => 'Ready',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Ready (${count} shards)',
 			'chat.webFeatureMultiDevice' => 'Multi-Device Sync',
 			'chat.webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
@@ -3602,6 +3646,8 @@ extension on TranslationsEnUs {
 			'common.confirmRemove' => 'Confirm remove',
 			'common.confirmRemoveFromDenylist' => 'Confirm to remove this user from blocklist?',
 			'common.buttonRemove' => 'Remove',
+			_ => null,
+		} ?? switch (path) {
 			'common.removedFromDenylist' => 'Removed from blocklist',
 			'common.newEmailAddress' => 'New email address',
 			'common.emailAddress' => 'Email address',
@@ -3619,8 +3665,6 @@ extension on TranslationsEnUs {
 			'common.checkVerificationCodeOrRetry' => 'Please check verification code or try again later',
 			'common.forceOffline' => 'Offline',
 			'common.forceDeviceOffline' => 'Make this device offline',
-			_ => null,
-		} ?? switch (path) {
 			'common.forceDeviceOfflineConfirm' => 'Will send offline command to this device, confirm to continue?',
 			'common.confirmForceOffline' => 'Confirm offline',
 			'common.forceOfflineCommandSent' => 'Offline command sent',
@@ -4116,6 +4160,8 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupImportantNoteColon' => 'Important:',
 			'common.e2eeBackupKeepSafe' => '• Keep the backup file and password safe',
 			'common.e2eeBackupStoreMultipleLoc' => '• Store the file in multiple secure locations',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• Password cannot be recovered, please remember it',
 			'common.e2eeBackupImportTitle' => 'Import E2EE Backup',
 			'common.e2eeBackupImportGuide' => 'Import Instructions',
@@ -4133,8 +4179,6 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupErrSelectFile' => 'Failed to select file, please try again',
 			'common.e2eeBackupErrValidateFailed' => 'File validation failed, please check file format',
 			'common.e2eeBackupErrImportFailed' => 'Import failed, please check your password',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupImportSuccessTitle' => 'Import successful',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
 			'common.e2eeBackupImportSuccessNote' => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices',
@@ -4630,6 +4674,8 @@ extension on TranslationsEnUs {
 			'main.markTodoDesc' => 'Mark as todo item',
 			'main.multiSelect' => 'Multi-select',
 			'main.multiSelectMode' => 'Multi-select mode',
+			_ => null,
+		} ?? switch (path) {
 			'main.myFavorites' => 'My favorites',
 			'main.myLive' => 'My live',
 			'main.name' => 'Name',
@@ -4647,8 +4693,6 @@ extension on TranslationsEnUs {
 			'main.recentlyUsed' => 'Recently used',
 			'main.releaseEnd' => 'Release to end',
 			'main.remainingChars' => ({required Object param}) => '${param} characters remaining',
-			_ => null,
-		} ?? switch (path) {
 			'main.kickMember' => 'Remove from Group',
 			'main.memberDetail' => 'Member Details',
 			'main.memberRole' => 'Role',

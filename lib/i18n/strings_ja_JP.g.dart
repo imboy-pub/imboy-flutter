@@ -41,6 +41,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	// Translations
 	@override late final _Translations$account$ja_JP account = _Translations$account$ja_JP._(_root);
 	@override late final _Translations$agent$ja_JP agent = _Translations$agent$ja_JP._(_root);
+	@override late final _Translations$billing$ja_JP billing = _Translations$billing$ja_JP._(_root);
 	@override late final _Translations$channel$ja_JP channel = _Translations$channel$ja_JP._(_root);
 	@override late final _Translations$chat$ja_JP chat = _Translations$chat$ja_JP._(_root);
 	@override late final _Translations$common$ja_JP common = _Translations$common$ja_JP._(_root);
@@ -208,6 +209,32 @@ class _Translations$agent$ja_JP extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => '公式';
 	@override String get badgeAiA11y => 'AI アシスタント';
 	@override String get badgeOfficialA11y => '公式アカウント';
+}
+
+// Path: billing
+class _Translations$billing$ja_JP extends Translations$billing$zh_CN {
+	_Translations$billing$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'プラン登録';
+	@override String get planPeriodMonthly => '月額';
+	@override String get planPeriodYearly => '年額';
+	@override String get subscribe => '今すぐ登録';
+	@override String get currentPlan => '現在のプラン';
+	@override String get noPlans => '販売中のプランはまだありません。お楽しみに';
+	@override String get loadFailed => '読み込みに失敗しました。下に引いて再試行してください';
+	@override String get retry => '再試行';
+	@override String get paySuccess => '登録しました';
+	@override String get payFailed => '支払いに失敗しました';
+	@override String get payCancelled => '支払いをキャンセルしました';
+	@override String get payMethodTitle => '支払い方法を選択';
+	@override String get payMethodMock => 'テスト決済（開発環境）';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override String get payMethodComingSoon => 'この支払い方法は近日対応予定です';
+	@override String get quotaUnlimited => '無制限';
 }
 
 // Path: channel
@@ -2694,6 +2721,23 @@ extension on TranslationsJaJp {
 			'agent.badgeOfficial' => '公式',
 			'agent.badgeAiA11y' => 'AI アシスタント',
 			'agent.badgeOfficialA11y' => '公式アカウント',
+			'billing.title' => 'プラン登録',
+			'billing.planPeriodMonthly' => '月額',
+			'billing.planPeriodYearly' => '年額',
+			'billing.subscribe' => '今すぐ登録',
+			'billing.currentPlan' => '現在のプラン',
+			'billing.noPlans' => '販売中のプランはまだありません。お楽しみに',
+			'billing.loadFailed' => '読み込みに失敗しました。下に引いて再試行してください',
+			'billing.retry' => '再試行',
+			'billing.paySuccess' => '登録しました',
+			'billing.payFailed' => '支払いに失敗しました',
+			'billing.payCancelled' => '支払いをキャンセルしました',
+			'billing.payMethodTitle' => '支払い方法を選択',
+			'billing.payMethodMock' => 'テスト決済（開発環境）',
+			'billing.payMethodAlipay' => 'Alipay',
+			'billing.payMethodWechat' => 'WeChat Pay',
+			'billing.payMethodComingSoon' => 'この支払い方法は近日対応予定です',
+			'billing.quotaUnlimited' => '無制限',
 			'channel.composeLeaveImagesLost' => '選択した画像は保存されません。移動しますか？',
 			'channel.title' => 'チャンネル',
 			'channel.loading' => '読み込み中...',
@@ -3062,6 +3106,8 @@ extension on TranslationsJaJp {
 			'chat.e2eeCreatedAtLabel' => '作成日時',
 			'chat.e2eeGeneratingKey' => 'キーを生成中です。お待ちください...',
 			'chat.e2eeNewKeyGenerated' => '新しいE2EEキーペアを生成しました！',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeReady' => '準備完了',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備完了（シャード ${count} 個）',
 			'chat.webFeatureMultiDevice' => 'マルチデバイス同期',
@@ -3079,8 +3125,6 @@ extension on TranslationsJaJp {
 			'chat.e2eeSocialCreateBtn' => 'シャードを作成',
 			'chat.e2eeSocialCreateFailTitle' => '作成に失敗しました',
 			'chat.e2eeSocialCreateFailBody' => 'シャードの作成に失敗しました。もう一度お試しください',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeSocialCreateFirst' => 'シャードを作成すると内容が表示されます',
 			'chat.e2eeSocialUsedAtLabel' => '使用日時',
 			'chat.e2eeTransferSendTitle' => '新しいデバイスにキーを送信',
@@ -3576,6 +3620,8 @@ extension on TranslationsJaJp {
 			'common.confirmChange' => '変更を確認',
 			'common.verificationCodeSentToEmail' => '認証コードをこのメールアドレスに送信します。有効期限内に確認を完了してください',
 			'common.verificationCodeSentToMobile' => '認証コードをこの携帯電話に送信します。有効期限内に確認を完了してください',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => '正しいメールアドレスを入力してください',
 			'common.pleaseEnter6DigitVerificationCode' => '6桁の認証コードを入力してください',
 			'common.verificationCodeSent' => '認証コードを送信しました',
@@ -3593,8 +3639,6 @@ extension on TranslationsJaJp {
 			'common.feedbackHistory' => 'フィードバック履歴',
 			'common.confirmDelete' => '削除確認',
 			'common.processing' => _root.common.loading,
-			_ => null,
-		} ?? switch (path) {
 			'common.verificationCode' => '認証コード',
 			'common.feedbackContent' => 'フィードバック内容',
 			'common.officialReply' => '公式返信',
@@ -4090,6 +4134,8 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupVersionLabel' => 'バージョン',
 			'common.e2eeBackupAlgorithmLabel' => 'アルゴリズム',
 			'common.e2eeBackupFileSizeLabel' => 'ファイルサイズ',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ ファイル形式は有効です',
 			'common.e2eeBackupImportPwdHint' => 'バックアップ作成時のパスワードを入力',
 			'common.e2eeBackupImportBtn' => 'キーを読み込む',
@@ -4107,8 +4153,6 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupDeviceIdLabel' => 'デバイス ID',
 			'common.e2eeBackupVersionNum' => 'バックアップバージョン',
 			'common.e2eeBackupCreatedAtRow' => '作成日時',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileSizeRow' => 'ファイルサイズ',
 			'common.e2eeBackupNoteRow' => 'メモ',
 			'common.e2eeBackupDeleteTitle' => 'バックアップ履歴を削除',
@@ -4604,6 +4648,8 @@ extension on TranslationsJaJp {
 			'main.replied' => '返信しました',
 			'main.ringing' => '呼び出し中...',
 			'main.ruRu' => 'ロシア語（ロシア）',
+			_ => null,
+		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => '選択済み (${count})',
 			'main.selected' => '選択済み',
 			'main.sent' => '送信済み',
@@ -4621,8 +4667,6 @@ extension on TranslationsJaJp {
 			'main.storageSpace' => 'ストレージ容量',
 			'main.termOfServices' => '利用規約',
 			'main.text' => 'テキスト',
-			_ => null,
-		} ?? switch (path) {
 			'main.thisWeek' => '今週',
 			'main.timeRange' => '時間範囲',
 			'main.timeWeekdays' => '月曜,火曜,水曜,木曜,金曜,土曜,日曜',

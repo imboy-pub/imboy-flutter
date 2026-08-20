@@ -41,6 +41,7 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	// Translations
 	@override late final _Translations$account$ar_SA account = _Translations$account$ar_SA._(_root);
 	@override late final _Translations$agent$ar_SA agent = _Translations$agent$ar_SA._(_root);
+	@override late final _Translations$billing$ar_SA billing = _Translations$billing$ar_SA._(_root);
 	@override late final _Translations$channel$ar_SA channel = _Translations$channel$ar_SA._(_root);
 	@override late final _Translations$chat$ar_SA chat = _Translations$chat$ar_SA._(_root);
 	@override late final _Translations$common$ar_SA common = _Translations$common$ar_SA._(_root);
@@ -208,6 +209,32 @@ class _Translations$agent$ar_SA extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => 'رسمي';
 	@override String get badgeAiA11y => 'مساعد ذكاء اصطناعي';
 	@override String get badgeOfficialA11y => 'حساب رسمي';
+}
+
+// Path: billing
+class _Translations$billing$ar_SA extends Translations$billing$zh_CN {
+	_Translations$billing$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'الاشتراكات';
+	@override String get planPeriodMonthly => 'شهري';
+	@override String get planPeriodYearly => 'سنوي';
+	@override String get subscribe => 'اشترك الآن';
+	@override String get currentPlan => 'الخطة الحالية';
+	@override String get noPlans => 'لا توجد خطط متاحة بعد. قريبًا';
+	@override String get loadFailed => 'فشل التحميل. اسحب للأسفل للمحاولة مجددًا';
+	@override String get retry => 'إعادة المحاولة';
+	@override String get paySuccess => 'تم الاشتراك بنجاح';
+	@override String get payFailed => 'فشل الدفع';
+	@override String get payCancelled => 'تم إلغاء الدفع';
+	@override String get payMethodTitle => 'اختر طريقة الدفع';
+	@override String get payMethodMock => 'دفع تجريبي (للتطوير فقط)';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override String get payMethodComingSoon => 'طريقة الدفع هذه قريبًا';
+	@override String get quotaUnlimited => 'غير محدود';
 }
 
 // Path: channel
@@ -2694,6 +2721,23 @@ extension on TranslationsArSa {
 			'agent.badgeOfficial' => 'رسمي',
 			'agent.badgeAiA11y' => 'مساعد ذكاء اصطناعي',
 			'agent.badgeOfficialA11y' => 'حساب رسمي',
+			'billing.title' => 'الاشتراكات',
+			'billing.planPeriodMonthly' => 'شهري',
+			'billing.planPeriodYearly' => 'سنوي',
+			'billing.subscribe' => 'اشترك الآن',
+			'billing.currentPlan' => 'الخطة الحالية',
+			'billing.noPlans' => 'لا توجد خطط متاحة بعد. قريبًا',
+			'billing.loadFailed' => 'فشل التحميل. اسحب للأسفل للمحاولة مجددًا',
+			'billing.retry' => 'إعادة المحاولة',
+			'billing.paySuccess' => 'تم الاشتراك بنجاح',
+			'billing.payFailed' => 'فشل الدفع',
+			'billing.payCancelled' => 'تم إلغاء الدفع',
+			'billing.payMethodTitle' => 'اختر طريقة الدفع',
+			'billing.payMethodMock' => 'دفع تجريبي (للتطوير فقط)',
+			'billing.payMethodAlipay' => 'Alipay',
+			'billing.payMethodWechat' => 'WeChat Pay',
+			'billing.payMethodComingSoon' => 'طريقة الدفع هذه قريبًا',
+			'billing.quotaUnlimited' => 'غير محدود',
 			'channel.composeLeaveImagesLost' => 'لن يتم حفظ الصور المحددة. هل تريد المغادرة؟',
 			'channel.title' => 'القنوات',
 			'channel.loading' => 'جاري التحميل...',
@@ -3062,6 +3106,8 @@ extension on TranslationsArSa {
 			'chat.e2eeCreatedAtLabel' => 'تاريخ الإنشاء',
 			'chat.e2eeGeneratingKey' => 'جارٍ إنشاء المفتاح، انتظر...',
 			'chat.e2eeNewKeyGenerated' => 'تم إنشاء زوج مفاتيح E2EE جديد!',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeReady' => 'جاهز',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'جاهز (${count} شظية)',
 			'chat.webFeatureMultiDevice' => 'مزامنة الأجهزة',
@@ -3079,8 +3125,6 @@ extension on TranslationsArSa {
 			'chat.e2eeSocialCreateBtn' => 'إنشاء الشظايا',
 			'chat.e2eeSocialCreateFailTitle' => 'تعذّر الإنشاء',
 			'chat.e2eeSocialCreateFailBody' => 'تعذّر إنشاء الشظايا، أعد المحاولة',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeSocialCreateFirst' => 'سيظهر المحتوى بعد إنشاء الشظايا',
 			'chat.e2eeSocialUsedAtLabel' => 'وقت الاستخدام',
 			'chat.e2eeTransferSendTitle' => 'إرسال المفتاح إلى جهاز جديد',
@@ -3576,6 +3620,8 @@ extension on TranslationsArSa {
 			'common.confirmChange' => 'تأكيد التغيير',
 			'common.verificationCodeSentToEmail' => 'سيتم إرسال رمز التحقق إلى هذا البريد الإلكتروني، يرجى إكمال التحقق خلال فترة الصلاحية',
 			'common.verificationCodeSentToMobile' => 'سيتم إرسال رمز التحقق إلى هذا الهاتف، يرجى إكمال التحقق خلال فترة الصلاحية',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => 'يرجى إدخال عنوان البريد الإلكتروني الصحيح',
 			'common.pleaseEnter6DigitVerificationCode' => 'يرجى إدخال رمز التحقق المكون من 6 أرقام',
 			'common.verificationCodeSent' => 'تم إرسال رمز التحقق',
@@ -3593,8 +3639,6 @@ extension on TranslationsArSa {
 			'common.feedbackHistory' => 'سجل الملاحظات',
 			'common.confirmDelete' => 'تأكيد الحذف',
 			'common.processing' => _root.common.loading,
-			_ => null,
-		} ?? switch (path) {
 			'common.verificationCode' => 'رمز التحقق',
 			'common.feedbackContent' => 'محتوى الملاحظات',
 			'common.officialReply' => 'الرد الرسمي',
@@ -4090,6 +4134,8 @@ extension on TranslationsArSa {
 			'common.e2eeBackupVersionLabel' => 'الإصدار',
 			'common.e2eeBackupAlgorithmLabel' => 'الخوارزمية',
 			'common.e2eeBackupFileSizeLabel' => 'حجم الملف',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ تنسيق الملف صالح',
 			'common.e2eeBackupImportPwdHint' => 'أدخل كلمة المرور المحددة عند الإنشاء',
 			'common.e2eeBackupImportBtn' => 'استيراد المفتاح',
@@ -4107,8 +4153,6 @@ extension on TranslationsArSa {
 			'common.e2eeBackupDeviceIdLabel' => 'معرّف الجهاز',
 			'common.e2eeBackupVersionNum' => 'إصدار النسخة',
 			'common.e2eeBackupCreatedAtRow' => 'تاريخ الإنشاء',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileSizeRow' => 'حجم الملف',
 			'common.e2eeBackupNoteRow' => 'ملاحظة',
 			'common.e2eeBackupDeleteTitle' => 'حذف سجل النسخة',
@@ -4604,6 +4648,8 @@ extension on TranslationsArSa {
 			'main.replied' => 'تم الرد',
 			'main.ringing' => 'جارٍ الرنين...',
 			'main.ruRu' => 'الروسية (روسيا)',
+			_ => null,
+		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => 'تم التحديد (${count})',
 			'main.selected' => 'تم التحديد',
 			'main.sent' => 'تم الإرسال',
@@ -4621,8 +4667,6 @@ extension on TranslationsArSa {
 			'main.storageSpace' => 'مساحة التخزين',
 			'main.termOfServices' => 'شروط الخدمة',
 			'main.text' => 'نص',
-			_ => null,
-		} ?? switch (path) {
 			'main.thisWeek' => 'هذا الأسبوع',
 			'main.timeRange' => 'النطاق الزمني',
 			'main.timeWeekdays' => 'الاثنين،الثلاثاء،الأربعاء،الخميس،الجمعة،السبت،الأحد',

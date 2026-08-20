@@ -41,6 +41,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	// Translations
 	@override late final _Translations$account$ko_KR account = _Translations$account$ko_KR._(_root);
 	@override late final _Translations$agent$ko_KR agent = _Translations$agent$ko_KR._(_root);
+	@override late final _Translations$billing$ko_KR billing = _Translations$billing$ko_KR._(_root);
 	@override late final _Translations$channel$ko_KR channel = _Translations$channel$ko_KR._(_root);
 	@override late final _Translations$chat$ko_KR chat = _Translations$chat$ko_KR._(_root);
 	@override late final _Translations$common$ko_KR common = _Translations$common$ko_KR._(_root);
@@ -208,6 +209,32 @@ class _Translations$agent$ko_KR extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => '공식';
 	@override String get badgeAiA11y => 'AI 어시스턴트';
 	@override String get badgeOfficialA11y => '공식 계정';
+}
+
+// Path: billing
+class _Translations$billing$ko_KR extends Translations$billing$zh_CN {
+	_Translations$billing$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '구독 플랜';
+	@override String get planPeriodMonthly => '월간';
+	@override String get planPeriodYearly => '연간';
+	@override String get subscribe => '구독하기';
+	@override String get currentPlan => '현재 플랜';
+	@override String get noPlans => '판매 중인 플랜이 아직 없습니다. 조금만 기다려 주세요';
+	@override String get loadFailed => '로드에 실패했습니다. 당겨서 다시 시도하세요';
+	@override String get retry => '다시 시도';
+	@override String get paySuccess => '구독이 완료되었습니다';
+	@override String get payFailed => '결제에 실패했습니다';
+	@override String get payCancelled => '결제가 취소되었습니다';
+	@override String get payMethodTitle => '결제 수단 선택';
+	@override String get payMethodMock => '테스트 결제(개발 환경)';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override String get payMethodComingSoon => '이 결제 수단은 곧 지원될 예정입니다';
+	@override String get quotaUnlimited => '무제한';
 }
 
 // Path: channel
@@ -2694,6 +2721,23 @@ extension on TranslationsKoKr {
 			'agent.badgeOfficial' => '공식',
 			'agent.badgeAiA11y' => 'AI 어시스턴트',
 			'agent.badgeOfficialA11y' => '공식 계정',
+			'billing.title' => '구독 플랜',
+			'billing.planPeriodMonthly' => '월간',
+			'billing.planPeriodYearly' => '연간',
+			'billing.subscribe' => '구독하기',
+			'billing.currentPlan' => '현재 플랜',
+			'billing.noPlans' => '판매 중인 플랜이 아직 없습니다. 조금만 기다려 주세요',
+			'billing.loadFailed' => '로드에 실패했습니다. 당겨서 다시 시도하세요',
+			'billing.retry' => '다시 시도',
+			'billing.paySuccess' => '구독이 완료되었습니다',
+			'billing.payFailed' => '결제에 실패했습니다',
+			'billing.payCancelled' => '결제가 취소되었습니다',
+			'billing.payMethodTitle' => '결제 수단 선택',
+			'billing.payMethodMock' => '테스트 결제(개발 환경)',
+			'billing.payMethodAlipay' => 'Alipay',
+			'billing.payMethodWechat' => 'WeChat Pay',
+			'billing.payMethodComingSoon' => '이 결제 수단은 곧 지원될 예정입니다',
+			'billing.quotaUnlimited' => '무제한',
 			'channel.composeLeaveImagesLost' => '선택한 이미지는 저장되지 않습니다. 나가시겠습니까?',
 			'channel.title' => '채널',
 			'channel.loading' => '로딩 중...',
@@ -3062,6 +3106,8 @@ extension on TranslationsKoKr {
 			'chat.e2eeCreatedAtLabel' => '생성 시간',
 			'chat.e2eeGeneratingKey' => '키를 생성하는 중입니다. 잠시만 기다려 주세요...',
 			'chat.e2eeNewKeyGenerated' => '새 E2EE 키 쌍이 생성되었습니다!',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeReady' => '준비 완료',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '준비 완료 (샤드 ${count}개)',
 			'chat.webFeatureMultiDevice' => '다중 기기 동기화',
@@ -3079,8 +3125,6 @@ extension on TranslationsKoKr {
 			'chat.e2eeSocialCreateBtn' => '샤드 만들기',
 			'chat.e2eeSocialCreateFailTitle' => '생성 실패',
 			'chat.e2eeSocialCreateFailBody' => '샤드 생성 실패, 다시 시도해주세요',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeSocialCreateFirst' => '샤드를 생성해야 내용을 볼 수 있습니다',
 			'chat.e2eeSocialUsedAtLabel' => '사용 시간',
 			'chat.e2eeTransferSendTitle' => '새 기기로 키 전송',
@@ -3576,6 +3620,8 @@ extension on TranslationsKoKr {
 			'common.confirmChange' => '변경 확인',
 			'common.verificationCodeSentToEmail' => '인증 코드가 이 이메일로 전송됩니다. 유효 기간 내에 확인을 완료해 주세요.',
 			'common.verificationCodeSentToMobile' => '인증 코드가 이 휴대폰으로 전송됩니다. 유효 기간 내에 확인을 완료해 주세요.',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => '올바른 이메일 주소를 입력해 주세요',
 			'common.pleaseEnter6DigitVerificationCode' => '6자리 인증 코드를 입력해 주세요',
 			'common.verificationCodeSent' => '인증 코드가 전송되었습니다',
@@ -3593,8 +3639,6 @@ extension on TranslationsKoKr {
 			'common.feedbackHistory' => '피드백 기록',
 			'common.confirmDelete' => '삭제 확인',
 			'common.processing' => _root.common.loading,
-			_ => null,
-		} ?? switch (path) {
 			'common.verificationCode' => '인증 코드',
 			'common.feedbackContent' => '피드백 내용',
 			'common.officialReply' => '공식 답변',
@@ -4090,6 +4134,8 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupVersionLabel' => '버전',
 			'common.e2eeBackupAlgorithmLabel' => '알고리즘',
 			'common.e2eeBackupFileSizeLabel' => '파일 크기',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ 파일 형식이 유효합니다',
 			'common.e2eeBackupImportPwdHint' => '백업 시 설정한 비밀번호를 입력하세요',
 			'common.e2eeBackupImportBtn' => '키 가져오기',
@@ -4107,8 +4153,6 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupDeviceIdLabel' => '기기 ID',
 			'common.e2eeBackupVersionNum' => '백업 버전',
 			'common.e2eeBackupCreatedAtRow' => '생성 시간',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileSizeRow' => '파일 크기',
 			'common.e2eeBackupNoteRow' => '메모',
 			'common.e2eeBackupDeleteTitle' => '백업 기록 삭제',
@@ -4604,6 +4648,8 @@ extension on TranslationsKoKr {
 			'main.replied' => '답장됨',
 			'main.ringing' => '벨 울림...',
 			'main.ruRu' => '러시아어',
+			_ => null,
+		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => '선택됨 (${count})',
 			'main.selected' => '선택됨',
 			'main.sent' => '전송됨',
@@ -4621,8 +4667,6 @@ extension on TranslationsKoKr {
 			'main.storageSpace' => '저장 공간',
 			'main.termOfServices' => '서비스 약관',
 			'main.text' => '텍스트',
-			_ => null,
-		} ?? switch (path) {
 			'main.thisWeek' => '이번 주',
 			'main.timeRange' => '시간 범위',
 			'main.timeWeekdays' => '월요일, 화요일, 수요일, 목요일, 금요일, 토요일, 일요일',

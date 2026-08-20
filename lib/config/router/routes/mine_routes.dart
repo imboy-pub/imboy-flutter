@@ -30,6 +30,12 @@ List<RouteBase> mineRoutes() => [
         CupertinoPage(key: state.pageKey, child: const WalletPage()),
   ),
   GoRoute(
+    path: '/billing/plans',
+    name: 'billing_plans',
+    pageBuilder: (context, state) =>
+        CupertinoPage(key: state.pageKey, child: const PlanListPage()),
+  ),
+  GoRoute(
     path: '/wallet/withdraw',
     name: 'wallet_withdraw',
     pageBuilder: (context, state) =>

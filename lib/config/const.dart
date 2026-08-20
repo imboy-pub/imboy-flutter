@@ -342,6 +342,14 @@ class API {
   static String channelOrderStatus(String orderNo) =>
       '/api/v1/channel/order/$orderNo';
 
+  // 套餐订阅 billing（套餐列表 → 订阅 → 生成账单 → 账单列表 → 支付 → 当前订阅）
+  static const billingPlanList = '/api/v1/billing/plan/list';
+  static const billingSubscribe = '/api/v1/billing/subscribe';
+  static const billingInvoiceGenerate = '/api/v1/billing/invoice/generate';
+  static const billingInvoiceList = '/api/v1/billing/invoice/list';
+  static const billingInvoicePay = '/api/v1/billing/invoice/pay';
+  static const billingSubscription = '/api/v1/billing/subscription';
+
   // 附件 presign 直传（Garage S3），均 JWT 保护
   static const attachmentPresign = '/api/v1/attachment/presign';
   static const attachmentConfirm = '/api/v1/attachment/confirm';

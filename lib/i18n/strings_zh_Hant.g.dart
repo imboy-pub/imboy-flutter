@@ -41,6 +41,7 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	// Translations
 	@override late final Translations$account$zh_Hant account = Translations$account$zh_Hant.internal(_root);
 	@override late final Translations$agent$zh_Hant agent = Translations$agent$zh_Hant.internal(_root);
+	@override late final Translations$billing$zh_Hant billing = Translations$billing$zh_Hant.internal(_root);
 	@override late final Translations$channel$zh_Hant channel = Translations$channel$zh_Hant.internal(_root);
 	@override late final Translations$chat$zh_Hant chat = Translations$chat$zh_Hant.internal(_root);
 	@override late final Translations$common$zh_Hant common = Translations$common$zh_Hant.internal(_root);
@@ -208,6 +209,32 @@ class Translations$agent$zh_Hant extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => '官方';
 	@override String get badgeAiA11y => 'AI 助手';
 	@override String get badgeOfficialA11y => '官方帳號';
+}
+
+// Path: billing
+class Translations$billing$zh_Hant extends Translations$billing$zh_CN {
+	Translations$billing$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '方案訂閱';
+	@override String get planPeriodMonthly => '月繳';
+	@override String get planPeriodYearly => '年繳';
+	@override String get subscribe => '立即訂閱';
+	@override String get currentPlan => '目前方案';
+	@override String get noPlans => '暫無可售方案，敬請期待';
+	@override String get loadFailed => '載入失敗，請下拉重試';
+	@override String get retry => '重試';
+	@override String get paySuccess => '訂閱成功';
+	@override String get payFailed => '付款失敗';
+	@override String get payCancelled => '已取消付款';
+	@override String get payMethodTitle => '選擇付款方式';
+	@override String get payMethodMock => '模擬付款（開發環境）';
+	@override String get payMethodAlipay => '支付寶';
+	@override String get payMethodWechat => '微信支付';
+	@override String get payMethodComingSoon => '該付款方式即將開放，敬請期待';
+	@override String get quotaUnlimited => '不限';
 }
 
 // Path: channel
@@ -2716,6 +2743,23 @@ extension on TranslationsZhHant {
 			'agent.badgeOfficial' => '官方',
 			'agent.badgeAiA11y' => 'AI 助手',
 			'agent.badgeOfficialA11y' => '官方帳號',
+			'billing.title' => '方案訂閱',
+			'billing.planPeriodMonthly' => '月繳',
+			'billing.planPeriodYearly' => '年繳',
+			'billing.subscribe' => '立即訂閱',
+			'billing.currentPlan' => '目前方案',
+			'billing.noPlans' => '暫無可售方案，敬請期待',
+			'billing.loadFailed' => '載入失敗，請下拉重試',
+			'billing.retry' => '重試',
+			'billing.paySuccess' => '訂閱成功',
+			'billing.payFailed' => '付款失敗',
+			'billing.payCancelled' => '已取消付款',
+			'billing.payMethodTitle' => '選擇付款方式',
+			'billing.payMethodMock' => '模擬付款（開發環境）',
+			'billing.payMethodAlipay' => '支付寶',
+			'billing.payMethodWechat' => '微信支付',
+			'billing.payMethodComingSoon' => '該付款方式即將開放，敬請期待',
+			'billing.quotaUnlimited' => '不限',
 			'channel.composeLeaveImagesLost' => '已選圖片不會保存，確定離開？',
 			'channel.title' => '頻道',
 			'channel.loading' => '載入中...',
@@ -3084,6 +3128,8 @@ extension on TranslationsZhHant {
 			'chat.createdAtLabel' => ({required Object time}) => '建立時間: ${time}',
 			'chat.expiredAtLabel' => ({required Object time}) => '過期時間: ${time}',
 			'chat.myReceivedTab' => '我收到的',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderStatusLabel' => ({required Object status}) => '狀態: ${status}',
 			'chat.orderCreatedAtLabel' => ({required Object time}) => '建立時間: ${time}',
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支付時間: ${time}',
@@ -3101,8 +3147,6 @@ extension on TranslationsZhHant {
 			'chat.e2eeGeneratingKey' => '正在生成金鑰，請稍候...',
 			'chat.e2eeNewKeyGenerated' => '新的 E2EE 金鑰對已生成！',
 			'chat.e2eeReady' => '準備就緒',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備就緒（${count} 個分片）',
 			'chat.webFeatureMultiDevice' => '多裝置同步',
 			'chat.webFeatureMultiDeviceDesc' => '在手機和電腦之間無縫切換，訊息實時同步',
@@ -3598,6 +3642,8 @@ extension on TranslationsZhHant {
 			'common.voiceInputNotImplemented' => '語音輸入功能暫無實現',
 			'common.waitingDownload' => '等待下載',
 			'common.waitingPeerAccept' => '等待對方接受邀請...',
+			_ => null,
+		} ?? switch (path) {
 			'common.warning' => '警告：',
 			'common.webpageLoading' => '網頁載入中...',
 			'common.whatYourFeedback' => '您的回饋是什麼?',
@@ -3615,8 +3661,6 @@ extension on TranslationsZhHant {
 			'common.verificationCodeSentToEmail' => '驗證碼將傳送至該郵箱，請在有效期內完成驗證',
 			'common.verificationCodeSentToMobile' => '驗證碼將傳送至該手機，請在有效期內完成驗證',
 			'common.pleaseEnterCorrectEmailAddress' => '請輸入正確的郵箱地址',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnter6DigitVerificationCode' => '請輸入 6 位驗證碼',
 			'common.verificationCodeSent' => '驗證碼已傳送',
 			'common.sendFailed' => '傳送失敗',
@@ -4112,6 +4156,8 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrNoKeyData' => '無法獲取金鑰資料',
 			'common.e2eeBackupErrExportFailed' => '匯出失敗，請重試',
 			'common.e2eeBackupErrShareFailed' => '分享失敗，請重試',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupExportSuccessTitle' => '備份匯出成功',
 			'common.e2eeBackupExportSuccessBody' => '您的 E2EE 金鑰備份已成功生成。',
 			'common.e2eeBackupImportantNoteColon' => '重要提示：',
@@ -4129,8 +4175,6 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupAlgorithmLabel' => '演算法',
 			'common.e2eeBackupFileSizeLabel' => '檔案大小',
 			'common.e2eeBackupFileValid' => '✓ 檔案格式有效',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupImportPwdHint' => '請輸入備份時設定的密碼',
 			'common.e2eeBackupImportBtn' => '匯入金鑰',
 			'common.e2eeBackupErrSelectFile' => '選擇檔案失敗，請重試',
@@ -4626,6 +4670,8 @@ extension on TranslationsZhHant {
 			'main.multiSelect' => '多選',
 			'main.multiSelectMode' => '多選模式',
 			'main.myFavorites' => '我的收藏',
+			_ => null,
+		} ?? switch (path) {
 			'main.myLive' => '我的直播',
 			'main.name' => '名稱',
 			'main.numUnit' => ({required Object param}) => '${param}個',
@@ -4643,8 +4689,6 @@ extension on TranslationsZhHant {
 			'main.releaseEnd' => '鬆開結束',
 			'main.remainingChars' => ({required Object param}) => '還可輸入 ${param} 個字元',
 			'main.kickMember' => 'Remove from Group',
-			_ => null,
-		} ?? switch (path) {
 			'main.memberDetail' => 'Member Details',
 			'main.memberRole' => 'Role',
 			'main.replied' => '已回覆',

@@ -269,6 +269,14 @@ class _MinePageState extends ConsumerState<MinePage> {
           onTap: () => context.push('/channel'),
           color: AppColors.primary,
         ),
+      // 套餐订阅：FeatureKeys 无 billing 相关 key，按最小改动直接展示
+      //（不新增本地 flag；后端 plan/list 空即显示"暂无可售套餐"空态）
+      QuickActionItem(
+        icon: const Icon(CupertinoIcons.rosette),
+        label: t.billing.title,
+        onTap: () => context.push('/billing/plans'),
+        color: AppColors.iosYellow,
+      ),
       QuickActionItem(
         icon: const Icon(CupertinoIcons.bookmark_fill),
         label: t.main.favorites,
