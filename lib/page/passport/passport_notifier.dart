@@ -437,9 +437,10 @@ class PassportNotifier extends _$PassportNotifier {
         "rsa_encrypt": rsaEncrypt,
         // 密码契约标记：服务端 7/1 迁移后新账号存储 hmac_sha512(明文)，
         // 仅接受明文；存量账号为 md5 格式，依赖 default_md5 兼容分支接受
-        // md5 传输。未做 RSA 加密（rsa_encrypt 非 "1"，服务端下发
-        // "on"/"off" 而客户端判 "0"/"1"，故用 != "1" 判定）且密码被
+        // md5 传输。未做 RSA 加密（rsa_encrypt 非 "1"）且密码被
         // md5 化时置位，供登录失败后明文回退。
+        // 注：服务端 init 已把配置 on/off 归一为线协议 1/0 下发（#100，
+        // imboy 24784eaa），"1" 即加密、其余明文。
         "pwd_was_md5": rsaEncrypt != "1",
       };
     } catch (e) {
