@@ -4932,6 +4932,9 @@ class Translations$common$zh_CN {
 	/// zh-CN: '恢复密钥已复制'
 	String get e2eeRecoveryKeyCopied => '恢复密钥已复制';
 
+	/// zh-CN: '恢复密钥已复制，$seconds 秒后将自动清除剪贴板，请尽快保存'
+	String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => '恢复密钥已复制，${seconds} 秒后将自动清除剪贴板，请尽快保存';
+
 	/// zh-CN: '备份密码 *'
 	String get e2eeBackupPwdLabel => '备份密码 *';
 
@@ -9321,6 +9324,7 @@ extension on Translations {
 			'common.e2eeRecoveryKeyTitle' => '恢复密钥',
 			'common.e2eeRecoveryKeySaveNote' => '请立即保存这串恢复密钥（截图或存入密码管理器）。忘记口令时，它是解密备份的唯一凭据；一旦丢失，备份将永久无法恢复。',
 			'common.e2eeRecoveryKeyCopied' => '恢复密钥已复制',
+			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => '恢复密钥已复制，${seconds} 秒后将自动清除剪贴板，请尽快保存',
 			'common.e2eeBackupPwdLabel' => '备份密码 *',
 			'common.e2eeBackupPwdHint' => '至少 12 位，包含大小写字母、数字和特殊符号',
 			'common.e2eeBackupConfirmPwdLabel' => '确认密码 *',
@@ -9760,9 +9764,9 @@ extension on Translations {
 			'groupSchedule.cancelSuccess' => '日程已取消',
 			'groupSchedule.cancelFailed' => '取消失败，请稍后重试',
 			'groupSchedule.confirmAttend' => '确认参加',
-			'groupSchedule.declineAttend' => '不参加',
 			_ => null,
 		} ?? switch (path) {
+			'groupSchedule.declineAttend' => '不参加',
 			'groupSchedule.cancelSchedule' => '取消日程',
 			'groupSchedule.scheduleIdMissing' => '日程ID缺失，无法查看详情',
 			'groupSchedule.untitledSchedule' => '未命名日程',

@@ -28,12 +28,27 @@ class E2EEBackupExportPage extends StatefulWidget {
 }
 
 class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
+  /// 恢复密钥复制后的剪贴板驻留时限（#102）。
+  ///
+  /// 到期仅当剪贴板内容仍是该密钥时覆写为空串——用户中途复制了其他
+  /// 内容则不动。只访问剪贴板、不触碰 context，页面关闭后执行也安全。
+  static const Duration _recoveryKeyClipboardTtl = Duration(seconds: 60);
+
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _notesController = TextEditingController();
   bool _isExporting = false;
   bool _isCloudUploading = false;
   String? _generatedFilePath;
+
+  void _scheduleRecoveryKeyClipboardClear(String key) {
+    Future<void>.delayed(_recoveryKeyClipboardTtl, () async {
+      final data = await Clipboard.getData('text/plain');
+      if (data?.text == key) {
+        await Clipboard.setData(const ClipboardData(text: ''));
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -198,7 +213,14 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: key));
               if (ctx.mounted) Navigator.pop(ctx);
-              AppLoading.showSuccess(t.common.e2eeRecoveryKeyCopied);
+              // #102：Android 上任意应用可读剪贴板，恢复密钥是解密备份的
+              // 唯一凭据，不应无限期驻留——提示自动清除时限并调度清理。
+              AppLoading.showSuccess(
+                t.common.e2eeRecoveryKeyCopiedAutoClear(
+                  seconds: _recoveryKeyClipboardTtl.inSeconds,
+                ),
+              );
+              _scheduleRecoveryKeyClipboardClear(key);
             },
             child: Text(t.common.buttonCopy),
           ),
