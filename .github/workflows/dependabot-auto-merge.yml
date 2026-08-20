@@ -35,7 +35,13 @@ jobs:
       # ── patch：approve + 开启 auto-merge（squash）──────────────────
       - name: Approve patch PR
         if: steps.meta.outputs.update-type == 'version-update:semver-patch'
-        run: gh pr review "$PR_URL" --approve --body "Auto-approved: patch version update"
+        # 折叠标量：--body 文本里的"冒号+空格"会被 YAML 当成映射分隔符，
+        # 整个 workflow 文件随之解析失败。文件级解析失败不是"这个 job 红"，
+        # 而是**每次 PR 都凭空多一条 0 秒失败的 run**——CI 面板长期常红的来源。
+        # （imboy 仓同款文件已踩过此坑并修复，此处对齐其写法。）
+        run: >-
+          gh pr review "$PR_URL" --approve
+          --body "Auto-approved: patch version update"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -50,7 +56,10 @@ jobs:
       # ── minor：approve + label，等人工合并 ────────────────────────
       - name: Approve minor PR
         if: steps.meta.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr review "$PR_URL" --approve --body "Auto-approved: minor version update. 需人工确认后合并。"
+        # 同上：折叠标量规避 --body 内"冒号+空格"的 YAML 映射歧义
+        run: >-
+          gh pr review "$PR_URL" --approve
+          --body "Auto-approved: minor version update. 需人工确认后合并。"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
