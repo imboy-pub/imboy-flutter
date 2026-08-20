@@ -16,6 +16,7 @@ import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/adapters/wechat_assets_picker_adapter.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/error/init_error_page.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/app_logger.dart';
 
@@ -72,11 +73,20 @@ const String appEnv = String.fromEnvironment('APP_ENV', defaultValue: 'pro');
 /// `flutter run --target lib/run.dart` requires a top-level `main` entrypoint.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await bootstrapFromRun();
+}
+
+/// run.dart 入口的完整启动链（与 main.dart 的 bootstrap 同构）。
+///
+/// #95：init 失败渲染 [InitErrorPage] 兜底页替代静默白屏，
+/// 重试重新走完整链（AppInitializer._initialized 仅成功后置位，可重入）。
+Future<void> bootstrapFromRun() async {
   try {
     await AppInitializer.initialize(env: appEnv, signKeyVsn: '1');
     await run();
   } catch (e) {
     debugPrint('[run] run error: $e');
+    runApp(InitErrorPage(error: e, onRetry: bootstrapFromRun));
   }
 }
 

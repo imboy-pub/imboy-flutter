@@ -202,7 +202,6 @@ class AppInitializer {
     required String signKeyVsn,
   }) async {
     if (_initialized) return;
-    _initialized = true;
 
     try {
       await _initializeCore(env: env, signKeyVsn: signKeyVsn);
@@ -210,6 +209,10 @@ class AppInitializer {
       await _initializeListeners();
       // 当前字体初始化应该放到最后
       currentFontSize.value = UserRepoLocal.to.setting.fontSize;
+      // 成功后才置位：失败路径不置位，InitErrorPage 的「重试」才能重新
+      // 走完整初始化（#95：提前置位曾使失败后进程内永久无法自愈）。
+      // 并发防御：调用方（main）为单次串行调用，重试由用户显式触发。
+      _initialized = true;
     } catch (e, stack) {
       logger.e("Initialization failed", error: e, stackTrace: stack);
       rethrow;
