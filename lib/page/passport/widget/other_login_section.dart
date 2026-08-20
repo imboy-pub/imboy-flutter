@@ -65,11 +65,8 @@ class OtherLoginSection extends StatelessWidget {
           button: true,
           child: InkWell(
             key: const Key('one_key_login_button'),
-            onTap: () {
-              // Trigger JVerify or similar
-              notifier.snackBar(
-                "One-click login implementation pending JVerify setup",
-              );
+            onTap: () async {
+              await notifier.loginAuth(false);
             },
             borderRadius: BorderRadius.circular(24),
             child: Container(
