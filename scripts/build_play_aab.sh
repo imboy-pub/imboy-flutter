@@ -24,8 +24,16 @@ if [[ -z "$BUILD_NAME" ]]; then
   exit 1
 fi
 
-echo "Building AAB with build_name=$BUILD_NAME, build_number=$BUILD_NUMBER"
-flutter build appbundle --build-name="$BUILD_NAME" --build-number="$BUILD_NUMBER"
+# 支付宝 App 支付的公开 appId（非密钥；商户密钥全部在服务端）。
+# 不注入则 PaymentConfig.isAlipayConfigured=false，客户端充值降级为「即将开通」。
+# universal link 本期不注入：留空时 tobias 在 iOS 退化为 alipay URL scheme 回跳
+# （Info.plist 已配 LSApplicationQueriesSchemes），AASA + Associated Domains
+# 属 ios/* 保留区改造，列为 follow-up。可用环境变量覆盖默认值。
+ALIPAY_APP_ID="${ALIPAY_APP_ID:-2021004142626807}"
+
+echo "Building AAB with build_name=$BUILD_NAME, build_number=$BUILD_NUMBER, alipay_app_id=$ALIPAY_APP_ID"
+flutter build appbundle --build-name="$BUILD_NAME" --build-number="$BUILD_NUMBER" \
+  --dart-define=ALIPAY_APP_ID="$ALIPAY_APP_ID"
 
 echo "AAB output:"
 echo "  $ROOT_DIR/build/app/outputs/bundle/release/app-release.aab"
