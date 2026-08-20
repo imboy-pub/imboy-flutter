@@ -5,6 +5,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/channel_events.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
@@ -92,5 +93,50 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Test message'), findsNothing);
+  });
+
+  testWidgets('ChannelDetailPage updates message after edited event', (
+    tester,
+  ) async {
+    // 回归：channel_message_edited 此前无消费者（ACK 后静默丢弃），
+    // 频道消息编辑不实时生效，直到手动重拉
+    final channel = _buildChannel();
+    final providerOverride = channelDetailProvider.overrideWith(
+      () => _TestChannelDetailNotifier(channel, [_buildMessage(1)]),
+    );
+
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [providerOverride],
+          child: MaterialApp(
+            home: ChannelDetailPage(
+              channelId: channel.id.toString(),
+              autoLoadStats: false,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Test message'), findsOneWidget);
+
+    AppEventBus.fire(
+      ChannelStateChangedEvent(
+        channelId: '1001',
+        action: 'channel_message_edited',
+        payload: const {
+          'channel_id': '1001',
+          'message_id': '1',
+          'content': 'Edited message',
+          'edited_at': '2026-08-20T20:00:00.000000+08:00',
+        },
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Test message'), findsNothing);
+    expect(find.text('Edited message'), findsOneWidget);
   });
 }
