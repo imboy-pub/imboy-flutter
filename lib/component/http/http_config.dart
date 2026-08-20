@@ -1,6 +1,7 @@
 import 'dart:io' as io;
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:imboy/config/init.dart';
 
 /// dio 配置项
@@ -40,8 +41,11 @@ class GlobalHttpOverrides extends io.HttpOverrides {
     return super.createHttpClient(context)
       ..badCertificateCallback =
           (io.X509Certificate cert, String host, int port) {
-            // 仅在开发环境且主机在白名单内时接受自签名证书
-            if (currentEnv == 'dev' || currentEnv.startsWith('local')) {
+            // 仅在开发环境且主机在白名单内时接受自签名证书。
+            // #105：叠加编译期 !kReleaseMode——currentEnv 是运行期字符串
+            // 且会从本地存储恢复旧值，release 恒严格校验，不可被环境值放宽。
+            if (!kReleaseMode &&
+                (currentEnv == 'dev' || currentEnv.startsWith('local'))) {
               return _devAllowedHosts.contains(host) ||
                   host.endsWith('.imboy.pub');
             }

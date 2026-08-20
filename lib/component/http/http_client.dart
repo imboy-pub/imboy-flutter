@@ -5,7 +5,8 @@ import 'dart:io' as io show HttpClient;
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 
-import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, kReleaseMode, visibleForTesting;
 import 'package:flutter/material.dart';
 
 import 'package:imboy/config/const.dart';
@@ -44,10 +45,16 @@ io.HttpClient _buildHttpClient({String? proxy}) {
 
 /// 安全的证书验证回调
 /// 生产环境严格验证证书，开发环境允许白名单内的自签名证书
+///
+/// #105：放行条件必须叠加编译期 `!kReleaseMode`。currentEnv 是运行期
+/// 全局字符串（且会从本地存储恢复旧值，见 init.dart），release 包中若
+/// 它被诱导/残留为 dev|local*，自签证书白名单就会在生产放开——
+/// 改为「非 release 构建 且 dev/local 环境」双条件，release 恒严格校验。
 bool _certificateValidationCallback(X509Certificate cert) {
   // dio_http2_adapter 当前版本回调不再提供 host/port。
   // 仅在开发环境接受自签名证书，生产环境保持严格校验。
-  if (currentEnv == 'dev' || currentEnv.startsWith('local')) {
+  if (!kReleaseMode &&
+      (currentEnv == 'dev' || currentEnv.startsWith('local'))) {
     // 使用精确 CN 匹配，防止子串匹配被构造绕过
     final cn = _extractCN(cert.subject);
     const trustedCNs = <String>{
