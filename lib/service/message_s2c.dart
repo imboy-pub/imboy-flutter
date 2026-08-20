@@ -313,6 +313,10 @@ class MessageS2CService {
         case 'channel_message_revoked':
           await _handleChannelMessageRevoked(payloadMap);
           break;
+        case 'channel_message_edited':
+          // 频道消息编辑推送（此前无消费者：ACK 后静默丢弃，编辑不实时生效）
+          await _handleChannelMessageEdited(payloadMap);
+          break;
         case 'channel_deleted':
           // 频道删除通知
           await _handleChannelDeleted(payloadMap);
@@ -1320,6 +1324,22 @@ class MessageS2CService {
       await ChannelService.to.handleChannelMessageRevoked(payload);
     } on Object catch (e) {
       iPrint('[S2C] handleChannelMessageRevoked failed: $e');
+    }
+  }
+
+  static Future<void> _handleChannelMessageEdited(
+    Map<String, dynamic> payload,
+  ) async {
+    final channelId = payload['channel_id']?.toString() ?? '';
+    final messageId = payload['message_id']?.toString() ?? '';
+    iPrint(
+      '[S2C] channel_message_edited: channelId=$channelId, messageId=$messageId',
+    );
+
+    try {
+      await ChannelService.to.handleChannelMessageEdited(payload);
+    } on Object catch (e) {
+      iPrint('[S2C] handleChannelMessageEdited failed: $e');
     }
   }
 

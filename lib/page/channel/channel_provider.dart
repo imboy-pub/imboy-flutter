@@ -629,6 +629,22 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
           );
         }
         break;
+      case 'channel_message_edited':
+        // 后端 channel_message_edited 推送：原地替换该条消息内容
+        // （本地库已由 ChannelService 同步更新，此处只刷内存态）
+        final editedId = event.payload['message_id']?.toString() ?? '';
+        final newContent = event.payload['content']?.toString() ?? '';
+        if (editedId.isNotEmpty) {
+          final updated = state.messages
+              .map(
+                (m) => m.id.toString() == editedId
+                    ? m.copyWith(content: newContent)
+                    : m,
+              )
+              .toList(growable: false);
+          state = state.copyWith(messages: updated);
+        }
+        break;
       case 'channel_deleted':
         state = state.copyWith(
           clearChannel: true,

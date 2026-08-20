@@ -1039,6 +1039,36 @@ class ChannelService {
     }
   }
 
+  /// 处理频道消息编辑通知（channel_message_edited）
+  ///
+  /// 后端 channel_logic_notify 在消息编辑成功后推给全部订阅者，
+  /// payload：{channel_id, message_id, content, edited_at}。
+  /// 本地更新 content 并广播 ChannelStateChangedEvent，打开中的频道
+  /// 详情页原地替换该条消息（此前无消费者：ACK 后静默丢弃，编辑不实时生效）。
+  Future<void> handleChannelMessageEdited(Map<String, dynamic> data) async {
+    try {
+      final channelId = parseModelString(data['channel_id']);
+      final messageId = parseModelString(data['message_id']);
+      final content = data['content']?.toString() ?? '';
+      if (channelId.isEmpty || messageId.isEmpty) {
+        return;
+      }
+      await _messageRepo.updateMessage(messageId, {
+        ChannelMessageRepo.content: content,
+      });
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
+          channelId: channelId,
+          action: 'channel_message_edited',
+          payload: data,
+        ),
+      );
+      iPrint('ChannelService: 收到频道编辑通知 - $channelId/$messageId');
+    } catch (e) {
+      iPrint('ChannelService: 处理频道编辑通知失败 - $e');
+    }
+  }
+
   Future<void> handleChannelInvitationCreated(Map<String, dynamic> data) async {
     try {
       final channelId = parseModelString(data['channel_id']);
