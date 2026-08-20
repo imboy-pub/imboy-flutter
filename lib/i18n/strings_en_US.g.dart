@@ -532,6 +532,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get videoCompressInProgress => 'Compression task already in progress';
 	@override String get videoCompressing => 'Compressing video...';
 	@override String get loginExpiredMessage => 'Session expired. Please log in again.';
+	@override String get alipayLoginInterrupted => 'Alipay sign-in was interrupted. Please try again.';
 	@override String get geometricPattern => 'Geometric Pattern';
 	@override String get ripplePattern => 'Ripple Pattern';
 	@override String get customImage => 'Custom Image';
@@ -3025,6 +3026,7 @@ extension on TranslationsEnUs {
 			'chat.videoCompressInProgress' => 'Compression task already in progress',
 			'chat.videoCompressing' => 'Compressing video...',
 			'chat.loginExpiredMessage' => 'Session expired. Please log in again.',
+			'chat.alipayLoginInterrupted' => 'Alipay sign-in was interrupted. Please try again.',
 			'chat.geometricPattern' => 'Geometric Pattern',
 			'chat.ripplePattern' => 'Ripple Pattern',
 			'chat.customImage' => 'Custom Image',
@@ -3103,9 +3105,9 @@ extension on TranslationsEnUs {
 			'chat.e2eeGeneratingKey' => 'Generating key, please wait...',
 			'chat.e2eeNewKeyGenerated' => 'New E2EE key pair generated!',
 			'chat.e2eeReady' => 'Ready',
-			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Ready (${count} shards)',
 			_ => null,
 		} ?? switch (path) {
+			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Ready (${count} shards)',
 			'chat.webFeatureMultiDevice' => 'Multi-Device Sync',
 			'chat.webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
 			'chat.webFeatureE2EE' => 'End-to-End Encryption',
@@ -3617,9 +3619,9 @@ extension on TranslationsEnUs {
 			'common.checkVerificationCodeOrRetry' => 'Please check verification code or try again later',
 			'common.forceOffline' => 'Offline',
 			'common.forceDeviceOffline' => 'Make this device offline',
-			'common.forceDeviceOfflineConfirm' => 'Will send offline command to this device, confirm to continue?',
 			_ => null,
 		} ?? switch (path) {
+			'common.forceDeviceOfflineConfirm' => 'Will send offline command to this device, confirm to continue?',
 			'common.confirmForceOffline' => 'Confirm offline',
 			'common.forceOfflineCommandSent' => 'Offline command sent',
 			'common.feedbackSlogan' => 'Your suggestions are our motivation for improvement',
@@ -4131,9 +4133,9 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupErrSelectFile' => 'Failed to select file, please try again',
 			'common.e2eeBackupErrValidateFailed' => 'File validation failed, please check file format',
 			'common.e2eeBackupErrImportFailed' => 'Import failed, please check your password',
-			'common.e2eeBackupImportSuccessTitle' => 'Import successful',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupImportSuccessTitle' => 'Import successful',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
 			'common.e2eeBackupImportSuccessNote' => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices',
 			'common.e2eeBackupNoRecords' => 'No backup records',
@@ -4645,9 +4647,9 @@ extension on TranslationsEnUs {
 			'main.recentlyUsed' => 'Recently used',
 			'main.releaseEnd' => 'Release to end',
 			'main.remainingChars' => ({required Object param}) => '${param} characters remaining',
-			'main.kickMember' => 'Remove from Group',
 			_ => null,
 		} ?? switch (path) {
+			'main.kickMember' => 'Remove from Group',
 			'main.memberDetail' => 'Member Details',
 			'main.memberRole' => 'Role',
 			'main.replied' => 'Replied',

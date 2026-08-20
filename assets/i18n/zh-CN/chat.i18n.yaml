@@ -172,6 +172,7 @@ momentsSend: 发送
 videoCompressInProgress: 已有压缩任务在进行中
 videoCompressing: 正在压缩视频...
 loginExpiredMessage: "登录过期,请重新登录"
+alipayLoginInterrupted: "支付宝登录流程被系统中断，请重试"
 geometricPattern: 几何图案
 ripplePattern: 波纹图案
 customImage: 自定义图片

@@ -154,6 +154,7 @@ momentsSend: Send
 videoCompressInProgress: Compression task already in progress
 videoCompressing: Compressing video...
 loginExpiredMessage: Session expired. Please log in again.
+alipayLoginInterrupted: "Alipay sign-in was interrupted. Please try again."
 geometricPattern: Geometric Pattern
 ripplePattern: Ripple Pattern
 customImage: Custom Image

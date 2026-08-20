@@ -46,6 +46,9 @@ class Keys {
   static const String currentUser = "current_user";
   // E2EE-015：logout 秘密清理失败标记；置位期间禁止建立新账号会话
   static const String e2eePurgePending = "e2ee_purge_pending";
+  // 支付宝登录流程进行中标记：唤起 SDK 前置位，try/finally 正常结束时清除；
+  // 进程被系统杀死时 finally 不执行，冷启动后 LoginPage 检测到即知流程被中断
+  static const String alipayLoginInProgress = "alipay_login_in_progress";
 
   /// 聊天历史回填游标键前缀（`msg_history_seq_<uk3>`，唯一写入点
   /// chat_provider.dart syncHistoryBackfill）。登出/清数据时必须按此前缀

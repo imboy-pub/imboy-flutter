@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +44,18 @@ class _LoginPageState extends ConsumerState<LoginPage>
   @override
   void initState() {
     super.initState();
+    // 支付宝登录流程被系统杀死中断的恢复提示：loginByAlipay 唤起 SDK 前置位
+    // 标记、正常结束清除；进程被杀时残留至此，提示用户重试而非静默停在登录页。
+    if (StorageService.to.getBool(Keys.alipayLoginInProgress) == true) {
+      StorageService.to.remove(Keys.alipayLoginInProgress);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref
+              .read(passportProvider.notifier)
+              .snackBar(t.chat.alipayLoginInterrupted);
+        }
+      });
+    }
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {

@@ -1632,6 +1632,9 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '登录过期,请重新登录'
 	String get loginExpiredMessage => '登录过期,请重新登录';
 
+	/// zh-CN: '支付宝登录流程被系统中断，请重试'
+	String get alipayLoginInterrupted => '支付宝登录流程被系统中断，请重试';
+
 	/// zh-CN: '几何图案'
 	String get geometricPattern => '几何图案';
 
@@ -8109,13 +8112,14 @@ extension on Translations {
 			'chat.videoCompressInProgress' => '已有压缩任务在进行中',
 			'chat.videoCompressing' => '正在压缩视频...',
 			'chat.loginExpiredMessage' => '登录过期,请重新登录',
+			'chat.alipayLoginInterrupted' => '支付宝登录流程被系统中断，请重试',
 			'chat.geometricPattern' => '几何图案',
 			'chat.ripplePattern' => '波纹图案',
 			'chat.customImage' => '自定义图片',
 			'chat.voiceRecordResultEmpty' => '语音录制结果为空',
-			'chat.voiceFileInvalid' => '语音文件无效',
 			_ => null,
 		} ?? switch (path) {
+			'chat.voiceFileInvalid' => '语音文件无效',
 			'chat.burnAfterReading' => '阅后即焚',
 			'chat.burnReadBadge' => '阅后',
 			'chat.visibleThresholdRead' => '可视阈值已读',
@@ -8627,9 +8631,9 @@ extension on Translations {
 			'common.selectedItems' => ({required Object param}) => '${param} 个选定项目',
 			'common.selectedRegion' => '已选地区',
 			'common.sendMsgNotFriendTips' => '对方开启了好友验证，你还不是他（她）好友。请先发送好友验证请求，对方验证通过后，才能聊天。',
-			'common.setChatBackground' => '设置当前聊天背景',
 			_ => null,
 		} ?? switch (path) {
+			'common.setChatBackground' => '设置当前聊天背景',
 			'common.share' => '分享',
 			'common.signatureTips' => '签名提示',
 			'common.slideUpCancelSending' => '手指上滑,取消发送',
@@ -9141,9 +9145,9 @@ extension on Translations {
 			'common.e2eeCreatedAtInfo' => ({required Object time}) => '创建时间: ${time}',
 			'common.e2eeImportantNote' => '重要提示',
 			'common.e2eeWarnOldMayNotDecrypt' => '• 旧消息可能无法解密',
-			'common.e2eeSuggestBackupNow' => '• 建议立即导出备份',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeSuggestBackupNow' => '• 建议立即导出备份',
 			'common.e2eeGoBackup' => '去备份',
 			'common.e2eeKeyGenerateFailed' => '密钥生成失败，请重试',
 			'common.e2eeKeyDeleted' => '密钥已删除',
@@ -9655,9 +9659,9 @@ extension on Translations {
 			'groupTask.taskCreated' => '任务创建成功',
 			'groupTask.taskSubmitted' => '任务已提交',
 			'groupTask.submitTask' => '提交作业',
-			'groupTask.taskCompleted' => '任务已完成',
 			_ => null,
 		} ?? switch (path) {
+			'groupTask.taskCompleted' => '任务已完成',
 			'groupTask.overdue' => '已过期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
