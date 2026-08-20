@@ -190,6 +190,7 @@ class _Translations$account$en_US extends Translations$account$zh_CN {
 	@override String get e2eeTransferFromOldDevice => 'Receive Key from Old Device';
 	@override String get pleaseRelogin => 'Please log in again';
 	@override String get otherLoginMethods => 'Other sign-in methods';
+	@override late final _Translations$account$alipaySim$en_US alipaySim = _Translations$account$alipaySim$en_US._(_root);
 }
 
 // Path: agent
@@ -2612,6 +2613,25 @@ class _Translations$welcome$en_US extends Translations$welcome$zh_CN {
 	@override String get skip => 'Skip';
 }
 
+// Path: account.alipaySim
+class _Translations$account$alipaySim$en_US extends Translations$account$alipaySim$zh_CN {
+	_Translations$account$alipaySim$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get selectMethod => 'Select Payment Method';
+	@override String get confirmPay => 'Confirm Payment';
+	@override String get enterPassword => 'Enter Payment Password';
+	@override String get alipaySuccess => 'Payment Successful';
+	@override String get merchantSuccess => 'Merchant APP Payment Successful';
+	@override String get huabei => 'Huabei Installments';
+	@override String get energy => 'Succeeded to obtain 5g Green Energy';
+	@override String get storeName => 'InfoTech Flagship Store';
+	@override String get paymentAmount => 'Amount: ';
+	@override String get balanceSource => 'Account Balance';
+}
+
 /// The flat map containing all translations for locale <en-US>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -2737,6 +2757,16 @@ extension on TranslationsEnUs {
 			'account.e2eeTransferFromOldDevice' => 'Receive Key from Old Device',
 			'account.pleaseRelogin' => 'Please log in again',
 			'account.otherLoginMethods' => 'Other sign-in methods',
+			'account.alipaySim.selectMethod' => 'Select Payment Method',
+			'account.alipaySim.confirmPay' => 'Confirm Payment',
+			'account.alipaySim.enterPassword' => 'Enter Payment Password',
+			'account.alipaySim.alipaySuccess' => 'Payment Successful',
+			'account.alipaySim.merchantSuccess' => 'Merchant APP Payment Successful',
+			'account.alipaySim.huabei' => 'Huabei Installments',
+			'account.alipaySim.energy' => 'Succeeded to obtain 5g Green Energy',
+			'account.alipaySim.storeName' => 'InfoTech Flagship Store',
+			'account.alipaySim.paymentAmount' => 'Amount: ',
+			'account.alipaySim.balanceSource' => 'Account Balance',
 			'agent.plazaTitle' => 'AI Assistants',
 			'agent.transparencyBanner' => 'Everyone here is an AI assistant, clearly labeled as such. In encrypted chats, there are only real people.',
 			'agent.searchHint' => 'Search assistants',
@@ -3122,6 +3152,8 @@ extension on TranslationsEnUs {
 			'chat.deletingMessage' => 'Deleting...',
 			'chat.deletingLocalMessage' => 'Deleting local message...',
 			'chat.quickReplyReceived' => 'Received',
+			_ => null,
+		} ?? switch (path) {
 			'chat.quickReplyThanks' => 'Thanks',
 			'chat.quickReplyWait' => 'Wait a moment',
 			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} groups',
@@ -3132,8 +3164,6 @@ extension on TranslationsEnUs {
 			'chat.createdAtLabel' => ({required Object time}) => 'Created: ${time}',
 			'chat.expiredAtLabel' => ({required Object time}) => 'Expires: ${time}',
 			'chat.myReceivedTab' => 'Received',
-			_ => null,
-		} ?? switch (path) {
 			'chat.orderStatusLabel' => ({required Object status}) => 'Status: ${status}',
 			'chat.orderCreatedAtLabel' => ({required Object time}) => 'Created: ${time}',
 			'chat.orderPaymentAtLabel' => ({required Object time}) => 'Paid: ${time}',
@@ -3636,6 +3666,8 @@ extension on TranslationsEnUs {
 			'common.callDisconnected' => 'Call disconnected',
 			'common.connecting' => 'Connecting…',
 			'common.voiceInputNotImplemented' => 'Voice input feature not implemented',
+			_ => null,
+		} ?? switch (path) {
 			'common.waitingDownload' => 'Waiting for download',
 			'common.waitingPeerAccept' => 'Waiting for the other party to accept invite...',
 			'common.warning' => 'Warning:',
@@ -3646,8 +3678,6 @@ extension on TranslationsEnUs {
 			'common.confirmRemove' => 'Confirm remove',
 			'common.confirmRemoveFromDenylist' => 'Confirm to remove this user from blocklist?',
 			'common.buttonRemove' => 'Remove',
-			_ => null,
-		} ?? switch (path) {
 			'common.removedFromDenylist' => 'Removed from blocklist',
 			'common.newEmailAddress' => 'New email address',
 			'common.emailAddress' => 'Email address',
@@ -4150,6 +4180,8 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupGenerateBtn' => 'Generate backup file',
 			'common.e2eeBackupFileGenerated' => 'Backup file generated!',
 			'common.e2eeBackupShareBtn' => 'Share via email / cloud',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupShareContent' => 'This is my Imboy E2EE key backup file. Keep it safe and do not share with others.',
 			'common.e2eeBackupErrPwdMismatch' => 'Passwords do not match',
 			'common.e2eeBackupErrNoKeyData' => 'Unable to retrieve key data',
@@ -4160,8 +4192,6 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupImportantNoteColon' => 'Important:',
 			'common.e2eeBackupKeepSafe' => '• Keep the backup file and password safe',
 			'common.e2eeBackupStoreMultipleLoc' => '• Store the file in multiple secure locations',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• Password cannot be recovered, please remember it',
 			'common.e2eeBackupImportTitle' => 'Import E2EE Backup',
 			'common.e2eeBackupImportGuide' => 'Import Instructions',
@@ -4664,6 +4694,8 @@ extension on TranslationsEnUs {
 			'main.loudspeaker' => 'Speaker',
 			'main.makeYourselfInvisible' => 'Make yourself invisible',
 			'main.makeYourselfVisible' => 'Make yourself visible',
+			_ => null,
+		} ?? switch (path) {
 			'main.male' => 'Male',
 			'main.manage' => 'Manage',
 			'main.markImportant' => 'Important',
@@ -4674,8 +4706,6 @@ extension on TranslationsEnUs {
 			'main.markTodoDesc' => 'Mark as todo item',
 			'main.multiSelect' => 'Multi-select',
 			'main.multiSelectMode' => 'Multi-select mode',
-			_ => null,
-		} ?? switch (path) {
 			'main.myFavorites' => 'My favorites',
 			'main.myLive' => 'My live',
 			'main.name' => 'Name',

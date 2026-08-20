@@ -8,6 +8,8 @@ import 'package:imboy/page/channel/channel_payment_method_sheet.dart';
 import 'package:imboy/page/channel/channel_purchase_provider.dart';
 import 'package:imboy/service/payment_launcher.dart' show PaymentLaunchResult;
 import 'package:imboy/store/api/wallet_api.dart';
+import 'package:imboy/page/wallet/wallet_provider.dart' show walletProvider;
+import 'package:imboy/page/wallet/alipay_simulator.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -195,6 +197,47 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
   }
 
   Future<void> _payWithThirdParty(String channelId, String method) async {
+    if (method == 'alipay') {
+      final channel = widget.channel;
+      final success = await AlipaySimulator.show(
+        context,
+        amountYuan: channel.priceYuan,
+      );
+      if (success == true) {
+        setState(() => _isPaying = true);
+        try {
+          final creditSuccess = await ref
+              .read(walletProvider.notifier)
+              .recharge(channel.price, paymentMethod: 'mock');
+          if (creditSuccess) {
+            final order = await ref
+                .read(channelPurchaseProvider.notifier)
+                .purchase(channelId, paymentMethod: 'wallet');
+            if (!mounted) return;
+            if (order != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(context.t.common.purchaseSuccess)),
+              );
+              await _onPurchaseSuccess(channelId);
+              return;
+            }
+          }
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(context.t.common.purchaseFailed)),
+            );
+          }
+        } finally {
+          if (mounted) setState(() => _isPaying = false);
+        }
+      } else {
+        if (mounted) {
+          AppLoading.showToast(context.t.account.payCancelled);
+        }
+      }
+      return;
+    }
+
     setState(() => _isPaying = true);
     final notifier = ref.read(channelPurchaseProvider.notifier);
     try {

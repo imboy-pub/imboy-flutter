@@ -118,3 +118,14 @@ webPasswordHint: Enter password
 e2eeTransferFromOldDevice: Receive Key from Old Device
 pleaseRelogin: Please log in again
 otherLoginMethods: "Other sign-in methods"
+alipaySim:
+  selectMethod: "Select Payment Method"
+  confirmPay: "Confirm Payment"
+  enterPassword: "Enter Payment Password"
+  alipaySuccess: "Payment Successful"
+  merchantSuccess: "Merchant APP Payment Successful"
+  huabei: "Huabei Installments"
+  energy: "Succeeded to obtain 5g Green Energy"
+  storeName: "InfoTech Flagship Store"
+  paymentAmount: "Amount: "
+  balanceSource: "Account Balance"

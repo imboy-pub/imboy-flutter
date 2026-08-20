@@ -360,9 +360,7 @@ void main() {
         // MaterialApp 默认 themeAnimationDuration=200ms：主题切换经 AnimatedTheme
         // lerp，未等动画完成就读 Scaffold 会拿到过渡中间值（伪失败）。等动画结束。
         await tester.pump(const Duration(milliseconds: 300));
-        final scaffold = tester.widget<Scaffold>(
-          find.byType(Scaffold).first,
-        );
+        final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
         return scaffold.backgroundColor ?? Colors.transparent;
       }
 

@@ -17,11 +17,7 @@ void main() {
       if (!entered) {
         logEntryDiagnostics(tester);
       }
-      expect(
-        entered,
-        isTrue,
-        reason: 'App 应在启动等待窗口内进入登录页或主 Shell',
-      );
+      expect(entered, isTrue, reason: 'App 应在启动等待窗口内进入登录页或主 Shell');
       expect(
         find.byType(MaterialApp),
         findsOneWidget,
@@ -41,11 +37,7 @@ void main() {
       if (!entered) {
         logEntryDiagnostics(tester);
       }
-      expect(
-        entered,
-        isTrue,
-        reason: 'App 应在启动等待窗口内进入登录页或主 Shell',
-      );
+      expect(entered, isTrue, reason: 'App 应在启动等待窗口内进入登录页或主 Shell');
     });
   });
 }

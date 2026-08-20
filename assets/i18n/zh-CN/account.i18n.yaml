@@ -125,3 +125,14 @@ webPasswordHint: 请输入密码
 e2eeTransferFromOldDevice: 从旧设备接收密钥
 pleaseRelogin: 请重新登录
 otherLoginMethods: "其他登录方式"
+alipaySim:
+  selectMethod: "选择支付方式"
+  confirmPay: "确认付款"
+  enterPassword: "请输入支付密码"
+  alipaySuccess: "支付成功"
+  merchantSuccess: "商家APP支付成功"
+  huabei: "花呗分期"
+  energy: "支付成功得绿色能量 5g"
+  storeName: "信息科技旗舰店"
+  paymentAmount: "金额："
+  balanceSource: "账户余额"

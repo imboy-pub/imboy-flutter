@@ -447,6 +447,8 @@ class Translations$account$zh_CN {
 
 	/// zh-CN: '其他登录方式'
 	String get otherLoginMethods => '其他登录方式';
+
+	late final Translations$account$alipaySim$zh_CN alipaySim = Translations$account$alipaySim$zh_CN.internal(_root);
 }
 
 // Path: agent
@@ -7658,6 +7660,45 @@ class Translations$welcome$zh_CN {
 	String get skip => '跳过';
 }
 
+// Path: account.alipaySim
+class Translations$account$alipaySim$zh_CN {
+	Translations$account$alipaySim$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '选择支付方式'
+	String get selectMethod => '选择支付方式';
+
+	/// zh-CN: '确认付款'
+	String get confirmPay => '确认付款';
+
+	/// zh-CN: '请输入支付密码'
+	String get enterPassword => '请输入支付密码';
+
+	/// zh-CN: '支付成功'
+	String get alipaySuccess => '支付成功';
+
+	/// zh-CN: '商家APP支付成功'
+	String get merchantSuccess => '商家APP支付成功';
+
+	/// zh-CN: '花呗分期'
+	String get huabei => '花呗分期';
+
+	/// zh-CN: '支付成功得绿色能量 5g'
+	String get energy => '支付成功得绿色能量 5g';
+
+	/// zh-CN: '信息科技旗舰店'
+	String get storeName => '信息科技旗舰店';
+
+	/// zh-CN: '金额：'
+	String get paymentAmount => '金额：';
+
+	/// zh-CN: '账户余额'
+	String get balanceSource => '账户余额';
+}
+
 /// The flat map containing all translations for locale <zh-CN>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -7790,6 +7831,16 @@ extension on Translations {
 			'account.e2eeTransferFromOldDevice' => '从旧设备接收密钥',
 			'account.pleaseRelogin' => '请重新登录',
 			'account.otherLoginMethods' => '其他登录方式',
+			'account.alipaySim.selectMethod' => '选择支付方式',
+			'account.alipaySim.confirmPay' => '确认付款',
+			'account.alipaySim.enterPassword' => '请输入支付密码',
+			'account.alipaySim.alipaySuccess' => '支付成功',
+			'account.alipaySim.merchantSuccess' => '商家APP支付成功',
+			'account.alipaySim.huabei' => '花呗分期',
+			'account.alipaySim.energy' => '支付成功得绿色能量 5g',
+			'account.alipaySim.storeName' => '信息科技旗舰店',
+			'account.alipaySim.paymentAmount' => '金额：',
+			'account.alipaySim.balanceSource' => '账户余额',
 			'agent.plazaTitle' => 'AI 助手广场',
 			'agent.transparencyBanner' => '这里的成员都是 AI 助手，身份会明确标注；加密聊天里，只有真人。',
 			'agent.searchHint' => '搜索助手',
@@ -8168,6 +8219,8 @@ extension on Translations {
 			'chat.unsupportedFileType' => '不支持的文件类型',
 			'chat.userData' => '用户数据',
 			'chat.video' => '视频',
+			_ => null,
+		} ?? switch (path) {
 			'chat.videoMessage' => '[视频]',
 			'chat.viewAttachments' => '浏览附件',
 			'chat.viewLargeImage' => '查看大图',
@@ -8178,8 +8231,6 @@ extension on Translations {
 			'chat.formatCheck' => '格式检查',
 			'chat.featureRequest' => '功能请求',
 			'chat.resendCodeWithCount' => ({required Object count}) => '重新发送（${count}秒）',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatResend' => '重新发送',
 			'chat.chatReply' => '回复',
 			'chat.chatOpenFile' => '打开文件',
@@ -8682,6 +8733,8 @@ extension on Translations {
 			'common.scanQrcodeAddFriend' => '扫一扫上面的二维码图案，加我为朋友',
 			'common.search' => '搜索',
 			'common.searchScope' => '搜索范围',
+			_ => null,
+		} ?? switch (path) {
 			'common.searchAll' => '全部消息',
 			'common.searchChatContent' => '查找聊天内容',
 			'common.searchChatRecord' => '查找聊天记录',
@@ -8692,8 +8745,6 @@ extension on Translations {
 			'common.searchFilterToday' => '今日筛选',
 			'common.searchFilters' => '搜索筛选',
 			'common.searchFriendsTips' => '通过好友昵称、备注搜索好友',
-			_ => null,
-		} ?? switch (path) {
 			'common.searchHint' => '输入关键词搜索消息',
 			'common.searchHistory' => '搜索历史',
 			'common.searchLocation' => '搜索地点',
@@ -9196,6 +9247,8 @@ extension on Translations {
 			'common.e2eeDeleteKey' => '删除密钥',
 			'common.e2eeDeleteKeyDesc' => '删除本地存储的密钥（无法恢复）',
 			'common.e2eeCurrentKeyInfo' => '当前密钥信息',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeE2EEEnabled' => '端到端加密已启用',
 			'common.e2eeNoKeyDetected' => '未检测到 E2EE 密钥',
 			'common.e2eeNoKeyDesc' => '您需要先生成密钥对或从备份中恢复',
@@ -9206,8 +9259,6 @@ extension on Translations {
 			'common.e2eeExportBackup' => '导出备份',
 			'common.e2eeExportBackupDesc' => '生成加密备份文件',
 			'common.e2eeImportBackup' => '导入备份',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeImportBackupDesc' => '从备份文件恢复密钥',
 			'common.e2eeBackupManage' => '备份管理',
 			'common.e2eeBackupManageDesc' => '查看备份历史记录',
@@ -9710,6 +9761,8 @@ extension on Translations {
 			'groupSchedule.cancelFailed' => '取消失败，请稍后重试',
 			'groupSchedule.confirmAttend' => '确认参加',
 			'groupSchedule.declineAttend' => '不参加',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.cancelSchedule' => '取消日程',
 			'groupSchedule.scheduleIdMissing' => '日程ID缺失，无法查看详情',
 			'groupSchedule.untitledSchedule' => '未命名日程',
@@ -9720,8 +9773,6 @@ extension on Translations {
 			'groupTag.tagColor' => '标签颜色',
 			'groupTag.noTag' => '暂无标签',
 			'groupTag.tagAdded' => '标签添加成功',
-			_ => null,
-		} ?? switch (path) {
 			'groupTag.tagRemoved' => '标签已移除',
 			'groupTag.removeTitle' => '移除标签',
 			'groupTag.removeConfirm' => '确定要移除这个标签吗？',

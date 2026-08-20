@@ -24,6 +24,21 @@ class AppColors {
   static const Color slateText = Color(0xFF64748B);
   static const Color slateMuted = Color(0xFFCBD5E1);
 
+  // ============ 支付宝模拟器专属颜色 ============
+  static const Color alipaySimBlue = Color(0xFF108EE9);
+  static const Color alipaySimRed = Color(0xFFFF0036);
+  static const Color alipaySimSuccessGreen = Color(0xFF22C55E);
+  static const Color alipaySimEnergyGreen = Color(0xFF15803D);
+  static const Color alipaySimEnergyBg = Color(0xFFE8F5E9);
+  static const Color alipaySimGreyBg = Color(0xFFF2F2F2);
+  static const Color alipaySimKeypadDarkBg = Color(0xFF212121);
+  static const Color alipaySimLightOverlay = Color(0xFFFFFFFF);
+  static const Color alipaySimDarkOverlay = Color(0xFF1C1C1E);
+  static const Color alipaySimBackdropColor = Color(0x99000000);
+  static const Color alipaySimTextGrey = Color(0xFF8E8E93);
+  static const Color alipaySimTextLightGrey = Color(0xFFD1D1D6);
+  static const Color alipaySimTextWhite70 = Color(0xB2FFFFFF);
+
   static const Color splashGradientStart = Color(0xFF42A5F5);
   static const Color splashGradientStartDark = Color(0xFF1E3A8A);
   static const Color splashGradientMidDark = Color(0xFF172554);
