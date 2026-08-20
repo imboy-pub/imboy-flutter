@@ -950,33 +950,42 @@ class PassportNotifier extends _$PassportNotifier {
       state = state.copyWith(error: '支付宝授权串获取失败');
       return state.error;
     }
-    // 2. 唤起支付宝 SDK 授权
-    final authRes = await (gateway ?? TobiasAlipayAuthGateway()).auth(authinfo);
-    final String authCode;
-    switch (authRes) {
-      case AlipayAuthSuccess(authCode: final c):
-        authCode = c;
-      case AlipayAuthCancelled():
-        return null; // 用户取消，静默
-      case AlipayAuthFailure(:final message):
-        state = state.copyWith(error: message);
-        return message;
-    }
-    // 3. auth_code 换 imboy 登录态
-    IMBoyHttpResponse resp2 = await HttpClient.client.post(
-      API.alipayLogin,
-      data: {"auth_code": authCode, "sys_version": getSystemVersion()},
-    );
-    if (!resp2.ok) {
-      state = state.copyWith(
-        error: _localizedAuthErrMsg(resp2.error?.message ?? ''),
+    // 唤起 SDK 前置位流程标记：进程被系统杀死时 finally 不执行，
+    // 冷启动后 LoginPage 检测到残留标记即知流程被系统中断并提示重试。
+    await StorageService.to.setBool(Keys.alipayLoginInProgress, true);
+    try {
+      // 2. 唤起支付宝 SDK 授权
+      final authRes = await (gateway ?? TobiasAlipayAuthGateway()).auth(
+        authinfo,
       );
-      return state.error;
+      final String authCode;
+      switch (authRes) {
+        case AlipayAuthSuccess(authCode: final c):
+          authCode = c;
+        case AlipayAuthCancelled():
+          return null; // 用户取消，静默
+        case AlipayAuthFailure(:final message):
+          state = state.copyWith(error: message);
+          return message;
+      }
+      // 3. auth_code 换 imboy 登录态
+      IMBoyHttpResponse resp2 = await HttpClient.client.post(
+        API.alipayLogin,
+        data: {"auth_code": authCode, "sys_version": getSystemVersion()},
+      );
+      if (!resp2.ok) {
+        state = state.copyWith(
+          error: _localizedAuthErrMsg(resp2.error?.message ?? ''),
+        );
+        return state.error;
+      }
+      return await _onThirdLoginSuccess(
+        resp2.payload as Map<String, dynamic>,
+        from: 'alipayLogin',
+      );
+    } finally {
+      await StorageService.to.remove(Keys.alipayLoginInProgress);
     }
-    return _onThirdLoginSuccess(
-      resp2.payload as Map<String, dynamic>,
-      from: 'alipayLogin',
-    );
   }
 
   /// 监听网络状态变化
@@ -1028,48 +1037,54 @@ class PassportNotifier extends _$PassportNotifier {
     final screenHeight = MediaQuery.of(context).size.height;
     bool isiOS = Platform.isIOS;
 
-    /// 自定义授权的 UI 界面
+    /// 自定义授权的 UI 界面（对齐品牌蓝设计规范，AppColors.primary）
     JVUIConfig uiConfig = JVUIConfig();
 
+    // 导航栏：透明化处理（去除色条，页面更干净现代），保留系统返回
     uiConfig.navHidden = false;
-    uiConfig.navColor = AppColors.iosGreen.toARGB32();
+    uiConfig.navTransparent = true;
     uiConfig.navText = " ";
-    uiConfig.navTextColor = AppColors.onPrimary.toARGB32();
-    uiConfig.navReturnImgPath = null;
+    uiConfig.navTextColor = AppColors.lightTextPrimary.toARGB32();
+    uiConfig.navReturnImgPath = 'nav_back_dark';
 
-    uiConfig.logoWidth = 100;
-    uiConfig.logoHeight = 100;
+    // Logo：品牌蓝笑脸气泡（白底可见；原白 logo 在白底不可见）
+    uiConfig.logoWidth = 88;
+    uiConfig.logoHeight = 88;
+    uiConfig.logoImgPath = 'imboy_logo_brand';
     uiConfig.logoOffsetX = isiOS ? 0 : null;
     uiConfig.logoOffsetY = isiOS ? (screenHeight / 2).toInt() - 200 : null;
     uiConfig.logoVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
     uiConfig.logoHidden = false;
 
-    uiConfig.numberFieldWidth = 200;
+    // 本机号码：22pt 加粗，阅读层级第一位
+    uiConfig.numberFieldWidth = 220;
     uiConfig.numberFieldHeight = 40;
     uiConfig.numFieldOffsetY = isiOS ? 20 : 180;
     uiConfig.numberVerticalLayoutItem = JVIOSLayoutItem.ItemLogo;
     uiConfig.numberColor = AppColors.lightTextPrimary.toARGB32();
-    uiConfig.numberSize = 18;
+    uiConfig.numberSize = 22;
+    uiConfig.numberTextBold = true;
 
+    // 运营商文案：13pt 次要灰，降为辅助信息
     uiConfig.sloganOffsetY = isiOS ? 20 : 160;
     uiConfig.sloganVerticalLayoutItem = JVIOSLayoutItem.ItemNumber;
-    uiConfig.sloganTextColor = AppColors.lightTextPrimary.toARGB32();
-    uiConfig.sloganTextSize = 15;
+    uiConfig.sloganTextColor = AppColors.lightTextSecondary.toARGB32();
+    uiConfig.sloganTextSize = 13;
 
-    uiConfig.logBtnWidth = 220;
-    uiConfig.logBtnHeight = 50;
+    // 登录按钮：280x48 品牌蓝圆角，白字加粗（iOS/Android 统一）
+    uiConfig.logBtnWidth = 280;
+    uiConfig.logBtnHeight = 48;
     uiConfig.logBtnOffsetY = isiOS ? 20 : 280;
     uiConfig.logBtnVerticalLayoutItem = JVIOSLayoutItem.ItemSlogan;
     uiConfig.logBtnText = t.account.mobileQuickLogin;
-    uiConfig.logBtnTextColor = isiOS
-        ? AppColors.lightTextPrimary.toARGB32()
-        : AppColors.onPrimary.toARGB32();
+    uiConfig.logBtnTextColor = AppColors.onPrimary.toARGB32();
     uiConfig.logBtnTextSize = 16;
     uiConfig.logBtnTextBold = true;
+    uiConfig.logBtnBackgroundPath = 'btn_brand_round';
 
     uiConfig.privacyHintToast = true;
     uiConfig.privacyState = false;
-    uiConfig.privacyCheckboxSize = 20;
+    uiConfig.privacyCheckboxSize = 22;
     uiConfig.checkedImgPath = null;
     uiConfig.uncheckedImgPath = null;
     uiConfig.privacyCheckboxInCenter = true;
@@ -1083,7 +1098,8 @@ class PassportNotifier extends _$PassportNotifier {
     uiConfig.clauseUrl = licenseAgreementUrl(ext: 'html');
     uiConfig.clauseBaseColor = AppColors.lightTextSecondary.toARGB32();
 
-    uiConfig.clauseColor = AppColors.lightTextSecondary.toARGB32();
+    // 协议链接：品牌蓝，明示可点
+    uiConfig.clauseColor = AppColors.primary.toARGB32();
     uiConfig.privacyTextSize = 13;
     uiConfig.privacyItem = [
       JVPrivacy(
