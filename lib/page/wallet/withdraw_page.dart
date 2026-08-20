@@ -36,7 +36,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final amountFen = parseYuanToFen(_amountController.text);
-    if (amountFen == null || amountFen < 100) {
+    if (amountFen == null || amountFen < 1) {
       AppLoading.showError(t.common.withdrawAmountError);
       return;
     }
@@ -206,7 +206,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                     return t.common.withdrawAmountError;
                   }
                   final amountFen = parseYuanToFen(value);
-                  if (amountFen == null || amountFen < 100) {
+                  if (amountFen == null || amountFen < 1) {
                     return t.common.withdrawAmountError;
                   }
                   return null;

@@ -176,7 +176,7 @@ class _Translations$account$fr_FR extends Translations$account$zh_CN {
 	@override String get refreshingDeviceKey => 'Actualisation de la clé...';
 	@override String get deviceKeyRefreshed => 'Clé actualisée';
 	@override String get rechargeTitle => 'Recharger';
-	@override String get rechargeAmountHint => 'Montant (yuan), 1–10000';
+	@override String get rechargeAmountHint => 'Montant (yuan), 0.01–10000';
 	@override String get rechargeAmountExample => 'ex. 100';
 	@override String get e2eeDeviceTransfer => 'Transfert entre appareils';
 	@override String get e2eeDeviceTransferDesc => 'Transférer la clé vers un nouvel appareil via QR code';
@@ -1519,7 +1519,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String unreadCount({required Object count}) => '${count} non lus';
 	@override String durationMinutes({required Object count}) => '${count} min';
 	@override String durationSeconds({required Object count}) => '${count} s';
-	@override String get rechargeAmountError => 'Montant entre 1 et 10000 yuan';
+	@override String get rechargeAmountError => 'Montant entre 0.01 et 10000 yuan';
 	@override String get rechargeSuccess => 'Rechargé';
 	@override String get rechargeConfirm => 'Confirmer la recharge';
 	@override String get transactionHistory2 => 'Transactions';
@@ -1775,7 +1775,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get withdrawSuccess => 'Retrait effectué';
 	@override String get withdrawConfirm => 'Confirmer le retrait';
 	@override String get withdrawFeeNotice => 'Les frais et le délai de réception dépendent du règlement effectif';
-	@override String get withdrawAmountError => 'Montant minimum 1 yuan';
+	@override String get withdrawAmountError => 'Montant minimum 0.01 yuan';
 	@override String get withdrawAccountEmpty => 'Compte de retrait requis';
 	@override String get withdrawMethod => 'Méthode de retrait';
 	@override String get withdrawAccount => 'Compte de retrait';
@@ -2700,7 +2700,7 @@ extension on TranslationsFrFr {
 			'account.refreshingDeviceKey' => 'Actualisation de la clé...',
 			'account.deviceKeyRefreshed' => 'Clé actualisée',
 			'account.rechargeTitle' => 'Recharger',
-			'account.rechargeAmountHint' => 'Montant (yuan), 1–10000',
+			'account.rechargeAmountHint' => 'Montant (yuan), 0.01–10000',
 			'account.rechargeAmountExample' => 'ex. 100',
 			'account.e2eeDeviceTransfer' => 'Transfert entre appareils',
 			'account.e2eeDeviceTransferDesc' => 'Transférer la clé vers un nouvel appareil via QR code',
@@ -3993,7 +3993,7 @@ extension on TranslationsFrFr {
 			'common.unreadCount' => ({required Object count}) => '${count} non lus',
 			'common.durationMinutes' => ({required Object count}) => '${count} min',
 			'common.durationSeconds' => ({required Object count}) => '${count} s',
-			'common.rechargeAmountError' => 'Montant entre 1 et 10000 yuan',
+			'common.rechargeAmountError' => 'Montant entre 0.01 et 10000 yuan',
 			'common.rechargeSuccess' => 'Rechargé',
 			'common.rechargeConfirm' => 'Confirmer la recharge',
 			'common.transactionHistory2' => 'Transactions',
@@ -4251,7 +4251,7 @@ extension on TranslationsFrFr {
 			'common.withdrawSuccess' => 'Retrait effectué',
 			'common.withdrawConfirm' => 'Confirmer le retrait',
 			'common.withdrawFeeNotice' => 'Les frais et le délai de réception dépendent du règlement effectif',
-			'common.withdrawAmountError' => 'Montant minimum 1 yuan',
+			'common.withdrawAmountError' => 'Montant minimum 0.01 yuan',
 			'common.withdrawAccountEmpty' => 'Compte de retrait requis',
 			'common.withdrawMethod' => 'Méthode de retrait',
 			'common.withdrawAccount' => 'Compte de retrait',

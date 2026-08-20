@@ -176,7 +176,7 @@ class _Translations$account$ja_JP extends Translations$account$zh_CN {
 	@override String get refreshingDeviceKey => 'デバイスキーを更新中...';
 	@override String get deviceKeyRefreshed => 'デバイスキーを更新しました';
 	@override String get rechargeTitle => 'チャージ';
-	@override String get rechargeAmountHint => 'チャージ金額を入力（元）。1元〜10000元';
+	@override String get rechargeAmountHint => 'チャージ金額を入力（元）。0.01元〜10000元';
 	@override String get rechargeAmountExample => '例：100';
 	@override String get e2eeDeviceTransfer => 'デバイス間転送';
 	@override String get e2eeDeviceTransferDesc => 'QRコードで新しいデバイスにキーを転送します';
@@ -1516,7 +1516,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String unreadCount({required Object count}) => '未読 ${count} 件';
 	@override String durationMinutes({required Object count}) => '${count}分';
 	@override String durationSeconds({required Object count}) => '${count}秒';
-	@override String get rechargeAmountError => '1元〜10000元の金額を入力してください';
+	@override String get rechargeAmountError => '0.01元〜10000元の金額を入力してください';
 	@override String get rechargeSuccess => 'チャージしました';
 	@override String get rechargeConfirm => 'チャージを確認';
 	@override String get transactionHistory2 => '取引履歴';
@@ -1772,7 +1772,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get withdrawSuccess => '出金しました';
 	@override String get withdrawConfirm => '出金を確認';
 	@override String get withdrawFeeNotice => '手数料と着金時間は実際の決済に準じます';
-	@override String get withdrawAmountError => '1元以上の金額を入力してください';
+	@override String get withdrawAmountError => '0.01元以上の金額を入力してください';
 	@override String get withdrawAccountEmpty => '出金先のアカウントを入力してください';
 	@override String get withdrawMethod => '出金方法';
 	@override String get withdrawAccount => '出金先アカウント';
@@ -2697,7 +2697,7 @@ extension on TranslationsJaJp {
 			'account.refreshingDeviceKey' => 'デバイスキーを更新中...',
 			'account.deviceKeyRefreshed' => 'デバイスキーを更新しました',
 			'account.rechargeTitle' => 'チャージ',
-			'account.rechargeAmountHint' => 'チャージ金額を入力（元）。1元〜10000元',
+			'account.rechargeAmountHint' => 'チャージ金額を入力（元）。0.01元〜10000元',
 			'account.rechargeAmountExample' => '例：100',
 			'account.e2eeDeviceTransfer' => 'デバイス間転送',
 			'account.e2eeDeviceTransferDesc' => 'QRコードで新しいデバイスにキーを転送します',
@@ -3990,7 +3990,7 @@ extension on TranslationsJaJp {
 			'common.unreadCount' => ({required Object count}) => '未読 ${count} 件',
 			'common.durationMinutes' => ({required Object count}) => '${count}分',
 			'common.durationSeconds' => ({required Object count}) => '${count}秒',
-			'common.rechargeAmountError' => '1元〜10000元の金額を入力してください',
+			'common.rechargeAmountError' => '0.01元〜10000元の金額を入力してください',
 			'common.rechargeSuccess' => 'チャージしました',
 			'common.rechargeConfirm' => 'チャージを確認',
 			'common.transactionHistory2' => '取引履歴',
@@ -4248,7 +4248,7 @@ extension on TranslationsJaJp {
 			'common.withdrawSuccess' => '出金しました',
 			'common.withdrawConfirm' => '出金を確認',
 			'common.withdrawFeeNotice' => '手数料と着金時間は実際の決済に準じます',
-			'common.withdrawAmountError' => '1元以上の金額を入力してください',
+			'common.withdrawAmountError' => '0.01元以上の金額を入力してください',
 			'common.withdrawAccountEmpty' => '出金先のアカウントを入力してください',
 			'common.withdrawMethod' => '出金方法',
 			'common.withdrawAccount' => '出金先アカウント',

@@ -837,7 +837,7 @@ msgNotEncrypted: Сообщения передаются без шифрован
 unreadCount(count): "${count} непрочитанных"
 durationMinutes(count): "${count} мин"
 durationSeconds(count): "${count} сек"
-rechargeAmountError: Введите сумму от 1 до 10000 юаней
+rechargeAmountError: Введите сумму от 0.01 до 10000 юаней
 rechargeSuccess: Счёт пополнен
 rechargeConfirm: Подтвердить пополнение
 transactionHistory2: История операций
@@ -1093,7 +1093,7 @@ goToRecharge: Пополнить счёт
 withdrawSuccess: Вывод выполнен
 withdrawConfirm: Подтвердить вывод
 withdrawFeeNotice: Комиссия и срок зачисления определяются фактическим расчётом
-withdrawAmountError: Введите сумму не менее 1 юаня
+withdrawAmountError: Введите сумму не менее 0.01 юаня
 withdrawAccountEmpty: Введите счёт для вывода
 withdrawMethod: Способ вывода
 withdrawAccount: Счёт для вывода

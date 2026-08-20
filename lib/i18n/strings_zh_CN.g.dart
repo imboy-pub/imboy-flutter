@@ -385,8 +385,8 @@ class Translations$account$zh_CN {
 	/// zh-CN: '充值'
 	String get rechargeTitle => '充值';
 
-	/// zh-CN: '请输入充值金额（元），1元～10000元'
-	String get rechargeAmountHint => '请输入充值金额（元），1元～10000元';
+	/// zh-CN: '请输入充值金额（元），0.01元～10000元'
+	String get rechargeAmountHint => '请输入充值金额（元），0.01元～10000元';
 
 	/// zh-CN: '例如：100'
 	String get rechargeAmountExample => '例如：100';
@@ -4591,8 +4591,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '${count}秒'
 	String durationSeconds({required Object count}) => '${count}秒';
 
-	/// zh-CN: '请输入1元到10000元之间的金额'
-	String get rechargeAmountError => '请输入1元到10000元之间的金额';
+	/// zh-CN: '请输入0.01元到10000元之间的金额'
+	String get rechargeAmountError => '请输入0.01元到10000元之间的金额';
 
 	/// zh-CN: '充值成功'
 	String get rechargeSuccess => '充值成功';
@@ -5383,8 +5383,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '手续费与到账时间以实际结算为准'
 	String get withdrawFeeNotice => '手续费与到账时间以实际结算为准';
 
-	/// zh-CN: '请输入不低于1元的金额'
-	String get withdrawAmountError => '请输入不低于1元的金额';
+	/// zh-CN: '请输入不低于0.01元的金额'
+	String get withdrawAmountError => '请输入不低于0.01元的金额';
 
 	/// zh-CN: '请输入提现账号'
 	String get withdrawAccountEmpty => '请输入提现账号';
@@ -5434,8 +5434,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '转账给好友'
 	String get transferDefaultRemark => '转账给好友';
 
-	/// zh-CN: '转账最低金额为 0.1 元'
-	String get transferMinAmountError => '转账最低金额为 0.1 元';
+	/// zh-CN: '转账最低金额为 0.01 元'
+	String get transferMinAmountError => '转账最低金额为 0.01 元';
 
 	/// zh-CN: '当前为：拼手气红包'
 	String get redPacketCurrentLucky => '当前为：拼手气红包';
@@ -7769,7 +7769,7 @@ extension on Translations {
 			'account.refreshingDeviceKey' => '正在刷新设备密钥...',
 			'account.deviceKeyRefreshed' => '设备密钥已刷新',
 			'account.rechargeTitle' => '充值',
-			'account.rechargeAmountHint' => '请输入充值金额（元），1元～10000元',
+			'account.rechargeAmountHint' => '请输入充值金额（元），0.01元～10000元',
 			'account.rechargeAmountExample' => '例如：100',
 			'account.payMethodTitle' => '选择支付方式',
 			'account.payMethodWallet' => '钱包余额',
@@ -9155,7 +9155,7 @@ extension on Translations {
 			'common.unreadCount' => ({required Object count}) => '${count} 条未读',
 			'common.durationMinutes' => ({required Object count}) => '${count}分钟',
 			'common.durationSeconds' => ({required Object count}) => '${count}秒',
-			'common.rechargeAmountError' => '请输入1元到10000元之间的金额',
+			'common.rechargeAmountError' => '请输入0.01元到10000元之间的金额',
 			'common.rechargeSuccess' => '充值成功',
 			'common.rechargeConfirm' => '确认充值',
 			'common.transactionHistory2' => '流水记录',
@@ -9421,7 +9421,7 @@ extension on Translations {
 			'common.withdrawSuccess' => '提现成功',
 			'common.withdrawConfirm' => '确认提现',
 			'common.withdrawFeeNotice' => '手续费与到账时间以实际结算为准',
-			'common.withdrawAmountError' => '请输入不低于1元的金额',
+			'common.withdrawAmountError' => '请输入不低于0.01元的金额',
 			'common.withdrawAccountEmpty' => '请输入提现账号',
 			'common.withdrawMethod' => '提现方式',
 			'common.withdrawAccount' => '提现账号',
@@ -9438,7 +9438,7 @@ extension on Translations {
 			'common.noHistory' => '暂无历史记录',
 			'common.enterAmount' => '请输入金额',
 			'common.transferDefaultRemark' => '转账给好友',
-			'common.transferMinAmountError' => '转账最低金额为 0.1 元',
+			'common.transferMinAmountError' => '转账最低金额为 0.01 元',
 			'common.redPacketCurrentLucky' => '当前为：拼手气红包',
 			'common.redPacketCurrentNormal' => '当前为：普通红包',
 			'common.redPacketSwitchToNormal' => '改为普通红包',

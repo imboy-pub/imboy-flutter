@@ -101,7 +101,7 @@ refreshDeviceKeyHint: 如果訊息無法解密，點選此按鈕重新整理金�
 refreshingDeviceKey: 正在重新整理裝置金鑰...
 deviceKeyRefreshed: 裝置金鑰已重新整理
 rechargeTitle: 充值
-rechargeAmountHint: 請輸入充值金額（元），1元～10000元
+rechargeAmountHint: 請輸入充值金額（元），0.01元～10000元
 rechargeAmountExample: 例如：100
 e2eeDeviceTransfer: 裝置間傳輸
 e2eeDeviceTransferDesc: 透過二維碼直接傳輸金鑰到新裝置

@@ -102,7 +102,7 @@ refreshDeviceKeyHint: メッセージを復号できない場合は、このボ�
 refreshingDeviceKey: デバイスキーを更新中...
 deviceKeyRefreshed: デバイスキーを更新しました
 rechargeTitle: チャージ
-rechargeAmountHint: チャージ金額を入力（元）。1元〜10000元
+rechargeAmountHint: チャージ金額を入力（元）。0.01元〜10000元
 rechargeAmountExample: 例：100
 e2eeDeviceTransfer: デバイス間転送
 e2eeDeviceTransferDesc: QRコードで新しいデバイスにキーを転送します

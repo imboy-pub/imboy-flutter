@@ -837,7 +837,7 @@ msgNotEncrypted: تُرسل الرسائل دون تشفير
 unreadCount(count): "${count} غير مقروءة"
 durationMinutes(count): "${count} دقيقة"
 durationSeconds(count): "${count} ثانية"
-rechargeAmountError: أدخل مبلغاً بين 1 و10000 يوان
+rechargeAmountError: أدخل مبلغاً بين 0.01 و10000 يوان
 rechargeSuccess: تم الشحن
 rechargeConfirm: تأكيد الشحن
 transactionHistory2: سجل العمليات
@@ -1093,7 +1093,7 @@ goToRecharge: اشحن الرصيد
 withdrawSuccess: تم السحب
 withdrawConfirm: تأكيد السحب
 withdrawFeeNotice: تُحدَّد الرسوم ووقت الوصول وفقاً للتسوية الفعلية
-withdrawAmountError: أدخل مبلغاً لا يقل عن يوان واحد
+withdrawAmountError: أدخل مبلغاً لا يقل عن 0.01 يوان
 withdrawAccountEmpty: أدخل حساب السحب
 withdrawMethod: طريقة السحب
 withdrawAccount: حساب السحب

@@ -176,7 +176,7 @@ class _Translations$account$ru_RU extends Translations$account$zh_CN {
 	@override String get refreshingDeviceKey => 'Обновление ключа устройства...';
 	@override String get deviceKeyRefreshed => 'Ключ устройства обновлён';
 	@override String get rechargeTitle => 'Пополнение';
-	@override String get rechargeAmountHint => 'Введите сумму пополнения (юаней), 1–10000';
+	@override String get rechargeAmountHint => 'Введите сумму пополнения (юаней), 0.01–10000';
 	@override String get rechargeAmountExample => 'Например: 100';
 	@override String get e2eeDeviceTransfer => 'Передача между устройствами';
 	@override String get e2eeDeviceTransferDesc => 'Прямая передача ключа на новое устройство через QR-код';
@@ -1516,7 +1516,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String unreadCount({required Object count}) => '${count} непрочитанных';
 	@override String durationMinutes({required Object count}) => '${count} мин';
 	@override String durationSeconds({required Object count}) => '${count} сек';
-	@override String get rechargeAmountError => 'Введите сумму от 1 до 10000 юаней';
+	@override String get rechargeAmountError => 'Введите сумму от 0.01 до 10000 юаней';
 	@override String get rechargeSuccess => 'Счёт пополнен';
 	@override String get rechargeConfirm => 'Подтвердить пополнение';
 	@override String get transactionHistory2 => 'История операций';
@@ -1772,7 +1772,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get withdrawSuccess => 'Вывод выполнен';
 	@override String get withdrawConfirm => 'Подтвердить вывод';
 	@override String get withdrawFeeNotice => 'Комиссия и срок зачисления определяются фактическим расчётом';
-	@override String get withdrawAmountError => 'Введите сумму не менее 1 юаня';
+	@override String get withdrawAmountError => 'Введите сумму не менее 0.01 юаня';
 	@override String get withdrawAccountEmpty => 'Введите счёт для вывода';
 	@override String get withdrawMethod => 'Способ вывода';
 	@override String get withdrawAccount => 'Счёт для вывода';
@@ -2697,7 +2697,7 @@ extension on TranslationsRuRu {
 			'account.refreshingDeviceKey' => 'Обновление ключа устройства...',
 			'account.deviceKeyRefreshed' => 'Ключ устройства обновлён',
 			'account.rechargeTitle' => 'Пополнение',
-			'account.rechargeAmountHint' => 'Введите сумму пополнения (юаней), 1–10000',
+			'account.rechargeAmountHint' => 'Введите сумму пополнения (юаней), 0.01–10000',
 			'account.rechargeAmountExample' => 'Например: 100',
 			'account.e2eeDeviceTransfer' => 'Передача между устройствами',
 			'account.e2eeDeviceTransferDesc' => 'Прямая передача ключа на новое устройство через QR-код',
@@ -3990,7 +3990,7 @@ extension on TranslationsRuRu {
 			'common.unreadCount' => ({required Object count}) => '${count} непрочитанных',
 			'common.durationMinutes' => ({required Object count}) => '${count} мин',
 			'common.durationSeconds' => ({required Object count}) => '${count} сек',
-			'common.rechargeAmountError' => 'Введите сумму от 1 до 10000 юаней',
+			'common.rechargeAmountError' => 'Введите сумму от 0.01 до 10000 юаней',
 			'common.rechargeSuccess' => 'Счёт пополнен',
 			'common.rechargeConfirm' => 'Подтвердить пополнение',
 			'common.transactionHistory2' => 'История операций',
@@ -4248,7 +4248,7 @@ extension on TranslationsRuRu {
 			'common.withdrawSuccess' => 'Вывод выполнен',
 			'common.withdrawConfirm' => 'Подтвердить вывод',
 			'common.withdrawFeeNotice' => 'Комиссия и срок зачисления определяются фактическим расчётом',
-			'common.withdrawAmountError' => 'Введите сумму не менее 1 юаня',
+			'common.withdrawAmountError' => 'Введите сумму не менее 0.01 юаня',
 			'common.withdrawAccountEmpty' => 'Введите счёт для вывода',
 			'common.withdrawMethod' => 'Способ вывода',
 			'common.withdrawAccount' => 'Счёт для вывода',

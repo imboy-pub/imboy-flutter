@@ -58,7 +58,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final amountFen = parseYuanToFen(_amountController.text);
-    if (amountFen == null || amountFen < 100) {
+    if (amountFen == null || amountFen < 1) {
       AppLoading.showError(t.common.transferMinAmountError);
       return;
     }
@@ -171,7 +171,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
                     return t.common.enterAmount;
                   }
                   final amountFen = parseYuanToFen(value);
-                  if (amountFen == null || amountFen < 100) {
+                  if (amountFen == null || amountFen < 1) {
                     return t.common.transferMinAmountError;
                   }
                   return null;

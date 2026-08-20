@@ -840,7 +840,7 @@ msgNotEncrypted: Messaggio non cifrato
 unreadCount(count): "${count} non letti"
 durationMinutes(count): "${count} min"
 durationSeconds(count): "${count} s"
-rechargeAmountError: Importo tra 1 e 10000 yuan
+rechargeAmountError: Importo tra 0.01 e 10000 yuan
 rechargeSuccess: Ricaricato
 rechargeConfirm: Conferma ricarica
 transactionHistory2: Transazioni
@@ -1096,7 +1096,7 @@ goToRecharge: Ricarica
 withdrawSuccess: Prelievo riuscito
 withdrawConfirm: Conferma prelievo
 withdrawFeeNotice: Commissioni e tempi di accredito dipendono dal regolamento effettivo
-withdrawAmountError: Importo minimo 1 yuan
+withdrawAmountError: Importo minimo 0.01 yuan
 withdrawAccountEmpty: Conto di prelievo richiesto
 withdrawMethod: Metodo di prelievo
 withdrawAccount: Conto di prelievo

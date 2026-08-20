@@ -176,7 +176,7 @@ class _Translations$account$it_IT extends Translations$account$zh_CN {
 	@override String get refreshingDeviceKey => 'Aggiornamento chiave...';
 	@override String get deviceKeyRefreshed => 'Chiave aggiornata';
 	@override String get rechargeTitle => 'Ricarica';
-	@override String get rechargeAmountHint => 'Importo (yuan), 1–10000';
+	@override String get rechargeAmountHint => 'Importo (yuan), 0.01–10000';
 	@override String get rechargeAmountExample => 'es. 100';
 	@override String get e2eeDeviceTransfer => 'Trasferimento tra dispositivi';
 	@override String get e2eeDeviceTransferDesc => 'Trasferisci la chiave al nuovo dispositivo via QR code';
@@ -1519,7 +1519,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String unreadCount({required Object count}) => '${count} non letti';
 	@override String durationMinutes({required Object count}) => '${count} min';
 	@override String durationSeconds({required Object count}) => '${count} s';
-	@override String get rechargeAmountError => 'Importo tra 1 e 10000 yuan';
+	@override String get rechargeAmountError => 'Importo tra 0.01 e 10000 yuan';
 	@override String get rechargeSuccess => 'Ricaricato';
 	@override String get rechargeConfirm => 'Conferma ricarica';
 	@override String get transactionHistory2 => 'Transazioni';
@@ -1775,7 +1775,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get withdrawSuccess => 'Prelievo riuscito';
 	@override String get withdrawConfirm => 'Conferma prelievo';
 	@override String get withdrawFeeNotice => 'Commissioni e tempi di accredito dipendono dal regolamento effettivo';
-	@override String get withdrawAmountError => 'Importo minimo 1 yuan';
+	@override String get withdrawAmountError => 'Importo minimo 0.01 yuan';
 	@override String get withdrawAccountEmpty => 'Conto di prelievo richiesto';
 	@override String get withdrawMethod => 'Metodo di prelievo';
 	@override String get withdrawAccount => 'Conto di prelievo';
@@ -2700,7 +2700,7 @@ extension on TranslationsItIt {
 			'account.refreshingDeviceKey' => 'Aggiornamento chiave...',
 			'account.deviceKeyRefreshed' => 'Chiave aggiornata',
 			'account.rechargeTitle' => 'Ricarica',
-			'account.rechargeAmountHint' => 'Importo (yuan), 1–10000',
+			'account.rechargeAmountHint' => 'Importo (yuan), 0.01–10000',
 			'account.rechargeAmountExample' => 'es. 100',
 			'account.e2eeDeviceTransfer' => 'Trasferimento tra dispositivi',
 			'account.e2eeDeviceTransferDesc' => 'Trasferisci la chiave al nuovo dispositivo via QR code',
@@ -3993,7 +3993,7 @@ extension on TranslationsItIt {
 			'common.unreadCount' => ({required Object count}) => '${count} non letti',
 			'common.durationMinutes' => ({required Object count}) => '${count} min',
 			'common.durationSeconds' => ({required Object count}) => '${count} s',
-			'common.rechargeAmountError' => 'Importo tra 1 e 10000 yuan',
+			'common.rechargeAmountError' => 'Importo tra 0.01 e 10000 yuan',
 			'common.rechargeSuccess' => 'Ricaricato',
 			'common.rechargeConfirm' => 'Conferma ricarica',
 			'common.transactionHistory2' => 'Transazioni',
@@ -4251,7 +4251,7 @@ extension on TranslationsItIt {
 			'common.withdrawSuccess' => 'Prelievo riuscito',
 			'common.withdrawConfirm' => 'Conferma prelievo',
 			'common.withdrawFeeNotice' => 'Commissioni e tempi di accredito dipendono dal regolamento effettivo',
-			'common.withdrawAmountError' => 'Importo minimo 1 yuan',
+			'common.withdrawAmountError' => 'Importo minimo 0.01 yuan',
 			'common.withdrawAccountEmpty' => 'Conto di prelievo richiesto',
 			'common.withdrawMethod' => 'Metodo di prelievo',
 			'common.withdrawAccount' => 'Conto di prelievo',

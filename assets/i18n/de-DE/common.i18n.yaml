@@ -840,7 +840,7 @@ msgNotEncrypted: Nachricht unverschlüsselt
 unreadCount(count): "${count} ungelesen"
 durationMinutes(count): "${count} Min."
 durationSeconds(count): "${count} Sek."
-rechargeAmountError: Betrag zwischen 1 und 10000 Yuan eingeben
+rechargeAmountError: Betrag zwischen 0.01 und 10000 Yuan eingeben
 rechargeSuccess: Aufgeladen
 rechargeConfirm: Aufladen bestätigen
 transactionHistory2: Umsätze
@@ -1096,7 +1096,7 @@ goToRecharge: Aufladen
 withdrawSuccess: Auszahlung erfolgreich
 withdrawConfirm: Auszahlung bestätigen
 withdrawFeeNotice: Gebühren und Gutschriftsdauer richten sich nach der tatsächlichen Abrechnung
-withdrawAmountError: Mindestens 1 Yuan eingeben
+withdrawAmountError: Mindestens 0.01 Yuan eingeben
 withdrawAccountEmpty: Auszahlungskonto eingeben
 withdrawMethod: Auszahlungsmethode
 withdrawAccount: Auszahlungskonto

@@ -102,7 +102,7 @@ refreshDeviceKeyHint: Wenn Nachrichten nicht entschlüsselt werden können, Schl
 refreshingDeviceKey: Geräteschlüssel wird aktualisiert...
 deviceKeyRefreshed: Geräteschlüssel aktualisiert
 rechargeTitle: Aufladen
-rechargeAmountHint: Betrag eingeben (Yuan), 1–10000
+rechargeAmountHint: Betrag eingeben (Yuan), 0.01–10000
 rechargeAmountExample: z. B. 100
 e2eeDeviceTransfer: Geräteübertragung
 e2eeDeviceTransferDesc: Schlüssel per QR-Code auf neues Gerät übertragen

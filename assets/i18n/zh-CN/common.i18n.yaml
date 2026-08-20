@@ -848,7 +848,7 @@ msgNotEncrypted: 消息未加密传输
 unreadCount(count): "${count} 条未读"
 durationMinutes(count): "${count}分钟"
 durationSeconds(count): "${count}秒"
-rechargeAmountError: 请输入1元到10000元之间的金额
+rechargeAmountError: 请输入0.01元到10000元之间的金额
 rechargeSuccess: 充值成功
 rechargeConfirm: 确认充值
 transactionHistory2: 流水记录
@@ -1112,7 +1112,7 @@ goToRecharge: 去充值
 withdrawSuccess: 提现成功
 withdrawConfirm: 确认提现
 withdrawFeeNotice: 手续费与到账时间以实际结算为准
-withdrawAmountError: 请输入不低于1元的金额
+withdrawAmountError: 请输入不低于0.01元的金额
 withdrawAccountEmpty: 请输入提现账号
 withdrawMethod: 提现方式
 withdrawAccount: 提现账号
@@ -1129,7 +1129,7 @@ withdrawConfirmAccount(account): "提现账号：$account"
 noHistory: 暂无历史记录
 enterAmount: 请输入金额
 transferDefaultRemark: 转账给好友
-transferMinAmountError: 转账最低金额为 0.1 元
+transferMinAmountError: 转账最低金额为 0.01 元
 redPacketCurrentLucky: "当前为：拼手气红包"
 redPacketCurrentNormal: "当前为：普通红包"
 redPacketSwitchToNormal: 改为普通红包

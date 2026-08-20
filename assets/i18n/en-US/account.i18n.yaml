@@ -104,7 +104,7 @@ refreshDeviceKeyHint: "If messages cannot be decrypted, click to refresh keys"
 refreshingDeviceKey: Refreshing device key...
 deviceKeyRefreshed: Device key refreshed
 rechargeTitle: Top Up
-rechargeAmountHint: "Enter amount (CNY), ¥1 to ¥10,000"
+rechargeAmountHint: "Enter amount (CNY), ¥0.01 to ¥10,000"
 rechargeAmountExample: e.g. 100
 e2eeDeviceTransfer: Device Transfer
 e2eeDeviceTransferDesc: Transfer key directly to a new device via QR code

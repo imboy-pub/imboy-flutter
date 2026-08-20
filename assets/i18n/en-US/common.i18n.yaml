@@ -837,7 +837,7 @@ msgNotEncrypted: Message transmitted unencrypted
 unreadCount(count): "${count} unread"
 durationMinutes(count): "${count}min"
 durationSeconds(count): "${count}s"
-rechargeAmountError: "Please enter an amount between ¥1 and ¥10,000"
+rechargeAmountError: "Please enter an amount between ¥0.01 and ¥10,000"
 rechargeSuccess: Top up successful
 rechargeConfirm: Confirm Top Up
 transactionHistory2: Transaction History
@@ -1090,7 +1090,7 @@ goToRecharge: Recharge
 withdrawSuccess: Withdrawal Successful
 withdrawConfirm: Confirm Withdrawal
 withdrawFeeNotice: Fees and arrival time are subject to actual settlement
-withdrawAmountError: Amount must be at least 1 CNY
+withdrawAmountError: Amount must be at least ¥0.01
 withdrawAccountEmpty: Please enter your withdrawal account
 withdrawMethod: Withdrawal Method
 withdrawAccount: Withdrawal Account

@@ -102,7 +102,7 @@ refreshDeviceKeyHint: Se i messaggi non si decifrano, aggiorna la chiave qui
 refreshingDeviceKey: Aggiornamento chiave...
 deviceKeyRefreshed: Chiave aggiornata
 rechargeTitle: Ricarica
-rechargeAmountHint: Importo (yuan), 1–10000
+rechargeAmountHint: Importo (yuan), 0.01–10000
 rechargeAmountExample: es. 100
 e2eeDeviceTransfer: Trasferimento tra dispositivi
 e2eeDeviceTransferDesc: Trasferisci la chiave al nuovo dispositivo via QR code

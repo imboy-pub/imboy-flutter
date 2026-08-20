@@ -176,7 +176,7 @@ class _Translations$account$ar_SA extends Translations$account$zh_CN {
 	@override String get refreshingDeviceKey => 'جارٍ تحديث مفتاح الجهاز...';
 	@override String get deviceKeyRefreshed => 'تم تحديث مفتاح الجهاز';
 	@override String get rechargeTitle => 'شحن';
-	@override String get rechargeAmountHint => 'أدخل مبلغ الشحن (يوان)، 1–10000';
+	@override String get rechargeAmountHint => 'أدخل مبلغ الشحن (يوان)، 0.01–10000';
 	@override String get rechargeAmountExample => 'مثال: 100';
 	@override String get e2eeDeviceTransfer => 'نقل بين الأجهزة';
 	@override String get e2eeDeviceTransferDesc => 'نقل المفتاح مباشرةً إلى جهاز جديد عبر رمز QR';
@@ -1516,7 +1516,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String unreadCount({required Object count}) => '${count} غير مقروءة';
 	@override String durationMinutes({required Object count}) => '${count} دقيقة';
 	@override String durationSeconds({required Object count}) => '${count} ثانية';
-	@override String get rechargeAmountError => 'أدخل مبلغاً بين 1 و10000 يوان';
+	@override String get rechargeAmountError => 'أدخل مبلغاً بين 0.01 و10000 يوان';
 	@override String get rechargeSuccess => 'تم الشحن';
 	@override String get rechargeConfirm => 'تأكيد الشحن';
 	@override String get transactionHistory2 => 'سجل العمليات';
@@ -1772,7 +1772,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get withdrawSuccess => 'تم السحب';
 	@override String get withdrawConfirm => 'تأكيد السحب';
 	@override String get withdrawFeeNotice => 'تُحدَّد الرسوم ووقت الوصول وفقاً للتسوية الفعلية';
-	@override String get withdrawAmountError => 'أدخل مبلغاً لا يقل عن يوان واحد';
+	@override String get withdrawAmountError => 'أدخل مبلغاً لا يقل عن 0.01 يوان';
 	@override String get withdrawAccountEmpty => 'أدخل حساب السحب';
 	@override String get withdrawMethod => 'طريقة السحب';
 	@override String get withdrawAccount => 'حساب السحب';
@@ -2697,7 +2697,7 @@ extension on TranslationsArSa {
 			'account.refreshingDeviceKey' => 'جارٍ تحديث مفتاح الجهاز...',
 			'account.deviceKeyRefreshed' => 'تم تحديث مفتاح الجهاز',
 			'account.rechargeTitle' => 'شحن',
-			'account.rechargeAmountHint' => 'أدخل مبلغ الشحن (يوان)، 1–10000',
+			'account.rechargeAmountHint' => 'أدخل مبلغ الشحن (يوان)، 0.01–10000',
 			'account.rechargeAmountExample' => 'مثال: 100',
 			'account.e2eeDeviceTransfer' => 'نقل بين الأجهزة',
 			'account.e2eeDeviceTransferDesc' => 'نقل المفتاح مباشرةً إلى جهاز جديد عبر رمز QR',
@@ -3990,7 +3990,7 @@ extension on TranslationsArSa {
 			'common.unreadCount' => ({required Object count}) => '${count} غير مقروءة',
 			'common.durationMinutes' => ({required Object count}) => '${count} دقيقة',
 			'common.durationSeconds' => ({required Object count}) => '${count} ثانية',
-			'common.rechargeAmountError' => 'أدخل مبلغاً بين 1 و10000 يوان',
+			'common.rechargeAmountError' => 'أدخل مبلغاً بين 0.01 و10000 يوان',
 			'common.rechargeSuccess' => 'تم الشحن',
 			'common.rechargeConfirm' => 'تأكيد الشحن',
 			'common.transactionHistory2' => 'سجل العمليات',
@@ -4248,7 +4248,7 @@ extension on TranslationsArSa {
 			'common.withdrawSuccess' => 'تم السحب',
 			'common.withdrawConfirm' => 'تأكيد السحب',
 			'common.withdrawFeeNotice' => 'تُحدَّد الرسوم ووقت الوصول وفقاً للتسوية الفعلية',
-			'common.withdrawAmountError' => 'أدخل مبلغاً لا يقل عن يوان واحد',
+			'common.withdrawAmountError' => 'أدخل مبلغاً لا يقل عن 0.01 يوان',
 			'common.withdrawAccountEmpty' => 'أدخل حساب السحب',
 			'common.withdrawMethod' => 'طريقة السحب',
 			'common.withdrawAccount' => 'حساب السحب',

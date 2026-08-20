@@ -98,7 +98,7 @@ class _WalletPageState extends ConsumerState<WalletPage> {
             onPressed: () {
               final input = controller.text.trim();
               final amountFen = parseYuanToFen(input);
-              if (amountFen == null || amountFen < 100 || amountFen > 1000000) {
+              if (amountFen == null || amountFen < 1 || amountFen > 1000000) {
                 AppLoading.showError(t.common.rechargeAmountError);
                 return;
               }

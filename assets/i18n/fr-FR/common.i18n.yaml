@@ -840,7 +840,7 @@ msgNotEncrypted: Message non chiffré
 unreadCount(count): "${count} non lus"
 durationMinutes(count): "${count} min"
 durationSeconds(count): "${count} s"
-rechargeAmountError: Montant entre 1 et 10000 yuan
+rechargeAmountError: Montant entre 0.01 et 10000 yuan
 rechargeSuccess: Rechargé
 rechargeConfirm: Confirmer la recharge
 transactionHistory2: Transactions
@@ -1096,7 +1096,7 @@ goToRecharge: Recharger
 withdrawSuccess: Retrait effectué
 withdrawConfirm: Confirmer le retrait
 withdrawFeeNotice: Les frais et le délai de réception dépendent du règlement effectif
-withdrawAmountError: Montant minimum 1 yuan
+withdrawAmountError: Montant minimum 0.01 yuan
 withdrawAccountEmpty: Compte de retrait requis
 withdrawMethod: Méthode de retrait
 withdrawAccount: Compte de retrait

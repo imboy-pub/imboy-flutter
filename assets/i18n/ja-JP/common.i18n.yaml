@@ -837,7 +837,7 @@ msgNotEncrypted: メッセージは暗号化されていません
 unreadCount(count): "未読 ${count} 件"
 durationMinutes(count): "${count}分"
 durationSeconds(count): "${count}秒"
-rechargeAmountError: 1元〜10000元の金額を入力してください
+rechargeAmountError: 0.01元〜10000元の金額を入力してください
 rechargeSuccess: チャージしました
 rechargeConfirm: チャージを確認
 transactionHistory2: 取引履歴
@@ -1093,7 +1093,7 @@ goToRecharge: チャージへ
 withdrawSuccess: 出金しました
 withdrawConfirm: 出金を確認
 withdrawFeeNotice: 手数料と着金時間は実際の決済に準じます
-withdrawAmountError: 1元以上の金額を入力してください
+withdrawAmountError: 0.01元以上の金額を入力してください
 withdrawAccountEmpty: 出金先のアカウントを入力してください
 withdrawMethod: 出金方法
 withdrawAccount: 出金先アカウント

@@ -837,7 +837,7 @@ msgNotEncrypted: 메시지가 암호화되지 않았습니다
 unreadCount(count): "읽지 않음 ${count}개"
 durationMinutes(count): "${count}분"
 durationSeconds(count): "${count}초"
-rechargeAmountError: 1위안에서 10000위안 사이의 금액을 입력하세요
+rechargeAmountError: 0.01위안에서 10000위안 사이의 금액을 입력하세요
 rechargeSuccess: 충전 완료
 rechargeConfirm: 충전 확인
 transactionHistory2: 거래 내역
@@ -1093,7 +1093,7 @@ goToRecharge: 충전하러 가기
 withdrawSuccess: 출금 완료
 withdrawConfirm: 출금 확인
 withdrawFeeNotice: 수수료와 입금 시간은 실제 정산에 따릅니다
-withdrawAmountError: 1위안 이상의 금액을 입력해주세요
+withdrawAmountError: 0.01위안 이상의 금액을 입력해주세요
 withdrawAccountEmpty: 출금 계좌를 입력해주세요
 withdrawMethod: 출금 방식
 withdrawAccount: 출금 계좌

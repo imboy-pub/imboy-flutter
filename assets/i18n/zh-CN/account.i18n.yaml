@@ -104,7 +104,7 @@ refreshDeviceKeyHint: 如果消息无法解密，点击此按钮刷新密钥
 refreshingDeviceKey: 正在刷新设备密钥...
 deviceKeyRefreshed: 设备密钥已刷新
 rechargeTitle: 充值
-rechargeAmountHint: 请输入充值金额（元），1元～10000元
+rechargeAmountHint: 请输入充值金额（元），0.01元～10000元
 rechargeAmountExample: 例如：100
 payMethodTitle: 选择支付方式
 payMethodWallet: 钱包余额

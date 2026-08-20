@@ -176,7 +176,7 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get refreshingDeviceKey => '正在重新整理裝置金鑰...';
 	@override String get deviceKeyRefreshed => '裝置金鑰已重新整理';
 	@override String get rechargeTitle => '充值';
-	@override String get rechargeAmountHint => '請輸入充值金額（元），1元～10000元';
+	@override String get rechargeAmountHint => '請輸入充值金額（元），0.01元～10000元';
 	@override String get rechargeAmountExample => '例如：100';
 	@override String get e2eeDeviceTransfer => '裝置間傳輸';
 	@override String get e2eeDeviceTransferDesc => '透過二維碼直接傳輸金鑰到新裝置';
@@ -1532,7 +1532,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String unreadCount({required Object count}) => '${count} 則未讀';
 	@override String durationMinutes({required Object count}) => '${count}分鐘';
 	@override String durationSeconds({required Object count}) => '${count}秒';
-	@override String get rechargeAmountError => '請輸入1元到10000元之間的金額';
+	@override String get rechargeAmountError => '請輸入0.01元到10000元之間的金額';
 	@override String get rechargeSuccess => '充值成功';
 	@override String get rechargeConfirm => '確認充值';
 	@override String get transactionHistory2 => '流水記錄';
@@ -1788,7 +1788,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get withdrawSuccess => '提現成功';
 	@override String get withdrawConfirm => '確認提現';
 	@override String get withdrawFeeNotice => '手續費與到帳時間以實際結算為準';
-	@override String get withdrawAmountError => '請輸入不低於1元的金額';
+	@override String get withdrawAmountError => '請輸入不低於0.01元的金額';
 	@override String get withdrawAccountEmpty => '請輸入提現賬號';
 	@override String get withdrawMethod => '提現方式';
 	@override String get withdrawAccount => '提現賬號';
@@ -2719,7 +2719,7 @@ extension on TranslationsZhHant {
 			'account.refreshingDeviceKey' => '正在重新整理裝置金鑰...',
 			'account.deviceKeyRefreshed' => '裝置金鑰已重新整理',
 			'account.rechargeTitle' => '充值',
-			'account.rechargeAmountHint' => '請輸入充值金額（元），1元～10000元',
+			'account.rechargeAmountHint' => '請輸入充值金額（元），0.01元～10000元',
 			'account.rechargeAmountExample' => '例如：100',
 			'account.e2eeDeviceTransfer' => '裝置間傳輸',
 			'account.e2eeDeviceTransferDesc' => '透過二維碼直接傳輸金鑰到新裝置',
@@ -4028,7 +4028,7 @@ extension on TranslationsZhHant {
 			'common.unreadCount' => ({required Object count}) => '${count} 則未讀',
 			'common.durationMinutes' => ({required Object count}) => '${count}分鐘',
 			'common.durationSeconds' => ({required Object count}) => '${count}秒',
-			'common.rechargeAmountError' => '請輸入1元到10000元之間的金額',
+			'common.rechargeAmountError' => '請輸入0.01元到10000元之間的金額',
 			'common.rechargeSuccess' => '充值成功',
 			'common.rechargeConfirm' => '確認充值',
 			'common.transactionHistory2' => '流水記錄',
@@ -4286,7 +4286,7 @@ extension on TranslationsZhHant {
 			'common.withdrawSuccess' => '提現成功',
 			'common.withdrawConfirm' => '確認提現',
 			'common.withdrawFeeNotice' => '手續費與到帳時間以實際結算為準',
-			'common.withdrawAmountError' => '請輸入不低於1元的金額',
+			'common.withdrawAmountError' => '請輸入不低於0.01元的金額',
 			'common.withdrawAccountEmpty' => '請輸入提現賬號',
 			'common.withdrawMethod' => '提現方式',
 			'common.withdrawAccount' => '提現賬號',

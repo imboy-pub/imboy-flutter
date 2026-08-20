@@ -102,7 +102,7 @@ refreshDeviceKeyHint: Если сообщения не расшифровыва�
 refreshingDeviceKey: Обновление ключа устройства...
 deviceKeyRefreshed: Ключ устройства обновлён
 rechargeTitle: Пополнение
-rechargeAmountHint: Введите сумму пополнения (юаней), 1–10000
+rechargeAmountHint: Введите сумму пополнения (юаней), 0.01–10000
 rechargeAmountExample: 'Например: 100'
 e2eeDeviceTransfer: Передача между устройствами
 e2eeDeviceTransferDesc: Прямая передача ключа на новое устройство через QR-код

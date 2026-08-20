@@ -176,7 +176,7 @@ class _Translations$account$en_US extends Translations$account$zh_CN {
 	@override String get refreshingDeviceKey => 'Refreshing device key...';
 	@override String get deviceKeyRefreshed => 'Device key refreshed';
 	@override String get rechargeTitle => 'Top Up';
-	@override String get rechargeAmountHint => 'Enter amount (CNY), ¥1 to ¥10,000';
+	@override String get rechargeAmountHint => 'Enter amount (CNY), ¥0.01 to ¥10,000';
 	@override String get rechargeAmountExample => 'e.g. 100';
 	@override String get e2eeDeviceTransfer => 'Device Transfer';
 	@override String get e2eeDeviceTransferDesc => 'Transfer key directly to a new device via QR code';
@@ -1533,7 +1533,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String unreadCount({required Object count}) => '${count} unread';
 	@override String durationMinutes({required Object count}) => '${count}min';
 	@override String durationSeconds({required Object count}) => '${count}s';
-	@override String get rechargeAmountError => 'Please enter an amount between ¥1 and ¥10,000';
+	@override String get rechargeAmountError => 'Please enter an amount between ¥0.01 and ¥10,000';
 	@override String get rechargeSuccess => 'Top up successful';
 	@override String get rechargeConfirm => 'Confirm Top Up';
 	@override String get transactionHistory2 => 'Transaction History';
@@ -1786,7 +1786,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get withdrawSuccess => 'Withdrawal Successful';
 	@override String get withdrawConfirm => 'Confirm Withdrawal';
 	@override String get withdrawFeeNotice => 'Fees and arrival time are subject to actual settlement';
-	@override String get withdrawAmountError => 'Amount must be at least 1 CNY';
+	@override String get withdrawAmountError => 'Amount must be at least ¥0.01';
 	@override String get withdrawAccountEmpty => 'Please enter your withdrawal account';
 	@override String get withdrawMethod => 'Withdrawal Method';
 	@override String get withdrawAccount => 'Withdrawal Account';
@@ -2723,7 +2723,7 @@ extension on TranslationsEnUs {
 			'account.refreshingDeviceKey' => 'Refreshing device key...',
 			'account.deviceKeyRefreshed' => 'Device key refreshed',
 			'account.rechargeTitle' => 'Top Up',
-			'account.rechargeAmountHint' => 'Enter amount (CNY), ¥1 to ¥10,000',
+			'account.rechargeAmountHint' => 'Enter amount (CNY), ¥0.01 to ¥10,000',
 			'account.rechargeAmountExample' => 'e.g. 100',
 			'account.e2eeDeviceTransfer' => 'Device Transfer',
 			'account.e2eeDeviceTransferDesc' => 'Transfer key directly to a new device via QR code',
@@ -4030,7 +4030,7 @@ extension on TranslationsEnUs {
 			'common.unreadCount' => ({required Object count}) => '${count} unread',
 			'common.durationMinutes' => ({required Object count}) => '${count}min',
 			'common.durationSeconds' => ({required Object count}) => '${count}s',
-			'common.rechargeAmountError' => 'Please enter an amount between ¥1 and ¥10,000',
+			'common.rechargeAmountError' => 'Please enter an amount between ¥0.01 and ¥10,000',
 			'common.rechargeSuccess' => 'Top up successful',
 			'common.rechargeConfirm' => 'Confirm Top Up',
 			'common.transactionHistory2' => 'Transaction History',
@@ -4285,7 +4285,7 @@ extension on TranslationsEnUs {
 			'common.withdrawSuccess' => 'Withdrawal Successful',
 			'common.withdrawConfirm' => 'Confirm Withdrawal',
 			'common.withdrawFeeNotice' => 'Fees and arrival time are subject to actual settlement',
-			'common.withdrawAmountError' => 'Amount must be at least 1 CNY',
+			'common.withdrawAmountError' => 'Amount must be at least ¥0.01',
 			'common.withdrawAccountEmpty' => 'Please enter your withdrawal account',
 			'common.withdrawMethod' => 'Withdrawal Method',
 			'common.withdrawAccount' => 'Withdrawal Account',

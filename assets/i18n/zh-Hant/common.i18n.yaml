@@ -836,7 +836,7 @@ msgNotEncrypted: 訊息未加密傳輸
 unreadCount(count): "${count} 則未讀"
 durationMinutes(count): ${count}分鐘
 durationSeconds(count): ${count}秒
-rechargeAmountError: 請輸入1元到10000元之間的金額
+rechargeAmountError: 請輸入0.01元到10000元之間的金額
 rechargeSuccess: 充值成功
 rechargeConfirm: 確認充值
 transactionHistory2: 流水記錄
@@ -1092,7 +1092,7 @@ goToRecharge: 去充值
 withdrawSuccess: 提現成功
 withdrawConfirm: 確認提現
 withdrawFeeNotice: 手續費與到帳時間以實際結算為準
-withdrawAmountError: 請輸入不低於1元的金額
+withdrawAmountError: 請輸入不低於0.01元的金額
 withdrawAccountEmpty: 請輸入提現賬號
 withdrawMethod: 提現方式
 withdrawAccount: 提現賬號

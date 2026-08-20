@@ -102,7 +102,7 @@ refreshDeviceKeyHint: إذا لم تُفكّ الرسائل، حدّث المف�
 refreshingDeviceKey: جارٍ تحديث مفتاح الجهاز...
 deviceKeyRefreshed: تم تحديث مفتاح الجهاز
 rechargeTitle: شحن
-rechargeAmountHint: أدخل مبلغ الشحن (يوان)، 1–10000
+rechargeAmountHint: أدخل مبلغ الشحن (يوان)، 0.01–10000
 rechargeAmountExample: 'مثال: 100'
 e2eeDeviceTransfer: نقل بين الأجهزة
 e2eeDeviceTransferDesc: نقل المفتاح مباشرةً إلى جهاز جديد عبر رمز QR

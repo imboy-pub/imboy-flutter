@@ -102,7 +102,7 @@ refreshDeviceKeyHint: 메시지를 복호화할 수 없을 때 이 버튼으로 
 refreshingDeviceKey: 기기 키를 새로고침하는 중...
 deviceKeyRefreshed: 기기 키가 새로고침되었습니다
 rechargeTitle: 충전
-rechargeAmountHint: 충전 금액을 입력하세요 (1위안~10000위안)
+rechargeAmountHint: 충전 금액을 입력하세요 (0.01위안~10000위안)
 rechargeAmountExample: '예: 100'
 e2eeDeviceTransfer: 기기 간 전송
 e2eeDeviceTransferDesc: QR 코드로 새 기기에 키를 직접 전송합니다

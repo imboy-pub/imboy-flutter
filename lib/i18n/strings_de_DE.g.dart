@@ -176,7 +176,7 @@ class _Translations$account$de_DE extends Translations$account$zh_CN {
 	@override String get refreshingDeviceKey => 'Geräteschlüssel wird aktualisiert...';
 	@override String get deviceKeyRefreshed => 'Geräteschlüssel aktualisiert';
 	@override String get rechargeTitle => 'Aufladen';
-	@override String get rechargeAmountHint => 'Betrag eingeben (Yuan), 1–10000';
+	@override String get rechargeAmountHint => 'Betrag eingeben (Yuan), 0.01–10000';
 	@override String get rechargeAmountExample => 'z. B. 100';
 	@override String get e2eeDeviceTransfer => 'Geräteübertragung';
 	@override String get e2eeDeviceTransferDesc => 'Schlüssel per QR-Code auf neues Gerät übertragen';
@@ -1519,7 +1519,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String unreadCount({required Object count}) => '${count} ungelesen';
 	@override String durationMinutes({required Object count}) => '${count} Min.';
 	@override String durationSeconds({required Object count}) => '${count} Sek.';
-	@override String get rechargeAmountError => 'Betrag zwischen 1 und 10000 Yuan eingeben';
+	@override String get rechargeAmountError => 'Betrag zwischen 0.01 und 10000 Yuan eingeben';
 	@override String get rechargeSuccess => 'Aufgeladen';
 	@override String get rechargeConfirm => 'Aufladen bestätigen';
 	@override String get transactionHistory2 => 'Umsätze';
@@ -1775,7 +1775,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get withdrawSuccess => 'Auszahlung erfolgreich';
 	@override String get withdrawConfirm => 'Auszahlung bestätigen';
 	@override String get withdrawFeeNotice => 'Gebühren und Gutschriftsdauer richten sich nach der tatsächlichen Abrechnung';
-	@override String get withdrawAmountError => 'Mindestens 1 Yuan eingeben';
+	@override String get withdrawAmountError => 'Mindestens 0.01 Yuan eingeben';
 	@override String get withdrawAccountEmpty => 'Auszahlungskonto eingeben';
 	@override String get withdrawMethod => 'Auszahlungsmethode';
 	@override String get withdrawAccount => 'Auszahlungskonto';
@@ -2700,7 +2700,7 @@ extension on TranslationsDeDe {
 			'account.refreshingDeviceKey' => 'Geräteschlüssel wird aktualisiert...',
 			'account.deviceKeyRefreshed' => 'Geräteschlüssel aktualisiert',
 			'account.rechargeTitle' => 'Aufladen',
-			'account.rechargeAmountHint' => 'Betrag eingeben (Yuan), 1–10000',
+			'account.rechargeAmountHint' => 'Betrag eingeben (Yuan), 0.01–10000',
 			'account.rechargeAmountExample' => 'z. B. 100',
 			'account.e2eeDeviceTransfer' => 'Geräteübertragung',
 			'account.e2eeDeviceTransferDesc' => 'Schlüssel per QR-Code auf neues Gerät übertragen',
@@ -3993,7 +3993,7 @@ extension on TranslationsDeDe {
 			'common.unreadCount' => ({required Object count}) => '${count} ungelesen',
 			'common.durationMinutes' => ({required Object count}) => '${count} Min.',
 			'common.durationSeconds' => ({required Object count}) => '${count} Sek.',
-			'common.rechargeAmountError' => 'Betrag zwischen 1 und 10000 Yuan eingeben',
+			'common.rechargeAmountError' => 'Betrag zwischen 0.01 und 10000 Yuan eingeben',
 			'common.rechargeSuccess' => 'Aufgeladen',
 			'common.rechargeConfirm' => 'Aufladen bestätigen',
 			'common.transactionHistory2' => 'Umsätze',
@@ -4251,7 +4251,7 @@ extension on TranslationsDeDe {
 			'common.withdrawSuccess' => 'Auszahlung erfolgreich',
 			'common.withdrawConfirm' => 'Auszahlung bestätigen',
 			'common.withdrawFeeNotice' => 'Gebühren und Gutschriftsdauer richten sich nach der tatsächlichen Abrechnung',
-			'common.withdrawAmountError' => 'Mindestens 1 Yuan eingeben',
+			'common.withdrawAmountError' => 'Mindestens 0.01 Yuan eingeben',
 			'common.withdrawAccountEmpty' => 'Auszahlungskonto eingeben',
 			'common.withdrawMethod' => 'Auszahlungsmethode',
 			'common.withdrawAccount' => 'Auszahlungskonto',

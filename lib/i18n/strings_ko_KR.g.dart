@@ -176,7 +176,7 @@ class _Translations$account$ko_KR extends Translations$account$zh_CN {
 	@override String get refreshingDeviceKey => '기기 키를 새로고침하는 중...';
 	@override String get deviceKeyRefreshed => '기기 키가 새로고침되었습니다';
 	@override String get rechargeTitle => '충전';
-	@override String get rechargeAmountHint => '충전 금액을 입력하세요 (1위안~10000위안)';
+	@override String get rechargeAmountHint => '충전 금액을 입력하세요 (0.01위안~10000위안)';
 	@override String get rechargeAmountExample => '예: 100';
 	@override String get e2eeDeviceTransfer => '기기 간 전송';
 	@override String get e2eeDeviceTransferDesc => 'QR 코드로 새 기기에 키를 직접 전송합니다';
@@ -1516,7 +1516,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String unreadCount({required Object count}) => '읽지 않음 ${count}개';
 	@override String durationMinutes({required Object count}) => '${count}분';
 	@override String durationSeconds({required Object count}) => '${count}초';
-	@override String get rechargeAmountError => '1위안에서 10000위안 사이의 금액을 입력하세요';
+	@override String get rechargeAmountError => '0.01위안에서 10000위안 사이의 금액을 입력하세요';
 	@override String get rechargeSuccess => '충전 완료';
 	@override String get rechargeConfirm => '충전 확인';
 	@override String get transactionHistory2 => '거래 내역';
@@ -1772,7 +1772,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get withdrawSuccess => '출금 완료';
 	@override String get withdrawConfirm => '출금 확인';
 	@override String get withdrawFeeNotice => '수수료와 입금 시간은 실제 정산에 따릅니다';
-	@override String get withdrawAmountError => '1위안 이상의 금액을 입력해주세요';
+	@override String get withdrawAmountError => '0.01위안 이상의 금액을 입력해주세요';
 	@override String get withdrawAccountEmpty => '출금 계좌를 입력해주세요';
 	@override String get withdrawMethod => '출금 방식';
 	@override String get withdrawAccount => '출금 계좌';
@@ -2697,7 +2697,7 @@ extension on TranslationsKoKr {
 			'account.refreshingDeviceKey' => '기기 키를 새로고침하는 중...',
 			'account.deviceKeyRefreshed' => '기기 키가 새로고침되었습니다',
 			'account.rechargeTitle' => '충전',
-			'account.rechargeAmountHint' => '충전 금액을 입력하세요 (1위안~10000위안)',
+			'account.rechargeAmountHint' => '충전 금액을 입력하세요 (0.01위안~10000위안)',
 			'account.rechargeAmountExample' => '예: 100',
 			'account.e2eeDeviceTransfer' => '기기 간 전송',
 			'account.e2eeDeviceTransferDesc' => 'QR 코드로 새 기기에 키를 직접 전송합니다',
@@ -3990,7 +3990,7 @@ extension on TranslationsKoKr {
 			'common.unreadCount' => ({required Object count}) => '읽지 않음 ${count}개',
 			'common.durationMinutes' => ({required Object count}) => '${count}분',
 			'common.durationSeconds' => ({required Object count}) => '${count}초',
-			'common.rechargeAmountError' => '1위안에서 10000위안 사이의 금액을 입력하세요',
+			'common.rechargeAmountError' => '0.01위안에서 10000위안 사이의 금액을 입력하세요',
 			'common.rechargeSuccess' => '충전 완료',
 			'common.rechargeConfirm' => '충전 확인',
 			'common.transactionHistory2' => '거래 내역',
@@ -4248,7 +4248,7 @@ extension on TranslationsKoKr {
 			'common.withdrawSuccess' => '출금 완료',
 			'common.withdrawConfirm' => '출금 확인',
 			'common.withdrawFeeNotice' => '수수료와 입금 시간은 실제 정산에 따릅니다',
-			'common.withdrawAmountError' => '1위안 이상의 금액을 입력해주세요',
+			'common.withdrawAmountError' => '0.01위안 이상의 금액을 입력해주세요',
 			'common.withdrawAccountEmpty' => '출금 계좌를 입력해주세요',
 			'common.withdrawMethod' => '출금 방식',
 			'common.withdrawAccount' => '출금 계좌',
