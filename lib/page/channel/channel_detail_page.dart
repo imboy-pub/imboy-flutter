@@ -612,7 +612,6 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   // ---- 菜单动作 ----
 
   void _handleMenuAction(String action, ChannelModel? channel) {
-    final t = context.t;
     final channelId = _resolveChannelId(channel);
 
     switch (action) {

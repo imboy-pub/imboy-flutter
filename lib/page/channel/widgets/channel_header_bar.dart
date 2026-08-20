@@ -2,10 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -125,7 +123,6 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final secondaryColor = AppColors.getTextColor(
       Theme.of(context).brightness,
       isSecondary: true,
@@ -602,7 +599,6 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
     Color secondaryColor,
     Color textPrimary,
   ) {
-    final t = context.t;
     final hasDesc =
         widget.channel.description != null &&
         widget.channel.description!.isNotEmpty;

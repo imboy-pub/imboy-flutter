@@ -16,14 +16,16 @@ Future<bool> openMediaPermissionSettings(MediaPermissionTarget target) async {
       final pane = target == MediaPermissionTarget.camera
           ? 'Privacy_Camera'
           : 'Privacy_Microphone';
-      return launchUrl(
+      // 显式 await：try 内隐式 return future 会让异常落入本地 catch 且
+      // 触发 unawaited_return_in_try_block（语义上此处确实想就地消化）
+      return await launchUrl(
         Uri.parse(
           'x-apple.systempreferences:com.apple.preference.security?$pane',
         ),
         mode: LaunchMode.externalApplication,
       );
     }
-    return permission_handler.openAppSettings();
+    return await permission_handler.openAppSettings();
   } on Object {
     return false;
   }
