@@ -88,6 +88,12 @@ const _cupertinoExemptions = <String>{
   'lib/page/web_shell/web_nav_items_factory.dart|chat_bubble_outline',
   'lib/page/web_shell/web_nav_items_factory.dart|people_alt',
   'lib/page/web_shell/web_nav_items_factory.dart|people_alt_outlined',
+  // alipay_simulator：支付方式行是支付宝品牌隐喻（payment/credit_card/
+  // 绿色能量 energy_savings_leaf），CupertinoIcons 无对等资源，更换图标
+  // 会失真——页面为支付联调模拟器，非通用 UI。
+  'lib/page/wallet/alipay_simulator.dart|payment',
+  'lib/page/wallet/alipay_simulator.dart|credit_card',
+  'lib/page/wallet/alipay_simulator.dart|energy_savings_leaf',
 };
 
 void main() {

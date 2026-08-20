@@ -291,6 +291,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
           child: Icon(
             CupertinoIcons.xmark,
             color: Theme.of(context).colorScheme.onSurface,
+            semanticLabel: t.common.buttonClose,
           ),
         ),
       ),

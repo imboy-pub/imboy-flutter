@@ -5,7 +5,6 @@
 library;
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/message_type_constants.dart';
 
@@ -114,12 +113,14 @@ class ChatPageUtils {
   /// 获取消息类型
   ///
   /// [message] - 要检查的消息
-  /// 返回消息类型字符串
+  /// 返回消息类型字符串。
+  ///
+  /// 契约（chat_page_utils_test 固定）：仅 null/缺失回退 'unknown'，
+  /// 空串原样透传 ""。parseModelString 会把空串也兜成 default，
+  /// 迁移时曾使此契约漂移，故此处显式判 null。
   static String getMessageType(Message message) {
-    return parseModelString(
-      message.metadata?['msg_type'],
-      defaultValue: 'unknown',
-    );
+    final raw = message.metadata?['msg_type'];
+    return raw == null ? 'unknown' : raw.toString();
   }
 
   /// 检查消息是否由当前用户发送

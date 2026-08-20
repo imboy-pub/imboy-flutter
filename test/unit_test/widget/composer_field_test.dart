@@ -51,8 +51,13 @@ void main() {
     expect(find.byType(EmojiPicker), findsNothing);
 
     // Act：点击表情按钮
+    // emoji_picker_flutter 的 initState 会经 getRecentEmojis 排一个
+    // 0 时长 Timer（emoji_picker_internal_utils.dart:103），必须推进假
+    // 时钟让其触发，否则 teardown 报 pending timer。先 pump 建帧，
+    // 再推进假时间消化 Timer 链。
     await tester.tap(find.byKey(const Key('composer_emoji_button')));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     // Assert：面板展开
     expect(find.byType(EmojiPicker), findsOneWidget);

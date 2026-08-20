@@ -150,6 +150,10 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(name: 'sign_up', location: '/sign_up'),
   const SmokeRoute(name: 'sign_up_continue', location: '/sign_up/continue'),
   const SmokeRoute(name: 'forgot_password', location: '/forgot_password'),
+  const SmokeRoute(
+    name: 'forgot_password_pin',
+    location: '/forgot_password/pin',
+  ),
   const SmokeRoute(name: 'set_password', location: '/set_password'),
   const SmokeRoute(name: 'manage_account', location: '/manage_account'),
 
@@ -192,6 +196,14 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(
     name: 'people_info_more',
     location: '/contact/people_info_more/1001',
+  ),
+  const SmokeRoute(
+    name: 'contact_setting',
+    location: '/contact/contact_setting/1001',
+  ),
+  const SmokeRoute(
+    name: 'people_info_same_group',
+    location: '/contact/people_info_same_group',
   ),
   const SmokeRoute(name: 'user_tag_list', location: '/contact/tags'),
 
@@ -253,6 +265,7 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(name: 'mine_setting', location: '/mine/setting'),
   const SmokeRoute(name: 'wallet', location: '/wallet'),
   const SmokeRoute(name: 'wallet_withdraw', location: '/wallet/withdraw'),
+  const SmokeRoute(name: 'billing_plans', location: '/billing/plans'),
   const SmokeRoute(name: 'red_packet_send', location: '/red_packet_send'),
   const SmokeRoute(name: 'red_packet_detail', location: '/red_packet_detail'),
   const SmokeRoute(name: 'transfer_send', location: '/transfer_send'),

@@ -165,6 +165,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 22),
+                    tooltip: t.common.buttonClose,
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
                 ],
@@ -284,6 +285,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.close, size: 22),
+                    tooltip: t.common.buttonClose,
                     onPressed: () {
                       setState(() {
                         _currentStep = AlipaySimStep.selectMethod;
@@ -447,6 +449,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                     left: 4,
                     child: IconButton(
                       icon: const Icon(Icons.close, size: 20),
+                      tooltip: t.common.buttonClose,
                       onPressed: () {
                         setState(() {
                           _pin = '';
