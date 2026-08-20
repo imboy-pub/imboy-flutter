@@ -4,8 +4,11 @@ import 'package:imboy/store/api/wallet_api.dart';
 
 class WalletTransaction {
   final int id;
-  final int amount; // 金额（分），正数=收入，负数=支出
-  final int txType; // 1=topup, 2=deduct
+  final int amount; // 金额（分），正数=收入，负数=支出（后端借记腿写负数）
+  // 流水类型（后端 wallet_transaction.chk_wallet_tx_type 值域）：
+  // 1充值 2充值退款 3订单退款 5转账转出 6转账转入 7发红包 8领红包
+  // 9红包/转账退回 10提现 11提现退款 20 agent支付借记 21 agent支付贷记
+  final int txType;
   final String remark;
   final String createdAt;
 
@@ -27,7 +30,10 @@ class WalletTransaction {
     );
   }
 
-  bool get isIncome => txType == 1;
+  /// 收支判定以金额符号为准（权威：后端借记腿写负数、贷记腿写正数）。
+  /// 此前按 txType==1 判定，把退款/转入/领红包/退回等正入账全部
+  /// 误判为支出（tx_type 值域早已不止 1/2）。
+  bool get isIncome => amount >= 0;
 }
 
 class WalletState {
