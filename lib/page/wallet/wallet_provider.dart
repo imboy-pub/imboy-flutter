@@ -225,7 +225,7 @@ class WalletNotifier extends Notifier<WalletState> {
   /// 轮询充值订单状态。
   ///
   /// 最多轮询 [maxAttempts] 次，每次间隔 [intervalMs] 毫秒。
-  /// 命中已支付返回 `true`；命中失败/取消/过期或超时返回 `false`。
+  /// 命中已支付返回 `true`；命中取消/退款/过期等终态或超时返回 `false`。
   Future<bool> _pollRechargeOrder(
     String orderNo, {
     int maxAttempts = 6,
@@ -235,9 +235,10 @@ class WalletNotifier extends Notifier<WalletState> {
       final order = await _api.getRechargeOrder(orderNo);
       if (order != null) {
         if (order.isPaid) return true;
-        // 终态失败：无需继续轮询
-        if (order.status == RechargeOrderStatus.failed ||
-            order.status == RechargeOrderStatus.cancelled ||
+        // 终态：取消/退款/过期，均无需继续轮询
+        // （2026-08-20 对齐后端枚举：3=已退款、4=已过期，此前 3/4 含义颠倒）
+        if (order.status == RechargeOrderStatus.cancelled ||
+            order.status == RechargeOrderStatus.refunded ||
             order.status == RechargeOrderStatus.expired) {
           return false;
         }

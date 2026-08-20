@@ -26,12 +26,17 @@ class WalletBalance {
 }
 
 /// 充值订单状态
+///
+/// 与后端 `recharge_order_repo` 权威定义逐值对齐（勿凭语义猜测改序）：
+/// 0=待支付 1=已支付 2=已取消 3=已退款 4=已过期。
+/// 2026-08-20 修正：此前 3 写成「已过期」、4 写成「支付失败」，与后端
+/// 颠倒——已退款订单曾被当作终态「已过期」处理。
 abstract class RechargeOrderStatus {
   static const int pending = 0; // 待支付
   static const int paid = 1; // 已支付（已入账）
   static const int cancelled = 2; // 已取消
-  static const int expired = 3; // 已过期
-  static const int failed = 4; // 支付失败
+  static const int refunded = 3; // 已退款
+  static const int expired = 4; // 已过期
 }
 
 /// 充值订单模型
