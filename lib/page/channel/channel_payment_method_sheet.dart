@@ -4,9 +4,12 @@ import 'package:imboy/i18n/strings.g.dart';
 
 /// 付费频道购买的支付方式选择。
 ///
-/// 返回选中的支付方式：`wallet`（钱包余额，可用）/ `alipay` / `wechat`；
-/// 用户取消返回 `null`。第三方（支付宝/微信）SDK 待 S4 接入，调用方应在
-/// 收到 `alipay`/`wechat` 时提示"即将开通"。
+/// 本 sheet 只负责展示支付方式列表并返回选择结果：
+/// `wallet`（钱包余额，可用）/ `alipay` / `wechat`；用户取消返回 `null`。
+/// `alipay`/`wechat` 选中后由调用方（channel_purchase_provider）经
+/// PaymentLauncher 唤起对应 SDK（alipay → tobias；wechat → fluwx）；
+/// 微信在未配置凭据的构建里 PaymentLauncher 返回 notConfigured，
+/// 调用方降级提示"即将开通"。
 ///
 /// [walletBalanceText] 钱包余额展示文案（如 `¥12.00`），为空则不展示。
 Future<String?> showChannelPaymentMethodSheet(
