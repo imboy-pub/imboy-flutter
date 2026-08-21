@@ -164,7 +164,10 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
 
   // ==================== 朋友圈 ====================
   const SmokeRoute(name: 'moment_feed', location: '/moment/feed'),
-  const SmokeRoute(name: 'assistant_plaza', location: '/assistant_plaza'),
+  const SmokeRoute(
+    name: 'assistant_plaza',
+    location: '/contact/assistant_plaza',
+  ),
   const SmokeRoute(name: 'moment_create', location: '/moment/create'),
   const SmokeRoute(name: 'moment_notify', location: '/moment_notify'),
   const SmokeRoute(name: 'moment_detail', location: '/moment/3001'),
