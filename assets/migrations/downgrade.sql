@@ -336,3 +336,233 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_cv_Type_From_To ON conversation ("type", us
 CREATE INDEX IF NOT EXISTS idx_conversation_user_id_last_time ON conversation (user_id, last_time DESC);
 
 PRAGMA user_version = 17;
+
+-- VERSION: 19
+-- DESC: 从 v19 降级到 v18（移除 group_member.mute_until 列）
+-- ============================================================
+-- SQLite < 3.35 不支持 DROP COLUMN，用重建表模式删列。
+-- 重建表结构 = group_member v18 基线（无 mute_until）。
+CREATE TABLE group_member_v18 (
+    id INTEGER PRIMARY KEY,
+    group_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    nickname TEXT DEFAULT '',
+    avatar TEXT DEFAULT '',
+    sign TEXT DEFAULT '',
+    account TEXT DEFAULT '',
+    invite_code TEXT DEFAULT '',
+    alias TEXT DEFAULT '',
+    description TEXT DEFAULT '',
+    role INTEGER DEFAULT 0,
+    is_join INTEGER DEFAULT 0,
+    join_mode TEXT,
+    status INTEGER NOT NULL DEFAULT 1,
+    updated_at INTEGER DEFAULT 0,
+    created_at INTEGER NOT NULL
+);
+
+INSERT INTO group_member_v18 (
+    id, group_id, user_id, nickname, avatar, sign, account, invite_code,
+    alias, description, role, is_join, join_mode, status, updated_at, created_at
+)
+SELECT
+    id, group_id, user_id, nickname, avatar, sign, account, invite_code,
+    alias, description, role, is_join, join_mode, status, updated_at, created_at
+FROM group_member;
+
+DROP TABLE group_member;
+ALTER TABLE group_member_v18 RENAME TO group_member;
+
+DROP INDEX IF EXISTS idx_group_member_mute_until;
+CREATE UNIQUE INDEX IF NOT EXISTS uk_Gid_Uid ON group_member (group_id, user_id);
+CREATE INDEX IF NOT EXISTS i_Uid_Gid_IsJoin ON group_member (user_id, group_id, is_join);
+CREATE INDEX IF NOT EXISTS idx_group_member_user_id_status ON group_member (user_id, status);
+
+PRAGMA user_version = 18;
+
+-- ============================================================
+-- VERSION: 20
+-- DESC: 从 v20 降级到 v19（删除 moment_notify 表）
+-- ============================================================
+
+DROP TABLE IF EXISTS moment_notify;
+PRAGMA user_version = 19;
+
+-- ============================================================
+-- VERSION: 21
+-- DESC: 从 v21 降级到 v20（恢复 moment_notify 唯一索引旧语义）
+-- ============================================================
+
+DROP INDEX IF EXISTS uq_moment_notify_dedup;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_moment_notify_dedup
+  ON moment_notify(user_id, action, moment_id, from_uid, comment_id);
+
+PRAGMA user_version = 20;
+
+-- ============================================================
+-- VERSION: 22
+-- DESC: 从 v22 降级到 v21（user_collect.kind_id TEXT → INTEGER 回退）
+-- ============================================================
+-- 重建表为 INTEGER 列（v22 之前的结构），数据经 CAST 回退
+CREATE TABLE user_collect_v21 (
+    auto_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    kind INTEGER NOT NULL DEFAULT 0,
+    kind_id INTEGER NOT NULL DEFAULT 0,
+    source TEXT NOT NULL DEFAULT '',
+    remark TEXT NOT NULL DEFAULT '',
+    tag TEXT NOT NULL DEFAULT '',
+    updated_at INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL DEFAULT 0,
+    info TEXT DEFAULT '',
+    CONSTRAINT i_Uid_KindId UNIQUE (user_id, kind_id)
+);
+
+INSERT INTO user_collect_v21 (
+    auto_id, user_id, kind, kind_id, source, remark, tag,
+    updated_at, created_at, info
+)
+SELECT auto_id, user_id, kind, CAST(kind_id AS INTEGER), source, remark, tag,
+    updated_at, created_at, info
+FROM user_collect;
+
+DROP TABLE user_collect;
+ALTER TABLE user_collect_v21 RENAME TO user_collect;
+
+CREATE INDEX IF NOT EXISTS i_Source ON user_collect (source);
+CREATE INDEX IF NOT EXISTS idx_user_collect_user_id_kind ON user_collect (user_id, kind);
+
+PRAGMA user_version = 21;
+
+-- ============================================================
+-- VERSION: 23
+-- DESC: 从 v23 降级到 v22（移除 channel_message.my_reactions 列）
+-- ============================================================
+
+CREATE TABLE channel_message_v22 (
+    id INTEGER PRIMARY KEY,
+    channel_id INTEGER NOT NULL,
+    author_id INTEGER,
+    author_name TEXT,
+    author_avatar TEXT,
+    content TEXT,
+    msg_type TEXT NOT NULL,
+    payload TEXT,
+    created_at INTEGER NOT NULL,
+    is_pinned INTEGER DEFAULT 0,
+    view_count INTEGER DEFAULT 0,
+    reaction_summary TEXT,
+    FOREIGN KEY (channel_id) REFERENCES channel(id) ON DELETE CASCADE
+);
+
+INSERT INTO channel_message_v22 (
+    id, channel_id, author_id, author_name, author_avatar, content,
+    msg_type, payload, created_at, is_pinned, view_count, reaction_summary
+)
+SELECT
+    id, channel_id, author_id, author_name, author_avatar, content,
+    msg_type, payload, created_at, is_pinned, view_count, reaction_summary
+FROM channel_message;
+
+DROP TABLE channel_message;
+ALTER TABLE channel_message_v22 RENAME TO channel_message;
+
+CREATE INDEX IF NOT EXISTS idx_channel_msg_channel_id ON channel_message(channel_id);
+
+PRAGMA user_version = 22;
+
+-- ============================================================
+-- VERSION: 24
+-- DESC: 从 v24 降级到 v23（移除 contact.account_type 列）
+-- ============================================================
+
+CREATE TABLE contact_v23 (
+    auto_id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    peer_id INTEGER NOT NULL,
+    nickname TEXT NOT NULL DEFAULT '',
+    avatar TEXT NOT NULL DEFAULT '',
+    gender INTEGER NOT NULL DEFAULT 0,
+    account TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT '',
+    remark TEXT DEFAULT '',
+    tag TEXT DEFAULT '',
+    region TEXT DEFAULT '',
+    sign TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT '',
+    updated_at INTEGER NOT NULL DEFAULT 0,
+    is_friend INTEGER NOT NULL DEFAULT 0,
+    is_from INTEGER NOT NULL DEFAULT 0,
+    category_id INTEGER NOT NULL DEFAULT 0,
+    last_seen_at INTEGER,
+    CONSTRAINT uk_FromTo UNIQUE (user_id, peer_id)
+);
+
+INSERT INTO contact_v23 (
+    auto_id, user_id, peer_id, nickname, avatar, gender, account, status,
+    remark, tag, region, sign, source, updated_at, is_friend, is_from,
+    category_id, last_seen_at
+)
+SELECT
+    auto_id, user_id, peer_id, nickname, avatar, gender, account, status,
+    remark, tag, region, sign, source, updated_at, is_friend, is_from,
+    category_id, last_seen_at
+FROM contact;
+
+DROP TABLE contact;
+ALTER TABLE contact_v23 RENAME TO contact;
+
+CREATE INDEX IF NOT EXISTS i_UserId_IsFriend_UpdateTime ON contact (user_id, is_friend, updated_at);
+CREATE INDEX IF NOT EXISTS i_UserId_CategoryId ON contact (user_id, category_id);
+CREATE INDEX IF NOT EXISTS i_Nickname ON contact (nickname);
+CREATE INDEX IF NOT EXISTS i_Remark ON contact (remark);
+CREATE INDEX IF NOT EXISTS i_Tag ON contact (tag);
+CREATE INDEX IF NOT EXISTS idx_contact_user_id_peer_id ON contact (user_id, peer_id);
+
+PRAGMA user_version = 23;
+
+-- ============================================================
+-- VERSION: 25
+-- DESC: 从 v25 降级到 v24（移除 msg_c2c.sender_did 列）
+-- ============================================================
+
+CREATE TABLE msg_c2c_v24 (
+    auto_id INTEGER PRIMARY KEY,
+    id INTEGER NOT NULL,
+    msg_type TEXT,
+    from_id INTEGER,
+    to_id INTEGER,
+    conversation_uk3 TEXT,
+    e2ee TEXT,
+    payload TEXT,
+    created_at INTEGER,
+    topic_id INTEGER,
+    status INTEGER,
+    is_author INTEGER,
+    type TEXT DEFAULT 'C2C',
+    action TEXT DEFAULT '',
+    CONSTRAINT uk_MsgId UNIQUE (id)
+);
+
+INSERT INTO msg_c2c_v24 (
+    auto_id, id, msg_type, from_id, to_id, conversation_uk3, e2ee, payload,
+    created_at, topic_id, status, is_author, type, action
+)
+SELECT
+    auto_id, id, msg_type, from_id, to_id, conversation_uk3, e2ee, payload,
+    created_at, topic_id, status, is_author, type, action
+FROM msg_c2c;
+
+DROP TABLE msg_c2c;
+ALTER TABLE msg_c2c_v24 RENAME TO msg_c2c;
+
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_conversation_status_author ON msg_c2c (conversation_uk3, status, is_author);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_conversation_created_at ON msg_c2c (conversation_uk3, created_at);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_conversation_topic_id ON msg_c2c (conversation_uk3, topic_id);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_conversation_uk3 ON msg_c2c (conversation_uk3);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_from_to_created ON msg_c2c (from_id, to_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_msg_type ON msg_c2c (msg_type);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_unread_count ON msg_c2c (conversation_uk3, is_author, auto_id);
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_status ON msg_c2c (status);
+
+PRAGMA user_version = 24;

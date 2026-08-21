@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/service/embedded_schema_scripts.dart';
 import 'package:imboy/service/migration_script.dart';
 import 'package:imboy/service/migration_script_planner.dart';
@@ -82,6 +83,16 @@ class MigrationService {
         .map((s) => s.targetVersion)
         .reduce((a, b) => a > b ? a : b);
   }
+
+  /// 已加载的降级脚本（测试用：A-21 回归守护 v19~v25 块存在性）
+  @visibleForTesting
+  Map<int, MigrationScript> get debugDowngradeScripts =>
+      _downgradeScripts ?? const {};
+
+  /// 已加载的升级脚本（测试用）
+  @visibleForTesting
+  Map<int, MigrationScript> get debugUpgradeScripts =>
+      _upgradeScripts ?? const {};
 
   /// 初始化（加载迁移脚本）
   Future<void> init() async {
