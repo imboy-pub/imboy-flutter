@@ -14,7 +14,6 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/wallet/wallet_provider.dart'
     show WalletState, WalletTransaction, walletProvider;
 import 'package:imboy/page/wallet/wallet_amount.dart';
-import 'package:imboy/page/wallet/alipay_simulator.dart';
 
 /// 钱包页面 - 极致 iOS 17 Premium 风格重构
 class WalletPage extends ConsumerStatefulWidget {
@@ -178,20 +177,13 @@ class _WalletPageState extends ConsumerState<WalletPage> {
 
   /// 执行充值：创建订单 → 拉起支付（mock 即时入账 / 第三方唤起收银台）→ 轮询
   /// → 刷新余额。失败时按第三方唤起结果差异化提示。
+  ///
+  /// ⚠️ 2026-08-21 移除「支付宝」的 5 屏模拟收银台拦截（83e586fe）：它冒充
+  /// 支付成功界面转 mock 入账，用户误以为真实支付宝付款成功（生产 mock 被
+  /// 白名单拒绝时必失败），且彻底挡住真实沙箱/生产支付链路的验收入口。
+  /// 选「支付宝」现在走真实 recharge 链路（服务端签名 → SDK 唤起 → confirm
+  /// 查单入账）。
   Future<void> _doRecharge(int amountFen, String method) async {
-    if (method == 'alipay') {
-      final success = await AlipaySimulator.show(
-        context,
-        amountYuan: amountFen / 100.0,
-      );
-      if (success == true) {
-        await _doRecharge(amountFen, 'mock');
-      } else {
-        AppLoading.showToast(t.account.payCancelled);
-      }
-      return;
-    }
-
     AppLoading.show(status: t.main.payingDots);
     final ok = await ref
         .read(walletProvider.notifier)

@@ -8,8 +8,6 @@ import 'package:imboy/page/channel/channel_payment_method_sheet.dart';
 import 'package:imboy/page/channel/channel_purchase_provider.dart';
 import 'package:imboy/service/payment_launcher.dart' show PaymentLaunchResult;
 import 'package:imboy/store/api/wallet_api.dart';
-import 'package:imboy/page/wallet/wallet_provider.dart' show walletProvider;
-import 'package:imboy/page/wallet/alipay_simulator.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -196,48 +194,12 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
     await _payWithWallet(channelId);
   }
 
+  /// 第三方支付（alipay/wechat）：走真实 purchase 链路。
+  ///
+  /// ⚠️ 2026-08-21 移除「支付宝」的 5 屏模拟收银台拦截（83e586fe，同
+  /// wallet_page）：假收银台确认后转 mock 充值，冒充支付成功且挡住真实
+  /// 支付链路验收。付费频道真实支付 = 服务端建单 → 网关签名 → SDK 唤起。
   Future<void> _payWithThirdParty(String channelId, String method) async {
-    if (method == 'alipay') {
-      final channel = widget.channel;
-      final success = await AlipaySimulator.show(
-        context,
-        amountYuan: channel.priceYuan,
-      );
-      if (success == true) {
-        setState(() => _isPaying = true);
-        try {
-          final creditSuccess = await ref
-              .read(walletProvider.notifier)
-              .recharge(channel.price, paymentMethod: 'mock');
-          if (creditSuccess) {
-            final order = await ref
-                .read(channelPurchaseProvider.notifier)
-                .purchase(channelId, paymentMethod: 'wallet');
-            if (!mounted) return;
-            if (order != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(context.t.common.purchaseSuccess)),
-              );
-              await _onPurchaseSuccess(channelId);
-              return;
-            }
-          }
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.t.common.purchaseFailed)),
-            );
-          }
-        } finally {
-          if (mounted) setState(() => _isPaying = false);
-        }
-      } else {
-        if (mounted) {
-          AppLoading.showToast(context.t.account.payCancelled);
-        }
-      }
-      return;
-    }
-
     setState(() => _isPaying = true);
     final notifier = ref.read(channelPurchaseProvider.notifier);
     try {
